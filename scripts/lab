@@ -21,6 +21,7 @@ Usage:
   lab arista             Open the Arista serial console
   lab docs               Open the HomeLab repository
   lab help               Show this help
+  lab backup opnsense    Back up the OPNsense configuration
 
 Examples:
   lab status
@@ -171,11 +172,28 @@ show_health() {
         fi
     done < "$SERVICES_CONFIG"
 }
+run_backup() {
+    local target="${1:-}"
+
+    case "$target" in
+        opnsense)
+            "$REPO/scripts/backup-opnsense"
+            ;;
+        *)
+            echo "Usage: lab backup opnsense"
+            exit 1
+            ;;
+    esac
+}
+
+
 case "${1:-help}" in
     status)
         show_status
         ;;
-
+    backup)
+        run_backup "${2:-}"
+        ;;
     health)
         show_health
         ;;
