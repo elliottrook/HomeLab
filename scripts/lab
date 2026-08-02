@@ -1,48 +1,154 @@
 #!/bin/bash
 
+set -u
+
+REPO="$HOME/lab/homelab"
+CONFIG="$REPO/configs/devices.conf"
+ARISTA_DEVICE="/dev/cu.usbserial-A98IEQ20"
+
 show_help() {
     cat <<'HELP'
 HomeLab Administration Toolkit
 
 Usage:
-  lab status
-  lab ssh HOST
-  lab arista
-  lab docs
-  lab help
+  lab status             Check all configured devices
+  lab list               List device names and addresses
+  lab ssh DEVICE         Connect using the configured SSH alias
+  lab web DEVICE         Open a device's web interface
+  lab dashboard          Open all configured web interfaces
+  lab arista             Open the Arista serial console
+  lab docs               Open the HomeLab repository
+  lab help               Show this help
 
-SSH hosts:
-  proxmox
-  docker
-  opnsense
-  truenas
+Examples:
+  lab status
+  lab ssh proxmox
+  lab web unifi
+  lab dashboard
 HELP
 }
 
-check_host() {
-    local name="$1"
-    local address="$2"
+require_config() {
+    if [[ ! -f "$CONFIG" ]]; then
+        echo "Configuration file not found: $CONFIG"
+        exit 1
+    fi
+}
 
-    if ping -c 1 -W 1000 "$address" >/dev/null 2>&1; then
-        printf "✓ %-20s %s\n" "$name" "$address"
+find_device() {
+    local requested="$1"
+
+    awk -F'|' -v requested="$requested" '
+        $0 !~ /^#/ && $1 == requested {
+            print
+            exit
+        }
+    ' "$CONFIG"
+}
+
+show_list() {
+    require_config
+
+    printf "%-12s %-22s %-15s\n" "NAME" "DEVICE" "ADDRESS"
+    printf "%-12s %-22s %-15s\n" "------------" "----------------------" "---------------"
+
+    while IFS='|' read -r name display ip ssh_alias web_url; do
+        [[ -z "$name" || "$name" == \#* ]] && continue
+        printf "%-12s %-22s %-15s\n" "$name" "$display" "$ip"
+    done < "$CONFIG"
+}
+
+check_host() {
+    local display="$1"
+    local ip="$2"
+
+    if ping -c 1 -W 1000 "$ip" >/dev/null 2>&1; then
+        printf "✓ %-22s %s\n" "$display" "$ip"
     else
-        printf "✗ %-20s %s\n" "$name" "$address"
+        printf "✗ %-22s %s\n" "$display" "$ip"
     fi
 }
 
 show_status() {
-    echo "HomeLab Status"
-    echo "--------------------------------"
+    require_config
 
-    check_host "OPNsense"         "192.168.1.1"
-    check_host "Proxmox"          "192.168.1.10"
-    check_host "Docker"           "192.168.1.20"
-    check_host "UniFi Controller" "192.168.1.21"
-    check_host "UniFi Switch"     "192.168.1.30"
-    check_host "UniFi AP"         "192.168.1.31"
-    check_host "TrueNAS"          "192.168.1.40"
-    check_host "Synology DS920+"  "192.168.1.41"
-    check_host "Backup Synology"  "192.168.1.42"
+    echo "HomeLab Status"
+    echo "------------------------------------------"
+
+    while IFS='|' read -r name display ip ssh_alias web_url; do
+        [[ -z "$name" || "$name" == \#* ]] && continue
+        check_host "$display" "$ip"
+    done < "$CONFIG"
+}
+
+ssh_device() {
+    local requested="${1:-}"
+
+    if [[ -z "$requested" ]]; then
+        echo "Usage: lab ssh DEVICE"
+        exit 1
+    fi
+
+    local record
+    record="$(find_device "$requested")"
+
+    if [[ -z "$record" ]]; then
+        echo "Unknown device: $requested"
+        echo
+        show_list
+        exit 1
+    fi
+
+    local name display ip ssh_alias web_url
+    IFS='|' read -r name display ip ssh_alias web_url <<< "$record"
+
+    if [[ -z "$ssh_alias" ]]; then
+        echo "No SSH alias is configured for $display."
+        exit 1
+    fi
+
+    exec ssh "$ssh_alias"
+}
+
+open_web() {
+    local requested="${1:-}"
+
+    if [[ -z "$requested" ]]; then
+        echo "Usage: lab web DEVICE"
+        exit 1
+    fi
+
+    local record
+    record="$(find_device "$requested")"
+
+    if [[ -z "$record" ]]; then
+        echo "Unknown device: $requested"
+        echo
+        show_list
+        exit 1
+    fi
+
+    local name display ip ssh_alias web_url
+    IFS='|' read -r name display ip ssh_alias web_url <<< "$record"
+
+    if [[ -z "$web_url" ]]; then
+        echo "No web interface is configured for $display."
+        exit 1
+    fi
+
+    echo "Opening $display: $web_url"
+    open "$web_url"
+}
+
+open_dashboard() {
+    require_config
+
+    while IFS='|' read -r name display ip ssh_alias web_url; do
+        [[ -z "$name" || "$name" == \#* || -z "$web_url" ]] && continue
+        echo "Opening $display"
+        open "$web_url"
+        sleep 0.2
+    done < "$CONFIG"
 }
 
 case "${1:-help}" in
@@ -50,20 +156,29 @@ case "${1:-help}" in
         show_status
         ;;
 
+    list)
+        show_list
+        ;;
+
     ssh)
-        if [[ -z "${2:-}" ]]; then
-            echo "Usage: lab ssh HOST"
-            exit 1
-        fi
-        ssh "$2"
+        ssh_device "${2:-}"
+        ;;
+
+    web)
+        open_web "${2:-}"
+        ;;
+
+    dashboard)
+        open_dashboard
         ;;
 
     arista)
-        exec screen /dev/cu.usbserial-A98IEQ20 9600
+        exec screen "$ARISTA_DEVICE" 9600
         ;;
 
     docs)
-        cd "$HOME/lab/homelab" || exit 1
+        cd "$REPO" || exit 1
+        echo "HomeLab repository:"
         pwd
         ls
         ;;
