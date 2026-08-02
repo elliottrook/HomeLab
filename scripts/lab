@@ -4,6 +4,7 @@ set -u
 
 REPO="$HOME/lab/homelab"
 CONFIG="$REPO/configs/devices.conf"
+SERVICES_CONFIG="$REPO/configs/services.conf"
 ARISTA_DEVICE="/dev/cu.usbserial-A98IEQ20"
 
 show_help() {
@@ -12,6 +13,7 @@ HomeLab Administration Toolkit
 
 Usage:
   lab status             Check all configured devices
+  lab health             Check configured service ports
   lab list               List device names and addresses
   lab ssh DEVICE         Connect using the configured SSH alias
   lab web DEVICE         Open a device's web interface
@@ -150,10 +152,32 @@ open_dashboard() {
         sleep 0.2
     done < "$CONFIG"
 }
+show_health() {
+    if [[ ! -f "$SERVICES_CONFIG" ]]; then
+        echo "Service configuration not found: $SERVICES_CONFIG"
+        exit 1
+    fi
 
+    echo "HomeLab Service Health"
+    echo "------------------------------------------"
+
+    while IFS='|' read -r name display ip port; do
+        [[ -z "$name" || "$name" == \#* ]] && continue
+
+        if nc -z -G 2 "$ip" "$port" >/dev/null 2>&1; then
+            printf "✓ %-24s %s:%s\n" "$display" "$ip" "$port"
+        else
+            printf "✗ %-24s %s:%s\n" "$display" "$ip" "$port"
+        fi
+    done < "$SERVICES_CONFIG"
+}
 case "${1:-help}" in
     status)
         show_status
+        ;;
+
+    health)
+        show_health
         ;;
 
     list)
