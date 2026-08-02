@@ -1,3 +1,3 @@
 # HomeLab
 
-Documentation, configuration notes, diagrams, and scripts for Jason's home lab.
+Enterprise-inspired home lab documentation.
