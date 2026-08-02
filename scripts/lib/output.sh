@@ -1,33 +1,47 @@
 #!/bin/bash
 
-# Terminal colours
-RESET='\033[0m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-RED='\033[0;31m'
-BLUE='\033[0;34m'
+TOOLKIT_NAME="Jason's HomeLab Toolkit"
+TOOLKIT_VERSION="1.0"
+
+header() {
+    local title="${1:-HomeLab Control}"
+
+    echo
+    echo "══════════════════════════════════════════════"
+    printf "        %s\n" "$TOOLKIT_NAME"
+    printf "              %s\n" "$title"
+    echo "══════════════════════════════════════════════"
+    echo
+}
 
 info() {
-    printf "${BLUE}ℹ %s${RESET}\n" "$1"
+    echo "🔵 $1"
 }
 
 success() {
-    printf "${GREEN}✓ %s${RESET}\n" "$1"
+    echo "🟢 $1"
 }
 
 warning() {
-    printf "${YELLOW}⚠ %s${RESET}\n" "$1"
+    echo "🟡 $1"
 }
 
 error() {
-    printf "${RED}✗ %s${RESET}\n" "$1" >&2
+    echo "🔴 $1" >&2
 }
 
-heading() {
+not_configured() {
+    echo "⚪ $1"
+}
+
+disabled() {
+    echo "⚫ $1"
+}
+
+divider() {
     echo
-    echo "=========================================="
-    echo "$1"
-    echo "=========================================="
+    echo "──────────────────────────────────────────────"
+    echo
 }
 
 show_file_details() {
@@ -41,4 +55,12 @@ show_file_details() {
     echo
     echo "Created:"
     date "+  %A %d %B %Y %H:%M:%S"
+}
+
+footer() {
+    local message="${1:-Completed}"
+
+    divider
+    success "$message"
+    echo
 }

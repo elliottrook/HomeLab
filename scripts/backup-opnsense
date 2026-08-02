@@ -14,7 +14,7 @@ mkdir -p "$BACKUP_DIR"
 chmod 700 "$HOME/lab/private-backups"
 chmod 700 "$BACKUP_DIR"
 
-heading "OPNsense Configuration Backup"
+header "OPNsense Configuration Backup"
 
 info "Copying configuration from OPNsense..."
 
@@ -29,7 +29,6 @@ info "Calculating SHA256 checksum..."
 shasum -a 256 "$BACKUP_FILE" > "$CHECKSUM_FILE"
 chmod 600 "$CHECKSUM_FILE"
 
-success "OPNsense backup completed successfully"
 
 echo
 show_file_details "$BACKUP_FILE"
@@ -38,3 +37,5 @@ echo
 echo "Checksum:"
 echo "  $CHECKSUM_FILE"
 echo
+
+footer "OPNsense backup completed successfully"
