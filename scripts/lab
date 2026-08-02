@@ -1,0 +1,81 @@
+#!/bin/bash
+
+show_help() {
+    cat <<'HELP'
+HomeLab Administration Toolkit
+
+Usage:
+  lab status
+  lab ssh HOST
+  lab arista
+  lab docs
+  lab help
+
+SSH hosts:
+  proxmox
+  docker
+  opnsense
+  truenas
+HELP
+}
+
+check_host() {
+    local name="$1"
+    local address="$2"
+
+    if ping -c 1 -W 1000 "$address" >/dev/null 2>&1; then
+        printf "✓ %-20s %s\n" "$name" "$address"
+    else
+        printf "✗ %-20s %s\n" "$name" "$address"
+    fi
+}
+
+show_status() {
+    echo "HomeLab Status"
+    echo "--------------------------------"
+
+    check_host "OPNsense"         "192.168.1.1"
+    check_host "Proxmox"          "192.168.1.10"
+    check_host "Docker"           "192.168.1.20"
+    check_host "UniFi Controller" "192.168.1.21"
+    check_host "UniFi Switch"     "192.168.1.30"
+    check_host "UniFi AP"         "192.168.1.31"
+    check_host "TrueNAS"          "192.168.1.40"
+    check_host "Synology DS920+"  "192.168.1.41"
+    check_host "Backup Synology"  "192.168.1.42"
+}
+
+case "${1:-help}" in
+    status)
+        show_status
+        ;;
+
+    ssh)
+        if [[ -z "${2:-}" ]]; then
+            echo "Usage: lab ssh HOST"
+            exit 1
+        fi
+        ssh "$2"
+        ;;
+
+    arista)
+        exec screen /dev/cu.usbserial-A98IEQ20 9600
+        ;;
+
+    docs)
+        cd "$HOME/lab/homelab" || exit 1
+        pwd
+        ls
+        ;;
+
+    help|-h|--help)
+        show_help
+        ;;
+
+    *)
+        echo "Unknown command: $1"
+        echo
+        show_help
+        exit 1
+        ;;
+esac
