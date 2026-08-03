@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -euo pipefail
+
+REPO="$HOME/lab/homelab"
+source "$REPO/scripts/lib/output.sh"
+
+BACKUP_DIR="$HOME/lab/private-backups/opnsense"
+TIMESTAMP="$(date +%Y-%m-%d_%H-%M-%S)"
+BACKUP_FILE="$BACKUP_DIR/opnsense-config-$TIMESTAMP.xml"
+CHECKSUM_FILE="$BACKUP_FILE.sha256"
+
+mkdir -p "$BACKUP_DIR"
+chmod 700 "$HOME/lab/private-backups"
+chmod 700 "$BACKUP_DIR"
+
+header "OPNsense Configuration Backup"
+
+info "Copying configuration from OPNsense..."
+
+if ! scp opnsense:/conf/config.xml "$BACKUP_FILE"; then
+    error "Failed to copy the OPNsense configuration."
+    exit 1
+fi
+
+chmod 600 "$BACKUP_FILE"
+
+info "Calculating SHA256 checksum..."
+shasum -a 256 "$BACKUP_FILE" > "$CHECKSUM_FILE"
+chmod 600 "$CHECKSUM_FILE"
+
+
+echo
+show_file_details "$BACKUP_FILE"
+
+echo
+echo "Checksum:"
+echo "  $CHECKSUM_FILE"
+echo
+
+footer "OPNsense backup completed successfully"

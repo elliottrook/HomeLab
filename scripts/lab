@@ -9,25 +9,45 @@ ARISTA_DEVICE="/dev/cu.usbserial-A98IEQ20"
 
 show_help() {
     cat <<'HELP'
-HomeLab Administration Toolkit
+Jason's HomeLab Toolkit
 
 Usage:
-  lab status             Check all configured devices
+  lab COMMAND [OPTIONS]
+
+General Commands
+──────────────────────────────────────────────
+
+  lab status             Check configured devices
   lab health             Check configured service ports
   lab list               List device names and addresses
-  lab ssh DEVICE         Connect using the configured SSH alias
-  lab web DEVICE         Open a device's web interface
-  lab dashboard          Open all configured web interfaces
-  lab arista             Open the Arista serial console
-  lab docs               Open the HomeLab repository
+  lab dashboard          Open all management pages
+  lab docs               Show the HomeLab repository
   lab help               Show this help
-  lab backup opnsense    Back up the OPNsense configuration
 
-Examples:
+Connection Commands
+──────────────────────────────────────────────
+
+  lab ssh DEVICE         Connect using SSH
+  lab web DEVICE         Open a web interface
+  lab arista             Open the Arista serial console
+
+Backup Commands
+──────────────────────────────────────────────
+
+  lab backup             Show backup help
+  lab backup opnsense    Back up OPNsense configuration
+  lab backup arista      Back up Arista configuration and state
+  lab backup proxmox     Back up Proxmox host configuration
+  lab backup guided      Open guided export checklist
+  lab backup all         Run automated backups, then show guided exports
+
+Examples
+──────────────────────────────────────────────
+
   lab status
   lab ssh proxmox
   lab web unifi
-  lab dashboard
+  lab backup all
 HELP
 }
 
@@ -173,18 +193,57 @@ show_health() {
     done < "$SERVICES_CONFIG"
 }
 run_backup() {
-    local target="${1:-}"
+    local target="${1:-help}"
 
     case "$target" in
         opnsense)
-            "$REPO/scripts/backup-opnsense"
+            "$REPO/scripts/backup/opnsense.sh"
             ;;
+
+        arista)
+            "$REPO/scripts/backup/arista.sh"
+            ;;
+
+        proxmox)
+            "$REPO/scripts/backup/proxmox.sh"
+            ;;
+
+        guided)
+            "$REPO/scripts/backup/guided.sh"
+            ;;
+
+        all)
+            "$REPO/scripts/backup/opnsense.sh"
+            "$REPO/scripts/backup/arista.sh"
+            "$REPO/scripts/backup/proxmox.sh"
+
+            echo
+            warning "Automated backups complete."
+            warning "UniFi, TrueNAS and Synology exports still require the guided step."
+            echo
+
+            "$REPO/scripts/backup/guided.sh"
+            ;;
+
+        help|"")
+            header "Backup Commands"
+            echo "  opnsense    Automated OPNsense XML backup"
+            echo "  arista      Automated Arista configuration and state backup"
+            echo "  proxmox     Automated Proxmox host configuration backup"
+            echo "  guided      Guided UniFi, TrueNAS and Synology exports"
+            echo "  all         Run automated backups and guided exports"
+            echo
+            ;;
+
         *)
-            echo "Usage: lab backup opnsense"
+            error "Unknown backup target: $target"
+            echo
+            echo "Run: lab backup"
             exit 1
             ;;
     esac
 }
+
 
 
 case "${1:-help}" in
