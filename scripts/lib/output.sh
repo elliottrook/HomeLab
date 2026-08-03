@@ -4,12 +4,13 @@ TOOLKIT_NAME="Jason's HomeLab Toolkit"
 TOOLKIT_VERSION="1.0"
 
 header() {
-    local title="${1:-HomeLab Control}"
+    VERSION="$(cat "$HOME/lab/homelab/VERSION" 2>/dev/null || echo "development")"
 
     echo
     echo "══════════════════════════════════════════════"
     printf "        %s\n" "$TOOLKIT_NAME"
     printf "              %s\n" "$title"
+    printf "              %\n" "$VERSION"
     echo "══════════════════════════════════════════════"
     echo
 }
