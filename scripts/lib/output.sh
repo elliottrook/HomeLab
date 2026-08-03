@@ -4,16 +4,22 @@ TOOLKIT_NAME="Jason's HomeLab Toolkit"
 TOOLKIT_VERSION="1.0"
 
 header() {
-    VERSION="$(cat "$HOME/lab/homelab/VERSION" 2>/dev/null || echo "development")"
+    local title="${1:-HomeLab Toolkit}"
+    local version="development"
+
+    if [[ -f "$HOME/lab/homelab/VERSION" ]]; then
+        version="$(<"$HOME/lab/homelab/VERSION")"
+    fi
 
     echo
     echo "══════════════════════════════════════════════"
-    printf "        %s\n" "$TOOLKIT_NAME"
+    echo "        Jason's HomeLab Toolkit"
+    printf "              Version %s\n" "$version"
     printf "              %s\n" "$title"
-    printf "              %\n" "$VERSION"
     echo "══════════════════════════════════════════════"
     echo
 }
+
 
 info() {
     echo "🔵 $1"

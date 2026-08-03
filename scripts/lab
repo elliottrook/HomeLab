@@ -23,6 +23,7 @@ General Commands
   lab dashboard          Open all management pages
   lab docs               Show the HomeLab repository
   lab help               Show this help
+  lab doctor             Run the complete HomeLab health assessment
 
 Connection Commands
 ──────────────────────────────────────────────
@@ -224,6 +225,9 @@ run_backup() {
 
             "$REPO/scripts/backup/guided.sh"
             ;;
+        doctor)
+            "$REPO/scripts/doctor.sh"
+            ;;
 
         help|"")
             header "Backup Commands"
@@ -255,6 +259,9 @@ case "${1:-help}" in
         ;;
     health)
         show_health
+        ;;
+    doctor)
+        "$REPO/scripts/doctor.sh"
         ;;
 
     list)
