@@ -1,8 +1,9 @@
 # Project Mini Atlas Network Design
 
-**Status:** Draft  
+**Status:** Implementation in progress
+
 **Phase:** Enterprise Network  
-**Last Updated:** 2026-08-02
+**Last Updated:** 2026-08-08
 
 ---
 
@@ -27,7 +28,7 @@ No major network change should be implemented until it is reflected here.
 
 ## 2. Current State
 
-Project Mini Atlas currently operates primarily as a flat network using the `192.168.1.0/24` subnet.
+Project Mini Atlas retains `192.168.1.0/24` as the trusted network on VLAN 10 while lower-trust device classes move to routed VLANs.
 
 Core infrastructure includes:
 
@@ -36,11 +37,12 @@ Core infrastructure includes:
 - Proxmox as the virtualization platform
 - TrueNAS SCALE and Synology systems for storage
 - UniFi switching and wireless
-- Cloudflare services for selected remote access
+- Homepage for internal service navigation
+- Tailscale for private, identity-restricted remote access
 
-The Arista currently carries active production traffic on VLAN 10, while most devices still use addresses in `192.168.1.0/24`.
+The Arista carries trusted traffic on VLAN 10, isolated IoT traffic on VLAN 30 and isolated Guest traffic on VLAN 40. OPNsense provides the gateway and policy enforcement for all three networks.
 
-This is a transitional state and will be replaced by a documented segmented design.
+Servers and management infrastructure remain on VLAN 10 during the staged migration. The validated deployed state is recorded in `Current-Network-Baseline.md`.
 
 ---
 
@@ -73,6 +75,10 @@ The Arista will primarily provide:
 Inter-VLAN routing and security policy will be enforced by OPNsense unless a future design decision explicitly changes this.
 
 This preserves one central policy enforcement point and keeps the switch configuration easier to understand.
+
+## Remote access
+
+Tailscale runs in the Docker LXC as a subnet router and advertises only `192.168.1.0/24`. Split DNS forwards the `internal` namespace to OPNsense, allowing `home.internal` and other internal names to work remotely. Tailnet grants restrict trusted-LAN access to the administrator identity. No inbound WAN port-forward is required.
 
 ---
 

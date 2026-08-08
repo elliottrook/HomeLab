@@ -1,15 +1,15 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-02
+> Last Updated: 2026-08-08
 
 ---
 
 # Current Release
 
-Version 1.1.0
+Version 1.2.0
 
 Current Focus:
-🟢 Enterprise Network Design
+🟢 Enterprise Network Implementation
 
 ---
 
@@ -40,38 +40,40 @@ Status: In Progress
 
 Planning
 
-- [ ] Network Design
-- [ ] IP Address Plan
-- [ ] Firewall Policy
-- [ ] Switch Port Map
+- [x] Validated current-state baseline
+- [x] IP address baseline
+- [x] Guest and IoT firewall policy
+- [x] Active switch port map
 - [ ] Rack Diagram
 
 Implementation
 
-- [ ] VLAN Infrastructure
-- [ ] VLAN Production
+- [x] VLAN trunk infrastructure
+- [x] Trusted VLAN 10 retained during migration
 - [ ] VLAN Lab
-- [ ] VLAN IoT
+- [x] VLAN IoT
 - [ ] VLAN Cameras
-- [ ] Guest Wi-Fi
+- [x] Guest Wi-Fi
 
 Validation
 
-- [ ] DHCP
-- [ ] DNS
-- [ ] Inter-VLAN Routing
-- [ ] Firewall Rules
-- [ ] Performance Testing
+- [x] DHCP for trusted, IoT and Guest networks
+- [x] DNS and split DNS
+- [x] Inter-VLAN routing through OPNsense
+- [x] IoT and Guest firewall isolation
+- [x] WAN and VLAN performance testing
 
 ---
 
-# Phase 3 — HomeLab Dashboard
+# Phase 3 — HomeLab Dashboard ✅ CORE COMPLETE
 
-- [ ] Dashboard Design
+- [x] Homepage deployed
+- [x] Internal `home.internal` DNS name
+- [x] Quick links to infrastructure and applications
+- [x] Private remote access through Tailscale
 - [ ] Device Status
 - [ ] Backup Status
 - [ ] Resource Monitoring
-- [ ] Quick Links
 
 ---
 

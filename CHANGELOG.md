@@ -1,9 +1,19 @@
 # Changelog
 
-## v1.0
-- Initial infrastructure baseline
+## v1.2.0
 
-# Changelog
+### Added
+- Validated current-network baseline
+- Homepage service dashboard at `home.internal`
+- Tailscale subnet-router and split-DNS documentation
+- Identity-restricted remote access to the trusted LAN
+- Production IoT VLAN 30 and Guest VLAN 40 documentation
+- TrueNAS active-backup LAN bond documentation
+
+### Improved
+- Documented the stable replacement WAN cable and X553 receive-ring tuning
+- Updated service inventory and roadmap to match the deployed environment
+- Clarified that remote administration uses Tailscale without inbound WAN ports
 
 ## v1.1.0
 
@@ -21,3 +31,7 @@
 - Device configuration
 - Health monitoring
 - Repository organization
+
+## v1.0.0
+
+- Initial infrastructure baseline
