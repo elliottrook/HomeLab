@@ -1,8 +1,9 @@
 # Project Mini Atlas VLAN Design
 
-**Status:** Draft  
+**Status:** Partially implemented
+
 **Phase:** Enterprise Network  
-**Last Updated:** 2026-08-02
+**Last Updated:** 2026-08-08
 
 ---
 
@@ -20,14 +21,12 @@ The Arista core switch and UniFi switching infrastructure provide Layer 2 VLAN t
 
 | VLAN | Name | Subnet | Gateway | Purpose |
 |---:|---|---|---|---|
-| 10 | Production | 192.168.1.0/24 | 192.168.1.1 | Trusted household computers, phones, and current production devices |
-| 20 | Infrastructure | 192.168.20.0/24 | 192.168.20.1 | Network equipment, hypervisor management, controllers, and access points |
-| 30 | Servers | 192.168.30.0/24 | 192.168.30.1 | Storage and self-hosted services |
-| 40 | Lab | 192.168.40.0/24 | 192.168.40.1 | Experimental systems and temporary projects |
-| 50 | IoT | 192.168.50.0/24 | 192.168.50.1 | Smart-home and embedded consumer devices |
-| 60 | Cameras | 192.168.60.0/24 | 192.168.60.1 | Surveillance cameras and future recording services |
-| 70 | Guest | 192.168.70.0/24 | 192.168.70.1 | Internet-only guest access |
-| 99 | Reserved Management | Reserved | Not configured | Possible future administrator-only management network |
+| 10 | Trusted | 192.168.1.0/24 | 192.168.1.1 | Trusted computers, phones, servers and management during migration; implemented |
+| 20 | Servers | 192.168.20.0/24 | 192.168.20.1 | Proxmox workloads, storage and self-hosted services; draft |
+| 30 | IoT | 192.168.30.0/24 | 192.168.30.1 | Smart-home and embedded consumer devices; implemented |
+| 40 | Guest | 192.168.40.0/24 | 192.168.40.1 | Internet-only guest access; implemented |
+| 50 | Management | 192.168.50.0/24 | 192.168.50.1 | Network equipment, hypervisor management, controllers and access points; draft |
+| 60 | Cameras | 192.168.60.0/24 | 192.168.60.1 | Surveillance cameras and future recording services; draft |
 
 ---
 
@@ -39,11 +38,11 @@ The existing `192.168.1.0/24` network will remain the Production network on VLAN
 
 This minimizes disruption and allows devices to be migrated gradually.
 
-### Separate infrastructure and servers
+### Separate management and servers
 
-Network management devices belong to VLAN 20.
+Network management devices will belong to VLAN 50.
 
-Storage systems and application services belong to VLAN 30.
+Storage systems and application services will belong to VLAN 20.
 
 This creates a clear distinction between the systems that operate the network and the services delivered through it.
 
@@ -59,10 +58,6 @@ Inter-VLAN access is controlled by OPNsense firewall policy.
 
 VLAN 1 will not carry ordinary production or management traffic after migration is complete.
 
-### Reserve VLAN 99
-
-VLAN 99 is reserved for a possible administrator-only network but will not be implemented unless it provides a clear operational or security benefit.
-
 ---
 
 ## DHCP Plan
@@ -72,10 +67,9 @@ VLAN 99 is reserved for a possible administrator-only network but will not be im
 | 10 | 192.168.1.100–192.168.1.250 | 192.168.1.2–192.168.1.99 |
 | 20 | 192.168.20.100–192.168.20.199 | 192.168.20.2–192.168.20.99 |
 | 30 | 192.168.30.100–192.168.30.199 | 192.168.30.2–192.168.30.99 |
-| 40 | 192.168.40.100–192.168.40.240 | 192.168.40.2–192.168.40.99 |
-| 50 | 192.168.50.100–192.168.50.240 | 192.168.50.2–192.168.50.99 |
+| 40 | 192.168.40.100–192.168.40.199 | 192.168.40.2–192.168.40.99 |
+| 50 | 192.168.50.100–192.168.50.199 | 192.168.50.2–192.168.50.99 |
 | 60 | 192.168.60.100–192.168.60.199 | 192.168.60.2–192.168.60.99 |
-| 70 | 192.168.70.50–192.168.70.250 | 192.168.70.2–192.168.70.49 |
 
 ---
 
@@ -84,16 +78,17 @@ VLAN 99 is reserved for a possible administrator-only network but will not be im
 | Device | Planned Address | VLAN |
 |---|---:|---:|
 | OPNsense Production gateway | 192.168.1.1 | 10 |
-| OPNsense Infrastructure gateway | 192.168.20.1 | 20 |
-| Arista core switch | 192.168.20.2 | 20 |
-| Proxmox management | 192.168.20.10 | 20 |
-| UniFi OS Server | 192.168.20.21 | 20 |
-| UniFi PoE switch | 192.168.20.30 | 20 |
-| UniFi access point | 192.168.20.31 | 20 |
-| OPNsense Servers gateway | 192.168.30.1 | 30 |
-| TrueNAS SCALE | 192.168.30.40 | 30 |
-| Synology DS920+ | 192.168.30.41 | 30 |
-| Secondary Synology | 192.168.30.42 | 30 |
+| OPNsense Servers gateway | 192.168.20.1 | 20 |
+| Proxmox workloads | 192.168.20.0/24 | 20 |
+| TrueNAS SCALE | 192.168.20.40 | 20 |
+| Synology DS920+ | 192.168.20.41 | 20 |
+| Secondary Synology | 192.168.20.42 | 20 |
+| OPNsense Management gateway | 192.168.50.1 | 50 |
+| Arista core switch | 192.168.50.2 | 50 |
+| Proxmox management | 192.168.50.10 | 50 |
+| UniFi OS Server | 192.168.50.21 | 50 |
+| UniFi PoE switch | 192.168.50.30 | 50 |
+| UniFi access point | 192.168.50.31 | 50 |
 
 ---
 
@@ -101,15 +96,13 @@ VLAN 99 is reserved for a possible administrator-only network but will not be im
 
 | Source | Destination | Initial Policy |
 |---|---|---|
-| Production | Internet | Allow |
-| Production | Infrastructure | Allow management from selected administrator devices |
-| Production | Servers | Allow required services |
-| Infrastructure | Internet | Allow updates, DNS, and time services |
-| Infrastructure | Other VLANs | Deny unless required |
+| Trusted | Internet | Allow |
+| Trusted | Management | Allow management from selected administrator devices |
+| Trusted | Servers | Allow required services |
+| Management | Internet | Allow updates, DNS, and time services |
+| Management | Other VLANs | Deny unless required |
 | Servers | Internet | Allow required outbound access |
-| Servers | Infrastructure | Deny by default |
-| Lab | Production | Deny by default |
-| Lab | Servers | Allow selected test services |
+| Servers | Management | Deny by default |
 | IoT | Internet | Allow as required |
 | IoT | Trusted networks | Deny by default |
 | Cameras | Internet | Deny by default |
@@ -123,6 +116,6 @@ VLAN 99 is reserved for a possible administrator-only network but will not be im
 
 The existing network will remain operational while the new VLAN interfaces are introduced.
 
-Migration will proceed one zone at a time, beginning with a test VLAN before moving management devices.
+IoT VLAN 30 and Guest VLAN 40 are implemented and validated. VLAN 10 remains the native trusted network. Servers and Management will be introduced later, one zone at a time, with alternate access and rollback confirmed before any management address changes.
 
 No management address will be changed until an alternate access path and rollback procedure have been confirmed.

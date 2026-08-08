@@ -1,8 +1,9 @@
 # Project Mini Atlas Migration Strategy
 
-**Status:** Draft  
+**Status:** In progress
+
 **Phase:** Enterprise Network  
-**Last Updated:** 2026-08-02
+**Last Updated:** 2026-08-08
 
 ---
 
@@ -37,7 +38,7 @@ Current LAN
 OPNsense LAN
 ↓
 
-Arista Ethernet25
+Arista Ethernet40
 
 ↓
 
@@ -49,9 +50,11 @@ Current characteristics:
 - Flat network
 - OPNsense provides routing, DHCP and firewall services.
 - Arista provides Layer 2 switching.
-- VLAN 10 currently carries production traffic.
+- VLAN 10 carries trusted/native traffic.
+- VLAN 30 carries isolated IoT traffic.
+- VLAN 40 carries isolated Guest traffic.
 - OPNsense LAN interface is `ix0`.
-- OPNsense connects to Arista `Ethernet25` using a 10 Gb link.
+- OPNsense connects to Arista `Ethernet40` using a 10 Gb trunk.
 
 ---
 
@@ -64,17 +67,24 @@ OPNsense
     │
 10 Gb 802.1Q Trunk
     │
-Arista Ethernet25
+Arista Ethernet40
     │
 ──────────────────────────────────
-Infrastructure
 Trusted
 Servers
-Lab
 IoT
-Cameras
 Guest
+Management
+Cameras
 ```
+
+## Current progress
+
+- Phase 1 preparation and recovery checkpoints are complete.
+- The core Et40 trunk is operational with native VLAN 10 and tagged VLANs 30 and 40.
+- The UniFi uplink on Et33 carries native VLAN 10 and tagged VLANs 30 and 40.
+- IoT VLAN 30 and Guest VLAN 40 are deployed and validated.
+- Servers and Management remain on trusted VLAN 10 pending later migration windows.
 
 ---
 
@@ -120,9 +130,9 @@ Rollback
 
 Tasks
 
-- Convert Arista Ethernet25 into an 802.1Q trunk.
+- Maintain Arista Ethernet40 as an 802.1Q trunk.
 - Maintain VLAN 10 as the native (untagged) VLAN.
-- Add VLANs 20–70 as tagged VLANs.
+- Add only each required tagged VLAN during its implementation window.
 
 Success Criteria
 
@@ -131,7 +141,7 @@ Success Criteria
 
 Rollback
 
-- Restore Ethernet25 as an access port.
+- Restore Ethernet40 from the saved pre-change configuration.
 
 ---
 
