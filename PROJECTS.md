@@ -6,7 +6,7 @@
 
 # Current Release
 
-Version 1.2.0
+Version 1.2.1
 
 Current Focus:
 🟢 Enterprise Network Implementation
@@ -70,8 +70,10 @@ Validation
 - [x] Homepage deployed
 - [x] Internal `home.internal` DNS name
 - [x] Quick links to infrastructure and applications
+- [x] SSH launch links for Proxmox, Docker LXC, OPNsense and TrueNAS
 - [x] Pi-hole dashboard tile and single-client DNS-filtering pilot
 - [x] Private remote access through Tailscale
+- [x] Remote SSH validated through the Tailscale subnet route
 - [ ] Device Status
 - [ ] Backup Status
 - [ ] Resource Monitoring

@@ -11,6 +11,18 @@ SSH shortcuts:
 - LAN and Tailscale URL: `http://home.internal:3000`
 - Direct fallback: `http://192.168.1.20:3000`
 - Homepage configuration: `/opt/homepage/config` inside Proxmox LXC 100 (`docker`)
+- The `SSH Access` group launches the local SSH client for Proxmox, Docker LXC, OPNsense and TrueNAS.
+
+Dashboard SSH targets:
+
+| Tile | Target |
+|---|---|
+| Proxmox SSH | `ssh://root@192.168.1.10` |
+| Docker LXC SSH | `ssh://root@192.168.1.20` |
+| OPNsense SSH | `ssh://root@192.168.1.1` |
+| TrueNAS SSH | `ssh://truenas_admin@192.168.1.40` |
+
+The client device must have an application registered to handle `ssh://` links. These links do not contain passwords or private keys.
 
 ## Pi-hole pilot
 
@@ -58,4 +70,7 @@ This restores DHCP-provided OPNsense DNS. Do not make Pi-hole network-wide until
 - IoT and Guest routes are intentionally not advertised.
 - Tailnet split DNS forwards only the `internal` namespace to OPNsense.
 - Tailnet policy grants the administrator identity access to the trusted LAN; the broad default allow-all rule is removed.
+- Remote OpenSSH access to Proxmox, Docker LXC, OPNsense and TrueNAS was validated over the subnet route with the client off the home Wi-Fi network.
+- This is ordinary SSH transported through Tailscale. Native Tailscale SSH is not enabled and is not required for the routed LAN hosts.
 - Do not expose OPNsense, Proxmox, TrueNAS, UniFi, Portainer or Homepage directly to the public Internet.
+- Do not add an inbound WAN SSH rule or port-forward. A remote client must be authenticated to the tailnet and authorized by the identity-specific grant.
