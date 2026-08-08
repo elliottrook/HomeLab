@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.2.1
+
+### Added
+- Homepage SSH launch group for Proxmox, Docker LXC, OPNsense and TrueNAS
+- Remote SSH validation through the private Tailscale subnet route
+- Backup and restore guidance for Homepage, Pi-hole, Docker Compose and Tailscale policy
+- Verified Proxmox guest archives and consolidated overlapping backup jobs into one retained daily schedule
+
+### Clarified
+- Remote SSH uses the hosts' existing OpenSSH services over Tailscale; native Tailscale SSH is not enabled
+- No inbound WAN SSH rule or port-forward is required
+- Raw backups, credentials, tokens and private configuration must not be committed to this repository
+
 ## v1.2.0
 
 ### Added
