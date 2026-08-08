@@ -70,6 +70,7 @@ Validation
 - [x] Homepage deployed
 - [x] Internal `home.internal` DNS name
 - [x] Quick links to infrastructure and applications
+- [x] Pi-hole dashboard tile and single-client DNS-filtering pilot
 - [x] Private remote access through Tailscale
 - [ ] Device Status
 - [ ] Backup Status
@@ -92,6 +93,7 @@ Validation
 - [ ] Grafana
 - [ ] Alerting
 - [ ] Historical Metrics
+- [ ] Pi-hole DNS redundancy and network-wide rollout
 
 ---
 

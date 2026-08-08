@@ -9,11 +9,14 @@
 - Identity-restricted remote access to the trusted LAN
 - Production IoT VLAN 30 and Guest VLAN 40 documentation
 - TrueNAS active-backup LAN bond documentation
+- Pi-hole 2026.05.0 container and Mac Mini DNS-filtering pilot
+- Pi-hole quick link on the Homepage service dashboard
 
 ### Improved
 - Documented the stable replacement WAN cable and X553 receive-ring tuning
 - Updated service inventory and roadmap to match the deployed environment
 - Clarified that remote administration uses Tailscale without inbound WAN ports
+- Documented the Pi-hole-to-OPNsense DNS chain, validation commands and rollback procedure
 
 ## v1.1.0
 

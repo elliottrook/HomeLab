@@ -1,7 +1,7 @@
 # Home Network Baseline and VLAN Draft
 
 Baseline date: 2026-08-08  
-Status: The permanent WAN cable and physical link are stable after more than 48 hours and controlled multi-gigabit load testing. The ix1 WAN receive rings are validated at 4096 descriptors per queue, reducing stress-test RX misses by 98.5%. Guest VLAN 40 has been implemented and validated over both wired Ethernet and UniFi Wi-Fi. TrueNAS LAN failover has been implemented and validated using a two-port active-backup bond. IoT VLAN 30 is in production for the wired bridges and existing UniFi IoT SSID; DHCP, DNS, Internet access, internal-network isolation and cross-VLAN discovery have all been validated. An internal Homepage service dashboard and identity-restricted Tailscale remote-access path are also operational without exposing inbound WAN ports.
+Status: The permanent WAN cable and physical link are stable after more than 48 hours and controlled multi-gigabit load testing. The ix1 WAN receive rings are validated at 4096 descriptors per queue, reducing stress-test RX misses by 98.5%. Guest VLAN 40 has been implemented and validated over both wired Ethernet and UniFi Wi-Fi. TrueNAS LAN failover has been implemented and validated using a two-port active-backup bond. IoT VLAN 30 is in production for the wired bridges and existing UniFi IoT SSID; DHCP, DNS, Internet access, internal-network isolation and cross-VLAN discovery have all been validated. An internal Homepage service dashboard and identity-restricted Tailscale remote-access path are also operational without exposing inbound WAN ports. Pi-hole is deployed in Docker LXC 100 and validated as a single-client Mac Mini pilot; OPNsense remains the DHCP-advertised network-wide resolver.
 
 ## Recovery checkpoint
 
@@ -61,7 +61,7 @@ The interface descriptions above were applied and verified on the Arista, with t
 | 192.168.1.1 | OPNsense LAN | e8:b5:d0:e1:8e:4f | Et40 |
 | 192.168.1.2 | Arista management SVI | 44:4c:a8:1f:3e:c5 | Vlan10 |
 | 192.168.1.10 | Proxmox | 6c:92:bf:27:89:a3 | Et3 |
-| 192.168.1.20 | Docker LXC / Homepage / Tailscale subnet router | bc:24:11:43:71:67 | Et3 via Proxmox |
+| 192.168.1.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router | bc:24:11:43:71:67 | Et3 via Proxmox |
 | 192.168.1.21 | UniFi controller | bc:24:11:b6:de:53 | Et3 via Proxmox |
 | 192.168.1.40 | TrueNAS `bond0` | 6c:92:bf:67:fb:bc | Et9 primary / Et17 failover |
 | 192.168.1.41 | Synology | 00:11:32:ca:e5:e6 | Et23 |
@@ -96,6 +96,8 @@ The interface descriptions above were applied and verified on the Arista, with t
 - Tailscale runs directly in Docker LXC 100 as the `homelab-gateway` subnet router. It advertises only the trusted 192.168.1.0/24 network; IoT 192.168.30.0/24 and Guest 192.168.40.0/24 are not advertised. IPv4 forwarding is enabled and the LXC has access to `/dev/net/tun`.
 - Tailscale split DNS sends only the `internal` namespace to OPNsense at 192.168.1.1. The broad default tailnet allow rule was replaced with an identity-specific grant permitting the administrator account to reach 192.168.1.0/24 on all protocols. Remote Homepage and management-tile access passed over cellular with Wi-Fi disabled. No inbound WAN port-forward or public service exposure was added.
 - Homepage includes network, virtualization, storage, media, media-automation, application-management and external-service groups. The external-service tiles link to the Tailscale administration console and GitHub. The dashboard and its internal management targets remain intended for LAN or Tailscale access only.
+- Pi-hole 2026.05.0 runs in Docker LXC 100. It publishes TCP/UDP 53 and web administration on TCP 8082, forwards to OPNsense at 192.168.1.1, and conditionally forwards `192.168.1.0/24`/`internal` so `home.internal` and reverse names continue to resolve. Direct tests returned public addresses for `example.com`, `192.168.1.20` for `home.internal`, and `0.0.0.0` for `doubleclick.net`.
+- The Mac Mini Ethernet service is the only client explicitly using Pi-hole. Its active resolver was verified as `192.168.1.20#53`. All other clients continue receiving OPNsense DNS through DHCP. Network-wide rollout is intentionally pending DNS redundancy and failure-procedure approval.
 
 ## Resolved incidents
 
