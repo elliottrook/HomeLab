@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.3
+
+### Designed
+- Reserved VLAN 70 and `192.168.70.0/24` for isolated Proxmox experiments
+- Defined the future Arista Et3 trunk, VLAN-aware Proxmox bridge and per-workload tagging model
+- Defined default-deny internal policy, administrator access, implementation validation and rollback requirements
+
+### Clarified
+- Proxmox management and existing production containers remain on native VLAN 10 during the Lab rollout
+- This release changes documentation only and does not deploy VLAN 70
+
 ## v1.2.2
 
 ### Added
