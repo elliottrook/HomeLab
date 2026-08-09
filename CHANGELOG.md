@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.2.2
+
+### Added
+- Documented the physical 15U rack elevation from U15 through U1
+- Recorded shelf contents, patch-panel placement, core switch, OPNsense, PoE switching, UPS and reserved capacity
+
 ## v1.2.1
 
 ### Added

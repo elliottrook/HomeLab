@@ -44,7 +44,7 @@ Planning
 - [x] IP address baseline
 - [x] Guest and IoT firewall policy
 - [x] Active switch port map
-- [ ] Rack Diagram
+- [x] Rack Diagram
 
 Implementation
 
