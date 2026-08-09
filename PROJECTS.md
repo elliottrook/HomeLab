@@ -6,7 +6,7 @@
 
 # Current Release
 
-Version 1.2.3
+Version 1.2.4
 
 Current Focus:
 🟢 Enterprise Network Implementation

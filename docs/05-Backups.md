@@ -10,6 +10,26 @@ Back up OPNsense, Proxmox, UniFi, Arista, TrueNAS and Synology configurations.
 - Verify that each archive is readable before relying on it, and record the application version used to create it.
 - Copy staged archives off the source host so a single host failure cannot destroy both the service and its backup.
 
+## Verified 2026-08-08 recovery set
+
+The dated recovery set is retained in two locations:
+
+- Mac: `~/Documents/HomeLab-Backups/2026-08-08`
+- Backup Synology shared folder: `Backup/HomeLab-Backups/2026-08-08`
+
+The set contains private OPNsense, UniFi, TrueNAS, Homepage, Pi-hole and Tailscale recovery artifacts plus `SHA256SUMS.txt`. The Mac originals were retained after the copy.
+
+The Synology share was mounted over SMB and the set was copied without deleting or replacing the Mac source. Verification was run from the Synology destination:
+
+```sh
+cd "/Volumes/Backup/HomeLab-Backups/2026-08-08"
+shasum -a 256 -c SHA256SUMS.txt
+```
+
+All six protected files reported `OK`. The Synology copy therefore protects against loss of the Mac copy or an individual source host. It is a second-host, same-site copy and does not protect against theft, fire or another site-wide event.
+
+Keep this shared folder restricted to the backup account. Synology snapshots or versioning and a future encrypted off-site copy would provide additional protection. Copy and verification automation remains a future task; do not automate deletion until retention and restore testing are established.
+
 ## Docker LXC 100
 
 The service configuration lives under `/opt` inside Proxmox LXC 100 (`docker`). Before a change window, create private staging archives from the LXC shell:
