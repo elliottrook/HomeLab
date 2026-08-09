@@ -12,6 +12,7 @@ SSH shortcuts:
 - Direct fallback: `http://192.168.1.20:3000`
 - Homepage configuration: `/opt/homepage/config` inside Proxmox LXC 100 (`docker`)
 - The `SSH Access` group launches the local SSH client for Proxmox, Docker LXC, OPNsense and TrueNAS.
+- The `Surveillance` group links to Frigate and launches its SSH connection.
 
 Dashboard SSH targets:
 
@@ -21,8 +22,39 @@ Dashboard SSH targets:
 | Docker LXC SSH | `ssh://root@192.168.1.20` |
 | OPNsense SSH | `ssh://root@192.168.1.1` |
 | TrueNAS SSH | `ssh://truenas_admin@192.168.1.40` |
+| Frigate SSH | `ssh://jelliott@192.168.20.10` |
 
 The client device must have an application registered to handle `ssh://` links. These links do not contain passwords or private keys.
+
+## Frigate operations
+
+- VM: Proxmox VM 102, Debian 13.6, `192.168.20.10` on VLAN 20
+- Compose project: `/opt/frigate`
+- Web interface: `https://192.168.20.10:8971`
+- Configuration: `/opt/frigate/config`
+- Recording mount: `/opt/frigate/storage`
+- TrueNAS export: `192.168.1.40:/mnt/Media/Surveillance/Frigate`
+- Startup unit: `frigate-compose.service`
+
+Health check:
+
+```sh
+findmnt -rn -t nfs4 -T /opt/frigate/storage
+systemctl is-active frigate-compose.service
+cd /opt/frigate
+sudo docker compose ps
+sudo find /opt/frigate/storage/recordings -type f -mmin -3 | head
+```
+
+The systemd service waits until the real NFSv4 mount is available before
+starting Compose. Docker's container restart policy is disabled for this stack;
+systemd owns startup and recovery so Docker cannot race the NFS mount during
+boot. Do not replace the mount with the local directory if TrueNAS is
+unavailable.
+
+The dated Frigate configuration archive contains camera credentials and must
+remain outside Git with mode `0600`. Recordings are not included in the
+configuration archive because they remain on the TrueNAS surveillance dataset.
 
 ## Pi-hole pilot
 

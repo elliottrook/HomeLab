@@ -1,9 +1,9 @@
 # Project Mini Atlas VLAN Design
 
-**Status:** Partially implemented
+**Status:** Routed VLAN infrastructure implemented
 
 **Phase:** Enterprise Network  
-**Last Updated:** 2026-08-08
+**Last Updated:** 2026-08-09
 
 ---
 
@@ -22,12 +22,12 @@ The Arista core switch and UniFi switching infrastructure provide Layer 2 VLAN t
 | VLAN | Name | Subnet | Gateway | Purpose |
 |---:|---|---|---|---|
 | 10 | Trusted | 192.168.1.0/24 | 192.168.1.1 | Trusted computers, phones, servers and management during migration; implemented |
-| 20 | Servers | 192.168.20.0/24 | 192.168.20.1 | Proxmox workloads, storage and self-hosted services; draft |
+| 20 | Servers | 192.168.20.0/24 | 192.168.20.1 | Proxmox workloads and self-hosted services; implemented |
 | 30 | IoT | 192.168.30.0/24 | 192.168.30.1 | Smart-home and embedded consumer devices; implemented |
 | 40 | Guest | 192.168.40.0/24 | 192.168.40.1 | Internet-only guest access; implemented |
-| 50 | Management | 192.168.50.0/24 | 192.168.50.1 | Network equipment, hypervisor management, controllers and access points; draft |
-| 60 | Cameras | 192.168.60.0/24 | 192.168.60.1 | Surveillance cameras and future recording services; draft |
-| 70 | Lab | 192.168.70.0/24 | 192.168.70.1 | Experimental Proxmox VMs and temporary test workloads; designed, not implemented |
+| 50 | Management | 192.168.50.0/24 | 192.168.50.1 | Network equipment, hypervisor management, controllers and access points; infrastructure implemented |
+| 60 | Cameras | 192.168.60.0/24 | 192.168.60.1 | Isolated surveillance cameras; implemented |
+| 70 | Lab | 192.168.70.0/24 | 192.168.70.1 | Experimental Proxmox VMs and temporary test workloads; infrastructure implemented |
 
 ---
 
@@ -101,6 +101,8 @@ VLAN 1 will not carry ordinary production or management traffic after migration 
 | UniFi access point | 192.168.50.31 | 50 |
 | OPNsense Lab gateway | 192.168.70.1 | 70 |
 | Experimental Proxmox workloads | 192.168.70.0/24 | 70 |
+| Frigate VM 102 | 192.168.20.10 | 20 |
+| Reolink Duo 2V PoE | 192.168.60.10 | 60 |
 
 ---
 
@@ -140,7 +142,7 @@ OPNsense ix0 trunk
              v
 Arista core: VLAN 70
              |
-             | Et3 trunk: native VLAN 10, tagged VLAN 70
+             | Et4 trunk: native VLAN 10, tagged VLANs 20,70
              v
 Proxmox vmbr0: VLAN-aware
   +-- Host management 192.168.1.10: untagged/native VLAN 10
@@ -155,7 +157,7 @@ The physical Proxmox link carries both networks, but each experimental virtual N
 - OPNsense VLAN interface on parent `ix0`, tag 70, address `192.168.70.1/24`.
 - Dnsmasq DHCP range `192.168.70.100-192.168.70.199` with OPNsense providing gateway and DNS.
 - Arista VLAN 70 named `Lab`.
-- Arista Ethernet3 converted from an access port to a trunk with native VLAN 10 and allowed VLANs 10 and 70.
+- Arista Ethernet4 converted from an access port to a trunk with native VLAN 10 and allowed VLANs 10, 20 and 70.
 - Proxmox bridge `vmbr0` made VLAN-aware without moving the host address.
 - VLAN tag 70 assigned per experimental VM or container virtual NIC.
 - An administrator-device alias used for narrowly scoped inbound management access to Lab systems.
@@ -171,7 +173,7 @@ The physical Proxmox link carries both networks, but each experimental virtual N
 
 Inbound access from selected trusted administrator devices to Lab workloads is defined on the source interface and is not created as a broad Lab-to-Trusted exception.
 
-### Future implementation validation
+### Validation and future workload checklist
 
 1. Confirm fresh OPNsense, Arista and Proxmox recovery copies and local console access.
 2. Create the OPNsense interface, DHCP scope and rules without moving existing clients.
@@ -180,9 +182,27 @@ Inbound access from selected trusted administrator devices to Lab workloads is d
 5. Attach one disposable test VM to VLAN 70.
 6. Verify DHCP, gateway, DNS, Internet access and administrative access.
 7. Verify the test VM cannot reach Trusted, Servers, Management, IoT, Cameras or Guest networks.
-8. Save configurations only after validation; remove VLAN tag 70 and restore Et3 access mode if rollback is required.
+8. Save configurations only after validation; remove VLAN tags 20 and 70 and restore Et4 access mode if rollback is required.
 
-No Lab configuration is deployed as part of this design update.
+The OPNsense interface, DHCP scope, firewall policy, Arista VLAN transport and
+VLAN-aware Proxmox bridge are deployed. No persistent experimental workload is
+currently assigned to VLAN 70.
+
+---
+
+## Cameras VLAN 60 Implementation
+
+- OPNsense interface `vlan0.60` uses `192.168.60.1/24` on parent `ix0`.
+- Dnsmasq serves `192.168.60.100-192.168.60.199`; the Reolink camera has the
+  reservation `192.168.60.10`.
+- Arista carries VLAN 60 over Et40 to OPNsense and Et33 to the UniFi PoE
+  infrastructure.
+- Cameras are blocked from the firewall and RFC1918 destinations by default.
+- A narrowly scoped rule on the Servers interface permits Frigate
+  `192.168.20.10` to reach camera `192.168.60.10` on TCP 80, 554 and 8000.
+- Camera TCP 9000 is not allowed from Frigate.
+- HTTP, RTSP and ONVIF tests succeeded from Frigate; continuous recording to
+  TrueNAS NFS was validated after a full VM reboot.
 
 ---
 
@@ -190,6 +210,9 @@ No Lab configuration is deployed as part of this design update.
 
 The existing network will remain operational while the new VLAN interfaces are introduced.
 
-IoT VLAN 30 and Guest VLAN 40 are implemented and validated. VLAN 10 remains the native trusted network. Lab VLAN 70 is designed but not implemented. Servers, Management and Lab will be introduced later, one zone at a time, with alternate access and rollback confirmed before any management address changes.
+VLANs 20, 30, 40, 50, 60 and 70 now have routed OPNsense interfaces, DHCP
+scopes and baseline firewall policy. VLAN 10 remains the native trusted
+network. Existing management and storage systems have not yet been renumbered;
+their future moves remain separate controlled migrations.
 
 No management address will be changed until an alternate access path and rollback procedure have been confirmed.

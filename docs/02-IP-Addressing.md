@@ -11,6 +11,8 @@
 |TrueNAS|192.168.1.40|
 |Synology DS920+|192.168.1.41|
 |Backup Synology|192.168.1.42|
+|Frigate VM 102|192.168.20.10|
+|Reolink Duo 2V PoE|192.168.60.10|
 
 ## Shared service endpoints on Docker LXC 100
 
@@ -21,3 +23,13 @@
 | Pi-hole DNS | `192.168.1.20` | 53/TCP+UDP | Mac Mini pilot |
 | Pi-hole Web | `http://192.168.1.20:8082/admin/` | 8082/TCP | Pilot administration |
 | Tailscale subnet router | `homelab-gateway` | Tailscale-managed | Production |
+
+## Surveillance endpoints
+
+| Service | Address | Port | Status |
+|---|---|---:|---|
+| Frigate Web | `https://192.168.20.10:8971` | 8971/TCP | Production |
+| Frigate SSH | `jelliott@192.168.20.10` | 22/TCP | Administration |
+| Reolink HTTP | `192.168.60.10` | 80/TCP | Frigate management |
+| Reolink RTSP | `192.168.60.10` | 554/TCP | Video stream |
+| Reolink ONVIF | `192.168.60.10` | 8000/TCP | Camera integration |
