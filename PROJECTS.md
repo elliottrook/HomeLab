@@ -1,12 +1,12 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-08
+> Last Updated: 2026-08-09
 
 ---
 
 # Current Release
 
-Version 1.2.4
+Version 1.3.0
 
 Current Focus:
 🟢 Enterprise Network Implementation
@@ -51,14 +51,16 @@ Implementation
 
 - [x] VLAN trunk infrastructure
 - [x] Trusted VLAN 10 retained during migration
-- [ ] VLAN Lab
+- [x] VLAN Lab infrastructure
 - [x] VLAN IoT
-- [ ] VLAN Cameras
+- [x] VLAN Cameras
+- [x] VLAN Servers infrastructure
+- [x] VLAN Management infrastructure
 - [x] Guest Wi-Fi
 
 Validation
 
-- [x] DHCP for trusted, IoT and Guest networks
+- [x] DHCP for all routed VLANs
 - [x] DNS and split DNS
 - [x] Inter-VLAN routing through OPNsense
 - [x] IoT and Guest firewall isolation
@@ -75,6 +77,7 @@ Validation
 - [x] Pi-hole dashboard tile and single-client DNS-filtering pilot
 - [x] Private remote access through Tailscale
 - [x] Remote SSH validated through the Tailscale subnet route
+- [x] Frigate dashboard and SSH launch links
 - [ ] Device Status
 - [ ] Backup Status
 - [ ] Resource Monitoring
@@ -116,6 +119,21 @@ Validation
 - [ ] Paperless-ngx
 - [ ] Wiki
 - [ ] Home Assistant
+
+---
+
+# Phase 8 — Surveillance 🚧
+
+- [x] Cameras VLAN 60
+- [x] Reolink Duo 2V PoE isolated at `192.168.60.10`
+- [x] Frigate VM deployed on Servers VLAN 20
+- [x] Selective Frigate-to-camera firewall access
+- [x] TrueNAS NFS recording storage
+- [x] Reboot-safe NFS and Frigate startup ordering
+- [x] Continuous recording validated
+- [ ] Hardware-accelerated video decoding
+- [ ] Dedicated object-detection accelerator
+- [ ] Additional cameras and final retention sizing
 
 ---
 

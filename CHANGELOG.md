@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.3.0
+
+### Added
+- Implemented routed infrastructure and baseline policy for VLANs 20, 50, 60 and 70
+- Deployed Frigate in Proxmox VM 102 on Servers VLAN 20
+- Isolated the Reolink Duo 2V PoE camera on Cameras VLAN 60
+- Added narrowly scoped Frigate-to-camera HTTP, RTSP and ONVIF access
+- Added TrueNAS NFS recording storage and reboot-safe systemd startup ordering
+- Added Frigate web and SSH shortcuts to Homepage
+- Added a private, checksum-verified Frigate configuration backup procedure
+
+### Validated
+- Frigate and its NFS storage recover automatically after a full VM reboot
+- Main and substreams, ONVIF discovery, continuous recording and recent MP4 creation
+- Camera TCP 9000 remains blocked from the Frigate VM
+
+### Security
+- Camera and Frigate credentials are excluded from repository documentation
+- Cameras remain blocked from initiating access to internal RFC1918 networks
+
 ## v1.2.4
 
 ### Documented

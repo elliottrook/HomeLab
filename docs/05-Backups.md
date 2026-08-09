@@ -61,7 +61,7 @@ docker compose ps
 docker logs homepage --tail 50
 ```
 
-Confirm `http://home.internal:3000`, the management tiles and the four SSH launch links. A Homepage restart is not a substitute for a configuration backup.
+Confirm `http://home.internal:3000`, the management tiles and all SSH launch links, including Frigate. A Homepage restart is not a substitute for a configuration backup.
 
 ## Pi-hole
 
@@ -89,6 +89,35 @@ Record the following without storing authentication keys or reusable tokens:
 Keep a private export or controlled copy of the tailnet policy. After recovery, test Homepage and one SSH target from a device using cellular data with Wi-Fi disabled. Do not create a WAN port-forward as a recovery shortcut.
 
 An operational-state snapshot can be staged from LXC 100 with `tailscale version`, `tailscale status` and `tailscale debug prefs`, redirected to a mode-600 file. This snapshot identifies tailnet devices and the account, so transfer it to protected storage, verify its checksum, and remove the temporary LXC copy. It supplements rather than replaces the private control-plane policy copy.
+
+## Frigate
+
+Frigate runs in Proxmox VM 102. Its configuration backup should include:
+
+- `/opt/frigate/compose.yaml`
+- `/opt/frigate/config`
+- `/etc/systemd/system/frigate-compose.service`
+- `/etc/fstab`
+
+Create the archive on the Frigate VM without including the NFS-mounted
+recordings directory:
+
+```sh
+stamp=$(date +%Y%m%d-%H%M%S)
+sudo tar -C / -czf "/home/jelliott/frigate-config-${stamp}.tgz" \
+  opt/frigate/compose.yaml \
+  opt/frigate/config \
+  etc/systemd/system/frigate-compose.service \
+  etc/fstab
+sudo chown jelliott:jelliott "/home/jelliott/frigate-config-${stamp}.tgz"
+chmod 600 "/home/jelliott/frigate-config-${stamp}.tgz"
+sha256sum "/home/jelliott/frigate-config-${stamp}.tgz"
+```
+
+The archive contains camera credentials. Store it only in protected backup
+locations, retain mode `0600`, verify its checksum after transfer and never
+commit it to Git. Recordings remain protected separately by the TrueNAS dataset
+and its storage-level backup policy.
 
 ## Proxmox guest backups
 

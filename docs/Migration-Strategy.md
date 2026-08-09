@@ -81,10 +81,10 @@ Cameras
 ## Current progress
 
 - Phase 1 preparation and recovery checkpoints are complete.
-- The core Et40 trunk is operational with native VLAN 10 and tagged VLANs 30 and 40.
-- The UniFi uplink on Et33 carries native VLAN 10 and tagged VLANs 30 and 40.
-- IoT VLAN 30 and Guest VLAN 40 are deployed and validated.
-- Servers and Management remain on trusted VLAN 10 pending later migration windows.
+- The core Et40 trunk is operational with native VLAN 10 and tagged VLANs 20, 30, 40, 50, 60 and 70.
+- The UniFi uplink on Et33 carries native VLAN 10 and tagged VLANs 30, 40, 50 and 60.
+- IoT VLAN 30 and Guest VLAN 40 are deployed and validated in production.
+- Routed infrastructure and baseline policy are deployed for Servers, Management, Cameras and Lab. Existing management and storage hosts remain on Trusted pending later migration windows; Frigate is the first production workload on Servers.
 
 ---
 
