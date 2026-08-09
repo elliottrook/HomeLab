@@ -17,6 +17,7 @@ Post-change recovery checkpoint completed 2026-08-08:
 - Fresh OPNsense configuration backup downloaded after the IoT VLAN 30 rollout.
 - Fresh UniFi Control Plane backup created/downloaded after the production IoT SSID migration.
 - A dated 2026-08-08 backup set on the Mac contains checksum-recorded OPNsense, UniFi, TrueNAS, Homepage and Pi-hole exports plus a private Tailscale operational-state snapshot. All six files passed the saved SHA-256 manifest; the OPNsense XML, TrueNAS TAR, Homepage TGZ and Pi-hole Teleporter ZIP also passed structural or archive-integrity checks.
+- The complete dated set and its checksum manifest were copied over SMB to `Backup/HomeLab-Backups/2026-08-08` on the backup Synology. Verification executed from the Synology destination reported `OK` for all six protected files. The Mac originals remain intact; this is a second-host, same-site copy rather than an off-site backup.
 - Proxmox LXC 100 and LXC 101 `vzdump` archives on `/mnt/backups` passed complete Zstandard integrity tests. The backup disk is a separate 4 TB ext4 disk attached to the Proxmox host.
 - Three overlapping Proxmox jobs were consolidated to one all-guests job at 02:30 using snapshot mode, Zstandard compression and 7-daily/4-weekly/6-monthly retention. The redundant jobs were disabled, not deleted, and a dry run marked only same-day duplicates for pruning.
 - Arista VLAN and trunk changes saved to startup-config; an external copy of the current configuration was retained.

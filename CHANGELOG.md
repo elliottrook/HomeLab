@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.2.4
+
+### Documented
+- Recorded the verified second copy of the 2026-08-08 recovery set on the backup Synology
+- Recorded successful SHA-256 verification of all six protected files from the Synology destination
+
+### Clarified
+- The Mac originals remain intact
+- The Synology copy is on a separate host but remains same-site rather than off-site
+- Automated replication and deletion remain deferred until retention and restore testing are established
+
 ## v1.2.3
 
 ### Designed
