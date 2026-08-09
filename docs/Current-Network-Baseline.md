@@ -191,6 +191,7 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
 | 40 | Guest | 192.168.40.0/24 | Guest Wi-Fi clients; Internet only |
 | 50 | Management | 192.168.50.0/24 | OPNsense, Arista, UniFi controller, switches and AP management |
 | 60 | Cameras | 192.168.60.0/24 | Optional future cameras/NVR devices |
+| 70 | Lab | 192.168.70.0/24 | Isolated experimental Proxmox workloads; designed, not implemented |
 
 ### Implemented: Guest VLAN 40
 

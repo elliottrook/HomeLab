@@ -6,7 +6,7 @@
 
 # Current Release
 
-Version 1.2.1
+Version 1.2.3
 
 Current Focus:
 🟢 Enterprise Network Implementation
@@ -45,6 +45,7 @@ Planning
 - [x] Guest and IoT firewall policy
 - [x] Active switch port map
 - [x] Rack Diagram
+- [x] Lab VLAN 70 design
 
 Implementation
 
