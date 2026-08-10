@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-09
+> Last Updated: 2026-08-10
 
 ---
 
@@ -134,6 +134,19 @@ Validation
 - [ ] Hardware-accelerated video decoding
 - [ ] Dedicated object-detection accelerator
 - [ ] Additional cameras and final retention sizing
+
+---
+
+# Deferred Projects
+
+## Local AI / GPU Acceleration
+
+- [ ] Evaluate local LLM deployment on Proxmox after the current project concludes
+- [ ] Evaluate NVIDIA Tesla P40 24 GB as the value-oriented GPU option
+- [ ] Verify Dell Precision 5810 PCIe clearance, PSU capacity and GPU power connections before purchase
+- [ ] Design active cooling/airflow for a passively cooled datacenter GPU
+- [ ] Test local model performance with the planned 48 GB system RAM
+- [ ] Keep Frigate object detection on a dedicated TPU/accelerator where practical, reserving GPU capacity for local AI and advanced Frigate workloads
 
 ---
 
