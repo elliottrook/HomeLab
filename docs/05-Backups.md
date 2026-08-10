@@ -145,6 +145,21 @@ The 2026-08-08 dry run retained the newest archive for each day and marked only 
 
 The external disk is still in the same physical system. A future backup phase should replicate the latest guest archives to protected NAS or genuinely off-host storage.
 
+## Configuration-backup retention policy
+
+Adopted 2026-08-10 for small configuration and recovery archives:
+
+- Daily configurations: retain 7 copies.
+- Weekly configurations: retain 4 copies.
+- Monthly configurations: retain 12 copies.
+- Pre-change recovery checkpoints: retain for at least 90 days.
+- Important known-good baselines: retain until a newer baseline has been validated and documented.
+- Never delete the only verified copy of any essential recovery artifact.
+- Do not enable automatic deletion until automated copying, verification and restore testing are working.
+- Keep sensitive archives encrypted or access-controlled throughout their retention period.
+
+This policy covers configuration exports and small recovery archives, not media libraries or Frigate recordings. Proxmox guest archives retain their separately configured policy of 7 daily, 4 weekly and 6 monthly copies.
+
 ## Restore validation record — 2026-08-10
 
 Two recovery paths were tested without interrupting production services.
