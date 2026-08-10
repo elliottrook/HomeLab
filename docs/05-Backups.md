@@ -145,6 +145,81 @@ The 2026-08-08 dry run retained the newest archive for each day and marked only 
 
 The external disk is still in the same physical system. A future backup phase should replicate the latest guest archives to protected NAS or genuinely off-host storage.
 
+## Restore validation record — 2026-08-10
+
+Two recovery paths were tested without interrupting production services.
+
+### Homepage configuration and service restore
+
+Source archive:
+
+- Synology path: `Backup/HomeLab-Backups/2026-08-08/homepage-config-20260808-162831.tgz`
+- Checksum manifest: `SHA256SUMS.txt`
+
+Validated procedure:
+
+1. Verify the archive against the saved SHA-256 manifest.
+2. List the archive before extraction and confirm that all entries remain beneath `homepage/`.
+3. Extract into a newly created temporary directory.
+4. Parse the restored YAML files without displaying their contents.
+5. Transfer the verified archive to a mode-`0600` temporary file on Docker LXC 100.
+6. Verify the transferred archive against the original checksum.
+7. Extract it outside `/opt/homepage`.
+8. Inspect only the Compose service structure, environment-variable names, port and volume definitions.
+9. Start a temporary container named `homepage-restore-test` using the existing local image, no restart policy, restored configuration and loopback-only `127.0.0.1:3001` publishing.
+10. Confirm the temporary container becomes healthy and returns HTTP 200 locally.
+11. Remove the temporary container, extracted files and transferred archive.
+
+Results:
+
+- SHA-256 verification: passed.
+- Archive extraction: passed.
+- Restored YAML syntax: passed.
+- Temporary restored container: `running / healthy`.
+- Local HTTP response: `200`.
+- Production `homepage` container on TCP 3000: remained running and unchanged.
+- Cleanup: completed.
+
+Planning estimate: allow approximately 10–15 minutes for a configuration-level test when the archive and image are locally available, excluding operator pauses. A production recovery may take longer for diagnosis, transfer and post-restore dashboard checks.
+
+### Proxmox LXC guest restore
+
+Source archive:
+
+- `backups:backup/vzdump-lxc-101-2026_08_10-02_30_36.tar.zst`
+- Original guest: LXC 101, `unifi-os-server`
+- Temporary restore guest: LXC 901
+
+Validated procedure:
+
+1. Confirm the target guest ID is unused and `local-lvm` has sufficient capacity.
+2. Run a complete `zstd --test` against the archive.
+3. Inspect the embedded guest configuration with `pvesm extractconfig`.
+4. Restore to a new guest ID on `local-lvm`, with automatic start disabled and a unique MAC requested.
+5. Verify the restored guest is stopped and `onboot` is disabled.
+6. Explicitly replace the restored network definition with `ip=manual,link_down=1`; never start a duplicate guest with the production IP address.
+7. Mount the stopped guest filesystem with `pct mount`.
+8. Confirm the recovered OS metadata, hostname, systemd structure and application-data filesystem are readable.
+9. Unmount the filesystem.
+10. Destroy only the temporary guest and confirm its temporary logical volume is removed.
+
+Results:
+
+- Zstandard archive integrity: passed.
+- Restore to new `local-lvm` volume: passed.
+- Restored guest state: stopped.
+- Automatic start: disabled.
+- Network: unique MAC, no IP configuration and link down before any possible start.
+- Restored hostname: `unifi-os-server`.
+- Restored filesystem usage: approximately 5.6 GiB.
+- Offline filesystem validation and unmount: passed.
+- Production LXC 101: remained running and unchanged.
+- Temporary guest 901 and `vm-901-disk-0`: removed successfully.
+
+The restore command preserved the backed-up IP address and gateway even though a network override was supplied. Treat post-restore inspection and an explicit disconnected network configuration as mandatory before starting any restored duplicate.
+
+Planning estimate: allow approximately 15–30 minutes for an offline LXC restore test of this size, excluding operator pauses. The archive extraction itself may be much faster on local storage, but safety inspection, network isolation, validation and cleanup are part of the recovery time.
+
 ## Recovery order
 
 1. Restore OPNsense routing, firewall, DHCP and DNS.
