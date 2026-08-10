@@ -139,7 +139,7 @@ Existing Foundation
 
 Recovery Validation
 
-- [ ] Restore-test one low-risk service such as Homepage or Pi-hole
+- [x] Restore-test one low-risk service such as Homepage or Pi-hole — Homepage validated 2026-08-10
 - [ ] Restore-test a disposable Proxmox guest backup
 - [ ] Document recovery steps, results and approximate recovery time
 - [ ] Define configuration-backup retention
@@ -423,6 +423,7 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-10 | Completed isolated Homepage restore test from the checksum-verified Synology archive; restored configuration produced a healthy temporary container and HTTP 200, then all test resources were removed. | `homepage-config-20260808-162831.tgz`; production Homepage remained online and unchanged |
 | 2026-08-09 | Created consolidated completion tracker and scope lock; added Home Assistant and controlled IoT migration milestone. | Handover, repository baseline, roadmap, surveillance runbook and changelog through 1.3.0 |
 | 2026-08-10 | Consolidated PROJECT-TRACKER.md into PROJECTS.md; retained PROJECTS.md roadmap formatting and established it as the single project-level document of truth. | PROJECTS.md and PROJECT-TRACKER.md reconciliation |
 | 2026-08-10 | Set backup resilience as current focus; added encrypted off-site S3 plan using IDrive e2, approximately 500 GB planning capacity, with Backblaze B2 fallback and remote self-hosted S3 retained as an option. | Backup planning discussion |
