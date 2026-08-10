@@ -140,7 +140,7 @@ Existing Foundation
 Recovery Validation
 
 - [x] Restore-test one low-risk service such as Homepage or Pi-hole — Homepage validated 2026-08-10
-- [ ] Restore-test a disposable Proxmox guest backup
+- [x] Restore-test a disposable Proxmox guest backup — LXC 101 restored offline as temporary guest 901 on 2026-08-10
 - [ ] Document recovery steps, results and approximate recovery time
 - [ ] Define configuration-backup retention
 - [ ] Confirm sensitive camera and infrastructure credentials remain outside Git
@@ -423,6 +423,7 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-10 | Completed disposable Proxmox guest restore test: verified the newest LXC 101 archive, restored it as stopped guest 901 with isolated networking, validated the recovered filesystem offline, then removed the guest and temporary disk. | `vzdump-lxc-101-2026_08_10-02_30_36.tar.zst`; production LXC 101 remained running and unchanged |
 | 2026-08-10 | Completed isolated Homepage restore test from the checksum-verified Synology archive; restored configuration produced a healthy temporary container and HTTP 200, then all test resources were removed. | `homepage-config-20260808-162831.tgz`; production Homepage remained online and unchanged |
 | 2026-08-09 | Created consolidated completion tracker and scope lock; added Home Assistant and controlled IoT migration milestone. | Handover, repository baseline, roadmap, surveillance runbook and changelog through 1.3.0 |
 | 2026-08-10 | Consolidated PROJECT-TRACKER.md into PROJECTS.md; retained PROJECTS.md roadmap formatting and established it as the single project-level document of truth. | PROJECTS.md and PROJECT-TRACKER.md reconciliation |
