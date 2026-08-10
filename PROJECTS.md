@@ -143,7 +143,7 @@ Recovery Validation
 - [x] Restore-test a disposable Proxmox guest backup — LXC 101 restored offline as temporary guest 901 on 2026-08-10
 - [x] Document recovery steps, results and approximate recovery time — Homepage and Proxmox LXC validation recorded in `docs/05-Backups.md` on 2026-08-10
 - [x] Define configuration-backup retention — 7 daily, 4 weekly, 12 monthly; pre-change checkpoints 90 days; known-good baselines retained until superseded
-- [ ] Confirm sensitive camera and infrastructure credentials remain outside Git
+- [x] Confirm sensitive camera and infrastructure credentials remain outside Git — current tree and full-history pattern audit passed 2026-08-10
 
 Automation and Same-Site Protection
 
@@ -423,6 +423,7 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-10 | Completed repository credential audit across tracked filenames, current content and full Git history; no high-confidence secret or credential-assignment patterns found. | `docs/05-Backups.md` repository credential audit |
 | 2026-08-10 | Adopted configuration-backup retention: 7 daily, 4 weekly, 12 monthly; 90-day pre-change checkpoints; known-good baselines retained until superseded. | `docs/05-Backups.md` configuration-backup retention policy |
 | 2026-08-10 | Documented tested Homepage and Proxmox LXC recovery procedures, results, safety controls, cleanup and planning-time estimates. | `docs/05-Backups.md` restore validation record |
 | 2026-08-10 | Completed disposable Proxmox guest restore test: verified the newest LXC 101 archive, restored it as stopped guest 901 with isolated networking, validated the recovered filesystem offline, then removed the guest and temporary disk. | `vzdump-lxc-101-2026_08_10-02_30_36.tar.zst`; production LXC 101 remained running and unchanged |
