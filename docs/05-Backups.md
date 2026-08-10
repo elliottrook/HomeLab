@@ -145,6 +145,28 @@ The 2026-08-08 dry run retained the newest archive for each day and marked only 
 
 The external disk is still in the same physical system. A future backup phase should replicate the latest guest archives to protected NAS or genuinely off-host storage.
 
+## Repository credential audit — 2026-08-10
+
+The private Git repository was cloned locally over authenticated SSH and audited without printing candidate secret values.
+
+Checks performed:
+
+- Confirmed the local checkout was clean and synchronized with `origin/main`.
+- Searched tracked filenames for private keys, environment files, raw configuration exports, backup archives and credential-related names.
+- Scanned the current tracked tree for high-confidence private-key, AWS, GitHub, Tailscale and credential-bearing RTSP URL patterns.
+- Scanned every reachable Git commit for the same high-confidence patterns.
+- Scanned the current tree for broader password, token, secret, API-key, authentication-key and camera-credential assignment patterns.
+
+Results:
+
+- No suspicious tracked filenames were found.
+- No high-confidence secret patterns were found in the current tree.
+- No high-confidence secret patterns were found in Git history.
+- No credential-assignment patterns were found in the current tree.
+- Raw appliance exports, camera credentials, reusable tokens and private keys remain outside Git based on this audit.
+
+This pattern-based audit reduces risk but does not replace credential rotation after any suspected disclosure or GitHub provider-side secret scanning when available.
+
 ## Configuration-backup retention policy
 
 Adopted 2026-08-10 for small configuration and recovery archives:
