@@ -28,7 +28,69 @@ shasum -a 256 -c SHA256SUMS.txt
 
 All six protected files reported `OK`. The Synology copy therefore protects against loss of the Mac copy or an individual source host. It is a second-host, same-site copy and does not protect against theft, fire or another site-wide event.
 
-Keep this shared folder restricted to the backup account. Synology snapshots or versioning and a future encrypted off-site copy would provide additional protection. Copy and verification automation remains a future task; do not automate deletion until retention and restore testing are established.
+Keep this shared folder restricted to the backup account. The manual dated set remains a known-good baseline; ongoing configuration and guest protection is now automated as described below.
+
+## Automated same-site protection
+
+The Backup Synology at `192.168.1.42` pulls rather than receives pushed data, so scheduled work does not depend on a mounted Mac SMB share.
+
+Configuration recovery sets are pulled daily at 21:00 from the Mac source `~/lab/private-backups` into `Backup/HomeLab-Backups/automated/private-backups`. The task uses a dedicated Synology-held SSH key restricted on the Mac to the Backup Synology source address. It performs an additive rsync copy followed by a checksum-mode dry run. Success and diagnostic state is recorded in:
+
+- `synology-pull-latest.status`
+- `synology-pull-last-success.txt`
+- `logs/synology-pull-latest.log`
+
+Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The mirror includes only LXC 100, LXC 101 and QEMU 102 backup archives. A checksum-mode dry run must be empty before success is recorded in:
+
+- `proxmox-pull-latest.status`
+- `proxmox-pull-last-success.txt`
+- `logs/proxmox-pull-latest.log`
+
+Both production tasks write `0` only after copy and verification succeed. On failure they invoke the Mac over the existing restricted SSH path, where `scripts/backup-alert` uses Apple Mail to send an actionable email. Successful runs deliberately send no email. The manual `lab backup synology-copy [--dry-run]` command remains available as an operator-controlled fallback; it is not part of `lab backup all` and is not the unattended production path.
+
+Private keys, authorized-key material, host-key files, email credentials and backup contents remain outside Git.
+
+## Encrypted IDrive e2 off-site backup
+
+The Backup Synology runs Hyper Backup task `Mini Atlas Offsite` against a private IDrive e2 S3-compatible bucket in Oregon-2. The task uses the region-specific endpoint `s3.us-west-4.idrivee2.com` and a bucket-scoped read/write access key that may delete objects for retention pruning but may not delete the bucket. Access and secret keys are not recorded in this repository.
+
+Selected sources are limited to:
+
+- `Backup/HomeLab-Backups/automated/private-backups`
+- `Backup/HomeLab-Backups/automated/proxmox-guests`
+
+Frigate recordings, media libraries and unrelated NAS data are excluded. The provisioned capacity is 1 TB; the earlier approximate 500 GB planning assumption was superseded by the provider's current minimum plan.
+
+Hyper Backup settings:
+
+- Daily schedule: 22:00, after the 21:00 configuration pull
+- Integrity check: Sunday at 04:00
+- Transfer compression: enabled
+- Client-side encryption: enabled
+- Rotation: enabled, maximum 23 versions
+- Customized retention: daily for the newest week, weekly through the newest month and monthly thereafter
+- Task notifications: enabled
+
+The encryption password and exported private recovery key are stored separately from the Synology in encrypted, backed-up recovery storage. Loss of both makes the repository unrecoverable. Do not store either in Git, the IDrive bucket or an unencrypted Downloads folder.
+
+Validated 2026-08-11:
+
+- Initial encrypted upload completed without an error notification.
+- Backup Explorer opened and displayed readable configuration data.
+- An LXC 100 archive recovered through Hyper Backup matched the same-site Synology source exactly by SHA-256.
+- A second Hyper Backup run created a new version and included the 2026-08-11 archives for LXC 100, LXC 101 and QEMU 102.
+- Backup Explorer showed two versions at 00:48 and 12:19; file-change detail logging was intentionally left disabled, so per-file cloud-transfer records are not expected in the same-site pull logs.
+
+Recovery procedure:
+
+1. Install Hyper Backup on a supported Synology system.
+2. Relink the existing S3 task using the Oregon-2 endpoint, private bucket and separately stored bucket-scoped credentials.
+3. Supply the client-side encryption password or import the separately stored recovery key.
+4. Use Backup Explorer to select the required version and inspect or download individual files before restoring production data.
+5. For a guest archive, compare the recovered file's SHA-256 digest with a trusted manifest or surviving verified copy before using `pct restore` or `qmrestore`.
+6. Restore a guest under a new ID with automatic start disabled and networking isolated; inspect it before any start, following the validated guest procedure below.
+
+Review IDrive e2 service, pricing, recovery performance and capacity by 2027-08-11. Backblaze B2 remains the documented provider fallback, and the S3-compatible design preserves the option of a trusted remote self-hosted target.
 
 ## Docker LXC 100
 
@@ -143,7 +205,7 @@ pvesm prune-backups backups \
 
 The 2026-08-08 dry run retained the newest archive for each day and marked only four same-day duplicates for removal. Normal pruning will occur after a successful scheduled backup. Do not manually delete the known-good newest archives.
 
-The external disk is still in the same physical system. A future backup phase should replicate the latest guest archives to protected NAS or genuinely off-host storage.
+The external disk remains the first local recovery tier. Retained guest archives are now mirrored to the Backup Synology and included in the client-side-encrypted IDrive e2 task described above.
 
 ## Repository credential audit — 2026-08-10
 

@@ -5,6 +5,7 @@ SSH shortcuts:
 - ssh docker
 - ssh opnsense
 - ssh truenas
+- ssh frigate
 
 ## Service dashboard
 
@@ -25,6 +26,16 @@ Dashboard SSH targets:
 | Frigate SSH | `ssh://jelliott@192.168.20.10` |
 
 The client device must have an application registered to handle `ssh://` links. These links do not contain passwords or private keys.
+
+The Mac SSH client uses the same `~/.ssh/id_ed25519` identity for the documented aliases. OPNsense and Frigate accept its public key, while the private key remains on the Mac. `AddKeysToAgent yes` and `UseKeychain yes` allow macOS to retrieve the passphrase from Apple Keychain and load the identity into `ssh-agent`; FileVault and automatic screen locking remain important because an unlocked user session can use the loaded key.
+
+Validated commands:
+
+```sh
+ssh -o BatchMode=yes opnsense 'echo OPNsense-SSH-KEY-OK'
+ssh -o BatchMode=yes frigate 'echo Frigate-SSH-KEY-OK'
+lab ssh frigate
+```
 
 ## Frigate operations
 

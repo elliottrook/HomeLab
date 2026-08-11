@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.4.0
+
+### Added
+- Automated checksum-verified configuration pulls from the Mac to the Backup Synology
+- Automated read-only Proxmox guest-archive mirroring to the Backup Synology
+- Failure-only email alerts through the restricted Synology-to-Mac SSH path and Apple Mail
+- Client-side-encrypted Hyper Backup protection in a private IDrive e2 S3-compatible bucket
+- Bucket-scoped cloud credentials, 23-version rotation and weekly integrity checking
+- Manual `lab backup synology-copy [--dry-run]` fallback
+- Frigate SSH alias and toolkit inventory integration
+- Deferred post-project evaluation of Tailscale Services
+
+### Validated
+- Initial and incremental Hyper Backup runs with two recoverable versions
+- Off-site LXC 100 archive recovery with an exact SHA-256 match
+- Homepage configuration restore and isolated temporary-container service validation
+- Offline disposable Proxmox LXC restore with isolated networking
+- Non-interactive OPNsense and Frigate public-key SSH
+- `ssh frigate`, `lab ssh frigate` and the Homepage Frigate SSH launch path
+
+### Security
+- Restricted the Proxmox export identity to source-address-bound, read-only `rrsync`
+- Kept S3 credentials, SSH private keys, Hyper Backup encryption material and raw archives outside Git
+- Stored the Hyper Backup recovery key separately in encrypted, backed-up recovery storage
+- Preserved tailnet-only scope for the future Tailscale Services evaluation, with no Funnel or public exposure
+
+### Fixed
+- Loaded the shared output library before the `lab` command renders backup help
+- Removed the abandoned interactive Synology-copy pause from `lab backup all`
+- Repaired OPNsense public-key authentication and configured macOS Keychain-backed SSH-agent loading
+
 ## v1.3.0
 
 ### Added

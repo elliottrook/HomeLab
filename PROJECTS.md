@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-10
+> Last Updated: 2026-08-11
 >
 > **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
 
@@ -8,10 +8,10 @@
 
 # Current Release
 
-Version 1.3.0
+Version 1.4.0
 
 Current Focus:
-🔵 Backup Resilience — automated same-site copies, restore testing, and encrypted off-site backup
+🔵 Frigate and NFS stability observation
 
 Project Status:
 🚧 Active — complete the defined programme before accepting elective new work
@@ -122,20 +122,22 @@ VLAN 70 isolation and administrator access behave exactly as documented.
 - [x] Tailscale subnet access restricted to the administrator identity
 - [x] Remote web and SSH administration validated without inbound WAN ports
 - [x] Frigate dashboard and SSH launch links
+- [x] Repair key-based OPNsense SSH login used by the HomeLab toolkit and validate non-interactive access
+- [x] Add a dedicated SSH login key for the Frigate VM and validate the Homepage/toolkit launch path
 - [ ] Device Status
 - [ ] Backup Status
 - [ ] Resource Monitoring
 
 ---
 
-# Phase 4 — Backup Resilience 🚧 CURRENT
+# Phase 4 — Backup Resilience ✅ COMPLETE
 
 Existing Foundation
 
 - [x] Configuration backups exist for OPNsense, UniFi, Arista, TrueNAS, Homepage, Pi-hole, Tailscale, Proxmox guests and Frigate
 - [x] Proxmox backup schedules consolidated with retention configured
 - [x] Checksum-verified recovery set copied to backup Synology
-- [x] Current baseline, roadmap, surveillance runbook and changelog documented through release 1.3.0
+- [x] Current baseline, roadmap, surveillance runbook and changelog documented through release 1.4.0
 
 Recovery Validation
 
@@ -147,23 +149,25 @@ Recovery Validation
 
 Automation and Same-Site Protection
 
-- [ ] Automate copying recovery sets to the backup Synology
-- [ ] Add backup-age or backup-failure notification
+- [x] Automate copying recovery sets to the backup Synology
+- [x] Add backup-age or backup-failure notification
 
 Encrypted Off-Site Backup
 
-- [ ] Establish encrypted off-site protection for essential system/recovery material only — media excluded
-- [ ] Use S3-compatible object storage as the preferred protocol
-- [ ] Initial cloud target: IDrive e2 S3-compatible storage
-- [ ] Planning assumption: approximately 500 GB off-site capacity
-- [ ] Define practical snapshot/version retention before production rollout
-- [ ] Validate initial upload, incremental backup, encryption and restore
-- [ ] Document provider configuration and recovery procedure without storing credentials in Git
-- [ ] Review IDrive e2 after the first year; Backblaze B2 remains the fallback option
-- [ ] Preserve the option to replace cloud storage with an S3-compatible off-site system hosted at a trusted remote location
+- [x] Establish encrypted off-site protection for essential system/recovery material only — media excluded
+- [x] Use S3-compatible object storage as the preferred protocol
+- [x] Initial cloud target: IDrive e2 S3-compatible storage
+- [x] Provision 1 TB off-site capacity, replacing the original approximate 500 GB planning assumption
+- [x] Define practical snapshot/version retention before production rollout
+- [x] Validate initial upload, incremental backup, encryption and restore
+- [x] Document provider configuration and recovery procedure without storing credentials in Git
+- [ ] Scheduled lifecycle review: review IDrive e2 by 2027-08-11; Backblaze B2 remains the fallback option
+- [x] Preserve the option to replace cloud storage with an S3-compatible off-site system hosted at a trusted remote location
 
 Completion Gate:
 At least one application and one VM/guest have been restored successfully, and essential backups have automated same-site and encrypted off-site protection.
+
+Passed 2026-08-11: Homepage and a disposable LXC restore were validated; configuration and retained Proxmox guest archives now have automated same-site copies and client-side-encrypted IDrive e2 protection; initial, incremental and recovered-file integrity tests passed.
 
 ---
 
@@ -401,6 +405,7 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 - UPS Integration
 - Remote Environmental Sensors
+- Evaluate Tailscale Services after the current project is complete: pilot stable MagicDNS/TailVIP names and service-level grants for a small set of internal web services such as Homepage, Home Assistant and Frigate; compare against existing device MagicDNS and subnet routing before wider adoption; keep access tailnet-only with no Funnel or public exposure
 
 ---
 
@@ -423,6 +428,9 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-11 | Completed Phase 4 Backup Resilience with automated checksum-verified Synology pulls, failure email alerts, client-side-encrypted IDrive e2 protection and two-version incremental validation. | `docs/05-Backups.md`; Hyper Backup versions at 00:48 and 12:19 |
+| 2026-08-11 | Validated an encrypted off-site Proxmox recovery by downloading an LXC 100 archive through Hyper Backup and obtaining an exact SHA-256 match against the same-site source. | `vzdump-lxc-100-2026_08_06-23_30_04.tar.zst` |
+| 2026-08-11 | Repaired OPNsense public-key authentication, enabled macOS Keychain-backed SSH agent loading, and added/validated the Frigate SSH key, alias, toolkit path and Homepage launch link. | Non-interactive SSH tests and `lab ssh frigate` |
 | 2026-08-10 | Completed repository credential audit across tracked filenames, current content and full Git history; no high-confidence secret or credential-assignment patterns found. | `docs/05-Backups.md` repository credential audit |
 | 2026-08-10 | Adopted configuration-backup retention: 7 daily, 4 weekly, 12 monthly; 90-day pre-change checkpoints; known-good baselines retained until superseded. | `docs/05-Backups.md` configuration-backup retention policy |
 | 2026-08-10 | Documented tested Homepage and Proxmox LXC recovery procedures, results, safety controls, cleanup and planning-time estimates. | `docs/05-Backups.md` restore validation record |
