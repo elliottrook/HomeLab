@@ -22,6 +22,16 @@ Post-change recovery checkpoint completed 2026-08-08:
 - Three overlapping Proxmox jobs were consolidated to one all-guests job at 02:30 using snapshot mode, Zstandard compression and 7-daily/4-weekly/6-monthly retention. The redundant jobs were disabled, not deleted, and a dry run marked only same-day duplicates for pruning.
 - Arista VLAN and trunk changes saved to startup-config; an external copy of the current configuration was retained.
 
+Backup-resilience checkpoint completed 2026-08-11:
+
+- The Backup Synology independently pulls and checksum-verifies the Mac configuration recovery set and retained Proxmox guest archives.
+- LXC 100, LXC 101 and QEMU 102 archives are retrieved through a dedicated source-restricted, read-only Proxmox export identity.
+- Failure-only email notification was validated end to end; successful production runs do not send mail.
+- Hyper Backup protects configuration and guest archives in a private IDrive e2 S3-compatible bucket using client-side encryption and 23-version rotation.
+- Initial and incremental cloud versions completed successfully.
+- A downloaded encrypted-cloud recovery of an LXC 100 archive matched the same-site source exactly by SHA-256.
+- Frigate recordings and general media remain excluded from the off-site set.
+
 Store copies off the network appliances and treat them as sensitive configuration data.
 
 ## Current topology

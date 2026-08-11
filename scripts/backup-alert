@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -euo pipefail
+
+recipient="jason@yampy.ca"
+subject="${1:-Mini Atlas backup alert}"
+message="${2:-The HomeLab backup task reported a failure.}"
+
+/usr/bin/osascript - "$recipient" "$subject" "$message" <<'APPLESCRIPT'
+on run argv
+    set recipientAddress to item 1 of argv
+    set messageSubject to item 2 of argv
+    set messageBody to item 3 of argv
+
+    tell application "Mail"
+        set alertMessage to make new outgoing message with properties {subject:messageSubject, content:messageBody & return & return}
+        tell alertMessage
+            make new to recipient at end of to recipients with properties {address:recipientAddress}
+            send
+        end tell
+    end tell
+end run
+APPLESCRIPT
