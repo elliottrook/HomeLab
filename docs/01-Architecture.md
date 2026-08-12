@@ -10,6 +10,7 @@ Arista core
   |     +-- LXC 100: Docker, Homepage, Portainer, Pi-hole and Tailscale
   |     +-- LXC 101: UniFi OS Server
   |     +-- VM 102: Frigate (Servers VLAN 20)
+  |     +-- VM 103: Home Assistant OS (Servers VLAN 20)
   +-- TrueNAS
   |     +-- NFS: Surveillance/Frigate recording storage
   +-- Synology storage
@@ -39,3 +40,11 @@ DHCP clients -> Pi-hole Primary   192.168.1.20 --+
 ```
 
 Pi-hole is not a DHCP server. A floating OPNsense rule permits only TCP/UDP 53 from the routed client-VLAN alias to the Pi-hole server alias and is evaluated before the existing RFC1918 isolation blocks. Clients using encrypted or private DNS can bypass DHCP-provided resolvers; this rollout does not attempt broad DoH/DoT interception.
+
+## Home automation architecture
+
+Home Assistant OS 18.2 runs as Proxmox VM 103 at `192.168.20.11` on Servers VLAN 20. The VM has 2 vCPU, 4 GB RAM and a 32 GB system disk. OPNsense Dnsmasq reserves the address for MAC `BC:24:11:08:16:A3`, and local DNS publishes `home-assistant.home.internal`.
+
+Home Assistant initiates access to specifically approved IoT hubs; IoT devices do not receive unrestricted access back into Servers. Philips Hue at `192.168.30.164` is the first integration, reached through dedicated TCP 80 and 443 rules from the Home Assistant address. Further hubs receive separate minimum-access rules only when integrated.
+
+Home Assistant will be the sole owner of rebuilt automations. Vendor applications remain available for firmware, recovery and unsupported features, but their existing automations are not imported. The first cross-ecosystem pilot is a Hue motion sensor controlling a non-essential Lutron light.

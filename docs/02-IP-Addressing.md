@@ -12,6 +12,7 @@
 |Synology DS920+|192.168.1.41|
 |Backup Synology|192.168.1.42|
 |Frigate VM 102|192.168.20.10|
+|Home Assistant OS VM 103|192.168.20.11|
 |Reolink Duo 2V PoE|192.168.60.10|
 
 ## Shared service endpoints on Docker LXC 100
@@ -40,3 +41,11 @@
 | Reolink HTTP | `192.168.60.10` | 80/TCP | Frigate management |
 | Reolink RTSP | `192.168.60.10` | 554/TCP | Video stream |
 | Reolink ONVIF | `192.168.60.10` | 8000/TCP | Camera integration |
+
+## Home automation endpoints
+
+| Service | Address | Port | Status |
+|---|---|---:|---|
+| Home Assistant | `http://home-assistant.home.internal:8123` (`192.168.20.11`) | 8123/TCP | Pilot operational |
+| Lutron Caséta bridge | `192.168.30.102` | To be validated | Integration pending |
+| Philips Hue bridge | `192.168.30.164` | 80/443 TCP | Integrated with Home Assistant |

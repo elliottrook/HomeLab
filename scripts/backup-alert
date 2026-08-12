@@ -2,6 +2,41 @@
 
 set -euo pipefail
 
+if [[ "${1:-}" == "report" ]]; then
+    task="${2:-}"
+    result="${3:-}"
+
+    case "$task" in
+        synology-pull|proxmox-pull) ;;
+        *)
+            printf 'Unsupported backup task: %s\n' "$task" >&2
+            exit 2
+            ;;
+    esac
+
+    case "$result" in
+        success|failure) ;;
+        *)
+            printf 'Unsupported backup result: %s\n' "$result" >&2
+            exit 2
+            ;;
+    esac
+
+    state_dir="${HOMELAB_STATE_ROOT:-$HOME/lab/monitoring-state}/backups"
+    state_file="$state_dir/$task.state"
+    temporary_file="$state_file.tmp.$$"
+
+    mkdir -p "$state_dir"
+    umask 077
+    {
+        printf 'result=%s\n' "$result"
+        printf 'reported_epoch=%s\n' "$(date +%s)"
+        printf 'reported_at=%s\n' "$(date '+%Y-%m-%d %H:%M:%S %Z')"
+    } > "$temporary_file"
+    mv -f "$temporary_file" "$state_file"
+    exit 0
+fi
+
 recipient="jason@yampy.ca"
 subject="${1:-Mini Atlas backup alert}"
 message="${2:-The HomeLab backup task reported a failure.}"

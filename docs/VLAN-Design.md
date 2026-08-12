@@ -185,8 +185,18 @@ Inbound access from selected trusted administrator devices to Lab workloads is d
 8. Save configurations only after validation; remove VLAN tags 20 and 70 and restore Et4 access mode if rollback is required.
 
 The OPNsense interface, DHCP scope, firewall policy, Arista VLAN transport and
-VLAN-aware Proxmox bridge are deployed. No persistent experimental workload is
-currently assigned to VLAN 70.
+VLAN-aware Proxmox bridge are deployed. Validation completed on 2026-08-11 with
+a disposable unprivileged LXC 970 attached to `vmbr0` with tag 70. The test
+received `192.168.70.112`, both Pi-hole resolvers, Internet TCP/443 access and
+the expected Lab domain. It could reach only the two Pi-hole DNS endpoints on
+internal networks; Proxmox, UniFi, Frigate and camera web endpoints were
+blocked. The temporary container was stopped and purged after validation.
+
+During validation, the OPNsense Lab VLAN was found incorrectly attached to
+`igb0`. A pre-change OPNsense backup was created, the parent was corrected to
+the production trunk `ix0`, carrier and DHCP were verified, and the full
+isolation test then passed. No persistent experimental workload is currently
+assigned to VLAN 70.
 
 ---
 

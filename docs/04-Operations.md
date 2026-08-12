@@ -111,6 +111,29 @@ Network-wide rollback:
 
 DHCP-provided DNS does not force clients to use port 53. iCloud Private Relay, VPNs and encrypted-DNS profiles may bypass the Pi-hole pair unless a separate, explicitly approved enforcement policy is deployed.
 
+## Home Assistant pilot
+
+- Platform: Home Assistant OS 18.2 in Proxmox VM 103
+- Address: `192.168.20.11` on Servers VLAN 20
+- Local URL: `http://home-assistant.home.internal:8123`
+- Resources: 2 vCPU, 4 GB RAM, 32 GB SCSI disk
+- Proxmox settings: OVMF, Q35, VirtIO NIC tagged VLAN 20, automatic startup enabled
+- DHCP/DNS: Dnsmasq host reservation for MAC `BC:24:11:08:16:A3`; domain `home.internal`
+- Initial recovery point: full Home Assistant backup `Fresh HAOS installation`
+- First integration: Philips Hue bridge `192.168.30.164`
+- Hue firewall access: TCP 80 and 443 from `192.168.20.11` only
+
+The restart point for the next session is **Lutron Caséta integration**. Confirm
+the bridge address (the network baseline last recorded `192.168.30.102`), test
+reachability from Home Assistant, and add only the required HA-to-Lutron rules.
+After Lutron devices are visible, create the pilot automation: one Hue motion
+sensor controls one non-essential Lutron light. Do not import or enable the old
+vendor-app automations during the pilot.
+
+The Hue bridge registration button must be pressed and released immediately
+before submitting the pairing prompt. Automatic discovery is not relied upon
+across VLANs; integrations are added using known hub addresses.
+
 ## Remote administration
 
 - Tailscale subnet router: `homelab-gateway` in Proxmox LXC 100
