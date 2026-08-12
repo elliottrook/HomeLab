@@ -184,6 +184,27 @@ locations, retain mode `0600`, verify its checksum after transfer and never
 commit it to Git. Recordings remain protected separately by the TrueNAS dataset
 and its storage-level backup policy.
 
+## Home Assistant
+
+Home Assistant OS runs as Proxmox VM 103 and will be included by the enabled
+all-guests Proxmox backup job. Home Assistant's own backup system provides an
+application-aware recovery path inside the VM.
+
+The initial full backup, named `Fresh HAOS installation`, was created after
+first boot and before integrations were added. Create another full backup after
+the Hue/Lutron pilot is validated. Before production IoT migration, define and
+test an automated off-host copy of Home Assistant backups; a backup retained
+only inside VM 103 is not sufficient protection from guest-disk loss.
+
+Restore validation remains outstanding. It must cover both of these paths:
+
+1. restore a Home Assistant backup into a disposable or replacement HAOS VM;
+2. restore VM 103 from a retained Proxmox guest archive and confirm its fixed
+   address, local DNS name, integrations and dashboard.
+
+Do not store Home Assistant backup archives in Git. They may contain integration
+credentials, device identifiers and household data.
+
 ## Proxmox guest backups
 
 Proxmox stores `vzdump` archives on the `backups` directory storage at `/mnt/backups`. The mount is a separate 4 TB Seagate ST4000LM024 disk (`/dev/sda1`, ext4). This protects the guests from loss of the Proxmox system disk, but the disk remains physically local to the Proxmox host and is not an off-site copy.

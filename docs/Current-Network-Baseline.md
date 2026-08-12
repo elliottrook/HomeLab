@@ -86,6 +86,7 @@ removed from Et20 and Et21.
 | 192.168.30.102 | Lutron | ec:24:b8:8e:d4:10 | Et45, access VLAN 30 |
 | 192.168.30.164 | Philips Hue | 00:17:88:22:42:e5 | Et46, access VLAN 30 |
 | 192.168.20.10 | Frigate VM 102 | bc:24:11:f5:09:a3 | Et4 via Proxmox, tagged VLAN 20 |
+| 192.168.20.11 | Home Assistant OS VM 103 | bc:24:11:08:16:a3 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.60.10 | Reolink Duo 2V PoE | ec:71:db:80:49:6e | UniFi PoE port 3, VLAN 60 |
 | 192.168.1.206 | Mac Studio | d0:11:e5:9e:c4:76 | Et8 |
 | 192.168.1.211 | Downstream UniFi client | d8:c8:0c:bb:52:a4 | Et33 |
@@ -119,6 +120,8 @@ removed from Et20 and Et21.
 - Frigate records to `192.168.1.40:/mnt/Media/Surveillance/Frigate` over NFSv4. A systemd-owned Compose service waits for the real NFS mount before starting, and a full reboot test confirmed a healthy container plus fresh recording segments.
 - The primary Pi-hole 2026.05.0 runs in Docker LXC 100 at `192.168.1.20`; the secondary Pi-hole 2026.07.2 runs as a TrueNAS App at `192.168.1.40`. Both publish TCP/UDP 53, use OPNsense as their upstream path, resolve `home.internal` to `192.168.1.20` and return `0.0.0.0` for the blocked test domain.
 - OPNsense Dnsmasq advertises both Pi-holes through an untagged DHCPv4 option 6 on every configured range. A source-network alias covering VLANs 20 through 70 and an early floating rule permit only TCP/UDP 53 to the resolver alias while preserving the existing private-network blocks. LAN, Servers, IoT and Guest paths were directly validated. Encrypted/private client DNS remains outside this DHCP-based guarantee.
+- Home Assistant OS 18.2 runs as Proxmox VM 103 at reserved address `192.168.20.11` on VLAN 20 with 2 vCPU, 4 GB RAM and 32 GB storage. `home-assistant.home.internal:8123` is operational, the initial full backup exists, and Philips Hue at `192.168.30.164` is integrated through HA-specific TCP 80/443 rules. Lutron integration is the next pilot step.
+- VLAN 70 was fully validated with disposable LXC 970: DHCP, Pi-hole DNS, blocked-domain response and Internet access passed, while non-DNS access to internal services remained blocked. The OPNsense VLAN parent was corrected from inactive `igb0` to trunk `ix0`; the test container was then purged.
 
 ## Resolved incidents
 

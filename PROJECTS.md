@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-11
+> Last Updated: 2026-08-12
 >
 > **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
 
@@ -8,10 +8,10 @@
 
 # Current Release
 
-Version 1.4.0
+Version 1.6.0
 
 Current Focus:
-🔵 Frigate and NFS stability observation
+🔵 Home Assistant pilot — identify the Lutron Caséta bridge address and complete integration
 
 Project Status:
 🚧 Active — complete the defined programme before accepting elective new work
@@ -124,9 +124,9 @@ VLAN 70 isolation and administrator access behave exactly as documented.
 - [x] Frigate dashboard and SSH launch links
 - [x] Repair key-based OPNsense SSH login used by the HomeLab toolkit and validate non-interactive access
 - [x] Add a dedicated SSH login key for the Frigate VM and validate the Homepage/toolkit launch path
-- [ ] Device Status
-- [ ] Backup Status
-- [ ] Resource Monitoring
+- [x] Device Status
+- [x] Backup Status
+- [x] Resource Monitoring
 
 ---
 
@@ -175,13 +175,13 @@ Passed 2026-08-11: Homepage and a disposable LXC restore were validated; configu
 
 Operational Monitoring
 
-- [ ] Monitor OPNsense WAN availability and error-counter deltas
-- [ ] Monitor Arista link state, errors, temperature and PSU state
-- [ ] Monitor Proxmox resource and guest health
-- [ ] Monitor TrueNAS pool, NFS and bond health
+- [x] Monitor OPNsense WAN availability and error-counter deltas
+- [x] Monitor Arista link state, errors, temperature and PSU state
+- [x] Monitor Proxmox resource and guest health
+- [x] Monitor TrueNAS pool, NFS and bond health
 - [x] Monitor both Pi-hole DNS endpoints through functional public, local and blocked-domain checks
-- [ ] Monitor Frigate container health and recording freshness
-- [ ] Monitor backup success and age
+- [x] Monitor Frigate service, NFS mount and recording freshness
+- [x] Monitor backup success and age
 - [ ] Send alerts only for actionable conditions
 - [ ] Add a concise status summary to Homepage
 
@@ -216,21 +216,21 @@ Stability Observation
 
 - [x] Observe Frigate health and recording continuity over an agreed period — clean final 24-hour checkpoint on 2026-08-11
 - [x] Confirm the NFS mount remains stable across normal operation
-- [ ] Confirm recording retention removes data as expected
-- [ ] Measure storage growth and estimate capacity per camera
+- [ ] Confirm recording retention removes data as expected — observation must extend beyond the configured 3-day continuous window
+- [x] Measure storage growth and estimate capacity per camera — approximately 53.7 GB across 2.2 days, or about 24 GB/day for the current camera
 - [x] Record CPU, memory, decode and detection baselines
 - [ ] Document any incidents and their resolution
 
 Hardware Acceleration and Expansion
 
-- [ ] Confirm Quadro K620 capabilities and current driver compatibility
-- [ ] Compare those capabilities with Frigate's current stream formats
-- [ ] Decide whether K620 passthrough is worth the complexity
+- [x] Confirm Quadro K620 capabilities and current driver compatibility
+- [x] Compare those capabilities with Frigate's current HEVC 5120x1552 stream
+- [x] Decide whether K620 passthrough is worth the complexity — rejected; remove the unused card during the RAM upgrade
 - [ ] Complete the planned Proxmox RAM upgrade if still required
 - [ ] Create recovery checkpoints before passthrough or driver changes
 - [ ] Test acceleration using the existing camera only
 - [ ] Compare stability and resource use with the software baseline
-- [ ] Decide whether to retain or replace the K620
+- [x] Decide whether to retain or replace the K620 — remove it; evaluate a suitable accelerator separately only if later capacity requires one
 - [ ] Evaluate object-detection acceleration separately from video decoding
 - [ ] Establish safe camera and storage capacity
 - [ ] Add further cameras one at a time with validation after each
@@ -244,29 +244,29 @@ No unexplained recording gaps, mount failures or resource exhaustion during obse
 
 Design and Recovery
 
-- [ ] Define Home Assistant goals, required integrations and success criteria
-- [ ] Choose a supported deployment model and document why
-- [ ] Prefer a dedicated Home Assistant OS VM on Proxmox unless testing identifies a better fit
-- [ ] Place Home Assistant on Servers VLAN 20, not Trusted or IoT
-- [ ] Document required Trusted, IoT, DNS, NTP and Internet flows before deployment
-- [ ] Create OPNsense, Proxmox and relevant application recovery checkpoints
-- [ ] Define Home Assistant backup and restore procedures before production migration
+- [x] Define Home Assistant goals, required integrations and success criteria
+- [x] Choose a supported deployment model and document why
+- [x] Deploy a dedicated Home Assistant OS VM on Proxmox
+- [x] Place Home Assistant on Servers VLAN 20, not Trusted or IoT
+- [x] Define minimum-access cross-VLAN policy: HA-initiated access to individually approved hubs; no unrestricted IoT-to-Servers access
+- [x] Create OPNsense and Proxmox recovery checkpoints before deployment
+- [ ] Define off-host Home Assistant backup retention and restore procedure before production migration
 
 Pilot Deployment
 
-- [ ] Deploy Home Assistant with a fixed address or DHCP reservation
-- [ ] Apply updates and configure time, DNS and local naming
-- [ ] Configure narrowly scoped firewall access between Home Assistant and required IoT endpoints
+- [x] Deploy Home Assistant OS 18.2 as Proxmox VM 103 with a DHCP reservation at `192.168.20.11`
+- [x] Confirm current updates, DNS and `home-assistant.home.internal` local naming
+- [ ] Configure narrowly scoped firewall access between Home Assistant and required IoT endpoints — Hue complete; add each remaining hub only when integrated
 - [ ] Enable only the specific cross-VLAN discovery mechanisms required
-- [ ] Validate administration from approved Trusted devices
+- [x] Validate administration from an approved Trusted device
 - [ ] Confirm IoT devices still cannot initiate unrestricted internal access
-- [ ] Create and test an initial Home Assistant backup
+- [x] Create an initial full backup named `Fresh HAOS installation`
 
 Integration Sequence
 
-- [ ] Integrate one low-risk test device or service first
-- [ ] Integrate Philips Hue and validate lights, rooms, scenes and local control
-- [ ] Integrate Lutron and validate lights, scenes and local control
+- [x] Integrate one low-risk local system first — Philips Hue
+- [x] Integrate Philips Hue and confirm its devices are present
+- [ ] Integrate Lutron and validate lights, scenes and local control — next action: identify Caséta bridge IP (baseline last recorded `192.168.30.102`)
 - [ ] Integrate selected TVs, media devices, plugs, sensors and other supported IoT devices in small groups
 - [ ] Preserve vendor applications where needed for firmware, recovery or unsupported functions
 - [ ] Decide whether Apple Home should consume selected Home Assistant entities through HomeKit Bridge
@@ -285,6 +285,8 @@ Operationalization
 
 Completion Gate:
 Selected IoT devices are reliably controlled through Home Assistant, essential automations have a single authoritative owner, VLAN isolation remains effective, backups are off-host, and restart/restore testing passes.
+
+Pilot automation criterion: create and test one automation in which a Philips Hue motion sensor triggers a non-essential Lutron light. Existing vendor-app automations are not imported; Home Assistant will become the sole automation authority as each automation is rebuilt and validated. Aqara water sensors, water shutoff and lock are excluded from this first pilot.
 
 ---
 
@@ -428,6 +430,10 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-12 | Deployed Home Assistant OS 18.2 as Proxmox VM 103 at `192.168.20.11`, created the clean-install backup and integrated Philips Hue through narrowly scoped VLAN rules. | `docs/01-Architecture.md`; `docs/04-Operations.md`; Home Assistant Hue devices present |
+| 2026-08-12 | Fully validated Lab VLAN 70 using disposable LXC 970, corrected its OPNsense parent from `igb0` to `ix0`, confirmed intended DNS/Internet access and internal isolation, then purged the test guest. | `docs/VLAN-Design.md`; DHCP lease `192.168.70.112`; endpoint isolation tests |
+| 2026-08-11 | Expanded `lab doctor` with functional OPNsense, Arista, Proxmox, TrueNAS, Frigate and backup-report checks using persistent baselines. | `scripts/doctor.sh`; final run passed 36 checks with no failures |
+| 2026-08-11 | Completed network-wide redundant Pi-hole deployment through Dnsmasq option 6, validated both resolver paths across client VLANs and added both roles to Homepage. | `docs/01-Architecture.md`; `docs/04-Operations.md`; release 1.5.0 |
 | 2026-08-11 | Completed Phase 4 Backup Resilience with automated checksum-verified Synology pulls, failure email alerts, client-side-encrypted IDrive e2 protection and two-version incremental validation. | `docs/05-Backups.md`; Hyper Backup versions at 00:48 and 12:19 |
 | 2026-08-11 | Validated an encrypted off-site Proxmox recovery by downloading an LXC 100 archive through Hyper Backup and obtaining an exact SHA-256 match against the same-site source. | `vzdump-lxc-100-2026_08_06-23_30_04.tar.zst` |
 | 2026-08-11 | Repaired OPNsense public-key authentication, enabled macOS Keychain-backed SSH agent loading, and added/validated the Frigate SSH key, alias, toolkit path and Homepage launch link. | Non-interactive SSH tests and `lab ssh frigate` |

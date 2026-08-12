@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.6.0
+
+### Added
+- Deployed Home Assistant OS 18.2 as Proxmox VM 103 on Servers VLAN 20
+- Reserved `192.168.20.11` and published `home-assistant.home.internal`
+- Created the initial full Home Assistant recovery point before integrations
+- Integrated the Philips Hue bridge using HA-specific TCP 80 and 443 firewall rules
+- Added functional HomeLab Doctor checks for OPNsense WAN counters, Arista links and hardware, Proxmox guests/resources, TrueNAS pools/NFS/bond, Frigate recording freshness and reported backup results
+- Added failure-result reporting from the Synology configuration and Proxmox archive pull tasks
+
+### Validated
+- Fully tested VLAN 70 with disposable Proxmox LXC 970: DHCP, redundant Pi-hole DNS, blocking and Internet access passed; internal application endpoints remained isolated
+- Corrected the OPNsense VLAN 70 parent from `igb0` to the active `ix0` trunk and repeated the validation successfully
+- Confirmed Frigate's current HEVC 5120x1552 stream, approximately 24 GB/day recording growth and stable NFS recording flow
+- Confirmed the Quadro K620 is not worthwhile for the current Frigate workload; it will be removed during the planned RAM upgrade
+
+### Planned
+- Resume with Lutron Caséta bridge address confirmation and integration
+- Build one pilot automation: Hue motion sensor to a non-essential Lutron light
+- Define automated off-host Home Assistant backups and complete restart/restore testing before production IoT migration
+
+### Security
+- Kept Home Assistant on Servers VLAN 20 and permitted only individually approved HA-initiated access to IoT hubs
+- Preserved Lab and IoT isolation; no broad IoT-to-Servers rule or cross-VLAN discovery relay was added
+
 ## v1.5.0
 
 ### Added
