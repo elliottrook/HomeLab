@@ -93,19 +93,25 @@ Validation
 - [x] Selective Trusted-to-IoT mDNS discovery validated
 - [x] Philips Hue, Lutron, Apple Home and representative IoT functions validated
 
-Remaining Validation — Lab VLAN 70
+Validation — Lab VLAN 70 ✅ COMPLETE 2026-08-12
 
-- [ ] Create a pre-change recovery checkpoint
-- [ ] Deploy a disposable Proxmox test VM tagged for VLAN 70
-- [ ] Validate DHCP, DNS and intended Internet access
-- [ ] Confirm access to protected internal VLANs is blocked
-- [ ] Confirm explicitly permitted administrator access works
-- [ ] Inspect firewall logs during validation
-- [ ] Document results and rollback
-- [ ] Remove the VM or retain it as a documented test appliance
+- [x] Create pre-change OPNsense and Proxmox recovery checkpoints
+- [x] Deploy disposable Proxmox LXC 970 tagged for VLAN 70
+- [x] Validate DHCP, redundant Pi-hole DNS, blocked-domain response and intended Internet access
+- [x] Confirm access to protected internal services is blocked except for the explicit DNS exception
+- [x] Confirm the previously validated administrator-access policy remains unchanged
+- [x] Inspect the effective firewall policy and test permitted/blocked endpoints
+- [x] Document the incorrect `igb0` parent, correction to `ix0`, results and rollback context
+- [x] Stop and purge LXC 970 and its temporary disk after validation
 
 Completion Gate:
 VLAN 70 isolation and administrator access behave exactly as documented.
+
+Passed 2026-08-12: disposable LXC 970 received `192.168.70.112`, used both
+Pi-hole resolvers and reached Internet TCP/443. It could not reach Proxmox,
+UniFi, Frigate or camera web endpoints. The OPNsense parent-interface defect
+was corrected, the complete test was repeated successfully, and the guest was
+purged.
 
 ---
 
@@ -413,16 +419,13 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 # Recommended Execution Order
 
-1. Complete backup resilience: restore tests, automated Synology copy and encrypted IDrive e2 off-site backup.
-2. Observe Frigate and NFS stability.
-3. Add lightweight operational monitoring.
-4. Validate VLAN 70 with a disposable VM.
-5. Deploy Home Assistant and migrate IoT control gradually.
-6. Evaluate Frigate acceleration and camera capacity.
-7. Migrate selected services to VLAN 20.
-8. Migrate management systems to VLAN 50.
-9. Complete automation work.
-10. Reconcile and consolidate documentation, remove temporary exceptions and review the scope lock.
+1. Complete the Home Assistant Hue-to-Lutron pilot and migrate IoT control gradually.
+2. Finish Frigate retention observation, the planned RAM/K620 maintenance and camera-capacity decisions.
+3. Complete actionable-condition alerting and add the concise Homepage monitoring summary.
+4. Migrate selected services to VLAN 20.
+5. Migrate management systems to VLAN 50.
+6. Complete the listed automation work.
+7. Reconcile and consolidate documentation, remove temporary exceptions and review the scope lock.
 
 ---
 
