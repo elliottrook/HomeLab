@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.5.0
+
+### Added
+- Functional `lab doctor` checks for both Pi-hole DNS endpoints, including public, local and blocked-domain resolution
+- Stable Primary and Secondary Pi-hole service labels and Homepage tiles
+- OPNsense aliases for the two Pi-hole servers and all routed client VLANs
+- A single early floating firewall exception limited to TCP/UDP 53 from client VLANs to the Pi-hole pair
+
+### Changed
+- OPNsense Dnsmasq now advertises `192.168.1.20` and `192.168.1.40` through DHCPv4 option 6 on every configured DHCP range
+- Renamed the Docker-hosted Pi-hole internal hostname to `pihole-primary`; the TrueNAS-managed secondary retains its generated container hostname
+- Replaced the Mac-only DNS pilot with redundant network-wide DHCP advertisement
+
+### Validated
+- Both Pi-holes resolve public and `internal` names and block the test domain
+- LAN, Servers VLAN 20, IoT VLAN 30 and Guest VLAN 40 can reach both resolvers
+- The consolidated DNS exception precedes the existing RFC1918 isolation blocks in the compiled OPNsense ruleset
+- Frigate remained healthy with zero container restarts, fresh NFS recording segments and no recording interruptions during the final 24-hour observation
+
+### Security
+- Preserved VLAN isolation by allowing only TCP/UDP 53 to the Pi-hole server alias
+- Kept encrypted/private client DNS outside the DHCP rollout guarantee; no broad DoH/DoT interception was introduced
+- Created checksum-recorded OPNsense backups before and after the DNS rollout
+
 ## v1.4.0
 
 ### Added

@@ -67,18 +67,22 @@ The dated Frigate configuration archive contains camera credentials and must
 remain outside Git with mode `0600`. Recordings are not included in the
 configuration archive because they remain on the TrueNAS surveillance dataset.
 
-## Pi-hole pilot
+## Redundant Pi-hole DNS
 
-- Container host: Proxmox LXC 100 (`docker`), `192.168.1.20`
+- Primary host: Proxmox LXC 100 (`docker`), `192.168.1.20`
 - Compose project: `/opt/pihole`
 - Persistent configuration: `/opt/pihole/etc-pihole`
-- Image: `pihole/pihole:2026.05.0`
-- DNS listener: `192.168.1.20:53` over TCP and UDP
-- Web interface: `http://192.168.1.20:8082/admin/`
+- Primary image: `pihole/pihole:2026.05.0`; internal hostname: `pihole-primary`
+- Primary endpoints: `192.168.1.20:53` over TCP/UDP and `http://192.168.1.20:8082/admin/`
+- Secondary host: TrueNAS App `pihole`, `192.168.1.40`
+- Secondary image observed during rollout: `pihole/pihole:2026.07.2`
+- Secondary endpoints: `192.168.1.40:53` over TCP/UDP and `http://192.168.1.40:20720/admin/`
 - Upstream resolver: OPNsense Unbound at `192.168.1.1`
-- Conditional forwarding: `192.168.1.0/24` and the `internal` domain to OPNsense
+- Public, blocked-domain and `internal` resolution passed through both instances.
 - DHCP remains on OPNsense; Pi-hole DHCP is disabled.
-- Only the Mac Mini Ethernet service is currently configured to use Pi-hole.
+- OPNsense Dnsmasq sends `192.168.1.20,192.168.1.40` as DHCPv4 option 6 on every configured DHCP range.
+- `PIHOLE_DNS_SERVERS` contains both resolvers; `PIHOLE_CLIENT_NETWORKS` contains VLANs 20 through 70.
+- The floating `Allow client VLANs to Pi-hole DNS` rule permits only TCP/UDP 53 and precedes the existing RFC1918 isolation blocks.
 
 Health and validation:
 
@@ -92,19 +96,20 @@ docker compose logs --tail 100
 dig +short @192.168.1.20 example.com
 dig +short @192.168.1.20 home.internal
 dig +short @192.168.1.20 doubleclick.net
+dig +short @192.168.1.40 example.com
+dig +short @192.168.1.40 home.internal
+dig +short @192.168.1.40 doubleclick.net
 ```
 
-Expected results are public addresses for `example.com`, `192.168.1.20` for `home.internal`, and `0.0.0.0` for a blocked `doubleclick.net` query.
+Expected results from either resolver are public addresses for `example.com`, `192.168.1.20` for `home.internal`, and `0.0.0.0` for a blocked `doubleclick.net` query.
 
-Mac Mini pilot rollback:
+Network-wide rollback:
 
-```sh
-sudo networksetup -setdnsservers "Ethernet" Empty
-sudo dscacheutil -flushcache
-sudo killall -HUP mDNSResponder
-```
+1. Remove or disable the untagged Dnsmasq DHCP option 6 and apply changes. Dnsmasq will resume advertising the receiving OPNsense interface as DNS.
+2. Renew a test client's DHCP lease and confirm it receives the OPNsense interface address.
+3. Disable the consolidated floating Pi-hole rule only after clients have moved back; the aliases can remain without affecting traffic.
 
-This restores DHCP-provided OPNsense DNS. Do not make Pi-hole network-wide until DNS redundancy and the failure procedure are approved.
+DHCP-provided DNS does not force clients to use port 53. iCloud Private Relay, VPNs and encrypted-DNS profiles may bypass the Pi-hole pair unless a separate, explicitly approved enforcement policy is deployed.
 
 ## Remote administration
 

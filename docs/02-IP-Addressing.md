@@ -20,9 +20,16 @@
 |---|---|---:|---|
 | Homepage | `http://192.168.1.20:3000` | 3000/TCP | Production |
 | Portainer | `https://192.168.1.20:9443` | 9443/TCP | Production |
-| Pi-hole DNS | `192.168.1.20` | 53/TCP+UDP | Mac Mini pilot |
-| Pi-hole Web | `http://192.168.1.20:8082/admin/` | 8082/TCP | Pilot administration |
+| Pi-hole Primary DNS | `192.168.1.20` | 53/TCP+UDP | Production |
+| Pi-hole Primary Web | `http://192.168.1.20:8082/admin/` | 8082/TCP | Production administration |
 | Tailscale subnet router | `homelab-gateway` | Tailscale-managed | Production |
+
+## Shared service endpoints on TrueNAS
+
+| Service | Address | Port | Status |
+|---|---|---:|---|
+| Pi-hole Secondary DNS | `192.168.1.40` | 53/TCP+UDP | Production |
+| Pi-hole Secondary Web | `http://192.168.1.40:20720/admin/` | 20720/TCP | Production administration |
 
 ## Surveillance endpoints
 
