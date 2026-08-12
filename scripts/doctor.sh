@@ -78,6 +78,28 @@ check_backup_age() {
     fi
 }
 
+check_pihole_dns() {
+    local display="$1"
+    local ip="$2"
+    local public_answer
+    local local_answer
+    local blocked_answer
+
+    public_answer="$(dig +time=3 +tries=1 +short @"$ip" example.com A 2>/dev/null)"
+    local_answer="$(dig +time=3 +tries=1 +short @"$ip" home.internal A 2>/dev/null)"
+    blocked_answer="$(dig +time=3 +tries=1 +short @"$ip" doubleclick.net A 2>/dev/null)"
+
+    if [[ -z "$public_answer" ]]; then
+        fail "$display did not resolve a public domain"
+    elif ! grep -qx '192\.168\.1\.20' <<< "$local_answer"; then
+        fail "$display did not resolve home.internal correctly"
+    elif [[ -n "$blocked_answer" ]] && ! grep -Eqx '0\.0\.0\.0|::' <<< "$blocked_answer"; then
+        fail "$display did not block the test domain"
+    else
+        pass "$display resolves public/local DNS and blocks the test domain"
+    fi
+}
+
 header "HomeLab Doctor"
 
 info "Checking internet connectivity..."
@@ -97,6 +119,9 @@ if dscacheutil -q host -a name github.com 2>/dev/null | grep -q 'ip_address'; th
 else
     fail "DNS resolution"
 fi
+
+check_pihole_dns "Pi-hole Primary" "192.168.1.20"
+check_pihole_dns "Pi-hole Secondary" "192.168.1.40"
 
 divider
 

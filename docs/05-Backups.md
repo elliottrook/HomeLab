@@ -127,15 +127,18 @@ Confirm `http://home.internal:3000`, the management tiles and all SSH launch lin
 
 ## Pi-hole
 
-Create a Pi-hole Teleporter export from **Settings > Teleporter**. Store it with the date and Pi-hole version. Teleporter is preferred to copying the live persistent directory because `gravity.db` and `pihole-FTL.db` can change while the container is running. After a restore, validate public resolution, local split DNS and blocking:
+Create separate Pi-hole Teleporter exports from **Settings > Teleporter** on the primary and secondary instances. Store each with the date, role and Pi-hole version. Teleporter is preferred to copying a live persistent directory because `gravity.db` and `pihole-FTL.db` can change while the service is running. After a restore, validate public resolution, local split DNS and blocking through both endpoints:
 
 ```sh
 dig +short @192.168.1.20 example.com
 dig +short @192.168.1.20 home.internal
 dig +short @192.168.1.20 doubleclick.net
+dig +short @192.168.1.40 example.com
+dig +short @192.168.1.40 home.internal
+dig +short @192.168.1.40 doubleclick.net
 ```
 
-Expected results are public addresses, `192.168.1.20`, and a blocking response such as `0.0.0.0`, respectively. OPNsense remains the DHCP-advertised resolver, so the current Mac Mini pilot can be rolled back without a network-wide outage.
+Expected results from either resolver are public addresses, `192.168.1.20`, and a blocking response such as `0.0.0.0`, respectively. OPNsense Dnsmasq advertises both endpoints through DHCPv4 option 6. For rollback, remove or disable that option, apply the Dnsmasq configuration and renew a test client before disabling the scoped Pi-hole firewall exception.
 
 ## Tailscale
 

@@ -28,15 +28,14 @@ Servers or Trusted networks.
 
 ## DNS architecture
 
-The production network continues to use OPNsense at `192.168.1.1` for DNS. Unbound listens on port 53 and conditionally forwards the `internal` namespace to OPNsense dnsmasq on port 53053.
+OPNsense Dnsmasq remains the DHCP authority. DHCPv4 option 6 advertises both Pi-hole resolvers on every configured DHCP range. OPNsense Unbound remains their upstream resolver and conditionally forwards the `internal` namespace to OPNsense dnsmasq on port 53053.
 
-Pi-hole 2026.05.0 is deployed as a Docker container in LXC 100. It publishes DNS on `192.168.1.20:53` and its web interface on `http://192.168.1.20:8082/admin/`. Pi-hole forwards public queries and the `internal` namespace to OPNsense. Conditional forwarding for `192.168.1.0/24` preserves local names and reverse lookups.
+The primary Pi-hole 2026.05.0 is deployed as a Docker container in LXC 100. It publishes DNS on `192.168.1.20:53` and its web interface on `http://192.168.1.20:8082/admin/`. The secondary Pi-hole 2026.07.2 is a TrueNAS App at `192.168.1.40:53`, with web administration on TCP 20720. Both resolve public names through OPNsense, preserve `internal` resolution and return the configured blocked response.
 
 ```text
-Mac Mini pilot -> Pi-hole -> OPNsense Unbound -> Internet DNS
-                         +-> OPNsense internal namespace
-
-Other clients  ----------------> OPNsense Unbound
+DHCP clients -> Pi-hole Primary   192.168.1.20 --+
+             -> Pi-hole Secondary 192.168.1.40 --+-> OPNsense Unbound -> Internet DNS
+                                                  +-> OPNsense internal namespace
 ```
 
-Pi-hole is not a DHCP server. OPNsense DHCP has not yet been changed to advertise Pi-hole, so this remains a reversible single-client pilot until a DNS-resilience design is approved.
+Pi-hole is not a DHCP server. A floating OPNsense rule permits only TCP/UDP 53 from the routed client-VLAN alias to the Pi-hole server alias and is evaluated before the existing RFC1918 isolation blocks. Clients using encrypted or private DNS can bypass DHCP-provided resolvers; this rollout does not attempt broad DoH/DoT interception.

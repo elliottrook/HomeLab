@@ -1,7 +1,7 @@
 # Surveillance
 
 **Status:** Operational pilot  
-**Last updated:** 2026-08-09
+**Last updated:** 2026-08-11
 
 ## Components
 
@@ -45,6 +45,19 @@ sudo find /opt/frigate/storage/recordings -type f -mmin -3 | head
 
 Expected results are an NFSv4 source from `192.168.1.40`, an active systemd
 unit, a healthy Frigate container and recent MP4 recording segments.
+
+## Stability checkpoint
+
+The 2026-08-11 observation found a healthy container with zero restarts, fresh
+recording segments on the TrueNAS NFS export and no recording interruptions in
+the final 24 hours. The VM had 5.7 GiB RAM, 4.2 GiB available and effectively no
+swap use; the Frigate container used about 1.4 GiB RAM and 11% CPU during the
+sample. The NFS dataset reported 47 GiB used of 11 TiB.
+
+Configured retention remains three days continuous, seven days motion and 30
+days for alerts/detections. Automatic removal after the three-day boundary is
+the remaining time-dependent validation; do not force-delete recording files
+to simulate retention.
 
 ## Recovery and backup
 

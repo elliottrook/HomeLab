@@ -115,7 +115,7 @@ VLAN 70 isolation and administrator access behave exactly as documented.
 - [x] Internal `home.internal` DNS name
 - [x] Quick links to infrastructure and applications
 - [x] SSH launch links for Proxmox, Docker LXC, OPNsense and TrueNAS
-- [x] Pi-hole dashboard tile and DNS-filtering pilot
+- [x] Primary and secondary Pi-hole dashboard tiles and network-wide DNS filtering
 - [x] Two Pi-hole instances operational
 - [x] Public, blocked-domain and local-domain DNS resolution validated
 - [x] Private remote access through Tailscale
@@ -179,7 +179,7 @@ Operational Monitoring
 - [ ] Monitor Arista link state, errors, temperature and PSU state
 - [ ] Monitor Proxmox resource and guest health
 - [ ] Monitor TrueNAS pool, NFS and bond health
-- [ ] Monitor both Pi-hole DNS endpoints
+- [x] Monitor both Pi-hole DNS endpoints through functional public, local and blocked-domain checks
 - [ ] Monitor Frigate container health and recording freshness
 - [ ] Monitor backup success and age
 - [ ] Send alerts only for actionable conditions
@@ -191,7 +191,7 @@ Future Monitoring Platform
 - [ ] Grafana
 - [ ] Alerting
 - [ ] Historical Metrics
-- [ ] Pi-hole DNS redundancy and network-wide rollout
+- [x] Pi-hole DNS redundancy and network-wide rollout
 
 Completion Gate:
 Failures in routing, storage, DNS, surveillance or backups are detected without manually checking every system.
@@ -214,11 +214,11 @@ Implemented
 
 Stability Observation
 
-- [ ] Observe Frigate health and recording continuity over an agreed period
-- [ ] Confirm the NFS mount remains stable across normal operation
+- [x] Observe Frigate health and recording continuity over an agreed period — clean final 24-hour checkpoint on 2026-08-11
+- [x] Confirm the NFS mount remains stable across normal operation
 - [ ] Confirm recording retention removes data as expected
 - [ ] Measure storage growth and estimate capacity per camera
-- [ ] Record CPU, memory, decode and detection baselines
+- [x] Record CPU, memory, decode and detection baselines
 - [ ] Document any incidents and their resolution
 
 Hardware Acceleration and Expansion
@@ -336,7 +336,7 @@ Management interfaces are isolated on VLAN 50, reachable only from approved admi
 
 Documentation Reconciliation
 
-- [ ] Update repository documentation for the secondary Pi-hole
+- [x] Update repository documentation for the secondary Pi-hole
 - [ ] Clarify which TrueNAS applications are already operational versus future work
 - [ ] Remove or annotate stale switch-port and historical planning references
 - [ ] Record the installed Proxmox RAM after any upgrade
