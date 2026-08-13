@@ -55,9 +55,11 @@ swap use; the Frigate container used about 1.4 GiB RAM and 11% CPU during the
 sample. The NFS dataset reported 47 GiB used of 11 TiB.
 
 Configured retention remains three days continuous, seven days motion and 30
-days for alerts/detections. Automatic removal after the three-day boundary is
-the remaining time-dependent validation; do not force-delete recording files
-to simulate retention.
+days for alerts/detections. On 2026-08-12 the database and recording filesystem
+were inspected after the three-day boundary: only one continuous-only segment
+was slightly beyond 72 hours while motion-bearing segments correctly remained
+under the seven-day policy. This is consistent with periodic automatic cleanup,
+so retention validation is complete without force-deleting recordings.
 
 ## Recovery and backup
 

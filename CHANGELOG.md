@@ -7,6 +7,8 @@
 - Reserved `192.168.20.11` and published `home-assistant.home.internal`
 - Created the initial full Home Assistant recovery point before integrations
 - Integrated the Philips Hue bridge using HA-specific TCP 80 and 443 firewall rules
+- Integrated Lutron Caséta at reserved address `192.168.30.102` and validated local control of imported devices
+- Deployed Beszel 0.18.7 for Docker, Proxmox and Frigate with a Homepage systems-up widget
 - Added functional HomeLab Doctor checks for OPNsense WAN counters, Arista links and hardware, Proxmox guests/resources, TrueNAS pools/NFS/bond, Frigate recording freshness and reported backup results
 - Added failure-result reporting from the Synology configuration and Proxmox archive pull tasks
 
@@ -15,14 +17,17 @@
 - Corrected the OPNsense VLAN 70 parent from `igb0` to the active `ix0` trunk and repeated the validation successfully
 - Confirmed Frigate's current HEVC 5120x1552 stream, approximately 24 GB/day recording growth and stable NFS recording flow
 - Confirmed the Quadro K620 is not worthwhile for the current Frigate workload; it will be removed during the planned RAM upgrade
+- Verified Frigate retention beyond the configured 3-day continuous window
+- Selected the incoming E5-2698 v4, RAM and Coral M.2 TPU upgrade path for Frigate
 
 ### Planned
-- Resume with Lutron Caséta bridge address confirmation and integration
-- Build one pilot automation: Hue motion sensor to a non-essential Lutron light
+- Restore one unreachable Hue motion sensor, then build the pilot automation to `Laundry Main lights`
+- Let Beszel collect a 24-hour baseline before configuring actionable alerts
+- Add MQTT and the Frigate Home Assistant integration after the first automation pilot, not during it
 - Define automated off-host Home Assistant backups and complete restart/restore testing before production IoT migration
 
 ### Security
-- Kept Home Assistant on Servers VLAN 20 and permitted only individually approved HA-initiated access to IoT hubs
+- Kept Home Assistant on Servers VLAN 20 and permitted only host `192.168.20.11` to initiate TCP/UDP access to IoT VLAN 30
 - Preserved Lab and IoT isolation; no broad IoT-to-Servers rule or cross-VLAN discovery relay was added
 
 ## v1.5.0
