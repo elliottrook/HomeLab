@@ -11,7 +11,7 @@
 Version 1.6.0
 
 Current Focus:
-🔵 Home Assistant pilot — identify the Lutron Caséta bridge address and complete integration
+🔵 Home Assistant pilot — restore a Hue motion sensor and build the Hue-to-Lutron automation
 
 Project Status:
 🚧 Active — complete the defined programme before accepting elective new work
@@ -189,7 +189,8 @@ Operational Monitoring
 - [x] Monitor Frigate service, NFS mount and recording freshness
 - [x] Monitor backup success and age
 - [ ] Send alerts only for actionable conditions
-- [ ] Add a concise status summary to Homepage
+- [x] Deploy a bounded Beszel monitoring layer for Docker, Proxmox and Frigate
+- [x] Add Beszel and a concise systems-up status widget to Homepage
 
 Future Monitoring Platform
 
@@ -222,10 +223,10 @@ Stability Observation
 
 - [x] Observe Frigate health and recording continuity over an agreed period — clean final 24-hour checkpoint on 2026-08-11
 - [x] Confirm the NFS mount remains stable across normal operation
-- [ ] Confirm recording retention removes data as expected — observation must extend beyond the configured 3-day continuous window
+- [x] Confirm recording retention removes data as expected — database and filesystem observation passed beyond the configured 3-day continuous window on 2026-08-12
 - [x] Measure storage growth and estimate capacity per camera — approximately 53.7 GB across 2.2 days, or about 24 GB/day for the current camera
 - [x] Record CPU, memory, decode and detection baselines
-- [ ] Document any incidents and their resolution
+- [x] Document observed recording interruptions and their resolution — initial ffmpeg/preview interruptions did not recur during the final 24-hour checkpoint
 
 Hardware Acceleration and Expansion
 
@@ -234,10 +235,13 @@ Hardware Acceleration and Expansion
 - [x] Decide whether K620 passthrough is worth the complexity — rejected; remove the unused card during the RAM upgrade
 - [ ] Complete the planned Proxmox RAM upgrade if still required
 - [ ] Create recovery checkpoints before passthrough or driver changes
-- [ ] Test acceleration using the existing camera only
+- [x] Select the Frigate upgrade path — incoming E5-2698 v4 CPU, RAM and Coral M.2 TPU; remove the K620 during the same maintenance window
+- [ ] Confirm Coral M.2 form-factor/adapter compatibility before installation
+- [ ] Install and pass through the Coral TPU after creating recovery checkpoints
+- [ ] Test Coral object-detection acceleration using the existing camera only
 - [ ] Compare stability and resource use with the software baseline
-- [x] Decide whether to retain or replace the K620 — remove it; evaluate a suitable accelerator separately only if later capacity requires one
-- [ ] Evaluate object-detection acceleration separately from video decoding
+- [x] Decide whether to retain or replace the K620 — remove it and use the Coral TPU for object detection
+- [x] Evaluate object-detection acceleration separately from video decoding — retain CPU HEVC decode and use Coral for inference
 - [ ] Establish safe camera and storage capacity
 - [ ] Add further cameras one at a time with validation after each
 
@@ -254,7 +258,7 @@ Design and Recovery
 - [x] Choose a supported deployment model and document why
 - [x] Deploy a dedicated Home Assistant OS VM on Proxmox
 - [x] Place Home Assistant on Servers VLAN 20, not Trusted or IoT
-- [x] Define minimum-access cross-VLAN policy: HA-initiated access to individually approved hubs; no unrestricted IoT-to-Servers access
+- [x] Define minimum-access cross-VLAN policy: only Home Assistant `192.168.20.11` may initiate TCP/UDP access to IoT VLAN 30; no unrestricted IoT-to-Servers access
 - [x] Create OPNsense and Proxmox recovery checkpoints before deployment
 - [ ] Define off-host Home Assistant backup retention and restore procedure before production migration
 
@@ -262,7 +266,7 @@ Pilot Deployment
 
 - [x] Deploy Home Assistant OS 18.2 as Proxmox VM 103 with a DHCP reservation at `192.168.20.11`
 - [x] Confirm current updates, DNS and `home-assistant.home.internal` local naming
-- [ ] Configure narrowly scoped firewall access between Home Assistant and required IoT endpoints — Hue complete; add each remaining hub only when integrated
+- [x] Configure host-scoped firewall access from Home Assistant to IoT VLAN 30, ordered before the Servers RFC1918 block
 - [ ] Enable only the specific cross-VLAN discovery mechanisms required
 - [x] Validate administration from an approved Trusted device
 - [ ] Confirm IoT devices still cannot initiate unrestricted internal access
@@ -272,7 +276,7 @@ Integration Sequence
 
 - [x] Integrate one low-risk local system first — Philips Hue
 - [x] Integrate Philips Hue and confirm its devices are present
-- [ ] Integrate Lutron and validate lights, scenes and local control — next action: identify Caséta bridge IP (baseline last recorded `192.168.30.102`)
+- [x] Integrate Lutron Caséta at reserved address `192.168.30.102`; devices imported and local light control validated
 - [ ] Integrate selected TVs, media devices, plugs, sensors and other supported IoT devices in small groups
 - [ ] Preserve vendor applications where needed for firmware, recovery or unsupported functions
 - [ ] Decide whether Apple Home should consume selected Home Assistant entities through HomeKit Bridge
@@ -293,6 +297,8 @@ Completion Gate:
 Selected IoT devices are reliably controlled through Home Assistant, essential automations have a single authoritative owner, VLAN isolation remains effective, backups are off-host, and restart/restore testing passes.
 
 Pilot automation criterion: create and test one automation in which a Philips Hue motion sensor triggers a non-essential Lutron light. Existing vendor-app automations are not imported; Home Assistant will become the sole automation authority as each automation is rebuilt and validated. Aqara water sensors, water shutoff and lock are excluded from this first pilot.
+
+Restart point: both candidate Hue motion sensors are unreachable in the Hue app and Home Assistant. Replace/reseat their batteries, bring one close to the Hue bridge, reconnect it without resetting if possible, then use it to trigger the Lutron `Laundry Main lights`. Frigate camera entities and detection sensors are a later bounded integration requiring a shared MQTT broker and the Frigate Home Assistant integration; do not interrupt this pilot to deploy it.
 
 ---
 
@@ -419,9 +425,9 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 # Recommended Execution Order
 
-1. Complete the Home Assistant Hue-to-Lutron pilot and migrate IoT control gradually.
-2. Finish Frigate retention observation, the planned RAM/K620 maintenance and camera-capacity decisions.
-3. Complete actionable-condition alerting and add the concise Homepage monitoring summary.
+1. Restore one Hue motion sensor, complete the Hue-to-Lutron pilot and migrate IoT control gradually.
+2. Complete the planned RAM/CPU/Coral maintenance, remove the K620 and validate Frigate against its baseline.
+3. Let Beszel collect a 24-hour baseline, then configure actionable-condition alerts.
 4. Migrate selected services to VLAN 20.
 5. Migrate management systems to VLAN 50.
 6. Complete the listed automation work.
@@ -433,6 +439,9 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-12 | Deployed Beszel 0.18.7 as a lightweight monitoring complement for Docker, Proxmox and Frigate; all three systems report healthy and Homepage shows the systems-up summary through dedicated file-backed widget credentials. | Beszel hub `192.168.1.20:8090`; Homepage `Monitoring & Maintenance` group |
+| 2026-08-12 | Integrated Lutron Caséta at reserved address `192.168.30.102`, validated imported-device control, reserved Hue at `192.168.30.164`, and added a host-scoped Home Assistant-to-IoT firewall exception ahead of the Servers RFC1918 block. | Compiled OPNsense rules; Dnsmasq reservations; Home Assistant Lutron devices controllable |
+| 2026-08-12 | Verified Frigate retention beyond 72 hours and selected the final upgrade path: incoming RAM, E5-2698 v4 and Coral M.2 TPU, with K620 removal during maintenance. | Frigate recording database/filesystem audit; hardware purchase decision |
 | 2026-08-12 | Deployed Home Assistant OS 18.2 as Proxmox VM 103 at `192.168.20.11`, created the clean-install backup and integrated Philips Hue through narrowly scoped VLAN rules. | `docs/01-Architecture.md`; `docs/04-Operations.md`; Home Assistant Hue devices present |
 | 2026-08-12 | Fully validated Lab VLAN 70 using disposable LXC 970, corrected its OPNsense parent from `igb0` to `ix0`, confirmed intended DNS/Internet access and internal isolation, then purged the test guest. | `docs/VLAN-Design.md`; DHCP lease `192.168.70.112`; endpoint isolation tests |
 | 2026-08-11 | Expanded `lab doctor` with functional OPNsense, Arista, Proxmox, TrueNAS, Frigate and backup-report checks using persistent baselines. | `scripts/doctor.sh`; final run passed 36 checks with no failures |

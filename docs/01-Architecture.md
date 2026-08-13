@@ -45,6 +45,6 @@ Pi-hole is not a DHCP server. A floating OPNsense rule permits only TCP/UDP 53 f
 
 Home Assistant OS 18.2 runs as Proxmox VM 103 at `192.168.20.11` on Servers VLAN 20. The VM has 2 vCPU, 4 GB RAM and a 32 GB system disk. OPNsense Dnsmasq reserves the address for MAC `BC:24:11:08:16:A3`, and local DNS publishes `home-assistant.home.internal`.
 
-Home Assistant initiates access to specifically approved IoT hubs; IoT devices do not receive unrestricted access back into Servers. Philips Hue at `192.168.30.164` is the first integration, reached through dedicated TCP 80 and 443 rules from the Home Assistant address. Further hubs receive separate minimum-access rules only when integrated.
+Home Assistant is the only Servers host permitted to initiate TCP/UDP access to IoT VLAN 30. The host-specific pass rule for `192.168.20.11` precedes the general Servers-to-RFC1918 block; IoT devices do not receive unrestricted access back into Servers. Philips Hue is reserved at `192.168.30.164` and Lutron Caséta at `192.168.30.102`; both are integrated.
 
 Home Assistant will be the sole owner of rebuilt automations. Vendor applications remain available for firmware, recovery and unsupported features, but their existing automations are not imported. The first cross-ecosystem pilot is a Hue motion sensor controlling a non-essential Lutron light.

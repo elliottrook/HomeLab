@@ -46,6 +46,6 @@
 
 | Service | Address | Port | Status |
 |---|---|---:|---|
-| Home Assistant | `http://home-assistant.home.internal:8123` (`192.168.20.11`) | 8123/TCP | Pilot operational |
-| Lutron Caséta bridge | `192.168.30.102` | To be validated | Integration pending |
-| Philips Hue bridge | `192.168.30.164` | 80/443 TCP | Integrated with Home Assistant |
+| Home Assistant | `http://home-assistant.home.internal` (`192.168.20.11`) | 80/TCP | Pilot operational |
+| Lutron Caséta bridge | `192.168.30.102` | 8081/8083 TCP | Reserved; integrated with Home Assistant |
+| Philips Hue bridge | `192.168.30.164` | 80/443 TCP | Reserved; integrated with Home Assistant |
