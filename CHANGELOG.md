@@ -11,6 +11,12 @@
 - Deployed Beszel 0.18.7 for Docker, Proxmox and Frigate with a Homepage systems-up widget
 - Added functional HomeLab Doctor checks for OPNsense WAN counters, Arista links and hardware, Proxmox guests/resources, TrueNAS pools/NFS/bond, Frigate recording freshness and reported backup results
 - Added failure-result reporting from the Synology configuration and Proxmox archive pull tasks
+- Added encrypted daily Home Assistant native backups to local and dedicated Backup Synology storage
+- Added VM 103 to checksum-verified Proxmox archive mirroring and HomeLab Doctor guest/backup-age checks
+- Added the Aqara M3 through Matter with six active water sensors, the shutoff valve and lock
+- Added a minimal mDNS relay across LAN, Servers and IoT plus a host-scoped Trusted-media exception for five Apple TVs
+- Created and validated the Hue Hall motion-to-Lutron `Laundry Main Lights` pilot automation
+- Created a simple Home Assistant Overview and a validated local non-administrator household account
 
 ### Validated
 - Fully tested VLAN 70 with disposable Proxmox LXC 970: DHCP, redundant Pi-hole DNS, blocking and Internet access passed; internal application endpoints remained isolated
@@ -19,16 +25,20 @@
 - Confirmed the Quadro K620 is not worthwhile for the current Frigate workload; it will be removed during the planned RAM upgrade
 - Verified Frigate retention beyond the configured 3-day continuous window
 - Selected the incoming E5-2698 v4, RAM and Coral M.2 TPU upgrade path for Frigate
+- Restored VM 103 as isolated temporary VM 903, booted HAOS, Supervisor and Core without network connectivity, then removed the test VM
+- Confirmed IoT devices remain unable to initiate unrestricted RFC1918 access using live OPNsense rule counters
+- Confirmed both Home Assistant native backups and mirrored VM 103 archives are present off-host
 
 ### Planned
-- Restore one unreachable Hue motion sensor, then build the pilot automation to `Laundry Main lights`
-- Let Beszel collect a 24-hour baseline before configuring actionable alerts
+- Review Beszel history and configure only actionable-condition alerts with verified email delivery
+- Retry Family Room Apple TV pairing after the temporary pairing-code state clears
 - Add MQTT and the Frigate Home Assistant integration after the first automation pilot, not during it
-- Define automated off-host Home Assistant backups and complete restart/restore testing before production IoT migration
+- Continue selected IoT and media integrations in small validated groups
 
 ### Security
 - Kept Home Assistant on Servers VLAN 20 and permitted only host `192.168.20.11` to initiate TCP/UDP access to IoT VLAN 30
-- Preserved Lab and IoT isolation; no broad IoT-to-Servers rule or cross-VLAN discovery relay was added
+- Preserved Lab and IoT isolation; no broad IoT-to-Servers rule was added, and discovery relay scope is limited to LAN, Servers and IoT
+- Limited Trusted-media access to Home Assistant host `192.168.20.11` and a five-device Apple TV alias; no general Servers-to-Trusted exception was created
 
 ## v1.5.0
 

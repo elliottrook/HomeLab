@@ -260,16 +260,16 @@ Design and Recovery
 - [x] Place Home Assistant on Servers VLAN 20, not Trusted or IoT
 - [x] Define minimum-access cross-VLAN policy: only Home Assistant `192.168.20.11` may initiate TCP/UDP access to IoT VLAN 30; no unrestricted IoT-to-Servers access
 - [x] Create OPNsense and Proxmox recovery checkpoints before deployment
-- [ ] Define off-host Home Assistant backup retention and restore procedure before production migration
+- [x] Define off-host Home Assistant backup retention and restore procedure before production migration
 
 Pilot Deployment
 
 - [x] Deploy Home Assistant OS 18.2 as Proxmox VM 103 with a DHCP reservation at `192.168.20.11`
 - [x] Confirm current updates, DNS and `home-assistant.home.internal` local naming
 - [x] Configure host-scoped firewall access from Home Assistant to IoT VLAN 30, ordered before the Servers RFC1918 block
-- [ ] Enable only the specific cross-VLAN discovery mechanisms required
+- [x] Enable only the specific cross-VLAN discovery mechanisms required — mDNS repeater limited to LAN, Servers and IoT
 - [x] Validate administration from an approved Trusted device
-- [ ] Confirm IoT devices still cannot initiate unrestricted internal access
+- [x] Confirm IoT devices still cannot initiate unrestricted internal access — live OPNsense counters verified the IoT-to-RFC1918 block
 - [x] Create an initial full backup named `Fresh HAOS installation`
 
 Integration Sequence
@@ -277,28 +277,30 @@ Integration Sequence
 - [x] Integrate one low-risk local system first — Philips Hue
 - [x] Integrate Philips Hue and confirm its devices are present
 - [x] Integrate Lutron Caséta at reserved address `192.168.30.102`; devices imported and local light control validated
+- [x] Integrate Aqara M3 through Matter; retain six water sensors, the shutoff valve and lock, and remove stale unavailable endpoints
+- [x] Create and validate the Hue Hall motion-to-Lutron `Laundry Main Lights` cross-ecosystem pilot automation
 - [ ] Integrate selected TVs, media devices, plugs, sensors and other supported IoT devices in small groups
-- [ ] Preserve vendor applications where needed for firmware, recovery or unsupported functions
+- [x] Preserve vendor applications where needed for firmware, recovery or unsupported functions
 - [ ] Decide whether Apple Home should consume selected Home Assistant entities through HomeKit Bridge
-- [ ] Avoid duplicate entities and competing automations across vendor apps, Apple Home and Home Assistant
+- [x] Establish duplicate-control policy: vendor apps remain for device lifecycle and safety functions; rebuilt general automations move individually to Home Assistant
 - [ ] Move automations individually, validate them, then disable the superseded version
 - [ ] Document unsupported, cloud-dependent or intentionally excluded devices
 
 Operationalization
 
-- [ ] Create a simple, maintainable dashboard for daily use
-- [ ] Define household access without granting infrastructure administration
-- [ ] Enable reliable automated backups and off-host copying
-- [ ] Add Home Assistant health and backup-age monitoring
-- [ ] Test VM reboot, Home Assistant restart and recovery from backup
+- [x] Create a simple, maintainable dashboard for daily use
+- [x] Define household access without granting infrastructure administration — validated a local non-administrator account
+- [x] Enable reliable automated backups and off-host copying — encrypted native backups plus mirrored Proxmox VM archives
+- [x] Add Home Assistant health and backup-age monitoring
+- [x] Test VM reboot, Home Assistant restart and recovery from backup — isolated VM 903 restore booted successfully and was removed
 - [ ] Document dependencies, firewall exceptions, integrations and rollback steps
 
 Completion Gate:
 Selected IoT devices are reliably controlled through Home Assistant, essential automations have a single authoritative owner, VLAN isolation remains effective, backups are off-host, and restart/restore testing passes.
 
-Pilot automation criterion: create and test one automation in which a Philips Hue motion sensor triggers a non-essential Lutron light. Existing vendor-app automations are not imported; Home Assistant will become the sole automation authority as each automation is rebuilt and validated. Aqara water sensors, water shutoff and lock are excluded from this first pilot.
+Pilot automation criterion: **complete 2026-08-13**. The Philips Hue Hall motion sensor successfully triggers the Lutron `Laundry Main Lights`. Existing vendor-app automations are not imported; Home Assistant will become the sole automation authority as each automation is rebuilt and validated. Aqara safety functions remain in Aqara while their six live water sensors, shutoff valve and lock are also visible through Matter.
 
-Restart point: both candidate Hue motion sensors are unreachable in the Hue app and Home Assistant. Replace/reseat their batteries, bring one close to the Hue bridge, reconnect it without resetting if possible, then use it to trigger the Lutron `Laundry Main lights`. Frigate camera entities and detection sensors are a later bounded integration requiring a shared MQTT broker and the Frigate Home Assistant integration; do not interrupt this pilot to deploy it.
+Restart point: retry the Family Room Apple TV pairing after its temporary code/pairing state clears, then add media endpoints in small groups. The Trusted-media alias and host-scoped Home Assistant rule already cover the five Trusted Apple TVs; AirPort Express, Sonos and other media endpoints on IoT use the existing Home Assistant-to-IoT rule. Frigate camera entities and detection sensors remain a later bounded integration requiring a shared MQTT broker and the Frigate Home Assistant integration.
 
 ---
 
@@ -425,9 +427,9 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 # Recommended Execution Order
 
-1. Restore one Hue motion sensor, complete the Hue-to-Lutron pilot and migrate IoT control gradually.
+1. Retry the Family Room Apple TV pairing, then migrate selected IoT/media integrations gradually without duplicating automations.
 2. Complete the planned RAM/CPU/Coral maintenance, remove the K620 and validate Frigate against its baseline.
-3. Let Beszel collect a 24-hour baseline, then configure actionable-condition alerts.
+3. Review the collected Beszel baseline, then configure actionable-condition alerts with verified email delivery.
 4. Migrate selected services to VLAN 20.
 5. Migrate management systems to VLAN 50.
 6. Complete the listed automation work.
@@ -439,6 +441,10 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-13 | Completed the Home Assistant recovery layer: encrypted daily native backups to local and dedicated Synology storage, VM 103 inclusion in checksum-verified guest mirroring, health/backup-age monitoring and a successful isolated restore as temporary VM 903. | `docs/05-Backups.md`; VM 903 booted HAOS/Supervisor/Core with networking disconnected, then was destroyed |
+| 2026-08-13 | Completed the first cross-ecosystem automation: the Hue Hall motion sensor controls Lutron `Laundry Main Lights`; created a maintainable Overview and validated a non-administrator household account. | Home Assistant automation trace/control test and incognito household-account validation |
+| 2026-08-13 | Integrated Aqara M3 through Matter, retained six live water sensors plus the shutoff valve and lock, removed stale unavailable endpoints and preserved Aqara-owned safety behavior. | Home Assistant Matter integration and live entity review |
+| 2026-08-13 | Enabled only the required mDNS relay across LAN, Servers and IoT; added a five-device Trusted Apple TV alias and an ordered host-scoped Home Assistant media rule. Apple TV pairing remains pending after a temporary code failure. | OPNsense compiled rules, alias contents and active `mdns-repeater` process |
 | 2026-08-12 | Deployed Beszel 0.18.7 as a lightweight monitoring complement for Docker, Proxmox and Frigate; all three systems report healthy and Homepage shows the systems-up summary through dedicated file-backed widget credentials. | Beszel hub `192.168.1.20:8090`; Homepage `Monitoring & Maintenance` group |
 | 2026-08-12 | Integrated Lutron Caséta at reserved address `192.168.30.102`, validated imported-device control, reserved Hue at `192.168.30.164`, and added a host-scoped Home Assistant-to-IoT firewall exception ahead of the Servers RFC1918 block. | Compiled OPNsense rules; Dnsmasq reservations; Home Assistant Lutron devices controllable |
 | 2026-08-12 | Verified Frigate retention beyond 72 hours and selected the final upgrade path: incoming RAM, E5-2698 v4 and Coral M.2 TPU, with K620 removal during maintenance. | Frigate recording database/filesystem audit; hardware purchase decision |

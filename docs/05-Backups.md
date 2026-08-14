@@ -186,21 +186,28 @@ and its storage-level backup policy.
 
 ## Home Assistant
 
-Home Assistant OS runs as Proxmox VM 103 and will be included by the enabled
-all-guests Proxmox backup job. Home Assistant's own backup system provides an
-application-aware recovery path inside the VM.
+Home Assistant OS runs as Proxmox VM 103 and is included by the enabled
+all-guests Proxmox backup job. The Synology Proxmox-pull task includes VM 103
+and checksum-verifies the mirrored archives. Home Assistant's own encrypted
+backup system provides a separate application-aware recovery path.
 
 The initial full backup, named `Fresh HAOS installation`, was created after
-first boot and before integrations were added. Create another full backup after
-the Hue/Lutron pilot is validated. Before production IoT migration, define and
-test an automated off-host copy of Home Assistant backups; a backup retained
-only inside VM 103 is not sufficient protection from guest-disk loss.
+first boot and before integrations were added. Native automatic backups now run
+daily, retain three copies and write to both local storage and the dedicated
+Backup Synology `HomeAssistant-Backups` share over SMB. Backups are encrypted;
+the emergency kit is retained separately in the AES-256 `Mini Atlas Recovery
+Keys.dmg` stored in backed-up iCloud Drive.
 
-Restore validation remains outstanding. It must cover both of these paths:
+Recovery coverage now includes both paths:
 
-1. restore a Home Assistant backup into a disposable or replacement HAOS VM;
-2. restore VM 103 from a retained Proxmox guest archive and confirm its fixed
-   address, local DNS name, integrations and dashboard.
+1. Home Assistant native backups are available both locally and on the Backup
+   Synology for application-aware recovery;
+2. the 2026-08-13 VM 103 archive was restored as temporary VM 903 with its NIC
+   link disabled, `onboot=0` and a unique MAC. HAOS, Supervisor and Core booted
+   successfully without an IP address; VM 903 and its disks were then removed.
+
+HomeLab Doctor checks VM 103 presence and its Proxmox backup age. The existing
+Synology pull reporting verifies completion of the off-host guest mirror.
 
 Do not store Home Assistant backup archives in Git. They may contain integration
 credentials, device identifiers and household data.

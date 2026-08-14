@@ -124,17 +124,22 @@ DHCP-provided DNS does not force clients to use port 53. iCloud Private Relay, V
 - IoT firewall access: TCP/UDP from Home Assistant host `192.168.20.11` to IoT VLAN 30, above the general Servers RFC1918 block
 - Lutron Caséta bridge: reserved `192.168.30.102`; devices imported and control validated
 - Hue bridge: reserved `192.168.30.164`; devices imported
+- Aqara M3: reserved `192.168.30.158`; Matter integration contains six live water sensors, the shutoff valve and lock
+- Discovery: mDNS repeater limited to LAN, Servers and IoT
+- Pilot automation: Hue `Hall Sensor` motion turns on Lutron `Laundry Main Lights`; validated 2026-08-13
+- Household access: local non-administrator account validated for dashboard and device control
 
-The restart point for the next session is **Hue motion-sensor recovery**. Both
-candidate sensors are unreachable in the Hue app and Home Assistant. Replace or
-reseat their batteries, move one close to the Hue bridge and attempt a normal
-reconnection before resetting it. Once reachable, create the pilot automation:
-the Hue motion sensor controls the Lutron `Laundry Main lights`. Do not import
-or enable the old vendor-app automations.
+The next integration checkpoint is the **Family Room Apple TV pairing**. The
+Trusted-media alias and ordered Home Assistant rule are already active. Pairing
+reached the verification-code stage but the code was not accepted, and a later
+attempt did not issue another code; leave the endpoint untouched overnight and
+retry before changing network policy. Add other media endpoints only in small
+validated groups.
 
 The Hue bridge registration button must be pressed and released immediately
-before submitting the pairing prompt. Automatic discovery is not relied upon
-across VLANs; integrations are added using known hub addresses.
+before submitting the pairing prompt. Automatic discovery is used only where
+the explicitly bounded LAN/Servers/IoT mDNS repeater is required; known hub
+addresses remain preferred where supported.
 
 Frigate cameras, images and detection sensors can be integrated later, but the
 full integration requires a shared MQTT broker, MQTT configuration in both
