@@ -123,6 +123,47 @@ check_reported_backup() {
     fi
 }
 
+check_proxmox_guest_backup_age() {
+    local display="$1"
+    local vmid="$2"
+    local maximum_hours="${3:-30}"
+    local latest_epoch
+
+    if ! latest_epoch="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
+            "find /mnt/backups/dump -maxdepth 1 -type f -name 'vzdump-qemu-${vmid}-*.vma.zst' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
+    )"; then
+        warn "Unable to check $display backup age"
+        return
+    fi
+
+    latest_epoch="${latest_epoch%%.*}"
+
+    if [[ ! "$latest_epoch" =~ ^[0-9]+$ ]]; then
+        fail "$display has no Proxmox backup archive"
+        return
+    fi
+
+    local now_epoch
+    local age_seconds
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_seconds=$((now_epoch - latest_epoch))
+
+    if (( age_seconds < 0 )); then
+        warn "$display backup timestamp is ahead of the Mac clock"
+        return
+    fi
+
+    age_hours=$((age_seconds / 3600))
+
+    if (( age_hours <= maximum_hours )); then
+        pass "$display Proxmox backup is ${age_hours} hour(s) old"
+    else
+        fail "$display Proxmox backup is ${age_hours} hour(s) old"
+    fi
+}
+
 check_pihole_dns() {
     local display="$1"
     local ip="$2"
@@ -498,7 +539,7 @@ for guest in json.load(sys.stdin):
     local guest_state
     local guest_name
 
-    for guest in 100 101 102; do
+    for guest in 100 101 102 103; do
         guest_line="$(awk -F'|' -v guest="$guest" '$1 == guest {print; exit}' <<< "$guest_status")"
         guest_state="$(cut -d'|' -f2 <<< "$guest_line")"
         guest_name="$(cut -d'|' -f3 <<< "$guest_line")"
@@ -806,6 +847,7 @@ info "Checking configuration backups..."
 check_backup_age "OPNsense" "$BACKUP_ROOT/opnsense" 48
 check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
 check_backup_age "Proxmox" "$BACKUP_ROOT/proxmox" 48
+check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
 check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
 
