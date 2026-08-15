@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-12
+> Last Updated: 2026-08-14
 >
 > **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
 
@@ -11,7 +11,7 @@
 Version 1.6.0
 
 Current Focus:
-🔵 Home Assistant pilot — restore a Hue motion sensor and build the Hue-to-Lutron automation
+🔵 Validate the first 32 GB Proxmox RAM stage, then install and test the Coral TPU before resuming controlled Home Assistant migration
 
 Project Status:
 🚧 Active — complete the defined programme before accepting elective new work
@@ -188,7 +188,7 @@ Operational Monitoring
 - [x] Monitor both Pi-hole DNS endpoints through functional public, local and blocked-domain checks
 - [x] Monitor Frigate service, NFS mount and recording freshness
 - [x] Monitor backup success and age
-- [ ] Send alerts only for actionable conditions
+- [x] Send alerts only for actionable conditions — sustained Beszel thresholds configured for Docker, Proxmox and Frigate; iCloud SMTP delivery tested 2026-08-14
 - [x] Deploy a bounded Beszel monitoring layer for Docker, Proxmox and Frigate
 - [x] Add Beszel and a concise systems-up status widget to Homepage
 
@@ -236,7 +236,7 @@ Hardware Acceleration and Expansion
 - [ ] Complete the planned Proxmox RAM upgrade if still required
 - [ ] Create recovery checkpoints before passthrough or driver changes
 - [x] Select the Frigate upgrade path — incoming E5-2698 v4 CPU, RAM and Coral M.2 TPU; remove the K620 during the same maintenance window
-- [ ] Confirm Coral M.2 form-factor/adapter compatibility before installation
+- [x] Confirm Coral M.2 form-factor/adapter compatibility before installation — single Edge TPU `G650-04527-01`, M.2 2230 A+E key, PCIe Gen2 x1; compatible PCIe x1 E-key carrier selected
 - [ ] Install and pass through the Coral TPU after creating recovery checkpoints
 - [ ] Test Coral object-detection acceleration using the existing camera only
 - [ ] Compare stability and resource use with the software baseline
@@ -302,9 +302,18 @@ Pilot automation criterion: **complete 2026-08-13**. The Philips Hue Hall motion
 
 Restart point: retry the Family Room Apple TV pairing after its temporary code/pairing state clears, then add media endpoints in small groups. The Trusted-media alias and host-scoped Home Assistant rule already cover the five Trusted Apple TVs; AirPort Express, Sonos and other media endpoints on IoT use the existing Home Assistant-to-IoT rule. Frigate camera entities and detection sensors remain a later bounded integration requiring a shared MQTT broker and the Frigate Home Assistant integration.
 
+Home Assistant learning checkpoint: HACS is installed and authenticated without adding an elective community repository. The validated Laundry workflow now uses a Hue motion trigger, the `Laundry bright` scene, the `Laundry motion lighting` script, a five-minute `Laundry occupancy timer` helper and a separate timer-finished automation that turns the Lutron light off. This establishes the reusable trigger/condition/action, scene, script, helper and trace patterns needed for later automations without importing the conflicting vendor-app automation history.
+
 ---
 
 # Phase 8 — Server VLAN 20 Migration
+
+Audit completed 2026-08-14:
+
+- Frigate VM 102 and Home Assistant VM 103 already prove the VLAN 20 workload pattern, minimum-access firewall policy and rollback method.
+- Remaining server candidates are Docker LXC 100, TrueNAS and the two Synology systems. UniFi LXC 101 is management infrastructure and belongs in Phase 9.
+- Docker LXC 100 is a coupled migration because it hosts Homepage, Portainer, primary Pi-hole, Tailscale and Beszel. It must not be treated as the next low-risk pilot.
+- The main Synology at `192.168.1.41` is the probable first remaining candidate after its shares and clients are inventoried. Docker follows in a dedicated window with the secondary Pi-hole retained; Backup Synology follows after all pull, Hyper Backup and Home Assistant SMB dependencies are mapped; TrueNAS remains last because it provides Frigate NFS, secondary Pi-hole and other storage/application dependencies.
 
 - [ ] Inventory each candidate service, dependency, port, client and DNS name
 - [ ] Select a stateless or easily restored service as the first migration
@@ -322,6 +331,14 @@ Intended server workloads reside on VLAN 20 with documented minimum-access rules
 ---
 
 # Phase 9 — Management VLAN 50 Migration
+
+Audit completed 2026-08-14:
+
+- Planned addresses remain Arista `.50.2`, Proxmox `.50.10`, UniFi controller `.50.21`, UniFi switch `.50.30` and UniFi AP `.50.31`.
+- Initial administrator access should be limited to Jason's Mac Studio at `192.168.1.206`; additional administrator devices require explicit review.
+- Console recovery for OPNsense, Arista and Proxmox must be confirmed before the first address change.
+- Recommended order is UniFi LXC 101, one AP, UniFi switch, Proxmox, then Arista last. VLAN 10 remains available throughout validation.
+- The Proxmox-facing Arista trunk must gain tagged VLAN 50 before moving LXC 101 or Proxmox management. Tailscale currently advertises only `192.168.1.0/24`; Management remote access is a later explicit policy decision, not part of the local pilot.
 
 - [ ] Define which administrator devices may access Management
 - [ ] Document emergency console and lockout recovery procedures
@@ -341,10 +358,12 @@ Management interfaces are isolated on VLAN 50, reachable only from approved admi
 
 # Phase 10 — Automation
 
-- [ ] Nightly Backups
+- [x] Nightly Backups — automated configuration pulls, Proxmox guest archives, Home Assistant native backups and encrypted off-site protection are operational
 - [ ] Configuration Drift Detection
 - [ ] Automatic Reports
 - [ ] Certificate Monitoring
+
+Audit completed 2026-08-14: keep this phase bounded. Use the existing `lab doctor` result as the basis for failure-only scheduled reporting, compare protected infrastructure exports with the prior known-good set for drift, and monitor certificate expiry only where expiry has an operational consequence. Do not build a second general monitoring platform here.
 
 ---
 
@@ -428,11 +447,11 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 # Recommended Execution Order
 
 1. Retry the Family Room Apple TV pairing, then migrate selected IoT/media integrations gradually without duplicating automations.
-2. Complete the planned RAM/CPU/Coral maintenance, remove the K620 and validate Frigate against its baseline.
-3. Review the collected Beszel baseline, then configure actionable-condition alerts with verified email delivery.
-4. Migrate selected services to VLAN 20.
-5. Migrate management systems to VLAN 50.
-6. Complete the listed automation work.
+2. Complete the staged RAM/CPU maintenance and remove the K620. The first 2 x 16 GB ECC RDIMM stage is detected as 32 GB and is undergoing a two-pass 24 GB `memtester` validation; the second matching pair and CPU remain pending.
+3. Install the selected PCIe x1 A+E-key carrier and Coral TPU during the planned Sunday maintenance window, then validate one camera against the software baseline.
+4. Migrate selected services to VLAN 20 using the audited dependency order.
+5. Migrate management systems to VLAN 50 only after local-console and trunk prerequisites pass.
+6. Complete the bounded drift, reporting and certificate automation work.
 7. Reconcile and consolidate documentation, remove temporary exceptions and review the scope lock.
 
 ---
@@ -441,6 +460,11 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-14 | Installed the first two 16 GB SK hynix ECC RDIMMs in Proxmox DIMM1/DIMM3; firmware and Linux detect 32 GB at 1866 MT/s with no reported memory errors, and a two-pass 24 GB `memtester` validation is in progress before services are restarted. | `free -h`; `dmidecode`; EDAC boot log; `/root/memtester-32gb-20260814.log` |
+| 2026-08-14 | Confirmed the purchased Coral is the single M.2 2230 A+E-key PCIe x1 model and selected a compatible PCIe x1 E-key carrier for the planned Sunday installation. | Coral `G650-04527-01` datasheet and adapter compatibility audit |
+| 2026-08-14 | Configured sustained actionable Beszel alerts for Docker, Proxmox and Frigate and validated email delivery through iCloud SMTP; temporary test thresholds were reverted. | Beszel alert configuration and received test/threshold email |
+| 2026-08-14 | Installed HACS without adding an elective repository and expanded the Laundry pilot into a reusable scene/script/timer workflow with successful countdown and timer-finished light-off testing. | Home Assistant HACS, `Laundry bright`, `Laundry motion lighting`, `Laundry occupancy timer` and automation traces |
+| 2026-08-14 | Audited Phases 8–10 and defined the remaining server and management migration order, prerequisites, rollback boundaries and deliberately bounded automation scope. | `PROJECTS.md` Phase 8–10 audit notes |
 | 2026-08-13 | Completed the Home Assistant recovery layer: encrypted daily native backups to local and dedicated Synology storage, VM 103 inclusion in checksum-verified guest mirroring, health/backup-age monitoring and a successful isolated restore as temporary VM 903. | `docs/05-Backups.md`; VM 903 booted HAOS/Supervisor/Core with networking disconnected, then was destroyed |
 | 2026-08-13 | Completed the first cross-ecosystem automation: the Hue Hall motion sensor controls Lutron `Laundry Main Lights`; created a maintainable Overview and validated a non-administrator household account. | Home Assistant automation trace/control test and incognito household-account validation |
 | 2026-08-13 | Integrated Aqara M3 through Matter, retained six live water sensors plus the shutoff valve and lock, removed stale unavailable endpoints and preserved Aqara-owned safety behavior. | Home Assistant Matter integration and live entity review |

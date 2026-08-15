@@ -17,23 +17,29 @@
 - Added a minimal mDNS relay across LAN, Servers and IoT plus a host-scoped Trusted-media exception for five Apple TVs
 - Created and validated the Hue Hall motion-to-Lutron `Laundry Main Lights` pilot automation
 - Created a simple Home Assistant Overview and a validated local non-administrator household account
+- Installed HACS and validated the community-store workflow without adding an elective repository
+- Expanded the Laundry pilot with the `Laundry bright` scene, `Laundry motion lighting` script, five-minute occupancy timer and timer-finished light-off automation
+- Configured sustained actionable Beszel alerts for Docker, Proxmox and Frigate with verified iCloud SMTP delivery
+- Added audited execution orders and rollback boundaries for the remaining Server VLAN 20 and Management VLAN 50 migrations
 
 ### Validated
 - Fully tested VLAN 70 with disposable Proxmox LXC 970: DHCP, redundant Pi-hole DNS, blocking and Internet access passed; internal application endpoints remained isolated
 - Corrected the OPNsense VLAN 70 parent from `igb0` to the active `ix0` trunk and repeated the validation successfully
 - Confirmed Frigate's current HEVC 5120x1552 stream, approximately 24 GB/day recording growth and stable NFS recording flow
-- Confirmed the Quadro K620 is not worthwhile for the current Frigate workload; it will be removed during the planned RAM upgrade
+- Confirmed the Quadro K620 is not worthwhile for the current Frigate workload; it will be removed during the planned CPU/Coral maintenance
 - Verified Frigate retention beyond the configured 3-day continuous window
 - Selected the incoming E5-2698 v4, RAM and Coral M.2 TPU upgrade path for Frigate
 - Restored VM 103 as isolated temporary VM 903, booted HAOS, Supervisor and Core without network connectivity, then removed the test VM
 - Confirmed IoT devices remain unable to initiate unrestricted RFC1918 access using live OPNsense rule counters
 - Confirmed both Home Assistant native backups and mirrored VM 103 archives are present off-host
+- Confirmed the first two 16 GB ECC RDIMMs are detected as 32 GB at 1866 MT/s with no reported boot-time memory error; the two-pass memory validation remains in progress at session close
+- Confirmed Coral `G650-04527-01` is the single M.2 2230 A+E-key PCIe x1 model and selected a compatible PCIe x1 E-key carrier
 
 ### Planned
-- Review Beszel history and configure only actionable-condition alerts with verified email delivery
 - Retry Family Room Apple TV pairing after the temporary pairing-code state clears
 - Add MQTT and the Frigate Home Assistant integration after the first automation pilot, not during it
 - Continue selected IoT and media integrations in small validated groups
+- Complete the first RAM validation, install the second matching RDIMM pair and E5-2698 v4 when available, then install and validate the Coral TPU in a separate controlled step
 
 ### Security
 - Kept Home Assistant on Servers VLAN 20 and permitted only host `192.168.20.11` to initiate TCP/UDP access to IoT VLAN 30
