@@ -125,6 +125,8 @@ DHCP-provided DNS does not force clients to use port 53. iCloud Private Relay, V
 - Lutron Caséta bridge: reserved `192.168.30.102`; devices imported and control validated
 - Hue bridge: reserved `192.168.30.164`; devices imported
 - Aqara M3: reserved `192.168.30.158`; Matter integration contains six live water sensors, the shutoff valve and lock
+- Community integration manager: HACS is installed and authenticated. Add community repositories only when they satisfy an approved integration requirement; installation alone is not approval to expand scope.
+- Laundry automation pattern: Hue Hall motion calls the `Laundry motion lighting` script; the script activates the `Laundry bright` scene and starts the five-minute `Laundry occupancy timer`; a separate `timer.finished` automation turns off `Laundry Main Lights`. Use traces to validate each stage.
 - Discovery: mDNS repeater limited to LAN, Servers and IoT
 - Pilot automation: Hue `Hall Sensor` motion turns on Lutron `Laundry Main Lights`; validated 2026-08-13
 - Household access: local non-administrator account validated for dashboard and device control
