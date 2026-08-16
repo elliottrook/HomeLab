@@ -3,7 +3,7 @@
 **Status:** Implementation in progress
 
 **Phase:** Enterprise Network  
-**Last Updated:** 2026-08-08
+**Last Updated:** 2026-08-16
 
 ---
 
@@ -40,9 +40,9 @@ Core infrastructure includes:
 - Homepage for internal service navigation
 - Tailscale for private, identity-restricted remote access
 
-The Arista carries trusted traffic on VLAN 10, isolated IoT traffic on VLAN 30 and isolated Guest traffic on VLAN 40. OPNsense provides the gateway and policy enforcement for all three networks.
+The Arista carries trusted traffic on VLAN 10, server traffic on VLAN 20, isolated IoT traffic on VLAN 30 and isolated Guest traffic on VLAN 40. OPNsense provides the gateway and policy enforcement for the routed networks.
 
-Servers and management infrastructure remain on VLAN 10 during the staged migration. The validated deployed state is recorded in `Current-Network-Baseline.md`.
+The server migration is complete: Docker LXC 100, Frigate VM 102, Home Assistant VM 103, TrueNAS and both Synology systems reside on VLAN 20. Management infrastructure remains on VLAN 10 pending Phase 9. The validated deployed state is recorded in `Current-Network-Baseline.md`.
 
 ---
 
@@ -78,7 +78,7 @@ This preserves one central policy enforcement point and keeps the switch configu
 
 ## Remote access
 
-Tailscale runs in the Docker LXC as a subnet router and advertises only `192.168.1.0/24`. Split DNS forwards the `internal` namespace to OPNsense, allowing `home.internal` and other internal names to work remotely. Tailnet grants restrict trusted-LAN access to the administrator identity. No inbound WAN port-forward is required.
+Tailscale runs in the Docker LXC as a subnet router and advertises `192.168.1.0/24` and `192.168.20.0/24`. Split DNS forwards the `internal` namespace to OPNsense, allowing `home.internal` and other internal names to work remotely. Tailnet grants restrict Trusted and Servers access to the administrator identity. No inbound WAN port-forward is required.
 
 ---
 

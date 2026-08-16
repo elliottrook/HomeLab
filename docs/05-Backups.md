@@ -32,7 +32,7 @@ Keep this shared folder restricted to the backup account. The manual dated set r
 
 ## Automated same-site protection
 
-The Backup Synology at `192.168.1.42` pulls rather than receives pushed data, so scheduled work does not depend on a mounted Mac SMB share.
+The Backup Synology at `192.168.20.42` pulls rather than receives pushed data, so scheduled work does not depend on a mounted Mac SMB share.
 
 Configuration recovery sets are pulled daily at 21:00 from the Mac source `~/lab/private-backups` into `Backup/HomeLab-Backups/automated/private-backups`. The task uses a dedicated Synology-held SSH key restricted on the Mac to the Backup Synology source address. It performs an additive rsync copy followed by a checksum-mode dry run. Success and diagnostic state is recorded in:
 
@@ -40,7 +40,7 @@ Configuration recovery sets are pulled daily at 21:00 from the Mac source `~/lab
 - `synology-pull-last-success.txt`
 - `logs/synology-pull-latest.log`
 
-Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The mirror includes only LXC 100, LXC 101 and QEMU 102 backup archives. A checksum-mode dry run must be empty before success is recorded in:
+Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The mirror includes only LXC 100, LXC 101, QEMU 102 and QEMU 103 backup archives. A checksum-mode dry run must be empty before success is recorded in:
 
 - `proxmox-pull-latest.status`
 - `proxmox-pull-last-success.txt`
@@ -130,25 +130,25 @@ Confirm `http://home.internal:3000`, the management tiles and all SSH launch lin
 Create separate Pi-hole Teleporter exports from **Settings > Teleporter** on the primary and secondary instances. Store each with the date, role and Pi-hole version. Teleporter is preferred to copying a live persistent directory because `gravity.db` and `pihole-FTL.db` can change while the service is running. After a restore, validate public resolution, local split DNS and blocking through both endpoints:
 
 ```sh
-dig +short @192.168.1.20 example.com
-dig +short @192.168.1.20 home.internal
-dig +short @192.168.1.20 doubleclick.net
-dig +short @192.168.1.40 example.com
-dig +short @192.168.1.40 home.internal
-dig +short @192.168.1.40 doubleclick.net
+dig +short @192.168.20.20 example.com
+dig +short @192.168.20.20 home.internal
+dig +short @192.168.20.20 doubleclick.net
+dig +short @192.168.20.40 example.com
+dig +short @192.168.20.40 home.internal
+dig +short @192.168.20.40 doubleclick.net
 ```
 
-Expected results from either resolver are public addresses, `192.168.1.20`, and a blocking response such as `0.0.0.0`, respectively. OPNsense Dnsmasq advertises both endpoints through DHCPv4 option 6. For rollback, remove or disable that option, apply the Dnsmasq configuration and renew a test client before disabling the scoped Pi-hole firewall exception.
+Expected results from either resolver are public addresses, `192.168.20.20`, and a blocking response such as `0.0.0.0`, respectively. OPNsense Dnsmasq advertises both endpoints through DHCPv4 option 6. For rollback, remove or disable that option, apply the Dnsmasq configuration and renew a test client before disabling the scoped Pi-hole firewall exception.
 
 ## Tailscale
 
 Record the following without storing authentication keys or reusable tokens:
 
 - `homelab-gateway` machine identity and Tailscale version
-- Advertised route: `192.168.1.0/24`
+- Advertised routes: `192.168.1.0/24` and `192.168.20.0/24`
 - Approved route state in the admin console
 - Split-DNS route for `internal` through `192.168.1.1`
-- Identity-specific access grant for the trusted LAN
+- Identity-specific access grant for the Trusted and Servers networks
 - Explicit exclusion of IoT `192.168.30.0/24` and Guest `192.168.40.0/24`
 
 Keep a private export or controlled copy of the tailnet policy. After recovery, test Homepage and one SSH target from a device using cellular data with Wi-Fi disabled. Do not create a WAN port-forward as a recovery shortcut.

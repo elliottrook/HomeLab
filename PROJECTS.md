@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-14
+> Last Updated: 2026-08-16
 >
 > **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
 
@@ -11,7 +11,7 @@
 Version 1.6.0
 
 Current Focus:
-🔵 Validate the first 32 GB Proxmox RAM stage, then install and test the Coral TPU before resuming controlled Home Assistant migration
+🔵 Complete the planned Proxmox CPU/RAM and Coral TPU maintenance, then begin the audited Phase 9 management-migration sequence
 
 Project Status:
 🚧 Active — complete the defined programme before accepting elective new work
@@ -177,7 +177,7 @@ Passed 2026-08-11: Homepage and a disposable LXC restore were validated; configu
 
 ---
 
-# Phase 5 — Monitoring
+# Phase 5 — Monitoring ✅ COMPLETE
 
 Operational Monitoring
 
@@ -202,6 +202,8 @@ Future Monitoring Platform
 
 Completion Gate:
 Failures in routing, storage, DNS, surveillance or backups are detected without manually checking every system.
+
+**Phase 5 complete 2026-08-15.** HomeLab Doctor provides functional infrastructure checks, Beszel supplies lightweight host/container metrics with sustained actionable alerts, and Homepage provides the concise daily status view. Prometheus, Grafana and their long-term metrics/alerting stack remain explicitly deferred future enhancements and are not Phase 5 completion dependencies.
 
 ---
 
@@ -250,7 +252,7 @@ No unexplained recording gaps, mount failures or resource exhaustion during obse
 
 ---
 
-# Phase 7 — Home Assistant and Controlled IoT Migration
+# Phase 7 — Home Assistant and Controlled IoT Migration ✅ COMPLETE
 
 Design and Recovery
 
@@ -279,12 +281,12 @@ Integration Sequence
 - [x] Integrate Lutron Caséta at reserved address `192.168.30.102`; devices imported and local light control validated
 - [x] Integrate Aqara M3 through Matter; retain six water sensors, the shutoff valve and lock, and remove stale unavailable endpoints
 - [x] Create and validate the Hue Hall motion-to-Lutron `Laundry Main Lights` cross-ecosystem pilot automation
-- [ ] Integrate selected TVs, media devices, plugs, sensors and other supported IoT devices in small groups
+- [x] Integrate the selected bounded set of TVs, Sonos/media devices, hubs and safety sensors; defer fringe devices to deliberate on-demand adoption
 - [x] Preserve vendor applications where needed for firmware, recovery or unsupported functions
-- [ ] Decide whether Apple Home should consume selected Home Assistant entities through HomeKit Bridge
+- [x] Deploy HomeKit Bridge as a Siri/Apple Home presentation layer while retaining Home Assistant as the sole management and automation authority
 - [x] Establish duplicate-control policy: vendor apps remain for device lifecycle and safety functions; rebuilt general automations move individually to Home Assistant
-- [ ] Move automations individually, validate them, then disable the superseded version
-- [ ] Document unsupported, cloud-dependent or intentionally excluded devices
+- [x] Establish and validate the one-at-a-time automation migration method; future household automations follow this method and are not a project-closeout blocker
+- [x] Document unsupported, cloud-dependent and intentionally excluded fringe devices as deferred until a planned use case justifies integration
 
 Operationalization
 
@@ -293,14 +295,18 @@ Operationalization
 - [x] Enable reliable automated backups and off-host copying — encrypted native backups plus mirrored Proxmox VM archives
 - [x] Add Home Assistant health and backup-age monitoring
 - [x] Test VM reboot, Home Assistant restart and recovery from backup — isolated VM 903 restore booted successfully and was removed
-- [ ] Document dependencies, firewall exceptions, integrations and rollback steps
+- [x] Document dependencies, firewall exceptions, integrations, HomeKit/Siri presentation and rollback steps
 
 Completion Gate:
 Selected IoT devices are reliably controlled through Home Assistant, essential automations have a single authoritative owner, VLAN isolation remains effective, backups are off-host, and restart/restore testing passes.
 
+**Phase 7 complete 2026-08-15.** The selected production integrations are connected, controllable and verified. HomeKit Bridge publishes the approved Home Assistant domains to Apple Home for natural Siri control; it does not own devices or automations. Remaining fringe-vendor additions and new household automations are deliberate future operations rather than unfinished migration work.
+
 Pilot automation criterion: **complete 2026-08-13**. The Philips Hue Hall motion sensor successfully triggers the Lutron `Laundry Main Lights`. Existing vendor-app automations are not imported; Home Assistant will become the sole automation authority as each automation is rebuilt and validated. Aqara safety functions remain in Aqara while their six live water sensors, shutoff valve and lock are also visible through Matter.
 
-Restart point: retry the Family Room Apple TV pairing after its temporary code/pairing state clears, then add media endpoints in small groups. The Trusted-media alias and host-scoped Home Assistant rule already cover the five Trusted Apple TVs; AirPort Express, Sonos and other media endpoints on IoT use the existing Home Assistant-to-IoT rule. Frigate camera entities and detection sensors remain a later bounded integration requiring a shared MQTT broker and the Frigate Home Assistant integration.
+Selected Apple/media endpoints and Sonos control have been validated. The Trusted-media alias and host-scoped Home Assistant rule cover the five Trusted Apple TVs; AirPort Express, Sonos and other media endpoints on IoT use the existing Home Assistant-to-IoT rule. Frigate camera entities and detection sensors remain a later bounded integration requiring a shared MQTT broker and the Frigate Home Assistant integration.
+
+HomeKit Bridge dependency and rollback: the bridge in VM 103 advertises through mDNS and uses its HomeKit TCP listener (default `21063`). The existing bounded mDNS relay across LAN, Servers and IoT plus permitted client access to `192.168.20.11` supports discovery and control. Published domains are `light`, `switch`, `lock`, `climate`, `cover`, `fan`, `vacuum`, `scene`, `script` and `binary_sensor`; media players, cameras, general sensors, automations, buttons and helpers remain excluded to avoid duplication and diagnostic clutter. Home Assistant remains authoritative. Rollback is to remove the bridge from Apple Home and then remove or disable the HomeKit Bridge integration; source integrations, entities and Home Assistant automations remain intact. Native and VM-level backups preserve the bridge pairing state.
 
 Home Assistant learning checkpoint: HACS is installed and authenticated without adding an elective community repository. The validated Laundry workflow now uses a Hue motion trigger, the `Laundry bright` scene, the `Laundry motion lighting` script, a five-minute `Laundry occupancy timer` helper and a separate timer-finished automation that turns the Lutron light off. This establishes the reusable trigger/condition/action, scene, script, helper and trace patterns needed for later automations without importing the conflicting vendor-app automation history.
 
@@ -311,22 +317,26 @@ Home Assistant learning checkpoint: HACS is installed and authenticated without 
 Audit completed 2026-08-14:
 
 - Frigate VM 102 and Home Assistant VM 103 already prove the VLAN 20 workload pattern, minimum-access firewall policy and rollback method.
-- Remaining server candidates are Docker LXC 100, TrueNAS and the two Synology systems. UniFi LXC 101 is management infrastructure and belongs in Phase 9.
-- Docker LXC 100 is a coupled migration because it hosts Homepage, Portainer, primary Pi-hole, Tailscale and Beszel. It must not be treated as the next low-risk pilot.
-- The main Synology at `192.168.1.41` is the probable first remaining candidate after its shares and clients are inventoried. Docker follows in a dedicated window with the secondary Pi-hole retained; Backup Synology follows after all pull, Hyper Backup and Home Assistant SMB dependencies are mapped; TrueNAS remains last because it provides Frigate NFS, secondary Pi-hole and other storage/application dependencies.
+- Docker LXC 100 completed its controlled migration on 2026-08-15 from Trusted `192.168.1.20` to Servers `192.168.20.20`. Its Homepage, Portainer, primary Pi-hole, Tailscale and Beszel workloads returned healthy; local and cellular/Tailscale tests passed. A fresh verified backup and explicit rollback copies preceded the move.
+- Tailscale now advertises Trusted and Servers, with identity-specific access to both. A host-scoped rule permits only the subnet-router host to reach Trusted; the general Servers isolation rules remain in force.
+- The main Synology migrated to `192.168.20.41` and the Backup Synology to `192.168.20.42`. Hyper Backup, SMB, Home Assistant backup storage and both restricted pull paths were validated after the moves.
+- TrueNAS migrated last to `192.168.20.40`. Its secondary Pi-hole and application endpoints passed, and Frigate's NFS dependency survived a complete client reboot with a healthy container and fresh recordings.
+- UniFi LXC 101 remains management infrastructure and belongs in Phase 9.
 
-- [ ] Inventory each candidate service, dependency, port, client and DNS name
-- [ ] Select a stateless or easily restored service as the first migration
-- [ ] Verify backup and rollback before each move
-- [ ] Add only the required firewall access
-- [ ] Move one workload at a time
-- [ ] Validate LAN and Tailscale access
-- [ ] Observe each workload before starting another migration
-- [ ] Update DNS, Homepage, inventories and diagrams after every move
-- [ ] Defer TrueNAS and core DNS until the migration method is proven
+- [x] Inventory each candidate service, dependency, port, client and DNS name
+- [x] Select a stateless or easily restored service as the first migration
+- [x] Verify backup and rollback before each move
+- [x] Add only the required firewall access
+- [x] Move one workload at a time
+- [x] Validate LAN and Tailscale access for the completed Docker migration
+- [x] Observe each workload before starting another migration
+- [x] Update DNS, Homepage, inventories and diagrams after every move
+- [x] Migrate TrueNAS and core DNS only after the migration method was proven
 
 Completion Gate:
 Intended server workloads reside on VLAN 20 with documented minimum-access rules and tested recovery paths.
+
+**Phase 8 complete 2026-08-16.** Docker LXC 100, TrueNAS and both Synology systems now reside on Servers VLAN 20. DNS, NFS, SMB, Hyper Backup, restricted SSH pulls, Homepage and Tailscale dependencies were tested after migration. HomeLab Doctor finished with 39 passes, no functional warning and no failure; the remaining warning was the intentionally dirty Git working tree.
 
 ---
 
@@ -335,10 +345,10 @@ Intended server workloads reside on VLAN 20 with documented minimum-access rules
 Audit completed 2026-08-14:
 
 - Planned addresses remain Arista `.50.2`, Proxmox `.50.10`, UniFi controller `.50.21`, UniFi switch `.50.30` and UniFi AP `.50.31`.
-- Initial administrator access should be limited to Jason's Mac Studio at `192.168.1.206`; additional administrator devices require explicit review.
+- Initial administrator access should be limited to Jason's Mac mini at `192.168.1.206`; adding Jason's laptop as a second administrator device requires explicit review.
 - Console recovery for OPNsense, Arista and Proxmox must be confirmed before the first address change.
 - Recommended order is UniFi LXC 101, one AP, UniFi switch, Proxmox, then Arista last. VLAN 10 remains available throughout validation.
-- The Proxmox-facing Arista trunk must gain tagged VLAN 50 before moving LXC 101 or Proxmox management. Tailscale currently advertises only `192.168.1.0/24`; Management remote access is a later explicit policy decision, not part of the local pilot.
+- The Proxmox-facing Arista trunk must gain tagged VLAN 50 before moving LXC 101 or Proxmox management. Tailscale currently advertises Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`; Management remote access is a later explicit policy decision, not part of the local pilot.
 
 - [ ] Define which administrator devices may access Management
 - [ ] Document emergency console and lockout recovery procedures
@@ -414,6 +424,22 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 - [ ] Test local model performance with the planned 48 GB system RAM
 - [ ] Keep Frigate object detection on a dedicated TPU/accelerator where practical, reserving GPU capacity for local AI and advanced Frigate workloads
 
+## Synology Drive Family Cloud
+
+- [ ] Reactivate and pilot Synology Drive on the existing primary Synology after the current roadmap and VLAN migrations are complete
+- [ ] Confirm current Synology Drive Server and client versions before configuration; use macOS client 4.1 or later
+- [ ] Provide individual DSM accounts and private `My Drive` storage for family members
+- [ ] Create only the required shared family Team Folders with explicit group permissions
+- [ ] Configure macOS On-demand Sync so Synology Drive appears as a live Finder location without downloading every file
+- [ ] Test iPhone/iPad access, automatic photo and video upload, offline pinning and two-way synchronization
+- [ ] Validate password-protected and expiring share links and file-request links for friends who do not have accounts
+- [ ] Use HTTPS in transit and a dedicated encrypted DSM shared folder where compatible; document that this is not client-side or zero-knowledge encryption
+- [ ] Select a safe external-sharing method without broadly exposing DSM; retain Tailscale for private family administration and access where practical
+- [ ] Set conservative version retention and monitor capacity on both Synology systems
+- [ ] Prove Synology Drive data, configuration, version recovery and deleted-file recovery through Hyper Backup before production use
+- [ ] Keep the scope limited to simple file sync, sharing, encryption and mobile access; do not enable collaboration-suite features without a later decision
+- [ ] Retain Seafile Community Edition only as a fallback if Synology Drive fails a defined encryption, sharing or client requirement
+
 ## Other Deferred Work
 
 - Kubernetes Lab
@@ -446,13 +472,11 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 # Recommended Execution Order
 
-1. Retry the Family Room Apple TV pairing, then migrate selected IoT/media integrations gradually without duplicating automations.
-2. Complete the staged RAM/CPU maintenance and remove the K620. The first 2 x 16 GB ECC RDIMM stage is detected as 32 GB and is undergoing a two-pass 24 GB `memtester` validation; the second matching pair and CPU remain pending.
-3. Install the selected PCIe x1 A+E-key carrier and Coral TPU during the planned Sunday maintenance window, then validate one camera against the software baseline.
-4. Migrate selected services to VLAN 20 using the audited dependency order.
-5. Migrate management systems to VLAN 50 only after local-console and trunk prerequisites pass.
-6. Complete the bounded drift, reporting and certificate automation work.
-7. Reconcile and consolidate documentation, remove temporary exceptions and review the scope lock.
+1. Complete the staged RAM/CPU maintenance and remove the K620. The first 2 x 16 GB ECC RDIMM stage passed a two-loop 24 GB `memtester` validation; the second matching pair and CPU remain pending.
+2. Install the selected PCIe x1 A+E-key carrier and Coral TPU during the planned maintenance window, then validate one camera against the software baseline.
+3. Migrate management systems to VLAN 50 only after local-console and trunk prerequisites pass.
+4. Complete the bounded drift, reporting and certificate automation work.
+5. Reconcile and consolidate documentation, remove temporary exceptions and review the scope lock.
 
 ---
 
@@ -460,6 +484,9 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-16 | Completed Phase 8 by migrating TrueNAS and both Synology systems to Servers VLAN 20; validated DNS, NFS recording flow after a Frigate reboot, SMB, Hyper Backup, Home Assistant backup storage and restricted backup-pull access. | HomeLab Doctor: 39 passed, 1 Git-state warning, 0 failed |
+| 2026-08-15 | Migrated Docker LXC 100 and its Homepage, Portainer, primary Pi-hole, Tailscale and Beszel workloads from Trusted `192.168.1.20` to Servers VLAN 20 at `192.168.20.20`; updated DNS, DHCP, aliases and client configuration and validated local plus cellular/Tailscale access. | Verified pre-change LXC archive, healthy containers, direct DNS/port tests and remote access tests |
+| 2026-08-15 | Completed the controlled IoT migration milestone and deployed a domain-filtered HomeKit Bridge for Apple Home/Siri presentation; pairing completed and Siri control of a Home Assistant-managed Lutron light was verified. Home Assistant remains the sole automation authority. | HomeKit Bridge pairing notification, Apple Home accessory import and live Siri control test |
 | 2026-08-14 | Installed the first two 16 GB SK hynix ECC RDIMMs in Proxmox DIMM1/DIMM3; firmware and Linux detect 32 GB at 1866 MT/s with no reported memory errors, and a two-pass 24 GB `memtester` validation is in progress before services are restarted. | `free -h`; `dmidecode`; EDAC boot log; `/root/memtester-32gb-20260814.log` |
 | 2026-08-14 | Confirmed the purchased Coral is the single M.2 2230 A+E-key PCIe x1 model and selected a compatible PCIe x1 E-key carrier for the planned Sunday installation. | Coral `G650-04527-01` datasheet and adapter compatibility audit |
 | 2026-08-14 | Configured sustained actionable Beszel alerts for Docker, Proxmox and Frigate and validated email delivery through iCloud SMTP; temporary test thresholds were reverted. | Beszel alert configuration and received test/threshold email |

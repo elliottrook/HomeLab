@@ -7,7 +7,7 @@ OPNsense (routing, firewall, DHCP and Unbound DNS)
   |
 Arista core
   +-- Proxmox
-  |     +-- LXC 100: Docker, Homepage, Portainer, Pi-hole and Tailscale
+  |     +-- LXC 100: Docker, Homepage, Portainer, Pi-hole and Tailscale (Servers VLAN 20)
   |     +-- LXC 101: UniFi OS Server
   |     +-- VM 102: Frigate (Servers VLAN 20)
   |     +-- VM 103: Home Assistant OS (Servers VLAN 20)
@@ -31,11 +31,11 @@ Servers or Trusted networks.
 
 OPNsense Dnsmasq remains the DHCP authority. DHCPv4 option 6 advertises both Pi-hole resolvers on every configured DHCP range. OPNsense Unbound remains their upstream resolver and conditionally forwards the `internal` namespace to OPNsense dnsmasq on port 53053.
 
-The primary Pi-hole 2026.05.0 is deployed as a Docker container in LXC 100. It publishes DNS on `192.168.1.20:53` and its web interface on `http://192.168.1.20:8082/admin/`. The secondary Pi-hole 2026.07.2 is a TrueNAS App at `192.168.1.40:53`, with web administration on TCP 20720. Both resolve public names through OPNsense, preserve `internal` resolution and return the configured blocked response.
+The primary Pi-hole 2026.05.0 is deployed as a Docker container in LXC 100 on Servers VLAN 20. It publishes DNS on `192.168.20.20:53` and its web interface on `http://192.168.20.20:8082/admin/`. The secondary Pi-hole 2026.07.2 is a TrueNAS App at `192.168.20.40:53`, with web administration on TCP 20720. Both resolve public names through OPNsense, preserve `internal` resolution and return the configured blocked response.
 
 ```text
-DHCP clients -> Pi-hole Primary   192.168.1.20 --+
-             -> Pi-hole Secondary 192.168.1.40 --+-> OPNsense Unbound -> Internet DNS
+DHCP clients -> Pi-hole Primary  192.168.20.20 --+
+             -> Pi-hole Secondary 192.168.20.40 --+-> OPNsense Unbound -> Internet DNS
                                                   +-> OPNsense internal namespace
 ```
 
@@ -47,6 +47,8 @@ Home Assistant OS 18.2 runs as Proxmox VM 103 at `192.168.20.11` on Servers VLAN
 
 Home Assistant is the only Servers host permitted to initiate TCP/UDP access to IoT VLAN 30. The host-specific pass rule for `192.168.20.11` precedes the general Servers-to-RFC1918 block; live counters confirmed that IoT devices still cannot initiate unrestricted RFC1918 access. Philips Hue is reserved at `192.168.30.164`, Lutron Caséta at `192.168.30.102`, and Aqara M3 at `192.168.30.158`; all are integrated. The mDNS repeater is limited to LAN, Servers and IoT for required discovery.
 
-Home Assistant will be the sole owner of rebuilt general automations. Vendor applications remain available for firmware, recovery, safety behavior and unsupported features. The first cross-ecosystem pilot is complete: the Hue Hall motion sensor controls the Lutron `Laundry Main Lights`. Aqara continues to own its water-leak/shutoff safety behavior while the six sensors, valve and lock are visible in Home Assistant through Matter.
+Home Assistant is the sole owner of rebuilt general automations. Vendor applications remain available for firmware, recovery, safety behavior and unsupported features. The first cross-ecosystem pilot is complete: the Hue Hall motion sensor controls the Lutron `Laundry Main Lights`. Aqara continues to own its water-leak/shutoff safety behavior while the six sensors, valve and lock are visible in Home Assistant through Matter.
 
-Trusted media access is separately constrained to source `192.168.20.11` and the `TRUSTED_MEDIA_DEVICES` alias containing five Apple TVs. Media endpoints already on IoT, including AirPort Express and Sonos devices, use the existing Home Assistant-to-IoT path. Apple TV pairing remains an integration task; this rule does not grant broad Servers-to-Trusted access.
+Trusted media access is separately constrained to source `192.168.20.11` and the `TRUSTED_MEDIA_DEVICES` alias containing five Apple TVs. Media endpoints already on IoT, including AirPort Express and Sonos devices, use the existing Home Assistant-to-IoT path. This rule does not grant broad Servers-to-Trusted access.
+
+HomeKit Bridge is the presentation layer for Apple Home and Siri; it is not a second automation authority. It publishes only `light`, `switch`, `lock`, `climate`, `cover`, `fan`, `vacuum`, `scene`, `script` and `binary_sensor`. Media players, cameras, general sensors, automations, buttons and helpers are excluded to prevent duplicate endpoints and diagnostic clutter. Discovery depends on mDNS across the existing bounded LAN/Servers/IoT relay, and control uses the bridge TCP listener on VM 103 (default port `21063`). Pairing and live Siri control were validated on 2026-08-15.
