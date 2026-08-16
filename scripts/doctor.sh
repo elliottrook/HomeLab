@@ -177,7 +177,7 @@ check_pihole_dns() {
 
     if [[ -z "$public_answer" ]]; then
         fail "$display did not resolve a public domain"
-    elif ! grep -qx '192\.168\.1\.20' <<< "$local_answer"; then
+    elif ! grep -qx '192\.168\.20\.20' <<< "$local_answer"; then
         fail "$display did not resolve home.internal correctly"
     elif [[ -n "$blocked_answer" ]] && ! grep -Eqx '0\.0\.0\.0|::' <<< "$blocked_answer"; then
         fail "$display did not block the test domain"
@@ -341,7 +341,7 @@ check_arista() {
         "Et4:a-10G"
         "Et9:a-10G"
         "Et17:a-10G"
-        "Et23:a-1G"
+        "Et24:a-1G"
         "Et33:a-10G"
         "Et40:a-10G"
         "Et45:a-100M"
@@ -770,7 +770,7 @@ REMOTE
         return
     fi
 
-    if [[ "$mount_type" != "nfs4" || "$mount_source" != "192.168.1.40:/mnt/Media/Surveillance/Frigate" ]]; then
+    if [[ "$mount_type" != "nfs4" || "$mount_source" != "192.168.20.40:/mnt/Media/Surveillance/Frigate" ]]; then
         fail "Frigate recording storage is not mounted from the expected TrueNAS NFS export"
         return
     fi
@@ -824,8 +824,8 @@ else
     fail "DNS resolution"
 fi
 
-check_pihole_dns "Pi-hole Primary" "192.168.1.20"
-check_pihole_dns "Pi-hole Secondary" "192.168.1.40"
+check_pihole_dns "Pi-hole Primary" "192.168.20.20"
+check_pihole_dns "Pi-hole Secondary" "192.168.20.40"
 
 divider
 

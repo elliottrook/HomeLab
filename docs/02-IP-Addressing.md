@@ -4,13 +4,13 @@
 |---|---|
 |OPNsense|192.168.1.1|
 |Proxmox|192.168.1.10|
-|Docker|192.168.1.20|
+|Docker|192.168.20.20|
 |UniFi Controller|192.168.1.21|
 |UniFi Switch|192.168.1.30|
 |UniFi AP|192.168.1.31|
-|TrueNAS|192.168.1.40|
-|Synology DS920+|192.168.1.41|
-|Backup Synology|192.168.1.42|
+|TrueNAS|192.168.20.40|
+|Synology DS920+|192.168.20.41|
+|Backup Synology|192.168.20.42|
 |Frigate VM 102|192.168.20.10|
 |Home Assistant OS VM 103|192.168.20.11|
 |Reolink Duo 2V PoE|192.168.60.10|
@@ -19,18 +19,18 @@
 
 | Service | Address | Port | Status |
 |---|---|---:|---|
-| Homepage | `http://192.168.1.20:3000` | 3000/TCP | Production |
-| Portainer | `https://192.168.1.20:9443` | 9443/TCP | Production |
-| Pi-hole Primary DNS | `192.168.1.20` | 53/TCP+UDP | Production |
-| Pi-hole Primary Web | `http://192.168.1.20:8082/admin/` | 8082/TCP | Production administration |
+| Homepage | `http://192.168.20.20:3000` | 3000/TCP | Production |
+| Portainer | `https://192.168.20.20:9443` | 9443/TCP | Production |
+| Pi-hole Primary DNS | `192.168.20.20` | 53/TCP+UDP | Production |
+| Pi-hole Primary Web | `http://192.168.20.20:8082/admin/` | 8082/TCP | Production administration |
 | Tailscale subnet router | `homelab-gateway` | Tailscale-managed | Production |
 
 ## Shared service endpoints on TrueNAS
 
 | Service | Address | Port | Status |
 |---|---|---:|---|
-| Pi-hole Secondary DNS | `192.168.1.40` | 53/TCP+UDP | Production |
-| Pi-hole Secondary Web | `http://192.168.1.40:20720/admin/` | 20720/TCP | Production administration |
+| Pi-hole Secondary DNS | `192.168.20.40` | 53/TCP+UDP | Production |
+| Pi-hole Secondary Web | `http://192.168.20.40:20720/admin/` | 20720/TCP | Production administration |
 
 ## Surveillance endpoints
 

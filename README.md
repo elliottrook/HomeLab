@@ -14,7 +14,7 @@ Enterprise-inspired home lab documentation for Project Mini Atlas.
 - Frigate VM 102 records an isolated Reolink camera to TrueNAS NFS storage.
 - Home Assistant OS VM 103 is operational at `home-assistant.home.internal` on Servers VLAN 20; Hue, Lutron and Aqara Matter are integrated, and the Hue Hall motion-to-Lutron Laundry light pilot is validated.
 - Homepage provides the internal service dashboard at `http://home.internal:3000`, including SSH launch links for the core infrastructure hosts.
-- Redundant Pi-hole resolvers run on Docker LXC 100 at `192.168.1.20` and TrueNAS at `192.168.1.40`; OPNsense Dnsmasq advertises both to every DHCP range.
+- Redundant Pi-hole resolvers run on Docker LXC 100 at `192.168.20.20` and TrueNAS at `192.168.20.40`; OPNsense Dnsmasq advertises both to every DHCP range.
 - Tailscale provides identity-restricted web and SSH access to the trusted LAN without inbound WAN ports.
 - The Backup Synology pulls and checksum-verifies configuration sets and retained Proxmox guest archives on independent schedules.
 - Hyper Backup provides client-side-encrypted, versioned IDrive e2 off-site protection for essential recovery material; media and Frigate recordings are excluded.

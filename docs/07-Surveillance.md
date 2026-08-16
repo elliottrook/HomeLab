@@ -1,7 +1,7 @@
 # Surveillance
 
 **Status:** Operational pilot  
-**Last updated:** 2026-08-11
+**Last updated:** 2026-08-16
 
 ## Components
 
@@ -43,8 +43,10 @@ sudo docker compose ps
 sudo find /opt/frigate/storage/recordings -type f -mmin -3 | head
 ```
 
-Expected results are an NFSv4 source from `192.168.1.40`, an active systemd
+Expected results are an NFSv4 source from `192.168.20.40`, an active systemd
 unit, a healthy Frigate container and recent MP4 recording segments.
+
+The TrueNAS address migration was validated with a complete Frigate VM reboot on 2026-08-16. The systemd automount resolved to the new source, `frigate-compose.service` became active, the container reported healthy with zero restarts, and fresh recording segments appeared on the NFS export.
 
 ## Stability checkpoint
 

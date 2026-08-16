@@ -10,7 +10,7 @@ SSH shortcuts:
 ## Service dashboard
 
 - LAN and Tailscale URL: `http://home.internal:3000`
-- Direct fallback: `http://192.168.1.20:3000`
+- Direct fallback: `http://192.168.20.20:3000`
 - Homepage configuration: `/opt/homepage/config` inside Proxmox LXC 100 (`docker`)
 - The `SSH Access` group launches the local SSH client for Proxmox, Docker LXC, OPNsense and TrueNAS.
 - The `Surveillance` group links to Frigate and launches its SSH connection.
@@ -20,9 +20,9 @@ Dashboard SSH targets:
 | Tile | Target |
 |---|---|
 | Proxmox SSH | `ssh://root@192.168.1.10` |
-| Docker LXC SSH | `ssh://root@192.168.1.20` |
+| Docker LXC SSH | `ssh://root@192.168.20.20` |
 | OPNsense SSH | `ssh://root@192.168.1.1` |
-| TrueNAS SSH | `ssh://truenas_admin@192.168.1.40` |
+| TrueNAS SSH | `ssh://truenas_admin@192.168.20.40` |
 | Frigate SSH | `ssh://jelliott@192.168.20.10` |
 
 The client device must have an application registered to handle `ssh://` links. These links do not contain passwords or private keys.
@@ -44,7 +44,7 @@ lab ssh frigate
 - Web interface: `https://192.168.20.10:8971`
 - Configuration: `/opt/frigate/config`
 - Recording mount: `/opt/frigate/storage`
-- TrueNAS export: `192.168.1.40:/mnt/Media/Surveillance/Frigate`
+- TrueNAS export: `192.168.20.40:/mnt/Media/Surveillance/Frigate`
 - Startup unit: `frigate-compose.service`
 
 Health check:
@@ -69,18 +69,18 @@ configuration archive because they remain on the TrueNAS surveillance dataset.
 
 ## Redundant Pi-hole DNS
 
-- Primary host: Proxmox LXC 100 (`docker`), `192.168.1.20`
+- Primary host: Proxmox LXC 100 (`docker`), `192.168.20.20` on Servers VLAN 20
 - Compose project: `/opt/pihole`
 - Persistent configuration: `/opt/pihole/etc-pihole`
 - Primary image: `pihole/pihole:2026.05.0`; internal hostname: `pihole-primary`
-- Primary endpoints: `192.168.1.20:53` over TCP/UDP and `http://192.168.1.20:8082/admin/`
-- Secondary host: TrueNAS App `pihole`, `192.168.1.40`
+- Primary endpoints: `192.168.20.20:53` over TCP/UDP and `http://192.168.20.20:8082/admin/`
+- Secondary host: TrueNAS App `pihole`, `192.168.20.40`
 - Secondary image observed during rollout: `pihole/pihole:2026.07.2`
-- Secondary endpoints: `192.168.1.40:53` over TCP/UDP and `http://192.168.1.40:20720/admin/`
+- Secondary endpoints: `192.168.20.40:53` over TCP/UDP and `http://192.168.20.40:20720/admin/`
 - Upstream resolver: OPNsense Unbound at `192.168.1.1`
 - Public, blocked-domain and `internal` resolution passed through both instances.
 - DHCP remains on OPNsense; Pi-hole DHCP is disabled.
-- OPNsense Dnsmasq sends `192.168.1.20,192.168.1.40` as DHCPv4 option 6 on every configured DHCP range.
+- OPNsense Dnsmasq sends `192.168.20.20,192.168.20.40` as DHCPv4 option 6 on every configured DHCP range.
 - `PIHOLE_DNS_SERVERS` contains both resolvers; `PIHOLE_CLIENT_NETWORKS` contains VLANs 20 through 70.
 - The floating `Allow client VLANs to Pi-hole DNS` rule permits only TCP/UDP 53 and precedes the existing RFC1918 isolation blocks.
 
@@ -93,15 +93,15 @@ docker compose ps
 docker compose logs --tail 100
 
 # Run from a LAN client
-dig +short @192.168.1.20 example.com
-dig +short @192.168.1.20 home.internal
-dig +short @192.168.1.20 doubleclick.net
-dig +short @192.168.1.40 example.com
-dig +short @192.168.1.40 home.internal
-dig +short @192.168.1.40 doubleclick.net
+dig +short @192.168.20.20 example.com
+dig +short @192.168.20.20 home.internal
+dig +short @192.168.20.20 doubleclick.net
+dig +short @192.168.20.40 example.com
+dig +short @192.168.20.40 home.internal
+dig +short @192.168.20.40 doubleclick.net
 ```
 
-Expected results from either resolver are public addresses for `example.com`, `192.168.1.20` for `home.internal`, and `0.0.0.0` for a blocked `doubleclick.net` query.
+Expected results from either resolver are public addresses for `example.com`, `192.168.20.20` for `home.internal`, and `0.0.0.0` for a blocked `doubleclick.net` query.
 
 Network-wide rollback:
 
@@ -130,13 +130,28 @@ DHCP-provided DNS does not force clients to use port 53. iCloud Private Relay, V
 - Discovery: mDNS repeater limited to LAN, Servers and IoT
 - Pilot automation: Hue `Hall Sensor` motion turns on Lutron `Laundry Main Lights`; validated 2026-08-13
 - Household access: local non-administrator account validated for dashboard and device control
+- Apple presentation: HomeKit Bridge paired with the existing Apple Home; ordinary Siri control is validated while Home Assistant remains the sole device-management and automation authority
+- HomeKit domains: `light`, `switch`, `lock`, `climate`, `cover`, `fan`, `vacuum`, `scene`, `script` and `binary_sensor`
+- HomeKit exclusions: media players, cameras, general sensors, automations, buttons and helpers to prevent duplication and clutter
 
-The next integration checkpoint is the **Family Room Apple TV pairing**. The
-Trusted-media alias and ordered Home Assistant rule are already active. Pairing
-reached the verification-code stage but the code was not accepted, and a later
-attempt did not issue another code; leave the endpoint untouched overnight and
-retry before changing network policy. Add other media endpoints only in small
-validated groups.
+Selected Apple/media endpoints and Sonos control are validated. The
+Trusted-media alias and ordered Home Assistant rule remain active. Add any
+remaining fringe-vendor endpoint only when a planned use case justifies it;
+vendor applications remain responsible for firmware, recovery and unsupported
+features.
+
+HomeKit Bridge depends on mDNS discovery and client reachability to VM 103. The
+existing mDNS repeater is limited to LAN, Servers and IoT, and the bridge uses
+its HomeKit TCP listener (default `21063`). Do not add a broad IoT-to-Servers
+rule. If a specific Apple home hub cannot control the bridge, validate its
+source address and the effective firewall rule before adding the smallest
+host-scoped exception.
+
+To roll back HomeKit presentation, remove `HomeBridge` from Apple Home and then
+remove or disable the HomeKit Bridge integration in Home Assistant. This does
+not remove the underlying Home Assistant integrations, entities, scripts,
+scenes or automations. Native Home Assistant and VM-level backups preserve the
+hidden HomeKit pairing state needed for recovery.
 
 The Hue bridge registration button must be pressed and released immediately
 before submitting the pairing prompt. Automatic discovery is used only where
@@ -151,11 +166,11 @@ follow-up after the first cross-ecosystem automation succeeds.
 ## Remote administration
 
 - Tailscale subnet router: `homelab-gateway` in Proxmox LXC 100
-- Advertised route: `192.168.1.0/24` only
+- Advertised routes: `192.168.1.0/24` and `192.168.20.0/24`
 - IoT and Guest routes are intentionally not advertised.
 - Tailnet split DNS forwards only the `internal` namespace to OPNsense.
-- Tailnet policy grants the administrator identity access to the trusted LAN; the broad default allow-all rule is removed.
-- Remote OpenSSH access to Proxmox, Docker LXC, OPNsense and TrueNAS was validated over the subnet route with the client off the home Wi-Fi network.
+- Tailnet policy grants the administrator identity access to the Trusted and Servers networks; the broad default allow-all rule is removed.
+- Remote Homepage, Home Assistant, Frigate and Proxmox access was validated after the Docker/Tailscale gateway moved to Servers VLAN 20, with the client off the home Wi-Fi network.
 - This is ordinary SSH transported through Tailscale. Native Tailscale SSH is not enabled and is not required for the routed LAN hosts.
 - Do not expose OPNsense, Proxmox, TrueNAS, UniFi, Portainer or Homepage directly to the public Internet.
 - Do not add an inbound WAN SSH rule or port-forward. A remote client must be authenticated to the tailnet and authorized by the identity-specific grant.

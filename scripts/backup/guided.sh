@@ -23,29 +23,29 @@ echo "  $GUIDED_DIR/unifi"
 echo
 
 info "TrueNAS"
-echo "  Open: http://192.168.1.40"
+echo "  Open: http://192.168.20.40"
 echo "  System Settings → General → Manage Configuration"
 echo "  Download the configuration into:"
 echo "  $GUIDED_DIR/truenas"
 echo
 
 info "Synology DS920+"
-echo "  Open: http://192.168.1.41:5000"
+echo "  Open: http://192.168.20.41:5000"
 echo "  Control Panel → Update & Restore → Configuration Backup"
 echo "  Export the .dss file into:"
 echo "  $GUIDED_DIR/synology-main"
 echo
 
 info "Backup Synology"
-echo "  Open: http://192.168.1.42:5000"
+echo "  Open: http://192.168.20.42:5000"
 echo "  Control Panel → Update & Restore → Configuration Backup"
 echo "  Export the .dss file into:"
 echo "  $GUIDED_DIR/synology-backup"
 echo
 
 open "http://192.168.1.21:11443"
-open "http://192.168.1.40"
-open "http://192.168.1.41:5000"
-open "http://192.168.1.42:5000"
+open "http://192.168.20.40"
+open "http://192.168.20.41:5000"
+open "http://192.168.20.42:5000"
 
 footer "Guided backup pages opened"

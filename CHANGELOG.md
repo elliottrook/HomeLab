@@ -21,8 +21,18 @@
 - Expanded the Laundry pilot with the `Laundry bright` scene, `Laundry motion lighting` script, five-minute occupancy timer and timer-finished light-off automation
 - Configured sustained actionable Beszel alerts for Docker, Proxmox and Frigate with verified iCloud SMTP delivery
 - Added audited execution orders and rollback boundaries for the remaining Server VLAN 20 and Management VLAN 50 migrations
+- Added a domain-filtered HomeKit Bridge as the Apple Home/Siri presentation layer and validated live Siri control while retaining Home Assistant as the sole automation authority
+- Documented the completed Server VLAN 20 migration and its dependency/rollback validation
+
+### Changed
+- Migrated Docker LXC 100 from Trusted `192.168.1.20` to Servers VLAN 20 at `192.168.20.20`, including Homepage, Portainer, primary Pi-hole, Tailscale and Beszel
+- Updated OPNsense DHCP option 6 and `home.internal`, the Pi-hole resolver alias, Homepage links, service inventories and the Mac SSH alias for the new address
+- Extended the Tailscale subnet router and identity-specific policy to cover both Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`
+- Migrated the main Synology from `192.168.1.41` to `192.168.20.41` and the Backup Synology from `192.168.1.42` to `192.168.20.42`
+- Migrated TrueNAS and its secondary Pi-hole from `192.168.1.40` to `192.168.20.40`; updated Frigate NFS, DHCP DNS, aliases, Homepage, SSH and operational inventories
 
 ### Validated
+- Formally closed Phase 5 Monitoring and Phase 7 Home Assistant/Controlled IoT Migration after their completion gates passed; Prometheus/Grafana remain deferred and Phase 6 remains open for the Coral TPU work
 - Fully tested VLAN 70 with disposable Proxmox LXC 970: DHCP, redundant Pi-hole DNS, blocking and Internet access passed; internal application endpoints remained isolated
 - Corrected the OPNsense VLAN 70 parent from `igb0` to the active `ix0` trunk and repeated the validation successfully
 - Confirmed Frigate's current HEVC 5120x1552 stream, approximately 24 GB/day recording growth and stable NFS recording flow
@@ -32,19 +42,22 @@
 - Restored VM 103 as isolated temporary VM 903, booted HAOS, Supervisor and Core without network connectivity, then removed the test VM
 - Confirmed IoT devices remain unable to initiate unrestricted RFC1918 access using live OPNsense rule counters
 - Confirmed both Home Assistant native backups and mirrored VM 103 archives are present off-host
-- Confirmed the first two 16 GB ECC RDIMMs are detected as 32 GB at 1866 MT/s with no reported boot-time memory error; the two-pass memory validation remains in progress at session close
+- Confirmed the first two 16 GB ECC RDIMMs are detected as 32 GB at 1866 MT/s with no reported boot-time memory error and passed two complete 24 GB `memtester` loops
 - Confirmed Coral `G650-04527-01` is the single M.2 2230 A+E-key PCIe x1 model and selected a compatible PCIe x1 E-key carrier
+- Validated the migrated Docker services locally and over cellular/Tailscale, including Homepage, Home Assistant, Frigate and Proxmox access
+- Validated post-migration Hyper Backup, SMB, Home Assistant backup storage, restricted Synology pull paths, TrueNAS applications, redundant DNS and Frigate NFS recording flow after a full VM reboot
+- Formally completed Phase 8 with all intended server workloads on VLAN 20 and HomeLab Doctor reporting 39 passes and no failures
 
 ### Planned
-- Retry Family Room Apple TV pairing after the temporary pairing-code state clears
 - Add MQTT and the Frigate Home Assistant integration after the first automation pilot, not during it
-- Continue selected IoT and media integrations in small validated groups
-- Complete the first RAM validation, install the second matching RDIMM pair and E5-2698 v4 when available, then install and validate the Coral TPU in a separate controlled step
+- Add any remaining fringe IoT/media integration only when a planned use case justifies it
+- Install the second matching RDIMM pair and E5-2698 v4 when available, then install and validate the Coral TPU in a separate controlled step
 
 ### Security
 - Kept Home Assistant on Servers VLAN 20 and permitted only host `192.168.20.11` to initiate TCP/UDP access to IoT VLAN 30
 - Preserved Lab and IoT isolation; no broad IoT-to-Servers rule was added, and discovery relay scope is limited to LAN, Servers and IoT
 - Limited Trusted-media access to Home Assistant host `192.168.20.11` and a five-device Apple TV alias; no general Servers-to-Trusted exception was created
+- Added one host-scoped Servers-to-Trusted exception for the Tailscale subnet-router host `192.168.20.20`; the general Servers isolation rules remain in force
 
 ## v1.5.0
 
@@ -55,7 +68,7 @@
 - A single early floating firewall exception limited to TCP/UDP 53 from client VLANs to the Pi-hole pair
 
 ### Changed
-- OPNsense Dnsmasq now advertises `192.168.1.20` and `192.168.1.40` through DHCPv4 option 6 on every configured DHCP range
+- OPNsense Dnsmasq initially advertised `192.168.1.20` and `192.168.1.40` through DHCPv4 option 6 on every configured DHCP range; the current endpoints are `192.168.20.20` and `192.168.20.40`
 - Renamed the Docker-hosted Pi-hole internal hostname to `pihole-primary`; the TrueNAS-managed secondary retains its generated container hostname
 - Replaced the Mac-only DNS pilot with redundant network-wide DHCP advertisement
 

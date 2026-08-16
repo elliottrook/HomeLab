@@ -226,7 +226,7 @@ copy_backups_to_synology() {
 
     if ! mount | grep -Fq " on $mount_point (smbfs"; then
         error "Expected SMB share is not mounted at $mount_point"
-        error "Open smb://192.168.1.42/Backup in Finder, then retry."
+        error "Open smb://192.168.20.42/Backup in Finder, then retry."
         return 1
     fi
 
