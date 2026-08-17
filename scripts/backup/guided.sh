@@ -16,7 +16,7 @@ warning "The following platforms use vendor-supported web exports."
 echo
 
 info "UniFi"
-echo "  Open: http://192.168.1.21:11443"
+echo "  Open: http://192.168.50.21:11443"
 echo "  Settings → Control Plane → Backups"
 echo "  Download the .unf file into:"
 echo "  $GUIDED_DIR/unifi"
@@ -43,7 +43,7 @@ echo "  Export the .dss file into:"
 echo "  $GUIDED_DIR/synology-backup"
 echo
 
-open "http://192.168.1.21:11443"
+open "http://192.168.50.21:11443"
 open "http://192.168.20.40"
 open "http://192.168.20.41:5000"
 open "http://192.168.20.42:5000"

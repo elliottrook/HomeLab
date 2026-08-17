@@ -30,6 +30,10 @@
 - Extended the Tailscale subnet router and identity-specific policy to cover both Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`
 - Migrated the main Synology from `192.168.1.41` to `192.168.20.41` and the Backup Synology from `192.168.1.42` to `192.168.20.42`
 - Migrated TrueNAS and its secondary Pi-hole from `192.168.1.40` to `192.168.20.40`; updated Frigate NFS, DHCP DNS, aliases, Homepage, SSH and operational inventories
+- Updated the secondary Pi-hole upstream and `internal` conditional-forwarding destination from the Trusted gateway `192.168.1.1` to the Servers gateway `192.168.20.1`
+- Identified and labelled Arista Et15 as the wired Downstairs Apple TV and Et16 as the Aqara Hub M3, then moved both access ports from Trusted VLAN 10 to IoT VLAN 30
+- Migrated UniFi OS Server LXC 101, the UniFi PoE switch and both access points from Trusted VLAN 10 to Management VLAN 50 at `192.168.50.21`, `.30`, `.31` and `.141`
+- Updated Homepage, HomeLab Doctor, guided backups and device/service inventories for the UniFi management addresses
 
 ### Validated
 - Formally closed Phase 5 Monitoring and Phase 7 Home Assistant/Controlled IoT Migration after their completion gates passed; Prometheus/Grafana remain deferred and Phase 6 remains open for the Coral TPU work
@@ -47,6 +51,10 @@
 - Validated the migrated Docker services locally and over cellular/Tailscale, including Homepage, Home Assistant, Frigate and Proxmox access
 - Validated post-migration Hyper Backup, SMB, Home Assistant backup storage, restricted Synology pull paths, TrueNAS applications, redundant DNS and Frigate NFS recording flow after a full VM reboot
 - Formally completed Phase 8 with all intended server workloads on VLAN 20 and HomeLab Doctor reporting 39 passes and no failures
+- Confirmed Et15 and Et16 each learn only the expected endpoint MAC, negotiate at 100 Mbps and obtain working IoT VLAN 30 DHCP leases after migration
+- Validated Management VLAN DHCP, redundant DNS, Internet access and internal isolation with disposable LXC 970 before migrating UniFi
+- Confirmed the controller and all three UniFi devices online on VLAN 50, then removed the temporary Trusted interface, validation containers and legacy migration rules
+- Revalidated secondary Pi-hole public DNS, `home.internal` resolution and domain blocking after correcting its VLAN-local forwarding destination
 
 ### Planned
 - Add MQTT and the Frigate Home Assistant integration after the first automation pilot, not during it
@@ -58,6 +66,7 @@
 - Preserved Lab and IoT isolation; no broad IoT-to-Servers rule was added, and discovery relay scope is limited to LAN, Servers and IoT
 - Limited Trusted-media access to Home Assistant host `192.168.20.11` and a five-device Apple TV alias; no general Servers-to-Trusted exception was created
 - Added one host-scoped Servers-to-Trusted exception for the Tailscale subnet-router host `192.168.20.20`; the general Servers isolation rules remain in force
+- Restricted Management VLAN access to the approved Mac mini, Mac laptop and iPhone alias, with an explicit block for other Trusted clients
 
 ## v1.5.0
 

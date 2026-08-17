@@ -98,7 +98,8 @@ VLAN 1 will not carry ordinary production or management traffic after migration 
 | Proxmox management | 192.168.50.10 | 50 |
 | UniFi OS Server | 192.168.50.21 | 50 |
 | UniFi PoE switch | 192.168.50.30 | 50 |
-| UniFi access point | 192.168.50.31 | 50 |
+| UniFi Hall access point | 192.168.50.31 | 50 |
+| UniFi Office access point | 192.168.50.141 | 50 |
 | OPNsense Lab gateway | 192.168.70.1 | 70 |
 | Experimental Proxmox workloads | 192.168.70.0/24 | 70 |
 | Frigate VM 102 | 192.168.20.10 | 20 |
@@ -222,7 +223,8 @@ The existing network will remain operational while the new VLAN interfaces are i
 
 VLANs 20, 30, 40, 50, 60 and 70 now have routed OPNsense interfaces, DHCP
 scopes and baseline firewall policy. VLAN 10 remains the native trusted
-network. Existing management and storage systems have not yet been renumbered;
+network. The UniFi controller, PoE switch and two access points have moved to
+Management VLAN 50. Proxmox and Arista management remain on Trusted VLAN 10;
 their future moves remain separate controlled migrations.
 
 No management address will be changed until an alternate access path and rollback procedure have been confirmed.
