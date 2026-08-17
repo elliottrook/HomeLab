@@ -42,7 +42,7 @@ Core infrastructure includes:
 
 The Arista carries trusted traffic on VLAN 10, server traffic on VLAN 20, isolated IoT traffic on VLAN 30 and isolated Guest traffic on VLAN 40. OPNsense provides the gateway and policy enforcement for the routed networks.
 
-The server migration is complete: Docker LXC 100, Frigate VM 102, Home Assistant VM 103, TrueNAS and both Synology systems reside on VLAN 20. Management infrastructure remains on VLAN 10 pending Phase 9. The validated deployed state is recorded in `Current-Network-Baseline.md`.
+The server migration is complete: Docker LXC 100, Frigate VM 102, Home Assistant VM 103, TrueNAS and both Synology systems reside on VLAN 20. Phase 9 is now in progress: the UniFi controller, PoE switch and two access points reside on Management VLAN 50, while Proxmox and Arista management remain on Trusted VLAN 10 pending their separate controlled migrations. The validated deployed state is recorded in `Current-Network-Baseline.md`.
 
 ---
 

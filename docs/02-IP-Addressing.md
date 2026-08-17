@@ -5,9 +5,10 @@
 |OPNsense|192.168.1.1|
 |Proxmox|192.168.1.10|
 |Docker|192.168.20.20|
-|UniFi Controller|192.168.1.21|
-|UniFi Switch|192.168.1.30|
-|UniFi AP|192.168.1.31|
+|UniFi Controller|192.168.50.21|
+|UniFi PoE Switch|192.168.50.30|
+|UniFi Hall AP|192.168.50.31|
+|UniFi Office AP|192.168.50.141|
 |TrueNAS|192.168.20.40|
 |Synology DS920+|192.168.20.41|
 |Backup Synology|192.168.20.42|

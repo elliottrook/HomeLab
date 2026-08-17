@@ -69,6 +69,8 @@ Arista DCS-7050TX-64-R
   +-- Et8  Mac-mini-in-studio
   +-- Et9  TrueNAS-Primary-Servers (access VLAN 20)
   +-- Et11 LivingRoom-AppleTV
+  +-- Et15 Apple-TV-Downstairs (access VLAN 30)
+  +-- Et16 Aqara-Hub-M3 (access VLAN 30)
   +-- Et17 TrueNAS-Failover-Servers (access VLAN 20; bond standby)
   +-- Et24 GoWest-NAS-Servers (access VLAN 20)
   +-- Et33 UniFi-PoE-Uplink (native VLAN 10, tagged VLANs 30,40,50,60)
@@ -93,17 +95,22 @@ removed from Et20 and Et21.
 | 192.168.1.2 | Arista management SVI | 44:4c:a8:1f:3e:c5 | Vlan10 |
 | 192.168.1.10 | Proxmox | 6c:92:bf:27:89:a3 | Et4 |
 | 192.168.20.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router / Beszel | bc:24:11:43:71:67 | Et4 via Proxmox, tagged VLAN 20 |
-| 192.168.1.21 | UniFi controller | bc:24:11:b6:de:53 | Et4 via Proxmox |
+| 192.168.50.21 | UniFi controller LXC 101 | bc:24:11:b6:de:53 | Et4 via Proxmox, tagged VLAN 50 |
+| 192.168.50.30 | UniFi PoE switch | 74:f9:2c:28:38:a6 | Et33, management VLAN 50 |
+| 192.168.50.31 | UniFi Hall AP | 90:41:b2:ce:76:10 | UniFi PoE switch, management VLAN 50 |
+| 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | UniFi PoE switch, management VLAN 50 |
 | 192.168.20.40 | TrueNAS `bond0` | 6c:92:bf:67:fb:bc | Et9 primary / Et17 failover, VLAN 20 |
 | 192.168.20.41 | Synology DS920+ | 00:11:32:ca:e5:e5 | Et24, access VLAN 20 |
 | 192.168.20.42 | Backup Synology | 00:11:32:c8:06:c5 | Et48, access VLAN 20 |
 | 192.168.30.102 | Lutron | ec:24:b8:8e:d4:10 | Et45, access VLAN 30 |
+| 192.168.30.155 | Downstairs Apple TV (wired) | d0:03:4b:29:99:23 | Et15, access VLAN 30 |
 | 192.168.30.164 | Philips Hue | 00:17:88:22:42:e5 | Et46, access VLAN 30 |
+| 192.168.30.166 | Aqara Hub M3 (wired) | 18:c2:3c:62:07:b0 | Et16, access VLAN 30 |
 | 192.168.20.10 | Frigate VM 102 | bc:24:11:f5:09:a3 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.20.11 | Home Assistant OS VM 103 | bc:24:11:08:16:a3 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.60.10 | Reolink Duo 2V PoE | ec:71:db:80:49:6e | UniFi PoE port 3, VLAN 60 |
 | 192.168.1.206 | Mac mini (in studio) | d0:11:e5:9e:c4:76 | Et8 |
-| 192.168.1.211 | Downstream UniFi client | d8:c8:0c:bb:52:a4 | Et33 |
+| 192.168.30.197 | Downstream UniFi wireless client | d8:c8:0c:bb:52:a4 | Et33 via UniFi, VLAN 30 |
 | 192.168.1.228 | Living-room Apple TV | c0:95:6d:81:11:5d | Et11 |
 
 ## Known-good health findings
@@ -118,15 +125,17 @@ removed from Et20 and Et21.
 - The temporary switch has been removed. Proxmox is directly connected on Arista Et4 as a trunk with native VLAN 10 and tagged VLANs 20 and 70. The Mac mini is directly connected on Et8 as an access port in VLAN 10.
 - TrueNAS 25.10.5 uses `bond0` in active-backup mode at 192.168.20.40/24. Member `enp5s0f0` (MAC 6c:92:bf:67:fb:bc, Arista Et9) is the preferred primary and `enp5s0f1` (permanent MAC 6c:92:bf:67:fb:bd, Arista Et17) is the standby. Both links operate at 10 Gbps, MII monitoring runs every 100 ms, and `primary_reselect` is `always`. A controlled Et9 shutdown moved service to Et17 with one lost ping; restoring Et9 automatically returned service to the primary. Both switch ports remain independent access ports in VLAN 20 with PortFast; no port-channel or LACP is configured.
 - Arista management is provided by Vlan10 at 192.168.1.2/24. Management1 is unassigned/down, and no `ip route` is currently configured.
-- UniFi Network Server version 10.5.67 uses third-party-gateway networks named Default, IoT (VLAN 30) and Guest (VLAN 40). UniFi switch Port 9 is the 10GbE uplink to Arista Et33; its native network is Default (UniFi VLAN 1/untagged), tagged VLAN management is Allow All, auto-negotiation is enabled, and STP is enabled. Local UniFi OS management for this installation is exposed at `https://192.168.1.21:11443`.
+- UniFi Network Server version 10.5.67 runs in LXC 101 at `192.168.50.21` and uses third-party-gateway networks named Default, IoT (VLAN 30), Guest (VLAN 40) and Management (VLAN 50). UniFi switch Port 9 is the 10GbE uplink to Arista Et33; its native network remains Default (UniFi VLAN 1/untagged), tagged VLAN management is Allow All, auto-negotiation is enabled, and STP is enabled. The PoE switch and Hall and Office APs use `192.168.50.30`, `.31` and `.141`. All three remained online after migration, and the temporary Trusted controller interface and legacy migration firewall exceptions were removed. Local UniFi OS management is exposed at `https://192.168.50.21:11443` and is reachable only from approved administrator devices.
 - OPNsense Guest interface `vlan0.40` is active on parent `ix0` at 192.168.40.1/24. Dnsmasq is the active DHCP service and serves 192.168.40.100-192.168.40.199 with 86,400-second leases. Kea was disabled after its logs confirmed it could not bind UDP port 67 because dnsmasq already owned the port.
 - Arista Et40 is a trunk with native VLAN 10 and VLANs 10,20,30,40,50,60,70 allowed. Et33 is a trunk with native VLAN 10 and VLANs 10,30,40,50,60 allowed. Temporary test ports Et1 and Et2 are access ports in VLANs 40 and 30 respectively.
 - OPNsense IoT interface `vlan0.30` is active on parent `ix0` at 192.168.30.1/24. Dnsmasq serves 192.168.30.100-192.168.30.199 with 86,400-second leases and the `iot.internal` DHCP domain. The validated rule order allows IoT DNS and NTP to the interface address, blocks access to the firewall and RFC1918 networks, and permits remaining IPv4 Internet traffic.
 - The OPNsense `os-mdns-repeater` plugin relays multicast DNS only among `ix0` (LAN), `vlan0.20` (Servers) and `vlan0.30` (IoT). Guest and WAN are excluded.
 - Philips Hue on Et46 uses 192.168.30.164 and Lutron on Et45 uses 192.168.30.102. Both vendor apps and Apple Home remained functional after migration to VLAN 30.
+- The Downstairs Apple TV is wired through Et15 and the Aqara Hub M3 through Et16. Both ports are labelled access ports in VLAN 30, negotiate at 100 Mbps, learn only their expected MAC addresses and received IoT DHCP leases after a controlled link cycle.
 - The existing UniFi IoT SSID is assigned to the third-party-gateway IoT network using tagged VLAN 30. A temporary test SSID first validated wireless DHCP, DNS, Internet access and firewall isolation, then was removed. Final dnsmasq and ARP checks showed 23 leased IoT clients active on `vlan0.30`; Hue, Lutron, AirPlay/Cast discovery and vendor-app control all passed.
 - Proxmox LXC 100 (`docker`) is an unprivileged Debian container at `192.168.20.20/24` on Servers VLAN 20. It runs Homepage, Portainer, the primary Pi-hole, Tailscale, Beszel and the Beszel agent. Homepage is published internally on TCP 3000 and is available as `http://home.internal:3000`.
 - OPNsense dnsmasq owns the `home.internal` host record and listens for DNS on port 53053. Unbound remains the client-facing resolver on port 53 and conditionally forwards the `internal` domain to dnsmasq at 127.0.0.1:53053. Both local-LAN and remote Tailscale resolution were validated.
+- The secondary Pi-hole at `192.168.20.40` uses the Servers gateway `192.168.20.1` for upstream DNS and conditional forwarding of `internal`; the former Trusted-gateway destination `192.168.1.1` is no longer reachable from VLAN 20 by design.
 - Tailscale runs directly in Docker LXC 100 as the `homelab-gateway` subnet router. It advertises Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`; IoT and Guest are not advertised. IPv4 forwarding is enabled and the LXC has access to `/dev/net/tun`.
 - Tailscale split DNS sends only the `internal` namespace to OPNsense at `192.168.1.1`. The broad default tailnet allow rule was replaced with an identity-specific grant permitting the administrator account to reach the Trusted and Servers routes on all protocols. A host-scoped OPNsense rule permits the subnet router at `192.168.20.20` to reach Trusted because routed clients are source-NATed behind it. Remote Homepage, Home Assistant, Frigate and Proxmox access passed with the client off home Wi-Fi. SSH uses the existing host services through the subnet route; native Tailscale SSH is not enabled. No inbound WAN port-forward or public service exposure was added.
 - Homepage includes network, smart-home, monitoring-and-maintenance, virtualization, storage, media, media-automation, application-management, external-service, SSH-access and surveillance groups. Primary and Secondary Pi-hole tiles, Home Assistant, Beszel and Frigate web/SSH tiles are operational. Beszel reports Docker, Proxmox and Frigate health through a dedicated file-backed Homepage widget credential. The dashboard and its internal management targets remain intended for LAN or Tailscale access only.

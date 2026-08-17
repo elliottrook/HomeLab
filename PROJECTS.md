@@ -314,7 +314,7 @@ Home Assistant learning checkpoint: HACS is installed and authenticated without 
 
 # Phase 8 — Server VLAN 20 Migration
 
-Audit completed 2026-08-14:
+Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
 
 - Frigate VM 102 and Home Assistant VM 103 already prove the VLAN 20 workload pattern, minimum-access firewall policy and rollback method.
 - Docker LXC 100 completed its controlled migration on 2026-08-15 from Trusted `192.168.1.20` to Servers `192.168.20.20`. Its Homepage, Portainer, primary Pi-hole, Tailscale and Beszel workloads returned healthy; local and cellular/Tailscale tests passed. A fresh verified backup and explicit rollback copies preceded the move.
@@ -342,24 +342,26 @@ Intended server workloads reside on VLAN 20 with documented minimum-access rules
 
 # Phase 9 — Management VLAN 50 Migration
 
-Audit completed 2026-08-14:
+Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
 
-- Planned addresses remain Arista `.50.2`, Proxmox `.50.10`, UniFi controller `.50.21`, UniFi switch `.50.30` and UniFi AP `.50.31`.
-- Initial administrator access should be limited to Jason's Mac mini at `192.168.1.206`; adding Jason's laptop as a second administrator device requires explicit review.
+- Planned addresses remain Arista `.50.2` and Proxmox `.50.10`. Deployed UniFi addresses are controller `.50.21`, PoE switch `.50.30`, Hall AP `.50.31` and Office AP `.50.141`.
+- The `MGMT_ADMIN_HOSTS` alias contains Jason's Mac mini (`192.168.1.206`), Mac laptop (`192.168.1.241`) and iPhone (`192.168.1.112`). Other Trusted clients are explicitly blocked from Management.
 - Console recovery for OPNsense, Arista and Proxmox must be confirmed before the first address change.
-- Recommended order is UniFi LXC 101, one AP, UniFi switch, Proxmox, then Arista last. VLAN 10 remains available throughout validation.
-- The Proxmox-facing Arista trunk must gain tagged VLAN 50 before moving LXC 101 or Proxmox management. Tailscale currently advertises Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`; Management remote access is a later explicit policy decision, not part of the local pilot.
+- UniFi LXC 101 and all three managed devices were migrated first. Proxmox remains next and Arista remains last. VLAN 10 stays available throughout validation.
+- The Proxmox-facing Arista trunk now carries tagged VLAN 50 and LXC 101 uses it in production. Tailscale currently advertises Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`; Management remote access is a later explicit policy decision, not part of the local pilot.
 
-- [ ] Define which administrator devices may access Management
-- [ ] Document emergency console and lockout recovery procedures
-- [ ] Confirm local console access before network changes
-- [ ] Create explicit Trusted-to-Management access rules
-- [ ] Migrate one secondary management endpoint first
-- [ ] Validate DNS, HTTPS, SSH, routing and rollback
+- [x] Define which administrator devices may access Management
+- [x] Document emergency console and lockout recovery procedures
+- [x] Confirm local console access before network changes
+- [x] Create explicit Trusted-to-Management access rules
+- [x] Migrate one secondary management endpoint first
+- [x] Validate DNS, HTTPS, SSH, routing and rollback
 - [ ] Migrate core management interfaces individually
-- [ ] Keep VLAN 10 available until the new management path is proven
+- [x] Keep VLAN 10 available until the new management path is proven
 - [ ] Add Tailscale routing and policy only if remote management is required
-- [ ] Update all inventories and recovery documentation
+- [x] Update inventories and recovery documentation for the completed UniFi migration
+
+**UniFi migration complete 2026-08-16.** LXC 101 moved to `192.168.50.21`; the PoE switch, Hall AP and Office AP moved to `192.168.50.30`, `.31` and `.141`. All three devices remained online after address changes. The controller's temporary Trusted interface, disposable VLAN test containers, legacy-device alias and temporary firewall exceptions were removed after validation. Phase 9 remains open for the separate Proxmox and Arista management migrations.
 
 Completion Gate:
 Management interfaces are isolated on VLAN 50, reachable only from approved administrator devices, with a tested lockout-recovery path.
@@ -484,6 +486,7 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-16 | Completed the UniFi portion of Phase 9: moved LXC 101, the PoE switch and both APs to Management VLAN 50; validated approved-administrator access and device health; removed the temporary Trusted interface, test containers, alias and migration rules. | UniFi Network showed all three devices online at `192.168.50.30`, `.31` and `.141`; controller reachable at `.50.21` |
 | 2026-08-16 | Completed Phase 8 by migrating TrueNAS and both Synology systems to Servers VLAN 20; validated DNS, NFS recording flow after a Frigate reboot, SMB, Hyper Backup, Home Assistant backup storage and restricted backup-pull access. | HomeLab Doctor: 39 passed, 1 Git-state warning, 0 failed |
 | 2026-08-15 | Migrated Docker LXC 100 and its Homepage, Portainer, primary Pi-hole, Tailscale and Beszel workloads from Trusted `192.168.1.20` to Servers VLAN 20 at `192.168.20.20`; updated DNS, DHCP, aliases and client configuration and validated local plus cellular/Tailscale access. | Verified pre-change LXC archive, healthy containers, direct DNS/port tests and remote access tests |
 | 2026-08-15 | Completed the controlled IoT migration milestone and deployed a domain-filtered HomeKit Bridge for Apple Home/Siri presentation; pairing completed and Siri control of a Home Assistant-managed Lutron light was verified. Home Assistant remains the sole automation authority. | HomeKit Bridge pairing notification, Apple Home accessory import and live Siri control test |
