@@ -3,7 +3,7 @@
 **Status:** Routed VLAN infrastructure implemented
 
 **Phase:** Enterprise Network  
-**Last Updated:** 2026-08-09
+**Last Updated:** 2026-08-19
 
 ---
 
@@ -102,6 +102,8 @@ VLAN 1 will not carry ordinary production or management traffic after migration 
 | UniFi Office access point | 192.168.50.141 | 50 |
 | OPNsense Lab gateway | 192.168.70.1 | 70 |
 | Experimental Proxmox workloads | 192.168.70.0/24 | 70 |
+| Hermes Agent LXC 104 | 192.168.70.10 | 70 |
+| Ollama VM 105 | 192.168.70.11 | 70 |
 | Frigate VM 102 | 192.168.20.10 | 20 |
 | Reolink Duo 2V PoE | 192.168.60.10 | 60 |
 
@@ -150,6 +152,11 @@ Proxmox vmbr0: VLAN-aware
   +-- Existing LXC 100 and 101: untagged/native VLAN 10
   +-- Experimental VM NICs: tagged VLAN 70
 ```
+
+The current persistent Lab workloads are Hermes Agent LXC 104 at
+`192.168.70.10` and Ollama VM 105 at `192.168.70.11`. They use only tagged VLAN
+70 interfaces and do not receive secondary interfaces on Trusted, Servers or
+Management.
 
 The physical Proxmox link carries both networks, but each experimental virtual NIC receives VLAN tag 70. The bare-metal host and existing production containers continue using untagged/native VLAN 10.
 

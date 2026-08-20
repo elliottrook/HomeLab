@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Deployed unprivileged Hermes Agent LXC 104 at `192.168.70.10` on isolated Lab VLAN 70
+- Deployed Ubuntu 24.04 Ollama VM 105 at `192.168.70.11` with 4 vCPU, 14 GB RAM and a 32 GB disk
+- Published Ollama on TCP 11434 and connected Hermes through its OpenAI-compatible `/v1` endpoint
+- Created the local `qwen3-64k:8b` Ollama model profile with a 65,536-token context window
+- Installed and passed through the Coral Edge TPU to Frigate VM 102
+
+### Validated
+- Confirmed Hermes can use the local Ollama provider from Lab VLAN 70; CPU-only responses work but are slow enough that the deployment remains a pilot
+- Confirmed 8 GB and 10 GB allocations were insufficient for the local model and that the 14 GB VM allocation runs without the observed OOM failure
+- Confirmed the Coral PCIe device is isolated in its own IOMMU group, loads through `gasket`/`apex`, appears as `/dev/apex_0` in the Frigate container and reports approximately 10 ms inference
+- Confirmed Frigate remained healthy with the Coral detector loaded and fresh recordings after the passthrough change
+
+### Planned
+- Confirm LXC 104 and VM 105 are covered by the all-guests Proxmox backup job and off-host mirror before treating the pilot as recoverable
+- Resolve Proxmox memory overcommit before sustained simultaneous use of all guests
+- Install the purchased E5-2698 v4 and remaining planned RAM, then re-baseline Frigate and local-AI capacity
+- Evaluate the exact Intel Arc Pro B60 SKU, VRAM, physical clearance, PSU capacity and passthrough plan before purchase or installation
+- Remove unused Hermes cloud-auth remnants after confirming they are no longer required
+
+### Security
+- Kept Hermes and Ollama on isolated Lab VLAN 70 rather than Trusted, Servers or Management
+- Kept reusable credentials, tokens and provider-authentication material outside Git
+
 ## v1.6.0
 
 ### Added

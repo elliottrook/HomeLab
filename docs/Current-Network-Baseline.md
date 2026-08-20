@@ -1,7 +1,7 @@
 # Home Network Baseline
 
-Baseline date: 2026-08-16
-Status: The WAN path remains stable. Routed interfaces, DHCP scopes and baseline firewall policy are deployed for VLANs 20, 30, 40, 50, 60 and 70 while VLAN 10 remains the native Trusted network. IoT and Guest are in production. Frigate VM 102, Home Assistant VM 103, Docker LXC 100, TrueNAS and both Synology systems are operational on Servers VLAN 20. Homepage and identity-restricted Tailscale access remain operational without inbound WAN ports.
+Baseline date: 2026-08-19
+Status: The WAN path remains stable. Routed interfaces, DHCP scopes and baseline firewall policy are deployed for VLANs 20, 30, 40, 50, 60 and 70 while VLAN 10 remains the native Trusted network. IoT and Guest are in production. Frigate VM 102, Home Assistant VM 103, Docker LXC 100, TrueNAS and both Synology systems are operational on Servers VLAN 20. Hermes LXC 104 and Ollama VM 105 are isolated CPU-only pilots on Lab VLAN 70. Homepage and identity-restricted Tailscale access remain operational without inbound WAN ports.
 
 ## Recovery checkpoint
 
@@ -108,6 +108,8 @@ removed from Et20 and Et21.
 | 192.168.30.166 | Aqara Hub M3 (wired) | 18:c2:3c:62:07:b0 | Et16, access VLAN 30 |
 | 192.168.20.10 | Frigate VM 102 | bc:24:11:f5:09:a3 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.20.11 | Home Assistant OS VM 103 | bc:24:11:08:16:a3 | Et4 via Proxmox, tagged VLAN 20 |
+| 192.168.70.10 | Hermes Agent LXC 104 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
+| 192.168.70.11 | Ollama VM 105 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
 | 192.168.60.10 | Reolink Duo 2V PoE | ec:71:db:80:49:6e | UniFi PoE port 3, VLAN 60 |
 | 192.168.1.206 | Mac mini (in studio) | d0:11:e5:9e:c4:76 | Et8 |
 | 192.168.30.197 | Downstream UniFi wireless client | d8:c8:0c:bb:52:a4 | Et33 via UniFi, VLAN 30 |
@@ -140,11 +142,13 @@ removed from Et20 and Et21.
 - Tailscale split DNS sends only the `internal` namespace to OPNsense at `192.168.1.1`. The broad default tailnet allow rule was replaced with an identity-specific grant permitting the administrator account to reach the Trusted and Servers routes on all protocols. A host-scoped OPNsense rule permits the subnet router at `192.168.20.20` to reach Trusted because routed clients are source-NATed behind it. Remote Homepage, Home Assistant, Frigate and Proxmox access passed with the client off home Wi-Fi. SSH uses the existing host services through the subnet route; native Tailscale SSH is not enabled. No inbound WAN port-forward or public service exposure was added.
 - Homepage includes network, smart-home, monitoring-and-maintenance, virtualization, storage, media, media-automation, application-management, external-service, SSH-access and surveillance groups. Primary and Secondary Pi-hole tiles, Home Assistant, Beszel and Frigate web/SSH tiles are operational. Beszel reports Docker, Proxmox and Frigate health through a dedicated file-backed Homepage widget credential. The dashboard and its internal management targets remain intended for LAN or Tailscale access only.
 - Frigate VM 102 runs Debian 13.6 at `192.168.20.10` on VLAN 20. Its Reolink Duo 2V PoE camera uses `192.168.60.10` on VLAN 60. OPNsense permits only TCP 80, 554 and 8000 from Frigate to the camera; TCP 9000 remains blocked.
+- Frigate VM 102 has the Coral Edge TPU passed through as a dedicated PCIe device. The guest loads the `gasket` and `apex` modules, exposes `/dev/apex_0` to the Frigate container and reports approximately 10 ms inference. CPU HEVC decoding remains separate from Coral object-detection inference.
 - Frigate records to `192.168.20.40:/mnt/Media/Surveillance/Frigate` over NFSv4. A systemd-owned Compose service waits for the real NFS mount before starting, and a full reboot test confirmed a healthy container plus fresh recording segments after the TrueNAS migration.
 - The primary Pi-hole 2026.05.0 runs in Docker LXC 100 at `192.168.20.20`; the secondary Pi-hole 2026.07.2 runs as a TrueNAS App at `192.168.20.40`. Both publish TCP/UDP 53, use OPNsense as their upstream path, resolve `home.internal` to `192.168.20.20` and return `0.0.0.0` for the blocked test domain.
 - OPNsense Dnsmasq advertises both Pi-holes through an untagged DHCPv4 option 6 on every configured range. A source-network alias covering VLANs 20 through 70 and an early floating rule permit only TCP/UDP 53 to the resolver alias while preserving the existing private-network blocks. LAN, Servers, IoT and Guest paths were directly validated. Encrypted/private client DNS remains outside this DHCP-based guarantee.
 - Home Assistant OS 18.2 runs as Proxmox VM 103 at reserved address `192.168.20.11` on VLAN 20 with 2 vCPU, 4 GB RAM and 32 GB storage. `http://home-assistant.home.internal` is operational on TCP 80 and encrypted native plus mirrored VM backups exist off-host. A host-specific rule permits only Home Assistant to initiate TCP/UDP access to IoT VLAN 30 before the general Servers RFC1918 block. Philips Hue, Lutron Caséta, Aqara Matter and Sonos are integrated. The Hue Hall motion-to-Lutron Laundry pilot is complete and now uses a scene, script and five-minute timer helper with a validated timer-finished light-off path. HACS is installed without an elective community repository; media and fringe-vendor integrations remain deliberately incremental.
 - VLAN 70 was fully validated with disposable LXC 970: DHCP, Pi-hole DNS, blocked-domain response and Internet access passed, while non-DNS access to internal services remained blocked. The OPNsense VLAN parent was corrected from inactive `igb0` to trunk `ix0`; the test container was then purged.
+- Hermes Agent now runs in unprivileged LXC 104 at `192.168.70.10`; Ollama runs in Ubuntu VM 105 at `192.168.70.11` and serves its OpenAI-compatible API on TCP 11434. Hermes successfully uses the local `qwen3-64k:8b` model profile with a 65,536-token context window. This remains a CPU-only pilot: 14 GB was the first stable tested Ollama allocation, response generation is slow, guest backup coverage is unconfirmed and aggregate Proxmox memory allocation requires review.
 
 ## Resolved incidents
 
