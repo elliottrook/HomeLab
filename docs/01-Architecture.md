@@ -11,12 +11,28 @@ Arista core
   |     +-- LXC 101: UniFi OS Server
   |     +-- VM 102: Frigate (Servers VLAN 20)
   |     +-- VM 103: Home Assistant OS (Servers VLAN 20)
+  |     +-- LXC 104: Hermes Agent (Lab VLAN 70)
+  |     +-- VM 105: Ollama (Lab VLAN 70)
   +-- TrueNAS
   |     +-- NFS: Surveillance/Frigate recording storage
   +-- Synology storage
   +-- UniFi switching and wireless
         +-- Reolink Duo 2V PoE (Cameras VLAN 60)
 ```
+
+## Local AI Lab architecture
+
+Hermes Agent runs in unprivileged LXC 104 at `192.168.70.10`. Ollama runs in
+Ubuntu VM 105 at `192.168.70.11` and listens on TCP 11434. Both workloads are
+tagged into isolated Lab VLAN 70. Hermes uses Ollama's OpenAI-compatible `/v1`
+endpoint and the locally defined `qwen3-64k:8b` profile with a 65,536-token
+context window.
+
+This remains a CPU-only pilot, not a production dependency. The 14 GB Ollama
+allocation was the first tested allocation that avoided the observed OOM
+failure, but response time remains slow and aggregate Proxmox memory allocation
+must be reconciled before sustained simultaneous use. LXC 104 and VM 105 backup
+coverage must be confirmed before the pilot is considered recoverable.
 
 ## Surveillance architecture
 

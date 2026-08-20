@@ -40,7 +40,7 @@ Configuration recovery sets are pulled daily at 21:00 from the Mac source `~/lab
 - `synology-pull-last-success.txt`
 - `logs/synology-pull-latest.log`
 
-Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The mirror includes only LXC 100, LXC 101, QEMU 102 and QEMU 103 backup archives. A checksum-mode dry run must be empty before success is recorded in:
+Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The mirror includes only LXC 100, LXC 101, QEMU 102 and QEMU 103 backup archives. Newly deployed Hermes LXC 104 and Ollama VM 105 are not yet confirmed in this filtered mirror. A checksum-mode dry run must be empty before success is recorded in:
 
 - `proxmox-pull-latest.status`
 - `proxmox-pull-last-success.txt`
@@ -211,6 +211,20 @@ Synology pull reporting verifies completion of the off-host guest mirror.
 
 Do not store Home Assistant backup archives in Git. They may contain integration
 credentials, device identifiers and household data.
+
+## Hermes Agent and Ollama Lab pilot
+
+Hermes LXC 104 and Ollama VM 105 are experimental Lab VLAN 70 workloads. Verify
+that the enabled all-guests Proxmox job includes both guests. LXC 104 is the
+higher recovery priority because it contains agent configuration and provider
+setup; add its archive to the Backup Synology mirror and encrypted off-site
+selection before relying on it. VM 105 may be treated as reproducible only after
+its Ubuntu/Ollama installation, service override and custom model definition are
+fully documented and tested from a clean restore.
+
+Do not commit Hermes tokens, OAuth/provider state, Ollama chat data or any model
+configuration containing credentials. The backup status of both guests remains
+an explicit open item as of 2026-08-19.
 
 ## Proxmox guest backups
 

@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-16
+> Last Updated: 2026-08-19
 >
 > **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
 
@@ -11,7 +11,7 @@
 Version 1.6.0
 
 Current Focus:
-🔵 Complete the planned Proxmox CPU/RAM and Coral TPU maintenance, then begin the audited Phase 9 management-migration sequence
+🔵 Make the new Hermes/Ollama Lab pilot recoverable, complete the remaining Proxmox CPU/RAM maintenance, then continue the audited Phase 9 management-migration sequence
 
 Project Status:
 🚧 Active — complete the defined programme before accepting elective new work
@@ -236,11 +236,11 @@ Hardware Acceleration and Expansion
 - [x] Compare those capabilities with Frigate's current HEVC 5120x1552 stream
 - [x] Decide whether K620 passthrough is worth the complexity — rejected; remove the unused card during the RAM upgrade
 - [ ] Complete the planned Proxmox RAM upgrade if still required
-- [ ] Create recovery checkpoints before passthrough or driver changes
-- [x] Select the Frigate upgrade path — incoming E5-2698 v4 CPU, RAM and Coral M.2 TPU; remove the K620 during the same maintenance window
+- [x] Create recovery checkpoints before passthrough or driver changes
+- [x] Select the Frigate upgrade path — Coral M.2 TPU for object detection, with the purchased E5-2698 v4 CPU and remaining RAM pending; remove the K620 during the next hardware-maintenance window
 - [x] Confirm Coral M.2 form-factor/adapter compatibility before installation — single Edge TPU `G650-04527-01`, M.2 2230 A+E key, PCIe Gen2 x1; compatible PCIe x1 E-key carrier selected
-- [ ] Install and pass through the Coral TPU after creating recovery checkpoints
-- [ ] Test Coral object-detection acceleration using the existing camera only
+- [x] Install and pass through the Coral TPU after creating recovery checkpoints
+- [x] Test Coral object-detection acceleration using the existing camera only — `/dev/apex_0` mapped into Frigate and approximately 10 ms inference reported
 - [ ] Compare stability and resource use with the software baseline
 - [x] Decide whether to retain or replace the K620 — remove it and use the Coral TPU for object detection
 - [x] Evaluate object-detection acceleration separately from video decoding — retain CPU HEVC decode and use Coral for inference
@@ -368,6 +368,29 @@ Management interfaces are isolated on VLAN 50, reachable only from approved admi
 
 ---
 
+# Lab Pilot — Local AI / Hermes Agent 🚧
+
+Deployed out of sequence on 2026-08-18 and 2026-08-19 as an isolated CPU-only pilot:
+
+- [x] Deploy unprivileged Hermes Agent LXC 104 at `192.168.70.10` on Lab VLAN 70
+- [x] Deploy Ubuntu 24.04 Ollama VM 105 at `192.168.70.11` with 4 vCPU, 14 GB RAM and 32 GB storage
+- [x] Bind Ollama to TCP 11434 and connect Hermes through the OpenAI-compatible `/v1` API
+- [x] Create and validate `qwen3-64k:8b` with `num_ctx 65536`
+- [x] Confirm CPU-only operation and record the current performance limitation
+- [ ] Confirm LXC 104 and VM 105 are included in the all-guests Proxmox backup job
+- [ ] Confirm LXC 104 is mirrored to the Backup Synology and encrypted off-site backup
+- [ ] Decide whether VM 105 should be mirrored or recreated from documented configuration and model downloads
+- [ ] Resolve aggregate Proxmox memory overcommit before sustained simultaneous guest load
+- [ ] Confirm the final installed RAM total and Frigate VM memory allocation after the next maintenance window
+- [ ] Remove unused Hermes cloud-provider authentication remnants
+- [ ] Reset the Seerr application password separately; this is not a Hermes/Ollama dependency
+- [ ] Evaluate GPU passthrough only after confirming the exact Intel Arc Pro B60 model, VRAM, physical fit, PSU capacity and power connections
+
+Completion Gate:
+The pilot is isolated, reproducible, backed up according to its recovery priority and can run without destabilizing production guests. GPU expansion remains a separate reviewed change.
+
+---
+
 # Phase 10 — Automation
 
 - [x] Nightly Backups — automated configuration pulls, Proxmox guest archives, Home Assistant native backups and encrypted off-site protection are operational
@@ -419,12 +442,11 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 ## Local AI / GPU Acceleration
 
-- [ ] Evaluate local LLM deployment on Proxmox after the current project concludes
-- [ ] Evaluate NVIDIA Tesla P40 24 GB as the value-oriented GPU option
-- [ ] Verify Dell Precision 5810 PCIe clearance, PSU capacity and GPU power connections before purchase
-- [ ] Design active cooling/airflow for a passively cooled datacenter GPU
-- [ ] Test local model performance with the planned 48 GB system RAM
-- [ ] Keep Frigate object detection on a dedicated TPU/accelerator where practical, reserving GPU capacity for local AI and advanced Frigate workloads
+- [x] Evaluate local LLM deployment with a bounded CPU-only Hermes/Ollama pilot on Lab VLAN 70
+- [ ] Confirm the exact Intel Arc Pro B60 variant and VRAM before treating it as the selected GPU
+- [ ] Verify Dell Precision T5810 PCIe clearance, PSU capacity and GPU power connections before purchase
+- [ ] Test local-model performance again after the final CPU/RAM configuration is installed
+- [x] Keep Frigate object detection on its dedicated Coral TPU, reserving any future GPU for local AI or advanced video workloads
 
 ## Synology Drive Family Cloud
 
@@ -474,11 +496,11 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 # Recommended Execution Order
 
-1. Complete the staged RAM/CPU maintenance and remove the K620. The first 2 x 16 GB ECC RDIMM stage passed a two-loop 24 GB `memtester` validation; the second matching pair and CPU remain pending.
-2. Install the selected PCIe x1 A+E-key carrier and Coral TPU during the planned maintenance window, then validate one camera against the software baseline.
-3. Migrate management systems to VLAN 50 only after local-console and trunk prerequisites pass.
-4. Complete the bounded drift, reporting and certificate automation work.
-5. Reconcile and consolidate documentation, remove temporary exceptions and review the scope lock.
+1. Confirm backup coverage and remove unsafe memory-overcommit risk for the Hermes/Ollama Lab pilot.
+2. Complete the staged RAM/CPU maintenance and remove the K620. The first 2 x 16 GB ECC RDIMM stage passed a two-loop 24 GB `memtester` validation; the remaining RAM and E5-2698 v4 installation are pending.
+3. Observe the Coral-backed Frigate detector against the software baseline and establish safe camera/storage capacity.
+4. Continue the remaining Proxmox and Arista Management VLAN 50 migrations only after local-console and trunk prerequisites pass.
+5. Complete the bounded drift, reporting and certificate automation work, then reconcile the final documentation and scope lock.
 
 ---
 
@@ -486,6 +508,9 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-19 | Deployed Hermes Agent LXC 104 and Ollama VM 105 on isolated Lab VLAN 70; connected Hermes to the local OpenAI-compatible Ollama endpoint and validated the `qwen3-64k:8b` 65,536-token profile. | Claude handoff changelog; live addresses `192.168.70.10` and `.11`; successful local-provider test |
+| 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow, backup coverage is unconfirmed and aggregate guest memory is overcommitted. | Claude handoff changelog and Proxmox allocation review |
+| 2026-08-16 | Installed and passed through the Coral Edge TPU to Frigate VM 102; disabled guest Secure Boot for the DKMS driver, mapped `/dev/apex_0` into the container and validated approximately 10 ms inference. | `lspci`; `gasket`/`apex`; Frigate detector log and stats |
 | 2026-08-16 | Completed the UniFi portion of Phase 9: moved LXC 101, the PoE switch and both APs to Management VLAN 50; validated approved-administrator access and device health; removed the temporary Trusted interface, test containers, alias and migration rules. | UniFi Network showed all three devices online at `192.168.50.30`, `.31` and `.141`; controller reachable at `.50.21` |
 | 2026-08-16 | Completed Phase 8 by migrating TrueNAS and both Synology systems to Servers VLAN 20; validated DNS, NFS recording flow after a Frigate reboot, SMB, Hyper Backup, Home Assistant backup storage and restricted backup-pull access. | HomeLab Doctor: 39 passed, 1 Git-state warning, 0 failed |
 | 2026-08-15 | Migrated Docker LXC 100 and its Homepage, Portainer, primary Pi-hole, Tailscale and Beszel workloads from Trusted `192.168.1.20` to Servers VLAN 20 at `192.168.20.20`; updated DNS, DHCP, aliases and client configuration and validated local plus cellular/Tailscale access. | Verified pre-change LXC archive, healthy containers, direct DNS/port tests and remote access tests |
