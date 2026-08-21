@@ -127,11 +127,22 @@ check_proxmox_guest_backup_age() {
     local display="$1"
     local vmid="$2"
     local maximum_hours="${3:-30}"
+    local guest_type="${4:-qemu}"
+    local archive_pattern
     local latest_epoch
+
+    case "$guest_type" in
+        qemu) archive_pattern="vzdump-qemu-${vmid}-*.vma.zst" ;;
+        lxc) archive_pattern="vzdump-lxc-${vmid}-*.tar.zst" ;;
+        *)
+            warn "Unable to check $display backup age: unsupported guest type $guest_type"
+            return
+            ;;
+    esac
 
     if ! latest_epoch="$(
         ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
-            "find /mnt/backups/dump -maxdepth 1 -type f -name 'vzdump-qemu-${vmid}-*.vma.zst' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
+            "find /mnt/backups/dump -maxdepth 1 -type f -name '$archive_pattern' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
     )"; then
         warn "Unable to check $display backup age"
         return
@@ -161,6 +172,28 @@ check_proxmox_guest_backup_age() {
         pass "$display Proxmox backup is ${age_hours} hour(s) old"
     else
         fail "$display Proxmox backup is ${age_hours} hour(s) old"
+    fi
+}
+
+check_hermes() {
+    local state
+
+    if ! state="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            dashboard="$(pct exec 104 -- systemctl is-active hermes-dashboard.service 2>/dev/null || true)"
+            gateway="$(pct exec 104 -- runuser -u hermes -- env XDG_RUNTIME_DIR=/run/user/1000 systemctl --user is-active hermes-gateway.service 2>/dev/null || true)"
+            printf "dashboard=%s\\ngateway=%s\\n" "$dashboard" "$gateway"
+        '
+    )"; then
+        warn "Unable to check Hermes services"
+        return
+    fi
+
+    if grep -qx 'dashboard=active' <<< "$state" &&
+       grep -qx 'gateway=active' <<< "$state"; then
+        pass "Hermes dashboard and gateway services healthy"
+    else
+        fail "Hermes service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
     fi
 }
 
@@ -539,7 +572,7 @@ for guest in json.load(sys.stdin):
     local guest_state
     local guest_name
 
-    for guest in 100 101 102 103; do
+    for guest in 100 101 102 103 104; do
         guest_line="$(awk -F'|' -v guest="$guest" '$1 == guest {print; exit}' <<< "$guest_status")"
         guest_state="$(cut -d'|' -f2 <<< "$guest_line")"
         guest_name="$(cut -d'|' -f3 <<< "$guest_line")"
@@ -811,6 +844,7 @@ fi
 check_opnsense_wan
 check_arista
 check_proxmox
+check_hermes
 check_truenas
 check_frigate
 
@@ -848,6 +882,8 @@ check_backup_age "OPNsense" "$BACKUP_ROOT/opnsense" 48
 check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
 check_backup_age "Proxmox" "$BACKUP_ROOT/proxmox" 48
 check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
+check_proxmox_guest_backup_age "Hermes LXC 104" 104 30 lxc
+check_proxmox_guest_backup_age "Ollama VM 105" 105 30
 check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
 check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
 

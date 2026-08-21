@@ -18,7 +18,7 @@ Enterprise-inspired home lab documentation for Project Mini Atlas.
 - Tailscale provides identity-restricted web and SSH access to the trusted LAN without inbound WAN ports.
 - The Backup Synology pulls and checksum-verifies configuration sets and retained Proxmox guest archives on independent schedules.
 - Hyper Backup provides client-side-encrypted, versioned IDrive e2 off-site protection for essential recovery material; media and Frigate recordings are excluded.
-- `lab doctor` functionally monitors OPNsense, Arista, Proxmox (including VM 103), TrueNAS, Frigate, both Pi-holes and backup-report freshness using persistent counter baselines where appropriate.
+- `lab doctor` functionally monitors OPNsense, Arista, Proxmox guests including Home Assistant, Hermes and Ollama, TrueNAS, Frigate, both Pi-holes and backup-report freshness using persistent counter baselines where appropriate.
 - Beszel provides lightweight historical host/container metrics for Docker, Proxmox and Frigate, with a concise systems-up widget on Homepage.
 
 Start with [the current network baseline](docs/Current-Network-Baseline.md), then see the [master plan](docs/Master-Plan.md), [surveillance runbook](docs/07-Surveillance.md) and [project roadmap](PROJECTS.md).

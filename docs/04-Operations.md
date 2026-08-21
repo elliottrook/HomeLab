@@ -19,7 +19,7 @@ Dashboard SSH targets:
 
 | Tile | Target |
 |---|---|
-| Proxmox SSH | `ssh://root@192.168.1.10` |
+| Proxmox SSH | `ssh://root@192.168.50.10` |
 | Docker LXC SSH | `ssh://root@192.168.20.20` |
 | OPNsense SSH | `ssh://root@192.168.1.1` |
 | TrueNAS SSH | `ssh://truenas_admin@192.168.20.40` |
