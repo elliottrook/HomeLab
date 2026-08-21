@@ -184,3 +184,11 @@ Run `lab drift` to check, `lab drift status` to inspect the baseline, and `lab d
 Drift never replaces the baseline automatically. Repeated checks continue to show unresolved drift while suppressing duplicate email for the same condition.
 
 State is stored outside Git under `~/lab/monitoring-state/drift/`.
+
+## Scheduled Health Reporting
+
+The `lab report` command runs configuration-drift detection and HomeLab Doctor as one health report.
+
+The macOS LaunchAgent `ca.yampy.homelab-report` runs this report daily at 08:15. Healthy and warning-only results do not generate email. New failures generate an email through `scripts/backup-alert`; unchanged failures are suppressed to prevent duplicate notifications.
+
+The latest combined report and LaunchAgent logs are stored under `~/lab/monitoring-state/reports`. Configuration drift retains its own alert and acknowledgement state.

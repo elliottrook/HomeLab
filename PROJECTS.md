@@ -400,7 +400,7 @@ The pilot is isolated, reproducible, backed up according to its recovery priorit
 
 - [x] Nightly Backups — automated configuration pulls, Proxmox guest archives, Home Assistant native backups and encrypted off-site protection are operational
 - [x] Configuration Drift Detection — protected OPNsense, Arista and Proxmox manifests are compared with an explicitly accepted known-good baseline
-- [ ] Automatic Reports
+- [x] Automatic Reports
 - [ ] Certificate Monitoring
 
 Audit completed 2026-08-14: keep this phase bounded. Use the existing `lab doctor` result as the basis for failure-only scheduled reporting, compare protected infrastructure exports with the prior known-good set for drift, and monitor certificate expiry only where expiry has an operational consequence. Do not build a second general monitoring platform here.

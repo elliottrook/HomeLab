@@ -53,6 +53,8 @@ Automation Commands
   lab drift status       Show the accepted drift baseline
   lab drift accept       Accept current backups as known-good
 
+  lab report              Run the failure-only scheduled health report
+
 Examples
 ──────────────────────────────────────────────
 
@@ -383,6 +385,10 @@ case "${1:-help}" in
 
     drift)
         "$REPO/scripts/drift-check.sh" "${2:-check}"
+        ;;
+
+    report)
+        "$REPO/scripts/scheduled-report.sh"
         ;;
 
     doctor)
