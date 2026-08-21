@@ -53,6 +53,7 @@ Automation Commands
   lab drift status       Show the accepted drift baseline
   lab drift accept       Accept current backups as known-good
 
+  lab certificates        Check operational TLS certificate expiry
   lab report              Run the failure-only scheduled health report
 
 Examples
@@ -385,6 +386,10 @@ case "${1:-help}" in
 
     drift)
         "$REPO/scripts/drift-check.sh" "${2:-check}"
+        ;;
+
+    certificates)
+        "$REPO/scripts/certificate-check.sh"
         ;;
 
     report)

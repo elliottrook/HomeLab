@@ -19,6 +19,9 @@ drift_result=$?
 
 doctor_output="$("$repo/scripts/doctor.sh" 2>&1)"
 doctor_result=$?
+
+certificate_output="$("$repo/scripts/certificate-check.sh" 2>&1)"
+certificate_result=$?
 set -e
 
 {
@@ -26,7 +29,9 @@ set -e
     printf '%s\n' 'Configuration drift'
     printf '%s\n\n' "$drift_output"
     printf '%s\n' 'HomeLab Doctor'
-    printf '%s\n' "$doctor_output"
+    printf '%s\n\n' "$doctor_output"
+    printf '%s\n' 'Certificate Monitoring'
+    printf '%s\n' "$certificate_output"
 } > "$latest_log"
 
 problems=""
