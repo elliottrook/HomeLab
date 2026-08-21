@@ -174,3 +174,13 @@ follow-up after the first cross-ecosystem automation succeeds.
 - This is ordinary SSH transported through Tailscale. Native Tailscale SSH is not enabled and is not required for the routed LAN hosts.
 - Do not expose OPNsense, Proxmox, TrueNAS, UniFi, Portainer or Homepage directly to the public Internet.
 - Do not add an inbound WAN SSH rule or port-forward. A remote client must be authenticated to the tailnet and authorized by the identity-specific grant.
+
+## Configuration drift detection
+
+The drift detector compares the newest protected OPNsense, Arista and Proxmox backups with an explicitly accepted known-good baseline. The monitoring state contains hashes and configuration paths rather than configuration values or credentials.
+
+Run `lab drift` to check, `lab drift status` to inspect the baseline, and `lab drift accept` only after reviewing an intentional change and confirming that HomeLab Doctor is healthy.
+
+Drift never replaces the baseline automatically. Repeated checks continue to show unresolved drift while suppressing duplicate email for the same condition.
+
+State is stored outside Git under `~/lab/monitoring-state/drift/`.

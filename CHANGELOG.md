@@ -9,6 +9,7 @@
 - Created the local `qwen3-64k:8b` Ollama model profile with a 65,536-token context window
 - Installed and passed through the Coral Edge TPU to Frigate VM 102
 - Added HomeLab Doctor service and backup-age coverage for Hermes LXC 104 and Ollama VM 105
+- Added privacy-safe configuration drift detection for protected OPNsense, Arista and Proxmox backups
 
 ### Validated
 - Confirmed Hermes can use the local Ollama provider from Lab VLAN 70; CPU-only responses work but are slow enough that the deployment remains a pilot

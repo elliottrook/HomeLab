@@ -399,7 +399,7 @@ The pilot is isolated, reproducible, backed up according to its recovery priorit
 # Phase 10 — Automation
 
 - [x] Nightly Backups — automated configuration pulls, Proxmox guest archives, Home Assistant native backups and encrypted off-site protection are operational
-- [ ] Configuration Drift Detection
+- [x] Configuration Drift Detection — protected OPNsense, Arista and Proxmox manifests are compared with an explicitly accepted known-good baseline
 - [ ] Automatic Reports
 - [ ] Certificate Monitoring
 

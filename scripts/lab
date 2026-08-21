@@ -46,6 +46,13 @@ Backup Commands
                          Copy private backups to the backup Synology
   lab backup all         Run automated backups, then show guided exports
 
+Automation Commands
+──────────────────────────────────────────────
+
+  lab drift              Check for configuration drift
+  lab drift status       Show the accepted drift baseline
+  lab drift accept       Accept current backups as known-good
+
 Examples
 ──────────────────────────────────────────────
 
@@ -373,6 +380,11 @@ case "${1:-help}" in
     health)
         show_health
         ;;
+
+    drift)
+        "$REPO/scripts/drift-check.sh" "${2:-check}"
+        ;;
+
     doctor)
         "$REPO/scripts/doctor.sh"
         ;;
