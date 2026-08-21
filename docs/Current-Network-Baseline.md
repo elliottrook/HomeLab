@@ -92,8 +92,8 @@ removed from Et20 and Et21.
 | Address | Device | MAC | Arista path |
 |---|---|---|---|
 | 192.168.1.1 | OPNsense LAN | e8:b5:d0:e1:8e:4f | Et40 |
-| 192.168.1.2 | Arista management SVI | 44:4c:a8:1f:3e:c5 | Vlan10 |
-| 192.168.1.10 | Proxmox | 6c:92:bf:27:89:a3 | Et4 |
+| 192.168.50.2 | Arista management SVI | 44:4c:a8:1f:3e:c5 | Vlan50 |
+| 192.168.50.10 | Proxmox | 6c:92:bf:27:89:a3 | Et4 |
 | 192.168.20.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router / Beszel | bc:24:11:43:71:67 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.50.21 | UniFi controller LXC 101 | bc:24:11:b6:de:53 | Et4 via Proxmox, tagged VLAN 50 |
 | 192.168.50.30 | UniFi PoE switch | 74:f9:2c:28:38:a6 | Et33, management VLAN 50 |
@@ -126,7 +126,7 @@ removed from Et20 and Et21.
 - OPNsense ix0 and ix1 are active at 10Gbps with correct LAN/WAN addressing and routing. The permanent ix1 WAN path completed its final stress test without a link flap, physical fault, CRC error, link interrupt, packet loss, or mbuf allocation failure.
 - The temporary switch has been removed. Proxmox is directly connected on Arista Et4 as a trunk with native VLAN 10 and tagged VLANs 20 and 70. The Mac mini is directly connected on Et8 as an access port in VLAN 10.
 - TrueNAS 25.10.5 uses `bond0` in active-backup mode at 192.168.20.40/24. Member `enp5s0f0` (MAC 6c:92:bf:67:fb:bc, Arista Et9) is the preferred primary and `enp5s0f1` (permanent MAC 6c:92:bf:67:fb:bd, Arista Et17) is the standby. Both links operate at 10 Gbps, MII monitoring runs every 100 ms, and `primary_reselect` is `always`. A controlled Et9 shutdown moved service to Et17 with one lost ping; restoring Et9 automatically returned service to the primary. Both switch ports remain independent access ports in VLAN 20 with PortFast; no port-channel or LACP is configured.
-- Arista management is provided by Vlan10 at 192.168.1.2/24. Management1 is unassigned/down, and no `ip route` is currently configured.
+- Arista management is provided by Vlan50 at 192.168.50.2/24. Vlan10 remains addressless, Management1 is unassigned/down, and the management default route is `0.0.0.0/0` via `192.168.50.1`.
 - UniFi Network Server version 10.5.67 runs in LXC 101 at `192.168.50.21` and uses third-party-gateway networks named Default, IoT (VLAN 30), Guest (VLAN 40) and Management (VLAN 50). UniFi switch Port 9 is the 10GbE uplink to Arista Et33; its native network remains Default (UniFi VLAN 1/untagged), tagged VLAN management is Allow All, auto-negotiation is enabled, and STP is enabled. The PoE switch and Hall and Office APs use `192.168.50.30`, `.31` and `.141`. All three remained online after migration, and the temporary Trusted controller interface and legacy migration firewall exceptions were removed. Local UniFi OS management is exposed at `https://192.168.50.21:11443` and is reachable only from approved administrator devices.
 - OPNsense Guest interface `vlan0.40` is active on parent `ix0` at 192.168.40.1/24. Dnsmasq is the active DHCP service and serves 192.168.40.100-192.168.40.199 with 86,400-second leases. Kea was disabled after its logs confirmed it could not bind UDP port 67 because dnsmasq already owned the port.
 - Arista Et40 is a trunk with native VLAN 10 and VLANs 10,20,30,40,50,60,70 allowed. Et33 is a trunk with native VLAN 10 and VLANs 10,30,40,50,60 allowed. Temporary test ports Et1 and Et2 are access ports in VLANs 40 and 30 respectively.

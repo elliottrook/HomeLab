@@ -8,15 +8,19 @@
 - Published Ollama on TCP 11434 and connected Hermes through its OpenAI-compatible `/v1` endpoint
 - Created the local `qwen3-64k:8b` Ollama model profile with a 65,536-token context window
 - Installed and passed through the Coral Edge TPU to Frigate VM 102
+- Added HomeLab Doctor service and backup-age coverage for Hermes LXC 104 and Ollama VM 105
 
 ### Validated
 - Confirmed Hermes can use the local Ollama provider from Lab VLAN 70; CPU-only responses work but are slow enough that the deployment remains a pilot
 - Confirmed 8 GB and 10 GB allocations were insufficient for the local model and that the 14 GB VM allocation runs without the observed OOM failure
 - Confirmed the Coral PCIe device is isolated in its own IOMMU group, loads through `gasket`/`apex`, appears as `/dev/apex_0` in the Frigate container and reports approximately 10 ms inference
 - Confirmed Frigate remained healthy with the Coral detector loaded and fresh recordings after the passthrough change
+- Confirmed the enabled all-guests Proxmox job covers LXC 104 and VM 105 and that both have fresh local archives
+- Confirmed the Backup Synology mirrored and checksum-verified the retained LXC 104 and VM 105 archives on 2026-08-20
+- Validated isolated restores of Hermes LXC 104 and Ollama VM 105, including a healthy Hermes service start and a successful Ollama guest boot
 
 ### Planned
-- Confirm LXC 104 and VM 105 are covered by the all-guests Proxmox backup job and off-host mirror before treating the pilot as recoverable
+- Add LXC 104 and VM 105 to the encrypted off-site selection
 - Resolve Proxmox memory overcommit before sustained simultaneous use of all guests
 - Install the purchased E5-2698 v4 and remaining planned RAM, then re-baseline Frigate and local-AI capacity
 - Evaluate the exact Intel Arc Pro B60 SKU, VRAM, physical clearance, PSU capacity and passthrough plan before purchase or installation
@@ -59,6 +63,9 @@
 - Updated the secondary Pi-hole upstream and `internal` conditional-forwarding destination from the Trusted gateway `192.168.1.1` to the Servers gateway `192.168.20.1`
 - Identified and labelled Arista Et15 as the wired Downstairs Apple TV and Et16 as the Aqara Hub M3, then moved both access ports from Trusted VLAN 10 to IoT VLAN 30
 - Migrated UniFi OS Server LXC 101, the UniFi PoE switch and both access points from Trusted VLAN 10 to Management VLAN 50 at `192.168.50.21`, `.30`, `.31` and `.141`
+- Migrated Proxmox management from `192.168.1.10` to tagged Management VLAN 50 at `192.168.50.10`
+- Migrated the Arista management SVI from VLAN 10 at `192.168.1.2` to VLAN 50 at `192.168.50.2`, added its management default route and removed the former address after a protected timed cutover
+- Extended Tailscale advertisement and identity-based policy to Management `192.168.50.0/24` and validated remote access
 - Updated Homepage, HomeLab Doctor, guided backups and device/service inventories for the UniFi management addresses
 
 ### Validated

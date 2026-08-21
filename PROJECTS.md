@@ -314,7 +314,7 @@ Home Assistant learning checkpoint: HACS is installed and authenticated without 
 
 # Phase 8 — Server VLAN 20 Migration
 
-Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
+Phase completed 2026-08-20; UniFi migration completed 2026-08-16 and core management migration completed 2026-08-20:
 
 - Frigate VM 102 and Home Assistant VM 103 already prove the VLAN 20 workload pattern, minimum-access firewall policy and rollback method.
 - Docker LXC 100 completed its controlled migration on 2026-08-15 from Trusted `192.168.1.20` to Servers `192.168.20.20`. Its Homepage, Portainer, primary Pi-hole, Tailscale and Beszel workloads returned healthy; local and cellular/Tailscale tests passed. A fresh verified backup and explicit rollback copies preceded the move.
@@ -344,11 +344,11 @@ Intended server workloads reside on VLAN 20 with documented minimum-access rules
 
 Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
 
-- Planned addresses remain Arista `.50.2` and Proxmox `.50.10`. Deployed UniFi addresses are controller `.50.21`, PoE switch `.50.30`, Hall AP `.50.31` and Office AP `.50.141`.
+- Deployed addresses are Arista `.50.2`, Proxmox `.50.10`, UniFi controller `.50.21`, PoE switch `.50.30`, Hall AP `.50.31` and Office AP `.50.141`.
 - The `MGMT_ADMIN_HOSTS` alias contains Jason's Mac mini (`192.168.1.206`), Mac laptop (`192.168.1.241`) and iPhone (`192.168.1.112`). Other Trusted clients are explicitly blocked from Management.
 - Console recovery for OPNsense, Arista and Proxmox must be confirmed before the first address change.
-- UniFi LXC 101 and all three managed devices were migrated first. Proxmox remains next and Arista remains last. VLAN 10 stays available throughout validation.
-- The Proxmox-facing Arista trunk now carries tagged VLAN 50 and LXC 101 uses it in production. Tailscale currently advertises Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`; Management remote access is a later explicit policy decision, not part of the local pilot.
+- UniFi LXC 101 and all three managed devices were migrated first, followed by Proxmox and Arista. VLAN 10 remains the trusted/native client network but no longer hosts these management interfaces.
+- The Proxmox-facing Arista trunk carries tagged VLAN 50 for the host and LXC 101. Tailscale advertises Trusted `192.168.1.0/24`, Servers `192.168.20.0/24` and Management `192.168.50.0/24`, with explicit identity-based access policy.
 
 - [x] Define which administrator devices may access Management
 - [x] Document emergency console and lockout recovery procedures
@@ -356,12 +356,14 @@ Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
 - [x] Create explicit Trusted-to-Management access rules
 - [x] Migrate one secondary management endpoint first
 - [x] Validate DNS, HTTPS, SSH, routing and rollback
-- [ ] Migrate core management interfaces individually
+- [x] Migrate core management interfaces individually
 - [x] Keep VLAN 10 available until the new management path is proven
-- [ ] Add Tailscale routing and policy only if remote management is required
+- [x] Add Tailscale routing and policy only if remote management is required
 - [x] Update inventories and recovery documentation for the completed UniFi migration
 
-**UniFi migration complete 2026-08-16.** LXC 101 moved to `192.168.50.21`; the PoE switch, Hall AP and Office AP moved to `192.168.50.30`, `.31` and `.141`. All three devices remained online after address changes. The controller's temporary Trusted interface, disposable VLAN test containers, legacy-device alias and temporary firewall exceptions were removed after validation. Phase 9 remains open for the separate Proxmox and Arista management migrations.
+**UniFi migration complete 2026-08-16.** LXC 101 moved to `192.168.50.21`; the PoE switch, Hall AP and Office AP moved to `192.168.50.30`, `.31` and `.141`. All three devices remained online after address changes. The controller's temporary Trusted interface, disposable VLAN test containers, legacy-device alias and temporary firewall exceptions were removed after validation. Proxmox subsequently moved to `192.168.50.10` and Arista moved to `192.168.50.2`; both retained tested local, routed and Tailscale access. The Arista cutover used a timed EOS configuration session, matching SSH host-key verification and automatic rollback protection before the old VLAN 10 address was removed.
+
+**Phase 9 complete 2026-08-20.** All intended infrastructure management interfaces reside on VLAN 50, approved administrator and remote-access paths are validated, and the previous management addresses have been removed.
 
 Completion Gate:
 Management interfaces are isolated on VLAN 50, reachable only from approved administrator devices, with a tested lockout-recovery path.
@@ -377,9 +379,12 @@ Deployed out of sequence on 2026-08-18 and 2026-08-19 as an isolated CPU-only pi
 - [x] Bind Ollama to TCP 11434 and connect Hermes through the OpenAI-compatible `/v1` API
 - [x] Create and validate `qwen3-64k:8b` with `num_ctx 65536`
 - [x] Confirm CPU-only operation and record the current performance limitation
-- [ ] Confirm LXC 104 and VM 105 are included in the all-guests Proxmox backup job
-- [ ] Confirm LXC 104 is mirrored to the Backup Synology and encrypted off-site backup
-- [ ] Decide whether VM 105 should be mirrored or recreated from documented configuration and model downloads
+- [x] Confirm LXC 104 and VM 105 are included in the all-guests Proxmox backup job
+- [x] Mirror LXC 104 to the Backup Synology and checksum-verify the copy
+- [ ] Add LXC 104 to the encrypted off-site backup selection
+- [x] Mirror VM 105 to the Backup Synology and checksum-verify the copy
+- [ ] Add VM 105 to the encrypted off-site backup selection
+- [x] Validate isolated restores of LXC 104 and VM 105 after the off-host mirror completes
 - [ ] Resolve aggregate Proxmox memory overcommit before sustained simultaneous guest load
 - [ ] Confirm the final installed RAM total and Frigate VM memory allocation after the next maintenance window
 - [ ] Remove unused Hermes cloud-provider authentication remnants
