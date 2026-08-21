@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-19
+> Last Updated: 2026-08-20
 >
 > **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
 
@@ -11,10 +11,10 @@
 Version 1.6.0
 
 Current Focus:
-🔵 Make the new Hermes/Ollama Lab pilot recoverable, complete the remaining Proxmox CPU/RAM maintenance, then continue the audited Phase 9 management-migration sequence
+🔵 Complete Phase 11 documentation, policy, recovery and architecture reconciliation while retaining the remaining CPU/RAM, Frigate-capacity and local-AI work as explicit follow-up items.
 
 Project Status:
-🚧 Active — complete the defined programme before accepting elective new work
+🚧 Active — final consolidation and project review; elective new work remains scope-locked until the completion gate is reviewed.
 
 ---
 
@@ -235,7 +235,7 @@ Hardware Acceleration and Expansion
 - [x] Confirm Quadro K620 capabilities and current driver compatibility
 - [x] Compare those capabilities with Frigate's current HEVC 5120x1552 stream
 - [x] Decide whether K620 passthrough is worth the complexity — rejected; remove the unused card during the RAM upgrade
-- [ ] Complete the planned Proxmox RAM upgrade if still required
+- [ ] Complete the planned Proxmox RAM upgrade if still required — the validated first stage currently provides 32 GB from two 16 GB ECC RDIMMs at 1866 MT/s; the remaining RAM and E5-2698 v4 installation are still pending
 - [x] Create recovery checkpoints before passthrough or driver changes
 - [x] Select the Frigate upgrade path — Coral M.2 TPU for object detection, with the purchased E5-2698 v4 CPU and remaining RAM pending; remove the K620 during the next hardware-maintenance window
 - [x] Confirm Coral M.2 form-factor/adapter compatibility before installation — single Edge TPU `G650-04527-01`, M.2 2230 A+E key, PCIe Gen2 x1; compatible PCIe x1 E-key carrier selected
@@ -412,19 +412,19 @@ Audit completed 2026-08-14: keep this phase bounded. Use the existing `lab docto
 Documentation Reconciliation
 
 - [x] Update repository documentation for the secondary Pi-hole
-- [ ] Clarify which TrueNAS applications are already operational versus future work
-- [ ] Remove or annotate stale switch-port and historical planning references
-- [ ] Record the installed Proxmox RAM after any upgrade
-- [ ] Confirm the live inventory, addresses, VLANs and service locations
-- [ ] Record a fresh known-good stability checkpoint
+- [x] Clarify which TrueNAS applications are already operational versus future work
+- [x] Remove or annotate stale switch-port and historical planning references
+- [x] Record the installed Proxmox RAM after any upgrade
+- [x] Confirm the live inventory, addresses, VLANs and service locations
+- [x] Record a fresh known-good stability checkpoint
 - [ ] Update the changelog and project release after reconciliation
 
 Final Review
 
 - [ ] Confirm every earlier phase completion gate
-- [ ] Resolve outdated roadmap entries
+- [x] Resolve outdated roadmap entries
 - [ ] Review firewall aliases, rules and temporary exceptions
-- [ ] Remove unused test configurations after confirming they are no longer needed
+- [x] Remove unused test configurations after confirming they are no longer needed
 - [ ] Confirm monitoring, backup and restore coverage for every critical service
 - [ ] Review architecture decisions and document remaining accepted risks
 - [ ] Publish an updated network diagram and current-state baseline
@@ -482,10 +482,12 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 ---
 
+# Operational Application Services
+
+Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-automation applications are operational and represented in the live Homepage inventory. They are not future deployment work.
+
 # Future Services
 
-- Jellyfin
-- Immich
 - Paperless-ngx
 - Wiki
 
@@ -501,11 +503,11 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 # Recommended Execution Order
 
-1. Confirm backup coverage and remove unsafe memory-overcommit risk for the Hermes/Ollama Lab pilot.
-2. Complete the staged RAM/CPU maintenance and remove the K620. The first 2 x 16 GB ECC RDIMM stage passed a two-loop 24 GB `memtester` validation; the remaining RAM and E5-2698 v4 installation are pending.
-3. Observe the Coral-backed Frigate detector against the software baseline and establish safe camera/storage capacity.
-4. Continue the remaining Proxmox and Arista Management VLAN 50 migrations only after local-console and trunk prerequisites pass.
-5. Complete the bounded drift, reporting and certificate automation work, then reconcile the final documentation and scope lock.
+1. Complete Phase 11 firewall, recovery-coverage, architecture-risk, diagram and release reconciliation.
+2. Resolve Proxmox memory overcommit and complete the remaining CPU/RAM maintenance before sustained simultaneous Ollama and production-guest load.
+3. Continue observing Coral-backed Frigate stability and establish safe camera/storage capacity before adding cameras one at a time.
+4. Complete the remaining Hermes/Ollama off-site selection and credential-cleanup items without making the pilot a production dependency.
+5. Review the scope lock and create a new roadmap only after the final consolidation gate passes.
 
 ---
 
