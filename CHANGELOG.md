@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+_No unreleased changes._
+
+## v1.7.0
+
+### Project Completion
+- Completed Phase 11 final consolidation and published the reconciled network baseline, topology, architecture decisions, accepted risks and recovery coverage.
+- Closed production Phases 1–5 and 7–10 while retaining surveillance and local AI as explicitly bounded follow-on pilots.
+- Lifted the original project scope lock; future elective work now requires a separately reviewed roadmap.
+
 ### Added
 - Deployed unprivileged Hermes Agent LXC 104 at `192.168.70.10` on isolated Lab VLAN 70
 - Deployed Ubuntu 24.04 Ollama VM 105 at `192.168.70.11` with 4 vCPU, 14 GB RAM and a 32 GB disk
@@ -12,6 +21,8 @@
 - Added privacy-safe configuration drift detection for protected OPNsense, Arista and Proxmox backups
 
 ### Validated
+- Published the reconciled 2026-08-20 network diagram and current-state baseline covering all seven VLANs, completed management migrations and the final healthy stability checkpoint
+- Reconciled the HomeLab architecture decisions and accepted-risk register, including single-host dependencies, storage capacity, recovery-test boundaries, IPv6 deferral and the remaining AI off-site follow-up
 - Confirmed Hermes can use the local Ollama provider from Lab VLAN 70; CPU-only responses work but are slow enough that the deployment remains a pilot
 - Confirmed 8 GB and 10 GB allocations were insufficient for the local model and that the 14 GB VM allocation runs without the observed OOM failure
 - Confirmed the Coral PCIe device is isolated in its own IOMMU group, loads through `gasket`/`apex`, appears as `/dev/apex_0` in the Frigate container and reports approximately 10 ms inference
@@ -256,3 +267,4 @@
 ## v1.0.0
 
 - Initial infrastructure baseline
+- Completed the Phase 11 firewall and recovery-coverage review: removed the obsolete Beszel rule and empty legacy UniFi alias, reconciled all six guest archives and verified mirrors, and documented representative restore evidence plus accepted recovery boundaries.

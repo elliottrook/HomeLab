@@ -382,3 +382,41 @@ Planning estimate: allow approximately 15–30 minutes for an offline LXC restor
 4. Restore Homepage, Pi-hole and the Tailscale subnet router.
 5. Validate local access before testing remote Tailscale access.
 6. Validate each backup after major configuration changes and before deleting the previous known-good copy.
+
+## Critical-Service Recovery Coverage — 2026-08-20
+
+This matrix reconciles operational monitoring, same-site protection and tested
+recovery evidence. A service does not require an individual destructive restore
+when its recoverability is inherited from a tested platform archive and its
+configuration is separately documented or exported.
+
+| Component | Monitoring | Same-site protection | Restore evidence or recovery status |
+|---|---|---|---|
+| OPNsense | Doctor checks Internet, WAN state and service reachability; configuration drift is monitored | Automated configuration export, checksum and Backup Synology mirror | Configuration recovery is documented; a live firewall replacement restore remains intentionally untested because it would disrupt the network |
+| Arista core switch | Doctor checks expected links, temperature, PSU state and interface-error baselines; configuration drift is monitored | Automated running-configuration and state export with verified mirror | Configuration replacement is documented; destructive production restore is intentionally deferred |
+| Proxmox host | Doctor checks guests, storage, memory and swap; Beszel supplies history; TLS expiry and configuration drift are monitored | Host configuration export plus retained guest archives on local backup storage and the Backup Synology | Multiple isolated guest restores prove archive usability; complete bare-metal host recovery remains a documented manual procedure |
+| Docker LXC 100 | Doctor checks SSH and hosted service endpoints; Beszel monitors the host and containers | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Homepage application recovery was tested independently; Proxmox LXC recovery was validated using an isolated disposable guest |
+| UniFi LXC 101 | Doctor checks controller reachability | Current LXC archive plus UniFi application backups, mirrored off-host | Isolated LXC restoration and recovered UniFi database inspection succeeded |
+| TrueNAS | Doctor checks pools, NFS, bond health and management access; certificate expiry is monitored | Configuration export is included in the protected infrastructure set; ZFS protects local media integrity | Configuration recovery is documented; media is intentionally excluded from encrypted off-site backup because of size and replaceability |
+| Pi-hole primary and secondary | Doctor performs public, local and blocked-domain DNS tests through both resolvers | Primary inherits Docker LXC protection; secondary inherits TrueNAS application/configuration protection; Teleporter exports are documented | Functional recovery validation is performed through the redundant resolver pair; either resolver can carry DNS while the other is rebuilt |
+| Frigate VM 102 | Doctor checks VM/service state, NFS mount and recording freshness; Beszel tracks host metrics | Current VM archive and private checksum-verified Frigate configuration backup, mirrored off-host | VM-level recovery is available; recordings remain intentionally excluded because they are high-volume and nonessential to infrastructure recovery |
+| Home Assistant VM 103 | Doctor checks Core and backup age | Encrypted native backups to local and Synology storage plus current mirrored VM archives | Isolated VM 903 restored and booted HAOS, Supervisor and Core successfully |
+| Main Synology | Doctor checks DSM reachability; Hyper Backup reports task failures | Versioned Hyper Backup repository on the Backup Synology with encrypted off-site protection for essential recovery material | Repository browsing and recovery access were validated; a full destructive NAS restore is intentionally not performed |
+| Backup Synology | Doctor checks DSM and the freshness/status of both automated pull jobs | Stores checksum-verified configuration and Proxmox mirrors; essential recovery material is independently protected in IDrive e2 | Recovery sets and restricted pull paths were validated; loss of the appliance requires rebuilding the pull tasks from documented configuration |
+| Hermes LXC 104 | Doctor checks guest/service health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Isolated restore as LXC 972 booted with Hermes services running |
+| Ollama VM 105 | Doctor checks guest state according to its intended operating mode | Current VM archive retained locally and checksum-mirrored to the Backup Synology | Isolated restore as VM 973 reached its login prompt successfully |
+| Reolink camera | Doctor tests HTTP, RTSP and ONVIF reachability; Frigate proves recording flow | No recording archive is required; Frigate configuration preserves the integration settings | Camera replacement or reset is a documented reconfiguration task rather than a backup restore |
+
+### Accepted recovery boundaries
+
+- Full destructive restores of the production firewall, switch, TrueNAS and both
+  Synology appliances are not justified solely to prove procedures that already
+  have verified exports, documented recovery steps and representative restore
+  evidence.
+- Media libraries and Frigate recordings are intentionally excluded from
+  encrypted off-site protection because their size exceeds their recovery value.
+- Hermes LXC 104 and Ollama VM 105 have verified same-site/off-host archives and
+  isolated restore tests; adding them to the encrypted off-site selection remains
+  an explicit AI-pilot follow-up rather than a Phase 11 production dependency.
+- The Backup Synology is a recovery repository, not the only copy of essential
+  configuration or guest data.

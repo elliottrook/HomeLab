@@ -8,13 +8,13 @@
 
 # Current Release
 
-Version 1.6.0
+Version 1.7.0
 
 Current Focus:
-🔵 Complete Phase 11 documentation, policy, recovery and architecture reconciliation while retaining the remaining CPU/RAM, Frigate-capacity and local-AI work as explicit follow-up items.
+🟢 Operate the consolidated production HomeLab while keeping surveillance expansion, hardware upgrades and local AI as explicit follow-up work.
 
 Project Status:
-🚧 Active — final consolidation and project review; elective new work remains scope-locked until the completion gate is reviewed.
+✅ Consolidated — release v1.7.0; the original project scope lock is lifted. Elective work should enter a new roadmap rather than extending the completed project.
 
 ---
 
@@ -314,11 +314,11 @@ Home Assistant learning checkpoint: HACS is installed and authenticated without 
 
 # Phase 8 — Server VLAN 20 Migration
 
-Phase completed 2026-08-20; UniFi migration completed 2026-08-16 and core management migration completed 2026-08-20:
+Server workload migration completed 2026-08-16; related Management VLAN work completed 2026-08-20:
 
 - Frigate VM 102 and Home Assistant VM 103 already prove the VLAN 20 workload pattern, minimum-access firewall policy and rollback method.
 - Docker LXC 100 completed its controlled migration on 2026-08-15 from Trusted `192.168.1.20` to Servers `192.168.20.20`. Its Homepage, Portainer, primary Pi-hole, Tailscale and Beszel workloads returned healthy; local and cellular/Tailscale tests passed. A fresh verified backup and explicit rollback copies preceded the move.
-- Tailscale now advertises Trusted and Servers, with identity-specific access to both. A host-scoped rule permits only the subnet-router host to reach Trusted; the general Servers isolation rules remain in force.
+- Tailscale now advertises Trusted, Servers and Management, with identity-specific access to those approved routes. A host-scoped rule permits only the subnet-router host to reach Trusted; the general Servers isolation rules remain in force.
 - The main Synology migrated to `192.168.20.41` and the Backup Synology to `192.168.20.42`. Hyper Backup, SMB, Home Assistant backup storage and both restricted pull paths were validated after the moves.
 - TrueNAS migrated last to `192.168.20.40`. Its secondary Pi-hole and application endpoints passed, and Frigate's NFS dependency survived a complete client reboot with a healthy container and fresh recordings.
 - UniFi LXC 101 remains management infrastructure and belongs in Phase 9.
@@ -405,6 +405,12 @@ The pilot is isolated, reproducible, backed up according to its recovery priorit
 
 Audit completed 2026-08-14: keep this phase bounded. Use the existing `lab doctor` result as the basis for failure-only scheduled reporting, compare protected infrastructure exports with the prior known-good set for drift, and monitor certificate expiry only where expiry has an operational consequence. Do not build a second general monitoring platform here.
 
+Completion Gate:
+
+Automated backups, configuration-drift detection, failure-only health reporting and operationally relevant certificate-expiry monitoring are active and verified without creating a second general monitoring platform.
+
+**Phase 10 complete — 2026-08-20.**
+
 ---
 
 # Phase 11 — Final Consolidation and Project Review
@@ -417,22 +423,32 @@ Documentation Reconciliation
 - [x] Record the installed Proxmox RAM after any upgrade
 - [x] Confirm the live inventory, addresses, VLANs and service locations
 - [x] Record a fresh known-good stability checkpoint
-- [ ] Update the changelog and project release after reconciliation
+- [x] Update the changelog and project release after reconciliation — published the reconciled work as consolidated release v1.7.0
 
 Final Review
 
-- [ ] Confirm every earlier phase completion gate
+- [x] Confirm every earlier phase completion gate — production Phases 1–5 and 7–10 were reconciled as complete; Phase 6 surveillance and the local-AI work remain deliberately bounded pilots and have been carried forward rather than misrepresented as completed production work
 - [x] Resolve outdated roadmap entries
-- [ ] Review firewall aliases, rules and temporary exceptions
+- [x] Review firewall aliases, rules and temporary exceptions — removed the obsolete Beszel rule and empty `UNIFI_LEGACY_DEVICES` alias; retained only documented production dependencies
 - [x] Remove unused test configurations after confirming they are no longer needed
-- [ ] Confirm monitoring, backup and restore coverage for every critical service
-- [ ] Review architecture decisions and document remaining accepted risks
-- [ ] Publish an updated network diagram and current-state baseline
-- [ ] Update the changelog and tag a consolidated release
-- [ ] Review whether the scope lock can be lifted
+- [x] Confirm monitoring, backup and restore coverage for every critical service — reconciled live monitoring, six current Proxmox guest archives, verified Synology mirrors and representative application/LXC/VM restore evidence on 2026-08-20
+- [x] Review architecture decisions and document remaining accepted risks — recorded the current authority boundaries, segmentation model, recovery strategy and explicitly accepted availability, capacity, certificate, IPv6 and AI-pilot risks
+- [x] Publish an updated network diagram and current-state baseline — reconciled the routed VLAN topology, management migrations, current service locations, remote-access routes and 2026-08-20 stability checkpoint
+- [x] Update the changelog and tag a consolidated release — release documentation prepared and validated for annotated tag v1.7.0
+- [x] Review whether the scope lock can be lifted — the original consolidation scope lock is lifted; new elective work requires a separately reviewed roadmap
+
+## Earlier phase completion-gate audit — 2026-08-20
+
+- Production Phases 1–5 and 7–10 have satisfied their current completion gates.
+- Phase 6 is intentionally classified as **pilot operational**. The Coral TPU is installed and working, but camera expansion, final capacity decisions and planned hardware upgrades remain future surveillance work.
+- The local-AI environment remains an isolated pilot. Its remaining security, capacity, backup and hardware decisions are transferred to the next roadmap and are not production HomeLab dependencies.
+- The future Phase 4 lifecycle review and optional Phase 5 Prometheus/Grafana expansion are scheduled or deferred enhancements, not incomplete production requirements.
+- No unfinished pilot item is being relabelled as complete merely to close this project.
 
 Completion Gate:
 The handover, roadmap, baseline and live environment agree, and the environment is documented, monitored, recoverable, segmented and stable enough to consider a new roadmap.
+
+**Phase 11 complete — 2026-08-20.**
 
 ---
 
@@ -503,11 +519,10 @@ Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-au
 
 # Recommended Execution Order
 
-1. Complete Phase 11 firewall, recovery-coverage, architecture-risk, diagram and release reconciliation.
-2. Resolve Proxmox memory overcommit and complete the remaining CPU/RAM maintenance before sustained simultaneous Ollama and production-guest load.
-3. Continue observing Coral-backed Frigate stability and establish safe camera/storage capacity before adding cameras one at a time.
-4. Complete the remaining Hermes/Ollama off-site selection and credential-cleanup items without making the pilot a production dependency.
-5. Review the scope lock and create a new roadmap only after the final consolidation gate passes.
+1. Resolve Proxmox memory overcommit and complete the remaining CPU/RAM maintenance before sustained simultaneous Ollama and production-guest load.
+2. Continue observing Coral-backed Frigate stability and establish safe camera/storage capacity before adding cameras one at a time.
+3. Complete the remaining Hermes/Ollama off-site selection and credential-cleanup items without making the pilot a production dependency.
+4. Create and review a new roadmap before beginning additional elective platforms, services or infrastructure changes.
 
 ---
 
@@ -516,7 +531,7 @@ Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-au
 | Date | Change | Evidence or Reference |
 |---|---|---|
 | 2026-08-19 | Deployed Hermes Agent LXC 104 and Ollama VM 105 on isolated Lab VLAN 70; connected Hermes to the local OpenAI-compatible Ollama endpoint and validated the `qwen3-64k:8b` 65,536-token profile. | Claude handoff changelog; live addresses `192.168.70.10` and `.11`; successful local-provider test |
-| 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow, backup coverage is unconfirmed and aggregate guest memory is overcommitted. | Claude handoff changelog and Proxmox allocation review |
+| 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow and aggregate guest memory is overcommitted. Same-site backup, mirror and isolated restore coverage was subsequently confirmed on 2026-08-20; encrypted off-site selection remains pending. | Claude handoff changelog and Proxmox allocation review |
 | 2026-08-16 | Installed and passed through the Coral Edge TPU to Frigate VM 102; disabled guest Secure Boot for the DKMS driver, mapped `/dev/apex_0` into the container and validated approximately 10 ms inference. | `lspci`; `gasket`/`apex`; Frigate detector log and stats |
 | 2026-08-16 | Completed the UniFi portion of Phase 9: moved LXC 101, the PoE switch and both APs to Management VLAN 50; validated approved-administrator access and device health; removed the temporary Trusted interface, test containers, alias and migration rules. | UniFi Network showed all three devices online at `192.168.50.30`, `.31` and `.141`; controller reachable at `.50.21` |
 | 2026-08-16 | Completed Phase 8 by migrating TrueNAS and both Synology systems to Servers VLAN 20; validated DNS, NFS recording flow after a Frigate reboot, SMB, Hyper Backup, Home Assistant backup storage and restricted backup-pull access. | HomeLab Doctor: 39 passed, 1 Git-state warning, 0 failed |
