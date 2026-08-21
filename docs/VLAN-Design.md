@@ -51,7 +51,7 @@ This creates a clear distinction between the systems that operate the network an
 
 Temporary and experimental Proxmox workloads will use VLAN 70 rather than sharing the trusted or production-server networks.
 
-The Proxmox host management address remains on the native trusted network during the initial Lab rollout and can move to VLAN 50 only during a separate management migration. Production LXCs and VMs are not moved as part of the Lab change.
+The Proxmox host management address now resides on tagged Management VLAN 50 at `192.168.50.10`. Production LXCs and VMs retain their assigned Servers, Management or Lab VLANs.
 
 A Lab VM must not also have an interface on Trusted, Servers or Management unless that dual-homed design is explicitly required, reviewed and documented. This prevents a test workload from becoming an unintended path around OPNsense policy.
 
@@ -145,12 +145,13 @@ OPNsense ix0 trunk
              v
 Arista core: VLAN 70
              |
-             | Et4 trunk: native VLAN 10, tagged VLANs 20,70
+             | Et4 trunk: native VLAN 10, tagged VLANs 20,50,70
              v
 Proxmox vmbr0: VLAN-aware
-  +-- Host management 192.168.1.10: untagged/native VLAN 10
-  +-- Existing LXC 100 and 101: untagged/native VLAN 10
-  +-- Experimental VM NICs: tagged VLAN 70
+  +-- Host management 192.168.50.10: tagged VLAN 50
+  +-- Docker LXC 100: tagged VLAN 20
+  +-- UniFi LXC 101: tagged VLAN 50
+  +-- Experimental workload NICs: tagged VLAN 70
 ```
 
 The current persistent Lab workloads are Hermes Agent LXC 104 at
@@ -158,7 +159,7 @@ The current persistent Lab workloads are Hermes Agent LXC 104 at
 70 interfaces and do not receive secondary interfaces on Trusted, Servers or
 Management.
 
-The physical Proxmox link carries both networks, but each experimental virtual NIC receives VLAN tag 70. The bare-metal host and existing production containers continue using untagged/native VLAN 10.
+The physical Proxmox link retains native VLAN 10 while carrying tagged Servers, Management and Lab traffic. The bare-metal host uses tagged VLAN 50, and each workload remains confined to its documented VLAN.
 
 ### Planned components
 

@@ -20,6 +20,50 @@ Arista core
         +-- Reolink Duo 2V PoE (Cameras VLAN 60)
 ```
 
+## Architecture decisions and accepted risks — 2026-08-20
+
+### Current architectural decisions
+
+- OPNsense remains the Layer 3 gateway, firewall and DHCP authority. The Arista
+  switch remains the Layer 2 core.
+- Trusted, Servers, IoT, Guest, Management, Cameras and Lab workloads remain
+  separated into VLANs 10, 20, 30, 40, 50, 60 and 70.
+- Inter-VLAN access is denied by default and opened only through documented,
+  host-scoped production exceptions.
+- Infrastructure management is restricted to approved administrator devices
+  and authorized Tailscale users.
+- Tailscale provides remote administration without inbound WAN port exposure.
+- Home Assistant is the central automation authority. HomeKit Bridge provides
+  selected Apple Home and Siri presentation without becoming a second
+  automation platform.
+- DNS is provided by two Pi-hole instances on different hosts. OPNsense remains
+  their upstream resolver and the authority for the internal namespace.
+- Proxmox hosts the core service guests. TrueNAS provides primary application
+  and media storage, the main Synology provides family services and the Backup
+  Synology provides recovery storage.
+- Hermes and Ollama remain isolated Lab VLAN workloads and are not dependencies
+  for production HomeLab operation.
+- Essential configuration and guest archives receive automated local and
+  off-host protection. Large replaceable media libraries and Frigate recordings
+  are intentionally excluded from encrypted off-site storage.
+
+### Accepted risks
+
+| Risk | Acceptance and mitigation |
+|---|---|
+| Proxmox is a single compute host | Guest archives are retained off-host, mirrored with checksum verification and represented by successful isolated restore tests. Host failure still requires manual restoration onto replacement hardware. |
+| OPNsense and the Arista core are individual infrastructure appliances | Current configurations are exported and monitored for drift. Recovery is procedural rather than automatically highly available. |
+| Proxmox guest memory is overcommitted when all production and AI workloads run simultaneously | Ollama remains optional and normally stopped when its memory would interfere with production guests. Final RAM and CPU work must be completed before sustained simultaneous use. |
+| The secondary Pi-hole shares the TrueNAS host | DNS instances are separated across hosts, but a TrueNAS outage also removes the secondary resolver. The Docker-hosted primary remains available. |
+| Backup Synology free capacity is finite | Backup retention, Hyper Backup growth and Proxmox mirror usage must continue to be monitored; the appliance is not treated as the only copy of essential data. |
+| Media libraries and Frigate recordings are not encrypted off-site | Their size exceeds their recovery value. Configuration, metadata and critical guest recovery paths receive priority instead. |
+| Full destructive restore tests were not performed for OPNsense, Arista, TrueNAS or either Synology | Exports, documented recovery procedures, verified backup access and representative LXC/VM restore tests provide proportionate evidence without risking production data. |
+| Home Assistant has broad host-scoped TCP/UDP access from its single address to IoT VLAN 30 | This is required for varied integrations and discovery. Other Servers hosts remain blocked, and IoT devices cannot initiate unrestricted access to internal networks. |
+| Tailscale can route authorized users to Trusted and Management networks | Access remains identity-controlled in Tailscale and source-restricted by OPNsense. No Tailscale Funnel or public service exposure is enabled. |
+| Internal services use a mixture of private, self-signed and publicly issued certificates | Expiry is monitored for operationally important TLS services. Internal certificate trust warnings remain accepted where no public trust is required. |
+| IPv6 segmentation has not received the same production validation as IPv4 | The current security design and operational tests are based primarily on IPv4. Wider IPv6 deployment remains deferred until equivalent policy and validation are planned. |
+| Hermes and Ollama are not yet in the encrypted off-site selection | Both have verified same-site archives, checksum-verified Synology mirrors and isolated restore evidence. Off-site inclusion remains an explicit AI-pilot follow-up. |
+
 ## Local AI Lab architecture
 
 Hermes Agent runs in unprivileged LXC 104 at `192.168.70.10`. Ollama runs in
@@ -31,8 +75,10 @@ context window.
 This remains a CPU-only pilot, not a production dependency. The 14 GB Ollama
 allocation was the first tested allocation that avoided the observed OOM
 failure, but response time remains slow and aggregate Proxmox memory allocation
-must be reconciled before sustained simultaneous use. LXC 104 and VM 105 backup
-coverage must be confirmed before the pilot is considered recoverable.
+must be reconciled before sustained simultaneous use. LXC 104 and VM 105 now
+have fresh local archives, checksum-verified Backup Synology mirrors and
+successful isolated restore evidence. Encrypted off-site inclusion remains a
+planned AI-pilot follow-up.
 
 ## Surveillance architecture
 

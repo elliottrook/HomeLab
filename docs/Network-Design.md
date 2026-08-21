@@ -1,9 +1,9 @@
 # Project Mini Atlas Network Design
 
-**Status:** Implementation in progress
+**Status:** Reconciled production baseline
 
 **Phase:** Enterprise Network  
-**Last Updated:** 2026-08-19
+**Last Updated:** 2026-08-20
 
 ---
 
@@ -40,9 +40,16 @@ Core infrastructure includes:
 - Homepage for internal service navigation
 - Tailscale for private, identity-restricted remote access
 
-The Arista carries trusted traffic on VLAN 10, server traffic on VLAN 20, isolated IoT traffic on VLAN 30 and isolated Guest traffic on VLAN 40. OPNsense provides the gateway and policy enforcement for the routed networks.
+The Arista carries native Trusted VLAN 10 and tagged VLANs 20, 30, 40, 50,
+60 and 70. OPNsense performs inter-VLAN routing and enforces the default-deny
+policy between trust zones.
 
-The server migration is complete: Docker LXC 100, Frigate VM 102, Home Assistant VM 103, TrueNAS and both Synology systems reside on VLAN 20. Phase 9 is now in progress: the UniFi controller, PoE switch and two access points reside on Management VLAN 50, while Proxmox and Arista management remain on Trusted VLAN 10 pending their separate controlled migrations. Hermes Agent LXC 104 and Ollama VM 105 are isolated pilot workloads on Lab VLAN 70; they are not production dependencies. The validated deployed state is recorded in `Current-Network-Baseline.md`.
+The planned migrations are complete. Docker, Frigate, Home Assistant, TrueNAS
+and both Synology systems reside on Servers VLAN 20. The UniFi controller,
+UniFi switch, both access points, Proxmox and the Arista management SVI reside
+on Management VLAN 50. IoT, Guest and Camera devices use VLANs 30, 40 and 60.
+Hermes and Ollama remain non-production pilot workloads on Lab VLAN 70. The
+validated deployed state is recorded in `Current-Network-Baseline.md`.
 
 ---
 
@@ -78,7 +85,7 @@ This preserves one central policy enforcement point and keeps the switch configu
 
 ## Remote access
 
-Tailscale runs in the Docker LXC as a subnet router and advertises `192.168.1.0/24` and `192.168.20.0/24`. Split DNS forwards the `internal` namespace to OPNsense, allowing `home.internal` and other internal names to work remotely. Tailnet grants restrict Trusted and Servers access to the administrator identity. No inbound WAN port-forward is required.
+Tailscale runs in the Docker LXC as a subnet router and advertises `192.168.1.0/24`, `192.168.20.0/24` and `192.168.50.0/24`. Split DNS forwards the `internal` namespace to OPNsense, allowing `home.internal` and other internal names to work remotely. Tailnet grants restrict Trusted, Servers and Management access to the administrator identity. No inbound WAN port-forward is required.
 
 ---
 
@@ -107,22 +114,38 @@ The final VLAN numbers and subnets will be documented separately in:
 ## 6. High-Level Architecture
 
 ```text
-Internet
-   |
-Telus Fibre
-   |
-OPNsense
-   |
-802.1Q trunk
-   |
-Arista DCS-7050TX
-   |
-   +-- Proxmox
-   +-- TrueNAS
-   +-- Synology
-   +-- UniFi PoE Switch
-   |     +-- UniFi Access Points
-   |     +-- Future PoE devices
-   |
-   +-- Wired clients
-   +-- Future camera switching
+                            Internet
+                                |
+                         TELUS fibre / 10 GbE
+                                |
+                    +-----------------------+
+                    |       OPNsense        |
+                    | Routing, DHCP, policy |
+                    +-----------+-----------+
+                                |
+                       802.1Q trunk — Et40
+                                |
+                    +-----------+-----------+
+                    |   Arista 10 Gb core   |
+                    |     192.168.50.2      |
+                    +-----------+-----------+
+                                |
+      +---------------+---------+----------+----------------+
+      |               |                    |                |
+ VLAN 10           VLAN 20              VLAN 50          VLAN 70
+ Trusted           Servers              Management       Lab
+      |               |                    |                |
+ Personal        Docker / Pi-hole      Proxmox          Hermes
+ computers       Frigate / HA          Arista           Ollama
+ and phones      TrueNAS               UniFi
+                 Synology
+                      |
+                 +----+-----+
+                 |          |
+              VLAN 30    VLAN 60
+              IoT        Cameras
+
+ VLAN 40 Guest is Internet-only.
+ Inter-VLAN routing remains centralized at OPNsense.
+ Remote access uses Tailscale routes to VLANs 10, 20 and 50.
+```

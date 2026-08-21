@@ -3,7 +3,8 @@
 |Device|IP|
 |---|---|
 |OPNsense|192.168.1.1|
-|Proxmox|192.168.1.10|
+|Arista Core Switch|192.168.50.2|
+|Proxmox|192.168.50.10|
 |Docker|192.168.20.20|
 |UniFi Controller|192.168.50.21|
 |UniFi PoE Switch|192.168.50.30|

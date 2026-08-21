@@ -19,7 +19,7 @@ Dashboard SSH targets:
 
 | Tile | Target |
 |---|---|
-| Proxmox SSH | `ssh://root@192.168.1.10` |
+| Proxmox SSH | `ssh://root@192.168.50.10` |
 | Docker LXC SSH | `ssh://root@192.168.20.20` |
 | OPNsense SSH | `ssh://root@192.168.1.1` |
 | TrueNAS SSH | `ssh://truenas_admin@192.168.20.40` |
@@ -174,3 +174,27 @@ follow-up after the first cross-ecosystem automation succeeds.
 - This is ordinary SSH transported through Tailscale. Native Tailscale SSH is not enabled and is not required for the routed LAN hosts.
 - Do not expose OPNsense, Proxmox, TrueNAS, UniFi, Portainer or Homepage directly to the public Internet.
 - Do not add an inbound WAN SSH rule or port-forward. A remote client must be authenticated to the tailnet and authorized by the identity-specific grant.
+
+## Configuration drift detection
+
+The drift detector compares the newest protected OPNsense, Arista and Proxmox backups with an explicitly accepted known-good baseline. The monitoring state contains hashes and configuration paths rather than configuration values or credentials.
+
+Run `lab drift` to check, `lab drift status` to inspect the baseline, and `lab drift accept` only after reviewing an intentional change and confirming that HomeLab Doctor is healthy.
+
+Drift never replaces the baseline automatically. Repeated checks continue to show unresolved drift while suppressing duplicate email for the same condition.
+
+State is stored outside Git under `~/lab/monitoring-state/drift/`.
+
+## Scheduled Health Reporting
+
+The `lab report` command runs configuration-drift detection and HomeLab Doctor as one health report.
+
+The macOS LaunchAgent `ca.yampy.homelab-report` runs this report daily at 08:15. Healthy and warning-only results do not generate email. New failures generate an email through `scripts/backup-alert`; unchanged failures are suppressed to prevent duplicate notifications.
+
+The latest combined report and LaunchAgent logs are stored under `~/lab/monitoring-state/reports`. Configuration drift retains its own alert and acknowledgement state.
+
+## Certificate Monitoring
+
+The `lab certificates` command checks the operational TLS endpoints for Proxmox, Portainer, UniFi, TrueNAS and both Synology systems.
+
+A certificate is considered unhealthy when it cannot be read, its endpoint is unreachable, or it has 30 days or less remaining. Certificate failures are included in the daily failure-only scheduled report and use the existing duplicate-alert suppression.

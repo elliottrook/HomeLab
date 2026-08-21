@@ -1,7 +1,13 @@
 # Home Network Baseline
 
-Baseline date: 2026-08-19
-Status: The WAN path remains stable. Routed interfaces, DHCP scopes and baseline firewall policy are deployed for VLANs 20, 30, 40, 50, 60 and 70 while VLAN 10 remains the native Trusted network. IoT and Guest are in production. Frigate VM 102, Home Assistant VM 103, Docker LXC 100, TrueNAS and both Synology systems are operational on Servers VLAN 20. Hermes LXC 104 and Ollama VM 105 are isolated CPU-only pilots on Lab VLAN 70. Homepage and identity-restricted Tailscale access remain operational without inbound WAN ports.
+Baseline date: 2026-08-20
+Status: This is the reconciled Phase 11 production baseline. VLANs 20, 30, 40,
+50, 60 and 70 are routed and policy-enforced by OPNsense while VLAN 10 remains
+the native Trusted network. Server, IoT, Guest, Management, Camera and Lab
+migrations are complete. HomeLab Doctor reports 44 passes with no warnings or
+failures, protected configuration shows no unaccepted drift, scheduled
+failure-only reporting is active and operationally important TLS certificates
+are monitored.
 
 ## Recovery checkpoint
 
@@ -46,54 +52,83 @@ Server-migration checkpoint completed 2026-08-16:
 - Frigate's NFS source was updated to the new TrueNAS address and validated through a complete VM reboot, healthy container state and fresh recording flow.
 - OPNsense DHCP/DNS aliases, Homepage, SSH aliases, inventories and operational scripts were updated. HomeLab Doctor completed with 39 passes, no functional warning and no failure.
 
+Final-consolidation checkpoint completed 2026-08-20:
+
+- Arista management is operational only on Management VLAN 50 at
+  `192.168.50.2`; its former VLAN 10 address has been removed.
+- Proxmox management is operational on `192.168.50.10` through tagged VLAN 50.
+- The UniFi controller, PoE switch and both access points are operational on
+  Management VLAN 50.
+- Tailscale advertises Trusted, Servers and Management routes only to the
+  approved administrator identity.
+- HomeLab Doctor completed with 44 passes, no warnings and no failures.
+- Configuration drift detection reports no unaccepted drift.
+- Scheduled failure-only reporting and certificate monitoring are passing.
+- All six Proxmox guests have local archives, checksum-verified Synology
+  mirrors and representative isolated restore evidence.
+
 Store copies off the network appliances and treat them as sensitive configuration data.
 
 ## Current topology
 
 ```text
-TELUS modem 10Gb RJ45
+Internet / TELUS fibre
   |
-  | Cat6a via 10Gtek RJ45 SFP+ transceiver
+  | 10 GbE WAN
   |
-OPNsense ix1 (WAN, 10Gb)
-OPNsense ix0 (LAN, 10Gb)
+OPNsense — routing, DHCP and firewall policy
   |
-Arista Et40
+  | Arista Et40 trunk
   |
-Arista DCS-7050TX-64-R
-  +-- Et1  Guest-VLAN40-Test (access VLAN 40)
-  +-- Et2  IoT-VLAN30-Test (access VLAN 30)
-  +-- Et3  unused
-  +-- Et4  Proxmox (trunk; native VLAN 10, tagged VLANs 20,70)
-  +-- Et7  Suspect-Link-Test-Only (disconnected)
-  +-- Et8  Mac-mini-in-studio
-  +-- Et9  TrueNAS-Primary-Servers (access VLAN 20)
-  +-- Et11 LivingRoom-AppleTV
-  +-- Et15 Apple-TV-Downstairs (access VLAN 30)
-  +-- Et16 Aqara-Hub-M3 (access VLAN 30)
-  +-- Et17 TrueNAS-Failover-Servers (access VLAN 20; bond standby)
-  +-- Et24 GoWest-NAS-Servers (access VLAN 20)
-  +-- Et33 UniFi-PoE-Uplink (native VLAN 10, tagged VLANs 30,40,50,60)
-  +-- Et40 OPNsense-LAN (native VLAN 10, tagged VLANs 20,30,40,50,60,70)
-  +-- Et43 Old-ASUS-Disconnected
-  +-- Et45 Lutron-Hub
-  +-- Et46 Philips-Hue
-  +-- Et48 Synology-NIC-B (access VLAN 20)
+Arista core — 192.168.50.2
+  |
+  +-- VLAN 10 Trusted — 192.168.1.0/24
+  |     +-- Personal computers and phones
+  |
+  +-- VLAN 20 Servers — 192.168.20.0/24
+  |     +-- Docker LXC 100 — 192.168.20.20
+  |     +-- Frigate VM 102 — 192.168.20.10
+  |     +-- Home Assistant VM 103 — 192.168.20.11
+  |     +-- TrueNAS — 192.168.20.40
+  |     +-- Main Synology — 192.168.20.41
+  |     +-- Backup Synology — 192.168.20.42
+  |
+  +-- VLAN 30 IoT — 192.168.30.0/24
+  |     +-- Lutron, Hue, Aqara, TVs and consumer devices
+  |
+  +-- VLAN 40 Guest — 192.168.40.0/24
+  |     +-- Internet-only guest clients
+  |
+  +-- VLAN 50 Management — 192.168.50.0/24
+  |     +-- Arista — 192.168.50.2
+  |     +-- Proxmox — 192.168.50.10
+  |     +-- UniFi controller — 192.168.50.21
+  |     +-- UniFi switch — 192.168.50.30
+  |     +-- Hall AP — 192.168.50.31
+  |     +-- Office AP — 192.168.50.141
+  |
+  +-- VLAN 60 Cameras — 192.168.60.0/24
+  |     +-- Reolink Duo 2V PoE — 192.168.60.10
+  |
+  +-- VLAN 70 Lab — 192.168.70.0/24
+        +-- Hermes Agent LXC 104 — 192.168.70.10
+        +-- Ollama VM 105 — 192.168.70.11
+
+Tailscale remote administration
+  |
+homelab-gateway — 192.168.20.20
+  +-- Trusted route     192.168.1.0/24
+  +-- Servers route     192.168.20.0/24
+  +-- Management route  192.168.50.0/24
 ```
-
-Et43, formerly connected to the old ASUS Wi-Fi/mesh system, is disconnected. Et7 remains unused after earlier Mac mini physical-link instability. The temporary switch used during WAN-cable testing has been removed; Proxmox and the Mac mini now connect directly to the Arista.
-
-The Proxmox path was traced to Et4 and configured as a trunk retaining native
-VLAN 10 while carrying VLANs 20 and 70. Stale Synology descriptions were
-removed from Et20 and Et21.
 
 ## Device and address inventory
 
 | Address | Device | MAC | Arista path |
 |---|---|---|---|
 | 192.168.1.1 | OPNsense LAN | e8:b5:d0:e1:8e:4f | Et40 |
-| 192.168.1.2 | Arista management SVI | 44:4c:a8:1f:3e:c5 | Vlan10 |
-| 192.168.1.10 | Proxmox | 6c:92:bf:27:89:a3 | Et4 |
+| 192.168.50.2 | Arista management SVI | 44:4c:a8:1f:3e:c5 | Vlan50 |
+| 192.168.50.10 | Proxmox | 6c:92:bf:27:89:a3 | Et4 |
 | 192.168.20.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router / Beszel | bc:24:11:43:71:67 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.50.21 | UniFi controller LXC 101 | bc:24:11:b6:de:53 | Et4 via Proxmox, tagged VLAN 50 |
 | 192.168.50.30 | UniFi PoE switch | 74:f9:2c:28:38:a6 | Et33, management VLAN 50 |
@@ -124,9 +159,9 @@ removed from Et20 and Et21.
 - Switch temperatures and cooling are healthy. Highest observed PHY temperature was 51 C.
 - PSU2 is online and supplies approximately 160 W. PSU1 is intentionally unpowered; redundancy is knowingly unavailable.
 - OPNsense ix0 and ix1 are active at 10Gbps with correct LAN/WAN addressing and routing. The permanent ix1 WAN path completed its final stress test without a link flap, physical fault, CRC error, link interrupt, packet loss, or mbuf allocation failure.
-- The temporary switch has been removed. Proxmox is directly connected on Arista Et4 as a trunk with native VLAN 10 and tagged VLANs 20 and 70. The Mac mini is directly connected on Et8 as an access port in VLAN 10.
+- The temporary switch has been removed. Proxmox is directly connected on Arista Et4 as a trunk with native VLAN 10 and tagged VLANs 20, 50 and 70. Proxmox management uses `vmbr0.50` at `192.168.50.10`; the base bridge remains addressless. The Mac mini is directly connected on Et8 as an access port in VLAN 10.
 - TrueNAS 25.10.5 uses `bond0` in active-backup mode at 192.168.20.40/24. Member `enp5s0f0` (MAC 6c:92:bf:67:fb:bc, Arista Et9) is the preferred primary and `enp5s0f1` (permanent MAC 6c:92:bf:67:fb:bd, Arista Et17) is the standby. Both links operate at 10 Gbps, MII monitoring runs every 100 ms, and `primary_reselect` is `always`. A controlled Et9 shutdown moved service to Et17 with one lost ping; restoring Et9 automatically returned service to the primary. Both switch ports remain independent access ports in VLAN 20 with PortFast; no port-channel or LACP is configured.
-- Arista management is provided by Vlan10 at 192.168.1.2/24. Management1 is unassigned/down, and no `ip route` is currently configured.
+- Arista management is provided by Vlan50 at 192.168.50.2/24. Vlan10 remains addressless, Management1 is unassigned/down, and the management default route is `0.0.0.0/0` via `192.168.50.1`.
 - UniFi Network Server version 10.5.67 runs in LXC 101 at `192.168.50.21` and uses third-party-gateway networks named Default, IoT (VLAN 30), Guest (VLAN 40) and Management (VLAN 50). UniFi switch Port 9 is the 10GbE uplink to Arista Et33; its native network remains Default (UniFi VLAN 1/untagged), tagged VLAN management is Allow All, auto-negotiation is enabled, and STP is enabled. The PoE switch and Hall and Office APs use `192.168.50.30`, `.31` and `.141`. All three remained online after migration, and the temporary Trusted controller interface and legacy migration firewall exceptions were removed. Local UniFi OS management is exposed at `https://192.168.50.21:11443` and is reachable only from approved administrator devices.
 - OPNsense Guest interface `vlan0.40` is active on parent `ix0` at 192.168.40.1/24. Dnsmasq is the active DHCP service and serves 192.168.40.100-192.168.40.199 with 86,400-second leases. Kea was disabled after its logs confirmed it could not bind UDP port 67 because dnsmasq already owned the port.
 - Arista Et40 is a trunk with native VLAN 10 and VLANs 10,20,30,40,50,60,70 allowed. Et33 is a trunk with native VLAN 10 and VLANs 10,30,40,50,60 allowed. Temporary test ports Et1 and Et2 are access ports in VLANs 40 and 30 respectively.
@@ -138,8 +173,8 @@ removed from Et20 and Et21.
 - Proxmox LXC 100 (`docker`) is an unprivileged Debian container at `192.168.20.20/24` on Servers VLAN 20. It runs Homepage, Portainer, the primary Pi-hole, Tailscale, Beszel and the Beszel agent. Homepage is published internally on TCP 3000 and is available as `http://home.internal:3000`.
 - OPNsense dnsmasq owns the `home.internal` host record and listens for DNS on port 53053. Unbound remains the client-facing resolver on port 53 and conditionally forwards the `internal` domain to dnsmasq at 127.0.0.1:53053. Both local-LAN and remote Tailscale resolution were validated.
 - The secondary Pi-hole at `192.168.20.40` uses the Servers gateway `192.168.20.1` for upstream DNS and conditional forwarding of `internal`; the former Trusted-gateway destination `192.168.1.1` is no longer reachable from VLAN 20 by design.
-- Tailscale runs directly in Docker LXC 100 as the `homelab-gateway` subnet router. It advertises Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`; IoT and Guest are not advertised. IPv4 forwarding is enabled and the LXC has access to `/dev/net/tun`.
-- Tailscale split DNS sends only the `internal` namespace to OPNsense at `192.168.1.1`. The broad default tailnet allow rule was replaced with an identity-specific grant permitting the administrator account to reach the Trusted and Servers routes on all protocols. A host-scoped OPNsense rule permits the subnet router at `192.168.20.20` to reach Trusted because routed clients are source-NATed behind it. Remote Homepage, Home Assistant, Frigate and Proxmox access passed with the client off home Wi-Fi. SSH uses the existing host services through the subnet route; native Tailscale SSH is not enabled. No inbound WAN port-forward or public service exposure was added.
+- Tailscale runs directly in Docker LXC 100 as the `homelab-gateway` subnet router. It advertises Trusted `192.168.1.0/24`, Servers `192.168.20.0/24` and Management `192.168.50.0/24`; IoT, Guest, Cameras and Lab are not advertised. IPv4 forwarding is enabled and the LXC has access to `/dev/net/tun`.
+- Tailscale split DNS sends only the `internal` namespace to OPNsense at `192.168.1.1`. The broad default tailnet allow rule was replaced with an identity-specific grant permitting the administrator account to reach the Trusted, Servers and Management routes on all protocols. A host-scoped OPNsense rule permits the subnet router at `192.168.20.20` to reach Trusted because routed clients are source-NATed behind it. Remote Homepage, Home Assistant, Frigate and Proxmox access passed with the client off home Wi-Fi. SSH uses the existing host services through the subnet route; native Tailscale SSH is not enabled. No inbound WAN port-forward or public service exposure was added.
 - Homepage includes network, smart-home, monitoring-and-maintenance, virtualization, storage, media, media-automation, application-management, external-service, SSH-access and surveillance groups. Primary and Secondary Pi-hole tiles, Home Assistant, Beszel and Frigate web/SSH tiles are operational. Beszel reports Docker, Proxmox and Frigate health through a dedicated file-backed Homepage widget credential. The dashboard and its internal management targets remain intended for LAN or Tailscale access only.
 - Frigate VM 102 runs Debian 13.6 at `192.168.20.10` on VLAN 20. Its Reolink Duo 2V PoE camera uses `192.168.60.10` on VLAN 60. OPNsense permits only TCP 80, 554 and 8000 from Frigate to the camera; TCP 9000 remains blocked.
 - Frigate VM 102 has the Coral Edge TPU passed through as a dedicated PCIe device. The guest loads the `gasket` and `apex` modules, exposes `/dev/apex_0` to the Frigate container and reports approximately 10 ms inference. CPU HEVC decoding remains separate from Coral object-detection inference.
@@ -148,7 +183,7 @@ removed from Et20 and Et21.
 - OPNsense Dnsmasq advertises both Pi-holes through an untagged DHCPv4 option 6 on every configured range. A source-network alias covering VLANs 20 through 70 and an early floating rule permit only TCP/UDP 53 to the resolver alias while preserving the existing private-network blocks. LAN, Servers, IoT and Guest paths were directly validated. Encrypted/private client DNS remains outside this DHCP-based guarantee.
 - Home Assistant OS 18.2 runs as Proxmox VM 103 at reserved address `192.168.20.11` on VLAN 20 with 2 vCPU, 4 GB RAM and 32 GB storage. `http://home-assistant.home.internal` is operational on TCP 80 and encrypted native plus mirrored VM backups exist off-host. A host-specific rule permits only Home Assistant to initiate TCP/UDP access to IoT VLAN 30 before the general Servers RFC1918 block. Philips Hue, Lutron Caséta, Aqara Matter and Sonos are integrated. The Hue Hall motion-to-Lutron Laundry pilot is complete and now uses a scene, script and five-minute timer helper with a validated timer-finished light-off path. HACS is installed without an elective community repository; media and fringe-vendor integrations remain deliberately incremental.
 - VLAN 70 was fully validated with disposable LXC 970: DHCP, Pi-hole DNS, blocked-domain response and Internet access passed, while non-DNS access to internal services remained blocked. The OPNsense VLAN parent was corrected from inactive `igb0` to trunk `ix0`; the test container was then purged.
-- Hermes Agent now runs in unprivileged LXC 104 at `192.168.70.10`; Ollama runs in Ubuntu VM 105 at `192.168.70.11` and serves its OpenAI-compatible API on TCP 11434. Hermes successfully uses the local `qwen3-64k:8b` model profile with a 65,536-token context window. This remains a CPU-only pilot: 14 GB was the first stable tested Ollama allocation, response generation is slow, guest backup coverage is unconfirmed and aggregate Proxmox memory allocation requires review.
+- Hermes Agent now runs in unprivileged LXC 104 at `192.168.70.10`; Ollama runs in Ubuntu VM 105 at `192.168.70.11` and serves its OpenAI-compatible API on TCP 11434. Hermes successfully uses the local `qwen3-64k:8b` model profile with a 65,536-token context window. This remains a CPU-only pilot: 14 GB was the first stable tested Ollama allocation, response generation is slow, guest archives are mirrored and restore-tested, encrypted off-site selection remains pending, and aggregate Proxmox memory allocation still requires review.
 
 ## Resolved incidents
 
@@ -294,3 +329,13 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
 - Which trusted devices require cross-VLAN discovery or control of Hue, Lutron and Apple TV.
 - Whether cameras need a dedicated network.
 - Final management access devices and recovery procedure.
+
+## Phase 11 Known-Good Checkpoint — 2026-08-20
+
+- Proxmox currently exposes 31 GiB usable memory from two installed 16 GB SK hynix ECC RDIMMs in DIMM1 and DIMM3, configured at 1866 MT/s. The completed 24 GB two-pass `memtester` run reported no errors. The remaining RAM and E5-2698 v4 maintenance stage is pending.
+- Production management endpoints are Arista `192.168.50.2`, Proxmox `192.168.50.10`, UniFi controller `192.168.50.21`, UniFi switch `192.168.50.30`, Hall AP `192.168.50.31` and Office AP `192.168.50.141`.
+- Server endpoints include Frigate `192.168.20.10`, Home Assistant `192.168.20.11`, Docker and primary Pi-hole `192.168.20.20`, TrueNAS and secondary Pi-hole `192.168.20.40`, primary Synology `192.168.20.41` and Backup Synology `192.168.20.42`.
+- Hermes LXC 104 at `192.168.70.10` and Ollama VM 105 at `192.168.70.11` remain isolated Lab VLAN 70 pilots. Both are included in Proxmox guest backups, mirrored to the Backup Synology and have passed isolated restore validation. Encrypted off-site selection remains pending.
+- Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf, Sonarr, Radarr, Lidarr and Prowlarr were directly reachable during reconciliation.
+- No temporary VM/LXC guests remain. Former addresses and VM 903 references retained in the repository are explicitly historical migration or restore-test evidence.
+- HomeLab Doctor completed with 44 passes, no warnings and no failures. Configuration drift was clear, six operational TLS certificates were healthy, Git was clean and the daily failure-only reporting LaunchAgent had a successful exit status.

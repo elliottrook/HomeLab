@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-19
+> Last Updated: 2026-08-20
 >
 > **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
 
@@ -8,13 +8,13 @@
 
 # Current Release
 
-Version 1.6.0
+Version 1.7.0
 
 Current Focus:
-🔵 Make the new Hermes/Ollama Lab pilot recoverable, complete the remaining Proxmox CPU/RAM maintenance, then continue the audited Phase 9 management-migration sequence
+🟢 Operate the consolidated production HomeLab while keeping surveillance expansion, hardware upgrades and local AI as explicit follow-up work.
 
 Project Status:
-🚧 Active — complete the defined programme before accepting elective new work
+✅ Consolidated — release v1.7.0; the original project scope lock is lifted. Elective work should enter a new roadmap rather than extending the completed project.
 
 ---
 
@@ -235,7 +235,7 @@ Hardware Acceleration and Expansion
 - [x] Confirm Quadro K620 capabilities and current driver compatibility
 - [x] Compare those capabilities with Frigate's current HEVC 5120x1552 stream
 - [x] Decide whether K620 passthrough is worth the complexity — rejected; remove the unused card during the RAM upgrade
-- [ ] Complete the planned Proxmox RAM upgrade if still required
+- [ ] Complete the planned Proxmox RAM upgrade if still required — the validated first stage currently provides 32 GB from two 16 GB ECC RDIMMs at 1866 MT/s; the remaining RAM and E5-2698 v4 installation are still pending
 - [x] Create recovery checkpoints before passthrough or driver changes
 - [x] Select the Frigate upgrade path — Coral M.2 TPU for object detection, with the purchased E5-2698 v4 CPU and remaining RAM pending; remove the K620 during the next hardware-maintenance window
 - [x] Confirm Coral M.2 form-factor/adapter compatibility before installation — single Edge TPU `G650-04527-01`, M.2 2230 A+E key, PCIe Gen2 x1; compatible PCIe x1 E-key carrier selected
@@ -314,11 +314,11 @@ Home Assistant learning checkpoint: HACS is installed and authenticated without 
 
 # Phase 8 — Server VLAN 20 Migration
 
-Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
+Server workload migration completed 2026-08-16; related Management VLAN work completed 2026-08-20:
 
 - Frigate VM 102 and Home Assistant VM 103 already prove the VLAN 20 workload pattern, minimum-access firewall policy and rollback method.
 - Docker LXC 100 completed its controlled migration on 2026-08-15 from Trusted `192.168.1.20` to Servers `192.168.20.20`. Its Homepage, Portainer, primary Pi-hole, Tailscale and Beszel workloads returned healthy; local and cellular/Tailscale tests passed. A fresh verified backup and explicit rollback copies preceded the move.
-- Tailscale now advertises Trusted and Servers, with identity-specific access to both. A host-scoped rule permits only the subnet-router host to reach Trusted; the general Servers isolation rules remain in force.
+- Tailscale now advertises Trusted, Servers and Management, with identity-specific access to those approved routes. A host-scoped rule permits only the subnet-router host to reach Trusted; the general Servers isolation rules remain in force.
 - The main Synology migrated to `192.168.20.41` and the Backup Synology to `192.168.20.42`. Hyper Backup, SMB, Home Assistant backup storage and both restricted pull paths were validated after the moves.
 - TrueNAS migrated last to `192.168.20.40`. Its secondary Pi-hole and application endpoints passed, and Frigate's NFS dependency survived a complete client reboot with a healthy container and fresh recordings.
 - UniFi LXC 101 remains management infrastructure and belongs in Phase 9.
@@ -344,11 +344,11 @@ Intended server workloads reside on VLAN 20 with documented minimum-access rules
 
 Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
 
-- Planned addresses remain Arista `.50.2` and Proxmox `.50.10`. Deployed UniFi addresses are controller `.50.21`, PoE switch `.50.30`, Hall AP `.50.31` and Office AP `.50.141`.
+- Deployed addresses are Arista `.50.2`, Proxmox `.50.10`, UniFi controller `.50.21`, PoE switch `.50.30`, Hall AP `.50.31` and Office AP `.50.141`.
 - The `MGMT_ADMIN_HOSTS` alias contains Jason's Mac mini (`192.168.1.206`), Mac laptop (`192.168.1.241`) and iPhone (`192.168.1.112`). Other Trusted clients are explicitly blocked from Management.
 - Console recovery for OPNsense, Arista and Proxmox must be confirmed before the first address change.
-- UniFi LXC 101 and all three managed devices were migrated first. Proxmox remains next and Arista remains last. VLAN 10 stays available throughout validation.
-- The Proxmox-facing Arista trunk now carries tagged VLAN 50 and LXC 101 uses it in production. Tailscale currently advertises Trusted `192.168.1.0/24` and Servers `192.168.20.0/24`; Management remote access is a later explicit policy decision, not part of the local pilot.
+- UniFi LXC 101 and all three managed devices were migrated first, followed by Proxmox and Arista. VLAN 10 remains the trusted/native client network but no longer hosts these management interfaces.
+- The Proxmox-facing Arista trunk carries tagged VLAN 50 for the host and LXC 101. Tailscale advertises Trusted `192.168.1.0/24`, Servers `192.168.20.0/24` and Management `192.168.50.0/24`, with explicit identity-based access policy.
 
 - [x] Define which administrator devices may access Management
 - [x] Document emergency console and lockout recovery procedures
@@ -356,12 +356,14 @@ Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
 - [x] Create explicit Trusted-to-Management access rules
 - [x] Migrate one secondary management endpoint first
 - [x] Validate DNS, HTTPS, SSH, routing and rollback
-- [ ] Migrate core management interfaces individually
+- [x] Migrate core management interfaces individually
 - [x] Keep VLAN 10 available until the new management path is proven
-- [ ] Add Tailscale routing and policy only if remote management is required
+- [x] Add Tailscale routing and policy only if remote management is required
 - [x] Update inventories and recovery documentation for the completed UniFi migration
 
-**UniFi migration complete 2026-08-16.** LXC 101 moved to `192.168.50.21`; the PoE switch, Hall AP and Office AP moved to `192.168.50.30`, `.31` and `.141`. All three devices remained online after address changes. The controller's temporary Trusted interface, disposable VLAN test containers, legacy-device alias and temporary firewall exceptions were removed after validation. Phase 9 remains open for the separate Proxmox and Arista management migrations.
+**UniFi migration complete 2026-08-16.** LXC 101 moved to `192.168.50.21`; the PoE switch, Hall AP and Office AP moved to `192.168.50.30`, `.31` and `.141`. All three devices remained online after address changes. The controller's temporary Trusted interface, disposable VLAN test containers, legacy-device alias and temporary firewall exceptions were removed after validation. Proxmox subsequently moved to `192.168.50.10` and Arista moved to `192.168.50.2`; both retained tested local, routed and Tailscale access. The Arista cutover used a timed EOS configuration session, matching SSH host-key verification and automatic rollback protection before the old VLAN 10 address was removed.
+
+**Phase 9 complete 2026-08-20.** All intended infrastructure management interfaces reside on VLAN 50, approved administrator and remote-access paths are validated, and the previous management addresses have been removed.
 
 Completion Gate:
 Management interfaces are isolated on VLAN 50, reachable only from approved administrator devices, with a tested lockout-recovery path.
@@ -377,9 +379,12 @@ Deployed out of sequence on 2026-08-18 and 2026-08-19 as an isolated CPU-only pi
 - [x] Bind Ollama to TCP 11434 and connect Hermes through the OpenAI-compatible `/v1` API
 - [x] Create and validate `qwen3-64k:8b` with `num_ctx 65536`
 - [x] Confirm CPU-only operation and record the current performance limitation
-- [ ] Confirm LXC 104 and VM 105 are included in the all-guests Proxmox backup job
-- [ ] Confirm LXC 104 is mirrored to the Backup Synology and encrypted off-site backup
-- [ ] Decide whether VM 105 should be mirrored or recreated from documented configuration and model downloads
+- [x] Confirm LXC 104 and VM 105 are included in the all-guests Proxmox backup job
+- [x] Mirror LXC 104 to the Backup Synology and checksum-verify the copy
+- [ ] Add LXC 104 to the encrypted off-site backup selection
+- [x] Mirror VM 105 to the Backup Synology and checksum-verify the copy
+- [ ] Add VM 105 to the encrypted off-site backup selection
+- [x] Validate isolated restores of LXC 104 and VM 105 after the off-host mirror completes
 - [ ] Resolve aggregate Proxmox memory overcommit before sustained simultaneous guest load
 - [ ] Confirm the final installed RAM total and Frigate VM memory allocation after the next maintenance window
 - [ ] Remove unused Hermes cloud-provider authentication remnants
@@ -394,11 +399,17 @@ The pilot is isolated, reproducible, backed up according to its recovery priorit
 # Phase 10 — Automation
 
 - [x] Nightly Backups — automated configuration pulls, Proxmox guest archives, Home Assistant native backups and encrypted off-site protection are operational
-- [ ] Configuration Drift Detection
-- [ ] Automatic Reports
-- [ ] Certificate Monitoring
+- [x] Configuration Drift Detection — protected OPNsense, Arista and Proxmox manifests are compared with an explicitly accepted known-good baseline
+- [x] Automatic Reports
+- [x] Certificate Monitoring
 
 Audit completed 2026-08-14: keep this phase bounded. Use the existing `lab doctor` result as the basis for failure-only scheduled reporting, compare protected infrastructure exports with the prior known-good set for drift, and monitor certificate expiry only where expiry has an operational consequence. Do not build a second general monitoring platform here.
+
+Completion Gate:
+
+Automated backups, configuration-drift detection, failure-only health reporting and operationally relevant certificate-expiry monitoring are active and verified without creating a second general monitoring platform.
+
+**Phase 10 complete — 2026-08-20.**
 
 ---
 
@@ -407,27 +418,37 @@ Audit completed 2026-08-14: keep this phase bounded. Use the existing `lab docto
 Documentation Reconciliation
 
 - [x] Update repository documentation for the secondary Pi-hole
-- [ ] Clarify which TrueNAS applications are already operational versus future work
-- [ ] Remove or annotate stale switch-port and historical planning references
-- [ ] Record the installed Proxmox RAM after any upgrade
-- [ ] Confirm the live inventory, addresses, VLANs and service locations
-- [ ] Record a fresh known-good stability checkpoint
-- [ ] Update the changelog and project release after reconciliation
+- [x] Clarify which TrueNAS applications are already operational versus future work
+- [x] Remove or annotate stale switch-port and historical planning references
+- [x] Record the installed Proxmox RAM after any upgrade
+- [x] Confirm the live inventory, addresses, VLANs and service locations
+- [x] Record a fresh known-good stability checkpoint
+- [x] Update the changelog and project release after reconciliation — published the reconciled work as consolidated release v1.7.0
 
 Final Review
 
-- [ ] Confirm every earlier phase completion gate
-- [ ] Resolve outdated roadmap entries
-- [ ] Review firewall aliases, rules and temporary exceptions
-- [ ] Remove unused test configurations after confirming they are no longer needed
-- [ ] Confirm monitoring, backup and restore coverage for every critical service
-- [ ] Review architecture decisions and document remaining accepted risks
-- [ ] Publish an updated network diagram and current-state baseline
-- [ ] Update the changelog and tag a consolidated release
-- [ ] Review whether the scope lock can be lifted
+- [x] Confirm every earlier phase completion gate — production Phases 1–5 and 7–10 were reconciled as complete; Phase 6 surveillance and the local-AI work remain deliberately bounded pilots and have been carried forward rather than misrepresented as completed production work
+- [x] Resolve outdated roadmap entries
+- [x] Review firewall aliases, rules and temporary exceptions — removed the obsolete Beszel rule and empty `UNIFI_LEGACY_DEVICES` alias; retained only documented production dependencies
+- [x] Remove unused test configurations after confirming they are no longer needed
+- [x] Confirm monitoring, backup and restore coverage for every critical service — reconciled live monitoring, six current Proxmox guest archives, verified Synology mirrors and representative application/LXC/VM restore evidence on 2026-08-20
+- [x] Review architecture decisions and document remaining accepted risks — recorded the current authority boundaries, segmentation model, recovery strategy and explicitly accepted availability, capacity, certificate, IPv6 and AI-pilot risks
+- [x] Publish an updated network diagram and current-state baseline — reconciled the routed VLAN topology, management migrations, current service locations, remote-access routes and 2026-08-20 stability checkpoint
+- [x] Update the changelog and tag a consolidated release — release documentation prepared and validated for annotated tag v1.7.0
+- [x] Review whether the scope lock can be lifted — the original consolidation scope lock is lifted; new elective work requires a separately reviewed roadmap
+
+## Earlier phase completion-gate audit — 2026-08-20
+
+- Production Phases 1–5 and 7–10 have satisfied their current completion gates.
+- Phase 6 is intentionally classified as **pilot operational**. The Coral TPU is installed and working, but camera expansion, final capacity decisions and planned hardware upgrades remain future surveillance work.
+- The local-AI environment remains an isolated pilot. Its remaining security, capacity, backup and hardware decisions are transferred to the next roadmap and are not production HomeLab dependencies.
+- The future Phase 4 lifecycle review and optional Phase 5 Prometheus/Grafana expansion are scheduled or deferred enhancements, not incomplete production requirements.
+- No unfinished pilot item is being relabelled as complete merely to close this project.
 
 Completion Gate:
 The handover, roadmap, baseline and live environment agree, and the environment is documented, monitored, recoverable, segmented and stable enough to consider a new roadmap.
+
+**Phase 11 complete — 2026-08-20.**
 
 ---
 
@@ -477,10 +498,12 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 ---
 
+# Operational Application Services
+
+Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-automation applications are operational and represented in the live Homepage inventory. They are not future deployment work.
+
 # Future Services
 
-- Jellyfin
-- Immich
 - Paperless-ngx
 - Wiki
 
@@ -496,11 +519,10 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 # Recommended Execution Order
 
-1. Confirm backup coverage and remove unsafe memory-overcommit risk for the Hermes/Ollama Lab pilot.
-2. Complete the staged RAM/CPU maintenance and remove the K620. The first 2 x 16 GB ECC RDIMM stage passed a two-loop 24 GB `memtester` validation; the remaining RAM and E5-2698 v4 installation are pending.
-3. Observe the Coral-backed Frigate detector against the software baseline and establish safe camera/storage capacity.
-4. Continue the remaining Proxmox and Arista Management VLAN 50 migrations only after local-console and trunk prerequisites pass.
-5. Complete the bounded drift, reporting and certificate automation work, then reconcile the final documentation and scope lock.
+1. Resolve Proxmox memory overcommit and complete the remaining CPU/RAM maintenance before sustained simultaneous Ollama and production-guest load.
+2. Continue observing Coral-backed Frigate stability and establish safe camera/storage capacity before adding cameras one at a time.
+3. Complete the remaining Hermes/Ollama off-site selection and credential-cleanup items without making the pilot a production dependency.
+4. Create and review a new roadmap before beginning additional elective platforms, services or infrastructure changes.
 
 ---
 
@@ -509,7 +531,7 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 | Date | Change | Evidence or Reference |
 |---|---|---|
 | 2026-08-19 | Deployed Hermes Agent LXC 104 and Ollama VM 105 on isolated Lab VLAN 70; connected Hermes to the local OpenAI-compatible Ollama endpoint and validated the `qwen3-64k:8b` 65,536-token profile. | Claude handoff changelog; live addresses `192.168.70.10` and `.11`; successful local-provider test |
-| 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow, backup coverage is unconfirmed and aggregate guest memory is overcommitted. | Claude handoff changelog and Proxmox allocation review |
+| 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow and aggregate guest memory is overcommitted. Same-site backup, mirror and isolated restore coverage was subsequently confirmed on 2026-08-20; encrypted off-site selection remains pending. | Claude handoff changelog and Proxmox allocation review |
 | 2026-08-16 | Installed and passed through the Coral Edge TPU to Frigate VM 102; disabled guest Secure Boot for the DKMS driver, mapped `/dev/apex_0` into the container and validated approximately 10 ms inference. | `lspci`; `gasket`/`apex`; Frigate detector log and stats |
 | 2026-08-16 | Completed the UniFi portion of Phase 9: moved LXC 101, the PoE switch and both APs to Management VLAN 50; validated approved-administrator access and device health; removed the temporary Trusted interface, test containers, alias and migration rules. | UniFi Network showed all three devices online at `192.168.50.30`, `.31` and `.141`; controller reachable at `.50.21` |
 | 2026-08-16 | Completed Phase 8 by migrating TrueNAS and both Synology systems to Servers VLAN 20; validated DNS, NFS recording flow after a Frigate reboot, SMB, Hyper Backup, Home Assistant backup storage and restricted backup-pull access. | HomeLab Doctor: 39 passed, 1 Git-state warning, 0 failed |
