@@ -383,6 +383,25 @@ Planning estimate: allow approximately 15–30 minutes for an offline LXC restor
 5. Validate local access before testing remote Tailscale access.
 6. Validate each backup after major configuration changes and before deleting the previous known-good copy.
 
+## Authentik and Nginx Proxy Manager
+
+Before changing Authentik forward auth or NPM proxy host #2, take a consistent
+NPM database backup and export the host's current API representation and
+`advanced_config`. Protect these artifacts as credentials may be present. Do
+not commit the SQLite database, API tokens, Cloudflare token or Authentik
+secrets to Git.
+
+Preserve Authentik's database and `/opt/authentik/compose.yml` using the
+application's supported backup procedure, recording the deployed Authentik
+version. A Proxmox guest backup is useful but does not replace an
+application-consistent database backup.
+
+After restoration, validate DNS through OPNsense and both Pi-holes, the
+wildcard certificate, NPM syntax, the unauthenticated Authentik redirect, the
+password/passkey flow and the final NPM login. See
+[the authorization runbook](08-Authorization.md) for the tested order and
+targeted rollback procedure.
+
 ## Critical-Service Recovery Coverage — 2026-08-20
 
 This matrix reconciles operational monitoring, same-site protection and tested

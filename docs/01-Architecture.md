@@ -103,6 +103,22 @@ DHCP clients -> Pi-hole Primary  192.168.20.20 --+
 
 Pi-hole is not a DHCP server. A floating OPNsense rule permits only TCP/UDP 53 from the routed client-VLAN alias to the Pi-hole server alias and is evaluated before the existing RFC1918 isolation blocks. Clients using encrypted or private DNS can bypass DHCP-provided resolvers; this rollout does not attempt broad DoH/DoT interception.
 
+## Authorization architecture
+
+Nginx Proxy Manager serves `proxy.elliottrook.com` at `192.168.50.23` using the
+Cloudflare DNS-01 wildcard certificate. OPNsense and both Pi-holes resolve the
+name internally to that private address. NPM proxy host #2 sends
+unauthenticated requests to the Authentik embedded outpost at
+`192.168.50.22:9000`.
+
+```text
+Client -> HTTPS NPM -> Authentik password + passkey -> NPM login -> NPM
+```
+
+The embedded outpost advertises `https://auth.elliottrook.com` as its Authentik
+host so browser-facing authentication and WebAuthn redirects retain a secure
+origin. See [the authorization runbook](08-Authorization.md).
+
 ## Home automation architecture
 
 Home Assistant OS 18.2 runs as Proxmox VM 103 at `192.168.20.11` on Servers VLAN 20. The VM has 2 vCPU, 4 GB RAM and a 32 GB system disk. OPNsense Dnsmasq reserves the address for MAC `BC:24:11:08:16:A3`, and local DNS publishes `home-assistant.home.internal`.

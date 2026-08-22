@@ -530,6 +530,7 @@ Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-au
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-22 | Documented the tested Authentik-protected NPM integration and a reusable service-by-service authorization onboarding process. | `docs/08-Authorization.md`; `docs/09-Service-Authorization-Onboarding.md` |
 | 2026-08-19 | Deployed Hermes Agent LXC 104 and Ollama VM 105 on isolated Lab VLAN 70; connected Hermes to the local OpenAI-compatible Ollama endpoint and validated the `qwen3-64k:8b` 65,536-token profile. | Claude handoff changelog; live addresses `192.168.70.10` and `.11`; successful local-provider test |
 | 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow and aggregate guest memory is overcommitted. Same-site backup, mirror and isolated restore coverage was subsequently confirmed on 2026-08-20; encrypted off-site selection remains pending. | Claude handoff changelog and Proxmox allocation review |
 | 2026-08-16 | Installed and passed through the Coral Edge TPU to Frigate VM 102; disabled guest Secure Boot for the DKMS driver, mapped `/dev/apex_0` into the container and validated approximately 10 ms inference. | `lspci`; `gasket`/`apex`; Frigate detector log and stats |

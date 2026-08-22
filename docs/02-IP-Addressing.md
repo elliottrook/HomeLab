@@ -60,3 +60,12 @@
 |---|---|---:|---|
 | Hermes Agent LXC 104 | `192.168.70.10` | host-dependent | CPU-only pilot |
 | Ollama VM 105 API | `http://192.168.70.11:11434/v1` | 11434/TCP | Lab-only pilot |
+
+## Authorization endpoints
+
+| Service | Address | Port | Status |
+|---|---|---:|---|
+| Nginx Proxy Manager | `https://proxy.elliottrook.com` / `192.168.50.23` | 443/TCP | Tested, Authentik protected |
+| NPM direct fallback | `http://192.168.50.23:81` | 81/TCP | Restricted administration |
+| Authentik embedded outpost | `http://192.168.50.22:9000` | 9000/TCP | Internal proxy destination |
+| Authentik external URL | `https://auth.elliottrook.com` | 443/TCP | Secure browser/WebAuthn origin |

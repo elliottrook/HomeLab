@@ -20,5 +20,6 @@ Enterprise-inspired home lab documentation for Project Mini Atlas.
 - Hyper Backup provides client-side-encrypted, versioned IDrive e2 off-site protection for essential recovery material; media and Frigate recordings are excluded.
 - `lab doctor` functionally monitors OPNsense, Arista, Proxmox guests including Home Assistant, Hermes and Ollama, TrueNAS, Frigate, both Pi-holes and backup-report freshness using persistent counter baselines where appropriate.
 - Beszel provides lightweight historical host/container metrics for Docker, Proxmox and Frigate, with a concise systems-up widget on Homepage.
+- Authentik forward auth protects Nginx Proxy Manager at `https://proxy.elliottrook.com`; password, passkey and NPM login are tested and working.
 
-Start with [the current network baseline](docs/Current-Network-Baseline.md), then see the [master plan](docs/Master-Plan.md), [surveillance runbook](docs/07-Surveillance.md) and [project roadmap](PROJECTS.md).
+Start with [the current network baseline](docs/Current-Network-Baseline.md), then see the [master plan](docs/Master-Plan.md), [authorization runbook](docs/08-Authorization.md), [service onboarding process](docs/09-Service-Authorization-Onboarding.md), [surveillance runbook](docs/07-Surveillance.md) and [project roadmap](PROJECTS.md).

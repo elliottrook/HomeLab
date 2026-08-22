@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-_No unreleased changes._
+### Added
+- Documented the tested Authentik forward-auth integration for Nginx Proxy Manager, including DNS, TLS, WebAuthn, NPM regeneration and rollback details.
+- Added a reusable native-OIDC, forward-auth and private-access onboarding process for current and planned services.
 
 ## v1.7.0
 

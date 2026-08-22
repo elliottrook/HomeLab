@@ -7,6 +7,15 @@ SSH shortcuts:
 - ssh truenas
 - ssh frigate
 
+## Authorization
+
+- Nginx Proxy Manager: `https://proxy.elliottrook.com`
+- Expected login chain: Authentik password, WebAuthn/passkey, then NPM credentials
+- State: tested and working on 2026-08-22
+- Direct fallback: `http://192.168.50.23:81` from trusted management networks
+- Detailed validation, regeneration and rollback procedure: [Authorization](08-Authorization.md)
+- Repeatable process for each additional service: [Service Authorization Onboarding](09-Service-Authorization-Onboarding.md)
+
 ## Service dashboard
 
 - LAN and Tailscale URL: `http://home.internal:3000`
