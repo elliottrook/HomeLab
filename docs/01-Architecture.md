@@ -7,12 +7,18 @@ OPNsense (routing, firewall, DHCP and Unbound DNS)
   |
 Arista core
   +-- Proxmox
-  |     +-- LXC 100: Docker, Homepage, Portainer, Pi-hole and Tailscale (Servers VLAN 20)
+  |     +-- LXC 100: Docker (Servers VLAN 20)
+  |     |     +-- Homepage dashboard
+  |     |     +-- Portainer
+  |     |     +-- Media services
+  |     |     +-- Utilities
   |     +-- LXC 101: UniFi OS Server
   |     +-- VM 102: Frigate (Servers VLAN 20)
   |     +-- VM 103: Home Assistant OS (Servers VLAN 20)
   |     +-- LXC 104: Hermes Agent (Lab VLAN 70)
-  |     +-- VM 105: Ollama (Lab VLAN 70)
+  |     +-- VM 105: Ollama / Hermes backend (Lab VLAN 70)
+  |     +-- LXC 106: Authentik
+  |     +-- LXC 107: Reverse Proxy
   +-- TrueNAS
   |     +-- NFS: Surveillance/Frigate recording storage
   +-- Synology storage

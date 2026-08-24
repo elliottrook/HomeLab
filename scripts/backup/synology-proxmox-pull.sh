@@ -67,6 +67,9 @@ if ! rsync -rlt \
   --include='vzdump-qemu-103-*.vma.zst' \
   --include='vzdump-lxc-104-*.tar.zst' \
   --include='vzdump-qemu-105-*.vma.zst' \
+  --include='vzdump-lxc-106-*.tar.zst' \
+  --include='vzdump-lxc-107-*.tar.zst' \
+  --include='vzdump-lxc-108-*.tar.zst' \
   --exclude='*' \
   -e "$ssh_command" \
   "$remote:/" \
@@ -92,6 +95,9 @@ if ! rsync -rltc \
   --include='vzdump-qemu-103-*.vma.zst' \
   --include='vzdump-lxc-104-*.tar.zst' \
   --include='vzdump-qemu-105-*.vma.zst' \
+  --include='vzdump-lxc-106-*.tar.zst' \
+  --include='vzdump-lxc-107-*.tar.zst' \
+  --include='vzdump-lxc-108-*.tar.zst' \
   --exclude='*' \
   -e "$ssh_command" \
   "$remote:/" \
