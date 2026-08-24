@@ -97,6 +97,7 @@ VLAN 1 will not carry ordinary production or management traffic after migration 
 | Arista core switch | 192.168.50.2 | 50 |
 | Proxmox management | 192.168.50.10 | 50 |
 | UniFi OS Server | 192.168.50.21 | 50 |
+| NUT server | 192.168.50.25 | 50 |
 | UniFi PoE switch | 192.168.50.30 | 50 |
 | UniFi Hall access point | 192.168.50.31 | 50 |
 | UniFi Office access point | 192.168.50.141 | 50 |

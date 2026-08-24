@@ -1,6 +1,6 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-20
+> Last Updated: 2026-08-23
 >
 > **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
 
@@ -57,6 +57,13 @@ Stability and Resilience
 - [x] OPNsense WAN RX descriptor tuning validated at 4096
 - [x] Post-change WAN load and packet-loss tests passed
 - [x] TrueNAS active-backup bond configured and failover/failback tested
+
+Open Reliability Follow-up
+
+- [ ] Replace the UniFi PoE switch after repeated failure to boot following power interruptions.
+- [ ] Select a stable managed PoE replacement supporting native VLAN 10 and tagged VLANs 30, 40, 50 and 60.
+- [ ] Validate AP management, IoT Wi-Fi, Guest Wi-Fi, camera isolation and Frigate recording after replacement.
+- [ ] Capture and back up the replacement switch configuration.
 
 ---
 
@@ -128,11 +135,22 @@ purged.
 - [x] Tailscale subnet access restricted to the administrator identity
 - [x] Remote web and SSH administration validated without inbound WAN ports
 - [x] Frigate dashboard and SSH launch links
+- [x] Code Server dashboard tile and live Homepage configuration workflow
+- [x] Authentik dashboard tile
 - [x] Repair key-based OPNsense SSH login used by the HomeLab toolkit and validate non-interactive access
 - [x] Add a dedicated SSH login key for the Frigate VM and validate the Homepage/toolkit launch path
 - [x] Device Status
 - [x] Backup Status
 - [x] Resource Monitoring
+
+Dashboard Follow-up Agenda — 2026-08-23
+
+- [ ] Add the reverse proxy to the Security & Operations dashboard group.
+- [ ] Add supported health widgets for OPNsense, Proxmox and TrueNAS; expand monitoring visibility where useful.
+- [ ] Create an AI & Automation group for Hermes Agent, Ollama and future AI services.
+- [ ] Rename `Surveillance` to `Security & Surveillance` and plan entries for BirdNET, camera tools and Coral TPU status.
+- [ ] Review the operations-tool grouping for Beszel, Authentik, Code Server, Dockge, Dozzle and the reverse proxy.
+- [ ] Document the transition from direct internal URLs to friendly HTTPS service names through the reverse proxy and Authentik.
 
 ---
 
@@ -530,6 +548,8 @@ Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-au
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-08-23 | Recorded the storm-related UniFi PoE switch boot failure, unsuccessful TP-Link TL-SG1016PE fallback, delayed UniFi recovery and decision to obtain a stable managed PoE replacement. | `docs/04-Operations.md` network incident |
+| 2026-08-22 | Validated code-server as the live Homepage configuration editor, corrected file permissions and service URLs, added Code Server and Authentik dashboard entries, and captured the current dashboard state. | `docs/04-Operations.md` activity log and dashboard screenshot |
 | 2026-08-22 | Documented the tested Authentik-protected NPM integration and a reusable service-by-service authorization onboarding process. | `docs/08-Authorization.md`; `docs/09-Service-Authorization-Onboarding.md` |
 | 2026-08-19 | Deployed Hermes Agent LXC 104 and Ollama VM 105 on isolated Lab VLAN 70; connected Hermes to the local OpenAI-compatible Ollama endpoint and validated the `qwen3-64k:8b` 65,536-token profile. | Claude handoff changelog; live addresses `192.168.70.10` and `.11`; successful local-provider test |
 | 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow and aggregate guest memory is overcommitted. Same-site backup, mirror and isolated restore coverage was subsequently confirmed on 2026-08-20; encrypted off-site selection remains pending. | Claude handoff changelog and Proxmox allocation review |

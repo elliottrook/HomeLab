@@ -36,6 +36,33 @@ Dashboard SSH targets:
 
 The client device must have an application registered to handle `ssh://` links. These links do not contain passwords or private keys.
 
+## Activity log — 2026-08-22
+
+The Homepage operations dashboard and its editing workflow were reviewed and validated.
+
+- Deployed and validated code-server in Docker LXC 100 as the HomeLab configuration editor.
+- Mounted `/opt/homepage` directly into the code-server workspace so the live Homepage files remain the source of truth, then corrected ownership so code-server can save the YAML configuration.
+- Added Code Server and Authentik tiles to Homepage.
+- Corrected internal service links that stalled over HTTPS, retained HTTPS where intentional and corrected a changed NAS application port.
+- Verified the dashboard groups and links across the current HomeLab service inventory.
+
+The dashboard now acts as an operational overview of the current HomeLab service layer.
+
+![Homepage dashboard on 2026-08-22](homepage-dashboard-2026-08-22.png)
+
+## Network incident — 2026-08-23
+
+A storm caused a site power interruption. The UniFi PoE switch did not return to service when power was restored, repeating its previous failure-to-boot behaviour.
+
+- Standard power-cycle and recovery attempts did not restore the UniFi switch.
+- A TP-Link TL-SG1016PE V2 was connected as a temporary PoE fallback, with its uplink on port 16, access points on ports 1 and 3, and the Reolink camera initially on port 2.
+- Arista Et33 remained connected and unchanged. It continued to learn downstream access-point and client MAC addresses and showed tagged traffic on VLANs 30, 40 and 50.
+- Because the TP-Link was not configured for VLANs, the camera appeared temporarily on Trusted VLAN 10 instead of Cameras VLAN 60. The camera was disconnected while switch management was investigated.
+- The TP-Link continued forwarding Ethernet and supplying PoE, but neither its web-management interface nor the Easy Smart discovery utility responded. Direct connection, alternate cables and ports, and a factory reset did not restore management access. The TP-Link was rejected as a manageable replacement.
+- After approximately one hour, the UniFi switch started without further intervention. The access points and other attached services reconnected.
+
+Service was restored, but the delayed recovery confirms that the UniFi PoE switch is not reliable after a power interruption. Return or replace it with a stable managed PoE switch that supports the existing native VLAN 10 and tagged VLANs 30, 40, 50 and 60. Before closing the incident, confirm that the Reolink camera is again on `192.168.60.10` and that Frigate recording has resumed.
+
 The Mac SSH client uses the same `~/.ssh/id_ed25519` identity for the documented aliases. OPNsense and Frigate accept its public key, while the private key remains on the Mac. `AddKeysToAgent yes` and `UseKeychain yes` allow macOS to retrieve the passphrase from Apple Keychain and load the identity into `ssh-agent`; FileVault and automatic screen locking remain important because an unlocked user session can use the loaded key.
 
 Validated commands:

@@ -7,6 +7,7 @@
 |Proxmox|192.168.50.10|
 |Docker|192.168.20.20|
 |UniFi Controller|192.168.50.21|
+|NUT Server|192.168.50.25|
 |UniFi PoE Switch|192.168.50.30|
 |UniFi Hall AP|192.168.50.31|
 |UniFi Office AP|192.168.50.141|

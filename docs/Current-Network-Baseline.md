@@ -103,6 +103,7 @@ Arista core — 192.168.50.2
   |     +-- Arista — 192.168.50.2
   |     +-- Proxmox — 192.168.50.10
   |     +-- UniFi controller — 192.168.50.21
+  |     +-- NUT server — 192.168.50.25
   |     +-- UniFi switch — 192.168.50.30
   |     +-- Hall AP — 192.168.50.31
   |     +-- Office AP — 192.168.50.141
@@ -131,6 +132,7 @@ homelab-gateway — 192.168.20.20
 | 192.168.50.10 | Proxmox | 6c:92:bf:27:89:a3 | Et4 |
 | 192.168.20.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router / Beszel | bc:24:11:43:71:67 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.50.21 | UniFi controller LXC 101 | bc:24:11:b6:de:53 | Et4 via Proxmox, tagged VLAN 50 |
+| 192.168.50.25 | NUT server | Not yet recorded | Et31, management VLAN 50 |
 | 192.168.50.30 | UniFi PoE switch | 74:f9:2c:28:38:a6 | Et33, management VLAN 50 |
 | 192.168.50.31 | UniFi Hall AP | 90:41:b2:ce:76:10 | UniFi PoE switch, management VLAN 50 |
 | 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | UniFi PoE switch, management VLAN 50 |
