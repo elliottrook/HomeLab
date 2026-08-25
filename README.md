@@ -21,5 +21,7 @@ Enterprise-inspired home lab documentation for Project Mini Atlas.
 - `lab doctor` functionally monitors OPNsense, Arista, Proxmox guests including Home Assistant, Hermes and Ollama, TrueNAS, Frigate, both Pi-holes and backup-report freshness using persistent counter baselines where appropriate.
 - Beszel provides lightweight historical host/container metrics for Docker, Proxmox and Frigate, with a concise systems-up widget on Homepage.
 - Authentik forward auth protects Nginx Proxy Manager at `https://proxy.elliottrook.com`; password, passkey and NPM login are tested and working.
+- Forgejo LXC 108 at `192.168.20.30` is the primary self-hosted Git remote; GitHub remains the synchronized off-site remote.
+- The independent NUT utility server uses `192.168.50.25` on Management VLAN 50 and connects directly to Arista Et31.
 
 Start with [the current network baseline](docs/Current-Network-Baseline.md), then see the [master plan](docs/Master-Plan.md), [authorization runbook](docs/08-Authorization.md), [service onboarding process](docs/09-Service-Authorization-Onboarding.md), [surveillance runbook](docs/07-Surveillance.md) and [project roadmap](PROJECTS.md).

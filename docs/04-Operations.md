@@ -22,7 +22,15 @@ SSH shortcuts:
 - Direct fallback: `http://192.168.20.20:3000`
 - Homepage configuration: `/opt/homepage/config` inside Proxmox LXC 100 (`docker`)
 - The `SSH Access` group launches the local SSH client for Proxmox, Docker LXC, OPNsense and TrueNAS.
-- The `Surveillance` group links to Frigate and launches its SSH connection.
+- `Security & Operations` groups Beszel, Code Server, Authentik, Dockge, Dozzle and Nginx Proxy Manager.
+- `AI & Automation` identifies the isolated Hermes and Ollama pilots without publishing inaccessible direct links.
+- `Application Management` contains File Browser and Forgejo.
+- `Security & Surveillance` links to Frigate and launches its SSH connection.
+
+Optional OPNsense, Proxmox and TrueNAS API widgets are intentionally deferred to
+a separately scoped dashboard enhancement. Deploy them only with dedicated
+least-privilege read-only credentials; never place reusable API secrets directly
+in the tracked Homepage YAML.
 
 Dashboard SSH targets:
 

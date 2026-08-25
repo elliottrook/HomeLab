@@ -40,7 +40,7 @@ Configuration recovery sets are pulled daily at 21:00 from the Mac source `~/lab
 - `synology-pull-last-success.txt`
 - `logs/synology-pull-latest.log`
 
-Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The filtered mirror includes LXC 100, LXC 101, QEMU 102, QEMU 103, LXC 104 and QEMU 105 backup archives. The expanded mirror completed successfully on 2026-08-20, including an empty checksum-mode comparison. A checksum-mode dry run must be empty before success is recorded in:
+Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The filtered mirror includes LXC 100, LXC 101, QEMU 102, QEMU 103, LXC 104, QEMU 105 and LXCs 106–108. The expanded mirror completed successfully after adding Authentik, the reverse proxy and Forgejo. A checksum-mode dry run must be empty before success is recorded in:
 
 - `proxmox-pull-latest.status`
 - `proxmox-pull-last-success.txt`
@@ -48,8 +48,8 @@ Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup
 
 The canonical replacement body for the DSM scheduled task is tracked as
 `scripts/backup/synology-proxmox-pull.sh`. It includes matching copy and
-verification filters for all six protected guests and was deployed to the DSM
-task before the successful 2026-08-20 run.
+verification filters for all nine protected guests and was deployed to the DSM
+task before the successful 2026-08-24 validation.
 
 Both production tasks write `0` only after copy and verification succeed. On failure they invoke the Mac over the existing restricted SSH path, where `scripts/backup-alert` uses Apple Mail to send an actionable email. Successful runs deliberately send no email. The manual `lab backup synology-copy [--dry-run]` command remains available as an operator-controlled fallback; it is not part of `lab backup all` and is not the unattended production path.
 
@@ -228,13 +228,14 @@ restores were then validated: Hermes booted with its dashboard and gateway
 processes active, and Ollama reached its Debian login prompt with networking
 disabled. LXC 104 has the higher restore priority because it contains the agent
 configuration and provider setup, while VM 105 contains the tested Ollama
-service and custom model profile. Both still require addition to the encrypted
-off-site selection.
+service and custom model profile. Because Hyper Backup selects the complete
+`automated/proxmox-guests` tree, both mirrored archive sets are included in the
+encrypted off-site backup without separate per-guest selection.
 
 Do not commit Hermes tokens, OAuth/provider state, Ollama chat data or any model
 configuration containing credentials. Local backup coverage is confirmed;
 the Backup Synology mirror and isolated restore validation are confirmed as of
-2026-08-20, while encrypted off-site selection remains open.
+2026-08-20, and the mirrored archives are covered by the encrypted off-site task.
 
 ## Proxmox guest backups
 
@@ -424,6 +425,9 @@ configuration is separately documented or exported.
 | Backup Synology | Doctor checks DSM and the freshness/status of both automated pull jobs | Stores checksum-verified configuration and Proxmox mirrors; essential recovery material is independently protected in IDrive e2 | Recovery sets and restricted pull paths were validated; loss of the appliance requires rebuilding the pull tasks from documented configuration |
 | Hermes LXC 104 | Doctor checks guest/service health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Isolated restore as LXC 972 booted with Hermes services running |
 | Ollama VM 105 | Doctor checks guest state according to its intended operating mode | Current VM archive retained locally and checksum-mirrored to the Backup Synology | Isolated restore as VM 973 reached its login prompt successfully |
+| Authentik LXC 106 | Doctor checks service reachability through the configured endpoint | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; Authentik configuration is documented separately |
+| Reverse Proxy LXC 107 | Doctor checks NPM service reachability and TLS dependencies | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; proxy and Authentik recovery order is documented |
+| Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
 | Reolink camera | Doctor tests HTTP, RTSP and ONVIF reachability; Frigate proves recording flow | No recording archive is required; Frigate configuration preserves the integration settings | Camera replacement or reset is a documented reconfiguration task rather than a backup restore |
 
 ### Accepted recovery boundaries
@@ -434,8 +438,8 @@ configuration is separately documented or exported.
   evidence.
 - Media libraries and Frigate recordings are intentionally excluded from
   encrypted off-site protection because their size exceeds their recovery value.
-- Hermes LXC 104 and Ollama VM 105 have verified same-site/off-host archives and
-  isolated restore tests; adding them to the encrypted off-site selection remains
-  an explicit AI-pilot follow-up rather than a Phase 11 production dependency.
+- Hermes LXC 104 and Ollama VM 105 have verified same-site/off-host archives,
+  isolated restore tests and encrypted off-site protection through the selected
+  `automated/proxmox-guests` tree.
 - The Backup Synology is a recovery repository, not the only copy of essential
   configuration or guest data.

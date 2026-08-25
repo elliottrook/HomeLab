@@ -18,6 +18,9 @@
 |Home Assistant OS VM 103|192.168.20.11|
 |Hermes Agent LXC 104|192.168.70.10|
 |Ollama VM 105|192.168.70.11|
+|Authentik LXC 106|192.168.50.22|
+|Reverse Proxy LXC 107|192.168.50.23|
+|Forgejo LXC 108|192.168.20.30|
 |Reolink Duo 2V PoE|192.168.60.10|
 
 ## Shared service endpoints on Docker LXC 100
@@ -70,3 +73,10 @@
 | NPM direct fallback | `http://192.168.50.23:81` | 81/TCP | Restricted administration |
 | Authentik embedded outpost | `http://192.168.50.22:9000` | 9000/TCP | Internal proxy destination |
 | Authentik external URL | `https://auth.elliottrook.com` | 443/TCP | Secure browser/WebAuthn origin |
+
+## Source-control endpoint
+
+| Service | Address | Port | Status |
+|---|---|---:|---|
+| Forgejo | `http://192.168.20.30:3000` | 3000/TCP | Production; primary Git remote |
+| Forgejo SSH | `git@192.168.20.30` | 22/TCP | Production clone/push path |

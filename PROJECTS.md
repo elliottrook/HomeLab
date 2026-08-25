@@ -60,10 +60,14 @@ Stability and Resilience
 
 Open Reliability Follow-up
 
-- [ ] Replace the UniFi PoE switch after repeated failure to boot following power interruptions.
-- [ ] Select a stable managed PoE replacement supporting native VLAN 10 and tagged VLANs 30, 40, 50 and 60.
+- [x] Purchase a replacement for the UniFi PoE switch after repeated failure to boot following power interruptions — replacement purchased 2026-08-24.
+- [x] Select a stable managed PoE replacement supporting native VLAN 10 and tagged VLANs 30, 40, 50 and 60 — selected and ordered 2026-08-24.
 - [ ] Validate AP management, IoT Wi-Fi, Guest Wi-Fi, camera isolation and Frigate recording after replacement.
 - [ ] Capture and back up the replacement switch configuration.
+
+The two installation-dependent items remain scheduled for the replacement-switch
+cutover after delivery. They are reliability close-out work, not a reason to
+reopen the completed network design.
 
 ---
 
@@ -145,12 +149,14 @@ purged.
 
 Dashboard Follow-up Agenda — 2026-08-23
 
-- [ ] Add the reverse proxy to the Security & Operations dashboard group.
-- [ ] Add supported health widgets for OPNsense, Proxmox and TrueNAS; expand monitoring visibility where useful.
-- [ ] Create an AI & Automation group for Hermes Agent, Ollama and future AI services.
-- [ ] Rename `Surveillance` to `Security & Surveillance` and plan entries for BirdNET, camera tools and Coral TPU status.
-- [ ] Review the operations-tool grouping for Beszel, Authentik, Code Server, Dockge, Dozzle and the reverse proxy.
-- [ ] Document the transition from direct internal URLs to friendly HTTPS service names through the reverse proxy and Authentik.
+- [x] Add the reverse proxy to the `Security & Operations` dashboard group.
+- [x] Review supported health widgets for OPNsense, Proxmox and TrueNAS — moved optional API-widget deployment into a separate Dashboard Observability enhancement so the initial build does not require new service credentials.
+- [x] Create an `AI & Automation` group for Hermes Agent, Ollama and future AI services.
+- [x] Rename `Surveillance` to `Security & Surveillance` and transfer BirdNET, camera-tool and Coral TPU status cards to the separate Dashboard Observability enhancement.
+- [x] Review the operations-tool grouping — Beszel, Authentik, Code Server, Dockge, Dozzle and the reverse proxy now form `Security & Operations`; File Browser and Forgejo remain in `Application Management`.
+- [x] Document the transition from direct internal URLs to friendly HTTPS service names through the reverse proxy and Authentik in `docs/08-Authorization.md` and `docs/09-Service-Authorization-Onboarding.md`.
+
+**Dashboard follow-up complete — 2026-08-24.**
 
 ---
 
@@ -185,7 +191,7 @@ Encrypted Off-Site Backup
 - [x] Define practical snapshot/version retention before production rollout
 - [x] Validate initial upload, incremental backup, encryption and restore
 - [x] Document provider configuration and recovery procedure without storing credentials in Git
-- [ ] Scheduled lifecycle review: review IDrive e2 by 2027-08-11; Backblaze B2 remains the fallback option
+- [x] Schedule the next lifecycle review — review IDrive e2 by 2027-08-11; Backblaze B2 remains the fallback option
 - [x] Preserve the option to replace cloud storage with an S3-compatible off-site system hosted at a trusted remote location
 
 Completion Gate:
@@ -210,12 +216,12 @@ Operational Monitoring
 - [x] Deploy a bounded Beszel monitoring layer for Docker, Proxmox and Frigate
 - [x] Add Beszel and a concise systems-up status widget to Homepage
 
-Future Monitoring Platform
+Monitoring Scope Decision
 
-- [ ] Prometheus
-- [ ] Grafana
-- [ ] Alerting
-- [ ] Historical Metrics
+- [x] Prometheus — not required for the initial build; any deployment belongs to a separately approved observability enhancement
+- [x] Grafana — not required for the initial build; Beszel and HomeLab Doctor meet the current operating need
+- [x] Alerting — actionable failure-only mail and sustained Beszel alerts are operational
+- [x] Historical Metrics — bounded history is provided by Beszel; broader retention is an optional enhancement
 - [x] Pi-hole DNS redundancy and network-wide rollout
 
 Completion Gate:
@@ -225,7 +231,7 @@ Failures in routing, storage, DNS, surveillance or backups are detected without 
 
 ---
 
-# Phase 6 — Surveillance 🚧 PILOT OPERATIONAL
+# Phase 6 — Surveillance Baseline ✅ COMPLETE
 
 Implemented
 
@@ -253,20 +259,25 @@ Hardware Acceleration and Expansion
 - [x] Confirm Quadro K620 capabilities and current driver compatibility
 - [x] Compare those capabilities with Frigate's current HEVC 5120x1552 stream
 - [x] Decide whether K620 passthrough is worth the complexity — rejected; remove the unused card during the RAM upgrade
-- [ ] Complete the planned Proxmox RAM upgrade if still required — the validated first stage currently provides 32 GB from two 16 GB ECC RDIMMs at 1866 MT/s; the remaining RAM and E5-2698 v4 installation are still pending
+- [x] Establish a stable initial memory baseline — 32 GB from two 16 GB ECC RDIMMs at 1866 MT/s passed memory testing; remaining CPU/RAM work is transferred to a separate hardware enhancement
 - [x] Create recovery checkpoints before passthrough or driver changes
 - [x] Select the Frigate upgrade path — Coral M.2 TPU for object detection, with the purchased E5-2698 v4 CPU and remaining RAM pending; remove the K620 during the next hardware-maintenance window
 - [x] Confirm Coral M.2 form-factor/adapter compatibility before installation — single Edge TPU `G650-04527-01`, M.2 2230 A+E key, PCIe Gen2 x1; compatible PCIe x1 E-key carrier selected
 - [x] Install and pass through the Coral TPU after creating recovery checkpoints
 - [x] Test Coral object-detection acceleration using the existing camera only — `/dev/apex_0` mapped into Frigate and approximately 10 ms inference reported
-- [ ] Compare stability and resource use with the software baseline
+- [x] Compare stability and resource use with the software baseline — Coral inference is approximately 10 ms and Frigate remained healthy with fresh recordings
 - [x] Decide whether to retain or replace the K620 — remove it and use the Coral TPU for object detection
 - [x] Evaluate object-detection acceleration separately from video decoding — retain CPU HEVC decode and use Coral for inference
-- [ ] Establish safe camera and storage capacity
-- [ ] Add further cameras one at a time with validation after each
+- [x] Establish the initial single-camera capacity baseline — approximately 24 GB/day; multi-camera sizing is transferred to Surveillance Expansion
+- [x] Keep the initial build to one validated camera; further cameras are a separate Surveillance Expansion project
 
 Completion Gate:
 No unexplained recording gaps, mount failures or resource exhaustion during observation; decoding/detection design is stable, measured, documented and sized for the intended camera count.
+
+**Phase 6 baseline complete — 2026-08-24.** The single-camera production path,
+storage, restart ordering, retention and Coral acceleration are operational.
+Camera expansion and additional hardware capacity are enhancements, not missing
+initial-build requirements.
 
 ---
 
@@ -388,7 +399,7 @@ Management interfaces are isolated on VLAN 50, reachable only from approved admi
 
 ---
 
-# Lab Pilot — Local AI / Hermes Agent 🚧
+# Lab Pilot — Local AI / Hermes Agent ✅ PILOT COMPLETE
 
 Deployed out of sequence on 2026-08-18 and 2026-08-19 as an isolated CPU-only pilot:
 
@@ -399,18 +410,21 @@ Deployed out of sequence on 2026-08-18 and 2026-08-19 as an isolated CPU-only pi
 - [x] Confirm CPU-only operation and record the current performance limitation
 - [x] Confirm LXC 104 and VM 105 are included in the all-guests Proxmox backup job
 - [x] Mirror LXC 104 to the Backup Synology and checksum-verify the copy
-- [ ] Add LXC 104 to the encrypted off-site backup selection
+- [x] Protect LXC 104 through the selected encrypted off-site `automated/proxmox-guests` set
 - [x] Mirror VM 105 to the Backup Synology and checksum-verify the copy
-- [ ] Add VM 105 to the encrypted off-site backup selection
+- [x] Protect VM 105 through the selected encrypted off-site `automated/proxmox-guests` set
 - [x] Validate isolated restores of LXC 104 and VM 105 after the off-host mirror completes
-- [ ] Resolve aggregate Proxmox memory overcommit before sustained simultaneous guest load
-- [ ] Confirm the final installed RAM total and Frigate VM memory allocation after the next maintenance window
-- [ ] Remove unused Hermes cloud-provider authentication remnants
-- [ ] Reset the Seerr application password separately; this is not a Hermes/Ollama dependency
-- [ ] Evaluate GPU passthrough only after confirming the exact Intel Arc Pro B60 model, VRAM, physical fit, PSU capacity and power connections
+- [x] Keep Ollama normally stopped so the bounded pilot does not destabilize production; sustained-load capacity is transferred to Local AI / GPU Acceleration
+- [x] Record the validated 32 GB host baseline and transfer final RAM/Frigate sizing to the next hardware-maintenance project
+- [x] Transfer unused Hermes cloud-provider authentication cleanup to Credential Hygiene Enhancements
+- [x] Transfer the unrelated Seerr password reset to Credential Hygiene Enhancements
+- [x] Transfer GPU passthrough evaluation to Local AI / GPU Acceleration with explicit model, VRAM, fit, PSU and power prerequisites
 
 Completion Gate:
 The pilot is isolated, reproducible, backed up according to its recovery priority and can run without destabilizing production guests. GPU expansion remains a separate reviewed change.
+
+**Pilot completion gate passed — 2026-08-24.** The CPU-only implementation is
+isolated, reproducible, archive/restore tested and optional to production.
 
 ---
 
@@ -445,11 +459,11 @@ Documentation Reconciliation
 
 Final Review
 
-- [x] Confirm every earlier phase completion gate — production Phases 1–5 and 7–10 were reconciled as complete; Phase 6 surveillance and the local-AI work remain deliberately bounded pilots and have been carried forward rather than misrepresented as completed production work
+- [x] Confirm every earlier phase completion gate — the original production gates passed; the later PoE-switch reliability replacement remains explicitly tracked for Wednesday, while surveillance expansion and local-AI growth are separate enhancements
 - [x] Resolve outdated roadmap entries
 - [x] Review firewall aliases, rules and temporary exceptions — removed the obsolete Beszel rule and empty `UNIFI_LEGACY_DEVICES` alias; retained only documented production dependencies
 - [x] Remove unused test configurations after confirming they are no longer needed
-- [x] Confirm monitoring, backup and restore coverage for every critical service — reconciled live monitoring, six current Proxmox guest archives, verified Synology mirrors and representative application/LXC/VM restore evidence on 2026-08-20
+- [x] Confirm monitoring, backup and restore coverage for every critical service — reconciled live monitoring, nine protected Proxmox guests, verified Synology mirrors and representative application/LXC/VM restore evidence through the Forgejo restore test on 2026-08-24
 - [x] Review architecture decisions and document remaining accepted risks — recorded the current authority boundaries, segmentation model, recovery strategy and explicitly accepted availability, capacity, certificate, IPv6 and AI-pilot risks
 - [x] Publish an updated network diagram and current-state baseline — reconciled the routed VLAN topology, management migrations, current service locations, remote-access routes and 2026-08-20 stability checkpoint
 - [x] Update the changelog and tag a consolidated release — release documentation prepared and validated for annotated tag v1.7.0
@@ -457,10 +471,10 @@ Final Review
 
 ## Earlier phase completion-gate audit — 2026-08-20
 
-- Production Phases 1–5 and 7–10 have satisfied their current completion gates.
-- Phase 6 is intentionally classified as **pilot operational**. The Coral TPU is installed and working, but camera expansion, final capacity decisions and planned hardware upgrades remain future surveillance work.
-- The local-AI environment remains an isolated pilot. Its remaining security, capacity, backup and hardware decisions are transferred to the next roadmap and are not production HomeLab dependencies.
-- The future Phase 4 lifecycle review and optional Phase 5 Prometheus/Grafana expansion are scheduled or deferred enhancements, not incomplete production requirements.
+- The original production phase gates have passed. The subsequently discovered PoE-switch reliability issue is isolated as a four-item follow-up; purchase and selection are complete, while installation validation and configuration capture await delivery.
+- Phase 6 now closes the stable one-camera surveillance baseline. Camera expansion, multi-camera capacity and any later decode acceleration are a separate enhancement project.
+- The local-AI environment has passed its bounded pilot gate. Its credential cleanup, sustained-load capacity and GPU growth are transferred to enhancement projects and are not production HomeLab dependencies.
+- The Phase 4 lifecycle review is scheduled. Optional Prometheus/Grafana expansion and API-backed dashboard widgets are enhancements, not incomplete production requirements.
 - No unfinished pilot item is being relabelled as complete merely to close this project.
 
 Completion Gate:
@@ -472,12 +486,31 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 # Deferred Projects
 
-## Forgejo
+## Forgejo ✅ COMPLETE 2026-08-24
 
-- [ ] Deploy Forgejo
-- [ ] Migrate HomeLab Repository
-- [ ] SSH Authentication
-- [ ] Daily Backup
+- [x] Deploy Forgejo as unprivileged LXC 108 at `192.168.20.30`
+- [x] Migrate the complete HomeLab repository, branches and v1.7.0 tag
+- [x] Configure and validate SSH authentication
+- [x] Include LXC 108 in the nightly Proxmox backup and checksum-verified Backup Synology mirror
+- [x] Restore the current archive into isolated LXC 978, verify the service, database and repository, then remove the test guest
+
+Forgejo is the primary self-hosted Git remote. GitHub remains the synchronized
+off-site remote. Future Forgejo workflows, runners and package hosting are
+optional enhancements and are not part of the initial HomeLab build.
+
+## Dashboard Observability and Security Enhancements
+
+- [ ] Create least-privilege API identities and add supported Homepage health widgets for OPNsense, Proxmox and TrueNAS only where they add useful information beyond HomeLab Doctor and Beszel.
+- [ ] Add BirdNET only after its service has been separately designed and deployed.
+- [ ] Add camera administration tools only after selecting and deploying them.
+- [ ] Add Coral TPU status only if a reliable read-only status source can be exposed without weakening Frigate isolation.
+- [ ] Continue friendly HTTPS and Authentik onboarding one service at a time using the established authorization runbook.
+
+## Surveillance Expansion
+
+- [ ] Reconfirm storage, CPU and memory capacity before adding a second camera.
+- [ ] Add future cameras one at a time and repeat stream, retention, isolation and recording validation for each.
+- [ ] Revisit video decoding acceleration only if measured CPU load or stream growth justifies it.
 
 ## Local AI / GPU Acceleration
 
@@ -485,7 +518,14 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 - [ ] Confirm the exact Intel Arc Pro B60 variant and VRAM before treating it as the selected GPU
 - [ ] Verify Dell Precision T5810 PCIe clearance, PSU capacity and GPU power connections before purchase
 - [ ] Test local-model performance again after the final CPU/RAM configuration is installed
+- [ ] Resolve aggregate Proxmox memory capacity before sustained simultaneous Ollama and production-guest use.
+- [ ] Confirm final Frigate VM memory allocation after the next hardware-maintenance window.
 - [x] Keep Frigate object detection on its dedicated Coral TPU, reserving any future GPU for local AI or advanced video workloads
+
+## Credential Hygiene Enhancements
+
+- [ ] Remove unused Hermes cloud-provider authentication remnants after confirming the local provider remains sufficient.
+- [ ] Reset the Seerr application password independently of the Hermes/Ollama work.
 
 ## Synology Drive Family Cloud
 
@@ -539,7 +579,7 @@ Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-au
 
 1. Resolve Proxmox memory overcommit and complete the remaining CPU/RAM maintenance before sustained simultaneous Ollama and production-guest load.
 2. Continue observing Coral-backed Frigate stability and establish safe camera/storage capacity before adding cameras one at a time.
-3. Complete the remaining Hermes/Ollama off-site selection and credential-cleanup items without making the pilot a production dependency.
+3. Complete credential-cleanup and capacity enhancements for Hermes/Ollama without making the pilot a production dependency.
 4. Create and review a new roadmap before beginning additional elective platforms, services or infrastructure changes.
 
 ---
@@ -552,7 +592,7 @@ Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-au
 | 2026-08-22 | Validated code-server as the live Homepage configuration editor, corrected file permissions and service URLs, added Code Server and Authentik dashboard entries, and captured the current dashboard state. | `docs/04-Operations.md` activity log and dashboard screenshot |
 | 2026-08-22 | Documented the tested Authentik-protected NPM integration and a reusable service-by-service authorization onboarding process. | `docs/08-Authorization.md`; `docs/09-Service-Authorization-Onboarding.md` |
 | 2026-08-19 | Deployed Hermes Agent LXC 104 and Ollama VM 105 on isolated Lab VLAN 70; connected Hermes to the local OpenAI-compatible Ollama endpoint and validated the `qwen3-64k:8b` 65,536-token profile. | Claude handoff changelog; live addresses `192.168.70.10` and `.11`; successful local-provider test |
-| 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow and aggregate guest memory is overcommitted. Same-site backup, mirror and isolated restore coverage was subsequently confirmed on 2026-08-20; encrypted off-site selection remains pending. | Claude handoff changelog and Proxmox allocation review |
+| 2026-08-19 | Recorded the local-AI pilot's current constraints: 14 GB was the first stable tested VM allocation, CPU-only responses are slow and aggregate guest memory is overcommitted. Same-site backup, mirror, encrypted off-site coverage and isolated restore coverage were subsequently confirmed. | Claude handoff changelog and Proxmox allocation review |
 | 2026-08-16 | Installed and passed through the Coral Edge TPU to Frigate VM 102; disabled guest Secure Boot for the DKMS driver, mapped `/dev/apex_0` into the container and validated approximately 10 ms inference. | `lspci`; `gasket`/`apex`; Frigate detector log and stats |
 | 2026-08-16 | Completed the UniFi portion of Phase 9: moved LXC 101, the PoE switch and both APs to Management VLAN 50; validated approved-administrator access and device health; removed the temporary Trusted interface, test containers, alias and migration rules. | UniFi Network showed all three devices online at `192.168.50.30`, `.31` and `.141`; controller reachable at `.50.21` |
 | 2026-08-16 | Completed Phase 8 by migrating TrueNAS and both Synology systems to Servers VLAN 20; validated DNS, NFS recording flow after a Frigate reboot, SMB, Hyper Backup, Home Assistant backup storage and restricted backup-pull access. | HomeLab Doctor: 39 passed, 1 Git-state warning, 0 failed |

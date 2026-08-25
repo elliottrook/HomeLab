@@ -7,9 +7,14 @@
 - Added a reusable native-OIDC, forward-auth and private-access onboarding process for current and planned services.
 - Added the current Homepage dashboard milestone, code-server editing workflow and dashboard follow-up agenda.
 - Recorded the NUT server at `192.168.50.25` on Arista Et31.
+- Recorded the NUT server MAC `00:23:24:55:b1:1a` and confirmed it is directly connected to Arista Et31, independent of the UniFi PoE-switch uplink on Et33.
+- Deployed Forgejo LXC 108 at `192.168.20.30`, migrated the complete HomeLab repository and made Forgejo the primary remote while retaining synchronized GitHub protection.
+- Added Forgejo to nightly Proxmox archives and the checksum-verified Backup Synology mirror; isolated LXC 978 restore validation confirmed the service, database and repository.
+- Reorganized Homepage into `Security & Operations`, `AI & Automation` and `Security & Surveillance`, with Forgejo retained under `Application Management`.
 
 ### Fixed
 - Documented the storm-related UniFi PoE switch boot failure, rejected TP-Link fallback and managed PoE replacement requirement.
+- Selected and purchased the managed PoE replacement; installation validation and configuration capture remain scheduled after delivery.
 
 ## v1.7.0
 
@@ -29,7 +34,7 @@
 
 ### Validated
 - Published the reconciled 2026-08-20 network diagram and current-state baseline covering all seven VLANs, completed management migrations and the final healthy stability checkpoint
-- Reconciled the HomeLab architecture decisions and accepted-risk register, including single-host dependencies, storage capacity, recovery-test boundaries, IPv6 deferral and the remaining AI off-site follow-up
+- Reconciled the HomeLab architecture decisions and accepted-risk register, including single-host dependencies, storage capacity, recovery-test boundaries and IPv6 deferral
 - Confirmed Hermes can use the local Ollama provider from Lab VLAN 70; CPU-only responses work but are slow enough that the deployment remains a pilot
 - Confirmed 8 GB and 10 GB allocations were insufficient for the local model and that the 14 GB VM allocation runs without the observed OOM failure
 - Confirmed the Coral PCIe device is isolated in its own IOMMU group, loads through `gasket`/`apex`, appears as `/dev/apex_0` in the Frigate container and reports approximately 10 ms inference
@@ -37,9 +42,9 @@
 - Confirmed the enabled all-guests Proxmox job covers LXC 104 and VM 105 and that both have fresh local archives
 - Confirmed the Backup Synology mirrored and checksum-verified the retained LXC 104 and VM 105 archives on 2026-08-20
 - Validated isolated restores of Hermes LXC 104 and Ollama VM 105, including a healthy Hermes service start and a successful Ollama guest boot
+- Confirmed the mirrored LXC 104 and VM 105 archives are included in the encrypted `automated/proxmox-guests` Hyper Backup selection
 
 ### Planned
-- Add LXC 104 and VM 105 to the encrypted off-site selection
 - Resolve Proxmox memory overcommit before sustained simultaneous use of all guests
 - Install the purchased E5-2698 v4 and remaining planned RAM, then re-baseline Frigate and local-AI capacity
 - Evaluate the exact Intel Arc Pro B60 SKU, VRAM, physical clearance, PSU capacity and passthrough plan before purchase or installation

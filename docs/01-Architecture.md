@@ -19,10 +19,12 @@ Arista core
   |     +-- VM 105: Ollama / Hermes backend (Lab VLAN 70)
   |     +-- LXC 106: Authentik
   |     +-- LXC 107: Reverse Proxy
+  |     +-- LXC 108: Forgejo (Servers VLAN 20)
   +-- TrueNAS
   |     +-- NFS: Surveillance/Frigate recording storage
   +-- Synology storage
-  +-- UniFi switching and wireless
+  +-- NUT server (Management VLAN 50, Arista Et31)
+  +-- UniFi switching and wireless (Arista Et33 uplink)
         +-- Reolink Duo 2V PoE (Cameras VLAN 60)
 ```
 
@@ -52,6 +54,8 @@ Arista core
 - Essential configuration and guest archives receive automated local and
   off-host protection. Large replaceable media libraries and Frigate recordings
   are intentionally excluded from encrypted off-site storage.
+- Forgejo is the primary self-hosted Git remote. GitHub remains a synchronized
+  off-site remote rather than the sole repository authority.
 
 ### Accepted risks
 
@@ -68,7 +72,6 @@ Arista core
 | Tailscale can route authorized users to Trusted and Management networks | Access remains identity-controlled in Tailscale and source-restricted by OPNsense. No Tailscale Funnel or public service exposure is enabled. |
 | Internal services use a mixture of private, self-signed and publicly issued certificates | Expiry is monitored for operationally important TLS services. Internal certificate trust warnings remain accepted where no public trust is required. |
 | IPv6 segmentation has not received the same production validation as IPv4 | The current security design and operational tests are based primarily on IPv4. Wider IPv6 deployment remains deferred until equivalent policy and validation are planned. |
-| Hermes and Ollama are not yet in the encrypted off-site selection | Both have verified same-site archives, checksum-verified Synology mirrors and isolated restore evidence. Off-site inclusion remains an explicit AI-pilot follow-up. |
 
 ## Local AI Lab architecture
 
@@ -83,8 +86,8 @@ allocation was the first tested allocation that avoided the observed OOM
 failure, but response time remains slow and aggregate Proxmox memory allocation
 must be reconciled before sustained simultaneous use. LXC 104 and VM 105 now
 have fresh local archives, checksum-verified Backup Synology mirrors and
-successful isolated restore evidence. Encrypted off-site inclusion remains a
-planned AI-pilot follow-up.
+successful isolated restore evidence. Their mirrored archives are inside the
+encrypted `automated/proxmox-guests` Hyper Backup selection.
 
 ## Surveillance architecture
 

@@ -73,6 +73,15 @@ Inspect the repository before configuration and determine the correct current ma
 
 Record hostname, MAC address, switch/port, VLAN, IP, gateway, and DNS. Update appropriate inventory/network documentation.
 
+Current reserved identity confirmed 2026-08-24:
+
+| Hostname | Address | MAC | VLAN | Physical path |
+|---|---|---|---:|---|
+| `nut-server` | `192.168.50.25` | `00:23:24:55:b1:1a` | 50 Management | Directly connected to Arista Et31 |
+
+Arista Et33 is separately reserved as the UniFi PoE-switch uplink. The NUT
+server is not connected through the PoE switch.
+
 ## 6. UPS Hardware Discovery
 
 Do not assume the two UPS units are identical. For each UPS identify:
