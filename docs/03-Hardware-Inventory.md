@@ -11,3 +11,7 @@
 - TrueNAS SCALE
 - Synology DS920+
 - Backup Synology
+- Lenovo ThinkCentre M92p (NUT server, `192.168.50.25`)
+  - Intel Core i5-3470T, 7.6 GB RAM, single 119.2 GB disk (LVM)
+  - Debian GNU/Linux 13 (trixie), kernel `6.12.101+deb13-amd64`
+  - Onboard NIC: Intel 82579LM Gigabit, single interface `eno1`, MAC `00:23:24:55:b1:1a`
