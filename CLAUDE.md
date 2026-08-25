@@ -53,14 +53,30 @@ Current state:
 - UPS #1 (APC Back-UPS Pro BN1500M2-CA) — powers TrueNAS + both Synology units;
   currently unplugged, waiting on new battery
 - UPS #2 (CyberPower OR500LCDRM1U) — powers Arista switch, OPNsense, Ubiquiti PoE switch
-- UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — dedicated to Proxmox
+- UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — dedicated to Proxmox.
+  Re-confirmed 2026-08-25 via live NUT/`usbhid-ups` query (authoritative —
+  read from the UPS's own HID Power Device data): `device.model` /
+  `ups.model` = `CP1500PFCLCDa`, serial `CXXRO7009593`. This matches the
+  originally recorded model; an earlier note in this file incorrectly
+  "corrected" it to `PR1500LCDRT2U` based on the generic `lsusb` name for
+  USB ID `0764:0601` — that name comes from the static `usb.ids` table
+  keyed only on vendor:product ID (CyberPower reuses this ID across
+  several models), not from this specific device, so it was wrong. The
+  live NUT-reported model is the trustworthy source going forward.
 - Resolved 2026-08-24: apt/DNS resolution failure on the Lenovo box was caused
   by the `resolvconf` package being missing, so the static `dns-nameservers
   192.168.50.1` setting in `/etc/network/interfaces` never reached
   `/etc/resolv.conf`. Installed `resolvconf`; confirmed via reboot that
   `/etc/resolv.conf` regenerates correctly and `apt-get update` succeeds.
   Details in `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 1).
-- Project currently paused, waiting on a surge protector so a UPS unit can be freed up.
+- 2026-08-25: UPS #3 (CyberPower CP1500PFCLCD) is now physically connected
+  to the Lenovo NUT server via USB. A `usbhid-ups` driver (`proxmox-ups`) is
+  configured in `ups.conf`, `nut.conf` is set to `MODE=standalone`, and the
+  `nut-driver@proxmox-ups` and `nut-server` services are running. Live
+  telemetry via `upsc`: `ups.status: OL CHRG`, battery 99%, runtime ~11400s,
+  input/output 118V, `ups.load: 0` (worth confirming Proxmox is actually
+  plugged into this unit's output, since load reads zero). `nut-monitor`
+  (upsmon) is not yet configured. Milestone 2 discovery in progress.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

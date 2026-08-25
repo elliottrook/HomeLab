@@ -21,22 +21,72 @@ item-level Definition of Done.
 
 - [x] Record the NUT server's intended identity: `192.168.50.25`, MAC
   `00:23:24:55:b1:1a`, Management VLAN 50, directly connected to Arista Et31.
-- [ ] Inventory the Lenovo hardware and install/update the selected bare-metal OS.
-- [ ] Configure stable hostname, address, DNS, time and restricted administration.
+- [x] Inventory the Lenovo hardware and install/update the selected bare-metal OS.
+  Confirmed 2026-08-25 via `hostnamectl`/`lscpu`/`lsblk`: Lenovo
+  **ThinkCentre M92p**, Intel **Core i5-3470T** (3rd gen, not the ~5th gen
+  originally estimated), 7.6 GB RAM, single 119.2 GB disk (LVM: `/boot`
+  partition + root/swap logical volumes). OS is Debian GNU/Linux 13
+  (trixie), kernel `6.12.101+deb13-amd64`, no pending package upgrades.
+  Recorded in [03-Hardware-Inventory.md](03-Hardware-Inventory.md).
+- [x] Configure stable hostname, address, DNS, time and restricted administration.
   - [x] DNS resolution fixed 2026-08-24: `/etc/network/interfaces` specified
     `dns-nameservers 192.168.50.1`, but the `resolvconf` package was not
     installed, so `/etc/resolv.conf` never received a `nameserver` line and
     all name resolution (including `apt`) failed. Installed `resolvconf`,
     confirmed `/etc/resolv.conf` is now regenerated correctly via
     `resolvconf(8)`, and verified `apt-get update` and `getent hosts`
-    both succeed after a reboot. Hostname, time configuration, and
-    restricted-administration hardening remain outstanding for this item.
-- [ ] Verify reboot, network reachability and independence from the UniFi PoE
-  uplink on Et33.
+    both succeed after a reboot.
+  - [x] Hostname confirmed 2026-08-25: static hostname `nut-server` already
+    set (`hostnamectl`).
+  - [x] Time confirmed 2026-08-25: NTP active and synchronized, timezone
+    `America/Vancouver` (`timedatectl`).
+  - [x] Restricted administration: SSH password authentication disabled
+    2026-08-25 via `/etc/ssh/sshd_config.d/hardening.conf`
+    (`PasswordAuthentication no`, `KbdInteractiveAuthentication no`,
+    `PermitRootLogin prohibit-password`), validated with `sshd -t` and
+    applied with `systemctl reload ssh` (no dropped sessions). Key-based
+    login (`jason`'s existing `authorized_keys`, aliased as `ssh nut` on
+    Jason's Mac) confirmed still working after the reload. No firewall
+    (`ufw`/iptables) or `fail2ban` is configured — recorded as an
+    **Observation / Recommended Follow-up** (Section 23) rather than
+    blocking this item, since SSH brute-force risk is now substantially
+    reduced by key-only auth and the host is Management-VLAN-only with
+    no WAN exposure.
+- [x] Verify reboot, network reachability and independence from the UniFi PoE
+  uplink on Et33. Confirmed 2026-08-25: the host survived a reboot
+  (2026-08-24 23:40) and came back up on its static config with working
+  DNS; live MAC/interface (`eno1`, single onboard NIC, no other interfaces)
+  matches the recorded identity. Independence from the UniFi PoE switch was
+  already documented in
+  [Current-Network-Baseline.md](Current-Network-Baseline.md) — direct
+  connection to Arista Et31, not downstream of the PoE switch (Et33).
 
 ### Milestone 2 — UPS discovery and NUT server
 
 - [ ] Identify both UPS models, USB/device paths, capabilities and protected loads.
+  - [x] UPS #3 (CyberPower CP1500PFCLCD, dedicated to Proxmox) confirmed
+    2026-08-25: physically connected via USB to the Lenovo NUT server,
+    visible as `Bus 003 Device 003`, USB ID `0764:0601`. Model identity
+    verified authoritatively via live `usbhid-ups`/`upsc` query (HID
+    Power Device data read from the unit itself): `device.model` /
+    `ups.model` = `CP1500PFCLCDa`, serial `CXXRO7009593` — this matches
+    the originally recorded model. (Note: `lsusb`'s plain-text name for
+    this USB ID resolves to `PR1500LCDRT2U` via the static `usb.ids`
+    table, which is keyed only on vendor:product ID and is not specific
+    to this device — CyberPower reuses ID `0764:0601` across models, so
+    that name is misleading and should not be used for identification.)
+    Device node `/dev/bus/usb/003/003` is group-owned by `nut` via an
+    existing udev rule.
+  - [x] `usbhid-ups` driver (`proxmox-ups`) configured in `ups.conf`,
+    `nut.conf` set to `MODE=standalone`, `nut-driver@proxmox-ups` and
+    `nut-server` services running and confirmed via `upsc
+    proxmox-ups@localhost`: `ups.status: OL CHRG`, `battery.charge: 99`,
+    `battery.runtime: 11403`, `input.voltage`/`output.voltage: 118.0`,
+    `ups.realpower.nominal: 1000`. `ups.load: 0` — worth confirming with
+    Jason whether Proxmox is actually plugged into this unit's output.
+    `nut-monitor`/`upsmon` not yet configured (Milestone 3 territory).
+  - [ ] UPS #1 (APC BN1500M2-CA) and UPS #2 (CyberPower OR500LCDRM1U)
+    remain to be connected/identified.
 - [ ] Document the physical power topology and safe runtime assumptions.
 - [ ] Install NUT directly on the utility host and configure least-privilege users.
 - [ ] Prove both UPS devices are detected consistently after reboot.
@@ -106,14 +156,14 @@ The Lenovo should remain independent of the virtualized infrastructure, which is
 
 ## 3. Lenovo Utility Machine
 
-An older Lenovo Tiny-form-factor PC is available. Approximate known hardware:
+An older Lenovo Tiny-form-factor PC is available. Verified hardware
+(2026-08-25, via `hostnamectl`/`lscpu`/`lsblk` on the installed OS):
 
-- Intel Core i5, approximately 5th generation
-- 8 GB RAM
-- approximately 1 TB HDD
-- Lenovo Tiny platform
-
-Verify the actual hardware rather than relying on these approximate notes.
+- Lenovo ThinkCentre M92p
+- Intel Core i5-3470T (3rd generation, 2 cores / 4 threads, 2.9 GHz base)
+- 7.6 GB RAM
+- Single 119.2 GB disk (LVM: `/boot` partition + root/swap logical volumes)
+- Onboard NIC: Intel 82579LM Gigabit (single interface, `eno1`)
 
 Its role is a small, reliable **HomeLab infrastructure utility node**. Priorities: reliability, low resource use, simple recovery, minimal dependencies, SSH administration, predictable network identity, backup, health monitoring, and documentation. Do not add unrelated applications simply because spare resources exist.
 
@@ -334,10 +384,10 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 
 ## 26. Definition of Done
 
-- [ ] Lenovo hardware inventoried.
-- [ ] Bare-metal Linux installed and updated.
-- [ ] Stable hostname/IP/network placement configured.
-- [ ] Lenovo documented in HomeLab inventory.
+- [x] Lenovo hardware inventoried.
+- [x] Bare-metal Linux installed and updated.
+- [x] Stable hostname/IP/network placement configured.
+- [x] Lenovo documented in HomeLab inventory.
 - [ ] Both UPS units positively identified.
 - [ ] UPS-to-device power topology documented.
 - [ ] UPS management connections attached to Lenovo.
