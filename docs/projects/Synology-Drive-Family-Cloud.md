@@ -2,11 +2,11 @@
 
 ## Project handover: Claude
 
-> Status: Handover ready; implementation not started
+> Status: Milestone 1 in progress (discovery complete, one data checkpoint still finishing)
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-24
+> Last updated: 2026-08-25
 
 ## 1. Purpose
 
@@ -70,18 +70,25 @@ clear rollback path.
 
 ## 5. Milestone 1 — Discovery and capacity
 
-- [ ] Record DSM, Synology Drive Server and Hyper Backup versions.
+- [x] Record DSM, Synology Drive Server and Hyper Backup versions.
 - [ ] Confirm supported macOS/iOS client versions; use macOS Drive Client 4.1 or
   later where supported.
-- [ ] Record current main/backup NAS capacity, snapshots and backup growth.
-- [ ] Inventory existing homes, shared folders, permissions and Drive remnants.
-- [ ] Confirm whether Drive was previously enabled and identify stale databases,
+- [ ] Record current main/backup NAS capacity, snapshots and backup growth. —
+  main NAS capacity recorded; backup Synology (`192.168.20.42`) capacity and
+  backup-growth trend still not checked.
+- [x] Inventory existing homes, shared folders, permissions and Drive remnants.
+- [x] Confirm whether Drive was previously enabled and identify stale databases,
   clients or Team Folder settings without deleting them.
 - [ ] Define expected users, devices, initial data size and five-year growth.
-- [ ] Take a current configuration/data recovery checkpoint.
+- [ ] Take a current configuration/data recovery checkpoint. — Jason's existing
+  Drive content is being relocated to a dated backup folder (in progress at
+  session end); Alisa/Carter have no Drive folder yet and Justin's is already
+  empty, so no checkpoint was needed for them. Still open: a DSM/package
+  configuration export, and confirming the move above finished cleanly.
 
 Completion gate: existing state and capacity are documented, and reactivation
-will not overwrite or expose existing data.
+will not overwrite or expose existing data. **Not yet reached** — see open
+items above.
 
 ## 6. Milestone 2 — Identity and folder design
 
@@ -204,3 +211,7 @@ exposure was introduced.
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-08-24 | Project handover | Requirements separated from initial-build roadmap | Ready |
+| 2026-08-25 | Milestone 1 | DSM 7.4.1-90080 (build 90080, GM); SynologyDrive package 4.0.3-27892 (enabled); HyperBackup/HyperBackupVault 4.2.2-4262 (enabled). Main volume (`/volume1`): 11 TB total, 6.8 TB used, 3.7 TB free (65%), RAID5 across 4 disks, all healthy (`[UUUU]`), separate RAID1 system partitions. | Recorded |
+| 2026-08-25 | Milestone 1 | Individual DSM accounts already exist for admin, Jason, Alisa, Carter, elliottrook, Jen, Justin, guest, plus a Time Machine Backup service account — no shared admin-account use observed. Drive was previously enabled and used: Jason had an active `Drive` home folder with real content (Synology Office test docs, a large test video since deleted by Jason himself, and an unrelated 247 GB "Windows Back-up" folder). Alisa and Carter have no Drive folder yet; Justin's is already empty. Legacy Drive service folders (`@SynoDrive`, `@synologydrive`, `@SynologyDriveShareSync`) found and left untouched. | Recorded |
+| 2026-08-25 | Milestone 1 | Established SSH key-based access to the main Synology (`Jason@192.168.20.41`) for future automation. Root cause of an initial failure: DSM's default ACL grants the `administrators` group write access to every user's home directory, which trips OpenSSH `StrictModes` and silently blocks key auth. Fixed by pointing `AuthorizedKeysFile` at a root-owned path outside the home directory (`/etc/ssh/authorized_keys/%u`) rather than disabling `StrictModes` or altering the ACL. | Done |
+| 2026-08-25 | Milestone 1 | Recovery checkpoint for Jason's pre-existing Drive content: moved (not copied) everything except the deleted test video into `/volume1/DriveBackup-20260825/Jason/`, in preparation for a clean-slate Drive folder for Jason, Alisa, Justin and Carter. Same-volume move of the 247 GB "Windows Back-up" folder was still running at session end (confirmed active via `ps`, not stalled); result not yet verified. | In progress |
