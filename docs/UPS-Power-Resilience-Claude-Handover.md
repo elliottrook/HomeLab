@@ -85,8 +85,28 @@ item-level Definition of Done.
     `ups.realpower.nominal: 1000`. `ups.load: 0` — worth confirming with
     Jason whether Proxmox is actually plugged into this unit's output.
     `nut-monitor`/`upsmon` not yet configured (Milestone 3 territory).
-  - [ ] UPS #1 (APC BN1500M2-CA) and UPS #2 (CyberPower OR500LCDRM1U)
-    remain to be connected/identified.
+  - [x] UPS #1 (APC Back-UPS Pro BN1500M2-CA) inspected 2026-08-25 (still at
+    Jason's desk, battery not yet installed): **no NUT-compatible
+    monitoring interface exists on this unit.** The rear panel carries
+    only surge-protection passthrough jacks — two "Gigabit In/Out" RJ45
+    (Ethernet surge protection), a third RJ45 labeled "Data port" (phone/
+    DSL-speed surge protection, not a UPS data interface), "Cable In/Out"
+    coax (surge protection), and a TVSS ground terminal. None of these
+    carry UPS telemetry. The only USB ports (Type-A + Type-C) are on the
+    front and are device-charging outputs (UPS supplies power out), not a
+    computer-facing monitoring port — confirmed by physical inspection,
+    no other USB/serial socket exists anywhere on the unit. **Conclusion:
+    UPS #1 cannot be a NUT client and will operate as a "dumb battery"
+    only** — it can provide runtime for its protected loads (TrueNAS +
+    both Synology units per Section 2) but NUT has no way to read its
+    status or trigger a coordinated shutdown from it. Recorded as an
+    **Observation / Recommended Follow-up** (Section 23): Synology DSM
+    has its own native UPS integration (separate from NUT, via direct
+    USB to the NAS) that could be worth evaluating independently for
+    those two boxes, outside this project's central-NUT-server scope.
+  - [ ] UPS #2 (CyberPower OR500LCDRM1U) remains to be connected/identified
+    (already rack-mounted; Lenovo is still at Jason's desk, so a USB run
+    to the rack may not be physically possible until relocation).
 - [ ] Document the physical power topology and safe runtime assumptions.
 - [ ] Install NUT directly on the utility host and configure least-privilege users.
 - [ ] Prove both UPS devices are detected consistently after reboot.

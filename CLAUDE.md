@@ -51,7 +51,11 @@ Definition of Done checklist — check items off as work progresses).
 Current state:
 - NUT 2.8.1-5 installed on the Lenovo box (192.168.50.25, interface eno1)
 - UPS #1 (APC Back-UPS Pro BN1500M2-CA) — powers TrueNAS + both Synology units;
-  currently unplugged, waiting on new battery
+  currently unplugged, waiting on new battery. Confirmed 2026-08-25 by
+  physical inspection: **no NUT-compatible monitoring interface exists on
+  this unit** (rear ports are all surge-protection passthrough; front
+  USB-A/USB-C are charging-only). Will operate as a dumb battery only —
+  no software visibility or coordinated shutdown possible via NUT.
 - UPS #2 (CyberPower OR500LCDRM1U) — powers Arista switch, OPNsense, Ubiquiti PoE switch
 - UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — dedicated to Proxmox.
   Re-confirmed 2026-08-25 via live NUT/`usbhid-ups` query (authoritative —
