@@ -23,6 +23,14 @@ item-level Definition of Done.
   `00:23:24:55:b1:1a`, Management VLAN 50, directly connected to Arista Et31.
 - [ ] Inventory the Lenovo hardware and install/update the selected bare-metal OS.
 - [ ] Configure stable hostname, address, DNS, time and restricted administration.
+  - [x] DNS resolution fixed 2026-08-24: `/etc/network/interfaces` specified
+    `dns-nameservers 192.168.50.1`, but the `resolvconf` package was not
+    installed, so `/etc/resolv.conf` never received a `nameserver` line and
+    all name resolution (including `apt`) failed. Installed `resolvconf`,
+    confirmed `/etc/resolv.conf` is now regenerated correctly via
+    `resolvconf(8)`, and verified `apt-get update` and `getent hosts`
+    both succeed after a reboot. Hostname, time configuration, and
+    restricted-administration hardening remain outstanding for this item.
 - [ ] Verify reboot, network reachability and independence from the UniFi PoE
   uplink on Et33.
 

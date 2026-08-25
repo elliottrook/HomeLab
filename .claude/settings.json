@@ -1,0 +1,54 @@
+{
+  "permissions": {
+    "defaultMode": "default",
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(ping:*)"
+    ],
+    "deny": [
+      "Read(**/*.key)",
+      "Read(**/id_rsa*)",
+      "Read(**/*credentials*)",
+      "Read(**/*secrets*)",
+      "Bash(rm -rf:*)",
+      "Bash(mkfs:*)",
+      "Bash(dd:*)"
+    ],
+    "ask": [
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(sudo:*)",
+      "Bash(apt install:*)",
+      "Bash(apt remove:*)",
+      "Bash(nut-scanner:*)",
+      "Bash(upsc:*)",
+      "Bash(upscmd:*)",
+      "Bash(systemctl:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "WebFetch(domain:*)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": false,
+    "network": {
+      "allowedDomains": [
+        "192.168.50.25",
+        "192.168.20.41",
+        "192.168.20.42",
+        "192.168.50.1",
+        "192.168.20.30",
+        "github.com",
+        "deb.debian.org",
+        "security.debian.org"
+      ],
+      "allowUnixSockets": [],
+      "allowLocalBinding": false
+    }
+  }
+}
