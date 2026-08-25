@@ -37,6 +37,18 @@ item-level Definition of Done.
 ### Milestone 2 — UPS discovery and NUT server
 
 - [ ] Identify both UPS models, USB/device paths, capabilities and protected loads.
+  - [x] UPS #3 (CyberPower tower, dedicated to Proxmox) confirmed 2026-08-25:
+    physically connected via USB to the Lenovo NUT server, visible as
+    `Bus 003 Device 003`, USB ID `0764:0601`, reporting model
+    `PR1500LCDRT2U`. This corrects the model number originally recorded
+    from the Amazon listing (`CP1500PFCLCD`) — the USB-reported model is
+    authoritative. Device node `/dev/bus/usb/003/003` is already
+    group-owned by `nut` via an existing udev rule. `nut`, `nut-server`,
+    and `nut-client` packages (2.8.1-5) are installed, but `nut-server`
+    and `nut-monitor` services are inactive and no driver is yet
+    configured in `ups.conf` for this device.
+  - [ ] UPS #1 (APC BN1500M2-CA) and UPS #2 (CyberPower OR500LCDRM1U)
+    remain to be connected/identified.
 - [ ] Document the physical power topology and safe runtime assumptions.
 - [ ] Install NUT directly on the utility host and configure least-privilege users.
 - [ ] Prove both UPS devices are detected consistently after reboot.

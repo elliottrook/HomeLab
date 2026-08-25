@@ -53,14 +53,20 @@ Current state:
 - UPS #1 (APC Back-UPS Pro BN1500M2-CA) — powers TrueNAS + both Synology units;
   currently unplugged, waiting on new battery
 - UPS #2 (CyberPower OR500LCDRM1U) — powers Arista switch, OPNsense, Ubiquiti PoE switch
-- UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — dedicated to Proxmox
+- UPS #3 (CyberPower tower unit, pure sine wave) — dedicated to Proxmox.
+  Corrected 2026-08-25: USB descriptor identifies it as model
+  `PR1500LCDRT2U` (ID 0764:0601), not `CP1500PFCLCD` as originally recorded
+  from the Amazon listing. Treat the USB-reported model as authoritative.
 - Resolved 2026-08-24: apt/DNS resolution failure on the Lenovo box was caused
   by the `resolvconf` package being missing, so the static `dns-nameservers
   192.168.50.1` setting in `/etc/network/interfaces` never reached
   `/etc/resolv.conf`. Installed `resolvconf`; confirmed via reboot that
   `/etc/resolv.conf` regenerates correctly and `apt-get update` succeeds.
   Details in `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 1).
-- Project currently paused, waiting on a surge protector so a UPS unit can be freed up.
+- 2026-08-25: UPS #3 (CyberPower tower) is now physically connected to the
+  Lenovo NUT server via USB and visible in `lsusb`. NUT packages are
+  installed but `nut-server`/`nut-monitor` are not yet configured or running
+  against it. Milestone 2 discovery in progress.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.
