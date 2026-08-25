@@ -209,8 +209,8 @@ UniFi
 
 Source Control
 
-GitHub
-Future: Forgejo
+Forgejo — primary self-hosted remote
+GitHub — synchronized off-site remote
 
 Management
 
@@ -219,9 +219,10 @@ Homepage Dashboard
 
 Monitoring
 
-Future Dashboard
-Grafana
-Prometheus
+HomeLab Doctor — functional health and failure-only reporting
+Beszel — lightweight host and container history
+Homepage — daily service view
+Future bounded enhancement: Prometheus/Grafana observability
 
 ---
 
@@ -283,7 +284,7 @@ Foundation
 ✅ Complete
 
 Enterprise Network
-🚧 Current
+✅ Complete
 
 Dashboard
 ✅ Core Complete
@@ -292,16 +293,19 @@ Private Remote Access
 ✅ Complete
 
 Forgejo
-📅 Planned
+✅ Complete
 
 Monitoring
-📅 Planned
+✅ Core monitoring complete; Prometheus/Grafana is a separate enhancement
 
 Automation
-📅 Planned
+✅ Complete
 
 Self-hosted Services
-📅 Planned
+✅ Current application set operational; additional services are separate projects
+
+Enhancement Project Portfolio
+📅 Governed by `docs/projects/README.md`
 
 ---
 

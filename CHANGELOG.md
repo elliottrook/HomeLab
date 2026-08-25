@@ -11,6 +11,8 @@
 - Deployed Forgejo LXC 108 at `192.168.20.30`, migrated the complete HomeLab repository and made Forgejo the primary remote while retaining synchronized GitHub protection.
 - Added Forgejo to nightly Proxmox archives and the checksum-verified Backup Synology mirror; isolated LXC 978 restore validation confirmed the service, database and repository.
 - Reorganized Homepage into `Security & Operations`, `AI & Automation` and `Security & Surveillance`, with Forgejo retained under `Application Management`.
+- Split the post-build enhancement portfolio into separate milestone-driven Local AI, Authentik rollout, surveillance expansion, NUT/UPS, Synology Drive and Prometheus/Grafana project documents.
+- Added a Claude-ready Synology Drive family-cloud handover and a concise milestone tracker to the existing NUT/UPS handover.
 
 ### Fixed
 - Documented the storm-related UniFi PoE switch boot failure, rejected TP-Link fallback and managed PoE replacement requirement.

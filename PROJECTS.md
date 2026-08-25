@@ -1,8 +1,12 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-23
+> Last Updated: 2026-08-24
 >
-> **Document of Truth:** This file is the project-level source of truth for completed work, active milestones, deferred projects, and execution order. Detailed commands, credentials, sensitive configuration, and device-specific procedures remain in the relevant runbooks and repository documentation.
+> **Initial-build record:** This file is the completion record for the original
+> HomeLab build. Major enhancements are governed by separate project documents
+> in [`docs/projects`](docs/projects/README.md). Detailed commands, credentials,
+> sensitive configuration and device-specific procedures remain in the relevant
+> runbooks and repository documentation.
 
 ---
 
@@ -11,10 +15,13 @@
 Version 1.7.0
 
 Current Focus:
-🟢 Operate the consolidated production HomeLab while keeping surveillance expansion, hardware upgrades and local AI as explicit follow-up work.
+🟢 Operate the mature production HomeLab; complete the two replacement-switch
+cutover checks, then manage every major enhancement as its own project.
 
 Project Status:
-✅ Consolidated — release v1.7.0; the original project scope lock is lifted. Elective work should enter a new roadmap rather than extending the completed project.
+✅ Mature and consolidated — release v1.7.0. The original scope lock is lifted.
+Only the delivery-dependent PoE-switch reliability close-out remains in this
+record; elective work belongs to the enhancement portfolio.
 
 ---
 
@@ -71,7 +78,7 @@ reopen the completed network design.
 
 ---
 
-# Phase 2 — Enterprise Network ✅ CORE COMPLETE
+# Phase 2 — Enterprise Network ✅ COMPLETE
 
 Planning
 
@@ -126,7 +133,7 @@ purged.
 
 ---
 
-# Phase 3 — HomeLab Dashboard ✅ CORE COMPLETE
+# Phase 3 — HomeLab Dashboard ✅ COMPLETE
 
 - [x] Homepage deployed
 - [x] Internal `home.internal` DNS name
@@ -341,7 +348,7 @@ Home Assistant learning checkpoint: HACS is installed and authenticated without 
 
 ---
 
-# Phase 8 — Server VLAN 20 Migration
+# Phase 8 — Server VLAN 20 Migration ✅ COMPLETE
 
 Server workload migration completed 2026-08-16; related Management VLAN work completed 2026-08-20:
 
@@ -369,7 +376,7 @@ Intended server workloads reside on VLAN 20 with documented minimum-access rules
 
 ---
 
-# Phase 9 — Management VLAN 50 Migration
+# Phase 9 — Management VLAN 50 Migration ✅ COMPLETE
 
 Audit completed 2026-08-14; UniFi migration completed 2026-08-16:
 
@@ -428,7 +435,7 @@ isolated, reproducible, archive/restore tested and optional to production.
 
 ---
 
-# Phase 10 — Automation
+# Phase 10 — Automation ✅ COMPLETE
 
 - [x] Nightly Backups — automated configuration pulls, Proxmox guest archives, Home Assistant native backups and encrypted off-site protection are operational
 - [x] Configuration Drift Detection — protected OPNsense, Arista and Proxmox manifests are compared with an explicitly accepted known-good baseline
@@ -445,7 +452,7 @@ Automated backups, configuration-drift detection, failure-only health reporting 
 
 ---
 
-# Phase 11 — Final Consolidation and Project Review
+# Phase 11 — Final Consolidation and Project Review ✅ COMPLETE
 
 Documentation Reconciliation
 
@@ -484,7 +491,24 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 
 ---
 
-# Deferred Projects
+# Enhancement Project Portfolio
+
+Major post-build work is tracked in self-contained project documents with its
+own milestones, dependencies, evidence and completion gate.
+
+| Project | Current status | Tracker |
+|---|---|---|
+| Local AI | Pilot complete; hardware-backed expansion proposed | [`docs/projects/Local-AI.md`](docs/projects/Local-AI.md) |
+| Authentik rollout | Foundation proven; staged rollout proposed | [`docs/projects/Authentik-Rollout.md`](docs/projects/Authentik-Rollout.md) |
+| Surveillance expansion | One-camera baseline complete; expansion proposed | [`docs/projects/Surveillance-Expansion.md`](docs/projects/Surveillance-Expansion.md) |
+| NUT/UPS deployment | Handover ready | [`docs/UPS-Power-Resilience-Claude-Handover.md`](docs/UPS-Power-Resilience-Claude-Handover.md) |
+| Synology Drive family cloud | Handover ready for Claude | [`docs/projects/Synology-Drive-Family-Cloud.md`](docs/projects/Synology-Drive-Family-Cloud.md) |
+| Prometheus/Grafana observability | Proposed | [`docs/projects/Prometheus-Grafana-Observability.md`](docs/projects/Prometheus-Grafana-Observability.md) |
+
+See the [enhancement portfolio index](docs/projects/README.md) for common project
+rules and status definitions.
+
+# Completed Post-Build Enhancement
 
 ## Forgejo ✅ COMPLETE 2026-08-24
 
@@ -498,50 +522,12 @@ Forgejo is the primary self-hosted Git remote. GitHub remains the synchronized
 off-site remote. Future Forgejo workflows, runners and package hosting are
 optional enhancements and are not part of the initial HomeLab build.
 
-## Dashboard Observability and Security Enhancements
-
-- [ ] Create least-privilege API identities and add supported Homepage health widgets for OPNsense, Proxmox and TrueNAS only where they add useful information beyond HomeLab Doctor and Beszel.
-- [ ] Add BirdNET only after its service has been separately designed and deployed.
-- [ ] Add camera administration tools only after selecting and deploying them.
-- [ ] Add Coral TPU status only if a reliable read-only status source can be exposed without weakening Frigate isolation.
-- [ ] Continue friendly HTTPS and Authentik onboarding one service at a time using the established authorization runbook.
-
-## Surveillance Expansion
-
-- [ ] Reconfirm storage, CPU and memory capacity before adding a second camera.
-- [ ] Add future cameras one at a time and repeat stream, retention, isolation and recording validation for each.
-- [ ] Revisit video decoding acceleration only if measured CPU load or stream growth justifies it.
-
-## Local AI / GPU Acceleration
-
-- [x] Evaluate local LLM deployment with a bounded CPU-only Hermes/Ollama pilot on Lab VLAN 70
-- [ ] Confirm the exact Intel Arc Pro B60 variant and VRAM before treating it as the selected GPU
-- [ ] Verify Dell Precision T5810 PCIe clearance, PSU capacity and GPU power connections before purchase
-- [ ] Test local-model performance again after the final CPU/RAM configuration is installed
-- [ ] Resolve aggregate Proxmox memory capacity before sustained simultaneous Ollama and production-guest use.
-- [ ] Confirm final Frigate VM memory allocation after the next hardware-maintenance window.
-- [x] Keep Frigate object detection on its dedicated Coral TPU, reserving any future GPU for local AI or advanced video workloads
+# Small Deferred Cleanup and Ideas
 
 ## Credential Hygiene Enhancements
 
 - [ ] Remove unused Hermes cloud-provider authentication remnants after confirming the local provider remains sufficient.
 - [ ] Reset the Seerr application password independently of the Hermes/Ollama work.
-
-## Synology Drive Family Cloud
-
-- [ ] Reactivate and pilot Synology Drive on the existing primary Synology after the current roadmap and VLAN migrations are complete
-- [ ] Confirm current Synology Drive Server and client versions before configuration; use macOS client 4.1 or later
-- [ ] Provide individual DSM accounts and private `My Drive` storage for family members
-- [ ] Create only the required shared family Team Folders with explicit group permissions
-- [ ] Configure macOS On-demand Sync so Synology Drive appears as a live Finder location without downloading every file
-- [ ] Test iPhone/iPad access, automatic photo and video upload, offline pinning and two-way synchronization
-- [ ] Validate password-protected and expiring share links and file-request links for friends who do not have accounts
-- [ ] Use HTTPS in transit and a dedicated encrypted DSM shared folder where compatible; document that this is not client-side or zero-knowledge encryption
-- [ ] Select a safe external-sharing method without broadly exposing DSM; retain Tailscale for private family administration and access where practical
-- [ ] Set conservative version retention and monitor capacity on both Synology systems
-- [ ] Prove Synology Drive data, configuration, version recovery and deleted-file recovery through Hyper Backup before production use
-- [ ] Keep the scope limited to simple file sync, sharing, encryption and mobile access; do not enable collaboration-suite features without a later decision
-- [ ] Retain Seafile Community Edition only as a fallback if Synology Drive fails a defined encryption, sharing or client requirement
 
 ## Other Deferred Work
 
@@ -550,7 +536,7 @@ optional enhancements and are not part of the initial HomeLab build.
 - Internal Certificate Authority
 - IPv6 rollout
 - New broad security-tooling platforms
-- Additional dashboards or observability platforms beyond the monitoring phase
+- Additional dashboards outside the bounded Prometheus/Grafana project
 - New self-hosted services not required by this roadmap
 - Major network redesign or VLAN renumbering
 
@@ -569,18 +555,21 @@ Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-au
 
 # Future Ideas
 
-- UPS Integration
 - Remote Environmental Sensors
 - Evaluate Tailscale Services after the current project is complete: pilot stable MagicDNS/TailVIP names and service-level grants for a small set of internal web services such as Homepage, Home Assistant and Frigate; compare against existing device MagicDNS and subnet routing before wider adoption; keep access tailnet-only with no Funnel or public exposure
 
 ---
 
-# Recommended Execution Order
+# Initial-Build Close-Out Order
 
-1. Resolve Proxmox memory overcommit and complete the remaining CPU/RAM maintenance before sustained simultaneous Ollama and production-guest load.
-2. Continue observing Coral-backed Frigate stability and establish safe camera/storage capacity before adding cameras one at a time.
-3. Complete credential-cleanup and capacity enhancements for Hermes/Ollama without making the pilot a production dependency.
-4. Create and review a new roadmap before beginning additional elective platforms, services or infrastructure changes.
+1. Install the replacement managed PoE switch after delivery.
+2. Validate AP management, IoT Wi-Fi, Guest Wi-Fi, camera isolation and Frigate
+   recording.
+3. Capture and back up the replacement-switch configuration.
+4. Mark the final two Phase 1 reliability items complete and freeze this file as
+   the initial-build record.
+
+All other work follows the independent milestones in the enhancement portfolio.
 
 ---
 

@@ -24,4 +24,8 @@ Enterprise-inspired home lab documentation for Project Mini Atlas.
 - Forgejo LXC 108 at `192.168.20.30` is the primary self-hosted Git remote; GitHub remains the synchronized off-site remote.
 - The independent NUT utility server uses `192.168.50.25` on Management VLAN 50 and connects directly to Arista Et31.
 
-Start with [the current network baseline](docs/Current-Network-Baseline.md), then see the [master plan](docs/Master-Plan.md), [authorization runbook](docs/08-Authorization.md), [service onboarding process](docs/09-Service-Authorization-Onboarding.md), [surveillance runbook](docs/07-Surveillance.md) and [project roadmap](PROJECTS.md).
+Start with [the current network baseline](docs/Current-Network-Baseline.md), then
+see the [initial-build record](PROJECTS.md), [enhancement project portfolio](docs/projects/README.md),
+[master plan](docs/Master-Plan.md), [authorization runbook](docs/08-Authorization.md),
+[service onboarding process](docs/09-Service-Authorization-Onboarding.md) and
+[surveillance runbook](docs/07-Surveillance.md).

@@ -7,6 +7,54 @@
 **Environment:** Jason's HomeLab  
 **Repository:** This public HomeLab repository. Treat it as the authoritative source for current infrastructure details.
 
+**Project status:** Handover ready; NUT/UPS implementation not yet validated
+
+**Last reconciled:** 2026-08-24
+
+## Project milestone tracker
+
+This tracker provides the stepwise project view. The numbered sections below
+contain Claude's detailed requirements, and Section 26 remains the final
+item-level Definition of Done.
+
+### Milestone 1 — Utility host foundation
+
+- [x] Record the NUT server's intended identity: `192.168.50.25`, MAC
+  `00:23:24:55:b1:1a`, Management VLAN 50, directly connected to Arista Et31.
+- [ ] Inventory the Lenovo hardware and install/update the selected bare-metal OS.
+- [ ] Configure stable hostname, address, DNS, time and restricted administration.
+- [ ] Verify reboot, network reachability and independence from the UniFi PoE
+  uplink on Et33.
+
+### Milestone 2 — UPS discovery and NUT server
+
+- [ ] Identify both UPS models, USB/device paths, capabilities and protected loads.
+- [ ] Document the physical power topology and safe runtime assumptions.
+- [ ] Install NUT directly on the utility host and configure least-privilege users.
+- [ ] Prove both UPS devices are detected consistently after reboot.
+
+### Milestone 3 — Coordinated shutdown
+
+- [ ] Define warning and shutdown thresholds from measured runtime.
+- [ ] Configure and validate Proxmox shutdown behaviour.
+- [ ] Configure and validate applicable NAS/storage shutdown behaviour.
+- [ ] Document final shutdown order, return-of-power behaviour and manual override.
+
+### Milestone 4 — Monitoring and recovery
+
+- [ ] Add the utility host to Beszel and expose only required read-only UPS metrics.
+- [ ] Add actionable power/NUT checks and alerts to HomeLab Doctor/reporting.
+- [ ] Protect NUT configuration and document bare-metal recovery.
+- [ ] Perform controlled failure, shutdown and recovery tests.
+- [ ] Update repository inventory, architecture, operations, backups and evidence.
+
+### Milestone 5 — Hand-back
+
+- [ ] Complete every applicable Section 26 checkbox or explicitly defer it with a
+  reason and risk.
+- [ ] Produce the required close-out report, Git references and final known-good
+  test state for Aster's architectural review.
+
 ## 1. Purpose
 
 Claude is delegated ownership of the **UPS & Power Resilience mini-project**. This is an addition to the established HomeLab architecture, not an opportunity to redesign it.
