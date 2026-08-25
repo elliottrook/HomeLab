@@ -37,16 +37,27 @@ item-level Definition of Done.
 ### Milestone 2 — UPS discovery and NUT server
 
 - [ ] Identify both UPS models, USB/device paths, capabilities and protected loads.
-  - [x] UPS #3 (CyberPower tower, dedicated to Proxmox) confirmed 2026-08-25:
-    physically connected via USB to the Lenovo NUT server, visible as
-    `Bus 003 Device 003`, USB ID `0764:0601`, reporting model
-    `PR1500LCDRT2U`. This corrects the model number originally recorded
-    from the Amazon listing (`CP1500PFCLCD`) — the USB-reported model is
-    authoritative. Device node `/dev/bus/usb/003/003` is already
-    group-owned by `nut` via an existing udev rule. `nut`, `nut-server`,
-    and `nut-client` packages (2.8.1-5) are installed, but `nut-server`
-    and `nut-monitor` services are inactive and no driver is yet
-    configured in `ups.conf` for this device.
+  - [x] UPS #3 (CyberPower CP1500PFCLCD, dedicated to Proxmox) confirmed
+    2026-08-25: physically connected via USB to the Lenovo NUT server,
+    visible as `Bus 003 Device 003`, USB ID `0764:0601`. Model identity
+    verified authoritatively via live `usbhid-ups`/`upsc` query (HID
+    Power Device data read from the unit itself): `device.model` /
+    `ups.model` = `CP1500PFCLCDa`, serial `CXXRO7009593` — this matches
+    the originally recorded model. (Note: `lsusb`'s plain-text name for
+    this USB ID resolves to `PR1500LCDRT2U` via the static `usb.ids`
+    table, which is keyed only on vendor:product ID and is not specific
+    to this device — CyberPower reuses ID `0764:0601` across models, so
+    that name is misleading and should not be used for identification.)
+    Device node `/dev/bus/usb/003/003` is group-owned by `nut` via an
+    existing udev rule.
+  - [x] `usbhid-ups` driver (`proxmox-ups`) configured in `ups.conf`,
+    `nut.conf` set to `MODE=standalone`, `nut-driver@proxmox-ups` and
+    `nut-server` services running and confirmed via `upsc
+    proxmox-ups@localhost`: `ups.status: OL CHRG`, `battery.charge: 99`,
+    `battery.runtime: 11403`, `input.voltage`/`output.voltage: 118.0`,
+    `ups.realpower.nominal: 1000`. `ups.load: 0` — worth confirming with
+    Jason whether Proxmox is actually plugged into this unit's output.
+    `nut-monitor`/`upsmon` not yet configured (Milestone 3 territory).
   - [ ] UPS #1 (APC BN1500M2-CA) and UPS #2 (CyberPower OR500LCDRM1U)
     remain to be connected/identified.
 - [ ] Document the physical power topology and safe runtime assumptions.
