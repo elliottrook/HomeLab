@@ -2,7 +2,7 @@
 
 ## Project handover: Claude
 
-> Status: Milestone 1 in progress (discovery complete, one data checkpoint still finishing)
+> Status: Milestone 1 complete; ready to begin Milestone 2
 >
 > Project owner: Jason
 >
@@ -71,24 +71,42 @@ clear rollback path.
 ## 5. Milestone 1 — Discovery and capacity
 
 - [x] Record DSM, Synology Drive Server and Hyper Backup versions.
-- [ ] Confirm supported macOS/iOS client versions; use macOS Drive Client 4.1 or
-  later where supported.
-- [ ] Record current main/backup NAS capacity, snapshots and backup growth. —
-  main NAS capacity recorded; backup Synology (`192.168.20.42`) capacity and
-  backup-growth trend still not checked.
+- [x] Confirm supported macOS/iOS client versions; use macOS Drive Client 4.1 or
+  later where supported. — Server-side `SynologyDrive` 4.0.3-27892 requires
+  Drive Client 4.0.0+ for DSM 7.3+, satisfied. macOS client requires macOS
+  Monterey 12+; Jason's Mac mini runs macOS 26.5.2, well clear. **Important:**
+  Synology recently raised the iOS/iPadOS app's requirement to iOS 18+,
+  dropping iOS/iPadOS 17 support — confirm every family iPhone/iPad is on
+  iOS 18+ before the Milestone 5 pilot.
+- [x] Record current main/backup NAS capacity, snapshots and backup growth. —
+  Main NAS (`192.168.20.41`): 11 TB total, 6.8 TB used, 3.7 TB free (65%).
+  Backup NAS (`192.168.20.42`, DS220j): 7.3 TB total, 5.9 TB used, 1.4 TB free
+  (82%) — noticeably tighter headroom than the main NAS. Its primary Hyper
+  Backup job (`GoWest_1.hbk`) is 5.7 TB, accounting for most of that usage.
 - [x] Inventory existing homes, shared folders, permissions and Drive remnants.
 - [x] Confirm whether Drive was previously enabled and identify stale databases,
   clients or Team Folder settings without deleting them.
-- [ ] Define expected users, devices, initial data size and five-year growth.
-- [ ] Take a current configuration/data recovery checkpoint. — Jason's existing
-  Drive content is being relocated to a dated backup folder (in progress at
-  session end); Alisa/Carter have no Drive folder yet and Justin's is already
-  empty, so no checkpoint was needed for them. Still open: a DSM/package
-  configuration export, and confirming the move above finished cleanly.
+- [x] Define expected users, devices, initial data size and five-year growth. —
+  Six accounts total: Jason (admin, unrestricted), Alisa, Carter, Justin, Jen,
+  elliottrook. Non-Jason accounts to be capped at a 100 GB quota each, no
+  planned growth at this time. Devices: iPhone client for all six people; Mac
+  client for Jason and Alisa; iPad client for Jason.
+- [x] Take a current configuration/data recovery checkpoint. — Jason's
+  pre-existing Drive content (the 247 GB "Windows Back-up" folder plus a few
+  test `.odoc` files) was moved into `/volume1/DriveBackup-20260825/Jason/` on
+  the main NAS and verified complete; Jason's `Drive` folder is now empty.
+  Alisa/Carter had no Drive folder and Justin's was already empty, so no
+  checkpoint was needed for them.
 
 Completion gate: existing state and capacity are documented, and reactivation
-will not overwrite or expose existing data. **Not yet reached** — see open
-items above.
+will not overwrite or expose existing data. **Reached.**
+
+**Follow-up risk carried into later milestones (not acted on, per the
+no-Hyper-Backup-changes rule):** `/volume1/DriveBackup-20260825/Jason/` is not
+yet covered by Hyper Backup, so it currently has no off-box copy — only
+same-box RAID5 protection. Revisit when Milestone 7 (backup and recovery) adds
+Drive-related paths to the backup selection, and note the backup NAS's
+comparatively tight 1.4 TB headroom when sizing that addition.
 
 ## 6. Milestone 2 — Identity and folder design
 
@@ -214,4 +232,6 @@ exposure was introduced.
 | 2026-08-25 | Milestone 1 | DSM 7.4.1-90080 (build 90080, GM); SynologyDrive package 4.0.3-27892 (enabled); HyperBackup/HyperBackupVault 4.2.2-4262 (enabled). Main volume (`/volume1`): 11 TB total, 6.8 TB used, 3.7 TB free (65%), RAID5 across 4 disks, all healthy (`[UUUU]`), separate RAID1 system partitions. | Recorded |
 | 2026-08-25 | Milestone 1 | Individual DSM accounts already exist for admin, Jason, Alisa, Carter, elliottrook, Jen, Justin, guest, plus a Time Machine Backup service account — no shared admin-account use observed. Drive was previously enabled and used: Jason had an active `Drive` home folder with real content (Synology Office test docs, a large test video since deleted by Jason himself, and an unrelated 247 GB "Windows Back-up" folder). Alisa and Carter have no Drive folder yet; Justin's is already empty. Legacy Drive service folders (`@SynoDrive`, `@synologydrive`, `@SynologyDriveShareSync`) found and left untouched. | Recorded |
 | 2026-08-25 | Milestone 1 | Established SSH key-based access to the main Synology (`Jason@192.168.20.41`) for future automation. Root cause of an initial failure: DSM's default ACL grants the `administrators` group write access to every user's home directory, which trips OpenSSH `StrictModes` and silently blocks key auth. Fixed by pointing `AuthorizedKeysFile` at a root-owned path outside the home directory (`/etc/ssh/authorized_keys/%u`) rather than disabling `StrictModes` or altering the ACL. | Done |
-| 2026-08-25 | Milestone 1 | Recovery checkpoint for Jason's pre-existing Drive content: moved (not copied) everything except the deleted test video into `/volume1/DriveBackup-20260825/Jason/`, in preparation for a clean-slate Drive folder for Jason, Alisa, Justin and Carter. Same-volume move of the 247 GB "Windows Back-up" folder was still running at session end (confirmed active via `ps`, not stalled); result not yet verified. | In progress |
+| 2026-08-25 | Milestone 1 | Recovery checkpoint for Jason's pre-existing Drive content: moved (not copied) everything except the deleted test video into `/volume1/DriveBackup-20260825/Jason/`, in preparation for a clean-slate Drive folder for Jason, Alisa, Justin and Carter. Move completed and verified: Jason's `Drive` folder is empty, and the backup folder contains the "Windows Back-up" folder plus the `.odoc` files and `.DS_Store`, correctly owned. | Done |
+| 2026-08-25 | Milestone 1 | Backup NAS (`192.168.20.42`) discovery: same DSM 7.4.1-90080, model DS220j, 7.3 TB total / 5.9 TB used / 1.4 TB free (82%). Established SSH key access there too, using the same `AuthorizedKeysFile` fix as the main NAS (this box has no home-folder service enabled, which is otherwise unrelated to the SSH fix). Confirmed Synology Drive Client/app compatibility: server package needs Drive Client 4.0.0+ (satisfied), macOS client needs Monterey 12+ (satisfied), and the iOS/iPadOS app now requires iOS 18+ (Synology recently dropped iOS/iPadOS 17 support) — needs confirming against family devices before Milestone 5. | Recorded |
+| 2026-08-25 | Milestone 1 | Requirements gathered from Jason: 6 total accounts (Jason, Alisa, Carter, Justin, Jen, elliottrook); non-Jason accounts to be capped at 100 GB each with no planned growth; iPhone client for all six; Mac client for Jason and Alisa; iPad client for Jason. Milestone 1 completion gate reached. | Done |
