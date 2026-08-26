@@ -103,6 +103,39 @@ internal value, Authentik redirected the browser to
 origin even though the original NPM page used HTTPS. Setting `authentik_host`
 to the external HTTPS URL fixed the redirect and passkey flow.
 
+### 2026-08-25 WebAuthn HTTPS error follow-up
+
+A later recurrence report was initially misdiagnosed as the same reverse-proxy
+scheme problem. Inspection confirmed that Authentik 2026.8.0 was already using
+the correct system-wide Base URL and embedded-outpost host:
+
+```text
+Base URL = https://auth.elliottrook.com
+authentik_host = https://auth.elliottrook.com
+```
+
+NPM proxy host `auth.elliottrook.com` was also confirmed to forward internally
+to `http://192.168.50.22:9000`. Its custom configuration now explicitly
+preserves the browser-facing request metadata:
+
+```nginx
+proxy_set_header Host $http_host;
+proxy_set_header X-Forwarded-Proto https;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+```
+
+Those headers are correct defensive configuration, but they were not the cause
+of the observed error. The failing launch came from a dashboard shortcut that
+opened Authentik's direct management fallback at
+`http://192.168.50.22:9000`. WebAuthn correctly refuses that insecure origin.
+Opening `https://auth.elliottrook.com` produced the passkey prompt and completed
+authentication successfully. The dashboard shortcut was updated to the HTTPS
+hostname.
+
+Keep `http://192.168.50.22:9000` available on the trusted management network as
+a recovery path, but do not publish or use it as the normal Authentik launch
+URL. Passkey authentication is expected to fail on that direct HTTP endpoint.
+
 ## NPM hidden `advanced_config` workaround
 
 The installed NPM release does not expose the custom Advanced text field in
@@ -184,8 +217,13 @@ database backup in this repository.
 - Do not forward identity headers to an application that does not use them.
   The minimal authorization-only configuration restored normal NPM login.
 - WebAuthn failures mentioning HTTPS must be diagnosed from the browser's
-  actual authentication URL. An internal `http://192.168.50.22:9000` redirect
-  identified the embedded outpost URL as the final fault.
+  actual authentication URL and from the link that launched it. An internal
+  `http://192.168.50.22:9000` URL can be either a bad Authentik redirect or a
+  dashboard/bookmark pointing directly at the recovery endpoint; distinguish
+  those cases before changing the proxy.
+- Dashboard and bookmark entries must use `https://auth.elliottrook.com`.
+  Retaining the direct HTTP management path for recovery does not make it a
+  valid WebAuthn origin.
 - Change one layer at a time and keep the known-good direct-management path
   available throughout testing.
 

@@ -4,7 +4,7 @@
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-24
+> Last updated: 2026-08-25
 
 ## Purpose
 
@@ -137,3 +137,4 @@ backup and rollback procedures have passed.
 |---|---|---|---|
 | 2026-08-22 | Nginx Proxy Manager | Authentik forward auth with password and passkey | Passed |
 | 2026-08-24 | Project split | Rollout separated from initial-build record | Complete |
+| 2026-08-25 | Authentik launch URL follow-up | Verified Base URL/outpost/NPM headers; replaced dashboard HTTP fallback link with `https://auth.elliottrook.com` | Passed |

@@ -191,13 +191,16 @@ Service URL -> Authentik password + passkey -> application login -> service
 2. In a fresh private window, complete password and passkey authentication.
 3. Confirm the browser returns to the original HTTPS hostname, not an internal
    IP address.
-4. Complete the application's own login and exercise its normal functions.
-5. Test sign-out and a denied Authentik user.
-6. Test application API, mobile, webhook and health-check routes. If a client
+4. Confirm any Homepage/dashboard tile and operator bookmark uses the friendly
+   HTTPS hostname rather than a direct HTTP recovery address. WebAuthn cannot
+   operate on a non-localhost HTTP origin.
+5. Complete the application's own login and exercise its normal functions.
+6. Test sign-out and a denied Authentik user.
+7. Test application API, mobile, webhook and health-check routes. If a client
    cannot perform browser authentication, do not blindly place its route behind
    forward auth; preserve a private direct route or define the narrowest safe
    bypass based on the application's authentication design.
-7. Confirm the direct fallback still works, then record the integration as
+8. Confirm the direct fallback still works, then record the integration as
    tested.
 
 ## Path C — keep private without Authentik
