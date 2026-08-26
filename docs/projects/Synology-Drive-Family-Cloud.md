@@ -2,7 +2,7 @@
 
 ## Project handover: Claude
 
-> Status: Milestone 1 complete; ready to begin Milestone 2
+> Status: Milestones 1 and 2 complete; ready to begin Milestone 3
 >
 > Project owner: Jason
 >
@@ -110,17 +110,45 @@ comparatively tight 1.4 TB headroom when sizing that addition.
 
 ## 6. Milestone 2 — Identity and folder design
 
-- [ ] Create or verify one non-administrator DSM account per family member.
-- [ ] Create family groups and document their intended permissions.
-- [ ] Enable user home service and verify private `My Drive` separation.
-- [ ] Define the minimum shared family Team Folders and their owners.
-- [ ] Decide which shared folder, if any, requires Synology encryption.
-- [ ] Record the encryption-key backup and reboot/mount procedure before use.
-- [ ] Verify an ordinary family user cannot access DSM administration or another
-  person's private files.
+- [x] Create or verify one non-administrator DSM account per family member. —
+  Alisa, Carter, Justin and Jen are confirmed non-administrator accounts.
+  `elliottrook` remains an administrator alongside Jason — a deliberate
+  exception (Jason's decision), not an oversight; each got a 100 GB quota on
+  `volume1` regardless (DSM's quota UI wouldn't apply one to `elliottrook`
+  specifically, since it's an admin account).
+- [x] Create family groups and document their intended permissions. — Created
+  DSM group `Family` (Alisa, Carter, Jason, Jen, Justin — `elliottrook`
+  deliberately excluded per Jason's decision).
+- [x] Enable user home service and verify private `My Drive` separation. — Home
+  service already enabled. Verification uncovered a real problem: the `homes`
+  shared folder's own ACL granted `Alisa` full read/write and `Justin`/`Jen`
+  read access to *every* user's home folder (pre-existing, predates this
+  project), and creating the `Family` group temporarily made it worse by
+  adding blanket read/write for the whole group. Fixed by removing all
+  individual-user and group entries from the `homes` shared folder's
+  permissions, leaving only `administrators` (Jason + elliottrook) and each
+  user's own ownership. Re-audited and confirmed: no ordinary family member can
+  now access another's home/Drive folder.
+- [x] Define the minimum shared family Team Folders and their owners. — One
+  Team Folder: `Family Documents`, read/write for the `Family` group only
+  (initially created with individual per-user grants including `elliottrook`
+  and the built-in `admin` account by the folder wizard; corrected to
+  group-only access).
+- [x] Decide which shared folder, if any, requires Synology encryption. — None;
+  Jason opted out of Synology encryption for this project.
+- [ ] Record the encryption-key backup and reboot/mount procedure before use. —
+  Not applicable; no encryption in use.
+- [x] Verify an ordinary family user cannot access DSM administration or another
+  person's private files. — Private-file access verified and fixed (see home
+  service item above). DSM administration access was not tested with a live
+  login (Alisa/Carter/Justin/Jen are confirmed outside the `administrators`
+  group, which is the standard DSM control for this, but a real login spot
+  check would be the gold-standard confirmation if Jason wants one).
 
 Completion gate: the identity and folder model passes least-privilege tests with
-representative administrator and family accounts.
+representative administrator and family accounts. **Reached** — the one
+pre-existing privacy gap found during verification was fixed, not just
+documented.
 
 ## 7. Milestone 3 — Synology Drive Server
 
@@ -235,3 +263,6 @@ exposure was introduced.
 | 2026-08-25 | Milestone 1 | Recovery checkpoint for Jason's pre-existing Drive content: moved (not copied) everything except the deleted test video into `/volume1/DriveBackup-20260825/Jason/`, in preparation for a clean-slate Drive folder for Jason, Alisa, Justin and Carter. Move completed and verified: Jason's `Drive` folder is empty, and the backup folder contains the "Windows Back-up" folder plus the `.odoc` files and `.DS_Store`, correctly owned. | Done |
 | 2026-08-25 | Milestone 1 | Backup NAS (`192.168.20.42`) discovery: same DSM 7.4.1-90080, model DS220j, 7.3 TB total / 5.9 TB used / 1.4 TB free (82%). Established SSH key access there too, using the same `AuthorizedKeysFile` fix as the main NAS (this box has no home-folder service enabled, which is otherwise unrelated to the SSH fix). Confirmed Synology Drive Client/app compatibility: server package needs Drive Client 4.0.0+ (satisfied), macOS client needs Monterey 12+ (satisfied), and the iOS/iPadOS app now requires iOS 18+ (Synology recently dropped iOS/iPadOS 17 support) — needs confirming against family devices before Milestone 5. | Recorded |
 | 2026-08-25 | Milestone 1 | Requirements gathered from Jason: 6 total accounts (Jason, Alisa, Carter, Justin, Jen, elliottrook); non-Jason accounts to be capped at 100 GB each with no planned growth; iPhone client for all six; Mac client for Jason and Alisa; iPad client for Jason. Milestone 1 completion gate reached. | Done |
+| 2026-08-25 | Milestone 2 | Confirmed `elliottrook` is administered alongside Jason in the `administrators` group; Jason decided to keep it that way rather than demote it. Set a 100 GB `volume1` quota via DSM's User Quota UI for Alisa, Carter, Justin and Jen (the CLI tool `synoquota` proved unreliable/undocumented for this and was abandoned in favor of the native UI). `elliottrook` could not get a quota through the same UI because it's an admin account — accepted as-is. | Done |
+| 2026-08-25 | Milestone 2 | Created DSM group `Family` (Alisa, Carter, Jason, Jen, Justin; `elliottrook` deliberately excluded) and shared folder `Family Documents`. The folder's creation wizard initially granted individual access to `elliottrook`, the built-in `admin` account, and each family member separately rather than through the group; corrected via ACL edit to group-only access, verified via `synoacltool`. | Done |
+| 2026-08-25 | Milestone 2 | Home-folder privacy audit (`synoacltool` on the `homes` shared folder and each user's home directory) found a pre-existing gap predating this project: `Alisa` had full read/write and `Justin`/`Jen` had read access to every user's home folder via the `homes` share's own ACL. Creating the `Family` group temporarily compounded this by adding blanket group access. Fixed by stripping all individual-user and group grants from the `homes` shared folder, leaving only `administrators` and per-user ownership. Re-audited twice to confirm the fix actually took (the first pass removed redundant individual entries but left the `Family` group grant in place, which alone still allowed full cross-access). No Synology encryption will be used for this project (Jason's choice). Milestone 2 completion gate reached. | Done |
