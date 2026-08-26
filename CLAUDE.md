@@ -56,6 +56,10 @@ Current state:
   this unit** (rear ports are all surge-protection passthrough; front
   USB-A/USB-C are charging-only). Will operate as a dumb battery only —
   no software visibility or coordinated shutdown possible via NUT.
+  **Being replaced**: Jason ordered a second CyberPower CP1500PFCLCD
+  (same model as UPS #3) on 2026-08-25 to take over UPS #1's role, since
+  it's confirmed NUT-compatible via `usbhid-ups`. Not yet arrived/verified
+  — final disposition of the APC unit is still to be decided.
 - UPS #2 (CyberPower OR500LCDRM1U) — powers Arista switch, OPNsense, Ubiquiti PoE switch
 - UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — dedicated to Proxmox.
   Re-confirmed 2026-08-25 via live NUT/`usbhid-ups` query (authoritative —

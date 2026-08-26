@@ -104,6 +104,12 @@ item-level Definition of Done.
     has its own native UPS integration (separate from NUT, via direct
     USB to the NAS) that could be worth evaluating independently for
     those two boxes, outside this project's central-NUT-server scope.
+    **Update 2026-08-25:** Jason ordered a second CyberPower CP1500PFCLCD
+    (same model as UPS #3) to replace this APC unit, since it's already
+    confirmed NUT-compatible via `usbhid-ups`. Not yet arrived — once it
+    is, repeat the same identify/configure steps used for UPS #3. Final
+    disposition of the APC BN1500M2-CA (retire, repurpose as a
+    dumb-battery elsewhere, etc.) is still to be decided.
   - [ ] UPS #2 (CyberPower OR500LCDRM1U) remains to be connected/identified
     (already rack-mounted; Lenovo is still at Jason's desk, so a USB run
     to the rack may not be physically possible until relocation).
