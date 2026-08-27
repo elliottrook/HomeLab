@@ -2,7 +2,7 @@
 
 ## Project handover: Claude
 
-> Status: Milestones 1 and 2 complete; ready to begin Milestone 3
+> Status: Milestones 1-3 complete; ready to begin Milestone 4
 >
 > Project owner: Jason
 >
@@ -152,16 +152,49 @@ documented.
 
 ## 7. Milestone 3 — Synology Drive Server
 
-- [ ] Install or update Synology Drive Server from Package Center.
-- [ ] Enable only the selected Team Folders in Drive Admin Console.
-- [ ] Set conservative version retention based on capacity and recovery goals.
-- [ ] Configure file filters and size limits only where justified.
-- [ ] Confirm indexing/database health and expected storage consumption.
-- [ ] Confirm Drive service ports and firewall access remain private and scoped.
-- [ ] Record the exact server name used by clients and the direct fallback URL.
+- [x] Install or update Synology Drive Server from Package Center. — Already
+  installed and current (v4.0.3-27892, confirmed in Milestone 1).
+- [x] Enable only the selected Team Folders in Drive Admin Console. — Enabled
+  `Family Documents` only, via Drive Admin Console → Team Folder. Verified via
+  `@eaDir` markers (`cloud.tmp.dir`, `clientd.tmp.dir`, `@drive.queues`,
+  `SYNO@.fileindexdb`) that Drive is actually managing/indexing the folder,
+  not just that the DSM shared folder exists.
+- [x] Set conservative version retention based on capacity and recovery goals.
+  — 25 max versions, rotate/delete versions older than 30 days.
+- [x] Configure file filters and size limits only where justified. — Decided:
+  none. `Family Documents` is a small family documents folder, not a
+  general-purpose sync target where filtering matters.
+- [x] Confirm indexing/database health and expected storage consumption. —
+  Drive's internal block store (`/volume1/@synologydrive/@sync`) is
+  consuming ~219 GB. Investigated and found Jason's personal My Drive
+  currently holds a few hundred GB of photos; Jason will migrate these to a
+  dedicated photos app later and asked not to act on this now — recorded as a
+  known, accepted, temporary storage consumer, not a fault. No corruption or
+  indexing errors observed; Drive's processes (`syncd`, `cloud-workerd`, etc.)
+  are running normally.
+- [x] Confirm Drive service ports and firewall access remain private and
+  scoped. — Drive listens on 6690 (plus DSM's normal 5000/5001/80/443), bound
+  to all local interfaces as expected; no port-forward/NAT changes were made
+  by this project. QuickConnect was found enabled (a relay-based internet
+  exposure path) and Jason disabled it in favor of Tailscale, which he
+  confirmed already provides working remote access to the NAS.
+- [x] Record the exact server name used by clients and the direct fallback
+  URL. — Clients connect to `192.168.20.41` (hostname `GoWest`) over LAN or
+  Tailscale; no QuickConnect ID or DDNS hostname in use. Recommend using
+  Synology Drive Client's "secure connection" (HTTPS via DSM) option rather
+  than plain port 6690 when clients are set up in Milestone 4/5, since only
+  the unencrypted sync port was found listening (no 6691).
 
 Completion gate: Drive Server is healthy, private folders and Team Folders are
-correct, and no unintended share is exposed.
+correct, and no unintended share is exposed. **Reached.**
+
+**Note carried forward:** personal "My Drive" folders have no defined version
+retention policy yet (only `Family Documents` does) — worth revisiting once
+Jason's photo migration is done, so deleted-file history doesn't accumulate
+unbounded going forward. Also worth noting the NAS is dual-homed
+(`192.168.20.41` on the documented Servers VLAN 20, plus an undocumented
+`192.168.1.41` on `eth1`) — not a problem, just not previously recorded
+anywhere.
 
 ## 8. Milestone 4 — macOS Finder pilot
 
@@ -266,3 +299,6 @@ exposure was introduced.
 | 2026-08-25 | Milestone 2 | Confirmed `elliottrook` is administered alongside Jason in the `administrators` group; Jason decided to keep it that way rather than demote it. Set a 100 GB `volume1` quota via DSM's User Quota UI for Alisa, Carter, Justin and Jen (the CLI tool `synoquota` proved unreliable/undocumented for this and was abandoned in favor of the native UI). `elliottrook` could not get a quota through the same UI because it's an admin account — accepted as-is. | Done |
 | 2026-08-25 | Milestone 2 | Created DSM group `Family` (Alisa, Carter, Jason, Jen, Justin; `elliottrook` deliberately excluded) and shared folder `Family Documents`. The folder's creation wizard initially granted individual access to `elliottrook`, the built-in `admin` account, and each family member separately rather than through the group; corrected via ACL edit to group-only access, verified via `synoacltool`. | Done |
 | 2026-08-25 | Milestone 2 | Home-folder privacy audit (`synoacltool` on the `homes` shared folder and each user's home directory) found a pre-existing gap predating this project: `Alisa` had full read/write and `Justin`/`Jen` had read access to every user's home folder via the `homes` share's own ACL. Creating the `Family` group temporarily compounded this by adding blanket group access. Fixed by stripping all individual-user and group grants from the `homes` shared folder, leaving only `administrators` and per-user ownership. Re-audited twice to confirm the fix actually took (the first pass removed redundant individual entries but left the `Family` group grant in place, which alone still allowed full cross-access). No Synology encryption will be used for this project (Jason's choice). Milestone 2 completion gate reached. | Done |
+| 2026-08-26 | Milestone 3 | Enabled `Family Documents` as a Team Folder in Drive Admin Console (verified via `@eaDir` Drive-managed markers); set version retention to 25 max versions / 30-day rotation; decided no file filters or size limits are needed. | Done |
+| 2026-08-26 | Milestone 3 | Confirmed Drive's service ports (6690, plus DSM's normal web ports) are bound to all local interfaces with no port-forward changes made by this project. Found QuickConnect enabled (a relay-based internet-exposure path inconsistent with the project's LAN/Tailscale-only rule); Jason confirmed working Tailscale access first, then disabled QuickConnect. Noted the NAS is dual-homed (`192.168.20.41` on Servers VLAN 20, plus an undocumented `192.168.1.41` on `eth1`) — not a problem, just not previously recorded. Clients will connect via `192.168.20.41` over LAN or Tailscale. | Done |
+| 2026-08-26 | Milestone 3 | Storage/indexing check found Drive's internal block store (`@synologydrive/@sync`) consuming ~219 GB despite `Family Documents` being empty. Investigation traced this to a few hundred GB of photos currently sitting in Jason's personal My Drive folder — real, current content, not stale data from the earlier cleanup. Jason will migrate these to a dedicated photos app later; recorded as a known, accepted, temporary storage consumer, not a fault. Drive's processes are healthy and running normally. Personal My Drive folders still have no defined version-retention policy (only `Family Documents` does) — worth revisiting after the photo migration. Milestone 3 completion gate reached. | Done |
