@@ -13,7 +13,7 @@ This document defines the VLAN structure and Layer 3 addressing plan for Project
 
 OPNsense provides the default gateway, DHCP services, and firewall enforcement for each routed VLAN.
 
-The Arista core switch and UniFi switching infrastructure provide Layer 2 VLAN transport.
+The Arista core switch and AP Switch provide Layer 2 VLAN transport to the UniFi access points.
 
 ---
 
@@ -98,7 +98,7 @@ VLAN 1 will not carry ordinary production or management traffic after migration 
 | Proxmox management | 192.168.50.10 | 50 |
 | UniFi OS Server | 192.168.50.21 | 50 |
 | NUT server | 192.168.50.25 | 50 |
-| UniFi PoE switch | 192.168.50.30 | 50 |
+| AP Switch | 192.168.50.26 | 1 (management L2 anomaly) |
 | UniFi Hall access point | 192.168.50.31 | 50 |
 | UniFi Office access point | 192.168.50.141 | 50 |
 | OPNsense Lab gateway | 192.168.70.1 | 70 |
@@ -106,6 +106,10 @@ VLAN 1 will not carry ordinary production or management traffic after migration 
 | Hermes Agent LXC 104 | 192.168.70.10 | 70 |
 | Ollama VM 105 | 192.168.70.11 | 70 |
 | Frigate VM 102 | 192.168.20.10 | 20 |
+
+The AP Switch address is numbered for Management VLAN 50, but the switch does
+not answer there. Its management plane appears on VLAN 1/untagged; direct
+recovery uses port 5 and a temporary `192.168.50.27/24` Mac address.
 | Reolink Duo 2V PoE | 192.168.60.10 | 60 |
 
 ---

@@ -8,7 +8,7 @@
 |Docker|192.168.20.20|
 |UniFi Controller|192.168.50.21|
 |NUT Server|192.168.50.25|
-|UniFi PoE Switch|192.168.50.30|
+|AP Switch (direct recovery only)|192.168.50.26|
 |UniFi Hall AP|192.168.50.31|
 |UniFi Office AP|192.168.50.141|
 |TrueNAS|192.168.20.40|
@@ -22,6 +22,12 @@
 |Reverse Proxy LXC 107|192.168.50.23|
 |Forgejo LXC 108|192.168.20.30|
 |Reolink Duo 2V PoE|192.168.60.10|
+
+The AP Switch management plane appears on VLAN 1/untagged despite its
+`192.168.50.26/24` address. It is not normally reachable through Management
+VLAN 50. For recovery, connect a Mac to AP Switch port 5 and temporarily assign
+`192.168.50.27/24` with no gateway or DNS, then open
+`http://192.168.50.26`.
 
 ## Shared service endpoints on Docker LXC 100
 

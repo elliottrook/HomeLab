@@ -1,6 +1,6 @@
 # Home Network Baseline
 
-Baseline date: 2026-08-20
+Baseline date: 2026-08-26
 Status: This is the reconciled Phase 11 production baseline. VLANs 20, 30, 40,
 50, 60 and 70 are routed and policy-enforced by OPNsense while VLAN 10 remains
 the native Trusted network. Server, IoT, Guest, Management, Camera and Lab
@@ -67,6 +67,21 @@ Final-consolidation checkpoint completed 2026-08-20:
 - All six Proxmox guests have local archives, checksum-verified Synology
   mirrors and representative isolated restore evidence.
 
+AP/PoE switch replacement checkpoint completed 2026-08-26:
+
+- The Binarui unit entered production under the documented name **AP Switch**.
+- Both U7 Pro XG access points negotiated 2.5G full, the Arista uplink negotiated
+  10G full and all three SSIDs became usable after the AP ports were configured
+  as trunks.
+- Arista Et33 is the AP Switch uplink trunk. Et34 is an access VLAN 60 handoff
+  for the old TP-Link 8-port 1Gb PoE switch's future camera-only role.
+- AP Switch management remains a documented anomaly: `192.168.50.26` is
+  numbered in Management VLAN 50 but its Layer 2 management plane appears on
+  VLAN 1/untagged. Direct recovery through port 5 is known good.
+- Camera validation through Et34 and the TP-Link was deferred until the cameras
+  are reconfigured. The retired UniFi PoE switch still needs to be forgotten in
+  the UniFi Network application.
+
 Store copies off the network appliances and treat them as sensitive configuration data.
 
 ## Current topology
@@ -107,7 +122,7 @@ Arista core — 192.168.50.2
   |     +-- Authentik LXC 106 — 192.168.50.22
   |     +-- Reverse Proxy LXC 107 — 192.168.50.23
   |     +-- NUT server — 192.168.50.25
-  |     +-- UniFi switch — 192.168.50.30
+  |     +-- AP Switch — 192.168.50.26 (direct VLAN 1 recovery; see anomaly below)
   |     +-- Hall AP — 192.168.50.31
   |     +-- Office AP — 192.168.50.141
   |
@@ -136,9 +151,9 @@ homelab-gateway — 192.168.20.20
 | 192.168.20.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router / Beszel | bc:24:11:43:71:67 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.50.21 | UniFi controller LXC 101 | bc:24:11:b6:de:53 | Et4 via Proxmox, tagged VLAN 50 |
 | 192.168.50.25 | NUT server | 00:23:24:55:b1:1a | Et31, direct access port in management VLAN 50 |
-| 192.168.50.30 | UniFi PoE switch | 74:f9:2c:28:38:a6 | Et33, management VLAN 50 |
-| 192.168.50.31 | UniFi Hall AP | 90:41:b2:ce:76:10 | UniFi PoE switch, management VLAN 50 |
-| 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | UniFi PoE switch, management VLAN 50 |
+| 192.168.50.26 | AP Switch | Not yet recorded | Et33; IP is not reachable normally on VLAN 50 because management appears on VLAN 1/untagged |
+| 192.168.50.31 | UniFi Hall AP | 90:41:b2:ce:76:10 | AP Switch port 1, 2.5G full |
+| 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | AP Switch port 2, 2.5G full |
 | 192.168.20.40 | TrueNAS `bond0` | 6c:92:bf:67:fb:bc | Et9 primary / Et17 failover, VLAN 20 |
 | 192.168.20.41 | Synology DS920+ | 00:11:32:ca:e5:e5 | Et24, access VLAN 20 |
 | 192.168.20.42 | Backup Synology | 00:11:32:c8:06:c5 | Et48, access VLAN 20 |
@@ -162,7 +177,7 @@ homelab-gateway — 192.168.20.20
 
 - All connected Arista ports report zero FCS, alignment, symbol, receive, runt, giant, and transmit errors.
 - Queue-drop counters remained unchanged between observations; existing totals are historical.
-- Et33 (UniFi uplink) and Et40 (OPNsense LAN) have zero queue drops.
+- Et33 (AP Switch uplink) and Et40 (OPNsense LAN) have zero queue drops at the retained baseline observation.
 - Arista is the MSTP root for VLAN 10. All connected ports are forwarding; Et33 is the expected spanning-tree boundary/uplink.
 - Switch temperatures and cooling are healthy. Highest observed PHY temperature was 51 C.
 - PSU2 is online and supplies approximately 160 W. PSU1 is intentionally unpowered; redundancy is knowingly unavailable.
@@ -170,9 +185,28 @@ homelab-gateway — 192.168.20.20
 - The temporary switch has been removed. Proxmox is directly connected on Arista Et4 as a trunk with native VLAN 10 and tagged VLANs 20, 50 and 70. Proxmox management uses `vmbr0.50` at `192.168.50.10`; the base bridge remains addressless. The Mac mini is directly connected on Et8 as an access port in VLAN 10.
 - TrueNAS 25.10.5 uses `bond0` in active-backup mode at 192.168.20.40/24. Member `enp5s0f0` (MAC 6c:92:bf:67:fb:bc, Arista Et9) is the preferred primary and `enp5s0f1` (permanent MAC 6c:92:bf:67:fb:bd, Arista Et17) is the standby. Both links operate at 10 Gbps, MII monitoring runs every 100 ms, and `primary_reselect` is `always`. A controlled Et9 shutdown moved service to Et17 with one lost ping; restoring Et9 automatically returned service to the primary. Both switch ports remain independent access ports in VLAN 20 with PortFast; no port-channel or LACP is configured.
 - Arista management is provided by Vlan50 at 192.168.50.2/24. Vlan10 remains addressless, Management1 is unassigned/down, and the management default route is `0.0.0.0/0` via `192.168.50.1`.
-- UniFi Network Server version 10.5.67 runs in LXC 101 at `192.168.50.21` and uses third-party-gateway networks named Default, IoT (VLAN 30), Guest (VLAN 40) and Management (VLAN 50). UniFi switch Port 9 is the 10GbE uplink to Arista Et33; its native network remains Default (UniFi VLAN 1/untagged), tagged VLAN management is Allow All, auto-negotiation is enabled, and STP is enabled. The PoE switch and Hall and Office APs use `192.168.50.30`, `.31` and `.141`. All three remained online after migration, and the temporary Trusted controller interface and legacy migration firewall exceptions were removed. Local UniFi OS management is exposed at `https://192.168.50.21:11443` and is reachable only from approved administrator devices.
+- UniFi Network Server version 10.5.67 runs in LXC 101 at `192.168.50.21` and uses third-party-gateway networks named Default, IoT (VLAN 30), Guest (VLAN 40) and Management (VLAN 50). The retired UniFi PoE switch has been physically replaced and remains to be forgotten in the UniFi Network application. Hall and Office U7 Pro XG APs use `.31` and `.141` and are connected to AP Switch ports 1 and 2 at 2.5G full. Local UniFi OS management is exposed at `https://192.168.50.21:11443` and is reachable only from approved administrator devices.
 - OPNsense Guest interface `vlan0.40` is active on parent `ix0` at 192.168.40.1/24. Dnsmasq is the active DHCP service and serves 192.168.40.100-192.168.40.199 with 86,400-second leases. Kea was disabled after its logs confirmed it could not bind UDP port 67 because dnsmasq already owned the port.
 - Arista Et40 is a trunk with native VLAN 10 and VLANs 10,20,30,40,50,60,70 allowed. Et33 is a trunk with native VLAN 10 and VLANs 10,30,40,50,60 allowed. Temporary test ports Et1 and Et2 are access ports in VLANs 40 and 30 respectively.
+- AP Switch ports 1 through 4 are trunks with native VLAN 1 and VLANs
+  1,10,20,30,40,50,60,70 permitted. Ports 1 and 2 serve the APs; ports 3 and 4
+  are spare preconfigured AP/multigig PoE trunks. Port 5 is access VLAN 1 for
+  emergency recovery. Port 6 is the 10G trunk to Arista Et33.
+- The AP Switch/Et33 native-VLAN mismatch is deliberate and documented:
+  untagged/native VLAN 1 traffic from the AP Switch is classified into native
+  VLAN 10 by Arista Et33. Tagged SSID VLANs work, but AP Switch management IP
+  `192.168.50.26` does not match its actual Layer 2 management path. OPNsense
+  showed `.50.26` incomplete on `vlan0.50`. Direct recovery works by connecting
+  a Mac configured as `192.168.50.27/24` to AP Switch port 5.
+- Arista Et34 is described `Camera-PoE-TPLink` and configured as access VLAN 60.
+  It is reserved for the old TP-Link 8-port 1Gb PoE switch as a flat camera-only
+  switch. Validation with one reconfigured camera remains pending.
+- No AP Switch firmware update was attempted. The interface requires a local
+  image and no trustworthy published support/download source was identified;
+  treat it as an as-is appliance during the burn-in trial.
+- Arista `192.168.50.2` was reachable from OPNsense and Proxmox but not from
+  Jason's Mac during the 2026-08-26 troubleshooting session. The Mac-specific
+  path remains a later investigation.
 - OPNsense IoT interface `vlan0.30` is active on parent `ix0` at 192.168.30.1/24. Dnsmasq serves 192.168.30.100-192.168.30.199 with 86,400-second leases and the `iot.internal` DHCP domain. The validated rule order allows IoT DNS and NTP to the interface address, blocks access to the firewall and RFC1918 networks, and permits remaining IPv4 Internet traffic.
 - The OPNsense `os-mdns-repeater` plugin relays multicast DNS only among `ix0` (LAN), `vlan0.20` (Servers) and `vlan0.30` (IoT). Guest and WAN are excluded.
 - Philips Hue on Et46 uses 192.168.30.164 and Lutron on Et45 uses 192.168.30.102. Both vendor apps and Apple Home remained functional after migration to VLAN 30.
@@ -184,7 +218,7 @@ homelab-gateway — 192.168.20.20
 - Tailscale runs directly in Docker LXC 100 as the `homelab-gateway` subnet router. It advertises Trusted `192.168.1.0/24`, Servers `192.168.20.0/24` and Management `192.168.50.0/24`; IoT, Guest, Cameras and Lab are not advertised. IPv4 forwarding is enabled and the LXC has access to `/dev/net/tun`.
 - Tailscale split DNS sends only the `internal` namespace to OPNsense at `192.168.1.1`. The broad default tailnet allow rule was replaced with an identity-specific grant permitting the administrator account to reach the Trusted, Servers and Management routes on all protocols. A host-scoped OPNsense rule permits the subnet router at `192.168.20.20` to reach Trusted because routed clients are source-NATed behind it. Remote Homepage, Home Assistant, Frigate and Proxmox access passed with the client off home Wi-Fi. SSH uses the existing host services through the subnet route; native Tailscale SSH is not enabled. No inbound WAN port-forward or public service exposure was added.
 - Homepage includes Network, Smart Home, Security & Operations, AI & Automation, Virtualization, Storage, Media, Media Automation, Application Management, External Services, SSH Access and Security & Surveillance groups. The operations group contains Beszel, Code Server, Authentik, Dockge, Dozzle and the reverse proxy; Forgejo remains under Application Management. Hermes and Ollama are represented as isolated pilots without dead direct links. Primary and Secondary Pi-hole tiles, Home Assistant, Beszel and Frigate web/SSH tiles are operational. Beszel reports monitored-system health through a dedicated file-backed Homepage widget credential. The dashboard and its internal management targets remain intended for LAN or Tailscale access only.
-- The NUT server is the independent management-VLAN host at `192.168.50.25`, MAC `00:23:24:55:b1:1a`, directly connected to Arista Et31. It is not downstream of the UniFi PoE switch; Et33 remains the UniFi uplink.
+- The NUT server is the independent management-VLAN host at `192.168.50.25`, MAC `00:23:24:55:b1:1a`, directly connected to Arista Et31. It is not downstream of the AP Switch; Et33 is the AP Switch uplink.
 - Forgejo runs in unprivileged LXC 108 at `192.168.20.30`. Its complete repository, branches and release tag were synchronized with GitHub, SSH clone/push was validated, its archive is included in the nightly guest mirror, and an isolated LXC 978 restore verified the service, SQLite database and HomeLab repository before cleanup.
 - Frigate VM 102 runs Debian 13.6 at `192.168.20.10` on VLAN 20. Its Reolink Duo 2V PoE camera uses `192.168.60.10` on VLAN 60. OPNsense permits only TCP 80, 554 and 8000 from Frigate to the camera; TCP 9000 remains blocked.
 - Frigate VM 102 has the Coral Edge TPU passed through as a dedicated PCIe device. The guest loads the `gasket` and `apex` modules, exposes `/dev/apex_0` to the Frigate container and reports approximately 10 ms inference. CPU HEVC decoding remains separate from Coral object-detection inference.
@@ -343,7 +377,7 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
 ## Phase 11 Known-Good Checkpoint — 2026-08-20
 
 - Proxmox currently exposes 31 GiB usable memory from two installed 16 GB SK hynix ECC RDIMMs in DIMM1 and DIMM3, configured at 1866 MT/s. The completed 24 GB two-pass `memtester` run reported no errors. The remaining RAM and E5-2698 v4 maintenance stage is pending.
-- Production management endpoints are Arista `192.168.50.2`, Proxmox `192.168.50.10`, UniFi controller `192.168.50.21`, UniFi switch `192.168.50.30`, Hall AP `192.168.50.31` and Office AP `192.168.50.141`.
+- Production management endpoints are Arista `192.168.50.2`, Proxmox `192.168.50.10`, UniFi controller `192.168.50.21`, Hall AP `192.168.50.31` and Office AP `192.168.50.141`. The AP Switch is numbered `192.168.50.26` but requires the documented direct VLAN 1 recovery path because its management plane is not actually reachable on VLAN 50.
 - Server endpoints include Frigate `192.168.20.10`, Home Assistant `192.168.20.11`, Docker and primary Pi-hole `192.168.20.20`, TrueNAS and secondary Pi-hole `192.168.20.40`, primary Synology `192.168.20.41` and Backup Synology `192.168.20.42`.
 - Hermes LXC 104 at `192.168.70.10` and Ollama VM 105 at `192.168.70.11` remain isolated Lab VLAN 70 pilots. Both are included in Proxmox guest backups, mirrored to the Backup Synology, protected through the encrypted `automated/proxmox-guests` off-site selection and have passed isolated restore validation.
 - Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf, Sonarr, Radarr, Lidarr and Prowlarr were directly reachable during reconciliation.

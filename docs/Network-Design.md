@@ -36,7 +36,7 @@ Core infrastructure includes:
 - Arista DCS-7050TX-64 as the 10 Gb core switch
 - Proxmox as the virtualization platform
 - TrueNAS SCALE and Synology systems for storage
-- UniFi switching and wireless
+- Binarui AP Switch with UniFi wireless
 - Homepage for internal service navigation
 - Tailscale for private, identity-restricted remote access
 
@@ -46,8 +46,10 @@ policy between trust zones.
 
 The planned migrations are complete. Docker, Frigate, Home Assistant, TrueNAS
 and both Synology systems reside on Servers VLAN 20. The UniFi controller,
-UniFi switch, both access points, Proxmox and the Arista management SVI reside
-on Management VLAN 50. IoT, Guest and Camera devices use VLANs 30, 40 and 60.
+both access points, Proxmox and the Arista management SVI reside on Management
+VLAN 50. The AP Switch is numbered `192.168.50.26`, but its management plane
+appears on VLAN 1/untagged and requires the documented direct-recovery path.
+IoT, Guest and Camera devices use VLANs 30, 40 and 60.
 Hermes and Ollama remain non-production pilot workloads on Lab VLAN 70. The
 validated deployed state is recorded in `Current-Network-Baseline.md`.
 

@@ -3,6 +3,10 @@
 ## Unreleased
 
 ### Added
+- Replaced the failed UniFi PoE switch role with the Binarui **AP Switch**, documented its complete port/VLAN inventory, management recovery procedure and as-is burn-in decision.
+- Preconfigured AP Switch ports 1–4 as native-VLAN-1 AP trunks permitting VLANs 1,10,20,30,40,50,60,70; reserved port 5 for recovery and port 6 for the 10G Arista uplink.
+- Reassigned Arista Et34 as `Camera-PoE-TPLink`, access VLAN 60, for the old TP-Link switch's future camera-only role; single-camera validation remains deferred.
+- Added follow-up work to forget the retired PoE switch in UniFi Network and investigate Mac-only access failure to Arista management.
 - Documented the tested Authentik forward-auth integration for Nginx Proxy Manager, including DNS, TLS, WebAuthn, NPM regeneration and rollback details.
 - Added a reusable native-OIDC, forward-auth and private-access onboarding process for current and planned services.
 - Added the current Homepage dashboard milestone, code-server editing workflow and dashboard follow-up agenda.
@@ -15,6 +19,8 @@
 - Added a Claude-ready Synology Drive family-cloud handover and a concise milestone tracker to the existing NUT/UPS handover.
 
 ### Fixed
+- Validated both U7 Pro XG links at 2.5G full, the AP Switch uplink at 10G full and all three SSIDs after configuring the AP-facing ports as trunks.
+- Documented the AP Switch native-VLAN anomaly: management IP `192.168.50.26` is effectively reached through VLAN 1/untagged rather than VLAN 50, while Arista Et33 classifies untagged traffic into native VLAN 10.
 - Documented the storm-related UniFi PoE switch boot failure, rejected TP-Link fallback and managed PoE replacement requirement.
 - Selected and purchased the managed PoE replacement; installation validation and configuration capture remain scheduled after delivery.
 

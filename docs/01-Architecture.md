@@ -24,7 +24,9 @@ Arista core
   |     +-- NFS: Surveillance/Frigate recording storage
   +-- Synology storage
   +-- NUT server (Management VLAN 50, Arista Et31)
-  +-- UniFi switching and wireless (Arista Et33 uplink)
+  +-- AP Switch and UniFi wireless (Arista Et33 10G uplink)
+  |     +-- Two U7 Pro XG access points at 2.5G
+  +-- TP-Link camera-only PoE switch (Arista Et34 access VLAN 60; validation pending)
         +-- Reolink Duo 2V PoE (Cameras VLAN 60)
 ```
 
