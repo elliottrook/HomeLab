@@ -2,7 +2,8 @@
 
 ## Project handover: Claude
 
-> Status: Milestones 1-3 complete; ready to begin Milestone 4
+> Status: Milestones 1-3 complete; Milestone 4 done on the Mac mini, laptop
+> repeat still open
 >
 > Project owner: Jason
 >
@@ -198,14 +199,60 @@ anywhere.
 
 ## 8. Milestone 4 — macOS Finder pilot
 
-- [ ] Install the current Synology Drive Client on Jason's Mac mini first.
-- [ ] Configure On-demand Sync rather than downloading the full dataset.
-- [ ] Confirm Synology Drive appears as a Finder location.
-- [ ] Test online-only files, local download, pinning, edits and conflict handling.
-- [ ] Test sleep, restart, network loss and reconnection.
-- [ ] Confirm disk-space reclamation does not delete server data.
+- [x] Install the current Synology Drive Client on Jason's Mac mini first.
+- [x] Configure On-demand Sync rather than downloading the full dataset. — Sync
+  Task set up as Two-way sync with "Enable On-demand Sync to save disk space"
+  checked (macOS client's default), pointed at the personal My Drive root
+  (`/home/Drive` on the NAS side, `~/SynologyDrive/MyDrive` locally).
+- [x] Confirm Synology Drive appears as a Finder location. — Required a
+  one-time macOS "Enable" click the first time (File Provider extensions need
+  explicit user approval before they'll mount, same as iCloud Drive/OneDrive);
+  after that it loaded normally.
+- [x] Test online-only files, local download, pinning, edits and conflict
+  handling. — Verified: a server-created file appeared as an online-only
+  placeholder (cloud icon), downloaded correctly on open, and a local edit
+  propagated back to the server. Conflict handling was tested but with a
+  caveat: the "server-side" edit was made via a direct SSH file write, which
+  bypasses Drive's own change-tracking — the local client's edit silently
+  overwrote it rather than producing a conflict copy. This doesn't
+  necessarily reflect how two genuine Drive clients would resolve a real
+  conflict; a fully clean test would need a second device actually running
+  Drive Client. Worth knowing regardless: direct out-of-band edits on the NAS
+  (via SSH/scripts) can be silently clobbered by a client's next sync.
+- [x] Test sleep, restart, network loss and reconnection. — Jason restarted
+  the Mac mini and toggled Wi-Fi off/on; Drive reconnected and resumed
+  correctly in both cases.
+- [x] Confirm disk-space reclamation does not delete server data. — Used
+  Finder's "Free up space" quick action; confirmed via `du`/`stat` that local
+  disk blocks dropped to 0 while the file's logical size and Finder listing
+  stayed intact, and the server-side copy (with both edits) was fully
+  unaffected.
 - [ ] Repeat with the laptop only after the Mac mini pilot is stable.
-- [ ] Document the client setup and removal procedure.
+- [x] Document the client setup and removal procedure. — See below.
+
+**Client setup procedure (macOS):**
+1. Download Synology Drive Client (4.0.3+) from Synology's Download Center for
+   the DS920+, macOS.
+2. Install the `.dmg`, launch the app, enter server address `192.168.20.41`
+   and sign in with the individual DSM account.
+3. Choose **Sync Task** (not Backup Task). On the folder-selection screen,
+   click **Advanced → Sync Mode** and confirm **"Enable On-demand Sync to save
+   disk space"** is checked, with **Two-way sync** selected.
+4. Finish setup, then open Finder → the new location will show "not enabled"
+   the first time — click **Enable** to complete macOS's one-time File
+   Provider approval.
+5. Team Folders (e.g. `Family Documents`) are a separate sync connection, not
+   automatically included in the personal My Drive sync task — add them from
+   Drive Client's own interface when needed. Confirmed on Jason's Mac mini:
+   added a second sync connection for `Family Documents`
+   (`~/SynologyDrive/Family`), and a server-created test file appeared there
+   as an on-demand placeholder exactly as it did for My Drive.
+
+**Client removal procedure:** Open Synology Drive Client → remove the sync
+task from its task list → quit/uninstall the app from Applications. The
+on-demand placeholders under `~/Library/CloudStorage/SynologyDrive-*` are
+removed by macOS once the File Provider extension is uninstalled; server-side
+data is never affected by removing a client.
 
 Completion gate: Finder behaves as a dependable live drive without unnecessary
 local duplication, and recovery from disconnects is predictable.
@@ -302,3 +349,4 @@ exposure was introduced.
 | 2026-08-26 | Milestone 3 | Enabled `Family Documents` as a Team Folder in Drive Admin Console (verified via `@eaDir` Drive-managed markers); set version retention to 25 max versions / 30-day rotation; decided no file filters or size limits are needed. | Done |
 | 2026-08-26 | Milestone 3 | Confirmed Drive's service ports (6690, plus DSM's normal web ports) are bound to all local interfaces with no port-forward changes made by this project. Found QuickConnect enabled (a relay-based internet-exposure path inconsistent with the project's LAN/Tailscale-only rule); Jason confirmed working Tailscale access first, then disabled QuickConnect. Noted the NAS is dual-homed (`192.168.20.41` on Servers VLAN 20, plus an undocumented `192.168.1.41` on `eth1`) — not a problem, just not previously recorded. Clients will connect via `192.168.20.41` over LAN or Tailscale. | Done |
 | 2026-08-26 | Milestone 3 | Storage/indexing check found Drive's internal block store (`@synologydrive/@sync`) consuming ~219 GB despite `Family Documents` being empty. Investigation traced this to a few hundred GB of photos currently sitting in Jason's personal My Drive folder — real, current content, not stale data from the earlier cleanup. Jason will migrate these to a dedicated photos app later; recorded as a known, accepted, temporary storage consumer, not a fault. Drive's processes are healthy and running normally. Personal My Drive folders still have no defined version-retention policy (only `Family Documents` does) — worth revisiting after the photo migration. Milestone 3 completion gate reached. | Done |
+| 2026-08-26 | Milestone 4 | Installed Synology Drive Client on Jason's Mac mini (this device). On-demand Sync confirmed working end-to-end: server-created files appear as online-only placeholders, download correctly on open, local edits propagate back to the server, and Finder's "Free up space" quick action reclaims local disk blocks (`du`/`stat` confirmed 0 blocks) without ever touching server data. Restart and Wi-Fi toggle resilience confirmed by Jason directly. Conflict-handling test had a caveat: the simulated "server-side" edit was a raw SSH write bypassing Drive's own change tracking, so the local client's edit silently overwrote it rather than producing a true conflict copy — not a clean test of real two-client conflict resolution, but a useful finding that out-of-band NAS edits can be clobbered by client syncs. Added and verified a second sync connection for the `Family Documents` Team Folder on the same Mac, confirming Team Folder sync works identically to personal My Drive. Test files cleaned up from both locations afterward. Still open: repeating the pilot on Jason's laptop. | Done |
