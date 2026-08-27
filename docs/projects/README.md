@@ -16,7 +16,7 @@
 | NUT/UPS deployment | Handover ready | [NUT/UPS handover](../UPS-Power-Resilience-Claude-Handover.md) | Architecture, shutdown and recovery requirements are contained in the handover |
 | Synology Drive family cloud | Handover ready | [Synology Drive](Synology-Drive-Family-Cloud.md) | [Backup design](../05-Backups.md) |
 | Prometheus/Grafana observability | Proposed | [Prometheus/Grafana](Prometheus-Grafana-Observability.md) | Existing HomeLab Doctor and Beszel remain operational |
-| TrueNAS DIY SAS expansion | Proposed | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Backplane-free external enclosure using the existing HBA's two free disk endpoints |
+| TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
 
 ## Common project rules
 

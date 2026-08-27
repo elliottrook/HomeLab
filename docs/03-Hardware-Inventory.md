@@ -20,6 +20,16 @@
   - Quadro K620 remains scheduled for removal during the next hardware-maintenance window
   - Any Intel Arc Pro B60 purchase remains conditional on exact SKU/VRAM, clearance, PSU and power-connector validation
 - TrueNAS SCALE
+  - Address: `192.168.20.40` on Servers VLAN 20
+  - Media pool baseline: one six-disk 4 TB SAS RAIDZ2 data VDEV
+  - Storage HBA: LSI SAS 9300-16i, four internal x4 SFF-8643 Mini-SAS HD
+    connectors; two connectors serve the current six disks and two complete x4
+    connectors are vacant
+  - Current direct-attach cable type: CableDeconn H0204, 1 m SFF-8643 to four
+    29-pin SFF-8482 connectors with 15-pin power inputs
+  - Planned capacity: eight additional directly attached SAS bays in a
+    backplane-free, independently powered printed enclosure; see
+    [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)
 - Synology DS920+
 - Backup Synology
 - Lenovo ThinkCentre M92p (NUT server, `192.168.50.25`)
