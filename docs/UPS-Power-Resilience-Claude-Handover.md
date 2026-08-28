@@ -162,7 +162,33 @@ item-level Definition of Done.
   cleanly today (`NUT server, monitor and both UPS units healthy`).
   Note: this only covers the two desk-connected units; UPS #2 will need
   adding to `expected_ups` once it's identified/connected.
-- [ ] Protect NUT configuration and document bare-metal recovery.
+- [x] Protect NUT configuration and document bare-metal recovery.
+  Documented in [05-Backups.md](../05-Backups.md) under "NUT / UPS Server
+  (Lenovo)" 2026-08-28: a manual pull command lands `ups.conf`, `nut.conf`,
+  `upsd.users` (contains the real `upsmon` password), `upsmon.conf`, the
+  SSH hardening drop-in, and network/hostname info directly into
+  `~/lab/private-backups/nut/<timestamp>/` on the Mac — already inside the
+  existing daily Backup Synology pull and encrypted IDrive e2 off-site
+  task, so no new automation was needed. A first verified baseline was
+  pulled and spot-checked. `check_backup_age "NUT" ...` added to
+  `scripts/doctor.sh` to flag staleness. Bare-metal recovery procedure
+  (reinstall Debian, restore configs, re-enable services) is documented
+  but not yet tested end-to-end.
+
+  **Caught and fixed while pulling this backup:** an earlier `sed` command
+  used to pin `proxmox-ups`'s serial (see the upsd/upsmon entry above) had
+  a bug — its end-of-range pattern (`/^desc = /`) assumed no leading
+  whitespace, but every directive in `ups.conf` is indented 4 spaces, so
+  the range never closed and ran to end-of-file. This caused
+  `proxmox-ups`'s serial to also get inserted into `nas-ups`'s section
+  (harmlessly shadowed by `nas-ups`'s own correct serial line already
+  present below it, since NUT's parser takes the last matching directive
+  in a section — confirmed via `upsc nas-ups` reporting the correct serial
+  throughout). Fixed with a context-anchored `sed` deletion targeting only
+  the duplicate line, followed by a driver/server restart; both units
+  re-verified via `upsc <name>@localhost ups.serial` reporting their own
+  correct serial.
+- [ ] Perform controlled failure, shutdown and recovery tests.
 - [ ] Perform controlled failure, shutdown and recovery tests.
 - [ ] Update repository inventory, architecture, operations, backups and evidence.
 
@@ -463,9 +489,9 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 - [ ] UPS monitoring integrated into existing observability where practical.
 - [ ] Appropriate alerts implemented or explicitly deferred.
 - [x] Lab Doctor extended for UPS/NUT health.
-- [ ] Lenovo/NUT configuration included in backup strategy.
-- [ ] Restore procedure documented.
-- [ ] Secrets excluded from public Git.
+- [x] Lenovo/NUT configuration included in backup strategy.
+- [x] Restore procedure documented.
+- [x] Secrets excluded from public Git.
 - [ ] Controlled failure testing completed.
 - [ ] Recovery testing completed.
 - [ ] Repository documentation updated.

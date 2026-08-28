@@ -237,6 +237,56 @@ configuration containing credentials. Local backup coverage is confirmed;
 the Backup Synology mirror and isolated restore validation are confirmed as of
 2026-08-20, and the mirrored archives are covered by the encrypted off-site task.
 
+## NUT / UPS Server (Lenovo)
+
+The Lenovo utility host (`nut-server`, `192.168.50.25`) runs NUT on bare
+metal, so its recoverable state is a handful of small config files rather
+than a Proxmox guest archive. Pull a fresh copy after any change to NUT,
+SSH or network configuration, from the Mac (not from an existing SSH
+session into `nut-server` itself, so nothing lingers on the source host):
+
+```sh
+printf "Sudo password for jason@nut-server: "
+read -rs NUT_SUDO_PASS
+echo
+
+STAMP_DIR=~/lab/private-backups/nut/$(date +%Y-%m-%d_%H-%M-%S)
+mkdir -p "$STAMP_DIR"
+
+echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/nut/ups.conf" 2>/dev/null > "$STAMP_DIR/ups.conf"
+echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/nut/nut.conf" 2>/dev/null > "$STAMP_DIR/nut.conf"
+echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/nut/upsd.users" 2>/dev/null > "$STAMP_DIR/upsd.users"
+echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/nut/upsmon.conf" 2>/dev/null > "$STAMP_DIR/upsmon.conf"
+echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/ssh/sshd_config.d/hardening.conf" 2>/dev/null > "$STAMP_DIR/sshd-hardening.conf"
+ssh nut "cat /etc/network/interfaces" > "$STAMP_DIR/network-interfaces.txt"
+ssh nut "hostnamectl" > "$STAMP_DIR/hostnamectl.txt"
+
+unset NUT_SUDO_PASS
+chmod 600 "$STAMP_DIR"/*
+```
+
+This lands directly in `~/lab/private-backups/nut/<timestamp>/`, which is
+already inside the existing daily Backup Synology pull (21:00) and the
+encrypted IDrive e2 off-site task — no separate automation was needed.
+HomeLab Doctor's `check_nut` reports live NUT/UPS health, and
+`check_backup_age "NUT" ...` reports how stale this config backup is.
+
+**`upsd.users` contains the real `upsmon` monitoring account password.**
+Like other credential-bearing backups in this document, keep it within
+this protected, git-ignored directory only — never commit it or paste its
+contents into a tracked file. The generated password is not recorded
+anywhere in the Git repository; it lives only in `upsd.users`/`upsmon.conf`
+on the NUT server itself (root:nut, mode 640) and in this backup set.
+
+Recovery outcome: if the Lenovo's disk fails, reinstall Debian, reinstall
+the `nut` package set, restore these files to `/etc/nut/` and
+`/etc/ssh/sshd_config.d/`, re-run `systemctl daemon-reload` plus
+`systemctl enable --now nut-driver@proxmox-ups nut-driver@nas-ups
+nut-server nut-monitor`, and verify with `upsc <name>@localhost`. USB
+serial pinning in `ups.conf` means both CyberPower units (identical
+vendor:product ID) will bind to the correct driver instance regardless of
+which physical USB port either one is plugged into.
+
 ## Proxmox guest backups
 
 Proxmox stores `vzdump` archives on the `backups` directory storage at `/mnt/backups`. The mount is a separate 4 TB Seagate ST4000LM024 disk (`/dev/sda1`, ext4). This protects the guests from loss of the Proxmox system disk, but the disk remains physically local to the Proxmox host and is not an off-site copy.
@@ -428,6 +478,7 @@ configuration is separately documented or exported.
 | Authentik LXC 106 | Doctor checks service reachability through the configured endpoint | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; Authentik configuration is documented separately |
 | Reverse Proxy LXC 107 | Doctor checks NPM service reachability and TLS dependencies | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; proxy and Authentik recovery order is documented |
 | Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
+| NUT server (Lenovo, bare metal) | Doctor checks `nut-server`/`nut-monitor` state, both UPS units' `ups.status` and battery charge, and config-backup age | Manually-pulled config set (`ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf`, SSH hardening, network config) lands directly in the same Backup Synology pull and encrypted IDrive e2 off-site tree as other appliance configs | Live driver/server configuration validated via `upsc`; a full bare-metal OS reinstall has not been tested, only documented as a recovery procedure |
 | Reolink camera | Doctor tests HTTP, RTSP and ONVIF reachability; Frigate proves recording flow | No recording archive is required; Frigate configuration preserves the integration settings | Camera replacement or reset is a documented reconfiguration task rather than a backup restore |
 
 ### Accepted recovery boundaries

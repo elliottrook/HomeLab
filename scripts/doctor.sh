@@ -950,6 +950,7 @@ info "Checking configuration backups..."
 check_backup_age "OPNsense" "$BACKUP_ROOT/opnsense" 48
 check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
 check_backup_age "Proxmox" "$BACKUP_ROOT/proxmox" 48
+check_backup_age "NUT" "$BACKUP_ROOT/nut" 48
 check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Hermes LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Ollama VM 105" 105 30
