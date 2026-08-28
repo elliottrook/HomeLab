@@ -89,8 +89,24 @@ Current state:
   `nut-driver@proxmox-ups` and `nut-server` services are running. Live
   telemetry via `upsc`: `ups.status: OL CHRG`, battery 99%, runtime ~11400s,
   input/output 118V, `ups.load: 0` (worth confirming Proxmox is actually
-  plugged into this unit's output, since load reads zero). `nut-monitor`
+  plugged into this unit's output, since load reads zero — confirmed
+  2026-08-28: Proxmox is not currently plugged in). `nut-monitor`
   (upsmon) is not yet configured. Milestone 2 discovery in progress.
+- 2026-08-28: Milestone 1 fully closed (hardware inventoried, hostname/
+  DNS/time confirmed, SSH password auth disabled, reboot/network
+  independence verified). Both desk-connected UPS units (`proxmox-ups`,
+  `nas-ups`) have least-privilege `upsd`/`upsmon` monitoring configured.
+  HomeLab Doctor extended with `check_nut` (live health) and
+  `check_backup_age "NUT"` (config staleness). NUT config backed up into
+  the existing `~/lab/private-backups` pipeline. Lenovo added to Beszel
+  (host-level metrics only, not UPS-specific) — required a new OPNsense
+  rule permitting Management VLAN 50 → Servers VLAN 20 port 8090, added
+  by Jason since firewall changes are outside this project's scope.
+  Remaining before Milestone 2 closes: UPS #2 (CyberPower OR500LCDRM1U,
+  already rack-mounted) still needs connecting/identifying — blocked on
+  whether a USB cable can reach it from the Lenovo's current desk
+  location, deferred for now. Full details in
+  `docs/UPS-Power-Resilience-Claude-Handover.md`.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

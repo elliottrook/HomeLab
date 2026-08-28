@@ -23,6 +23,7 @@
 - Configured least-privilege `upsd`/`upsmon` monitoring for both NUT-managed UPS units.
 - Extended HomeLab Doctor (`scripts/doctor.sh`) with a `check_nut` health check covering NUT service state and both UPS units' status/battery charge.
 - Added NUT/UPS server config backup coverage: a manual pull lands `ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf` and SSH hardening config in the existing `~/lab/private-backups` pipeline (Backup Synology pull + encrypted IDrive e2), with a `check_backup_age` Doctor check and documented bare-metal recovery procedure.
+- Added the NUT server to Beszel for host-level monitoring (CPU, memory, disk, temperature); required a new OPNsense rule permitting Management VLAN 50 to reach the Beszel hub on Servers VLAN 20.
 
 ### Fixed
 - Validated both U7 Pro XG links at 2.5G full, the AP Switch uplink at 10G full and all three SSIDs after configuring the AP-facing ports as trunks.

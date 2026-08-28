@@ -150,7 +150,20 @@ item-level Definition of Done.
 
 ### Milestone 4 — Monitoring and recovery
 
-- [ ] Add the utility host to Beszel and expose only required read-only UPS metrics.
+- [x] Add the utility host to Beszel and expose only required read-only UPS metrics.
+  Beszel agent (official `henrygd/beszel` installer from `get.beszel.dev`,
+  checksum-verified release binary, dedicated low-privilege `beszel`
+  service user) installed on `nut-server` 2026-08-28 and registered with
+  the hub at `192.168.20.20:8090`. Live host-level metrics (CPU, memory,
+  disk, temperature, uptime) confirmed actively updating in the Beszel
+  dashboard. This required a new OPNsense firewall rule permitting
+  `192.168.50.25` (Management VLAN 50) → `192.168.20.20:8090` (Servers
+  VLAN 20) — Jason added this himself, since OPNsense/firewall changes
+  are outside this project's scope (Section 23). Beszel provides
+  host-level monitoring only; it has no NUT/UPS-specific telemetry
+  (battery charge, `ups.status`, etc.) — that remains covered by `upsc`
+  and Lab Doctor's `check_nut`, consistent with this repo's existing
+  Beszel-vs-deeper-metrics division of responsibility (Section 15).
 - [x] Add actionable power/NUT checks and alerts to HomeLab Doctor/reporting.
   Added `check_nut()` to [scripts/doctor.sh](../scripts/doctor.sh) 2026-08-28,
   following the existing `check_*` conventions (SSH via the `nut` alias in
@@ -485,7 +498,7 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 - [ ] Applicable NAS shutdown behaviour implemented and tested.
 - [ ] Shutdown ordering documented.
 - [ ] Power-return behaviour understood and documented.
-- [ ] Lenovo added to Beszel.
+- [x] Lenovo added to Beszel.
 - [ ] UPS monitoring integrated into existing observability where practical.
 - [ ] Appropriate alerts implemented or explicitly deferred.
 - [x] Lab Doctor extended for UPS/NUT health.
