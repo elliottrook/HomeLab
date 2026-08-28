@@ -125,7 +125,20 @@ item-level Definition of Done.
     (already rack-mounted; Lenovo is still at Jason's desk, so a USB run
     to the rack may not be physically possible until relocation).
 - [ ] Document the physical power topology and safe runtime assumptions.
-- [ ] Install NUT directly on the utility host and configure least-privilege users.
+- [x] Install NUT directly on the utility host and configure least-privilege users.
+  NUT 2.8.1-5 installed. A dedicated `upsmon` account (`primary` role,
+  randomly generated password) was added to `upsd.users` 2026-08-28 and
+  granted only monitoring/shutdown-signal privileges — no admin/instcmd
+  access. `upsmon.conf` has `MONITOR` entries for both `proxmox-ups` and
+  `nas-ups` using that account. Verified via `ss`: two established
+  loopback connections to `upsd` (port 3493), matching both monitored
+  units, and the standard NUT privilege-separation process model (parent
+  `upsmon` runs as `root`, child de-escalates to the `nut` user). The
+  actual password is not recorded anywhere in this repository — it lives
+  only in `/etc/nut/upsd.users` and `/etc/nut/upsmon.conf` on the NUT
+  server (root:nut, mode 640). No `SHUTDOWNCMD` is configured yet —
+  deliberately deferred to Milestone 3, since real shutdown triggers and
+  ordering haven't been decided.
 - [ ] Prove both UPS devices are detected consistently after reboot.
 
 ### Milestone 3 — Coordinated shutdown
