@@ -104,12 +104,23 @@ item-level Definition of Done.
     has its own native UPS integration (separate from NUT, via direct
     USB to the NAS) that could be worth evaluating independently for
     those two boxes, outside this project's central-NUT-server scope.
-    **Update 2026-08-25:** Jason ordered a second CyberPower CP1500PFCLCD
-    (same model as UPS #3) to replace this APC unit, since it's already
-    confirmed NUT-compatible via `usbhid-ups`. Not yet arrived — once it
-    is, repeat the same identify/configure steps used for UPS #3. Final
-    disposition of the APC BN1500M2-CA (retire, repurpose as a
-    dumb-battery elsewhere, etc.) is still to be decided.
+    **Update 2026-08-28 - replacement complete:** the second CyberPower
+    CP1500PFCLCD arrived and is now connected to the Lenovo NUT server
+    via USB. Since it shares the same USB vendor:product ID (`0764:0601`)
+    as UPS #3, `udevadm info` was used to pull each unit's unique
+    `ATTR{serial}` and pin both `ups.conf` entries by serial so driver
+    binding is deterministic across reboots (the earlier `proxmox-ups`
+    entry only had `port = auto`, which became ambiguous once a second
+    identical-VID:PID device appeared on the bus):
+    - `proxmox-ups` (UPS #3): serial `CXXRO7009593`
+    - `nas-ups` (UPS #1 replacement): serial `CXXRP7016137`, dedicated to
+      TrueNAS + both Synology units
+
+    Both `nut-driver@*` instances and `nut-server` are active; confirmed
+    via `upsc nas-ups@localhost`: `device.model: CP1500PFCLCDa`,
+    `ups.status: OL CHRG`, `battery.charge: 98`. Final disposition of the
+    old APC BN1500M2-CA (retire, repurpose as a dumb-battery elsewhere,
+    etc.) is still to be decided.
   - [ ] UPS #2 (CyberPower OR500LCDRM1U) remains to be connected/identified
     (already rack-mounted; Lenovo is still at Jason's desk, so a USB run
     to the rack may not be physically possible until relocation).

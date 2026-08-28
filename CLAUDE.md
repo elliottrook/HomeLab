@@ -56,10 +56,16 @@ Current state:
   this unit** (rear ports are all surge-protection passthrough; front
   USB-A/USB-C are charging-only). Will operate as a dumb battery only —
   no software visibility or coordinated shutdown possible via NUT.
-  **Being replaced**: Jason ordered a second CyberPower CP1500PFCLCD
-  (same model as UPS #3) on 2026-08-25 to take over UPS #1's role, since
-  it's confirmed NUT-compatible via `usbhid-ups`. Not yet arrived/verified
-  — final disposition of the APC unit is still to be decided.
+  **Replaced 2026-08-28**: the second CyberPower CP1500PFCLCD arrived and
+  is now connected to the Lenovo NUT server via USB, identified and
+  configured as NUT device `nas-ups` (serial `CXXRP7016137`,
+  `usbhid-ups` driver, pinned by serial since it shares the same
+  USB vendor:product ID as UPS #3). Confirmed via `upsc`: `ups.status: OL
+  CHRG`, battery 98%. While configuring this, also pinned the existing
+  `proxmox-ups` entry to its serial (`CXXRO7009593`), since `port = auto`
+  alone became ambiguous once two identical-VID:PID CyberPower units were
+  on the same bus. Final disposition of the old APC BN1500M2-CA is still
+  to be decided.
 - UPS #2 (CyberPower OR500LCDRM1U) — powers Arista switch, OPNsense, Ubiquiti PoE switch
 - UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — dedicated to Proxmox.
   Re-confirmed 2026-08-25 via live NUT/`usbhid-ups` query (authoritative —
