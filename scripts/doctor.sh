@@ -626,6 +626,74 @@ for guest in json.load(sys.stdin):
     fi
 }
 
+check_nut() {
+    local nut_output
+    local server_state=""
+    local monitor_state=""
+    local ups_lines=""
+    local expected_ups=(proxmox-ups nas-ups)
+
+    if ! nut_output="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 nut /bin/bash -s <<'REMOTE'
+printf 'server=%s\n' "$(systemctl is-active nut-server 2>/dev/null || true)"
+printf 'monitor=%s\n' "$(systemctl is-active nut-monitor 2>/dev/null || true)"
+for name in $(upsc -l 2>/dev/null); do
+    status="$(upsc "$name@localhost" ups.status 2>/dev/null | tr ' ' '_')"
+    charge="$(upsc "$name@localhost" battery.charge 2>/dev/null)"
+    printf 'ups=%s|%s|%s\n' "$name" "${status:-unknown}" "${charge:-unknown}"
+done
+REMOTE
+    )"; then
+        warn "Unable to collect NUT health data"
+        return
+    fi
+
+    while IFS='=' read -r key value; do
+        case "$key" in
+            server) server_state="$value" ;;
+            monitor) monitor_state="$value" ;;
+            ups) ups_lines+="$value"$'\n' ;;
+        esac
+    done <<< "$nut_output"
+
+    local failures=()
+    local warnings=()
+
+    [[ "$server_state" != "active" ]] && failures+=("nut-server=${server_state:-unknown}")
+    [[ "$monitor_state" != "active" ]] && failures+=("nut-monitor=${monitor_state:-unknown}")
+
+    local name
+    local status
+    local charge
+    local seen=()
+
+    while IFS='|' read -r name status charge; do
+        [[ -z "$name" ]] && continue
+        seen+=("$name")
+        if [[ "$status" != *OL* ]]; then
+            failures+=("$name status=${status:-unknown}")
+        fi
+        if [[ "$charge" =~ ^[0-9]+$ ]] && (( charge < 50 )); then
+            warnings+=("$name battery ${charge}%")
+        fi
+    done <<< "$ups_lines"
+
+    local expected
+    for expected in "${expected_ups[@]}"; do
+        if ! printf '%s\n' "${seen[@]}" | grep -qx "$expected"; then
+            failures+=("$expected not detected")
+        fi
+    done
+
+    if (( ${#failures[@]} > 0 )); then
+        fail "NUT health issue: ${failures[*]}"
+    elif (( ${#warnings[@]} > 0 )); then
+        warn "NUT degraded: ${warnings[*]}"
+    else
+        pass "NUT server, monitor and both UPS units healthy (${seen[*]})"
+    fi
+}
+
 check_truenas() {
     local state_file="$STATE_ROOT/truenas-bond.state"
     local pool_json
@@ -845,6 +913,7 @@ check_opnsense_wan
 check_arista
 check_proxmox
 check_hermes
+check_nut
 check_truenas
 check_frigate
 

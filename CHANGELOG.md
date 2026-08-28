@@ -17,6 +17,11 @@
 - Reorganized Homepage into `Security & Operations`, `AI & Automation` and `Security & Surveillance`, with Forgejo retained under `Application Management`.
 - Split the post-build enhancement portfolio into separate milestone-driven Local AI, Authentik rollout, surveillance expansion, NUT/UPS, Synology Drive and Prometheus/Grafana project documents.
 - Added a Claude-ready Synology Drive family-cloud handover and a concise milestone tracker to the existing NUT/UPS handover.
+- Closed Milestone 1 of the NUT/UPS project: inventoried the Lenovo (ThinkCentre M92p), confirmed hostname/DNS/time and reboot/network independence, and disabled SSH password authentication on the NUT server.
+- Identified and configured the CyberPower CP1500PFCLCD (UPS #3, dedicated to Proxmox) as a NUT client via `usbhid-ups`; determined the APC BN1500M2-CA (UPS #1) has no NUT-compatible monitoring interface and will be replaced.
+- Replaced UPS #1 with a second CyberPower CP1500PFCLCD, configured as NUT client `nas-ups` (dedicated to TrueNAS + both Synology units); pinned both CyberPower units' driver bindings by USB serial to avoid ambiguous matching.
+- Configured least-privilege `upsd`/`upsmon` monitoring for both NUT-managed UPS units.
+- Extended HomeLab Doctor (`scripts/doctor.sh`) with a `check_nut` health check covering NUT service state and both UPS units' status/battery charge.
 
 ### Fixed
 - Validated both U7 Pro XG links at 2.5G full, the AP Switch uplink at 10G full and all three SSIDs after configuring the AP-facing ports as trunks.
