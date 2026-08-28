@@ -17,6 +17,7 @@
 | Synology Drive family cloud | Handover ready | [Synology Drive](Synology-Drive-Family-Cloud.md) | [Backup design](../05-Backups.md) |
 | Prometheus/Grafana observability | Proposed | [Prometheus/Grafana](Prometheus-Grafana-Observability.md) | Existing HomeLab Doctor and Beszel remain operational |
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
+| Plex-to-Jellyfin media migration | Ready | [Plex-to-Jellyfin media migration](Plex-to-Jellyfin-Media-Migration.md) | Separate Archive Movies/TV libraries, unified music, playlists and movie collections |
 
 ## Common project rules
 
