@@ -125,7 +125,7 @@ The final VLAN numbers and subnets will be documented separately in:
                     | Routing, DHCP, policy |
                     +-----------+-----------+
                                 |
-                       802.1Q trunk — Et40
+                       802.1Q trunk — Et42
                                 |
                     +-----------+-----------+
                     |   Arista 10 Gb core   |

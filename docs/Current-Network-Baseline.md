@@ -1,6 +1,6 @@
 # Home Network Baseline
 
-Baseline date: 2026-08-26
+Baseline date: 2026-08-29
 Status: This is the reconciled Phase 11 production baseline. VLANs 20, 30, 40,
 50, 60 and 70 are routed and policy-enforced by OPNsense while VLAN 10 remains
 the native Trusted network. Server, IoT, Guest, Management, Camera and Lab
@@ -93,7 +93,7 @@ Internet / TELUS fibre
   |
 OPNsense — routing, DHCP and firewall policy
   |
-  | Arista Et40 trunk
+  | Arista Et42 trunk
   |
 Arista core — 192.168.50.2
   |
@@ -145,7 +145,7 @@ homelab-gateway — 192.168.20.20
 
 | Address | Device | MAC | Arista path |
 |---|---|---|---|
-| 192.168.1.1 | OPNsense LAN | e8:b5:d0:e1:8e:4f | Et40 |
+| 192.168.1.1 | OPNsense LAN | e8:b5:d0:e1:8e:4f | Et42 |
 | 192.168.50.2 | Arista management SVI | 44:4c:a8:1f:3e:c5 | Vlan50 |
 | 192.168.50.10 | Proxmox | 6c:92:bf:27:89:a3 | Et4 |
 | 192.168.20.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router / Beszel | bc:24:11:43:71:67 | Et4 via Proxmox, tagged VLAN 20 |
@@ -154,11 +154,11 @@ homelab-gateway — 192.168.20.20
 | 192.168.50.26 | AP Switch | Not yet recorded | Et33; IP is not reachable normally on VLAN 50 because management appears on VLAN 1/untagged |
 | 192.168.50.31 | UniFi Hall AP | 90:41:b2:ce:76:10 | AP Switch port 1, 2.5G full |
 | 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | AP Switch port 2, 2.5G full |
-| 192.168.20.40 | TrueNAS `bond0` | 6c:92:bf:67:fb:bc | Et9 primary / Et17 failover, VLAN 20 |
-| 192.168.20.41 | Synology DS920+ | 00:11:32:ca:e5:e5 | Et24, access VLAN 20 |
+| 192.168.20.40 | TrueNAS `bond0`; `truenas.internal` | 6c:92:bf:67:fb:bc | Et9 primary / Et15 standby, access VLAN 20 |
+| 192.168.20.41 / 192.168.1.41 | Synology DS920+ | eth0 00:11:32:ca:e5:e5 / eth1 00:11:32:ca:e5:e6 | Et28 access VLAN 20 / Et24 access VLAN 10, both 1G |
 | 192.168.20.42 | Backup Synology | 00:11:32:c8:06:c5 | Et48, access VLAN 20 |
 | 192.168.30.102 | Lutron | ec:24:b8:8e:d4:10 | Et45, access VLAN 30 |
-| 192.168.30.155 | Downstairs Apple TV (wired) | d0:03:4b:29:99:23 | Et15, access VLAN 30 |
+| 192.168.30.155 | Downstairs Apple TV | d0:03:4b:29:99:23 | Current wired path not confirmed after the 2026-08-29 recabling |
 | 192.168.30.164 | Philips Hue | 00:17:88:22:42:e5 | Et46, access VLAN 30 |
 | 192.168.30.166 | Aqara Hub M3 (wired) | 18:c2:3c:62:07:b0 | Et16, access VLAN 30 |
 | 192.168.20.10 | Frigate VM 102 | bc:24:11:f5:09:a3 | Et4 via Proxmox, tagged VLAN 20 |
@@ -169,25 +169,25 @@ homelab-gateway — 192.168.20.20
 | 192.168.70.10 | Hermes Agent LXC 104 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
 | 192.168.70.11 | Ollama VM 105 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
 | 192.168.60.10 | Reolink Duo 2V PoE | ec:71:db:80:49:6e | UniFi PoE port 3, VLAN 60 |
-| 192.168.1.206 | Mac mini (in studio) | d0:11:e5:9e:c4:76 | Et8 |
+| 192.168.1.206 | Mac mini (in studio) | d0:11:e5:9e:c4:76 | Et10, access VLAN 10, 10G full |
 | 192.168.30.197 | Downstream UniFi wireless client | d8:c8:0c:bb:52:a4 | Et33 via UniFi, VLAN 30 |
-| 192.168.1.228 | Living-room Apple TV | c0:95:6d:81:11:5d | Et11 |
+| 192.168.20.129 | Living-room Apple TV | c0:95:6d:81:11:5d | Et17, observed access VLAN 20 at 1G; switch description requires cleanup |
 
 ## Known-good health findings
 
 - All connected Arista ports report zero FCS, alignment, symbol, receive, runt, giant, and transmit errors.
 - Queue-drop counters remained unchanged between observations; existing totals are historical.
-- Et33 (AP Switch uplink) and Et40 (OPNsense LAN) have zero queue drops at the retained baseline observation.
+- Et33 (AP Switch uplink) and Et42 (OPNsense LAN) have zero physical error counters at the retained baseline observation.
 - Arista is the MSTP root for VLAN 10. All connected ports are forwarding; Et33 is the expected spanning-tree boundary/uplink.
 - Switch temperatures and cooling are healthy. Highest observed PHY temperature was 51 C.
 - PSU2 is online and supplies approximately 160 W. PSU1 is intentionally unpowered; redundancy is knowingly unavailable.
 - OPNsense ix0 and ix1 are active at 10Gbps with correct LAN/WAN addressing and routing. The permanent ix1 WAN path completed its final stress test without a link flap, physical fault, CRC error, link interrupt, packet loss, or mbuf allocation failure.
-- The temporary switch has been removed. Proxmox is directly connected on Arista Et4 as a trunk with native VLAN 10 and tagged VLANs 20, 50 and 70. Proxmox management uses `vmbr0.50` at `192.168.50.10`; the base bridge remains addressless. The Mac mini is directly connected on Et8 as an access port in VLAN 10.
-- TrueNAS 25.10.5 uses `bond0` in active-backup mode at 192.168.20.40/24. Member `enp5s0f0` (MAC 6c:92:bf:67:fb:bc, Arista Et9) is the preferred primary and `enp5s0f1` (permanent MAC 6c:92:bf:67:fb:bd, Arista Et17) is the standby. Both links operate at 10 Gbps, MII monitoring runs every 100 ms, and `primary_reselect` is `always`. A controlled Et9 shutdown moved service to Et17 with one lost ping; restoring Et9 automatically returned service to the primary. Both switch ports remain independent access ports in VLAN 20 with PortFast; no port-channel or LACP is configured.
+- The temporary switch has been removed. Proxmox is directly connected on Arista Et4 as a trunk with native VLAN 10 and tagged VLANs 20, 50 and 70. Proxmox management uses `vmbr0.50` at `192.168.50.10`; the base bridge remains addressless. The Mac mini is directly connected on Et10 as an access port in VLAN 10 at 10 Gbps.
+- TrueNAS 25.10.5 uses `bond0` in active-backup mode at 192.168.20.40/24. Member `enp5s0f0` (MAC 6c:92:bf:67:fb:bc, Arista Et9) is the preferred primary and `enp5s0f1` (permanent MAC 6c:92:bf:67:fb:bd, Arista Et15) is the standby. Both links operate at 10 Gbps, MII monitoring runs every 100 ms, and `primary_reselect` is `always`. Both switch ports are independent access ports in VLAN 20 with PortFast; no port-channel or LACP is configured. The 2026-08-29 audit confirmed the primary active, standby link up and zero physical error counters after recabling.
 - Arista management is provided by Vlan50 at 192.168.50.2/24. Vlan10 remains addressless, Management1 is unassigned/down, and the management default route is `0.0.0.0/0` via `192.168.50.1`.
 - UniFi Network Server version 10.5.67 runs in LXC 101 at `192.168.50.21` and uses third-party-gateway networks named Default, IoT (VLAN 30), Guest (VLAN 40) and Management (VLAN 50). The retired UniFi PoE switch has been physically replaced and remains to be forgotten in the UniFi Network application. Hall and Office U7 Pro XG APs use `.31` and `.141` and are connected to AP Switch ports 1 and 2 at 2.5G full. Local UniFi OS management is exposed at `https://192.168.50.21:11443` and is reachable only from approved administrator devices.
 - OPNsense Guest interface `vlan0.40` is active on parent `ix0` at 192.168.40.1/24. Dnsmasq is the active DHCP service and serves 192.168.40.100-192.168.40.199 with 86,400-second leases. Kea was disabled after its logs confirmed it could not bind UDP port 67 because dnsmasq already owned the port.
-- Arista Et40 is a trunk with native VLAN 10 and VLANs 10,20,30,40,50,60,70 allowed. Et33 is a trunk with native VLAN 10 and VLANs 10,30,40,50,60 allowed. Temporary test ports Et1 and Et2 are access ports in VLANs 40 and 30 respectively.
+- Arista Et42 is the OPNsense trunk with native VLAN 10 and VLANs 10,20,30,40,50,60,70 allowed. Et33 is a trunk with native VLAN 10 and VLANs 10,30,40,50,60 allowed. Temporary test ports Et1 and Et2 are access ports in VLANs 40 and 30 respectively.
 - AP Switch ports 1 through 4 are trunks with native VLAN 1 and VLANs
   1,10,20,30,40,50,60,70 permitted. Ports 1 and 2 serve the APs; ports 3 and 4
   are spare preconfigured AP/multigig PoE trunks. Port 5 is access VLAN 1 for
@@ -210,7 +210,9 @@ homelab-gateway — 192.168.20.20
 - OPNsense IoT interface `vlan0.30` is active on parent `ix0` at 192.168.30.1/24. Dnsmasq serves 192.168.30.100-192.168.30.199 with 86,400-second leases and the `iot.internal` DHCP domain. The validated rule order allows IoT DNS and NTP to the interface address, blocks access to the firewall and RFC1918 networks, and permits remaining IPv4 Internet traffic.
 - The OPNsense `os-mdns-repeater` plugin relays multicast DNS only among `ix0` (LAN), `vlan0.20` (Servers) and `vlan0.30` (IoT). Guest and WAN are excluded.
 - Philips Hue on Et46 uses 192.168.30.164 and Lutron on Et45 uses 192.168.30.102. Both vendor apps and Apple Home remained functional after migration to VLAN 30.
-- The Downstairs Apple TV is wired through Et15 and the Aqara Hub M3 through Et16. Both ports are labelled access ports in VLAN 30, negotiate at 100 Mbps, learn only their expected MAC addresses and received IoT DHCP leases after a controlled link cycle.
+- Et15 is now the 10 Gbps TrueNAS standby link on access VLAN 20. The Downstairs Apple TV's current wired path was not confirmed after the 2026-08-29 recabling. Aqara Hub M3 remains documented on Et16. Et17 currently learns the living-room Apple TV MAC at 1 Gbps on VLAN 20; its stale `TrueNAS-Failover-Servers` switch description requires cleanup after the intended Apple TV VLAN is confirmed.
+- Both Pi-hole resolvers publish `truenas.internal` as `192.168.20.40`. The record is stored in each Pi-hole's managed `dns.hosts` configuration and was verified directly against `192.168.20.20`, `192.168.20.40` and through the Mac resolver.
+- The 2026-08-29 post-UPS audit reconciled the main Synology's intentionally dual-homed links by mapping DSM interfaces to physical switch ports instead of relying on stale descriptions. DSM `eth0` (MAC `00:11:32:ca:e5:e5`, address `192.168.20.41`) is on Arista Et28, named `GoWest-NAS-Servers`, access VLAN 20. DSM `eth1` (MAC `00:11:32:ca:e5:e6`, address `192.168.1.41`) is on Et24, named `GoWest-NAS-Trusted`, access VLAN 10. Both negotiate at 1 Gbps with zero physical errors. The final running configuration was saved to startup-config, and the Mac passed ping, SSH, SMB and DSM HTTP/HTTPS checks against both addresses.
 - The existing UniFi IoT SSID is assigned to the third-party-gateway IoT network using tagged VLAN 30. A temporary test SSID first validated wireless DHCP, DNS, Internet access and firewall isolation, then was removed. Final dnsmasq and ARP checks showed 23 leased IoT clients active on `vlan0.30`; Hue, Lutron, AirPlay/Cast discovery and vendor-app control all passed.
 - Proxmox LXC 100 (`docker`) is an unprivileged Debian container at `192.168.20.20/24` on Servers VLAN 20. It runs Homepage, Portainer, the primary Pi-hole, Tailscale, Beszel and the Beszel agent. Homepage is published internally on TCP 3000 and is available as `http://home.internal:3000`.
 - OPNsense dnsmasq owns the `home.internal` host record and listens for DNS on port 53053. Unbound remains the client-facing resolver on port 53 and conditionally forwards the `internal` domain to dnsmasq at 127.0.0.1:53053. Both local-LAN and remote Tailscale resolution were validated.
@@ -326,7 +328,7 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
 - DHCP: dnsmasq range 192.168.40.100-192.168.40.199; router and DNS supplied automatically as 192.168.40.1.
 - Firewall order: allow Guest DNS to the Guest address; allow Guest NTP to the Guest address; block Guest to This Firewall; block Guest to the `RFC1918_Networks` alias; allow remaining Guest IPv4 traffic to the Internet.
 - `RFC1918_Networks`: 10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16.
-- Arista: VLAN 40 named `Guest`; Et40 trunk native VLAN 10 with VLANs 10,20,30,40,50,60,70 allowed; Et1 temporary access test port.
+- Arista: VLAN 40 named `Guest`; Et42 trunk native VLAN 10 with VLANs 10,20,30,40,50,60,70 allowed; Et1 temporary access test port.
 - Wired validation client: `Jasons-Mac`, interface `en7`, leased 192.168.40.198 with gateway 192.168.40.1.
 - Validation results: 1.1.1.1 reachable with 0% loss at approximately 6.1 ms; DNS resolution succeeded; 192.168.1.1 was blocked; HTTPS access to 192.168.40.1 timed out as intended.
 - UniFi: third-party-gateway network `Guest` uses VLAN ID 40; tagged VLAN 40 is carried over Arista Et33 to the UniFi uplink; the Guest SSID uses the Guest network with wireless client isolation enabled.
@@ -338,7 +340,7 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
 - OPNsense interface: `vlan0.30`, parent `ix0`, 192.168.30.1/24.
 - DHCP: dnsmasq range 192.168.30.100-192.168.30.199, 86,400-second leases, domain `iot.internal`; router and DNS supplied automatically as 192.168.30.1.
 - Firewall order: allow IoT DNS to the IoT address; allow IoT NTP to the IoT address; block IoT to This Firewall; block IoT to `RFC1918_Networks`; allow remaining IoT IPv4 traffic to the Internet.
-- Arista: VLAN 30 named `IoT`; Et40 is a trunk with native VLAN 10 and VLANs 10,20,30,40,50,60,70 allowed; Et33 is a trunk with native VLAN 10 and VLANs 10,30,40,50,60 allowed; Et2 is the temporary access test port. The validated running configuration was saved to startup-config.
+- Arista: VLAN 30 named `IoT`; Et42 is a trunk with native VLAN 10 and VLANs 10,20,30,40,50,60,70 allowed; Et33 is a trunk with native VLAN 10 and VLANs 10,30,40,50,60 allowed; Et2 is the temporary access test port. The validated running configuration was saved to startup-config.
 - Wired validation succeeded: DHCP, default routing, DNS and Internet access worked; trusted-LAN and OPNsense-management access were blocked as intended.
 - Production migration: Philips Hue on Et46 moved to 192.168.30.164 and Lutron on Et45 moved to 192.168.30.102. Both vendor apps and Apple Home passed post-migration testing. Selective mDNS repeating is enabled only between LAN and IoT.
 - UniFi Wi-Fi migration: a third-party-gateway IoT network with VLAN ID 30 was added, Et33 was enabled for tagged VLAN 30, a temporary SSID passed validation, and the existing production IoT SSID was moved to that network without changing its credentials. Twenty-three DHCP leases were confirmed on VLAN 30, and Hue, Lutron, AirPlay/Cast discovery and representative vendor apps remained functional. The temporary SSID was then removed.

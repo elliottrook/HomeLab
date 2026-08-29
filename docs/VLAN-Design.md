@@ -146,7 +146,7 @@ recovery uses port 5 and a temporary `192.168.50.27/24` Mac address.
 OPNsense ix0 trunk
   +-- VLAN 70 gateway: 192.168.70.1
              |
-             | Arista Et40 trunk
+             | Arista Et42 trunk
              v
 Arista core: VLAN 70
              |
@@ -219,7 +219,7 @@ assigned to VLAN 70.
 - OPNsense interface `vlan0.60` uses `192.168.60.1/24` on parent `ix0`.
 - Dnsmasq serves `192.168.60.100-192.168.60.199`; the Reolink camera has the
   reservation `192.168.60.10`.
-- Arista carries VLAN 60 over Et40 to OPNsense and Et33 to the UniFi PoE
+- Arista carries VLAN 60 over Et42 to OPNsense and Et33 to the AP Switch
   infrastructure.
 - Cameras are blocked from the firewall and RFC1918 destinations by default.
 - A narrowly scoped rule on the Servers interface permits Frigate

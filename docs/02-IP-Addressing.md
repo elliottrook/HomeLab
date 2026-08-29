@@ -11,7 +11,7 @@
 |AP Switch (direct recovery only)|192.168.50.26|
 |UniFi Hall AP|192.168.50.31|
 |UniFi Office AP|192.168.50.141|
-|TrueNAS|192.168.20.40|
+|TrueNAS|192.168.20.40 (`truenas.internal`)|
 |Synology DS920+|192.168.20.41|
 |Backup Synology|192.168.20.42|
 |Frigate VM 102|192.168.20.10|
@@ -40,6 +40,9 @@ VLAN 50. For recovery, connect a Mac to AP Switch port 5 and temporarily assign
 | Tailscale subnet router | `homelab-gateway` | Tailscale-managed | Production |
 
 ## Shared service endpoints on TrueNAS
+
+Both Pi-hole resolvers publish `truenas.internal` as an A record for
+`192.168.20.40`.
 
 | Service | Address | Port | Status |
 |---|---|---:|---|

@@ -373,10 +373,11 @@ check_arista() {
     local expected_ports=(
         "Et4:a-10G"
         "Et9:a-10G"
-        "Et17:a-10G"
+        "Et15:a-10G"
         "Et24:a-1G"
+        "Et28:a-1G"
         "Et33:a-10G"
-        "Et40:a-10G"
+        "Et42:a-10G"
         "Et45:a-100M"
         "Et46:a-100M"
         "Et48:a-1G"

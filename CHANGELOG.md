@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added `truenas.internal` as a persistent `192.168.20.40` record on both Pi-hole resolvers and verified it from the Mac.
 - Replaced the failed UniFi PoE switch role with the Binarui **AP Switch**, documented its complete port/VLAN inventory, management recovery procedure and as-is burn-in decision.
 - Preconfigured AP Switch ports 1–4 as native-VLAN-1 AP trunks permitting VLANs 1,10,20,30,40,50,60,70; reserved port 5 for recovery and port 6 for the 10G Arista uplink.
 - Reassigned Arista Et34 as `Camera-PoE-TPLink`, access VLAN 60, for the old TP-Link switch's future camera-only role; single-camera validation remains deferred.
@@ -24,8 +25,14 @@
 - Extended HomeLab Doctor (`scripts/doctor.sh`) with a `check_nut` health check covering NUT service state and both UPS units' status/battery charge.
 - Added NUT/UPS server config backup coverage: a manual pull lands `ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf` and SSH hardening config in the existing `~/lab/private-backups` pipeline (Backup Synology pull + encrypted IDrive e2), with a `check_backup_age` Doctor check and documented bare-metal recovery procedure.
 - Added the NUT server to Beszel for host-level monitoring (CPU, memory, disk, temperature); required a new OPNsense rule permitting Management VLAN 50 to reach the Beszel hub on Servers VLAN 20.
+- Added a milestone-driven TrueNAS DIY SAS expansion project for a backplane-free, independently powered enclosure using the existing controller's two free disk endpoints.
 
 ### Fixed
+- Reconciled the main Synology's dual-homed wiring by mapping DSM MACs to the live switch ports: Et28 is now `GoWest-NAS-Servers` on VLAN 20 for `192.168.20.41`, and Et24 is `GoWest-NAS-Trusted` on VLAN 10 for `192.168.1.41`; saved the Arista configuration and validated ping, SSH, SMB and DSM access through both addresses.
+- Added the main Synology's Et28 link to HomeLab Doctor's expected Arista links.
+- Reconciled the post-UPS recabling: restored the OPNsense all-VLAN trunk to Et42, the TrueNAS primary to Et9 and the camera switch handoff to Et34; repurposed Et15 as the 10G TrueNAS standby access port on VLAN 20.
+- Updated HomeLab Doctor's expected Arista links from stale Et17/Et40 entries to the verified Et15/Et42 production paths.
+- Corrected the Mac Ethernet DNS search domain from the stale numeric `192.168.1.20` value to `internal` and verified both Pi-hole resolvers, routing and Internet access.
 - Validated both U7 Pro XG links at 2.5G full, the AP Switch uplink at 10G full and all three SSIDs after configuring the AP-facing ports as trunks.
 - Documented the AP Switch native-VLAN anomaly: management IP `192.168.50.26` is effectively reached through VLAN 1/untagged rather than VLAN 50, while Arista Et33 classifies untagged traffic into native VLAN 10.
 - Documented the storm-related UniFi PoE switch boot failure, rejected TP-Link fallback and managed PoE replacement requirement.
