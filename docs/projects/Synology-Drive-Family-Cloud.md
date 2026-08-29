@@ -2,10 +2,11 @@
 
 ## Project handover: Claude
 
-> Status: Milestones 1-6 complete for the pilot device (Jason); ready to begin
-> Milestone 7, with rolling out mobile clients to the rest of the family still
-> open from Milestone 5, and the Cloudflare Access login method for DSM still
-> unresolved (see Authentik-Cloudflare-Access-OIDC-Handover.md)
+> Status: Milestones 1-6 complete for the pilot device (Jason); Milestone 7 in
+> progress (Drive backup task created, initial backup running); rolling out
+> mobile clients to the rest of the family still open from Milestone 5, and
+> the Cloudflare Access login method for DSM still unresolved (see
+> Authentik-Cloudflare-Access-OIDC-Handover.md)
 >
 > Project owner: Jason
 >
@@ -329,14 +330,29 @@ revocable path without obtaining a DSM account or wider NAS access.
 
 ## 11. Milestone 7 — Backup and recovery
 
-- [ ] Add required Drive application configuration, databases, user homes and
-  Team Folders to Hyper Backup without duplicating unnecessary data.
-- [ ] Confirm the backup destination has sufficient free capacity and retention.
-- [ ] Run an initial backup and a small incremental backup.
+- [x] Add required Drive application configuration, databases, user homes and
+  Team Folders to Hyper Backup without duplicating unnecessary data. —
+  **Important discovery**: the only existing Hyper Backup task ("Media
+  Backup") backs up `/Plex` only — there was no backup coverage at all for
+  any user data before this. Created a new, separate task ("Synology Drive
+  Backup") covering `/homes` and `/Family Documents`, kept independent from
+  Media Backup so their schedules/retention don't interfere. Settings: daily
+  at 00:00, integrity check Monday 04:00, rotation enabled keeping 30
+  versions, no client-side encryption (Jason's deliberate choice — lower
+  priority for a same-LAN NAS-to-NAS backup than it would be for an off-site
+  destination).
+- [x] Confirm the backup destination has sufficient free capacity and
+  retention. — `/homes` totals 121 GB, `Family Documents` 1.3 MB, against
+  1.4 TB free on the backup NAS — ample headroom.
+- [ ] Run an initial backup and a small incremental backup. — Initial backup
+  in progress at session end (confirmed via active worker processes);
+  completion and an incremental test still to be verified.
 - [ ] Restore an individual file and an earlier version.
 - [ ] Restore a deleted file and a representative Team Folder item.
 - [ ] Document the supported Drive Server/package recovery order.
-- [ ] Confirm encrypted-folder recovery after reboot using protected keys.
+- [ ] Confirm encrypted-folder recovery after reboot using protected keys. —
+  Not applicable; no Synology encryption is in use anywhere in this project
+  (Jason's choice, also recorded in Milestone 2).
 - [ ] Record restore timing and evidence without exposing household filenames.
 
 Completion gate: both user-level recovery and package/data recovery are proven
@@ -396,3 +412,4 @@ exposure was introduced.
 | 2026-08-29 | Milestone 4 | Jason installed and confirmed the Mac Drive client on his laptop, closing the last open Milestone 4 item. Milestone 4 completion gate reached. | Done |
 | 2026-08-29 | Milestone 5 | Jason installed Synology Drive on his iPhone and iPad and confirmed both My Drive and the Family Documents team folder are visible, sync/edit/offline behavior works, and cellular access via Tailscale (off home WiFi) works. Decided to keep camera upload in the existing Synology Photos workflow rather than enabling it in Drive, avoiding duplication. Milestone 5 completion gate reached for the pilot device; rolling out mobile clients to Alisa, Carter, Justin and Jen remains open. | Done |
 | 2026-08-29 | Milestone 6 | External sharing tested end-to-end via the Cloudflare Tunnel set up earlier tonight: an expiring read-only link opened correctly from a private/incognito context simulating an outsider, could not be used to browse parent folders or other content, and a scheduled expiration correctly cut off access. A file-request/upload link was also tested and confirmed working. Decided on a default sharing policy: every link expires by default, with a password added only for sensitive content rather than as a blanket rule. Documented the emergency-revocation procedure (disable/delete the link from its sharing settings, effective immediately). Milestone 6 completion gate reached — note this relies on the Cloudflare Tunnel routing, which is confirmed working, independent of the still-unresolved Cloudflare Access admin login problem tracked separately. | Done |
+| 2026-08-31 | Milestone 7 | Discovered the existing Hyper Backup task ("Media Backup") only ever covered `/Plex` — no user data had any backup coverage before this. Scoped Milestone 7 to Drive-related folders only (not a full-NAS backup, which would be a larger, separate effort). Sized the actual data first (`/homes` 121 GB, `Family Documents` 1.3 MB) and confirmed it fits comfortably against 1.4 TB free on the backup NAS. Created a new, independent Hyper Backup task ("Synology Drive Backup") rather than modifying the existing Media Backup task, using settings matching this homelab's documented Hyper Backup standard (`docs/05-Backups.md`): daily at 00:00, weekly integrity check (Monday 04:00), 30-version rotation. No client-side encryption — a deliberate, low-stakes choice for a same-LAN NAS-to-NAS backup. Initial backup confirmed running (active worker processes) at session end. | In progress |
