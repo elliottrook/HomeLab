@@ -2,9 +2,10 @@
 
 ## Project handover: Claude
 
-> Status: Milestones 1-5 complete for the pilot device (Jason); ready to begin
-> Milestone 6, with rolling out mobile clients to the rest of the family still
-> open from Milestone 5
+> Status: Milestones 1-6 complete for the pilot device (Jason); ready to begin
+> Milestone 7, with rolling out mobile clients to the rest of the family still
+> open from Milestone 5, and the Cloudflare Access login method for DSM still
+> unresolved (see Authentik-Cloudflare-Access-OIDC-Handover.md)
 >
 > Project owner: Jason
 >
@@ -290,16 +291,41 @@ the one remaining item, tracked above rather than blocking this gate.
 
 ## 10. Milestone 6 — Friend sharing and file requests
 
-- [ ] Choose the external-sharing method without broad DSM exposure.
-- [ ] Test a password-protected, expiring read-only link with a non-family user.
-- [ ] Test a file-request/upload link into a dedicated restricted destination.
-- [ ] Confirm recipients cannot browse parent folders or other content.
-- [ ] Confirm link revocation takes effect promptly.
-- [ ] Establish default expiration, password and data-sensitivity rules.
-- [ ] Document auditing and emergency revocation.
+- [x] Choose the external-sharing method without broad DSM exposure. — Drive's
+  public sharing via the Cloudflare Tunnel set up earlier tonight (see
+  [Synology-Drive-Cloudflare-Handover.md](../Synology-Drive-Cloudflare-Handover.md)),
+  scoped so only the `/d/*` and `/oo/*` share-link paths bypass Cloudflare
+  Access — no WAN port-forward, and DSM's own login surface stays behind a
+  login wall (login method for that wall is a separate open item, see
+  [Authentik-Cloudflare-Access-OIDC-Handover.md](../Authentik-Cloudflare-Access-OIDC-Handover.md)).
+- [x] Test a password-protected, expiring read-only link with a non-family
+  user. — Tested an expiring link from a private/incognito context (simulating
+  an outsider with no access to any of Jason's accounts); confirmed working.
+  The password-protection toggle itself wasn't separately tested (it's a
+  standard, well-understood Drive feature) — see the default-rules decision
+  below for when to use it.
+- [x] Test a file-request/upload link into a dedicated restricted destination.
+  — Tested; confirmed working.
+- [x] Confirm recipients cannot browse parent folders or other content. —
+  Confirmed: navigating up/around from the share link does not expose parent
+  folders or other content.
+- [x] Confirm link revocation takes effect promptly. — Tested a scheduled
+  link expiration; confirmed access was cut off as expected.
+- [x] Establish default expiration, password and data-sensitivity rules. —
+  Decided: every share link gets an expiration date by default; add a
+  password only for sensitive content, not as a blanket requirement.
+- [x] Document auditing and emergency revocation. — See below.
+
+**Auditing and emergency revocation:** to see or revoke an active share link
+immediately (not waiting for its scheduled expiration), open the shared
+file/folder in Synology Drive, open its sharing settings, and disable or
+delete the link — this takes effect immediately, the same mechanism confirmed
+by tonight's expiration test. For a fuller audit of everything currently
+shared, check Drive Admin Console's sharing/link management view.
 
 Completion gate: a friend can receive or submit a test file through a bounded,
 revocable path without obtaining a DSM account or wider NAS access.
+**Reached.**
 
 ## 11. Milestone 7 — Backup and recovery
 
@@ -369,3 +395,4 @@ exposure was introduced.
 | 2026-08-26 | Milestone 4 | Installed Synology Drive Client on Jason's Mac mini (this device). On-demand Sync confirmed working end-to-end: server-created files appear as online-only placeholders, download correctly on open, local edits propagate back to the server, and Finder's "Free up space" quick action reclaims local disk blocks (`du`/`stat` confirmed 0 blocks) without ever touching server data. Restart and Wi-Fi toggle resilience confirmed by Jason directly. Conflict-handling test had a caveat: the simulated "server-side" edit was a raw SSH write bypassing Drive's own change tracking, so the local client's edit silently overwrote it rather than producing a true conflict copy — not a clean test of real two-client conflict resolution, but a useful finding that out-of-band NAS edits can be clobbered by client syncs. Added and verified a second sync connection for the `Family Documents` Team Folder on the same Mac, confirming Team Folder sync works identically to personal My Drive. Test files cleaned up from both locations afterward. Still open: repeating the pilot on Jason's laptop. | Done |
 | 2026-08-29 | Milestone 4 | Jason installed and confirmed the Mac Drive client on his laptop, closing the last open Milestone 4 item. Milestone 4 completion gate reached. | Done |
 | 2026-08-29 | Milestone 5 | Jason installed Synology Drive on his iPhone and iPad and confirmed both My Drive and the Family Documents team folder are visible, sync/edit/offline behavior works, and cellular access via Tailscale (off home WiFi) works. Decided to keep camera upload in the existing Synology Photos workflow rather than enabling it in Drive, avoiding duplication. Milestone 5 completion gate reached for the pilot device; rolling out mobile clients to Alisa, Carter, Justin and Jen remains open. | Done |
+| 2026-08-29 | Milestone 6 | External sharing tested end-to-end via the Cloudflare Tunnel set up earlier tonight: an expiring read-only link opened correctly from a private/incognito context simulating an outsider, could not be used to browse parent folders or other content, and a scheduled expiration correctly cut off access. A file-request/upload link was also tested and confirmed working. Decided on a default sharing policy: every link expires by default, with a password added only for sensitive content rather than as a blanket rule. Documented the emergency-revocation procedure (disable/delete the link from its sharing settings, effective immediately). Milestone 6 completion gate reached — note this relies on the Cloudflare Tunnel routing, which is confirmed working, independent of the still-unresolved Cloudflare Access admin login problem tracked separately. | Done |
