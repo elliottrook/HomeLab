@@ -345,8 +345,14 @@ revocable path without obtaining a DSM account or wider NAS access.
   retention. — `/homes` totals 121 GB, `Family Documents` 1.3 MB, against
   1.4 TB free on the backup NAS — ample headroom.
 - [ ] Run an initial backup and a small incremental backup. — Initial backup
-  in progress at session end (confirmed via active worker processes);
-  completion and an incremental test still to be verified.
+  in progress. The task was originally created with "Application: None"
+  (files only, missing Drive's own settings/config); corrected to add the
+  `SynologyDrive` application backup, and Jason additionally kept
+  `HyperBackup` itself in the application list (backing up the backup tool's
+  own configuration too — a reasonable, low-cost addition). One mix-up caught
+  along the way: the Application field initially had "HyperBackup" selected
+  instead of "SynologyDrive" — corrected. Backup restarted with the corrected
+  scope; completion and an incremental test still to be verified.
 - [ ] Restore an individual file and an earlier version.
 - [ ] Restore a deleted file and a representative Team Folder item.
 - [ ] Document the supported Drive Server/package recovery order.
