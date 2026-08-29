@@ -28,6 +28,8 @@
 - Added a milestone-driven TrueNAS DIY SAS expansion project for a backplane-free, independently powered enclosure using the existing controller's two free disk endpoints.
 
 ### Fixed
+- Reconciled the main Synology's dual-homed wiring by mapping DSM MACs to the live switch ports: Et28 is now `GoWest-NAS-Servers` on VLAN 20 for `192.168.20.41`, and Et24 is `GoWest-NAS-Trusted` on VLAN 10 for `192.168.1.41`; saved the Arista configuration and validated ping, SSH, SMB and DSM access through both addresses.
+- Added the main Synology's Et28 link to HomeLab Doctor's expected Arista links.
 - Reconciled the post-UPS recabling: restored the OPNsense all-VLAN trunk to Et42, the TrueNAS primary to Et9 and the camera switch handoff to Et34; repurposed Et15 as the 10G TrueNAS standby access port on VLAN 20.
 - Updated HomeLab Doctor's expected Arista links from stale Et17/Et40 entries to the verified Et15/Et42 production paths.
 - Corrected the Mac Ethernet DNS search domain from the stale numeric `192.168.1.20` value to `internal` and verified both Pi-hole resolvers, routing and Internet access.
