@@ -2,12 +2,13 @@
 
 ## Project handover: Claude
 
-> Status: Milestones 1-3 complete; Milestone 4 done on the Mac mini, laptop
-> repeat still open
+> Status: Milestones 1-5 complete for the pilot device (Jason); ready to begin
+> Milestone 6, with rolling out mobile clients to the rest of the family still
+> open from Milestone 5
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-25
+> Last updated: 2026-08-29
 
 ## 1. Purpose
 
@@ -227,7 +228,8 @@ anywhere.
   disk blocks dropped to 0 while the file's logical size and Finder listing
   stayed intact, and the server-side copy (with both edits) was fully
   unaffected.
-- [ ] Repeat with the laptop only after the Mac mini pilot is stable.
+- [x] Repeat with the laptop only after the Mac mini pilot is stable. —
+  Jason installed the Mac client on his laptop; confirmed working.
 - [x] Document the client setup and removal procedure. — See below.
 
 **Client setup procedure (macOS):**
@@ -255,21 +257,36 @@ removed by macOS once the File Provider extension is uninstalled; server-side
 data is never affected by removing a client.
 
 Completion gate: Finder behaves as a dependable live drive without unnecessary
-local duplication, and recovery from disconnects is predictable.
+local duplication, and recovery from disconnects is predictable. **Reached.**
 
 ## 9. Milestone 5 — iPhone and iPad pilot
 
-- [ ] Install Synology Drive on one iOS/iPadOS test device.
-- [ ] Confirm private files and permitted Team Folders are visible.
-- [ ] Test upload, download, edit, offline pinning and resynchronization.
-- [ ] Decide whether camera upload belongs in Drive or the existing photo system.
+- [x] Install Synology Drive on one iOS/iPadOS test device. — Installed on
+  Jason's iPhone and iPad; both confirmed on iOS 18+ per the Milestone 1
+  compatibility note.
+- [x] Confirm private files and permitted Team Folders are visible. — Both
+  My Drive and Family Documents showed up correctly on mobile.
+- [x] Test upload, download, edit, offline pinning and resynchronization. —
+  Confirmed working by Jason directly on-device; not independently verified
+  step-by-step the way the Mac mini pilot was (no SSH-equivalent visibility
+  into the iOS app's local state), so this is based on his own testing rather
+  than external confirmation.
+- [x] Decide whether camera upload belongs in Drive or the existing photo
+  system. — Decided: keep camera upload in the existing Synology Photos
+  workflow; Drive's camera upload will not be enabled, avoiding any
+  duplication/conflict.
 - [ ] If enabled, test duplicate handling, background behaviour and destination
-  permissions with a small sample.
-- [ ] Test cellular/Tailscale access according to the approved access design.
-- [ ] Repeat for other family devices after the pilot passes.
+  permissions with a small sample. — N/A; camera upload is not being enabled
+  in Drive.
+- [x] Test cellular/Tailscale access according to the approved access design.
+  — Confirmed working by Jason off home WiFi.
+- [ ] Repeat for other family devices after the pilot passes. — Still open;
+  Alisa, Carter, Justin and Jen's devices haven't been set up yet.
 
 Completion gate: mobile access is understandable, private and recoverable, and
 camera upload does not duplicate or conflict with the chosen photo workflow.
+**Reached for the pilot device** — rolling out to the rest of the family is
+the one remaining item, tracked above rather than blocking this gate.
 
 ## 10. Milestone 6 — Friend sharing and file requests
 
@@ -350,3 +367,5 @@ exposure was introduced.
 | 2026-08-26 | Milestone 3 | Confirmed Drive's service ports (6690, plus DSM's normal web ports) are bound to all local interfaces with no port-forward changes made by this project. Found QuickConnect enabled (a relay-based internet-exposure path inconsistent with the project's LAN/Tailscale-only rule); Jason confirmed working Tailscale access first, then disabled QuickConnect. Noted the NAS is dual-homed (`192.168.20.41` on Servers VLAN 20, plus an undocumented `192.168.1.41` on `eth1`) — not a problem, just not previously recorded. Clients will connect via `192.168.20.41` over LAN or Tailscale. | Done |
 | 2026-08-26 | Milestone 3 | Storage/indexing check found Drive's internal block store (`@synologydrive/@sync`) consuming ~219 GB despite `Family Documents` being empty. Investigation traced this to a few hundred GB of photos currently sitting in Jason's personal My Drive folder — real, current content, not stale data from the earlier cleanup. Jason will migrate these to a dedicated photos app later; recorded as a known, accepted, temporary storage consumer, not a fault. Drive's processes are healthy and running normally. Personal My Drive folders still have no defined version-retention policy (only `Family Documents` does) — worth revisiting after the photo migration. Milestone 3 completion gate reached. | Done |
 | 2026-08-26 | Milestone 4 | Installed Synology Drive Client on Jason's Mac mini (this device). On-demand Sync confirmed working end-to-end: server-created files appear as online-only placeholders, download correctly on open, local edits propagate back to the server, and Finder's "Free up space" quick action reclaims local disk blocks (`du`/`stat` confirmed 0 blocks) without ever touching server data. Restart and Wi-Fi toggle resilience confirmed by Jason directly. Conflict-handling test had a caveat: the simulated "server-side" edit was a raw SSH write bypassing Drive's own change tracking, so the local client's edit silently overwrote it rather than producing a true conflict copy — not a clean test of real two-client conflict resolution, but a useful finding that out-of-band NAS edits can be clobbered by client syncs. Added and verified a second sync connection for the `Family Documents` Team Folder on the same Mac, confirming Team Folder sync works identically to personal My Drive. Test files cleaned up from both locations afterward. Still open: repeating the pilot on Jason's laptop. | Done |
+| 2026-08-29 | Milestone 4 | Jason installed and confirmed the Mac Drive client on his laptop, closing the last open Milestone 4 item. Milestone 4 completion gate reached. | Done |
+| 2026-08-29 | Milestone 5 | Jason installed Synology Drive on his iPhone and iPad and confirmed both My Drive and the Family Documents team folder are visible, sync/edit/offline behavior works, and cellular access via Tailscale (off home WiFi) works. Decided to keep camera upload in the existing Synology Photos workflow rather than enabling it in Drive, avoiding duplication. Milestone 5 completion gate reached for the pilot device; rolling out mobile clients to Alisa, Carter, Justin and Jen remains open. | Done |
