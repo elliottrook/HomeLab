@@ -1,181 +1,132 @@
 # Authentik + Cloudflare Access OIDC Integration Handover
 
 > Status: **Resolved — production working**
-> Started: 2026-08-29 · Resolved: 2026-08-29 (via a separate ChatGPT troubleshooting session)
+> Started/Resolved: 2026-08-29
 > Related: [Synology Drive Cloudflare Handover](Synology-Drive-Cloudflare-Handover.md)
 
 ## Goal
 
-Protect the DSM/admin surface at `share.elliottrook.com` with Cloudflare
-Access while keeping Synology Drive's public-share paths unauthenticated.
-Cloudflare Access uses the existing Authentik OIDC provider, so the
-administrator signs in with the normal Authentik password + passkey/MFA flow.
-Cloudflare's built-in One-Time PIN is not used.
+Protect the DSM/admin surface at `share.elliottrook.com` with Cloudflare Access while keeping Synology Drive public-share paths unauthenticated. Cloudflare Access uses the existing Authentik OIDC provider, so the administrator signs in with the normal Authentik password + passkey/MFA flow. Cloudflare One-Time PIN is not used.
 
 ## Final production behavior
 
-- `https://share.elliottrook.com/` → Cloudflare Access → Authentik → password
-  + passkey/MFA → Synology DSM.
-- `/d/*` → Cloudflare Access Bypass. Public Drive file-share link re-tested
-  after cleanup and confirmed working without authentication.
-- `/oo/*` → Cloudflare Access Bypass. Configuration retained; not re-tested at
-  closeout because no suitable `/oo/` link was available at the time.
-- Direct LAN DSM access remains the break-glass path:
-  `https://192.168.20.41:5001`.
+- `https://share.elliottrook.com/` -> Cloudflare Access -> Authentik -> password + passkey/MFA -> Synology DSM.
+- `/d/*` -> Cloudflare Access Bypass. Public Drive file-share link re-tested after cleanup and confirmed working without authentication.
+- `/oo/*` -> Cloudflare Access Bypass. Configuration retained; not re-tested at closeout because no suitable `/oo/` link was available.
+- Direct LAN DSM access remains the break-glass path: `https://192.168.20.41:5001`.
 - Cloudflare OTP is not part of the design.
+
+## Final Cloudflare Access application
+
+The broad DSM protection application covers `share.elliottrook.com/*` with policy `Jason - Full Access` (Allow; administrator email rule). More-specific bypass applications cover `/d/*` and `/oo/*`.
+
+Authentication settings on the broad application:
+
+- Accept all available identity providers: **Off**
+- Selected provider: **Authentik Production - oidc**
+- Apply instant authentication: **On**
+- Authenticate with Cloudflare One Client: **Off**
+
+The two temporary/broken Authentik identity-provider entries were removed after production validation. The working API-created provider was renamed from `Authentik OIDC API Test` to `Authentik Production` and the application retained the same IdP object through the rename.
 
 ## Root cause
 
-The OIDC failure was caused by **split DNS**. `auth.elliottrook.com` existed
-only in internal DNS, resolving directly to Nginx Proxy Manager on the home
-network. Cloudflare Access performs its authorization-code token exchange
-from Cloudflare's own backend, not from the user's browser — and that backend
-needed the Authentik token/JWKS/userinfo endpoints to be reachable through
-Cloudflare's own authoritative DNS zone for the domain, which had no public
-`auth.elliottrook.com` record. This produced the generic error seen
-throughout troubleshooting: "Failed to fetch user/group information from the
-identity provider."
+The principal OIDC failure was caused by split DNS.
 
-The browser-side Authentik authorization flow always succeeded (confirmed
-repeatedly during the original troubleshooting), which is what made this look
-like a token/claims/signing-key/compatibility problem rather than a DNS one —
-everything the browser touched worked fine; only the backend-to-backend leg
-was broken.
+`auth.elliottrook.com` existed only in internal DNS, where clients resolved it directly to Nginx Proxy Manager. Cloudflare Access performs the authorization-code token exchange from Cloudflare's own backend, not from the user's browser. Cloudflare's backend therefore needed public DNS/public reachability for the Authentik token/JWKS/userinfo endpoints. Because the authoritative Cloudflare DNS zone had no public `auth.elliottrook.com` record (and no suitable wildcard), the Cloudflare backend could not resolve/reach Authentik. This produced Cloudflare's generic error:
+
+> Authentication error — Failed to fetch user/group information from the identity provider.
+
+The browser-side Authentik authorization flow still succeeded, which initially made the problem look like a token, claim, signing-key, or Authentik compatibility problem.
 
 ## Resolution: publish Authentik through the existing Cloudflare Tunnel
 
-Rather than expose NPM/Authentik directly via a WAN A record,
-`auth.elliottrook.com` was added as another published application route on
-the existing `synology-drive-share` Cloudflare Tunnel (the same tunnel used
-for Drive sharing — see the Cloudflare handover doc).
+Rather than expose NPM/Authentik directly through a WAN A record, `auth.elliottrook.com` was added as another published application route on the existing `synology-drive-share` Cloudflare Tunnel.
 
 Final route:
+
 - Public hostname: `auth.elliottrook.com`
 - Service: HTTPS
 - Origin: `192.168.50.23` (Nginx Proxy Manager)
 - TLS Origin Server Name: `auth.elliottrook.com`
-- TLS verification: enabled, timeout 10s
+- TLS verification: enabled
+- TLS timeout: 10 seconds
 - HTTP/2 connection: off
 - Match SNI to Host: off
 
 Traffic path:
-`Cloudflare → Cloudflare Tunnel → NPM 192.168.50.23:443 → Authentik 192.168.50.22:9000`
 
-Cloudflare created the public proxied DNS entry for this route automatically.
-Public DNS was verified against `1.1.1.1`, and the Authentik OIDC discovery
-endpoint returned HTTP 200 through the public tunnel path. Internal split DNS
-continues resolving `auth.elliottrook.com` directly to NPM for LAN clients;
-external/Cloudflare resolution now goes through the tunnel.
+`Cloudflare -> Cloudflare Tunnel -> NPM 192.168.50.23:443 -> Authentik 192.168.50.22:9000`
 
-## Authentik OIDC configuration (unchanged from original setup)
+Cloudflare created the public proxied DNS entry for the tunnel route. Public DNS was verified against `1.1.1.1`, and the Authentik OIDC discovery endpoint returned HTTP 200 through the public tunnel path.
+
+Internal split DNS can continue resolving `auth.elliottrook.com` directly to NPM at `192.168.50.23`; external/Cloudflare resolution uses the tunnel.
+
+## Authentik OIDC configuration
+
+Authentik application/provider remains the Cloudflare Access OAuth2/OpenID Connect integration:
 
 - Provider: `Provider for Cloudflare Access`
 - Application slug: `cloudflare-access`
-- Client type: Confidential, Grant: Authorization Code
+- Client type: Confidential
+- Grant: Authorization Code
 - Redirect URI: `https://delicate-glade-7e3a.cloudflareaccess.com/cdn-cgi/access/callback`
 - Signing key: `authentik Self-signed Certificate`
-- Scopes: `openid`, `email`, `profile`; "Include claims in ID token" enabled
+- Scopes: `openid`, `email`, `profile`
+- Include claims in ID token: enabled
 - Issuer mode: per-provider/application slug
-- Client secret: rotated during troubleshooting (see Security incident below)
-  — not stored in this repository
+- Client secret: **not stored in this repository**
 
 Discovery endpoint:
+
 `https://auth.elliottrook.com/application/o/cloudflare-access/.well-known/openid-configuration`
 
-## Final Cloudflare Access application configuration
-
-The broad DSM-protection application covers `share.elliottrook.com/*` with
-policy `Jason - Full Access` (Allow; administrator email rule). Narrower
-bypass applications cover `/d/*` and `/oo/*` as before.
-
-Authentication settings on the broad application:
-- Accept all available identity providers: **Off**
-- Selected provider: **Authentik Production** (an OIDC provider object,
-  renamed from `Authentik OIDC API Test` after validation — the same
-  API-created object was kept through the rename, not recreated)
-- Apply instant authentication: On
-- Authenticate with Cloudflare One Client: Off
-
-Two temporary/broken Authentik identity-provider entries created during
-troubleshooting were deleted after production validation.
+Cloudflare generic OIDC endpoints use Authentik's authorization, token, userinfo and provider-specific JWKS endpoints. No secret values are recorded here.
 
 ## Diagnostics that isolated the failure
 
-Useful sequence, worth repeating in this order if this integration ever
-regresses:
+The following tests were useful and should be repeated in this order if this integration ever regresses:
 
-1. Authentik Events showed successful browser authorization and the correct
-   Cloudflare callback (this was already known from the original
-   troubleshooting above).
-2. Cloudflare's standalone IdP test failed at the code-for-token exchange
-   step specifically.
-3. Authentik/NPM logs showed **no corresponding Cloudflare token POST**
-   arriving during those failures — the request never arrived at all, which
-   is the key clue pointing at a reachability problem rather than an
-   application-level rejection.
-4. A manual external POST to Authentik's token endpoint with deliberately
-   invalid credentials returned `invalid_client` — proving the public HTTP
-   POST path itself worked from an external test client.
-5. A manual POST using real client credentials and a deliberately invalid
-   authorization code returned `invalid_grant` — proving Authentik accepted
-   the client credentials and reached authorization-code validation.
-6. Cloudflare API inspection confirmed the saved OIDC URLs/scopes were
-   correct.
-7. Cloudflare account inspection identified the decisive discrepancy:
-   `auth.elliottrook.com` was absent from Cloudflare's own authoritative DNS
-   zone for the domain.
-8. After publishing `auth.elliottrook.com` through the Cloudflare Tunnel,
-   Cloudflare's OIDC test succeeded and returned the administrator email plus
-   AMR values `pwd` and `mfa`.
+1. Authentik Events showed successful browser authorization and the correct Cloudflare callback.
+2. Cloudflare's standalone IdP test originally failed at code-for-token exchange.
+3. Authentik/NPM logs showed no corresponding Cloudflare token POST during those failures.
+4. An external manual POST to Authentik's token endpoint returned `invalid_client` with deliberately invalid credentials, proving the public HTTP POST path itself worked from the test client.
+5. A manual POST using the actual client credentials and a deliberately invalid authorization code returned `invalid_grant`, proving Authentik accepted the client credentials and reached authorization-code validation.
+6. Cloudflare API inspection confirmed the saved OIDC URLs/scopes were correct.
+7. Cloudflare account inspection identified the decisive discrepancy: `auth.elliottrook.com` was absent from public authoritative DNS.
+8. After publishing `auth.elliottrook.com` through the Cloudflare Tunnel, Cloudflare's OIDC Test succeeded and returned the administrator email plus AMR values `pwd` and `mfa`.
 
-## Secondary issue found during production cutover
+## Secondary issue discovered during production cutover
 
-After the backend reachability problem was fixed, the production Access
-application still failed once because it had been assigned a similarly-named
-but obsolete IdP object (`Authentik OIDC Test`) rather than the known-good
-API-created provider. The callback `state` parameter exposed the IdP UUID,
-which made the mismatch unambiguous. Selecting the correct provider fixed
-production login; it was then renamed to `Authentik Production` for clarity.
+After the OIDC backend problem was fixed, the production Access application still failed once because it had accidentally been assigned the similarly named obsolete IdP `Authentik OIDC Test`, rather than the known-good API-created provider.
 
-A second UI trap: Cloudflare One Client authentication was accidentally
-toggled on at one point and Cloudflare refused to save that state because no
-account-level One Client session duration was configured. The intended,
-final setting is **Off**.
+The callback `state` exposed the IdP UUID and made the mismatch unambiguous. Selecting the known-good provider fixed production login. It was then renamed to `Authentik Production`.
+
+A second UI trap occurred when Cloudflare One Client authentication was inadvertently toggled on. Cloudflare refused to save that state because no account-level One Client authentication session duration was configured. The intended setting is **Off**; no One Client session duration was added.
 
 ## Security incident and cleanup
 
-During API-based troubleshooting, a Cloudflare identity-provider create API
-call returned the OIDC **client secret in its response**, and that response
-was accidentally exposed within the troubleshooting conversation. The secret
-was immediately treated as compromised and rotated in Authentik, then
-Cloudflare was updated with the new secret. The old secret is invalid.
+During API troubleshooting, Cloudflare's identity-provider create API returned the OIDC `client_secret` in its response and that response was accidentally exposed in the troubleshooting conversation. The secret was immediately treated as compromised and rotated in Authentik. Cloudflare was then updated with the new secret. The old secret is invalid.
 
-**Operational rule going forward:** never paste or record the full response
-from an IdP-create API call — it may contain the client secret in plaintext.
+Operational rule: **never paste or record the full response from an IdP-create API call; it may contain the client secret in plaintext.**
 
-Temporary, narrowly-scoped Cloudflare Access API tokens used during
-troubleshooting were revoked after completion. Unrelated existing
-DNS/certificate/tunnel tokens were left untouched. No client secret,
-Cloudflare API token, tunnel credential, certificate credential, or other
-secret is stored in this repository.
+Temporary narrow Cloudflare Access API tokens used during troubleshooting were revoked after completion. Existing unrelated DNS/certificate/tunnel tokens were left untouched.
+
+No client secret, Cloudflare API token, tunnel credential, certificate credential, or other secret is stored in this repository.
 
 ## Closeout validation
 
-- Fresh private-browser login to bare `share.elliottrook.com` completed
-  successfully through Authentik and reached DSM.
-- Public `/d/*` Synology Drive share opened successfully in a private browser
-  with no Cloudflare/Authentik authentication prompt.
-- `/oo/*` bypass remains configured but was not re-tested at closeout (no
-  suitable `/oo/` share link was available) — worth a quick confirmation next
-  time an Office-format file is shared.
-- Obsolete Authentik IdP objects were deleted; temporary Access API tokens
-  were revoked.
+Production was validated after cleanup:
 
-## Final architecture
+- Renamed `Authentik Production` provider remained attached to the Access application.
+- Fresh private-browser login to bare `share.elliottrook.com` completed successfully through Authentik and reached DSM.
+- Public `/d/*` Synology Drive share opened successfully in a private browser without Cloudflare/Authentik authentication.
+- `/oo/*` bypass remains configured but was not re-tested during closeout because no `/oo/` share link was available.
+- Obsolete Authentik IdPs were deleted.
+- Temporary Access API tokens were revoked.
 
-Cloudflare Access protects the administrative DSM surface, while narrow
-path-based bypass applications preserve public Synology Drive sharing.
-Authentik is the sole login method for the protected DSM application, and is
-itself reachable externally only through the existing Cloudflare Tunnel to
-NPM — never via direct WAN exposure. This returns the Synology Drive project
-to its intended final architecture (Milestone 6, friend sharing).
+## Final architecture decision
+
+Cloudflare Access protects the administrative DSM surface, while narrow path-based bypass applications preserve public Synology Drive sharing. Authentik remains the sole login method for the protected DSM application and supplies password + passkey/MFA authentication. Authentik itself is externally reachable only through the existing Cloudflare Tunnel to NPM, avoiding direct WAN exposure.
+
+This resolves the Authentik + Cloudflare Access OIDC handover and returns the Synology Drive project to its intended final architecture.
