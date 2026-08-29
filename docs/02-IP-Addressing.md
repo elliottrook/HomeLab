@@ -12,7 +12,7 @@
 |UniFi Hall AP|192.168.50.31|
 |UniFi Office AP|192.168.50.141|
 |TrueNAS|192.168.20.40 (`truenas.internal`)|
-|Synology DS920+|192.168.20.41|
+|Synology DS920+|192.168.20.41 (also dual-homed on `eth1` as 192.168.1.41 — discovered during the Synology Drive project, not previously documented here)|
 |Backup Synology|192.168.20.42|
 |Frigate VM 102|192.168.20.10|
 |Home Assistant OS VM 103|192.168.20.11|

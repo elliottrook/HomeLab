@@ -97,6 +97,39 @@ Recovery procedure:
 
 Review IDrive e2 service, pricing, recovery performance and capacity by 2027-08-11. Backblaze B2 remains the documented provider fallback, and the S3-compatible design preserves the option of a trusted remote self-hosted target.
 
+## Synology Drive same-site backup
+
+The main Synology (`192.168.20.41`) runs Hyper Backup task `Synology Drive
+Backup` against the Backup Synology (`192.168.20.42`, share `Backup`,
+destination folder `GoWest_2.hbk`) — the same destination repository already
+used by the pre-existing `Media Backup` task (Plex media only; that task was
+not otherwise touched by this work). Before this task existed, there was no
+backup coverage at all for user data on the main NAS.
+
+Selected sources:
+- Shared folder `homes` (personal My Drive folders for every family account)
+- Shared folder `Family Documents` (the shared Team Folder)
+- Application data: `SynologyDrive` (Team Folder/sharing/quota/retention
+  settings) and `HyperBackup` (the backup tool's own configuration)
+
+Hyper Backup settings:
+- Daily schedule: 00:00
+- Integrity check: Monday 04:00
+- Rotation: enabled, keep the most recent 30 versions
+- Client-side encryption: not enabled — a deliberate choice, since this is a
+  same-LAN NAS-to-NAS backup rather than an off-site one, so encryption in
+  transit/at rest is a lower-priority tradeoff here than for the IDrive e2
+  off-site backup above (which is encrypted)
+
+Capacity: the backed-up data currently totals ~121 GB, against 1.4 TB free on
+the Backup Synology at the time this task was created — comfortable, but this
+destination has less headroom than the main NAS overall and is shared with
+Plex's media backup, so it's the more time-sensitive one to periodically
+recheck as data grows. Full detail, including the discovery that led to
+creating this task, is in
+[docs/projects/Synology-Drive-Family-Cloud.md](projects/Synology-Drive-Family-Cloud.md)
+(Milestone 7).
+
 ## Docker LXC 100
 
 The service configuration lives under `/opt` inside Proxmox LXC 100 (`docker`). Before a change window, create private staging archives from the LXC shell:

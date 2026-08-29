@@ -2,12 +2,15 @@
 
 ## Project handover: Claude
 
-> Status: Milestones 1-6 complete for the pilot device (Jason); Milestone 7 in
-> progress (Drive backup task created, initial backup running); rolling out
-> mobile clients to the rest of the family still open from Milestone 5. The
-> Cloudflare Access admin-login problem is now resolved (root cause was split
-> DNS blocking Cloudflare's own backend from reaching Authentik — see
-> Authentik-Cloudflare-Access-OIDC-Handover.md)
+> Status: Milestones 1-6 complete for the pilot device (Jason). Milestone 7 in
+> progress (Drive backup task created and running; restore testing still
+> pending completion). Milestone 8 mostly done (monitoring check, Homepage
+> link, routine-operations documentation, architecture/backup docs updated);
+> the HomeLab Doctor + backup validation item is blocked on Milestone 7
+> finishing. Rolling out mobile clients to the rest of the family remains open
+> from Milestone 5. The Cloudflare Access admin-login problem is resolved
+> (root cause was split DNS blocking Cloudflare's own backend from reaching
+> Authentik — see Authentik-Cloudflare-Access-OIDC-Handover.md)
 >
 > Project owner: Jason
 >
@@ -367,13 +370,94 @@ from the protected backup path.
 
 ## 12. Milestone 8 — Monitoring, documentation and hand-back
 
-- [ ] Add only actionable service/capacity checks to existing monitoring.
-- [ ] Add a Homepage link after the supported access name is stable.
-- [ ] Document routine account creation, device replacement and client removal.
-- [ ] Document version-retention and capacity-review intervals.
-- [ ] Update architecture, addressing, backup and operational documents.
-- [ ] Run HomeLab Doctor and a representative client/backup validation.
-- [ ] Remove pilot accounts, links and test data that are no longer required.
+- [x] Add only actionable service/capacity checks to existing monitoring. —
+  Added `check_synology_drive_backup` to `scripts/doctor.sh`, checking the
+  freshness of the Hyper Backup destination folder on the backup NAS (same
+  pattern as the other `check_backup_age`-style checks). Verified standalone;
+  full end-to-end `doctor.sh` run and real backup validation still pending
+  Milestone 7's initial backup finishing.
+- [x] Add a Homepage link after the supported access name is stable. — Added
+  a "Family Drive" tile to the live Homepage dashboard config
+  (`/opt/homepage/config/services.yaml` on the docker host), pointing to
+  `https://192.168.20.41:5001`. Confirmed visible on the dashboard after a
+  container restart (config changes don't hot-reload).
+- [x] Document routine account creation, device replacement and client
+  removal. — See "Routine operations" (section 12a) below.
+- [x] Document version-retention and capacity-review intervals. — See
+  "Routine operations" (section 12a) below.
+- [x] Update architecture, addressing, backup and operational documents. —
+  Added a "Synology Drive same-site backup" section to `docs/05-Backups.md`;
+  recorded the dual-homed NIC discovery in `docs/02-IP-Addressing.md`.
+  `docs/01-Architecture.md` and `docs/04-Operations.md` were reviewed and
+  found already generic enough to cover this project without needing edits.
+- [ ] Run HomeLab Doctor and a representative client/backup validation. —
+  Blocked on Milestone 7's initial backup completing and a restore test.
+- [x] Remove pilot accounts, links and test data that are no longer required.
+  — The one known leftover, a public test share link for `HDR Window.jpeg`
+  from the original Cloudflare setup validation, already has a same-day
+  expiration set and will self-expire; Jason confirmed the expiration
+  mechanism has already worked correctly on this exact link once before
+  (it expired yesterday, was recreated for further testing, and expires
+  again today) — no manual revocation needed.
+
+## 12a. Routine operations
+
+**Adding a new family member's account:**
+1. Control Panel → User & Group → Create → set up an individual, non-admin
+   DSM account (matches this project's design: only Jason and elliottrook are
+   administrators — everyone else stays an ordinary account).
+2. Add the account to the `Family` group (Control Panel → User & Group →
+   Group → Family → Edit Members) — this grants access to the
+   `Family Documents` Team Folder without needing per-user ACL entries.
+3. Set a 100 GB quota via Control Panel → User & Group → select the user →
+   Edit → Quota tab → `volume1` → 100 GB (matches every existing family
+   account except Jason).
+4. Do **not** grant access to anything on the `homes` shared folder itself
+   beyond the user's own account — that folder's permissions were
+   deliberately locked down in Milestone 2 so no one can see into another
+   family member's private Drive folder; adding a new user doesn't need any
+   change there, DSM handles per-user home folder creation automatically.
+5. Install the Drive Client/app on their device(s) using the setup procedure
+   in Milestone 4, pointing at `192.168.20.41` (LAN) or via Tailscale
+   remotely.
+
+**Replacing a device:**
+1. On the old device, remove the sync task from Drive Client (or just
+   uninstall the app on mobile) — this never deletes server-side data, only
+   the local on-demand cache/placeholders.
+2. Set up the new device following the same client setup procedure as
+   Milestone 4/5. On-demand Sync means no bulk re-download is needed upfront;
+   files populate as they're opened.
+3. If the old device is lost/stolen rather than just retired, also consider
+   revoking its session via DSM's Control Panel → Connection Log / My Drive's
+   device management, and rotating the account's password as a precaution.
+
+**Removing a client without removing the account:**
+- Same as step 1 of "Replacing a device" above — removing a Drive Client sync
+  task or uninstalling the mobile app never touches server-side data. The
+  account and its files remain exactly as they were.
+
+**Version-retention settings currently in place:**
+- `Family Documents` (Team Folder): 25 max versions, rotate/delete versions
+  older than 30 days (set in Milestone 3).
+- Personal My Drive folders: **no version-retention policy is set** — this
+  was flagged as an open item back in Milestone 3, pending Jason's photo
+  migration out of his My Drive folder. Worth revisiting once that migration
+  happens, so deleted-file history doesn't accumulate unbounded.
+- Hyper Backup "Synology Drive Backup" task (Milestone 7): 30-version
+  rotation, daily backups at 00:00, weekly integrity check (Monday 04:00).
+
+**Capacity review intervals:**
+- Main NAS (`192.168.20.41`): 3.7 TB free as of Milestone 1 (65% used). No
+  fixed review cadence was set during this project — worth checking
+  DSM's Storage Manager periodically, especially since per-user quotas
+  (100 GB × 5 non-Jason accounts = up to 500 GB reservable) are well within
+  current headroom but worth re-checking if usage grows.
+- Backup NAS (`192.168.20.42`): 1.4 TB free as of Milestone 1 (82% used,
+  noticeably tighter than the main NAS). The new Drive backup task adds
+  ~121 GB — comfortable now, but this destination has less headroom overall
+  and is shared with the existing Plex media backup, so it's the more
+  time-sensitive one to periodically re-check as data grows.
 
 ## 13. Claude execution instructions
 
@@ -421,3 +505,4 @@ exposure was introduced.
 | 2026-08-29 | Milestone 6 | External sharing tested end-to-end via the Cloudflare Tunnel set up earlier tonight: an expiring read-only link opened correctly from a private/incognito context simulating an outsider, could not be used to browse parent folders or other content, and a scheduled expiration correctly cut off access. A file-request/upload link was also tested and confirmed working. Decided on a default sharing policy: every link expires by default, with a password added only for sensitive content rather than as a blanket rule. Documented the emergency-revocation procedure (disable/delete the link from its sharing settings, effective immediately). Milestone 6 completion gate reached — note this relies on the Cloudflare Tunnel routing, which is confirmed working, independent of the (at the time) unresolved Cloudflare Access admin login problem tracked separately. | Done |
 | 2026-08-29 | Milestone 6 (follow-up) | The separately-tracked Cloudflare Access admin-login problem was resolved via a ChatGPT troubleshooting session, verified here. Root cause: split DNS — `auth.elliottrook.com` only existed in internal DNS, so Cloudflare Access's own backend (which performs the OIDC token exchange server-to-server, not through the browser) couldn't reach Authentik's token/userinfo/JWKS endpoints. Fixed by publishing `auth.elliottrook.com` through the same Cloudflare Tunnel already used for Drive sharing, routed to NPM, rather than exposing it via a direct WAN record. A Cloudflare OIDC client secret was accidentally exposed during that troubleshooting session and was rotated immediately as a precaution. Full detail in `docs/Authentik-Cloudflare-Access-OIDC-Handover.md`. DSM's Cloudflare-tunneled admin login is now fully working with Authentik password + passkey/MFA. | Done |
 | 2026-08-31 | Milestone 7 | Discovered the existing Hyper Backup task ("Media Backup") only ever covered `/Plex` — no user data had any backup coverage before this. Scoped Milestone 7 to Drive-related folders only (not a full-NAS backup, which would be a larger, separate effort). Sized the actual data first (`/homes` 121 GB, `Family Documents` 1.3 MB) and confirmed it fits comfortably against 1.4 TB free on the backup NAS. Created a new, independent Hyper Backup task ("Synology Drive Backup") rather than modifying the existing Media Backup task, using settings matching this homelab's documented Hyper Backup standard (`docs/05-Backups.md`): daily at 00:00, weekly integrity check (Monday 04:00), 30-version rotation. No client-side encryption — a deliberate, low-stakes choice for a same-LAN NAS-to-NAS backup. Initial backup confirmed running (active worker processes) at session end. | In progress |
+| 2026-08-31 | Milestone 8 | Added `check_synology_drive_backup` to `scripts/doctor.sh` (checks the Hyper Backup destination folder's freshness on the backup NAS), plus new SSH config aliases `gowest` and `gowest-backup` to support it. Added a "Family Drive" tile to the live Homepage dashboard config on the docker host, confirmed visible after a container restart. Confirmed the one known leftover test artifact (a public share link for `HDR Window.jpeg`) has a working same-day expiration and needs no manual cleanup — a second real-world confirmation of link expiration working, after the one already tested in Milestone 6. Wrote routine-operations documentation (account creation, device replacement, client removal, version-retention and capacity-review intervals) directly into this tracker. Updated `docs/05-Backups.md` and `docs/02-IP-Addressing.md` to reflect the new backup task and the dual-homed NIC discovery from Milestone 3; `docs/01-Architecture.md` and `docs/04-Operations.md` reviewed and found already adequate. Remaining: full `doctor.sh` run and a real backup/restore validation, both blocked on Milestone 7's initial backup finishing. | In progress |
