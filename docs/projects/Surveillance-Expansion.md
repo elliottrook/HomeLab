@@ -95,8 +95,13 @@ known tooling constraints are in
 - [x] Validate detection dimensions, masks, zones and object classes —
   completed for `front_of_house` 2026-08-30: `objects.track` scoped to
   `person`/`car`, `driveway`/`porch`/`street` zones added, `review.alerts`
-  scoped to `driveway`/`porch`. See Evidence log. Still open for any future
-  camera onboarded via the runbook above.
+  scoped to `driveway`/`porch`. Validation also caught and fixed a deeper
+  issue: object detection had produced zero events since this camera's
+  original install (2026-08-09) — a runtime-only "Enable Detect" toggle that
+  doesn't persist without MQTT. Fixed with an explicit `detect.enabled: true`
+  in config; confirmed producing correctly-zoned events after a restart. See
+  Evidence log and [07-Surveillance.md](../07-Surveillance.md). Still open
+  for any future camera onboarded via the runbook above.
 - [ ] Confirm live view, continuous/motion recording and event playback.
 - [ ] Reboot the camera, Frigate VM and relevant storage path independently.
 - [ ] Observe at least 24 hours of healthy recording before another camera.
@@ -156,4 +161,5 @@ validated security and rollback paths.
 |---|---|---|---|
 | 2026-08-16 | Single-camera baseline | Coral TPU, NFS restart and recording validation | Passed |
 | 2026-08-30 | Milestone 3 (detection triggers) | `front_of_house` config staged, diffed, YAML-validated, backed up (`config.yaml.before-triggers-20260830-103233`), applied via human-run restart at 10:35:19 PDT; confirmed stable process tree and fresh recordings post-restart with no regression. Face recognition and LPR found already enabled outside the documented process; disabled and deferred to Milestone 5 as a scoped decision. | Passed |
+| 2026-08-30 | Milestone 3 (detect.enabled fix) | Discovered `event`/`reviewsegment`/`regions` had zero rows total, back to the database's 2026-08-09 creation — motion detection, recording and the Coral TPU were all confirmed healthy via the debug overlay and system metrics, isolating the fault to a runtime-only "Enable Detect" UI toggle that doesn't persist without MQTT (`mqtt.enabled: false` here). Fixed with explicit `detect.enabled: true` in `config.yaml` (backup: `config.yaml.before-detectenabled-*`), confirmed surviving a restart and producing correctly-labeled, correctly-zoned `person`/`car` events. | Passed |
 | 2026-08-24 | Project split | Expansion removed from initial-build checklist | Complete |

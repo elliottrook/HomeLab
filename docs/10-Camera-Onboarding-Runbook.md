@@ -104,6 +104,18 @@ resolution first).
 - Leave `face_recognition` and `lpr` disabled unless the human has explicitly
   approved enabling them for this camera — per Surveillance-Expansion.md, that
   is its own scoped decision, not a default.
+- **Explicitly set `detect.enabled: true` under the camera in `config.yaml`.**
+  Do not rely on the Live view's "Enable Detect" UI toggle — it is a
+  runtime/session setting Frigate keeps separate from the config file, and
+  with `mqtt.enabled: false` (this deployment has no MQTT broker) there is no
+  mechanism to persist it, so it silently reverts to disabled on every
+  restart. This exact gap left `front_of_house` producing zero object
+  detections for its entire first three weeks despite healthy recording,
+  motion detection, and Coral hardware — see the 2026-08-30 finding in
+  [07-Surveillance.md](../07-Surveillance.md). After any restart, verify with
+  a database check (`event`/`reviewsegment` row counts, or the Cameras tab's
+  per-camera "Detect" FPS stat — it must be nonzero when there's motion, not
+  just "Camera" FPS) rather than trusting the UI toggle's apparent state.
 
 ### 4. Stage, back up, validate — do not restart yet
 
@@ -142,6 +154,14 @@ Look for: `active`, a full Frigate process tree (`frigate.detector`,
 for the new camera), and fresh recording segments for **both** the existing and
 new camera — confirm no regression to `front_of_house`.
 
+A healthy process tree and flowing recordings are **not sufficient** proof
+that object detection itself is working — see the `detect.enabled` gotcha
+above. Additionally confirm actual detection output: either pull the database
+(`event`/`reviewsegment` tables, see step 4's method) and look for nonzero
+rows with recent timestamps, or check the System → Cameras metrics page for a
+nonzero per-camera "Detect" FPS while there's real motion in frame — "Camera"
+FPS being healthy proves nothing about detection.
+
 ### 7. Observe, then document
 
 - Per Milestone 3: observe at least 24 hours of healthy recording (both
@@ -160,3 +180,4 @@ new camera — confirm no regression to `front_of_house`.
 | Date | Camera | Change | Notes |
 |---|---|---|---|
 | 2026-08-30 | `front_of_house` | Added `objects.track: [person, car]`, zones (`driveway`, `porch`, `street`), `review.alerts`/`detections` split, disabled `face_recognition`/`lpr` | First execution of this runbook (retroactively, since the runbook was written from this session). Backup: `config.yaml.before-triggers-20260830-103233`. Restarted 10:35:19 PDT, confirmed healthy: stable process tree, recordings flowing, no regression. |
+| 2026-08-30 | `front_of_house` | Added `detect.enabled: true` explicitly to `config.yaml` | Discovered object detection had produced zero events since this camera's install (2026-08-09) — the Live view's "Enable Detect" toggle doesn't persist across restarts without MQTT. Backup: `config.yaml.before-detectenabled-*`. Confirmed fixed: real `person`/`car` events landing in the database, correctly zoned, surviving a subsequent restart. |

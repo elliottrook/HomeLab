@@ -54,6 +54,30 @@ privacy/retention decision (tracked in
 `semantic_search` (embedding-based search, not identity recognition) remains
 enabled and was not part of that decision.
 
+**Critical finding, 2026-08-30: object detection had never actually run.**
+While validating the trigger config above, `event`/`reviewsegment`/`regions`
+all showed zero rows — not just since today's restart, but for the entire
+database history back to its creation on 2026-08-09. Motion detection,
+recording, the Coral TPU, and the model were all confirmed healthy throughout
+(TPU found at startup, steady ~10ms inference, motion boxes correctly
+tracking real movement in the debug view) — the actual cause was that each
+camera's **`detect` toggle is a runtime/session setting Frigate keeps
+separate from `config.yaml`**, not persisted across restarts because
+`mqtt.enabled: false` (MQTT retained messages are Frigate's usual mechanism
+for persisting that toggle). It silently defaulted to *disabled* on every
+restart, including today's two — enabling it via the Live view UI worked
+immediately (confirmed via the debug overlay: correctly labeled, scored,
+tracked `car`/`person` boxes) but reverted to disabled on the next restart.
+Fixed by explicitly setting `detect.enabled: true` under the camera in
+`config.yaml`, confirmed to survive a restart and produce real events zoned
+correctly (`person` in `porch`/`driveway`, `car` in `driveway`/`street`).
+**Any future camera onboarded via the runbook must set this explicitly** —
+see [10-Camera-Onboarding-Runbook.md](10-Camera-Onboarding-Runbook.md).
+This also means every prior "stable" observation of this camera (the
+2026-08-11/12 and 2026-08-16 checkpoints, and the original single-camera
+baseline sign-off) validated recording and storage only, not detection —
+worth keeping in mind when reading those as evidence of readiness.
+
 The full step-by-step procedure for replicating this trigger pattern on a new
 camera is in
 [`docs/10-Camera-Onboarding-Runbook.md`](10-Camera-Onboarding-Runbook.md).
