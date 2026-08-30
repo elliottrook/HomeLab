@@ -495,7 +495,6 @@ item-level Definition of Done.
   re-verified via `upsc <name>@localhost ups.serial` reporting their own
   correct serial.
 - [ ] Perform controlled failure, shutdown and recovery tests.
-- [ ] Perform controlled failure, shutdown and recovery tests.
 - [ ] Update repository inventory, architecture, operations, backups and evidence.
 
 ### Milestone 5 — Hand-back
