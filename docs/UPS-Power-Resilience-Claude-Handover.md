@@ -161,11 +161,16 @@ item-level Definition of Done.
   server (root:nut, mode 640). No `SHUTDOWNCMD` is configured yet —
   deliberately deferred to Milestone 3, since real shutdown triggers and
   ordering haven't been decided.
-- [ ] Prove both UPS devices are detected consistently after reboot.
-  All three units are live-detected right now (post-relocation), but a
-  reboot test with all three physically connected hasn't been done yet —
-  worth doing once the installation is otherwise settled, since it's the
-  real test of the USB-serial-pinning approach surviving a fresh boot.
+- [x] Prove both UPS devices are detected consistently after reboot.
+  Reboot test performed 2026-08-29 with all three units connected: all
+  three `nut-driver@*` instances, `nut-server`, `nut-monitor`, and
+  `beszel-agent` came back **automatically** with no manual intervention.
+  Confirmed each driver bound to its correct serial after re-enumeration
+  (`proxmox-ups` → `CXXRO7009593`, `nas-ups` → `CXXRP7016137`,
+  `network-ups` → `GA4KS2000999`) — proving the serial-pinning approach
+  is robust to USB re-enumeration order changing across boots. `upsmon`
+  re-established all six expected loopback connections to `upsd`, and
+  Lab Doctor's `check_nut` passed cleanly afterward.
 
 ### Milestone 3 — Coordinated shutdown
 
@@ -542,7 +547,7 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 - [x] Both UPS units positively identified.
 - [x] UPS-to-device power topology documented.
 - [ ] UPS management connections attached to Lenovo.
-- [ ] Both UPS devices reliably detected after reboot.
+- [x] Both UPS devices reliably detected after reboot.
 - [ ] NUT installed on bare metal.
 - [ ] NUT server securely configured.
 - [ ] Appropriate NUT clients configured.

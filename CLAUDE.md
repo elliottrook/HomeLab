@@ -116,10 +116,16 @@ Current state:
   monitoring (same account, now three established `upsd` connection
   pairs). All three physical units are now accounted for: `proxmox-ups`,
   `nas-ups`, `network-ups` as NUT clients, and the APC BN1500M2-CA as a
-  documented dumb battery. Remaining before Milestone 2 fully closes:
-  a reboot test with all three units connected hasn't been done yet, and
-  the physical power topology/safe-runtime-assumptions writeup is still
-  outstanding.
+  documented dumb battery. Power topology documented (`nas-ups` has the
+  shortest runtime, ~22.5 min, despite matching capacity to
+  `proxmox-ups`, since it serves three NAS-class devices at once).
+- 2026-08-29: **Milestone 2 fully closed.** Reboot test performed with
+  all three UPS units connected: every NUT driver, `nut-server`,
+  `nut-monitor`, and `beszel-agent` came back automatically with no
+  manual intervention, and each driver rebound to its correct serial
+  after USB re-enumeration. Lab Doctor's `check_nut` passed cleanly
+  afterward. Next up: Milestone 3 (coordinated shutdown thresholds,
+  `SHUTDOWNCMD`, and shutdown ordering) — not yet started.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

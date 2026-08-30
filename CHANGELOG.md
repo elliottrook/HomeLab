@@ -27,6 +27,7 @@
 - Added the NUT server to Beszel for host-level monitoring (CPU, memory, disk, temperature); required a new OPNsense rule permitting Management VLAN 50 to reach the Beszel hub on Servers VLAN 20.
 - Relocated the NUT server to its permanent placement and identified/configured UPS #2 (CyberPower OR500LCDRM1U, NUT device `network-ups`) as the third NUT client, now carrying real production load (Arista switch, OPNsense, UniFi PoE switch); extended `upsmon` monitoring and HomeLab Doctor's `check_nut` to cover all three units.
 - Documented the live UPS power topology and runtime baseline: `nas-ups` has the shortest runtime of the three monitored units despite matching capacity, since it's serving three NAS-class devices at once — the key input for Milestone 3's shutdown-threshold planning.
+- Closed Milestone 2 of the NUT/UPS project: a reboot test with all three UPS units connected confirmed every NUT driver, `nut-server`, `nut-monitor` and `beszel-agent` recover automatically and rebind to the correct serial after USB re-enumeration.
 - Added a milestone-driven TrueNAS DIY SAS expansion project for a backplane-free, independently powered enclosure using the existing controller's two free disk endpoints.
 
 ### Fixed
