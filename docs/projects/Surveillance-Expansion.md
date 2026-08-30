@@ -149,10 +149,8 @@ observation period with no regression to existing cameras.
   and was not itself evaluated against this milestone's bar.
   Applied via `config.yaml` (`face_recognition.enabled: true`,
   `lpr.enabled: true`; backup: `config.yaml.before-facelpr-*`), restarted and
-  confirmed healthy. **Follow-up needed:** face recognition requires
-  reference photos of known household members added through Frigate's Face
-  Library UI before it can actually distinguish anyone — this is unconfigured
-  as of this decision and needs Jason to add them directly (family photos).
+  confirmed healthy. Reference photos for known household members were added
+  through Frigate's Face Library UI the same day, closing the follow-up.
 - [ ] Evaluate BirdNET as a separate service with its own audio, privacy, compute
   and storage design before adding a dashboard card.
 - [ ] Select camera-administration tools only after confirming compatibility and
