@@ -180,7 +180,37 @@ item-level Definition of Done.
 
 ### Milestone 3 — Coordinated shutdown
 
-- [ ] Define warning and shutdown thresholds from measured runtime.
+- [x] Define warning and shutdown thresholds from measured runtime.
+  Implemented 2026-08-29 via `override.battery.charge.low` in
+  `ups.conf` — overrides each unit's hardware-reported low-battery
+  signal (~10% default) with a per-unit value derived from measured
+  runtime *and* cross-UPS dependencies, not just each unit's own
+  battery budget:
+  - `nas-ups` = **50%** (~11 min of its 22.5 min budget) — least
+    runtime, and losing it breaks local switching (Arista), so it gets
+    the earliest, most generous trigger.
+  - `proxmox-ups` = **80%** (~12 min of its 61 min budget) — despite
+    having the most runway, its threshold is **not** driven by its own
+    battery. Its shutdown script SSHes to both Synology units, and
+    that traffic transits Arista (on `nas-ups`). Since TrueNAS's
+    `powerdown: false` means Arista keeps drawing from `nas-ups`'s
+    battery independent of TrueNAS's own shutdown timing, Proxmox's
+    trigger has to fire close to `nas-ups`'s own timing, not late into
+    its own budget, or Arista could plausibly be dead before the
+    script tries to reach Synology.
+  - `network-ups` = **25%** (~29 min of its 36 min budget) — powers
+    the orchestrator (the Lenovo) itself and has no downstream
+    SSH-dependency problem, so it can wait the longest, keeping
+    monitoring alive as long as reasonably possible.
+
+  Applied via `sed` anchored on each unit's unique USB serial (not a
+  range match, learning from the earlier range-boundary bug) — verified
+  all three drivers report their correct overridden value via `upsc`,
+  and all services (drivers, `nut-server`, `nut-monitor`, both remote
+  clients) reconnected cleanly afterward. **These numbers are
+  reasoned from topology and measured runtime, not field-validated —
+  Jason's own words: "we won't know until it's field tested." Treat
+  as a considered starting point, to be revisited after a real test.**
 - [ ] Configure and validate Proxmox shutdown behaviour.
   **Configured 2026-08-29, not yet live-tested.** The Lenovo's `nut.conf`
   switched to `MODE=netserver` with explicit `LISTEN 192.168.50.25 3493`

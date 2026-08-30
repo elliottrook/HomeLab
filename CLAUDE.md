@@ -169,6 +169,15 @@ Current state:
   cause: an API call echoed the secret back). Both Proxmox and TrueNAS
   confirmed connected with the final rotated password. Not yet
   live-tested.
+- 2026-08-29: Shutdown thresholds tightened via `override.battery.charge.low`
+  in `ups.conf`, replacing each unit's ~10% hardware default:
+  `nas-ups`=50%, `proxmox-ups`=80% (deliberately early despite having
+  the most battery, because its shutdown script's SSH-to-Synology step
+  depends on Arista/`nas-ups` still having power), `network-ups`=25%
+  (powers the Lenovo itself, so it waits longest). Reasoned from
+  topology and measured runtime, not yet field-tested. Full reasoning
+  in `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3
+  tracker).
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.
