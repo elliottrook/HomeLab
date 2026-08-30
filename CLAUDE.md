@@ -220,7 +220,22 @@ Hard rules:
   asking first, regardless of what's pre-approved.
 - Never touch Hyper Backup selections, DSM shared-folder encryption, or existing
   Drive state without a recovery checkpoint.
-- Treat SSH/SCP to any host, `sudo`, and package installs as always-ask, not
-  auto-approved, even if the tool's `ask` list would otherwise allow a repeat.
+- Read-only SSH/SCP work — status checks, reading configs or logs, `systemctl
+  status`, `docker ps`, listing or viewing files, resource/health checks — may run
+  without asking first once the host is in the sandbox network allowlist. Any
+  SSH/SCP command that changes state on a remote host (file writes, service
+  restarts, deletions), plus `sudo` and package installs, remain always-ask, every
+  time, even mid-session.
+- Never change anything that alters the network's security posture or structure —
+  VLAN membership, firewall rules, DNS/routing, credentials, encryption,
+  shared-folder ACLs, or inter-host trust — without stopping to confirm first,
+  regardless of what's otherwise pre-approved for the active project.
+- Scope changes to what the current project's active milestone actually requires.
+  Don't fix, tidy or reconfigure adjacent systems in passing — flag it and ask, or
+  note it as a follow-up, instead of doing it unprompted.
 - If something looks irreversible or you're unsure of the blast radius, stop and ask
   instead of guessing.
+- Commit documentation changes to git automatically at the end of each milestone
+  or comparable unit of work — no need to ask first. `git push` is the
+  exception: never push without an explicit instruction to do so in that
+  message, even though committing doesn't require one.

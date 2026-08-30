@@ -1,10 +1,10 @@
 # Surveillance Expansion Project
 
-> Status: One-camera baseline complete; expansion proposed
+> Status: One-camera baseline complete with trigger configuration; expansion proposed
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-24
+> Last updated: 2026-08-30
 
 ## Purpose
 
@@ -17,6 +17,12 @@ compute/storage capacity.
 The operating configuration, streams, retention, NFS ordering, recovery and
 troubleshooting procedures are documented in
 [`docs/07-Surveillance.md`](../07-Surveillance.md).
+
+The repeatable step-by-step procedure for onboarding each additional camera
+(object tracking, zones, alert/detection triggers, staging/validation, known
+tooling constraints) is documented in
+[`docs/10-Camera-Onboarding-Runbook.md`](../10-Camera-Onboarding-Runbook.md).
+Follow it for every camera covered by Milestone 3 below.
 
 - [x] Frigate VM 102 runs at `192.168.20.10` on Servers VLAN 20.
 - [x] The Reolink Duo 2V uses `192.168.60.10` on Cameras VLAN 60.
@@ -74,7 +80,9 @@ one additional camera with documented headroom.
 
 ## Milestone 3 — Repeatable camera onboarding
 
-Repeat this milestone separately for every camera.
+Repeat this milestone separately for every camera. Step-by-step commands and
+known tooling constraints are in
+[`docs/10-Camera-Onboarding-Runbook.md`](../10-Camera-Onboarding-Runbook.md).
 
 - [ ] Record model, serial, MAC, reserved address, location and switch port.
 - [ ] Update firmware and create a unique non-administrator Frigate account where
@@ -84,7 +92,11 @@ Repeat this milestone separately for every camera.
 - [ ] Add only the required Frigate-to-camera ports to the firewall policy.
 - [ ] Validate RTSP, ONVIF and management access from the authorized source.
 - [ ] Add streams to go2rtc/Frigate without committing credentials to Git.
-- [ ] Validate detection dimensions, masks, zones and object classes.
+- [x] Validate detection dimensions, masks, zones and object classes —
+  completed for `front_of_house` 2026-08-30: `objects.track` scoped to
+  `person`/`car`, `driveway`/`porch`/`street` zones added, `review.alerts`
+  scoped to `driveway`/`porch`. See Evidence log. Still open for any future
+  camera onboarded via the runbook above.
 - [ ] Confirm live view, continuous/motion recording and event playback.
 - [ ] Reboot the camera, Frigate VM and relevant storage path independently.
 - [ ] Observe at least 24 hours of healthy recording before another camera.
@@ -105,6 +117,13 @@ observation period with no regression to existing cameras.
 
 ## Milestone 5 — Optional surveillance tools
 
+- [ ] Re-evaluate face recognition and license-plate recognition (LPR) as their
+  own scoped, documented decision covering privacy, retention and consent
+  before re-enabling. Both were found already enabled outside the documented
+  process on 2026-08-30 (undocumented drift, likely from the Frigate setup
+  wizard) and were disabled pending this evaluation. `semantic_search` was
+  left enabled — a different feature (embedding-based search, not identity
+  recognition) — but was not itself evaluated against this milestone's bar.
 - [ ] Evaluate BirdNET as a separate service with its own audio, privacy, compute
   and storage design before adding a dashboard card.
 - [ ] Select camera-administration tools only after confirming compatibility and
@@ -136,4 +155,5 @@ validated security and rollback paths.
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-08-16 | Single-camera baseline | Coral TPU, NFS restart and recording validation | Passed |
+| 2026-08-30 | Milestone 3 (detection triggers) | `front_of_house` config staged, diffed, YAML-validated, backed up (`config.yaml.before-triggers-20260830-103233`), applied via human-run restart at 10:35:19 PDT; confirmed stable process tree and fresh recordings post-restart with no regression. Face recognition and LPR found already enabled outside the documented process; disabled and deferred to Milestone 5 as a scoped decision. | Passed |
 | 2026-08-24 | Project split | Expansion removed from initial-build checklist | Complete |

@@ -1,7 +1,7 @@
 # Surveillance
 
 **Status:** Operational pilot  
-**Last updated:** 2026-08-16
+**Last updated:** 2026-08-30
 
 ## Components
 
@@ -25,6 +25,38 @@ the Frigate host to the camera.
 - Alert and detection retention: 30 days in motion mode.
 - Hardware acceleration is not yet configured; CPU detection is acceptable
   for the single-camera pilot but is not the final scaling design.
+
+## Detection triggers
+
+As of 2026-08-30, `objects.track` is explicitly scoped to `person` and `car`
+(previously unset, which tracked every COCO label the Coral model supports
+with no filtering). Three zones are defined on `front_of_house`, in the
+camera's `detect` coordinate space (1920×576):
+
+- `driveway` — the paved parking area, from the street edge to the house.
+- `porch` — the immediate foreground behind the porch railing, closest to the
+  camera; the highest-priority zone for person detection.
+- `street` — the road and parked cars across the street; background/lower
+  priority.
+
+`review.alerts` fires only for `person`/`car` inside `driveway` or `porch`.
+Everything else (e.g. a car passing on `street`) logs as a `detection`
+instead — same retention (30 days, motion mode), lower review priority. There
+is no MQTT/Home Assistant integration yet (Milestone 4, not started), so
+"finding" a trigger currently means browsing Frigate's own Review/Explore UI,
+not an external notification.
+
+`face_recognition` and `lpr` (license plate recognition) were found already
+enabled (small models) outside the documented process — likely turned on via
+the Frigate setup wizard — and were disabled 2026-08-30 pending a scoped
+privacy/retention decision (tracked in
+[Surveillance-Expansion.md](projects/Surveillance-Expansion.md) Milestone 5).
+`semantic_search` (embedding-based search, not identity recognition) remains
+enabled and was not part of that decision.
+
+The full step-by-step procedure for replicating this trigger pattern on a new
+camera is in
+[`docs/10-Camera-Onboarding-Runbook.md`](10-Camera-Onboarding-Runbook.md).
 
 ## Storage and boot ordering
 
