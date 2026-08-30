@@ -7,6 +7,7 @@ SSH shortcuts:
 - ssh truenas
 - ssh frigate
 - ssh nut
+- ssh root@192.168.20.31
 
 ## Authorization
 
@@ -44,6 +45,30 @@ Dashboard SSH targets:
 | Frigate SSH | `ssh://jelliott@192.168.20.10` |
 
 The client device must have an application registered to handle `ssh://` links. These links do not contain passwords or private keys.
+
+## Prometheus observability pilot
+
+- Guest: unprivileged Proxmox LXC 109 (`observability`)
+- Address: `192.168.20.31` on Servers VLAN 20
+- Prometheus: `http://192.168.20.31:9090` from approved private networks only
+- Version/limits: Prometheus 3.13.2 LTS, 90-day and 20 GB TSDB ceilings
+- Services: `prometheus`, `pve-exporter`, `nut-exporter`,
+  `graphite-exporter` and `truenas-graphite-ingress`
+- Configuration: `/etc/prometheus`; `pve.yml` contains the read-only API token
+  and must remain mode-protected and outside Git
+
+Routine validation:
+
+```sh
+ssh root@192.168.20.31 "systemctl is-active prometheus pve-exporter nut-exporter graphite-exporter truenas-graphite-ingress"
+ssh root@192.168.20.31 "promtool check config /etc/prometheus/prometheus.yml"
+curl -fsS http://192.168.20.31:9090/-/ready
+curl -fsS http://192.168.20.31:9090/api/v1/targets
+```
+
+All exporters are observational only. Do not restart a monitored service to
+repair a failed scrape. Diagnose the exporter, its narrow network path and its
+read-only identity instead.
 
 ## UPS / power monitoring
 

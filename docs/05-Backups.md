@@ -320,6 +320,26 @@ serial pinning in `ups.conf` means both CyberPower units (identical
 vendor:product ID) will bind to the correct driver instance regardless of
 which physical USB port either one is plugged into.
 
+## Prometheus / Grafana observability
+
+LXC 109 is included automatically by the enabled all-guests Proxmox snapshot
+job. Its first archive, created on 2026-08-30, passed a complete Zstandard
+integrity test.
+
+The smaller configuration-level recovery set is stored under
+`~/lab/private-backups/observability/<date>/` and therefore enters the existing
+Backup Synology pull and encrypted IDrive e2 pipeline. It contains
+`/etc/prometheus` and the observability systemd units. Treat it as sensitive:
+`pve.yml` contains the read-only Proxmox API token. Keep the directory and
+archive owner-only readable and never commit the archive or extracted files.
+
+Restore into an isolated temporary directory first. Confirm that
+`prometheus.yml`, `pve.yml` and every service unit are present, inspect file
+ownership, and validate the Prometheus configuration with `promtool` before
+placing files into `/etc`. Reinstall the exact pinned binaries/exporter
+environment, restore configuration, reload systemd and start one component at
+a time. Validate all targets before enabling future dashboard dependencies.
+
 ## Proxmox guest backups
 
 Proxmox stores `vzdump` archives on the `backups` directory storage at `/mnt/backups`. The mount is a separate 4 TB Seagate ST4000LM024 disk (`/dev/sda1`, ext4). This protects the guests from loss of the Proxmox system disk, but the disk remains physically local to the Proxmox host and is not an off-site copy.
@@ -511,7 +531,8 @@ configuration is separately documented or exported.
 | Authentik LXC 106 | Doctor checks service reachability through the configured endpoint | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; Authentik configuration is documented separately |
 | Reverse Proxy LXC 107 | Doctor checks NPM service reachability and TLS dependencies | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; proxy and Authentik recovery order is documented |
 | Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
-| NUT server (Lenovo, bare metal) | Doctor checks `nut-server`/`nut-monitor` state, both UPS units' `ups.status` and battery charge, and config-backup age | Manually-pulled config set (`ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf`, SSH hardening, network config) lands directly in the same Backup Synology pull and encrypted IDrive e2 off-site tree as other appliance configs | Live driver/server configuration validated via `upsc`; a full bare-metal OS reinstall has not been tested, only documented as a recovery procedure |
+| Observability LXC 109 | Prometheus self-monitors and all seven initial scrape jobs are health-checked; Doctor integration follows after Grafana stabilizes | Protected configuration archive plus the retained all-guests LXC snapshot; both enter the existing Synology/off-site pipeline | Configuration archive extracted and checked in isolation; first LXC archive passed complete Zstandard integrity testing |
+| NUT server (Lenovo, bare metal) | Doctor checks `nut-server`/`nut-monitor` state, all three UPS units' `ups.status` and battery charge, and config-backup age | Manually-pulled config set (`ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf`, SSH hardening, network config) lands directly in the same Backup Synology pull and encrypted IDrive e2 off-site tree as other appliance configs | Live driver/server configuration validated via `upsc`; a full bare-metal OS reinstall has not been tested, only documented as a recovery procedure |
 | Reolink camera | Doctor tests HTTP, RTSP and ONVIF reachability; Frigate proves recording flow | No recording archive is required; Frigate configuration preserves the integration settings | Camera replacement or reset is a documented reconfiguration task rather than a backup restore |
 
 ### Accepted recovery boundaries

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Completed the Prometheus observability pilot in unprivileged LXC 109 at `192.168.20.31`: checksum-verified Prometheus 3.13.2 LTS now collects bounded read-only Proxmox, TrueNAS, Frigate and three-UPS metrics through narrowly scoped network paths. All seven jobs are healthy at 1,686 active series; failure isolation, protected configuration recovery and an integrity-tested guest snapshot passed.
 - Added `truenas.internal` as a persistent `192.168.20.40` record on both Pi-hole resolvers and verified it from the Mac.
 - Replaced the failed UniFi PoE switch role with the Binarui **AP Switch**, documented its complete port/VLAN inventory, management recovery procedure and as-is burn-in decision.
 - Preconfigured AP Switch ports 1–4 as native-VLAN-1 AP trunks permitting VLANs 1,10,20,30,40,50,60,70; reserved port 5 for recovery and port 6 for the 10G Arista uplink.

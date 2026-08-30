@@ -20,6 +20,7 @@ Arista core
   |     +-- LXC 106: Authentik
   |     +-- LXC 107: Reverse Proxy
   |     +-- LXC 108: Forgejo (Servers VLAN 20)
+  |     +-- LXC 109: Prometheus / Grafana observability (Servers VLAN 20)
   +-- TrueNAS
   |     +-- NFS: Surveillance/Frigate recording storage
   +-- Synology storage

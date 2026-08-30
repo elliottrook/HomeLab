@@ -105,6 +105,7 @@ Arista core — 192.168.50.2
   |     +-- Frigate VM 102 — 192.168.20.10
   |     +-- Home Assistant VM 103 — 192.168.20.11
   |     +-- Forgejo LXC 108 — 192.168.20.30
+  |     +-- Observability LXC 109 — 192.168.20.31
   |     +-- TrueNAS — 192.168.20.40
   |     +-- Main Synology — 192.168.20.41
   |     +-- Backup Synology — 192.168.20.42
@@ -166,6 +167,7 @@ homelab-gateway — 192.168.20.20
 | 192.168.50.22 | Authentik LXC 106 | bc:24:11:71:fe:a9 | Et4 via Proxmox, tagged VLAN 50 |
 | 192.168.50.23 | Reverse Proxy LXC 107 | bc:24:11:f0:ef:fa | Et4 via Proxmox, tagged VLAN 50 |
 | 192.168.20.30 | Forgejo LXC 108 | bc:24:11:2f:f5:08 | Et4 via Proxmox, tagged VLAN 20 |
+| 192.168.20.31 | Observability LXC 109 / Prometheus | bc:24:11:3f:24:34 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.70.10 | Hermes Agent LXC 104 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
 | 192.168.70.11 | Ollama VM 105 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
 | 192.168.60.10 | Reolink Duo 2V PoE | ec:71:db:80:49:6e | UniFi PoE port 3, VLAN 60 |
@@ -223,6 +225,7 @@ homelab-gateway — 192.168.20.20
 - The NUT server is the independent management-VLAN host at `192.168.50.25`, MAC `00:23:24:55:b1:1a`, directly connected to Arista Et31. It is not downstream of the AP Switch; Et33 is the AP Switch uplink.
 - The 2026-08-29 UPS/power-resilience project added several new narrow OPNsense rules, each source-and-destination scoped (not broad VLAN-to-VLAN): Management VLAN 50 → Servers VLAN 20 for the Lenovo to reach the Beszel hub (`192.168.20.20:8090`); Servers VLAN 20 → Management VLAN 50 for both Proxmox (`192.168.50.10`) and TrueNAS (`192.168.20.40`) to reach the NUT server (`192.168.50.25:3493`); and Management VLAN 50 → Servers VLAN 20 for Proxmox's host IP to reach both Synology units (`192.168.20.41`/`.42`) on port 22, needed for Proxmox's UPS-triggered shutdown script to SSH into them. Final UPS-to-equipment mapping (differs from the project's original plan, redistributed for physical/cabling reasons): `proxmox-ups` = Proxmox + both Synology units, `nas-ups` = TrueNAS + the Arista core switch, `network-ups` = OPNsense + the Lenovo NUT server itself + UniFi PoE switch + camera switch. Full detail: [UPS-Power-Resilience-Claude-Handover.md](UPS-Power-Resilience-Claude-Handover.md).
 - Forgejo runs in unprivileged LXC 108 at `192.168.20.30`. Its complete repository, branches and release tag were synchronized with GitHub, SSH clone/push was validated, its archive is included in the nightly guest mirror, and an isolated LXC 978 restore verified the service, SQLite database and HomeLab repository before cleanup.
+- Prometheus 3.13.2 LTS runs in unprivileged LXC 109 at `192.168.20.31` with a 90-day/20 GB local retention ceiling. It collects bounded, read-only metrics from Proxmox, TrueNAS, Frigate and all three NUT-managed UPS units. Cross-VLAN access is limited to collector-to-Proxmox TCP 8006 and collector-to-NUT TCP 3493. Frigate TCP 5000 and TrueNAS Graphite TCP 9109 accept only their documented collector/source peers; exporter listeners otherwise remain on loopback. Grafana is the next project milestone and is not yet deployed.
 - 2026-08-30: Forgejo gained a local HTTPS path — a new narrow OPNsense rule
   (Management VLAN 50 → Servers VLAN 20, source `192.168.50.23` (NPM) to
   destination `192.168.20.30:3000`, TCP, placed above the Management→other-VLANs

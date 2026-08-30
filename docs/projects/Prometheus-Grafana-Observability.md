@@ -1,6 +1,6 @@
 # Prometheus and Grafana Observability Project
 
-> Status: Active — Milestone 2 architecture design
+> Status: Active — Milestone 3 complete; Milestone 4 next
 >
 > Project owner: Jason
 >
@@ -146,11 +146,11 @@ data set and a storage/maintenance budget.
 - [x] Decide whether Prometheus and Grafana share one guest or use separate
   components; justify the maintenance trade-off.
 - [x] Select supported exporters/integrations for each target.
-- [ ] Create read-only, least-privilege identities or tokens where required.
-- [ ] Design firewall rules from the collector to explicit targets/ports.
-- [ ] Keep management interfaces private to approved LAN/Tailscale users.
-- [ ] Define backup, upgrade and rollback procedures before deployment.
-- [ ] Record secrets only in protected runtime configuration.
+- [x] Create read-only, least-privilege identities or tokens where required.
+- [x] Design firewall rules from the collector to explicit targets/ports.
+- [x] Keep management interfaces private to approved LAN/Tailscale users.
+- [x] Define backup, upgrade and rollback procedures before deployment.
+- [x] Record secrets only in protected runtime configuration.
 
 ### Placement decision
 
@@ -212,21 +212,88 @@ Prometheus TCP 9090 and exporter ports will not be published through the public
 reverse proxy. Administrative direct access remains private; a later Grafana
 reverse-proxy/OIDC path is explicitly deferred to Milestone 6.
 
+The implemented OPNsense rules permit only `192.168.20.31` to Proxmox TCP 8006
+and NUT TCP 3493. Frigate's unauthenticated TCP 5000 API is published only for
+metrics and is filtered in VM 102's Docker `DOCKER-USER` path: the collector is
+accepted and every other source is dropped. TrueNAS Graphite input is further
+constrained by a userspace TCP ingress that accepts only `192.168.20.40`; the
+actual Graphite exporter and all other exporters listen on loopback.
+
+The Proxmox exporter uses a dedicated `prometheus@pve` identity with only the
+`PVEAuditor` role and a separate API token. The token exists only in
+`/etc/prometheus/pve.yml` with protected ownership and in the protected
+configuration backup. No token or password is committed to Git.
+
+Upgrade procedure: create a fresh LXC snapshot/configuration backup, download a
+specific supported release, verify its published checksum, validate the staged
+configuration and restart one component at a time. Rollback is to reinstall the
+previous pinned binary or Python environment and restore the protected config;
+if the guest is damaged, restore the latest verified LXC archive. Exporter
+failure is non-authoritative and must never trigger a target-service restart.
+
 Completion gate: placement, storage, credentials, firewall dependencies and
 recovery are approved before installing software.
 
 ## Milestone 3 — Prometheus pilot
 
-- [ ] Deploy a pinned, supported Prometheus release.
-- [ ] Configure local storage retention and resource limits.
-- [ ] Add targets one at a time and verify scrape health.
-- [ ] Add recording rules only when they simplify a defined dashboard/query.
-- [ ] Monitor cardinality, disk growth, scrape duration and target load.
-- [ ] Prove that exporter or Prometheus failure does not affect target services.
-- [ ] Back up configuration and validate a configuration restore.
+- [x] Deploy a pinned, supported Prometheus release.
+- [x] Configure local storage retention and resource limits.
+- [x] Add targets one at a time and verify scrape health.
+- [x] Add recording rules only when they simplify a defined dashboard/query.
+- [x] Monitor cardinality, disk growth, scrape duration and target load.
+- [x] Prove that exporter or Prometheus failure does not affect target services.
+- [x] Back up configuration and validate a configuration restore.
 
 Completion gate: selected metrics are collected reliably within the resource
 budget and do not disturb production services.
+
+### Initial deployment
+
+On 2026-08-30, unprivileged Debian 13.6 LXC 109 (`observability`) was created on
+Proxmox at `192.168.20.31` with the approved 2 vCPU, 4 GB RAM, 512 MB swap and
+32 GB thin-provisioned disk allocation. It starts at boot and has the Proxmox
+guest firewall flag enabled.
+
+Prometheus 3.13.2 LTS was downloaded from the official release, verified against
+the published SHA-256 checksum, installed as a dedicated unprivileged system
+user and enabled as a hardened systemd service. Retention is limited by both
+`90d` and `20GB`; whichever limit is reached first applies. The initial config
+passed `promtool check config`, the readiness endpoint returned ready and the
+first self-scrape target reported `health: up` at the configured 30-second
+interval. Initial service memory use was approximately 76 MB and the guest root
+filesystem was 4% used before production targets were added.
+
+Targets were added and validated individually:
+
+- Proxmox through `prometheus-pve-exporter` 3.9.0 and the read-only API token.
+- `proxmox-ups`, `nas-ups` and `network-ups` through checksum-verified
+  `nut_exporter` 3.3.0.
+- Frigate through its native `/api/metrics` endpoint on the source-restricted
+  internal API.
+- TrueNAS through its native Graphite reporting exporter and checksum-verified
+  official `graphite_exporter` 0.17.0. The report selection is bounded to
+  system, memory, swap, disk, disk-space, network and ZFS charts at 30 seconds.
+
+All seven scrape jobs, including Prometheus itself, reported healthy. The first
+complete baseline contained 1,686 active series, only 92 of which came from the
+bounded TrueNAS job. Prometheus TSDB usage was 4.8 MB; observed component RSS was
+approximately 90 MB for Prometheus, 76 MB across the PVE exporter master/worker,
+16 MB for the NUT exporter and 15 MB for the Graphite exporter. No recording
+rule was added because the initial queries and future dashboards do not yet
+justify one.
+
+A controlled isolation test stopped Prometheus and every exporter while the
+Proxmox API, Frigate authenticated endpoint, all three live NUT UPS statuses and
+TrueNAS pools remained healthy. All scrape targets recovered after the
+monitoring services restarted. Frigate also resumed fresh recording segments
+after the one-time Compose restart needed to publish the restricted metrics
+port.
+
+The protected configuration archive is stored under
+`~/lab/private-backups/observability/2026-08-30/` and was extracted into an
+isolated temporary directory to validate its contents and permissions. LXC 109
+is covered by the enabled all-guests nightly Proxmox job; its first snapshot
+archive completed on 2026-08-30 and passed a complete Zstandard integrity test.
 
 ## Milestone 4 — Grafana pilot
 
@@ -282,4 +349,5 @@ decision is to retain HomeLab Doctor and Beszel alone.
 |---|---|---|---|
 | 2026-08-24 | Project definition | Observability work separated from initial-build monitoring | Proposed |
 | 2026-08-30 | Milestone 1 | Questions, pilot targets, budgets, dashboards and keep/reject criteria recorded | Complete |
-| 2026-08-30 | Milestone 2 | Live Proxmox capacity reviewed; LXC 109 placement and target integrations selected | In progress |
+| 2026-08-30 | Milestone 2 | Live capacity, placement, least-privilege identities, narrow network flows and recovery design validated | Complete |
+| 2026-08-30 | Milestone 3 | Seven jobs healthy, 1,686 series, failure isolation passed, protected config and verified LXC backups created | Complete |
