@@ -32,6 +32,7 @@
 - TrueNAS is now a NUT client of `nas-ups` via its native `ups` middleware service (not a manual package install), configured to wait for the real low-battery signal and never cut the UPS's own outlet power (shared with the Arista switch). Not yet live-tested.
 - Tightened shutdown thresholds via `override.battery.charge.low` (replacing each unit's ~10% hardware default): `nas-ups`=50%, `proxmox-ups`=80% (early, since its Synology shutdown step depends on Arista/`nas-ups` staying powered), `network-ups`=25%.
 - Validated the threshold trigger mechanism via a safe simulated test (briefly unplugging `proxmox-ups` with `SHUTDOWNCMD` swapped for a harmless command). Caught and fixed a real gap: `override.battery.charge.low` alone doesn't make the driver compute `LB` from charge without also setting `ignorelb`. Fixed on all three UPS units; confirmed working.
+- Closed Milestone 3 of the NUT/UPS project (coordinated shutdown). Caught and fixed a self-shutdown bug on the Lenovo NUT server itself: its local `upsmon` was treating any of the three UPS units going critical as grounds to shut itself down, even though only `network-ups` actually powers it. Documented the final shutdown order, power-return behavior, and manual override options.
 - Added a milestone-driven TrueNAS DIY SAS expansion project for a backplane-free, independently powered enclosure using the existing controller's two free disk endpoints.
 
 ### Fixed

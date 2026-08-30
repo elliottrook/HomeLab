@@ -167,6 +167,18 @@ item-level Definition of Done.
   server (root:nut, mode 640). No `SHUTDOWNCMD` is configured yet —
   deliberately deferred to Milestone 3, since real shutdown triggers and
   ordering haven't been decided.
+  **Superseded 2026-08-29** — see "Document final shutdown order" under
+  Milestone 3 below. Once Proxmox and TrueNAS became independent NUT
+  clients with their own shutdown logic, the Lenovo's local `upsmon`
+  monitoring `proxmox-ups` and `nas-ups` as `primary` became actively
+  dangerous: NUT's `MINSUPPLIES`/primary-role model treats *any* locally
+  monitored UPS reaching critical as grounds for the local host's own
+  `SHUTDOWNCMD` (the stock default, `/sbin/shutdown -h +0`, had also
+  never been addressed here) — meaning the Lenovo could have shut
+  *itself* down because `proxmox-ups` or `nas-ups` went critical, neither
+  of which power it. Fixed by removing those two `MONITOR` lines
+  entirely; the Lenovo's local `upsmon` now only monitors `network-ups`
+  (its actual power source).
 - [x] Prove both UPS devices are detected consistently after reboot.
   Reboot test performed 2026-08-29 with all three units connected: all
   three `nut-driver@*` instances, `nut-server`, `nut-monitor`, and
@@ -334,7 +346,100 @@ item-level Definition of Done.
   never contain the secret. Worth remembering going forward: any command
   that *sets* a secret via an API that echoes back the full object needs
   the same output suppression as commands that *read* one.
-- [ ] Document final shutdown order, return-of-power behaviour and manual override.
+- [x] Document final shutdown order, return-of-power behaviour and manual override.
+
+  ### Final shutdown order (as configured 2026-08-29)
+
+  Each tier triggers independently, based on its own UPS's `LB` (low
+  battery) condition — there is no central coordinator sequencing them;
+  the ordering below is what naturally falls out of each unit's
+  `override.battery.charge.low` threshold, chosen specifically to
+  produce this order given today's measured runtimes and load.
+
+  1. **`nas-ups` critical (50% charge, ~11 min elapsed)** — TrueNAS's
+     native `ups` client initiates its own graceful shutdown (clean ZFS
+     export, etc.). `powerdown: false` means `nas-ups` itself keeps
+     running on battery afterward, continuing to power the Arista
+     switch until the battery is actually exhausted — TrueNAS shutting
+     down early does not cut Arista's power.
+  2. **`proxmox-ups` critical (80% charge, ~12 min elapsed — deliberately
+     early relative to its own 61-minute budget)** — Proxmox's
+     `nut-shutdown.sh` runs: stop Frigate VM 102 (releases its NFS
+     dependency on TrueNAS) → stop all other guests in parallel → SSH
+     into `gowest` and `gowest-backup` to shut down both Synology units
+     → power off Proxmox itself. This threshold is set early specifically
+     because the Synology-shutdown step depends on Arista (on `nas-ups`)
+     still being powered.
+  3. **`network-ups` critical (25% charge, ~29 min elapsed)** — OPNsense,
+     the Lenovo itself, the UniFi PoE switch, and the camera switch are
+     the last tier. The Lenovo's own local `upsmon` (the only
+     `MONITOR`ed UPS remaining there after the self-shutdown bug fix
+     above) runs `/sbin/shutdown -h +0` on itself once this UPS goes
+     critical — a plain graceful OS shutdown, no custom script needed
+     since the Lenovo has no guests or dependents of its own.
+
+  **OPNsense, Arista, the UniFi PoE switch, and the camera switch have
+  no automated software shutdown configured.** This is a deliberate
+  choice, not an oversight — Section 14 explicitly allows this ("not
+  every device needs software shutdown"), and network switches are
+  generally power-loss-tolerant with no filesystem to corrupt. OPNsense
+  is a full FreeBSD-based OS and a harder case, but wiring its shutdown
+  wasn't in this milestone's formal scope; it's recorded here as a
+  **Recommended Follow-up** rather than expanding scope mid-milestone.
+  In practice, these devices simply ride their UPS's battery down and
+  lose power abruptly whenever it's exhausted.
+
+  ### Return-of-power behaviour
+
+  **None of the UPS units are configured to cut their own output power**
+  (`powerdown: false` for TrueNAS; no `killpower`/output-cycling
+  configured anywhere else). This means when a host shuts itself down
+  via `SHUTDOWNCMD`, it does so while **still receiving power** from the
+  UPS the whole time — the UPS's battery just keeps discharging under a
+  lighter load afterward, until mains returns or the battery is spent.
+
+  This has an important, non-obvious consequence: **Proxmox, TrueNAS,
+  and the Lenovo will very likely not power themselves back on
+  automatically when mains returns**, even with a "power on after AC
+  loss" BIOS/firmware setting enabled. That setting responds to the
+  motherboard's own DC power actually being lost and restored — but in
+  this design, DC power to these machines never stops; they perform a
+  normal OS-issued soft shutdown while power is continuously present.
+  Most BIOS implementations don't treat that the same as a real
+  power-loss event, so they stay off.
+
+  **This is treated as a deliberate, safety-oriented default for now**
+  — it avoids the "power race" condition NUT's own `nut.conf` comments
+  warn about (repeated rapid power-cycling if mains is flapping), at the
+  cost of requiring a human to physically (or via IPMI/remote power-on,
+  where available) restart Proxmox, TrueNAS, and the Lenovo after any
+  real triggered shutdown. If Jason wants automatic restart instead,
+  that would need each host's BIOS "AC Power Recovery" setting
+  separately verified/tested against this specific soft-shutdown-while-
+  powered scenario — recorded as a **Recommended Follow-up**, not
+  assumed to already work.
+
+  ### Manual override
+
+  There is no built-in "abort a shutdown already in progress" mechanism
+  in `nut-shutdown.sh` or TrueNAS's native handling — once `SHUTDOWNCMD`
+  starts running, it runs to completion. The only real override point is
+  **before** the trigger fires:
+
+  - If mains returns before a unit's `LB` condition is reached, nothing
+    happens — no action is taken for a brief outage, by design.
+  - If you need to prevent an imminent trigger on a specific host (e.g.,
+    you know mains is about to return but a unit is hovering right at
+    its threshold), stopping that host's `nut-monitor` service
+    (`systemctl stop nut-monitor`) prevents it from acting, at the cost
+    of losing monitoring for that unit until restarted.
+  - There is no way to interrupt a shutdown once `nut-shutdown.sh` has
+    started executing on Proxmox, short of physically intervening on
+    each affected machine (e.g., cancelling a pending `qm shutdown` or
+    the final `shutdown -h now` via `shutdown -c`, if caught in time on
+    that specific host) — this was a conscious simplicity/safety
+    trade-off rather than building a cancellation mechanism into the
+    script.
 
 ### Milestone 4 — Monitoring and recovery
 
@@ -733,10 +838,10 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 - [ ] NUT installed on bare metal.
 - [ ] NUT server securely configured.
 - [ ] Appropriate NUT clients configured.
-- [ ] Proxmox shutdown behaviour implemented and tested.
-- [ ] Applicable NAS shutdown behaviour implemented and tested.
-- [ ] Shutdown ordering documented.
-- [ ] Power-return behaviour understood and documented.
+- [x] Proxmox shutdown behaviour implemented and tested.
+- [x] Applicable NAS shutdown behaviour implemented and tested.
+- [x] Shutdown ordering documented.
+- [x] Power-return behaviour understood and documented.
 - [x] Lenovo added to Beszel.
 - [ ] UPS monitoring integrated into existing observability where practical.
 - [ ] Appropriate alerts implemented or explicitly deferred.

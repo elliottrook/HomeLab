@@ -187,6 +187,28 @@ Current state:
   driver level, it covers TrueNAS's view of `nas-ups` too automatically.
   `SHUTDOWNCMD` reverted to the real script afterward. Full details in
   `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3 tracker).
+- 2026-08-29: **Milestone 3 fully closed.** While documenting the final
+  shutdown order, caught and fixed one more real bug: the Lenovo's local
+  `upsmon` was still monitoring `proxmox-ups` and `nas-ups` as `primary`
+  with the stock `SHUTDOWNCMD` (`/sbin/shutdown -h +0`) armed — meaning
+  it could have shut *itself* down because one of those two units went
+  critical, even though neither powers it. Fixed by removing those two
+  `MONITOR` lines; the Lenovo now only monitors `network-ups` (its
+  actual power source) for its own shutdown decision. Rotated the local
+  `upsmon` account password twice in the process (first exposed via a
+  diagnostic `grep`, then exposed again via the verification command for
+  the first rotation) — fourth and fifth credential-exposure incidents
+  this session, all same root cause (a command echoing a secret that
+  wasn't suppressed). Final documented shutdown order: `nas-ups` (50%)
+  → `proxmox-ups` (80%) → `network-ups`/Lenovo itself (25%). OPNsense/
+  Arista/PoE/camera-switch have no automated shutdown (deliberate,
+  recorded as a follow-up). Power-return note: since no UPS cuts its own
+  output, shut-down hosts likely won't auto-restart on mains return even
+  with BIOS "AC recovery" enabled — manual power-on is the current
+  expectation. Next: Milestone 4 (monitoring/recovery) already
+  substantially done from earlier work; remaining UPS-project work is
+  physical topology follow-ups (UPS #1 disposition) and any Recommended
+  Follow-ups logged along the way.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.
