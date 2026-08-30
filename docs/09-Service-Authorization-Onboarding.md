@@ -49,7 +49,7 @@ application's current authentication settings before selecting a path.
 | Media-automation applications | Forward auth for browser UIs only | Service-specific names | Preserve API keys and private inter-service routes |
 | Hermes web UI | Keep Lab/Tailscale-only initially | Lab address | Do not proxy its provider/API path |
 | Ollama API | No Authentik proxy | `192.168.70.11:11434` | Non-browser model API; keep isolated by firewall |
-| Future Forgejo | Native OIDC | `git.elliottrook.com` | Preferred native-SSO pattern |
+| Forgejo | Plain HTTPS reverse proxy live (2026-08-30); native OIDC still the intended future path | `git.elliottrook.com` | Not yet on Authentik. `ROOT_URL` in `/etc/forgejo/app.ini` had to be changed from `http://192.168.20.30:3000/` to `https://git.elliottrook.com/` — without this, browser login silently failed with a generic "incorrect" error caused by CSRF/session-cookie validation against the wrong canonical URL, same failure class as Authentik's `authentik_host` issue above. Direct `http://192.168.20.30:3000` and SSH clone/push both remain on their existing private path — `DOMAIN`/`SSH_DOMAIN` were deliberately left unchanged. Git-over-HTTPS (fetch/push) needs a Forgejo personal access token + local git credential helper on each client; not yet configured/tested as of this writing.
 | Immich | Native OIDC if supported by deployed version | `photos.elliottrook.com` | Validate mobile-client behaviour |
 | Future Paperless-ngx | Native OIDC if supported by deployed version | `paperless.elliottrook.com` | Preserve API/automation access |
 

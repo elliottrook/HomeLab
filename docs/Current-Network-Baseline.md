@@ -223,6 +223,26 @@ homelab-gateway — 192.168.20.20
 - The NUT server is the independent management-VLAN host at `192.168.50.25`, MAC `00:23:24:55:b1:1a`, directly connected to Arista Et31. It is not downstream of the AP Switch; Et33 is the AP Switch uplink.
 - The 2026-08-29 UPS/power-resilience project added several new narrow OPNsense rules, each source-and-destination scoped (not broad VLAN-to-VLAN): Management VLAN 50 → Servers VLAN 20 for the Lenovo to reach the Beszel hub (`192.168.20.20:8090`); Servers VLAN 20 → Management VLAN 50 for both Proxmox (`192.168.50.10`) and TrueNAS (`192.168.20.40`) to reach the NUT server (`192.168.50.25:3493`); and Management VLAN 50 → Servers VLAN 20 for Proxmox's host IP to reach both Synology units (`192.168.20.41`/`.42`) on port 22, needed for Proxmox's UPS-triggered shutdown script to SSH into them. Final UPS-to-equipment mapping (differs from the project's original plan, redistributed for physical/cabling reasons): `proxmox-ups` = Proxmox + both Synology units, `nas-ups` = TrueNAS + the Arista core switch, `network-ups` = OPNsense + the Lenovo NUT server itself + UniFi PoE switch + camera switch. Full detail: [UPS-Power-Resilience-Claude-Handover.md](UPS-Power-Resilience-Claude-Handover.md).
 - Forgejo runs in unprivileged LXC 108 at `192.168.20.30`. Its complete repository, branches and release tag were synchronized with GitHub, SSH clone/push was validated, its archive is included in the nightly guest mirror, and an isolated LXC 978 restore verified the service, SQLite database and HomeLab repository before cleanup.
+- 2026-08-30: Forgejo gained a local HTTPS path — a new narrow OPNsense rule
+  (Management VLAN 50 → Servers VLAN 20, source `192.168.50.23` (NPM) to
+  destination `192.168.20.30:3000`, TCP, placed above the Management→other-VLANs
+  deny rule) plus an NPM proxy host for `git.elliottrook.com` (forward to
+  `192.168.20.30:3000`, existing `*.elliottrook.com` wildcard cert, Force SSL,
+  websockets on). DNS added in all three resolvers (OPNsense Unbound override,
+  both Pi-holes), all confirmed returning `192.168.50.23`. Forgejo's
+  `ROOT_URL` in `/etc/forgejo/app.ini` was changed from
+  `http://192.168.20.30:3000/` to `https://git.elliottrook.com/` — required for
+  browser login to work at all through the new hostname (see
+  [09-Service-Authorization-Onboarding.md](09-Service-Authorization-Onboarding.md)
+  for the failure mode). `DOMAIN`/`SSH_DOMAIN` were deliberately left at
+  `192.168.20.30` since SSH clone/push and direct `:3000` access both remain on
+  their existing path. This is a local-only HTTPS proxy (no public WAN
+  exposure, no Authentik yet) — done specifically to let git-over-HTTPS
+  traffic pass through the Claude Code sandbox's network proxy, since raw
+  SSH/git+ssh traffic does not complete that proxy's handshake regardless of
+  `sandbox.network.allowedDomains`. Git-over-HTTPS itself is not yet validated
+  end-to-end — it needs a Forgejo personal access token and a local git
+  credential helper, not yet configured.
 - Frigate VM 102 runs Debian 13.6 at `192.168.20.10` on VLAN 20. Its Reolink Duo 2V PoE camera uses `192.168.60.10` on VLAN 60. OPNsense permits only TCP 80, 554 and 8000 from Frigate to the camera; TCP 9000 remains blocked.
 - Frigate VM 102 has the Coral Edge TPU passed through as a dedicated PCIe device. The guest loads the `gasket` and `apex` modules, exposes `/dev/apex_0` to the Frigate container and reports approximately 10 ms inference. CPU HEVC decoding remains separate from Coral object-detection inference.
 - Frigate records to `192.168.20.40:/mnt/Media/Surveillance/Frigate` over NFSv4. A systemd-owned Compose service waits for the real NFS mount before starting, and a full reboot test confirmed a healthy container plus fresh recording segments after the TrueNAS migration.
