@@ -82,6 +82,15 @@ AP/PoE switch replacement checkpoint completed 2026-08-26:
   are reconfigured. The retired UniFi PoE switch still needs to be forgotten in
   the UniFi Network application.
 
+**Correction, 2026-08-27:** the replacement wasn't purely a planned swap — the
+old UniFi PoE switch actually **failed** around this date. The new Binarui
+AP Switch (4-port, 2.5Gb) serves only the two access points, not cameras, so
+`front_of_house` (Reolink Duo 2V) was moved onto the previously-reserved
+TP-Link 8-port PoE switch behind Et34, port 1. This closes the "camera
+validation... deferred" item above — it's been stable in production for
+several days as of 2026-08-30, not merely validated once. The device
+inventory table below is updated to match.
+
 Store copies off the network appliances and treat them as sensitive configuration data.
 
 ## Current topology
@@ -170,7 +179,7 @@ homelab-gateway — 192.168.20.20
 | 192.168.20.31 | Observability LXC 109 / Prometheus | bc:24:11:3f:24:34 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.70.10 | Hermes Agent LXC 104 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
 | 192.168.70.11 | Ollama VM 105 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
-| 192.168.60.10 | Reolink Duo 2V PoE | ec:71:db:80:49:6e | UniFi PoE port 3, VLAN 60 |
+| 192.168.60.10 | Reolink Duo 2V PoE | ec:71:db:80:49:6e | TP-Link PoE switch port 1 (behind Arista Et34, access VLAN 60), since 2026-08-27 |
 | 192.168.1.206 | Mac mini (in studio) | d0:11:e5:9e:c4:76 | Et10, access VLAN 10, 10G full |
 | 192.168.30.197 | Downstream UniFi wireless client | d8:c8:0c:bb:52:a4 | Et33 via UniFi, VLAN 30 |
 | 192.168.20.129 | Living-room Apple TV | c0:95:6d:81:11:5d | Et17, observed access VLAN 20 at 1G; switch description requires cleanup |

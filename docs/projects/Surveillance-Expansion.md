@@ -76,11 +76,13 @@ Camera #2: rear-of-house PTZ, planned 2026-08-30, not yet purchased.
   baseline which was justified by driveway/street activity.
 - [x] Record cabling, PoE budget, switch port and physical mounting
   requirements — needs new PoE cable pulled to the rear garden position
-  (not yet run). This will be the **first real use of the TP-Link 8-port
-  PoE switch reserved for camera-only traffic** behind Arista Et34 (VLAN
-  60), which has sat validated-in-principle but untested with an actual
-  camera since the AP Switch replacement work
-  ([Current-Network-Baseline.md](../Current-Network-Baseline.md)). Run
+  (not yet run). **Correction:** this is not the first camera on the
+  TP-Link 8-port PoE switch behind Arista Et34 (VLAN 60) — `front_of_house`
+  has been running on port 1 of that switch since 2026-08-27, after the old
+  UniFi PoE switch failed and was replaced by the AP-only AP Switch (see
+  [Current-Network-Baseline.md](../Current-Network-Baseline.md)). This
+  camera would be the **second** camera on that switch, landing on a
+  different port (7 remaining). Run
   length, weatherproof junction, and whether a PoE extender is needed are
   still open — physical planning, not yet done.
 - [~] Select the next single camera and verify RTSP/ONVIF/Frigate

@@ -11,8 +11,11 @@
     update was attempted because no trustworthy exact-model image source was
     identified
 - TP-Link 8-port 1Gb PoE switch
-  - Retained for a camera-only role behind Arista Et34 access VLAN 60
-  - Camera-path validation is deferred until cameras are reconfigured
+  - Camera-only role behind Arista Et34 access VLAN 60 — validated and in
+    production since 2026-08-27, after the old UniFi PoE switch failed and
+    was replaced by the AP Switch (APs only, no cameras). `front_of_house`
+    (Reolink Duo 2V) runs on port 1, stable for several days as of
+    2026-08-30.
 - Dell Precision T5810 (Proxmox)
   - Current CPU: Intel Xeon E5-1603 v3; purchased E5-2698 v4 pending installation
   - Current memory: 32 GB ECC RDIMM; additional planned RAM remains to be installed and the final total must be confirmed
