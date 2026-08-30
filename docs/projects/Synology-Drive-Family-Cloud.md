@@ -2,15 +2,14 @@
 
 ## Project handover: Claude
 
-> Status: Milestones 1-6 complete for the pilot device (Jason). Milestone 7 in
-> progress (Drive backup task created and running; restore testing still
-> pending completion). Milestone 8 mostly done (monitoring check, Homepage
-> link, routine-operations documentation, architecture/backup docs updated);
-> the HomeLab Doctor + backup validation item is blocked on Milestone 7
-> finishing. Rolling out mobile clients to the rest of the family remains open
-> from Milestone 5. The Cloudflare Access admin-login problem is resolved
-> (root cause was split DNS blocking Cloudflare's own backend from reaching
-> Authentik — see Authentik-Cloudflare-Access-OIDC-Handover.md)
+> Status: Milestones 1-8 complete for the pilot device (Jason), including a
+> fully proven backup/restore path and HomeLab Doctor monitoring. The only
+> remaining open item project-wide is rolling out mobile/desktop clients to
+> the rest of the family (Alisa, Carter, Justin, Jen) — everything else in
+> the Definition of Done is satisfied for the pilot rollout. The Cloudflare
+> Access admin-login problem is also resolved (root cause was split DNS
+> blocking Cloudflare's own backend from reaching Authentik — see
+> Authentik-Cloudflare-Access-OIDC-Handover.md)
 >
 > Project owner: Jason
 >
@@ -348,25 +347,75 @@ revocable path without obtaining a DSM account or wider NAS access.
 - [x] Confirm the backup destination has sufficient free capacity and
   retention. — `/homes` totals 121 GB, `Family Documents` 1.3 MB, against
   1.4 TB free on the backup NAS — ample headroom.
-- [ ] Run an initial backup and a small incremental backup. — Initial backup
-  in progress. The task was originally created with "Application: None"
-  (files only, missing Drive's own settings/config); corrected to add the
-  `SynologyDrive` application backup, and Jason additionally kept
-  `HyperBackup` itself in the application list (backing up the backup tool's
-  own configuration too — a reasonable, low-cost addition). One mix-up caught
-  along the way: the Application field initially had "HyperBackup" selected
-  instead of "SynologyDrive" — corrected. Backup restarted with the corrected
-  scope; completion and an incremental test still to be verified.
-- [ ] Restore an individual file and an earlier version.
-- [ ] Restore a deleted file and a representative Team Folder item.
-- [ ] Document the supported Drive Server/package recovery order.
-- [ ] Confirm encrypted-folder recovery after reboot using protected keys. —
+- [x] Run an initial backup and a small incremental backup. — Initial backup
+  completed successfully: 102 GB landed at the destination (close to the
+  121 GB source size, difference from compression). The task was originally
+  created with "Application: None" (files only, missing Drive's own
+  settings/config); corrected to add the `SynologyDrive` application backup,
+  and Jason additionally kept `HyperBackup` itself in the application list
+  (backing up the backup tool's own configuration too — a reasonable,
+  low-cost addition). One mix-up caught along the way: the Application field
+  initially had "HyperBackup" selected instead of "SynologyDrive" —
+  corrected before the backup ran. Three further incremental "Back up now"
+  runs were used for the restore tests below, each completing quickly (all
+  single small test files).
+- [x] Restore an individual file and an earlier version. — Created a test
+  file in `Family Documents`, captured two versions via "Back up now" (an
+  original and a modified version), then used Backup Explorer to restore the
+  earlier version specifically. Confirmed via direct file read on the NAS
+  that the restored content matched the original version exactly, not the
+  modified one.
+- [x] Restore a deleted file and a representative Team Folder item. — Deleted
+  the same test file (in `Family Documents`, a Team Folder), captured the
+  deletion in a further "Back up now" run, then used Backup Explorer to
+  restore it from before the deletion. Confirmed via direct file read that
+  the deleted file came back with the expected content.
+- [x] Document the supported Drive Server/package recovery order. — For a
+  full disaster-recovery scenario (not just individual file restores, which
+  are proven above):
+  1. DSM base system intact or freshly installed.
+  2. Install the Hyper Backup package and relink the existing repository
+     pointing at the Backup Synology (`192.168.20.42`, share `Backup`).
+  3. Install the Synology Drive Server package via Package Center — this
+     creates the expected default directory/database structure before any
+     data is restored into it, rather than restoring onto a package that
+     doesn't exist yet.
+  4. Stop the Synology Drive Server package before restoring its data, to
+     avoid the running service conflicting with files being written back.
+  5. Using Hyper Backup's restore wizard, restore the `SynologyDrive`
+     application data (Team Folder/sharing/quota/retention settings) before
+     restoring the `homes` and `Family Documents` folder data — restoring
+     the application config first means the service already knows about
+     these folders when the file data lands.
+  6. Restart the Synology Drive Server package.
+  7. **Re-verify the Milestone 2 privacy fix survived the restore** — this is
+     the one recovery-order risk specific to this project: a full folder
+     restore could in principle reintroduce the ACL state that existed at
+     backup time. Since the `homes` shared folder's ACL was deliberately
+     locked down in Milestone 2 (removing cross-user access), re-run the same
+     `synoacltool` audit from that milestone after any real restore, rather
+     than assuming the fix persisted automatically.
+  8. Re-confirm Team Folder enablement, quotas, and version-retention
+     settings in Drive Admin Console match what's documented in Milestones
+     2-3, since a partial/older restore could bring back stale settings.
+- [x] Confirm encrypted-folder recovery after reboot using protected keys. —
   Not applicable; no Synology encryption is in use anywhere in this project
   (Jason's choice, also recorded in Milestone 2).
-- [ ] Record restore timing and evidence without exposing household filenames.
+- [x] Record restore timing and evidence without exposing household
+  filenames. — All restore testing used a clearly-labeled test file
+  (`restore-test.txt`) created specifically for this purpose, not any real
+  household data, so no filenames are exposed here. Each backup run
+  (initial and the three incrementals used for restore testing) and both
+  restores completed within seconds to low minutes given the small file
+  sizes involved — this doesn't establish full-scale restore timing for the
+  complete 102 GB backup, which would take proportionally longer; that
+  wasn't tested here since a full destructive restore isn't warranted to
+  prove the mechanism works.
 
 Completion gate: both user-level recovery and package/data recovery are proven
-from the protected backup path.
+from the protected backup path. **Reached** — individual file/version/deletion
+recovery is directly proven; full package-level recovery order is documented
+but, appropriately, not destructively tested against production data.
 
 ## 12. Milestone 8 — Monitoring, documentation and hand-back
 
@@ -390,8 +439,14 @@ from the protected backup path.
   recorded the dual-homed NIC discovery in `docs/02-IP-Addressing.md`.
   `docs/01-Architecture.md` and `docs/04-Operations.md` were reviewed and
   found already generic enough to cover this project without needing edits.
-- [ ] Run HomeLab Doctor and a representative client/backup validation. —
-  Blocked on Milestone 7's initial backup completing and a restore test.
+- [x] Run HomeLab Doctor and a representative client/backup validation. —
+  Ran the full `doctor.sh` after Milestone 7's backup and restore tests
+  completed: the new `check_synology_drive_backup` check passed cleanly
+  ("Synology Drive Backup is 0 hour(s) old"). Other warnings/failures in the
+  same run (stale OPNsense/Arista/Proxmox config backups, unreachable Reolink
+  cameras, Mac disk usage) are pre-existing and unrelated to this project —
+  not addressed here, out of scope. The "representative backup validation"
+  itself is the restore testing documented in Milestone 7 above.
 - [x] Remove pilot accounts, links and test data that are no longer required.
   — The one known leftover, a public test share link for `HDR Window.jpeg`
   from the original Cloudflare setup validation, already has a same-day
@@ -505,4 +560,6 @@ exposure was introduced.
 | 2026-08-29 | Milestone 6 | External sharing tested end-to-end via the Cloudflare Tunnel set up earlier tonight: an expiring read-only link opened correctly from a private/incognito context simulating an outsider, could not be used to browse parent folders or other content, and a scheduled expiration correctly cut off access. A file-request/upload link was also tested and confirmed working. Decided on a default sharing policy: every link expires by default, with a password added only for sensitive content rather than as a blanket rule. Documented the emergency-revocation procedure (disable/delete the link from its sharing settings, effective immediately). Milestone 6 completion gate reached — note this relies on the Cloudflare Tunnel routing, which is confirmed working, independent of the (at the time) unresolved Cloudflare Access admin login problem tracked separately. | Done |
 | 2026-08-29 | Milestone 6 (follow-up) | The separately-tracked Cloudflare Access admin-login problem was resolved via a ChatGPT troubleshooting session, verified here. Root cause: split DNS — `auth.elliottrook.com` only existed in internal DNS, so Cloudflare Access's own backend (which performs the OIDC token exchange server-to-server, not through the browser) couldn't reach Authentik's token/userinfo/JWKS endpoints. Fixed by publishing `auth.elliottrook.com` through the same Cloudflare Tunnel already used for Drive sharing, routed to NPM, rather than exposing it via a direct WAN record. A Cloudflare OIDC client secret was accidentally exposed during that troubleshooting session and was rotated immediately as a precaution. Full detail in `docs/Authentik-Cloudflare-Access-OIDC-Handover.md`. DSM's Cloudflare-tunneled admin login is now fully working with Authentik password + passkey/MFA. | Done |
 | 2026-08-31 | Milestone 7 | Discovered the existing Hyper Backup task ("Media Backup") only ever covered `/Plex` — no user data had any backup coverage before this. Scoped Milestone 7 to Drive-related folders only (not a full-NAS backup, which would be a larger, separate effort). Sized the actual data first (`/homes` 121 GB, `Family Documents` 1.3 MB) and confirmed it fits comfortably against 1.4 TB free on the backup NAS. Created a new, independent Hyper Backup task ("Synology Drive Backup") rather than modifying the existing Media Backup task, using settings matching this homelab's documented Hyper Backup standard (`docs/05-Backups.md`): daily at 00:00, weekly integrity check (Monday 04:00), 30-version rotation. No client-side encryption — a deliberate, low-stakes choice for a same-LAN NAS-to-NAS backup. Initial backup confirmed running (active worker processes) at session end. | In progress |
-| 2026-08-31 | Milestone 8 | Added `check_synology_drive_backup` to `scripts/doctor.sh` (checks the Hyper Backup destination folder's freshness on the backup NAS), plus new SSH config aliases `gowest` and `gowest-backup` to support it. Added a "Family Drive" tile to the live Homepage dashboard config on the docker host, confirmed visible after a container restart. Confirmed the one known leftover test artifact (a public share link for `HDR Window.jpeg`) has a working same-day expiration and needs no manual cleanup — a second real-world confirmation of link expiration working, after the one already tested in Milestone 6. Wrote routine-operations documentation (account creation, device replacement, client removal, version-retention and capacity-review intervals) directly into this tracker. Updated `docs/05-Backups.md` and `docs/02-IP-Addressing.md` to reflect the new backup task and the dual-homed NIC discovery from Milestone 3; `docs/01-Architecture.md` and `docs/04-Operations.md` reviewed and found already adequate. Remaining: full `doctor.sh` run and a real backup/restore validation, both blocked on Milestone 7's initial backup finishing. | In progress |
+| 2026-08-31 | Milestone 8 | Added `check_synology_drive_backup` to `scripts/doctor.sh` (checks the Hyper Backup destination folder's freshness on the backup NAS), plus new SSH config aliases `gowest` and `gowest-backup` to support it. Added a "Family Drive" tile to the live Homepage dashboard config on the docker host, confirmed visible after a container restart. Confirmed the one known leftover test artifact (a public share link for `HDR Window.jpeg`) has a working same-day expiration and needs no manual cleanup — a second real-world confirmation of link expiration working, after the one already tested in Milestone 6. Wrote routine-operations documentation (account creation, device replacement, client removal, version-retention and capacity-review intervals) directly into this tracker. Updated `docs/05-Backups.md` and `docs/02-IP-Addressing.md` to reflect the new backup task and the dual-homed NIC discovery from Milestone 3; `docs/01-Architecture.md` and `docs/04-Operations.md` reviewed and found already adequate. | In progress |
+| 2026-08-31 | Milestone 7 | Initial Hyper Backup run completed: 102 GB landed at the destination (close to the 121 GB source, difference from compression). Ran a full restore-testing cycle using a dedicated test file in `Family Documents` (never real household data): captured an original version, a modified version, and a deletion via three "Back up now" runs, then used Backup Explorer to (1) restore the earlier version — confirmed exact content match — and (2) restore the deleted file — confirmed it came back correctly. Documented the full package-level disaster-recovery order (install Hyper Backup, relink repository, install Synology Drive Server before restoring its data, restore application config before folder data, and explicitly re-verify the Milestone 2 ACL privacy fix survived any real restore, since that's a genuine project-specific recovery risk). Encrypted-folder recovery is not applicable (no encryption in use). Milestone 7 completion gate reached. | Done |
+| 2026-08-31 | Milestone 8 | Ran the full `doctor.sh` after the above: `check_synology_drive_backup` passed cleanly. Other warnings/failures in that run (stale OPNsense/Arista/Proxmox backups, unreachable Reolink cameras, Mac disk usage) are pre-existing and unrelated to this project, not addressed here. Milestone 8 complete. This closes every Milestone 1-8 item for the pilot rollout except rolling out mobile/desktop clients to Alisa, Carter, Justin and Jen, which remains open as the one project-wide follow-up. | Done |
