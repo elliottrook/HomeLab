@@ -30,7 +30,8 @@
 - Closed Milestone 2 of the NUT/UPS project: a reboot test with all three UPS units connected confirmed every NUT driver, `nut-server`, `nut-monitor` and `beszel-agent` recover automatically and rebind to the correct serial after USB re-enumeration.
 - Started Milestone 3 (coordinated shutdown): Proxmox is now a NUT network client of `proxmox-ups`, with a custom `SHUTDOWNCMD` script that stops Frigate (its NFS dependency on TrueNAS) first, then remaining guests, then triggers shutdown on both Synology units via SSH, then powers off Proxmox itself. Not yet live-tested.
 - TrueNAS is now a NUT client of `nas-ups` via its native `ups` middleware service (not a manual package install), configured to wait for the real low-battery signal and never cut the UPS's own outlet power (shared with the Arista switch). Not yet live-tested.
-- Tightened shutdown thresholds via `override.battery.charge.low` (replacing each unit's ~10% hardware default): `nas-ups`=50%, `proxmox-ups`=80% (early, since its Synology shutdown step depends on Arista/`nas-ups` staying powered), `network-ups`=25%. Not yet field-tested.
+- Tightened shutdown thresholds via `override.battery.charge.low` (replacing each unit's ~10% hardware default): `nas-ups`=50%, `proxmox-ups`=80% (early, since its Synology shutdown step depends on Arista/`nas-ups` staying powered), `network-ups`=25%.
+- Validated the threshold trigger mechanism via a safe simulated test (briefly unplugging `proxmox-ups` with `SHUTDOWNCMD` swapped for a harmless command). Caught and fixed a real gap: `override.battery.charge.low` alone doesn't make the driver compute `LB` from charge without also setting `ignorelb`. Fixed on all three UPS units; confirmed working.
 - Added a milestone-driven TrueNAS DIY SAS expansion project for a backplane-free, independently powered enclosure using the existing controller's two free disk endpoints.
 
 ### Fixed

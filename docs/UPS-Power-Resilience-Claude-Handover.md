@@ -207,11 +207,17 @@ item-level Definition of Done.
   range match, learning from the earlier range-boundary bug) — verified
   all three drivers report their correct overridden value via `upsc`,
   and all services (drivers, `nut-server`, `nut-monitor`, both remote
-  clients) reconnected cleanly afterward. **These numbers are
-  reasoned from topology and measured runtime, not field-validated —
-  Jason's own words: "we won't know until it's field tested." Treat
-  as a considered starting point, to be revisited after a real test.**
-- [ ] Configure and validate Proxmox shutdown behaviour.
+  clients) reconnected cleanly afterward. **The percentages themselves
+  are reasoned from topology and measured runtime, not field-validated
+  as "correct" — Jason's own words: "we won't know until it's field
+  tested." Treat as a considered starting point, to be revisited after a
+  real outage.** The *mechanism* (that these thresholds actually trigger
+  `LB` at all) was validated the same day — see the simulated test under
+  "Configure and validate Proxmox shutdown behaviour" below, which
+  caught a real gap (`override.battery.charge.low` alone doesn't work
+  without `ignorelb`) before it could fail silently during a real
+  outage.
+- [x] Configure and validate Proxmox shutdown behaviour.
   **Configured 2026-08-29, not yet live-tested.** The Lenovo's `nut.conf`
   switched to `MODE=netserver` with explicit `LISTEN 192.168.50.25 3493`
   in `upsd.conf` (the default with no `LISTEN` lines was loopback-only,
@@ -257,15 +263,47 @@ item-level Definition of Done.
   repository at any point — only in the config files themselves and,
   briefly, this session's conversation history.
 
-  **Still not done:** the actual `SHUTDOWNCMD` script has not been
-  live-tested (per the project's staged-testing approach, that needs a
-  deliberate, separately-approved test before trusting it against a real
-  or simulated outage). Warning/shutdown timing still uses NUT's default
-  hardware low-battery signal (~10% per `battery.charge.low`), not the
-  more conservative percentage/time thresholds discussed during design —
-  that's the still-open "Define warning and shutdown thresholds" item
-  above.
-- [ ] Configure and validate applicable NAS/storage shutdown behaviour.
+  **Validated 2026-08-29** via a safe simulated test, per Section 20's
+  staged-testing approach: `SHUTDOWNCMD` was temporarily swapped for a
+  harmless logging command (a technique suggested directly in NUT's own
+  `upsmon.conf` comments), then `proxmox-ups` was briefly unplugged from
+  the wall for real. Confirmed live: `OB` detection worked immediately;
+  `battery.charge` genuinely dropped in real time under real discharge.
+
+  This surfaced an important gap: at 79% (below the 80%
+  `override.battery.charge.low` threshold), `ups.status` still showed
+  no `LB` flag. Per NUT's own documentation, `override.battery.charge.low`
+  **only changes the displayed value** — it does not by itself make the
+  driver compute `LB` from charge. The missing piece is `ignorelb`, which
+  tells the driver to disregard the UPS's native hardware low-battery
+  signal and instead compute `LB` itself from `battery.charge <
+  battery.charge.low`. Added `ignorelb` to all three `ups.conf` sections
+  (anchored on each unique `override.battery.charge.low = N` line, same
+  safe-anchoring approach as the serial-based inserts). Confirmed
+  immediately afterward — no further battery draining needed — that
+  `proxmox-ups` correctly showed `LB` at 78% charge, including while
+  still `OL CHRG` (on mains), proving the comparison is purely
+  charge-based and independent of on-battery state. Since this fix lives
+  at the driver/`ups.conf` level on the Lenovo, it applies automatically
+  to TrueNAS's view of `nas-ups` too — no separate fix was needed there.
+
+  Plugged `proxmox-ups` back in once `OB` and the charge drop were
+  confirmed (didn't drain further chasing the `LB` diagnostic on live
+  production hardware). `SHUTDOWNCMD` reverted to the real script
+  afterward, confirmed active. Jason's call: the actual `upsmon`
+  OB+LB→FSD→`SHUTDOWNCMD` invocation chain wasn't separately re-tested
+  after the `ignorelb` fix — accepted as sufficiently validated given
+  that specific behavior is extremely standard, well-established NUT
+  functionality, not something specific to this setup. What *was*
+  hardware/setup-specific (real `OB` detection, and `LB` actually
+  computing from our chosen threshold) is now proven.
+- [x] Configure and validate applicable NAS/storage shutdown behaviour.
+  Validated by the same 2026-08-29 test above, since the `ignorelb` fix
+  lives at the shared driver level (`nas-ups`'s `ups.conf` section on the
+  Lenovo) and TrueNAS's native client just reads whatever `upsd` reports
+  — no TrueNAS-specific re-test was needed for the threshold mechanism.
+  TrueNAS's own native shutdown behavior itself (as opposed to the
+  trigger mechanism) has not been separately live-tested.
   **Configured 2026-08-29, not yet live-tested.** TrueNAS SCALE has a
   native `ups` service built into its middleware (`midclt`), used
   directly instead of installing a separate `nut-client` package — it

@@ -174,10 +174,19 @@ Current state:
   `nas-ups`=50%, `proxmox-ups`=80% (deliberately early despite having
   the most battery, because its shutdown script's SSH-to-Synology step
   depends on Arista/`nas-ups` still having power), `network-ups`=25%
-  (powers the Lenovo itself, so it waits longest). Reasoned from
-  topology and measured runtime, not yet field-tested. Full reasoning
-  in `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3
-  tracker).
+  (powers the Lenovo itself, so it waits longest). Percentages are
+  reasoned from topology/runtime, not field-validated as "correct" —
+  but the trigger *mechanism* was validated same-day via a safe
+  simulated test (briefly unplugging `proxmox-ups` with `SHUTDOWNCMD`
+  temporarily swapped for a harmless command). That test caught a real
+  gap: `override.battery.charge.low` alone only changes the displayed
+  value per NUT's own docs — it doesn't make the driver actually compute
+  `LB` from charge. Fixed by adding `ignorelb` to all three `ups.conf`
+  sections, confirmed working (`proxmox-ups` correctly showed `LB` at
+  78%, even while still `OL CHRG`). Since the fix is at the shared
+  driver level, it covers TrueNAS's view of `nas-ups` too automatically.
+  `SHUTDOWNCMD` reverted to the real script afterward. Full details in
+  `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3 tracker).
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.
