@@ -1,19 +1,21 @@
 # Synology Drive Family Cloud Project
 
-## Project handover: Claude
+## Project handover: Claude → ChatGPT
 
-> Status: Milestones 1-8 complete for the pilot device (Jason), including a
-> fully proven backup/restore path and HomeLab Doctor monitoring. The only
-> remaining open item project-wide is rolling out mobile/desktop clients to
-> the rest of the family (Alisa, Carter, Justin, Jen) — everything else in
-> the Definition of Done is satisfied for the pilot rollout. The Cloudflare
-> Access admin-login problem is also resolved (root cause was split DNS
-> blocking Cloudflare's own backend from reaching Authentik — see
-> Authentik-Cloudflare-Access-OIDC-Handover.md)
+> Status: **Concluded 2026-08-31.** Milestones 1-8 complete for the pilot
+> rollout (Jason's own accounts and devices), including a fully proven
+> backup/restore path and HomeLab Doctor monitoring. The Cloudflare Access
+> admin-login problem is also resolved (root cause was split DNS blocking
+> Cloudflare's own backend from reaching Authentik — see
+> Authentik-Cloudflare-Access-OIDC-Handover.md). One item is deliberately
+> deferred, not abandoned: rolling out mobile/desktop clients to the rest of
+> the family (Alisa, Carter, Justin, Jen) — see section 16 (Hand-back) below
+> for full detail, rollback steps and residual risks before picking this
+> back up.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-29
+> Last updated: 2026-08-31
 
 ## 1. Purpose
 
@@ -563,3 +565,153 @@ exposure was introduced.
 | 2026-08-31 | Milestone 8 | Added `check_synology_drive_backup` to `scripts/doctor.sh` (checks the Hyper Backup destination folder's freshness on the backup NAS), plus new SSH config aliases `gowest` and `gowest-backup` to support it. Added a "Family Drive" tile to the live Homepage dashboard config on the docker host, confirmed visible after a container restart. Confirmed the one known leftover test artifact (a public share link for `HDR Window.jpeg`) has a working same-day expiration and needs no manual cleanup — a second real-world confirmation of link expiration working, after the one already tested in Milestone 6. Wrote routine-operations documentation (account creation, device replacement, client removal, version-retention and capacity-review intervals) directly into this tracker. Updated `docs/05-Backups.md` and `docs/02-IP-Addressing.md` to reflect the new backup task and the dual-homed NIC discovery from Milestone 3; `docs/01-Architecture.md` and `docs/04-Operations.md` reviewed and found already adequate. | In progress |
 | 2026-08-31 | Milestone 7 | Initial Hyper Backup run completed: 102 GB landed at the destination (close to the 121 GB source, difference from compression). Ran a full restore-testing cycle using a dedicated test file in `Family Documents` (never real household data): captured an original version, a modified version, and a deletion via three "Back up now" runs, then used Backup Explorer to (1) restore the earlier version — confirmed exact content match — and (2) restore the deleted file — confirmed it came back correctly. Documented the full package-level disaster-recovery order (install Hyper Backup, relink repository, install Synology Drive Server before restoring its data, restore application config before folder data, and explicitly re-verify the Milestone 2 ACL privacy fix survived any real restore, since that's a genuine project-specific recovery risk). Encrypted-folder recovery is not applicable (no encryption in use). Milestone 7 completion gate reached. | Done |
 | 2026-08-31 | Milestone 8 | Ran the full `doctor.sh` after the above: `check_synology_drive_backup` passed cleanly. Other warnings/failures in that run (stale OPNsense/Arista/Proxmox backups, unreachable Reolink cameras, Mac disk usage) are pre-existing and unrelated to this project, not addressed here. Milestone 8 complete. This closes every Milestone 1-8 item for the pilot rollout except rolling out mobile/desktop clients to Alisa, Carter, Justin and Jen, which remains open as the one project-wide follow-up. | Done |
+
+## 16. Hand-back (concluded 2026-08-31)
+
+This project is being concluded and handed back at this point, per Jason's
+request. The pilot rollout (Milestones 1-8, for Jason's own accounts and
+devices) is fully complete. One item is deliberately deferred rather than
+completed — see "Deferred, not abandoned" below.
+
+### Completed checkboxes
+
+- **Milestone 1 (Discovery and capacity):** complete. DSM/package versions,
+  capacity on both NAS units, account/folder inventory, client compatibility
+  (including the iOS 18+ requirement), and requirements gathering all done.
+- **Milestone 2 (Identity and folder design):** complete. Accounts, quotas,
+  the `Family` group and `Family Documents` Team Folder all correctly scoped
+  — and a real pre-existing privacy bug (cross-user home-folder access) was
+  found and fixed, not just documented.
+- **Milestone 3 (Synology Drive Server):** complete. Team Folder enabled,
+  version retention set, QuickConnect replaced with Tailscale, storage
+  consumption investigated.
+- **Milestone 4 (macOS Finder pilot):** complete on Jason's Mac mini and
+  laptop. On-demand sync, disk-space reclamation, and restart/network-loss
+  resilience all verified.
+- **Milestone 5 (iPhone/iPad pilot):** complete for Jason's own devices.
+  Camera upload deliberately left with the existing Synology Photos
+  workflow.
+- **Milestone 6 (Friend sharing):** complete. Expiring links, file-request
+  links, parent-folder containment, and revocation all verified from an
+  outsider's perspective. The related but separately-tracked Cloudflare
+  Access admin-login problem is also resolved (see below).
+- **Milestone 7 (Backup and recovery):** complete. A dedicated Hyper Backup
+  task now protects `homes`, `Family Documents`, and Drive's own application
+  configuration — where none existed before this project. Individual-file,
+  earlier-version, and deleted-file recovery are all directly proven; full
+  disaster-recovery order is documented.
+- **Milestone 8 (Monitoring and documentation):** complete. HomeLab Doctor
+  monitors backup freshness, Homepage has a working link, and routine
+  operations/retention/capacity-review procedures are documented.
+
+### Evidence
+
+The full evidence log (section 15 above) has a dated, milestone-tagged entry
+for every significant action and finding across this project — versions
+recorded, commands run, test results, and decisions made. Nothing in this
+hand-back summary should be treated as a substitute for that log; it's the
+authoritative record.
+
+### Rollback steps
+
+- **SSH key access to both NAS units** (`AuthorizedKeysFile` pointed at
+  `/etc/ssh/authorized_keys/%u` instead of the default, to work around a
+  `StrictModes`/ACL conflict): revert by restoring
+  `/etc/ssh/sshd_config.bak-*` (timestamped backups exist on both hosts from
+  when this change was made) and restarting `sshd` via `synosystemctl
+  restart sshd`.
+- **Per-user quotas** (100 GB on `volume1`/`homes` for everyone but Jason):
+  revert via Control Panel → User & Group → select user → Quota tab → set
+  back to unlimited.
+- **`Family` group and `Family Documents` Team Folder**: can be deleted via
+  Control Panel → User & Group / Shared Folder if no longer wanted; this
+  would remove the shared-folder feature entirely, not just a setting.
+- **`homes` shared folder ACL lockdown**: this is a security fix, not a
+  preference — **do not roll this back**. Reverting it would reintroduce the
+  pre-existing bug where family members could read/write each other's
+  private home folders.
+- **Hyper Backup "Synology Drive Backup" task**: delete via Hyper Backup →
+  select the task → Action → Delete. The backed-up data itself
+  (`/volume1/Backup/GoWest_2.hbk` on `192.168.20.42`) would need manual
+  deletion separately if reclaiming that space is desired.
+- **QuickConnect disabled**: re-enable via Control Panel → QuickConnect if
+  ever wanted back — not recommended, since it reintroduces a relay-based
+  internet-exposure path this project deliberately moved away from in favor
+  of Tailscale.
+- **Cloudflare Tunnel routes and Access applications** (`share.elliottrook.com`,
+  `auth.elliottrook.com`, the three Access applications, the Authentik OIDC
+  login method): rollback order and specifics are documented in
+  [Synology-Drive-Cloudflare-Handover.md](../Synology-Drive-Cloudflare-Handover.md)
+  and [Authentik-Cloudflare-Access-OIDC-Handover.md](../Authentik-Cloudflare-Access-OIDC-Handover.md)
+  — do not improvise a rollback here without reading those, since undoing
+  pieces out of order could re-expose DSM's login surface without protection.
+- **Homepage dashboard "Family Drive" tile**: a timestamped backup of the
+  original `services.yaml` exists on the docker host at
+  `/opt/homepage/config/services.yaml.bak-*`; restore it and run `docker
+  restart homepage` to revert.
+- **`check_synology_drive_backup` in `scripts/doctor.sh`**: `git revert` the
+  commit that added it (`9c5d88e`), or manually remove the function and its
+  call site.
+- **SSH config aliases** (`gowest`, `gowest-backup` in `~/.ssh/config` on
+  Jason's Mac): not git-tracked, local convenience only — remove the `Host`
+  blocks if no longer wanted, no functional impact on the NAS either way.
+
+### Residual risks
+
+- **The one deliberately deferred item**: mobile/desktop Drive clients have
+  not been rolled out to Alisa, Carter, Justin, or Jen — only Jason's own
+  devices were piloted. This is the main piece of unfinished work.
+- Personal My Drive folders (everyone's, not just Jason's) still have **no
+  version-retention policy** — only `Family Documents` does. Flagged since
+  Milestone 3, pending Jason's photo migration out of his My Drive folder.
+- Jason's few-hundred-GB photo collection is still sitting in his My Drive
+  folder, inflating Drive's internal storage consumption; he plans to
+  migrate it to a dedicated photos app, not yet done.
+- The backup NAS (`192.168.20.42`) has comparatively tight headroom (1.4 TB
+  free before this project's ~102 GB addition) and is shared with the
+  existing Plex media backup — worth periodic re-checking as data grows,
+  more so than the main NAS.
+- The `/oo/*` Cloudflare Access bypass path (Synology Office document
+  shares) was configured but never re-tested end-to-end — no suitable
+  `/oo/` share link was available during either the original setup or the
+  Authentik fix's closeout validation.
+- Real two-client conflict resolution in Drive was never cleanly tested —
+  the Milestone 4 test simulated a "server-side" edit via a raw SSH write,
+  which bypasses Drive's own change-tracking and isn't equivalent to two
+  genuine Drive clients editing simultaneously.
+- Full-scale restore timing was not measured — only small test-file restores
+  were timed (seconds to low minutes). A real restore of the full ~102 GB
+  backup would take proportionally longer; that wasn't tested since a
+  destructive full restore isn't warranted just to prove the mechanism.
+- A Cloudflare OIDC client secret was briefly exposed during the ChatGPT
+  troubleshooting session that fixed the Authentik integration; it was
+  rotated immediately as a precaution — already handled, but worth knowing
+  it happened.
+
+### Every repository file changed by this project
+
+- `docs/projects/Synology-Drive-Family-Cloud.md` (this file)
+- `docs/Authentik-Cloudflare-Access-OIDC-Handover.md`
+- `docs/Synology-Drive-Cloudflare-Handover.md` (authored by a separate Codex
+  session, not this one, but directly part of this project's Milestone 6)
+- `docs/05-Backups.md`
+- `docs/02-IP-Addressing.md`
+- `scripts/doctor.sh`
+
+**Live infrastructure changes made that are not tracked in this
+repository** (worth knowing about even though there's no file diff to
+point to): DSM configuration on both Synology units (SSH
+`AuthorizedKeysFile`, user quotas, the `homes` folder ACL fix, the `Family`
+group and `Family Documents` Team Folder, QuickConnect disabled, the new
+Hyper Backup task), the Cloudflare Zero Trust account (Applications,
+Policies, the Authentik OIDC login method), the Authentik OAuth2
+Provider/Application for Cloudflare Access, and the Homepage dashboard
+config on the docker host.
+
+### Deferred, not abandoned
+
+Rolling out Drive clients to Alisa, Carter, Justin, and Jen is the intended
+next step whenever this project is picked back up — the setup procedure is
+fully documented above (Milestone 4's client setup procedure and Milestone
+8's routine-operations section), so it should be straightforward to execute
+without needing to rediscover anything.
