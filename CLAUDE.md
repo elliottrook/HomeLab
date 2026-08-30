@@ -153,6 +153,15 @@ Current state:
   after USB re-enumeration. Lab Doctor's `check_nut` passed cleanly
   afterward. Next up: Milestone 3 (coordinated shutdown thresholds,
   `SHUTDOWNCMD`, and shutdown ordering) — not yet started.
+- 2026-08-29: Milestone 3 in progress. Proxmox is now a NUT network
+  client (`secondary`) of `proxmox-ups`, with a custom `SHUTDOWNCMD`
+  script wired in that stops Frigate (its NFS dependency on TrueNAS)
+  first, then remaining guests, then SSHes into both Synology units to
+  shut them down, then powers off Proxmox itself. Not yet live-tested;
+  warning/shutdown timing still uses NUT's hardware default rather than
+  the discussed custom thresholds. Full details, including a
+  self-caught-and-rotated credential exposure during setup, in
+  `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3 tracker).
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.
