@@ -236,6 +236,9 @@ Hard rules:
 - If something looks irreversible or you're unsure of the blast radius, stop and ask
   instead of guessing.
 - Commit documentation changes to git automatically at the end of each milestone
-  or comparable unit of work — no need to ask first. `git push` is the
-  exception: never push without an explicit instruction to do so in that
-  message, even though committing doesn't require one.
+  or comparable unit of work — no need to ask first, and no need to announce
+  intent to commit beforehand either. Just run it and report the resulting
+  commit hash/summary afterward — an "I'm about to commit" preamble reads as
+  seeking a green light even when a reply isn't actually being awaited. `git
+  push` is the exception: never push without an explicit instruction to do so
+  in that message, even though committing doesn't require one.
