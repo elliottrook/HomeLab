@@ -452,7 +452,9 @@ item-level Definition of Done.
   service user) installed on `nut-server` 2026-08-28 and registered with
   the hub at `192.168.20.20:8090`. Live host-level metrics (CPU, memory,
   disk, temperature, uptime) confirmed actively updating in the Beszel
-  dashboard. This required a new OPNsense firewall rule permitting
+  dashboard. Re-verified 2026-08-30: `beszel-agent` is active/running on
+  `nut-server` and has remained up since the host's 2026-08-29 reboot.
+  This required a new OPNsense firewall rule permitting
   `192.168.50.25` (Management VLAN 50) → `192.168.20.20:8090` (Servers
   VLAN 20) — Jason added this himself, since OPNsense/firewall changes
   are outside this project's scope (Section 23). Beszel provides
@@ -464,13 +466,13 @@ item-level Definition of Done.
   Added `check_nut()` to [scripts/doctor.sh](../scripts/doctor.sh) 2026-08-28,
   following the existing `check_*` conventions (SSH via the `nut` alias in
   `~/.ssh/config`, `pass`/`warn`/`fail` helpers, failures/warnings arrays).
-  Checks: `nut-server` and `nut-monitor` services active, both `proxmox-ups`
-  and `nas-ups` detected via `upsc -l`, each unit's `ups.status` contains
-  `OL` (fails if not — e.g. on battery or communication lost), and warns if
-  `battery.charge` drops below 50%. Tested against the live server: passes
-  cleanly today (`NUT server, monitor and both UPS units healthy`).
-  Note: this only covers the two desk-connected units; UPS #2 will need
-  adding to `expected_ups` once it's identified/connected.
+  Checks: `nut-server` and `nut-monitor` services active; all three managed
+  units (`proxmox-ups`, `nas-ups`, and `network-ups`) detected via `upsc -l`;
+  each unit's `ups.status` contains `OL` (fails if not — e.g. on battery or
+  communication lost); and warns if `battery.charge` drops below 50%.
+  Re-verified with the complete HomeLab Doctor run on 2026-08-30: the NUT
+  check passed with all three UPS units online. The overall Doctor result was
+  48 passes, 3 unrelated warnings, and 0 failures.
 - [x] Protect NUT configuration and document bare-metal recovery.
   Documented in [05-Backups.md](../05-Backups.md) under "NUT / UPS Server
   (Lenovo)" 2026-08-28: a manual pull command lands `ups.conf`, `nut.conf`,
