@@ -894,9 +894,9 @@ At completion create a document titled **UPS & Power Resilience — Implementati
   See the close-out report's Sections 13 (Outstanding Issues) and 14
   (Recommended Follow-Ups).
 - [x] Final Git commit/branch state recorded.
-  `main`, fully pushed to both the Forgejo origin and its GitHub mirror
-  — see the commit that introduces the close-out report for the exact
-  hash.
+  `main` at `510245f` ("docs: produce Implementation Close-Out report,
+  close Milestone 5"), fully pushed to both the Forgejo origin and its
+  GitHub mirror.
 
 ## 27. Handover Boundary
 

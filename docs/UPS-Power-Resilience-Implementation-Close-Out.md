@@ -118,7 +118,7 @@ A manual pull (documented in `05-Backups.md` under "NUT / UPS Server (Lenovo)") 
 
 ## 11. Repository Changes
 
-All work is on `main`, pushed to both the Forgejo origin and its GitHub mirror. Key files touched: `CLAUDE.md`, `docs/UPS-Power-Resilience-Claude-Handover.md` (primary working record), `docs/01-Architecture.md`, `docs/04-Operations.md`, `docs/Current-Network-Baseline.md`, `docs/03-Hardware-Inventory.md`, `docs/05-Backups.md`, `scripts/doctor.sh`, `CHANGELOG.md`, and this document. See Section 15 for the final commit reference.
+All work is on `main`, pushed to both the Forgejo origin and its GitHub mirror. Key files touched: `CLAUDE.md`, `docs/UPS-Power-Resilience-Claude-Handover.md` (primary working record), `docs/01-Architecture.md`, `docs/04-Operations.md`, `docs/Current-Network-Baseline.md`, `docs/03-Hardware-Inventory.md`, `docs/05-Backups.md`, `scripts/doctor.sh`, `CHANGELOG.md`, and this document. This report was introduced in commit `510245f` ("docs: produce Implementation Close-Out report, close Milestone 5"); any commits after that on `main` are minor doc corrections, not implementation changes.
 
 ## 12. Testing Results
 
