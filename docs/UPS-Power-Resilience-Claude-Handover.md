@@ -236,6 +236,36 @@ item-level Definition of Done.
   that's the still-open "Define warning and shutdown thresholds" item
   above.
 - [ ] Configure and validate applicable NAS/storage shutdown behaviour.
+  **Configured 2026-08-29, not yet live-tested.** TrueNAS SCALE has a
+  native `ups` service built into its middleware (`midclt`), used
+  directly instead of installing a separate `nut-client` package — it
+  wraps NUT internally and manages its own config, so a manual install
+  would risk conflicting with what TrueNAS already owns. Configured via
+  `midclt call ups.update`: `mode: SLAVE` (TrueNAS's client-mode
+  terminology, unchanged from older NUT naming even though NUT itself
+  moved to primary/secondary), `identifier: nas-ups`,
+  `remotehost: 192.168.50.25`, reusing the same `netclient` account as
+  Proxmox. Deliberately set `shutdown: LOWBATT` (wait for the real
+  low-battery signal, not just "on battery") and `powerdown: false`
+  (TrueNAS shuts itself down, but never tells the UPS to cut its own
+  outlet power — that would also kill the Arista switch sharing
+  `nas-ups`). No custom shutdown command — TrueNAS's own native graceful
+  shutdown (clean ZFS export, etc.) is used as-is. The `ups` service also
+  had to be explicitly enabled (`service.update ups {"enable": true}`) —
+  starting it alone doesn't persist across a TrueNAS reboot.
+
+  **Second self-caught credential exposure:** `midclt call ups.update`
+  returns the full updated config as its response, including `monpwd` in
+  plaintext — this printed into the session the same way the earlier
+  `netclient` exposure did, from the same underlying habit (not
+  suppressing output on a command that could echo a secret, not just the
+  final verification step). Rotated again immediately across all three
+  places the credential lives (`upsd.users`, Proxmox's `upsmon.conf`,
+  TrueNAS's `ups.update`), this time with every command's output
+  redirected to `/dev/null` and verification limited to fields that can
+  never contain the secret. Worth remembering going forward: any command
+  that *sets* a secret via an API that echoes back the full object needs
+  the same output suppression as commands that *read* one.
 - [ ] Document final shutdown order, return-of-power behaviour and manual override.
 
 ### Milestone 4 — Monitoring and recovery

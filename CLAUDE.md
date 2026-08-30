@@ -162,6 +162,13 @@ Current state:
   the discussed custom thresholds. Full details, including a
   self-caught-and-rotated credential exposure during setup, in
   `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3 tracker).
+  TrueNAS is now also a NUT client (via its native `ups` middleware
+  service, not a manual package install) monitoring `nas-ups`, with
+  `shutdown: LOWBATT` and `powerdown: false`. A second credential
+  exposure happened and was rotated during this step too (same root
+  cause: an API call echoed the secret back). Both Proxmox and TrueNAS
+  confirmed connected with the final rotated password. Not yet
+  live-tested.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

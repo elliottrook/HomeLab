@@ -29,6 +29,7 @@
 - Documented the live UPS power topology and runtime baseline: `nas-ups` has the shortest runtime of the three monitored units despite matching capacity, since it's serving three NAS-class devices at once — the key input for Milestone 3's shutdown-threshold planning.
 - Closed Milestone 2 of the NUT/UPS project: a reboot test with all three UPS units connected confirmed every NUT driver, `nut-server`, `nut-monitor` and `beszel-agent` recover automatically and rebind to the correct serial after USB re-enumeration.
 - Started Milestone 3 (coordinated shutdown): Proxmox is now a NUT network client of `proxmox-ups`, with a custom `SHUTDOWNCMD` script that stops Frigate (its NFS dependency on TrueNAS) first, then remaining guests, then triggers shutdown on both Synology units via SSH, then powers off Proxmox itself. Not yet live-tested.
+- TrueNAS is now a NUT client of `nas-ups` via its native `ups` middleware service (not a manual package install), configured to wait for the real low-battery signal and never cut the UPS's own outlet power (shared with the Arista switch). Not yet live-tested.
 - Added a milestone-driven TrueNAS DIY SAS expansion project for a backplane-free, independently powered enclosure using the existing controller's two free disk endpoints.
 
 ### Fixed
