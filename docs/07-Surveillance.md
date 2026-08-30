@@ -49,10 +49,17 @@ not an external notification.
 `face_recognition` and `lpr` (license plate recognition) were found already
 enabled (small models) outside the documented process — likely turned on via
 the Frigate setup wizard — and were disabled 2026-08-30 pending a scoped
-privacy/retention decision (tracked in
-[Surveillance-Expansion.md](projects/Surveillance-Expansion.md) Milestone 5).
-`semantic_search` (embedding-based search, not identity recognition) remains
-enabled and was not part of that decision.
+privacy/retention decision, then deliberately re-enabled later the same day
+once that decision was made (full rationale in
+[Surveillance-Expansion.md](projects/Surveillance-Expansion.md) Milestone 5):
+both run at the camera level in Frigate with no way to restrict them to the
+`driveway`/`porch` zones, so they process everyone visible anywhere in
+frame, including public-street passersby and traffic — a knowingly accepted
+tradeoff, not an oversight. Face recognition still needs reference photos of
+known household members added through Frigate's Face Library UI before it
+can distinguish anyone by name. `semantic_search` (embedding-based search,
+not identity recognition) remains enabled and was not part of either
+decision.
 
 **Critical finding, 2026-08-30: object detection had never actually run.**
 While validating the trigger config above, `event`/`reviewsegment`/`regions`

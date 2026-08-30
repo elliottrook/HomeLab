@@ -122,13 +122,37 @@ observation period with no regression to existing cameras.
 
 ## Milestone 5 — Optional surveillance tools
 
-- [ ] Re-evaluate face recognition and license-plate recognition (LPR) as their
+- [x] Re-evaluate face recognition and license-plate recognition (LPR) as their
   own scoped, documented decision covering privacy, retention and consent
   before re-enabling. Both were found already enabled outside the documented
   process on 2026-08-30 (undocumented drift, likely from the Frigate setup
-  wizard) and were disabled pending this evaluation. `semantic_search` was
-  left enabled — a different feature (embedding-based search, not identity
-  recognition) — but was not itself evaluated against this milestone's bar.
+  wizard) and were disabled pending this evaluation.
+
+  **Decision (2026-08-30):** re-enabled, deliberately, with the scope
+  limitation understood and accepted. Purpose: distinguish known
+  family/household members from strangers (face recognition), and recognize
+  specific vehicles (LPR). Scope: initially wanted to restrict both to the
+  `driveway`/`porch` zones only, excluding the public `street` zone —
+  confirmed via Frigate's own documentation that neither feature supports
+  zone restriction; both run at the camera level against the full frame.
+  A hard privacy boundary (cropping the street out of the detect stream at
+  the ffmpeg level, before Frigate ever sees it) was considered and rejected
+  in favor of keeping full-frame `street` object detection. Frigate's
+  built-in object/motion masks were also considered and rejected as a
+  false privacy boundary — confirmed via documentation that object masks
+  discard detections *after* the detector has already run, not before, so
+  they don't reliably prevent enrichment from processing a masked region.
+  **Net effect accepted:** both features process everyone visible in frame,
+  including passersby and traffic on the public street with no connection to
+  the property, not just driveway/porch. `semantic_search` remains enabled —
+  a different feature (embedding-based search, not identity recognition) —
+  and was not itself evaluated against this milestone's bar.
+  Applied via `config.yaml` (`face_recognition.enabled: true`,
+  `lpr.enabled: true`; backup: `config.yaml.before-facelpr-*`), restarted and
+  confirmed healthy. **Follow-up needed:** face recognition requires
+  reference photos of known household members added through Frigate's Face
+  Library UI before it can actually distinguish anyone — this is unconfigured
+  as of this decision and needs Jason to add them directly (family photos).
 - [ ] Evaluate BirdNET as a separate service with its own audio, privacy, compute
   and storage design before adding a dashboard card.
 - [ ] Select camera-administration tools only after confirming compatibility and
