@@ -7,9 +7,12 @@
 **Environment:** Jason's HomeLab  
 **Repository:** This public HomeLab repository. Treat it as the authoritative source for current infrastructure details.
 
-**Project status:** Handover ready; NUT/UPS implementation not yet validated
+**Project status:** Milestones 1–5 complete; see
+[UPS-Power-Resilience-Implementation-Close-Out.md](UPS-Power-Resilience-Implementation-Close-Out.md)
+for the final report. Controlled failure/recovery testing and
+push-style alerting are explicitly deferred to after handover.
 
-**Last reconciled:** 2026-08-24
+**Last reconciled:** 2026-08-29
 
 ## Project milestone tracker
 
@@ -509,9 +512,9 @@ item-level Definition of Done.
 
 ### Milestone 5 — Hand-back
 
-- [ ] Complete every applicable Section 26 checkbox or explicitly defer it with a
+- [x] Complete every applicable Section 26 checkbox or explicitly defer it with a
   reason and risk.
-- [ ] Produce the required close-out report, Git references and final known-good
+- [x] Produce the required close-out report, Git references and final known-good
   test state for Aster's architectural review.
 
 ## 1. Purpose
@@ -853,17 +856,47 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 - [x] Power-return behaviour understood and documented.
 - [x] Lenovo added to Beszel.
 - [x] UPS monitoring integrated into existing observability where practical.
-- [ ] Appropriate alerts implemented or explicitly deferred.
+- [x] Appropriate alerts implemented or explicitly deferred.
+  **Explicitly deferred.** Lab Doctor's `check_nut` and `check_backup_age
+  "NUT"` give pull-based visibility (run on demand or on whatever
+  schedule Doctor already runs on), and Beszel shows host-level metrics
+  for the Lenovo. No push-style alert (e.g. a NUT `NOTIFYCMD` wired to
+  an email/notification channel) fires on UPS events like going on
+  battery. Risk: a real outage's early stages (mains lost, still well
+  within battery budget) won't proactively notify anyone — it'll only
+  show up if/when someone checks Doctor or Beszel, or once a shutdown
+  tier actually fires. Deferred rather than built now because the
+  project's existing alerting patterns (Section 16) weren't reused here
+  and this wasn't blocking the core coordinated-shutdown goal.
 - [x] Lab Doctor extended for UPS/NUT health.
 - [x] Lenovo/NUT configuration included in backup strategy.
 - [x] Restore procedure documented.
 - [x] Secrets excluded from public Git.
-- [ ] Controlled failure testing completed.
-- [ ] Recovery testing completed.
-- [ ] Repository documentation updated.
-- [ ] Final implementation close-out report produced.
-- [ ] Outstanding/deferred improvements explicitly listed.
-- [ ] Final Git commit/branch state recorded.
+- [x] Controlled failure testing completed.
+  **Explicitly deferred to after handover — Jason's decision.** The
+  threshold *trigger mechanism* was validated (see Milestone 3's
+  simulated test), but the real destructive shutdown scripts have never
+  actually run, and no genuine full-outage test has been performed.
+  Risk: the scripts' actual behavior under real conditions (guest
+  stop ordering, SSH timing to Synology, TrueNAS's native shutdown)
+  remains unverified beyond code review and the mechanism-level test.
+- [x] Recovery testing completed.
+  **Explicitly deferred to after handover — Jason's decision**, for the
+  same reason as controlled failure testing above. Risk: whether
+  Proxmox/TrueNAS/the Lenovo actually need manual power-on after a real
+  event (as documented) versus behaving differently in practice is
+  unconfirmed.
+- [x] Repository documentation updated.
+- [x] Final implementation close-out report produced.
+  [UPS-Power-Resilience-Implementation-Close-Out.md](UPS-Power-Resilience-Implementation-Close-Out.md),
+  covering all 15 items required by Section 25.
+- [x] Outstanding/deferred improvements explicitly listed.
+  See the close-out report's Sections 13 (Outstanding Issues) and 14
+  (Recommended Follow-Ups).
+- [x] Final Git commit/branch state recorded.
+  `main`, fully pushed to both the Forgejo origin and its GitHub mirror
+  — see the commit that introduces the close-out report for the exact
+  hash.
 
 ## 27. Handover Boundary
 

@@ -34,6 +34,7 @@
 - Validated the threshold trigger mechanism via a safe simulated test (briefly unplugging `proxmox-ups` with `SHUTDOWNCMD` swapped for a harmless command). Caught and fixed a real gap: `override.battery.charge.low` alone doesn't make the driver compute `LB` from charge without also setting `ignorelb`. Fixed on all three UPS units; confirmed working.
 - Closed Milestone 3 of the NUT/UPS project (coordinated shutdown). Caught and fixed a self-shutdown bug on the Lenovo NUT server itself: its local `upsmon` was treating any of the three UPS units going critical as grounds to shut itself down, even though only `network-ups` actually powers it. Documented the final shutdown order, power-return behavior, and manual override options.
 - Updated repository-wide architecture, operations, network baseline and hardware inventory docs to reflect the final UPS/NUT design: a new architecture section and accepted-risk rows, a UPS quick-reference for operators, the new narrow OPNsense rules, and all four physical UPS units added to hardware inventory.
+- Produced the UPS & Power Resilience Implementation Close-Out report for Aster/ChatGPT's review, and explicitly deferred controlled failure/recovery testing and push-style alerting (both with documented reasons and risks), closing out Milestone 5.
 - Added a milestone-driven TrueNAS DIY SAS expansion project for a backplane-free, independently powered enclosure using the existing controller's two free disk endpoints.
 
 ### Fixed
