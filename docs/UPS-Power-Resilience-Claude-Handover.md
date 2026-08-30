@@ -832,17 +832,17 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 - [x] Lenovo documented in HomeLab inventory.
 - [x] Both UPS units positively identified.
 - [x] UPS-to-device power topology documented.
-- [ ] UPS management connections attached to Lenovo.
+- [x] UPS management connections attached to Lenovo.
 - [x] Both UPS devices reliably detected after reboot.
-- [ ] NUT installed on bare metal.
-- [ ] NUT server securely configured.
-- [ ] Appropriate NUT clients configured.
+- [x] NUT installed on bare metal.
+- [x] NUT server securely configured.
+- [x] Appropriate NUT clients configured.
 - [x] Proxmox shutdown behaviour implemented and tested.
 - [x] Applicable NAS shutdown behaviour implemented and tested.
 - [x] Shutdown ordering documented.
 - [x] Power-return behaviour understood and documented.
 - [x] Lenovo added to Beszel.
-- [ ] UPS monitoring integrated into existing observability where practical.
+- [x] UPS monitoring integrated into existing observability where practical.
 - [ ] Appropriate alerts implemented or explicitly deferred.
 - [x] Lab Doctor extended for UPS/NUT health.
 - [x] Lenovo/NUT configuration included in backup strategy.
