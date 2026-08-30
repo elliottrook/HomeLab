@@ -50,8 +50,10 @@ Definition of Done checklist — check items off as work progresses).
 
 Current state:
 - NUT 2.8.1-5 installed on the Lenovo box (192.168.50.25, interface eno1)
-- UPS #1 (APC Back-UPS Pro BN1500M2-CA) — powers TrueNAS + both Synology units;
-  currently unplugged, waiting on new battery. Confirmed 2026-08-25 by
+- UPS #1 (APC Back-UPS Pro BN1500M2-CA) — originally intended to power
+  TrueNAS + both Synology units; the final load distribution ended up
+  different (see "Corrected 2026-08-29" below). Currently unplugged,
+  waiting on new battery. Confirmed 2026-08-25 by
   physical inspection: **no NUT-compatible monitoring interface exists on
   this unit** (rear ports are all surge-protection passthrough; front
   USB-A/USB-C are charging-only). Will operate as a dumb battery only —
@@ -66,15 +68,19 @@ Current state:
   alone became ambiguous once two identical-VID:PID CyberPower units were
   on the same bus. Final disposition of the old APC BN1500M2-CA is still
   to be decided.
-- UPS #2 (CyberPower OR500LCDRM1U) — powers Arista switch, OPNsense, Ubiquiti PoE switch.
+- UPS #2 (CyberPower OR500LCDRM1U) — NUT device `network-ups`. **Final
+  load (2026-08-29, corrected from the original plan):** OPNsense, the
+  Lenovo NUT server itself, the UniFi PoE switch, and the camera switch.
   Identified and configured 2026-08-29 after the Lenovo's permanent
-  relocation: NUT device `network-ups`, pinned by serial `GA4KS2000999`
+  relocation, pinned by serial `GA4KS2000999`
   (a distinct format from the CP1500PFCLCD units' `CXXR...` serials).
   Confirmed via `upsc`: `device.model: OR500LCDRM1Ua`, `ups.status: OL`,
-  battery 100%. Unlike the other two, this one already shows real load
-  (`ups.load: 23`) — actual network equipment is live on it, not a bench
-  test.
-- UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — dedicated to Proxmox.
+  battery 100%, `ups.load: 23`. Powering the NUT server itself makes this
+  the most structurally critical unit — if it dies, monitoring and any
+  future shutdown orchestration go dark along with the gateway.
+- UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — NUT device
+  `proxmox-ups`. **Final load (2026-08-29, corrected from the original
+  plan):** Proxmox plus both Synology units.
   Re-confirmed 2026-08-25 via live NUT/`usbhid-ups` query (authoritative —
   read from the UPS's own HID Power Device data): `device.model` /
   `ups.model` = `CP1500PFCLCDa`, serial `CXXRO7009593`. This matches the
@@ -116,9 +122,30 @@ Current state:
   monitoring (same account, now three established `upsd` connection
   pairs). All three physical units are now accounted for: `proxmox-ups`,
   `nas-ups`, `network-ups` as NUT clients, and the APC BN1500M2-CA as a
-  documented dumb battery. Power topology documented (`nas-ups` has the
-  shortest runtime, ~22.5 min, despite matching capacity to
-  `proxmox-ups`, since it serves three NAS-class devices at once).
+  documented dumb battery.
+- **Corrected 2026-08-29**: the final equipment distribution across the
+  three active UPS units differs from the original plan — Jason
+  redistributed load given physical/cabling constraints. Final mapping:
+  `proxmox-ups` = Proxmox + both Synology units; `nas-ups` = TrueNAS +
+  the Arista core switch; `network-ups` = OPNsense + the Lenovo NUT
+  server + UniFi PoE switch + camera switch. This changes the dependency
+  picture from what was first documented:
+  - `network-ups` is now the most structurally critical unit (it powers
+    the NUT server itself and OPNsense — losing it ends monitoring and
+    the gateway simultaneously), not just "runs out of runtime first."
+  - `nas-ups` carries the Arista core switch, so losing it breaks local
+    network switching for everything, not just NAS storage.
+  - Proxmox and both Synology units now share one UPS. Jason is about to
+    triple Proxmox's RAM and add a substantial GPU — today's measured
+    12%/~120W load on `proxmox-ups` should not be treated as a stable
+    planning baseline; re-measure runtime once that hardware lands.
+  - `nas-ups` still has the shortest measured runtime (~22.5 min at
+    33%/~330W), but that figure was recorded under the corrected
+    TrueNAS+Arista load, not the originally planned TrueNAS+Synology
+    load — still valid as a real baseline, just re-attributed.
+  Full power topology table in
+  `docs/UPS-Power-Resilience-Claude-Handover.md` (Section 6) has been
+  updated to match.
 - 2026-08-29: **Milestone 2 fully closed.** Reboot test performed with
   all three UPS units connected: every NUT driver, `nut-server`,
   `nut-monitor`, and `beszel-agent` came back automatically with no

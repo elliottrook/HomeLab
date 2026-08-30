@@ -68,7 +68,13 @@ item-level Definition of Done.
   dumb battery, no NUT interface), UPS #2 (`network-ups`, CyberPower
   OR500LCDRM1U) and UPS #3 (`proxmox-ups`, CyberPower CP1500PFCLCD) plus
   its replacement (`nas-ups`, second CP1500PFCLCD). See the per-unit
-  entries below for USB paths, serials and protected loads.
+  entries below for USB paths, serials and protected loads. **Note:**
+  the equipment assignments in these per-unit entries reflect the
+  original plan at the time each was written — the actual final
+  distribution differs and is corrected in the Section 6 power topology
+  table below (`proxmox-ups` also carries both Synology units, `nas-ups`
+  also carries the Arista switch, `network-ups` also carries the Lenovo
+  NUT server itself). Trust that table over the assignments below.
   - [x] UPS #3 (CyberPower CP1500PFCLCD, dedicated to Proxmox) confirmed
     2026-08-25: physically connected via USB to the Lenovo NUT server,
     visible as `Bus 003 Device 003`, USB ID `0764:0601`. Model identity
@@ -334,26 +340,51 @@ Do not assume the two UPS units are identical. For each UPS identify:
 
 Verify repository information against the physical hardware with Jason. Create a simple **UPS → connected equipment** power topology because shutdown behaviour must reflect actual physical wiring.
 
-### Power topology (recorded 2026-08-29, post-relocation)
+### Power topology (recorded 2026-08-29, post-relocation; equipment mapping corrected same day)
 
 All three NUT-monitored units are `OL` (on line, mains present) with 100%
 battery charge at the time of recording. Load and runtime figures are
 live snapshots from `upsc`, not fixed specs — they'll shift as equipment
 changes, but give a real baseline for Milestone 3's threshold planning.
 
+**The equipment-to-UPS mapping below is the corrected, final distribution
+— it differs from what was originally planned.** Jason redistributed
+load across the three active units to work within physical/cabling
+constraints; do not trust equipment assignments recorded earlier in this
+document (e.g. in the Milestone 2 tracker entries above) over this table.
+
 | UPS | NUT name | Protected equipment | Capacity | Current load | Runtime at current load |
 |---|---|---|---|---:|---:|
-| UPS #1 — APC Back-UPS Pro BN1500M2-CA | *(none — dumb battery, no NUT interface)* | Historically TrueNAS + both Synology units; role now inherited by `nas-ups` below | 1500VA | Not visible to NUT | Not visible to NUT |
-| UPS #2 — CyberPower OR500LCDRM1U | `network-ups` | Arista core switch, OPNsense, UniFi PoE switch | 500VA / 300W nominal | 23% (~69W) | ~2175s (~36 min) |
-| UPS #3 — CyberPower CP1500PFCLCD | `proxmox-ups` | Proxmox (Dell Precision T5810) | 1500VA / 1000W nominal | 12% (~120W) | ~3675s (~61 min) |
-| UPS #1 replacement — CyberPower CP1500PFCLCD | `nas-ups` | TrueNAS + both Synology units | 1500VA / 1000W nominal | 33% (~330W) | ~1350s (~22.5 min) |
+| UPS #1 — APC Back-UPS Pro BN1500M2-CA | *(none — dumb battery, no NUT interface)* | Nothing currently — final disposition (retire/repurpose) still undecided | 1500VA | Not visible to NUT | Not visible to NUT |
+| UPS #2 — CyberPower OR500LCDRM1U | `network-ups` | OPNsense, **the Lenovo NUT server itself**, UniFi PoE switch, camera switch | 500VA / 300W nominal | 23% (~69W) | ~2175s (~36 min) |
+| UPS #3 — CyberPower CP1500PFCLCD | `proxmox-ups` | Proxmox (Dell Precision T5810) **and both Synology units** | 1500VA / 1000W nominal | 12% (~120W) | ~3675s (~61 min) |
+| UPS #1 replacement — CyberPower CP1500PFCLCD | `nas-ups` | TrueNAS **and the Arista core switch** | 1500VA / 1000W nominal | 33% (~330W) | ~1350s (~22.5 min) |
 
-Notable for shutdown planning: despite having the same nominal capacity
-as `proxmox-ups`, `nas-ups` has the **shortest** runtime of the three
-monitored units (~22.5 min) because it's carrying real load from three
-NAS-class devices simultaneously. Any Milestone 3 threshold work should
-treat `nas-ups` as the most time-constrained unit, not `network-ups`
-(smallest UPS, but lightest load).
+This corrected mapping changes the dependency picture significantly from
+the original plan:
+
+- **`network-ups` is now the most structurally critical unit**, not just
+  the one with the least headroom. It powers OPNsense *and the Lenovo
+  running NUT itself* — if it dies, monitoring and any future automated
+  shutdown orchestration end at the same moment as the gateway does.
+  Section 11's "storage before hypervisor" ordering logic doesn't
+  directly apply here; this unit needs to be treated as a hard
+  precondition for the whole coordinated-shutdown system to function at
+  all, not just another tier in the sequence.
+- **`nas-ups` carries the Arista core switch**, so losing it breaks local
+  network switching for everything on the LAN, not just TrueNAS storage
+  availability. It also still has the shortest measured runtime (~22.5
+  min) of the three, which makes it doubly time-constrained.
+- **Proxmox and both Synology units now share one UPS** (`proxmox-ups`).
+  Jason is about to triple Proxmox's RAM and add a substantial GPU —
+  today's measured 12%/~120W load should **not** be treated as a stable
+  planning baseline. Re-measure runtime on this unit once that hardware
+  upgrade lands, before finalizing Milestone 3 thresholds around it.
+- Frigate (Proxmox VM 102) still depends on TrueNAS via NFS for its
+  recordings storage, even though the physical UPS pairing changed —
+  that cross-UPS dependency (`proxmox-ups` compute → `nas-ups` storage)
+  is unaffected by this correction and still needs to be accounted for
+  in shutdown ordering.
 
 The APC BN1500M2-CA's final disposition (retire vs. repurpose as a
 dumb-battery elsewhere) is still undecided — it currently has no
