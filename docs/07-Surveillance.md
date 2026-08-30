@@ -82,6 +82,85 @@ The full step-by-step procedure for replicating this trigger pattern on a new
 camera is in
 [`docs/10-Camera-Onboarding-Runbook.md`](10-Camera-Onboarding-Runbook.md).
 
+## Known issues
+
+### Record-stream segment fragmentation (open, unresolved)
+
+**Status:** Open as of 2026-08-30. Not blocking — recordings are not lost and
+object detection is unaffected — but degrades recording quality/reliability
+and has caused at least one unplayable clip.
+
+**Symptom:** The `front_of_house` record-role ffmpeg process (writes
+10-second `-f segment` MP4s from go2rtc's local main-stream restream, using
+`-c:v copy`) intermittently produces fragmented segments as short as ~2
+seconds instead of the expected ~10, for extended periods (one stretch ran
+nearly 80 minutes continuously). Segment sizes drop correspondingly
+(~850KB-1.3MB fragmented vs. ~3.1-3.6MB for a proper 10s segment). Frigate's
+own storage anomaly detector flagged this directly at a restart:
+
+```
+frigate.storage WARNING : front_of_house has a bandwidth of 25178.17 MB/hr
+which exceeds the expected maximum. This typically indicates an issue with
+the cameras recordings.
+```
+
+~25 GB/hr against the documented normal of ~1.43 GiB/hr — roughly 17x over.
+
+**Impact observed:**
+- One clip (~11:23 local, 2026-08-30) failed to play in the Frigate UI with a
+  client-side decode error (`PIPELINE_ERROR_DECODE` /
+  `VTDecompressionOutputCallback (-12909)` in Safari on macOS), consistent
+  with a malformed/truncated segment.
+- Frigate's own watchdog separately triggered an automatic record-ffmpeg
+  restart at 11:57:27 after 120s with zero new segments — a related but
+  distinct symptom (a brief full stall, not fragmentation).
+- Frigate's own bandwidth estimate (used for storage/retention projections)
+  was thrown off by ~17x during the affected period.
+
+**What's been ruled out:**
+- The detect substream (`Preview_01_sub`) is unaffected — motion and object
+  detection both worked flawlessly throughout, including during fragmentation
+  windows. This isolates the fault to the main/record stream path
+  specifically, not the camera or network being broadly unhealthy.
+- Not inherited container/process state from Claude Code's restarts — the
+  pattern began 46 seconds after the first restart that day but survived a
+  **full stack teardown and rebuild** (`docker compose down` + `up`, not just
+  `systemctl restart frigate-compose.service`) with no change. The
+  correlation with that first restart is more likely coincidental with
+  daytime activity starting than causal.
+- The camera's own encoder settings, queried directly via its HTTP API
+  (`GetEnc`) from the already-authorized Frigate host, look reasonable, not
+  misconfigured: main stream 5120x1552 H.265, 7168 kbps, GOP=2 (2s keyframe
+  interval); substream 1920x576 H.264, 1024 kbps, GOP=4.
+
+**Leading theory (unconfirmed):** ffmpeg's `-f segment -segment_time 10
+-c:v copy` muxer can only cut a new segment at a keyframe boundary. With a
+2-second GOP, a healthy segment should land around 10-12s (waiting for ~5
+keyframes). Segments cutting at ~2s — i.e., at every keyframe instead of
+every fifth — suggests ffmpeg's internal elapsed-time tracking for the
+segment boundary is being reset or confused, plausibly by PTS/timestamp
+irregularities somewhere in the RTSP → go2rtc-local-restream → ffmpeg chain,
+possibly exacerbated during higher-motion daytime periods. The exact trigger
+for the ~10:36 local onset isn't confirmed; daytime motion/bitrate demand is
+a plausible but unproven correlation.
+
+**What would help next:**
+- Verbose/debug ffmpeg stderr for the record-role process specifically —
+  not available through current log access (Frigate's log tabs don't surface
+  per-process ffmpeg stderr at useful detail, and this account has no
+  `docker logs`/`journalctl` access on the Frigate VM).
+- Checking Frigate/go2rtc GitHub issues for `-c:v copy` segment muxing with
+  short-GOP HEVC sources.
+- A longer observation window correlating fragmentation windows against
+  measured network throughput/motion levels, to test the daytime-bitrate
+  theory.
+
+**Not yet tried:** adjusting the camera's main-stream GOP interval or bitrate
+as a deliberate, reversible test. Its current settings appear reasonable on
+their own terms, so this should be treated as an experiment, not an assumed
+fix — and any camera-setting change should go through the camera's own
+admin API/UI with a recorded before/after comparison.
+
 ## Storage and boot ordering
 
 The TrueNAS export is mounted at `/opt/frigate/storage` using NFSv4 with a hard
