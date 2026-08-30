@@ -91,15 +91,15 @@ camera is in
 
 ## Known issues
 
-### Record-stream segment fragmentation (open, unresolved)
+### Record-stream segment fragmentation (resolved 2026-08-30)
 
-**Status:** Open as of 2026-08-30. Not blocking — recordings are not lost and
-object detection is unaffected — but degrades recording quality/reliability
-and has caused at least one unplayable clip. **Confirmed persistent, not
-transient:** checked ~49 minutes after the last restart with zero
-intervention in between — still fragmenting continuously (1,444 segments,
-avg 816KB, zero full gaps — a steady 2-second cadence throughout, not
-occasional or self-recovering). Rules out "will settle on its own."
+**Status:** Resolved. Not a bug in the end — a mismatch between Frigate's
+default `segment_time: 10` and this camera's hardware-capped ~2-second
+keyframe interval. Fixed by setting Frigate's segment length to match the
+camera's actual cadence instead of fighting it. Confirmed: segments are now
+uniform (~718-725KB, tight and consistent, vs. the previous erratic
+716KB-4.2MB range) and the clip that previously failed to decode
+(`VTDecompressionOutputCallback`) now plays cleanly.
 
 **Symptom:** The `front_of_house` record-role ffmpeg process (writes
 10-second `-f segment` MP4s from go2rtc's local main-stream restream, using
@@ -198,12 +198,28 @@ valid options — `2x` (the current, already-live value) is the maximum this
 stream profile supports. This retroactively explains every `SetEnc` API
 failure above: the request wasn't malformed, it was asking for a value
 (`gop: 10`) outside the camera's accepted range for this stream. There is no
-room to raise this setting further, on this camera, via any interface —
-the GOP-interval theory can't be tested or acted on further as a fix. If the
-fragmentation root cause gets revisited, it needs a different angle
-entirely (verbose ffmpeg stderr, or accepting the ~2s segment granularity
-as a firmware limitation and adjusting Frigate's `segment_time` expectation
-downward instead of trying to change the camera).
+room to raise this setting further, on this camera, via any interface — so
+the fix had to come from the Frigate side instead.
+
+**Fix applied (2026-08-30):** overrode the record-role ffmpeg command for
+`front_of_house` via `cameras.front_of_house.ffmpeg.output_args.record` in
+`config.yaml`, changing only `-segment_time 10` to `-segment_time 2` (kept
+every other flag identical to Frigate's default:
+`-f segment -segment_time 2 -segment_format mp4 -reset_timestamps 1
+-strftime 1 -c:v copy -c:a aac`). Backup: `config.yaml.before-segmenttime-*`.
+Rationale: with `-c:v copy`, ffmpeg's segment muxer can only cut at a
+keyframe, and this camera's main stream is hardware-capped at a ~2s keyframe
+interval (see GOP finding above) — asking for a 10s segment meant ffmpeg had
+to reliably wait for and count five consecutive keyframes before cutting,
+which its internal elapsed-time tracking apparently couldn't do reliably
+(the likely source of both the fragmentation and the one corrupted clip).
+Asking for exactly one keyframe's worth of duration removes that multi-
+keyframe counting dependency entirely. Restarted and confirmed: uniform
+~2-second segments (~718-725KB, a tight band vs. the previous erratic
+716KB-4.2MB spread) and the previously-corrupted clip's time range now plays
+back cleanly with no decode error. Tradeoff accepted: more, smaller files on
+disk than originally intended — not expected to matter for a single camera
+at this storage scale (11 TB available, ~26 GB used as of this session).
 
 ## Storage and boot ordering
 
