@@ -95,7 +95,11 @@ camera is in
 
 **Status:** Open as of 2026-08-30. Not blocking — recordings are not lost and
 object detection is unaffected — but degrades recording quality/reliability
-and has caused at least one unplayable clip.
+and has caused at least one unplayable clip. **Confirmed persistent, not
+transient:** checked ~49 minutes after the last restart with zero
+intervention in between — still fragmenting continuously (1,444 segments,
+avg 816KB, zero full gaps — a steady 2-second cadence throughout, not
+occasional or self-recovering). Rules out "will settle on its own."
 
 **Symptom:** The `front_of_house` record-role ffmpeg process (writes
 10-second `-f segment` MP4s from go2rtc's local main-stream restream, using
