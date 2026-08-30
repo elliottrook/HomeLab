@@ -66,17 +66,54 @@ network path and documented privacy boundary before purchase or installation.
 
 ## Milestone 2 — Capacity and architecture checkpoint
 
-- [ ] Measure current Frigate VM CPU/RAM, Coral inference, NFS throughput and
-  daily storage growth during representative operation.
-- [ ] Reconfirm available Proxmox memory after hardware maintenance.
-- [ ] Reconfirm TrueNAS free capacity and estimate growth at the proposed stream
-  settings and retention.
-- [ ] Verify PoE capacity and the replacement-switch configuration.
-- [ ] Decide main/substream resolution, codec, FPS and roles before deployment.
-- [ ] Record the maximum camera count supported by the measured envelope.
+- [x] Measure current Frigate VM CPU/RAM, Coral inference, NFS throughput and
+  daily storage growth during representative operation — measured
+  2026-08-30: Frigate VM 7.7GiB RAM (2.3GiB used, 5.4GiB available), Coral
+  inference steady ~10ms, `front_of_house` NFS dataset 27GB used of 11TB
+  (1%), growth ~4GB/day (27GB over 7 days since earliest retained recording)
+  — negligible at single-camera scale.
+- [x] Reconfirm available Proxmox memory after hardware maintenance —
+  reconfirmed 2026-08-30, same day the Arc Pro B60 GPU physical install
+  completed (see [03-Hardware-Inventory.md](../03-Hardware-Inventory.md)).
+  32GB total host RAM; three QEMU VMs allocated 20GB (Frigate 8GB, Home
+  Assistant 4GB, Ollama 8GB) plus 7 LXCs. Available memory fluctuated
+  7.5–15.7GiB across two closely-spaced reads, tracking Ollama's on-demand
+  model loading now that it's GPU-offloaded rather than a static RAM
+  allocation — a real but not concerning variability, since even the lower
+  observed bound leaves comfortable room for Frigate's current footprint.
+- [x] Reconfirm TrueNAS free capacity and estimate growth at the proposed
+  stream settings and retention — the `Media` pool is 21.8TB total, 6.19TB
+  allocated (28%), 15.6TB free. At the current single-camera growth rate
+  (~4GB/day) this is not a near-term constraint by a wide margin.
+- [ ] Verify PoE capacity and the replacement-switch configuration — not
+  checked this session; needs a UniFi/AP-Switch-side look, out of scope for
+  what could be verified via Frigate/Proxmox/TrueNAS SSH access alone.
+- [x] Decide main/substream resolution, codec, FPS and roles before
+  deployment — already established and validated for `front_of_house`
+  (main 5120×1552 H.265 record+audio, sub 1920×576 H.264 detect); the same
+  pattern is documented as the default starting point for the next camera in
+  [10-Camera-Onboarding-Runbook.md](../10-Camera-Onboarding-Runbook.md),
+  to be confirmed per-camera against that camera's actual stream options.
+- [x] Record the maximum camera count supported by the measured envelope —
+  reasoned estimate, not empirically tested with a second camera: RAM and
+  storage both have large headroom (many cameras' worth at current usage
+  patterns) and are unlikely to be the binding constraint. The Coral Edge
+  TPU is the more likely actual ceiling — it's a single shared chip, and
+  every additional camera adds inference load to the same hardware; its
+  real per-camera throughput isn't known without measuring detector queue
+  depth/skip rate under multi-camera load. **Recommendation:** proceed with
+  one additional camera and re-measure Coral inference timing/skip rate
+  under combined load before assuming a specific total count — don't
+  extrapolate a hard number from single-camera headroom alone.
 
 Completion gate: compute, TPU, network, PoE and storage capacity safely support
-one additional camera with documented headroom.
+one additional camera with documented headroom. **Gate status:** compute,
+storage and TrueNAS capacity confirmed with strong headroom. PoE/switch
+capacity not yet verified. TPU headroom is reasoned as adequate but not
+empirically measured under multi-camera load. Gate not formally closed —
+recommend verifying PoE and doing the TPU measurement above at the point a
+second camera is actually about to be added (Milestone 1 for that camera),
+rather than blocking on it now with no second camera to test against.
 
 ## Milestone 3 — Repeatable camera onboarding
 

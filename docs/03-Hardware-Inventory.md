@@ -17,8 +17,22 @@
   - Current CPU: Intel Xeon E5-1603 v3; purchased E5-2698 v4 pending installation
   - Current memory: 32 GB ECC RDIMM; additional planned RAM remains to be installed and the final total must be confirmed
   - Coral Edge TPU `G650-04527-01` on a PCIe A+E-key carrier, passed through to Frigate VM 102
+  - ASRock Intel Arc Pro B60 24 GB (`8086:e211`, subsystem `1849:6023`)
+    installed behind its onboard PCIe switch; the board-facing link negotiates
+    PCIe 3.0 x8 on this host. GPU function `04:00.0` is isolated in IOMMU group
+    56 and assigned to Ollama VM 105; the unused audio function `05:00.0` is
+    isolated separately in group 57.
+  - The B60 currently exposes a 256 MB physical BAR. The Proxmox `xe` driver
+    attempted to resize it to 32 GB but the platform could not allocate the
+    aperture. Passthrough boots, but guest Vulkan acceleration remains pending.
   - Quadro K620 remains scheduled for removal during the next hardware-maintenance window
-  - Any Intel Arc Pro B60 purchase remains conditional on exact SKU/VRAM, clearance, PSU and power-connector validation
+  - Confirmed live 2026-08-30 (physical install completed same day): `lspci`
+    shows the Battlemage GPU present, and `qm config 105` confirms
+    `hostpci0: 04:00.0,pcie=1,rombar=0` assigned to Ollama VM 105 as
+    documented above. Ollama's host-RAM footprint now fluctuates with active
+    load (observed 7.5–15.7 GiB available across two closely-spaced reads)
+    rather than holding a large static allocation, consistent with GPU
+    offload replacing the earlier CPU-only pilot's memory pressure.
 - TrueNAS SCALE
   - Address: `192.168.20.40` on Servers VLAN 20
   - Media pool baseline: one six-disk 4 TB SAS RAIDZ2 data VDEV
