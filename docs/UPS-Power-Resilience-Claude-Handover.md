@@ -141,7 +141,12 @@ item-level Definition of Done.
     reusing the existing `upsmon` account; verified via `ss` showing three
     established loopback pairs to `upsd` (six connections). All three UPS
     units are now NUT clients: `proxmox-ups`, `nas-ups`, `network-ups`.
-- [ ] Document the physical power topology and safe runtime assumptions.
+- [x] Document the physical power topology and safe runtime assumptions.
+  Recorded 2026-08-29 in Section 6 below: all three NUT-monitored units
+  are live, on-line, and carrying real load. `nas-ups` has the shortest
+  runtime (~22.5 min) despite matching `proxmox-ups`'s nominal capacity,
+  because it's serving three NAS-class devices at once — the key fact
+  Milestone 3's shutdown-threshold work needs to account for.
 - [x] Install NUT directly on the utility host and configure least-privilege users.
   NUT 2.8.1-5 installed. A dedicated `upsmon` account (`primary` role,
   randomly generated password) was added to `upsd.users` 2026-08-28 and
@@ -323,6 +328,32 @@ Do not assume the two UPS units are identical. For each UPS identify:
 - battery condition/status.
 
 Verify repository information against the physical hardware with Jason. Create a simple **UPS → connected equipment** power topology because shutdown behaviour must reflect actual physical wiring.
+
+### Power topology (recorded 2026-08-29, post-relocation)
+
+All three NUT-monitored units are `OL` (on line, mains present) with 100%
+battery charge at the time of recording. Load and runtime figures are
+live snapshots from `upsc`, not fixed specs — they'll shift as equipment
+changes, but give a real baseline for Milestone 3's threshold planning.
+
+| UPS | NUT name | Protected equipment | Capacity | Current load | Runtime at current load |
+|---|---|---|---|---:|---:|
+| UPS #1 — APC Back-UPS Pro BN1500M2-CA | *(none — dumb battery, no NUT interface)* | Historically TrueNAS + both Synology units; role now inherited by `nas-ups` below | 1500VA | Not visible to NUT | Not visible to NUT |
+| UPS #2 — CyberPower OR500LCDRM1U | `network-ups` | Arista core switch, OPNsense, UniFi PoE switch | 500VA / 300W nominal | 23% (~69W) | ~2175s (~36 min) |
+| UPS #3 — CyberPower CP1500PFCLCD | `proxmox-ups` | Proxmox (Dell Precision T5810) | 1500VA / 1000W nominal | 12% (~120W) | ~3675s (~61 min) |
+| UPS #1 replacement — CyberPower CP1500PFCLCD | `nas-ups` | TrueNAS + both Synology units | 1500VA / 1000W nominal | 33% (~330W) | ~1350s (~22.5 min) |
+
+Notable for shutdown planning: despite having the same nominal capacity
+as `proxmox-ups`, `nas-ups` has the **shortest** runtime of the three
+monitored units (~22.5 min) because it's carrying real load from three
+NAS-class devices simultaneously. Any Milestone 3 threshold work should
+treat `nas-ups` as the most time-constrained unit, not `network-ups`
+(smallest UPS, but lightest load).
+
+The APC BN1500M2-CA's final disposition (retire vs. repurpose as a
+dumb-battery elsewhere) is still undecided — it currently has no
+protected equipment assigned to it and is not part of the live topology
+above.
 
 ## 7. Physical Connection
 
@@ -509,7 +540,7 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 - [x] Stable hostname/IP/network placement configured.
 - [x] Lenovo documented in HomeLab inventory.
 - [x] Both UPS units positively identified.
-- [ ] UPS-to-device power topology documented.
+- [x] UPS-to-device power topology documented.
 - [ ] UPS management connections attached to Lenovo.
 - [ ] Both UPS devices reliably detected after reboot.
 - [ ] NUT installed on bare metal.
