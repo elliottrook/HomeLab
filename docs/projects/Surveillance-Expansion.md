@@ -151,9 +151,23 @@ without the physical unit.
   stream settings and retention — the `Media` pool is 21.8TB total, 6.19TB
   allocated (28%), 15.6TB free. At the current single-camera growth rate
   (~4GB/day) this is not a near-term constraint by a wide margin.
-- [ ] Verify PoE capacity and the replacement-switch configuration — not
-  checked this session; needs a UniFi/AP-Switch-side look, out of scope for
-  what could be verified via Frigate/Proxmox/TrueNAS SSH access alone.
+- [x] Verify PoE capacity and the replacement-switch configuration —
+  camera-only switch confirmed as a **TP-Link TL-SG1016PE V2** (16 total
+  ports, 8 PoE+), the same unit rejected as an AP-switch replacement during
+  the 2026-08-23 storm incident (unmanageable — no working web UI or Easy
+  Smart discovery, survived a factory reset attempt) but well-suited to
+  this flat, single-VLAN, camera-only role where VLAN management isn't
+  needed. Rated total PoE budget: 150W, up to 30W/port. `front_of_house`
+  (Reolink Duo 2V): rated <12W. New E1 Outdoor SE PoE: rated <12W base,
+  +13.2W when its 4 spotlights activate, plus an unspecified (likely
+  modest) siren draw — worst case approaches but should stay under the
+  30W/port cap. Combined worst-case draw for both cameras (~40W) leaves
+  ~110W of the 150W budget spare — large headroom, not a close call, with
+  room for several more typical cameras beyond just these two.
+  **Caveat: this is a spec-sheet calculation, not measured live draw** —
+  the switch's lack of a working management interface means actual
+  per-port power draw can't be confirmed in software; there's no
+  telemetry path to verify these numbers against reality.
 - [x] Decide main/substream resolution, codec, FPS and roles before
   deployment — already established and validated for `front_of_house`
   (main 5120×1552 H.265 record+audio, sub 1920×576 H.264 detect); the same
@@ -174,12 +188,13 @@ without the physical unit.
 
 Completion gate: compute, TPU, network, PoE and storage capacity safely support
 one additional camera with documented headroom. **Gate status:** compute,
-storage and TrueNAS capacity confirmed with strong headroom. PoE/switch
-capacity not yet verified. TPU headroom is reasoned as adequate but not
-empirically measured under multi-camera load. Gate not formally closed —
-recommend verifying PoE and doing the TPU measurement above at the point a
-second camera is actually about to be added (Milestone 1 for that camera),
-rather than blocking on it now with no second camera to test against.
+storage, TrueNAS and PoE capacity all confirmed with strong headroom (PoE
+via spec-sheet calculation, not live telemetry — see caveat above). Only
+TPU headroom remains unverified — reasoned as adequate but not empirically
+measured under multi-camera load. Gate not formally closed for that one
+remaining item — recommend measuring actual Coral inference timing/skip
+rate once a second camera is physically added and running, rather than
+guessing a number with nothing to measure against yet.
 
 ## Milestone 3 — Repeatable camera onboarding
 
