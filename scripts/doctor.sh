@@ -632,7 +632,7 @@ check_nut() {
     local server_state=""
     local monitor_state=""
     local ups_lines=""
-    local expected_ups=(proxmox-ups nas-ups)
+    local expected_ups=(proxmox-ups nas-ups network-ups)
 
     if ! nut_output="$(
         ssh -o BatchMode=yes -o ConnectTimeout=5 nut /bin/bash -s <<'REMOTE'
@@ -691,7 +691,7 @@ REMOTE
     elif (( ${#warnings[@]} > 0 )); then
         warn "NUT degraded: ${warnings[*]}"
     else
-        pass "NUT server, monitor and both UPS units healthy (${seen[*]})"
+        pass "NUT server, monitor and all UPS units healthy (${seen[*]})"
     fi
 }
 

@@ -25,6 +25,7 @@
 - Extended HomeLab Doctor (`scripts/doctor.sh`) with a `check_nut` health check covering NUT service state and both UPS units' status/battery charge.
 - Added NUT/UPS server config backup coverage: a manual pull lands `ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf` and SSH hardening config in the existing `~/lab/private-backups` pipeline (Backup Synology pull + encrypted IDrive e2), with a `check_backup_age` Doctor check and documented bare-metal recovery procedure.
 - Added the NUT server to Beszel for host-level monitoring (CPU, memory, disk, temperature); required a new OPNsense rule permitting Management VLAN 50 to reach the Beszel hub on Servers VLAN 20.
+- Relocated the NUT server to its permanent placement and identified/configured UPS #2 (CyberPower OR500LCDRM1U, NUT device `network-ups`) as the third NUT client, now carrying real production load (Arista switch, OPNsense, UniFi PoE switch); extended `upsmon` monitoring and HomeLab Doctor's `check_nut` to cover all three units.
 - Added a milestone-driven TrueNAS DIY SAS expansion project for a backplane-free, independently powered enclosure using the existing controller's two free disk endpoints.
 
 ### Fixed

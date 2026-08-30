@@ -66,7 +66,14 @@ Current state:
   alone became ambiguous once two identical-VID:PID CyberPower units were
   on the same bus. Final disposition of the old APC BN1500M2-CA is still
   to be decided.
-- UPS #2 (CyberPower OR500LCDRM1U) — powers Arista switch, OPNsense, Ubiquiti PoE switch
+- UPS #2 (CyberPower OR500LCDRM1U) — powers Arista switch, OPNsense, Ubiquiti PoE switch.
+  Identified and configured 2026-08-29 after the Lenovo's permanent
+  relocation: NUT device `network-ups`, pinned by serial `GA4KS2000999`
+  (a distinct format from the CP1500PFCLCD units' `CXXR...` serials).
+  Confirmed via `upsc`: `device.model: OR500LCDRM1Ua`, `ups.status: OL`,
+  battery 100%. Unlike the other two, this one already shows real load
+  (`ups.load: 23`) — actual network equipment is live on it, not a bench
+  test.
 - UPS #3 (CyberPower CP1500PFCLCD, pure sine wave) — dedicated to Proxmox.
   Re-confirmed 2026-08-25 via live NUT/`usbhid-ups` query (authoritative —
   read from the UPS's own HID Power Device data): `device.model` /
@@ -102,11 +109,17 @@ Current state:
   (host-level metrics only, not UPS-specific) — required a new OPNsense
   rule permitting Management VLAN 50 → Servers VLAN 20 port 8090, added
   by Jason since firewall changes are outside this project's scope.
-  Remaining before Milestone 2 closes: UPS #2 (CyberPower OR500LCDRM1U,
-  already rack-mounted) still needs connecting/identifying — blocked on
-  whether a USB cable can reach it from the Lenovo's current desk
-  location, deferred for now. Full details in
-  `docs/UPS-Power-Resilience-Claude-Handover.md`.
+  Full details in `docs/UPS-Power-Resilience-Claude-Handover.md`.
+- 2026-08-29: Lenovo relocated to its permanent placement with all three
+  UPS units now within USB reach. UPS #2 (`network-ups`) identified and
+  configured as a NUT client (see above) and added to `upsmon`
+  monitoring (same account, now three established `upsd` connection
+  pairs). All three physical units are now accounted for: `proxmox-ups`,
+  `nas-ups`, `network-ups` as NUT clients, and the APC BN1500M2-CA as a
+  documented dumb battery. Remaining before Milestone 2 fully closes:
+  a reboot test with all three units connected hasn't been done yet, and
+  the physical power topology/safe-runtime-assumptions writeup is still
+  outstanding.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

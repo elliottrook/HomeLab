@@ -63,7 +63,12 @@ item-level Definition of Done.
 
 ### Milestone 2 — UPS discovery and NUT server
 
-- [ ] Identify both UPS models, USB/device paths, capabilities and protected loads.
+- [x] Identify both UPS models, USB/device paths, capabilities and protected loads.
+  All three physical units are now identified: UPS #1 (APC BN1500M2-CA,
+  dumb battery, no NUT interface), UPS #2 (`network-ups`, CyberPower
+  OR500LCDRM1U) and UPS #3 (`proxmox-ups`, CyberPower CP1500PFCLCD) plus
+  its replacement (`nas-ups`, second CP1500PFCLCD). See the per-unit
+  entries below for USB paths, serials and protected loads.
   - [x] UPS #3 (CyberPower CP1500PFCLCD, dedicated to Proxmox) confirmed
     2026-08-25: physically connected via USB to the Lenovo NUT server,
     visible as `Bus 003 Device 003`, USB ID `0764:0601`. Model identity
@@ -121,9 +126,21 @@ item-level Definition of Done.
     `ups.status: OL CHRG`, `battery.charge: 98`. Final disposition of the
     old APC BN1500M2-CA (retire, repurpose as a dumb-battery elsewhere,
     etc.) is still to be decided.
-  - [ ] UPS #2 (CyberPower OR500LCDRM1U) remains to be connected/identified
-    (already rack-mounted; Lenovo is still at Jason's desk, so a USB run
-    to the rack may not be physically possible until relocation).
+  - [x] UPS #2 (CyberPower OR500LCDRM1U) identified and configured
+    2026-08-29, after the Lenovo's permanent relocation put all three
+    units within USB reach. Pinned by serial (`GA4KS2000999`, a distinct
+    format from the two CP1500PFCLCD units' `CXXR...` serials, confirming
+    it's a different physical unit/model as expected) as NUT device
+    `network-ups`. Confirmed via `upsc network-ups@localhost`:
+    `device.model: OR500LCDRM1Ua`, `ups.status: OL`, `battery.charge: 100`,
+    `ups.realpower.nominal: 300`. Unlike the other two (still `ups.load:
+    0`, nothing plugged in), this one already shows **`ups.load: 23`** —
+    real equipment (Arista switch, OPNsense, UniFi PoE switch) is already
+    drawing from it, so this is now live production load, not a bench
+    test. `upsmon.conf` extended with a `MONITOR` line for `network-ups`
+    reusing the existing `upsmon` account; verified via `ss` showing three
+    established loopback pairs to `upsd` (six connections). All three UPS
+    units are now NUT clients: `proxmox-ups`, `nas-ups`, `network-ups`.
 - [ ] Document the physical power topology and safe runtime assumptions.
 - [x] Install NUT directly on the utility host and configure least-privilege users.
   NUT 2.8.1-5 installed. A dedicated `upsmon` account (`primary` role,
@@ -140,6 +157,10 @@ item-level Definition of Done.
   deliberately deferred to Milestone 3, since real shutdown triggers and
   ordering haven't been decided.
 - [ ] Prove both UPS devices are detected consistently after reboot.
+  All three units are live-detected right now (post-relocation), but a
+  reboot test with all three physically connected hasn't been done yet —
+  worth doing once the installation is otherwise settled, since it's the
+  real test of the USB-serial-pinning approach surviving a fresh boot.
 
 ### Milestone 3 — Coordinated shutdown
 
@@ -487,7 +508,7 @@ At completion create a document titled **UPS & Power Resilience — Implementati
 - [x] Bare-metal Linux installed and updated.
 - [x] Stable hostname/IP/network placement configured.
 - [x] Lenovo documented in HomeLab inventory.
-- [ ] Both UPS units positively identified.
+- [x] Both UPS units positively identified.
 - [ ] UPS-to-device power topology documented.
 - [ ] UPS management connections attached to Lenovo.
 - [ ] Both UPS devices reliably detected after reboot.
