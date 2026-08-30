@@ -6,6 +6,7 @@ SSH shortcuts:
 - ssh opnsense
 - ssh truenas
 - ssh frigate
+- ssh nut
 
 ## Authorization
 
@@ -43,6 +44,27 @@ Dashboard SSH targets:
 | Frigate SSH | `ssh://jelliott@192.168.20.10` |
 
 The client device must have an application registered to handle `ssh://` links. These links do not contain passwords or private keys.
+
+## UPS / power monitoring
+
+Quick reference for checking UPS status without opening a browser:
+
+```sh
+ssh nut "upsc -l"                              # list all three UPS units
+ssh nut "upsc proxmox-ups@localhost"           # full status for one unit
+ssh nut "upsc nas-ups@localhost ups.status"    # single field
+ssh nut "upsc network-ups@localhost ups.status"
+```
+
+`ups.status` of `OL` means on mains and healthy; `OB` means on battery;
+`LB` means the unit has crossed its configured low-battery threshold
+(`nas-ups`=50%, `proxmox-ups`=80%, `network-ups`=25% — not the hardware
+default). HomeLab Doctor's `check_nut` and `check_backup_age "NUT"`
+cover the same ground automatically, and Beszel shows the Lenovo's own
+host-level metrics (not UPS-specific data) in its dashboard.
+
+Full architecture, shutdown behavior and recovery notes:
+[UPS-Power-Resilience-Claude-Handover.md](UPS-Power-Resilience-Claude-Handover.md).
 
 ## Activity log — 2026-08-22
 

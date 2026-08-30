@@ -36,3 +36,10 @@
   - Intel Core i5-3470T, 7.6 GB RAM, single 119.2 GB disk (LVM)
   - Debian GNU/Linux 13 (trixie), kernel `6.12.101+deb13-amd64`
   - Onboard NIC: Intel 82579LM Gigabit, single interface `eno1`, MAC `00:23:24:55:b1:1a`
+- UPS units (managed by the Lenovo NUT server above; see
+  [UPS-Power-Resilience-Claude-Handover.md](UPS-Power-Resilience-Claude-Handover.md)
+  for full identification method and telemetry)
+  - CyberPower CP1500PFCLCD (`proxmox-ups`, serial `CXXRO7009593`) — Proxmox + both Synology units
+  - CyberPower CP1500PFCLCD (`nas-ups`, serial `CXXRP7016137`) — TrueNAS + Arista core switch
+  - CyberPower OR500LCDRM1U (`network-ups`, serial `GA4KS2000999`) — OPNsense, the Lenovo NUT server itself, UniFi PoE switch, camera switch
+  - APC Back-UPS Pro BN1500M2-CA — dumb battery only (no NUT/monitoring interface exists on this unit); no equipment currently assigned; final disposition undecided

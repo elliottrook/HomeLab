@@ -495,7 +495,17 @@ item-level Definition of Done.
   re-verified via `upsc <name>@localhost ups.serial` reporting their own
   correct serial.
 - [ ] Perform controlled failure, shutdown and recovery tests.
-- [ ] Update repository inventory, architecture, operations, backups and evidence.
+- [x] Update repository inventory, architecture, operations, backups and evidence.
+  Added a "UPS and power-resilience architecture" section plus two
+  accepted-risk rows to [01-Architecture.md](01-Architecture.md); a
+  "UPS / power monitoring" quick-reference section and `ssh nut` shortcut
+  to [04-Operations.md](04-Operations.md); the new narrow OPNsense rules
+  and corrected equipment mapping to
+  [Current-Network-Baseline.md](Current-Network-Baseline.md); and all
+  four physical UPS units to
+  [03-Hardware-Inventory.md](03-Hardware-Inventory.md). Backup coverage
+  was already documented in [05-Backups.md](05-Backups.md) earlier in
+  Milestone 4.
 
 ### Milestone 5 — Hand-back
 

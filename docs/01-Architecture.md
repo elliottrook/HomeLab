@@ -74,6 +74,41 @@ Arista core
 | Tailscale can route authorized users to Trusted and Management networks | Access remains identity-controlled in Tailscale and source-restricted by OPNsense. No Tailscale Funnel or public service exposure is enabled. |
 | Internal services use a mixture of private, self-signed and publicly issued certificates | Expiry is monitored for operationally important TLS services. Internal certificate trust warnings remain accepted where no public trust is required. |
 | IPv6 segmentation has not received the same production validation as IPv4 | The current security design and operational tests are based primarily on IPv4. Wider IPv6 deployment remains deferred until equivalent policy and validation are planned. |
+| OPNsense, Arista and the UniFi PoE/camera switches have no automated software shutdown on UPS low battery | Network switches are power-loss-tolerant with no filesystem to corrupt; OPNsense's shutdown was deliberately left out of this milestone's scope rather than expanded mid-project. They simply lose power abruptly once their UPS is exhausted. |
+| Proxmox, TrueNAS and the Lenovo NUT server likely will not auto-restart when mains returns after a UPS-triggered shutdown | No UPS is configured to cut its own output power, so these hosts perform a normal OS-issued soft shutdown while still receiving power — most BIOS "AC Power Recovery" settings only respond to an actual DC power loss/return, not this scenario. Manual (or IPMI/remote) power-on is the current expectation; untested against each host's actual BIOS behavior. |
+
+## UPS and power-resilience architecture
+
+The Lenovo ThinkCentre M92p (`nut-server`, `192.168.50.25`, Management
+VLAN 50, direct Arista Et31 connection) runs Network UPS Tools (NUT)
+2.8.1-5 on bare metal as the central power-monitoring/shutdown-
+orchestration host for three UPS units:
+
+```text
+CyberPower CP1500PFCLCD (proxmox-ups) -- Proxmox + both Synology units
+CyberPower CP1500PFCLCD (nas-ups)     -- TrueNAS + Arista core switch
+CyberPower OR500LCDRM1U (network-ups) -- OPNsense, nut-server itself,
+                                          UniFi PoE switch, camera switch
+APC Back-UPS Pro BN1500M2-CA          -- dumb battery, no NUT interface,
+                                          no equipment currently assigned
+```
+
+Equipment is distributed across UPS units differently than a naive
+per-service mapping would suggest, driven by physical/cabling
+constraints. Proxmox and TrueNAS are independent NUT network clients
+(`secondary` role) of their respective UPS, each handling their own
+shutdown: Proxmox runs a custom script that stops Frigate (its NFS
+dependency on TrueNAS) before other guests, then triggers shutdown on
+both Synology units over SSH, then powers off itself; TrueNAS uses its
+native `ups` client service for a plain graceful shutdown. Each UPS's
+low-battery threshold is overridden (`nas-ups`=50%, `proxmox-ups`=80%,
+`network-ups`=25%) rather than using the ~10% hardware default —
+`proxmox-ups`'s threshold is set early specifically because its
+Synology-shutdown step depends on Arista (on `nas-ups`) still being
+powered, not because of its own battery runway. `nut-server`'s own local
+`upsmon` only monitors `network-ups` (its actual power source), so it
+doesn't shut itself down over a UPS it isn't even connected to. Full
+design and validation detail: `docs/UPS-Power-Resilience-Claude-Handover.md`.
 
 ## Local AI Lab architecture
 
