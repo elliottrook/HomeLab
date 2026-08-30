@@ -186,14 +186,24 @@ across four structurally different, valid JSON payloads (with/without the
 redundant `size` field, with/without `action`). This looks like the
 camera's firmware doesn't support this specific write via the public CGI
 API — Reolink's official app may use a different, undocumented protocol.
-Not pursued further to avoid blind guessing against an unfamiliar write API.
 The camera has no other reachable admin path from any device except Frigate
-(VLAN 60 isolation), and there's no separate app/account set up for it
-beyond the credentials already in Frigate's config. **Open follow-up:** if
-this gets revisited, worth checking Reolink's official API docs (if
-available for this model) or trying their mobile app with a temporary,
-deliberate firewall exception for the express purpose of confirming the
-GOP setting can be changed at all outside Frigate/CLI.
+(VLAN 60 isolation), so confirming this needed a temporary, deliberate
+firewall exception (Trusted VLAN → camera, port 80, single host, removed
+immediately after use) to reach the camera's native local web UI directly.
+
+**GOP experiment closed, conclusively — not a config gap, a hardware/firmware
+ceiling (2026-08-30):** the camera's own UI confirms `I-frame Interval` for
+the main/record stream ("High Clear," 5120×1552) only offers `1x` or `2x` as
+valid options — `2x` (the current, already-live value) is the maximum this
+stream profile supports. This retroactively explains every `SetEnc` API
+failure above: the request wasn't malformed, it was asking for a value
+(`gop: 10`) outside the camera's accepted range for this stream. There is no
+room to raise this setting further, on this camera, via any interface —
+the GOP-interval theory can't be tested or acted on further as a fix. If the
+fragmentation root cause gets revisited, it needs a different angle
+entirely (verbose ffmpeg stderr, or accepting the ~2s segment granularity
+as a firmware limitation and adjusting Frigate's `segment_time` expectation
+downward instead of trying to change the camera).
 
 ## Storage and boot ordering
 
