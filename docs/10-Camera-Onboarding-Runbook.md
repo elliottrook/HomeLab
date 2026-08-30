@@ -87,6 +87,19 @@ resolution first).
 
 ### 3. Design zones and the object list
 
+**PTZ cameras need a different approach than this section describes** — it
+was written for `front_of_house`, a fixed camera. Per Frigate's own
+autotracking documentation: a full-frame zone in `required_zones` is
+explicitly discouraged, since the camera keeps tracking an object even
+after it exits the zone it started in (the frame itself moves). Also add a
+motion mask over any on-screen timestamp/logo overlay specifically for PTZ
+cameras — a moving camera's scene-change calculations are more sensitive
+to a static overlay than a fixed camera's are. Confirm ONVIF PTZ support
+(`RelativePanTiltTranslationSpace`/`TranslationSpaceFov`,
+`PTZRelative`/`PTZRelativePanTilt`/`PTZRelativeZoom`) before assuming
+autotracking will work at all — not every camera that claims PTZ actually
+implements the specific ONVIF commands Frigate needs.
+
 - Ask the human to confirm the object classes worth tracking for this camera
   (start from `[person, car]` as the established baseline; only add more if the
   human asks).

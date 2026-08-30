@@ -52,17 +52,81 @@ Follow it for every camera covered by Milestone 3 below.
 
 ## Milestone 1 — Requirements and site plan
 
-- [ ] List intended camera locations, coverage goals and privacy exclusions.
-- [ ] Define required field of view, night performance, audio and weather rating
-  for each location.
-- [ ] Decide whether each location needs continuous recording, motion recording
-  or live view only.
-- [ ] Record cabling, PoE budget, switch port and physical mounting requirements.
-- [ ] Select the next single camera and verify RTSP/ONVIF/Frigate compatibility.
-- [ ] Record household privacy, notification and retention decisions.
+Camera #2: rear-of-house PTZ, planned 2026-08-30, not yet purchased.
+
+- [x] List intended camera locations, coverage goals and privacy exclusions —
+  mounted at the rear of the property, back of a 20-foot-wide garden.
+  Coverage goal: back yard and the east side of the house (no ground-floor
+  access exists on the west side, so front + rear cameras together cover
+  ~80% of the house's ground-floor perimeter over time — see PTZ coverage
+  caveat below). No public road or street is visible from this position —
+  a materially cleaner privacy posture than `front_of_house`, which had to
+  accept public-street visibility as a tradeoff. No privacy exclusions
+  needed within the covered area.
+- [x] Define required field of view, night performance, audio and weather
+  rating for each location — model selected:
+  [Reolink E1 Outdoor SE PoE](https://www.amazon.ca/dp/B0CYGC7SCM), 4K,
+  355° pan / 50° tilt PTZ with auto-tracking, color night vision, two-way
+  talk, PoE powered. Weather/IP rating not yet confirmed from full spec
+  sheet — flagged as a gap, not yet a blocker.
+- [x] Decide whether each location needs continuous recording, motion
+  recording or live view only — motion-triggered recording, not continuous.
+  Rationale: no road/traffic in view and the purpose (people, animals) is
+  discrete-event-focused, unlike `front_of_house`'s continuous-mode
+  baseline which was justified by driveway/street activity.
+- [x] Record cabling, PoE budget, switch port and physical mounting
+  requirements — needs new PoE cable pulled to the rear garden position
+  (not yet run). This will be the **first real use of the TP-Link 8-port
+  PoE switch reserved for camera-only traffic** behind Arista Et34 (VLAN
+  60), which has sat validated-in-principle but untested with an actual
+  camera since the AP Switch replacement work
+  ([Current-Network-Baseline.md](../Current-Network-Baseline.md)). Run
+  length, weatherproof junction, and whether a PoE extender is needed are
+  still open — physical planning, not yet done.
+- [~] Select the next single camera and verify RTSP/ONVIF/Frigate
+  compatibility — model selected (above); Frigate's own Reolink-specific
+  documentation flags two real considerations to expect, not assume away:
+  (1) 6MP+ Reolink cameras using RTSP with H.265 are documented as needing
+  **ffmpeg 8.0** for reliable support — the Frigate VM currently runs
+  **ffmpeg 7.0**. A documented fallback exists (http-flv instead of RTSP),
+  so likely not a dealbreaker, but test the actual stream once purchased
+  rather than assuming it behaves like `front_of_house`. (2) PTZ
+  auto-tracking requires ONVIF `RelativePanTiltTranslationSpace` with
+  `TranslationSpaceFov`, plus `PTZRelative`/`PTZRelativePanTilt`/
+  `PTZRelativeZoom` support — Reolink is on Frigate's list of brands
+  reported working, but this specific model isn't individually confirmed;
+  needs verification once in hand, before assuming autotracking will work
+  as planned. Full compatibility verification is therefore **pending
+  physical purchase and testing**, not complete.
+- [x] Record household privacy, notification and retention decisions —
+  motion-only retention (see above); no public-facing view, so no
+  street-passerby privacy tradeoff to make here (unlike `front_of_house`).
+  `face_recognition`/`lpr` are global Frigate settings already enabled
+  from the front-camera decision — they'll apply here automatically once
+  the camera's added, with a cleaner privacy footprint than the front
+  camera since nothing public is in view. No new consent/retention
+  decision needed unless this changes later.
+
+**PTZ coverage model — clarified during planning:** a PTZ camera does not
+see everywhere in its range simultaneously the way `front_of_house`'s fixed
+panoramic view does. Decided operating mode: **default resting position at
+a wide garden view**, actively swinging via autotracking to follow detected
+motion elsewhere in range. This means "covers the yard and east side" is
+true across time / across separate events, not as one continuous combined
+view — worth keeping in mind if reviewing footage later and expecting
+front-camera-style simultaneous full-frame coverage.
 
 Completion gate: the next camera has a justified purpose, supported model,
 network path and documented privacy boundary before purchase or installation.
+**Gate status: purpose, model choice, recording mode and privacy boundary
+are documented and settled. Not yet fully closed** — cabling/switch-port
+physical planning and RTSP/ONVIF/autotracking compatibility both still need
+the camera in hand to finish. Reasonable to proceed to purchase with this
+plan; treat the compatibility verification as Milestone 3's first onboarding
+step (via
+[10-Camera-Onboarding-Runbook.md](../10-Camera-Onboarding-Runbook.md))
+rather than a pre-purchase blocker, since it genuinely can't be confirmed
+without the physical unit.
 
 ## Milestone 2 — Capacity and architecture checkpoint
 
