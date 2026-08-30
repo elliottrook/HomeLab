@@ -160,17 +160,40 @@ a plausible but unproven correlation.
   not available through current log access (Frigate's log tabs don't surface
   per-process ffmpeg stderr at useful detail, and this account has no
   `docker logs`/`journalctl` access on the Frigate VM).
-- Checking Frigate/go2rtc GitHub issues for `-c:v copy` segment muxing with
-  short-GOP HEVC sources.
 - A longer observation window correlating fragmentation windows against
   measured network throughput/motion levels, to test the daytime-bitrate
   theory.
 
-**Not yet tried:** adjusting the camera's main-stream GOP interval or bitrate
-as a deliberate, reversible test. Its current settings appear reasonable on
-their own terms, so this should be treated as an experiment, not an assumed
-fix — and any camera-setting change should go through the camera's own
-admin API/UI with a recorded before/after comparison.
+**GitHub research (2026-08-30):** checked ~10 Frigate/go2rtc issues (segment
+cache warnings, GOP/keyframe problems, HEVC issues), including one
+specifically about Reolink Duo cameras (`blakeblackshear/frigate#8128`) —
+same camera family as `front_of_house`. No exact match for this symptom
+(segments cutting at every keyframe instead of every fifth), but that thread
+shows other Reolink Duo owners tuning I-frame interval specifically for
+Frigate reliability, and general friction with this camera family's
+H.265/H.264 stream handling — corroborating, not conclusive.
+
+**GOP-interval experiment attempted, blocked (2026-08-30):** tried raising
+the main stream's GOP from 2 to 10 via the camera's own `SetEnc` CGI API
+(`http://192.168.60.10/cgi-bin/api.cgi`), reachable from the already-
+authorized Frigate host using the same admin credentials embedded in
+Frigate's config. `GetEnc`/`Login` both worked correctly (confirmed via a
+deliberate auth-failure test — using a cookie instead of the query-string
+token correctly produced a *different* "please login first" error,
+confirming the query-string token method truly authenticates). `SetEnc`
+itself was rejected with a generic `err get data from json` (rspCode -56)
+across four structurally different, valid JSON payloads (with/without the
+redundant `size` field, with/without `action`). This looks like the
+camera's firmware doesn't support this specific write via the public CGI
+API — Reolink's official app may use a different, undocumented protocol.
+Not pursued further to avoid blind guessing against an unfamiliar write API.
+The camera has no other reachable admin path from any device except Frigate
+(VLAN 60 isolation), and there's no separate app/account set up for it
+beyond the credentials already in Frigate's config. **Open follow-up:** if
+this gets revisited, worth checking Reolink's official API docs (if
+available for this model) or trying their mobile app with a temporary,
+deliberate firewall exception for the express purpose of confirming the
+GOP setting can be changed at all outside Frigate/CLI.
 
 ## Storage and boot ordering
 
