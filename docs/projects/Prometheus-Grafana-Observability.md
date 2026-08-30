@@ -1,6 +1,6 @@
 # Prometheus and Grafana Observability Project
 
-> Status: Active — Milestone 1 requirements defined
+> Status: Active — Milestone 2 architecture design
 >
 > Project owner: Jason
 >
@@ -141,16 +141,76 @@ data set and a storage/maintenance budget.
 
 ## Milestone 2 — Architecture and security design
 
-- [ ] Select the host/guest, VLAN, address, CPU, RAM and storage allocation after
+- [x] Select the host/guest, VLAN, address, CPU, RAM and storage allocation after
   reviewing current Proxmox capacity.
-- [ ] Decide whether Prometheus and Grafana share one guest or use separate
+- [x] Decide whether Prometheus and Grafana share one guest or use separate
   components; justify the maintenance trade-off.
-- [ ] Select supported exporters/integrations for each target.
+- [x] Select supported exporters/integrations for each target.
 - [ ] Create read-only, least-privilege identities or tokens where required.
 - [ ] Design firewall rules from the collector to explicit targets/ports.
 - [ ] Keep management interfaces private to approved LAN/Tailscale users.
 - [ ] Define backup, upgrade and rollback procedures before deployment.
 - [ ] Record secrets only in protected runtime configuration.
+
+### Placement decision
+
+The pilot will use a dedicated unprivileged Debian LXC rather than adding the
+stack to the existing multi-service Docker guest. Prometheus, Grafana and the
+small protocol-conversion exporters will share the one guest. At this scale,
+separate guests add backup, patching and firewall overhead without providing a
+meaningful failure-isolation benefit; Prometheus and Grafana will still run as
+independent services with explicit resource limits.
+
+| Setting | Decision |
+|---|---|
+| Proxmox guest | LXC 109, hostname `observability` |
+| Network | Servers VLAN 20 on `vmbr0`, tagged VLAN 20 |
+| Address | Provisionally `192.168.20.31/24`, gateway `192.168.20.1`; verify against OPNsense before creation |
+| Resources | 2 vCPU, 4 GB RAM, 512 MB swap, 32 GB thin-provisioned root disk |
+| Boot/security | Start at boot, unprivileged container, Proxmox firewall enabled |
+| Service layout | Native systemd services; no nested Docker requirement |
+| Prometheus budget | 90 days and 20 GB maximum local TSDB usage |
+
+The 2026-08-30 read-only capacity review found 40 logical CPUs, approximately
+14 GB currently available RAM, 7.9 GB free swap, 70 GB free on the Proxmox root
+filesystem and approximately 731 GB free in `local-lvm`. The proposed guest fits
+without increasing the Milestone 1 budget. VM 105 (`ollama`) was stopped during
+the review; its 14 GB allocation means aggregate memory must be reassessed
+before sustained simultaneous local-AI and observability load.
+
+### Integration selection
+
+| Source | Selected path | Security and maintenance boundary |
+|---|---|---|
+| Proxmox | `prometheus-pve-exporter` on LXC 109 querying the Proxmox HTTPS API | Dedicated API token for a user granted the read-only `PVEAuditor` role at `/`; token stored only in protected runtime configuration |
+| TrueNAS | Native TrueNAS Graphite reporting exporter pushes to the official Prometheus `graphite_exporter` on LXC 109 | No TrueNAS API credential; permit only TrueNAS to the Graphite receiver and use a reviewed mapping to control metric names/cardinality |
+| Frigate | Native Frigate `/api/metrics` Prometheus endpoint | Prefer the private direct path; use a dedicated read-only authentication mechanism if the installed Frigate configuration requires one |
+| Linux host context | Official Prometheus `node_exporter`, initially only where PVE guest metrics and Frigate's native metrics leave a demonstrated gap | Do not deploy broadly or enable unnecessary collectors merely to duplicate Beszel |
+| NUT/UPS | `DRuggeri/nut_exporter` on LXC 109 querying the existing NUT server | One explicit scrape per UPS; read-only NUT access only, with the exporter endpoint private |
+
+TrueNAS's native Graphite export is preferred over installing unsupported
+software on the appliance. Frigate's native endpoint is preferred over an
+additional Frigate-specific exporter. Proxmox and NUT require maintained
+community exporters because neither source exposes the selected data directly
+in Prometheus format; both will be version-pinned and isolated on the collector
+rather than installed on the monitored hosts.
+
+### Preliminary network flow design
+
+The final OPNsense and Proxmox firewall objects remain to be implemented and
+validated. The intended minimum flows are:
+
+| Source | Destination | Port | Purpose |
+|---|---|---:|---|
+| LXC 109 | Proxmox `192.168.50.10` | TCP 8006 | Read-only PVE API collection |
+| LXC 109 | Frigate `192.168.20.10` | TCP 8971 | Native Frigate metrics |
+| LXC 109 | NUT server `192.168.50.25` | TCP 3493 | Read-only UPS variables |
+| TrueNAS `192.168.20.40` | LXC 109 | TCP 9109 | Native Graphite metrics push |
+| Approved LAN/Tailscale administrators | LXC 109 | TCP 3000 | Private Grafana access |
+
+Prometheus TCP 9090 and exporter ports will not be published through the public
+reverse proxy. Administrative direct access remains private; a later Grafana
+reverse-proxy/OIDC path is explicitly deferred to Milestone 6.
 
 Completion gate: placement, storage, credentials, firewall dependencies and
 recovery are approved before installing software.
@@ -222,3 +282,4 @@ decision is to retain HomeLab Doctor and Beszel alone.
 |---|---|---|---|
 | 2026-08-24 | Project definition | Observability work separated from initial-build monitoring | Proposed |
 | 2026-08-30 | Milestone 1 | Questions, pilot targets, budgets, dashboards and keep/reject criteria recorded | Complete |
+| 2026-08-30 | Milestone 2 | Live Proxmox capacity reviewed; LXC 109 placement and target integrations selected | In progress |
