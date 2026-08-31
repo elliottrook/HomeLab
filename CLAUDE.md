@@ -12,6 +12,43 @@ Sandbox network access is restricted to the hosts listed in `.claude/settings.js
   sudo available), gateway 192.168.50.1
 - OPNsense is the gateway/DNS/firewall (Dell EMC SD-WAN Edge 610)
 - Tailscale is the preferred private remote-access path — no broad DSM internet exposure
+- OPNsense's `MGMT_ADMIN_HOSTS` alias (see `PROJECTS.md` Phase 9) already permits
+  Jason's Mac mini (192.168.1.206), Mac laptop (192.168.1.241) and iPhone
+  (192.168.1.112) to reach Management VLAN 50; all other Trusted clients are blocked.
+  This is a network-layer fact independent of the sandbox list below — it governs
+  what the laptop itself can reach, not what Claude Code's sandbox may originate to.
+
+## Sandbox network access
+
+`.claude/settings.json` → `sandbox.network.allowedDomains` is the enforced allow-list
+for outbound connections Claude Code can make from this laptop. Keep this table and
+that file in sync — update both in the same change.
+
+| Host | Address | Why Claude needs it |
+|---|---|---|
+| OPNsense | 192.168.1.1 | Gateway/firewall/DNS; `lab doctor` WAN checks |
+| Management-VLAN gateway | 192.168.50.1 | Management VLAN routing checks |
+| Arista core switch | 192.168.50.2 | `lab doctor` link/health checks |
+| Proxmox | 192.168.50.10 | Guest/host health, backups, `lab doctor` |
+| Docker LXC 100 | 192.168.20.20 | Homepage/Portainer/Pi-hole primary, `lab doctor` |
+| Frigate VM 102 | 192.168.20.10 | Surveillance health checks |
+| Reverse Proxy LXC 107 | 192.168.50.23 | NPM/Authentik administration |
+| AP Switch | 192.168.50.26 | Direct-management recovery path |
+| Forgejo LXC 108 | 192.168.20.30 | Git remote (`git.elliottrook.com` also allowed, for HTTPS) |
+| Observability LXC 109 | 192.168.20.31 | Prometheus/Grafana health checks |
+| TrueNAS | 192.168.20.40 | Storage/NFS health, `lab doctor` |
+| Synology DS920+ | 192.168.20.41 | Backup verification |
+| Backup Synology | 192.168.20.42 | Backup verification |
+| NUT server (Lenovo) | 192.168.50.25 | UPS health, `lab doctor` |
+| Hermes Agent LXC 104 | 192.168.70.10 | Local AI pilot health |
+| Ollama GPU LXC 110 | 192.168.70.12 | Local AI pilot health |
+| git.elliottrook.com, github.com | — | Git remotes |
+| deb.debian.org, security.debian.org | — | Package installs on Debian guests |
+
+This list exists to let Claude run the same read-only `lab`/`doctor.sh` tooling from
+this laptop that already runs from the Mac mini. It is not itself a grant of SSH
+trust or firewall access — those are separate, host-by-host and OPNsense-side
+changes, each still gated by the permission rule below.
 
 ## Project 1: Synology Drive family cloud
 Goal: reactivate Synology Drive on the existing NAS as a private family cloud
@@ -226,10 +263,27 @@ Hard rules:
   SSH/SCP command that changes state on a remote host (file writes, service
   restarts, deletions), plus `sudo` and package installs, remain always-ask, every
   time, even mid-session.
-- Never change anything that alters the network's security posture or structure —
-  VLAN membership, firewall rules, DNS/routing, credentials, encryption,
-  shared-folder ACLs, or inter-host trust — without stopping to confirm first,
-  regardless of what's otherwise pre-approved for the active project.
+- Changes that alter the network's security posture or structure — VLAN membership,
+  firewall rules, DNS/routing, credentials, encryption, shared-folder ACLs, or
+  inter-host trust (including adding a new device's SSH key to `authorized_keys`) —
+  may be made, but only when all three hold:
+  1. Jason has given explicit permission for that specific change.
+  2. The change is required by the active project's stated goal, not general
+     convenience or "while we're in there" scope creep.
+  3. The change is the most minimal one that achieves that goal, preserving the
+     existing security posture in every other respect (narrowest scope, narrowest
+     source/destination, shortest-lived exception that still works).
+
+  Pre-approval for other actions in a session never extends to this category —
+  always ask per change, even mid-session, even for a project where SSH/SCP or
+  other actions are otherwise pre-approved.
+
+  If a proposed change would trade off against a safety/privacy standard stated
+  elsewhere in this document, do not just make the call and note it afterward. Stop
+  first, name the conflict explicitly, and lay out concretely: what capability is
+  gained, what exposure/risk is added, whether a narrower version of the change
+  would still meet the goal, and the rollback path — so Jason decides with the full
+  trade-off in view, not just the recommendation.
 - Scope changes to what the current project's active milestone actually requires.
   Don't fix, tidy or reconfigure adjacent systems in passing — flag it and ask, or
   note it as a follow-up, instead of doing it unprompted.
