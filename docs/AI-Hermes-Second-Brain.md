@@ -8,7 +8,7 @@
 
 Adopt Hermes Agent's built-in LLM Wiki capability as the primary curated knowledge-base / “second brain” for the local assistant, but adapt the video's design to the HomeLab rather than copying its VPS/cloud deployment.
 
-The useful idea is the knowledge architecture, not the Hostinger deployment. Hermes already runs locally in LXC 104 and should remain local. Local inference remains separate in Ollama VM 105 and will use the Intel Arc Pro B60 24 GB once GPU acceleration is validated.
+The useful idea is the knowledge architecture, not the Hostinger deployment. Hermes already runs locally in LXC 104 and should remain local. Local inference remains separate and now runs in Ollama LXC 110 with Intel Arc Pro B60 24 GB Vulkan acceleration validated; VM 105 is retained stopped as rollback. SYCL/Level-Zero was evaluated as an alternative backend and confirmed blocked by a firmware physical-BAR limit, not a software/packaging issue — see [`docs/projects/Local-AI.md`](projects/Local-AI.md) for the full evidence trail.
 
 ## Why it fits this project
 
@@ -36,7 +36,11 @@ Do not allow the Wiki to silently become the source of truth for live infrastruc
 - Hardware manuals/specifications and known limitations
 - Network concepts and selected vendor documentation
 - Home Assistant / automation reference material
-- Local-AI model, Hermes, Ollama and inference notes
+- Local-AI model, Hermes, Ollama and inference notes — e.g. the B60's
+  Vulkan-vs-SYCL backend investigation and its firmware BAR conclusion,
+  once ingestion is running (source of truth stays
+  [`docs/projects/Local-AI.md`](projects/Local-AI.md); the Wiki entry
+  would be a derived summary, not the record itself)
 - Troubleshooting lessons worth retaining beyond a single incident
 - Photography/reference material and other curated personal knowledge only when deliberately added
 
