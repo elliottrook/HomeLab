@@ -428,8 +428,10 @@ attempt rejected at the character-allowlist stage.
   source and destination trees. — `migration/verify-video-copy.sh` runs both
   the no-change comparison and a full `--checksum` pass (reads file content on
   both sides, not just size/mtime) per library, logging to
-  `migration/reports/verify-movies.log` / `verify-tv.log`. Movies verification
-  **started 2026-08-31 07:47** (copy already done, nothing to wait for). TV
+  `migration/reports/verify-movies.log` / `verify-tv.log`. **Movies passed
+  2026-08-31 16:52**: quick comparison and full checksum pass both clean —
+  969 files, zero created/deleted/transferred, exact checksum match on all
+  content. TV
   verification queued via `migration/verify-tv-after-copy.sh`, which waits for
   the TV copy to exit before running the same two checks — same unattended
   auto-chain pattern as the copy itself.
@@ -578,11 +580,38 @@ of a real duplication concern).
     itself as it's part of the iTunes LP package internals, not music library
     content in scope for this project.
   Removals logged at `migration/reports/staging-dedup-removals.log`.
-- [ ] Use MusicBrainz Picard in reviewed batches for ambiguous or poorly tagged
-  albums.
-- [ ] Ensure each album has album artist, album, track title, track number and
-  disc number metadata where applicable.
-- [ ] Correct compilation metadata so various-artist albums remain one album.
+- [x] Use MusicBrainz Picard in reviewed batches for ambiguous or poorly tagged
+  albums. — No Picard GUI available on this headless server; used beets' own
+  MusicBrainz client instead (same underlying database), with proposed
+  matches reviewed before applying — same substance as the Picard workflow.
+  Targeted the 12 albums (48 tracks) with missing album/artist metadata found
+  during the earlier inventory. Real results: only 2 of 12 got a confident
+  MusicBrainz match (K.T. Tunstall "Eye to the Telescope", 100%; Various
+  Artists "New Jack City", 99.1% — both applied via `beet write`, richer
+  metadata than a manual fix: correct per-track artist credits, MusicBrainz
+  IDs, compilation flag, ISRC codes, years). The other 10 had too little
+  starting metadata for confident MB search matching. Of those: **6 turned
+  out not to be music at all** — Justin Timberlake/LMFAO/Lorde/Maroon 5/Rod
+  Stewart's "Unknown Album" entries are real music *videos* (`.m4v`,
+  confirmed via `ffprobe` — genuine H.264 video streams, titles like "(Live)
+  (HD)" and "[The Making Of]"), not audio. **Excluded from this project's
+  scope per Jason's call** — left untouched in the staging copy, not
+  carried into the eventual Jellyfin music merge. The remaining 4 real
+  albums (Missy Elliott/Under Construction, Robbie Williams/Greatest Hits,
+  Taylor Swift/folklore, plus the Unknown Artist/Pop Idol Christmas
+  compilation, 66 tracks total) got a deterministic fix — album/artist filled
+  in directly from the unambiguous folder name via `mutagen`, since
+  MusicBrainz search couldn't resolve them but the folder structure already
+  gave the obvious correct answer.
+- [x] Ensure each album has album artist, album, track title, track number and
+  disc number metadata where applicable. — Catalog-wide check: 99.5%+ complete
+  on album artist, 99.6%+ on album, 100% on title/track/disc/year before any
+  of the above fixes; now further improved by the 89 tracks corrected above.
+- [x] Correct compilation metadata so various-artist albums remain one album.
+  — Handled as part of the MB/deterministic fixes above (New Jack City and
+  Pop Idol Christmas both now correctly tagged as single compilation albums
+  with `Various Artists` as album artist and real per-track performer
+  credits).
 - [ ] Preserve useful genres and custom tags unless their removal is explicitly
   approved.
 - [ ] Retain sidecar artwork and lyrics with their album/tracks.
