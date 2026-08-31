@@ -1,6 +1,6 @@
 # Prometheus and Grafana Observability Project
 
-> Status: Active — authenticated private URL, Doctor and backup integration complete; alert delivery pending
+> Status: Active — implementation complete; 30-day observation underway
 >
 > Project owner: Jason
 >
@@ -9,10 +9,10 @@
 Checkpoint: `https://monitoring.elliottrook.com` is live through the private
 reverse proxy and split DNS. Grafana offers admin-restricted Authentik sign-in
 while retaining its local recovery login. HomeLab Doctor and protected backup
-integration are complete, and an isolated restore test passed. Remaining work
-is the two bounded UPS alert rules and notification destination, updating the
-live DSM task body with the tracked LXC 109 filter, final documentation, and
-the 30-day review schedule.
+integration are complete, and an isolated restore test passed. Two bounded UPS
+alert rules now deliver through the tested iCloud SMTP route. The live DSM task
+includes LXC 109, and its retained archives passed an off-host checksum
+comparison. Only the 30-day observation and keep/reduce/remove decision remain.
 
 ## Purpose
 
@@ -392,7 +392,7 @@ and response procedure—or the documented decision is to add none.
 - [ ] Compare outcomes with the keep/reject criteria from Milestone 1.
 - [ ] Keep, reduce or remove the platform explicitly; clean up pilot rules and
   credentials if rejected.
-- [ ] Update architecture, operations, backups, addressing and baseline documents.
+- [x] Update architecture, operations, backups, addressing and baseline documents.
 
 ## Definition of done
 
@@ -412,3 +412,4 @@ decision is to retain HomeLab Doctor and Beszel alone.
 | 2026-08-31 | Milestones 5–6 | Private HTTPS URL and Authentik OIDC enabled; Doctor passed 53 checks with no failures; protected archive, SQLite, four dashboard files and isolated Grafana boot validated; two UPS rules provisioned and normal | Delivery destination and controlled notification test pending |
 | 2026-08-31 | Authentik repair | A clone attempt was caught during consent testing because it had retained Forgejo's provider identity. Forgejo's client values were restored from its own protected login-source configuration, a distinct Grafana provider/application was created, and sanitized identity checks confirmed separate provider IDs and callbacks. A real Forgejo OIDC login passed and Grafana's consent page now identifies Grafana. | Passed |
 | 2026-08-31 | Alert delivery test | Email to `jason@yampy.ca` selected and contact point provisioned. Direct TCP 25 delivery was rejected as unsuitable, so Grafana was configured for authenticated iCloud SMTP on TCP 587 with mandatory STARTTLS. The corrected Apple Account identity and app-specific password passed direct authentication; a Grafana-generated test was received, then its temporary rule was removed. Only the two production UPS rules remain. | Passed |
+| 2026-08-31 | Off-host guest backup | The enabled Backup Synology task was updated through DSM's supported scheduler API with matching LXC 109 copy and checksum filters while preserving its daily 03:30 schedule. Both retained LXC 109 archives (348 MB and 936 MB) were copied to the existing Proxmox guest set; a focused checksum-mode comparison returned zero differences. | Passed |
