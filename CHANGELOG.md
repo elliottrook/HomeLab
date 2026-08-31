@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Closed the Prometheus/Grafana observability project at the owner's direction after same-day final validation: HomeLab Doctor passed 54 checks with no failures, live services and private TLS were healthy, resource/cardinality use remained well within budget, alerting and recovery were proven, and the close-out record moved into the completed-projects portfolio.
 - Added the private HTTPS Grafana address `monitoring.elliottrook.com` through Nginx Proxy Manager and split DNS, enabled an admin-restricted Authentik sign-in while retaining the local recovery login, and updated the live Homepage tile.
 - Corrected a provider-cloning error caught during consent testing: restored Forgejo's original Authentik client configuration, created Grafana as a separate provider/application, and verified Forgejo with a real OIDC login plus Grafana's correctly labelled consent path.
 - Provisioned `jason@yampy.ca` as Grafana's sole alert contact. After a controlled test exposed the residential outbound-TCP-25 block, configured authenticated iCloud SMTP on TCP 587 with mandatory STARTTLS. A Grafana-generated test was received successfully; the temporary rule was removed and only the two production UPS rules remain.

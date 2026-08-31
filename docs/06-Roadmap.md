@@ -20,7 +20,7 @@
 - [ ] [Surveillance expansion](projects/Surveillance-Expansion.md)
 - [ ] [NUT/UPS deployment](UPS-Power-Resilience-Claude-Handover.md)
 - [ ] [Synology Drive family cloud](projects/Synology-Drive-Family-Cloud.md)
-- [ ] [Prometheus/Grafana observability](projects/Prometheus-Grafana-Observability.md)
+- [x] [Prometheus/Grafana observability](projects/completed%20projects/Prometheus-Grafana-Observability.md)
 
 The checkboxes above represent independent project completion, not permission to
 run all six simultaneously. Each project document controls its own milestones

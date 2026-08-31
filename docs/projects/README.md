@@ -15,10 +15,15 @@
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
 | NUT/UPS deployment | Handover ready | [NUT/UPS handover](../UPS-Power-Resilience-Claude-Handover.md) | Architecture, shutdown and recovery requirements are contained in the handover |
 | Synology Drive family cloud | Handover ready | [Synology Drive](Synology-Drive-Family-Cloud.md) | [Backup design](../05-Backups.md) |
-| Prometheus/Grafana observability | Grafana dashboards complete; observation underway | [Prometheus/Grafana](Prometheus-Grafana-Observability.md) | Four provisioned dashboards use seven bounded scrape jobs; existing HomeLab Doctor and Beszel remain operational |
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
 | Plex-to-Jellyfin media migration | Ready | [Plex-to-Jellyfin media migration](Plex-to-Jellyfin-Media-Migration.md) | Separate Archive Movies/TV libraries, unified music, playlists and movie collections |
 | Video library archiving | Proposed | [Video library archiving](Video-Library-Archiving.md) | Downconverts aged current-library video and hands it to the archive roots above |
+
+## Completed projects
+
+| Project | Completed | Closing document | Outcome |
+|---|---|---|---|
+| Prometheus/Grafana observability | 2026-08-31 | [Prometheus/Grafana close-out](completed%20projects/Prometheus-Grafana-Observability.md) | Retained with four dashboards, seven bounded scrape jobs, two UPS alerts and tested recovery |
 
 ## Common project rules
 

@@ -1,6 +1,6 @@
-# Prometheus and Grafana Observability Project
+# Prometheus and Grafana Observability Project Close-Out
 
-> Status: Active — implementation complete; 30-day observation underway
+> Status: Complete — retained in production
 >
 > Project owner: Jason
 >
@@ -10,9 +10,11 @@ Checkpoint: `https://monitoring.elliottrook.com` is live through the private
 reverse proxy and split DNS. Grafana offers admin-restricted Authentik sign-in
 while retaining its local recovery login. HomeLab Doctor and protected backup
 integration are complete, and an isolated restore test passed. Two bounded UPS
-alert rules now deliver through the tested iCloud SMTP route. The live DSM task
+alert rules deliver through the tested iCloud SMTP route. The live DSM task
 includes LXC 109, and its retained archives passed an off-host checksum
-comparison. Only the 30-day observation and keep/reduce/remove decision remain.
+comparison. On 2026-08-31, the owner chose to close the project using same-day
+health, capacity, recovery and delivery evidence instead of waiting for the
+planned 30-day observation period. Prometheus and Grafana are retained.
 
 ## Purpose
 
@@ -388,10 +390,12 @@ and response procedure—or the documented decision is to add none.
   recovery administrator and direct private fallback.
 - [x] Add service/certificate/backup checks to HomeLab Doctor only where needed.
 - [x] Validate backup and isolated restore of configuration and dashboards.
-- [ ] Observe resource consumption and disk growth for at least 30 days.
-- [ ] Compare outcomes with the keep/reject criteria from Milestone 1.
-- [ ] Keep, reduce or remove the platform explicitly; clean up pilot rules and
-  credentials if rejected.
+- [x] Close the planned observation early at the owner's direction. The final
+  same-day capacity check is recorded below; routine operations will continue
+  to expose longer-term growth without keeping this implementation project open.
+- [x] Compare the available outcomes with the keep/reject criteria from
+  Milestone 1, explicitly recording the shortened evidence window.
+- [x] Keep the bounded platform, its four dashboards and its two UPS rules.
 - [x] Update architecture, operations, backups, addressing and baseline documents.
 
 ## Definition of done
@@ -400,6 +404,24 @@ The project is complete when Prometheus/Grafana either provide clearly measured
 operational value within a bounded resource and maintenance budget, with secure
 access and proven recovery, or the pilot is cleanly removed and the documented
 decision is to retain HomeLab Doctor and Beszel alone.
+
+## Close-out decision
+
+Prometheus and Grafana are retained as a bounded production service. Four
+purpose-built dashboards answer infrastructure, compute/storage/network,
+Frigate and UPS questions using live data; they complement rather than replace
+HomeLab Doctor and Beszel. Private access, Authentik login, local recovery
+access, tested alert delivery, configuration restore and off-host LXC backup
+all passed.
+
+The original keep criterion requested 30 days of observation and one real
+historical incident investigation. The owner explicitly waived that waiting
+period on 2026-08-31, and no genuine incident occurred during the shortened
+window. This is the only unmet evidence preference. It is accepted because the
+final live measurements remained far inside the resource limits and all
+security, recovery and notification gates passed. Longer-term growth and
+diagnostic value will be assessed during normal operation rather than as an
+open project milestone.
 
 ## Evidence log
 
@@ -413,3 +435,4 @@ decision is to retain HomeLab Doctor and Beszel alone.
 | 2026-08-31 | Authentik repair | A clone attempt was caught during consent testing because it had retained Forgejo's provider identity. Forgejo's client values were restored from its own protected login-source configuration, a distinct Grafana provider/application was created, and sanitized identity checks confirmed separate provider IDs and callbacks. A real Forgejo OIDC login passed and Grafana's consent page now identifies Grafana. | Passed |
 | 2026-08-31 | Alert delivery test | Email to `jason@yampy.ca` selected and contact point provisioned. Direct TCP 25 delivery was rejected as unsuitable, so Grafana was configured for authenticated iCloud SMTP on TCP 587 with mandatory STARTTLS. The corrected Apple Account identity and app-specific password passed direct authentication; a Grafana-generated test was received, then its temporary rule was removed. Only the two production UPS rules remain. | Passed |
 | 2026-08-31 | Off-host guest backup | The enabled Backup Synology task was updated through DSM's supported scheduler API with matching LXC 109 copy and checksum filters while preserving its daily 03:30 schedule. Both retained LXC 109 archives (348 MB and 936 MB) were copied to the existing Proxmox guest set; a focused checksum-mode comparison returned zero differences. | Passed |
+| 2026-08-31 | Final close-out | HomeLab Doctor passed 54 checks with no failures and two unrelated backup-age warnings. Grafana 13.2.0 reported a healthy database; Prometheus reported healthy with 2,594 active series, a 17 MB TSDB, 285 MB of 4 GB memory used, no swap use and 10% guest-root utilization. Private HTTPS returned the expected login redirect with successful certificate verification. | Complete; retain |
