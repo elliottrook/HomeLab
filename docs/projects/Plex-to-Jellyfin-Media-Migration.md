@@ -1,10 +1,20 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Milestone 2 complete; Milestone 3 next
+> Status: Milestone 2 complete; Milestone 4 next
 >
 > Project owner: Jason
 >
 > Last updated: 2026-08-30
+>
+> **Execution order note (2026-08-30):** Milestone 4 (music staging,
+> normalization and merge) is being executed before Milestone 3 (archive video
+> copy), per Jason's request — music is the highest-priority content and is
+> far smaller (~128 GiB vs. ~5.29 TiB), so it delivers usable Jellyfin content
+> much sooner. The two milestones write to entirely separate destinations
+> (`migration/plex-music` → the canonical music root vs. `archive-movies`/
+> `archive-tv`) and share no dependency, so reordering them is safe. Milestone
+> numbers are left as originally defined so references in Milestones 5–8
+> (which depend on both) remain valid; only the execution sequence changes.
 
 ## Purpose
 
