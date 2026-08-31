@@ -8,7 +8,7 @@
 
 Adopt Hermes Agent's built-in LLM Wiki capability as the primary curated knowledge-base / “second brain” for the local assistant, but adapt the video's design to the HomeLab rather than copying its VPS/cloud deployment.
 
-The useful idea is the knowledge architecture, not the Hostinger deployment. Hermes already runs locally in LXC 104 and should remain local. Local inference remains separate and now runs in Ollama LXC 110 with Intel Arc Pro B60 24 GB Vulkan acceleration validated; VM 105 is retained stopped as rollback. SYCL/Level-Zero was evaluated as an alternative backend and confirmed blocked by a firmware physical-BAR limit, not a software/packaging issue — see [`docs/projects/Local-AI.md`](projects/Local-AI.md) for the full evidence trail.
+The useful idea is the knowledge architecture, not the Hostinger deployment. Hermes already runs locally in LXC 104 and should remain local. Local inference remains separate and now runs in Ollama LXC 110 with Intel Arc Pro B60 24 GB Vulkan acceleration validated; VM 105 is retained stopped as rollback. SYCL/Level-Zero was evaluated as an alternative backend and confirmed blocked by the current 256 MB physical BAR rather than a software/packaging mismatch. Whether Dell A34 firmware/settings or attended PCI reallocation can enlarge that BAR remains an open, console-dependent investigation — see [`docs/projects/Local-AI.md`](projects/Local-AI.md) for the full evidence trail.
 
 ## Why it fits this project
 

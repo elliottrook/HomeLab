@@ -1,7 +1,8 @@
 # Local AI Enhancement Project
 
 > Status: B60 operational through GPU LXC 110; Hermes integration validated;
-> SYCL/Level-Zero confirmed blocked by the same firmware BAR limit as Vulkan
+> SYCL/Level-Zero blocked by the current 256 MB physical BAR; Vulkan remains
+> operational as the production workaround
 >
 > Project owner: Jason
 >
@@ -244,16 +245,45 @@ during any of this; the host and production guests (including LXC 110's
 Ollama) were unaffected throughout, confirmed by container status and
 `systemctl is-active ollama` after teardown.
 
-This closes the open question: the 256 MB physical BAR is a hardware/
-firmware ceiling that blocks SYCL/Level-Zero identically to Vulkan, on the
-correct officially-supported distro with correctly matched official
-packages. The earlier packaging/ABI-mismatch hypothesis is ruled out as
-the cause. The upstream `llama.cpp`/`qwen35` SYCL correctness bug and the
-`compute-runtime` OOM-freeze issue noted above remain moot for this
-hardware until a firmware update (if any) raises the physical BAR — SYCL
-is not a viable path around the Vulkan limitation on the current AIB/IFWI
-firmware. The disposable LXC 111 and all test packages/artifacts were
-torn down after the test; nothing persists from this investigation.
+This closes the software-packaging question: the 256 MB physical BAR blocks
+SYCL/Level-Zero on the correct officially supported distro with correctly
+matched official packages. The earlier packaging/ABI-mismatch hypothesis is
+ruled out. This does not prove that the T5810 can never provide a larger BAR;
+it proves only that Intel's current `xe` compute stack refuses the allocation
+presented by the current A31 firmware/configuration. Vulkan remains usable with
+the small BAR and is therefore not blocked identically, although earlier
+Vulkan testing produced device-loss and `xe` engine-reset events. The upstream
+`llama.cpp`/`qwen35` SYCL correctness bug and the `compute-runtime` OOM-freeze
+issue remain additional risks even after BAR remediation. The disposable LXC
+111 and all test packages/artifacts were torn down after the test; nothing
+persists from this investigation.
+
+BAR and firmware follow-up (2026-08-30): source-level review of Intel Compute
+Runtime confirmed that small-BAR configurations are deliberately rejected on
+`xe`; Claude's second, isolated Level-Zero test was therefore valid. Host
+inspection refined the cause: the B60 supports physical BAR2 sizes from 256 MB
+through 32 GB, while its upstream bridges already have an approximately 49 GB
+64-bit prefetchable window. The B60's SR-IOV VF BAR reservations consume almost
+all of that window, leaving insufficient space when `xe` requests a 32 GB PF
+BAR and producing `-ENOSPC`. The T5810 runs Dell BIOS A31 (2019-06-05); Dell's
+latest official release is A34 (2020-11-17). Dell documents `Memory Map IO above
+4GB` and `PCI MMIO Space Size: Large` setup options, but the A34 release notes
+do not claim native Resizable BAR support. The preferred next investigation is
+an attended A34 update and explicit verification of those settings, followed
+by a console-attended `pci=realloc=on` boot if BAR2 remains 256 MB. ReBarUEFI is
+not an ordinary next step: its compatibility record for this exact T5810 says
+modified Dell firmware requires an external EEPROM programmer.
+
+Remote PCI reallocation attempt (2026-08-30): a separate GRUB entry containing
+`pci=realloc=on` was generated and syntax-checked without altering the normal
+entry. Before the experimental boot, `grub-reboot` warned that the one-shot
+marker is stored on LVM and cannot be cleared reliably by GRUB. With no local or
+out-of-band console, a failed network/storage initialization could therefore
+repeat the experimental entry on every reboot. The marker was cleared, the
+temporary entry removed, the normal GRUB configuration regenerated, and every
+previously running VM/container restored. The host never booted with
+`pci=realloc=on`; BAR2 remains 256 MB. Do not repeat this test remotely until a
+recoverable console path exists.
 
 ## Milestone 4 — Hermes second brain
 
@@ -303,4 +333,5 @@ and production HomeLab operation remains independent of the AI stack.
 | 2026-08-30 | B60 LXC production path | LXC 110 mapped host DRM devices; Ollama Vulkan detected 23.9 GiB; Hermes returned `HERMES_GPU_OK` using `qwen3.5:9b` at 64K context | Passed |
 | 2026-08-30 | Qwen3.8:27b quant evaluation | `qwen3.8:27b` (Q4_K_M) CPU-spilled at 65,536 context; `bartowski` IQ4_XS blocked by a stuck HF blob; `unsloth` UD-IQ4_XS loaded 100% GPU but ran ~4 tok/s (Vulkan IQ-kernel limitation); `unsloth` UD-Q4_K_S loaded 100% GPU and ran correctly, ~4x slower than `qwen3.5:9b` on a realistic ~15K-token prompt | UD-Q4_K_S added to Hermes as a selectable model; `qwen3.5:9b` stays default |
 | 2026-08-30 | SYCL/Level-Zero backend test | Installed portable `ollama-ipex-llm` build + Intel compute-runtime `.deb`s in an isolated folder; SYCL/Level-Zero failed to enumerate the B60 (`Resizable BAR not detected`, then aborted) | Cause unconfirmed (ReBAR vs. Ubuntu/Debian packaging mismatch); upstream SYCL correctness bug also open for `qwen35` on B60; test install fully removed; fuller isolated investigation scoped as follow-up |
-| 2026-08-30 | Fuller SYCL/Level-Zero investigation | Disposable Ubuntu 24.04 LXC 111 with pinned official Intel GPU/oneAPI packages; `dmesg` monitored live; direct Level-Zero probe showed `zeInit` returning `ZE_RESULT_ERROR_UNINITIALIZED` with `Small BAR detected`; `clinfo` showed the same GPU-absent pattern; no hang, no dmesg anomalies | Confirmed: 256 MB physical BAR blocks SYCL/Level-Zero identically to Vulkan on the correct distro with correct packages; packaging/ABI-mismatch hypothesis ruled out; SYCL is not a viable path on current firmware; LXC 111 destroyed, production unaffected |
+| 2026-08-30 | Fuller SYCL/Level-Zero investigation | Disposable Ubuntu 24.04 LXC 111 with pinned official Intel GPU/oneAPI packages; `dmesg` monitored live; direct Level-Zero probe showed `zeInit` returning `ZE_RESULT_ERROR_UNINITIALIZED` with `Small BAR detected`; `clinfo` showed the same GPU-absent pattern; no hang, no dmesg anomalies | Confirmed: 256 MB physical BAR blocks SYCL/Level-Zero on the correct distro with correct packages; packaging/ABI-mismatch hypothesis ruled out; SYCL is not viable on the current BAR allocation; LXC 111 destroyed, production unaffected |
+| 2026-08-30 | BAR cause and remote-recovery review | Verified B60 32 GB BAR capability, approximately 49 GB bridge window, conflicting SR-IOV VF BAR reservations, Dell A31 installed/A34 available, and documented Above-4G/Large-MMIO settings; prepared but did not boot a one-shot `pci=realloc=on` entry after GRUB reported its LVM marker could persist | Claude's isolated Level-Zero result is valid, but permanent firmware impossibility was not proven; remote boot test safely aborted and removed; all guests restored; console access required before firmware or PCI-reallocation work |
