@@ -187,17 +187,30 @@ install) plus the Intel compute-runtime driver stack it needs
 `ocl-icd-libopencl1`), installed manually from downloaded `.deb` files
 rather than adding Intel's APT repository. Result: it starts, logs
 `WARNING: Resizable BAR not detected for device 0000:04:00.0`, then aborts
-with a SYCL exception (`No device of requested type available`) —
-Level-Zero refuses to enumerate the B60 at all without ReBAR. This is the
-same physical-BAR limitation (256 MB, firmware/AIB-constrained) that
-blocked full VFIO passthrough to VM 105 during GPU installation; Vulkan
-tolerates it, SYCL does not. Conclusion: the ~4x slowdown measured against
-`qwen3.5:9b` is a genuine hardware/firmware ceiling on this board+host
-combination, not a fixable software/backend gap — Vulkan is the practical
-performance ceiling here unless a B60 firmware update exposing a larger
-physical BAR becomes available. The portable build and all seven driver
-packages were removed afterward; production Ollama was unaffected
-throughout.
+with a SYCL exception (`No device of requested type available`). The
+portable build and all seven driver packages were removed afterward;
+production Ollama was unaffected throughout.
+
+Correction: the initial write-up of this test overstated the conclusion.
+The ReBAR warning and the enumeration failure were adjacent in the log, not
+demonstrated to be causally linked — the portable build was compiled for
+Ubuntu and run on Debian 13, so a packaging/ABI mismatch is an equally
+plausible cause that wasn't ruled out. Whether SYCL/Level-Zero can
+enumerate the B60 on this host at all remains genuinely open. Separately,
+and regardless of that answer: `llama.cpp` issue #24168 (upstream,
+`ggml-org/llama.cpp`) documents an open SYCL correctness regression on Arc
+Pro B60 specifically for the `qwen35` architecture — the same architecture
+`qwen3.8:27b` uses — causing crashes or corrupted output. So even a
+successful SYCL setup would not currently be trustworthy for this specific
+model. `intel/compute-runtime` issue #842 also documents a full host
+freeze (hard reboot required) from an `xe`-driver OOM condition on Arc
+B580, which matters here because this Proxmox host runs other production
+guests (Frigate included) alongside the AI stack. A fuller SYCL
+investigation — disposable Ubuntu 24.04 LXC, pinned oneAPI, staged testing
+from `sycl-ls` up through a small model before anything near 27B, run
+during a real maintenance window with `dmesg` monitored live — is a
+legitimate follow-up, but is scoped as separate future work, not concluded
+here.
 
 ## Milestone 4 — Hermes second brain
 
@@ -246,4 +259,4 @@ and production HomeLab operation remains independent of the AI stack.
 | 2026-08-30 | B60 BAR remediation | Disabled unused `xe` SR-IOV PF mode and rebooted; physical BAR remained 256 MB and Vulkan still requires a different deployment path or AIB firmware | VFIO path blocked by firmware aperture |
 | 2026-08-30 | B60 LXC production path | LXC 110 mapped host DRM devices; Ollama Vulkan detected 23.9 GiB; Hermes returned `HERMES_GPU_OK` using `qwen3.5:9b` at 64K context | Passed |
 | 2026-08-30 | Qwen3.8:27b quant evaluation | `qwen3.8:27b` (Q4_K_M) CPU-spilled at 65,536 context; `bartowski` IQ4_XS blocked by a stuck HF blob; `unsloth` UD-IQ4_XS loaded 100% GPU but ran ~4 tok/s (Vulkan IQ-kernel limitation); `unsloth` UD-Q4_K_S loaded 100% GPU and ran correctly, ~4x slower than `qwen3.5:9b` on a realistic ~15K-token prompt | UD-Q4_K_S added to Hermes as a selectable model; `qwen3.5:9b` stays default |
-| 2026-08-30 | SYCL/Level-Zero backend test | Installed portable `ollama-ipex-llm` build + Intel compute-runtime `.deb`s in an isolated folder; SYCL/Level-Zero refused to enumerate the B60 at all (`Resizable BAR not detected`, then aborted) | Confirmed hardware/firmware ceiling, not a software gap; Vulkan is the practical performance ceiling on this board; test install fully removed |
+| 2026-08-30 | SYCL/Level-Zero backend test | Installed portable `ollama-ipex-llm` build + Intel compute-runtime `.deb`s in an isolated folder; SYCL/Level-Zero failed to enumerate the B60 (`Resizable BAR not detected`, then aborted) | Cause unconfirmed (ReBAR vs. Ubuntu/Debian packaging mismatch); upstream SYCL correctness bug also open for `qwen35` on B60; test install fully removed; fuller isolated investigation scoped as follow-up |
