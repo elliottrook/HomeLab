@@ -175,6 +175,30 @@ were added to Claude Code's sandbox network allowlist
 (`.claude/settings.json`) to support this work and were kept in place
 afterward at Jason's direction.
 
+SYCL/Level-Zero backend test (2026-08-30): investigated whether the B60's
+slow 27B inference was a software (backend) limitation rather than a
+hardware ceiling, since Ollama's Vulkan path can't reach Arc's XMX matrix
+units — those are only exposed through SYCL/Level-Zero. Installed Intel's
+portable `ollama-ipex-llm-2.2.0-ubuntu` build (self-contained, isolated in
+`/opt/ipex-ollama`, separate port, didn't touch the production Ollama
+install) plus the Intel compute-runtime driver stack it needs
+(`intel-opencl-icd`, `libze-intel-gpu1`, `intel-igc-core-2`,
+`intel-igc-opencl-2`, `libigdgmm12`, plus stock-Debian `libze1` and
+`ocl-icd-libopencl1`), installed manually from downloaded `.deb` files
+rather than adding Intel's APT repository. Result: it starts, logs
+`WARNING: Resizable BAR not detected for device 0000:04:00.0`, then aborts
+with a SYCL exception (`No device of requested type available`) —
+Level-Zero refuses to enumerate the B60 at all without ReBAR. This is the
+same physical-BAR limitation (256 MB, firmware/AIB-constrained) that
+blocked full VFIO passthrough to VM 105 during GPU installation; Vulkan
+tolerates it, SYCL does not. Conclusion: the ~4x slowdown measured against
+`qwen3.5:9b` is a genuine hardware/firmware ceiling on this board+host
+combination, not a fixable software/backend gap — Vulkan is the practical
+performance ceiling here unless a B60 firmware update exposing a larger
+physical BAR becomes available. The portable build and all seven driver
+packages were removed afterward; production Ollama was unaffected
+throughout.
+
 ## Milestone 4 — Hermes second brain
 
 The detailed design and task list live in
@@ -222,3 +246,4 @@ and production HomeLab operation remains independent of the AI stack.
 | 2026-08-30 | B60 BAR remediation | Disabled unused `xe` SR-IOV PF mode and rebooted; physical BAR remained 256 MB and Vulkan still requires a different deployment path or AIB firmware | VFIO path blocked by firmware aperture |
 | 2026-08-30 | B60 LXC production path | LXC 110 mapped host DRM devices; Ollama Vulkan detected 23.9 GiB; Hermes returned `HERMES_GPU_OK` using `qwen3.5:9b` at 64K context | Passed |
 | 2026-08-30 | Qwen3.8:27b quant evaluation | `qwen3.8:27b` (Q4_K_M) CPU-spilled at 65,536 context; `bartowski` IQ4_XS blocked by a stuck HF blob; `unsloth` UD-IQ4_XS loaded 100% GPU but ran ~4 tok/s (Vulkan IQ-kernel limitation); `unsloth` UD-Q4_K_S loaded 100% GPU and ran correctly, ~4x slower than `qwen3.5:9b` on a realistic ~15K-token prompt | UD-Q4_K_S added to Hermes as a selectable model; `qwen3.5:9b` stays default |
+| 2026-08-30 | SYCL/Level-Zero backend test | Installed portable `ollama-ipex-llm` build + Intel compute-runtime `.deb`s in an isolated folder; SYCL/Level-Zero refused to enumerate the B60 at all (`Resizable BAR not detected`, then aborted) | Confirmed hardware/firmware ceiling, not a software gap; Vulkan is the practical performance ceiling on this board; test install fully removed |
