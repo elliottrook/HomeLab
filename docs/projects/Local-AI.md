@@ -1,6 +1,7 @@
 # Local AI Enhancement Project
 
-> Status: B60 operational through GPU LXC 110; Hermes integration validated
+> Status: B60 operational through GPU LXC 110; Hermes integration validated;
+> SYCL/Level-Zero confirmed blocked by the same firmware BAR limit as Vulkan
 >
 > Project owner: Jason
 >
@@ -212,6 +213,48 @@ during a real maintenance window with `dmesg` monitored live — is a
 legitimate follow-up, but is scoped as separate future work, not concluded
 here.
 
+Fuller SYCL/Level-Zero investigation (2026-08-30): resolved the open
+question above using the disposable-LXC design already scoped. A
+throwaway Ubuntu 24.04 LXC (VMID 111, `192.168.70.13`, GPU device nodes
+mapped the same way as LXC 110) was built specifically to rule out the
+prior test's Debian/Ubuntu packaging-mismatch hypothesis by using Intel's
+officially supported target distro and official APT repositories, with
+package versions pinned explicitly rather than tracking latest
+(`intel-opencl-icd`, `libze-intel-gpu1` and their `libigc2`/`libigdfcl2`
+dependencies all matched to build generation `1146~24.04`;
+`intel-oneapi-runtime-dpcpp-cpp` pinned to `2026.1.1-325`). `dmesg` was
+monitored live on the Proxmox host throughout, per the scoped plan, given
+the documented `intel/compute-runtime` #842 host-freeze risk.
+
+The oneAPI *runtime* package doesn't ship the `sycl-ls` CLI (that's a
+compiler-toolchain tool); rather than installing the full multi-GB
+compiler package just to enumerate a device, a small C program was
+compiled locally against the installed `libze-dev` headers to call
+`zeInit`/`zeDeviceGet` directly. Result, with the Level-Zero loader's own
+debug trace enabled: the GPU driver library
+(`libze_intel_gpu.so.1`) loads successfully, but `zeInit` itself prints
+`WARNING: Small BAR detected for device 0000:04:00.0` and returns
+`ZE_RESULT_ERROR_UNINITIALIZED` — the driver explicitly refuses to
+initialize the GPU. `clinfo` showed the same pattern on the OpenCL side:
+the ICD loads and reports a platform, but only the host CPU appears as a
+device; the B60 never enumerates. Both failures are graceful (clean error
+return), not a hang — unlike `vulkaninfo`'s earlier uninterruptible-I/O
+block. No GPU-related, OOM, panic, or reset lines appeared in `dmesg`
+during any of this; the host and production guests (including LXC 110's
+Ollama) were unaffected throughout, confirmed by container status and
+`systemctl is-active ollama` after teardown.
+
+This closes the open question: the 256 MB physical BAR is a hardware/
+firmware ceiling that blocks SYCL/Level-Zero identically to Vulkan, on the
+correct officially-supported distro with correctly matched official
+packages. The earlier packaging/ABI-mismatch hypothesis is ruled out as
+the cause. The upstream `llama.cpp`/`qwen35` SYCL correctness bug and the
+`compute-runtime` OOM-freeze issue noted above remain moot for this
+hardware until a firmware update (if any) raises the physical BAR — SYCL
+is not a viable path around the Vulkan limitation on the current AIB/IFWI
+firmware. The disposable LXC 111 and all test packages/artifacts were
+torn down after the test; nothing persists from this investigation.
+
 ## Milestone 4 — Hermes second brain
 
 The detailed design and task list live in
@@ -260,3 +303,4 @@ and production HomeLab operation remains independent of the AI stack.
 | 2026-08-30 | B60 LXC production path | LXC 110 mapped host DRM devices; Ollama Vulkan detected 23.9 GiB; Hermes returned `HERMES_GPU_OK` using `qwen3.5:9b` at 64K context | Passed |
 | 2026-08-30 | Qwen3.8:27b quant evaluation | `qwen3.8:27b` (Q4_K_M) CPU-spilled at 65,536 context; `bartowski` IQ4_XS blocked by a stuck HF blob; `unsloth` UD-IQ4_XS loaded 100% GPU but ran ~4 tok/s (Vulkan IQ-kernel limitation); `unsloth` UD-Q4_K_S loaded 100% GPU and ran correctly, ~4x slower than `qwen3.5:9b` on a realistic ~15K-token prompt | UD-Q4_K_S added to Hermes as a selectable model; `qwen3.5:9b` stays default |
 | 2026-08-30 | SYCL/Level-Zero backend test | Installed portable `ollama-ipex-llm` build + Intel compute-runtime `.deb`s in an isolated folder; SYCL/Level-Zero failed to enumerate the B60 (`Resizable BAR not detected`, then aborted) | Cause unconfirmed (ReBAR vs. Ubuntu/Debian packaging mismatch); upstream SYCL correctness bug also open for `qwen35` on B60; test install fully removed; fuller isolated investigation scoped as follow-up |
+| 2026-08-30 | Fuller SYCL/Level-Zero investigation | Disposable Ubuntu 24.04 LXC 111 with pinned official Intel GPU/oneAPI packages; `dmesg` monitored live; direct Level-Zero probe showed `zeInit` returning `ZE_RESULT_ERROR_UNINITIALIZED` with `Small BAR detected`; `clinfo` showed the same GPU-absent pattern; no hang, no dmesg anomalies | Confirmed: 256 MB physical BAR blocks SYCL/Level-Zero identically to Vulkan on the correct distro with correct packages; packaging/ABI-mismatch hypothesis ruled out; SYCL is not a viable path on current firmware; LXC 111 destroyed, production unaffected |
