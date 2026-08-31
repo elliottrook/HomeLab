@@ -328,17 +328,24 @@ integrity test.
 
 The smaller configuration-level recovery set is stored under
 `~/lab/private-backups/observability/<date>/` and therefore enters the existing
-Backup Synology pull and encrypted IDrive e2 pipeline. It contains
-`/etc/prometheus` and the observability systemd units. Treat it as sensitive:
-`pve.yml` contains the read-only Proxmox API token. Keep the directory and
-archive owner-only readable and never commit the archive or extracted files.
+Backup Synology pull and encrypted IDrive e2 pipeline. The Prometheus archive
+contains `/etc/prometheus` and the observability systemd units. The Grafana
+archive additionally contains `/etc/grafana`, the provisioned dashboard JSON,
+SQLite database, service override and initial administrator recovery
+credential. Treat both as sensitive: `pve.yml` contains the read-only Proxmox
+API token and the Grafana archive contains authentication state. Keep the
+directory and archives owner-only readable and never commit an archive or its
+extracted files.
 
 Restore into an isolated temporary directory first. Confirm that
 `prometheus.yml`, `pve.yml` and every service unit are present, inspect file
 ownership, and validate the Prometheus configuration with `promtool` before
 placing files into `/etc`. Reinstall the exact pinned binaries/exporter
 environment, restore configuration, reload systemd and start one component at
-a time. Validate all targets before enabling future dashboard dependencies.
+a time. For Grafana, confirm `grafana.ini`, provisioning YAML, dashboard JSON
+and `grafana.db` are present before restoring them with the service stopped.
+Validate all Prometheus targets, Grafana's `/api/health` response and the
+provisioned data source before returning the dashboard to use.
 
 ## Proxmox guest backups
 

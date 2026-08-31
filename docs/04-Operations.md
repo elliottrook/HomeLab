@@ -51,18 +51,25 @@ The client device must have an application registered to handle `ssh://` links. 
 - Guest: unprivileged Proxmox LXC 109 (`observability`)
 - Address: `192.168.20.31` on Servers VLAN 20
 - Prometheus: `http://192.168.20.31:9090` from approved private networks only
+- Grafana: `http://192.168.20.31:3000` from approved private networks only
 - Version/limits: Prometheus 3.13.2 LTS, 90-day and 20 GB TSDB ceilings
-- Services: `prometheus`, `pve-exporter`, `nut-exporter`,
+- Grafana version/limits: Grafana OSS 13.2.0, 1 CPU and 768 MB service ceiling
+- Services: `prometheus`, `grafana-server`, `pve-exporter`, `nut-exporter`,
   `graphite-exporter` and `truenas-graphite-ingress`
 - Configuration: `/etc/prometheus`; `pve.yml` contains the read-only API token
   and must remain mode-protected and outside Git
+- Grafana configuration: `/etc/grafana`; dashboards are provisioned from
+  `/var/lib/grafana/dashboards`. The initial administrator recovery credential
+  is in the protected backup and `/root/.grafana-initial-admin-password` on the
+  guest; never copy it into Git or routine documentation.
 
 Routine validation:
 
 ```sh
-ssh root@192.168.20.31 "systemctl is-active prometheus pve-exporter nut-exporter graphite-exporter truenas-graphite-ingress"
+ssh root@192.168.20.31 "systemctl is-active prometheus grafana-server pve-exporter nut-exporter graphite-exporter truenas-graphite-ingress"
 ssh root@192.168.20.31 "promtool check config /etc/prometheus/prometheus.yml"
 curl -fsS http://192.168.20.31:9090/-/ready
+curl -fsS http://192.168.20.31:3000/api/health
 curl -fsS http://192.168.20.31:9090/api/v1/targets
 ```
 

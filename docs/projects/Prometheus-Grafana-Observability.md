@@ -1,6 +1,6 @@
 # Prometheus and Grafana Observability Project
 
-> Status: Active — Milestone 3 complete; Milestone 4 next
+> Status: Active — Milestone 4 in progress; Grafana overview pilot online
 >
 > Project owner: Jason
 >
@@ -297,15 +297,41 @@ archive completed on 2026-08-30 and passed a complete Zstandard integrity test.
 
 ## Milestone 4 — Grafana pilot
 
-- [ ] Deploy a pinned, supported Grafana release on the approved private path.
-- [ ] Configure Prometheus as the data source using protected credentials.
-- [ ] Build or carefully adapt the approved bounded dashboards.
-- [ ] Create an overview dashboard for capacity and anomaly investigation.
+- [x] Deploy a pinned, supported Grafana release on the approved private path.
+- [x] Configure Prometheus as the data source using protected provisioning.
+- [x] Build or carefully adapt the approved bounded dashboards.
+- [x] Create an overview dashboard for capacity and anomaly investigation.
 - [ ] Create focused dashboards for network, compute/storage and surveillance/AI
   only where the recorded requirements justify them.
-- [ ] Validate time zone, units, labels and device naming against repository data.
-- [ ] Back up provisioning, dashboard and data-source configuration without
+- [x] Validate time zone, units, labels and device naming against repository data.
+- [x] Back up provisioning, dashboard and data-source configuration without
   committing secrets.
+
+### Initial Grafana deployment
+
+On 2026-08-30, checksum-verified Grafana OSS 13.2.0 was installed natively on
+LXC 109 and bound only to the approved private address at
+`http://192.168.20.31:3000`. Self-registration, usage reporting, update checks,
+plugin administration and automatic plugin installation are disabled. Grafana
+alerting is also disabled until the separate Milestone 5 duplication review.
+The service is limited to one CPU and 768 MB RAM; steady-state service memory
+after removing unused data-source plugins was approximately 170 MB.
+
+Prometheus is the provisioned, non-editable default data source. The first
+provisioned dashboard, **HomeLab Infrastructure Overview**, correlates all seven
+scrape jobs with Proxmox node/guest pressure and storage utilization, TrueNAS
+load, Frigate pipeline performance and the three UPS load, charge and runtime
+series. Its 16 PromQL expressions were validated directly against the live
+Prometheus API. The dashboard uses the browser's local time zone, 30-second
+refresh and repository-aligned guest, camera and power-tier labels.
+
+The protected archive
+`~/lab/private-backups/observability/2026-08-30/observability-grafana-config-2026-08-30.tar.gz`
+contains the Grafana database, provisioning, dashboard JSON, service override
+and initial administrator recovery credential. It is mode 0600, passed archive
+integrity testing and has SHA-256
+`e7904b9f3a16c878500a88c7d843fb09de2d8f9c5daffe5ffae2bab6ab256921`.
+No credential or Grafana runtime database is committed to Git.
 
 Completion gate: each dashboard answers a defined operational question and does
 not merely reproduce Beszel or Homepage.
