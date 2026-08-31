@@ -416,14 +416,23 @@ attempt rejected at the character-allowlist stage.
   then runs Movies then TV Shows sequentially (same read-only migration key),
   logging to `migration/reports/overnight-video-copy.log`. **Started
   automatically 2026-08-30 21:48:51** the moment the music copy exited — no
-  manual trigger needed. Movies copy confirmed running as of this note; TV
-  Shows will follow automatically per the same script.
+  manual trigger needed. **Movies complete 2026-08-31 05:02:18**: 969 files,
+  exact byte match (2,392,854,409,248 bytes), exit code 0.
 - [~] Run the same process for Plex television into `archive-tv`. — Chained
-  into the same overnight run; will start automatically once Movies finishes.
+  into the same overnight run; **started automatically 2026-08-31 05:02:18**
+  the moment Movies finished. In progress as of this note.
 - [ ] Preserve the relative directory structure during the first copy.
-- [ ] Perform a no-change `rsync` comparison after each copy.
-- [ ] Produce a checksum manifest or checksum verification report for the final
-  source and destination trees.
+- [~] Perform a no-change `rsync` comparison after each copy. — Chained
+  together with the checksum step below rather than run separately.
+- [~] Produce a checksum manifest or checksum verification report for the final
+  source and destination trees. — `migration/verify-video-copy.sh` runs both
+  the no-change comparison and a full `--checksum` pass (reads file content on
+  both sides, not just size/mtime) per library, logging to
+  `migration/reports/verify-movies.log` / `verify-tv.log`. Movies verification
+  **started 2026-08-31 07:47** (copy already done, nothing to wait for). TV
+  verification queued via `migration/verify-tv-after-copy.sh`, which waits for
+  the TV copy to exit before running the same two checks — same unattended
+  auto-chain pattern as the copy itself.
 - [ ] Compare file counts, byte totals and extensions by library.
 - [ ] Quarantine zero-byte, unreadable and unsupported files for review; do not
   delete them automatically.
