@@ -1,10 +1,10 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Ready
+> Status: Milestone 1 complete; Milestone 2 next
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-28
+> Last updated: 2026-08-30
 
 ## Purpose
 
@@ -54,15 +54,44 @@ The project is complete only when:
   `Archive TV` libraries.
 - [x] Existing and imported music must become one canonical physical Jellyfin
   music library.
-- [ ] Record the Plex server address, version, host and library names.
-- [ ] Record the Plex media source device, dataset/share and exact paths.
-- [ ] Record the installed Jellyfin version, container name, internal media
-  mount and exact current Movies, TV and Music paths.
-- [ ] Record current media counts, byte totals, filesystem types and free space
-  at both source and destination.
-- [ ] Record every Plex account whose playlists are in scope.
-- [ ] Export an inventory of Plex playlists and movie collections before moving
-  any media.
+- [x] Record the Plex server address, version, host and library names. — Plex
+  Media Server `1.41.5.9626-9ba082670` on Synology `GoWest` (`192.168.20.41`).
+  Libraries: `Movies` (key 1), `TV Shows` (key 2), `Music` (key 4).
+- [x] Record the Plex media source device, dataset/share and exact paths. —
+  Synology `/volume1` (Btrfs). Movies library sources both `/volume1/Movies`
+  (effectively empty) and `/volume1/Plex/Movies` (2.2 TiB, 898 items via API);
+  TV Shows sources `/volume1/Plex/TV Shows` (3.4 TiB, 5,453 episodes); Music
+  sources `/volume1/@appdata/ContainerManager/all_shares/Music`, confirmed by
+  inode to be the same filesystem location as `/volume1/Music` (135 GiB, 7,911
+  tracks). All source paths are world-readable (`777`).
+- [x] Record the installed Jellyfin version, container name, internal media
+  mount and exact current Movies, TV and Music paths. — Jellyfin `10.11.11`
+  (server name `elliottrook`), container `6f532232719b…`, running on TrueNAS as
+  a Docker Compose service (not a TrueNAS catalog app). Confirmed via
+  `/Library/VirtualFolders`: Movies → `/media/media/movies`, Shows →
+  `/media/media/tv`, Music → `/media/media/music` (container paths), backed by
+  a single host bind mount of `/mnt/Media/data` at `/media` plus a separate
+  Docker-managed named volume for `/config`. Host path `/mnt/Media/data` is
+  owned `root:apps` (568), mode `770` — matches the documented UID/GID 568
+  convention. Existing content: 28 movies, 43 series (625 episodes), 140
+  tracks — this is the pre-migration baseline that must not change.
+- [x] Record current media counts, byte totals, filesystem types and free space
+  at both source and destination. — Source (Plex): 898 movies (2.12 TiB), 5,453
+  episodes (3.17 TiB), 7,911 tracks (0.13 TiB) = ~5.42 TiB total, on Btrfs
+  (`/volume1`, 65% full, 3.95 TB free). Destination (TrueNAS `Media` pool):
+  ZFS, 4.15 TiB used, 10.3 TiB available — comfortable headroom after the
+  ~5.42 TiB copy. Network path: Synology NICs are 1 GbE (bottleneck); TrueNAS
+  is on a 10G bond — expect roughly 16–20 hours of sustained transfer time.
+  Direct storage-to-storage copy (TrueNAS ↔ Synology, no Mac relay) is **not
+  yet possible**: neither host has SSH key trust to the other today: this is
+  an inter-host trust change and needs its own explicit approval as a
+  Milestone 2 prerequisite before Milestone 3's `rsync` can run as designed.
+- [x] Record every Plex account whose playlists are in scope. — 5 Plex accounts
+  have server access (`Elliottrook1` plus 4 shared/managed users); confirmed
+  with Jason that only `Elliottrook1` curates playlists, so no other account
+  export is required.
+- [x] Export an inventory of Plex playlists and movie collections before moving
+  any media. — Done; see Required inventory files below.
 
 Unknown paths must be resolved during Milestone 1. The paths below describe the
 approved target structure; they are not permission to guess the source paths.
@@ -232,24 +261,32 @@ source, supported Jellyfin version, write behaviour and rollback limitations.
 
 ## Milestone 1 — Inventory and export gate
 
-- [ ] Record Plex and Jellyfin versions and take screenshots of the current
-  library lists.
-- [ ] Record all host paths, container paths, mounts, datasets, share protocols
-  and filesystem ownership.
-- [ ] Record library-level media counts and storage byte totals.
-- [ ] Record the source-to-destination network path and expected throughput.
+- [x] Record Plex and Jellyfin versions and take screenshots of the current
+  library lists. — Versions recorded above. Screenshots not captured (no
+  interactive session against either UI); the structured JSON exports below
+  are a more precise record of library contents and supersede screenshots for
+  this project's evidentiary purpose. Flag if a visual screenshot is still
+  wanted for the record.
+- [x] Record all host paths, container paths, mounts, datasets, share protocols
+  and filesystem ownership. — See Authoritative baseline above.
+- [x] Record library-level media counts and storage byte totals.
+- [x] Record the source-to-destination network path and expected throughput.
 - [ ] Confirm that the copy runs directly between the source storage and
-  TrueNAS rather than relaying media through a Mac.
-- [ ] Confirm destination free space for the archive copy, music staging area,
-  temporary reports and snapshot retention.
-- [ ] Export the Plex library inventory with rating key, media type, title,
+  TrueNAS rather than relaying media through a Mac. — Tested: **no SSH trust
+  currently exists** between TrueNAS and the Synology in either direction.
+  Direct storage-to-storage copy is not possible until this is set up, which
+  needs separate explicit approval (inter-host trust) before Milestone 2/3.
+- [x] Confirm destination free space for the archive copy, music staging area,
+  temporary reports and snapshot retention. — 10.3 TiB available against
+  ~5.42 TiB incoming; comfortable headroom.
+- [x] Export the Plex library inventory with rating key, media type, title,
   year, edition, source path, size and provider GUIDs.
-- [ ] Export every in-scope Plex playlist before paths change.
-- [ ] Export every Plex movie collection before paths change.
-- [ ] Record which playlists belong to which Plex account.
-- [ ] Identify regular and smart playlists separately.
-- [ ] Identify manual, metadata-derived and smart movie collections separately.
-- [ ] Store exported manifests in the protected migration workspace and record
+- [x] Export every in-scope Plex playlist before paths change.
+- [x] Export every Plex movie collection before paths change.
+- [x] Record which playlists belong to which Plex account.
+- [x] Identify regular and smart playlists separately.
+- [x] Identify manual, metadata-derived and smart movie collections separately.
+- [x] Store exported manifests in the protected migration workspace and record
   their checksums.
 
 ### Required inventory files
@@ -267,6 +304,13 @@ source, supported Jellyfin version, write behaviour and rollback limitations.
 Do not copy or reorganize media until all in-scope playlists and collections
 have a readable export. Their membership becomes harder to recover after Plex
 paths or libraries are removed.
+
+**Gate passed 2026-08-30.** All five required inventory files exist in the
+protected migration workspace with recorded checksums (see evidence log). One
+open item carries forward as a named Milestone 2 prerequisite rather than a
+Milestone 1 blocker: SSH trust between TrueNAS and the Synology does not yet
+exist, so the direct storage-to-storage copy Milestone 3 assumes cannot run
+until that trust is explicitly approved and configured.
 
 ## Milestone 2 — Recovery and destination preparation
 
@@ -666,7 +710,12 @@ deletion is a separate destructive operation requiring explicit approval.
 
 | Date | Milestone | Evidence | Result | Operator |
 |---|---|---|---|---|
-| _Pending_ | 1 | Plex/Jellyfin inventory and object exports | Pending | _TBD_ |
+| 2026-08-30 | 1 | `plex-media.json` (sha256 `e1e289d3…`): 898 movies, 5,453 episodes, 7,911 tracks, ~5.42 TiB total | Passed | Claude |
+| 2026-08-30 | 1 | `plex-playlists.json` (sha256 `e676c168…`): 14 music playlists, owner `Elliottrook1`, full ordered membership | Passed | Claude |
+| 2026-08-30 | 1 | `plex-movie-collections.json` (sha256 `210e9062…`): 233 collections (168 with members, 3 smart) | Passed | Claude |
+| 2026-08-30 | 1 | `jellyfin-before.json` (sha256 `b9a0c805…`): pre-migration baseline — 28 movies, 43 series/625 episodes, 140 tracks | Passed | Claude |
+| 2026-08-30 | 1 | `migration-baseline.csv` (sha256 `bad4fdfd…`): counts/byte totals by source library | Passed | Claude |
+| 2026-08-30 | 1 | SSH trust test, TrueNAS \<-> Synology, both directions | Failed — no key trust either direction; flagged as Milestone 2 prerequisite | Claude |
 
 ## References
 
