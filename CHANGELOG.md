@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added a link-only Grafana tile beside Beszel in Homepage's Security & Operations group, pointing directly to the provisioned HomeLab infrastructure overview without introducing widget polling or credentials during the observation period.
 - Started the Grafana observability pilot on LXC 109: deployed checksum-verified Grafana OSS 13.2.0 on the private TCP 3000 path, provisioned the local Prometheus data source and a bounded HomeLab infrastructure overview, disabled unapproved alerting and automatic plugins, validated all 16 dashboard queries, and created an integrity-tested protected configuration backup.
 - Completed the Prometheus observability pilot in unprivileged LXC 109 at `192.168.20.31`: checksum-verified Prometheus 3.13.2 LTS now collects bounded read-only Proxmox, TrueNAS, Frigate and three-UPS metrics through narrowly scoped network paths. All seven jobs are healthy at 1,686 active series; failure isolation, protected configuration recovery and an integrity-tested guest snapshot passed.
 - Added `truenas.internal` as a persistent `192.168.20.40` record on both Pi-hole resolvers and verified it from the Mac.

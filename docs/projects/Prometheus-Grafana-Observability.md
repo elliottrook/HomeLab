@@ -351,7 +351,9 @@ and response procedure—or the documented decision is to add none.
 
 ## Milestone 6 — Integration, recovery and observation
 
-- [ ] Add a Homepage link/widget only after Grafana is stable.
+- [x] Add a Homepage link/widget only after Grafana is stable. A link-only tile
+  now opens the provisioned overview without adding dashboard polling or
+  credentials during the observation period.
 - [ ] Decide whether Authentik native OIDC is suitable while retaining a local
   recovery administrator and direct private fallback.
 - [ ] Add service/certificate/backup checks to HomeLab Doctor only where needed.
