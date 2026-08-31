@@ -62,6 +62,9 @@ The client device must have an application registered to handle `ssh://` links. 
   `/var/lib/grafana/dashboards`. The initial administrator recovery credential
   is in the protected backup and `/root/.grafana-initial-admin-password` on the
   guest; never copy it into Git or routine documentation.
+- Provisioned HomeLab dashboards: Infrastructure Overview, Compute Storage and
+  Network, Frigate Surveillance and AI, and Power Resilience. The focused
+  backup archive is the current configuration-level recovery point.
 
 Routine validation:
 

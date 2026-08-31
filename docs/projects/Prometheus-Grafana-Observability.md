@@ -1,6 +1,6 @@
 # Prometheus and Grafana Observability Project
 
-> Status: Active — Milestone 4 in progress; Grafana overview pilot online
+> Status: Active — Milestone 4 complete; observation period underway
 >
 > Project owner: Jason
 >
@@ -301,7 +301,7 @@ archive completed on 2026-08-30 and passed a complete Zstandard integrity test.
 - [x] Configure Prometheus as the data source using protected provisioning.
 - [x] Build or carefully adapt the approved bounded dashboards.
 - [x] Create an overview dashboard for capacity and anomaly investigation.
-- [ ] Create focused dashboards for network, compute/storage and surveillance/AI
+- [x] Create focused dashboards for network, compute/storage and surveillance/AI
   only where the recorded requirements justify them.
 - [x] Validate time zone, units, labels and device naming against repository data.
 - [x] Back up provisioning, dashboard and data-source configuration without
@@ -332,6 +332,25 @@ and initial administrator recovery credential. It is mode 0600, passed archive
 integrity testing and has SHA-256
 `e7904b9f3a16c878500a88c7d843fb09de2d8f9c5daffe5ffae2bab6ab256921`.
 No credential or Grafana runtime database is committed to Git.
+
+The focused dashboard set was completed after the initial overview:
+
+- **HomeLab Compute Storage and Network** correlates Proxmox host and guest CPU,
+  memory, storage, disk throughput and network traffic with the bounded TrueNAS
+  load and aggregate-network metrics.
+- **HomeLab Frigate Surveillance and AI** covers camera, processing, detection
+  and skipped FPS, Coral inference latency, process CPU/memory, event rate and
+  recording-storage headroom.
+- **HomeLab Power Resilience** compares all three UPS units by charge, runtime,
+  load, input/output voltage, battery voltage and status.
+
+TrueNAS's current bounded Graphite mapping does not expose pool-capacity or ZFS
+metrics, so the compute/storage dashboard shows only the real TrueNAS load and
+network series. Pool-capacity collection remains a defined gap rather than an
+empty or misleading panel. All 53 PromQL expressions across the four dashboards
+returned live data during validation. The refreshed protected backup is
+`observability-grafana-config-2026-08-30-focused.tar.gz`, with SHA-256
+`843abf7b4a2c28a43fe07da5af6e1e6ba7e5c510672e7769203328f1376b6838`.
 
 Completion gate: each dashboard answers a defined operational question and does
 not merely reproduce Beszel or Homepage.
