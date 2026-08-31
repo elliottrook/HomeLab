@@ -535,13 +535,49 @@ of a real duplication concern).
   rule below. Estimated ~1.71 GB reclaimable if one copy is kept per group.
 - [ ] Define the retention choice for every collision; do not automatically
   prefer one file merely because its bitrate is larger.
-- [ ] For duplicates found within Plex's own source library: review every
+- [x] For duplicates found within Plex's own source library: review every
   duplicate group individually and record which copy is the keeper before any
   removal. Never delete automatically, never delete by title/tag match alone,
   and never delete a file until its retained counterpart has already been
   staged/copied and checksum-verified — so a wrong duplicate call never
   results in true data loss. Deletion from the live Plex library happens only
   after this review, and only for the files explicitly confirmed as redundant.
+  — **Reviewed 2026-08-31.** Of the 6 mixed-format groups: 3 had a clear
+  reviewed decision (see below), 3 were kept as-is (Jason's call — "Up Town
+  Top Ranking" and both Paul Simon tracks are the same song across genuinely
+  different album releases — compilation vs. studio/greatest-hits — not
+  wasteful duplicates). The other 160 same-format groups and the 61
+  import-skipped albums were **not** acted on — see findings below.
+
+  **Real finding on the 61 "skipped" albums**: investigated three at random
+  (Dolly Parton's 23-track "Diamonds & Rhinestones", Kane Brown's "The High
+  Road", Demi Lovato's "Demi") and all three are the same pattern: one
+  correctly-tagged compilation album whose individual featured-collaborator
+  tracks (real duets, e.g. Dolly Parton & Kenny Rogers' "Islands In The
+  Stream") sit in their own per-collaborator folders. Beets' import matched
+  them as "same album, skip" on title alone, without checking that the
+  artist/tracks genuinely differ — a false positive in its own heuristic, not
+  real duplication. **None of the 61 should be deleted**; they're legitimate
+  tracks that were simply left out of beets' catalog and should be included
+  normally in the eventual merge. Nothing was ever at risk — beets' import
+  never had delete/move/write enabled, so the underlying files were untouched
+  throughout.
+
+  **Actions taken** (2 files, reviewed individually, keeper verified staged
+  before any live deletion):
+  - "Just Dance" (Lady Gaga): kept FLAC
+    (`Lady Gaga/The Fame (2008)/12 Vinyl 01/...flac`, verified staged and
+    byte-size-matched to source), removed the redundant AAC copy
+    (`Lady Gaga/The Fame (2008)/The Fame/01 Just Dance.m4a`) from both the
+    staging copy and Plex's live library (`/volume1/Music/...`).
+  - "The House That Built Me" (Miranda Lambert): same pattern — kept FLAC,
+    removed the redundant AAC copy from staging and live Plex.
+  - "jukeboxClick" (both a `.m4a` and `.wav` copy): not a real track at all —
+    a 0.5-second UI sound effect from The Beatles' "1" iTunes LP interactive
+    package. Removed both from the staging copy only; left untouched in Plex
+    itself as it's part of the iTunes LP package internals, not music library
+    content in scope for this project.
+  Removals logged at `migration/reports/staging-dedup-removals.log`.
 - [ ] Use MusicBrainz Picard in reviewed batches for ambiguous or poorly tagged
   albums.
 - [ ] Ensure each album has album artist, album, track title, track number and
