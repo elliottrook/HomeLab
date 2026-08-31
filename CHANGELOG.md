@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Added the private HTTPS Grafana address `monitoring.elliottrook.com` through Nginx Proxy Manager and split DNS, enabled an admin-restricted Authentik sign-in while retaining the local recovery login, and updated the live Homepage tile.
+- Added HomeLab Doctor and protected-backup coverage for the observability stack. The backup passed archive, SQLite, dashboard JSON, and isolated restored-Grafana boot tests; the canonical Synology guest-pull filter now includes LXC 109.
 - Completed the focused Grafana pilot set with compute/storage/network, Frigate surveillance/AI and UPS power-resilience dashboards. All 53 queries across the four provisioned dashboards returned live data; the missing TrueNAS pool-capacity series is recorded as a collection gap instead of an empty panel, and a refreshed protected backup passed checksum and archive validation.
 - Added a link-only Grafana tile beside Beszel in Homepage's Security & Operations group, pointing directly to the provisioned HomeLab infrastructure overview without introducing widget polling or credentials during the observation period.
 - Started the Grafana observability pilot on LXC 109: deployed checksum-verified Grafana OSS 13.2.0 on the private TCP 3000 path, provisioned the local Prometheus data source and a bounded HomeLab infrastructure overview, disabled unapproved alerting and automatic plugins, validated all 16 dashboard queries, and created an integrity-tested protected configuration backup.

@@ -40,7 +40,7 @@ Configuration recovery sets are pulled daily at 21:00 from the Mac source `~/lab
 - `synology-pull-last-success.txt`
 - `logs/synology-pull-latest.log`
 
-Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The filtered mirror includes LXC 100, LXC 101, QEMU 102, QEMU 103, LXC 104, QEMU 105 and LXCs 106–108. The expanded mirror completed successfully after adding Authentik, the reverse proxy and Forgejo. A checksum-mode dry run must be empty before success is recorded in:
+Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The canonical filtered mirror now includes LXC 100, LXC 101, QEMU 102, QEMU 103, LXC 104, QEMU 105 and LXCs 106–109. The tracked task body includes LXC 109, but the live DSM task still needs an administrator update because the normal SSH account cannot invoke DSM `sudo` non-interactively. A checksum-mode dry run must be empty before success is recorded in:
 
 - `proxmox-pull-latest.status`
 - `proxmox-pull-last-success.txt`
@@ -48,8 +48,8 @@ Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup
 
 The canonical replacement body for the DSM scheduled task is tracked as
 `scripts/backup/synology-proxmox-pull.sh`. It includes matching copy and
-verification filters for all nine protected guests and was deployed to the DSM
-task before the successful 2026-08-24 validation.
+verification filters for all ten protected guests. The LXC 109 filter is
+tracked but not yet deployed to the live DSM scheduled task.
 
 Both production tasks write `0` only after copy and verification succeed. On failure they invoke the Mac over the existing restricted SSH path, where `scripts/backup-alert` uses Apple Mail to send an actionable email. Successful runs deliberately send no email. The manual `lab backup synology-copy [--dry-run]` command remains available as an operator-controlled fallback; it is not part of `lab backup all` and is not the unattended production path.
 

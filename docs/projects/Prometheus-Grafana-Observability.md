@@ -1,10 +1,18 @@
 # Prometheus and Grafana Observability Project
 
-> Status: Active — Milestone 4 complete; observation period underway
+> Status: Active — authenticated private URL, Doctor and backup integration complete; alert delivery pending
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-30
+> Last updated: 2026-08-31
+
+Checkpoint: `https://monitoring.elliottrook.com` is live through the private
+reverse proxy and split DNS. Grafana offers admin-restricted Authentik sign-in
+while retaining its local recovery login. HomeLab Doctor and protected backup
+integration are complete, and an isolated restore test passed. Remaining work
+is the two bounded UPS alert rules and notification destination, updating the
+live DSM task body with the tracked LXC 109 filter, final documentation, and
+the 30-day review schedule.
 
 ## Purpose
 
