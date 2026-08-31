@@ -1,6 +1,7 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Milestone 1 complete; Milestone 2 next
+> Status: Milestone 2 complete; Milestone 3 next (pending SSH key install on
+> Synology)
 >
 > Project owner: Jason
 >
@@ -314,26 +315,65 @@ until that trust is explicitly approved and configured.
 
 ## Milestone 2 — Recovery and destination preparation
 
-- [ ] Verify the most recent TrueNAS pool scrub and SMART status.
-- [ ] Take and record ZFS snapshots of affected destination datasets.
-- [ ] Back up and validate the current Jellyfin configuration/database.
-- [ ] Confirm the Plex server and source media remain backed up or otherwise
-  recoverable throughout the project.
-- [ ] Create `archive-movies`, `archive-tv` and the temporary migration
-  directories in the approved dataset.
-- [ ] Apply dataset ACLs that allow the migration process to write and Jellyfin
-  UID/GID `568` to read.
-- [ ] Keep Jellyfin read-only against archive media unless an approved feature
-  specifically requires write access.
-- [ ] Ensure the migration staging directory is outside all active Jellyfin
-  library roots; use a Jellyfin `.ignore` file as an additional safeguard if a
-  temporary directory must exist below a scanned parent.
-- [ ] Record available space after snapshot and directory creation.
+- [x] Verify the most recent TrueNAS pool scrub and SMART status. — `zpool
+  status Media`: ONLINE, scrub repaired 0B with 0 errors on 2026-08-16, no
+  active disk-health alerts. (One unrelated CRITICAL alert exists —
+  `nas-ups` communication lost — from the separate UPS/NUT project; not
+  acted on here, out of scope.)
+- [x] Take and record ZFS snapshots of affected destination datasets. —
+  `Media/data@pre-plex-migration-20260830-205932` (live media) and
+  `Media/ix-apps@pre-plex-migration-20260830-210033` (Docker data root,
+  covers Jellyfin's named config volume).
+- [x] Back up and validate the current Jellyfin configuration/database. —
+  Covered by the `Media/ix-apps` snapshot above (validated: snapshot created
+  and confirmed present via `zfs.snapshot.query`).
+- [x] Confirm the Plex server and source media remain backed up or otherwise
+  recoverable throughout the project. — Hyper Backup confirmed installed and
+  active on the Synology (`/volume1/@appdata/HyperBackup` +
+  `HyperBackupVault` present), consistent with existing repo documentation.
+- [x] Create `archive-movies`, `archive-tv` and the temporary migration
+  directories in the approved dataset. — Created under `/mnt/Media/data`:
+  `archive-movies`, `archive-tv`, `migration/{plex-music,manifests,reports,
+  artwork}`.
+- [x] Apply dataset ACLs that allow the migration process to write and Jellyfin
+  UID/GID `568` to read. — All seven directories: owner `truenas_admin`
+  (uid 950), group `apps` (gid 568), mode `750`. `truenas_admin` was added to
+  the `apps` group (with explicit approval) after discovering it couldn't
+  otherwise traverse into `/mnt/Media/data`, which is itself `root:apps 770`.
+- [x] Keep Jellyfin read-only against archive media unless an approved feature
+  specifically requires write access. — Group `apps` has `r-x` only (mode
+  `750`), not write, on all new directories.
+- [x] Ensure the migration staging directory is outside all active Jellyfin
+  library roots. — Confirmed via Jellyfin's own `/Library/VirtualFolders`:
+  its libraries are scoped to `/media/media/movies`, `/media/media/tv`,
+  `/media/media/music` specifically, not the broader `/media` root, so
+  `archive-movies`, `archive-tv` and `migration/` (siblings of `media/` under
+  the same bind mount) are outside every current scan root. No `.ignore` file
+  needed.
+- [x] Record available space after snapshot and directory creation. — 10.3 TiB
+  available, unchanged (new snapshots and empty directories cost negligible
+  space until written to).
 
 ### Gate
 
 Create and remove a test file through the migration identity, then confirm that
 Jellyfin can read—but need not modify—the corresponding destination test file.
+
+**Gate passed 2026-08-30.** Wrote a test file into `archive-movies` as
+`truenas_admin`; confirmed via Jellyfin's own `/Environment/DirectoryContents`
+API (container-side, `includeFiles=true`) that it was visible; removed it and
+confirmed Jellyfin's view returned to empty.
+
+**One item carried forward, not a gate blocker**: SSH key trust from TrueNAS to
+the Synology (needed for Milestone 3's direct storage-to-storage `rsync`) is
+prepared but not yet installed. A dedicated ed25519 keypair was generated on
+TrueNAS (`~/.ssh/plex_migration_ed25519`), and a read-only rsync restriction
+wrapper was staged at `~/.ssh/rsync-readonly-wrapper.sh` on the Synology
+(limits the key to `rsync --server --sender` pulls from `/volume1/Plex/Movies`,
+`/volume1/Plex/TV Shows` and `/volume1/Music` only). Installing the public key
+itself requires root/sudo on the Synology (`/etc/ssh/authorized_keys/Jason` is
+`root:root`; the standard `~/.ssh/authorized_keys` path is not read by this
+host's `sshd_config`) — Jason to add it directly.
 
 ## Milestone 3 — Archive video copy
 
@@ -716,6 +756,11 @@ deletion is a separate destructive operation requiring explicit approval.
 | 2026-08-30 | 1 | `jellyfin-before.json` (sha256 `b9a0c805…`): pre-migration baseline — 28 movies, 43 series/625 episodes, 140 tracks | Passed | Claude |
 | 2026-08-30 | 1 | `migration-baseline.csv` (sha256 `bad4fdfd…`): counts/byte totals by source library | Passed | Claude |
 | 2026-08-30 | 1 | SSH trust test, TrueNAS \<-> Synology, both directions | Failed — no key trust either direction; flagged as Milestone 2 prerequisite | Claude |
+| 2026-08-30 | 2 | `zpool status Media` | Passed — ONLINE, scrub clean 2026-08-16, 0 errors | Claude |
+| 2026-08-30 | 2 | ZFS snapshots `Media/data@pre-plex-migration-20260830-205932`, `Media/ix-apps@pre-plex-migration-20260830-210033` | Passed | Claude |
+| 2026-08-30 | 2 | `archive-movies`/`archive-tv`/`migration/*` created, `truenas_admin:apps 750` | Passed | Claude |
+| 2026-08-30 | 2 | Gate test: write via migration identity, read via Jellyfin `/Environment/DirectoryContents` API, cleanup | Passed | Claude |
+| 2026-08-30 | 2 | SSH key install attempt, TrueNAS→Synology dedicated key | Blocked — `/etc/ssh/authorized_keys/Jason` is root-owned; needs Jason to add the key directly | Claude |
 
 ## References
 
