@@ -430,13 +430,38 @@ reconciled, checksum verification passes and the Plex source remains intact.
 
 ## Milestone 4 — Music staging, normalization and merge
 
-- [ ] Copy Plex music into `/mnt/Media/data/migration/plex-music`; do not point
-  Jellyfin at this folder.
+> **Execution note:** running before Milestone 3 — see the execution order
+> note at the top of this document.
+
+- [~] Copy Plex music into `/mnt/Media/data/migration/plex-music`; do not point
+  Jellyfin at this folder. — **In progress** (started 2026-08-30 21:19, via the
+  read-only rsync key; dry run confirmed 39,112 files / 144.3 GB first).
 - [ ] Inventory formats, bitrates, sample rates, bit depth, embedded artwork,
   lyrics and current tags.
-- [ ] Catalogue the existing Jellyfin music and staged Plex music separately.
+- [x] Catalogue the existing Jellyfin music and staged Plex music separately. —
+  Existing Jellyfin music (140 tracks, entirely a Paul Simon test collection
+  per Jason — not real content to preserve) compared against Plex's 7,911
+  tracks: 59 overlap, 81 Jellyfin-only, 7,396 Plex-only. Since the Jellyfin
+  side is disposable test data, this comparison doesn't need careful
+  reconciliation — the real work is the Plex-internal duplicate check below.
 - [ ] Run beets with move and delete disabled and tag writing disabled for the
-  first audit.
+  first audit. — Tooling prepared (see Tooling note below); full run pending
+  copy completion.
+
+**Tooling note:** `beets` 2.13.1 and `ffprobe` (both required — beets 2.13's
+import pipeline calls `ffprobe` unconditionally) were installed fully
+self-contained under `/mnt/Media/data/migration/beets-tool/`, with no changes
+to TrueNAS's system Python or packages: `pip` bootstrapped via the official
+`get-pip.py`, `beets` installed with `pip install --target=`, `ffprobe` from
+the official static Linux build (johnvansickle.com, the source ffmpeg.org
+itself links to; sha/md5 verified against the publisher's manifest before
+executing). `BEETSDIR` points at `beets-tool/beetsdir` so its config/database
+stay inside the migration workspace, not `truenas_admin`'s home directory.
+Config disables move/copy/write/autotag and ignores Synology `@eaDir`
+metadata-stream clutter (checked: 946 such directories in the source Music
+library, totaling only 3.7 MB — not real duplicate content, just Synology
+extended-attribute storage; excluded from analysis for cleanliness, not out
+of a real duplication concern).
 - [ ] Produce album-level and track-level duplicate reports **covering two
   separate comparisons**: duplicates already present within Plex's own source
   music library, and collisions between the existing Jellyfin music root and
