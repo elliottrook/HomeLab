@@ -51,7 +51,8 @@ The client device must have an application registered to handle `ssh://` links. 
 - Guest: unprivileged Proxmox LXC 109 (`observability`)
 - Address: `192.168.20.31` on Servers VLAN 20
 - Prometheus: `http://192.168.20.31:9090` from approved private networks only
-- Grafana: `http://192.168.20.31:3000` from approved private networks only
+- Grafana: `https://monitoring.elliottrook.com` through the private reverse
+  proxy; `http://192.168.20.31:3000` remains the private recovery path
 - Version/limits: Prometheus 3.13.2 LTS, 90-day and 20 GB TSDB ceilings
 - Grafana version/limits: Grafana OSS 13.2.0, 1 CPU and 768 MB service ceiling
 - Services: `prometheus`, `grafana-server`, `pve-exporter`, `nut-exporter`,
@@ -62,6 +63,14 @@ The client device must have an application registered to handle `ssh://` links. 
   `/var/lib/grafana/dashboards`. The initial administrator recovery credential
   is in the protected backup and `/root/.grafana-initial-admin-password` on the
   guest; never copy it into Git or routine documentation.
+- Grafana Authentik OIDC is restricted to the Authentik administrators group.
+  Its client secret is stored in the protected `/etc/grafana/oauth.env` and is
+  included only in protected backups. Local login and the direct address remain
+  available for recovery.
+- Grafana evaluates only two provisioned UPS rules: on-battery for 30 seconds,
+  and low/replace-battery or charge at the device threshold for two minutes.
+  Outbound delivery and its controlled test remain pending an explicit choice
+  of email versus Home Assistant/mobile notification.
 - Provisioned HomeLab dashboards: Infrastructure Overview, Compute Storage and
   Network, Frigate Surveillance and AI, and Power Resilience. The focused
   backup archive is the current configuration-level recovery point.

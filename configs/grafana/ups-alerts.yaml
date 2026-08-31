@@ -1,0 +1,106 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: UPS power resilience
+    folder: HomeLab Alerts
+    interval: 30s
+    rules:
+      - uid: homelab-ups-on-battery
+        title: HomeLab UPS on battery
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: max by (job, power_tier) (network_ups_tools_ups_status{flag="OB"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [B]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: B
+              type: threshold
+        dashboardUid: homelab-power-resilience
+        panelId: 1
+        noDataState: NoData
+        execErrState: Error
+        for: 30s
+        annotations:
+          summary: "{{ $labels.power_tier }} UPS is running on battery"
+          description: "Utility input has been lost for the {{ $labels.power_tier }} power tier."
+        labels:
+          severity: critical
+          service: ups
+        isPaused: false
+
+      - uid: homelab-ups-battery-issue
+        title: HomeLab UPS battery issue
+        condition: B
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: max by (job, power_tier) (network_ups_tools_battery_charge - on(job, power_tier, instance) network_ups_tools_battery_charge_low <= 0) or max by (job, power_tier) (network_ups_tools_ups_status{flag=~"LB|RB"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [B]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              expression: A
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: B
+              type: threshold
+        dashboardUid: homelab-power-resilience
+        panelId: 2
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        annotations:
+          summary: "{{ $labels.power_tier }} UPS battery requires attention"
+          description: "Battery charge is at/below the device threshold, or NUT reports low/replace-battery status."
+        labels:
+          severity: warning
+          service: ups
+        isPaused: false
+

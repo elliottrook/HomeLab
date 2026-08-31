@@ -365,9 +365,11 @@ not merely reproduce Beszel or Homepage.
 
 ## Milestone 5 — Alerting decision
 
-- [ ] Map existing HomeLab Doctor and Beszel alerts to prevent duplication.
-- [ ] Identify only missing, actionable sustained conditions.
-- [ ] Decide whether Alertmanager is justified; do not deploy it by default.
+- [x] Map existing HomeLab Doctor and Beszel alerts to prevent duplication.
+- [x] Identify only missing, actionable sustained conditions: UPS on-battery
+  and battery low/replace-battery state.
+- [x] Decide whether Alertmanager is justified; standalone Alertmanager is not
+  deployed. Grafana's built-in evaluator owns only the two UPS rules.
 - [ ] If deployed, test routing, grouping, inhibition, recovery notices and
   failure-only behaviour.
 - [ ] Perform controlled threshold tests and restore production thresholds.
@@ -381,10 +383,10 @@ and response procedure—or the documented decision is to add none.
 - [x] Add a Homepage link/widget only after Grafana is stable. A link-only tile
   now opens the provisioned overview without adding dashboard polling or
   credentials during the observation period.
-- [ ] Decide whether Authentik native OIDC is suitable while retaining a local
+- [x] Decide whether Authentik native OIDC is suitable while retaining a local
   recovery administrator and direct private fallback.
-- [ ] Add service/certificate/backup checks to HomeLab Doctor only where needed.
-- [ ] Validate backup and isolated restore of configuration and dashboards.
+- [x] Add service/certificate/backup checks to HomeLab Doctor only where needed.
+- [x] Validate backup and isolated restore of configuration and dashboards.
 - [ ] Observe resource consumption and disk growth for at least 30 days.
 - [ ] Compare outcomes with the keep/reject criteria from Milestone 1.
 - [ ] Keep, reduce or remove the platform explicitly; clean up pilot rules and
@@ -406,3 +408,5 @@ decision is to retain HomeLab Doctor and Beszel alone.
 | 2026-08-30 | Milestone 1 | Questions, pilot targets, budgets, dashboards and keep/reject criteria recorded | Complete |
 | 2026-08-30 | Milestone 2 | Live capacity, placement, least-privilege identities, narrow network flows and recovery design validated | Complete |
 | 2026-08-30 | Milestone 3 | Seven jobs healthy, 1,686 series, failure isolation passed, protected config and verified LXC backups created | Complete |
+| 2026-08-31 | Milestones 5–6 | Private HTTPS URL and Authentik OIDC enabled; Doctor passed 53 checks with no failures; protected archive, SQLite, four dashboard files and isolated Grafana boot validated; two UPS rules provisioned and normal | Delivery destination and controlled notification test pending |
+| 2026-08-31 | Authentik repair | A clone attempt was caught during consent testing because it had retained Forgejo's provider identity. Forgejo's client values were restored from its own protected login-source configuration, a distinct Grafana provider/application was created, and sanitized identity checks confirmed separate provider IDs and callbacks. A real Forgejo OIDC login passed and Grafana's consent page now identifies Grafana. | Passed |
