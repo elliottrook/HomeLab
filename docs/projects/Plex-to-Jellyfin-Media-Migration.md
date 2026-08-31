@@ -1,7 +1,6 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Milestone 2 complete; Milestone 3 next (pending SSH key install on
-> Synology)
+> Status: Milestone 2 complete; Milestone 3 next
 >
 > Project owner: Jason
 >
@@ -364,16 +363,22 @@ Jellyfin can read—but need not modify—the corresponding destination test fil
 API (container-side, `includeFiles=true`) that it was visible; removed it and
 confirmed Jellyfin's view returned to empty.
 
-**One item carried forward, not a gate blocker**: SSH key trust from TrueNAS to
-the Synology (needed for Milestone 3's direct storage-to-storage `rsync`) is
-prepared but not yet installed. A dedicated ed25519 keypair was generated on
-TrueNAS (`~/.ssh/plex_migration_ed25519`), and a read-only rsync restriction
-wrapper was staged at `~/.ssh/rsync-readonly-wrapper.sh` on the Synology
-(limits the key to `rsync --server --sender` pulls from `/volume1/Plex/Movies`,
-`/volume1/Plex/TV Shows` and `/volume1/Music` only). Installing the public key
-itself requires root/sudo on the Synology (`/etc/ssh/authorized_keys/Jason` is
-`root:root`; the standard `~/.ssh/authorized_keys` path is not read by this
-host's `sshd_config`) — Jason to add it directly.
+**SSH key trust from TrueNAS to the Synology — resolved 2026-08-30.** A
+dedicated ed25519 keypair was generated on TrueNAS
+(`~/.ssh/plex_migration_ed25519`) and installed into
+`/etc/ssh/authorized_keys/Jason` via a one-time DSM Task Scheduler script run
+as `root` (Jason ran it; this host's `sshd_config` points `AuthorizedKeysFile`
+at that path rather than the standard `~/.ssh/authorized_keys`, and that path
+is root-owned). The key is bound to a read-only rsync restriction wrapper at
+`~/.ssh/rsync-readonly-wrapper.sh` on the Synology: it only permits
+`rsync --server --sender` (pull/read direction — never receiver/write) against
+exactly `/volume1/Plex/Movies`, `/volume1/Plex/TV Shows` or `/volume1/Music`,
+validated through a character allowlist before any shell tokenization to
+prevent command injection via `SSH_ORIGINAL_COMMAND`. Verified end to end:
+plain commands rejected, allowed paths (including the space in `TV Shows`,
+which required a wrapper fix — rsync backslash-escapes spaces rather than
+quoting them) succeed, disallowed paths rejected, and a semicolon-injection
+attempt rejected at the character-allowlist stage.
 
 ## Milestone 3 — Archive video copy
 
@@ -760,7 +765,8 @@ deletion is a separate destructive operation requiring explicit approval.
 | 2026-08-30 | 2 | ZFS snapshots `Media/data@pre-plex-migration-20260830-205932`, `Media/ix-apps@pre-plex-migration-20260830-210033` | Passed | Claude |
 | 2026-08-30 | 2 | `archive-movies`/`archive-tv`/`migration/*` created, `truenas_admin:apps 750` | Passed | Claude |
 | 2026-08-30 | 2 | Gate test: write via migration identity, read via Jellyfin `/Environment/DirectoryContents` API, cleanup | Passed | Claude |
-| 2026-08-30 | 2 | SSH key install attempt, TrueNAS→Synology dedicated key | Blocked — `/etc/ssh/authorized_keys/Jason` is root-owned; needs Jason to add the key directly | Claude |
+| 2026-08-30 | 2 | SSH key install, TrueNAS→Synology dedicated key, via DSM Task Scheduler (root) | Passed — installed by Jason | Claude |
+| 2026-08-30 | 2 | Read-only rsync wrapper validation: plain command, 3 allowed paths (incl. space in "TV Shows"), 1 disallowed path, 1 injection attempt | Passed — 6/6 correct after fixing a whitespace-parsing bug and a follow-on eval-injection risk in the wrapper | Claude |
 
 ## References
 
