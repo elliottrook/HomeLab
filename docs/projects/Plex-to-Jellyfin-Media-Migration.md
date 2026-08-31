@@ -414,10 +414,12 @@ attempt rejected at the character-allowlist stage.
   **Queued 2026-08-30 21:44** via `migration/overnight-video-copy.sh`,
   running detached on TrueNAS: waits for the Milestone 4 music copy to exit,
   then runs Movies then TV Shows sequentially (same read-only migration key),
-  logging to `migration/reports/overnight-video-copy.log`. Not yet started as
-  of this note (still waiting on music).
-- [ ] Run the same process for Plex television into `archive-tv`. — See above;
-  chained into the same overnight run.
+  logging to `migration/reports/overnight-video-copy.log`. **Started
+  automatically 2026-08-30 21:48:51** the moment the music copy exited — no
+  manual trigger needed. Movies copy confirmed running as of this note; TV
+  Shows will follow automatically per the same script.
+- [~] Run the same process for Plex television into `archive-tv`. — Chained
+  into the same overnight run; will start automatically once Movies finishes.
 - [ ] Preserve the relative directory structure during the first copy.
 - [ ] Perform a no-change `rsync` comparison after each copy.
 - [ ] Produce a checksum manifest or checksum verification report for the final
@@ -434,8 +436,9 @@ Preserve media content and timestamps while allowing the destination dataset's
 ACL model to control ownership.
 
 ```bash
-rsync -aH --no-owner --no-group --protect-args \
+rsync -aH --no-owner --no-group \
   --partial --info=progress2 --dry-run \
+  --exclude=@eaDir --exclude=.DS_Store --exclude=.quarantine --exclude=@tmp \
   SOURCE_PATH/ DESTINATION_PATH/
 ```
 
@@ -443,6 +446,17 @@ After reviewing the dry run, repeat without `--dry-run`. Use an explicitly
 logged checksum verification pass after the bulk transfer. A checksum pass is
 slower than the initial size/time comparison and should be scheduled
 accordingly.
+
+**Learned during execution:** the originally-planned `--protect-args` flag is
+**not compatible** with the read-only SSH key's path-restriction wrapper (see
+Milestone 2) — with `--protect-args`, rsync sends the source/destination path
+over its own wire protocol rather than as a visible SSH command-line argument,
+so the wrapper has nothing to validate against and rejects every request.
+Dropping `--protect-args` is safe here: it only affects how the top-level
+source/destination path is passed to the remote shell, not how individual
+filenames are handled during the actual transfer (confirmed working correctly
+with the space in "TV Shows", handled via backslash-escaping rather than
+quoting once `--protect-args` is removed).
 
 ### Gate
 
@@ -454,9 +468,10 @@ reconciled, checksum verification passes and the Plex source remains intact.
 > **Execution note:** running before Milestone 3 — see the execution order
 > note at the top of this document.
 
-- [~] Copy Plex music into `/mnt/Media/data/migration/plex-music`; do not point
-  Jellyfin at this folder. — **In progress** (started 2026-08-30 21:19, via the
-  read-only rsync key; dry run confirmed 39,112 files / 144.3 GB first).
+- [x] Copy Plex music into `/mnt/Media/data/migration/plex-music`; do not point
+  Jellyfin at this folder. — **Complete 2026-08-30 21:48**, started 21:19.
+  39,112 files transferred, exact byte match to the dry run
+  (144,317,754,115 bytes, zero discrepancy).
 - [ ] Inventory formats, bitrates, sample rates, bit depth, embedded artwork,
   lyrics and current tags.
 - [x] Catalogue the existing Jellyfin music and staged Plex music separately. —
@@ -465,9 +480,13 @@ reconciled, checksum verification passes and the Plex source remains intact.
   tracks: 59 overlap, 81 Jellyfin-only, 7,396 Plex-only. Since the Jellyfin
   side is disposable test data, this comparison doesn't need careful
   reconciliation — the real work is the Plex-internal duplicate check below.
-- [ ] Run beets with move and delete disabled and tag writing disabled for the
-  first audit. — Tooling prepared (see Tooling note below); full run pending
-  copy completion.
+- [~] Run beets with move and delete disabled and tag writing disabled for the
+  first audit. — **Started 2026-08-30 21:49** against the complete staged
+  copy (fixed the duplicate-matching key first: it was set to `mb_trackid`,
+  which only populates with online tag-matching, off for this pass — switched
+  to `[artist, album, title]` from embedded tags instead). Estimated 60–75 min
+  based on an earlier partial-run rate (579 tracks/60s); running unattended,
+  logging to `migration/reports/beets-import-run.log`.
 
 **Tooling note:** `beets` 2.13.1 and `ffprobe` (both required — beets 2.13's
 import pipeline calls `ffprobe` unconditionally) were installed fully
