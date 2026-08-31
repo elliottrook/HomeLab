@@ -18,6 +18,7 @@
 | Prometheus/Grafana observability | Grafana dashboards complete; observation underway | [Prometheus/Grafana](Prometheus-Grafana-Observability.md) | Four provisioned dashboards use seven bounded scrape jobs; existing HomeLab Doctor and Beszel remain operational |
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
 | Plex-to-Jellyfin media migration | Ready | [Plex-to-Jellyfin media migration](Plex-to-Jellyfin-Media-Migration.md) | Separate Archive Movies/TV libraries, unified music, playlists and movie collections |
+| Video library archiving | Proposed | [Video library archiving](Video-Library-Archiving.md) | Downconverts aged current-library video and hands it to the archive roots above |
 
 ## Common project rules
 
