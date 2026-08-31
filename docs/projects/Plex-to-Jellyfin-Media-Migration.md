@@ -1,6 +1,7 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Milestone 2 complete; Milestone 4 next
+> Status: Milestone 2 complete; Milestones 3 and 4 in progress (overnight
+> unattended copy running)
 >
 > Project owner: Jason
 >
@@ -392,11 +393,31 @@ attempt rejected at the character-allowlist stage.
 
 ## Milestone 3 — Archive video copy
 
-- [ ] Run an `rsync` dry run for Plex movies into `archive-movies`.
-- [ ] Review excludes. Exclude caches and operating-system debris, not subtitle,
-  NFO, artwork or extras files that may be useful to Jellyfin.
-- [ ] Copy movies with partial-transfer protection and logging enabled.
-- [ ] Run the same process for Plex television into `archive-tv`.
+> **Execution note:** started before Milestone 4 finished, queued to run
+> overnight — see below.
+
+- [x] Run an `rsync` dry run for Plex movies into `archive-movies`. — Clean:
+  969 regular files, 2.39 TB (2.18 TiB).
+- [x] Review excludes. Exclude caches and operating-system debris, not subtitle,
+  NFO, artwork or extras files that may be useful to Jellyfin. — Excluded
+  `@eaDir`, `.DS_Store`, `.quarantine`, `@tmp` (same harmless Synology
+  metadata-stream pattern confirmed during the music copy: 58 `@eaDir` dirs /
+  7.6 MB in Movies, 164 dirs / 74 MB in TV Shows — negligible, not real
+  duplicate content). Subtitles/NFO/artwork/extras are not excluded.
+- [~] Copy movies with partial-transfer protection and logging enabled. — Also
+  ran an `rsync` dry run for TV into `archive-tv`, clean: 5,973 regular files,
+  3.63 TB (3.31 TiB). Combined real total ~6.03 TB (5.48 TiB) — higher than
+  the ~5.29 TiB estimate in Milestone 1's evidence log, which only counted one
+  file per Plex library item; the real filesystem includes extra subtitle/
+  artwork/NFO files and multi-edition movies. Destination had 10.1 TiB
+  available at queue time (music copy in progress) — comfortable headroom.
+  **Queued 2026-08-30 21:44** via `migration/overnight-video-copy.sh`,
+  running detached on TrueNAS: waits for the Milestone 4 music copy to exit,
+  then runs Movies then TV Shows sequentially (same read-only migration key),
+  logging to `migration/reports/overnight-video-copy.log`. Not yet started as
+  of this note (still waiting on music).
+- [ ] Run the same process for Plex television into `archive-tv`. — See above;
+  chained into the same overnight run.
 - [ ] Preserve the relative directory structure during the first copy.
 - [ ] Perform a no-change `rsync` comparison after each copy.
 - [ ] Produce a checksum manifest or checksum verification report for the final
