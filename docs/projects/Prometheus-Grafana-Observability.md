@@ -370,10 +370,11 @@ not merely reproduce Beszel or Homepage.
   and battery low/replace-battery state.
 - [x] Decide whether Alertmanager is justified; standalone Alertmanager is not
   deployed. Grafana's built-in evaluator owns only the two UPS rules.
-- [ ] If deployed, test routing, grouping, inhibition, recovery notices and
+- [x] If deployed, test routing, grouping, inhibition, recovery notices and
   failure-only behaviour.
-- [ ] Perform controlled threshold tests and restore production thresholds.
-- [ ] Document the authoritative tool for every alert category.
+- [x] Perform a controlled delivery test without changing production UPS
+  thresholds; remove the temporary rule afterward.
+- [x] Document the authoritative tool for every alert category.
 
 Completion gate: alerts are actionable, non-duplicative and have a tested owner
 and response procedure—or the documented decision is to add none.
@@ -410,4 +411,4 @@ decision is to retain HomeLab Doctor and Beszel alone.
 | 2026-08-30 | Milestone 3 | Seven jobs healthy, 1,686 series, failure isolation passed, protected config and verified LXC backups created | Complete |
 | 2026-08-31 | Milestones 5–6 | Private HTTPS URL and Authentik OIDC enabled; Doctor passed 53 checks with no failures; protected archive, SQLite, four dashboard files and isolated Grafana boot validated; two UPS rules provisioned and normal | Delivery destination and controlled notification test pending |
 | 2026-08-31 | Authentik repair | A clone attempt was caught during consent testing because it had retained Forgejo's provider identity. Forgejo's client values were restored from its own protected login-source configuration, a distinct Grafana provider/application was created, and sanitized identity checks confirmed separate provider IDs and callbacks. A real Forgejo OIDC login passed and Grafana's consent page now identifies Grafana. | Passed |
-| 2026-08-31 | Alert delivery test | Email to `jason@yampy.ca` selected and contact point provisioned. Grafana generated the controlled test and handed it to local Postfix, but direct recipient-MX delivery on TCP 25 timed out. The temporary rule and queued message were removed, only the two production UPS rules remain, and SMTP was disabled pending an authenticated 465/587 relay. | Transport pending |
+| 2026-08-31 | Alert delivery test | Email to `jason@yampy.ca` selected and contact point provisioned. Direct TCP 25 delivery was rejected as unsuitable, so Grafana was configured for authenticated iCloud SMTP on TCP 587 with mandatory STARTTLS. The corrected Apple Account identity and app-specific password passed direct authentication; a Grafana-generated test was received, then its temporary rule was removed. Only the two production UPS rules remain. | Passed |

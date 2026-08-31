@@ -70,10 +70,10 @@ The client device must have an application registered to handle `ssh://` links. 
 - Grafana evaluates only two provisioned UPS rules: on-battery for 30 seconds,
   and low/replace-battery or charge at the device threshold for two minutes.
   Email to `jason@yampy.ca` is the selected notification path and its contact
-  point is provisioned. SMTP remains disabled: a controlled test proved Grafana
-  generated and handed the message to local Postfix, but direct delivery to the
-  recipient MX on TCP 25 timed out. Configure an authenticated relay on TCP 465
-  or 587 before enabling SMTP and repeating the controlled firing/recovery test.
+  point is provisioned. Grafana authenticates to iCloud SMTP on TCP 587 with
+  mandatory STARTTLS using the protected `/etc/grafana/smtp-icloud.env` file.
+  A controlled Grafana-generated test was received successfully; the temporary
+  rule was then removed and only the two production UPS rules remain.
 - Provisioned HomeLab dashboards: Infrastructure Overview, Compute Storage and
   Network, Frigate Surveillance and AI, and Power Resilience. The focused
   backup archive is the current configuration-level recovery point.
