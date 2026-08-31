@@ -167,6 +167,10 @@ host and container mappings before changing the compose configuration.
   extras.
 - Stage, audit, tag, deduplicate and merge Plex music into the existing
   Jellyfin music root.
+- Identify duplicate files already present within Plex's own source library
+  (movies, TV and music) and, for confirmed music duplicates, remove the
+  redundant copy from Plex only after individual review and only once the
+  retained copy is safely staged/verified elsewhere.
 - Configure the required Jellyfin container mounts and libraries.
 - Export, map, recreate and validate Plex playlists.
 - Classify, export, recreate and validate Plex movie collections.
@@ -334,11 +338,21 @@ reconciled, checksum verification passes and the Plex source remains intact.
 - [ ] Catalogue the existing Jellyfin music and staged Plex music separately.
 - [ ] Run beets with move and delete disabled and tag writing disabled for the
   first audit.
-- [ ] Produce album-level and track-level duplicate reports.
+- [ ] Produce album-level and track-level duplicate reports **covering two
+  separate comparisons**: duplicates already present within Plex's own source
+  music library, and collisions between the existing Jellyfin music root and
+  staged Plex music.
 - [ ] Distinguish exact duplicate files from alternate releases, masters,
   formats and legitimately repeated tracks.
 - [ ] Define the retention choice for every collision; do not automatically
   prefer one file merely because its bitrate is larger.
+- [ ] For duplicates found within Plex's own source library: review every
+  duplicate group individually and record which copy is the keeper before any
+  removal. Never delete automatically, never delete by title/tag match alone,
+  and never delete a file until its retained counterpart has already been
+  staged/copied and checksum-verified — so a wrong duplicate call never
+  results in true data loss. Deletion from the live Plex library happens only
+  after this review, and only for the files explicitly confirmed as redundant.
 - [ ] Use MusicBrainz Picard in reviewed batches for ambiguous or poorly tagged
   albums.
 - [ ] Ensure each album has album artist, album, track title, track number and
@@ -368,7 +382,8 @@ authoritative. Avoid filesystem-reserved characters in generated names.
 
 Test at least one single-disc album, multidisc album, compilation, album with
 multiple artists, lossless album and album containing lyrics before merging the
-remaining collection.
+remaining collection. Every duplicate group found within Plex's own source
+library has a recorded keeper decision before any file is deleted from Plex.
 
 ## Milestone 5 — Jellyfin libraries and identity mapping
 
@@ -620,6 +635,7 @@ deletion is a separate destructive operation requiring explicit approval.
 | Archive files appear in existing libraries | Separate top-level roots and verify container mounts before scanning |
 | Music albums split or merge incorrectly | Correct embedded album artist, album, disc and compilation tags in staging |
 | Alternate music release deleted as a duplicate | Report duplicates; require human retention decisions; never auto-delete |
+| A confirmed Plex-source duplicate is deleted before its keeper copy is verified | Only delete from Plex after the retained copy is staged and checksum-verified; per-item review, no batch or automatic deletion |
 | Playlist items disappear after path changes | Export ordered manifests first and map through provider IDs/final paths |
 | Playlist count matches but order changes | Validate the complete ordered destination item list |
 | Collection attaches to the wrong duplicate movie | Require provider ID plus archive-path agreement where duplicates exist |
