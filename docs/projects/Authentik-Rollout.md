@@ -1,10 +1,11 @@
 # Authentik Service Rollout Project
 
-> Status: Foundation proven; staged rollout proposed
+> Status: Foundation proven; Milestone 2 rollout wave started — Forgejo done
+> (native OIDC), Homepage and Beszel still open
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-25
+> Last updated: 2026-08-31
 
 ## Purpose
 
@@ -72,7 +73,10 @@ documented and tested without changing another service.
 Implement one service at a time using the onboarding worksheet and evidence
 table in `docs/09-Service-Authorization-Onboarding.md`.
 
-- [ ] Forgejo — prefer native OIDC; retain a local Forgejo administrator.
+- [x] Forgejo — native OIDC via Authentik OAuth2/OpenID Provider, confirmed
+  working end-to-end from a clean session (full password + passkey/MFA
+  prompt). Local Forgejo administrator login retained as break-glass. See
+  evidence log below for the two real bugs found and fixed along the way.
 - [ ] Homepage — use forward auth and verify all dashboard/widget requests.
 - [ ] Beszel — use native OIDC if supported; otherwise forward auth while agents
   continue using their direct private path.
@@ -138,3 +142,4 @@ backup and rollback procedures have passed.
 | 2026-08-22 | Nginx Proxy Manager | Authentik forward auth with password and passkey | Passed |
 | 2026-08-24 | Project split | Rollout separated from initial-build record | Complete |
 | 2026-08-25 | Authentik launch URL follow-up | Verified Base URL/outpost/NPM headers; replaced dashboard HTTP fallback link with `https://auth.elliottrook.com` | Passed |
+| 2026-08-31 | Forgejo | Native OIDC via a dedicated Authentik OAuth2/OpenID Provider. Two real bugs were found and fixed, not just a straightforward setup: (1) Forgejo's actual OAuth callback path is case-sensitive to the Authentication Source name (`https://git.elliottrook.com/user/oauth2/Authentik/callback` with capital "A", matching what was typed into Forgejo) — the redirect URI initially registered in Authentik used lowercase and was rejected; confirmed the exact mismatch by capturing the live `authorize` request rather than guessing. (2) A known Gitea/Forgejo upstream bug: it cannot parse JWE-encrypted tokens, producing `oauth2: error decoding JWT token: jws: invalid token received, not all parts available` — fixed by clearing the Encryption Key field on the Authentik provider (token encryption must stay off for Forgejo specifically). Also corrected Forgejo's Additional Scopes from blank to `email profile` per the official Authentik-Forgejo integration guide. A separate, unrelated blocker was also found and fixed along the way: an OPNsense inter-VLAN firewall rule was missing, preventing Forgejo's host (192.168.20.30, Servers VLAN 20) from reaching NPM (192.168.50.23, Management VLAN 50) on port 443 at all — added a narrow pass rule scoped to just Forgejo's host. Validated with a full clean-session login (private window, no prior Authentik session) showing the complete password + passkey/MFA prompt. Also fixed an unrelated Homepage dashboard tile pointing at Forgejo's old IP-based URL instead of `https://git.elliottrook.com`. | Passed |

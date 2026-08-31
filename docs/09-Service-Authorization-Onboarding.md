@@ -148,6 +148,34 @@ Only after all tests pass should SSO become the default login. Retain at least
 one tested local recovery account unless the application's recovery design
 explicitly provides another independent path.
 
+### Known pitfalls found during rollout (check these before debugging deeper)
+
+- **Verify the real redirect URI by capturing the live request, not by
+  reading it off a settings screen.** Found onboarding Forgejo: the
+  Authentication Source name typed into the target application can be
+  case-sensitive in the callback path it actually generates (e.g.
+  `/user/oauth2/Authentik/callback` with a capital letter, even though it was
+  reported back as lowercase), and Authentik's redirect URI matching is
+  exact. If Authentik returns a "Redirect URI Error," capture the actual
+  outgoing `authorize` request (browser network tab, or an agent's network
+  inspection) and compare it character-for-character against what's
+  registered, rather than trusting a verbal/typed transcription of it.
+- **Gitea/Forgejo cannot parse JWE-encrypted tokens.** If the target
+  application logs `oauth2: error decoding JWT token: jws: invalid token
+  received, not all parts available` (or a generic 500 on the OAuth
+  callback), check whether the Authentik provider's **Encryption Key** field
+  has anything selected — clear it back to none. This is a confirmed
+  upstream Gitea/Forgejo bug, not an Authentik misconfiguration; token
+  encryption must stay off for these targets specifically.
+- **A same-network reachability gap can look identical to a DNS/config
+  problem.** Onboarding Forgejo also surfaced a missing OPNsense inter-VLAN
+  firewall rule (Forgejo's host on Servers VLAN 20 couldn't reach NPM on
+  Management VLAN 50 at all) that produced a network-timeout error at the
+  OIDC discovery step. Test raw TCP connectivity between the two hosts
+  directly (e.g. `/dev/tcp` from a shell) before assuming a DNS or
+  certificate issue when a discovery/token fetch fails with a timeout rather
+  than an HTTP error.
+
 ## Path B — Authentik forward auth
 
 Use this for a browser interface without dependable native OIDC. The service's
@@ -247,6 +275,7 @@ Add one row only after the complete private-session and rollback tests pass:
 | Service | Hostname | Pattern | Direct fallback tested | SSO/gate tested | Non-browser clients tested | Date |
 |---|---|---|---|---|---|---|
 | Nginx Proxy Manager | `proxy.elliottrook.com` | Forward auth | Yes | Yes | Not applicable | 2026-08-22 |
+| Forgejo | `git.elliottrook.com` | Native OIDC | Yes (local Forgejo password login retained) | Yes — clean-session private-window login showed the full password + passkey/MFA prompt | Not applicable — SSH clone/push and git-over-HTTPS use their own existing auth (SSH keys / tokens), unaffected by this web-login change | 2026-08-31 |
 
 ## Stop conditions
 
