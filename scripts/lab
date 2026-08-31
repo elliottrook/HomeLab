@@ -326,6 +326,10 @@ run_backup() {
             "$REPO/scripts/backup/proxmox.sh"
             ;;
 
+        observability)
+            "$REPO/scripts/backup/observability.sh"
+            ;;
+
         guided)
             "$REPO/scripts/backup/guided.sh"
             ;;
@@ -338,6 +342,7 @@ run_backup() {
             "$REPO/scripts/backup/opnsense.sh"
             "$REPO/scripts/backup/arista.sh"
             "$REPO/scripts/backup/proxmox.sh"
+            "$REPO/scripts/backup/observability.sh"
 
             echo
             warning "Automated backups complete."
@@ -355,6 +360,8 @@ run_backup() {
             echo "  opnsense    Automated OPNsense XML backup"
             echo "  arista      Automated Arista configuration and state backup"
             echo "  proxmox     Automated Proxmox host configuration backup"
+            echo "  observability"
+            echo "               Protected Prometheus and Grafana configuration"
             echo "  guided      Guided UniFi, TrueNAS and Synology exports"
             echo "  synology-copy [--dry-run]"
             echo "               Copy private backups to the backup Synology"

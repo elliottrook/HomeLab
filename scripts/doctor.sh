@@ -695,6 +695,66 @@ REMOTE
     fi
 }
 
+check_observability() {
+    local output
+    local services=""
+    local grafana_db=""
+    local prometheus_ready=""
+    local targets_up=""
+    local root_percent=""
+
+    if ! output="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 root@192.168.20.31 /bin/bash -s <<'REMOTE'
+printf 'services=%s\n' "$(systemctl is-active prometheus grafana-server pve-exporter nut-exporter graphite-exporter truenas-graphite-ingress 2>/dev/null | tr '\n' ' ')"
+printf 'grafana_db=%s\n' "$(curl -fsS --connect-timeout 3 http://192.168.20.31:3000/api/health 2>/dev/null | sed -n 's/.*"database": *"\([^"]*\)".*/\1/p')"
+printf 'prometheus_ready=%s\n' "$(curl -fsS --connect-timeout 3 http://192.168.20.31:9090/-/ready 2>/dev/null | tr ' ' '_')"
+printf 'targets_up=%s\n' "$(curl -fsSG --connect-timeout 3 --data-urlencode 'query=sum(up)' http://192.168.20.31:9090/api/v1/query 2>/dev/null | sed -n 's/.*"value":\[[^,]*,"\([0-9]*\)"\].*/\1/p')"
+printf 'root_percent=%s\n' "$(df -P / | awk 'NR==2 {gsub("%","",$5); print $5}')"
+REMOTE
+    )"; then
+        fail "Unable to collect Prometheus/Grafana health data"
+        return
+    fi
+
+    while IFS='=' read -r key value; do
+        case "$key" in
+            services) services="$value" ;;
+            grafana_db) grafana_db="$value" ;;
+            prometheus_ready) prometheus_ready="$value" ;;
+            targets_up) targets_up="$value" ;;
+            root_percent) root_percent="$value" ;;
+        esac
+    done <<< "$output"
+
+    local failures=()
+    local warnings=()
+    local active_count
+    active_count="$(grep -o 'active' <<< "$services" | wc -l | tr -d ' ')"
+
+    [[ "$active_count" != "6" ]] && failures+=("monitoring services=${services:-unknown}")
+    [[ "$grafana_db" != "ok" ]] && failures+=("Grafana database=${grafana_db:-unknown}")
+    [[ "$prometheus_ready" != "Prometheus_Server_is_Ready." ]] && failures+=("Prometheus readiness failed")
+    [[ "$targets_up" != "7" ]] && failures+=("healthy scrape jobs=${targets_up:-unknown}/7")
+
+    if [[ "$root_percent" =~ ^[0-9]+$ ]]; then
+        if (( root_percent >= 90 )); then
+            failures+=("guest root filesystem ${root_percent}%")
+        elif (( root_percent >= 80 )); then
+            warnings+=("guest root filesystem ${root_percent}%")
+        fi
+    else
+        warnings+=("guest root filesystem usage unavailable")
+    fi
+
+    if (( ${#failures[@]} > 0 )); then
+        fail "Observability health issue: ${failures[*]}"
+    elif (( ${#warnings[@]} > 0 )); then
+        warn "Observability warning: ${warnings[*]}"
+    else
+        pass "Prometheus, Grafana and exporters healthy; 7/7 scrape jobs up; guest root ${root_percent}%"
+    fi
+}
+
 check_synology_drive_backup() {
     local maximum_hours="${1:-30}"
     local remote_output
@@ -946,6 +1006,7 @@ check_arista
 check_proxmox
 check_hermes
 check_nut
+check_observability
 check_truenas
 check_frigate
 
@@ -983,9 +1044,11 @@ check_backup_age "OPNsense" "$BACKUP_ROOT/opnsense" 48
 check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
 check_backup_age "Proxmox" "$BACKUP_ROOT/proxmox" 48
 check_backup_age "NUT" "$BACKUP_ROOT/nut" 48
+check_backup_age "Observability" "$BACKUP_ROOT/observability" 48
 check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Hermes LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Ollama VM 105" 105 30
+check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
 check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
 check_synology_drive_backup 30
