@@ -480,13 +480,15 @@ reconciled, checksum verification passes and the Plex source remains intact.
   tracks: 59 overlap, 81 Jellyfin-only, 7,396 Plex-only. Since the Jellyfin
   side is disposable test data, this comparison doesn't need careful
   reconciliation — the real work is the Plex-internal duplicate check below.
-- [~] Run beets with move and delete disabled and tag writing disabled for the
-  first audit. — **Started 2026-08-30 21:49** against the complete staged
-  copy (fixed the duplicate-matching key first: it was set to `mb_trackid`,
-  which only populates with online tag-matching, off for this pass — switched
-  to `[artist, album, title]` from embedded tags instead). Estimated 60–75 min
-  based on an earlier partial-run rate (579 tracks/60s); running unattended,
-  logging to `migration/reports/beets-import-run.log`.
+- [x] Run beets with move and delete disabled and tag writing disabled for the
+  first audit. — **Complete 2026-08-30.** Cataloged 7,129 of 8,008 real audio
+  files (the earlier "39,112 files" dry-run count included non-audio sidecars
+  — cover art, etc. — not just tracks; 8,008 is the correct denominator).
+  879 tracks across 61 albums were skipped during import as apparent
+  already-in-library matches — listed separately at
+  `migration/reports/beets-skipped-albums-during-import.txt` (sha256
+  `457c2eef…`) as their own review category, since import-time skips aren't
+  the same as a reviewed duplicate decision.
 
 **Tooling note:** `beets` 2.13.1 and `ffprobe` (both required — beets 2.13's
 import pipeline calls `ffprobe` unconditionally) were installed fully
@@ -502,12 +504,26 @@ metadata-stream clutter (checked: 946 such directories in the source Music
 library, totaling only 3.7 MB — not real duplicate content, just Synology
 extended-attribute storage; excluded from analysis for cleanliness, not out
 of a real duplication concern).
-- [ ] Produce album-level and track-level duplicate reports **covering two
+- [x] Produce album-level and track-level duplicate reports **covering two
   separate comparisons**: duplicates already present within Plex's own source
   music library, and collisions between the existing Jellyfin music root and
-  staged Plex music.
-- [ ] Distinguish exact duplicate files from alternate releases, masters,
-  formats and legitimately repeated tracks.
+  staged Plex music. — The Jellyfin-side comparison is moot (its music library
+  is disposable test data, see above). Plex-internal duplicates:
+  `migration/reports/beets-duplicates.json` (sha256 `94cf170c…`) — 166
+  duplicate groups, 335 tracks, built directly from beets' SQLite catalog
+  (real embedded tags/audio properties) after finding the `duplicates` plugin
+  wasn't enabled (`plugins: duplicates` was missing from config) and, once
+  enabled, that its custom `-f`/format output was broken in this beets
+  version (printed the literal template instead of substituting values) —
+  queried the catalog directly instead. Confirmed example:
+  "Absolute Reggae" exists under both `Compilations/` and `Various Artists/`
+  with identical bitrate and length to the decimal.
+- [x] Distinguish exact duplicate files from alternate releases, masters,
+  formats and legitimately repeated tracks. — 160 of 166 groups have all
+  copies in the same format (likely exact/near-exact duplicates); 6 groups
+  are mixed-format (e.g. one copy MP3, another FLAC of the same song) and
+  need individual review rather than an automatic bitrate-based call, per the
+  rule below. Estimated ~1.71 GB reclaimable if one copy is kept per group.
 - [ ] Define the retention choice for every collision; do not automatically
   prefer one file merely because its bitrate is larger.
 - [ ] For duplicates found within Plex's own source library: review every
