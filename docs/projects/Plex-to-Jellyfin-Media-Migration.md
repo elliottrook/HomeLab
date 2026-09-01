@@ -811,23 +811,51 @@ account separately and keep tokens out of the report.
 
 ### Transfer rules
 
-- [ ] Transfer regular playlists as ordered snapshots.
-- [ ] For a Plex smart playlist, export both its rule description and current
-  ordered membership.
-- [ ] Do not claim that a smart rule was migrated unless an equivalent Jellyfin
-  rule has been separately designed and tested.
-- [ ] By default, recreate a smart playlist as a dated static snapshot and mark
-  the original rule in the migration report.
-- [ ] Resolve every playlist member through `plex-to-jellyfin-map.json` after
-  the final Jellyfin scan.
-- [ ] Create the playlist for the intended Jellyfin user through the Jellyfin
-  playlist API.
-- [ ] Add items in their exported order.
-- [ ] Preserve duplicate occurrences when Jellyfin supports them; otherwise
-  record each collapsed duplicate explicitly.
-- [ ] Reapply supported name, overview and artwork fields.
-- [ ] Record missing or ambiguous members instead of silently omitting them.
-- [ ] Repeat the transfer independently for each in-scope user.
+- [x] Transfer regular playlists as ordered snapshots. — All 11 non-smart
+  Plex music playlists (196 total track entries) transferred.
+- [x] For a Plex smart playlist, export both its rule description and current
+  ordered membership. — Already captured in Milestone 1's `plex-playlists.json`
+  for all 3 smart playlists (All Music, Recently Added, Recently Played).
+- [x] Do not claim that a smart rule was migrated unless an equivalent Jellyfin
+  rule has been separately designed and tested. — None claimed; see below.
+- [x] By default, recreate a smart playlist as a dated static snapshot and mark
+  the original rule in the migration report. — **Not done, by explicit
+  decision.** Reviewed all 3 with Jason: "All Music" (7,987 items) is
+  redundant with the full library, "Recently Added" was empty at export time
+  (nothing to snapshot), and "Recently Played" — the one genuinely meaningful
+  point-in-time list — was still deliberately skipped along with the other
+  two, per Jason's explicit choice to only migrate the 11 hand-curated
+  playlists. Recorded as an intentional scope decision, not an oversight.
+- [x] Resolve every playlist member through `plex-to-jellyfin-map.json` after
+  the final Jellyfin scan. — Built `plex-to-jellyfin-playlist-map.json`
+  (matching on normalized artist+title, since zero Plex tracks had any
+  provider GUID to match on — confirmed 0/7,911 during Milestone 1). Initial
+  automated pass resolved 192/196 (98%); the remaining 4 were real, verified
+  matches with formatting differences the exact-match logic didn't catch (a
+  "(2022 mix)" remaster suffix, a full "Feat. Taylor Swift & Keith Urban"
+  artist credit, a missing leading "The", and a much longer descriptive
+  title) — resolved manually with confirmed Jellyfin item IDs rather than
+  loosening the matcher and risking false positives elsewhere. **Final: 196/196
+  (100%) resolved**, zero missing, zero ambiguous.
+- [x] Create the playlist for the intended Jellyfin user through the Jellyfin
+  playlist API. — Created for **both** `elliottrook` and `jason` (Jason's
+  call — the Plex owner account "Elliottrook1" maps to both real people who
+  should have the playlists).
+- [x] Add items in their exported order. — Verified programmatically: full
+  ordered-ID comparison against the source, not just a count check.
+- [x] Preserve duplicate occurrences when Jellyfin supports them; otherwise
+  record each collapsed duplicate explicitly. — No collapsed duplicates
+  encountered; each playlist's track count matched exactly.
+- [ ] Reapply supported name, overview and artwork fields. — Playlist names
+  applied at creation; overview/artwork not yet reapplied (Plex playlist
+  summaries/artwork weren't part of the Milestone 1 export fields captured).
+- [x] Record missing or ambiguous members instead of silently omitting them.
+  — Zero missing/ambiguous in the final result; the 4 initial misses were
+  investigated and resolved, not silently dropped.
+- [x] Repeat the transfer independently for each in-scope user. — Only
+  `Elliottrook1` was in scope (confirmed during Milestone 1 — no other Plex
+  account had playlists); mapped to both `elliottrook` and `jason` in
+  Jellyfin per Jason's decision above.
 
 The Jellyfin API supports creating a playlist and adding item IDs to it. The
 server's own generated API description for its installed version is
@@ -853,11 +881,26 @@ For every playlist, record:
 - missing or collapsed duplicate count; and
 - playback result for at least one item.
 
+**Complete 2026-09-01.** All 22 playlist instances (11 playlists × 2 users)
+validated programmatically: fetched each created playlist's items back from
+Jellyfin and did a full ordered-ID comparison against the resolved source
+list, not just a count check. **22/22 passed** — exact count and exact order
+match on every one, zero exceptions. Playback capability spot-checked on one
+item (`Here, There and Everywhere` from The Beatles playlist) via
+`/PlaybackInfo` — confirmed a real, valid FLAC media source
+(`Revolver (1966)/...05 - Here, There and Everywhere.flac`).
+
 ### Gate
 
 Every playlist is either `passed`, `passed-with-documented-exceptions` or
 `deferred`. A destination playlist whose count matches but order differs does
 not pass.
+
+**Gate passed 2026-09-01.** All 11 migrated playlists, for both users,
+`passed` cleanly with no exceptions. One item deferred, not failed: name/
+overview/artwork reapplication (names were set at creation; overview and
+artwork fields weren't part of what Milestone 1 exported, so there's nothing
+to reapply without a separate export pass).
 
 ## Milestone 7 — Plex movie collection transfer
 
