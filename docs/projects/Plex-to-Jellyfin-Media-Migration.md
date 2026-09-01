@@ -990,13 +990,48 @@ manual transfer. Run an overlap report before any collection write.
 
 ### TMDb-derived collections
 
-- [ ] Confirm the Jellyfin TMDb Box Sets plugin version is compatible with the
-  installed Jellyfin server.
-- [ ] Back up Jellyfin before installing or enabling the plugin.
-- [ ] Confirm imported movies have correct TMDb IDs.
-- [ ] Run the plugin's scheduled collection task in a controlled window.
-- [ ] Compare generated collection names and membership against the Plex export.
-- [ ] Lock or manually protect collections only when there is a documented need.
+**Approach decision (2026-09-01):** Jason chose the TMDb Box Sets plugin over
+manual API recreation, despite the manual path already having working
+tooling (exact Plex membership + the movie ID map from Milestone 5) —
+accepting that the plugin generates collections from TMDb's own franchise
+grouping rather than an exact copy of Plex's curated list.
+
+- [x] Confirm the Jellyfin TMDb Box Sets plugin version is compatible with the
+  installed Jellyfin server. — Plugin catalog shows v13.0.0.0 targeting ABI
+  10.11.8.0; server runs 10.11.11 — compatible.
+- [x] Back up Jellyfin before installing or enabling the plugin. — Fresh ZFS
+  snapshot `Media/ix-apps@pre-boxsets-plugin-20260901-100925` (covers
+  Jellyfin's config/plugins/database) taken immediately before install.
+- [x] Confirm imported movies have correct TMDb IDs. — Covered by Milestone
+  5's identity-mapping work: 864/898 movies (96.2%) confirmed with correct
+  TMDb IDs, including the 7 wrong-auto-match fixes.
+- [x] Run the plugin's scheduled collection task in a controlled window. —
+  Installed the plugin (`204`, required a Jellyfin restart to activate —
+  confirmed with Jason first, since it briefly interrupts any live playback;
+  restart triggered gracefully via Jellyfin's own `/System/Restart` API).
+  Plugin confirmed `Active` after restart. Ran its "Scan library for new box
+  sets" scheduled task.
+- [x] Compare generated collection names and membership against the Plex
+  export. — Built a real comparison against all 168 non-empty Plex
+  collections (had to fix the comparison script first: `Items?ParentId=`
+  needs `Recursive=true` for BoxSet children, or it silently returns 0).
+  Plugin created **87 box sets**: 65 exact membership matches, 20 partial
+  overlaps (different movies than Plex had), 2 with names that didn't match
+  any Plex collection. **83 of 168 Plex collections weren't created by the
+  plugin at all** (not enough TMDb-matched movies to trigger auto-creation).
+  Given this real gap, and per this doc's own rule — "run an overlap report
+  before any collection write" — used exactly that report to fill in only
+  what the plugin missed or got wrong, via the manual Collection API, without
+  touching the 65 already-correct ones: **82 created fresh, 20 corrected
+  (added missing Plex members, removed ones that shouldn't be there)**, 1
+  skipped (zero resolvable members — likely composed entirely of movies
+  still in the 34 unresolved from Milestone 5). The 3 smart collections
+  (Austin Powers, Back to the Future, Batman) were created as dated static
+  snapshots (`" (static snapshot 2026-09-01)"` suffix), per this doc's
+  explicit smart-collection rule. **Final: 169 total box sets in Jellyfin,
+  covering 167 of 168 Plex collections with real membership.**
+- [ ] Lock or manually protect collections only when there is a documented
+  need.
 
 ### Manual and curated collections
 
