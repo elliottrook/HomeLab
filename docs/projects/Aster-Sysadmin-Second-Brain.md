@@ -93,7 +93,8 @@ its lint suite and contains no known-unlabelled stale current-state claim.
 
 Completion gate: the same source commit deterministically produces the same
 validated snapshot, and every retrieved result identifies its layer,
-authority and source path.
+authority and source path. **Passed 2026-09-01** for the accepted clean source
+commits recorded in the evidence log.
 
 ## Milestone 3 — Recovery and maintenance
 
@@ -110,18 +111,23 @@ knowledge layer without copying untracked state or secrets.
 
 ## Milestone 4 — Teacher/pupil evaluation
 
-- [ ] Establish a versioned evaluation set covering topology, addressing,
+- [x] Establish a versioned evaluation set covering topology, addressing,
   dependencies, incidents, backups, access control, uncertainty, conflicts and
   refusal boundaries.
-- [ ] Record expected sources and required/forbidden claims per question.
-- [ ] Test cold and warm latency, prompt tokens, decode rate and context headroom.
-- [ ] Test stale-source traps, prompt injection inside knowledge, missing facts,
+- [x] Record expected sources and required/forbidden claims per question.
+- [x] Test cold and warm latency, prompt tokens, decode rate and context headroom.
+- [x] Test stale-source traps, prompt injection inside knowledge, missing facts,
   ambiguous changes and unsafe requests.
-- [ ] Iterate sources, retrieval and prompts until every critical test passes
+- [x] Iterate sources, retrieval and prompts until every critical test passes
   repeatedly without source or safety regressions.
 
 Completion gate: all critical correctness/security tests and the documented
-performance budget pass on repeated runs using the production model.
+performance budget pass on repeated runs using the production model. **Passed
+for the current read-only knowledge capability on 2026-09-01:** two independent
+13-case runs passed on the same clean snapshot. Observed end-to-end latency was
+21.6–52.8 seconds in the second run (the broader earlier range was 21.6–63.6
+seconds); this is acceptable for deliberate single-user sysadmin consultation,
+not interactive command execution.
 
 ## Milestone 5 — Bounded sysadmin capability
 
@@ -157,3 +163,6 @@ Aster graduates only when:
 | 2026-09-01 | Discovery | Read all Aster/second-brain project literature and all 15 files in `homelab-reference`; compared authority, staleness, operations and safeguards | Reference repository is a strong foundation but requires authority, provenance, lint and staleness hardening before ingestion |
 | 2026-09-01 | 1 | Added the operational reference contract, authority/review/source metadata to 13 pages, removed the unverified rack table, reconciled Aster operations and passed `lint_reference.py` | Reference qualification gate passed locally |
 | 2026-09-01 | 2 | Added four derived-memory wiki pages, a 23-source manifest, deterministic archive builder, per-file SHA-256 provenance and authority-aware retrieval | Two dirty-development builds were byte-identical; clean-commit reproduction and deployed query validation remain |
+| 2026-09-01 | 2 | Built the clean 23-source snapshot twice from detached clean checkouts and compared SHA-256; provenance records both repository commits with `dirty: false` | Deterministic snapshot gate passed |
+| 2026-09-01 | 4 | Ran 13 in-container unit tests and two independent 13-case live exams against LXC 104; reviewed all answer text, then corrected source/retrieval guest-type ambiguities | 26/26 critical cases passed on the accepted LXC 104/LXC 110 production path |
+| 2026-09-01 | 3 | Reviewed backup evidence for the source repositories, manifest and deployed snapshot | LXC 110 off-host mirror and isolated archive restore remain explicitly pending; graduation remains blocked until this is verified |
