@@ -110,7 +110,7 @@ TOOL_HINTS = {
     "get_current_time": re.compile(r"\b(time|date|day|today|tonight|timezone)\b", re.I),
     "get_service_health": re.compile(r"\b(health|healthy|status|online|running|inference|service)\b", re.I),
     "search_knowledge": re.compile(
-        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|backup|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain)\b",
+        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain)\b",
         re.I,
     ),
 }

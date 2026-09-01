@@ -18,6 +18,15 @@ class AsterAgentTests(unittest.TestCase):
         names = [tool["function"]["name"] for tool in select_tools([{"role": "user", "content": "What GPU is in my homelab?"}])]
         self.assertIn("search_knowledge", names)
 
+    def test_inventory_serial_question_selects_knowledge(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "What is the serial number of the unassigned APC UPS?"}]
+            )
+        ]
+        self.assertIn("search_knowledge", names)
+
     def test_knowledge_search_is_scoped_and_ranked(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
