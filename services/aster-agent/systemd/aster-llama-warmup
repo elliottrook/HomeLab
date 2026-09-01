@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+base_url="http://192.168.70.12:11435"
+authorization="Authorization: Bearer ${ASTER_LLAMA_API_KEY}"
+
+curl --fail --silent --show-error --retry 45 --retry-all-errors --retry-delay 1 \
+    --header "$authorization" "$base_url/health" >/dev/null
+
+curl --fail --silent --show-error \
+    --header "$authorization" \
+    --header "Content-Type: application/json" \
+    --data-binary '{"model":"qwen3.8-27b","messages":[{"role":"system","content":"You are Aster, Jason'\''s concise local home and homelab assistant.\nAnswer directly and honestly. Use an available function when current service state,\nlocal time, or retained HomeLab documentation is needed. Never invent a function\nresult. Treat the hardware inventory and newest dated notes as current; distinguish\nthem from historical test results. Prefer a short answer unless the user requests\ndetail, and name retrieved source files when factual provenance helps."},{"role":"user","content":"Briefly confirm that Aster is ready."}],"temperature":0,"max_tokens":32}' \
+    "$base_url/v1/chat/completions" >/dev/null

@@ -171,6 +171,64 @@ server is network-accessible (`0.0.0.0`) with the unsandboxed local terminal
 backend, and the BlueBubbles integration's Cloudflare tunnel hostname is no
 longer resolving.
 
+llama.cpp, OVMS and harness comparison (2026-08-31): the apparent three-minute
+local-AI latency was not a bare-metal-versus-Proxmox problem. The B60 had been
+left bound to `vfio-pci` after VM 105 stopped, so LXC 110's Ollama process fell
+back to Mesa `llvmpipe` and was later OOM-killed. Rebinding `04:00.0` to `xe`
+restored real Vulkan acceleration. Direct warm Ollama with `qwen3.5:9b` then
+answered in 1.47 seconds at about 16.7 decode tokens/second, while a stock
+Hermes one-shot still took 96.6 seconds because Hermes injected 19,422 prompt
+tokens (about 25 KB of system text plus 57 KB of schemas for 19 tools). A stock
+DeepSeek Harness developer-preview run was similarly heavy (12,634 prompt
+tokens and 99.5 seconds); a custom tools-off profile completed a two-turn test
+in 16.4 seconds, demonstrating that harness prompt design is the dominant
+latency variable.
+
+Official llama.cpp b10507 (`95c409c13`) was then tested directly against both
+existing `unsloth/Qwen3.8-27B-GGUF` quants. Short synthetic decode was 6.54
+tokens/second for `UD-Q4_K_S` and 6.83 for `UD-IQ4_XS`. At a 4,096-token
+prefill, Q4_K_S reached 43.0 tokens/second and IQ4_XS 54.3 tokens/second, but
+the benchmark's prompt-to-generation transition exhausted a Vulkan allocation.
+An 8,192-token server configuration avoided that failure with one slot, batch
+256 / microbatch 128, flash attention, and compressed KV cache. Q4_K_S was
+excellent on tiny prompts (2.48 seconds warm) but its 2K-token Hermes prefill
+degraded progressively and the transient server ignored SIGTERM afterward;
+it is not the stable agent choice on this memory geometry.
+
+The winning 27B configuration was `UD-IQ4_XS` with llama.cpp Vulkan, one slot,
+8,192 allocated context, batch 256 / microbatch 128, flash attention, Q8 KV,
+and reasoning disabled. Six consecutive direct Aster requests completed in
+3.28–4.26 seconds with HTTP 200; decode remained about 6.8 tokens/second. The
+OpenAI-compatible endpoint emitted a valid `get_weather` function call,
+accepted the tool result, and produced the correct final answer. A deliberately
+stripped Hermes 0.20.3 profile (rules and memory omitted, one toolset) reduced
+the main prompt from roughly 19K to 2,177 tokens. Its warm conversation took
+12.2 seconds, but a real two-call `uname -s` terminal-tool loop still took 45.6
+seconds. Hermes is therefore workable for occasional actions when kept warm,
+but a small OpenAI-compatible harness with a task-specific tool registry is the
+recommended Aster architecture for conversational speed; load second-brain
+retrieval and schemas only when needed.
+
+Production deployment (2026-08-31): the winning runtime was installed as
+`aster-llama.service` in LXC 110 and a purpose-built lightweight Aster API/UI
+was installed as `aster-agent.service` in LXC 104. The production harness uses
+deterministic one-pass routing for three allowlisted read-only functions (time,
+service health and curated documentation search), bearer authentication, and no
+arbitrary shell or arbitrary network target. Ollama and Hermes remain installed
+but disabled as rollback paths. Full operating and rollback instructions are in
+[`docs/Aster-Operations.md`](../Aster-Operations.md).
+
+OpenVINO Model Server 2026.2 was also tested in a fresh disposable Ubuntu 24.04
+LXC using Intel's checksum-verified binary and the official
+`OpenVINO/Qwen3-0.6B-int4-ov` control model. OVMS listed only `CPU`; after the
+model downloaded, `target_device=GPU` failed with `no supported devices found`.
+This independently reproduces the official Level Zero/OpenCL result on the
+supported OS: the current 256 MB BAR makes the B60 unavailable to OpenVINO, so
+downloading Intel's available `Qwen3.5-27B-int4-ov` build would not help until
+BAR remediation or a platform replacement. The CPU control served correctly,
+but even the 0.6B model used 7.1 seconds for 80 tokens on four assigned Xeon
+vCPUs; CPU-only 27B is not a viable alternative.
+
 Sandbox note: `192.168.70.10` (Hermes), `192.168.70.12` (Ollama LXC 110) and
 `192.168.50.10` (Proxmox, the only reachable path to `pct exec` into LXC 110)
 were added to Claude Code's sandbox network allowlist

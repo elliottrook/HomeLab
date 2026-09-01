@@ -40,8 +40,8 @@ that file in sync — update both in the same change.
 | Synology DS920+ | 192.168.20.41 | Backup verification |
 | Backup Synology | 192.168.20.42 | Backup verification |
 | NUT server (Lenovo) | 192.168.50.25 | UPS health, `lab doctor` |
-| Hermes Agent LXC 104 | 192.168.70.10 | Local AI pilot health |
-| Ollama GPU LXC 110 | 192.168.70.12 | Local AI pilot health |
+| Aster Agent LXC 104 | 192.168.70.10 | Local agent API/UI health |
+| Aster llama.cpp GPU LXC 110 | 192.168.70.12 | Local inference health |
 | git.elliottrook.com, github.com | — | Git remotes |
 | deb.debian.org, security.debian.org | — | Package installs on Debian guests |
 

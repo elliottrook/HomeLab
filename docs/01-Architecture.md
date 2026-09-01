@@ -15,8 +15,8 @@ Arista core
   |     +-- LXC 101: UniFi OS Server
   |     +-- VM 102: Frigate (Servers VLAN 20)
   |     +-- VM 103: Home Assistant OS (Servers VLAN 20)
-  |     +-- LXC 104: Hermes Agent (Lab VLAN 70)
-  |     +-- VM 105: Ollama / Hermes backend (Lab VLAN 70)
+  |     +-- LXC 104: Aster Agent API/UI (Lab VLAN 70)
+  |     +-- VM 105: stopped legacy Ollama rollback guest (Lab VLAN 70)
   |     +-- LXC 106: Authentik
   |     +-- LXC 107: Reverse Proxy
   |     +-- LXC 108: Forgejo (Servers VLAN 20)
@@ -113,19 +113,20 @@ design and validation detail: `docs/UPS-Power-Resilience-Claude-Handover.md`.
 
 ## Local AI Lab architecture
 
-Hermes Agent runs in unprivileged LXC 104 at `192.168.70.10`. Ollama runs in
-Ubuntu VM 105 at `192.168.70.11` and listens on TCP 11434. Both workloads are
-tagged into isolated Lab VLAN 70. Hermes uses Ollama's OpenAI-compatible `/v1`
-endpoint and the locally defined `qwen3-64k:8b` profile with a 65,536-token
-context window.
+Aster's lightweight authenticated API and browser UI run in unprivileged LXC
+104 at `192.168.70.10:9120`. A persistent llama.cpp b10507 service runs in
+unprivileged LXC 110 at `192.168.70.12:11435`, with the host `xe` DRM devices
+mapped into the container. It serves Qwen 3.8 27B `UD-IQ4_XS` through Vulkan
+with one 8,192-token slot, flash attention and Q8 KV cache. Both workloads are
+confined to Lab VLAN 70 and both APIs require bearer authentication except the
+minimal Aster health endpoint.
 
-This remains a CPU-only pilot, not a production dependency. The 14 GB Ollama
-allocation was the first tested allocation that avoided the observed OOM
-failure, but response time remains slow and aggregate Proxmox memory allocation
-must be reconciled before sustained simultaneous use. LXC 104 and VM 105 now
-have fresh local archives, checksum-verified Backup Synology mirrors and
-successful isolated restore evidence. Their mirrored archives are inside the
-encrypted `automated/proxmox-guests` Hyper Backup selection.
+The Aster harness selects and pre-executes only allowlisted read-only functions:
+local time, Aster/inference health and scoped search over a curated documentation
+snapshot. It has no arbitrary shell or arbitrary network-target function.
+Hermes and Ollama remain installed but disabled as rollback paths; stopped VM
+105 remains the older CPU/passthrough rollback guest. Aster is useful but is not
+a dependency for core HomeLab operation.
 
 ## Surveillance architecture
 

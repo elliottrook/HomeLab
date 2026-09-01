@@ -18,7 +18,7 @@ Enterprise-inspired home lab documentation for Project Mini Atlas.
 - Tailscale provides identity-restricted web and SSH access to the trusted LAN without inbound WAN ports.
 - The Backup Synology pulls and checksum-verifies configuration sets and retained Proxmox guest archives on independent schedules.
 - Hyper Backup provides client-side-encrypted, versioned IDrive e2 off-site protection for essential recovery material; media and Frigate recordings are excluded.
-- `lab doctor` functionally monitors OPNsense, Arista, Proxmox guests including Home Assistant, Hermes and Ollama, TrueNAS, Frigate, both Pi-holes and backup-report freshness using persistent counter baselines where appropriate.
+- `lab doctor` functionally monitors OPNsense, Arista, Proxmox guests including Home Assistant and the Aster/llama.cpp local-AI stack, TrueNAS, Frigate, both Pi-holes and backup-report freshness using persistent counter baselines where appropriate.
 - Beszel provides lightweight historical host/container metrics for Docker, Proxmox and Frigate, with a concise systems-up widget on Homepage.
 - Authentik forward auth protects Nginx Proxy Manager at `https://proxy.elliottrook.com`; password, passkey and NPM login are tested and working.
 - Forgejo LXC 108 at `192.168.20.30` is the primary self-hosted Git remote; GitHub remains the synchronized off-site remote.

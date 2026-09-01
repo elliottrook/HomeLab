@@ -140,8 +140,9 @@ Arista core — 192.168.50.2
   |     +-- Reolink Duo 2V PoE — 192.168.60.10
   |
   +-- VLAN 70 Lab — 192.168.70.0/24
-        +-- Hermes Agent LXC 104 — 192.168.70.10
-        +-- Ollama VM 105 — 192.168.70.11
+        +-- Aster Agent LXC 104 — 192.168.70.10
+        +-- Legacy Ollama VM 105 — 192.168.70.11 (normally stopped)
+        +-- llama.cpp GPU LXC 110 — 192.168.70.12
 
 Tailscale remote administration
   |
@@ -177,8 +178,9 @@ homelab-gateway — 192.168.20.20
 | 192.168.50.23 | Reverse Proxy LXC 107 | bc:24:11:f0:ef:fa | Et4 via Proxmox, tagged VLAN 50 |
 | 192.168.20.30 | Forgejo LXC 108 | bc:24:11:2f:f5:08 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.20.31 | Observability LXC 109 / Prometheus | bc:24:11:3f:24:34 | Et4 via Proxmox, tagged VLAN 20 |
-| 192.168.70.10 | Hermes Agent LXC 104 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
-| 192.168.70.11 | Ollama VM 105 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
+| 192.168.70.10 | Aster Agent LXC 104 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
+| 192.168.70.11 | Legacy Ollama VM 105 (normally stopped) | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
+| 192.168.70.12 | llama.cpp GPU LXC 110 | Not yet recorded | Et4 via Proxmox, tagged VLAN 70 |
 | 192.168.60.10 | Reolink Duo 2V PoE | ec:71:db:80:49:6e | TP-Link PoE switch port 1 (behind Arista Et34, access VLAN 60), since 2026-08-27 |
 | 192.168.1.206 | Mac mini (in studio) | d0:11:e5:9e:c4:76 | Et10, access VLAN 10, 10G full |
 | 192.168.30.197 | Downstream UniFi wireless client | d8:c8:0c:bb:52:a4 | Et33 via UniFi, VLAN 30 |
@@ -262,7 +264,7 @@ homelab-gateway — 192.168.20.20
 - OPNsense Dnsmasq advertises both Pi-holes through an untagged DHCPv4 option 6 on every configured range. A source-network alias covering VLANs 20 through 70 and an early floating rule permit only TCP/UDP 53 to the resolver alias while preserving the existing private-network blocks. LAN, Servers, IoT and Guest paths were directly validated. Encrypted/private client DNS remains outside this DHCP-based guarantee.
 - Home Assistant OS 18.2 runs as Proxmox VM 103 at reserved address `192.168.20.11` on VLAN 20 with 2 vCPU, 4 GB RAM and 32 GB storage. `http://home-assistant.home.internal` is operational on TCP 80 and encrypted native plus mirrored VM backups exist off-host. A host-specific rule permits only Home Assistant to initiate TCP/UDP access to IoT VLAN 30 before the general Servers RFC1918 block. Philips Hue, Lutron Caséta, Aqara Matter and Sonos are integrated. The Hue Hall motion-to-Lutron Laundry pilot is complete and now uses a scene, script and five-minute timer helper with a validated timer-finished light-off path. HACS is installed without an elective community repository; media and fringe-vendor integrations remain deliberately incremental.
 - VLAN 70 was fully validated with disposable LXC 970: DHCP, Pi-hole DNS, blocked-domain response and Internet access passed, while non-DNS access to internal services remained blocked. The OPNsense VLAN parent was corrected from inactive `igb0` to trunk `ix0`; the test container was then purged.
-- Hermes Agent now runs in unprivileged LXC 104 at `192.168.70.10`; Ollama runs in Ubuntu VM 105 at `192.168.70.11` and serves its OpenAI-compatible API on TCP 11434. Hermes successfully uses the local `qwen3-64k:8b` model profile with a 65,536-token context window. This remains a CPU-only pilot: 14 GB was the first stable tested Ollama allocation, response generation is slow, guest archives are mirrored and restore-tested within the encrypted `automated/proxmox-guests` off-site selection, and aggregate Proxmox memory allocation still requires review.
+- Aster runs in unprivileged LXC 104 at `192.168.70.10` and exposes its authenticated browser/API service on TCP 9120. llama.cpp runs in LXC 110 at `192.168.70.12`, uses Vulkan on the Intel Arc Pro B60 and serves Qwen3.8 27B `UD-IQ4_XS` on authenticated TCP 11435. Simple warmed conversations complete in roughly 3.6–4.7 seconds. Hermes and Ollama remain installed but disabled as rollback paths; VM 105 at `192.168.70.11` is normally stopped. The B60's 256 MB physical BAR still blocks OpenVINO/Level Zero, but it does not prevent the validated Vulkan path.
 
 ## Resolved incidents
 
@@ -414,7 +416,7 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
 - Proxmox currently exposes 31 GiB usable memory from two installed 16 GB SK hynix ECC RDIMMs in DIMM1 and DIMM3, configured at 1866 MT/s. The completed 24 GB two-pass `memtester` run reported no errors. The remaining RAM and E5-2698 v4 maintenance stage is pending.
 - Production management endpoints are Arista `192.168.50.2`, Proxmox `192.168.50.10`, UniFi controller `192.168.50.21`, Hall AP `192.168.50.31` and Office AP `192.168.50.141`. The AP Switch is numbered `192.168.50.26` but requires the documented direct VLAN 1 recovery path because its management plane is not actually reachable on VLAN 50.
 - Server endpoints include Frigate `192.168.20.10`, Home Assistant `192.168.20.11`, Docker and primary Pi-hole `192.168.20.20`, TrueNAS and secondary Pi-hole `192.168.20.40`, primary Synology `192.168.20.41` and Backup Synology `192.168.20.42`.
-- Hermes LXC 104 at `192.168.70.10` and Ollama VM 105 at `192.168.70.11` remain isolated Lab VLAN 70 pilots. Both are included in Proxmox guest backups, mirrored to the Backup Synology, protected through the encrypted `automated/proxmox-guests` off-site selection and have passed isolated restore validation.
+- Aster LXC 104 at `192.168.70.10`, legacy Ollama VM 105 at `192.168.70.11` and llama.cpp GPU LXC 110 at `192.168.70.12` remain isolated Lab VLAN 70 workloads. LXC 104 and VM 105 have mirrored, encrypted off-site archives and isolated restore evidence. LXC 110 has a named local production snapshot and current local archive; its off-host mirror and isolated restore remain to be confirmed through the current backup workflow.
 - Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf, Sonarr, Radarr, Lidarr and Prowlarr were directly reachable during reconciliation.
 - No temporary VM/LXC guests remain. Former addresses and VM 903 references retained in the repository are explicitly historical migration or restore-test evidence.
 - HomeLab Doctor completed with 44 passes, no warnings and no failures. Configuration drift was clear, six operational TLS certificates were healthy, Git was clean and the daily failure-only reporting LaunchAgent had a successful exit status.

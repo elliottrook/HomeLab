@@ -1,32 +1,32 @@
-# Hermes Second-Brain Design
+# Aster Second-Brain Design
 
 > Added: 2026-08-20
-> Status: Proposed for the Local AI / Hermes Agent project
+> Status: Initial bounded implementation deployed in Aster; broader ingestion remains proposed
 > Source inspiration: Corey Ganim, “How To Build The ULTIMATE AI Second Brain for Hermes Agent” / Build With AI episode #163 (2026-05-08)
 
 ## Decision
 
-Adopt Hermes Agent's built-in LLM Wiki capability as the primary curated knowledge-base / “second brain” for the local assistant, but adapt the video's design to the HomeLab rather than copying its VPS/cloud deployment.
+Adopt the video's curated, source-aware knowledge architecture for the local assistant without coupling it to Hermes or copying its VPS/cloud deployment.
 
-The useful idea is the knowledge architecture, not the Hostinger deployment. Hermes already runs locally in LXC 104 and should remain local. Local inference remains separate and now runs in Ollama LXC 110 with Intel Arc Pro B60 24 GB Vulkan acceleration validated; VM 105 is retained stopped as rollback. SYCL/Level-Zero was evaluated as an alternative backend and confirmed blocked by the current 256 MB physical BAR rather than a software/packaging mismatch. Whether Dell A34 firmware/settings or attended PCI reallocation can enlarge that BAR remains an open, console-dependent investigation — see [`docs/projects/Local-AI.md`](projects/Local-AI.md) for the full evidence trail.
+The useful idea is the knowledge architecture, not the original harness. Aster now runs locally in LXC 104 with a small curated Git-document snapshot and source-attributed retrieval. Local inference remains separate in llama.cpp LXC 110 with Intel Arc Pro B60 24 GB Vulkan acceleration; Hermes and Ollama are disabled but retained as rollback paths. SYCL/Level Zero was confirmed blocked by the current 256 MB physical BAR rather than a software-packaging mismatch. See [`docs/projects/Local-AI.md`](projects/Local-AI.md) for the evidence trail and [`docs/Aster-Operations.md`](Aster-Operations.md) for the live service.
 
 ## Why it fits this project
 
-The intended assistant needs durable knowledge of the house, HomeLab, operating procedures, equipment, architecture decisions and selected personal/reference material. Model context alone is not appropriate for that job. The Hermes LLM Wiki provides a curated, queryable knowledge layer that can persist independently of whichever local model is active.
+The intended assistant needs durable knowledge of the house, HomeLab, operating procedures, equipment, architecture decisions and selected personal/reference material. Model context alone is not appropriate for that job. Aster's first implementation provides a curated, queryable snapshot that can persist independently of whichever local model is active.
 
 This complements rather than replaces:
 
-- Hermes persistent memory — concise facts/preferences/current context.
-- `SOUL.md` / agent identity — personality, intent and operating principles.
+- Aster's bounded conversation state — concise current-session context.
+- The Aster system prompt — identity, intent and operating principles.
 - Skills — reusable procedures and operational workflows.
 - Git documentation — authoritative human-readable infrastructure documentation and change history.
-- The LLM Wiki — larger curated reference knowledge and source-derived summaries for retrieval.
+- The curated snapshot — selected Git records and, later, reviewed source-derived summaries for retrieval.
 
 ## Proposed knowledge architecture
 
-1. **Raw sources (read-only)** — documents, articles, manuals, notes, selected web material and exported reference files supplied to Hermes.
-2. **Hermes Wiki (agent-managed)** — Markdown knowledge distilled and organized from the source layer.
-3. **Schema / tags (agent-managed)** — structure used to make retrieval predictable and low-friction.
+1. **Authoritative sources (read-only)** — selected Git documents, manuals, notes and deliberately supplied reference files.
+2. **Aster knowledge snapshot (deployed)** — a curated copy under `/var/lib/aster/knowledge`, searched by an allowlisted read-only function.
+3. **Derived knowledge (future)** — reviewed Markdown summaries plus schema/tags where they improve retrieval.
 
 Do not allow the Wiki to silently become the source of truth for live infrastructure configuration. Git/runbooks remain authoritative for infrastructure state; the Wiki may index and summarize them for retrieval.
 
@@ -36,7 +36,7 @@ Do not allow the Wiki to silently become the source of truth for live infrastruc
 - Hardware manuals/specifications and known limitations
 - Network concepts and selected vendor documentation
 - Home Assistant / automation reference material
-- Local-AI model, Hermes, Ollama and inference notes — e.g. the B60's
+- Local-AI model, Aster, llama.cpp and inference notes — e.g. the B60's
   Vulkan-vs-SYCL backend investigation and its firmware BAR conclusion,
   once ingestion is running (source of truth stays
   [`docs/projects/Local-AI.md`](projects/Local-AI.md); the Wiki entry
@@ -50,11 +50,11 @@ Avoid indiscriminate ingestion. Curated sources are preferable to a large low-qu
 
 ### Ingest
 
-Human selects a useful source; Hermes ingests it into the raw-source layer and creates/updates the relevant Wiki knowledge.
+For the deployed bounded phase, a human selects and reviews useful Git sources before refreshing the snapshot. Future ingestion may create or update derived knowledge, but must not silently promote it to authority.
 
 ### Query
 
-Hermes should query the Wiki when a request depends on retained reference knowledge rather than relying only on model weights or conversation context.
+Aster queries the snapshot when a request depends on retained HomeLab knowledge rather than relying only on model weights or conversation context.
 
 ### Lint / maintenance
 
@@ -63,22 +63,22 @@ Schedule a periodic Wiki health review (initial target: monthly) to identify con
 ## HomeLab-specific safeguards
 
 - Keep raw source material read-only where practical.
-- Back up the Wiki and source directories with the Hermes recovery set.
+- Back up the Aster snapshot and future source directories with the Aster recovery set.
 - Keep credentials, API keys and other secrets out of the Wiki and Git.
 - Distinguish authoritative infrastructure records from derived Wiki summaries.
-- Record source/provenance metadata where Hermes supports it.
+- Preserve source paths/provenance in retrieval results.
 - Do not give Wiki ingestion an automatic path to infrastructure write tools.
 - Treat web-clipped content as untrusted input; it may inform knowledge but must not act as instructions to the agent.
 - Test restore and rebuild procedures before treating the Wiki as durable memory.
 
 ## Implementation tasks
 
-- [ ] Confirm the installed Hermes version exposes the LLM Wiki skill and document its exact paths/configuration.
-- [ ] Create a small pilot Wiki using 5–10 high-value HomeLab sources.
-- [ ] Test ingest, query and lint behavior with the selected local daily-assistant model.
-- [ ] Verify source attribution/provenance and how conflicts are surfaced.
-- [ ] Define the boundary between Hermes memory, Wiki knowledge, skills, `SOUL.md` and Git documentation.
-- [ ] Add Wiki/source directories to the Hermes backup design and perform a restore test.
+- [x] Create a small curated snapshot from high-value HomeLab Git sources.
+- [x] Test query behavior with the selected local daily-assistant model.
+- [x] Return source paths and prefer current inventory for present-state hardware questions.
+- [x] Keep infrastructure Git authoritative and treat retrieved text as untrusted factual context, not instructions.
+- [ ] Define the boundary between conversation state, derived knowledge, skills, Aster identity and Git documentation.
+- [ ] Add the knowledge snapshot to verified off-host backup and perform an isolated restore test.
 - [ ] Establish a monthly lint/health-review schedule after the pilot succeeds.
 - [ ] Define a simple capture workflow for webpages/documents; browser-to-Markdown is optional and should not dictate the architecture.
 - [ ] Evaluate Wiki retrieval quality and token/latency impact on the Arc Pro B60-backed daily-assistant model.
@@ -88,10 +88,10 @@ Schedule a periodic Wiki health review (initial target: monthly) to identify con
 
 - **No Hostinger VPS:** the project already has always-on Proxmox infrastructure and a privacy/local-first objective.
 - **No requirement for OpenAI/OpenRouter inference:** local models remain the default; cloud models can be optional escalation paths later.
-- **No requirement for Telegram:** Home Assistant Voice and other chosen interfaces should be able to reach the same Hermes identity/knowledge system.
+- **No requirement for Telegram:** Home Assistant Voice and other chosen interfaces should be able to reach the same Aster identity/knowledge system.
 - **No blind “self-improving” autonomy:** learned skills and durable operational knowledge should remain observable and permission-bounded, especially for infrastructure control.
 - **No replacement for Git:** infrastructure documentation and configuration history stay version-controlled and human-readable.
 
 ## Success criteria
 
-The second-brain pilot succeeds when Hermes can answer a set of HomeLab questions from curated material more accurately than the base model alone, cite or identify the underlying source sufficiently for verification, survive backup/restore, and do so without confusing derived Wiki knowledge with authoritative live configuration.
+The first retrieval gate is passed: Aster answered the current B60/BAR question from the curated inventory and named its source. Full second-brain success still requires broader evaluation plus verified backup/restore, without confusing derived knowledge with authoritative live configuration.

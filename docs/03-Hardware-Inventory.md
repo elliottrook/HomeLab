@@ -17,17 +17,19 @@
     (Reolink Duo 2V) runs on port 1, stable for several days as of
     2026-08-30.
 - Dell Precision T5810 (Proxmox)
-  - Current CPU: Intel Xeon E5-1603 v3; purchased E5-2698 v4 pending installation
+  - Current CPU: Intel Xeon E5-2698 v4 (`lscpu` reconfirmed 2026-08-31)
   - Current memory: 32 GB ECC RDIMM; additional planned RAM remains to be installed and the final total must be confirmed
   - Coral Edge TPU `G650-04527-01` on a PCIe A+E-key carrier, passed through to Frigate VM 102
   - ASRock Intel Arc Pro B60 24 GB (`8086:e211`, subsystem `1849:6023`)
     installed behind its onboard PCIe switch; the board-facing link negotiates
-    PCIe 3.0 x8 on this host. GPU function `04:00.0` is isolated in IOMMU group
-    56 and assigned to Ollama VM 105; the unused audio function `05:00.0` is
-    isolated separately in group 57.
+    PCIe 3.0 x8 on this host. GPU function `04:00.0` is currently bound to the
+    host `xe` driver and mapped into unprivileged inference LXC 110; the earlier
+    VM 105 passthrough configuration remains only as a stopped rollback path.
+    The unused audio function `05:00.0` is isolated separately in group 57.
   - The B60 currently exposes a 256 MB physical BAR. The Proxmox `xe` driver
     attempted to resize it to 32 GB but the platform could not allocate the
-    aperture. Passthrough boots, but guest Vulkan acceleration remains pending.
+    aperture. Level Zero/OpenCL/OVMS cannot enumerate the GPU with this BAR,
+    while Mesa Vulkan acceleration works through the `xe`-backed LXC path.
   - Quadro K620 remains scheduled for removal during the next hardware-maintenance window
   - Confirmed live 2026-08-30 (physical install completed same day): `lspci`
     shows the Battlemage GPU present, and `qm config 105` confirms

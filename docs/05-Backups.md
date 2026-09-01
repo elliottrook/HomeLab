@@ -252,12 +252,16 @@ Synology pull reporting verifies completion of the off-host guest mirror.
 Do not store Home Assistant backup archives in Git. They may contain integration
 credentials, device identifiers and household data.
 
-## Hermes Agent and Ollama Lab pilot
+## Aster local-agent service and legacy rollback
 
-Hermes LXC 104 and Ollama VM 105 are isolated Lab VLAN 70 workloads intended to
-become permanent after the planned hardware expansion and testing are complete.
-The enabled 02:30 all-guests Proxmox job includes both guests, and fresh local
-archives for each were verified on 2026-08-19. Both guests were added to the
+Aster LXC 104, llama.cpp GPU LXC 110 and legacy Ollama VM 105 are isolated Lab
+VLAN 70 workloads. The Aster application and systemd source are also stored in
+Git under `services/aster-agent`; API keys remain only in protected guest
+environment files and must never be committed.
+
+The earlier Hermes/Ollama recovery evidence remains valid for the rollback path.
+The enabled 02:30 all-guests Proxmox job covered LXC 104 and VM 105, and fresh
+local archives for those two guests were verified on 2026-08-19. Both were added to the
 Backup Synology's filtered pull and checksum-verified on 2026-08-20. Isolated
 restores were then validated: Hermes booted with its dashboard and gateway
 processes active, and Ollama reached its Debian login prompt with networking
@@ -267,8 +271,14 @@ service and custom model profile. Because Hyper Backup selects the complete
 `automated/proxmox-guests` tree, both mirrored archive sets are included in the
 encrypted off-site backup without separate per-guest selection.
 
-Do not commit Hermes tokens, OAuth/provider state, Ollama chat data or any model
-configuration containing credentials. Local backup coverage is confirmed;
+Named `aster-production-20260831` snapshots now protect the deployed LXC 104
+and LXC 110 state locally. HomeLab Doctor confirmed a 16-hour-old LXC 110 archive
+on 2026-08-31. Its Backup Synology mirror and isolated restore have not yet been
+proven and remain backup-workflow follow-ups; a Proxmox snapshot is a rollback
+point, not a substitute for those checks.
+
+Do not commit Aster API keys, Hermes tokens, OAuth/provider state, Ollama chat
+data or any model configuration containing credentials. Local backup coverage is confirmed;
 the Backup Synology mirror and isolated restore validation are confirmed as of
 2026-08-20, and the mirrored archives are covered by the encrypted off-site task.
 
@@ -535,8 +545,9 @@ configuration is separately documented or exported.
 | Home Assistant VM 103 | Doctor checks Core and backup age | Encrypted native backups to local and Synology storage plus current mirrored VM archives | Isolated VM 903 restored and booted HAOS, Supervisor and Core successfully |
 | Main Synology | Doctor checks DSM reachability; Hyper Backup reports task failures | Versioned Hyper Backup repository on the Backup Synology with encrypted off-site protection for essential recovery material | Repository browsing and recovery access were validated; a full destructive NAS restore is intentionally not performed |
 | Backup Synology | Doctor checks DSM and the freshness/status of both automated pull jobs | Stores checksum-verified configuration and Proxmox mirrors; essential recovery material is independently protected in IDrive e2 | Recovery sets and restricted pull paths were validated; loss of the appliance requires rebuilding the pull tasks from documented configuration |
-| Hermes LXC 104 | Doctor checks guest/service health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Isolated restore as LXC 972 booted with Hermes services running |
-| Ollama VM 105 | Doctor checks guest state according to its intended operating mode | Current VM archive retained locally and checksum-mirrored to the Backup Synology | Isolated restore as VM 973 reached its login prompt successfully |
+| Aster Agent LXC 104 | Doctor checks guest, service and API health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; named production snapshot retained locally | Earlier isolated restore as LXC 972 booted the retained Hermes rollback services; Aster boot persistence was validated in place |
+| Legacy Ollama VM 105 | Doctor checks guest state according to its intended operating mode | Current VM archive retained locally and checksum-mirrored to the Backup Synology | Isolated restore as VM 973 reached its login prompt successfully |
+| Aster llama.cpp LXC 110 | Doctor checks guest and inference-service health | Named production snapshot and current local archive retained; off-host mirror remains to be confirmed | Boot persistence was validated in place; isolated archive restore remains pending |
 | Authentik LXC 106 | Doctor checks service reachability through the configured endpoint | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; Authentik configuration is documented separately |
 | Reverse Proxy LXC 107 | Doctor checks NPM service reachability and TLS dependencies | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; proxy and Authentik recovery order is documented |
 | Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
@@ -552,7 +563,7 @@ configuration is separately documented or exported.
   evidence.
 - Media libraries and Frigate recordings are intentionally excluded from
   encrypted off-site protection because their size exceeds their recovery value.
-- Hermes LXC 104 and Ollama VM 105 have verified same-site/off-host archives,
+- Aster LXC 104 and legacy Ollama VM 105 have verified same-site/off-host archives,
   isolated restore tests and encrypted off-site protection through the selected
   `automated/proxmox-guests` tree.
 - The Backup Synology is a recovery repository, not the only copy of essential

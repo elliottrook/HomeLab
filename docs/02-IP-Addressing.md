@@ -16,9 +16,9 @@
 |Backup Synology|192.168.20.42|
 |Frigate VM 102|192.168.20.10|
 |Home Assistant OS VM 103|192.168.20.11|
-|Hermes Agent LXC 104|192.168.70.10|
+|Aster Agent LXC 104|192.168.70.10|
 |Ollama VM 105|192.168.70.11|
-|Ollama GPU LXC 110|192.168.70.12|
+|Aster llama.cpp GPU LXC 110|192.168.70.12|
 |Authentik LXC 106|192.168.50.22|
 |Reverse Proxy LXC 107|192.168.50.23|
 |Forgejo LXC 108|192.168.20.30|
@@ -72,9 +72,9 @@ Both Pi-hole resolvers publish `truenas.internal` as an A record for
 
 | Service | Address | Port | Status |
 |---|---|---:|---|
-| Hermes Agent LXC 104 | `192.168.70.10` | Ollama GPU LXC 110 | Active |
+| Aster Agent API/UI | `http://192.168.70.10:9120` | Aster llama.cpp GPU LXC 110 | Active; bearer authentication required for chat API |
 | Ollama VM 105 API | `http://192.168.70.11:11434/v1` | 11434/TCP | Stopped rollback guest |
-| Ollama GPU LXC 110 API | `http://192.168.70.12:11434/v1` | 11434/TCP | Active; B60 Vulkan backend |
+| Aster llama.cpp API | `http://192.168.70.12:11435/v1` | 11435/TCP | Active; bearer-authenticated B60 Vulkan backend; Lab VLAN only |
 
 ## Authorization endpoints
 

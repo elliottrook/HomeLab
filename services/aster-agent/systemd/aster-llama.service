@@ -1,0 +1,26 @@
+[Unit]
+Description=Aster llama.cpp Vulkan Inference
+After=network-online.target
+Wants=network-online.target
+Conflicts=ollama.service
+
+[Service]
+Type=simple
+User=ollama
+Group=ollama
+SupplementaryGroups=video render
+EnvironmentFile=/etc/aster-llama.env
+ExecStart=/opt/llama.cpp-b10507/llama-server -m /opt/models/qwen3.8-27b-iq4xs/Qwen3.8-27B-UD-IQ4_XS-00001-of-00002.gguf -ngl 999 -c 8192 -np 1 -t 4 -tb 4 -b 256 -ub 128 -fa on -ctk q8_0 -ctv q8_0 --jinja --reasoning off --reasoning-budget 0 --host 192.168.70.12 --port 11435 --api-key ${ASTER_LLAMA_API_KEY} --metrics
+ExecStartPost=/usr/local/libexec/aster-llama-warmup
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

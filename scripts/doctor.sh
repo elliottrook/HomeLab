@@ -175,25 +175,27 @@ check_proxmox_guest_backup_age() {
     fi
 }
 
-check_hermes() {
+check_aster() {
     local state
 
     if ! state="$(
         ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
-            dashboard="$(pct exec 104 -- systemctl is-active hermes-dashboard.service 2>/dev/null || true)"
-            gateway="$(pct exec 104 -- runuser -u hermes -- env XDG_RUNTIME_DIR=/run/user/1000 systemctl --user is-active hermes-gateway.service 2>/dev/null || true)"
-            printf "dashboard=%s\\ngateway=%s\\n" "$dashboard" "$gateway"
+            agent="$(pct exec 104 -- systemctl is-active aster-agent.service 2>/dev/null || true)"
+            inference="$(pct exec 110 -- systemctl is-active aster-llama.service 2>/dev/null || true)"
+            api="$(pct exec 104 -- curl -sf http://192.168.70.10:9120/health 2>/dev/null || true)"
+            printf "agent=%s\\ninference=%s\\napi=%s\\n" "$agent" "$inference" "$api"
         '
     )"; then
-        warn "Unable to check Hermes services"
+        warn "Unable to check Aster services"
         return
     fi
 
-    if grep -qx 'dashboard=active' <<< "$state" &&
-       grep -qx 'gateway=active' <<< "$state"; then
-        pass "Hermes dashboard and gateway services healthy"
+    if grep -qx 'agent=active' <<< "$state" &&
+       grep -qx 'inference=active' <<< "$state" &&
+       grep -q '"status":"ok"' <<< "$state"; then
+        pass "Aster agent API and llama.cpp inference healthy"
     else
-        fail "Hermes service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
+        fail "Aster service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
     fi
 }
 
@@ -1004,7 +1006,7 @@ fi
 check_opnsense_wan
 check_arista
 check_proxmox
-check_hermes
+check_aster
 check_nut
 check_observability
 check_truenas
@@ -1046,8 +1048,9 @@ check_backup_age "Proxmox" "$BACKUP_ROOT/proxmox" 48
 check_backup_age "NUT" "$BACKUP_ROOT/nut" 48
 check_backup_age "Observability" "$BACKUP_ROOT/observability" 48
 check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
-check_proxmox_guest_backup_age "Hermes LXC 104" 104 30 lxc
-check_proxmox_guest_backup_age "Ollama VM 105" 105 30
+check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
+check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
+check_proxmox_guest_backup_age "Aster llama.cpp LXC 110" 110 30 lxc
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
 check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
