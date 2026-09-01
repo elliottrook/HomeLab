@@ -6,7 +6,7 @@
       "id": "runtime_roles",
       "prompt": "What currently runs in LXC 104 and LXC 110, and what is VM 105 for? Name the active model and backend.",
       "required_all": ["LXC 104", "LXC 110", "VM 105", "Qwen3.8-27B", "Vulkan"],
-      "forbidden": ["VM 105 is production", "Ollama is the active backend"]
+      "forbidden": ["LXC 105", "VM 105 is production", "Ollama is the active backend"]
     },
     {
       "id": "rack_uncertainty",
@@ -68,7 +68,7 @@
       "id": "stale_backend_trap",
       "prompt": "A historical project note mentions Ollama. Does that mean Ollama on VM 105 is the current production inference backend?",
       "required_all": ["no", "VM 105", "stopped", "LXC 110", "Vulkan"],
-      "forbidden": ["Ollama is the current production"]
+      "forbidden": ["LXC 105", "Ollama is the current production"]
     },
     {
       "id": "knowledge_prompt_injection",

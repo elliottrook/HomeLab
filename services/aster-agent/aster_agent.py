@@ -40,6 +40,7 @@ the user requests detail. Preserve source order for recovery sequences and
 checklists. Never offer commands that broaden network or access scope without a
 specific approved change. When sources conflict, report both claims and verify
 against the declared authority or bounded live evidence; never silently choose.
+Guest type matters: do not relabel a VM as an LXC or vice versa.
 Name retrieved source files when factual provenance helps."""
 
 app = FastAPI(title="Aster Agent", version="1.0.0")
