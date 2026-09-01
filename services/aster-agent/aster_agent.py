@@ -256,6 +256,14 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         re.search(r"\b(monitoring|health)\b", query, re.I)
         and re.search(r"\b(three|layers)\b", query, re.I)
     )
+    role_query = bool(
+        re.search(r"\b(lxc 104|lxc 110|vm 105)\b", query, re.I)
+        and re.search(r"\b(run|runs|role|model|backend|current)\b", query, re.I)
+    )
+    addressing_query = bool(
+        re.search(r"\b(vlan|address|ip)\b", query, re.I)
+        and re.search(r"\b(aster|inference|lxc 104|lxc 110)\b", query, re.I)
+    )
     provenance = _provenance(root)
     ranked: list[tuple[int, str, str]] = []
     for path in sorted(root.rglob("*")):
@@ -279,6 +287,10 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                 r"## (?:1\.|2\.|3\.)", chunk
             ):
                 score = max(score, 1)
+            if role_query and relative == "reference/infrastructure/virtualization.md" and "local-ai stack detail" in normalized:
+                score += 300
+            if addressing_query and relative == "reference/network/addressing.md" and "lab vlan 70" in normalized:
+                score += 300
             if score:
                 matches = [match.start() for token in tokens for match in re.finditer(re.escape(token), normalized)]
                 candidates = []
@@ -292,6 +304,10 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                 preferred_anchor = -1
                 if relative == "reference/operations/monitoring.md" and focused_monitoring:
                     preferred_anchor = normalized.find("three-layer quick reference")
+                elif relative == "reference/infrastructure/virtualization.md" and role_query:
+                    preferred_anchor = normalized.find("local-ai stack detail")
+                elif relative == "reference/network/addressing.md" and addressing_query:
+                    preferred_anchor = normalized.find("lab vlan 70")
                 elif relative == "reference/infrastructure/hardware-inventory.md" and re.search(
                     r"\b(rack|rack-unit|ru position)\b", query, re.I
                 ):
