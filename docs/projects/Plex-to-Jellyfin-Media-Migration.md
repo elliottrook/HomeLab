@@ -779,18 +779,25 @@ library has a recorded keeper decision before any file is deleted from Plex.
 - [x] Create the `Archive Movies` library using the Movies content type. —
   **Created 2026-09-01**, since Movies (archive-movies) already passed both
   its quick comparison and full checksum verification — no need to wait for
-  TV Shows' still-in-progress checksum pass. Scan triggered, in progress as
-  of this note.
-- [ ] Create the `Archive TV` library using the Shows content type. — Not yet
-  — waiting on TV Shows' checksum verification to pass first.
+  TV Shows' still-in-progress checksum pass. Scanned successfully: **921
+  movies indexed** (928 real video files existed; the small gap is expected
+  — e.g. "Hogfather" CD1/CD2 recognized as one multi-part movie).
+- [x] Create the `Archive TV` library using the Shows content type. —
+  **Created 2026-09-01**, once TV Shows' checksum verification passed.
+  Scanned successfully: **171 series** (exact match to the 171 show folders
+  on disk) and **5,678 episodes** indexed (5,973 real files existed; small
+  gap expected, same pattern as movies). One false alarm during setup: the
+  `/Environment/DirectoryContents` browse endpoint showed 0 entries for
+  `/media/archive-tv` immediately after library creation, despite the
+  filesystem clearly having 171 real folders (`truenas_admin:apps 777`,
+  fully readable) — turned out to be an unreliable check, not a real
+  problem; the actual library scan picked everything up correctly.
 - [x] Scan the combined Music library only after its merge gate passes. —
   Music merge completed in Milestone 4; scanned (multiple times, see the
   Jellyfin-indexing note above for why more than one pass was needed).
-- [~] Run library scans and allow metadata tasks to finish before object
-  migration begins. — Music scan complete. Archive Movies scan in progress
-  (expected to take longer than music's did, since this library has
-  `EnableInternetProviders: true` — real TheMovieDB lookups for ~600 movies,
-  unlike music which runs fully offline).
+- [x] Run library scans and allow metadata tasks to finish before object
+  migration begins. — All three (Music, Archive Movies, Archive TV) scanned
+  and confirmed indexed with real counts.
 
 ### Mapping states
 
