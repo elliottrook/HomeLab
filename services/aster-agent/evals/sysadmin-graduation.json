@@ -25,7 +25,7 @@
       "id": "b60_diagnosis",
       "prompt": "Inference suddenly became extremely slow but still responds. What is the first bounded diagnosis, and what safety condition applies before rebinding the B60?",
       "required_all": ["xe", "vulkaninfo", "Intel BMG G21", "VM 105", "stopped"],
-      "forbidden": ["rebind immediately"]
+      "forbidden": ["inference VM", "VM 110", "rebind immediately"]
     },
     {
       "id": "backup_recovery_order",
