@@ -615,8 +615,30 @@ of a real duplication concern).
 - [ ] Preserve useful genres and custom tags unless their removal is explicitly
   approved.
 - [ ] Retain sidecar artwork and lyrics with their album/tracks.
-- [ ] Preview the final canonical paths and review collisions before enabling
-  organizer writes.
+- [x] Preview the final canonical paths and review collisions before enabling
+  organizer writes. — Surveyed the whole staged catalog for albums whose
+  tracks are split across multiple physical folders (46 found); filtered out
+  the legitimate multi-disc pattern (CD 01/02, Disc 1/2 — already acceptable
+  per this doc's own naming rules) programmatically, leaving 16 genuine
+  anomalies. Of those: 4 were confirmed full-album duplicates (same tracklist
+  filed under both a generic `Compilations/` folder and the correct
+  artist-named folder — "Absolute Reggae", "Dancehall Reggae", "Simply The
+  Best", "The Very Best Of Pure Dancehall [Disc 2]") — resolved by merging
+  each pair's unique sidecar files (`album.nfo`, missing `folder.jpg`) into
+  the artist-named keeper, then removing the redundant `Compilations/` copy
+  from both staging and Plex's live library (approved). 3 were set aside as
+  genuinely ambiguous reggae-compilation cross-tagging that needs actual
+  listening/expert judgment, not a guess (Massive Reggae/Caribbean Uncovered,
+  Ride Da Riddims Volume 2, and a "Duets" track that appears mistagged into
+  Sting's album from an unrelated compilation) — **follow-up, not resolved**.
+  The remaining ~9 were stale database artifacts or already-decided cases
+  (the Paul Simon Greatest-Hits cross-references from the earlier duplicate
+  review, and genuine 1960s Beatles/Capitol Records release-history overlaps)
+  needing no action. Beyond these anomalies, the staged structure already
+  follows Artist/Album/tracks reasonably closely; a full rename to the
+  letter-perfect "01 - Title.ext" naming target was not pursued, since
+  Jellyfin's music library primarily organizes by embedded tags (now
+  corrected) rather than strict filename parsing.
 - [ ] Copy approved albums into the live `music` root; do not move the only
   source copy.
 - [ ] Re-run duplicate and missing-track reports against the combined root.
