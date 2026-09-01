@@ -626,11 +626,17 @@ of a real duplication concern).
   Best", "The Very Best Of Pure Dancehall [Disc 2]") — resolved by merging
   each pair's unique sidecar files (`album.nfo`, missing `folder.jpg`) into
   the artist-named keeper, then removing the redundant `Compilations/` copy
-  from both staging and Plex's live library (approved). 3 were set aside as
-  genuinely ambiguous reggae-compilation cross-tagging that needs actual
-  listening/expert judgment, not a guess (Massive Reggae/Caribbean Uncovered,
-  Ride Da Riddims Volume 2, and a "Duets" track that appears mistagged into
-  Sting's album from an unrelated compilation) — **follow-up, not resolved**.
+  from both staging and Plex's live library (approved). The 3 remaining
+  "anomalies" (Massive Reggae/Caribbean Uncovered, Ride Da Riddims
+  Volume 2/Duets) turned out not to be tagging errors at all, once Jason
+  confirmed "Caribbean Uncovered" and "Summer Riddims 2004" are real,
+  intentional custom compilations he assembled — every track had simply kept
+  its *original source album's* tag rather than being retagged to the
+  compilation it was actually placed in. Fixed directly: retagged all 45
+  Caribbean Uncovered tracks (both discs) and all 32 Summer Riddims 2004
+  tracks (both discs) with the correct album name, `Various Artists` as
+  album artist, and disc/track numbers derived from each file's own
+  `N-NN` filename prefix (which was already correctly ordered).
   The remaining ~9 were stale database artifacts or already-decided cases
   (the Paul Simon Greatest-Hits cross-references from the earlier duplicate
   review, and genuine 1960s Beatles/Capitol Records release-history overlaps)
