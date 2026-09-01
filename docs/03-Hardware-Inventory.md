@@ -30,7 +30,7 @@
     attempted to resize it to 32 GB but the platform could not allocate the
     aperture. Level Zero/OpenCL/OVMS cannot enumerate the GPU with this BAR,
     while Mesa Vulkan acceleration works through the `xe`-backed LXC path.
-  - Quadro K620 remains scheduled for removal during the next hardware-maintenance window
+  - Quadro K620 removed.
   - Confirmed live 2026-08-30 (physical install completed same day): `lspci`
     shows the Battlemage GPU present, and `qm config 105` confirms
     `hostpci0: 04:00.0,pcie=1,rombar=0` assigned to Ollama VM 105 as
