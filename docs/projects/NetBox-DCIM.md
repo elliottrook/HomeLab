@@ -247,11 +247,16 @@ same way a hand-maintained one does.
     Management" alongside Forgejo/File Browser. Restarted the `homepage`
     container (config changes aren't hot-reloaded); confirmed healthy and
     the tile actually renders on the page afterward, not just that the
-    YAML parsed. **Spotted in passing, not fixed (out of scope for this
-    project):** the "AI & Automation" group's tiles still say "Hermes
-    Agent" and "Ollama" — stale, same naming lag already documented
-    elsewhere for this project's own work (Aster/llama.cpp superseded
-    both in production). Worth a small follow-up outside NetBox's scope.
+    YAML parsed. **Also fixed the same session, at Jason's request (outside
+    NetBox's own scope, but the same file/service):** the "AI & Automation"
+    group's stale "Hermes Agent"/"Ollama" tiles were renamed to "Aster
+    Agent" (`http://192.168.70.10:9120`) and "Aster llama.cpp"
+    (`http://192.168.70.12:11435/v1/models`) — neither tile had a working
+    link before. Backed up `services.yaml` again first
+    (`/root/services.yaml.before-aster-tiles-20260901-145219`), restarted
+    `homepage`, and verified both new hrefs directly via Homepage's own
+    `/api/services` endpoint rather than trusting the raw page HTML (which
+    doesn't show client-rendered tile data).
 
 ## Milestone 3 — Data population
 
