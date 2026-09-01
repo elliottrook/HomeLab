@@ -130,7 +130,29 @@ same way a hand-maintained one does.
   healthy LXC 109 — confirmed as normal for this network, not a fault.)
   **Rollback:** `pct stop 111 && pct destroy 111` — safe at this stage,
   container holds no data yet.
-- [ ] Install NetBox via Docker Compose, validate a private-only login.
+- [x] Install NetBox via Docker Compose, validate a private-only login.
+  Docker 29.7.2 + Compose plugin v5.5.0 installed via the official Debian
+  repo (GPG fingerprint verified: `9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C
+  0EBF CD88`, matches Docker's published key). Deployed
+  `netbox-community/netbox-docker` (release branch,
+  `docker.io/netboxcommunity/netbox:v4.6-5.0.2` — NetBox 4.6.x /
+  netbox-docker packaging 5.0.2, explicitly pinned in a local `.env` rather
+  than relying on the repo's own default, so a future `git pull` on this
+  checkout can't silently change what's deployed) at `/opt/netbox`. All
+  Postgres/Redis/Redis-cache/NetBox secrets regenerated with `openssl rand`
+  and cross-checked for consistency across env files without ever printing
+  a value; originals were the project's published example placeholders and
+  were never used. Superuser `admin` created via the built-in bootstrap
+  (`SKIP_SUPERUSER=false` + `SUPERUSER_*` vars); its generated password
+  lives only in `/root/.netbox-superuser-password` (mode 600) on the guest.
+  All five containers (`netbox`, `netbox-worker`, `postgres`, `redis`,
+  `redis-cache`) healthy. Validated `GET /login/` returns HTTP 200 from
+  another Servers VLAN 20 guest; confirmed it does **not** respond from
+  Proxmox's Management-VLAN interface — expected default-deny behavior, not
+  a fault, and no rule was added to widen that. No SSO/Authentik
+  integration yet — private LAN/Tailscale access only, per the Milestone 1
+  decision. Port mapping: `8000:8080` (host:container), bound to the LXC's
+  single interface (`192.168.20.32`) only.
 - [ ] Add to HomeLab Doctor, backup coverage, and Beszel/monitoring following
   the existing per-service pattern.
 
@@ -168,3 +190,4 @@ markdown files, and there is exactly one documented source of truth for each
 | 2026-09-01 | 1 | Observability LXC 109 memory cap reduced 4096→2048 MB via live `pct set`; all six services (`prometheus`, `grafana-server`, `pve-exporter`, `nut-exporter`, `graphite-exporter`, `truenas-graphite-ingress`) confirmed active afterward | Passed |
 | 2026-09-01 | 1 | `192.168.20.32` confirmed free: no OPNsense DHCP static mapping or active lease, no ARP entry, no ping response | Passed |
 | 2026-09-01 | 2 | LXC 111 created (Debian 13.6, 2 vCPU/2048 MB/512 MB swap/32 GB disk, unprivileged, `nesting=1,keyctl=1`), started, network/DNS/`apt-get update` all verified working | Passed |
+| 2026-09-01 | 2 | Docker installed (official repo, GPG fingerprint verified); `netbox-community/netbox-docker` deployed pinned to `v4.6-5.0.2`; all secrets regenerated and cross-validated; all five containers healthy; `GET /login/` returns HTTP 200 within Servers VLAN 20 and correctly does not respond from Management VLAN | Passed |
