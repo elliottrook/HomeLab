@@ -53,6 +53,10 @@ where its desktop harness is worth the additional latency.
 Systemd does not report `aster-llama.service` fully started until the model is
 loaded and warm-up completes. This normally takes roughly 1–2 minutes. The
 first real user request then avoids the otherwise roughly 28-second cold path.
+The unit allows up to five minutes for startup, while the health and generation
+steps inside the warm-up script are independently bounded. This prevents
+systemd's 90-second default start timeout from killing a healthy model during a
+slow real-generation warm-up.
 
 ## Functions and knowledge
 
@@ -63,15 +67,26 @@ Aster 1.0 exposes three allowlisted read-only functions:
 - keyword-ranked search of `/var/lib/aster/knowledge`.
 
 These functions are selected from the current request and pre-executed before a
-single model call. The Qwen model's native OpenAI function-call behavior was
-validated separately, but obvious read-only functions use deterministic routing
-to avoid an unnecessary second inference pass. There is no arbitrary shell,
-filesystem write, or user-supplied network target.
+single model call. Knowledge retrieval returns up to four source-diverse results.
+Current hardware inventory receives a strong present-state ranking preference,
+but relevant operational and design records are not excluded from multi-part
+answers. The Qwen model's native OpenAI function-call behavior was validated
+separately, but Aster's production path is deliberately one-pass: it must not
+emit or request follow-up tool calls. If the preloaded context is insufficient,
+it says what is missing. There is no arbitrary shell, filesystem write, or
+user-supplied network target.
 
 The deployed knowledge directory is a curated snapshot, not a live Git mount.
-Refresh it after material documentation changes by creating a new archive from
-the selected repository files, copying it to Proxmox, extracting it into
-`/var/lib/aster/knowledge`, and restoring ownership to `aster:aster`. Never add
+Build it from the repository's explicit allowlist after material documentation
+changes:
+
+```sh
+scripts/build-aster-knowledge-snapshot.sh /tmp/aster-knowledge.tar.gz
+```
+
+Copy the archive to Proxmox, replace `/var/lib/aster/knowledge` atomically in
+LXC 104, and restore ownership to `aster:aster`. The builder includes
+`docs/Aster-Operations.md` and does not copy Finder `._*` metadata. Never add
 private backups, credentials or unreviewed external documents to the snapshot.
 
 ## Health and logs
@@ -88,6 +103,22 @@ pct exec 110 -- journalctl -u aster-llama.service -n 100 --no-pager
 ```
 
 `lab doctor` checks both systemd services and the Aster health endpoint.
+
+The B60 must be bound to the host `xe` driver before inference starts. Stale
+DRM nodes can remain visible inside LXC 110 even when the host device is
+unbound, in which case Mesa silently exposes `llvmpipe` and inference becomes
+extremely slow. Verify both layers from Proxmox:
+
+```sh
+readlink /sys/bus/pci/devices/0000:04:00.0/driver
+pct exec 110 -- vulkaninfo --summary
+```
+
+The host path must end in `/xe`, and `vulkaninfo` must list Intel BMG G21 as a
+discrete GPU. If VM 105 is confirmed stopped and `04:00.0` is unbound, stop
+`aster-llama.service`, bind `0000:04:00.0` through
+`/sys/bus/pci/drivers/xe/bind`, then start the service. Do not rebind the device
+while VM 105 is running.
 
 ## Restart and rollback
 
@@ -122,6 +153,14 @@ prompt/tool configuration is substantially slower than Aster.
 - Grounded current-hardware retrieval: approximately 24 seconds, with the
   answer correctly naming `docs/03-Hardware-Inventory.md`.
 - Six earlier direct stability requests: HTTP 200 in 3.28–4.26 seconds.
+- The 2026-09-01 multi-source acceptance prompt correctly identified both LXC
+  roles, the exact Qwen3.8 model, llama.cpp/Vulkan, the VM 105 rollback path,
+  the SYCL/BAR constraint, the first unfinished second-brain task and the stale
+  Ollama wording in `docs/projects/Local-AI.md`.
+- A focused checklist query returned the first three unchecked tasks in order
+  from `docs/AI-Hermes-Second-Brain.md`, with no emitted tool-call markup.
+- The focused checklist run processed 951 prompt tokens at 77.8 tokens/second
+  and decoded at 4.9 tokens/second after B60-to-`xe` binding was restored.
 
 These figures are single-user measurements. Inference intentionally has one
 slot, so simultaneous requests queue instead of competing for the B60's memory.

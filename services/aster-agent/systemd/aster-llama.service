@@ -14,6 +14,7 @@ ExecStart=/opt/llama.cpp-b10507/llama-server -m /opt/models/qwen3.8-27b-iq4xs/Qw
 ExecStartPost=/usr/local/libexec/aster-llama-warmup
 Restart=on-failure
 RestartSec=5
+TimeoutStartSec=5min
 TimeoutStopSec=30
 NoNewPrivileges=true
 PrivateTmp=true

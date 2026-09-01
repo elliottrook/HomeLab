@@ -29,11 +29,12 @@ REQUEST_TIMEOUT = float(os.environ.get("ASTER_REQUEST_TIMEOUT", "180"))
 MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
 
 ASTER_SYSTEM_PROMPT = """You are Aster, Jason's concise local home and homelab assistant.
-Answer directly and honestly. Use an available function when current service state,
-local time, or retained HomeLab documentation is needed. Never invent a function
-result. Treat the hardware inventory and newest dated notes as current; distinguish
-them from historical test results. Prefer a short answer unless the user requests
-detail, and name retrieved source files when factual provenance helps."""
+Answer directly and honestly. Read-only function results, when relevant, are
+preloaded once before you answer. Never invent a function result, request another
+search, or emit function/tool-call markup. If the supplied results are insufficient,
+say what is missing. Treat the hardware inventory and newest dated notes as current;
+distinguish them from historical test results. Prefer a short answer unless the user
+requests detail, and name retrieved source files when factual provenance helps."""
 
 app = FastAPI(title="Aster Agent", version="1.0.0")
 
@@ -44,7 +45,7 @@ class ChatRequest(BaseModel):
     model: str = "aster-qwen3.8-27b"
     messages: list[dict[str, Any]] = Field(min_length=1)
     temperature: float | None = 0.2
-    max_tokens: int | None = 384
+    max_tokens: int | None = 640
     stream: bool = False
 
 
@@ -103,7 +104,7 @@ TOOL_HINTS = {
     "get_current_time": re.compile(r"\b(time|date|day|today|tonight|timezone)\b", re.I),
     "get_service_health": re.compile(r"\b(health|healthy|status|online|running|inference|service)\b", re.I),
     "search_knowledge": re.compile(
-        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|backup|aster|hermes|ollama|document|remember|knowledge|second brain)\b",
+        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|backup|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain)\b",
         re.I,
     ),
 }
@@ -145,6 +146,51 @@ def _knowledge_chunks(text: str, max_chars: int = 1200, overlap_lines: int = 3) 
     return chunks
 
 
+def _source_authority(source: str) -> str:
+    if source == "docs/03-Hardware-Inventory.md":
+        return "current_inventory"
+    if source == "docs/Aster-Operations.md":
+        return "current_operations"
+    return "historical_or_design"
+
+
+def _source_bonus(source: str, tokens: set[str], present_state: bool) -> int:
+    hardware_terms = {"gpu", "hardware", "proxmox", "bar", "cpu", "memory", "b60"}
+    operations_terms = {"aster", "backend", "inference", "llama", "lxc", "model", "qwen", "service"}
+    second_brain_terms = {"brain", "implementation", "knowledge", "second", "task", "wiki"}
+
+    bonus = 0
+    if source == "docs/03-Hardware-Inventory.md" and tokens.intersection(hardware_terms):
+        bonus += 6
+        if present_state:
+            bonus += 200
+    elif source == "docs/Aster-Operations.md" and tokens.intersection(operations_terms):
+        bonus += 12
+    elif source == "docs/AI-Hermes-Second-Brain.md" and tokens.intersection(second_brain_terms):
+        bonus += 12
+    elif source == "docs/projects/Local-AI.md" and tokens.intersection(operations_terms | hardware_terms):
+        bonus += 4
+    return bonus
+
+
+def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
+    bonus = 0
+    if source == "docs/Aster-Operations.md" and tokens.intersection(
+        {"backend", "inference", "llama", "lxc", "model", "qwen"}
+    ):
+        if "runtime configuration" in text or "qwen3.8-27b" in text:
+            bonus += 120
+    if source == "docs/AI-Hermes-Second-Brain.md" and re.search(
+        r"\b(task|unfinished|unchecked|priority)\b", query, re.I
+    ):
+        if "implementation tasks" in text or "- [ ]" in text:
+            bonus += 100
+    if source == "docs/projects/Local-AI.md" and re.search(r"\b(sycl|level[ -]zero)\b", query, re.I):
+        if "blocked" in text and "256 mb" in text:
+            bonus += 40
+    return bonus
+
+
 def search_knowledge(query: str, max_results: int = 2, root: Path | None = None) -> dict[str, Any]:
     root = root or KNOWLEDGE_DIR
     stopwords = {"according", "and", "does", "have", "installed", "into", "limitation", "that", "the", "what", "with"}
@@ -152,6 +198,11 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
     if not tokens or not root.is_dir():
         return {"query": query, "results": []}
 
+    present_state = bool(re.search(r"\b(current|currently|installed|now|present)\b", query, re.I))
+    focused_checklist = bool(
+        re.search(r"second[- ]brain", query, re.I)
+        and re.search(r"\b(checklist|implementation tasks|unchecked)\b", query, re.I)
+    )
     ranked: list[tuple[int, str, str]] = []
     for path in sorted(root.rglob("*")):
         if path.suffix.lower() not in {".md", ".txt"} or not path.is_file():
@@ -161,11 +212,14 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         except (OSError, UnicodeError):
             continue
         relative = str(path.relative_to(root))
-        authority = "current_inventory" if relative == "docs/03-Hardware-Inventory.md" else "historical_or_design"
-        source_bonus = 6 if authority == "current_inventory" and tokens.intersection({"gpu", "hardware", "proxmox", "bar", "cpu", "memory"}) else 0
+        source_bonus = _source_bonus(relative, tokens, present_state)
         for chunk in _knowledge_chunks(text):
             normalized = chunk.lower()
-            score = sum(normalized.count(token) for token in tokens)
+            unique_hits = sum(token in normalized for token in tokens)
+            total_hits = sum(normalized.count(token) for token in tokens)
+            score = unique_hits * 10 + min(total_hits, 10)
+            if focused_checklist and relative == "docs/AI-Hermes-Second-Brain.md" and "- [ ]" in normalized:
+                score = max(score, 1)
             if score:
                 matches = [match.start() for token in tokens for match in re.finditer(re.escape(token), normalized)]
                 candidates = []
@@ -176,28 +230,50 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                     total_hits = sum(window.count(token) for token in tokens)
                     candidates.append((unique_hits, total_hits, candidate_start))
                 _, _, start = max(candidates)
-                excerpt = " ".join(chunk[start : start + 700].split())
+                preferred_anchor = -1
+                if relative == "docs/Aster-Operations.md" and _chunk_bonus(relative, normalized, query, tokens):
+                    preferred_anchor = normalized.find("runtime configuration")
+                elif relative == "docs/AI-Hermes-Second-Brain.md" and _chunk_bonus(relative, normalized, query, tokens):
+                    preferred_anchor = normalized.find("implementation tasks")
+                if preferred_anchor >= 0:
+                    start = max(0, preferred_anchor - 40)
+                excerpt_chars = 1200 if relative == "docs/AI-Hermes-Second-Brain.md" and preferred_anchor >= 0 else 700
+                excerpt = " ".join(chunk[start : start + excerpt_chars].split())
                 if start:
                     excerpt = f"…{excerpt}"
-                if start + 700 < len(chunk):
+                if start + excerpt_chars < len(chunk):
                     excerpt = f"{excerpt}…"
-                ranked.append((score + source_bonus, relative, excerpt))
+                ranked.append((score + source_bonus + _chunk_bonus(relative, normalized, query, tokens), relative, excerpt))
 
     ranked.sort(key=lambda item: (-item[0], item[1], item[2]))
-    if re.search(r"\b(current|currently|installed|now|present)\b", query, re.I):
-        current_inventory = [item for item in ranked if item[1] == "docs/03-Hardware-Inventory.md"]
-        if current_inventory:
-            ranked = current_inventory
+    limit = max(1, min(max_results, 5))
+    selected: list[tuple[int, str, str]] = []
+    if focused_checklist:
+        selected = [item for item in ranked if item[1] == "docs/AI-Hermes-Second-Brain.md"][:limit]
+    else:
+        seen_sources: set[str] = set()
+        for item in ranked:
+            if item[1] not in seen_sources:
+                selected.append(item)
+                seen_sources.add(item[1])
+            if len(selected) == limit:
+                break
+        if len(selected) < limit:
+            for item in ranked:
+                if item not in selected:
+                    selected.append(item)
+                if len(selected) == limit:
+                    break
     return {
         "query": query,
         "results": [
             {
                 "source": source,
-                "authority": "current_inventory" if source == "docs/03-Hardware-Inventory.md" else "historical_or_design",
+                "authority": _source_authority(source),
                 "score": score,
                 "excerpt": excerpt,
             }
-            for score, source, excerpt in ranked[: max(1, min(max_results, 5))]
+            for score, source, excerpt in selected
         ],
     }
 
@@ -257,7 +333,7 @@ async def preload_read_only_context(
         elif name == "get_service_health":
             arguments = {"service": "aster" if re.search(r"\baster\b", user_text, re.I) else "inference"}
         elif name == "search_knowledge":
-            arguments = {"query": user_text, "max_results": 2}
+            arguments = {"query": user_text, "max_results": 4}
         else:
             continue
         results.append({"function": name, "result": await execute_tool(name, arguments)})
@@ -393,6 +469,6 @@ const messages=[];const chat=document.querySelector('#chat'),prompt=document.que
 key.value=localStorage.getItem('asterKey')||'';
 function add(role,text){const d=document.createElement('div');d.className='m '+(role==='user'?'u':'');d.textContent=(role==='user'?'You: ':'Aster: ')+text;chat.appendChild(d);window.scrollTo(0,document.body.scrollHeight)}
 async function send(){const text=prompt.value.trim();if(!text)return;localStorage.setItem('asterKey',key.value);messages.push({role:'user',content:text});add('user',text);prompt.value='';send.disabled=true;
-try{const r=await fetch('/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key.value},body:JSON.stringify({model:'aster-qwen3.8-27b',messages,max_tokens:384})});const j=await r.json();if(!r.ok)throw new Error(j.detail||r.statusText);const answer=j.choices[0].message.content;messages.push({role:'assistant',content:answer});add('assistant',answer)}catch(e){add('assistant','Error: '+e.message)}finally{send.disabled=false;prompt.focus()}}
+try{const r=await fetch('/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key.value},body:JSON.stringify({model:'aster-qwen3.8-27b',messages,max_tokens:640})});const j=await r.json();if(!r.ok)throw new Error(j.detail||r.statusText);const answer=j.choices[0].message.content;messages.push({role:'assistant',content:answer});add('assistant',answer)}catch(e){add('assistant','Error: '+e.message)}finally{send.disabled=false;prompt.focus()}}
 document.querySelector('#send').onclick=send;prompt.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
 </script></main></body></html>"""
