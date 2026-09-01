@@ -438,7 +438,22 @@ attempt rejected at the character-allowlist stage.
 - [ ] Compare file counts, byte totals and extensions by library.
 - [ ] Quarantine zero-byte, unreadable and unsupported files for review; do not
   delete them automatically.
-- [ ] Record any naming collisions, duplicate editions and incomplete shows.
+- [x] Record any naming collisions, duplicate editions and incomplete shows.
+  — Movies checked (fully copied and checksum-verified, no need to wait for
+  TV): 928 real video files (779 `.m4v`, 138 `.mp4`, 9 `.mkv`, 2 `.mpg`), no
+  zero-byte files. 7 titles share a base name; 4 are legitimately different
+  films/content, not duplicates ("Overboard" '87/'18, "The Color Purple"
+  '85/'23, "A Star Is Born" '76/'18 are real remakes; "Hogfather" CD1/CD2 is
+  one film split across two discs). Of the 3 real candidates: **"In the Heat
+  of the Night"** resolved — near-identical runtime (110.1 vs 110.3 min)
+  confirmed it was the same cut at two quality levels (720×460 vs 1280×720);
+  kept the higher-quality copy, removed the redundant one from both
+  `archive-movies` and Plex's live library (approved). **"Cats" (1998)** and
+  **"Taken" (2008)** were *not* auto-resolved — both have real runtime gaps
+  (~11 min and ~2.5 min) between their two copies, which could mean a
+  genuinely different cut/edition rather than just a quality difference (e.g.
+  Taken has a real theatrical vs. extended/unrated release) — flagged as a
+  follow-up needing an actual look, not a guess.
 
 ### Transfer template
 
