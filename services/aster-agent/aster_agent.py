@@ -290,7 +290,9 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                     candidates.append((unique_hits, total_hits, candidate_start))
                 _, _, start = max(candidates)
                 preferred_anchor = -1
-                if relative == "reference/infrastructure/hardware-inventory.md" and re.search(
+                if relative == "reference/operations/monitoring.md" and focused_monitoring:
+                    preferred_anchor = normalized.find("three-layer quick reference")
+                elif relative == "reference/infrastructure/hardware-inventory.md" and re.search(
                     r"\b(rack|rack-unit|ru position)\b", query, re.I
                 ):
                     preferred_anchor = normalized.find("uncertain or excluded")
