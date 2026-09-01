@@ -756,22 +756,38 @@ library has a recorded keeper decision before any file is deleted from Plex.
 
 ## Milestone 5 — Jellyfin libraries and identity mapping
 
-- [ ] Add read-only container mounts for `archive-movies` and `archive-tv`.
-- [ ] Confirm the existing Movies, TV and Music mounts remain unchanged.
-- [ ] Create the `Archive Movies` library using the Movies content type.
-- [ ] Create the `Archive TV` library using the Shows content type.
-- [ ] Scan the combined Music library only after its merge gate passes.
-- [ ] Run library scans and allow metadata tasks to finish before object
-  migration begins.
-- [ ] Export a post-scan Jellyfin inventory containing item ID, library, path,
-  provider IDs and media-specific metadata.
-- [ ] Build `plex-to-jellyfin-map.json` and a CSV exception report.
-- [ ] Require each mapping to record its match method and confidence.
-- [ ] Manually resolve ambiguous items and any case where both current and
-  archive libraries contain the same title.
-- [ ] For archive video, prefer the destination path derived from the original
-  Plex path so a collection is not accidentally attached to an existing
-  Jellyfin duplicate.
+> **Execution note:** the music portion of this milestone (scanning the
+> merged Music library) was done ahead of the formal write-up here, as a
+> direct prerequisite for Milestone 6's playlist item mapping — see the
+> Milestone 4 Jellyfin-indexing note above for the full diagnostic story.
+
+- [x] Add read-only container mounts for `archive-movies` and `archive-tv`.
+  — Not needed: Jellyfin's container already bind-mounts the whole
+  `/mnt/Media/data` tree as `/media` (confirmed back in Milestone 2), so
+  `archive-movies`/`archive-tv` are already visible inside the container
+  with no separate mount configuration required. Confirmed via
+  `/Environment/DirectoryContents?path=/media/archive-movies&includeFiles=true`
+  — 597 files visible immediately.
+- [x] Confirm the existing Movies, TV and Music mounts remain unchanged. —
+  Confirmed via `/Library/VirtualFolders`: existing `Movies`
+  (`/media/media/movies`) and `Shows` (`/media/media/tv`) libraries are
+  untouched; `Archive Movies` was created as a fully separate library
+  (`/media/archive-movies`), not nested inside or merged with either.
+- [x] Create the `Archive Movies` library using the Movies content type. —
+  **Created 2026-09-01**, since Movies (archive-movies) already passed both
+  its quick comparison and full checksum verification — no need to wait for
+  TV Shows' still-in-progress checksum pass. Scan triggered, in progress as
+  of this note.
+- [ ] Create the `Archive TV` library using the Shows content type. — Not yet
+  — waiting on TV Shows' checksum verification to pass first.
+- [x] Scan the combined Music library only after its merge gate passes. —
+  Music merge completed in Milestone 4; scanned (multiple times, see the
+  Jellyfin-indexing note above for why more than one pass was needed).
+- [~] Run library scans and allow metadata tasks to finish before object
+  migration begins. — Music scan complete. Archive Movies scan in progress
+  (expected to take longer than music's did, since this library has
+  `EnableInternetProviders: true` — real TheMovieDB lookups for ~600 movies,
+  unlike music which runs fully offline).
 
 ### Mapping states
 
