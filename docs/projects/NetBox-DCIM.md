@@ -1,10 +1,29 @@
 # NetBox DCIM / Rack & Asset Management Project
 
-> Status: Proposed
+> Status: Active
 >
 > Project owner: Jason
 >
 > Last updated: 2026-09-01
+
+## Authorization
+
+**Per-project authorization granted 2026-09-01** (see `CLAUDE.md`, "Per-project
+authorization" section): Claude may execute this project's state-changing
+steps — LXC creation, package installs, firewall rules for the new host —
+without asking before each individual step. This does not waive, for any
+action taken under it:
+
+- a rollback route documented before the action, not after;
+- the least invasive change that meets the step's objective, preserving the
+  lab's existing security/privacy posture everywhere else;
+- stopping and asking about anything genuinely unanticipated;
+- or the physical rack walk-through, which no authorization can substitute
+  for — that step still requires Jason directly.
+
+Every state-changing step taken under this authorization is logged in the
+Evidence log at the bottom of this document as it happens, matching this
+repository's standard project-tracking convention.
 
 ## Purpose
 
@@ -106,3 +125,8 @@ The physical rack and core device/address inventory are represented in
 NetBox, verified against physical reality rather than against the old
 markdown files, and there is exactly one documented source of truth for each
 — either NetBox or markdown, never both silently.
+
+## Evidence log
+
+| Date | Milestone | Evidence | Result |
+|---|---|---|---|
