@@ -512,8 +512,8 @@ own milestones, dependencies, evidence and completion gate.
 | Authentik rollout | Foundation proven; staged rollout proposed | [`docs/projects/Authentik-Rollout.md`](docs/projects/Authentik-Rollout.md) |
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [`docs/projects/Surveillance-Expansion.md`](docs/projects/Surveillance-Expansion.md) |
 | NUT/UPS deployment | Handover ready | [`docs/UPS-Power-Resilience-Claude-Handover.md`](docs/UPS-Power-Resilience-Claude-Handover.md) |
-| Synology Drive family cloud | Handover ready for Claude | [`docs/projects/Synology-Drive-Family-Cloud.md`](docs/projects/Synology-Drive-Family-Cloud.md) |
 | Prometheus/Grafana observability | Complete; retained in production | [`docs/projects/completed projects/Prometheus-Grafana-Observability.md`](<docs/projects/completed projects/Prometheus-Grafana-Observability.md>) |
+| Synology Drive family cloud | Complete for the pilot rollout; family-wide client rollout deferred | [`docs/projects/completed projects/Synology-Drive-Family-Cloud.md`](<docs/projects/completed projects/Synology-Drive-Family-Cloud.md>) |
 
 See the [enhancement portfolio index](docs/projects/README.md) for common project
 rules and status definitions.

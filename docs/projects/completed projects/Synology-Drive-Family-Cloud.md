@@ -2,16 +2,17 @@
 
 ## Project handover: Claude → ChatGPT
 
-> Status: **Concluded 2026-08-31.** Milestones 1-8 complete for the pilot
-> rollout (Jason's own accounts and devices), including a fully proven
-> backup/restore path and HomeLab Doctor monitoring. The Cloudflare Access
-> admin-login problem is also resolved (root cause was split DNS blocking
-> Cloudflare's own backend from reaching Authentik — see
-> Authentik-Cloudflare-Access-OIDC-Handover.md). One item is deliberately
-> deferred, not abandoned: rolling out mobile/desktop clients to the rest of
-> the family (Alisa, Carter, Justin, Jen) — see section 16 (Hand-back) below
-> for full detail, rollback steps and residual risks before picking this
-> back up.
+> Status: **Complete.** Closed 2026-08-31; moved to `completed projects/`.
+> Milestones 1-8 and every completion gate passed for the pilot rollout
+> (Jason's own accounts and devices), including a fully proven backup/restore
+> path and HomeLab Doctor monitoring. The Cloudflare Access admin-login
+> problem is also resolved (root cause was split DNS blocking Cloudflare's
+> own backend from reaching Authentik — see
+> Authentik-Cloudflare-Access-OIDC-Handover.md). One item is intentionally
+> **Deferred**, not part of this completion: rolling out mobile/desktop
+> clients to the rest of the family (Alisa, Carter, Justin, Jen) — see
+> section 16 (Hand-back) below for full detail, rollback steps and residual
+> risks before picking this back up as its own follow-on effort.
 >
 > Project owner: Jason
 >
@@ -299,11 +300,11 @@ the one remaining item, tracked above rather than blocking this gate.
 
 - [x] Choose the external-sharing method without broad DSM exposure. — Drive's
   public sharing via the Cloudflare Tunnel set up earlier tonight (see
-  [Synology-Drive-Cloudflare-Handover.md](../Synology-Drive-Cloudflare-Handover.md)),
+  [Synology-Drive-Cloudflare-Handover.md](../../Synology-Drive-Cloudflare-Handover.md)),
   scoped so only the `/d/*` and `/oo/*` share-link paths bypass Cloudflare
   Access — no WAN port-forward, and DSM's own login surface stays behind a
   login wall (login method for that wall is a separate open item, see
-  [Authentik-Cloudflare-Access-OIDC-Handover.md](../Authentik-Cloudflare-Access-OIDC-Handover.md)).
+  [Authentik-Cloudflare-Access-OIDC-Handover.md](../../Authentik-Cloudflare-Access-OIDC-Handover.md)).
 - [x] Test a password-protected, expiring read-only link with a non-family
   user. — Tested an expiring link from a private/incognito context (simulating
   an outsider with no access to any of Jason's accounts); confirmed working.
@@ -641,8 +642,8 @@ authoritative record.
 - **Cloudflare Tunnel routes and Access applications** (`share.elliottrook.com`,
   `auth.elliottrook.com`, the three Access applications, the Authentik OIDC
   login method): rollback order and specifics are documented in
-  [Synology-Drive-Cloudflare-Handover.md](../Synology-Drive-Cloudflare-Handover.md)
-  and [Authentik-Cloudflare-Access-OIDC-Handover.md](../Authentik-Cloudflare-Access-OIDC-Handover.md)
+  [Synology-Drive-Cloudflare-Handover.md](../../Synology-Drive-Cloudflare-Handover.md)
+  and [Authentik-Cloudflare-Access-OIDC-Handover.md](../../Authentik-Cloudflare-Access-OIDC-Handover.md)
   — do not improvise a rollback here without reading those, since undoing
   pieces out of order could re-expose DSM's login surface without protection.
 - **Homepage dashboard "Family Drive" tile**: a timestamped backup of the
@@ -690,7 +691,9 @@ authoritative record.
 
 ### Every repository file changed by this project
 
-- `docs/projects/Synology-Drive-Family-Cloud.md` (this file)
+- `docs/projects/Synology-Drive-Family-Cloud.md` (this file — moved to
+  `docs/projects/completed projects/Synology-Drive-Family-Cloud.md` on
+  project close-out, 2026-08-31)
 - `docs/Authentik-Cloudflare-Access-OIDC-Handover.md`
 - `docs/Synology-Drive-Cloudflare-Handover.md` (authored by a separate Codex
   session, not this one, but directly part of this project's Milestone 6)

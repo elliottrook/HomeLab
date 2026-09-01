@@ -19,8 +19,8 @@
 - [ ] [Authentik service rollout](projects/Authentik-Rollout.md)
 - [ ] [Surveillance expansion](projects/Surveillance-Expansion.md)
 - [ ] [NUT/UPS deployment](UPS-Power-Resilience-Claude-Handover.md)
-- [ ] [Synology Drive family cloud](projects/Synology-Drive-Family-Cloud.md)
 - [x] [Prometheus/Grafana observability](projects/completed%20projects/Prometheus-Grafana-Observability.md)
+- [x] [Synology Drive family cloud](projects/completed%20projects/Synology-Drive-Family-Cloud.md)
 
 The checkboxes above represent independent project completion, not permission to
 run all six simultaneously. Each project document controls its own milestones

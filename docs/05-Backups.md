@@ -129,7 +129,7 @@ destination has less headroom than the main NAS overall and is shared with
 Plex's media backup, so it's the more time-sensitive one to periodically
 recheck as data grows. Full detail, including the discovery that led to
 creating this task, is in
-[docs/projects/Synology-Drive-Family-Cloud.md](projects/Synology-Drive-Family-Cloud.md)
+[docs/projects/completed projects/Synology-Drive-Family-Cloud.md](<projects/completed projects/Synology-Drive-Family-Cloud.md>)
 (Milestone 7).
 
 ## Docker LXC 100

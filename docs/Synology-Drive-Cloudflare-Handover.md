@@ -2,7 +2,7 @@
 
 > Status: operational and externally validated  
 > Completed: 2026-08-26  
-> Primary project: [Synology Drive Family Cloud](projects/Synology-Drive-Family-Cloud.md)
+> Primary project: [Synology Drive Family Cloud](projects/completed%20projects/Synology-Drive-Family-Cloud.md)
 
 ## Outcome
 
