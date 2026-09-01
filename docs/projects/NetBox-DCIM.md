@@ -236,10 +236,22 @@ same way a hand-maintained one does.
     one is much lighter than the DSM blocker above: open the Beszel hub UI,
     "Add System" named `netbox` at `192.168.20.32`, copy the generated
     token, and I can finish the install immediately once I have it.
-  - [ ] Add configs/services.conf plain-TCP entry — **done** (`netbox`,
+  - [x] Add configs/services.conf plain-TCP entry — **done** (`netbox`,
     `192.168.20.32:8000`), confirmed passing via Doctor's "Checking
     configured services" section. `configs/devices.conf` also updated to
     match the existing per-LXC pattern.
+  - [x] Add a Homepage dashboard tile, matching the existing per-service
+    pattern. Backed up `services.yaml` first
+    (`/root/services.yaml.before-netbox-tile-20260901-144709` on Docker
+    LXC 100 — rollback path if ever needed). Added under "Application
+    Management" alongside Forgejo/File Browser. Restarted the `homepage`
+    container (config changes aren't hot-reloaded); confirmed healthy and
+    the tile actually renders on the page afterward, not just that the
+    YAML parsed. **Spotted in passing, not fixed (out of scope for this
+    project):** the "AI & Automation" group's tiles still say "Hermes
+    Agent" and "Ollama" — stale, same naming lag already documented
+    elsewhere for this project's own work (Aster/llama.cpp superseded
+    both in production). Worth a small follow-up outside NetBox's scope.
 
 ## Milestone 3 — Data population
 
