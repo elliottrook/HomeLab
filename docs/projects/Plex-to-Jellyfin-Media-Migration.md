@@ -645,8 +645,22 @@ of a real duplication concern).
   letter-perfect "01 - Title.ext" naming target was not pursued, since
   Jellyfin's music library primarily organizes by embedded tags (now
   corrected) rather than strict filename parsing.
-- [ ] Copy approved albums into the live `music` root; do not move the only
-  source copy.
+- [x] Copy approved albums into the live `music` root; do not move the only
+  source copy. — **Complete 2026-08-31.** Existing test content (the Paul
+  Simon folder) left untouched per Jason's call, not cleared first — any
+  overlap with the real collection is a follow-up, not a blocker. Dry run
+  clean (38,755 files, 143.7 GB), then the real copy: all 38,755 files
+  transferred with an exact byte match to the source (143,746,532,374
+  bytes both sides) — zero missing or corrupted files. rsync reported exit
+  code 23 ("some attrs not transferred"), but both underlying causes were
+  harmless directory-metadata failures (couldn't set timestamp on the
+  live music root itself, couldn't chgrp the pre-existing Paul Simon
+  folder) — both because those directories are `root`-owned and the
+  migration identity lacks permission to alter attributes on directories
+  it doesn't own. No file content was affected; this is `copy`, not
+  `move`, so the staged and source copies remain intact regardless. Live
+  music root now has 340 artist folders and 8,068 tracks (up from the 140
+  Paul Simon test tracks alone).
 - [ ] Re-run duplicate and missing-track reports against the combined root.
 - [ ] Reconcile track, album and byte totals.
 
