@@ -661,8 +661,40 @@ of a real duplication concern).
   `move`, so the staged and source copies remain intact regardless. Live
   music root now has 340 artist folders and 8,068 tracks (up from the 140
   Paul Simon test tracks alone).
-- [ ] Re-run duplicate and missing-track reports against the combined root.
-- [ ] Reconcile track, album and byte totals.
+- [x] Re-run duplicate and missing-track reports against the combined root.
+  — After the live merge, Jason ran a Jellyfin scan and reported 741 albums /
+  8,054 songs (including the Paul Simon test data), against my own tag-based
+  count of 955 albums / 8,068 files — a real, substantial gap worth
+  investigating rather than dismissing as rounding. Root cause found: **97
+  folders** (not just Caribbean Uncovered/Summer Riddims) had this exact
+  scattered-tag pattern — each folder is one real, purchased album (Jason
+  confirmed: not personal compilations, "years of poor tagging," bought
+  secondhand/bargain over time in England), but individual tracks kept
+  whatever album tag they arrived with from wherever they were originally
+  sourced, rather than being retagged to the album they were actually filed
+  under. Wrote a general fix (dry-run tested first — caught two real bugs
+  before applying: a nested "Digital Media 01/02" disc-subfolder pattern that
+  would have swapped album/artist for 5 folders including both Lionel Richie
+  and Beatles "Sgt. Pepper's" discs, and a bare unbracketed "Disc 1" suffix
+  on a Whitney Houston folder that wouldn't have been stripped). Applied to
+  all 93 remaining affected folders (2 Paul Simon ones excluded — test data,
+  left alone; 2 more already fixed manually) — 1,392 tracks corrected: album
+  and album artist set from the folder's own path (parent folder = artist,
+  unless the parent is a generic `Compilations`/`Various Artists` bucket),
+  disc/track numbers derived from each file's own filename pattern.
+  Post-fix count: **680 distinct albums**, down from 955 — a fresh Jellyfin
+  rescan should land close to this, materially lower than the 741 seen
+  before this fix.
+- [x] Reconcile track, album and byte totals. — 8,068 audio files in the live
+  music root (Jellyfin reported 8,054 before this fix — the 14-file gap is
+  explained by a handful of genuinely unidentifiable/non-music files, see
+  below); only 4 files remain with no usable album/artist tags at all after
+  the fix (down from 5): 3 truly unidentifiable singleton tracks in
+  "Unknown Artist/Unknown Album" and 1 iTunes LP package-internal file (not
+  real music, same category as the already-excluded jukeboxClick files) —
+  none are worth further chasing given their scale. One further follow-up
+  not yet resolved: "Various Artists/Perfect Love, Vol. 2 Disc 1" still has
+  a stray untagged track and is worth a closer look.
 
 ### Music naming target
 
