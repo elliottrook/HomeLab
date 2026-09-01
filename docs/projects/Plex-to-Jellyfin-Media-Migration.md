@@ -418,9 +418,9 @@ attempt rejected at the character-allowlist stage.
   automatically 2026-08-30 21:48:51** the moment the music copy exited — no
   manual trigger needed. **Movies complete 2026-08-31 05:02:18**: 969 files,
   exact byte match (2,392,854,409,248 bytes), exit code 0.
-- [~] Run the same process for Plex television into `archive-tv`. — Chained
+- [x] Run the same process for Plex television into `archive-tv`. — Chained
   into the same overnight run; **started automatically 2026-08-31 05:02:18**
-  the moment Movies finished. In progress as of this note.
+  the moment Movies finished, **complete 2026-08-31 17:32:23**: exit code 0.
 - [ ] Preserve the relative directory structure during the first copy.
 - [~] Perform a no-change `rsync` comparison after each copy. — Chained
   together with the checksum step below rather than run separately.
@@ -431,10 +431,9 @@ attempt rejected at the character-allowlist stage.
   `migration/reports/verify-movies.log` / `verify-tv.log`. **Movies passed
   2026-08-31 16:52**: quick comparison and full checksum pass both clean —
   969 files, zero created/deleted/transferred, exact checksum match on all
-  content. TV
-  verification queued via `migration/verify-tv-after-copy.sh`, which waits for
-  the TV copy to exit before running the same two checks — same unattended
-  auto-chain pattern as the copy itself.
+  content. TV verification **started automatically 2026-08-31 17:32:23** via
+  `migration/verify-tv-after-copy.sh` the moment the TV copy exited — no
+  manual trigger needed, same pattern as Movies. In progress as of this note.
 - [ ] Compare file counts, byte totals and extensions by library.
 - [ ] Quarantine zero-byte, unreadable and unsupported files for review; do not
   delete them automatically.
