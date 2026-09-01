@@ -1391,6 +1391,23 @@ unlike a bulk deletion.
   (~135 GiB, already fully copied into Jellyfin's music library in
   Milestone 4) was explicitly excluded and left untouched.
 
+**Context clarified after the fact, same day:** the reason to free this
+space now, specifically, is that the Backup Synology (192.168.20.42) —
+today's target for `Media Backup` and every other same-site backup task —
+has become unstable under load (very limited RAM, measured in MB, plus a
+near-full volume) and is currently unplugged while Jason works on
+stabilizing it; Jason's plan is to repoint backup duty to this main
+Synology instead, which needs the freed space. That means the actual
+current reliability of the `Media Backup` safety net cited above is
+uncertain, not confirmed — its task may have been among those stopped
+during the instability, and its state couldn't be checked directly since
+the appliance is offline for hardware work. Jason has explicitly and
+knowingly accepted this risk rather than waiting on a fully-verified
+backup: it pre-dates this project, isn't unique to this deletion, and
+won't resolve until the Backup Synology's hardware/repointing work
+(tracked separately, outside this project's scope) is done. Recorded here
+for an accurate record, not as an unresolved action item of this project.
+
 **Executed 2026-09-01 21:52 UTC.** Recorded pre-deletion counts (2,823
 files under `Movies`, 18,921 under `TV Shows`), then removed both
 directories via `rm -rf /volume1/Plex/Movies /volume1/Plex/'TV Shows'` over
