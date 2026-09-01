@@ -433,7 +433,10 @@ attempt rejected at the character-allowlist stage.
   969 files, zero created/deleted/transferred, exact checksum match on all
   content. TV verification **started automatically 2026-08-31 17:32:23** via
   `migration/verify-tv-after-copy.sh` the moment the TV copy exited — no
-  manual trigger needed, same pattern as Movies. In progress as of this note.
+  manual trigger needed, same pattern as Movies. **Passed 2026-08-31 23:44**:
+  quick comparison and full checksum pass both clean — 5,973 files, zero
+  created/deleted/transferred, exact checksum match on all content.
+  **Milestone 3 is now fully complete and verified for both libraries.**
 - [ ] Compare file counts, byte totals and extensions by library.
 - [ ] Quarantine zero-byte, unreadable and unsupported files for review; do not
   delete them automatically.
