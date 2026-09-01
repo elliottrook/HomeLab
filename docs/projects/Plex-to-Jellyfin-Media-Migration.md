@@ -798,6 +798,50 @@ library has a recorded keeper decision before any file is deleted from Plex.
 - [x] Run library scans and allow metadata tasks to finish before object
   migration begins. — All three (Music, Archive Movies, Archive TV) scanned
   and confirmed indexed with real counts.
+- [x] Export a post-scan Jellyfin inventory containing item ID, library, path,
+  provider IDs and media-specific metadata. — Pulled for Archive Movies (921
+  items) with Path/ProviderIds/ProductionYear fields.
+- [x] Build `plex-to-jellyfin-map.json` and a CSV exception report. —
+  `plex-to-jellyfin-movie-map.json` (sha256 `9e4dec9c…`) built for all 898
+  Plex movies. Real finding: the original Milestone 1 `plex-media.json`
+  export had empty `guids` for every movie — Plex's bulk library-listing API
+  doesn't include provider GUIDs, only per-item metadata fetches do. Initial
+  pass matched 795/898 (88.5%) on normalized title+year alone. Targeted
+  per-item re-fetches for the 103 unresolved ones (real GUIDs this time)
+  resolved 62 more via TMDb/IMDb ID. **864/898 (96.2%) resolved** after also
+  manually correcting 7 confirmed wrong auto-matches (see below). 34 remain
+  unresolved — a mix of genuine bonus featurettes (not real standalone
+  movies, correctly unmatched), titles that appear genuinely absent from the
+  Jellyfin scan, and obscure/foreign titles not yet individually verified —
+  logged as a follow-up, not silently dropped.
+- [x] Require each mapping to record its match method and confidence. — Every
+  entry tagged: `exact-id-tmdb-retry`/`exact-id-imdb-retry` (62 total, real
+  provider ID match), `title-year` (795, the doc's `metadata-reviewed` tier),
+  `manual-corrected-wrong-automatch` (7, see below), or `missing` (34).
+- [x] Manually resolve ambiguous items and any case where both current and
+  archive libraries contain the same title. — Checked the Plex source for
+  same-title-different-year collisions: 4 found (The Color Purple, The
+  Karate Kid, Overboard, A Star Is Born — all real remake pairs, both years
+  legitimately present). Separately, and more significantly: **discovered
+  Jellyfin's own TMDb auto-matching had picked the wrong film for several
+  remakes** — its title search defaults to the more famous original rather
+  than using the year to disambiguate. Confirmed and fixed 7: Aladdin (2019
+  file was tagged as the 1992 original), Mean Girls (2024 tagged as 2004),
+  Mulan (2020 tagged as 1998), Bad Education (2019 tagged as 2004), The
+  Running Man (1987 tagged as an unrelated "2025" entry), Blade Runner 2049
+  (no ID at all — folder-name year parsing confusion), and a real duplicate-
+  identification bug where both Harry Potter Deathly Hallows Part 1 *and*
+  Part 2 files had been matched to the same "Part 1" TMDb entry. Fixed each
+  by setting the correct `ProviderIds` directly on the item, then triggering
+  `MetadataRefreshMode=FullRefresh&ReplaceAllImages=true` so Jellyfin pulled
+  the correct poster/synopsis from TMDb — verified all 7 now show real,
+  correct, non-empty synopses. This means the wrong-match problem likely
+  isn't confined to the movies checked here; the remaining 34 unresolved
+  entries need the same scrutiny before being trusted either way.
+- [ ] For archive video, prefer the destination path derived from the
+  original Plex path so a collection is not accidentally attached to an
+  existing Jellyfin duplicate. — Not yet applied; relevant once Milestone 7
+  (movie collections) actually creates Jellyfin collection objects.
 
 ### Mapping states
 
