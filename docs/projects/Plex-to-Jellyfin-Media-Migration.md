@@ -1192,6 +1192,54 @@ exceptions are individually approved. Plugin-generated collections may differ
 only where the TMDb provider set has changed; every difference must be shown in
 the report.
 
+**Incident and recovery, 2026-09-01: Jellyfin's own startup cleanup task
+silently deleted 73 real collections.** While re-running final counts for
+Milestone 8/9 closeout, found box sets had dropped from 165 to 93 with no
+action taken to cause it. Root cause: Jellyfin has a built-in
+`Clean up collections and playlists` maintenance task
+(`CleanCollectionsAndPlaylists`, described as "removes items from
+collections and playlists that no longer exist") whose only trigger is
+`StartupTrigger` — it runs automatically on every Jellyfin server start.
+Its last run timestamp lined up exactly with the Jellyfin restart triggered
+earlier this session for the MusicBrainz-plugin disable (see the Milestone
+8 album-grouping investigation). The task appears to have run before the
+Archive Movies library had fully re-indexed after that restart, incorrectly
+concluded some collection members "no longer existed," and removed them —
+which then made those collections empty and subject to removal themselves.
+
+Confirmed nothing on disk or in the Archive Movies/Archive TV libraries
+themselves was affected (921/5,678 items unchanged) — this was purely
+Jellyfin's own collection/playlist database objects. Of the 168 non-empty
+Plex collections, 73 were affected: 70 had exactly 1 member and 3 (Godzilla,
+Hellboy, Creed) had 2 — smaller collections were categorically more exposed,
+though the exact removal rule wasn't confirmed (server timing during
+startup, not a documented size threshold). The 3 near-duplicate pairs this
+session had already intentionally deleted (Austin Powers, Back to the
+Future, Batman/Cornetto — see above) also show up in a raw "missing"
+diff against the original Plex export, but that's expected and unrelated
+to this incident. Separately, one pre-existing, non-migration playlist
+("All I want for Christmas," a single track, not part of this project's 11)
+was also removed by the same task and could not be recreated — this
+project has no source data for it since it was never part of any Plex
+export.
+
+**Recovery, same day:** recreated all 73 collections using the same
+`plex-movie-collections.json` + `plex-to-jellyfin-movie-map.json` data and
+`POST /Collections` method as the original fill. 72/73 succeeded; the one
+failure ("Crouching Tiger, Hidden Dragon Collection") is not a new loss —
+its sole member is one of the 34 pre-existing unresolved movies from
+Milestone 5, so it was never actually created in the first place (matches
+the original fill pass's "1 skipped, zero resolvable members" result).
+**Final: 165 total box sets**, identical to the pre-incident count, still
+covering 167/168 Plex collections.
+
+Per Jason's explicit decision, the `Clean up collections and playlists`
+task itself was left enabled rather than disabled — the risk is understood
+to recur on any future Jellyfin restart (server reboot, container restart,
+version update), and is recorded here as a standing, accepted risk rather
+than a closed one. If collections go missing again after a restart, this is
+the first thing to check.
+
 ## Milestone 8 — Functional validation and cutover
 
 - [x] Confirm existing Jellyfin Movies and TV counts did not change because of
