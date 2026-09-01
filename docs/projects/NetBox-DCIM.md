@@ -85,10 +85,29 @@ same way a hand-maintained one does.
 
 ## Milestone 1 — Physical inventory and design
 
-- [ ] Walk the physical rack and record actual current contents, U-position
+- [x] Walk the physical rack and record actual current contents, U-position
   by U-position — this is the step the old diagram skipped, and why it went
-  stale silently. **Blocked on Jason** — no authorization can substitute for
-  this step.
+  stale silently. **Done 2026-09-01**, interactively with Jason from a
+  physical photo of the rack and the floor-standing equipment beside it.
+  Top to bottom, confirmed: PDU (1U) → shelf (~5U: main Synology, backup
+  Synology, Lutron bridge, Hue bridge) → shelf (~4U: PoE AP switch,
+  OPNsense, NUT server) → patch panel (1U) → Arista (1U) → patch panel
+  (1U) → PoE camera switch (1U) → brush panel (1U) → network UPS (1U,
+  position not reconciled — see below). Floor-standing, left to right:
+  TrueNAS, Proxmox, `nas-ups`, `proxmox-ups`.
+
+  **Real correction surfaced directly by the photo**: OPNsense's actual
+  hardware is a **VMware SD-WAN Edge 620**, not the "Dell EMC E42W
+  (SD-WAN Edge 610)" recorded in `CLAUDE.md` and
+  `docs/03-Hardware-Inventory.md` — both fixed this session. Also
+  identified the NUT server (Lenovo ThinkCentre M92p) on the same shelf
+  as OPNsense, which no prior document had placed physically.
+
+  **Known open item, not blocking:** Jason's estimated shelf heights sum
+  to ~16U against the rack's 15U nominal rating. One estimate is probably
+  1U too generous; not worth holding up for a tape measure. The network
+  UPS (`network-ups`) is recorded as rack-mounted-but-unplaced in NetBox
+  rather than guessed into a specific U.
 - [x] Confirm NetBox's resource requirements against current Proxmox
   capacity headroom. Live check 2026-09-01: host had only ~2.6 GB genuinely
   free (33.6 GB total, 21.8 GB used across existing guests; the "additional
@@ -116,8 +135,19 @@ same way a hand-maintained one does.
   primary supported path, and building it from source would mean
   hand-maintaining Postgres/Redis/Gunicorn/nginx version compatibility
   ourselves for no real benefit at this scale.
-- [ ] Decide the markdown-vs-NetBox source-of-truth question explicitly and
-  record the decision here.
+- [x] Decide the markdown-vs-NetBox source-of-truth question explicitly and
+  record the decision here. **Decision (2026-09-01): NetBox is
+  authoritative; `diagrams/Rack-Diagram.md` becomes a periodically
+  refreshed snapshot of it, not retired outright.** Chosen over full
+  retirement because the markdown file is still useful as a
+  quick-to-read, no-login-required reference (e.g. from a phone while
+  standing at the actual rack), and because this repo's other inventory
+  docs (`02-IP-Addressing.md`, `configs/devices.conf`) follow the same
+  pattern of being the readable surface over data that could in principle
+  live somewhere more structured. The rule going forward: when NetBox and
+  the markdown snapshot disagree, NetBox wins, and the snapshot gets
+  refreshed — never edited independently to "fix" a discrepancy in the
+  other direction.
 
 ## Milestone 2 — Deployment
 
@@ -213,18 +243,36 @@ same way a hand-maintained one does.
 
 ## Milestone 3 — Data population
 
-- [ ] Enter the verified physical rack inventory from Milestone 1.
-  **Blocked on Jason** — same physical walk-through dependency as
-  Milestone 1's first item.
+- [x] Enter the verified physical rack inventory from Milestone 1. **Done
+  2026-09-01.** Created a `Rack` (`Main Rack`, 15U nominal) and 13
+  `Device` records: the 8 confirmed rack-mounted items at their walked
+  positions (PDU U15; NAS/bridge shelf U10–U14; network appliance shelf
+  U6–U9; patch panels U5 and U3; Arista U4; PoE camera switch U2; brush
+  panel U1), plus 5 devices deliberately recorded **without** a rack
+  assignment: TrueNAS, the Proxmox host, `nas-ups`, `proxmox-ups` (all
+  genuinely floor-standing, per the walk-through), and `network-ups`
+  (rack-mounted in reality, but left unplaced in NetBox rather than
+  guessed — its exact position is the one item the walk-through didn't
+  fully resolve, see Milestone 1). Verified via the API afterward: exactly
+  the 8 expected devices report `rack_id=1`, exactly the 5 expected report
+  no rack.
 - [x] Enter core network devices, Proxmox guests, and addressing from the
   existing markdown inventories, cross-checking each entry against live
   reality rather than copying the markdown verbatim (some of those entries
   are exactly what this project exists to stop trusting blindly). **The
-  guest/VLAN/addressing portion is done** — physical network devices
-  (OPNsense, Arista, the switches, TrueNAS, both Synology units, the NUT
-  server) are deliberately left for after the rack walk-through, since
-  they're exactly the objects that benefit most from real rack-position
-  data and would otherwise need re-touching anyway.
+  guest/VLAN/addressing portion is done, and the rack walk-through's
+  completion (above) closed most of the physical-device gap too.**
+  Arista, the PoE camera switch, TrueNAS, and both patch panels/PDU/brush
+  panel now have individual or shelf-grouped `Device` records with real
+  rack positions. OPNsense and the NUT server are currently recorded only
+  as text inside the "network appliance shelf" device's comments, not as
+  their own individual `Device` objects — a reasonable-but-incomplete
+  stand-in worth revisiting if/when someone wants OPNsense or the NUT
+  server to show up in their own right in searches/reports rather than as
+  shelf-contents text. Not attempted yet: individual manufacturer/model
+  detail for the two Synology units, Lutron bridge, and Hue bridge (also
+  currently shelf-contents text, not their own `Device` objects) and the
+  Binarui AP switch (same).
 
   Created via NetBox's API/ORM (API token minted through the documented
   `/api/users/tokens/provision/` endpoint — note for future reference:
@@ -251,16 +299,31 @@ same way a hand-maintained one does.
     script's own output): 12/12 VMs, 7/7 VLANs, 7/7 prefixes present,
     spot-checked vCPU/memory/primary-IP values against the live
     `pct config`/`qm config` dump.
-- [ ] Generate a rack elevation view and compare it against the Milestone 1
-  physical walk-through for agreement. **Blocked on the same
-  walk-through.**
+- [x] Generate a rack elevation view and compare it against the Milestone 1
+  physical walk-through for agreement. **Done 2026-09-01.** The elevation
+  is definitionally in agreement — it was built directly from the same
+  walk-through data, not from an independent source — so this checks that
+  the data entry matches what was confirmed, not that two independent
+  surveys agree. Verified via `GET /api/dcim/devices/?rack_id=1`: exactly
+  the 8 expected rack-mounted devices at their confirmed positions,
+  exactly the 5 expected floor/unplaced devices with no rack assignment.
+  `diagrams/Rack-Diagram.md` was also refreshed in the same session with
+  this data (see Milestone 4 — done ahead of its own checkbox since it was
+  the natural moment to fix a document already flagged stale, rather than
+  leaving it wrong until formal cutover).
 
 ## Milestone 4 — Cutover and hand-back
 
-- [ ] Replace `diagrams/Rack-Diagram.md` with either a generated export or a
-  pointer to the live NetBox view, per the Milestone 1 decision.
+- [x] Replace `diagrams/Rack-Diagram.md` with either a generated export or a
+  pointer to the live NetBox view, per the Milestone 1 decision. **Done as
+  a refreshed snapshot** (not a pointer/export, per the "snapshot, not
+  retired" decision) — updated with the confirmed walk-through data and
+  the stale banner removed, since it now reflects verified reality rather
+  than a guess.
 - [ ] Reconcile or retire `configs/devices.conf`/`docs/02-IP-Addressing.md`
-  per the same decision.
+  per the same decision. **Not yet done** — these weren't part of this
+  session's walk-through and still need the same "snapshot of NetBox"
+  treatment applied deliberately, not assumed.
 - [ ] Document NetBox operations (backup, restore, upgrade) in the standard
   repo locations.
 
@@ -285,3 +348,4 @@ markdown files, and there is exactly one documented source of truth for each
 | 2026-09-01 | 2 | Investigated Beszel agent registration: confirmed the install pattern against Forgejo LXC 108's working config, but minting a per-system token needs hub admin credentials this session correctly doesn't have | Blocked — needs a 30-second manual step from Jason |
 | 2026-09-01 | 3 | NetBox API token minted via the documented `/api/users/tokens/provision/` endpoint; discovered and recorded this NetBox version's "v2" `Bearer nbt_<key>.<token>` auth format (differs from the older `Token <token>` form) | Passed |
 | 2026-09-01 | 3 | Site, all 7 VLANs/prefixes, a Proxmox cluster, and all 12 current Proxmox guests (as Virtual Machines with interfaces, MAC addresses, and primary IPs) created in NetBox, every field pulled fresh from live `pct config`/`qm config`, not copied from markdown. Verified after creation via the API: 12/12 VMs, 7/7 VLANs, 7/7 prefixes present and spot-checked | Passed |
+| 2026-09-01 | 1, 3, 4 | Physical rack walk-through completed interactively with Jason from a photo. Surfaced a real hardware correction (OPNsense is a VMware SD-WAN Edge 620, not the previously-recorded "Dell EMC E42W / SD-WAN Edge 610" — fixed in `CLAUDE.md` and `03-Hardware-Inventory.md`) and located the NUT server physically for the first time. Rack + 13 Devices created in NetBox (8 rack-mounted at confirmed positions, 5 correctly recorded as not rack-mounted/unplaced); verified via `GET /api/dcim/devices/?rack_id=1`. `diagrams/Rack-Diagram.md` refreshed with the same data and its stale banner removed. Markdown-vs-NetBox source-of-truth decision recorded: NetBox authoritative, markdown a refreshed snapshot | Passed |

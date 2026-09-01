@@ -10,7 +10,9 @@ Sandbox network access is restricted to the hosts listed in `.claude/settings.js
   data), Backup Synology at 192.168.20.42 (Hyper Backup repository)
 - Management VLAN 50: Lenovo NUT server at 192.168.50.25 (Debian 13/trixie, user `jason`,
   sudo available), gateway 192.168.50.1
-- OPNsense is the gateway/DNS/firewall (Dell EMC SD-WAN Edge 610)
+- OPNsense is the gateway/DNS/firewall (VMware SD-WAN Edge 620 — corrected
+  2026-09-01 via physical rack photo confirmation; previously misrecorded as
+  a Dell EMC E42W / SD-WAN Edge 610)
 - Tailscale is the preferred private remote-access path — no broad DSM internet exposure
 - OPNsense's `MGMT_ADMIN_HOSTS` alias (see `PROJECTS.md` Phase 9) already permits
   Jason's Mac mini (192.168.1.206), Mac laptop (192.168.1.241) and iPhone

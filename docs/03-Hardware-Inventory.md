@@ -1,6 +1,9 @@
 # Hardware Inventory
 
-- Dell EMC E42W (OPNsense)
+- VMware SD-WAN Edge 620 (OPNsense) — corrected 2026-09-01 via physical
+  rack photo confirmation during the NetBox DCIM project's rack
+  walk-through; previously misrecorded here and in `CLAUDE.md` as a
+  "Dell EMC E42W (SD-WAN Edge 610)"
 - Arista DCS-7050TX
 - Binarui AP Switch
   - Four 2.5Gb PoE ports; ports 1 and 2 serve the U7 Pro XG access points and
