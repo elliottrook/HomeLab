@@ -18,6 +18,7 @@ PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
 ReadOnlyPaths=/var/lib/aster/knowledge
+ReadOnlyPaths=/var/lib/aster/health
 RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 LockPersonality=true
 MemoryDenyWriteExecute=true

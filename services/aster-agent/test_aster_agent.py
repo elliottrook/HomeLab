@@ -3,7 +3,7 @@ import unittest
 import json
 from pathlib import Path
 
-from aster_agent import ChatRequest, TOOLS, preload_read_only_context, search_knowledge, select_tools
+from aster_agent import ChatRequest, TOOLS, get_lab_health, preload_read_only_context, search_knowledge, select_tools
 
 
 class AsterAgentTests(unittest.TestCase):
@@ -26,6 +26,21 @@ class AsterAgentTests(unittest.TestCase):
             )
         ]
         self.assertIn("search_knowledge", names)
+
+    def test_lab_health_uses_only_bounded_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "latest.json"
+            report.write_text(json.dumps({"generated_at": "2026-09-01T00:00:00+00:00", "status": "warning", "checks": [{"name": "Doctor", "status": "warn", "summary": "Backup is overdue"}], "secret": "not returned"}), encoding="utf-8")
+            result = get_lab_health(report)
+            self.assertEqual(result["status"], "warning")
+            self.assertEqual(result["checks"][0]["summary"], "Backup is overdue")
+            self.assertNotIn("secret", result)
+
+    def test_invalid_lab_health_report_is_refused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "latest.json"
+            report.write_text('{"status":"healthy","checks":"not-a-list"}', encoding="utf-8")
+            self.assertEqual(get_lab_health(report)["status"], "unavailable")
 
     def test_knowledge_search_is_scoped_and_ranked(self):
         with tempfile.TemporaryDirectory() as directory:

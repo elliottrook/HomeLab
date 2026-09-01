@@ -24,6 +24,7 @@ LLAMA_API_KEY = os.environ.get("ASTER_LLAMA_API_KEY", "")
 LLAMA_BASE_URL = os.environ.get("ASTER_LLAMA_BASE_URL", "http://192.168.70.12:11435/v1").rstrip("/")
 UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
+HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
 DEFAULT_TIMEZONE = os.environ.get("ASTER_TIMEZONE", "America/Vancouver")
 REQUEST_TIMEOUT = float(os.environ.get("ASTER_REQUEST_TIMEOUT", "180"))
 MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
@@ -92,6 +93,14 @@ TOOLS: dict[str, dict[str, Any]] = {
             },
         },
     },
+    "get_lab_health": {
+        "type": "function",
+        "function": {
+            "name": "get_lab_health",
+            "description": "Read the latest sanitized, operator-produced HomeLab health summary. It cannot run checks or change systems.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
     "search_knowledge": {
         "type": "function",
         "function": {
@@ -112,6 +121,7 @@ TOOLS: dict[str, dict[str, Any]] = {
 TOOL_HINTS = {
     "get_current_time": re.compile(r"\b(time|date|day|today|tonight|timezone)\b", re.I),
     "get_service_health": re.compile(r"\b(health|healthy|status|online|running|inference|service)\b", re.I),
+    "get_lab_health": re.compile(r"\b(lab health|homelab health|doctor|health report|health summary|system health)\b", re.I),
     "search_knowledge": re.compile(
         r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain)\b",
         re.I,
@@ -382,6 +392,38 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
     }
 
 
+def get_lab_health(report_path: Path | None = None) -> dict[str, Any]:
+    """Return only the bounded schema written by the trusted report producer."""
+    path = report_path or HEALTH_REPORT_PATH
+    try:
+        if path.stat().st_size > 65_536:
+            raise ValueError("report exceeds the maximum permitted size")
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        return {"status": "unavailable", "error": f"Sanitized health report unavailable: {exc}"}
+
+    generated_at = report.get("generated_at")
+    status = report.get("status")
+    checks = report.get("checks")
+    if not isinstance(generated_at, str) or status not in {"healthy", "warning", "failed"} or not isinstance(checks, list):
+        return {"status": "unavailable", "error": "Sanitized health report has an invalid schema"}
+
+    safe_checks: list[dict[str, str]] = []
+    for check in checks[:32]:
+        if not isinstance(check, dict):
+            continue
+        name, check_status, summary = check.get("name"), check.get("status"), check.get("summary")
+        if not isinstance(name, str) or check_status not in {"pass", "warn", "fail"} or not isinstance(summary, str):
+            continue
+        safe_checks.append({"name": name[:120], "status": check_status, "summary": summary[:500]})
+    return {
+        "source": "operator-produced sanitized HomeLab Doctor summary",
+        "generated_at": generated_at[:64],
+        "status": status,
+        "checks": safe_checks,
+    }
+
+
 async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     if name == "get_current_time":
         timezone = str(arguments.get("timezone") or DEFAULT_TIMEZONE)
@@ -404,6 +446,9 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
             except (httpx.HTTPError, ValueError) as exc:
                 return {"service": "inference", "error": str(exc)}
         return {"error": "Unsupported service"}
+
+    if name == "get_lab_health":
+        return get_lab_health()
 
     if name == "search_knowledge":
         return search_knowledge(
@@ -436,6 +481,8 @@ async def preload_read_only_context(
             arguments = {"timezone": DEFAULT_TIMEZONE}
         elif name == "get_service_health":
             arguments = {"service": "aster" if re.search(r"\baster\b", user_text, re.I) else "inference"}
+        elif name == "get_lab_health":
+            arguments = {}
         elif name == "search_knowledge":
             arguments = {"query": user_text, "max_results": 3}
         else:

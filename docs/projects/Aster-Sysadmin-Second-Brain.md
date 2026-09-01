@@ -131,9 +131,11 @@ not interactive command execution.
 
 ## Milestone 5 — Bounded sysadmin capability
 
-- [ ] Inventory the minimum live read-only signals Aster needs beyond its own
-  health (for example, a sanitized HomeLab Doctor result).
-- [ ] Add only task-specific, source-restricted read-only tools with audit logs.
+- [x] Inventory the minimum live read-only signal Aster needs beyond its own
+  health: a sanitized HomeLab Doctor summary produced outside Aster.
+- [x] Add only task-specific, source-restricted read-only tools: Aster reads a
+  bounded JSON report under `/var/lib/aster/health`; it has no shell, network,
+  credential or arbitrary-file capability.
 - [ ] Re-run the full evaluation set with live-state tools enabled.
 - [ ] Propose any write capability separately, with exact access, approval,
   validation and rollback boundaries; do not infer it from graduation.
@@ -166,3 +168,4 @@ Aster graduates only when:
 | 2026-09-01 | 2 | Built the clean 23-source snapshot twice from detached clean checkouts and compared SHA-256; provenance records both repository commits with `dirty: false` | Deterministic snapshot gate passed |
 | 2026-09-01 | 4 | Ran 13 in-container unit tests and two independent 13-case live exams against LXC 104; reviewed all answer text, then corrected source/retrieval guest-type ambiguities | 26/26 critical cases passed on the accepted LXC 104/LXC 110 production path |
 | 2026-09-01 | 3 | Reviewed backup evidence for the source repositories, manifest and deployed snapshot | LXC 110 off-host mirror and isolated archive restore remain explicitly pending; graduation remains blocked until this is verified |
+| 2026-09-01 | 5 | Added a root/operator-produced, schema-validated HomeLab Doctor summary tool; systemd grants Aster read-only access only to that report directory | Local implementation and unit tests complete; deployment and live evaluation remain pending |
