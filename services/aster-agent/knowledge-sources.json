@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {"repository": "reference", "path": "README.md", "destination": "reference/README.md", "authority": "reference-contract"},
+    {"repository": "reference", "path": "REFERENCE-CONTRACT.md", "destination": "reference/REFERENCE-CONTRACT.md", "authority": "reference-contract"},
+    {"repository": "reference", "path": "infrastructure/hardware-inventory.md", "destination": "reference/infrastructure/hardware-inventory.md", "authority": "current-with-exclusions"},
+    {"repository": "reference", "path": "infrastructure/power-and-ups.md", "destination": "reference/infrastructure/power-and-ups.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "infrastructure/virtualization.md", "destination": "reference/infrastructure/virtualization.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "network/addressing.md", "destination": "reference/network/addressing.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "network/firewall-rules.md", "destination": "reference/network/firewall-rules.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "network/topology.md", "destination": "reference/network/topology.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "operations/access-control.md", "destination": "reference/operations/access-control.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "operations/ai-local-inference.md", "destination": "reference/operations/ai-local-inference.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "operations/backups.md", "destination": "reference/operations/backups.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "operations/monitoring.md", "destination": "reference/operations/monitoring.md", "authority": "current-operational"},
+    {"repository": "reference", "path": "memory/README.md", "destination": "memory/README.md", "authority": "derived-memory"},
+    {"repository": "reference", "path": "memory/authority-and-drift.md", "destination": "memory/authority-and-drift.md", "authority": "derived-memory"},
+    {"repository": "reference", "path": "memory/b60-vulkan-recovery.md", "destination": "memory/b60-vulkan-recovery.md", "authority": "derived-memory"},
+    {"repository": "reference", "path": "memory/safe-change-discipline.md", "destination": "memory/safe-change-discipline.md", "authority": "derived-memory"},
+    {"repository": "reference", "path": "runbooks/camera-onboarding.md", "destination": "reference/runbooks/camera-onboarding.md", "authority": "approved-runbook"},
+    {"repository": "reference", "path": "runbooks/disaster-recovery.md", "destination": "reference/runbooks/disaster-recovery.md", "authority": "approved-runbook"},
+    {"repository": "reference", "path": "runbooks/service-sso-onboarding.md", "destination": "reference/runbooks/service-sso-onboarding.md", "authority": "approved-runbook"},
+    {"repository": "homelab", "path": "docs/AI-Hermes-Second-Brain.md", "destination": "project/AI-Hermes-Second-Brain.md", "authority": "project-record"},
+    {"repository": "homelab", "path": "docs/Aster-Operations.md", "destination": "project/Aster-Operations.md", "authority": "project-record"},
+    {"repository": "homelab", "path": "docs/projects/Aster-Sysadmin-Second-Brain.md", "destination": "project/Aster-Sysadmin-Second-Brain.md", "authority": "project-record"},
+    {"repository": "homelab", "path": "docs/projects/Local-AI.md", "destination": "project/Local-AI.md", "authority": "project-record"}
+  ]
+}

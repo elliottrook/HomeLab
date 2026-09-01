@@ -23,6 +23,7 @@
 - [ ] [Plex-to-Jellyfin media migration](projects/Plex-to-Jellyfin-Media-Migration.md)
 - [ ] [Video library archiving](projects/Video-Library-Archiving.md)
 - [ ] [NetBox DCIM / rack & asset management](projects/NetBox-DCIM.md)
+- [ ] [Aster sysadmin second brain](projects/Aster-Sysadmin-Second-Brain.md)
 - [x] [Prometheus/Grafana observability](projects/completed%20projects/Prometheus-Grafana-Observability.md)
 - [x] [Synology Drive family cloud](projects/completed%20projects/Synology-Drive-Family-Cloud.md)
 

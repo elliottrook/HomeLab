@@ -1,7 +1,7 @@
 # Aster Second-Brain Design
 
 > Added: 2026-08-20
-> Status: Initial bounded implementation deployed in Aster; broader ingestion remains proposed
+> Status: Initial bounded implementation deployed; authority-aware sysadmin expansion active
 > Source inspiration: Corey Ganim, “How To Build The ULTIMATE AI Second Brain for Hermes Agent” / Build With AI episode #163 (2026-05-08)
 
 ## Decision
@@ -95,3 +95,6 @@ Schedule a periodic Wiki health review (initial target: monthly) to identify con
 ## Success criteria
 
 The first retrieval gate is passed: Aster answered the current B60/BAR question from the curated inventory and named its source. Full second-brain success still requires broader evaluation plus verified backup/restore, without confusing derived knowledge with authoritative live configuration.
+
+The active implementation, recovery and graduation gates are now governed by
+[`docs/projects/Aster-Sysadmin-Second-Brain.md`](projects/Aster-Sysadmin-Second-Brain.md).

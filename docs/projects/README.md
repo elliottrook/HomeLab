@@ -18,6 +18,7 @@
 | Plex-to-Jellyfin media migration | Ready | [Plex-to-Jellyfin media migration](Plex-to-Jellyfin-Media-Migration.md) | Separate Archive Movies/TV libraries, unified music, playlists and movie collections |
 | Video library archiving | Proposed | [Video library archiving](Video-Library-Archiving.md) | Downconverts aged current-library video and hands it to the archive roots above |
 | NetBox DCIM / rack & asset management | Proposed | [NetBox DCIM](NetBox-DCIM.md) | Replaces the stale hand-maintained rack diagram and device tables with a generated, data-backed view |
+| Aster sysadmin second brain | Active | [Aster sysadmin second brain](Aster-Sysadmin-Second-Brain.md) | Qualifies the operational reference, builds recoverable authority-aware memory, and graduates Aster through correctness/security/performance gates |
 
 ## Completed projects
 

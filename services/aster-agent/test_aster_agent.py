@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+import json
 from pathlib import Path
 
 from aster_agent import ChatRequest, TOOLS, preload_read_only_context, search_knowledge, select_tools
@@ -98,6 +99,33 @@ class AsterAgentTests(unittest.TestCase):
             )
             result = search_knowledge("Aster LXC model", root=root)
             self.assertEqual(result["results"][0]["authority"], "current_operations")
+
+    def test_provenance_controls_authority_and_is_returned(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "reference/infrastructure/hardware-inventory.md"
+            source.parent.mkdir(parents=True)
+            source.write_text("The current B60 GPU uses Vulkan.", encoding="utf-8")
+            (root / ".aster-provenance.json").write_text(
+                json.dumps(
+                    {
+                        "sources": [
+                            {
+                                "destination": "reference/infrastructure/hardware-inventory.md",
+                                "authority": "current-with-exclusions",
+                                "reviewed": "2026-09-01",
+                                "commit": "abc123",
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            result = search_knowledge("What is the current B60 GPU backend?", root=root)
+            item = result["results"][0]
+            self.assertEqual(item["authority"], "current-with-exclusions")
+            self.assertEqual(item["reviewed"], "2026-09-01")
+            self.assertEqual(item["commit"], "abc123")
 
     def test_multi_part_query_prefers_answer_sections(self):
         with tempfile.TemporaryDirectory() as directory:
