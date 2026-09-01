@@ -332,6 +332,50 @@ serial pinning in `ups.conf` means both CyberPower units (identical
 vendor:product ID) will bind to the correct driver instance regardless of
 which physical USB port either one is plugged into.
 
+## Jellyfin
+
+Jellyfin runs on TrueNAS (`192.168.20.40`) as a Docker Compose service
+(container name `6f532232719b…`, not a TrueNAS catalog app). Media is a
+host bind mount of `/mnt/Media/data` at `/media` inside the container — that
+payload is intentionally excluded from encrypted off-site backup, per the
+existing media-exclusion policy above. Separately, Jellyfin's own
+application database (users, watch state, playlists, collections, plugin
+configuration) lives in a Docker-managed named volume under `Media/ix-apps`,
+which is a much smaller, non-replaceable dataset distinct from the media
+payload.
+
+**Current coverage is incomplete.** Only two manual, one-off ZFS snapshots
+of `Media/ix-apps` exist, both taken as pre-change checkpoints during the
+Plex-to-Jellyfin migration project (`pre-plex-migration-20260830-210033`
+and `pre-boxsets-plugin-20260901-100925` — see
+[docs/projects/Plex-to-Jellyfin-Media-Migration.md](projects/Plex-to-Jellyfin-Media-Migration.md)).
+There is no recurring/scheduled snapshot task for `Media/ix-apps`, and
+neither snapshot is mirrored to the Backup Synology or the encrypted
+off-site IDrive e2 task — unlike every other application covered in this
+document (Home Assistant, Authentik, Homepage, Pi-hole, etc.), Jellyfin has
+no automated backup path at all today. This is a real gap, not a documented
+exclusion: the excluded-by-policy item is the media payload, not the
+application database.
+
+This matters concretely: on 2026-09-01, a Jellyfin built-in maintenance
+task (`Clean up collections and playlists`, triggered on every server
+startup) silently deleted 73 real movie collections after a routine
+restart, apparently racing ahead of a library re-index. They were
+successfully recreated from the Plex-to-Jellyfin migration's own source
+data in that case, but a similar or larger loss (e.g. watch history, user
+accounts, or the same event without surviving migration source data to
+recover from) would not currently be recoverable from anything but those
+two stale manual snapshots. See the Milestone 8 section of the migration
+doc above for the full incident record.
+
+**Recommended follow-up, not yet actioned:** add `Media/ix-apps` (or
+specifically Jellyfin's named config volume within it) to a recurring
+snapshot schedule and to the existing Backup Synology pull / encrypted
+off-site pipeline, following the same pattern already used for Home
+Assistant and the other applications in this document. This needs an
+explicit decision on schedule and mechanism before implementation — not
+made unilaterally as part of documenting current state.
+
 ## Prometheus / Grafana observability
 
 LXC 109 is included automatically by the enabled all-guests Proxmox snapshot
@@ -540,6 +584,7 @@ configuration is separately documented or exported.
 | Docker LXC 100 | Doctor checks SSH and hosted service endpoints; Beszel monitors the host and containers | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Homepage application recovery was tested independently; Proxmox LXC recovery was validated using an isolated disposable guest |
 | UniFi LXC 101 | Doctor checks controller reachability | Current LXC archive plus UniFi application backups, mirrored off-host | Isolated LXC restoration and recovered UniFi database inspection succeeded |
 | TrueNAS | Doctor checks pools, NFS, bond health and management access; certificate expiry is monitored | Configuration export is included in the protected infrastructure set; ZFS protects local media integrity | Configuration recovery is documented; media is intentionally excluded from encrypted off-site backup because of size and replaceability |
+| Jellyfin (on TrueNAS) | No dedicated Doctor check yet | **Incomplete** — only two manual, one-off `Media/ix-apps` snapshots exist (both migration-project checkpoints); no recurring snapshot schedule and no Backup Synology/off-site mirror for the application database (playlists, collections, users, watch state) | Not tested; see the "Jellyfin" section above for the 2026-09-01 incident that exposed this gap and the recommended follow-up |
 | Pi-hole primary and secondary | Doctor performs public, local and blocked-domain DNS tests through both resolvers | Primary inherits Docker LXC protection; secondary inherits TrueNAS application/configuration protection; Teleporter exports are documented | Functional recovery validation is performed through the redundant resolver pair; either resolver can carry DNS while the other is rebuilt |
 | Frigate VM 102 | Doctor checks VM/service state, NFS mount and recording freshness; Beszel tracks host metrics | Current VM archive and private checksum-verified Frigate configuration backup, mirrored off-host | VM-level recovery is available; recordings remain intentionally excluded because they are high-volume and nonessential to infrastructure recovery |
 | Home Assistant VM 103 | Doctor checks Core and backup age | Encrypted native backups to local and Synology storage plus current mirrored VM archives | Isolated VM 903 restored and booted HAOS, Supervisor and Core successfully |

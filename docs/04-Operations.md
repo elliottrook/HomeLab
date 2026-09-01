@@ -319,4 +319,35 @@ The latest combined report and LaunchAgent logs are stored under `~/lab/monitori
 
 The `lab certificates` command checks the operational TLS endpoints for Proxmox, Portainer, UniFi, TrueNAS and both Synology systems.
 
+## Media libraries (Jellyfin)
+
+Jellyfin (`192.168.20.40:8096`) is the household media server, running as a
+Docker Compose service on TrueNAS. Media is served from a single host bind
+mount, `/mnt/Media/data` (container path `/media`), under which each
+library has its own top-level directory:
+
+| Jellyfin library | Content | Host path |
+|---|---|---|
+| Movies | Pre-existing Jellyfin movie library | `/mnt/Media/data/media/movies` |
+| Shows | Pre-existing Jellyfin TV library | `/mnt/Media/data/media/tv` |
+| Music | Canonical, consolidated music library (existing + migrated Plex music) | `/mnt/Media/data/media/music` |
+| Archive Movies | Former Plex movie library | `/mnt/Media/data/archive-movies` |
+| Archive TV | Former Plex television library | `/mnt/Media/data/archive-tv` |
+
+Archive Movies and Archive TV hold the full former Plex movie/TV
+collection, migrated and checksum-verified separately from the pre-existing
+Movies/Shows libraries (which remain physically and logically untouched).
+The Music library is the single canonical root for all music, combining
+what already existed in Jellyfin with the migrated and re-tagged Plex
+collection. Full migration history, verification evidence and known
+open issues (e.g. a small number of albums that display as multiple
+entries due to a Jellyfin metadata-grouping bug) are in
+[docs/projects/Plex-to-Jellyfin-Media-Migration.md](projects/Plex-to-Jellyfin-Media-Migration.md).
+
+Jellyfin's own application database (playlists, collections, users, watch
+state, plugin configuration) lives separately from the media payload, in a
+Docker-managed named volume under `Media/ix-apps` on TrueNAS. See the
+"Jellyfin" section of [05-Backups.md](05-Backups.md) for its current
+(incomplete) backup coverage.
+
 A certificate is considered unhealthy when it cannot be read, its endpoint is unreachable, or it has 30 days or less remaining. Certificate failures are included in the daily failure-only scheduled report and use the existing duplicate-alert suppression.

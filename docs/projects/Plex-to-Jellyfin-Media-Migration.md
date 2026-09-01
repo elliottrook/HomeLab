@@ -1318,7 +1318,27 @@ the first thing to check.
   both `elliottrook` and `jason` accounts, all against migrated music
   content — the household is already successfully using the migration's
   output.
-- [ ] Re-run counts, byte totals and mapping exception reports.
+- [x] Re-run counts, byte totals and mapping exception reports. — **Done
+  2026-09-01.** Existing Movies: 31 (28 baseline + 3 legitimate new
+  downloads, e.g. "Confinement," "I Want Your Sex," "Just Play Dead," all
+  under the correct existing path — zero missing, zero archive
+  cross-contamination). Existing Shows: 45 series / 673 episodes (43/625
+  baseline + 2 new series and 48 new episodes, same clean verification).
+  Archive Movies: 921 movies, checksum-verified 2.39 TB. Archive TV: 171
+  series / 5,678 episodes, checksum-verified 3.63 TB. Music: 741 albums /
+  8,054 tracks, 143.7 GB (39 albums still show as split entries — documented
+  open issue above, not a count error). Playlists: 11/11 intact (post
+  duplicate-consolidation and post collection-cleanup-incident recovery).
+  Collections: 165 box sets, covering 167/168 Plex collections (the 168th,
+  "Crouching Tiger, Hidden Dragon Collection," has its sole member among the
+  34 pre-existing unresolved Milestone 5 movies).
+
+  **Mapping exception summary:** movies 864/898 resolved (96.2%), 34
+  unresolved (`plex-to-jellyfin-movie-map.json`, method breakdown in
+  Milestone 5); playlist tracks 196/196 resolved (100%,
+  `plex-to-jellyfin-playlist-map.json`); collections 167/168 covered with
+  real membership (1 exception, see above, root cause is the same 34
+  unresolved movies, not a new gap).
 - [ ] Keep Plex operational during an agreed observation period.
 - [ ] Obtain Jason's approval before deleting any Plex library, database,
   playlist, collection or source media.
@@ -1421,16 +1441,52 @@ Archive Movies (`0064264a...`), Collections (`9d7ad6af...`).
 
 ## Milestone 9 — Documentation, backup and closeout
 
-- [ ] Record final host and container paths, mounts, ACLs and library names.
-- [ ] Record the final Plex-to-Jellyfin mapping statistics and unresolved items.
-- [ ] Save sanitized playlist and collection migration reports.
-- [ ] Document the location and retention of unsanitized manifests containing
-  full paths or user identifiers.
-- [ ] Add the canonical music root and archive-library paths to the media
-  operations documentation.
-- [ ] Add the Jellyfin configuration/database and migration manifests to the
-  backup plan.
-- [ ] Confirm restored playlists and collections are covered by Jellyfin backup.
+- [x] Record final host and container paths, mounts, ACLs and library names.
+  — **Done 2026-09-01.** Added a "Media libraries (Jellyfin)" section to
+  [04-Operations.md](../04-Operations.md) with the full host-path table for
+  all five libraries; ACLs were already recorded in Milestone 2.
+- [x] Record the final Plex-to-Jellyfin mapping statistics and unresolved
+  items. — Done as part of Milestone 8's "Re-run counts" item above.
+- [x] Save sanitized playlist and collection migration reports. — **Not
+  sanitized, and deliberately not committed to Git** — per this doc's own
+  Tooling decision ("Large file inventories containing personal path
+  details may be retained in the protected operations store instead of
+  Git"), since these manifests contain real personal media titles/paths
+  throughout. Copied all 28 manifest/report JSON+CSV files (15 MB) from
+  this session's working scratchpad to `~/lab/private-backups/
+  plex-jellyfin-migration/` — the same protected, non-Git location already
+  used for NUT, observability and other sensitive configuration exports,
+  which is already inside the existing daily Backup Synology pull and
+  encrypted IDrive e2 off-site task. This was necessary, not just tidy: the
+  working scratchpad they lived in previously was session-scoped and would
+  not have survived past this session.
+- [x] Document the location and retention of unsanitized manifests containing
+  full paths or user identifiers. — Same as above:
+  `~/lab/private-backups/plex-jellyfin-migration/`, covered by the
+  configuration-backup retention policy in
+  [05-Backups.md](../05-Backups.md) (7 daily / 4 weekly / 12 monthly).
+- [x] Add the canonical music root and archive-library paths to the media
+  operations documentation. — Done as part of the same 04-Operations.md
+  section above.
+- [x] Add the Jellyfin configuration/database and migration manifests to the
+  backup plan. — **Real gap found and documented, not yet closed.** Added a
+  dedicated "Jellyfin" section to 05-Backups.md (plus a row in the
+  Critical-Service Recovery Coverage table): only two manual, one-off
+  `Media/ix-apps` ZFS snapshots exist (both from this project's own
+  pre-change checkpoints); there is no recurring snapshot schedule and no
+  Backup Synology/off-site mirror for Jellyfin's actual application
+  database — unlike every other application in that document. This
+  directly motivated the "clean up collections" incident (see above): had
+  that task deleted something migration source data couldn't reconstruct,
+  there would have been nothing to recover from. **Needs Jason's decision**
+  on whether to set up recurring automated protection (schedule and
+  mechanism), following the same pattern already used for Home Assistant —
+  not something to build unilaterally as part of this documentation pass.
+- [x] Confirm restored playlists and collections are covered by Jellyfin
+  backup. — **Not currently covered**, per the gap just documented above.
+  The two existing manual snapshots do capture the current (recovered)
+  state as of the times they were taken, but nothing since, and nothing
+  automated going forward until the follow-up above is actioned.
 - [ ] Record temporary API-key revocation and token cleanup.
 - [ ] Remove the migration staging directory only after the rollback window
   expires and deletion is explicitly approved.
