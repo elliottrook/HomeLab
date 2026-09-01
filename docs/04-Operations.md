@@ -46,6 +46,15 @@ Dashboard SSH targets:
 
 The client device must have an application registered to handle `ssh://` links. These links do not contain passwords or private keys.
 
+TrueNAS intentionally has two working administrative SSH accounts:
+`truenas_admin` (used by the dashboard tile above; also the identity used by
+the Plex-to-Jellyfin migration tooling, member of the `apps` group) and
+`root` (used by the Mac's `ssh truenas` alias). Both are members of
+`builtin_administrators`. Confirmed 2026-09-01: both currently authenticate
+with the same SSH key, so in practice one key grants root-equivalent access
+under either username — an accepted, understood tradeoff, not a
+documentation error.
+
 ## Prometheus observability pilot
 
 - Guest: unprivileged Proxmox LXC 109 (`observability`)
