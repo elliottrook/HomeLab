@@ -418,7 +418,7 @@ async def preload_read_only_context(
         elif name == "get_service_health":
             arguments = {"service": "aster" if re.search(r"\baster\b", user_text, re.I) else "inference"}
         elif name == "search_knowledge":
-            arguments = {"query": user_text, "max_results": 4}
+            arguments = {"query": user_text, "max_results": 3}
         else:
             continue
         results.append({"function": name, "result": await execute_tool(name, arguments)})
