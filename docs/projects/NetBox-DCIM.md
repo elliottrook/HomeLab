@@ -87,16 +87,50 @@ same way a hand-maintained one does.
 
 - [ ] Walk the physical rack and record actual current contents, U-position
   by U-position — this is the step the old diagram skipped, and why it went
-  stale silently.
-- [ ] Confirm NetBox's resource requirements against current Proxmox
-  capacity headroom (see `docs/03-Hardware-Inventory.md`).
-- [ ] Decide placement, version, and deployment method (see above).
+  stale silently. **Blocked on Jason** — no authorization can substitute for
+  this step.
+- [x] Confirm NetBox's resource requirements against current Proxmox
+  capacity headroom. Live check 2026-09-01: host had only ~2.6 GB genuinely
+  free (33.6 GB total, 21.8 GB used across existing guests; the "additional
+  planned RAM" in `03-Hardware-Inventory.md` has not landed yet). Along the
+  way, found Observability (LXC 109) was allocated 4096 MB but using only
+  ~484 MB live — reduced its cap to 2048 MB (live `pct set`, no restart, all
+  six of its services confirmed still active afterward; rollback is
+  `pct set 109 -memory 4096`). Noted for the record: LXC memory settings are
+  cgroup ceilings, not host reservations, so this didn't literally free host
+  RAM — it was a hygiene fix (removes an unbounded-growth risk), not a
+  capacity unlock. NetBox is sized the same way (2048 MB) on the reasoning
+  that its real footprint should land in the same few-hundred-MB-to-~1GB
+  range as Observability's comparable Python/Postgres-adjacent stack, well
+  inside the host's actual ~2.6 GB live headroom.
+- [x] Decide placement, version, and deployment method. VMID 111, hostname
+  `netbox`, `192.168.20.32/24` (confirmed free 2026-09-01: no DHCP
+  reservation, no active lease, no ARP entry, no ping response), Servers
+  VLAN 20, Debian 13.6 (matching the template already used for LXC 109/110).
+  Deployment method: Docker Compose via the official `netbox-community/netbox-docker`
+  project, following the same pattern already established for Authentik
+  (LXC 106) and the Reverse Proxy (LXC 107) — a dedicated single-purpose LXC
+  running Compose, `nesting=1,keyctl=1` features enabled for Docker support,
+  matching those two guests' config exactly. Chosen over a from-source
+  install because NetBox's own documentation treats Docker Compose as the
+  primary supported path, and building it from source would mean
+  hand-maintaining Postgres/Redis/Gunicorn/nginx version compatibility
+  ourselves for no real benefit at this scale.
 - [ ] Decide the markdown-vs-NetBox source-of-truth question explicitly and
   record the decision here.
 
 ## Milestone 2 — Deployment
 
-- [ ] Deploy the LXC, install NetBox, validate a private-only login.
+- [x] LXC 111 created and started 2026-09-01: 2 vCPU, 2048 MB RAM, 512 MB
+  swap, 32 GB disk, unprivileged, `onboot=1`, `nameserver 192.168.20.20`,
+  `searchdomain internal`, net0 on `vmbr0` tag 20 mirroring LXC 109's
+  pattern. Verified: correct IP bound, DNS resolution works, `apt-get
+  update` reached both `deb.debian.org` and `security.debian.org`
+  successfully. (Gateway ICMP ping fails, but so does it for the existing
+  healthy LXC 109 — confirmed as normal for this network, not a fault.)
+  **Rollback:** `pct stop 111 && pct destroy 111` — safe at this stage,
+  container holds no data yet.
+- [ ] Install NetBox via Docker Compose, validate a private-only login.
 - [ ] Add to HomeLab Doctor, backup coverage, and Beszel/monitoring following
   the existing per-service pattern.
 
@@ -130,3 +164,7 @@ markdown files, and there is exactly one documented source of truth for each
 
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
+| 2026-09-01 | 1 | Live Proxmox capacity check: 33.6 GB total / 21.8 GB used / 2.6 GB free; Observability LXC 109 found using ~484 MB of its 4096 MB cap | Recorded above |
+| 2026-09-01 | 1 | Observability LXC 109 memory cap reduced 4096→2048 MB via live `pct set`; all six services (`prometheus`, `grafana-server`, `pve-exporter`, `nut-exporter`, `graphite-exporter`, `truenas-graphite-ingress`) confirmed active afterward | Passed |
+| 2026-09-01 | 1 | `192.168.20.32` confirmed free: no OPNsense DHCP static mapping or active lease, no ARP entry, no ping response | Passed |
+| 2026-09-01 | 2 | LXC 111 created (Debian 13.6, 2 vCPU/2048 MB/512 MB swap/32 GB disk, unprivileged, `nesting=1,keyctl=1`), started, network/DNS/`apt-get update` all verified working | Passed |
