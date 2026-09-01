@@ -1057,7 +1057,7 @@ grouping rather than an exact copy of Plex's curated list.
   `DELETE /Items/{id}`; for Batman, added the 2 missing films (Batman
   Begins, The Batman) to the regular plugin-generated "Batman Collection"
   via `POST /Collections/{id}/Items`, then deleted its now-redundant
-  6-film snapshot copy. **Final: 166 total box sets in Jellyfin** (169 − 3
+  6-film snapshot copy. **Result: 166 total box sets in Jellyfin** (169 − 3
   deleted snapshots), still covering 167 of 168 Plex collections with real
   membership — no coverage was lost, since each deleted snapshot's
   equivalent regular collection remains (Batman's now with full correct
@@ -1067,16 +1067,83 @@ grouping rather than an exact copy of Plex's curated list.
 
 ### Manual and curated collections
 
-- [ ] Export collection title, summary, sort behaviour, artwork and ordered
-  members from Plex.
-- [ ] Resolve each member through the accepted media mapping.
-- [ ] Require archive path agreement when the same title exists in both current
-  and archive movie libraries.
-- [ ] Create the Jellyfin collection with the resolved item IDs.
-- [ ] Reapply supported overview and artwork fields after membership creation.
-- [ ] Record unsupported Plex display settings rather than claiming parity.
-- [ ] Preserve custom collection ordering when Jellyfin and the selected client
-  expose an equivalent; otherwise document Jellyfin's resulting order.
+Plex draws no formal line between "TMDb franchise" and "manual/curated" —
+that distinction only exists on the Jellyfin side (plugin-generated vs.
+API-created). In practice, every one of the 165 non-smart Plex collections
+was already carried through Milestone 7's TMDb-derived-collections workflow
+above: the plugin created 65 with exact membership, and the manual
+gap-fill pass (via the same accepted media mapping and the same
+`POST /Collections`/`POST /Collections/{id}/Items` API) created the
+remaining 82 and corrected 20 more. So most items below were already
+satisfied by that work; this section closes out what wasn't.
+
+- [x] Export collection title, summary, sort behaviour, artwork and ordered
+  members from Plex. — **Partial, a real Milestone 1 gap.** Title, smart
+  flag, child count and ordered members were captured for all 233
+  collections in `plex-movie-collections.json`; summary and artwork were
+  specified as required fields in the Milestone 1 inventory table but the
+  export script never actually populated them (confirmed empty for all
+  233 entries on inspection). Decision 2026-09-01 (see below): not worth
+  a live Plex re-fetch to backfill, since Jellyfin's own metadata already
+  covers all but a handful of collections.
+- [x] Resolve each member through the accepted media mapping. — Every
+  collection write (plugin gap-fill and this session's corrections) used
+  `plex-to-jellyfin-movie-map.json`, the same Milestone 5 mapping used for
+  everything else in this project.
+- [x] Require archive path agreement when the same title exists in both
+  current and archive movie libraries. — Checked 2026-09-01: exactly 2
+  titles exist in both the pre-existing Movies library and Archive Movies
+  ("The Boy and the Heron", "The Shawshank Redemption"). Confirmed both
+  map to their Archive Movies item IDs, not the pre-existing library's —
+  and structurally can't do otherwise, since `plex-to-jellyfin-movie-map.json`
+  was built only against the Archive Movies scan (Milestone 5) and never
+  contains an existing-library ID at all.
+- [x] Create the Jellyfin collection with the resolved item IDs. — Done as
+  part of the TMDb-derived-collections gap-fill above; no separate manual
+  pass was needed since the same script and mapping covered both
+  categories together.
+- [x] Reapply supported overview and artwork fields after membership
+  creation. — **Mostly automatic, not from this project's Plex export.**
+  Checked 2026-09-01: 158/166 collections already carry real overview text
+  and 156/166 a real poster, sourced by Jellyfin's own built-in TMDb
+  collection-metadata matching (independent of the TMDb Box Sets plugin) —
+  it matches by collection name against TMDb's own collection database,
+  which worked for every standard franchise name. The 8 without overview /
+  10 without a poster are Jason's custom-named collections that don't
+  match any real TMDb collection (e.g. "Wunder Filmreihe", "A Star Wars
+  Story collection", "The Whole Nine/Ten Yards Collection", "Nobody
+  Collection", "Monty Python Collection", "Searching Collection",
+  "Transformers: Rise of the Beasts Collection"). **Decision (Jason,
+  2026-09-01): leave as-is** — titles and membership are correct, Jellyfin
+  auto-generates a poster collage from member films for the image-less
+  ones, and fetching Plex's own summary/thumb for just these ~10 wasn't
+  judged worth a live Plex round-trip for what's a cosmetic gap. Consistent
+  with this project's established "good enough" standard from the music
+  tagging cleanup.
+- [x] Record unsupported Plex display settings rather than claiming parity.
+  — Recorded: Plex's per-collection custom sort order/mode has no
+  Jellyfin equivalent captured or reapplied by this project (see next
+  item).
+- [x] Preserve custom collection ordering when Jellyfin and the selected
+  client expose an equivalent; otherwise document Jellyfin's resulting
+  order. — **Documented as unsupported.** Jellyfin box sets have no
+  persisted per-collection custom member order (unlike playlists, which
+  do and were order-validated in Milestone 6) — display order is
+  determined by the viewing client's own sort setting at watch time, not
+  by anything this project's API writes control. No parity claim is made
+  here.
+
+**Near-duplicate found and resolved during this review (2026-09-01):**
+"Three Flavours Cornetto Collection" (2 films: Shaun of the Dead, Hot
+Fuzz) and "Three Flavours Cornetto Trilogy" (3 films, also including The
+World's End) were both genuinely present as separate Plex collections
+(confirmed in `plex-movie-collections.json`) and were faithfully copied
+over as two distinct Jellyfin collections by the gap-fill pass — unlike
+the earlier Batman/Austin Powers/Back to the Future cases, this was not a
+migration artifact. Reviewed with Jason: merged into one 3-film
+collection — added The World's End to "Collection" via
+`POST /Collections/{id}/Items`, then deleted "Trilogy" via
+`DELETE /Items/{id}`. **Box set total now 165** (166 − 1).
 
 Expected Jellyfin operations are:
 
