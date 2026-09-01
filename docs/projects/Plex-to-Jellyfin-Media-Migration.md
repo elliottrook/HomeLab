@@ -1,12 +1,12 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Milestones 1–9 essentially complete. Only the open Jellyfin
-> backup-coverage follow-up (needs Jason's decision on schedule/mechanism)
-> and stopping the still-installed Plex service (a separate, not-yet-
-> actioned step) remain before this project can be marked `Complete`. Plex
-> source media (Movies + TV Shows) was deleted from the Synology
-> 2026-09-01 with Jason's explicit approval; the temporary Jellyfin API key
-> is revoked and the migration staging directory has been removed.
+> Status: Milestones 1–9 complete. Plex source media (Movies + TV Shows)
+> was deleted from the Synology 2026-09-01 with Jason's explicit approval;
+> the Plex application remains installed but confirmed stopped; the
+> temporary Jellyfin API key is revoked and the migration staging
+> directory has been removed. Only the open Jellyfin backup-coverage
+> follow-up (needs Jason's decision on schedule/mechanism, tracked in
+> 05-Backups.md) remains before this project can be marked `Complete`.
 >
 > Project owner: Jason
 >
@@ -1369,10 +1369,17 @@ project was preceded by a checksum-verified copy plus individual review,
 unlike a bulk deletion.
 
 **Jason's decisions:**
-- Plex application: **stop serving, keep installed** — not actioned as
-  part of this conversation (a separate step; Plex was left running through
-  the deletion below since stopping the service isn't required for file
-  deletion).
+- Plex application: **stop serving, keep installed.** Actioned separately
+  after the source deletion below. Checked via `synopkg status
+  PlexMediaServer` on the Synology and found it was **already stopped**
+  (`status: "stop"`, `synopkg is_onoff` confirms not running) — most likely
+  because Plex's Movies/TV Shows libraries failed when their source folders
+  were deleted below, rather than anything explicitly stopping it. No
+  action was needed; this already matches Jason's intended end state
+  (installed, not serving). The package's "start on boot" setting was not
+  checked or changed — only current run state was confirmed — so this is
+  worth a follow-up look if a future Synology reboot should not bring Plex
+  back up automatically.
 - Source media: delete now. Jason's stated mitigation: an existing Hyper
   Backup task (`Media Backup`, on the Backup Synology, pre-dating this
   project — see the "Synology Drive same-site backup" section of
