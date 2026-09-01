@@ -1028,8 +1028,40 @@ grouping rather than an exact copy of Plex's curated list.
   still in the 34 unresolved from Milestone 5). The 3 smart collections
   (Austin Powers, Back to the Future, Batman) were created as dated static
   snapshots (`" (static snapshot 2026-09-01)"` suffix), per this doc's
-  explicit smart-collection rule. **Final: 169 total box sets in Jellyfin,
-  covering 167 of 168 Plex collections with real membership.**
+  explicit smart-collection rule. **Initial result: 169 total box sets in
+  Jellyfin, covering 167 of 168 Plex collections with real membership.**
+
+  **Near-duplicate check and resolution (2026-09-01).** Jason asked for a
+  check for duplicate collections. No exact-name duplicates existed (0/169),
+  but a normalized-name comparison (stripping the snapshot suffix,
+  punctuation, case and a leading "The") found all 3 smart-collection pairs
+  sitting alongside a same-franchise regular/plugin collection: Austin
+  Powers, Back to the Future and Batman. (The Austin Powers pair didn't
+  initially surface via normalization alone — the original Plex smart
+  collection's title carries a genuine typo, "Austion Powers" — found via a
+  follow-up direct name search instead.) Compared actual membership for all
+  3 pairs before acting, since a name collision alone doesn't prove
+  redundancy:
+  - **Austin Powers** — identical membership (3/3 films both sides) →
+    true redundant duplicate.
+  - **Back to the Future** — identical membership (3/3 films both sides) →
+    true redundant duplicate.
+  - **Batman** — *not* a duplicate: the plugin's TMDb-driven "Batman
+    Collection" only covers the Burton/Schumacher-era 4 films (Batman,
+    Batman Returns, Batman Forever, Batman & Robin); the Plex smart
+    collection's snapshot also included Batman Begins and The Batman (6
+    total) — a genuine scope difference, not an error.
+
+  Resolved per Jason's decision: deleted the two truly-redundant snapshot
+  collections (Austin Powers, Back to the Future) outright via
+  `DELETE /Items/{id}`; for Batman, added the 2 missing films (Batman
+  Begins, The Batman) to the regular plugin-generated "Batman Collection"
+  via `POST /Collections/{id}/Items`, then deleted its now-redundant
+  6-film snapshot copy. **Final: 166 total box sets in Jellyfin** (169 − 3
+  deleted snapshots), still covering 167 of 168 Plex collections with real
+  membership — no coverage was lost, since each deleted snapshot's
+  equivalent regular collection remains (Batman's now with full correct
+  membership).
 - [ ] Lock or manually protect collections only when there is a documented
   need.
 
