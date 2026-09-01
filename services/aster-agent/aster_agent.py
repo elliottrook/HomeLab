@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -278,6 +278,40 @@ async def upstream_completion(payload: dict[str, Any]) -> dict[str, Any]:
         raise HTTPException(status_code=502, detail=f"Inference backend error: {exc}") from exc
 
 
+async def upstream_stream(payload: dict[str, Any]) -> StreamingResponse:
+    headers = {
+        "Authorization": f"Bearer {LLAMA_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    client = httpx.AsyncClient(timeout=REQUEST_TIMEOUT)
+    try:
+        request = client.build_request(
+            "POST",
+            f"{LLAMA_BASE_URL}/chat/completions",
+            headers=headers,
+            json=payload,
+        )
+        response = await client.send(request, stream=True)
+        response.raise_for_status()
+    except (httpx.HTTPError, ValueError) as exc:
+        await client.aclose()
+        raise HTTPException(status_code=502, detail=f"Inference backend error: {exc}") from exc
+
+    async def chunks():
+        try:
+            async for chunk in response.aiter_bytes():
+                yield chunk
+        finally:
+            await response.aclose()
+            await client.aclose()
+
+    return StreamingResponse(
+        chunks(),
+        media_type=response.headers.get("content-type", "text/event-stream"),
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": "aster-agent"}
@@ -291,14 +325,11 @@ async def models() -> dict[str, Any]:
     }
 
 
-@app.post("/v1/chat/completions", dependencies=[Depends(require_api_key)])
-async def chat(request: ChatRequest) -> dict[str, Any]:
-    if request.stream:
-        raise HTTPException(status_code=400, detail="Streaming is not enabled in Aster 1.0")
-
+@app.post("/v1/chat/completions", dependencies=[Depends(require_api_key)], response_model=None)
+async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
     payload = request.model_dump(exclude_none=True, exclude={"model", "stream"})
     payload["model"] = UPSTREAM_MODEL
-    payload["stream"] = False
+    payload["stream"] = request.stream
     payload["messages"] = normalized_messages(request.messages)
     read_only_context = await preload_read_only_context(request.messages, select_tools(request.messages))
     if read_only_context:
@@ -309,6 +340,9 @@ async def chat(request: ChatRequest) -> dict[str, Any]:
         )
     payload.pop("tools", None)
     payload.pop("tool_choice", None)
+
+    if request.stream:
+        return await upstream_stream(payload)
 
     usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
     for _ in range(MAX_TOOL_ROUNDS + 1):

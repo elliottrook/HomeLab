@@ -16,6 +16,29 @@ The separate inference key is stored in that file and in
 `/etc/aster-llama.env` in LXC 110. Both files are root-owned, group-readable by
 only the corresponding service account, and excluded from Git.
 
+The OpenAI-compatible chat endpoint supports both normal JSON responses and
+authenticated server-sent-event streaming. Streaming was added for Hermes
+Desktop compatibility; the same bounded function routing and knowledge scope
+apply before the upstream stream begins.
+
+## Hermes Desktop compatibility
+
+Hermes Desktop v0.21.0 can use Aster as an OpenAI-compatible custom endpoint:
+
+- endpoint URL: `http://192.168.70.10:9120/v1`;
+- provider ID: `aster-local`;
+- model: `aster-qwen3.8-27b`;
+- declared context: 65,536, which satisfies Hermes' client-side 64K minimum;
+- model discovery and use-for-new-chats enabled.
+
+The declared context is compatibility metadata only. llama.cpp still has one
+8,192-token slot, so the current roughly 4,900-token Hermes startup prompt fits,
+but a sufficiently long session or larger tool prompt may exceed the real slot.
+Hermes completed three end-to-end test turns, including streaming, but each
+required roughly 65–69 seconds because its full agent prompt was reevaluated.
+Use the direct Aster UI for normal conversation speed; keep Hermes for workflows
+where its desktop harness is worth the additional latency.
+
 ## Runtime configuration
 
 - llama.cpp b10507 (`95c409c13`)

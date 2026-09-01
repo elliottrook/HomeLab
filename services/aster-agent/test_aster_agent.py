@@ -2,12 +2,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from aster_agent import TOOLS, preload_read_only_context, search_knowledge, select_tools
+from aster_agent import ChatRequest, TOOLS, preload_read_only_context, search_knowledge, select_tools
 
 
 class AsterAgentTests(unittest.TestCase):
     def test_casual_chat_has_no_tools(self):
         self.assertEqual(select_tools([{"role": "user", "content": "Tell me a short joke"}]), [])
+
+    def test_streaming_request_is_supported(self):
+        request = ChatRequest(messages=[{"role": "user", "content": "Hello"}], stream=True)
+        self.assertTrue(request.stream)
 
     def test_homelab_question_selects_knowledge(self):
         names = [tool["function"]["name"] for tool in select_tools([{"role": "user", "content": "What GPU is in my homelab?"}])]

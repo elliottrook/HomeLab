@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Connected Hermes Desktop v0.21.0 to Aster through a saved authenticated OpenAI-compatible endpoint and added server-sent-event streaming to the Aster gateway. End-to-end agent turns now work, while testing confirms Hermes' roughly 4,900-token harness still takes about 65–69 seconds per turn on the current 8K llama.cpp slot; direct Aster remains the preferred conversational interface.
 - Replaced the too-slow Hermes/Ollama runtime with the lightweight Aster service in LXC 104 and llama.cpp Vulkan inference in LXC 110, serving Qwen3.8 27B `UD-IQ4_XS` on the Intel Arc Pro B60. Added authenticated Lab-VLAN APIs, a browser UI, allowlisted read-only functions, curated source-attributed HomeLab retrieval, automatic model warm-up, systemd hardening, operations documentation and HomeLab Doctor coverage.
 - Created named production rollback snapshots for LXC 104 and LXC 110 and passed full container-reboot recovery: both services returned enabled and active, and the first authenticated post-warm-up conversation completed in approximately 4.7 seconds.
 - Closed the Prometheus/Grafana observability project at the owner's direction after same-day final validation: HomeLab Doctor passed 54 checks with no failures, live services and private TLS were healthy, resource/cardinality use remained well within budget, alerting and recovery were proven, and the close-out record moved into the completed-projects portfolio.
