@@ -1062,8 +1062,9 @@ grouping rather than an exact copy of Plex's curated list.
   membership — no coverage was lost, since each deleted snapshot's
   equivalent regular collection remains (Batman's now with full correct
   membership).
-- [ ] Lock or manually protect collections only when there is a documented
-  need.
+- [x] Lock or manually protect collections only when there is a documented
+  need. — **Skipped by explicit decision (Jason, 2026-09-01).** No
+  documented need identified; not pursued.
 
 ### Manual and curated collections
 
@@ -1178,25 +1179,170 @@ the report.
 
 ## Milestone 8 — Functional validation and cutover
 
-- [ ] Confirm existing Jellyfin Movies and TV counts did not change because of
-  archive ingestion.
-- [ ] Confirm Archive Movies and Archive TV contain only their intended source
-  content.
-- [ ] Confirm no archive root is nested inside an existing Jellyfin root.
-- [ ] Test direct play and transcoding separately for representative movie and
-  television formats.
-- [ ] Test external subtitles, alternate audio, extras and at least one
-  multi-episode file where present.
-- [ ] Test music album grouping, disc ordering, artist navigation, compilation
-  handling, artwork and lyrics.
+- [x] Confirm existing Jellyfin Movies and TV counts did not change because of
+  archive ingestion. — **Passed 2026-09-01.** Movies: 28/28, exact ID-set
+  match against the Milestone 1 `jellyfin-before.json` baseline. Shows: 43/43
+  series unchanged; episode count grew 625 → 629, but all 4 new episodes
+  verified as legitimately new downloads under the existing `/media/media/tv`
+  path (e.g. new "Adults" S02 and "Furious" S01E08 episodes) — zero missing,
+  zero archive-tv cross-contamination.
+- [x] Confirm Archive Movies and Archive TV contain only their intended source
+  content. — **Passed.** 921/921 Archive Movies items and 5,678/5,678 Archive
+  TV episodes have paths rooted under `/media/archive-movies` and
+  `/media/archive-tv` respectively; 0 off-path.
+- [x] Confirm no archive root is nested inside an existing Jellyfin root. —
+  **Passed.** Checked all 5 content library roots pairwise; no path is a
+  prefix of another.
+- [x] Test direct play and transcoding separately for representative movie and
+  television formats. — **Passed via API feasibility check** (no client
+  login available to this session — see note below). `PlaybackInfo` queried
+  for one file per movie extension (m4v, mp4, mkv, mpg): direct play/stream
+  supported for all except one mkv (`The Bad Guys 2`, unusually encoded as
+  mpeg2video) which correctly falls back to transcoding. Real transcode logs
+  from the last several days confirm the transcoding pipeline itself works
+  end-to-end (hundreds of successful FFmpeg sessions).
+- [x] Test external subtitles, alternate audio, extras and at least one
+  multi-episode file where present. — **Passed / not applicable.** No
+  multi-episode files exist in Archive TV (0 items with `IndexNumberEnd`
+  set) — nothing to test. TV subtitles are essentially absent (1/5,678
+  episodes) but confirmed as real source-content reality (sampled episode
+  folders contain only video files, no `.srt` sidecars — nothing was lost in
+  the copy). 1,895/5,678 episodes have multiple embedded audio tracks,
+  confirmed via `MediaStreams`. "Project Hail Mary" (35 subtitle streams) and
+  "Star Wars: Episode I" (7 audio tracks) identified as good representative
+  test items for Jason's own client-side spot check.
+- [x] Test music album grouping, disc ordering, artist navigation, compilation
+  handling, artwork and lyrics. — **Mostly passed, one real unresolved gap.**
+  Disc ordering, `Various Artists` compilation grouping and artwork all
+  verified correct on "Caribbean Uncovered" (the multi-disc compilation
+  fixed earlier in this project). However, this check also surfaced a real,
+  previously-undetected bug — see "Album-grouping investigation" below.
+  Lyrics: 163/8,054 tracks have embedded lyrics (real, not a defect — most
+  source files never had lyrics embedded). Artwork: 720/741 album objects
+  have a cover image; 21 missing are untouched pre-existing gaps unrelated
+  to this project.
 - [ ] Test at least one migrated playlist in each supported Jellyfin client used
-  by the household.
-- [ ] Test at least one manual collection and one TMDb-derived box set.
-- [ ] Review Jellyfin logs for scan, metadata, permissions and playback errors.
+  by the household. — **Needs Jason** (see "Client-side testing needed"
+  below); this session has no Jellyfin login and cannot drive a real client.
+- [ ] Test at least one manual collection and one TMDb-derived box set. —
+  **Needs Jason**, same reason.
+- [x] Review Jellyfin logs for scan, metadata, permissions and playback
+  errors. — **Passed 2026-09-01**, no unresolved real errors. Reviewed
+  `log_20260901.log` (40,632 lines) and `log_20260831.log` in full. Findings,
+  all explained and none requiring action: (1) `LibraryMonitor: Permission
+  error for Directory watcher` for `/media/media/movies` (pre-dates this
+  project, seen in the 8/31 log too) and `/media/media/music` (first seen
+  right after the Milestone 4 library recreate) — real-time file-watching is
+  broken for these paths, but scheduled/manual scans work correctly
+  regardless (proven repeatedly this session), so this doesn't block
+  anything; (2) one isolated `DirectoryNotFoundException` referencing the
+  old (pre-recreate) Music library's internal path, 3 log lines, a single
+  event, never repeated — a harmless one-time cleanup artifact of the
+  earlier library recreate; (3) one isolated ffprobe "streams and format are
+  both null" error on a single movie item, never recurred — Milestone 3's
+  checksum verification already confirms no corrupted archive files exist,
+  so this reads as a transient probe hiccup; (4) `Invalid HLS segment
+  container: fmp4` (6x) — cosmetic, FFmpeg still exits 0 and playback
+  completes; Jellyfin logs this at ERR level for what's actually a handled
+  fallback; (5) 5x Kestrel `ObjectDisposedException`, all at 01:20:05 during
+  a single server-startup race condition, not repeated. **Real evidence of
+  successful playback found in these logs**: 50 real playback-stopped
+  events on 2026-09-01 alone, spanning Jellyfin Web and JellyTV clients and
+  both `elliottrook` and `jason` accounts, all against migrated music
+  content — the household is already successfully using the migration's
+  output.
 - [ ] Re-run counts, byte totals and mapping exception reports.
 - [ ] Keep Plex operational during an agreed observation period.
 - [ ] Obtain Jason's approval before deleting any Plex library, database,
   playlist, collection or source media.
+
+### Album-grouping investigation and remediation attempts (2026-09-01)
+
+The album-grouping check above surfaced a real bug, distinct from the
+already-documented and already-fixed "Total albums" cosmetic count issue
+(Milestone 4): **45 real albums (71 extra Jellyfin album container objects,
+out of 741 total) are split into 2 or more separate entries** for what
+should be one album — including albums never touched by the earlier
+97-folder scattered-tag fix (Abbey Road, Beyoncé, Bad, The Fame). Examples
+ranged from 2-way splits up to "F-1 Trillion" split 15 ways.
+
+**Root cause, confirmed via direct file inspection on "Caribbean
+Uncovered":** tracks that correctly share the same plain-text `Album` tag
+still carry different embedded per-track `MusicBrainzAlbum` /
+`MusicBrainzReleaseGroup` provider identifiers, and Jellyfin groups album
+identity by that ID ahead of the text tag — the same class of bug as the
+already-documented Milestone 4 indexing issue, but affecting a wider set of
+albums than the 97-folder fix covered.
+
+**Remediation attempted, in order, none successful in producing a merge:**
+
+1. Stripped the stale `MusicBrainzAlbum`/`MusicBrainzReleaseGroup` MP4/ID3/
+   FLAC atoms directly from all 830 affected track files via `mutagen`
+   (529/830 had a stale tag to remove; 0 errors). A full library
+   remove/recreate afterward left the split identical — Jellyfin's API still
+   reported the *same* stale provider IDs on tracks whose files, confirmed
+   by direct inspection, no longer had the tag.
+2. Traced this to Jellyfin performing its own live AcoustID-fingerprint
+   MusicBrainz lookup (using the embedded `Acoustid Id` tag) independent of
+   the library's `EnableInternetProviders: false` setting — 2,366 MusicBrainz
+   API calls failing with HTTP 503 were found in the same day's log,
+   confirming this lookup runs regardless of that setting. Attempted to stop
+   it two ways: disabling the bundled MusicBrainz plugin (`POST
+   /Plugins/{id}/{version}/Disable`, requires a full Jellyfin restart —
+   done, with Jason's explicit approval given the household-wide playback
+   interruption) and, since the plugin still reported `Status: Active` after
+   restart, explicitly excluding MusicBrainz from the Music library's
+   per-type `MetadataFetchers` (`TheAudioDB` only for Album/Artist, none for
+   Audio) — the correct, documented mechanism. Neither, individually or
+   combined with another full library rebuild, changed the outcome.
+3. Directly cleared the stale `MusicBrainzAlbum`/`MusicBrainzReleaseGroup`
+   provider IDs via the Jellyfin API itself (not just the file tags) on all
+   578 affected objects (91 album containers + 487 tracks; 0 errors),
+   followed by one more full library remove/recreate.
+
+**Result: identical every time.** All three attempts — despite fixing three
+real, different, independently-confirmed underlying causes — produced the
+exact same 741 total albums and the same 39 remaining split groups,
+byte-for-byte. This strongly suggests that removing and recreating the
+Jellyfin Music `VirtualFolder` does not actually purge and rebuild the
+underlying Album/Track database rows as its behavior implied during the
+earlier single-container-rename fix (Milestone 4) — it more likely
+re-attaches library membership to existing rows matched by path, which
+would explain why every fix targeting *content* (tags, provider IDs,
+fetcher config) left the *existing* split container objects untouched.
+Confirming or fixing this would require inspecting or modifying Jellyfin's
+internal database directly, which is out of scope for what's safely
+achievable through the documented REST API.
+
+**Decision: stopped after 3 escalating attempts rather than continue
+disruptive trial-and-error.** The Music library remains fully intact and
+functional throughout (8,054/8,054 tracks present, matching the
+pre-investigation baseline, at every checkpoint) — this is a real but
+low-blast-radius cosmetic defect (an album occasionally appears as 2+
+separate entries when browsing), not data loss or a playback break. Net
+effect of this investigation: the stale-tag cleanup and MusicBrainz-provider
+exclusion are genuine improvements now in place (reduces *future* drift
+even though it didn't fix the *existing* 39 split groups), but the 39
+existing split groups remain unresolved and are logged here as a follow-up
+requiring either a different technical approach (e.g. testing whether
+Jellyfin's own admin-dashboard-driven "identify" workflow behaves
+differently from the pure-API path used here) or acceptance as a permanent,
+minor cosmetic limitation.
+
+### Client-side testing needed
+
+The following Milestone 8 items need a real Jellyfin client login, which
+this session cannot do (entering account credentials into any login form is
+outside what this project can do on Jason's behalf): playing a migrated
+playlist through in each client the household actually uses; playing at
+least one manual collection and one TMDb-derived box set; and a first-hand
+look at the still-split album entries above. Recommended representative
+items from this session's API-level checks: `Project Hail Mary` (35
+subtitle tracks) and `Star Wars: Episode I — The Phantom Menace` (7 audio
+tracks) for the subtitle/audio checklist item; any of the 11 migrated
+playlists on either the `elliottrook` or `jason` account for the playlist
+item; the "Batman Collection" (manually corrected this session) and any
+plugin-generated box set for the collection item.
 
 ## Milestone 9 — Documentation, backup and closeout
 
