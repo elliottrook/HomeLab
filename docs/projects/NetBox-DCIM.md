@@ -176,14 +176,36 @@ same way a hand-maintained one does.
     already flagged separately in `05-Backups.md`'s Aster section as an
     open backup-workflow follow-up. Left untouched — fixing it isn't part
     of this project's scope.
-  - [ ] **Open:** the *live* DSM scheduled task on the Backup Synology
-    still needs the same filter update — this repo script is the
-    canonical reference body, not the executing task itself. Earlier
-    entries in this repo (e.g. the Observability LXC 109 rollout) made
-    this exact kind of edit "through DSM's supported scheduler API," which
-    needs either the same care taken there or Jason's direct involvement —
-    not attempted here without a clearer read on that mechanism first.
-  - [ ] Add LXC 111 to Beszel monitoring — not yet done.
+  - [ ] **Blocked on Jason, confirmed 2026-09-01.** Investigated editing
+    the live DSM task ("HomeLab Proxmox backup pull", task ID 6 on the
+    Backup Synology) directly: confirmed via `synoschedtask --get id=6`
+    that its inline command body has the identical pre-fix filter list
+    (through LXC 109, missing 110/111) as the repo script had before this
+    session's edit — same fix needed, live. But `synoschedtask` only
+    supports `--get`/`--del`/`--run`/`--reset-status`/`--sync`, no `--set`;
+    no `synowebapi` binary exists on this DSM version/package set to reach
+    the API route instead; and the `gowest-backup` automation account,
+    while in the DSM `administrators` group, only has a **password-gated**
+    sudo grant (confirmed: `sudo -n whoami` fails with "a password is
+    required") — the only pre-existing passwordless sudo grant on this
+    account is narrowly scoped to `/sbin/shutdown -h now` from the UPS
+    project. I don't have and shouldn't ask for that password. This is a
+    real, investigated blocker, not a skipped step — needs Jason directly
+    (DSM UI, or supplying the mechanism used for the earlier LXC 109
+    edit referenced in `05-Backups.md`).
+  - [ ] **Needs a 30-second manual step from Jason.** Investigated the
+    agent-install pattern (confirmed against Forgejo LXC 108's working
+    `beszel-agent.service`: a dedicated `beszel` user running
+    `/opt/beszel-agent/beszel-agent`, pointed at the hub
+    `http://192.168.20.20:8090` via a fixed hub public `KEY` plus a
+    **per-system `TOKEN`**). The hub (Beszel 0.18.7, PocketBase-based, in
+    Docker LXC 100) has no CLI/API path to mint that token without either
+    an existing superuser session or creating one — and creating or using
+    hub admin credentials programmatically is exactly the kind of
+    account/credential action this repo's rules reserve for a human. This
+    one is much lighter than the DSM blocker above: open the Beszel hub UI,
+    "Add System" named `netbox` at `192.168.20.32`, copy the generated
+    token, and I can finish the install immediately once I have it.
   - [ ] Add configs/services.conf plain-TCP entry — **done** (`netbox`,
     `192.168.20.32:8000`), confirmed passing via Doctor's "Checking
     configured services" section. `configs/devices.conf` also updated to
@@ -192,12 +214,46 @@ same way a hand-maintained one does.
 ## Milestone 3 — Data population
 
 - [ ] Enter the verified physical rack inventory from Milestone 1.
-- [ ] Enter core network devices, Proxmox guests, and addressing from the
+  **Blocked on Jason** — same physical walk-through dependency as
+  Milestone 1's first item.
+- [x] Enter core network devices, Proxmox guests, and addressing from the
   existing markdown inventories, cross-checking each entry against live
   reality rather than copying the markdown verbatim (some of those entries
-  are exactly what this project exists to stop trusting blindly).
+  are exactly what this project exists to stop trusting blindly). **The
+  guest/VLAN/addressing portion is done** — physical network devices
+  (OPNsense, Arista, the switches, TrueNAS, both Synology units, the NUT
+  server) are deliberately left for after the rack walk-through, since
+  they're exactly the objects that benefit most from real rack-position
+  data and would otherwise need re-touching anyway.
+
+  Created via NetBox's API/ORM (API token minted through the documented
+  `/api/users/tokens/provision/` endpoint — note for future reference:
+  this NetBox version uses "v2" tokens, `Authorization: Bearer
+  nbt_<key>.<token>`, not the older `Authorization: Token <token>` form):
+  - Site `Mini Atlas HomeLab`.
+  - All 7 VLANs (10/20/30/40/50/60/70) with their `/24` prefixes, scoped
+    to the site — matching `network/topology.md`'s table exactly.
+  - A `Proxmox VE` cluster type and `proxmox` cluster.
+  - All 12 current Proxmox guests as Virtual Machines (100–111, VM 106 the
+    only gap in the visible sequence — never allocated, not a bug),
+    **each field pulled fresh from live `pct config`/`qm config` during
+    this session**, not copied from any markdown table: vCPU, memory,
+    disk, MAC address, primary IP, and status (VM 105/Ollama correctly
+    recorded `offline`, matching its actual stopped state). Two real
+    hostname/service-name mismatches surfaced and were recorded in each
+    VM's comments rather than silently normalized away: VM 102's actual
+    guest hostname is `friate` (typo, not `frigate`), and LXC 104/110
+    still carry their pre-Aster-rename hostnames (`hermesagent`,
+    `ollama-gpu-pilot`) even though they run Aster's services today —
+    both are real, currently-true facts about the infrastructure, not
+    something to "fix" by writing the tidier name into NetBox instead.
+  - Verified via the API afterward (not just trusted from the creation
+    script's own output): 12/12 VMs, 7/7 VLANs, 7/7 prefixes present,
+    spot-checked vCPU/memory/primary-IP values against the live
+    `pct config`/`qm config` dump.
 - [ ] Generate a rack elevation view and compare it against the Milestone 1
-  physical walk-through for agreement.
+  physical walk-through for agreement. **Blocked on the same
+  walk-through.**
 
 ## Milestone 4 — Cutover and hand-back
 
@@ -224,3 +280,8 @@ markdown files, and there is exactly one documented source of truth for each
 | 2026-09-01 | 1 | `192.168.20.32` confirmed free: no OPNsense DHCP static mapping or active lease, no ARP entry, no ping response | Passed |
 | 2026-09-01 | 2 | LXC 111 created (Debian 13.6, 2 vCPU/2048 MB/512 MB swap/32 GB disk, unprivileged, `nesting=1,keyctl=1`), started, network/DNS/`apt-get update` all verified working | Passed |
 | 2026-09-01 | 2 | Docker installed (official repo, GPG fingerprint verified); `netbox-community/netbox-docker` deployed pinned to `v4.6-5.0.2`; all secrets regenerated and cross-validated; all five containers healthy; `GET /login/` returns HTTP 200 within Servers VLAN 20 and correctly does not respond from Management VLAN | Passed |
+| 2026-09-01 | 2 | `check_netbox()` added to `scripts/doctor.sh` and live-tested (caught a real bug: checked the wrong host, fixed); backup-age check added; LXC 111 added to both filter blocks in `scripts/backup/synology-proxmox-pull.sh` (the canonical Layer-2 reference); confirmed Layer-1 local Proxmox job already covers all guests unconditionally | Passed |
+| 2026-09-01 | 2 | Investigated live-editing the Backup Synology's actual DSM scheduled task: `synoschedtask` has no `--set`, no `synowebapi` present, and the automation account's sudo is password-gated beyond one narrowly-scoped pre-existing grant | Blocked — needs Jason |
+| 2026-09-01 | 2 | Investigated Beszel agent registration: confirmed the install pattern against Forgejo LXC 108's working config, but minting a per-system token needs hub admin credentials this session correctly doesn't have | Blocked — needs a 30-second manual step from Jason |
+| 2026-09-01 | 3 | NetBox API token minted via the documented `/api/users/tokens/provision/` endpoint; discovered and recorded this NetBox version's "v2" `Bearer nbt_<key>.<token>` auth format (differs from the older `Token <token>` form) | Passed |
+| 2026-09-01 | 3 | Site, all 7 VLANs/prefixes, a Proxmox cluster, and all 12 current Proxmox guests (as Virtual Machines with interfaces, MAC addresses, and primary IPs) created in NetBox, every field pulled fresh from live `pct config`/`qm config`, not copied from markdown. Verified after creation via the API: 12/12 VMs, 7/7 VLANs, 7/7 prefixes present and spot-checked | Passed |
