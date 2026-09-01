@@ -1,5 +1,15 @@
 # 15U Rack Elevation
 
+> **STALE — needs a mass correction, not a spot fix.** A partial physical
+> rack rebuild happened after this diagram was last written, so most of the
+> contents below (equipment placement, and likely the elevation itself) no
+> longer reflect the physical rack. Do not treat any row below as current.
+> A proper replacement is tracked as
+> [`docs/projects/NetBox-DCIM.md`](../docs/projects/NetBox-DCIM.md) — a
+> self-hosted NetBox deployment that will generate this elevation from real
+> inventory data instead of a hand-maintained table. Until that project
+> lands, verify physical placement on site rather than trusting this file.
+
 Orientation: U15 is the top of the rack and U1 is the bottom.
 
 | Rack unit | Equipment | Contents or role |

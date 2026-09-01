@@ -27,7 +27,7 @@ Arista core
   +-- NUT server (Management VLAN 50, Arista Et31)
   +-- AP Switch and UniFi wireless (Arista Et33 10G uplink)
   |     +-- Two U7 Pro XG access points at 2.5G
-  +-- TP-Link camera-only PoE switch (Arista Et34 access VLAN 60; validation pending)
+  +-- TP-Link camera-only PoE switch (Arista Et34 access VLAN 60; validated, production since 2026-08-27)
         +-- Reolink Duo 2V PoE (Cameras VLAN 60)
 ```
 

@@ -50,8 +50,10 @@ both access points, Proxmox and the Arista management SVI reside on Management
 VLAN 50. The AP Switch is numbered `192.168.50.26`, but its management plane
 appears on VLAN 1/untagged and requires the documented direct-recovery path.
 IoT, Guest and Camera devices use VLANs 30, 40 and 60.
-Hermes and Ollama remain non-production pilot workloads on Lab VLAN 70. The
-validated deployed state is recorded in `Current-Network-Baseline.md`.
+Aster (LXC 104) and its llama.cpp GPU inference backend (LXC 110) are the
+production local-AI workloads on Lab VLAN 70. Hermes and Ollama (VM 105) are
+retained, disabled/stopped, as rollback paths. The validated deployed state
+is recorded in `Current-Network-Baseline.md`.
 
 ---
 
@@ -137,8 +139,8 @@ The final VLAN numbers and subnets will be documented separately in:
  VLAN 10           VLAN 20              VLAN 50          VLAN 70
  Trusted           Servers              Management       Lab
       |               |                    |                |
- Personal        Docker / Pi-hole      Proxmox          Hermes
- computers       Frigate / HA          Arista           Ollama
+ Personal        Docker / Pi-hole      Proxmox          Aster
+ computers       Frigate / HA          Arista           llama.cpp
  and phones      TrueNAS               UniFi
                  Synology
                       |

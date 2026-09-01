@@ -8,7 +8,7 @@ Sandbox network access is restricted to the hosts listed in `.claude/settings.js
 ## Network topology
 - Servers VLAN 20: Main Synology DS920+ at 192.168.20.41 (Drive server, primary family
   data), Backup Synology at 192.168.20.42 (Hyper Backup repository)
-- Management VLAN 50: Lenovo NUT server at 192.168.50.25 (Debian 12, user `jason`,
+- Management VLAN 50: Lenovo NUT server at 192.168.50.25 (Debian 13/trixie, user `jason`,
   sudo available), gateway 192.168.50.1
 - OPNsense is the gateway/DNS/firewall (Dell EMC SD-WAN Edge 610)
 - Tailscale is the preferred private remote-access path — no broad DSM internet exposure

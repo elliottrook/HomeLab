@@ -179,8 +179,8 @@ FPS being healthy proves nothing about detection.
 
 - Per Milestone 3: observe at least 24 hours of healthy recording (both
   cameras) before onboarding another.
-- Update `docs/07-Surveillance.md` (baseline), `docs/VLAN-Design.md` (device
-  table), `configs/devices.conf` and `configs/services.conf` (add the new
+- Update `docs/07-Surveillance.md` (baseline), `docs/Current-Network-Baseline.md`
+  (device table), `configs/devices.conf` and `configs/services.conf` (add the new
   camera's SSH-alias-equivalent row if it gets one), and check off the relevant
   Milestone 3 items in `Surveillance-Expansion.md`, including an Evidence Log
   entry.

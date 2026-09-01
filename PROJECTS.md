@@ -1,7 +1,5 @@
 # Jason's HomeLab Roadmap
 
-> Last Updated: 2026-08-24
->
 > **Initial-build record:** This file is the completion record for the original
 > HomeLab build. Major enhancements are governed by separate project documents
 > in [`docs/projects`](docs/projects/README.md). Detailed commands, credentials,

@@ -22,6 +22,7 @@
 |Authentik LXC 106|192.168.50.22|
 |Reverse Proxy LXC 107|192.168.50.23|
 |Forgejo LXC 108|192.168.20.30|
+|Observability LXC 109|192.168.20.31|
 |Reolink Duo 2V PoE|192.168.60.10|
 
 The AP Switch management plane appears on VLAN 1/untagged despite its
@@ -67,12 +68,13 @@ Both Pi-hole resolvers publish `truenas.internal` as an A record for
 | Home Assistant | `http://home-assistant.home.internal` (`192.168.20.11`) | 80/TCP | Pilot operational |
 | Lutron Caséta bridge | `192.168.30.102` | 8081/8083 TCP | Reserved; integrated with Home Assistant |
 | Philips Hue bridge | `192.168.30.164` | 80/443 TCP | Reserved; integrated with Home Assistant |
+| Aqara Hub M3 | `192.168.30.158` | Matter | Integrated with Home Assistant; six water sensors, shutoff valve, lock |
 
 ## Local AI Lab endpoints
 
 | Service | Address | Port | Status |
 |---|---|---:|---|
-| Aster Agent API/UI | `http://192.168.70.10:9120` | Aster llama.cpp GPU LXC 110 | Active; bearer authentication required for chat API |
+| Aster Agent API/UI | `http://192.168.70.10:9120` | 9120/TCP | Active; bearer authentication required for chat API |
 | Ollama VM 105 API | `http://192.168.70.11:11434/v1` | 11434/TCP | Stopped rollback guest |
 | Aster llama.cpp API | `http://192.168.70.12:11435/v1` | 11435/TCP | Active; bearer-authenticated B60 Vulkan backend; Lab VLAN only |
 

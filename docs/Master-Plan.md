@@ -222,7 +222,8 @@ Monitoring
 HomeLab Doctor — functional health and failure-only reporting
 Beszel — lightweight host and container history
 Homepage — daily service view
-Future bounded enhancement: Prometheus/Grafana observability
+Prometheus/Grafana — bounded long-term metrics and dashboards, complete and
+retained (see `docs/projects/completed projects/Prometheus-Grafana-Observability.md`)
 
 ---
 
