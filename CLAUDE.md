@@ -262,28 +262,68 @@ Hard rules:
   without asking first once the host is in the sandbox network allowlist. Any
   SSH/SCP command that changes state on a remote host (file writes, service
   restarts, deletions), plus `sudo` and package installs, remain always-ask, every
-  time, even mid-session.
+  time, even mid-session — unless covered by an active **per-project
+  authorization** (see below).
 - Changes that alter the network's security posture or structure — VLAN membership,
   firewall rules, DNS/routing, credentials, encryption, shared-folder ACLs, or
   inter-host trust (including adding a new device's SSH key to `authorized_keys`) —
   may be made, but only when all three hold:
-  1. Jason has given explicit permission for that specific change.
+  1. Jason has given explicit permission for that specific change, or the change
+     falls within an active per-project authorization (see below).
   2. The change is required by the active project's stated goal, not general
      convenience or "while we're in there" scope creep.
   3. The change is the most minimal one that achieves that goal, preserving the
      existing security posture in every other respect (narrowest scope, narrowest
      source/destination, shortest-lived exception that still works).
 
-  Pre-approval for other actions in a session never extends to this category —
-  always ask per change, even mid-session, even for a project where SSH/SCP or
-  other actions are otherwise pre-approved.
+  Pre-approval for other actions in a session never extends to this category by
+  default — always ask per change, even mid-session, even for a project where
+  SSH/SCP or other actions are otherwise pre-approved — **unless** Jason has
+  granted a per-project authorization under the terms below.
 
   If a proposed change would trade off against a safety/privacy standard stated
   elsewhere in this document, do not just make the call and note it afterward. Stop
   first, name the conflict explicitly, and lay out concretely: what capability is
   gained, what exposure/risk is added, whether a narrower version of the change
   would still meet the goal, and the rollback path — so Jason decides with the full
-  trade-off in view, not just the recommendation.
+  trade-off in view, not just the recommendation. This applies even under an active
+  per-project authorization; that authorization removes the need to ask before each
+  anticipated step, not the judgment call about an unanticipated trade-off.
+
+### Per-project authorization (exception to per-change approval)
+
+This file's ask-before-every-meaningful-action default is not set in stone —
+it's expected to loosen for specific, bounded work as Jason's confidence in a
+given kind of task grows. Jason may lift the per-change approval requirement
+above for one specific, named project (e.g. "run the NetBox DCIM project
+through to completion without asking me at each step") by saying so
+explicitly, in that project's own conversation. Until that happens, the
+default above still applies in full.
+
+A per-project authorization, once granted:
+
+- Covers only the named project it was granted for. It is never a standing
+  blanket exception and is never inherited by a later, different project —
+  each project needs its own explicit grant.
+- Does not remove the rollback-route requirement: every state-changing action
+  taken under the authorization must have a documented rollback path, recorded
+  as part of planning that step, not reconstructed after the fact.
+- Does not remove the minimal-change requirement: every action must be the
+  least invasive one that achieves the project's stated objective, preserving
+  the lab's high-security, high-privacy posture in every other respect —
+  narrowest scope, narrowest source/destination, shortest-lived exception,
+  exactly as required for a per-change-approved security-posture change above.
+- Does not authorize destructive or irreversible actions beyond what the
+  general safety rules elsewhere in this file already permit, and does not
+  authorize work outside the scope of the named project's own document (see
+  "Scope changes to what the current project's active milestone actually
+  requires" below).
+- Does not remove the requirement to stop and ask about an unanticipated
+  safety/privacy trade-off, per the paragraph above — it only removes the need
+  to ask before each already-anticipated, in-scope step.
+- Does not extend to anything a physical human step is required for (e.g. a
+  physical inventory walk-through) — those remain genuinely blocking regardless
+  of authorization.
 - Scope changes to what the current project's active milestone actually requires.
   Don't fix, tidy or reconfigure adjacent systems in passing — flag it and ask, or
   note it as a follow-up, instead of doing it unprompted.
