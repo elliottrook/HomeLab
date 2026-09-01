@@ -1,11 +1,15 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Milestone 2 complete; Milestones 3 and 4 in progress (overnight
-> unattended copy running)
+> Status: Milestones 1–8 complete. Milestone 9 (closeout) mostly complete —
+> remaining: revoke the temporary Jellyfin API key, decide the migration
+> staging directory's retention, and decide whether to act on the open
+> Jellyfin backup-coverage gap. Plex source media (Movies + TV Shows) was
+> deleted from the Synology 2026-09-01 with Jason's explicit approval; Plex
+> itself remains installed, not yet stopped.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-30
+> Last updated: 2026-09-01
 >
 > **Execution order note (2026-08-30):** Milestone 4 (music staging,
 > normalization and merge) is being executed before Milestone 3 (archive video
@@ -1339,9 +1343,60 @@ the first thing to check.
   `plex-to-jellyfin-playlist-map.json`); collections 167/168 covered with
   real membership (1 exception, see above, root cause is the same 34
   unresolved movies, not a new gap).
-- [ ] Keep Plex operational during an agreed observation period.
-- [ ] Obtain Jason's approval before deleting any Plex library, database,
-  playlist, collection or source media.
+- [x] Keep Plex operational during an agreed observation period. —
+  **Superseded by Jason's explicit decision, see Plex disposition below.**
+  No formal multi-day/week observation window ran; Jason chose to proceed
+  directly to source deletion, substituting the Backup Synology's one-month
+  retention as the safety net instead of a pre-deletion observation period.
+- [x] Obtain Jason's approval before deleting any Plex library, database,
+  playlist, collection or source media. — **Approved 2026-09-01**, see
+  "Plex disposition and source deletion" below for the full decision record.
+
+### Plex disposition and source deletion (2026-09-01)
+
+Discussed directly with Jason, in two parts: what happens to the Plex
+**application**, and separately, what happens to the **source media
+files** on the Synology — the second being the genuinely irreversible
+piece.
+
+**Risks raised before acting:** 34 of 898 movies were never resolved to a
+Jellyfin match (Milestone 5) and would have no fallback; Jellyfin's own
+application database has no automated backup coverage yet (documented
+gap, see Milestone 9/05-Backups.md); no formal observation period had
+actually run despite real usage evidence; and every prior deletion in this
+project was preceded by a checksum-verified copy plus individual review,
+unlike a bulk deletion.
+
+**Jason's decisions:**
+- Plex application: **stop serving, keep installed** — not actioned as
+  part of this conversation (a separate step; Plex was left running through
+  the deletion below since stopping the service isn't required for file
+  deletion).
+- Source media: delete now. Jason's stated mitigation: an existing Hyper
+  Backup task (`Media Backup`, on the Backup Synology, pre-dating this
+  project — see the "Synology Drive same-site backup" section of
+  [05-Backups.md](../05-Backups.md)) already covers this media, and Jason
+  will retain that backup for one month as the safety net in place of a
+  pre-deletion observation window.
+- Scope, clarified explicitly before acting: `/volume1/Plex/Movies` and
+  `/volume1/Plex/TV Shows` only. The separate `/volume1/Music` share
+  (~135 GiB, already fully copied into Jellyfin's music library in
+  Milestone 4) was explicitly excluded and left untouched.
+
+**Executed 2026-09-01 21:52 UTC.** Recorded pre-deletion counts (2,823
+files under `Movies`, 18,921 under `TV Shows`), then removed both
+directories via `rm -rf /volume1/Plex/Movies /volume1/Plex/'TV Shows'` over
+SSH as `jason`. Confirmed complete: both paths no longer exist under
+`/volume1/Plex/` (only the pre-existing `.DS_Store`, `@eaDir` and empty
+`downloads` remain), and Synology `/volume1` free space rose to 9.2 TB
+available. This SSH command used Jason's own general-access key, not the
+project's restricted read-only rsync key (which cannot write or delete).
+
+Note this bypassed Synology's Recycle Bin — deletion via SSH `rm -rf` is
+immediate and does not move files to a recoverable trash the way a File
+Station-initiated delete would. The one-month `Media Backup` Hyper Backup
+retention is therefore the only recovery path for this data going forward,
+not a Recycle Bin.
 
 ### Album-grouping investigation and remediation attempts (2026-09-01)
 
@@ -1540,20 +1595,33 @@ deletion is a separate destructive operation requiring explicit approval.
 
 ## Completion gate
 
-- [ ] All media transfer checksums and count reconciliations pass.
-- [ ] Existing Jellyfin video libraries are unchanged and archive libraries are
+- [x] All media transfer checksums and count reconciliations pass.
+- [x] Existing Jellyfin video libraries are unchanged and archive libraries are
   separate.
-- [ ] Music is consolidated into one album-structured root with no unresolved
-  destructive duplicate decisions.
-- [ ] All playlists have a recorded pass, exception or deferral state.
-- [ ] All movie collections have a recorded pass, exception or deferral state.
-- [ ] Representative playback succeeds from each new library and migrated
-  object type.
-- [ ] Jellyfin logs contain no unresolved migration-related errors.
-- [ ] Backup and rollback procedures are tested or otherwise validated.
+- [x] Music is consolidated into one album-structured root with no unresolved
+  destructive duplicate decisions. — Deletion decisions were all individually
+  reviewed (no batch/automatic deletion). One non-destructive cosmetic gap
+  remains open: 39 albums display as multiple entries due to a Jellyfin
+  metadata-grouping bug (see Milestone 8) — no data was lost, nothing
+  destructive is unresolved.
+- [x] All playlists have a recorded pass, exception or deferral state.
+- [x] All movie collections have a recorded pass, exception or deferral state.
+- [x] Representative playback succeeds from each new library and migrated
+  object type. — Confirmed both via this session's API-level checks and
+  Jason's own client-side test (Project Hail Mary, Star Wars Episode I).
+- [x] Jellyfin logs contain no unresolved migration-related errors.
+- [ ] Backup and rollback procedures are tested or otherwise validated. —
+  **Not fully passed.** Media transfer rollback was validated throughout
+  (copy-first, checksum-verified). Jellyfin's own application-database
+  backup coverage is a known, documented gap (see Milestone 9/
+  05-Backups.md) — not yet closed.
 - [ ] Temporary credentials are revoked and protected manifests are retained.
-- [ ] Documentation and evidence logs are current.
-- [ ] Jason approves the final Plex disposition and any source cleanup.
+  — Manifests retained (Milestone 9). Jellyfin API key not yet revoked —
+  still open.
+- [x] Documentation and evidence logs are current.
+- [x] Jason approves the final Plex disposition and any source cleanup. —
+  **Approved and executed 2026-09-01**, see "Plex disposition and source
+  deletion" under Milestone 8 above.
 
 ## Evidence log
 
