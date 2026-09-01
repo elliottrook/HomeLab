@@ -252,6 +252,10 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         re.search(r"second[- ]brain", query, re.I)
         and re.search(r"\b(checklist|implementation tasks|unchecked)\b", query, re.I)
     )
+    focused_monitoring = bool(
+        re.search(r"\b(monitoring|health)\b", query, re.I)
+        and re.search(r"\b(three|layers)\b", query, re.I)
+    )
     provenance = _provenance(root)
     ranked: list[tuple[int, str, str]] = []
     for path in sorted(root.rglob("*")):
@@ -270,6 +274,10 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
             total_hits = sum(normalized.count(token) for token in tokens)
             score = unique_hits * 10 + min(total_hits, 10)
             if focused_checklist and relative.endswith("AI-Hermes-Second-Brain.md") and "- [ ]" in normalized:
+                score = max(score, 1)
+            if focused_monitoring and relative == "reference/operations/monitoring.md" and re.search(
+                r"## (?:1\.|2\.|3\.)", chunk
+            ):
                 score = max(score, 1)
             if score:
                 matches = [match.start() for token in tokens for match in re.finditer(re.escape(token), normalized)]
@@ -321,6 +329,8 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
     selected: list[tuple[int, str, str]] = []
     if focused_checklist:
         selected = [item for item in ranked if item[1].endswith("AI-Hermes-Second-Brain.md")][:limit]
+    elif focused_monitoring:
+        selected = [item for item in ranked if item[1] == "reference/operations/monitoring.md"][:limit]
     else:
         seen_sources: set[str] = set()
         for item in ranked:

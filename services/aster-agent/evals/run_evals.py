@@ -12,7 +12,8 @@ from pathlib import Path
 
 
 def contains(text: str, value: str) -> bool:
-    return value.casefold() in text.casefold()
+    normalize = lambda item: item.replace("’", "'").casefold()
+    return normalize(value) in normalize(text)
 
 
 def main() -> int:
