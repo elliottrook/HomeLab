@@ -972,6 +972,21 @@ overview/artwork reapplication (names were set at creation; overview and
 artwork fields weren't part of what Milestone 1 exported, so there's nothing
 to reapply without a separate export pass).
 
+**Real-client bug found and fixed 2026-09-01.** Jason's own client-side
+check (Milestone 8) found every playlist showing up twice. Root cause: this
+Jellyfin installation doesn't restrict playlist visibility by owner — a
+check confirmed both `elliottrook` and `jason` could see all 23 playlist
+objects (both per-user copies of all 11 playlists), not just their own, so
+creating one copy per account (the deliberate Milestone 6 design decision)
+just doubled what everyone saw rather than giving each person a private
+copy. Per Jason's decision, consolidated to one shared playlist per name:
+verified all 11 duplicate pairs held byte-identical membership and order
+first, then deleted one copy of each via `DELETE /Items/{id}`. Left the
+pre-existing "All I want for Christmas" playlist untouched (not one of this
+project's 11 — a single copy already, unrelated to the migration). Final:
+12 playlist objects total (11 migrated + 1 pre-existing), both accounts now
+see exactly one entry per playlist.
+
 ## Milestone 7 — Plex movie collection transfer
 
 ### Classify first
@@ -1221,11 +1236,15 @@ the report.
   source files never had lyrics embedded). Artwork: 720/741 album objects
   have a cover image; 21 missing are untouched pre-existing gaps unrelated
   to this project.
-- [ ] Test at least one migrated playlist in each supported Jellyfin client used
-  by the household. — **Needs Jason** (see "Client-side testing needed"
-  below); this session has no Jellyfin login and cannot drive a real client.
-- [ ] Test at least one manual collection and one TMDb-derived box set. —
-  **Needs Jason**, same reason.
+- [x] Test at least one migrated playlist in each supported Jellyfin client used
+  by the household. — **Done by Jason, 2026-09-01, via Jellyfin Web.** Found
+  a real bug in the process: every playlist appeared twice. Root-caused and
+  fixed — see the Milestone 6 gate section above.
+- [x] Test at least one manual collection and one TMDb-derived box set. —
+  **Done by Jason, 2026-09-01.** Collections displayed correctly on the home
+  screen (see screenshot evidence); no issues reported for collections
+  specifically. Also surfaced the home-screen library tile ordering request
+  — see "Home screen library order" below.
 - [x] Review Jellyfin logs for scan, metadata, permissions and playback
   errors. — **Passed 2026-09-01**, no unresolved real errors. Reviewed
   `log_20260901.log` (40,632 lines) and `log_20260831.log` in full. Findings,
@@ -1331,18 +1350,26 @@ minor cosmetic limitation.
 
 ### Client-side testing needed
 
-The following Milestone 8 items need a real Jellyfin client login, which
-this session cannot do (entering account credentials into any login form is
-outside what this project can do on Jason's behalf): playing a migrated
-playlist through in each client the household actually uses; playing at
-least one manual collection and one TMDb-derived box set; and a first-hand
-look at the still-split album entries above. Recommended representative
-items from this session's API-level checks: `Project Hail Mary` (35
-subtitle tracks) and `Star Wars: Episode I — The Phantom Menace` (7 audio
-tracks) for the subtitle/audio checklist item; any of the 11 migrated
-playlists on either the `elliottrook` or `jason` account for the playlist
-item; the "Batman Collection" (manually corrected this session) and any
-plugin-generated box set for the collection item.
+Jason completed the playlist and collection checks above via Jellyfin Web on
+2026-09-01, which found and enabled fixing the playlist-duplication bug.
+Still outstanding, needing a real client (this session has no Jellyfin login
+and won't enter one): direct-play/transcode/subtitle/multi-audio-track
+verification against the specific representative items identified during
+this session's API checks — `Project Hail Mary` (35 subtitle tracks) and
+`Star Wars: Episode I — The Phantom Menace` (7 audio tracks).
+
+### Home screen library order
+
+Jason requested the home screen's library tile order be changed from
+Jellyfin's default (newest-created libraries first: Archive Movies, Archive
+TV, Collections, Movies, Music, ...) to Shows, Movies, Music, Playlists,
+Archive TV, Archive Movies, Collections. Fixed 2026-09-01 via each user's
+`OrderedViews` configuration field (`POST /Users/{id}/Configuration`) —
+applied to all 6 accounts on the server (`alisa`, `carter`, `elliottrook`,
+`jason`, `jen`, `justin`) for a consistent household experience, using each
+library's view ID: Shows (`a656b907...`), Movies (`f137a2dd...`), Music
+(`7e64e319...`), Playlists (`4838f74f...`), Archive TV (`10f168d0...`),
+Archive Movies (`0064264a...`), Collections (`9d7ad6af...`).
 
 ## Milestone 9 — Documentation, backup and closeout
 
