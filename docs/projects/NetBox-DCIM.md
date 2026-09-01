@@ -153,8 +153,41 @@ same way a hand-maintained one does.
   integration yet — private LAN/Tailscale access only, per the Milestone 1
   decision. Port mapping: `8000:8080` (host:container), bound to the LXC's
   single interface (`192.168.20.32`) only.
-- [ ] Add to HomeLab Doctor, backup coverage, and Beszel/monitoring following
-  the existing per-service pattern.
+- [~] Add to HomeLab Doctor, backup coverage, and Beszel/monitoring following
+  the existing per-service pattern. **Doctor and Layer-1/Layer-2 backup
+  coverage done; Beszel and the live Backup Synology task remain open.**
+  - [x] Added `check_netbox()` to `scripts/doctor.sh` (containers healthy
+    check across all five services, login-page HTTP check via
+    `pct exec 111`) and a `check_proxmox_guest_backup_age "NetBox LXC 111"`
+    entry. Live-tested: caught and fixed a real bug on first run (the
+    function tried `cd /opt/netbox` on the Proxmox host itself instead of
+    inside the guest via `pct exec`) before considering this done — same
+    "verify, don't assume" standard as the rest of this repo's Doctor
+    checks.
+  - [x] Confirmed the enabled local Proxmox backup job (Layer 1) uses
+    `all 1` (every guest, no explicit VMID list), so LXC 111 is already
+    included automatically — no config change needed, first archive lands
+    at tonight's 02:30 run.
+  - [x] Added LXC 111 to both filter blocks (copy + checksum-verify) in
+    `scripts/backup/synology-proxmox-pull.sh`, the repo's canonical
+    reference for the Backup Synology's pull task body (Layer 2). While in
+    there: confirmed LXC 110 (Aster llama.cpp) is **also** still missing
+    from this same filter — a pre-existing gap from before this project,
+    already flagged separately in `05-Backups.md`'s Aster section as an
+    open backup-workflow follow-up. Left untouched — fixing it isn't part
+    of this project's scope.
+  - [ ] **Open:** the *live* DSM scheduled task on the Backup Synology
+    still needs the same filter update — this repo script is the
+    canonical reference body, not the executing task itself. Earlier
+    entries in this repo (e.g. the Observability LXC 109 rollout) made
+    this exact kind of edit "through DSM's supported scheduler API," which
+    needs either the same care taken there or Jason's direct involvement —
+    not attempted here without a clearer read on that mechanism first.
+  - [ ] Add LXC 111 to Beszel monitoring — not yet done.
+  - [ ] Add configs/services.conf plain-TCP entry — **done** (`netbox`,
+    `192.168.20.32:8000`), confirmed passing via Doctor's "Checking
+    configured services" section. `configs/devices.conf` also updated to
+    match the existing per-LXC pattern.
 
 ## Milestone 3 — Data population
 

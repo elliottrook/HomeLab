@@ -71,6 +71,7 @@ if ! rsync -rlt \
   --include='vzdump-lxc-107-*.tar.zst' \
   --include='vzdump-lxc-108-*.tar.zst' \
   --include='vzdump-lxc-109-*.tar.zst' \
+  --include='vzdump-lxc-111-*.tar.zst' \
   --exclude='*' \
   -e "$ssh_command" \
   "$remote:/" \
@@ -100,6 +101,7 @@ if ! rsync -rltc \
   --include='vzdump-lxc-107-*.tar.zst' \
   --include='vzdump-lxc-108-*.tar.zst' \
   --include='vzdump-lxc-109-*.tar.zst' \
+  --include='vzdump-lxc-111-*.tar.zst' \
   --exclude='*' \
   -e "$ssh_command" \
   "$remote:/" \

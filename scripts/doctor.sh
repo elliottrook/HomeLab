@@ -697,6 +697,51 @@ REMOTE
     fi
 }
 
+check_netbox() {
+    local output
+    local containers=""
+    local login_status=""
+
+    if ! output="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 proxmox /bin/bash -s <<'REMOTE'
+printf 'containers=%s\n' "$(pct exec 111 -- bash -c 'cd /opt/netbox && docker compose ps --format "{{.Service}}={{.Health}}"' 2>/dev/null | tr '\n' ' ')"
+printf 'login_status=%s\n' "$(pct exec 111 -- curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://127.0.0.1:8000/login/ 2>/dev/null)"
+REMOTE
+    )"; then
+        warn "Unable to collect NetBox health data"
+        return
+    fi
+
+    while IFS='=' read -r key value; do
+        case "$key" in
+            containers) containers="$value" ;;
+            login_status) login_status="$value" ;;
+        esac
+    done <<< "$output"
+
+    local expected=(netbox netbox-worker postgres redis redis-cache)
+    local failures=()
+    local service
+    local state
+
+    for service in "${expected[@]}"; do
+        state="$(grep -oE "${service}=[a-z]+" <<< "$containers" | cut -d= -f2)"
+        if [[ "$state" != "healthy" ]]; then
+            failures+=("$service=${state:-missing}")
+        fi
+    done
+
+    if [[ "$login_status" != "200" ]]; then
+        failures+=("login page HTTP ${login_status:-unreachable}")
+    fi
+
+    if (( ${#failures[@]} > 0 )); then
+        fail "NetBox health issue: ${failures[*]}"
+    else
+        pass "NetBox healthy; all five containers up, login page HTTP 200"
+    fi
+}
+
 check_observability() {
     local output
     local services=""
@@ -1008,6 +1053,7 @@ check_arista
 check_proxmox
 check_aster
 check_nut
+check_netbox
 check_observability
 check_truenas
 check_frigate
@@ -1052,6 +1098,7 @@ check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
 check_proxmox_guest_backup_age "Aster llama.cpp LXC 110" 110 30 lxc
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
+check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
 check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
 check_synology_drive_backup 30
