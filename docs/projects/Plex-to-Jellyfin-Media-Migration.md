@@ -711,6 +711,33 @@ of a real duplication concern).
   not yet resolved: "Various Artists/Perfect Love, Vol. 2 Disc 1" still has
   a stray untagged track and is worth a closer look.
 
+**Jellyfin indexing note — resolved 2026-08-31/09-01.** After the tag fixes
+landed, Jellyfin's reported counts didn't move at all (stayed at 741/8,054
+through two separate refresh attempts, including an explicit
+`MetadataRefreshMode=FullRefresh&ReplaceAllMetadata=true` call). Root cause:
+every track carried a leftover MusicBrainz Album ID (and related Release
+Group/Track/Status/Type identifiers) from whichever original source it was
+ripped from — confirmed by checking 6 tracks in one folder and finding 6
+completely different Album IDs. With `EnableInternetProviders: false`,
+Jellyfin isn't calling the MusicBrainz API, but it still trusts an embedded
+MusicBrainz Album ID as the authoritative local album-identity key over the
+plain-text `album` tag, so it kept grouping by the stale original-source
+identity. Stripped the stale album/release-level identifiers (kept
+per-recording/per-artist ones, which remained accurate) across the same 97
+folders — 705 of 1,469 tracks affected. Even after that, a refresh still
+didn't rename the already-created `MusicAlbum` container entities (confirmed
+by refreshing one directly by ID: the track underneath correctly showed
+`Album: Caribbean Uncovered`, but the container object kept its stale
+`Caribbean Uncovered [Disc 1]` name) — Jellyfin's album containers are
+created once and don't get renamed by a refresh, only their children get
+re-validated. Fix: removed and re-added the Music library in Jellyfin
+(config captured and preserved exactly — path, `EnableInternetProviders:
+false`, `SaveLocalMetadata`, `PreferNonstandardArtistsTag` — verified after
+recreation), forcing a full rebuild from the current, correct file tags.
+Source files were never touched by any of this — only Jellyfin's database
+records. No playlists or watch history existed yet for this content, so
+there was nothing to lose.
+
 ### Music naming target
 
 ```text
