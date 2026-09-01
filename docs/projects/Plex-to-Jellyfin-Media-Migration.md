@@ -1,11 +1,12 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Milestones 1–8 complete. Milestone 9 (closeout) mostly complete —
-> remaining: revoke the temporary Jellyfin API key, decide the migration
-> staging directory's retention, and decide whether to act on the open
-> Jellyfin backup-coverage gap. Plex source media (Movies + TV Shows) was
-> deleted from the Synology 2026-09-01 with Jason's explicit approval; Plex
-> itself remains installed, not yet stopped.
+> Status: Milestones 1–9 essentially complete. Only the open Jellyfin
+> backup-coverage follow-up (needs Jason's decision on schedule/mechanism)
+> and stopping the still-installed Plex service (a separate, not-yet-
+> actioned step) remain before this project can be marked `Complete`. Plex
+> source media (Movies + TV Shows) was deleted from the Synology
+> 2026-09-01 with Jason's explicit approval; the temporary Jellyfin API key
+> is revoked and the migration staging directory has been removed.
 >
 > Project owner: Jason
 >
@@ -1542,11 +1543,34 @@ Archive Movies (`0064264a...`), Collections (`9d7ad6af...`).
   The two existing manual snapshots do capture the current (recovered)
   state as of the times they were taken, but nothing since, and nothing
   automated going forward until the follow-up above is actioned.
-- [ ] Record temporary API-key revocation and token cleanup.
-- [ ] Remove the migration staging directory only after the rollback window
-  expires and deletion is explicitly approved.
-- [ ] Record whether Plex remains available, is retained offline or is retired.
+- [x] Record temporary API-key revocation and token cleanup. — **Done
+  2026-09-01.** Revoked the temporary `claude` Jellyfin API key
+  (`DELETE /Auth/Keys/{key}`, confirmed via a subsequent call returning
+  `401`). The two other, unrelated pre-existing keys ("Seer"/"Seerr", both
+  already inactive) were left untouched — not this project's to manage.
+- [x] Remove the migration staging directory only after the rollback window
+  expires and deletion is explicitly approved. — **Done 2026-09-01, per
+  Jason's approval** (given alongside the Plex source-deletion decision
+  above). Before deletion, pulled every report/log file from
+  `migration/reports/` and the 3 top-level shell scripts (20 files total,
+  not previously captured) into `~/lab/private-backups/
+  plex-jellyfin-migration/truenas-reports/`, alongside the 28
+  manifest/report files already saved there. The removed
+  `migration/plex-music/` staging copy (134 GB) was fully redundant by this
+  point — the original source remains untouched at `/volume1/Music` on the
+  Synology, and the live merged copy in Jellyfin's music root was
+  checksum-verified during Milestone 4. Removed
+  `/mnt/Media/data/migration/` entirely via `rm -rf`; confirmed gone,
+  freeing 134 GB.
+- [x] Record whether Plex remains available, is retained offline or is
+  retired. — Plex application remains installed on the Synology; per
+  Jason's decision (Milestone 8, "Plex disposition"), it will be stopped
+  from serving as a separate, not-yet-actioned step. Its source media
+  (Movies + TV Shows) has been deleted; the Plex application/database
+  itself has not been touched or uninstalled.
 - [ ] Update this project status to `Complete` only after the completion gate.
+  — Not yet: the completion gate's backup-coverage item remains open (see
+  above).
 
 ## Rollback plan
 
