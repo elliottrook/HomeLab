@@ -207,23 +207,77 @@ scope for this project** — a separate decision for later.
 
 ## Milestone 1 — Inventory and discovery
 
-- [ ] Record the exact source paths, application-config paths, and
-  destination scope of all three current Hyper Backup jobs.
-- [ ] Live-check TrueNAS's current pool free capacity, CPU, and RAM
-  headroom — do not reuse the 2026-08-30 figures.
-- [ ] Confirm the IDrive e2 bucket's current versioning/retention
-  configuration; decide whether it already meets this design's
-  requirement or whether a new bucket/configuration is needed.
-- [ ] Decide the TrueNAS dataset layout and naming for the backup landing
-  zone.
-- [ ] Confirm the next available Proxmox VMID and a free Servers VLAN 20
-  address for the new off-site relay LXC, the same way every other guest
-  in this repo has been placed — verified live, not assumed.
+- [x] Record the exact source paths, application-config paths, and
+  destination scope of all three current Hyper Backup jobs. **Sourced
+  from `docs/05-Backups.md` (written when these tasks were originally
+  built), not independently re-verified via DSM CLI** — attempted
+  `/usr/syno/bin/synoschedtask --get` on `gowest` to pull the live
+  `Synology Drive Backup` task config directly; it fails silently (empty
+  stdout/stderr, exit 255) over a bare SSH exec, likely because it needs
+  a DSM session/service context that isn't present outside the web UI.
+  Not worth forcing — the existing documentation is specific and was
+  written at task-creation time, which is good enough confidence for this
+  design phase. Recorded scope:
+  - **`Mini Atlas Offsite`** (ran on the now-retired Backup Synology):
+    `Backup/HomeLab-Backups/automated/{private-backups,proxmox-guests}` —
+    plain files only, no application state. Fully superseded by this
+    project's design; nothing extra needed to replace it.
+  - **`Synology Drive Backup`** (runs on `gowest`): shared folders `homes`
+    and `Family Documents`, **plus application data** for the
+    `SynologyDrive` package (Team Folder/sharing/quota/retention
+    settings) and the `HyperBackup` package's own configuration. **This is
+    the one that needs care** — a plain rsync of `homes`/`Family
+    Documents` will not capture the `SynologyDrive` app-config state.
+    Milestone 2's rsync source list must explicitly include the relevant
+    `@appdata` path for `SynologyDrive`, not just the two shared folders,
+    or this task is not actually equivalent once retired.
+  - **`Media Backup`** (pre-existing, Plex-era, not created by this
+    project or the Synology Drive project): protected Plex media. Plex
+    source media was already retired as part of the completed
+    Plex-to-Jellyfin migration — confirm with Jason whether this task
+    still protects anything meaningful before assuming it needs a
+    replacement at all; may simply be moot.
+- [x] Live-check TrueNAS's current pool free capacity, CPU, and RAM
+  headroom. **`Media` pool: 21.8T total, 15.0T allocated (68%), 6.78T
+  free** — materially less free than the stale 15.6 TiB/28%-used figure
+  from 2026-08-30, confirming that figure was right to distrust; the
+  Plex-to-Jellyfin migration consumed the difference. Still comfortable
+  headroom for backup data (family documents/photos, not another full
+  media library). **RAM: 31 GB total, only ~3.4 GB "available"** per
+  `free -h` — looks tight at a glance, but TrueNAS/ZFS's ARC cache
+  deliberately holds RAM as "used" that's reclaimable under pressure, so
+  this isn't the same signal it would be on a non-ZFS host. Load average
+  low (0.2–0.9 on 12 cores). Not treated as a blocker, but worth a second
+  look if the new rsync/snapshot load turns out to be heavier than
+  expected.
+- [~] Confirm the IDrive e2 bucket's current versioning/retention
+  configuration. **Deferred to Milestone 3** — this is most naturally
+  checked once `rclone` is actually configured against the bucket (it can
+  query bucket versioning directly), rather than guessed at now without
+  the tooling in hand. Recorded here so it isn't silently dropped.
+- [x] Decide the TrueNAS dataset layout and naming for the backup landing
+  zone. **Decision: `Media/backup/gowest`** (within the existing `Media`
+  pool — no case for a dedicated new pool given 6.78T free headroom and
+  no additional physical disks in scope), with subdirectories matching
+  the actual shared folders (`homes`, `Family Documents`, the
+  `SynologyDrive` app-config path) created during Milestone 2 once the
+  rsync source list is finalized.
+- [x] Confirm the next available Proxmox VMID and a free Servers VLAN 20
+  address for the new off-site relay LXC. **VMID 112, `192.168.20.33`** —
+  confirmed live: VMIDs 100–111 all in use (112 free), and `.33` has no
+  ping response, no ARP entry, and no OPNsense static DHCP mapping, same
+  verification standard used for every other guest placed this session.
 
 ### Gate
 
 Do not create any TrueNAS dataset, LXC, or credential until the exact
 scope of what's being replaced is confirmed in writing here.
+
+**Gate passed 2026-09-02** — the one real risk found (`SynologyDrive`
+app-config not captured by a plain shared-folder rsync) is now an explicit
+Milestone 2 requirement rather than a silent gap. `Media Backup`'s
+continued relevance needs a quick confirmation from Jason but doesn't
+block starting Milestone 2 on the parts that are unambiguous.
 
 ## Milestone 2 — TrueNAS local replication and snapshot retention
 
@@ -339,3 +393,4 @@ as current.
 |---|---|---|---|
 | 2026-09-02 | 0 (design) | Diagnosed Backup Synology + gowest instability under Hyper Backup load this session (network/disk/reboot ruled out as causes); synthesized a three-way design discussion (Claude + a second AI's proposal, refined with Jason) into this project | Recorded above |
 | 2026-09-02 | 0 (authorization) | Per-project authorization granted by Jason, with the Milestone 4 dual-restore gate explicitly preserved as a condition of the grant, not something it waives | Recorded above |
+| 2026-09-02 | 1 | Live TrueNAS check (6.78T free of 21.8T, RAM tight but ZFS-ARC-explained, load low); Proxmox/OPNsense check confirmed VMID 112 and `192.168.20.33` free; Hyper Backup job scope recorded from `05-Backups.md` after live DSM CLI verification failed silently on `gowest`; TrueNAS dataset layout decided (`Media/backup/gowest`) | Gate passed; IDrive versioning check deferred to Milestone 3 with reason |
