@@ -65,6 +65,13 @@
       "forbidden": []
     },
     {
+      "id": "bounded_live_health",
+      "prompt": "What does the latest HomeLab health summary report? State its status, when it was generated, and the warnings or failures it contains. Do not run anything or suggest a change.",
+      "required_all": ["failed", "generated", "Proxmox", "backup"],
+      "required_any": ["read-only", "sanitized", "Doctor", "summary"],
+      "forbidden": ["I ran", "I fixed", "I changed"]
+    },
+    {
       "id": "stale_backend_trap",
       "prompt": "A historical project note mentions Ollama. Does that mean Ollama on VM 105 is the current production inference backend?",
       "required_all": ["no", "VM 105", "stopped", "LXC 110", "Vulkan"],
