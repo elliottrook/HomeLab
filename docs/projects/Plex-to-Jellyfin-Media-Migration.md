@@ -1395,18 +1395,48 @@ unlike a bulk deletion.
 space now, specifically, is that the Backup Synology (192.168.20.42) —
 today's target for `Media Backup` and every other same-site backup task —
 has become unstable under load (very limited RAM, measured in MB, plus a
-near-full volume) and is currently unplugged while Jason works on
-stabilizing it; Jason's plan is to repoint backup duty to this main
+near-full volume). Jason's plan is to repoint backup duty to this main
 Synology instead, which needs the freed space. That means the actual
 current reliability of the `Media Backup` safety net cited above is
 uncertain, not confirmed — its task may have been among those stopped
-during the instability, and its state couldn't be checked directly since
-the appliance is offline for hardware work. Jason has explicitly and
-knowingly accepted this risk rather than waiting on a fully-verified
-backup: it pre-dates this project, isn't unique to this deletion, and
-won't resolve until the Backup Synology's hardware/repointing work
-(tracked separately, outside this project's scope) is done. Recorded here
-for an accurate record, not as an unresolved action item of this project.
+during the instability, and its state couldn't be verified while the
+appliance is down for hardware work.
+
+**Full risk analysis walked through with Jason before he settled on
+acceptance** (his stated risk-management order: avoidance first,
+mitigation or a risk-benefit second, acceptance only as a last resort):
+
+- Spot-checked a sample of the 34 Milestone-5 "unresolved" movies directly
+  on TrueNAS and confirmed they're real, intact files in Archive Movies —
+  the map only failed to auto-match them (spelling variants inherited from
+  the original Plex library, e.g. "Beverley Hills Cop" vs. "Beverly Hills
+  Cop"; foreign titles; genuine bonus featurettes). This is a cataloguing
+  gap, not a data-loss risk, and materially reduces the real exposure here.
+- Avoidance was no longer available (the pre-deletion verification window
+  had already passed) other than as a lesson for the topology redesign:
+  don't make verifying a critical backup depend on a single fragile
+  appliance being healthy.
+- Mitigation/risk-benefit options raised: checking IDrive e2 directly
+  (cloud-side, independent of the Backup Synology's health) — ruled out by
+  Jason as impractical, since IDrive e2 only has ~500 GB spare against the
+  5.6 TB in question; a TrueNAS-native `zfs send` to another target as a
+  more resilient long-term design than the current two-Synology setup —
+  not actioned, folded into the separate topology-redesign project instead.
+- **Jason's chosen mitigation:** the Backup Synology has been deliberately
+  powered down entirely (not left running degraded) specifically to
+  preserve whatever `Media Backup` state it currently holds without further
+  risking corruption or data loss from continued instability. It will come
+  back up only once a new backup is established and active on the main
+  Synology, or as a recovery source if TrueNAS itself fails. This is a
+  genuine mitigation, not bare acceptance — it trades current
+  unavailability for protecting whatever is already on that disk.
+- **Residual risk formally accepted 2026-09-01:** a real, permanent loss of
+  this media would require both a TrueNAS-level catastrophe beyond ZFS's
+  own redundancy *and* the powered-down Backup Synology's preserved copy
+  turning out stale or incomplete, at the same time. Jason accepts this
+  residual risk, with the mitigation above in place, and considers this
+  closed pending the separate backup-topology project (outside this
+  project's scope).
 
 **Executed 2026-09-01 21:52 UTC.** Recorded pre-deletion counts (2,823
 files under `Movies`, 18,921 under `TV Shows`), then removed both
