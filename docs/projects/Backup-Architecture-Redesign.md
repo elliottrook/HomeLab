@@ -125,6 +125,26 @@ scope for this project** — a separate decision for later.
 
 ## Architecture decisions
 
+- **Backup source scope mimics the old architecture's scope exactly — no
+  expansion, one deliberate addition.** Jason's explicit instruction: don't
+  grow scope beyond what was already protected under the old three Hyper
+  Backup jobs, except for NetBox (LXC 111), whose missing backup coverage
+  is what started this whole investigation. Concretely, TrueNAS pulls from
+  three sources, mirroring the old Backup Synology's pull scope exactly:
+  1. **Mac `~/lab/private-backups`** (whole tree, unfiltered — matching
+     the old pull's own `"$remote:/"` scope, no subset).
+  2. **Proxmox guest archives**, same VMID list as the old filter (100,
+     101, 102, 103, 104, 105, 106, 107, 108, 109) **plus 111 (NetBox)** —
+     the one deliberate addition. **Not** 110 (Aster llama.cpp) — that gap
+     predates this project, is separately documented, and stays out of
+     scope here same as it did for the NetBox project.
+  3. **`gowest`'s `homes`, `Family Documents`, and the `SynologyDrive`
+     package's `@appdata` config** — the `Synology Drive Backup` job's
+     scope from Milestone 1, including the app-config path that a naive
+     rsync would miss.
+  `Media Backup` (Plex-era) is **not** carried forward — Plex source media
+  is already retired, and carrying its backup scope forward would be
+  exactly the "extra backup" this instruction says not to add.
 - **`gowest` is a source, never a destination.** No backup data lands on
   either Synology going forward.
 - **Local replication is plain rsync over SSH, not Hyper Backup.** This
@@ -281,25 +301,45 @@ block starting Milestone 2 on the parts that are unambiguous.
 
 ## Milestone 2 — TrueNAS local replication and snapshot retention
 
-- [ ] Create the TrueNAS backup dataset(s) decided in Milestone 1.
-- [ ] Create a dedicated, restricted SSH account/key for the rsync pull
-  from `gowest` (least-privilege, source-address-scoped where DSM
-  supports it — not Jason's personal key).
-- [ ] Configure the native TrueNAS rsync task (SSH-based, pull) against
-  that account.
-- [ ] Configure a ZFS periodic snapshot task with an explicit retention
-  schedule (proposed starting point: daily snapshots retained 14 days,
-  weekly retained 8 weeks, monthly retained 6 months — confirm or adjust
-  before finalizing).
-- [ ] Run the task, confirm data lands correctly and matches source
+Three separate pull relationships, one per source, mirroring the old
+architecture's exact scope (see Architecture decisions above):
+
+- [ ] Create three TrueNAS datasets: `Media/backup/mac`,
+  `Media/backup/proxmox-guests`, `Media/backup/gowest`.
+- [ ] **Proxmox source:** extend the existing restricted `homelab-backup`
+  account (locked password, no admin group, forced read-only `rrsync`
+  rooted at `/mnt/backups/dump`, originally built for the Backup
+  Synology's pull) with a **new authorized key for TrueNAS** rather than
+  sharing the Backup Synology's key — so either can be revoked
+  independently later. VMID list: 100, 101, 102, 103, 104, 105, 106, 107,
+  108, 109, 111 (NetBox) — matching the Architecture decisions scope
+  exactly, not 110.
+- [ ] **`gowest` source:** create a dedicated, restricted DSM account on
+  `gowest` for TrueNAS's pull — least-privilege, scoped to read-only on
+  `homes`, `Family Documents`, and the `SynologyDrive` package's
+  `@appdata` path only. Not Jason's personal key, not broad admin access.
+- [ ] **Mac source:** create a dedicated, restricted SSH key for TrueNAS's
+  pull of `~/lab/private-backups`, matching the old architecture's own
+  pattern ("a dedicated Synology-held SSH key restricted on the Mac to
+  the [puller's] source address"). Requires confirming Remote Login/SSH
+  is enabled on the Mac for this — a change to Jason's own laptop, flagged
+  for explicit confirmation before enabling if it isn't already on.
+- [ ] Configure three native TrueNAS rsync tasks (SSH-based, pull), one
+  per source, each against its own scoped credential.
+- [ ] Configure a ZFS periodic snapshot task per dataset with an explicit
+  retention schedule (proposed starting point: daily snapshots retained
+  14 days, weekly retained 8 weeks, monthly retained 6 months — confirm
+  or adjust before finalizing).
+- [ ] Run each task, confirm data lands correctly and matches its source
   (count/checksum comparison, not just "it ran without error").
 - [ ] Confirm snapshots are actually being created and retained per
-  schedule.
+  schedule, for all three datasets.
 
 ### Gate
 
-A full rsync pull has completed, been verified against the source, and at
-least one ZFS snapshot has been confirmed present before proceeding.
+All three rsync pulls have completed, been verified against their
+sources, and at least one ZFS snapshot has been confirmed present for each
+dataset before proceeding.
 
 ## Milestone 3 — Off-site relay LXC
 
