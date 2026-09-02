@@ -347,3 +347,23 @@ A per-project authorization, once granted:
   seeking a green light even when a reply isn't actually being awaited. `git
   push` is the exception: never push without an explicit instruction to do so
   in that message, even though committing doesn't require one.
+
+### Ad hoc autonomy grants (in-conversation, not the formal per-project kind)
+
+Jason may also grant autonomy informally, mid-conversation, for whatever
+project or assignment is currently active — not through the named-project
+ceremony above, just by saying so (e.g. "act autonomously within the scope
+of the project/assignment, you have read and write authority within the
+confines of the lab ethos"). When that happens: make the changes needed to
+get the job done without re-confirming each step or re-asking for
+permission already granted — but every change made under it must still be
+the **minimum necessary to fulfill the project's/assignment's stated
+objective**, and must preserve the lab's best security and privacy posture
+throughout, not just at the end. Concretely, this grant carries the exact
+same constraints as a formal per-project authorization above (rollback
+route per action, narrowest scope/source/destination, no adjacent-system
+tidying, still stop and ask about a genuinely unanticipated safety/privacy
+trade-off, still never covers a physical human step, still ends when the
+named project/assignment does — it doesn't carry forward to the next
+unrelated task). The difference from the formal mechanism is only how the
+grant is given, not what it permits.
