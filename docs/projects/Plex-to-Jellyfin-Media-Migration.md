@@ -1549,6 +1549,53 @@ library's view ID: Shows (`a656b907...`), Movies (`f137a2dd...`), Music
 (`7e64e319...`), Playlists (`4838f74f...`), Archive TV (`10f168d0...`),
 Archive Movies (`0064264a...`), Collections (`9d7ad6af...`).
 
+### 34 unresolved movies — resolved 2026-09-01
+
+Follow-up to the Milestone 5 mapping gap, done after the rest of the
+project had closed out. Generated a new temporary Jellyfin API key
+(`claude-cleanup`) for this, since the original one had already been
+revoked in Milestone 9 — same temporary-key policy as throughout the
+project, revoked again immediately after.
+
+First re-classified all 34 by matching Plex's exact source filename
+(not folder name — the earlier per-title spot-check had used a
+folder-name heuristic that broke on loose files sitting directly in
+`archive-movies` without their own subfolder, which produced a
+misleading "not found" result during the risk-analysis conversation
+above). Correcting for that: **all 34 turned out to already be real
+Movie items in Jellyfin's Archive Movies library** — none were ever
+actually missing from Jellyfin, confirming the risk-analysis finding
+that this was purely a cataloguing gap.
+
+Of the 34, split into two groups:
+
+- **18 had a real, Plex-matched TMDb/IMDb ID available** to correct
+  against — several were wrongly auto-matched to an unrelated film
+  (e.g. "Shaan" had matched to "Pride & Prejudice"; "Independence Day:
+  Resurgence" to the original "Independence Day"; "A Separation" to an
+  unrelated film called "Separation"; "Once Upon a Deadpool" to plain
+  "Deadpool" — the same sequel/remake-confusion pattern already
+  documented in Milestone 5), others simply had no ID at all. Fixed all
+  18 via `POST /Items/{id}` with the correct `ProviderIds` followed by
+  `MetadataRefreshMode=FullRefresh&ReplaceAllImages=true` (identical
+  method to the Milestone 5 fixes) — 11 picked up a correct overview on
+  the first refresh, the remaining 7 needed a second refresh pass before
+  the overview populated, same as before. **All 18/18 verified with
+  correct title, year, provider ID and a real non-empty overview.**
+- **16 had no Plex-side ID to correct against** (Plex itself never
+  matched them — mostly genuine bonus featurettes/documentaries bundled
+  alongside a main feature, e.g. "Batman Unmasked: The Psychology of The
+  Dark Knight", a Narnia "Visualizing..." featurette, a Matrix
+  "CG Revolution" featurette, plus a few obscure/foreign titles).
+  **Deliberately left untouched** — forcing a guessed ID onto these
+  would repeat the exact wrong-auto-match problem this project has
+  spent real effort fixing elsewhere, and several already had a
+  plausible-looking Jellyfin-assigned ID that may already be correct
+  with nothing to verify it against. Two ("Star Wars: The Force
+  Awakens", "Your Friends and Neighbors") already carry what looks like
+  the genuinely correct real-world TMDb ID despite Plex never having
+  recorded one — left alone as likely already fine.
+
 ## Milestone 9 — Documentation, backup and closeout
 
 - [x] Record final host and container paths, mounts, ACLs and library names.
