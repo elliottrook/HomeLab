@@ -187,6 +187,9 @@ Current state:
     triple Proxmox's RAM and add a substantial GPU — today's measured
     12%/~120W load on `proxmox-ups` should not be treated as a stable
     planning baseline; re-measure runtime once that hardware lands.
+    **RAM landed 2026-09-02** (see status entry below) — the GPU has not
+    yet landed, and `proxmox-ups` runtime has not yet been re-measured
+    under the new load; both remain open.
   - `nas-ups` still has the shortest measured runtime (~22.5 min at
     33%/~330W), but that figure was recorded under the corrected
     TrueNAS+Arista load, not the originally planned TrueNAS+Synology
@@ -257,6 +260,21 @@ Current state:
   substantially done from earlier work; remaining UPS-project work is
   physical topology follow-ups (UPS #1 disposition) and any Recommended
   Follow-ups logged along the way.
+- 2026-09-02: Proxmox RAM upgrade landed (+16GB). Confirmed via
+  `dmidecode`/`free -h` after a live post-upgrade check: 48GB physical
+  now installed (6 of 8 DIMM slots populated: 2×16GB + 4×4GB, 2 slots
+  still empty), 46GiB usable to the OS. Clean reboot — 0 failed
+  systemd units, no OOM/ECC/MCE errors in `dmesg`, all 9 LXCs and both
+  autostart VMs (frigate, home-assistant) came back up; VM 105
+  (`ollama`) is stopped but has no `onboot` flag, consistent with being
+  meant for manual start rather than a boot failure. Summed *allocated*
+  memory across all currently-running guests is ~44GB against 46GB
+  usable — no pressure today (actual usage is low, most LXCs at
+  2–20% of their allocation), but there's little headroom left if
+  VM 105 were also started. The GPU upgrade referenced in the
+  2026-08-29 entry above has not yet landed, and `proxmox-ups`
+  runtime/load has still not been re-measured under the new
+  configuration — both remain open follow-ups.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.
