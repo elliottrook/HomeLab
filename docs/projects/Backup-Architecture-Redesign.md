@@ -1,10 +1,33 @@
 # Backup Architecture Redesign
 
-> Status: Ready
+> Status: Active
 >
 > Project owner: Jason
 >
 > Last updated: 2026-09-02
+
+## Authorization
+
+**Per-project authorization granted 2026-09-02** (see `CLAUDE.md`,
+"Per-project authorization" section): Claude may execute this project's
+state-changing steps — TrueNAS dataset/rsync/snapshot configuration, the
+new Proxmox LXC and its `rclone` setup, credential generation — without
+asking before each individual step. This does not waive, for any action
+taken under it:
+
+- a rollback route documented before the action, not after;
+- the least invasive change that meets the step's objective, preserving
+  the lab's existing security/privacy posture everywhere else;
+- stopping and asking about anything genuinely unanticipated;
+- and, specific to this project, the **Milestone 4 dual-restore gate**:
+  no existing Hyper Backup job may be retired until a real file has been
+  recovered from both the TrueNAS ZFS snapshot and the IDrive e2 off-site
+  copy. This gate is not something the authorization can waive — it is
+  itself a condition of the authorization, not a step it lets Claude skip.
+
+Every state-changing step taken under this authorization is logged in the
+Evidence log at the bottom of this document as it happens, matching this
+repository's standard project-tracking convention.
 
 ## Purpose
 
@@ -315,3 +338,4 @@ as current.
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-09-02 | 0 (design) | Diagnosed Backup Synology + gowest instability under Hyper Backup load this session (network/disk/reboot ruled out as causes); synthesized a three-way design discussion (Claude + a second AI's proposal, refined with Jason) into this project | Recorded above |
+| 2026-09-02 | 0 (authorization) | Per-project authorization granted by Jason, with the Milestone 4 dual-restore gate explicitly preserved as a condition of the grant, not something it waives | Recorded above |
