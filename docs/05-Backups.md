@@ -40,7 +40,7 @@ Configuration recovery sets are pulled daily at 21:00 from the Mac source `~/lab
 - `synology-pull-last-success.txt`
 - `logs/synology-pull-latest.log`
 
-Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The canonical filtered mirror includes LXC 100, LXC 101, QEMU 102, QEMU 103, LXC 104, QEMU 105 and LXCs 106–109. The live DSM task has matching copy and checksum filters for all ten protected guests. A checksum-mode dry run must be empty before success is recorded in:
+Proxmox guest archives are pulled daily at 03:30, after the 02:30 Proxmox backup job, into `Backup/HomeLab-Backups/automated/proxmox-guests`. Proxmox account `homelab-backup` has a locked password and no administrative group membership. Its authorized key is source-restricted to the Backup Synology and forced through read-only `rrsync` rooted at `/mnt/backups/dump`. The canonical filtered mirror includes LXC 100, LXC 101, QEMU 102, QEMU 103, LXC 104, QEMU 105 and LXCs 106–111. The canonical task body now has matching copy and checksum filters for all twelve protected guests, including GPU LXC 110. A checksum-mode dry run must be empty before success is recorded in:
 
 - `proxmox-pull-latest.status`
 - `proxmox-pull-last-success.txt`
