@@ -53,7 +53,7 @@
     backplane-free, independently powered printed enclosure; see
     [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)
 - Synology DS920+
-- Backup Synology
+- Backup Synology (DS220j)
 - Lenovo ThinkCentre M92p (NUT server, `192.168.50.25`)
   - Intel Core i5-3470T, 7.6 GB RAM, single 119.2 GB disk (LVM)
   - Debian GNU/Linux 13 (trixie), kernel `6.12.101+deb13-amd64`

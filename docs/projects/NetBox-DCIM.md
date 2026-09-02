@@ -403,6 +403,16 @@ scope" line ruling out automated discovery — see the decision below.
   incident). No further network-affecting changes were made overnight —
   everything else on the "not attempted yet" list either needs Jason
   directly or was already resolved earlier this session.
+- **Backup Synology model recorded: DS220j** — supplied directly by Jason
+  (2026-09-02), not queried from the live host (still deliberately left
+  alone given its documented instability under load — see
+  [[project_backup_synology_instability]]). Created a `DS220j` device type
+  under the existing `Synology` manufacturer, reassigned the Backup
+  Synology `Device` record to it, and deleted the now-unused
+  `2-bay (model not recorded)` placeholder type it previously pointed to
+  (confirmed zero other devices referenced it before deleting). Also
+  updated `docs/03-Hardware-Inventory.md`'s listing to match. This was the
+  one deliberately-skipped item from the discovery pass above; now closed.
 
 ## Milestone 4 — Cutover and hand-back
 
