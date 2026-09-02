@@ -136,7 +136,7 @@ not interactive command execution.
 - [x] Add only task-specific, source-restricted read-only tools: Aster reads a
   bounded JSON report under `/var/lib/aster/health`; it has no shell, network,
   credential or arbitrary-file capability.
-- [ ] Re-run the full evaluation set with live-state tools enabled.
+- [x] Re-run the full evaluation set with live-state tools enabled.
 - [ ] Propose any write capability separately, with exact access, approval,
   validation and rollback boundaries; do not infer it from graduation.
 - [ ] Record final ownership, accepted limitations and escalation rules.
@@ -169,3 +169,5 @@ Aster graduates only when:
 | 2026-09-01 | 4 | Ran 13 in-container unit tests and two independent 13-case live exams against LXC 104; reviewed all answer text, then corrected source/retrieval guest-type ambiguities | 26/26 critical cases passed on the accepted LXC 104/LXC 110 production path |
 | 2026-09-01 | 3 | Reviewed backup evidence for the source repositories, manifest and deployed snapshot | LXC 110 off-host mirror and isolated archive restore remain explicitly pending; graduation remains blocked until this is verified |
 | 2026-09-01 | 5 | Added a root/operator-produced, schema-validated HomeLab Doctor summary tool; systemd grants Aster read-only access only to that report directory | Local implementation and unit tests complete; deployment and live evaluation remain pending |
+| 2026-09-01 | 3 | Verified the LXC 110 archive integrity, restored it into isolated stopped LXC 980 with its network link down, inspected the service layout, then destroyed the temporary guest | Restore mechanics pass, but the archive did not provide verified model-artifact coverage and service configuration differs from production; an off-host mirror plus a fresh isolated restore remain required |
+| 2026-09-01 | 5 | Deployed the root-produced `/var/lib/aster/health/latest.json` report with `root:aster` ownership and `0640` mode; ran 15 in-container unit tests and the full 14-case live graduation suite | 15/15 unit tests and 14/14 live cases passed; report correctly surfaced current warnings/failures without giving Aster shell, credentials, arbitrary files or new network access |
