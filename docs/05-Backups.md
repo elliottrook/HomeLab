@@ -96,6 +96,12 @@ the new Layer 2 destination using the same pull-based, restricted-account
 pattern documented above — not a continuation of this manual/root-account
 stopgap), then remove the temporary files from LXC 100 and `gowest`.
 
+**Temporary LXC 110 protection (2026-09-02):** while both Synology paths are
+unavailable, the 2026-09-01 LXC 110 archive is retained on TrueNAS in a
+root-only, mode-`0600` directory. Its byte count and SHA-256 match the
+Proxmox source. It is an independent same-site stopgap, not a replacement for
+the restricted pull, encrypted off-site task, or their retention policies.
+
 ## Encrypted IDrive e2 off-site backup
 
 The Backup Synology runs Hyper Backup task `Mini Atlas Offsite` against a private IDrive e2 S3-compatible bucket in Oregon-2. The task uses the region-specific endpoint `s3.us-west-4.idrivee2.com` and a bucket-scoped read/write access key that may delete objects for retention pruning but may not delete the bucket. Access and secret keys are not recorded in this repository.
@@ -728,7 +734,7 @@ configuration is separately documented or exported.
 | Backup Synology | Doctor checks DSM and the freshness/status of both automated pull jobs | Stores checksum-verified configuration and Proxmox mirrors; essential recovery material is independently protected in IDrive e2 | Recovery sets and restricted pull paths were validated; loss of the appliance requires rebuilding the pull tasks from documented configuration |
 | Aster Agent LXC 104 | Doctor checks guest, service and API health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; named production snapshot retained locally | Earlier isolated restore as LXC 972 booted the retained Hermes rollback services; Aster boot persistence was validated in place |
 | Legacy Ollama VM 105 | Doctor checks guest state according to its intended operating mode | Current VM archive retained locally and checksum-mirrored to the Backup Synology | Isolated restore as VM 973 reached its login prompt successfully |
-| Aster llama.cpp LXC 110 | Doctor checks guest and inference-service health | Named production snapshot and current local archive retained; off-host mirror remains to be confirmed | Boot persistence was validated in place; isolated archive restore remains pending |
+| Aster llama.cpp LXC 110 | Doctor checks guest and inference-service health | Named production snapshot, current local archive and checksum-verified temporary TrueNAS mirror retained; normal Synology/off-site pipeline remains unavailable | Isolated archive restore as stopped, network-isolated LXC 980 verified both active model blobs and service layout; do not start a second GPU-mapped guest during production service |
 | Authentik LXC 106 | Doctor checks service reachability through the configured endpoint | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; Authentik configuration is documented separately |
 | Reverse Proxy LXC 107 | Doctor checks NPM service reachability and TLS dependencies | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; proxy and Authentik recovery order is documented |
 | Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
