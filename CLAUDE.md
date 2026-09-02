@@ -44,6 +44,15 @@ that file in sync — update both in the same change.
 | NUT server (Lenovo) | 192.168.50.25 | UPS health, `lab doctor` |
 | Aster Agent LXC 104 | 192.168.70.10 | Local agent API/UI health |
 | Aster llama.cpp GPU LXC 110 | 192.168.70.12 | Local inference health |
+| NetBox LXC 111 | 192.168.20.32 | DCIM/IPAM API population (NetBox-DCIM project) |
+| UniFi Controller LXC 101 | 192.168.50.21 | AP inventory for NetBox population |
+| UniFi Hall AP | 192.168.50.31 | Device inventory for NetBox population |
+| UniFi Office AP | 192.168.50.141 | Device inventory for NetBox population |
+| Home Assistant | 192.168.20.11 | Device inventory for NetBox population |
+| Reolink Duo 2V PoE camera | 192.168.60.10 | Device inventory for NetBox population |
+| Authentik LXC 106 | 192.168.50.22 | Device inventory for NetBox population |
+| Lutron Caséta bridge | 192.168.30.102 | Device inventory for NetBox population |
+| Philips Hue bridge | 192.168.30.164 | Device inventory for NetBox population |
 | git.elliottrook.com, github.com | — | Git remotes |
 | deb.debian.org, security.debian.org | — | Package installs on Debian guests |
 
