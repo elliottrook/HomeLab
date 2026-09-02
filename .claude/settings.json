@@ -7,7 +7,65 @@
       "Bash(git log:*)",
       "Bash(cat:*)",
       "Bash(ls:*)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+
+      "Bash(ssh opnsense cat:*)",
+      "Bash(ssh opnsense ls:*)",
+      "Bash(ssh opnsense find:*)",
+      "Bash(ssh opnsense arp:*)",
+      "Bash(ssh opnsense systemctl status:*)",
+
+      "Bash(ssh arista cat:*)",
+      "Bash(ssh arista show:*)",
+      "Bash(ssh arista find:*)",
+
+      "Bash(ssh proxmox cat:*)",
+      "Bash(ssh proxmox ls:*)",
+      "Bash(ssh proxmox find:*)",
+      "Bash(ssh proxmox pct config:*)",
+      "Bash(ssh proxmox pct list:*)",
+      "Bash(ssh proxmox qm config:*)",
+      "Bash(ssh proxmox qm list:*)",
+      "Bash(ssh proxmox systemctl status:*)",
+
+      "Bash(ssh docker cat:*)",
+      "Bash(ssh docker ls:*)",
+      "Bash(ssh docker find:*)",
+      "Bash(ssh docker docker ps:*)",
+      "Bash(ssh docker systemctl status:*)",
+
+      "Bash(ssh truenas cat:*)",
+      "Bash(ssh truenas ls:*)",
+      "Bash(ssh truenas find:*)",
+      "Bash(ssh truenas systemctl status:*)",
+
+      "Bash(ssh frigate cat:*)",
+      "Bash(ssh frigate ls:*)",
+      "Bash(ssh frigate find:*)",
+      "Bash(ssh frigate systemctl status:*)",
+
+      "Bash(ssh nut cat:*)",
+      "Bash(ssh nut ls:*)",
+      "Bash(ssh nut find:*)",
+      "Bash(ssh nut systemctl status:*)",
+
+      "Bash(ssh forgejo cat:*)",
+      "Bash(ssh forgejo ls:*)",
+      "Bash(ssh forgejo find:*)",
+      "Bash(ssh forgejo systemctl status:*)",
+
+      "Bash(ssh gowest cat:*)",
+      "Bash(ssh gowest ls:*)",
+
+      "Bash(ssh gowest-backup cat:*)",
+      "Bash(ssh gowest-backup ls:*)",
+
+      "Bash(ssh root@192.168.20.32 cat:*)",
+      "Bash(ssh root@192.168.20.32 ls:*)",
+      "Bash(ssh root@192.168.20.32 find:*)",
+      "Bash(ssh root@192.168.20.32 systemctl status:*)",
+
+      "Bash(systemctl status:*)"
     ],
     "deny": [
       "Read(**/*.key)",
