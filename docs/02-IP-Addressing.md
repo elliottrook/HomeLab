@@ -1,5 +1,15 @@
 # IP Addressing
 
+> Reconciled against NetBox 2026-09-01 (`docs/projects/NetBox-DCIM.md`).
+> NetBox is authoritative; this file is a refreshed snapshot of it, in the
+> same spirit as `diagrams/Rack-Diagram.md`. When the two disagree, trust
+> NetBox and refresh this file — don't hand-edit around a discrepancy the
+> other way.
+>
+> **Backup Synology (`192.168.20.42`) is currently offline** — active
+> incident, see `docs/05-Backups.md`. Its row below is left as-is; the
+> address is correct for when it returns.
+
 |Device|IP|
 |---|---|
 |OPNsense|192.168.1.1|
@@ -23,6 +33,7 @@
 |Reverse Proxy LXC 107|192.168.50.23|
 |Forgejo LXC 108|192.168.20.30|
 |Observability LXC 109|192.168.20.31|
+|NetBox LXC 111|192.168.20.32|
 |Reolink Duo 2V PoE|192.168.60.10|
 
 The AP Switch management plane appears on VLAN 1/untagged despite its

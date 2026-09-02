@@ -478,6 +478,67 @@ and `grafana.db` are present before restoring them with the service stopped.
 Validate all Prometheus targets, Grafana's `/api/health` response and the
 provisioned data source before returning the dashboard to use.
 
+## NetBox DCIM
+
+LXC 111 is included automatically by the enabled all-guests Proxmox
+snapshot job (Layer 1). Because NetBox's Docker Compose stack
+(`netbox`, `netbox-worker`, `postgres`, `redis`, `redis-cache`) stores all
+of its data — including the Postgres database — as Docker volumes on the
+guest's own local filesystem rather than on external/NFS-backed storage, a
+snapshot-mode `vzdump` of the whole LXC captures a complete, consistent
+point-in-time copy without any special per-component handling, the same
+guarantee every other snapshotted guest in this repo already relies on.
+There is currently no separate configuration-level recovery set under
+`~/lab/private-backups/` for NetBox the way Prometheus/Grafana and NUT
+have one — the whole deployment is reproducible from `/opt/netbox` on the
+guest (a plain `git clone` of `netbox-community/netbox-docker` plus the
+generated `env/*.env` files and `.env`/`docker-compose.override.yml`), so
+the LXC-level archive is the only backup this service currently has, by
+design rather than by gap.
+
+**Layer 2/3 status:** LXC 111 was added to
+`scripts/backup/synology-proxmox-pull.sh`'s filter (the canonical
+reference for the Backup Synology's pull task) on 2026-09-01, but as of
+this writing the *live* DSM scheduled task has not yet been updated to
+match, and the Backup Synology itself is currently offline (see the
+active-incident note earlier in this document). Until both are resolved,
+LXC 111 has Layer 1 (local Proxmox) coverage only — same exposure as every
+other guest during this incident, not a NetBox-specific gap.
+
+**Secrets:** `env/netbox.env`, `env/postgres.env`, `env/redis.env` and
+`env/redis-cache.env` under `/opt/netbox/` on the guest contain the
+Postgres password, Redis passwords, Django `SECRET_KEY` and API token
+pepper — all freshly generated at install time, mode 600, root-owned.
+`/root/.netbox-superuser-password` and `/root/.netbox-api-token` are the
+same sensitivity. None of these are backed up anywhere except as part of
+the whole-guest Proxmox archive; there is no separate copy in
+`~/lab/private-backups` to keep in sync, unlike Prometheus/Grafana's
+`pve.yml` pattern.
+
+**Restore procedure:** restore the LXC from its most recent Proxmox
+archive (or the isolated-guest validation pattern used elsewhere in this
+document — new VMID, `onboot=0`, network disconnected, inspect before any
+start). Because this is a whole-container snapshot rather than a
+config-only recovery set, a restored LXC should come back with Docker,
+the netbox-docker checkout, and all secrets already in place — verify with
+`cd /opt/netbox && docker compose ps` (all five services should report
+healthy within a few minutes) and a login test, rather than
+re-provisioning from scratch. A from-scratch rebuild (fresh LXC, fresh
+`git clone`, fresh secrets) is possible but would lose all entered
+inventory data, since nothing outside the guest currently holds a copy of
+the Postgres database specifically — treat that path as last-resort, not
+routine.
+
+**Upgrade procedure:** NetBox is pinned to `docker.io/netboxcommunity/netbox:v4.6-5.0.2`
+in `/opt/netbox/.env`, not `:latest` — matching this repo's pinned-release
+convention. To upgrade: take a Proxmox snapshot of LXC 111 first (cheap,
+fast rollback path), update the `VERSION` value in `.env` to the target
+tag, `docker compose pull`, then `docker compose up -d`. NetBox runs its
+own database migrations automatically on container start — watch
+`docker compose logs -f netbox` through that process before considering
+the upgrade complete, the same way the initial install's migrations were
+observed rather than assumed to finish quickly.
+
 ## Proxmox guest backups
 
 Proxmox stores `vzdump` archives on the `backups` directory storage at `/mnt/backups`. The mount is a separate 4 TB Seagate ST4000LM024 disk (`/dev/sda1`, ext4). This protects the guests from loss of the Proxmox system disk, but the disk remains physically local to the Proxmox host and is not an off-site copy.
@@ -672,6 +733,7 @@ configuration is separately documented or exported.
 | Reverse Proxy LXC 107 | Doctor checks NPM service reachability and TLS dependencies | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; proxy and Authentik recovery order is documented |
 | Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
 | Observability LXC 109 | Prometheus self-monitors and all seven initial scrape jobs are health-checked; Doctor integration follows after Grafana stabilizes | Protected configuration archive plus the retained all-guests LXC snapshot; both enter the existing Synology/off-site pipeline | Configuration archive extracted and checked in isolation; first LXC archive passed complete Zstandard integrity testing |
+| NetBox LXC 111 | Doctor's `check_netbox` covers all five container health states and the login-page response | Local Proxmox archive only as of 2026-09-01 — Layer 2/3 not yet extended to this guest (live DSM task pending, Backup Synology itself currently offline); by design there is no separate config-level recovery set, since the whole deployment is reproducible from `/opt/netbox` on the guest | Not yet isolated-restore tested; deployment is new (2026-09-01) |
 | NUT server (Lenovo, bare metal) | Doctor checks `nut-server`/`nut-monitor` state, all three UPS units' `ups.status` and battery charge, and config-backup age | Manually-pulled config set (`ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf`, SSH hardening, network config) lands directly in the same Backup Synology pull and encrypted IDrive e2 off-site tree as other appliance configs | Live driver/server configuration validated via `upsc`; a full bare-metal OS reinstall has not been tested, only documented as a recovery procedure |
 | Reolink camera | Doctor tests HTTP, RTSP and ONVIF reachability; Frigate proves recording flow | No recording archive is required; Frigate configuration preserves the integration settings | Camera replacement or reset is a documented reconfiguration task rather than a backup restore |
 

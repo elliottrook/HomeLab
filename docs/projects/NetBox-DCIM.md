@@ -343,12 +343,42 @@ same way a hand-maintained one does.
   retired" decision) — updated with the confirmed walk-through data and
   the stale banner removed, since it now reflects verified reality rather
   than a guess.
-- [ ] Reconcile or retire `configs/devices.conf`/`docs/02-IP-Addressing.md`
-  per the same decision. **Not yet done** — these weren't part of this
-  session's walk-through and still need the same "snapshot of NetBox"
-  treatment applied deliberately, not assumed.
-- [ ] Document NetBox operations (backup, restore, upgrade) in the standard
-  repo locations.
+- [x] Reconcile or retire `configs/devices.conf`/`docs/02-IP-Addressing.md`
+  per the same decision. **Done 2026-09-01.** Before reconciling, extended
+  NetBox itself to be genuinely complete enough to reconcile against —
+  added the 8 individual devices that previously existed only as
+  shelf-contents text (OPNsense, NUT server, Binarui AP Switch, both
+  Synology units, both UniFi APs, the Reolink camera) as real `Device`
+  objects with IP addresses, plus added missing IPs to three devices that
+  had none yet (Arista, Proxmox host, TrueNAS) — 21 Devices total now, all
+  with addresses where one applies.
+
+  Then diffed both files against the complete NetBox inventory:
+  - `configs/devices.conf`: only one real gap — **Home Assistant
+    (`192.168.20.11`) was missing entirely**, added. Every other one of
+    its 21 rows already matched NetBox exactly. Added a header comment
+    marking it as a NetBox snapshot (same pattern as `Rack-Diagram.md`)
+    plus a note on the Backup Synology incident. Verified `lab status`
+    still parses the file correctly afterward — this file is live tooling
+    (`scripts/lab`), not just documentation, so format preservation
+    mattered here in a way it didn't for the rack diagram.
+  - `docs/02-IP-Addressing.md`: one real gap — **NetBox's own address
+    (`192.168.20.32`) was missing from its own project's addressing
+    table** (it didn't exist yet the last time this file was touched).
+    Added, plus the same snapshot header and incident note.
+- [x] Document NetBox operations (backup, restore, upgrade) in the standard
+  repo locations. **Done 2026-09-01** — new "NetBox DCIM" section in
+  `docs/05-Backups.md` (matching the existing per-service pattern) plus a
+  row in the Critical-Service Recovery Coverage matrix. Documented
+  accurately rather than aspirationally: Layer 1 (local Proxmox snapshot)
+  covers it fully since Docker's volumes live on the guest's own
+  filesystem, not external storage; Layer 2/3 are pending on the same two
+  items already tracked above (live DSM task, Backup Synology itself being
+  down) — not a NetBox-specific gap, called out as such; no isolated
+  restore has been tested yet since the deployment is brand new.
+  Documented the pinned-version upgrade procedure
+  (`v4.6-5.0.2` in `.env`, snapshot-first, watch migrations complete
+  rather than assume).
 
 ## Definition of done
 
@@ -373,3 +403,4 @@ markdown files, and there is exactly one documented source of truth for each
 | 2026-09-01 | 3 | Site, all 7 VLANs/prefixes, a Proxmox cluster, and all 12 current Proxmox guests (as Virtual Machines with interfaces, MAC addresses, and primary IPs) created in NetBox, every field pulled fresh from live `pct config`/`qm config`, not copied from markdown. Verified after creation via the API: 12/12 VMs, 7/7 VLANs, 7/7 prefixes present and spot-checked | Passed |
 | 2026-09-01 | 1, 3, 4 | Physical rack walk-through completed interactively with Jason from a photo. Surfaced a real hardware correction (OPNsense is a VMware SD-WAN Edge 620, not the previously-recorded "Dell EMC E42W / SD-WAN Edge 610" — fixed in `CLAUDE.md` and `03-Hardware-Inventory.md`) and located the NUT server physically for the first time. Rack + 13 Devices created in NetBox (8 rack-mounted at confirmed positions, 5 correctly recorded as not rack-mounted/unplaced); verified via `GET /api/dcim/devices/?rack_id=1`. `diagrams/Rack-Diagram.md` refreshed with the same data and its stale banner removed. Markdown-vs-NetBox source-of-truth decision recorded: NetBox authoritative, markdown a refreshed snapshot | Passed |
 | 2026-09-01 | 2 | Beszel agent installed on LXC 111 after Jason created the system record and supplied its token; official `get.beszel.dev` installer sanity-checked before running. Agent logged repeated `401`s for ~90s (token had nothing to match until the hub-side record existed, not a config error), then self-recovered and connected cleanly on its own next retry — confirmed in the agent's journal and by Jason seeing it go green in the hub UI | Passed |
+| 2026-09-01 | 3, 4 | Extended NetBox with the 8 remaining individual devices (previously only shelf-contents text) plus missing IPs on 3 more, then reconciled `configs/devices.conf` and `docs/02-IP-Addressing.md` against the now-complete inventory — one real gap found in each (Home Assistant missing from `devices.conf`; NetBox's own address missing from `02-IP-Addressing.md`), both fixed. Verified `lab status` still parses `devices.conf` correctly afterward. Documented NetBox's backup/restore/upgrade procedure in `docs/05-Backups.md` (new section plus a Critical-Service Recovery Coverage row), stated accurately: Layer 1 covers it fully, Layer 2/3 pending on the same two already-tracked blockers, no isolated restore tested yet | Passed |
