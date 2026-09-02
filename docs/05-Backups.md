@@ -332,6 +332,37 @@ serial pinning in `ups.conf` means both CyberPower units (identical
 vendor:product ID) will bind to the correct driver instance regardless of
 which physical USB port either one is plugged into.
 
+## TrueNAS
+
+TrueNAS (`192.168.20.40`) system configuration (network, services, users,
+pool/dataset layout — not application data, which is covered per-app
+elsewhere in this document) is normally exported via the manual, browser-
+based guided flow (`lab backup guided` opens **System Settings → General →
+Manage Configuration**). That still requires a human to click through and
+download the file.
+
+**CLI/API alternative, used 2026-09-01 to avoid the manual step:**
+TrueNAS's `config.save` middleware method produces the same export (the
+plain configuration SQLite database; `secretseed`, `pool_keys` and
+`root_authorized_keys` were all left at their default `false` — deliberately
+not included, since those are genuinely sensitive extras not needed for a
+routine config backup). Because it's a downloadable job, it needs the
+`core.download` wrapper to get an HTTP URL, not a plain `midclt call`:
+
+```sh
+midclt call core.download '"config.save"' '[{}]' '"truenas-config.db"'
+# returns [job_id, "/_download/<job_id>?auth_token=..."]
+curl -s -o /tmp/truenas-config.db "http://localhost/_download/<job_id>?auth_token=<token>"
+```
+
+Pulled to `~/lab/private-backups/guided-exports/truenas/
+truenas-config-<timestamp>.db` (mode `600`), which lands in the existing
+daily Backup Synology pull and encrypted IDrive e2 off-site task. The
+temporary file on TrueNAS itself and the single-use download token are
+not reusable after the transfer. This is a one-off snapshot, not a
+recurring task — repeat manually (or automate) as needed; there's no
+scheduled job for this today.
+
 ## Jellyfin
 
 Jellyfin runs on TrueNAS (`192.168.20.40`) as a Docker Compose service
@@ -344,12 +375,17 @@ configuration) lives in a Docker-managed named volume under `Media/ix-apps`,
 which is a much smaller, non-replaceable dataset distinct from the media
 payload.
 
-**Current coverage is incomplete.** Only two manual, one-off ZFS snapshots
-of `Media/ix-apps` exist, both taken as pre-change checkpoints during the
-Plex-to-Jellyfin migration project (`pre-plex-migration-20260830-210033`
-and `pre-boxsets-plugin-20260901-100925` — see
-[docs/projects/completed projects/Plex-to-Jellyfin-Media-Migration.md](<projects/completed projects/Plex-to-Jellyfin-Media-Migration.md>)).
-There is no recurring/scheduled snapshot task for `Media/ix-apps`, and
+**Current coverage is incomplete.** Only three manual, one-off ZFS
+snapshots of `Media/ix-apps` exist: two taken as pre-change checkpoints
+during the Plex-to-Jellyfin migration project
+(`pre-plex-migration-20260830-210033` and
+`pre-boxsets-plugin-20260901-100925` — see
+[docs/projects/completed projects/Plex-to-Jellyfin-Media-Migration.md](<projects/completed projects/Plex-to-Jellyfin-Media-Migration.md>)),
+plus one general point-in-time checkpoint (`config-backup-20260902-004225`,
+2026-09-01) taken via TrueNAS's `zfs.snapshot.create` middleware API (the
+`truenas_admin` account lacks direct `zfs snapshot` shell permission — use
+the API method instead). There is no recurring/scheduled snapshot task for
+`Media/ix-apps`, and
 neither snapshot is mirrored to the Backup Synology or the encrypted
 off-site IDrive e2 task — unlike every other application covered in this
 document (Home Assistant, Authentik, Homepage, Pi-hole, etc.), Jellyfin has
@@ -583,8 +619,8 @@ configuration is separately documented or exported.
 | Proxmox host | Doctor checks guests, storage, memory and swap; Beszel supplies history; TLS expiry and configuration drift are monitored | Host configuration export plus retained guest archives on local backup storage and the Backup Synology | Multiple isolated guest restores prove archive usability; complete bare-metal host recovery remains a documented manual procedure |
 | Docker LXC 100 | Doctor checks SSH and hosted service endpoints; Beszel monitors the host and containers | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Homepage application recovery was tested independently; Proxmox LXC recovery was validated using an isolated disposable guest |
 | UniFi LXC 101 | Doctor checks controller reachability | Current LXC archive plus UniFi application backups, mirrored off-host | Isolated LXC restoration and recovered UniFi database inspection succeeded |
-| TrueNAS | Doctor checks pools, NFS, bond health and management access; certificate expiry is monitored | Configuration export is included in the protected infrastructure set; ZFS protects local media integrity | Configuration recovery is documented; media is intentionally excluded from encrypted off-site backup because of size and replaceability |
-| Jellyfin (on TrueNAS) | No dedicated Doctor check yet | **Incomplete** — only two manual, one-off `Media/ix-apps` snapshots exist (both migration-project checkpoints); no recurring snapshot schedule and no Backup Synology/off-site mirror for the application database (playlists, collections, users, watch state) | Not tested; see the "Jellyfin" section above for the 2026-09-01 incident that exposed this gap and the recommended follow-up |
+| TrueNAS | Doctor checks pools, NFS, bond health and management access; certificate expiry is monitored | System configuration export (`config.save`, via CLI/API or the guided browser flow) is included in the protected infrastructure set; ZFS protects local media integrity | Configuration recovery is documented; media is intentionally excluded from encrypted off-site backup because of size and replaceability. Export is currently manual/one-off, not scheduled |
+| Jellyfin (on TrueNAS) | No dedicated Doctor check yet | **Incomplete** — only three manual, one-off `Media/ix-apps` snapshots exist (two migration-project checkpoints plus one general checkpoint, 2026-09-01); no recurring snapshot schedule and no Backup Synology/off-site mirror for the application database (playlists, collections, users, watch state) | Not tested; see the "Jellyfin" section above for the 2026-09-01 incident that exposed this gap and the recommended follow-up |
 | Pi-hole primary and secondary | Doctor performs public, local and blocked-domain DNS tests through both resolvers | Primary inherits Docker LXC protection; secondary inherits TrueNAS application/configuration protection; Teleporter exports are documented | Functional recovery validation is performed through the redundant resolver pair; either resolver can carry DNS while the other is rebuilt |
 | Frigate VM 102 | Doctor checks VM/service state, NFS mount and recording freshness; Beszel tracks host metrics | Current VM archive and private checksum-verified Frigate configuration backup, mirrored off-host | VM-level recovery is available; recordings remain intentionally excluded because they are high-volume and nonessential to infrastructure recovery |
 | Home Assistant VM 103 | Doctor checks Core and backup age | Encrypted native backups to local and Synology storage plus current mirrored VM archives | Isolated VM 903 restored and booted HAOS, Supervisor and Core successfully |
