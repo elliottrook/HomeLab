@@ -335,6 +335,59 @@ same way a hand-maintained one does.
   the natural moment to fix a document already flagged stale, rather than
   leaving it wrong until formal cutover).
 
+## Milestone 3 addendum — Discovery-assisted gap fill (2026-09-01/02)
+
+Jason asked for a further population pass using live network interrogation
+rather than another manual walk-through. This explicitly revisits, and
+narrows rather than fully overturns, this document's original "Out of
+scope" line ruling out automated discovery — see the decision below.
+
+- **Sandbox extended** to reach NetBox plus 8 additional hosts (UniFi
+  Controller, both APs, Home Assistant, Reolink camera, Authentik, Lutron
+  bridge, Hue bridge) via `CLAUDE.md`/`.claude/settings.json`, committed
+  separately from this doc (`847aa96`).
+- **Method, agreed with Jason before running anything**: passive discovery
+  only — OPNsense's Kea DHCP lease table and ARP table, Arista's MAC
+  address table — plus targeted queries to already-known hosts. No active
+  port/service scanning was actually needed: the passive data gave
+  complete live-host visibility on VLANs 20/50/60/70 already. Guest VLAN 40
+  and Trusted VLAN 10 were never actively probed.
+- **NetBox gaps closed**: added individual `Device` records for the
+  **Lutron Caséta bridge** (`192.168.30.102`) and **Philips Hue bridge**
+  (`192.168.30.164`) — new `Lutron`/`Philips` manufacturers and a new
+  `IoT Bridge` role, both previously only shelf-contents text. Added the
+  missing IP + MAC to the existing **PoE camera switch** record
+  (`192.168.60.145`, confirmed via its own `TL-SG1016PE` DHCP lease,
+  matching the model NetBox already had recorded). Device count 21 → 23.
+  Authentik, Home Assistant, and the UniFi Controller were already present
+  as Virtual Machine records from Milestone 3 — checked before writing
+  anything, no duplicates created.
+- **Scope decision, confirmed explicitly by Jason**: personal/family client
+  devices surfaced by the DHCP/ARP data (phones, laptops, Apple TVs, a
+  smartwatch, a receiver, etc., mostly on Trusted VLAN 10) are **not**
+  added to NetBox. NetBox stays scoped to lab infrastructure, matching this
+  document's original Purpose/Scope — this was a real decision point, not
+  an oversight, and applies going forward to any future population work
+  too.
+- **Real, unrelated bug found and fixed via this same discovery data,
+  outside this project's own scope but worth recording for continuity**:
+  a live host at `192.168.20.129` (hostname `Family-Room`, on *Servers*
+  VLAN 20) turned out to be a Family Room Apple TV — confirmed by an open
+  AirPlay port and by matching the household's other four Apple TVs, all
+  correctly on Trusted VLAN 10. It was wired into Arista Et17, a port
+  whose stale description (`TrueNAS-Failover-Servers`) didn't match either
+  its old or new use — TrueNAS's actual bond is Et9/Et15 per
+  `Current-Network-Baseline.md`, so Et17 was simply a mislabeled, unused
+  port that had been patched to the TV at some point. Confirmed nothing
+  else shares that jack. Fixed live: `switchport access vlan 20` → `10`,
+  description → `Family-Room-AppleTV`, saved (`write memory`). Verified via
+  `show mac address-table interface Et17`: relearned on VLAN 10
+  immediately. **Rollback**: revert both lines on Et17
+  (`switchport access vlan 20`, description `TrueNAS-Failover-Servers`).
+  Not added to NetBox, per the scope decision above. This required its own
+  explicit go-ahead from Jason since it's a real VLAN-membership change,
+  outside any project's standing authorization.
+
 ## Milestone 4 — Cutover and hand-back
 
 - [x] Replace `diagrams/Rack-Diagram.md` with either a generated export or a
@@ -404,3 +457,5 @@ markdown files, and there is exactly one documented source of truth for each
 | 2026-09-01 | 1, 3, 4 | Physical rack walk-through completed interactively with Jason from a photo. Surfaced a real hardware correction (OPNsense is a VMware SD-WAN Edge 620, not the previously-recorded "Dell EMC E42W / SD-WAN Edge 610" — fixed in `CLAUDE.md` and `03-Hardware-Inventory.md`) and located the NUT server physically for the first time. Rack + 13 Devices created in NetBox (8 rack-mounted at confirmed positions, 5 correctly recorded as not rack-mounted/unplaced); verified via `GET /api/dcim/devices/?rack_id=1`. `diagrams/Rack-Diagram.md` refreshed with the same data and its stale banner removed. Markdown-vs-NetBox source-of-truth decision recorded: NetBox authoritative, markdown a refreshed snapshot | Passed |
 | 2026-09-01 | 2 | Beszel agent installed on LXC 111 after Jason created the system record and supplied its token; official `get.beszel.dev` installer sanity-checked before running. Agent logged repeated `401`s for ~90s (token had nothing to match until the hub-side record existed, not a config error), then self-recovered and connected cleanly on its own next retry — confirmed in the agent's journal and by Jason seeing it go green in the hub UI | Passed |
 | 2026-09-01 | 3, 4 | Extended NetBox with the 8 remaining individual devices (previously only shelf-contents text) plus missing IPs on 3 more, then reconciled `configs/devices.conf` and `docs/02-IP-Addressing.md` against the now-complete inventory — one real gap found in each (Home Assistant missing from `devices.conf`; NetBox's own address missing from `02-IP-Addressing.md`), both fixed. Verified `lab status` still parses `devices.conf` correctly afterward. Documented NetBox's backup/restore/upgrade procedure in `docs/05-Backups.md` (new section plus a Critical-Service Recovery Coverage row), stated accurately: Layer 1 covers it fully, Layer 2/3 pending on the same two already-tracked blockers, no isolated restore tested yet | Passed |
+| 2026-09-01/02 | 3 addendum | Discovery-assisted gap fill: sandbox extended to 9 more hosts; passive OPNsense DHCP/ARP + Arista MAC-table discovery (no active scanning needed); Lutron and Hue bridges added as new Device records, PoE camera switch given its missing IP/MAC. Device count 21→23. Scope decision confirmed with Jason: personal/family client devices excluded from NetBox going forward | Passed |
+| 2026-09-02 | 3 addendum (related, out of project scope) | Discovery data surfaced a Family Room Apple TV wired into Arista Et17 on the wrong VLAN (Servers 20, port mislabeled `TrueNAS-Failover-Servers`) instead of Trusted VLAN 10 like the household's other four Apple TVs. Confirmed nothing else shares the port; fixed live with Jason's explicit go-ahead (`switchport access vlan 10`, description corrected, saved); verified relearned on VLAN 10 via the MAC table | Passed |
