@@ -15,7 +15,6 @@
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
 | NUT/UPS deployment | Handover ready | [NUT/UPS handover](../UPS-Power-Resilience-Claude-Handover.md) | Architecture, shutdown and recovery requirements are contained in the handover |
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
-| Plex-to-Jellyfin media migration | Ready | [Plex-to-Jellyfin media migration](Plex-to-Jellyfin-Media-Migration.md) | Separate Archive Movies/TV libraries, unified music, playlists and movie collections |
 | Video library archiving | Proposed | [Video library archiving](Video-Library-Archiving.md) | Downconverts aged current-library video and hands it to the archive roots above |
 | NetBox DCIM / rack & asset management | Proposed | [NetBox DCIM](NetBox-DCIM.md) | Replaces the stale hand-maintained rack diagram and device tables with a generated, data-backed view |
 | Aster sysadmin second brain | Active | [Aster sysadmin second brain](Aster-Sysadmin-Second-Brain.md) | Qualifies the operational reference, builds recoverable authority-aware memory, and graduates Aster through correctness/security/performance gates |
@@ -26,6 +25,7 @@
 |---|---|---|---|
 | Prometheus/Grafana observability | 2026-08-31 | [Prometheus/Grafana close-out](completed%20projects/Prometheus-Grafana-Observability.md) | Retained with four dashboards, seven bounded scrape jobs, two UPS alerts and tested recovery |
 | Synology Drive family cloud | 2026-08-31 | [Synology Drive close-out](completed%20projects/Synology-Drive-Family-Cloud.md) | Private per-user storage, a shared Team Folder, on-demand macOS/iOS clients, bounded/revocable friend sharing via Cloudflare Access + Authentik, a proven backup/restore path and HomeLab Doctor monitoring — all validated for the pilot rollout. Rolling out clients to the rest of the family is intentionally deferred as a follow-on, not part of this completion. |
+| Plex-to-Jellyfin media migration | 2026-09-01 | [Plex-to-Jellyfin close-out](completed%20projects/Plex-to-Jellyfin-Media-Migration.md) | Separate checksum-verified Archive Movies/TV libraries, one consolidated and re-tagged music root, 11 playlists and 165 movie collections migrated and validated (including recovery from a same-day Jellyfin data-loss incident), and Plex source media retired with an explicit risk-managed approval. Recurring backup coverage for Jellyfin's own application database is intentionally deferred, entangled with a separate, larger backup-topology effort. |
 
 ## Common project rules
 

@@ -342,7 +342,7 @@ what already existed in Jellyfin with the migrated and re-tagged Plex
 collection. Full migration history, verification evidence and known
 open issues (e.g. a small number of albums that display as multiple
 entries due to a Jellyfin metadata-grouping bug) are in
-[docs/projects/Plex-to-Jellyfin-Media-Migration.md](projects/Plex-to-Jellyfin-Media-Migration.md).
+[docs/projects/completed projects/Plex-to-Jellyfin-Media-Migration.md](<projects/completed projects/Plex-to-Jellyfin-Media-Migration.md>).
 
 Jellyfin's own application database (playlists, collections, users, watch
 state, plugin configuration) lives separately from the media payload, in a

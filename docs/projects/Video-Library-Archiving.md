@@ -14,7 +14,7 @@ per file. Once a title has been sitting in the current library for a while, that
 longer buying anything: nobody is actively re-watching a freshly-added file six months later at
 its original bitrate. This project automatically downconverts eligible current-library files to
 roughly 1–2 GB and relocates them into the `archive-movies`/`archive-tv` roots that the
-[Plex-to-Jellyfin media migration project](Plex-to-Jellyfin-Media-Migration.md) already created,
+[Plex-to-Jellyfin media migration project](<completed projects/Plex-to-Jellyfin-Media-Migration.md>) already created,
 freeing space in the current library on a rolling basis without any manual intervention once the
 automation is trusted.
 
@@ -287,7 +287,7 @@ cleanly and its log is reviewed.
 
 ## References
 
-- [Plex-to-Jellyfin media migration project](Plex-to-Jellyfin-Media-Migration.md)
+- [Plex-to-Jellyfin media migration project](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
 - [Radarr API documentation](https://radarr.video/docs/api/)
 - [Sonarr API documentation](https://sonarr.tv/docs/api/)
 - [ffmpeg documentation](https://ffmpeg.org/documentation.html)

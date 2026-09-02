@@ -348,7 +348,7 @@ payload.
 of `Media/ix-apps` exist, both taken as pre-change checkpoints during the
 Plex-to-Jellyfin migration project (`pre-plex-migration-20260830-210033`
 and `pre-boxsets-plugin-20260901-100925` — see
-[docs/projects/Plex-to-Jellyfin-Media-Migration.md](projects/Plex-to-Jellyfin-Media-Migration.md)).
+[docs/projects/completed projects/Plex-to-Jellyfin-Media-Migration.md](<projects/completed projects/Plex-to-Jellyfin-Media-Migration.md>)).
 There is no recurring/scheduled snapshot task for `Media/ix-apps`, and
 neither snapshot is mirrored to the Backup Synology or the encrypted
 off-site IDrive e2 task — unlike every other application covered in this

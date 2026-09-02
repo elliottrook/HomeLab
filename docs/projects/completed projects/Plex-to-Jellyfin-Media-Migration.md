@@ -1,12 +1,25 @@
 # Plex-to-Jellyfin Media Migration Project
 
-> Status: Milestones 1–9 complete. Plex source media (Movies + TV Shows)
-> was deleted from the Synology 2026-09-01 with Jason's explicit approval;
-> the Plex application remains installed but confirmed stopped; the
-> temporary Jellyfin API key is revoked and the migration staging
-> directory has been removed. Only the open Jellyfin backup-coverage
-> follow-up (needs Jason's decision on schedule/mechanism, tracked in
-> 05-Backups.md) remains before this project can be marked `Complete`.
+> Status: **Complete.** Closed 2026-09-01; moved to `completed projects/`.
+> Milestones 1–9 and the completion gate passed: Archive Movies (921 items)
+> and Archive TV (5,678 episodes) libraries live and checksum-verified;
+> music fully consolidated with playlists (11/11) and movie collections
+> (165 box sets, covering 167/168 Plex collections) migrated and validated,
+> including recovery from a same-day Jellyfin startup-task incident; all 34
+> originally-unresolved movie mappings closed out (18 fixed, 16 correctly
+> left as genuine bonus content with no source ID to correct against).
+> Plex source media (Movies + TV Shows, 5.6 TB) was deleted from the
+> Synology with Jason's explicit approval and a full risk analysis; the
+> Plex application remains installed but confirmed stopped; the temporary
+> Jellyfin API key is revoked and the migration staging directory removed.
+> One item is intentionally **Deferred**, not part of this completion:
+> setting up recurring automated backup coverage for Jellyfin's own
+> application database (playlists, collections, users, watch state) — a
+> real, documented gap (see the "Jellyfin" section of
+> `docs/05-Backups.md`) that needs Jason's decision on schedule/mechanism,
+> and is now entangled with his separate, larger effort to repoint backup
+> duty away from the currently-unstable Backup Synology. Pick this back up
+> as its own follow-on once that broader effort settles.
 >
 > Project owner: Jason
 >
@@ -1383,7 +1396,7 @@ unlike a bulk deletion.
 - Source media: delete now. Jason's stated mitigation: an existing Hyper
   Backup task (`Media Backup`, on the Backup Synology, pre-dating this
   project — see the "Synology Drive same-site backup" section of
-  [05-Backups.md](../05-Backups.md)) already covers this media, and Jason
+  [05-Backups.md](../../05-Backups.md)) already covers this media, and Jason
   will retain that backup for one month as the safety net in place of a
   pre-deletion observation window.
 - Scope, clarified explicitly before acting: `/volume1/Plex/Movies` and
@@ -1600,7 +1613,7 @@ Of the 34, split into two groups:
 
 - [x] Record final host and container paths, mounts, ACLs and library names.
   — **Done 2026-09-01.** Added a "Media libraries (Jellyfin)" section to
-  [04-Operations.md](../04-Operations.md) with the full host-path table for
+  [04-Operations.md](../../04-Operations.md) with the full host-path table for
   all five libraries; ACLs were already recorded in Milestone 2.
 - [x] Record the final Plex-to-Jellyfin mapping statistics and unresolved
   items. — Done as part of Milestone 8's "Re-run counts" item above.
@@ -1621,7 +1634,7 @@ Of the 34, split into two groups:
   full paths or user identifiers. — Same as above:
   `~/lab/private-backups/plex-jellyfin-migration/`, covered by the
   configuration-backup retention policy in
-  [05-Backups.md](../05-Backups.md) (7 daily / 4 weekly / 12 monthly).
+  [05-Backups.md](../../05-Backups.md) (7 daily / 4 weekly / 12 monthly).
 - [x] Add the canonical music root and archive-library paths to the media
   operations documentation. — Done as part of the same 04-Operations.md
   section above.
@@ -1780,5 +1793,5 @@ deletion is a separate destructive operation requiring explicit approval.
 - [beets configuration](https://beets.readthedocs.io/en/stable/reference/config.html)
 - [beets duplicate detection](https://beets.readthedocs.io/en/latest/plugins/duplicates.html)
 - [MusicBrainz Picard introduction](https://picard-docs.musicbrainz.org/en/v3.0/about_picard/introduction.html)
-- [TrueNAS DIY SAS expansion project](TrueNAS-DIY-SAS-Expansion.md)
-- [HomeLab backup design](../05-Backups.md)
+- [TrueNAS DIY SAS expansion project](../TrueNAS-DIY-SAS-Expansion.md)
+- [HomeLab backup design](../../05-Backups.md)
