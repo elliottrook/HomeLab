@@ -29,10 +29,19 @@ SSH shortcuts:
 - `Application Management` contains File Browser and Forgejo.
 - `Security & Surveillance` links to Frigate and launches its SSH connection.
 
-Optional OPNsense, Proxmox and TrueNAS API widgets are intentionally deferred to
-a separately scoped dashboard enhancement. Deploy them only with dedicated
-least-privilege read-only credentials; never place reusable API secrets directly
-in the tracked Homepage YAML.
+Most service tiles now carry live Homepage widgets (system/queue stats pulled
+from each app's own API) rather than static links — see the 2026-09-02
+activity log entry below for the full list and the credential pattern used.
+Proxmox and TrueNAS widgets are live, each backed by a dedicated
+least-privilege read-only credential (a privilege-separated API token with the
+built-in `PVEAuditor` role for Proxmox; a dedicated API key on the
+`truenas_admin` account for TrueNAS). The OPNsense widget remains
+intentionally deferred — it has no safe CLI-native way to mint an API key
+(unlike Proxmox/TrueNAS), so wiring it up needs a short GUI step on the
+firewall itself with Jason present. API secrets are never placed directly in
+the tracked Homepage YAML; they're written to `/opt/homepage/secrets/*` files
+(mode 600, outside Git) and referenced from `services.yaml` via
+`{{HOMEPAGE_FILE_*}}`, the same pattern already used for Beszel.
 
 Dashboard SSH targets:
 
@@ -121,6 +130,50 @@ host-level metrics (not UPS-specific data) in its dashboard.
 
 Full architecture, shutdown behavior and recovery notes:
 [UPS-Power-Resilience-Claude-Handover.md](UPS-Power-Resilience-Claude-Handover.md).
+
+## Activity log — 2026-09-02
+
+Upgraded the Homepage dashboard from static links to live widgets on every
+tile where Homepage has a supported integration, and repaired a real *arr
+stack outage caused mid-project by an API key rotation.
+
+- Rotated the Sonarr/Radarr/Prowlarr/Lidarr/SABnzbd API keys after one was
+  accidentally echoed into a terminal transcript, then discovered a second,
+  unrelated bug while chasing down a stale-value mismatch: `/mnt/Media/configs/<app>/`
+  on TrueNAS is a leftover, disconnected directory for each of these apps —
+  their real config (and live API key) lives in TrueNAS's managed
+  `/mnt/.ix-apps/docker/volumes/<uuid>/_data/` volume instead. Reading the
+  stale path after rotating produced confidently-wrong key values.
+- That mismatch, plus the key rotations themselves, broke live functionality:
+  Prowlarr's "Apps" integration stores Sonarr/Radarr's API key to push
+  indexer configs to them, and each synced indexer entry embeds Prowlarr's
+  *own* key too — so rotating Prowlarr's key cascaded into "all indexers
+  unavailable" health failures on both Sonarr and Radarr, on top of the
+  direct Prowlarr→Sonarr/Radarr connection breaking. Fixed by correcting the
+  stored keys in Prowlarr's Apps settings and forcing an immediate
+  "Sync App Indexers"; all three confirmed healthy afterward
+  (`No issues with your configuration`).
+- Added Homepage widgets, each backed by a dedicated credential stored under
+  `/opt/homepage/secrets/` (mode 600, outside Git) and referenced from
+  `services.yaml` via `{{HOMEPAGE_FILE_*}}` — the existing Beszel pattern:
+  Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd (API keys), TrueNAS (dedicated
+  API key on `truenas_admin`), and Proxmox (privilege-separated API token,
+  `PVEAuditor` role only, at path `/`).
+- Enabled authentication on Lidarr (Forms, disabled for local addresses,
+  matching Sonarr/Radarr/Prowlarr's existing pattern) — it previously had
+  none configured, which was a pre-existing gap unrelated to this change but
+  blocked wiring up its widget until addressed.
+- Left several recommended widgets **not done** this session — no safe,
+  unattended way to obtain credentials for them: OPNsense (no CLI-native API
+  key path, and it's the gateway/firewall — too high blast-radius to
+  hand-edit unsupervised); Pi-hole ×2, UniFi, Grafana, Portainer, Nginx Proxy
+  Manager, Authentik, Tailscale, Jellyfin, Plex, Immich, Seerr,
+  Audiobookshelf, File Browser, Forgejo — each needs an admin-panel login
+  Claude didn't have standing credentials for, and the session's automatic
+  guardrails correctly declined to push through those logins unattended.
+  Calibre also needs a quick check first (Homepage's widget targets
+  calibre-web specifically, not the stock Calibre content server — unclear
+  which this tile actually runs). Revisit with Jason present.
 
 ## Activity log — 2026-08-22
 
