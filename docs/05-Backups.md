@@ -57,6 +57,45 @@ Both production tasks write `0` only after copy and verification succeed. On fai
 
 Private keys, authorized-key material, host-key files, email credentials and backup contents remain outside Git.
 
+## Active incident — Backup Synology unstable (2026-09-01, ongoing)
+
+**The Backup Synology is currently unstable and shut down.** Both the
+automated same-site pull above and the encrypted off-site task below
+(which runs *from* the Backup Synology) are not running. Jason is migrating
+the backup role to the main Synology (`gowest`, `192.168.20.41`), but that
+destination is not yet configured to receive the automated pull.
+
+**Temporary measure in place:** a manual, one-off copy of
+`~/lab/private-backups` (the Mac source that Layer 2 normally pulls) was
+pushed to Docker LXC 100 as a stopgap:
+
+- Destination: `/root/homelab-temp-backup/private-backups.tar.gz` on LXC 100
+  (`192.168.20.20`), root-owned, mode 700 directory.
+- Verified: gzip integrity passed, 505 files listed, 3.95 MB compressed.
+- **This is not equivalent to the normal architecture.** It does not
+  protect against loss of Proxmox itself (LXC 100 is a Proxmox guest, same
+  physical host as everything else's Layer 1 backups), it is not automated
+  or scheduled, and it will not be refreshed unless someone re-runs it
+  manually. Treat it as better-than-nothing, not as restored coverage.
+
+**Also discovered while setting this up:** an attempted transfer to
+`gowest` itself (as a possible destination) failed consistently — payloads
+over roughly 1 MB stalled at exactly 32768 bytes and disconnected, while
+an identical payload sent to Docker LXC 100 in the same session transferred
+cleanly. This isolates a real problem to `gowest` specifically, not a
+general network/VLAN path issue — worth investigating directly, since
+`gowest` is the intended long-term replacement for the Backup Synology
+role and currently appears to have its own stability issue. One small
+successful transfer (`arista.tar.gz`, 50 KB) is sitting in
+`/volume1/homes/Jason/HomeLab-Temp-Backup/` on `gowest` from that
+diagnostic process — harmless, not sensitive, left in place.
+
+**Follow-up required once resolved:** decide and configure the permanent
+replacement (either restore the Backup Synology, or build out `gowest` as
+the new Layer 2 destination using the same pull-based, restricted-account
+pattern documented above — not a continuation of this manual/root-account
+stopgap), then remove the temporary files from LXC 100 and `gowest`.
+
 ## Encrypted IDrive e2 off-site backup
 
 The Backup Synology runs Hyper Backup task `Mini Atlas Offsite` against a private IDrive e2 S3-compatible bucket in Oregon-2. The task uses the region-specific endpoint `s3.us-west-4.idrivee2.com` and a bucket-scoped read/write access key that may delete objects for retention pruning but may not delete the bucket. Access and secret keys are not recorded in this repository.
