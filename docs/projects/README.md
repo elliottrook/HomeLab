@@ -16,8 +16,9 @@
 | NUT/UPS deployment | Handover ready | [NUT/UPS handover](../UPS-Power-Resilience-Claude-Handover.md) | Architecture, shutdown and recovery requirements are contained in the handover |
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
 | Video library archiving | Proposed | [Video library archiving](Video-Library-Archiving.md) | Downconverts aged current-library video and hands it to the archive roots above |
-| NetBox DCIM / rack & asset management | Proposed | [NetBox DCIM](NetBox-DCIM.md) | Replaces the stale hand-maintained rack diagram and device tables with a generated, data-backed view |
+| NetBox DCIM / rack & asset management | Active; one item blocked on Jason | [NetBox DCIM](NetBox-DCIM.md) | Rack walk-through, VLAN/IPAM, and full guest/device inventory complete; only the live Backup Synology DSM task edit remains |
 | Aster sysadmin second brain | Active | [Aster sysadmin second brain](Aster-Sysadmin-Second-Brain.md) | Qualifies the operational reference, builds recoverable authority-aware memory, and graduates Aster through correctness/security/performance gates |
+| Backup architecture redesign | Ready | [Backup architecture redesign](Backup-Architecture-Redesign.md) | Replaces Hyper Backup's Synology-to-Synology path with Synology → rsync → TrueNAS/ZFS snapshots → dedicated rclone LXC → encrypted, versioned IDrive e2 |
 
 ## Completed projects
 
