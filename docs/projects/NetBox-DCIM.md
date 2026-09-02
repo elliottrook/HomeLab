@@ -223,19 +223,25 @@ same way a hand-maintained one does.
     real, investigated blocker, not a skipped step — needs Jason directly
     (DSM UI, or supplying the mechanism used for the earlier LXC 109
     edit referenced in `05-Backups.md`).
-  - [ ] **Needs a 30-second manual step from Jason.** Investigated the
-    agent-install pattern (confirmed against Forgejo LXC 108's working
-    `beszel-agent.service`: a dedicated `beszel` user running
-    `/opt/beszel-agent/beszel-agent`, pointed at the hub
-    `http://192.168.20.20:8090` via a fixed hub public `KEY` plus a
-    **per-system `TOKEN`**). The hub (Beszel 0.18.7, PocketBase-based, in
-    Docker LXC 100) has no CLI/API path to mint that token without either
-    an existing superuser session or creating one — and creating or using
-    hub admin credentials programmatically is exactly the kind of
-    account/credential action this repo's rules reserve for a human. This
-    one is much lighter than the DSM blocker above: open the Beszel hub UI,
-    "Add System" named `netbox` at `192.168.20.32`, copy the generated
-    token, and I can finish the install immediately once I have it.
+  - [x] **Done 2026-09-01.** Jason clicked "Add System" in the Beszel hub
+    UI and supplied the generated token. Installed via the official
+    `get.beszel.dev` installer (downloaded and sanity-checked before
+    running — confirmed it does real sha256 checksum verification, not
+    just a bare `curl | sh`), same hub public `KEY` and `HUB_URL` as
+    Forgejo LXC 108's working agent. Service came up `active`/`enabled`,
+    no auto-update timer created (matches this repo's pinned-version
+    preference).
+
+    **Caught a real timing issue, not a config error:** the agent logged
+    repeated `WebSocket connection failed: unexpected status code: 401`
+    for about 90 seconds after install — because the token Jason had
+    given me earlier (before this "Add System" click) had nothing to
+    match yet; a token only becomes valid once the hub-side system record
+    actually exists. No agent-side change was needed: it kept retrying on
+    its own 10-second cycle and connected cleanly
+    (`WebSocket connected host=192.168.20.20:8090`) on the very next
+    attempt after the record was created. Confirmed both in the agent's
+    own journal and by Jason seeing it go green in the hub UI.
   - [x] Add configs/services.conf plain-TCP entry — **done** (`netbox`,
     `192.168.20.32:8000`), confirmed passing via Doctor's "Checking
     configured services" section. `configs/devices.conf` also updated to
@@ -366,3 +372,4 @@ markdown files, and there is exactly one documented source of truth for each
 | 2026-09-01 | 3 | NetBox API token minted via the documented `/api/users/tokens/provision/` endpoint; discovered and recorded this NetBox version's "v2" `Bearer nbt_<key>.<token>` auth format (differs from the older `Token <token>` form) | Passed |
 | 2026-09-01 | 3 | Site, all 7 VLANs/prefixes, a Proxmox cluster, and all 12 current Proxmox guests (as Virtual Machines with interfaces, MAC addresses, and primary IPs) created in NetBox, every field pulled fresh from live `pct config`/`qm config`, not copied from markdown. Verified after creation via the API: 12/12 VMs, 7/7 VLANs, 7/7 prefixes present and spot-checked | Passed |
 | 2026-09-01 | 1, 3, 4 | Physical rack walk-through completed interactively with Jason from a photo. Surfaced a real hardware correction (OPNsense is a VMware SD-WAN Edge 620, not the previously-recorded "Dell EMC E42W / SD-WAN Edge 610" — fixed in `CLAUDE.md` and `03-Hardware-Inventory.md`) and located the NUT server physically for the first time. Rack + 13 Devices created in NetBox (8 rack-mounted at confirmed positions, 5 correctly recorded as not rack-mounted/unplaced); verified via `GET /api/dcim/devices/?rack_id=1`. `diagrams/Rack-Diagram.md` refreshed with the same data and its stale banner removed. Markdown-vs-NetBox source-of-truth decision recorded: NetBox authoritative, markdown a refreshed snapshot | Passed |
+| 2026-09-01 | 2 | Beszel agent installed on LXC 111 after Jason created the system record and supplied its token; official `get.beszel.dev` installer sanity-checked before running. Agent logged repeated `401`s for ~90s (token had nothing to match until the hub-side record existed, not a config error), then self-recovered and connected cleanly on its own next retry — confirmed in the agent's journal and by Jason seeing it go green in the hub UI | Passed |
