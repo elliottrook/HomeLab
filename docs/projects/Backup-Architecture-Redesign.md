@@ -304,16 +304,56 @@ block starting Milestone 2 on the parts that are unambiguous.
 Three separate pull relationships, one per source, mirroring the old
 architecture's exact scope (see Architecture decisions above):
 
-- [ ] Create three TrueNAS datasets: `Media/backup/mac`,
-  `Media/backup/proxmox-guests`, `Media/backup/gowest`.
-- [ ] **Proxmox source:** extend the existing restricted `homelab-backup`
-  account (locked password, no admin group, forced read-only `rrsync`
-  rooted at `/mnt/backups/dump`, originally built for the Backup
-  Synology's pull) with a **new authorized key for TrueNAS** rather than
-  sharing the Backup Synology's key — so either can be revoked
-  independently later. VMID list: 100, 101, 102, 103, 104, 105, 106, 107,
-  108, 109, 111 (NetBox) — matching the Architecture decisions scope
-  exactly, not 110.
+- [~] Create three TrueNAS datasets: `Media/backup/mac`,
+  `Media/backup/homelab-proxmox-guests`, `Media/backup/gowest`.
+  **Renamed the middle one** from the originally-planned
+  `Media/backup/proxmox-guests` — discovered mid-Milestone-2 that
+  `Media/backup/homelab-proxmox-guests/` already exists, containing one
+  real file (a 38 GB `vzdump-lxc-110` archive dated 2026-09-01), almost
+  certainly a manual one-off from the parallel session active in this
+  repo, addressing the exact "LXC 110 has no off-host mirror" gap flagged
+  during the NetBox project. No TrueNAS rsync/cron/replication task
+  references it — confirmed via `midclt call rsynctask.query` /
+  `cronjob.query` / `replication.query`, all empty — so nothing
+  automated to conflict with, just aligned naming rather than creating a
+  competing directory. `mac` and `gowest` datasets not yet created.
+- [x] **Proxmox source: connection proven end-to-end.** Extended the
+  existing restricted `homelab-backup` account (locked password, no admin
+  group, forced read-only `rrsync` rooted at `/mnt/backups/dump`,
+  originally built for the Backup Synology's pull) with a **new
+  authorized key for TrueNAS**, `from="192.168.20.40"`-restricted,
+  rather than sharing the Backup Synology's key — backed up
+  `authorized_keys` first. Generated a dedicated ed25519 keypair on
+  TrueNAS (`/root/.ssh/homelab_proxmox_pull_ed25519`, private key never
+  leaves the guest).
+
+  **Hit a real, expected blocker first:** TrueNAS (Servers VLAN 20)
+  had no path to Proxmox (Management VLAN 50) on port 22 at all —
+  default-deny, no existing rule covered it. Paused and got Jason's
+  explicit confirmation before touching OPNsense specifically (the one
+  component where a mistake has network-wide blast radius, and this
+  project's authorization hadn't explicitly enumerated firewall changes
+  the way NetBox's did). Added a narrowly-scoped pass rule
+  (`192.168.20.40` → `192.168.50.10:22` only), cloned from the existing
+  TrueNAS→NUT-server rule's exact XML structure as a template rather than
+  hand-written from scratch — safer given how much a malformed rule could
+  break. Config backed up first
+  (`/root/config-backups/config.xml.before-truenas-proxmox-rule` on
+  OPNsense); validated the edited XML parses before reloading
+  (`configctl filter reload`); confirmed both the new path and every
+  existing tested path (`ssh proxmox`/`truenas`/`opnsense`, `lab status`)
+  still work afterward — no regression.
+
+  End-to-end test (`rsync --list-only` through the restricted account)
+  succeeded: lists all guest archives across every VMID in scope,
+  **including LXC 111 (NetBox)**, already present as of today
+  (2026-09-02) — confirming the local Proxmox job is already covering it.
+  Total 353.9 GB across all archives currently on Proxmox's local backup
+  disk.
+
+  VMID scope for the actual pull (not yet configured, connection only):
+  100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 111 — matching the
+  Architecture decisions scope exactly, not 110.
 - [ ] **`gowest` source:** create a dedicated, restricted DSM account on
   `gowest` for TrueNAS's pull — least-privilege, scoped to read-only on
   `homes`, `Family Documents`, and the `SynologyDrive` package's
@@ -434,3 +474,4 @@ as current.
 | 2026-09-02 | 0 (design) | Diagnosed Backup Synology + gowest instability under Hyper Backup load this session (network/disk/reboot ruled out as causes); synthesized a three-way design discussion (Claude + a second AI's proposal, refined with Jason) into this project | Recorded above |
 | 2026-09-02 | 0 (authorization) | Per-project authorization granted by Jason, with the Milestone 4 dual-restore gate explicitly preserved as a condition of the grant, not something it waives | Recorded above |
 | 2026-09-02 | 1 | Live TrueNAS check (6.78T free of 21.8T, RAM tight but ZFS-ARC-explained, load low); Proxmox/OPNsense check confirmed VMID 112 and `192.168.20.33` free; Hyper Backup job scope recorded from `05-Backups.md` after live DSM CLI verification failed silently on `gowest`; TrueNAS dataset layout decided (`Media/backup/gowest`) | Gate passed; IDrive versioning check deferred to Milestone 3 with reason |
+| 2026-09-02 | 2 | Discovered pre-existing `Media/backup/homelab-proxmox-guests/` on TrueNAS (one manual LXC 110 archive, no automated task references it) — aligned naming rather than creating a competing dataset. Added TrueNAS's own restricted key to Proxmox's `homelab-backup` account (backed up first). Hit and resolved a real OPNsense gap: no path existed from TrueNAS to Proxmox:22; added a narrowly-scoped pass rule after explicit confirmation from Jason, cloned from an existing rule's XML structure, config backed up first, validated before reload, confirmed no regression on any other path afterward | Passed — restricted `rsync --list-only` pull confirmed working end-to-end, all in-scope VMIDs visible including 111 (NetBox) |
