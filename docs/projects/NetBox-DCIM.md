@@ -387,6 +387,22 @@ scope" line ruling out automated discovery — see the decision below.
   Not added to NetBox, per the scope decision above. This required its own
   explicit go-ahead from Jason since it's a real VLAN-membership change,
   outside any project's standing authorization.
+- **Binarui AP switch model — attempted, inconclusive, not a new problem.**
+  Jason granted read/write autonomy to finish this task overnight
+  (2026-09-02); the one remaining safely-closeable item from this
+  document's earlier "not attempted yet" list was the Binarui switch's
+  exact model (its NetBox `Device` still has the generic placeholder
+  device type `AP Switch`). A read-only HTTP request to `192.168.50.26`
+  timed out — consistent with `Current-Network-Baseline.md`'s existing
+  note that this switch's management plane sits on untagged VLAN 1 and
+  isn't reachable normally on VLAN 50; nothing new here, and not pursued
+  further (would need physical/console access, which no authorization
+  substitutes for). Left as a genuine open item, not silently retried.
+  Backup Synology's model was explicitly left alone per Jason's
+  instruction (out of scope, unrelated to tonight's NAS-instability
+  incident). No further network-affecting changes were made overnight —
+  everything else on the "not attempted yet" list either needs Jason
+  directly or was already resolved earlier this session.
 
 ## Milestone 4 — Cutover and hand-back
 
