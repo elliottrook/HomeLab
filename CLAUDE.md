@@ -275,6 +275,13 @@ Current state:
   2026-08-29 entry above has not yet landed, and `proxmox-ups`
   runtime/load has still not been re-measured under the new
   configuration — both remain open follow-ups.
+- 2026-09-02: `proxmox-ups` re-measured live via `upsc` post-RAM-upgrade:
+  `ups.load` 15% (~150W, up from the pre-upgrade 12%/~120W baseline),
+  `battery.charge` 100%, `battery.runtime` ~3200s (~53 min, down from
+  ~3675s/~61 min). Modest increase, well within the 80% `LB` threshold's
+  margin — closes the RAM half of the re-measurement follow-up. Still
+  need a follow-up re-measurement once the GPU upgrade lands, since that
+  draw will likely be far larger than RAM's.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

@@ -654,10 +654,17 @@ the original plan:
   (confirmed live: 48GB physical, up from the prior baseline — see
   `dmidecode`/`free -h` output from that day's post-upgrade check; all
   guests came back healthy, no failed units or memory errors). The GPU
-  has not landed yet, and `proxmox-ups` load/runtime has still not been
-  re-measured under the new configuration — this note only confirms the
-  hardware change, not that the Milestone 3 threshold re-check has been
-  done.
+  has not landed yet.
+
+  **Re-measured same day** via `upsc proxmox-ups`: `ups.load` 15%
+  (~150W, up from the 12%/~120W baseline in the table above),
+  `battery.charge` 100%, `battery.runtime` ~3200s (~53 min, down from
+  ~3675s/~61 min). A modest increase, comfortably inside the 80% `LB`
+  threshold's margin — no change needed to the Milestone 3 thresholds
+  from the RAM upgrade alone. This closes the RAM portion of the
+  re-measurement task; the GPU upgrade will need its own re-measurement
+  once it lands, and is expected to move the load far more than RAM
+  did.
 - Frigate (Proxmox VM 102) still depends on TrueNAS via NFS for its
   recordings storage, even though the physical UPS pairing changed —
   that cross-UPS dependency (`proxmox-ups` compute → `nas-ups` storage)
