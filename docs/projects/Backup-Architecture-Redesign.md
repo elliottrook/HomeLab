@@ -304,19 +304,23 @@ block starting Milestone 2 on the parts that are unambiguous.
 Three separate pull relationships, one per source, mirroring the old
 architecture's exact scope (see Architecture decisions above):
 
-- [~] Create three TrueNAS datasets: `Media/backup/mac`,
-  `Media/backup/homelab-proxmox-guests`, `Media/backup/gowest`.
-  **Renamed the middle one** from the originally-planned
-  `Media/backup/proxmox-guests` — discovered mid-Milestone-2 that
-  `Media/backup/homelab-proxmox-guests/` already exists, containing one
-  real file (a 38 GB `vzdump-lxc-110` archive dated 2026-09-01), almost
-  certainly a manual one-off from the parallel session active in this
-  repo, addressing the exact "LXC 110 has no off-host mirror" gap flagged
-  during the NetBox project. No TrueNAS rsync/cron/replication task
-  references it — confirmed via `midclt call rsynctask.query` /
-  `cronjob.query` / `replication.query`, all empty — so nothing
-  automated to conflict with, just aligned naming rather than creating a
-  competing directory. `mac` and `gowest` datasets not yet created.
+- [x] Create the backup landing directories. **Design simplified
+  mid-Milestone-2**: rather than three separate ZFS datasets, discovered
+  `Media/backup/homelab-proxmox-guests/` already exists as a plain
+  subdirectory (not its own dataset) of a pre-existing `Media/backup`
+  dataset — containing one real file (a 38 GB `vzdump-lxc-110` archive
+  dated 2026-09-01), almost certainly a manual one-off from the parallel
+  session active in this repo, addressing the exact "LXC 110 has no
+  off-host mirror" gap flagged during the NetBox project. No TrueNAS
+  rsync/cron/replication task references it — confirmed via `midclt call
+  rsynctask.query` / `cronjob.query` / `replication.query`, all empty —
+  so nothing automated to conflict with. Aligned with this precedent
+  instead of fighting it: created `mac` and `gowest` as sibling plain
+  subdirectories of the same `Media/backup` dataset, mode 700, rather
+  than three independent datasets. Trade-off accepted: one shared
+  snapshot retention schedule for all three sources instead of
+  independent per-source schedules — reasonable at this scale, and
+  matches what was already there rather than restructuring it.
 - [x] **Proxmox source: connection proven end-to-end.** Extended the
   existing restricted `homelab-backup` account (locked password, no admin
   group, forced read-only `rrsync` rooted at `/mnt/backups/dump`,
@@ -354,26 +358,53 @@ architecture's exact scope (see Architecture decisions above):
   VMID scope for the actual pull (not yet configured, connection only):
   100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 111 — matching the
   Architecture decisions scope exactly, not 110.
-- [ ] **`gowest` source:** create a dedicated, restricted DSM account on
-  `gowest` for TrueNAS's pull — least-privilege, scoped to read-only on
-  `homes`, `Family Documents`, and the `SynologyDrive` package's
-  `@appdata` path only. Not Jason's personal key, not broad admin access.
-- [ ] **Mac source:** create a dedicated, restricted SSH key for TrueNAS's
-  pull of `~/lab/private-backups`, matching the old architecture's own
-  pattern ("a dedicated Synology-held SSH key restricted on the Mac to
-  the [puller's] source address"). Requires confirming Remote Login/SSH
-  is enabled on the Mac for this — a change to Jason's own laptop, flagged
-  for explicit confirmation before enabling if it isn't already on.
-- [ ] Configure three native TrueNAS rsync tasks (SSH-based, pull), one
-  per source, each against its own scoped credential.
-- [ ] Configure a ZFS periodic snapshot task per dataset with an explicit
-  retention schedule (proposed starting point: daily snapshots retained
-  14 days, weekly retained 8 weeks, monthly retained 6 months — confirm
-  or adjust before finalizing).
+- [ ] **`gowest` source: blocked on Jason.** Creating a restricted DSM user
+  account requires `synouser`, which is root-only and inaccessible the
+  same way `synoschedtask` was earlier in this project — no passwordless
+  sudo beyond the narrow shutdown grant. Same pattern as the Beszel token
+  earlier in the NetBox project: asked Jason to create the account via
+  the DSM UI (Control Panel → User & Group), not in `administrators`,
+  read-only on `homes`/`Family Documents` — SSH key restriction and pull
+  setup will follow once it exists.
+- [ ] **Mac source:** not yet started — waiting on the `gowest` step to
+  land first, and still needs explicit confirmation before enabling
+  Remote Login on Jason's own laptop if it isn't already on.
+- [x] **Proxmox rsync task configured and created** via TrueNAS's native
+  `rsynctask.create` (mode SSH, `ssh_credentials` referencing a
+  registered keychain SSH key + connection pair — private key generated
+  earlier stays on TrueNAS, registered via `keychaincredential.create`,
+  never printed). `extra` include/exclude list built to exactly mirror
+  the Architecture decisions VMID scope (100–109, 111; not 110) —
+  `--include=vzdump-{lxc,qemu}-<vmid>-*.{tar,vma}.zst` per VMID then
+  `--exclude=*`, same pattern as the existing reference script.
+  `validate_rpath: false` — the schema's default probe doesn't work
+  against a forced-command-restricted `rrsync` account, which only
+  understands the rsync protocol itself, not an arbitrary path-stat
+  request. Daily 04:00, after Proxmox's own local job. Manually triggered
+  once to validate before trusting the schedule; the real pull (~354 GB
+  in scope) is running in the background as this checkpoint is written —
+  result to be confirmed once it completes.
+- [x] Configure a ZFS periodic snapshot task per dataset. **Decision:**
+  one shared `Media/backup` dataset (matching the pre-existing
+  `homelab-proxmox-guests` subdirectory precedent, not three separate
+  datasets) means one shared retention schedule covers all three
+  sources, not per-dataset. Created three tiered snapshot tasks on
+  `Media/backup` via `pool.snapshottask.create`: daily (14-day
+  retention, 05:30), weekly (8-week retention, Sunday 05:45), monthly
+  (6-month retention, 1st of month 06:00) — matching the originally
+  proposed schedule. Triggered the daily task manually to validate;
+  result to be confirmed (ZFS snapshot creation is near-instant
+  regardless of dataset size, so a long-running confirmation likely
+  reflects how this CLI reports job completion over this SSH path, not
+  the snapshot itself taking a long time — same pattern observed with
+  the rsync task trigger).
 - [ ] Run each task, confirm data lands correctly and matches its source
-  (count/checksum comparison, not just "it ran without error").
+  (count/checksum comparison, not just "it ran without error"). **In
+  progress** — Proxmox pull and daily snapshot both triggered, results
+  pending as this checkpoint is written.
 - [ ] Confirm snapshots are actually being created and retained per
-  schedule, for all three datasets.
+  schedule, for all three datasets. Blocked on `gowest`/Mac sources not
+  yet existing.
 
 ### Gate
 
@@ -475,3 +506,4 @@ as current.
 | 2026-09-02 | 0 (authorization) | Per-project authorization granted by Jason, with the Milestone 4 dual-restore gate explicitly preserved as a condition of the grant, not something it waives | Recorded above |
 | 2026-09-02 | 1 | Live TrueNAS check (6.78T free of 21.8T, RAM tight but ZFS-ARC-explained, load low); Proxmox/OPNsense check confirmed VMID 112 and `192.168.20.33` free; Hyper Backup job scope recorded from `05-Backups.md` after live DSM CLI verification failed silently on `gowest`; TrueNAS dataset layout decided (`Media/backup/gowest`) | Gate passed; IDrive versioning check deferred to Milestone 3 with reason |
 | 2026-09-02 | 2 | Discovered pre-existing `Media/backup/homelab-proxmox-guests/` on TrueNAS (one manual LXC 110 archive, no automated task references it) — aligned naming rather than creating a competing dataset. Added TrueNAS's own restricted key to Proxmox's `homelab-backup` account (backed up first). Hit and resolved a real OPNsense gap: no path existed from TrueNAS to Proxmox:22; added a narrowly-scoped pass rule after explicit confirmation from Jason, cloned from an existing rule's XML structure, config backed up first, validated before reload, confirmed no regression on any other path afterward | Passed — restricted `rsync --list-only` pull confirmed working end-to-end, all in-scope VMIDs visible including 111 (NetBox) |
+| 2026-09-02 | 2 | Registered a TrueNAS keychain SSH key pair + connection credential (private key never printed); created the Proxmox rsync task (`rsynctask.create`, VMID-scoped include/exclude list matching the Architecture decisions scope exactly) and three tiered ZFS snapshot tasks on `Media/backup` (daily/weekly/monthly). Both the rsync pull and the daily snapshot were manually triggered to validate before trusting their schedules. `gowest` source blocked the same way `synoschedtask` was earlier — asked Jason to create the restricted DSM account via the UI | In progress — pull (~354 GB in scope) and snapshot results pending as this checkpoint was written |
