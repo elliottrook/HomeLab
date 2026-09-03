@@ -413,6 +413,29 @@ scope" line ruling out automated discovery — see the decision below.
   (confirmed zero other devices referenced it before deleting). Also
   updated `docs/03-Hardware-Inventory.md`'s listing to match. This was the
   one deliberately-skipped item from the discovery pass above; now closed.
+- **Real outage found and fixed: NetBox was down, no restart policy on
+  any of its 5 containers.** Jason reported it looked down; confirmed via
+  HTTP (connection refused) and `docker compose ps` (all 5 containers
+  `Exited`). Root cause, confirmed via `journalctl`/`last -x reboot`: LXC
+  111 itself cleanly rebooted ~7 hours earlier (not caused by any of
+  tonight's work — no OOM signal in `dmesg`, just a clean shutdown/boot
+  cycle from an unknown external trigger) and Docker Compose never
+  restored the stack afterward because none of the 5 services had a
+  `restart` policy set. Fixed in two steps: first `docker compose up -d`
+  to restore service immediately (verified: all 5 healthy, login page
+  HTTP 200, device count still 23 — Postgres data lives in a named volume
+  untouched by container state); then, with Jason's explicit go-ahead,
+  added `restart: unless-stopped` to all 5 services via
+  `docker-compose.override.yml` (not the upstream-tracked
+  `docker-compose.yml`, so a future `git pull` on the netbox-docker
+  checkout won't lose it) — backed up the override file first
+  (`docker-compose.override.yml.before-restart-policy-20260903` on the
+  guest), confirmed the merged config picked up the policy via
+  `docker compose config` before recreating containers, then recreated
+  and re-verified (healthy, HTTP 200, device count still 23). **Open
+  question, not yet answered**: what actually triggered the LXC reboot at
+  ~20:23 hasn't been identified — worth checking Proxmox's own task log
+  if it recurs unexpectedly.
 
 ## Milestone 4 — Cutover and hand-back
 
