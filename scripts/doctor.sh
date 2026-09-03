@@ -808,7 +808,8 @@ check_synology_drive_backup() {
 
     if ! remote_output="$(
         ssh -o BatchMode=yes -o ConnectTimeout=5 gowest-backup \
-            'find "/volume1/Backup/GoWest_2.hbk" -type f -printf "%T@\n" 2>/dev/null | sort -rn | head -n 1'
+            'find "/volume1/Backup/GoWest_2.hbk" -type f -printf "%T@\n" 2>/dev/null | sort -rn | head -n 1' \
+            2>/dev/null
     )"; then
         warn "Unable to collect Synology Drive Backup health data"
         return
