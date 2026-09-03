@@ -398,13 +398,23 @@ architecture's exact scope (see Architecture decisions above):
   reflects how this CLI reports job completion over this SSH path, not
   the snapshot itself taking a long time — same pattern observed with
   the rsync task trigger).
-- [ ] Run each task, confirm data lands correctly and matches its source
-  (count/checksum comparison, not just "it ran without error"). **In
-  progress** — Proxmox pull and daily snapshot both triggered, results
-  pending as this checkpoint is written.
+- [~] Run each task, confirm data lands correctly and matches its source
+  (count/checksum comparison, not just "it ran without error"). **Proxmox
+  leg done and verified.** Job state `SUCCESS`, no leftover processes.
+  Compared source vs. destination directly rather than trusting the
+  job's own report: Proxmox's `/mnt/backups/dump` has exactly **85**
+  files matching the in-scope filter (100–109, 111), totaling
+  239,052,726,477 bytes; the destination has 86 files (259 GiB) — the
+  one extra is the pre-existing manual VMID-110 archive, correctly left
+  untouched by `delete: false`. Net of that ~38 GB file, the transferred
+  size reconciles with the source almost exactly. `gowest`/Mac legs still
+  pending — blocked on the account creation above.
 - [ ] Confirm snapshots are actually being created and retained per
-  schedule, for all three datasets. Blocked on `gowest`/Mac sources not
-  yet existing.
+  schedule, for all three datasets. Daily snapshot confirmed present and
+  covers all three subdirectories (single shared `Media/backup` dataset).
+  Full retention-cycle confirmation (weekly/monthly firing correctly, old
+  snapshots actually pruning) needs time to pass — not something to force
+  today. `gowest`/Mac data not yet present to snapshot meaningfully.
 
 ### Gate
 
@@ -508,3 +518,4 @@ as current.
 | 2026-09-02 | 2 | Discovered pre-existing `Media/backup/homelab-proxmox-guests/` on TrueNAS (one manual LXC 110 archive, no automated task references it) — aligned naming rather than creating a competing dataset. Added TrueNAS's own restricted key to Proxmox's `homelab-backup` account (backed up first). Hit and resolved a real OPNsense gap: no path existed from TrueNAS to Proxmox:22; added a narrowly-scoped pass rule after explicit confirmation from Jason, cloned from an existing rule's XML structure, config backed up first, validated before reload, confirmed no regression on any other path afterward | Passed — restricted `rsync --list-only` pull confirmed working end-to-end, all in-scope VMIDs visible including 111 (NetBox) |
 | 2026-09-02 | 2 | Registered a TrueNAS keychain SSH key pair + connection credential (private key never printed); created the Proxmox rsync task (`rsynctask.create`, VMID-scoped include/exclude list matching the Architecture decisions scope exactly) and three tiered ZFS snapshot tasks on `Media/backup` (daily/weekly/monthly). Both the rsync pull and the daily snapshot were manually triggered to validate before trusting their schedules. `gowest` source blocked the same way `synoschedtask` was earlier — asked Jason to create the restricted DSM account via the UI | In progress — pull (~354 GB in scope) and snapshot results pending as this checkpoint was written |
 | 2026-09-02 | 2 | Checked both triggered jobs: `Media/backup@backup-daily-2026-09-02_17-15` snapshot confirmed present (the earlier apparent hang was the `midclt call -j` CLI reporting, not the actual near-instant snapshot operation). Rsync pull confirmed genuinely in progress via live `ps aux` on TrueNAS — real `rsync --server --sender` process connected through the restricted `homelab-backup` account with the correct forced-command wrapper, 204 GB of ~354 GB in-scope transferred at check time | Passed (snapshot); in progress as expected (pull) |
+| 2026-09-02 | 2 | Proxmox rsync pull completed: job state `SUCCESS`, no leftover processes. Verified against the source directly (not just trusting the job report): 85 in-scope files / 239,052,726,477 bytes on Proxmox vs. 86 files / 259 GiB on TrueNAS — the one extra file is the pre-existing manual VMID-110 archive, correctly untouched by `delete: false`; sizes reconcile net of that file | Passed — count and size verified against source, Proxmox leg of Milestone 2 complete |
