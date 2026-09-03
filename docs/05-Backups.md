@@ -331,35 +331,24 @@ the Backup Synology mirror and isolated restore validation are confirmed as of
 
 The Lenovo utility host (`nut-server`, `192.168.50.25`) runs NUT on bare
 metal, so its recoverable state is a handful of small config files rather
-than a Proxmox guest archive. Pull a fresh copy after any change to NUT,
-SSH or network configuration, from the Mac (not from an existing SSH
-session into `nut-server` itself, so nothing lingers on the source host):
+than a Proxmox guest archive. Run `lab backup nut` (or `lab backup all`,
+which now includes it) to pull a fresh copy — it lands in
+`~/lab/private-backups/nut/<timestamp>/` via
+[`scripts/backup/nut.sh`](../scripts/backup/nut.sh).
 
-```sh
-printf "Sudo password for jason@nut-server: "
-read -rs NUT_SUDO_PASS
-echo
+The four `/etc/nut/*` files are root:nut, mode 640, so `jason` can't read
+them directly; the script uses `sudo -n cat` against them. This is backed
+by a narrow, fixed-command sudoers rule on `nut-server`
+(`/etc/sudoers.d/homelab-backup-nut`, installed 2026-09-02): four exact
+`/usr/bin/cat <path>` commands, no wildcards, no shell, NOPASSWD, granted
+to `jason` only for this backup pipeline's own read need. `hardening.conf`,
+`/etc/network/interfaces` and `hostnamectl` need no elevation and are
+pulled as plain `jason`.
 
-STAMP_DIR=~/lab/private-backups/nut/$(date +%Y-%m-%d_%H-%M-%S)
-mkdir -p "$STAMP_DIR"
-
-echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/nut/ups.conf" 2>/dev/null > "$STAMP_DIR/ups.conf"
-echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/nut/nut.conf" 2>/dev/null > "$STAMP_DIR/nut.conf"
-echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/nut/upsd.users" 2>/dev/null > "$STAMP_DIR/upsd.users"
-echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/nut/upsmon.conf" 2>/dev/null > "$STAMP_DIR/upsmon.conf"
-echo "$NUT_SUDO_PASS" | ssh nut "sudo -S cat /etc/ssh/sshd_config.d/hardening.conf" 2>/dev/null > "$STAMP_DIR/sshd-hardening.conf"
-ssh nut "cat /etc/network/interfaces" > "$STAMP_DIR/network-interfaces.txt"
-ssh nut "hostnamectl" > "$STAMP_DIR/hostnamectl.txt"
-
-unset NUT_SUDO_PASS
-chmod 600 "$STAMP_DIR"/*
-```
-
-This lands directly in `~/lab/private-backups/nut/<timestamp>/`, which is
-already inside the existing daily Backup Synology pull (21:00) and the
-encrypted IDrive e2 off-site task — no separate automation was needed.
-HomeLab Doctor's `check_nut` reports live NUT/UPS health, and
-`check_backup_age "NUT" ...` reports how stale this config backup is.
+This directory is already inside the existing daily Backup Synology pull
+(21:00) and the encrypted IDrive e2 off-site task. HomeLab Doctor's
+`check_nut` reports live NUT/UPS health, and `check_backup_age "NUT" ...`
+reports how stale this config backup is.
 
 **`upsd.users` contains the real `upsmon` monitoring account password.**
 Like other credential-bearing backups in this document, keep it within
@@ -740,7 +729,7 @@ configuration is separately documented or exported.
 | Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
 | Observability LXC 109 | Prometheus self-monitors and all seven initial scrape jobs are health-checked; Doctor integration follows after Grafana stabilizes | Protected configuration archive plus the retained all-guests LXC snapshot; both enter the existing Synology/off-site pipeline | Configuration archive extracted and checked in isolation; first LXC archive passed complete Zstandard integrity testing |
 | NetBox LXC 111 | Doctor's `check_netbox` covers all five container health states and the login-page response | Local Proxmox archive only as of 2026-09-01 — Layer 2/3 not yet extended to this guest (live DSM task pending, Backup Synology itself currently offline); by design there is no separate config-level recovery set, since the whole deployment is reproducible from `/opt/netbox` on the guest | Not yet isolated-restore tested; deployment is new (2026-09-01) |
-| NUT server (Lenovo, bare metal) | Doctor checks `nut-server`/`nut-monitor` state, all three UPS units' `ups.status` and battery charge, and config-backup age | Manually-pulled config set (`ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf`, SSH hardening, network config) lands directly in the same Backup Synology pull and encrypted IDrive e2 off-site tree as other appliance configs | Live driver/server configuration validated via `upsc`; a full bare-metal OS reinstall has not been tested, only documented as a recovery procedure |
+| NUT server (Lenovo, bare metal) | Doctor checks `nut-server`/`nut-monitor` state, all three UPS units' `ups.status` and battery charge, and config-backup age | `lab backup nut` pulls the config set (`ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf`, SSH hardening, network config) via a narrow NOPASSWD sudoers rule, landing in the same Backup Synology pull and encrypted IDrive e2 off-site tree as other appliance configs | Live driver/server configuration validated via `upsc`; a full bare-metal OS reinstall has not been tested, only documented as a recovery procedure |
 | Reolink camera | Doctor tests HTTP, RTSP and ONVIF reachability; Frigate proves recording flow | No recording archive is required; Frigate configuration preserves the integration settings | Camera replacement or reset is a documented reconfiguration task rather than a backup restore |
 
 ### Accepted recovery boundaries

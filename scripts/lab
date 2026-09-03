@@ -41,6 +41,7 @@ Backup Commands
   lab backup opnsense    Back up OPNsense configuration
   lab backup arista      Back up Arista configuration and state
   lab backup proxmox     Back up Proxmox host configuration
+  lab backup nut         Back up NUT / UPS server configuration
   lab backup guided      Open guided export checklist
   lab backup synology-copy [--dry-run]
                          Copy private backups to the backup Synology
@@ -326,6 +327,10 @@ run_backup() {
             "$REPO/scripts/backup/proxmox.sh"
             ;;
 
+        nut)
+            "$REPO/scripts/backup/nut.sh"
+            ;;
+
         observability)
             "$REPO/scripts/backup/observability.sh"
             ;;
@@ -342,6 +347,7 @@ run_backup() {
             "$REPO/scripts/backup/opnsense.sh"
             "$REPO/scripts/backup/arista.sh"
             "$REPO/scripts/backup/proxmox.sh"
+            "$REPO/scripts/backup/nut.sh"
             "$REPO/scripts/backup/observability.sh"
 
             echo
@@ -360,6 +366,7 @@ run_backup() {
             echo "  opnsense    Automated OPNsense XML backup"
             echo "  arista      Automated Arista configuration and state backup"
             echo "  proxmox     Automated Proxmox host configuration backup"
+            echo "  nut         Automated NUT / UPS server configuration backup"
             echo "  observability"
             echo "               Protected Prometheus and Grafana configuration"
             echo "  guided      Guided UniFi, TrueNAS and Synology exports"
