@@ -432,10 +432,12 @@ scope" line ruling out automated discovery — see the decision below.
   (`docker-compose.override.yml.before-restart-policy-20260903` on the
   guest), confirmed the merged config picked up the policy via
   `docker compose config` before recreating containers, then recreated
-  and re-verified (healthy, HTTP 200, device count still 23). **Open
-  question, not yet answered**: what actually triggered the LXC reboot at
-  ~20:23 hasn't been identified — worth checking Proxmox's own task log
-  if it recurs unexpectedly.
+  and re-verified (healthy, HTTP 200, device count still 23). **Root
+  cause of the LXC reboot, confirmed by Jason**: a deliberate Proxmox
+  host shutdown for the RAM upgrade — cascades a clean reboot to every
+  guest, matching the evidence (no crash/OOM signal, just a clean
+  shutdown/boot pair). Not an anomaly; the actual gap this incident
+  exposed was purely the missing restart policy, now fixed.
 
 ## Milestone 4 — Cutover and hand-back
 
