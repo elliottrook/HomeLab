@@ -20,8 +20,18 @@
     (Reolink Duo 2V) runs on port 1, stable for several days as of
     2026-08-30.
 - Dell Precision T5810 (Proxmox)
-  - Current CPU: Intel Xeon E5-2698 v4 (`lscpu` reconfirmed 2026-08-31)
-  - Current memory: 32 GB ECC RDIMM; additional planned RAM remains to be installed and the final total must be confirmed
+  - Current CPU: Intel Xeon E5-2698 v4, single socket, 20 cores/40 threads
+    (`lscpu`/`dmidecode` confirmed 2026-09-04 after a physical CPU
+    replacement; same model/spec as the unit reconfirmed 2026-08-31 — a
+    like-for-like swap. No per-unit serial is exposed via DMI, as is
+    typical for this Xeon generation. Post-swap reboot showed 0 failed
+    systemd units and no OOM/MCE/ECC errors in `dmesg`)
+  - Current memory: 80 GB (4×16 GB + 4×4 GB ECC RDIMM, all 8 DIMM slots
+    now populated at 2133 MT/s rated / 1866 MT/s configured), confirmed
+    via `dmidecode` 2026-09-04; ~78 GiB usable to the OS per `free -h`.
+    Total allocated memory across all running guests is ~46 GB, leaving
+    ample headroom (previously ~44 GB allocated against only ~46 GB
+    usable before this upgrade)
   - Coral Edge TPU `G650-04527-01` on a PCIe A+E-key carrier, passed through to Frigate VM 102
   - ASRock Intel Arc Pro B60 24 GB (`8086:e211`, subsystem `1849:6023`)
     installed behind its onboard PCIe switch; the board-facing link negotiates
