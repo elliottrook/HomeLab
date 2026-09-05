@@ -297,6 +297,91 @@ repository, never committed). Override with `UNIFI_API_KEY_FILE`. If the file
 is absent the check warns and skips rather than failing, so Doctor still runs
 on machines without the key.
 
+## Asymmetric-routing fault (Synology dual-homing) — 2026-09-05
+
+Sustained transfers from Trusted VLAN 10 hosts to the main Synology at
+`192.168.20.41` failed, while small transfers succeeded. Root-caused to the
+NAS's intentional dual-homing and fixed by bonding both NICs onto VLAN 20.
+
+### Mechanism
+
+The Synology held `192.168.20.41` on `eth0` (VLAN 20) **and** `192.168.1.41`
+on `eth1` (VLAN 10), giving it a directly-connected route for
+`192.168.1.0/24`. So:
+
+- **Forward:** Trusted client -> OPNsense (routed) -> Synology `eth0`
+- **Return:** Synology `eth1` -> client directly on VLAN 10, **bypassing OPNsense**
+
+OPNsense saw only one direction of every conversation. Its state tracking
+desynced, short flows completed before pf gave up, and sustained flows were
+dropped mid-stream. `pfctl -si` showed **503,278 state-mismatches** climbing
+continuously, with paired states disagreeing (`CLOSED:CLOSING` /
+`CLOSING:CLOSED`).
+
+### Symptoms it explained
+
+- Synology Drive stuck **17 hours** with zero files committed, burning
+  ~877 KB/s in a permanent retry loop into `cloud.tmp.dir`
+- Only 4 KB `.xmp` sidecars syncing while 14 MB images never completed
+- `rsync` and `tar` over SSH both dying with `Operation timed out` /
+  `Broken pipe`
+
+### How it was isolated
+
+Testing 200 MB transfers from the Mac to multiple destinations was decisive —
+it ruled out "inter-VLAN routing is broken" in one step:
+
+| Destination | VLANs | Result |
+|---|---|---|
+| Synology `eth1` 192.168.1.41 | 10 -> 10 (L2) | ok, ~75-108 MB/s |
+| **Synology `eth0` 192.168.20.41** | **10 -> 20 (routed)** | **FAILED** |
+| TrueNAS 192.168.20.40 | 10 -> 20 (routed) | ok |
+| Docker LXC 192.168.20.20 | 10 -> 20 (routed) | ok |
+| Proxmox 192.168.50.10 | 10 -> 50 (routed) | ok |
+
+Other VLAN 20 hosts were fine, so the fault was host-specific, not a VLAN
+pair or firewall problem. The Synology was the only dual-homed host.
+Both NICs showed zero errors at 1 Gb full duplex, ruling out hardware.
+
+### Fix
+
+`bond0` in **active-backup** mode across `eth0`+`eth1`, single address
+`192.168.20.41`, matching TrueNAS's existing bonding pattern. Arista `Et24`
+moved from access VLAN 10 to access VLAN 20 and renamed
+`GoWest-NAS-Bond-Member` so both bond members sit in the same VLAN; saved to
+startup-config.
+
+Bonding was chosen over simply disabling `eth1` because it fixes the fault
+*and* gains NIC/cable/port redundancy rather than leaving a port idle.
+Active-backup specifically needs no switch-side port-channel, which is where
+the lockout risk in a LACP setup would have been. Note LACP would not have
+helped single-stream throughput anyway — it hashes per flow.
+
+**Ordering matters, and the obvious order is wrong.** Moving `Et24` to
+VLAN 20 *before* creating the bond would have left the NAS still holding
+`192.168.1.41` with a route out an interface now on the wrong VLAN, breaking
+NAS access for every Trusted device until the bond existed. The bond must be
+created first: it removes the VLAN 10 address and route immediately, and
+`eth0` carries traffic throughout.
+
+### Verified after the fix
+
+- 200 MB transfer to `192.168.20.41`: succeeded (previously failed every time)
+- 1 GB sustained transfer: succeeded, ~68 MB/s
+- Synology Drive: **1.48 GB committed in 45 seconds** after 17 hours of zero
+- Drive client connection resets: 0 (previously 44 per 200 log lines)
+
+### Rollback
+
+Delete `bond0` in DSM and restore `eth0`/`eth1`; set Arista `Et24` back to
+`switchport access vlan 10`, description `GoWest-NAS-Trusted`.
+
+### Open
+
+`state-mismatch` continues to increment after the fix, so something else also
+contributes to it. The Synology's transfers are confirmed working, so this is
+not the same fault — but the counter is not a clean health signal on its own.
+
 Store copies off the network appliances and treat them as sensitive configuration data.
 
 ## Current topology
@@ -373,7 +458,7 @@ homelab-gateway — 192.168.20.20
 | 192.168.50.31 | UniFi Hall AP | 90:41:b2:ce:76:10 | AP Switch port 1, 2.5G full |
 | 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | AP Switch port 2, 2.5G full |
 | 192.168.20.40 | TrueNAS `bond0`; `truenas.internal` | 6c:92:bf:67:fb:bc | Et9 primary / Et15 standby, access VLAN 20 |
-| 192.168.20.41 / 192.168.1.41 | Synology DS920+ | eth0 00:11:32:ca:e5:e5 / eth1 00:11:32:ca:e5:e6 | Et28 access VLAN 20 / Et24 access VLAN 10, both 1G |
+| 192.168.20.41 | Synology DS920+ `bond0` | eth0 00:11:32:ca:e5:e5 / eth1 00:11:32:ca:e5:e6 | Et28 + Et24, both access VLAN 20, 1G, active-backup bond (2026-09-05). Formerly dual-homed with `eth1` as 192.168.1.41 on VLAN 10 — removed, see the asymmetric-routing incident below |
 | 192.168.20.42 | Backup Synology | 00:11:32:c8:06:c5 | Et48, access VLAN 20 |
 | 192.168.30.102 | Lutron | ec:24:b8:8e:d4:10 | Et45, access VLAN 30 |
 | 192.168.30.155 | Downstairs Apple TV | d0:03:4b:29:99:23 | Current wired path not confirmed after the 2026-08-29 recabling |
@@ -439,7 +524,7 @@ homelab-gateway — 192.168.20.20
 - Philips Hue on Et46 uses 192.168.30.164 and Lutron on Et45 uses 192.168.30.102. Both vendor apps and Apple Home remained functional after migration to VLAN 30.
 - Et15 is now the 10 Gbps TrueNAS standby link on access VLAN 20. The Downstairs Apple TV's current wired path was not confirmed after the 2026-08-29 recabling. Aqara Hub M3 remains documented on Et16. Et17 currently learns the living-room Apple TV MAC at 1 Gbps on VLAN 20; its stale `TrueNAS-Failover-Servers` switch description requires cleanup after the intended Apple TV VLAN is confirmed.
 - Both Pi-hole resolvers publish `truenas.internal` as `192.168.20.40`. The record is stored in each Pi-hole's managed `dns.hosts` configuration and was verified directly against `192.168.20.20`, `192.168.20.40` and through the Mac resolver.
-- The 2026-08-29 post-UPS audit reconciled the main Synology's intentionally dual-homed links by mapping DSM interfaces to physical switch ports instead of relying on stale descriptions. DSM `eth0` (MAC `00:11:32:ca:e5:e5`, address `192.168.20.41`) is on Arista Et28, named `GoWest-NAS-Servers`, access VLAN 20. DSM `eth1` (MAC `00:11:32:ca:e5:e6`, address `192.168.1.41`) is on Et24, named `GoWest-NAS-Trusted`, access VLAN 10. Both negotiate at 1 Gbps with zero physical errors. The final running configuration was saved to startup-config, and the Mac passed ping, SSH, SMB and DSM HTTP/HTTPS checks against both addresses.
+- The 2026-08-29 post-UPS audit reconciled the main Synology's intentionally dual-homed links by mapping DSM interfaces to physical switch ports instead of relying on stale descriptions. DSM `eth0` (MAC `00:11:32:ca:e5:e5`, address `192.168.20.41`) is on Arista Et28, named `GoWest-NAS-Servers`, access VLAN 20. DSM `eth1` (MAC `00:11:32:ca:e5:e6`, address `192.168.1.41`) is on Et24, named `GoWest-NAS-Trusted`, access VLAN 10. Both negotiate at 1 Gbps with zero physical errors. The final running configuration was saved to startup-config, and the Mac passed ping, SSH, SMB and DSM HTTP/HTTPS checks against both addresses. **Superseded 2026-09-05:** that dual-homing turned out to be the cause of a serious traffic fault (see the asymmetric-routing incident below) and both NICs were bonded onto a single VLAN 20 address.
 - The existing UniFi IoT SSID is assigned to the third-party-gateway IoT network using tagged VLAN 30. A temporary test SSID first validated wireless DHCP, DNS, Internet access and firewall isolation, then was removed. Final dnsmasq and ARP checks showed 23 leased IoT clients active on `vlan0.30`; Hue, Lutron, AirPlay/Cast discovery and vendor-app control all passed.
 - Proxmox LXC 100 (`docker`) is an unprivileged Debian container at `192.168.20.20/24` on Servers VLAN 20. It runs Homepage, Portainer, the primary Pi-hole, Tailscale, Beszel and the Beszel agent. Homepage is published internally on TCP 3000 and is available as `http://home.internal:3000`.
 - OPNsense dnsmasq owns the `home.internal` host record and listens for DNS on port 53053. Unbound remains the client-facing resolver on port 53 and conditionally forwards the `internal` domain to dnsmasq at 127.0.0.1:53053. Both local-LAN and remote Tailscale resolution were validated.
