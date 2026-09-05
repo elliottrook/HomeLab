@@ -371,9 +371,32 @@ architecture's exact scope (see Architecture decisions above):
   the DSM UI (Control Panel → User & Group), not in `administrators`,
   read-only on `homes`/`Family Documents` — SSH key restriction and pull
   setup will follow once it exists.
-- [ ] **Mac source:** not yet started — waiting on the `gowest` step to
-  land first, and still needs explicit confirmation before enabling
-  Remote Login on Jason's own laptop if it isn't already on.
+- [x] **Mac source: complete and verified (2026-09-05).** Remote Login was
+  already enabled. The official `rrsync` (fetched fresh from the rsync
+  project, not the stale historical assumption that it's a Perl script —
+  it's Python3 now) relies on `--confine-root`, a flag added upstream on
+  2026-08-02 as a real security fix (closes a dir-merge filter-rule escape
+  that let a client read files outside the restricted dir) but only
+  supported by GNU rsync — this Mac's `/usr/bin/rsync` is Apple's
+  `openrsync`, which rejects the flag outright and broke every invocation.
+  Rather than install Homebrew (a much larger footprint on Jason's personal
+  laptop for one flag) or fall back to an older rrsync (which would reopen
+  the exact escape the flag exists to close), the confinement was moved to
+  the OS layer instead: a new dedicated, unprivileged local account
+  (`truenas-pull`, key-only, no usable password) was created, added to
+  Remote Login's access group (previously scoped to `jelliott` only), and
+  granted a filesystem ACL giving it read/list/search **only** inside
+  `~/lab/private-backups` — no broader access to `jelliott`'s home
+  directory. The installed `rrsync` copy (root-owned, read+execute only
+  for `truenas-pull`, so it can't modify its own restriction) has the
+  single `--confine-root` line replaced with a comment recording exactly
+  why, so a future `rrsync` update doesn't silently reintroduce the
+  incompatibility without someone noticing the deviation. Verified: the
+  restricted account can list/pull inside the confined directory, a `..`
+  traversal attempt is rejected by `rrsync`'s own argv validation, and an
+  absolute-path attempt outside the tree fails as an "unsafe arg" too —
+  the OS-level ACL is what would stop a subtler escape (e.g. via a crafted
+  dir-merge filter rule) that neither of those simpler checks exercises.
 - [x] **Proxmox rsync task configured and created** via TrueNAS's native
   `rsynctask.create` (mode SSH, `ssh_credentials` referencing a
   registered keychain SSH key + connection pair — private key generated
@@ -412,8 +435,11 @@ architecture's exact scope (see Architecture decisions above):
   239,052,726,477 bytes; the destination has 86 files (259 GiB) — the
   one extra is the pre-existing manual VMID-110 archive, correctly left
   untouched by `delete: false`. Net of that ~38 GB file, the transferred
-  size reconciles with the source almost exactly. `gowest`/Mac legs still
-  pending — blocked on the account creation above.
+  size reconciles with the source almost exactly. **Mac leg done and
+  verified (2026-09-05).** Job state `SUCCESS`. Byte-exact match against
+  source: 354 files / 22,806,562 bytes on both the Mac
+  (`~/lab/private-backups`) and TrueNAS (`/mnt/Media/backup/mac`).
+  `gowest` leg still pending — blocked on the account creation above.
 - [ ] Confirm snapshots are actually being created and retained per
   schedule, for all three datasets. Daily snapshot confirmed present and
   covers all three subdirectories (single shared `Media/backup` dataset).
@@ -524,3 +550,6 @@ as current.
 | 2026-09-02 | 2 | Registered a TrueNAS keychain SSH key pair + connection credential (private key never printed); created the Proxmox rsync task (`rsynctask.create`, VMID-scoped include/exclude list matching the Architecture decisions scope exactly) and three tiered ZFS snapshot tasks on `Media/backup` (daily/weekly/monthly). Both the rsync pull and the daily snapshot were manually triggered to validate before trusting their schedules. `gowest` source blocked the same way `synoschedtask` was earlier — asked Jason to create the restricted DSM account via the UI | In progress — pull (~354 GB in scope) and snapshot results pending as this checkpoint was written |
 | 2026-09-02 | 2 | Checked both triggered jobs: `Media/backup@backup-daily-2026-09-02_17-15` snapshot confirmed present (the earlier apparent hang was the `midclt call -j` CLI reporting, not the actual near-instant snapshot operation). Rsync pull confirmed genuinely in progress via live `ps aux` on TrueNAS — real `rsync --server --sender` process connected through the restricted `homelab-backup` account with the correct forced-command wrapper, 204 GB of ~354 GB in-scope transferred at check time | Passed (snapshot); in progress as expected (pull) |
 | 2026-09-02 | 2 | Proxmox rsync pull completed: job state `SUCCESS`, no leftover processes. Verified against the source directly (not just trusting the job report): 85 in-scope files / 239,052,726,477 bytes on Proxmox vs. 86 files / 259 GiB on TrueNAS — the one extra file is the pre-existing manual VMID-110 archive, correctly untouched by `delete: false`; sizes reconcile net of that file | Passed — count and size verified against source, Proxmox leg of Milestone 2 complete |
+| 2026-09-05 | 2 | Enabled Remote Login on the Mac (confirmed already on). Fetched official `rrsync` from the rsync project after explicit confirmation; hit `--confine-root` incompatibility with Apple's `openrsync` on end-to-end test. Confirmed via GitHub commit history that `--confine-root` is a 2026-08-02 security fix (closes a dir-merge filter-rule escape), not a legacy/optional flag — ruled out falling back to an older `rrsync` since that would reopen the exact vulnerability the flag exists to close. Presented the trade-off explicitly (capability/risk/narrower-alternative/rollback per `CLAUDE.md`) before proceeding | Jason chose OS-level account confinement over installing Homebrew |
+| 2026-09-05 | 2 | Jason created a dedicated local macOS account `truenas-pull` (random unrecorded password, key-only via forced-command `authorized_keys`) and added it to Remote Login's access group, previously scoped to `jelliott` only — the one step requiring sudo, run by Jason directly since Claude cannot and will not handle a Mac account password. Granted `truenas-pull` a filesystem ACL scoped to read/list/search inside `~/lab/private-backups` only (verified: base permissions already gave it group-level traversal into `~/jelliott` and `~/lab`, so no broader grant was needed there). Patched the installed `rrsync` to skip the unsupported `--confine-root` line, with the substitution reasoning recorded in-line as a comment | Account and ACL confirmed correctly scoped |
+| 2026-09-05 | 2 | End-to-end verification from the real TrueNAS client: list/pull inside the confined directory succeeded; a `..` traversal and an absolute-path escape attempt both correctly rejected by `rrsync`'s own argv validation; a real file pull matched the source's SHA-256 exactly. Registered the Mac key pair and SSH connection as TrueNAS keychain credentials (private key read and used entirely on TrueNAS via a remotely-executed script — caught and corrected one slip where the key was briefly `cat`'d into this session's own output before switching to that approach). Created the Mac rsync task (`rsynctask.create`, whole-tree pull matching the mimic-old-scope decision, no excludes needed) and triggered it | Passed — job state `SUCCESS`, byte-exact match: 354 files / 22,806,562 bytes on both the Mac and TrueNAS. Mac leg of Milestone 2 complete |
