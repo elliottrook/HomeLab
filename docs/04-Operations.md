@@ -93,6 +93,28 @@ the tracked Homepage YAML; they're written to `/opt/homepage/secrets/*` files
 (mode 600, outside Git) and referenced from `services.yaml` via
 `{{HOMEPAGE_FILE_*}}`, the same pattern already used for Beszel.
 
+**2026-09-05: group render order and within-group gap fixes.** Two things
+learned while tidying the layout further: (1) group **display order** is
+driven by the key order in `settings.yaml`'s `layout:` map, not by
+`services.yaml`'s document order — reordering groups in `services.yaml`
+alone has no visible effect. (2) within a `style: row` group, the row height
+matches its tallest cell, so pairing a widget tile (tall) with a plain-link
+tile (short) in the same row leaves visible dead space under the short one.
+Fixed by reordering items within each affected group so widget tiles either
+pair with other widget tiles or land alone (odd-one-out, empty cell beside
+them, no stretch): `Network` (Pi-hole Primary moved last), `Security &
+Operations` (Beszel moved last), `Storage` (Synology A/B paired, TrueNAS
+last; also dropped from 3 to 2 columns to make the pairing work). `Newtarr`
+moved from `Media Automation` to `Application Management` since it was the
+only static tile among five widget tiles there and had nowhere clean to
+land — `Application Management` is all static links, so it fits without
+a gap. `Security & Surveillance` moved up in `settings.yaml`'s layout order
+to sit directly under `Smart Home`, per Jason's request. One known residual
+gap: the `Media Manager` tile (added to `Media Automation`) is a static tile
+among five widget tiles with no odd-one-out slot available (even count) —
+left as-is since moving it would mean dropping it from Media Automation,
+which was the point of adding it there.
+
 Dashboard SSH targets:
 
 | Tile | Target |
