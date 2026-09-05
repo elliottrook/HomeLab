@@ -1,6 +1,6 @@
 # Backup Synology Decommission and Storage Redeployment
 
-> Status: Active — Milestone 1
+> Status: Active — Milestone 2 (blocked on `Backup-Architecture-Redesign`)
 >
 > Project owner: Jason
 >
@@ -142,10 +142,12 @@ Those references are stale and are corrected as part of Milestone 1.
 
 - [x] Full inventory of `/volume1` on `.42`: every share, its size, its
       newest content, and whether any other copy exists.
-- [ ] Determine whether `Media Backup` (5.7 TB, 6 days stale) is still
-      required at all. The redesign already decided **not** to carry it
-      forward, since Plex source media is retired — confirm that still holds
-      and that nothing unique lives only there.
+- [x] Determine whether `Media Backup` (5.7 TB, 6 days stale) is still
+      required at all. **Decided by Jason 2026-09-05: leave it in place,
+      undecided, until a separate decision is made about a media backup
+      sourced from TrueNAS.** No replication effort is needed now. It must
+      **not** be deleted. See the disk-redeployment consequence recorded in
+      Milestone 5 below — this decision blocks that milestone until resolved.
 - [x] Inventory `/volume1/HomeAssistant-Backups` (551 MB) — is this covered
       by HA's own backup task or the Proxmox guest archive of VM 103?
 - [x] Identify every host, task or credential that references `.42`,
@@ -217,11 +219,13 @@ Do not begin any migration until every unique item on `.42` is either
 matched by a proven copy elsewhere or explicitly marked for retirement with
 Jason's agreement in writing here.
 
-**Gate status 2026-09-05: NOT passed — inventory done, decisions outstanding.**
-Four replacements are required (off-site path, Home Assistant native backups,
-Mac config backups, Synology Drive set). Two need Jason's decision before
-Milestone 2 can be scoped: whether `Media Backup`'s 5.7 TB is genuinely
-retired, and where Home Assistant should write its backups instead.
+**Gate status 2026-09-05: PASSED.** Three replacements remain in scope for
+Milestone 2 (off-site path, Home Assistant native backups redirected to
+TrueNAS, Mac config backups, Synology Drive set — four items, three targets
+since Mac and Drive both land on TrueNAS). `Media Backup` is resolved as
+"leave in place, undecided, not to be deleted" — it needs no replacement
+effort now, but it does add a hard blocking condition to Milestone 5,
+recorded there.
 
 ---
 
@@ -234,6 +238,14 @@ Depends on `Backup-Architecture-Redesign` Milestones 2–3.
 - [ ] Mac source leg live — TrueNAS `/mnt/Media/backup/mac` non-empty and
       current.
 - [ ] Off-site relay LXC deployed with `rclone` + `crypt` to IDrive e2.
+- [ ] **Redirect Home Assistant's native automatic backups from `.42` to
+      TrueNAS.** Decided by Jason 2026-09-05: these are a network backup and
+      belong with the rest, not on a unit being retired. Needs a TrueNAS
+      SMB or NFS target HA can write to (its native backup integration, not
+      a Proxmox-side pull, since these are HA's own portable backup format —
+      distinct from and complementary to the whole-VM guest archive that
+      already covers VM 103). Verify at least one backup lands and is
+      restorable before treating this leg as done.
 - [ ] Doctor coverage and backup-age alerting extended to each new leg, so a
       silent stall is detectable. **Explicitly required**: the 2026-09-04 AP
       Switch outage ran six days unnoticed, and `Media Backup` has been
@@ -287,6 +299,12 @@ whole point of leaving the disks intact.
 **Destructive and irreversible. Requires explicit per-action approval on the
 day, regardless of any authorization granted by then.**
 
+- [ ] **Blocking condition, added 2026-09-05:** `GoWest_1.hbk` ("Media
+      Backup", 5.7 TB) must remain intact and readable on these disks until
+      Jason separately decides its fate alongside a TrueNAS-sourced media
+      backup. Do not wipe, migrate, or otherwise touch this data as part of
+      this milestone — confirm its continued presence immediately before
+      any wipe step, not just at planning time.
 - [ ] Record the DS220j's disk models, sizes, serials and SMART health
       before removal.
 - [ ] Confirm TrueNAS's pool layout can accept them usefully — capacity,
@@ -299,8 +317,11 @@ day, regardless of any authorization granted by then.**
 
 ### Gate
 
-Disks are not wiped until Milestone 4's observation period has passed **and**
-Jason approves that specific action on that day.
+Disks are not wiped until Milestone 4's observation period has passed,
+Jason approves that specific action on that day, **and** the Media Backup
+data on these disks has either been migrated elsewhere or Jason has
+explicitly approved discarding it. Absent that, this milestone stays open
+indefinitely — a slow decision here is not a reason to force it.
 
 ---
 
@@ -341,3 +362,4 @@ this milestone closes as "not required".
 |---|---|---|---|
 | 2026-09-05 | Baseline | Verified live state of both Synology units, TrueNAS backup datasets, Hyper Backup task/repo configuration and IDrive e2 target | Recorded above; DS220j confirmed at 484 MB RAM, and confirmed as the sole off-site path |
 | 2026-09-05 | M1 | Full share inventory of `.42`, reference sweep across repo/Doctor/allowlist, TrueNAS coverage comparison | Four replacements required before power-down; Home Assistant found writing daily backups directly to `.42` — a live dependency not previously recorded anywhere |
+| 2026-09-05 | M1 | Presented two open decisions to Jason | Media Backup: leave in place, undecided, not to be deleted — now a hard blocking condition on Milestone 5 disk redeployment. HA backups: redirect to TrueNAS alongside the other network backups — added to Milestone 2 scope |
