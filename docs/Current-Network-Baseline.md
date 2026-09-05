@@ -269,6 +269,24 @@ wireless path. HomeLab Doctor now covers it with two checks:
   collapses toward zero, which is the symptom a tagging failure produces.
   Guest VLAN 40 is deliberately *not* alerted on, since zero visitors is a
   normal state and would otherwise alarm constantly.
+- `check_wireless_tagging` (added after the VLAN 10 tagging change) is a
+  **config-drift** check rather than a health check. It asserts every enabled
+  SSID is bound to a network carrying a VLAN ID, and that `GoWest`/
+  `TELUS96FF`/`Anchors_Rest` are on VLANs 10/30/40 respectively. An SSID
+  rebound to an untagged network — by a UniFi config restore, a factory event
+  or a stray click — would keep working perfectly, because Et33's native VLAN
+  is still 10, silently reinstating the hidden dependency this evening's work
+  removed. No health check can see that; this one can. A new, unrecognised
+  SSID warns rather than fails, so legitimate additions do not break the run.
+
+  Trusted VLAN 10 deliberately has **no lease-count check**. VLAN 10 carries
+  wired clients too, so a wireless failure would only make the count sag
+  rather than collapse, giving no clean threshold; that failure mode is
+  already covered by `check_unifi`, since AP management is tagged VLAN 50.
+
+  Detection logic was verified against stubbed API responses covering correct
+  config, an untagged revert, a wrong VLAN, a missing SSID and an unexpected
+  new SSID.
 
 The API key lives at `~/.config/lab/unifi-api-key` (mode 600, outside the
 repository, never committed). Override with `UNIFI_API_KEY_FILE`. If the file

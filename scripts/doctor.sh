@@ -1143,6 +1143,96 @@ check_wireless_vlans() {
     fi
 }
 
+check_wireless_tagging() {
+    # Config-drift check, not a health check. Every SSID must be bound to a
+    # network carrying a VLAN ID. An SSID rebound to an untagged network keeps
+    # working silently, because Arista Et33's native VLAN is 10 — so nothing
+    # else in this script would notice the regression.
+    local key_file="${UNIFI_API_KEY_FILE:-$HOME/.config/lab/unifi-api-key}"
+    local base="https://192.168.50.21:11443/proxy/network/api/s/default"
+
+    if [[ ! -r "$key_file" ]]; then
+        warn "Wireless VLAN tagging check skipped — no API key at $key_file"
+        return
+    fi
+
+    local key wlans networks mapping
+    key="$(<"$key_file")"
+
+    if ! wlans="$(
+        curl -sk --connect-timeout 5 --max-time 10 \
+            -H "X-API-Key: $key" -H 'Accept: application/json' "$base/rest/wlanconf"
+    )" || [[ -z "$wlans" ]]; then
+        fail "Unable to read UniFi WLAN configuration"
+        return
+    fi
+
+    if ! networks="$(
+        curl -sk --connect-timeout 5 --max-time 10 \
+            -H "X-API-Key: $key" -H 'Accept: application/json' "$base/rest/networkconf"
+    )" || [[ -z "$networks" ]]; then
+        fail "Unable to read UniFi network configuration"
+        return
+    fi
+
+    # Emits "ssid|vlan|network" per enabled SSID; vlan is empty when untagged.
+    # WLAN records also carry live passphrases, so only these fields are read.
+    if ! mapping="$(
+        printf '%s\n%s\n' "$wlans" "$networks" | python3 -c '
+import sys, json
+wl = json.loads(sys.stdin.readline())["data"]
+nc = {n["_id"]: n for n in json.loads(sys.stdin.readline())["data"]}
+for w in wl:
+    if not w.get("enabled", True):
+        continue
+    n = nc.get(w.get("networkconf_id"), {})
+    print("{}|{}|{}".format(w.get("name"), n.get("vlan") or "", n.get("name", "?")))
+'
+    )" || [[ -z "$mapping" ]]; then
+        fail "Unable to parse UniFi wireless VLAN mapping"
+        return
+    fi
+
+    # Intent: the mapping this lab is designed around. Plain array of
+    # name=vlan pairs — macOS ships bash 3.2, which has no associative arrays.
+    local expected=(GoWest=10 TELUS96FF=30 Anchors_Rest=40)
+
+    local failures=()
+    local warnings=()
+    local count=0
+    local ssid vlan network entry want
+
+    while IFS='|' read -r ssid vlan network; do
+        [[ -z "$ssid" ]] && continue
+        count=$((count + 1))
+
+        want=""
+        for entry in "${expected[@]}"; do
+            [[ "${entry%%=*}" == "$ssid" ]] && want="${entry#*=}" && break
+        done
+
+        if [[ -z "$vlan" ]]; then
+            failures+=("$ssid untagged (network '$network')")
+        elif [[ -z "$want" ]]; then
+            warnings+=("$ssid tagged VLAN $vlan but not in the expected set")
+        elif [[ "$vlan" != "$want" ]]; then
+            failures+=("$ssid on VLAN $vlan, expected $want")
+        fi
+    done <<< "$mapping"
+
+    for entry in "${expected[@]}"; do
+        grep -q "^${entry%%=*}|" <<< "$mapping" || failures+=("${entry%%=*} missing or disabled")
+    done
+
+    if (( ${#failures[@]} > 0 )); then
+        fail "Wireless VLAN tagging drift: ${failures[*]}"
+    elif (( ${#warnings[@]} > 0 )); then
+        warn "Wireless VLAN tagging: ${warnings[*]}"
+    else
+        pass "Wireless VLAN tagging correct; $count SSID(s) all tagged as designed"
+    fi
+}
+
 header "HomeLab Doctor"
 
 info "Checking internet connectivity..."
@@ -1164,6 +1254,7 @@ check_truenas
 check_frigate
 check_unifi
 check_wireless_vlans
+check_wireless_tagging
 
 divider
 
