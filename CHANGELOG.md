@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Readdressed the AP Switch from `192.168.50.26` to `192.168.1.26` on Trusted VLAN 10, resolving a long-standing mismatch where the device carried a Management-VLAN number it could never be reached on. Confirmed the switch has no Management-VLAN setting, so its untagged management always lands in Arista Et33's native VLAN 10; a VLAN 50 address would not have isolated it, only disguised it, while forcing a `192.168.50.x` alias whose connected route shadows the real path to VLAN 50 and severs the host's access to Arista, Proxmox and the UniFi controller. It is now reachable directly from Trusted at `http://192.168.1.26` with no alias and no physical recovery path, and the superseded port-5 procedure is marked historical. Updated `devices.conf`, the IP addressing table, network design and baseline records to match; the NetBox primary-IP record remains outstanding.
+
 ### Added
 - Extended HomeLab Doctor with wireless coverage, closing the detection gap that let the AP Switch outage run roughly six days unnoticed. `check_unifi` queries the UniFi Network integration API and fails if either access point is missing or not `ONLINE`; `check_wireless_vlans` fails if IoT VLAN 30's DHCP lease count collapses toward zero, the signature a VLAN-tagging failure produces. Guest VLAN 40 is reported but deliberately not alerted on, since an empty guest network is normal. The API key is read from `~/.config/lab/unifi-api-key` (mode 600, outside the repository, overridable via `UNIFI_API_KEY_FILE`), and the check warns and skips rather than failing when no key is present.
 

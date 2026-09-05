@@ -18,7 +18,7 @@
 |Docker|192.168.20.20|
 |UniFi Controller|192.168.50.21|
 |NUT Server|192.168.50.25|
-|AP Switch (direct recovery only)|192.168.50.26|
+|AP Switch|192.168.1.26 (Trusted VLAN 10 — see note below)|
 |UniFi Hall AP|192.168.50.31|
 |UniFi Office AP|192.168.50.141|
 |TrueNAS|192.168.20.40 (`truenas.internal`)|
@@ -36,11 +36,19 @@
 |NetBox LXC 111|192.168.20.32|
 |Reolink Duo 2V PoE|192.168.60.10|
 
-The AP Switch management plane appears on VLAN 1/untagged despite its
-`192.168.50.26/24` address. It is not normally reachable through Management
-VLAN 50. For recovery, connect a Mac to AP Switch port 5 and temporarily assign
-`192.168.50.27/24` with no gateway or DNS, then open
-`http://192.168.50.26`.
+The AP Switch management plane is untagged and the device has no
+Management-VLAN setting, so its traffic egresses to Arista Et33 and lands in
+native VLAN 10. It is therefore addressed **`192.168.1.26/24`, gateway
+`192.168.1.1`** (Trusted VLAN 10), outside the `192.168.1.100–250` DHCP pool.
+Open `http://192.168.1.26` directly from any Trusted host — no alias or
+special recovery path is needed.
+
+Readdressed 2026-09-04, replacing `192.168.50.26`. That old address was
+numbered in Management VLAN 50 but was never reachable there, since the
+management plane has always been untagged; the mismatch obscured a six-day
+wireless outage. The address now states where the device actually sits.
+Management is HTTP-only. See `Current-Network-Baseline.md` for the incident
+record and the port/VLAN recovery reference.
 
 ## Shared service endpoints on Docker LXC 100
 

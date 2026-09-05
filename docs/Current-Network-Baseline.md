@@ -78,6 +78,8 @@ AP/PoE switch replacement checkpoint completed 2026-08-26:
 - AP Switch management remains a documented anomaly: `192.168.50.26` is
   numbered in Management VLAN 50 but its Layer 2 management plane appears on
   VLAN 1/untagged. Direct recovery through port 5 is known good.
+  *(Historical — resolved 2026-09-04 by readdressing to `192.168.1.26`; see
+  the AP Switch config-loss section below.)*
 - Camera validation through Et34 and the TP-Link was deferred until the cameras
   are reconfigured. The retired UniFi PoE switch still needs to be forgotten in
   the UniFi Network application.
@@ -203,14 +205,25 @@ isolation rules were confirmed unchanged throughout.
 
 ### Open follow-ups
 
-- **Management addressing undecided.** Left at `192.168.2.1` deliberately.
-  The switch has no Management-VLAN option, so `192.168.50.26` can never be
-  reachable via VLAN 50 — it only ever looked like a Management address.
-  Options are to restore that misleading number, or give it an honest
-  `192.168.1.0/24` address matching where it actually lives, which trades
-  segmentation posture for manageability. Needs an explicit decision.
-- **Default credentials.** The reset left the switch on factory logins while
-  L2-adjacent to Trusted.
+- ~~**Management addressing undecided.**~~ **Resolved 2026-09-04:** readdressed
+  to `192.168.1.26/24`, gateway `192.168.1.1`, outside the `.100–250` DHCP
+  pool. Jason chose the honest-address option over restoring `192.168.50.26`.
+  Rationale: the switch has no Management-VLAN setting, so its untagged
+  management lands in Trusted VLAN 10 no matter what address it carries — a
+  VLAN 50 number would not have isolated it, only disguised it, while forcing
+  a `192.168.50.x` alias whose connected route shadows the real path to
+  Management VLAN 50 and breaks the host's access to Arista, Proxmox and the
+  UniFi controller. Verified reachable at `http://192.168.1.26` from Trusted
+  with no alias.
+- ~~**Default credentials.**~~ **Resolved 2026-09-04:** password changed off
+  the factory default.
+- **Genuine segmentation fix remains available but unscheduled.** Moving
+  management onto VLAN 50 for real would require creating a VLAN 10 network in
+  UniFi, remapping the Trusted SSID to tag it (today it is mapped to `Default`
+  / VLAN 1 and rides untagged), and only then switching Arista Et33's native
+  VLAN from 10 to 50. Doing the Et33 change *without* the SSID work first
+  would place every Trusted wireless client on the Management VLAN. Logged as
+  a possible future project, not an incident action.
 - **VLAN 50 flooding.** After the fix, client MACs belonging to IoT hosts
   were observed arriving tagged VLAN 50 on Et33, though no client obtains a
   `192.168.50.x` lease and no infrastructure MAC moved ports. Likely a
@@ -278,7 +291,8 @@ Arista core — 192.168.50.2
   |     +-- Authentik LXC 106 — 192.168.50.22
   |     +-- Reverse Proxy LXC 107 — 192.168.50.23
   |     +-- NUT server — 192.168.50.25
-  |     +-- AP Switch — 192.168.50.26 (direct VLAN 1 recovery; see anomaly below)
+  |     +-- AP Switch — addressed 192.168.1.26 on Trusted VLAN 10 (untagged
+  |     |     management; physically uplinked here via Et33)
   |     +-- Hall AP — 192.168.50.31
   |     +-- Office AP — 192.168.50.141
   |
@@ -308,7 +322,7 @@ homelab-gateway — 192.168.20.20
 | 192.168.20.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router / Beszel | bc:24:11:43:71:67 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.50.21 | UniFi controller LXC 101 | bc:24:11:b6:de:53 | Et4 via Proxmox, tagged VLAN 50 |
 | 192.168.50.25 | NUT server | 00:23:24:55:b1:1a | Et31, direct access port in management VLAN 50 |
-| 192.168.2.1 (was 192.168.50.26) | AP Switch | 84:E5:D8:E2:8D:92 | Et33; management appears on VLAN 1/untagged, so it lands in Arista's native VLAN 10 rather than VLAN 50. Address reverted to the factory default during the 2026-09-04 config-loss incident below; final addressing decision still open |
+| 192.168.1.26 | AP Switch | 84:E5:D8:E2:8D:92 | Et33; management is untagged and lands in Arista's native VLAN 10, so the device is addressed on Trusted to match. Readdressed 2026-09-04 from `192.168.50.26`, which was never reachable on VLAN 50. HTTP only |
 | 192.168.50.31 | UniFi Hall AP | 90:41:b2:ce:76:10 | AP Switch port 1, 2.5G full |
 | 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | AP Switch port 2, 2.5G full |
 | 192.168.20.40 | TrueNAS `bond0`; `truenas.internal` | 6c:92:bf:67:fb:bc | Et9 primary / Et15 standby, access VLAN 20 |
@@ -356,12 +370,14 @@ homelab-gateway — 192.168.20.20
   VLAN 10 by Arista Et33. Tagged SSID VLANs work, but AP Switch management IP
   `192.168.50.26` does not match its actual Layer 2 management path. OPNsense
   showed `.50.26` incomplete on `vlan0.50`. Direct recovery works by connecting
-  a Mac configured as `192.168.50.27/24` to AP Switch port 5. **Superseded
-  2026-09-04:** physical recovery is unnecessary — the management plane is
-  L2-adjacent to Trusted VLAN 10, so a temporary IP alias on any Trusted host
-  reaches it over existing cabling. See the AP Switch config-loss section
-  above. Confirmed 2026-09-04 that the switch has no Management-VLAN setting,
-  so this mismatch is a hardware limitation, not a misconfiguration.
+  a Mac configured as `192.168.50.27/24` to AP Switch port 5. **Resolved
+  2026-09-04 — this entry is historical.** The switch was confirmed to have no
+  Management-VLAN setting, making the mismatch a hardware limitation rather
+  than a misconfiguration, and was readdressed to `192.168.1.26` on Trusted
+  VLAN 10 to match where its untagged management actually lands. It is now
+  reachable directly from any Trusted host at `http://192.168.1.26`; neither
+  the port-5 procedure nor an IP alias is required. See the AP Switch
+  config-loss section above.
 - Arista Et34 is described `Camera-PoE-TPLink` and configured as access VLAN 60.
   It is reserved for the old TP-Link 8-port 1Gb PoE switch as a flat camera-only
   switch. Validation with one reconfigured camera remains pending.
@@ -565,7 +581,7 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
 ## Phase 11 Known-Good Checkpoint — 2026-08-20
 
 - Proxmox currently exposes 31 GiB usable memory from two installed 16 GB SK hynix ECC RDIMMs in DIMM1 and DIMM3, configured at 1866 MT/s. The completed 24 GB two-pass `memtester` run reported no errors. The remaining RAM and E5-2698 v4 maintenance stage is pending.
-- Production management endpoints are Arista `192.168.50.2`, Proxmox `192.168.50.10`, UniFi controller `192.168.50.21`, Hall AP `192.168.50.31` and Office AP `192.168.50.141`. The AP Switch is numbered `192.168.50.26` but requires the documented direct VLAN 1 recovery path because its management plane is not actually reachable on VLAN 50.
+- Production management endpoints are Arista `192.168.50.2`, Proxmox `192.168.50.10`, UniFi controller `192.168.50.21`, Hall AP `192.168.50.31` and Office AP `192.168.50.141`. The AP Switch is the exception: its management plane is untagged and lands in Trusted VLAN 10, so it is addressed `192.168.1.26` and reached directly from Trusted rather than through Management VLAN 50.
 - Server endpoints include Frigate `192.168.20.10`, Home Assistant `192.168.20.11`, Docker and primary Pi-hole `192.168.20.20`, TrueNAS and secondary Pi-hole `192.168.20.40`, primary Synology `192.168.20.41` and Backup Synology `192.168.20.42`.
 - Aster LXC 104 at `192.168.70.10`, legacy Ollama VM 105 at `192.168.70.11` and llama.cpp GPU LXC 110 at `192.168.70.12` remain isolated Lab VLAN 70 workloads. LXC 104 and VM 105 have mirrored, encrypted off-site archives and isolated restore evidence. LXC 110 has a named local production snapshot and current local archive; its off-host mirror and isolated restore remain to be confirmed through the current backup workflow.
 - Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf, Sonarr, Radarr, Lidarr and Prowlarr were directly reachable during reconciliation.

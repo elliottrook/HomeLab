@@ -47,8 +47,9 @@ policy between trust zones.
 The planned migrations are complete. Docker, Frigate, Home Assistant, TrueNAS
 and both Synology systems reside on Servers VLAN 20. The UniFi controller,
 both access points, Proxmox and the Arista management SVI reside on Management
-VLAN 50. The AP Switch is numbered `192.168.50.26`, but its management plane
-appears on VLAN 1/untagged and requires the documented direct-recovery path.
+VLAN 50. The AP Switch is addressed `192.168.1.26` on Trusted VLAN 10, because
+its management plane is untagged and the device offers no Management-VLAN
+setting (readdressed 2026-09-04 from a misleading `192.168.50.26`).
 IoT, Guest and Camera devices use VLANs 30, 40 and 60.
 Aster (LXC 104) and its llama.cpp GPU inference backend (LXC 110) are the
 production local-AI workloads on Lab VLAN 70. Hermes and Ollama (VM 105) are

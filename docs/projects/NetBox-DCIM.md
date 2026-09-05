@@ -405,8 +405,11 @@ scope" line ruling out automated discovery — see the decision below.
   `V100SP11251021` (Oct 21 2025), hardware `V1`. The unit still exposes no
   real model string — its own UI reports the device model literally as
   `Switch` — so the generic `AP Switch` NetBox device type is now known to be
-  accurate rather than a placeholder awaiting better data. Its NetBox
-  primary IP also needs revisiting once the open addressing decision is made.
+  accurate rather than a placeholder awaiting better data. **Its NetBox
+  primary IP is now stale:** the device was readdressed to `192.168.1.26` on
+  2026-09-04 (Trusted VLAN 10, matching where its untagged management actually
+  lands), so NetBox's `192.168.50.26` record needs updating — an outstanding
+  write to the live NetBox instance, not yet made.
   Backup Synology's model was explicitly left alone per Jason's
   instruction (out of scope, unrelated to tonight's NAS-instability
   incident). No further network-affecting changes were made overnight —
