@@ -35,7 +35,7 @@ that file in sync — update both in the same change.
 | Docker LXC 100 | 192.168.20.20 | Homepage/Portainer/Pi-hole primary, `lab doctor` |
 | Frigate VM 102 | 192.168.20.10 | Surveillance health checks |
 | Reverse Proxy LXC 107 | 192.168.50.23 | NPM/Authentik administration |
-| AP Switch | 192.168.50.26 | Direct-management recovery path |
+| AP Switch | 192.168.1.26 | Switch management (Trusted VLAN 10; untagged mgmt plane) |
 | Forgejo LXC 108 | 192.168.20.30 | Git remote (`git.elliottrook.com` also allowed, for HTTPS) |
 | Observability LXC 109 | 192.168.20.31 | Prometheus/Grafana health checks |
 | TrueNAS | 192.168.20.40 | Storage/NFS health, `lab doctor` |

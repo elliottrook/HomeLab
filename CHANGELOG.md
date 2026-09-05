@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Changed
+- Synchronised the AP Switch's new address across the remaining systems of record: the Claude Code sandbox allowlist (`CLAUDE.md` table and `.claude/settings.json` together, a lateral swap granting no new reach) and NetBox, where the existing `IPAddress` object on device 16 `Binarui AP Switch` interface `mgmt0` was edited in place so the interface assignment and `primary_ip4` link were preserved rather than rebuilt.
 - Readdressed the AP Switch from `192.168.50.26` to `192.168.1.26` on Trusted VLAN 10, resolving a long-standing mismatch where the device carried a Management-VLAN number it could never be reached on. Confirmed the switch has no Management-VLAN setting, so its untagged management always lands in Arista Et33's native VLAN 10; a VLAN 50 address would not have isolated it, only disguised it, while forcing a `192.168.50.x` alias whose connected route shadows the real path to VLAN 50 and severs the host's access to Arista, Proxmox and the UniFi controller. It is now reachable directly from Trusted at `http://192.168.1.26` with no alias and no physical recovery path, and the superseded port-5 procedure is marked historical. Updated `devices.conf`, the IP addressing table, network design and baseline records to match; the NetBox primary-IP record remains outstanding.
 
 ### Added

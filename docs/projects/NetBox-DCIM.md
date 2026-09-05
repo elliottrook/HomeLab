@@ -405,11 +405,22 @@ scope" line ruling out automated discovery — see the decision below.
   `V100SP11251021` (Oct 21 2025), hardware `V1`. The unit still exposes no
   real model string — its own UI reports the device model literally as
   `Switch` — so the generic `AP Switch` NetBox device type is now known to be
-  accurate rather than a placeholder awaiting better data. **Its NetBox
-  primary IP is now stale:** the device was readdressed to `192.168.1.26` on
-  2026-09-04 (Trusted VLAN 10, matching where its untagged management actually
-  lands), so NetBox's `192.168.50.26` record needs updating — an outstanding
-  write to the live NetBox instance, not yet made.
+  accurate rather than a placeholder awaiting better data. **NetBox record
+  updated 2026-09-04** after the device was readdressed to `192.168.1.26`
+  (Trusted VLAN 10, matching where its untagged management actually lands):
+  the existing `IPAddress` object on device 16 (`Binarui AP Switch`),
+  interface `mgmt0`, was edited in place from `192.168.50.26/24` to
+  `192.168.1.26/24`, so the interface assignment and `primary_ip4` link were
+  preserved rather than rebuilt. Rollback is to set that same object's address
+  back to `192.168.50.26/24`.
+- **Stale NetBox API token — found 2026-09-04, unresolved.**
+  `/root/.netbox-api-token` on LXC 111 is rejected by the API with
+  `403 {"detail":"Invalid v1 token"}`, despite `docs/05-Backups.md`
+  documenting it as the live API token. The record update above was therefore
+  made through the container's Django shell instead, which needs no token.
+  Anything else depending on that token file will currently fail. Worth
+  regenerating and re-recording, or deleting the file if it is genuinely
+  obsolete, so the documented secret matches reality.
   Backup Synology's model was explicitly left alone per Jason's
   instruction (out of scope, unrelated to tonight's NAS-instability
   incident). No further network-affecting changes were made overnight —
