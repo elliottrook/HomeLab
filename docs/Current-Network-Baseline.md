@@ -217,13 +217,38 @@ isolation rules were confirmed unchanged throughout.
   with no alias.
 - ~~**Default credentials.**~~ **Resolved 2026-09-04:** password changed off
   the factory default.
-- **Genuine segmentation fix remains available but unscheduled.** Moving
-  management onto VLAN 50 for real would require creating a VLAN 10 network in
-  UniFi, remapping the Trusted SSID to tag it (today it is mapped to `Default`
-  / VLAN 1 and rides untagged), and only then switching Arista Et33's native
-  VLAN from 10 to 50. Doing the Et33 change *without* the SSID work first
-  would place every Trusted wireless client on the Management VLAN. Logged as
-  a possible future project, not an incident action.
+- ~~**Genuine segmentation fix remains available but unscheduled.**~~
+  **Half done 2026-09-04 — the valuable half.** A `Trusted` third-party-gateway
+  network with VLAN ID 10 was created in UniFi and the `GoWest` SSID rebound
+  to it, so all three SSIDs are now explicitly tagged (10/30/40) and no
+  wireless traffic relies on Arista Et33's native VLAN any more.
+
+  This was deliberately traffic-equivalent and therefore low risk: Et33's
+  native VLAN was already 10, so tagged-10 and untagged-into-native-10 deliver
+  to the same place, and both trunks already permitted tagged VLAN 10 (Arista
+  Et33 allows 10,30,40,50,60; AP Switch ports permit 1,10,20,30,40,50,60,70).
+  No switch changes were needed. Verified after the change: 55 clients
+  associated, 17 Trusted DHCP leases, 18 MACs on VLAN 10 via Et33, both APs
+  ONLINE. Because UniFi now tags VLAN 10, the fact that `GoWest` still works
+  is itself proof the tagged path passes end to end.
+
+  **Why this mattered:** nothing in UniFi previously stated that Trusted was
+  VLAN 10. `GoWest` was bound to the `Default` network with no VLAN ID, and
+  became VLAN 10 purely because of a native-VLAN setting two devices away.
+  Changing Et33's native VLAN — an innocuous-looking edit — would have
+  silently moved the entire household WLAN onto another VLAN. That dependency
+  no longer exists.
+
+  **Rollback:** rebind `GoWest`'s `networkconf_id` to the `Default` network,
+  then delete the `Trusted` network.
+
+  **Deliberately not done:** changing Arista Et33's native VLAN from 10.
+  Its only remaining payoff would be relocating the AP Switch's untagged
+  management plane, which now has an honest, reachable, documented address at
+  `192.168.1.26`; doing so would mean readdressing that switch a second time
+  for little gain. Leaving native VLAN 10 in place also leaves it carrying
+  exactly one thing — the AP Switch's own management — which is a simpler
+  state than before.
 - **VLAN 50 flooding.** After the fix, client MACs belonging to IoT hosts
   were observed arriving tagged VLAN 50 on Et33, though no client obtains a
   `192.168.50.x` lease and no infrastructure MAC moved ports. Likely a

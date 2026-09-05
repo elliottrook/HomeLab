@@ -420,9 +420,15 @@ scope" line ruling out automated discovery — see the decision below.
 
   | SSID | NetBox VLAN | AP tagging |
   |---|---|---|
-  | `GoWest` | Trusted (10) | **untagged** — UniFi *Default* network, no VLAN ID |
+  | `GoWest` | Trusted (10) | tagged VLAN 10 (see note) |
   | `TELUS96FF` | IoT (30) | tagged VLAN 30 |
   | `Anchors_Rest` | Guest (40) | tagged VLAN 40 |
+
+  `GoWest` was **untagged** when first recorded — bound to UniFi's *Default*
+  network with no VLAN ID, reaching Trusted only via Arista Et33's native
+  VLAN 10. It was moved to a purpose-made `Trusted` VLAN 10 network later the
+  same day (see `Current-Network-Baseline.md`), and its NetBox description was
+  updated to match. All three SSIDs are now explicitly tagged.
 
   All three are WPA2-PSK (`auth_type=wpa-personal`, `auth_cipher=aes`),
   status active. **Passphrases were deliberately not stored** — `auth_psk` is
