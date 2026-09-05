@@ -99,7 +99,12 @@ scope for this project** — a separate decision for later.
   → IDrive e2 off-site via Hyper Backup).
 - [x] Backup Synology is currently offline (active incident, same document)
   and is being removed from the backup architecture permanently, not
-  restored to its old role.
+  restored to its old role. **Correction 2026-09-05: "currently offline" was
+  wrong even at the time this box was checked — the unit was up — and the
+  root cause was later found to be 484 MB of RAM, not general instability.
+  Neither correction changes this item's decision: the unit is still being
+  permanently removed from the backup architecture, now under
+  `Backup-Synology-Decommission.md`.**
 - [x] `gowest` (main Synology, `192.168.20.41`) becomes an rsync **source**
   only — production data, not a backup destination.
 - [x] TrueNAS (`192.168.20.40`, Servers VLAN 20) is on a separate UPS

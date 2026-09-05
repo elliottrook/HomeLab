@@ -140,27 +140,88 @@ Those references are stale and are corrected as part of Milestone 1.
 
 ## Milestone 1 — Inventory and dependency mapping
 
-- [ ] Full inventory of `/volume1` on `.42`: every share, its size, its
+- [x] Full inventory of `/volume1` on `.42`: every share, its size, its
       newest content, and whether any other copy exists.
 - [ ] Determine whether `Media Backup` (5.7 TB, 6 days stale) is still
       required at all. The redesign already decided **not** to carry it
       forward, since Plex source media is retired — confirm that still holds
       and that nothing unique lives only there.
-- [ ] Inventory `/volume1/HomeAssistant-Backups` (551 MB) — is this covered
+- [x] Inventory `/volume1/HomeAssistant-Backups` (551 MB) — is this covered
       by HA's own backup task or the Proxmox guest archive of VM 103?
-- [ ] Identify every host, task or credential that references `.42`,
+- [x] Identify every host, task or credential that references `.42`,
       including DSM tasks on `gowest`, Doctor checks, and repo scripts.
 - [ ] Record the IDrive e2 bucket's current contents, versioning and
       retention, so the replacement can be proven equivalent.
-- [ ] Correct the stale "Backup Synology is offline" references across
+- [x] Correct the stale "Backup Synology is offline" references across
       `docs/05-Backups.md`, `02-IP-Addressing.md`,
       `Backup-Architecture-Redesign.md` and `configs/devices.conf`.
+
+
+### Milestone 1 findings — inventory complete 2026-09-05
+
+**`.42` holds only two shares.** Volume is 7.3 TB, 6.1 TB used, **84% full**.
+
+| Share | Size | Newest content |
+|---|---:|---|
+| `Backup` | 5.8 TB | 2026-09-05 04:41 |
+| `HomeAssistant-Backups` | 551 MB | 2026-09-05 04:53 |
+
+`Backup` breaks down as:
+
+| Item | Size | Newest | Replacement status |
+|---|---:|---|---|
+| `GoWest_1.hbk` — "Media Backup" | 5.7 TB | 2026-08-30 ⚠️ | Redesign decided **not** to carry forward (Plex retired) — confirm |
+| `GoWest_2.hbk` — "Synology Drive Backup" | 103 GB | 2026-09-05 00:01 | ❌ TrueNAS `gowest` leg is **empty** |
+| `HomeLab-Backups/automated/private-backups` | 4.3 MB | 2026-09-05 04:41 | ❌ TrueNAS `mac` leg is **empty** |
+| `HomeLab-Backups/automated/proxmox-guests` | 12 KB | — | ✅ superseded by TrueNAS (119 archives, verified intact) |
+
+**Four things must be replaced before power-down:**
+
+1. **The only off-site path in the lab.** Hyper Backup "Mini Atlas Offsite" →
+   `s3.us-west-4.idrivee2.com`, bucket `mini-atlas-backups`, target
+   `GoWest_Backup_1.hbk`. Confirmed `enable_data_encrypt=true` and
+   `enable_version_rotation=true`; 7.2 GB local cache at
+   `/volume1/@img_bkp_cache`. Nothing else in the lab pushes off-site.
+2. **Home Assistant's native backups — a live dependency found by this
+   inventory.** HA writes `automatic_backup_*.tar` daily over SMB directly to
+   `.42`, roughly 26 MB each, retaining three plus one manual
+   `post_server_change` snapshot. Newest 2026-09-05 04:53. The Proxmox VM 103
+   guest archive covers the whole VM but **not** HA's native restore format,
+   which is the granular and hardware-portable path. Powering `.42` down
+   without repointing this stops HA backups **silently**.
+3. **Mac config backups.** `automated/private-backups` (4.3 MB) is currently
+   the **only copy off the Mac**. The TrueNAS `mac` leg has 0 files.
+4. **Synology Drive / homes / Family Documents.** `GoWest_2.hbk` is current
+   and active; the TrueNAS `gowest` leg has 0 files.
+
+**Already safely superseded:** the Proxmox guest archives. `.42`'s copy is
+now a 12 KB stub of logs and status files while TrueNAS holds 119 archives,
+verified 2026-09-05 by `zstd -t` and byte-exact size comparison to source.
+
+**Lab references to `.42` needing removal at Milestone 4:**
+`.claude/settings.json` (sandbox allowlist), `CLAUDE.md` (topology table and
+allowlist), `configs/devices.conf`, `configs/services.conf`,
+`scripts/doctor.sh` (a `gowest-backup` check plus the `synology-pull`
+backup-age check), `scripts/lab`, `scripts/backup/guided.sh`,
+`scripts/certificate-check.sh`, and NetBox.
+
+**Assumption corrected:** the DS220j was believed to be a passive,
+mostly-superseded backup target. It is not — it is an active participant
+holding the lab's only off-site path and the only copy of two data sets, and
+it is receiving fresh data daily from Home Assistant. The decommission is
+correspondingly more involved than "power it off".
 
 ### Gate
 
 Do not begin any migration until every unique item on `.42` is either
 matched by a proven copy elsewhere or explicitly marked for retirement with
 Jason's agreement in writing here.
+
+**Gate status 2026-09-05: NOT passed — inventory done, decisions outstanding.**
+Four replacements are required (off-site path, Home Assistant native backups,
+Mac config backups, Synology Drive set). Two need Jason's decision before
+Milestone 2 can be scoped: whether `Media Backup`'s 5.7 TB is genuinely
+retired, and where Home Assistant should write its backups instead.
 
 ---
 
@@ -279,3 +340,4 @@ this milestone closes as "not required".
 | Date | Milestone | Action | Result |
 |---|---|---|---|
 | 2026-09-05 | Baseline | Verified live state of both Synology units, TrueNAS backup datasets, Hyper Backup task/repo configuration and IDrive e2 target | Recorded above; DS220j confirmed at 484 MB RAM, and confirmed as the sole off-site path |
+| 2026-09-05 | M1 | Full share inventory of `.42`, reference sweep across repo/Doctor/allowlist, TrueNAS coverage comparison | Four replacements required before power-down; Home Assistant found writing daily backups directly to `.42` — a live dependency not previously recorded anywhere |

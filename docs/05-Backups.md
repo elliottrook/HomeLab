@@ -57,7 +57,23 @@ Both production tasks write `0` only after copy and verification succeed. On fai
 
 Private keys, authorized-key material, host-key files, email credentials and backup contents remain outside Git.
 
-## Active incident — Backup Synology unstable (2026-09-01, ongoing)
+## Historical incident — Backup Synology unstable (2026-09-01) — **resolved/superseded 2026-09-05**
+
+**This section is stale.** The Backup Synology is not shut down: verified
+live 2026-09-05 with 5 days of uptime, idle load, and both the same-site pull
+and the encrypted IDrive e2 off-site task actively running (off-site cache
+activity as recently as 2026-09-04 23:35). The root cause was also
+misdiagnosed at the time — later measurement (2026-09-05) found the unit has
+**484 MB of RAM**, which is what fails under Hyper Backup's
+dedup/compression/encryption load on multi-terabyte jobs, not a general
+instability. The plan below to migrate the backup role to the main Synology
+was superseded by `Backup-Architecture-Redesign.md`'s decision to make
+TrueNAS the hub instead (`gowest` and both Synology units are sources only,
+never destinations), and that in turn is being executed by
+`Backup-Synology-Decommission.md`, which retires this unit rather than
+repurposing the main Synology. The original incident text follows for
+historical reference; treat every operational claim in it as superseded by
+those two project documents.
 
 **The Backup Synology is currently unstable and shut down.** Both the
 automated same-site pull above and the encrypted off-site task below
@@ -495,8 +511,9 @@ design rather than by gap.
 `scripts/backup/synology-proxmox-pull.sh`'s filter (the canonical
 reference for the Backup Synology's pull task) on 2026-09-01, but as of
 this writing the *live* DSM scheduled task has not yet been updated to
-match, and the Backup Synology itself is currently offline (see the
-active-incident note earlier in this document). Until both are resolved,
+match. **Correction 2026-09-05:** the Backup Synology is not offline (see
+the historical-incident note earlier in this document); this DSM task gap
+is real but independent of that. Until both are resolved,
 LXC 111 has Layer 1 (local Proxmox) coverage only — same exposure as every
 other guest during this incident, not a NetBox-specific gap.
 
@@ -748,7 +765,7 @@ configuration is separately documented or exported.
 | Reverse Proxy LXC 107 | Doctor checks NPM service reachability and TLS dependencies | Current LXC archive retained locally and checksum-mirrored to the Backup Synology | Platform-level recovery inherits the validated Proxmox LXC restore process; proxy and Authentik recovery order is documented |
 | Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to the Backup Synology; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
 | Observability LXC 109 | Prometheus self-monitors and all seven initial scrape jobs are health-checked; Doctor integration follows after Grafana stabilizes | Protected configuration archive plus the retained all-guests LXC snapshot; both enter the existing Synology/off-site pipeline | Configuration archive extracted and checked in isolation; first LXC archive passed complete Zstandard integrity testing |
-| NetBox LXC 111 | Doctor's `check_netbox` covers all five container health states and the login-page response | Local Proxmox archive only as of 2026-09-01 — Layer 2/3 not yet extended to this guest (live DSM task pending, Backup Synology itself currently offline); by design there is no separate config-level recovery set, since the whole deployment is reproducible from `/opt/netbox` on the guest | Not yet isolated-restore tested; deployment is new (2026-09-01) |
+| NetBox LXC 111 | Doctor's `check_netbox` covers all five container health states and the login-page response | Local Proxmox archive only as of 2026-09-01 — Layer 2/3 not yet extended to this guest (live DSM task pending; correction 2026-09-05: the Backup Synology itself is not offline, see the historical-incident note above); by design there is no separate config-level recovery set, since the whole deployment is reproducible from `/opt/netbox` on the guest | Not yet isolated-restore tested; deployment is new (2026-09-01) |
 | NUT server (Lenovo, bare metal) | Doctor checks `nut-server`/`nut-monitor` state, all three UPS units' `ups.status` and battery charge, and config-backup age | `lab backup nut` pulls the config set (`ups.conf`, `nut.conf`, `upsd.users`, `upsmon.conf`, SSH hardening, network config) via a narrow NOPASSWD sudoers rule, landing in the same Backup Synology pull and encrypted IDrive e2 off-site tree as other appliance configs | Live driver/server configuration validated via `upsc`; a full bare-metal OS reinstall has not been tested, only documented as a recovery procedure |
 | Reolink camera | Doctor tests HTTP, RTSP and ONVIF reachability; Frigate proves recording flow | No recording archive is required; Frigate configuration preserves the integration settings | Camera replacement or reset is a documented reconfiguration task rather than a backup restore |
 

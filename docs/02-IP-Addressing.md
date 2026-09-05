@@ -6,9 +6,12 @@
 > NetBox and refresh this file — don't hand-edit around a discrepancy the
 > other way.
 >
-> **Backup Synology (`192.168.20.42`) is currently offline** — active
-> incident, see `docs/05-Backups.md`. Its row below is left as-is; the
-> address is correct for when it returns.
+> **Backup Synology (`192.168.20.42`) is up and in active use** — corrected
+> 2026-09-05; it was previously and incorrectly recorded here as offline.
+> It is being decommissioned under `docs/projects/Backup-Synology-Decommission.md`,
+> not because it is down, but because it is underpowered (484 MB RAM) for
+> the Hyper Backup destination role it holds. Its address below remains
+> current until that project's Milestone 4.
 
 |Device|IP|
 |---|---|
