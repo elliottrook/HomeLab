@@ -515,3 +515,45 @@ Docker-managed named volume under `Media/ix-apps` on TrueNAS. See the
 (incomplete) backup coverage.
 
 A certificate is considered unhealthy when it cannot be read, its endpoint is unreachable, or it has 30 days or less remaining. Certificate failures are included in the daily failure-only scheduled report and use the existing duplicate-alert suppression.
+
+## Calibre and Audiobookshelf (2026-09-05)
+
+Both apps run as TrueNAS SCALE-managed containers (`ix-calibre-calibre-1`,
+`ix-audiobookshelf-audiobookshelf-1`) and were pointed at the household's real
+e-book and audiobook libraries, which had been sitting unused on disk:
+
+- E-books: `/mnt/Media/media/books` (851M) — this directory is itself already
+  a complete, valid Calibre library (has its own `metadata.db`), not a raw
+  file dump. It was mounted into the Calibre container at `/mnt` all along,
+  alongside the container's default (near-empty, demo-only) library at
+  `/config/Calibre Library`.
+- Audiobooks: `/mnt/Media/media/audiobooks` (49GB, ~46 titles, folder-per-book
+  with `.m4b` files) — mounted into the Audiobookshelf container at **both**
+  `/config` and `/mnt` (a pre-existing double-mount, left as-is since it isn't
+  broken and reconfiguring it wasn't in scope).
+
+**Calibre**: no GUI access was available for this change — the container's
+UI is a Selkies WebRTC remote desktop that requires an HTTPS-loaded page, and
+none of its exposed ports (32014/32015/32016) serve valid TLS reachable from
+this environment; this is a standing infra gap, not fixed here. Instead,
+Calibre's active-library pointer was changed headlessly: backed up
+`/config/.config/calibre/global.py.json`, then edited its `library_path` key
+from `/config/Calibre Library` to `/mnt`, then restarted the container so the
+running app picked up the change cleanly. Verified via `calibredb list
+--library-path=/mnt` before and after restart — 723 real books (Stephen King,
+tax guides, etc.), persisted across the restart. The GUI (once the TLS gap is
+separately resolved) will now open directly into this real library.
+
+**Audiobookshelf**: the app had never been through first-run setup
+(`GET /status` returned `isInit: false` — no admin account, no libraries).
+Completed the setup wizard via browser: created a root account named `admin`
+(password generated, given to Jason directly in chat — not stored in any repo
+or secrets file, since this app has no existing compose/secrets convention
+like Homepage or Homarr), confirmed the default Config/Metadata paths
+(`/config`, `/metadata`), then added one library ("Audiobooks", media type
+Books, folder `/mnt`) and ran a manual scan. Scan completed in well under a
+minute, importing all 46 titles with cover art and metadata auto-matched.
+
+Neither app's TrueNAS-side container config, mounts, or the double-mount on
+Audiobookshelf were otherwise touched — only each app's own library-path
+setting was changed, per the task's scope.
