@@ -413,6 +413,43 @@ scope" line ruling out automated discovery — see the decision below.
   `192.168.1.26/24`, so the interface assignment and `primary_ip4` link were
   preserved rather than rebuilt. Rollback is to set that same object's address
   back to `192.168.50.26/24`.
+- **Wireless SSIDs populated 2026-09-04.** NetBox held zero `WirelessLAN`,
+  `WirelessLANGroup` and wireless-type interface objects. Created three
+  `WirelessLAN` records from live UniFi configuration, each linked to its
+  existing NetBox VLAN:
+
+  | SSID | NetBox VLAN | AP tagging |
+  |---|---|---|
+  | `GoWest` | Trusted (10) | **untagged** — UniFi *Default* network, no VLAN ID |
+  | `TELUS96FF` | IoT (30) | tagged VLAN 30 |
+  | `Anchors_Rest` | Guest (40) | tagged VLAN 40 |
+
+  All three are WPA2-PSK (`auth_type=wpa-personal`, `auth_cipher=aes`),
+  status active. **Passphrases were deliberately not stored** — `auth_psk` is
+  empty on all three, verified. Putting live WLAN keys into NetBox would be a
+  credential-storage decision needing its own explicit approval, and NetBox is
+  not a secret store.
+
+  `GoWest`'s untagged status is the operationally important record here: it is
+  mapped to UniFi's *Default* network with no VLAN ID, so the APs emit it
+  untagged and it reaches Trusted VLAN 10 only because Arista Et33's native
+  VLAN is 10. That is precisely why it survived the 2026-09-04 AP Switch
+  config loss while both tagged SSIDs went dark, and it is the dependency that
+  makes any future change to Et33's native VLAN dangerous.
+
+  **API note for future work:** the UniFi *integration* API (v1) exposes no
+  SSID/WLAN endpoint at all — `wlans`, `ssids` and `wireless-networks` all
+  return 404. The legacy endpoints under
+  `/proxy/network/api/s/default/rest/{wlanconf,networkconf}` do carry this
+  data and accept the same `X-API-Key` header, which is how it was read.
+  Note `wlanconf` also returns live passphrases, so filter its output.
+
+  **Rollback:** delete the three `WirelessLAN` objects by SSID.
+
+  Radio interfaces on the two APs were **not** created — each AP still has only
+  its `mgmt0` interface. The controller reports three radios per AP (2.4/5/6
+  GHz, 802.11be, 20/80/160 MHz widths); modelling those involves naming and
+  interface-type choices, so it is left as a separate decision.
 - **Stale NetBox API token — found and resolved 2026-09-04.**
   `/root/.netbox-api-token` on LXC 111 was rejected with
   `403 {"detail":"Invalid v1 token"}`, despite `docs/05-Backups.md`
