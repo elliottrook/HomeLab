@@ -156,6 +156,17 @@ same way a hand-maintained one does.
   `searchdomain internal`, net0 on `vmbr0` tag 20 mirroring LXC 109's
   pattern. Verified: correct IP bound, DNS resolution works, `apt-get
   update` reached both `deb.debian.org` and `security.debian.org`
+  - **Memory raised 2048 → 4096 MB on 2026-09-04** via live `pct set 111
+    -memory 4096`; applied without a restart, containers kept their existing
+    uptime. Reason was headroom rather than a fault: the stack was running at
+    ~1.4 GB of its 2 GB cap with only ~600 MB free (the Django container alone
+    holds ~1 GB), and **no OOM events appeared in syslog or dmesg** with swap
+    essentially untouched. Bulk imports and concurrent API use are what would
+    have consumed the remainder. Post-change: 2.6 GB available, all five
+    containers healthy, API 200, Doctor's `check_netbox` green. 4096 MB
+    matches the allocation already used by LXC 100/101/106; host allocation
+    moved from ~46 GB to ~48 GB of 78 GB. **Rollback:** `pct set 111 -memory
+    2048`.
   successfully. (Gateway ICMP ping fails, but so does it for the existing
   healthy LXC 109 — confirmed as normal for this network, not a fault.)
   **Rollback:** `pct stop 111 && pct destroy 111` — safe at this stage,
