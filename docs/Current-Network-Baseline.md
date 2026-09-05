@@ -135,6 +135,24 @@ applied**, so the first power event wiped it. Proven after the fix: the
 restored config was explicitly saved via *Save Configure*, and then survived
 a deliberate reboot (Running Time confirmed 3m 21s, down from 57m).
 
+**Trigger identified (2026-09-04, confirmed by Jason).** The rack was
+deliberately powered down for over an hour on 2026-08-29 to cable the UPS
+units and NUT server. Corroborated independently: Arista's own uptime placed
+its boot at approximately 2026-08-29 03:05 UTC, matching that work. The
+wireless VLANs were therefore down for roughly six days before the fault was
+noticed — worth remembering as a detection gap, since nothing alerted on it.
+
+Note the *duration* of the outage was irrelevant. Flash/NVRAM retains data
+for years unpowered; an hour cannot erase a committed config. The config was
+lost because it existed only in running memory, which clears the moment
+power drops regardless of how long it stays off. Two consequences:
+
+- **The UPS does not protect against this.** This power-down was deliberate,
+  and a UPS only covers unplanned loss. A future reboot or unplug behaves the
+  same way.
+- **Save Configure is the only real protection.** Every future change to this
+  switch must be followed by it, or the next power event repeats this outage.
+
 ### Diagnostic sequence that isolated it
 
 OPNsense interfaces, dnsmasq, Arista trunk config, Arista STP forwarding
