@@ -20,33 +20,45 @@ SSH shortcuts:
 
 ## Service dashboard
 
-**2026-09-04: migrating from Homepage to Homarr.** Homepage's YAML-only layout
-couldn't do what was needed (e.g. one tall tile beside two stacked ones), and
-its Next.js container has a cosmetic cold-start quirk (briefly serves its
-bundled demo content on the first request or two after a restart/recreate —
-self-heals within about a minute, not a real fault). Homarr is now running
-alongside it on the same host, port 7575, with a working auto-generated board
-across all 9 integrations Homepage already had credentials for (Sonarr,
-Radarr, Prowlarr, Lidarr, SABnzbd, Beszel, TrueNAS, Proxmox, Pi-hole Primary).
-Homepage is left running, untouched, as the rollback path until Homarr is
-confirmed as the daily driver — nothing has been cut over or removed yet.
+**2026-09-04/05: evaluated replacing Homepage with Homarr; decided against it.**
+Homepage's YAML-only layout couldn't do the tile arrangement wanted (e.g. one
+tall tile beside two stacked ones), which prompted a full trial migration to
+Homarr. The migration itself hit real friction — Homarr's "add app"/"new
+item" board-editor modal reliably rendered empty (zero height) in the
+automation browser used to drive the session, blocking further scripted
+setup — and Jason ultimately preferred Homepage's structure for the main
+ops dashboard. **Homepage remains the primary dashboard**; nothing about it
+changed as a result of the trial. Homarr is being **kept as a secondary,
+purpose-specific board** for media app management (a `Media Manager` tile
+was added under Homepage's `Media Automation` group linking to it), which
+Jason is customizing by hand.
 
 - Homarr URL: `http://192.168.20.20:7575`
 - Homarr config/data: `/opt/homarr/appdata` (bind-mounted), compose file at
   `/opt/homarr/compose.yaml`, secrets (admin password, Beszel read-only
-  account password) at `/opt/homarr/secrets/*` (mode 600, outside Git)
+  account password, Jellyfin/Immich/Seerr API keys) at `/opt/homarr/secrets/*`
+  (mode 600, outside Git)
 - Admin login: username `jelliott`; password in `/opt/homarr/secrets/admin_password`
   — change it via Homarr's own account settings once logged in
 - Docker socket is deliberately **not** mounted into the Homarr container —
   container stats go through Portainer's API instead, keeping the same
   least-privilege posture used throughout this project rather than granting
   Homarr root-equivalent host access
+- Integrations configured: Sonarr, Radarr, Prowlarr, Lidarr, SABnzbd, Beszel,
+  TrueNAS, Proxmox, Pi-hole Primary, Jellyfin, Immich, Seerr. Audiobookshelf
+  and Calibre intentionally left for Jason to set up himself — the "Calibre"
+  tile turned out to be the actual desktop Calibre app streamed via Selkies
+  remote-desktop (not calibre-web), so it has no REST API and can never get a
+  widget; Audiobookshelf just wasn't gotten to.
 - Beszel required a new dedicated `readonly`-role account
   (`homarr-widget@home.internal`) rather than reusing Homepage's existing
   superuser account — Homarr's integration uses Beszel's regular hub login
   (the `users` PocketBase collection), which the superuser account (a
   `_superusers` record, a separate auth system) can't authenticate against.
-  This was a net privilege reduction, not just a workaround.
+  Beszel also scopes system visibility per-user via a `users` relation field
+  on each `systems` record — the new account saw zero systems until it was
+  added to that field on all 7. Both were net privilege reductions, not just
+  workarounds.
 - Found and fixed a live bug while wiring up TrueNAS: its own security policy
   auto-revokes any API key the moment it's used over plain HTTP ("Attempt to
   use over an insecure transport"). Homepage's TrueNAS widget was doing
@@ -55,13 +67,8 @@ confirmed as the daily driver — nothing has been cut over or removed yet.
   repeated the same fix in Homarr, trusting Proxmox's PVE cluster CA
   certificate (`/etc/pve/pve-root-ca.pem`, uploaded to Homarr) and TrueNAS's
   self-signed cert along the way.
-- OPNsense integration deliberately not attempted in Homarr either — same
-  reasoning as Homepage: no safe CLI-native way to mint a credential, and
-  it's the gateway.
-
-Once Homarr is confirmed as the daily driver, Homepage can be retired; until
-then treat Homepage as still authoritative for anything not yet verified in
-Homarr.
+- OPNsense integration deliberately not attempted in either dashboard — no
+  safe CLI-native way to mint a credential, and it's the gateway.
 
 - LAN and Tailscale URL: `http://home.internal:3000`
 - Direct fallback: `http://192.168.20.20:3000`
