@@ -217,38 +217,45 @@ isolation rules were confirmed unchanged throughout.
   with no alias.
 - ~~**Default credentials.**~~ **Resolved 2026-09-04:** password changed off
   the factory default.
-- ~~**Genuine segmentation fix remains available but unscheduled.**~~
-  **Half done 2026-09-04 — the valuable half.** A `Trusted` third-party-gateway
-  network with VLAN ID 10 was created in UniFi and the `GoWest` SSID rebound
-  to it, so all three SSIDs are now explicitly tagged (10/30/40) and no
-  wireless traffic relies on Arista Et33's native VLAN any more.
+- **Attempted 2026-09-04, FAILED, reverted 2026-09-05. Do not repeat without
+  first moving Et33's native VLAN off 10.**
 
-  This was deliberately traffic-equivalent and therefore low risk: Et33's
-  native VLAN was already 10, so tagged-10 and untagged-into-native-10 deliver
-  to the same place, and both trunks already permitted tagged VLAN 10 (Arista
-  Et33 allows 10,30,40,50,60; AP Switch ports permit 1,10,20,30,40,50,60,70).
-  No switch changes were needed. Verified after the change: 55 clients
-  associated, 17 Trusted DHCP leases, 18 MACs on VLAN 10 via Et33, both APs
-  ONLINE. Because UniFi now tags VLAN 10, the fact that `GoWest` still works
-  is itself proof the tagged path passes end to end.
+  A `Trusted` VLAN 10 network was created in UniFi and `GoWest` rebound to it,
+  to make Trusted's tagging explicit rather than depending on Arista Et33's
+  native VLAN. **This broke the WLAN.**
 
-  **Why this mattered:** nothing in UniFi previously stated that Trusted was
-  VLAN 10. `GoWest` was bound to the `Default` network with no VLAN ID, and
-  became VLAN 10 purely because of a native-VLAN setting two devices away.
-  Changing Et33's native VLAN — an innocuous-looking edit — would have
-  silently moved the entire household WLAN onto another VLAN. That dependency
-  no longer exists.
+  **Why it failed — the mistake was reasoning only about ingress.** Et33's
+  native VLAN is 10, so tagged-VLAN-10 and untagged-into-native-VLAN-10 do
+  arrive at the same place. But on **egress** Arista sends VLAN 10 traffic back
+  *untagged*, because that is the native VLAN, while an SSID bound to a tagged
+  VLAN 10 network expects it tagged. Return traffic — including DHCP
+  OFFER/ACK — was therefore dropped at the AP. The trunk allow-lists were never
+  the problem and needed no change.
 
-  **Rollback:** rebind `GoWest`'s `networkconf_id` to the `Default` network,
-  then delete the `Trusted` network.
+  **Why it looked fine for hours.** Clients holding pre-change DHCP leases
+  (86,400 s) stayed associated and appeared healthy, so counting clients and
+  leases immediately afterwards proved nothing. Symptoms only emerged as
+  clients re-associated or renewed: "connected, no internet" for those with
+  live leases, and 169.254.x self-assigned addresses for anything needing a new
+  one. At detection, 2 of 6 `GoWest` clients had failed DHCP — one stuck for
+  over 16 hours — while `TELUS96FF` (44 clients) and `Anchors_Rest` were
+  perfectly healthy, since VLANs 30 and 40 are not the native VLAN.
 
-  **Deliberately not done:** changing Arista Et33's native VLAN from 10.
-  Its only remaining payoff would be relocating the AP Switch's untagged
-  management plane, which now has an honest, reachable, documented address at
-  `192.168.1.26`; doing so would mean readdressing that switch a second time
-  for little gain. Leaving native VLAN 10 in place also leaves it carrying
-  exactly one thing — the AP Switch's own management — which is a simpler
-  state than before.
+  **Verification lesson:** a tagging change is only proven by a client
+  obtaining a *fresh* lease and passing traffic afterwards — never by counts of
+  existing associations or unexpired leases. After the revert, all 8 `GoWest`
+  clients recovered valid `192.168.1.x` addresses, including the 16-hour stuck
+  one, with new clients associating successfully.
+
+  **Current state:** `GoWest` is back on UniFi's `Default` network, untagged,
+  reaching Trusted VLAN 10 through Et33's native VLAN. The unused `Trusted`
+  VLAN 10 network object remains in UniFi, bound to no SSID.
+
+  **If this is ever revisited**, the ordering is: move Et33's native VLAN off
+  10 first (which also relocates the AP Switch's untagged management plane and
+  would mean readdressing it again), *then* tag `GoWest`. Doing it in the other
+  order reproduces this outage. `check_wireless_tagging` in HomeLab Doctor now
+  fails if `GoWest` is tagged, specifically to catch a repeat.
 - **VLAN 50 flooding.** After the fix, client MACs belonging to IoT hosts
   were observed arriving tagged VLAN 50 on Et33, though no client obtains a
   `192.168.50.x` lease and no infrastructure MAC moved ports. Likely a
@@ -269,24 +276,21 @@ wireless path. HomeLab Doctor now covers it with two checks:
   collapses toward zero, which is the symptom a tagging failure produces.
   Guest VLAN 40 is deliberately *not* alerted on, since zero visitors is a
   normal state and would otherwise alarm constantly.
-- `check_wireless_tagging` (added after the VLAN 10 tagging change) is a
-  **config-drift** check rather than a health check. It asserts every enabled
-  SSID is bound to a network carrying a VLAN ID, and that `GoWest`/
-  `TELUS96FF`/`Anchors_Rest` are on VLANs 10/30/40 respectively. An SSID
-  rebound to an untagged network — by a UniFi config restore, a factory event
-  or a stray click — would keep working perfectly, because Et33's native VLAN
-  is still 10, silently reinstating the hidden dependency this evening's work
-  removed. No health check can see that; this one can. A new, unrecognised
-  SSID warns rather than fails, so legitimate additions do not break the run.
+- `check_wireless_tagging` is a **config-drift** check rather than a health
+  check. It asserts each SSID is bound to its designed network: `GoWest`
+  **untagged** (on UniFi `Default`), `TELUS96FF` VLAN 30, `Anchors_Rest`
+  VLAN 40. Rewritten 2026-09-05 after the failed tagging attempt above — it
+  now fails if `GoWest` is *tagged*, which is the change that broke the WLAN,
+  as well as if IoT or Guest lose their tagging. A new, unrecognised SSID warns
+  rather than fails, so legitimate additions do not break the run.
 
   Trusted VLAN 10 deliberately has **no lease-count check**. VLAN 10 carries
-  wired clients too, so a wireless failure would only make the count sag
-  rather than collapse, giving no clean threshold; that failure mode is
-  already covered by `check_unifi`, since AP management is tagged VLAN 50.
+  wired clients too, so a wireless failure would only make the count sag rather
+  than collapse, giving no clean threshold; that failure mode is already
+  covered by `check_unifi`, since AP management is tagged VLAN 50.
 
-  Detection logic was verified against stubbed API responses covering correct
-  config, an untagged revert, a wrong VLAN, a missing SSID and an unexpected
-  new SSID.
+  Detection logic was verified against stubbed API responses covering the
+  correct mapping, `GoWest` wrongly re-tagged, and IoT wrongly untagged.
 
 The API key lives at `~/.config/lab/unifi-api-key` (mode 600, outside the
 repository, never committed). Override with `UNIFI_API_KEY_FILE`. If the file

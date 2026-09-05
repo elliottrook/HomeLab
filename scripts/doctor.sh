@@ -1144,10 +1144,15 @@ check_wireless_vlans() {
 }
 
 check_wireless_tagging() {
-    # Config-drift check, not a health check. Every SSID must be bound to a
-    # network carrying a VLAN ID. An SSID rebound to an untagged network keeps
-    # working silently, because Arista Et33's native VLAN is 10 — so nothing
-    # else in this script would notice the regression.
+    # Config-drift check, not a health check. Asserts each SSID is bound to the
+    # network it is designed for.
+    #
+    # GoWest MUST stay untagged (UniFi "Default"). Tagging it VLAN 10 was tried
+    # on 2026-09-04 and broke it: Arista Et33's native VLAN is 10, so return
+    # traffic egresses untagged while a tagged SSID expects it tagged. Clients
+    # holding leases looked connected but had no path; new clients fell back to
+    # 169.254. Reverted 2026-09-05. Do not re-tag it without first moving Et33's
+    # native VLAN off 10.
     local key_file="${UNIFI_API_KEY_FILE:-$HOME/.config/lab/unifi-api-key}"
     local base="https://192.168.50.21:11443/proxy/network/api/s/default"
 
@@ -1193,9 +1198,10 @@ for w in wl:
         return
     fi
 
-    # Intent: the mapping this lab is designed around. Plain array of
-    # name=vlan pairs — macOS ships bash 3.2, which has no associative arrays.
-    local expected=(GoWest=10 TELUS96FF=30 Anchors_Rest=40)
+    # Intent: the mapping this lab is designed around. "untagged" is a valid and
+    # deliberate expectation, not a gap. Plain array of name=value pairs —
+    # macOS ships bash 3.2, which has no associative arrays.
+    local expected=(GoWest=untagged TELUS96FF=30 Anchors_Rest=40)
 
     local failures=()
     local warnings=()
@@ -1211,10 +1217,13 @@ for w in wl:
             [[ "${entry%%=*}" == "$ssid" ]] && want="${entry#*=}" && break
         done
 
-        if [[ -z "$vlan" ]]; then
-            failures+=("$ssid untagged (network '$network')")
-        elif [[ -z "$want" ]]; then
-            warnings+=("$ssid tagged VLAN $vlan but not in the expected set")
+        if [[ -z "$want" ]]; then
+            warnings+=("$ssid not in the expected set (network '$network')")
+        elif [[ "$want" == "untagged" ]]; then
+            # Tagging this one breaks it — see the header comment.
+            [[ -n "$vlan" ]] && failures+=("$ssid tagged VLAN $vlan but must stay untagged")
+        elif [[ -z "$vlan" ]]; then
+            failures+=("$ssid untagged (network '$network'), expected VLAN $want")
         elif [[ "$vlan" != "$want" ]]; then
             failures+=("$ssid on VLAN $vlan, expected $want")
         fi
@@ -1229,7 +1238,7 @@ for w in wl:
     elif (( ${#warnings[@]} > 0 )); then
         warn "Wireless VLAN tagging: ${warnings[*]}"
     else
-        pass "Wireless VLAN tagging correct; $count SSID(s) all tagged as designed"
+        pass "Wireless VLAN mapping correct; $count SSID(s) match the designed tagging"
     fi
 }
 
