@@ -20,6 +20,49 @@ SSH shortcuts:
 
 ## Service dashboard
 
+**2026-09-04: migrating from Homepage to Homarr.** Homepage's YAML-only layout
+couldn't do what was needed (e.g. one tall tile beside two stacked ones), and
+its Next.js container has a cosmetic cold-start quirk (briefly serves its
+bundled demo content on the first request or two after a restart/recreate —
+self-heals within about a minute, not a real fault). Homarr is now running
+alongside it on the same host, port 7575, with a working auto-generated board
+across all 9 integrations Homepage already had credentials for (Sonarr,
+Radarr, Prowlarr, Lidarr, SABnzbd, Beszel, TrueNAS, Proxmox, Pi-hole Primary).
+Homepage is left running, untouched, as the rollback path until Homarr is
+confirmed as the daily driver — nothing has been cut over or removed yet.
+
+- Homarr URL: `http://192.168.20.20:7575`
+- Homarr config/data: `/opt/homarr/appdata` (bind-mounted), compose file at
+  `/opt/homarr/compose.yaml`, secrets (admin password, Beszel read-only
+  account password) at `/opt/homarr/secrets/*` (mode 600, outside Git)
+- Admin login: username `jelliott`; password in `/opt/homarr/secrets/admin_password`
+  — change it via Homarr's own account settings once logged in
+- Docker socket is deliberately **not** mounted into the Homarr container —
+  container stats go through Portainer's API instead, keeping the same
+  least-privilege posture used throughout this project rather than granting
+  Homarr root-equivalent host access
+- Beszel required a new dedicated `readonly`-role account
+  (`homarr-widget@home.internal`) rather than reusing Homepage's existing
+  superuser account — Homarr's integration uses Beszel's regular hub login
+  (the `users` PocketBase collection), which the superuser account (a
+  `_superusers` record, a separate auth system) can't authenticate against.
+  This was a net privilege reduction, not just a workaround.
+- Found and fixed a live bug while wiring up TrueNAS: its own security policy
+  auto-revokes any API key the moment it's used over plain HTTP ("Attempt to
+  use over an insecure transport"). Homepage's TrueNAS widget was doing
+  exactly that; its key had been silently revoked. Rotated the key and moved
+  Homepage's TrueNAS widget to `https://` to fix it going forward, then
+  repeated the same fix in Homarr, trusting Proxmox's PVE cluster CA
+  certificate (`/etc/pve/pve-root-ca.pem`, uploaded to Homarr) and TrueNAS's
+  self-signed cert along the way.
+- OPNsense integration deliberately not attempted in Homarr either — same
+  reasoning as Homepage: no safe CLI-native way to mint a credential, and
+  it's the gateway.
+
+Once Homarr is confirmed as the daily driver, Homepage can be retired; until
+then treat Homepage as still authoritative for anything not yet verified in
+Homarr.
+
 - LAN and Tailscale URL: `http://home.internal:3000`
 - Direct fallback: `http://192.168.20.20:3000`
 - Homepage configuration: `/opt/homepage/config` inside Proxmox LXC 100 (`docker`)
