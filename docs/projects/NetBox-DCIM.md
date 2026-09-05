@@ -413,14 +413,21 @@ scope" line ruling out automated discovery — see the decision below.
   `192.168.1.26/24`, so the interface assignment and `primary_ip4` link were
   preserved rather than rebuilt. Rollback is to set that same object's address
   back to `192.168.50.26/24`.
-- **Stale NetBox API token — found 2026-09-04, unresolved.**
-  `/root/.netbox-api-token` on LXC 111 is rejected by the API with
+- **Stale NetBox API token — found and resolved 2026-09-04.**
+  `/root/.netbox-api-token` on LXC 111 was rejected with
   `403 {"detail":"Invalid v1 token"}`, despite `docs/05-Backups.md`
-  documenting it as the live API token. The record update above was therefore
-  made through the container's Django shell instead, which needs no token.
-  Anything else depending on that token file will currently fail. Worth
-  regenerating and re-recording, or deleting the file if it is genuinely
-  obsolete, so the documented secret matches reality.
+  documenting it as the live API token, so the record update above was made
+  through the container's Django shell instead (which needs no token). Cause:
+  the file held a legacy 40-character v1-format token matching nothing in the
+  database. NetBox 4.6.9 issues **v2 tokens**, stored hashed as a 12-character
+  `key` plus an HMAC digest over a server-side pepper; the secret exists only
+  at creation, and the header format is `Authorization: Bearer
+  nbt_<key>.<secret>`. Reissued as a **read-only** token (id 9,
+  `write_enabled=False`), verified 200 on `GET /api/dcim/devices/` and 403 on
+  `PATCH`. Details in `docs/05-Backups.md`.
+  Two install-time admin tokens (ids 2 and 3) remain — write-enabled,
+  non-expiring, undescribed, no known consumer. Left in place because an
+  out-of-repo consumer cannot be ruled out; pruning them is an open item.
   Backup Synology's model was explicitly left alone per Jason's
   instruction (out of scope, unrelated to tonight's NAS-instability
   incident). No further network-affecting changes were made overnight —

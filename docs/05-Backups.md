@@ -510,6 +510,26 @@ the whole-guest Proxmox archive; there is no separate copy in
 `~/lab/private-backups` to keep in sync, unlike Prometheus/Grafana's
 `pve.yml` pattern.
 
+**`/root/.netbox-api-token` reissued 2026-09-04.** The file previously held a
+legacy 40-character v1-format token that no longer matched any token in the
+database, so the API rejected it with `403 {"detail":"Invalid v1 token"}`.
+NetBox 4.6 issues **v2 tokens**, which are stored hashed: only a 12-character
+`key` plus an HMAC digest is retained, and the secret is recoverable only at
+creation. The file now holds a complete v2 bearer value in the form
+`nbt_<key>.<secret>`, used as `Authorization: Bearer $(cat
+/root/.netbox-api-token)`.
+
+The reissued token (NetBox token id 9) is deliberately **read-only**
+(`write_enabled=False`), since its intended consumers are health checks and
+inventory reads. Verified on creation: `GET /api/dcim/devices/` returns 200,
+`PATCH` returns 403. Because the secret is unrecoverable after creation, a
+lost file means minting a replacement, not reading the value back out.
+
+Two older tokens (ids 2 and 3) remain from install time — both `admin`,
+write-enabled and non-expiring, with no description and no known consumer.
+Pruning one or both is an open hygiene item, deliberately not done here
+because an out-of-repo consumer cannot be ruled out.
+
 **Restore procedure:** restore the LXC from its most recent Proxmox
 archive (or the isolated-guest validation pattern used elsewhere in this
 document — new VMID, `onboot=0`, network disconnected, inspect before any
