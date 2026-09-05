@@ -360,6 +360,45 @@ Drift never replaces the baseline automatically. Repeated checks continue to sho
 
 State is stored outside Git under `~/lab/monitoring-state/drift/`.
 
+### Baseline acceptance record — 2026-09-04
+
+Baseline moved from the 2026-08-29 exports to the 2026-09-02 exports (70
+protected entries) after auditing all twelve reported differences against the
+work that produced them. Every change was additive and attributable; **nothing
+was removed, broadened or weakened anywhere**. Recorded here so the next drift
+alert has a reference point for what the baseline already contains.
+
+| Drift entry | Actual change | Attributed to |
+|---|---|---|
+| `arista:running-config` / `startup-config` | `Et17` description `TrueNAS-Failover-Servers` → `Family-Room-AppleTV`, access VLAN 20 → 10 | Apple TV VLAN move, 2026-09-02 (`NetBox-DCIM.md`) — present in *both* running and startup config, so it was saved |
+| `proxmox:lxc/109.conf` (added) | New guest | Prometheus/Grafana observability project |
+| `proxmox:lxc/110.conf` (added) | New guest | Aster llama.cpp GPU inference |
+| `proxmox:lxc/111.conf` (added) | New guest | NetBox DCIM project |
+| `proxmox:lxc/104.conf` | Added snapshot `aster-production-20260831` | Aster production rollback checkpoint |
+| `proxmox:qemu-server/105.conf` | Added `hostpci0` GPU passthrough + snapshot `pre-b60-passthrough` | Intel Arc Pro B60 passthrough work |
+| `proxmox:etc/pve/user.cfg` | Added `prometheus@pve` user, tokens `prometheus@pve!observability` and `root@pam!homepage`, ACL granting both **PVEAuditor** (read-only) | Observability scraping and the Homepage Proxmox widget |
+| `opnsense:OPNsense/Firewall` | **+8 rules, −0.** All host-specific single source → single destination:port | See below |
+| `opnsense:OPNsense/unboundplus` | +2 DNS host overrides: `git.elliottrook.com` and `monitoring.elliottrook.com`, both → NPM at `192.168.50.23` | Forgejo and Grafana private HTTPS access |
+| `opnsense:OPNsense` / `opnsense:configuration` | Wrapper hashes covering the above | Consequence of the two entries above |
+
+The eight added firewall rules, all narrowly scoped:
+
+- TrueNAS → Proxmox `:22` and TrueNAS → Mac `:22` — read-only rsync backup pulls
+- Observability → Proxmox `:8006` and → NUT `:3493` — metric collection
+- NPM → Forgejo `:3000` and Forgejo → NPM `:443` — Forgejo proxying and Authentik OIDC discovery
+- NPM → Grafana `:3000` and Grafana → NPM `:443` — Grafana proxying and Authentik OIDC
+
+The current OPNsense config revision is self-describing (`Add narrow Grafana
+proxy and Authentik firewall rules`), which made attribution straightforward.
+
+**Method, for repeating this audit:** `baseline.info` names the exact source
+files it was built from, and `~/lab/private-backups/` retains dated copies, so
+the honest check is to diff the current export against the named baseline
+export rather than inferring intent from the drift entry names. Proxmox host
+config is a tarball and must be extracted first; OPNsense rules live under
+`OPNsense/Firewall/Filter/rules` in the plugin schema, not the legacy
+`filter/rule` node — the latter holds only two rules and will mislead you.
+
 ## Scheduled Health Reporting
 
 The `lab report` command runs configuration-drift detection and HomeLab Doctor as one health report.
