@@ -219,6 +219,24 @@ isolation rules were confirmed unchanged throughout.
 - **No config backup exists or is possible** for this device beyond this
   document.
 
+### Detection gap — closed 2026-09-04
+
+This outage ran roughly six days unnoticed because nothing monitored the
+wireless path. HomeLab Doctor now covers it with two checks:
+
+- `check_unifi` queries the UniFi Network integration API and fails if either
+  named AP is missing or not `ONLINE`. This is the check that would have
+  caught this incident on day one.
+- `check_wireless_vlans` reads OPNsense DHCP leases and fails if IoT VLAN 30
+  collapses toward zero, which is the symptom a tagging failure produces.
+  Guest VLAN 40 is deliberately *not* alerted on, since zero visitors is a
+  normal state and would otherwise alarm constantly.
+
+The API key lives at `~/.config/lab/unifi-api-key` (mode 600, outside the
+repository, never committed). Override with `UNIFI_API_KEY_FILE`. If the file
+is absent the check warns and skips rather than failing, so Doctor still runs
+on machines without the key.
+
 Store copies off the network appliances and treat them as sensitive configuration data.
 
 ## Current topology

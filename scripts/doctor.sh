@@ -1039,6 +1039,110 @@ REMOTE
     fi
 }
 
+check_unifi() {
+    local key_file="${UNIFI_API_KEY_FILE:-$HOME/.config/lab/unifi-api-key}"
+    local controller="192.168.50.21:11443"
+    local expected_aps=("Hall AP" "Office AP")
+
+    if [[ ! -r "$key_file" ]]; then
+        warn "UniFi AP check skipped — no API key at $key_file"
+        return
+    fi
+
+    local sites_json
+    if ! sites_json="$(
+        curl -sk --connect-timeout 5 --max-time 10 \
+            -H "X-API-Key: $(<"$key_file")" -H 'Accept: application/json' \
+            "https://$controller/proxy/network/integration/v1/sites"
+    )" || [[ -z "$sites_json" ]]; then
+        fail "UniFi controller unreachable at $controller"
+        return
+    fi
+
+    local site_id
+    if ! site_id="$(
+        python3 -c 'import sys,json; print(json.load(sys.stdin)["data"][0]["id"])' <<< "$sites_json" 2>/dev/null
+    )" || [[ -z "$site_id" ]]; then
+        fail "UniFi API returned no site (check API key validity)"
+        return
+    fi
+
+    local devices
+    if ! devices="$(
+        curl -sk --connect-timeout 5 --max-time 10 \
+            -H "X-API-Key: $(<"$key_file")" -H 'Accept: application/json' \
+            "https://$controller/proxy/network/integration/v1/sites/$site_id/devices" |
+        python3 -c 'import sys,json
+for d in json.load(sys.stdin)["data"]:
+    print("{}|{}|{}".format(d.get("name"), d.get("state"), d.get("ipAddress")))' 2>/dev/null
+    )" || [[ -z "$devices" ]]; then
+        fail "Unable to read UniFi device inventory"
+        return
+    fi
+
+    local failures=()
+    local online=0
+    local name state ip line
+
+    for name in "${expected_aps[@]}"; do
+        line="$(awk -F'|' -v n="$name" '$1 == n {print; exit}' <<< "$devices")"
+        if [[ -z "$line" ]]; then
+            failures+=("$name missing from controller")
+            continue
+        fi
+        state="$(cut -d'|' -f2 <<< "$line")"
+        ip="$(cut -d'|' -f3 <<< "$line")"
+        if [[ "$state" == "ONLINE" ]]; then
+            online=$((online + 1))
+        else
+            failures+=("$name ($ip)=$state")
+        fi
+    done
+
+    if (( ${#failures[@]} > 0 )); then
+        # An AP reporting OFFLINE while still broadcasting usually means tagged
+        # VLANs stopped reaching it — see the AP Switch config-loss incident in
+        # docs/Current-Network-Baseline.md before assuming the AP itself failed.
+        fail "UniFi access points: ${failures[*]}"
+        return
+    fi
+
+    pass "UniFi access points healthy; $online/${#expected_aps[@]} online"
+}
+
+check_wireless_vlans() {
+    local leases='/var/db/dnsmasq.leases'
+    local lease_data
+
+    if ! lease_data="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 opnsense \
+            "/bin/sh -c 'grep -c 192.168.30 $leases; grep -c 192.168.40 $leases'" 2>/dev/null
+    )"; then
+        warn "Unable to read wireless VLAN DHCP leases from OPNsense"
+        return
+    fi
+
+    local iot guest
+    iot="$(sed -n '1p' <<< "$lease_data")"
+    guest="$(sed -n '2p' <<< "$lease_data")"
+
+    if [[ ! "$iot" =~ ^[0-9]+$ ]]; then
+        warn "Unreadable IoT lease count from OPNsense"
+        return
+    fi
+
+    # Guest legitimately sits at zero with no visitors, so it is not alerted on.
+    # IoT carries permanently-connected devices; a collapse to near-zero means
+    # wireless clients stopped reaching VLAN 30.
+    if (( iot < 5 )); then
+        fail "IoT VLAN 30 has only $iot DHCP lease(s) — wireless clients are not reaching it"
+    elif (( iot < 15 )); then
+        warn "IoT VLAN 30 has $iot DHCP leases, below the usual baseline"
+    else
+        pass "Wireless VLANs healthy; IoT $iot leases, Guest $guest"
+    fi
+}
+
 header "HomeLab Doctor"
 
 info "Checking internet connectivity..."
@@ -1058,6 +1162,8 @@ check_netbox
 check_observability
 check_truenas
 check_frigate
+check_unifi
+check_wireless_vlans
 
 divider
 

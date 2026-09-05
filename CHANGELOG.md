@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Extended HomeLab Doctor with wireless coverage, closing the detection gap that let the AP Switch outage run roughly six days unnoticed. `check_unifi` queries the UniFi Network integration API and fails if either access point is missing or not `ONLINE`; `check_wireless_vlans` fails if IoT VLAN 30's DHCP lease count collapses toward zero, the signature a VLAN-tagging failure produces. Guest VLAN 40 is reported but deliberately not alerted on, since an empty guest network is normal. The API key is read from `~/.config/lab/unifi-api-key` (mode 600, outside the repository, overridable via `UNIFI_API_KEY_FILE`), and the check warns and skips rather than failing when no key is present.
+
 ### Fixed
 - Restored Guest and IoT wireless after the Binarui AP Switch silently factory-reset itself, dropping every 802.1Q-tagged VLAN while untagged traffic continued to reach Arista Et33's native VLAN 10. That asymmetry left Trusted Wi-Fi working, Guest at 0 DHCP leases, IoT down to its 2 wired devices from a baseline of 23 wireless clients, and both U7 Pro XG APs reporting OFFLINE in UniFi while still powered and broadcasting. Isolated by Arista's MAC address table on Et33, where every learned MAC — including both APs' own management MACs — sat on VLAN 10 with none on VLAN 30/40/50. Rebuilt the Static VLAN Table and all six port trunk definitions, then confirmed both APs ONLINE, 52 clients reconnected, IoT leases recovered to 42 and a Guest client leased `192.168.40.175`; Guest firewall isolation was verified unchanged throughout.
 - Established that the original AP Switch configuration was never written to NVRAM, which is why a power event wiped it. The rebuilt configuration was explicitly saved and then proven to survive a deliberate reboot.
