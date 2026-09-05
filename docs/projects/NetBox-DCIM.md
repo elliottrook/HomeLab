@@ -446,10 +446,32 @@ scope" line ruling out automated discovery — see the decision below.
 
   **Rollback:** delete the three `WirelessLAN` objects by SSID.
 
-  Radio interfaces on the two APs were **not** created — each AP still has only
-  its `mgmt0` interface. The controller reports three radios per AP (2.4/5/6
-  GHz, 802.11be, 20/80/160 MHz widths); modelling those involves naming and
-  interface-type choices, so it is left as a separate decision.
+- **AP radio interfaces populated 2026-09-04.** Each U7 Pro XG now carries
+  three `ieee802.11be` interfaces with `rf_role=ap`, named to match the
+  controller's own radio names rather than invented labels:
+
+  | Interface | Band | Width | Channel | SSIDs attached |
+  |---|---|---|---|---|
+  | `wifi0` | 2.4 GHz | 20 MHz | static — Hall ch 1 (2412 MHz), Office ch 6 (2437 MHz) | all three |
+  | `wifi1` | 5 GHz | 80 MHz | auto | all three |
+  | `wifi2` | 6 GHz | 160 MHz | auto | `GoWest` only |
+
+  SSID-to-radio mapping is taken from each WLAN's `wlan_bands` field, which is
+  authoritative: `GoWest` lists `2g/5g/6g`, while `TELUS96FF` and
+  `Anchors_Rest` list only `2g/5g`. That matches observed client counts — at
+  capture, Hall's `wifi2` had 2 clients and Office's had 0. Note `wlan_band`
+  (singular) reads `both` for all three and means 2.4+5 GHz only; it does *not*
+  describe 6 GHz, so `wlan_bands` is the field to trust.
+
+  **`rf_channel_frequency` is deliberately populated only for `wifi0`**, the
+  one radio with a statically assigned channel. `wifi1` and `wifi2` are set to
+  auto channel selection in UniFi, so their current channel is transient;
+  recording it would create data that silently goes stale and misrepresents
+  configuration as fixed. Their configured channel *width* is recorded, since
+  that is stable.
+
+  **Rollback:** delete interfaces named `wifi0`/`wifi1`/`wifi2` on devices 19
+  and 20. The pre-existing `mgmt0` interfaces were not modified.
 - **Stale NetBox API token — found and resolved 2026-09-04.**
   `/root/.netbox-api-token` on LXC 111 was rejected with
   `403 {"detail":"Invalid v1 token"}`, despite `docs/05-Backups.md`

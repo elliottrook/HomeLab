@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Modelled the two U7 Pro XG access points' radios in NetBox: three `ieee802.11be` interfaces each (`wifi0`/`wifi1`/`wifi2`, named after the controller's own radio names) with `rf_role=ap`, configured channel widths of 20/80/160 MHz, and SSIDs attached per radio. Radio membership comes from each WLAN's `wlan_bands` field, which shows `GoWest` on 2.4/5/6 GHz and the other two on 2.4/5 only — consistent with observed 6 GHz client counts; the singular `wlan_band` field reads `both` for all three and describes only 2.4+5 GHz, so it is not a reliable source. Channel frequency is recorded only for the statically assigned 2.4 GHz radios, since the 5 and 6 GHz radios use auto channel selection and recording a transient value would misrepresent it as fixed.
 - Populated NetBox's previously empty wireless inventory with the three live SSIDs, each linked to its existing VLAN: `GoWest` (Trusted 10), `TELUS96FF` (IoT 30) and `Anchors_Rest` (Guest 40), all WPA2-PSK/AES and active. Passphrases were deliberately left unstored, since NetBox is not a secret store. The records capture that `GoWest` is emitted **untagged** — mapped to UniFi's Default network with no VLAN ID, reaching Trusted only via Arista Et33's native VLAN 10 — which is both why it survived the AP Switch config loss while the tagged SSIDs failed, and why changing Et33's native VLAN would break it. Also recorded that the UniFi integration API exposes no SSID endpoint, while the legacy `rest/wlanconf` and `rest/networkconf` endpoints do and accept the same API key.
 
 ### Changed
