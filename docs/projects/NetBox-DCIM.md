@@ -398,6 +398,15 @@ scope" line ruling out automated discovery — see the decision below.
   isn't reachable normally on VLAN 50; nothing new here, and not pursued
   further (would need physical/console access, which no authorization
   substitutes for). Left as a genuine open item, not silently retried.
+  **Resolved 2026-09-04** during the AP Switch config-loss incident (see
+  `Current-Network-Baseline.md`): its management interface became reachable
+  without physical access, and the identifiers were read directly from the
+  device — MAC `84:E5:D8:E2:8D:92`, serial `6202510300069`, firmware
+  `V100SP11251021` (Oct 21 2025), hardware `V1`. The unit still exposes no
+  real model string — its own UI reports the device model literally as
+  `Switch` — so the generic `AP Switch` NetBox device type is now known to be
+  accurate rather than a placeholder awaiting better data. Its NetBox
+  primary IP also needs revisiting once the open addressing decision is made.
   Backup Synology's model was explicitly left alone per Jason's
   instruction (out of scope, unrelated to tonight's NAS-instability
   incident). No further network-affecting changes were made overnight —

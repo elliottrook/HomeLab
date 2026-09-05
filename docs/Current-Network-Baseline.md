@@ -91,6 +91,116 @@ validation... deferred" item above — it's been stable in production for
 several days as of 2026-08-30, not merely validated once. The device
 inventory table below is updated to match.
 
+## AP Switch total config loss — 2026-09-04
+
+The AP Switch silently lost its entire configuration, taking Guest and IoT
+wireless down. Diagnosis, fix and the device's full identity are recorded here
+because **this switch has no config export function** — save-to-NVRAM only.
+This section is therefore the device's only disaster-recovery artifact: if it
+wipes again, this is what rebuilds it.
+
+### Recorded device identity
+
+| Field | Value |
+|---|---|
+| Host Name | POE AP Switch |
+| Device Model | `Switch` (no real model string exposed in its UI) |
+| MAC Address | 84:E5:D8:E2:8D:92 |
+| Serial Number | 6202510300069 |
+| Firmware Version | V100SP11251021 (dated Oct 21 2025) |
+| Hardware Version | V1 |
+| Factory-default IP | 192.168.2.1/24, gateway 192.168.2.254 |
+| Management | HTTP port 80 only — no HTTPS, no SSH, no telnet |
+| Physical ports | 1–5 electrical, port 6 optical/SFP |
+
+### Symptoms
+
+Trusted Wi-Fi worked normally while Guest and IoT were dead, and both APs
+showed OFFLINE in UniFi despite being powered and broadcasting SSIDs.
+Guest held 0 DHCP leases; IoT held only its 2 *wired* devices (Hue, Lutron)
+against a documented baseline of 23 wireless clients.
+
+### Root cause
+
+The switch had factory-reset itself: only VLAN 1 existed in its Static VLAN
+Table and all six ports had reverted to Access/VLAN 1. With no 802.1Q
+tagging, every tagged VLAN (30 IoT, 40 Guest, 50 Management) was dropped,
+while untagged frames still reached Arista Et33 and were classified into its
+native VLAN 10 — which is exactly why Trusted alone kept working and why the
+APs went unmanageable (their management is tagged VLAN 50) yet kept bridging
+Trusted clients on cached config.
+
+**The config was almost certainly never written to NVRAM when originally
+applied**, so the first power event wiped it. Proven after the fix: the
+restored config was explicitly saved via *Save Configure*, and then survived
+a deliberate reboot (Running Time confirmed 3m 21s, down from 57m).
+
+### Diagnostic sequence that isolated it
+
+OPNsense interfaces, dnsmasq, Arista trunk config, Arista STP forwarding
+state and the UniFi network/VLAN definitions were each confirmed healthy
+first. The decisive evidence was Arista's MAC address table on Et33: every
+learned MAC sat on VLAN 10, with **zero** on VLAN 30/40/50, including both
+APs' own management MACs — proving tagged frames were never arriving from
+the switch even though the link was up, error-free and passing traffic.
+
+### Better recovery method than the documented port-5 procedure
+
+The previously documented recovery (a Mac at `192.168.50.27/24` cabled to
+port 5) is **not required**. Because the switch's management plane is
+untagged and therefore lands in Arista's native VLAN 10, its management IP
+is L2-adjacent to any Trusted-VLAN host. Recovery needs only a temporary
+secondary IP on an existing Trusted machine — no recabling:
+
+```
+sudo ifconfig en0 alias 192.168.2.100 255.255.255.0   # add
+sudo ifconfig en0 -alias 192.168.2.100                # remove
+```
+
+This is additive: the primary address, default route and internet access are
+untouched. **Caution:** do *not* use this trick with a `192.168.50.0/24`
+alias — a connected route for that subnet on VLAN 10 shadows the real routed
+path and breaks the host's access to Arista, Proxmox and the UniFi controller.
+
+### Restored configuration (the recovery reference)
+
+| Port | VLAN Type | Native VLAN | Permit VLAN |
+|---|---|---|---|
+| 1 (Hall AP), 2 (Office AP), 3, 4 | Trunk | 1 | 1,10,20,30,40,50,60,70 |
+| 5 (recovery) | Access VLAN 1 | — | — |
+| 6 (10G Arista Et33 uplink) | Trunk | 1 | 1,10,20,30,40,50,60,70 |
+
+Static VLAN Table must contain VLANs 10, 20, 30, 40, 50, 60 and 70 in
+addition to the default VLAN 1. **Port 6 must keep Native VLAN 1** — any
+other native VLAN there instantly severs management access.
+
+After any change: press **Save Configure** (Device Management). Note that the
+adjacent **Restore** button is a *factory reset*, not a config restore.
+
+### Verified outcome
+
+Both APs returned to ONLINE, 52 clients reconnected, IoT leases recovered to
+42, and a Guest test client received `192.168.40.175`. Guest firewall
+isolation rules were confirmed unchanged throughout.
+
+### Open follow-ups
+
+- **Management addressing undecided.** Left at `192.168.2.1` deliberately.
+  The switch has no Management-VLAN option, so `192.168.50.26` can never be
+  reachable via VLAN 50 — it only ever looked like a Management address.
+  Options are to restore that misleading number, or give it an honest
+  `192.168.1.0/24` address matching where it actually lives, which trades
+  segmentation posture for manageability. Needs an explicit decision.
+- **Default credentials.** The reset left the switch on factory logins while
+  L2-adjacent to Trusted.
+- **VLAN 50 flooding.** After the fix, client MACs belonging to IoT hosts
+  were observed arriving tagged VLAN 50 on Et33, though no client obtains a
+  `192.168.50.x` lease and no infrastructure MAC moved ports. Likely a
+  flooding quirk of this switch; unverified against any pre-incident
+  baseline and not affecting service.
+- **No config backup exists or is possible** for this device beyond this
+  document.
+
 Store copies off the network appliances and treat them as sensitive configuration data.
 
 ## Current topology
@@ -162,7 +272,7 @@ homelab-gateway — 192.168.20.20
 | 192.168.20.20 | Docker LXC / Homepage / Pi-hole / Tailscale subnet router / Beszel | bc:24:11:43:71:67 | Et4 via Proxmox, tagged VLAN 20 |
 | 192.168.50.21 | UniFi controller LXC 101 | bc:24:11:b6:de:53 | Et4 via Proxmox, tagged VLAN 50 |
 | 192.168.50.25 | NUT server | 00:23:24:55:b1:1a | Et31, direct access port in management VLAN 50 |
-| 192.168.50.26 | AP Switch | Not yet recorded | Et33; IP is not reachable normally on VLAN 50 because management appears on VLAN 1/untagged |
+| 192.168.2.1 (was 192.168.50.26) | AP Switch | 84:E5:D8:E2:8D:92 | Et33; management appears on VLAN 1/untagged, so it lands in Arista's native VLAN 10 rather than VLAN 50. Address reverted to the factory default during the 2026-09-04 config-loss incident below; final addressing decision still open |
 | 192.168.50.31 | UniFi Hall AP | 90:41:b2:ce:76:10 | AP Switch port 1, 2.5G full |
 | 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | AP Switch port 2, 2.5G full |
 | 192.168.20.40 | TrueNAS `bond0`; `truenas.internal` | 6c:92:bf:67:fb:bc | Et9 primary / Et15 standby, access VLAN 20 |
@@ -210,7 +320,12 @@ homelab-gateway — 192.168.20.20
   VLAN 10 by Arista Et33. Tagged SSID VLANs work, but AP Switch management IP
   `192.168.50.26` does not match its actual Layer 2 management path. OPNsense
   showed `.50.26` incomplete on `vlan0.50`. Direct recovery works by connecting
-  a Mac configured as `192.168.50.27/24` to AP Switch port 5.
+  a Mac configured as `192.168.50.27/24` to AP Switch port 5. **Superseded
+  2026-09-04:** physical recovery is unnecessary — the management plane is
+  L2-adjacent to Trusted VLAN 10, so a temporary IP alias on any Trusted host
+  reaches it over existing cabling. See the AP Switch config-loss section
+  above. Confirmed 2026-09-04 that the switch has no Management-VLAN setting,
+  so this mismatch is a hardware limitation, not a misconfiguration.
 - Arista Et34 is described `Camera-PoE-TPLink` and configured as access VLAN 60.
   It is reserved for the old TP-Link 8-port 1Gb PoE switch as a flat camera-only
   switch. Validation with one reconfigured camera remains pending.
