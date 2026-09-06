@@ -581,7 +581,10 @@ embedded art from the tracks, which proved unreliable. Enabled the **Kodi
 (XBMC) / Emby** consumer on 2026-09-06 (it was already configured with
 `albumImages: True` / `artistImages: True`, just switched off), so future
 imports write album and artist art into the folder. Note it also writes
-`.nfo` files, which Jellyfin reads happily.
+`.nfo` files, which Jellyfin reads happily. `importExtraFiles` was also
+turned on the same day (with `jpg,jpeg,png` added to
+`extraFileExtensions`), so artwork bundled inside a download is carried
+across on import as well.
 
 Retroactively, embedded art was extracted into `cover.jpg` for every album
 that had any, taking the library from **30 albums missing art down to 21**.
