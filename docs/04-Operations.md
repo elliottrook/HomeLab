@@ -528,10 +528,18 @@ music/Artist Name/Album Title (Year)/track.flac
 
 Symptom to recognise: the Jellyfin dashboard's album count doesn't move
 after adding music, and an artist shows only the one or two albums that
-happen to live in real subfolders. Note the dashboard's album/song totals
-are a **cached figure** and lag reality — query the API for live counts
-(`/Items?ParentId=<musicLibraryId>&Recursive=true&IncludeItemTypes=Audio`)
-rather than trusting the dashboard when diagnosing.
+happen to live in real subfolders.
+
+> **Do not use the Jellyfin dashboard's album/song totals to verify
+> anything.** They are a cached figure that lags reality badly, and have
+> now given a false reading twice: on 2026-09-06 the dashboard reported
+> 741 albums / 8,054 songs while the live API reported 757 / 8,185 (the
+> newly imported music *had* in fact been ingested), and later that day it
+> still showed 757 after six duplicate albums had been deleted from disk.
+> Verify with the API —
+> `/Items?ParentId=<musicLibraryId>&Recursive=true&IncludeItemTypes=Audio`
+> (or `MusicAlbum`) — or by looking at the actual artist page, never the
+> dashboard counter.
 
 **Root cause of the 2026-09-06 occurrence — Lidarr's `Rename Tracks` was
 disabled.** Lidarr's track format carries the album folder in its *first
