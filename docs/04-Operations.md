@@ -594,6 +594,40 @@ frames and MP4/M4A `covr` atoms, and was sanity-checked against known-good
 files (12/12) to confirm the negative result was real and not a parser
 limitation. Those 21 need artwork supplied by hand.
 
+#### Duplicate albums surfaced by the re-foldering (2026-09-06)
+
+Moving the loose tracks into album folders made a set of pre-existing
+**duplicate files** visible: seven Paul Simon albums existed twice — once
+as a properly Lidarr-named `Album (Year)` folder, and once as a raw
+scene-release copy that had been sitting invisible as orphan tracks.
+
+Before deleting anything, the pairs were compared on real evidence rather
+than filename:
+
+- **FLAC stores an MD5 of the decoded audio** in its STREAMINFO block,
+  which normally settles "same recording or not" outright. It was useless
+  here — the scene rips ship with an **all-zero (unset) MD5**, so only the
+  Lidarr-managed copies had verifiable signatures.
+- Falling back to **exact per-track durations** from STREAMINFO: six of the
+  seven pairs matched to **0.0s on every track**, confirming identical
+  recordings.
+
+Those six scene-rip copies were deleted (~4.88 GB reclaimed), keeping the
+`(Year)` copies because they carry Lidarr-format names, valid FLAC MD5s and
+equal-or-higher bitrates. A safety check refused to delete any folder
+unless its keeper existed and held the full expected track count; a full
+manifest of every deleted file is in
+`~/lab/private-backups/plex-jellyfin-migration/paul-simon-dedupe-*.log`.
+
+**The seventh pair was deliberately kept.** *Still Crazy After All These
+Years* is **not** a duplicate: only 8 of 12 tracks match on duration
+(worst difference 7.2s), and the copies differ as 96 kHz/24-bit versus
+44.1 kHz/16-bit — different masters. Whether the hi-res copy is a genuine
+remaster or an upsample can't be determined without spectral analysis, so
+both remain pending a decision. Note Jellyfin groups by album tag as well
+as folder, so both copies may present as a single album with duplicated
+tracks until one is chosen.
+
 ### Jellyfin startup cleanup task is disabled (2026-09-06)
 
 Jellyfin's built-in `Clean up collections and playlists` maintenance task
