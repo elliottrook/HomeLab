@@ -572,6 +572,25 @@ Two gotchas worth remembering:
   embedded artwork, supplying `cover.jpg` by hand and running a library
   scan is the only reliable route.
 
+**Root cause was systemic, and is now fixed at source.** All three of
+Lidarr's metadata consumers were **disabled**, so Lidarr never wrote cover
+art for anything it imported (`importExtraFiles` is also `False`, so art
+bundled with a download isn't copied either). Whether an album showed a
+cover was therefore luck — down to whether Jellyfin happened to scrape
+embedded art from the tracks, which proved unreliable. Enabled the **Kodi
+(XBMC) / Emby** consumer on 2026-09-06 (it was already configured with
+`albumImages: True` / `artistImages: True`, just switched off), so future
+imports write album and artist art into the folder. Note it also writes
+`.nfo` files, which Jellyfin reads happily.
+
+Retroactively, embedded art was extracted into `cover.jpg` for every album
+that had any, taking the library from **30 albums missing art down to 21**.
+The remaining 21 were verified as genuinely having no embedded artwork in
+any track — the extractor handles FLAC `PICTURE` blocks, MP3 ID3 `APIC`
+frames and MP4/M4A `covr` atoms, and was sanity-checked against known-good
+files (12/12) to confirm the negative result was real and not a parser
+limitation. Those 21 need artwork supplied by hand.
+
 ### Jellyfin startup cleanup task is disabled (2026-09-06)
 
 Jellyfin's built-in `Clean up collections and playlists` maintenance task
