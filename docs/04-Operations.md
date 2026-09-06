@@ -550,6 +550,28 @@ Lidarr setting first — and note that enabling it only governs *future*
 imports; existing files need Lidarr's separate bulk rename to be
 restructured.
 
+#### Album art for these albums
+
+Albums with no art of their own fall back to displaying the **artist**
+image, which reads as "every album has the same cover". The durable fix is
+a `cover.jpg` in each album folder, extracted from the tracks' own embedded
+artwork (most releases carry a FLAC `PICTURE` metadata block). This was
+done for 5 of the 7 rebuilt Alicia Keys albums on 2026-09-06.
+
+Two gotchas worth remembering:
+
+- **A per-item metadata refresh does not detect newly-added image files.**
+  Refreshing the album after dropping in `cover.jpg` did nothing; only a
+  full **library scan** (`POST /Library/Refresh`) picked the images up.
+- **TheAudioDB cannot fill the gap for albums with no provider IDs.** It
+  looks albums up by MusicBrainz ID, and MusicBrainz is deliberately absent
+  from this library's fetcher list, so albums showing `ProviderIds: {}`
+  get nothing even with `EnableInternetProviders` switched on — tested
+  directly on 2026-09-06 (enabled, refreshed, no result, reverted; counts
+  verified unchanged either side). For an album whose tracks carry no
+  embedded artwork, supplying `cover.jpg` by hand and running a library
+  scan is the only reliable route.
+
 ### Jellyfin startup cleanup task is disabled (2026-09-06)
 
 Jellyfin's built-in `Clean up collections and playlists` maintenance task
