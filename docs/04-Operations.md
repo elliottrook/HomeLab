@@ -550,6 +550,32 @@ Lidarr setting first — and note that enabling it only governs *future*
 imports; existing files need Lidarr's separate bulk rename to be
 restructured.
 
+### Jellyfin startup cleanup task is disabled (2026-09-06)
+
+Jellyfin's built-in `Clean up collections and playlists` maintenance task
+destroyed large numbers of small movie collections on **every server
+restart** — 73 on 2026-09-01 and a further 71 on 2026-09-05. It targets
+collections with only one or two members; playlists have never been
+affected because they are all larger.
+
+Its `StartupTrigger` has been **cleared**, so it no longer runs
+automatically:
+
+```sh
+# disable (current state) — empty trigger list
+curl -X POST "http://192.168.20.40:8096/ScheduledTasks/3a025083141d3c17dd96d5f9b951287b/Triggers?api_key=<key>" \
+     -H 'Content-Type: application/json' -d '[]'
+# to re-enable
+#  -d '[{"Type": "StartupTrigger"}]'
+```
+
+The task still exists and can be triggered manually from the dashboard if
+its real function (pruning references to genuinely deleted media) is ever
+wanted. If collections go missing after a restart in future, check this
+trigger first — and restore from the migration manifests preserved in
+`~/lab/private-backups/plex-jellyfin-migration/`, which have now been used
+successfully for exactly this twice.
+
 A certificate is considered unhealthy when it cannot be read, its endpoint is unreachable, or it has 30 days or less remaining. Certificate failures are included in the daily failure-only scheduled report and use the existing duplicate-alert suppression.
 
 ## Calibre and Audiobookshelf (2026-09-05)

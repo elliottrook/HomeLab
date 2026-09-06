@@ -454,6 +454,23 @@ recover from) would not currently be recoverable from anything but those
 two stale manual snapshots. See the Milestone 8 section of the migration
 doc above for the full incident record.
 
+**It recurred on 2026-09-05** — a TrueNAS reboot fired the same startup
+task and destroyed **71** collections (70 with a single member, 1 with
+two; small collections are what it targets, which is why the 11 playlists
+have never been affected). Restored on 2026-09-06 from the preserved
+migration manifests in `~/lab/private-backups/plex-jellyfin-migration/` —
+all 71 movie IDs still resolved, which is a direct, real-world validation
+of retaining those exports at Milestone 9 closeout.
+
+**Resolved 2026-09-06:** the task's `StartupTrigger` was cleared via
+`POST /ScheduledTasks/{taskId}/Triggers` with an empty trigger list, so it
+no longer fires automatically. The task itself still exists and can be run
+manually from the dashboard if its legitimate function (pruning references
+to genuinely deleted media) is ever needed. Trade-off accepted knowingly:
+a deleted film may now leave a stale entry in a collection, against no
+longer losing ~70 real collections on every restart. To reverse, restore
+the trigger with `[{"Type": "StartupTrigger"}]`.
+
 **Recommended follow-up, not yet actioned:** add `Media/ix-apps` (or
 specifically Jellyfin's named config volume within it) to a recurring
 snapshot schedule and to the existing Backup Synology pull / encrypted
