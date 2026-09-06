@@ -514,6 +514,42 @@ Docker-managed named volume under `Media/ix-apps` on TrueNAS. See the
 "Jellyfin" section of [05-Backups.md](05-Backups.md) for its current
 (incomplete) backup coverage.
 
+### Music must be foldered by album, not just tagged (2026-09-06)
+
+**Jellyfin creates a music album entry from the folder, not from tags.**
+Tracks sitting loose directly in an artist folder are ingested as
+individual tracks but get **no album container** (`AlbumId: null`) — they
+effectively vanish from the album view even though their `ALBUM` tags are
+perfectly correct. The required layout is:
+
+```text
+music/Artist Name/Album Title (Year)/track.flac
+```
+
+Symptom to recognise: the Jellyfin dashboard's album count doesn't move
+after adding music, and an artist shows only the one or two albums that
+happen to live in real subfolders. Note the dashboard's album/song totals
+are a **cached figure** and lag reality — query the API for live counts
+(`/Items?ParentId=<musicLibraryId>&Recursive=true&IncludeItemTypes=Audio`)
+rather than trusting the dashboard when diagnosing.
+
+**Root cause of the 2026-09-06 occurrence — Lidarr's `Rename Tracks` was
+disabled.** Lidarr's track format carries the album folder in its *first
+path segment*
+(`{Album Title} ({Release Year})/{Artist Name} - {Album Title} - ...`), so
+with renaming off Lidarr never applies the format at all: imports keep
+their original download filenames and land flat in the artist folder.
+This had silently orphaned **271 tracks** across Paul Simon (140), Alicia
+Keys (119) and The Beautiful South (12). Fixed by moving each file into a
+subfolder derived from its own `ALBUM` tag (albums 741 → 757, orphans
+271 → 0) and by enabling **Lidarr → Settings → Media Management → Rename
+Tracks**, which stops it recurring for future imports.
+
+If music ever "imports but doesn't appear as albums" again, check that
+Lidarr setting first — and note that enabling it only governs *future*
+imports; existing files need Lidarr's separate bulk rename to be
+restructured.
+
 A certificate is considered unhealthy when it cannot be read, its endpoint is unreachable, or it has 30 days or less remaining. Certificate failures are included in the daily failure-only scheduled report and use the existing duplicate-alert suppression.
 
 ## Calibre and Audiobookshelf (2026-09-05)
