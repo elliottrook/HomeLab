@@ -20,6 +20,7 @@
 | Aster sysadmin second brain | Active | [Aster sysadmin second brain](Aster-Sysadmin-Second-Brain.md) | Qualifies the operational reference, builds recoverable authority-aware memory, and graduates Aster through correctness/security/performance gates |
 | Backup Synology decommission | Active — Milestone 1 | [Backup Synology decommission](Backup-Synology-Decommission.md) | Retires the 484 MB-RAM DS220j that starves under Hyper Backup, redeploys its disks into TrueNAS, and defers the Immich/family-cloud placement question to measurement. Successor to the item the backup redesign placed out of scope; gated on that project's off-site relay existing first, since the DS220j is currently the lab's only path off-site |
 | Backup architecture redesign | Ready | [Backup architecture redesign](Backup-Architecture-Redesign.md) | Replaces Hyper Backup's Synology-to-Synology path with Synology → rsync → TrueNAS/ZFS snapshots → dedicated rclone LXC → encrypted, versioned IDrive e2 |
+| Jellyfin library integrity automation | Proposed | [Jellyfin library integrity automation](Jellyfin-Library-Integrity-Automation.md) | Formalizes the orphan-track, featured-artist-scatter, missing-artwork and duplicate-album checks developed and validated by hand during the 2026-09-06/07 music library cleanup into a scheduled Sunday 3am job, plus a collection/playlist-count regression check across all Jellyfin libraries |
 
 ## Completed projects
 

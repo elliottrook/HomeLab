@@ -749,6 +749,46 @@ The 8 split three ways:
 A final Lidarr rescan confirmed **zero remaining scattered albums**
 library-wide.
 
+#### Whether this can recur, checked directly (2026-09-07)
+
+Verified Lidarr's naming engine against real multi-artist content rather
+than assuming: previewed a rename of Willie Nelson's *Heroes* (a track
+originally credited to "Willie Nelson, Lukas Nelson & Micah Nelson")
+through Lidarr's own `/rename` API. It resolved entirely to `Willie Nelson
+- Heroes - ...`, correctly filed under the single canonical Album Artist —
+confirming `{Artist Name}` in `standardTrackFormat`/`artistFolderFormat`
+always means the album's one owning artist, never a per-track "feat."
+credit. This was never actually broken in Lidarr's logic; it just wasn't
+being *applied*, because `renameTracks` was off (fixed above).
+
+**So this is now prevented for anything Lidarr downloads and imports
+itself, but not for everything.** None of the 79 originally-scattered
+albums were ever placed by Lidarr's own download pipeline — they were
+already sitting on disk, scattered, before Lidarr started managing this
+library. Lidarr's daily **Rescan Folders** task (`interval: 1440`, i.e.
+every 24h) only *catalogs* files wherever they already are; it never moves
+or reorganizes them. Renaming only happens at two points: when Lidarr
+itself grabs and imports a download, or when someone explicitly runs its
+"Rename Files" bulk action from the UI. There is no Lidarr setting to make
+a passive scan self-organize — that's deliberate `*arr`-suite design, to
+avoid silently moving a file the user placed on purpose.
+
+**The practical rule:** anything Lidarr downloads itself will now file
+correctly, automatically, including multi-artist collaboration albums. The
+only way this class of problem recurs is music being added by manually
+copying files into the library instead of through Lidarr's own
+grab/import — in that case it will sit wherever it lands until either
+someone runs Rename Files or the periodic health check below catches it.
+
+Two related settings, not the featuring-artist issue itself but relevant
+to how much manual cleanup today's fix needed:
+- `deleteEmptyFolders: false` — Lidarr never removes a folder after
+  emptying it, which is why the 41 stub folders and 3 stray `Compilations`
+  folders needed explicit removal rather than disappearing on their own.
+- `importExtraFiles: true` / `extraFileExtensions: "srt,jpg,jpeg,png"` —
+  already enabled as part of the album-art fix above, so art bundled with
+  a future download now carries across automatically too.
+
 ### Jellyfin startup cleanup task is disabled (2026-09-06)
 
 Jellyfin's built-in `Clean up collections and playlists` maintenance task
