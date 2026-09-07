@@ -1,0 +1,21 @@
+{
+  "jellyfin": {
+    "base_url": "http://192.168.20.40:8096",
+    "api_key": "REPLACE_ME",
+    "music_library_id": "7e64e319657a9516ec78490da03edccb",
+    "cleanup_task_id": "3a025083141d3c17dd96d5f9b951287b",
+    "scan_task_id": "7738148ffcd07979c7ceb148e06b3aed"
+  },
+  "lidarr": {
+    "base_url": "http://192.168.20.40:8686",
+    "api_key": "REPLACE_ME"
+  },
+  "paths": {
+    "jellyfin_container_prefix": "/media",
+    "host_root": "/mnt/Media/data"
+  },
+  "limits": {
+    "max_actions_per_run": 50
+  },
+  "collections_drop_threshold": 0.10
+}

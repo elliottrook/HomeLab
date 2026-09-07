@@ -815,6 +815,35 @@ trigger first — and restore from the migration manifests preserved in
 `~/lab/private-backups/plex-jellyfin-migration/`, which have now been used
 successfully for exactly this twice.
 
+### Jellyfin library integrity automation (2026-09-07)
+
+The checks and safe corrections above (orphan foldering, scatter
+consolidation, art extraction, duplicate/gap-fill detection, collection-
+count regression) are now a standing tool rather than one-off manual
+fixes. Full design: [Jellyfin-Library-Integrity-Automation.md](projects/Jellyfin-Library-Integrity-Automation.md).
+
+- Installed at `/mnt/Media/data/tools/jellyfin-integrity/` on TrueNAS;
+  source mirrored in git at `scripts/jellyfin-integrity/` (code only —
+  `config.json`, which holds the dedicated `jellyfin-integrity` Jellyfin
+  API key and Lidarr's key, and `reports/`, are not committed).
+- Scheduled via TrueNAS-native Cron Job (`midclt call cronjob.create`,
+  id `2`), Wednesday 03:00, `--apply` mode, 50-action-per-run cap.
+  Deliberately not Sunday — that carries the weekly ZFS scrub (starts
+  00:00, historically finishes ~02:46) and the daily 04:30 backup-pull
+  rsync.
+- Reports (dated JSON + human-readable) land in
+  `/mnt/Media/data/tools/jellyfin-integrity/reports/`, not committed to
+  git (contains full local paths and album/track titles).
+- `lab doctor`'s `check_jellyfin_integrity` reads the latest report over
+  SSH and fails on any action error, collection/playlist count alert, or
+  cleanup-task trigger drift.
+- Read-only reference copies of the two Plex→Jellyfin migration manifests
+  (`plex-movie-collections.json`, `plex-to-jellyfin-movie-map.json`) live
+  in the tool's own `reference/` directory on TrueNAS, in addition to
+  their existing home in `~/lab/private-backups/`.
+- Duplicate-album deletion is never automatic — always a dated report
+  queued for Jason's approval, applied exactly as reviewed.
+
 A certificate is considered unhealthy when it cannot be read, its endpoint is unreachable, or it has 30 days or less remaining. Certificate failures are included in the daily failure-only scheduled report and use the existing duplicate-alert suppression.
 
 ## Calibre and Audiobookshelf (2026-09-05)

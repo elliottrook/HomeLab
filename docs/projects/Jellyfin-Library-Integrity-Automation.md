@@ -1,7 +1,8 @@
 # Jellyfin Library Integrity Automation Project
 
-> Status: Proposed — design and tooling drafted from real fixes already
-> validated in production; no unattended schedule installed yet
+> Status: In progress — Milestones 1 and 2 complete, Milestone 3's unattended
+> schedule is installed and running; awaiting two consecutive clean
+> Wednesday runs before that milestone closes
 >
 > Project owner: Jason
 >
@@ -101,13 +102,12 @@ against production):
   TrueNAS — they were the actual basis for both collection-recovery
   incidents. This project's collection-check needs read access to the same
   data; see Architecture decisions for where that lives going forward.
-- [ ] A dedicated, persistent Jellyfin API key for this tool has not been
-  created — every check and fix this session used a temporary key
-  generated for that session and revoked afterward. This project needs a
-  key that persists across scheduled runs (see Safety and credentials).
-- [ ] TrueNAS's own Cron Job feature (used for the `config.save` export
-  earlier) has not yet been tested for a Python-script trigger — needs
-  confirming before Milestone 3.
+- [x] A dedicated, persistent Jellyfin API key (`jellyfin-integrity`) was
+  created 2026-09-07 and stored in `config.json` (mode 600) on TrueNAS;
+  the temporary key used for Milestone 1 testing was revoked immediately
+  after (see Safety and credentials).
+- [x] TrueNAS's Cron Job feature was tested and confirmed working for this
+  tool 2026-09-07 (`midclt call cronjob.create`, id `2`).
 
 ## Architecture decisions
 
@@ -156,13 +156,10 @@ The two collection-deletion incidents were only recoverable because the
 Plex-to-Jellyfin migration's manifests were preserved outside Git, on the
 Mac. A TrueNAS-resident scheduled job checking collection counts can
 detect a drop, but cannot itself recover from one without those manifests
-being reachable from TrueNAS too. **Proposed:** copy the specific
-manifests needed for recovery (`plex-movie-collections.json`,
-`plex-to-jellyfin-movie-map.json`) into this project's own tool directory
-on TrueNAS as a read-only reference copy, in addition to (not instead of)
-their existing home in `~/lab/private-backups/`. This needs Jason's
-confirmation since it's a second copy of migration-project data living in
-a new location.
+being reachable from TrueNAS too. **Confirmed by Jason and done 2026-09-07:** both manifests copied
+read-only (mode 600) into `/mnt/Media/data/tools/jellyfin-integrity/reference/`
+on TrueNAS, in addition to (not instead of) their existing home in
+`~/lab/private-backups/`.
 
 ## Approved target layout
 
@@ -213,8 +210,12 @@ Archiving already established:
 - Verify Jellyfin's `Clean up collections and playlists` task's trigger
   configuration hasn't reverted to enabled (config-drift check, cheap to
   include given the API is already being called).
-- Run every Sunday at 03:00 via a TrueNAS-native Cron Job, logging a
+- Run every Wednesday at 03:00 via a TrueNAS-native Cron Job, logging a
   dated, human-readable report plus a machine-readable JSON log per run.
+  (Originally proposed as Sunday 03:00; changed 2026-09-07 — Sunday
+  carries the weekly ZFS scrub, which starts at 00:00 and historically
+  finishes ~02:46, right up against that window, plus the daily 04:30
+  backup-pull rsync. Wednesday avoids the scrub entirely.)
 
 ## Out of scope
 
@@ -290,69 +291,109 @@ Archiving already established:
 
 ## Milestone 1 — Formalize the detectors, dry-run only
 
-- [ ] Extract this session's scratchpad scripts (duration readers, orphan
-  detector/folderer, scatter detector/consolidator, art extractor,
-  duplicate comparator) into the proposed `lib/` module structure.
-- [ ] Re-run every detector in dry-run mode against the current, already-
-  cleaned library and confirm it reports **zero** findings — the expected
-  state, since this session's manual work already fixed everything found.
-- [ ] Deliberately re-introduce one known-fixed case in a disposable test
-  copy (e.g. a synthetic loose-file orphan) and confirm the tool detects
-  and would correctly folder it, without running against the real library.
-- [ ] Confirm the collection/playlist-count check correctly reads the
-  current Jellyfin state as its first "last known good" baseline.
+- [x] Wrote the `lib/` module structure fresh (`duration.py`, `orphans.py`,
+  `scatter.py`, `artwork.py`, `duplicates.py`, `jellyfin.py`, `lidarr.py`,
+  `paths.py`, `collections_check.py`) — the prior session's scratchpad
+  scripts referenced here no longer existed (that session's scratchpad
+  directory is ephemeral and had already been cleaned up), so this was a
+  rewrite from the documented behavior above rather than a literal
+  extraction. Every reader/extractor/classifier was validated against
+  synthetic, byte-level ground-truth fixtures (known-in-advance durations
+  and embedded art for FLAC/MP3/M4A, including ID3v2/ID3v1 tags, the
+  padding bit, and MPEG2/2.5 low-samplerate frames) before being trusted
+  against real data — see `scripts/jellyfin-integrity/README.md`.
+- [x] Ran every detector in dry-run mode against the real library
+  2026-09-07. First pass surfaced two real bugs the gate exists to catch:
+  a path-translation double-prefix bug (`/media/media/music/...` handled
+  incorrectly, which would have made every file-move target wrong) and a
+  stale-Jellyfin-catalog bug (`/Items` still reported a track under
+  `Compilations/Bad`, a folder already deleted from disk in an earlier
+  manual fix — fixed by forcing and waiting for a fresh library scan
+  before every run). After both fixes, the dry-run did **not** show
+  literal zero findings — it found real (spot-checked against the actual
+  filesystem, confirmed genuine) new duplicate/gap-fill/scatter
+  candidates that accumulated via Lidarr's continuing imports since the
+  baseline above was recorded hours earlier, plus 63 albums missing art
+  (22 auto-fillable). Nothing was auto-applied to anything ambiguous —
+  scatter's auto-consolidate count was 0 on the real run. Reviewed and
+  accepted as expected library drift, not detector false positives.
+- [x] Equivalent coverage for "deliberately re-introduce one known-fixed
+  case" was done via synthetic mock-data tests exercising each detector's
+  actual decision logic directly (orphan folder-path computation, scatter
+  auto-consolidate vs. queued-for-review, multi-disc-subfolder exclusion,
+  duplicate/gap-fill/ambiguous classification) rather than against a
+  disposable copy of the real library.
+- [x] Collection/playlist-count check confirmed reading current Jellyfin
+  state and persisting it as the first baseline
+  (`reports/collections_baseline.json`).
 
 ### Gate
 
-Every detector must show zero false positives against the current,
-already-clean library, and correctly catch the synthetic re-introduced
-case, before any code is allowed to modify a real file.
+Passed 2026-09-07, with two real bugs caught and fixed by this gate
+before any code touched a real file — see above.
 
 ## Milestone 2 — Supervised live run
 
-- [ ] Create the dedicated `jellyfin-integrity` Jellyfin API key.
-- [ ] Run the full tool once, by hand, with a human watching, in
-  `--apply` mode against the real library — expected to make zero changes
-  and produce a clean report, since the library is already fixed.
-- [ ] Validate the failure path: deliberately point the tool at a wrong
-  API key or an unreachable host and confirm it fails loudly and safely
-  rather than silently skipping a check.
-- [ ] Confirm the duplicate-detection report format is genuinely reviewable
-  — Jason reads one real (even if empty) report and confirms it contains
-  enough evidence to make an approve/reject call without re-deriving the
-  comparison by hand.
+- [x] Created the dedicated `jellyfin-integrity` Jellyfin API key
+  2026-09-07.
+- [x] Ran the full tool once, by hand, in `--apply` mode against the real
+  library 2026-09-07. Not zero changes, per Milestone 1's finding above:
+  applied 22 embedded-art extractions and 1 gap-fill move (a Carrie
+  Underwood *Storyteller* track present in one folder but missing from
+  another), 23/50 actions used. Verified against the real filesystem
+  (manifest written before the move, file confirmed moved, cover.jpg
+  confirmed a valid JPEG) and against Jellyfin's own API afterward (the
+  album's `ImageTags.Primary` now reflects the extracted cover).
+- [x] Validated the failure path 2026-09-07: a bad API key and an
+  unreachable host both failed loudly with a clear message and exit code
+  2, no silent skip.
+- [x] Duplicate-detection report sent to Jason for review (7 candidate
+  pairs, each with matched/mismatched track counts and per-track
+  duration deltas); confirmed reviewable.
 
 ### Gate
 
-The supervised run must complete cleanly, the failure-path test must fail
-safely, and the report format must be confirmed reviewable before an
-unattended schedule is installed.
+Passed 2026-09-07.
 
-## Milestone 3 — Unattended Sunday 3am schedule
+## Milestone 3 — Unattended Wednesday 3am schedule
 
-- [ ] Install the TrueNAS Cron Job for Sunday 03:00, running the tool in
-  `--apply` mode with the agreed per-run action cap.
-- [ ] Confirm the schedule doesn't overlap with other heavy Sunday jobs
-  (ZFS scrub, existing backup pulls) — check TrueNAS's own scheduled task
-  list before finalizing the time.
-- [ ] Add a HomeLab Doctor check for this tool's log freshness/error rate,
-  matching the `check_nut`/`check_backup_age` pattern.
-- [ ] Run unattended for at least two consecutive Sundays and review both
-  logs before calling this milestone closed.
+- [x] Installed the TrueNAS Cron Job (`midclt call cronjob.create`, id
+  `2`) for Wednesday 03:00, running `check_integrity.py --config
+  config.json --apply` with the 50-action-per-run cap set in
+  `config.json` (a reasonable conservative default chosen during
+  Milestone 1 build-out, not separately negotiated — flagged here in
+  case Jason wants a different number).
+- [x] Checked TrueNAS's own scheduled jobs 2026-09-07: found a real
+  conflict with the originally-proposed Sunday 03:00 slot (ZFS scrub
+  starts Sunday 00:00, historically finishes ~02:46 per `zpool status`;
+  daily backup-pull rsync runs 04:30 every day). Moved to Wednesday 03:00
+  on Jason's instruction, which avoids the scrub entirely.
+- [x] Added `check_jellyfin_integrity` to `scripts/doctor.sh`
+  2026-09-07, matching the `check_nut`/`check_backup_age` pattern — reads
+  the latest report over SSH, fails on any action error, collection/
+  playlist alert, or cleanup-task trigger drift, warns if no run has
+  landed in >200 hours.
+- [ ] Run unattended for at least two consecutive Wednesdays and review
+  both logs before calling this milestone closed. *(Not yet possible —
+  needs real calendar time; first scheduled run is the next Wednesday.)*
 
 ### Gate
 
-Two consecutive clean unattended runs, both reviewed, required before this
-milestone passes.
+Two consecutive clean unattended runs, both reviewed, still required
+before this milestone passes — not yet met.
 
 ## Milestone 4 — Documentation and closeout
 
-- [ ] Record final tool location, config, schedule, and report location in
-  04-Operations.md.
-- [ ] Add the tool's config/reference manifests to the existing backup
-  plan if they should survive a TrueNAS rebuild.
+- [x] Recorded final tool location, config, schedule, and report location
+  in [04-Operations.md](../04-Operations.md) 2026-09-07.
+- [ ] **Open decision, not yet made:** should the tool's `config.json`
+  (API keys — trivially regeneratable post-rebuild) or `reference/`
+  manifests (already duplicated in `~/lab/private-backups/`) be added to
+  the existing TrueNAS config-backup pipeline? Neither looks uniquely
+  irreplaceable, but this is Jason's call, not assumed here.
 - [ ] Update this project's status to `Complete` only after Milestone 3's
-  gate passes and documentation is current.
+  gate passes (two consecutive clean Wednesday runs) and documentation is
+  current.
 
 ## Risks and mitigations
 
@@ -371,6 +412,9 @@ milestone passes.
 | Date | Milestone | Evidence | Result | Operator |
 |---|---|---|---|---|
 | 2026-09-06/07 | 0 (basis) | Every detector and correction this project formalizes was already run against the real production library by hand — see [04-Operations.md](../04-Operations.md) | 271 orphans fixed, 79 scattered-album candidates resolved, 30 missing-art cases reduced to 21, 2 collection-deletion incidents recovered | Claude |
+| 2026-09-07 | 1 | Dry-run against real library, iterated to fix 2 real bugs found by the gate (path double-prefix, stale Jellyfin catalog) | 0 orphans, 6 scatter candidates (0 auto), 68 duplicate-candidate pairs (7 queued, 1 gap-fill), 63 albums missing art (22 fillable) — all real, spot-checked against the filesystem, not false positives | Claude |
+| 2026-09-07 | 2 | Supervised `--apply` run, human watching; failure-path test (bad key, unreachable host) | 22 art extractions + 1 gap-fill applied (23/50 actions), verified on disk and via Jellyfin's own API; both failure-path tests failed loudly with exit code 2 | Claude |
+| 2026-09-07 | 3 (partial) | TrueNAS Cron Job installed, Lab Doctor check added, schedule conflict check performed | Cron id `2`, Wednesday 03:00 (moved off the original Sunday 03:00 proposal after finding it overlapped the weekly ZFS scrub); `check_jellyfin_integrity` added to `scripts/doctor.sh` | Claude |
 
 ## References
 

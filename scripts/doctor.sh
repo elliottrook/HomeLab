@@ -744,6 +744,80 @@ REMOTE
     fi
 }
 
+check_jellyfin_integrity() {
+    local output
+    local report_path=""
+    local mtime=""
+    local mode=""
+    local errors=""
+    local alerts=""
+    local drift=""
+    local max_age_hours=200  # weekly Wednesday 03:00 cadence + slack
+
+    if ! output="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas /bin/bash -s <<'REMOTE'
+latest="$(ls -t /mnt/Media/data/tools/jellyfin-integrity/reports/*-run.json 2>/dev/null | head -1)"
+if [[ -z "$latest" ]]; then
+    printf 'no_report=1\n'
+    exit 0
+fi
+printf 'report_path=%s\n' "$latest"
+printf 'mtime=%s\n' "$(stat -c %Y "$latest")"
+python3 -c "
+import json
+r = json.load(open('$latest'))
+errors = (len(r.get('orphans', {}).get('errors', []) or [])
+          + len(r.get('scatter', {}).get('errors', []) or [])
+          + len(r.get('duplicates', {}).get('gap_fill_errors', []) or []))
+alerts = len(r.get('collections', {}).get('alerts', []) or [])
+drift = r.get('config_drift', {}).get('drifted', False)
+print(f'mode={r.get(\"mode\", \"unknown\")}')
+print(f'errors={errors}')
+print(f'alerts={alerts}')
+print(f'drift={1 if drift else 0}')
+"
+REMOTE
+    )"; then
+        warn "Unable to collect jellyfin-integrity health data"
+        return
+    fi
+
+    while IFS='=' read -r key value; do
+        case "$key" in
+            no_report) report_path="" ;;
+            report_path) report_path="$value" ;;
+            mtime) mtime="$value" ;;
+            mode) mode="$value" ;;
+            errors) errors="$value" ;;
+            alerts) alerts="$value" ;;
+            drift) drift="$value" ;;
+        esac
+    done <<< "$output"
+
+    if [[ -z "$report_path" ]]; then
+        warn "jellyfin-integrity has no report yet"
+        return
+    fi
+
+    local now_epoch
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_hours=$(( (now_epoch - mtime) / 3600 ))
+
+    local failures=()
+    [[ "$errors" =~ ^[0-9]+$ ]] && (( errors > 0 )) && failures+=("${errors} action error(s)")
+    [[ "$alerts" =~ ^[0-9]+$ ]] && (( alerts > 0 )) && failures+=("${alerts} collection/playlist count alert(s)")
+    [[ "$drift" == "1" ]] && failures+=("cleanup-task trigger re-enabled")
+
+    if (( ${#failures[@]} > 0 )); then
+        fail "jellyfin-integrity: ${failures[*]} (last run ${age_hours}h ago, ${mode:-unknown} mode)"
+    elif (( age_hours > max_age_hours )); then
+        warn "jellyfin-integrity last run ${age_hours} hour(s) ago (expected weekly)"
+    else
+        pass "jellyfin-integrity clean run ${age_hours} hour(s) ago (${mode:-unknown} mode)"
+    fi
+}
+
 check_netbox() {
     local output
     local containers=""
@@ -1315,6 +1389,7 @@ check_arista
 check_proxmox
 check_aster
 check_nut
+check_jellyfin_integrity
 check_netbox
 check_observability
 check_truenas
