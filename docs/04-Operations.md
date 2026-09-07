@@ -713,6 +713,42 @@ Also left alone: cases where `Compilations` and a `Various Artists` folder
 both legitimately hold the same soundtrack/compilation (e.g. *Guardians of
 the Galaxy: Awesome Mix*), which is expected, not a bug.
 
+**The remaining 8 "two comparably-sized copies" cases were resolved
+2026-09-07** with real evidence, not guesses — writing from-scratch FLAC/
+MP3/M4A duration readers, since neither `ffprobe` nor `mutagen` remained
+on the box after the earlier migration cleanup. Two real bugs were caught
+and fixed in the readers before trusting them: comparing tracks by
+*sorted duration* instead of by actual track number (misaligns everything
+once a single outlier exists), and a variable-naming collision that
+applied the wrong MPEG frame-size formula to Layer III (MP3) files,
+producing frame lengths so wrong that duration collapsed to a fraction of
+a second — verified against known-real tracks before trusting any result.
+The 8 split three ways:
+
+- **5 confirmed true duplicates**, all tracks matching to within a few
+  seconds: Blake Shelton *Body Language*, Lee Ann Womack *Greatest Hits*,
+  Tina Turner *Simply the Best*, Watoto Children's Choir, and Céline Dion's
+  *Falling Into You* — the last being an accent-spelling split (`Celine
+  Dion` vs `Céline Dion`) that, once found, turned out to also apply to a
+  second album (*The Colour of My Love*, also confirmed byte-for-byte
+  identical) sitting under the same misspelled folder. Kept the
+  better-evidenced copy each time (Lidarr-format naming, consistent single
+  format, or simply the correctly-spelled folder) and removed the other.
+- **3 genuine gap-fills, not duplicates at all** — one copy was missing
+  exactly what the stray copy held, confirmed by exact track-number
+  arithmetic, not assumption: Michael Jackson *Bad* (`Compilations/Bad`
+  held 7 real bonus tracks — Quincy Jones interview interludes, a Spanish-
+  language version, "Streetwalker" — that the 11-track original lacked
+  entirely, confirmed by matching all 11 shared tracks first); Rihanna
+  *Greatest Hits* (the stray was track 20, "Diamonds" — the main folder's
+  sequence literally jumped 19→21); Zac Brown Band *The Foundation* (the
+  "Deluxe Version" folder held only track 1, "Toes", missing from the main
+  copy which started at track 2). Moved the missing tracks in rather than
+  deleting anything, then removed the emptied stray folders.
+
+A final Lidarr rescan confirmed **zero remaining scattered albums**
+library-wide.
+
 ### Jellyfin startup cleanup task is disabled (2026-09-06)
 
 Jellyfin's built-in `Clean up collections and playlists` maintenance task
