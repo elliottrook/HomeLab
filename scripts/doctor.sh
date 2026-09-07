@@ -775,12 +775,26 @@ print(f'mode={r.get(\"mode\", \"unknown\")}')
 print(f'errors={errors}')
 print(f'alerts={alerts}')
 print(f'drift={1 if drift else 0}')
+
+# Named, actionable detail for anything sitting in the report waiting on
+# a human decision -- not just a count, so the daily email tells Jason
+# which album to go look at instead of just that something needs review.
+for d in r.get('duplicates', {}).get('queued_for_approval', []) or []:
+    a = d.get('folder_a', '?').rsplit('/', 2)
+    b = d.get('folder_b', '?').rsplit('/', 2)
+    a_label = '/'.join(a[-2:]) if len(a) >= 2 else d.get('folder_a', '?')
+    b_label = '/'.join(b[-2:]) if len(b) >= 2 else d.get('folder_b', '?')
+    print(f'review_item=Duplicate: {a_label} vs {b_label}')
+for c in r.get('scatter', {}).get('queued_for_review', []) or []:
+    print(f'review_item=Scatter: {c.get(\"artist\", \"?\")} - {c.get(\"album\", \"?\")}')
 "
 REMOTE
     )"; then
         warn "Unable to collect jellyfin-integrity health data"
         return
     fi
+
+    local review_items=()
 
     while IFS='=' read -r key value; do
         case "$key" in
@@ -791,6 +805,7 @@ REMOTE
             errors) errors="$value" ;;
             alerts) alerts="$value" ;;
             drift) drift="$value" ;;
+            review_item) review_items+=("$value") ;;
         esac
     done <<< "$output"
 
@@ -811,6 +826,17 @@ REMOTE
 
     if (( ${#failures[@]} > 0 )); then
         fail "jellyfin-integrity: ${failures[*]} (last run ${age_hours}h ago, ${mode:-unknown} mode)"
+    elif (( ${#review_items[@]} > 0 )); then
+        local shown=("${review_items[@]:0:5}")
+        local remaining=$(( ${#review_items[@]} - ${#shown[@]} ))
+        local list
+        list="$(printf '; %s' "${shown[@]}")"
+        list="${list:2}"
+        if (( remaining > 0 )); then
+            warn "jellyfin-integrity: ${#review_items[@]} item(s) awaiting your review — ${list}; +${remaining} more, see ${report_path} on TrueNAS"
+        else
+            warn "jellyfin-integrity: ${#review_items[@]} item(s) awaiting your review — ${list}"
+        fi
     elif (( age_hours > max_age_hours )); then
         warn "jellyfin-integrity last run ${age_hours} hour(s) ago (expected weekly)"
     else
