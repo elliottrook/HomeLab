@@ -1,10 +1,10 @@
 # Video Library Archiving Project
 
-> Status: Proposed — design and tooling drafted, no destructive action taken
+> Status: Proposed — Milestone 1 (discovery/dry-run) complete; no destructive action taken
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-30
+> Last updated: 2026-09-07
 
 ## Purpose
 
@@ -62,10 +62,20 @@ Recorded 2026-08-30 via read-only inspection (no state changed):
   pressure (28/31 GiB used) because Milestone 3 of the Plex-to-Jellyfin migration
   (an overnight archive-video `rsync`) was actively running. This project's tooling must not be
   deployed or scheduled to run concurrently with that migration's remaining overnight work.
-- [ ] Radarr/Sonarr API keys and exact installed API version — not yet retrieved. Needed before
-  Milestone 1 can query real candidate lists; will be read from each app's `config.xml` under
-  `/mnt/Media/appdata/{radarr,sonarr}/` and passed to the tool via environment variable or a
-  root-readable file, never committed to Git or printed to a log.
+- [x] Radarr/Sonarr API keys and installed versions retrieved 2026-09-07, read-only, kept out of
+  Git and never printed to any log. **Correction to this baseline's original assumption:** the
+  actual `config.xml` location is not `/mnt/Media/appdata/{radarr,sonarr}/` (that path only holds
+  each app's *appdata*, e.g. custom scripts/backups) — the real config, including `ApiKey`, lives
+  in the container's `/config` mount, which resolves on the host to
+  `/mnt/.ix-apps/docker/volumes/<per-app-volume-id>/_data/config.xml` (found via
+  `docker inspect radarr|sonarr --format '{{range .Mounts}}...'`). Installed versions: Radarr
+  `6.3.0.10514-ls314`, Sonarr `4.0.19.2979-ls322` (both `lscr.io/linuxserver.io` images, `/api/v3`
+  confirmed reachable and returning valid data for `GET /movie`, `GET /series`,
+  `GET /episodefile`). The exact `DELETE /moviefile/{id}` / `DELETE /episodefile/{id}` semantics
+  (whether it also unmonitors, effect on the parent entry) are still **not** confirmed against
+  generated API docs — deliberately deferred; only GET endpoints were exercised during this
+  read-only dry-run milestone, consistent with the delete-endpoint confirmation being required
+  before Milestone 2, not Milestone 1.
 
 ## Architecture decisions
 
@@ -112,6 +122,59 @@ deployment: like the UPS project's shutdown-threshold work, the trigger mechanis
 supervised live test on real data before it is left to run alone (see Milestones 2–3 below). This
 mirrors this repository's standing rule that irreversible or production-affecting automation earns
 a validated dry run before it is trusted unattended.
+
+## Milestone 1 findings (2026-09-07)
+
+Two real bugs and one design-level problem were found while getting the dry run to actually run
+against live data — recorded here since the reasoning behind each fix matters for anyone touching
+this tool later.
+
+### Bug: dry-run required `ffprobe` already installed, contradicting the Milestone 1 gate
+
+As originally written, `_process_one()` in `pipeline.py` called `probe()` (which shells out to
+`ffprobe`) for every candidate even in dry-run mode, in order to log a projected bitrate/resolution
+plan. That directly contradicted this doc's own Milestone 1 gate ("do not install `ffmpeg`/
+`ffprobe`... until the dry-run candidate list has been reviewed") — the dry run as shipped could
+not have run at all before that install. **Fixed**: dry-run mode now reports only what the Radarr/
+Sonarr APIs already provide (title, source path, size, `dateAdded`, planned archive destination)
+and never calls `ffprobe`. The projected bitrate/resolution plan is now only computed during an
+actual `--execute` run (Milestone 2 territory), which is when `ffmpeg`/`ffprobe` are installed
+anyway.
+
+### Bug: candidate discovery compared container paths against host paths
+
+Radarr's and Sonarr's REST APIs report `path` fields as seen from *inside each app's own
+container* (e.g. `/media/movie/media/movies/Obsession (2026)/...` for Radarr,
+`/media/tv/media/tv/Rick and Morty/...` for Sonarr — confirmed via `docker inspect`, both
+containers bind-mount the same host directory, `/mnt/Media/data`, at different container mount
+points). The original `candidates.py` compared these container paths directly against the
+host-path config values (`movies_current_root`, `tv_current_root`), so every candidate silently
+failed the `relative_to()` check and was skipped — the first dry run returned 0 candidates with no
+error, which would have looked like "nothing eligible yet" rather than "broken." **Fixed**: added
+`host_data_root`, `radarr_container_root`, `sonarr_container_root` to config, and a
+`_to_host_path()` translation step in `candidates.py` applied to every path read from either API
+before any comparison or filesystem/`ffprobe` use.
+
+### Design finding: the Plex→Jellyfin migration reset `dateAdded` library-wide
+
+With the path bug fixed, the dry run at the real 182-day threshold still returned 0 candidates.
+Confirmed this is correct, not a bug: the Plex-to-Jellyfin media migration (completed 2026-09-01)
+reimported the entire library into Radarr/Sonarr, resetting `movieFile.dateAdded`/
+`episodeFile.dateAdded` for every file to August/September 2026 — the oldest recorded
+`movieFile.dateAdded` across the whole library is 2026-08-04. Under the current design ("Age comes
+from Radarr/Sonarr, not the filesystem" — chosen specifically to avoid disturbance from
+re-imports), **no file will become eligible until roughly February–March 2027**, regardless of a
+title's real age. Checked whether filesystem `mtime` still reflects genuine history as a possible
+alternative signal: it does (e.g. *The Shawshank Redemption*'s file has an `mtime` of April 2021),
+though at least one file has an obviously corrupt `mtime` (*The Boy and the Heron*, timestamped
+~2097) that would need explicit filtering if `mtime` were ever used.
+
+**Decision (Jason, 2026-09-07): keep the `dateAdded`-based design as-is for the actual project.**
+No further action needed until dates naturally age past the threshold; revisit later if the delay
+becomes a real problem. For validation purposes only, confirmed the pipeline mechanics work
+end-to-end using a throwaway config with `age_threshold_days` temporarily set to 30 (see Evidence
+log) — the real `config.json` on TrueNAS was never modified and stays at the documented 182-day
+threshold.
 
 ## Approved target layout
 
@@ -200,18 +263,28 @@ without a rename pass.
 
 ## Milestone 1 — Discovery and dry-run candidate list
 
-- [ ] Confirm the installed Radarr and Sonarr API versions and the exact delete-file endpoint
-  behavior against their own generated API documentation (not assumed).
-- [ ] Retrieve API keys from each app's `config.xml` (read-only) and store them outside Git.
-- [ ] Implement candidate discovery (`--dry-run`, the tool's default mode): list every file whose
+- [x] Confirm the installed Radarr and Sonarr API versions — done 2026-09-07 (Radarr
+  `6.3.0.10514-ls314`, Sonarr `4.0.19.2979-ls322`). The exact delete-file endpoint behavior against
+  generated API docs is **still open** — intentionally deferred to before Milestone 2, since
+  Milestone 1 only exercised GET endpoints.
+- [x] Retrieve API keys from each app's `config.xml` (read-only) and store them outside Git — done
+  2026-09-07; see the corrected `config.xml` location noted in the Authoritative baseline above.
+- [x] Implement candidate discovery (`--dry-run`, the tool's default mode): list every file whose
   `dateAdded` exceeds the age threshold, its current size, and its would-be archive destination
-  path — with no transcoding, moving, or API writes.
-- [ ] Run the dry run against the real Radarr/Sonarr data and review the candidate list together
-  before proceeding.
-- [ ] Confirm destination free space in `archive-movies`/`archive-tv` is sufficient for the
-  expected first-batch volume.
-- [ ] Confirm this milestone's work does not run concurrently with the Plex-to-Jellyfin migration's
-  remaining overnight jobs (check `ps`/`docker` state on TrueNAS before each dry run).
+  path — with no transcoding, moving, or API writes. Done, after fixing the two bugs described in
+  "Milestone 1 findings" below (dry-run's incidental `ffprobe` dependency, and the container-vs-host
+  path mismatch).
+- [x] Run the dry run against the real Radarr/Sonarr data and review the candidate list together
+  before proceeding — done 2026-09-07. At the real 182-day threshold: 0 candidates, confirmed
+  correct (see findings below, not a bug). At a temporary 30-day test threshold: 411 real
+  candidates (14 movies, 397 episodes, ~927.5 GB), correct source/destination paths, 0 failures.
+- [x] Confirm destination free space in `archive-movies`/`archive-tv` is sufficient for the
+  expected first-batch volume — 3.3 TB free on the shared `Media/data` pool (71% used, 11 TB
+  total), confirmed 2026-09-07.
+- [x] Confirm this milestone's work does not run concurrently with the Plex-to-Jellyfin migration's
+  remaining overnight jobs (check `ps`/`docker` state on TrueNAS before each dry run) — confirmed
+  no `rsync`/`beets`/`ffmpeg`/`handbrake` processes running 2026-09-07; that migration project is
+  also now fully Complete, so this concern no longer applies going forward.
 
 ### Gate
 
@@ -219,6 +292,10 @@ Do not install `ffmpeg`/`ffprobe` or write anything to TrueNAS until the dry-run
 been reviewed and looks correct — right files, right ages, right destinations, no current-library
 files with unexpectedly old `dateAdded` values that would indicate a data-quality problem in this
 approach.
+
+**Gate passed 2026-09-07** for the tool's code and its own self-contained directory under
+`/mnt/Media/data/tools/video-archiver/` (Python source + `config.json`, no `ffmpeg`/`ffprobe`
+binary). `ffmpeg`/`ffprobe` remain not installed — that stays Milestone 2's job.
 
 ## Milestone 2 — Supervised live test
 
@@ -284,6 +361,12 @@ cleanly and its log is reviewed.
 | Date | Milestone | Evidence | Result | Operator |
 |---|---|---|---|---|
 | 2026-08-30 | 0 (design) | Read-only recon: live compose stack, archive root ACLs, host resources, tool availability | Recorded above | Claude |
+| 2026-09-07 | 1 | Pre-check: no `rsync`/`beets`/`ffmpeg`/`handbrake` running on TrueNAS; Radarr/Sonarr containers up | Clear to proceed | Claude |
+| 2026-09-07 | 1 | Retrieved Radarr/Sonarr API keys read-only from actual `config.xml` locations; versions confirmed (Radarr 6.3.0.10514-ls314, Sonarr 4.0.19.2979-ls322) | Keys never printed/committed; corrected baseline's assumed `config.xml` path | Claude |
+| 2026-09-07 | 1 | Deployed tool code (no `ffmpeg`/`ffprobe`) to `/mnt/Media/data/tools/video-archiver/`; ran `--dry-run` against real data at production 182-day threshold | 0 candidates — confirmed correct, not a bug (see Milestone 1 findings: Plex→Jellyfin migration reset `dateAdded` library-wide) | Claude |
+| 2026-09-07 | 1 | Fixed dry-run's incidental `ffprobe` dependency and the container-vs-host path mismatch in `candidates.py`/`config.py`/`pipeline.py`; redeployed and reran dry run | Path resolution and candidate discovery confirmed correct | Claude |
+| 2026-09-07 | 1 (test only) | Ran `--dry-run` against a throwaway config (`age_threshold_days` 30 instead of production 182, deleted after use) to validate pipeline mechanics end-to-end | 411 real candidates (14 movies, 397 episodes, ~927.5 GB), correct source/destination paths, 0 failures. Production `config.json` never modified | Claude |
+| 2026-09-07 | 1 | Confirmed destination free space | 3.3 TB free / 11 TB total on `Media/data` pool | Claude |
 
 ## References
 

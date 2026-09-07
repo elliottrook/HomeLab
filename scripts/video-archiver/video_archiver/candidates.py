@@ -26,6 +26,17 @@ def _parse_arr_datetime(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
+def _to_host_path(arr_path: Path, container_root: Path, host_root: Path) -> Path | None:
+    """Translate a path as reported by the Radarr/Sonarr API (relative to that app's
+    own container mount) into the real host filesystem path this tool reads/writes.
+    Returns None if arr_path isn't under container_root — caller skips rather than guesses."""
+    try:
+        rel = arr_path.relative_to(container_root)
+    except ValueError:
+        return None
+    return host_root / rel
+
+
 def find_movie_candidates(radarr: RadarrClient, config: Config) -> list[Candidate]:
     cutoff = datetime.now(timezone.utc) - timedelta(days=config.age_threshold_days)
     out: list[Candidate] = []
@@ -41,8 +52,15 @@ def find_movie_candidates(radarr: RadarrClient, config: Config) -> list[Candidat
         if date_added >= cutoff:
             continue
 
-        source_path = Path(movie_file["path"])
-        movie_folder = Path(movie["path"])
+        source_path = _to_host_path(
+            Path(movie_file["path"]), config.radarr_container_root, config.host_data_root
+        )
+        movie_folder = _to_host_path(
+            Path(movie["path"]), config.radarr_container_root, config.host_data_root
+        )
+        if source_path is None or movie_folder is None:
+            continue
+
         try:
             rel_folder = movie_folder.relative_to(config.movies_current_root)
         except ValueError:
@@ -72,7 +90,11 @@ def find_episode_candidates(sonarr: SonarrClient, config: Config) -> list[Candid
     out: list[Candidate] = []
 
     for series in sonarr.get_series():
-        series_folder = Path(series["path"])
+        series_folder = _to_host_path(
+            Path(series["path"]), config.sonarr_container_root, config.host_data_root
+        )
+        if series_folder is None:
+            continue
         try:
             rel_folder = series_folder.relative_to(config.tv_current_root)
         except ValueError:
@@ -83,7 +105,11 @@ def find_episode_candidates(sonarr: SonarrClient, config: Config) -> list[Candid
             if date_added >= cutoff:
                 continue
 
-            source_path = Path(ep_file["path"])
+            source_path = _to_host_path(
+                Path(ep_file["path"]), config.sonarr_container_root, config.host_data_root
+            )
+            if source_path is None:
+                continue
             season_number = ep_file.get("seasonNumber", 0)
             archive_dest = (
                 config.tv_archive_root

@@ -65,6 +65,26 @@ def _delete_source(candidate: Candidate, radarr: RadarrClient, sonarr: SonarrCli
 
 def _process_one(candidate: Candidate, config: Config, dry_run: bool,
                   radarr: RadarrClient, sonarr: SonarrClient, run_log: RunLogger) -> bool:
+    # Dry run reports candidate metadata straight from the arr APIs only — it deliberately
+    # never calls ffprobe, so it can run before ffmpeg/ffprobe are installed on the host
+    # (Video Library Archiving project doc, Milestone 1 gate).
+    if dry_run:
+        try:
+            run_log.record(
+                event="candidate",
+                kind=candidate.kind,
+                title=candidate.title,
+                source_path=str(candidate.source_path),
+                source_size_bytes=candidate.size_bytes,
+                date_added=candidate.date_added.isoformat(),
+                archive_dest_path=str(candidate.archive_dest_path),
+                dry_run=dry_run,
+            )
+            return True
+        except OSError as exc:
+            log.error("failed to log candidate %s: %s", candidate.title, exc)
+            return False
+
     dst_tmp: Path | None = None
     try:
         probe_result = probe(candidate.source_path, config)
@@ -83,9 +103,6 @@ def _process_one(candidate: Candidate, config: Config, dry_run: bool,
             below_quality_floor=plan.below_quality_floor,
             dry_run=dry_run,
         )
-
-        if dry_run:
-            return True
 
         dst_tmp = candidate.archive_dest_path.with_suffix(
             candidate.archive_dest_path.suffix + ".partial"

@@ -23,6 +23,14 @@ class Config:
     movies_archive_root: Path
     tv_archive_root: Path
 
+    # Radarr/Sonarr's REST APIs report paths as seen from inside each app's own
+    # container (its own bind-mount point), not the host filesystem path this tool
+    # (running directly on the host) needs to actually read/probe/transcode a file.
+    # Both containers mount the same host_data_root at a different container path.
+    host_data_root: Path
+    radarr_container_root: Path
+    sonarr_container_root: Path
+
     ffmpeg_bin: str
     ffprobe_bin: str
     work_dir: Path
@@ -59,6 +67,9 @@ class Config:
             tv_current_root=Path(raw["tv_current_root"]),
             movies_archive_root=Path(raw["movies_archive_root"]),
             tv_archive_root=Path(raw["tv_archive_root"]),
+            host_data_root=Path(raw["host_data_root"]),
+            radarr_container_root=Path(raw["radarr_container_root"]),
+            sonarr_container_root=Path(raw["sonarr_container_root"]),
             ffmpeg_bin=raw["ffmpeg_bin"],
             ffprobe_bin=raw["ffprobe_bin"],
             work_dir=Path(raw["work_dir"]),
