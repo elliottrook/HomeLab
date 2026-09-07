@@ -123,6 +123,53 @@ check_reported_backup() {
     fi
 }
 
+check_idrive_relay() {
+    local state
+
+    if ! state="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            printf "guest=%s\\n" "$(pct status 112 2>/dev/null | cut -d " " -f2)"
+            printf "timer=%s\\n" "$(pct exec 112 -- systemctl is-active idrive-relay-sync.timer 2>/dev/null || true)"
+            printf "service=%s\\n" "$(pct exec 112 -- systemctl is-active idrive-relay-sync.service 2>/dev/null || true)"
+            printf "result=%s\\n" "$(pct exec 112 -- systemctl show idrive-relay-sync.service -p Result --value 2>/dev/null || true)"
+            printf "log_epoch=%s\\n" "$(pct exec 112 -- stat -c %Y /var/log/idrive-relay/sync.log 2>/dev/null || true)"
+        '
+    )"; then
+        warn "Unable to check encrypted IDrive relay"
+        return
+    fi
+
+    local guest timer service result log_epoch now_epoch age_hours
+    guest="$(awk -F= '$1 == "guest" {print $2; exit}' <<< "$state")"
+    timer="$(awk -F= '$1 == "timer" {print $2; exit}' <<< "$state")"
+    service="$(awk -F= '$1 == "service" {print $2; exit}' <<< "$state")"
+    result="$(awk -F= '$1 == "result" {print $2; exit}' <<< "$state")"
+    log_epoch="$(awk -F= '$1 == "log_epoch" {print $2; exit}' <<< "$state")"
+
+    if [[ "$guest" != "running" || "$timer" != "active" ]]; then
+        fail "Encrypted IDrive relay guest or timer is not active"
+        return
+    fi
+
+    if [[ "$service" == "activating" ]]; then
+        warn "Encrypted IDrive relay initial sync is in progress"
+        return
+    fi
+
+    if [[ "$result" != "success" ]] || [[ ! "$log_epoch" =~ ^[0-9]+$ ]]; then
+        fail "Encrypted IDrive relay last sync did not succeed"
+        return
+    fi
+
+    now_epoch="$(date +%s)"
+    age_hours=$(( (now_epoch - log_epoch) / 3600 ))
+    if (( age_hours > 30 )); then
+        warn "Encrypted IDrive relay last success is ${age_hours} hour(s) old"
+    else
+        pass "Encrypted IDrive relay last success is ${age_hours} hour(s) old"
+    fi
+}
+
 check_proxmox_guest_backup_age() {
     local display="$1"
     local vmid="$2"
@@ -1319,6 +1366,7 @@ check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
 check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
+check_idrive_relay
 check_synology_drive_backup 30
 
 divider

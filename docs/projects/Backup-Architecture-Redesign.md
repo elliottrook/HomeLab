@@ -553,10 +553,13 @@ before proceeding to the validation milestone.
 - [ ] Confirm the same file's *older* version (not just current state) can
   be recovered from the IDrive e2 off-site copy specifically — proving
   version retention exists off-site, not just a mirror.
-- [ ] Add HomeLab Doctor checks for the new rsync task's freshness, the
+- [~] Add HomeLab Doctor checks for the new rsync task's freshness, the
   snapshot schedule's health, and the `rclone` job's success/failure,
   matching the existing `check_backup_age`/`check_reported_backup`
-  pattern.
+  pattern. Doctor now checks the relay guest, enabled timer, active initial
+  sync, failed result and post-success log freshness through the existing
+  Proxmox connection. Mark complete after the first full sync reports a
+  verified success; TrueNAS rsync/snapshot freshness checks remain pending.
 - [ ] Confirm failure-only alerting is wired for the new components,
   matching the existing pattern (no email on success, actionable email on
   failure).
@@ -621,3 +624,4 @@ as current.
 | 2026-09-05 | 2 | Jason created a dedicated local macOS account `truenas-pull` (random unrecorded password, key-only via forced-command `authorized_keys`) and added it to Remote Login's access group, previously scoped to `jelliott` only — the one step requiring sudo, run by Jason directly since Claude cannot and will not handle a Mac account password. Granted `truenas-pull` a filesystem ACL scoped to read/list/search inside `~/lab/private-backups` only (verified: base permissions already gave it group-level traversal into `~/jelliott` and `~/lab`, so no broader grant was needed there). Patched the installed `rrsync` to skip the unsupported `--confine-root` line, with the substitution reasoning recorded in-line as a comment | Account and ACL confirmed correctly scoped |
 | 2026-09-05 | 2 | End-to-end verification from the real TrueNAS client: list/pull inside the confined directory succeeded; a `..` traversal and an absolute-path escape attempt both correctly rejected by `rrsync`'s own argv validation; a real file pull matched the source's SHA-256 exactly. Registered the Mac key pair and SSH connection as TrueNAS keychain credentials (private key read and used entirely on TrueNAS via a remotely-executed script — caught and corrected one slip where the key was briefly `cat`'d into this session's own output before switching to that approach). Created the Mac rsync task (`rsynctask.create`, whole-tree pull matching the mimic-old-scope decision, no excludes needed) and triggered it | Passed — job state `SUCCESS`, byte-exact match: 354 files / 22,806,562 bytes on both the Mac and TrueNAS. Mac leg of Milestone 2 complete |
 | 2026-09-07 | 3 | Created unprivileged Proxmox LXC 112; installed publisher-checksummed rclone v1.75.1; configured new bucket-scoped `idrive-e2` plus locally generated `idrive-crypt`; created a Proxmox-hosted, read-only NFSv4 bind mount from TrueNAS; created the IDrive FQDN allow and relay-only egress-deny rules; direct encrypted random-data round trip SHA-256 matched | Passed for infrastructure boundary and connectivity. Legacy Hyper Backup paths untouched; independent crypt-recovery copy and full-sync completion remain open |
+| 2026-09-07 | 4 (partial) | Added `check_idrive_relay` to HomeLab Doctor. It uses the existing Mac→Proxmox path to distinguish a running initial sync, a failure, and a recent completed success; it exposes no relay credential or backup content | Probe verified while the first capped full sync is active; full-sync success remains required before this monitoring item closes |
