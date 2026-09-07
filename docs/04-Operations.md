@@ -636,6 +636,83 @@ both remain pending a decision. Note Jellyfin groups by album tag as well
 as folder, so both copies may present as a single album with duplicated
 tracks until one is chosen.
 
+#### Library-wide featured-artist folder scatter (2026-09-07)
+
+Root cause behind a much bigger, previously-undiagnosed problem than the
+Alicia Keys case above: whatever originally organized this library filed
+each track under its **literal per-track credited artist** (e.g. `Willie
+Nelson Feat. Lukas Nelson`) instead of the album artist, and separately
+into a generic `Compilations` bucket when a track's artist field looked
+like a various-artist collaboration. Jellyfin creates one album per
+physical folder it scans, so a single real album ends up as several
+duplicate tiles in the UI — through no fault of Jellyfin's metadata. This
+is very likely the true explanation for at least some of the "unfixable"
+album-splitting bug investigated at length (and never resolved) during the
+original Plex-to-Jellyfin migration — that investigation assumed a
+metadata/database bug and never checked whether the underlying files were
+simply scattered across multiple folders.
+
+Found via a library-wide scan: **117 top-level folders didn't match any
+real Lidarr-managed artist name.** Most (dozens, e.g. `R.E.M`, `Celine
+Dion`, `K.T. Tunstall`) turned out to be genuine real artists Lidarr simply
+doesn't manage — either never added, or added under a slightly different
+spelling/accent — and were left untouched, out of scope for this cleanup.
+Filtering those out left **42 genuine "stub" folders** (1–6 tracks each,
+named as a per-track credit variant of a real managed artist) plus a
+further **14 single stray tracks sitting in `Compilations`** that actually
+belonged to an otherwise-normal single-artist album.
+
+Consolidated all of them into their real album's folder — 41 stub folders'
+worth of tracks plus 16 stray `Compilations` tracks, **73 files moved in
+total**, verified zero errors at each step:
+- Willie Nelson **Heroes** alone was scattered across 8 folders (guest
+  credits: Snoop Dogg, Lukas Nelson x4 combinations, Jamey Johnson,
+  Compilations) — now one folder, 14/14 tracks.
+- Post Malone **F-1 Trillion** was scattered across **16** folders (14
+  one-track "Feat." stubs plus two pre-existing partial copies) — all 18
+  tracks accounted for with zero missing and zero duplicated, consolidated
+  into Lidarr's own preferred `F-1 Trillion (2024)` folder.
+- Kane Brown **The High Road** (6 folders), Dolly Parton **Diamonds &
+  Rhinestones** (5), Keith Urban **Fuse/Ripcord/HIGH/THE SPEED OF NOW**
+  (3–4 each), Old Dominion (two albums, 3–4 each), Demi Lovato, Lady A,
+  Kacey Musgraves, Céline Dion's collaborators, and Willie Nelson's other
+  collab albums with Wynton Marsalis/Norah Jones/Diana Krall were all
+  similarly consolidated.
+- 3 tracks that were already exact duplicates of a track present at the
+  real destination (confirmed by matching filename and near-identical
+  size) were deleted rather than moved, since the destination already had
+  them.
+
+Every empty stub/stray folder left behind was removed, including
+Synology `@eaDir` metadata cruft that initially blocked detecting them as
+empty. Top-level folder count: 370 → 327.
+
+**8 genuine cases remain, deliberately not touched.** Unlike the 41+14
+resolved above (a small stray fragment merging into one obviously-larger
+real copy), each of these has **two comparably-sized copies** — the same
+shape of decision as the Paul Simon dedupe, needing the same real-evidence
+comparison (track-duration matching, not filenames) before any merge or
+deletion, since one may turn out to be a genuinely different edition like
+*Still Crazy After All These Years* rather than a true duplicate:
+
+- Blake Shelton – Body Language / Body Language (2021)
+- Céline Dion – Falling Into You (`Celine Dion` vs `Céline Dion` folders — accent-spelling split, not a credit-scatter issue)
+- Michael Jackson – Bad (`Compilations/Bad`, 18 trk vs `Michael Jackson/Bad (1987)`, 11 trk)
+- Lee Ann Womack – Greatest Hits (14 trk vs 14 trk)
+- Rihanna – Greatest Hits (`Compilations/The Greatest Hits` vs `Rihanna/The Greatest Hits`)
+- Tina Turner – Simply The Best / Simply The Best (IMPORT)
+- Watoto Children's Choir – Ana Meremeta / Ana Meremeta ... Ever Shining
+- Zac Brown Band – The Foundation (2008) / The Foundation (Deluxe Version)
+
+A further set of `Compilations` subfolders were checked and **deliberately
+left alone** as false-positive name matches from fuzzy comparison, not
+real fragments of another artist's album — most importantly
+`Compilations/Dangerous Woman`, which is Ariana Grande's real album, not a
+fragment of Michael Jackson's *Dangerous* despite the substring match.
+Also left alone: cases where `Compilations` and a `Various Artists` folder
+both legitimately hold the same soundtrack/compilation (e.g. *Guardians of
+the Galaxy: Awesome Mix*), which is expected, not a bug.
+
 ### Jellyfin startup cleanup task is disabled (2026-09-06)
 
 Jellyfin's built-in `Clean up collections and playlists` maintenance task
