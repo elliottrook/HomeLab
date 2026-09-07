@@ -100,11 +100,11 @@ commits recorded in the evidence log.
 
 - [ ] Include source repositories, manifest and deployed snapshot in verified
   local, off-host and encrypted off-site coverage.
-- [ ] Rebuild the snapshot from clean Git checkouts.
-- [ ] Perform an isolated restore and compare checksums and query behavior.
+- [x] Rebuild the snapshot from clean Git checkouts.
+- [x] Perform an isolated restore and compare checksums and query behavior.
 - [x] Add a monthly knowledge-health review for drift, contradictions, broken
   provenance, oversized entries and taxonomy decay.
-- [ ] Document rollback to the last accepted snapshot.
+- [x] Document rollback to the last accepted snapshot.
 
 Completion gate: a clean environment can reproduce and restore the accepted
 knowledge layer without copying untracked state or secrets.
@@ -137,13 +137,30 @@ not interactive command execution.
   bounded JSON report under `/var/lib/aster/health`; it has no shell, network,
   credential or arbitrary-file capability.
 - [x] Re-run the full evaluation set with live-state tools enabled.
-- [ ] Propose any write capability separately, with exact access, approval,
+- [x] Propose any write capability separately, with exact access, approval,
   validation and rollback boundaries; do not infer it from graduation.
-- [ ] Record final ownership, accepted limitations and escalation rules.
+- [x] Record final ownership, accepted limitations and escalation rules.
 
 Completion gate: Aster can safely diagnose and guide routine HomeLab operations
 from authoritative knowledge and bounded live evidence. Any action authority is
 explicitly enumerated rather than implied.
+
+### Capability decision and ownership
+
+No write capability is proposed for graduation. Aster remains a read-only
+advisor: it may retrieve reviewed knowledge and the operator-produced health
+summary, identify drift, and propose a bounded change for Jason to review. It
+cannot execute commands, read secrets, write files, alter network policy, or
+contact arbitrary endpoints. A future write feature requires its own project
+record naming the exact target, least-privilege identity, validation, audit
+record, timeout, rollback and approval moment.
+
+Jason owns source review, material-change approval, credentials, backup
+destinations and recovery decisions. `homelab-reference` owners maintain
+current operational facts; the `homelab` project record maintains evidence and
+decisions. The monthly review detects drift but does not edit anything. Aster
+must escalate missing, stale, contradictory or insufficient evidence instead
+of guessing.
 
 ## Graduation criteria
 
@@ -172,3 +189,4 @@ Aster graduates only when:
 | 2026-09-01 | 3 | Verified the LXC 110 archive integrity, restored it into isolated stopped LXC 980 with its network link down, inspected the service layout, then destroyed the temporary guest | Restore mechanics pass, but the archive did not provide verified model-artifact coverage and service configuration differs from production; an off-host mirror plus a fresh isolated restore remain required |
 | 2026-09-01 | 5 | Deployed the root-produced `/var/lib/aster/health/latest.json` report with `root:aster` ownership and `0640` mode; ran 15 in-container unit tests and the full 14-case live graduation suite | 15/15 unit tests and 14/14 live cases passed; report correctly surfaced current warnings/failures without giving Aster shell, credentials, arbitrary files or new network access |
 | 2026-09-02 | Recovery | Copied the 2026-09-01 LXC 110 archive to an independent root-only TrueNAS stopgap, matched its SHA-256, then restored that copy as stopped, network-isolated LXC 980 | Both active model blobs matched their content-addressed SHA-256 values; recovered unit differs only by the later `TimeoutStartSec=5min` improvement. Guest remains stopped to avoid a second production-GPU mapping |
+| 2026-09-07 | 3 | Ran the monthly knowledge review from clean `homelab` and `homelab-reference` commits, then built, SHA-256 matched, temporarily restored and queried the 23-source snapshot from LXC 104 | Provenance, authority-aware retrieval and deterministic rebuild passed; root-only TrueNAS stopgap holds the snapshot. Encrypted off-site coverage remains incomplete |

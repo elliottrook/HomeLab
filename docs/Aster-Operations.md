@@ -89,6 +89,20 @@ LXC 104, and restore ownership to `aster:aster`. The builder includes
 `docs/Aster-Operations.md` and does not copy Finder `._*` metadata. Never add
 private backups, credentials or unreviewed external documents to the snapshot.
 
+### Accepted-snapshot rollback
+
+Treat a snapshot as accepted only after a clean review/build records its SHA-256
+and provenance commits. Before replacing the deployed directory, extract the
+candidate into a new, root-owned staging directory and inspect
+`.aster-provenance.json`. Keep the current deployed directory intact until the
+candidate has passed retrieval checks. If the candidate is wrong, restore the
+last accepted archive into a new staging directory, atomically rename it into
+place, restore `root:aster` ownership and read-only modes, restart only
+`aster-agent.service`, then run the versioned graduation retrieval cases. This
+is a knowledge rollback only: it does not alter inference, networking, model
+files or credentials. Record the replaced and restored archive hashes in the
+project evidence log.
+
 ## Health and logs
 
 From the Proxmox host:
