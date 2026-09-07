@@ -363,14 +363,53 @@ architecture's exact scope (see Architecture decisions above):
   VMID scope for the actual pull (not yet configured, connection only):
   100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 111 — matching the
   Architecture decisions scope exactly, not 110.
-- [ ] **`gowest` source: blocked on Jason.** Creating a restricted DSM user
-  account requires `synouser`, which is root-only and inaccessible the
-  same way `synoschedtask` was earlier in this project — no passwordless
-  sudo beyond the narrow shutdown grant. Same pattern as the Beszel token
-  earlier in the NetBox project: asked Jason to create the account via
-  the DSM UI (Control Panel → User & Group), not in `administrators`,
-  read-only on `homes`/`Family Documents` — SSH key restriction and pull
-  setup will follow once it exists.
+- [x] **`gowest` source: complete (2026-09-07), via a different mechanism
+  than Proxmox/Mac.** The SSH-forced-command + `rrsync` pattern that
+  worked for those two legs failed against DSM's own `rsync` binary for
+  reasons that turned out to be unrelated to `rrsync` at all: DSM
+  restricts SSH login to the `administrators` group by design (no
+  per-user allow-list exists — confirmed directly from DSM's own UI
+  text), the created account had shell `/sbin/nologin` (refuses any
+  invocation, including a forced command), its home directory was
+  world-writable (`777`, tripping OpenSSH's `StrictModes`), and its
+  `/etc/ssh/authorized_keys/%u` entry needed `644` not `600` (DSM's
+  patched `sshd` apparently reads it from a de-privileged context, unlike
+  stock OpenSSH). After fixing all four, DSM's `rsync` binary itself then
+  refused with `service disabled` / `module is write only` / `rsync
+  service is no running` — it turns out DSM's rsync is deeply patched
+  with its own daemon-style module-permission system that intercepts
+  server-mode invocations even over plain SSH transport, tied to a
+  "backup destination" framing (accepting incoming pushes) that fights a
+  read-only pull. No usable module config was ever found (`/etc/rsyncd.conf`
+  had zero modules defined even with the service enabled), so rather than
+  keep reverse-engineering an undocumented Synology-internal permission
+  layer, the mechanism was changed entirely: **DSM exports `homes` and
+  `Family Documents` read-only over NFSv3, restricted to TrueNAS's IP
+  only** (`Squash: No mapping` — required so a full backup can read every
+  family member's private home folder, which needs root-equivalent read,
+  same as Hyper Backup itself must have had); **TrueNAS mounts both
+  read-only** (persisted via TrueNAS's Init/Shutdown Scripts feature,
+  which survives OS upgrades, rather than a raw `systemd` unit or
+  `/etc/fstab`, either of which TrueNAS SCALE can wipe on update); and a
+  **plain local `rsync` on a TrueNAS cron job** copies from the mounts
+  into `/mnt/Media/backup/gowest/{homes,family-documents}` — no SSH,
+  no `rrsync`, no restricted DSM account needed for this leg at all. The
+  `truenas-pull` DSM account (administrators-group membership, app-access
+  denials, SSH key) is now unused dead weight from the abandoned
+  approach — left in place for now, flagged as a cleanup item.
+  **Scope decision, confirmed with Jason 2026-09-07:** the old Hyper
+  Backup job also covered Synology Drive's own app-config
+  (`/volume1/@synologydrive`), which turned out to be 315 GB — not a
+  small config/index but the actual content-addressable version-history
+  blob store (`@sync/repo`, 302 GB alone), nearly duplicating `homes`
+  (311 GB). There is no smaller load-bearing subset of it — the bulk
+  size *is* the version history, not incidental data alongside it.
+  **Decided to skip it**: `homes`/`Family Documents` capture every file's
+  *current* state; the accepted gap is losing Synology Drive's own
+  multi-version rollback capability for files it was tracking. A
+  temporary NFS export for this path was created, tested (found empty —
+  wrong subpath, `@apphome/SynologyDrive` rather than the real
+  `@synologydrive`), then removed again once the decision was made.
 - [x] **Mac source: complete and verified (2026-09-05).** Remote Login was
   already enabled. The official `rrsync` (fetched fresh from the rsync
   project, not the stale historical assumption that it's a Perl script —
