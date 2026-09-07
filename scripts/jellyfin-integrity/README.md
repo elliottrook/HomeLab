@@ -75,7 +75,7 @@ python3 check_integrity.py --config config.json
 Live run, applying safe corrections up to the configured (or overridden) action cap:
 
 ```bash
-python3 check_integrity.py --config config.json --apply --max-actions 50
+python3 check_integrity.py --config config.json --apply --max-actions 100
 ```
 
 Exit codes: `0` clean, `2` fatal (bad key/host — fails loudly rather than silently skipping a

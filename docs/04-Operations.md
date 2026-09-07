@@ -827,10 +827,14 @@ fixes. Full design: [Jellyfin-Library-Integrity-Automation.md](projects/Jellyfin
   `config.json`, which holds the dedicated `jellyfin-integrity` Jellyfin
   API key and Lidarr's key, and `reports/`, are not committed).
 - Scheduled via TrueNAS-native Cron Job (`midclt call cronjob.create`,
-  id `2`), Wednesday 03:00, `--apply` mode, 50-action-per-run cap.
+  id `2`), Wednesday 03:00, `--apply` mode, 100-action-per-run cap.
   Deliberately not Sunday — that carries the weekly ZFS scrub (starts
   00:00, historically finishes ~02:46) and the daily 04:30 backup-pull
   rsync.
+- `config.json` and both `reference/` manifests are pulled into
+  `~/lab/private-backups/jellyfin-integrity/` via
+  `scripts/backup/jellyfin-integrity.sh`, monitored by `lab doctor`'s
+  `check_backup_age`.
 - Reports (dated JSON + human-readable) land in
   `/mnt/Media/data/tools/jellyfin-integrity/reports/`, not committed to
   git (contains full local paths and album/track titles).

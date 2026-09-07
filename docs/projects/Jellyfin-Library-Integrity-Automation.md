@@ -359,10 +359,9 @@ Passed 2026-09-07.
 
 - [x] Installed the TrueNAS Cron Job (`midclt call cronjob.create`, id
   `2`) for Wednesday 03:00, running `check_integrity.py --config
-  config.json --apply` with the 50-action-per-run cap set in
-  `config.json` (a reasonable conservative default chosen during
-  Milestone 1 build-out, not separately negotiated — flagged here in
-  case Jason wants a different number).
+  config.json --apply` with the per-run action cap set in `config.json`
+  (started at 50 as a conservative Milestone-1 default, raised to 100 on
+  Jason's instruction 2026-09-07).
 - [x] Checked TrueNAS's own scheduled jobs 2026-09-07: found a real
   conflict with the originally-proposed Sunday 03:00 slot (ZFS scrub
   starts Sunday 00:00, historically finishes ~02:46 per `zpool status`;
@@ -386,11 +385,12 @@ before this milestone passes — not yet met.
 
 - [x] Recorded final tool location, config, schedule, and report location
   in [04-Operations.md](../04-Operations.md) 2026-09-07.
-- [ ] **Open decision, not yet made:** should the tool's `config.json`
-  (API keys — trivially regeneratable post-rebuild) or `reference/`
-  manifests (already duplicated in `~/lab/private-backups/`) be added to
-  the existing TrueNAS config-backup pipeline? Neither looks uniquely
-  irreplaceable, but this is Jason's call, not assumed here.
+- [x] Added to the existing backup pipeline 2026-09-07, on Jason's
+  instruction: `scripts/backup/jellyfin-integrity.sh` (matching the
+  `nut.sh`/`proxmox.sh` pattern) pulls `config.json` and both `reference/`
+  manifests from TrueNAS into `~/lab/private-backups/jellyfin-integrity/`;
+  `check_backup_age "Jellyfin Integrity" ... 192` added to `doctor.sh`.
+  Run once already to create the initial backup.
 - [ ] Update this project's status to `Complete` only after Milestone 3's
   gate passes (two consecutive clean Wednesday runs) and documentation is
   current.

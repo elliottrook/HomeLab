@@ -15,7 +15,7 @@
     "host_root": "/mnt/Media/data"
   },
   "limits": {
-    "max_actions_per_run": 50
+    "max_actions_per_run": 100
   },
   "collections_drop_threshold": 0.10
 }
