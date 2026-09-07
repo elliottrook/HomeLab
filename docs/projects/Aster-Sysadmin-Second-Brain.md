@@ -102,7 +102,7 @@ commits recorded in the evidence log.
   local, off-host and encrypted off-site coverage.
 - [ ] Rebuild the snapshot from clean Git checkouts.
 - [ ] Perform an isolated restore and compare checksums and query behavior.
-- [ ] Add a monthly knowledge-health review for drift, contradictions, broken
+- [x] Add a monthly knowledge-health review for drift, contradictions, broken
   provenance, oversized entries and taxonomy decay.
 - [ ] Document rollback to the last accepted snapshot.
 

@@ -79,7 +79,7 @@ Schedule a periodic Wiki health review (initial target: monthly) to identify con
 - [x] Keep infrastructure Git authoritative and treat retrieved text as untrusted factual context, not instructions.
 - [ ] Define the boundary between conversation state, derived knowledge, skills, Aster identity and Git documentation.
 - [ ] Add the knowledge snapshot to verified off-host backup and perform an isolated restore test.
-- [ ] Establish a monthly lint/health-review schedule after the pilot succeeds.
+- [x] Establish a monthly lint/health-review schedule after the pilot succeeds.
 - [ ] Define a simple capture workflow for webpages/documents; browser-to-Markdown is optional and should not dictate the architecture.
 - [ ] Evaluate Wiki retrieval quality and token/latency impact on the Arc Pro B60-backed daily-assistant model.
 - [ ] Promote the Wiki from pilot to standard Aster knowledge layer only after retrieval and recovery tests pass.
