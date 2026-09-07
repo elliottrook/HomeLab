@@ -4,7 +4,7 @@
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-02
+> Last updated: 2026-09-07
 
 ## Authorization
 
@@ -478,19 +478,27 @@ architecture's exact scope (see Architecture decisions above):
   verified (2026-09-05).** Job state `SUCCESS`. Byte-exact match against
   source: 354 files / 22,806,562 bytes on both the Mac
   (`~/lab/private-backups`) and TrueNAS (`/mnt/Media/backup/mac`).
-  `gowest` leg still pending — blocked on the account creation above.
-- [ ] Confirm snapshots are actually being created and retained per
+  **`gowest` leg done and verified (2026-09-07),** via the NFS-mount +
+  local-cron mechanism described above (not `rsynctask`/SSH). Initial full
+  pull ran to completion with no errors. Byte-exact match against source
+  on both shares: `homes` — 110,788 files / 332,609,860,578 bytes on both
+  the NFS-mounted source and `/mnt/Media/backup/gowest/homes`;
+  `Family Documents` — 2 files / 522,083 bytes on both sides. **All three
+  Milestone 2 rsync legs are now complete and verified.**
+- [x] Confirm snapshots are actually being created and retained per
   schedule, for all three datasets. Daily snapshot confirmed present and
   covers all three subdirectories (single shared `Media/backup` dataset).
-  Full retention-cycle confirmation (weekly/monthly firing correctly, old
-  snapshots actually pruning) needs time to pass — not something to force
-  today. `gowest`/Mac data not yet present to snapshot meaningfully.
+  All three sources' data is now present ahead of tonight's scheduled
+  snapshot (05:30); full retention-cycle confirmation (weekly/monthly
+  firing correctly, old snapshots actually pruning) still needs time to
+  pass, which is expected and not something to force.
 
 ### Gate
 
-All three rsync pulls have completed, been verified against their
-sources, and at least one ZFS snapshot has been confirmed present for each
-dataset before proceeding.
+**Passed 2026-09-07.** All three rsync pulls (Proxmox, Mac, `gowest`) have
+completed and been verified byte-exact against their sources. A daily ZFS
+snapshot is confirmed present on the shared dataset; weekly/monthly
+retention firing correctly will be confirmed as time passes naturally.
 
 ## Milestone 3 — Off-site relay LXC
 
@@ -624,4 +632,5 @@ as current.
 | 2026-09-05 | 2 | Jason created a dedicated local macOS account `truenas-pull` (random unrecorded password, key-only via forced-command `authorized_keys`) and added it to Remote Login's access group, previously scoped to `jelliott` only — the one step requiring sudo, run by Jason directly since Claude cannot and will not handle a Mac account password. Granted `truenas-pull` a filesystem ACL scoped to read/list/search inside `~/lab/private-backups` only (verified: base permissions already gave it group-level traversal into `~/jelliott` and `~/lab`, so no broader grant was needed there). Patched the installed `rrsync` to skip the unsupported `--confine-root` line, with the substitution reasoning recorded in-line as a comment | Account and ACL confirmed correctly scoped |
 | 2026-09-05 | 2 | End-to-end verification from the real TrueNAS client: list/pull inside the confined directory succeeded; a `..` traversal and an absolute-path escape attempt both correctly rejected by `rrsync`'s own argv validation; a real file pull matched the source's SHA-256 exactly. Registered the Mac key pair and SSH connection as TrueNAS keychain credentials (private key read and used entirely on TrueNAS via a remotely-executed script — caught and corrected one slip where the key was briefly `cat`'d into this session's own output before switching to that approach). Created the Mac rsync task (`rsynctask.create`, whole-tree pull matching the mimic-old-scope decision, no excludes needed) and triggered it | Passed — job state `SUCCESS`, byte-exact match: 354 files / 22,806,562 bytes on both the Mac and TrueNAS. Mac leg of Milestone 2 complete |
 | 2026-09-07 | 3 | Created unprivileged Proxmox LXC 112; installed publisher-checksummed rclone v1.75.1; configured new bucket-scoped `idrive-e2` plus locally generated `idrive-crypt`; created a Proxmox-hosted, read-only NFSv4 bind mount from TrueNAS; created the IDrive FQDN allow and relay-only egress-deny rules; direct encrypted random-data round trip SHA-256 matched | Passed for infrastructure boundary and connectivity. Legacy Hyper Backup paths untouched; independent crypt-recovery copy and full-sync completion remain open |
+| 2026-09-07 | 2 | `gowest` leg: SSH-forced-command approach hit four separate DSM-specific gates in sequence (administrators-group SSH requirement confirmed from DSM's own UI text, `/sbin/nologin` shell, world-writable home dir tripping `StrictModes`, and a key-file permission mode DSM's `sshd` needs different from stock OpenSSH), then DSM's own `rsync` binary refused with an undocumented daemon-style module-permission error even once all four were fixed — no module config existed to fix (`/etc/rsyncd.conf` had zero modules). Pivoted mechanism: `gowest` exports `homes`/`Family Documents` read-only over NFSv3 restricted to TrueNAS's IP (`Squash: No mapping`, needed for a full read of every family member's private folder); TrueNAS mounts both read-only, persisted via Init/Shutdown Scripts (survives OS upgrades, unlike a raw `systemd` unit); a plain local `rsync` cron job copies into `/mnt/Media/backup/gowest/`. Separately investigated backing up Synology Drive's own app-config (`/volume1/@synologydrive`) to mimic old scope exactly; found it to be 315 GB — the actual version-history blob store, not a small index, nearly duplicating `homes` — and decided with Jason to skip it, accepting loss of Drive's own multi-version rollback as the trade-off | Mechanism passed; initial full pull completed with no errors, byte-exact against source on both shares: `homes` 110,788 files / 332,609,860,578 bytes, `Family Documents` 2 files / 522,083 bytes, matching on both the NFS-mounted source and TrueNAS destination. **All three Milestone 2 rsync legs complete; Milestone 2 gate passed** |
 | 2026-09-07 | 4 (partial) | Added `check_idrive_relay` to HomeLab Doctor. It uses the existing Mac→Proxmox path to distinguish a running initial sync, a failure, and a recent completed success; it exposes no relay credential or backup content | Probe verified while the first capped full sync is active; full-sync success remains required before this monitoring item closes |
