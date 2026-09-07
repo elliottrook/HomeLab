@@ -16,6 +16,7 @@ from collections import defaultdict
 from itertools import combinations
 
 from . import duration as duration_lib
+from .scatter import _is_multidisc_subfolder
 
 DURATION_TOLERANCE_SECONDS = 2.0
 _AUDIO_EXTS = (".flac", ".mp3", ".m4a", ".mp4")
@@ -29,7 +30,7 @@ def _normalize(text):
     return text.strip().lower()
 
 
-def find_candidate_pairs(jf, music_library_id, translator):
+def find_candidate_pairs(jf, music_library_id, translator, music_root):
     """Find pairs of physically distinct album folders that are
     comparably sized and look like the same album, for duplicate/gap-fill
     comparison. Two grouping passes: exact (AlbumArtist, Album) tag match
@@ -78,6 +79,30 @@ def find_candidate_pairs(jf, music_library_id, translator):
                 continue
             for a, b in combinations(sorted(folders), 2):
                 if (a, b) in seen_pairs:
+                    continue
+                # Two folders sharing the same parent are disc/format
+                # subfolders of one album (e.g. ".../Postcards From Texas
+                # (2024)/12 Vinyl 01" and ".../12 Vinyl 02") only when that
+                # shared parent is itself already an album-level folder
+                # (Artist/Album/<here>, depth >= 2 below music_root) — not
+                # when the shared parent is just the artist folder
+                # (Artist/<here>, depth 1), which is exactly the
+                # competing-album-folder case duplicate detection exists
+                # to catch (e.g. "Paul Simon/Graceland" vs ".../Graceland
+                # (1986)"). Conflating the two, found 2026-09-07, wrongly
+                # excluded every real artist-level duplicate pair.
+                parent = os.path.dirname(a)
+                if parent == os.path.dirname(b):
+                    parent_depth = len(os.path.relpath(parent, music_root).split(os.sep))
+                    if parent_depth >= 2:
+                        continue
+                # A bracketed/parenthesized disc marker in either folder's
+                # own name (e.g. "...[Disc 1]" / "...[Disc 2]") means these
+                # are legitimately different discs of one release even when
+                # they sit under different parents — see scatter.py's note
+                # on the Luke Bryan false positive found 2026-09-07.
+                if _is_multidisc_subfolder(os.path.basename(a)) and \
+                        _is_multidisc_subfolder(os.path.basename(b)):
                     continue
                 count_a = len(folder_tracks[a])
                 count_b = len(folder_tracks[b])

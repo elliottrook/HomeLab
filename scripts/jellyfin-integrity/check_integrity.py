@@ -169,13 +169,19 @@ def run(config, apply_mode, tool_dir, max_actions_override=None):
     report["artwork"] = {"missing_before": len(missing_art), "resolved": art_done, "skipped": art_skipped}
 
     # --- Duplicates / gap-fills -----------------------------------------
-    pairs = duplicates.find_candidate_pairs(jf, music_library_id, translator)
-    dup_report, gap_applied, gap_errors = [], [], []
+    pairs = duplicates.find_candidate_pairs(jf, music_library_id, translator, music_root)
+    dup_report, gap_applied, gap_errors, ambiguous_report = [], [], [], []
     for pair in pairs:
         cmp = duplicates.compare_folders(pair["folder_a"], pair["folder_b"], pair["jf_tracks_by_path"])
         kind = duplicates.classify(cmp)
         if kind == "duplicate":
             dup_report.append({"kind": "duplicate", **cmp})
+        elif kind == "ambiguous":
+            # Previously dropped silently — real per-track evidence exists
+            # here (e.g. 12/13 tracks matched, one differing by a few
+            # seconds) that's worth a human glance even though it doesn't
+            # meet the bar for an automatic classification either way.
+            ambiguous_report.append({"kind": "ambiguous", **cmp})
         elif kind == "gap_fill":
             moves = duplicates.plan_gap_fill(cmp)
             if apply_mode and budget.remaining() > 0:
@@ -193,7 +199,8 @@ def run(config, apply_mode, tool_dir, max_actions_override=None):
             else:
                 gap_applied.append({"would_apply": moves})
     report["duplicates"] = {"candidate_pairs": len(pairs), "queued_for_approval": dup_report,
-                             "gap_fills_applied": gap_applied, "gap_fill_errors": gap_errors}
+                             "gap_fills_applied": gap_applied, "gap_fill_errors": gap_errors,
+                             "ambiguous_for_reference": ambiguous_report}
 
     # --- Collection/playlist regression + config drift -------------------
     state_path = os.path.join(tool_dir, "reports", "collections_baseline.json")
@@ -248,7 +255,8 @@ def write_report(tool_dir, report):
                 f"{len([a for a in report['artwork']['resolved'] if 'cover_written' in a or 'would_write_cover' in a])} resolved\n")
         f.write(f"Duplicates: {report['duplicates']['candidate_pairs']} candidate pairs, "
                 f"{len(report['duplicates']['queued_for_approval'])} queued for approval, "
-                f"{len(report['duplicates']['gap_fills_applied'])} gap-fills applied\n")
+                f"{len(report['duplicates']['gap_fills_applied'])} gap-fills applied, "
+                f"{len(report['duplicates']['ambiguous_for_reference'])} ambiguous (see JSON for evidence)\n")
         if report["collections"]["alerts"]:
             f.write(f"\n*** COLLECTION/PLAYLIST COUNT ALERT: {report['collections']['alerts']} ***\n")
         if report["config_drift"]["drifted"]:

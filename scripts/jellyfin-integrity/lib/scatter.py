@@ -26,10 +26,23 @@ from collections import defaultdict
 _MULTIDISC_RE = re.compile(
     r"^(disc|cd|vinyl|digital media)\s*\d+$", re.IGNORECASE
 )
+# Some libraries (this one included) mark multi-disc sets as a suffix on
+# the album folder's own name instead of a separate subfolder, e.g.
+# "#1's Volume 1 & Volume 2 [Disc 1]" / "...[Disc 2]". Observed
+# 2026-09-07: Luke Bryan's real 2-disc release was flagged as scatter
+# because both discs share one (AlbumArtist, Album) tag pair but hold
+# genuinely different tracks — confirmed via duration comparison, all 10
+# shared track numbers mismatched by 14-102s. A bracketed/parenthesized
+# disc marker anywhere in the folder's own name means "this is one disc
+# of a real set", never a stray fragment to merge away.
+_MULTIDISC_SUFFIX_RE = re.compile(
+    r"[\[\(](disc|cd|vinyl|digital media)\s*\d+[\]\)]", re.IGNORECASE
+)
 
 
 def _is_multidisc_subfolder(name):
-    return bool(_MULTIDISC_RE.match(name.strip()))
+    name = name.strip()
+    return bool(_MULTIDISC_RE.match(name)) or bool(_MULTIDISC_SUFFIX_RE.search(name))
 
 
 def find_scatter_candidates(jf, music_library_id, translator, lidarr_artist_names, music_root):
