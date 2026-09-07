@@ -1111,23 +1111,34 @@ for d in json.load(sys.stdin)["data"]:
 }
 
 check_wireless_vlans() {
-    local leases='/var/db/dnsmasq.leases'
     local lease_data
 
     if ! lease_data="$(
-        ssh -o BatchMode=yes -o ConnectTimeout=5 opnsense \
-            "/bin/sh -c 'grep -c 192.168.30 $leases; grep -c 192.168.40 $leases'" 2>/dev/null
+        ssh -o BatchMode=yes -o ConnectTimeout=5 opnsense /bin/sh -s 2>/dev/null <<'REMOTE'
+awk '
+$3 ~ /^192[.]168[.]30[.]/ { iot++ }
+$3 ~ /^192[.]168[.]40[.]/ { guest++ }
+END { printf "iot=%d\nguest=%d\n", iot, guest }
+' /var/db/dnsmasq.leases
+REMOTE
     )"; then
         warn "Unable to read wireless VLAN DHCP leases from OPNsense"
         return
     fi
 
-    local iot guest
-    iot="$(sed -n '1p' <<< "$lease_data")"
-    guest="$(sed -n '2p' <<< "$lease_data")"
+    local iot=""
+    local guest=""
+    local key value
 
-    if [[ ! "$iot" =~ ^[0-9]+$ ]]; then
-        warn "Unreadable IoT lease count from OPNsense"
+    while IFS='=' read -r key value; do
+        case "$key" in
+            iot) iot="$value" ;;
+            guest) guest="$value" ;;
+        esac
+    done <<< "$lease_data"
+
+    if [[ ! "$iot" =~ ^[0-9]+$ || ! "$guest" =~ ^[0-9]+$ ]]; then
+        warn "Unreadable wireless VLAN lease counts from OPNsense"
         return
     fi
 
