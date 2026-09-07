@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+log_dir=/var/log/idrive-relay
+lock_file=/run/idrive-relay-sync.lock
+export RCLONE_CONFIG=/etc/rclone/rclone.conf
+
+install -d -m 0700 "$log_dir"
+
+exec flock -n "$lock_file" /usr/local/bin/rclone sync \
+  /srv/backup \
+  idrive-crypt: \
+  --transfers 4 \
+  --checkers 8 \
+  --bwlimit 20M \
+  --log-file "$log_dir/sync.log" \
+  --log-level INFO

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily encrypted IDrive e2 backup relay sync
+
+[Timer]
+OnCalendar=*-*-* 07:00:00
+Persistent=false
+RandomizedDelaySec=15m
+Unit=idrive-relay-sync.service
+
+[Install]
+WantedBy=timers.target
