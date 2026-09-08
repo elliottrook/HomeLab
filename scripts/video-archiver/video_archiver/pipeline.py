@@ -167,6 +167,8 @@ def _process_one(candidate: Candidate, config: Config, dry_run: bool,
             planned_video_kbps=plan.video_kbps if plan else None,
             planned_resolution=f"{plan.max_width}x{plan.max_height}" if plan else None,
             below_quality_floor=plan.below_quality_floor if plan else None,
+            dropped_audio_track_count=plan.dropped_audio_track_count if plan else None,
+            kept_english_subtitle_count=len(plan.english_subtitle_indices) if plan else None,
             dry_run=dry_run,
         )
 

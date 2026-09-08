@@ -173,6 +173,43 @@ supervised live test on real data before it is left to run alone (see Milestones
 mirrors this repository's standing rule that irreversible or production-affecting automation earns
 a validated dry run before it is trusted unattended.
 
+### Only one audio track and English-only subtitles are kept, not every stream (2026-09-08)
+
+Found via a real supervised test, not speculatively: `Ready or Not: Here I Come`, a "Multi AVC"
+REMUX, carries **11 audio streams** (English, French x2, Spanish x2, German, Italian, plus extra
+English commentary/stereo tracks). The original design mapped and reserved budget for every audio
+stream regardless of count (`-map 0:a?`). For this file that reserved ~5056 kbps of audio budget
+against a total ~1948 kbps size budget for the whole 108-minute movie — audio alone was already
+2.6x over budget before any bits went to video. `compute_bitrate_plan()` correctly computed the
+resulting video bitrate as the 100 kbps floor (`below_quality_floor: true`), but nothing acted on
+that signal — the pipeline went ahead, ran a real GPU encode, and only failed afterward at
+`verify_output`'s size check (several "copy"-mode source tracks passed through at their original
+600+ kbps each pushed the actual output to ~3.9 GB against a 2 GiB cap). Source was never touched
+(confirmed: file present, unchanged size, archive destination never created, work_dir temp file
+cleaned up) — the safety design held, this was a wasted encode, not a data-safety failure.
+
+**Fixed (Jason's call, 2026-09-08): keep exactly one audio track — the source's own flagged
+default, falling back to the first English track, falling back to the first stream if neither
+exists — and drop the rest entirely** rather than trying to fit a prioritized subset. A personal
+archive doesn't need 5+ foreign-language 5.1 tracks preserved at full bitrate. `AudioStreamInfo`
+now carries `is_default`/`language` (from ffprobe's `disposition.default` and `tags.language`);
+`_select_primary_audio_stream()` picks the one to keep; `BitratePlan` carries a single
+`selected_audio_input_index` instead of a per-stream list. Verified against the real 11-track
+layout before redeploying: video bitrate recovered to 1564 kbps at full 1080p (was 100 kbps/480p),
+estimated output ~1.47 GiB (was ~3.9 GiB).
+
+**Subtitles: Jason also asked to make sure English subtitles are kept** — same
+over-inclusive pattern existed there too (`-map 0:s?` kept every subtitle track regardless of
+language). Unlike audio, subtitle streams are negligible in size, so there's no budget reason to
+pick just one — `Probe` now carries per-subtitle `language`, and every English-tagged subtitle
+stream is kept (the real file had 3: likely a plain track, an SDH track, and a forced track),
+non-English ones dropped.
+
+Re-ran the same real file after the fix: succeeded cleanly, 34.9 GB → 1.77 GB (94.9% smaller),
+full 1080p retained, single English 5.1 track (EAC3), all 3 English subtitle tracks present,
+verified via direct `ffprobe` on the output plus the same Radarr/Jellyfin checks as the `72 HOURS`
+test.
+
 ### Manual "archive now" override via Radarr/Sonarr's own tags (2026-09-08)
 
 Jason's request: a way to archive a specific movie or a show he's finished watching immediately,
@@ -491,11 +528,12 @@ binary). `ffmpeg`/`ffprobe` remain not installed — that stays Milestone 2's jo
 files") anticipated needing one of each; TV passed cleanly on the first fully-fixed run (`S01E03`)
 and again across the remaining 6 episodes, movie passed cleanly on its first-ever run (`72 HOURS`) —
 no repeat failures after each earlier bug's fix landed, consistent with "fix the pipeline and repeat
-the supervised test" rather than proceeding with a known issue. One code path remains genuinely
-unexercised: a movie large enough to actually need transcoding (every movie/TV run so far has either
-transcoded TV or relocated an already-small movie, never transcoded a movie) — not blocking, since
-the transcode logic itself is shared and already validated via TV, but worth knowing if a future
-large-movie run behaves unexpectedly.
+the supervised test" rather than proceeding with a known issue. **Update 2026-09-08: the
+movie-transcode path (the one gap noted above) is now exercised too** — `Ready or Not: Here I Come`
+(32.5 GiB REMUX) went through a real GPU transcode, catching and fixing a real bug (the 11-audio-
+track budget issue, see Architecture decisions) on the first attempt, then succeeding cleanly on
+the second. Every code path in this pipeline — TV transcode, movie relocate-as-is, movie transcode
+— has now been run against real data under supervision.
 
 ## Milestone 3 — Unattended schedule
 
@@ -582,6 +620,7 @@ two-consecutive-clean-runs check is scheduled.
 | 2026-09-08 | — | Built the `archive-now` tag override (Jason's request): created the tag in both apps, added `archive_now_tag_label` to config, tag-resolution + eligibility-bypass logic in `candidates.py`. Tagged real movie `Obsession` (well under the age threshold) via the Radarr API, ran `--dry-run`, confirmed it was the sole candidate with correct paths, then reverted the tag | Feature validated end-to-end, dry-run only — nothing executed against a real file via this path yet. Tags exist in both apps, unused (0 titles tagged by Jason) | Claude |
 | 2026-09-08 | 2 | Jason tagged `72 HOURS (2026)` via Radarr's own UI and asked for a supervised `--execute` run, watched step by step | First real movie through the pipeline, and the first real use of the `archive-now` override. 0 failures: relocated as-is (already under target size), verified, archived, source folder gone, Radarr `monitored: false, hasFile: false`, single clean Jellyfin entry at the archive path (105 min runtime, valid H.264/AAC streams, correct file size) confirmed via the Jellyfin API. Closes Milestone 2's previously-outstanding movie-side gate | Claude |
 | 2026-09-08 | 3 | Jason directed installing the unattended schedule and leaving it running immediately, without a review-first observation period. Built a mode-600 `.env` + wrapper script (`run-scheduled.sh`) rather than putting API keys in the cron command string; verified the wrapper end-to-end while 0 candidates were eligible (a true no-op test); installed Cron Job id `4` (Mon-Sat 01:30, skips Sunday's ZFS scrub); added `check_video_archiver` to `doctor.sh`, verified against both a real clean log and a synthetic failure log | Schedule live; Lab Doctor is the safety net standing in for the skipped initial-observation-period gate — will name any real failure by title in the next daily report | Claude |
+| 2026-09-08 | — | Jason tagged `Ready or Not: Here I Come` (32.5 GiB, a "Multi AVC" REMUX) and asked for a supervised `--execute` run to exercise the never-yet-tested real-transcode path (every prior run had either transcoded TV or relocated an already-small movie). First attempt failed cleanly at `verify_output` — found and fixed the 11-audio-track budget bug (see Architecture decisions); source was untouched throughout | First real GPU transcode of a movie: 34.9 GB → 1.77 GB, full 1080p retained, single English 5.1 track, all 3 English subtitles kept, non-English audio/subtitle tracks correctly dropped. Verified via direct `ffprobe` on the output, Radarr (`monitored: false, hasFile: false`), and the Jellyfin API (108 min runtime matching source exactly, single clean entry) | Claude |
 
 ## References
 

@@ -34,6 +34,14 @@ class AudioStreamInfo:
     codec_name: str
     channels: int
     bit_rate: int | None
+    is_default: bool
+    language: str | None
+
+
+@dataclass
+class SubtitleStreamInfo:
+    index: int
+    language: str | None
 
 
 @dataclass
@@ -42,7 +50,7 @@ class Probe:
     width: int
     height: int
     audio_streams: list[AudioStreamInfo]
-    has_subtitles: bool
+    subtitle_streams: list[SubtitleStreamInfo]
 
 
 @dataclass
@@ -51,7 +59,17 @@ class BitratePlan:
     max_width: int
     max_height: int
     below_quality_floor: bool
-    audio_plan: list[tuple[int, str]]  # (stream_index_in_output_order, "copy" | "aac" | "eac3")
+    # The single audio stream kept, addressed by its INPUT position (0:a:N) -- always
+    # mapped to output position 0, since it's the only audio stream in the output.
+    selected_audio_input_index: int
+    audio_mode: str  # "copy" | "aac" | "eac3"
+    dropped_audio_track_count: int
+    # English-language subtitle streams (INPUT positions, 0:s:N) to keep, unlike audio
+    # every one of these is kept rather than picking just one -- subtitles are
+    # negligible size, so there's no budget reason to drop extras (e.g. a plain track
+    # plus an SDH one). Added 2026-09-08 (Jason's request): previously mapped ALL
+    # subtitle tracks regardless of language, same over-inclusive pattern as audio had.
+    english_subtitle_indices: list[int]
 
 
 def _run(cmd: list[str], timeout_s: int | None = None) -> subprocess.CompletedProcess:
@@ -78,7 +96,7 @@ def probe(path: Path, config: Config) -> Probe:
 
     width = height = 0
     audio_streams: list[AudioStreamInfo] = []
-    has_subtitles = False
+    subtitle_streams: list[SubtitleStreamInfo] = []
 
     for stream in data.get("streams", []):
         codec_type = stream.get("codec_type")
@@ -93,36 +111,65 @@ def probe(path: Path, config: Config) -> Probe:
                     codec_name=stream.get("codec_name", ""),
                     channels=int(stream.get("channels", 2)),
                     bit_rate=int(bit_rate) if bit_rate is not None else None,
+                    is_default=bool(stream.get("disposition", {}).get("default")),
+                    language=stream.get("tags", {}).get("language"),
                 )
             )
         elif codec_type == "subtitle":
-            has_subtitles = True
+            subtitle_streams.append(
+                SubtitleStreamInfo(
+                    index=len(subtitle_streams),
+                    language=stream.get("tags", {}).get("language"),
+                )
+            )
 
     if not width or not duration_s:
         raise TranscodeError(f"ffprobe returned no usable video/duration data for {path}")
 
     return Probe(duration_s=duration_s, width=width, height=height,
-                 audio_streams=audio_streams, has_subtitles=has_subtitles)
+                 audio_streams=audio_streams, subtitle_streams=subtitle_streams)
+
+
+def _select_primary_audio_stream(audio_streams: list[AudioStreamInfo]) -> AudioStreamInfo:
+    """Pick exactly one audio stream to keep: the source's own flagged default track,
+    else the first English track, else just the first stream. Added 2026-09-08 after a
+    real 11-audio-track multi-language REMUX ("Ready or Not: Here I Come") blew the
+    entire size budget on reserved audio bitrate alone -- the old design mapped and
+    budgeted for every audio stream regardless of count, which floored video bitrate to
+    the 100kbps minimum and then still failed the output-size check, because several
+    tracks were "copy" mode (passed through at their original multi-hundred-kbps
+    bitrate) rather than actually constrained by that reservation. A personal archive
+    doesn't need 5+ foreign-language 5.1 tracks preserved at full bitrate alongside the
+    one actually watched (Jason's call, 2026-09-08: keep default/English only, drop the
+    rest entirely rather than trying to fit a capped/prioritized subset)."""
+    for stream in audio_streams:
+        if stream.is_default:
+            return stream
+    for stream in audio_streams:
+        if stream.language == "eng":
+            return stream
+    return audio_streams[0]
 
 
 def compute_bitrate_plan(probe_result: Probe, config: Config) -> BitratePlan:
-    audio_plan: list[tuple[int, str]] = []
-    reserved_audio_kbps = 0
+    if not probe_result.audio_streams:
+        raise TranscodeError("source has no audio streams to select from")
 
-    for stream in probe_result.audio_streams:
-        is_high_bitrate = (
-            stream.codec_name in HIGH_BITRATE_AUDIO_CODECS
-            or (stream.bit_rate is not None and stream.bit_rate > HIGH_BITRATE_THRESHOLD_BPS)
+    primary = _select_primary_audio_stream(probe_result.audio_streams)
+    dropped_audio_track_count = len(probe_result.audio_streams) - 1
+
+    is_high_bitrate = (
+        primary.codec_name in HIGH_BITRATE_AUDIO_CODECS
+        or (primary.bit_rate is not None and primary.bit_rate > HIGH_BITRATE_THRESHOLD_BPS)
+    )
+    if is_high_bitrate:
+        audio_mode = "eac3" if primary.channels > 2 else "aac"
+        reserved_audio_kbps = 384 if primary.channels > 2 else 192
+    else:
+        audio_mode = "copy"
+        reserved_audio_kbps = (
+            primary.bit_rate // 1000 if primary.bit_rate else FALLBACK_AUDIO_KBPS_IF_UNKNOWN
         )
-        if is_high_bitrate:
-            mode = "eac3" if stream.channels > 2 else "aac"
-            reserved_audio_kbps += 384 if stream.channels > 2 else 192
-        else:
-            mode = "copy"
-            reserved_audio_kbps += (
-                stream.bit_rate // 1000 if stream.bit_rate else FALLBACK_AUDIO_KBPS_IF_UNKNOWN
-            )
-        audio_plan.append((stream.index, mode))
 
     usable_kbps = (config.target_size_bytes * 8 * 0.98) / probe_result.duration_s / 1000
     video_kbps = max(int(usable_kbps - reserved_audio_kbps), 100)
@@ -137,25 +184,33 @@ def compute_bitrate_plan(probe_result: Probe, config: Config) -> BitratePlan:
     if max_width is None:
         max_width, max_height, _ = RESOLUTION_LADDER[-1]
 
+    english_subtitle_indices = [
+        s.index for s in probe_result.subtitle_streams if s.language in ("eng", "en")
+    ]
+
     return BitratePlan(
         video_kbps=video_kbps,
         max_width=max_width,
         max_height=max_height,
         below_quality_floor=below_floor,
-        audio_plan=audio_plan,
+        selected_audio_input_index=primary.index,
+        audio_mode=audio_mode,
+        dropped_audio_track_count=dropped_audio_track_count,
+        english_subtitle_indices=english_subtitle_indices,
     )
 
 
-def _audio_codec_args(audio_plan: list[tuple[int, str]]) -> list[str]:
-    args: list[str] = []
-    for idx, mode in audio_plan:
-        if mode == "copy":
-            args += [f"-c:a:{idx}", "copy"]
-        elif mode == "aac":
-            args += [f"-c:a:{idx}", "aac", f"-b:a:{idx}", "192k", f"-ac:{idx}", "2"]
-        elif mode == "eac3":
-            args += [f"-c:a:{idx}", "eac3", f"-b:a:{idx}", "384k"]
-    return args
+def _audio_codec_args(mode: str) -> list[str]:
+    # Output audio position is always 0: exactly one audio stream is ever mapped now
+    # (see BitratePlan.selected_audio_input_index), regardless of its position in the
+    # source.
+    if mode == "copy":
+        return ["-c:a:0", "copy"]
+    elif mode == "aac":
+        return ["-c:a:0", "aac", "-b:a:0", "192k", "-ac:0", "2"]
+    elif mode == "eac3":
+        return ["-c:a:0", "eac3", "-b:a:0", "384k"]
+    raise TranscodeError(f"unknown audio mode: {mode}")
 
 
 def transcode(src: Path, dst_tmp: Path, plan: BitratePlan, config: Config) -> None:
@@ -187,10 +242,13 @@ def transcode(src: Path, dst_tmp: Path, plan: BitratePlan, config: Config) -> No
             "-b:v", f"{plan.video_kbps}k",
             "-maxrate", f"{int(plan.video_kbps * 1.5)}k",
             "-bufsize", f"{plan.video_kbps * 2}k",
-            "-map", "0:a?",
-        ] + _audio_codec_args(plan.audio_plan)
+            "-map", f"0:a:{plan.selected_audio_input_index}",
+        ] + _audio_codec_args(plan.audio_mode)
         if include_subs:
-            cmd += ["-map", "0:s?", "-c:s", "copy"]
+            for sub_idx in plan.english_subtitle_indices:
+                cmd += ["-map", f"0:s:{sub_idx}?"]
+            if plan.english_subtitle_indices:
+                cmd += ["-c:s", "copy"]
         # Explicit output format as a backstop: don't rely solely on dst_tmp's extension
         # for muxer auto-detection (a ".partial"-suffixed name broke this once already).
         cmd += ["-f", "matroska", str(dst_tmp)]
