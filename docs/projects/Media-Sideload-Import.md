@@ -1,6 +1,6 @@
 # Media Sideload Import
 
-> Status: Proposed
+> Status: Active — Milestone 1 complete
 >
 > Project owner: Jason
 >
@@ -109,6 +109,18 @@ needs no changes to cover it.
 1. **Confirm the inbox convention.** Create the three staging folders on
    TrueNAS; no import triggered yet. Gate: folders exist, correct
    ownership/permissions, empty.
+
+   - [x] Created 2026-09-07: `/mnt/Media/data/inbox/{movies,tv,music}`,
+     `root:apps`, mode `770`, matching the existing
+     `media/{movies,tv,music}` roots exactly. Also mirrored
+     `/mnt/Media/data`'s own POSIX ACL (`user:Jason:rwx`,
+     `group:home_users:rwx`, `group:apps:rwx`) onto the inbox and each
+     subfolder, as both an access and a default ACL, so Jason can write
+     into them over the existing share and anything he drops in stays
+     readable by the `apps` group the Radarr/Sonarr/Lidarr containers run
+     as — without that, files landed with restrictive permissions the
+     containers couldn't read. Verified via `getfacl` on all three.
+     Confirmed empty. Gate passed.
 2. **Supervised manual run.** Sideload one real movie, one real TV episode
    and one real album through the workflow above by hand, end to end,
    watching each step. Gate: all three land correctly named in the
