@@ -98,7 +98,7 @@ commits recorded in the evidence log.
 
 ## Milestone 3 — Recovery and maintenance
 
-- [ ] Include source repositories, manifest and deployed snapshot in verified
+- [x] Include source repositories, manifest and deployed snapshot in verified
   local, off-host and encrypted off-site coverage.
 - [x] Rebuild the snapshot from clean Git checkouts.
 - [x] Perform an isolated restore and compare checksums and query behavior.
@@ -107,7 +107,9 @@ commits recorded in the evidence log.
 - [x] Document rollback to the last accepted snapshot.
 
 Completion gate: a clean environment can reproduce and restore the accepted
-knowledge layer without copying untracked state or secrets.
+knowledge layer without copying untracked state or secrets. **Passed
+2026-09-08:** archive carriers, source provenance and the independently
+recoverable encrypted-relay configuration have all been verified.
 
 ## Milestone 4 — Teacher/pupil evaluation
 
@@ -193,3 +195,4 @@ Aster graduates only when:
 | 2026-09-07 | 3 | Verified current LXC 104 and Forgejo LXC 108 archives byte-for-byte between Proxmox and the off-host TrueNAS copy, confirmed the LXC 104 archive contains the deployed snapshot provenance for clean `homelab` commit `09cd8a3873bb5230336cc4416a8d165606da761c` and clean `homelab-reference` commit `3e0618f52fd5ee87ee80ba9d346cabd243ed1445`, and confirmed the LXC 108 archive contains both source repositories. Recovered both complete archives as decrypted streams from the new encrypted IDrive relay and matched SHA-256 (`fac9064f1b91e02c439c8dcfb6e7cf490b92e690e1f44bc42b1a9af9cbd7eb27` for LXC 104; `28ff5f94351639362ab4f95e9513287079d8517ffbcc1f3bc15ceee9cd054e06` for LXC 108) | Local, off-host and encrypted-upload byte integrity are proven for the exact Aster recovery carriers. Graduation remains blocked because the new relay's encryption configuration/recovery material does not yet have its independently protected recovery copy, so recovery currently still depends on the live relay |
 | 2026-09-08 | 3 | Confirmed the relay's initial encrypted IDrive sync completed successfully at `2026-09-08 04:06:11 UTC` (111,289 objects; 706.315 GiB) and read-only-listed both required Aster archives in `idrive-crypt:` afterward | Full sync now covers the two verified Aster recovery carriers. The independent protected recovery copy for the crypt configuration/material remains the sole unclosed recovery-material condition, so the Milestone 3 checkbox stays open |
 | 2026-09-08 | 4 | Expanded authority-language retrieval, then added and deployed an explicit secret-retrieval boundary after adversarial testing showed that a refusal still pointed toward a live config. Rotated the affected Aster credentials, confirmed matching agent/inference keys and authenticated health, and reran the targeted authority and credential-safety regressions | Both targeted regressions passed; the credential response now refers only to an approved recovery/administrative-access procedure and does not point to live configuration. This is targeted training evidence, not a replacement for the original repeated graduation-performance runs |
+| 2026-09-08 | 3 | Created a checksum-verified, mode-restricted independent copy of LXC 112's `rclone.conf` and `idrive-crypt` recovery material in the existing protected Mac recovery source, `~/lab/private-backups/recovery/idrive-relay/2026-09-08/`; verified its existing Mac→TrueNAS pull, encrypted IDrive relay copy and a temporary recovery drill that used only the copied configuration to decrypt-list the off-site bundle | This removes dependence on the relay guest's disk for the crypt material and completes the Milestone 3 coverage gate |

@@ -509,13 +509,26 @@ dataset before proceeding.
   `mini-atlas-backups` bucket and its Hyper Backup credential were not
   changed. An accidentally exposed first relay key was revoked and replaced
   by Jason before the remote was retained.
-- [~] Configure an `rclone crypt` remote layered on top, with a freshly
+- [x] Configure an `rclone crypt` remote layered on top, with a freshly
   generated encryption password/salt, stored only on the guest
   (root-only, mode 600) and in the standard protected recovery location —
   never printed to chat or committed to Git. `idrive-crypt` is active and
   its active config plus locally generated recovery material are root-only
-  (`0600`); **an independent protected recovery copy is still required**
-  before this item can close.
+  (`0600`). **Protected recovery destination:**
+  `~/lab/private-backups/recovery/idrive-relay/<YYYY-MM-DD>/` on the Mac,
+  itself `0700` with each recovered artifact `0600`. This whole-tree source
+  is already pulled into the TrueNAS backup dataset and then carried by the
+  encrypted relay; it is independent of the relay guest and its disk. The
+  first dated copy (2026-09-08) contains the relay `rclone.conf` and
+  `idrive-crypt` recovery material, with SHA-256 matched against LXC 112
+  without displaying either file. Refresh a new dated bundle whenever either
+  relay credential or crypt material changes. The bundle was checksum-verified
+  after the existing Mac pull placed it on TrueNAS (`0700` directory, `0600`
+  files), copied through `idrive-crypt:`, byte-verified as decrypted streams,
+  and used from a temporary recovery directory instead of the live relay
+  config to decrypt-list the off-site copy. The legacy Mac pull still reports
+  unrelated partial-transfer permission debt, but this bundle transferred and
+  verified successfully.
 - [x] Grant the LXC read-only access to the TrueNAS backup dataset (NFS
   export scoped read-only, or equivalent) — it must not be able to alter
   TrueNAS's copy. Because an unprivileged LXC cannot mount NFS itself,
@@ -625,3 +638,4 @@ as current.
 | 2026-09-05 | 2 | End-to-end verification from the real TrueNAS client: list/pull inside the confined directory succeeded; a `..` traversal and an absolute-path escape attempt both correctly rejected by `rrsync`'s own argv validation; a real file pull matched the source's SHA-256 exactly. Registered the Mac key pair and SSH connection as TrueNAS keychain credentials (private key read and used entirely on TrueNAS via a remotely-executed script — caught and corrected one slip where the key was briefly `cat`'d into this session's own output before switching to that approach). Created the Mac rsync task (`rsynctask.create`, whole-tree pull matching the mimic-old-scope decision, no excludes needed) and triggered it | Passed — job state `SUCCESS`, byte-exact match: 354 files / 22,806,562 bytes on both the Mac and TrueNAS. Mac leg of Milestone 2 complete |
 | 2026-09-07 | 3 | Created unprivileged Proxmox LXC 112; installed publisher-checksummed rclone v1.75.1; configured new bucket-scoped `idrive-e2` plus locally generated `idrive-crypt`; created a Proxmox-hosted, read-only NFSv4 bind mount from TrueNAS; created the IDrive FQDN allow and relay-only egress-deny rules; direct encrypted random-data round trip SHA-256 matched | Passed for infrastructure boundary and connectivity. Legacy Hyper Backup paths untouched; independent crypt-recovery copy and full-sync completion remain open |
 | 2026-09-07 | 4 (partial) | Added `check_idrive_relay` to HomeLab Doctor. It uses the existing Mac→Proxmox path to distinguish a running initial sync, a failure, and a recent completed success; it exposes no relay credential or backup content | Probe verified while the first capped full sync is active; full-sync success remains required before this monitoring item closes |
+| 2026-09-08 | 3 | Selected `~/lab/private-backups/recovery/idrive-relay/<date>/` as the documented protected recovery destination; copied LXC 112's rclone configuration and crypt recovery material there with a scoped read-only ACL for the existing TrueNAS pull account, verified Mac→TrueNAS checksums and permissions, then encrypted-uploaded and byte-verified the two files in IDrive | A recovery drill using only the copied Mac configuration successfully decrypted and listed the off-site bundle. The crypt-material recovery-copy condition is complete; unrelated legacy Mac-pull permission debt remains visible but did not block this bundle |
