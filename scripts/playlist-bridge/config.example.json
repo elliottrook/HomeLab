@@ -1,0 +1,14 @@
+{
+  "jellyfin": {
+    "base_url": "http://192.168.20.40:8096",
+    "api_key": "REPLACE_ME",
+    "user_id": "REPLACE_ME"
+  },
+  "lidarr": {
+    "base_url": "http://192.168.20.40:8686",
+    "api_key": "REPLACE_ME",
+    "root_folder": "/media/media/music",
+    "quality_profile_id": 2,
+    "metadata_profile_id": 1
+  }
+}

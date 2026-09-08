@@ -850,6 +850,29 @@ fixes. Full design: [Jellyfin-Library-Integrity-Automation.md](projects/Jellyfin
 
 A certificate is considered unhealthy when it cannot be read, its endpoint is unreachable, or it has 30 days or less remaining. Certificate failures are included in the daily failure-only scheduled report and use the existing duplicate-alert suppression.
 
+### Music playlist acquisition bridge (2026-09-07)
+
+The first live version of `playlist-bridge` is installed at
+`/mnt/Media/data/tools/playlist-bridge/`, with source mirrored at
+`scripts/playlist-bridge/`. It reads Spotify JSON, Apple Music/iTunes XML,
+CSV/TSV, or extended M3U exports; matches tracks in Jellyfin; and proposes or
+requests missing albums through Lidarr. It creates the Jellyfin playlist only
+after every source track is present.
+
+The five-track private `Playlist Bridge Test` was created for Jason and the
+create-first replacement path was run twice. Verification found exactly one
+playlist, five ordered tracks, owner visibility for Jason, and no visibility
+for another user. No Lidarr request was made during this test. The live config
+is mode `0600` and uncommitted; dedicated API keys, reporting, and backup remain
+pending.
+
+A later nine-track, nine-album test exercises Lidarr acquisition. TrueNAS cron
+job `3` runs its reconciliation every six hours at minute 15. The incomplete
+timer is stored in `/mnt/Media/data/tools/playlist-bridge/state.json`; after 24
+hours the bridge creates a private partial playlist from available tracks rather
+than waiting forever. Full design and safety notes:
+[Music-Playlist-Acquisition-Bridge.md](projects/Music-Playlist-Acquisition-Bridge.md).
+
 ## Calibre and Audiobookshelf (2026-09-05)
 
 Both apps run as TrueNAS SCALE-managed containers (`ix-calibre-calibre-1`,
