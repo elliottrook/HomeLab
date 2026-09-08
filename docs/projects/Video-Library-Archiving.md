@@ -1,7 +1,7 @@
 # Video Library Archiving Project
 
-> Status: Proposed — Milestone 2 (supervised live test) substantially complete for TV; a real
-> movie has not yet been run through the pipeline
+> Status: Proposed — Milestone 2 (supervised live test) gate passed for both TV and movies;
+> Milestone 3 (unattended schedule) not yet started
 >
 > Project owner: Jason
 >
@@ -460,10 +460,15 @@ binary). `ffmpeg`/`ffprobe` remain not installed — that stays Milestone 2's jo
 - [x] Run the full pipeline — transcode, verify, move, Radarr/Sonarr delete-file call — against a
   real TV episode, with a human watching each step — done 2026-09-07/08, then extended (with
   explicit direction) to all 8 episodes of `Furious` Season 1 once the mechanics were validated on
-  the first one. **A real movie file has NOT yet been run through the pipeline** — this checkbox
-  item is TV-only so far; do a real single-movie supervised run before treating Milestone 2 as
-  closed, since the movie path (Radarr, `movies_current_root`, no season-grouping) is different
-  code from what's actually been exercised.
+  the first one.
+- [x] **Movie side — done 2026-09-08**, via the `archive-now` tag override (Jason tagged
+  `72 HOURS (2026)` through Radarr's own UI, rather than via age): source was a 2.08 GB MP4, already
+  under `target_size_max_bytes`, so this exercised the movie code path (Radarr, `movies_current_root`,
+  no season-grouping — genuinely different code from the TV runs above) *and* the relocate-as-is
+  path together, both for the first time. Watched end-to-end: probe → straight copy (no transcode,
+  `already_small_enough: true`) → verify → atomic rename into `archive-movies/72 HOURS (2026)/` →
+  Radarr delete-file + unmonitor → leftover cleanup (source folder now gone entirely) → post-batch
+  Jellyfin scan. 0 failures on the first attempt.
 - [x] Confirm the archived file plays correctly — done 2026-09-08, after fixing the temp-file/
   Jellyfin-indexing bug (see Milestone 2 findings) that caused "Could not find file" on every
   playback attempt. Verified via the actual Jellyfin UI (per this repo's standing rule to verify
@@ -482,12 +487,15 @@ binary). `ffmpeg`/`ffprobe` remain not installed — that stays Milestone 2's jo
 
 ### Gate
 
-**Not yet passed — movie side outstanding.** The original gate text ("both test files") already
-anticipated needing one of each; TV is done, a real movie run is still needed before this milestone
-can be marked complete. Every TV-side check above passed cleanly on the first fully-fixed run
-(`S01E03`) and again across the remaining 6 episodes — no repeat failures after each bug's fix
-landed, consistent with "fix the pipeline and repeat the supervised test" rather than proceeding
-with a known issue.
+**Passed 2026-09-08 — both TV and movie sides now exercised.** The original gate text ("both test
+files") anticipated needing one of each; TV passed cleanly on the first fully-fixed run (`S01E03`)
+and again across the remaining 6 episodes, movie passed cleanly on its first-ever run (`72 HOURS`) —
+no repeat failures after each earlier bug's fix landed, consistent with "fix the pipeline and repeat
+the supervised test" rather than proceeding with a known issue. One code path remains genuinely
+unexercised: a movie large enough to actually need transcoding (every movie/TV run so far has either
+transcoded TV or relocated an already-small movie, never transcoded a movie) — not blocking, since
+the transcode logic itself is shared and already validated via TV, but worth knowing if a future
+large-movie run behaves unexpectedly.
 
 ## Milestone 3 — Unattended schedule
 
@@ -554,6 +562,7 @@ cleanly and its log is reviewed.
 | 2026-09-08 | 2 | Jason reported an empty "Furious" entry still visible in the main Shows library | Found and fixed the leftover `.trickplay`/stale-library-state gap (see Milestone 2 findings); manually cleaned up the one already-affected case, then built the fix into the pipeline (`_cleanup_leftovers()` + automatic post-batch Jellyfin scan-task trigger) so future runs don't need manual follow-up | Claude |
 | 2026-09-08 | 2 | Verified `Furious` fully gone from the main Shows library after the real Scan Media Library task (not `Items/Refresh`, which doesn't reconcile the filesystem) completed | Confirmed via the Jellyfin API | Claude |
 | 2026-09-08 | — | Built the `archive-now` tag override (Jason's request): created the tag in both apps, added `archive_now_tag_label` to config, tag-resolution + eligibility-bypass logic in `candidates.py`. Tagged real movie `Obsession` (well under the age threshold) via the Radarr API, ran `--dry-run`, confirmed it was the sole candidate with correct paths, then reverted the tag | Feature validated end-to-end, dry-run only — nothing executed against a real file via this path yet. Tags exist in both apps, unused (0 titles tagged by Jason) | Claude |
+| 2026-09-08 | 2 | Jason tagged `72 HOURS (2026)` via Radarr's own UI and asked for a supervised `--execute` run, watched step by step | First real movie through the pipeline, and the first real use of the `archive-now` override. 0 failures: relocated as-is (already under target size), verified, archived, source folder gone, Radarr `monitored: false, hasFile: false`, single clean Jellyfin entry at the archive path (105 min runtime, valid H.264/AAC streams, correct file size) confirmed via the Jellyfin API. Closes Milestone 2's previously-outstanding movie-side gate | Claude |
 
 ## References
 
