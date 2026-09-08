@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import subprocess
-import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -159,60 +158,52 @@ def _audio_codec_args(audio_plan: list[tuple[int, str]]) -> list[str]:
     return args
 
 
-def transcode_2pass(src: Path, dst_tmp: Path, plan: BitratePlan, config: Config) -> None:
-    dst_tmp.parent.mkdir(parents=True, exist_ok=True)
-    config.work_dir.mkdir(parents=True, exist_ok=True)
-    passlog_prefix = config.work_dir / f"ffmpeg2pass-{uuid.uuid4().hex}"
+def transcode(src: Path, dst_tmp: Path, plan: BitratePlan, config: Config) -> None:
+    """Hardware-accelerated encode via Intel Quick Sync (VAAPI, hevc_vaapi), through the
+    already-running jellyfin container which already has /dev/dri passed through for its own
+    hardware transcoding. Confirmed by direct testing on 2026-09-07: ~21.6x real-time (a ~54
+    min 1080p episode in ~2.5 min), versus ~1h40m+ for a software libx265 encode of the same
+    file — the difference between practical and impractical for a whole-library job. This
+    supersedes this project's original "no GPU exists in the lab" design assumption; an Intel
+    Arc A380 landed on this host since that was written.
 
-    scale_filter = (
-        f"scale='min(iw,{plan.max_width})':'min(ih,{plan.max_height})':"
-        f"force_original_aspect_ratio=decrease:force_divisible_by=2"
-    )
+    -rc_mode VBR with -maxrate/-bufsize is required, not optional: confirmed by testing that
+    hevc_vaapi's default rate control mode ignores -b:v and produces output many times larger
+    than the target (30 Mbps against a 3.3 Mbps target in one test) without it."""
+    dst_tmp.parent.mkdir(parents=True, exist_ok=True)
+
+    scale_filter = f"scale_vaapi=w=min(iw\\,{plan.max_width}):h=min(ih\\,{plan.max_height})"
     nice_prefix = ["nice", "-n", str(config.nice_level)]
 
-    base = nice_prefix + [
-        config.ffmpeg_bin, "-y", "-i", str(src),
-        "-map", "0:v:0", "-vf", scale_filter,
-        "-c:v", "libx265", "-b:v", f"{plan.video_kbps}k",
-        "-preset", "medium",
-    ]
-
-    pass1 = base + [
-        "-x265-params", f"pass=1:log-level=error",
-        "-passlogfile", str(passlog_prefix),
-        "-an", "-sn", "-f", "null", "/dev/null" if _is_posix() else "NUL",
-    ]
-    result = _run(pass1, timeout_s=6 * 3600)
-    if result.returncode != 0:
-        raise TranscodeError(f"ffmpeg pass 1 failed for {src}: {result.stderr[-800:]}")
-
-    def build_pass2(include_subs: bool) -> list[str]:
-        cmd = base + [
-            "-x265-params", f"pass=2:log-level=error",
-            "-passlogfile", str(passlog_prefix),
+    def build(include_subs: bool) -> list[str]:
+        cmd = nice_prefix + [
+            config.ffmpeg_bin, "-y",
+            "-hwaccel", "vaapi", "-hwaccel_output_format", "vaapi",
+            "-vaapi_device", config.vaapi_device,
+            "-i", str(src),
+            "-map", "0:v:0", "-vf", scale_filter,
+            "-c:v", "hevc_vaapi",
+            "-rc_mode", "VBR",
+            "-b:v", f"{plan.video_kbps}k",
+            "-maxrate", f"{int(plan.video_kbps * 1.5)}k",
+            "-bufsize", f"{plan.video_kbps * 2}k",
             "-map", "0:a?",
         ] + _audio_codec_args(plan.audio_plan)
         if include_subs:
             cmd += ["-map", "0:s?", "-c:s", "copy"]
-        cmd += [str(dst_tmp)]
+        # Explicit output format as a backstop: don't rely solely on dst_tmp's extension
+        # for muxer auto-detection (a ".partial"-suffixed name broke this once already).
+        cmd += ["-f", "matroska", str(dst_tmp)]
         return cmd
 
-    result = _run(build_pass2(include_subs=True), timeout_s=6 * 3600)
+    result = _run(build(include_subs=True), timeout_s=6 * 3600)
     if result.returncode != 0:
-        log.warning("pass 2 with subtitles failed for %s, retrying without subtitle streams", src)
+        log.warning("encode with subtitles failed for %s, retrying without subtitle streams", src)
         dst_tmp.unlink(missing_ok=True)
-        result = _run(build_pass2(include_subs=False), timeout_s=6 * 3600)
+        result = _run(build(include_subs=False), timeout_s=6 * 3600)
         if result.returncode != 0:
             dst_tmp.unlink(missing_ok=True)
-            raise TranscodeError(f"ffmpeg pass 2 failed for {src}: {result.stderr[-800:]}")
-
-    for suffix in ("-0.log", "-0.log.mbtree"):
-        Path(str(passlog_prefix) + suffix).unlink(missing_ok=True)
-
-
-def _is_posix() -> bool:
-    import os
-    return os.name == "posix"
+            raise TranscodeError(f"ffmpeg encode failed for {src}: {result.stderr[-800:]}")
 
 
 def verify_output(dst_tmp: Path, src_duration_s: float, config: Config) -> tuple[bool, str]:

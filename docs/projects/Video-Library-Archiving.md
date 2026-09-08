@@ -1,10 +1,11 @@
 # Video Library Archiving Project
 
-> Status: Proposed — Milestone 1 (discovery/dry-run) complete; no destructive action taken
+> Status: Proposed — Milestone 2 (supervised live test) substantially complete for TV; a real
+> movie has not yet been run through the pipeline
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-07
+> Last updated: 2026-09-08
 
 ## Purpose
 
@@ -88,9 +89,19 @@ verified copy exists in the archive root, the tool calls Radarr's
 `DELETE /api/v3/moviefile/{id}` (or Sonarr's equivalent `episodefile` endpoint), which is the
 apps' own designed mechanism for removing a tracked file — it keeps each app's database and the
 filesystem in agreement by construction, rather than the tool guessing at what state Radarr/Sonarr
-expect. The exact delete semantics (does it also unmonitor, does it affect the parent movie/series
-entry) must be confirmed against the actually-installed API version's generated documentation
-before Milestone 2 begins, not assumed from general Radarr/Sonarr knowledge.
+expect.
+
+**Confirmed by live testing (2026-09-08), not just the generated API docs: delete-file alone is
+NOT enough.** `DELETE /episodefile/{id}` removes the file record but leaves the parent episode
+`monitored: true` with `hasFile: false` — a "monitored but missing" state that risks Sonarr
+re-searching for and re-downloading the very file this tool just archived (confirmed the risk was
+real for the one episode this affected before the fix landed: queue was still empty, but Sonarr's
+next scheduled missing-episode search would have found and grabbed it). Fixed: `_delete_source()`
+now also calls Sonarr's `PUT /episode/monitor` (or Radarr's `PUT /movie/editor`) with
+`monitored: false` immediately after the delete-file call, using the movie's/episode's own id
+(distinct from the file id — `Candidate.arr_parent_id`, resolved for episodes via a
+`episodeFileId -> episode id` lookup since the episodefile resource has no reverse reference to its
+parent episode).
 
 ### Age comes from Radarr/Sonarr, not the filesystem
 
@@ -98,21 +109,60 @@ Eligibility is based on `movieFile.dateAdded` / `episodeFile.dateAdded` as repor
 API — the actual recorded import event — rather than filesystem `mtime`, which can be disturbed by
 re-imports, hardlink operations, or unrelated metadata refreshes.
 
-### Transcoding runs on TrueNAS, in software, today
+**Threshold revised 2026-09-08 (Jason): 4 months, not 6.** `age_threshold_days` changed from 182 to
+122 (same day-count approximation convention as before). For movies this changes nothing
+structurally — still measured from that file's own `dateAdded`.
 
-No GPU exists anywhere in the lab yet (Proxmox's GPU is planned but not landed — this design does
-not assume it). Transcoding runs as a plain CPU (x265) encode directly on TrueNAS, avoiding a
-staging round-trip to another host for no current benefit. If a GPU lands on a host with access to
-this storage later, hardware encoding is a follow-up optimization, not a blocker to shipping this
-now.
+**TV eligibility is now anchored per-season, not per-episode (Jason, 2026-09-08).** The original
+per-file design meant a season airing/downloading episode-by-episode over many weeks would archive
+piecemeal — and worse, could take that same span of weeks just to finish moving once every episode
+individually aged out, on top of the threshold itself. `find_episode_candidates()` now groups a
+series' episode files by season, computes the **earliest** `dateAdded` within that season as the
+season's start, and makes the whole season eligible together once that anchor point is old enough
+— not each file against its own `dateAdded`. A season now ages out and moves as a single unit,
+matching how a viewer actually thinks about "have I moved on from this season" rather than "have I
+moved on from this specific episode file."
 
-**Tool substitution:** the request used HandBrake as the reference transcoder. This design uses
-`ffmpeg`/`ffprobe` with `libx265` instead — the same encoder library HandBrake itself uses
-underneath, but as a static Linux binary from the same publisher (johnvansickle.com, linked from
-ffmpeg.org) already sha/md5-verified and installed once for the Plex-to-Jellyfin migration's
-`beets`/Milestone 4 work. Reusing an already-vetted binary avoids introducing a second unreviewed
-third-party download for equivalent output quality. Flagging this substitution explicitly in case
-HandBrake's specific preset behavior or GUI-adjacent tooling was actually wanted.
+### Transcoding runs on TrueNAS, GPU-accelerated via the Jellyfin container
+
+**Originally designed as a software-only encode** (see git history for that version of this
+section) because "no GPU exists anywhere in the lab yet" — that plan was superseded 2026-09-08.
+That assumption was checked again during Milestone 2 (2026-09-08) rather than trusted from the
+2026-08-30 baseline, and turned out to be stale: an Intel Arc A380 had landed on this host
+(`lspci`/`/dev/dri/renderD128` present, device nodes dated 2026-09-05) without this doc being
+updated. Confirmed by live testing that changes the design:
+
+- Software `libx265` 2-pass `medium`-preset encoding took **~1h42m for a single ~54-minute 1080p
+  episode** — impractical for a whole-library job.
+- The Jellyfin container already has `/dev/dri` passed through (`docker inspect jellyfin` shows
+  `HostConfig.Devices`) and its own `jellyfin-ffmpeg` build already has VAAPI/QSV support compiled
+  in — Jellyfin was already using this GPU for its own transcoding, just not exposed to this tool.
+- Running `hevc_vaapi` through `docker exec jellyfin ...` (no separate install needed) hit
+  **~21.6x real-time** on the same episode (~54 min of content encoded in ~2.5 minutes) — the
+  difference between impractical and comfortably fits a nightly batch window.
+- `hevc_vaapi`'s default rate control **ignores `-b:v` outright** and produced ~20-30 Mbps output
+  against a 3.3 Mbps target in initial testing — confirmed necessary: explicit `-rc_mode VBR` plus
+  `-maxrate`/`-bufsize` (same ratio convention as the software path: 1.5x/2x the target).
+
+**Mechanism**: `ffmpeg_bin`/`ffprobe_bin` in config point at small wrapper scripts
+(`scripts/video-archiver/bin/*-jellyfin-wrapper.sh`) that translate host paths under
+`host_data_root` to the Jellyfin container's own `/media` mount point and `docker exec jellyfin
+/usr/lib/jellyfin-ffmpeg/{ffmpeg,ffprobe}` with the translated arguments. This avoids downloading
+any new third-party binary (the original HandBrake-substitution rationale below still applies to
+*which* encoder is used, `libx265`/`hevc_vaapi`, just not to how it's installed) and reuses a
+binary the lab already runs and trusts for exactly this kind of work.
+
+Also switched from 2-pass to **single-pass** encoding as part of the same change — the 2-pass
+design's precision (an exact target bitrate) was never needed given the target is already a size
+*range* (`target_size_min/max_bytes`), and dropping the redundant analysis pass roughly halves the
+work regardless of software vs. GPU encoding.
+
+**Tool substitution (still applies):** the original request used HandBrake as the reference
+transcoder. This design uses `ffmpeg`/`ffprobe` instead — HandBrake's own `libx265` encoder
+underneath for the (now-fallback) software path, `hevc_vaapi` for the GPU path — because `ffmpeg`
+is scriptable and already present via the Jellyfin container, avoiding a second third-party
+install for equivalent output. Flagging this substitution explicitly in case HandBrake's specific
+preset behavior or GUI-adjacent tooling was actually wanted.
 
 ### Fully unattended once trusted, but not on day one of deployment
 
@@ -176,6 +226,62 @@ end-to-end using a throwaway config with `age_threshold_days` temporarily set to
 log) — the real `config.json` on TrueNAS was never modified and stays at the documented 182-day
 threshold.
 
+## Milestone 2 findings (2026-09-07/08)
+
+The GPU-vs-software pivot and the missing-unmonitor bug are covered above under Architecture
+decisions, since both changed the design, not just the code. Three more bugs and one follow-up gap
+surfaced running the real pipeline against the `Furious` season (8 real episodes, `--execute`, not
+`--dry-run`):
+
+### Bug: `.partial` temp filename broke ffmpeg's output-format autodetection
+
+`dst_tmp` was named `<archive filename>.mkv.partial` — ffmpeg's muxer picks the output container
+format from the filename extension, and `.partial` isn't one it recognizes. The very first real
+`--execute` run got all the way through a full 2-pass software encode (~1h42m) only to fail at the
+last step: "Unable to choose an output format." **Fixed**: the temp name now keeps `.mkv` as the
+real trailing extension (`<name>.partial.mkv`), plus an explicit `-f matroska` flag as a backstop
+so this can't recur even if naming changes again later.
+
+### Bug: re-encoding could make an already-small file bigger
+
+`Furious` S01E07's source was already a low-bitrate 0.29 GB x265 encode. Re-encoding it at this
+project's target bitrate produced a 1.43 GB file — nearly 5x *larger*, the opposite of the
+project's purpose. **Fixed**: `_process_one()` now checks `candidate.size_bytes <=
+target_size_max_bytes` before transcoding; if already at or under the target, the file is relocated
+via a straight copy instead of being re-encoded. (This one already-affected episode's original
+source is gone — Sonarr's delete-file call deletes the underlying file, not just the database
+record — so it wasn't retroactively re-fixed; the content itself is fully intact and playable, just
+larger than ideal. Flagged to Jason, no action taken per his call.)
+
+### Bug: writing the in-progress temp file inside the monitored archive folder confused Jellyfin
+
+The temp output was originally written directly inside the destination archive directory (as
+`<final name>.partial.mkv`) before being atomically renamed. Jellyfin's *real-time* library monitor
+watches `archive-tv`/`archive-movies` and indexed that `.partial.mkv` filename while the encode was
+still in progress; once the finished file was renamed to its real name, Jellyfin's database still
+pointed at the temp filename, which no longer existed — every playback attempt failed with "Could
+not find file." **Fixed**: the temp file now stages in `work_dir` (outside every Jellyfin library
+entirely), and the only write Jellyfin's monitor ever observes inside the archive tree is the
+single atomic rename into the final path.
+
+### Follow-up: leftover Jellyfin `.trickplay` cache and empty current-library folders
+
+Radarr/Sonarr's delete-file API only removes the video file itself, not Jellyfin's own per-file
+`.trickplay` thumbnail-preview cache folder living alongside it in the current library. Once every
+real episode file in `Furious` was archived, that leftover cache folder was still enough content
+for Jellyfin's scanner to keep showing an empty "Furious" entry in the main Shows library. Also
+discovered `POST /Items/{id}/Refresh` only refreshes metadata for items Jellyfin already knows
+about — it does **not** reconcile the filesystem, so it never actually cleared the stale entry no
+matter how many times it was called. The real fix needed Jellyfin's actual "Scan Media Library"
+scheduled task (`POST /ScheduledTasks/Running/{scan_task_id}`), the same task id the
+`jellyfin-integrity` tool's own config already relies on for this. **Fixed** two ways: (1)
+`_cleanup_leftovers()` now runs after every successful archive+delete, removing the `.trickplay`
+folder and then climbing upward removing any directory left empty, stopping at (never including)
+the configured current-library root; (2) `run()` triggers one real library-scan task at the end of
+a batch (not per-file, and skipped for dry runs / when nothing was archived) via a new
+`video_archiver/jellyfin_client.py`, using a third API key (`JELLYFIN_API_KEY`) alongside Radarr's
+and Sonarr's.
+
 ## Approved target layout
 
 Reuses the Plex-to-Jellyfin migration's archive roots and naming conventions exactly, so a single
@@ -191,7 +297,11 @@ indistinguishably:
 ├── archive-movies/          # Former Plex movies + downconverted current movies land here
 ├── archive-tv/              # Former Plex TV + downconverted current TV lands here
 └── tools/
-    └── video-archiver/      # This project's self-contained tool install (proposed path)
+    └── video-archiver/      # This project's self-contained tool install
+        ├── bin/              # ffmpeg/ffprobe-jellyfin-wrapper.sh (docker exec into jellyfin)
+        ├── work/              # In-progress temp output — never inside a Jellyfin-monitored path
+        ├── logs/
+        └── video_archiver/    # Python package (config, candidates, pipeline, transcode, ...)
 ```
 
 Archive-side naming preserves the source folder/file naming Radarr/Sonarr already used
@@ -201,17 +311,25 @@ without a rename pass.
 ## Scope
 
 - Query Radarr and Sonarr for current-library files whose recorded import date exceeds the
-  configured age threshold (default 6 months).
-- Transcode eligible video to H.265, targeting roughly 1–2 GB, using an adaptive bitrate/resolution
-  calculation driven by source duration (not a single fixed setting that overshoots long content or
-  wastes bits on short content).
+  configured age threshold (default ~4 months — revised 2026-09-08, see Architecture decisions),
+  anchored per-season for TV.
+- Skip transcoding (relocate as-is instead) any file already at or under the target size — added
+  2026-09-08 after re-encoding inflated an already-small file (see Milestone 2 findings).
+- Transcode remaining eligible video to H.265, targeting roughly 1–2 GB, using an adaptive
+  bitrate/resolution calculation driven by source duration (not a single fixed setting that
+  overshoots long content or wastes bits on short content). GPU-accelerated (`hevc_vaapi`) via the
+  Jellyfin container as of 2026-09-08 — see Architecture decisions.
 - Preserve subtitle streams/sidecar files and pass through compact audio; re-encode audio only when
   the source audio track itself is large (lossless/high-bitrate tracks).
 - Verify every transcoded file (duration match, valid stream, non-zero size) before anything
   irreversible happens.
 - Move the verified file into the matching archive root using the source's existing naming.
 - Remove the file from Radarr/Sonarr's tracking via each app's own file-delete API call, only after
-  the archive copy is confirmed on disk.
+  the archive copy is confirmed on disk — and unmonitor the parent movie/episode in the same step
+  (added 2026-09-08; delete-file alone leaves it monitored, see Architecture decisions).
+- Clean up Jellyfin's leftover per-file `.trickplay` cache and any now-empty current-library
+  directories after each successful archive, then trigger one real Jellyfin library-scan task at
+  the end of a batch — added 2026-09-08, see Milestone 2 findings.
 - Log every decision and action (candidate list, transcode result, verification result, API result)
   to a structured, reviewable report.
 - Run on a schedule with a bounded per-run batch size and resource-aware guards.
@@ -222,39 +340,48 @@ without a rename pass.
   overnight jobs.
 - Deleting or modifying the former-Plex archive content that project already copied.
 - Retiring, deleting, or renaming Radarr/Sonarr movie or series entries themselves — only the file
-  record for an individual eligible file.
+  record for an individual eligible file (and its monitored flag).
 - Upscaling, re-tagging, or otherwise "fixing" archive metadata beyond what's needed for a clean
   Jellyfin scan.
 - Cleaning up the stale `/mnt/Media/docker/docker-compose.yml` stack (flagged as a follow-up, not
   this project's job).
-- GPU/hardware-accelerated transcoding (no GPU exists yet; noted as a future optimization only).
+- ~~GPU/hardware-accelerated transcoding~~ — **no longer out of scope as of 2026-09-08.** The
+  design baseline this exclusion was written against ("no GPU exists yet") turned out to be stale;
+  see Architecture decisions.
 
 ## Safety and credentials
 
 - The tool never deletes or modifies a file inside the current library directly — only Radarr's or
   Sonarr's own delete-file API call does that, and only after the archive copy is verified.
-- Every transcode writes to a temporary filename inside the destination archive directory (same
-  filesystem as the final path) and is only atomically renamed into place after verification —
-  never an in-place overwrite, never a partially-written file visible at the final path.
+- The in-progress temp output is staged in `work_dir`, never inside a Jellyfin-monitored library
+  path (revised 2026-09-08 — originally staged inside the destination archive directory, which let
+  Jellyfin's real-time monitor index the temp filename mid-encode; see Milestone 2 findings), and
+  is only atomically renamed into its final archive path after verification — never an in-place
+  overwrite, never a partially-written file visible at the final path.
 - Any failure at any stage (probe, encode, verify, move, API call) aborts processing for that one
   file, leaves the original completely untouched, and logs the error. It never retries destructive
   steps automatically or guesses at a recovery action.
-- Radarr/Sonarr API keys are read from each app's own `config.xml` on the host or from an
+- Radarr/Sonarr/Jellyfin API keys are read from each app's own config on the host or from an
   environment variable at run time — never committed to Git, never written to the log files this
   tool produces.
 - Runs are serialized via a lockfile; an overlapping scheduled run is skipped rather than started
   concurrently.
 - Each scheduled run is capped at a configurable maximum file count so a misconfiguration cannot
   process the entire library unattended in one pass.
-- The tool is not deployed to TrueNAS, and no cron/systemd schedule is installed, until Milestone 2
-  (supervised live test) has passed — see Milestones below.
+- No cron/systemd schedule is installed until Milestone 2's gate passes in full (movie side still
+  outstanding as of 2026-09-08) — see Milestones below. The tool's code and config are deployed to
+  TrueNAS and have processed real files under human supervision, which is exactly what Milestone 2
+  asks for before that gate.
 
 ## Tooling decision
 
-- `ffmpeg`/`ffprobe` (static build, already vetted for this pool of projects) for probing and
-  transcoding — substituted for the referenced HandBrake per the note above.
-- `requests` (Python) against the Radarr v3 and Sonarr v3 REST APIs for candidate discovery and
-  file deletion.
+- `ffmpeg`/`ffprobe` for probing and transcoding — substituted for the referenced HandBrake per the
+  note above. As of 2026-09-08, reached via small wrapper scripts
+  (`scripts/video-archiver/bin/{ffmpeg,ffprobe}-jellyfin-wrapper.sh`) that translate host paths and
+  `docker exec` into the already-running Jellyfin container's own `jellyfin-ffmpeg` build — not a
+  separately downloaded static binary (superseded plan, see Architecture decisions).
+- `requests` (Python) against the Radarr v3, Sonarr v3, and (as of 2026-09-08) Jellyfin REST APIs
+  for candidate discovery, file deletion/unmonitor, and post-batch library rescans.
 - Self-contained install under `/mnt/Media/data/tools/video-archiver/`, matching the `beets`
   precedent from Milestone 4 of the Plex-to-Jellyfin project — no changes to TrueNAS's system
   Python or packages.
@@ -299,25 +426,40 @@ binary). `ffmpeg`/`ffprobe` remain not installed — that stays Milestone 2's jo
 
 ## Milestone 2 — Supervised live test
 
-- [ ] Install the self-contained `ffmpeg`/`ffprobe` build under
-  `/mnt/Media/data/tools/video-archiver/`.
-- [ ] Run the full pipeline — transcode, verify, move, Radarr/Sonarr delete-file call — against
-  exactly one already-identified movie file and one already-identified TV episode file, with a
-  human watching each step.
-- [ ] Confirm the archived file plays correctly in a media player (or via `ffprobe`/a manual
-  Jellyfin scan of the archive root) before considering the test successful.
-- [ ] Confirm Radarr/Sonarr no longer show the file as present, do not report it as missing or
-  trigger a re-download, and the parent movie/series entry is in the expected state.
-- [ ] Confirm the original file is gone from the current library only after every prior check
-  passed.
-- [ ] Record actual achieved output size, encode duration, and CPU/memory load observed during the
-  test.
+- [x] Install `ffmpeg`/`ffprobe` access under `/mnt/Media/data/tools/video-archiver/` — done
+  2026-09-07/08, via the Jellyfin-container wrapper scripts rather than a separately downloaded
+  static build (see Architecture decisions and Tooling decision).
+- [x] Run the full pipeline — transcode, verify, move, Radarr/Sonarr delete-file call — against a
+  real TV episode, with a human watching each step — done 2026-09-07/08, then extended (with
+  explicit direction) to all 8 episodes of `Furious` Season 1 once the mechanics were validated on
+  the first one. **A real movie file has NOT yet been run through the pipeline** — this checkbox
+  item is TV-only so far; do a real single-movie supervised run before treating Milestone 2 as
+  closed, since the movie path (Radarr, `movies_current_root`, no season-grouping) is different
+  code from what's actually been exercised.
+- [x] Confirm the archived file plays correctly — done 2026-09-08, after fixing the temp-file/
+  Jellyfin-indexing bug (see Milestone 2 findings) that caused "Could not find file" on every
+  playback attempt. Verified via the actual Jellyfin UI (per this repo's standing rule to verify
+  in the live UI, not just a backend check), not just `ffprobe`.
+- [x] Confirm Radarr/Sonarr no longer show the file as present, do not report it as missing or
+  trigger a re-download — done 2026-09-08, after fixing the missing-unmonitor bug (see Architecture
+  decisions). Confirmed via the Sonarr API (`monitored: false, hasFile: false`) for every archived
+  episode, not just the file-list check.
+- [x] Confirm the original file is gone from the current library only after every prior check
+  passed — confirmed for all 8 `Furious` episodes; each was independently verified in the run log
+  (`archived` event) before its Sonarr delete-file call.
+- [x] Record actual achieved output size, encode duration, and CPU/memory load observed during the
+  test — see Evidence log. GPU (`hevc_vaapi`) encode: ~21.6x real-time (~54 min episode in ~2.5
+  min). Software (`libx265` 2-pass, pre-pivot): ~1h42m for the same file — recorded because it's
+  the reason the GPU pivot happened, not because it's the shipped path.
 
 ### Gate
 
-Both test files must pass every check above before any unattended schedule is installed. A single
-failure at this stage means fixing the pipeline and repeating the supervised test, not proceeding
-to Milestone 3 with a known issue.
+**Not yet passed — movie side outstanding.** The original gate text ("both test files") already
+anticipated needing one of each; TV is done, a real movie run is still needed before this milestone
+can be marked complete. Every TV-side check above passed cleanly on the first fully-fixed run
+(`S01E03`) and again across the remaining 6 episodes — no repeat failures after each bug's fix
+landed, consistent with "fix the pipeline and repeat the supervised test" rather than proceeding
+with a known issue.
 
 ## Milestone 3 — Unattended schedule
 
@@ -355,6 +497,11 @@ cleanly and its log is reviewed.
 | Tool competes for I/O/CPU with other scheduled TrueNAS work | Lockfile serialization; schedule placement reviewed against existing jobs in Milestone 3 |
 | Quality target (1–2 GB) undershoots on very long content or overshoots on short content | Adaptive bitrate computed from actual source duration, not a fixed setting |
 | API keys leak into Git or logs | Read from `config.xml`/environment only; log files never include key values |
+| Re-encoding an already-small file makes it bigger, not smaller | Skip transcoding (relocate as-is) when source size is already at/under `target_size_max_bytes` — added 2026-09-08 after this happened for real (`Furious` S01E07) |
+| Delete-file leaves the parent monitored, risking Radarr/Sonarr re-downloading the archived file | Unmonitor via each app's own API in the same step as delete-file, using the movie's/episode's own id — added 2026-09-08 after confirming this was genuinely happening |
+| Jellyfin indexes an in-progress temp file and ends up pointing at a name that no longer exists | Stage the temp output in `work_dir`, outside every Jellyfin library — added 2026-09-08 after this broke playback for real |
+| Leftover Jellyfin `.trickplay` cache / empty folders keep a fully-archived series visibly present (with 0 episodes) in the current library | Clean up cache + empty directories after each archive, then trigger Jellyfin's actual Scan Media Library task at the end of a batch — added 2026-09-08 |
+| `hevc_vaapi`'s default rate control ignores the target bitrate outright | Explicit `-rc_mode VBR` plus `-maxrate`/`-bufsize`, confirmed necessary by direct testing (30 Mbps vs. a 3.3 Mbps target without it) |
 
 ## Evidence log
 
@@ -367,11 +514,24 @@ cleanly and its log is reviewed.
 | 2026-09-07 | 1 | Fixed dry-run's incidental `ffprobe` dependency and the container-vs-host path mismatch in `candidates.py`/`config.py`/`pipeline.py`; redeployed and reran dry run | Path resolution and candidate discovery confirmed correct | Claude |
 | 2026-09-07 | 1 (test only) | Ran `--dry-run` against a throwaway config (`age_threshold_days` 30 instead of production 182, deleted after use) to validate pipeline mechanics end-to-end | 411 real candidates (14 movies, 397 episodes, ~927.5 GB), correct source/destination paths, 0 failures. Production `config.json` never modified | Claude |
 | 2026-09-07 | 1 | Confirmed destination free space | 3.3 TB free / 11 TB total on `Media/data` pool | Claude |
+| 2026-09-07 | 2 | Ran full `--execute` pipeline against real `Furious` S01E04 (2.1 GB) with software `libx265` 2-pass `medium` | Both passes completed but failed at the final mux step (`.partial` extension bug); ~1h42m elapsed before the failure — source confirmed untouched, nothing written to archive/Sonarr state | Claude |
+| 2026-09-07 | 2 | Investigated why encode was so slow (177% CPU on a 12-core box); found the Jellyfin container had a real, unused Intel Arc A380 GPU (`/dev/dri`, landed ~2026-09-05, undocumented) | Pivoted design to GPU (`hevc_vaapi`) via the Jellyfin container — see Architecture decisions | Claude |
+| 2026-09-07 | 2 | Direct `ffmpeg` VAAPI test against real `S01E04`: default rate control | ~20-30 Mbps output vs. 3.3 Mbps target — confirmed `-rc_mode VBR` + `-maxrate`/`-bufsize` needed | Claude |
+| 2026-09-07 | 2 | Re-ran full pipeline: `S01E04` then `S01E03`, GPU + `.partial`-extension fix + single-pass | Both succeeded end-to-end (transcode, verify, archive, Sonarr delete-file); ~3-4 min each | Claude |
+| 2026-09-07 | 2 | Confirmed `S01E04`'s Sonarr entry after archiving: `monitored: true, hasFile: false` | Found and fixed the missing-unmonitor bug (see Architecture decisions); manually corrected this one episode via the Sonarr API before the code fix landed | Claude |
+| 2026-09-07 | 2 | Ran remaining 6 `Furious` episodes (S01E01, E02, E05-E08) through the fixed pipeline, per Jason's explicit "move the whole season" direction | 6/6 succeeded, 0 failed; all 8 episodes of the season now archived, all originals removed, all correctly unmonitored | Claude |
+| 2026-09-08 | 2 | Discovered `S01E07`'s archived size (1.43 GB) was larger than its source (0.29 GB) via the run log | Found and fixed the already-small-enough bug (see Milestone 2 findings); this one episode's original is already gone (Sonarr's delete-file removes the physical file) so left as-is per Jason's call — content intact, just larger than ideal | Claude |
+| 2026-09-08 | 2 | Season-anchor + 4-month threshold change implemented (Jason's direction) in `candidates.py`/`config.example.json`; deployed | Not yet exercised against real data at the new threshold — will apply to the next real eligible batch | Claude |
+| 2026-09-08 | 2 | Jason reported archived `Furious` episodes wouldn't play in Jellyfin | Found and fixed the temp-file/Jellyfin-indexing bug (see Milestone 2 findings); confirmed fixed via the live Jellyfin UI ("It's playing now") | Claude |
+| 2026-09-08 | 2 | Jason reported an empty "Furious" entry still visible in the main Shows library | Found and fixed the leftover `.trickplay`/stale-library-state gap (see Milestone 2 findings); manually cleaned up the one already-affected case, then built the fix into the pipeline (`_cleanup_leftovers()` + automatic post-batch Jellyfin scan-task trigger) so future runs don't need manual follow-up | Claude |
+| 2026-09-08 | 2 | Verified `Furious` fully gone from the main Shows library after the real Scan Media Library task (not `Items/Refresh`, which doesn't reconcile the filesystem) completed | Confirmed via the Jellyfin API | Claude |
 
 ## References
 
 - [Plex-to-Jellyfin media migration project](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
 - [Radarr API documentation](https://radarr.video/docs/api/)
 - [Sonarr API documentation](https://sonarr.tv/docs/api/)
+- [Jellyfin API documentation](https://api.jellyfin.org/)
 - [ffmpeg documentation](https://ffmpeg.org/documentation.html)
+- [ffmpeg VAAPI encoding wiki](https://trac.ffmpeg.org/wiki/Hardware/VAAPI)
 - [HomeLab backup design](../05-Backups.md)

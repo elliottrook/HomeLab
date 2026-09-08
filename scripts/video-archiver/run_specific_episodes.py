@@ -7,6 +7,7 @@ manual, human-directed test only."""
 from __future__ import annotations
 
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -15,12 +16,19 @@ sys.path.insert(0, str(Path(__file__).parent))
 from video_archiver.arr_client import RadarrClient, SonarrClient
 from video_archiver.candidates import Candidate, _parse_arr_datetime, _to_host_path
 from video_archiver.config import Config
+from video_archiver.jellyfin_client import JellyfinApiError, JellyfinClient
 from video_archiver.pipeline import RunLogger, _process_one
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 SERIES_ID = 8  # Furious
 EPISODE_FILE_IDS = [108, 109, 110, 111, 443, 479, 510, 694]  # S01E01-E08, oldest first
+
+# Optional narrowing for validation runs, e.g. ONLY_FILE_IDS="108" to test just one episode
+# before trusting the rest to an unattended batch. Unset/empty runs the full list above.
+_only = os.environ.get("ONLY_FILE_IDS", "").strip()
+if _only:
+    EPISODE_FILE_IDS = [int(x) for x in _only.split(",") if x.strip()]
 
 
 def main() -> int:
@@ -36,6 +44,11 @@ def main() -> int:
     rel_folder = series_folder.relative_to(config.tv_current_root)
 
     all_files = {f["id"]: f for f in sonarr.get_episode_files(SERIES_ID)}
+    episode_id_by_file_id = {
+        ep["episodeFileId"]: ep["id"]
+        for ep in sonarr.get_episodes(SERIES_ID)
+        if ep.get("episodeFileId")
+    }
 
     candidates: list[Candidate] = []
     for fid in EPISODE_FILE_IDS:
@@ -60,6 +73,7 @@ def main() -> int:
                 date_added=_parse_arr_datetime(ep_file["dateAdded"]),
                 archive_dest_path=archive_dest,
                 delete_fn_name="delete_episode_file",
+                arr_parent_id=episode_id_by_file_id[fid],
             )
         )
 
@@ -70,6 +84,16 @@ def main() -> int:
         print(f"  -> {'OK' if ok else 'FAILED'}", flush=True)
         succeeded += int(ok)
         failed += int(not ok)
+
+    if succeeded > 0:
+        jellyfin = JellyfinClient(
+            config.jellyfin_url, config.jellyfin_api_key, config.jellyfin_scan_task_id
+        )
+        try:
+            jellyfin.refresh_all_libraries()
+            print("Jellyfin library refresh triggered.")
+        except JellyfinApiError as exc:
+            print(f"Jellyfin library refresh failed: {exc}")
 
     print(f"\nDone: {succeeded} succeeded, {failed} failed. Log: {run_log.path}")
     run_log.close()

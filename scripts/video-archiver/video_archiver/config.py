@@ -10,8 +10,11 @@ from pathlib import Path
 class Config:
     radarr_url: str
     sonarr_url: str
+    jellyfin_url: str
+    jellyfin_scan_task_id: str
     radarr_api_key: str
     sonarr_api_key: str
+    jellyfin_api_key: str
 
     age_threshold_days: int
     target_size_bytes: int
@@ -33,6 +36,7 @@ class Config:
 
     ffmpeg_bin: str
     ffprobe_bin: str
+    vaapi_device: str
     work_dir: Path
     log_dir: Path
     lock_file: Path
@@ -48,17 +52,21 @@ class Config:
 
         radarr_api_key = os.environ.get("RADARR_API_KEY", "")
         sonarr_api_key = os.environ.get("SONARR_API_KEY", "")
-        if not radarr_api_key or not sonarr_api_key:
+        jellyfin_api_key = os.environ.get("JELLYFIN_API_KEY", "")
+        if not radarr_api_key or not sonarr_api_key or not jellyfin_api_key:
             raise RuntimeError(
-                "RADARR_API_KEY and SONARR_API_KEY must be set in the environment; "
-                "they are deliberately never read from the config file."
+                "RADARR_API_KEY, SONARR_API_KEY and JELLYFIN_API_KEY must be set in the "
+                "environment; they are deliberately never read from the config file."
             )
 
         return Config(
             radarr_url=raw["radarr_url"].rstrip("/"),
             sonarr_url=raw["sonarr_url"].rstrip("/"),
+            jellyfin_url=raw["jellyfin_url"].rstrip("/"),
+            jellyfin_scan_task_id=raw["jellyfin_scan_task_id"],
             radarr_api_key=radarr_api_key,
             sonarr_api_key=sonarr_api_key,
+            jellyfin_api_key=jellyfin_api_key,
             age_threshold_days=int(raw["age_threshold_days"]),
             target_size_bytes=int(raw["target_size_bytes"]),
             target_size_min_bytes=int(raw["target_size_min_bytes"]),
@@ -72,6 +80,7 @@ class Config:
             sonarr_container_root=Path(raw["sonarr_container_root"]),
             ffmpeg_bin=raw["ffmpeg_bin"],
             ffprobe_bin=raw["ffprobe_bin"],
+            vaapi_device=raw["vaapi_device"],
             work_dir=Path(raw["work_dir"]),
             log_dir=Path(raw["log_dir"]),
             lock_file=Path(raw["lock_file"]),

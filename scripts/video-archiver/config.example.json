@@ -1,7 +1,9 @@
 {
   "radarr_url": "http://127.0.0.1:7878",
   "sonarr_url": "http://127.0.0.1:8989",
-  "age_threshold_days": 182,
+  "jellyfin_url": "http://127.0.0.1:8096",
+  "jellyfin_scan_task_id": "7738148ffcd07979c7ceb148e06b3aed",
+  "age_threshold_days": 122,
   "target_size_bytes": 1610612736,
   "target_size_min_bytes": 1073741824,
   "target_size_max_bytes": 2147483648,
@@ -14,6 +16,7 @@
   "sonarr_container_root": "/media/tv",
   "ffmpeg_bin": "/mnt/Media/data/tools/video-archiver/bin/ffmpeg-jellyfin-wrapper.sh",
   "ffprobe_bin": "/mnt/Media/data/tools/video-archiver/bin/ffprobe-jellyfin-wrapper.sh",
+  "vaapi_device": "/dev/dri/renderD128",
   "work_dir": "/mnt/Media/data/tools/video-archiver/work",
   "log_dir": "/mnt/Media/data/tools/video-archiver/logs",
   "lock_file": "/mnt/Media/data/tools/video-archiver/video-archiver.lock",
@@ -21,5 +24,6 @@
   "nice_level": 15,
   "duration_tolerance_fraction": 0.02,
 
-  "_comment_api_keys": "RADARR_API_KEY and SONARR_API_KEY are read from the environment, never from this file."
+  "_comment_api_keys": "RADARR_API_KEY, SONARR_API_KEY and JELLYFIN_API_KEY are read from the environment, never from this file.",
+  "_comment_age_threshold_days": "~4 calendar months (approximated in days, same convention as the original 182-day/~6-month value). For movies, measured from that file's own dateAdded. For TV, measured from the EARLIEST dateAdded across a season (Jason, 2026-09-07: the whole season should age out and move together, anchored on when it started, not scattered per-episode over however long the season took to air/download)."
 }

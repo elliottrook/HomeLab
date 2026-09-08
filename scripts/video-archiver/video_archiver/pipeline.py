@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shutil
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -11,7 +12,8 @@ from pathlib import Path
 from .arr_client import ArrApiError, RadarrClient, SonarrClient
 from .candidates import Candidate, find_episode_candidates, find_movie_candidates
 from .config import Config
-from .transcode import TranscodeError, compute_bitrate_plan, probe, transcode_2pass, verify_output
+from .jellyfin_client import JellyfinApiError, JellyfinClient
+from .transcode import TranscodeError, compute_bitrate_plan, probe, transcode, verify_output
 
 log = logging.getLogger("video_archiver.pipeline")
 
@@ -55,12 +57,49 @@ class RunLogger:
 
 
 def _delete_source(candidate: Candidate, radarr: RadarrClient, sonarr: SonarrClient) -> None:
+    # Deleting the file alone is not enough: confirmed by live testing (2026-09-07) that
+    # Radarr/Sonarr leave the parent movie/episode monitored with hasFile=false afterward,
+    # which risks an automatic re-search/re-download of the file just archived. Unmonitor
+    # is called right after delete, using the same candidate — a failure here still
+    # surfaces as this candidate failing overall (existing exception handling in
+    # _process_one), which is the right call: the archived copy already exists safely on
+    # disk either way, but a missed unmonitor is a real re-download risk that needs an
+    # operator's attention, not a silently-swallowed warning.
     if candidate.kind == "movie":
         radarr.delete_movie_file(candidate.arr_file_id)
+        radarr.unmonitor_movie(candidate.arr_parent_id)
     elif candidate.kind == "episode":
         sonarr.delete_episode_file(candidate.arr_file_id)
+        sonarr.unmonitor_episode(candidate.arr_parent_id)
     else:
         raise ValueError(f"unknown candidate kind: {candidate.kind}")
+
+
+def _cleanup_leftovers(candidate: Candidate, config: Config) -> None:
+    """Radarr/Sonarr's delete-file API only removes the video file itself — it leaves
+    behind Jellyfin's own per-file ".trickplay" thumbnail-preview cache folder. Confirmed
+    by live testing (2026-09-07): that leftover folder was enough for Jellyfin's scanner
+    to keep showing an empty series entry in the main current-library Shows/Movies
+    listing after every real file had already been archived away. Remove that cache
+    folder, then remove any directories left empty above it, up to (but never including)
+    the configured current-library root. Best-effort: failures here are logged but don't
+    fail the candidate — the archive+delete already succeeded by the time this runs."""
+    trickplay_dir = candidate.source_path.parent / (candidate.source_path.stem + ".trickplay")
+    if trickplay_dir.is_dir():
+        shutil.rmtree(trickplay_dir, ignore_errors=True)
+
+    current_root = (
+        config.movies_current_root if candidate.kind == "movie" else config.tv_current_root
+    )
+    directory = candidate.source_path.parent
+    while directory != current_root and current_root in directory.parents:
+        try:
+            if any(directory.iterdir()):
+                break
+            directory.rmdir()
+        except OSError:
+            break
+        directory = directory.parent
 
 
 def _process_one(candidate: Candidate, config: Config, dry_run: bool,
@@ -88,7 +127,33 @@ def _process_one(candidate: Candidate, config: Config, dry_run: bool,
     dst_tmp: Path | None = None
     try:
         probe_result = probe(candidate.source_path, config)
-        plan = compute_bitrate_plan(probe_result, config)
+
+        # Stage the in-progress output in work_dir, NOT inside the archive tree.
+        # Confirmed by live testing (2026-09-07): Jellyfin's real-time library monitor
+        # watches the archive-tv/archive-movies folders and indexed a ".partial.mkv" file
+        # while it was still being written, recording that filename in its database. Once
+        # the finished file was atomically renamed away, Jellyfin's entry pointed at a path
+        # that no longer existed — "Could not find file" on every playback attempt.
+        # work_dir sits outside every Jellyfin library, so nothing there gets indexed; the
+        # only write Jellyfin ever sees in the archive tree is the final atomic rename.
+        # Must end in a real extension (.mkv), not .partial — ffmpeg's muxer picks the
+        # output format from the filename extension, and ".partial" isn't recognized.
+        config.work_dir.mkdir(parents=True, exist_ok=True)
+        dst_tmp = config.work_dir / (
+            candidate.archive_dest_path.stem + ".partial" + candidate.archive_dest_path.suffix
+        )
+
+        # Already at or under the target — re-encoding could only make it bigger.
+        # Confirmed by live testing (2026-09-07): a source already using a low-bitrate
+        # x265 encode nearly quintupled in size (0.29 GB -> 1.43 GB) when re-encoded at
+        # this project's target bitrate. Relocate it as-is instead of transcoding.
+        already_small_enough = candidate.size_bytes <= config.target_size_max_bytes
+        if already_small_enough:
+            shutil.copy2(candidate.source_path, dst_tmp)
+            plan = None
+        else:
+            plan = compute_bitrate_plan(probe_result, config)
+            transcode(candidate.source_path, dst_tmp, plan, config)
 
         run_log.record(
             event="candidate",
@@ -98,16 +163,12 @@ def _process_one(candidate: Candidate, config: Config, dry_run: bool,
             source_size_bytes=candidate.size_bytes,
             date_added=candidate.date_added.isoformat(),
             archive_dest_path=str(candidate.archive_dest_path),
-            planned_video_kbps=plan.video_kbps,
-            planned_resolution=f"{plan.max_width}x{plan.max_height}",
-            below_quality_floor=plan.below_quality_floor,
+            already_small_enough=already_small_enough,
+            planned_video_kbps=plan.video_kbps if plan else None,
+            planned_resolution=f"{plan.max_width}x{plan.max_height}" if plan else None,
+            below_quality_floor=plan.below_quality_floor if plan else None,
             dry_run=dry_run,
         )
-
-        dst_tmp = candidate.archive_dest_path.with_suffix(
-            candidate.archive_dest_path.suffix + ".partial"
-        )
-        transcode_2pass(candidate.source_path, dst_tmp, plan, config)
 
         ok, reason = verify_output(dst_tmp, probe_result.duration_s, config)
         if not ok:
@@ -124,6 +185,13 @@ def _process_one(candidate: Candidate, config: Config, dry_run: bool,
 
         new_size = candidate.archive_dest_path.stat().st_size
         _delete_source(candidate, radarr, sonarr)
+
+        try:
+            _cleanup_leftovers(candidate, config)
+        except OSError as exc:
+            # Best-effort tidy-up; the archive+delete already succeeded, so this
+            # candidate still counts as a success — just log it for follow-up.
+            log.warning("leftover cleanup failed for %s: %s", candidate.title, exc)
 
         run_log.record(
             event="archived",
@@ -172,6 +240,20 @@ def run(config: Config, dry_run: bool, max_files: int, library: str) -> dict:
         failed += int(not ok)
         if not dry_run:
             time.sleep(1)  # small gap between heavy encode jobs
+
+    # One rescan at the end of the batch, not per-file: confirmed necessary by live
+    # testing (2026-09-07) — without it, Jellyfin's own database keeps stale state (an
+    # in-progress temp filename it indexed mid-encode, or an empty current-library series
+    # entry after every real file under it was archived away) until something prompts a
+    # fresh scan. Skipped for dry runs and when nothing was actually archived.
+    if not dry_run and succeeded > 0:
+        jellyfin = JellyfinClient(
+            config.jellyfin_url, config.jellyfin_api_key, config.jellyfin_scan_task_id
+        )
+        try:
+            jellyfin.refresh_all_libraries()
+        except JellyfinApiError as exc:
+            log.warning("Jellyfin library refresh failed: %s", exc)
 
     summary = {
         "dry_run": dry_run,
