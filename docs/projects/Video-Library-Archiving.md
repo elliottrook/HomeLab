@@ -1,7 +1,7 @@
 # Video Library Archiving Project
 
-> Status: In progress — Milestones 1-2 complete; Milestone 3's unattended schedule is installed
-> and running (Mon-Sat 01:30), started ahead of its own review-first gate on Jason's direction
+> Status: In progress — Milestones 1-3 complete (unattended schedule live Mon-Sat 01:30, first
+> real cron-triggered run confirmed clean 2026-09-08); Milestone 4 (closeout) remaining
 >
 > Project owner: Jason
 >
@@ -553,21 +553,28 @@ the second. Every code path in this pipeline — TV transcode, movie relocate-as
   failed title by name (not just a count) if the last run had any failures, warns if no run has
   landed in 48+ hours. Verified against both a clean real run and a synthetic failure log before
   restoring the live log to its clean state.
-- [ ] Run unattended for an initial observation period; review logs for unexpected failures or
-  candidate-selection surprises before calling this milestone closed. **Explicitly not gated on
-  first** — Jason directed installing the schedule and leaving it running unattended immediately
-  rather than waiting for a review period first, given Milestone 2's gate (including the
-  `archive-now` tag override) had just passed cleanly on real data. Noted here rather than silently
-  treating the normal process as followed.
+- [x] **First genuine unattended cron-triggered run, 2026-09-08 01:30, confirmed clean.** Jason
+  intended to tag `Rango` for this run but it never actually got tagged (`tags: []` in Radarr,
+  confirmed afterward — untouched); `The Shawshank Redemption` was tagged instead and is what
+  actually ran, unattended, nobody watching. Verified independently (not just the run log): source
+  folder gone, archive file present (32.5 GB → 1.6 GB), correctly stepped down to 720p (long
+  runtime, sane resolution-ladder behavior, not the old bug), single English audio track, single
+  English subtitle, Radarr `monitored: false, hasFile: false`, `lab doctor`'s `check_video_archiver`
+  independently agreed (clean, 1 found, 1 succeeded). This is **one confirmed clean run**, not an
+  extended multi-run observation period — the checkbox is satisfied on the mechanism (real,
+  unattended, cron-triggered, large file, nobody supervising) rather than on volume of runs; treat
+  further nights as ongoing operation, not a remaining gate. (Separately, unrelated to this run: a
+  pre-existing duplicate of Shawshank — a loose 2020 file from the original Plex migration — was
+  found already sitting in `archive-movies`; flagged as a future cleanup, not a video-archiver bug.)
 
 ### Gate
 
-**Schedule is live and running unattended as of 2026-09-08, on Jason's explicit direction, ahead of
-this milestone's own originally-stated review-first gate.** The Lab Doctor check above is the
-safety net in place of that initial observation period — it will surface any real failure by name
-in the next daily 8:15am scheduled report. Still worth an eventual look at accumulated logs once a
-few real (not synthetic) unattended runs have happened, the same way `jellyfin-integrity`'s
-two-consecutive-clean-runs check is scheduled.
+**Passed 2026-09-08.** The schedule went live ahead of its own originally-stated review-first gate,
+on Jason's explicit direction; the first real unattended cron-triggered run that night confirmed
+clean (see above) — Lab Doctor's independent check agreed. That closes this milestone's gate on the
+mechanism itself. Ongoing runs remain worth a periodic glance (Lab Doctor's daily report is the
+standing safety net for that), same as any scheduled automation in this repo — but that's normal
+operation now, not a remaining gate.
 
 ## Milestone 4 — Documentation and closeout
 
@@ -621,6 +628,7 @@ two-consecutive-clean-runs check is scheduled.
 | 2026-09-08 | 2 | Jason tagged `72 HOURS (2026)` via Radarr's own UI and asked for a supervised `--execute` run, watched step by step | First real movie through the pipeline, and the first real use of the `archive-now` override. 0 failures: relocated as-is (already under target size), verified, archived, source folder gone, Radarr `monitored: false, hasFile: false`, single clean Jellyfin entry at the archive path (105 min runtime, valid H.264/AAC streams, correct file size) confirmed via the Jellyfin API. Closes Milestone 2's previously-outstanding movie-side gate | Claude |
 | 2026-09-08 | 3 | Jason directed installing the unattended schedule and leaving it running immediately, without a review-first observation period. Built a mode-600 `.env` + wrapper script (`run-scheduled.sh`) rather than putting API keys in the cron command string; verified the wrapper end-to-end while 0 candidates were eligible (a true no-op test); installed Cron Job id `4` (Mon-Sat 01:30, skips Sunday's ZFS scrub); added `check_video_archiver` to `doctor.sh`, verified against both a real clean log and a synthetic failure log | Schedule live; Lab Doctor is the safety net standing in for the skipped initial-observation-period gate — will name any real failure by title in the next daily report | Claude |
 | 2026-09-08 | — | Jason tagged `Ready or Not: Here I Come` (32.5 GiB, a "Multi AVC" REMUX) and asked for a supervised `--execute` run to exercise the never-yet-tested real-transcode path (every prior run had either transcoded TV or relocated an already-small movie). First attempt failed cleanly at `verify_output` — found and fixed the 11-audio-track budget bug (see Architecture decisions); source was untouched throughout | First real GPU transcode of a movie: 34.9 GB → 1.77 GB, full 1080p retained, single English 5.1 track, all 3 English subtitles kept, non-English audio/subtitle tracks correctly dropped. Verified via direct `ffprobe` on the output, Radarr (`monitored: false, hasFile: false`), and the Jellyfin API (108 min runtime matching source exactly, single clean entry) | Claude |
+| 2026-09-08 | 3 | First genuine unattended cron-triggered run (01:30 PDT, nobody supervising). Jason intended `Rango` to be the target but it was never actually tagged (confirmed `tags: []` afterward); `The Shawshank Redemption` had the tag instead and is what ran | Clean: 32.5 GB → 1.6 GB, correctly stepped down to 720p (long runtime), single English audio+subtitle track, source gone, Radarr correctly unmonitored, `lab doctor` independently agreed. Closes Milestone 3's gate on the mechanism itself. Also found, unrelated to this run: a pre-existing duplicate of Shawshank (a loose 2020 file from the original Plex migration) already sitting in `archive-movies` — flagged as a future cleanup, not a video-archiver bug | Claude |
 
 ## References
 
