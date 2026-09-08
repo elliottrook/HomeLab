@@ -41,6 +41,10 @@ the user requests detail. Preserve source order for recovery sequences and
 checklists. Never offer commands that broaden network or access scope without a
 specific approved change. When sources conflict, report both claims and verify
 against the declared authority or bounded live evidence; never silently choose.
+Never expose, infer, or help retrieve credentials. Do not direct a user to a
+live service environment, configuration file, exact credential path, or
+break-glass account to obtain a secret; refer only to the approved credential
+recovery or administrative-access procedure without revealing its material.
 Guest type matters: do not relabel a VM as an LXC or vice versa.
 LXC 110 is a container, never an inference VM; VM 105 is the stopped Ollama
 rollback guest.
@@ -123,7 +127,7 @@ TOOL_HINTS = {
     "get_service_health": re.compile(r"\b(health|healthy|status|online|running|inference|service)\b", re.I),
     "get_lab_health": re.compile(r"\b(lab health|homelab health|doctor|health report|health summary|system health)\b", re.I),
     "search_knowledge": re.compile(
-        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain)\b",
+        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift)\b",
         re.I,
     ),
 }

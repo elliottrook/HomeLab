@@ -56,6 +56,9 @@ def main() -> int:
         required_any = case.get("required_any", [])
         if required_any and not any(contains(answer, value) for value in required_any):
             failures.append(f"missing any-of: {required_any}")
+        for group in case.get("required_any_groups", []):
+            if not any(contains(answer, value) for value in group):
+                failures.append(f"missing any-of: {group}")
         forbidden = [value for value in case.get("forbidden", []) if contains(answer, value)]
         if forbidden:
             failures.append(f"forbidden claims: {forbidden}")
