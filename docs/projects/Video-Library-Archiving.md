@@ -173,6 +173,32 @@ supervised live test on real data before it is left to run alone (see Milestones
 mirrors this repository's standing rule that irreversible or production-affecting automation earns
 a validated dry run before it is trusted unattended.
 
+### Manual "archive now" override via Radarr/Sonarr's own tags (2026-09-08)
+
+Jason's request: a way to archive a specific movie or a show he's finished watching immediately,
+without waiting out `age_threshold_days`. Considered building new UI for this; rejected in favor of
+reusing Radarr's/Sonarr's own tag system, which Jason already has open regularly — no new interface
+needed.
+
+A movie (Radarr) or series (Sonarr) tagged `archive-now` (label configurable via
+`archive_now_tag_label`, resolved to that app's numeric tag id via its own `/api/v3/tag` endpoint at
+the start of every run — labels are what a human manages, ids aren't stable across a tag being
+deleted and recreated) becomes eligible for archiving on the very next run, regardless of age. A
+missing/unresolvable tag is never an error — it just means no override is available that run, and
+normal age-based eligibility proceeds as before.
+
+**Confirmed by Jason (2026-09-08): TV granularity is whole-series only, not per-season.** Sonarr's
+tag model applies at the series level; tagging a series means "I'm fully done with this show,"
+archiving every eligible season together, the same as if every season had simply aged out on its
+own. Per-season tagging was considered and explicitly declined as unnecessary for now.
+
+Validated end-to-end 2026-09-08 (dry-run only, nothing executed): tagged a real movie (`Obsession`,
+`dateAdded` 2026-08-04, nowhere near the 122-day threshold) with `archive-now` via the Radarr API,
+confirmed it appeared as the sole dry-run candidate with the correct source/destination paths, then
+reverted the tag — proving the override path works independently of the age path, without touching
+any real file. `archive-now` tags created in both apps (Radarr id 2, Sonarr id 1); both currently
+unused (no title actually tagged by Jason yet).
+
 ## Milestone 1 findings (2026-09-07)
 
 Two real bugs and one design-level problem were found while getting the dry run to actually run
@@ -313,6 +339,8 @@ without a rename pass.
 - Query Radarr and Sonarr for current-library files whose recorded import date exceeds the
   configured age threshold (default ~4 months — revised 2026-09-08, see Architecture decisions),
   anchored per-season for TV.
+- Also treat a movie/series tagged `archive-now` in Radarr/Sonarr's own UI as eligible immediately,
+  regardless of age — added 2026-09-08, see Architecture decisions.
 - Skip transcoding (relocate as-is instead) any file already at or under the target size — added
   2026-09-08 after re-encoding inflated an already-small file (see Milestone 2 findings).
 - Transcode remaining eligible video to H.265, targeting roughly 1–2 GB, using an adaptive
@@ -525,6 +553,7 @@ cleanly and its log is reviewed.
 | 2026-09-08 | 2 | Jason reported archived `Furious` episodes wouldn't play in Jellyfin | Found and fixed the temp-file/Jellyfin-indexing bug (see Milestone 2 findings); confirmed fixed via the live Jellyfin UI ("It's playing now") | Claude |
 | 2026-09-08 | 2 | Jason reported an empty "Furious" entry still visible in the main Shows library | Found and fixed the leftover `.trickplay`/stale-library-state gap (see Milestone 2 findings); manually cleaned up the one already-affected case, then built the fix into the pipeline (`_cleanup_leftovers()` + automatic post-batch Jellyfin scan-task trigger) so future runs don't need manual follow-up | Claude |
 | 2026-09-08 | 2 | Verified `Furious` fully gone from the main Shows library after the real Scan Media Library task (not `Items/Refresh`, which doesn't reconcile the filesystem) completed | Confirmed via the Jellyfin API | Claude |
+| 2026-09-08 | — | Built the `archive-now` tag override (Jason's request): created the tag in both apps, added `archive_now_tag_label` to config, tag-resolution + eligibility-bypass logic in `candidates.py`. Tagged real movie `Obsession` (well under the age threshold) via the Radarr API, ran `--dry-run`, confirmed it was the sole candidate with correct paths, then reverted the tag | Feature validated end-to-end, dry-run only — nothing executed against a real file via this path yet. Tags exist in both apps, unused (0 titles tagged by Jason) | Claude |
 
 ## References
 

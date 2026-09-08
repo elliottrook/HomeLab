@@ -17,6 +17,13 @@ class Config:
     jellyfin_api_key: str
 
     age_threshold_days: int
+    # A movie (Radarr) or series (Sonarr) carrying this tag is eligible for archiving
+    # immediately, regardless of age -- Jason applies it himself in each app's own web
+    # UI ("I've watched this, archive it now") rather than this tool needing any new
+    # UI of its own. Stored as a label, not a numeric tag id, and resolved via each
+    # app's own /api/v3/tag endpoint at the start of a run -- ids aren't stable across
+    # a tag being deleted and recreated, labels are what a human actually manages.
+    archive_now_tag_label: str
     target_size_bytes: int
     target_size_min_bytes: int
     target_size_max_bytes: int
@@ -68,6 +75,7 @@ class Config:
             sonarr_api_key=sonarr_api_key,
             jellyfin_api_key=jellyfin_api_key,
             age_threshold_days=int(raw["age_threshold_days"]),
+            archive_now_tag_label=raw["archive_now_tag_label"],
             target_size_bytes=int(raw["target_size_bytes"]),
             target_size_min_bytes=int(raw["target_size_min_bytes"]),
             target_size_max_bytes=int(raw["target_size_max_bytes"]),

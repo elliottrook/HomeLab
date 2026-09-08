@@ -32,6 +32,17 @@ def _parse_arr_datetime(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
+def _resolve_tag_id(client: RadarrClient | SonarrClient, label: str) -> int | None:
+    """Look up a tag's numeric id by its label. Returns None if the tag doesn't
+    exist yet in that app (e.g. label typo'd in config, or not created there) --
+    callers treat that as "no archive-now override available", not an error, so a
+    missing tag never blocks the normal age-based run."""
+    for tag in client.get_tags():
+        if tag.get("label") == label:
+            return tag.get("id")
+    return None
+
+
 def _to_host_path(arr_path: Path, container_root: Path, host_root: Path) -> Path | None:
     """Translate a path as reported by the Radarr/Sonarr API (relative to that app's
     own container mount) into the real host filesystem path this tool reads/writes.
@@ -45,6 +56,7 @@ def _to_host_path(arr_path: Path, container_root: Path, host_root: Path) -> Path
 
 def find_movie_candidates(radarr: RadarrClient, config: Config) -> list[Candidate]:
     cutoff = datetime.now(timezone.utc) - timedelta(days=config.age_threshold_days)
+    archive_now_tag_id = _resolve_tag_id(radarr, config.archive_now_tag_label)
     out: list[Candidate] = []
 
     for movie in radarr.get_movies():
@@ -55,7 +67,10 @@ def find_movie_candidates(radarr: RadarrClient, config: Config) -> list[Candidat
             continue
 
         date_added = _parse_arr_datetime(movie_file["dateAdded"])
-        if date_added >= cutoff:
+        tagged_archive_now = (
+            archive_now_tag_id is not None and archive_now_tag_id in (movie.get("tags") or [])
+        )
+        if date_added >= cutoff and not tagged_archive_now:
             continue
 
         source_path = _to_host_path(
@@ -94,6 +109,7 @@ def find_movie_candidates(radarr: RadarrClient, config: Config) -> list[Candidat
 
 def find_episode_candidates(sonarr: SonarrClient, config: Config) -> list[Candidate]:
     cutoff = datetime.now(timezone.utc) - timedelta(days=config.age_threshold_days)
+    archive_now_tag_id = _resolve_tag_id(sonarr, config.archive_now_tag_label)
     out: list[Candidate] = []
 
     for series in sonarr.get_series():
@@ -106,6 +122,14 @@ def find_episode_candidates(sonarr: SonarrClient, config: Config) -> list[Candid
             rel_folder = series_folder.relative_to(config.tv_current_root)
         except ValueError:
             continue
+
+        # Sonarr tags apply at the series level, not per-season -- so this is an
+        # "I'm fully done with this show" override, not a per-season one. Every
+        # eligible season in a tagged series archives together, same as it would if
+        # every season had simply aged out on its own.
+        series_tagged_archive_now = (
+            archive_now_tag_id is not None and archive_now_tag_id in (series.get("tags") or [])
+        )
 
         # The episodefile resource has no back-reference to its parent episode — the
         # episode resource points the other way instead, via episodeFileId. Build that
@@ -130,8 +154,8 @@ def find_episode_candidates(sonarr: SonarrClient, config: Config) -> list[Candid
 
         for season_number, season_files in files_by_season.items():
             season_start = min(_parse_arr_datetime(f["dateAdded"]) for f in season_files)
-            if season_start >= cutoff:
-                continue  # whole season not old enough yet
+            if season_start >= cutoff and not series_tagged_archive_now:
+                continue  # whole season not old enough yet, and not tagged for an override
 
             for ep_file in season_files:
                 parent_episode_id = episode_id_by_file_id.get(ep_file["id"])

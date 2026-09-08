@@ -58,6 +58,9 @@ class RadarrClient(_ArrClient):
     def get_movies(self) -> list[dict]:
         return self._get("/api/v3/movie")
 
+    def get_tags(self) -> list[dict]:
+        return self._get("/api/v3/tag")
+
     def delete_movie_file(self, movie_file_id: int) -> None:
         self._delete(f"/api/v3/moviefile/{movie_file_id}")
 
@@ -70,6 +73,9 @@ class RadarrClient(_ArrClient):
 class SonarrClient(_ArrClient):
     def get_series(self) -> list[dict]:
         return self._get("/api/v3/series")
+
+    def get_tags(self) -> list[dict]:
+        return self._get("/api/v3/tag")
 
     def get_episodes(self, series_id: int) -> list[dict]:
         return self._get("/api/v3/episode", params={"seriesId": series_id})
