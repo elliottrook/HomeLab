@@ -571,8 +571,8 @@ two-consecutive-clean-runs check is scheduled.
 
 ## Milestone 4 — Documentation and closeout
 
-- [ ] Record final tool location, config, schedule, and log location in the operations
-  documentation.
+- [x] Recorded final tool location, config, schedule, and log location in
+  [04-Operations.md](../04-Operations.md) 2026-09-08.
 - [ ] Add the tool's config/state to the existing backup plan if it should survive a TrueNAS
   rebuild.
 - [ ] Update this project's status to `Complete` only after Milestone 3's gate passes and
