@@ -744,6 +744,98 @@ REMOTE
     fi
 }
 
+check_video_archiver() {
+    local output
+    local log_path=""
+    local mtime=""
+    local dry_run=""
+    local found=""
+    local processed=""
+    local succeeded=""
+    local failed=""
+    local max_age_hours=48  # Mon-Sat 01:30 cadence + slack for a Sunday gap
+
+    if ! output="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas /bin/bash -s <<'REMOTE'
+latest="$(ls -t /mnt/Media/data/tools/video-archiver/logs/run-*.jsonl 2>/dev/null | head -1)"
+if [[ -z "$latest" ]]; then
+    printf 'no_log=1\n'
+    exit 0
+fi
+printf 'log_path=%s\n' "$latest"
+printf 'mtime=%s\n' "$(stat -c %Y "$latest")"
+python3 -c "
+import json
+summary = None
+error_titles = []
+for line in open('$latest'):
+    line = line.strip()
+    if not line:
+        continue
+    d = json.loads(line)
+    if d.get('event') == 'summary':
+        summary = d
+    elif d.get('event') == 'error':
+        error_titles.append(d.get('title', '?'))
+if summary is None:
+    print('no_summary=1')
+else:
+    print(f'dry_run={1 if summary.get(\"dry_run\") else 0}')
+    print(f'found={summary.get(\"total_candidates_found\", 0)}')
+    print(f'processed={summary.get(\"processed\", 0)}')
+    print(f'succeeded={summary.get(\"succeeded\", 0)}')
+    print(f'failed={summary.get(\"failed\", 0)}')
+    for t in error_titles:
+        print(f'error_title={t}')
+"
+REMOTE
+    )"; then
+        warn "Unable to collect video-archiver health data"
+        return
+    fi
+
+    local error_titles=()
+
+    while IFS='=' read -r key value; do
+        case "$key" in
+            no_log) log_path="" ;;
+            no_summary) log_path="" ;;
+            log_path) log_path="$value" ;;
+            mtime) mtime="$value" ;;
+            dry_run) dry_run="$value" ;;
+            found) found="$value" ;;
+            processed) processed="$value" ;;
+            succeeded) succeeded="$value" ;;
+            failed) failed="$value" ;;
+            error_title) error_titles+=("$value") ;;
+        esac
+    done <<< "$output"
+
+    if [[ -z "$log_path" ]]; then
+        warn "video-archiver has no run log yet"
+        return
+    fi
+
+    local now_epoch
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_hours=$(( (now_epoch - mtime) / 3600 ))
+
+    local mode_label="dry-run"
+    [[ "$dry_run" == "0" ]] && mode_label="execute"
+
+    if [[ "$failed" =~ ^[0-9]+$ ]] && (( failed > 0 )); then
+        local list
+        list="$(printf '; %s' "${error_titles[@]}")"
+        list="${list:2}"
+        fail "video-archiver: ${failed} failure(s) on last run (${age_hours}h ago, ${mode_label}) — ${list:-see log}: ${log_path}"
+    elif (( age_hours > max_age_hours )); then
+        warn "video-archiver last run ${age_hours} hour(s) ago (expected ~daily, Mon-Sat)"
+    else
+        pass "video-archiver clean run ${age_hours}h ago (${mode_label}): ${found:-0} found, ${succeeded:-0} succeeded"
+    fi
+}
+
 check_jellyfin_integrity() {
     local output
     local report_path=""
@@ -1416,6 +1508,7 @@ check_proxmox
 check_aster
 check_nut
 check_jellyfin_integrity
+check_video_archiver
 check_netbox
 check_observability
 check_truenas
