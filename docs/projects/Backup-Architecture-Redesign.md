@@ -4,7 +4,7 @@
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-07
+> Last updated: 2026-09-08
 
 ## Authorization
 
@@ -512,11 +512,27 @@ retention firing correctly will be confirmed as time passes naturally.
   relay. No rolling package source is enabled.
 - [x] Configure the IDrive e2 remote with a freshly generated,
   narrowly-scoped access key limited to the backup bucket — never a reuse
-  of the existing Hyper Backup task's credential. The relay can list only
-  the new `homelab-backup-relay` bucket; the legacy
-  `mini-atlas-backups` bucket and its Hyper Backup credential were not
-  changed. An accidentally exposed first relay key was revoked and replaced
-  by Jason before the remote was retained.
+  of the existing Hyper Backup task's credential. The legacy
+  `mini-atlas-backups` bucket and its Hyper Backup credential were never
+  touched. **Corrected 2026-09-07**, in a second verification pass: the
+  first relay key was exposed a second time (`rclone config show` prints
+  S3 keys in plaintext, unlike the crypt password, which it auto-obscures
+  — a real gap in my own handling, caught and named immediately) and its
+  replacement was initially created without an actual bucket restriction,
+  confirmed by testing that it could still list *and read contents of*
+  `mini-atlas-backups` — a real least-privilege regression against the
+  household's still-live, still-load-bearing off-site backup, not a
+  cosmetic issue. Jason recreated the key a second time with IDrive's
+  bucket-restriction option applied; verified this time by confirming a
+  403 `AccessDenied` against the legacy bucket while `homelab-backup-relay`
+  still works. Separately discovered the interactive `rclone config`
+  wizard and the systemd service use **two different config file paths**
+  (`~/.config/rclone/rclone.conf` vs. the service's `/etc/rclone/rclone.conf`
+  via `RCLONE_CONFIG`) — the service was still running on the very first,
+  already-revoked key for over an hour after both edits, since rclone
+  reads its config once at process start. Fixed by copying the current
+  key fields between the two files via a script run entirely on the relay
+  (secret values never passed through Claude's own output).
 - [~] Configure an `rclone crypt` remote layered on top, with a freshly
   generated encryption password/salt, stored only on the guest
   (root-only, mode 600) and in the standard protected recovery location —
@@ -537,6 +553,12 @@ retention firing correctly will be confirmed as time passes naturally.
   consumed too much cgroup page cache; the retry omits that option. The relay
   was increased from 1 GiB to 2 GiB during the active retry after NFS page
   cache approached the initial limit; rclone's own RSS remained modest.
+  **Completed 2026-09-08**, after the credential-scoping fix above forced a
+  restart: `sync` finished with exit code `0`, **657.091 GiB transferred,
+  111,196 / 111,196 files, 94/94 checks passed, 0 errors**, 9h31m elapsed
+  (bandwidth-capped). Correctly deleted the earlier manual
+  `relay-validation/roundtrip.txt` test artifact as part of normal `sync`
+  mirroring (not a source file, expected to disappear).
 
 **Egress boundary:** a dynamic OPNsense alias resolves only
 `s3.us-west-4.idrivee2.com`; LXC 112 is permitted DNS/NTP and TCP 443 to that
@@ -544,15 +566,31 @@ alias, then explicitly denied all other egress before the Servers-VLAN's
 general pass rule. A direct encrypted random-data round trip succeeded with a
 matching SHA-256. Bucket versioning reports `Enabled`.
 
-**Open data-shape observation:** the gowest NFS source contains
-Synology-generated `@eaDir` thumbnail symlinks. rclone reports and skips those
-symlinks by default; underlying user files continue transferring. Do not add
-`--copy-links` or exclude this metadata without an explicit scope decision.
+**Open data-shape observation:** the `gowest` NFS source contains
+Synology-generated `@eaDir` thumbnail *files* (not symlinks, as originally
+assumed — confirmed from the completed sync's own log, e.g.
+`homes/Jason/Drive/Photos/.../@eaDir/On Top.JPG/SYNOFILE_THUMB_SM.jpg:
+Copied (new)`). These are small DSM-generated thumbnail caches, not user
+data; harmless to carry along but worth knowing they're included rather
+than filtered.
+
+**Integrity spot-check (2026-09-08):** pulled a real synced file back
+through the full encrypted round trip (`rclone cat idrive-crypt:...` piped
+to `sha256sum`) and compared against the same file's hash on TrueNAS —
+`df41616946c0e7fad80c2bb28b4a065a209a463298322c1e000f160729d43d0a` on both.
+Confirms the encrypt-upload-download-decrypt path preserves real production
+data byte-for-byte, not just synthetic test data.
 
 ### Gate
 
-A real sync to IDrive e2 has completed and been spot-checked for integrity
-before proceeding to the validation milestone.
+**Passed 2026-09-08.** A real, full sync to IDrive e2 has completed
+(657 GiB, 111,196 files, 0 errors) and been spot-checked for integrity
+against a real production file, not just synthetic test data. One item
+remains open outside this gate's scope: Jason still needs to make an
+independent, offline protected copy of the `idrive-crypt` password/salt —
+tracked as a standing to-do, not a blocker for Milestone 4's restore
+validation, since the config Milestone 4 will test against already exists
+on the relay.
 
 ## Milestone 4 — Validation (hard gate before any cutover)
 
@@ -634,3 +672,6 @@ as current.
 | 2026-09-07 | 3 | Created unprivileged Proxmox LXC 112; installed publisher-checksummed rclone v1.75.1; configured new bucket-scoped `idrive-e2` plus locally generated `idrive-crypt`; created a Proxmox-hosted, read-only NFSv4 bind mount from TrueNAS; created the IDrive FQDN allow and relay-only egress-deny rules; direct encrypted random-data round trip SHA-256 matched | Passed for infrastructure boundary and connectivity. Legacy Hyper Backup paths untouched; independent crypt-recovery copy and full-sync completion remain open |
 | 2026-09-07 | 2 | `gowest` leg: SSH-forced-command approach hit four separate DSM-specific gates in sequence (administrators-group SSH requirement confirmed from DSM's own UI text, `/sbin/nologin` shell, world-writable home dir tripping `StrictModes`, and a key-file permission mode DSM's `sshd` needs different from stock OpenSSH), then DSM's own `rsync` binary refused with an undocumented daemon-style module-permission error even once all four were fixed — no module config existed to fix (`/etc/rsyncd.conf` had zero modules). Pivoted mechanism: `gowest` exports `homes`/`Family Documents` read-only over NFSv3 restricted to TrueNAS's IP (`Squash: No mapping`, needed for a full read of every family member's private folder); TrueNAS mounts both read-only, persisted via Init/Shutdown Scripts (survives OS upgrades, unlike a raw `systemd` unit); a plain local `rsync` cron job copies into `/mnt/Media/backup/gowest/`. Separately investigated backing up Synology Drive's own app-config (`/volume1/@synologydrive`) to mimic old scope exactly; found it to be 315 GB — the actual version-history blob store, not a small index, nearly duplicating `homes` — and decided with Jason to skip it, accepting loss of Drive's own multi-version rollback as the trade-off | Mechanism passed; initial full pull completed with no errors, byte-exact against source on both shares: `homes` 110,788 files / 332,609,860,578 bytes, `Family Documents` 2 files / 522,083 bytes, matching on both the NFS-mounted source and TrueNAS destination. **All three Milestone 2 rsync legs complete; Milestone 2 gate passed** |
 | 2026-09-07 | 4 (partial) | Added `check_idrive_relay` to HomeLab Doctor. It uses the existing Mac→Proxmox path to distinguish a running initial sync, a failure, and a recent completed success; it exposes no relay credential or backup content | Probe verified while the first capped full sync is active; full-sync success remains required before this monitoring item closes |
+| 2026-09-07 | 3 (verification) | Independently verified the prior session's Milestone 3 claims rather than trusting the commit message: confirmed LXC 112's actual `pct config` (unprivileged, 1 core, 2 GiB, 8 GiB disk, swap 0, firewall on); confirmed the Proxmox-side NFS mount is genuinely read-only (`ro,nosuid,nodev,noexec`) and the TrueNAS export is restricted to Proxmox's IP only with `all_squash` to root; independently downloaded rclone v1.75.1 from the publisher, verified its zip against the official `SHA256SUMS`, extracted it, and confirmed the extracted binary's own hash matched byte-for-byte what's installed on the relay | All claims confirmed correct except the credential-scoping issue below, found during this same verification pass |
+| 2026-09-07 | 3 (correction) | During verification, `rclone config show idrive-e2` printed the S3 access key/secret in plaintext into Claude's own output — a real exposure, caught and named immediately (unlike the crypt password, `config show` doesn't obscure plain S3 remote secrets). Jason revoked and regenerated the key; the first replacement was not actually bucket-restricted (confirmed by testing it could still list *and read* the legacy `mini-atlas-backups` bucket's contents — a real risk to the household's still-live off-site backup, not cosmetic). Jason recreated the key a second time with IDrive's bucket-restriction option applied; verified via a 403 `AccessDenied` against the legacy bucket while the intended bucket still worked. Separately found the interactive `rclone config` wizard writes to `~/.config/rclone/rclone.conf` while the systemd service reads `/etc/rclone/rclone.conf` (via `RCLONE_CONFIG`) — two different files, so the service kept running on the very first, already-revoked key for over an hour after both edits. Fixed by running a script entirely on the relay to copy the current key fields between the two files; the secret values never passed through Claude's own output at any point in this fix | Corrected and verified: new key confirmed scoped to `homelab-backup-relay` only, service config confirmed matching |
+| 2026-09-08 | 3 | Restarted the sync service with the corrected, properly-scoped credentials; it ran to completion overnight: exit code `0`, 657.091 GiB transferred, 111,196/111,196 files, 94/94 checks, 0 errors, 9h31m elapsed. Spot-checked integrity on real production data (not synthetic test data): pulled `mac/opnsense/opnsense-config-2026-08-02_11-01-31.xml` back through the full encrypted round trip and compared its hash against the same file on TrueNAS | Passed — hashes matched exactly (`df41616946c0e7fad80c2bb28b4a065a209a463298322c1e000f160729d43d0a`). **Milestone 3 gate passed.** One standing item outside the gate: Jason still needs an independent offline copy of the `idrive-crypt` recovery material |
