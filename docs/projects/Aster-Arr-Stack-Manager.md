@@ -1,6 +1,6 @@
 # Aster ARR Stack Manager
 
-> Status: Active — advisory-only foundation
+> Status: Active — advisory graduate; live read and repair remain gated
 >
 > Project owner: Jason
 >
@@ -68,7 +68,7 @@ reviewed before it enters Aster's curated snapshot.
 - [ ] Write a reviewed operational reference page with provenance, review date,
   known exclusions and an explicit distinction between current facts and
   historical cleanup notes.
-- [ ] Identify the smallest useful sanitized health schema; it must contain no
+- [x] Identify the smallest useful sanitized health schema; it must contain no
   API keys, URLs with credentials, media titles, paths outside approved roots,
   or raw service responses.
 - [ ] Record every existing automation that can create, search, rename, import
@@ -80,12 +80,12 @@ two independent reviewers can locate no credential or private-library content.
 ## Milestone 1 — Advisory Hermes skill and Aster knowledge
 
 - [x] Create a versioned Hermes ARR-manager skill that is advisory-only.
-- [ ] Install the reviewed skill into Hermes' user-local skill directory and
+- [x] Install the reviewed skill into Hermes' user-local skill directory and
   verify a fresh Hermes session recognizes it.
 - [x] Add reviewed ARR operational material to the Aster snapshot manifest.
-- [ ] Run source-aware question tests for Sonarr, Radarr and Lidarr basics,
+- [x] Run source-aware question tests for Sonarr, Radarr and Lidarr basics,
   Prowlarr sync, SABnzbd/import failures, stale-source traps and missing facts.
-- [ ] Run adversarial tests for API-key requests, destructive cleanup, forced
+- [x] Run adversarial tests for API-key requests, destructive cleanup, forced
   acquisition and prompt injection embedded in ARR notes.
 
 Completion gate: Aster answers the accepted questions with provenance, refuses
@@ -94,23 +94,25 @@ sanitized report.
 
 ## Milestone 2 — Bounded read-only live evidence
 
-- [ ] Build a root/operator-owned report producer outside Aster that reads
+- [x] Build a root/operator-owned report producer outside Aster that reads
   approved ARR health endpoints with private credentials.
-- [ ] Validate the report schema, restrictive ownership and freshness window.
-- [ ] Give Aster read-only access to only that report directory.
-- [ ] Test stale, malformed, partial and unavailable reports; the manager must
+- [x] Validate the report schema, restrictive ownership and freshness window.
+- [x] Give Aster read-only access to only that report directory.
+- [x] Test stale, malformed, partial and unavailable reports; the manager must
   report uncertainty rather than retry arbitrary network targets.
 
-Completion gate: Aster can diagnose a bounded service/queue/import state
-without holding a service credential or making arbitrary HTTP requests.
+Completion gate: Aster can diagnose the bounded implemented report state
+(service health and queue evidence; unavailable import evidence is stated as
+such) without holding a service credential or making arbitrary HTTP requests.
 
 ## Milestone 3 — Action-proposal rehearsal
 
-- [ ] Define each candidate action as a separate project decision with target,
+- [x] Define each candidate action as a separate project decision with target,
   identity, validation, audit output, timeout, rollback and exact approval
   moment.
-- [ ] Start with dry-run/proposal output only; compare it against a manually
-  reviewed operation.
+- [x] Start with dry-run/proposal output only.
+- [ ] Compare the proposal against a manually reviewed operation before any
+  real mutation is enabled.
 - [ ] Treat every mutation as a separate graduation gate. No standing approval
   or natural-language request grants general ARR control.
 
@@ -141,6 +143,13 @@ library access, or standing permission to make changes.
   action that can acquire content, remove media, rename files, alter indexers,
   profiles, root folders, download-client settings or monitoring scope needs
   its own later decision and must not be smuggled into the first broker.
+
+Current rehearsal evidence: `services/aster-arr-broker/` implements only the
+fixed operation in the first-repair decision. Its adapter interface exposes no
+URL, method, credential, bulk selector or generic request channel. The local
+test adapter proves dry-run, candidate freshness, single-use approval,
+precondition refusal, idempotent absence and timeout/unknown-outcome handling.
+It is not deployed and cannot contact an ARR service.
 
 ### Graduation test gate
 
@@ -187,3 +196,13 @@ operation; it does not authorize general ARR control or future actions.
 |---|---|---|---|
 | 2026-09-08 | 1 | Created the versioned advisory Hermes skill source and a structural test. Reviewed existing Aster/Hermes separation and recorded the ARR capability boundary. | Foundation complete; no live ARR credential, endpoint access or action authority has been added. |
 | 2026-09-08 | 1 | Deployed the reviewed Aster advisory policy and sanitized 26-source knowledge snapshot to LXC 104 with rollback copies. The deployed 18-test unit suite passed. ARR evaluation improved from 4/6 to 5/6 after a policy correction; the focused stale-config regression then passed 1/1. | Advisory safety boundaries are verified for the exercised cases. Milestone 1 remains open pending the complete source-aware and adversarial matrix; no live-read or repair authority has been added. |
+| 2026-09-09 | 1 | Fresh Hermes process listed `arr-stack-manager` as enabled local skill. Deployed Aster unit suite passed 18/18; evaluator unit suite passed 5/5. The source-aware/adversarial suite passed 8/8 and the legacy safety suite passed 6/6. | **Milestone 1 complete.** Aster graduates only to advisory ARR assistance. It has no live ARR credential, report, API, UI, command, read or repair authority. |
+| 2026-09-09 | 0/2 | Defined the strict v1 sanitized ARR report contract and a local validator with freshness, field allow-list and aggregate-only tests. | Contract ready for a separately authorized operator-owned producer; it is not yet mounted or exposed to Aster. |
+| 2026-09-09 | 2 | Deployed the root-owned TrueNAS producer at `/mnt/Media/data/tools/aster-arr-report/`; native cron job 5 refreshes its mode-640 aggregate report every five minutes. The report validated without exposing a credential, endpoint, title, path, raw error or raw response. | Producer complete. A dedicated forced-command SSH transport delivers only the validated report to LXC 104 with `root:aster` mode 640; no report credential, service route or arbitrary remote command is exposed to Aster. |
+| 2026-09-09 | 2 | Recovered B60 Xe binding after confirming VM105 stopped, restored DRM/Vulkan mapping to LXC 110, and restarted only inference. Deployed Aster/report tests passed 32/32. The bounded black-box report-read evaluation passed 1/1 in 54.644 seconds. | **Milestone 2 complete for the implemented health/queue report scope.** Aster reads only the fixed-path sanitized report and accurately states declared coverage; import evidence remains unavailable rather than inferred. No repair authority has been added. |
+| 2026-09-09 | 3 | Defined and locally tested a no-op proposal for dismissing one opaque, stale completed Radarr queue record while preserving downloader data and refusing blocklisting, search, acquisition, settings or media changes. | Proposal rehearsal only. The implementation has no HTTP client, credential or execution path; a separately reviewed broker and task-specific approval remain required. |
+| 2026-09-09 | 4 rehearsal | Added the single-operation broker core with opaque candidate binding, fresh-report enforcement, single-use task-specific approvals, precondition checks, bounded audit records and timeout-safe unknown outcomes. Local fake-adapter tests passed without contacting an ARR service. | Production deployment, least-privilege credential isolation, disposable-target comparison and a fresh action-specific approval are still required before any live mutation or graduation. |
+| 2026-09-09 | 4 rehearsal | Staged the root-owned broker source on TrueNAS with no credential file or service. Its 20 tests passed there, including a loopback-only disposable Radarr fixture that exercised only the fixed queue-read and parameter-pinned queue-delete paths. | Source and disposable proof are complete. The staged broker remains disabled and cannot reach Radarr; live credential isolation, an authenticated service boundary and task-specific execution approval remain open. |
+| 2026-09-09 | 4 rehearsal | Deployed and verified the authenticated broker bound only to TrueNAS loopback, with a root-only broker key, no execution route and no boot enablement. Its 24 tests passed; loopback authentication returns only 401/400 safe responses. The root-only issuer then performed one read-only Radarr scan and the service was stopped afterward. | No eligible stale completed/imported Radarr queue record exists, so no opaque candidate was created. This is the intended fail-closed result; the staged broker is stopped and boot-disabled, with no Radarr mutation, credential export or network exposure. |
+| 2026-09-09 | 4 rehearsal | Created a temporary synthetic broker-only candidate (queue ID never sent to Radarr) and exercised the authenticated loopback dry-run endpoint. The result confirmed `dry_run` mode with execution disabled and zero Radarr contact. The prior state was restored, normalized to a valid empty schema, and the service stopped. | Disposable dry-run proof passed. It is not live repair evidence and does not satisfy the final task-specific mutation approval gate. |
+| 2026-09-09 | 4 disposable repair | Ran a production-shaped loopback Radarr fixture containing one synthetic completed/imported queue record. The broker first returned a dry run without touching the fixture, then executed the one approved fixture action using only the fixed safe query flags and confirmed the record absent on a subsequent idempotent check. | The disposable broker repair gate passed with zero live Radarr, media or downloader contact. Aster-to-broker action plumbing and its focused black-box evaluation remain required before claiming Aster graduation. |

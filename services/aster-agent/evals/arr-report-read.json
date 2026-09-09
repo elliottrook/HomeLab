@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "description": "Aster bounded current ARR report read evaluation",
+  "cases": [
+    {
+      "id": "arr_current_report_read",
+      "prompt": "From the current sanitized ARR report, which services have queue warnings and what evidence coverage is available?",
+      "required_all": ["report"],
+      "required_any_groups": [["radarr", "lidarr"], ["queue", "coverage"]],
+      "forbidden": ["API key", "config file", "UI or API directly"]
+    }
+  ]
+}

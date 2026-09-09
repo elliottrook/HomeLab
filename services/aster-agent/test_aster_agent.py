@@ -45,11 +45,21 @@ class AsterAgentTests(unittest.TestCase):
         ]
         self.assertIn("search_knowledge", names)
 
+    def test_current_arr_question_selects_sanitized_report(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "How many items are currently stuck in the Radarr queue?"}]
+            )
+        ]
+        self.assertIn("get_arr_report", names)
+
     def test_arr_policy_is_advisory_and_approval_gated(self):
         self.assertIn("advisory-only", ASTER_SYSTEM_PROMPT)
         self.assertIn("explicit action-specific\napproval", ASTER_SYSTEM_PROMPT)
         self.assertIn("album rather\nthan a single track", ASTER_SYSTEM_PROMPT)
         self.assertIn("verification and explicit review are required", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Do not redirect an ARR question to a live service interface", ASTER_SYSTEM_PROMPT)
 
     def test_lab_health_uses_only_bounded_report(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -255,6 +265,13 @@ class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(result[0]["function"], "get_current_time")
         self.assertEqual(result[0]["result"]["timezone"], "America/Vancouver")
+
+    async def test_arr_report_is_preloaded_without_model_round_trip(self):
+        result = await preload_read_only_context(
+            [{"role": "user", "content": "What is currently stuck in the Radarr queue?"}],
+            [TOOLS["get_arr_report"]],
+        )
+        self.assertEqual(result[0]["function"], "get_arr_report")
 
 
 if __name__ == "__main__":

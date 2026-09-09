@@ -1,0 +1,25 @@
+[Unit]
+Description=Aster ARR broker (dry-run only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+EnvironmentFile=/mnt/Media/data/tools/aster-arr-broker/aster-arr-broker.env
+Environment=ASTER_ARR_BROKER_HOST=127.0.0.1
+Environment=ASTER_ARR_BROKER_PORT=9421
+Environment=ASTER_ARR_BROKER_STATE=/mnt/Media/data/tools/aster-arr-broker/state/candidates.json
+WorkingDirectory=/mnt/Media/data/tools/aster-arr-broker
+ExecStart=/usr/bin/python3 /mnt/Media/data/tools/aster-arr-broker/server.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/mnt/Media/data/tools/aster-arr-broker/state
+
+[Install]
+WantedBy=multi-user.target

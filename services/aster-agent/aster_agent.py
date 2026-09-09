@@ -18,6 +18,8 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
+from arr_report import get_arr_report as read_arr_report
+
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
 LLAMA_API_KEY = os.environ.get("ASTER_LLAMA_API_KEY", "")
@@ -25,6 +27,9 @@ LLAMA_BASE_URL = os.environ.get("ASTER_LLAMA_BASE_URL", "http://192.168.70.12:11
 UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
 HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
+ARR_REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT", "/var/lib/aster/arr-report/latest.json"))
+ARR_BROKER_URL = os.environ.get("ASTER_ARR_BROKER_URL", "").rstrip("/")
+ARR_BROKER_KEY = os.environ.get("ASTER_ARR_BROKER_KEY", "")
 DEFAULT_TIMEZONE = os.environ.get("ASTER_TIMEZONE", "America/Vancouver")
 REQUEST_TIMEOUT = float(os.environ.get("ASTER_REQUEST_TIMEOUT", "180"))
 MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
@@ -51,7 +56,7 @@ break-glass account to obtain a secret; refer only to the approved credential
 recovery or administrative-access procedure without revealing its material.
 For Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd and Jellyfin, you are
 advisory-only: never make a live request, direct the user to an API, command,
-or configuration location, or imply that a change occurred. Treat stored ARR
+UI, or configuration location, or imply that a change occurred. Treat stored ARR
 knowledge as non-live and state when a sanitized current report is required.
 For a requested ARR change, refuse execution and offer only a narrowly scoped
 proposal for review: identify the affected service/resource, preconditions,
@@ -62,6 +67,14 @@ unmonitoring, acquisition, or configuration changes as a self-service step.
 When a user cites a historical ARR path or purported setting, state that it is
 not current evidence and that verification and explicit review are required
 before any change; do not let source detail displace this boundary.
+Do not redirect an ARR question to a live service interface as a workaround;
+request the bounded sanitized report or offer a reviewable proposal instead.
+This applies even while refusing an action: never say that the user should use
+an ARR interface, UI, API or command directly.
+When the fixed-path ARR report is supplied, you may state only its generation
+time, aggregate service status, aggregate counters and declared coverage. Treat
+an unavailable, stale or partial report as limited evidence, never as a reason
+to refresh it or contact an ARR service.
 Guest type matters: do not relabel a VM as an LXC or vice versa.
 LXC 110 is a container, never an inference VM; VM 105 is the stopped Ollama
 rollback guest.
@@ -122,6 +135,15 @@ TOOLS: dict[str, dict[str, Any]] = {
             "parameters": {"type": "object", "properties": {}},
         },
     },
+    "get_arr_report": {
+        "type": "function",
+        "function": {
+            "name": "get_arr_report",
+            "description": "Read the latest fixed-path sanitized ARR aggregate report. It cannot refresh the report, contact ARR services, or access credentials.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    "get_arr_repair_proposal": {"type": "function", "function": {"name": "get_arr_repair_proposal", "description": "Request only a dry-run proposal for the single opaque report-issued ARR repair candidate. It cannot execute a repair.", "parameters": {"type": "object", "properties": {}}}},
     "search_knowledge": {
         "type": "function",
         "function": {
@@ -143,6 +165,11 @@ TOOL_HINTS = {
     "get_current_time": re.compile(r"\b(time|date|day|today|tonight|timezone)\b", re.I),
     "get_service_health": re.compile(r"\b(health|healthy|status|online|running|inference|service)\b", re.I),
     "get_lab_health": re.compile(r"\b(lab health|homelab health|doctor|health report|health summary|system health)\b", re.I),
+    "get_arr_report": re.compile(
+        r"\b(?:sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b.*\b(?:current|right now|queue|health|unhealthy|stuck|error|import state|service status)\b|\b(?:current|right now|queue|health|unhealthy|stuck|error|import state|service status)\b.*\b(?:sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
+        re.I,
+    ),
+    "get_arr_repair_proposal": re.compile(r"\b(?:arr|radarr)\b.*\b(?:repair|fix|dismiss)\b|\b(?:repair|fix|dismiss)\b.*\b(?:arr|radarr)\b", re.I),
     "search_knowledge": re.compile(
         r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
         re.I,
@@ -470,6 +497,24 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
 
     if name == "get_lab_health":
         return get_lab_health()
+    if name == "get_arr_report":
+        return read_arr_report(ARR_REPORT_PATH)
+    if name == "get_arr_repair_proposal":
+        report = read_arr_report(ARR_REPORT_PATH)
+        candidates = report.get("repair_candidates") if isinstance(report, dict) else None
+        if report.get("status") == "unavailable" or not isinstance(candidates, list) or len(candidates) != 1:
+            return {"status": "unavailable", "error": "No fresh, report-issued repair candidate is available"}
+        if not ARR_BROKER_URL or not ARR_BROKER_KEY:
+            return {"status": "unavailable", "error": "Repair broker dry-run is not configured"}
+        candidate = candidates[0]
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                response = await client.post(f"{ARR_BROKER_URL}/v1/dry-run", headers={"Authorization": f"Bearer {ARR_BROKER_KEY}"}, json={"operation": candidate["operation"], "service": candidate["service"], "candidate_ref": candidate["candidate_ref"], "report_generated_at": report["generated_at"]})
+            response.raise_for_status()
+            result = response.json()
+        except (httpx.HTTPError, ValueError):
+            return {"status": "unavailable", "error": "Repair broker dry-run unavailable"}
+        return {"status": "proposal", "dry_run": result}
 
     if name == "search_knowledge":
         return search_knowledge(
@@ -503,6 +548,10 @@ async def preload_read_only_context(
         elif name == "get_service_health":
             arguments = {"service": "aster" if re.search(r"\baster\b", user_text, re.I) else "inference"}
         elif name == "get_lab_health":
+            arguments = {}
+        elif name == "get_arr_report":
+            arguments = {}
+        elif name == "get_arr_repair_proposal":
             arguments = {}
         elif name == "search_knowledge":
             arguments = {"query": user_text, "max_results": 3}
