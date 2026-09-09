@@ -276,8 +276,11 @@ def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     if source == "reference/operations/arr-stack.md":
         if re.search(r"\b(version|versions|installed|ports?)\b", query, re.I) and "current service inventory" in text:
             bonus += 320
-        if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b", query, re.I) and "automation and mutation map" in text:
-            bonus += 320
+        if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b", query, re.I):
+            if "truenas cron job" in text:
+                bonus += 360
+            elif "automation and mutation map" in text:
+                bonus += 320
         if re.search(r"\b(root|roots|dependency|downloader|handoff)\b", query, re.I) and "current service inventory" in text:
             bonus += 280
     if source == "reference/infrastructure/hardware-inventory.md":
@@ -368,7 +371,9 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                     r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b",
                     query,
                     re.I,
-                ) and "automation and mutation map" in normalized:
+                ) and (
+                    "automation and mutation map" in normalized or "truenas cron job" in normalized
+                ):
                     score = max(score, 1)
                 elif re.search(
                     r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b",
@@ -420,6 +425,8 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                 elif relative == "reference/operations/arr-stack.md":
                     if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b", query, re.I):
                         preferred_anchor = normalized.find("automation and mutation map")
+                        if preferred_anchor < 0:
+                            preferred_anchor = normalized.find("truenas cron job")
                     elif re.search(r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b", query, re.I):
                         preferred_anchor = normalized.find("current service inventory")
                 if relative.endswith("Aster-Operations.md") and _chunk_bonus(relative, normalized, query, tokens):

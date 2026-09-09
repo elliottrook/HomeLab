@@ -272,7 +272,9 @@ class AsterAgentTests(unittest.TestCase):
                 + "Radarr 6.3.0.10514 uses the movie root.\n"
                 + "Dependency and downloader notes. " * 50
                 + "\n## Automation and Mutation Map\n"
-                + "Cron Job 2 runs the bounded integrity automation.\n",
+                + ("Automation boundary context. " * 60)
+                + "\n"
+                + "TrueNAS Cron Job 2 runs the bounded integrity automation.\n",
                 encoding="utf-8",
             )
             (root / ".aster-provenance.json").write_text(
