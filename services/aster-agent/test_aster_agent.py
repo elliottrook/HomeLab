@@ -36,6 +36,15 @@ class AsterAgentTests(unittest.TestCase):
         ]
         self.assertIn("search_knowledge", names)
 
+    def test_arr_question_selects_knowledge(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "Why did Lidarr import an album but Jellyfin not show it?"}]
+            )
+        ]
+        self.assertIn("search_knowledge", names)
+
     def test_lab_health_uses_only_bounded_report(self):
         with tempfile.TemporaryDirectory() as directory:
             report = Path(directory) / "latest.json"

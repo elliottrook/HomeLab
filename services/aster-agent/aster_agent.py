@@ -131,7 +131,7 @@ TOOL_HINTS = {
     "get_service_health": re.compile(r"\b(health|healthy|status|online|running|inference|service)\b", re.I),
     "get_lab_health": re.compile(r"\b(lab health|homelab health|doctor|health report|health summary|system health)\b", re.I),
     "search_knowledge": re.compile(
-        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift)\b",
+        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
         re.I,
     ),
 }
