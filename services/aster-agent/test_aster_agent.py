@@ -275,7 +275,10 @@ class AsterAgentTests(unittest.TestCase):
                 + "\n## Automation and Mutation Map\n"
                 + ("Automation boundary context. " * 60)
                 + "\n"
-                + "TrueNAS Cron Job 2 runs the bounded integrity automation.\n",
+                + "TrueNAS Cron Job 2 runs the bounded integrity automation.\n"
+                + ("Built-in ARR behavior. " * 60)
+                + "\nProwlarr application synchronization can change indexer definitions in connected ARR applications. "
+                + "A stale connected-app key can break synchronization and downstream indexer health.\n",
                 encoding="utf-8",
             )
             (root / ".aster-provenance.json").write_text(
@@ -305,6 +308,10 @@ class AsterAgentTests(unittest.TestCase):
                 (
                     "What are the Sonarr and Radarr canonical roots and downloader dependency path?",
                     "/mnt/Media/data/media/tv",
+                ),
+                (
+                    "Sonarr says all indexers are unavailable after a Prowlarr key rotation. What is the safe diagnosis?",
+                    "application synchronization",
                 ),
             )
             for query, expected in cases:
