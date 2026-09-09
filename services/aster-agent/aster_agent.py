@@ -273,6 +273,13 @@ def _source_bonus(
 
 def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     bonus = 0
+    if source == "reference/operations/arr-stack.md":
+        if re.search(r"\b(version|versions|installed|ports?)\b", query, re.I) and "current service inventory" in text:
+            bonus += 320
+        if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b", query, re.I) and "automation and mutation map" in text:
+            bonus += 320
+        if re.search(r"\b(root|roots|dependency|downloader|handoff)\b", query, re.I) and "current service inventory" in text:
+            bonus += 280
     if source == "reference/infrastructure/hardware-inventory.md":
         if re.search(r"\b(rack|rack-unit|ru position)", query, re.I) and "uncertain or excluded" in text:
             bonus += 240
@@ -356,6 +363,19 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                 r"## (?:1\.|2\.|3\.)", chunk
             ):
                 score = max(score, 1)
+            if relative == "reference/operations/arr-stack.md":
+                if re.search(
+                    r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b",
+                    query,
+                    re.I,
+                ) and "automation and mutation map" in normalized:
+                    score = max(score, 1)
+                elif re.search(
+                    r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b",
+                    query,
+                    re.I,
+                ) and "current service inventory" in normalized:
+                    score = max(score, 1)
             if role_query and relative == "reference/infrastructure/virtualization.md" and "local-ai stack detail" in normalized:
                 score += 300
             if addressing_query and relative == "reference/network/addressing.md" and "lab vlan 70" in normalized:
@@ -397,6 +417,11 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                     r"\b(recovery|whole-network|outage|remote access)\b", query, re.I
                 ):
                     preferred_anchor = normalized.find("recovery order")
+                elif relative == "reference/operations/arr-stack.md":
+                    if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b", query, re.I):
+                        preferred_anchor = normalized.find("automation and mutation map")
+                    elif re.search(r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b", query, re.I):
+                        preferred_anchor = normalized.find("current service inventory")
                 if relative.endswith("Aster-Operations.md") and _chunk_bonus(relative, normalized, query, tokens):
                     preferred_anchor = normalized.find("runtime configuration")
                 elif relative.endswith("AI-Hermes-Second-Brain.md") and _chunk_bonus(relative, normalized, query, tokens):

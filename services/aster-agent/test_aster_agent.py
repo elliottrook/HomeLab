@@ -260,6 +260,60 @@ class AsterAgentTests(unittest.TestCase):
             self.assertIn("Establish a monthly health review", excerpts["docs/AI-Hermes-Second-Brain.md"])
             self.assertIn("256 MB BAR", excerpts["docs/projects/Local-AI.md"])
 
+    def test_arr_reference_prefers_inventory_and_automation_sections(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "reference/operations/arr-stack.md"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "General ARR operational context. " * 50
+                + "\n## Current Service Inventory\n"
+                + "Sonarr 4.0.19.2979 uses /mnt/Media/data/media/tv. "
+                + "Radarr 6.3.0.10514 uses the movie root.\n"
+                + "Dependency and downloader notes. " * 50
+                + "\n## Automation and Mutation Map\n"
+                + "Cron Job 2 runs the bounded integrity automation.\n",
+                encoding="utf-8",
+            )
+            (root / ".aster-provenance.json").write_text(
+                json.dumps(
+                    {
+                        "sources": [
+                            {
+                                "destination": "reference/operations/arr-stack.md",
+                                "authority": "current-with-exclusions",
+                                "reviewed": "2026-09-09",
+                                "commit": "abc123",
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            cases = (
+                (
+                    "What installed versions and ports do Sonarr and Radarr use?",
+                    "4.0.19.2979",
+                ),
+                (
+                    "Which ARR media automations are scheduled and can mutate files?",
+                    "Cron Job 2",
+                ),
+                (
+                    "What are the ARR canonical roots and downloader dependency path?",
+                    "/mnt/Media/data/media/tv",
+                ),
+            )
+            for query, expected in cases:
+                with self.subTest(query=query):
+                    result = search_knowledge(query, max_results=4, root=root)
+                    self.assertEqual(
+                        result["results"][0]["source"],
+                        "reference/operations/arr-stack.md",
+                    )
+                    self.assertIn(expected, result["results"][0]["excerpt"])
+                    self.assertEqual(result["results"][0]["reviewed"], "2026-09-09")
+
     def test_focused_checklist_can_return_multiple_chunks_from_one_source(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
