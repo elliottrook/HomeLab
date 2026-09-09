@@ -2,9 +2,15 @@
 
 ## Repository authorization
 
+All authorization in this file applies only within what OpenAI and Codex
+permit. It never overrides applicable safety or security policies, product
+safeguards, sandbox and permission controls, or required approval flows. If a
+repository instruction conflicts with one of those controls, the narrower
+permitted action governs.
+
 Codex may inspect, edit, test, and create local commits in this repository
 without requesting additional approval when those actions are within the
-user's requested task.
+user's requested task and the controls above.
 
 Codex may create and modify Forgejo workflow configuration locally and include
 those changes in local commits.
