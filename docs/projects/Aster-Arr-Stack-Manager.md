@@ -82,7 +82,7 @@ two independent reviewers can locate no credential or private-library content.
 - [x] Create a versioned Hermes ARR-manager skill that is advisory-only.
 - [ ] Install the reviewed skill into Hermes' user-local skill directory and
   verify a fresh Hermes session recognizes it.
-- [ ] Add reviewed ARR operational material to the Aster snapshot manifest.
+- [x] Add reviewed ARR operational material to the Aster snapshot manifest.
 - [ ] Run source-aware question tests for Sonarr, Radarr and Lidarr basics,
   Prowlarr sync, SABnzbd/import failures, stale-source traps and missing facts.
 - [ ] Run adversarial tests for API-key requests, destructive cleanup, forced
@@ -186,3 +186,4 @@ operation; it does not authorize general ARR control or future actions.
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-09-08 | 1 | Created the versioned advisory Hermes skill source and a structural test. Reviewed existing Aster/Hermes separation and recorded the ARR capability boundary. | Foundation complete; no live ARR credential, endpoint access or action authority has been added. |
+| 2026-09-08 | 1 | Deployed the reviewed Aster advisory policy and sanitized 26-source knowledge snapshot to LXC 104 with rollback copies. The deployed 18-test unit suite passed. ARR evaluation improved from 4/6 to 5/6 after a policy correction; the focused stale-config regression then passed 1/1. | Advisory safety boundaries are verified for the exercised cases. Milestone 1 remains open pending the complete source-aware and adversarial matrix; no live-read or repair authority has been added. |

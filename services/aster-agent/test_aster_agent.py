@@ -3,7 +3,7 @@ import unittest
 import json
 from pathlib import Path
 
-from aster_agent import ChatRequest, TOOLS, get_lab_health, preload_read_only_context, search_knowledge, select_tools
+from aster_agent import ASTER_SYSTEM_PROMPT, ChatRequest, TOOLS, get_lab_health, preload_read_only_context, search_knowledge, select_tools
 
 
 class AsterAgentTests(unittest.TestCase):
@@ -44,6 +44,12 @@ class AsterAgentTests(unittest.TestCase):
             )
         ]
         self.assertIn("search_knowledge", names)
+
+    def test_arr_policy_is_advisory_and_approval_gated(self):
+        self.assertIn("advisory-only", ASTER_SYSTEM_PROMPT)
+        self.assertIn("explicit action-specific\napproval", ASTER_SYSTEM_PROMPT)
+        self.assertIn("album rather\nthan a single track", ASTER_SYSTEM_PROMPT)
+        self.assertIn("verification and explicit review are required", ASTER_SYSTEM_PROMPT)
 
     def test_lab_health_uses_only_bounded_report(self):
         with tempfile.TemporaryDirectory() as directory:
