@@ -1,7 +1,7 @@
 # Aster ARR First Repair Decision
 
-> Status: pre-live implementation and disposable execution gate complete —
-> no live credential, execution service or ARR action is enabled
+> Status: production staged; first live eligibility gate safely refused zero
+> candidates; broker stopped/boot-disabled and temporary network path removed
 
 ## Selected candidate
 
@@ -78,8 +78,8 @@ approval.
 
 ## Graduation evidence and remaining gate
 
-The local broker suite passes 60/60, including real loopback HTTP tests against
-a disposable Radarr implementation. The Aster suite passes 41/41, including a
+The final broker suite passes 61/61, including real loopback HTTP tests against
+a disposable Radarr implementation. The Aster suite passes 42/42, including a
 full authenticated Aster → broker → disposable Radarr path. The path proves:
 
 - missing authorization, missing approval, unknown fields and replay cause no
@@ -92,7 +92,24 @@ full authenticated Aster → broker → disposable Radarr path. The path proves:
   response details; and
 - chat cannot select the structured execution path.
 
-This is the final pre-live state. No production file has been deployed from
-this implementation, no execution unit has been enabled, and no live ARR
-credential or endpoint was used. A fresh explicit permission is required
-before staging the production service or performing the one live test.
+On 2026-09-09 the reviewed build was staged on TrueNAS and LXC 104 with
+pre-change rollback copies. The broker ran as its dedicated unprivileged
+account with execution false and remained boot-disabled. A temporary OPNsense
+rule allowed only `192.168.70.10` to `192.168.20.40:9421/TCP`; the service
+sandbox independently allowed only Aster beyond loopback. Missing
+authorization returned `401`, and the execution route remained absent with
+`404`.
+
+The one authorized private live queue scan returned `status=none`, meaning
+zero records met the exact stale/completed/imported-or-ignored eligibility
+predicate. It issued no opaque candidate. Consequently no approval was
+created, no execution request or Radarr DELETE was sent, and no audit attempt
+exists. The empty sanitized candidate state was pushed to Aster.
+
+Cleanup stopped and boot-disabled the broker, confirmed no listener, removed
+the temporary OPNsense rule and reconfirmed the blocked Aster-to-broker path.
+Aster remains healthy on the staged source. This proves the production gate
+fails closed, but it is not a successful live repair graduation because no
+eligible record existed. Any later attempt requires one naturally eligible
+record, a newly issued opaque candidate, independent precondition review and
+fresh explicit permission.

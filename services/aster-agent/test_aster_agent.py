@@ -21,6 +21,15 @@ from aster_agent import (
 
 
 class AsterAgentTests(unittest.TestCase):
+    def test_arr_broker_drop_in_has_no_execution_switch_or_radarr_credential(self):
+        drop_in = (
+            Path(__file__).with_name("systemd") / "aster-arr-broker.conf"
+        ).read_text(encoding="utf-8")
+        self.assertIn("EnvironmentFile=/etc/aster/arr-broker.env", drop_in)
+        self.assertIn("ASTER_ARR_BROKER_URL=http://192.168.20.40:9421", drop_in)
+        self.assertNotIn("ASTER_ARR_EXECUTION_ENABLED", drop_in)
+        self.assertNotIn("RADARR_API_KEY", drop_in)
+
     def test_casual_chat_has_no_tools(self):
         self.assertEqual(select_tools([{"role": "user", "content": "Tell me a short joke"}]), [])
 

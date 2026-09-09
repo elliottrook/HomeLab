@@ -78,9 +78,13 @@ emit or request follow-up tool calls. If the preloaded context is insufficient,
 it says what is missing. There is no arbitrary shell, filesystem write, or
 user-supplied network target.
 
-The reviewed source also contains a structured ARR execution endpoint, but it
-is not deployed. It is not an LLM function and natural-language chat cannot
-select it. See the pre-live gate below.
+The deployed Aster source also contains a structured ARR execution endpoint.
+It is not an LLM function and natural-language chat cannot select it. It can
+only rebuild a request for the one opaque candidate in a fresh sanitized
+report, and the separate TrueNAS broker must also be running, reachable,
+explicitly execution-enabled and holding a fresh server-side approval. The
+broker is normally stopped, boot-disabled and blocked at the inter-VLAN
+firewall. See the production gate below.
 
 The deployed knowledge directory is a curated snapshot, not a live Git mount.
 Build it from the repository's explicit allowlist after material documentation
@@ -109,18 +113,20 @@ is a knowledge rollback only: it does not alter inference, networking, model
 files or credentials. Record the replaced and restored archive hashes in the
 project evidence log.
 
-## ARR first-repair pre-live gate
+## ARR first-repair production gate
 
 The first repair is limited to dismissing one stale completed Radarr queue
 record while preserving media and downloader data. The complete request,
 approval, audit and non-reversibility decision is in
 `docs/projects/Aster-ARR-First-Repair-Decision.md`.
 
-The source tree is ready for one production test, but production staging and
-live ARR access remain prohibited until Jason gives fresh explicit permission.
-The checked-in execution service is intentionally safe when merely installed:
-it runs as `aster-arr-broker`, binds only to loopback, denies non-loopback IP
-traffic and sets `ASTER_ARR_EXECUTION_ENABLED=false`.
+The source is staged on Aster and TrueNAS, but the execution broker remains
+stopped and boot-disabled. Its checked-in default runs as
+`aster-arr-broker`, binds only to loopback, denies non-loopback IP traffic and
+sets `ASTER_ARR_EXECUTION_ENABLED=false`. The production drop-in changes only
+the bind address and allows only Aster's host at the service sandbox; OPNsense
+still blocks that path unless an explicitly approved temporary rule is added.
+A fresh explicit permission is required for every later live attempt.
 
 After that permission, use this order and stop on any failed check:
 
@@ -157,6 +163,32 @@ broker, restore the accepted Aster source and remove the narrow network
 allowance. After a confirmed dismissal there is no queue-record rollback;
 media and downloader data remain untouched, but the removed Radarr queue
 record is not recreated.
+
+### 2026-09-09 first production gate evidence
+
+- Reviewed commit `6bd7d4e` was staged with rollback copies on TrueNAS,
+  Proxmox and LXC 104. Source hashes matched before installation.
+- The deployed broker passed 61/61 tests as its unprivileged service account.
+  Aster passed 41/41 deployed unit tests, and a disposable dependency-complete
+  layout in LXC 104 passed the full 42/42 suite including the authenticated
+  Aster → broker → fake Radarr execution path.
+- With execution false, Aster reached only the exact temporary
+  `192.168.70.10` → `192.168.20.40:9421/TCP` path. Missing authorization was
+  denied with `401` and `/v1/execute` was absent with `404`.
+- The one permitted private Radarr queue scan returned `status=none`: zero
+  records met the exact stale/completed/imported-or-ignored predicate. The
+  issuer therefore stored zero candidates and the empty sanitized state was
+  pushed to Aster.
+- No approval was created, no execution request or Radarr DELETE was sent,
+  and no audit attempt exists. Final state was independently checked as zero
+  candidates, zero approvals and no audit file.
+- Cleanup stopped and boot-disabled the broker, confirmed zero listeners,
+  removed the exact temporary OPNsense rule and reconfirmed that Aster's
+  broker connection times out. Aster itself remains active and healthy.
+
+This is a successful fail-closed production gate, not a completed live repair.
+The first successful live dismissal remains pending until a naturally eligible
+single record exists and Jason gives fresh permission for that later attempt.
 
 ## Health and logs
 

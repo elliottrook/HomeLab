@@ -41,6 +41,14 @@ class SystemdBoundaryTests(unittest.TestCase):
             tmpfiles,
         )
 
+    def test_production_drop_in_allows_only_aster_beyond_loopback(self):
+        drop_in = (
+            ROOT / "aster-arr-execution-broker-production.conf"
+        ).read_text(encoding="utf-8")
+        self.assertIn("ASTER_ARR_BROKER_HOST=192.168.20.40", drop_in)
+        self.assertIn("IPAddressAllow=192.168.70.10", drop_in)
+        self.assertNotIn("ASTER_ARR_EXECUTION_ENABLED=true", drop_in)
+
 
 if __name__ == "__main__":
     unittest.main()
