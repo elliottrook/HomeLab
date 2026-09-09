@@ -292,11 +292,11 @@ def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
             "aster's arr execution broker" in text or "natural-language chat cannot" in text
         ):
             bonus += 420
-        if re.search(r"\b(indexer|indexers|sync|synchronization|key rotation|coupled|connected app)\b", query, re.I) and (
-            "prowlarr application synchronization" in text
-            or "connected arr applications" in text
-        ):
-            bonus += 420
+        if re.search(r"\b(indexer|indexers|sync|synchronization|key rotation|coupled|connected app)\b", query, re.I):
+            if "prowlarr application synchronization" in text or "stale connected-app key" in text:
+                bonus += 900
+            elif "connected arr applications" in text:
+                bonus += 420
     if source == "reference/infrastructure/hardware-inventory.md":
         if re.search(r"\b(rack|rack-unit|ru position)", query, re.I) and "uncertain or excluded" in text:
             bonus += 240
