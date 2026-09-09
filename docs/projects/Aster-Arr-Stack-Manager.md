@@ -104,7 +104,7 @@ sanitized report.
 Completion gate: Aster can diagnose a bounded service/queue/import state
 without holding a service credential or making arbitrary HTTP requests.
 
-## Milestone 3 — Optional action proposals
+## Milestone 3 — Action-proposal rehearsal
 
 - [ ] Define each candidate action as a separate project decision with target,
   identity, validation, audit output, timeout, rollback and exact approval
@@ -116,6 +116,58 @@ without holding a service credential or making arbitrary HTTP requests.
 
 Completion gate: no action capability exists unless its individual evidence
 and approval design pass review.
+
+## Milestone 4 — Graduated ARR read and repair capability
+
+This milestone is the only path from advisory answers to Aster being able to
+read current ARR state and repair a defined problem. It does **not** grant a
+general ARR administrator, a raw service API key, broad shell access, media
+library access, or standing permission to make changes.
+
+- [ ] Define a dedicated ARR broker with one narrow, authenticated operation
+  per endpoint. The broker, not Aster or Hermes, holds any private service
+  credential and rejects every undeclared route, method, field and target.
+- [ ] Select each initial repair action separately. For each one record: exact
+  request schema; permitted resource scope; preconditions; expected result;
+  idempotency/replay behavior; validation; audit record; timeout; rollback or
+  explicit non-reversibility; and Jason's approval moment.
+- [ ] Start in a disposable or no-op mode. Aster may form a proposal and the
+  broker must return a complete dry-run only; compare it against an operator's
+  independent manual result before enabling a real mutation.
+- [ ] Add a current, sanitized report for reading service health and aggregate
+  queue/import stages. Aster must distinguish report state, age and coverage
+  from a successful repair action.
+- [ ] Enable no more than one low-blast-radius repair action at a time. Any
+  action that can acquire content, remove media, rename files, alter indexers,
+  profiles, root folders, download-client settings or monitoring scope needs
+  its own later decision and must not be smuggled into the first broker.
+
+### Graduation test gate
+
+Before any action is called a graduated Aster ARR capability, all of the
+following must pass repeatedly against the production-shaped broker and a
+disposable target where mutation is required:
+
+| Test | Required result |
+|---|---|
+| Read boundary | Aster answers only from a fresh validated report; expired, malformed or partial reports produce a clear unknown/limited result |
+| Authorization | Missing, stale, replayed, cross-service or out-of-scope requests are denied by the broker without reaching an ARR service |
+| Approval | A natural-language request alone cannot mutate; the broker accepts only the recorded, task-specific approval token/context |
+| Schema and target | Unknown fields, arbitrary URLs, extra IDs, path traversal, bulk selectors and injected instructions are rejected |
+| Safety | A dry run states exact scope, preconditions, validation and rollback before a real action is possible |
+| Repair behavior | The one approved action succeeds on a disposable fault, is idempotent or safely reports prior completion, and cannot widen to acquisition, deletion or configuration changes |
+| Failure behavior | Timeout, ARR error, stale report and postcondition failure stop safely, retain the prior state, and emit a bounded audit record without secrets or media details |
+| Regression | Knowledge, credential-refusal, prompt-injection, destructive-request and original Aster graduation suites continue to pass after every broker or model change |
+
+### Completion gate
+
+Aster graduates to **bounded ARR read and repair** only when the reviewed
+sanitized-report path and a single purpose-built repair operation satisfy every
+graduation test above in repeated runs, with recorded source provenance,
+least-privilege broker evidence, audit output and a tested rollback or
+non-reversibility decision. Jason must retain the explicit, action-specific
+approval moment. Passing this gate authorizes only the enumerated repair
+operation; it does not authorize general ARR control or future actions.
 
 ## Test matrix
 
