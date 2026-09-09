@@ -744,6 +744,198 @@ REMOTE
     fi
 }
 
+check_video_archiver() {
+    local output
+    local log_path=""
+    local mtime=""
+    local dry_run=""
+    local found=""
+    local processed=""
+    local succeeded=""
+    local failed=""
+    local max_age_hours=48  # Mon-Sat 01:30 cadence + slack for a Sunday gap
+
+    if ! output="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas /bin/bash -s <<'REMOTE'
+latest="$(ls -t /mnt/Media/data/tools/video-archiver/logs/run-*.jsonl 2>/dev/null | head -1)"
+if [[ -z "$latest" ]]; then
+    printf 'no_log=1\n'
+    exit 0
+fi
+printf 'log_path=%s\n' "$latest"
+printf 'mtime=%s\n' "$(stat -c %Y "$latest")"
+python3 -c "
+import json
+summary = None
+error_titles = []
+for line in open('$latest'):
+    line = line.strip()
+    if not line:
+        continue
+    d = json.loads(line)
+    if d.get('event') == 'summary':
+        summary = d
+    elif d.get('event') == 'error':
+        error_titles.append(d.get('title', '?'))
+if summary is None:
+    print('no_summary=1')
+else:
+    print(f'dry_run={1 if summary.get(\"dry_run\") else 0}')
+    print(f'found={summary.get(\"total_candidates_found\", 0)}')
+    print(f'processed={summary.get(\"processed\", 0)}')
+    print(f'succeeded={summary.get(\"succeeded\", 0)}')
+    print(f'failed={summary.get(\"failed\", 0)}')
+    for t in error_titles:
+        print(f'error_title={t}')
+"
+REMOTE
+    )"; then
+        warn "Unable to collect video-archiver health data"
+        return
+    fi
+
+    local error_titles=()
+
+    while IFS='=' read -r key value; do
+        case "$key" in
+            no_log) log_path="" ;;
+            no_summary) log_path="" ;;
+            log_path) log_path="$value" ;;
+            mtime) mtime="$value" ;;
+            dry_run) dry_run="$value" ;;
+            found) found="$value" ;;
+            processed) processed="$value" ;;
+            succeeded) succeeded="$value" ;;
+            failed) failed="$value" ;;
+            error_title) error_titles+=("$value") ;;
+        esac
+    done <<< "$output"
+
+    if [[ -z "$log_path" ]]; then
+        warn "video-archiver has no run log yet"
+        return
+    fi
+
+    local now_epoch
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_hours=$(( (now_epoch - mtime) / 3600 ))
+
+    local mode_label="dry-run"
+    [[ "$dry_run" == "0" ]] && mode_label="execute"
+
+    if [[ "$failed" =~ ^[0-9]+$ ]] && (( failed > 0 )); then
+        local list
+        list="$(printf '; %s' "${error_titles[@]}")"
+        list="${list:2}"
+        fail "video-archiver: ${failed} failure(s) on last run (${age_hours}h ago, ${mode_label}) — ${list:-see log}: ${log_path}"
+    elif (( age_hours > max_age_hours )); then
+        warn "video-archiver last run ${age_hours} hour(s) ago (expected ~daily, Mon-Sat)"
+    else
+        pass "video-archiver clean run ${age_hours}h ago (${mode_label}): ${found:-0} found, ${succeeded:-0} succeeded"
+    fi
+}
+
+check_jellyfin_integrity() {
+    local output
+    local report_path=""
+    local mtime=""
+    local mode=""
+    local errors=""
+    local alerts=""
+    local drift=""
+    local max_age_hours=200  # weekly Wednesday 03:00 cadence + slack
+
+    if ! output="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas /bin/bash -s <<'REMOTE'
+latest="$(ls -t /mnt/Media/data/tools/jellyfin-integrity/reports/*-run.json 2>/dev/null | head -1)"
+if [[ -z "$latest" ]]; then
+    printf 'no_report=1\n'
+    exit 0
+fi
+printf 'report_path=%s\n' "$latest"
+printf 'mtime=%s\n' "$(stat -c %Y "$latest")"
+python3 -c "
+import json
+r = json.load(open('$latest'))
+errors = (len(r.get('orphans', {}).get('errors', []) or [])
+          + len(r.get('scatter', {}).get('errors', []) or [])
+          + len(r.get('duplicates', {}).get('gap_fill_errors', []) or []))
+alerts = len(r.get('collections', {}).get('alerts', []) or [])
+drift = r.get('config_drift', {}).get('drifted', False)
+print(f'mode={r.get(\"mode\", \"unknown\")}')
+print(f'errors={errors}')
+print(f'alerts={alerts}')
+print(f'drift={1 if drift else 0}')
+
+# Named, actionable detail for anything sitting in the report waiting on
+# a human decision -- not just a count, so the daily email tells Jason
+# which album to go look at instead of just that something needs review.
+for d in r.get('duplicates', {}).get('queued_for_approval', []) or []:
+    a = d.get('folder_a', '?').rsplit('/', 2)
+    b = d.get('folder_b', '?').rsplit('/', 2)
+    a_label = '/'.join(a[-2:]) if len(a) >= 2 else d.get('folder_a', '?')
+    b_label = '/'.join(b[-2:]) if len(b) >= 2 else d.get('folder_b', '?')
+    print(f'review_item=Duplicate: {a_label} vs {b_label}')
+for c in r.get('scatter', {}).get('queued_for_review', []) or []:
+    print(f'review_item=Scatter: {c.get(\"artist\", \"?\")} - {c.get(\"album\", \"?\")}')
+"
+REMOTE
+    )"; then
+        warn "Unable to collect jellyfin-integrity health data"
+        return
+    fi
+
+    local review_items=()
+
+    while IFS='=' read -r key value; do
+        case "$key" in
+            no_report) report_path="" ;;
+            report_path) report_path="$value" ;;
+            mtime) mtime="$value" ;;
+            mode) mode="$value" ;;
+            errors) errors="$value" ;;
+            alerts) alerts="$value" ;;
+            drift) drift="$value" ;;
+            review_item) review_items+=("$value") ;;
+        esac
+    done <<< "$output"
+
+    if [[ -z "$report_path" ]]; then
+        warn "jellyfin-integrity has no report yet"
+        return
+    fi
+
+    local now_epoch
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_hours=$(( (now_epoch - mtime) / 3600 ))
+
+    local failures=()
+    [[ "$errors" =~ ^[0-9]+$ ]] && (( errors > 0 )) && failures+=("${errors} action error(s)")
+    [[ "$alerts" =~ ^[0-9]+$ ]] && (( alerts > 0 )) && failures+=("${alerts} collection/playlist count alert(s)")
+    [[ "$drift" == "1" ]] && failures+=("cleanup-task trigger re-enabled")
+
+    if (( ${#failures[@]} > 0 )); then
+        fail "jellyfin-integrity: ${failures[*]} (last run ${age_hours}h ago, ${mode:-unknown} mode)"
+    elif (( ${#review_items[@]} > 0 )); then
+        local shown=("${review_items[@]:0:5}")
+        local remaining=$(( ${#review_items[@]} - ${#shown[@]} ))
+        local list
+        list="$(printf '; %s' "${shown[@]}")"
+        list="${list:2}"
+        if (( remaining > 0 )); then
+            warn "jellyfin-integrity: ${#review_items[@]} item(s) awaiting your review — ${list}; +${remaining} more, see ${report_path} on TrueNAS"
+        else
+            warn "jellyfin-integrity: ${#review_items[@]} item(s) awaiting your review — ${list}"
+        fi
+    elif (( age_hours > max_age_hours )); then
+        warn "jellyfin-integrity last run ${age_hours} hour(s) ago (expected weekly)"
+    else
+        pass "jellyfin-integrity clean run ${age_hours} hour(s) ago (${mode:-unknown} mode)"
+    fi
+}
+
 check_netbox() {
     local output
     local containers=""
@@ -1315,6 +1507,8 @@ check_arista
 check_proxmox
 check_aster
 check_nut
+check_jellyfin_integrity
+check_video_archiver
 check_netbox
 check_observability
 check_truenas
@@ -1358,6 +1552,7 @@ check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
 check_backup_age "Proxmox" "$BACKUP_ROOT/proxmox" 48
 check_backup_age "NUT" "$BACKUP_ROOT/nut" 48
 check_backup_age "Observability" "$BACKUP_ROOT/observability" 48
+check_backup_age "Jellyfin Integrity" "$BACKUP_ROOT/jellyfin-integrity" 192
 check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30

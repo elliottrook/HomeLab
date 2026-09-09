@@ -43,21 +43,51 @@ class _ArrClient:
         if resp.status_code not in (200, 202, 204):
             raise ArrApiError(f"DELETE {path} -> {resp.status_code}: {resp.text[:500]}")
 
+    def _put(self, path: str, json_body: dict) -> None:
+        resp = requests.put(
+            f"{self.base_url}{path}",
+            headers={"X-Api-Key": self.api_key},
+            json=json_body,
+            timeout=self.timeout_s,
+        )
+        if resp.status_code not in (200, 202, 204):
+            raise ArrApiError(f"PUT {path} -> {resp.status_code}: {resp.text[:500]}")
+
 
 class RadarrClient(_ArrClient):
     def get_movies(self) -> list[dict]:
         return self._get("/api/v3/movie")
 
+    def get_tags(self) -> list[dict]:
+        return self._get("/api/v3/tag")
+
     def delete_movie_file(self, movie_file_id: int) -> None:
         self._delete(f"/api/v3/moviefile/{movie_file_id}")
+
+    def unmonitor_movie(self, movie_id: int) -> None:
+        # Confirmed necessary by live testing (2026-09-07): deleting a file alone leaves
+        # the movie monitored, which risks Radarr re-searching/re-acquiring it.
+        self._put("/api/v3/movie/editor", {"movieIds": [movie_id], "monitored": False})
 
 
 class SonarrClient(_ArrClient):
     def get_series(self) -> list[dict]:
         return self._get("/api/v3/series")
 
+    def get_tags(self) -> list[dict]:
+        return self._get("/api/v3/tag")
+
+    def get_episodes(self, series_id: int) -> list[dict]:
+        return self._get("/api/v3/episode", params={"seriesId": series_id})
+
     def get_episode_files(self, series_id: int) -> list[dict]:
         return self._get("/api/v3/episodefile", params={"seriesId": series_id})
 
     def delete_episode_file(self, episode_file_id: int) -> None:
         self._delete(f"/api/v3/episodefile/{episode_file_id}")
+
+    def unmonitor_episode(self, episode_id: int) -> None:
+        # Confirmed necessary by live testing (2026-09-07): DELETE .../episodefile/{id}
+        # leaves the episode monitored with hasFile=false — Sonarr's next scheduled
+        # missing-episode search would try to re-download the very file just archived.
+        self._put("/api/v3/episode/monitor", {"episodeIds": [episode_id], "monitored": False})

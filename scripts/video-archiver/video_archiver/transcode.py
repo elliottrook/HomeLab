@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import subprocess
-import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,6 +34,14 @@ class AudioStreamInfo:
     codec_name: str
     channels: int
     bit_rate: int | None
+    is_default: bool
+    language: str | None
+
+
+@dataclass
+class SubtitleStreamInfo:
+    index: int
+    language: str | None
 
 
 @dataclass
@@ -43,7 +50,7 @@ class Probe:
     width: int
     height: int
     audio_streams: list[AudioStreamInfo]
-    has_subtitles: bool
+    subtitle_streams: list[SubtitleStreamInfo]
 
 
 @dataclass
@@ -52,7 +59,17 @@ class BitratePlan:
     max_width: int
     max_height: int
     below_quality_floor: bool
-    audio_plan: list[tuple[int, str]]  # (stream_index_in_output_order, "copy" | "aac" | "eac3")
+    # The single audio stream kept, addressed by its INPUT position (0:a:N) -- always
+    # mapped to output position 0, since it's the only audio stream in the output.
+    selected_audio_input_index: int
+    audio_mode: str  # "copy" | "aac" | "eac3"
+    dropped_audio_track_count: int
+    # English-language subtitle streams (INPUT positions, 0:s:N) to keep, unlike audio
+    # every one of these is kept rather than picking just one -- subtitles are
+    # negligible size, so there's no budget reason to drop extras (e.g. a plain track
+    # plus an SDH one). Added 2026-09-08 (Jason's request): previously mapped ALL
+    # subtitle tracks regardless of language, same over-inclusive pattern as audio had.
+    english_subtitle_indices: list[int]
 
 
 def _run(cmd: list[str], timeout_s: int | None = None) -> subprocess.CompletedProcess:
@@ -79,7 +96,7 @@ def probe(path: Path, config: Config) -> Probe:
 
     width = height = 0
     audio_streams: list[AudioStreamInfo] = []
-    has_subtitles = False
+    subtitle_streams: list[SubtitleStreamInfo] = []
 
     for stream in data.get("streams", []):
         codec_type = stream.get("codec_type")
@@ -94,36 +111,65 @@ def probe(path: Path, config: Config) -> Probe:
                     codec_name=stream.get("codec_name", ""),
                     channels=int(stream.get("channels", 2)),
                     bit_rate=int(bit_rate) if bit_rate is not None else None,
+                    is_default=bool(stream.get("disposition", {}).get("default")),
+                    language=stream.get("tags", {}).get("language"),
                 )
             )
         elif codec_type == "subtitle":
-            has_subtitles = True
+            subtitle_streams.append(
+                SubtitleStreamInfo(
+                    index=len(subtitle_streams),
+                    language=stream.get("tags", {}).get("language"),
+                )
+            )
 
     if not width or not duration_s:
         raise TranscodeError(f"ffprobe returned no usable video/duration data for {path}")
 
     return Probe(duration_s=duration_s, width=width, height=height,
-                 audio_streams=audio_streams, has_subtitles=has_subtitles)
+                 audio_streams=audio_streams, subtitle_streams=subtitle_streams)
+
+
+def _select_primary_audio_stream(audio_streams: list[AudioStreamInfo]) -> AudioStreamInfo:
+    """Pick exactly one audio stream to keep: the source's own flagged default track,
+    else the first English track, else just the first stream. Added 2026-09-08 after a
+    real 11-audio-track multi-language REMUX ("Ready or Not: Here I Come") blew the
+    entire size budget on reserved audio bitrate alone -- the old design mapped and
+    budgeted for every audio stream regardless of count, which floored video bitrate to
+    the 100kbps minimum and then still failed the output-size check, because several
+    tracks were "copy" mode (passed through at their original multi-hundred-kbps
+    bitrate) rather than actually constrained by that reservation. A personal archive
+    doesn't need 5+ foreign-language 5.1 tracks preserved at full bitrate alongside the
+    one actually watched (Jason's call, 2026-09-08: keep default/English only, drop the
+    rest entirely rather than trying to fit a capped/prioritized subset)."""
+    for stream in audio_streams:
+        if stream.is_default:
+            return stream
+    for stream in audio_streams:
+        if stream.language == "eng":
+            return stream
+    return audio_streams[0]
 
 
 def compute_bitrate_plan(probe_result: Probe, config: Config) -> BitratePlan:
-    audio_plan: list[tuple[int, str]] = []
-    reserved_audio_kbps = 0
+    if not probe_result.audio_streams:
+        raise TranscodeError("source has no audio streams to select from")
 
-    for stream in probe_result.audio_streams:
-        is_high_bitrate = (
-            stream.codec_name in HIGH_BITRATE_AUDIO_CODECS
-            or (stream.bit_rate is not None and stream.bit_rate > HIGH_BITRATE_THRESHOLD_BPS)
+    primary = _select_primary_audio_stream(probe_result.audio_streams)
+    dropped_audio_track_count = len(probe_result.audio_streams) - 1
+
+    is_high_bitrate = (
+        primary.codec_name in HIGH_BITRATE_AUDIO_CODECS
+        or (primary.bit_rate is not None and primary.bit_rate > HIGH_BITRATE_THRESHOLD_BPS)
+    )
+    if is_high_bitrate:
+        audio_mode = "eac3" if primary.channels > 2 else "aac"
+        reserved_audio_kbps = 384 if primary.channels > 2 else 192
+    else:
+        audio_mode = "copy"
+        reserved_audio_kbps = (
+            primary.bit_rate // 1000 if primary.bit_rate else FALLBACK_AUDIO_KBPS_IF_UNKNOWN
         )
-        if is_high_bitrate:
-            mode = "eac3" if stream.channels > 2 else "aac"
-            reserved_audio_kbps += 384 if stream.channels > 2 else 192
-        else:
-            mode = "copy"
-            reserved_audio_kbps += (
-                stream.bit_rate // 1000 if stream.bit_rate else FALLBACK_AUDIO_KBPS_IF_UNKNOWN
-            )
-        audio_plan.append((stream.index, mode))
 
     usable_kbps = (config.target_size_bytes * 8 * 0.98) / probe_result.duration_s / 1000
     video_kbps = max(int(usable_kbps - reserved_audio_kbps), 100)
@@ -138,81 +184,84 @@ def compute_bitrate_plan(probe_result: Probe, config: Config) -> BitratePlan:
     if max_width is None:
         max_width, max_height, _ = RESOLUTION_LADDER[-1]
 
+    english_subtitle_indices = [
+        s.index for s in probe_result.subtitle_streams if s.language in ("eng", "en")
+    ]
+
     return BitratePlan(
         video_kbps=video_kbps,
         max_width=max_width,
         max_height=max_height,
         below_quality_floor=below_floor,
-        audio_plan=audio_plan,
+        selected_audio_input_index=primary.index,
+        audio_mode=audio_mode,
+        dropped_audio_track_count=dropped_audio_track_count,
+        english_subtitle_indices=english_subtitle_indices,
     )
 
 
-def _audio_codec_args(audio_plan: list[tuple[int, str]]) -> list[str]:
-    args: list[str] = []
-    for idx, mode in audio_plan:
-        if mode == "copy":
-            args += [f"-c:a:{idx}", "copy"]
-        elif mode == "aac":
-            args += [f"-c:a:{idx}", "aac", f"-b:a:{idx}", "192k", f"-ac:{idx}", "2"]
-        elif mode == "eac3":
-            args += [f"-c:a:{idx}", "eac3", f"-b:a:{idx}", "384k"]
-    return args
+def _audio_codec_args(mode: str) -> list[str]:
+    # Output audio position is always 0: exactly one audio stream is ever mapped now
+    # (see BitratePlan.selected_audio_input_index), regardless of its position in the
+    # source.
+    if mode == "copy":
+        return ["-c:a:0", "copy"]
+    elif mode == "aac":
+        return ["-c:a:0", "aac", "-b:a:0", "192k", "-ac:0", "2"]
+    elif mode == "eac3":
+        return ["-c:a:0", "eac3", "-b:a:0", "384k"]
+    raise TranscodeError(f"unknown audio mode: {mode}")
 
 
-def transcode_2pass(src: Path, dst_tmp: Path, plan: BitratePlan, config: Config) -> None:
+def transcode(src: Path, dst_tmp: Path, plan: BitratePlan, config: Config) -> None:
+    """Hardware-accelerated encode via Intel Quick Sync (VAAPI, hevc_vaapi), through the
+    already-running jellyfin container which already has /dev/dri passed through for its own
+    hardware transcoding. Confirmed by direct testing on 2026-09-07: ~21.6x real-time (a ~54
+    min 1080p episode in ~2.5 min), versus ~1h40m+ for a software libx265 encode of the same
+    file — the difference between practical and impractical for a whole-library job. This
+    supersedes this project's original "no GPU exists in the lab" design assumption; an Intel
+    Arc A380 landed on this host since that was written.
+
+    -rc_mode VBR with -maxrate/-bufsize is required, not optional: confirmed by testing that
+    hevc_vaapi's default rate control mode ignores -b:v and produces output many times larger
+    than the target (30 Mbps against a 3.3 Mbps target in one test) without it."""
     dst_tmp.parent.mkdir(parents=True, exist_ok=True)
-    config.work_dir.mkdir(parents=True, exist_ok=True)
-    passlog_prefix = config.work_dir / f"ffmpeg2pass-{uuid.uuid4().hex}"
 
-    scale_filter = (
-        f"scale='min(iw,{plan.max_width})':'min(ih,{plan.max_height})':"
-        f"force_original_aspect_ratio=decrease:force_divisible_by=2"
-    )
+    scale_filter = f"scale_vaapi=w=min(iw\\,{plan.max_width}):h=min(ih\\,{plan.max_height})"
     nice_prefix = ["nice", "-n", str(config.nice_level)]
 
-    base = nice_prefix + [
-        config.ffmpeg_bin, "-y", "-i", str(src),
-        "-map", "0:v:0", "-vf", scale_filter,
-        "-c:v", "libx265", "-b:v", f"{plan.video_kbps}k",
-        "-preset", "medium",
-    ]
-
-    pass1 = base + [
-        "-x265-params", f"pass=1:log-level=error",
-        "-passlogfile", str(passlog_prefix),
-        "-an", "-sn", "-f", "null", "/dev/null" if _is_posix() else "NUL",
-    ]
-    result = _run(pass1, timeout_s=6 * 3600)
-    if result.returncode != 0:
-        raise TranscodeError(f"ffmpeg pass 1 failed for {src}: {result.stderr[-800:]}")
-
-    def build_pass2(include_subs: bool) -> list[str]:
-        cmd = base + [
-            "-x265-params", f"pass=2:log-level=error",
-            "-passlogfile", str(passlog_prefix),
-            "-map", "0:a?",
-        ] + _audio_codec_args(plan.audio_plan)
+    def build(include_subs: bool) -> list[str]:
+        cmd = nice_prefix + [
+            config.ffmpeg_bin, "-y",
+            "-hwaccel", "vaapi", "-hwaccel_output_format", "vaapi",
+            "-vaapi_device", config.vaapi_device,
+            "-i", str(src),
+            "-map", "0:v:0", "-vf", scale_filter,
+            "-c:v", "hevc_vaapi",
+            "-rc_mode", "VBR",
+            "-b:v", f"{plan.video_kbps}k",
+            "-maxrate", f"{int(plan.video_kbps * 1.5)}k",
+            "-bufsize", f"{plan.video_kbps * 2}k",
+            "-map", f"0:a:{plan.selected_audio_input_index}",
+        ] + _audio_codec_args(plan.audio_mode)
         if include_subs:
-            cmd += ["-map", "0:s?", "-c:s", "copy"]
-        cmd += [str(dst_tmp)]
+            for sub_idx in plan.english_subtitle_indices:
+                cmd += ["-map", f"0:s:{sub_idx}?"]
+            if plan.english_subtitle_indices:
+                cmd += ["-c:s", "copy"]
+        # Explicit output format as a backstop: don't rely solely on dst_tmp's extension
+        # for muxer auto-detection (a ".partial"-suffixed name broke this once already).
+        cmd += ["-f", "matroska", str(dst_tmp)]
         return cmd
 
-    result = _run(build_pass2(include_subs=True), timeout_s=6 * 3600)
+    result = _run(build(include_subs=True), timeout_s=6 * 3600)
     if result.returncode != 0:
-        log.warning("pass 2 with subtitles failed for %s, retrying without subtitle streams", src)
+        log.warning("encode with subtitles failed for %s, retrying without subtitle streams", src)
         dst_tmp.unlink(missing_ok=True)
-        result = _run(build_pass2(include_subs=False), timeout_s=6 * 3600)
+        result = _run(build(include_subs=False), timeout_s=6 * 3600)
         if result.returncode != 0:
             dst_tmp.unlink(missing_ok=True)
-            raise TranscodeError(f"ffmpeg pass 2 failed for {src}: {result.stderr[-800:]}")
-
-    for suffix in ("-0.log", "-0.log.mbtree"):
-        Path(str(passlog_prefix) + suffix).unlink(missing_ok=True)
-
-
-def _is_posix() -> bool:
-    import os
-    return os.name == "posix"
+            raise TranscodeError(f"ffmpeg encode failed for {src}: {result.stderr[-800:]}")
 
 
 def verify_output(dst_tmp: Path, src_duration_s: float, config: Config) -> tuple[bool, str]:

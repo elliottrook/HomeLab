@@ -815,7 +815,99 @@ trigger first — and restore from the migration manifests preserved in
 `~/lab/private-backups/plex-jellyfin-migration/`, which have now been used
 successfully for exactly this twice.
 
+### Jellyfin library integrity automation (2026-09-07)
+
+The checks and safe corrections above (orphan foldering, scatter
+consolidation, art extraction, duplicate/gap-fill detection, collection-
+count regression) are now a standing tool rather than one-off manual
+fixes. Full design: [Jellyfin-Library-Integrity-Automation.md](projects/Jellyfin-Library-Integrity-Automation.md).
+
+- Installed at `/mnt/Media/data/tools/jellyfin-integrity/` on TrueNAS;
+  source mirrored in git at `scripts/jellyfin-integrity/` (code only —
+  `config.json`, which holds the dedicated `jellyfin-integrity` Jellyfin
+  API key and Lidarr's key, and `reports/`, are not committed).
+- Scheduled via TrueNAS-native Cron Job (`midclt call cronjob.create`,
+  id `2`), Wednesday 03:00, `--apply` mode, 100-action-per-run cap.
+  Deliberately not Sunday — that carries the weekly ZFS scrub (starts
+  00:00, historically finishes ~02:46) and the daily 04:30 backup-pull
+  rsync.
+- `config.json` and both `reference/` manifests are pulled into
+  `~/lab/private-backups/jellyfin-integrity/` via
+  `scripts/backup/jellyfin-integrity.sh`, monitored by `lab doctor`'s
+  `check_backup_age`.
+- Reports (dated JSON + human-readable) land in
+  `/mnt/Media/data/tools/jellyfin-integrity/reports/`, not committed to
+  git (contains full local paths and album/track titles).
+- `lab doctor`'s `check_jellyfin_integrity` reads the latest report over
+  SSH and fails on any action error, collection/playlist count alert, or
+  cleanup-task trigger drift.
+- Read-only reference copies of the two Plex→Jellyfin migration manifests
+  (`plex-movie-collections.json`, `plex-to-jellyfin-movie-map.json`) live
+  in the tool's own `reference/` directory on TrueNAS, in addition to
+  their existing home in `~/lab/private-backups/`.
+- Duplicate-album deletion is never automatic — always a dated report
+  queued for Jason's approval, applied exactly as reviewed.
+
 A certificate is considered unhealthy when it cannot be read, its endpoint is unreachable, or it has 30 days or less remaining. Certificate failures are included in the daily failure-only scheduled report and use the existing duplicate-alert suppression.
+
+### Music playlist acquisition bridge (2026-09-07)
+
+The first live version of `playlist-bridge` is installed at
+`/mnt/Media/data/tools/playlist-bridge/`, with source mirrored at
+`scripts/playlist-bridge/`. It reads Spotify JSON, Apple Music/iTunes XML,
+CSV/TSV, or extended M3U exports; matches tracks in Jellyfin; and proposes or
+requests missing albums through Lidarr. It creates the Jellyfin playlist only
+after every source track is present.
+
+The five-track private `Playlist Bridge Test` was created for Jason and the
+create-first replacement path was run twice. Verification found exactly one
+playlist, five ordered tracks, owner visibility for Jason, and no visibility
+for another user. No Lidarr request was made during this test. The live config
+is mode `0600` and uncommitted; dedicated API keys, reporting, and backup remain
+pending.
+
+A later nine-track, nine-album test exercises Lidarr acquisition. TrueNAS cron
+job `3` runs its reconciliation every six hours at minute 15. The incomplete
+timer is stored in `/mnt/Media/data/tools/playlist-bridge/state.json`; after 24
+hours the bridge creates a private partial playlist from available tracks rather
+than waiting forever. Full design and safety notes:
+[Music-Playlist-Acquisition-Bridge.md](projects/Music-Playlist-Acquisition-Bridge.md).
+
+### Video library archiving (2026-09-08)
+
+Downconverts aged (or `archive-now`-tagged) Radarr/Sonarr current-library movies
+and TV episodes to roughly 1–2 GB via GPU-accelerated (`hevc_vaapi`) transcode
+through the already-running Jellyfin container, then relocates them into
+`archive-movies`/`archive-tv`. Full design:
+[Video-Library-Archiving.md](projects/Video-Library-Archiving.md).
+
+- Installed at `/mnt/Media/data/tools/video-archiver/` on TrueNAS; source
+  mirrored in git at `scripts/video-archiver/` (code only — `config.json`,
+  which holds `max_files_per_run`/`age_threshold_days`/paths but never API
+  keys, and the mode-600 `.env` holding `RADARR_API_KEY`/`SONARR_API_KEY`/
+  `JELLYFIN_API_KEY`, are not committed).
+- Scheduled via TrueNAS-native Cron Job (`midclt call cronjob.create`, id `4`),
+  Monday–Saturday 01:30, `--execute` mode, via a wrapper script
+  (`run-scheduled.sh`) that sources the `.env` file rather than putting keys in
+  the cron command string itself (visible via `ps aux` and TrueNAS's own cron
+  job table otherwise). Deliberately skips Sunday — that carries the weekly
+  ZFS scrub.
+- A movie/series tagged `archive-now` in Radarr's/Sonarr's own web UI is
+  eligible immediately regardless of age — Sonarr's tag model is series-level,
+  so this is a whole-show override, not per-season.
+- Logs (JSON-lines, one run per file) land in
+  `/mnt/Media/data/tools/video-archiver/logs/`, not committed to git (contains
+  full local paths).
+- `lab doctor`'s `check_video_archiver` reads the latest log and names any
+  failed title by title, not just a count; warns if no run has landed in 48+
+  hours.
+- Only the source's own flagged-default audio track is kept (or first English,
+  or first stream) — not every audio stream — and only English-tagged
+  subtitle tracks; both non-English audio and subtitles are dropped rather
+  than degrading everything to fit a many-track source in the size budget.
+- The tool never deletes a file directly — only Radarr's/Sonarr's own
+  delete-file API call does that, and only after the archive copy is verified
+  on disk; a failure at any stage leaves the original completely untouched.
 
 ## Calibre and Audiobookshelf (2026-09-05)
 
