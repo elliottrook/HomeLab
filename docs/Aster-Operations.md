@@ -186,9 +186,39 @@ record is not recreated.
   removed the exact temporary OPNsense rule and reconfirmed that Aster's
   broker connection times out. Aster itself remains active and healthy.
 
-This is a successful fail-closed production gate, not a completed live repair.
-The first successful live dismissal remains pending until a naturally eligible
-single record exists and Jason gives fresh permission for that later attempt.
+The zero-candidate result is a successful fail-closed live eligibility gate.
+At Jason's direction, graduation then used the same disposable-fixture method
+as the earlier proposal test rather than manufacturing a failure in live
+Radarr:
+
+- A locked-down TrueNAS-local disposable endpoint exposed one synthetic queue
+  record and accepted only the fixed fixture API key. The deployed broker was
+  pointed at that endpoint; its original environment and private state were
+  backed up first.
+- One synthetic opaque candidate was published through the normal sanitized
+  report transport. Aster's authenticated dry-run returned the exact operation
+  and four preconditions.
+- The operator-only two-minute approval was created and exactly one request was
+  sent to Aster's structured endpoint. It returned `completed` with bounded
+  result `dismissed`.
+- Excluding the fixture readiness probe, the disposable target saw exactly
+  collection GET, one queue-record DELETE and verification GET. The DELETE had
+  `removeFromClient=false`, `blocklist=false`, `skipRedownload=true` and
+  `changeCategory=false`.
+- Replay returned `409` and caused no additional disposable-target call. The
+  bounded audit was retained at
+  `/mnt/Media/data/tools/aster-arr-rollbacks/4125f17-execution-fixture-audit.jsonl`.
+- Cleanup restored the original broker environment and state, stopped the
+  disposable endpoint, removed the transient execution switch, republished
+  zero candidates, stopped/boot-disabled the broker and removed the temporary
+  OPNsense rule. Live Radarr was never the configured execution target and was
+  not changed.
+
+The single operation is therefore graduated against the production-shaped
+broker and disposable mutation target required by the gate. This does not
+create standing execution authority: every future live Radarr attempt still
+requires one naturally eligible candidate, independent review and fresh
+explicit permission.
 
 ## Health and logs
 

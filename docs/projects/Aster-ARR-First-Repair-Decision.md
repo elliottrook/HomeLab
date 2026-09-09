@@ -1,7 +1,7 @@
 # Aster ARR First Repair Decision
 
-> Status: production staged; first live eligibility gate safely refused zero
-> candidates; broker stopped/boot-disabled and temporary network path removed
+> Status: graduated through the production-shaped disposable execution fixture;
+> live Radarr unchanged; broker stopped/boot-disabled and network path removed
 
 ## Selected candidate
 
@@ -108,8 +108,27 @@ exists. The empty sanitized candidate state was pushed to Aster.
 
 Cleanup stopped and boot-disabled the broker, confirmed no listener, removed
 the temporary OPNsense rule and reconfirmed the blocked Aster-to-broker path.
-Aster remains healthy on the staged source. This proves the production gate
-fails closed, but it is not a successful live repair graduation because no
-eligible record existed. Any later attempt requires one naturally eligible
-record, a newly issued opaque candidate, independent precondition review and
-fresh explicit permission.
+Aster remained healthy on the staged source.
+
+Jason directed that the missing eligible record be handled like the prior
+graduation fixture rather than by manufacturing a failure in live Radarr. A
+locked-down disposable endpoint on TrueNAS supplied one synthetic stale,
+completed record. The normal sanitized transport published one opaque
+candidate, Aster's authenticated dry-run passed, and the operator-only
+two-minute approval authorized exactly one structured Aster execution. The
+bounded result was `dismissed`.
+
+The disposable endpoint recorded exactly collection GET, fixed single-record
+DELETE and verification GET for the execution. The DELETE preserved downloader
+data, did not blocklist or request a redownload, and made no category change.
+A replay returned `409` without another target call. The bounded fixture audit
+was retained outside the broker's restored production state.
+
+Cleanup restored the original broker environment and state, republished the
+empty live candidate report, stopped the disposable endpoint, removed the
+transient execution switch, left the broker stopped/boot-disabled and removed
+the exact temporary firewall rule. Live Radarr was never the execution target
+and was not changed. This graduates the first bounded operation against the
+production-shaped disposable target required by the acceptance gate; any
+future live Radarr attempt still requires a naturally eligible single record,
+independent review and fresh explicit permission.
