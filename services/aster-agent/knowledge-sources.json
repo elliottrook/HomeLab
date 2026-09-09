@@ -16,6 +16,8 @@
     {"repository": "reference", "path": "memory/README.md", "destination": "memory/README.md", "authority": "derived-memory"},
     {"repository": "reference", "path": "memory/authority-and-drift.md", "destination": "memory/authority-and-drift.md", "authority": "derived-memory"},
     {"repository": "reference", "path": "memory/b60-vulkan-recovery.md", "destination": "memory/b60-vulkan-recovery.md", "authority": "derived-memory"},
+    {"repository": "reference", "path": "memory/credential-recovery-boundary.md", "destination": "memory/credential-recovery-boundary.md", "authority": "derived-memory"},
+    {"repository": "reference", "path": "memory/recovery-dependency-order.md", "destination": "memory/recovery-dependency-order.md", "authority": "derived-memory"},
     {"repository": "reference", "path": "memory/safe-change-discipline.md", "destination": "memory/safe-change-discipline.md", "authority": "derived-memory"},
     {"repository": "reference", "path": "runbooks/camera-onboarding.md", "destination": "reference/runbooks/camera-onboarding.md", "authority": "approved-runbook"},
     {"repository": "reference", "path": "runbooks/disaster-recovery.md", "destination": "reference/runbooks/disaster-recovery.md", "authority": "approved-runbook"},

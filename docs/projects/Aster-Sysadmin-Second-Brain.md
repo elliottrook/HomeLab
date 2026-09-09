@@ -1,6 +1,6 @@
 # Aster Sysadmin Second-Brain Project
 
-> Status: Active
+> Status: Graduated — read-only advisor
 >
 > Project owner: Jason
 >
@@ -196,3 +196,5 @@ Aster graduates only when:
 | 2026-09-08 | 3 | Confirmed the relay's initial encrypted IDrive sync completed successfully at `2026-09-08 04:06:11 UTC` (111,289 objects; 706.315 GiB) and read-only-listed both required Aster archives in `idrive-crypt:` afterward | Full sync now covers the two verified Aster recovery carriers. The independent protected recovery copy for the crypt configuration/material remains the sole unclosed recovery-material condition, so the Milestone 3 checkbox stays open |
 | 2026-09-08 | 4 | Expanded authority-language retrieval, then added and deployed an explicit secret-retrieval boundary after adversarial testing showed that a refusal still pointed toward a live config. Rotated the affected Aster credentials, confirmed matching agent/inference keys and authenticated health, and reran the targeted authority and credential-safety regressions | Both targeted regressions passed; the credential response now refers only to an approved recovery/administrative-access procedure and does not point to live configuration. This is targeted training evidence, not a replacement for the original repeated graduation-performance runs |
 | 2026-09-08 | 3 | Created a checksum-verified, mode-restricted independent copy of LXC 112's `rclone.conf` and `idrive-crypt` recovery material in the existing protected Mac recovery source, `~/lab/private-backups/recovery/idrive-relay/2026-09-08/`; verified its existing Mac→TrueNAS pull, encrypted IDrive relay copy and a temporary recovery drill that used only the copied configuration to decrypt-list the off-site bundle | This removes dependence on the relay guest's disk for the crypt material and completes the Milestone 3 coverage gate |
+| 2026-09-08 | Graduation | Ran two independent production-path 14-case graduation suites after the authority, credential-boundary and response-limit regressions. Every case passed in both runs; worst end-to-end latency was 44.4 s in run one and 47.5 s in run two, both within the 52.8 s production budget. | Aster has graduated as a bounded read-only sysadmin advisor. It retains no action authority; material infrastructure changes still require Jason's explicit approval. |
+| 2026-09-08 | 2 | Added derived-memory lessons for recovery dependency order and credential/recovery boundaries, each with source links, review dates, explicit non-authority and no secret-bearing material. Added both to the knowledge manifest for the next reviewed snapshot build. | Memory taxonomy now captures the post-graduation recovery and security lessons without widening Aster's access or making memory authoritative. |
