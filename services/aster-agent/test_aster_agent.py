@@ -299,7 +299,7 @@ class AsterAgentTests(unittest.TestCase):
                     "4.0.19.2979",
                 ),
                 (
-                    "Which ARR media automations are scheduled and can mutate files?",
+                    "When does the TrueNAS jellyfin-integrity workflow run, and what may it change?",
                     "Cron Job 2",
                 ),
                 (

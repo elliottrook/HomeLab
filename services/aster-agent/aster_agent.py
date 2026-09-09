@@ -281,7 +281,7 @@ def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
                 bonus += 300
         if re.search(r"\b(version|versions|installed|ports?)\b", query, re.I) and "current service inventory" in text:
             bonus += 320
-        if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b", query, re.I):
+        if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity)\b", query, re.I):
             if "truenas cron job" in text:
                 bonus += 360
             elif "automation and mutation map" in text:
@@ -355,7 +355,7 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
     focused_arr_reference = bool(
         re.search(r"\b(arr|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin)\b", query, re.I)
         and re.search(
-            r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff|automation|automations|scheduled|schedule|cron|mutate|mutation|broker|approval|standing authority)\b",
+            r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff|automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity|broker|approval|standing authority)\b",
             query,
             re.I,
         )
@@ -385,7 +385,7 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                 score = max(score, 1)
             if relative == "reference/operations/arr-stack.md":
                 if re.search(
-                    r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b",
+                    r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity)\b",
                     query,
                     re.I,
                 ) and (
@@ -445,7 +445,7 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                 ):
                     preferred_anchor = normalized.find("recovery order")
                 elif relative == "reference/operations/arr-stack.md":
-                    if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b", query, re.I):
+                    if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity)\b", query, re.I):
                         preferred_anchor = normalized.find("automation and mutation map")
                         if preferred_anchor < 0:
                             preferred_anchor = normalized.find("truenas cron job")
