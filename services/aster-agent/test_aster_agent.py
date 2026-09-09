@@ -268,8 +268,9 @@ class AsterAgentTests(unittest.TestCase):
             source.write_text(
                 "General ARR operational context. " * 50
                 + "\n## Current Service Inventory\n"
-                + "Sonarr 4.0.19.2979 uses /mnt/Media/data/media/tv. "
-                + "Radarr 6.3.0.10514 uses the movie root.\n"
+                + "| Sonarr | 4.0.19.2979 | /mnt/Media/data/media/tv | "
+                + ("Sonarr inventory boundary. " * 50)
+                + "\n| Radarr | 6.3.0.10514 | /mnt/Media/data/media/movies |\n"
                 + "Dependency and downloader notes. " * 50
                 + "\n## Automation and Mutation Map\n"
                 + ("Automation boundary context. " * 60)
@@ -302,7 +303,7 @@ class AsterAgentTests(unittest.TestCase):
                     "Cron Job 2",
                 ),
                 (
-                    "What are the ARR canonical roots and downloader dependency path?",
+                    "What are the Sonarr and Radarr canonical roots and downloader dependency path?",
                     "/mnt/Media/data/media/tv",
                 ),
             )
@@ -313,7 +314,13 @@ class AsterAgentTests(unittest.TestCase):
                         result["results"][0]["source"],
                         "reference/operations/arr-stack.md",
                     )
-                    self.assertIn(expected, result["results"][0]["excerpt"])
+                    self.assertIn(expected, " ".join(item["excerpt"] for item in result["results"]))
+                    self.assertTrue(
+                        all(
+                            item["source"] == "reference/operations/arr-stack.md"
+                            for item in result["results"]
+                        )
+                    )
                     self.assertEqual(result["results"][0]["reviewed"], "2026-09-09")
 
     def test_focused_checklist_can_return_multiple_chunks_from_one_source(self):

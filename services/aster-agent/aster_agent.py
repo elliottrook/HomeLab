@@ -274,6 +274,11 @@ def _source_bonus(
 def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     bonus = 0
     if source == "reference/operations/arr-stack.md":
+        for service in ("sonarr", "radarr", "lidarr", "prowlarr", "sabnzbd", "jellyfin"):
+            if re.search(rf"\b{service}\b", query, re.I) and re.search(
+                rf"\|\s*{service}\s*\|", text, re.I
+            ):
+                bonus += 300
         if re.search(r"\b(version|versions|installed|ports?)\b", query, re.I) and "current service inventory" in text:
             bonus += 320
         if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation)\b", query, re.I):
@@ -283,6 +288,10 @@ def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
                 bonus += 320
         if re.search(r"\b(root|roots|dependency|downloader|handoff)\b", query, re.I) and "current service inventory" in text:
             bonus += 280
+        if re.search(r"\b(broker|standing authority|natural-language chat)\b", query, re.I) and (
+            "aster's arr execution broker" in text or "natural-language chat cannot" in text
+        ):
+            bonus += 420
     if source == "reference/infrastructure/hardware-inventory.md":
         if re.search(r"\b(rack|rack-unit|ru position)", query, re.I) and "uncertain or excluded" in text:
             bonus += 240
@@ -343,6 +352,14 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         re.search(r"\b(vlan|address|ip)\b", query, re.I)
         and re.search(r"\b(aster|inference|lxc 104|lxc 110)\b", query, re.I)
     )
+    focused_arr_reference = bool(
+        re.search(r"\b(arr|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin)\b", query, re.I)
+        and re.search(
+            r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff|automation|automations|scheduled|schedule|cron|mutate|mutation|broker|approval|standing authority)\b",
+            query,
+            re.I,
+        )
+    )
     provenance = _provenance(root)
     ranked: list[tuple[int, str, str]] = []
     for path in sorted(root.rglob("*")):
@@ -380,6 +397,11 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                     query,
                     re.I,
                 ) and "current service inventory" in normalized:
+                    score = max(score, 1)
+                if re.search(r"\b(broker|standing authority|natural-language chat)\b", query, re.I) and (
+                    "aster's arr execution broker" in normalized
+                    or "natural-language chat cannot" in normalized
+                ):
                     score = max(score, 1)
             if role_query and relative == "reference/infrastructure/virtualization.md" and "local-ai stack detail" in normalized:
                 score += 300
@@ -427,8 +449,18 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                         preferred_anchor = normalized.find("automation and mutation map")
                         if preferred_anchor < 0:
                             preferred_anchor = normalized.find("truenas cron job")
+                    elif re.search(r"\b(broker|standing authority|natural-language chat)\b", query, re.I):
+                        preferred_anchor = normalized.find("aster's arr execution broker")
+                        if preferred_anchor < 0:
+                            preferred_anchor = normalized.find("natural-language chat cannot")
                     elif re.search(r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b", query, re.I):
-                        preferred_anchor = normalized.find("current service inventory")
+                        for service in ("sonarr", "radarr", "lidarr", "prowlarr", "sabnzbd", "jellyfin"):
+                            if re.search(rf"\b{service}\b", query, re.I):
+                                preferred_anchor = normalized.find(f"| {service} |")
+                                if preferred_anchor >= 0:
+                                    break
+                        if preferred_anchor < 0:
+                            preferred_anchor = normalized.find("current service inventory")
                 if relative.endswith("Aster-Operations.md") and _chunk_bonus(relative, normalized, query, tokens):
                     preferred_anchor = normalized.find("runtime configuration")
                 elif relative.endswith("AI-Hermes-Second-Brain.md") and _chunk_bonus(relative, normalized, query, tokens):
@@ -450,6 +482,8 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         selected = [item for item in ranked if item[1].endswith("AI-Hermes-Second-Brain.md")][:limit]
     elif focused_monitoring:
         selected = [item for item in ranked if item[1] == "reference/operations/monitoring.md"][:limit]
+    elif focused_arr_reference:
+        selected = [item for item in ranked if item[1] == "reference/operations/arr-stack.md"][:limit]
     else:
         seen_sources: set[str] = set()
         for item in ranked:
