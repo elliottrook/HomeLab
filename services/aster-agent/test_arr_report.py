@@ -125,6 +125,38 @@ class ArrReportTests(unittest.TestCase):
         self.assertEqual(result["status"], "unavailable")
         self.assertIn("regular", result["error"])
 
+    def test_accepts_only_one_fresh_exact_opaque_candidate(self):
+        now = datetime(2026, 9, 9, tzinfo=timezone.utc)
+        report = self._report(now)
+        report["repair_candidates"] = [
+            {
+                "operation": "dismiss_stale_radarr_queue_record",
+                "service": "radarr",
+                "candidate_ref": "radarr-q-abcdefghijklmnop",
+                "expires_at": (now + timedelta(minutes=5)).isoformat(),
+            }
+        ]
+        result = self._read(report, now)
+        self.assertEqual(result["repair_candidates"][0]["candidate_ref"], "radarr-q-abcdefghijklmnop")
+
+        report["repair_candidates"][0]["candidate_ref"] = "radarr-q-not-exact"
+        self.assertEqual(self._read(report, now)["status"], "unavailable")
+
+    def test_rejects_expired_or_overlong_candidate_window(self):
+        now = datetime(2026, 9, 9, tzinfo=timezone.utc)
+        for expires_at in (now, now + timedelta(minutes=6), now + timedelta(minutes=16)):
+            with self.subTest(expires_at=expires_at):
+                report = self._report(now)
+                report["repair_candidates"] = [
+                    {
+                        "operation": "dismiss_stale_radarr_queue_record",
+                        "service": "radarr",
+                        "candidate_ref": "radarr-q-abcdefghijklmnop",
+                        "expires_at": expires_at.isoformat(),
+                    }
+                ]
+                self.assertEqual(self._read(report, now)["status"], "unavailable")
+
 
 if __name__ == "__main__":
     unittest.main()

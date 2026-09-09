@@ -93,6 +93,14 @@ class ChatRequest(BaseModel):
     stream: bool = False
 
 
+class ArrRepairExecutionRequest(BaseModel):
+    """Structured operator action; never derived from natural-language chat."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_ref: str = Field(pattern=r"^radarr-q-[a-z2-7]{16}$")
+
+
 TOOLS: dict[str, dict[str, Any]] = {
     "get_current_time": {
         "type": "function",
@@ -525,6 +533,91 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     return {"error": f"Tool is not allowlisted: {name}"}
 
 
+async def execute_arr_repair(candidate_ref: str) -> dict[str, Any]:
+    """Invoke only the separately approved broker operation.
+
+    This function is reachable only from the dedicated structured API route,
+    never from tool selection, model output, or a natural-language message.
+    """
+    report = read_arr_report(ARR_REPORT_PATH)
+    candidates = report.get("repair_candidates") if isinstance(report, dict) else None
+    if (
+        not isinstance(report, dict)
+        or report.get("status") == "unavailable"
+        or not isinstance(candidates, list)
+    ):
+        raise HTTPException(status_code=409, detail="No fresh repair candidate is available")
+    matches = [
+        item
+        for item in candidates
+        if isinstance(item, dict) and item.get("candidate_ref") == candidate_ref
+    ]
+    if len(matches) != 1:
+        raise HTTPException(status_code=409, detail="Candidate is not present in the fresh report")
+    if not ARR_BROKER_URL or not ARR_BROKER_KEY:
+        raise HTTPException(status_code=503, detail="Repair broker is not configured")
+    candidate = matches[0]
+    payload = {
+        "operation": candidate["operation"],
+        "service": candidate["service"],
+        "candidate_ref": candidate["candidate_ref"],
+        "report_generated_at": report["generated_at"],
+    }
+    try:
+        async with httpx.AsyncClient(timeout=40) as client:
+            response = await client.post(
+                f"{ARR_BROKER_URL}/v1/execute",
+                headers={"Authorization": f"Bearer {ARR_BROKER_KEY}"},
+                json=payload,
+            )
+        if response.status_code in {400, 403, 404, 409}:
+            raise HTTPException(status_code=409, detail="Repair was not authorized or no longer qualifies")
+        response.raise_for_status()
+        result = response.json()
+    except HTTPException:
+        raise
+    except (httpx.HTTPError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail="Repair broker unavailable") from exc
+
+    fields = {
+        "operation", "candidate_ref", "decision", "report_age_seconds", "result", "at"
+    }
+    allowed_results = {
+        "already_absent", "dismissed", "inspection_failed", "outcome_unknown", "postcondition_failed"
+    }
+    result_at = result.get("at") if isinstance(result, dict) else None
+    try:
+        parsed_result_at = (
+            datetime.fromisoformat(result_at.replace("Z", "+00:00"))
+            if isinstance(result_at, str)
+            else None
+        )
+    except ValueError:
+        parsed_result_at = None
+    if (
+        not isinstance(result, dict)
+        or set(result) != fields
+        or result.get("operation") != "dismiss_stale_radarr_queue_record"
+        or result.get("candidate_ref") != candidate_ref
+        or result.get("decision") != "approved_execute"
+        or result.get("result") not in allowed_results
+        or not isinstance(result.get("report_age_seconds"), int)
+        or isinstance(result.get("report_age_seconds"), bool)
+        or not 0 <= result["report_age_seconds"] <= 900
+        or parsed_result_at is None
+        or parsed_result_at.tzinfo is None
+    ):
+        raise HTTPException(status_code=503, detail="Repair broker returned an invalid result")
+    status = {
+        "dismissed": "completed",
+        "already_absent": "completed",
+        "inspection_failed": "failed",
+        "postcondition_failed": "failed",
+        "outcome_unknown": "unknown",
+    }[result["result"]]
+    return {"status": status, "audit": result}
+
+
 def normalized_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
     if messages and messages[0].get("role") == "system":
         first = dict(messages[0])
@@ -620,6 +713,11 @@ async def models() -> dict[str, Any]:
         "object": "list",
         "data": [{"id": "aster-qwen3.8-27b", "object": "model", "created": int(time.time()), "owned_by": "local"}],
     }
+
+
+@app.post("/v1/arr-repair/execute", dependencies=[Depends(require_api_key)])
+async def arr_repair_execute(request: ArrRepairExecutionRequest) -> dict[str, Any]:
+    return await execute_arr_repair(request.candidate_ref)
 
 
 @app.post("/v1/chat/completions", dependencies=[Depends(require_api_key)], response_model=None)

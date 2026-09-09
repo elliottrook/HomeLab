@@ -2,8 +2,22 @@ import tempfile
 import unittest
 import json
 from pathlib import Path
+from unittest.mock import patch
 
-from aster_agent import ASTER_SYSTEM_PROMPT, ChatRequest, TOOLS, get_lab_health, preload_read_only_context, search_knowledge, select_tools
+from fastapi import HTTPException
+from pydantic import ValidationError
+
+from aster_agent import (
+    ASTER_SYSTEM_PROMPT,
+    ArrRepairExecutionRequest,
+    ChatRequest,
+    TOOLS,
+    execute_arr_repair,
+    get_lab_health,
+    preload_read_only_context,
+    search_knowledge,
+    select_tools,
+)
 
 
 class AsterAgentTests(unittest.TestCase):
@@ -53,6 +67,23 @@ class AsterAgentTests(unittest.TestCase):
             )
         ]
         self.assertIn("get_arr_report", names)
+
+    def test_natural_language_never_selects_an_execution_tool(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "Execute the approved Radarr repair now"}]
+            )
+        ]
+        self.assertNotIn("execute_arr_repair", names)
+        self.assertNotIn("execute_arr_repair", TOOLS)
+
+    def test_structured_execution_request_rejects_extra_fields(self):
+        with self.assertRaises(ValidationError):
+            ArrRepairExecutionRequest(
+                candidate_ref="radarr-q-abcdefghijklmnop",
+                url="http://unapproved.invalid",
+            )
 
     def test_arr_policy_is_advisory_and_approval_gated(self):
         self.assertIn("advisory-only", ASTER_SYSTEM_PROMPT)
@@ -272,6 +303,120 @@ class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
             [TOOLS["get_arr_report"]],
         )
         self.assertEqual(result[0]["function"], "get_arr_report")
+
+
+class FakeBrokerResponse:
+    def __init__(self, status_code, payload):
+        self.status_code = status_code
+        self.payload = payload
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError("test response error")
+
+    def json(self):
+        return self.payload
+
+
+class FakeAsyncClient:
+    response = None
+    requests = []
+
+    def __init__(self, *args, **kwargs):
+        self.timeout = kwargs.get("timeout")
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *unused):
+        return False
+
+    async def post(self, url, *, headers, json):
+        type(self).requests.append((url, headers, json, self.timeout))
+        return type(self).response
+
+
+class ArrRepairExecutionTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.reference = "radarr-q-abcdefghijklmnop"
+        self.report = {
+            "generated_at": "2026-09-09T12:00:00Z",
+            "repair_candidates": [
+                {
+                    "operation": "dismiss_stale_radarr_queue_record",
+                    "service": "radarr",
+                    "candidate_ref": self.reference,
+                    "expires_at": "2026-09-09T12:05:00Z",
+                }
+            ],
+        }
+        self.result = {
+            "operation": "dismiss_stale_radarr_queue_record",
+            "candidate_ref": self.reference,
+            "decision": "approved_execute",
+            "report_age_seconds": 1,
+            "result": "dismissed",
+            "at": "2026-09-09T12:00:01+00:00",
+        }
+        FakeAsyncClient.requests = []
+        FakeAsyncClient.response = FakeBrokerResponse(200, self.result)
+
+    async def test_structured_endpoint_sends_only_report_issued_fields(self):
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            response = await execute_arr_repair(self.reference)
+        self.assertEqual(response, {"status": "completed", "audit": self.result})
+        url, headers, payload, timeout = FakeAsyncClient.requests[0]
+        self.assertEqual(url, "http://broker.internal/v1/execute")
+        self.assertEqual(timeout, 40)
+        self.assertEqual(
+            set(payload),
+            {"operation", "service", "candidate_ref", "report_generated_at"},
+        )
+        self.assertEqual(headers, {"Authorization": "Bearer broker-key"})
+
+    async def test_candidate_absence_never_contacts_broker(self):
+        with patch(
+            "aster_agent.read_arr_report",
+            return_value={"generated_at": "2026-09-09T12:00:00Z", "repair_candidates": []},
+        ):
+            with self.assertRaises(HTTPException) as raised:
+                await execute_arr_repair(self.reference)
+        self.assertEqual(raised.exception.status_code, 409)
+        self.assertEqual(FakeAsyncClient.requests, [])
+
+    async def test_broker_denial_is_sanitized(self):
+        FakeAsyncClient.response = FakeBrokerResponse(403, {"private": "must not surface"})
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            with self.assertRaises(HTTPException) as raised:
+                await execute_arr_repair(self.reference)
+        self.assertEqual(raised.exception.status_code, 409)
+        self.assertNotIn("private", str(raised.exception.detail))
+
+    async def test_invalid_broker_audit_is_not_returned(self):
+        FakeAsyncClient.response = FakeBrokerResponse(
+            200,
+            {**self.result, "at": "private response detail", "report_age_seconds": 901},
+        )
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            with self.assertRaises(HTTPException) as raised:
+                await execute_arr_repair(self.reference)
+        self.assertEqual(raised.exception.status_code, 503)
+        self.assertNotIn("private", str(raised.exception.detail))
 
 
 if __name__ == "__main__":

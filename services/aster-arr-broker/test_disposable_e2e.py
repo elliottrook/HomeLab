@@ -95,8 +95,14 @@ class DisposableEndToEndTests(unittest.TestCase):
         result = instance.execute(self.request(), approval_ref="fixture-approval", adapter=self.adapter, now=NOW)
         self.assertEqual(result["result"], "dismissed")
         self.assertIsNone(DisposableRadarrHandler.record)
-        self.assertEqual([method for method, _path in DisposableRadarrHandler.calls], ["GET", "DELETE"])
+        self.assertEqual(
+            [method for method, _path in DisposableRadarrHandler.calls],
+            ["GET", "DELETE", "GET"],
+        )
 
         retry = new_broker().execute(self.request(), approval_ref="fixture-approval", adapter=self.adapter, now=NOW)
         self.assertEqual(retry["result"], "already_absent")
-        self.assertEqual([method for method, _path in DisposableRadarrHandler.calls], ["GET", "DELETE", "GET"])
+        self.assertEqual(
+            [method for method, _path in DisposableRadarrHandler.calls],
+            ["GET", "DELETE", "GET", "GET"],
+        )

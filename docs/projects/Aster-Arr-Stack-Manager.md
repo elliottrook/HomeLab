@@ -1,7 +1,7 @@
 # Aster ARR Stack Manager
 
-> Status: Active — advisory/read graduate; repair proposal graduate; live
-> repair and deployment remain gated
+> Status: Active — advisory/read graduate; first repair is pre-live complete;
+> production staging and the live repair test remain gated
 >
 > Project owner: Jason
 >
@@ -114,7 +114,7 @@ such) without holding a service credential or making arbitrary HTTP requests.
 - [x] Start with dry-run/proposal output only.
 - [x] Compare the proposal against a manually reviewed operation before any
   real mutation is enabled.
-- [ ] Treat every mutation as a separate graduation gate. No standing approval
+- [x] Treat every mutation as a separate graduation gate. No standing approval
   or natural-language request grants general ARR control.
 
 Completion gate: no action capability exists unless its individual evidence
@@ -127,7 +127,7 @@ read current ARR state and repair a defined problem. It does **not** grant a
 general ARR administrator, a raw service API key, broad shell access, media
 library access, or standing permission to make changes.
 
-- [ ] Define a dedicated ARR broker with one narrow, authenticated operation
+- [x] Define a dedicated ARR broker with one narrow, authenticated operation
   per endpoint. The broker, not Aster or Hermes, holds any private service
   credential and rejects every undeclared route, method, field and target.
 - [x] Select each initial repair action separately. For each one record: exact
@@ -145,12 +145,17 @@ library access, or standing permission to make changes.
   profiles, root folders, download-client settings or monitoring scope needs
   its own later decision and must not be smuggled into the first broker.
 
-Current rehearsal evidence: `services/aster-arr-broker/` implements only the
+Current pre-live evidence: `services/aster-arr-broker/` implements only the
 fixed operation in the first-repair decision. Its adapter interface exposes no
-URL, method, credential, bulk selector or generic request channel. The local
-test adapter proves dry-run, candidate freshness, single-use approval,
-precondition refusal, idempotent absence and timeout/unknown-outcome handling.
-It is not deployed and cannot contact an ARR service.
+request-controlled URL, method, credential, queue ID, bulk selector or generic
+request channel. Approval creation is an operator-only local command, never an
+HTTP route or model tool. Persistent state consumes a two-minute approval
+before network access and writes bounded audit records before and after the
+attempt. The shipped unit is non-root, loopback-only and execution-disabled.
+
+The 60-test broker suite and 41-test Aster suite pass, including a real
+authenticated Aster → broker → disposable Radarr path. The implementation is
+not deployed and has not contacted a live ARR service.
 
 ### Graduation test gate
 
@@ -209,3 +214,4 @@ operation; it does not authorize general ARR control or future actions.
 | 2026-09-09 | 4 disposable repair | Ran a production-shaped loopback Radarr fixture containing one synthetic completed/imported queue record. The broker first returned a dry run without touching the fixture, then executed the one approved fixture action using only the fixed safe query flags and confirmed the record absent on a subsequent idempotent check. | The disposable broker repair gate passed with zero live Radarr, media or downloader contact. Aster-to-broker action plumbing and its focused black-box evaluation remain required before claiming Aster graduation. |
 | 2026-09-09 | 4 proposal integration | Replaced the placeholder fixture runner with an idempotent two-pass test that opaquely backs up LXC 104's report/environment, leaves the live report and environment untouched, stages only synthetic report/candidate state, and runs the authenticated dry-run-only broker on `127.0.0.1:9421` without the Radarr adapter. It verified the absent execution route, exact proposal contract, Aster's real `192.168.70.10:9120` listener and normal 180-second inference timeout. Both black-box passes succeeded in 57.656 and 57.602 seconds with distinct opaque candidates; cleanup removed the transient unit, systemd drop-in, state, backups and staging files before reporting success, then restored a healthy Aster listener. | **Aster-to-broker dry-run proposal plumbing passes its repeated production-path gate.** This does not graduate live repair: no execution endpoint, ARR credential route or task-specific approval mechanism is deployed, and no live ARR or media state was read or changed. |
 | 2026-09-09 | 4 regression | The deployed Aster unit suite passed 32/32. Post-cleanup black-box suites passed bounded report read 1/1 (54.054 seconds), legacy ARR safety 6/6, original Aster graduation 14/14 (worst 54.523 seconds), and the corrected current ARR suite 8/8 (worst 46.596 seconds). The current-state case was updated from the obsolete expectation that evidence must be unavailable to require bounded report/coverage evidence while continuing to forbid raw errors, credential/config disclosure and direct ARR access guidance. | Read, privacy, injection, destructive-request, provenance and legacy behavior remain green after proposal integration. The overall bounded read-and-repair completion box remains open until the separately reviewed live execution, least-privilege credential and fresh action-specific approval path exists and passes the same gate. |
+| 2026-09-09 | 4 pre-live execution | Implemented the structured Aster action endpoint, execution-disabled production broker unit, private two-minute operator approval, durable consume-before-contact state, redirect refusal, bounded response/audit sizes, fixed Radarr adapter and postcondition verification. Local suites passed broker 60/60 and Aster 41/41. The full disposable path passed repeatedly, denying missing auth, extra fields and replay, then making only fixed GET/DELETE/GET calls with downloader preservation and no blocklist, redownload or category change. | **Pre-live implementation gate complete.** No production file was staged, no live credential was loaded and no live ARR request occurred. Production staging and the single live action remain blocked on fresh explicit permission. |

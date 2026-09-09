@@ -27,3 +27,20 @@ class StateTests(unittest.TestCase):
             path = Path(directory) / "candidates.json"
             path.write_text('{"queue_id":42}', encoding="utf-8")
             self.assertEqual(load_candidates(path), {})
+
+    def test_duplicate_candidate_reference_fails_closed(self):
+        now = datetime(2026, 9, 9, 12, 0, tzinfo=timezone.utc)
+        candidate = issue_candidate(42, now=now)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "candidates.json"
+            store_candidates(path, [candidate, candidate])
+            self.assertEqual(load_candidates(path), {})
+
+    def test_multiple_distinct_candidates_fail_closed(self):
+        now = datetime(2026, 9, 9, 12, 0, tzinfo=timezone.utc)
+        first = issue_candidate(42, now=now)
+        second = issue_candidate(43, now=now)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "candidates.json"
+            store_candidates(path, [first, second])
+            self.assertEqual(load_candidates(path), {})

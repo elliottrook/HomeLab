@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Protocol
 
-from proposal import MAX_REPORT_AGE, OPERATION, ProposalError, create_dry_run
+from proposal import MAX_REPORT_AGE, OPERATION, ProposalError, create_dry_run, parse_report_time
 
 RADARR_DELETE_PARAMETERS = {
     "removeFromClient": "false",
@@ -78,35 +78,42 @@ class Broker:
         approval_ref: str,
         adapter: RadarrQueueAdapter,
         now: datetime | None = None,
-    ) -> dict[str, str]:
+    ) -> dict[str, object]:
         current = self._now(now)
         self.dry_run(request, now=current)
         candidate_ref = str(request["candidate_ref"])
         candidate = self._candidate(candidate_ref, current)
         approval = self._approval(approval_ref, candidate_ref, current)
+        report_age_seconds = int((current - parse_report_time(request["report_generated_at"])).total_seconds())
+
+        # Consume before the first adapter call. Inspection failures,
+        # precondition drift, timeouts and process restarts must never turn one
+        # human approval into more than one live attempt.
+        self._used_approvals.add(approval.reference)
 
         try:
             state = adapter.inspect(candidate.queue_id)
         except Exception:
-            return self._audit(candidate_ref, "inspection_failed", current)
+            return self._audit(candidate_ref, "inspection_failed", current, report_age_seconds)
         if state is None:
-            self._used_approvals.add(approval.reference)
-            return self._audit(candidate_ref, "already_absent", current)
+            return self._audit(candidate_ref, "already_absent", current, report_age_seconds)
         if state.queue_id != candidate.queue_id or not state.completed or state.downloading or state.importing:
             raise ProposalError("candidate no longer meets the narrow repair preconditions")
 
-        self._used_approvals.add(approval.reference)
         try:
             adapter.dismiss_preserving_downloader_data(candidate.queue_id)
         except Exception:
-            # A timeout can occur after Radarr receives the request.  Consume
-            # the approval so retrying cannot widen an uncertain outcome.
-            return self._audit(candidate_ref, "outcome_unknown", current)
-        return self._audit(candidate_ref, "dismissed", current)
+            return self._audit(candidate_ref, "outcome_unknown", current, report_age_seconds)
+        try:
+            remaining = adapter.inspect(candidate.queue_id)
+        except Exception:
+            return self._audit(candidate_ref, "outcome_unknown", current, report_age_seconds)
+        result = "dismissed" if remaining is None else "postcondition_failed"
+        return self._audit(candidate_ref, result, current, report_age_seconds)
 
     def _candidate(self, reference: str, now: datetime) -> Candidate:
         candidate = self._candidates.get(reference)
-        if candidate is None or candidate.expires_at <= now:
+        if candidate is None or candidate.issued_at > now or candidate.expires_at <= now:
             raise ProposalError("candidate reference is unknown, expired or already superseded")
         return candidate
 
@@ -123,10 +130,14 @@ class Broker:
         return approval
 
     @staticmethod
-    def _audit(candidate_ref: str, result: str, now: datetime) -> dict[str, str]:
+    def _audit(
+        candidate_ref: str, result: str, now: datetime, report_age_seconds: int
+    ) -> dict[str, object]:
         return {
             "operation": OPERATION,
             "candidate_ref": candidate_ref,
+            "decision": "approved_execute",
+            "report_age_seconds": report_age_seconds,
             "result": result,
             "at": now.isoformat(),
         }

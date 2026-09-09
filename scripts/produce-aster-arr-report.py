@@ -10,15 +10,24 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import stat
 import subprocess
 import sys
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 
 REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT_PATH", "/mnt/Media/data/tools/aster-arr-report/reports/latest.json"))
+CANDIDATE_STATE_PATH = Path(
+    os.environ.get(
+        "ASTER_ARR_CANDIDATE_STATE",
+        "/mnt/Media/data/tools/aster-arr-broker/state/candidates.json",
+    )
+)
+CANDIDATE_REF = re.compile(r"radarr-q-[a-z2-7]{16}")
 ARR_APPS = {
     "sonarr": (8989, "v3"),
     "radarr": (7878, "v3"),
@@ -126,11 +135,67 @@ def write_report(report: dict[str, Any], path: Path) -> None:
             os.unlink(temporary)
 
 
+def repair_candidates(path: Path, *, now: datetime) -> list[dict[str, str]]:
+    """Return at most one fresh opaque candidate and never its queue mapping."""
+    try:
+        status = path.lstat()
+        if (
+            not stat.S_ISREG(status.st_mode)
+            or status.st_mode & 0o022
+            or status.st_size > 65_536
+        ):
+            return []
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return []
+    if not isinstance(payload, dict) or set(payload) != {"candidates"}:
+        return []
+    candidates = payload["candidates"]
+    if not isinstance(candidates, list) or len(candidates) != 1:
+        return []
+    item = candidates[0]
+    if not isinstance(item, dict) or set(item) != {"reference", "queue_id", "issued_at", "expires_at"}:
+        return []
+    reference = item["reference"]
+    queue_id = item["queue_id"]
+    if (
+        not isinstance(reference, str)
+        or not CANDIDATE_REF.fullmatch(reference)
+        or not isinstance(queue_id, int)
+        or isinstance(queue_id, bool)
+        or queue_id < 1
+    ):
+        return []
+    try:
+        issued_at = datetime.fromisoformat(str(item["issued_at"]).replace("Z", "+00:00"))
+        expires_at = datetime.fromisoformat(str(item["expires_at"]).replace("Z", "+00:00"))
+    except ValueError:
+        return []
+    if (
+        issued_at.tzinfo is None
+        or expires_at.tzinfo is None
+        or issued_at.astimezone(timezone.utc) > now
+        or expires_at.astimezone(timezone.utc) <= now
+        or expires_at - issued_at > timedelta(minutes=5)
+    ):
+        return []
+    return [
+        {
+            "operation": "dismiss_stale_radarr_queue_record",
+            "service": "radarr",
+            "candidate_ref": reference,
+            "expires_at": expires_at.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        }
+    ]
+
+
 def main() -> int:
+    now = datetime.now(timezone.utc)
     report = {
         "schema_version": 1,
-        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "generated_at": now.isoformat().replace("+00:00", "Z"),
         "services": {name: service_report(name) for name in ("sonarr", "radarr", "lidarr", "prowlarr", "sabnzbd", "jellyfin")},
+        "repair_candidates": repair_candidates(CANDIDATE_STATE_PATH, now=now),
     }
     write_report(report, REPORT_PATH)
     return 0

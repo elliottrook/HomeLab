@@ -120,7 +120,7 @@ esac
 [ "$repetitions" -ge 2 ] && [ "$repetitions" -le 5 ] || \
     die 'ASTER_ARR_FIXTURE_RUNS must be an integer from 2 through 5'
 
-for source_file in server.py broker.py proposal.py state.py; do
+for source_file in server.py broker.py proposal.py state.py persistence.py; do
     [ -f "$broker_source/$source_file" ] || die "missing broker source: $source_file"
 done
 
@@ -344,7 +344,7 @@ if in_aster test -e /var/lib/aster/arr-report/latest.json || \
 fi
 
 in_aster install -d -o root -g aster -m 750 "$runtime_dir/broker"
-for source_file in server.py broker.py proposal.py state.py; do
+for source_file in server.py broker.py proposal.py state.py persistence.py; do
     pct push "$container_id" "$broker_source/$source_file" "$runtime_dir/broker/$source_file"
     in_aster chown root:aster "$runtime_dir/broker/$source_file"
     in_aster chmod 640 "$runtime_dir/broker/$source_file"

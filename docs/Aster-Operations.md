@@ -60,11 +60,13 @@ slow real-generation warm-up.
 
 ## Functions and knowledge
 
-Aster 1.0 exposes three allowlisted read-only functions:
+Aster 1.0 exposes five allowlisted read-only functions:
 
 - current time in an IANA timezone;
 - Aster or inference health;
-- keyword-ranked search of `/var/lib/aster/knowledge`.
+- keyword-ranked search of `/var/lib/aster/knowledge`;
+- the fixed-path sanitized ARR report; and
+- a dry-run proposal for the one report-issued opaque ARR candidate.
 
 These functions are selected from the current request and pre-executed before a
 single model call. Knowledge retrieval returns up to four source-diverse results.
@@ -75,6 +77,10 @@ separately, but Aster's production path is deliberately one-pass: it must not
 emit or request follow-up tool calls. If the preloaded context is insufficient,
 it says what is missing. There is no arbitrary shell, filesystem write, or
 user-supplied network target.
+
+The reviewed source also contains a structured ARR execution endpoint, but it
+is not deployed. It is not an LLM function and natural-language chat cannot
+select it. See the pre-live gate below.
 
 The deployed knowledge directory is a curated snapshot, not a live Git mount.
 Build it from the repository's explicit allowlist after material documentation
@@ -102,6 +108,55 @@ place, restore `root:aster` ownership and read-only modes, restart only
 is a knowledge rollback only: it does not alter inference, networking, model
 files or credentials. Record the replaced and restored archive hashes in the
 project evidence log.
+
+## ARR first-repair pre-live gate
+
+The first repair is limited to dismissing one stale completed Radarr queue
+record while preserving media and downloader data. The complete request,
+approval, audit and non-reversibility decision is in
+`docs/projects/Aster-ARR-First-Repair-Decision.md`.
+
+The source tree is ready for one production test, but production staging and
+live ARR access remain prohibited until Jason gives fresh explicit permission.
+The checked-in execution service is intentionally safe when merely installed:
+it runs as `aster-arr-broker`, binds only to loopback, denies non-loopback IP
+traffic and sets `ASTER_ARR_EXECUTION_ENABLED=false`.
+
+After that permission, use this order and stop on any failed check:
+
+1. Record hashes of the reviewed source and current Aster files. Stage the
+   broker account, private state directory, service files and Aster endpoint
+   update without enabling execution.
+2. Start the broker with execution false. Confirm `/v1/execute` is absent,
+   missing authorization is denied, the listener and firewall match the exact
+   reviewed addresses, and Aster chat still has no execution tool.
+3. Provision the broker's private Radarr credential without printing, copying
+   or placing it in Aster, Git, logs, prompts or the sanitized report. Open only
+   the exact Aster-to-broker and broker-to-Radarr paths required for this test.
+4. Run the private candidate issuer once. Zero or multiple eligible records is
+   a successful refusal and ends the test. For one candidate, independently
+   confirm its stale/completed/non-importing preconditions and review the dry
+   run before proceeding.
+5. At the final approval moment, run the operator-only approval command with
+   the displayed opaque candidate and explicit non-reversibility acceptance.
+   Its approval expires after two minutes and stays entirely server-side.
+6. Call only Aster's authenticated structured repair endpoint with that opaque
+   candidate. Never request execution in chat. Confirm one bounded result and
+   that a replay is denied without another Radarr call.
+7. Confirm the audit contains only operation, opaque candidate, decision,
+   report age, result and timestamp. Then set execution false, remove the
+   temporary network allowance and retain the audit as acceptance evidence.
+
+Do not automatically retry `inspection_failed`, `outcome_unknown`,
+`postcondition_failed` or a changed precondition. The approval has already
+been consumed. Investigate read-only evidence and require a new candidate,
+review and permission for any later attempt.
+
+Rollback before a confirmed live action is to stop/disable the execution
+broker, restore the accepted Aster source and remove the narrow network
+allowance. After a confirmed dismissal there is no queue-record rollback;
+media and downloader data remain untouched, but the removed Radarr queue
+record is not recreated.
 
 ## Health and logs
 
