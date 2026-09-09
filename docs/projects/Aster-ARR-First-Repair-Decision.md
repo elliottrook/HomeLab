@@ -1,7 +1,7 @@
 # Aster ARR First Repair Decision
 
-> Status: proposal rehearsal only — no broker, credential or live action is
-> enabled
+> Status: proposal and disposable-broker rehearsal complete — no live
+> credential, execution endpoint or action is enabled
 
 ## Selected candidate
 
