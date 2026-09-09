@@ -1,11 +1,13 @@
 # Aster ARR Stack Manager
 
-> Status: Active — advisory/read and first bounded repair graduated;
+> Status: Complete — graduated bounded ARR read and first repair;
 > every live Radarr attempt remains separately gated
 >
 > Project owner: Jason
 >
 > Started: 2026-09-08
+>
+> Completed: 2026-09-09
 
 ## Purpose
 
@@ -28,7 +30,7 @@ workflow client, not a second production control plane.
 | Decisions, experiments and acceptance evidence | This repository's project records |
 | ARR API keys, downloader credentials and service config | Private storage only; never Git, model context, Hermes skills or chat output |
 | Read-only health | Sanitized, schema-validated report produced outside Aster |
-| ARR mutations | Not permitted in this project phase; every future action is separately specified and approved |
+| ARR mutations | Only the graduated stale-Radarr-queue dismissal exists; every live attempt and every future action remains separately specified and approved |
 
 The manager must not infer that an API key is read-only merely because it is
 dedicated. The ARR services commonly use broadly capable API keys. Before
@@ -59,24 +61,28 @@ The initial curriculum covers:
 
 Teaching material must be concise, source-linked and free of live URLs that
 would expand access, secret-bearing examples, queue contents, download titles,
-or user-library information. A later operational reference page must be
-reviewed before it enters Aster's curated snapshot.
+or user-library information. The operational reference must remain reviewed
+before it enters Aster's curated snapshot.
 
 ## Milestone 0 — Scope and inventory
 
-- [ ] Inventory each service's version, role, network boundary, library root,
+- [x] Inventory each service's version, role, network boundary, library root,
   downloader relationship and current health through read-only evidence.
-- [ ] Write a reviewed operational reference page with provenance, review date,
+- [x] Write a reviewed operational reference page with provenance, review date,
   known exclusions and an explicit distinction between current facts and
   historical cleanup notes.
 - [x] Identify the smallest useful sanitized health schema; it must contain no
   API keys, URLs with credentials, media titles, paths outside approved roots,
   or raw service responses.
-- [ ] Record every existing automation that can create, search, rename, import
+- [x] Record every existing automation that can create, search, rename, import
   or delete so the manager never duplicates it blindly.
 
 Completion gate: the review names every source, excluded field and dependency;
 two independent reviewers can locate no credential or private-library content.
+
+Gate result: passed on 2026-09-09. The reviewed operational reference and its
+manifest entry passed both the focused five-test privacy/inventory review and
+the independent deterministic 26-source knowledge review with zero findings.
 
 ## Milestone 1 — Advisory Hermes skill and Aster knowledge
 
@@ -187,6 +193,11 @@ non-reversibility decision. Jason must retain the explicit, action-specific
 approval moment. Passing this gate authorizes only the enumerated repair
 operation; it does not authorize general ARR control or future actions.
 
+Gate result: passed on 2026-09-09 for bounded sanitized read and the single
+`dismiss_stale_radarr_queue_record` operation. This project is complete; its
+live execution boundary remains deliberately dormant between separately
+approved attempts.
+
 ## Test matrix
 
 | Class | Required proof |
@@ -220,3 +231,5 @@ operation; it does not authorize general ARR control or future actions.
 | 2026-09-09 | 4 pre-live execution | Implemented the structured Aster action endpoint, execution-disabled production broker unit, private two-minute operator approval, durable consume-before-contact state, redirect refusal, bounded response/audit sizes, fixed Radarr adapter and postcondition verification. Local suites passed broker 60/60 and Aster 41/41. The full disposable path passed repeatedly, denying missing auth, extra fields and replay, then making only fixed GET/DELETE/GET calls with downloader preservation and no blocklist, redownload or category change. | **Pre-live implementation gate complete.** No production file was staged, no live credential was loaded and no live ARR request occurred. Production staging and the single live action remain blocked on fresh explicit permission. |
 | 2026-09-09 | 4 production staging | Staged reviewed commit `6bd7d4e` with rollback copies on TrueNAS, Proxmox and LXC 104. The unprivileged broker passed 61/61 deployed tests; Aster passed 41/41 deployed unit tests and 42/42 in a disposable dependency-complete layout. With execution false, the exact temporary host/port path returned 401 for missing authorization and 404 for execution. One authorized live eligibility scan found zero matching records. | The live gate failed closed as designed: zero candidates, approvals, audit attempts or Radarr changes. The empty report was republished, the broker stopped/boot-disabled and the temporary firewall rule removed. |
 | 2026-09-09 | 4 graduated repair | At Jason's direction, repeated the established two-pass synthetic proposal fixture and then ran the deployed Aster structured endpoint and TrueNAS broker against a locked-down disposable Radarr endpoint holding one synthetic stale completed/imported record. The dry run passed four preconditions; the two-minute operator approval authorized one execution; Aster returned `completed`/`dismissed`. The execution produced exactly GET, fixed safe DELETE and verification GET. Replay returned 409 without another target call. | **Milestone 4's first bounded repair graduated against the required production-shaped disposable mutation target.** Cleanup restored the original broker environment/state and empty report, retained a two-record bounded fixture audit, stopped/boot-disabled the broker, removed both fixture services and the temporary firewall rule, and reconfirmed Aster healthy. Live Radarr was never the execution target and was not changed. |
+| 2026-09-09 | 0 / curriculum | Added `docs/ARR-Stack-Operational-Reference.md` with reviewed provenance, the six installed service versions/roles/ports, canonical roots and handoffs, current sanitized health, every known host/built-in mutation workflow, explicit exclusions and historical-vs-current precedence. The manifest maps it to `reference/operations/arr-stack.md`. The focused five-test reference review and independent deterministic 26-source knowledge review both passed with zero findings. | **Milestone 0 complete.** No credential, media title, queue identity, raw response or private-library item entered the source or snapshot. Focused retrieval now handles inventory, automation, Prowlarr coupling and broker boundaries across long Markdown chunks. |
+| 2026-09-09 | overall graduation | Final code `74e4223` passed 43/43 in the disposable dependency-complete Aster suite and the unchanged broker passed 61/61; deployed Aster passed 42/42. Black-box gates passed focused curriculum 4/4, current ARR advisory 8/8, bounded report 1/1, stale config 1/1, legacy ARR 6/6 and original Aster graduation 14/14. Final posture checks found the broker inactive and disabled, zero port-9421 listeners, zero candidates and approvals, no OPNsense 9421 rule, a closed broker path, and healthy Aster/inference services. | **Project completion gate passed. Aster has graduated ARR stack school for bounded sanitized read and the one enumerated Radarr queue-dismissal repair.** This creates no standing mutation authority: every future live attempt still requires a natural candidate, independent review, fresh action-specific permission and the temporary least-privilege path. |

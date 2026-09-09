@@ -69,7 +69,10 @@ Aster 1.0 exposes five allowlisted read-only functions:
 - a dry-run proposal for the one report-issued opaque ARR candidate.
 
 These functions are selected from the current request and pre-executed before a
-single model call. Knowledge retrieval returns up to four source-diverse results.
+single model call. Knowledge retrieval normally returns up to four
+source-diverse results. Focused checklist, monitoring and reviewed
+ARR-reference questions may return multiple chunks from the same authoritative
+source when a long table or section spans chunk boundaries.
 Current hardware inventory receives a strong present-state ranking preference,
 but relevant operational and design records are not excluded from multi-part
 answers. The Qwen model's native OpenAI function-call behavior was validated
@@ -98,6 +101,15 @@ Copy the archive to Proxmox, replace `/var/lib/aster/knowledge` atomically in
 LXC 104, and restore ownership to `aster:aster`. The builder includes
 `docs/Aster-Operations.md` and does not copy Finder `._*` metadata. Never add
 private backups, credentials or unreviewed external documents to the snapshot.
+
+The graduated ARR curriculum is sourced from
+`docs/ARR-Stack-Operational-Reference.md` and deployed as
+`reference/operations/arr-stack.md`. Its provenance entry must remain
+`current-with-exclusions` with a review date. Focused tests cover installed
+versions and ports, canonical roots and handoff semantics, scheduled mutation
+workflows, Prowlarr synchronization coupling and the broker's lack of standing
+authority. Current health still comes from the fresh sanitized ARR report,
+not the reference's point-in-time example.
 
 ### Accepted-snapshot rollback
 
