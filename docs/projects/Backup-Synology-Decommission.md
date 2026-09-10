@@ -1,12 +1,12 @@
 # Backup Synology Decommission and Storage Redeployment
 
-> Status: Active — Milestone 2 (HA backup redirect and Doctor coverage
-> remain open); **Milestone 3 gate passed 2026-09-10** — restore proofs
-> accepted and the legacy "Mini Atlas Offsite" task confirmed stopped
-> (Jason stopped the HyperBackup package via DSM after the CLI attempt
-> failed silently). Milestone 4 (power down and observe) may begin.
-> Outstanding: rotate the legacy bucket's S3 key, exposed during this
-> attempt.
+> Status: Active — **Milestones 1, 2 and 3 gates all passed 2026-09-10.**
+> Milestone 4: `.42` disabled and powered down, 14-day observation running
+> (started 2026-09-09, ends 2026-09-23, check-in scheduled). Milestone 5
+> (destructive disk redeployment) and Milestone 6 (Immich/family-cloud
+> placement) not started, both correctly blocked on the observation
+> period. Outstanding, not blocking: rotate the legacy Hyper Backup
+> bucket's S3 key, exposed while investigating the disable attempt.
 >
 > Project owner: Jason
 >
@@ -175,8 +175,20 @@ Those references are stale and are corrected as part of Milestone 1.
       by HA's own backup task or the Proxmox guest archive of VM 103?
 - [x] Identify every host, task or credential that references `.42`,
       including DSM tasks on `gowest`, Doctor checks, and repo scripts.
-- [ ] Record the IDrive e2 bucket's current contents, versioning and
-      retention, so the replacement can be proven equivalent.
+- [x] Record the IDrive e2 bucket's current contents, versioning and
+      retention, so the replacement can be proven equivalent. **Superseded
+      2026-09-10, closed without a direct query of the legacy bucket**:
+      the legacy `mini-atlas-backups` bucket's own task is now stopped
+      (Milestone 3), its credential is flagged for rotation after being
+      exposed, and querying its retention settings now would mean handling
+      that same flagged-for-rotation secret again for a bucket about to be
+      abandoned. The actual proof-of-equivalence obligation this item
+      existed for was met a different way: the *replacement* bucket
+      (`homelab-backup-relay`) had its own versioning independently
+      confirmed enabled and actually retrievable — see
+      `Backup-Architecture-Redesign.md` Milestone 3 ("Bucket versioning
+      reports: Enabled") and Milestone 4's 2026-09-10 point-in-time
+      recovery proof.
 - [x] Correct the stale "Backup Synology is offline" references across
       `docs/05-Backups.md`, `02-IP-Addressing.md`,
       `Backup-Architecture-Redesign.md` and `configs/devices.conf`.
@@ -267,23 +279,69 @@ DSM SSH user) — see the corrected baseline section above.
       current, done 2026-09-05.
 - [x] Off-site relay LXC deployed with `rclone` + `crypt` to IDrive e2 —
       done 2026-09-08, full sync verified.
-- [ ] **Redirect Home Assistant's native automatic backups from `.42` to
-      TrueNAS.** Decided by Jason 2026-09-05: these are a network backup and
-      belong with the rest, not on a unit being retired. Needs a TrueNAS
-      SMB or NFS target HA can write to (its native backup integration, not
-      a Proxmox-side pull, since these are HA's own portable backup format —
-      distinct from and complementary to the whole-VM guest archive that
-      already covers VM 103). Verify at least one backup lands and is
-      restorable before treating this leg as done.
-- [ ] Doctor coverage and backup-age alerting extended to each new leg, so a
+- [x] **Redirect Home Assistant's native automatic backups from `.42` to
+      TrueNAS.** Done 2026-09-10. HA's backup mount ("Backup_Synology" in
+      `ha mounts info`) was a CIFS share at `192.168.20.42:HomeAssistant-Backups`
+      — discovered via the Supervisor CLI (`ha mounts info`), reachable from
+      Proxmox through `qm guest exec 103` since HAOS has no direct SSH.
+      Created a dedicated, narrowly-scoped destination: TrueNAS user
+      `ha-backup` (SMB-only, `nologin` shell, no broader group membership),
+      owning a mode-700 directory `/mnt/Media/backup/home-assistant`
+      exposed as its own SMB share — matching this repo's established
+      least-privilege pattern, not a reuse of any admin credential. The
+      generated password was never printed to chat or logged; it was
+      created on TrueNAS and handed to the HA guest-exec call within one
+      uninterrupted local pipeline, with the pipeline aborting before
+      touching Home Assistant if the password capture had failed (it did
+      once, on a first attempt that hit an unrelated TrueNAS API schema
+      error — caught, fixed, and retried cleanly with a fresh password
+      before HA was touched).
+
+      Repointed via `ha mounts update Backup_Synology --server
+      192.168.20.40 --share home-assistant --username ha-backup --password
+      *** --usage backup` (kept the same mount *name* for continuity in
+      HA's own UI/history, only changed where it points). Verified
+      end-to-end, not just via exit codes: `ha mounts info` shows
+      `state: active`; triggered a real full backup
+      (`ha backups new --name TrueNAS-redirect-verification
+      --location=Backup_Synology --location=.local`), confirmed it
+      completed (`ha backups info` showed both locations with matching
+      `size_bytes: 27136000`), and independently confirmed on TrueNAS
+      itself that `522711d2.tar` (27,136,000 bytes) physically exists
+      under `/mnt/Media/backup/home-assistant/`, owned by `ha-backup`.
+- [x] Doctor coverage and backup-age alerting extended to each new leg, so a
       silent stall is detectable. **Explicitly required**: the 2026-09-04 AP
       Switch outage ran six days unnoticed, and `Media Backup` has been
-      quiet for six days without anything flagging it.
+      quiet for six days without anything flagging it. Added
+      `check_home_assistant_backup_truenas()` to HomeLab Doctor (newest
+      `.tar` mtime under the new TrueNAS path, 30h threshold matching the
+      existing daily-backup checks); ran the full suite afterward: 65
+      passed, 2 pre-existing warnings, 2 failures — both fully expected and
+      already accounted for (`.42` itself unreachable, and the Arista
+      link-state check correctly flagging `.42`'s switch port `Et48` going
+      `notconnect` now that it's powered off). Neither is a new problem;
+      both are direct, correctly-detected consequences of Milestone 4's own
+      power-down step, and are left as-is per that milestone's own plan to
+      remove `.42` from Doctor/inventory only after the 14-day observation
+      period. Separately noted for later, not urgent: the two legacy
+      `check_reported_backup` lines ("...to Backup Synology") will drift to
+      a stale *warning* (not a failure, so no new alert email) within about
+      a day, since the `.42`-hosted pull jobs they track can no longer run
+      at all — their coverage is already fully superseded by
+      `check_backup_redesign_truenas`'s Proxmox/Mac legs, so removing those
+      two obsolete lines belongs with Milestone 4's own deferred `.42`
+      cleanup, not this milestone.
 
 ### Gate
 
-Every category of data the DS220j protects has a live, monitored replacement
-that has produced fresh content — not merely a configured job.
+**Passed 2026-09-10.** Every category of data the DS220j protects has a
+live, monitored replacement that has produced fresh content — not merely a
+configured job: `gowest`, Mac, Proxmox archives, the off-site relay, and
+now Home Assistant's native backups, all verified with real recovered/
+landed data, not just configuration. `Media Backup` remains the one
+deliberate exception, unreplaced by Jason's own explicit decision (its
+data is a static, no-longer-updating snapshot of already-retired Plex
+media, judged safer left alone than touched).
 
 ---
 
@@ -333,11 +391,16 @@ when Jason is ready.
 
 ## Milestone 4 — Power down and observe
 
-- [ ] Disable `.42`'s Hyper Backup tasks (disable, not delete — reversible).
-- [ ] Power down `.42`, leaving disks intact and untouched.
+- [x] Disable `.42`'s Hyper Backup tasks (disable, not delete — reversible).
+      Done via Milestone 3 (HyperBackup package stopped 2026-09-09).
+- [x] Power down `.42`, leaving disks intact and untouched. **Done
+      2026-09-09, confirmed 2026-09-10** — SSH to `192.168.20.42` times out
+      (connection timeout, not a sandbox/permission denial), consistent
+      with powered off rather than unreachable for another reason.
 - [ ] **Observation period of at least 14 days** with the unit powered off
       but recoverable. Nothing depending on it may surface in that window:
-      Doctor clean, backups current, no restore request unmet.
+      Doctor clean, backups current, no restore request unmet. **Started
+      2026-09-09; ends 2026-09-23.** A check-in is scheduled for then.
 - [ ] Remove `.42` from `configs/devices.conf`, Doctor checks, the sandbox
       allowlist in `CLAUDE.md` and `.claude/settings.json`, and NetBox.
 
@@ -424,3 +487,8 @@ this milestone closes as "not required".
 | 2026-09-10 | 3 | Attempted disable via `synobackup --schedule-disable-list-by-app HyperBackup` — returned exit 0. Did not trust that alone: verified via `synoschedtask --get`, which showed both of the task's Task Scheduler entries (ID 3, ID 5; app `SYNO.SDS.Backup.Application`) still `State: [enabled]` — the command silently did nothing, most likely because `HyperBackup` isn't the app identifier this tool expects. The correct path (`SYNO.Core.TaskScheduler` via `synowebapi`) returned `Permission denied` — needs root, and the SSH account in use (`Jason`, administrators group) has no sudo. Stopped rather than hand-edit Task Scheduler's backing store blind | **Not disabled.** Handed back to Jason as a two-click DSM UI action (Hyper Backup → pause/disable "Mini Atlas Offsite", or Control Panel → Task Scheduler → uncheck Enabled on IDs 3 and 5). `.42` and the legacy task remain fully live and untouched — no gate bypassed |
 | 2026-09-10 | — (unrelated finding) | While reading Task Scheduler entries to verify the above, noticed an existing scheduled Task ID 7 ("Task 7", undocumented name) on `.42` that runs **daily at 00:00**: it writes an SSH public key for `jelliott@Jasons-Mac-mini.local` into `/etc/ssh/authorized_keys/jason`, edits `sshd_config`'s `AuthorizedKeysFile` directive, and restarts `sshd` — every single day. Idempotent and not something this session touched or created, but flagging since a daily unattended `sshd` restart plus `sshd_config` rewrite on a production NAS is worth Jason's awareness; out of scope for this project to act on | Flagged only, not investigated further or modified |
 | 2026-09-10 | 3 | Jason reported "HyperBackup stopped." Verified rather than took at face value: `HyperBackup.log` showed a clean `stop 4.2.2-4262 prestop`/`stop` sequence at 18:50:11–14 UTC on 2026-09-09 (Jason used Package Center, not the per-task disable the CLI attempt couldn't complete). Live `synopkg status HyperBackup` confirms `"status":"stop"`, no `dsmbackup` process running. Confirmed the separate `HyperBackupVault` package (receiving side for `Synology Drive Backup`/`Media Backup`, explicitly out of scope to touch) is unaffected — its `img_backupd` process is still running normally | **Passed. Milestone 3 gate closed** — restores accepted, legacy off-site task confirmed stopped, no collateral impact on the still-needed receiving side. Milestone 4 may begin when Jason is ready. The S3 key exposed earlier this milestone still needs rotation |
+| 2026-09-10 | 4 | Jason reported `.42` powered down. Verified: SSH to `192.168.20.42` times out (connection timeout, not the sandbox's "Operation not permitted" pattern), consistent with power-off rather than a network/permission issue. Disks left untouched, nothing else attempted | Milestone 4's disable and power-down steps confirmed done. 14-day observation period recorded as started 2026-09-09, ending 2026-09-23; a check-in reminder was scheduled for that date |
+| 2026-09-10 | 2 | Jason clarified "leave Media Backup alone" meant its data, not necessarily the task, and approved retiring "Synology Drive Backup" by stopping HyperBackup on `gowest` the same way as `.42`. Flagged first that this would also stop Media Backup (they share one HyperBackup package instance on `gowest`, unlike `.42` which only had one task) — Jason confirmed that's fine given the data-only framing. Separately, Jason asked whether "the drive backup" needed to be recreated pointed at TrueNAS; clarified this already exists (the `gowest` leg of `Backup-Architecture-Redesign`, live since 2026-09-07) rather than building a redundant Hyper-Backup-based replacement, which would have reintroduced the exact processing pattern this project's redesign was built to eliminate | No infrastructure change; a scope/understanding question resolved before any action |
+| 2026-09-10 | 2 | Jason asked whether `.42` was ready for decommissioning aside from the Media data question and the 14-day wait. Checked rather than assumed: found Home Assistant's native automatic backups were still configured to write to the now-powered-off `.42` over SMB (`ha mounts info` showed mount "Backup_Synology" at `192.168.20.42:HomeAssistant-Backups`, `state: inactive`) — a real, currently-broken dependency with no replacement built yet, unlike the other three legs | Surfaced as the one genuine blocker; Jason approved building the fix |
+| 2026-09-10 | 2 | Built the Home Assistant → TrueNAS backup redirect. Discovered `qm guest exec 103` reaches the HAOS host directly (no SSH needed), and its `ha` Supervisor CLI exposes `mounts`/`backups` management. Created a dedicated TrueNAS user `ha-backup` (SMB-only, `nologin`, no broader groups) owning a mode-700 directory `/mnt/Media/backup/home-assistant`, exposed as its own SMB share (`DEFAULT_SHARE` purpose — a first attempt using an invalid `NO_PRESET` purpose value failed cleanly with no side effect other than the user's password being generated and then not retrievable, so it was simply reset on retry). Generated password never left a single local-to-remote pipeline and was never printed. Repointed HA's existing "Backup_Synology" mount via `ha mounts update` to the new destination, keeping the mount's name for continuity | Verified end-to-end: `ha mounts info` shows `state: active`; a real triggered backup (`TrueNAS-redirect-verification`) completed and reported at both `.local` and `Backup_Synology` locations (27,136,000 bytes each); independently confirmed the actual `.tar` file exists on TrueNAS, owned by `ha-backup`. **Milestone 2 gate passed** |
+| 2026-09-10 | 2/4 | Added `check_home_assistant_backup_truenas()` to HomeLab Doctor and ran the full suite | 65 passed, 2 pre-existing warnings, 2 expected failures (`.42` unreachable; Arista correctly flagging `.42`'s switch port `Et48` down) — both direct, correct consequences of Milestone 4's power-down, not new problems, left alone per that milestone's own deferred-cleanup plan |

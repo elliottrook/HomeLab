@@ -275,6 +275,36 @@ print(finished // 1000 if finished else '')
     fi
 }
 
+check_home_assistant_backup_truenas() {
+    local latest_epoch
+
+    if ! latest_epoch="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
+            "find /mnt/Media/backup/home-assistant -maxdepth 1 -type f -name '*.tar' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
+    )"; then
+        warn "Unable to check Home Assistant backup leg on TrueNAS"
+        return
+    fi
+
+    latest_epoch="${latest_epoch%%.*}"
+
+    if [[ ! "$latest_epoch" =~ ^[0-9]+$ ]]; then
+        fail "Home Assistant backup leg on TrueNAS has no backup files"
+        return
+    fi
+
+    local now_epoch
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_hours=$(( (now_epoch - latest_epoch) / 3600 ))
+
+    if (( age_hours > 30 )); then
+        warn "Home Assistant backup on TrueNAS is ${age_hours} hour(s) old"
+    else
+        pass "Home Assistant backup on TrueNAS is ${age_hours} hour(s) old"
+    fi
+}
+
 check_proxmox_guest_backup_age() {
     local display="$1"
     local vmid="$2"
@@ -1668,6 +1698,7 @@ check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
 check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
 check_idrive_relay
 check_backup_redesign_truenas
+check_home_assistant_backup_truenas
 check_synology_drive_backup 30
 
 divider
