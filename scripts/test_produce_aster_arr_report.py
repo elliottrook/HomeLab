@@ -2,6 +2,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
@@ -28,6 +29,7 @@ class ProducerTests(unittest.TestCase):
             self.assertEqual(report["services"]["radarr"]["queue_pending"], 3)
             self.assertEqual(report["services"]["radarr"]["import_pending"], None)
             self.assertEqual(report["services"]["prowlarr"]["coverage"], ["health"])
+            self.assertEqual(report["repair_candidates"], [])
             self.assertEqual(path.stat().st_mode & 0o777, 0o640)
 
     def test_failed_queue_call_does_not_write_error_detail(self):
@@ -37,6 +39,63 @@ class ProducerTests(unittest.TestCase):
             result = producer.service_report("radarr")
         self.assertEqual(result["status"], "failed")
         self.assertNotIn("secret", json.dumps(result))
+
+    def test_candidate_mapping_is_reduced_to_one_fresh_opaque_reference(self):
+        now = datetime(2026, 9, 9, 12, 0, tzinfo=timezone.utc)
+        state = {
+            "candidates": [
+                {
+                    "reference": "radarr-q-abcdefghijklmnop",
+                    "queue_id": 42,
+                    "issued_at": now.isoformat(),
+                    "expires_at": (now + timedelta(minutes=5)).isoformat(),
+                }
+            ]
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "candidates.json"
+            path.write_text(json.dumps(state), encoding="utf-8")
+            result = producer.repair_candidates(path, now=now)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["candidate_ref"], "radarr-q-abcdefghijklmnop")
+        self.assertNotIn("queue_id", result[0])
+        self.assertNotIn("42", json.dumps(result))
+
+    def test_expired_malformed_or_multiple_candidates_fail_closed(self):
+        now = datetime(2026, 9, 9, 12, 0, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "candidates.json"
+            for payload in (
+                {"candidates": []},
+                {"candidates": [{"reference": "42"}]},
+                {"candidates": [{}, {}]},
+            ):
+                path.write_text(json.dumps(payload), encoding="utf-8")
+                self.assertEqual(producer.repair_candidates(path, now=now), [])
+
+    def test_writable_or_symlinked_candidate_state_fails_closed(self):
+        now = datetime(2026, 9, 9, 12, 0, tzinfo=timezone.utc)
+        payload = {
+            "candidates": [
+                {
+                    "reference": "radarr-q-abcdefghijklmnop",
+                    "queue_id": 42,
+                    "issued_at": now.isoformat(),
+                    "expires_at": (now + timedelta(minutes=5)).isoformat(),
+                }
+            ]
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "candidate-target.json"
+            target.write_text(json.dumps(payload), encoding="utf-8")
+            target.chmod(0o664)
+            self.assertEqual(producer.repair_candidates(target, now=now), [])
+
+            target.chmod(0o600)
+            symlink = root / "candidate-link.json"
+            symlink.symlink_to(target)
+            self.assertEqual(producer.repair_candidates(symlink, now=now), [])
 
 
 if __name__ == "__main__":

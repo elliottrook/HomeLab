@@ -19,6 +19,8 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from arr_report import get_arr_report as read_arr_report
+from source_reports import get_forgejo_report as read_forgejo_report
+from source_reports import get_netbox_report as read_netbox_report
 
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
@@ -28,6 +30,12 @@ UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
 HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
 ARR_REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT", "/var/lib/aster/arr-report/latest.json"))
+FORGEJO_REPORT_PATH = Path(
+    os.environ.get("ASTER_FORGEJO_REPORT", "/var/lib/aster/source-reports/forgejo.json")
+)
+NETBOX_REPORT_PATH = Path(
+    os.environ.get("ASTER_NETBOX_REPORT", "/var/lib/aster/source-reports/netbox.json")
+)
 ARR_BROKER_URL = os.environ.get("ASTER_ARR_BROKER_URL", "").rstrip("/")
 ARR_BROKER_KEY = os.environ.get("ASTER_ARR_BROKER_KEY", "")
 DEFAULT_TIMEZONE = os.environ.get("ASTER_TIMEZONE", "America/Vancouver")
@@ -75,6 +83,16 @@ When the fixed-path ARR report is supplied, you may state only its generation
 time, aggregate service status, aggregate counters and declared coverage. Treat
 an unavailable, stale or partial report as limited evidence, never as a reason
 to refresh it or contact an ARR service.
+Forgejo and NetBox access is also read-only and indirect. You may use only the
+fixed-path sanitized reports supplied for the current turn; never contact either
+API, reveal an endpoint or credential, propose using their interfaces as a
+workaround, or imply that you changed remote state. The Forgejo report covers
+only repository metadata, bounded counts, abbreviated commit identity and the
+latest action status; it excludes source code, messages, authors, issue or pull
+request text and workflow logs. The NetBox report covers only approved inventory
+identity, placement, status, addressing and aggregate counts; it excludes config
+contexts, custom fields, contacts, secrets and change authority. An unavailable
+or stale report is limited evidence, not permission to refresh or broaden access.
 Guest type matters: do not relabel a VM as an LXC or vice versa.
 LXC 110 is a container, never an inference VM; VM 105 is the stopped Ollama
 rollback guest.
@@ -91,6 +109,14 @@ class ChatRequest(BaseModel):
     temperature: float | None = 0.2
     max_tokens: int | None = 640
     stream: bool = False
+
+
+class ArrRepairExecutionRequest(BaseModel):
+    """Structured operator action; never derived from natural-language chat."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_ref: str = Field(pattern=r"^radarr-q-[a-z2-7]{16}$")
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -143,6 +169,22 @@ TOOLS: dict[str, dict[str, Any]] = {
             "parameters": {"type": "object", "properties": {}},
         },
     },
+    "get_forgejo_report": {
+        "type": "function",
+        "function": {
+            "name": "get_forgejo_report",
+            "description": "Read fixed-path sanitized metadata for the approved Forgejo repository. It cannot access source, messages, logs, credentials, or make changes.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    "get_netbox_report": {
+        "type": "function",
+        "function": {
+            "name": "get_netbox_report",
+            "description": "Read the fixed-path sanitized NetBox inventory report. It cannot access sensitive fields, credentials, or make changes.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
     "get_arr_repair_proposal": {"type": "function", "function": {"name": "get_arr_repair_proposal", "description": "Request only a dry-run proposal for the single opaque report-issued ARR repair candidate. It cannot execute a repair.", "parameters": {"type": "object", "properties": {}}}},
     "search_knowledge": {
         "type": "function",
@@ -170,8 +212,16 @@ TOOL_HINTS = {
         re.I,
     ),
     "get_arr_repair_proposal": re.compile(r"\b(?:arr|radarr)\b.*\b(?:repair|fix|dismiss)\b|\b(?:repair|fix|dismiss)\b.*\b(?:arr|radarr)\b", re.I),
+    "get_forgejo_report": re.compile(
+        r"\b(?:forgejo|jason/homelab|git repository)\b.*\b(?:current|latest|branch|tag|release|issue|pull request|commit|action|workflow status)\b|\b(?:current|latest|branch|tag|release|issue|pull request|commit|action|workflow status)\b.*\b(?:forgejo|jason/homelab|git repository)\b",
+        re.I,
+    ),
+    "get_netbox_report": re.compile(
+        r"\bnetbox\b.*\b(?:current|inventory|device|virtual machine|vm|site|rack|vlan|prefix|ip|status|count)\b|\b(?:current|inventory|device|virtual machine|vm|site|rack|vlan|prefix|ip|status|count)\b.*\bnetbox\b",
+        re.I,
+    ),
     "search_knowledge": re.compile(
-        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
+        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|forgejo|netbox|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
         re.I,
     ),
 }
@@ -265,6 +315,35 @@ def _source_bonus(
 
 def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     bonus = 0
+    if source == "reference/operations/arr-stack.md":
+        for service in ("sonarr", "radarr", "lidarr", "prowlarr", "sabnzbd", "jellyfin"):
+            if re.search(rf"\b{service}\b", query, re.I) and re.search(
+                rf"\|\s*{service}\s*\|", text, re.I
+            ):
+                bonus += 300
+        if re.search(r"\b(version|versions|installed|ports?)\b", query, re.I) and "current service inventory" in text:
+            bonus += 320
+        if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity)\b", query, re.I):
+            if "truenas cron job" in text:
+                bonus += 360
+            elif "automation and mutation map" in text:
+                bonus += 320
+        if re.search(r"\b(root|roots|dependency|downloader|handoff)\b", query, re.I) and "current service inventory" in text:
+            bonus += 280
+        if re.search(r"\b(broker|standing authority|natural-language chat)\b", query, re.I) and (
+            "aster's arr execution broker" in text or "natural-language chat cannot" in text
+        ):
+            bonus += 420
+        if re.search(r"\b(indexer|indexers|sync|synchronization|key rotation|coupled|connected app)\b", query, re.I):
+            if "prowlarr application synchronization" in text or "stale connected-app key" in text:
+                bonus += 900
+            elif "connected arr applications" in text:
+                bonus += 420
+    if source.endswith("Aster-Operations.md") and re.search(
+        r"\b(forgejo|netbox|source report|read-only integration)\b", query, re.I
+    ):
+        if "forgejo and netbox read-only reports" in text:
+            bonus += 900
     if source == "reference/infrastructure/hardware-inventory.md":
         if re.search(r"\b(rack|rack-unit|ru position)", query, re.I) and "uncertain or excluded" in text:
             bonus += 240
@@ -325,6 +404,14 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         re.search(r"\b(vlan|address|ip)\b", query, re.I)
         and re.search(r"\b(aster|inference|lxc 104|lxc 110)\b", query, re.I)
     )
+    focused_arr_reference = bool(
+        re.search(r"\b(arr|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin)\b", query, re.I)
+        and re.search(
+            r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff|automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity|broker|approval|standing authority|indexer|indexers|sync|synchronization|key rotation|coupled|connected app)\b",
+            query,
+            re.I,
+        )
+    )
     provenance = _provenance(root)
     ranked: list[tuple[int, str, str]] = []
     for path in sorted(root.rglob("*")):
@@ -348,6 +435,31 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                 r"## (?:1\.|2\.|3\.)", chunk
             ):
                 score = max(score, 1)
+            if relative == "reference/operations/arr-stack.md":
+                if re.search(
+                    r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity)\b",
+                    query,
+                    re.I,
+                ) and (
+                    "automation and mutation map" in normalized or "truenas cron job" in normalized
+                ):
+                    score = max(score, 1)
+                elif re.search(
+                    r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b",
+                    query,
+                    re.I,
+                ) and "current service inventory" in normalized:
+                    score = max(score, 1)
+                if re.search(r"\b(broker|standing authority|natural-language chat)\b", query, re.I) and (
+                    "aster's arr execution broker" in normalized
+                    or "natural-language chat cannot" in normalized
+                ):
+                    score = max(score, 1)
+                if re.search(r"\b(indexer|indexers|sync|synchronization|key rotation|coupled|connected app)\b", query, re.I) and (
+                    "prowlarr application synchronization" in normalized
+                    or "connected arr applications" in normalized
+                ):
+                    score = max(score, 1)
             if role_query and relative == "reference/infrastructure/virtualization.md" and "local-ai stack detail" in normalized:
                 score += 300
             if addressing_query and relative == "reference/network/addressing.md" and "lab vlan 70" in normalized:
@@ -389,7 +501,32 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                     r"\b(recovery|whole-network|outage|remote access)\b", query, re.I
                 ):
                     preferred_anchor = normalized.find("recovery order")
-                if relative.endswith("Aster-Operations.md") and _chunk_bonus(relative, normalized, query, tokens):
+                elif relative == "reference/operations/arr-stack.md":
+                    if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity)\b", query, re.I):
+                        preferred_anchor = normalized.find("automation and mutation map")
+                        if preferred_anchor < 0:
+                            preferred_anchor = normalized.find("truenas cron job")
+                    elif re.search(r"\b(broker|standing authority|natural-language chat)\b", query, re.I):
+                        preferred_anchor = normalized.find("aster's arr execution broker")
+                        if preferred_anchor < 0:
+                            preferred_anchor = normalized.find("natural-language chat cannot")
+                    elif re.search(r"\b(indexer|indexers|sync|synchronization|key rotation|coupled|connected app)\b", query, re.I):
+                        preferred_anchor = normalized.find("prowlarr application synchronization")
+                        if preferred_anchor < 0:
+                            preferred_anchor = normalized.find("connected arr applications")
+                    elif re.search(r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b", query, re.I):
+                        for service in ("sonarr", "radarr", "lidarr", "prowlarr", "sabnzbd", "jellyfin"):
+                            if re.search(rf"\b{service}\b", query, re.I):
+                                preferred_anchor = normalized.find(f"| {service} |")
+                                if preferred_anchor >= 0:
+                                    break
+                        if preferred_anchor < 0:
+                            preferred_anchor = normalized.find("current service inventory")
+                if relative.endswith("Aster-Operations.md") and re.search(
+                    r"\b(forgejo|netbox|source report|read-only integration)\b", query, re.I
+                ):
+                    preferred_anchor = normalized.find("forgejo and netbox read-only reports")
+                elif relative.endswith("Aster-Operations.md") and _chunk_bonus(relative, normalized, query, tokens):
                     preferred_anchor = normalized.find("runtime configuration")
                 elif relative.endswith("AI-Hermes-Second-Brain.md") and _chunk_bonus(relative, normalized, query, tokens):
                     preferred_anchor = normalized.find("implementation tasks")
@@ -410,6 +547,8 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         selected = [item for item in ranked if item[1].endswith("AI-Hermes-Second-Brain.md")][:limit]
     elif focused_monitoring:
         selected = [item for item in ranked if item[1] == "reference/operations/monitoring.md"][:limit]
+    elif focused_arr_reference:
+        selected = [item for item in ranked if item[1] == "reference/operations/arr-stack.md"][:limit]
     else:
         seen_sources: set[str] = set()
         for item in ranked:
@@ -499,6 +638,10 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         return get_lab_health()
     if name == "get_arr_report":
         return read_arr_report(ARR_REPORT_PATH)
+    if name == "get_forgejo_report":
+        return read_forgejo_report(FORGEJO_REPORT_PATH)
+    if name == "get_netbox_report":
+        return read_netbox_report(NETBOX_REPORT_PATH)
     if name == "get_arr_repair_proposal":
         report = read_arr_report(ARR_REPORT_PATH)
         candidates = report.get("repair_candidates") if isinstance(report, dict) else None
@@ -525,6 +668,91 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     return {"error": f"Tool is not allowlisted: {name}"}
 
 
+async def execute_arr_repair(candidate_ref: str) -> dict[str, Any]:
+    """Invoke only the separately approved broker operation.
+
+    This function is reachable only from the dedicated structured API route,
+    never from tool selection, model output, or a natural-language message.
+    """
+    report = read_arr_report(ARR_REPORT_PATH)
+    candidates = report.get("repair_candidates") if isinstance(report, dict) else None
+    if (
+        not isinstance(report, dict)
+        or report.get("status") == "unavailable"
+        or not isinstance(candidates, list)
+    ):
+        raise HTTPException(status_code=409, detail="No fresh repair candidate is available")
+    matches = [
+        item
+        for item in candidates
+        if isinstance(item, dict) and item.get("candidate_ref") == candidate_ref
+    ]
+    if len(matches) != 1:
+        raise HTTPException(status_code=409, detail="Candidate is not present in the fresh report")
+    if not ARR_BROKER_URL or not ARR_BROKER_KEY:
+        raise HTTPException(status_code=503, detail="Repair broker is not configured")
+    candidate = matches[0]
+    payload = {
+        "operation": candidate["operation"],
+        "service": candidate["service"],
+        "candidate_ref": candidate["candidate_ref"],
+        "report_generated_at": report["generated_at"],
+    }
+    try:
+        async with httpx.AsyncClient(timeout=40) as client:
+            response = await client.post(
+                f"{ARR_BROKER_URL}/v1/execute",
+                headers={"Authorization": f"Bearer {ARR_BROKER_KEY}"},
+                json=payload,
+            )
+        if response.status_code in {400, 403, 404, 409}:
+            raise HTTPException(status_code=409, detail="Repair was not authorized or no longer qualifies")
+        response.raise_for_status()
+        result = response.json()
+    except HTTPException:
+        raise
+    except (httpx.HTTPError, ValueError) as exc:
+        raise HTTPException(status_code=503, detail="Repair broker unavailable") from exc
+
+    fields = {
+        "operation", "candidate_ref", "decision", "report_age_seconds", "result", "at"
+    }
+    allowed_results = {
+        "already_absent", "dismissed", "inspection_failed", "outcome_unknown", "postcondition_failed"
+    }
+    result_at = result.get("at") if isinstance(result, dict) else None
+    try:
+        parsed_result_at = (
+            datetime.fromisoformat(result_at.replace("Z", "+00:00"))
+            if isinstance(result_at, str)
+            else None
+        )
+    except ValueError:
+        parsed_result_at = None
+    if (
+        not isinstance(result, dict)
+        or set(result) != fields
+        or result.get("operation") != "dismiss_stale_radarr_queue_record"
+        or result.get("candidate_ref") != candidate_ref
+        or result.get("decision") != "approved_execute"
+        or result.get("result") not in allowed_results
+        or not isinstance(result.get("report_age_seconds"), int)
+        or isinstance(result.get("report_age_seconds"), bool)
+        or not 0 <= result["report_age_seconds"] <= 900
+        or parsed_result_at is None
+        or parsed_result_at.tzinfo is None
+    ):
+        raise HTTPException(status_code=503, detail="Repair broker returned an invalid result")
+    status = {
+        "dismissed": "completed",
+        "already_absent": "completed",
+        "inspection_failed": "failed",
+        "postcondition_failed": "failed",
+        "outcome_unknown": "unknown",
+    }[result["result"]]
+    return {"status": status, "audit": result}
+
+
 def normalized_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
     if messages and messages[0].get("role") == "system":
         first = dict(messages[0])
@@ -549,7 +777,7 @@ async def preload_read_only_context(
             arguments = {"service": "aster" if re.search(r"\baster\b", user_text, re.I) else "inference"}
         elif name == "get_lab_health":
             arguments = {}
-        elif name == "get_arr_report":
+        elif name in {"get_arr_report", "get_forgejo_report", "get_netbox_report"}:
             arguments = {}
         elif name == "get_arr_repair_proposal":
             arguments = {}
@@ -620,6 +848,11 @@ async def models() -> dict[str, Any]:
         "object": "list",
         "data": [{"id": "aster-qwen3.8-27b", "object": "model", "created": int(time.time()), "owned_by": "local"}],
     }
+
+
+@app.post("/v1/arr-repair/execute", dependencies=[Depends(require_api_key)])
+async def arr_repair_execute(request: ArrRepairExecutionRequest) -> dict[str, Any]:
+    return await execute_arr_repair(request.candidate_ref)
 
 
 @app.post("/v1/chat/completions", dependencies=[Depends(require_api_key)], response_model=None)

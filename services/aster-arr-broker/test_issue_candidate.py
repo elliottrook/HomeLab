@@ -1,6 +1,8 @@
 import unittest
 from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
+import issue_candidate
 from issue_candidate import eligible_queue_id
 
 
@@ -23,6 +25,43 @@ class IssuerTests(unittest.TestCase):
         self.assertIsNone(
             eligible_queue_id({"records": [{"id": 42, "status": "completed", "trackedDownloadState": "failed", "added": "bad"}]}, now=NOW)
         )
+
+    def test_multiple_eligible_records_are_ambiguous_and_issue_nothing(self):
+        old = (NOW - timedelta(hours=2)).isoformat()
+        payload = {
+            "records": [
+                {"id": 3, "status": "completed", "trackedDownloadState": "imported", "added": old},
+                {"id": 4, "status": "completed", "trackedDownloadState": "ignored", "added": old},
+            ]
+        }
+        self.assertIsNone(eligible_queue_id(payload, now=NOW))
+
+    def test_future_naive_and_boolean_records_are_refused(self):
+        for queue_id, added in (
+            (True, (NOW - timedelta(hours=2)).isoformat()),
+            (3, (NOW + timedelta(seconds=1)).isoformat()),
+            (3, "2026-09-09T10:00:00"),
+        ):
+            with self.subTest(queue_id=queue_id, added=added):
+                payload = {
+                    "records": [
+                        {
+                            "id": queue_id,
+                            "status": "completed",
+                            "trackedDownloadState": "imported",
+                            "added": added,
+                        }
+                    ]
+                }
+                self.assertIsNone(eligible_queue_id(payload, now=NOW))
+
+    def test_successful_empty_scan_clears_prior_candidate_state(self):
+        with (
+            patch.object(issue_candidate, "radarr_queue", return_value={"records": []}),
+            patch.object(issue_candidate, "store_candidate_state") as store,
+        ):
+            self.assertEqual(issue_candidate.main(), 0)
+        store.assert_called_once_with([])
 
 
 if __name__ == "__main__":

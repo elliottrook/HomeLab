@@ -9,6 +9,9 @@
 |---|---|---|---|
 | Aster API and browser UI | LXC 104 (`192.168.70.10`) | `http://192.168.70.10:9120` | `aster-agent.service` |
 | llama.cpp Vulkan inference | LXC 110 (`192.168.70.12`) | `http://192.168.70.12:11435/v1` | `aster-llama.service` |
+| Sanitized Forgejo producer | LXC 108 | Forgejo loopback API only | `aster-forgejo-report.service` |
+| Sanitized NetBox producer | LXC 111 | NetBox loopback API only | `aster-netbox-report.service` |
+| Source-report transport | Proxmox host | No network endpoint | `aster-source-reports.timer` |
 
 The browser page asks for the Aster bearer key and stores it in that browser's
 local storage. The API key is stored only in `/etc/aster/aster.env` in LXC 104.
@@ -60,14 +63,22 @@ slow real-generation warm-up.
 
 ## Functions and knowledge
 
-Aster 1.0 exposes three allowlisted read-only functions:
+Aster 1.0 exposes eight allowlisted read-only functions:
 
 - current time in an IANA timezone;
 - Aster or inference health;
-- keyword-ranked search of `/var/lib/aster/knowledge`.
+- the latest sanitized HomeLab health summary;
+- keyword-ranked search of `/var/lib/aster/knowledge`;
+- the fixed-path sanitized ARR report;
+- the fixed-path sanitized Forgejo report;
+- the fixed-path sanitized NetBox report; and
+- a dry-run proposal for the one report-issued opaque ARR candidate.
 
 These functions are selected from the current request and pre-executed before a
-single model call. Knowledge retrieval returns up to four source-diverse results.
+single model call. Knowledge retrieval normally returns up to four
+source-diverse results. Focused checklist, monitoring and reviewed
+ARR-reference questions may return multiple chunks from the same authoritative
+source when a long table or section spans chunk boundaries.
 Current hardware inventory receives a strong present-state ranking preference,
 but relevant operational and design records are not excluded from multi-part
 answers. The Qwen model's native OpenAI function-call behavior was validated
@@ -75,6 +86,50 @@ separately, but Aster's production path is deliberately one-pass: it must not
 emit or request follow-up tool calls. If the preloaded context is insufficient,
 it says what is missing. There is no arbitrary shell, filesystem write, or
 user-supplied network target.
+
+### Forgejo and NetBox read-only reports
+
+Aster has no API token or direct network path to Forgejo or NetBox. A dedicated
+source-local account reads each service through its loopback API, and a
+source-local oneshot converts the response to a strict allowlisted schema.
+Every five minutes the Proxmox timer starts each producer, pulls only the
+sanitized JSON, validates it again, and atomically installs it as a root-owned,
+mode-0640 report in `/var/lib/aster/source-reports` in LXC 104. The Aster unit
+mounts that directory read-only.
+
+The Forgejo identity is restricted, cannot create repositories or
+organizations, has `read` collaborator access only to `jason/homelab`, and its
+token contains only read scopes. Its report includes repository visibility,
+archive/default-branch state, update time, bounded branch/tag/release/open
+issue/open pull counts, an abbreviated latest commit identifier and latest
+action status. Source, diffs, messages, authors, issue/PR text and action logs
+are excluded.
+
+The NetBox identity has an unusable password, is not a superuser, and receives
+one object permission whose only action is `view`. Its API token has writes
+disabled. The report includes bounded device, VM, VLAN and prefix inventory
+plus site/rack aggregate counts. Config contexts, custom fields, descriptions,
+contacts, journal/change data, secrets and mutation authority are excluded.
+
+Both Aster readers reject symlinks, non-regular files, non-root ownership,
+group/other write permissions, oversized reports, unknown fields, invalid
+types and timestamps more than 15 minutes old. Failure leaves the source
+unavailable; it never causes Aster to contact a source or widen access.
+
+To suspend the integration, disable `aster-source-reports.timer` on Proxmox;
+the reports will age out and fail closed. Aster source rollback is retained in
+`/opt/aster-agent/rollback-source-reports-20260909` in LXC 104. Restoring it
+also requires removing the source-report unit drop-in and restarting only
+`aster-agent.service`. Revoking either source token is a separate source-local
+administrative action; it is not available to Aster.
+
+The deployed Aster source also contains a structured ARR execution endpoint.
+It is not an LLM function and natural-language chat cannot select it. It can
+only rebuild a request for the one opaque candidate in a fresh sanitized
+report, and the separate TrueNAS broker must also be running, reachable,
+explicitly execution-enabled and holding a fresh server-side approval. The
+broker is normally stopped, boot-disabled and blocked at the inter-VLAN
+firewall. See the production gate below.
 
 The deployed knowledge directory is a curated snapshot, not a live Git mount.
 Build it from the repository's explicit allowlist after material documentation
@@ -89,6 +144,15 @@ LXC 104, and restore ownership to `aster:aster`. The builder includes
 `docs/Aster-Operations.md` and does not copy Finder `._*` metadata. Never add
 private backups, credentials or unreviewed external documents to the snapshot.
 
+The graduated ARR curriculum is sourced from
+`docs/ARR-Stack-Operational-Reference.md` and deployed as
+`reference/operations/arr-stack.md`. Its provenance entry must remain
+`current-with-exclusions` with a review date. Focused tests cover installed
+versions and ports, canonical roots and handoff semantics, scheduled mutation
+workflows, Prowlarr synchronization coupling and the broker's lack of standing
+authority. Current health still comes from the fresh sanitized ARR report,
+not the reference's point-in-time example.
+
 ### Accepted-snapshot rollback
 
 Treat a snapshot as accepted only after a clean review/build records its SHA-256
@@ -102,6 +166,113 @@ place, restore `root:aster` ownership and read-only modes, restart only
 is a knowledge rollback only: it does not alter inference, networking, model
 files or credentials. Record the replaced and restored archive hashes in the
 project evidence log.
+
+## ARR first-repair production gate
+
+The first repair is limited to dismissing one stale completed Radarr queue
+record while preserving media and downloader data. The complete request,
+approval, audit and non-reversibility decision is in
+`docs/projects/Aster-ARR-First-Repair-Decision.md`.
+
+The source is staged on Aster and TrueNAS, but the execution broker remains
+stopped and boot-disabled. Its checked-in default runs as
+`aster-arr-broker`, binds only to loopback, denies non-loopback IP traffic and
+sets `ASTER_ARR_EXECUTION_ENABLED=false`. The production drop-in changes only
+the bind address and allows only Aster's host at the service sandbox; OPNsense
+still blocks that path unless an explicitly approved temporary rule is added.
+A fresh explicit permission is required for every later live attempt.
+
+After that permission, use this order and stop on any failed check:
+
+1. Record hashes of the reviewed source and current Aster files. Stage the
+   broker account, private state directory, service files and Aster endpoint
+   update without enabling execution.
+2. Start the broker with execution false. Confirm `/v1/execute` is absent,
+   missing authorization is denied, the listener and firewall match the exact
+   reviewed addresses, and Aster chat still has no execution tool.
+3. Provision the broker's private Radarr credential without printing, copying
+   or placing it in Aster, Git, logs, prompts or the sanitized report. Open only
+   the exact Aster-to-broker and broker-to-Radarr paths required for this test.
+4. Run the private candidate issuer once. Zero or multiple eligible records is
+   a successful refusal and ends the test. For one candidate, independently
+   confirm its stale/completed/non-importing preconditions and review the dry
+   run before proceeding.
+5. At the final approval moment, run the operator-only approval command with
+   the displayed opaque candidate and explicit non-reversibility acceptance.
+   Its approval expires after two minutes and stays entirely server-side.
+6. Call only Aster's authenticated structured repair endpoint with that opaque
+   candidate. Never request execution in chat. Confirm one bounded result and
+   that a replay is denied without another Radarr call.
+7. Confirm the audit contains only operation, opaque candidate, decision,
+   report age, result and timestamp. Then set execution false, remove the
+   temporary network allowance and retain the audit as acceptance evidence.
+
+Do not automatically retry `inspection_failed`, `outcome_unknown`,
+`postcondition_failed` or a changed precondition. The approval has already
+been consumed. Investigate read-only evidence and require a new candidate,
+review and permission for any later attempt.
+
+Rollback before a confirmed live action is to stop/disable the execution
+broker, restore the accepted Aster source and remove the narrow network
+allowance. After a confirmed dismissal there is no queue-record rollback;
+media and downloader data remain untouched, but the removed Radarr queue
+record is not recreated.
+
+### 2026-09-09 first production gate evidence
+
+- Reviewed commit `6bd7d4e` was staged with rollback copies on TrueNAS,
+  Proxmox and LXC 104. Source hashes matched before installation.
+- The deployed broker passed 61/61 tests as its unprivileged service account.
+  Aster passed 41/41 deployed unit tests, and a disposable dependency-complete
+  layout in LXC 104 passed the full 42/42 suite including the authenticated
+  Aster → broker → fake Radarr execution path.
+- With execution false, Aster reached only the exact temporary
+  `192.168.70.10` → `192.168.20.40:9421/TCP` path. Missing authorization was
+  denied with `401` and `/v1/execute` was absent with `404`.
+- The one permitted private Radarr queue scan returned `status=none`: zero
+  records met the exact stale/completed/imported-or-ignored predicate. The
+  issuer therefore stored zero candidates and the empty sanitized state was
+  pushed to Aster.
+- No approval was created, no execution request or Radarr DELETE was sent,
+  and no audit attempt exists. Final state was independently checked as zero
+  candidates, zero approvals and no audit file.
+- Cleanup stopped and boot-disabled the broker, confirmed zero listeners,
+  removed the exact temporary OPNsense rule and reconfirmed that Aster's
+  broker connection times out. Aster itself remains active and healthy.
+
+The zero-candidate result is a successful fail-closed live eligibility gate.
+At Jason's direction, graduation then used the same disposable-fixture method
+as the earlier proposal test rather than manufacturing a failure in live
+Radarr:
+
+- A locked-down TrueNAS-local disposable endpoint exposed one synthetic queue
+  record and accepted only the fixed fixture API key. The deployed broker was
+  pointed at that endpoint; its original environment and private state were
+  backed up first.
+- One synthetic opaque candidate was published through the normal sanitized
+  report transport. Aster's authenticated dry-run returned the exact operation
+  and four preconditions.
+- The operator-only two-minute approval was created and exactly one request was
+  sent to Aster's structured endpoint. It returned `completed` with bounded
+  result `dismissed`.
+- Excluding the fixture readiness probe, the disposable target saw exactly
+  collection GET, one queue-record DELETE and verification GET. The DELETE had
+  `removeFromClient=false`, `blocklist=false`, `skipRedownload=true` and
+  `changeCategory=false`.
+- Replay returned `409` and caused no additional disposable-target call. The
+  bounded audit was retained at
+  `/mnt/Media/data/tools/aster-arr-rollbacks/4125f17-execution-fixture-audit.jsonl`.
+- Cleanup restored the original broker environment and state, stopped the
+  disposable endpoint, removed the transient execution switch, republished
+  zero candidates, stopped/boot-disabled the broker and removed the temporary
+  OPNsense rule. Live Radarr was never the configured execution target and was
+  not changed.
+
+The single operation is therefore graduated against the production-shaped
+broker and disposable mutation target required by the gate. This does not
+create standing execution authority: every future live Radarr attempt still
+requires one naturally eligible candidate, independent review and fresh
+explicit permission.
 
 ## Health and logs
 

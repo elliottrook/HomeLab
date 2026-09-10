@@ -22,7 +22,7 @@ class ProposalError(ValueError):
     """A request is outside the sole proposal contract."""
 
 
-def _parse_time(value: Any) -> datetime:
+def parse_report_time(value: Any) -> datetime:
     if not isinstance(value, str):
         raise ProposalError("report_generated_at must be an ISO-8601 timestamp")
     try:
@@ -44,7 +44,7 @@ def create_dry_run(request: dict[str, Any], *, now: datetime | None = None) -> d
     if not isinstance(candidate_ref, str) or not CANDIDATE_REF.fullmatch(candidate_ref):
         raise ProposalError("candidate_ref must be a broker-issued opaque Radarr reference")
 
-    generated_at = _parse_time(request["report_generated_at"])
+    generated_at = parse_report_time(request["report_generated_at"])
     current = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     if generated_at > current or current - generated_at > MAX_REPORT_AGE:
         raise ProposalError("the sanitized report is stale or from the future")

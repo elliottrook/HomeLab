@@ -134,6 +134,18 @@ scope for this project** — a separate decision for later.
 
 ## Architecture decisions
 
+**Post-closeout exception (approved 2026-09-10):** the original shared
+Proxmox task remains at its deliberately fixed 100–109/111 scope, but Aster
+LXC 110 now has a separate same-site mirror. A dedicated TrueNAS task pulls
+only `vzdump-lxc-110-*.tar.zst` into
+`/mnt/Media/backup/aster-lxc110` at 04:20 and uses `delete: true` only inside
+that bounded directory, following the source's Proxmox retention. Both that
+directory and any legacy LXC 110 archive under the shared guest tree are
+excluded by the IDrive relay. This closes the off-host-copy gap without
+allowing the roughly 38 GB daily model archives to consume or exceed the
+provisioned 1 TB off-site tier; LXC 104's application and knowledge state
+continues through the encrypted off-site path.
+
 - **Backup source scope mimics the old architecture's scope exactly — no
   expansion, one deliberate addition.** Jason's explicit instruction: don't
   grow scope beyond what was already protected under the old three Hyper
@@ -634,8 +646,11 @@ on the relay.
   matching the existing `check_backup_age`/`check_reported_backup`
   pattern. Doctor already checked the relay guest, enabled timer, active
   initial sync, failed result and post-success log freshness. **Added
-  2026-09-10:** `check_backup_redesign_truenas()`, covering all three
-  TrueNAS-side legs. First attempt used newest-file mtime under each
+  2026-09-10:** `check_backup_redesign_truenas()`, initially covering the
+  three redesign legs and subsequently the dedicated LXC 110 mirror. It also
+  validates that the LXC 110 task remains enabled, scoped to its dedicated
+  directory and exact include filter, deletion-bounded, and scheduled at
+  04:20. First attempt used newest-file mtime under each
   destination directory as the freshness signal and produced false
   "stale" warnings for the Mac and `gowest` legs — a real bug, not a
   fluke: `rsync -t` preserves source mtimes on unchanged files, so a
@@ -768,3 +783,5 @@ as current.
 | 2026-09-10 | 4 | Added `check_backup_redesign_truenas()` to HomeLab Doctor for the Proxmox/Mac/`gowest` rsync legs and snapshot freshness. First implementation used newest-file mtime as the signal and produced false "stale" warnings (54h/80h) for the Mac and `gowest` legs — a real bug: `rsync -t` preserves source mtimes, so an unchanged source looks stale under that signal even when the sync ran and succeeded. Fixed by reading actual job-completion state (`midclt call rsynctask.query`) for the two TrueNAS-task legs, and adding a completion-marker timestamp (`date -u +%s > /var/log/gowest-pull-lastrun.epoch`) to the `gowest` cron command for the one leg with no task/job record — cronjob config backed up first, applied via `cronjob.update`, manually triggered once to confirm the marker writes correctly. Ran full `doctor.sh` afterward | Passed — 61 passed, 7 pre-existing warnings unrelated to this project, 0 failed. New check correctly reports fresh legs (`Proxmox 14h, Mac 14h, gowest 0h, snapshot 12h`) |
 | 2026-09-10 | 4 | Confirmed failure-only alerting requires no new wiring: read `scripts/scheduled-report.sh` — it already greps every `doctor.sh` run for `🔴` lines generically and emails a deduplicated alert via `scripts/backup-alert` on any failure. Both new checks use the shared `fail()` helper, so they're automatically covered | Confirmed by reading the existing pipeline, not by triggering a real failure. **Milestone 4 gate passed** — both restore proofs are complete, Doctor coverage and alerting confirmed. Milestone 5 (cutover) may begin |
 | 2026-09-10 | 5 | Jason retired `Synology Drive Backup` on `gowest` by stopping HyperBackup the same way as `.42`, unavoidably also stopping `Media Backup` (they share one package instance on this host) — confirmed by Jason and by choice, since `Media Backup`'s destination was already gone. Verified live via `synopkg status HyperBackup` on `gowest`: `stop` | All three legacy Hyper Backup jobs now stopped. Remaining Milestone 5 items (updating `docs/05-Backups.md`, adding LXC 112 to `configs/devices.conf`/`services.conf`/NetBox) not yet done — not part of this request |
+| 2026-09-10 | Post-closeout LXC 110 coverage | Investigated the separately tracked inference-backup gap before expanding the shared task. Proxmox retained 8 LXC 110 archives / 306,330,893,688 bytes, while the active encrypted bucket already held 818,348,300,143 bytes against a provisioned 1 TB tier; relaying the full retained set would exceed capacity. Reverted the shared task to its original 100–109/111 filter, installed exact LXC 110 exclusions on relay LXC 112 (prior script preserved), and created dedicated TrueNAS task 3 at 04:20 with an exact LXC-only filter and deletion confined to `/mnt/Media/backup/aster-lxc110`. A shallow real-path rclone scan saw 2 LXC 110 paths without the guard and 0 with it; the historical 2026-09-01 encrypted object remains present. During validation, found the earlier aborted shared-task middleware job had left its rsync child process running with five files in `.~tmp~` (four staged, one partial); terminated only that validated process tree and removed only those five temporary files. The verified manual archive and every non-110 backup remained untouched. | Capacity exposure prevented and stray run cleaned up. Dedicated initial mirror job 13037 is running; final count/byte/integrity and Doctor evidence will follow before closeout. |
+| 2026-09-10 | Post-closeout LXC 110 verification | Dedicated job 13037 completed `SUCCESS` with no partial files. Direct source/destination inventories matched exactly at 8 filenames / 306,330,893,688 bytes. The newest 38 GB archive matched SHA-256 at both ends (`e738e2fd9cf0261ae2f7404999ce5ac2adbeefd831d2c618b278f54fb021df6d`) and passed `zstd -t`. The destination is a directory inside `Media/backup`, so the existing daily/weekly/monthly dataset snapshots cover it. Re-ran shared task 1 only after asserting live that `delete` remained false and both LXC/QEMU 110 filters were absent; job 13166 completed `SUCCESS`. Full Doctor reported 65 passed, 1 warning, 2 failures; every new LXC 110 check passed (`Proxmox backup 20h`, `TrueNAS mirror 20h`, dedicated task success 0h, relay capacity exclusions present). The failures were unrelated estate state: Arista Et48 expected-link drift and the deliberately powered-off Backup Synology. | Recurring same-site coverage and monitoring passed end-to-end. The IDrive capacity boundary is enforced and the shared task is healthy on its original scope. |

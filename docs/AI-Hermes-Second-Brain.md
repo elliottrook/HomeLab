@@ -1,7 +1,9 @@
 # Aster Second-Brain Design
 
+> Status: Implemented and graduated through Aster; retained as the design and
+> historical migration record
+
 > Added: 2026-08-20
-> Status: Initial bounded implementation deployed; authority-aware sysadmin expansion active
 > Source inspiration: Corey Ganim, “How To Build The ULTIMATE AI Second Brain for Hermes Agent” / Build With AI episode #163 (2026-05-08)
 
 ## Decision
@@ -77,12 +79,16 @@ Schedule a periodic Wiki health review (initial target: monthly) to identify con
 - [x] Test query behavior with the selected local daily-assistant model.
 - [x] Return source paths and prefer current inventory for present-state hardware questions.
 - [x] Keep infrastructure Git authoritative and treat retrieved text as untrusted factual context, not instructions.
-- [ ] Define the boundary between conversation state, derived knowledge, skills, Aster identity and Git documentation.
-- [ ] Add the knowledge snapshot to verified off-host backup and perform an isolated restore test.
+- [x] Define the boundary between conversation state, derived knowledge, skills, Aster identity and Git documentation.
+- [x] Add the knowledge snapshot to verified off-host backup and perform an isolated restore test.
 - [x] Establish a monthly lint/health-review schedule after the pilot succeeds.
 - [ ] Define a simple capture workflow for webpages/documents; browser-to-Markdown is optional and should not dictate the architecture.
-- [ ] Evaluate Wiki retrieval quality and token/latency impact on the Arc Pro B60-backed daily-assistant model.
-- [ ] Promote the Wiki from pilot to standard Aster knowledge layer only after retrieval and recovery tests pass.
+- [x] Evaluate Wiki retrieval quality and token/latency impact on the Arc Pro B60-backed daily-assistant model.
+- [x] Promote the Wiki from pilot to standard Aster knowledge layer only after retrieval and recovery tests pass.
+
+The optional webpage/document capture workflow remains a separate enhancement,
+not a blocker for the reviewed Git-source knowledge layer or this design's
+completion.
 
 ## Deliberate deviations from the video
 
@@ -94,7 +100,11 @@ Schedule a periodic Wiki health review (initial target: monthly) to identify con
 
 ## Success criteria
 
-The first retrieval gate is passed: Aster answered the current B60/BAR question from the curated inventory and named its source. Full second-brain success still requires broader evaluation plus verified backup/restore, without confusing derived knowledge with authoritative live configuration.
+The full second-brain gate passed on 2026-09-08: Aster completed repeated
+production-path evaluations with provenance and refusal checks, and its source
+repositories, deterministic snapshot and recovery configuration survived
+verified local, off-host, encrypted-off-site and isolated-recovery checks.
+Derived knowledge remains explicitly non-authoritative.
 
 The active implementation, recovery and graduation gates are now governed by
 [`docs/projects/Aster-Sysadmin-Second-Brain.md`](projects/Aster-Sysadmin-Second-Brain.md).

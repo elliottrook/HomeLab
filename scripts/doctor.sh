@@ -145,21 +145,33 @@ check_idrive_relay() {
             printf "service=%s\\n" "$(pct exec 112 -- systemctl is-active idrive-relay-sync.service 2>/dev/null || true)"
             printf "result=%s\\n" "$(pct exec 112 -- systemctl show idrive-relay-sync.service -p Result --value 2>/dev/null || true)"
             printf "log_epoch=%s\\n" "$(pct exec 112 -- stat -c %Y /var/log/idrive-relay/sync.log 2>/dev/null || true)"
+            if pct exec 112 -- grep -Fq -- "/aster-lxc110/**" /usr/local/sbin/idrive-relay-sync 2>/dev/null &&
+               pct exec 112 -- grep -Fq -- "/homelab-proxmox-guests/vzdump-lxc-110-*.tar.zst" /usr/local/sbin/idrive-relay-sync 2>/dev/null; then
+                printf "lxc110_excludes=present\\n"
+            else
+                printf "lxc110_excludes=missing\\n"
+            fi
         '
     )"; then
         warn "Unable to check encrypted IDrive relay"
         return
     fi
 
-    local guest timer service result log_epoch now_epoch age_hours
+    local guest timer service result log_epoch lxc110_excludes now_epoch age_hours
     guest="$(awk -F= '$1 == "guest" {print $2; exit}' <<< "$state")"
     timer="$(awk -F= '$1 == "timer" {print $2; exit}' <<< "$state")"
     service="$(awk -F= '$1 == "service" {print $2; exit}' <<< "$state")"
     result="$(awk -F= '$1 == "result" {print $2; exit}' <<< "$state")"
     log_epoch="$(awk -F= '$1 == "log_epoch" {print $2; exit}' <<< "$state")"
+    lxc110_excludes="$(awk -F= '$1 == "lxc110_excludes" {print $2; exit}' <<< "$state")"
 
     if [[ "$guest" != "running" || "$timer" != "active" ]]; then
         fail "Encrypted IDrive relay guest or timer is not active"
+        return
+    fi
+
+    if [[ "$lxc110_excludes" != "present" ]]; then
+        fail "Encrypted IDrive relay is missing the LXC 110 capacity exclusions"
         return
     fi
 
@@ -185,7 +197,8 @@ check_idrive_relay() {
 check_backup_redesign_truenas() {
     local rsynctask_json gowest_epoch_raw snapshot_epoch
 
-    # Job-based freshness for the two rsynctask legs (proxmox=id 1, mac=id 2):
+    # Job-based freshness for the three rsynctask legs (Proxmox, Mac, and the
+    # separately bounded LXC 110 mirror):
     # file mtimes are the wrong signal here, since rsync preserves source
     # mtimes on unchanged files, so a quiet day on the source makes a
     # perfectly healthy sync look stale. The gowest leg is a plain cron job
@@ -212,13 +225,44 @@ check_backup_redesign_truenas() {
     local warnings=()
     local passes=()
 
+    local lxc_110_task_id
+    lxc_110_task_id="$(python3 -c "
+import json, sys
+tasks = json.loads(sys.argv[1])
+required_extra = {
+    '--include=vzdump-lxc-110-*.tar.zst',
+    '--exclude=*',
+}
+matches = [
+    task for task in tasks
+    if task.get('path') == '/mnt/Media/backup/aster-lxc110'
+    and task.get('enabled') is True
+    and task.get('delete') is True
+    and task.get('direction') == 'PULL'
+    and task.get('mode') == 'SSH'
+    and task.get('remotepath') == '.'
+    and set(task.get('extra') or []) == required_extra
+    and (task.get('schedule') or {}).get('hour') == '4'
+    and (task.get('schedule') or {}).get('minute') == '20'
+]
+print(matches[0]['id'] if len(matches) == 1 else '')
+" "$rsynctask_json")"
+    if [[ ! "$lxc_110_task_id" =~ ^[0-9]+$ ]]; then
+        failures+=("Aster LXC 110 bounded mirror task is missing or misconfigured")
+    fi
+
     local leg display display_id tid leg_epoch age_hours
-    for leg in proxmox:1 mac:2; do
+    local legs=("proxmox:1" "mac:2")
+    if [[ "$lxc_110_task_id" =~ ^[0-9]+$ ]]; then
+        legs+=("lxc110:$lxc_110_task_id")
+    fi
+    for leg in "${legs[@]}"; do
         display_id="${leg%%:*}"
         tid="${leg##*:}"
         case "$display_id" in
             proxmox) display="Proxmox guest archives" ;;
             mac) display="Mac config" ;;
+            lxc110) display="Aster LXC 110 mirror" ;;
         esac
 
         job_state="$(python3 -c "
@@ -366,6 +410,57 @@ check_proxmox_guest_backup_age() {
         pass "$display Proxmox backup is ${age_hours} hour(s) old"
     else
         fail "$display Proxmox backup is ${age_hours} hour(s) old"
+    fi
+}
+
+check_truenas_guest_mirror_age() {
+    local display="$1"
+    local vmid="$2"
+    local maximum_hours="${3:-30}"
+    local guest_type="${4:-qemu}"
+    local mirror_directory="${5:-/mnt/Media/backup/homelab-proxmox-guests}"
+    local archive_pattern
+    local latest_epoch
+
+    case "$guest_type" in
+        qemu) archive_pattern="vzdump-qemu-${vmid}-*.vma.zst" ;;
+        lxc) archive_pattern="vzdump-lxc-${vmid}-*.tar.zst" ;;
+        *)
+            warn "Unable to check $display TrueNAS mirror age: unsupported guest type $guest_type"
+            return
+            ;;
+    esac
+
+    if ! latest_epoch="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
+            "find '$mirror_directory' -maxdepth 1 -type f -name '$archive_pattern' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
+    )"; then
+        warn "Unable to check $display TrueNAS mirror age"
+        return
+    fi
+
+    latest_epoch="${latest_epoch%%.*}"
+    if [[ ! "$latest_epoch" =~ ^[0-9]+$ ]]; then
+        fail "$display has no TrueNAS mirror archive"
+        return
+    fi
+
+    local now_epoch
+    local age_seconds
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_seconds=$((now_epoch - latest_epoch))
+
+    if (( age_seconds < 0 )); then
+        warn "$display TrueNAS mirror timestamp is ahead of the Mac clock"
+        return
+    fi
+
+    age_hours=$((age_seconds / 3600))
+    if (( age_hours <= maximum_hours )); then
+        pass "$display TrueNAS mirror is ${age_hours} hour(s) old"
+    else
+        fail "$display TrueNAS mirror is ${age_hours} hour(s) old"
     fi
 }
 
@@ -1671,6 +1766,7 @@ check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
 check_proxmox_guest_backup_age "Aster llama.cpp LXC 110" 110 30 lxc
+check_truenas_guest_mirror_age "Aster llama.cpp LXC 110" 110 30 lxc /mnt/Media/backup/aster-lxc110
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_idrive_relay

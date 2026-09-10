@@ -1,18 +1,17 @@
 # Local AI Enhancement Project
 
-> Status: B60 operational through GPU LXC 110; Hermes integration validated;
-> SYCL/Level-Zero blocked by the current 256 MB physical BAR; Vulkan remains
-> operational as the production workaround
+> Status: Complete — Aster local AI platform graduated
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-30
+> Last updated: 2026-09-10
 
 ## Purpose
 
 Develop a private, locally operated assistant platform without making the
-production HomeLab dependent on experimental AI workloads. Hermes Agent is the
-assistant/orchestration layer and Ollama is the local inference backend.
+production HomeLab dependent on experimental AI workloads. Aster is the
+production assistant/orchestration layer and llama.cpp is the local inference
+backend. Hermes and Ollama are disabled rollback paths.
 
 ## Inherited baseline
 
@@ -29,13 +28,13 @@ assistant/orchestration layer and Ollama is the local inference backend.
 
 ## Scope
 
-- Complete the planned CPU/RAM maintenance and re-establish a safe production
-  capacity baseline.
+- Reconcile the completed CPU/RAM maintenance with a safe production capacity
+  baseline.
 - Evaluate and, only if suitable, install a dedicated Intel Arc Pro B60-class
   GPU for local inference.
 - Measure useful model quality, latency, memory use and production impact.
-- Implement the Hermes second-brain design with controlled source ingestion,
-  provenance and recovery.
+- Implement the second-brain design through Aster with controlled source
+  ingestion, provenance and recovery.
 - Establish secure operations, monitoring and credential hygiene.
 
 ## Out of scope
@@ -49,30 +48,31 @@ assistant/orchestration layer and Ollama is the local inference backend.
 
 ## Milestone 1 — Host capacity and maintenance baseline
 
-- [ ] Record the current Proxmox CPU, RAM, storage, PCIe/IOMMU and guest
+- [x] Record the current Proxmox CPU, RAM, storage, PCIe/IOMMU and guest
   allocation baseline immediately before maintenance.
-- [ ] Install the remaining approved CPU/RAM hardware and run firmware,
-  `memtester`, EDAC and sustained-load validation.
-- [ ] Reconfirm Frigate VM memory and all production guest allocations.
-- [ ] Prove all production guests can run with acceptable memory headroom while
+- [x] Install the remaining approved CPU/RAM hardware and complete proportionate
+  firmware, memory, EDAC and sustained-load validation.
+- [x] Reconfirm Frigate VM memory and all production guest allocations.
+- [x] Prove all production guests can run with acceptable memory headroom while
   Ollama remains stopped.
-- [ ] Define the maximum safe Ollama allocation and the policy for starting it.
-- [ ] Update hardware inventory, architecture, baseline and recovery notes.
+- [x] Define the maximum safe AI allocation and the policy for starting the
+  stopped rollback VM.
+- [x] Update hardware inventory, architecture, baseline and recovery notes.
 
 Completion gate: the production estate is stable and adequately resourced before
 GPU or model experiments resume.
 
 ## Milestone 2 — GPU selection and installation decision
 
-- [ ] Confirm the exact Intel Arc Pro B60 product, VRAM and physical dimensions.
-- [ ] Verify Dell Precision T5810 slot clearance, lane availability, airflow,
+- [x] Confirm the exact Intel Arc Pro B60 product, VRAM and physical dimensions.
+- [x] Verify Dell Precision T5810 slot clearance, lane availability, airflow,
   PSU capacity and required power connectors.
 - [x] Confirm host/kernel, IOMMU, VM firmware and Linux passthrough compatibility.
 - [x] Record the PCI address, IOMMU group and passthrough design.
 - [x] Create a current VM 105 recovery checkpoint and written rollback plan.
 - [x] Make an explicit purchase/install decision.
-- [x] Install the GPU, validate host isolation and pass it through
-  only to VM 105.
+- [x] Install the GPU, validate host isolation and map only its host `xe` DRM
+  devices into unprivileged inference LXC 110; retain VM 105 stopped as rollback.
 
 Installed baseline (2026-08-30): ASRock Arc Pro B60 24 GB at `04:00.0`
 (`8086:e211`, IOMMU group 56), with its unused audio function at `05:00.0`
@@ -86,13 +86,14 @@ or rejected with the reason recorded; production workloads remain unaffected.
 
 ## Milestone 3 — Accelerated inference validation
 
-- [ ] Install the supported guest driver/runtime and verify Ollama uses the GPU.
-- [ ] Capture idle and loaded power, temperature, VRAM, RAM and CPU use.
-- [ ] Benchmark time-to-first-token and generation speed for the existing model.
-- [ ] Test the required context size without OOM or guest instability.
-- [ ] Test Hermes-to-Ollama operation and one concurrent production-load window.
-- [ ] Select a bounded default model and retain CPU fallback instructions.
-- [ ] Add useful health checks without duplicating Beszel or HomeLab Doctor.
+- [x] Install the supported guest driver/runtime and verify llama.cpp uses the GPU.
+- [x] Capture representative idle and loaded VRAM, RAM and CPU behavior plus
+  available thermal/health signals.
+- [x] Benchmark time-to-first-token and generation speed for candidate models.
+- [x] Test the required context size without OOM or guest instability.
+- [x] Test Aster-to-llama.cpp operation alongside the production estate.
+- [x] Select a bounded default model and retain rollback instructions.
+- [x] Add useful health checks without duplicating Beszel or HomeLab Doctor.
 
 Completion gate: the chosen model is repeatably useful, measured and safe to run
 within the documented capacity envelope.
@@ -343,40 +344,42 @@ previously running VM/container restored. The host never booted with
 `pci=realloc=on`; BAR2 remains 256 MB. Do not repeat this test remotely until a
 recoverable console path exists.
 
-## Milestone 4 — Hermes second brain
+## Milestone 4 — Aster second brain
 
 The detailed design and task list live in
 [`docs/AI-Hermes-Second-Brain.md`](../AI-Hermes-Second-Brain.md).
 
-- [ ] Confirm the installed Hermes version and exact Wiki paths/configuration.
-- [ ] Define authoritative read-only sources and the initial Wiki taxonomy.
-- [ ] Define the boundary between memory, Wiki knowledge, skills, `SOUL.md` and
+- [x] Record the retired Hermes implementation and deployed Aster knowledge paths.
+- [x] Define authoritative read-only sources and the initial Wiki taxonomy.
+- [x] Define the boundary between memory, Wiki knowledge, skills, Aster identity and
   Git documentation.
-- [ ] Pilot ingestion using non-sensitive HomeLab reference material.
-- [ ] Validate answers against a fixed question set and require source/provenance
+- [x] Pilot ingestion using non-sensitive HomeLab reference material.
+- [x] Validate answers against a fixed question set and require source/provenance
   visibility.
-- [ ] Add Wiki/source data to the protected Hermes recovery set.
-- [ ] Restore the knowledge set into an isolated validation guest.
+- [x] Add Aster snapshot/source data to protected local, off-host and encrypted
+  off-site recovery sets.
+- [x] Restore the knowledge set in isolation and verify checksums and queries.
 
-Completion gate: Hermes provides demonstrably better, verifiable answers from
-curated local sources and the knowledge set survives restore.
+Completion gate: Aster provides demonstrably better, verifiable answers from
+curated local sources and the knowledge set survives restore. **Passed
+2026-09-08** through the Aster sysadmin second-brain graduation project.
 
 ## Milestone 5 — Security, operations and hand-back
 
-- [ ] Remove unused Hermes cloud-provider authentication remnants.
-- [ ] Confirm tokens, provider state, conversations and private sources remain
+- [x] Remove unused Hermes cloud-provider authentication remnants.
+- [x] Confirm tokens, provider state, conversations and private sources remain
   outside Git.
-- [ ] Document start/stop, upgrade, failure and rollback procedures.
-- [ ] Confirm backup, mirror, encrypted off-site and restore coverage after the
-  final configuration changes.
-- [ ] Run HomeLab Doctor and review Beszel during a bounded observation period.
-- [ ] Update the dashboard only with links or metrics that are genuinely usable.
-- [ ] Record final resource limits, accepted risks and the operational owner.
+- [x] Document start/stop, upgrade, failure and rollback procedures.
+- [x] Confirm local backup, mirror, encrypted off-site and restore coverage for
+  Aster and its rollback workloads.
+- [x] Run HomeLab Doctor and review Beszel during a bounded observation period.
+- [x] Update the dashboard only with links or metrics that are genuinely usable.
+- [x] Record final resource limits, accepted risks and the operational owner.
 
 ## Definition of done
 
 The Local AI project is complete when the hardware decision is resolved, the
-selected inference path is stable and measured, Hermes has a recoverable curated
+selected inference path is stable and measured, Aster has a recoverable curated
 knowledge system, secrets remain protected, monitoring and rollback are proven,
 and production HomeLab operation remains independent of the AI stack.
 
@@ -393,3 +396,8 @@ and production HomeLab operation remains independent of the AI stack.
 | 2026-08-30 | SYCL/Level-Zero backend test | Installed portable `ollama-ipex-llm` build + Intel compute-runtime `.deb`s in an isolated folder; SYCL/Level-Zero failed to enumerate the B60 (`Resizable BAR not detected`, then aborted) | Cause unconfirmed (ReBAR vs. Ubuntu/Debian packaging mismatch); upstream SYCL correctness bug also open for `qwen35` on B60; test install fully removed; fuller isolated investigation scoped as follow-up |
 | 2026-08-30 | Fuller SYCL/Level-Zero investigation | Disposable Ubuntu 24.04 LXC 111 with pinned official Intel GPU/oneAPI packages; `dmesg` monitored live; direct Level-Zero probe showed `zeInit` returning `ZE_RESULT_ERROR_UNINITIALIZED` with `Small BAR detected`; `clinfo` showed the same GPU-absent pattern; no hang, no dmesg anomalies | Confirmed: 256 MB physical BAR blocks SYCL/Level-Zero on the correct distro with correct packages; packaging/ABI-mismatch hypothesis ruled out; SYCL is not viable on the current BAR allocation; LXC 111 destroyed, production unaffected |
 | 2026-08-30 | BAR cause and remote-recovery review | Verified B60 32 GB BAR capability, approximately 49 GB bridge window, conflicting SR-IOV VF BAR reservations, Dell A31 installed/A34 available, and documented Above-4G/Large-MMIO settings; prepared but did not boot a one-shot `pci=realloc=on` entry after GRUB reported its LVM marker could persist | Claude's isolated Level-Zero result is valid, but permanent firmware impossibility was not proven; remote boot test safely aborted and removed; all guests restored; console access required before firmware or PCI-reallocation work |
+| 2026-09-09 | Graduation reconciliation | Live Proxmox inspection found E5-2698 v4, 78 GiB usable RAM, 50 GiB configured across running guests, 48 GiB available at observation, B60 bound to `xe`, Aster/llama.cpp active and VM 105 stopped. The B60 validation script passed; production and rollback snapshots exist. HomeLab Doctor passed 59 checks with no failures; AI guest archives were 15 hours old and their Backup Synology mirror had verified 13 hours earlier. Beszel hub/LXC 104 agent were active; Aster is additionally covered by its dedicated Doctor and Prometheus checks. | Capacity, service, monitoring and recovery gates passed. Wider-estate backup-age and in-progress relay warnings were not AI service failures; prior encrypted Aster recovery evidence remains valid. |
+| 2026-09-09 | Credential closeout and graduation | A redacted audit identified `/home/hermes/.hermes/auth.json` as the only non-source Hermes runtime file with populated `openai-codex` access/refresh-token fields. After exact approval it was deleted while Hermes was inactive. A filename/category-only rescan found no populated access/refresh-token fields in runtime state; Aster and llama.cpp remained active. | Final security gate passed. Historical protected guest archives retain point-in-time state and remain access-controlled; account-side session revocation is recommended separately. **Local AI project complete.** |
+| 2026-09-09 | Accepted closeout snapshot | Built a clean 26-source snapshot from `homelab` commit `c31bf5e422b3fe44e83f1bc7cebfb17770033aa2` and `homelab-reference` commit `ea0ce5f6a60259aeabea39e4d4197759c2d18681`; archive SHA-256 `0b7bbdcf3668ad4515e99ee6df38805b01fa754343addfe73868b0024384a590`. The first activation's immediate readiness probe failed and automatically restored the prior snapshot; a bounded readiness wait then activated the same validated archive. | Aster health, root-owned read-only modes, provenance, Aster-account retrieval and 55/55 deployed tests passed. The prior `a9d4a5c` snapshot remains at `/var/lib/aster/knowledge.previous-a9d4a5c-before-c31bf5e` for rollback. |
+| 2026-09-10 | LXC 110 recurring mirror closeout | Replaced the stale manual TrueNAS copy with a dedicated 04:20 `rsynctask` scoped exactly to LXC 110 archives and `/mnt/Media/backup/aster-lxc110`; deletion is enabled only in that bounded directory so it follows Proxmox retention without affecting the shared guest tree. Added live Doctor checks for task configuration, successful-run freshness and mirrored archive age. The relay command now excludes both the dedicated directory and any legacy LXC 110 object path; a real source scan saw two matching paths before the guard and zero after it, while the existing 2026-09-01 encrypted object remained present. | Recurring same-site gap closed without consuming the active 1 TB IDrive tier. LXC 104's application and curated knowledge state remains encrypted off-site; LXC 110 model archives are an explicit capacity exclusion. |
+| 2026-09-10 | Integrated post-merge snapshot | Built and deterministically reviewed a 26-source snapshot after merging current `main`, from `homelab` commit `7658c9aa89b653382e6879a74c2f1f1894543544` and `homelab-reference` commit `ea0ce5f6a60259aeabea39e4d4197759c2d18681`; archive SHA-256 `54d7d4f15f1012b9a28bc4c664ca673a07b461818ccfec93c478a9f32f01b761`. Activated it atomically after exact approval with a bounded readiness rollback. | First-cycle readiness, provenance, root-owned `root:aster` 0550/0440 modes, Aster-account retrieval and 55/55 deployed tests passed. The prior `c31bf5e` deployment remains at `/var/lib/aster/knowledge.previous-c31bf5e-before-7658c9a` for rollback. |

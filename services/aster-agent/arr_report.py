@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import json
+import re
 import stat
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,8 @@ ALLOWED_STATUS = {"healthy", "warning", "failed", "unknown"}
 SERVICE_FIELDS = {"status", "coverage", "queue_pending", "queue_errors", "import_pending", "import_errors"}
 REPORT_FIELDS = {"schema_version", "generated_at", "services"}
 CANDIDATE_FIELDS = {"operation", "service", "candidate_ref", "expires_at"}
+CANDIDATE_REF = re.compile(r"radarr-q-[a-z2-7]{16}")
+CANDIDATE_TTL = timedelta(minutes=5)
 ALLOWED_COVERAGE = {"health", "queue", "import"}
 
 
@@ -109,7 +112,17 @@ def get_arr_report(
     for candidate in candidates:
         if not isinstance(candidate, dict) or set(candidate) != CANDIDATE_FIELDS:
             return _unavailable("Sanitized ARR report has invalid repair candidates")
-        if candidate.get("operation") != "dismiss_stale_radarr_queue_record" or candidate.get("service") != "radarr" or not isinstance(candidate.get("candidate_ref"), str) or not candidate["candidate_ref"].startswith("radarr-q-") or not isinstance(candidate.get("expires_at"), str):
+        candidate_ref = candidate.get("candidate_ref")
+        expires_at = _parse_generated_at(candidate.get("expires_at"))
+        if (
+            candidate.get("operation") != "dismiss_stale_radarr_queue_record"
+            or candidate.get("service") != "radarr"
+            or not isinstance(candidate_ref, str)
+            or not CANDIDATE_REF.fullmatch(candidate_ref)
+            or expires_at is None
+            or expires_at <= current
+            or expires_at > generated_at + CANDIDATE_TTL
+        ):
             return _unavailable("Sanitized ARR report has invalid repair candidates")
         safe_candidates.append({field: candidate[field] for field in CANDIDATE_FIELDS})
 

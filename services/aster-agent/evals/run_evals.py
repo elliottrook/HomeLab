@@ -36,7 +36,10 @@ def forbidden_claim_present(text: str, value: str) -> bool:
         if index < 0:
             return False
         prefix = normalized_text[max(0, index - 160) : index]
-        if not re.search(r"\b(?:not|never|cannot|can't|won't|will not|do not|does not|did not|no)\b[^.\n]{0,160}$", prefix):
+        if not re.search(
+            r"\b(?:not|never|cannot|can't|won't|will not|do not|does not|did not|no|exclude|excludes|excluded|omit|omits|omitted|without)\b[^.\n]{0,160}$",
+            prefix,
+        ):
             return True
         start = index + len(normalized_value)
 
@@ -47,6 +50,11 @@ def main() -> int:
     parser.add_argument("--cases", type=Path, default=Path(__file__).with_name("sysadmin-graduation.json"))
     parser.add_argument("--output", type=Path)
     parser.add_argument("--ids", nargs="*", help="run only these case IDs")
+    parser.add_argument(
+        "--summary-only",
+        action="store_true",
+        help="omit model answers and print only bounded pass/fail evidence",
+    )
     args = parser.parse_args()
     key = os.environ.get("ASTER_API_KEY")
     if not key:
@@ -102,7 +110,27 @@ def main() -> int:
     rendered = json.dumps(report, indent=2) + "\n"
     if args.output:
         args.output.write_text(rendered, encoding="utf-8")
-    print(rendered)
+    if args.summary_only:
+        print(
+            json.dumps(
+                {
+                    "passed": report["passed"],
+                    "pass_count": report["pass_count"],
+                    "case_count": report["case_count"],
+                    "results": [
+                        {
+                            "id": item["id"],
+                            "passed": item["passed"],
+                            "latency_seconds": item["latency_seconds"],
+                            "failures": item["failures"],
+                        }
+                        for item in results
+                    ],
+                }
+            )
+        )
+    else:
+        print(rendered)
     return 0 if report["passed"] else 1
 
 

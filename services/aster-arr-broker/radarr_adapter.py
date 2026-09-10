@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit, urlunsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from broker import QueueState, RADARR_DELETE_PARAMETERS
 
@@ -19,10 +19,27 @@ class RadarrAdapterError(RuntimeError):
     pass
 
 
+MAX_RESPONSE_BYTES = 1024 * 1024
+
+
+class RefuseRedirects(HTTPRedirectHandler):
+    def redirect_request(self, *unused):
+        return None
+
+
+NO_REDIRECT_OPENER = build_opener(RefuseRedirects)
+
+
 class FixedRadarrQueueAdapter:
     def __init__(self, origin: str, api_key: str, *, timeout: float = 10.0) -> None:
         parsed = urlsplit(origin)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.query or parsed.fragment:
+        if (
+            parsed.scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.path not in {"", "/"}
+            or parsed.query
+            or parsed.fragment
+        ):
             raise ValueError("Radarr origin must be a bare http(s) origin")
         if parsed.username or parsed.password or not api_key:
             raise ValueError("Radarr origin must not contain credentials and an API key is required")
@@ -61,10 +78,12 @@ class FixedRadarrQueueAdapter:
             headers={"X-Api-Key": self._api_key, "Accept": "application/json"},
         )
         try:
-            with urlopen(request, timeout=self._timeout) as response:
-                payload = response.read()
+            with NO_REDIRECT_OPENER.open(request, timeout=self._timeout) as response:
+                payload = response.read(MAX_RESPONSE_BYTES + 1)
         except (HTTPError, URLError, TimeoutError, OSError) as exc:
             raise RadarrAdapterError("fixed Radarr broker request failed") from exc
+        if len(payload) > MAX_RESPONSE_BYTES:
+            raise RadarrAdapterError("Radarr response exceeded the fixed size limit")
         if not payload:
             return {}
         try:

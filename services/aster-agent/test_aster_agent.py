@@ -2,11 +2,34 @@ import tempfile
 import unittest
 import json
 from pathlib import Path
+from unittest.mock import patch
 
-from aster_agent import ASTER_SYSTEM_PROMPT, ChatRequest, TOOLS, get_lab_health, preload_read_only_context, search_knowledge, select_tools
+from fastapi import HTTPException
+from pydantic import ValidationError
+
+from aster_agent import (
+    ASTER_SYSTEM_PROMPT,
+    ArrRepairExecutionRequest,
+    ChatRequest,
+    TOOLS,
+    execute_arr_repair,
+    get_lab_health,
+    preload_read_only_context,
+    search_knowledge,
+    select_tools,
+)
 
 
 class AsterAgentTests(unittest.TestCase):
+    def test_arr_broker_drop_in_has_no_execution_switch_or_radarr_credential(self):
+        drop_in = (
+            Path(__file__).with_name("systemd") / "aster-arr-broker.conf"
+        ).read_text(encoding="utf-8")
+        self.assertIn("EnvironmentFile=/etc/aster/arr-broker.env", drop_in)
+        self.assertIn("ASTER_ARR_BROKER_URL=http://192.168.20.40:9421", drop_in)
+        self.assertNotIn("ASTER_ARR_EXECUTION_ENABLED", drop_in)
+        self.assertNotIn("RADARR_API_KEY", drop_in)
+
     def test_casual_chat_has_no_tools(self):
         self.assertEqual(select_tools([{"role": "user", "content": "Tell me a short joke"}]), [])
 
@@ -54,12 +77,61 @@ class AsterAgentTests(unittest.TestCase):
         ]
         self.assertIn("get_arr_report", names)
 
+    def test_current_forgejo_question_selects_only_sanitized_report_reader(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "What is the latest Forgejo commit and action status?"}]
+            )
+        ]
+        self.assertIn("get_forgejo_report", names)
+        self.assertFalse(any("write" in name or "update" in name for name in names))
+
+    def test_current_netbox_question_selects_only_sanitized_report_reader(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "What devices are in the current NetBox inventory?"}]
+            )
+        ]
+        self.assertIn("get_netbox_report", names)
+        self.assertFalse(any("write" in name or "update" in name for name in names))
+
+    def test_natural_language_never_selects_an_execution_tool(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "Execute the approved Radarr repair now"}]
+            )
+        ]
+        self.assertNotIn("execute_arr_repair", names)
+        self.assertNotIn("execute_arr_repair", TOOLS)
+
+    def test_structured_execution_request_rejects_extra_fields(self):
+        with self.assertRaises(ValidationError):
+            ArrRepairExecutionRequest(
+                candidate_ref="radarr-q-abcdefghijklmnop",
+                url="http://unapproved.invalid",
+            )
+
     def test_arr_policy_is_advisory_and_approval_gated(self):
         self.assertIn("advisory-only", ASTER_SYSTEM_PROMPT)
         self.assertIn("explicit action-specific\napproval", ASTER_SYSTEM_PROMPT)
         self.assertIn("album rather\nthan a single track", ASTER_SYSTEM_PROMPT)
         self.assertIn("verification and explicit review are required", ASTER_SYSTEM_PROMPT)
         self.assertIn("Do not redirect an ARR question to a live service interface", ASTER_SYSTEM_PROMPT)
+
+    def test_forgejo_and_netbox_policy_is_indirect_and_read_only(self):
+        self.assertIn("Forgejo and NetBox access is also read-only and indirect", ASTER_SYSTEM_PROMPT)
+        self.assertIn("never contact either\nAPI", ASTER_SYSTEM_PROMPT)
+        self.assertIn("excludes source code, messages, authors", ASTER_SYSTEM_PROMPT)
+        self.assertIn("excludes config\ncontexts, custom fields, contacts, secrets", ASTER_SYSTEM_PROMPT)
+        self.assertNotIn("create_forgejo", TOOLS)
+        self.assertNotIn("update_netbox", TOOLS)
+
+    def test_source_report_mount_is_read_only(self):
+        drop_in = (Path(__file__).with_name("systemd") / "aster-source-reports.conf").read_text(encoding="utf-8")
+        self.assertEqual(drop_in.strip(), "[Service]\nReadOnlyPaths=/var/lib/aster/source-reports")
 
     def test_lab_health_uses_only_bounded_report(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -158,6 +230,29 @@ class AsterAgentTests(unittest.TestCase):
             result = search_knowledge("Aster LXC model", root=root)
             self.assertEqual(result["results"][0]["authority"], "current_operations")
 
+    def test_source_report_architecture_prefers_aster_operations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            project = root / "project"
+            reference = root / "reference" / "operations"
+            project.mkdir(parents=True)
+            reference.mkdir(parents=True)
+            (project / "Aster-Operations.md").write_text(
+                "General Aster operations. " * 50
+                + "\n### Forgejo and NetBox read-only reports\n"
+                + "Aster has no API token or direct network path. Source-local producers publish sanitized reports.",
+                encoding="utf-8",
+            )
+            (reference / "ai-local-inference.md").write_text(
+                "Generic Aster inference operations. " * 100,
+                encoding="utf-8",
+            )
+            result = search_knowledge(
+                "How is the Forgejo and NetBox read-only integration built?", root=root
+            )
+            self.assertEqual(result["results"][0]["source"], "project/Aster-Operations.md")
+            self.assertIn("no API token", result["results"][0]["excerpt"])
+
     def test_provenance_controls_authority_and_is_returned(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -220,6 +315,76 @@ class AsterAgentTests(unittest.TestCase):
             self.assertIn("Establish a monthly health review", excerpts["docs/AI-Hermes-Second-Brain.md"])
             self.assertIn("256 MB BAR", excerpts["docs/projects/Local-AI.md"])
 
+    def test_arr_reference_prefers_inventory_and_automation_sections(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "reference/operations/arr-stack.md"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "General ARR operational context. " * 50
+                + "\n## Current Service Inventory\n"
+                + "| Sonarr | 4.0.19.2979 | /mnt/Media/data/media/tv | "
+                + ("Sonarr inventory boundary. " * 50)
+                + "\n| Radarr | 6.3.0.10514 | /mnt/Media/data/media/movies |\n"
+                + "Dependency and downloader notes. " * 50
+                + "\n## Automation and Mutation Map\n"
+                + ("Automation boundary context. " * 60)
+                + "\n"
+                + "TrueNAS Cron Job 2 runs the bounded integrity automation.\n"
+                + ("Built-in ARR behavior. " * 60)
+                + "\nProwlarr application synchronization can change indexer definitions in connected ARR applications. "
+                + "A stale connected-app key can break synchronization and downstream indexer health.\n",
+                encoding="utf-8",
+            )
+            (root / ".aster-provenance.json").write_text(
+                json.dumps(
+                    {
+                        "sources": [
+                            {
+                                "destination": "reference/operations/arr-stack.md",
+                                "authority": "current-with-exclusions",
+                                "reviewed": "2026-09-09",
+                                "commit": "abc123",
+                            }
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            cases = (
+                (
+                    "What installed versions and ports do Sonarr and Radarr use?",
+                    "4.0.19.2979",
+                ),
+                (
+                    "When does the TrueNAS jellyfin-integrity workflow run, and what may it change?",
+                    "Cron Job 2",
+                ),
+                (
+                    "What are the Sonarr and Radarr canonical roots and downloader dependency path?",
+                    "/mnt/Media/data/media/tv",
+                ),
+                (
+                    "Sonarr says all indexers are unavailable after a Prowlarr key rotation. What is the safe diagnosis?",
+                    "application synchronization",
+                ),
+            )
+            for query, expected in cases:
+                with self.subTest(query=query):
+                    result = search_knowledge(query, max_results=4, root=root)
+                    self.assertEqual(
+                        result["results"][0]["source"],
+                        "reference/operations/arr-stack.md",
+                    )
+                    self.assertIn(expected, " ".join(item["excerpt"] for item in result["results"]))
+                    self.assertTrue(
+                        all(
+                            item["source"] == "reference/operations/arr-stack.md"
+                            for item in result["results"]
+                        )
+                    )
+                    self.assertEqual(result["results"][0]["reviewed"], "2026-09-09")
+
     def test_focused_checklist_can_return_multiple_chunks_from_one_source(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -272,6 +437,131 @@ class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
             [TOOLS["get_arr_report"]],
         )
         self.assertEqual(result[0]["function"], "get_arr_report")
+
+    async def test_forgejo_and_netbox_reports_are_preloaded_without_model_round_trip(self):
+        with (
+            patch("aster_agent.read_forgejo_report", return_value={"source": "forgejo"}),
+            patch("aster_agent.read_netbox_report", return_value={"source": "netbox"}),
+        ):
+            result = await preload_read_only_context(
+                [{"role": "user", "content": "Show current Forgejo and NetBox inventory status"}],
+                [TOOLS["get_forgejo_report"], TOOLS["get_netbox_report"]],
+            )
+        self.assertEqual([item["function"] for item in result], ["get_forgejo_report", "get_netbox_report"])
+
+
+class FakeBrokerResponse:
+    def __init__(self, status_code, payload):
+        self.status_code = status_code
+        self.payload = payload
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise RuntimeError("test response error")
+
+    def json(self):
+        return self.payload
+
+
+class FakeAsyncClient:
+    response = None
+    requests = []
+
+    def __init__(self, *args, **kwargs):
+        self.timeout = kwargs.get("timeout")
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *unused):
+        return False
+
+    async def post(self, url, *, headers, json):
+        type(self).requests.append((url, headers, json, self.timeout))
+        return type(self).response
+
+
+class ArrRepairExecutionTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.reference = "radarr-q-abcdefghijklmnop"
+        self.report = {
+            "generated_at": "2026-09-09T12:00:00Z",
+            "repair_candidates": [
+                {
+                    "operation": "dismiss_stale_radarr_queue_record",
+                    "service": "radarr",
+                    "candidate_ref": self.reference,
+                    "expires_at": "2026-09-09T12:05:00Z",
+                }
+            ],
+        }
+        self.result = {
+            "operation": "dismiss_stale_radarr_queue_record",
+            "candidate_ref": self.reference,
+            "decision": "approved_execute",
+            "report_age_seconds": 1,
+            "result": "dismissed",
+            "at": "2026-09-09T12:00:01+00:00",
+        }
+        FakeAsyncClient.requests = []
+        FakeAsyncClient.response = FakeBrokerResponse(200, self.result)
+
+    async def test_structured_endpoint_sends_only_report_issued_fields(self):
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            response = await execute_arr_repair(self.reference)
+        self.assertEqual(response, {"status": "completed", "audit": self.result})
+        url, headers, payload, timeout = FakeAsyncClient.requests[0]
+        self.assertEqual(url, "http://broker.internal/v1/execute")
+        self.assertEqual(timeout, 40)
+        self.assertEqual(
+            set(payload),
+            {"operation", "service", "candidate_ref", "report_generated_at"},
+        )
+        self.assertEqual(headers, {"Authorization": "Bearer broker-key"})
+
+    async def test_candidate_absence_never_contacts_broker(self):
+        with patch(
+            "aster_agent.read_arr_report",
+            return_value={"generated_at": "2026-09-09T12:00:00Z", "repair_candidates": []},
+        ):
+            with self.assertRaises(HTTPException) as raised:
+                await execute_arr_repair(self.reference)
+        self.assertEqual(raised.exception.status_code, 409)
+        self.assertEqual(FakeAsyncClient.requests, [])
+
+    async def test_broker_denial_is_sanitized(self):
+        FakeAsyncClient.response = FakeBrokerResponse(403, {"private": "must not surface"})
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            with self.assertRaises(HTTPException) as raised:
+                await execute_arr_repair(self.reference)
+        self.assertEqual(raised.exception.status_code, 409)
+        self.assertNotIn("private", str(raised.exception.detail))
+
+    async def test_invalid_broker_audit_is_not_returned(self):
+        FakeAsyncClient.response = FakeBrokerResponse(
+            200,
+            {**self.result, "at": "private response detail", "report_age_seconds": 901},
+        )
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            with self.assertRaises(HTTPException) as raised:
+                await execute_arr_repair(self.reference)
+        self.assertEqual(raised.exception.status_code, 503)
+        self.assertNotIn("private", str(raised.exception.detail))
 
 
 if __name__ == "__main__":

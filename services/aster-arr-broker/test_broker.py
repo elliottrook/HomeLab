@@ -26,6 +26,7 @@ class FakeAdapter:
 
     def dismiss_preserving_downloader_data(self, queue_id):
         self.dismissed.append(queue_id)
+        self.state = None
 
 
 class FailingAdapter(FakeAdapter):
@@ -111,7 +112,34 @@ class BrokerTests(unittest.TestCase):
         with self.assertRaises(ProposalError):
             instance.execute(REQUEST, approval_ref=APPROVAL_REF, adapter=FakeAdapter(None), now=NOW)
 
-    def test_inspection_failure_stops_without_consuming_or_dismissing(self):
+    def test_future_issued_candidate_is_refused_before_inspection(self):
+        instance = Broker(
+            {
+                CANDIDATE_REF: Candidate(
+                    CANDIDATE_REF,
+                    42,
+                    NOW + timedelta(seconds=1),
+                    NOW + timedelta(minutes=5),
+                )
+            },
+            {
+                APPROVAL_REF: Approval(
+                    APPROVAL_REF,
+                    CANDIDATE_REF,
+                    OPERATION,
+                    NOW + timedelta(minutes=2),
+                )
+            },
+        )
+        with self.assertRaises(ProposalError):
+            instance.execute(
+                REQUEST,
+                approval_ref=APPROVAL_REF,
+                adapter=FailingAdapter(None, fail_inspect=True),
+                now=NOW,
+            )
+
+    def test_inspection_failure_consumes_one_attempt_without_dismissing(self):
         instance = broker()
         result = instance.execute(
             REQUEST,
@@ -120,7 +148,9 @@ class BrokerTests(unittest.TestCase):
             now=NOW,
         )
         self.assertEqual(result["result"], "inspection_failed")
-        self.assertNotIn(APPROVAL_REF, instance._used_approvals)
+        self.assertIn(APPROVAL_REF, instance._used_approvals)
+        with self.assertRaises(ProposalError):
+            instance.execute(REQUEST, approval_ref=APPROVAL_REF, adapter=FakeAdapter(None), now=NOW)
 
     def test_uncertain_dismissal_consumes_approval_and_cannot_retry(self):
         instance = broker()
@@ -138,6 +168,31 @@ class BrokerTests(unittest.TestCase):
                 adapter=FakeAdapter(QueueState(42, True, False, False)),
                 now=NOW,
             )
+
+    def test_postcondition_failure_is_bounded_and_consumes_approval(self):
+        class StickyAdapter(FakeAdapter):
+            def dismiss_preserving_downloader_data(self, queue_id):
+                self.dismissed.append(queue_id)
+
+        instance = broker()
+        result = instance.execute(
+            REQUEST,
+            approval_ref=APPROVAL_REF,
+            adapter=StickyAdapter(QueueState(42, True, False, False)),
+            now=NOW,
+        )
+        self.assertEqual(result["result"], "postcondition_failed")
+        with self.assertRaises(ProposalError):
+            instance.execute(REQUEST, approval_ref=APPROVAL_REF, adapter=FakeAdapter(None), now=NOW)
+
+    def test_audit_result_is_bounded_and_records_report_age(self):
+        result = broker().execute(REQUEST, approval_ref=APPROVAL_REF, adapter=FakeAdapter(None), now=NOW)
+        self.assertEqual(
+            set(result),
+            {"operation", "candidate_ref", "decision", "report_age_seconds", "result", "at"},
+        )
+        self.assertEqual(result["report_age_seconds"], 300)
+        self.assertEqual(result["decision"], "approved_execute")
 
 
 if __name__ == "__main__":

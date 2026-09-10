@@ -36,13 +36,14 @@ Keep this shared folder restricted to the backup account. The manual dated set r
 
 ## Automated same-site protection — TrueNAS is the backup hub
 
-**Current architecture, live since 2026-09-08** (`docs/projects/Backup-Architecture-Redesign.md`). TrueNAS (`192.168.20.40`) replaced the Backup Synology as the same-site backup hub, separating three concerns Hyper Backup used to bundle on underpowered hardware: transport, local version history, and off-site protection. Three independent pull relationships land in the shared `Media/backup` ZFS dataset, each with tiered snapshot retention (daily/14-day, weekly/8-week, monthly/6-month):
+**Current architecture, live since 2026-09-08** (`docs/projects/Backup-Architecture-Redesign.md`). TrueNAS (`192.168.20.40`) replaced the Backup Synology as the same-site backup hub, separating three concerns Hyper Backup used to bundle on underpowered hardware: transport, local version history, and off-site protection. Four independent pull relationships land in the shared `Media/backup` ZFS dataset, each with tiered snapshot retention (daily/14-day, weekly/8-week, monthly/6-month):
 
 - **Mac config** — TrueNAS's native `rsynctask` (SSH, a dedicated restricted `rrsync`-confined macOS account `truenas-pull`, OS-level ACL scoped to `~/lab/private-backups` only) pulls to `/mnt/Media/backup/mac`. Daily at 04:15.
-- **Proxmox guest archives** — TrueNAS's native `rsynctask` (SSH, the existing restricted `homelab-backup` account, forced `rrsync` rooted at `/mnt/backups/dump`) pulls to `/mnt/Media/backup/homelab-proxmox-guests`. Matches the Proxmox VMID scope: 100–109, 111 (NetBox). Not 110 (Aster llama.cpp) — a pre-existing, separately tracked gap. Daily at 04:00.
+- **Proxmox guest archives** — TrueNAS's native `rsynctask` (SSH, the existing restricted `homelab-backup` account, forced `rrsync` rooted at `/mnt/backups/dump`) pulls to `/mnt/Media/backup/homelab-proxmox-guests`. Matches the original redesign scope: 100–109, 111 (NetBox). Daily at 04:00.
+- **Aster llama.cpp LXC 110 archives** — a separate TrueNAS `rsynctask` uses the same restricted source account but an exact LXC-110-only include filter and a dedicated `/mnt/Media/backup/aster-lxc110` destination. It runs daily at 04:20 with `delete: true`, so deletion is confined to this directory and the mirror follows Proxmox's bounded archive retention. This large, reproducible inference guest is intentionally excluded from the 1 TB IDrive tier; LXC 104's application/knowledge state remains in the normal encrypted off-site path.
 - **`gowest` homes/Family Documents** — a different mechanism than the two above: DSM's own `rsync` daemon proved unusable (four separate SSH-account gates, then an undocumented daemon-module restriction), so `gowest` instead exports `homes`/`Family Documents` read-only over NFSv3 (restricted to TrueNAS's IP, `Squash: No mapping`), TrueNAS mounts both read-only via Init/Shutdown Scripts, and a plain local `rsync` cron job on TrueNAS copies into `/mnt/Media/backup/gowest/`. Daily at 04:30. **Known gap, accepted deliberately:** this does not capture Synology Drive's own `@synologydrive` app-config (315 GB, the actual version-history blob store, not a small index) — no smaller subset exists, so its own multi-version rollback capability is not replicated; current file state is.
 
-All three legs are verified byte-exact against their sources (see the redesign project's Milestone 2 evidence log) and monitored by HomeLab Doctor's `check_backup_redesign_truenas` — which reads each rsync task's actual job-completion state (not file mtime, which falsely looks stale on a quiet day since rsync preserves source mtimes on unchanged files) and, for the `gowest` leg specifically, a completion-marker timestamp appended to its cron command for the same reason.
+All four legs are monitored by HomeLab Doctor's `check_backup_redesign_truenas` — which reads each rsync task's actual job-completion state (not file mtime, which falsely looks stale on a quiet day since rsync preserves source mtimes on unchanged files) and, for the `gowest` leg specifically, a completion-marker timestamp appended to its cron command for the same reason. Initial source/destination verification is recorded in the redesign project's evidence log.
 
 Private keys, authorized-key material, host-key files and backup contents remain outside Git.
 
@@ -59,9 +60,9 @@ early September, the Backup Synology's Hyper Backup role was stopped
 2026-09-09, and the unit itself was powered down the same day for a 14-day
 observation period (ending 2026-09-23) before its disks are considered for
 reuse in TrueNAS. See those two project documents for full milestone-by-
-milestone evidence; none of the temporary stopgaps originally recorded in
-this section (a one-off LXC 100 copy, a temporary TrueNAS LXC 110 mirror)
-are still in use.
+milestone evidence. The one-off LXC 100 copy is no longer in use; LXC 110's
+former manual one-off was superseded on 2026-09-10 by the bounded recurring
+mirror described above.
 
 ## Encrypted IDrive e2 off-site backup
 
@@ -70,10 +71,10 @@ are still in use.
 - Bucket: `homelab-backup-relay`, region `us-west-4` (`s3.us-west-4.idrivee2.com`), bucket versioning **enabled** — confirmed both that it's turned on and that a genuinely older version is actually retrievable through the crypt layer via `rclone`'s S3 point-in-time read (`--s3-version-at`), not just nominally enabled.
 - Credentials: a freshly generated, bucket-scoped IDrive e2 access key limited to this one bucket (never a reuse of the legacy Hyper Backup credential below), plus a separately generated `rclone crypt` password/salt, both root-only on the relay.
 - Egress is boundary-limited: a dynamic OPNsense alias resolves only `s3.us-west-4.idrivee2.com`; the relay is permitted DNS/NTP and TCP 443 to that alias and explicitly denied all other egress.
-- Sync: a daily `systemd` timer, 20 MiB/s bandwidth cap, non-overlap lock, logged to a protected local log.
+- Sync: a daily `systemd` timer, 20 MiB/s bandwidth cap, non-overlap lock, logged to a protected local log. The canonical command is tracked in `scripts/backup/idrive-relay-sync.sh`; both the dedicated `aster-lxc110` directory and any legacy LXC 110 archive in the shared Proxmox directory are excluded.
 - Monitored by HomeLab Doctor's `check_idrive_relay` (guest/timer/service state and post-success log freshness) — covered by the same generic failure-only alerting as every other Doctor check (`scripts/scheduled-report.sh`), no per-service alert wiring needed.
 
-Provisioned capacity is 1 TB. Frigate recordings, media libraries and unrelated NAS data remain excluded.
+Provisioned capacity is 1 TB. Frigate recordings, media libraries, LXC 110 model archives and unrelated NAS data remain excluded.
 
 **Legacy path, retired 2026-09-09 — do not use for new restores without checking `Backup-Synology-Decommission.md` first.** The Backup Synology ran Hyper Backup task `Mini Atlas Offsite` against a separate, older bucket (`mini-atlas-backups`, same region/endpoint). That task is now stopped (its Task Scheduler entries still show `enabled` since the whole HyperBackup *package* was stopped instead — a CLI attempt to disable just the one task failed silently and root-level API access wasn't available over SSH). Its bucket and credential were never touched or reused by the new relay; the exposed legacy S3 key is a **known, accepted risk** — Jason opted not to rotate it since he is paying IDrive e2 overage for running two buckets simultaneously and intends to decommission that bucket outright soon regardless. Recovery from this legacy bucket, if ever needed before it's decommissioned, still follows the old Hyper Backup Backup Explorer procedure: relink the S3 task with the separately stored legacy credentials, supply the encryption password, and browse versions from there.
 
@@ -242,18 +243,20 @@ service and custom model profile. The complete `automated/proxmox-guests`/
 `homelab-proxmox-guests` tree is included in the encrypted off-site relay
 without separate per-guest selection.
 
-Named `aster-production-20260831` snapshots now protect the deployed LXC 104
-and LXC 110 state locally. **LXC 110 remains a known, separately tracked gap**:
-it is deliberately excluded from the TrueNAS backup hub's Proxmox-leg VMID
-scope (predates this redesign), so the one archive present on TrueNAS
-(`Media/backup/homelab-proxmox-guests/vzdump-lxc-110-...`, from 2026-09-01) is
-a stale manual one-off, not continuously refreshed. A Proxmox snapshot is a
-rollback point, not a substitute for real off-host mirroring here.
+Named `aster-production-20260831` snapshots protect the deployed LXC 104 and
+LXC 110 state locally. LXC 110's former off-host gap was closed 2026-09-10 with
+the dedicated daily `/mnt/Media/backup/aster-lxc110` mirror described above.
+The mirror is covered by the `Media/backup` ZFS snapshot schedules and Doctor,
+but deliberately does not enter IDrive: copying the current roughly 38 GB daily
+archives through their full retention window would exceed the active 1 TB tier.
+The old 2026-09-01 off-site object is left untouched as historical recovery
+material; relay exclusions prevent new or replacement LXC 110 uploads.
 
 Do not commit Aster API keys, Hermes tokens, OAuth/provider state, Ollama chat
 data or any model configuration containing credentials. LXC 104 and VM 105
-have confirmed local and off-host coverage; LXC 110's off-host gap above is
-still open.
+have confirmed local, same-site and encrypted off-site coverage. LXC 110 has
+local and recurring same-site coverage; its IDrive exclusion is an explicit
+capacity boundary, not an untracked gap.
 
 ## NUT / UPS Server (Lenovo)
 
@@ -692,7 +695,7 @@ configuration is separately documented or exported.
 | Backup Synology (`.42`) | Doctor's `check_home_assistant_backup_truenas` and TCP checks will show it unreachable — expected, tracked in `Backup-Synology-Decommission.md` | **Retired 2026-09-09.** Powered down for a 14-day observation period (ends 2026-09-23) before its disks are considered for reuse in TrueNAS. Everything it protected has a live TrueNAS-hub replacement except `Media Backup`'s stored data, deliberately left in place, untouched, undecided | Every replacement leg's restore was proven before this unit was touched — see `Backup-Synology-Decommission.md` Milestone 3. This row will be removed after the observation period per that project's Milestone 4 |
 | Aster Agent LXC 104 | Doctor checks guest, service and API health | Current LXC archive retained locally and checksum-mirrored to TrueNAS; named production snapshot retained locally | Earlier isolated restore as LXC 972 booted the retained Hermes rollback services; Aster boot persistence was validated in place |
 | Legacy Ollama VM 105 | Doctor checks guest state according to its intended operating mode | Current VM archive retained locally and checksum-mirrored to TrueNAS | Isolated restore as VM 973 reached its login prompt successfully |
-| Aster llama.cpp LXC 110 | Doctor checks guest and inference-service health | Named production snapshot, current local archive and checksum-verified temporary TrueNAS mirror retained; normal Synology/off-site pipeline remains unavailable | Isolated archive restore as stopped, network-isolated LXC 980 verified both active model blobs and service layout; do not start a second GPU-mapped guest during production service |
+| Aster llama.cpp LXC 110 | Doctor checks guest/inference health, local archive age, bounded TrueNAS task configuration/run freshness and mirrored archive age | Named production snapshot, current local archives and a dedicated daily TrueNAS mirror following Proxmox retention; explicitly excluded from the capacity-limited IDrive tier | Isolated archive restore as stopped, network-isolated LXC 980 verified both active model blobs and service layout; do not start a second GPU-mapped guest during production service |
 | Authentik LXC 106 | Doctor checks service reachability through the configured endpoint | Current LXC archive retained locally and checksum-mirrored to TrueNAS | Platform-level recovery inherits the validated Proxmox LXC restore process; Authentik configuration is documented separately |
 | Reverse Proxy LXC 107 | Doctor checks NPM service reachability and TLS dependencies | Current LXC archive retained locally and checksum-mirrored to TrueNAS | Platform-level recovery inherits the validated Proxmox LXC restore process; proxy and Authentik recovery order is documented |
 | Forgejo LXC 108 | Doctor checks service reachability; Beszel records host health | Current LXC archive retained locally and checksum-mirrored to TrueNAS; GitHub remains a synchronized off-site Git remote | Isolated restore as LXC 978 verified the active Forgejo service, SQLite database and `jason/homelab.git`, then the test guest was removed |
@@ -710,6 +713,10 @@ configuration is separately documented or exported.
   evidence.
 - Media libraries and Frigate recordings are intentionally excluded from
   encrypted off-site protection because their size exceeds their recovery value.
+- Aster LXC 110 model archives receive local snapshots/archives and a recurring
+  TrueNAS mirror but are intentionally excluded from the 1 TB encrypted off-site
+  tier. LXC 104 holds the smaller application and knowledge state and remains
+  protected off-site.
 - Aster LXC 104 and legacy Ollama VM 105 have verified same-site/off-host archives,
   isolated restore tests and encrypted off-site protection through the selected
   `homelab-proxmox-guests` tree.

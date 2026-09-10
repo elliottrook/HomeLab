@@ -1,10 +1,13 @@
 # Aster ARR Stack Manager
 
-> Status: Active — advisory graduate; live read and repair remain gated
+> Status: Complete — graduated bounded ARR read and first repair;
+> every live Radarr attempt remains separately gated
 >
 > Project owner: Jason
 >
 > Started: 2026-09-08
+>
+> Completed: 2026-09-09
 
 ## Purpose
 
@@ -27,7 +30,7 @@ workflow client, not a second production control plane.
 | Decisions, experiments and acceptance evidence | This repository's project records |
 | ARR API keys, downloader credentials and service config | Private storage only; never Git, model context, Hermes skills or chat output |
 | Read-only health | Sanitized, schema-validated report produced outside Aster |
-| ARR mutations | Not permitted in this project phase; every future action is separately specified and approved |
+| ARR mutations | Only the graduated stale-Radarr-queue dismissal exists; every live attempt and every future action remains separately specified and approved |
 
 The manager must not infer that an API key is read-only merely because it is
 dedicated. The ARR services commonly use broadly capable API keys. Before
@@ -58,24 +61,28 @@ The initial curriculum covers:
 
 Teaching material must be concise, source-linked and free of live URLs that
 would expand access, secret-bearing examples, queue contents, download titles,
-or user-library information. A later operational reference page must be
-reviewed before it enters Aster's curated snapshot.
+or user-library information. The operational reference must remain reviewed
+before it enters Aster's curated snapshot.
 
 ## Milestone 0 — Scope and inventory
 
-- [ ] Inventory each service's version, role, network boundary, library root,
+- [x] Inventory each service's version, role, network boundary, library root,
   downloader relationship and current health through read-only evidence.
-- [ ] Write a reviewed operational reference page with provenance, review date,
+- [x] Write a reviewed operational reference page with provenance, review date,
   known exclusions and an explicit distinction between current facts and
   historical cleanup notes.
 - [x] Identify the smallest useful sanitized health schema; it must contain no
   API keys, URLs with credentials, media titles, paths outside approved roots,
   or raw service responses.
-- [ ] Record every existing automation that can create, search, rename, import
+- [x] Record every existing automation that can create, search, rename, import
   or delete so the manager never duplicates it blindly.
 
 Completion gate: the review names every source, excluded field and dependency;
 two independent reviewers can locate no credential or private-library content.
+
+Gate result: passed on 2026-09-09. The reviewed operational reference and its
+manifest entry passed both the focused five-test privacy/inventory review and
+the independent deterministic 26-source knowledge review with zero findings.
 
 ## Milestone 1 — Advisory Hermes skill and Aster knowledge
 
@@ -111,9 +118,9 @@ such) without holding a service credential or making arbitrary HTTP requests.
   identity, validation, audit output, timeout, rollback and exact approval
   moment.
 - [x] Start with dry-run/proposal output only.
-- [ ] Compare the proposal against a manually reviewed operation before any
+- [x] Compare the proposal against a manually reviewed operation before any
   real mutation is enabled.
-- [ ] Treat every mutation as a separate graduation gate. No standing approval
+- [x] Treat every mutation as a separate graduation gate. No standing approval
   or natural-language request grants general ARR control.
 
 Completion gate: no action capability exists unless its individual evidence
@@ -126,30 +133,38 @@ read current ARR state and repair a defined problem. It does **not** grant a
 general ARR administrator, a raw service API key, broad shell access, media
 library access, or standing permission to make changes.
 
-- [ ] Define a dedicated ARR broker with one narrow, authenticated operation
+- [x] Define a dedicated ARR broker with one narrow, authenticated operation
   per endpoint. The broker, not Aster or Hermes, holds any private service
   credential and rejects every undeclared route, method, field and target.
-- [ ] Select each initial repair action separately. For each one record: exact
+- [x] Select each initial repair action separately. For each one record: exact
   request schema; permitted resource scope; preconditions; expected result;
   idempotency/replay behavior; validation; audit record; timeout; rollback or
   explicit non-reversibility; and Jason's approval moment.
-- [ ] Start in a disposable or no-op mode. Aster may form a proposal and the
+- [x] Start in a disposable or no-op mode. Aster may form a proposal and the
   broker must return a complete dry-run only; compare it against an operator's
   independent manual result before enabling a real mutation.
-- [ ] Add a current, sanitized report for reading service health and aggregate
+- [x] Add a current, sanitized report for reading service health and aggregate
   queue/import stages. Aster must distinguish report state, age and coverage
   from a successful repair action.
-- [ ] Enable no more than one low-blast-radius repair action at a time. Any
+- [x] Enable no more than one low-blast-radius repair action at a time. Any
   action that can acquire content, remove media, rename files, alter indexers,
   profiles, root folders, download-client settings or monitoring scope needs
   its own later decision and must not be smuggled into the first broker.
 
-Current rehearsal evidence: `services/aster-arr-broker/` implements only the
+Current production evidence: `services/aster-arr-broker/` implements only the
 fixed operation in the first-repair decision. Its adapter interface exposes no
-URL, method, credential, bulk selector or generic request channel. The local
-test adapter proves dry-run, candidate freshness, single-use approval,
-precondition refusal, idempotent absence and timeout/unknown-outcome handling.
-It is not deployed and cannot contact an ARR service.
+request-controlled URL, method, credential, queue ID, bulk selector or generic
+request channel. Approval creation is an operator-only local command, never an
+HTTP route or model tool. Persistent state consumes a two-minute approval
+before network access and writes bounded audit records before and after the
+attempt. The shipped unit is non-root, loopback-only and execution-disabled.
+
+The 61-test broker suite and 42-test Aster suite pass. The deployed Aster and
+TrueNAS broker also completed one approved production-shaped execution against
+a locked-down disposable Radarr endpoint: exactly GET, fixed safe DELETE and
+verification GET; replay was denied without another target call. The broker
+was then stopped/boot-disabled and its temporary firewall path removed. Live
+Radarr was not the execution target and was not changed.
 
 ### Graduation test gate
 
@@ -177,6 +192,11 @@ least-privilege broker evidence, audit output and a tested rollback or
 non-reversibility decision. Jason must retain the explicit, action-specific
 approval moment. Passing this gate authorizes only the enumerated repair
 operation; it does not authorize general ARR control or future actions.
+
+Gate result: passed on 2026-09-09 for bounded sanitized read and the single
+`dismiss_stale_radarr_queue_record` operation. This project is complete; its
+live execution boundary remains deliberately dormant between separately
+approved attempts.
 
 ## Test matrix
 
@@ -206,3 +226,11 @@ operation; it does not authorize general ARR control or future actions.
 | 2026-09-09 | 4 rehearsal | Deployed and verified the authenticated broker bound only to TrueNAS loopback, with a root-only broker key, no execution route and no boot enablement. Its 24 tests passed; loopback authentication returns only 401/400 safe responses. The root-only issuer then performed one read-only Radarr scan and the service was stopped afterward. | No eligible stale completed/imported Radarr queue record exists, so no opaque candidate was created. This is the intended fail-closed result; the staged broker is stopped and boot-disabled, with no Radarr mutation, credential export or network exposure. |
 | 2026-09-09 | 4 rehearsal | Created a temporary synthetic broker-only candidate (queue ID never sent to Radarr) and exercised the authenticated loopback dry-run endpoint. The result confirmed `dry_run` mode with execution disabled and zero Radarr contact. The prior state was restored, normalized to a valid empty schema, and the service stopped. | Disposable dry-run proof passed. It is not live repair evidence and does not satisfy the final task-specific mutation approval gate. |
 | 2026-09-09 | 4 disposable repair | Ran a production-shaped loopback Radarr fixture containing one synthetic completed/imported queue record. The broker first returned a dry run without touching the fixture, then executed the one approved fixture action using only the fixed safe query flags and confirmed the record absent on a subsequent idempotent check. | The disposable broker repair gate passed with zero live Radarr, media or downloader contact. Aster-to-broker action plumbing and its focused black-box evaluation remain required before claiming Aster graduation. |
+| 2026-09-09 | 4 proposal integration | Replaced the placeholder fixture runner with an idempotent two-pass test that opaquely backs up LXC 104's report/environment, leaves the live report and environment untouched, stages only synthetic report/candidate state, and runs the authenticated dry-run-only broker on `127.0.0.1:9421` without the Radarr adapter. It verified the absent execution route, exact proposal contract, Aster's real `192.168.70.10:9120` listener and normal 180-second inference timeout. Both black-box passes succeeded in 57.656 and 57.602 seconds with distinct opaque candidates; cleanup removed the transient unit, systemd drop-in, state, backups and staging files before reporting success, then restored a healthy Aster listener. | **Aster-to-broker dry-run proposal plumbing passes its repeated production-path gate.** This does not graduate live repair: no execution endpoint, ARR credential route or task-specific approval mechanism is deployed, and no live ARR or media state was read or changed. |
+| 2026-09-09 | 4 regression | The deployed Aster unit suite passed 32/32. Post-cleanup black-box suites passed bounded report read 1/1 (54.054 seconds), legacy ARR safety 6/6, original Aster graduation 14/14 (worst 54.523 seconds), and the corrected current ARR suite 8/8 (worst 46.596 seconds). The current-state case was updated from the obsolete expectation that evidence must be unavailable to require bounded report/coverage evidence while continuing to forbid raw errors, credential/config disclosure and direct ARR access guidance. | Read, privacy, injection, destructive-request, provenance and legacy behavior remain green after proposal integration. The overall bounded read-and-repair completion box remains open until the separately reviewed live execution, least-privilege credential and fresh action-specific approval path exists and passes the same gate. |
+| 2026-09-09 | 4 pre-live execution | Implemented the structured Aster action endpoint, execution-disabled production broker unit, private two-minute operator approval, durable consume-before-contact state, redirect refusal, bounded response/audit sizes, fixed Radarr adapter and postcondition verification. Local suites passed broker 60/60 and Aster 41/41. The full disposable path passed repeatedly, denying missing auth, extra fields and replay, then making only fixed GET/DELETE/GET calls with downloader preservation and no blocklist, redownload or category change. | **Pre-live implementation gate complete.** No production file was staged, no live credential was loaded and no live ARR request occurred. Production staging and the single live action remain blocked on fresh explicit permission. |
+| 2026-09-09 | 4 production staging | Staged reviewed commit `6bd7d4e` with rollback copies on TrueNAS, Proxmox and LXC 104. The unprivileged broker passed 61/61 deployed tests; Aster passed 41/41 deployed unit tests and 42/42 in a disposable dependency-complete layout. With execution false, the exact temporary host/port path returned 401 for missing authorization and 404 for execution. One authorized live eligibility scan found zero matching records. | The live gate failed closed as designed: zero candidates, approvals, audit attempts or Radarr changes. The empty report was republished, the broker stopped/boot-disabled and the temporary firewall rule removed. |
+| 2026-09-09 | 4 graduated repair | At Jason's direction, repeated the established two-pass synthetic proposal fixture and then ran the deployed Aster structured endpoint and TrueNAS broker against a locked-down disposable Radarr endpoint holding one synthetic stale completed/imported record. The dry run passed four preconditions; the two-minute operator approval authorized one execution; Aster returned `completed`/`dismissed`. The execution produced exactly GET, fixed safe DELETE and verification GET. Replay returned 409 without another target call. | **Milestone 4's first bounded repair graduated against the required production-shaped disposable mutation target.** Cleanup restored the original broker environment/state and empty report, retained a two-record bounded fixture audit, stopped/boot-disabled the broker, removed both fixture services and the temporary firewall rule, and reconfirmed Aster healthy. Live Radarr was never the execution target and was not changed. |
+| 2026-09-09 | 0 / curriculum | Added `docs/ARR-Stack-Operational-Reference.md` with reviewed provenance, the six installed service versions/roles/ports, canonical roots and handoffs, current sanitized health, every known host/built-in mutation workflow, explicit exclusions and historical-vs-current precedence. The manifest maps it to `reference/operations/arr-stack.md`. The focused five-test reference review and independent deterministic 26-source knowledge review both passed with zero findings. | **Milestone 0 complete.** No credential, media title, queue identity, raw response or private-library item entered the source or snapshot. Focused retrieval now handles inventory, automation, Prowlarr coupling and broker boundaries across long Markdown chunks. |
+| 2026-09-09 | overall graduation | Final code `74e4223` passed 43/43 in the disposable dependency-complete Aster suite and the unchanged broker passed 61/61; deployed Aster passed 42/42. Black-box gates passed focused curriculum 4/4, current ARR advisory 8/8, bounded report 1/1, stale config 1/1, legacy ARR 6/6 and original Aster graduation 14/14. Final posture checks found the broker inactive and disabled, zero port-9421 listeners, zero candidates and approvals, no OPNsense 9421 rule, a closed broker path, and healthy Aster/inference services. | **Project completion gate passed. Aster has graduated ARR stack school for bounded sanitized read and the one enumerated Radarr queue-dismissal repair.** This creates no standing mutation authority: every future live attempt still requires a natural candidate, independent review, fresh action-specific permission and the temporary least-privilege path. |
+| 2026-09-09 | accepted close-out snapshot | Built the clean 26-source snapshot from HomeLab commit `aac3300` and reference commit `ea0ce5f`; archive SHA-256 `4a3bf7284f23fda3b114e305937363b5a317f4b973e12410aca432af8f2eb6bc`. After Jason's explicit transfer approval, the matching archive was staged, provenance-validated and atomically activated in LXC 104. The prior accepted directory remains at `/opt/aster-agent/rollback-arr-school-aac3300/knowledge-before-aac3300`. | Aster restarted healthy, deployed tests passed 42/42, and bounded checks confirmed reviewed evidence for versions/ports, integrity scheduling, roots/handoff, broker authority and Prowlarr coupling. |

@@ -156,7 +156,8 @@ Those references are stale and are corrected as part of Milestone 1.
 - Re-opening `Backup-Architecture-Redesign`'s architecture decisions.
 - Changing how the main Synology serves production files.
 - The Aster llama.cpp (LXC 110) backup gap — pre-existing and separately
-  tracked.
+  tracked; closed on 2026-09-10 by a dedicated bounded TrueNAS mirror without
+  changing this decommission project's scope.
 - Any change to Frigate recording retention or media libraries.
 
 ---

@@ -66,7 +66,7 @@ Arista core
 |---|---|
 | Proxmox is a single compute host | Guest archives are retained off-host, mirrored with checksum verification and represented by successful isolated restore tests. Host failure still requires manual restoration onto replacement hardware. |
 | OPNsense and the Arista core are individual infrastructure appliances | Current configurations are exported and monitored for drift. Recovery is procedural rather than automatically highly available. |
-| Proxmox guest memory is overcommitted when all production and AI workloads run simultaneously | Ollama remains optional and normally stopped when its memory would interfere with production guests. Final RAM and CPU work must be completed before sustained simultaneous use. |
+| Proxmox remains a finite shared-memory host | The completed E5-2698 v4/80 GB upgrade exposes approximately 78 GiB usable. Running guests were configured for 50 GiB on 2026-09-09 and 48 GiB was available at observation. VM 105 remains stopped; starting it is an attended rollback action, not normal simultaneous operation. |
 | The secondary Pi-hole shares the TrueNAS host | DNS instances are separated across hosts, but a TrueNAS outage also removes the secondary resolver. The Docker-hosted primary remains available. |
 | Backup Synology free capacity is finite | Backup retention, Hyper Backup growth and Proxmox mirror usage must continue to be monitored; the appliance is not treated as the only copy of essential data. |
 | Media libraries and Frigate recordings are not encrypted off-site | Their size exceeds their recovery value. Configuration, metadata and critical guest recovery paths receive priority instead. |
@@ -121,9 +121,14 @@ with one 8,192-token slot, flash attention and Q8 KV cache. Both workloads are
 confined to Lab VLAN 70 and both APIs require bearer authentication except the
 minimal Aster health endpoint.
 
-The Aster harness selects and pre-executes only allowlisted read-only functions:
-local time, Aster/inference health and scoped search over a curated documentation
-snapshot. It has no arbitrary shell or arbitrary network-target function.
+The Aster harness selects and pre-executes only allowlisted bounded functions:
+local time; Aster/inference and sanitized HomeLab health; scoped search over a
+curated documentation snapshot; sanitized ARR, Forgejo and NetBox reports; and
+the separately governed execution-disabled ARR action path. It has no arbitrary
+shell, arbitrary filesystem path, credential retrieval or arbitrary
+network-target function. The ARR broker carries no standing write authority:
+any future live action still requires a natural candidate, independent review,
+fresh action-specific permission and a temporary least-privilege path.
 Hermes and Ollama remain installed but disabled as rollback paths; stopped VM
 105 remains the older CPU/passthrough rollback guest. Aster is useful but is not
 a dependency for core HomeLab operation.
