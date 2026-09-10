@@ -1,11 +1,12 @@
 # Video Library Archiving Project
 
-> Status: In progress — Milestones 1-3 complete (unattended schedule live Mon-Sat 01:30, first
-> real cron-triggered run confirmed clean 2026-09-08); Milestone 4 (closeout) remaining
+> Status: **Complete 2026-09-10.** Unattended schedule live Mon-Sat 01:30; first
+> real cron-triggered run confirmed clean 2026-09-08; config/state backup coverage closed out
+> 2026-09-10.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-08
+> Last updated: 2026-09-10
 
 ## Purpose
 
@@ -580,10 +581,25 @@ operation now, not a remaining gate.
 
 - [x] Recorded final tool location, config, schedule, and log location in
   [04-Operations.md](../04-Operations.md) 2026-09-08.
-- [ ] Add the tool's config/state to the existing backup plan if it should survive a TrueNAS
-  rebuild.
-- [ ] Update this project's status to `Complete` only after Milestone 3's gate passes and
-  documentation is current.
+- [x] Add the tool's config/state to the existing backup plan if it should survive a TrueNAS
+  rebuild. **Done 2026-09-10.** The tool's Python code was already git-mirrored
+  (`scripts/video-archiver/`, confirmed in `04-Operations.md`); the two things that weren't were
+  `config.json` (thresholds/paths, no secrets) and the mode-600 `.env` (Radarr/Sonarr/Jellyfin API
+  keys), plus the deployed `run-scheduled.sh` wrapper (not part of the git mirror). Added
+  `scripts/backup/video-archiver.sh`, matching the NUT backup's exact pattern (a Mac-side script
+  that SSHes to the remote host and pulls its config into `~/lab/private-backups/`, which the
+  TrueNAS backup hub's Mac-config leg then picks up automatically, followed by the encrypted
+  off-site relay — no new backup infrastructure needed). Wired into `lab backup all`, the new
+  weekly launchd job, and `HomeLab Doctor` (`check_backup_age "Video Archiver config" ... 192`).
+  **Caught and fixed a real bug while testing**: `chmod 600 "$BACKUP_DIR"/*` doesn't match dotfiles
+  in bash by default, so `.env` — the one file in this backup that actually holds secrets — came
+  out world-readable (644) on the first real run. Fixed the glob, fixed the already-downloaded
+  copy immediately, verified a clean re-run showed `.env` correctly at 600 alongside the other two
+  files.
+- [x] Update this project's status to `Complete` only after Milestone 3's gate passes and
+  documentation is current. Both hold: Milestone 3's gate passed 2026-09-08, and documentation
+  (tool location/schedule/logs in `04-Operations.md`, backup coverage above) is current as of
+  2026-09-10.
 
 ## Risks and mitigations
 
@@ -630,6 +646,7 @@ operation now, not a remaining gate.
 | 2026-09-08 | — | Jason tagged `Ready or Not: Here I Come` (32.5 GiB, a "Multi AVC" REMUX) and asked for a supervised `--execute` run to exercise the never-yet-tested real-transcode path (every prior run had either transcoded TV or relocated an already-small movie). First attempt failed cleanly at `verify_output` — found and fixed the 11-audio-track budget bug (see Architecture decisions); source was untouched throughout | First real GPU transcode of a movie: 34.9 GB → 1.77 GB, full 1080p retained, single English 5.1 track, all 3 English subtitles kept, non-English audio/subtitle tracks correctly dropped. Verified via direct `ffprobe` on the output, Radarr (`monitored: false, hasFile: false`), and the Jellyfin API (108 min runtime matching source exactly, single clean entry) | Claude |
 | 2026-09-08 | 3 | First genuine unattended cron-triggered run (01:30 PDT, nobody supervising). Jason intended `Rango` to be the target but it was never actually tagged (confirmed `tags: []` afterward); `The Shawshank Redemption` had the tag instead and is what ran | Clean: 32.5 GB → 1.6 GB, correctly stepped down to 720p (long runtime), single English audio+subtitle track, source gone, Radarr correctly unmonitored, `lab doctor` independently agreed. Closes Milestone 3's gate on the mechanism itself. Also found, unrelated to this run: a pre-existing duplicate of Shawshank (a loose 2020 file from the original Plex migration) already sitting in `archive-movies` — flagged as a future cleanup, not a video-archiver bug | Claude |
 | 2026-09-09 | — | Jason asked to organize `archive-movies`' loose (un-foldered) files so Radarr could adopt them; clarified first that `archive-movies` is deliberately outside Radarr's tracking by design (that's the point of archiving — Radarr forgets a file once archived) — Jason confirmed: organize into folders only, no Radarr root-folder change. This closes the Shawshank-duplicate follow-up flagged in the row above, at library scale | 595 loose files found at the `archive-movies` root (leftover un-foldered portion of the original 2020 Plex migration). 588 moved straight into matching `Title (Year)/` folders with no ambiguity. 7 collided with an already-foldered copy of the same title — checked each with real evidence (file size, then `ffprobe` codec/resolution/duration where sizes differed) before touching anything: 4 resolved as clear duplicates (identical size, or same duration at a lower bitrate) and the redundant copy deleted; 3 (`Monkey Man`, `Taken`, `Cats`) showed real duration/resolution mismatches against their existing foldered copy (up to 23 minutes different) that evidence alone couldn't resolve — Jason made the call to arbitrarily keep the loose copy in each case, so the old foldered file was discarded and the loose one moved into its place. Every deletion/move was written to a manifest before executing (`archive-movies-foldering-manifest.json`, `archive-movies-loose-duplicate-deletion-manifest.json`, `archive-movies-keep-loose-manifest.json`, all in the tool's `logs/` dir on TrueNAS, not committed to git — same as every other run log). Final state: 0 loose files, 726 properly-foldered movies, Jellyfin library scan triggered to sync | Claude |
+| 2026-09-10 | 4 | Added `scripts/backup/video-archiver.sh` (config.json, .env, run-scheduled.sh pulled from TrueNAS to the Mac, matching the NUT backup's exact pattern), wired into `lab backup all`, the new weekly launchd job, and `check_backup_age` in Doctor. First real run exposed a genuine bug: `chmod 600 "$BACKUP_DIR"/*` doesn't match dotfiles in bash, so `.env` (the one file that actually holds API keys) landed world-readable (644) | Fixed the glob and the already-exposed copy immediately; verified a clean re-run shows all three files correctly at 600. **Milestone 4 complete — project Complete** | Claude |
 
 ## References
 

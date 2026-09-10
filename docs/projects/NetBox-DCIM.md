@@ -217,23 +217,20 @@ same way a hand-maintained one does.
     already flagged separately in `05-Backups.md`'s Aster section as an
     open backup-workflow follow-up. Left untouched — fixing it isn't part
     of this project's scope.
-  - [ ] **Blocked on Jason, confirmed 2026-09-01.** Investigated editing
-    the live DSM task ("HomeLab Proxmox backup pull", task ID 6 on the
-    Backup Synology) directly: confirmed via `synoschedtask --get id=6`
-    that its inline command body has the identical pre-fix filter list
-    (through LXC 109, missing 110/111) as the repo script had before this
-    session's edit — same fix needed, live. But `synoschedtask` only
-    supports `--get`/`--del`/`--run`/`--reset-status`/`--sync`, no `--set`;
-    no `synowebapi` binary exists on this DSM version/package set to reach
-    the API route instead; and the `gowest-backup` automation account,
-    while in the DSM `administrators` group, only has a **password-gated**
-    sudo grant (confirmed: `sudo -n whoami` fails with "a password is
-    required") — the only pre-existing passwordless sudo grant on this
-    account is narrowly scoped to `/sbin/shutdown -h now` from the UPS
-    project. I don't have and shouldn't ask for that password. This is a
-    real, investigated blocker, not a skipped step — needs Jason directly
-    (DSM UI, or supplying the mechanism used for the earlier LXC 109
-    edit referenced in `05-Backups.md`).
+  - [x] **Superseded 2026-09-10 — the blocker no longer applies.** This item
+    was about editing the live DSM task ("HomeLab Proxmox backup pull",
+    task ID 6) on the Backup Synology to add LXC 111 to its filter, and was
+    genuinely blocked (no `synoschedtask --set`, no `synowebapi` binary, no
+    passwordless sudo for that edit — see the investigation this replaces,
+    preserved in git history). That whole mechanism is now moot: the
+    Backup Synology was decommissioned (`Backup-Synology-Decommission.md`,
+    powered off 2026-09-09) and its pull role fully replaced by the
+    TrueNAS backup hub (`Backup-Architecture-Redesign.md`), whose
+    Proxmox-leg VMID scope already includes 111 by design — confirmed live
+    in that project's Milestone 2 evidence (`rsync --list-only` listed
+    LXC 111's archive already present). No DSM edit is needed or possible
+    any more; the underlying gap this item existed to close is closed by a
+    different mechanism entirely.
   - [x] **Done 2026-09-01.** Jason clicked "Add System" in the Beszel hub
     UI and supplied the generated token. Installed via the official
     `get.beszel.dev` installer (downloaded and sanity-checked before
