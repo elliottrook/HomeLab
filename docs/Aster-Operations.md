@@ -134,6 +134,11 @@ discrete GPU. If VM 105 is confirmed stopped and `04:00.0` is unbound, stop
 `/sys/bus/pci/drivers/xe/bind`, then start the service. Do not rebind the device
 while VM 105 is running.
 
+After a Proxmox or kernel update, run the read-only
+`scripts/check-aster-b60.sh` command from the Proxmox host before treating
+Aster as ready. It verifies the `xe` binding, stopped rollback VM, both Aster
+services, and BMG G21 Vulkan visibility; it makes no changes.
+
 ## Restart and rollback
 
 Restart the lightweight harness without reloading the model:
