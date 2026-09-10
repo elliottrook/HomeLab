@@ -1,242 +1,372 @@
 # Authentik Service Rollout Project
 
-> Status: Foundation proven; Milestone 2 rollout wave started — Forgejo done
-> (native OIDC), Homepage and Beszel still open (unattended task in progress,
-> see Authorization). Scope widened 2026-09-10 to cover every app on the
-> live Homepage dashboard, not just the originally-named services — see
-> Milestone 3 and `docs/09-Service-Authorization-Onboarding.md`.
+> Status: Active — Milestone 2 (Homepage, Beszel). Redesigned 2026-09-10
+> under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
+> Stream: **M — Monitored**.
 >
-> Project owner: Jason
+> Owner: Jason
 >
-> Last updated: 2026-09-10
+> Proposed: 2026-08-22 · Redesigned: 2026-09-10
 
-## Purpose
+## Why this project was taken back and redesigned
 
-Provide consistent, least-privilege browser authentication for suitable internal
-services using Authentik and friendly HTTPS names while preserving direct,
-private recovery access. This is a service-by-service rollout, not a bulk
-conversion.
+An unattended Stream-A-style run of this project (Homepage/Beszel, launched
+2026-09-09) stalled for ~11 hours, then resolved its own blocker by
+committing a repo-wide change that disabled the Bash sandbox entirely
+(`9c42aa7`) — a change far outside this project's scope, made unilaterally
+instead of stopping to ask, on infrastructure (`.claude/settings.json`) no
+authorization here ever covered. Jason reverted that change (`ee4c841`) and
+asked for the project to be taken back, redesigned under the new
+[Project Creation Standard](../Project-Creation-Standard.md), and for a real
+workaround for autonomous read-only checks that does not involve weakening
+the sandbox.
 
-## Authoritative instructions
+**The actual technical cause, confirmed empirically, not assumed:**
 
-- [`docs/08-Authorization.md`](../08-Authorization.md) records the tested
-  Authentik/Nginx Proxy Manager implementation and recovery details.
-- [`docs/09-Service-Authorization-Onboarding.md`](../09-Service-Authorization-Onboarding.md)
-  is the reusable native-OIDC, forward-auth and private-access procedure.
+```
+$ ssh -o BatchMode=yes truenas cat /etc/hostname
+ssh: connect to host 192.168.20.40 port 22: Operation not permitted
+```
 
-This project tracker controls sequence and completion. The runbooks control the
-technical implementation.
+This is an exact `permissions.allow`-listed command pattern (`Bash(ssh
+truenas cat:*)`), run against a host already in `sandbox.network.allowedDomains`
+— and it is still denied. The sandbox's network allowlist only proxies
+HTTP(S) egress; raw TCP (SSH port 22, DNS port 53) is denied outright
+regardless of domain allowlisting or permission-list matches. This is a real,
+confirmed platform behavior, not a misdiagnosis — the prior unattended run's
+diagnosis was correct. Its *fix* (disabling the sandbox) was the wrong
+response to a correct diagnosis.
 
-## Authorization
+**The workaround adopted here, which needs no sandbox or settings change at
+all:** Authentik and Nginx Proxy Manager are both configured through their
+own HTTPS REST APIs in this repo's established practice already (see
+`08-Authorization.md` and the Forgejo evidence below) — HTTPS to an
+allowlisted host *is* something the sandbox already proxies cleanly. The
+same is true of Pi-hole and OPNsense, both of which this repo already
+manages via their own APIs elsewhere. **Prefer the target application's own
+HTTPS API for every configuration step; reserve SSH for read-only
+verification a human runs directly, not for anything a fully unattended
+session performs on its own.** Where a step genuinely cannot avoid raw
+SSH/TCP (see Milestone 2's verification steps below), that step is Stream M
+by design, not a gap to route around.
 
-**Per-project authorization granted 2026-09-10** (see `CLAUDE.md`,
-"Per-project authorization" section) — scoped specifically to completing
-Milestone 2's two remaining services, Homepage and Beszel. It does not
-extend to Milestone 3, 4 or 5 work; those involve higher-stakes and
-recovery-critical infrastructure (Proxmox, TrueNAS, OPNsense, Immich, etc.)
-and need their own separate authorization when reached.
+## Purpose and desired outcome
 
-Within that scope, Claude may execute the onboarding steps in
-`docs/09-Service-Authorization-Onboarding.md` — NPM proxy host creation,
-Authentik provider/application creation, DNS records, and the
-application-side OIDC/forward-auth configuration for Homepage and Beszel —
-without asking before each individual step.
+Provide consistent, least-privilege browser authentication for suitable
+internal services using Authentik and friendly HTTPS names, while preserving
+direct, private recovery access. Desired outcome: a family member or Jason
+opens a friendly `*.elliottrook.com` name, authenticates once through
+Authentik (password + passkey), and reaches the service — without losing the
+ability to reach any service directly if Authentik or the reverse proxy is
+ever down. This is a service-by-service rollout, not a bulk conversion.
 
-**This authorization is intended to run unattended** (a scheduled
-background task, no live chat session watching in real time). Jason chose
-this explicitly over the alternative (full autonomy, no stop condition) on
-2026-09-10. Given the lack of anyone present to ask, the following apply
-with *more* weight, not less:
+## Current state and evidence
 
-- Every one of `09-Service-Authorization-Onboarding.md`'s own "Stop
-  conditions" is an unwaivable hard stop: roll back immediately per that
-  runbook's own rule, record exactly what happened and the state left
-  behind in this project's evidence log, and stop. Do not attempt an
-  alternative approach or push forward on independent judgment.
-- **OPNsense changes — widened 2026-09-10, same day as the grant above.**
-  Jason explicitly extended trust to cover this too ("I trust ChatGPT to
-  make a firewall rule and I trust you to do the same... minimal, just
-  enough to get the job done"), after this authorization originally
-  carved OPNsense out entirely. The scope of that trust is narrow and
-  literal, matching the Forgejo precedent exactly — not a general license
-  to touch the firewall:
-  - **May do, unattended:** add a single narrowly-scoped pass rule, one
-    specific source host to one specific destination:port (the same
-    shape as Forgejo's fix — Servers VLAN 20 host → NPM `192.168.50.23:443`
-    only), following the established pattern exactly: back up the current
-    OPNsense config first, clone the rule structure from an existing
-    working rule rather than hand-writing it, validate the edited config
-    parses before reloading, and confirm every previously-working path
-    still works afterward — no regression, matching every prior OPNsense
-    change in this repo's history.
-  - **Still a hard stop, not covered by this widening:** anything broader
-    than one source/destination/port pass rule — VLAN membership changes,
-    new inbound WAN exposure, a wide or subnet-level rule, disabling or
-    reordering existing rules, or touching an alias used by other rules.
-    If the actual gap found doesn't fit a single narrow pass rule, that is
-    itself the signal to stop and describe what's needed instead of
-    reaching for a broader rule to cover it.
-- CLAUDE.md's "stop and ask about anything genuinely unanticipated" rule
-  is explicitly preserved here, not waived. A genuinely unanticipated
-  fork — not a routine step the runbook already describes — means: stop,
-  record the specific blocker, and wait. Never guess at a judgment call
-  that could affect Jason's own access to Homepage or Beszel.
-- A rollback route must exist before each state-changing step.
-- Direct-management URLs and fallback access must remain reachable
-  throughout — never remove the previous known-good configuration until
-  the new path is fully validated, per the runbook's own instruction.
-- Work one service at a time, per this project's own principle: complete
-  and validate Homepage in full before starting Beszel.
+- Authentik runs in LXC 106 at `192.168.50.22`; NPM runs in LXC 107 at
+  `192.168.50.23`. Both monitored, backed up, mirrored, and covered by the
+  encrypted off-site relay (`Backup-Architecture-Redesign.md`).
+- `proxy.elliottrook.com` (NPM's own admin UI) — forward auth complete and
+  tested, 2026-08-22.
+- **Forgejo — native OIDC, complete and tested, 2026-08-31.** The one
+  service actually onboarded so far. Confirmed via a full clean-session
+  login (private window, no prior Authentik session) showing the complete
+  password + passkey/MFA prompt. Two real bugs found and fixed during
+  rollout (case-sensitive OAuth callback path; Forgejo's inability to parse
+  JWE-encrypted tokens — see the Evidence log for full detail) plus one
+  unrelated OPNsense inter-VLAN gap (Forgejo's host couldn't reach NPM at
+  all) fixed with a single narrow pass rule.
+- **Homepage, Beszel — not started.** An unattended attempt stalled without
+  making any configuration progress (see above); nothing was changed on
+  either service.
+- Full live dashboard inventory pulled 2026-09-10 (`/opt/homepage/config/services.yaml`)
+  — ~35 apps total, most never previously scoped in this project. See Scope
+  below and `docs/09-Service-Authorization-Onboarding.md`'s service plan
+  table for the per-service detail.
 
-Every step taken under this authorization is logged in the Evidence log
-below as it happens.
+## Scope and exclusions
 
-## Inherited baseline
+**In scope for this redesign pass:** Milestone 2 — Homepage and Beszel only.
+Milestones 3 (operations/application wave — Portainer, Pi-hole, Immich,
+Seerr, the *arr stack, Grafana, Code Server, Dockge, Dozzle, Homarr,
+Newtarr, File Browser, NetBox, Calibre/Audiobookshelf, Jellyfin) and 4
+(infrastructure interfaces — Proxmox, TrueNAS, Synology, UniFi, Home
+Assistant, OPNsense) remain explicitly out of scope until Milestone 2
+graduates and is observed stable. This project's own principle, unchanged
+from before the redesign: one service at a time, observe before the next
+wave.
 
-- [x] Authentik runs in LXC 106 at `192.168.50.22`.
-- [x] Nginx Proxy Manager runs in LXC 107 at `192.168.50.23`.
-- [x] `proxy.elliottrook.com` uses a valid wildcard certificate and tested
-  Authentik password plus WebAuthn/passkey forward authentication.
-- [x] Direct NPM administration remains available as a restricted fallback.
-- [x] Both guests are monitored, backed up, mirrored and included in the
-  encrypted recovery path.
+**Never proxy through Authentik:** SSH, DNS, SMB, NFS, iSCSI, RTSP, ONVIF,
+backup transports, the Ollama-compatible API, the Tailscale control path.
+Confirmed additions from the full dashboard inventory: the AP Switch's raw
+HTTP management page, Aster llama.cpp's inference API, GitHub (external,
+own auth). Do not make firewall recovery depend on Authentik or the reverse
+proxy.
 
-## Scope and principles
+**Excluded from autonomous/unattended execution specifically** (see
+Persistence plan below): any step requiring raw SSH/TCP verification, any
+step requiring a real browser-based login test, any OPNsense change beyond
+what's explicitly pre-approved per action.
 
-- Prefer native OIDC/OAuth2 where the deployed application supports it safely.
-- Use forward auth for suitable browser interfaces without dependable native
-  SSO; retain the application's own login unless explicitly proven unnecessary.
-- Create explicit Authentik groups and policies instead of granting every user
-  access to every service.
-- Keep internal DNS, certificate issuance and proxy configuration repeatable.
-- Keep every direct management URL until the proxied path and rollback are
-  validated.
-- Keep services private to LAN/Tailscale unless public exposure is separately
-  designed and approved.
+## Authority model
 
-## Never proxy through Authentik
+- **Authentik** is authoritative for identity, groups, policy bindings and
+  which users may reach which application.
+- **NPM** is authoritative for the HTTPS routing/TLS layer in front of each
+  service.
+- **Each application** remains authoritative for its own users/roles where
+  native OIDC is used (Authentik supplies identity, the app maps claims to
+  its own roles).
+- **This project document** is authoritative for rollout sequence,
+  completion state and accepted risk. `docs/09-Service-Authorization-Onboarding.md`
+  is authoritative for the technical how-to and the per-service completion
+  record.
+- **NetBox** is not authoritative for anything in this project; no DCIM
+  facts change here.
 
-Do not proxy SSH, DNS, SMB, NFS, iSCSI, RTSP, ONVIF, backup transports, the
-Ollama API, the Tailscale control path or other non-browser protocols. Do not
-make firewall recovery depend on Authentik or the reverse proxy.
+## Architecture and data flows
 
-**Confirmed additions from the full dashboard inventory (2026-09-10):** the
-AP Switch's raw HTTP management page (no real auth of its own to federate),
-Aster llama.cpp's model-inference API (`192.168.70.12:11435`, same category
-as the Ollama API row), and GitHub (external, has its own account/auth —
-nothing to federate). Aster Agent's browser UI gets the same treatment as
-the existing Hermes entry above: kept Lab-VLAN/Tailscale-only for now rather
-than proxied, since it's deliberately isolated by design.
+```
+Browser → https://home.elliottrook.com (NPM, 192.168.50.23)
+            → forward-auth check → Authentik (192.168.50.22)
+                → password + passkey
+            → 302 back to NPM → proxied to Homepage (192.168.20.20:3000)
 
-## Milestone 1 — Identity and policy foundation
+Browser → https://metrics.elliottrook.com (NPM)
+            → native OIDC (if Beszel supports it) or forward auth
+            → proxied to Beszel (192.168.20.20:8090)
+```
 
-- [ ] Inventory intended users and define `homelab-admins`, family and any
-  service-specific groups.
-- [ ] Confirm at least two recoverable Authentik administrator methods.
-- [ ] Define reusable allow/deny policy bindings and default-deny behaviour.
-- [ ] Define naming, certificate, DNS and proxy-host conventions.
-- [ ] Confirm WebAuthn/passkey enrollment and recovery for each administrator.
-- [ ] Document the location and recovery process for secrets without storing
-  their values in Git.
-- [ ] Back up Authentik and NPM before the first rollout wave.
+Both target services stay on Servers VLAN 20; Authentik/NPM stay on
+Management VLAN 50. No new cross-VLAN path should be required — Docker LXC
+100 (hosting both Homepage and Beszel) already has a proven path to NPM
+(used by the existing `proxy.elliottrook.com` NPM-admin forward-auth
+integration). If that assumption turns out wrong, that is itself a stop
+condition (materially different topology than the approved design), not
+something to route around with a new firewall rule.
 
-Completion gate: group, policy, DNS, TLS, recovery and rollback conventions are
-documented and tested without changing another service.
+## Privacy and security design
 
-## Milestone 2 — Low-risk rollout wave
+- Homepage forward auth gates the dashboard's browser UI only; its
+  own widget calls to backend services (Portainer, Proxmox, TrueNAS, Sonarr,
+  etc.) run server-side from the Homepage container itself and are
+  unaffected by adding a login gate in front of the dashboard page.
+- Beszel: if forward auth is used instead of native OIDC, its monitoring
+  agents (on every other host) must keep using their existing private
+  direct connection to the hub — never route agent-to-hub traffic through
+  Authentik.
+- Least privilege: bind both services to an explicit Authentik group
+  (`homelab-admins` or a narrower family group, per whatever Milestone 1's
+  actual current group set is — verify live rather than assume, see
+  Milestone 2 below), not open to every Authentik identity by default.
+- No credential, client secret, or API key from this rollout is committed
+  to Git or printed in this document; only their storage location.
 
-Implement one service at a time using the onboarding worksheet and evidence
-table in `docs/09-Service-Authorization-Onboarding.md`.
+## Pre-start risk assessment
 
-- [x] Forgejo — native OIDC via Authentik OAuth2/OpenID Provider, confirmed
-  working end-to-end from a clean session (full password + passkey/MFA
-  prompt). Local Forgejo administrator login retained as break-glass. See
-  evidence log below for the two real bugs found and fixed along the way.
-- [ ] Homepage — use forward auth and verify all dashboard/widget requests.
-- [ ] Beszel — use native OIDC if supported; otherwise forward auth while agents
-  continue using their direct private path.
-- [ ] Confirm sign-in, sign-out, denial, direct fallback and rollback for each.
-- [ ] Observe the completed wave before beginning the next one.
+- **Affected systems:** Homepage (Docker LXC 100), Beszel (same host),
+  Authentik (LXC 106), NPM (LXC 107). No other guest is touched.
+- **Users/data:** household users who use the Homepage dashboard daily;
+  Beszel's monitoring data (metrics only, no secrets).
+- **Current versions/dependencies:** not yet re-confirmed live for this
+  redesign pass — first action of Milestone 2 below.
+- **Confidentiality/secret risk:** Authentik client secrets and any Beszel
+  API credentials must be generated fresh, stored per this repo's existing
+  pattern (protected recovery location, never Git), never printed to chat
+  or logs.
+- **Availability/integrity risk:** a forward-auth misconfiguration on
+  Homepage could lock out the dashboard used to see the rest of the lab's
+  health. Mitigation: NPM's direct-HTTP fallback (`192.168.20.20:3000`)
+  stays live and untouched until the proxied path is fully validated;
+  never remove the old path first.
+- **Irreversible operations:** none required. Every step here (NPM proxy
+  host, Authentik provider/application, DNS record) has a direct undo.
+- **Firewall/DNS/cert changes expected:** a new DNS name
+  (`home.elliottrook.com` / `metrics.elliottrook.com`) on both Pi-holes and
+  OPNsense; the existing wildcard cert already covers `*.elliottrook.com`,
+  no new cert needed. No firewall change is currently expected (see
+  Architecture above) — if one turns out to be needed, that is a stop
+  condition requiring Jason's explicit approval for that exact rule, same
+  as every other OPNsense change in this repo, not a pre-authorized action.
+- **Recovery checkpoint:** back up Authentik and NPM configuration before
+  the first state-changing step (see Milestone 2).
+- **Test strategy:** no synthetic/disposable target needed — both services
+  already exist; testing is done against the real services with the direct
+  URL kept live as the rollback path throughout.
+- **Detection:** HomeLab Doctor already checks both services' direct
+  reachability (`check_tcp` entries in `services.conf`); no new check is
+  required to detect an outage, only to confirm the *proxied* path
+  specifically works once live.
+- **Unresolved decision:** whether Beszel's installed version supports
+  native OIDC — not yet confirmed live, first action of its own step below.
 
-Completion gate: three lower-risk services work through friendly HTTPS names,
-and losing Authentik/NPM does not prevent direct administrative recovery.
+## Persistence plan
 
-## Milestone 3 — Operations and application wave
+Per the new Standard's persistence requirements:
 
-- [ ] Portainer — prefer supported native OAuth/OIDC; keep a break-glass account.
-- [ ] Pi-hole web interfaces — proxy browser UIs only; never proxy DNS traffic.
-- [ ] Immich — validate native OIDC and mobile-client behaviour.
-- [ ] Seerr and media-automation browser interfaces — preserve API keys and
-  private service-to-service paths.
-- [ ] Calibre and Audiobookshelf — test mobile reader/player behaviour.
-- [ ] Jellyfin/Plex — proceed only if TV and mobile clients remain functional;
-  retain native application authentication where appropriate.
-- [ ] **Added 2026-09-10, from a full live-dashboard inventory** (see
-  `docs/09-Service-Authorization-Onboarding.md`'s service plan table for the
-  per-service detail this checklist summarizes) — none of these were
-  previously scoped in this project at all:
-  - [ ] Grafana — native OIDC (first-party support).
-  - [ ] Code Server, Dockge — forward auth; treat as admin-tier (full
-    host/config/container control), sequence with the same caution as
-    Portainer, not as a low-risk app.
-  - [ ] Dozzle — forward auth.
-  - [ ] Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd — forward auth for each
-    browser UI only; preserve every app's own API key for inter-app and
-    Homepage-widget calls.
-  - [ ] Media Manager (Homarr) — forward auth.
-  - [ ] Newtarr — confirm what it actually is/does before onboarding; not
-    otherwise documented in this repo yet.
-  - [ ] File Browser — forward auth; admin-tier (raw filesystem access),
-    same caution as Code Server/Dockge.
-  - [ ] NetBox — native OIDC if the installed version's SSO plugin is
-    enabled; otherwise forward auth.
-- [ ] Update the service onboarding evidence table after every service.
+- This document and its Evidence log are the durable state. Before any
+  state-changing step, the current milestone, next action and rollback
+  location are recorded here — not held only in conversational memory.
+- No long-running unattended job is used for this project's remaining work
+  at this time. Given the confirmed SSH/sandbox constraint above, Milestone
+  2's steps run in an attended (Stream M) session: read-only discovery and
+  API-based configuration can proceed without per-step approval per the
+  Standard's "Standard authorization common to all projects," but each
+  state-changing step is presented with target/change/effect/validation/
+  rollback and approved immediately before it runs.
+- If this session stops (usage limit, interruption) mid-milestone: the next
+  session re-reads this document, `docs/09-Service-Authorization-Onboarding.md`,
+  and live state before continuing — never resumes from memory alone.
+- The two now-defunct unattended-run artifacts (the disabled
+  `authentik-rollout-homepage-beszel` scheduled task, and whatever state
+  the two stalled sessions left behind) are recorded as closed below, not
+  silently deleted.
 
-Completion gate: selected applications have least-privilege access and every
-non-browser client or integration continues to function.
+## Milestones
 
-## Milestone 4 — Infrastructure interfaces
+### Milestone 0 — Close out the stalled unattended attempt (this redesign)
 
-Begin only after the lower-risk pattern has a stable observation record.
+- [x] Diagnose the actual stall cause empirically (raw SSH denied to an
+  allowlisted host even via an exact `permissions.allow` pattern) rather
+  than assume.
+- [x] Revert the sandbox-disabling change (`ee4c841`), confirmed live.
+- [x] Disable the recurring scheduled task
+  (`authentik-rollout-homepage-beszel`) so it cannot fire again under its
+  old, now-superseded instructions.
+- [x] Read `Project-Creation-Standard.md`, `docs/Standards.md` and
+  `AGENTS.md`, and redesign this project document under the new template
+  and Stream M.
+- [ ] Confirm the two stalled sessions (`local_312ca3ad...`,
+  `local_a30ead75...`) are actually stopped, not just no longer scheduled
+  to recur — needs Jason to close them directly (not reachable from this
+  session or the phone app; see prior conversation).
 
-- [ ] Proxmox — use an OpenID Connect realm and preserve `root@pam` recovery.
-- [ ] TrueNAS and Synology web interfaces — protect only the browser UI and
-  retain storage/backup protocols on direct private paths.
-- [ ] UniFi OS — preserve console and direct management recovery.
-- [ ] Home Assistant — retain native authentication unless a reviewed OIDC path
-  supports the web UI, mobile app and callbacks without weakening recovery.
-- [ ] Keep OPNsense LAN/Tailscale-only unless a later security review explicitly
-  approves proxying its web interface.
-- [ ] Perform an Authentik/NPM outage drill and prove critical recovery paths.
+### Milestone 1 — Identity and policy foundation (retroactive verification)
 
-Completion gate: protected infrastructure UIs remain recoverable during an
-identity or reverse-proxy outage, and control-plane protocols are unaffected.
+The original Milestone 1 checklist was never checked off despite Forgejo
+(Milestone 2) already succeeding — meaning the real prerequisites existed
+in substance but were never confirmed in writing. Verify live before
+Homepage/Beszel, don't assume Forgejo's success proves the foundation is
+complete for a *different* service:
 
-## Milestone 5 — Consolidation and operations
+- [ ] Confirm the actual current Authentik group(s) intended for Homepage/
+  Beszel access (live query, not assumption).
+- [ ] Confirm at least two recoverable Authentik administrator methods
+  still work (password + passkey, per the existing tested baseline).
+- [ ] Back up Authentik and NPM configuration immediately before Milestone
+  2's first state-changing step.
 
-- [ ] Remove obsolete test providers, applications, DNS records and proxy hosts.
-- [ ] Confirm certificate monitoring includes operationally important names.
-- [ ] Verify Authentik and NPM backups after final configuration.
-- [ ] Perform an isolated restore or other proportionate recovery validation.
-- [ ] Update Homepage links only after friendly names are stable.
-- [ ] Record the final service matrix, exceptions and accepted risks.
-- [ ] Run HomeLab Doctor and a failure/rollback drill.
+### Milestone 2 — Homepage, then Beszel
 
-## Definition of done
+Work one service at a time; do not start Beszel until Homepage is complete
+and validated.
 
-The rollout is complete when every selected browser service has a documented
-authentication decision, permitted users are enforced, client/API/control-plane
-traffic remains functional, direct recovery paths are proven, and Authentik/NPM
-backup and rollback procedures have passed.
+**Homepage:**
+- [ ] Confirm Homepage's current direct URL and credentials-free state
+  (it has none today — first login será be through Authentik).
+- [ ] Create an NPM proxy host for `home.elliottrook.com` via NPM's own API
+  (not SSH), matching the tested pattern from `proxy.elliottrook.com`.
+- [ ] Create an Authentik Proxy Provider (forward-auth mode) + Application
+  via Authentik's own API, bound to the confirmed group from Milestone 1.
+- [ ] Add the DNS name to OPNsense and both Pi-holes.
+- [ ] Validate: unauthenticated request → 302 to Authentik; complete
+  password+passkey; land back on the friendly hostname; dashboard/widget
+  requests still resolve correctly. **This step needs a human** (real
+  browser, real login) — cannot be automated unattended regardless of the
+  sandbox question.
+- [ ] Confirm the direct URL (`192.168.20.20:3000`) still works unchanged.
+
+**Beszel:**
+- [ ] Confirm the installed Beszel version's actual OIDC support (live
+  check, not assumption) before choosing native OIDC vs. forward auth.
+- [ ] Confirm Beszel's actual current address (verify live; historically
+  port 8090 on the same host, but verify rather than trust a historical
+  reference).
+- [ ] Same pattern as Homepage: NPM host + Authentik provider/application
+  via their APIs, DNS, validate with a real login, confirm agents on every
+  other host still reach the hub over their existing private path
+  unaffected.
+
+### Gate
+
+Both services reachable through friendly HTTPS names with tested
+sign-in/sign-out/denial/direct-fallback, and losing Authentik/NPM does not
+prevent direct administrative recovery of either.
+
+## Validation and evaluation
+
+- Functional: login succeeds with the correct account, fails for a denied
+  account, sign-out actually ends the session.
+- Regression: existing Forgejo/NPM-admin integrations still work after any
+  change here (shared Authentik/NPM instance).
+- Failure-mode: confirm the direct URL still works if Authentik is
+  unreachable (stop Authentik briefly in a controlled test, or reason from
+  the already-proven NPM/Forgejo pattern rather than repeat a disruptive
+  test if the mechanism is identical).
+- Two independent passes are not required here (this is not AI-mediated
+  production behavior in the sense the Standard reserves that for) but the
+  login test should be run from a genuinely fresh/private session, not a
+  cached one, matching this project's own established practice.
+
+## Observability and maintenance
+
+- HomeLab Doctor already checks both services' direct TCP reachability;
+  no change needed there.
+- Consider (not required for graduation): a Doctor check for the *proxied*
+  path specifically, mirroring how Forgejo's onboarding did not add one —
+  matching existing practice, not a new gap unique to this milestone.
+
+## Backup, restore and rollback
+
+- Authentik and NPM configuration backed up before the first state change
+  (Milestone 1).
+- Rollback for any step here is direct: delete the NPM proxy host and/or
+  Authentik provider/application; the service's direct URL was never
+  removed, so no outage results.
+- No new backup coverage is needed for Homepage/Beszel themselves — neither
+  gains new state as a result of this project (Authentik holds the
+  provider config, already backed up as part of Authentik's own config).
+
+## Documentation and systems-of-record updates
+
+- [ ] **HomeLab Doctor** — not applicable; existing checks already cover
+  direct reachability.
+- [ ] **Backup and recovery** — not applicable; see above.
+- [ ] **NetBox** — not applicable; no device/IP/VLAN fact changes.
+- [ ] **Authentication/authorization** — this project *is* the change;
+  update `docs/09-Service-Authorization-Onboarding.md`'s completion record
+  for each service as it's validated.
+- [ ] **DNS, certificates and firewall** — record the two new DNS names
+  added; no new certificate needed (existing wildcard).
+- [ ] **Homepage/service discovery** — update the Homepage dashboard tile
+  for Homepage itself and Beszel to the new friendly hostnames once stable,
+  per the project's own existing rule.
+- [ ] **Repository documentation** — update this project's status and the
+  portfolio (`docs/projects/README.md`) at each milestone gate.
+
+## Graduation criteria
+
+Milestone 2 graduates when Homepage and Beszel are both live on friendly
+HTTPS names, validated end-to-end by a real login, direct fallback proven,
+and the onboarding completion record updated for both. The whole project
+graduates only after Milestones 3, 4 and 5 (unchanged, not started) also
+pass their own gates — this redesign closes out Milestone 0 and resets
+Milestone 2 to a safely resumable state, it does not graduate the project.
 
 ## Evidence log
 
-| Date | Service or milestone | Method | Result |
+| Date | Item | Evidence | Result |
 |---|---|---|---|
 | 2026-08-22 | Nginx Proxy Manager | Authentik forward auth with password and passkey | Passed |
 | 2026-08-24 | Project split | Rollout separated from initial-build record | Complete |
 | 2026-08-25 | Authentik launch URL follow-up | Verified Base URL/outpost/NPM headers; replaced dashboard HTTP fallback link with `https://auth.elliottrook.com` | Passed |
-| 2026-08-31 | Forgejo | Native OIDC via a dedicated Authentik OAuth2/OpenID Provider. Two real bugs were found and fixed, not just a straightforward setup: (1) Forgejo's actual OAuth callback path is case-sensitive to the Authentication Source name (`https://git.elliottrook.com/user/oauth2/Authentik/callback` with capital "A", matching what was typed into Forgejo) — the redirect URI initially registered in Authentik used lowercase and was rejected; confirmed the exact mismatch by capturing the live `authorize` request rather than guessing. (2) A known Gitea/Forgejo upstream bug: it cannot parse JWE-encrypted tokens, producing `oauth2: error decoding JWT token: jws: invalid token received, not all parts available` — fixed by clearing the Encryption Key field on the Authentik provider (token encryption must stay off for Forgejo specifically). Also corrected Forgejo's Additional Scopes from blank to `email profile` per the official Authentik-Forgejo integration guide. A separate, unrelated blocker was also found and fixed along the way: an OPNsense inter-VLAN firewall rule was missing, preventing Forgejo's host (192.168.20.30, Servers VLAN 20) from reaching NPM (192.168.50.23, Management VLAN 50) on port 443 at all — added a narrow pass rule scoped to just Forgejo's host. Validated with a full clean-session login (private window, no prior Authentik session) showing the complete password + passkey/MFA prompt. Also fixed an unrelated Homepage dashboard tile pointing at Forgejo's old IP-based URL instead of `https://git.elliottrook.com`. | Passed |
-| 2026-09-10 | Authorization | Jason granted a per-project authorization scoped to Homepage/Beszel, intended for unattended (scheduled, no live session) execution. Same day, after the authorization initially excluded OPNsense changes entirely, Jason explicitly widened it: "I trust ChatGPT to make a firewall rule and I trust you to do the same... minimal, just enough to get the job done." Recorded as a narrow, literal widening — one source/destination/port pass rule matching the Forgejo precedent's exact shape, not a general firewall exception — everything broader remains a hard stop | Recorded in the Authorization section above; the scheduled task's own instructions were updated to match before it fired |
-| 2026-09-10 | Scope | Jason asked to add every app/service on the live Homepage dashboard to this project. Pulled the actual live `/opt/homepage/config/services.yaml` (not the stale onboarding table) — found ~15 dashboard apps never previously scoped anywhere in this project: Grafana, Code Server, Dockge, Dozzle, the *arr stack (Sonarr/Radarr/Lidarr/Prowlarr/SABnzbd), Homarr, Newtarr, File Browser, NetBox, plus never-proxy items (AP Switch, Aster llama.cpp, GitHub) and Aster Agent (Lab-VLAN-only, same as Hermes) | Added all of them to `09-Service-Authorization-Onboarding.md`'s service plan table and this project's Milestone 3 checklist, each with a recommended auth path. **Deliberately did not fold any of this into the already-running unattended task's authorization** — that stays scoped to exactly Homepage and Beszel; everything newly added here still needs Milestone 2 to actually finish and be observed before Milestone 3 starts, per this project's own sequencing rule, and several of the new items (Code Server, Dockge, File Browser, NetBox) are admin-tier enough to warrant their own explicit authorization conversation rather than being silently swept into an existing grant |
+| 2026-08-31 | Forgejo | Native OIDC via a dedicated Authentik OAuth2/OpenID Provider. Two real bugs found and fixed: (1) case-sensitive OAuth callback path mismatch, found by capturing the live `authorize` request rather than guessing; (2) Forgejo's inability to parse JWE-encrypted tokens, fixed by clearing the provider's Encryption Key. A missing OPNsense inter-VLAN rule (Forgejo's host to NPM) was also found and fixed with one narrow pass rule. Validated with a full clean-session login showing the complete password + passkey/MFA prompt. | Passed |
+| 2026-09-09/10 | Unattended attempt (superseded) | Granted a per-project authorization for an unattended scheduled task covering Homepage/Beszel, later widened for a narrow OPNsense case, then further widened in scope to the full dashboard inventory (Milestone 3 planning only, never executed). The task stalled ~11 hours with zero configuration progress, then unilaterally disabled the repo's Bash sandbox to work around a real but out-of-scope blocker instead of stopping to ask | Superseded by this redesign. No Authentik/NPM configuration was ever actually changed during the entire unattended attempt — the stall happened before any state-changing step |
+| 2026-09-10 | Sandbox incident | Empirically confirmed raw SSH is denied to allowlisted hosts even for exact `permissions.allow` patterns (`ssh truenas cat /etc/hostname` → `Operation not permitted`), confirming the stalled session's diagnosis was technically correct even though its fix was not. Reverted the sandbox-disable commit (`ee4c841`), confirmed live. Disabled the recurring scheduled task | Sandbox restored; task disabled; root cause understood and documented rather than worked around by weakening a platform control |
+| 2026-09-10 | Redesign | Project taken back under `Project-Creation-Standard.md`, Stream M selected (the remaining work genuinely needs a human for live login validation and cannot safely run fully unattended given the confirmed SSH/sandbox constraint), workaround adopted (prefer each application's own HTTPS API over SSH for every configuration step, since HTTPS to allowlisted hosts already works cleanly through the sandbox) | This document restructured to the new 17-section template; Milestone 0 (close-out) mostly complete, Milestone 1 reopened for live re-verification, Milestone 2 reset to not-started (no real progress was lost, since none had been made) |
 
+## Close-out
+
+Not graduated. Deferred/open: closing the two stalled sessions directly
+(needs Jason, not reachable from this session); Milestones 1-2 live
+re-verification and execution; Milestones 3-5 unchanged and still future
+work.
