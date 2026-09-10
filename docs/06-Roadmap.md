@@ -21,13 +21,13 @@
 - [ ] [NUT/UPS deployment](UPS-Power-Resilience-Claude-Handover.md)
 - [ ] [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)
 - [ ] [Video library archiving](projects/Video-Library-Archiving.md)
-- [ ] [NetBox DCIM / rack & asset management](projects/NetBox-DCIM.md)
 - [ ] [Aster sysadmin second brain](projects/Aster-Sysadmin-Second-Brain.md)
 - [ ] [Backup architecture redesign](projects/Backup-Architecture-Redesign.md)
 - [ ] [Jellyfin library integrity automation](projects/Jellyfin-Library-Integrity-Automation.md)
 - [x] [Prometheus/Grafana observability](projects/completed%20projects/Prometheus-Grafana-Observability.md)
 - [x] [Synology Drive family cloud](projects/completed%20projects/Synology-Drive-Family-Cloud.md)
 - [x] [Plex-to-Jellyfin media migration](projects/completed%20projects/Plex-to-Jellyfin-Media-Migration.md)
+- [x] [NetBox DCIM / rack & asset management](projects/completed%20projects/NetBox-DCIM.md)
 
 The checkboxes above represent independent project completion, not permission to
 run all twelve simultaneously. Each project document controls its own milestones

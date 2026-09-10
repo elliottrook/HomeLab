@@ -1,10 +1,10 @@
 # NetBox DCIM / Rack & Asset Management Project
 
-> Status: Active
+> Status: Complete — retained in production
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-01
+> Last updated: 2026-09-10
 
 ## Authorization
 
