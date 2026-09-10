@@ -1655,6 +1655,7 @@ check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
 check_backup_age "Proxmox" "$BACKUP_ROOT/proxmox" 48
 check_backup_age "NUT" "$BACKUP_ROOT/nut" 48
 check_backup_age "Observability" "$BACKUP_ROOT/observability" 48
+check_backup_age "Video Archiver config" "$BACKUP_ROOT/video-archiver" 192
 check_backup_age "Jellyfin Integrity" "$BACKUP_ROOT/jellyfin-integrity" 192
 check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
