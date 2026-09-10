@@ -12,6 +12,7 @@
     {"repository": "reference", "path": "operations/access-control.md", "destination": "reference/operations/access-control.md", "authority": "current-operational"},
     {"repository": "reference", "path": "operations/ai-local-inference.md", "destination": "reference/operations/ai-local-inference.md", "authority": "current-operational"},
     {"repository": "homelab", "path": "docs/ARR-Stack-Operational-Reference.md", "destination": "reference/operations/arr-stack.md", "authority": "current-with-exclusions"},
+    {"repository": "homelab", "path": "docs/Home-Assistant-Operational-Reference.md", "destination": "reference/operations/home-assistant.md", "authority": "current-with-exclusions"},
     {"repository": "reference", "path": "operations/backups.md", "destination": "reference/operations/backups.md", "authority": "current-operational"},
     {"repository": "reference", "path": "operations/monitoring.md", "destination": "reference/operations/monitoring.md", "authority": "current-operational"},
     {"repository": "reference", "path": "memory/README.md", "destination": "memory/README.md", "authority": "derived-memory"},

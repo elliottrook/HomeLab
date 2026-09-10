@@ -77,6 +77,18 @@ class AsterAgentTests(unittest.TestCase):
         ]
         self.assertIn("get_arr_report", names)
 
+    def test_current_home_assistant_question_selects_sanitized_report(self):
+        names = [tool["function"]["name"] for tool in select_tools(
+            [{"role": "user", "content": "Is Home Assistant Supervisor currently healthy and up to date?"}]
+        )]
+        self.assertIn("get_ha_report", names)
+        self.assertIn("search_knowledge", names)
+
+    def test_home_assistant_policy_is_read_only_and_private(self):
+        self.assertIn("For Home Assistant, remain read-only", ASTER_SYSTEM_PROMPT)
+        self.assertIn("explicit action-specific approval", ASTER_SYSTEM_PROMPT)
+        self.assertNotIn("execute_home_assistant", TOOLS)
+
     def test_current_forgejo_question_selects_only_sanitized_report_reader(self):
         names = [
             tool["function"]["name"]

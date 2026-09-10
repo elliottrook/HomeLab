@@ -19,6 +19,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from arr_report import get_arr_report as read_arr_report
+from ha_report import get_ha_report as read_ha_report
 from source_reports import get_forgejo_report as read_forgejo_report
 from source_reports import get_netbox_report as read_netbox_report
 
@@ -30,6 +31,7 @@ UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
 HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
 ARR_REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT", "/var/lib/aster/arr-report/latest.json"))
+HA_REPORT_PATH = Path(os.environ.get("ASTER_HA_REPORT", "/var/lib/aster/ha-report/latest.json"))
 FORGEJO_REPORT_PATH = Path(
     os.environ.get("ASTER_FORGEJO_REPORT", "/var/lib/aster/source-reports/forgejo.json")
 )
@@ -83,6 +85,17 @@ When the fixed-path ARR report is supplied, you may state only its generation
 time, aggregate service status, aggregate counters and declared coverage. Treat
 an unavailable, stale or partial report as limited evidence, never as a reason
 to refresh it or contact an ARR service.
+For Home Assistant, remain read-only and privacy-preserving. Use reviewed
+knowledge for architecture, integration ownership, automation patterns,
+backup/recovery and troubleshooting. Use only the fixed-path sanitized Home
+Assistant report for current Core/Supervisor health, versions, update flags,
+backup-mount state and aggregate Resolution counts. Never reveal or request
+entity, device, user, area, automation, scene, script, lock, alarm, presence,
+camera, media, location, token, URL, credential, raw log or configuration data.
+Never contact Home Assistant directly, call a service, change an entity, edit
+an automation, install an integration or claim an action occurred. A requested
+change receives a reviewable proposal with scope, preconditions, validation,
+rollback and an explicit action-specific approval requirement.
 Forgejo and NetBox access is also read-only and indirect. You may use only the
 fixed-path sanitized reports supplied for the current turn; never contact either
 API, reveal an endpoint or credential, propose using their interfaces as a
@@ -169,6 +182,14 @@ TOOLS: dict[str, dict[str, Any]] = {
             "parameters": {"type": "object", "properties": {}},
         },
     },
+    "get_ha_report": {
+        "type": "function",
+        "function": {
+            "name": "get_ha_report",
+            "description": "Read the fixed-path sanitized Home Assistant health/version/backup summary. It cannot contact or change Home Assistant.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
     "get_forgejo_report": {
         "type": "function",
         "function": {
@@ -211,6 +232,10 @@ TOOL_HINTS = {
         r"\b(?:sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b.*\b(?:current|right now|queue|health|unhealthy|stuck|error|import state|service status)\b|\b(?:current|right now|queue|health|unhealthy|stuck|error|import state|service status)\b.*\b(?:sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
         re.I,
     ),
+    "get_ha_report": re.compile(
+        r"\b(?:home assistant|haos|supervisor)\b.*\b(?:current|right now|health|healthy|version|update|backup|resolution|issue|supported)\b|\b(?:current|right now|health|healthy|version|update|backup|resolution|issue|supported)\b.*\b(?:home assistant|haos|supervisor)\b",
+        re.I,
+    ),
     "get_arr_repair_proposal": re.compile(r"\b(?:arr|radarr)\b.*\b(?:repair|fix|dismiss)\b|\b(?:repair|fix|dismiss)\b.*\b(?:arr|radarr)\b", re.I),
     "get_forgejo_report": re.compile(
         r"\b(?:forgejo|jason/homelab|git repository)\b.*\b(?:current|latest|branch|tag|release|issue|pull request|commit|action|workflow status)\b|\b(?:current|latest|branch|tag|release|issue|pull request|commit|action|workflow status)\b.*\b(?:forgejo|jason/homelab|git repository)\b",
@@ -221,7 +246,7 @@ TOOL_HINTS = {
         re.I,
     ),
     "search_knowledge": re.compile(
-        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|forgejo|netbox|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
+        r"\b(homelab|home assistant|haos|supervisor|automation|integration|matter|hue|lutron|aqara|homekit|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|forgejo|netbox|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
         re.I,
     ),
 }
@@ -638,6 +663,8 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         return get_lab_health()
     if name == "get_arr_report":
         return read_arr_report(ARR_REPORT_PATH)
+    if name == "get_ha_report":
+        return read_ha_report(HA_REPORT_PATH)
     if name == "get_forgejo_report":
         return read_forgejo_report(FORGEJO_REPORT_PATH)
     if name == "get_netbox_report":
@@ -777,7 +804,7 @@ async def preload_read_only_context(
             arguments = {"service": "aster" if re.search(r"\baster\b", user_text, re.I) else "inference"}
         elif name == "get_lab_health":
             arguments = {}
-        elif name in {"get_arr_report", "get_forgejo_report", "get_netbox_report"}:
+        elif name in {"get_arr_report", "get_ha_report", "get_forgejo_report", "get_netbox_report"}:
             arguments = {}
         elif name == "get_arr_repair_proposal":
             arguments = {}
