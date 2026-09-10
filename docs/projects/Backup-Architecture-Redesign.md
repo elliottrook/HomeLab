@@ -1,9 +1,10 @@
 # Backup Architecture Redesign
 
-> Status: Active — Milestone 4 gate passed; Milestone 5 in progress — all
-> three legacy Hyper Backup jobs stopped, documentation/inventory cleanup
-> (`docs/05-Backups.md`, `configs/devices.conf`/`services.conf`, NetBox)
-> still open
+> Status: Active — Milestones 1–5 substantively complete (all three legacy
+> Hyper Backup jobs stopped, documentation and inventory updated). Only
+> the final "mark Complete" step remains, held open pending
+> `Backup-Synology-Decommission.md`'s own Milestones 4–5 (14-day
+> observation, ends 2026-09-23, then disk redeployment).
 >
 > Project owner: Jason
 >
@@ -696,14 +697,24 @@ confirmed. Milestone 5 (cutover) may now begin.
     judged safer left alone than touched. Not "retired" in the sense of a
     proven-equivalent replacement — there isn't one, by design — but the
     practical outcome (no further activity, data untouched) is accepted.
-- [ ] Update `docs/05-Backups.md` to describe the new architecture as
-  current, retiring the old three-layer description appropriately.
-- [ ] Add the new LXC to `configs/devices.conf`/`configs/services.conf`
+- [x] Update `docs/05-Backups.md` to describe the new architecture as
+  current, retiring the old three-layer description appropriately. Done
+  2026-09-10 — rewrote the same-site, IDrive e2, Synology Drive, and Home
+  Assistant sections plus ~15 scattered "Backup Synology" mentions across
+  the file, including the Critical-Service Recovery Coverage matrix.
+- [x] Add the new LXC to `configs/devices.conf`/`configs/services.conf`
   and, if the NetBox DCIM project's inventory is still being maintained,
-  to NetBox as well.
-- [ ] Record the Backup Synology's backup-role retirement as complete;
+  to NetBox as well. Done 2026-09-10 — added to `devices.conf` and to
+  NetBox as a virtual machine with interface/IP (via the Django ORM shell,
+  since the stored API token is read-only by design). Deliberately **not**
+  added to `services.conf`: it has no web UI, and a generic TCP check
+  would add no value `check_idrive_relay` doesn't already cover better.
+- [x] Record the Backup Synology's backup-role retirement as complete;
   explicitly flag its repurposing as a separate, not-yet-decided
-  follow-up for Jason.
+  follow-up for Jason. Already recorded in this document's own "Why this
+  exists" section ("Jason intends to repurpose it... explicitly out of
+  scope for this project — a separate decision for later"); the
+  retirement itself is tracked in full in `Backup-Synology-Decommission.md`.
 - [ ] Update this project's status to `Complete` only after every prior
   gate has passed and documentation is current.
 
