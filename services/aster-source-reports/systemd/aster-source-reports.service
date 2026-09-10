@@ -1,0 +1,14 @@
+[Unit]
+Description=Refresh sanitized Forgejo and NetBox reports for Aster
+After=pve-container.service
+
+[Service]
+Type=oneshot
+UMask=0077
+WorkingDirectory=/opt/aster-source-reports
+ExecStart=/usr/bin/python3 /opt/aster-source-reports/refresh-aster-source-reports.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+LockPersonality=true
+RestrictSUIDSGID=true

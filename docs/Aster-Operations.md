@@ -9,6 +9,9 @@
 |---|---|---|---|
 | Aster API and browser UI | LXC 104 (`192.168.70.10`) | `http://192.168.70.10:9120` | `aster-agent.service` |
 | llama.cpp Vulkan inference | LXC 110 (`192.168.70.12`) | `http://192.168.70.12:11435/v1` | `aster-llama.service` |
+| Sanitized Forgejo producer | LXC 108 | Forgejo loopback API only | `aster-forgejo-report.service` |
+| Sanitized NetBox producer | LXC 111 | NetBox loopback API only | `aster-netbox-report.service` |
+| Source-report transport | Proxmox host | No network endpoint | `aster-source-reports.timer` |
 
 The browser page asks for the Aster bearer key and stores it in that browser's
 local storage. The API key is stored only in `/etc/aster/aster.env` in LXC 104.
@@ -60,12 +63,15 @@ slow real-generation warm-up.
 
 ## Functions and knowledge
 
-Aster 1.0 exposes five allowlisted read-only functions:
+Aster 1.0 exposes eight allowlisted read-only functions:
 
 - current time in an IANA timezone;
 - Aster or inference health;
+- the latest sanitized HomeLab health summary;
 - keyword-ranked search of `/var/lib/aster/knowledge`;
-- the fixed-path sanitized ARR report; and
+- the fixed-path sanitized ARR report;
+- the fixed-path sanitized Forgejo report;
+- the fixed-path sanitized NetBox report; and
 - a dry-run proposal for the one report-issued opaque ARR candidate.
 
 These functions are selected from the current request and pre-executed before a
@@ -80,6 +86,42 @@ separately, but Aster's production path is deliberately one-pass: it must not
 emit or request follow-up tool calls. If the preloaded context is insufficient,
 it says what is missing. There is no arbitrary shell, filesystem write, or
 user-supplied network target.
+
+### Forgejo and NetBox read-only reports
+
+Aster has no API token or direct network path to Forgejo or NetBox. A dedicated
+source-local account reads each service through its loopback API, and a
+source-local oneshot converts the response to a strict allowlisted schema.
+Every five minutes the Proxmox timer starts each producer, pulls only the
+sanitized JSON, validates it again, and atomically installs it as a root-owned,
+mode-0640 report in `/var/lib/aster/source-reports` in LXC 104. The Aster unit
+mounts that directory read-only.
+
+The Forgejo identity is restricted, cannot create repositories or
+organizations, has `read` collaborator access only to `jason/homelab`, and its
+token contains only read scopes. Its report includes repository visibility,
+archive/default-branch state, update time, bounded branch/tag/release/open
+issue/open pull counts, an abbreviated latest commit identifier and latest
+action status. Source, diffs, messages, authors, issue/PR text and action logs
+are excluded.
+
+The NetBox identity has an unusable password, is not a superuser, and receives
+one object permission whose only action is `view`. Its API token has writes
+disabled. The report includes bounded device, VM, VLAN and prefix inventory
+plus site/rack aggregate counts. Config contexts, custom fields, descriptions,
+contacts, journal/change data, secrets and mutation authority are excluded.
+
+Both Aster readers reject symlinks, non-regular files, non-root ownership,
+group/other write permissions, oversized reports, unknown fields, invalid
+types and timestamps more than 15 minutes old. Failure leaves the source
+unavailable; it never causes Aster to contact a source or widen access.
+
+To suspend the integration, disable `aster-source-reports.timer` on Proxmox;
+the reports will age out and fail closed. Aster source rollback is retained in
+`/opt/aster-agent/rollback-source-reports-20260909` in LXC 104. Restoring it
+also requires removing the source-report unit drop-in and restarting only
+`aster-agent.service`. Revoking either source token is a separate source-local
+administrative action; it is not available to Aster.
 
 The deployed Aster source also contains a structured ARR execution endpoint.
 It is not an LLM function and natural-language chat cannot select it. It can

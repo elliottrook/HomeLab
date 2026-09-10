@@ -1,0 +1,24 @@
+[Unit]
+Description=Produce sanitized Forgejo metadata for Aster
+After=forgejo.service
+
+[Service]
+Type=oneshot
+User=aster-forgejo-report
+Group=aster-forgejo-report
+UMask=0077
+WorkingDirectory=/opt/aster-source-reports
+ExecStart=/usr/bin/python3 /opt/aster-source-reports/forgejo_report.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/etc/aster-forgejo-report/token
+ReadWritePaths=/var/lib/aster-forgejo-report
+RestrictAddressFamilies=AF_INET AF_UNIX
+IPAddressDeny=any
+IPAddressAllow=localhost
+LockPersonality=true
+MemoryDenyWriteExecute=true
+CapabilityBoundingSet=
+RestrictSUIDSGID=true

@@ -19,6 +19,8 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from arr_report import get_arr_report as read_arr_report
+from source_reports import get_forgejo_report as read_forgejo_report
+from source_reports import get_netbox_report as read_netbox_report
 
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
@@ -28,6 +30,12 @@ UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
 HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
 ARR_REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT", "/var/lib/aster/arr-report/latest.json"))
+FORGEJO_REPORT_PATH = Path(
+    os.environ.get("ASTER_FORGEJO_REPORT", "/var/lib/aster/source-reports/forgejo.json")
+)
+NETBOX_REPORT_PATH = Path(
+    os.environ.get("ASTER_NETBOX_REPORT", "/var/lib/aster/source-reports/netbox.json")
+)
 ARR_BROKER_URL = os.environ.get("ASTER_ARR_BROKER_URL", "").rstrip("/")
 ARR_BROKER_KEY = os.environ.get("ASTER_ARR_BROKER_KEY", "")
 DEFAULT_TIMEZONE = os.environ.get("ASTER_TIMEZONE", "America/Vancouver")
@@ -75,6 +83,16 @@ When the fixed-path ARR report is supplied, you may state only its generation
 time, aggregate service status, aggregate counters and declared coverage. Treat
 an unavailable, stale or partial report as limited evidence, never as a reason
 to refresh it or contact an ARR service.
+Forgejo and NetBox access is also read-only and indirect. You may use only the
+fixed-path sanitized reports supplied for the current turn; never contact either
+API, reveal an endpoint or credential, propose using their interfaces as a
+workaround, or imply that you changed remote state. The Forgejo report covers
+only repository metadata, bounded counts, abbreviated commit identity and the
+latest action status; it excludes source code, messages, authors, issue or pull
+request text and workflow logs. The NetBox report covers only approved inventory
+identity, placement, status, addressing and aggregate counts; it excludes config
+contexts, custom fields, contacts, secrets and change authority. An unavailable
+or stale report is limited evidence, not permission to refresh or broaden access.
 Guest type matters: do not relabel a VM as an LXC or vice versa.
 LXC 110 is a container, never an inference VM; VM 105 is the stopped Ollama
 rollback guest.
@@ -151,6 +169,22 @@ TOOLS: dict[str, dict[str, Any]] = {
             "parameters": {"type": "object", "properties": {}},
         },
     },
+    "get_forgejo_report": {
+        "type": "function",
+        "function": {
+            "name": "get_forgejo_report",
+            "description": "Read fixed-path sanitized metadata for the approved Forgejo repository. It cannot access source, messages, logs, credentials, or make changes.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    "get_netbox_report": {
+        "type": "function",
+        "function": {
+            "name": "get_netbox_report",
+            "description": "Read the fixed-path sanitized NetBox inventory report. It cannot access sensitive fields, credentials, or make changes.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
     "get_arr_repair_proposal": {"type": "function", "function": {"name": "get_arr_repair_proposal", "description": "Request only a dry-run proposal for the single opaque report-issued ARR repair candidate. It cannot execute a repair.", "parameters": {"type": "object", "properties": {}}}},
     "search_knowledge": {
         "type": "function",
@@ -178,6 +212,14 @@ TOOL_HINTS = {
         re.I,
     ),
     "get_arr_repair_proposal": re.compile(r"\b(?:arr|radarr)\b.*\b(?:repair|fix|dismiss)\b|\b(?:repair|fix|dismiss)\b.*\b(?:arr|radarr)\b", re.I),
+    "get_forgejo_report": re.compile(
+        r"\b(?:forgejo|jason/homelab|git repository)\b.*\b(?:current|latest|branch|tag|release|issue|pull request|commit|action|workflow status)\b|\b(?:current|latest|branch|tag|release|issue|pull request|commit|action|workflow status)\b.*\b(?:forgejo|jason/homelab|git repository)\b",
+        re.I,
+    ),
+    "get_netbox_report": re.compile(
+        r"\bnetbox\b.*\b(?:current|inventory|device|virtual machine|vm|site|rack|vlan|prefix|ip|status|count)\b|\b(?:current|inventory|device|virtual machine|vm|site|rack|vlan|prefix|ip|status|count)\b.*\bnetbox\b",
+        re.I,
+    ),
     "search_knowledge": re.compile(
         r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
         re.I,
@@ -587,6 +629,10 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         return get_lab_health()
     if name == "get_arr_report":
         return read_arr_report(ARR_REPORT_PATH)
+    if name == "get_forgejo_report":
+        return read_forgejo_report(FORGEJO_REPORT_PATH)
+    if name == "get_netbox_report":
+        return read_netbox_report(NETBOX_REPORT_PATH)
     if name == "get_arr_repair_proposal":
         report = read_arr_report(ARR_REPORT_PATH)
         candidates = report.get("repair_candidates") if isinstance(report, dict) else None
@@ -722,7 +768,7 @@ async def preload_read_only_context(
             arguments = {"service": "aster" if re.search(r"\baster\b", user_text, re.I) else "inference"}
         elif name == "get_lab_health":
             arguments = {}
-        elif name == "get_arr_report":
+        elif name in {"get_arr_report", "get_forgejo_report", "get_netbox_report"}:
             arguments = {}
         elif name == "get_arr_repair_proposal":
             arguments = {}

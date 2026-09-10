@@ -36,7 +36,10 @@ def forbidden_claim_present(text: str, value: str) -> bool:
         if index < 0:
             return False
         prefix = normalized_text[max(0, index - 160) : index]
-        if not re.search(r"\b(?:not|never|cannot|can't|won't|will not|do not|does not|did not|no)\b[^.\n]{0,160}$", prefix):
+        if not re.search(
+            r"\b(?:not|never|cannot|can't|won't|will not|do not|does not|did not|no|exclude|excludes|excluded|omit|omits|omitted|without)\b[^.\n]{0,160}$",
+            prefix,
+        ):
             return True
         start = index + len(normalized_value)
 

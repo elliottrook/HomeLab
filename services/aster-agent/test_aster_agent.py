@@ -77,6 +77,26 @@ class AsterAgentTests(unittest.TestCase):
         ]
         self.assertIn("get_arr_report", names)
 
+    def test_current_forgejo_question_selects_only_sanitized_report_reader(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "What is the latest Forgejo commit and action status?"}]
+            )
+        ]
+        self.assertIn("get_forgejo_report", names)
+        self.assertFalse(any("write" in name or "update" in name for name in names))
+
+    def test_current_netbox_question_selects_only_sanitized_report_reader(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "What devices are in the current NetBox inventory?"}]
+            )
+        ]
+        self.assertIn("get_netbox_report", names)
+        self.assertFalse(any("write" in name or "update" in name for name in names))
+
     def test_natural_language_never_selects_an_execution_tool(self):
         names = [
             tool["function"]["name"]
@@ -100,6 +120,18 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("album rather\nthan a single track", ASTER_SYSTEM_PROMPT)
         self.assertIn("verification and explicit review are required", ASTER_SYSTEM_PROMPT)
         self.assertIn("Do not redirect an ARR question to a live service interface", ASTER_SYSTEM_PROMPT)
+
+    def test_forgejo_and_netbox_policy_is_indirect_and_read_only(self):
+        self.assertIn("Forgejo and NetBox access is also read-only and indirect", ASTER_SYSTEM_PROMPT)
+        self.assertIn("never contact either\nAPI", ASTER_SYSTEM_PROMPT)
+        self.assertIn("excludes source code, messages, authors", ASTER_SYSTEM_PROMPT)
+        self.assertIn("excludes config\ncontexts, custom fields, contacts, secrets", ASTER_SYSTEM_PROMPT)
+        self.assertNotIn("create_forgejo", TOOLS)
+        self.assertNotIn("update_netbox", TOOLS)
+
+    def test_source_report_mount_is_read_only(self):
+        drop_in = (Path(__file__).with_name("systemd") / "aster-source-reports.conf").read_text(encoding="utf-8")
+        self.assertEqual(drop_in.strip(), "[Service]\nReadOnlyPaths=/var/lib/aster/source-reports")
 
     def test_lab_health_uses_only_bounded_report(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -382,6 +414,17 @@ class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
             [TOOLS["get_arr_report"]],
         )
         self.assertEqual(result[0]["function"], "get_arr_report")
+
+    async def test_forgejo_and_netbox_reports_are_preloaded_without_model_round_trip(self):
+        with (
+            patch("aster_agent.read_forgejo_report", return_value={"source": "forgejo"}),
+            patch("aster_agent.read_netbox_report", return_value={"source": "netbox"}),
+        ):
+            result = await preload_read_only_context(
+                [{"role": "user", "content": "Show current Forgejo and NetBox inventory status"}],
+                [TOOLS["get_forgejo_report"], TOOLS["get_netbox_report"]],
+            )
+        self.assertEqual([item["function"] for item in result], ["get_forgejo_report", "get_netbox_report"])
 
 
 class FakeBrokerResponse:
