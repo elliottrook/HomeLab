@@ -50,14 +50,29 @@ with *more* weight, not less:
   runbook's own rule, record exactly what happened and the state left
   behind in this project's evidence log, and stop. Do not attempt an
   alternative approach or push forward on independent judgment.
-- **OPNsense changes are explicitly out of this authorization's scope,
-  full stop — always a stop-and-wait, never resolved unattended.** Forgejo's
-  own rollout needed a new inter-VLAN firewall rule to reach NPM; if
-  Homepage or Beszel hits the same class of gap, that is exactly the kind
-  of thing this project's own history already treats as needing Jason
-  directly, even under an active authorization (see the Evidence log
-  entry for 2026-09-02 in `Backup-Architecture-Redesign.md` for the
-  precedent this follows).
+- **OPNsense changes — widened 2026-09-10, same day as the grant above.**
+  Jason explicitly extended trust to cover this too ("I trust ChatGPT to
+  make a firewall rule and I trust you to do the same... minimal, just
+  enough to get the job done"), after this authorization originally
+  carved OPNsense out entirely. The scope of that trust is narrow and
+  literal, matching the Forgejo precedent exactly — not a general license
+  to touch the firewall:
+  - **May do, unattended:** add a single narrowly-scoped pass rule, one
+    specific source host to one specific destination:port (the same
+    shape as Forgejo's fix — Servers VLAN 20 host → NPM `192.168.50.23:443`
+    only), following the established pattern exactly: back up the current
+    OPNsense config first, clone the rule structure from an existing
+    working rule rather than hand-writing it, validate the edited config
+    parses before reloading, and confirm every previously-working path
+    still works afterward — no regression, matching every prior OPNsense
+    change in this repo's history.
+  - **Still a hard stop, not covered by this widening:** anything broader
+    than one source/destination/port pass rule — VLAN membership changes,
+    new inbound WAN exposure, a wide or subnet-level rule, disabling or
+    reordering existing rules, or touching an alias used by other rules.
+    If the actual gap found doesn't fit a single narrow pass rule, that is
+    itself the signal to stop and describe what's needed instead of
+    reaching for a broader rule to cover it.
 - CLAUDE.md's "stop and ask about anything genuinely unanticipated" rule
   is explicitly preserved here, not waived. A genuinely unanticipated
   fork — not a routine step the runbook already describes — means: stop,
@@ -192,3 +207,4 @@ backup and rollback procedures have passed.
 | 2026-08-24 | Project split | Rollout separated from initial-build record | Complete |
 | 2026-08-25 | Authentik launch URL follow-up | Verified Base URL/outpost/NPM headers; replaced dashboard HTTP fallback link with `https://auth.elliottrook.com` | Passed |
 | 2026-08-31 | Forgejo | Native OIDC via a dedicated Authentik OAuth2/OpenID Provider. Two real bugs were found and fixed, not just a straightforward setup: (1) Forgejo's actual OAuth callback path is case-sensitive to the Authentication Source name (`https://git.elliottrook.com/user/oauth2/Authentik/callback` with capital "A", matching what was typed into Forgejo) — the redirect URI initially registered in Authentik used lowercase and was rejected; confirmed the exact mismatch by capturing the live `authorize` request rather than guessing. (2) A known Gitea/Forgejo upstream bug: it cannot parse JWE-encrypted tokens, producing `oauth2: error decoding JWT token: jws: invalid token received, not all parts available` — fixed by clearing the Encryption Key field on the Authentik provider (token encryption must stay off for Forgejo specifically). Also corrected Forgejo's Additional Scopes from blank to `email profile` per the official Authentik-Forgejo integration guide. A separate, unrelated blocker was also found and fixed along the way: an OPNsense inter-VLAN firewall rule was missing, preventing Forgejo's host (192.168.20.30, Servers VLAN 20) from reaching NPM (192.168.50.23, Management VLAN 50) on port 443 at all — added a narrow pass rule scoped to just Forgejo's host. Validated with a full clean-session login (private window, no prior Authentik session) showing the complete password + passkey/MFA prompt. Also fixed an unrelated Homepage dashboard tile pointing at Forgejo's old IP-based URL instead of `https://git.elliottrook.com`. | Passed |
+| 2026-09-10 | Authorization | Jason granted a per-project authorization scoped to Homepage/Beszel, intended for unattended (scheduled, no live session) execution. Same day, after the authorization initially excluded OPNsense changes entirely, Jason explicitly widened it: "I trust ChatGPT to make a firewall rule and I trust you to do the same... minimal, just enough to get the job done." Recorded as a narrow, literal widening — one source/destination/port pass rule matching the Forgejo precedent's exact shape, not a general firewall exception — everything broader remains a hard stop | Recorded in the Authorization section above; the scheduled task's own instructions were updated to match before it fired |
