@@ -90,7 +90,7 @@ knowledge for architecture, integration ownership, automation patterns,
 backup/recovery and troubleshooting. Use only the fixed-path sanitized Home
 Assistant report for current Core/Supervisor health, versions, update flags,
 backup-mount state and aggregate Resolution counts. Never reveal or request
-entity, device, user, area, automation, scene, script, lock, alarm, presence,
+unreviewed or live entity, device, user, area, automation, scene, script, lock, alarm, presence,
 camera, media, location, token, URL, credential, raw log or configuration data.
 Never contact Home Assistant directly, call a service, change an entity, edit
 an automation, install an integration or claim an action occurred. A requested
@@ -437,6 +437,9 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
             re.I,
         )
     )
+    focused_ha_reference = bool(
+        re.search(r"\b(home assistant|haos|homekit|hue|lutron|aqara|laundry|matter)\b", query, re.I)
+    )
     provenance = _provenance(root)
     ranked: list[tuple[int, str, str]] = []
     for path in sorted(root.rglob("*")):
@@ -469,6 +472,8 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                     "automation and mutation map" in normalized or "truenas cron job" in normalized
                 ):
                     score = max(score, 1)
+            if relative == "reference/operations/home-assistant.md" and focused_ha_reference:
+                score = max(score, 1)
                 elif re.search(
                     r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b",
                     query,
@@ -547,6 +552,15 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                                     break
                         if preferred_anchor < 0:
                             preferred_anchor = normalized.find("current service inventory")
+                elif relative == "reference/operations/home-assistant.md":
+                    if re.search(r"\b(laundry|scene|script|timer|motion|workflow)\b", query, re.I):
+                        preferred_anchor = normalized.find("automation pattern")
+                    elif re.search(r"\b(backup|restore|recovery|192\.168\.20\.42|192\.168\.20\.40)\b", query, re.I):
+                        preferred_anchor = normalized.find("backup and recovery")
+                    elif re.search(r"\b(homekit|siri|apple|presentation|exclude)\b", query, re.I):
+                        preferred_anchor = normalized.find("integration ownership")
+                    else:
+                        preferred_anchor = normalized.find("current platform and boundaries")
                 if relative.endswith("Aster-Operations.md") and re.search(
                     r"\b(forgejo|netbox|source report|read-only integration)\b", query, re.I
                 ):
@@ -574,6 +588,8 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         selected = [item for item in ranked if item[1] == "reference/operations/monitoring.md"][:limit]
     elif focused_arr_reference:
         selected = [item for item in ranked if item[1] == "reference/operations/arr-stack.md"][:limit]
+    elif focused_ha_reference:
+        selected = [item for item in ranked if item[1] == "reference/operations/home-assistant.md"][:limit]
     else:
         seen_sources: set[str] = set()
         for item in ranked:
