@@ -63,7 +63,7 @@ Aster, inventory collections at 256 items, and freshness at 15 minutes.
 ## Graduation evidence
 
 - Local producer/reader/transport suite: 13/13 passed.
-- Deployed Aster reader, routing and policy suite: 40/40 passed.
+- Deployed Aster reader, routing and policy suite: 41/41 passed.
 - Both source producer units completed successfully with mode-0600 output.
 - Forgejo sanitized evidence covered one repository with 19 branches and no
   current action run; NetBox sanitized evidence counted 23 devices, 12 VMs,
@@ -74,6 +74,11 @@ Aster, inventory collections at 256 items, and freshness at 15 minutes.
   use, Forgejo write refusal and sensitive-field exclusion.
 - Aster remained active and its unauthenticated health endpoint returned
   `status=ok` after restart.
+- The accepted 26-source knowledge snapshot was built from clean HomeLab
+  commit `a9d4a5c`, has SHA-256
+  `227af3a7e4b46f93e1ea690e18205347a6b0bef1630141d6a34d78bde89fca4c`,
+  and retrieves `project/Aster-Operations.md` first for the integration
+  architecture query.
 
 No Forgejo issue, NetBox object, firewall rule or source-service configuration
 was changed by the acceptance tests.

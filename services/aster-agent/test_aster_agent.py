@@ -230,6 +230,29 @@ class AsterAgentTests(unittest.TestCase):
             result = search_knowledge("Aster LXC model", root=root)
             self.assertEqual(result["results"][0]["authority"], "current_operations")
 
+    def test_source_report_architecture_prefers_aster_operations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            project = root / "project"
+            reference = root / "reference" / "operations"
+            project.mkdir(parents=True)
+            reference.mkdir(parents=True)
+            (project / "Aster-Operations.md").write_text(
+                "General Aster operations. " * 50
+                + "\n### Forgejo and NetBox read-only reports\n"
+                + "Aster has no API token or direct network path. Source-local producers publish sanitized reports.",
+                encoding="utf-8",
+            )
+            (reference / "ai-local-inference.md").write_text(
+                "Generic Aster inference operations. " * 100,
+                encoding="utf-8",
+            )
+            result = search_knowledge(
+                "How is the Forgejo and NetBox read-only integration built?", root=root
+            )
+            self.assertEqual(result["results"][0]["source"], "project/Aster-Operations.md")
+            self.assertIn("no API token", result["results"][0]["excerpt"])
+
     def test_provenance_controls_authority_and_is_returned(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

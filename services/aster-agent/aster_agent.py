@@ -221,7 +221,7 @@ TOOL_HINTS = {
         re.I,
     ),
     "search_knowledge": re.compile(
-        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
+        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|forgejo|netbox|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
         re.I,
     ),
 }
@@ -339,6 +339,11 @@ def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
                 bonus += 900
             elif "connected arr applications" in text:
                 bonus += 420
+    if source.endswith("Aster-Operations.md") and re.search(
+        r"\b(forgejo|netbox|source report|read-only integration)\b", query, re.I
+    ):
+        if "forgejo and netbox read-only reports" in text:
+            bonus += 900
     if source == "reference/infrastructure/hardware-inventory.md":
         if re.search(r"\b(rack|rack-unit|ru position)", query, re.I) and "uncertain or excluded" in text:
             bonus += 240
@@ -517,7 +522,11 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                                     break
                         if preferred_anchor < 0:
                             preferred_anchor = normalized.find("current service inventory")
-                if relative.endswith("Aster-Operations.md") and _chunk_bonus(relative, normalized, query, tokens):
+                if relative.endswith("Aster-Operations.md") and re.search(
+                    r"\b(forgejo|netbox|source report|read-only integration)\b", query, re.I
+                ):
+                    preferred_anchor = normalized.find("forgejo and netbox read-only reports")
+                elif relative.endswith("Aster-Operations.md") and _chunk_bonus(relative, normalized, query, tokens):
                     preferred_anchor = normalized.find("runtime configuration")
                 elif relative.endswith("AI-Hermes-Second-Brain.md") and _chunk_bonus(relative, normalized, query, tokens):
                     preferred_anchor = normalized.find("implementation tasks")
