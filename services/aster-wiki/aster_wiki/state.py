@@ -30,6 +30,10 @@ class State:
           PRIMARY KEY(run_id, source_id)
         );
         CREATE INDEX IF NOT EXISTS item_hash_stage ON items(source_id,input_sha256,stage,status);
+        CREATE TABLE IF NOT EXISTS http_validators (
+          source_id TEXT PRIMARY KEY, etag TEXT, last_modified TEXT,
+          checked_at TEXT NOT NULL
+        );
         """)
         current = self.db.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
         if current and int(current[0]) != SCHEMA_VERSION:
@@ -60,6 +64,21 @@ class State:
             (source_id, digest, stage),
         ).fetchone() is not None
 
+    def validators(self, source_id: str) -> tuple[str | None, str | None]:
+        row = self.db.execute(
+            "SELECT etag,last_modified FROM http_validators WHERE source_id=?", (source_id,)
+        ).fetchone()
+        return (row[0], row[1]) if row else (None, None)
+
+    def save_validators(self, source_id: str, etag: str | None,
+                        last_modified: str | None) -> None:
+        self.db.execute("""
+          INSERT INTO http_validators VALUES (?,?,?,?)
+          ON CONFLICT(source_id) DO UPDATE SET etag=excluded.etag,
+            last_modified=excluded.last_modified,checked_at=excluded.checked_at
+        """, (source_id, etag, last_modified, self.now()))
+        self.db.commit()
+
     def finish(self, run_id: str, status: str) -> None:
         self.db.execute("UPDATE runs SET status=?,finished_at=? WHERE id=?", (status, self.now(), run_id))
         self.db.commit()
@@ -68,6 +87,7 @@ class State:
         counts = {row[0]: row[1] for row in self.db.execute(
             "SELECT status,count(*) FROM items WHERE run_id=? GROUP BY status", (run_id,))}
         return {"run_id": run_id, "ok": counts.get("ok", 0),
+                "unchanged": counts.get("unchanged", 0),
                 "quarantined": counts.get("quarantined", 0), "failed": counts.get("failed", 0)}
 
     def latest(self) -> dict[str, str | None] | None:

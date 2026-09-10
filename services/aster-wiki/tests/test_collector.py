@@ -47,6 +47,30 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual(1, result["quarantined"])
             self.assertEqual("good\n", (wiki / "docs/upstream/safe-source/content.txt").read_text())
 
+    def test_not_modified_reuses_only_verified_accepted_content(self):
+        temporary, wiki, state = self.roots()
+        with temporary:
+            collector = Collector(wiki, state, lambda _: Fetched(
+                b"first\n", "text/plain", "https://docs.example.invalid/guide",
+                etag='"v1"', last_modified="Thu, 10 Sep 2026 00:00:00 GMT"))
+            collector.run([source()], "first")
+            unchanged = Collector(wiki, state, lambda _: Fetched(
+                b"", "text/plain", "https://docs.example.invalid/guide",
+                etag='"v1"', not_modified=True))
+            result = unchanged.run([source()], "second")
+            self.assertEqual(1, result["unchanged"])
+            self.assertEqual("first\n", (wiki / "docs/upstream/safe-source/content.txt").read_text())
+
+    def test_not_modified_fails_closed_after_accepted_content_tamper(self):
+        temporary, wiki, state = self.roots()
+        with temporary:
+            Collector(wiki, state, lambda _: Fetched(
+                b"first\n", "text/plain", "https://docs.example.invalid/guide")).run([source()], "first")
+            (wiki / "docs/upstream/safe-source/content.txt").write_text("tampered\n")
+            unchanged = Collector(wiki, state, lambda _: Fetched(
+                b"", "text/plain", "https://docs.example.invalid/guide", not_modified=True))
+            self.assertEqual(1, unchanged.run([source()], "second")["quarantined"])
+
     def test_redirect_outside_host_is_quarantined(self):
         temporary, wiki, state = self.roots()
         with temporary:

@@ -11,6 +11,7 @@ import subprocess
 import tempfile
 import time
 import urllib.request
+from urllib.error import HTTPError
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -36,11 +37,25 @@ class Fetched:
     final_url: str
     etag: str | None = None
     last_modified: str | None = None
+    not_modified: bool = False
 
 
-def fetch_https(source: dict, timeout: int = 30) -> Fetched:
-    request = urllib.request.Request(source["canonical_url"], headers={"User-Agent": "HomeLabWikiCollector/1"})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
+def fetch_https(source: dict, timeout: int = 30, etag: str | None = None,
+                last_modified: str | None = None) -> Fetched:
+    headers = {"User-Agent": "HomeLabWikiCollector/1"}
+    if etag:
+        headers["If-None-Match"] = etag
+    if last_modified:
+        headers["If-Modified-Since"] = last_modified
+    request = urllib.request.Request(source["canonical_url"], headers=headers)
+    try:
+        response = urllib.request.urlopen(request, timeout=timeout)
+    except HTTPError as exc:
+        if exc.code == 304:
+            return Fetched(b"", source["media_type"], source["canonical_url"],
+                           etag, last_modified, True)
+        raise
+    with response:
         limit = source["size_limit_bytes"]
         body = response.read(limit + 1)
         return Fetched(body, response.headers.get_content_type(), response.geturl(),
@@ -141,7 +156,16 @@ class Collector:
             return fetch_git(source)
         if source["kind"] == "manual":
             return fetch_manual(source, self.state_root / "uploads")
-        return fetch_https(source)
+        etag, last_modified = self.state.validators(source["id"])
+        return fetch_https(source, etag=etag, last_modified=last_modified)
+
+    def _accepted_entry(self, source_id: str) -> dict | None:
+        lock = self.wiki_root / "sources/accepted-lock.json"
+        if not lock.is_file():
+            return None
+        data = json.loads(lock.read_text(encoding="utf-8"))
+        return next((item for item in data.get("sources", [])
+                     if item.get("source_id") == source_id), None)
 
     def run(self, sources: list[dict], run_id: str) -> dict[str, int | str]:
         self.state.start(run_id)
@@ -153,6 +177,24 @@ class Collector:
                 validate_source(source)
                 fetched = self.fetcher(source)
                 self.state.checkpoint(run_id, source["id"], "fetched", "ok")
+                if fetched.not_modified:
+                    prior = self._accepted_entry(source["id"])
+                    if prior is None:
+                        raise Quarantine("not-modified-without-accepted-input")
+                    prior_path = self.wiki_root / prior["path"]
+                    if (not prior_path.is_file() or
+                            hashlib.sha256(prior_path.read_bytes()).hexdigest() != prior["normalized_sha256"]):
+                        raise Quarantine("not-modified-accepted-input-mismatch")
+                    staged_prior = stage / prior["path"]
+                    staged_prior.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(prior_path, staged_prior)
+                    provenance = prior_path.parent / "provenance.json"
+                    if provenance.is_file():
+                        shutil.copyfile(provenance, staged_prior.parent / "provenance.json")
+                    self.state.checkpoint(run_id, source["id"], "verified", "unchanged",
+                                          prior["original_sha256"])
+                    accepted.append(prior)
+                    continue
                 validate_fetch(source, fetched)
                 digest = hashlib.sha256(fetched.body).hexdigest()
                 data = normalize(fetched)
@@ -172,6 +214,8 @@ class Collector:
                 }
                 (output.parent / "provenance.json").write_bytes(canonical_json(metadata))
                 self.state.checkpoint(run_id, source["id"], "normalized", "ok", digest)
+                if source["kind"] == "web":
+                    self.state.save_validators(source["id"], fetched.etag, fetched.last_modified)
                 accepted.append({**metadata, "path": str(destination)})
             except Quarantine as exc:
                 self.state.checkpoint(run_id, source.get("id", "invalid"), "validation", "quarantined", reason=str(exc))

@@ -106,8 +106,11 @@ running at NetBox-selected `192.168.20.34`; its application archive is
 installed and `aster-wiki-intake.service` is enabled. The Python 3.13 multipart
 compatibility fix from local commit `fb1f160` is deployed: the service is active,
 listens only on `127.0.0.1:8787`, and `/healthz` returns the expected JSON. The
-collector timer remains explicitly disabled and inactive. The complete local
-suite passes 23/23 tests.
+collector timer remains explicitly disabled and inactive. The collector now
+persists and sends HTTP validators, treats `304 Not Modified` as an explicit
+unchanged result only when the prior accepted content still matches its locked
+hash, and fails closed on missing or tampered prior content. The complete local
+suite passes 25/25 tests.
 
 **Next safe action:** continue authenticated queue promotion, conditional HTTP
 state/rate limits and Doctor integration locally. Do not enable the collector
@@ -599,3 +602,4 @@ snapshot; the complete human repository remains intact.
 | 2026-09-10 | 2 discovery | Proxmox reports VMID 113 next, cached Debian 13 and ample storage/memory. NetBox 4.6.9's sanitized authoritative report shows `192.168.20.33` belongs to `backup-relay`, correcting the tempting inference from stale human addressing documentation | Do not allocate `.33`; exact NetBox IPAM confirmation is required before choosing the collector address. No guest or network state changed |
 | 2026-09-10 | 2 deployment checkpoint | Reconciled the interrupted deployment: unprivileged Debian 13 LXC 113 `aster-wiki` is running at `192.168.20.34` with the expected 2 cores, 2 GiB RAM, 16 GiB disk, VLAN 20 firewall flag and boot ordering. The intake service is installed/enabled but failed because deployed Python 3.13.5 no longer provides `cgi`; the collector timer is disabled/inactive. Replaced `cgi.FieldStorage` with a bounded standard-library `email` multipart parser, added malformed-boundary and encoding regressions, and passed 23/23 local tests | Failure is understood and fails closed with no listener or accepted publication. The tested fix is ready for redeployment, which is paused at the repository-required confirmation for modifying the remote guest. The daily timer must remain disabled until later Milestone 2 gates pass |
 | 2026-09-10 | 2 intake recovery | After Jason's explicit remote-mutation confirmation, retained the deployed pre-fix module as `/opt/aster-wiki/aster_wiki/app.py.before-fb1f160`, deployed the exact tested `app.py`, and restarted the intake service. Separate checks found the service active, Python listening only on `127.0.0.1:8787`, and `/healthz` returning `{"status":"ok","mode":"prototype"}`. The first HTTP probe only established that `curl` is not installed; a standard-library Python probe passed without adding a package | Intake presentation recovered on Debian 13 without broadening network exposure or dependencies. Collector timer remains disabled/inactive and no corpus or Aster snapshot was published |
+| 2026-09-10 | 2 conditional acquisition | Added durable per-source ETag/Last-Modified state and conditional request headers. A `304` reuses prior content only after checking its normalized hash against the accepted lock, copies the verified content and provenance into the new atomic candidate, and reports it as `unchanged`; absent or tampered accepted input quarantines the run. Complete local suite passes 25/25 tests | No-change cycles now avoid unnecessary downloads without allowing an upstream validator to bypass local integrity. Deployment and rate-limit work remain pending; timer stays disabled |
