@@ -1,10 +1,12 @@
 # Backup Synology Decommission and Storage Redeployment
 
 > Status: Active — Milestone 2 (HA backup redirect and Doctor coverage
-> remain open); Milestone 3's restore proofs are accepted, but the actual
-> "Mini Atlas Offsite" disable failed silently via CLI (no root available)
-> and needs a two-click DSM action from Jason. `.42` is untouched and still
-> live. A real credential exposure from this attempt also needs rotation.
+> remain open); **Milestone 3 gate passed 2026-09-10** — restore proofs
+> accepted and the legacy "Mini Atlas Offsite" task confirmed stopped
+> (Jason stopped the HyperBackup package via DSM after the CLI attempt
+> failed silently). Milestone 4 (power down and observe) may begin.
+> Outstanding: rotate the legacy bucket's S3 key, exposed during this
+> attempt.
 >
 > Project owner: Jason
 >
@@ -299,28 +301,33 @@ fact is never quietly forgotten.**
       as above.
 - [x] Both restores evidenced in the log below with timestamps. See
       `Backup-Architecture-Redesign.md` evidence log, 2026-09-10 entries.
-- [ ] Only then: disable, but do not delete, the "Mini Atlas Offsite" task
-      on `.42`. **Attempted 2026-09-10, not yet actually disabled — see
-      evidence log below.** `synobackup --schedule-disable-list-by-app
-      HyperBackup` returned exit 0 but a follow-up check via
-      `synoschedtask --get` proved it did nothing: both of the task's
-      Task Scheduler entries (ID 3 daily backup, ID 5 weekly integrity
-      check, both named "Mini Atlas Offsite", app
-      `SYNO.SDS.Backup.Application`) still show `State: [enabled]`. The
-      correct API (`SYNO.Core.TaskScheduler`) requires root; the SSH
-      account in use (`Jason`, administrators group, no sudo) does not
-      have it. Rather than hand-edit Task Scheduler's backing store
-      without root or a documented-safe method, this is handed back to
-      Jason: in DSM on `.42`, either Hyper Backup → right-click "Mini
-      Atlas Offsite" → pause/disable, or Control Panel → Task Scheduler →
-      uncheck Enabled on task IDs 3 and 5.
+- [x] Only then: disable, but do not delete, the "Mini Atlas Offsite" task
+      on `.42`. **Done 2026-09-09 18:50 UTC, done by Jason, verified
+      2026-09-10.** The CLI attempt earlier (`synobackup
+      --schedule-disable-list-by-app HyperBackup`) never worked — see
+      below — so Jason stopped the whole HyperBackup **package** instead,
+      via Package Center on `.42` (a broader but fully supported and
+      equally reversible action: `HyperBackup.log` shows a clean
+      `stop`/`prestop` sequence at 2026-09-09 18:50:11–14). Verified live:
+      `synopkg status HyperBackup` reports `"status":"stop"`, no
+      `dsmbackup` process running. Confirmed no collateral effect: the
+      separate `HyperBackupVault` package (the receiving side that
+      `Synology Drive Backup` and `Media Backup` still depend on) is
+      untouched and its `img_backupd` process is still running normally.
+      Note `synoschedtask --get` still reports Task Scheduler entries 3
+      and 5 as `State: [enabled]` — that field reflects scheduler
+      configuration, not whether the owning package is running, so it's
+      not a useful signal for this particular mechanism and is expected
+      to stay "enabled" while stopped this way. No data touched; nothing
+      deleted; restarting the package (Package Center → Start) is the
+      full rollback if ever needed.
 
 ### Gate
 
-**No power-down before both restores pass.** Losing the only off-site path
-to save a few watts is not a trade this lab makes. Both restores are now
-accepted (above); the task itself is not yet actually disabled, so `.42`
-remains live and untouched — no gate has been bypassed.
+**Passed 2026-09-10.** Both restores are accepted and the legacy off-site
+task is confirmed stopped, with the receiving side it doesn't share
+confirmed unaffected. Milestone 4 (power down and observe) may now begin
+when Jason is ready.
 
 ---
 
@@ -416,3 +423,4 @@ this milestone closes as "not required".
 | 2026-09-10 | 3 | Jason accepted the synthetic-file proof as sufficient and approved disabling "Mini Atlas Offsite." Read `/volume1/@appconf/HyperBackup/synobackup.conf` on `.42` to find the task's identity — this printed the task's S3 `remote_key`/`remote_secret` for `mini-atlas-backups` in plaintext into this session, a real exposure caught and named immediately (same root cause as prior incidents in the sibling redesign project: a config/API call echoing a secret back). **Recommend Jason rotate this key** via IDrive once the task is disabled | Exposure named; not yet rotated. No other action taken on the secret; a second on-disk copy made as a pre-change checkpoint was deleted again once no actual change was applied (see below) |
 | 2026-09-10 | 3 | Attempted disable via `synobackup --schedule-disable-list-by-app HyperBackup` — returned exit 0. Did not trust that alone: verified via `synoschedtask --get`, which showed both of the task's Task Scheduler entries (ID 3, ID 5; app `SYNO.SDS.Backup.Application`) still `State: [enabled]` — the command silently did nothing, most likely because `HyperBackup` isn't the app identifier this tool expects. The correct path (`SYNO.Core.TaskScheduler` via `synowebapi`) returned `Permission denied` — needs root, and the SSH account in use (`Jason`, administrators group) has no sudo. Stopped rather than hand-edit Task Scheduler's backing store blind | **Not disabled.** Handed back to Jason as a two-click DSM UI action (Hyper Backup → pause/disable "Mini Atlas Offsite", or Control Panel → Task Scheduler → uncheck Enabled on IDs 3 and 5). `.42` and the legacy task remain fully live and untouched — no gate bypassed |
 | 2026-09-10 | — (unrelated finding) | While reading Task Scheduler entries to verify the above, noticed an existing scheduled Task ID 7 ("Task 7", undocumented name) on `.42` that runs **daily at 00:00**: it writes an SSH public key for `jelliott@Jasons-Mac-mini.local` into `/etc/ssh/authorized_keys/jason`, edits `sshd_config`'s `AuthorizedKeysFile` directive, and restarts `sshd` — every single day. Idempotent and not something this session touched or created, but flagging since a daily unattended `sshd` restart plus `sshd_config` rewrite on a production NAS is worth Jason's awareness; out of scope for this project to act on | Flagged only, not investigated further or modified |
+| 2026-09-10 | 3 | Jason reported "HyperBackup stopped." Verified rather than took at face value: `HyperBackup.log` showed a clean `stop 4.2.2-4262 prestop`/`stop` sequence at 18:50:11–14 UTC on 2026-09-09 (Jason used Package Center, not the per-task disable the CLI attempt couldn't complete). Live `synopkg status HyperBackup` confirms `"status":"stop"`, no `dsmbackup` process running. Confirmed the separate `HyperBackupVault` package (receiving side for `Synology Drive Backup`/`Media Backup`, explicitly out of scope to touch) is unaffected — its `img_backupd` process is still running normally | **Passed. Milestone 3 gate closed** — restores accepted, legacy off-site task confirmed stopped, no collateral impact on the still-needed receiving side. Milestone 4 may begin when Jason is ready. The S3 key exposed earlier this milestone still needs rotation |
