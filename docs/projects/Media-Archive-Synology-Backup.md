@@ -1,6 +1,8 @@
 # Media Archive Backup to Synology
 
-> Status: Proposed — scoped, not started
+> Status: **Declined 2026-09-10 — not proceeding.** Jason decided not to
+> back up the media archive. Kept as a scoping record in case this is
+> revisited later, not an active or queued project.
 >
 > Project owner: Jason
 >
@@ -177,3 +179,12 @@ not presume to override.
 
 Do not create any account, share, or scheduled job on either host until
 Jason has explicitly confirmed the core proposal above in writing here.
+
+**Gate not passed — project declined instead.** Jason decided 2026-09-10
+not to back up the media archive at all, rather than confirming or
+rejecting the specific gowest-as-destination proposal above. No account,
+share, or scheduled job was ever created; `archive-movies` and
+`archive-tv` remain single-copy on TrueNAS, protected only by that pool's
+own RAIDZ2 redundancy, matching the accepted-risk framing already
+documented for other media in `docs/05-Backups.md`. Revisit this document
+if that decision changes.
