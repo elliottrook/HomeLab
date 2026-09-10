@@ -88,6 +88,8 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("For Home Assistant, remain read-only", ASTER_SYSTEM_PROMPT)
         self.assertIn("explicit action-specific approval", ASTER_SYSTEM_PROMPT)
         self.assertNotIn("execute_home_assistant", TOOLS)
+        self.assertIn("You may repeat non-sensitive names", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Never redirect a refused Home Assistant action", ASTER_SYSTEM_PROMPT)
 
     def test_current_forgejo_question_selects_only_sanitized_report_reader(self):
         names = [

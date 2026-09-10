@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-10 — Aster Home Assistant advisor graduation
+
+- Added a reviewed instance-specific Home Assistant operational curriculum.
+- Added a strict root-produced sanitized current-state report delivered
+  read-only to Aster without a Home Assistant credential or direct network client.
+- Passed two independent 10-case Home Assistant graduation runs plus all
+  general-sysadmin and ARR regression suites; retained rollback and backup evidence.
+- Graduated Aster as a read-only Home Assistant advisor. No service-call or
+  configuration mutation authority was added.
+
 ## Unreleased
 
 ### Added

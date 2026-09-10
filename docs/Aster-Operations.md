@@ -276,6 +276,24 @@ explicit permission.
 
 ## Health and logs
 
+### Home Assistant read-only report
+
+Proxmox runs `/usr/local/sbin/refresh-and-push-aster-ha-report` every five
+minutes from `/etc/cron.d/aster-ha-report`. Its root-owned producer queries VM
+103 only through `qm guest exec ... ha --raw-json` and writes a strict aggregate
+report to `/var/lib/aster/ha-report/latest.json` in LXC 104 as `root:aster 0640`.
+The report contains only Core/Supervisor versions and booleans, backup-mount
+configured/active booleans, and aggregate Resolution counts. It excludes all
+entity, device, user, location, automation-state, log, configuration and
+credential data. Aster has no Home Assistant token or direct client.
+
+Rollback copies from graduation are under
+`/opt/aster-agent/rollback-home-assistant-20260910` in LXC 104. The immediately
+prior knowledge tree is `/var/lib/aster/knowledge.failed-run1`; restore the
+saved source/unit and prior knowledge tree, reload systemd and restart
+`aster-agent.service`. Removing `/etc/cron.d/aster-ha-report` and the Proxmox
+producer scripts disables report refresh without changing Home Assistant.
+
 From the Proxmox host:
 
 ```sh
