@@ -1176,38 +1176,6 @@ REMOTE
     fi
 }
 
-check_synology_drive_backup() {
-    local maximum_hours="${1:-30}"
-    local remote_output
-
-    if ! remote_output="$(
-        ssh -o BatchMode=yes -o ConnectTimeout=5 gowest-backup \
-            'find "/volume1/Backup/GoWest_2.hbk" -type f -printf "%T@\n" 2>/dev/null | sort -rn | head -n 1' \
-            2>/dev/null
-    )"; then
-        warn "Unable to collect Synology Drive Backup health data"
-        return
-    fi
-
-    if [[ -z "$remote_output" ]]; then
-        warn "Synology Drive Backup has no files at destination"
-        return
-    fi
-
-    local modified_epoch="${remote_output%%.*}"
-    local now_epoch
-    now_epoch="$(date +%s)"
-
-    local age_hours
-    age_hours=$(( (now_epoch - modified_epoch) / 3600 ))
-
-    if (( age_hours <= maximum_hours )); then
-        pass "Synology Drive Backup is ${age_hours} hour(s) old"
-    else
-        warn "Synology Drive Backup is ${age_hours} hour(s) old"
-    fi
-}
-
 check_truenas() {
     local state_file="$STATE_ROOT/truenas-bond.state"
     local pool_json
@@ -1694,12 +1662,9 @@ check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
 check_proxmox_guest_backup_age "Aster llama.cpp LXC 110" 110 30 lxc
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
-check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
-check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
 check_idrive_relay
 check_backup_redesign_truenas
 check_home_assistant_backup_truenas
-check_synology_drive_backup 30
 
 divider
 
