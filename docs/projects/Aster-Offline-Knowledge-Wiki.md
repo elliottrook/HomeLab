@@ -1,10 +1,145 @@
 # Aster Offline Knowledge Wiki and Mirror
 
-> Status: Ready
+> Status: Active — Milestone 1 in progress
 >
 > Project owner: Jason
 >
 > Proposed: 2026-09-10
+>
+> Started: 2026-09-10
+>
+> Authorization: Stream A — Autonomous
+
+## Pre-start risk assessment and authorization envelope
+
+Jason's 2026-09-10 instruction to start the project and work autonomously is
+the Stream A approval for the scope and change classes below. It does not waive
+repository or platform approval for remote Git writes, public exposure,
+credential changes, destructive retention decisions or another non-waivable
+stop condition in the project creation standard.
+
+- **Objective and scope:** create the two private repositories, human wiki,
+  bounded intake/collector workflow, generated mirror, Aster integration,
+  evaluation, observability and recovery described in this document. Allowed
+  changes are new application code/configuration, private service deployment,
+  source-local scheduled jobs, narrow internal service registration, synthetic
+  tests, protected backups and reversible Aster snapshot-manifest changes.
+- **Affected systems and users:** Jason is the initial and only interactive
+  user. The intended deployment touches Forgejo LXC 108, a dedicated collector
+  target selected during Milestone 2, the private wiki presentation path,
+  Aster LXC 104 and its existing snapshot builder, plus Doctor, backup and
+  monitoring integrations. Inference remains on LXC 110; NetBox LXC 111 is a
+  read-only identity source, not a deployment target.
+- **Current state and dependencies:** read-only discovery on 2026-09-10 found
+  LXCs 104, 108, 110 and 111 running. Aster is an unprivileged 4 GiB guest on
+  VLAN 70; Forgejo is an unprivileged 2 GiB guest on VLAN 20. The existing
+  27-source Aster manifest, deterministic snapshot builder, authority-aware
+  retrieval, private Forgejo, Authentik onboarding pattern, HomeLab Doctor and
+  protected Proxmox backup path are the dependencies to preserve.
+- **Authority and data:** live reports and adopted systems of record remain
+  authoritative for transient and structured facts; `homelab-reference`
+  remains authoritative for reviewed current operations; imported upstream
+  content is versioned reference material; generated mirror output is always
+  non-authoritative. Conflicts are reported, never silently resolved.
+- **Confidentiality and privacy:** the corpus may contain private topology and
+  operating guidance, so both repositories and the service remain private.
+  Credentials stay source-local and outside Git. Fetch/extraction rejects
+  secret patterns and records only a non-sensitive failure reason. Aster gains
+  neither Internet access nor collector credentials.
+- **Availability and integrity:** bad upstream data, partial runs and incorrect
+  summaries could poison retrieval. Run-specific staging, immutable input
+  hashes, quarantine, verification, deterministic packaging, atomic activation
+  and retained last-good commits/snapshots prevent partial publication and
+  provide rollback. Core HomeLab operation does not depend on this service.
+- **Outbound/network changes:** the collector alone receives bounded outbound
+  HTTPS for accepted hostnames. No inbound Internet path or broader trust rule
+  is authorized. Any internal DNS, proxy or firewall change must be the narrow
+  private path documented here and retain an administrative recovery path.
+- **Licensing:** originals enter Git only when redistribution/storage terms
+  permit it. Otherwise metadata enters Git and the local-use original remains
+  in protected storage. Ambiguous licenses quarantine rather than publish.
+- **Destructive/irreversible work:** none is required. Retirement is two-stage;
+  source history and protected originals are retained. Repository deletion,
+  history rewrite, last-copy removal and irreversible corpus cleanup are
+  excluded.
+- **Recovery checkpoint and rollback:** before deployment, retain verified
+  current archives of every affected guest and the accepted Aster snapshot.
+  Disable the timer/service, reactivate the prior static build and snapshot,
+  and retain staging for diagnosis. Abort on an unverified prerequisite
+  backup, unexplained authority conflict, secret exposure, scope expansion,
+  public ingress, or failure to reproduce the accepted package.
+- **Testing and interruption:** synthetic fixtures cover each source type,
+  malformed/adversarial content, redirects, size/type limits, secrets,
+  conflicts and interrupted stages without touching production data. Two
+  independent production-path passes and an isolated restore are required.
+  Expected interruption is limited to bounded service activation/restart and
+  will be detected through direct health checks plus Doctor/monitoring.
+- **Residual risk:** upstream formats and licenses can change; model summaries
+  can omit nuance; private operational text remains sensitive even without
+  credentials. Quarantine, exact provenance, human-source fallback and monthly
+  corpus review reduce but do not eliminate these risks. Jason accepts these
+  residual risks within the stated Stream A scope.
+
+## Scope and exclusions
+
+The scope is limited to the architecture, interfaces, repositories, source
+classes, deployment and graduation gates in this document. Explicit non-goals
+are public publishing, general web browsing, arbitrary repository access,
+credential ingestion, Aster infrastructure mutation, replacing NetBox or
+`homelab-reference`, automatically promoting generated text to authority, and
+deleting historical source material.
+
+## Persistence plan and current resume state
+
+The project document is the durable orchestration record. Implementation uses
+schema-versioned state, content-addressed work items, per-run staging, bounded
+locks/retries and atomic candidate-to-accepted transitions. Each completed
+milestone ends with tests, evidence and a focused local commit. Remote
+synchronization is recorded as pending until separately authorized.
+
+**Current milestone:** Milestone 1 — contracts and corpus prototype.
+
+**Last verified state:** LXCs 104/108/110/111 running; existing Aster snapshot
+architecture and sibling `homelab-reference` checkout inspected; no wiki or
+mirror repository exists in the local sibling directory.
+
+**Next safe action:** scaffold and test the contracts, schemas, representative
+synthetic/local corpus and intake dry-run without changing production.
+
+**Rollback location:** current `main` commit and Aster's retained accepted
+snapshot; no production state has yet changed.
+
+## Integration impact assessment
+
+- [ ] **HomeLab Doctor:** add bounded service, pipeline age/result, quarantine
+  count and accepted-snapshot checks with synthetic failure tests.
+- [ ] **Monitoring/alerting:** add non-duplicative availability/run-age metrics
+  and owner-visible alerts after the service target is selected.
+- [ ] **Backup and recovery:** protect both Git repositories, collector state,
+  permitted originals and deployed snapshot; prove isolated restore.
+- [ ] **NetBox:** use existing asset/service IDs read-only where applicable; add
+  a service record only if NetBox's adopted authority requires one.
+- [ ] **Human wiki:** this project creates it; operator guidance and recovery
+  links are graduation requirements.
+- [ ] **Aster mirror/snapshot:** create the separately recoverable derived
+  mirror and extend the validated manifest/retrieval path without changing its
+  authority.
+- [ ] **Operational reference/runbooks:** link or version-import selected
+  material; current-state authority stays in `homelab-reference`.
+- [ ] **Repository documentation:** update architecture, addressing,
+  operations, backups, portfolio and changelog where deployment affects them.
+- [x] **Diagrams/rack records:** not applicable at project start; no physical
+  topology, rack, cable or power change is planned.
+- [ ] **Homepage/service discovery:** add a private operator link with a useful
+  health check and no embedded credentials after deployment.
+- [ ] **Authentication/authorization:** use the existing private onboarding
+  pattern, owner/admin only, with a documented direct recovery path.
+- [ ] **DNS, certificates and firewall:** assess after target selection; only
+  narrow split-DNS/internal proxy and collector egress changes are permitted.
+- [ ] **Automation and schedules:** add observable daily and monthly jobs with
+  locking, missed-run behavior and retained last-success state.
+- [ ] **Security inventory:** document source-local secrets, restrictive modes,
+  update ownership and removal of temporary access before graduation.
 
 ## Purpose
 

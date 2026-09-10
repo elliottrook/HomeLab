@@ -13,6 +13,11 @@
 ## Unreleased
 
 ### Added
+- Started the Aster offline knowledge wiki as a Stream A project under the new
+  project standard. Recorded its live dependency baseline, authorization
+  envelope, privacy/licensing/integrity risks, rollback and abort conditions,
+  durable resume state and complete integration impact assessment before
+  implementation.
 - Adopted a repository-wide HomeLab project creation standard defining the lab
   ethos, pre-agreed non-secret read-only discovery and BatchMode SSH, monitored
   and autonomous authorization streams, non-waivable risk stops, pre-start risk
