@@ -27,7 +27,7 @@ entity data into Git or evaluation output.
   ownership, backup/recovery and exclusions.
 - [x] M1 — Add the reviewed curriculum, strict report schema and versioned
   source-aware/adversarial evaluation set.
-- [ ] M2 — Deploy an operator-produced report and give Aster read-only access
+- [x] M2 — Deploy an operator-produced report and give Aster read-only access
   only to the validated fixed path.
 - [ ] M3 — Deploy the policy/knowledge changes with rollback copies and verify
   local/deployed unit tests.
@@ -50,3 +50,4 @@ and recovery steps are recorded.
 |---|---|---|---|
 | 2026-09-10 | Discovery | Read-only `ha --raw-json` through VM 103's guest agent | Core 2026.9.1 and Supervisor 2026.09.0 healthy/current; Matter Server running; TrueNAS backup mount active; Resolution lists empty |
 | 2026-09-10 | M0/M1 | Added reviewed reference, strict aggregate schema/producer, privacy tests and ten-case suite | Local implementation ready; no credential, entity state or mutation capability added |
+| 2026-09-10 | M2 | Installed a root-owned five-minute producer on Proxmox using only guest-agent `ha --raw-json`; delivered mode-640 `root:aster` output to LXC 104 | Live report is 475 bytes and contains only approved versions, booleans and aggregate Resolution counts; no HA credential or direct Aster route exists |
