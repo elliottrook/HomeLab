@@ -69,7 +69,7 @@
   - Debian GNU/Linux 13 (trixie), kernel `6.12.101+deb13-amd64`
   - Onboard NIC: Intel 82579LM Gigabit, single interface `eno1`, MAC `00:23:24:55:b1:1a`
 - UPS units (managed by the Lenovo NUT server above; see
-  [UPS-Power-Resilience-Claude-Handover.md](UPS-Power-Resilience-Claude-Handover.md)
+  [UPS-Power-Resilience-Claude-Handover.md](projects/completed%20projects/UPS-Power-Resilience-Claude-Handover.md)
   for full identification method and telemetry)
   - CyberPower CP1500PFCLCD (`proxmox-ups`, serial `CXXRO7009593`) — Proxmox + both Synology units
   - CyberPower CP1500PFCLCD (`nas-ups`, serial `CXXRP7016137`) — TrueNAS + Arista core switch

@@ -201,7 +201,7 @@ cover the same ground automatically, and Beszel shows the Lenovo's own
 host-level metrics (not UPS-specific data) in its dashboard.
 
 Full architecture, shutdown behavior and recovery notes:
-[UPS-Power-Resilience-Claude-Handover.md](UPS-Power-Resilience-Claude-Handover.md).
+[UPS-Power-Resilience-Claude-Handover.md](projects/completed%20projects/UPS-Power-Resilience-Claude-Handover.md).
 
 ## Activity log — 2026-09-02
 

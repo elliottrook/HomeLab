@@ -93,7 +93,7 @@ Goal: Lenovo Tiny PC as a bare-metal NUT server for three UPS units, with orderl
 shutdown, monitoring, backup, and Lab Doctor integration.
 
 Authoritative reference: github.com/elliottrook/HomeLab —
-`docs/UPS-Power-Resilience-Claude-Handover.md` (5-milestone tracker + 26-item
+`docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md` (5-milestone tracker + 26-item
 Definition of Done checklist — check items off as work progresses).
 
 Current state:
@@ -143,7 +143,7 @@ Current state:
   192.168.50.1` setting in `/etc/network/interfaces` never reached
   `/etc/resolv.conf`. Installed `resolvconf`; confirmed via reboot that
   `/etc/resolv.conf` regenerates correctly and `apt-get update` succeeds.
-  Details in `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 1).
+  Details in `docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md` (Milestone 1).
 - 2026-08-25: UPS #3 (CyberPower CP1500PFCLCD) is now physically connected
   to the Lenovo NUT server via USB. A `usbhid-ups` driver (`proxmox-ups`) is
   configured in `ups.conf`, `nut.conf` is set to `MODE=standalone`, and the
@@ -163,7 +163,7 @@ Current state:
   (host-level metrics only, not UPS-specific) — required a new OPNsense
   rule permitting Management VLAN 50 → Servers VLAN 20 port 8090, added
   by Jason since firewall changes are outside this project's scope.
-  Full details in `docs/UPS-Power-Resilience-Claude-Handover.md`.
+  Full details in `docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md`.
 - 2026-08-29: Lenovo relocated to its permanent placement with all three
   UPS units now within USB reach. UPS #2 (`network-ups`) identified and
   configured as a NUT client (see above) and added to `upsmon`
@@ -196,7 +196,7 @@ Current state:
     TrueNAS+Arista load, not the originally planned TrueNAS+Synology
     load — still valid as a real baseline, just re-attributed.
   Full power topology table in
-  `docs/UPS-Power-Resilience-Claude-Handover.md` (Section 6) has been
+  `docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md` (Section 6) has been
   updated to match.
 - 2026-08-29: **Milestone 2 fully closed.** Reboot test performed with
   all three UPS units connected: every NUT driver, `nut-server`,
@@ -213,7 +213,7 @@ Current state:
   warning/shutdown timing still uses NUT's hardware default rather than
   the discussed custom thresholds. Full details, including a
   self-caught-and-rotated credential exposure during setup, in
-  `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3 tracker).
+  `docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3 tracker).
   TrueNAS is now also a NUT client (via its native `ups` middleware
   service, not a manual package install) monitoring `nas-ups`, with
   `shutdown: LOWBATT` and `powerdown: false`. A second credential
@@ -238,7 +238,7 @@ Current state:
   78%, even while still `OL CHRG`). Since the fix is at the shared
   driver level, it covers TrueNAS's view of `nas-ups` too automatically.
   `SHUTDOWNCMD` reverted to the real script afterward. Full details in
-  `docs/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3 tracker).
+  `docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md` (Milestone 3 tracker).
 - 2026-08-29: **Milestone 3 fully closed.** While documenting the final
   shutdown order, caught and fixed one more real bug: the Lenovo's local
   `upsmon` was still monitoring `proxmox-ups` and `nas-ups` as `primary`
@@ -300,7 +300,7 @@ Current state:
   still applies at this runtime), so no change to the Milestone 3
   thresholds is needed. This closes the GPU half of the re-measurement
   follow-up — both RAM and CPU/GPU re-measurement items are now closed.
-  Full topology table in `docs/UPS-Power-Resilience-Claude-Handover.md`
+  Full topology table in `docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md`
   (Section 6) updated to match.
 
 Hard rules:

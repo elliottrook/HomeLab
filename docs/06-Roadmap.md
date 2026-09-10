@@ -18,7 +18,6 @@
 - [ ] [Local AI](projects/Local-AI.md)
 - [ ] [Authentik service rollout](projects/Authentik-Rollout.md)
 - [ ] [Surveillance expansion](projects/Surveillance-Expansion.md)
-- [ ] [NUT/UPS deployment](UPS-Power-Resilience-Claude-Handover.md)
 - [ ] [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)
 - [ ] [Video library archiving](projects/Video-Library-Archiving.md)
 - [ ] [Aster sysadmin second brain](projects/Aster-Sysadmin-Second-Brain.md)
@@ -28,6 +27,7 @@
 - [x] [Synology Drive family cloud](projects/completed%20projects/Synology-Drive-Family-Cloud.md)
 - [x] [Plex-to-Jellyfin media migration](projects/completed%20projects/Plex-to-Jellyfin-Media-Migration.md)
 - [x] [NetBox DCIM / rack & asset management](projects/completed%20projects/NetBox-DCIM.md)
+- [x] [NUT/UPS deployment](projects/completed%20projects/UPS-Power-Resilience-Claude-Handover.md)
 
 The checkboxes above represent independent project completion, not permission to
 run all twelve simultaneously. Each project document controls its own milestones

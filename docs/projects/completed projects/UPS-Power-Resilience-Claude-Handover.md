@@ -7,12 +7,17 @@
 **Environment:** Jason's HomeLab  
 **Repository:** This public HomeLab repository. Treat it as the authoritative source for current infrastructure details.
 
-**Project status:** Milestones 1–5 complete; see
+**Project status:** Complete. Milestones 1–5 finished 2026-08-29; see
 [UPS-Power-Resilience-Implementation-Close-Out.md](UPS-Power-Resilience-Implementation-Close-Out.md)
 for the final report. Controlled failure/recovery testing and
-push-style alerting are explicitly deferred to after handover.
+push-style alerting remain explicitly deferred, per Jason's own
+decision — not a gap in this project's Definition of Done (Section 26).
+The two items that were still genuinely open after handover — the APC
+BN1500M2-CA's final disposition, and re-measuring `proxmox-ups` after
+Proxmox's CPU/GPU/RAM upgrades — were both resolved 2026-09-10 (see
+Section 6). Moved into `docs/projects/completed projects/` the same day.
 
-**Last reconciled:** 2026-08-29
+**Last reconciled:** 2026-09-10
 
 ## Project milestone tracker
 
@@ -30,7 +35,7 @@ item-level Definition of Done.
   originally estimated), 7.6 GB RAM, single 119.2 GB disk (LVM: `/boot`
   partition + root/swap logical volumes). OS is Debian GNU/Linux 13
   (trixie), kernel `6.12.101+deb13-amd64`, no pending package upgrades.
-  Recorded in [03-Hardware-Inventory.md](03-Hardware-Inventory.md).
+  Recorded in [03-Hardware-Inventory.md](../../03-Hardware-Inventory.md).
 - [x] Configure stable hostname, address, DNS, time and restricted administration.
   - [x] DNS resolution fixed 2026-08-24: `/etc/network/interfaces` specified
     `dns-nameservers 192.168.50.1`, but the `resolvconf` package was not
@@ -61,7 +66,7 @@ item-level Definition of Done.
   DNS; live MAC/interface (`eno1`, single onboard NIC, no other interfaces)
   matches the recorded identity. Independence from the UniFi PoE switch was
   already documented in
-  [Current-Network-Baseline.md](Current-Network-Baseline.md) — direct
+  [Current-Network-Baseline.md](../../Current-Network-Baseline.md) — direct
   connection to Arista Et31, not downstream of the PoE switch (Et33).
 
 ### Milestone 2 — UPS discovery and NUT server
@@ -463,7 +468,7 @@ item-level Definition of Done.
   and Lab Doctor's `check_nut`, consistent with this repo's existing
   Beszel-vs-deeper-metrics division of responsibility (Section 15).
 - [x] Add actionable power/NUT checks and alerts to HomeLab Doctor/reporting.
-  Added `check_nut()` to [scripts/doctor.sh](../scripts/doctor.sh) 2026-08-28,
+  Added `check_nut()` to [scripts/doctor.sh](../../../scripts/doctor.sh) 2026-08-28,
   following the existing `check_*` conventions (SSH via the `nut` alias in
   `~/.ssh/config`, `pass`/`warn`/`fail` helpers, failures/warnings arrays).
   Checks: `nut-server` and `nut-monitor` services active; all three managed
@@ -474,7 +479,7 @@ item-level Definition of Done.
   check passed with all three UPS units online. The overall Doctor result was
   48 passes, 3 unrelated warnings, and 0 failures.
 - [x] Protect NUT configuration and document bare-metal recovery.
-  Documented in [05-Backups.md](../05-Backups.md) under "NUT / UPS Server
+  Documented in [05-Backups.md](../../05-Backups.md) under "NUT / UPS Server
   (Lenovo)" 2026-08-28: a manual pull command lands `ups.conf`, `nut.conf`,
   `upsd.users` (contains the real `upsmon` password), `upsmon.conf`, the
   SSH hardening drop-in, and network/hostname info directly into
@@ -502,14 +507,14 @@ item-level Definition of Done.
 - [ ] Perform controlled failure, shutdown and recovery tests.
 - [x] Update repository inventory, architecture, operations, backups and evidence.
   Added a "UPS and power-resilience architecture" section plus two
-  accepted-risk rows to [01-Architecture.md](01-Architecture.md); a
+  accepted-risk rows to [01-Architecture.md](../../01-Architecture.md); a
   "UPS / power monitoring" quick-reference section and `ssh nut` shortcut
-  to [04-Operations.md](04-Operations.md); the new narrow OPNsense rules
+  to [04-Operations.md](../../04-Operations.md); the new narrow OPNsense rules
   and corrected equipment mapping to
-  [Current-Network-Baseline.md](Current-Network-Baseline.md); and all
+  [Current-Network-Baseline.md](../../Current-Network-Baseline.md); and all
   four physical UPS units to
-  [03-Hardware-Inventory.md](03-Hardware-Inventory.md). Backup coverage
-  was already documented in [05-Backups.md](05-Backups.md) earlier in
+  [03-Hardware-Inventory.md](../../03-Hardware-Inventory.md). Backup coverage
+  was already documented in [05-Backups.md](../../05-Backups.md) earlier in
   Milestone 4.
 
 ### Milestone 5 — Hand-back

@@ -110,7 +110,7 @@ Synology-shutdown step depends on Arista (on `nas-ups`) still being
 powered, not because of its own battery runway. `nut-server`'s own local
 `upsmon` only monitors `network-ups` (its actual power source), so it
 doesn't shut itself down over a UPS it isn't even connected to. Full
-design and validation detail: `docs/UPS-Power-Resilience-Claude-Handover.md`.
+design and validation detail: `docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md`.
 
 ## Local AI Lab architecture
 

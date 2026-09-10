@@ -516,9 +516,6 @@ meant to duplicate that table — it stays the historical completion record for
 the initial build plus this build's own final reliability follow-up and small
 deferred cleanup items.
 
-The NUT/UPS project is the one exception still tracked directly from its own
-handover document rather than a `docs/projects/` tracker: [`docs/UPS-Power-Resilience-Claude-Handover.md`](docs/UPS-Power-Resilience-Claude-Handover.md).
-
 # Completed Post-Build Enhancement
 
 ## Forgejo ✅ COMPLETE 2026-08-24
@@ -588,6 +585,7 @@ All other work follows the independent milestones in the enhancement portfolio.
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-09-10 | Closed out the NUT/UPS project: retired the unusable APC BN1500M2-CA and re-measured `proxmox-ups` after Proxmox's CPU/GPU/RAM upgrades all landed, resolving the last two open items from the 2026-08-29 close-out. Moved the handover and close-out documents into `docs/projects/completed projects/`, joining the standard tracked-project structure, and removed the now-stale "one exception" note above. | `docs/projects/completed projects/UPS-Power-Resilience-Claude-Handover.md`; `docs/projects/README.md` portfolio table |
 | 2026-09-09 | Removed the duplicated, stale Enhancement Project Portfolio table (six rows, missing 8 of the 14 real active projects, and reporting the NUT/UPS project as merely "Handover ready" after Milestone 3 actually closed). Replaced it with a pointer to `docs/projects/README.md`, the table's own documented source of truth, per that index's "Relationship to the initial-build record" note. | `docs/projects/README.md` portfolio table |
 | 2026-09-09 | Reconciled the stale Phase 1 PoE-switch follow-up: the two items marked pending-delivery were actually closed 2026-08-26/08-30 (Binarui AP Switch for APs, TP-Link switch for the camera), so both are now checked off with evidence. Surfaced two small residual follow-ups that had never been tracked anywhere — forgetting the retired switch in UniFi Network, and the unresolved Mac-only Arista management access failure. | `docs/Current-Network-Baseline.md` AP/PoE switch checkpoint and config-loss sections; `CHANGELOG.md` Unreleased |
 | 2026-08-23 | Recorded the storm-related UniFi PoE switch boot failure, unsuccessful TP-Link TL-SG1016PE fallback, delayed UniFi recovery and decision to obtain a stable managed PoE replacement. | `docs/04-Operations.md` network incident |

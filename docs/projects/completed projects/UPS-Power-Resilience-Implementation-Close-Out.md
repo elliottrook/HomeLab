@@ -19,7 +19,6 @@ CyberPower CP1500PFCLCD (proxmox-ups) -- Proxmox + both Synology units
 CyberPower CP1500PFCLCD (nas-ups)     -- TrueNAS + Arista core switch
 CyberPower OR500LCDRM1U (network-ups) -- OPNsense, nut-server itself,
                                           UniFi PoE switch, camera switch
-APC Back-UPS Pro BN1500M2-CA          -- dumb battery, unassigned
         |
         | USB (all three NUT-managed units)
         v
@@ -51,7 +50,11 @@ doc's Milestone 3 tracker.
 | `proxmox-ups` | CyberPower CP1500PFCLCD | `CXXRO7009593` | Proxmox (Dell Precision T5810) + both Synology units |
 | `nas-ups` | CyberPower CP1500PFCLCD | `CXXRP7016137` | TrueNAS + Arista core switch |
 | `network-ups` | CyberPower OR500LCDRM1U | `GA4KS2000999` | OPNsense, the Lenovo itself, UniFi PoE switch, camera switch |
-| (unassigned) | APC Back-UPS Pro BN1500M2-CA | — | None — no NUT-compatible interface exists on this unit at all (confirmed by physical inspection: all rear ports are surge-protection passthrough, front USB is charging-only) |
+
+A fourth unit, an unassigned APC Back-UPS Pro BN1500M2-CA with no
+NUT-compatible interface (confirmed by physical inspection: all rear
+ports are surge-protection passthrough, front USB is charging-only),
+was retired and removed from the lab 2026-09-10 — see Section 13.
 
 The final equipment-to-UPS mapping differs from the project's original
 plan — Jason redistributed load across the three active units to work
@@ -142,7 +145,19 @@ No exposed credential is recorded anywhere in this repository — only in the re
 - **Controlled failure and recovery testing not performed** — deferred to after handover, per Jason's explicit decision. The trigger *mechanism* is validated; the real shutdown scripts' end-to-end behavior against a genuine outage is not.
 - **Alerts explicitly deferred** — no push-style notification on UPS events; visibility is pull-based only (Lab Doctor, Beszel).
 - **BIOS "AC Power Recovery" behavior unverified** on Proxmox, TrueNAS, and the Lenovo — see Section 7.
-- **APC BN1500M2-CA's final disposition undecided** — retire it, or repurpose as a dumb battery elsewhere.
+- ~~**APC BN1500M2-CA's final disposition undecided**~~ — **Resolved 2026-09-10:** retired and removed from the lab.
+
+**Update 2026-09-10:** Proxmox's CPU and GPU upgrades (referenced as
+still-pending in the original 2026-08-29 version of this report) have
+now landed alongside the RAM upgrade already confirmed at close-out.
+`proxmox-ups` was re-measured live under the fully upgraded
+configuration: `ups.status: OL`, `ups.load: 14` (~140W), `battery.charge:
+100`, `battery.runtime: 3350` (~55.8 min) — essentially flat against the
+RAM-only reading taken at close-out, and comfortably inside the 80% `LB`
+threshold's margin, so none of the Section 2/7 thresholds change. Full
+detail in the handover doc's Section 6. The remaining three outstanding
+items above (controlled failure/recovery testing, push alerting, BIOS AC
+Power Recovery behavior) are unchanged and remain deferred by design.
 
 ## 14. Recommended Follow-Ups (outside this project's scope)
 
