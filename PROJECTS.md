@@ -75,8 +75,10 @@ confirmed; the network design does not need to be reopened). Two small residual
 follow-ups surfaced during this work, are still open, and had no tracked home
 until now:
 
-- [ ] Forget the retired UniFi PoE switch entry in the UniFi Network application — it was physically replaced but never removed from the controller's device list.
-- [ ] Investigate the Mac-only access failure to Arista management noticed during the 2026-08-23 incident.
+- [x] Forget the retired UniFi PoE switch entry in the UniFi Network application — it was physically replaced but never removed from the controller's device list. **Closed 2026-09-10:** Jason removed it directly in the UniFi app; this Claude session had no network path to the UniFi controller to do it remotely.
+- [x] Investigate the Mac-only access failure to Arista management noticed during the 2026-08-23 incident. **Closed 2026-09-10 — not reproducible / resolved itself:** retested since the 2026-08-23 incident and Mac access to Arista management now works normally. Treated as a transient issue rather than a persistent defect; no root cause was identified, so if it recurs it should be reopened and investigated properly rather than assumed transient again.
+
+**Both residual follow-ups closed 2026-09-10.** The Phase 1 PoE-switch reliability close-out has no remaining open items.
 
 ---
 
