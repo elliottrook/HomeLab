@@ -625,9 +625,9 @@ document (e.g. in the Milestone 2 tracker entries above) over this table.
 
 | UPS | NUT name | Protected equipment | Capacity | Current load | Runtime at current load |
 |---|---|---|---|---:|---:|
-| UPS #1 — APC Back-UPS Pro BN1500M2-CA | *(none — dumb battery, no NUT interface)* | Nothing currently — final disposition (retire/repurpose) still undecided | 1500VA | Not visible to NUT | Not visible to NUT |
+| UPS #1 — APC Back-UPS Pro BN1500M2-CA | *(none — dumb battery, no NUT interface)* | **Retired and removed from the lab, 2026-09-10.** | 1500VA | N/A | N/A |
 | UPS #2 — CyberPower OR500LCDRM1U | `network-ups` | OPNsense, **the Lenovo NUT server itself**, UniFi PoE switch, camera switch | 500VA / 300W nominal | 23% (~69W) | ~2175s (~36 min) |
-| UPS #3 — CyberPower CP1500PFCLCD | `proxmox-ups` | Proxmox (Dell Precision T5810) **and both Synology units** | 1500VA / 1000W nominal | 12% (~120W) | ~3675s (~61 min) |
+| UPS #3 — CyberPower CP1500PFCLCD | `proxmox-ups` | Proxmox (Dell Precision T5810, now with the CPU/GPU/RAM upgrade complete) **and both Synology units** | 1500VA / 1000W nominal | 14% (~140W) | ~3350s (~55.8 min) |
 | UPS #1 replacement — CyberPower CP1500PFCLCD | `nas-ups` | TrueNAS **and the Arista core switch** | 1500VA / 1000W nominal | 33% (~330W) | ~1350s (~22.5 min) |
 
 This corrected mapping changes the dependency picture significantly from
@@ -665,16 +665,32 @@ the original plan:
   re-measurement task; the GPU upgrade will need its own re-measurement
   once it lands, and is expected to move the load far more than RAM
   did.
+
+  **Update 2026-09-10:** the CPU and GPU upgrades have both now landed.
+  Re-measured live via `upsc proxmox-ups`: `ups.status: OL`, `ups.load:
+  14` (~140W), `battery.charge: 100`, `battery.runtime: 3350` (~55.8
+  min). This is essentially flat against the RAM-only 2026-09-02 reading
+  (15%/~150W, ~53 min) rather than the larger increase expected once a
+  GPU was added — most likely because the reading was taken at idle
+  rather than under active GPU workload, so treat it as a baseline
+  rather than a worst case; a load check while the GPU is actually busy
+  (e.g. during a video-transcode or LLM-inference run) would be a more
+  representative stress figure if ever needed. Either way, it remains
+  comfortably inside the 80% `LB` threshold's margin, so **no change to
+  the Milestone 3 thresholds is needed**. This closes the GPU half of
+  the re-measurement follow-up — the entire hardware-upgrade
+  re-measurement task (RAM, CPU, GPU) is now closed.
 - Frigate (Proxmox VM 102) still depends on TrueNAS via NFS for its
   recordings storage, even though the physical UPS pairing changed —
   that cross-UPS dependency (`proxmox-ups` compute → `nas-ups` storage)
   is unaffected by this correction and still needs to be accounted for
   in shutdown ordering.
 
-The APC BN1500M2-CA's final disposition (retire vs. repurpose as a
-dumb-battery elsewhere) is still undecided — it currently has no
-protected equipment assigned to it and is not part of the live topology
-above.
+**Resolved 2026-09-10:** the APC BN1500M2-CA has been retired and
+removed from the lab. It was never NUT-compatible (no monitoring
+interface — see Section 5/6 history above) and had no protected
+equipment assigned to it, so its removal has no effect on the live NUT
+topology or shutdown ordering documented in this file.
 
 ## 7. Physical Connection
 

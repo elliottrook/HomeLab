@@ -90,9 +90,10 @@ CyberPower CP1500PFCLCD (proxmox-ups) -- Proxmox + both Synology units
 CyberPower CP1500PFCLCD (nas-ups)     -- TrueNAS + Arista core switch
 CyberPower OR500LCDRM1U (network-ups) -- OPNsense, nut-server itself,
                                           UniFi PoE switch, camera switch
-APC Back-UPS Pro BN1500M2-CA          -- dumb battery, no NUT interface,
-                                          no equipment currently assigned
 ```
+
+A fourth unit, an APC Back-UPS Pro BN1500M2-CA with no NUT interface and
+no equipment assigned, was retired and removed from the lab 2026-09-10.
 
 Equipment is distributed across UPS units differently than a naive
 per-service mapping would suggest, driven by physical/cabling

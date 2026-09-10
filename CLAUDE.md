@@ -187,9 +187,10 @@ Current state:
     triple Proxmox's RAM and add a substantial GPU — today's measured
     12%/~120W load on `proxmox-ups` should not be treated as a stable
     planning baseline; re-measure runtime once that hardware lands.
-    **RAM landed 2026-09-02** (see status entry below) — the GPU has not
-    yet landed, and `proxmox-ups` runtime has not yet been re-measured
-    under the new load; both remain open.
+    **RAM landed 2026-09-02, CPU and GPU landed and confirmed by
+    2026-09-10** (see status entries below) — `proxmox-ups` has now been
+    re-measured under the full upgraded configuration; this follow-up is
+    closed.
   - `nas-ups` still has the shortest measured runtime (~22.5 min at
     33%/~330W), but that figure was recorded under the corrected
     TrueNAS+Arista load, not the originally planned TrueNAS+Synology
@@ -282,6 +283,25 @@ Current state:
   margin — closes the RAM half of the re-measurement follow-up. Still
   need a follow-up re-measurement once the GPU upgrade lands, since that
   draw will likely be far larger than RAM's.
+- 2026-09-10: Proxmox's CPU and GPU upgrades have landed (in addition to
+  the RAM upgrade already confirmed 2026-09-02), and the old APC
+  BN1500M2-CA UPS has been retired and removed from the lab — closing the
+  disposition question that had been open since the 2026-08-29
+  correction. `proxmox-ups` re-measured live via `upsc` under the now
+  fully-upgraded configuration: `ups.status: OL`, `ups.load: 14`
+  (~140W of the 1000W nominal capacity), `battery.charge: 100`,
+  `battery.runtime: 3350` (~55.8 min). This is essentially flat versus
+  the RAM-only 2026-09-02 reading (15%/~150W, ~53 min) rather than the
+  larger jump expected from adding a GPU — most likely because the
+  reading was taken at idle/light load rather than under active GPU
+  workload, so it should be treated as a baseline, not a worst-case.
+  Either way it stays comfortably inside the 80% `LB` threshold's margin
+  (the same ~11-12 minute elapsed-before-LB figure noted 2026-08-29
+  still applies at this runtime), so no change to the Milestone 3
+  thresholds is needed. This closes the GPU half of the re-measurement
+  follow-up — both RAM and CPU/GPU re-measurement items are now closed.
+  Full topology table in `docs/UPS-Power-Resilience-Claude-Handover.md`
+  (Section 6) updated to match.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

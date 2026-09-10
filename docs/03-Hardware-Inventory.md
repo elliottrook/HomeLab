@@ -74,4 +74,4 @@
   - CyberPower CP1500PFCLCD (`proxmox-ups`, serial `CXXRO7009593`) — Proxmox + both Synology units
   - CyberPower CP1500PFCLCD (`nas-ups`, serial `CXXRP7016137`) — TrueNAS + Arista core switch
   - CyberPower OR500LCDRM1U (`network-ups`, serial `GA4KS2000999`) — OPNsense, the Lenovo NUT server itself, UniFi PoE switch, camera switch
-  - APC Back-UPS Pro BN1500M2-CA — dumb battery only (no NUT/monitoring interface exists on this unit); no equipment currently assigned; final disposition undecided
+  - APC Back-UPS Pro BN1500M2-CA — retired and removed from the lab 2026-09-10 (it never had a NUT/monitoring interface and had no equipment assigned)
