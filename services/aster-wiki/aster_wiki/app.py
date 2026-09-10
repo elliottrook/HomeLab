@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import cgi
 import html
+import io
 import json
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -16,14 +18,40 @@ from .manifest import ManifestError, write_candidate
 FORM = """<!doctype html><meta charset=utf-8><title>Aster Wiki intake</title>
 <style>body{font:16px system-ui;max-width:54rem;margin:2rem auto;padding:0 1rem}label{display:block;margin:.8rem 0}input,select{width:100%;padding:.45rem}button{padding:.6rem 1rem}pre{white-space:pre-wrap;background:#f3f3f3;padding:1rem}</style>
 <h1>Add a private knowledge source</h1><p>Preview is read-only. Acceptance creates a candidate for the collector; it does not publish content.</p>
-<form method=post action=/preview>
+<form method=post action=/preview enctype=multipart/form-data>
 <label>Type <select name=kind><option>web</option><option>git</option><option>manual</option></select></label>
 <label>Title <input required name=title></label><label>Source ID <input name=source_id></label>
 <label>Publisher/owner <input name=owner></label><label>HTTPS URL or upload label <input name=location></label>
 <label>Boundary <input name=boundary placeholder="exact URL, path prefix, or comma-separated repository paths"></label>
-<label>Manual text (prototype upload) <textarea name=manual_text rows=8 style="width:100%"></textarea></label>
+<label>Manual upload (PDF, HTML, Markdown or text; prototype limit 64 KiB) <input type=file name=manual_file></label>
 <label>License <select name=license_status><option>review-required</option><option>permitted</option><option>metadata-only</option></select></label>
 <button>Preview source</button></form>"""
+
+
+def parse_submission(content_type: str, body: bytes) -> tuple[dict[str, str], bytes | None]:
+    """Parse one bounded form submission without requiring a listening socket."""
+    upload = None
+    if content_type.startswith("multipart/form-data"):
+        fields = cgi.FieldStorage(
+            fp=io.BytesIO(body),
+            headers={"content-type": content_type, "content-length": str(len(body))},
+            environ={"REQUEST_METHOD": "POST", "CONTENT_TYPE": content_type,
+                     "CONTENT_LENGTH": str(len(body))}, keep_blank_values=True,
+        )
+        form = {}
+        for key in fields.keys():
+            item = fields[key]
+            if isinstance(item, list):
+                item = item[-1]
+            if key == "manual_file" and item.filename:
+                upload = item.file.read(64 * 1024 + 1)
+                if len(upload) > 64 * 1024:
+                    raise ManifestError("manual too large for prototype")
+                form["filename"] = Path(item.filename).name
+            elif item.value is not None:
+                form[key] = str(item.value)
+        return form, upload
+    return ({key: values[-1] for key, values in parse_qs(body.decode()).items()}, None)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -75,10 +103,11 @@ class Handler(BaseHTTPRequestHandler):
         if length > 64 * 1024:
             self.reply(413, "<h1>Request too large</h1>")
             return
-        form = {key: values[-1] for key, values in parse_qs(self.rfile.read(length).decode()).items()}
+        body = self.rfile.read(length)
         try:
+            form, upload = parse_submission(self.headers.get("Content-Type", ""), body)
             if self.path == "/preview":
-                result = preview(form, form.get("manual_text", "").encode() or None)
+                result = preview(form, upload)
                 token = result["source"]["id"]
                 self.previews[token] = result
                 rendered = html.escape(json.dumps(result, indent=2, sort_keys=True))

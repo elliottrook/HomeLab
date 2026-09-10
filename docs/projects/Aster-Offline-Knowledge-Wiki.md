@@ -97,14 +97,17 @@ locks/retries and atomic candidate-to-accepted transitions. Each completed
 milestone ends with tests, evidence and a focused local commit. Remote
 synchronization is recorded as pending until separately authorized.
 
-**Current milestone:** Milestone 1 — contracts and corpus prototype.
+**Current milestone:** Milestone 2 — safe daily acquisition.
 
-**Last verified state:** LXCs 104/108/110/111 running; existing Aster snapshot
-architecture and sibling `homelab-reference` checkout inspected; no wiki or
-mirror repository exists in the local sibling directory.
+**Last verified state:** private Forgejo repositories `jason/homelab-wiki` and
+`jason/aster-knowledge-mirror` contain seed commits `678786c` and `260cdb0`;
+both remain private. The offline renderer and intake prototype pass ten tests,
+including actual bounded manual upload, URL/Git scope preview, non-mutating
+discovery, atomic candidate creation and active-HTML escaping.
 
-**Next safe action:** scaffold and test the contracts, schemas, representative
-synthetic/local corpus and intake dry-run without changing production.
+**Next safe action:** implement manifest-driven acquisition, resumable state,
+normalization, quarantine and atomic accepted-lock transitions using synthetic
+fixtures before selecting or changing a production collector target.
 
 **Rollback location:** current `main` commit and Aster's retained accepted
 snapshot; no production state has yet changed.
@@ -456,16 +459,16 @@ production corpus and search index.
 
 ## Milestone 1 — Contracts and corpus prototype
 
-- [ ] Create `homelab-wiki` and `aster-knowledge-mirror` as separate private
+- [x] Create `homelab-wiki` and `aster-knowledge-mirror` as separate private
   Forgejo repositories with explicit contracts and ownership.
-- [ ] Adopt the taxonomy, metadata schema, source manifest and authority model.
-- [ ] Establish how `homelab-reference` pages are linked or version-imported
+- [x] Adopt the taxonomy, metadata schema, source manifest and authority model.
+- [x] Establish how `homelab-reference` pages are linked or version-imported
   without creating competing current-state authorities.
-- [ ] Add a small representative corpus: one equipment manual, one Home
+- [x] Add a small representative corpus: one equipment manual, one Home
   Assistant document, one ARR document, one runbook and one incident record.
-- [ ] Prototype the internal Add source form for URL, Git repository and manual
+- [x] Prototype the internal Add source form for URL, Git repository and manual
   upload, including dry-run discovery and an acceptance preview.
-- [ ] Render the human wiki locally and verify navigation, search, source links
+- [x] Render the human wiki locally and verify navigation, search, source links
   and readability from a normal Lab client.
 
 Completion gate: a person can browse the representative corpus offline and add
@@ -584,3 +587,5 @@ snapshot; the complete human repository remains intact.
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-09-10 | Design | Compared the proposed human/mirror split with the graduated second-brain authority, deterministic snapshot, recovery and evaluation guidance | Project ready; derived analysis is viable provided it remains reproducible, non-authoritative and traceable to exact human-source locations |
+| 2026-09-10 | Start | Jason directed autonomous execution; recorded Stream A scope, exclusions, live dependency baseline, risks, recovery/abort conditions, persistence and every integration impact before implementation | Project active within the documented envelope; remote mutations and non-waivable stops remain separately controlled |
+| 2026-09-10 | 1 | Created private Forgejo repositories `jason/homelab-wiki` and `jason/aster-knowledge-mirror`; verified private flags and exact initial commits `678786c`/`260cdb0`. Added explicit human/mirror contracts, strict manifest validation, five representative synthetic/local pages, safe local rendering and an intake UI. Ten tests cover URL, Git and real manual-upload previews, scope, TLS rejection, upload limit, active-HTML escaping and atomic idempotent candidates | Milestone 1 gate passed. A person can browse the offline seed and stage every supported source type without Git/YAML editing; provenance and authority boundaries are explicit. Production deployment intentionally waits for Milestone 2's collector and security gates |

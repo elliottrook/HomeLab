@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from aster_wiki.intake import preview
-from aster_wiki.app import Handler
+from aster_wiki.app import Handler, parse_submission
 from aster_wiki.manifest import ManifestError, load_manifest, write_candidate
 
 
@@ -12,6 +12,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class IntakeTests(unittest.TestCase):
+    @staticmethod
+    def multipart(fields, filename=None, file_bytes=b""):
+        boundary = "ASTERBOUNDARY"
+        chunks = []
+        for key, value in fields.items():
+            chunks.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{key}\"\r\n\r\n{value}\r\n".encode())
+        if filename:
+            chunks.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"manual_file\"; filename=\"{filename}\"\r\nContent-Type: text/plain\r\n\r\n".encode() + file_bytes + b"\r\n")
+        chunks.append(f"--{boundary}--\r\n".encode())
+        return f"multipart/form-data; boundary={boundary}", b"".join(chunks)
+
     def test_seed_manifest_is_valid(self):
         manifest = load_manifest(ROOT / "seed/homelab-wiki/sources/sources.json")
         self.assertEqual("synthetic-ups-manual", manifest["sources"][0]["id"])
@@ -70,6 +81,23 @@ class IntakeTests(unittest.TestCase):
             self.assertNotIn("<script>", rendered)
             self.assertIn("&lt;script&gt;", rendered)
             self.assertIn("href='/wiki/runbooks/example.md'", rendered)
+
+    def test_actual_manual_upload_form_reaches_preview(self):
+        content_type, body = self.multipart(
+            {"kind": "manual", "title": "Uploaded Manual", "owner": "Vendor",
+             "media_type": "text/plain", "license_status": "permitted"},
+            "manual.txt", b"SYNTHETIC MANUAL\nsection 1\n",
+        )
+        form, upload = parse_submission(content_type, body)
+        result = preview(form, upload)
+        self.assertEqual("manual.txt", form["filename"])
+        self.assertEqual(64, len(result["uploaded_sha256"]))
+
+    def test_manual_upload_limit_fails_closed(self):
+        content_type, body = self.multipart({"kind": "manual", "title": "Too Big"},
+                                            "large.txt", b"x" * (64 * 1024 + 1))
+        with self.assertRaises(ManifestError):
+            parse_submission(content_type, body)
 
 
 if __name__ == "__main__":

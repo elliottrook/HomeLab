@@ -13,6 +13,12 @@
 ## Unreleased
 
 ### Added
+- Completed Aster offline knowledge wiki Milestone 1: created and verified two
+  private Forgejo repositories, seeded explicit human and generated-mirror
+  contracts, added a representative offline corpus and safe renderer, and
+  implemented browser intake previews for HTTPS documentation, bounded Git
+  paths and actual size-limited manual uploads. Ten local tests validate scope,
+  non-mutation, TLS rejection, escaping and atomic candidate creation.
 - Enabled network access inside the repository's existing `workspace-write`
   Codex sandbox and allowlisted only the three sibling HomeLab knowledge
   repositories as additional writable roots. Stream A guidance now requires
