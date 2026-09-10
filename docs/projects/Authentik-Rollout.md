@@ -1,11 +1,14 @@
 # Authentik Service Rollout Project
 
 > Status: Foundation proven; Milestone 2 rollout wave started — Forgejo done
-> (native OIDC), Homepage and Beszel still open
+> (native OIDC), Homepage and Beszel still open (unattended task in progress,
+> see Authorization). Scope widened 2026-09-10 to cover every app on the
+> live Homepage dashboard, not just the originally-named services — see
+> Milestone 3 and `docs/09-Service-Authorization-Onboarding.md`.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-08-31
+> Last updated: 2026-09-10
 
 ## Purpose
 
@@ -117,6 +120,14 @@ Do not proxy SSH, DNS, SMB, NFS, iSCSI, RTSP, ONVIF, backup transports, the
 Ollama API, the Tailscale control path or other non-browser protocols. Do not
 make firewall recovery depend on Authentik or the reverse proxy.
 
+**Confirmed additions from the full dashboard inventory (2026-09-10):** the
+AP Switch's raw HTTP management page (no real auth of its own to federate),
+Aster llama.cpp's model-inference API (`192.168.70.12:11435`, same category
+as the Ollama API row), and GitHub (external, has its own account/auth —
+nothing to federate). Aster Agent's browser UI gets the same treatment as
+the existing Hermes entry above: kept Lab-VLAN/Tailscale-only for now rather
+than proxied, since it's deliberately isolated by design.
+
 ## Milestone 1 — Identity and policy foundation
 
 - [ ] Inventory intended users and define `homelab-admins`, family and any
@@ -160,6 +171,25 @@ and losing Authentik/NPM does not prevent direct administrative recovery.
 - [ ] Calibre and Audiobookshelf — test mobile reader/player behaviour.
 - [ ] Jellyfin/Plex — proceed only if TV and mobile clients remain functional;
   retain native application authentication where appropriate.
+- [ ] **Added 2026-09-10, from a full live-dashboard inventory** (see
+  `docs/09-Service-Authorization-Onboarding.md`'s service plan table for the
+  per-service detail this checklist summarizes) — none of these were
+  previously scoped in this project at all:
+  - [ ] Grafana — native OIDC (first-party support).
+  - [ ] Code Server, Dockge — forward auth; treat as admin-tier (full
+    host/config/container control), sequence with the same caution as
+    Portainer, not as a low-risk app.
+  - [ ] Dozzle — forward auth.
+  - [ ] Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd — forward auth for each
+    browser UI only; preserve every app's own API key for inter-app and
+    Homepage-widget calls.
+  - [ ] Media Manager (Homarr) — forward auth.
+  - [ ] Newtarr — confirm what it actually is/does before onboarding; not
+    otherwise documented in this repo yet.
+  - [ ] File Browser — forward auth; admin-tier (raw filesystem access),
+    same caution as Code Server/Dockge.
+  - [ ] NetBox — native OIDC if the installed version's SSO plugin is
+    enabled; otherwise forward auth.
 - [ ] Update the service onboarding evidence table after every service.
 
 Completion gate: selected applications have least-privilege access and every
@@ -208,3 +238,5 @@ backup and rollback procedures have passed.
 | 2026-08-25 | Authentik launch URL follow-up | Verified Base URL/outpost/NPM headers; replaced dashboard HTTP fallback link with `https://auth.elliottrook.com` | Passed |
 | 2026-08-31 | Forgejo | Native OIDC via a dedicated Authentik OAuth2/OpenID Provider. Two real bugs were found and fixed, not just a straightforward setup: (1) Forgejo's actual OAuth callback path is case-sensitive to the Authentication Source name (`https://git.elliottrook.com/user/oauth2/Authentik/callback` with capital "A", matching what was typed into Forgejo) — the redirect URI initially registered in Authentik used lowercase and was rejected; confirmed the exact mismatch by capturing the live `authorize` request rather than guessing. (2) A known Gitea/Forgejo upstream bug: it cannot parse JWE-encrypted tokens, producing `oauth2: error decoding JWT token: jws: invalid token received, not all parts available` — fixed by clearing the Encryption Key field on the Authentik provider (token encryption must stay off for Forgejo specifically). Also corrected Forgejo's Additional Scopes from blank to `email profile` per the official Authentik-Forgejo integration guide. A separate, unrelated blocker was also found and fixed along the way: an OPNsense inter-VLAN firewall rule was missing, preventing Forgejo's host (192.168.20.30, Servers VLAN 20) from reaching NPM (192.168.50.23, Management VLAN 50) on port 443 at all — added a narrow pass rule scoped to just Forgejo's host. Validated with a full clean-session login (private window, no prior Authentik session) showing the complete password + passkey/MFA prompt. Also fixed an unrelated Homepage dashboard tile pointing at Forgejo's old IP-based URL instead of `https://git.elliottrook.com`. | Passed |
 | 2026-09-10 | Authorization | Jason granted a per-project authorization scoped to Homepage/Beszel, intended for unattended (scheduled, no live session) execution. Same day, after the authorization initially excluded OPNsense changes entirely, Jason explicitly widened it: "I trust ChatGPT to make a firewall rule and I trust you to do the same... minimal, just enough to get the job done." Recorded as a narrow, literal widening — one source/destination/port pass rule matching the Forgejo precedent's exact shape, not a general firewall exception — everything broader remains a hard stop | Recorded in the Authorization section above; the scheduled task's own instructions were updated to match before it fired |
+| 2026-09-10 | Scope | Jason asked to add every app/service on the live Homepage dashboard to this project. Pulled the actual live `/opt/homepage/config/services.yaml` (not the stale onboarding table) — found ~15 dashboard apps never previously scoped anywhere in this project: Grafana, Code Server, Dockge, Dozzle, the *arr stack (Sonarr/Radarr/Lidarr/Prowlarr/SABnzbd), Homarr, Newtarr, File Browser, NetBox, plus never-proxy items (AP Switch, Aster llama.cpp, GitHub) and Aster Agent (Lab-VLAN-only, same as Hermes) | Added all of them to `09-Service-Authorization-Onboarding.md`'s service plan table and this project's Milestone 3 checklist, each with a recommended auth path. **Deliberately did not fold any of this into the already-running unattended task's authorization** — that stays scoped to exactly Homepage and Beszel; everything newly added here still needs Milestone 2 to actually finish and be observed before Milestone 3 starts, per this project's own sequencing rule, and several of the new items (Code Server, Dockge, File Browser, NetBox) are admin-tier enough to warrant their own explicit authorization conversation rather than being silently swept into an existing grant |
+

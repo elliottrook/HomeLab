@@ -52,6 +52,20 @@ application's current authentication settings before selecting a path.
 | Forgejo | Native OIDC — complete and tested (2026-08-31) | `git.elliottrook.com` | `ROOT_URL` in `/etc/forgejo/app.ini` had to be changed from `http://192.168.20.30:3000/` to `https://git.elliottrook.com/` — without this, browser login silently failed with a generic "incorrect" error caused by CSRF/session-cookie validation against the wrong canonical URL, same failure class as Authentik's `authentik_host` issue above. Direct `http://192.168.20.30:3000` and SSH clone/push both remain on their existing private path — `DOMAIN`/`SSH_DOMAIN` were deliberately left unchanged. See the completion record below and "Known pitfalls" for the JWE-encryption and redirect-URI-case issues hit during rollout.
 | Immich | Native OIDC if supported by deployed version | `photos.elliottrook.com` | Validate mobile-client behaviour |
 | Future Paperless-ngx | Native OIDC if supported by deployed version | `paperless.elliottrook.com` | Preserve API/automation access |
+| Grafana | Native OIDC (Grafana has first-party support) | `monitoring.elliottrook.com` (already the live address — confirm whether this is already Authentik-fronted from the observability rollout or still direct) | Keep the local admin account as break-glass |
+| Code Server | Forward auth | `code.elliottrook.com` | Admin-tier: full shell/file access to the Docker host's config; treat like an infrastructure interface, not a low-risk app, when sequencing |
+| Dockge | Forward auth | `dockge.elliottrook.com` | Admin-tier: can start/stop/reconfigure every Compose stack on its host |
+| Dozzle | Forward auth | `logs.elliottrook.com` | Read-only container logs; lower sensitivity than Dockge but still admin-facing |
+| Aster Agent | Keep Lab/Tailscale-only initially, same treatment as the Hermes entry above | Lab VLAN 70 address | Isolated by design; do not casually widen its exposure just to fit the Authentik pattern |
+| Aster llama.cpp | No Authentik proxy | `192.168.70.12:11435` | Same reasoning as the Ollama API row above — a model inference API, not a browser login page |
+| Sonarr / Radarr / Lidarr / Prowlarr | Forward auth for the browser UI only | Service-specific names | Preserve each app's own API key for Homepage widgets and inter-app calls (e.g. Prowlarr → Sonarr/Radarr, the video-archiver/playlist-bridge tools) — those are service-to-service, not browser traffic |
+| SABnzbd | Forward auth for the browser UI only | Service-specific name | Preserve its API key for Sonarr/Radarr/Lidarr's download-client integration |
+| Media Manager (Homarr) | Forward auth | Service-specific name | A second dashboard/launcher alongside Homepage — same treatment as Homepage itself |
+| Newtarr | Forward auth | Service-specific name | Confirm what this actually is/does before onboarding — not otherwise documented in this repo yet |
+| File Browser | Forward auth | Service-specific name | Admin-tier: raw filesystem browse/edit access to its host's media roots — treat with the same caution as Code Server/Dockge |
+| NetBox | Native OIDC if the installed version's SSO plugin is enabled; otherwise forward auth | `netbox.elliottrook.com` | Keep the local superuser account as break-glass, matching the pattern already used for its API token in `NetBox-DCIM.md` |
+| AP Switch | No Authentik proxy | Existing address | HTTP-only raw switch management with no real authentication of its own to federate — treat like the other never-proxied network/control-plane rows above, not a browser app |
+| GitHub | No Authentik proxy | Existing address | External service with its own account/auth; nothing to federate |
 
 Start with ordinary applications. Leave OPNsense, Proxmox, storage appliances
 and other recovery-critical interfaces until the pattern has been proven on
