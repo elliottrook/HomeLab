@@ -1,5 +1,9 @@
 # HomeLab Engineering Standards
 
+The normative process for creating and running enhancement projects, including
+the lab ethos, authorization streams, risk assessment, milestone gates and
+integration checklist, is [HomeLab Project Creation Standard](Project-Creation-Standard.md).
+
 ## Core Principles
 
 1. Document before implementing.
@@ -24,6 +28,10 @@ Every major project must include:
 - Configuration
 - Validation
 - Recovery
+- Pre-start risk assessment
+- Authorization stream
+- Persistence/resume plan
+- Systems-of-record and integration impact assessment
 
 ---
 
@@ -54,3 +62,6 @@ Commit to Git
 ↓
 
 Tag Release
+
+Tags and releases are optional and require the applicable remote-operation
+authorization. The standard milestone unit is a validated, documented commit.

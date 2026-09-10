@@ -13,6 +13,22 @@
 ## Unreleased
 
 ### Added
+- Adopted a repository-wide HomeLab project creation standard defining the lab
+  ethos, pre-agreed non-secret read-only discovery and BatchMode SSH, monitored
+  and autonomous authorization streams, non-waivable risk stops, pre-start risk
+  assessment, milestone commit/remote-sync discipline, integration checks for
+  Doctor, monitoring, backup, NetBox, the human wiki and Aster mirror, and a
+  durable resume protocol for usage-limit or session interruption.
+- Designed the ready Aster offline knowledge wiki project: a private,
+  human-focused `homelab-wiki` corpus receives allowlisted daily updates while
+  a separate, reproducible `aster-knowledge-mirror` reduces accepted documents
+  into concise operational entries with exact provenance. The project includes
+  resumable checkpoints, quarantine, deterministic packaging, teacher/pupil
+  evaluation, recovery and rollback gates without giving Aster Internet or
+  credential access or making generated summaries authoritative. Added an
+  authenticated human intake portal to enroll a website/wiki URL, Git
+  repository or uploaded manual through discovery, bounded-scope preview and a
+  single acceptance action, after which normal updates run autonomously.
 - Closed Aster LXC 110's recurring same-site backup gap with a dedicated,
   exact-filter TrueNAS rsync task and destination that follow Proxmox retention
   without exposing the shared guest tree to deletion. Added Doctor checks for

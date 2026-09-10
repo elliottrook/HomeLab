@@ -16,6 +16,7 @@
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
 | NetBox DCIM / rack & asset management | Active | [NetBox DCIM](NetBox-DCIM.md) | Rack walk-through, VLAN/IPAM, and full guest/device inventory complete. The one previously blocked item (a live Backup Synology DSM task edit) is now moot — that unit's pull role was fully replaced by the TrueNAS backup hub, which already covers the guest that item existed to add |
 | Aster sysadmin second brain | Graduated | [Aster sysadmin second brain](Aster-Sysadmin-Second-Brain.md) | Bounded read-only advisor with recoverable authority-aware memory and verified correctness, security and performance gates |
+| Aster offline knowledge wiki and mirror | Ready | [Aster offline knowledge wiki and mirror](Aster-Offline-Knowledge-Wiki.md) | Private human-focused manuals/wiki corpus with daily allowlisted updates and a separate provenance-preserving, non-authoritative Aster analysis mirror |
 | Backup Synology decommission | Active — Milestones 1–3 passed; Milestone 4 (14-day observation, ends 2026-09-23) in progress | [Backup Synology decommission](Backup-Synology-Decommission.md) | Retires the 484 MB-RAM DS220j that starves under Hyper Backup, redeploys its disks into TrueNAS, and defers the Immich/family-cloud placement question to measurement. Successor to the item the backup redesign placed out of scope |
 | Backup architecture redesign | Substantively complete; formal close held for the sibling decommission project | [Backup architecture redesign](Backup-Architecture-Redesign.md) | Replaces Hyper Backup's Synology-to-Synology path with Synology → rsync → TrueNAS/ZFS snapshots → dedicated rclone LXC → encrypted, versioned IDrive e2. All three legacy Hyper Backup jobs stopped; docs and inventory updated |
 | Media archive backup to Synology | Deferred — declined 2026-09-10, not proceeding | [Media archive backup to Synology](Media-Archive-Synology-Backup.md) | Scoped backing up TrueNAS's `archive-movies`/`archive-tv` (5.6 TB) to `gowest`; Jason decided not to back up the media archive at all. Kept as a scoping record in case revisited |
@@ -37,6 +38,12 @@
 | Plex-to-Jellyfin media migration | 2026-09-01 | [Plex-to-Jellyfin close-out](completed%20projects/Plex-to-Jellyfin-Media-Migration.md) | Separate checksum-verified Archive Movies/TV libraries, one consolidated and re-tagged music root, 11 playlists and 165 movie collections migrated and validated (including recovery from a same-day Jellyfin data-loss incident), and Plex source media retired with an explicit risk-managed approval. Recurring backup coverage for Jellyfin's own application database is intentionally deferred, entangled with a separate, larger backup-topology effort. |
 
 ## Common project rules
+
+The complete normative process is the
+[HomeLab Project Creation Standard](../Project-Creation-Standard.md). It defines
+the lab ethos, monitored and autonomous authorization streams, pre-start risk
+assessment, required integration review, milestone Git workflow and resumable
+execution. The concise rules below remain as portfolio-level reminders.
 
 - A checkbox is completed only after implementation, validation and relevant
   documentation or backup work are finished.

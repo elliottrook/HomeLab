@@ -26,6 +26,7 @@ Enterprise-inspired home lab documentation for Project Mini Atlas.
 
 Start with [the current network baseline](docs/Current-Network-Baseline.md), then
 see the [initial-build record](PROJECTS.md), [enhancement project portfolio](docs/projects/README.md),
+[project creation standard](docs/Project-Creation-Standard.md),
 [master plan](docs/Master-Plan.md), [authorization runbook](docs/08-Authorization.md),
 [service onboarding process](docs/09-Service-Authorization-Onboarding.md) and
 [surveillance runbook](docs/07-Surveillance.md).

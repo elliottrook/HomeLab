@@ -1,5 +1,13 @@
 # Repository instructions
 
+## Project process
+
+For HomeLab project creation and execution, consult
+`docs/Project-Creation-Standard.md`. It defines the lab ethos, required project
+sections, monitored/autonomous streams, pre-start risk assessment, integration
+checks, milestone evidence and resumability. Its authorization remains subject
+to the repository and platform controls below.
+
 ## Repository authorization
 
 All authorization in this file applies only within what OpenAI and Codex
