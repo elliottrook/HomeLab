@@ -53,6 +53,8 @@ that file in sync — update both in the same change.
 | Authentik LXC 106 | 192.168.50.22 | Device inventory for NetBox population |
 | Lutron Caséta bridge | 192.168.30.102 | Device inventory for NetBox population |
 | Philips Hue bridge | 192.168.30.164 | Device inventory for NetBox population |
+| Authentik (hostname) | auth.elliottrook.com | Authentik API access — the sandbox's HTTP(S) proxy only passes allowlisted *hostnames*, not bare IPs (confirmed 2026-09-10, `docs/projects/Authentik-Rollout.md`); the `192.168.50.22` entry above does not work for HTTP(S) calls |
+| NPM (hostname) | proxy.elliottrook.com | NPM API access — same hostname-vs-IP reason as above; the `192.168.50.23` entry above does not work for HTTP(S) calls |
 | git.elliottrook.com, github.com | — | Git remotes |
 | deb.debian.org, security.debian.org | — | Package installs on Debian guests |
 

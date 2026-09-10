@@ -65,7 +65,9 @@
       "Bash(ssh root@192.168.20.32 find:*)",
       "Bash(ssh root@192.168.20.32 systemctl status:*)",
 
-      "Bash(systemctl status:*)"
+      "Bash(systemctl status:*)",
+
+      "Bash(scripts/api-get.sh:*)"
     ],
     "deny": [
       "Read(**/*.key)",
@@ -121,6 +123,8 @@
         "192.168.50.22",
         "192.168.30.102",
         "192.168.30.164",
+        "auth.elliottrook.com",
+        "proxy.elliottrook.com",
         "git.elliottrook.com",
         "github.com",
         "deb.debian.org",

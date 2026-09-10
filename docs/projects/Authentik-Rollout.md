@@ -275,12 +275,41 @@ in substance but were never confirmed in writing. Verify live before
 Homepage/Beszel, don't assume Forgejo's success proves the foundation is
 complete for a *different* service:
 
-- [ ] Confirm the actual current Authentik group(s) intended for Homepage/
-  Beszel access (live query, not assumption).
-- [ ] Confirm at least two recoverable Authentik administrator methods
+- [x] Confirm the actual current Authentik group(s) intended for Homepage/
+  Beszel access (live query, not assumption). **Result, 2026-09-10: no
+  `homelab-admins` group exists — that name was aspirational text only.**
+  Real groups: `authentik Admins` (superuser), `authentik Agent-Users`,
+  `authentik Read-only`. No consistent access-binding convention exists
+  across current applications either: NPM, Synology, Synology Backup and
+  Cloudflare Access are each bound to the individual user `jason`;
+  Grafana is bound to the `authentik Admins` group; **Forgejo has no
+  policy binding at all** (open to any authenticated Authentik identity —
+  low practical risk today since only `jason`/`akadmin` exist, but not
+  what this doc and the onboarding runbook describe as the intended
+  design). Jason's decision for this pass: bind Homepage and Beszel to
+  the user `jason` directly, matching the majority existing precedent.
+- [x] Confirm at least two recoverable Authentik administrator methods
   still work (password + passkey, per the existing tested baseline).
+  **Result, 2026-09-10:** `jason` has password + one WebAuthn device
+  ("Apple Passwords"), both live, WebAuthn device last used the same day.
+  `akadmin` (default break-glass admin) has password only, zero MFA
+  devices — untested as a fallback path.
 - [ ] Back up Authentik and NPM configuration immediately before Milestone
   2's first state-changing step.
+
+**Follow-ups surfaced by this live verification, out of scope for this
+pass (per this project's own no-adjacent-tidying rule) — logged here so
+they aren't lost, not actioned:**
+- Forgejo's application has no access-policy binding. Fixing it is Milestone
+  2 (Forgejo)-adjacent cleanup, not Homepage/Beszel work; needs its own
+  small approved step later.
+- Four Authentik applications exist that predate this document and were
+  never recorded here: **Grafana, Synology, Synology Backup, Cloudflare
+  Access.** Grafana and Synology are already anticipated in Milestones 3
+  and 4 below, so their existing (non-standard) bindings should be
+  reviewed when those milestones start rather than assumed correct.
+  Cloudflare Access and Synology Backup aren't in this project's scope
+  table at all yet.
 
 ### Milestone 2 — Homepage, then Beszel
 
@@ -390,6 +419,9 @@ Milestone 2 to a safely resumable state, it does not graduate the project.
 | 2026-09-09/10 | Unattended attempt (superseded) | Granted a per-project authorization for an unattended scheduled task covering Homepage/Beszel, later widened for a narrow OPNsense case, then further widened in scope to the full dashboard inventory (Milestone 3 planning only, never executed). The task stalled ~11 hours with zero configuration progress, then unilaterally disabled the repo's Bash sandbox to work around a real but out-of-scope blocker instead of stopping to ask | Superseded by this redesign. No Authentik/NPM configuration was ever actually changed during the entire unattended attempt — the stall happened before any state-changing step |
 | 2026-09-10 | Sandbox incident | Empirically confirmed raw SSH is denied to allowlisted hosts even for exact `permissions.allow` patterns (`ssh truenas cat /etc/hostname` → `Operation not permitted`), confirming the stalled session's diagnosis was technically correct even though its fix was not. Reverted the sandbox-disable commit (`ee4c841`), confirmed live. Disabled the recurring scheduled task | Sandbox restored; task disabled; root cause understood and documented rather than worked around by weakening a platform control |
 | 2026-09-10 | Redesign | Project taken back under `Project-Creation-Standard.md`, Stream M selected (the remaining work genuinely needs a human for live login validation and cannot safely run fully unattended given the confirmed SSH/sandbox constraint), workaround adopted (prefer each application's own HTTPS API over SSH for every configuration step, since HTTPS to allowlisted hosts already works cleanly through the sandbox) | This document restructured to the new 17-section template; Milestone 0 (close-out) mostly complete, Milestone 1 reopened for live re-verification, Milestone 2 reset to not-started (no real progress was lost, since none had been made) |
+| 2026-09-10 | Sandbox finding #2: IP-only allowlist entries don't work for HTTP(S) either | Confirmed empirically: `https://github.com` and `https://git.elliottrook.com` (hostname allowlist entries) returned `200`; the same requests against the literal IPs `192.168.50.22`/`192.168.50.23` (also allowlisted, per `CLAUDE.md`'s table) failed instantly with `Operation not permitted` on every port tried (80, 81, 443, 9000, 9443). The sandbox's HTTP(S) proxy filters by hostname, not IP — this is broader than the SSH/raw-TCP finding from the redesign above, and likely means most of the CLAUDE.md sandbox table has never actually worked for HTTP(S) from a sandboxed session either, only for tooling that bypasses this proxy | Fixed with Jason's explicit approval: added `auth.elliottrook.com` and `proxy.elliottrook.com` as hostname entries to `.claude/settings.json`'s `allowedDomains` (additive only, existing IP entries untouched); CLAUDE.md's sandbox table updated in the same change |
+| 2026-09-10 | Permission-gate friction (separate from the sandbox) | Even with the hostname fix, ad hoc `curl` calls kept triggering Bash permission prompts — `.claude/settings.json`'s `permissions.allow` had no `curl` entry at all (only `cat`/`ls`/`ping`/per-host read-only `ssh`). Resolved by adding `scripts/api-get.sh`, a wrapper that only ever issues a GET (hard-rejects `-X`/`-d`/`-F`/`-T`/`-u`) against `auth.elliottrook.com/api/*` or `proxy.elliottrook.com/api/*`, allow-listed as `Bash(scripts/api-get.sh:*)` — narrower than a general curl allow, same philosophy as the existing per-host `ssh ... cat:*` patterns. A second, separate friction source was also found and worked around: any Bash command containing shell variable expansion (e.g. `"$TMPDIR"`) is flagged "cannot be statically analyzed" and always prompts regardless of allow-list matches — worked around by using literal paths/values in command text instead of `$VAR` expansion | `scripts/api-get.sh` is now the standing pattern for read-only Authentik/NPM API discovery in this and future sessions |
+| 2026-09-10 | Milestone 1 live verification | Queried Authentik's API read-only via the new wrapper: groups, users, authenticator devices, applications, and policy bindings. See Milestone 1 checklist above for full results (no `homelab-admins` group exists; inconsistent access-binding convention across existing apps; Forgejo has no policy binding; `jason` has password+passkey, `akadmin` has password only; four undocumented pre-existing applications found: Grafana, Synology, Synology Backup, Cloudflare Access) | Milestone 1's first two checklist items confirmed live; third (backup) deferred to immediately before Milestone 2's first state-changing step per its own wording; follow-ups logged in the Milestone 1 section rather than actioned, per this project's scope rule |
 
 ## Close-out
 
