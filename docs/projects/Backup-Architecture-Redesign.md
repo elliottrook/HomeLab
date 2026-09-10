@@ -1,6 +1,9 @@
 # Backup Architecture Redesign
 
-> Status: Active — Milestone 4 gate passed; Milestone 5 (cutover) not started
+> Status: Active — Milestone 4 gate passed; Milestone 5 in progress — all
+> three legacy Hyper Backup jobs stopped, documentation/inventory cleanup
+> (`docs/05-Backups.md`, `configs/devices.conf`/`services.conf`, NetBox)
+> still open
 >
 > Project owner: Jason
 >
@@ -661,10 +664,26 @@ confirmed. Milestone 5 (cutover) may now begin.
 
 ## Milestone 5 — Cutover and documentation
 
-- [ ] Retire the three existing Hyper Backup jobs one at a time — not all
+- [x] Retire the three existing Hyper Backup jobs one at a time — not all
   at once — confirming after each that its replacement coverage is
   genuinely equivalent (per Milestone 1's inventory) before moving to the
-  next.
+  next. All three now stopped, each confirmed live rather than assumed:
+  - `Mini Atlas Offsite` (on `.42`) — stopped 2026-09-09, `synopkg status`
+    confirmed `stop`. See `Backup-Synology-Decommission.md` Milestone 3.
+  - `Synology Drive Backup` (on `gowest`) — stopped by Jason via the same
+    HyperBackup-package-stop method, confirmed 2026-09-10 via `synopkg
+    status HyperBackup` on `gowest` reporting `stop`. Its replacement (the
+    `gowest` leg, live since 2026-09-07) was independently reconfirmed
+    still healthy right before this retirement.
+  - `Media Backup` (on `gowest`, Plex-era) — no clean disable; stopped as
+    an unavoidable side effect of the same package-stop, since it shares
+    one HyperBackup instance with `Synology Drive Backup` on this host.
+    By Jason's explicit decision 2026-09-10, this is fine: its destination
+    (`.42`) was already powered off so it could only fail from here on
+    anyway, and an inert static snapshot of already-retired Plex media is
+    judged safer left alone than touched. Not "retired" in the sense of a
+    proven-equivalent replacement — there isn't one, by design — but the
+    practical outcome (no further activity, data untouched) is accepted.
 - [ ] Update `docs/05-Backups.md` to describe the new architecture as
   current, retiring the old three-layer description appropriately.
 - [ ] Add the new LXC to `configs/devices.conf`/`configs/services.conf`
@@ -723,3 +742,4 @@ as current.
 | 2026-09-10 | 4 | **Off-site version-retention proof.** Synced the v1 test file through the relay to `idrive-crypt:` (log: `Copied (new)`), recorded timestamp T1, overwrote the file with v2 content on TrueNAS, synced again (log: `Copied (replaced existing)`). `rclone --s3-version-at T1 cat idrive-crypt:...` returned the v1 content; a plain `cat` of the same path returned v2 | Passed — SHA-256 of the point-in-time read matched the original v1 hash exactly, proving IDrive e2 bucket versioning is genuinely retrievable through the crypt layer, not just enabled in principle. Test artifacts removed from both TrueNAS and IDrive e2 afterward (confirmed `Deleted` in `sync.log`) |
 | 2026-09-10 | 4 | Added `check_backup_redesign_truenas()` to HomeLab Doctor for the Proxmox/Mac/`gowest` rsync legs and snapshot freshness. First implementation used newest-file mtime as the signal and produced false "stale" warnings (54h/80h) for the Mac and `gowest` legs — a real bug: `rsync -t` preserves source mtimes, so an unchanged source looks stale under that signal even when the sync ran and succeeded. Fixed by reading actual job-completion state (`midclt call rsynctask.query`) for the two TrueNAS-task legs, and adding a completion-marker timestamp (`date -u +%s > /var/log/gowest-pull-lastrun.epoch`) to the `gowest` cron command for the one leg with no task/job record — cronjob config backed up first, applied via `cronjob.update`, manually triggered once to confirm the marker writes correctly. Ran full `doctor.sh` afterward | Passed — 61 passed, 7 pre-existing warnings unrelated to this project, 0 failed. New check correctly reports fresh legs (`Proxmox 14h, Mac 14h, gowest 0h, snapshot 12h`) |
 | 2026-09-10 | 4 | Confirmed failure-only alerting requires no new wiring: read `scripts/scheduled-report.sh` — it already greps every `doctor.sh` run for `🔴` lines generically and emails a deduplicated alert via `scripts/backup-alert` on any failure. Both new checks use the shared `fail()` helper, so they're automatically covered | Confirmed by reading the existing pipeline, not by triggering a real failure. **Milestone 4 gate passed** — both restore proofs are complete, Doctor coverage and alerting confirmed. Milestone 5 (cutover) may begin |
+| 2026-09-10 | 5 | Jason retired `Synology Drive Backup` on `gowest` by stopping HyperBackup the same way as `.42`, unavoidably also stopping `Media Backup` (they share one package instance on this host) — confirmed by Jason and by choice, since `Media Backup`'s destination was already gone. Verified live via `synopkg status HyperBackup` on `gowest`: `stop` | All three legacy Hyper Backup jobs now stopped. Remaining Milestone 5 items (updating `docs/05-Backups.md`, adding LXC 112 to `configs/devices.conf`/`services.conf`/NetBox) not yet done — not part of this request |
