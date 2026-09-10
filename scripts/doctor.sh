@@ -488,6 +488,33 @@ check_aster() {
     fi
 }
 
+check_aster_wiki() {
+    local state
+
+    if ! state="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            intake="$(pct exec 113 -- systemctl is-active aster-wiki-intake.service 2>/dev/null || true)"
+            timer_enabled="$(pct exec 113 -- systemctl is-enabled aster-wiki-collector.timer 2>/dev/null || true)"
+            health="$(pct exec 113 -- python3 -c '\''import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:8787/healthz", timeout=3).read().decode())'\'' 2>/dev/null || true)"
+            status="$(pct exec 113 -- runuser -u aster-collector -- env PYTHONPATH=/opt/aster-wiki /usr/bin/python3 -m aster_wiki.cli status --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state 2>/dev/null || true)"
+            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\n" "$intake" "$timer_enabled" "$health" "$status"
+        '
+    )"; then
+        warn "Unable to check Aster wiki services"
+        return
+    fi
+
+    if ! grep -qx 'intake=active' <<< "$state" ||
+       ! grep -q 'health=.*"status":"ok"' <<< "$state" ||
+       ! grep -q 'status=.*"latest"' <<< "$state"; then
+        fail "Aster wiki unhealthy or has no collector state"
+    elif grep -qx 'timer_enabled=enabled' <<< "$state"; then
+        pass "Aster wiki intake healthy; collector timer enabled with durable run state"
+    else
+        warn "Aster wiki intake healthy but collector timer is not enabled"
+    fi
+}
+
 check_pihole_dns() {
     local display="$1"
     local ip="$2"
@@ -1736,6 +1763,7 @@ check_nut
 category "Applications & Services"
 
 check_aster
+check_aster_wiki
 check_netbox
 check_observability
 check_frigate
@@ -1769,6 +1797,7 @@ check_proxmox_guest_backup_age "Aster llama.cpp LXC 110" 110 30 lxc
 check_truenas_guest_mirror_age "Aster llama.cpp LXC 110" 110 30 lxc /mnt/Media/backup/aster-lxc110
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
+check_proxmox_guest_backup_age "Aster Wiki LXC 113" 113 30 lxc
 check_idrive_relay
 check_backup_redesign_truenas
 check_home_assistant_backup_truenas

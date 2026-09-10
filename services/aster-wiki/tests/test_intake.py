@@ -5,7 +5,8 @@ from pathlib import Path
 
 from aster_wiki.intake import preview
 from aster_wiki.app import Handler, parse_submission
-from aster_wiki.manifest import ManifestError, load_manifest, write_candidate, write_control_candidate
+from aster_wiki.manifest import (ManifestError, load_manifest, promote_candidates,
+                                 write_candidate, write_control_candidate, write_upload)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -115,6 +116,21 @@ class IntakeTests(unittest.TestCase):
             path = write_control_candidate(Path(directory), "safe-source", "retire")
             payload = json.loads(path.read_text())
             self.assertEqual({"schema_version": 1, "operation": "retire", "source_id": "safe-source"}, payload)
+
+    def test_manual_upload_is_protected_and_candidate_promotes_atomically(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = root / "wiki/sources/sources.json"
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text('{"schema_version":1,"sources":[]}\n')
+            result = preview({"kind": "manual", "title": "Manual", "filename": "manual.txt",
+                              "license_status": "permitted", "media_type": "text/plain"}, b"fixture")
+            upload = write_upload(root / "state", result["source"], b"fixture")
+            write_candidate(root / "state", result["source"])
+            self.assertEqual(0o600, upload.stat().st_mode & 0o777)
+            self.assertEqual(1, promote_candidates(root / "state", manifest))
+            self.assertEqual(result["source"]["id"], load_manifest(manifest)["sources"][0]["id"])
+            self.assertEqual([], list((root / "state/candidates").glob("*.json")))
 
 
 if __name__ == "__main__":

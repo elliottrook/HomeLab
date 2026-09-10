@@ -34,6 +34,9 @@ class State:
           source_id TEXT PRIMARY KEY, etag TEXT, last_modified TEXT,
           checked_at TEXT NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS host_requests (
+          hostname TEXT PRIMARY KEY, requested_at REAL NOT NULL
+        );
         """)
         current = self.db.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
         if current and int(current[0]) != SCHEMA_VERSION:
@@ -77,6 +80,20 @@ class State:
           ON CONFLICT(source_id) DO UPDATE SET etag=excluded.etag,
             last_modified=excluded.last_modified,checked_at=excluded.checked_at
         """, (source_id, etag, last_modified, self.now()))
+        self.db.commit()
+
+    def host_delay(self, hostname: str, now_epoch: float,
+                   minimum_interval: float) -> float:
+        row = self.db.execute(
+            "SELECT requested_at FROM host_requests WHERE hostname=?", (hostname,)
+        ).fetchone()
+        return max(0.0, minimum_interval - (now_epoch - row[0])) if row else 0.0
+
+    def record_host_request(self, hostname: str, now_epoch: float) -> None:
+        self.db.execute("""
+          INSERT INTO host_requests VALUES (?,?)
+          ON CONFLICT(hostname) DO UPDATE SET requested_at=excluded.requested_at
+        """, (hostname, now_epoch))
         self.db.commit()
 
     def finish(self, run_id: str, status: str) -> None:

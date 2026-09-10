@@ -493,19 +493,19 @@ provenance and authority boundaries are unambiguous.
 
 ## Milestone 2 — Safe daily acquisition
 
-- [ ] Build a manifest-driven collector for allowlisted HTTP documents, wiki
+- [x] Build a manifest-driven collector for allowlisted HTTP documents, wiki
   pages and Git repositories.
 - [ ] Add conditional fetch, rate limiting, validation, normalization,
   quarantine and retained-original handling.
-- [ ] Ensure generated imports cannot overwrite authored content.
-- [ ] Add resumable state, atomic acceptance and last-good rollback.
+- [x] Ensure generated imports cannot overwrite authored content.
+- [x] Add resumable state, atomic acceptance and last-good rollback.
 - [ ] Complete the authenticated intake portal, structured queue, source-state
   dashboard, history/diff view and recoverable retirement workflow.
-- [ ] Ensure discovery cannot broaden a submitted scope without displaying the
+- [x] Ensure discovery cannot broaden a submitted scope without displaying the
   expanded files/pages and requiring source acceptance.
 - [ ] Schedule a daily no-change-safe run and publish a bounded health report
   for HomeLab Doctor and Aster's existing report mechanism.
-- [ ] Prove with synthetic fixtures that redirects, oversized input, unsafe
+- [x] Prove with synthetic fixtures that redirects, oversized input, unsafe
   types, secrets, prompt injection and interrupted downloads fail closed.
 
 Completion gate: two daily cycles complete unattended, including one changed
@@ -613,3 +613,4 @@ snapshot; the complete human repository remains intact.
 | 2026-09-10 | 2 deployed acquisition gate | Deployment revealed that systemd's separate writable bind mounts made cross-device atomic renames impossible. Moved run staging and last-good directories onto the wiki filesystem, constrained run IDs against traversal, expanded the systemd writable scope only to the wiki `docs` and `sources` directories plus collector state, and retained the prior service/module files for rollback. Local suite passes 26/26. A deployed manual cycle accepted and `verify` checked one synthetic source. A second cycle substituted the tracked `synthetic-secret.txt` negative fixture, produced a bounded report with `quarantined: 1`, then restored the safe upload. Before/after SHA-256 remained `5f0c7a6a159cee7e4daf1b30d222464686ce6e4e06581efbaa27403d4050c0df` for content and `65f7f13275033960b4893bdc8de25560e2f1a891a604841e8a21c597ea1cdd3b` for the accepted lock | Deployed changed-source acceptance and deliberate failure preservation passed. The timer remains disabled/inactive. Two pre-publication systemd-debug attempts remain explicitly visible as interrupted run IDs; they did not change accepted content and will be used to prove operator resume/closure rather than erased |
 | 2026-09-10 | Recovery checkpoint | With Jason's explicit confirmation, created snapshot-mode archive `vzdump-lxc-113-2026_09_10-14_13_06.tar.zst` on Proxmox `backups` storage (192 MB compressed; 674,539,520 bytes expanded). `zstd --test` passed, and targeted archive listing confirmed the deployed collector, collector systemd unit and accepted lock are present | A verified local recovery carrier now exists before further production changes. Off-host/off-site propagation and isolated restore remain required for graduation |
 | 2026-09-10 | Remote synchronization | Pushed current `main` through `7dc6b28` to Forgejo after explicit approval. After destination-specific confirmation, the GitHub protection push reported `Everything up-to-date`, consistent with existing mirroring | Current committed milestone history is synchronized; later commits still require their own repository-authorized push confirmation |
+| 2026-09-10 | 2 queue, pacing and Doctor candidate | Added persistent per-host request timing with a two-second minimum interval that survives process restarts. Manual acceptance now atomically stores the bounded upload mode `0600`; the collector atomically promotes validated enrollment/control candidates into the manifest and moves processed queue records to an audit directory. Added a HomeLab Doctor check for intake health, durable collector state and timer enablement plus LXC 113 backup age. Exact live probe currently returns the intended warning because the intake is healthy while the timer remains deliberately disabled. Local suite passes 28/28 and `bash -n` validates Doctor | Core acquisition, atomicity, scope and fail-closed Milestone 2 checkboxes are now evidence-backed. Deployment, private Authentik/proxy enforcement, timer scheduling and two observed scheduled cycles remain open |

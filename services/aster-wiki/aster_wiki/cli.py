@@ -8,7 +8,7 @@ import secrets
 from pathlib import Path
 
 from .collector import Collector
-from .manifest import load_manifest
+from .manifest import load_manifest, promote_candidates
 
 
 def main() -> int:
@@ -27,7 +27,9 @@ def main() -> int:
         print(json.dumps(collector.verify(), sort_keys=True)); return 0
     if args.mode == "rollback":
         collector.rollback(); print('{"status":"rolled-back"}'); return 0
-    manifest = load_manifest(args.wiki_root / "sources/sources.json")
+    manifest_path = args.wiki_root / "sources/sources.json"
+    promote_candidates(args.state_root, manifest_path)
+    manifest = load_manifest(manifest_path)
     run_id = args.run_id or ("run-" + secrets.token_hex(8))
     result = collector.run([source for source in manifest["sources"] if source["enabled"]], run_id)
     print(json.dumps(result, sort_keys=True))

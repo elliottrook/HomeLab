@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import parse_qs
 
 from .intake import preview
-from .manifest import ManifestError, load_manifest, write_candidate, write_control_candidate
+from .manifest import ManifestError, load_manifest, write_candidate, write_control_candidate, write_upload
 
 FORM = """<!doctype html><meta charset=utf-8><title>Aster Wiki intake</title>
 <style>body{font:16px system-ui;max-width:54rem;margin:2rem auto;padding:0 1rem}label{display:block;margin:.8rem 0}input,select{width:100%;padding:.45rem}button{padding:.6rem 1rem}pre{white-space:pre-wrap;background:#f3f3f3;padding:1rem}</style>
@@ -128,13 +128,16 @@ class Handler(BaseHTTPRequestHandler):
             if self.path == "/preview":
                 result = preview(form, upload)
                 token = result["source"]["id"]
-                self.previews[token] = result
+                self.previews[token] = {"result": result, "upload": upload}
                 rendered = html.escape(json.dumps(result, indent=2, sort_keys=True))
                 self.reply(200, f"<h1>Acceptance preview</h1><pre>{rendered}</pre><form method=post action=/accept><input type=hidden name=token value='{html.escape(token)}'><button>Accept source candidate</button></form><p><a href='/'>Cancel</a></p>")
             elif self.path == "/accept":
-                result = self.previews.pop(form.get("token", ""), None)
-                if result is None:
+                pending = self.previews.pop(form.get("token", ""), None)
+                if pending is None:
                     raise ManifestError("preview expired or unknown")
+                result = pending["result"]
+                if pending["upload"] is not None:
+                    write_upload(self.state_root, result["source"], pending["upload"])
                 path = write_candidate(self.state_root, result["source"])
                 self.reply(202, f"<h1>Candidate queued</h1><p>{html.escape(path.name)}</p>")
             elif self.path == "/control":

@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from aster_wiki.collector import Collector, Fetched, Quarantine, _git_paths, fetch_manual
+from aster_wiki.state import State
 
 
 def source(identifier="safe-source", **updates):
@@ -45,6 +46,16 @@ class CollectorTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 collector.run([source()], "../outside")
             self.assertFalse((wiki.parent / "outside").exists())
+
+    def test_host_rate_limit_persists_across_state_instances(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "state.sqlite3"
+            first = State(path)
+            first.record_host_request("docs.example.invalid", 100.0)
+            first.close()
+            second = State(path)
+            self.assertEqual(1.5, second.host_delay("docs.example.invalid", 100.5, 2.0))
+            self.assertEqual(0.0, second.host_delay("other.example.invalid", 100.5, 2.0))
 
     def test_failure_keeps_last_accepted_corpus(self):
         temporary, wiki, state = self.roots()

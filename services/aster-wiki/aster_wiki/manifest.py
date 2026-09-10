@@ -127,3 +127,66 @@ def write_control_candidate(state_root: Path, source_id: str, operation: str) ->
         finally:
             if os.path.exists(temporary): os.unlink(temporary)
     return target
+
+
+def write_upload(state_root: Path, source: dict[str, Any], content: bytes) -> Path:
+    validate_source(source)
+    if source["kind"] != "manual" or not content:
+        raise ManifestError("manual upload content required")
+    if len(content) > source["size_limit_bytes"]:
+        raise ManifestError("manual upload exceeds source limit")
+    target_dir = state_root / "uploads" / source["id"]
+    target_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    target = target_dir / Path(source["boundary"]["value"]).name
+    fd, temporary = tempfile.mkstemp(prefix=".upload-", dir=str(target_dir))
+    try:
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(content); handle.flush(); os.fsync(handle.fileno())
+        os.replace(temporary, target)
+    finally:
+        if os.path.exists(temporary): os.unlink(temporary)
+    return target
+
+
+def promote_candidates(state_root: Path, manifest_path: Path) -> int:
+    """Atomically apply validated queue candidates; retain processed records."""
+    candidates = state_root / "candidates"
+    if not candidates.is_dir():
+        return 0
+    manifest = load_manifest(manifest_path)
+    sources = {item["id"]: item for item in manifest["sources"]}
+    pending = sorted(candidates.glob("*.json"))
+    for path in pending:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("schema_version") != 1:
+            raise ManifestError("unsupported candidate")
+        operation = payload.get("operation")
+        if operation == "enroll":
+            item = validate_source(payload.get("source", {}))
+            sources[item["id"]] = item
+        elif operation in {"pause", "resume", "retire", "retry"}:
+            source_id = payload.get("source_id", "")
+            if source_id not in sources:
+                raise ManifestError("candidate references unknown source")
+            if operation in {"pause", "retire"}:
+                sources[source_id]["enabled"] = False
+            elif operation == "resume":
+                sources[source_id]["enabled"] = True
+        else:
+            raise ManifestError("invalid candidate operation")
+    if not pending:
+        return 0
+    encoded = canonical_json({"schema_version": 1, "sources": sorted(sources.values(), key=lambda x: x["id"])})
+    fd, temporary = tempfile.mkstemp(prefix=".sources-", dir=str(manifest_path.parent))
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(encoded); handle.flush(); os.fsync(handle.fileno())
+        os.replace(temporary, manifest_path)
+    finally:
+        if os.path.exists(temporary): os.unlink(temporary)
+    processed = state_root / "processed-candidates"
+    processed.mkdir(parents=True, exist_ok=True, mode=0o700)
+    for path in pending:
+        os.replace(path, processed / path.name)
+    return len(pending)

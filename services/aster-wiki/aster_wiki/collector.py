@@ -25,6 +25,7 @@ INJECTION = re.compile(rb"(?i)(ignore (?:all |any )?(?:previous|prior) instructi
 EXECUTABLE_MAGIC = (b"MZ", b"\x7fELF", b"#!")
 SAFE_TYPES = {"text/html", "text/markdown", "text/plain", "application/pdf"}
 RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$")
+MINIMUM_HOST_INTERVAL_SECONDS = 2.0
 
 
 class Quarantine(ValueError):
@@ -157,6 +158,13 @@ class Collector:
             return fetch_git(source)
         if source["kind"] == "manual":
             return fetch_manual(source, self.state_root / "uploads")
+        hostname = urlparse(source["canonical_url"]).hostname
+        if not hostname:
+            raise Quarantine("network-source-hostname-missing")
+        delay = self.state.host_delay(hostname, time.time(), MINIMUM_HOST_INTERVAL_SECONDS)
+        if delay:
+            time.sleep(delay)
+        self.state.record_host_request(hostname, time.time())
         etag, last_modified = self.state.validators(source["id"])
         return fetch_https(source, etag=etag, last_modified=last_modified)
 
