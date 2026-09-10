@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Aster knowledge collection
+
+[Timer]
+OnCalendar=*-*-* 03:35:00 America/Vancouver
+Persistent=true
+RandomizedDelaySec=15m
+Unit=aster-wiki-collector.service
+
+[Install]
+WantedBy=timers.target

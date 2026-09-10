@@ -5,7 +5,7 @@ from pathlib import Path
 
 from aster_wiki.intake import preview
 from aster_wiki.app import Handler, parse_submission
-from aster_wiki.manifest import ManifestError, load_manifest, write_candidate
+from aster_wiki.manifest import ManifestError, load_manifest, write_candidate, write_control_candidate
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -98,6 +98,12 @@ class IntakeTests(unittest.TestCase):
                                             "large.txt", b"x" * (64 * 1024 + 1))
         with self.assertRaises(ManifestError):
             parse_submission(content_type, body)
+
+    def test_retirement_is_recoverable_candidate_not_deletion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = write_control_candidate(Path(directory), "safe-source", "retire")
+            payload = json.loads(path.read_text())
+            self.assertEqual({"schema_version": 1, "operation": "retire", "source_id": "safe-source"}, payload)
 
 
 if __name__ == "__main__":

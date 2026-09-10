@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import parse_qs
 
 from .intake import preview
-from .manifest import ManifestError, write_candidate
+from .manifest import ManifestError, load_manifest, write_candidate, write_control_candidate
 
 FORM = """<!doctype html><meta charset=utf-8><title>Aster Wiki intake</title>
 <style>body{font:16px system-ui;max-width:54rem;margin:2rem auto;padding:0 1rem}label{display:block;margin:.8rem 0}input,select{width:100%;padding:.45rem}button{padding:.6rem 1rem}pre{white-space:pre-wrap;background:#f3f3f3;padding:1rem}</style>
@@ -95,6 +95,17 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(200, self.render_markdown(source))
         elif self.path == "/healthz":
             self.reply(200, '{"status":"ok","mode":"prototype"}\n', "application/json")
+        elif self.path == "/sources":
+            manifest_path = self.wiki_root / "sources/sources.json"
+            sources = load_manifest(manifest_path)["sources"] if manifest_path.is_file() else []
+            candidates = sorted(path.name for path in (self.state_root / "candidates").glob("*.json")) if (self.state_root / "candidates").is_dir() else []
+            rows = "".join(
+                f"<tr><td>{html.escape(item['id'])}</td><td>{'accepted' if item['enabled'] else 'paused'}</td>"
+                + "<td><form method=post action=/control>" + " ".join(f"<button name=operation value='{op}'>{op}</button>" for op in ("pause","resume","retry","retire"))
+                + f"<input type=hidden name=source_id value='{html.escape(item['id'])}'></form></td></tr>"
+                for item in sources
+            )
+            self.reply(200, "<h1>Source status</h1><table><tr><th>Source</th><th>State</th><th>Queue control</th></tr>" + rows + "</table><h2>Pending candidates</h2><pre>" + html.escape("\n".join(candidates) or "none") + "</pre>")
         else:
             self.reply(404, "<h1>Not found</h1>")
 
@@ -118,6 +129,9 @@ class Handler(BaseHTTPRequestHandler):
                     raise ManifestError("preview expired or unknown")
                 path = write_candidate(self.state_root, result["source"])
                 self.reply(202, f"<h1>Candidate queued</h1><p>{html.escape(path.name)}</p>")
+            elif self.path == "/control":
+                path = write_control_candidate(self.state_root, form.get("source_id", ""), form.get("operation", ""))
+                self.reply(202, f"<h1>Control candidate queued</h1><p>{html.escape(path.name)}</p><p>No accepted content or Git history was deleted.</p>")
             else:
                 self.reply(404, "<h1>Not found</h1>")
         except (ManifestError, ValueError) as exc:

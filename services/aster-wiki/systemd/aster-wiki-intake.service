@@ -1,0 +1,20 @@
+[Unit]
+Description=Aster private wiki intake and presentation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aster-wiki
+Group=aster-wiki
+WorkingDirectory=/opt/aster-wiki
+ExecStart=/usr/bin/python3 -m aster_wiki.app --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state --bind 127.0.0.1 --port 8787
+Restart=on-failure
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/aster-wiki/state
+
+[Install]
+WantedBy=multi-user.target

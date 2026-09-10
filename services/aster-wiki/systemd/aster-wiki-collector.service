@@ -1,0 +1,19 @@
+[Unit]
+Description=Aster allowlisted knowledge collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=aster-collector
+Group=aster-wiki
+WorkingDirectory=/opt/aster-wiki
+ExecStart=/usr/bin/python3 -m aster_wiki.cli run --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/aster-wiki/homelab-wiki/docs/upstream /var/lib/aster-wiki/homelab-wiki/sources/accepted-lock.json /var/lib/aster-wiki/state
+
+[Install]
+WantedBy=multi-user.target

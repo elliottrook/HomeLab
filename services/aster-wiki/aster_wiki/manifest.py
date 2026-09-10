@@ -106,3 +106,24 @@ def write_candidate(state_root: Path, source: dict[str, Any]) -> Path:
         if os.path.exists(temporary):
             os.unlink(temporary)
     return target
+
+
+def write_control_candidate(state_root: Path, source_id: str, operation: str) -> Path:
+    if not SOURCE_ID.fullmatch(source_id) or operation not in {"pause", "resume", "retire", "retry"}:
+        raise ManifestError("invalid source control request")
+    payload = {"schema_version": 1, "operation": operation, "source_id": source_id}
+    encoded = canonical_json(payload)
+    digest = hashlib.sha256(encoded).hexdigest()
+    target_dir = state_root / "candidates"
+    target_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    target = target_dir / f"{source_id}-{operation}-{digest[:12]}.json"
+    if not target.exists():
+        fd, temporary = tempfile.mkstemp(prefix=".control-", dir=str(target_dir))
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "wb") as handle:
+                handle.write(encoded); handle.flush(); os.fsync(handle.fileno())
+            os.replace(temporary, target)
+        finally:
+            if os.path.exists(temporary): os.unlink(temporary)
+    return target
