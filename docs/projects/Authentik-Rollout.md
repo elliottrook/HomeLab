@@ -2,11 +2,38 @@
 
 > Status: Active — Milestone 2 (Homepage, Beszel). Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
-> Stream: **M — Monitored**.
+> Stream: **M — Monitored**. Handed off 2026-09-10 to a fresh local session
+> for Jason to drive via remote approval — see "Starting the handoff
+> session" below before doing anything else.
 >
 > Owner: Jason
 >
 > Proposed: 2026-08-22 · Redesigned: 2026-09-10
+
+## Starting the handoff session
+
+If you are a new session picking this project up: read this entire
+document plus `docs/09-Service-Authorization-Onboarding.md` before touching
+anything, then start at Milestone 1 (not Milestone 2 — it was never
+re-verified after the redesign). This is a **Stream M** project: present
+each state-changing step (target, exact change, expected effect, validation,
+rollback) and wait for Jason's approval before running it. He is expected to
+be approving remotely from his phone, not sitting at this Mac, so:
+
+- Batch only what the Standard allows — commands that implement one clearly
+  bounded, reversible change and share the same risk — into a single
+  approval ask. Don't ask once per trivial sub-step, and don't bundle
+  unrelated changes into one ask either.
+- Assume delay between an ask and a response. Don't leave anything
+  mid-change (e.g. old config removed, new config not yet validated) while
+  waiting — each approved step should land in a complete, working state
+  before the next ask goes out.
+- If nothing is approved for a while, that's normal for this mode; don't
+  fall back to acting without approval, and don't repeat the sandbox
+  incident's mistake of "fixing" the wait by finding a workaround that
+  expands scope.
+- Read-only discovery and planning need no approval at all (already
+  pre-agreed per the Standard) — only state-changing steps do.
 
 ## Why this project was taken back and redesigned
 
