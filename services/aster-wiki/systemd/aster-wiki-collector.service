@@ -13,7 +13,7 @@ NoNewPrivileges=yes
 PrivateTmp=yes
 ProtectSystem=strict
 ProtectHome=yes
-ReadWritePaths=/var/lib/aster-wiki/homelab-wiki/docs/upstream /var/lib/aster-wiki/homelab-wiki/sources/accepted-lock.json /var/lib/aster-wiki/state
+ReadWritePaths=/var/lib/aster-wiki/homelab-wiki/docs /var/lib/aster-wiki/homelab-wiki/sources /var/lib/aster-wiki/state
 
 [Install]
 WantedBy=multi-user.target

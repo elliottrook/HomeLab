@@ -110,11 +110,15 @@ collector timer remains explicitly disabled and inactive. The collector now
 persists and sends HTTP validators, treats `304 Not Modified` as an explicit
 unchanged result only when the prior accepted content still matches its locked
 hash, and fails closed on missing or tampered prior content. The complete local
-suite passes 25/25 tests.
+suite passes 26/26 tests. Its deployed manual synthetic pass accepted and
+verified one source; a subsequent secret-pattern fixture quarantined exactly
+one source without changing the accepted corpus or lock hashes.
 
-**Next safe action:** continue authenticated queue promotion, conditional HTTP
-state/rate limits and Doctor integration locally. Do not enable the collector
-timer before those gates and a synthetic deployed cycle pass.
+**Next safe action:** continue authenticated queue promotion, HTTP rate limits
+and Doctor integration locally. Reconcile the two intentionally retained
+interrupted-run records from deployment debugging through an explicit operator
+resume/closure workflow. Do not enable the collector timer before those gates
+and two scheduled-cycle observations pass.
 
 **Rollback location:** current `main` commit, deployed
 `/opt/aster-wiki/aster_wiki/app.py.before-fb1f160`, and Aster's retained
@@ -603,3 +607,4 @@ snapshot; the complete human repository remains intact.
 | 2026-09-10 | 2 deployment checkpoint | Reconciled the interrupted deployment: unprivileged Debian 13 LXC 113 `aster-wiki` is running at `192.168.20.34` with the expected 2 cores, 2 GiB RAM, 16 GiB disk, VLAN 20 firewall flag and boot ordering. The intake service is installed/enabled but failed because deployed Python 3.13.5 no longer provides `cgi`; the collector timer is disabled/inactive. Replaced `cgi.FieldStorage` with a bounded standard-library `email` multipart parser, added malformed-boundary and encoding regressions, and passed 23/23 local tests | Failure is understood and fails closed with no listener or accepted publication. The tested fix is ready for redeployment, which is paused at the repository-required confirmation for modifying the remote guest. The daily timer must remain disabled until later Milestone 2 gates pass |
 | 2026-09-10 | 2 intake recovery | After Jason's explicit remote-mutation confirmation, retained the deployed pre-fix module as `/opt/aster-wiki/aster_wiki/app.py.before-fb1f160`, deployed the exact tested `app.py`, and restarted the intake service. Separate checks found the service active, Python listening only on `127.0.0.1:8787`, and `/healthz` returning `{"status":"ok","mode":"prototype"}`. The first HTTP probe only established that `curl` is not installed; a standard-library Python probe passed without adding a package | Intake presentation recovered on Debian 13 without broadening network exposure or dependencies. Collector timer remains disabled/inactive and no corpus or Aster snapshot was published |
 | 2026-09-10 | 2 conditional acquisition | Added durable per-source ETag/Last-Modified state and conditional request headers. A `304` reuses prior content only after checking its normalized hash against the accepted lock, copies the verified content and provenance into the new atomic candidate, and reports it as `unchanged`; absent or tampered accepted input quarantines the run. Complete local suite passes 25/25 tests | No-change cycles now avoid unnecessary downloads without allowing an upstream validator to bypass local integrity. Deployment and rate-limit work remain pending; timer stays disabled |
+| 2026-09-10 | 2 deployed acquisition gate | Deployment revealed that systemd's separate writable bind mounts made cross-device atomic renames impossible. Moved run staging and last-good directories onto the wiki filesystem, constrained run IDs against traversal, expanded the systemd writable scope only to the wiki `docs` and `sources` directories plus collector state, and retained the prior service/module files for rollback. Local suite passes 26/26. A deployed manual cycle accepted and `verify` checked one synthetic source. A second cycle substituted the tracked `synthetic-secret.txt` negative fixture, produced a bounded report with `quarantined: 1`, then restored the safe upload. Before/after SHA-256 remained `5f0c7a6a159cee7e4daf1b30d222464686ce6e4e06581efbaa27403d4050c0df` for content and `65f7f13275033960b4893bdc8de25560e2f1a891a604841e8a21c597ea1cdd3b` for the accepted lock | Deployed changed-source acceptance and deliberate failure preservation passed. The timer remains disabled/inactive. Two pre-publication systemd-debug attempts remain explicitly visible as interrupted run IDs; they did not change accepted content and will be used to prove operator resume/closure rather than erased |

@@ -24,6 +24,7 @@ SECRET = re.compile(rb"(?im)^\s*(?:api[_-]?key|password|passwd|secret|token)\s*[
 INJECTION = re.compile(rb"(?i)(ignore (?:all |any )?(?:previous|prior) instructions|system prompt|call (?:a )?tool|exfiltrat)")
 EXECUTABLE_MAGIC = (b"MZ", b"\x7fELF", b"#!")
 SAFE_TYPES = {"text/html", "text/markdown", "text/plain", "application/pdf"}
+RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$")
 
 
 class Quarantine(ValueError):
@@ -168,8 +169,10 @@ class Collector:
                      if item.get("source_id") == source_id), None)
 
     def run(self, sources: list[dict], run_id: str) -> dict[str, int | str]:
+        if not RUN_ID.fullmatch(run_id):
+            raise ValueError("invalid run id")
         self.state.start(run_id)
-        stage = self.state_root / "runs" / run_id
+        stage = self.wiki_root / "docs/.aster-wiki-runs" / run_id
         stage.mkdir(parents=True, exist_ok=True)
         accepted = []
         for source in sources:
@@ -240,7 +243,7 @@ class Collector:
         generated.parent.mkdir(parents=True, exist_ok=True)
         lock.parent.mkdir(parents=True, exist_ok=True)
         incoming = stage / "docs/upstream"
-        backup = self.state_root / "last-good-upstream"
+        backup = self.wiki_root / "docs/.aster-wiki-last-good"
         if backup.exists():
             shutil.rmtree(backup)
         if generated.exists():
@@ -275,10 +278,10 @@ class Collector:
 
     def rollback(self) -> None:
         generated = self.wiki_root / "docs/upstream"
-        backup = self.state_root / "last-good-upstream"
+        backup = self.wiki_root / "docs/.aster-wiki-last-good"
         if not backup.is_dir():
             raise RuntimeError("no last-good corpus retained")
-        failed = self.state_root / f"rolled-back-{int(time.time())}"
+        failed = self.wiki_root / f"docs/.aster-wiki-rolled-back-{int(time.time())}"
         if generated.exists():
             os.replace(generated, failed)
         os.replace(backup, generated)

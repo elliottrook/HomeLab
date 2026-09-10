@@ -37,6 +37,15 @@ class CollectorTests(unittest.TestCase):
             lock = json.loads((wiki / "sources/accepted-lock.json").read_text())
             self.assertEqual("safe-source", lock["sources"][0]["source_id"])
 
+    def test_run_id_cannot_escape_wiki_staging(self):
+        temporary, wiki, state = self.roots()
+        with temporary:
+            collector = Collector(wiki, state, lambda _: Fetched(
+                b"safe\n", "text/plain", "https://docs.example.invalid/guide"))
+            with self.assertRaises(ValueError):
+                collector.run([source()], "../outside")
+            self.assertFalse((wiki.parent / "outside").exists())
+
     def test_failure_keeps_last_accepted_corpus(self):
         temporary, wiki, state = self.roots()
         with temporary:
