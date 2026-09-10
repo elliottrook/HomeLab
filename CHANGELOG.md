@@ -13,6 +13,12 @@
 ## Unreleased
 
 ### Added
+- Added the resumable Aster wiki acquisition core: strict HTTPS/Git/manual
+  boundaries, SQLite checkpoints, run-specific staging, atomic acceptance,
+  retained last-good rollback, tamper verification, bounded health reports,
+  operator modes and recoverable source controls. Twenty-one synthetic tests
+  cover interruption, failed-update preservation and adversarial inputs;
+  production deployment remains gated on the rest of Milestone 2.
 - Completed Aster offline knowledge wiki Milestone 1: created and verified two
   private Forgejo repositories, seeded explicit human and generated-mirror
   contracts, added a representative offline corpus and safe renderer, and

@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from aster_wiki.collector import Collector, Fetched
+from aster_wiki.collector import Collector, Fetched, Quarantine, _git_paths, fetch_manual
 
 
 def source(identifier="safe-source", **updates):
@@ -98,6 +98,20 @@ class CollectorTests(unittest.TestCase):
             current["body"] = b"two\n"; collector.run([source()], "two")
             collector.rollback()
             self.assertEqual("one\n", (wiki / "docs/upstream/safe-source/content.txt").read_text())
+
+    def test_git_path_boundary_rejects_traversal(self):
+        self.assertEqual(["README.md", "docs/"], _git_paths("README.md, docs/"))
+        with self.assertRaises(Quarantine): _git_paths("../private")
+
+    def test_manual_fetch_is_source_scoped_and_bounded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); path = root / "manual-source/manual.txt"
+            path.parent.mkdir(); path.write_text("manual\n")
+            item = source("manual-source", kind="manual", canonical_url="upload:manual",
+                          boundary={"type": "exact-file", "value": "manual.txt"})
+            self.assertEqual(b"manual\n", fetch_manual(item, root).body)
+            item["boundary"]["value"] = "../manual.txt"
+            with self.assertRaises(Quarantine): fetch_manual(item, root)
 
 
 if __name__ == "__main__": unittest.main()

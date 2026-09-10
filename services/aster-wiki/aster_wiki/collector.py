@@ -7,6 +7,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import tempfile
 import time
 import urllib.request
@@ -46,6 +47,61 @@ def fetch_https(source: dict, timeout: int = 30) -> Fetched:
                        response.headers.get("ETag"), response.headers.get("Last-Modified"))
 
 
+def _git_paths(value: str) -> list[str]:
+    paths = [item.strip().lstrip("/") for item in value.split(",") if item.strip()]
+    if not paths or any(".." in Path(item).parts or item.startswith("-") for item in paths):
+        raise Quarantine("invalid-repository-path-boundary")
+    return paths
+
+
+def fetch_git(source: dict) -> Fetched:
+    allowed = _git_paths(source["boundary"]["value"])
+    with tempfile.TemporaryDirectory() as directory:
+        repository = Path(directory) / "repo.git"
+        subprocess.run(
+            ["git", "clone", "--bare", "--filter=blob:none", "--depth", "1", "--no-tags",
+             "--", source["canonical_url"], str(repository)],
+            check=True, capture_output=True, timeout=60,
+            env={"PATH": os.environ.get("PATH", ""), "GIT_TERMINAL_PROMPT": "0"},
+        )
+        listing = subprocess.run(
+            ["git", "--git-dir", str(repository), "ls-tree", "-r", "--name-only", "HEAD"],
+            check=True, capture_output=True, text=True, timeout=15,
+        ).stdout.splitlines()
+        selected = sorted(path for path in listing if any(path == item or path.startswith(item.rstrip("/") + "/") for item in allowed))
+        selected = [path for path in selected if Path(path).suffix.lower() in {".md", ".txt", ".html"}]
+        if not selected or len(selected) > 256:
+            raise Quarantine("repository-path-selection-empty-or-too-large")
+        chunks = []
+        total = 0
+        for path in selected:
+            data = subprocess.run(
+                ["git", "--git-dir", str(repository), "show", f"HEAD:{path}"],
+                check=True, capture_output=True, timeout=15,
+            ).stdout
+            total += len(data)
+            if total > source["size_limit_bytes"]:
+                raise Quarantine("size-limit-exceeded")
+            chunks.append(f"\n\n<!-- source-file: {path} -->\n".encode() + data)
+        commit = subprocess.run(
+            ["git", "--git-dir", str(repository), "rev-parse", "HEAD"],
+            check=True, capture_output=True, text=True, timeout=15,
+        ).stdout.strip()
+        return Fetched(b"".join(chunks).lstrip(), source["media_type"], source["canonical_url"], etag=commit)
+
+
+def fetch_manual(source: dict, upload_root: Path) -> Fetched:
+    filename = Path(source["boundary"]["value"])
+    if filename.name != str(filename) or filename.name.startswith("."):
+        raise Quarantine("invalid-upload-name")
+    path = upload_root / source["id"] / filename.name
+    if not path.is_file() or path.is_symlink():
+        raise Quarantine("protected-upload-missing")
+    with path.open("rb") as handle:
+        body = handle.read(source["size_limit_bytes"] + 1)
+    return Fetched(body, source["media_type"], source["canonical_url"])
+
+
 def validate_fetch(source: dict, fetched: Fetched) -> None:
     if len(fetched.body) > source["size_limit_bytes"]:
         raise Quarantine("size-limit-exceeded")
@@ -74,11 +130,18 @@ def normalize(fetched: Fetched) -> bytes:
 
 
 class Collector:
-    def __init__(self, wiki_root: Path, state_root: Path, fetcher: Callable[[dict], Fetched] = fetch_https):
+    def __init__(self, wiki_root: Path, state_root: Path, fetcher: Callable[[dict], Fetched] | None = None):
         self.wiki_root = wiki_root
         self.state_root = state_root
-        self.fetcher = fetcher
+        self.fetcher = fetcher or self._fetch
         self.state = State(state_root / "pipeline.sqlite3")
+
+    def _fetch(self, source: dict) -> Fetched:
+        if source["kind"] == "git":
+            return fetch_git(source)
+        if source["kind"] == "manual":
+            return fetch_manual(source, self.state_root / "uploads")
+        return fetch_https(source)
 
     def run(self, sources: list[dict], run_id: str) -> dict[str, int | str]:
         self.state.start(run_id)
