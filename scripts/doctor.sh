@@ -170,6 +170,111 @@ check_idrive_relay() {
     fi
 }
 
+check_backup_redesign_truenas() {
+    local rsynctask_json gowest_epoch_raw snapshot_epoch
+
+    # Job-based freshness for the two rsynctask legs (proxmox=id 1, mac=id 2):
+    # file mtimes are the wrong signal here, since rsync preserves source
+    # mtimes on unchanged files, so a quiet day on the source makes a
+    # perfectly healthy sync look stale. The gowest leg is a plain cron job
+    # (no TrueNAS task/job record), so it stamps its own completion marker
+    # (added to that cron command for this reason).
+    if ! rsynctask_json="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas 'midclt call rsynctask.query 2>/dev/null'
+    )" ||
+       ! gowest_epoch_raw="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas 'cat /var/log/gowest-pull-lastrun.epoch 2>/dev/null'
+    )" ||
+       ! snapshot_epoch="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
+            'zfs list -t snapshot -r Media/backup -o name,creation -s creation -H -p 2>/dev/null | grep "@backup-daily-" | tail -1 | awk "{print \$2}"'
+    )"; then
+        warn "Unable to check backup-redesign TrueNAS legs (rsync freshness, snapshots)"
+        return
+    fi
+
+    local job_state
+    local now_epoch
+    now_epoch="$(date +%s)"
+    local failures=()
+    local warnings=()
+    local passes=()
+
+    local leg display display_id tid leg_epoch age_hours
+    for leg in proxmox:1 mac:2; do
+        display_id="${leg%%:*}"
+        tid="${leg##*:}"
+        case "$display_id" in
+            proxmox) display="Proxmox guest archives" ;;
+            mac) display="Mac config" ;;
+        esac
+
+        job_state="$(python3 -c "
+import json, sys
+tasks = {t['id']: t for t in json.loads(sys.argv[2])}
+job = (tasks.get(int(sys.argv[1])) or {}).get('job') or {}
+print(job.get('state', 'NONE'))
+" "$tid" "$rsynctask_json")"
+
+        leg_epoch="$(python3 -c "
+import json, sys
+tasks = {t['id']: t for t in json.loads(sys.argv[2])}
+job = (tasks.get(int(sys.argv[1])) or {}).get('job') or {}
+finished = (job.get('time_finished') or {}).get('\$date')
+print(finished // 1000 if finished else '')
+" "$tid" "$rsynctask_json")"
+
+        if [[ "$job_state" == "FAILED" || "$job_state" == "ABORTED" ]]; then
+            failures+=("$display last run $job_state")
+            continue
+        fi
+
+        if [[ ! "$leg_epoch" =~ ^[0-9]+$ ]]; then
+            failures+=("$display has no completed run on record")
+            continue
+        fi
+
+        age_hours=$(( (now_epoch - leg_epoch) / 3600 ))
+        if (( age_hours > 30 )); then
+            warnings+=("$display last success ${age_hours}h ago")
+        else
+            passes+=("$display ${age_hours}h")
+        fi
+    done
+
+    if [[ ! "$gowest_epoch_raw" =~ ^[0-9]+$ ]]; then
+        failures+=("gowest homes/Family Documents has no completion marker")
+    else
+        local gowest_age_hours
+        gowest_age_hours=$(( (now_epoch - gowest_epoch_raw) / 3600 ))
+        if (( gowest_age_hours > 30 )); then
+            warnings+=("gowest homes/Family Documents last success ${gowest_age_hours}h ago")
+        else
+            passes+=("gowest ${gowest_age_hours}h")
+        fi
+    fi
+
+    if [[ ! "$snapshot_epoch" =~ ^[0-9]+$ ]]; then
+        failures+=("no daily snapshot found on Media/backup")
+    else
+        local snapshot_age_hours
+        snapshot_age_hours=$(( (now_epoch - snapshot_epoch) / 3600 ))
+        if (( snapshot_age_hours > 30 )); then
+            warnings+=("daily snapshot is ${snapshot_age_hours}h old")
+        else
+            passes+=("snapshot ${snapshot_age_hours}h")
+        fi
+    fi
+
+    if (( ${#failures[@]} > 0 )); then
+        fail "Backup redesign TrueNAS legs: ${failures[*]}"
+    elif (( ${#warnings[@]} > 0 )); then
+        warn "Backup redesign TrueNAS legs stale: ${warnings[*]}"
+    else
+        pass "Backup redesign TrueNAS legs fresh (${passes[*]})"
+    fi
+}
+
 check_proxmox_guest_backup_age() {
     local display="$1"
     local vmid="$2"
@@ -1562,6 +1667,7 @@ check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
 check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
 check_idrive_relay
+check_backup_redesign_truenas
 check_synology_drive_backup 30
 
 divider

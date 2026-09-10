@@ -1,10 +1,10 @@
 # Backup Architecture Redesign
 
-> Status: Active
+> Status: Active — Milestone 4 gate passed; Milestone 5 (cutover) not started
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-08
+> Last updated: 2026-09-10
 
 ## Authorization
 
@@ -594,27 +594,70 @@ on the relay.
 
 ## Milestone 4 — Validation (hard gate before any cutover)
 
-- [ ] Deliberately modify or delete a test file in the TrueNAS backup
+- [x] Deliberately modify or delete a test file in the TrueNAS backup
   dataset's source path, confirm it can be recovered from a ZFS snapshot.
-- [ ] Confirm the same file's *older* version (not just current state) can
+  **Done 2026-09-10.** Created `Media/backup/_milestone4-restore-test/testfile.txt`,
+  took a manual snapshot (`milestone4-test-v1`), deleted the live file, then
+  recovered it by copying from `.zfs/snapshot/milestone4-test-v1/...` —
+  recovered content and SHA-256 (`770132a1b533b7ff10bf5d64f6a6b264adf92449f3fd8796219ca3f2cead7f8b`)
+  matched the original exactly.
+- [x] Confirm the same file's *older* version (not just current state) can
   be recovered from the IDrive e2 off-site copy specifically — proving
-  version retention exists off-site, not just a mirror.
-- [~] Add HomeLab Doctor checks for the new rsync task's freshness, the
+  version retention exists off-site, not just a mirror. **Done 2026-09-10.**
+  Synced the v1 test file through the relay to `idrive-crypt:` (confirmed
+  `Copied (new)` in `sync.log`), recorded timestamp T1, overwrote the file
+  with v2 content on TrueNAS, synced again (confirmed `Copied (replaced
+  existing)`). `rclone --s3-version-at T1 cat idrive-crypt:...` then
+  returned the v1 content — SHA-256 matched the original v1 hash exactly —
+  while a plain `cat` of the same path returned v2. This proves IDrive e2
+  bucket versioning is genuinely retrievable through the crypt layer via
+  `rclone`'s S3 point-in-time read, not just theoretically enabled. Test
+  artifacts (local file/snapshot, off-site object) removed afterward.
+- [x] Add HomeLab Doctor checks for the new rsync task's freshness, the
   snapshot schedule's health, and the `rclone` job's success/failure,
   matching the existing `check_backup_age`/`check_reported_backup`
-  pattern. Doctor now checks the relay guest, enabled timer, active initial
-  sync, failed result and post-success log freshness through the existing
-  Proxmox connection. Mark complete after the first full sync reports a
-  verified success; TrueNAS rsync/snapshot freshness checks remain pending.
-- [ ] Confirm failure-only alerting is wired for the new components,
+  pattern. Doctor already checked the relay guest, enabled timer, active
+  initial sync, failed result and post-success log freshness. **Added
+  2026-09-10:** `check_backup_redesign_truenas()`, covering all three
+  TrueNAS-side legs. First attempt used newest-file mtime under each
+  destination directory as the freshness signal and produced false
+  "stale" warnings for the Mac and `gowest` legs — a real bug, not a
+  fluke: `rsync -t` preserves source mtimes on unchanged files, so a
+  quiet day on the source (nothing new to copy) makes a perfectly healthy
+  sync look stale under that signal. Fixed by switching to actual
+  run-completion evidence instead: for the two `rsynctask`-based legs
+  (Proxmox, Mac), the check now reads each task's own job state and
+  `time_finished` via `midclt call rsynctask.query`. The `gowest` leg has
+  no TrueNAS task/job record (it's a plain cron job, per Milestone 2's
+  mechanism change), so a completion marker
+  (`&& date -u +%s > /var/log/gowest-pull-lastrun.epoch`) was added to
+  that cron command — config backed up first
+  (`/root/cronjob-backup-before-monitoring-marker-*.json`), applied via
+  `cronjob.update`, then manually triggered once to confirm the marker
+  actually gets written (verified: epoch matched wall-clock time within
+  seconds). Snapshot freshness checks the newest `backup-daily-*` snapshot's
+  actual ZFS creation time (unaffected by the mtime issue, since that's
+  metadata rather than content-derived). Ran the full `doctor.sh` suite
+  live afterward: 61 passed, 7 pre-existing warnings unrelated to this
+  project (stale config-backup checks, uncommitted git tree), 0 failed —
+  no regression.
+- [x] Confirm failure-only alerting is wired for the new components,
   matching the existing pattern (no email on success, actionable email on
-  failure).
+  failure). **Confirmed 2026-09-10, no new work needed:** read
+  `scripts/scheduled-report.sh` — it already greps every `doctor.sh` run
+  for `🔴`-prefixed lines generically and emails a deduplicated failure
+  alert via `scripts/backup-alert` on any match. Since both new checks
+  (`check_idrive_relay`, `check_backup_redesign_truenas`) call the shared
+  `fail()` helper on a genuine problem, they're automatically covered by
+  the existing pipeline — the pattern this checkbox asked to match is
+  already generic across all Doctor checks, not something wired per-check.
 
 ### Gate
 
-Both the local (ZFS) and off-site (IDrive e2) restore tests must pass
-before any existing Hyper Backup job is touched. This is the single most
-important gate in this project — do not skip it under schedule pressure.
+**Passed 2026-09-10.** Both the local (ZFS) and off-site (IDrive e2)
+restore tests passed with real evidence — see the evidence log. Doctor
+coverage and failure-only alerting for every new component are also
+confirmed. Milestone 5 (cutover) may now begin.
 
 ## Milestone 5 — Cutover and documentation
 
@@ -675,3 +718,8 @@ as current.
 | 2026-09-07 | 3 (verification) | Independently verified the prior session's Milestone 3 claims rather than trusting the commit message: confirmed LXC 112's actual `pct config` (unprivileged, 1 core, 2 GiB, 8 GiB disk, swap 0, firewall on); confirmed the Proxmox-side NFS mount is genuinely read-only (`ro,nosuid,nodev,noexec`) and the TrueNAS export is restricted to Proxmox's IP only with `all_squash` to root; independently downloaded rclone v1.75.1 from the publisher, verified its zip against the official `SHA256SUMS`, extracted it, and confirmed the extracted binary's own hash matched byte-for-byte what's installed on the relay | All claims confirmed correct except the credential-scoping issue below, found during this same verification pass |
 | 2026-09-07 | 3 (correction) | During verification, `rclone config show idrive-e2` printed the S3 access key/secret in plaintext into Claude's own output — a real exposure, caught and named immediately (unlike the crypt password, `config show` doesn't obscure plain S3 remote secrets). Jason revoked and regenerated the key; the first replacement was not actually bucket-restricted (confirmed by testing it could still list *and read* the legacy `mini-atlas-backups` bucket's contents — a real risk to the household's still-live off-site backup, not cosmetic). Jason recreated the key a second time with IDrive's bucket-restriction option applied; verified via a 403 `AccessDenied` against the legacy bucket while the intended bucket still worked. Separately found the interactive `rclone config` wizard writes to `~/.config/rclone/rclone.conf` while the systemd service reads `/etc/rclone/rclone.conf` (via `RCLONE_CONFIG`) — two different files, so the service kept running on the very first, already-revoked key for over an hour after both edits. Fixed by running a script entirely on the relay to copy the current key fields between the two files; the secret values never passed through Claude's own output at any point in this fix | Corrected and verified: new key confirmed scoped to `homelab-backup-relay` only, service config confirmed matching |
 | 2026-09-08 | 3 | Restarted the sync service with the corrected, properly-scoped credentials; it ran to completion overnight: exit code `0`, 657.091 GiB transferred, 111,196/111,196 files, 94/94 checks, 0 errors, 9h31m elapsed. Spot-checked integrity on real production data (not synthetic test data): pulled `mac/opnsense/opnsense-config-2026-08-02_11-01-31.xml` back through the full encrypted round trip and compared its hash against the same file on TrueNAS | Passed — hashes matched exactly (`df41616946c0e7fad80c2bb28b4a065a209a463298322c1e000f160729d43d0a`). **Milestone 3 gate passed.** One standing item outside the gate: Jason still needs an independent offline copy of the `idrive-crypt` recovery material |
+| 2026-09-09 | 5 (pre-emptive question) | Jason asked to "clean up the old sync bucket in IDrive" believing it stale. Checked first: confirmed `mini-atlas-backups` (the legacy bucket) is not stale — the Backup Synology's "Mini Atlas Offsite" Hyper Backup task is still actively caching to it. Flagged the conflict with Milestone 5's retirement gate and this project's Definition of Done before acting. Jason confirmed: leave it untouched; disable (not delete) the legacy task only after Milestone 4's dual-restore gate passes, per the existing plan — actual bucket content cleanup remains a separate, later, explicit decision, not bundled into task retirement | No action taken; decision reaffirmed as documented, not re-opened |
+| 2026-09-10 | 4 | **Local restore proof.** Created `Media/backup/_milestone4-restore-test/testfile.txt` on TrueNAS, took a manual ZFS snapshot (`milestone4-test-v1`), deleted the live file, recovered it from `.zfs/snapshot/milestone4-test-v1/...` | Passed — recovered content and SHA-256 (`770132a1...`) matched the original exactly |
+| 2026-09-10 | 4 | **Off-site version-retention proof.** Synced the v1 test file through the relay to `idrive-crypt:` (log: `Copied (new)`), recorded timestamp T1, overwrote the file with v2 content on TrueNAS, synced again (log: `Copied (replaced existing)`). `rclone --s3-version-at T1 cat idrive-crypt:...` returned the v1 content; a plain `cat` of the same path returned v2 | Passed — SHA-256 of the point-in-time read matched the original v1 hash exactly, proving IDrive e2 bucket versioning is genuinely retrievable through the crypt layer, not just enabled in principle. Test artifacts removed from both TrueNAS and IDrive e2 afterward (confirmed `Deleted` in `sync.log`) |
+| 2026-09-10 | 4 | Added `check_backup_redesign_truenas()` to HomeLab Doctor for the Proxmox/Mac/`gowest` rsync legs and snapshot freshness. First implementation used newest-file mtime as the signal and produced false "stale" warnings (54h/80h) for the Mac and `gowest` legs — a real bug: `rsync -t` preserves source mtimes, so an unchanged source looks stale under that signal even when the sync ran and succeeded. Fixed by reading actual job-completion state (`midclt call rsynctask.query`) for the two TrueNAS-task legs, and adding a completion-marker timestamp (`date -u +%s > /var/log/gowest-pull-lastrun.epoch`) to the `gowest` cron command for the one leg with no task/job record — cronjob config backed up first, applied via `cronjob.update`, manually triggered once to confirm the marker writes correctly. Ran full `doctor.sh` afterward | Passed — 61 passed, 7 pre-existing warnings unrelated to this project, 0 failed. New check correctly reports fresh legs (`Proxmox 14h, Mac 14h, gowest 0h, snapshot 12h`) |
+| 2026-09-10 | 4 | Confirmed failure-only alerting requires no new wiring: read `scripts/scheduled-report.sh` — it already greps every `doctor.sh` run for `🔴` lines generically and emails a deduplicated alert via `scripts/backup-alert` on any failure. Both new checks use the shared `fail()` helper, so they're automatically covered | Confirmed by reading the existing pipeline, not by triggering a real failure. **Milestone 4 gate passed** — both restore proofs are complete, Doctor coverage and alerting confirmed. Milestone 5 (cutover) may begin |

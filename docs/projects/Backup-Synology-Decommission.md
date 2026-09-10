@@ -1,10 +1,13 @@
 # Backup Synology Decommission and Storage Redeployment
 
-> Status: Active — Milestone 2 (blocked on `Backup-Architecture-Redesign`)
+> Status: Active — Milestone 2 (HA backup redirect and Doctor coverage
+> remain open); Milestone 3's redesign-side dependency is now cleared
+> (redesign Milestone 4 gate passed 2026-09-10), so its own two restore
+> checks may begin.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-05
+> Last updated: 2026-09-10
 
 ## Authorization
 
@@ -79,10 +82,16 @@ the exact destination-role processing load that starves the DS220j, onto a
 NAS that also serves Immich, Drive and media. Being an rsync *source* is
 light; being a Hyper Backup *destination* is not.
 
-**Hard dependency:** `Backup-Architecture-Redesign` must reach its
-Milestone 4 validation gate before Milestone 3 here can begin. Until its
-`gowest` source, Mac source and off-site relay legs are live and proven, the
-DS220j still holds coverage that nothing else replaces.
+**Hard dependency — cleared 2026-09-10:** `Backup-Architecture-Redesign`'s
+Milestone 4 validation gate has passed. A real test file was recovered from
+both the TrueNAS ZFS snapshot and the IDrive e2 off-site copy specifically
+(point-in-time version read, not just a mirror), hash-verified in both
+cases; see that project's evidence log for 2026-09-10. Milestone 3 below can
+now begin. Note that gate used a synthetic test file, not one of the DS220j's
+own unique holdings — it proves the replacement *mechanism* works
+end-to-end, which is what this milestone's own two checkboxes below also
+ask for. Whether to additionally require a restore of a real family file
+before disabling the legacy task is Jason's call, not assumed here.
 
 ## Authoritative baseline (verified live 2026-09-05)
 
@@ -103,15 +112,26 @@ Hyper Backup task "Mini Atlas Offsite" → `s3.us-west-4.idrivee2.com`, bucket
 last cache activity 2026-09-04 23:35. The main Synology has **no** S3 target
 configured — its two Hyper Backup jobs both land on `.42`.
 
-**What already replaces part of it:** TrueNAS
-`/mnt/Media/backup/homelab-proxmox-guests`, 341 GB, 119 archives, daily 04:00
-rsync pull, newest 2026-09-05 02:43. Verified 2026-09-05 by `zstd -t` on the
-three newest archives plus the 9 GB `qemu-105` archive, and by byte-exact size
-comparison against the Proxmox source on five archives.
+**What already replaces part of it — updated, all three legs now live:**
+TrueNAS `/mnt/Media/backup/homelab-proxmox-guests`, 341 GB, 119 archives,
+daily 04:00 rsync pull, newest 2026-09-05 02:43, verified 2026-09-05 by
+`zstd -t` and byte-exact size comparison against the Proxmox source.
+`/mnt/Media/backup/mac`, verified byte-exact 2026-09-05 (354 files /
+22,806,562 bytes on both sides). `/mnt/Media/backup/gowest`, verified
+byte-exact 2026-09-07 (`homes` 110,788 files / 332,609,860,578 bytes,
+`Family Documents` 2 files / 522,083 bytes on both sides) — via a native
+NFS-export-plus-local-cron mechanism rather than the originally planned
+restricted-DSM-user SSH pull, after that approach hit four DSM-specific
+SSH gates and then an undocumented `rsync` daemon-module restriction; see
+`Backup-Architecture-Redesign.md` Milestone 2 for the full mechanism
+change. The off-site relay (LXC 112, `rclone` + `crypt` to IDrive e2) is
+also live: full sync completed 2026-09-08, 657.091 GiB / 111,196 files / 0
+errors, spot-checked byte-exact against a real production file. Source:
+`Backup-Architecture-Redesign.md` Milestones 2–3, both gates passed.
 
-**What does not yet replace it:** TrueNAS `/mnt/Media/backup/mac` and
-`/mnt/Media/backup/gowest` are both **empty** — 0 files. Those legs of the
-redesign are not started.
+**What does not yet replace it:** Home Assistant's native automatic
+backups still land only on `.42` — no redirect to a TrueNAS target exists
+yet (Milestone 2 below).
 
 **Correction to existing docs:** several documents describe the Backup
 Synology as "currently offline (active incident)". It is **up**, 5 days
@@ -231,13 +251,19 @@ recorded there.
 
 ## Milestone 2 — Complete the replacement coverage
 
-Depends on `Backup-Architecture-Redesign` Milestones 2–3.
+Depended on `Backup-Architecture-Redesign` Milestones 2–3 — **both gates
+passed** (2026-09-07 and 2026-09-08 respectively), so the three items below
+are now done. Note the `gowest` leg landed via a different mechanism than
+originally planned here (NFS export + local TrueNAS cron, not a restricted
+DSM SSH user) — see the corrected baseline section above.
 
-- [ ] `gowest` rsync source leg live (its Milestone 2 item, blocked on a
-      restricted DSM user).
-- [ ] Mac source leg live — TrueNAS `/mnt/Media/backup/mac` non-empty and
-      current.
-- [ ] Off-site relay LXC deployed with `rclone` + `crypt` to IDrive e2.
+- [x] `gowest` rsync source leg live — done 2026-09-07 (NFS export + local
+      cron, not the originally planned restricted DSM user; see
+      `Backup-Architecture-Redesign.md` Milestone 2).
+- [x] Mac source leg live — TrueNAS `/mnt/Media/backup/mac` non-empty and
+      current, done 2026-09-05.
+- [x] Off-site relay LXC deployed with `rclone` + `crypt` to IDrive e2 —
+      done 2026-09-08, full sync verified.
 - [ ] **Redirect Home Assistant's native automatic backups from `.42` to
       TrueNAS.** Decided by Jason 2026-09-05: these are a network backup and
       belong with the rest, not on a unit being retired. Needs a TrueNAS
@@ -363,3 +389,6 @@ this milestone closes as "not required".
 | 2026-09-05 | Baseline | Verified live state of both Synology units, TrueNAS backup datasets, Hyper Backup task/repo configuration and IDrive e2 target | Recorded above; DS220j confirmed at 484 MB RAM, and confirmed as the sole off-site path |
 | 2026-09-05 | M1 | Full share inventory of `.42`, reference sweep across repo/Doctor/allowlist, TrueNAS coverage comparison | Four replacements required before power-down; Home Assistant found writing daily backups directly to `.42` — a live dependency not previously recorded anywhere |
 | 2026-09-05 | M1 | Presented two open decisions to Jason | Media Backup: leave in place, undecided, not to be deleted — now a hard blocking condition on Milestone 5 disk redeployment. HA backups: redirect to TrueNAS alongside the other network backups — added to Milestone 2 scope |
+| 2026-09-09 | — | Jason asked to clean up "the old sync bucket in IDrive" (`mini-atlas-backups`). Checked first: it's not stale — the legacy Hyper Backup task is still actively writing to it, and both this project's Milestone 3 and the redesign project's Milestone 5 explicitly gate touching it. Flagged before acting | Jason confirmed: leave it untouched; disable (not delete) only after the redesign's Milestone 4 gate passes, per the existing plan |
+| 2026-09-09/10 | Doc | Reconciled stale tracking: Milestone 2's `gowest`/Mac/off-site-relay items were still marked open and the baseline still described the TrueNAS `mac`/`gowest` legs as empty, but `Backup-Architecture-Redesign` had actually completed and byte-verified all three (2026-09-05/07/08) via a different `gowest` mechanism than originally planned here | Corrected baseline and Milestone 2 checklist to match; only HA backup redirect and Doctor coverage remain open in Milestone 2 |
+| 2026-09-10 | — | `Backup-Architecture-Redesign` Milestone 4 gate passed (real restores proven from both the TrueNAS ZFS snapshot and the IDrive e2 off-site copy, hash-verified) | Milestone 3's hard dependency is cleared; its own two restore checks may now begin. Used a synthetic test file, not one of the DS220j's unique holdings — left as Jason's call whether that's sufficient before disabling the legacy task, or whether a real-file restore is wanted first |
