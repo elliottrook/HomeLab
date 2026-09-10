@@ -12,6 +12,8 @@ source "$REPO/scripts/lib/output.sh"
 PASS_COUNT=0
 WARN_COUNT=0
 FAIL_COUNT=0
+WARN_ITEMS=()
+FAIL_ITEMS=()
 
 pass() {
     success "$1"
@@ -21,11 +23,21 @@ pass() {
 warn() {
     warning "$1"
     WARN_COUNT=$((WARN_COUNT + 1))
+    WARN_ITEMS+=("$1")
 }
 
 fail() {
     error "$1"
     FAIL_COUNT=$((FAIL_COUNT + 1))
+    FAIL_ITEMS+=("$1")
+}
+
+# Starts a new named category: a divider, then its "Checking ..." label.
+# Purely a display grouping — every check function below is unchanged.
+category() {
+    divider
+    info "Checking $1..."
+    echo
 }
 
 check_tcp() {
@@ -1690,9 +1702,9 @@ for w in wl:
     fi
 }
 
-header "HomeLab Doctor"
+header "HomeLab Doctor v2"
 
-info "Checking internet connectivity..."
+info "Checking Network & Connectivity..."
 
 if nc -z -G 5 1.1.1.1 443 >/dev/null 2>&1; then
     pass "Internet connectivity"
@@ -1701,23 +1713,6 @@ else
 fi
 
 check_opnsense_wan
-check_arista
-check_proxmox
-check_aster
-check_nut
-check_jellyfin_integrity
-check_video_archiver
-check_netbox
-check_observability
-check_truenas
-check_frigate
-check_unifi
-check_wireless_vlans
-check_wireless_tagging
-
-divider
-
-info "Checking DNS resolution..."
 
 if dscacheutil -q host -a name github.com 2>/dev/null | grep -q 'ip_address'; then
     pass "DNS resolution"
@@ -1727,10 +1722,27 @@ fi
 
 check_pihole_dns "Pi-hole Primary" "192.168.20.20"
 check_pihole_dns "Pi-hole Secondary" "192.168.20.40"
+check_wireless_vlans
+check_wireless_tagging
+check_unifi
 
-divider
+category "Core Infrastructure"
 
-info "Checking configured services..."
+check_arista
+check_proxmox
+check_truenas
+check_nut
+
+category "Applications & Services"
+
+check_aster
+check_netbox
+check_observability
+check_frigate
+check_jellyfin_integrity
+check_video_archiver
+
+category "Service Reachability"
 
 if [[ -f "$SERVICES_CONFIG" ]]; then
     while IFS='|' read -r name display ip port; do
@@ -1741,9 +1753,7 @@ else
     warn "Service configuration not found"
 fi
 
-divider
-
-info "Checking configuration backups..."
+category "Backups"
 
 check_backup_age "OPNsense" "$BACKUP_ROOT/opnsense" 48
 check_backup_age "Arista" "$BACKUP_ROOT/arista" 48
@@ -1763,9 +1773,7 @@ check_idrive_relay
 check_backup_redesign_truenas
 check_home_assistant_backup_truenas
 
-divider
-
-info "Checking Mac disk usage..."
+category "Local Environment"
 
 DISK_PERCENT="$(
     df -Pk "$HOME" |
@@ -1781,10 +1789,6 @@ elif (( DISK_PERCENT < 90 )); then
 else
     fail "Mac disk usage is ${DISK_PERCENT}%"
 fi
-
-divider
-
-info "Checking Git repository..."
 
 if [[ ! -d "$REPO/.git" ]]; then
     fail "HomeLab Git repository not found"
@@ -1805,6 +1809,19 @@ else
 fi
 
 divider
+
+if (( FAIL_COUNT > 0 || WARN_COUNT > 0 )); then
+    echo "Needs Attention"
+    echo
+    for item in "${FAIL_ITEMS[@]}"; do
+        echo "🔴 $item"
+    done
+    for item in "${WARN_ITEMS[@]}"; do
+        echo "🟡 $item"
+    done
+
+    divider
+fi
 
 echo "Summary"
 echo
