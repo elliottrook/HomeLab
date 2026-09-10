@@ -13,6 +13,12 @@
 ## Unreleased
 
 ### Added
+- Enabled network access inside the repository's existing `workspace-write`
+  Codex sandbox and allowlisted only the three sibling HomeLab knowledge
+  repositories as additional writable roots. Stream A guidance now requires
+  standalone read-only probes so routine autonomous LAN validation does not
+  repeatedly look like an approval-gated compound command; remote mutations
+  and platform controls remain unchanged.
 - Started the Aster offline knowledge wiki as a Stream A project under the new
   project standard. Recorded its live dependency baseline, authorization
   envelope, privacy/licensing/integrity risks, rollback and abort conditions,

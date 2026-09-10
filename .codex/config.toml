@@ -1,1 +1,12 @@
 sandbox_mode = "workspace-write"
+
+# Stream A HomeLab projects routinely require read-only discovery over the
+# private LAN. Keep filesystem isolation, but do not force every SSH/HTTP probe
+# through an elevation prompt merely because it opens a network socket.
+[sandbox_workspace_write]
+network_access = true
+writable_roots = [
+  "/Users/jelliott/lab/homelab-reference",
+  "/Users/jelliott/lab/homelab-wiki",
+  "/Users/jelliott/lab/aster-knowledge-mirror",
+]
