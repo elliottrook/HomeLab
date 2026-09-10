@@ -24,6 +24,55 @@ conversion.
 This project tracker controls sequence and completion. The runbooks control the
 technical implementation.
 
+## Authorization
+
+**Per-project authorization granted 2026-09-10** (see `CLAUDE.md`,
+"Per-project authorization" section) — scoped specifically to completing
+Milestone 2's two remaining services, Homepage and Beszel. It does not
+extend to Milestone 3, 4 or 5 work; those involve higher-stakes and
+recovery-critical infrastructure (Proxmox, TrueNAS, OPNsense, Immich, etc.)
+and need their own separate authorization when reached.
+
+Within that scope, Claude may execute the onboarding steps in
+`docs/09-Service-Authorization-Onboarding.md` — NPM proxy host creation,
+Authentik provider/application creation, DNS records, and the
+application-side OIDC/forward-auth configuration for Homepage and Beszel —
+without asking before each individual step.
+
+**This authorization is intended to run unattended** (a scheduled
+background task, no live chat session watching in real time). Jason chose
+this explicitly over the alternative (full autonomy, no stop condition) on
+2026-09-10. Given the lack of anyone present to ask, the following apply
+with *more* weight, not less:
+
+- Every one of `09-Service-Authorization-Onboarding.md`'s own "Stop
+  conditions" is an unwaivable hard stop: roll back immediately per that
+  runbook's own rule, record exactly what happened and the state left
+  behind in this project's evidence log, and stop. Do not attempt an
+  alternative approach or push forward on independent judgment.
+- **OPNsense changes are explicitly out of this authorization's scope,
+  full stop — always a stop-and-wait, never resolved unattended.** Forgejo's
+  own rollout needed a new inter-VLAN firewall rule to reach NPM; if
+  Homepage or Beszel hits the same class of gap, that is exactly the kind
+  of thing this project's own history already treats as needing Jason
+  directly, even under an active authorization (see the Evidence log
+  entry for 2026-09-02 in `Backup-Architecture-Redesign.md` for the
+  precedent this follows).
+- CLAUDE.md's "stop and ask about anything genuinely unanticipated" rule
+  is explicitly preserved here, not waived. A genuinely unanticipated
+  fork — not a routine step the runbook already describes — means: stop,
+  record the specific blocker, and wait. Never guess at a judgment call
+  that could affect Jason's own access to Homepage or Beszel.
+- A rollback route must exist before each state-changing step.
+- Direct-management URLs and fallback access must remain reachable
+  throughout — never remove the previous known-good configuration until
+  the new path is fully validated, per the runbook's own instruction.
+- Work one service at a time, per this project's own principle: complete
+  and validate Homepage in full before starting Beszel.
+
+Every step taken under this authorization is logged in the Evidence log
+below as it happens.
+
 ## Inherited baseline
 
 - [x] Authentik runs in LXC 106 at `192.168.50.22`.
