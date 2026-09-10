@@ -332,11 +332,14 @@ service and custom model profile. Because Hyper Backup selects the complete
 `automated/proxmox-guests` tree, both mirrored archive sets are included in the
 encrypted off-site backup without separate per-guest selection.
 
-Named `aster-production-20260831` snapshots now protect the deployed LXC 104
-and LXC 110 state locally. HomeLab Doctor confirmed a 16-hour-old LXC 110 archive
-on 2026-08-31. Its Backup Synology mirror and isolated restore have not yet been
-proven and remain backup-workflow follow-ups; a Proxmox snapshot is a rollback
-point, not a substitute for those checks.
+Named `aster-production-20260831` snapshots protect the deployed LXC 104 and
+LXC 110 state locally. Subsequent work verified LXC 110's archive and model
+blobs, copied the archive off-host, restored it into an isolated guest and
+proved encrypted relay coverage plus an independent recovery copy for the
+relay's crypt configuration. On 2026-09-09 HomeLab Doctor found fresh 15-hour
+archives for LXC 104, LXC 110 and rollback VM 105, with the Proxmox guest mirror
+reporting a verified success 13 hours earlier. A Proxmox snapshot remains a
+rollback point, not a substitute for these archive checks.
 
 Do not commit Aster API keys, Hermes tokens, OAuth/provider state, Ollama chat
 data or any model configuration containing credentials. Local backup coverage is confirmed;

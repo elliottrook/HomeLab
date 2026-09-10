@@ -29,9 +29,10 @@
   - Current memory: 80 GB (4×16 GB + 4×4 GB ECC RDIMM, all 8 DIMM slots
     now populated at 2133 MT/s rated / 1866 MT/s configured), confirmed
     via `dmidecode` 2026-09-04; ~78 GiB usable to the OS per `free -h`.
-    Total allocated memory across all running guests is ~46 GB, leaving
-    ample headroom (previously ~44 GB allocated against only ~46 GB
-    usable before this upgrade)
+    Total configured memory across all running guests was 50 GiB on
+    2026-09-09, leaving approximately 28 GiB of allocation headroom; `free -h`
+    reported 48 GiB actually available at the observation point (previously
+    ~44 GB allocated against only ~46 GB usable before this upgrade)
   - Coral Edge TPU `G650-04527-01` on a PCIe A+E-key carrier, passed through to Frigate VM 102
   - ASRock Intel Arc Pro B60 24 GB (`8086:e211`, subsystem `1849:6023`)
     installed behind its onboard PCIe switch; the board-facing link negotiates

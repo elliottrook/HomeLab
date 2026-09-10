@@ -710,12 +710,21 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
 - Whether cameras need a dedicated network.
 - Final management access devices and recovery procedure.
 
-## Phase 11 Known-Good Checkpoint — 2026-08-20
+## Phase 11 Known-Good Checkpoint — 2026-08-20, reconciled 2026-09-09
 
-- Proxmox currently exposes 31 GiB usable memory from two installed 16 GB SK hynix ECC RDIMMs in DIMM1 and DIMM3, configured at 1866 MT/s. The completed 24 GB two-pass `memtester` run reported no errors. The remaining RAM and E5-2698 v4 maintenance stage is pending.
+- Proxmox currently exposes approximately 78 GiB usable memory from 80 GB of
+  installed ECC RDIMM and runs an Intel Xeon E5-2698 v4 (20 cores/40 threads).
+  The 2026-09-09 reconciliation found 50 GiB configured across running guests,
+  48 GiB available at observation and no production capacity alarm. The earlier
+  31 GiB pre-maintenance checkpoint is historical.
 - Production management endpoints are Arista `192.168.50.2`, Proxmox `192.168.50.10`, UniFi controller `192.168.50.21`, Hall AP `192.168.50.31` and Office AP `192.168.50.141`. The AP Switch is the exception: its management plane is untagged and lands in Trusted VLAN 10, so it is addressed `192.168.1.26` and reached directly from Trusted rather than through Management VLAN 50.
 - Server endpoints include Frigate `192.168.20.10`, Home Assistant `192.168.20.11`, Docker and primary Pi-hole `192.168.20.20`, TrueNAS and secondary Pi-hole `192.168.20.40`, primary Synology `192.168.20.41` and Backup Synology `192.168.20.42`.
-- Aster LXC 104 at `192.168.70.10`, legacy Ollama VM 105 at `192.168.70.11` and llama.cpp GPU LXC 110 at `192.168.70.12` remain isolated Lab VLAN 70 workloads. LXC 104 and VM 105 have mirrored, encrypted off-site archives and isolated restore evidence. LXC 110 has a named local production snapshot and current local archive; its off-host mirror and isolated restore remain to be confirmed through the current backup workflow.
+- Aster LXC 104 at `192.168.70.10`, legacy Ollama VM 105 at `192.168.70.11` and llama.cpp GPU LXC 110 at `192.168.70.12` remain isolated Lab VLAN 70 workloads. LXC 104 and VM 105 have mirrored, encrypted off-site archives and isolated restore evidence. LXC 110 has a named local production snapshot, current local and off-host archives, verified model-blob integrity and an isolated restore. The encrypted relay recovery configuration also has an independently protected, tested recovery copy.
 - Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf, Sonarr, Radarr, Lidarr and Prowlarr were directly reachable during reconciliation.
 - No temporary VM/LXC guests remain. Former addresses and VM 903 references retained in the repository are explicitly historical migration or restore-test evidence.
-- HomeLab Doctor completed with 44 passes, no warnings and no failures. Configuration drift was clear, six operational TLS certificates were healthy, Git was clean and the daily failure-only reporting LaunchAgent had a successful exit status.
+- HomeLab Doctor completed on 2026-09-09 with 59 passes, eight warnings and no
+  failures. Aster, inference, Proxmox capacity, guest archives and the off-host
+  guest mirror were healthy. Warnings covered wider-estate configuration-backup
+  age, a 41-hour Synology Drive backup, an encrypted-relay run in progress and
+  expected uncommitted closeout documentation; none represented an AI service
+  failure.
