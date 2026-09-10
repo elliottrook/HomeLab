@@ -19,6 +19,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from arr_report import get_arr_report as read_arr_report
+from home_assistant_report import get_home_assistant_report as read_home_assistant_report
 
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
@@ -30,6 +31,9 @@ HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/
 ARR_REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT", "/var/lib/aster/arr-report/latest.json"))
 ARR_BROKER_URL = os.environ.get("ASTER_ARR_BROKER_URL", "").rstrip("/")
 ARR_BROKER_KEY = os.environ.get("ASTER_ARR_BROKER_KEY", "")
+HOME_ASSISTANT_REPORT_PATH = Path(
+    os.environ.get("ASTER_HOME_ASSISTANT_REPORT", "/var/lib/aster/home-assistant-report/latest.json")
+)
 DEFAULT_TIMEZONE = os.environ.get("ASTER_TIMEZONE", "America/Vancouver")
 REQUEST_TIMEOUT = float(os.environ.get("ASTER_REQUEST_TIMEOUT", "180"))
 MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
@@ -75,6 +79,19 @@ When the fixed-path ARR report is supplied, you may state only its generation
 time, aggregate service status, aggregate counters and declared coverage. Treat
 an unavailable, stale or partial report as limited evidence, never as a reason
 to refresh it or contact an ARR service.
+For Home Assistant, you are advisory-only: you cannot toggle a device, run a
+scene or script, arm or disarm anything, change a climate setpoint, or trigger
+an automation, and must never imply that one of those happened. When the
+fixed-path Home Assistant report is supplied, you may state only its
+generation time and each domain's aggregate entity counts (total/on/off/
+unavailable/unknown) and coverage; it never contains an entity_id, friendly
+name, room/area, or automation name, and you must never invent one. Treat an
+unavailable, stale or partial report as limited evidence, never as a reason to
+contact Home Assistant directly. For a requested Home Assistant change, refuse
+execution and offer only a narrowly scoped proposal for review: the affected
+domain/entity class, expected effect, validation, rollback, and the explicit
+approval that would be required. Do not redirect a Home Assistant question to
+its UI, API, or a long-lived access token as a workaround.
 Guest type matters: do not relabel a VM as an LXC or vice versa.
 LXC 110 is a container, never an inference VM; VM 105 is the stopped Ollama
 rollback guest.
@@ -144,6 +161,14 @@ TOOLS: dict[str, dict[str, Any]] = {
         },
     },
     "get_arr_repair_proposal": {"type": "function", "function": {"name": "get_arr_repair_proposal", "description": "Request only a dry-run proposal for the single opaque report-issued ARR repair candidate. It cannot execute a repair.", "parameters": {"type": "object", "properties": {}}}},
+    "get_home_assistant_report": {
+        "type": "function",
+        "function": {
+            "name": "get_home_assistant_report",
+            "description": "Read the latest fixed-path sanitized Home Assistant aggregate report (per-domain entity counts only). It cannot control a device, run an automation, or access credentials.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
     "search_knowledge": {
         "type": "function",
         "function": {
@@ -170,8 +195,13 @@ TOOL_HINTS = {
         re.I,
     ),
     "get_arr_repair_proposal": re.compile(r"\b(?:arr|radarr)\b.*\b(?:repair|fix|dismiss)\b|\b(?:repair|fix|dismiss)\b.*\b(?:arr|radarr)\b", re.I),
+    "get_home_assistant_report": re.compile(
+        r"\b(?:home assistant|homeassistant|automation|light|lock|climate|cover|fan|vacuum|scene|script)s?\b.*\b(?:current|right now|status|health|on|off|unavailable|enabled|disabled)\b"
+        r"|\b(?:current|right now|status|health|how many|count)\b.*\b(?:home assistant|homeassistant|light|lock|climate|cover|fan|vacuum|automation)s?\b",
+        re.I,
+    ),
     "search_knowledge": re.compile(
-        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr)\b",
+        r"\b(homelab|hardware|server|proxmox|b60|gpu|bar|network|vlan|firewall|opnsense|arista|rack|ups|serial|backup|recovery|credential|password|access|aster|hermes|ollama|llama|qwen|lxc|model|document|remember|knowledge|second[- ]brain|authority|authoritative|reference|conflict|disagreement|project|operational|reviewed|drift|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin|arr|home assistant|homeassistant|hue|lutron|aqara|homekit|matter)\b",
         re.I,
     ),
 }
@@ -515,6 +545,8 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         except (httpx.HTTPError, ValueError):
             return {"status": "unavailable", "error": "Repair broker dry-run unavailable"}
         return {"status": "proposal", "dry_run": result}
+    if name == "get_home_assistant_report":
+        return read_home_assistant_report(HOME_ASSISTANT_REPORT_PATH)
 
     if name == "search_knowledge":
         return search_knowledge(
@@ -552,6 +584,8 @@ async def preload_read_only_context(
         elif name == "get_arr_report":
             arguments = {}
         elif name == "get_arr_repair_proposal":
+            arguments = {}
+        elif name == "get_home_assistant_report":
             arguments = {}
         elif name == "search_knowledge":
             arguments = {"query": user_text, "max_results": 3}

@@ -2,8 +2,10 @@ import tempfile
 import unittest
 import json
 from pathlib import Path
+from unittest.mock import patch
 
-from aster_agent import ASTER_SYSTEM_PROMPT, ChatRequest, TOOLS, get_lab_health, preload_read_only_context, search_knowledge, select_tools
+import aster_agent
+from aster_agent import ASTER_SYSTEM_PROMPT, ChatRequest, TOOLS, execute_tool, get_lab_health, preload_read_only_context, search_knowledge, select_tools
 
 
 class AsterAgentTests(unittest.TestCase):
@@ -60,6 +62,32 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("album rather\nthan a single track", ASTER_SYSTEM_PROMPT)
         self.assertIn("verification and explicit review are required", ASTER_SYSTEM_PROMPT)
         self.assertIn("Do not redirect an ARR question to a live service interface", ASTER_SYSTEM_PROMPT)
+
+    def test_home_assistant_question_selects_knowledge(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "How does the Hue Hall motion sensor control the Lutron lights?"}]
+            )
+        ]
+        self.assertIn("search_knowledge", names)
+
+    def test_current_home_assistant_question_selects_sanitized_report(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "How many lights are currently unavailable right now?"}]
+            )
+        ]
+        self.assertIn("get_home_assistant_report", names)
+
+    def test_home_assistant_policy_is_advisory_and_approval_gated(self):
+        self.assertIn(
+            "you cannot toggle a device, run a\nscene or script, arm or disarm anything, change a climate setpoint",
+            ASTER_SYSTEM_PROMPT,
+        )
+        self.assertIn("never contains an entity_id, friendly\nname, room/area, or automation name", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Do not redirect a Home Assistant question to", ASTER_SYSTEM_PROMPT)
 
     def test_lab_health_uses_only_bounded_report(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -272,6 +300,41 @@ class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
             [TOOLS["get_arr_report"]],
         )
         self.assertEqual(result[0]["function"], "get_arr_report")
+
+    async def test_home_assistant_report_is_preloaded_without_model_round_trip(self):
+        result = await preload_read_only_context(
+            [{"role": "user", "content": "How many lights are on right now?"}],
+            [TOOLS["get_home_assistant_report"]],
+        )
+        self.assertEqual(result[0]["function"], "get_home_assistant_report")
+
+    async def test_home_assistant_report_dispatch_uses_only_bounded_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = Path(directory) / "latest.json"
+            report.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "generated_at": "2026-09-10T00:00:00+00:00",
+                        "domains": {
+                            "light": {
+                                "status": "warning",
+                                "coverage": ["state"],
+                                "entity_total": 3,
+                                "entity_on": 1,
+                                "entity_off": 1,
+                                "entity_unavailable": 1,
+                                "entity_unknown": 0,
+                            }
+                        },
+                        "entity_id": "not permitted",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with patch.object(aster_agent, "HOME_ASSISTANT_REPORT_PATH", report):
+                result = await execute_tool("get_home_assistant_report", {})
+        self.assertEqual(result["status"], "unavailable")
 
 
 if __name__ == "__main__":

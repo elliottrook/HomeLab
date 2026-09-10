@@ -16,6 +16,7 @@
 ## Enhancement portfolio
 
 - [ ] [Local AI](projects/Local-AI.md)
+- [ ] [Aster Home Assistant specialist](projects/Aster-Home-Assistant-Specialist.md)
 - [ ] [Authentik service rollout](projects/Authentik-Rollout.md)
 - [ ] [Surveillance expansion](projects/Surveillance-Expansion.md)
 - [ ] [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)
