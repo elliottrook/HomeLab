@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "boundary": {"type": "exact-file", "value": "synthetic-ups-1000.txt"},
+      "canonical_url": "upload:synthetic-ups-1000",
+      "enabled": true,
+      "id": "synthetic-ups-manual",
+      "kind": "manual",
+      "license_status": "permitted",
+      "media_type": "text/plain",
+      "owner": "HomeLab synthetic fixtures",
+      "refresh_hours": 8760,
+      "size_limit_bytes": 65536,
+      "source_class": "local-reviewed",
+      "title": "SYNTHETIC UPS-1000 manual",
+      "version_policy": "pinned"
+    }
+  ]
+}
