@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import argparse
-import cgi
 import html
-import io
 import json
 import re
+from email import policy
+from email.parser import BytesParser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs
@@ -32,24 +32,32 @@ def parse_submission(content_type: str, body: bytes) -> tuple[dict[str, str], by
     """Parse one bounded form submission without requiring a listening socket."""
     upload = None
     if content_type.startswith("multipart/form-data"):
-        fields = cgi.FieldStorage(
-            fp=io.BytesIO(body),
-            headers={"content-type": content_type, "content-length": str(len(body))},
-            environ={"REQUEST_METHOD": "POST", "CONTENT_TYPE": content_type,
-                     "CONTENT_LENGTH": str(len(body))}, keep_blank_values=True,
+        message = BytesParser(policy=policy.HTTP).parsebytes(
+            b"Content-Type: " + content_type.encode("ascii", "strict") + b"\r\n"
+            b"MIME-Version: 1.0\r\n\r\n" + body
         )
-        form = {}
-        for key in fields.keys():
-            item = fields[key]
-            if isinstance(item, list):
-                item = item[-1]
-            if key == "manual_file" and item.filename:
-                upload = item.file.read(64 * 1024 + 1)
-                if len(upload) > 64 * 1024:
+        if not message.is_multipart() or message.defects:
+            raise ManifestError("invalid multipart form")
+        form: dict[str, str] = {}
+        for item in message.iter_parts():
+            if item.get_content_disposition() != "form-data":
+                continue
+            key = item.get_param("name", header="content-disposition")
+            if not key:
+                continue
+            filename = item.get_filename()
+            payload = item.get_payload(decode=True) or b""
+            if key == "manual_file" and filename:
+                if len(payload) > 64 * 1024:
                     raise ManifestError("manual too large for prototype")
-                form["filename"] = Path(item.filename).name
-            elif item.value is not None:
-                form[key] = str(item.value)
+                upload = payload
+                form["filename"] = Path(filename).name
+            elif filename is None:
+                charset = item.get_content_charset() or "utf-8"
+                try:
+                    form[key] = payload.decode(charset)
+                except (LookupError, UnicodeDecodeError) as exc:
+                    raise ManifestError("invalid form field encoding") from exc
         return form, upload
     return ({key: values[-1] for key, values in parse_qs(body.decode()).items()}, None)
 

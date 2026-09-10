@@ -99,6 +99,17 @@ class IntakeTests(unittest.TestCase):
         with self.assertRaises(ManifestError):
             parse_submission(content_type, body)
 
+    def test_multipart_requires_a_boundary(self):
+        with self.assertRaises(ManifestError):
+            parse_submission("multipart/form-data", b"not a multipart form")
+
+    def test_multipart_rejects_invalid_field_encoding(self):
+        boundary = "ASTERBOUNDARY"
+        body = (f"--{boundary}\r\nContent-Disposition: form-data; name=title\r\n"
+                "Content-Type: text/plain; charset=utf-8\r\n\r\n").encode() + b"\xff\r\n" + f"--{boundary}--\r\n".encode()
+        with self.assertRaises(ManifestError):
+            parse_submission(f"multipart/form-data; boundary={boundary}", body)
+
     def test_retirement_is_recoverable_candidate_not_deletion(self):
         with tempfile.TemporaryDirectory() as directory:
             path = write_control_candidate(Path(directory), "safe-source", "retire")

@@ -101,18 +101,24 @@ synchronization is recorded as pending until separately authorized.
 
 **Last verified state:** private Forgejo repositories `jason/homelab-wiki` and
 `jason/aster-knowledge-mirror` contain seed commits `678786c` and `260cdb0`;
-both remain private. The offline renderer and intake prototype pass ten tests,
-including actual bounded manual upload, URL/Git scope preview, non-mutating
-discovery, atomic candidate creation and active-HTML escaping.
+both remain private. Dedicated unprivileged Debian 13 LXC 113 `aster-wiki` is
+running at NetBox-selected `192.168.20.34`; its application archive is
+installed and `aster-wiki-intake.service` is enabled. Post-deployment
+validation found that Python 3.13 removed the deprecated `cgi` module, so the
+service currently fails closed before binding a port. The collector timer is
+explicitly disabled and inactive. A standard-library `email` multipart parser
+replacement and two regression cases pass the complete 23-test local suite.
 
-**Next safe action:** implement manifest-driven acquisition, resumable state,
-normalization, quarantine and atomic accepted-lock transitions using synthetic
-fixtures before selecting or changing a production collector target. The core
-is implemented with 21 passing tests; next add authenticated queue promotion,
-conditional HTTP state/rate limits and exact NetBox-backed address selection.
+**Next safe action:** after the repository-required confirmation for the remote
+mutation, redeploy the locally tested multipart-parser fix to LXC 113, restart
+the intake service and re-run separate service, socket and HTTP health checks.
+Do not enable the collector timer. Then continue authenticated queue promotion,
+conditional HTTP state/rate limits and Doctor integration.
 
 **Rollback location:** current `main` commit and Aster's retained accepted
-snapshot; no production state has yet changed.
+snapshot. LXC 113 is a new isolated target; its intake service is failed and its
+daily timer remains disabled, so it has not published a corpus or changed
+Aster's accepted snapshot.
 
 ## Integration impact assessment
 
@@ -593,3 +599,4 @@ snapshot; the complete human repository remains intact.
 | 2026-09-10 | 1 | Created private Forgejo repositories `jason/homelab-wiki` and `jason/aster-knowledge-mirror`; verified private flags and exact initial commits `678786c`/`260cdb0`. Added explicit human/mirror contracts, strict manifest validation, five representative synthetic/local pages, safe local rendering and an intake UI. Ten tests cover URL, Git and real manual-upload previews, scope, TLS rejection, upload limit, active-HTML escaping and atomic idempotent candidates | Milestone 1 gate passed. A person can browse the offline seed and stage every supported source type without Git/YAML editing; provenance and authority boundaries are explicit. Production deployment intentionally waits for Milestone 2's collector and security gates |
 | 2026-09-10 | 2 checkpoint | Added schema-versioned SQLite run/item state, per-stage checkpoints, run-specific staging, atomic accepted-lock/corpus publication, last-good rollback, tamper verification, bounded reports, operator run/resume/status/verify/rollback modes, daily systemd candidates and recoverable pause/resume/retry/retire queue controls. Acquisition covers HTTPS, protected uploads and bounded Git documentation paths. Twenty-one synthetic tests pass, including failed-update preservation, interruption/resume, redirects, traversal, size/type/secret/injection rejection and rollback | Safe-acquisition core is locally proven but Milestone 2 remains open pending authenticated queue promotion, conditional-fetch/rate-limit state, production target/address selection, Doctor integration and two unattended live cycles |
 | 2026-09-10 | 2 discovery | Proxmox reports VMID 113 next, cached Debian 13 and ample storage/memory. NetBox 4.6.9's sanitized authoritative report shows `192.168.20.33` belongs to `backup-relay`, correcting the tempting inference from stale human addressing documentation | Do not allocate `.33`; exact NetBox IPAM confirmation is required before choosing the collector address. No guest or network state changed |
+| 2026-09-10 | 2 deployment checkpoint | Reconciled the interrupted deployment: unprivileged Debian 13 LXC 113 `aster-wiki` is running at `192.168.20.34` with the expected 2 cores, 2 GiB RAM, 16 GiB disk, VLAN 20 firewall flag and boot ordering. The intake service is installed/enabled but failed because deployed Python 3.13.5 no longer provides `cgi`; the collector timer is disabled/inactive. Replaced `cgi.FieldStorage` with a bounded standard-library `email` multipart parser, added malformed-boundary and encoding regressions, and passed 23/23 local tests | Failure is understood and fails closed with no listener or accepted publication. The tested fix is ready for redeployment, which is paused at the repository-required confirmation for modifying the remote guest. The daily timer must remain disabled until later Milestone 2 gates pass |
