@@ -1,10 +1,14 @@
 # Backup Architecture Redesign
 
-> Status: Active
+> Status: Active — Milestones 1–5 substantively complete (all three legacy
+> Hyper Backup jobs stopped, documentation and inventory updated). Only
+> the final "mark Complete" step remains, held open pending
+> `Backup-Synology-Decommission.md`'s own Milestones 4–5 (14-day
+> observation, ends 2026-09-23, then disk redeployment).
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-08
+> Last updated: 2026-09-10
 
 ## Authorization
 
@@ -129,6 +133,18 @@ scope for this project** — a separate decision for later.
   is retired, not assumed equivalent.
 
 ## Architecture decisions
+
+**Post-closeout exception (approved 2026-09-10):** the original shared
+Proxmox task remains at its deliberately fixed 100–109/111 scope, but Aster
+LXC 110 now has a separate same-site mirror. A dedicated TrueNAS task pulls
+only `vzdump-lxc-110-*.tar.zst` into
+`/mnt/Media/backup/aster-lxc110` at 04:20 and uses `delete: true` only inside
+that bounded directory, following the source's Proxmox retention. Both that
+directory and any legacy LXC 110 archive under the shared guest tree are
+excluded by the IDrive relay. This closes the off-host-copy gap without
+allowing the roughly 38 GB daily model archives to consume or exceed the
+provisioned 1 TB off-site tier; LXC 104's application and knowledge state
+continues through the encrypted off-site path.
 
 - **Backup source scope mimics the old architecture's scope exactly — no
   expansion, one deliberate addition.** Jason's explicit instruction: don't
@@ -606,42 +622,114 @@ on the relay.
 
 ## Milestone 4 — Validation (hard gate before any cutover)
 
-- [ ] Deliberately modify or delete a test file in the TrueNAS backup
+- [x] Deliberately modify or delete a test file in the TrueNAS backup
   dataset's source path, confirm it can be recovered from a ZFS snapshot.
-- [ ] Confirm the same file's *older* version (not just current state) can
+  **Done 2026-09-10.** Created `Media/backup/_milestone4-restore-test/testfile.txt`,
+  took a manual snapshot (`milestone4-test-v1`), deleted the live file, then
+  recovered it by copying from `.zfs/snapshot/milestone4-test-v1/...` —
+  recovered content and SHA-256 (`770132a1b533b7ff10bf5d64f6a6b264adf92449f3fd8796219ca3f2cead7f8b`)
+  matched the original exactly.
+- [x] Confirm the same file's *older* version (not just current state) can
   be recovered from the IDrive e2 off-site copy specifically — proving
-  version retention exists off-site, not just a mirror.
-- [~] Add HomeLab Doctor checks for the new rsync task's freshness, the
+  version retention exists off-site, not just a mirror. **Done 2026-09-10.**
+  Synced the v1 test file through the relay to `idrive-crypt:` (confirmed
+  `Copied (new)` in `sync.log`), recorded timestamp T1, overwrote the file
+  with v2 content on TrueNAS, synced again (confirmed `Copied (replaced
+  existing)`). `rclone --s3-version-at T1 cat idrive-crypt:...` then
+  returned the v1 content — SHA-256 matched the original v1 hash exactly —
+  while a plain `cat` of the same path returned v2. This proves IDrive e2
+  bucket versioning is genuinely retrievable through the crypt layer via
+  `rclone`'s S3 point-in-time read, not just theoretically enabled. Test
+  artifacts (local file/snapshot, off-site object) removed afterward.
+- [x] Add HomeLab Doctor checks for the new rsync task's freshness, the
   snapshot schedule's health, and the `rclone` job's success/failure,
   matching the existing `check_backup_age`/`check_reported_backup`
-  pattern. Doctor now checks the relay guest, enabled timer, active initial
-  sync, failed result and post-success log freshness through the existing
-  Proxmox connection. Mark complete after the first full sync reports a
-  verified success; TrueNAS rsync/snapshot freshness checks remain pending.
-- [ ] Confirm failure-only alerting is wired for the new components,
+  pattern. Doctor already checked the relay guest, enabled timer, active
+  initial sync, failed result and post-success log freshness. **Added
+  2026-09-10:** `check_backup_redesign_truenas()`, initially covering the
+  three redesign legs and subsequently the dedicated LXC 110 mirror. It also
+  validates that the LXC 110 task remains enabled, scoped to its dedicated
+  directory and exact include filter, deletion-bounded, and scheduled at
+  04:20. First attempt used newest-file mtime under each
+  destination directory as the freshness signal and produced false
+  "stale" warnings for the Mac and `gowest` legs — a real bug, not a
+  fluke: `rsync -t` preserves source mtimes on unchanged files, so a
+  quiet day on the source (nothing new to copy) makes a perfectly healthy
+  sync look stale under that signal. Fixed by switching to actual
+  run-completion evidence instead: for the two `rsynctask`-based legs
+  (Proxmox, Mac), the check now reads each task's own job state and
+  `time_finished` via `midclt call rsynctask.query`. The `gowest` leg has
+  no TrueNAS task/job record (it's a plain cron job, per Milestone 2's
+  mechanism change), so a completion marker
+  (`&& date -u +%s > /var/log/gowest-pull-lastrun.epoch`) was added to
+  that cron command — config backed up first
+  (`/root/cronjob-backup-before-monitoring-marker-*.json`), applied via
+  `cronjob.update`, then manually triggered once to confirm the marker
+  actually gets written (verified: epoch matched wall-clock time within
+  seconds). Snapshot freshness checks the newest `backup-daily-*` snapshot's
+  actual ZFS creation time (unaffected by the mtime issue, since that's
+  metadata rather than content-derived). Ran the full `doctor.sh` suite
+  live afterward: 61 passed, 7 pre-existing warnings unrelated to this
+  project (stale config-backup checks, uncommitted git tree), 0 failed —
+  no regression.
+- [x] Confirm failure-only alerting is wired for the new components,
   matching the existing pattern (no email on success, actionable email on
-  failure).
+  failure). **Confirmed 2026-09-10, no new work needed:** read
+  `scripts/scheduled-report.sh` — it already greps every `doctor.sh` run
+  for `🔴`-prefixed lines generically and emails a deduplicated failure
+  alert via `scripts/backup-alert` on any match. Since both new checks
+  (`check_idrive_relay`, `check_backup_redesign_truenas`) call the shared
+  `fail()` helper on a genuine problem, they're automatically covered by
+  the existing pipeline — the pattern this checkbox asked to match is
+  already generic across all Doctor checks, not something wired per-check.
 
 ### Gate
 
-Both the local (ZFS) and off-site (IDrive e2) restore tests must pass
-before any existing Hyper Backup job is touched. This is the single most
-important gate in this project — do not skip it under schedule pressure.
+**Passed 2026-09-10.** Both the local (ZFS) and off-site (IDrive e2)
+restore tests passed with real evidence — see the evidence log. Doctor
+coverage and failure-only alerting for every new component are also
+confirmed. Milestone 5 (cutover) may now begin.
 
 ## Milestone 5 — Cutover and documentation
 
-- [ ] Retire the three existing Hyper Backup jobs one at a time — not all
+- [x] Retire the three existing Hyper Backup jobs one at a time — not all
   at once — confirming after each that its replacement coverage is
   genuinely equivalent (per Milestone 1's inventory) before moving to the
-  next.
-- [ ] Update `docs/05-Backups.md` to describe the new architecture as
-  current, retiring the old three-layer description appropriately.
-- [ ] Add the new LXC to `configs/devices.conf`/`configs/services.conf`
+  next. All three now stopped, each confirmed live rather than assumed:
+  - `Mini Atlas Offsite` (on `.42`) — stopped 2026-09-09, `synopkg status`
+    confirmed `stop`. See `Backup-Synology-Decommission.md` Milestone 3.
+  - `Synology Drive Backup` (on `gowest`) — stopped by Jason via the same
+    HyperBackup-package-stop method, confirmed 2026-09-10 via `synopkg
+    status HyperBackup` on `gowest` reporting `stop`. Its replacement (the
+    `gowest` leg, live since 2026-09-07) was independently reconfirmed
+    still healthy right before this retirement.
+  - `Media Backup` (on `gowest`, Plex-era) — no clean disable; stopped as
+    an unavoidable side effect of the same package-stop, since it shares
+    one HyperBackup instance with `Synology Drive Backup` on this host.
+    By Jason's explicit decision 2026-09-10, this is fine: its destination
+    (`.42`) was already powered off so it could only fail from here on
+    anyway, and an inert static snapshot of already-retired Plex media is
+    judged safer left alone than touched. Not "retired" in the sense of a
+    proven-equivalent replacement — there isn't one, by design — but the
+    practical outcome (no further activity, data untouched) is accepted.
+- [x] Update `docs/05-Backups.md` to describe the new architecture as
+  current, retiring the old three-layer description appropriately. Done
+  2026-09-10 — rewrote the same-site, IDrive e2, Synology Drive, and Home
+  Assistant sections plus ~15 scattered "Backup Synology" mentions across
+  the file, including the Critical-Service Recovery Coverage matrix.
+- [x] Add the new LXC to `configs/devices.conf`/`configs/services.conf`
   and, if the NetBox DCIM project's inventory is still being maintained,
-  to NetBox as well.
-- [ ] Record the Backup Synology's backup-role retirement as complete;
+  to NetBox as well. Done 2026-09-10 — added to `devices.conf` and to
+  NetBox as a virtual machine with interface/IP (via the Django ORM shell,
+  since the stored API token is read-only by design). Deliberately **not**
+  added to `services.conf`: it has no web UI, and a generic TCP check
+  would add no value `check_idrive_relay` doesn't already cover better.
+- [x] Record the Backup Synology's backup-role retirement as complete;
   explicitly flag its repurposing as a separate, not-yet-decided
-  follow-up for Jason.
+  follow-up for Jason. Already recorded in this document's own "Why this
+  exists" section ("Jason intends to repurpose it... explicitly out of
+  scope for this project — a separate decision for later"); the
+  retirement itself is tracked in full in `Backup-Synology-Decommission.md`.
 - [ ] Update this project's status to `Complete` only after every prior
   gate has passed and documentation is current.
 
@@ -689,3 +777,10 @@ as current.
 | 2026-09-08 | 3 | Restarted the sync service with the corrected, properly-scoped credentials; it ran to completion overnight: exit code `0`, 657.091 GiB transferred, 111,196/111,196 files, 94/94 checks, 0 errors, 9h31m elapsed. Spot-checked integrity on real production data (not synthetic test data): pulled `mac/opnsense/opnsense-config-2026-08-02_11-01-31.xml` back through the full encrypted round trip and compared its hash against the same file on TrueNAS | Passed — hashes matched exactly (`df41616946c0e7fad80c2bb28b4a065a209a463298322c1e000f160729d43d0a`). **Milestone 3 gate passed.** One standing item outside the gate: Jason still needs an independent offline copy of the `idrive-crypt` recovery material |
 | 2026-09-08 | 3 | Selected `~/lab/private-backups/recovery/idrive-relay/<date>/` as the documented protected recovery destination; copied LXC 112's rclone configuration and crypt recovery material there with a scoped read-only ACL for the existing TrueNAS pull account, verified Mac→TrueNAS checksums and permissions, then encrypted-uploaded and byte-verified the two files in IDrive | A recovery drill using only the copied Mac configuration successfully decrypted and listed the off-site bundle. The crypt-material recovery-copy condition is complete; unrelated legacy Mac-pull permission debt remains visible but did not block this bundle |
 | 2026-09-08 | 2 maintenance | Diagnosed TrueNAS Mac pull task 2 exit 23 as missing ACL inheritance on newer backup directories/files. Restored the existing restricted `truenas-pull` identity's read/list/search access only under `~/lab/private-backups`, with inheritance for future entries; no write, delete or ACL-administration right was granted. Triggered TrueNAS job 9972 afterward. | Job 9972 completed successfully with no rsync errors. The Mac→TrueNAS backup leg is again clean and retains its confined least-privilege boundary. |
+| 2026-09-09 | 5 (pre-emptive question) | Jason asked to "clean up the old sync bucket in IDrive" believing it stale. Checked first: confirmed `mini-atlas-backups` (the legacy bucket) is not stale — the Backup Synology's "Mini Atlas Offsite" Hyper Backup task is still actively caching to it. Flagged the conflict with Milestone 5's retirement gate and this project's Definition of Done before acting. Jason confirmed: leave it untouched; disable (not delete) the legacy task only after Milestone 4's dual-restore gate passes, per the existing plan — actual bucket content cleanup remains a separate, later, explicit decision, not bundled into task retirement | No action taken; decision reaffirmed as documented, not re-opened |
+| 2026-09-10 | 4 | **Local restore proof.** Created `Media/backup/_milestone4-restore-test/testfile.txt` on TrueNAS, took a manual ZFS snapshot (`milestone4-test-v1`), deleted the live file, recovered it from `.zfs/snapshot/milestone4-test-v1/...` | Passed — recovered content and SHA-256 (`770132a1...`) matched the original exactly |
+| 2026-09-10 | 4 | **Off-site version-retention proof.** Synced the v1 test file through the relay to `idrive-crypt:` (log: `Copied (new)`), recorded timestamp T1, overwrote the file with v2 content on TrueNAS, synced again (log: `Copied (replaced existing)`). `rclone --s3-version-at T1 cat idrive-crypt:...` returned the v1 content; a plain `cat` of the same path returned v2 | Passed — SHA-256 of the point-in-time read matched the original v1 hash exactly, proving IDrive e2 bucket versioning is genuinely retrievable through the crypt layer, not just enabled in principle. Test artifacts removed from both TrueNAS and IDrive e2 afterward (confirmed `Deleted` in `sync.log`) |
+| 2026-09-10 | 4 | Added `check_backup_redesign_truenas()` to HomeLab Doctor for the Proxmox/Mac/`gowest` rsync legs and snapshot freshness. First implementation used newest-file mtime as the signal and produced false "stale" warnings (54h/80h) for the Mac and `gowest` legs — a real bug: `rsync -t` preserves source mtimes, so an unchanged source looks stale under that signal even when the sync ran and succeeded. Fixed by reading actual job-completion state (`midclt call rsynctask.query`) for the two TrueNAS-task legs, and adding a completion-marker timestamp (`date -u +%s > /var/log/gowest-pull-lastrun.epoch`) to the `gowest` cron command for the one leg with no task/job record — cronjob config backed up first, applied via `cronjob.update`, manually triggered once to confirm the marker writes correctly. Ran full `doctor.sh` afterward | Passed — 61 passed, 7 pre-existing warnings unrelated to this project, 0 failed. New check correctly reports fresh legs (`Proxmox 14h, Mac 14h, gowest 0h, snapshot 12h`) |
+| 2026-09-10 | 4 | Confirmed failure-only alerting requires no new wiring: read `scripts/scheduled-report.sh` — it already greps every `doctor.sh` run for `🔴` lines generically and emails a deduplicated alert via `scripts/backup-alert` on any failure. Both new checks use the shared `fail()` helper, so they're automatically covered | Confirmed by reading the existing pipeline, not by triggering a real failure. **Milestone 4 gate passed** — both restore proofs are complete, Doctor coverage and alerting confirmed. Milestone 5 (cutover) may begin |
+| 2026-09-10 | 5 | Jason retired `Synology Drive Backup` on `gowest` by stopping HyperBackup the same way as `.42`, unavoidably also stopping `Media Backup` (they share one package instance on this host) — confirmed by Jason and by choice, since `Media Backup`'s destination was already gone. Verified live via `synopkg status HyperBackup` on `gowest`: `stop` | All three legacy Hyper Backup jobs now stopped. Remaining Milestone 5 items (updating `docs/05-Backups.md`, adding LXC 112 to `configs/devices.conf`/`services.conf`/NetBox) not yet done — not part of this request |
+| 2026-09-10 | Post-closeout LXC 110 coverage | Investigated the separately tracked inference-backup gap before expanding the shared task. Proxmox retained 8 LXC 110 archives / 306,330,893,688 bytes, while the active encrypted bucket already held 818,348,300,143 bytes against a provisioned 1 TB tier; relaying the full retained set would exceed capacity. Reverted the shared task to its original 100–109/111 filter, installed exact LXC 110 exclusions on relay LXC 112 (prior script preserved), and created dedicated TrueNAS task 3 at 04:20 with an exact LXC-only filter and deletion confined to `/mnt/Media/backup/aster-lxc110`. A shallow real-path rclone scan saw 2 LXC 110 paths without the guard and 0 with it; the historical 2026-09-01 encrypted object remains present. During validation, found the earlier aborted shared-task middleware job had left its rsync child process running with five files in `.~tmp~` (four staged, one partial); terminated only that validated process tree and removed only those five temporary files. The verified manual archive and every non-110 backup remained untouched. | Capacity exposure prevented and stray run cleaned up. Dedicated initial mirror job 13037 is running; final count/byte/integrity and Doctor evidence will follow before closeout. |

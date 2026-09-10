@@ -133,21 +133,33 @@ check_idrive_relay() {
             printf "service=%s\\n" "$(pct exec 112 -- systemctl is-active idrive-relay-sync.service 2>/dev/null || true)"
             printf "result=%s\\n" "$(pct exec 112 -- systemctl show idrive-relay-sync.service -p Result --value 2>/dev/null || true)"
             printf "log_epoch=%s\\n" "$(pct exec 112 -- stat -c %Y /var/log/idrive-relay/sync.log 2>/dev/null || true)"
+            if pct exec 112 -- grep -Fq -- "/aster-lxc110/**" /usr/local/sbin/idrive-relay-sync 2>/dev/null &&
+               pct exec 112 -- grep -Fq -- "/homelab-proxmox-guests/vzdump-lxc-110-*.tar.zst" /usr/local/sbin/idrive-relay-sync 2>/dev/null; then
+                printf "lxc110_excludes=present\\n"
+            else
+                printf "lxc110_excludes=missing\\n"
+            fi
         '
     )"; then
         warn "Unable to check encrypted IDrive relay"
         return
     fi
 
-    local guest timer service result log_epoch now_epoch age_hours
+    local guest timer service result log_epoch lxc110_excludes now_epoch age_hours
     guest="$(awk -F= '$1 == "guest" {print $2; exit}' <<< "$state")"
     timer="$(awk -F= '$1 == "timer" {print $2; exit}' <<< "$state")"
     service="$(awk -F= '$1 == "service" {print $2; exit}' <<< "$state")"
     result="$(awk -F= '$1 == "result" {print $2; exit}' <<< "$state")"
     log_epoch="$(awk -F= '$1 == "log_epoch" {print $2; exit}' <<< "$state")"
+    lxc110_excludes="$(awk -F= '$1 == "lxc110_excludes" {print $2; exit}' <<< "$state")"
 
     if [[ "$guest" != "running" || "$timer" != "active" ]]; then
         fail "Encrypted IDrive relay guest or timer is not active"
+        return
+    fi
+
+    if [[ "$lxc110_excludes" != "present" ]]; then
+        fail "Encrypted IDrive relay is missing the LXC 110 capacity exclusions"
         return
     fi
 
@@ -167,6 +179,173 @@ check_idrive_relay() {
         warn "Encrypted IDrive relay last success is ${age_hours} hour(s) old"
     else
         pass "Encrypted IDrive relay last success is ${age_hours} hour(s) old"
+    fi
+}
+
+check_backup_redesign_truenas() {
+    local rsynctask_json gowest_epoch_raw snapshot_epoch
+
+    # Job-based freshness for the three rsynctask legs (Proxmox, Mac, and the
+    # separately bounded LXC 110 mirror):
+    # file mtimes are the wrong signal here, since rsync preserves source
+    # mtimes on unchanged files, so a quiet day on the source makes a
+    # perfectly healthy sync look stale. The gowest leg is a plain cron job
+    # (no TrueNAS task/job record), so it stamps its own completion marker
+    # (added to that cron command for this reason).
+    if ! rsynctask_json="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas 'midclt call rsynctask.query 2>/dev/null'
+    )" ||
+       ! gowest_epoch_raw="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas 'cat /var/log/gowest-pull-lastrun.epoch 2>/dev/null'
+    )" ||
+       ! snapshot_epoch="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
+            'zfs list -t snapshot -r Media/backup -o name,creation -s creation -H -p 2>/dev/null | grep "@backup-daily-" | tail -1 | awk "{print \$2}"'
+    )"; then
+        warn "Unable to check backup-redesign TrueNAS legs (rsync freshness, snapshots)"
+        return
+    fi
+
+    local job_state
+    local now_epoch
+    now_epoch="$(date +%s)"
+    local failures=()
+    local warnings=()
+    local passes=()
+
+    local lxc_110_task_id
+    lxc_110_task_id="$(python3 -c "
+import json, sys
+tasks = json.loads(sys.argv[1])
+required_extra = {
+    '--include=vzdump-lxc-110-*.tar.zst',
+    '--exclude=*',
+}
+matches = [
+    task for task in tasks
+    if task.get('path') == '/mnt/Media/backup/aster-lxc110'
+    and task.get('enabled') is True
+    and task.get('delete') is True
+    and task.get('direction') == 'PULL'
+    and task.get('mode') == 'SSH'
+    and task.get('remotepath') == '.'
+    and set(task.get('extra') or []) == required_extra
+    and (task.get('schedule') or {}).get('hour') == '4'
+    and (task.get('schedule') or {}).get('minute') == '20'
+]
+print(matches[0]['id'] if len(matches) == 1 else '')
+" "$rsynctask_json")"
+    if [[ ! "$lxc_110_task_id" =~ ^[0-9]+$ ]]; then
+        failures+=("Aster LXC 110 bounded mirror task is missing or misconfigured")
+    fi
+
+    local leg display display_id tid leg_epoch age_hours
+    local legs=("proxmox:1" "mac:2")
+    if [[ "$lxc_110_task_id" =~ ^[0-9]+$ ]]; then
+        legs+=("lxc110:$lxc_110_task_id")
+    fi
+    for leg in "${legs[@]}"; do
+        display_id="${leg%%:*}"
+        tid="${leg##*:}"
+        case "$display_id" in
+            proxmox) display="Proxmox guest archives" ;;
+            mac) display="Mac config" ;;
+            lxc110) display="Aster LXC 110 mirror" ;;
+        esac
+
+        job_state="$(python3 -c "
+import json, sys
+tasks = {t['id']: t for t in json.loads(sys.argv[2])}
+job = (tasks.get(int(sys.argv[1])) or {}).get('job') or {}
+print(job.get('state', 'NONE'))
+" "$tid" "$rsynctask_json")"
+
+        leg_epoch="$(python3 -c "
+import json, sys
+tasks = {t['id']: t for t in json.loads(sys.argv[2])}
+job = (tasks.get(int(sys.argv[1])) or {}).get('job') or {}
+finished = (job.get('time_finished') or {}).get('\$date')
+print(finished // 1000 if finished else '')
+" "$tid" "$rsynctask_json")"
+
+        if [[ "$job_state" == "FAILED" || "$job_state" == "ABORTED" ]]; then
+            failures+=("$display last run $job_state")
+            continue
+        fi
+
+        if [[ ! "$leg_epoch" =~ ^[0-9]+$ ]]; then
+            failures+=("$display has no completed run on record")
+            continue
+        fi
+
+        age_hours=$(( (now_epoch - leg_epoch) / 3600 ))
+        if (( age_hours > 30 )); then
+            warnings+=("$display last success ${age_hours}h ago")
+        else
+            passes+=("$display ${age_hours}h")
+        fi
+    done
+
+    if [[ ! "$gowest_epoch_raw" =~ ^[0-9]+$ ]]; then
+        failures+=("gowest homes/Family Documents has no completion marker")
+    else
+        local gowest_age_hours
+        gowest_age_hours=$(( (now_epoch - gowest_epoch_raw) / 3600 ))
+        if (( gowest_age_hours > 30 )); then
+            warnings+=("gowest homes/Family Documents last success ${gowest_age_hours}h ago")
+        else
+            passes+=("gowest ${gowest_age_hours}h")
+        fi
+    fi
+
+    if [[ ! "$snapshot_epoch" =~ ^[0-9]+$ ]]; then
+        failures+=("no daily snapshot found on Media/backup")
+    else
+        local snapshot_age_hours
+        snapshot_age_hours=$(( (now_epoch - snapshot_epoch) / 3600 ))
+        if (( snapshot_age_hours > 30 )); then
+            warnings+=("daily snapshot is ${snapshot_age_hours}h old")
+        else
+            passes+=("snapshot ${snapshot_age_hours}h")
+        fi
+    fi
+
+    if (( ${#failures[@]} > 0 )); then
+        fail "Backup redesign TrueNAS legs: ${failures[*]}"
+    elif (( ${#warnings[@]} > 0 )); then
+        warn "Backup redesign TrueNAS legs stale: ${warnings[*]}"
+    else
+        pass "Backup redesign TrueNAS legs fresh (${passes[*]})"
+    fi
+}
+
+check_home_assistant_backup_truenas() {
+    local latest_epoch
+
+    if ! latest_epoch="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
+            "find /mnt/Media/backup/home-assistant -maxdepth 1 -type f -name '*.tar' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
+    )"; then
+        warn "Unable to check Home Assistant backup leg on TrueNAS"
+        return
+    fi
+
+    latest_epoch="${latest_epoch%%.*}"
+
+    if [[ ! "$latest_epoch" =~ ^[0-9]+$ ]]; then
+        fail "Home Assistant backup leg on TrueNAS has no backup files"
+        return
+    fi
+
+    local now_epoch
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_hours=$(( (now_epoch - latest_epoch) / 3600 ))
+
+    if (( age_hours > 30 )); then
+        warn "Home Assistant backup on TrueNAS is ${age_hours} hour(s) old"
+    else
+        pass "Home Assistant backup on TrueNAS is ${age_hours} hour(s) old"
     fi
 }
 
@@ -219,6 +398,57 @@ check_proxmox_guest_backup_age() {
         pass "$display Proxmox backup is ${age_hours} hour(s) old"
     else
         fail "$display Proxmox backup is ${age_hours} hour(s) old"
+    fi
+}
+
+check_truenas_guest_mirror_age() {
+    local display="$1"
+    local vmid="$2"
+    local maximum_hours="${3:-30}"
+    local guest_type="${4:-qemu}"
+    local mirror_directory="${5:-/mnt/Media/backup/homelab-proxmox-guests}"
+    local archive_pattern
+    local latest_epoch
+
+    case "$guest_type" in
+        qemu) archive_pattern="vzdump-qemu-${vmid}-*.vma.zst" ;;
+        lxc) archive_pattern="vzdump-lxc-${vmid}-*.tar.zst" ;;
+        *)
+            warn "Unable to check $display TrueNAS mirror age: unsupported guest type $guest_type"
+            return
+            ;;
+    esac
+
+    if ! latest_epoch="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
+            "find '$mirror_directory' -maxdepth 1 -type f -name '$archive_pattern' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
+    )"; then
+        warn "Unable to check $display TrueNAS mirror age"
+        return
+    fi
+
+    latest_epoch="${latest_epoch%%.*}"
+    if [[ ! "$latest_epoch" =~ ^[0-9]+$ ]]; then
+        fail "$display has no TrueNAS mirror archive"
+        return
+    fi
+
+    local now_epoch
+    local age_seconds
+    local age_hours
+    now_epoch="$(date +%s)"
+    age_seconds=$((now_epoch - latest_epoch))
+
+    if (( age_seconds < 0 )); then
+        warn "$display TrueNAS mirror timestamp is ahead of the Mac clock"
+        return
+    fi
+
+    age_hours=$((age_seconds / 3600))
+    if (( age_hours <= maximum_hours )); then
+        pass "$display TrueNAS mirror is ${age_hours} hour(s) old"
+    else
+        fail "$display TrueNAS mirror is ${age_hours} hour(s) old"
     fi
 }
 
@@ -1041,38 +1271,6 @@ REMOTE
     fi
 }
 
-check_synology_drive_backup() {
-    local maximum_hours="${1:-30}"
-    local remote_output
-
-    if ! remote_output="$(
-        ssh -o BatchMode=yes -o ConnectTimeout=5 gowest-backup \
-            'find "/volume1/Backup/GoWest_2.hbk" -type f -printf "%T@\n" 2>/dev/null | sort -rn | head -n 1' \
-            2>/dev/null
-    )"; then
-        warn "Unable to collect Synology Drive Backup health data"
-        return
-    fi
-
-    if [[ -z "$remote_output" ]]; then
-        warn "Synology Drive Backup has no files at destination"
-        return
-    fi
-
-    local modified_epoch="${remote_output%%.*}"
-    local now_epoch
-    now_epoch="$(date +%s)"
-
-    local age_hours
-    age_hours=$(( (now_epoch - modified_epoch) / 3600 ))
-
-    if (( age_hours <= maximum_hours )); then
-        pass "Synology Drive Backup is ${age_hours} hour(s) old"
-    else
-        warn "Synology Drive Backup is ${age_hours} hour(s) old"
-    fi
-}
-
 check_truenas() {
     local state_file="$STATE_ROOT/truenas-bond.state"
     local pool_json
@@ -1557,12 +1755,12 @@ check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
 check_proxmox_guest_backup_age "Aster llama.cpp LXC 110" 110 30 lxc
+check_truenas_guest_mirror_age "Aster llama.cpp LXC 110" 110 30 lxc /mnt/Media/backup/aster-lxc110
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
-check_reported_backup "Configuration pull to Backup Synology" "synology-pull" 30
-check_reported_backup "Proxmox guest pull to Backup Synology" "proxmox-pull" 30
 check_idrive_relay
-check_synology_drive_backup 30
+check_backup_redesign_truenas
+check_home_assistant_backup_truenas
 
 divider
 

@@ -67,12 +67,16 @@ Open Reliability Follow-up
 
 - [x] Purchase a replacement for the UniFi PoE switch after repeated failure to boot following power interruptions — replacement purchased 2026-08-24.
 - [x] Select a stable managed PoE replacement supporting native VLAN 10 and tagged VLANs 30, 40, 50 and 60 — selected and ordered 2026-08-24.
-- [ ] Validate AP management, IoT Wi-Fi, Guest Wi-Fi, camera isolation and Frigate recording after replacement.
-- [ ] Capture and back up the replacement switch configuration.
+- [x] Validate AP management, IoT Wi-Fi, Guest Wi-Fi, camera isolation and Frigate recording after replacement — the Binarui "AP Switch" (4-port, 2.5Gb) entered production 2026-08-26, carrying AP management, IoT and Guest Wi-Fi over trunk ports 1–4 (VLANs 1,10,20,30,40,50,60,70). The old UniFi PoE switch actually failed outright around 2026-08-27, rather than being swapped pre-emptively; since the AP Switch has only 4 ports and serves access points alone, the Reolink camera moved the same day onto the previously-reserved TP-Link 8-port PoE switch (Arista Et34, access VLAN 60) and was confirmed stable in production by 2026-08-30. Details: `docs/Current-Network-Baseline.md` ("AP/PoE switch replacement checkpoint completed 2026-08-26" and the 2026-08-27 correction).
+- [x] Capture and back up the replacement switch configuration — the AP Switch exposes no config-export function (save-to-NVRAM only), so its complete port/VLAN assignment and recovery procedure are documented as the device's sole disaster-recovery artifact in `docs/Current-Network-Baseline.md` ("AP Switch total config loss — 2026-09-04"). That section also records a real config-loss incident (the config was never saved to NVRAM before a planned rack power-down on 2026-08-29, so it reverted to factory defaults) and its fix; running *Save Configure* after every future change to this device is now a documented operational requirement.
 
-The two installation-dependent items remain scheduled for the replacement-switch
-cutover after delivery. They are reliability close-out work, not a reason to
-reopen the completed network design.
+**PoE switch reliability close-out complete — 2026-08-30** (camera-role stability
+confirmed; the network design does not need to be reopened). Two small residual
+follow-ups surfaced during this work, are still open, and had no tracked home
+until now:
+
+- [ ] Forget the retired UniFi PoE switch entry in the UniFi Network application — it was physically replaced but never removed from the controller's device list.
+- [ ] Investigate the Mac-only access failure to Arista management noticed during the 2026-08-23 incident.
 
 ---
 
@@ -502,19 +506,18 @@ The handover, roadmap, baseline and live environment agree, and the environment 
 # Enhancement Project Portfolio
 
 Major post-build work is tracked in self-contained project documents with its
-own milestones, dependencies, evidence and completion gate.
+own milestones, dependencies, evidence and completion gate. The full, current
+list of active and completed enhancement projects — status, tracker link and
+supporting material for each — lives in one place to avoid drifting out of
+sync with this file: the **[enhancement portfolio index](docs/projects/README.md)**,
+which also defines the common project rules and status vocabulary. Per that
+index's own "Relationship to the initial-build record" note, this file is not
+meant to duplicate that table — it stays the historical completion record for
+the initial build plus this build's own final reliability follow-up and small
+deferred cleanup items.
 
-| Project | Current status | Tracker |
-|---|---|---|
-| Local AI | Pilot complete; hardware-backed expansion proposed | [`docs/projects/Local-AI.md`](docs/projects/Local-AI.md) |
-| Authentik rollout | Foundation proven; staged rollout proposed | [`docs/projects/Authentik-Rollout.md`](docs/projects/Authentik-Rollout.md) |
-| Surveillance expansion | One-camera baseline complete; expansion proposed | [`docs/projects/Surveillance-Expansion.md`](docs/projects/Surveillance-Expansion.md) |
-| NUT/UPS deployment | Handover ready | [`docs/UPS-Power-Resilience-Claude-Handover.md`](docs/UPS-Power-Resilience-Claude-Handover.md) |
-| Prometheus/Grafana observability | Complete; retained in production | [`docs/projects/completed projects/Prometheus-Grafana-Observability.md`](<docs/projects/completed projects/Prometheus-Grafana-Observability.md>) |
-| Synology Drive family cloud | Complete for the pilot rollout; family-wide client rollout deferred | [`docs/projects/completed projects/Synology-Drive-Family-Cloud.md`](<docs/projects/completed projects/Synology-Drive-Family-Cloud.md>) |
-
-See the [enhancement portfolio index](docs/projects/README.md) for common project
-rules and status definitions.
+The NUT/UPS project is the one exception still tracked directly from its own
+handover document rather than a `docs/projects/` tracker: [`docs/UPS-Power-Resilience-Claude-Handover.md`](docs/UPS-Power-Resilience-Claude-Handover.md).
 
 # Completed Post-Build Enhancement
 
@@ -585,6 +588,8 @@ All other work follows the independent milestones in the enhancement portfolio.
 
 | Date | Change | Evidence or Reference |
 |---|---|---|
+| 2026-09-09 | Removed the duplicated, stale Enhancement Project Portfolio table (six rows, missing 8 of the 14 real active projects, and reporting the NUT/UPS project as merely "Handover ready" after Milestone 3 actually closed). Replaced it with a pointer to `docs/projects/README.md`, the table's own documented source of truth, per that index's "Relationship to the initial-build record" note. | `docs/projects/README.md` portfolio table |
+| 2026-09-09 | Reconciled the stale Phase 1 PoE-switch follow-up: the two items marked pending-delivery were actually closed 2026-08-26/08-30 (Binarui AP Switch for APs, TP-Link switch for the camera), so both are now checked off with evidence. Surfaced two small residual follow-ups that had never been tracked anywhere — forgetting the retired switch in UniFi Network, and the unresolved Mac-only Arista management access failure. | `docs/Current-Network-Baseline.md` AP/PoE switch checkpoint and config-loss sections; `CHANGELOG.md` Unreleased |
 | 2026-08-23 | Recorded the storm-related UniFi PoE switch boot failure, unsuccessful TP-Link TL-SG1016PE fallback, delayed UniFi recovery and decision to obtain a stable managed PoE replacement. | `docs/04-Operations.md` network incident |
 | 2026-08-22 | Validated code-server as the live Homepage configuration editor, corrected file permissions and service URLs, added Code Server and Authentik dashboard entries, and captured the current dashboard state. | `docs/04-Operations.md` activity log and dashboard screenshot |
 | 2026-08-22 | Documented the tested Authentik-protected NPM integration and a reusable service-by-service authorization onboarding process. | `docs/08-Authorization.md`; `docs/09-Service-Authorization-Onboarding.md` |

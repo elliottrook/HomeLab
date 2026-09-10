@@ -3,6 +3,14 @@
 ## Unreleased
 
 ### Added
+- Closed Aster LXC 110's recurring same-site backup gap with a dedicated,
+  exact-filter TrueNAS rsync task and destination that follow Proxmox retention
+  without exposing the shared guest tree to deletion. Added Doctor checks for
+  task configuration, successful-run freshness and mirrored archive age. The
+  large model archives are explicitly excluded from the provisioned 1 TB
+  IDrive tier, while LXC 104's application and knowledge state retains its
+  encrypted off-site coverage; the canonical relay command is now tracked in
+  Git.
 - Graduated the Local AI enhancement project after reconciling its original
   Hermes/Ollama milestones with the production Aster/llama.cpp platform. Live
   checks confirmed the E5-2698 v4/80 GB host baseline, 50 GiB configured across
