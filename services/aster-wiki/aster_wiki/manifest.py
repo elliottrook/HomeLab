@@ -90,13 +90,14 @@ def write_candidate(state_root: Path, source: dict[str, Any]) -> Path:
     encoded = canonical_json(payload)
     digest = hashlib.sha256(encoded).hexdigest()
     target_dir = state_root / "candidates"
-    target_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    target_dir.mkdir(parents=True, exist_ok=True, mode=0o770)
+    os.chmod(target_dir, 0o770)
     target = target_dir / f"{source['id']}-{digest[:12]}.json"
     if target.exists():
         return target
     fd, temporary = tempfile.mkstemp(prefix=".candidate-", dir=str(target_dir))
     try:
-        os.fchmod(fd, 0o600)
+        os.fchmod(fd, 0o640)
         with os.fdopen(fd, "wb") as handle:
             handle.write(encoded)
             handle.flush()
@@ -115,12 +116,13 @@ def write_control_candidate(state_root: Path, source_id: str, operation: str) ->
     encoded = canonical_json(payload)
     digest = hashlib.sha256(encoded).hexdigest()
     target_dir = state_root / "candidates"
-    target_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    target_dir.mkdir(parents=True, exist_ok=True, mode=0o770)
+    os.chmod(target_dir, 0o770)
     target = target_dir / f"{source_id}-{operation}-{digest[:12]}.json"
     if not target.exists():
         fd, temporary = tempfile.mkstemp(prefix=".control-", dir=str(target_dir))
         try:
-            os.fchmod(fd, 0o600)
+            os.fchmod(fd, 0o640)
             with os.fdopen(fd, "wb") as handle:
                 handle.write(encoded); handle.flush(); os.fsync(handle.fileno())
             os.replace(temporary, target)
@@ -136,11 +138,12 @@ def write_upload(state_root: Path, source: dict[str, Any], content: bytes) -> Pa
     if len(content) > source["size_limit_bytes"]:
         raise ManifestError("manual upload exceeds source limit")
     target_dir = state_root / "uploads" / source["id"]
-    target_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    target_dir.mkdir(parents=True, exist_ok=True, mode=0o750)
+    os.chmod(target_dir, 0o750)
     target = target_dir / Path(source["boundary"]["value"]).name
     fd, temporary = tempfile.mkstemp(prefix=".upload-", dir=str(target_dir))
     try:
-        os.fchmod(fd, 0o600)
+        os.fchmod(fd, 0o640)
         with os.fdopen(fd, "wb") as handle:
             handle.write(content); handle.flush(); os.fsync(handle.fileno())
         os.replace(temporary, target)
@@ -186,7 +189,7 @@ def promote_candidates(state_root: Path, manifest_path: Path) -> int:
     finally:
         if os.path.exists(temporary): os.unlink(temporary)
     processed = state_root / "processed-candidates"
-    processed.mkdir(parents=True, exist_ok=True, mode=0o700)
+    processed.mkdir(parents=True, exist_ok=True, mode=0o750)
     for path in pending:
         os.replace(path, processed / path.name)
     return len(pending)

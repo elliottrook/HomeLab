@@ -72,7 +72,8 @@ class IntakeTests(unittest.TestCase):
             second = write_candidate(Path(directory), source)
             self.assertEqual(first, second)
             self.assertEqual("enroll", json.loads(first.read_text())["operation"])
-            self.assertEqual(0o600, first.stat().st_mode & 0o777)
+            self.assertEqual(0o640, first.stat().st_mode & 0o777)
+            self.assertEqual(0o770, first.parent.stat().st_mode & 0o777)
 
     def test_wiki_renderer_escapes_active_html_and_keeps_navigation(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -127,7 +128,7 @@ class IntakeTests(unittest.TestCase):
                               "license_status": "permitted", "media_type": "text/plain"}, b"fixture")
             upload = write_upload(root / "state", result["source"], b"fixture")
             write_candidate(root / "state", result["source"])
-            self.assertEqual(0o600, upload.stat().st_mode & 0o777)
+            self.assertEqual(0o640, upload.stat().st_mode & 0o777)
             self.assertEqual(1, promote_candidates(root / "state", manifest))
             self.assertEqual(result["source"]["id"], load_manifest(manifest)["sources"][0]["id"])
             self.assertEqual([], list((root / "state/candidates").glob("*.json")))
