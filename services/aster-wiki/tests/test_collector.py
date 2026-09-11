@@ -37,6 +37,11 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual("keep me\n", (wiki / "docs/authored/page.md").read_text())
             lock = json.loads((wiki / "sources/accepted-lock.json").read_text())
             self.assertEqual("safe-source", lock["sources"][0]["source_id"])
+            original = state / lock["sources"][0]["original_path"]
+            self.assertEqual(b"line  \r\n", original.read_bytes())
+            self.assertEqual(0o640, original.stat().st_mode & 0o777)
+            self.assertEqual(b"line  \r\n", original.read_bytes())
+            self.assertEqual(0o640, original.stat().st_mode & 0o777)
 
     def test_run_id_cannot_escape_wiki_staging(self):
         temporary, wiki, state = self.roots()
@@ -132,6 +137,17 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual(1, collector.verify()["checked"])
             (wiki / "docs/upstream/safe-source/content.txt").write_text("tampered\n")
             with self.assertRaises(RuntimeError): collector.verify()
+
+    def test_verify_detects_retained_original_tampering(self):
+        temporary, wiki, state = self.roots()
+        with temporary:
+            collector = Collector(wiki, state, lambda _: Fetched(
+                b"accepted raw  \r\n", "text/plain", "https://docs.example.invalid/guide"))
+            collector.run([source()], "accepted")
+            lock = json.loads((wiki / "sources/accepted-lock.json").read_text())
+            (state / lock["sources"][0]["original_path"]).write_bytes(b"tampered")
+            with self.assertRaisesRegex(RuntimeError, "retained original mismatch"):
+                collector.verify()
 
     def test_rollback_restores_previous_generated_tree(self):
         temporary, wiki, state = self.roots()

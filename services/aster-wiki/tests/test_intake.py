@@ -4,9 +4,10 @@ import unittest
 from pathlib import Path
 
 from aster_wiki.intake import preview
-from aster_wiki.app import Handler, parse_submission
+from aster_wiki.app import Handler, parse_submission, source_dashboard, source_history
 from aster_wiki.manifest import (ManifestError, load_manifest, promote_candidates,
                                  write_candidate, write_control_candidate, write_upload)
+from aster_wiki.state import State
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -132,6 +133,31 @@ class IntakeTests(unittest.TestCase):
             self.assertEqual(1, promote_candidates(root / "state", manifest))
             self.assertEqual(result["source"]["id"], load_manifest(manifest)["sources"][0]["id"])
             self.assertEqual([], list((root / "state/candidates").glob("*.json")))
+
+    def test_dashboard_and_history_are_bounded_read_only_views(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = root / "wiki"
+            state_root = root / "state"
+            (wiki / "sources").mkdir(parents=True)
+            seed = load_manifest(ROOT / "seed/homelab-wiki/sources/sources.json")
+            (wiki / "sources/sources.json").write_text(json.dumps(seed))
+            accepted = {"schema_version": 1, "sources": [{
+                "source_id": seed["sources"][0]["id"],
+                "normalized_sha256": "a" * 64,
+            }]}
+            (wiki / "sources/accepted-lock.json").write_text(json.dumps(accepted))
+            state = State(state_root / "pipeline.sqlite3")
+            source_id = seed["sources"][0]["id"]
+            state.start("run-1")
+            state.checkpoint("run-1", source_id, "normalized", "ok", "b" * 64)
+            state.finish("run-1", "accepted")
+            rows = source_dashboard(wiki, state_root)
+            self.assertEqual("ok", rows[0]["last_status"])
+            self.assertEqual("a" * 12, rows[0]["accepted_sha256"][:12])
+            history = source_history(state_root, source_id, limit=1)
+            self.assertEqual(1, len(history))
+            self.assertEqual("run-1", history[0]["run_id"])
 
 
 if __name__ == "__main__":

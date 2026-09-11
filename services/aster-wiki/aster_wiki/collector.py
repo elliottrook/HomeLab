@@ -176,6 +176,28 @@ class Collector:
         return next((item for item in data.get("sources", [])
                      if item.get("source_id") == source_id), None)
 
+    def _retain_original(self, source: dict, body: bytes, digest: str) -> str:
+        """Store the exact fetched bytes outside Git under a content address."""
+        target_dir = self.state_root / "originals" / source["id"]
+        target_dir.mkdir(parents=True, exist_ok=True, mode=0o750)
+        os.chmod(target_dir, 0o750)
+        target = target_dir / f"{digest}.blob"
+        if not target.exists():
+            fd, temporary = tempfile.mkstemp(prefix=".original-", dir=str(target_dir))
+            try:
+                os.fchmod(fd, 0o640)
+                with os.fdopen(fd, "wb") as handle:
+                    handle.write(body)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(temporary, target)
+            finally:
+                if os.path.exists(temporary):
+                    os.unlink(temporary)
+        if hashlib.sha256(target.read_bytes()).hexdigest() != digest:
+            raise Quarantine("retained-original-mismatch")
+        return str(target.relative_to(self.state_root))
+
     def run(self, sources: list[dict], run_id: str) -> dict[str, int | str]:
         if not RUN_ID.fullmatch(run_id):
             raise ValueError("invalid run id")
@@ -208,6 +230,7 @@ class Collector:
                     continue
                 validate_fetch(source, fetched)
                 digest = hashlib.sha256(fetched.body).hexdigest()
+                original_path = self._retain_original(source, fetched.body, digest)
                 data = normalize(fetched)
                 normalized_digest = hashlib.sha256(data).hexdigest()
                 destination = Path("docs/upstream") / source["id"] / ("original.pdf" if fetched.media_type == "application/pdf" else "content.txt")
@@ -222,6 +245,9 @@ class Collector:
                     "original_sha256": digest, "normalized_sha256": normalized_digest,
                     "media_type": fetched.media_type, "etag": fetched.etag,
                     "last_modified": fetched.last_modified, "authority": "upstream-reference",
+                    "original_storage": "protected-local",
+                    "original_path": original_path,
+                    "license_status": source["license_status"],
                 }
                 (output.parent / "provenance.json").write_bytes(canonical_json(metadata))
                 self.state.checkpoint(run_id, source["id"], "normalized", "ok", digest)
@@ -281,6 +307,12 @@ class Collector:
             path = self.wiki_root / item["path"]
             if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != item["normalized_sha256"]:
                 raise RuntimeError(f"accepted content mismatch: {item['source_id']}")
+            original_path = item.get("original_path")
+            if original_path:
+                original = self.state_root / original_path
+                if (not original.is_file() or
+                        hashlib.sha256(original.read_bytes()).hexdigest() != item["original_sha256"]):
+                    raise RuntimeError(f"retained original mismatch: {item['source_id']}")
             checked += 1
         return {"status": "ok", "checked": checked}
 

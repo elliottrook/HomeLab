@@ -6,6 +6,7 @@ import argparse
 import html
 import json
 import re
+import sqlite3
 from email import policy
 from email.parser import BytesParser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -26,6 +27,68 @@ FORM = """<!doctype html><meta charset=utf-8><title>Aster Wiki intake</title>
 <label>Manual upload (PDF, HTML, Markdown or text; prototype limit 64 KiB) <input type=file name=manual_file></label>
 <label>License <select name=license_status><option>review-required</option><option>permitted</option><option>metadata-only</option></select></label>
 <button>Preview source</button></form>"""
+
+
+def source_dashboard(wiki_root: Path, state_root: Path) -> list[dict]:
+    """Return bounded accepted/source-state rows without mutating pipeline state."""
+    manifest_path = wiki_root / "sources/sources.json"
+    sources = load_manifest(manifest_path)["sources"] if manifest_path.is_file() else []
+    lock_path = wiki_root / "sources/accepted-lock.json"
+    lock = json.loads(lock_path.read_text(encoding="utf-8")) if lock_path.is_file() else {}
+    accepted = {item["source_id"]: item for item in lock.get("sources", [])}
+    database = state_root / "pipeline.sqlite3"
+    connection = sqlite3.connect(f"file:{database}?mode=ro", uri=True) if database.is_file() else None
+    try:
+        rows = []
+        for source in sources:
+            latest = None
+            if connection:
+                latest = connection.execute(
+                    "SELECT i.stage,i.status,i.reason,i.updated_at,r.id "
+                    "FROM items i JOIN runs r ON r.id=i.run_id WHERE i.source_id=? "
+                    "ORDER BY i.updated_at DESC,r.id DESC LIMIT 1", (source["id"],)
+                ).fetchone()
+            item = accepted.get(source["id"], {})
+            rows.append({
+                "id": source["id"], "enabled": source["enabled"],
+                "accepted_sha256": item.get("normalized_sha256"),
+                "last_stage": latest[0] if latest else None,
+                "last_status": latest[1] if latest else None,
+                "last_reason": latest[2] if latest else None,
+                "last_updated": latest[3] if latest else None,
+                "last_run": latest[4] if latest else None,
+            })
+        return rows
+    finally:
+        if connection:
+            connection.close()
+
+
+def source_history(state_root: Path, source_id: str, limit: int = 20) -> list[dict]:
+    database = state_root / "pipeline.sqlite3"
+    if not database.is_file():
+        return []
+    connection = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
+    connection.row_factory = sqlite3.Row
+    try:
+        rows = connection.execute(
+            "SELECT r.id AS run_id,r.status AS run_status,i.stage,i.status,i.reason,"
+            "i.input_sha256,i.updated_at FROM items i JOIN runs r ON r.id=i.run_id "
+            "WHERE i.source_id=? ORDER BY i.updated_at DESC,r.id DESC LIMIT ?",
+            (source_id, max(1, min(limit, 100))),
+        ).fetchall()
+        result = []
+        previous = None
+        for row in rows:
+            item = dict(row)
+            digest = item["input_sha256"]
+            item["changed_from_next"] = bool(digest and previous and digest != previous)
+            if digest:
+                previous = digest
+            result.append(item)
+        return result
+    finally:
+        connection.close()
 
 
 def parse_submission(content_type: str, body: bytes) -> tuple[dict[str, str], bytes | None]:
@@ -79,7 +142,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         if self.path == "/":
-            self.reply(200, FORM + "<p><a href='/wiki/'>Browse offline wiki</a></p>")
+            self.reply(200, FORM + "<p><a href='/wiki/'>Browse offline wiki</a> · <a href='/sources'>Source dashboard</a></p>")
         elif self.path == "/wiki/":
             self.reply(200, self.render_markdown(self.wiki_root / "docs/index.md"))
         elif self.path.startswith("/wiki/"):
@@ -104,16 +167,31 @@ class Handler(BaseHTTPRequestHandler):
         elif self.path == "/healthz":
             self.reply(200, '{"status":"ok","mode":"prototype"}\n', "application/json")
         elif self.path == "/sources":
-            manifest_path = self.wiki_root / "sources/sources.json"
-            sources = load_manifest(manifest_path)["sources"] if manifest_path.is_file() else []
+            sources = source_dashboard(self.wiki_root, self.state_root)
             candidates = sorted(path.name for path in (self.state_root / "candidates").glob("*.json")) if (self.state_root / "candidates").is_dir() else []
             rows = "".join(
-                f"<tr><td>{html.escape(item['id'])}</td><td>{'accepted' if item['enabled'] else 'paused'}</td>"
+                f"<tr><td><a href='/sources/{html.escape(item['id'])}'>{html.escape(item['id'])}</a></td>"
+                f"<td>{'enabled' if item['enabled'] else 'paused'}</td><td>{html.escape(item['last_status'] or 'never')}</td>"
+                f"<td>{html.escape((item['accepted_sha256'] or 'none')[:12])}</td>"
                 + "<td><form method=post action=/control>" + " ".join(f"<button name=operation value='{op}'>{op}</button>" for op in ("pause","resume","retry","retire"))
                 + f"<input type=hidden name=source_id value='{html.escape(item['id'])}'></form></td></tr>"
                 for item in sources
             )
-            self.reply(200, "<h1>Source status</h1><table><tr><th>Source</th><th>State</th><th>Queue control</th></tr>" + rows + "</table><h2>Pending candidates</h2><pre>" + html.escape("\n".join(candidates) or "none") + "</pre>")
+            self.reply(200, "<h1>Source status</h1><table><tr><th>Source</th><th>State</th><th>Last result</th><th>Accepted hash</th><th>Queue control</th></tr>" + rows + "</table><h2>Pending candidates</h2><pre>" + html.escape("\n".join(candidates) or "none") + "</pre>")
+        elif self.path.startswith("/sources/"):
+            source_id = self.path[len("/sources/"):].strip("/")
+            if not re.fullmatch(r"[a-z0-9][a-z0-9-]{2,63}", source_id):
+                self.reply(400, "<h1>Invalid source</h1>")
+                return
+            history = source_history(self.state_root, source_id)
+            rows = "".join(
+                "<tr>" + "".join(f"<td>{html.escape(str(item[key] or ''))}</td>" for key in
+                    ("run_id", "run_status", "stage", "status", "reason", "updated_at"))
+                + f"<td>{html.escape((item['input_sha256'] or 'none')[:16])}</td>"
+                + f"<td>{'changed' if item['changed_from_next'] else 'same/unknown'}</td></tr>"
+                for item in history
+            )
+            self.reply(200, f"<h1>History: {html.escape(source_id)}</h1><p>Hashes compare exact retained inputs; content is not exposed here.</p><table><tr><th>Run</th><th>Run state</th><th>Stage</th><th>Item state</th><th>Reason</th><th>Updated</th><th>Input hash</th><th>Diff</th></tr>{rows}</table><p><a href='/sources'>Back to sources</a></p>")
         else:
             self.reply(404, "<h1>Not found</h1>")
 

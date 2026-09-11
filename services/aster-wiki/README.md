@@ -13,6 +13,12 @@ Then open `http://127.0.0.1:8787/`. Preview is read-only. Accept writes a
 validated candidate beneath `state/candidates/`; it never edits the accepted
 manifest or corpus directly.
 
+The source dashboard at `/sources` shows accepted state, the latest bounded
+pipeline result and queued controls. Per-source history pages compare retained
+input hashes without exposing source content. Exact fetched bytes are retained
+content-addressed beneath the protected collector state tree; normalized
+human-readable copies remain the only generated corpus content.
+
 Run the tests with:
 
 ```sh
