@@ -302,7 +302,7 @@ class AsterAgentTests(unittest.TestCase):
             source.write_text(
                 "---\nsource_path: docs/upstream/synthetic/content.txt\n"
                 "generator_model: deterministic-extractive\n---\n\n"
-                "## Source-located claim\n\nA synthetic service requires private DNS.",
+                "## Source-located claim\n\nA synthetic UPS-1000 service requires private DNS.",
                 encoding="utf-8",
             )
             decoy = root / "reference/operations/general.md"
@@ -323,7 +323,11 @@ class AsterAgentTests(unittest.TestCase):
             self.assertEqual("derived-memory", item["authority"])
             self.assertEqual("docs/upstream/synthetic/content.txt", item["human_source"])
             self.assertEqual("lines 4-4", item["source_locator"])
-            self.assertIn("A synthetic service requires private DNS.", item["excerpt"])
+            self.assertIn("A synthetic UPS-1000 service requires private DNS.", item["excerpt"])
+
+            missing = search_knowledge("What is the UPS-1000 maximum current?", root=root)["results"][0]
+            self.assertEqual("derived-memory", missing["authority"])
+            self.assertEqual("docs/upstream/synthetic/content.txt", missing["human_source"])
 
     def test_multi_part_query_prefers_answer_sections(self):
         with tempfile.TemporaryDirectory() as directory:

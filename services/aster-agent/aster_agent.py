@@ -472,7 +472,11 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
             # authority. Let it reach the model ahead of weakly related
             # authoritative documents; provenance and the system policy still
             # require labeling and a route/fallback to the human source.
-            if authority == "derived-memory" and unique_hits >= 2:
+            exact_identifier_hit = any(
+                token in normalized and ("-" in token or any(character.isdigit() for character in token))
+                for token in tokens
+            )
+            if authority == "derived-memory" and (unique_hits >= 2 or exact_identifier_hit):
                 score += 80
             if focused_checklist and relative.endswith("AI-Hermes-Second-Brain.md") and "- [ ]" in normalized:
                 score = max(score, 1)
