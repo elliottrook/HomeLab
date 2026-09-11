@@ -44,7 +44,8 @@ def _sections(text: str) -> list[tuple[int, int, str]]:
     return [(start, end, body) for start, end, body in sections if body][:128]
 
 
-def _entry(source: dict, ordinal: int, start: int, end: int, body: str) -> tuple[str, bytes]:
+def _entry(source: dict, ordinal: int, start: int, end: int, body: str,
+           supersedes: str | None = None) -> tuple[str, bytes]:
     digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
     entry_id = f"{source['source_id']}-{ordinal:03d}-{digest[:10]}"
     if not ENTRY_ID.fullmatch(entry_id):
@@ -63,7 +64,7 @@ def _entry(source: dict, ordinal: int, start: int, end: int, body: str) -> tuple
         "authority": "derived-memory",
         "review_state": "generated",
         "confidence": "high",
-        "supersedes": None,
+        "supersedes": supersedes,
     }
     header = ["---"] + [f"{key}: {json.dumps(value, sort_keys=True)}" for key, value in metadata.items()] + ["---"]
     content = "\n".join(header) + "\n\n## Source-located claim\n\n" + body + "\n"
@@ -76,6 +77,15 @@ def build_mirror(wiki_root: Path, output_root: Path) -> dict:
     indexes = {name: {} for name in INDEX_TERMS}
     provenance = {}
     entries = 0
+    previous = {}
+    previous_provenance = output_root / "indexes/provenance.json"
+    if previous_provenance.is_file():
+        old = json.loads(previous_provenance.read_text(encoding="utf-8")).get("entries", {})
+        previous = {
+            (item["source_id"], item["source_locator"]): entry_id
+            for entry_id, item in old.items()
+        }
+    seen_claims = set()
     try:
         for source in sorted(lock.get("sources", []), key=lambda item: item["source_id"]):
             path = wiki_root / source["path"]
@@ -85,14 +95,22 @@ def build_mirror(wiki_root: Path, output_root: Path) -> dict:
                 continue
             text = path.read_text(encoding="utf-8")
             for ordinal, (start, end, body) in enumerate(_sections(text), 1):
-                entry_id, encoded = _entry(source, ordinal, start, end, body)
+                claim_key = (source["normalized_sha256"], hashlib.sha256(body.encode()).hexdigest())
+                if claim_key in seen_claims:
+                    continue
+                seen_claims.add(claim_key)
+                locator = f"lines {start}-{end}"
+                prior_entry = previous.get((source["source_id"], locator))
+                entry_id, encoded = _entry(source, ordinal, start, end, body, prior_entry)
+                if prior_entry == entry_id:
+                    entry_id, encoded = _entry(source, ordinal, start, end, body, None)
                 target = stage / "entries" / source["source_id"] / f"{entry_id}.md"
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(encoded)
                 provenance[entry_id] = {
                     "source_id": source["source_id"], "source_path": source["path"],
                     "source_sha256": source["normalized_sha256"],
-                    "source_locator": f"lines {start}-{end}",
+                    "source_locator": locator,
                 }
                 lowered = body.lower()
                 for name, terms in INDEX_TERMS.items():
@@ -114,8 +132,12 @@ def build_mirror(wiki_root: Path, output_root: Path) -> dict:
                       "accepted_input_sha256": hashlib.sha256(canonical_json(accepted_input)).hexdigest(),
                       "content_sha256": tree_hash, "status": "accepted"}
         (state_root / "generation.json").write_bytes(canonical_json(generation))
+        verify_mirror(wiki_root, stage)
+        backup = output_root.with_name(output_root.name + ".last-good")
+        if backup.exists():
+            shutil.rmtree(backup)
         if output_root.exists():
-            shutil.rmtree(output_root)
+            os.replace(output_root, backup)
         os.replace(stage, output_root)
         return generation
     except Exception:
@@ -146,3 +168,15 @@ def verify_mirror(wiki_root: Path, mirror_root: Path) -> dict:
             raise ValueError(f"unsupported claim: {entry_id}")
         checked += 1
     return {"status": "ok", "checked": checked, "content_sha256": package_hash(mirror_root)}
+
+
+def rollback_mirror(output_root: Path) -> None:
+    backup = output_root.with_name(output_root.name + ".last-good")
+    if not backup.is_dir():
+        raise ValueError("no last-good mirror retained")
+    failed = output_root.with_name(output_root.name + ".rolled-back")
+    if failed.exists():
+        shutil.rmtree(failed)
+    if output_root.exists():
+        os.replace(output_root, failed)
+    os.replace(backup, output_root)

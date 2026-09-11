@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from aster_wiki.mirror import build_mirror, package_hash, verify_mirror
+from aster_wiki.mirror import build_mirror, package_hash, rollback_mirror, verify_mirror
 
 
 class MirrorTests(unittest.TestCase):
@@ -54,6 +54,29 @@ class MirrorTests(unittest.TestCase):
             entry.write_text("---\nschema_version: 1\n---\nunsupported\n")
             with self.assertRaisesRegex(ValueError, "unsupported claim"):
                 verify_mirror(wiki, mirror)
+
+    def test_changed_entry_supersedes_prior_and_rollback_restores_it(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = self.fixture(root)
+            mirror = root / "mirror"
+            build_mirror(wiki, mirror)
+            old_hash = package_hash(mirror)
+            source = wiki / "docs/upstream/synthetic-guide/content.txt"
+            source.write_text(source.read_text().replace("local DNS", "private DNS"))
+            lock_path = wiki / "sources/accepted-lock.json"
+            lock = json.loads(lock_path.read_text())
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            lock["sources"][0]["original_sha256"] = digest
+            lock["sources"][0]["normalized_sha256"] = digest
+            lock_path.write_text(json.dumps(lock))
+            build_mirror(wiki, mirror)
+            self.assertTrue((root / "mirror.last-good").is_dir())
+            self.assertNotEqual(old_hash, package_hash(mirror))
+            self.assertTrue(any("supersedes: \"synthetic-guide" in path.read_text()
+                                for path in (mirror / "entries").rglob("*.md")))
+            rollback_mirror(mirror)
+            self.assertEqual(old_hash, package_hash(mirror))
 
 
 if __name__ == "__main__":
