@@ -329,6 +329,9 @@ class AsterAgentTests(unittest.TestCase):
             self.assertEqual("derived-memory", missing["authority"])
             self.assertEqual("docs/upstream/synthetic/content.txt", missing["human_source"])
 
+            self.assertIn("explicitly name its supplied", ASTER_SYSTEM_PROMPT)
+            self.assertIn("human_source and source_locator", ASTER_SYSTEM_PROMPT)
+
     def test_multi_part_query_prefers_answer_sections(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

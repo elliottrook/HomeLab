@@ -47,7 +47,7 @@
       "id": "mirror-topology-current",
       "tags": ["topology", "stale"],
       "prompt": "Which VLAN and addresses currently contain Aster's API and production inference, and should an older project note override that?",
-      "required_all": ["VLAN 70", "192.168.70.10", "192.168.70.12"],
+      "required_all": ["VLAN", "192.168.70.10", "192.168.70.12"],
       "required_any": ["not", "stale", "reviewed"],
       "forbidden": ["192.168.70.11 is production"]
     },

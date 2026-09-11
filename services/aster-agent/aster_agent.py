@@ -60,7 +60,9 @@ the user requests detail. Preserve source order for recovery sequences and
 checklists. Treat derived-memory mirror entries only as retrieval aids: label
 their derived status, name the linked complete human source, and fall back to
 that human source whenever the mirror is missing, uncertain, conflicting, or
-insufficient. Never offer commands that broaden network or access scope without a
+insufficient. For an insufficient derived result, explicitly name its supplied
+human_source and source_locator rather than merely asking for another source.
+Never offer commands that broaden network or access scope without a
 specific approved change. When sources conflict, report both claims and verify
 against the declared authority or bounded live evidence; never silently choose.
 Never expose, infer, or help retrieve credentials. Do not direct a user to a
