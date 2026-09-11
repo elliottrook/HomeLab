@@ -126,6 +126,24 @@ def _process_one(candidate: Candidate, config: Config, dry_run: bool,
 
     dst_tmp: Path | None = None
     try:
+        # A raw disc image isn't a video container ffprobe can read directly --
+        # confirmed for real 2026-09-11 (Rango, a UHD BluRay .iso): probe() fails
+        # immediately with an opaque "Invalid data found when processing input",
+        # giving no hint of the actual cause. Fail with a clear, specific reason
+        # instead, so the Lab Doctor notification says exactly what's needed
+        # (mount the ISO, extract the main feature .m2ts, re-tag and retry) rather
+        # than a cryptic ffprobe error that needs a log dive to understand. This
+        # tool deliberately doesn't automate ISO extraction itself -- picking the
+        # right title out of a disc image (vs. trailers/extras/alternate angles)
+        # needs a human looking at durations, not a guess.
+        if candidate.source_path.suffix.lower() == ".iso":
+            raise TranscodeError(
+                "ISO file - manual processing needed: mount and extract the main feature "
+                "(largest file under BDMV/STREAM/, confirm via ffprobe duration matching the "
+                "movie's real runtime), then archive that file manually. See "
+                "Video-Library-Archiving.md's ISO handling note for the full process."
+            )
+
         probe_result = probe(candidate.source_path, config)
 
         # Stage the in-progress output in work_dir, NOT inside the archive tree.

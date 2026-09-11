@@ -1036,7 +1036,7 @@ printf 'mtime=%s\n' "$(stat -c %Y "$latest")"
 python3 -c "
 import json
 summary = None
-error_titles = []
+errors = []
 for line in open('$latest'):
     line = line.strip()
     if not line:
@@ -1045,7 +1045,12 @@ for line in open('$latest'):
     if d.get('event') == 'summary':
         summary = d
     elif d.get('event') == 'error':
-        error_titles.append(d.get('title', '?'))
+        title = (d.get('title') or '?').replace('|||', '/')
+        reason = (d.get('error') or '').replace('|||', '/').replace(chr(10), ' ').strip()
+        # Keep the notification line scannable -- the full reason (and any
+        # ISO-handling instructions) is always in the log file itself.
+        reason_short = (reason[:77] + '...') if len(reason) > 80 else reason
+        errors.append((title, reason_short))
 if summary is None:
     print('no_summary=1')
 else:
@@ -1054,8 +1059,8 @@ else:
     print(f'processed={summary.get(\"processed\", 0)}')
     print(f'succeeded={summary.get(\"succeeded\", 0)}')
     print(f'failed={summary.get(\"failed\", 0)}')
-    for t in error_titles:
-        print(f'error_title={t}')
+    for title, reason in errors:
+        print(f'error_entry={title}|||{reason}')
 "
 REMOTE
     )"; then
@@ -1063,7 +1068,7 @@ REMOTE
         return
     fi
 
-    local error_titles=()
+    local error_entries=()
 
     while IFS='=' read -r key value; do
         case "$key" in
@@ -1076,7 +1081,7 @@ REMOTE
             processed) processed="$value" ;;
             succeeded) succeeded="$value" ;;
             failed) failed="$value" ;;
-            error_title) error_titles+=("$value") ;;
+            error_entry) error_entries+=("$value") ;;
         esac
     done <<< "$output"
 
@@ -1094,8 +1099,19 @@ REMOTE
     [[ "$dry_run" == "0" ]] && mode_label="execute"
 
     if [[ "$failed" =~ ^[0-9]+$ ]] && (( failed > 0 )); then
+        local formatted=()
+        local entry title reason
+        for entry in "${error_entries[@]}"; do
+            title="${entry%%|||*}"
+            reason="${entry#*|||}"
+            if [[ -n "$reason" ]]; then
+                formatted+=("${title}: ${reason}")
+            else
+                formatted+=("$title")
+            fi
+        done
         local list
-        list="$(printf '; %s' "${error_titles[@]}")"
+        list="$(printf '; %s' "${formatted[@]}")"
         list="${list:2}"
         fail "video-archiver: ${failed} failure(s) on last run (${age_hours}h ago, ${mode_label}) — ${list:-see log}: ${log_path}"
     elif (( age_hours > max_age_hours )); then

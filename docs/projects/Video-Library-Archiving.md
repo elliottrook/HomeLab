@@ -237,6 +237,52 @@ reverted the tag — proving the override path works independently of the age pa
 any real file. `archive-now` tags created in both apps (Radarr id 2, Sonarr id 1); both currently
 unused (no title actually tagged by Jason yet).
 
+### ISO (disc image) sources: detected explicitly, never handled automatically (2026-09-11)
+
+Found for real: `Rango`'s source was a raw UHD BluRay disc image
+(`Rango.2011.COMPLETE.UHD.BLURAY-SURCODE-xpost.iso`), not a standard video container — the
+scheduled run failed with an opaque `ffprobe` error ("Invalid data found when processing input"),
+safely (source completely untouched, nothing written), but gave no hint of the actual cause.
+Checked the rest of the current library: this was the only `.iso`, not a systemic problem — but
+worth handling cleanly rather than leaving a cryptic failure for whenever it happens again.
+
+**Detection added, extraction deliberately not automated.** `_process_one()` now checks the source
+file's extension before ever calling `ffprobe`, and fails immediately with a specific, actionable
+reason ("ISO file - manual processing needed...") instead of the ambiguous ffprobe error —
+`check_video_archiver` in `doctor.sh` now also surfaces that full reason text in the failure
+notification (previously it only ever showed the failed title, forcing a log lookup to learn why —
+see `error_entry` in doctor.sh). Deliberately **not** teaching the pipeline to extract ISOs itself:
+picking the right title out of a disc image (main feature vs. trailers, extras, alternate-language
+menus, or — on a real multi-title disc — alternate cuts) needs a human looking at durations against
+the movie's actual known runtime, not a heuristic that could silently grab the wrong stream.
+
+**Manual process, when this happens again:**
+1. Loop-mount the ISO read-only: `mount -o loop,ro <iso path> <mountpoint>`.
+2. Identify the main feature — typically the single largest file under `BDMV/STREAM/*.m2ts` by a
+   wide margin (confirmed for real: Rango's real feature was 64 GB against a next-largest of
+   183 MB). Confirm with `ffprobe`'s reported duration against the movie's actual known runtime
+   before trusting it.
+3. Extract that one file out to a real file under the tool's `work_dir` — not by mounting the ISO
+   *inside* `/mnt/Media/data` and expecting the already-running Jellyfin container to see it:
+   Docker's bind mount only reflects the state of the host directory at container start, so a new
+   mount created underneath it afterward is invisible inside the container without a restart
+   (confirmed for real; avoided restarting Jellyfin, which would have interrupted anyone using it).
+   `7z`/`p7zip` couldn't parse this particular UDF-format BD ISO structure at all (confirmed for
+   real, `p7zip 16.02`) — a plain `cp` through the working loop mount was what actually worked.
+4. Run the extracted file through the project's own tested `_process_one()` directly (see
+   `rango_manual_archive.py`, kept on TrueNAS as a reusable template) rather than reinventing the
+   transcode/verify/archive/Radarr-cleanup logic — same code path as every automated run, just with
+   a manually supplied `Candidate.source_path`.
+5. Clean up by hand afterward: the temp extracted file, and the now-empty original current-library
+   folder — `_process_one()`'s normal `_cleanup_leftovers()` step climbs around the *candidate's*
+   source path, which here was the temp file, not the original ISO's folder, so it doesn't reach
+   the real folder needing removal. Confirmed for real (Rango): both needed a manual `rm`/`rmdir`.
+
+Validated end-to-end on the real Rango file: 64 GB main feature (confirmed via duration matching
+the real ~107 min runtime) → 1.57 GB archived (97.6% reduction), correct single audio track,
+Radarr correctly unmonitored with no file, Jellyfin showing one clean entry with the correct
+runtime after a brief delay for its own metadata probe to finish.
+
 ## Milestone 1 findings (2026-09-07)
 
 Two real bugs and one design-level problem were found while getting the dry run to actually run
@@ -617,6 +663,7 @@ operation now, not a remaining gate.
 | Jellyfin indexes an in-progress temp file and ends up pointing at a name that no longer exists | Stage the temp output in `work_dir`, outside every Jellyfin library — added 2026-09-08 after this broke playback for real |
 | Leftover Jellyfin `.trickplay` cache / empty folders keep a fully-archived series visibly present (with 0 episodes) in the current library | Clean up cache + empty directories after each archive, then trigger Jellyfin's actual Scan Media Library task at the end of a batch — added 2026-09-08 |
 | `hevc_vaapi`'s default rate control ignores the target bitrate outright | Explicit `-rc_mode VBR` plus `-maxrate`/`-bufsize`, confirmed necessary by direct testing (30 Mbps vs. a 3.3 Mbps target without it) |
+| A raw disc image (`.iso`) source can't be probed by `ffprobe` directly, failing with an opaque error that doesn't say why | Detect the `.iso` extension before probing and fail with a specific, actionable reason instead; `doctor.sh` surfaces that full reason in the notification, not just the failed title — added 2026-09-11 after this happened for real (`Rango`). Extraction itself deliberately stays manual — see the ISO handling note under Architecture decisions |
 
 ## Evidence log
 
@@ -647,6 +694,7 @@ operation now, not a remaining gate.
 | 2026-09-08 | 3 | First genuine unattended cron-triggered run (01:30 PDT, nobody supervising). Jason intended `Rango` to be the target but it was never actually tagged (confirmed `tags: []` afterward); `The Shawshank Redemption` had the tag instead and is what ran | Clean: 32.5 GB → 1.6 GB, correctly stepped down to 720p (long runtime), single English audio+subtitle track, source gone, Radarr correctly unmonitored, `lab doctor` independently agreed. Closes Milestone 3's gate on the mechanism itself. Also found, unrelated to this run: a pre-existing duplicate of Shawshank (a loose 2020 file from the original Plex migration) already sitting in `archive-movies` — flagged as a future cleanup, not a video-archiver bug | Claude |
 | 2026-09-09 | — | Jason asked to organize `archive-movies`' loose (un-foldered) files so Radarr could adopt them; clarified first that `archive-movies` is deliberately outside Radarr's tracking by design (that's the point of archiving — Radarr forgets a file once archived) — Jason confirmed: organize into folders only, no Radarr root-folder change. This closes the Shawshank-duplicate follow-up flagged in the row above, at library scale | 595 loose files found at the `archive-movies` root (leftover un-foldered portion of the original 2020 Plex migration). 588 moved straight into matching `Title (Year)/` folders with no ambiguity. 7 collided with an already-foldered copy of the same title — checked each with real evidence (file size, then `ffprobe` codec/resolution/duration where sizes differed) before touching anything: 4 resolved as clear duplicates (identical size, or same duration at a lower bitrate) and the redundant copy deleted; 3 (`Monkey Man`, `Taken`, `Cats`) showed real duration/resolution mismatches against their existing foldered copy (up to 23 minutes different) that evidence alone couldn't resolve — Jason made the call to arbitrarily keep the loose copy in each case, so the old foldered file was discarded and the loose one moved into its place. Every deletion/move was written to a manifest before executing (`archive-movies-foldering-manifest.json`, `archive-movies-loose-duplicate-deletion-manifest.json`, `archive-movies-keep-loose-manifest.json`, all in the tool's `logs/` dir on TrueNAS, not committed to git — same as every other run log). Final state: 0 loose files, 726 properly-foldered movies, Jellyfin library scan triggered to sync | Claude |
 | 2026-09-10 | 4 | Added `scripts/backup/video-archiver.sh` (config.json, .env, run-scheduled.sh pulled from TrueNAS to the Mac, matching the NUT backup's exact pattern), wired into `lab backup all`, the new weekly launchd job, and `check_backup_age` in Doctor. First real run exposed a genuine bug: `chmod 600 "$BACKUP_DIR"/*` doesn't match dotfiles in bash, so `.env` (the one file that actually holds API keys) landed world-readable (644) | Fixed the glob and the already-exposed copy immediately; verified a clean re-run shows all three files correctly at 600. **Milestone 4 complete — project Complete** | Claude |
+| 2026-09-11 | — (post-completion) | Scheduled run failed on `Rango` — source was a raw UHD BluRay `.iso`, which `ffprobe` can't parse directly. Manually mounted, identified the main feature by size + duration match, extracted it (Docker's bind mount doesn't see mounts made after container start, so extracted to a real file instead), ran it through `_process_one()` directly via a new template script, cleaned up the temp file and leftover empty folder by hand. Then added `.iso` detection to `_process_one()` (specific reason instead of an opaque ffprobe error) and extended `check_video_archiver`'s notification to show that full reason, not just the failed title — verified against a synthetic failure log before redeploying | Rango: 64 GB → 1.57 GB, correct single audio track, Radarr unmonitored, single clean Jellyfin entry (107.2 min matching real runtime). ISO detection + improved notification confirmed working end-to-end; `rango_manual_archive.py` kept as a reusable template for the next ISO | Claude |
 
 ## References
 
