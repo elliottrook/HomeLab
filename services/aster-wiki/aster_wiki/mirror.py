@@ -27,6 +27,7 @@ INDEX_TERMS = {
     "services": ("service", "daemon", "application", "server"),
     "symptoms": ("error", "fail", "fault", "symptom", "warning"),
     "dependencies": ("depend", "requires", "prerequisite", "upstream"),
+    "recovery": ("recover", "restore", "rollback", "repair", "replace"),
 }
 SEMANTIC_TERMS = {
     "warnings": ("warning", "caution", "danger", "destructive", "must not", "do not"),
@@ -118,19 +119,49 @@ def build_mirror(wiki_root: Path, output_root: Path,
     provenance = {}
     entries = 0
     previous = {}
+    reusable: dict[str, list[tuple[str, dict, Path]]] = {}
     previous_provenance = output_root / "indexes/provenance.json"
-    if previous_provenance.is_file():
+    previous_generation = output_root / "state/generation.json"
+    if previous_provenance.is_file() and previous_generation.is_file() and json.loads(
+            previous_generation.read_text(encoding="utf-8")).get("pipeline_version") == PIPELINE_VERSION:
         old = json.loads(previous_provenance.read_text(encoding="utf-8")).get("entries", {})
         previous = {
             (item["source_id"], item["source_locator"]): entry_id
             for entry_id, item in old.items()
         }
+        for entry_id, item in old.items():
+            old_entry = output_root / "entries" / item["source_id"] / f"{entry_id}.md"
+            if old_entry.is_file():
+                reusable.setdefault(item["source_id"], []).append((entry_id, item, old_entry))
     seen_claims = set()
     try:
         for source in sorted(lock.get("sources", []), key=lambda item: item["source_id"]):
             path = wiki_root / source["path"]
             if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != source["normalized_sha256"]:
                 raise ValueError(f"accepted source mismatch: {source['source_id']}")
+            unchanged = sorted(
+                (item for item in reusable.get(source["source_id"], [])
+                 if item[1]["source_sha256"] == source["normalized_sha256"]),
+                key=lambda item: item[0],
+            )
+            if unchanged:
+                for entry_id, item, old_entry in unchanged:
+                    encoded = old_entry.read_bytes()
+                    body = encoded.decode("utf-8").split("## Source-located claim\n\n", 1)[-1].rstrip("\n")
+                    target = stage / "entries" / source["source_id"] / f"{entry_id}.md"
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(encoded)
+                    provenance[entry_id] = item
+                    lowered, padded = body.lower(), f" {body.lower()} "
+                    for name, terms in INDEX_TERMS.items():
+                        if any(term in lowered for term in terms):
+                            indexes[name].setdefault(source["source_id"], []).append(entry_id)
+                    for name, terms in SEMANTIC_TERMS.items():
+                        if any(term in padded for term in terms):
+                            indexes[name].setdefault(source["source_id"], []).append(entry_id)
+                    seen_claims.add((source["normalized_sha256"], hashlib.sha256(body.encode()).hexdigest()))
+                    entries += 1
+                continue
             for ordinal, (locator, body) in enumerate(
                     _source_sections(path, source.get("media_type", "text/plain"), pdf_extractor), 1):
                 claim_key = (source["normalized_sha256"], hashlib.sha256(body.encode()).hexdigest())
@@ -199,11 +230,16 @@ def verify_mirror(wiki_root: Path, mirror_root: Path,
                   pdf_extractor: Callable[[Path], str] | None = None) -> dict:
     provenance = json.loads((mirror_root / "indexes/provenance.json").read_text(encoding="utf-8"))["entries"]
     checked = 0
+    source_sections: dict[tuple[str, str], dict[str, str]] = {}
     for entry_id, item in provenance.items():
         source = wiki_root / item["source_path"]
         if hashlib.sha256(source.read_bytes()).hexdigest() != item["source_sha256"]:
             raise ValueError(f"invalid provenance: {entry_id}")
-        sections = dict(_source_sections(source, item.get("media_type", "text/plain"), pdf_extractor))
+        media_type = item.get("media_type", "text/plain")
+        cache_key = (str(source), media_type)
+        if cache_key not in source_sections:
+            source_sections[cache_key] = dict(_source_sections(source, media_type, pdf_extractor))
+        sections = source_sections[cache_key]
         excerpt = sections.get(item["source_locator"], "")
         entry = (mirror_root / "entries" / item["source_id"] / f"{entry_id}.md").read_text(encoding="utf-8")
         if not excerpt or excerpt not in entry:

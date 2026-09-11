@@ -3,7 +3,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
+from aster_wiki import mirror as mirror_module
 from aster_wiki.mirror import build_mirror, package_hash, rollback_mirror, verify_mirror
 
 
@@ -47,6 +49,18 @@ class MirrorTests(unittest.TestCase):
             for name in ("warnings", "uncertainty", "version-scope", "contradictions"):
                 semantic_index = json.loads((first / f"indexes/{name}.json").read_text())
                 self.assertIn("synthetic-guide", semantic_index["entries"])
+            self.assertTrue((first / "indexes/recovery.json").is_file())
+
+    def test_unchanged_source_reuses_prior_entries_before_verification(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = self.fixture(root)
+            mirror = root / "mirror"
+            build_mirror(wiki, mirror)
+            with mock.patch.object(
+                    mirror_module, "_source_sections", wraps=mirror_module._source_sections) as sections:
+                build_mirror(wiki, mirror)
+            self.assertEqual(1, sections.call_count)
 
     def test_verifier_rejects_an_entry_without_its_cited_excerpt(self):
         with tempfile.TemporaryDirectory() as directory:
