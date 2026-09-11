@@ -308,6 +308,12 @@ class AsterAgentTests(unittest.TestCase):
             decoy = root / "reference/operations/general.md"
             decoy.parent.mkdir(parents=True)
             decoy.write_text("A service may require routine operational checks.", encoding="utf-8")
+            memory_decoy = root / "memory/README.md"
+            memory_decoy.parent.mkdir(parents=True)
+            memory_decoy.write_text(
+                "A mirror excerpt should state maximum current; exact amperage may be unknown.",
+                encoding="utf-8",
+            )
             (root / ".aster-provenance.json").write_text(json.dumps({"sources": [{
                 "destination": "mirror/entries/synthetic/claim.md",
                 "authority": "derived-memory", "reviewed": None,
@@ -318,6 +324,10 @@ class AsterAgentTests(unittest.TestCase):
                 "destination": "reference/operations/general.md",
                 "authority": "current-operational", "reviewed": "2026-09-01",
                 "commit": "reference123",
+            }, {
+                "destination": "memory/README.md",
+                "authority": "derived-memory", "reviewed": "2026-09-01",
+                "commit": "memory123",
             }]}), encoding="utf-8")
             item = search_knowledge("What does the synthetic service require?", root=root)["results"][0]
             self.assertEqual("derived-memory", item["authority"])

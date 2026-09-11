@@ -478,8 +478,8 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                 token in normalized and ("-" in token or any(character.isdigit() for character in token))
                 for token in tokens
             )
-            if authority == "derived-memory" and (unique_hits >= 2 or exact_identifier_hit):
-                score += 80
+            if authority == "derived-memory" and relative.startswith("mirror/"):
+                score += 250 if exact_identifier_hit else (80 if unique_hits >= 2 else 0)
             if focused_checklist and relative.endswith("AI-Hermes-Second-Brain.md") and "- [ ]" in normalized:
                 score = max(score, 1)
             if focused_monitoring and relative == "reference/operations/monitoring.md" and re.search(
