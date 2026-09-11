@@ -294,6 +294,24 @@ class AsterAgentTests(unittest.TestCase):
             self.assertEqual(item["reviewed"], "2026-09-01")
             self.assertEqual(item["commit"], "abc123")
 
+    def test_mirror_result_retains_human_source_route(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "mirror/entries/synthetic/claim.md"
+            source.parent.mkdir(parents=True)
+            source.write_text("A synthetic service requires private DNS.", encoding="utf-8")
+            (root / ".aster-provenance.json").write_text(json.dumps({"sources": [{
+                "destination": "mirror/entries/synthetic/claim.md",
+                "authority": "derived-memory", "reviewed": None,
+                "commit": "mirror123",
+                "human_source": "docs/upstream/synthetic/content.txt",
+                "source_locator": "lines 4-4",
+            }]}), encoding="utf-8")
+            item = search_knowledge("What does the synthetic service require?", root=root)["results"][0]
+            self.assertEqual("derived-memory", item["authority"])
+            self.assertEqual("docs/upstream/synthetic/content.txt", item["human_source"])
+            self.assertEqual("lines 4-4", item["source_locator"])
+
     def test_multi_part_query_prefers_answer_sections(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

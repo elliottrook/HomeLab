@@ -22,6 +22,46 @@ ASSIGNED_SECRET = re.compile(
 )
 
 
+def mirror_members(root: Path) -> tuple[list[tuple[str, bytes]], list[dict[str, object]], dict[str, object]]:
+    """Validate and map a generated mirror into derived-memory snapshot members."""
+    generation_path = root / "state/generation.json"
+    provenance_path = root / "indexes/provenance.json"
+    if not generation_path.is_file() or not provenance_path.is_file():
+        raise ValueError("mirror generation or provenance manifest missing")
+    generation = json.loads(generation_path.read_text(encoding="utf-8"))
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))["entries"]
+    members = []
+    records = []
+    for path in sorted((root / "entries").rglob("*.md")):
+        data = path.read_bytes()
+        if b"PRIVATE KEY-----" in data or ASSIGNED_SECRET.search(data):
+            raise ValueError(f"forbidden mirror content: {path}")
+        relative = str(path.relative_to(root))
+        entry_id = path.stem
+        item = provenance.get(entry_id)
+        text = data.decode("utf-8")
+        if (not item or 'authority: "derived-memory"' not in text or
+                item.get("source_locator") not in text):
+            raise ValueError(f"invalid mirror provenance: {path}")
+        destination = f"mirror/{relative}"
+        members.append((destination, data))
+        records.append({
+            "repository": "aster-knowledge-mirror", "path": relative,
+            "destination": destination, "authority": "derived-memory",
+            "commit": generation["content_sha256"], "dirty": False,
+            "reviewed": None, "sha256": hashlib.sha256(data).hexdigest(),
+            "human_source": item["source_path"],
+            "source_locator": item["source_locator"],
+            "source_sha256": item["source_sha256"],
+        })
+    if len(records) != generation.get("entries") or set(provenance) != {Path(x["path"]).stem for x in records}:
+        raise ValueError("mirror entry count does not match accepted generation")
+    return members, records, {
+        "commit": generation["content_sha256"], "dirty": False,
+        "accepted_input_sha256": generation["accepted_input_sha256"],
+    }
+
+
 def git(repository: Path, *args: str) -> str:
     result = subprocess.run(
         ["git", "-C", str(repository), *args], check=True, capture_output=True, text=True
@@ -42,6 +82,7 @@ def main() -> int:
     parser.add_argument("output", nargs="?", default=str(ROOT / "aster-knowledge.tar.gz"))
     parser.add_argument("--reference-root", type=Path, default=ROOT.parent / "homelab-reference")
     parser.add_argument("--allow-dirty", action="store_true", help="development only; provenance records dirty state")
+    parser.add_argument("--mirror-root", type=Path, help="validated generated Aster mirror")
     args = parser.parse_args()
 
     repositories = {"homelab": ROOT, "reference": args.reference_root.resolve()}
@@ -84,6 +125,16 @@ def main() -> int:
                 "sha256": hashlib.sha256(data).hexdigest(),
             }
         )
+
+    if args.mirror_root:
+        extra_members, extra_provenance, mirror_state = mirror_members(args.mirror_root.resolve())
+        for destination, data in extra_members:
+            if destination in destinations:
+                raise SystemExit(f"Duplicate destination: {destination}")
+            destinations.add(destination)
+            members.append((destination, data))
+        provenance.extend(extra_provenance)
+        states["aster-knowledge-mirror"] = mirror_state
 
     index = {
         "schema_version": 1,
