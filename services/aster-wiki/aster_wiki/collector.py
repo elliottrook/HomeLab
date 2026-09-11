@@ -245,6 +245,7 @@ class Collector:
                     "original_sha256": digest, "normalized_sha256": normalized_digest,
                     "media_type": fetched.media_type, "etag": fetched.etag,
                     "last_modified": fetched.last_modified, "authority": "upstream-reference",
+                    "retrieved_at": self.state.now(),
                     "original_storage": "protected-local",
                     "original_path": original_path,
                     "license_status": source["license_status"],
