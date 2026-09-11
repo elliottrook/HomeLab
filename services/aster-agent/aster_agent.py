@@ -522,7 +522,9 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                     candidates.append((unique_hits, total_hits, candidate_start))
                 _, _, start = max(candidates)
                 preferred_anchor = -1
-                if relative == "reference/operations/monitoring.md" and focused_monitoring:
+                if authority == "derived-memory":
+                    preferred_anchor = normalized.find("## source-located claim")
+                elif relative == "reference/operations/monitoring.md" and focused_monitoring:
                     preferred_anchor = normalized.find("three-layer quick reference")
                 elif relative == "reference/infrastructure/virtualization.md" and role_query:
                     preferred_anchor = normalized.find("local-ai stack detail")

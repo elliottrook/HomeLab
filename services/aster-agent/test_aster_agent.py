@@ -299,7 +299,12 @@ class AsterAgentTests(unittest.TestCase):
             root = Path(directory)
             source = root / "mirror/entries/synthetic/claim.md"
             source.parent.mkdir(parents=True)
-            source.write_text("A synthetic service requires private DNS.", encoding="utf-8")
+            source.write_text(
+                "---\nsource_path: docs/upstream/synthetic/content.txt\n"
+                "generator_model: deterministic-extractive\n---\n\n"
+                "## Source-located claim\n\nA synthetic service requires private DNS.",
+                encoding="utf-8",
+            )
             decoy = root / "reference/operations/general.md"
             decoy.parent.mkdir(parents=True)
             decoy.write_text("A service may require routine operational checks.", encoding="utf-8")
@@ -318,6 +323,7 @@ class AsterAgentTests(unittest.TestCase):
             self.assertEqual("derived-memory", item["authority"])
             self.assertEqual("docs/upstream/synthetic/content.txt", item["human_source"])
             self.assertEqual("lines 4-4", item["source_locator"])
+            self.assertIn("A synthetic service requires private DNS.", item["excerpt"])
 
     def test_multi_part_query_prefers_answer_sections(self):
         with tempfile.TemporaryDirectory() as directory:
