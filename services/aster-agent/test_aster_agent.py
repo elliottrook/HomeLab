@@ -300,12 +300,19 @@ class AsterAgentTests(unittest.TestCase):
             source = root / "mirror/entries/synthetic/claim.md"
             source.parent.mkdir(parents=True)
             source.write_text("A synthetic service requires private DNS.", encoding="utf-8")
+            decoy = root / "reference/operations/general.md"
+            decoy.parent.mkdir(parents=True)
+            decoy.write_text("A service may require routine operational checks.", encoding="utf-8")
             (root / ".aster-provenance.json").write_text(json.dumps({"sources": [{
                 "destination": "mirror/entries/synthetic/claim.md",
                 "authority": "derived-memory", "reviewed": None,
                 "commit": "mirror123",
                 "human_source": "docs/upstream/synthetic/content.txt",
                 "source_locator": "lines 4-4",
+            }, {
+                "destination": "reference/operations/general.md",
+                "authority": "current-operational", "reviewed": "2026-09-01",
+                "commit": "reference123",
             }]}), encoding="utf-8")
             item = search_knowledge("What does the synthetic service require?", root=root)["results"][0]
             self.assertEqual("derived-memory", item["authority"])

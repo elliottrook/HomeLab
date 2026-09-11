@@ -468,6 +468,12 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
             unique_hits = sum(token in normalized for token in tokens)
             total_hits = sum(normalized.count(token) for token in tokens)
             score = unique_hits * 10 + min(total_hits, 10)
+            # A strongly matching derived entry is the retrieval aid, not the
+            # authority. Let it reach the model ahead of weakly related
+            # authoritative documents; provenance and the system policy still
+            # require labeling and a route/fallback to the human source.
+            if authority == "derived-memory" and unique_hits >= 2:
+                score += 80
             if focused_checklist and relative.endswith("AI-Hermes-Second-Brain.md") and "- [ ]" in normalized:
                 score = max(score, 1)
             if focused_monitoring and relative == "reference/operations/monitoring.md" and re.search(
