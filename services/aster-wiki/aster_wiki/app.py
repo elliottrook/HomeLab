@@ -37,7 +37,9 @@ def source_dashboard(wiki_root: Path, state_root: Path) -> list[dict]:
     lock = json.loads(lock_path.read_text(encoding="utf-8")) if lock_path.is_file() else {}
     accepted = {item["source_id"]: item for item in lock.get("sources", [])}
     database = state_root / "pipeline.sqlite3"
-    connection = sqlite3.connect(f"file:{database}?mode=ro", uri=True) if database.is_file() else None
+    connection = sqlite3.connect(
+        f"file:{database}?mode=ro&immutable=1", uri=True
+    ) if database.is_file() else None
     try:
         rows = []
         for source in sources:
@@ -68,7 +70,7 @@ def source_history(state_root: Path, source_id: str, limit: int = 20) -> list[di
     database = state_root / "pipeline.sqlite3"
     if not database.is_file():
         return []
-    connection = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
+    connection = sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True)
     connection.row_factory = sqlite3.Row
     try:
         rows = connection.execute(

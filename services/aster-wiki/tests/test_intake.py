@@ -153,12 +153,19 @@ class IntakeTests(unittest.TestCase):
             state.start("run-1")
             state.checkpoint("run-1", source_id, "normalized", "ok", "b" * 64)
             state.finish("run-1", "accepted")
+            state.close()
+            for suffix in ("-wal", "-shm"):
+                coordination = state_root / f"pipeline.sqlite3{suffix}"
+                if coordination.exists():
+                    coordination.unlink()
             rows = source_dashboard(wiki, state_root)
             self.assertEqual("ok", rows[0]["last_status"])
             self.assertEqual("a" * 12, rows[0]["accepted_sha256"][:12])
             history = source_history(state_root, source_id, limit=1)
             self.assertEqual(1, len(history))
             self.assertEqual("run-1", history[0]["run_id"])
+            for suffix in ("-wal", "-shm"):
+                self.assertFalse((state_root / f"pipeline.sqlite3{suffix}").exists())
 
 
 if __name__ == "__main__":
