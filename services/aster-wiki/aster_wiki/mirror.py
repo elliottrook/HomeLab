@@ -14,7 +14,7 @@ from typing import Callable
 
 from .manifest import canonical_json
 
-PIPELINE_VERSION = "1.1.0"
+PIPELINE_VERSION = "1.2.0"
 PROMPT_VERSION = "extractive-claims-v1"
 GENERATOR = "deterministic-extractive"
 ENTRY_ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,127}$")
