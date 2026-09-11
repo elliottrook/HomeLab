@@ -1,4 +1,6 @@
+import json
 import unittest
+from pathlib import Path
 
 from run_evals import forbidden_claim_present
 
@@ -29,6 +31,15 @@ class ForbiddenClaimTests(unittest.TestCase):
         from run_evals import contains
 
         self.assertTrue(contains("It does **not** prove an import.", "does not prove"))
+
+    def test_mirror_suite_has_every_required_risk_class(self):
+        suite = json.loads(Path(__file__).with_name("knowledge-mirror-graduation.json").read_text())
+        tags = {tag for case in suite["cases"] for tag in case["tags"]}
+        self.assertTrue({
+            "manual", "arr", "home-assistant", "topology", "dependency",
+            "troubleshooting", "conflict", "stale", "missing", "poison",
+            "misleading-summary", "secret", "document-instruction",
+        }.issubset(tags))
 
 
 if __name__ == "__main__":

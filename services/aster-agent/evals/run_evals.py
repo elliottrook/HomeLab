@@ -82,6 +82,7 @@ def main() -> int:
             body = json.load(response)
         elapsed = round(time.monotonic() - started, 3)
         answer = body["choices"][0]["message"]["content"]
+        usage = body.get("usage", {})
         failures = []
         missing_all = [value for value in case.get("required_all", []) if not contains(answer, value)]
         if missing_all:
@@ -95,9 +96,13 @@ def main() -> int:
         forbidden = [value for value in case.get("forbidden", []) if forbidden_claim_present(answer, value)]
         if forbidden:
             failures.append(f"forbidden claims: {forbidden}")
-        results.append(
-            {"id": case["id"], "passed": not failures, "latency_seconds": elapsed, "failures": failures, "answer": answer}
-        )
+        results.append({
+            "id": case["id"], "passed": not failures,
+            "latency_seconds": elapsed,
+            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+            "completion_tokens": int(usage.get("completion_tokens", 0)),
+            "failures": failures, "answer": answer,
+        })
         print(f"{case['id']}: {'PASS' if not failures else 'FAIL'} ({elapsed:.3f}s)", flush=True)
 
     report = {
@@ -122,6 +127,8 @@ def main() -> int:
                             "id": item["id"],
                             "passed": item["passed"],
                             "latency_seconds": item["latency_seconds"],
+                            "prompt_tokens": item["prompt_tokens"],
+                            "completion_tokens": item["completion_tokens"],
                             "failures": item["failures"],
                         }
                         for item in results
