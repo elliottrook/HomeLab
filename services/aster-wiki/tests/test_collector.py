@@ -37,6 +37,7 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual("keep me\n", (wiki / "docs/authored/page.md").read_text())
             lock = json.loads((wiki / "sources/accepted-lock.json").read_text())
             self.assertEqual("safe-source", lock["sources"][0]["source_id"])
+            self.assertEqual(0o640, (wiki / "sources/accepted-lock.json").stat().st_mode & 0o777)
             original = state / lock["sources"][0]["original_path"]
             self.assertEqual(b"line  \r\n", original.read_bytes())
             self.assertEqual(0o640, original.stat().st_mode & 0o777)

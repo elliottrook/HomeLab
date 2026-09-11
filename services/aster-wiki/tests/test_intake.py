@@ -132,6 +132,7 @@ class IntakeTests(unittest.TestCase):
             self.assertEqual(0o640, upload.stat().st_mode & 0o777)
             self.assertEqual(1, promote_candidates(root / "state", manifest))
             self.assertEqual(result["source"]["id"], load_manifest(manifest)["sources"][0]["id"])
+            self.assertEqual(0o640, manifest.stat().st_mode & 0o777)
             self.assertEqual([], list((root / "state/candidates").glob("*.json")))
 
     def test_dashboard_and_history_are_bounded_read_only_views(self):

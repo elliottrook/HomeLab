@@ -285,6 +285,7 @@ class Collector:
         os.replace(incoming, generated)
         fd, temporary = tempfile.mkstemp(prefix=".accepted-lock-", dir=str(lock.parent))
         try:
+            os.fchmod(fd, 0o640)
             with os.fdopen(fd, "wb") as handle:
                 handle.write((stage / "accepted-lock.json").read_bytes())
                 handle.flush(); os.fsync(handle.fileno())

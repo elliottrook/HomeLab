@@ -183,6 +183,7 @@ def promote_candidates(state_root: Path, manifest_path: Path) -> int:
     encoded = canonical_json({"schema_version": 1, "sources": sorted(sources.values(), key=lambda x: x["id"])})
     fd, temporary = tempfile.mkstemp(prefix=".sources-", dir=str(manifest_path.parent))
     try:
+        os.fchmod(fd, 0o640)
         with os.fdopen(fd, "wb") as handle:
             handle.write(encoded); handle.flush(); os.fsync(handle.fileno())
         os.replace(temporary, manifest_path)
