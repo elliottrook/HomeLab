@@ -21,6 +21,10 @@ from aster_agent import (
 
 
 class AsterAgentTests(unittest.TestCase):
+    def test_system_policy_leads_with_requested_facts(self):
+        self.assertIn("every explicitly requested fact or identifier", ASTER_SYSTEM_PROMPT)
+        self.assertIn("before optional", ASTER_SYSTEM_PROMPT)
+
     def test_arr_broker_drop_in_has_no_execution_switch_or_radarr_credential(self):
         drop_in = (
             Path(__file__).with_name("systemd") / "aster-arr-broker.conf"
@@ -334,6 +338,7 @@ class AsterAgentTests(unittest.TestCase):
             self.assertEqual("docs/upstream/synthetic/content.txt", item["human_source"])
             self.assertEqual("lines 4-4", item["source_locator"])
             self.assertIn("A synthetic UPS-1000 service requires private DNS.", item["excerpt"])
+            self.assertNotIn("generator_model", item["excerpt"])
 
             missing = search_knowledge("What is the UPS-1000 maximum current?", root=root)["results"][0]
             self.assertEqual("derived-memory", missing["authority"])
