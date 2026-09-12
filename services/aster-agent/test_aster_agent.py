@@ -25,6 +25,10 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("every explicitly requested fact or identifier", ASTER_SYSTEM_PROMPT)
         self.assertIn("before optional", ASTER_SYSTEM_PROMPT)
 
+    def test_system_policy_labels_bounded_health_source(self):
+        self.assertIn("latest sanitized", ASTER_SYSTEM_PROMPT)
+        self.assertIn("read-only HomeLab Doctor summary", ASTER_SYSTEM_PROMPT)
+
     def test_arr_broker_drop_in_has_no_execution_switch_or_radarr_credential(self):
         drop_in = (
             Path(__file__).with_name("systemd") / "aster-arr-broker.conf"
