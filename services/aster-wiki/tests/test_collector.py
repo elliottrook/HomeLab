@@ -159,6 +159,10 @@ class CollectorTests(unittest.TestCase):
             current["body"] = b"two\n"; collector.run([source()], "two")
             collector.rollback()
             self.assertEqual("one\n", (wiki / "docs/upstream/safe-source/content.txt").read_text())
+            self.assertEqual("one", json.loads(
+                (wiki / "sources/accepted-lock.json").read_text()
+            )["run_id"])
+            self.assertEqual({"status": "ok", "checked": 1}, collector.verify())
 
     def test_git_path_boundary_rejects_traversal(self):
         self.assertEqual(["README.md", "docs/"], _git_paths("README.md, docs/"))

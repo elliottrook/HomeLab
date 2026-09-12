@@ -279,10 +279,15 @@ class Collector:
         lock.parent.mkdir(parents=True, exist_ok=True)
         incoming = stage / "docs/upstream"
         backup = self.wiki_root / "docs/.aster-wiki-last-good"
+        backup_lock = self.wiki_root / "sources/.aster-wiki-last-good-lock.json"
         if backup.exists():
             shutil.rmtree(backup)
+        if backup_lock.exists():
+            backup_lock.unlink()
         if generated.exists():
             os.replace(generated, backup)
+        if lock.exists():
+            shutil.copy2(lock, backup_lock)
         os.replace(incoming, generated)
         fd, temporary = tempfile.mkstemp(prefix=".accepted-lock-", dir=str(lock.parent))
         try:
@@ -321,9 +326,16 @@ class Collector:
     def rollback(self) -> None:
         generated = self.wiki_root / "docs/upstream"
         backup = self.wiki_root / "docs/.aster-wiki-last-good"
-        if not backup.is_dir():
-            raise RuntimeError("no last-good corpus retained")
-        failed = self.wiki_root / f"docs/.aster-wiki-rolled-back-{int(time.time())}"
+        lock = self.wiki_root / "sources/accepted-lock.json"
+        backup_lock = self.wiki_root / "sources/.aster-wiki-last-good-lock.json"
+        if not backup.is_dir() or not backup_lock.is_file():
+            raise RuntimeError("no complete last-good corpus and lock retained")
+        stamp = int(time.time())
+        failed = self.wiki_root / f"docs/.aster-wiki-rolled-back-{stamp}"
+        failed_lock = self.wiki_root / f"sources/.aster-wiki-rolled-back-lock-{stamp}.json"
         if generated.exists():
             os.replace(generated, failed)
+        if lock.exists():
+            os.replace(lock, failed_lock)
         os.replace(backup, generated)
+        os.replace(backup_lock, lock)

@@ -55,12 +55,21 @@ def corpus_health(wiki_root: Path, mirror_root: Path, *, max_age_days: int = 45,
 
     for source in sources:
         retrieved = _parse_time(source.get("retrieved_at"))
+        if retrieved is None:
+            try:
+                retrieved = datetime.fromtimestamp(
+                    (wiki_root / source["path"]).stat().st_mtime, tz=timezone.utc
+                )
+            except (KeyError, OSError):
+                pass
         if retrieved is None or (checked_at - retrieved.astimezone(timezone.utc)).days > max_age_days:
             metrics["stale_sources"] += 1
     if metrics["stale_sources"]:
         warnings.append(f"{metrics['stale_sources']} accepted source(s) exceed the freshness threshold")
 
     for page in wiki_root.rglob("*.md"):
+        if page.name.startswith("._"):
+            continue
         try:
             text = page.read_text(encoding="utf-8")
         except (OSError, UnicodeError):

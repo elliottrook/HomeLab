@@ -31,6 +31,7 @@ class CorpusHealthTests(unittest.TestCase):
     def test_healthy_corpus_passes(self):
         with tempfile.TemporaryDirectory() as directory:
             wiki, mirror = self.fixture(Path(directory))
+            (wiki / "docs/._metadata.md").write_bytes(b"\x00\xff")
             result = corpus_health(
                 wiki, mirror, now=datetime(2026, 9, 12, tzinfo=timezone.utc)
             )
