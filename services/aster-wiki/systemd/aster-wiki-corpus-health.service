@@ -1,0 +1,16 @@
+[Unit]
+Description=Monthly Aster wiki and mirror corpus health review
+After=aster-wiki-collector.service
+
+[Service]
+Type=oneshot
+User=aster-collector
+Group=aster-wiki
+WorkingDirectory=/opt/aster-wiki
+ExecStart=/usr/bin/python3 -m aster_wiki.cli corpus-health --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state --mirror-root /var/lib/aster-wiki/aster-knowledge-mirror --report /var/lib/aster-wiki/state/reports/corpus-health.json
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/var/lib/aster-wiki/homelab-wiki /var/lib/aster-wiki/aster-knowledge-mirror
+ReadWritePaths=/var/lib/aster-wiki/state/reports

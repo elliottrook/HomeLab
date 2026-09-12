@@ -1,0 +1,11 @@
+[Unit]
+Description=Monthly Aster corpus health schedule
+
+[Timer]
+OnCalendar=monthly
+Persistent=true
+RandomizedDelaySec=6h
+Unit=aster-wiki-corpus-health.service
+
+[Install]
+WantedBy=timers.target

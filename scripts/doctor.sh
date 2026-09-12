@@ -497,7 +497,10 @@ check_aster_wiki() {
             timer_enabled="$(pct exec 113 -- systemctl is-enabled aster-wiki-collector.timer 2>/dev/null || true)"
             health="$(pct exec 113 -- python3 -c '\''import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:8787/healthz", timeout=3).read().decode())'\'' 2>/dev/null || true)"
             status="$(pct exec 113 -- runuser -u aster-collector -- env PYTHONPATH=/opt/aster-wiki /usr/bin/python3 -m aster_wiki.cli status --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state 2>/dev/null || true)"
-            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\n" "$intake" "$timer_enabled" "$health" "$status"
+            corpus_timer="$(pct exec 113 -- systemctl is-enabled aster-wiki-corpus-health.timer 2>/dev/null || true)"
+            corpus_status="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json"))["status"])'\'' 2>/dev/null || true)"
+            corpus_fresh="$(pct exec 113 -- find /var/lib/aster-wiki/state/reports/corpus-health.json -mmin -64800 -print 2>/dev/null || true)"
+            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ncorpus_fresh=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$corpus_fresh"
         '
     )"; then
         warn "Unable to check Aster wiki services"
@@ -508,10 +511,19 @@ check_aster_wiki() {
        ! grep -q 'health=.*"status":"ok"' <<< "$state" ||
        ! grep -q 'status=.*"latest"' <<< "$state"; then
         fail "Aster wiki unhealthy or has no collector state"
-    elif grep -qx 'timer_enabled=enabled' <<< "$state"; then
-        pass "Aster wiki intake healthy; collector timer enabled with durable run state"
-    else
+    elif ! grep -qx 'timer_enabled=enabled' <<< "$state"; then
         warn "Aster wiki intake healthy but collector timer is not enabled"
+    elif ! grep -qx 'corpus_timer=enabled' <<< "$state"; then
+        warn "Aster wiki collector is healthy but monthly corpus-health timer is not enabled"
+    elif grep -qx 'corpus_status=failed' <<< "$state" ||
+         ! grep -q '^corpus_fresh=/' <<< "$state"; then
+        fail "Aster wiki monthly corpus-health report failed, is missing or is older than 45 days"
+    elif grep -qx 'corpus_status=warning' <<< "$state"; then
+        warn "Aster wiki is operational but monthly corpus-health review has warnings"
+    elif grep -qx 'corpus_status=healthy' <<< "$state"; then
+        pass "Aster wiki intake, daily collector and monthly corpus-health review are healthy"
+    else
+        fail "Aster wiki monthly corpus-health report has an invalid status"
     fi
 }
 

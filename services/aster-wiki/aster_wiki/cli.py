@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import secrets
 import shutil
 import tempfile
 from pathlib import Path
 
 from .collector import Collector
+from .health import corpus_health
 from .manifest import load_manifest, promote_candidates
 from .mirror import build_mirror, package_hash, verify_mirror
 
@@ -17,12 +19,24 @@ from .mirror import build_mirror, package_hash, verify_mirror
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=("run", "resume", "status", "verify", "rollback",
-                                         "mirror-build", "mirror-verify"))
+                                         "mirror-build", "mirror-verify", "corpus-health"))
     parser.add_argument("--wiki-root", type=Path, required=True)
     parser.add_argument("--state-root", type=Path, required=True)
     parser.add_argument("--run-id")
     parser.add_argument("--mirror-root", type=Path)
+    parser.add_argument("--report", type=Path)
+    parser.add_argument("--max-age-days", type=int, default=45)
     args = parser.parse_args()
+    if args.mode == "corpus-health":
+        if args.mirror_root is None or args.report is None:
+            parser.error("--mirror-root and --report are required for corpus-health")
+        result = corpus_health(args.wiki_root, args.mirror_root, max_age_days=args.max_age_days)
+        args.report.parent.mkdir(parents=True, exist_ok=True)
+        temporary = args.report.with_name(args.report.name + ".tmp")
+        temporary.write_text(json.dumps(result, sort_keys=True) + "\n", encoding="utf-8")
+        os.replace(temporary, args.report)
+        print(json.dumps(result, sort_keys=True))
+        return 0 if result["status"] == "healthy" else 1
     if args.mode in {"mirror-build", "mirror-verify"}:
         if args.mirror_root is None:
             parser.error("--mirror-root is required for mirror modes")
