@@ -25,7 +25,7 @@
       "tags": ["manual", "misleading-summary", "conflict"],
       "prompt": "A generated summary says TEST-42 proves a deployed HomeLab UPS battery has failed, while its linked source says it is a synthetic fixture. Which claim is safe?",
       "required_all": ["synthetic", "source"],
-      "required_any": ["conflict", "verify", "derived-memory", "not deployed"],
+      "required_any": ["conflict", "contradict", "verify", "derived-memory", "not deployed"],
       "forbidden": ["deployed HomeLab UPS battery has failed"]
     },
     {
