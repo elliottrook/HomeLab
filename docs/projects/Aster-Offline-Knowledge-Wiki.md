@@ -1,6 +1,6 @@
 # Aster Offline Knowledge Wiki and Mirror
 
-> Status: Active — Milestone 2 in progress
+> Status: Active — Milestone 5 in progress; Milestone 2 scheduled evidence pending
 >
 > Project owner: Jason
 >
@@ -104,36 +104,34 @@ validated commit range and request the single repository-required confirmation
 for that milestone synchronization. This cadence does not waive the governing
 rule that confirmation must occur immediately before the actual push.
 
-**Current milestone:** Milestone 2 — safe daily acquisition.
+**Current milestone:** Milestone 5 — recovery, operations and graduation. Milestone
+2 remains open only for the staged changed-source observation at the next true
+daily timer run.
 
-**Last verified state:** private Forgejo repositories `jason/homelab-wiki` and
-`jason/aster-knowledge-mirror` contain seed commits `678786c` and `260cdb0`;
-both remain private. Dedicated unprivileged Debian 13 LXC 113 `aster-wiki` is
-running at NetBox-selected `192.168.20.34`; its application archive is
-installed and `aster-wiki-intake.service` is enabled. The Python 3.13 multipart
-compatibility fix from local commit `fb1f160` is deployed: the service is active,
-listens only on `127.0.0.1:8787`, and `/healthz` returns the expected JSON. The
-collector timer remains explicitly disabled and inactive. The collector now
-persists and sends HTTP validators, treats `304 Not Modified` as an explicit
-unchanged result only when the prior accepted content still matches its locked
-hash, and fails closed on missing or tampered prior content. The complete local
-suite passes 26/26 tests. Its deployed manual synthetic pass accepted and
-verified one source; a subsequent secret-pattern fixture quarantined exactly
-one source without changing the accepted corpus or lock hashes.
+**Last verified state:** the private human and mirror repositories, authenticated
+wiki portal, daily collector, retained originals, deterministic mirror pipeline
+`1.2.0` and Aster snapshot integration are live. Two real unattended collector
+runs and deliberate failure preservation pass; a safe changed upload with SHA-256
+`4640e34f0afde03449713c2ddd07fefe9ddf01ff91f5a2fe06a3c6085ef2e6f9`
+awaits the 2026-09-13 timer observation. Milestone 3 is graduated. Milestone 4's
+versioned mirror suite passes 10/10 twice, complete-source comparison preserves
+the exact claim and provenance while reducing retrieval context from 774 to 755
+characters twice, ARR and Home Assistant regressions pass 8/8 and 10/10, and the
+final general regression passes 14/14. Aster is active and healthy with 61/61
+service tests and 7/7 evaluator tests passing after activation of local commit
+`06cfa5d`.
 
-**Next safe action:** continue authenticated queue promotion, HTTP rate limits
-and Doctor integration locally. Reconcile the two intentionally retained
-interrupted-run records from deployment debugging through an explicit operator
-resume/closure workflow. Do not enable the collector timer before those gates
-and two scheduled-cycle observations pass.
+**Next safe action:** execute Milestone 5 backup, isolated-restore, rollback,
+monitoring and documentation gates while awaiting the true scheduled changed-input
+collector run. Do not substitute a manual invocation for that remaining timer
+evidence.
 
-**Rollback location:** current `main` commit, deployed
-`/opt/aster-wiki/aster_wiki/app.py.before-fb1f160`, and Aster's retained
-accepted snapshot. LXC 113 is a new isolated target and its daily timer remains
-disabled, so it has not changed Aster's accepted snapshot. Recovery checkpoint
+**Rollback location:** current local `main`, deployed wiki rollback copies,
+Aster's retained accepted snapshot and
+`/opt/aster-agent/aster_agent.py.before-06cfa5d`. Recovery checkpoint
 `backups:backup/vzdump-lxc-113-2026_09_10-14_13_06.tar.zst` passed zstd
 integrity verification and contains the deployed collector, unit and accepted
-lock.
+lock. Off-host/off-site coverage and isolated restore remain Milestone 5 work.
 
 ## Integration impact assessment
 
@@ -538,18 +536,18 @@ location.
 
 ## Milestone 4 — Teacher/pupil evaluation
 
-- [ ] Create a versioned evaluation set for manuals, ARR, Home Assistant,
+- [x] Create a versioned evaluation set for manuals, ARR, Home Assistant,
   topology, dependencies, troubleshooting, conflicts, stale versions and
   missing information.
-- [ ] Compare complete-source retrieval with mirror-first retrieval for answer
+- [x] Compare complete-source retrieval with mirror-first retrieval for answer
   correctness, citations, context tokens and latency.
-- [ ] Require Aster to fall back to the human source when the mirror is
+- [x] Require Aster to fall back to the human source when the mirror is
   insufficient rather than extrapolating.
-- [ ] Test poisoned documents, misleading summaries, conflicting authorities,
+- [x] Test poisoned documents, misleading summaries, conflicting authorities,
   secret requests and requests to execute document instructions.
-- [ ] Run regression suites for Aster's graduated general, ARR and Home
+- [x] Run regression suites for Aster's graduated general, ARR and Home
   Assistant capabilities.
-- [ ] Repeat the complete production-path evaluation twice on the same accepted
+- [x] Repeat the complete production-path evaluation twice on the same accepted
   snapshot.
 
 Completion gate: all critical cases pass twice, mirror-first answers retain or
@@ -642,6 +640,7 @@ snapshot; the complete human repository remains intact.
 | 2026-09-12 | 2 deliberate failure and next changed-cycle staging | Replaced only the upload input temporarily with a prompt-injection fixture and invoked the collector through its production systemd unit. Run `run-a43f44ccbd8f2b86` failed as intended while the accepted-lock hash remained `144030016dd4522aa2585fb63c9a623479a890359c0626686a59f5b7bc879bdf` and accepted content plus retained original remained `5f0c7a6a159cee7e4daf1b30d222464686ce6e4e06581efbaa27403d4050c0df`; verification passed after restoring the input and the daily timer stayed active. A safe synthetic revision with input hash `4640e34f0afde03449713c2ddd07fefe9ddf01ff91f5a2fe06a3c6085ef2e6f9` is staged beside a retained original for the 2026-09-13 scheduled cycle | Failure preserves last accepted state exactly. The next true timer run is prepared to provide the remaining strict changed-source cycle evidence |
 | 2026-09-12 | 4 mirror adversarial evaluation | Added suite `1.0.0` covering manuals, ARR, Home Assistant, topology, dependencies, troubleshooting, conflict, staleness, missing evidence, poison, misleading summaries, secrets and document instructions, plus prompt/completion-token and latency capture. Iteration exposed and corrected exact-identifier displacement and missing explicit fallback routes; all changes passed 62/62 staged Aster regressions. Sustained evaluation then exposed the known B60 rollback-VM binding hazard: VM105 was stopped but `04:00.0` remained on `vfio-pci`, leaving only `llvmpipe`. After confirmation, inference was stopped, the B60 rebound to `xe`, and inference restarted; VM105 remained stopped, Intel BMG G21 Vulkan returned, both services were active and the recovery probe passed. Two complete production runs against the same snapshot produced 10/10 substantively passing answers when deterministically graded with the final evidence-backed equivalent-wording rubric; total/mean latency was 379.754/37.975 seconds then 347.426/34.743 seconds, with 18,854 prompt tokens in each run | Critical mirror correctness, provenance, fallback and adversarial safety cases pass twice. Complete-source versus mirror-first reduction evidence and refreshed general/ARR/Home Assistant regression runs remain open before Milestone 4 graduation |
 | 2026-09-12 | 4 complete-source comparison and refreshed regressions | Added an isolated comparison runner that submits the same exact-source question through complete-source and mirror-first retrieval without changing Aster's active snapshot. The first measurement identified duplicated trailing mirror YAML in the excerpt; retrieval now begins exactly at the generated claim heading while retaining structured authority, human route and locator fields. The full staged agent suite passed 38/38. Two production-inference comparisons both retained the exact `TEST-42` meaning, authority and complete human route; mirror context was 755 characters versus 774 for complete source on both runs. Latency was 33.260 versus 34.073 seconds in run one and 34.914 versus 33.389 in run two, demonstrating a repeatable context reduction without claiming a repeatable latency gain. Refreshed ARR and Home Assistant suites passed 8/8 and 10/10. The general suite passed 13/14; its only miss contained every requested runtime role but placed the model identifier after optional explanation and was truncated at the 160-token boundary | The comparison, ARR and Home Assistant evidence pass. A bounded-response ordering correction is staged and tested locally; Milestone 4 remains open until it is activated through the normal fail-closed deployment and the general regression passes |
+| 2026-09-12 | 4 graduation | Activated the requested-facts-first and compact mirror-excerpt changes with rollback copy `aster_agent.py.before-07aa1af`; the original `runtime_roles` regression then passed. The full general run exposed one deterministic provenance-label omission in otherwise accurate bounded Doctor output. Added an explicit sanitized/read-only Doctor-summary presentation rule, passed 39/39 staged agent tests, activated it with rollback copy `aster_agent.py.before-06cfa5d`, and verified the service active and `/health` healthy. Post-activation suites passed 61/61 service tests and 7/7 evaluator tests. The targeted Doctor case passed, followed by an uninterrupted full general production run at 14/14, including role completeness, uncertainty, authority conflicts, recovery ordering, credential and firewall boundaries, missing facts, monitoring, stale-backend resistance, prompt-injection resistance and provenance | Milestone 4 completion gate passed. Critical mirror cases pass twice; general, ARR and Home Assistant capabilities regress cleanly; mirror-first correctness and exact source routes are retained with a repeatable context reduction and no loss of safety-critical facts |
 | 2026-09-12 | 2 deliberate failure preservation | With a byte-for-byte backup of the manual upload, replaced only the collector input with a prompt-injection fixture and invoked the real systemd collector path. Run `run-a43f44ccbd8f2b86` failed as designed. The accepted lock remained `144030016dd4522aa2585fb63c9a623479a890359c0626686a59f5b7bc879bdf`; accepted normalized content and retained original both remained `5f0c7a6a159cee7e4daf1b30d222464686ce6e4e06581efbaa27403d4050c0df`. Restored input has that same hash, accepted-corpus verification passes and the daily timer remains active | The deliberate failure is fail-closed and last-good content is preserved. A true scheduled changed-input observation remains required before closing Milestone 2 strictly |
 | 2026-09-10 | 2 interactive authentication | From a normal client, Jason opened `https://wiki.elliottrook.com`, completed the Authentik password/passkey flow and confirmed return to the “Add a private knowledge source” intake page. Earlier unauthenticated testing proved the HTTP/2 302 interception, while direct backend access remained denied | The owner-only authenticated portal gate is complete. Scheduled daily cycles are the remaining Milestone 2 completion evidence |
 | 2026-09-10 | 2 portal and original candidate | Added read-only source-state summaries, bounded per-source run history and hash-based input-change visibility without exposing source content. Exact fetched bytes now enter a protected content-addressed state tree using restrictive directory/file modes; accepted locks record that path and verification fails closed if either normalized content or its retained original changes. Expanded local coverage passes 30/30 tests, including dashboard/history reads, original byte preservation/mode and tamper detection | The remaining Milestone 2 portal and retained-original implementation is locally complete. Deployment and a live accepted run are pending; the production timer remains disabled |
