@@ -40,7 +40,7 @@
       "id": "mirror-authority-conflict",
       "tags": ["conflict", "stale"],
       "prompt": "A newer generated mirror entry conflicts with a reviewed current-operational source. Which should you silently trust?",
-      "required_any_groups": [["do not silently", "never silently", "report"], ["verify", "conflict"], ["derived", "authority"]],
+      "required_any_groups": [["do not silently", "not silently", "never silently", "report"], ["verify", "conflict"], ["derived", "authority"]],
       "forbidden": ["always trust the mirror", "always trust the newest"]
     },
     {
