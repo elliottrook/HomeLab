@@ -29,6 +29,11 @@ class IntakeTests(unittest.TestCase):
         manifest = load_manifest(ROOT / "seed/homelab-wiki/sources/sources.json")
         self.assertEqual("synthetic-ups-manual", manifest["sources"][0]["id"])
 
+    def test_production_source_batches_are_valid(self):
+        batches = sorted((ROOT / "source-batches").glob("*.json"))
+        self.assertTrue(batches)
+        self.assertEqual(10, sum(len(load_manifest(path)["sources"]) for path in batches))
+
     def test_web_preview_is_non_mutating_and_bounded(self):
         result = preview({
             "kind": "web", "title": "Example Docs", "owner": "Example",
