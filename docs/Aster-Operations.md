@@ -153,6 +153,23 @@ workflows, Prowlarr synchronization coupling and the broker's lack of standing
 authority. Current health still comes from the fresh sanitized ARR report,
 not the reference's point-in-time example.
 
+### Offline human wiki and derived mirror
+
+The private human source portal is `https://wiki.elliottrook.com`, backed by
+LXC 113 (`aster-wiki`, `192.168.20.34`) through Authentik and NPM. Direct
+backend access remains blocked. Its daily collector retains exact originals,
+publishes only validated human content and builds a deterministic
+non-authoritative mirror. Aster consumes that mirror only through its validated
+knowledge snapshot and must identify the complete human source and locator.
+
+LXC 113 runs `aster-wiki-collector.timer` daily and
+`aster-wiki-corpus-health.timer` monthly. HomeLab Doctor checks the intake,
+durable collector state, both schedules and the bounded monthly report. Source
+enrollment, quarantine, correction, resume, restore and rollback procedures are
+tracked in `services/aster-wiki/README.md` and the human wiki operations
+runbook. Restore the human repository, protected originals and accepted lock
+before rebuilding the derived mirror or Aster snapshot.
+
 ### Accepted-snapshot rollback
 
 Treat a snapshot as accepted only after a clean review/build records its SHA-256

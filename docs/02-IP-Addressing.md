@@ -1,6 +1,6 @@
 # IP Addressing
 
-> Reconciled against NetBox 2026-09-01 (`docs/projects/NetBox-DCIM.md`).
+> Reconciled against NetBox 2026-09-12 (`docs/projects/NetBox-DCIM.md`).
 > NetBox is authoritative; this file is a refreshed snapshot of it, in the
 > same spirit as `diagrams/Rack-Diagram.md`. When the two disagree, trust
 > NetBox and refresh this file — don't hand-edit around a discrepancy the
@@ -37,6 +37,8 @@
 |Forgejo LXC 108|192.168.20.30|
 |Observability LXC 109|192.168.20.31|
 |NetBox LXC 111|192.168.20.32|
+|Backup Relay LXC 112|192.168.20.33|
+|Aster Wiki LXC 113|192.168.20.34|
 |Reolink Duo 2V PoE|192.168.60.10|
 
 The AP Switch management plane is untagged and the device has no
