@@ -89,6 +89,12 @@ also enforces the hard 256-file ceiling independently.
 | Vendor manuals/specification pages | one exact file/URL per source; 100 MiB collector ceiling reduced per observed asset before enrollment | Exact observed size rounded up, never above 100 MiB | 8,760 h manual review | Vendor / exact-model reference | `human-only` or metadata/link-only |
 | Reviewed HomeLab sources | one named file and exact repository commit per source | 2 MiB | 720 h or milestone-triggered | Local-reviewed / lab-specific current state | `allow-derived`; higher retrieval authority than upstream |
 
+The Home Assistant operational reference is a deliberate narrower exception:
+it is retained in the authenticated human corpus as `human-only` because it
+contains household workflow labels and internal addressing. Aster's existing
+separately reviewed current-state snapshot remains the retrieval authority;
+the production-corpus mirror does not duplicate those private details.
+
 ## Reconciled deployed infrastructure versions
 
 | System | Live/reviewed version | Evidence disposition |
