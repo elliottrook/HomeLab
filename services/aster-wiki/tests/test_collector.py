@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from aster_wiki.collector import (Collector, Fetched, Quarantine, _git_paths,
-                                  fetch_git, fetch_manual)
+                                  fetch_git, fetch_manual, source_authority)
 from aster_wiki.state import State
 
 
@@ -45,6 +45,13 @@ class CollectorTests(unittest.TestCase):
             self.assertEqual(0o640, original.stat().st_mode & 0o777)
             self.assertEqual(b"line  \r\n", original.read_bytes())
             self.assertEqual(0o640, original.stat().st_mode & 0o777)
+
+    def test_local_reviewed_source_preserves_current_state_authority(self):
+        self.assertEqual(
+            "current-with-exclusions",
+            source_authority(source(source_class="local-reviewed")),
+        )
+        self.assertEqual("upstream-reference", source_authority(source(source_class="upstream")))
 
     def test_run_id_cannot_escape_wiki_staging(self):
         temporary, wiki, state = self.roots()

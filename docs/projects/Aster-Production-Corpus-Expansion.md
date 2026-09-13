@@ -1,6 +1,6 @@
 # Aster Production Corpus Expansion
 
-> Status: Active — Milestone 2 ARR and media documentation
+> Status: Active — Milestone 3 Home Assistant documentation
 >
 > Project owner: Jason
 >
@@ -30,8 +30,10 @@ vendor link. Generated summaries remain non-authoritative.
 - The wiki, authenticated intake, daily collector, monthly corpus health,
   protected originals, deterministic mirror and Aster retrieval path are
   graduated and healthy on LXC 113/LXC 104.
-- The live corpus has one synthetic manual source and seven synthetic/operator
-  seed pages. It is an acceptance fixture, not production coverage.
+- The live corpus has eleven accepted sources: the original synthetic manual,
+  six version-matched ARR/media products, two selected documentation sources
+  and two reviewed local ARR pages. The synthetic source remains an acceptance
+  fixture while production coverage expands by milestone.
 - Installed ARR-family versions are Sonarr 4.0.19.2979, Radarr 6.3.0.10514,
   Lidarr 3.1.0.4875, Prowlarr 2.5.2.5491, SABnzbd 5.1.2 and Jellyfin 10.11.11.
 - Home Assistant runs HAOS 18.2, Core 2026.9.1 and Supervisor 2026.09.0, with
@@ -142,11 +144,11 @@ substitution, secret-bearing path or unassessed licence.
 
 ### Milestone 2 — ARR and media documentation
 
-- [ ] Enroll version-matched Sonarr, Radarr, Lidarr and Prowlarr documentation.
-- [ ] Enroll SABnzbd and Jellyfin documentation relevant to the deployed roles.
-- [ ] Import the reviewed local ARR operating reference with higher local
+- [x] Enroll version-matched Sonarr, Radarr, Lidarr and Prowlarr documentation.
+- [x] Enroll SABnzbd and Jellyfin documentation relevant to the deployed roles.
+- [x] Import the reviewed local ARR operating reference with higher local
   authority and explicit exclusions.
-- [ ] Verify collection, provenance, navigation and fail-closed behavior.
+- [x] Verify collection, provenance, navigation and fail-closed behavior.
 
 Gate: all six deployed services have useful complete-source coverage and Aster
 can distinguish generic product behavior from lab-specific current state.
@@ -218,3 +220,5 @@ Aster's authority remains unchanged.
 | 2026-09-13 | 1 source licence deployment | Retained `/opt/aster-wiki/aster_wiki.before-bd32e56`, deployed the five policy-aware modules and restarted only intake. The complete deployed suite passes 44/44 after restoring the omitted disposable seed fixture; accepted-corpus verification succeeds, `/healthz` returns `ok`, and intake, collector and corpus-health timers are active. All disposable archives and test trees were removed | Production now enforces human-only exclusion and licence provenance before restricted source enrollment; accepted corpus content remains unchanged |
 | 2026-09-13 | 1 source register gate | Reconciled live versions for TrueNAS, DSM, UniFi OS/Network, Frigate, authentik, Forgejo, NPM, Prometheus and Grafana in addition to the ARR/HA/Proxmox set. Resolved exact release commits where available; enumerated every accepted Git boundary at its expected commit with 2–187 text files and explicit 256 KiB–2 MiB limits. Matched exact official manuals for the recorded Dell, ASRock, LSI, UniFi, CyberPower, Synology, Arista, Reolink and Coral variants. The unknown TP-Link/Binarui models, unavailable Edge 620/Lenovo/APC manual locators, DS220j DSM release and version-mismatched EOS manual remain explicitly quarantined or link-only | **Milestone 1 complete.** The reviewed register contains no mutable accepted Git source, silent version substitution, unassessed derivative path, secret-bearing boundary or accepted ambiguous model |
 | 2026-09-13 | 2 ARR batch candidate | Created the reproducible ten-source ARR batch: exact installed tags for Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd and Jellyfin; commit-pinned SABnzbd 5.1 and selected Jellyfin docs; the reviewed lab ARR reference; and a locally authored link page for unlicensed Servarr material. A clean isolated collector run accepted 10/10 with no quarantine, corpus verification checked 10/10, deterministic mirror double-build produced and verified 578 entries, and the Jellyfin CC-BY-ND source remained accepted for human use while producing no derivative entry | Candidate is ready for a separately confirmed production enrollment; no live wiki content changed during validation |
+| 2026-09-13 | 2 production enrollment | Queued the ten reviewed sources with the tested batch utility and retained the prior manifest. Production collection accepted all ten alongside the existing fixture (11/11, zero failed or quarantined); verification checked all 11. Two mirror builds returned the same accepted-input/content hashes and 581 verified entries. The source dashboard listed all ten with no pending candidates, `/healthz` returned `ok`, and intake plus both timers remained active. Jellyfin CC-BY-ND documentation remained human-only and generated no derivative directory | Complete version-matched human coverage is live for all six deployed ARR/media services without widening authority or exposing configuration |
+| 2026-09-13 | 2 authority gate | Review found the first accepted lock labelled local-reviewed and upstream sources identically. Added an explicit provenance mapping and regression, bringing the suite to 47/47. The corrected collector was tested from a disposable deployed tree, installed with a retained rollback copy, and re-collected 11/11. The local operating reference and reviewed link page now declare `current-with-exclusions`; product documentation remains `upstream-reference`. Two rebuilt mirrors matched at content SHA-256 `d255484ed484f6f91713aa3573ac5f712f67321ffeab8e00dad2386621bc504e` and verified 581/581 | **Milestone 2 complete.** Generic product behavior and lab-specific current state are machine-distinguishable. Corpus health has no failures, broken links, stale sources or unclassified sources; its 157 duplicate extractive claims remain a warning for Milestone 5 quality evaluation rather than an integrity failure |

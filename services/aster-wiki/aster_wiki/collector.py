@@ -29,6 +29,13 @@ MINIMUM_HOST_INTERVAL_SECONDS = 2.0
 GIT_DOCUMENT_SUFFIXES = {".adoc", ".html", ".md", ".markdown", ".mdx", ".rst", ".txt"}
 
 
+def source_authority(source: dict) -> str:
+    """Preserve the reviewed local-current-state precedence in provenance."""
+    if source.get("source_class") == "local-reviewed":
+        return "current-with-exclusions"
+    return "upstream-reference"
+
+
 class Quarantine(ValueError):
     pass
 
@@ -248,7 +255,7 @@ class Collector:
                     "canonical_url": source["canonical_url"], "final_url": fetched.final_url,
                     "original_sha256": digest, "normalized_sha256": normalized_digest,
                     "media_type": fetched.media_type, "etag": fetched.etag,
-                    "last_modified": fetched.last_modified, "authority": "upstream-reference",
+                    "last_modified": fetched.last_modified, "authority": source_authority(source),
                     "retrieved_at": self.state.now(),
                     "original_storage": "protected-local",
                     "original_path": original_path,
