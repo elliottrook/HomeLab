@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "synology-ds220j-install-guide",
+      "kind": "web",
+      "title": "Synology DS220j Hardware Installation Guide",
+      "owner": "Synology",
+      "canonical_url": "https://global.download.synology.com/download/Document/Hardware/HIG/DiskStation/20-year/DS220j/enu/Syno_HIG_DS220j_enu.pdf",
+      "boundary": {"type": "exact-url", "value": "https://global.download.synology.com/download/Document/Hardware/HIG/DiskStation/20-year/DS220j/enu/Syno_HIG_DS220j_enu.pdf"},
+      "source_class": "vendor",
+      "media_type": "application/pdf",
+      "version_policy": "exact-recorded-model",
+      "refresh_hours": 8760,
+      "size_limit_bytes": 4194304,
+      "license_status": "permitted",
+      "mirror_policy": "human-only",
+      "license_id": "LicenseRef-Synology-Copyright",
+      "enabled": true
+    },
+    {
+      "id": "synology-ds920plus-install-guide",
+      "kind": "web",
+      "title": "Synology DS920+ Hardware Installation Guide",
+      "owner": "Synology",
+      "canonical_url": "https://global.download.synology.com/download/Document/Hardware/HIG/DiskStation/20-year/DS920%2B/enu/Syno_HIG_DS920_Plus_enu.pdf",
+      "boundary": {"type": "exact-url", "value": "https://global.download.synology.com/download/Document/Hardware/HIG/DiskStation/20-year/DS920%2B/enu/Syno_HIG_DS920_Plus_enu.pdf"},
+      "source_class": "vendor",
+      "media_type": "application/pdf",
+      "version_policy": "exact-recorded-model",
+      "refresh_hours": 8760,
+      "size_limit_bytes": 8388608,
+      "license_status": "permitted",
+      "mirror_policy": "human-only",
+      "license_id": "LicenseRef-Synology-Copyright",
+      "enabled": true
+    },
+    {
+      "id": "infrastructure-manual-identity-links",
+      "kind": "manual",
+      "title": "Infrastructure manuals and inventory identity links",
+      "owner": "HomeLab",
+      "canonical_url": "upload:Infrastructure-Manual-and-Identity-Links.md",
+      "boundary": {"type": "exact-file", "value": "Infrastructure-Manual-and-Identity-Links.md"},
+      "source_class": "local-reviewed",
+      "media_type": "text/markdown",
+      "version_policy": "homelab-milestone-4-reviewed",
+      "refresh_hours": 720,
+      "size_limit_bytes": 262144,
+      "license_status": "permitted",
+      "mirror_policy": "human-only",
+      "license_id": "LicenseRef-Private-HomeLab",
+      "enabled": true
+    }
+  ]
+}
