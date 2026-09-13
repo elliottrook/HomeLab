@@ -24,6 +24,8 @@ FORM = """<!doctype html><meta charset=utf-8><title>Aster Wiki intake</title>
 <label>Title <input required name=title></label><label>Source ID <input name=source_id></label>
 <label>Publisher/owner <input name=owner></label><label>HTTPS URL or upload label <input name=location></label>
 <label>Boundary <input name=boundary placeholder="exact URL, path prefix, or comma-separated repository paths"></label>
+<label>Git tag/ref <input name=git_ref placeholder="v1.2.3 (required for Git)"></label>
+<label>Expected Git commit <input name=expected_commit placeholder="40-character SHA-1 (required for Git)"></label>
 <label>Manual upload (PDF, HTML, Markdown or text; prototype limit 64 KiB) <input type=file name=manual_file></label>
 <label>License <select name=license_status><option>review-required</option><option>permitted</option><option>metadata-only</option></select></label>
 <button>Preview source</button></form>"""

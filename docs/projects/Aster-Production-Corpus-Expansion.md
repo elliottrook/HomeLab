@@ -1,12 +1,14 @@
 # Aster Production Corpus Expansion
 
-> Status: Proposed — Stream A authorization pending
+> Status: Active — Milestone 1 source register
 >
 > Project owner: Jason
 >
 > Proposed: 2026-09-13
 >
-> Authorization: Stream A — pending acceptance of this envelope
+> Started: 2026-09-13
+>
+> Authorization: Stream A — accepted by Jason 2026-09-13
 
 ## Purpose and desired outcome
 
@@ -209,3 +211,5 @@ Aster's authority remains unchanged.
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-09-13 | Proposal discovery | Reconciled the graduated synthetic-only corpus with reviewed ARR, Home Assistant, hardware and network inventories. Confirmed initial official Git candidates and identified model/version/licensing, corpus-size and authority risks | Proposed bounded production-corpus expansion; no source was enrolled and no remote system was modified before authorization |
+| 2026-09-13 | Authorization | Jason accepted the documented Stream A scope, risks, exclusions, recovery controls and milestone gates | Project active; bounded autonomous implementation may proceed, while repository/platform remote-mutation confirmations and non-waivable stops remain in force |
+| 2026-09-13 | 1 immutable Git prerequisite | Live reconciliation confirmed HAOS 18.2, Core 2026.9.1, Supervisor 2026.09.0 and Proxmox VE 9.2.10; the fresh bounded ARR report remained healthy/warning as expected without exposing configuration. Exact installed release refs resolved for Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd, Jellyfin, HA Core, HAOS and Supervisor. Review then found the pilot collector fetched Git `HEAD` only and accepted only three text suffixes. Added required safe Git ref plus expected 40-character commit fields, ref/commit mismatch quarantine, portal inputs and support for Markdown, RST, AsciiDoc and MDX documentation. Two new regressions prove missing pin rejection, tagged checkout, additional document formats and fail-closed commit drift; 41/41 tests pass | No production Git source was enrolled against a mutable branch. The version-pinning candidate is locally validated and awaits bounded deployment before any real Git enrollment |

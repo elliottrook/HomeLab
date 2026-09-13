@@ -49,9 +49,20 @@ class IntakeTests(unittest.TestCase):
             "location": "https://git.example.invalid/team/project.git",
             "boundary_type": "repository-paths", "boundary": "README.md,docs/",
             "media_type": "text/markdown", "license_status": "metadata-only",
+            "git_ref": "v1.2.3",
+            "expected_commit": "a" * 40,
         })
         self.assertEqual("repository-paths", result["source"]["boundary"]["type"])
         self.assertEqual("README.md,docs/", result["source"]["boundary"]["value"])
+        self.assertEqual("v1.2.3", result["source"]["git_ref"])
+
+    def test_git_preview_requires_pinned_ref_and_commit(self):
+        with self.assertRaisesRegex(ManifestError, "immutable ref"):
+            preview({
+                "kind": "git", "title": "Project Docs", "owner": "Example",
+                "location": "https://git.example.invalid/team/project.git",
+                "boundary": "README.md", "license_status": "permitted",
+            })
 
     def test_manual_records_hash(self):
         result = preview({"kind": "manual", "title": "Manual", "filename": "manual.txt",

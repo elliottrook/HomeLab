@@ -55,6 +55,9 @@ def preview(form: dict[str, str], upload: bytes | None = None) -> dict[str, Any]
         "license_status": form.get("license_status", "review-required"),
         "enabled": True,
     }
+    if kind == "git":
+        source["git_ref"] = form.get("git_ref", "").strip()
+        source["expected_commit"] = form.get("expected_commit", "").strip().lower()
     validate_source(source)
     warnings = []
     if source["license_status"] == "review-required":

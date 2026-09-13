@@ -12,6 +12,8 @@ from typing import Any
 from urllib.parse import urlparse
 
 SOURCE_ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,63}$")
+GIT_REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$")
+GIT_COMMIT = re.compile(r"^[0-9a-f]{40}$")
 KINDS = {"web", "git", "manual"}
 CLASSES = {"vendor", "upstream", "community", "local-reviewed"}
 MEDIA_TYPES = {"text/html", "text/markdown", "text/plain", "application/pdf"}
@@ -34,7 +36,10 @@ def validate_source(source: dict[str, Any]) -> dict[str, Any]:
     missing = sorted(required - source.keys())
     if missing:
         raise ManifestError("missing fields: " + ", ".join(missing))
-    unknown = sorted(source.keys() - required - {"asset_id", "service_id"})
+    optional = {"asset_id", "service_id"}
+    if source.get("kind") == "git":
+        optional.update({"git_ref", "expected_commit"})
+    unknown = sorted(source.keys() - required - optional)
     if unknown:
         raise ManifestError("unknown fields: " + ", ".join(unknown))
     if not SOURCE_ID.fullmatch(str(source["id"])):
@@ -58,6 +63,11 @@ def validate_source(source: dict[str, Any]) -> dict[str, Any]:
     }
     if boundary["type"] not in allowed_boundaries[source["kind"]] or not boundary["value"]:
         raise ManifestError("invalid or empty collection boundary")
+    if source["kind"] == "git":
+        if not GIT_REF.fullmatch(str(source.get("git_ref", ""))):
+            raise ManifestError("git source requires a safe immutable ref")
+        if not GIT_COMMIT.fullmatch(str(source.get("expected_commit", ""))):
+            raise ManifestError("git source requires an expected commit")
     for field, minimum, maximum in (
         ("refresh_hours", 24, 24 * 365),
         ("size_limit_bytes", 1, 100 * 1024 * 1024),

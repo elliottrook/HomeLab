@@ -26,6 +26,7 @@ EXECUTABLE_MAGIC = (b"MZ", b"\x7fELF", b"#!")
 SAFE_TYPES = {"text/html", "text/markdown", "text/plain", "application/pdf"}
 RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$")
 MINIMUM_HOST_INTERVAL_SECONDS = 2.0
+GIT_DOCUMENT_SUFFIXES = {".adoc", ".html", ".md", ".markdown", ".mdx", ".rst", ".txt"}
 
 
 class Quarantine(ValueError):
@@ -77,6 +78,7 @@ def fetch_git(source: dict) -> Fetched:
         repository = Path(directory) / "repo.git"
         subprocess.run(
             ["git", "clone", "--bare", "--filter=blob:none", "--depth", "1", "--no-tags",
+             "--branch", source["git_ref"],
              "--", source["canonical_url"], str(repository)],
             check=True, capture_output=True, timeout=60,
             env={"PATH": os.environ.get("PATH", ""), "GIT_TERMINAL_PROMPT": "0"},
@@ -86,7 +88,7 @@ def fetch_git(source: dict) -> Fetched:
             check=True, capture_output=True, text=True, timeout=15,
         ).stdout.splitlines()
         selected = sorted(path for path in listing if any(path == item or path.startswith(item.rstrip("/") + "/") for item in allowed))
-        selected = [path for path in selected if Path(path).suffix.lower() in {".md", ".txt", ".html"}]
+        selected = [path for path in selected if Path(path).suffix.lower() in GIT_DOCUMENT_SUFFIXES]
         if not selected or len(selected) > 256:
             raise Quarantine("repository-path-selection-empty-or-too-large")
         chunks = []
@@ -104,6 +106,8 @@ def fetch_git(source: dict) -> Fetched:
             ["git", "--git-dir", str(repository), "rev-parse", "HEAD"],
             check=True, capture_output=True, text=True, timeout=15,
         ).stdout.strip()
+        if commit != source["expected_commit"]:
+            raise Quarantine("repository-ref-commit-mismatch")
         return Fetched(b"".join(chunks).lstrip(), source["media_type"], source["canonical_url"], etag=commit)
 
 

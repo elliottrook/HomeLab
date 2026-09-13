@@ -1,9 +1,11 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
-from aster_wiki.collector import Collector, Fetched, Quarantine, _git_paths, fetch_manual
+from aster_wiki.collector import (Collector, Fetched, Quarantine, _git_paths,
+                                  fetch_git, fetch_manual)
 from aster_wiki.state import State
 
 
@@ -167,6 +169,35 @@ class CollectorTests(unittest.TestCase):
     def test_git_path_boundary_rejects_traversal(self):
         self.assertEqual(["README.md", "docs/"], _git_paths("README.md, docs/"))
         with self.assertRaises(Quarantine): _git_paths("../private")
+
+    def test_git_fetch_is_pinned_to_expected_tag_commit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repository = Path(directory) / "source"
+            repository.mkdir()
+            subprocess.run(["git", "init", "-q", str(repository)], check=True)
+            subprocess.run(["git", "-C", str(repository), "config", "user.name", "Tests"], check=True)
+            subprocess.run(["git", "-C", str(repository), "config", "user.email", "tests@example.invalid"], check=True)
+            (repository / "README.md").write_text("# Pinned docs\n")
+            (repository / "guide.rst").write_text("Pinned guide\n============\n")
+            subprocess.run(["git", "-C", str(repository), "add", "README.md", "guide.rst"], check=True)
+            subprocess.run(["git", "-C", str(repository), "commit", "-qm", "fixture"], check=True)
+            commit = subprocess.run(
+                ["git", "-C", str(repository), "rev-parse", "HEAD"], check=True,
+                capture_output=True, text=True,
+            ).stdout.strip()
+            subprocess.run(["git", "-C", str(repository), "tag", "v1.0.0"], check=True)
+            item = source(
+                "git-source", kind="git", canonical_url=str(repository),
+                boundary={"type": "repository-paths", "value": "README.md,guide.rst"},
+                media_type="text/markdown", git_ref="v1.0.0", expected_commit=commit,
+            )
+            fetched = fetch_git(item)
+            self.assertEqual(commit, fetched.etag)
+            self.assertIn(b"Pinned docs", fetched.body)
+            self.assertIn(b"Pinned guide", fetched.body)
+            item["expected_commit"] = "0" * 40
+            with self.assertRaisesRegex(Quarantine, "commit-mismatch"):
+                fetch_git(item)
 
     def test_manual_fetch_is_source_scoped_and_bounded(self):
         with tempfile.TemporaryDirectory() as directory:
