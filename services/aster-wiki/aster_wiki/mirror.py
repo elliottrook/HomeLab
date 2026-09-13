@@ -14,7 +14,7 @@ from typing import Callable
 
 from .manifest import canonical_json
 
-PIPELINE_VERSION = "1.2.0"
+PIPELINE_VERSION = "1.3.0"
 PROMPT_VERSION = "extractive-claims-v1"
 GENERATOR = "deterministic-extractive"
 ENTRY_ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,127}$")
@@ -102,6 +102,7 @@ def _entry(source: dict, ordinal: int, locator: str, body: str,
         "generator_model": GENERATOR,
         "generator_prompt_version": PROMPT_VERSION,
         "authority": "derived-memory",
+        "source_license": source.get("license_id"),
         "review_state": "generated",
         "confidence": "high",
         "supersedes": supersedes,
@@ -139,6 +140,8 @@ def build_mirror(wiki_root: Path, output_root: Path,
             path = wiki_root / source["path"]
             if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != source["normalized_sha256"]:
                 raise ValueError(f"accepted source mismatch: {source['source_id']}")
+            if source.get("mirror_policy", "allow-derived") == "human-only":
+                continue
             unchanged = sorted(
                 (item for item in reusable.get(source["source_id"], [])
                  if item[1]["source_sha256"] == source["normalized_sha256"]),
@@ -180,6 +183,7 @@ def build_mirror(wiki_root: Path, output_root: Path,
                     "source_sha256": source["normalized_sha256"],
                     "source_locator": locator,
                     "media_type": source.get("media_type", "text/plain"),
+                    "source_license": source.get("license_id"),
                 }
                 lowered = body.lower()
                 for name, terms in INDEX_TERMS.items():

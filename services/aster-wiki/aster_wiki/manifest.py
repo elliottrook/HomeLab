@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 SOURCE_ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,63}$")
 GIT_REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$")
 GIT_COMMIT = re.compile(r"^[0-9a-f]{40}$")
+LICENSE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.+-]{0,63}$")
 KINDS = {"web", "git", "manual"}
 CLASSES = {"vendor", "upstream", "community", "local-reviewed"}
 MEDIA_TYPES = {"text/html", "text/markdown", "text/plain", "application/pdf"}
@@ -36,7 +37,7 @@ def validate_source(source: dict[str, Any]) -> dict[str, Any]:
     missing = sorted(required - source.keys())
     if missing:
         raise ManifestError("missing fields: " + ", ".join(missing))
-    optional = {"asset_id", "service_id"}
+    optional = {"asset_id", "service_id", "mirror_policy", "license_id"}
     if source.get("kind") == "git":
         optional.update({"git_ref", "expected_commit"})
     unknown = sorted(source.keys() - required - optional)
@@ -76,6 +77,10 @@ def validate_source(source: dict[str, Any]) -> dict[str, Any]:
             raise ManifestError(f"{field} outside allowed range")
     if source["license_status"] not in {"permitted", "metadata-only", "review-required"}:
         raise ManifestError("invalid license status")
+    if source.get("mirror_policy", "allow-derived") not in {"allow-derived", "human-only"}:
+        raise ManifestError("invalid mirror policy")
+    if "license_id" in source and not LICENSE_ID.fullmatch(str(source["license_id"])):
+        raise ManifestError("invalid license id")
     if not isinstance(source["enabled"], bool):
         raise ManifestError("enabled must be boolean")
     return source

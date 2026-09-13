@@ -253,6 +253,8 @@ class Collector:
                     "original_storage": "protected-local",
                     "original_path": original_path,
                     "license_status": source["license_status"],
+                    "mirror_policy": source.get("mirror_policy", "allow-derived"),
+                    "license_id": source.get("license_id"),
                 }
                 (output.parent / "provenance.json").write_bytes(canonical_json(metadata))
                 self.state.checkpoint(run_id, source["id"], "normalized", "ok", digest)

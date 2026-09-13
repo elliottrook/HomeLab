@@ -28,6 +28,8 @@ FORM = """<!doctype html><meta charset=utf-8><title>Aster Wiki intake</title>
 <label>Expected Git commit <input name=expected_commit placeholder="40-character SHA-1 (required for Git)"></label>
 <label>Manual upload (PDF, HTML, Markdown or text; prototype limit 64 KiB) <input type=file name=manual_file></label>
 <label>License <select name=license_status><option>review-required</option><option>permitted</option><option>metadata-only</option></select></label>
+<label>License identifier <input name=license_id placeholder="SPDX or bounded licence label"></label>
+<label>Mirror policy <select name=mirror_policy><option value=allow-derived>allow-derived</option><option value=human-only>human-only</option></select></label>
 <button>Preview source</button></form>"""
 
 

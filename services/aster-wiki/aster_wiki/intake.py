@@ -53,8 +53,11 @@ def preview(form: dict[str, str], upload: bytes | None = None) -> dict[str, Any]
         "refresh_hours": int(form.get("refresh_hours", "24")),
         "size_limit_bytes": int(form.get("size_limit_bytes", str(10 * 1024 * 1024))),
         "license_status": form.get("license_status", "review-required"),
+        "mirror_policy": form.get("mirror_policy", "allow-derived"),
         "enabled": True,
     }
+    if form.get("license_id", "").strip():
+        source["license_id"] = form["license_id"].strip()
     if kind == "git":
         source["git_ref"] = form.get("git_ref", "").strip()
         source["expected_commit"] = form.get("expected_commit", "").strip().lower()
@@ -62,6 +65,8 @@ def preview(form: dict[str, str], upload: bytes | None = None) -> dict[str, Any]
     warnings = []
     if source["license_status"] == "review-required":
         warnings.append("License requires review; collection will quarantine instead of publish.")
+    if source["mirror_policy"] == "human-only":
+        warnings.append("Human-only content will be retained in the private wiki but excluded from the Aster mirror.")
     return {
         "source": source,
         "resolved_host": final_host,

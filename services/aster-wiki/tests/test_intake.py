@@ -64,6 +64,26 @@ class IntakeTests(unittest.TestCase):
                 "boundary": "README.md", "license_status": "permitted",
             })
 
+    def test_human_only_policy_and_license_are_validated(self):
+        result = preview({
+            "kind": "web", "title": "Vendor Manual",
+            "location": "https://example.invalid/manual", "license_status": "permitted",
+            "mirror_policy": "human-only", "license_id": "Vendor-Proprietary-2026",
+        })
+        self.assertEqual("human-only", result["source"]["mirror_policy"])
+        self.assertEqual("Vendor-Proprietary-2026", result["source"]["license_id"])
+        self.assertTrue(any("excluded" in warning for warning in result["warnings"]))
+        with self.assertRaisesRegex(ManifestError, "mirror policy"):
+            preview({
+                "kind": "web", "title": "Bad Policy",
+                "location": "https://example.invalid/manual", "mirror_policy": "publish",
+            })
+        with self.assertRaisesRegex(ManifestError, "license id"):
+            preview({
+                "kind": "web", "title": "Bad License",
+                "location": "https://example.invalid/manual", "license_id": "not a licence/id",
+            })
+
     def test_manual_records_hash(self):
         result = preview({"kind": "manual", "title": "Manual", "filename": "manual.txt",
                           "license_status": "permitted", "media_type": "text/plain"}, b"fixture")
