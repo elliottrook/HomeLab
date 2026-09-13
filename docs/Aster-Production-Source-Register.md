@@ -1,6 +1,6 @@
 # Aster Production Source Register
 
-> Status: Milestone 1 working register
+> Status: Milestone 1 reviewed register
 >
 > Reviewed: 2026-09-13
 >
@@ -32,21 +32,77 @@ accepted provenance and every permitted derived entry.
 
 | Source | Repository/ref | Expected commit | Selected boundary | Licence | Disposition |
 |---|---|---|---|---|---|
-| SABnzbd manual | `https://github.com/sabnzbd/sabnzbd.github.io.git` `master` | `dd1e220a71e1b54aff16d32fdfdab1324d30bfdf` | `wiki/introduction/howto.html`, `wiki/introduction/downloads-cannot-be-completed.html`, `wiki/configuration/5.1/`, `LICENSE.md` | GPL-3.0 | Import; installed-minor match |
-| Home Assistant user/integration docs | `https://github.com/home-assistant/home-assistant.io.git` `current` | `18035547fe0ea9b1847f145bf395d88fdce9d63e` | `source/common-tasks/os.markdown`, selected automation/script/scene pages, `source/_integrations/{backup,homekit,homekit_controller,hue,lutron_caseta,matter,sonos,timer}.markdown`, `LICENSE.md` | CC BY-NC-SA 4.0 | Import privately with attribution and same-licence notice |
-| OPNsense docs | `https://github.com/opnsense/docs.git` `master` | `2c85e8a9ea43f4e008a536734ad428783fae94f9` | exact RST pages for interfaces, VLAN/LAGG, firewall, NAT, Dnsmasq, Unbound, DHCP, backups and diagnostics; `LICENSE` | BSD-2-Clause | Import |
-| Proxmox VE docs | `https://github.com/proxmox/pve-docs.git` `master` | `439ce4394b050b0e55b6a85cc74cfccab3e0b474` | exact AsciiDoc pages for host administration, networking, firewall, LXC/QEMU, PCI passthrough, storage, backup and restore; `LICENSE` | GFDL-1.3 | Import with licence/attribution |
+| SABnzbd manual | `https://github.com/sabnzbd/sabnzbd.github.io.git` `master` | `dd1e220a71e1b54aff16d32fdfdab1324d30bfdf` | `wiki/introduction/howto.html`, `wiki/introduction/downloads-cannot-be-completed.html`, `wiki/configuration/5.1/`, `LICENSE.md` | GPL-3.0 | Import; installed-minor match; 18 files / 237,183 bytes |
+| Home Assistant user/integration docs | `https://github.com/home-assistant/home-assistant.io.git` `current` | `18035547fe0ea9b1847f145bf395d88fdce9d63e` | `source/common-tasks/os.markdown`, `source/_docs/{automation/,scripts.markdown,scripts/,scene.markdown,scene/}`, `source/_integrations/{backup,homekit,homekit_controller,hue,lutron_caseta,matter,scene,script,sonos,timer}.markdown`, `LICENSE.md` | CC BY-NC-SA 4.0 | Import privately with attribution and same-licence notice; 28 files / 362,683 bytes |
+| OPNsense docs | `https://github.com/opnsense/docs.git` `master` | `2c85e8a9ea43f4e008a536734ad428783fae94f9` | 20 named `source/manual/` RST pages for interfaces, firewall/NAT, Dnsmasq/Unbound/DHCP, backups and diagnostics plus `LICENSE` | BSD-2-Clause | Import; 21 files / 321,306 bytes |
+| Proxmox VE docs | `https://github.com/proxmox/pve-docs.git` `master` | `439ce4394b050b0e55b6a85cc74cfccab3e0b474` | 14 named AsciiDoc pages for host administration, networking/firewall, LXC/QEMU, PCI passthrough and used storage/backup types plus `LICENSE` | GFDL-1.3 | Import with licence/attribution; 15 files / 264,129 bytes |
 | Servarr Wiki | `https://github.com/Servarr/Wiki.git` `master` | `198dcb59ef1c08828455232fc7b7d908284f69e7` | per-application quick start, settings, activity, library, system, troubleshooting and Docker pages | No repository licence found | Link only; do not copy |
 | Jellyfin documentation | `https://github.com/jellyfin/jellyfin.org.git` `master` | `1edeb876d1a197de6ead0148ca32e4ae241a6f2d` | administration, backup/restore, storage, troubleshooting, networking and Intel acceleration pages | CC BY-ND 4.0 | Human only after no-derivative mirror enforcement; otherwise link only |
-| TrueNAS documentation | `https://github.com/truenas/documentation.git` `master` | `e523684d5b274a807f38223c0d4cdb9999f6402f` | installed-release storage, datasets, shares, apps, backup and recovery pages plus `LICENSE.md` | Creative Commons; exact identifier to verify from licence file | Quarantine until exact installed release and licence identifier are reconciled |
+| TrueNAS documentation | `https://github.com/truenas/documentation.git` `master` | `e523684d5b274a807f38223c0d4cdb9999f6402f` | `content/SCALE/{Storage,Datasets,Shares/SMB,DataProtection,Apps,SystemSettings/Update,GettingStarted/Install}/`, `LICENSE.md` | CC BY-NC-SA 4.0 | Import at pinned current-doc commit for deployed TrueNAS 25.10.5; 91 text files / 734,054 bytes measured before licence file |
 | Pi-hole documentation | `https://github.com/pi-hole/docs.git` `master` | `873b42ada09e8bcd2fe76f0e9f824fd7b378a350` | DNS operation, upstreams, blocking, backup/restore and troubleshooting pages plus `LICENSE` | CC BY-SA 4.0 | Import at pinned current-doc commit for deployed 2026.05.0/2026.07.2 instances |
-| authentik documentation | `https://github.com/goauthentik/authentik.git` `main` | `2e85913317be77f29af7198ca74843efb7df25e7` | selected `website/docs/` pages for flows, providers, outposts, backup/recovery and troubleshooting plus `LICENSE` | CC BY-SA 4.0 for `website/` | Quarantine until installed version is reconciled; then pin matching tag if available |
-| Forgejo documentation | `https://codeberg.org/forgejo/docs.git` `next` | `b99b3730c3c35e371e52fa54754fb7091907e385` | installation, administration, backup/restore, Actions and troubleshooting pages | Licence still to verify | Quarantine until a 15.0.7-specific/current boundary and licence are verified |
+| authentik documentation | `https://github.com/goauthentik/authentik.git` `version/2026.8.0` | `f3753ec20ce13ef672401a131379d1a5a2d3439b` | selected `website/docs/{install-config,sys-mgmt,add-secure-apps,customize,troubleshooting,security}/` pages plus `LICENSE` | CC BY-SA 4.0 for `website/` | Import; exact deployed tag |
+| Forgejo documentation | `https://codeberg.org/forgejo/docs.git` `v15.0` | `28300386afa884d287e07165192516a0352b36b8` | selected `docs/admin/` installation, configuration, backup/upgrade, reverse-proxy, authentication, Actions and troubleshooting pages plus selected `docs/user/actions/` and `docs/license.md` | CC BY-SA 4.0 with identified Apache-2.0 inherited portions | Import; release branch matching deployed Forgejo 15.0.7, commit pinned |
 | Nginx Proxy Manager | `https://github.com/NginxProxyManager/nginx-proxy-manager.git` `v2.15.1` | `76f09db610cfcaecf6d608a8947d6f75aa028870` | `README.md`, `docs/`, `LICENSE` | MIT | Import; exact deployed tag |
 | Prometheus | `https://github.com/prometheus/prometheus.git` `v3.13.2` | `bb5dff00cf8fdfbf5c65e0531aa835fa238a43a2` | selected `docs/` pages for configuration, storage, querying, alerting and operations plus licence | Apache-2.0 | Import; exact deployed tag |
-| Grafana | `https://github.com/grafana/grafana.git` `v13.2.0` | `f681b1359f6a0b8ecb9f2c49a88ac72b75bde73b` | selected `docs/sources/` administration, provisioning, alerting, backup and troubleshooting pages plus licence | AGPL-3.0-only | Import; exact deployed tag |
+| Grafana | `https://github.com/grafana/grafana.git` `v13.2.0` | `f681b1359f6a0b8ecb9f2c49a88ac72b75bde73b` | `docs/sources/administration/{back-up-grafana,provisioning}/`, `docs/sources/alerting/{set-up,fundamentals,best-practices,troubleshooting}/`, `docs/sources/setup-grafana/configure-grafana/`, `LICENSE` | AGPL-3.0-only | Import; exact deployed tag; 40 files / 593,350 bytes |
 | Network UPS Tools | `https://github.com/networkupstools/nut.git` `v2.8.1` | `4ba352d8f82e4c51032d4166d4cc3276b31fb3a5` | selected `docs/` and man-page sources for `upsd`, `upsmon`, drivers, shutdown and troubleshooting plus licence | GPL-2.0-or-later | Import; exact deployed version family |
 | Frigate | `https://github.com/blakeblackshear/frigate.git` `v0.17.2` | `3d4dd3ac4b00e7257bd3412608a783001d7d77ed` | selected `docs/docs/` pages for installation, configuration, detectors, recordings, cameras, review and recovery plus `LICENSE` | MIT | Import; exact deployed tag |
+
+## Official vendor web references
+
+These sources have no suitable versioned Git documentation. Each is bounded to
+the exact URL shown. Vendor copyright terms are not treated as permission to
+create derivatives, so accepted text is `human-only`; pages that cannot be
+collected reliably remain metadata/link-only.
+
+| System | Deployed scope | Exact canonical boundary | Disposition |
+|---|---|---|---|
+| Synology DSM | DS920+, DSM 7.4.1-90080 | `https://kb.synology.com/en-global/DSM/help/DSM/AdminCenter/system_configbackup` and separately enrolled exact DSM help pages for storage, shares, NFS and recovery | Human-only; one exact URL per source |
+| UniFi OS Server / Network | OS Server 5.1.42 / Network 10.5.67 | `https://help.ui.com/hc/en-us/articles/34210126298775-Self-Hosting-UniFi` plus exact Help Center pages for updates, backup, adoption, VLANs and troubleshooting | Human-only; current vendor docs, version context retained |
+| Arista EOS | DCS-7050TX-64 hardware 01.11, EOS 4.20.15M | `https://www.arista.com/en/um-eos` and exact topic URLs for initial recovery, upgrades, interfaces, VLANs, port channels and configuration management | Link-only: currently published manual is newer than installed EOS; do not silently substitute it |
+| Arista hardware | DCS-7050TX-64 | `https://www.arista.com/assets/data/docs/Manuals/QSG/QS_7000-Gen3.pdf` | Human-only exact-model manual |
+| Reolink camera | Duo 2V PoE | `https://reolink.com/ca/product/reolink-duo-2v-poe/` | Human-only exact product/setup/specification page |
+| UniFi access points | two U7 Pro XG units | `https://techspecs.ui.com/unifi/other/u7-pro-xg` | Human-only exact-model specification page |
+
+## Collection controls and measured limits
+
+Every Git boundary below was enumerated at its recorded expected commit using
+the same supported text suffixes as the production collector. Directory
+boundaries exclude images, generated binaries and source code. The collector
+also enforces the hard 256-file ceiling independently.
+
+| Source group | Measured maximum | Manifest byte limit | Refresh | Class / authority | Mirror policy |
+|---|---:|---:|---:|---|---|
+| Installed-version product README/licence pairs | 2–3 files; largest 40,513 bytes | 256 KiB | 8,760 h; explicit version review | Upstream / generic product reference | `allow-derived` with recorded source licence |
+| SABnzbd manual | 18 files / 237,183 bytes | 512 KiB | 720 h; expected-commit drift quarantines | Upstream / generic product reference | `allow-derived`, GPL-3.0 |
+| Home Assistant selected docs | 28 files / 362,683 bytes | 1 MiB | 720 h; expected-commit drift quarantines | Upstream / generic and integration reference | `allow-derived`, CC-BY-NC-SA-4.0 |
+| OPNsense selected docs | 21 files / 321,306 bytes | 1 MiB | 720 h; expected-commit drift quarantines | Upstream / generic infrastructure reference | `allow-derived`, BSD-2-Clause |
+| Proxmox VE selected docs | 15 files / 264,129 bytes | 1 MiB | 720 h; expected-commit drift quarantines | Upstream / generic infrastructure reference | `allow-derived`, GFDL-1.3 |
+| TrueNAS selected docs | 90 files / 744,990 bytes | 2 MiB | 720 h; expected-commit drift quarantines | Upstream / generic storage reference | `allow-derived`, CC-BY-NC-SA-4.0 |
+| authentik selected docs | 103 files / 325,991 bytes | 1 MiB | 8,760 h; explicit version review | Upstream / generic identity reference | `allow-derived`, CC-BY-SA-4.0 |
+| Forgejo selected docs | 46 files / 597,413 bytes | 1 MiB | 720 h; release-branch commit drift quarantines | Upstream / generic Git-service reference | `allow-derived`, CC-BY-SA-4.0 |
+| Nginx Proxy Manager selected docs | 13 files / 38,952 bytes | 256 KiB | 8,760 h; explicit version review | Upstream / generic reverse-proxy reference | `allow-derived`, MIT |
+| Frigate selected docs | 53 files / 544,084 bytes | 1 MiB | 8,760 h; explicit version review | Upstream / generic surveillance reference | `allow-derived`, MIT |
+| Prometheus selected docs | 32 files / 542,268 bytes | 1 MiB | 8,760 h; explicit version review | Upstream / generic monitoring reference | `allow-derived`, Apache-2.0 |
+| Grafana selected docs | 40 files / 593,350 bytes | 1 MiB | 8,760 h; explicit version review | Upstream / generic monitoring reference | `allow-derived`, AGPL-3.0-only |
+| Network UPS Tools selected docs | 187 files / 1,167,928 bytes | 2 MiB | 8,760 h; explicit version review | Upstream / generic power reference | `allow-derived`, GPL-2.0-or-later |
+| Vendor manuals/specification pages | one exact file/URL per source; 100 MiB collector ceiling reduced per observed asset before enrollment | Exact observed size rounded up, never above 100 MiB | 8,760 h manual review | Vendor / exact-model reference | `human-only` or metadata/link-only |
+| Reviewed HomeLab sources | one named file and exact repository commit per source | 2 MiB | 720 h or milestone-triggered | Local-reviewed / lab-specific current state | `allow-derived`; higher retrieval authority than upstream |
+
+## Reconciled deployed infrastructure versions
+
+| System | Live/reviewed version | Evidence disposition |
+|---|---:|---|
+| TrueNAS SCALE | 25.10.5 | Live `system.version`; no configuration read |
+| Synology DS920+ | DSM 7.4.1-90080 | Live non-secret version file through the established restricted account |
+| UniFi OS Server | 5.1.42, bundling Network 10.5.67 | Live executable version plus official matching release record |
+| Frigate | 0.17.2 (`3d4dd3a`) | Live loopback version endpoint; matches exact Git tag commit |
+| Pi-hole primary / secondary | 2026.05.0 / 2026.07.2 | Reviewed current operational baseline; no secret-bearing container configuration read |
+| authentik | 2026.8.0 | Live container image names only; matches exact annotated Git tag commit |
+| Forgejo | 15.0.7 | Live executable version; product tag and 15.0 documentation branch resolved separately |
+| Nginx Proxy Manager | 2.15.1 | Live container package version; exact Git tag resolved |
+| Prometheus / Grafana | 3.13.2 / 13.2.0 | Live executable versions and build commits; both exactly match dereferenced Git tags |
+| Network UPS Tools | 2.8.1-5 | Reviewed installed Debian package baseline; upstream 2.8.1 tag used for generic documentation |
 
 Branch-backed documentation is frozen by both branch name and expected commit.
 Any upstream movement quarantines collection until a human reviews and updates
@@ -67,20 +123,31 @@ the expected commit. Installed-version tags remain preferred wherever present.
 | Equipment | Canonical source | Status |
 |---|---|---|
 | Dell Precision Tower 5810 | `https://www.dell.com/support/product-details/en-ca/product/precision-t5810-workstation/resources/manuals` | Exact model confirmed; vendor-hosted owner manual, metadata/link accepted pending human-only policy |
-| UniFi U7 Pro XG | `https://techspecs.ui.com/unifi/other/u7-pro-xg` | Exact model confirmed for both APs; vendor tech specs accepted as metadata/link |
+| ASRock Intel Arc Pro B60 Passive 24GB | `https://www.asrock.com/Graphics-Card/Intel/Intel%20Arc%20Pro%20B60%20Passive%2024GB/` | Exact installed passive one-slot variant confirmed; vendor specification/manual page human-only |
+| LSI SAS 9300-16i | `https://docs.broadcom.com/doc/12353308` | Exact HBA model and official user guide confirmed; human-only |
+| UniFi U7 Pro XG | `https://techspecs.ui.com/unifi/other/u7-pro-xg` | Exact model confirmed for both APs; vendor tech specs accepted as human-only content/link |
 | CyberPower CP1500PFCLCD | `https://www.cyberpowersystems.com/product/ups/pfc-sinewave/cp1500pfclcd/` | Exact model confirmed for two units; official manual and function guide located, copyright disposition pending |
 | Synology DS220j | `https://global.download.synology.com/download/Document/Hardware/HIG/DiskStation/20-year/DS220j/enu/Syno_HIG_DS220j_enu.pdf` | Exact model confirmed; official PDF located, human-only/link disposition pending |
-| Synology DS920+ | Synology Download Center / Knowledge Center | Exact model confirmed; exact official guide URL still to resolve |
-| Arista DCS-7050TX | Arista product/documentation portal | Family confirmed; exact hardware revision and accessible manual still to resolve |
-| Reolink Duo 2V PoE | Reolink support/download center | Recorded model string requires vendor-page reconciliation before collection |
-| CyberPower OR500LCDRM1U | CyberPower product resources | Exact model confirmed; exact official manual URL still to resolve |
-| APC BN1500M2-CA | APC product/support resources | Exact model confirmed; exact official manual URL still to resolve |
+| Synology DS920+ | `https://global.download.synology.com/download/Document/Hardware/HIG/DiskStation/20-year/DS920%2B/enu/Syno_HIG_DS920_Plus_enu.pdf` | Exact model and official installation guide confirmed; human-only |
+| Arista DCS-7050TX-64 | `https://www.arista.com/assets/data/docs/Manuals/QSG/QS_7000-Gen3.pdf` | Exact model is explicitly covered by official 7000 Series 1RU Gen 3 guide; human-only |
+| Reolink Duo 2V PoE | `https://reolink.com/ca/product/reolink-duo-2v-poe/` | Exact recorded model has an official specifications/setup page; human-only/link because copying terms are not granted |
+| Coral M.2 Accelerator A+E key `G650-04527-01` | `https://www.coral.ai/static/files/Coral-M2-datasheet.pdf` | Exact recorded part number and A+E key variant confirmed in official datasheet; human-only |
+| CyberPower OR500LCDRM1U | `https://www.cyberpowersystems.com/product/ups/smart-app-lcd/or500lcdrm1u/` | Exact official product page exposes the matching user manual; human-only |
+| APC BN1500M2-CA | `https://www.apc.com/ca/en/product/BN1500M2-CA/` | Exact Canadian SKU official product record confirmed; manual download identifier remains to resolve, so link-only for now |
 | VMware SD-WAN Edge 620 | Broadcom/VMware documentation | Hardware identity confirmed; OPNsense behavior comes from OPNsense docs, vendor hardware manual still to resolve |
+| Lenovo ThinkCentre M92p | Lenovo support/download centre | Exact model confirmed locally; exact official maintenance-manual locator not yet resolved, so link-only/quarantined |
+| TP-Link 8-port PoE switch | None exact | Quarantined: inventory lacks the exact model and no manual is assigned by inference |
 | Binarui AP Switch | None trustworthy | Quarantined: UI exposes no exact model and no trustworthy firmware/manual source exists |
 
-## Unresolved gate items
+The VMware SD-WAN Edge 620 identity is confirmed by physical inventory, but no
+public exact official hardware manual survived canonical-source review. It is
+quarantined rather than being matched to an Edge 610/640 family document.
 
-- Resolve installed versions and remaining licence details for TrueNAS,
-  Synology DSM, UniFi Network, authentik and Forgejo documentation.
-- Reconcile remaining exact hardware variants and canonical manual URLs.
-- Validate every proposed boundary below 256 files and its explicit byte limit.
+## Quarantined or deferred items
+
+- Reconcile the backup DS220j DSM version if a future restricted source can
+  expose it without interactive access; retain model-only hardware scope now.
+- Resolve an exact official VMware Edge 620 hardware-manual locator and the APC
+  BN1500M2-CA manual document identifier; keep both link-only until then.
+- Additional exporter-specific Prometheus/Grafana documentation is deferred
+  unless later evaluation proves a retrieval gap.

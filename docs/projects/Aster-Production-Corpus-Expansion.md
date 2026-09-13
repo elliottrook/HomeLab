@@ -1,6 +1,6 @@
 # Aster Production Corpus Expansion
 
-> Status: Active — Milestone 1 source register
+> Status: Active — Milestone 2 ARR and media documentation
 >
 > Project owner: Jason
 >
@@ -130,12 +130,12 @@ and one separately confirmed Forgejo push. Intermediate stages do not push.
 
 ### Milestone 1 — Exact inventory and source register
 
-- [ ] Reconcile live software versions and exact hardware models without
+- [x] Reconcile live software versions and exact hardware models without
   reading secret-bearing configuration.
-- [ ] Map every included system to an official canonical source and licence.
-- [ ] Select exact Git refs/docs paths and manual variants; quarantine ambiguous
+- [x] Map every included system to an official canonical source and licence.
+- [x] Select exact Git refs/docs paths and manual variants; quarantine ambiguous
   identities instead of guessing.
-- [ ] Record size, refresh policy, source class and authority for each source.
+- [x] Record size, refresh policy, source class and authority for each source.
 
 Gate: the reviewed register has no unknown source boundary, silent version
 substitution, secret-bearing path or unassessed licence.
@@ -216,3 +216,4 @@ Aster's authority remains unchanged.
 | 2026-09-13 | 1 pinned collector deployment | Retained `/opt/aster-wiki/aster_wiki.before-6cdac27`, deployed the exact four application modules, installed Debian Git 2.47.3 plus only its required dependencies and restarted only the intake service. The complete disposable deployed suite passes 41/41, including a real tagged checkout and expected-commit mismatch quarantine. Accepted-corpus verification remains 1/1, portal health returns `ok`, and intake, daily collection and monthly corpus health remain active. Removed the disposable deployment/test archives and trees while retaining the rollback copy | LXC 113 is ready for immutable Git sources without changing the accepted corpus or service authority |
 | 2026-09-13 | 1 source licence boundary | Added validated `allow-derived`/`human-only` source policy and bounded licence identifiers; propagated both through intake, accepted provenance and derivative entry provenance. Pipeline 1.3.0 retains human-only sources in accepted input while generating no Aster entries from them. New fail-closed policy, exclusion and attribution regressions bring the local suite to 44/44 passing | No-derivatives and vendor-manual content can be retained for private human use without silently entering Aster's derivative mirror; production deployment remains a separately validated change |
 | 2026-09-13 | 1 source licence deployment | Retained `/opt/aster-wiki/aster_wiki.before-bd32e56`, deployed the five policy-aware modules and restarted only intake. The complete deployed suite passes 44/44 after restoring the omitted disposable seed fixture; accepted-corpus verification succeeds, `/healthz` returns `ok`, and intake, collector and corpus-health timers are active. All disposable archives and test trees were removed | Production now enforces human-only exclusion and licence provenance before restricted source enrollment; accepted corpus content remains unchanged |
+| 2026-09-13 | 1 source register gate | Reconciled live versions for TrueNAS, DSM, UniFi OS/Network, Frigate, authentik, Forgejo, NPM, Prometheus and Grafana in addition to the ARR/HA/Proxmox set. Resolved exact release commits where available; enumerated every accepted Git boundary at its expected commit with 2–187 text files and explicit 256 KiB–2 MiB limits. Matched exact official manuals for the recorded Dell, ASRock, LSI, UniFi, CyberPower, Synology, Arista, Reolink and Coral variants. The unknown TP-Link/Binarui models, unavailable Edge 620/Lenovo/APC manual locators, DS220j DSM release and version-mismatched EOS manual remain explicitly quarantined or link-only | **Milestone 1 complete.** The reviewed register contains no mutable accepted Git source, silent version substitution, unassessed derivative path, secret-bearing boundary or accepted ambiguous model |
