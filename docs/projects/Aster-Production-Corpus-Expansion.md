@@ -1,6 +1,6 @@
 # Aster Production Corpus Expansion
 
-> Status: Active — Milestone 3 Home Assistant documentation
+> Status: Active — Milestone 4 infrastructure and hardware manuals
 >
 > Project owner: Jason
 >
@@ -155,11 +155,11 @@ can distinguish generic product behavior from lab-specific current state.
 
 ### Milestone 3 — Home Assistant documentation
 
-- [ ] Enroll version-matched HAOS, Core, Supervisor and backup/recovery docs.
-- [ ] Enroll official documentation only for the reviewed Hue, Lutron, Matter,
+- [x] Enroll version-matched HAOS, Core, Supervisor and backup/recovery docs.
+- [x] Enroll official documentation only for the reviewed Hue, Lutron, Matter,
   Aqara-facing, Sonos, HomeKit Bridge, scene/script/timer and automation paths.
-- [ ] Import the reviewed local Home Assistant reference with higher authority.
-- [ ] Verify privacy exclusions and exact integration/version provenance.
+- [x] Import the reviewed local Home Assistant reference with higher authority.
+- [x] Verify privacy exclusions and exact integration/version provenance.
 
 Gate: Home Assistant questions route to the correct generic, integration or
 lab-specific source without exposing entity or household data.
@@ -223,3 +223,4 @@ Aster's authority remains unchanged.
 | 2026-09-13 | 2 production enrollment | Queued the ten reviewed sources with the tested batch utility and retained the prior manifest. Production collection accepted all ten alongside the existing fixture (11/11, zero failed or quarantined); verification checked all 11. Two mirror builds returned the same accepted-input/content hashes and 581 verified entries. The source dashboard listed all ten with no pending candidates, `/healthz` returned `ok`, and intake plus both timers remained active. Jellyfin CC-BY-ND documentation remained human-only and generated no derivative directory | Complete version-matched human coverage is live for all six deployed ARR/media services without widening authority or exposing configuration |
 | 2026-09-13 | 2 authority gate | Review found the first accepted lock labelled local-reviewed and upstream sources identically. Added an explicit provenance mapping and regression, bringing the suite to 47/47. The corrected collector was tested from a disposable deployed tree, installed with a retained rollback copy, and re-collected 11/11. The local operating reference and reviewed link page now declare `current-with-exclusions`; product documentation remains `upstream-reference`. Two rebuilt mirrors matched at content SHA-256 `d255484ed484f6f91713aa3573ac5f712f67321ffeab8e00dad2386621bc504e` and verified 581/581 | **Milestone 2 complete.** Generic product behavior and lab-specific current state are machine-distinguishable. Corpus health has no failures, broken links, stale sources or unclassified sources; its 157 duplicate extractive claims remain a warning for Milestone 5 quality evaluation rather than an integrity failure |
 | 2026-09-13 | 3 Home Assistant batch candidate | Created the five-source batch for exact Core 2026.9.1, OS 18.2 and Supervisor 2026.09.0 releases; commit-pinned user, integration, automation and recovery documentation; and the reviewed local operational reference. Privacy review narrowed that local source to `human-only` because it contains household workflow labels and internal addressing. The full suite passes 47/47. An isolated collector accepted and verified 5/5 with no failures or quarantine; deterministic mirror build produced and verified 209 entries and no local-reference derivative directory | Candidate covers only the reviewed Hue, Lutron, Matter, Sonos, HomeKit, scene, script, timer, automation, OS and backup paths. Production enrollment remains a separately confirmed operation |
+| 2026-09-13 | 3 production enrollment and gate | Enrolled the five reviewed sources alongside the existing corpus. Collection accepted 16/16 total with zero failures or quarantine, and verification checked all 16. Two mirror builds matched at accepted-input SHA-256 `e948a20ab201823fc987c51898f21c8a85f29ab5c536a6f3bf7d624bca319906` and content SHA-256 `43d6516b30f4132a07d109ec2e096f4e6790f8b4266a9fc3b7319ce49ef7b5b8`; 790/790 entries verified. Dashboard navigation found all five sources with no pending work. The local source is `current-with-exclusions`/`human-only`; generic and integration material is `upstream-reference`/`allow-derived`. A direct mirror scan found none of the reviewed household workflow labels or internal addresses, while service, recovery and version indexes contain the bounded HA docs and HAOS sources. Portal and timers remain active | **Milestone 3 complete.** Generic, integration and local-current sources are provenance-distinct; the private local reference remains human-readable without entering the new derivative set. Corpus health reports no failures, broken links, staleness or unclassified sources. Its 165 duplicate extractive claims remain an explicit Milestone 5 quality warning |
