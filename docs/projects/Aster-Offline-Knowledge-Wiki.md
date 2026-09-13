@@ -1,12 +1,14 @@
 # Aster Offline Knowledge Wiki and Mirror
 
-> Status: Active — Milestone 5 complete; Milestone 2 scheduled evidence pending
+> Status: Graduated — all milestone completion gates passed
 >
 > Project owner: Jason
 >
 > Proposed: 2026-09-10
 >
 > Started: 2026-09-10
+>
+> Completed: 2026-09-13
 >
 > Authorization: Stream A — Autonomous
 
@@ -104,15 +106,16 @@ validated commit range and request the single repository-required confirmation
 for that milestone synchronization. This cadence does not waive the governing
 rule that confirmation must occur immediately before the actual push.
 
-**Current milestone:** Milestone 2 — await the staged changed-source observation
-at the next true daily timer run. Milestones 3–5 are complete.
+**Current milestone:** Complete — Milestones 1–5 are graduated.
 
 **Last verified state:** the private human and mirror repositories, authenticated
 wiki portal, daily collector, retained originals, deterministic mirror pipeline
-`1.2.0` and Aster snapshot integration are live. Two real unattended collector
-runs and deliberate failure preservation pass; a safe changed upload with SHA-256
-`4640e34f0afde03449713c2ddd07fefe9ddf01ff91f5a2fe06a3c6085ef2e6f9`
-awaits the 2026-09-13 timer observation. Milestone 3 is graduated. Milestone 4's
+`1.2.0` and Aster snapshot integration are live. Three real unattended collector
+runs, a scheduled changed-source acceptance and deliberate failure preservation
+pass. The accepted changed content is
+`4640e34f0afde03449713c2ddd07fefe9ddf01ff91f5a2fe06a3c6085ef2e6f9`;
+the next-cycle input is safely restored to the retained original. Milestone 3 is
+graduated. Milestone 4's
 versioned mirror suite passes 10/10 twice, complete-source comparison preserves
 the exact claim and provenance while reducing retrieval context from 774 to 755
 characters twice, ARR and Home Assistant regressions pass 8/8 and 10/10, and the
@@ -120,10 +123,9 @@ final general regression passes 14/14. Aster is active and healthy with 61/61
 service tests and 7/7 evaluator tests passing after activation of local commit
 `06cfa5d`.
 
-**Next safe action:** after the true timer invocation scheduled for 2026-09-13,
-verify the changed accepted content and clean corpus state, restore the retained
-original only as the next input, record the evidence and close Milestone 2. Do
-not substitute a manual invocation for that remaining timer evidence.
+**Next safe action:** normal operation through the active daily collector and
+monthly corpus-health timers. Future source enrollment remains an explicit
+owner action through the authenticated portal.
 
 **Rollback location:** current local `main`, deployed wiki rollback copies,
 Aster's retained accepted snapshot and
@@ -645,6 +647,7 @@ snapshot; the complete human repository remains intact.
 | 2026-09-12 | 5 isolated rebuild and rollback discovery | Created complete Git bundles directly from the private Forgejo repositories and verified complete histories at human commit `678786c192ef46bbdd869023fe7fd4a22774c143` and mirror commit `260cdb0801d29b0cd90952f751f83f577760e34e`. In a fresh LXC104 temporary tree, cloned both bundles, recovered the protected original and matching accepted lock from the verified LXC113 archive, passed accepted-corpus verification 1/1, rendered the exact equipment title and `TEST-42` claim, and rebuilt three mirror entries. Rebuilt and archived mirror hashes match exactly at `f07ded1b60f10c98f581834bac104b0a763c2f6d2e99911240167ba638fbe096`; provenance verification passed 3/3. A deliberately corrupted generated entry changed the package hash to `8cd7ad4ab183690375422c0b5f15209cabe39eb5570e1d5c387153406cc97960`; isolated mirror rollback restored and verified the exact accepted hash. The upstream drill exposed that corpus rollback restored the prior document tree without its matching lock. Corrected the implementation to retain and restore the tree/lock pair; all 39 local wiki tests pass, including post-rollback verification | Repository/original rebuild and bad-generated-summary rollback pass without touching production. The bad-upstream rollback gate remains open until the corrected tree/lock pairing is separately authorized, deployed and exercised before the staged scheduled change |
 | 2026-09-12 | 5 rollback, inventory and discovery graduation | Deployed the corrected collector with `collector.py.before-87eb272` retained. Its 15 deployed collector tests and explicit two-version bad-upstream rollback test pass, including restoration of the prior accepted lock and clean post-rollback verification. Production verification stayed clean, all intake, daily and monthly units stayed active, and the staged Milestone 2 upload retained SHA-256 `4640e34f0afde03449713c2ddd07fefe9ddf01ff91f5a2fe06a3c6085ef2e6f9`. Registered LXC 113 in authoritative NetBox as `aster-wiki`, Proxmox cluster, 2 vCPU, 2048 MiB, 16 GiB, `eth0`, primary `192.168.20.34/24`. Added a credential-free Homepage link to the authenticated portal and verified Homepage healthy. Full Doctor reports 61 passes; its two failures are the pre-existing Arista Et48 drift and powered-off Backup Synology, with seven unrelated capacity/config-age/dirty-tree warnings | Both bad-input and bad-derived-output rollback gates pass. Inventory and operator discovery are reconciled without widening access, and daily, monthly and backup observability is operational |
 | 2026-09-12 | 5 graduation | Jason owns the service and source decisions; the dedicated intake and collector identities own only their bounded queue/runtime responsibilities, with systemd owning daily collection and monthly health scheduling. Accepted versions are human repository `678786c192ef46bbdd869023fe7fd4a22774c143`, mirror repository `260cdb0801d29b0cd90952f751f83f577760e34e` and pipeline `1.2.0`. Exact accepted-input, mirror, deployed Aster module and verified recovery archive hashes are respectively `63202faa197a4b9b25df932e91bbc7606a619958ae2c183d6d14979fdbce966c`, `f07ded1b60f10c98f581834bac104b0a763c2f6d2e99911240167ba638fbe096`, `fb37e1d248689f465a096b6fc7ce4923e5b3573f3cdfbe165de4ca47e42d573d` and `975e0a79f73c36c7823c0e374d855437a2b6e89f48493b4e98138d9b5baca3cc`. Residual limitations are explicit: the live corpus currently contains one synthetic source; the deterministic extractive mirror is neither a semantic model nor authority; manual-source freshness falls back to accepted-file time when HTTP metadata is unavailable; and every mirror result still depends on its complete human source for authoritative context. Removed only the enumerated temporary recovery/provisioning artifacts from Proxmox and LXCs 100, 104, 108, 111 and 113; verified backups, protected originals, accepted state and production rollback copies remain | Milestone 5 completion gate passed. Isolated rebuild, paired tree/lock rollback, daily/monthly observability, inventory, discovery, recovery coverage and security boundaries are proven. The staged true scheduled changed-source observation remains solely a Milestone 2 gate |
+| 2026-09-13 | 2 graduation and project completion | Systemd triggered the staged changed-source run at 10:42:48 UTC as invocation `0766435ecfdb41ed93af6e5e40cd1674`, producing run `run-1a75e19dec214a20`: one accepted source, zero unchanged, failures or quarantines. The accepted lock names normalized and protected-original SHA-256 `4640e34f0afde03449713c2ddd07fefe9ddf01ff91f5a2fe06a3c6085ef2e6f9`; the accepted document has the same hash and corpus verification passes 1/1. Restored only the retained `5f0c7a6a159cee7e4daf1b30d222464686ce6e4e06581efbaa27403d4050c0df` original as the next-cycle upload, preserving `aster-collector:aster-wiki` mode `0640`; the accepted changed revision and lock remain intact and verify clean. Intake, daily collector and monthly corpus-health units remain active, with the next daily trigger scheduled for 2026-09-14 | Milestone 2 completion gate passed through three true unattended cycles, including changed-source acceptance and separately proven fail-closed preservation. With Milestones 1–5 complete, the whole project is graduated without widening Aster's authority |
 | 2026-09-12 | 2 deliberate failure preservation | With a byte-for-byte backup of the manual upload, replaced only the collector input with a prompt-injection fixture and invoked the real systemd collector path. Run `run-a43f44ccbd8f2b86` failed as designed. The accepted lock remained `144030016dd4522aa2585fb63c9a623479a890359c0626686a59f5b7bc879bdf`; accepted normalized content and retained original both remained `5f0c7a6a159cee7e4daf1b30d222464686ce6e4e06581efbaa27403d4050c0df`. Restored input has that same hash, accepted-corpus verification passes and the daily timer remains active | The deliberate failure is fail-closed and last-good content is preserved. A true scheduled changed-input observation remains required before closing Milestone 2 strictly |
 | 2026-09-10 | 2 interactive authentication | From a normal client, Jason opened `https://wiki.elliottrook.com`, completed the Authentik password/passkey flow and confirmed return to the “Add a private knowledge source” intake page. Earlier unauthenticated testing proved the HTTP/2 302 interception, while direct backend access remained denied | The owner-only authenticated portal gate is complete. Scheduled daily cycles are the remaining Milestone 2 completion evidence |
 | 2026-09-10 | 2 portal and original candidate | Added read-only source-state summaries, bounded per-source run history and hash-based input-change visibility without exposing source content. Exact fetched bytes now enter a protected content-addressed state tree using restrictive directory/file modes; accepted locks record that path and verification fails closed if either normalized content or its retained original changes. Expanded local coverage passes 30/30 tests, including dashboard/history reads, original byte preservation/mode and tamper detection | The remaining Milestone 2 portal and retained-original implementation is locally complete. Deployment and a live accepted run are pending; the production timer remains disabled |
