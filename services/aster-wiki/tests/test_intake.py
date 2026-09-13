@@ -8,6 +8,7 @@ from aster_wiki.app import Handler, parse_submission, source_dashboard, source_h
 from aster_wiki.manifest import (ManifestError, load_manifest, promote_candidates,
                                  write_candidate, write_control_candidate, write_upload)
 from aster_wiki.state import State
+from enroll_batch import queue_batch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +34,23 @@ class IntakeTests(unittest.TestCase):
         batches = sorted((ROOT / "source-batches").glob("*.json"))
         self.assertTrue(batches)
         self.assertEqual(10, sum(len(load_manifest(path)["sources"]) for path in batches))
+
+    def test_batch_queue_requires_and_records_named_manual_uploads(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            batch = root / "batch.json"
+            upload_root = root / "uploads"
+            upload_root.mkdir()
+            source = preview({
+                "kind": "manual", "title": "Reviewed Guide", "filename": "guide.md",
+                "license_status": "permitted", "media_type": "text/markdown",
+                "boundary_type": "exact-file", "boundary": "guide.md",
+            }, b"reviewed") ["source"]
+            batch.write_text(json.dumps({"schema_version": 1, "sources": [source]}))
+            (upload_root / "guide.md").write_bytes(b"reviewed")
+            result = queue_batch(batch, root / "state", upload_root)
+            self.assertEqual({"queued": 1, "uploads": 1}, result)
+            self.assertEqual(1, len(list((root / "state/candidates").glob("*.json"))))
 
     def test_web_preview_is_non_mutating_and_bounded(self):
         result = preview({
