@@ -33,7 +33,7 @@ class IntakeTests(unittest.TestCase):
     def test_production_source_batches_are_valid(self):
         batches = sorted((ROOT / "source-batches").glob("*.json"))
         self.assertTrue(batches)
-        self.assertEqual(19, sum(len(load_manifest(path)["sources"]) for path in batches))
+        self.assertEqual(26, sum(len(load_manifest(path)["sources"]) for path in batches))
 
     def test_batch_queue_requires_and_records_named_manual_uploads(self):
         with tempfile.TemporaryDirectory() as directory:
