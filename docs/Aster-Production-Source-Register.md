@@ -80,8 +80,6 @@ the expected commit. Installed-version tags remain preferred wherever present.
 
 ## Unresolved gate items
 
-- Deploy and independently validate the locally passing source-level
-  `human-only`/`allow-derived` policy before enrolling restricted sources.
 - Resolve installed versions and remaining licence details for TrueNAS,
   Synology DSM, UniFi Network, authentik and Forgejo documentation.
 - Reconcile remaining exact hardware variants and canonical manual URLs.
