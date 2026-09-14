@@ -1,6 +1,6 @@
 # Aster Production Corpus Expansion
 
-> Status: Active — Milestone 4 infrastructure and hardware manuals
+> Status: Active — Milestone 5 mirror, evaluation and graduation
 >
 > Project owner: Jason
 >
@@ -166,13 +166,15 @@ lab-specific source without exposing entity or household data.
 
 ### Milestone 4 — Infrastructure and hardware manuals
 
-- [ ] Enroll official docs for OPNsense, Arista EOS, Proxmox, TrueNAS, Synology,
-  UniFi, Frigate, Pi-hole, Authentik, Forgejo, NPM, Prometheus/Grafana and NUT.
-- [ ] Enroll exact-model manuals for the recorded compute, switching, wireless,
+- [x] Enroll permitted official docs—and retain reviewed links where copying or
+  version matching is unavailable—for OPNsense, Arista EOS, Proxmox, TrueNAS,
+  Synology, UniFi, Frigate, Pi-hole, Authentik, Forgejo, NPM,
+  Prometheus/Grafana and NUT.
+- [x] Enroll exact-model manuals for the recorded compute, switching, wireless,
   storage, camera, TPU and UPS equipment where licensing permits.
-- [ ] Record metadata-only links for non-redistributable manuals and quarantine
+- [x] Record metadata-only links for non-redistributable manuals and quarantine
   the model-unknown Binarui AP switch.
-- [ ] Cross-link each source to the authoritative NetBox/local inventory identity.
+- [x] Cross-link each source to the authoritative NetBox/local inventory identity.
 
 Gate: every accepted manual matches an inventoried model, retains provenance and
 does not overwrite current-state authority.
@@ -196,7 +198,7 @@ Aster's authority remains unchanged.
   batch/version drift if monthly health does not already cover it.
 - [ ] **Monitoring/alerting:** reuse daily/monthly reporting without duplicate noise.
 - [ ] **Backup/recovery:** verify expanded originals/corpus/mirror coverage and restore.
-- [ ] **NetBox:** read-only identity/model authority; correct drift separately.
+- [x] **NetBox:** read-only identity/model authority; correct drift separately.
 - [ ] **Human wiki:** primary project output.
 - [ ] **Aster mirror/snapshot:** rebuild and validate without authority expansion.
 - [ ] **Operational reference/runbooks:** import/link reviewed current state.
@@ -227,3 +229,4 @@ Aster's authority remains unchanged.
 | 2026-09-13 | 4 core infrastructure candidate | Enumerated exact pinned paths for OPNsense firewall/DNS/backup/diagnostics, Proxmox VE host/network/firewall/guest/storage/backup, Pi-hole DNS, and NUT service/driver/shutdown documentation. The first isolated run failed closed because two broad NUT compilations contain a password-syntax example matching the secret guard; removed those duplicate compilations while retaining the focused operational and man-page sources. The corrected run accepted and verified 4/4 with no quarantine; deterministic mirror build produced and verified 471 entries at content SHA-256 `7b903b8d441f41ff40be333905dc73a5251513e52275d2adc8338274090e767a` | Core batch candidate is clean. Remaining infrastructure repositories, exact-model manuals, metadata-only links and NetBox identity cross-links remain inside Milestone 4 before its production gate |
 | 2026-09-13 | 4 infrastructure services candidate | Resolved exact registered commits and bounded operational paths for TrueNAS SCALE, Frigate, authentik, Forgejo, Nginx Proxy Manager, Prometheus and Grafana. Initial broad selections were rejected by the unchanged secret/injection scanner. Replaced them with explicit useful files that omit credential examples, a misleading TrueNAS “system prompts” phrase and Forgejo's runner-state exfiltration scenario. The second isolated run accepted six sources; the final narrowed Forgejo source then accepted and verified independently and produced 124 verified entries | All seven service candidates now pass the real collector without weakening security checks. A full combined build will run with the manual/link/identity batch before production enrollment |
 | 2026-09-13 | 4 hardware, identity and combined candidate | Validated official exact-model locators. Synology DS220j and DS920+ installation PDFs return direct `application/pdf` responses within fixed 4/8 MiB bounds and passed protected human-only collection. Arista's exact DCS-7050TX-64 HTML guide remains link-only because the PDF is bot-gated; Coral's indexed exact-part datasheet origin returns 404. Recorded exact official links for Dell, ASRock, LSI, UniFi, Reolink, CyberPower and APC, and retained Edge 620, Lenovo, TP-Link and Binarui uncertainties without guessing. A human-only identity page binds every accepted software/manual source to the recorded inventory identity. The hardware batch passed 3/3 and generated zero derivative entries. The final combined isolated run accepted and verified 14/14 with zero failures or quarantine; deterministic mirror build produced and verified 1,335 entries at content SHA-256 `0d2f14df49df0857881f99df4759d0993d67a817dd6f4bfc4c5d3e649da8d430` | Complete Milestone 4 candidate is ready for separately confirmed production enrollment; security checks and model/licence ambiguity boundaries remain intact |
+| 2026-09-13 | 4 production enrollment and gate | Enrolled all 14 reviewed candidates beside the existing corpus. Collection accepted 30/30 total with zero failures or quarantine and verification checked every source and retained original. Two mirror builds matched at accepted-input SHA-256 `780b0a1a7255990a557c36e717debc1f3d1148c1311196485e1de6ac0948324b` and content SHA-256 `6a88911b0a4e13ec35e4644f53738fd6bdcf7cb3d520c8209b45d06f9ed0b962`; 2,125/2,125 entries verified. Dashboard navigation found all 14 with no pending candidates; both exact Synology PDFs retain `application/pdf`/`human-only` provenance, and the two PDFs plus identity page have no derivative directories. Asset, service, recovery and version indexes contain the core infrastructure sources. Portal and timers remain active | **Milestone 4 complete.** Every copied manual matches a recorded model, non-copyable or unavailable material is linked/quarantined explicitly, and current-state authority remains with NetBox/local inventory. Corpus health has no failures, broken links, stale or unclassified sources; 248 duplicate extractive claims remain the known Milestone 5 quality warning |
