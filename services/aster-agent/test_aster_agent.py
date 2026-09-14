@@ -13,6 +13,7 @@ from aster_agent import (
     ChatRequest,
     TOOLS,
     execute_arr_repair,
+    execute_tool,
     get_lab_health,
     preload_read_only_context,
     search_knowledge,
@@ -610,7 +611,6 @@ class AsterAgentTests(unittest.TestCase):
             result = search_knowledge("What is currently true about the B60 GPU VRAM?", root=root, directory_first=True)
             self.assertEqual(result["results"][0]["source"], "docs/03-Hardware-Inventory.md")
 
-
 class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
     async def test_time_tool_is_preloaded_without_model_round_trip(self):
         result = await preload_read_only_context(
@@ -619,6 +619,14 @@ class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(result[0]["function"], "get_current_time")
         self.assertEqual(result[0]["result"]["timezone"], "America/Vancouver")
+
+    async def test_search_tool_uses_explicit_directory_feature_flag(self):
+        with (
+            patch("aster_agent.DIRECTORY_FIRST", True),
+            patch("aster_agent.search_knowledge", return_value={"results": []}) as search,
+        ):
+            await execute_tool("search_knowledge", {"query": "Sonarr notifications", "max_results": 2})
+        self.assertEqual(search.call_args.kwargs["directory_first"], True)
 
     async def test_arr_report_is_preloaded_without_model_round_trip(self):
         result = await preload_read_only_context(
