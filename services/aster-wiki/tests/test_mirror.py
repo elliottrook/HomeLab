@@ -189,7 +189,8 @@ class MirrorTests(unittest.TestCase):
             source.write_text(
                 "<!-- source-file: README.md -->\n\n# Features\n\n"
                 "The service keeps a bounded operational history.\n\n"
-                "```\n\n<!-- source-file: LICENSE.md -->\n\n"
+                "```\n\nNote: GitHub Issues are for Bugs and Feature Requests Only\n\n"
+                "<!-- source-file: LICENSE.md -->\n\n"
                 "Shared license boilerplate that is not product knowledge.\n"
             )
             lock_path = wiki / "sources/accepted-lock.json"

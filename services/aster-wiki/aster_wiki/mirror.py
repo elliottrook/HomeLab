@@ -14,7 +14,7 @@ from typing import Callable
 
 from .manifest import canonical_json
 
-PIPELINE_VERSION = "1.4.0"
+PIPELINE_VERSION = "1.4.1"
 PROMPT_VERSION = "extractive-claims-v1"
 GENERATOR = "deterministic-extractive"
 ENTRY_ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,127}$")
@@ -37,10 +37,18 @@ SEMANTIC_TERMS = {
 }
 SOURCE_FILE = re.compile(r"(?m)^<!-- source-file: ([^>]+) -->\s*$")
 NON_KNOWLEDGE_FILES = {"copying", "copying.md", "license", "license.md", "license.txt"}
+NON_KNOWLEDGE_BODY = re.compile(
+    r"(?is)^\[!\[Home Assistant - A project from the Open Home Foundation\].*$|"
+    r"^Note: GitHub Issues are for Bugs and Feature Requests Only$|"
+    r"resources\.jetbrains\.com/storage/products/company/brand/logos|"
+    r"^This project is also supported by DigitalOcean\b"
+)
 
 
 def _useful_section(body: str) -> bool:
     """Reject structural fragments that carry no retrievable product knowledge."""
+    if NON_KNOWLEDGE_BODY.search(body.strip()):
+        return False
     meaningful = []
     for line in body.splitlines():
         stripped = line.strip()
