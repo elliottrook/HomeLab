@@ -1,6 +1,7 @@
 # Authentik Service Rollout Project
 
-> Status: Active — Milestone 2 (Homepage, Beszel). Redesigned 2026-09-10
+> Status: Active — Milestone 1 pre-change backup gate. Live baseline
+> re-audited 2026-09-13. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
 > Stream: **M — Monitored**. Handed off 2026-09-10 to a fresh local session
 > for Jason to drive via remote approval — see "Starting the handoff
@@ -102,9 +103,12 @@ ever down. This is a service-by-service rollout, not a bulk conversion.
   JWE-encrypted tokens — see the Evidence log for full detail) plus one
   unrelated OPNsense inter-VLAN gap (Forgejo's host couldn't reach NPM at
   all) fixed with a single narrow pass rule.
-- **Homepage, Beszel — not started.** An unattended attempt stalled without
-  making any configuration progress (see above); nothing was changed on
-  either service.
+- **Homepage, Beszel — not started, re-confirmed live 2026-09-13.** Homepage
+  is healthy at `http://192.168.20.20:3000`; Beszel `0.18.7` is healthy at
+  `http://192.168.20.20:8090`. NPM has no proxy host for either intended
+  hostname, Authentik has no Homepage/Beszel application or provider, and
+  `home.elliottrook.com` / `metrics.elliottrook.com` return no A record from
+  OPNsense or either Pi-hole. The direct fallbacks remain intact.
 - Full live dashboard inventory pulled 2026-09-10 (`/opt/homepage/config/services.yaml`)
   — ~35 apps total, most never previously scoped in this project. See Scope
   below and `docs/09-Service-Authorization-Onboarding.md`'s service plan
@@ -164,12 +168,15 @@ Browser → https://metrics.elliottrook.com (NPM)
 ```
 
 Both target services stay on Servers VLAN 20; Authentik/NPM stay on
-Management VLAN 50. No new cross-VLAN path should be required — Docker LXC
-100 (hosting both Homepage and Beszel) already has a proven path to NPM
-(used by the existing `proxy.elliottrook.com` NPM-admin forward-auth
-integration). If that assumption turns out wrong, that is itself a stop
-condition (materially different topology than the approved design), not
-something to route around with a new firewall rule.
+Management VLAN 50. The original design assumed no new cross-VLAN path was
+required. **That assumption was disproved live on 2026-09-13:** an HTTP request
+originating inside NPM LXC 107 to Homepage at `192.168.20.20:3000` timed out,
+and the live OPNsense rules contain no matching pass rule. Existing reverse
+proxy rules are service-specific (`192.168.50.23` to each backend and port),
+so the least-privilege correction is one Homepage-only TCP rule from NPM
+`192.168.50.23` to Docker LXC 100 `192.168.20.20:3000`. Beszel port 8090 is
+not included and remains a later, separately approved change after Homepage
+graduates.
 
 ## Privacy and security design
 
@@ -194,8 +201,12 @@ something to route around with a new firewall rule.
   Authentik (LXC 106), NPM (LXC 107). No other guest is touched.
 - **Users/data:** household users who use the Homepage dashboard daily;
   Beszel's monitoring data (metrics only, no secrets).
-- **Current versions/dependencies:** not yet re-confirmed live for this
-  redesign pass — first action of Milestone 2 below.
+- **Current versions/dependencies (re-confirmed 2026-09-13):** Homepage's
+  `latest` image is healthy; Beszel hub and co-located agent are `0.18.7` and
+  healthy; Authentik is `2026.8.0`; NPM is healthy. Beszel `0.18.7` supports
+  a custom OIDC provider with callback
+  `https://metrics.elliottrook.com/api/oauth2-redirect`; password login stays
+  enabled during rollout and agents retain their existing direct path.
 - **Confidentiality/secret risk:** Authentik client secrets and any Beszel
   API credentials must be generated fresh, stored per this repo's existing
   pattern (protected recovery location, never Git), never printed to chat
@@ -294,8 +305,12 @@ complete for a *different* service:
   ("Apple Passwords"), both live, WebAuthn device last used the same day.
   `akadmin` (default break-glass admin) has password only, zero MFA
   devices — untested as a fallback path.
-- [ ] Back up Authentik and NPM configuration immediately before Milestone
-  2's first state-changing step.
+- [x] Back up Authentik and NPM configuration immediately before Milestone
+  2's first state-changing step. **Completed 2026-09-13:** root-only
+  application-consistent PostgreSQL/compose and SQLite/sanitized-inventory
+  checkpoints were created under each service's protected local backup
+  directory. `pg_restore -l` read the Authentik dump; SQLite
+  `integrity_check` returned `ok`; hashes and sizes were recorded outside Git.
 
 **Follow-ups surfaced by this live verification, out of scope for this
 pass (per this project's own no-adjacent-tidying rule) — logged here so
@@ -317,12 +332,30 @@ Work one service at a time; do not start Beszel until Homepage is complete
 and validated.
 
 **Homepage:**
-- [ ] Confirm Homepage's current direct URL and credentials-free state
-  (it has none today — first login será be through Authentik).
-- [ ] Create an NPM proxy host for `home.elliottrook.com` via NPM's own API
-  (not SSH), matching the tested pattern from `proxy.elliottrook.com`.
-- [ ] Create an Authentik Proxy Provider (forward-auth mode) + Application
-  via Authentik's own API, bound to the confirmed group from Milestone 1.
+- [x] Confirm Homepage's current direct URL and credentials-free state
+  (it has none today — first login será be through Authentik). **Re-confirmed
+  2026-09-13:** direct HTTP returned 200 at `192.168.20.20:3000`; the running
+  container is healthy.
+- [x] Establish the least-privilege NPM-to-Homepage backend path after the
+  preflight stop. **Completed 2026-09-13:** OPNsense rule
+  `4accefaf-20b9-4537-9d0c-e7faf00e39a2` permits only TCP from
+  `192.168.50.23` to `192.168.20.20:3000` on the Management interface. The
+  loaded `pf` rule matched exactly and an HTTP request originating inside NPM
+  returned 200. Beszel port 8090 remains excluded.
+- [x] Create an NPM proxy host for `home.elliottrook.com` using the tested
+  backup-first database/regeneration procedure required by this NPM release,
+  matching `proxy.elliottrook.com`. **Completed 2026-09-13:** host ID 8 routes
+  to `http://192.168.20.20:3000`, uses wildcard certificate 8, forced TLS,
+  HTTP/2, WebSockets, exploit blocking and the minimal forward-auth block.
+  Homepage's declarative allowed-host list now includes only the added friendly
+  hostname; its prior Compose file is retained in a protected backup directory.
+- [x] Create an Authentik Proxy Provider (forward-auth mode) + Application
+  via Authentik's own API, bound to the confirmed identity from Milestone 1.
+  **Completed 2026-09-13:** provider ID 15 uses `forward_single`, external
+  host `https://home.elliottrook.com`, internal host
+  `http://192.168.20.20:3000`, and the established authorization/invalidation
+  flows. Application `homepage` has exactly one enabled binding to `jason`
+  and the provider is attached once to the embedded outpost.
 - [ ] Add the DNS name to OPNsense and both Pi-holes.
 - [ ] Validate: unauthenticated request → 302 to Authentik; complete
   password+passkey; land back on the friendly hostname; dashboard/widget
@@ -332,11 +365,14 @@ and validated.
 - [ ] Confirm the direct URL (`192.168.20.20:3000`) still works unchanged.
 
 **Beszel:**
-- [ ] Confirm the installed Beszel version's actual OIDC support (live
+- [x] Confirm the installed Beszel version's actual OIDC support (live
   check, not assumption) before choosing native OIDC vs. forward auth.
-- [ ] Confirm Beszel's actual current address (verify live; historically
+  **Result, 2026-09-13:** deployed `0.18.7` supports custom OIDC; use native
+  OIDC with callback `https://metrics.elliottrook.com/api/oauth2-redirect`.
+- [x] Confirm Beszel's actual current address (verify live; historically
   port 8090 on the same host, but verify rather than trust a historical
-  reference).
+  reference). **Result, 2026-09-13:** direct HTTP returned 200 at
+  `192.168.20.20:8090`; hub and co-located agent containers are healthy.
 - [ ] Same pattern as Homepage: NPM host + Authentik provider/application
   via their APIs, DNS, validate with a real login, confirm agents on every
   other host still reach the hub over their existing private path
@@ -422,6 +458,12 @@ Milestone 2 to a safely resumable state, it does not graduate the project.
 | 2026-09-10 | Sandbox finding #2: IP-only allowlist entries don't work for HTTP(S) either | Confirmed empirically: `https://github.com` and `https://git.elliottrook.com` (hostname allowlist entries) returned `200`; the same requests against the literal IPs `192.168.50.22`/`192.168.50.23` (also allowlisted, per `CLAUDE.md`'s table) failed instantly with `Operation not permitted` on every port tried (80, 81, 443, 9000, 9443). The sandbox's HTTP(S) proxy filters by hostname, not IP — this is broader than the SSH/raw-TCP finding from the redesign above, and likely means most of the CLAUDE.md sandbox table has never actually worked for HTTP(S) from a sandboxed session either, only for tooling that bypasses this proxy | Fixed with Jason's explicit approval: added `auth.elliottrook.com` and `proxy.elliottrook.com` as hostname entries to `.claude/settings.json`'s `allowedDomains` (additive only, existing IP entries untouched); CLAUDE.md's sandbox table updated in the same change |
 | 2026-09-10 | Permission-gate friction (separate from the sandbox) | Even with the hostname fix, ad hoc `curl` calls kept triggering Bash permission prompts — `.claude/settings.json`'s `permissions.allow` had no `curl` entry at all (only `cat`/`ls`/`ping`/per-host read-only `ssh`). Resolved by adding `scripts/api-get.sh`, a wrapper that only ever issues a GET (hard-rejects `-X`/`-d`/`-F`/`-T`/`-u`) against `auth.elliottrook.com/api/*` or `proxy.elliottrook.com/api/*`, allow-listed as `Bash(scripts/api-get.sh:*)` — narrower than a general curl allow, same philosophy as the existing per-host `ssh ... cat:*` patterns. A second, separate friction source was also found and worked around: any Bash command containing shell variable expansion (e.g. `"$TMPDIR"`) is flagged "cannot be statically analyzed" and always prompts regardless of allow-list matches — worked around by using literal paths/values in command text instead of `$VAR` expansion | `scripts/api-get.sh` is now the standing pattern for read-only Authentik/NPM API discovery in this and future sessions |
 | 2026-09-10 | Milestone 1 live verification | Queried Authentik's API read-only via the new wrapper: groups, users, authenticator devices, applications, and policy bindings. See Milestone 1 checklist above for full results (no `homelab-admins` group exists; inconsistent access-binding convention across existing apps; Forgejo has no policy binding; `jason` has password+passkey, `akadmin` has password only; four undocumented pre-existing applications found: Grafana, Synology, Synology Backup, Cloudflare Access) | Milestone 1's first two checklist items confirmed live; third (backup) deferred to immediately before Milestone 2's first state-changing step per its own wording; follow-ups logged in the Milestone 1 section rather than actioned, per this project's scope rule |
+| 2026-09-13 | Resume audit before Milestone 2 | Clean Git worktree at `33437d0`, with both configured remotes at the same commit. Direct Homepage and Beszel HTTP paths returned 200; running containers reported healthy, with Beszel hub/agent at `0.18.7`. NPM's live host inventory contains neither intended hostname. Authentik `2026.8.0` contains neither target application/provider; existing groups and owner-binding convention remain as recorded, and the embedded outpost still advertises `https://auth.elliottrook.com`. OPNsense and both Pi-holes returned no A record for either target hostname. Daily LXC archives for 106/107 dated 2026-09-13 exist, but these do not replace the required immediate application-consistent checkpoint. | No partial rollout or surprise topology found. Actual next gate is the monitored, pre-change Authentik PostgreSQL/compose and NPM SQLite/API backup. Homepage remains first; Beszel native OIDC follows only after Homepage passes its complete gate. |
+| 2026-09-13 | Milestone 1 pre-change backup | With explicit Stream-M approval, created root-only Authentik PostgreSQL custom dump plus compose checkpoint and an NPM SQLite online-backup plus sanitized proxy-host inventory in each service's protected local backup directory. The Authentik dump was enumerated successfully with `pg_restore -l`; NPM SQLite returned `integrity_check=ok` with seven active proxy hosts; all files were non-empty, mode `0600`, inside mode `0700` directories, and had SHA-256 hashes recorded outside Git. Direct Homepage/Beszel remained HTTP 200; Authentik and protected NPM paths retained their expected HTTP 302 responses. | Passed. Milestone 1 is complete; next action is the first bounded Homepage layer, after a fresh exact Stream-M approval. |
+| 2026-09-13 | Homepage network preflight stop | From inside NPM LXC 107, an HTTP connection to `192.168.20.20:3000` timed out. Read-only OPNsense inspection showed service-specific NPM-to-backend rules for Synology, Grafana, Forgejo and the Aster wiki, but none for Homepage. Homepage itself remained directly healthy from the trusted client path. | The documented no-firewall-change assumption was false, so no proxy or identity object was created. Next action requires a fresh Stream-M approval for exactly one TCP pass rule from NPM `192.168.50.23` to Homepage `192.168.20.20:3000`, with a pre-change OPNsense backup and rollback by removing only that rule. |
+| 2026-09-13 | Homepage private network gate | With explicit Stream-M approval, saved root-only OPNsense checkpoint `/conf/backup/config-authentik-homepage-before-20260913.xml`, then added model-backed rule `4accefaf-20b9-4537-9d0c-e7faf00e39a2` and reloaded the filter. Persistent and loaded state permit exactly TCP `192.168.50.23` to `192.168.20.20:3000` on Management VLAN 50. A request originating inside NPM returned HTTP 200; direct Homepage and Beszel paths also remained HTTP 200. | Passed. No Beszel port or broader network was opened. Next Homepage layer is the dedicated Authentik forward-single provider/application, owner binding and embedded-outpost attachment after separate approval. |
+| 2026-09-13 | Homepage Authentik identity gate | With explicit Stream-M approval, an atomic transaction created proxy provider ID 15 (`forward_single`, external `https://home.elliottrook.com`, internal `http://192.168.20.20:3000`), application `homepage`, exactly one enabled direct binding to `jason`, and one embedded-outpost attachment. The first attempt rejected the obsolete UUID form for `PolicyBinding.target` and rolled back completely; the corrected transaction used the application object and committed cleanly. Read-back confirmed both established flows and `authentik_host=https://auth.elliottrook.com`; existing applications were unchanged and Authentik/NPM regressions retained their expected 302 responses. | Passed. No credential or client secret was created. The next layer is Homepage's allowed-host declaration plus NPM host creation, after separate approval. |
+| 2026-09-13 | Homepage reverse-proxy gate | With explicit Stream-M approval, saved Homepage's Compose file in its mode-0700 protected backup directory, appended only `home.elliottrook.com` to `HOMEPAGE_ALLOWED_HOSTS`, and recreated only the Homepage container. After its brief health-starting interval it returned healthy and accepted both direct and friendly Host requests. Created NPM proxy host 8 from the known-good host-2 pattern, pointing to `192.168.20.20:3000` with certificate 8, forced TLS, HTTP/2, WebSockets, exploit blocking and minimal Authentik forward auth. NPM regenerated all enabled hosts successfully; `nginx -t` passed. Generated host 8 contains the auth-request/outpost locations and no `X-authentik-*` propagation. Certificate-valid `curl --resolve` returned HTTP/2 302 to the same friendly hostname's Authentik start path; direct Homepage stayed HTTP 200 and existing Authentik/NPM endpoints retained HTTP 302. | Passed. DNS remains deliberately unpublished, so ordinary clients are not cut over. Next action is the three-resolver split-DNS publication after separate approval. |
 
 ## Close-out
 
