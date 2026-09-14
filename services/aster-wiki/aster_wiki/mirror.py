@@ -9,15 +9,34 @@ import re
 import shutil
 import subprocess
 import tempfile
+from collections import Counter
 from pathlib import Path
 from typing import Callable
 
 from .manifest import canonical_json
 
-PIPELINE_VERSION = "1.4.1"
+PIPELINE_VERSION = "1.5.0"
 PROMPT_VERSION = "extractive-claims-v1"
 GENERATOR = "deterministic-extractive"
 ENTRY_ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,127}$")
+DIRECTORY_TOPIC_LIMIT = 6
+DIRECTORY_STOPWORDS = frozenset({
+    "the", "a", "an", "of", "to", "in", "on", "for", "is", "are", "be", "been",
+    "being", "this", "that", "these", "those", "with", "as", "by", "it", "its",
+    "or", "and", "not", "no", "can", "cannot", "you", "your", "will", "would",
+    "should", "if", "from", "at", "we", "do", "does", "did", "done", "has",
+    "have", "had", "which", "when", "where", "how", "what", "who", "whom",
+    "also", "into", "than", "then", "there", "their", "they", "them", "use",
+    "used", "using", "uses", "see", "section", "following", "example",
+    "examples", "may", "must", "each", "any", "all", "some", "more", "most",
+    "other", "such", "only", "same", "so", "but", "one", "two", "three",
+    "first", "second", "new", "set", "value", "values", "note", "notes",
+})
+DIRECTORY_MARKDOWN_LINK = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
+DIRECTORY_BARE_URL = re.compile(r"https?://\S+")
+DIRECTORY_HTML_TAG = re.compile(r"<[a-zA-Z/][^>]{0,200}>")
+DIRECTORY_HTML_ENTITY = re.compile(r"&[a-zA-Z#][a-zA-Z0-9#]{1,8};")
+
 UNSAFE_TEXT = re.compile(
     r"(?im)^\s*(?:api[_-]?key|password|passwd|secret|token)\s*[:=]\s*\S{8,}|"
     r"ignore (?:all |any )?(?:previous|prior) instructions|system prompt|exfiltrat"
@@ -149,6 +168,39 @@ def _entry(source: dict, ordinal: int, locator: str, body: str,
     return entry_id, content.encode("utf-8")
 
 
+def _directory_abstract(source_id: str, bodies: list[str]) -> dict:
+    """Deterministic per-source routing aid: a token-frequency abstract over
+    that source's own already-verified entry bodies. Carries no independent
+    fact and no authority of its own — it is a frequency count of content
+    that already passed verification, nothing is inferred or generated."""
+    counts: Counter[str] = Counter()
+    for body in bodies:
+        # Drop link/image URLs but keep link display text (often meaningful,
+        # e.g. "[Sonarr](https://sonarr.tv)"); drop bare URLs, raw HTML tags
+        # (attributes like src/href/class/alt) and HTML entities entirely.
+        # Badge markup, cross-reference targets and raw HTML are formatting
+        # furniture, not topical content, and would otherwise dominate
+        # frequency counts (e.g. "src", "href", "com", "opencollective").
+        lowered = body.lower()
+        lowered = DIRECTORY_MARKDOWN_LINK.sub(r" \1 ", lowered)
+        lowered = DIRECTORY_BARE_URL.sub(" ", lowered)
+        lowered = DIRECTORY_HTML_TAG.sub(" ", lowered)
+        stripped = DIRECTORY_HTML_ENTITY.sub(" ", lowered)
+        counts.update(
+            token for token in re.findall(r"[a-z][a-z0-9_-]{2,}", stripped)
+            if token not in DIRECTORY_STOPWORDS
+        )
+    topics = [term for term, _ in sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:DIRECTORY_TOPIC_LIMIT]]
+    if topics:
+        abstract = (
+            f"{len(bodies)} verified entries from {source_id}, most frequently covering: "
+            + ", ".join(topics) + "."
+        )
+    else:
+        abstract = f"{len(bodies)} verified entries from {source_id}; no bounded topic terms met the frequency threshold."
+    return {"entry_count": len(bodies), "abstract": abstract, "topics": topics}
+
+
 def build_mirror(wiki_root: Path, output_root: Path,
                  pdf_extractor: Callable[[Path], str] | None = None) -> dict:
     lock = json.loads((wiki_root / "sources/accepted-lock.json").read_text(encoding="utf-8"))
@@ -156,6 +208,7 @@ def build_mirror(wiki_root: Path, output_root: Path,
     indexes = {name: {} for name in (*INDEX_TERMS, *SEMANTIC_TERMS)}
     provenance = {}
     entries = 0
+    bodies_by_source: dict[str, list[str]] = {}
     previous = {}
     reusable: dict[str, list[tuple[str, dict, Path]]] = {}
     previous_provenance = output_root / "indexes/provenance.json"
@@ -200,6 +253,7 @@ def build_mirror(wiki_root: Path, output_root: Path,
                         if any(term in padded for term in terms):
                             indexes[name].setdefault(source["source_id"], []).append(entry_id)
                     seen_claims.add((source["normalized_sha256"], hashlib.sha256(body.encode()).hexdigest()))
+                    bodies_by_source.setdefault(source["source_id"], []).append(body)
                     entries += 1
                 continue
             for ordinal, (locator, body) in enumerate(
@@ -230,12 +284,18 @@ def build_mirror(wiki_root: Path, output_root: Path,
                 for name, terms in SEMANTIC_TERMS.items():
                     if any(term in padded for term in terms):
                         indexes[name].setdefault(source["source_id"], []).append(entry_id)
+                bodies_by_source.setdefault(source["source_id"], []).append(body)
                 entries += 1
+        directories = {
+            source_id: _directory_abstract(source_id, bodies)
+            for source_id, bodies in sorted(bodies_by_source.items())
+        }
         index_root = stage / "indexes"
         index_root.mkdir(parents=True, exist_ok=True)
         for name, data in indexes.items():
             (index_root / f"{name}.json").write_bytes(canonical_json({"schema_version": 1, "entries": data}))
         (index_root / "provenance.json").write_bytes(canonical_json({"schema_version": 1, "entries": provenance}))
+        (index_root / "directories.json").write_bytes(canonical_json({"schema_version": 1, "entries": directories}))
         accepted_input = {"schema_version": 1, "sources": lock.get("sources", [])}
         state_root = stage / "state"
         state_root.mkdir()

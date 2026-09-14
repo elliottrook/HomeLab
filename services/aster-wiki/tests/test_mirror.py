@@ -50,6 +50,19 @@ class MirrorTests(unittest.TestCase):
                 semantic_index = json.loads((first / f"indexes/{name}.json").read_text())
                 self.assertIn("synthetic-guide", semantic_index["entries"])
             self.assertTrue((first / "indexes/recovery.json").is_file())
+            self.assertTrue((first / "indexes/directories.json").is_file())
+            self.assertEqual(
+                (first / "indexes/directories.json").read_text(),
+                (second / "indexes/directories.json").read_text(),
+            )
+            directories = json.loads((first / "indexes/directories.json").read_text())["entries"]
+            self.assertIn("synthetic-guide", directories)
+            entry = directories["synthetic-guide"]
+            self.assertEqual(entry["entry_count"], sum(
+                1 for _ in (first / "entries/synthetic-guide").glob("*.md")))
+            self.assertLessEqual(len(entry["topics"]), mirror_module.DIRECTORY_TOPIC_LIMIT)
+            self.assertIn(str(entry["entry_count"]), entry["abstract"])
+            self.assertTrue(entry["abstract"].startswith(f"{entry['entry_count']} verified entries from synthetic-guide"))
 
     def test_unchanged_source_reuses_prior_entries_before_verification(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -205,6 +218,114 @@ class MirrorTests(unittest.TestCase):
             entry = next((mirror / "entries").rglob("*.md")).read_text()
             self.assertIn("bounded operational history", entry)
             self.assertNotIn("license boilerplate", entry)
+
+    def test_human_only_source_has_no_directory_abstract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = self.fixture(root)
+            lock_path = wiki / "sources/accepted-lock.json"
+            lock = json.loads(lock_path.read_text())
+            source = wiki / "docs/upstream/vendor-manual/content.txt"
+            source.parent.mkdir(parents=True)
+            source.write_text("Vendor recovery procedure.")
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            lock["sources"].append({
+                "schema_version": 1, "source_id": "vendor-manual",
+                "path": "docs/upstream/vendor-manual/content.txt",
+                "original_sha256": digest, "normalized_sha256": digest,
+                "media_type": "text/plain", "mirror_policy": "human-only",
+                "license_id": "Vendor-Proprietary-2026",
+            })
+            lock_path.write_text(json.dumps(lock))
+            mirror = root / "mirror"
+            build_mirror(wiki, mirror)
+            directories = json.loads((mirror / "indexes/directories.json").read_text())["entries"]
+            self.assertNotIn("vendor-manual", directories)
+
+    def test_sparse_entry_source_gets_a_bounded_non_degenerate_abstract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = root / "wiki"
+            source = wiki / "docs/upstream/sparse-source/content.txt"
+            source.parent.mkdir(parents=True)
+            # A single short section: only one entry will ever be generated.
+            source.write_text("# Sparse\n\nThe gateway requires a static address.\n")
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            (wiki / "sources").mkdir()
+            (wiki / "sources/accepted-lock.json").write_text(json.dumps({
+                "schema_version": 1, "sources": [{
+                    "source_id": "sparse-source", "path": "docs/upstream/sparse-source/content.txt",
+                    "original_sha256": digest, "normalized_sha256": digest,
+                    "media_type": "text/plain", "etag": None, "last_modified": None,
+                }],
+            }))
+            mirror = root / "mirror"
+            build_mirror(wiki, mirror)
+            directories = json.loads((mirror / "indexes/directories.json").read_text())["entries"]
+            self.assertIn("sparse-source", directories)
+            entry = directories["sparse-source"]
+            self.assertEqual(1, entry["entry_count"])
+            self.assertGreater(len(entry["topics"]), 0)
+            self.assertLessEqual(len(entry["topics"]), mirror_module.DIRECTORY_TOPIC_LIMIT)
+            self.assertTrue(entry["abstract"])
+
+    def test_multi_domain_source_directory_reflects_more_than_one_topic_cluster(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = root / "wiki"
+            source = wiki / "docs/upstream/multi-domain-source/content.txt"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "# Networking\n\nConfigure the firewall gateway routing and VLAN addressing.\n\n"
+                "## Storage\n\nConfigure the storage pool dataset snapshot and replication.\n\n"
+                "## Power\n\nConfigure the battery runtime shutdown threshold for the UPS.\n"
+            )
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            (wiki / "sources").mkdir()
+            (wiki / "sources/accepted-lock.json").write_text(json.dumps({
+                "schema_version": 1, "sources": [{
+                    "source_id": "multi-domain-source", "path": "docs/upstream/multi-domain-source/content.txt",
+                    "original_sha256": digest, "normalized_sha256": digest,
+                    "media_type": "text/plain", "etag": None, "last_modified": None,
+                }],
+            }))
+            mirror = root / "mirror"
+            build_mirror(wiki, mirror)
+            directories = json.loads((mirror / "indexes/directories.json").read_text())["entries"]
+            topics = set(directories["multi-domain-source"]["topics"])
+            # Topics should be drawn from more than one of the three sections,
+            # not just whichever section happens to sort first.
+            domain_hits = sum(1 for term in ("gateway", "storage", "battery") if term in topics)
+            self.assertGreaterEqual(domain_hits, 2)
+
+    def test_directories_index_includes_a_source_added_after_the_prior_build(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = self.fixture(root)
+            mirror = root / "mirror"
+            first = build_mirror(wiki, mirror)
+            first_directories = json.loads((mirror / "indexes/directories.json").read_text())["entries"]
+            self.assertNotIn("second-source", first_directories)
+
+            lock_path = wiki / "sources/accepted-lock.json"
+            lock = json.loads(lock_path.read_text())
+            second_source = wiki / "docs/upstream/second-source/content.txt"
+            second_source.parent.mkdir(parents=True)
+            second_source.write_text("# Second\n\nThe camera records motion events to storage.\n")
+            digest = hashlib.sha256(second_source.read_bytes()).hexdigest()
+            lock["sources"].append({
+                "schema_version": 1, "source_id": "second-source",
+                "path": "docs/upstream/second-source/content.txt",
+                "original_sha256": digest, "normalized_sha256": digest,
+                "media_type": "text/plain", "etag": None, "last_modified": None,
+            })
+            lock_path.write_text(json.dumps(lock))
+            second = build_mirror(wiki, mirror)
+            self.assertGreater(second["entries"], first["entries"])
+            second_directories = json.loads((mirror / "indexes/directories.json").read_text())["entries"]
+            self.assertIn("second-source", second_directories)
+            self.assertIn("synthetic-guide", second_directories)
+            self.assertEqual(1, second_directories["second-source"]["entry_count"])
 
 
 if __name__ == "__main__":

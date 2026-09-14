@@ -1,8 +1,11 @@
 # Aster Mirror Directory-First Retrieval and Scale Evaluation
 
-> Status: Active — Stream A granted 2026-09-13. Milestone 1 baseline complete;
-> found real cross-domain retrieval degradation, so the project proceeds to
-> Milestone 2 rather than the hard-stop path.
+> Status: Active — Stream A granted 2026-09-13. Milestones 1 and 2 complete
+> the same day: the baseline found real cross-domain retrieval degradation,
+> and the directory abstract generator is built, tested (13 mirror tests, 52
+> aster-wiki tests total) and validated against the real production corpus.
+> Nothing has been deployed or activated in production — Milestone 3 (wiring
+> this into Aster's actual retrieval path, behind a proven fallback) is next.
 >
 > Owner: Jason
 >
@@ -185,16 +188,18 @@ new service, listener, or outbound call is added anywhere in this flow.
 
 ## Persistence plan
 
-- **Current milestone:** Milestone 1 complete 2026-09-13; Milestone 2 not
-  started.
-- **Last verified state:** a 10-question cross-domain retrieval-precision
-  baseline was run read-only against the live production mirror (1,796
-  entries, tree unmodified) via `search_knowledge()`, Aster's actual ranking
-  function. No mirror content, Aster configuration, or Aster snapshot was
-  changed.
-- **Next safe action:** review the Milestone 1 findings below, then begin
-  Milestone 2 (directory abstract generator), which is additive and does not
-  touch the deployed snapshot until a later, separately gated activation.
+- **Current milestone:** Milestones 1 and 2 complete 2026-09-13; Milestone 3
+  not started.
+- **Last verified state:** the directory abstract generator is implemented in
+  `services/aster-wiki/aster_wiki/mirror.py` (`PIPELINE_VERSION` `1.5.0`),
+  covered by 4 new + 9 existing tests (13/13 pass), and independently
+  validated twice against the real, unmodified 1,796-entry production mirror
+  (read-only copy; nothing on LXC 104/113 was changed or rebuilt). No new
+  mirror build has been run in production and no Aster snapshot was changed.
+- **Next safe action:** begin Milestone 3 — wire directory-first ranking
+  ahead of entry-level ranking in Aster's existing snapshot consumer
+  (`services/aster-agent/aster_agent.py`'s `search_knowledge()`), gated behind
+  an explicit, proven fallback to today's flat search before any activation.
 - **Rollback location:** the currently deployed `1.4.1` mirror tree and active
   Aster snapshot are the rollback target for every later milestone; their
   exact hashes are recorded in the Production Corpus Expansion evidence log
@@ -254,19 +259,82 @@ scale — a genuine cross-domain miss, a genuine misranking, and a
 scale-independent retrieval-routing gap. The hard-stop-if-no-degradation
 condition does not apply; Milestone 2 is authorized to proceed.
 
-### Milestone 2 — Directory abstract generation
+### Milestone 2 — Directory abstract generation — **complete 2026-09-13**
 
-- [ ] Add a deterministic per-`source_id` abstract generator (one sentence
+- [x] Add a deterministic per-`source_id` abstract generator (one sentence
       plus bounded topic tags) reading only already-accepted, already-verified
-      entries for that source.
-- [ ] Add `indexes/directories.json` alongside the existing global indexes.
-- [ ] Require build-twice identical hashes before publication, matching the
-      existing mirror determinism guarantee.
-- [ ] Add regressions for a sparse-entry source, a multi-domain source, and a
-      source added after the index was built.
+      entries for that source. **Implementation:** `_directory_abstract()` in
+      `services/aster-wiki/aster_wiki/mirror.py`, wired into `build_mirror()`'s
+      existing single pass over accepted sources (reusing the same `body`
+      values already computed for entry generation, in both the fresh and
+      unchanged-entry-reuse code paths — no new source read, no new authority,
+      no LLM or network call). It is a bounded token-frequency count over each
+      source's own claim bodies: markdown links/images, bare URLs, raw HTML
+      tags and HTML entities are stripped first (verified necessary against
+      the real corpus — see below), a fixed English stopword list is applied,
+      and the top `DIRECTORY_TOPIC_LIMIT` (6) terms by `(-count, term)` become
+      the topic tags feeding a one-sentence templated abstract. A source with
+      `mirror_policy: human-only` correctly gets no directory entry, matching
+      the existing human-only entry-generation rule. `PIPELINE_VERSION` bumped
+      `1.4.1` → `1.5.0`, matching this repo's existing convention of a minor
+      bump for a new output artifact.
+- [x] Add `indexes/directories.json` alongside the existing global indexes,
+      same `{"schema_version": 1, "entries": {...}}` shape as the other five
+      indexes, written via the same `canonical_json()` helper.
+- [x] Require build-twice identical hashes before publication. **Result:**
+      the existing `test_build_is_deterministic_and_claims_are_source_located`
+      test was extended to assert `directories.json` is byte-identical across
+      two independent `build_mirror()` calls (it is automatically covered by
+      the existing whole-tree `package_hash()` equality check, since the file
+      is written before that hash is taken). Independently re-verified by
+      running the generator directly against the real, unmodified 1,796-entry
+      production mirror (the same read-only copy used for Milestone 1) twice
+      and comparing output — identical both times, across all 24 populated
+      production source IDs.
+- [x] Add regressions for a sparse-entry source, a multi-domain source, and a
+      source added after the index was built. **Result:** three new tests in
+      `services/aster-wiki/tests/test_mirror.py` —
+      `test_sparse_entry_source_gets_a_bounded_non_degenerate_abstract` (a
+      single-entry source still gets a valid, non-empty, bounded abstract),
+      `test_multi_domain_source_directory_reflects_more_than_one_topic_cluster`
+      (a synthetic source spanning networking/storage/power sections shows
+      topics from at least two of the three domains, not just one), and
+      `test_directories_index_includes_a_source_added_after_the_prior_build`
+      (a second `build_mirror()` call against the same output tree, with a
+      new source added to the lock between calls, correctly adds that
+      source's abstract without disturbing the existing one). A fourth test,
+      `test_human_only_source_has_no_directory_abstract`, was added alongside
+      these. All 13 mirror tests and the full 52-test `aster-wiki` suite pass.
 
-Gate: the directory index is deterministic, reproducible, and independently
-verifiable against its source entries, with no new authority claim.
+**Real-corpus validation beyond the required regressions:** running the exact
+generator against the real production mirror (read-only copy, nothing
+deployed) surfaced and fixed a genuine quality problem before it could ever
+reach production — the first version's naive tokenizer picked up markdown
+badge/link and raw-HTML markup as top "topics" for several real sources (e.g.
+`sonarr-4-0-19` showed `opencollective, svg, https, com`; `nginx-proxy-
+manager-docs` showed `screenshots, png, src, img, href`). Fixed by stripping
+markdown link/image syntax (keeping link display text), bare URLs, HTML tags
+and HTML entities before tokenizing; re-run confirmed clean, genuinely
+topical abstracts across all 24 real sources (e.g. `nginx-proxy-manager-docs`
+now reads `nginx, docker, data, port, custom, npm`; `authentik-docs` reads
+`application, authentik, user, provider, outpost, applications`). A known,
+accepted residual limitation: a few GitHub-README-sourced sources
+(`sonarr`, `radarr`, `prowlarr`) still surface genuine but low-value repeated
+terms like `sponsors`/`backers` from real funding-appeal sections — this is
+accurate extraction of real frequent content, not a bug, and is left as-is
+rather than special-cased, consistent with this project's stated goal of not
+adding fragile per-query shortcuts (the exact pattern Milestone 1 found
+already causing problems in `search_knowledge()`).
+
+Gate: **passed.** The directory index is deterministic (build-twice identical,
+both in the synthetic test suite and against the real 1,796-entry corpus),
+reproducible, and independently verifiable against its source entries (a
+pure, auditable frequency count with no invented content). It carries no new
+authority — `authority` continues to come only from `indexes/provenance.json`
+and each entry's own front matter; `directories.json` is never consulted for
+authority, only for routing. No mirror content was deployed or changed on
+LXC 104/113; this is a repo-side pipeline change, not yet built or activated
+in production.
 
 ### Milestone 3 — Two-stage retrieval integration
 
@@ -415,6 +483,7 @@ The project graduates only when:
 | 2026-09-13 | Proposal | Reviewed OpenViking's directory-first/tiered retrieval model against the graduated Aster mirror's flat structure and the two unresolved ranking incidents from its original graduation; identified that the mirror-vs-complete-source evaluation has never been run at production scale or across domains | Proposed a measure-first, activate-only-if-justified project; no source was enrolled and no system was modified |
 | 2026-09-13 | Authorization | Jason granted Stream A for this project explicitly in-conversation, per `CLAUDE.md`'s per-project authorization mechanism | Milestone 1 begun the same day |
 | 2026-09-13 | 1 baseline measurement | Confirmed no sandbox network path exists from this Claude Code session to the Aster agent, llama.cpp, or Aster Wiki hosts (no SSH alias, no sandbox hostname entry, IP-based HTTP(S) blocked by the sandbox proxy — consistent with the prior Authentik-project finding); per-command sandbox bypass was used only for read-only discovery and a read-only copy of the live mirror tree, both live-approved. Read-only SSH confirmed root access to Aster Wiki LXC 113; the deployed mirror (`/var/lib/aster-wiki/aster-knowledge-mirror`, 1,796 entries, 8.1 MB) was copied read-only to an isolated session scratch directory for offline measurement — nothing on LXC 104/113 was changed. No SSH path exists to the Aster agent host (LXC 104, `192.168.70.10`) at all (`Permission denied`), so the full LLM-answer `compare_mirror.py` comparison could not run; a 10-question cross-domain retrieval-precision harness was built instead, calling Aster's actual unmodified `search_knowledge()` function (extracted verbatim from `services/aster-agent/aster_agent.py` to avoid needing its unrelated `fastapi`/`httpx` runtime dependencies, which are not installable at the pinned versions from this Mac's network) against the real corpus | 7/9 valid questions correct at top rank (one question excluded as a flawed test — both candidate sources were legitimately correct). Two genuine retrieval problems found: OPNsense backup docs outranked by SABnzbd's own backup docs (correct source present at rank 3, not rank 1); a Sonarr-notification question returned Grafana notification docs at rank 1 with Sonarr entirely absent from the top 5. A third, scale-independent issue: a Home-Assistant-phrased query triggers an existing hardcoded `search_knowledge()` shortcut that bypasses the mirror entirely in favor of a single reference file. Milestone 1's gate passed — real degradation was found, so the hard-stop condition does not apply and Milestone 2 is authorized |
+| 2026-09-13 | 2 directory abstract generation | Implemented `_directory_abstract()` in `services/aster-wiki/aster_wiki/mirror.py`, wired into the existing `build_mirror()` pass with no new source read and no new authority; bumped `PIPELINE_VERSION` `1.4.1` → `1.5.0` per this repo's existing minor-bump-for-new-artifact convention. Added 4 regression tests (sparse source, multi-domain source, source added after a prior build, human-only exclusion) plus extended the existing determinism test; all 13 mirror tests and the full 52-test `aster-wiki` suite pass. Independently ran the generator twice against the real, unmodified 1,796-entry production mirror (same read-only copy from Milestone 1; nothing on LXC 104/113 changed) — byte-identical both times across all 24 populated sources. That real-corpus run caught a genuine defect the synthetic tests missed: the first version's tokenizer surfaced markdown badge/link and raw-HTML markup as top "topics" for several real sources; fixed by stripping markdown links (keeping display text), bare URLs, HTML tags and entities before tokenizing, then re-verified clean on the same real corpus | Milestone 2's gate passed: deterministic, reproducible, independently verifiable against source entries, no new authority claim. Nothing was deployed or built in production |
 
 ## Close-out
 
