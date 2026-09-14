@@ -10,7 +10,7 @@
 
 Adopt the video's curated, source-aware knowledge architecture for the local assistant without coupling it to Hermes or copying its VPS/cloud deployment.
 
-The useful idea is the knowledge architecture, not the original harness. Aster now runs locally in LXC 104 with a small curated Git-document snapshot and source-attributed retrieval. Local inference remains separate in llama.cpp LXC 110 with Intel Arc Pro B60 24 GB Vulkan acceleration; Hermes and Ollama are disabled but retained as rollback paths. SYCL/Level Zero was confirmed blocked by the current 256 MB physical BAR rather than a software-packaging mismatch. See [`docs/projects/Local-AI.md`](projects/Local-AI.md) for the evidence trail and [`docs/Aster-Operations.md`](Aster-Operations.md) for the live service.
+The useful idea is the knowledge architecture, not the original harness. Aster now runs locally in LXC 104 with a small curated Git-document snapshot and source-attributed retrieval. Local inference remains separate in llama.cpp LXC 110 with Intel Arc Pro B60 24 GB Vulkan acceleration; Hermes and Ollama are disabled but retained as rollback paths. SYCL/Level Zero was confirmed blocked by the current 256 MB physical BAR rather than a software-packaging mismatch. See [`Local-AI.md`](<projects/completed projects/Local-AI.md>) for the evidence trail and [`docs/Aster-Operations.md`](Aster-Operations.md) for the live service.
 
 ## Why it fits this project
 
@@ -41,7 +41,7 @@ Do not allow the Wiki to silently become the source of truth for live infrastruc
 - Local-AI model, Aster, llama.cpp and inference notes — e.g. the B60's
   Vulkan-vs-SYCL backend investigation and its firmware BAR conclusion,
   once ingestion is running (source of truth stays
-  [`docs/projects/Local-AI.md`](projects/Local-AI.md); the Wiki entry
+  [`Local-AI.md`](<projects/completed projects/Local-AI.md>); the Wiki entry
   would be a derived summary, not the record itself)
 - Troubleshooting lessons worth retaining beyond a single incident
 - Photography/reference material and other curated personal knowledge only when deliberately added
@@ -107,4 +107,4 @@ verified local, off-host, encrypted-off-site and isolated-recovery checks.
 Derived knowledge remains explicitly non-authoritative.
 
 The active implementation, recovery and graduation gates are now governed by
-[`docs/projects/Aster-Sysadmin-Second-Brain.md`](projects/Aster-Sysadmin-Second-Brain.md).
+[`Aster-Sysadmin-Second-Brain.md`](<projects/completed projects/Aster-Sysadmin-Second-Brain.md>).

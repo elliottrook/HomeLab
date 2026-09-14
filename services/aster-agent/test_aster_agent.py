@@ -195,7 +195,7 @@ class AsterAgentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             docs = root / "docs"
-            projects = docs / "projects"
+            projects = docs / "projects" / "completed projects"
             projects.mkdir(parents=True)
             (docs / "03-Hardware-Inventory.md").write_text(
                 "The currently installed B60 has a 256 MB BAR. Level Zero is blocked; Vulkan works.",
@@ -212,7 +212,7 @@ class AsterAgentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             docs = root / "docs"
-            projects = docs / "projects"
+            projects = docs / "projects" / "completed projects"
             projects.mkdir(parents=True)
             (docs / "03-Hardware-Inventory.md").write_text(
                 "The current B60 GPU uses Vulkan because its physical BAR is 256 MB.",
@@ -239,7 +239,7 @@ class AsterAgentTests(unittest.TestCase):
             self.assertEqual(sources[0], "docs/03-Hardware-Inventory.md")
             self.assertIn("docs/Aster-Operations.md", sources)
             self.assertIn("docs/AI-Hermes-Second-Brain.md", sources)
-            self.assertIn("docs/projects/Local-AI.md", sources)
+            self.assertIn("docs/projects/completed projects/Local-AI.md", sources)
 
     def test_operational_source_has_distinct_authority(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -355,7 +355,7 @@ class AsterAgentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             docs = root / "docs"
-            projects = docs / "projects"
+            projects = docs / "projects" / "completed projects"
             projects.mkdir(parents=True)
             filler = "Aster LXC inference service operational notes. " * 40
             (docs / "Aster-Operations.md").write_text(
@@ -384,7 +384,7 @@ class AsterAgentTests(unittest.TestCase):
             self.assertIn("Define the knowledge boundary", excerpts["docs/AI-Hermes-Second-Brain.md"])
             self.assertIn("Test backup and restore", excerpts["docs/AI-Hermes-Second-Brain.md"])
             self.assertIn("Establish a monthly health review", excerpts["docs/AI-Hermes-Second-Brain.md"])
-            self.assertIn("256 MB BAR", excerpts["docs/projects/Local-AI.md"])
+            self.assertIn("256 MB BAR", excerpts["docs/projects/completed projects/Local-AI.md"])
 
     def test_arr_reference_prefers_inventory_and_automation_sections(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -879,7 +879,7 @@ Downconverts aged (or `archive-now`-tagged) Radarr/Sonarr current-library movies
 and TV episodes to roughly 1–2 GB via GPU-accelerated (`hevc_vaapi`) transcode
 through the already-running Jellyfin container, then relocates them into
 `archive-movies`/`archive-tv`. Full design:
-[Video-Library-Archiving.md](projects/Video-Library-Archiving.md).
+[Video-Library-Archiving.md](<projects/completed projects/Video-Library-Archiving.md>).
 
 - Installed at `/mnt/Media/data/tools/video-archiver/` on TrueNAS; source
   mirrored in git at `scripts/video-archiver/` (code only — `config.json`,

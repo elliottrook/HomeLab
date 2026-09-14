@@ -381,7 +381,7 @@ prompt/tool configuration is substantially slower than Aster.
 - The 2026-09-01 multi-source acceptance prompt correctly identified both LXC
   roles, the exact Qwen3.8 model, llama.cpp/Vulkan, the VM 105 rollback path,
   the SYCL/BAR constraint, the first unfinished second-brain task and the stale
-  Ollama wording in `docs/projects/Local-AI.md`.
+  Ollama wording in `docs/projects/completed projects/Local-AI.md`.
 - A focused checklist query returned the first three unchecked tasks in order
   from `docs/AI-Hermes-Second-Brain.md`, with no emitted tool-call markup.
 - The focused checklist run processed 951 prompt tokens at 77.8 tokens/second

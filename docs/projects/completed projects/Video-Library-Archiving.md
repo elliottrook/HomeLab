@@ -16,7 +16,7 @@ per file. Once a title has been sitting in the current library for a while, that
 longer buying anything: nobody is actively re-watching a freshly-added file six months later at
 its original bitrate. This project automatically downconverts eligible current-library files to
 roughly 1–2 GB and relocates them into the `archive-movies`/`archive-tv` roots that the
-[Plex-to-Jellyfin media migration project](<completed projects/Plex-to-Jellyfin-Media-Migration.md>) already created,
+[Plex-to-Jellyfin media migration project](Plex-to-Jellyfin-Media-Migration.md) already created,
 freeing space in the current library on a rolling basis without any manual intervention once the
 automation is trusted.
 
@@ -626,7 +626,7 @@ operation now, not a remaining gate.
 ## Milestone 4 — Documentation and closeout
 
 - [x] Recorded final tool location, config, schedule, and log location in
-  [04-Operations.md](../04-Operations.md) 2026-09-08.
+  [04-Operations.md](../../04-Operations.md) 2026-09-08.
 - [x] Add the tool's config/state to the existing backup plan if it should survive a TrueNAS
   rebuild. **Done 2026-09-10.** The tool's Python code was already git-mirrored
   (`scripts/video-archiver/`, confirmed in `04-Operations.md`); the two things that weren't were
@@ -698,10 +698,10 @@ operation now, not a remaining gate.
 
 ## References
 
-- [Plex-to-Jellyfin media migration project](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
+- [Plex-to-Jellyfin media migration project](Plex-to-Jellyfin-Media-Migration.md)
 - [Radarr API documentation](https://radarr.video/docs/api/)
 - [Sonarr API documentation](https://sonarr.tv/docs/api/)
 - [Jellyfin API documentation](https://api.jellyfin.org/)
 - [ffmpeg documentation](https://ffmpeg.org/documentation.html)
 - [ffmpeg VAAPI encoding wiki](https://trac.ffmpeg.org/wiki/Hardware/VAAPI)
-- [HomeLab backup design](../05-Backups.md)
+- [HomeLab backup design](../../05-Backups.md)

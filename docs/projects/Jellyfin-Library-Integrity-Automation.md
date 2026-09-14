@@ -423,7 +423,7 @@ before this milestone passes — not yet met.
 
 - [04-Operations.md — full history of the manual fixes this project formalizes](../04-Operations.md)
 - [Plex-to-Jellyfin media migration project](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
-- [Video Library Archiving project — architectural precedent for safe-automation design](Video-Library-Archiving.md)
+- [Video Library Archiving project — architectural precedent for safe-automation design](<completed projects/Video-Library-Archiving.md>)
 - [Lidarr API documentation](https://lidarr.audio/docs/api/)
 - [Jellyfin API documentation](https://api.jellyfin.org/)
 - [HomeLab backup design](../05-Backups.md)

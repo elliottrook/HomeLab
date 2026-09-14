@@ -217,7 +217,7 @@ deterministic one-pass routing for three allowlisted read-only functions (time,
 service health and curated documentation search), bearer authentication, and no
 arbitrary shell or arbitrary network target. Ollama and Hermes remain installed
 but disabled as rollback paths. Full operating and rollback instructions are in
-[`docs/Aster-Operations.md`](../Aster-Operations.md).
+[`docs/Aster-Operations.md`](../../Aster-Operations.md).
 
 OpenVINO Model Server 2026.2 was also tested in a fresh disposable Ubuntu 24.04
 LXC using Intel's checksum-verified binary and the official
@@ -347,7 +347,7 @@ recoverable console path exists.
 ## Milestone 4 — Aster second brain
 
 The detailed design and task list live in
-[`docs/AI-Hermes-Second-Brain.md`](../AI-Hermes-Second-Brain.md).
+[`docs/AI-Hermes-Second-Brain.md`](../../AI-Hermes-Second-Brain.md).
 
 - [x] Record the retired Hermes implementation and deployed Aster knowledge paths.
 - [x] Define authoritative read-only sources and the initial Wiki taxonomy.

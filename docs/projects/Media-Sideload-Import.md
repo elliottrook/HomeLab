@@ -32,7 +32,7 @@ naming conventions the rest of the library already trusts.
 The original framing for this research assumed Sonarr/Radarr/Lidarr were
 not deployed here. They are (confirmed via
 [04-Operations.md:47](../04-Operations.md) and
-[Video-Library-Archiving.md:49-54](Video-Library-Archiving.md)), so the real
+[Video-Library-Archiving.md:49-54](<completed projects/Video-Library-Archiving.md>)), so the real
 question is narrower: can the existing stack file manually-acquired media
 correctly, without an indexer or download client involved at all?
 
@@ -140,5 +140,5 @@ needs no changes to cover it.
 - Sonarr GitHub source, 2026-09-07: [`DownloadedEpisodesScanCommand.cs`](https://github.com/Sonarr/Sonarr/tree/develop/src/NzbDrone.Core/MediaFiles/Commands)
 - Lidarr GitHub source, 2026-09-07: [`DownloadedAlbumsScanCommand.cs`](https://github.com/Lidarr/Lidarr/tree/develop/src/NzbDrone.Core/MediaFiles/Commands)
 - [Servarr Wiki — Radarr Library (Manual/Interactive Import)](https://wiki.servarr.com/radarr/library)
-- [Video Library Archiving project — precedent for the `/mnt/Media/data/tools/` install pattern](Video-Library-Archiving.md)
+- [Video Library Archiving project — precedent for the `/mnt/Media/data/tools/` install pattern](<completed projects/Video-Library-Archiving.md>)
 - [Jellyfin Library Integrity Automation — why this project must not introduce a second tagging authority](Jellyfin-Library-Integrity-Automation.md)

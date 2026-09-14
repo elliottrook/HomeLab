@@ -12,7 +12,7 @@
 
 Back up TrueNAS's `archive-movies` and `archive-tv` datasets (the
 downconverted, long-term media archive produced by the
-[Video Library Archiving project](Video-Library-Archiving.md)) to the main
+[Video Library Archiving project](<completed projects/Video-Library-Archiving.md>)) to the main
 Synology (`gowest`, `192.168.20.41`), giving this media a second copy on a
 separate physical device without relying on IDrive e2 capacity or cost.
 

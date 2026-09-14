@@ -26,7 +26,7 @@
     {"repository": "reference", "path": "runbooks/service-sso-onboarding.md", "destination": "reference/runbooks/service-sso-onboarding.md", "authority": "approved-runbook"},
     {"repository": "homelab", "path": "docs/AI-Hermes-Second-Brain.md", "destination": "project/AI-Hermes-Second-Brain.md", "authority": "project-record"},
     {"repository": "homelab", "path": "docs/Aster-Operations.md", "destination": "project/Aster-Operations.md", "authority": "project-record"},
-    {"repository": "homelab", "path": "docs/projects/Aster-Sysadmin-Second-Brain.md", "destination": "project/Aster-Sysadmin-Second-Brain.md", "authority": "project-record"},
-    {"repository": "homelab", "path": "docs/projects/Local-AI.md", "destination": "project/Local-AI.md", "authority": "project-record"}
+    {"repository": "homelab", "path": "docs/projects/completed projects/Aster-Sysadmin-Second-Brain.md", "destination": "project/Aster-Sysadmin-Second-Brain.md", "authority": "project-record"},
+    {"repository": "homelab", "path": "docs/projects/completed projects/Local-AI.md", "destination": "project/Local-AI.md", "authority": "project-record"}
   ]
 }

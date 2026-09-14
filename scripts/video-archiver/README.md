@@ -2,7 +2,7 @@
 
 Downconverts aged Radarr/Sonarr current-library video (movies/TV) to roughly 1–2 GB and hands the
 result to the `archive-movies`/`archive-tv` roots created by the Plex-to-Jellyfin migration
-project. Design and safety rationale: [`docs/projects/Video-Library-Archiving.md`](../../docs/projects/Video-Library-Archiving.md).
+project. Design and safety rationale: [`Video-Library-Archiving.md`](<../../docs/projects/completed projects/Video-Library-Archiving.md>).
 
 **Do not schedule this unattended yet.** Per that project's Milestone 2 gate, a real movie file
 still needs a supervised run before the milestone is considered closed (TV has been validated —

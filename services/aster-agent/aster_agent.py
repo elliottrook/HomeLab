@@ -349,7 +349,7 @@ def _source_bonus(
         bonus += 12
     elif source == "docs/AI-Hermes-Second-Brain.md" and tokens.intersection(second_brain_terms):
         bonus += 12
-    elif source == "docs/projects/Local-AI.md" and tokens.intersection(operations_terms | hardware_terms):
+    elif source.endswith("Local-AI.md") and tokens.intersection(operations_terms | hardware_terms):
         bonus += 4
     return bonus
 
