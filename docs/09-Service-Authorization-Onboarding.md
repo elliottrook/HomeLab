@@ -290,6 +290,8 @@ Add one row only after the complete private-session and rollback tests pass:
 |---|---|---|---|---|---|---|
 | Nginx Proxy Manager | `proxy.elliottrook.com` | Forward auth | Yes | Yes | Not applicable | 2026-08-22 |
 | Forgejo | `git.elliottrook.com` | Native OIDC | Yes (local Forgejo password login retained) | Yes — clean-session private-window login showed the full password + passkey/MFA prompt | Not applicable — SSH clone/push and git-over-HTTPS use their own existing auth (SSH keys / tokens), unaffected by this web-login change | 2026-08-31 |
+| Homepage | `home.elliottrook.com` | Forward auth | Yes — `http://192.168.20.20:3000` retained and tested | Yes — fresh private Safari password + passkey login, same-host return, sign-out/re-prompt and non-owner denial tested | Yes — server-side dashboard resource and service-widget requests succeeded through the authenticated path | 2026-09-14 |
+| Beszel | `metrics.elliottrook.com` | Native OIDC | Yes — `http://192.168.20.20:8090` and local password authentication retained and tested | Yes — private iPhone Safari password + passkey login returned to the existing admin with all seven systems; Beszel sign-out returned to both login choices; non-owner binding denied | Yes — all seven agents retained their existing private hub paths and remained `up`; Homepage widget remains on the direct private endpoint | 2026-09-14 |
 
 ## Stop conditions
 

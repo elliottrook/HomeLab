@@ -556,6 +556,15 @@ homelab-gateway — 192.168.20.20
   `sandbox.network.allowedDomains`. Git-over-HTTPS itself is not yet validated
   end-to-end — it needs a Forgejo personal access token and a local git
   credential helper, not yet configured.
+- 2026-09-14: Homepage and Beszel gained private split-DNS HTTPS names,
+  `home.elliottrook.com` and `metrics.elliottrook.com`, both resolving to NPM
+  at `192.168.50.23` in OPNsense Unbound and both Pi-holes. Narrow firewall
+  rules allow only NPM to reach Homepage `192.168.20.20:3000` and the Beszel
+  hub `192.168.20.20:8090`. Homepage uses Authentik forward auth; Beszel uses
+  native OIDC with its existing password login retained. Direct service and
+  Beszel agent paths remain unchanged, no WAN ingress or public DNS was added,
+  and Homepage's Beszel tile now opens the HTTPS name while its widget polls
+  the direct private endpoint.
 - Frigate VM 102 runs Debian 13.6 at `192.168.20.10` on VLAN 20. Its Reolink Duo 2V PoE camera uses `192.168.60.10` on VLAN 60. OPNsense permits only TCP 80, 554 and 8000 from Frigate to the camera; TCP 9000 remains blocked.
 - Frigate VM 102 has the Coral Edge TPU passed through as a dedicated PCIe device. The guest loads the `gasket` and `apex` modules, exposes `/dev/apex_0` to the Frigate container and reports approximately 10 ms inference. CPU HEVC decoding remains separate from Coral object-detection inference.
 - Frigate records to `192.168.20.40:/mnt/Media/Surveillance/Frigate` over NFSv4. A systemd-owned Compose service waits for the real NFS mount before starting, and a full reboot test confirmed a healthy container plus fresh recording segments after the TrueNAS migration.

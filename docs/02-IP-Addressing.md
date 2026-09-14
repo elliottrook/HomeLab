@@ -110,6 +110,8 @@ Both Pi-hole resolvers publish `truenas.internal` as an A record for
 | NPM direct fallback | `http://192.168.50.23:81` | 81/TCP | Restricted administration |
 | Authentik embedded outpost | `http://192.168.50.22:9000` | 9000/TCP | Internal proxy destination |
 | Authentik external URL | `https://auth.elliottrook.com` | 443/TCP | Secure browser/WebAuthn origin |
+| Homepage | `https://home.elliottrook.com` / `http://192.168.20.20:3000` | 443/TCP / 3000/TCP | Private split-DNS HTTPS via NPM and Authentik forward auth; direct fallback retained |
+| Beszel | `https://metrics.elliottrook.com` / `http://192.168.20.20:8090` | 443/TCP / 8090/TCP | Private split-DNS HTTPS via NPM and native Authentik OIDC; direct/password fallback and agent paths retained |
 
 ## Source-control endpoint
 
