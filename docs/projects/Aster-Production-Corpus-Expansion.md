@@ -1,6 +1,6 @@
 # Aster Production Corpus Expansion
 
-> Status: Active — Milestone 5 mirror, evaluation and graduation
+> Status: Complete — graduated 2026-09-13
 >
 > Project owner: Jason
 >
@@ -30,10 +30,10 @@ vendor link. Generated summaries remain non-authoritative.
 - The wiki, authenticated intake, daily collector, monthly corpus health,
   protected originals, deterministic mirror and Aster retrieval path are
   graduated and healthy on LXC 113/LXC 104.
-- The live corpus has eleven accepted sources: the original synthetic manual,
-  six version-matched ARR/media products, two selected documentation sources
-  and two reviewed local ARR pages. The synthetic source remains an acceptance
-  fixture while production coverage expands by milestone.
+- The live corpus has 30 accepted sources spanning the synthetic acceptance
+  fixture, version-matched production software documentation, reviewed local
+  operating references, protected exact-model manuals and human-only identity
+  links. Its deterministic Aster mirror contains 1,796 source-located entries.
 - Installed ARR-family versions are Sonarr 4.0.19.2979, Radarr 6.3.0.10514,
   Lidarr 3.1.0.4875, Prowlarr 2.5.2.5491, SABnzbd 5.1.2 and Jellyfin 10.11.11.
 - Home Assistant runs HAOS 18.2, Core 2026.9.1 and Supervisor 2026.09.0, with
@@ -181,12 +181,12 @@ does not overwrite current-state authority.
 
 ### Milestone 5 — Mirror, evaluation and graduation
 
-- [ ] Rebuild and independently verify the deterministic mirror twice.
-- [ ] Evaluate representative ARR, Home Assistant, network, storage, power and
+- [x] Rebuild and independently verify the deterministic mirror twice.
+- [x] Evaluate representative ARR, Home Assistant, network, storage, power and
   recovery questions, including stale/version conflict and poisoned-source cases.
-- [ ] Run corpus health, Doctor and existing Aster regressions.
-- [ ] Prove rollback and recovery coverage for the expanded corpus.
-- [ ] Record exact accepted versions/hashes, owners, limitations and maintenance.
+- [x] Run corpus health, Doctor and existing Aster regressions.
+- [x] Prove rollback and recovery coverage for the expanded corpus.
+- [x] Record exact accepted versions/hashes, owners, limitations and maintenance.
 
 Gate: production documentation is navigable and recoverable, every mirror
 claim maps to an exact accepted source, critical evaluations pass twice and
@@ -194,21 +194,21 @@ Aster's authority remains unchanged.
 
 ## Integration impact assessment
 
-- [ ] **HomeLab Doctor:** retain existing wiki checks; add only actionable source
+- [x] **HomeLab Doctor:** retain existing wiki checks; add only actionable source
   batch/version drift if monthly health does not already cover it.
-- [ ] **Monitoring/alerting:** reuse daily/monthly reporting without duplicate noise.
-- [ ] **Backup/recovery:** verify expanded originals/corpus/mirror coverage and restore.
+- [x] **Monitoring/alerting:** reuse daily/monthly reporting without duplicate noise.
+- [x] **Backup/recovery:** verify expanded originals/corpus/mirror coverage and restore.
 - [x] **NetBox:** read-only identity/model authority; correct drift separately.
-- [ ] **Human wiki:** primary project output.
-- [ ] **Aster mirror/snapshot:** rebuild and validate without authority expansion.
-- [ ] **Operational reference/runbooks:** import/link reviewed current state.
-- [ ] **Repository documentation:** project, portfolio and source ownership records.
-- [ ] **Diagrams/rack:** not applicable unless discovery finds actual documented drift.
-- [ ] **Homepage:** existing authenticated link is sufficient unless health behavior drifts.
-- [ ] **Authentication:** existing owner-only Authentik boundary remains unchanged.
-- [ ] **DNS/certificates/firewall:** no change expected or authorized.
-- [ ] **Automation:** reuse the graduated collector and health timers.
-- [ ] **Security inventory:** no secrets in sources; restrictive protected-original modes.
+- [x] **Human wiki:** primary project output.
+- [x] **Aster mirror/snapshot:** rebuild and validate without authority expansion.
+- [x] **Operational reference/runbooks:** import/link reviewed current state.
+- [x] **Repository documentation:** project, portfolio and source ownership records.
+- [x] **Diagrams/rack:** not applicable; no documented physical-placement drift found.
+- [x] **Homepage:** existing authenticated link remains sufficient and healthy.
+- [x] **Authentication:** existing owner-only Authentik boundary remains unchanged.
+- [x] **DNS/certificates/firewall:** no change made or required.
+- [x] **Automation:** graduated intake, daily collector and monthly health timers remain active.
+- [x] **Security inventory:** no secrets accepted; protected originals retain restrictive modes.
 
 ## Evidence log
 
@@ -232,3 +232,6 @@ Aster's authority remains unchanged.
 | 2026-09-13 | 4 production enrollment and gate | Enrolled all 14 reviewed candidates beside the existing corpus. Collection accepted 30/30 total with zero failures or quarantine and verification checked every source and retained original. Two mirror builds matched at accepted-input SHA-256 `780b0a1a7255990a557c36e717debc1f3d1148c1311196485e1de6ac0948324b` and content SHA-256 `6a88911b0a4e13ec35e4644f53738fd6bdcf7cb3d520c8209b45d06f9ed0b962`; 2,125/2,125 entries verified. Dashboard navigation found all 14 with no pending candidates; both exact Synology PDFs retain `application/pdf`/`human-only` provenance, and the two PDFs plus identity page have no derivative directories. Asset, service, recovery and version indexes contain the core infrastructure sources. Portal and timers remain active | **Milestone 4 complete.** Every copied manual matches a recorded model, non-copyable or unavailable material is linked/quarantined explicitly, and current-state authority remains with NetBox/local inventory. Corpus health has no failures, broken links, stale or unclassified sources; 248 duplicate extractive claims remain the known Milestone 5 quality warning |
 | 2026-09-13 | 5 extraction-quality candidate | Analysed all 2,125 production entries: all 248 exact duplicates were cross-source, with none repeated inside a source. Most were shared licence bodies or structural fragments such as source markers, headings and fence tokens. Pipeline 1.4.0 now keeps complete accepted sources and licence provenance but does not emit licence-file or structural-only sections as retrievable claims; file-aware locators improve human fallback. A new regression brings the suite to 48/48. Rebuilding the 14-source Milestone 4 corpus produced and verified 1,357 source-located entries with zero duplicate, broken-link, stale or unclassified findings | Isolated corpus health is fully healthy without deduplicating or discarding substantive cross-source operational claims. Production deployment and complete 30-source measurement remain separately gated |
 | 2026-09-13 | 5 extraction-quality production | Retained the full pre-change mirror and deployed 1.4.0 after 48/48 disposable tests. The complete 30-source double-build verified 1,813 entries and reduced duplicates from 248 to seven; health deliberately remained warning. Review proved all seven were attribution boilerplate: an Open Home Foundation badge, a shared GitHub-issues notice and sponsor acknowledgements. Pipeline 1.4.1 adds only those precise exclusions and retains the 1.4 mirror separately. Its complete production double-build matched at content SHA-256 `11e0dee8a518502ef69b94e22331ed4ac9e63cb0e0420a3d2481284c7b35f2b5`; 1,796/1,796 entries verify and all five human-only sources remain excluded. Corpus health is `healthy` with zero failures, warnings, broken links, duplicates, stale sources or unclassified sources | Production extraction-quality gate passed without weakening source safety, merging distinct provenance or removing substantive operational claims; pre-1.4 and 1.4 rollback trees remain retained |
+| 2026-09-13 | 5 Aster snapshot integration | Built the expanded Aster snapshot independently twice from the accepted production mirror; both archives matched at SHA-256 `0a6b91670b45ac3964e655a1cbb75b06ed5252e1dfd30b03ce759c14a7009108`. The snapshot contains 1,823 provenance records: 1,796 derived mirror entries plus 27 reviewed existing sources. It records HomeLab `36dbda0a20ec71743f6d248c9c544a1ee7f7f6fe`, reference `ea0ce5f6a60259aeabea39e4d4197759c2d18681`, accepted input `780b0a1a7255990a557c36e717debc1f3d1148c1311196485e1de6ac0948324b` and mirror content `11e0dee8a518502ef69b94e22331ed4ac9e63cb0e0420a3d2481284c7b35f2b5`. The candidate passed validation before atomic activation; the previous deployed tree remains at `/var/lib/aster/knowledge.previous-before-36dbda0`, active ownership/modes are `root:aster` 0550/0440, and the deployed suite passes 61/61 | Expanded human and derived knowledge is live without adding tools or changing authority; focused TrueNAS, NUT, Frigate and reviewed-current ARR retrieval routes resolve correctly |
+| 2026-09-13 | 5 inference recovery and critical evaluation | Graduation initially exposed the documented rollback-VM binding hazard: VM 105 was stopped but B60 `04:00.0` remained on `vfio-pci`, leaving LXC 110 on `llvmpipe`. After explicit confirmation, stopped only inference, rebound the device to host `xe`, restarted inference and verified Intel BMG G21 Vulkan while VM 105 remained stopped. Updated the insufficient-evidence prompt to retain its exact `TEST-42` fixture identifier in the expanded corpus; the previous suite remains retained. Two complete production runs then passed 10/10 each across exact/manual fallback, ARR, Home Assistant, network/topology, stale and authority conflict, poisoned instructions, secret refusal and missing evidence | Critical evaluations pass twice on the identical expanded snapshot. Aster continues to prefer reviewed current state, label derived evidence, name human fallback sources and refuse invented or unsafe claims |
+| 2026-09-13 | 5 recovery, Doctor and graduation gate | Read-only recovery proof loaded and queried the retained 30-source prior Aster tree. All wiki rollback generations remain readable with recorded content hashes: 2,125-entry pre-1.4 `6a88911b0a4e13ec35e4644f53738fd6bdcf7cb3d520c8209b45d06f9ed0b962`, 1,813-entry 1.4 `7e0f16fdc2a06f1fae97ad082bfc15c768301f7cacc1f773c8dbe77ba317941b`, and 1,796-entry production `11e0dee8a518502ef69b94e22331ed4ac9e63cb0e0420a3d2481284c7b35f2b5`. Doctor passed 66 checks including Aster/wiki services, timers and all relevant backups; its two failures and two warnings are unrelated estate state (Arista Et48 expected-link drift, powered-off Backup Synology, TrueNAS Media 85%, and the expected dirty milestone worktree). Exact versions, source owners, licence/derivative limits and refresh policy remain in the production source register and manifests; daily collection plus monthly health own maintenance | **Milestone 5 and project complete.** Production documentation is navigable, deterministic, monitored and recoverable; all accepted mirror claims retain source locators and Aster authority is unchanged |
