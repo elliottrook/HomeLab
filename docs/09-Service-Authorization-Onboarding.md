@@ -58,8 +58,7 @@ application's current authentication settings before selecting a path.
 | Dozzle | Forward auth | `logs.elliottrook.com` | Read-only container logs; lower sensitivity than Dockge but still admin-facing |
 | Aster Agent | Keep Lab/Tailscale-only initially, same treatment as the Hermes entry above | Lab VLAN 70 address | Isolated by design; do not casually widen its exposure just to fit the Authentik pattern |
 | Aster llama.cpp | No Authentik proxy | `192.168.70.12:11435` | Same reasoning as the Ollama API row above — a model inference API, not a browser login page |
-| Sonarr / Radarr / Lidarr / Prowlarr | Forward auth for the browser UI only | Service-specific names | Preserve each app's own API key for Homepage widgets and inter-app calls (e.g. Prowlarr → Sonarr/Radarr, the video-archiver/playlist-bridge tools) — those are service-to-service, not browser traffic |
-| SABnzbd | Forward auth for the browser UI only | Service-specific name | Preserve its API key for Sonarr/Radarr/Lidarr's download-client integration |
+| ARR work package: Sonarr / Radarr / Lidarr / Prowlarr / SABnzbd | Forward auth for each browser UI, delivered and validated as one coordinated work package | Service-specific names | Preserve every existing API-key path for Homepage widgets, Prowlarr application sync, ARR-to-SABnzbd downloads and the video-archiver/playlist-bridge tools; Authentik must affect only human browser access |
 | Media Manager (Homarr) | Forward auth | Service-specific name | A second dashboard/launcher alongside Homepage — same treatment as Homepage itself |
 | Newtarr | Forward auth | Service-specific name | Confirm what this actually is/does before onboarding — not otherwise documented in this repo yet |
 | File Browser | Forward auth | Service-specific name | Admin-tier: raw filesystem browse/edit access to its host's media roots — treat with the same caution as Code Server/Dockge |

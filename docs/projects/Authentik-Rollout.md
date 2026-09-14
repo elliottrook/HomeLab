@@ -126,6 +126,17 @@ graduates and is observed stable. This project's own principle, unchanged
 from before the redesign: one service at a time, observe before the next
 wave.
 
+**Milestone 3 packaging decision:** treat the operational *arr stack as one
+coordinated work package, not five sequential service rollouts. Its fixed
+membership is Sonarr, Radarr, Lidarr, Prowlarr and SABnzbd, matching
+`docs/ARR-Stack-Operational-Reference.md`. Design, approve, back up, implement,
+validate and roll back that package behind one shared gate. Each browser UI may
+still require its own hostname, NPM host and Authentik application, but those
+are components of one atomic work package. Preserve every existing API-key
+path among Prowlarr, the three ARR applications, SABnzbd, Homepage and the
+automation tools; Authentik applies only to human browser access. The general
+one-service-at-a-time rule continues to apply to all other Milestone 3 targets.
+
 **Never proxy through Authentik:** SSH, DNS, SMB, NFS, iSCSI, RTSP, ONVIF,
 backup transports, the Ollama-compatible API, the Tailscale control path.
 Confirmed additions from the full dashboard inventory: the AP Switch's raw
@@ -519,6 +530,7 @@ Milestone 2 to a safely resumable state, it does not graduate the project.
 | 2026-09-14 | Beszel native OIDC and interactive gate | With explicit Stream-M approvals, created dedicated Authentik OAuth2 provider 16/application `beszel`, strict authorization callback, PKCE-capable confidential client, custom verified-email scope and one direct `jason` binding; configured Beszel's PocketBase users collection with that provider while retaining password authentication and default-disabled user creation. Live testing found and corrected an omitted `authorization_code` grant. Beszel 0.18.7 then refused the first unlinked identity with `Only superusers can perform this action`; user creation was temporarily enabled behind the existing single-user Authentik binding for one bootstrap login and immediately disabled. That produced an empty duplicate account, so a fresh integrity-checked backup was taken and a guarded SQLite transaction moved the sole external-auth link to the pre-existing verified admin and deleted only the duplicate. | Passed. A real iPhone Safari login reached the original admin dashboard with all seven systems; sign-out returned to the login page with password and Authentik choices. Read-back shows one OAuth link on the verified admin, two original users, no duplicate, user creation disabled, password authentication enabled, all seven agents `up`, direct and HTTPS paths HTTP 200, and policy allow/deny for `jason`/`akadmin`. Temporary credential and repair files were removed from every transfer hop. |
 | 2026-09-14 | Milestone 2 service discovery and graduation | Changed only Homepage's live Beszel tile `href` to `https://metrics.elliottrook.com`; retained the widget's direct `http://192.168.20.20:8090` endpoint and file-backed credentials. Homepage direct rendering and Beszel widget endpoint both returned 200. Updated the service-onboarding completion record, addressing/network facts and portfolio status. | Milestone 2 complete. Homepage and Beszel are live on private friendly HTTPS names with real sign-in/sign-out, explicit denial, direct recovery and non-browser/agent behavior validated. Milestones 3–5 remain not started. |
 | 2026-09-14 | Milestone 2 Git synchronization | Created focused local commit `5776699` and, with explicit approval, pushed it to authoritative Forgejo `origin/main`. Forgejo's configured mirror advanced GitHub `main` to the identical full commit without a direct GitHub push. The repository directive and Project Creation Standard were corrected to make this single-push topology explicit. | Passed: Forgejo and GitHub both reported `577669981db0e2ea075c41cc0515444a43cc8025`; direct duplicate pushes to GitHub are no longer part of routine milestone close-out. |
+| 2026-09-14 | Milestone 3 ARR packaging decision | Jason directed that Sonarr, Radarr, Lidarr, Prowlarr and SABnzbd be handled as one coordinated work package rather than sequential rollouts. The project scope and onboarding plan now define one shared design/approval/backup/validation/rollback gate while preserving all API-key integrations and limiting Authentik to browser UI access. | Design updated; no Milestone 3 live change started. The one-service-at-a-time rule remains in force for every non-ARR target. |
 
 ## Close-out
 
