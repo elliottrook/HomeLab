@@ -32,6 +32,22 @@ KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowl
 HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
 ARR_REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT", "/var/lib/aster/arr-report/latest.json"))
 HA_REPORT_PATH = Path(os.environ.get("ASTER_HA_REPORT", "/var/lib/aster/ha-report/latest.json"))
+# Extra stopwords for directory-first narrowing only (see _narrow_by_directory).
+# Broader than search_knowledge's own small stopword set on purpose: a short
+# abstract+topics text is far more sensitive to a single coincidental
+# common-word hit than the full entry corpus is.
+NARROW_STOPWORDS = frozenset({
+    "the", "a", "an", "of", "to", "in", "on", "for", "is", "are", "be", "been",
+    "being", "this", "that", "these", "those", "with", "as", "by", "it", "its",
+    "or", "not", "no", "can", "cannot", "you", "your", "will", "would",
+    "should", "from", "at", "we", "do", "did", "done", "has", "had",
+    "which", "when", "where", "who", "whom", "also", "into", "than", "then",
+    "there", "their", "they", "them", "use", "used", "using", "uses", "see",
+    "section", "following", "example", "examples", "may", "must", "each",
+    "any", "all", "some", "more", "most", "other", "such", "only", "same",
+    "so", "but", "one", "two", "three", "first", "second", "new", "set",
+    "value", "values", "note", "notes", "how", "and",
+})
 FORGEJO_REPORT_PATH = Path(
     os.environ.get("ASTER_FORGEJO_REPORT", "/var/lib/aster/source-reports/forgejo.json")
 )
@@ -421,13 +437,69 @@ def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     return bonus
 
 
-def search_knowledge(query: str, max_results: int = 2, root: Path | None = None) -> dict[str, Any]:
-    root = root or KNOWLEDGE_DIR
-    stopwords = {"according", "and", "does", "have", "installed", "into", "limitation", "that", "the", "what", "with"}
-    tokens = {token for token in re.findall(r"[a-z0-9_-]{3,}", query.lower()) if token not in stopwords}
-    if not tokens or not root.is_dir():
-        return {"query": query, "results": []}
+def _narrow_by_directory(tokens: set[str], root: Path) -> set[str] | None:
+    """Directory-first narrowing stage (opt-in, see `directory_first` on
+    `search_knowledge`). Scores the query's tokens against each mirror
+    source's `directories.json` abstract/topics and narrows to the
+    top-scoring source(s). Returns None whenever narrowing should not apply
+    — no directories.json, an empty index, or no source scoring above zero
+    once stale entries are excluded — so the caller falls back to today's
+    unrestricted flat search rather than guessing. A directory entry is
+    "stale" when its recorded entry_count no longer matches the live count
+    of that source's entry files, since a stale abstract is a worse guide
+    than no narrowing at all."""
+    directories_path = root / "mirror/indexes/directories.json"
+    try:
+        directories = json.loads(directories_path.read_text(encoding="utf-8")).get("entries", {})
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return None
+    if not isinstance(directories, dict) or not directories:
+        return None
+    # Narrowing must compare whole words, not substrings: matching by
+    # substring against a short abstract let common short words win purely
+    # by coincidence (e.g. "for" inside "forgejo", "add" inside "address"),
+    # a failure mode that never surfaces against a full-size entry corpus
+    # where such noise is drowned out by genuine signal. This set is
+    # additional to (not a replacement for) the caller's own query stopwords.
+    narrow_tokens = {token for token in tokens if token not in NARROW_STOPWORDS}
+    if not narrow_tokens:
+        return None
+    scored: list[tuple[int, str]] = []
+    for source_id, info in directories.items():
+        if not isinstance(info, dict):
+            continue
+        entries_dir = root / "mirror/entries" / source_id
+        live_count = sum(1 for _ in entries_dir.glob("*.md")) if entries_dir.is_dir() else 0
+        if live_count != info.get("entry_count"):
+            continue
+        # Whole-word signal only: the curated topic tags, plus the source
+        # id's own alphabetic components (e.g. "sonarr-4-0-19" -> "sonarr")
+        # so a query naming the source directly can still match it even when
+        # its own name isn't among its top-frequency topic words. The
+        # free-text abstract sentence is deliberately excluded — it only
+        # restates the topics as prose and would double-count them.
+        haystack_tokens = {str(t).lower() for t in (info.get("topics", []) or [])}
+        haystack_tokens.update(
+            fragment for fragment in re.split(r"[^a-z0-9]+", str(source_id).lower())
+            if len(fragment) >= 3 and not fragment.isdigit()
+        )
+        unique_hits = len(narrow_tokens & haystack_tokens)
+        score = unique_hits * 10
+        if score > 0:
+            scored.append((score, source_id))
+    if not scored:
+        return None
+    best = max(score for score, _ in scored)
+    return {source_id for score, source_id in scored if score == best}
 
+
+def _mirror_source_id(relative: str) -> str | None:
+    parts = relative.split("/")
+    return parts[2] if len(parts) > 2 and parts[0] == "mirror" and parts[1] == "entries" else None
+
+
+def _rank_knowledge(query: str, tokens: set[str], root: Path, max_results: int,
+                    allowed_sources: set[str] | None) -> dict[str, Any]:
     present_state = bool(re.search(r"\b(current|currently|installed|now|present)\b", query, re.I))
     focused_checklist = bool(
         re.search(r"second[- ]brain", query, re.I)
@@ -466,6 +538,10 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
         except (OSError, UnicodeError):
             continue
         relative = str(path.relative_to(root))
+        if allowed_sources is not None:
+            source_id = _mirror_source_id(relative)
+            if source_id is not None and source_id not in allowed_sources:
+                continue
         authority = _source_authority(relative, provenance)
         source_bonus = _source_bonus(relative, tokens, present_state, authority)
         for chunk in _knowledge_chunks(text):
@@ -651,6 +727,28 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
             for score, source, excerpt in selected
         ],
     }
+
+
+def search_knowledge(query: str, max_results: int = 2, root: Path | None = None,
+                     directory_first: bool = False) -> dict[str, Any]:
+    """Retrieve knowledge for `query`. `directory_first` (default off, so
+    every existing caller is unaffected unless it opts in) narrows to the
+    mirror source(s) whose directory abstract best matches the query before
+    entry-level ranking; it always falls back to today's unrestricted flat
+    ranking whenever narrowing is inconclusive (see `_narrow_by_directory`)
+    or the narrowed pass returns no results, so a missing, stale, or wrong
+    abstract degrades to today's behavior rather than silently returning
+    nothing or the wrong source."""
+    root = root or KNOWLEDGE_DIR
+    stopwords = {"according", "and", "does", "have", "installed", "into", "limitation", "that", "the", "what", "with"}
+    tokens = {token for token in re.findall(r"[a-z0-9_-]{3,}", query.lower()) if token not in stopwords}
+    if not tokens or not root.is_dir():
+        return {"query": query, "results": []}
+    allowed_sources = _narrow_by_directory(tokens, root) if directory_first else None
+    result = _rank_knowledge(query, tokens, root, max_results, allowed_sources)
+    if allowed_sources is not None and not result["results"]:
+        result = _rank_knowledge(query, tokens, root, max_results, None)
+    return result
 
 
 def get_lab_health(report_path: Path | None = None) -> dict[str, Any]:

@@ -1,11 +1,14 @@
 # Aster Mirror Directory-First Retrieval and Scale Evaluation
 
 > Status: Active — Stream A granted 2026-09-13. Milestones 1 and 2 complete
-> the same day: the baseline found real cross-domain retrieval degradation,
-> and the directory abstract generator is built, tested (13 mirror tests, 52
-> aster-wiki tests total) and validated against the real production corpus.
-> Nothing has been deployed or activated in production — Milestone 3 (wiring
-> this into Aster's actual retrieval path, behind a proven fallback) is next.
+> 2026-09-13; Milestone 3 mostly complete 2026-09-14 — directory-first
+> retrieval is implemented, its fallback is proven for missing/stale/
+> inconclusive abstracts, and it measurably improves precision on the real
+> corpus (8/10 vs. 6/10, zero regressions) — but the live adversarial
+> safety-suite re-run could not run from this session (no network path to
+> the LLM host) and is carried forward as a precondition for Milestone 4
+> activation. `directory_first` defaults off and nothing is deployed or
+> activated in production.
 >
 > Owner: Jason
 >
@@ -189,17 +192,21 @@ new service, listener, or outbound call is added anywhere in this flow.
 ## Persistence plan
 
 - **Current milestone:** Milestones 1 and 2 complete 2026-09-13; Milestone 3
-  not started.
-- **Last verified state:** the directory abstract generator is implemented in
-  `services/aster-wiki/aster_wiki/mirror.py` (`PIPELINE_VERSION` `1.5.0`),
-  covered by 4 new + 9 existing tests (13/13 pass), and independently
-  validated twice against the real, unmodified 1,796-entry production mirror
-  (read-only copy; nothing on LXC 104/113 was changed or rebuilt). No new
-  mirror build has been run in production and no Aster snapshot was changed.
-- **Next safe action:** begin Milestone 3 — wire directory-first ranking
-  ahead of entry-level ranking in Aster's existing snapshot consumer
-  (`services/aster-agent/aster_agent.py`'s `search_knowledge()`), gated behind
-  an explicit, proven fallback to today's flat search before any activation.
+  mostly complete 2026-09-14 (code + fallback proof + real-corpus validation
+  done; live adversarial suite re-run outstanding).
+- **Last verified state:** `search_knowledge()` in
+  `services/aster-agent/aster_agent.py` has an opt-in `directory_first`
+  parameter (default `False`, unused by the one live call site), proven
+  byte-identical to prior behavior when off and proven to fall back correctly
+  when on but inconclusive. No mirror content, Aster configuration, or Aster
+  snapshot was changed; nothing was deployed.
+- **Next safe action:** before Milestone 4, run the real adversarial
+  evaluation suite (`services/aster-agent/evals/run_evals.py` and friends)
+  with `directory_first=True` from a host that can actually reach the
+  llama.cpp endpoint (this session cannot) to close Milestone 3's one
+  outstanding item. Milestone 4 itself repeats the Milestone 1 question set
+  against the two-stage path and compares directly before any production
+  activation decision.
 - **Rollback location:** the currently deployed `1.4.1` mirror tree and active
   Aster snapshot are the rollback target for every later milestone; their
   exact hashes are recorded in the Production Corpus Expansion evidence log
@@ -336,19 +343,92 @@ authority, only for routing. No mirror content was deployed or changed on
 LXC 104/113; this is a repo-side pipeline change, not yet built or activated
 in production.
 
-### Milestone 3 — Two-stage retrieval integration
+### Milestone 3 — Two-stage retrieval integration — **mostly complete 2026-09-14, one item not executable from this session**
 
-- [ ] Add directory-first ranking ahead of entry-level ranking in Aster's
+- [x] Add directory-first ranking ahead of entry-level ranking in Aster's
       existing snapshot consumer, gated behind an explicit fallback path.
-- [ ] Prove with synthetic fixtures that a missing, stale, or wrong abstract
-      falls back to today's flat entry-level search rather than returning
-      nothing or the wrong source silently.
+      **Implementation:** `services/aster-agent/aster_agent.py` gained
+      `_narrow_by_directory()` and a new `directory_first: bool = False`
+      parameter on `search_knowledge()` (default off). The existing function
+      body was renamed to `_rank_knowledge()` and parameterized by an
+      `allowed_sources` restriction that is a no-op when `None` — so
+      `directory_first=False` (every existing call site, including the one
+      live production call in the `search_knowledge` tool dispatch at line
+      837, which passes neither flag) produces **byte-identical** results to
+      before this change. This was verified two ways: (1) re-running all 10
+      of Milestone 1's real-corpus questions with `directory_first=False`
+      after this change reproduced the exact Milestone 1 rankings, and (2)
+      replicating 4 representative existing `test_aster_agent.py` cases
+      (scoped ranking, current-state preference, operational authority, the
+      focused-checklist override) against the change showed no difference.
+      Narrowing itself is scoped strictly to `mirror/entries/`; reference-tier
+      content (e.g. `docs/03-Hardware-Inventory.md`) is never affected by it,
+      proven by a dedicated new test.
+- [x] Prove with synthetic fixtures that a missing, stale, or wrong abstract
+      falls back to today's flat entry-level search. **Result:** four new
+      tests in `services/aster-agent/test_aster_agent.py` — missing
+      `directories.json`, a stale entry (recorded `entry_count` no longer
+      matches the live file count), and a query with no topical overlap
+      against any directory abstract all produce **byte-identical** output to
+      `directory_first=False`, proving the fallback is a true no-op in those
+      cases rather than a degraded partial result. A fifth test proves
+      correct narrowing on a clean case. All 5 were verified passing via the
+      same standalone-extraction technique used in Milestones 1-2 (this
+      sandboxed dev environment still has no network path to install
+      `fastapi`/`httpx`/`pydantic` at the pinned versions needed to import
+      `aster_agent.py` directly or run its test file as a whole — see
+      Milestone 1's evidence for the same constraint).
 - [ ] Re-run the existing critical/adversarial evaluation suite (poisoned
-      sources, conflicting authorities, secret refusal, missing evidence) to
-      confirm the two-stage path does not change safety behavior.
+      sources, conflicting authorities, secret refusal, missing evidence).
+      **Not executed — could not be, from this session.** That suite is a
+      live black-box test against the real llama.cpp endpoint
+      (`services/aster-agent/evals/run_evals.py`), and there is still no
+      network path from this Claude Code session to LXC 104 or 110 (same
+      constraint as Milestone 1's `compare_mirror.py` gap). What *is* proven,
+      by construction rather than by re-running the suite: `directory_first`
+      defaults to `False`, and the single live call site that would reach the
+      adversarial suite's model calls does not pass it — so the suite's
+      outcome cannot have changed, because the code path it exercises is
+      unmodified. This is not a substitute for an actual re-run and should
+      not be treated as one; it only establishes that nothing changed for
+      *today's* deployed behavior. **Before Milestone 4 activates
+      `directory_first` on the live path, the real adversarial suite must be
+      run somewhere with actual access** (the Aster agent host itself, where
+      these dependencies are already installed in production) — this is
+      recorded as the next safe action below, not skipped silently.
 
-Gate: two-stage retrieval activates only behind a proven fallback, and every
-existing safety and adversarial case still passes.
+**A genuine mid-implementation regression, caught and fixed before this
+milestone was called done:** the first version of `_narrow_by_directory`
+scored the query against abstract text using substring containment (matching
+the entry-level ranker's own style). Re-testing against the real Milestone 1
+question set — not just synthetic fixtures — surfaced two serious problems
+this introduced: (1) the common word "for" matched as a substring inside
+"forgejo", making the canonical `TEST-42` UPS question (previously perfect
+under flat search) wrongly narrow to Forgejo's docs and return nothing
+useful; (2) "add" matched inside "address", contributing to Sonarr's
+notification question wrongly narrowing to OPNsense. Both are exactly the
+failure mode this project's own risk assessment named as the primary danger
+of this whole feature ("an incorrect... directory abstract could cause
+retrieval to skip the correct source entirely — a worse failure mode than
+today's flat search"). Fixed by scoring whole-word matches only, against the
+curated topic tags plus the source id's own alphabetic components, dropping
+the free-text abstract sentence from scoring entirely (it only restated the
+topics as prose and doubled their count). Re-verified against the same real
+1,796-entry corpus: **8/10 questions now correct at top rank under
+`directory_first=True`, versus 6/10 under flat search, with zero
+regressions** — both of Milestone 1's original failures (the Sonarr
+notification miss and the OPNsense backup misranking) are now fixed, and
+every previously-correct question remains correct.
+
+Gate: **partially passed.** Two-stage retrieval activates only behind a
+proven fallback (demonstrated for missing/stale/inconclusive abstracts, all
+verified byte-identical to flat search), and directory-first narrowing has
+shown a real, substantial improvement with no regressions on the available
+evidence. The one unmet condition — re-running the live adversarial suite —
+could not be executed from this session for the same network-access reason
+as Milestone 1, and is carried forward rather than waived. `directory_first`
+remains off by default and is not wired into any live call path; nothing in
+production was changed.
 
 ### Milestone 4 — Comparative evaluation and regression
 
@@ -484,6 +564,7 @@ The project graduates only when:
 | 2026-09-13 | Authorization | Jason granted Stream A for this project explicitly in-conversation, per `CLAUDE.md`'s per-project authorization mechanism | Milestone 1 begun the same day |
 | 2026-09-13 | 1 baseline measurement | Confirmed no sandbox network path exists from this Claude Code session to the Aster agent, llama.cpp, or Aster Wiki hosts (no SSH alias, no sandbox hostname entry, IP-based HTTP(S) blocked by the sandbox proxy — consistent with the prior Authentik-project finding); per-command sandbox bypass was used only for read-only discovery and a read-only copy of the live mirror tree, both live-approved. Read-only SSH confirmed root access to Aster Wiki LXC 113; the deployed mirror (`/var/lib/aster-wiki/aster-knowledge-mirror`, 1,796 entries, 8.1 MB) was copied read-only to an isolated session scratch directory for offline measurement — nothing on LXC 104/113 was changed. No SSH path exists to the Aster agent host (LXC 104, `192.168.70.10`) at all (`Permission denied`), so the full LLM-answer `compare_mirror.py` comparison could not run; a 10-question cross-domain retrieval-precision harness was built instead, calling Aster's actual unmodified `search_knowledge()` function (extracted verbatim from `services/aster-agent/aster_agent.py` to avoid needing its unrelated `fastapi`/`httpx` runtime dependencies, which are not installable at the pinned versions from this Mac's network) against the real corpus | 7/9 valid questions correct at top rank (one question excluded as a flawed test — both candidate sources were legitimately correct). Two genuine retrieval problems found: OPNsense backup docs outranked by SABnzbd's own backup docs (correct source present at rank 3, not rank 1); a Sonarr-notification question returned Grafana notification docs at rank 1 with Sonarr entirely absent from the top 5. A third, scale-independent issue: a Home-Assistant-phrased query triggers an existing hardcoded `search_knowledge()` shortcut that bypasses the mirror entirely in favor of a single reference file. Milestone 1's gate passed — real degradation was found, so the hard-stop condition does not apply and Milestone 2 is authorized |
 | 2026-09-13 | 2 directory abstract generation | Implemented `_directory_abstract()` in `services/aster-wiki/aster_wiki/mirror.py`, wired into the existing `build_mirror()` pass with no new source read and no new authority; bumped `PIPELINE_VERSION` `1.4.1` → `1.5.0` per this repo's existing minor-bump-for-new-artifact convention. Added 4 regression tests (sparse source, multi-domain source, source added after a prior build, human-only exclusion) plus extended the existing determinism test; all 13 mirror tests and the full 52-test `aster-wiki` suite pass. Independently ran the generator twice against the real, unmodified 1,796-entry production mirror (same read-only copy from Milestone 1; nothing on LXC 104/113 changed) — byte-identical both times across all 24 populated sources. That real-corpus run caught a genuine defect the synthetic tests missed: the first version's tokenizer surfaced markdown badge/link and raw-HTML markup as top "topics" for several real sources; fixed by stripping markdown links (keeping display text), bare URLs, HTML tags and entities before tokenizing, then re-verified clean on the same real corpus | Milestone 2's gate passed: deterministic, reproducible, independently verifiable against source entries, no new authority claim. Nothing was deployed or built in production |
+| 2026-09-14 | 3 two-stage retrieval integration | Added an opt-in `directory_first` parameter to `search_knowledge()` in `services/aster-agent/aster_agent.py` (default off; the one live call site does not pass it, so today's deployed behavior is provably unchanged). First implementation used substring scoring against directory abstract text and, when re-tested against the real Milestone 1 corpus rather than only synthetic fixtures, was caught introducing two real regressions before being called done: "for" ⊂ "forgejo" broke the previously-perfect UPS TEST-42 case, and "add" ⊂ "address" contributed to a wrong Sonarr narrowing. Fixed by switching to whole-word matching against curated topic tags plus the source id's own alphabetic components, dropping the noisy free-text abstract sentence from scoring. Re-verified on the real corpus: 8/10 correct at top rank under `directory_first=True` vs. 6/10 flat, zero regressions, both of Milestone 1's original failures fixed. Added 5 new tests proving byte-identical fallback for a missing index, a stale abstract, and an inconclusive query, plus correct narrowing and reference-tier non-interference; verified passing via the same standalone-extraction technique used in Milestones 1-2 (this session still has no network path to install the pinned `fastapi`/`httpx`/`pydantic` versions needed to import `aster_agent.py` directly). Could not re-run the live adversarial evaluation suite (`run_evals.py` against the real llama.cpp endpoint) — same network-access gap as Milestone 1's `compare_mirror.py` limitation; proven by construction instead (unused-by-default parameter, unmodified live call path) that today's deployed behavior cannot have changed, which is not a substitute for the real re-run | Milestone 3's gate partially passed: fallback proven, real improvement measured, but the live adversarial re-run is outstanding and carried forward as a precondition before Milestone 4 could ever activate this on the live path. Nothing deployed; `directory_first` stays off by default |
 
 ## Close-out
 

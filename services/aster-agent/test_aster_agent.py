@@ -496,6 +496,120 @@ class AsterAgentTests(unittest.TestCase):
             self.assertIn("Test backup and restore", combined)
             self.assertIn("Establish a monthly health review", combined)
 
+    def _mirror_fixture(self, root: Path, sources: dict[str, list[str]], directories: dict | None = None):
+        """Build a minimal mirror/ tree: sources maps source_id -> list of
+        entry body texts. directories, if given, is written verbatim as
+        indexes/directories.json (omit to leave it absent, for the
+        missing-index fallback case)."""
+        entries_root = root / "mirror/entries"
+        for source_id, bodies in sources.items():
+            source_dir = entries_root / source_id
+            source_dir.mkdir(parents=True)
+            for index, body in enumerate(bodies, 1):
+                (source_dir / f"{source_id}-{index:03d}.md").write_text(
+                    f"---\nschema_version: 1\nsource_id: \"{source_id}\"\nauthority: \"derived-memory\"\n---\n\n"
+                    f"## Source-located claim\n\n{body}\n",
+                    encoding="utf-8",
+                )
+        provenance = {
+            "schema_version": 1,
+            "sources": [
+                {"destination": f"mirror/entries/{source_id}/{source_id}-{index:03d}.md", "authority": "derived-memory"}
+                for source_id, bodies in sources.items() for index in range(1, len(bodies) + 1)
+            ],
+        }
+        (root / ".aster-provenance.json").write_text(json.dumps(provenance), encoding="utf-8")
+        if directories is not None:
+            index_dir = root / "mirror/indexes"
+            index_dir.mkdir(parents=True)
+            (index_dir / "directories.json").write_text(json.dumps({"schema_version": 1, "entries": directories}), encoding="utf-8")
+
+    def test_directory_first_narrows_to_the_correct_source(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._mirror_fixture(
+                root,
+                sources={
+                    "sonarr-docs": ["Sonarr manages TV episode downloads and notification connections."],
+                    "opnsense-docs": ["OPNsense configures the firewall, DHCP address leases and connection state."],
+                },
+                directories={
+                    "sonarr-docs": {"entry_count": 1, "abstract": "1 verified entries from sonarr-docs, most frequently covering: sonarr, episodes, downloads.", "topics": ["sonarr", "episodes", "downloads"]},
+                    "opnsense-docs": {"entry_count": 1, "abstract": "1 verified entries from opnsense-docs, most frequently covering: firewall, dhcp, address.", "topics": ["firewall", "dhcp", "address"]},
+                },
+            )
+            result = search_knowledge("How do I add a notification connection in Sonarr?", root=root, directory_first=True)
+            self.assertTrue(result["results"])
+            self.assertEqual({item["source"] for item in result["results"]}, {"mirror/entries/sonarr-docs/sonarr-docs-001.md"})
+
+    def test_directory_first_falls_back_when_index_is_missing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._mirror_fixture(
+                root,
+                sources={"sonarr-docs": ["Sonarr manages TV episode downloads."]},
+                directories=None,
+            )
+            flat = search_knowledge("Sonarr episode downloads", root=root, directory_first=False)
+            narrowed = search_knowledge("Sonarr episode downloads", root=root, directory_first=True)
+            self.assertEqual(flat, narrowed)
+            self.assertTrue(narrowed["results"])
+
+    def test_directory_first_falls_back_when_abstract_is_stale(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._mirror_fixture(
+                root,
+                sources={"sonarr-docs": ["Sonarr manages TV episode downloads."]},
+                directories={
+                    # Recorded entry_count (5) no longer matches the single
+                    # real entry file on disk: this directory entry must be
+                    # distrusted for narrowing, not used to (wrongly) confirm
+                    # or restrict anything.
+                    "sonarr-docs": {"entry_count": 5, "abstract": "stale", "topics": ["sonarr"]},
+                },
+            )
+            flat = search_knowledge("Sonarr episode downloads", root=root, directory_first=False)
+            narrowed = search_knowledge("Sonarr episode downloads", root=root, directory_first=True)
+            self.assertEqual(flat, narrowed)
+            self.assertTrue(narrowed["results"])
+
+    def test_directory_first_falls_back_when_no_source_scores(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._mirror_fixture(
+                root,
+                sources={"sonarr-docs": ["Sonarr manages TV episode downloads."]},
+                directories={
+                    "sonarr-docs": {"entry_count": 1, "abstract": "1 verified entries from sonarr-docs, most frequently covering: episodes, downloads.", "topics": ["episodes", "downloads"]},
+                },
+            )
+            # A query with no topic overlap at all against the only source's
+            # abstract must still fall back to a real (flat) search rather
+            # than returning nothing.
+            flat = search_knowledge("What UPS battery runtime remains?", root=root, directory_first=False)
+            narrowed = search_knowledge("What UPS battery runtime remains?", root=root, directory_first=True)
+            self.assertEqual(flat, narrowed)
+
+    def test_directory_first_never_narrows_reference_tier_content(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._mirror_fixture(
+                root,
+                sources={"sonarr-docs": ["Sonarr manages TV episode downloads."]},
+                directories={
+                    "sonarr-docs": {"entry_count": 1, "abstract": "1 verified entries from sonarr-docs, most frequently covering: sonarr, episodes, downloads.", "topics": ["sonarr", "episodes", "downloads"]},
+                },
+            )
+            (root / "docs").mkdir()
+            (root / "docs/03-Hardware-Inventory.md").write_text(
+                "The currently installed B60 GPU has 24 GB VRAM.", encoding="utf-8",
+            )
+            # Narrowing is scoped to mirror/entries/; a reference-tier file
+            # outside that tree must never be excluded by it.
+            result = search_knowledge("What is currently true about the B60 GPU VRAM?", root=root, directory_first=True)
+            self.assertEqual(result["results"][0]["source"], "docs/03-Hardware-Inventory.md")
+
 
 class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
     async def test_time_tool_is_preloaded_without_model_round_trip(self):
