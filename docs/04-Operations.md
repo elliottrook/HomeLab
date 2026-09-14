@@ -442,7 +442,7 @@ alert has a reference point for what the baseline already contains.
 
 | Drift entry | Actual change | Attributed to |
 |---|---|---|
-| `arista:running-config` / `startup-config` | `Et17` description `TrueNAS-Failover-Servers` → `Family-Room-AppleTV`, access VLAN 20 → 10 | Apple TV VLAN move, 2026-09-02 (`NetBox-DCIM.md`) — present in *both* running and startup config, so it was saved |
+| `arista:running-config` / `startup-config` | `Et17` description `TrueNAS-Failover-Servers` → `Family-Room-AppleTV`, access VLAN 20 → 10 | Apple TV VLAN move, 2026-09-02 (`docs/projects/completed projects/NetBox-DCIM.md`) — present in *both* running and startup config, so it was saved |
 | `proxmox:lxc/109.conf` (added) | New guest | Prometheus/Grafana observability project |
 | `proxmox:lxc/110.conf` (added) | New guest | Aster llama.cpp GPU inference |
 | `proxmox:lxc/111.conf` (added) | New guest | NetBox DCIM project |

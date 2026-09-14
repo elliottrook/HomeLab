@@ -1,7 +1,7 @@
 # 15U Rack Elevation
 
 > **Refreshed 2026-09-01** via a real photo-based walk-through with Jason
-> (`docs/projects/NetBox-DCIM.md`, Milestone 1), replacing the previous
+> (`docs/projects/completed projects/NetBox-DCIM.md`, Milestone 1), replacing the previous
 > stale version. U-boundaries below are Jason's on-the-spot estimates, not
 > a tape-measure survey — flagged per row where relevant. The same data has
 > also been entered into NetBox as the project's authoritative source going

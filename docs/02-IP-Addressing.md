@@ -1,6 +1,6 @@
 # IP Addressing
 
-> Reconciled against NetBox 2026-09-12 (`docs/projects/NetBox-DCIM.md`).
+> Reconciled against NetBox 2026-09-12 (`docs/projects/completed projects/NetBox-DCIM.md`).
 > NetBox is authoritative; this file is a refreshed snapshot of it, in the
 > same spirit as `diagrams/Rack-Diagram.md`. When the two disagree, trust
 > NetBox and refresh this file — don't hand-edit around a discrepancy the

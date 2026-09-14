@@ -1,10 +1,12 @@
 # NetBox DCIM / Rack & Asset Management Project
 
-> Status: Active
+> Status: Complete — audited and graduated 2026-09-13
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-01
+> Last updated: 2026-09-13
+>
+> Completed: 2026-09-13
 
 ## Authorization
 
@@ -194,9 +196,10 @@ same way a hand-maintained one does.
   integration yet — private LAN/Tailscale access only, per the Milestone 1
   decision. Port mapping: `8000:8080` (host:container), bound to the LXC's
   single interface (`192.168.20.32`) only.
-- [~] Add to HomeLab Doctor, backup coverage, and Beszel/monitoring following
-  the existing per-service pattern. **Doctor and Layer-1/Layer-2 backup
-  coverage done; Beszel and the live Backup Synology task remain open.**
+- [x] Add to HomeLab Doctor, backup coverage, and Beszel/monitoring following
+  the existing per-service pattern. **Doctor, current local/off-host backup
+  coverage and Beszel are complete. The former Backup Synology task was
+  superseded by the verified TrueNAS backup hub.**
   - [x] Added `check_netbox()` to `scripts/doctor.sh` (containers healthy
     check across all five services, login-page HTTP check via
     `pct exec 111`) and a `check_proxmox_guest_backup_age "NetBox LXC 111"`
@@ -613,3 +616,4 @@ markdown files, and there is exactly one documented source of truth for each
 | 2026-09-01 | 3, 4 | Extended NetBox with the 8 remaining individual devices (previously only shelf-contents text) plus missing IPs on 3 more, then reconciled `configs/devices.conf` and `docs/02-IP-Addressing.md` against the now-complete inventory — one real gap found in each (Home Assistant missing from `devices.conf`; NetBox's own address missing from `02-IP-Addressing.md`), both fixed. Verified `lab status` still parses `devices.conf` correctly afterward. Documented NetBox's backup/restore/upgrade procedure in `docs/05-Backups.md` (new section plus a Critical-Service Recovery Coverage row), stated accurately: Layer 1 covers it fully, Layer 2/3 pending on the same two already-tracked blockers, no isolated restore tested yet | Passed |
 | 2026-09-01/02 | 3 addendum | Discovery-assisted gap fill: sandbox extended to 9 more hosts; passive OPNsense DHCP/ARP + Arista MAC-table discovery (no active scanning needed); Lutron and Hue bridges added as new Device records, PoE camera switch given its missing IP/MAC. Device count 21→23. Scope decision confirmed with Jason: personal/family client devices excluded from NetBox going forward | Passed |
 | 2026-09-02 | 3 addendum (related, out of project scope) | Discovery data surfaced a Family Room Apple TV wired into Arista Et17 on the wrong VLAN (Servers 20, port mislabeled `TrueNAS-Failover-Servers`) instead of Trusted VLAN 10 like the household's other four Apple TVs. Confirmed nothing else shares the port; fixed live with Jason's explicit go-ahead (`switchport access vlan 10`, description corrected, saved); verified relearned on VLAN 10 via the MAC table | Passed |
+| 2026-09-13 | Completion audit | Reconciled live Proxmox with NetBox through the read-only API: all 14 current guests, including backup-relay LXC 112 and Aster Wiki LXC 113, are present with correct active/offline state and primary addressing. NetBox 4.6.9 reports 23 devices, 14 VMs, seven VLANs, seven prefixes and one rack. LXC 111 and all five Compose services are healthy; its login returns HTTP 200 inside Servers VLAN 20 while a Management-VLAN probe remains blocked. Beszel is active/enabled and the repository device/service records match `192.168.20.32:8000`. The enabled all-guests Proxmox job retains eight daily LXC 111 archives through 2026-09-13, and the latest archive is also present on the TrueNAS mirror | **Project complete.** The physical/core inventory and IPAM completion gate remains satisfied. Monitoring and local/off-host recovery coverage are current; the documented absence of an isolated NetBox restore remains a portfolio-level recovery limitation, not an unrecorded project gap |

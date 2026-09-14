@@ -63,7 +63,7 @@ application's current authentication settings before selecting a path.
 | Media Manager (Homarr) | Forward auth | Service-specific name | A second dashboard/launcher alongside Homepage — same treatment as Homepage itself |
 | Newtarr | Forward auth | Service-specific name | Confirm what this actually is/does before onboarding — not otherwise documented in this repo yet |
 | File Browser | Forward auth | Service-specific name | Admin-tier: raw filesystem browse/edit access to its host's media roots — treat with the same caution as Code Server/Dockge |
-| NetBox | Native OIDC if the installed version's SSO plugin is enabled; otherwise forward auth | `netbox.elliottrook.com` | Keep the local superuser account as break-glass, matching the pattern already used for its API token in `NetBox-DCIM.md` |
+| NetBox | Native OIDC if the installed version's SSO plugin is enabled; otherwise forward auth | `netbox.elliottrook.com` | Keep the local superuser account as break-glass, matching the pattern already used for its API token in `docs/projects/completed projects/NetBox-DCIM.md` |
 | AP Switch | No Authentik proxy | Existing address | HTTP-only raw switch management with no real authentication of its own to federate — treat like the other never-proxied network/control-plane rows above, not a browser app |
 | GitHub | No Authentik proxy | Existing address | External service with its own account/auth; nothing to federate |
 

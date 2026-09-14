@@ -21,7 +21,7 @@
 - [ ] [NUT/UPS deployment](UPS-Power-Resilience-Claude-Handover.md)
 - [ ] [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)
 - [x] [Video library archiving](<projects/completed projects/Video-Library-Archiving.md>)
-- [ ] [NetBox DCIM / rack & asset management](projects/NetBox-DCIM.md)
+- [x] [NetBox DCIM / rack & asset management](<projects/completed projects/NetBox-DCIM.md>)
 - [x] [Aster sysadmin second brain](<projects/completed projects/Aster-Sysadmin-Second-Brain.md>)
 - [ ] [Backup architecture redesign](projects/Backup-Architecture-Redesign.md)
 - [ ] [Jellyfin library integrity automation](projects/Jellyfin-Library-Integrity-Automation.md)
