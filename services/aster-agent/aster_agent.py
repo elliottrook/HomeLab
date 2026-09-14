@@ -29,6 +29,7 @@ LLAMA_API_KEY = os.environ.get("ASTER_LLAMA_API_KEY", "")
 LLAMA_BASE_URL = os.environ.get("ASTER_LLAMA_BASE_URL", "http://192.168.70.12:11435/v1").rstrip("/")
 UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
+DIRECTORY_FIRST = os.environ.get("ASTER_DIRECTORY_FIRST", "").strip().lower() in {"1", "true", "yes"}
 HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
 ARR_REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT", "/var/lib/aster/arr-report/latest.json"))
 HA_REPORT_PATH = Path(os.environ.get("ASTER_HA_REPORT", "/var/lib/aster/ha-report/latest.json"))
@@ -837,6 +838,7 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         return search_knowledge(
             str(arguments.get("query", "")),
             int(arguments.get("max_results", 3)),
+            directory_first=DIRECTORY_FIRST,
         )
 
     return {"error": f"Tool is not allowlisted: {name}"}

@@ -32,6 +32,7 @@ def mirror_members(root: Path) -> tuple[list[tuple[str, bytes]], list[dict[str, 
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))["entries"]
     members = []
     records = []
+    source_counts: dict[str, int] = {}
     for path in sorted((root / "entries").rglob("*.md")):
         data = path.read_bytes()
         if b"PRIVATE KEY-----" in data or ASSIGNED_SECRET.search(data):
@@ -45,6 +46,7 @@ def mirror_members(root: Path) -> tuple[list[tuple[str, bytes]], list[dict[str, 
             raise ValueError(f"invalid mirror provenance: {path}")
         destination = f"mirror/{relative}"
         members.append((destination, data))
+        source_counts[path.parent.name] = source_counts.get(path.parent.name, 0) + 1
         records.append({
             "repository": "aster-knowledge-mirror", "path": relative,
             "destination": destination, "authority": "derived-memory",
@@ -56,6 +58,29 @@ def mirror_members(root: Path) -> tuple[list[tuple[str, bytes]], list[dict[str, 
         })
     if len(records) != generation.get("entries") or set(provenance) != {Path(x["path"]).stem for x in records}:
         raise ValueError("mirror entry count does not match accepted generation")
+    directories_path = root / "indexes/directories.json"
+    try:
+        directories_payload = json.loads(directories_path.read_text(encoding="utf-8"))
+        directories = directories_payload["entries"]
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise ValueError("mirror directory index missing or invalid") from exc
+    if directories_payload.get("schema_version") != 1 or not isinstance(directories, dict):
+        raise ValueError("mirror directory index missing or invalid")
+    if set(directories) != set(source_counts):
+        raise ValueError("mirror directory index sources do not match entries")
+    for source_id, count in source_counts.items():
+        directory = directories[source_id]
+        if (
+            not isinstance(directory, dict)
+            or directory.get("entry_count") != count
+            or not isinstance(directory.get("abstract"), str)
+            or not directory["abstract"].strip()
+            or not isinstance(directory.get("topics"), list)
+            or not 1 <= len(directory["topics"]) <= 6
+            or not all(isinstance(topic, str) and topic for topic in directory["topics"])
+        ):
+            raise ValueError(f"invalid mirror directory entry: {source_id}")
+    members.append(("mirror/indexes/directories.json", directories_path.read_bytes()))
     return members, records, {
         "commit": generation["content_sha256"], "dirty": False,
         "accepted_input_sha256": generation["accepted_input_sha256"],
