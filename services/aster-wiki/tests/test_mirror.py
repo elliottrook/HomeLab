@@ -43,7 +43,7 @@ class MirrorTests(unittest.TestCase):
             self.assertEqual(result_one, result_two)
             self.assertEqual(package_hash(first), package_hash(second))
             verified = verify_mirror(wiki, first)
-            self.assertGreaterEqual(verified["checked"], 3)
+            self.assertGreaterEqual(verified["checked"], 2)
             self.assertTrue((first / "indexes/dependencies.json").is_file())
             self.assertTrue((first / "indexes/symptoms.json").is_file())
             for name in ("warnings", "uncertainty", "version-scope", "contradictions"):
@@ -180,6 +180,30 @@ class MirrorTests(unittest.TestCase):
             self.assertIn('source_license: "CC-BY-NC-SA-4.0"', entry)
             self.assertTrue(all(item["source_license"] == "CC-BY-NC-SA-4.0"
                                 for item in provenance["entries"].values()))
+
+    def test_repository_boilerplate_and_license_text_are_not_claims(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = self.fixture(root)
+            source = wiki / "docs/upstream/synthetic-guide/content.txt"
+            source.write_text(
+                "<!-- source-file: README.md -->\n\n# Features\n\n"
+                "The service keeps a bounded operational history.\n\n"
+                "```\n\n<!-- source-file: LICENSE.md -->\n\n"
+                "Shared license boilerplate that is not product knowledge.\n"
+            )
+            lock_path = wiki / "sources/accepted-lock.json"
+            lock = json.loads(lock_path.read_text())
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            lock["sources"][0]["original_sha256"] = digest
+            lock["sources"][0]["normalized_sha256"] = digest
+            lock_path.write_text(json.dumps(lock))
+            mirror = root / "mirror"
+            result = build_mirror(wiki, mirror)
+            self.assertEqual(1, result["entries"])
+            entry = next((mirror / "entries").rglob("*.md")).read_text()
+            self.assertIn("bounded operational history", entry)
+            self.assertNotIn("license boilerplate", entry)
 
 
 if __name__ == "__main__":

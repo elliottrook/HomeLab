@@ -14,7 +14,7 @@ from typing import Callable
 
 from .manifest import canonical_json
 
-PIPELINE_VERSION = "1.3.0"
+PIPELINE_VERSION = "1.4.0"
 PROMPT_VERSION = "extractive-claims-v1"
 GENERATOR = "deterministic-extractive"
 ENTRY_ID = re.compile(r"^[a-z0-9][a-z0-9-]{2,127}$")
@@ -35,6 +35,21 @@ SEMANTIC_TERMS = {
     "version-scope": ("version", "release", "model", "applies to", "applicable to"),
     "contradictions": ("conflict", "contradict", "disagree", "inconsistent"),
 }
+SOURCE_FILE = re.compile(r"(?m)^<!-- source-file: ([^>]+) -->\s*$")
+NON_KNOWLEDGE_FILES = {"copying", "copying.md", "license", "license.md", "license.txt"}
+
+
+def _useful_section(body: str) -> bool:
+    """Reject structural fragments that carry no retrievable product knowledge."""
+    meaningful = []
+    for line in body.splitlines():
+        stripped = line.strip()
+        if (not stripped or stripped in {"```", "~~~", ":::"} or
+                stripped.startswith("<!-- source-file:") or
+                re.fullmatch(r"#{1,6}\s+[^#]+#*", stripped)):
+            continue
+        meaningful.append(stripped)
+    return len(" ".join(meaningful)) >= 20
 
 
 def _sections(text: str) -> list[tuple[int, int, str]]:
@@ -77,8 +92,22 @@ def _source_sections(path: Path, media_type: str,
             for start, end, body in _sections(page):
                 result.append((f"page {page_number} / lines {start}-{end}", body))
     else:
-        result = [(f"lines {start}-{end}", body)
-                  for start, end, body in _sections(path.read_text(encoding="utf-8"))]
+        text = path.read_text(encoding="utf-8")
+        markers = list(SOURCE_FILE.finditer(text))
+        if markers:
+            result = []
+            for index, marker in enumerate(markers):
+                source_file = marker.group(1).strip()
+                if Path(source_file).name.lower() in NON_KNOWLEDGE_FILES:
+                    continue
+                chunk_start = marker.end()
+                chunk_end = markers[index + 1].start() if index + 1 < len(markers) else len(text)
+                for start, end, body in _sections(text[chunk_start:chunk_end]):
+                    if _useful_section(body):
+                        result.append((f"{source_file} / lines {start}-{end}", body))
+        else:
+            result = [(f"lines {start}-{end}", body)
+                      for start, end, body in _sections(text) if _useful_section(body)]
     if any(UNSAFE_TEXT.search(body) for _, body in result):
         raise ValueError("unsafe extracted mirror content")
     return result[:128]
