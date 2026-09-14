@@ -1,18 +1,20 @@
 # Media Archive Backup to Synology
 
-> Status: **Declined 2026-09-10 — not proceeding.** Jason decided not to
-> back up the media archive. Kept as a scoping record in case this is
-> revisited later, not an active or queued project.
+> Status: **Closed — declined 2026-09-10, archived 2026-09-13.** Jason
+> decided not to back up the media archive. This is a completed decision
+> record, not an active or queued project.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-10
+> Last updated: 2026-09-13
+>
+> Closed: 2026-09-13
 
 ## Purpose
 
 Back up TrueNAS's `archive-movies` and `archive-tv` datasets (the
 downconverted, long-term media archive produced by the
-[Video Library Archiving project](<completed projects/Video-Library-Archiving.md>)) to the main
+[Video Library Archiving project](Video-Library-Archiving.md)) to the main
 Synology (`gowest`, `192.168.20.41`), giving this media a second copy on a
 separate physical device without relying on IDrive e2 capacity or cost.
 
@@ -188,3 +190,13 @@ share, or scheduled job was ever created; `archive-movies` and
 own RAIDZ2 redundancy, matching the accepted-risk framing already
 documented for other media in `docs/05-Backups.md`. Revisit this document
 if that decision changes.
+
+## Closeout
+
+Closed without implementation. No account, share, mount, scheduled job,
+credential, firewall rule or production data was created or changed by this
+proposal. The media archive remains intentionally single-copy on the TrueNAS
+Media pool, with RAIDZ2 providing disk-failure tolerance but not an independent
+backup. Jason accepted that boundary when declining the project; any future
+change requires a new proposal and authorization rather than reopening this
+record silently.
