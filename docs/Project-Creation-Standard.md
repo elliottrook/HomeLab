@@ -158,8 +158,9 @@ Every completed milestone must end with:
 2. an evidence-log update in the project document;
 3. relevant updates to operational and integration documentation;
 4. a focused local commit with no unrelated user changes; and
-5. synchronization to the configured Forgejo primary and GitHub protection
-   remote when permitted.
+5. synchronization by pushing the configured Forgejo primary when permitted,
+   followed by read-only verification that Forgejo's automatic mirror advanced
+   the GitHub protection remote to the same commit.
 
 Remote Git writes are externally visible mutations. The project document may
 require them, but their execution must still follow the active repository and
@@ -168,6 +169,14 @@ explicit confirmation immediately before each push unless that exact push was
 specifically authorized. If a push cannot occur, retain the local commit, record
 the pending remote synchronization and continue only when doing so does not
 compromise recovery or collaboration.
+
+Do not routinely push milestones directly to the configured `github` remote.
+Forgejo `origin` is the authoritative push target and owns synchronization to
+GitHub. A direct GitHub push is an exceptional mirror-recovery operation and
+requires the user's explicit request plus the normal immediate remote-write
+approval. A successful Forgejo push is complete only after a read-only ref check
+confirms the GitHub mirror reached the same commit, or the project records the
+mirror as pending/failed.
 
 Never force-push, rewrite shared history, delete a remote branch, create a tag or
 release, merge a pull request, or alter a remote workflow unless that exact
@@ -332,7 +341,8 @@ When Jason asks to create a project:
 7. After Jason accepts the risk assessment and stream, execute milestone by
    milestone within the authorization envelope.
 8. At each milestone gate: validate, update evidence and integrations, commit,
-   and synchronize remotes when specifically permitted.
+   push Forgejo when specifically permitted, and verify its GitHub mirror
+   read-only.
 9. Persist a usable handoff whenever work may stop; resume from recorded state.
 10. On graduation, run final regressions and recovery proof, record limitations,
     move the project to the completed-project location when appropriate, update

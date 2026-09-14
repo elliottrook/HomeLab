@@ -40,6 +40,12 @@ the remote-write approval rule below.
 Codex may create and modify Forgejo workflow configuration locally and include
 those changes in local commits.
 
+Forgejo `origin` is the single authoritative push target. Forgejo automatically
+mirrors accepted commits to the GitHub protection remote; Codex must verify the
+GitHub ref read-only after the mirror runs and must not push the same commit
+directly to the `github` remote. A direct GitHub push is permitted only when the
+user explicitly requests it for mirror recovery or another exceptional case.
+
 Codex must obtain the user's explicit confirmation immediately before any
 operation that modifies Forgejo or another remote, including:
 
