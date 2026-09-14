@@ -615,6 +615,63 @@ The project graduates only when:
 | 2026-09-14 | 3 two-stage retrieval integration | Added an opt-in `directory_first` parameter to `search_knowledge()` in `services/aster-agent/aster_agent.py` (default off; the one live call site does not pass it, so today's deployed behavior is provably unchanged). First implementation used substring scoring against directory abstract text and, when re-tested against the real Milestone 1 corpus rather than only synthetic fixtures, was caught introducing two real regressions before being called done: "for" ⊂ "forgejo" broke the previously-perfect UPS TEST-42 case, and "add" ⊂ "address" contributed to a wrong Sonarr narrowing. Fixed by switching to whole-word matching against curated topic tags plus the source id's own alphabetic components, dropping the noisy free-text abstract sentence from scoring. Re-verified on the real corpus: 8/10 correct at top rank under `directory_first=True` vs. 6/10 flat, zero regressions, both of Milestone 1's original failures fixed. Added 5 new tests proving byte-identical fallback for a missing index, a stale abstract, and an inconclusive query, plus correct narrowing and reference-tier non-interference; verified passing via the same standalone-extraction technique used in Milestones 1-2 (this session still has no network path to install the pinned `fastapi`/`httpx`/`pydantic` versions needed to import `aster_agent.py` directly). Could not re-run the live adversarial evaluation suite (`run_evals.py` against the real llama.cpp endpoint) — same network-access gap as Milestone 1's `compare_mirror.py` limitation; proven by construction instead (unused-by-default parameter, unmodified live call path) that today's deployed behavior cannot have changed, which is not a substitute for the real re-run | Milestone 3's gate partially passed: fallback proven, real improvement measured, but the live adversarial re-run is outstanding and carried forward as a precondition before Milestone 4 could ever activate this on the live path. Nothing deployed; `directory_first` stays off by default |
 | 2026-09-14 | 4 retrieval-ranking comparison | Repeated the Milestone 1 cross-domain question set against `directory_first=True` on the identical real 1,796-entry production mirror, run twice independently with byte-identical output both times (this pipeline has no randomness). Could not re-run the general/ARR/Home-Assistant regression suites or generate comparative LLM answers — same no-network-path gap as Milestone 3's adversarial suite; these suites (`sysadmin-graduation.json`, `sysadmin-generalization.json`, `arr-advisory-graduation.json`, `arr-school-graduation.json`, `arr-stack-advisory.json`, `arr-stale-config-regression.json`, `home-assistant-graduation.json`, `knowledge-mirror-graduation.json`) require the live llama.cpp endpoint via `run_evals.py` | 8/10 correct at top rank vs. 6/10 flat, zero regressions — a real, reproducible retrieval-level improvement, not "no material improvement." Milestone 4's gate is explicitly **not** called passed: this is half the required comparison, and production activation must not be decided on it alone. Next safe action is running the listed suites from a host with real access before any activation decision |
 
+## Starting the handoff session
+
+This project is handed off 2026-09-14 to a fresh session specifically because
+finishing it needs something this session structurally does not have: a
+network path to the Aster agent (LXC 104, `192.168.70.10`) and llama.cpp
+(LXC 110, `192.168.70.12`) hosts. This is a **sandbox/platform limitation,
+not a permission or authorization gap** — Stream A is already granted for
+this whole project, and Milestones 1-4's retrieval-level work is done and
+committed. What's left (Milestone 3's adversarial suite, Milestone 4's eight
+regression suites, and Milestone 5) all require actually calling the real
+model, and Claude Code's Bash sandbox on this Mac blocks raw TCP/SSH and
+IP-based HTTP(S) to those hosts regardless of allowlist entries or
+authorization stream — proven repeatedly across this project and the earlier
+Authentik project.
+
+**What the new session needs to do, concretely:**
+
+1. Read this document in full, especially Milestones 3-4's evidence log
+   entries, before touching anything — they explain exactly what passed,
+   what's proven, and what's still open.
+2. Every command that reaches `192.168.70.10` or `192.168.70.12` will need
+   `dangerouslyDisableSandbox: true`, which triggers a live approval prompt
+   even though Stream A is granted (platform/sandbox controls are mandatory
+   regardless of project authorization — see `CLAUDE.md`). This is
+   read-only, cost-bearing (real inference calls) work, not state-changing,
+   but it still needs to be watched and approved as it runs.
+3. If you (Jason) won't be at the keyboard, start this session with
+   `cd /Users/jelliott/lab/homelab && claude --remote-control "Aster Mirror Eval Run"`
+   and connect from the Claude iPhone app's Code tab, the same pattern used
+   for the Authentik project's handoff — each sandbox-bypass prompt will
+   appear as a phone dialog to approve.
+4. Run, with `directory_first=True` explicitly set wherever the harness
+   supports it:
+   - Milestone 3's adversarial/critical suite (poisoned sources, conflicting
+     authorities, secret refusal, missing evidence) — check
+     `services/aster-agent/evals/run_evals.py` for the exact invocation this
+     repo already uses for graduation-style runs.
+   - Milestone 4's eight regression suites, listed in that milestone's
+     section and evidence log row.
+5. Compare each suite's `directory_first=True` result against its existing
+   passing baseline (the suite files themselves record expected outcomes).
+   Record pass/fail plainly in Milestone 3/4's checklists and evidence log —
+   including a "no material improvement" or regression finding if that's
+   what happens. **Do not activate `directory_first` in production
+   (i.e. change the live tool-dispatch call site at
+   `services/aster-agent/aster_agent.py`'s `search_knowledge` tool handler)
+   until every suite passes** — this is the explicit condition this
+   project's own gates were written around.
+6. If everything passes: Milestone 5 (recovery/observability/graduation) is
+   the last step, and needs Jason's explicit sign-off on the production
+   activation decision itself before it's made, not just on the evidence
+   supporting it.
+7. If something doesn't pass: that's a legitimate, useful outcome too — stop,
+   record it plainly, and either close the project at that finding or scope
+   a fix, per this project's own "no material improvement" language in
+   Milestone 4.
+
 ## Close-out
 
 To be completed at graduation. Will record: whether the directory layer was
