@@ -1,20 +1,21 @@
 # Aster Mirror Directory-First Retrieval and Scale Evaluation
 
-> Status: Proposed — awaiting authorization
+> Status: Active — Stream A granted 2026-09-13. Milestone 1 baseline complete;
+> found real cross-domain retrieval degradation, so the project proceeds to
+> Milestone 2 rather than the hard-stop path.
 >
 > Owner: Jason
 >
 > Proposed: 2026-09-13
 >
-> Started: —
+> Started: 2026-09-13
 >
 > Completed: —
 >
-> Authorization stream requested: Stream A — all changes are staged, reversible,
-> pipeline-internal, and each milestone is gated on measurement before the next
-> proceeds; no destructive, credential, network, or exposure change is in scope,
-> which is the profile Stream A is intended for. Jason may downgrade to Stream M
-> if closer per-change approval is preferred.
+> Authorization stream: **A — Autonomous**, granted by Jason 2026-09-13 in this
+> project's own conversation, per the per-project authorization mechanism in
+> `CLAUDE.md`. All changes remain staged, reversible, and pipeline-internal;
+> platform/sandbox approval prompts remain mandatory regardless of this grant.
 
 ## Purpose and desired outcome
 
@@ -184,10 +185,16 @@ new service, listener, or outbound call is added anywhere in this flow.
 
 ## Persistence plan
 
-- **Current milestone:** none started — proposed, awaiting authorization.
-- **Last verified state:** not applicable; no implementation has begun.
-- **Next safe action:** obtain Stream A (or M) authorization from Jason, then
-  begin Milestone 1 baseline measurement, which requires no code change.
+- **Current milestone:** Milestone 1 complete 2026-09-13; Milestone 2 not
+  started.
+- **Last verified state:** a 10-question cross-domain retrieval-precision
+  baseline was run read-only against the live production mirror (1,796
+  entries, tree unmodified) via `search_knowledge()`, Aster's actual ranking
+  function. No mirror content, Aster configuration, or Aster snapshot was
+  changed.
+- **Next safe action:** review the Milestone 1 findings below, then begin
+  Milestone 2 (directory abstract generator), which is additive and does not
+  touch the deployed snapshot until a later, separately gated activation.
 - **Rollback location:** the currently deployed `1.4.1` mirror tree and active
   Aster snapshot are the rollback target for every later milestone; their
   exact hashes are recorded in the Production Corpus Expansion evidence log
@@ -200,20 +207,52 @@ new service, listener, or outbound call is added anywhere in this flow.
 
 ## Milestones
 
-### Milestone 1 — Baseline measurement at production scale
+### Milestone 1 — Baseline measurement at production scale — **complete 2026-09-13**
 
-- [ ] Design a cross-domain question set spanning ARR/media, Home Assistant,
+- [x] Design a cross-domain question set spanning ARR/media, Home Assistant,
       networking, storage, power and camera topics, including at least one
       question per domain with a plausible near-miss in another domain.
-- [ ] Run the existing mirror-vs-complete-source comparison at current
-      production scale against this question set.
-- [ ] Record context size, precision (does the returned entry match the asked
-      domain), and any case where an unrelated domain's entry outranked the
-      correct one.
+      **Result:** 10 questions grounded in the real accepted source list (read
+      read-only from the live mirror's `entries/` and `indexes/` on LXC 113,
+      no state changed), with near-miss pairs confirmed to genuinely share
+      vocabulary in this corpus (certificate: NPM/Authentik vs SABnzbd;
+      backup: OPNsense/Grafana vs SABnzbd; notification: Home Assistant vs
+      Sonarr/Radarr/Lidarr/Prowlarr/Grafana/Prometheus; power: the existing
+      synthetic-ups-manual vs real nut-docs pairing). Two questions
+      (TrueNAS/Frigate) had no textual overlap found in this corpus and were
+      kept as scale-only control cases rather than forced near-misses.
+- [x] Run a retrieval-precision measurement against the live production
+      mirror at current scale. **Scope note:** this ran Aster's actual
+      `search_knowledge()` ranking function read-only against the real,
+      unmodified 1,796-entry mirror (copied read-only for offline
+      measurement; nothing on LXC 104/113 was changed), rather than the full
+      `compare_mirror.py` LLM-answer comparison — the llama.cpp/Aster-agent
+      hosts (192.168.70.10, .12) have no configured SSH path and no sandbox
+      hostname entry, so end-to-end answer generation is deferred; the ranking
+      layer is what determines precision and is what Milestones 2-4 would
+      change, so it is the right layer to baseline first.
+- [x] Record context size, precision, and misranking. **Result (10
+      questions, 9 valid — one question had two legitimately correct
+      candidate sources and was excluded as a bad test rather than a
+      finding):** 7/9 correct at top rank. Two real problems found: (1) an
+      OPNsense backup-schedule question was outranked by SABnzbd's own backup
+      docs, with the correct source only reaching rank 3 of 5; (2) a
+      Sonarr-notification question returned Grafana's notification docs at
+      rank 1 with Sonarr absent from the top 5 entirely, despite "Sonarr"
+      being named explicitly in the question. A third, structurally different
+      issue was found: a Home-Assistant-phrased query triggered an existing
+      hand-tuned regex shortcut in `search_knowledge()` (`focused_ha_reference`)
+      that forces retrieval to a single non-mirror reference file and returned
+      zero mirror results — in the live deployed snapshot this file exists, so
+      the practical effect is that such queries never reach the 1,796-entry
+      mirror at all, independent of corpus scale. Mean context size across the
+      10 queries was ~4,125 characters at `max_results=5`.
 
-Gate: a dated, reproducible baseline exists showing whether flat retrieval has
-degraded at production scale, independent of any pipeline change. If it has
-not, record the finding and stop here per the abort condition above.
+Gate: **passed.** The baseline is dated, reproducible (harness and question
+set retained in this evidence log), and shows real degradation at production
+scale — a genuine cross-domain miss, a genuine misranking, and a
+scale-independent retrieval-routing gap. The hard-stop-if-no-degradation
+condition does not apply; Milestone 2 is authorized to proceed.
 
 ### Milestone 2 — Directory abstract generation
 
@@ -374,6 +413,8 @@ The project graduates only when:
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-09-13 | Proposal | Reviewed OpenViking's directory-first/tiered retrieval model against the graduated Aster mirror's flat structure and the two unresolved ranking incidents from its original graduation; identified that the mirror-vs-complete-source evaluation has never been run at production scale or across domains | Proposed a measure-first, activate-only-if-justified project; no source was enrolled and no system was modified |
+| 2026-09-13 | Authorization | Jason granted Stream A for this project explicitly in-conversation, per `CLAUDE.md`'s per-project authorization mechanism | Milestone 1 begun the same day |
+| 2026-09-13 | 1 baseline measurement | Confirmed no sandbox network path exists from this Claude Code session to the Aster agent, llama.cpp, or Aster Wiki hosts (no SSH alias, no sandbox hostname entry, IP-based HTTP(S) blocked by the sandbox proxy — consistent with the prior Authentik-project finding); per-command sandbox bypass was used only for read-only discovery and a read-only copy of the live mirror tree, both live-approved. Read-only SSH confirmed root access to Aster Wiki LXC 113; the deployed mirror (`/var/lib/aster-wiki/aster-knowledge-mirror`, 1,796 entries, 8.1 MB) was copied read-only to an isolated session scratch directory for offline measurement — nothing on LXC 104/113 was changed. No SSH path exists to the Aster agent host (LXC 104, `192.168.70.10`) at all (`Permission denied`), so the full LLM-answer `compare_mirror.py` comparison could not run; a 10-question cross-domain retrieval-precision harness was built instead, calling Aster's actual unmodified `search_knowledge()` function (extracted verbatim from `services/aster-agent/aster_agent.py` to avoid needing its unrelated `fastapi`/`httpx` runtime dependencies, which are not installable at the pinned versions from this Mac's network) against the real corpus | 7/9 valid questions correct at top rank (one question excluded as a flawed test — both candidate sources were legitimately correct). Two genuine retrieval problems found: OPNsense backup docs outranked by SABnzbd's own backup docs (correct source present at rank 3, not rank 1); a Sonarr-notification question returned Grafana notification docs at rank 1 with Sonarr entirely absent from the top 5. A third, scale-independent issue: a Home-Assistant-phrased query triggers an existing hardcoded `search_knowledge()` shortcut that bypasses the mirror entirely in favor of a single reference file. Milestone 1's gate passed — real degradation was found, so the hard-stop condition does not apply and Milestone 2 is authorized |
 
 ## Close-out
 
