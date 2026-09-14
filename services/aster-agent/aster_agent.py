@@ -448,7 +448,7 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
     focused_arr_reference = bool(
         re.search(r"\b(arr|sonarr|radarr|lidarr|prowlarr|sabnzbd|jellyfin)\b", query, re.I)
         and re.search(
-            r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff|automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity|broker|approval|standing authority|indexer|indexers|sync|synchronization|key rotation|coupled|connected app)\b",
+            r"\b(current|state|present|version|versions|installed|ports?|root|roots|dependency|downloader|handoff|automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity|broker|approval|standing authority|indexer|indexers|sync|synchronization|key rotation|coupled|connected app)\b",
             query,
             re.I,
         )
@@ -572,7 +572,7 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None)
                         preferred_anchor = normalized.find("prowlarr application synchronization")
                         if preferred_anchor < 0:
                             preferred_anchor = normalized.find("connected arr applications")
-                    elif re.search(r"\b(version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b", query, re.I):
+                    elif re.search(r"\b(current|state|present|version|versions|installed|ports?|root|roots|dependency|downloader|handoff)\b", query, re.I):
                         for service in ("sonarr", "radarr", "lidarr", "prowlarr", "sabnzbd", "jellyfin"):
                             if re.search(rf"\b{service}\b", query, re.I):
                                 preferred_anchor = normalized.find(f"| {service} |")

@@ -424,6 +424,10 @@ class AsterAgentTests(unittest.TestCase):
             )
             cases = (
                 (
+                    "What is the HomeLab ARR stack current state?",
+                    "Sonarr inventory boundary",
+                ),
+                (
                     "What installed versions and ports do Sonarr and Radarr use?",
                     "4.0.19.2979",
                 ),
