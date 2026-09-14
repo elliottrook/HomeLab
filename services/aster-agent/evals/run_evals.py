@@ -50,12 +50,15 @@ def main() -> int:
     parser.add_argument("--cases", type=Path, default=Path(__file__).with_name("sysadmin-graduation.json"))
     parser.add_argument("--output", type=Path)
     parser.add_argument("--ids", nargs="*", help="run only these case IDs")
+    parser.add_argument("--timeout", type=float, default=240, help="per-case endpoint timeout in seconds")
     parser.add_argument(
         "--summary-only",
         action="store_true",
         help="omit model answers and print only bounded pass/fail evidence",
     )
     args = parser.parse_args()
+    if args.timeout <= 0 or args.timeout > 900:
+        parser.error("--timeout must be greater than zero and no more than 900 seconds")
     key = os.environ.get("ASTER_API_KEY")
     if not key:
         raise SystemExit("ASTER_API_KEY is required")
@@ -78,7 +81,7 @@ def main() -> int:
             headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
         )
         started = time.monotonic()
-        with urllib.request.urlopen(request, timeout=240) as response:
+        with urllib.request.urlopen(request, timeout=args.timeout) as response:
             body = json.load(response)
         elapsed = round(time.monotonic() - started, 3)
         answer = body["choices"][0]["message"]["content"]
