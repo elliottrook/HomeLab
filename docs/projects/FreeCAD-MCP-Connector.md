@@ -1,6 +1,9 @@
 # FreeCAD MCP Connector for Local CAD Assistance
 
-> Status: Active — Stream A
+> Status: Active — Stream A. Milestone 1 in progress (source review of the
+> access-control code complete and verified; FreeCAD installed; addon not
+> yet installed). Handed off 2026-09-14 to a fresh Remote-Control-enabled
+> session — see "Starting the handoff session" below.
 >
 > Owner: Jason
 >
@@ -403,6 +406,48 @@ TrueNAS DIY SAS Expansion project document.
 | 2026-09-14 | Proposal | Confirmed no CAD tool or connector exists in this session today; researched available FreeCAD MCP server projects and identified `neka-nat/freecad-mcp` (2.3k stars, 289 forks, 173 commits, MIT) as the clear adoption leader among several much smaller alternatives; confirmed its architecture is localhost-only by default with an optional, unused "remote connections" mode, and that it supports running Python scripts inside FreeCAD | Proposed as Stream M given the new local code-execution trust boundary this introduces on the same machine holding this repository's SSH access; no software installed, no MCP connection configured yet |
 | 2026-09-14 | Authorization and scope revision | Jason installed FreeCAD on this Mac; granted Stream A for this project's enumerated scope; asked to add ChatGPT access to the same FreeCAD instance. Asked Jason to clarify since a cloud-reachable ChatGPT would be a materially different, internet-facing architecture — a non-waivable stop condition regardless of Stream A. Jason confirmed the local-only interpretation: ChatGPT Desktop, on this same Mac, as a second local client of the same localhost-only RPC server, not cloud/mobile ChatGPT reaching in over the internet | Scope and architecture revised accordingly; the cloud/mobile interpretation is explicitly recorded as excluded and non-waivable. No software installed yet beyond FreeCAD itself; Milestone 1's source review and addon installation have not started |
 | 2026-09-14 | 1 source review | Read the actual `addon/FreeCADMCP/rpc_server/ip_filter.py` and `settings.py` source directly from GitHub (not the README): confirmed `allowed_ips_str` defaults to `"127.0.0.1"` and is genuinely enforced in `verify_request()`; confirmed persisted settings default to `remote_enabled: False` and `auto_start_rpc: False`; found no telemetry, analytics, or external network call in either file. Did not individually review the other 12 files in `rpc_server/` (commands.py, gui_dispatch.py, fem_executor.py, object_factory.py, object_validation.py, parts_library.py, property_mapper.py, rpc_server.py, serialize.py, view_manager.py, dispatch_health.py, `__init__.py`) — this is a targeted review of the access-control-critical files, not an exhaustive audit | The localhost-only claim is verified at the code level for the files that enforce it, not merely asserted by documentation. Residual limitation recorded: the remaining ~12 files handling the actual CAD command surface have not been reviewed line-by-line. Addon installation and RPC connection have not yet been performed |
+
+## Starting the handoff session
+
+This project is handed off 2026-09-14 to a fresh session with Remote Control
+enabled, so Jason can approve prompts from his phone as Milestone 1
+continues, without needing to sit at this Mac. This is a mechanical handoff,
+not a scope or authorization change — Stream A, the enumerated scope, and
+the non-waivable ChatGPT-cloud exclusion above all carry over unchanged.
+
+**Why a new session is needed at all:** Remote Control cannot be enabled on
+an already-running session — it is locked at launch. The prior session
+confirmed this directly rather than assuming it.
+
+**What the new session needs to do:**
+
+1. Read this document in full before touching anything, especially the
+   Authorization stream header, the Scope and exclusions section, and
+   Milestone 1's evidence log entries — the localhost-only access-control
+   review is already done and verified at the code level; do not redo it,
+   build on it.
+2. Check whether `uv`/`uvx` is available on this Mac (`command -v uv uvx`);
+   install it if not, using the least invasive method available (e.g.
+   Homebrew if already in use on this Mac, otherwise the official installer).
+3. Continue Milestone 1's remaining items in order: install the
+   `addon/FreeCADMCP` addon into FreeCAD's addon directory, start its RPC
+   server from FreeCAD's toolbar, confirm (do not just assume) that it is
+   bound to `127.0.0.1` only, then add the MCP bridge to this Claude Code
+   session's configuration.
+4. Before connecting ChatGPT Desktop: actually check whether its current
+   connector support can reach a local server without any internet-facing
+   relay or tunnel. If it cannot, stop there and report that plainly rather
+   than reaching for an internet-facing workaround — that path is
+   explicitly excluded and non-waivable, not a fallback to improvise around.
+5. Confirm the connection with a trivial read-only action (open a document,
+   read its object list) from each connected client before any real edit.
+6. Under Stream A, ordinary anticipated steps in this enumerated scope do
+   not need a fresh chat approval each time — but platform/sandbox approval
+   prompts remain mandatory regardless (per `CLAUDE.md` and the Standard)
+   and will still surface as phone dialogs; that is expected, not a
+   malfunction.
+7. Keep the evidence log current at each step, exactly as the prior session
+   did, so this remains resumable if interrupted again.
 
 ## Close-out
 
