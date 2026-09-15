@@ -247,9 +247,22 @@ plainly rather than undersold, even though the intended use is narrow.
 
 - [x] Confirm FreeCAD is installed on this Mac (Jason, 2026-09-14).
 - [ ] Confirm `uv`/`uvx` is available on this Mac, or install it.
-- [ ] Review `neka-nat/freecad-mcp`'s actual source code (not just its
+- [x] Review `neka-nat/freecad-mcp`'s actual source code (not just its
       README) for anything reaching beyond localhost or beyond FreeCAD's
-      documented RPC/Python scope.
+      documented RPC/Python scope. **Result, 2026-09-14:** read the actual
+      `rpc_server/ip_filter.py` and `rpc_server/settings.py` source (not the
+      README). `ip_filter.py` defaults to `allowed_ips_str="127.0.0.1"` and
+      enforces it in `verify_request()` by checking the connecting client's
+      IP against parsed allowed networks — a real, enforced default, not
+      only a documentation claim. `settings.py` persists
+      `remote_enabled: False`, `allowed_ips: "127.0.0.1"`, and
+      `auto_start_rpc: False` as defaults, and contains no telemetry,
+      analytics, update-check, or external network call of any kind. This
+      covered the two files that actually determine the localhost-only
+      claim; it is not an exhaustive line-by-line audit of all 14 files in
+      `rpc_server/` (commands.py, gui_dispatch.py, fem_executor.py,
+      object_factory.py, etc. were not individually reviewed) — noted as a
+      residual limitation, not a completed full audit.
 - [ ] Install the FreeCAD addon and start its RPC server; confirm it is
       bound to localhost only.
 - [ ] Add the MCP bridge to this Claude Code session's configuration,
@@ -389,6 +402,7 @@ TrueNAS DIY SAS Expansion project document.
 |---|---|---|---|
 | 2026-09-14 | Proposal | Confirmed no CAD tool or connector exists in this session today; researched available FreeCAD MCP server projects and identified `neka-nat/freecad-mcp` (2.3k stars, 289 forks, 173 commits, MIT) as the clear adoption leader among several much smaller alternatives; confirmed its architecture is localhost-only by default with an optional, unused "remote connections" mode, and that it supports running Python scripts inside FreeCAD | Proposed as Stream M given the new local code-execution trust boundary this introduces on the same machine holding this repository's SSH access; no software installed, no MCP connection configured yet |
 | 2026-09-14 | Authorization and scope revision | Jason installed FreeCAD on this Mac; granted Stream A for this project's enumerated scope; asked to add ChatGPT access to the same FreeCAD instance. Asked Jason to clarify since a cloud-reachable ChatGPT would be a materially different, internet-facing architecture — a non-waivable stop condition regardless of Stream A. Jason confirmed the local-only interpretation: ChatGPT Desktop, on this same Mac, as a second local client of the same localhost-only RPC server, not cloud/mobile ChatGPT reaching in over the internet | Scope and architecture revised accordingly; the cloud/mobile interpretation is explicitly recorded as excluded and non-waivable. No software installed yet beyond FreeCAD itself; Milestone 1's source review and addon installation have not started |
+| 2026-09-14 | 1 source review | Read the actual `addon/FreeCADMCP/rpc_server/ip_filter.py` and `settings.py` source directly from GitHub (not the README): confirmed `allowed_ips_str` defaults to `"127.0.0.1"` and is genuinely enforced in `verify_request()`; confirmed persisted settings default to `remote_enabled: False` and `auto_start_rpc: False`; found no telemetry, analytics, or external network call in either file. Did not individually review the other 12 files in `rpc_server/` (commands.py, gui_dispatch.py, fem_executor.py, object_factory.py, object_validation.py, parts_library.py, property_mapper.py, rpc_server.py, serialize.py, view_manager.py, dispatch_health.py, `__init__.py`) — this is a targeted review of the access-control-critical files, not an exhaustive audit | The localhost-only claim is verified at the code level for the files that enforce it, not merely asserted by documentation. Residual limitation recorded: the remaining ~12 files handling the actual CAD command surface have not been reviewed line-by-line. Addon installation and RPC connection have not yet been performed |
 
 ## Close-out
 
