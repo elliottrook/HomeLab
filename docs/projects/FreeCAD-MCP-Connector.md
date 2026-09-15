@@ -250,15 +250,18 @@ plainly rather than undersold, even though the intended use is narrow.
   `~/lab/homelab-cad/freecad-mcp/working/`:
   `main_body_1.stl`/`main_body_2.stl`/`main_body_3.stl` (untouched
   copies, matching the documented baseline exactly) plus
-  `main_body_1_rear_clearance_v1.stl` (the +15mm-depth edit, 132.00 x
-  218.64 x 200.00mm, independently re-measured). Target PSU envelope
+  `main_body_1_rear_clearance_v2.stl` (the +15mm-depth edit, 132.00 x
+  218.64 x 200.00mm, independently re-measured; v1 was deleted after it
+  turned out to be two disconnected solids despite passing `isValid()`
+  and a volume-conservation check — see the Milestone 3 evidence entry).
+  Target PSU envelope
   confirmed: generic ATX, 150 x 86mm cross-section, 140mm nominal depth
   (real depth varies 140-230mm by unit — unbounded by spec, re-verify
   once a unit is chosen). ChatGPT Desktop access confirmed not possible
   without an excluded tunnel, deferred.
 - **Next safe action:** continue Milestone 3 — widen the shared
   cross-section (currently 132mm width x 185mm height) to fit the 150mm
-  ATX width, most likely starting from `main_body_1_rear_clearance_v1.stl`
+  ATX width, most likely starting from `main_body_1_rear_clearance_v2.stl`
   rather than the untouched `main_body_1.stl` so the two edits compose;
   extend `main_body_2`'s length along the stacking axis for the target
   PSU depth; adjust the PSU mounting screw pattern for a standard ATX
@@ -430,20 +433,33 @@ measured against a verified baseline, not assumption. **Gate met,
       connector body actually protrudes once plugged into a drive, or its
       cable's minimum bend radius — this remains genuinely unverified.
       Asked Jason how to proceed; he chose adding a conservative +15mm
-      margin now rather than waiting for a physical measurement. Applied
-      it as a real geometry edit, not a guess baked into a redraw: found a
-      Z=155mm plane where **zero mesh facets cross** (confirmed by
-      dry-run before touching anything — an earlier vertex-only check had
-      wrongly suggested "empty space" there when large wall panels
-      actually span across it), converted the mesh to a proper B-rep
-      solid, cut it at that plane, translated the rear portion +15mm, and
-      fused it back — volume conservation checked exactly
-      (807610.3 = 105867.5 + 701742.8) and the resulting solid validated
-      (`isValid() == True`). Exported to
-      `~/lab/homelab-cad/freecad-mcp/working/main_body_1_rear_clearance_v1.stl`;
-      independently re-measured with a standalone parser: 132.00 x 218.64
-      x 200.00mm (only Z changed, from 185 to 200, exactly +15mm). **Not
-      yet done:** `main_body_2`/`main_body_3` were deliberately left
+      margin now rather than waiting for a physical measurement. First
+      attempt: found a Z=155mm plane a naive vertex-only histogram
+      suggested was "empty space"; a dry-run before touching anything
+      caught that this was wrong (1321 facets actually cross that plane —
+      large wall panels span it in single triangles). Converted the mesh
+      to a B-rep solid, cut at that plane, translated the rear portion
+      +15mm, fused back — volume conserved exactly
+      (807610.3 = 105867.5 + 701742.8), `isValid() == True`. **Self-caught
+      error, same session:** those two checks are not sufficient proof of
+      a correct result. The exported file
+      (`main_body_1_rear_clearance_v1.stl`) looked fine in an isometric
+      screenshot and passed both checks, but was actually **two
+      disconnected solids** with a genuine 15mm air gap between them
+      (`len(shape.Solids) == 2`) — the cut-and-translate had severed the
+      side walls with nothing bridging the gap, and the render simply
+      didn't show it from that angle. Caught by explicitly checking
+      `len(shape.Solids)` rather than trusting `isValid()` and volume
+      conservation alone. Fixed properly: extracted the real cut
+      cross-section face(s) from the lower piece, extruded them 15mm to
+      generate a filler solid with the exact matching profile, fused
+      lower + filler + shifted-upper into one piece — now
+      `len(shape.Solids) == 1`, genuinely connected. Re-exported as
+      `main_body_1_rear_clearance_v2.stl`; the broken v1 file was deleted.
+      Independently re-measured with a standalone parser: 132.00 x 218.64
+      x 200.00mm (external dimensions unchanged from the first attempt —
+      only internal connectivity was wrong before). **Not yet done:**
+      `main_body_2`/`main_body_3` were deliberately left
       untouched (they don't carry drives or this cable run), so
       `main_body_1` is now 15mm deeper than its neighbors' shared
       132x185mm cross-section — whether that creates a visible/functional
@@ -561,7 +577,8 @@ TrueNAS DIY SAS Expansion project document.
 | 2026-09-14 | 1 addon install, MCP config, ChatGPT check | Cloned `neka-nat/freecad-mcp` to scratch, copied `addon/FreeCADMCP` into FreeCAD 1.1's addon directory (`~/Library/Application Support/FreeCAD/v1-1/Mod/FreeCADMCP`, sandbox disabled for this local write only). Added `freecad` as a `local`-scope Claude Code MCP server (`claude mcp add freecad -- uvx freecad-mcp`, stored in `~/.claude.json`, not committed to this repo). Researched ChatGPT Desktop's (v26.825.51511, installed) actual current connector capability rather than assuming it: confirmed its Developer Mode custom connectors require a public HTTPS remote server with no localhost/stdio support at all | Addon installed but RPC server not yet started — that step is a manual FreeCAD GUI action (toolbar button) this session cannot perform headlessly; needs Jason at the Mac. ChatGPT Desktop access is confirmed not possible without the excluded internet tunnel and is deferred, not implemented. Claude Code's MCP bridge is configured but not yet connectable until the RPC server is running |
 | 2026-09-14 | 1 RPC server start, read-only verification | Jason clicked **Start RPC Server** in FreeCAD's toolbar; it gave no visible in-app confirmation beyond the Report View console (easy to mistake for not having worked). Verified independently: `lsof` showed the `freecad` process listening on `127.0.0.1:9875` only (a loopback check the sandbox itself initially blocked — had to disable it for this specific local-only check, not a project-scope bypass); real XML-RPC calls returned `ping()` → `True`, `list_documents()` → `[]`, `get_rpc_status()` → healthy | Milestone 1's gate is met: connector installed, source-reviewed, and proven read-only-functional with no exposure beyond localhost. Milestone 1 closed; Milestone 2 (baseline the existing model) not yet started |
 | 2026-09-14 | 2 baseline verified, PSU target set | Jason downloaded the full MakerWorld package to `~/Downloads/`. Copied the three main-body STLs and the original zip into a new local CAD working area outside this repo, per scope: `~/lab/homelab-cad/freecad-mcp/originals/` (made read-only immediately) and `.../working/` (writable copies). Verified the three main-body envelopes two independent ways — a standalone Python STL parser, and for real through the connector itself (`create_document`, `execute_code` importing each STL as a `Mesh::Feature`, reading back `BoundBox`) — both matched the documented table exactly. Asked Jason for the ATX target rather than assuming the proposal's example unit; he chose a generic envelope. Researched the actual ATX spec: width/height fixed at 150 x 86mm, depth explicitly not standardized (real units 140-230mm) | Milestone 2's gate is met: the connector reproduces the original design's known measurements for real, not just via a bare ping. Working baseline: 150 x 86mm ATX cross-section, 140mm nominal depth (to be re-verified against the actual unit at Milestone 4). Milestone 2 closed; Milestone 3 (adapt the PSU compartment) not yet started |
-| 2026-09-14 | 3 rear cable clearance (added scope) | Jason asked to verify rear cable clearance for the drive bays and adjust if necessary, given the known drive/cable specs. Measured the real mesh (not the doc's rough estimate): drive-stop wall ~Z141-150mm, ~29mm genuinely open space, a small non-full-width rib ~Z167-172mm, exterior wall ~Z179-185mm. Could not find an authoritative H0204/SFF-8482 connector-protrusion or cable-bend-radius spec anywhere searched (SNIA docs 403'd, CableDeconn listing has no such dimension). Asked Jason how to proceed; he chose a conservative +15mm margin now over waiting for a physical measurement. First attempt (naive: translate all mesh points with Z>155) was caught by a dry-run check *before* applying it — 1321 facets actually cross that plane (large wall panels span it in single triangles; the earlier vertex-only histogram was misleadingly showing "empty space" that wasn't). Redid it properly: converted the mesh to a validated closed B-rep solid, cut with a box at Z=155, translated the upper piece +15mm, fused back, confirmed exact volume conservation (807610.3 = 105867.5 + 701742.8) and solid validity, then exported to STL and independently re-measured (132.00 x 218.64 x 200.00mm — only Z changed, by exactly 15mm) | `main_body_1_rear_clearance_v1.stl` created in the working directory as a real, geometrically-sound edit — not a guess baked in blind. Two things explicitly still open, not resolved by this step: whether 44mm (29 measured + 15 added) is actually enough for the real H0204 connector (unverified spec), and whether `main_body_1`'s new depth mismatch against untouched `main_body_2`/`3` matters at their actual physical joint (can't tell from raw STL coordinates, which aren't pre-aligned). Both depend on the physical print-and-fit coupon test the TrueNAS-DIY-SAS-Expansion project already planned |
+| 2026-09-14 | 3 rear cable clearance (added scope) | Jason asked to verify rear cable clearance for the drive bays and adjust if necessary, given the known drive/cable specs. Measured the real mesh (not the doc's rough estimate): drive-stop wall ~Z141-150mm, ~29mm genuinely open space, a small non-full-width rib ~Z167-172mm, exterior wall ~Z179-185mm. Could not find an authoritative H0204/SFF-8482 connector-protrusion or cable-bend-radius spec anywhere searched (SNIA docs 403'd, CableDeconn listing has no such dimension). Asked Jason how to proceed; he chose a conservative +15mm margin now over waiting for a physical measurement. First attempt (naive: translate all mesh points with Z>155) was caught by a dry-run check *before* applying it — 1321 facets actually cross that plane (large wall panels span it in single triangles; the earlier vertex-only histogram was misleadingly showing "empty space" that wasn't). Redid it via a solid cut+translate+fuse instead: exact volume conservation (807610.3 = 105867.5 + 701742.8) and `isValid() == True` — both passed, so exported and reported it as correct | `main_body_1_rear_clearance_v1.stl` created — but this was wrong. See the next row: it was actually two disconnected solids, and the checks used weren't sufficient to catch it |
+| 2026-09-14 | 3 rear clearance, self-caught connectivity bug | Before reusing the cut/translate/fuse method for the PSU-width widening, checked whether the v1 result was genuinely one connected piece rather than assuming — `len(shape.Solids)` returned `2`, not `1`: the cut-and-translate had severed every wall crossing Z=155 (confirmed 1321 facets did) and left a real 15mm air gap between the two halves, invisible in the isometric screenshot from that angle and undetected by `isValid()` (checks each piece individually) or the volume-conservation check (conserved regardless of whether the pieces touch). Fixed by extracting the real cut cross-section face(s) from the lower piece, extruding them 15mm to build a filler solid with the exact matching profile, then fusing lower + filler + shifted-upper into one piece | `main_body_1_rear_clearance_v2.stl` — confirmed `len(shape.Solids) == 1`, genuinely connected, same external dimensions (132.00 x 218.64 x 200.00mm). v1 deleted. Lesson applied going forward: verify solid count/connectivity explicitly after any cut-and-translate edit, not just validity and volume. Two things still open, unrelated to this bug: whether 44mm (29 measured + 15 added) is actually enough for the real H0204 connector (unverified spec), and whether `main_body_1`'s new depth mismatch against untouched `main_body_2`/`3` matters at their actual physical joint (can't tell from raw STL coordinates, which aren't pre-aligned) — both depend on the physical print-and-fit coupon test the TrueNAS-DIY-SAS-Expansion project already planned |
 
 ## Starting the handoff session
 
