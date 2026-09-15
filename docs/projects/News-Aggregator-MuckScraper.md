@@ -1,16 +1,19 @@
 # News Aggregator (MuckScraper)
 
-> Status: Active — Stream A. **Milestones 1, 2 and 3 complete.** LXC 114
+> Status: Active — Stream A. **Milestones 1-4 complete.** LXC 114
 > `news-aggregator` runs a full hourly pipeline on VLAN 70
 > (`192.168.70.13`): ingest → cluster → summarize → flag loaded language,
-> chained in one systemd service. Now ingesting **10 feeds** (Al Jazeera
-> added 2026-09-15 as a real test of the new-source workflow — zero code
-> changes needed, immediately found a genuine 3-way cross-outlet match).
-> **One thing needs your input before Milestone 4 finishes**: the
+> chained in one systemd service, now across **10 feeds** (Al Jazeera
+> added 2026-09-15 as a real new-source test). The reading UI is live at
+> `http://news.internal:8080`, reachable only from Jason's approved
+> devices via a narrow, `MGMT_ADMIN_HOSTS`-precedented firewall rule added
+> and verified end-to-end after confirming VLAN 70's isolation had left
+> Jason himself unable to reach it. HomeLab Doctor coverage is live and
+> tested against real data. Recorded in NetBox as VM id 15.
+> **One thing still needs your input before Milestone 5**: the
 > `outlet_ratings` table's actual values are a draft proposal, not a
 > unilateral decision — see Milestone 3's checklist and the evidence log
-> for the specific ratings and their confidence levels. Recorded in
-> NetBox as VM id 15.
+> for the specific ratings and their confidence levels.
 >
 > Project owner: Jason
 >
@@ -405,7 +408,7 @@ scoped in detail, or measured.
       place of the bare `ingest.py` call — each stage is independent and
       idempotent, and one stage failing doesn't block the others.
 
-### Milestone 4 — Reading UI and hardening
+### Milestone 4 — Reading UI and hardening — **complete 2026-09-15**
 
 - [x] Test adding a new source to the live pipeline. **Not a pre-planned
       item — Jason asked whether this was tested and requested Al Jazeera
@@ -429,8 +432,53 @@ scoped in detail, or measured.
       clusters failed on the first summarization pass and succeeded
       cleanly on an immediate idempotent re-run — a transient issue, not a
       logic bug, and exactly what the idempotent design is for.
-- [ ] Build the internal-only reading UI.
-- [ ] Confirm no public exposure and correct internal DNS resolution.
+- [x] Build the internal-only reading UI. **Done 2026-09-15.** Flask app
+      (`app.py`) behind gunicorn, bound explicitly to `192.168.70.13:8080`
+      only (never `0.0.0.0`), run via `news-aggregator-ui.service`. Renders
+      clusters newest-first: multi-outlet clusters show the `aster-llama`
+      summary, single-source items show their own RSS description, each
+      outlet links out with its rating shown if one exists in
+      `outlet_ratings` — honestly labeled "(no rating)" otherwise, since
+      the table is still empty pending Jason's confirmation of the draft
+      values. The non-authoritative caveat is always visible at the top,
+      not just present somewhere in the markup. A `/healthz` endpoint
+      exists for the Doctor check below. Verified by fetching the real
+      rendered page (27KB, real content, not an error page) and spot
+      checking specific rendered entries.
+- [x] Confirm no public exposure and correct internal DNS resolution.
+      **Done 2026-09-15, and this surfaced a real, unanticipated gap that
+      needed Jason's explicit decision before it could be closed.** Added
+      `news.internal` → `192.168.70.13` to both Pi-holes (matching the
+      existing `truenas.internal` direct-IP pattern, not the
+      Authentik/NPM-fronted `*.elliottrook.com` pattern — proportionate
+      for a single-user tool with no need for SSO). Verified zero WAN/
+      OPNsense exposure (`grep -c 192.168.70.13 /conf/config.xml` before
+      any change: 0 matches). But confirming VLAN 70's isolation also
+      revealed that **Jason himself could not have reached this UI** —
+      nothing permitted his own trusted devices into VLAN 70 at all, only
+      the outbound-egress question had ever been considered. Presented
+      this plainly rather than silently opening a rule; Jason chose a
+      narrow, `MGMT_ADMIN_HOSTS`-precedented fix. Backed up
+      `config.xml` (`config-news-aggregator-before-20260915.xml`,
+      matching this repo's established naming convention) before any
+      edit; made a minimal, surgical **text** insertion of one new rule
+      rather than a full-tree XML re-serialization, specifically to avoid
+      any risk of reformatting unrelated parts of a 175KB live production
+      firewall config; the insertion script asserted every expected
+      substitution actually happened before writing, and asserted the
+      stale `opt4` value was gone from the new block. Validated the
+      result still parses as well-formed XML before reloading. New rule:
+      `MGMT_ADMIN_HOSTS → 192.168.70.13:8080/tcp` only, sequence 3150 (a
+      single host destination and a single port, not a VLAN-wide
+      allowance). Reloaded via `configctl filter reload`; confirmed the
+      exact rule loaded into the live `pf` ruleset via `pfctl -sr`.
+      **Verified end-to-end from a real approved device**, not just
+      checked on paper: this Mac (`192.168.1.206`) is itself one of the
+      three `MGMT_ADMIN_HOSTS` entries, and a direct DNS lookup + HTTP
+      request from it succeeded. Regression-checked immediately after:
+      a non-admin host (the Docker LXC on VLAN 20) still correctly
+      cannot reach it (connection refused), confirming the rule is as
+      narrow as intended and nothing else changed.
 - [ ] Add HomeLab Doctor and monitoring coverage.
 
 ### Milestone 5 — Documentation and graduation
@@ -440,9 +488,19 @@ scoped in detail, or measured.
 
 ## Required integration impact checklist
 
-- [ ] **HomeLab Doctor** — not yet assessed; expected to need a feed-fetch
-      freshness/failure check once a schedule exists.
-- [ ] **Monitoring/alerting** — not yet assessed.
+- [x] **HomeLab Doctor** — added 2026-09-15. `check_news_aggregator()` in
+      `scripts/doctor.sh`: fails if the UI service isn't active or
+      `/healthz` doesn't report ok; fails if no feed fetch has succeeded
+      in the last 2 hours; warns on a mix of recent successes and
+      failures; fails if fetches are failing outright. Tested against the
+      real system, not just written and assumed correct — the check
+      correctly surfaced a real warning from the `times-colonist`/
+      `chek-news` URL failures already recorded in `fetch_log` from
+      earlier Milestone 2 testing, confirmed by querying the table
+      directly rather than trusting the check's own output blindly.
+- [x] **Monitoring/alerting** — covered by the Doctor check above; no
+      separate alerting surface needed for a single-user internal tool
+      already covered by the existing Doctor run.
 - [ ] **Backup and recovery** — expected: datastore and config need
       inclusion in the existing backup pipeline; not yet designed.
 - [x] **NetBox** — added 2026-09-15. Followed this repo's own established
@@ -510,6 +568,10 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-15 | 3 aster-llama auth gap found and fixed | Summarization hit a real gap the original plan missed: aster-llama requires an API key, and llama-server only supports one static key via `--api-key` by default. Rather than reuse Aster's own key (against this document's own "no shared credentials" design) or decide unilaterally, presented the trade-off to Jason. Jason chose to check for multi-key support first; `llama-server --help` confirmed `--api-key-file` accepts multiple keys. Generated a dedicated key server-side (never displayed in any output), added it to `/etc/aster-llama-api-keys` alongside Aster's existing key, switched the systemd unit, restarted. A `/v1/models` no-key 200 briefly looked like a regression; investigated rather than assumed and confirmed it's normal llama.cpp behavior (that endpoint is exempt from auth) by testing the actual `/v1/chat/completions` endpoint separately, which correctly rejects no-key and garbage-key requests with 401 | Aster's own key still works (production continuity confirmed), the new dedicated key works, unauthorized requests are still rejected. New key stored at `/root/.news-aggregator-llama-key` on LXC 114, mode 600 |
 | 2026-09-15 | 3 summarization and language notes implemented | `summarize.py` ran against all 6 real multi-outlet clusters — neutral, factual, correctly notes emphasis differences across outlets, zero bias language (spot-checked). `language_notes.py` ran against 45 real headlines: zero flagged. Verified this wasn't a broken always-NONE detector by testing a deliberately loaded synthetic headline, which was correctly flagged with the specific loaded phrases named. All four pipeline stages chained into `run_pipeline.sh`, wired into the existing hourly systemd timer | **Milestone 3's clustering and summarization items complete.** Bias-labeling mechanism built and verified; the actual `outlet_ratings` values are a draft proposal for Jason, not yet loaded — see the checklist item above for the specific draft ratings and honest "no rating available" cases |
 | 2026-09-15 | 4 new-source test (Al Jazeera) | Jason asked whether adding a new source was tested and requested Al Jazeera specifically — became the real test. Live-verified `https://www.aljazeera.com/xml/rss/all.xml` (200, correct RSS content-type) before adding it, rather than assuming. Added to `feeds.json` as a config-only change; ran the full pipeline (ingest → cluster → summarize). Ingested 25 items cleanly on the first try. Clustering found 5 new multi-outlet clusters involving Al Jazeera with no special-casing needed, including a genuine 3-way match (BBC + Times Colonist + Al Jazeera on the US Supreme Court mail-in-ballot ruling). `summarize.py` generated clean summaries for all of them; 2 failed on the first pass and succeeded on an immediate idempotent re-run (transient, not a logic bug) | The "just edit `feeds.json`" workflow this project was designed around is proven for real, not just asserted — zero code changes needed to absorb a genuinely new source, and the clustering/summarization pipeline generalized to it correctly on the first attempt |
+| 2026-09-15 | 4 reading UI built | Flask app behind gunicorn, bound explicitly to `192.168.70.13:8080` only, run via `news-aggregator-ui.service`. Renders clusters newest-first with the non-authoritative caveat always visible, outlet ratings shown when present and honestly labeled "(no rating)" when not (the table is still empty). Verified by fetching the real rendered page (27KB, real content) and spot-checking specific entries, not just a 200 status code | Real, working reading UI. `outlet_ratings` still empty pending Jason's confirmation of the draft values from Milestone 3 |
+| 2026-09-15 | 4 exposure/DNS check surfaced a real access gap | Added `news.internal` to both Pi-holes (`truenas.internal`-style direct pattern, not Authentik/NPM-fronted — proportionate for a single-user tool). Confirmed zero WAN/OPNsense exposure before any change (`grep -c 192.168.70.13 config.xml`: 0). But confirming VLAN 70's isolation also proved Jason's own trusted devices had no path into VLAN 70 at all — nothing had ever considered inbound access, only outbound egress. Presented this plainly rather than opening a rule silently | Jason chose a narrow, `MGMT_ADMIN_HOSTS`-precedented fix rather than leaving it unreachable |
+| 2026-09-15 | 4 firewall rule added | Backed up `config.xml` first (`config-news-aggregator-before-20260915.xml`, matching this repo's established naming convention). Used a minimal, surgical **text** insertion of one new rule block rather than a full-tree XML re-serialization, specifically to avoid any risk of reformatting unrelated parts of a 175KB live production firewall config; the insertion script asserted every expected substitution actually happened and that the stale `opt4` value was gone before writing anything. Validated the result still parses as well-formed XML before reloading. New rule: `MGMT_ADMIN_HOSTS → 192.168.70.13:8080/tcp` only (a single host and a single port, not VLAN-wide), sequence 3150. Reloaded via `configctl filter reload`; confirmed the exact rule loaded into the live `pf` ruleset via `pfctl -sr` | **Verified end-to-end from a real approved device, not just on paper**: this Mac (`192.168.1.206`) is itself one of the three `MGMT_ADMIN_HOSTS` entries; a direct DNS lookup and HTTP request from it succeeded. Regression-checked immediately after: the Docker LXC (VLAN 20, not an approved host) still correctly cannot reach it — the rule is exactly as narrow as intended |
+| 2026-09-15 | 4 HomeLab Doctor check added | `check_news_aggregator()` added to `scripts/doctor.sh`, following the existing `check_aster_wiki()` pattern: fails on an unhealthy UI or missing recent successful fetch, warns on a mix of recent success/failure, passes when healthy. Ran the real `scripts/doctor.sh` end to end rather than testing the function in isolation; it correctly surfaced a real warning, cross-checked directly against `fetch_log` to confirm it reflected genuine data (the original pre-fix `times-colonist`/`chek-news` failures from Milestone 2, still inside the 2-hour lookback window) rather than a bug in the new check's own logic | **Milestone 4 complete.** Reading UI live, DNS resolves, no unintended exposure, a real (Jason-approved) access path exists, and Doctor coverage is proven against real data, not just written and assumed correct |
 
 ## References
 

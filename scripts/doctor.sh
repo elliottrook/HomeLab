@@ -527,6 +527,38 @@ check_aster_wiki() {
     fi
 }
 
+check_news_aggregator() {
+    local state
+
+    if ! state="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            ui="$(pct exec 114 -- systemctl is-active news-aggregator-ui.service 2>/dev/null || true)"
+            timer_enabled="$(pct exec 114 -- systemctl is-enabled news-aggregator-ingest.timer 2>/dev/null || true)"
+            health="$(pct exec 114 -- curl -s --max-time 3 http://192.168.70.13:8080/healthz 2>/dev/null || true)"
+            recent_ok="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'ok'"'"' AND run_at > datetime('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
+            recent_fail="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'error'"'"' AND run_at > datetime('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
+            printf "ui=%s\ntimer_enabled=%s\nhealth=%s\nrecent_ok=%s\nrecent_fail=%s\n" "$ui" "$timer_enabled" "$health" "$recent_ok" "$recent_fail"
+        '
+    )"; then
+        warn "Unable to check News Aggregator services"
+        return
+    fi
+
+    if ! grep -qx 'ui=active' <<< "$state" || ! grep -q 'health=.*"status":"ok"' <<< "$state"; then
+        fail "News Aggregator reading UI is unhealthy or unreachable"
+    elif ! grep -qx 'timer_enabled=enabled' <<< "$state"; then
+        warn "News Aggregator UI is healthy but the ingest timer is not enabled"
+    elif ! grep -qE '^recent_ok=[1-9]' <<< "$state"; then
+        fail "News Aggregator UI is healthy but no feed fetch has succeeded in the last 2 hours"
+    elif grep -qE '^recent_fail=[1-9]' <<< "$state" && ! grep -qE '^recent_ok=[1-9]' <<< "$state"; then
+        fail "News Aggregator feed fetches are failing"
+    elif grep -qE '^recent_fail=[1-9]' <<< "$state"; then
+        warn "News Aggregator has recent feed fetch failures alongside successful ones"
+    else
+        pass "News Aggregator UI and ingest pipeline are healthy"
+    fi
+}
+
 check_pihole_dns() {
     local display="$1"
     local ip="$2"
@@ -1797,6 +1829,7 @@ check_observability
 check_frigate
 check_jellyfin_integrity
 check_video_archiver
+check_news_aggregator
 
 category "Service Reachability"
 
