@@ -37,21 +37,20 @@
   - ASRock Intel Arc Pro B60 24 GB (`8086:e211`, subsystem `1849:6023`)
     installed behind its onboard PCIe switch; the board-facing link negotiates
     PCIe 3.0 x8 on this host. GPU function `04:00.0` is currently bound to the
-    host `xe` driver and mapped into unprivileged inference LXC 110; the earlier
-    VM 105 passthrough configuration remains only as a stopped rollback path.
+    host `xe` driver and mapped into unprivileged inference LXC 110. VM 105
+    remains the stopped disk/config rollback, but no longer persistently maps
+    the B60; attach `hostpci0` only immediately before intentional rollback use
+    and remove it again before returning the device to host inference.
     The unused audio function `05:00.0` is isolated separately in group 57.
   - The B60 currently exposes a 256 MB physical BAR. The Proxmox `xe` driver
     attempted to resize it to 32 GB but the platform could not allocate the
     aperture. Level Zero/OpenCL/OVMS cannot enumerate the GPU with this BAR,
     while Mesa Vulkan acceleration works through the `xe`-backed LXC path.
   - Quadro K620 removed.
-  - Confirmed live 2026-08-30 (physical install completed same day): `lspci`
-    shows the Battlemage GPU present, and `qm config 105` confirms
-    `hostpci0: 04:00.0,pcie=1,rombar=0` assigned to Ollama VM 105 as
-    documented above. Ollama's host-RAM footprint now fluctuates with active
-    load (observed 7.5–15.7 GiB available across two closely-spaced reads)
-    rather than holding a large static allocation, consistent with GPU
-    offload replacing the earlier CPU-only pilot's memory pressure.
+  - Confirmed live 2026-09-15: `04:00.0` is on `xe`, LXC 110 Vulkan identifies
+    Intel BMG G21, VM 105 is stopped, and `qm config 105` has no persistent
+    `hostpci` entry. A real stop-mode VM 105 backup left the driver on `xe` for
+    all 88 one-second samples.
 - TrueNAS SCALE
   - Address: `192.168.20.40` on Servers VLAN 20
   - Media pool baseline: one six-disk 4 TB SAS RAIDZ2 data VDEV

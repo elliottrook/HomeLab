@@ -140,7 +140,8 @@ scripts/build-aster-knowledge-snapshot.sh /tmp/aster-knowledge.tar.gz
 ```
 
 Copy the archive to Proxmox, replace `/var/lib/aster/knowledge` atomically in
-LXC 104, and restore ownership to `aster:aster`. The builder includes
+LXC 104, and restore directory/file ownership to `root:aster` with read-only
+modes. The builder includes
 `docs/Aster-Operations.md` and does not copy Finder `._*` metadata. Never add
 private backups, credentials or unreviewed external documents to the snapshot.
 
@@ -161,6 +162,15 @@ backend access remains blocked. Its daily collector retains exact originals,
 publishes only validated human content and builds a deterministic
 non-authoritative mirror. Aster consumes that mirror only through its validated
 knowledge snapshot and must identify the complete human source and locator.
+
+Production uses mirror pipeline `1.5.0` and `ASTER_DIRECTORY_FIRST=1`. Aster
+first scores the validated per-source directory index, then ranks claims within
+the selected sources; a missing, stale, malformed or inconclusive directory
+index fails back to flat claim ranking. Directory abstracts remain derived
+navigation hints, never an authority source. The accepted mirror content hash
+is `e87cd84f6fbbe0c04a86c7634dcac104161748e93348549a89bf3a2b8ae022f8` and
+the accepted deterministic Aster archive SHA-256 is
+`de622e83ed8ec100a0a11066cfe810ec909b4495c1473d293058070374549747`.
 
 LXC 113 runs `aster-wiki-collector.timer` daily and
 `aster-wiki-corpus-health.timer` monthly. HomeLab Doctor checks the intake,
@@ -335,15 +345,52 @@ pct exec 110 -- vulkaninfo --summary
 ```
 
 The host path must end in `/xe`, and `vulkaninfo` must list Intel BMG G21 as a
-discrete GPU. If VM 105 is confirmed stopped and `04:00.0` is unbound, stop
-`aster-llama.service`, bind `0000:04:00.0` through
+discrete GPU. The former recurring cause was the enabled all-guests `vzdump`
+job at 02:30: stop-mode backup started stopped rollback VM 105, whose
+persistent `hostpci0: 04:00.0,pcie=1,rombar=0` mapping bound the B60 to
+`vfio-pci`, then stopped QEMU without returning it to `xe`. Logs show this
+transition near 02:35 on three consecutive nights. The persistent mapping was
+removed on 2026-09-15. A subsequent real stop-mode VM 105 backup completed
+while all 88 one-second samples remained `xe`, followed by a successful
+authenticated Aster generation. Proxmox `driver=keep` is not a fix: it skips
+bind/reset preparation while QEMU still requests a `vfio-pci` device.
+
+VM 105 is now a disk/config rollback whose B60 must be attached only for an
+intentional rollback. Before starting it, stop host inference, confirm VM 105
+is stopped, and attach the device:
+
+```sh
+pct exec 110 -- systemctl stop aster-llama.service
+qm status 105
+qm set 105 --hostpci0 04:00.0,pcie=1,rombar=0
+qm start 105
+```
+
+When the rollback test/use is over, stop VM 105 and remove the mapping before
+restoring host inference. Confirm the VM is stopped before touching drivers:
+
+```sh
+qm stop 105
+qm status 105
+qm set 105 --delete hostpci0
+readlink /sys/bus/pci/devices/0000:04:00.0/driver
+# If still vfio-pci:
+echo 0000:04:00.0 > /sys/bus/pci/drivers/vfio-pci/unbind
+echo 0000:04:00.0 > /sys/bus/pci/drivers/xe/bind
+pct exec 110 -- systemctl start aster-llama.service
+scripts/check-aster-b60.sh
+```
+
+If VM 105 is confirmed stopped and `04:00.0` is unexpectedly unbound or held
+by `vfio-pci`, stop `aster-llama.service`, bind `0000:04:00.0` through
 `/sys/bus/pci/drivers/xe/bind`, then start the service. Do not rebind the device
 while VM 105 is running.
 
-After a Proxmox or kernel update, run the read-only
+After a Proxmox or kernel update, or after any VM 105 use, run the read-only
 `scripts/check-aster-b60.sh` command from the Proxmox host before treating
-Aster as ready. It verifies the `xe` binding, stopped rollback VM, both Aster
-services, and BMG G21 Vulkan visibility; it makes no changes.
+Aster as ready. It verifies the `xe` binding, stopped rollback VM, absence of a
+persistent B60 mapping, both Aster services, and BMG G21 Vulkan visibility; it
+makes no changes. HomeLab Doctor enforces the same invariants.
 
 ## Restart and rollback
 

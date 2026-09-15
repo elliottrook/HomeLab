@@ -8,7 +8,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .mirror import PIPELINE_VERSION, verify_mirror
+from .mirror import DirectoryIndexError, PIPELINE_VERSION, verify_mirror
 
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^]]+\]\(([^)]+)\)")
 
@@ -30,7 +30,8 @@ def corpus_health(wiki_root: Path, mirror_root: Path, *, max_age_days: int = 45,
     failures: list[str] = []
     warnings: list[str] = []
     metrics = {"sources": 0, "entries": 0, "broken_links": 0, "duplicates": 0,
-               "stale_sources": 0, "unclassified_sources": 0}
+               "stale_sources": 0, "unclassified_sources": 0,
+               "directory_index_drift": 0}
 
     try:
         lock = json.loads((wiki_root / "sources/accepted-lock.json").read_text(encoding="utf-8"))
@@ -50,6 +51,9 @@ def corpus_health(wiki_root: Path, mirror_root: Path, *, max_age_days: int = 45,
     try:
         verification = verify_mirror(wiki_root, mirror_root)
         metrics["entries"] = verification["checked"]
+    except DirectoryIndexError as exc:
+        metrics["directory_index_drift"] = exc.drift_count
+        failures.append(str(exc))
     except (OSError, UnicodeError, json.JSONDecodeError, KeyError, ValueError) as exc:
         failures.append(f"mirror provenance verification failed: {type(exc).__name__}")
 

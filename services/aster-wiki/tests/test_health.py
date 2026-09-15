@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from aster_wiki.health import corpus_health
-from aster_wiki.mirror import build_mirror
+from aster_wiki.mirror import _directory_abstract, build_mirror
 
 
 class CorpusHealthTests(unittest.TestCase):
@@ -45,8 +45,18 @@ class CorpusHealthTests(unittest.TestCase):
             entries = list((mirror / "entries").rglob("*.md"))
             duplicate = entries[0].with_name("duplicate.md")
             duplicate.write_bytes(entries[0].read_bytes())
+            bodies = [
+                path.read_text(encoding="utf-8").split(
+                    "## Source-located claim\n\n", 1
+                )[1].rstrip("\n")
+                for path in sorted((mirror / "entries/guide").glob("*.md"))
+            ]
+            directories = mirror / "indexes/directories.json"
+            directory_index = json.loads(directories.read_text(encoding="utf-8"))
+            directory_index["entries"]["guide"] = _directory_abstract("guide", bodies)
+            directories.write_text(json.dumps(directory_index), encoding="utf-8")
             for path in (mirror / "indexes").glob("*.json"):
-                if path.name != "provenance.json":
+                if path.name not in {"provenance.json", "directories.json"}:
                     path.write_text('{"schema_version":1,"entries":{}}', encoding="utf-8")
             result = corpus_health(
                 wiki, mirror, max_age_days=5,
@@ -68,6 +78,31 @@ class CorpusHealthTests(unittest.TestCase):
             result = corpus_health(wiki, mirror)
             self.assertEqual("failed", result["status"])
             self.assertTrue(any("accepted-input" in item for item in result["failures"]))
+
+    def test_fails_when_directory_index_drifts_from_current_entries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            wiki, mirror = self.fixture(Path(directory))
+            path = mirror / "indexes/directories.json"
+            index = json.loads(path.read_text(encoding="utf-8"))
+            index["entries"]["guide"]["topics"] = ["invented-topic"]
+            path.write_text(json.dumps(index), encoding="utf-8")
+            result = corpus_health(
+                wiki, mirror, now=datetime(2026, 9, 12, tzinfo=timezone.utc)
+            )
+            self.assertEqual("failed", result["status"])
+            self.assertEqual(1, result["metrics"]["directory_index_drift"])
+            self.assertTrue(any("directory index differs" in item for item in result["failures"]))
+
+    def test_fails_when_directory_index_is_missing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            wiki, mirror = self.fixture(Path(directory))
+            (mirror / "indexes/directories.json").unlink()
+            result = corpus_health(
+                wiki, mirror, now=datetime(2026, 9, 12, tzinfo=timezone.utc)
+            )
+            self.assertEqual("failed", result["status"])
+            self.assertEqual(1, result["metrics"]["directory_index_drift"])
+            self.assertTrue(any("directory index unavailable" in item for item in result["failures"]))
 
 
 if __name__ == "__main__":
