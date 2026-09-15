@@ -1,13 +1,12 @@
 # FreeCAD MCP Connector for Local CAD Assistance
 
-> Status: Active — Stream A. **Milestones 1 and 2 complete** — connector
-> installed, source-reviewed, and proven working over localhost only;
-> original STLs preserved read-only, working copies verified against the
-> documented baseline through the connector itself, and the ATX target
-> envelope (generic, 150 x 86mm, 140mm nominal depth) confirmed. ChatGPT
-> Desktop access confirmed not possible without an excluded internet
-> tunnel and is deferred. Next: Milestone 3 (adapt the PSU compartment) —
-> not yet started.
+> Status: Active — Stream A. **Milestones 1 and 2 complete**; Milestone 3
+> in progress — an added-scope item (rear cable clearance behind the
+> drive bays, at Jason's request) is done: `main_body_1` extended +15mm
+> in depth via a real solid Boolean cut/shift/fuse, volume-conserved and
+> validated. The PSU-compartment width/length adaptation itself has not
+> started. ChatGPT Desktop access confirmed not possible without an
+> excluded internet tunnel and is deferred.
 >
 > Owner: Jason
 >
@@ -239,25 +238,34 @@ plainly rather than undersold, even though the intended use is narrow.
 
 ## Persistence plan
 
-- **Current milestone:** Milestones 1 and 2 complete; Milestone 3 not
-  started.
+- **Current milestone:** Milestones 1 and 2 complete; Milestone 3 in
+  progress (rear-clearance item done; PSU-compartment adaptation itself
+  not started).
 - **Last verified state (2026-09-14):** FreeCAD 1.1.3 running with the RPC
   server bound to `127.0.0.1:9875` only; this Claude Code session's
   `freecad` MCP bridge (`local` scope) proven working via document
-  creation, mesh import, and geometry read-back. Original STLs preserved
-  read-only at `~/lab/homelab-cad/freecad-mcp/originals/`; working copies
-  at `~/lab/homelab-cad/freecad-mcp/working/` (`main_body_1/2/3.stl`,
-  writable), measured envelopes matching the documented baseline exactly.
-  Target PSU envelope confirmed: generic ATX, 150 x 86mm cross-section,
-  140mm nominal depth (real depth varies 140-230mm by unit — unbounded by
-  spec, re-verify once a unit is chosen). ChatGPT Desktop access confirmed
-  not possible without an excluded tunnel, deferred.
-- **Next safe action:** start Milestone 3 — widen the shared cross-section
-  (currently 132mm width x 185mm height) to fit the 150mm ATX width,
+  creation, mesh import, geometry read-back, solid Boolean CSG editing,
+  and STL export. Original STLs preserved read-only at
+  `~/lab/homelab-cad/freecad-mcp/originals/`; working copies at
+  `~/lab/homelab-cad/freecad-mcp/working/`:
+  `main_body_1.stl`/`main_body_2.stl`/`main_body_3.stl` (untouched
+  copies, matching the documented baseline exactly) plus
+  `main_body_1_rear_clearance_v1.stl` (the +15mm-depth edit, 132.00 x
+  218.64 x 200.00mm, independently re-measured). Target PSU envelope
+  confirmed: generic ATX, 150 x 86mm cross-section, 140mm nominal depth
+  (real depth varies 140-230mm by unit — unbounded by spec, re-verify
+  once a unit is chosen). ChatGPT Desktop access confirmed not possible
+  without an excluded tunnel, deferred.
+- **Next safe action:** continue Milestone 3 — widen the shared
+  cross-section (currently 132mm width x 185mm height) to fit the 150mm
+  ATX width, most likely starting from `main_body_1_rear_clearance_v1.stl`
+  rather than the untouched `main_body_1.stl` so the two edits compose;
   extend `main_body_2`'s length along the stacking axis for the target
-  depth, adjust the PSU mounting screw pattern for a standard ATX
-  rear-panel bracket, and re-verify the unmodified drive-bay sections
-  (`main_body_1`, `main_body_3`) are unaffected.
+  PSU depth; adjust the PSU mounting screw pattern for a standard ATX
+  rear-panel bracket; and resolve the open question of whether
+  `main_body_1`'s now-mismatched depth relative to `main_body_2`/`3`
+  needs a matching adjustment there too, or is fine as a localized
+  feature — genuinely unresolved, see the Milestone 3 evidence entry.
 - **Rollback location:** the original three STL files from MakerWorld model
   150766, kept untouched in a clearly labeled directory separate from any
   working copy.
@@ -408,6 +416,45 @@ measured against a verified baseline, not assumption. **Gate met,
 - [ ] Re-verify the drive-bay sections' geometry is unaffected by any
       cross-section change.
 - [ ] Export updated STL files for a test print.
+- [x] **Added scope, 2026-09-14, at Jason's explicit request:** verify rear
+      cable clearance behind the drive bays (`main_body_1`) for the chosen
+      H0204/SFF-8482 cabling, and adjust if necessary. **Result:**
+      measured the *real* mesh geometry rather than trusting the
+      TrueNAS doc's rough "~38mm gross" figure — found a drive-stop wall
+      at Z~141-150mm (drives are 147mm deep), then genuinely open space,
+      then a small non-full-width rib at Z~167-172mm, then the exterior
+      back wall at Z~179-185mm: about 29mm of real open clearance, not
+      just an arithmetic gross figure. Could not find an authoritative
+      dimension anywhere (SFF specs paywalled/403, CableDeconn's own
+      listing has no connector housing spec) for how far the H0204's
+      connector body actually protrudes once plugged into a drive, or its
+      cable's minimum bend radius — this remains genuinely unverified.
+      Asked Jason how to proceed; he chose adding a conservative +15mm
+      margin now rather than waiting for a physical measurement. Applied
+      it as a real geometry edit, not a guess baked into a redraw: found a
+      Z=155mm plane where **zero mesh facets cross** (confirmed by
+      dry-run before touching anything — an earlier vertex-only check had
+      wrongly suggested "empty space" there when large wall panels
+      actually span across it), converted the mesh to a proper B-rep
+      solid, cut it at that plane, translated the rear portion +15mm, and
+      fused it back — volume conservation checked exactly
+      (807610.3 = 105867.5 + 701742.8) and the resulting solid validated
+      (`isValid() == True`). Exported to
+      `~/lab/homelab-cad/freecad-mcp/working/main_body_1_rear_clearance_v1.stl`;
+      independently re-measured with a standalone parser: 132.00 x 218.64
+      x 200.00mm (only Z changed, from 185 to 200, exactly +15mm). **Not
+      yet done:** `main_body_2`/`main_body_3` were deliberately left
+      untouched (they don't carry drives or this cable run), so
+      `main_body_1` is now 15mm deeper than its neighbors' shared
+      132x185mm cross-section — whether that creates a visible/functional
+      step at their actual physical joint could not be determined from
+      the raw STL coordinates alone (the three parts aren't stored
+      pre-aligned; body1's Y-range doesn't abut body3's or body2's in the
+      source files). This, plus whether 29+15=44mm is actually *enough*
+      for the real H0204 connector, both still depend on the physical
+      print-and-fit coupon test the TrueNAS-DIY-SAS-Expansion project
+      already planned — this change is a reasoned estimate, not a
+      verified fix.
 
 Gate: a modified model exists, dimensionally verified against the target
 ATX PSU's real envelope, with the drive-bay sections' geometry unchanged.
@@ -514,6 +561,7 @@ TrueNAS DIY SAS Expansion project document.
 | 2026-09-14 | 1 addon install, MCP config, ChatGPT check | Cloned `neka-nat/freecad-mcp` to scratch, copied `addon/FreeCADMCP` into FreeCAD 1.1's addon directory (`~/Library/Application Support/FreeCAD/v1-1/Mod/FreeCADMCP`, sandbox disabled for this local write only). Added `freecad` as a `local`-scope Claude Code MCP server (`claude mcp add freecad -- uvx freecad-mcp`, stored in `~/.claude.json`, not committed to this repo). Researched ChatGPT Desktop's (v26.825.51511, installed) actual current connector capability rather than assuming it: confirmed its Developer Mode custom connectors require a public HTTPS remote server with no localhost/stdio support at all | Addon installed but RPC server not yet started — that step is a manual FreeCAD GUI action (toolbar button) this session cannot perform headlessly; needs Jason at the Mac. ChatGPT Desktop access is confirmed not possible without the excluded internet tunnel and is deferred, not implemented. Claude Code's MCP bridge is configured but not yet connectable until the RPC server is running |
 | 2026-09-14 | 1 RPC server start, read-only verification | Jason clicked **Start RPC Server** in FreeCAD's toolbar; it gave no visible in-app confirmation beyond the Report View console (easy to mistake for not having worked). Verified independently: `lsof` showed the `freecad` process listening on `127.0.0.1:9875` only (a loopback check the sandbox itself initially blocked — had to disable it for this specific local-only check, not a project-scope bypass); real XML-RPC calls returned `ping()` → `True`, `list_documents()` → `[]`, `get_rpc_status()` → healthy | Milestone 1's gate is met: connector installed, source-reviewed, and proven read-only-functional with no exposure beyond localhost. Milestone 1 closed; Milestone 2 (baseline the existing model) not yet started |
 | 2026-09-14 | 2 baseline verified, PSU target set | Jason downloaded the full MakerWorld package to `~/Downloads/`. Copied the three main-body STLs and the original zip into a new local CAD working area outside this repo, per scope: `~/lab/homelab-cad/freecad-mcp/originals/` (made read-only immediately) and `.../working/` (writable copies). Verified the three main-body envelopes two independent ways — a standalone Python STL parser, and for real through the connector itself (`create_document`, `execute_code` importing each STL as a `Mesh::Feature`, reading back `BoundBox`) — both matched the documented table exactly. Asked Jason for the ATX target rather than assuming the proposal's example unit; he chose a generic envelope. Researched the actual ATX spec: width/height fixed at 150 x 86mm, depth explicitly not standardized (real units 140-230mm) | Milestone 2's gate is met: the connector reproduces the original design's known measurements for real, not just via a bare ping. Working baseline: 150 x 86mm ATX cross-section, 140mm nominal depth (to be re-verified against the actual unit at Milestone 4). Milestone 2 closed; Milestone 3 (adapt the PSU compartment) not yet started |
+| 2026-09-14 | 3 rear cable clearance (added scope) | Jason asked to verify rear cable clearance for the drive bays and adjust if necessary, given the known drive/cable specs. Measured the real mesh (not the doc's rough estimate): drive-stop wall ~Z141-150mm, ~29mm genuinely open space, a small non-full-width rib ~Z167-172mm, exterior wall ~Z179-185mm. Could not find an authoritative H0204/SFF-8482 connector-protrusion or cable-bend-radius spec anywhere searched (SNIA docs 403'd, CableDeconn listing has no such dimension). Asked Jason how to proceed; he chose a conservative +15mm margin now over waiting for a physical measurement. First attempt (naive: translate all mesh points with Z>155) was caught by a dry-run check *before* applying it — 1321 facets actually cross that plane (large wall panels span it in single triangles; the earlier vertex-only histogram was misleadingly showing "empty space" that wasn't). Redid it properly: converted the mesh to a validated closed B-rep solid, cut with a box at Z=155, translated the upper piece +15mm, fused back, confirmed exact volume conservation (807610.3 = 105867.5 + 701742.8) and solid validity, then exported to STL and independently re-measured (132.00 x 218.64 x 200.00mm — only Z changed, by exactly 15mm) | `main_body_1_rear_clearance_v1.stl` created in the working directory as a real, geometrically-sound edit — not a guess baked in blind. Two things explicitly still open, not resolved by this step: whether 44mm (29 measured + 15 added) is actually enough for the real H0204 connector (unverified spec), and whether `main_body_1`'s new depth mismatch against untouched `main_body_2`/`3` matters at their actual physical joint (can't tell from raw STL coordinates, which aren't pre-aligned). Both depend on the physical print-and-fit coupon test the TrueNAS-DIY-SAS-Expansion project already planned |
 
 ## Starting the handoff session
 
