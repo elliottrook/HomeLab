@@ -10,10 +10,14 @@
 > and verified end-to-end after confirming VLAN 70's isolation had left
 > Jason himself unable to reach it. HomeLab Doctor coverage is live and
 > tested against real data. Recorded in NetBox as VM id 15.
-> **One thing still needs your input before Milestone 5**: the
-> `outlet_ratings` table's actual values are a draft proposal, not a
-> unilateral decision — see Milestone 3's checklist and the evidence log
-> for the specific ratings and their confidence levels.
+> Outlet bias ratings (BBC: Center, NPR: Lean Left, both cited to
+> AllSides) are loaded and rendering live, with an "unverified this
+> session" caveat on both the table row and a UI hover tooltip, since live
+> verification against AllSides failed twice and Jason accepted the draft
+> as-is at medium confidence — see Milestone 1's feed-list note and the
+> evidence log for the AP News feed, which turned out to have been
+> silently dropped since Milestone 2 and is not part of the running
+> pipeline.
 >
 > Project owner: Jason
 >
@@ -260,17 +264,21 @@ scoped in detail, or measured.
       bias/slant as a concept doesn't meaningfully apply to a product
       review site or a municipal election roundup the way it does to
       general political news coverage.
-      **Draft values below need Jason's confirmation before going live in
-      Milestone 4 — my own recollection of specific outlets' ratings is
-      not verified against the live source in this session, and ratings
-      can change over time:**
-      | Outlet | Draft rating | Source | Confidence |
+      **Loaded 2026-09-15.** Two live verification attempts (WebFetch,
+      Browser pane) both failed to reach AllSides from this session, so
+      these remain Claude's own recollection, not confirmed against the
+      live source. Jason reviewed this specific limitation and chose to
+      accept the draft as-is rather than wait; the "unverified this
+      session" caveat is recorded per-row in the `outlet_ratings.notes`
+      column itself, not just in this document, so it travels with the
+      data:
+      | Outlet | Rating | Source | Confidence |
       |---|---|---|---|
       | BBC World News | Center | AllSides (recollection, unverified this session) | Medium |
       | NPR World | Lean Left | AllSides (recollection, unverified this session) | Medium |
-      | AP News | Center | AllSides (recollection, unverified this session) | Medium |
       | Ars Technica, The Verge, Hacker News, 9to5Mac | *No rating* | — | High confidence these are simply unrated by AllSides, not that a rating was missed |
       | Times Colonist, Cowichan Valley Citizen, CHEK News | *No rating* | — | High confidence — AllSides doesn't cover Canadian regional press |
+      | AP News | *Dropped from project* | — | See the feed-list entry above — AP has no accessible source-published feed and was never actually added to `feeds.json`, found while preparing this table |
 - [x] Draft the initial feed list with Jason. **Candidate list, 2026-09-15
       — unverified, live URL/reachability checks belong to Milestone 2's
       own "validate against the initial feed list with real fetches" step,
@@ -278,7 +286,19 @@ scoped in detail, or measured.
       - General/world: BBC World News (`feeds.bbci.co.uk/news/world/rss.xml`),
         NPR World (`feeds.npr.org/1004/rss.xml`), AP News (exact current feed
         path to be confirmed at Milestone 2 — AP's public RSS availability
-        has changed over time). **Added 2026-09-15 at Jason's request:** Al
+        has changed over time).
+        **AP resolved 2026-09-15, and dropped:** this "to be confirmed" note
+        sat unresolved through all of Milestone 2 and AP silently never made
+        it into `feeds.json` — not caught until reviewing the bias-rating
+        proposal surfaced an orphaned `outlet_ratings` row for a feed that
+        didn't exist. Probed three plausible current AP RSS/feed endpoints
+        live; all three returned 403. The one workaround available
+        (RSSHub, a third-party proxy that scrapes sites without their own
+        feed) would violate this project's own exclusion — "RSS/Atom feeds
+        the source itself publishes only" — so it wasn't used. AP does not
+        currently have an easily accessible, source-published feed and is
+        dropped from this project's scope rather than worked around.
+        **Added 2026-09-15 at Jason's request:** Al
         Jazeera English (`www.aljazeera.com/xml/rss/all.xml`, live-verified
         before adding — see Milestone 4's test below).
       - Tech: Ars Technica (`feeds.arstechnica.com/arstechnica/index`), The
@@ -583,6 +603,8 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-15 | 4 firewall rule added | Backed up `config.xml` first (`config-news-aggregator-before-20260915.xml`, matching this repo's established naming convention). Used a minimal, surgical **text** insertion of one new rule block rather than a full-tree XML re-serialization, specifically to avoid any risk of reformatting unrelated parts of a 175KB live production firewall config; the insertion script asserted every expected substitution actually happened and that the stale `opt4` value was gone before writing anything. Validated the result still parses as well-formed XML before reloading. New rule: `MGMT_ADMIN_HOSTS → 192.168.70.13:8080/tcp` only (a single host and a single port, not VLAN-wide), sequence 3150. Reloaded via `configctl filter reload`; confirmed the exact rule loaded into the live `pf` ruleset via `pfctl -sr` | **Verified end-to-end from a real approved device, not just on paper**: this Mac (`192.168.1.206`) is itself one of the three `MGMT_ADMIN_HOSTS` entries; a direct DNS lookup and HTTP request from it succeeded. Regression-checked immediately after: the Docker LXC (VLAN 20, not an approved host) still correctly cannot reach it — the rule is exactly as narrow as intended |
 | 2026-09-15 | 4 HomeLab Doctor check added | `check_news_aggregator()` added to `scripts/doctor.sh`, following the existing `check_aster_wiki()` pattern: fails on an unhealthy UI or missing recent successful fetch, warns on a mix of recent success/failure, passes when healthy. Ran the real `scripts/doctor.sh` end to end rather than testing the function in isolation; it correctly surfaced a real warning, cross-checked directly against `fetch_log` to confirm it reflected genuine data (the original pre-fix `times-colonist`/`chek-news` failures from Milestone 2, still inside the 2-hour lookback window) rather than a bug in the new check's own logic | **Milestone 4 complete.** Reading UI live, DNS resolves, no unintended exposure, a real (Jason-approved) access path exists, and Doctor coverage is proven against real data, not just written and assumed correct |
 | 2026-09-15 | 4 Homepage tile added | Jason asked whether the project had a dashboard tile — it didn't yet. Backed up `services.yaml`, added a "News Aggregator" tile to the existing "Media" group via a minimal text insertion. Validated the YAML inside the real Homepage container before restarting it (config isn't hot-reloaded); verified live via `/api/services`, not just the page HTML | Real, working dashboard entry, closing the last open item in the required integration checklist that had a concrete action to take |
+| 2026-09-15 | 3 outlet ratings loaded, AP gap found and resolved | Attempted live re-verification of the draft AllSides ratings before loading them (WebFetch: 403 on `allsides.com`; Browser pane: declined) — both failed, consistent with this session's other Browser-pane rejections. Presented the honest unverified draft to Jason via a direct question rather than loading it silently; Jason chose "accept the draft as-is, medium confidence." Loaded `bbc-world` (Center) and `npr-world` (Lean Left) into `outlet_ratings`, each citing AllSides by name with a `notes` field stating plainly it's unverified this session. While loading a third row for `ap-news`, direct inspection of `feeds.json` showed AP was never actually added — Milestone 1's candidate list flagged its feed path as "to be confirmed at Milestone 2," but Milestone 2's real build silently never followed up, and this went unnoticed through Milestones 2-4. Deleted the orphaned row. Probed 3 candidate AP feed URLs live, all 403; declined the one available workaround (RSSHub) since it's a third-party scraping proxy and this project explicitly restricts itself to feeds the source publishes itself | AP News is formally dropped from the project rather than silently absent — documented in Milestone 1's feed-list section and the ratings table. Only 2 of the project's real 10 feeds currently carry a rating; the rest remain honestly labeled "(no rating)" |
+| 2026-09-15 | 4 unverified-rating caveat surfaced in the live UI | The `notes` column recorded above wasn't reaching the rendered page at all — `get_clusters()` only selected `rating_label`. Extended it to also select `source_name`/`notes` and pass them through; added a `title` attribute to the `.rating` span in `app.py`'s template so hovering a rating shows the named source and the unverified-this-session caveat, not just the bare label. Deployed to LXC 114 (`app.py.bak-20260915` kept as rollback), restarted `news-aggregator-ui.service`. Verified live: BBC's rendered tooltip reads exactly `AllSides — Unverified this session - Claude recollection, not live-checked against the source`. NPR's rating wasn't visible in the current top-40 clusters shown (its newest item, 11:35 UTC, is older than the current 40-cluster cutoff of 13:11 UTC) — not a rendering gap; confirmed by running the identical query directly against the database and getting the correct row back, over the same code path already proven live for BBC | The caveat is now genuinely accessible where Jason will actually see it, not only sitting in the database. NPR's tooltip will appear as soon as its items re-enter the top-40 window on the next hourly ingest |
 
 ## References
 
