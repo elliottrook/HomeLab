@@ -154,7 +154,7 @@ scoped in detail, or measured.
 ### Milestone 1 — Discovery and design decisions
 
 - [x] Resolve placement (VLAN/host) and record the decision here.
-      **Recommendation, 2026-09-14: Lab VLAN 70**, not Servers VLAN 20.
+      **Confirmed by Jason 2026-09-15: Lab VLAN 70**, not Servers VLAN 20.
       Checked `Current-Network-Baseline.md` rather than assuming: VLAN 70
       "was fully validated with disposable LXC 970: DHCP, Pi-hole DNS,
       blocked-domain response and Internet access passed, while non-DNS
@@ -204,6 +204,7 @@ scoped in detail, or measured.
       validation against real feed data once Milestone 2's ingestion
       exists — the accuracy trade-off is a design expectation here, not yet
       measured.
+- [x] Placement confirmed by Jason 2026-09-15: **Lab VLAN 70.**
 - [ ] Choose and document the bias-scoring methodology and UI labeling.
       Deferred — this is the explicit Stream A checkpoint requiring Jason's
       own sign-off (see header), not something to propose unilaterally.
@@ -276,8 +277,7 @@ accepts the residual limitations of the bias-labeling approach.
 
 | Date | Milestone | Evidence | Result | Operator |
 |---|---|---|---|---|
-| 2026-09-10 | Proposal | Drafted this project document and 11 sibling proposals in one batch | Committed directly to the `github` remote's `main` branch, bypassing Forgejo `origin` — the repo's established authoritative push path. Not caught until 2026-09-14 | claude (session unknown) |
-| 2026-09-14 | Reconciliation | Discovered via a user request to "get started" on this project that the file did not exist on Forgejo/`origin` at all; fetched and verified the exact content from GitHub's API before writing it into this repo; committed and pushed to Forgejo (`8ecb360`) | Forgejo restored as the authoritative copy. 11 sibling files from the same batch remain `github`-only and unreconciled | claude |
+| 2026-09-14 | Reconciliation, corrected 2026-09-15 | Jason shared this document's content; it did not exist on Forgejo `origin`. A WebFetch call summarizing GitHub's directory listing and commit history for this path fabricated a story — a 2026-09-10 commit, "claude" authorship, "12 proposed local-AI project charters," and 11 named sibling files — none of which was real, and was written into this evidence log, a commit message, and the portfolio without being checked against `gh api` first. Verified directly via `gh api` on 2026-09-15: no such commit exists; GitHub's real directory listing has no such files; the only real commits touching this path are the ones made in this same session. Corrected here rather than left standing | The file's content itself (verified twice independently — against Jason's own paste, and via a direct `gh api` content fetch) was genuine; the *incident narrative* built around it was not. No prior session, no direct-to-`github` push, no 11 sibling files ever existed. This is a real process failure worth naming plainly: a summarizing tool's output was trusted and documented without the cross-check this repo's own "evidence over assumption" principle requires | claude |
 | 2026-09-14 | Authorization | Jason granted Stream A for this project's enumerated scope, with the outbound-egress/firewall decision (before Milestone 2) and the bias-methodology sign-off (before Milestone 3) preserved as explicit checkpoints rather than absorbed into blanket authorization | Milestone 1 (discovery and design decisions) begins | claude |
 | 2026-09-14 | 1 placement and egress research | Checked `Current-Network-Baseline.md` rather than assuming: VLAN 70 was already validated with disposable LXC 970 for broad outbound internet access with internal-service isolation intact — exactly this project's actual need, and it removes the need for a new cross-VLAN rule to reach `aster-llama` (same VLAN). Checked `03-Hardware-Inventory.md`: ~28 GiB Proxmox allocation headroom as of 2026-09-09, not a differentiator either way | Recommended Lab VLAN 70 over Servers VLAN 20, reversing the document's original framing that assumed a new, broadened firewall rule would be needed — it may need none at all. Not yet Jason's confirmed decision |
 | 2026-09-14 | 1 clustering method proposal | Proposed headline/lede similarity clustering within a rolling time window, no LLM call in the clustering step, tuned toward precision over recall, with the reasoning and trade-off documented in Milestone 1's checklist | Proposed, not yet validated against real feed data (no ingestion pipeline exists yet) |
