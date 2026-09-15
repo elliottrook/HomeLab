@@ -57,6 +57,7 @@ that file in sync — update both in the same change.
 | NPM (hostname) | proxy.elliottrook.com | NPM API access — same hostname-vs-IP reason as above; the `192.168.50.23` entry above does not work for HTTP(S) calls |
 | git.elliottrook.com, github.com | — | Git remotes |
 | deb.debian.org, security.debian.org | — | Package installs on Debian guests |
+| astral.sh | — | `uv`/`uvx` official installer, needed to run the `freecad-mcp` bridge (FreeCAD-MCP-Connector project, this Mac only, no lab VLAN involvement) |
 
 This list exists to let Claude run the same read-only `lab`/`doctor.sh` tooling from
 this laptop that already runs from the Mac mini. It is not itself a grant of SSH

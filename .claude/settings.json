@@ -128,7 +128,8 @@
         "git.elliottrook.com",
         "github.com",
         "deb.debian.org",
-        "security.debian.org"
+        "security.debian.org",
+        "astral.sh"
       ],
       "allowUnixSockets": [],
       "allowLocalBinding": false
