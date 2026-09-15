@@ -701,6 +701,7 @@ accepts the residual limitations of the bias-labeling approach.
 
 ## References
 
+- [News Aggregator Phase 2 — Digest, Sections and Source Requests](News-Aggregator-Digest-and-Sections.md) (successor project)
 - [Project Creation Standard](../../Project-Creation-Standard.md)
 - [Aster Operations](../../Aster-Operations.md)
 - [Local AI](Local-AI.md)
