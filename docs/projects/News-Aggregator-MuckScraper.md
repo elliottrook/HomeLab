@@ -1,12 +1,12 @@
 # News Aggregator (MuckScraper)
 
-> Status: Active — Stream A. **Milestones 1 and 2 complete.** LXC 114
-> `news-aggregator` is live on VLAN 70 at `192.168.70.13`, ingesting all 9
-> feeds hourly into SQLite via a systemd timer; 2 of the 9 candidate feed
-> URLs were wrong and were found and fixed by the real fetch validation
-> this milestone required. One implementation detail carries into
-> Milestone 3: picking the exact bias-rating source and checking its terms
-> of use. Milestone 3 (clustering, bias labeling, summarization) is next.
+> Status: Active — Stream A. **Milestones 1 and 2 complete**, plus the
+> NetBox integration-checklist item. LXC 114 `news-aggregator` is live on
+> VLAN 70 at `192.168.70.13`, ingesting all 9 feeds hourly into SQLite via
+> a systemd timer, and recorded in NetBox as VM id 15. One implementation
+> detail carries into Milestone 3: picking the exact bias-rating source and
+> checking its terms of use. Milestone 3 (clustering, bias labeling,
+> summarization) is next.
 >
 > Project owner: Jason
 >
@@ -326,8 +326,21 @@ scoped in detail, or measured.
 - [ ] **Monitoring/alerting** — not yet assessed.
 - [ ] **Backup and recovery** — expected: datastore and config need
       inclusion in the existing backup pipeline; not yet designed.
-- [ ] **NetBox** — new LXC/IP/VLAN assignment would need a NetBox entry once
-      placement is decided.
+- [x] **NetBox** — added 2026-09-15. Followed this repo's own established
+      precedent from the NetBox-DCIM project's close-out rather than
+      hunting for a write-capable API token: the stored token is
+      deliberately read-only since that project's own security decision, so
+      the record was created via NetBox's Django shell directly in the
+      `netbox-netbox-1` container, matching how the last VM record update
+      was made for the same reason. Created VirtualMachine `news-aggregator`
+      (id 15, site "Mini Atlas HomeLab", cluster "proxmox", 2 vCPU/2GB/16GB,
+      matching the actual LXC 114 allocation), a `eth0` VMInterface (id 15,
+      untagged — matching the existing convention that VLAN-70 VM interfaces
+      in NetBox aren't tagged with a VLAN object either, checked against
+      LXC 104's own interface before assuming), and IP address
+      `192.168.70.13/24` (id 29) set as the VM's `primary_ip4`. Verified
+      afterward via a read-only `GET`, not just trusted from the creation
+      output.
 - [ ] **Human wiki** — not yet assessed — proposal stage.
 - [ ] **Aster mirror/snapshot** — not applicable; this project does not
       touch Aster's own knowledge or function set.
@@ -373,6 +386,7 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-15 | 1 bias methodology decided | Presented three real options — LLM-judges-per-story, a named external outlet-level rating, or a hybrid of the two — with honest trade-offs for each. Jason chose the hybrid: a named, published, attributable outlet-level rating as the primary label, with `aster-llama` limited to an optional, visually secondary per-story loaded-language note | **Milestone 1 complete** — all five checklist items resolved. One implementation detail carries into Milestone 3: picking the exact rating source (AllSides / MBFC / Ad Fontes) and checking its terms of use for programmatic reference, the same diligence this project's exclusions already require for news sources |
 | 2026-09-15 | 2 compute deployed | Created LXC 114 `news-aggregator` on Proxmox, Lab VLAN 70, `192.168.70.13/24`, matching the existing LXC 104/110 convention exactly (bridge, gateway, tag, nameserver, searchdomain, unprivileged Debian). Live-verified (not assumed) both directions: general outbound HTTPS (200 from bbc.co.uk) and same-VLAN reach to `aster-llama` (200 from `192.168.70.12:11435/v1/models`) | Milestone 1's placement recommendation holds up under a real deployment, not just paper analysis. One real mistake made and caught in the same step: an unquoted `--tags automation;ai` argument let the shell split it into two commands, silently dropping the `ai` tag — caught by re-checking `pct config` immediately after, fixed with the correct comma-separated syntax |
 | 2026-09-15 | 2 ingestion pipeline built and validated | Built the SQLite schema, `ingest.py` (feedparser-based, dedup via `UNIQUE(feed_id, guid)`), and an hourly systemd timer; deployed and enabled on LXC 114. First real run against all 9 Milestone-1 candidate URLs found 2 broken: `chek-news` (wrong domain, `chek.news` → real domain `cheknews.ca`, real path `/feed/` found via redirect) and `times-colonist` (guessed `/feed` path 403'd on bot protection; real working path `/rss`, found by probing common paths on the live site). Fixed both in `feeds.json`, re-ran: all 9 succeeded, dedup confirmed correct (0 new on re-fetch for the 7 already-good feeds), 243 real items landed including genuinely Vancouver-Island-local `chek-news` content (Cowichan Lake/Tofino/Highlands election coverage) | **Milestone 2 complete.** This is exactly what the milestone's own validation step is for — 2 of 9 candidate URLs were wrong, found and fixed by real fetches, not caught by the Milestone 1 planning pass |
+| 2026-09-15 | NetBox entry added | The stored NetBox API token is deliberately read-only (a security decision from the NetBox-DCIM project's own close-out); followed that project's own established precedent instead of hunting for write access — used NetBox's Django shell directly in the `netbox-netbox-1` container. Created VirtualMachine `news-aggregator` (id 15), a `eth0` VMInterface (id 15, left untagged, matching a check against LXC 104's own interface convention rather than assumed), and IP `192.168.70.13/24` (id 29) as `primary_ip4`. Verified afterward via a read-only `GET`, not just trusted from the creation script's own output | Required integration-checklist item closed for real, not marked not-applicable by default |
 
 ## References
 
