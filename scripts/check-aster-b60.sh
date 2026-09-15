@@ -11,6 +11,9 @@ driver=$(readlink /sys/bus/pci/devices/0000:04:00.0/driver 2>/dev/null || true)
 [ "$(basename "$driver")" = "xe" ] || die "B60 04:00.0 is not bound to xe ($driver)"
 
 qm status 105 | grep -qx 'status: stopped' || die "rollback VM 105 is not stopped"
+if qm config 105 | grep -Eq '^hostpci[0-9]+:.*04:00\.0'; then
+    die "rollback VM 105 persistently maps B60 04:00.0"
+fi
 pct status 104 | grep -qx 'status: running' || die "Aster LXC 104 is not running"
 pct status 110 | grep -qx 'status: running' || die "inference LXC 110 is not running"
 

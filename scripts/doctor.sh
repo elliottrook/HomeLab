@@ -472,7 +472,19 @@ check_aster() {
             agent="$(pct exec 104 -- systemctl is-active aster-agent.service 2>/dev/null || true)"
             inference="$(pct exec 110 -- systemctl is-active aster-llama.service 2>/dev/null || true)"
             api="$(pct exec 104 -- curl -sf http://192.168.70.10:9120/health 2>/dev/null || true)"
-            printf "agent=%s\\ninference=%s\\napi=%s\\n" "$agent" "$inference" "$api"
+            driver="$(basename "$(readlink /sys/bus/pci/devices/0000:04:00.0/driver 2>/dev/null)" 2>/dev/null || true)"
+            rollback_vm="$(qm status 105 2>/dev/null | sed -n "s/^status: //p")"
+            if qm config 105 2>/dev/null | grep -Eq "^hostpci[0-9]+:.*04:00\\.0"; then
+                persistent_b60=yes
+            else
+                persistent_b60=no
+            fi
+            if pct exec 110 -- vulkaninfo --summary 2>/dev/null | grep -qi "Intel.*BMG G21"; then
+                vulkan=bmg-g21
+            else
+                vulkan=missing
+            fi
+            printf "agent=%s\\ninference=%s\\napi=%s\\ndriver=%s\\nrollback_vm=%s\\npersistent_b60=%s\\nvulkan=%s\\n" "$agent" "$inference" "$api" "$driver" "$rollback_vm" "$persistent_b60" "$vulkan"
         '
     )"; then
         warn "Unable to check Aster services"
@@ -481,8 +493,12 @@ check_aster() {
 
     if grep -qx 'agent=active' <<< "$state" &&
        grep -qx 'inference=active' <<< "$state" &&
-       grep -q '"status":"ok"' <<< "$state"; then
-        pass "Aster agent API and llama.cpp inference healthy"
+       grep -q '"status":"ok"' <<< "$state" &&
+       grep -qx 'driver=xe' <<< "$state" &&
+       grep -qx 'rollback_vm=stopped' <<< "$state" &&
+       grep -qx 'persistent_b60=no' <<< "$state" &&
+       grep -qx 'vulkan=bmg-g21' <<< "$state"; then
+        pass "Aster agent API, B60 Vulkan and llama.cpp inference healthy"
     else
         fail "Aster service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
     fi

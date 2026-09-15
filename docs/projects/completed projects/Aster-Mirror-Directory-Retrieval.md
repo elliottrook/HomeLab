@@ -1,14 +1,11 @@
 # Aster Mirror Directory-First Retrieval and Scale Evaluation
 
-> Status: Active — production activation complete 2026-09-15; graduation held
-> on one infrastructure-reliability correction. Directory-first retrieval is
-> live on the accepted `1.5.0` mirror, the exposed internal inference
-> credential has been rotated, rollback is retained, and the complete
-> production behavior set is accepted 60/60. During the live run, the B60
-> disappeared from inference because the nightly all-guests backup briefly
-> starts stopped rollback VM 105 and leaves `04:00.0` bound to `vfio-pci`.
-> The device is healthy on `xe` now, but the 02:30 recurrence must be removed
-> and proved by a backup-path test before this project is called graduated.
+> Status: Complete — graduated 2026-09-15. Directory-first retrieval is live
+> on the accepted `1.5.0` mirror, the exposed internal inference credential is
+> rotated, rollback is retained, and the complete production behavior set is
+> accepted 60/60. The nightly VM 105 backup cause of recurring B60 loss is
+> removed: the rollback VM has no persistent GPU mapping, a real stop-mode
+> backup kept all 88 samples on `xe`, and authenticated inference passed.
 >
 > Owner: Jason
 >
@@ -16,11 +13,11 @@
 >
 > Started: 2026-09-13
 >
-> Completed: —
+> Completed: 2026-09-15
 >
 > Authorization stream: **A — Autonomous**, granted by Jason 2026-09-13 in this
 > project's own conversation, per the per-project authorization mechanism in
-> `CLAUDE.md`. All changes remain staged, reversible, and pipeline-internal;
+> `CLAUDE.md`. Changes remain bounded, reversible, and pipeline-internal;
 > platform/sandbox approval prompts remain mandatory regardless of this grant.
 
 ## Purpose and desired outcome
@@ -191,10 +188,9 @@ new service, listener, or outbound call is added anywhere in this flow.
 
 ## Persistence plan
 
-- **Current milestone:** Milestones 1–4 and Milestone 5's retrieval activation,
-  credential rotation, recovery and observability work are complete. Formal
-  graduation is held on eliminating and testing the nightly VM 105 backup path
-  that reclaims the B60 from the host inference service.
+- **Current milestone:** Complete. Milestones 1–5, production activation,
+  credential rotation, recovery, observability and the B60 backup-path
+  reliability correction all passed.
 - **Last verified state:** `search_knowledge()` in
   `services/aster-agent/aster_agent.py` has an opt-in `directory_first`
   parameter (default `False`, unused by the one live call site), proven
@@ -204,10 +200,9 @@ new service, listener, or outbound call is added anywhere in this flow.
   independent live 60-behavior candidate runs and the isolated 1.4.1 restore
   exercise are complete. Production now uses directory-first retrieval against
   mirror `1.5.0` content `e87cd84f...022f8`.
-- **Next safe action:** with explicit approval, remove persistent `hostpci0`
-  from stopped rollback VM 105, document attach-before-use/detach-after-use,
-  then run a manual VM 105 backup while proving the B60 remains on `xe`, Vulkan
-  remains BMG G21, and authenticated Aster inference remains healthy.
+- **Next safe action:** routine operations only. Review the four fail-closed
+  collector source/commit mismatches before accepting future source updates;
+  keep VM 105's B60 mapping absent except during intentional rollback use.
 - **Rollback location:** LXC 113 retains
   `/var/lib/aster-wiki/aster-knowledge-mirror.last-good` and the dated
   `aster-knowledge-mirror.rollback-1.4.1-20260915`; LXC 104 retains
@@ -487,7 +482,7 @@ by the evidence but remains a separate explicit owner decision in Milestone 5.
       zero directory drift, failures or warnings.
 - [x] Record the activation decision, exact accepted hashes, and residual
       limitations in the evidence log.
-- [ ] Remove the recurring B60-loss condition and prove the stopped-VM backup
+- [x] Remove the recurring B60-loss condition and prove the stopped-VM backup
       path no longer changes the device from `xe` or degrades live inference.
 
 Gate: the outcome is recoverable either way, monitored going forward if
@@ -557,23 +552,21 @@ activated, and documented with dated evidence.
   mirror and Aster's retrieval path, not the human-authored corpus.
 - [x] **Aster mirror/snapshot:** activated the accepted `1.5.0` mirror and
   deterministic Aster snapshot with the retained generations above.
-- [ ] **Operational reference/runbooks:** update the mirror architecture note
-  in `homelab-reference` only if Milestone 5 activates the feature.
-- [ ] **Repository documentation:** activation state is recorded; move the
-  project to completed and finalize the portfolio/changelog after the B60
-  backup-path proof.
-- [ ] **Diagrams/rack records:** not applicable — no physical topology, rack,
+- [x] **Operational reference/runbooks:** updated the Aster architecture and
+  B60 rollback model in `homelab-reference` after activation.
+- [x] **Repository documentation:** updated the project portfolio, operations,
+  hardware/baseline records and changelog, then moved this record to completed.
+- [x] **Diagrams/rack records:** not applicable — no physical topology, rack,
   cable, or power change.
-- [ ] **Homepage/service discovery:** not applicable — no new service surface;
+- [x] **Homepage/service discovery:** not applicable — no new service surface;
   the existing authenticated portal link is unchanged.
-- [ ] **Authentication/authorization:** not applicable — no new identity,
-  role, or auth boundary is introduced.
-- [ ] **DNS, certificates and firewall:** not applicable — no new network
+- [x] **Authentication/authorization:** no new identity, role, or auth boundary;
+  the exposed inference credential was rotated in both root-owned stores.
+- [x] **DNS, certificates and firewall:** not applicable — no new network
   path; the entire change is internal to the existing LXC 113/104 pipeline.
-- [ ] **Automation and schedules:** no new schedule; abstract generation runs
-  inside the existing mirror build step. Extend the monthly health job only
-  if the feature activates.
-- [ ] **Security inventory:** no new secret, credential, or network path is
+- [x] **Automation and schedules:** no new schedule; abstract generation runs
+  inside the existing mirror build step and monthly health validates it.
+- [x] **Security inventory:** no new secret, credential, or network path was
   introduced at any milestone.
 
 ## Graduation criteria
@@ -614,6 +607,7 @@ The project graduates only when:
 | 2026-09-15 | 5 production graduation run | Ran the eight general, ARR, Home Assistant and mirror suites on the active service. One authority-conflict answer hit the 112-token cap before emitting the exact evaluator label, so the bounded policy was strengthened to require both `conflict` and `current-operational` in the first sentence. The corrected targeted case passed twice independently without raising the token cap; the final sysadmin suite passed 14/14. The ARR evaluator was also expanded to accept the semantically equivalent phrase “separate stage.” | Accepted behavior accounting is 60/60: the base reports were 59/60 plus the corrected authority case passed twice. This is recorded as replacement evidence, not misrepresented as an uninterrupted initial 60/60. Aggregate base latency was 2,906.160 seconds, mean 48.436 and maximum 71.447. |
 | 2026-09-15 | Operational diagnostics | HomeLab Doctor returned 62 pass, 6 warning and 2 fail. All Aster/wiki/backup checks were green; the failures and warnings were unrelated existing conditions (Arista Et48, powered-off Backup Synology, 87% Media use, and 50-hour config-backup age). A fresh collector cycle completed 24 sources and left 2 unchanged with no permission errors; four sources correctly quarantined on reviewed-commit mismatch, leaving the accepted corpus unchanged. | Retrieval activation is healthy. Source-review mismatches remain a fail-closed content-maintenance follow-up and do not invalidate the accepted mirror. |
 | 2026-09-15 | B60 recurrence diagnosis | A production inference 502 coincided with LXC 110 exposing only Mesa `llvmpipe`. Proxmox kernel logs show `04:00.0` changing from `xe` to `vfio-pci` at approximately 02:35 on September 13, 14 and 15. Enabled job `backup-49999802-1365` runs `vzdump` for all guests at 02:30; VM 105 has persistent `hostpci0: 04:00.0,pcie=1,rombar=0`, and `/var/log/vzdump/qemu-105.log` confirms stop-mode backup starts KVM for the stopped VM, attaches the B60, then stops KVM without restoring `xe`. There is no boot-time vfio policy, hookscript or service responsible. Proxmox's `driver=keep` only skips rebinding/reset while QEMU still creates `vfio-pci`, so it is not a safe host-acceleration fix. | Root cause is deterministic nightly backup of stopped rollback VM 105, not random driver loss. The B60 is currently restored to `xe`, Vulkan sees Intel BMG G21, VM 105 is stopped, and inference improved from about 0.12 to 0.78 generation token/s. Graduation is held because the next 02:30 backup can recur until persistent passthrough is removed or another proven design is accepted. |
+| 2026-09-15 | B60 durable correction and graduation | With explicit approval, recorded the exact rollback mapping and removed `hostpci0` from stopped VM 105. A real `vzdump 105 --storage backups --mode stop --compress zstd` completed in 1 minute 27 seconds and produced an 8.54 GB archive. A concurrent one-second monitor collected 88 samples; every sample remained `xe`. VM 105 remained stopped, LXC 110 still exposed Intel BMG G21, the strengthened B60 validator passed, and authenticated Aster generation returned the requested `B60_OK` at 83.30 prompt and 4.82 generation tokens/second. HomeLab Doctor then passed the strengthened Aster API/B60/Vulkan/inference check; its 61 pass, 7 warning and 2 fail estate summary contained only the known unrelated Et48, Backup Synology, Media-capacity, config-backup-age and dirty-worktree items. | The recurring driver-loss condition is removed and directly tested against its former trigger. VM 105 remains recoverable as a disk/config rollback with documented attach-before-use/detach-after-use. All project graduation criteria pass. |
 
 ## Production activation record
 
@@ -640,11 +634,12 @@ approval under the repository rules.
 
 ## Close-out
 
-Pending one final reliability proof. Directory-first retrieval is activated,
-owned by Jason, monitored by the existing monthly corpus-health and Doctor
-paths, and recoverable from the retained locations in the Persistence plan.
-Before moving this file to completed projects, remove the persistent B60
-mapping from rollback VM 105, document its intentional attach/detach procedure,
-and prove a manual stopped-VM backup cannot take the accelerator from Aster.
-Sub-source topic clustering remains deliberately deferred until a future corpus
-scale-up provides evidence that it is needed.
+Graduated 2026-09-15. Directory-first retrieval is activated, owned by Jason,
+monitored by the existing monthly corpus-health and strengthened Doctor paths,
+and recoverable from the retained locations in the Persistence plan. VM 105 is
+a stopped disk/config rollback with on-demand-only B60 attachment; the exact
+attach/detach sequence is in `docs/Aster-Operations.md`. Sub-source topic
+clustering remains deliberately deferred until a future corpus scale-up shows
+that it is needed. Four collector sources remain quarantined on reviewed-commit
+mismatch and must be reviewed before their next content can be accepted; the
+current production corpus is unchanged and healthy.

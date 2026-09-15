@@ -463,6 +463,14 @@ The eight added firewall rules, all narrowly scoped:
 The current OPNsense config revision is self-describing (`Add narrow Grafana
 proxy and Authentik firewall rules`), which made attribution straightforward.
 
+The VM 105 row above describes the accepted 2026-09-04 baseline, not current
+runtime intent. On 2026-09-15 the persistent `hostpci0` entry was removed after
+proving that each nightly stop-mode backup started the stopped VM, claimed the
+B60 with `vfio-pci`, and did not restore `xe`. VM 105 now receives the B60 only
+for an intentional rollback and must have the mapping removed afterward. A
+manual post-change backup completed with 88/88 samples on `xe`; the next
+configuration-drift baseline should accept this single reviewed removal.
+
 **Method, for repeating this audit:** `baseline.info` names the exact source
 files it was built from, and `~/lab/private-backups/` retains dated copies, so
 the honest check is to diff the current export against the named baseline
