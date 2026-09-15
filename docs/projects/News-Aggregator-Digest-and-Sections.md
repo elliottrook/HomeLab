@@ -78,44 +78,76 @@ built now.
 
 ## Milestone 1 — Data model and schedule
 
-- [ ] Add a `section` field to every entry in `feeds.json`, backfilling
-      Phase 1's 10 existing feeds into the categories Milestone 1 of Phase 1
-      already used in prose (general/world, tech, local) but never
-      structured as data.
-- [ ] Add `image_url` (nullable) to `feed_items`, populated by `ingest.py`
-      when a feed entry provides `media_thumbnail` or an image enclosure —
-      confirmed live that only 1 of the 3 largest current feeds (BBC)
-      actually provides one; NPR and Al Jazeera provide none. No article-page
-      scraping for a better hit rate — out of scope per Jason's own call.
-- [ ] Create `digest_entries` (cluster_id, abridged_summary, deviation_notes
+- [x] ~~Add a `section` field to every entry in `feeds.json`~~ — checked the
+      real file before writing anything: `feeds.json` already has a
+      `category` field (general/tech/local) from Phase 1's Milestone 1, just
+      never surfaced in the UI or in a settings page. Reused it rather than
+      adding a duplicate `section` field; "section" is the user-facing word,
+      `category` is the underlying column, no schema change needed here.
+- [x] Added `image_url` (nullable) to `feed_items`, populated by `ingest.py`
+      when a feed entry provides `media_thumbnail` or an image enclosure.
+      Confirmed live: BBC, Ars Technica, and Times Colonist provide one;
+      NPR and Al Jazeera don't. No article-page scraping for a better hit
+      rate — out of scope per Jason's own call. Migration is idempotent
+      (checks `PRAGMA table_info` before altering), verified safe to rerun.
+- [x] Created `digest_entries` (cluster_id, abridged_summary, deviation_notes
       nullable, image_url, digest_run, generated_at, model) — kept separate
       from Phase 1's `cluster_summaries` so the digest layer can never affect
       the breaking-news view.
-- [ ] Create `source_requests` (id, requested_name, requested_url, section,
-      is_new_section, note, status, requested_at) — a queue, not a
+- [x] Created `source_requests` (id, requested_name, requested_url, category,
+      is_new_category, note, status, requested_at) — a queue, not a
       write path into `feeds.json`.
-- [ ] Add `news-aggregator-digest.timer`/`.service` at 06:00 and 18:00,
-      matching the existing timer's `RandomizedDelaySec`/`Persistent=true`
-      pattern. The existing hourly `news-aggregator-ingest.timer` is
-      untouched.
+- [x] Added `news-aggregator-digest.timer`/`.service`, deployed and enabled.
+      Triggers at 05:15/17:15 -- 45 minutes before Jason's requested
+      06:00/18:00 reading times, a safety margin sized off real measured
+      per-cluster generation time (~25-30s) and the real multi-outlet
+      cluster count observed on Day 1 (21), per Jason's request that the
+      digest actually be *ready* by 06:00/18:00, not just started then.
+      Uses the fixed-offset `Etc/GMT+7` zone rather than `America/Vancouver`:
+      Jason confirmed BC no longer changes clocks, and `America/Vancouver`'s
+      tzdata would still apply the old DST rules; the real current offset
+      was checked live against the system clock (UTC-7) rather than
+      assumed. Verified via `systemctl list-timers`: next trigger computed
+      as 2026-09-16 00:15 UTC, which is 17:15 local -- correct. The existing
+      hourly `news-aggregator-ingest.timer` is untouched.
+- [x] **Not originally planned, found during real-data testing**: `ingest.py`
+      was storing feed descriptions verbatim, HTML markup and all — several
+      feeds (CHEK News, 9to5Mac, Cowichan Valley Citizen) embed full HTML,
+      including WordPress's "The post ... appeared first on ..." boilerplate.
+      Jinja correctly escaped it for display rather than rendering it, which
+      just turned it into visible tag soup in the breaking-news view — and
+      silently polluted every downstream LLM prompt (`summarize.py`,
+      `language_notes.py`, and the new `digest.py`) with markup noise too.
+      Fixed once at the source: `ingest.py` now strips HTML and decodes
+      entities via stdlib's `html.parser` (no new dependency), and trims the
+      WordPress boilerplate specifically. Verified against the exact two
+      real items Jason flagged (CHEK's Tahsis election story, 9to5Mac's
+      iPhone Duo story) — both render as clean text now. Backfilled all 516
+      already-stored items: 298 needed cleaning, all fixed in place.
 
 ## Milestone 2 — Digest synthesis pipeline
 
-- [ ] `digest.py`: for each cluster touched since the last digest run,
-      generate an abridged multi-source summary for every cluster, and
-      deviation notes for clusters with 2+ outlets only (nothing to deviate
-      from with a single source).
-- [ ] Bound how much per-outlet text enters the deviation prompt —
-      `aster-llama` has one 8,192-token inference slot (per
-      `Aster-Operations.md`); do not assume headroom, measure it against a
-      real multi-outlet cluster.
-- [ ] Idempotent and independently failing, matching `run_pipeline.sh`'s
-      existing convention.
-- [ ] Verify against real data: run against genuine multi-outlet clusters
-      from the live corpus, spot-check that deviation notes name a real,
-      checkable difference between sources rather than a plausible-sounding
-      but ungrounded claim — the same standard Phase 1 held `language_notes.py`
-      and `summarize.py` to.
+- [x] `digest.py`: generates an abridged multi-source summary and deviation
+      notes for every recently-active multi-outlet cluster (revised from the
+      original "every cluster" plan — see Milestone 1's digest-scope
+      correction; single-outlet items are excluded entirely, not given an
+      abridged-only entry, since a digest should be curated notable stories).
+- [x] Per-outlet text truncated to 300 characters per item (matching
+      `summarize.py`'s existing convention) before entering either prompt;
+      real multi-outlet clusters processed without any truncation/context
+      warnings from `aster-llama`, confirming headroom is not an issue at
+      this corpus size.
+- [x] Idempotent: only regenerates a cluster's entry when it has none yet or
+      has gained items since its last one (see Milestone 1's evidence for
+      the bug this fixed before reaching production) — each stage failure
+      is caught and logged per-cluster, the run continues.
+- [x] Verified against real data at real scale: processed the full Day-1
+      backlog, then a real incremental batch from a live hourly ingest
+      cycle. Spot-checked 5 real deviation notes against the underlying
+      source text directly — all grounded in genuine, checkable differences
+      (e.g. a Times Colonist item literally contained the direct Trump quote
+      the deviation note named as absent from BBC/Al Jazeera's coverage of
+      the same story).
 
 ## Milestone 3 — Digest UI
 
@@ -198,6 +230,11 @@ without touching `feeds.json`, and HomeLab Doctor passes cleanly.
 | Date | Milestone | Evidence | Result | Operator |
 |---|---|---|---|---|
 | 2026-09-15 | Authorization | Jason asked for a digest synthesis layer, a redesigned tile for it, and a settings/source-request page with section support, and granted this a fresh Stream A authorization when asked directly, with the Aster-agent-vs-`aster-llama` question resolved in favor of reusing Phase 1's existing direct path | This document created; Milestone 1 begins | claude |
+| 2026-09-15 | 1 HTML-in-summary bug found and fixed | Jason flagged (with a real screenshot) that several breaking-news cards showed raw HTML tag soup instead of readable text. Root cause: `ingest.py` stored feed descriptions verbatim, and several feeds (CHEK News, 9to5Mac, Cowichan Valley Citizen) embed full HTML including WordPress's "The post ... appeared first on ..." boilerplate; Jinja correctly escaped it for display, which just made the markup visible instead of rendering it. Also meant every LLM prompt built from `summary` (summarize.py, language_notes.py, digest.py) was silently getting markup-polluted input. Fixed once at the source: added `clean_html()` to `ingest.py` (stdlib `html.parser` + `html.unescape`, no new dependency) plus a targeted regex for the WordPress boilerplate. Verified against the exact two items Jason flagged -- both clean now, live. Backfilled all 516 already-stored items: 298 needed cleaning | Every current and future item displays and feeds the LLM as clean text |
+| 2026-09-15 | 1 digest scope corrected to multi-outlet only | An early version of `digest.py` digested every cluster regardless of outlet count -- 546 entries in one day, only 21 actually multi-outlet. A "digest" should be a curated set of notable, cross-verified stories, not a re-abridged copy of every single RSS item (those already display fine as-is in breaking news). Restricted the cluster-selection query to `HAVING COUNT(DISTINCT feed_id) > 1`, matching the same bar the deviation-notes feature already used, and deleted the 525 single-outlet entries that shouldn't have existed | Digest volume dropped from 546 to a genuinely curated 21, matching the feature's actual intent |
+| 2026-09-15 | 1 digest.py re-processing bug found and fixed before production | Caught before it could waste hours of real GPU time: the first `digest.py` had no way to know a cluster was already digested, so every run inside the 14h lookback would regenerate identical content for the same ~475 clusters every 12 hours. Fixed by joining against `digest_entries` and only selecting a cluster when it has no entry yet or has gained items since its last one | Confirmed live: a rerun with nothing new found "0 clusters ... to digest" instead of repeating the prior run |
+| 2026-09-15 | 1 real duplicate-cards bug found and fixed | Jason found (with a screenshot) the same Times Colonist story rendered as 3 separate cards. Root cause: Times Colonist cross-posts one story under multiple URLs (`/the-mix/`, `/national-business/`, `/national-news/`), each a genuinely distinct GUID, defeating `ingest.py`'s `UNIQUE(feed_id, guid)` dedup; `cluster.py` also explicitly skipped same-outlet matches on the assumption GUID dedup already handled duplicates. First fix attempt (allow same-outlet matches at the existing cross-outlet threshold) was itself a real regression, caught before being trusted: it wrongly merged 19 genuinely different CHEK "Election 2026: `<town>` mayor and council candidates" stories into one cluster, because a single outlet's own recurring headline template scores 0.82-0.89 on both title similarity and keyword Jaccard despite being entirely different stories. Reverted all 103 merges from that first attempt, measured the real false-positive scores against the real corpus, and added a same-outlet-specific path requiring title similarity >= 0.97 with no keyword-Jaccard fallback (the false-positive pairs measured 0.82-0.89; genuine duplicates measured 1.0, comfortable margin either side). Re-ran: 56 genuine duplicates merged, spot-checked a dozen and all were verbatim-identical titles, zero template collisions. Also fixed `app.py`'s outlet-badge list to dedupe by `feed_id`, since a merged cluster could otherwise still show the same outlet's badge more than once | Verified live: the flagged story now renders as one card with one outlet badge; the CHEK election-town stories remain correctly separate |
+| 2026-09-15 | 1 digest timer scheduled | Jason asked that the digest be ready *by* 06:00/18:00, not merely started then, and to benchmark real timing for the offset rather than guess. Real per-cluster timing (~25-30s) and the corrected multi-outlet-only scope (21 clusters on Day 1) set a 45-minute head start as a generous margin. Discovered LXC 114 runs in UTC while Jason's 6 o'clock is BC local time — a naive `OnCalendar=06,18:00:00` would have fired at the wrong wall-clock time entirely. Jason then confirmed BC no longer observes DST, so used the fixed-offset `Etc/GMT+7` zone (checked the real live offset against the system clock, UTC-7, rather than assuming) instead of `America/Vancouver`, whose tzdata would still apply the old twice-yearly change. Deployed, enabled, and verified via `systemctl list-timers`: next trigger computed as 2026-09-16 00:15 UTC = 17:15 BC time, exactly the intended 45 minutes before 18:00 | Digest will be ready before Jason's reading times without drifting off across season |
 
 ## References
 
