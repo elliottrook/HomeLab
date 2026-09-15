@@ -1,7 +1,9 @@
 # News Aggregator (MuckScraper)
 
-> Status: Active — Stream A. Milestone 1 (discovery and design decisions)
-> starting.
+> Status: Active — Stream A. Milestone 1 mostly complete: placement (VLAN
+> 70), egress (leave broad, no OPNsense change), clustering method, and a
+> candidate feed list are all resolved. Bias-scoring methodology remains
+> open — Jason's explicit checkpoint before Milestone 3.
 >
 > Project owner: Jason
 >
@@ -121,14 +123,13 @@ scoped in detail, or measured.
 
 ## Open risks and decisions needing Jason's input
 
-- **Outbound egress, revised 2026-09-14:** the premise that this needs a
-  *new*, *broadened* firewall rule turned out to be wrong once checked
-  against `Current-Network-Baseline.md` — see the placement recommendation
-  below. If VLAN 70 is confirmed, general outbound internet is already
-  validated and permitted there; the live question is whether to
-  voluntarily *narrow* that existing access to a specific domain allowlist
-  for this workload, not whether to open something new. Still Jason's
-  decision either way, before Milestone 2.
+- **Outbound egress — resolved 2026-09-15.** The premise that this needs a
+  new, broadened firewall rule turned out to be wrong once checked against
+  `Current-Network-Baseline.md`: VLAN 70 already has validated broad
+  outbound internet access. Jason chose to leave that existing posture
+  as-is rather than narrow it to a domain allowlist, after the
+  maintenance-burden trade-off was presented. **No OPNsense change is
+  needed for this project.**
 - **Placement: recommended Lab VLAN 70, 2026-09-14**, not Servers VLAN 20 —
   see Milestone 1's checklist for the full reasoning (already-validated
   broad egress with internal isolation, same-VLAN reach to `aster-llama`
@@ -173,17 +174,17 @@ scoped in detail, or measured.
       enough for a lightweight ingestion LXC. This is a recommendation, not
       a unilateral decision — Jason should confirm before Milestone 2.
 - [ ] Resolve the outbound-egress/firewall question with Jason explicitly.
-      **Materially better than expected, 2026-09-14:** if VLAN 70 is
-      confirmed as placement, this project may need **zero new firewall
-      rules** — general outbound internet is already validated and
-      permitted from VLAN 70. The actual open question is inverted from how
-      this document originally framed it: not "what new broad egress do we
-      open," but "should we *narrow* VLAN 70's already-broad egress down to
-      a specific news-domain allowlist for this workload specifically, as
-      defense-in-depth, even though it isn't required." That narrowing
-      decision (and the exact feed-domain list it would need) is still
-      Jason's to make — recorded here as the live open question, replacing
-      the original framing.
+      **Resolved by Jason 2026-09-15: leave VLAN 70's existing broad
+      egress as-is, no new firewall rule.** The trade-off was presented
+      explicitly (narrowing to an FQDN-based allowlist would reduce this
+      workload's blast radius if ever compromised, at the cost of ongoing
+      maintenance every time the feed list changes, plus CDN-IP-churn
+      fragility if done as static IPs rather than FQDN aliases). Jason
+      chose to accept the existing, already-validated broad-egress posture
+      rather than take on that maintenance burden. This is not a new
+      exposure — VLAN 70 already permits this for its existing workloads —
+      just a decision not to tighten further for this one. **This project
+      needs zero OPNsense changes.**
 - [x] Choose and document the clustering method and its expected accuracy
       trade-offs. **Recommendation, 2026-09-14:** headline + lede text
       similarity (e.g. TF-IDF cosine similarity or simpler fuzzy string
@@ -301,6 +302,7 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-14 | 1 clustering method proposal | Proposed headline/lede similarity clustering within a rolling time window, no LLM call in the clustering step, tuned toward precision over recall, with the reasoning and trade-off documented in Milestone 1's checklist | Proposed, not yet validated against real feed data (no ingestion pipeline exists yet) |
 | 2026-09-15 | 1 placement confirmed | Jason confirmed Lab VLAN 70 | Milestone 1's placement item complete |
 | 2026-09-15 | 1 feed list drafted | Drafted a candidate feed list with Jason by category: general/world, tech (including 9to5Mac at Jason's request), and local — corrected mid-draft from "Vancouver" to **Vancouver Island** specifically (Cowichan Valley/Duncan area) once Jason clarified his actual location. Exact URLs are unverified candidates; none were live-fetched or reachability-checked in this session (a WebFetch attempt and a Browser-pane attempt at live RSS verification both failed to go through) | Candidate list recorded in Milestone 1's checklist. Live URL verification is explicitly deferred to Milestone 2's own "validate against the initial feed list with real fetches" step, not skipped |
+| 2026-09-15 | 1 egress decision | Presented the full trade-off: narrowing VLAN 70's already-broad egress to an FQDN-based allowlist would reduce this workload's blast radius if compromised, at the cost of ongoing maintenance whenever the feed list changes, plus fragility if done with static IPs instead of FQDN aliases given CDN IP churn. Jason chose to leave the existing broad egress as-is | Four of Milestone 1's five checklist items are resolved: placement (VLAN 70), egress (leave as-is, no OPNsense change needed), clustering method (proposed), feed list (drafted candidates). **Milestone 1 is not yet complete** — bias-scoring methodology is still open, deliberately not addressed unilaterally here; it remains Jason's explicit Stream A checkpoint |
 
 ## References
 
