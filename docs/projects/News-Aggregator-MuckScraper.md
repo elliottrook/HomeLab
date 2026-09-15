@@ -1,9 +1,11 @@
 # News Aggregator (MuckScraper)
 
-> Status: Active — Stream A. Milestone 1 mostly complete: placement (VLAN
-> 70), egress (leave broad, no OPNsense change), clustering method, and a
-> candidate feed list are all resolved. Bias-scoring methodology remains
-> open — Jason's explicit checkpoint before Milestone 3.
+> Status: Active — Stream A. **Milestone 1 complete**: placement (VLAN 70),
+> egress (leave broad, no OPNsense change), clustering method, feed list,
+> and bias-scoring methodology (hybrid: named external outlet rating +
+> secondary LLM per-story note) are all resolved. One implementation
+> detail carries into Milestone 3: picking the exact rating source and
+> checking its terms of use. Milestone 2 (ingestion pipeline) is next.
 >
 > Project owner: Jason
 >
@@ -140,10 +142,13 @@ scoped in detail, or measured.
   tuned toward precision over recall. See Milestone 1's checklist for the
   full reasoning and its stated accuracy trade-off. Not yet validated
   against real feed data.
-- **Bias-scoring methodology and its labeling remain fully unresolved** —
-  this is the most subjective piece of the whole project, is explicitly
-  named as a required Stream A checkpoint in this document's header, and
-  needs Jason's own decision, not a proposal from this session.
+- **Bias-scoring methodology — resolved 2026-09-15: hybrid** (named
+  external outlet-level rating as the primary, attributable label;
+  `aster-llama` limited to an optional, visually secondary per-story
+  loaded-language note). See Milestone 1's checklist for the full decision.
+  One implementation detail carries forward to Milestone 3, not yet
+  resolved: the exact rating source (AllSides / MBFC / Ad Fontes) and a
+  check of its terms of use for programmatic reference.
 - **Feed list, refresh interval, and retention window** are all still
   undecided and directly affect both storage sizing and how much this looks
   like general web scraping vs. bounded feed reading.
@@ -206,9 +211,31 @@ scoped in detail, or measured.
       exists — the accuracy trade-off is a design expectation here, not yet
       measured.
 - [x] Placement confirmed by Jason 2026-09-15: **Lab VLAN 70.**
-- [ ] Choose and document the bias-scoring methodology and UI labeling.
-      Deferred — this is the explicit Stream A checkpoint requiring Jason's
-      own sign-off (see header), not something to propose unilaterally.
+- [x] Choose and document the bias-scoring methodology and UI labeling.
+      **Decided by Jason 2026-09-15: hybrid.** A named, external, published
+      outlet-level rating (e.g. AllSides, Media Bias/Fact Check, or Ad
+      Fontes Media — exact source still to be picked at Milestone 3, see
+      below) is the primary, attributable label shown for each story's
+      outlet — not the LLM's own opinion. `aster-llama` is used only for an
+      optional, clearly secondary per-story note flagging notably loaded
+      language within that specific story, visually distinct from the
+      outlet-level rating so the two signals never blur into one unearned
+      "bias score." This satisfies both halves of the required sign-off:
+      the method (external, attributable primary signal; LLM kept to a
+      narrow, secondary, clearly-labeled role) and the caveat prominence
+      (the outlet rating's own source is cited directly in the UI; the
+      LLM-derived note carries the standard "automated estimate, not
+      authoritative" label from this project's Privacy and security design
+      section).
+      **New implementation detail surfaced for Milestone 3, not yet
+      resolved:** whichever rating source is picked (AllSides / MBFC / Ad
+      Fontes) will have its own terms of use governing programmatic
+      reference to its ratings data. This project's own exclusions already
+      require respecting a *news* source's terms of service before
+      automated retrieval — the same check needs to happen for the chosen
+      *bias-rating* source before Milestone 3 builds against it, not be
+      assumed clear because the news-source rule was written with
+      something else in mind.
 - [x] Draft the initial feed list with Jason. **Candidate list, 2026-09-15
       — unverified, live URL/reachability checks belong to Milestone 2's
       own "validate against the initial feed list with real fetches" step,
@@ -302,7 +329,8 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-14 | 1 clustering method proposal | Proposed headline/lede similarity clustering within a rolling time window, no LLM call in the clustering step, tuned toward precision over recall, with the reasoning and trade-off documented in Milestone 1's checklist | Proposed, not yet validated against real feed data (no ingestion pipeline exists yet) |
 | 2026-09-15 | 1 placement confirmed | Jason confirmed Lab VLAN 70 | Milestone 1's placement item complete |
 | 2026-09-15 | 1 feed list drafted | Drafted a candidate feed list with Jason by category: general/world, tech (including 9to5Mac at Jason's request), and local — corrected mid-draft from "Vancouver" to **Vancouver Island** specifically (Cowichan Valley/Duncan area) once Jason clarified his actual location. Exact URLs are unverified candidates; none were live-fetched or reachability-checked in this session (a WebFetch attempt and a Browser-pane attempt at live RSS verification both failed to go through) | Candidate list recorded in Milestone 1's checklist. Live URL verification is explicitly deferred to Milestone 2's own "validate against the initial feed list with real fetches" step, not skipped |
-| 2026-09-15 | 1 egress decision | Presented the full trade-off: narrowing VLAN 70's already-broad egress to an FQDN-based allowlist would reduce this workload's blast radius if compromised, at the cost of ongoing maintenance whenever the feed list changes, plus fragility if done with static IPs instead of FQDN aliases given CDN IP churn. Jason chose to leave the existing broad egress as-is | Four of Milestone 1's five checklist items are resolved: placement (VLAN 70), egress (leave as-is, no OPNsense change needed), clustering method (proposed), feed list (drafted candidates). **Milestone 1 is not yet complete** — bias-scoring methodology is still open, deliberately not addressed unilaterally here; it remains Jason's explicit Stream A checkpoint |
+| 2026-09-15 | 1 egress decision | Presented the full trade-off: narrowing VLAN 70's already-broad egress to an FQDN-based allowlist would reduce this workload's blast radius if compromised, at the cost of ongoing maintenance whenever the feed list changes, plus fragility if done with static IPs instead of FQDN aliases given CDN IP churn. Jason chose to leave the existing broad egress as-is | Four of Milestone 1's five checklist items are resolved: placement (VLAN 70), egress (leave as-is, no OPNsense change needed), clustering method (proposed), feed list (drafted candidates). Bias-scoring methodology remained open pending Jason's own decision |
+| 2026-09-15 | 1 bias methodology decided | Presented three real options — LLM-judges-per-story, a named external outlet-level rating, or a hybrid of the two — with honest trade-offs for each. Jason chose the hybrid: a named, published, attributable outlet-level rating as the primary label, with `aster-llama` limited to an optional, visually secondary per-story loaded-language note | **Milestone 1 complete** — all five checklist items resolved. One implementation detail carries into Milestone 3: picking the exact rating source (AllSides / MBFC / Ad Fontes) and checking its terms of use for programmatic reference, the same diligence this project's exclusions already require for news sources |
 
 ## References
 
