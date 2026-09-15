@@ -64,6 +64,14 @@ NON_KNOWLEDGE_BODY = re.compile(
 )
 
 
+class DirectoryIndexError(ValueError):
+    """Directory index is missing, malformed, or stale relative to entries."""
+
+    def __init__(self, message: str, *, drift_count: int = 1):
+        super().__init__(message)
+        self.drift_count = drift_count
+
+
 def _useful_section(body: str) -> bool:
     """Reject structural fragments that carry no retrievable product knowledge."""
     if NON_KNOWLEDGE_BODY.search(body.strip()):
@@ -327,6 +335,46 @@ def package_hash(root: Path) -> str:
     return digest.hexdigest()
 
 
+def verify_directory_index(mirror_root: Path) -> dict:
+    """Recompute directory routing aids and reject any drift from mirror entries."""
+    try:
+        payload = json.loads(
+            (mirror_root / "indexes/directories.json").read_text(encoding="utf-8")
+        )
+        if payload.get("schema_version") != 1 or not isinstance(payload.get("entries"), dict):
+            raise DirectoryIndexError("invalid directory index schema")
+        expected: dict[str, dict] = {}
+        for source_dir in sorted(
+                path for path in (mirror_root / "entries").iterdir() if path.is_dir()):
+            bodies = []
+            for entry in sorted(source_dir.glob("*.md")):
+                text = entry.read_text(encoding="utf-8")
+                marker = "## Source-located claim\n\n"
+                if marker not in text:
+                    raise DirectoryIndexError(
+                        f"mirror entry has no source-located claim: {entry.name}"
+                    )
+                bodies.append(text.split(marker, 1)[1].rstrip("\n"))
+            if bodies:
+                expected[source_dir.name] = _directory_abstract(source_dir.name, bodies)
+    except DirectoryIndexError:
+        raise
+    except (OSError, UnicodeError, json.JSONDecodeError, TypeError) as exc:
+        raise DirectoryIndexError("directory index unavailable or malformed") from exc
+
+    actual = payload["entries"]
+    drifted = sorted(
+        source_id for source_id in set(actual) | set(expected)
+        if actual.get(source_id) != expected.get(source_id)
+    )
+    if drifted:
+        raise DirectoryIndexError(
+            f"directory index differs from current entries for {len(drifted)} source(s)",
+            drift_count=len(drifted),
+        )
+    return {"status": "ok", "checked": len(expected)}
+
+
 def verify_mirror(wiki_root: Path, mirror_root: Path,
                   pdf_extractor: Callable[[Path], str] | None = None) -> dict:
     provenance = json.loads((mirror_root / "indexes/provenance.json").read_text(encoding="utf-8"))["entries"]
@@ -346,7 +394,10 @@ def verify_mirror(wiki_root: Path, mirror_root: Path,
         if not excerpt or excerpt not in entry:
             raise ValueError(f"unsupported claim: {entry_id}")
         checked += 1
-    return {"status": "ok", "checked": checked, "content_sha256": package_hash(mirror_root)}
+    directory_verification = verify_directory_index(mirror_root)
+    return {"status": "ok", "checked": checked,
+            "directory_sources": directory_verification["checked"],
+            "content_sha256": package_hash(mirror_root)}
 
 
 def rollback_mirror(output_root: Path) -> None:

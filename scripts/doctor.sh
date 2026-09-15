@@ -499,8 +499,9 @@ check_aster_wiki() {
             status="$(pct exec 113 -- runuser -u aster-collector -- env PYTHONPATH=/opt/aster-wiki /usr/bin/python3 -m aster_wiki.cli status --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state 2>/dev/null || true)"
             corpus_timer="$(pct exec 113 -- systemctl is-enabled aster-wiki-corpus-health.timer 2>/dev/null || true)"
             corpus_status="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json"))["status"])'\'' 2>/dev/null || true)"
+            directory_drift="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json")).get("metrics", {}).get("directory_index_drift", "missing"))'\'' 2>/dev/null || true)"
             corpus_fresh="$(pct exec 113 -- find /var/lib/aster-wiki/state/reports/corpus-health.json -mmin -64800 -print 2>/dev/null || true)"
-            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ncorpus_fresh=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$corpus_fresh"
+            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ndirectory_drift=%s\ncorpus_fresh=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$directory_drift" "$corpus_fresh"
         '
     )"; then
         warn "Unable to check Aster wiki services"
@@ -516,8 +517,9 @@ check_aster_wiki() {
     elif ! grep -qx 'corpus_timer=enabled' <<< "$state"; then
         warn "Aster wiki collector is healthy but monthly corpus-health timer is not enabled"
     elif grep -qx 'corpus_status=failed' <<< "$state" ||
+         ! grep -qx 'directory_drift=0' <<< "$state" ||
          ! grep -q '^corpus_fresh=/' <<< "$state"; then
-        fail "Aster wiki monthly corpus-health report failed, is missing or is older than 45 days"
+        fail "Aster wiki monthly corpus-health report failed, has directory-index drift, is missing or is older than 45 days"
     elif grep -qx 'corpus_status=warning' <<< "$state"; then
         warn "Aster wiki is operational but monthly corpus-health review has warnings"
     elif grep -qx 'corpus_status=healthy' <<< "$state"; then

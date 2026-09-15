@@ -26,6 +26,16 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("every explicitly requested fact or identifier", ASTER_SYSTEM_PROMPT)
         self.assertIn("before optional", ASTER_SYSTEM_PROMPT)
 
+    def test_system_policy_frontloads_runtime_and_recovery_dependencies(self):
+        self.assertIn("Qwen3.8-27B on the B60 Vulkan path", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Always identify it explicitly as `VM 105`", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Aster is not the\nfirst recovery dependency", ASTER_SYSTEM_PROMPT)
+        self.assertIn("independent local access", ASTER_SYSTEM_PROMPT)
+
+    def test_credential_policy_omits_product_specific_recovery_details(self):
+        self.assertIn("give only that generic refusal", ASTER_SYSTEM_PROMPT)
+        self.assertIn("do not add product-specific UI", ASTER_SYSTEM_PROMPT)
+
     def test_system_policy_labels_bounded_health_source(self):
         self.assertIn("latest sanitized", ASTER_SYSTEM_PROMPT)
         self.assertIn("read-only HomeLab Doctor summary", ASTER_SYSTEM_PROMPT)
@@ -143,6 +153,7 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("album rather\nthan a single track", ASTER_SYSTEM_PROMPT)
         self.assertIn("verification and explicit review are required", ASTER_SYSTEM_PROMPT)
         self.assertIn("Do not redirect an ARR question to a live service interface", ASTER_SYSTEM_PROMPT)
+        self.assertIn("request/monitor, indexer, download queue, ARR import", ASTER_SYSTEM_PROMPT)
 
     def test_forgejo_and_netbox_policy_is_indirect_and_read_only(self):
         self.assertIn("Forgejo and NetBox access is also read-only and indirect", ASTER_SYSTEM_PROMPT)

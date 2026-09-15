@@ -6,7 +6,13 @@ from pathlib import Path
 from unittest import mock
 
 from aster_wiki import mirror as mirror_module
-from aster_wiki.mirror import build_mirror, package_hash, rollback_mirror, verify_mirror
+from aster_wiki.mirror import (
+    DirectoryIndexError,
+    build_mirror,
+    package_hash,
+    rollback_mirror,
+    verify_mirror,
+)
 
 
 class MirrorTests(unittest.TestCase):
@@ -84,6 +90,19 @@ class MirrorTests(unittest.TestCase):
             entry = next((mirror / "entries").rglob("*.md"))
             entry.write_text("---\nschema_version: 1\n---\nunsupported\n")
             with self.assertRaisesRegex(ValueError, "unsupported claim"):
+                verify_mirror(wiki, mirror)
+
+    def test_verifier_rejects_directory_index_drift(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wiki = self.fixture(root)
+            mirror = root / "mirror"
+            build_mirror(wiki, mirror)
+            path = mirror / "indexes/directories.json"
+            index = json.loads(path.read_text(encoding="utf-8"))
+            index["entries"]["synthetic-guide"]["abstract"] = "stale routing aid"
+            path.write_text(json.dumps(index), encoding="utf-8")
+            with self.assertRaisesRegex(DirectoryIndexError, "differs from current entries"):
                 verify_mirror(wiki, mirror)
 
     def test_changed_entry_supersedes_prior_and_rollback_restores_it(self):
