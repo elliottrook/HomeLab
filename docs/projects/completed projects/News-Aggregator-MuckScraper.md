@@ -1,15 +1,18 @@
 # News Aggregator (MuckScraper)
 
-> Status: Active — Stream A. **Milestones 1-4 complete.** LXC 114
+> Status: Graduated — all milestone completion gates passed. LXC 114
 > `news-aggregator` runs a full hourly pipeline on VLAN 70
 > (`192.168.70.13`): ingest → cluster → summarize → flag loaded language,
-> chained in one systemd service, now across **10 feeds** (Al Jazeera
-> added 2026-09-15 as a real new-source test). The reading UI is live at
-> `http://news.internal:8080`, reachable only from Jason's approved
-> devices via a narrow, `MGMT_ADMIN_HOSTS`-precedented firewall rule added
-> and verified end-to-end after confirming VLAN 70's isolation had left
-> Jason himself unable to reach it. HomeLab Doctor coverage is live and
-> tested against real data. Recorded in NetBox as VM id 15.
+> chained in one systemd service, across **10 feeds** (Al Jazeera
+> added 2026-09-15 as a real new-source test; AP News assessed and
+> formally dropped — no source-published feed could be found and this
+> project excludes third-party scraping proxies as a workaround). The
+> reading UI is live at `http://news.internal:8080`, reachable only from
+> Jason's approved devices via a narrow, `MGMT_ADMIN_HOSTS`-precedented
+> firewall rule, verified end-to-end. HomeLab Doctor coverage and
+> whole-guest backup (local Proxmox snapshot plus the off-host TrueNAS
+> pull, both live and checksum-verified) are in place. Recorded in
+> NetBox as VM id 15.
 > Outlet bias ratings (BBC: Center, NPR: Lean Left, both cited to
 > AllSides) are loaded and rendering live, with an "unverified this
 > session" caveat on both the table row and a UI hover tooltip, since live
@@ -24,6 +27,8 @@
 > Proposed: 2026-09-10
 >
 > Started: 2026-09-14
+>
+> Completed: 2026-09-15
 >
 > Authorization stream: **Stream A — Autonomous**, granted by Jason
 > 2026-09-14 in this project's own conversation, per the per-project
@@ -68,7 +73,7 @@ scoped in detail, or measured.
   summarization already exists and is production: `aster-llama.service` in
   LXC 110 at `http://192.168.70.12:11435/v1` (OpenAI-compatible chat
   completions), currently `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS` via
-  llama.cpp/Vulkan — see [Aster-Operations.md](../Aster-Operations.md). This
+  llama.cpp/Vulkan — see [Aster-Operations.md](../../Aster-Operations.md). This
   project would call that endpoint as a separate client; it would not modify
   Aster's own bounded function allowlist or become part of Aster's curriculum.
 - Lab VLAN 70 already hosts the AI-adjacent workloads (Aster LXC 104, the
@@ -132,7 +137,7 @@ scoped in detail, or measured.
   itself, unless a chosen source requires an API key) is stored outside
   Git, mode 600, on the host that uses it — never committed to a tracked
   file, matching every other project's credential pattern in this repo
-  (e.g. [Jellyfin-Library-Integrity-Automation.md](Jellyfin-Library-Integrity-Automation.md)'s
+  (e.g. [Jellyfin-Library-Integrity-Automation.md](../Jellyfin-Library-Integrity-Automation.md)'s
   "Safety and credentials" section).
 
 ## Open risks and decisions needing Jason's input
@@ -499,12 +504,15 @@ scoped in detail, or measured.
       a non-admin host (the Docker LXC on VLAN 20) still correctly
       cannot reach it (connection refused), confirming the rule is as
       narrow as intended and nothing else changed.
-- [ ] Add HomeLab Doctor and monitoring coverage.
+- [x] Add HomeLab Doctor and monitoring coverage. **Done 2026-09-15** — see
+      the Required integration impact checklist below; `check_news_aggregator()`
+      was added to `scripts/doctor.sh` and tested against real data.
 
-### Milestone 5 — Documentation and graduation
+### Milestone 5 — Documentation and graduation — **complete 2026-09-15**
 
-- [ ] Complete the integration impact checklist below for real.
-- [ ] Record final architecture and close out.
+- [x] Complete the integration impact checklist below for real.
+- [x] Record final architecture and close out. See the Operations quick
+      reference below and the final evidence log entries.
 
 ## Required integration impact checklist
 
@@ -521,8 +529,21 @@ scoped in detail, or measured.
 - [x] **Monitoring/alerting** — covered by the Doctor check above; no
       separate alerting surface needed for a single-user internal tool
       already covered by the existing Doctor run.
-- [ ] **Backup and recovery** — expected: datastore and config need
-      inclusion in the existing backup pipeline; not yet designed.
+- [x] **Backup and recovery** — closed 2026-09-15, matching the NetBox
+      LXC 111 precedent exactly: LXC 114's entire state (app code,
+      `news.db`, `feeds.json`, systemd units) is local to the guest's own
+      filesystem, so the existing all-guests 02:30 daily Proxmox
+      `vzdump` snapshot job (`all 1`, no per-VMID allowlist) already
+      captured it automatically with zero config change — confirmed via
+      a real archive from this morning (463 MB). The separate off-host
+      leg needed a real change: the TrueNAS backup hub's daily pull uses
+      an explicit per-VMID `rsync --include` allowlist (100–109, 111,
+      113), which did not yet include 114. Added
+      `vzdump-lxc-114-*`/`vzdump-qemu-114-*` to that allowlist (TrueNAS
+      `rsynctask` id 1, matching the exact pattern used when VMID 113
+      was added 2026-09-12), then ran the pull manually rather than
+      waiting for the next scheduled run: the archive landed on TrueNAS
+      and its SHA-256 matched the Proxmox-side source exactly
 - [x] **NetBox** — added 2026-09-15. Followed this repo's own established
       precedent from the NetBox-DCIM project's close-out rather than
       hunting for a write-capable API token: the stored token is
@@ -538,15 +559,26 @@ scoped in detail, or measured.
       `192.168.70.13/24` (id 29) set as the VM's `primary_ip4`. Verified
       afterward via a read-only `GET`, not just trusted from the creation
       output.
-- [ ] **Human wiki** — not yet assessed — proposal stage.
-- [ ] **Aster mirror/snapshot** — not applicable; this project does not
+- [x] **Human wiki** — not applicable. This project's output is
+      personal, ephemeral news content, not reference documentation or
+      operator-facing knowledge, so it has no place in Aster's human
+      wiki corpus.
+- [x] **Aster mirror/snapshot** — not applicable; this project does not
       touch Aster's own knowledge or function set.
-- [ ] **Operational reference and runbooks** — not yet assessed — proposal
-      stage.
-- [ ] **Repository documentation** — this document and the portfolio table
-      are the current documentation; further updates expected at each
-      milestone.
-- [ ] **Diagrams/rack records** — expected once the new LXC is placed.
+- [x] **Operational reference and runbooks** — closed 2026-09-15 via the
+      Operations quick reference section added below, covering restart,
+      log locations, adding a feed, and health-check commands — the same
+      scope this repo's other single-guest internal tools keep inline
+      rather than in a separate runbook file.
+- [x] **Repository documentation** — this document, the portfolio table,
+      and (from this milestone) the completed-projects table are the
+      full, current documentation; kept up to date at every milestone
+      throughout, including this graduation pass.
+- [x] **Diagrams/rack records** — not applicable, matching the
+      Aster-Offline-Knowledge-Wiki precedent for a VM-only deployment:
+      LXC 114 is a virtual guest with no physical rack, cable, or power
+      topology change. Its NetBox VM record (id 15, added in Milestone 2)
+      is the correct and complete inventory entry.
 - [x] **Homepage/service discovery** — added 2026-09-15. Backed up
       `services.yaml` first
       (`services.yaml.before-news-aggregator-20260915`), then a minimal
@@ -559,17 +591,75 @@ scoped in detail, or measured.
       Homepage's own `/api/services` endpoint, not just the page's raw
       HTML shell — matching the same verification precedent already used
       elsewhere in this repo's Homepage work.
-- [ ] **Authentication/authorization** — not yet assessed; likely
-      Authentik-fronted like other internal apps, decision deferred to
-      Milestone 4.
-- [ ] **DNS, certificates and firewall** — internal DNS record expected;
-      outbound firewall rule is the open item above.
-- [ ] **Automation and schedules** — the feed-fetch and clustering jobs are
-      the core automation surface; ownership and missed-run behavior to be
-      defined in Milestone 2.
-- [ ] **Security inventory** — no credentials anticipated for v1 beyond
-      possible per-source API keys; storage location to be recorded once
-      known.
+- [x] **Authentication/authorization** — decided 2026-09-15: no
+      application-layer auth (no Authentik front-end). Unlike the Aster
+      wiki (proxied at `wiki.elliottrook.com`, reachable by hostname from
+      any Trusted-VLAN client, which is why it needed an Authentik gate),
+      this UI has no proxy hostname at all and is reachable only by IP
+      from the three specific devices named in the `MGMT_ADMIN_HOSTS`
+      firewall rule — a narrower restriction than Authentik plus broader
+      network reachability would give. Adding an auth layer on top would
+      be disproportionate complexity for a single-user, no-PII, read-only
+      news reader; the network ACL already is the access control.
+      Documented here rather than left silently unauthenticated.
+- [x] **DNS, certificates and firewall** — closed in Milestone 4:
+      `news.internal` resolves on both Pi-holes, zero WAN/OPNsense
+      exposure confirmed before and after, and the narrow
+      `MGMT_ADMIN_HOSTS → 192.168.70.13:8080/tcp` rule is live and
+      verified end-to-end. No TLS certificate — plain HTTP is consistent
+      with every other bare-IP `*.internal` entry in this repo (e.g.
+      `truenas.internal`), none of which carry certs; only
+      `*.elliottrook.com` hostnames proxied through NPM do.
+- [x] **Automation and schedules** — the ingest → cluster → summarize →
+      flag-language chain runs hourly via
+      `news-aggregator-ingest.timer` (`RandomizedDelaySec=300`,
+      `Persistent=true`, so a missed run — e.g. the guest being off —
+      fires on the next boot/tick rather than being silently skipped).
+      Each of the four stages is independent and idempotent within
+      `run_pipeline.sh`, so one stage failing doesn't block the others,
+      and HomeLab Doctor's `check_news_aggregator()` catches a stalled
+      pipeline within 2 hours.
+- [x] **Security inventory** — the one credential this project introduced:
+      a dedicated `aster-llama` API key (least-privilege, separate from
+      Aster's own production key), generated server-side and never
+      displayed in any tool output. Stored at
+      `/etc/aster-llama-api-keys` on LXC 110 (mode 600, owned by the
+      `ollama` service account that runs `aster-llama`, alongside
+      Aster's original key on its own line — verified live) and at
+      `/root/.news-aggregator-llama-key` on LXC 114 (mode 600,
+      root-owned, also verified live). No other credentials exist —
+      `outlet_ratings` and `news.db` hold no secrets, and the reading UI
+      has no login of its own (see Authentication/authorization above).
+
+## Operations quick reference
+
+- **Reading UI:** `http://news.internal:8080` (or `192.168.70.13:8080`),
+  from any of the three `MGMT_ADMIN_HOSTS` devices only. Health check:
+  `curl http://192.168.70.13:8080/healthz`.
+- **Restart the UI:**
+  `ssh proxmox "pct exec 114 -- systemctl restart news-aggregator-ui.service"`.
+  Code/config changes to `app.py` are not hot-reloaded — always restart
+  after deploying a new copy.
+- **Add a feed:** edit `/opt/news-aggregator/feeds.json` on LXC 114 (one
+  JSON object per feed: `id`, `name`, `url`), then either wait for the
+  next hourly run or trigger one manually with
+  `pct exec 114 -- /opt/news-aggregator/run_pipeline.sh`. No code change
+  or service restart is needed — proven live with the Al Jazeera addition
+  in Milestone 4.
+- **Pipeline logs and state:** `fetch_log` and `cluster_summaries` tables
+  in `/opt/news-aggregator/news.db` (SQLite); `journalctl -u
+  news-aggregator-ingest.service` on LXC 114 for the most recent run's
+  stdout/stderr.
+- **Outlet ratings:** `outlet_ratings` table in `news.db`
+  (`feed_id`, `rating_label`, `source_name`, `source_url`, `as_of_date`,
+  `notes`) — edit directly via `sqlite3` if a rating needs
+  correcting or a source needs re-verifying against AllSides.
+- **Health monitoring:** `scripts/doctor.sh` → `check_news_aggregator()`.
+- **Backups:** whole-guest daily Proxmox snapshot (`/mnt/backups/dump/vzdump-lxc-114-*`)
+  plus the TrueNAS off-host pull (`/mnt/Media/backup/homelab-proxmox-guests/`).
+  Restore procedure is the standard LXC `vzdump` restore this repo already
+  uses for every other guest — no service-specific recovery steps beyond
+  that (config and data both live inside the one archive).
 
 ## Graduation criteria
 
@@ -605,10 +695,14 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-15 | 4 Homepage tile added | Jason asked whether the project had a dashboard tile — it didn't yet. Backed up `services.yaml`, added a "News Aggregator" tile to the existing "Media" group via a minimal text insertion. Validated the YAML inside the real Homepage container before restarting it (config isn't hot-reloaded); verified live via `/api/services`, not just the page HTML | Real, working dashboard entry, closing the last open item in the required integration checklist that had a concrete action to take |
 | 2026-09-15 | 3 outlet ratings loaded, AP gap found and resolved | Attempted live re-verification of the draft AllSides ratings before loading them (WebFetch: 403 on `allsides.com`; Browser pane: declined) — both failed, consistent with this session's other Browser-pane rejections. Presented the honest unverified draft to Jason via a direct question rather than loading it silently; Jason chose "accept the draft as-is, medium confidence." Loaded `bbc-world` (Center) and `npr-world` (Lean Left) into `outlet_ratings`, each citing AllSides by name with a `notes` field stating plainly it's unverified this session. While loading a third row for `ap-news`, direct inspection of `feeds.json` showed AP was never actually added — Milestone 1's candidate list flagged its feed path as "to be confirmed at Milestone 2," but Milestone 2's real build silently never followed up, and this went unnoticed through Milestones 2-4. Deleted the orphaned row. Probed 3 candidate AP feed URLs live, all 403; declined the one available workaround (RSSHub) since it's a third-party scraping proxy and this project explicitly restricts itself to feeds the source publishes itself | AP News is formally dropped from the project rather than silently absent — documented in Milestone 1's feed-list section and the ratings table. Only 2 of the project's real 10 feeds currently carry a rating; the rest remain honestly labeled "(no rating)" |
 | 2026-09-15 | 4 unverified-rating caveat surfaced in the live UI | The `notes` column recorded above wasn't reaching the rendered page at all — `get_clusters()` only selected `rating_label`. Extended it to also select `source_name`/`notes` and pass them through; added a `title` attribute to the `.rating` span in `app.py`'s template so hovering a rating shows the named source and the unverified-this-session caveat, not just the bare label. Deployed to LXC 114 (`app.py.bak-20260915` kept as rollback), restarted `news-aggregator-ui.service`. Verified live: BBC's rendered tooltip reads exactly `AllSides — Unverified this session - Claude recollection, not live-checked against the source`. NPR's rating wasn't visible in the current top-40 clusters shown (its newest item, 11:35 UTC, is older than the current 40-cluster cutoff of 13:11 UTC) — not a rendering gap; confirmed by running the identical query directly against the database and getting the correct row back, over the same code path already proven live for BBC | The caveat is now genuinely accessible where Jason will actually see it, not only sitting in the database. NPR's tooltip will appear as soon as its items re-enter the top-40 window on the next hourly ingest |
+| 2026-09-15 | 5 backup and recovery closed | Local layer needed no change: the existing all-guests 02:30 Proxmox `vzdump` job already covered LXC 114 automatically, confirmed via a real 463 MB archive from that morning's run. The off-host leg did need a change — TrueNAS's daily pull uses an explicit per-VMID `rsync --include` allowlist that didn't yet have 114 in it. Added it (TrueNAS `rsynctask` id 1, matching the exact precedent from VMID 113's addition on 2026-09-12), using `validate_rpath: false` on the update call since the unrelated remote-path pre-check was failing even though the real scheduled job had succeeded that same morning — not blindly bypassed, confirmed first that the underlying SSH path was genuinely working via the job history. Ran the pull manually rather than waiting for the next scheduled run and verified the SHA-256 of the landed archive matched the Proxmox-side source exactly | Backup and recovery closed with real, checksum-verified evidence on both legs, not assumed from the general "all-guests" job description alone |
+| 2026-09-15 | 5 remaining integration checklist items closed | Went through every still-open item for real rather than leaving them as "not yet assessed": human wiki and Aster mirror/snapshot (not applicable — personal news content, no Aster knowledge touched), diagrams/rack records (not applicable — VM-only, matching the Aster-Offline-Knowledge-Wiki precedent; NetBox's existing VM record is the correct inventory entry), operational reference (closed via a new Operations quick reference section in this document), authentication/authorization (decided: no Authentik front-end — the existing `MGMT_ADMIN_HOSTS` network restriction to three named devices is narrower than Authentik plus broader reachability would give, and the Aster wiki's contrasting choice to add Authentik was because it's reachable by hostname from any Trusted-VLAN client, which this project's UI is not), DNS/certificates/firewall (already closed in Milestone 4 — checkbox corrected), automation/schedules (documented the existing hourly timer's missed-run behavior), security inventory (documented and live-verified both API key file locations and permissions, correcting an initial ownership assumption for the LXC 110 key file — it's `ollama`-owned, not root-owned, checked directly rather than assumed) | **Milestone 5 complete.** Every integration checklist item is either done with real evidence or has an honest, reasoned "not applicable," none left as an unassessed placeholder |
+| 2026-09-15 | 5 project graduated | All graduation criteria met: ingestion/clustering/bias-labeling/summarization run unattended via the hourly timer (proven across multiple real runs and the Al Jazeera addition), the reading UI is stable and internal-only (verified, with a regression check confirming non-approved hosts still can't reach it), the outbound-egress decision was explicitly approved (leave broad) and needed no firewall change, monitoring and backup coverage both exist and are checksum/health verified, and Jason accepted the bias-labeling approach's residual limitations (unverified-this-session ratings, accepted at medium confidence). Moved this document to `docs/projects/completed projects/` via `git mv` to preserve its full commit history, and updated the portfolio README to move its row into the Completed projects table | Project closed out |
 
 ## References
 
-- [Project Creation Standard](../Project-Creation-Standard.md)
-- [Aster Operations](../Aster-Operations.md)
-- [Local AI](completed%20projects/Local-AI.md)
-- [Jellyfin Library Integrity Automation](Jellyfin-Library-Integrity-Automation.md) (credential-storage precedent)
+- [Project Creation Standard](../../Project-Creation-Standard.md)
+- [Aster Operations](../../Aster-Operations.md)
+- [Local AI](Local-AI.md)
+- [Jellyfin Library Integrity Automation](../Jellyfin-Library-Integrity-Automation.md) (credential-storage precedent)
+- [Aster Offline Knowledge Wiki and Mirror](Aster-Offline-Knowledge-Wiki.md) (authentication-decision and diagrams/rack-records precedent)
