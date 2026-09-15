@@ -1,12 +1,14 @@
 # News Aggregator (MuckScraper)
 
-> Status: Active — Stream A. **Milestones 1 and 2 complete**, plus the
-> NetBox integration-checklist item. LXC 114 `news-aggregator` is live on
-> VLAN 70 at `192.168.70.13`, ingesting all 9 feeds hourly into SQLite via
-> a systemd timer, and recorded in NetBox as VM id 15. One implementation
-> detail carries into Milestone 3: picking the exact bias-rating source and
-> checking its terms of use. Milestone 3 (clustering, bias labeling,
-> summarization) is next.
+> Status: Active — Stream A. **Milestones 1, 2 and 3 complete.** LXC 114
+> `news-aggregator` runs a full hourly pipeline on VLAN 70
+> (`192.168.70.13`): ingest → cluster → summarize → flag loaded language,
+> chained in one systemd service. Clustering, summarization, and the
+> language-note detector are all live and verified against real data.
+> **One thing needs your input before Milestone 4**: the `outlet_ratings`
+> table's actual values are a draft proposal, not a unilateral decision —
+> see Milestone 3's checklist and the evidence log for the specific
+> ratings and their confidence levels. Recorded in NetBox as VM id 15.
 >
 > Project owner: Jason
 >
@@ -228,15 +230,42 @@ scoped in detail, or measured.
       LLM-derived note carries the standard "automated estimate, not
       authoritative" label from this project's Privacy and security design
       section).
-      **New implementation detail surfaced for Milestone 3, not yet
-      resolved:** whichever rating source is picked (AllSides / MBFC / Ad
-      Fontes) will have its own terms of use governing programmatic
-      reference to its ratings data. This project's own exclusions already
-      require respecting a *news* source's terms of service before
-      automated retrieval — the same check needs to happen for the chosen
-      *bias-rating* source before Milestone 3 builds against it, not be
-      assumed clear because the news-source rule was written with
-      something else in mind.
+      **Resolved differently than originally framed, 2026-09-15:** rather
+      than build automated, repeated programmatic retrieval against a
+      live rating service (which would need its terms of use verified,
+      and this session's tools couldn't reliably fetch/verify external
+      ToS pages live), `outlet_ratings` is populated by **manual, one-time
+      citation** — the same way a bibliography cites a source, not a
+      scraper hitting their site on a schedule. This sidesteps the
+      automated-retrieval ToS question entirely rather than resolving it,
+      which is an honest, different outcome from what was originally
+      anticipated, not a semantic dodge: no request is ever made to the
+      rating source's own infrastructure by this project.
+      **A second, real finding while drafting the proposal:** of the 9
+      configured feeds, only BBC/NPR/AP are the *type* of outlet AllSides
+      (the proposed source — widely cited, freely viewable ratings page)
+      typically rates at all. The other 6 — four tech trade publications
+      (Ars Technica, The Verge, Hacker News, 9to5Mac) and two small
+      Vancouver Island regional outlets (Times Colonist, Cowichan Valley
+      Citizen, CHEK News) — almost certainly have no published AllSides
+      rating, since AllSides is US-politics-focused and doesn't cover tech
+      trade press or Canadian regional papers. That is correct, honest
+      behavior for this UI to show ("no rating available") rather than
+      something to force a fake label onto, and is itself informative:
+      bias/slant as a concept doesn't meaningfully apply to a product
+      review site or a municipal election roundup the way it does to
+      general political news coverage.
+      **Draft values below need Jason's confirmation before going live in
+      Milestone 4 — my own recollection of specific outlets' ratings is
+      not verified against the live source in this session, and ratings
+      can change over time:**
+      | Outlet | Draft rating | Source | Confidence |
+      |---|---|---|---|
+      | BBC World News | Center | AllSides (recollection, unverified this session) | Medium |
+      | NPR World | Lean Left | AllSides (recollection, unverified this session) | Medium |
+      | AP News | Center | AllSides (recollection, unverified this session) | Medium |
+      | Ars Technica, The Verge, Hacker News, 9to5Mac | *No rating* | — | High confidence these are simply unrated by AllSides, not that a rating was missed |
+      | Times Colonist, Cowichan Valley Citizen, CHEK News | *No rating* | — | High confidence — AllSides doesn't cover Canadian regional press |
 - [x] Draft the initial feed list with Jason. **Candidate list, 2026-09-15
       — unverified, live URL/reachability checks belong to Milestone 2's
       own "validate against the initial feed list with real fetches" step,
@@ -304,9 +333,73 @@ scoped in detail, or measured.
 
 ### Milestone 3 — Clustering, bias labeling and summarization
 
-- [ ] Implement clustering per the Milestone 1 design.
-- [ ] Implement bias/slant labeling with explicit UI caveats.
-- [ ] Wire summarization to the shared `aster-llama` endpoint.
+- [x] Implement clustering per the Milestone 1 design. **Done and verified
+      2026-09-15.** `cluster.py`: headline `SequenceMatcher` ratio +
+      keyword-Jaccard fallback, cross-outlet only (same-outlet items never
+      merge), within a 72h window, comparison pool bounded to a 10-day
+      lookback (not full history, to stay fast as the table grows — added
+      after noticing the first draft would have rescanned everything on
+      every run). Run against the real 311-item corpus: 303 new
+      single-item clusters, 8 merges, **6 genuine multi-outlet clusters**.
+      Spot-checked all 6 by hand — every one is a correct match (US
+      orbital-weapons confirmation across BBC/Ars Technica/Hacker News,
+      Steam Frame review across Ars/HN, two distinct iOS 27 angles each
+      correctly kept separate rather than over-merged, Netherlands rail
+      sabotage across BBC/HN, NATO/Lithuania drone across BBC/NPR) — real
+      confirmation that "precision over recall" is holding in practice,
+      not just as a stated intent.
+- [x] Wire summarization to the shared `aster-llama` endpoint. **Done and
+      verified 2026-09-15**, but this surfaced a real gap in the original
+      plan: `aster-llama` requires an API key, and this project's design
+      never accounted for that. Rather than reuse Aster's own key (which
+      this document's own Privacy and security design section says to
+      avoid) or silently pick an option, this was presented to Jason as an
+      explicit decision. Jason chose to check for multi-key support first.
+      `llama-server --help` confirmed `--api-key-file` accepts multiple
+      keys; generated a new dedicated key server-side (never displayed in
+      any output), added it alongside Aster's existing key in
+      `/etc/aster-llama-api-keys` on LXC 110, switched
+      `aster-llama.service` from `--api-key` to `--api-key-file`, and
+      restarted. Verified after restart: Aster's original key still
+      authenticates (production continuity confirmed), the new dedicated
+      key authenticates, and unauthenticated/garbage-key requests are
+      still correctly rejected with 401 on the endpoint that matters
+      (`/v1/chat/completions` — `/v1/models` returns 200 with no key
+      regardless, which turned out to be normal llama.cpp behavior, not a
+      bug, confirmed by testing the actual completions endpoint
+      separately rather than assuming). The new key lives at
+      `/root/.news-aggregator-llama-key` on LXC 114, mode 600, matching
+      this project's own credential-storage pattern.
+      `summarize.py` generates a neutral 2-3 sentence summary per
+      multi-outlet cluster (single-source items just show their own RSS
+      summary — no LLM call needed there), explicitly instructed not to
+      render any bias judgment. Ran against all 6 real multi-outlet
+      clusters; spot-checked the output — factual, correctly notes where
+      outlets differ in emphasis, zero bias language, exactly as
+      instructed.
+- [x] Implement bias/slant labeling with explicit UI caveats. **Mechanism
+      built 2026-09-15; the actual outlet rating values are a draft
+      proposal for Jason to confirm, not something decided unilaterally —
+      see the evidence log entry and the open item below.** Two tables:
+      `outlet_ratings` (feed_id → rating_label, source_name, source_url,
+      as_of_date — the primary, attributable signal per the Milestone 1
+      hybrid decision) and `item_language_notes` (per-story, optional,
+      generated by `aster-llama` with an instruction to reply `NONE` for
+      ordinary headlines and only flag genuinely notable loaded language —
+      deliberately conservative, and every checked item is recorded
+      whether flagged or not, so unflagged items aren't re-sent to the LLM
+      on every future run). Ran against 45 real recent headlines: **zero
+      flagged**, which on its own proves nothing — a detector that never
+      fires might just be broken. Verified separately with a deliberately
+      loaded synthetic headline ("Radical extremist politicians launch
+      shameless attack on hardworking families...") and it correctly
+      identified and named the specific loaded phrases, confirming the
+      mechanism has real discriminating power rather than silently passing
+      everything through. All four scripts (`ingest.py`, `cluster.py`,
+      `summarize.py`, `language_notes.py`) are now chained into a single
+      `run_pipeline.sh`, wired into the existing hourly systemd timer in
+      place of the bare `ingest.py` call — each stage is independent and
+      idempotent, and one stage failing doesn't block the others.
 
 ### Milestone 4 — Reading UI and hardening
 
@@ -387,6 +480,9 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-15 | 2 compute deployed | Created LXC 114 `news-aggregator` on Proxmox, Lab VLAN 70, `192.168.70.13/24`, matching the existing LXC 104/110 convention exactly (bridge, gateway, tag, nameserver, searchdomain, unprivileged Debian). Live-verified (not assumed) both directions: general outbound HTTPS (200 from bbc.co.uk) and same-VLAN reach to `aster-llama` (200 from `192.168.70.12:11435/v1/models`) | Milestone 1's placement recommendation holds up under a real deployment, not just paper analysis. One real mistake made and caught in the same step: an unquoted `--tags automation;ai` argument let the shell split it into two commands, silently dropping the `ai` tag — caught by re-checking `pct config` immediately after, fixed with the correct comma-separated syntax |
 | 2026-09-15 | 2 ingestion pipeline built and validated | Built the SQLite schema, `ingest.py` (feedparser-based, dedup via `UNIQUE(feed_id, guid)`), and an hourly systemd timer; deployed and enabled on LXC 114. First real run against all 9 Milestone-1 candidate URLs found 2 broken: `chek-news` (wrong domain, `chek.news` → real domain `cheknews.ca`, real path `/feed/` found via redirect) and `times-colonist` (guessed `/feed` path 403'd on bot protection; real working path `/rss`, found by probing common paths on the live site). Fixed both in `feeds.json`, re-ran: all 9 succeeded, dedup confirmed correct (0 new on re-fetch for the 7 already-good feeds), 243 real items landed including genuinely Vancouver-Island-local `chek-news` content (Cowichan Lake/Tofino/Highlands election coverage) | **Milestone 2 complete.** This is exactly what the milestone's own validation step is for — 2 of 9 candidate URLs were wrong, found and fixed by real fetches, not caught by the Milestone 1 planning pass |
 | 2026-09-15 | NetBox entry added | The stored NetBox API token is deliberately read-only (a security decision from the NetBox-DCIM project's own close-out); followed that project's own established precedent instead of hunting for write access — used NetBox's Django shell directly in the `netbox-netbox-1` container. Created VirtualMachine `news-aggregator` (id 15), a `eth0` VMInterface (id 15, left untagged, matching a check against LXC 104's own interface convention rather than assumed), and IP `192.168.70.13/24` (id 29) as `primary_ip4`. Verified afterward via a read-only `GET`, not just trusted from the creation script's own output | Required integration-checklist item closed for real, not marked not-applicable by default |
+| 2026-09-15 | 3 clustering implemented | Built and ran `cluster.py` against the real 311-item corpus. First draft would have rescanned the entire historical table every run — bounded to a 10-day lookback before deploying. Found 6 genuine multi-outlet clusters; hand-verified all 6 are correct matches, including two distinct iOS 27 angles correctly kept as separate clusters rather than over-merged | "Precision over recall" confirmed holding in practice on real data, not just as a stated design intent |
+| 2026-09-15 | 3 aster-llama auth gap found and fixed | Summarization hit a real gap the original plan missed: aster-llama requires an API key, and llama-server only supports one static key via `--api-key` by default. Rather than reuse Aster's own key (against this document's own "no shared credentials" design) or decide unilaterally, presented the trade-off to Jason. Jason chose to check for multi-key support first; `llama-server --help` confirmed `--api-key-file` accepts multiple keys. Generated a dedicated key server-side (never displayed in any output), added it to `/etc/aster-llama-api-keys` alongside Aster's existing key, switched the systemd unit, restarted. A `/v1/models` no-key 200 briefly looked like a regression; investigated rather than assumed and confirmed it's normal llama.cpp behavior (that endpoint is exempt from auth) by testing the actual `/v1/chat/completions` endpoint separately, which correctly rejects no-key and garbage-key requests with 401 | Aster's own key still works (production continuity confirmed), the new dedicated key works, unauthorized requests are still rejected. New key stored at `/root/.news-aggregator-llama-key` on LXC 114, mode 600 |
+| 2026-09-15 | 3 summarization and language notes implemented | `summarize.py` ran against all 6 real multi-outlet clusters — neutral, factual, correctly notes emphasis differences across outlets, zero bias language (spot-checked). `language_notes.py` ran against 45 real headlines: zero flagged. Verified this wasn't a broken always-NONE detector by testing a deliberately loaded synthetic headline, which was correctly flagged with the specific loaded phrases named. All four pipeline stages chained into `run_pipeline.sh`, wired into the existing hourly systemd timer | **Milestone 3's clustering and summarization items complete.** Bias-labeling mechanism built and verified; the actual `outlet_ratings` values are a draft proposal for Jason, not yet loaded — see the checklist item above for the specific draft ratings and honest "no rating available" cases |
 
 ## References
 
