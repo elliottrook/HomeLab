@@ -40,6 +40,10 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("latest sanitized", ASTER_SYSTEM_PROMPT)
         self.assertIn("read-only HomeLab Doctor summary", ASTER_SYSTEM_PROMPT)
 
+    def test_system_policy_frontloads_authority_conflicts(self):
+        self.assertIn("first sentence must include both `conflict`", ASTER_SYSTEM_PROMPT)
+        self.assertIn("and `current-operational`", ASTER_SYSTEM_PROMPT)
+
     def test_arr_broker_drop_in_has_no_execution_switch_or_radarr_credential(self):
         drop_in = (
             Path(__file__).with_name("systemd") / "aster-arr-broker.conf"

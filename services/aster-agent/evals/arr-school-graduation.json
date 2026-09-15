@@ -25,7 +25,10 @@
         "not proof",
         "separate step",
         "separate ARR-side step",
-        "separate ARR step"
+        "separate ARR step",
+        "separate stage",
+        "separate ARR-side stage",
+        "separate ARR stage"
       ],
       "forbidden": ["download completion proves import"]
     },

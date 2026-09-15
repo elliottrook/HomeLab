@@ -1,13 +1,14 @@
 # Aster Mirror Directory-First Retrieval and Scale Evaluation
 
-> Status: Active — Stream A granted 2026-09-13. Milestones 1–4 complete as
-> of 2026-09-15. Two independent production-shaped live runs now cover all
-> 60 general, ARR, Home Assistant and adversarial behaviors, and the retained
-> `1.4.1` flat snapshot passed its isolated 10-case restore exercise.
-> Milestone 5 implementation is ready, but `directory_first` still defaults
-> off and production remains unchanged. Activation and the required rotation
-> of an internal inference credential exposed during bounded diagnostics are
-> separate explicit approval gates; neither has been assumed from Stream A.
+> Status: Active — production activation complete 2026-09-15; graduation held
+> on one infrastructure-reliability correction. Directory-first retrieval is
+> live on the accepted `1.5.0` mirror, the exposed internal inference
+> credential has been rotated, rollback is retained, and the complete
+> production behavior set is accepted 60/60. During the live run, the B60
+> disappeared from inference because the nightly all-guests backup briefly
+> starts stopped rollback VM 105 and leaves `04:00.0` bound to `vfio-pci`.
+> The device is healthy on `xe` now, but the 02:30 recurrence must be removed
+> and proved by a backup-path test before this project is called graduated.
 >
 > Owner: Jason
 >
@@ -190,25 +191,28 @@ new service, listener, or outbound call is added anywhere in this flow.
 
 ## Persistence plan
 
-- **Current milestone:** Milestones 1–4 are complete. Milestone 5 recovery and
-  observability implementation are proven; explicit production activation,
-  credential rotation, post-activation validation and close-out remain.
+- **Current milestone:** Milestones 1–4 and Milestone 5's retrieval activation,
+  credential rotation, recovery and observability work are complete. Formal
+  graduation is held on eliminating and testing the nightly VM 105 backup path
+  that reclaims the B60 from the host inference service.
 - **Last verified state:** `search_knowledge()` in
   `services/aster-agent/aster_agent.py` has an opt-in `directory_first`
   parameter (default `False`, unused by the one live call site), proven
   byte-identical to prior behavior when off, proven to fall back correctly
   when on but inconclusive, and shown to score 8/10 vs. 6/10 on the real
   corpus's retrieval ranking (reproduced twice, identical both times). Two
-  independent live 60-behavior runs and the isolated 1.4.1 restore exercise
-  are complete. Production remains on the flat 1.4.1 snapshot.
-- **Next safe action:** obtain explicit approval for the bounded production
-  activation and the separate non-waivable credential rotation, then execute
-  the transaction in the order documented below and roll back on any failed
-  health, integrity, retrieval or service check.
-- **Rollback location:** the currently deployed `1.4.1` mirror tree and active
-  Aster snapshot are the rollback target for every later milestone; their
-  exact hashes are recorded in the Production Corpus Expansion evidence log
-  and are not altered by this project until an explicit accepted milestone.
+  independent live 60-behavior candidate runs and the isolated 1.4.1 restore
+  exercise are complete. Production now uses directory-first retrieval against
+  mirror `1.5.0` content `e87cd84f...022f8`.
+- **Next safe action:** with explicit approval, remove persistent `hostpci0`
+  from stopped rollback VM 105, document attach-before-use/detach-after-use,
+  then run a manual VM 105 backup while proving the B60 remains on `xe`, Vulkan
+  remains BMG G21, and authenticated Aster inference remains healthy.
+- **Rollback location:** LXC 113 retains
+  `/var/lib/aster-wiki/aster-knowledge-mirror.last-good` and the dated
+  `aster-knowledge-mirror.rollback-1.4.1-20260915`; LXC 104 retains
+  `/var/lib/aster/knowledge.pre-directory-20260915`. The corresponding code
+  rollback is `/opt/aster-agent/rollback-directory-first-20260915`.
 - Implementation will reuse the existing mirror pipeline's schema-versioned
   state and content-hash keying for idempotence — the directory-abstract
   generator is keyed by the same per-source content hash already used for
@@ -479,10 +483,12 @@ by the evidence but remains a separate explicit owner decision in Milestone 5.
       and rejects missing, malformed, extra or stale directory entries;
       monthly corpus health records `directory_index_drift`; HomeLab Doctor
       requires it to be zero. Missing/drifted-index regressions and the full
-      Aster Wiki suite pass 55/55. Deployment and a real healthy report remain
-      part of the explicit activation transaction.
-- [ ] Record final decision (activated / not activated), exact accepted
-      hashes, and residual limitations in the evidence log.
+      Aster Wiki suite pass 55/55. The deployed monthly report is healthy with
+      zero directory drift, failures or warnings.
+- [x] Record the activation decision, exact accepted hashes, and residual
+      limitations in the evidence log.
+- [ ] Remove the recurring B60-loss condition and prove the stopped-VM backup
+      path no longer changes the device from `xe` or degrades live inference.
 
 Gate: the outcome is recoverable either way, monitored going forward if
 activated, and documented with dated evidence.
@@ -540,21 +546,22 @@ activated, and documented with dated evidence.
 
 ## Documentation and systems-of-record updates
 
-- [ ] **HomeLab Doctor:** not applicable at proposal; add a directory-index
-  freshness check only if Milestone 5 activates the feature.
-- [ ] **Monitoring/alerting:** not applicable unless activated; reuses
-  existing daily/monthly reporting with no new alert surface otherwise.
-- [ ] **Backup and recovery:** the retained `1.4.1` tree and snapshot are
-  already covered by existing backup jobs; no new backup target required.
-- [ ] **NetBox:** not applicable — no new asset, VM, or service.
-- [ ] **Human wiki:** not applicable — this project touches only the generated
+- [x] **HomeLab Doctor:** requires zero directory-index drift from the bounded
+  corpus-health report.
+- [x] **Monitoring/alerting:** the existing monthly report now records and
+  fails on `directory_index_drift`; no new alert surface was introduced.
+- [x] **Backup and recovery:** retained and exercised the `1.4.1` mirror and
+  pre-directory Aster snapshot; no new backup target is required.
+- [x] **NetBox:** not applicable — no new asset, VM, or service.
+- [x] **Human wiki:** not applicable — this project touches only the generated
   mirror and Aster's retrieval path, not the human-authored corpus.
-- [ ] **Aster mirror/snapshot:** primary target of this project; update
-  mirror architecture documentation once the graduation decision is recorded.
+- [x] **Aster mirror/snapshot:** activated the accepted `1.5.0` mirror and
+  deterministic Aster snapshot with the retained generations above.
 - [ ] **Operational reference/runbooks:** update the mirror architecture note
   in `homelab-reference` only if Milestone 5 activates the feature.
-- [ ] **Repository documentation:** update the project portfolio and
-  changelog on completion regardless of outcome.
+- [ ] **Repository documentation:** activation state is recorded; move the
+  project to completed and finalize the portfolio/changelog after the B60
+  backup-path proof.
 - [ ] **Diagrams/rack records:** not applicable — no physical topology, rack,
   cable, or power change.
 - [ ] **Homepage/service discovery:** not applicable — no new service surface;
@@ -601,13 +608,17 @@ The project graduates only when:
 | 2026-09-14 | 3 two-stage retrieval integration | Added an opt-in `directory_first` parameter to `search_knowledge()` in `services/aster-agent/aster_agent.py` (default off; the one live call site does not pass it, so today's deployed behavior is provably unchanged). First implementation used substring scoring against directory abstract text and, when re-tested against the real Milestone 1 corpus rather than only synthetic fixtures, was caught introducing two real regressions before being called done: "for" ⊂ "forgejo" broke the previously-perfect UPS TEST-42 case, and "add" ⊂ "address" contributed to a wrong Sonarr narrowing. Fixed by switching to whole-word matching against curated topic tags plus the source id's own alphabetic components, dropping the noisy free-text abstract sentence from scoring. Re-verified on the real corpus: 8/10 correct at top rank under `directory_first=True` vs. 6/10 flat, zero regressions, both of Milestone 1's original failures fixed. Added 5 new tests proving byte-identical fallback for a missing index, a stale abstract, and an inconclusive query, plus correct narrowing and reference-tier non-interference; verified passing via the same standalone-extraction technique used in Milestones 1-2 (this session still has no network path to install the pinned `fastapi`/`httpx`/`pydantic` versions needed to import `aster_agent.py` directly). Could not re-run the live adversarial evaluation suite (`run_evals.py` against the real llama.cpp endpoint) — same network-access gap as Milestone 1's `compare_mirror.py` limitation; proven by construction instead (unused-by-default parameter, unmodified live call path) that today's deployed behavior cannot have changed, which is not a substitute for the real re-run | Milestone 3's gate partially passed: fallback proven, real improvement measured, but the live adversarial re-run is outstanding and carried forward as a precondition before Milestone 4 could ever activate this on the live path. Nothing deployed; `directory_first` stays off by default |
 | 2026-09-14 | 4 retrieval-ranking comparison | Repeated the Milestone 1 cross-domain question set against `directory_first=True` on the identical real 1,796-entry production mirror, run twice independently with byte-identical output both times (this pipeline has no randomness). Could not re-run the general/ARR/Home-Assistant regression suites or generate comparative LLM answers — same no-network-path gap as Milestone 3's adversarial suite; these suites (`sysadmin-graduation.json`, `sysadmin-generalization.json`, `arr-advisory-graduation.json`, `arr-school-graduation.json`, `arr-stack-advisory.json`, `arr-stale-config-regression.json`, `home-assistant-graduation.json`, `knowledge-mirror-graduation.json`) require the live llama.cpp endpoint via `run_evals.py` | 8/10 correct at top rank vs. 6/10 flat, zero regressions — a real, reproducible retrieval-level improvement, not "no material improvement." Milestone 4's gate is explicitly **not** called passed: this is half the required comparison, and production activation must not be decided on it alone. Next safe action is running the listed suites from a host with real access before any activation decision |
 | 2026-09-15 | 3–4 live candidate evaluation | Staged pipeline `1.5.0` and the candidate Aster source only in isolated trees. LXC 113 passed 52/52 pre-observability tests and produced 1,796 entries with accepted-input hash `780b0a1a...8324b` and content hash `e87cd84f...022f8`; all prior mirror entries/indexes remained byte-identical and only the additive directory index/package hash changed. LXC 104 passed 76/76 agent tests. Two loopback-only endpoints compared directory-first and flat behavior while production port 9120 remained unchanged. The first exploratory run exposed eight wording/coverage misses; five reproduced on the flat control, and the remaining three were stochastic. Bounded prompt-policy corrections addressed the substantive credential-detail and fact-frontloading gaps. | Clean complete run 1 passed all eight suites, 60/60. Independent run 2 passed all 60 behaviors; its sole initial machine failure was a correct “can’t”/“will not” secret refusal omitted from the evaluator vocabulary, after which the corrected targeted case passed and the full mirror suite reran 10/10. Milestones 3 and 4 passed. |
-| 2026-09-15 | 5 rollback and observability | Confirmed the retained LXC 113 `1.4.1` last-good mirror matches accepted-input `780b0a1a...8324b` and content `11e0dee8...f2b5`. Copied the active pre-directory Aster snapshot to an isolated restore tree; both trees hashed `d2606751...2909`. A loopback-only flat control loaded the restored tree and passed the complete mirror suite 10/10. Added fail-closed directory-index recomputation to mirror verification, the monthly `directory_index_drift` metric, Doctor enforcement, and missing/drifted-index regressions; Aster Wiki passes 55/55. | Recovery and monitoring implementation gates passed. Production activation, live healthy corpus report, final hashes and cleanup remain pending explicit owner sign-off. |
+| 2026-09-15 | 5 rollback and observability | Confirmed the retained LXC 113 `1.4.1` last-good mirror matches accepted-input `780b0a1a...8324b` and content `11e0dee8...f2b5`. Copied the active pre-directory Aster snapshot to an isolated restore tree; source and copy hashed identically at `d2606751...2909`. A loopback-only flat control loaded that tree and passed the complete mirror suite 10/10. Added fail-closed directory-index recomputation to mirror verification, the monthly `directory_index_drift` metric, Doctor enforcement, and missing/drifted-index regressions; Aster Wiki passes 55/55. | Recovery and monitoring implementation gates passed. Production deployment subsequently passed with a healthy report, zero drift and the final hashes recorded below. |
 | 2026-09-15 | Security follow-up | A bounded diagnostic command displayed the internal Aster-to-llama.cpp API credential in the authorized task output. The value is not repeated or recorded in Git. | Treat the credential as exposed. Rotation is a non-waivable explicit approval gate and must be completed with the production activation/restart before graduation. |
+| 2026-09-15 | 5 production activation | Rotated the internal Aster-to-llama.cpp credential in both root-owned environment files without printing it and restarted both services. Activated mirror pipeline `1.5.0` with 1,796 entries, 25 directory sources, accepted-input `780b0a1a7255990a557c36e717debc1f3d1148c1311196485e1de6ac0948324b`, and content `e87cd84f6fbbe0c04a86c7634dcac104161748e93348549a89bf3a2b8ae022f8`. Built the deterministic Aster archive twice with SHA-256 `cf905f6cce21d6eb260e7bc3fe6588413f6f95ee8eabc3aa62f99264b34136fa`, activated it as `root:aster` read-only content, enabled `ASTER_DIRECTORY_FIRST=1`, and retained both mirror and Aster rollback generations. | Services authenticated and healthy; mirror verification and monthly health are healthy with zero failures, warnings or directory drift; deployed Wiki tests pass 55/55, installed Aster/report tests pass 73/73, final staged agent tests pass 48/48, and active plus rollback snapshots both retrieve TEST-42 with complete human-source provenance. |
+| 2026-09-15 | 5 production graduation run | Ran the eight general, ARR, Home Assistant and mirror suites on the active service. One authority-conflict answer hit the 112-token cap before emitting the exact evaluator label, so the bounded policy was strengthened to require both `conflict` and `current-operational` in the first sentence. The corrected targeted case passed twice independently without raising the token cap; the final sysadmin suite passed 14/14. The ARR evaluator was also expanded to accept the semantically equivalent phrase “separate stage.” | Accepted behavior accounting is 60/60: the base reports were 59/60 plus the corrected authority case passed twice. This is recorded as replacement evidence, not misrepresented as an uninterrupted initial 60/60. Aggregate base latency was 2,906.160 seconds, mean 48.436 and maximum 71.447. |
+| 2026-09-15 | Operational diagnostics | HomeLab Doctor returned 62 pass, 6 warning and 2 fail. All Aster/wiki/backup checks were green; the failures and warnings were unrelated existing conditions (Arista Et48, powered-off Backup Synology, 87% Media use, and 50-hour config-backup age). A fresh collector cycle completed 24 sources and left 2 unchanged with no permission errors; four sources correctly quarantined on reviewed-commit mismatch, leaving the accepted corpus unchanged. | Retrieval activation is healthy. Source-review mismatches remain a fail-closed content-maintenance follow-up and do not invalidate the accepted mirror. |
+| 2026-09-15 | B60 recurrence diagnosis | A production inference 502 coincided with LXC 110 exposing only Mesa `llvmpipe`. Proxmox kernel logs show `04:00.0` changing from `xe` to `vfio-pci` at approximately 02:35 on September 13, 14 and 15. Enabled job `backup-49999802-1365` runs `vzdump` for all guests at 02:30; VM 105 has persistent `hostpci0: 04:00.0,pcie=1,rombar=0`, and `/var/log/vzdump/qemu-105.log` confirms stop-mode backup starts KVM for the stopped VM, attaches the B60, then stops KVM without restoring `xe`. There is no boot-time vfio policy, hookscript or service responsible. Proxmox's `driver=keep` only skips rebinding/reset while QEMU still creates `vfio-pci`, so it is not a safe host-acceleration fix. | Root cause is deterministic nightly backup of stopped rollback VM 105, not random driver loss. The B60 is currently restored to `xe`, Vulkan sees Intel BMG G21, VM 105 is stopped, and inference improved from about 0.12 to 0.78 generation token/s. Graduation is held because the next 02:30 backup can recur until persistent passthrough is removed or another proven design is accepted. |
 
-## Production activation gate
+## Production activation record
 
-All evidence needed to make the activation decision is now present. The next
-safe transaction requires Jason's explicit approval and must remain bounded to:
+Jason explicitly approved the bounded production transaction. It completed on
+2026-09-15 as follows:
 
 1. rotate the exposed internal Aster-to-llama.cpp credential without printing
    it, update only the two existing root-owned environment files, and restart
@@ -620,8 +631,8 @@ safe transaction requires Jason's explicit approval and must remain bounded to:
 4. generate a fresh monthly corpus-health report, require zero directory drift,
    run HomeLab Doctor, and repeat bounded production-path smoke/regression
    checks; and
-5. roll back immediately on any failed health, retrieval, credential, or
-   service-recovery check.
+5. the service stayed on the accepted candidate after health, retrieval,
+   credential and rollback checks passed.
 
 No new identity, listener, network path, public exposure, or mutation authority
 is part of this transaction. Forgejo synchronization is a separate exact push
@@ -629,10 +640,11 @@ approval under the repository rules.
 
 ## Close-out
 
-To be completed at graduation. Will record: whether the directory layer was
-activated in production or the project closed at the Milestone 1 hard stop;
-final architecture as deployed (or explicit confirmation that no architecture
-change was made); ownership (Jason); recovery references (retained `1.4.1`
-tree and snapshot location, or the final accepted tree if superseded); and any
-deliberately deferred follow-on work, such as extending the directory layer to
-sub-source topic clustering if a future corpus scale-up reopens the question.
+Pending one final reliability proof. Directory-first retrieval is activated,
+owned by Jason, monitored by the existing monthly corpus-health and Doctor
+paths, and recoverable from the retained locations in the Persistence plan.
+Before moving this file to completed projects, remove the persistent B60
+mapping from rollback VM 105, document its intentional attach/detach procedure,
+and prove a manual stopped-VM backup cannot take the accelerator from Aster.
+Sub-source topic clustering remains deliberately deferred until a future corpus
+scale-up provides evidence that it is needed.

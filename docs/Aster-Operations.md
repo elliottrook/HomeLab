@@ -140,7 +140,8 @@ scripts/build-aster-knowledge-snapshot.sh /tmp/aster-knowledge.tar.gz
 ```
 
 Copy the archive to Proxmox, replace `/var/lib/aster/knowledge` atomically in
-LXC 104, and restore ownership to `aster:aster`. The builder includes
+LXC 104, and restore directory/file ownership to `root:aster` with read-only
+modes. The builder includes
 `docs/Aster-Operations.md` and does not copy Finder `._*` metadata. Never add
 private backups, credentials or unreviewed external documents to the snapshot.
 
@@ -161,6 +162,15 @@ backend access remains blocked. Its daily collector retains exact originals,
 publishes only validated human content and builds a deterministic
 non-authoritative mirror. Aster consumes that mirror only through its validated
 knowledge snapshot and must identify the complete human source and locator.
+
+Production uses mirror pipeline `1.5.0` and `ASTER_DIRECTORY_FIRST=1`. Aster
+first scores the validated per-source directory index, then ranks claims within
+the selected sources; a missing, stale, malformed or inconclusive directory
+index fails back to flat claim ranking. Directory abstracts remain derived
+navigation hints, never an authority source. The accepted mirror content hash
+is `e87cd84f6fbbe0c04a86c7634dcac104161748e93348549a89bf3a2b8ae022f8` and
+the accepted deterministic Aster archive SHA-256 is
+`cf905f6cce21d6eb260e7bc3fe6588413f6f95ee8eabc3aa62f99264b34136fa`.
 
 LXC 113 runs `aster-wiki-collector.timer` daily and
 `aster-wiki-corpus-health.timer` monthly. HomeLab Doctor checks the intake,
@@ -335,7 +345,16 @@ pct exec 110 -- vulkaninfo --summary
 ```
 
 The host path must end in `/xe`, and `vulkaninfo` must list Intel BMG G21 as a
-discrete GPU. If VM 105 is confirmed stopped and `04:00.0` is unbound, stop
+discrete GPU. The known recurring cause is the enabled all-guests `vzdump` job
+at 02:30: stop-mode backup starts stopped rollback VM 105, whose persistent
+`hostpci0: 04:00.0,pcie=1,rombar=0` mapping binds the B60 to `vfio-pci`, then
+stops QEMU without returning it to `xe`. Logs show this transition near 02:35
+on three consecutive nights. Proxmox `driver=keep` is not a fix: it skips the
+bind/reset preparation while QEMU still requests a `vfio-pci` device.
+
+Until the persistent mapping is removed and a backup test passes, check B60
+ownership after every nightly backup. If VM 105 is confirmed stopped and
+`04:00.0` is unbound or still held by `vfio-pci`, stop
 `aster-llama.service`, bind `0000:04:00.0` through
 `/sys/bus/pci/drivers/xe/bind`, then start the service. Do not rebind the device
 while VM 105 is running.
