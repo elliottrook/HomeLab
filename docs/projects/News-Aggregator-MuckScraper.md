@@ -1,15 +1,36 @@
 # News Aggregator (MuckScraper)
 
-> Status: Proposed — not yet authorized; zero implementation work performed
+> Status: Active — Stream A. Milestone 1 (discovery and design decisions)
+> starting.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-09-10
 >
-> Authorization stream: not yet selected — requires Jason's decision (Stream
-> M or Stream A, see
-> [Project-Creation-Standard.md](../Project-Creation-Standard.md)) before
-> implementation begins
+> Started: 2026-09-14
+>
+> Authorization stream: **Stream A — Autonomous**, granted by Jason
+> 2026-09-14 in this project's own conversation, per the per-project
+> authorization mechanism in `CLAUDE.md` and the `Project-Creation-Standard`.
+> Covers this document's enumerated scope end to end. Two decisions this
+> document itself names as needing Jason's specific sign-off are preserved
+> as explicit checkpoints rather than absorbed into blanket authorization,
+> since the Standard's non-waivable stop conditions require a fresh,
+> explicit decision for a broadened firewall/trust rule regardless of
+> stream, and this document independently names the bias-methodology choice
+> as too subjective to decide unilaterally:
+>
+> 1. **Outbound egress/firewall** — before Milestone 2, the exact external
+>    domains/scope needed must be presented to Jason for an explicit,
+>    narrowly-scoped OPNsense decision, not inferred or assumed.
+> 2. **Bias-scoring methodology and its UI labeling** — before Milestone 3,
+>    the chosen method and how prominently the "automated estimate, not
+>    authoritative" caveat is shown must get Jason's explicit sign-off.
+>
+> Everything else in the enumerated scope — placement, clustering method,
+> feed list, ingestion implementation, the reading UI — proceeds under
+> Stream A without a per-step approval, per the normal milestone-by-milestone
+> workflow.
 
 ## Purpose and desired outcome
 
@@ -203,7 +224,9 @@ accepts the residual limitations of the bias-labeling approach.
 
 | Date | Milestone | Evidence | Result | Operator |
 |---|---|---|---|---|
-| — | — | No work performed yet — proposal stage | — | — |
+| 2026-09-10 | Proposal | Drafted this project document and 11 sibling proposals in one batch | Committed directly to the `github` remote's `main` branch, bypassing Forgejo `origin` — the repo's established authoritative push path. Not caught until 2026-09-14 | claude (session unknown) |
+| 2026-09-14 | Reconciliation | Discovered via a user request to "get started" on this project that the file did not exist on Forgejo/`origin` at all; fetched and verified the exact content from GitHub's API before writing it into this repo; committed and pushed to Forgejo (`8ecb360`) | Forgejo restored as the authoritative copy. 11 sibling files from the same batch remain `github`-only and unreconciled | claude |
+| 2026-09-14 | Authorization | Jason granted Stream A for this project's enumerated scope, with the outbound-egress/firewall decision (before Milestone 2) and the bias-methodology sign-off (before Milestone 3) preserved as explicit checkpoints rather than absorbed into blanket authorization | Milestone 1 (discovery and design decisions) begins | claude |
 
 ## References
 
