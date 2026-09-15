@@ -170,7 +170,7 @@ index fails back to flat claim ranking. Directory abstracts remain derived
 navigation hints, never an authority source. The accepted mirror content hash
 is `e87cd84f6fbbe0c04a86c7634dcac104161748e93348549a89bf3a2b8ae022f8` and
 the accepted deterministic Aster archive SHA-256 is
-`cf905f6cce21d6eb260e7bc3fe6588413f6f95ee8eabc3aa62f99264b34136fa`.
+`de622e83ed8ec100a0a11066cfe810ec909b4495c1473d293058070374549747`.
 
 LXC 113 runs `aster-wiki-collector.timer` daily and
 `aster-wiki-corpus-health.timer` monthly. HomeLab Doctor checks the intake,
