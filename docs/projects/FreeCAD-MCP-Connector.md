@@ -1,11 +1,10 @@
 # FreeCAD MCP Connector for Local CAD Assistance
 
-> Status: Active — Stream A. Milestone 1 nearly complete: source review,
-> `uv`/`uvx`, addon installation, and Claude Code's MCP bridge config are
-> all done; ChatGPT Desktop access confirmed not possible without an
-> excluded internet tunnel and is deferred. The one remaining step is a
-> manual FreeCAD GUI action (start the RPC server) that needs Jason at the
-> Mac — see "Next safe action" below.
+> Status: Active — Stream A. **Milestone 1 complete** — connector
+> installed, source-reviewed, and proven working read-only over localhost
+> only. ChatGPT Desktop access confirmed not possible without an excluded
+> internet tunnel and is deferred. Next: Milestone 2 (baseline the
+> existing model) — not yet started.
 >
 > Owner: Jason
 >
@@ -237,18 +236,19 @@ plainly rather than undersold, even though the intended use is narrow.
 
 ## Persistence plan
 
-- **Current milestone:** Milestone 1, nearly complete.
-- **Last verified state (2026-09-14):** FreeCAD 1.1.3 installed; addon copied
-  into `~/Library/Application Support/FreeCAD/v1-1/Mod/FreeCADMCP`; `uv`/`uvx`
-  0.12.13 on `PATH`; Claude Code's `freecad` MCP server configured
-  (`local` scope) but not yet connectable; ChatGPT Desktop access confirmed
-  not possible without an excluded tunnel, deferred.
-- **Next safe action:** Jason restarts FreeCAD, selects the **MCP Addon**
-  workbench, and clicks **Start RPC Server** in its toolbar (a manual GUI
-  step this session cannot perform headlessly). Once running, confirm it's
-  bound to `127.0.0.1` only, then do a trivial read-only check (open a
-  document, read its object list) from this Claude Code session to close
-  out Milestone 1's gate.
+- **Current milestone:** Milestone 1 complete; Milestone 2 not started.
+- **Last verified state (2026-09-14):** FreeCAD 1.1.3 installed; addon
+  running from `~/Library/Application Support/FreeCAD/v1-1/Mod/FreeCADMCP`;
+  RPC server started by Jason from FreeCAD's toolbar, confirmed bound to
+  `127.0.0.1:9875` only via `lsof`; `ping()`/`list_documents()`/
+  `get_rpc_status()` all returned healthy read-only responses over this
+  Claude Code session's `freecad` MCP server (`local` scope). ChatGPT
+  Desktop access confirmed not possible without an excluded tunnel,
+  deferred.
+- **Next safe action:** start Milestone 2 — download and preserve the
+  original three MakerWorld STL files untouched in a labeled rollback
+  location, then open working copies via the connector and confirm
+  measured envelopes match the original project document's table.
 - **Rollback location:** the original three STL files from MakerWorld model
   150766, kept untouched in a clearly labeled directory separate from any
   working copy.
@@ -320,12 +320,20 @@ plainly rather than undersold, even though the intended use is narrow.
       server as a second client. **N/A — see previous item:** not
       currently possible without the excluded internet-facing relay, so
       this is skipped rather than attempted.
-- [ ] Confirm the connection with a trivial, read-only action (e.g. opening
+- [x] Confirm the connection with a trivial, read-only action (e.g. opening
       a document and reading its object list) before any edit, from each
-      connected client.
+      connected client. **Result, 2026-09-14:** Jason started the RPC
+      server from FreeCAD's toolbar (no visible in-app confirmation beyond
+      the Report View console, which read as "did nothing" until checked
+      independently). Confirmed via `lsof` that FreeCAD is listening on
+      `127.0.0.1:9875` only (not `0.0.0.0`), then made real read-only
+      XML-RPC calls: `ping()` → `True`, `list_documents()` → `[]` (none
+      open yet), `get_rpc_status()` → `{"success": true, "rpc_server":
+      "running", ...}`. Only connected client is this Claude Code session
+      (ChatGPT Desktop excluded, see above).
 
 Gate: the connector is installed, reviewed, and proven to work read-only,
-with no network exposure beyond localhost.
+with no network exposure beyond localhost. **Gate met, 2026-09-14.**
 
 ### Milestone 2 — Baseline the existing model
 
@@ -457,6 +465,7 @@ TrueNAS DIY SAS Expansion project document.
 | 2026-09-14 | 1 source review | Read the actual `addon/FreeCADMCP/rpc_server/ip_filter.py` and `settings.py` source directly from GitHub (not the README): confirmed `allowed_ips_str` defaults to `"127.0.0.1"` and is genuinely enforced in `verify_request()`; confirmed persisted settings default to `remote_enabled: False` and `auto_start_rpc: False`; found no telemetry, analytics, or external network call in either file. Did not individually review the other 12 files in `rpc_server/` (commands.py, gui_dispatch.py, fem_executor.py, object_factory.py, object_validation.py, parts_library.py, property_mapper.py, rpc_server.py, serialize.py, view_manager.py, dispatch_health.py, `__init__.py`) — this is a targeted review of the access-control-critical files, not an exhaustive audit | The localhost-only claim is verified at the code level for the files that enforce it, not merely asserted by documentation. Residual limitation recorded: the remaining ~12 files handling the actual CAD command surface have not been reviewed line-by-line. Addon installation and RPC connection have not yet been performed |
 | 2026-09-14 | 1 handoff, uv/uvx | Fresh Remote-Control session picked up the handoff. Neither `uv`/`uvx` nor Homebrew were present on this Mac. Asked Jason how to proceed (self-install, pip/pipx, or add astral.sh to the sandbox allowlist); Jason chose adding astral.sh. Added it to `.claude/settings.json`'s `allowedDomains` and the `CLAUDE.md` sandbox-access table in the same change, then ran the official astral.sh installer (needed `dangerouslyDisableSandbox` once the sandbox's own `mktemp -d` default path conflict surfaced as a genuine sandbox restriction, not a project-scope bypass) | `uv`/`uvx` 0.12.13 installed to `/Users/jelliott/.local/bin`, confirmed via `--version`. No FreeCAD addon installation or RPC connection performed yet |
 | 2026-09-14 | 1 addon install, MCP config, ChatGPT check | Cloned `neka-nat/freecad-mcp` to scratch, copied `addon/FreeCADMCP` into FreeCAD 1.1's addon directory (`~/Library/Application Support/FreeCAD/v1-1/Mod/FreeCADMCP`, sandbox disabled for this local write only). Added `freecad` as a `local`-scope Claude Code MCP server (`claude mcp add freecad -- uvx freecad-mcp`, stored in `~/.claude.json`, not committed to this repo). Researched ChatGPT Desktop's (v26.825.51511, installed) actual current connector capability rather than assuming it: confirmed its Developer Mode custom connectors require a public HTTPS remote server with no localhost/stdio support at all | Addon installed but RPC server not yet started — that step is a manual FreeCAD GUI action (toolbar button) this session cannot perform headlessly; needs Jason at the Mac. ChatGPT Desktop access is confirmed not possible without the excluded internet tunnel and is deferred, not implemented. Claude Code's MCP bridge is configured but not yet connectable until the RPC server is running |
+| 2026-09-14 | 1 RPC server start, read-only verification | Jason clicked **Start RPC Server** in FreeCAD's toolbar; it gave no visible in-app confirmation beyond the Report View console (easy to mistake for not having worked). Verified independently: `lsof` showed the `freecad` process listening on `127.0.0.1:9875` only (a loopback check the sandbox itself initially blocked — had to disable it for this specific local-only check, not a project-scope bypass); real XML-RPC calls returned `ping()` → `True`, `list_documents()` → `[]`, `get_rpc_status()` → healthy | Milestone 1's gate is met: connector installed, source-reviewed, and proven read-only-functional with no exposure beyond localhost. Milestone 1 closed; Milestone 2 (baseline the existing model) not yet started |
 
 ## Starting the handoff session
 
