@@ -1,12 +1,16 @@
 # FreeCAD MCP Connector for Local CAD Assistance
 
-> Status: Active — Stream A. **Milestones 1 and 2 complete**; Milestone 3
-> in progress — an added-scope item (rear cable clearance behind the
-> drive bays, at Jason's request) is done: `main_body_1` extended +15mm
-> in depth via a real solid Boolean cut/shift/fuse, volume-conserved and
-> validated. The PSU-compartment width/length adaptation itself has not
-> started. ChatGPT Desktop access confirmed not possible without an
-> excluded internet tunnel and is deferred.
+> Status: Active — Stream A. **Milestones 1, 2 and 3 complete.**
+> `main_body_1`: +15mm rear cable clearance (added scope, at Jason's
+> request). `main_body_2`: widened to 150mm, extended to 140mm depth for
+> the ATX PSU target, mounting slots cut (not precise holes — no
+> authoritative screw-pattern spec could be found). All edits verified as
+> single connected solids after a self-caught bug where an earlier
+> "successful" edit was actually two disconnected pieces. `main_body_3`
+> and the drive-bay sections confirmed unaffected. Next: Milestone 4
+> (print and fit validation) — a physical step, not something this
+> session can do. ChatGPT Desktop access confirmed not possible without
+> an excluded internet tunnel and is deferred.
 >
 > Owner: Jason
 >
@@ -238,9 +242,8 @@ plainly rather than undersold, even though the intended use is narrow.
 
 ## Persistence plan
 
-- **Current milestone:** Milestones 1 and 2 complete; Milestone 3 in
-  progress (rear-clearance item done; PSU-compartment adaptation itself
-  not started).
+- **Current milestone:** Milestones 1, 2 and 3 complete; Milestone 4 (a
+  physical print-and-fit step) not started.
 - **Last verified state (2026-09-14):** FreeCAD 1.1.3 running with the RPC
   server bound to `127.0.0.1:9875` only; this Claude Code session's
   `freecad` MCP bridge (`local` scope) proven working via document
@@ -249,26 +252,27 @@ plainly rather than undersold, even though the intended use is narrow.
   `~/lab/homelab-cad/freecad-mcp/originals/`; working copies at
   `~/lab/homelab-cad/freecad-mcp/working/`:
   `main_body_1.stl`/`main_body_2.stl`/`main_body_3.stl` (untouched
-  copies, matching the documented baseline exactly) plus
-  `main_body_1_rear_clearance_v2.stl` (the +15mm-depth edit, 132.00 x
-  218.64 x 200.00mm, independently re-measured; v1 was deleted after it
-  turned out to be two disconnected solids despite passing `isValid()`
-  and a volume-conservation check — see the Milestone 3 evidence entry).
-  Target PSU envelope
-  confirmed: generic ATX, 150 x 86mm cross-section, 140mm nominal depth
-  (real depth varies 140-230mm by unit — unbounded by spec, re-verify
-  once a unit is chosen). ChatGPT Desktop access confirmed not possible
-  without an excluded tunnel, deferred.
-- **Next safe action:** continue Milestone 3 — widen the shared
-  cross-section (currently 132mm width x 185mm height) to fit the 150mm
-  ATX width, most likely starting from `main_body_1_rear_clearance_v2.stl`
-  rather than the untouched `main_body_1.stl` so the two edits compose;
-  extend `main_body_2`'s length along the stacking axis for the target
-  PSU depth; adjust the PSU mounting screw pattern for a standard ATX
-  rear-panel bracket; and resolve the open question of whether
-  `main_body_1`'s now-mismatched depth relative to `main_body_2`/`3`
-  needs a matching adjustment there too, or is fine as a localized
-  feature — genuinely unresolved, see the Milestone 3 evidence entry.
+  copies, matching the documented baseline exactly),
+  `main_body_1_rear_clearance_v2.stl` (132.00 x 218.64 x 200.00mm — the
+  +15mm rear-clearance edit; v1 was deleted after it turned out to be two
+  disconnected solids despite passing `isValid()` and a
+  volume-conservation check), and `main_body_2_final.stl` (150.00 x
+  140.00 x 185.00mm — widened for ATX width, extended for ATX depth,
+  mounting slots cut into its two structural end tabs). All three edited
+  files independently re-measured and confirmed as single connected
+  solids. `main_body_3` untouched. Target PSU envelope: generic ATX, 150
+  x 86mm cross-section, 140mm nominal depth (real depth varies 140-230mm
+  by unit — unbounded by spec, re-verify once a unit is chosen). ChatGPT
+  Desktop access confirmed not possible without an excluded tunnel,
+  deferred.
+- **Next safe action:** Milestone 4 — print a rear-depth/PSU-bay test
+  coupon (not the full model) and physically verify: the ATX PSU fits
+  its slot-mounted screws, the rear-clearance margin is actually enough
+  for the real H0204 connector, and whether `main_body_1`'s now-deeper
+  cross-section creates any real fit problem against `main_body_2`/`3` at
+  their physical joint (unknowable from STL coordinates alone — both
+  genuinely open questions carried from the Milestone 3 evidence log).
+  This is a physical, human step Claude Code cannot perform.
 - **Rollback location:** the original three STL files from MakerWorld model
   150766, kept untouched in a clearly labeled directory separate from any
   working copy.
@@ -407,18 +411,57 @@ measured against a verified baseline, not assumption. **Gate met,
 
 ### Milestone 3 — Adapt the PSU compartment
 
-- [ ] Widen the shared cross-section (currently 132mm width x 185mm height)
+- [x] Widen the shared cross-section (currently 132mm width x 185mm height)
       as needed to fit the target ATX PSU, or scope a narrower fix if a
       width-only change to the PSU compartment section can avoid touching
-      the drive-bay sections' shared profile.
-- [ ] Extend the PSU compartment's length along the stacking axis to fit the
+      the drive-bay sections' shared profile. **Result, 2026-09-14:** took
+      the narrower fix — widened only `main_body_2` (the PSU compartment),
+      leaving `main_body_1`/`main_body_3` untouched, consistent with the
+      approach already used for the rear-clearance edit. Applied the
+      lesson from that edit's connectivity bug up front this time: cut at
+      two planes (8mm inside each X edge), extruded the real cut
+      cross-sections to build matching fillers, shifted each outer piece
+      9mm further out, fused all five pieces into one — verified
+      `len(shape.Solids) == 1` before trusting it. New width exactly
+      150.00mm (132 + 9 + 9), Y/Z unchanged. This operation is large
+      enough on this mesh (25656 facets) that it hit the addon's 90s
+      dispatch-stuck warning — it wasn't actually hung, just slow (~4-5
+      min); confirmed via `get_rpc_status` polling rather than assuming
+      failure or restarting FreeCAD.
+- [x] Extend the PSU compartment's length along the stacking axis to fit the
       ATX unit's depth, re-checking the joint with the adjacent end/base
-      section.
-- [ ] Adjust the PSU mounting screw pattern for a standard ATX rear-panel
-      bracket.
-- [ ] Re-verify the drive-bay sections' geometry is unaffected by any
-      cross-section change.
-- [ ] Export updated STL files for a test print.
+      section. **Result:** extended `main_body_2` from 82mm to exactly
+      140mm (the ATX nominal depth target) by adding 58mm on the **far**
+      end (Y=190→248) only, deliberately away from the Y=108 end that
+      joins `main_body_3` — same cut/extrude-filler/shift/fuse method,
+      single connected solid confirmed. The near-end joint to
+      `main_body_3` is completely untouched by this edit.
+- [x] Adjust the PSU mounting screw pattern for a standard ATX rear-panel
+      bracket. **Result:** could not find an authoritative ATX rear-panel
+      screw hole spec anywhere despite real effort (ATX spec PDFs were
+      either DNS-dead, 403'd, or unreadable binary; PSU-bracket listings
+      describe brackets, not the PSU-to-case hole pattern itself). Asked
+      Jason rather than guess at exact positions where a wrong guess is a
+      hard failure, not a margin problem — he chose **slotted mounts
+      instead of precise holes**, sidestepping the unverified spec
+      entirely. Numeric inspection (not the flaky named-view screenshots,
+      which kept showing a stale side view — a real, reproducible race
+      condition in the addon's async GUI dispatch) revealed both Y-ends of
+      the compartment are almost entirely open, with only two ~12mm
+      structural tabs (at X[389.5,401.5] and X[468.9,480.9], full Z
+      height) carrying any solid material — this is where the PSU's own
+      rear panel is meant to be exposed. Cut two generous vertical slots
+      (6mm x 40mm) into each tab, sized for real screw-position tolerance.
+      Single connected solid confirmed after the cut.
+- [x] Re-verify the drive-bay sections' geometry is unaffected by any
+      cross-section change. **Result:** re-measured
+      `main_body_1_rear_clearance_v2` (still Z[0,200], unchanged since its
+      own earlier edit) and `main_body_3` (still exactly 132 x 40 x
+      185mm) — neither was touched by any of the `main_body_2` work.
+- [x] Export updated STL files for a test print. **Result:**
+      `main_body_2_final.stl` exported and independently re-measured with
+      a standalone parser: 150.00 x 140.00 x 185.00mm, exactly matching
+      target.
 - [x] **Added scope, 2026-09-14, at Jason's explicit request:** verify rear
       cable clearance behind the drive bays (`main_body_1`) for the chosen
       H0204/SFF-8482 cabling, and adjust if necessary. **Result:**
@@ -474,6 +517,10 @@ measured against a verified baseline, not assumption. **Gate met,
 
 Gate: a modified model exists, dimensionally verified against the target
 ATX PSU's real envelope, with the drive-bay sections' geometry unchanged.
+**Gate met, 2026-09-14** — with the mounting-slot caveat above (best-effort
+placement, not a verified ATX spec, pending Milestone 4's physical
+fit test) and the still-open rear-clearance/depth-mismatch questions
+carried over from the earlier evidence entries.
 
 ### Milestone 4 — Print and fit validation
 
@@ -579,6 +626,7 @@ TrueNAS DIY SAS Expansion project document.
 | 2026-09-14 | 2 baseline verified, PSU target set | Jason downloaded the full MakerWorld package to `~/Downloads/`. Copied the three main-body STLs and the original zip into a new local CAD working area outside this repo, per scope: `~/lab/homelab-cad/freecad-mcp/originals/` (made read-only immediately) and `.../working/` (writable copies). Verified the three main-body envelopes two independent ways — a standalone Python STL parser, and for real through the connector itself (`create_document`, `execute_code` importing each STL as a `Mesh::Feature`, reading back `BoundBox`) — both matched the documented table exactly. Asked Jason for the ATX target rather than assuming the proposal's example unit; he chose a generic envelope. Researched the actual ATX spec: width/height fixed at 150 x 86mm, depth explicitly not standardized (real units 140-230mm) | Milestone 2's gate is met: the connector reproduces the original design's known measurements for real, not just via a bare ping. Working baseline: 150 x 86mm ATX cross-section, 140mm nominal depth (to be re-verified against the actual unit at Milestone 4). Milestone 2 closed; Milestone 3 (adapt the PSU compartment) not yet started |
 | 2026-09-14 | 3 rear cable clearance (added scope) | Jason asked to verify rear cable clearance for the drive bays and adjust if necessary, given the known drive/cable specs. Measured the real mesh (not the doc's rough estimate): drive-stop wall ~Z141-150mm, ~29mm genuinely open space, a small non-full-width rib ~Z167-172mm, exterior wall ~Z179-185mm. Could not find an authoritative H0204/SFF-8482 connector-protrusion or cable-bend-radius spec anywhere searched (SNIA docs 403'd, CableDeconn listing has no such dimension). Asked Jason how to proceed; he chose a conservative +15mm margin now over waiting for a physical measurement. First attempt (naive: translate all mesh points with Z>155) was caught by a dry-run check *before* applying it — 1321 facets actually cross that plane (large wall panels span it in single triangles; the earlier vertex-only histogram was misleadingly showing "empty space" that wasn't). Redid it via a solid cut+translate+fuse instead: exact volume conservation (807610.3 = 105867.5 + 701742.8) and `isValid() == True` — both passed, so exported and reported it as correct | `main_body_1_rear_clearance_v1.stl` created — but this was wrong. See the next row: it was actually two disconnected solids, and the checks used weren't sufficient to catch it |
 | 2026-09-14 | 3 rear clearance, self-caught connectivity bug | Before reusing the cut/translate/fuse method for the PSU-width widening, checked whether the v1 result was genuinely one connected piece rather than assuming — `len(shape.Solids)` returned `2`, not `1`: the cut-and-translate had severed every wall crossing Z=155 (confirmed 1321 facets did) and left a real 15mm air gap between the two halves, invisible in the isometric screenshot from that angle and undetected by `isValid()` (checks each piece individually) or the volume-conservation check (conserved regardless of whether the pieces touch). Fixed by extracting the real cut cross-section face(s) from the lower piece, extruding them 15mm to build a filler solid with the exact matching profile, then fusing lower + filler + shifted-upper into one piece | `main_body_1_rear_clearance_v2.stl` — confirmed `len(shape.Solids) == 1`, genuinely connected, same external dimensions (132.00 x 218.64 x 200.00mm). v1 deleted. Lesson applied going forward: verify solid count/connectivity explicitly after any cut-and-translate edit, not just validity and volume. Two things still open, unrelated to this bug: whether 44mm (29 measured + 15 added) is actually enough for the real H0204 connector (unverified spec), and whether `main_body_1`'s new depth mismatch against untouched `main_body_2`/`3` matters at their actual physical joint (can't tell from raw STL coordinates, which aren't pre-aligned) — both depend on the physical print-and-fit coupon test the TrueNAS-DIY-SAS-Expansion project already planned |
+| 2026-09-14 | 3 PSU compartment widened, extended, slotted | Applied the connectivity lesson up front this time. Widened `main_body_2` (only — narrower fix, drive-bay sections untouched) from 132mm to exactly 150mm via a two-plane cut/extrude-filler/shift/fuse; this mesh has 25656 facets and the operation took ~4-5 minutes, tripping the addon's 90s "dispatch stuck" warning — confirmed via polling `get_rpc_status` that it was genuinely still working, not hung, rather than assuming failure or restarting FreeCAD. Extended it from 82mm to exactly 140mm (ATX nominal depth) by adding 58mm on the far end only, away from the joint to `main_body_3`. For the mounting screw pattern: searched multiple sources for the ATX rear-panel screw spec and found nothing authoritative (dead/paywalled/unreadable). Asked Jason rather than guess at exact positions — a wrong guess is a hard failure here, not a margin problem. He chose slotted mounts over precise holes. Numeric face inspection (not the named-view screenshots, which kept showing a stale side view — a reproducible race condition in the addon's async GUI dispatch, not a one-off) found both Y-ends of the compartment are almost entirely open except two ~12mm structural tabs; cut two generous vertical slots into each. Verified `len(shape.Solids) == 1` after every single edit before trusting it. Re-verified `main_body_1_rear_clearance_v2` and `main_body_3` genuinely unchanged | `main_body_2_final.stl` — independently re-measured at 150.00 x 140.00 x 185.00mm, exactly matching target. Milestone 3's gate is met, with the mounting-slot placement flagged as best-effort (not a verified spec) pending Milestone 4's physical test, same as the still-open rear-clearance-sufficiency and depth-mismatch questions from the prior entries |
 
 ## Starting the handoff session
 
