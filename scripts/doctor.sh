@@ -556,7 +556,8 @@ check_news_aggregator() {
             health="$(pct exec 114 -- curl -s --max-time 3 http://192.168.70.13:8080/healthz 2>/dev/null || true)"
             recent_ok="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'ok'"'"' AND run_at > datetime('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
             recent_fail="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'error'"'"' AND run_at > datetime('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
-            printf "ui=%s\ntimer_enabled=%s\ndigest_timer_enabled=%s\nhealth=%s\nrecent_ok=%s\nrecent_fail=%s\n" "$ui" "$timer_enabled" "$digest_timer_enabled" "$health" "$recent_ok" "$recent_fail"
+            audio_age_min="$(pct exec 114 -- bash -c "test -f /opt/news-aggregator/static/digest-audio/latest.mp3 && echo \$(( (\$(date +%s) - \$(stat -c %Y /opt/news-aggregator/static/digest-audio/latest.mp3)) / 60 ))" 2>/dev/null || true)"
+            printf "ui=%s\ntimer_enabled=%s\ndigest_timer_enabled=%s\nhealth=%s\nrecent_ok=%s\nrecent_fail=%s\naudio_age_min=%s\n" "$ui" "$timer_enabled" "$digest_timer_enabled" "$health" "$recent_ok" "$recent_fail" "$audio_age_min"
         '
     )"; then
         warn "Unable to check News Aggregator services"
@@ -575,6 +576,10 @@ check_news_aggregator() {
         fail "News Aggregator feed fetches are failing"
     elif grep -qE '^recent_fail=[1-9]' <<< "$state"; then
         warn "News Aggregator has recent feed fetch failures alongside successful ones"
+    elif ! grep -qE '^audio_age_min=[0-9]+$' <<< "$state"; then
+        warn "News Aggregator audio briefing has not been generated yet"
+    elif [ "$(grep '^audio_age_min=' <<< "$state" | cut -d= -f2)" -gt 840 ]; then
+        fail "News Aggregator audio briefing is stale (older than 14h) -- Piper or ffmpeg may be failing silently"
     else
         pass "News Aggregator UI and ingest pipeline are healthy"
     fi
