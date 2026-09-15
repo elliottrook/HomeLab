@@ -37,7 +37,7 @@
       "license_id": "GFDL-1.3-only",
       "enabled": true,
       "git_ref": "master",
-      "expected_commit": "439ce4394b050b0e55b6a85cc74cfccab3e0b474"
+      "expected_commit": "14247d9da540e08d40268d80e0d6cd2749edd588"
     },
     {
       "id": "pihole-docs-2026-09",

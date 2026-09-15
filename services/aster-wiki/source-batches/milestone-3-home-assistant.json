@@ -75,7 +75,7 @@
       "license_id": "CC-BY-NC-SA-4.0",
       "enabled": true,
       "git_ref": "current",
-      "expected_commit": "18035547fe0ea9b1847f145bf395d88fdce9d63e"
+      "expected_commit": "ea6e6b35e02ca5870efafb497325c30cfe1ede10"
     },
     {
       "id": "home-assistant-operational-reference",

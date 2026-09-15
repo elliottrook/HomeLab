@@ -18,7 +18,7 @@
       "license_id": "CC-BY-NC-SA-4.0",
       "enabled": true,
       "git_ref": "master",
-      "expected_commit": "e523684d5b274a807f38223c0d4cdb9999f6402f"
+      "expected_commit": "f5fe09e2a2cd4d4a3d811cfaa88d082fbe758cbf"
     },
     {
       "id": "frigate-docs-0-17-2",

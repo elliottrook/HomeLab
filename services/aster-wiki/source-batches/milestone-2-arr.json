@@ -151,7 +151,7 @@
       "license_id": "CC-BY-ND-4.0",
       "enabled": true,
       "git_ref": "master",
-      "expected_commit": "1edeb876d1a197de6ead0148ca32e4ae241a6f2d"
+      "expected_commit": "40d3fde8ad1a2efcffef0e043304e1e46b20a40a"
     },
     {
       "id": "arr-operational-reference",

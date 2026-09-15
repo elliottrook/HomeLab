@@ -168,9 +168,12 @@ first scores the validated per-source directory index, then ranks claims within
 the selected sources; a missing, stale, malformed or inconclusive directory
 index fails back to flat claim ranking. Directory abstracts remain derived
 navigation hints, never an authority source. The accepted mirror content hash
-is `e87cd84f6fbbe0c04a86c7634dcac104161748e93348549a89bf3a2b8ae022f8` and
+is `bf0c002f46a7aaffadadc2490045aaa9927cc091ea04eead2f413860e97491e8` and
 the accepted deterministic Aster archive SHA-256 is
 `de622e83ed8ec100a0a11066cfe810ec909b4495c1473d293058070374549747`.
+The mirror hash advanced during the 2026-09-15 branch-pin review; all four
+approved source boundaries were byte-identical, so the deployed Aster snapshot
+did not require replacement.
 
 LXC 113 runs `aster-wiki-collector.timer` daily and
 `aster-wiki-corpus-health.timer` monthly. HomeLab Doctor checks the intake,
