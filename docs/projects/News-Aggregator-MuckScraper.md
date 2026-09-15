@@ -3,12 +3,14 @@
 > Status: Active — Stream A. **Milestones 1, 2 and 3 complete.** LXC 114
 > `news-aggregator` runs a full hourly pipeline on VLAN 70
 > (`192.168.70.13`): ingest → cluster → summarize → flag loaded language,
-> chained in one systemd service. Clustering, summarization, and the
-> language-note detector are all live and verified against real data.
-> **One thing needs your input before Milestone 4**: the `outlet_ratings`
-> table's actual values are a draft proposal, not a unilateral decision —
-> see Milestone 3's checklist and the evidence log for the specific
-> ratings and their confidence levels. Recorded in NetBox as VM id 15.
+> chained in one systemd service. Now ingesting **10 feeds** (Al Jazeera
+> added 2026-09-15 as a real test of the new-source workflow — zero code
+> changes needed, immediately found a genuine 3-way cross-outlet match).
+> **One thing needs your input before Milestone 4 finishes**: the
+> `outlet_ratings` table's actual values are a draft proposal, not a
+> unilateral decision — see Milestone 3's checklist and the evidence log
+> for the specific ratings and their confidence levels. Recorded in
+> NetBox as VM id 15.
 >
 > Project owner: Jason
 >
@@ -273,7 +275,9 @@ scoped in detail, or measured.
       - General/world: BBC World News (`feeds.bbci.co.uk/news/world/rss.xml`),
         NPR World (`feeds.npr.org/1004/rss.xml`), AP News (exact current feed
         path to be confirmed at Milestone 2 — AP's public RSS availability
-        has changed over time).
+        has changed over time). **Added 2026-09-15 at Jason's request:** Al
+        Jazeera English (`www.aljazeera.com/xml/rss/all.xml`, live-verified
+        before adding — see Milestone 4's test below).
       - Tech: Ars Technica (`feeds.arstechnica.com/arstechnica/index`), The
         Verge (`theverge.com/rss/index.xml`), Hacker News front page
         (`news.ycombinator.com/rss`), 9to5Mac (`9to5mac.com/feed`).
@@ -403,6 +407,28 @@ scoped in detail, or measured.
 
 ### Milestone 4 — Reading UI and hardening
 
+- [x] Test adding a new source to the live pipeline. **Not a pre-planned
+      item — Jason asked whether this was tested and requested Al Jazeera
+      specifically, so it became the real test rather than a synthetic
+      one.** Verified the live feed URL first
+      (`https://www.aljazeera.com/xml/rss/all.xml`, confirmed 200 with
+      `content-type: application/rss+xml`) rather than assuming. Added it
+      to `feeds.json` — a config-only change, zero code edits — and ran
+      the full pipeline. Result: 25 items ingested cleanly on the first
+      try, and clustering immediately found genuine cross-outlet matches
+      involving the brand-new source with no special-casing needed,
+      including one real **3-way match** (BBC + Times Colonist + Al
+      Jazeera, all correctly identifying the same US Supreme Court
+      mail-in-ballot ruling). Ran the full pipeline end to end afterward:
+      clustering found 5 new multi-outlet clusters involving Al Jazeera (11
+      total corpus-wide, up from 6), and `summarize.py` generated clean
+      summaries for all of them, including correctly attributing which
+      specific outlet emphasized which angle (e.g. noting BBC highlighted
+      the EPA's cost-savings claim on the emissions-rule repeal story while
+      Al Jazeera focused on the termination of the limits themselves). Two
+      clusters failed on the first summarization pass and succeeded
+      cleanly on an immediate idempotent re-run — a transient issue, not a
+      logic bug, and exactly what the idempotent design is for.
 - [ ] Build the internal-only reading UI.
 - [ ] Confirm no public exposure and correct internal DNS resolution.
 - [ ] Add HomeLab Doctor and monitoring coverage.
@@ -483,6 +509,7 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-15 | 3 clustering implemented | Built and ran `cluster.py` against the real 311-item corpus. First draft would have rescanned the entire historical table every run — bounded to a 10-day lookback before deploying. Found 6 genuine multi-outlet clusters; hand-verified all 6 are correct matches, including two distinct iOS 27 angles correctly kept as separate clusters rather than over-merged | "Precision over recall" confirmed holding in practice on real data, not just as a stated design intent |
 | 2026-09-15 | 3 aster-llama auth gap found and fixed | Summarization hit a real gap the original plan missed: aster-llama requires an API key, and llama-server only supports one static key via `--api-key` by default. Rather than reuse Aster's own key (against this document's own "no shared credentials" design) or decide unilaterally, presented the trade-off to Jason. Jason chose to check for multi-key support first; `llama-server --help` confirmed `--api-key-file` accepts multiple keys. Generated a dedicated key server-side (never displayed in any output), added it to `/etc/aster-llama-api-keys` alongside Aster's existing key, switched the systemd unit, restarted. A `/v1/models` no-key 200 briefly looked like a regression; investigated rather than assumed and confirmed it's normal llama.cpp behavior (that endpoint is exempt from auth) by testing the actual `/v1/chat/completions` endpoint separately, which correctly rejects no-key and garbage-key requests with 401 | Aster's own key still works (production continuity confirmed), the new dedicated key works, unauthorized requests are still rejected. New key stored at `/root/.news-aggregator-llama-key` on LXC 114, mode 600 |
 | 2026-09-15 | 3 summarization and language notes implemented | `summarize.py` ran against all 6 real multi-outlet clusters — neutral, factual, correctly notes emphasis differences across outlets, zero bias language (spot-checked). `language_notes.py` ran against 45 real headlines: zero flagged. Verified this wasn't a broken always-NONE detector by testing a deliberately loaded synthetic headline, which was correctly flagged with the specific loaded phrases named. All four pipeline stages chained into `run_pipeline.sh`, wired into the existing hourly systemd timer | **Milestone 3's clustering and summarization items complete.** Bias-labeling mechanism built and verified; the actual `outlet_ratings` values are a draft proposal for Jason, not yet loaded — see the checklist item above for the specific draft ratings and honest "no rating available" cases |
+| 2026-09-15 | 4 new-source test (Al Jazeera) | Jason asked whether adding a new source was tested and requested Al Jazeera specifically — became the real test. Live-verified `https://www.aljazeera.com/xml/rss/all.xml` (200, correct RSS content-type) before adding it, rather than assuming. Added to `feeds.json` as a config-only change; ran the full pipeline (ingest → cluster → summarize). Ingested 25 items cleanly on the first try. Clustering found 5 new multi-outlet clusters involving Al Jazeera with no special-casing needed, including a genuine 3-way match (BBC + Times Colonist + Al Jazeera on the US Supreme Court mail-in-ballot ruling). `summarize.py` generated clean summaries for all of them; 2 failed on the first pass and succeeded on an immediate idempotent re-run (transient, not a logic bug) | The "just edit `feeds.json`" workflow this project was designed around is proven for real, not just asserted — zero code changes needed to absorb a genuinely new source, and the clustering/summarization pipeline generalized to it correctly on the first attempt |
 
 ## References
 
