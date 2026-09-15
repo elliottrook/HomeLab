@@ -1,12 +1,18 @@
 # News Aggregator Phase 3 — Audio Digest
 
-> Status: Active — Stream A
+> Status: Graduated — all milestone completion gates passed. `/digest`
+> now plays a local-Piper-narrated MP3 briefing of the latest digest run,
+> confirmed working by Jason on both desktop and his own iPhone after two
+> real-screenshot-driven mobile rendering fixes. HomeLab Doctor gained
+> real coverage for a silent Piper/ffmpeg failure that previously had none.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-09-15
 >
 > Started: 2026-09-15
+>
+> Completed: 2026-09-15
 >
 > Authorization stream: **Stream A — Autonomous**, granted by Jason
 > 2026-09-15 in this project's own conversation ("Let's get it done now. I
@@ -185,14 +191,16 @@ HomeLab Doctor has real coverage for a silent Piper/ffmpeg failure.
 | 2026-09-15 | 1 Piper installed and voice validated | Confirmed real headroom before installing (1.9GB RAM, 14GB disk free). Installed the prebuilt Piper binary release and the `en_US-lessac-medium` voice model. Real synthesis test: valid WAV confirmed via `file`, 0.165 real-time factor. Sent the actual generated audio to Jason rather than assuming the voice choice was acceptable — confirmed ("it will be fine") | **Milestone 1 complete** |
 | 2026-09-15 | 2 audio pipeline built | `audio_digest.py` built and chained into the digest timer via a new `run_digest.sh` wrapper. Verified against two real digest runs (6 stories/1.9MB, then 13 stories/4.2MB after the source expansion), both sent to Jason directly for real listening, not just described | **Milestone 2 complete** |
 | 2026-09-15 | Voice pace adjusted | Jason asked to slow the voice down after hearing the real sample. Added Piper's `--length_scale` at 1.15 (default 1.0) | Regenerated and reverified live |
-| 2026-09-15 | 3 UI integration and real mobile bug found/fixed | Added the audio player to `/digest`. Jason's own real iPhone screenshot showed the native audio control rendering taller than its container and visually spilling past the card background. First fix (`min-height: 54px`) was confirmed insufficient by a second real screenshot; fixed properly with an explicit `height: 84px` sized off the actual proportions visible in that screenshot, since Claude has no way to render or inspect mobile Safari's native audio control directly | **Milestone 3 complete**, pending Jason's final visual confirmation on his own device |
+| 2026-09-15 | 3 UI integration and real mobile bug found/fixed | Added the audio player to `/digest`. Jason's own real iPhone screenshot showed the native audio control rendering taller than its container and visually spilling past the card background. First fix (`min-height: 54px`) was confirmed insufficient by a second real screenshot; fixed properly with an explicit `height: 84px` sized off the actual proportions visible in that screenshot, since Claude has no way to render or inspect mobile Safari's native audio control directly. Jason confirmed afterward on his own device: "Audio is great!" | **Milestone 3 complete, confirmed working** |
+| 2026-09-15 | Digest hero-image cropping fixed | Jason's own screenshot showed some hero images (particularly wire-service composite/side-by-side thumbnails) cropped too tightly at `height: 220px` with `object-fit: cover`, cutting off faces. Increased to `height: 340px`, giving `object-fit: cover` more room to work with before cropping | Verified deployed live |
 | 2026-09-15 | Backup scope investigated and reported honestly | Jason asked to confirm recordings/news items aren't being backed up, assuming only config/app was. Checked the real config rather than confirming the assumption: the whole-guest backup has no path exclusions, so it does capture `news.db` and the audio file. Measured real growth numbers (~0.5MB/day DB growth, ~30-60MB total audio footprint across all retained generations) and confirmed `/mnt/backups` has no dedup (plain ext4). Jason decided to leave the backup as-is once he saw the real numbers were negligible | Accurate answer given rather than confirming an incorrect assumption |
 | 2026-09-15 | Doctor extended for a real gap | `run_digest.sh` swallows a failing stage, so a broken Piper/ffmpeg would report success while leaving the audio stale with no alert. Added an audio-freshness check to `check_news_aggregator()`; verified both the "never generated" and "stale" branches with synthetic state before trusting the live (correctly silent, audio is fresh) result | Real monitoring gap closed |
 | 2026-09-15 | Audio timestamp shown in local time | The "generated" timestamp on the audio player was displaying raw UTC; Jason asked for local time. Converted in `get_audio_meta()` using the same fixed UTC-7 offset already established for the digest timer (BC no longer observes DST), rather than adding a second timezone convention | Verified live: 23:16 UTC correctly renders as 16:16 |
 | 2026-09-15 | Cleanup | Removed `.bak-*` development-safety-copy files from `/opt/news-aggregator/` at Jason's request. Investigated the actual disk usage first rather than assuming the `.bak` files were the bulk of it — they weren't (a few hundred KB); the Python `venv/` (41MB) was the real majority, which is normal and not bloat. Corrected that to Jason directly rather than letting the earlier imprecise framing stand | Directory tidied; inaccurate earlier framing corrected |
+| 2026-09-15 | Graduation | All three graduation criteria met with real confirmation, not assumption: Jason confirmed the audio itself ("Audio is great!") and the mobile player rendering, both on his own device rather than taken on faith from Claude's own testing; HomeLab Doctor's audio-freshness check is live and verified against both real and synthetic state. Moved this document to `docs/projects/completed projects/` via `git mv`, fixed its now-relative cross-references, and updated the portfolio README | Project closed out |
 
 ## References
 
 - [News Aggregator Phase 2 — Digest, Sections and Source Requests](News-Aggregator-Digest-and-Sections.md)
-- [News Aggregator (MuckScraper) — Phase 1](completed%20projects/News-Aggregator-MuckScraper.md)
-- [Project Creation Standard](../Project-Creation-Standard.md)
+- [News Aggregator (MuckScraper) — Phase 1](News-Aggregator-MuckScraper.md)
+- [Project Creation Standard](../../Project-Creation-Standard.md)
