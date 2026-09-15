@@ -1,11 +1,12 @@
 # News Aggregator (MuckScraper)
 
-> Status: Active — Stream A. **Milestone 1 complete**: placement (VLAN 70),
-> egress (leave broad, no OPNsense change), clustering method, feed list,
-> and bias-scoring methodology (hybrid: named external outlet rating +
-> secondary LLM per-story note) are all resolved. One implementation
-> detail carries into Milestone 3: picking the exact rating source and
-> checking its terms of use. Milestone 2 (ingestion pipeline) is next.
+> Status: Active — Stream A. **Milestones 1 and 2 complete.** LXC 114
+> `news-aggregator` is live on VLAN 70 at `192.168.70.13`, ingesting all 9
+> feeds hourly into SQLite via a systemd timer; 2 of the 9 candidate feed
+> URLs were wrong and were found and fixed by the real fetch validation
+> this milestone required. One implementation detail carries into
+> Milestone 3: picking the exact bias-rating source and checking its terms
+> of use. Milestone 3 (clustering, bias labeling, summarization) is next.
 >
 > Project owner: Jason
 >
@@ -256,11 +257,50 @@ scoped in detail, or measured.
         three to be confirmed at Milestone 2; Black Press Media's RSS
         structure in particular should be checked rather than assumed.
 
-### Milestone 2 — Ingestion pipeline
+### Milestone 2 — Ingestion pipeline — **complete 2026-09-15**
 
-- [ ] Deploy the chosen compute target.
-- [ ] Implement scheduled feed fetch and raw-item storage.
-- [ ] Validate against the initial feed list with real fetches.
+- [x] Deploy the chosen compute target. **LXC 114 `news-aggregator`**,
+      Proxmox, Lab VLAN 70, `192.168.70.13/24`, unprivileged Debian 13.6,
+      2 cores / 2GB RAM / 16GB disk, matching the existing LXC 104/110
+      convention (`bridge=vmbr0, gw=192.168.70.1, tag=70`, nameserver
+      `192.168.20.20`, `searchdomain=home.internal`). Verified both
+      directions live, not assumed from Milestone 1's paper analysis:
+      general outbound HTTPS works (`curl` to bbc.co.uk returned 200), and
+      the same-VLAN `aster-llama` endpoint is reachable
+      (`192.168.70.12:11435/v1/models` returned 200).
+- [x] Implement scheduled feed fetch and raw-item storage. SQLite schema
+      (`feed_items` with a `UNIQUE(feed_id, guid)` dedup constraint, plus a
+      `fetch_log` table for per-run success/failure — the future HomeLab
+      Doctor freshness check reads this) and a Python `ingest.py` using
+      `feedparser`, running in a venv at `/opt/news-aggregator/venv`. A
+      systemd `news-aggregator-ingest.timer` runs it hourly
+      (`RandomizedDelaySec=300`, `Persistent=true`), enabled and active —
+      next run confirmed scheduled.
+- [x] Validate against the initial feed list with real fetches. **This is
+      where Milestone 1's unverified candidate URLs got their first real
+      test, and 2 of 9 were wrong, exactly the kind of thing this
+      checklist item exists to catch:**
+      - `chek-news` failed DNS (`chek.news` doesn't resolve) — the real
+        domain is `cheknews.ca`, and the working feed path (found by
+        following a redirect) is `https://cheknews.ca/feed/` (trailing
+        slash required).
+      - `times-colonist` failed to parse ("not well-formed" — the guessed
+        `/feed` path returned a 403 from bot protection, not XML) — the
+        real working path, found by probing common paths directly on the
+        live site, is `https://www.timescolonist.com/rss` (no `.xml`
+        suffix, despite serving `content-type: text/xml`).
+      - The other 7 feeds worked on the first try with their Milestone 1
+        candidate URLs, unchanged.
+      - `feeds.json` on LXC 114 now has all 9 corrected, live-verified
+        URLs. After fixing the two and re-running, all 9 succeeded; a
+        second run confirmed the dedup constraint works correctly (0 new
+        items on re-fetch for the 7 already-ingested feeds, 20/10 new for
+        the two just-fixed ones). 243 real items landed across all 9 feeds
+        on the first successful full run, including genuinely
+        Vancouver-Island-local content from `chek-news` (Cowichan Lake,
+        Tofino, Highlands municipal election coverage) — confirming the
+        Milestone 1 local-source correction actually produced relevant
+        results, not just a plausible-sounding list.
 
 ### Milestone 3 — Clustering, bias labeling and summarization
 
@@ -331,6 +371,8 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-15 | 1 feed list drafted | Drafted a candidate feed list with Jason by category: general/world, tech (including 9to5Mac at Jason's request), and local — corrected mid-draft from "Vancouver" to **Vancouver Island** specifically (Cowichan Valley/Duncan area) once Jason clarified his actual location. Exact URLs are unverified candidates; none were live-fetched or reachability-checked in this session (a WebFetch attempt and a Browser-pane attempt at live RSS verification both failed to go through) | Candidate list recorded in Milestone 1's checklist. Live URL verification is explicitly deferred to Milestone 2's own "validate against the initial feed list with real fetches" step, not skipped |
 | 2026-09-15 | 1 egress decision | Presented the full trade-off: narrowing VLAN 70's already-broad egress to an FQDN-based allowlist would reduce this workload's blast radius if compromised, at the cost of ongoing maintenance whenever the feed list changes, plus fragility if done with static IPs instead of FQDN aliases given CDN IP churn. Jason chose to leave the existing broad egress as-is | Four of Milestone 1's five checklist items are resolved: placement (VLAN 70), egress (leave as-is, no OPNsense change needed), clustering method (proposed), feed list (drafted candidates). Bias-scoring methodology remained open pending Jason's own decision |
 | 2026-09-15 | 1 bias methodology decided | Presented three real options — LLM-judges-per-story, a named external outlet-level rating, or a hybrid of the two — with honest trade-offs for each. Jason chose the hybrid: a named, published, attributable outlet-level rating as the primary label, with `aster-llama` limited to an optional, visually secondary per-story loaded-language note | **Milestone 1 complete** — all five checklist items resolved. One implementation detail carries into Milestone 3: picking the exact rating source (AllSides / MBFC / Ad Fontes) and checking its terms of use for programmatic reference, the same diligence this project's exclusions already require for news sources |
+| 2026-09-15 | 2 compute deployed | Created LXC 114 `news-aggregator` on Proxmox, Lab VLAN 70, `192.168.70.13/24`, matching the existing LXC 104/110 convention exactly (bridge, gateway, tag, nameserver, searchdomain, unprivileged Debian). Live-verified (not assumed) both directions: general outbound HTTPS (200 from bbc.co.uk) and same-VLAN reach to `aster-llama` (200 from `192.168.70.12:11435/v1/models`) | Milestone 1's placement recommendation holds up under a real deployment, not just paper analysis. One real mistake made and caught in the same step: an unquoted `--tags automation;ai` argument let the shell split it into two commands, silently dropping the `ai` tag — caught by re-checking `pct config` immediately after, fixed with the correct comma-separated syntax |
+| 2026-09-15 | 2 ingestion pipeline built and validated | Built the SQLite schema, `ingest.py` (feedparser-based, dedup via `UNIQUE(feed_id, guid)`), and an hourly systemd timer; deployed and enabled on LXC 114. First real run against all 9 Milestone-1 candidate URLs found 2 broken: `chek-news` (wrong domain, `chek.news` → real domain `cheknews.ca`, real path `/feed/` found via redirect) and `times-colonist` (guessed `/feed` path 403'd on bot protection; real working path `/rss`, found by probing common paths on the live site). Fixed both in `feeds.json`, re-ran: all 9 succeeded, dedup confirmed correct (0 new on re-fetch for the 7 already-good feeds), 243 real items landed including genuinely Vancouver-Island-local `chek-news` content (Cowichan Lake/Tofino/Highlands election coverage) | **Milestone 2 complete.** This is exactly what the milestone's own validation step is for — 2 of 9 candidate URLs were wrong, found and fixed by real fetches, not caught by the Milestone 1 planning pass |
 
 ## References
 
