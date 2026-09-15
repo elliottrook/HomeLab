@@ -552,10 +552,11 @@ check_news_aggregator() {
         ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
             ui="$(pct exec 114 -- systemctl is-active news-aggregator-ui.service 2>/dev/null || true)"
             timer_enabled="$(pct exec 114 -- systemctl is-enabled news-aggregator-ingest.timer 2>/dev/null || true)"
+            digest_timer_enabled="$(pct exec 114 -- systemctl is-enabled news-aggregator-digest.timer 2>/dev/null || true)"
             health="$(pct exec 114 -- curl -s --max-time 3 http://192.168.70.13:8080/healthz 2>/dev/null || true)"
             recent_ok="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'ok'"'"' AND run_at > datetime('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
             recent_fail="$(pct exec 114 -- sqlite3 /opt/news-aggregator/news.db "SELECT COUNT(*) FROM fetch_log WHERE status='"'"'error'"'"' AND run_at > datetime('"'"'now'"'"', '"'"'-2 hours'"'"');" 2>/dev/null || true)"
-            printf "ui=%s\ntimer_enabled=%s\nhealth=%s\nrecent_ok=%s\nrecent_fail=%s\n" "$ui" "$timer_enabled" "$health" "$recent_ok" "$recent_fail"
+            printf "ui=%s\ntimer_enabled=%s\ndigest_timer_enabled=%s\nhealth=%s\nrecent_ok=%s\nrecent_fail=%s\n" "$ui" "$timer_enabled" "$digest_timer_enabled" "$health" "$recent_ok" "$recent_fail"
         '
     )"; then
         warn "Unable to check News Aggregator services"
@@ -566,6 +567,8 @@ check_news_aggregator() {
         fail "News Aggregator reading UI is unhealthy or unreachable"
     elif ! grep -qx 'timer_enabled=enabled' <<< "$state"; then
         warn "News Aggregator UI is healthy but the ingest timer is not enabled"
+    elif ! grep -qx 'digest_timer_enabled=enabled' <<< "$state"; then
+        warn "News Aggregator UI is healthy but the digest timer is not enabled"
     elif ! grep -qE '^recent_ok=[1-9]' <<< "$state"; then
         fail "News Aggregator UI is healthy but no feed fetch has succeeded in the last 2 hours"
     elif grep -qE '^recent_fail=[1-9]' <<< "$state" && ! grep -qE '^recent_ok=[1-9]' <<< "$state"; then

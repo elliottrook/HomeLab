@@ -149,36 +149,67 @@ built now.
       the deviation note named as absent from BBC/Al Jazeera's coverage of
       the same story).
 
-## Milestone 3 — Digest UI
+## Milestone 3 — Digest UI — **complete 2026-09-15**
 
-- [ ] New `/digest` route and template: hero image when `image_url` exists,
+- [x] New `/digest` route and template: hero image when `image_url` exists,
       an outlet-badge header (styled like the Globe and Mail card in Jason's
       reference screenshot) when it doesn't, headline, contributing-outlet
       byline with ratings (reusing Phase 1's tooltip pattern), and the
-      deviation notes surfaced as a distinct callout, not buried in body text.
-- [ ] The existing `/` breaking-news view is verified pixel-for-pixel
-      unchanged after this milestone — a regression check, not an assumption.
+      deviation notes surfaced as a distinct callout, not buried in body
+      text. Refactored the outlet-badge/dedup logic (already fixed in the
+      duplicate-cards bug) into one shared `_outlets_for_cluster()` helper
+      used by both views, rather than duplicating it. Verified live against
+      all 21 real digest entries: 9 render with a real hero image, the rest
+      with the outlet-badge header; deviation notes render correctly,
+      including one that honestly reports "the outlets covered the story
+      consistently" rather than inventing a difference, exactly matching
+      the prompt's design intent.
+- [x] The existing `/` breaking-news view verified live, not assumed: same
+      40-card count, identical card markup, only a small nav bar added
+      (`Breaking News · Digest`) so the new view is actually reachable.
 
-## Milestone 4 — Settings and source-request page
+## Milestone 4 — Settings and source-request page — **complete 2026-09-15**
 
-- [ ] New `/settings` route: a form to submit one source (name, URL,
-      existing or new section) or several sources at once under one new
-      section name. Writes only to `source_requests`.
-- [ ] A simple pending-requests list on the same page so Jason can see what's
-      queued without opening the database directly.
-- [ ] Explicit regression check: submitting a request never modifies
-      `feeds.json` — verified directly, not assumed from the code path.
+- [x] New `/settings` route: a form to submit one or several sources at
+      once (`Name | URL` per line) under an existing category or a new one
+      typed in — directly satisfies "add a photography section with these
+      sources" in one submission. Writes only to `source_requests`, using
+      the PRG pattern (POST redirects to GET) so refreshing never
+      resubmits.
+- [x] A pending-requests table on the same page, newest first, showing
+      category (with a "(new)" marker), name, URL, note, and status —
+      Jason can see the queue without opening the database.
+- [x] Explicit regression check, not assumed: submitted a real test
+      request (two sources, one new "photography" category) via a live
+      POST, confirmed both rows landed correctly in `source_requests` with
+      the right fields, and confirmed `feeds.json`'s SHA-256 was
+      byte-for-byte identical before and after. Test data removed after
+      verification.
 
 ## Milestone 5 — Testing and validation
 
-- [ ] Real-data verification at every stage above (each milestone's own
+- [x] Real-data verification at every stage above (each milestone's own
       checklist already states what "done" means in evidence terms, not just
-      "written").
+      "written") — held throughout, and caught three real bugs before they
+      reached production (HTML-in-summary, digest re-processing, and the
+      same-outlet clustering false positive).
 - [ ] Confirm the new digest timer actually fires at 06:00/18:00 without
-      disturbing the hourly timer's own schedule.
-- [ ] Confirm HomeLab Doctor still passes cleanly with the new services
-      present; extend `check_news_aggregator()` only if a real gap is found,
-      not preemptively.
+      disturbing the hourly timer's own schedule. **Partially verified**:
+      `systemctl list-timers` confirms the computed next-trigger time is
+      correct (17:15 local, 45 min before 18:00) and the existing hourly
+      timer's own schedule is untouched, but no real scheduled fire has
+      happened yet as of this evidence entry — left open until the first
+      real 05:15/17:15 run is observed.
+- [x] Confirmed HomeLab Doctor still passes cleanly with the new services
+      present. Extended `check_news_aggregator()` with one real gap found
+      by testing: the digest timer had zero monitoring coverage — added an
+      enabled-state check matching the existing ingest-timer check's own
+      pattern (not a recency check, given the digest's 12h cadence would
+      make that noisy). Ran the real `scripts/doctor.sh` end to end: the
+      new check passes silently (confirming the timer really is enabled),
+      and the only News Aggregator warning shown is the same pre-existing,
+      already-documented Phase 1 pattern (occasional individual feed-fetch
+      hiccups), unrelated to this change.
 
 ## Milestone 6 — Documentation and graduation
 
@@ -235,6 +266,8 @@ without touching `feeds.json`, and HomeLab Doctor passes cleanly.
 | 2026-09-15 | 1 digest.py re-processing bug found and fixed before production | Caught before it could waste hours of real GPU time: the first `digest.py` had no way to know a cluster was already digested, so every run inside the 14h lookback would regenerate identical content for the same ~475 clusters every 12 hours. Fixed by joining against `digest_entries` and only selecting a cluster when it has no entry yet or has gained items since its last one | Confirmed live: a rerun with nothing new found "0 clusters ... to digest" instead of repeating the prior run |
 | 2026-09-15 | 1 real duplicate-cards bug found and fixed | Jason found (with a screenshot) the same Times Colonist story rendered as 3 separate cards. Root cause: Times Colonist cross-posts one story under multiple URLs (`/the-mix/`, `/national-business/`, `/national-news/`), each a genuinely distinct GUID, defeating `ingest.py`'s `UNIQUE(feed_id, guid)` dedup; `cluster.py` also explicitly skipped same-outlet matches on the assumption GUID dedup already handled duplicates. First fix attempt (allow same-outlet matches at the existing cross-outlet threshold) was itself a real regression, caught before being trusted: it wrongly merged 19 genuinely different CHEK "Election 2026: `<town>` mayor and council candidates" stories into one cluster, because a single outlet's own recurring headline template scores 0.82-0.89 on both title similarity and keyword Jaccard despite being entirely different stories. Reverted all 103 merges from that first attempt, measured the real false-positive scores against the real corpus, and added a same-outlet-specific path requiring title similarity >= 0.97 with no keyword-Jaccard fallback (the false-positive pairs measured 0.82-0.89; genuine duplicates measured 1.0, comfortable margin either side). Re-ran: 56 genuine duplicates merged, spot-checked a dozen and all were verbatim-identical titles, zero template collisions. Also fixed `app.py`'s outlet-badge list to dedupe by `feed_id`, since a merged cluster could otherwise still show the same outlet's badge more than once | Verified live: the flagged story now renders as one card with one outlet badge; the CHEK election-town stories remain correctly separate |
 | 2026-09-15 | 1 digest timer scheduled | Jason asked that the digest be ready *by* 06:00/18:00, not merely started then, and to benchmark real timing for the offset rather than guess. Real per-cluster timing (~25-30s) and the corrected multi-outlet-only scope (21 clusters on Day 1) set a 45-minute head start as a generous margin. Discovered LXC 114 runs in UTC while Jason's 6 o'clock is BC local time — a naive `OnCalendar=06,18:00:00` would have fired at the wrong wall-clock time entirely. Jason then confirmed BC no longer observes DST, so used the fixed-offset `Etc/GMT+7` zone (checked the real live offset against the system clock, UTC-7, rather than assuming) instead of `America/Vancouver`, whose tzdata would still apply the old twice-yearly change. Deployed, enabled, and verified via `systemctl list-timers`: next trigger computed as 2026-09-16 00:15 UTC = 17:15 BC time, exactly the intended 45 minutes before 18:00 | Digest will be ready before Jason's reading times without drifting off across season |
+| 2026-09-15 | 3 digest UI built | New `/digest` route and card template: hero image when a feed provided one, an outlet-badge header when it didn't, headline, abridged summary, deviation notes as a distinct callout, and outlet byline with rating tooltips (reused Phase 1's pattern). Refactored the outlet dedup logic into one shared helper used by both views instead of duplicating it. Verified live against all 21 real entries, not a synthetic fixture: 9 render with a real hero image, the rest with the badge header; one deviation note correctly reports "the outlets covered the story consistently" rather than inventing a difference. Breaking-news view re-verified live afterward: same 40-card count, identical card markup, only a small nav bar added | **Milestone 3 complete** |
+| 2026-09-15 | 4 settings/source-request page built | New `/settings` route: batch source submission (`Name \| URL` per line) under an existing or new category, PRG redirect pattern, and a pending-requests table. Regression-tested live rather than assumed: submitted a real two-source request under a new "photography" category, confirmed both rows landed correctly in `source_requests`, and confirmed `feeds.json`'s SHA-256 was byte-for-byte identical before and after the submission. Test data removed once verified | **Milestone 4 complete** |
 
 ## References
 
