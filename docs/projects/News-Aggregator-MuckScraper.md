@@ -208,7 +208,25 @@ scoped in detail, or measured.
 - [ ] Choose and document the bias-scoring methodology and UI labeling.
       Deferred — this is the explicit Stream A checkpoint requiring Jason's
       own sign-off (see header), not something to propose unilaterally.
-- [ ] Draft the initial feed list with Jason.
+- [x] Draft the initial feed list with Jason. **Candidate list, 2026-09-15
+      — unverified, live URL/reachability checks belong to Milestone 2's
+      own "validate against the initial feed list with real fetches" step,
+      not this planning stage:**
+      - General/world: BBC World News (`feeds.bbci.co.uk/news/world/rss.xml`),
+        NPR World (`feeds.npr.org/1004/rss.xml`), AP News (exact current feed
+        path to be confirmed at Milestone 2 — AP's public RSS availability
+        has changed over time).
+      - Tech: Ars Technica (`feeds.arstechnica.com/arstechnica/index`), The
+        Verge (`theverge.com/rss/index.xml`), Hacker News front page
+        (`news.ycombinator.com/rss`), 9to5Mac (`9to5mac.com/feed`).
+      - Local — **Vancouver Island specifically**, not the city of
+        Vancouver (corrected 2026-09-15; Jason is on the Island, in the
+        Cowichan Valley/Duncan area): Times Colonist
+        (Victoria/Island-wide daily), Cowichan Valley Citizen (Black Press
+        Media — the hyper-local paper for Jason's specific area), CHEK
+        News (Vancouver Island-wide TV/news). Exact feed paths for all
+        three to be confirmed at Milestone 2; Black Press Media's RSS
+        structure in particular should be checked rather than assumed.
 
 ### Milestone 2 — Ingestion pipeline
 
@@ -281,6 +299,8 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-14 | Authorization | Jason granted Stream A for this project's enumerated scope, with the outbound-egress/firewall decision (before Milestone 2) and the bias-methodology sign-off (before Milestone 3) preserved as explicit checkpoints rather than absorbed into blanket authorization | Milestone 1 (discovery and design decisions) begins | claude |
 | 2026-09-14 | 1 placement and egress research | Checked `Current-Network-Baseline.md` rather than assuming: VLAN 70 was already validated with disposable LXC 970 for broad outbound internet access with internal-service isolation intact — exactly this project's actual need, and it removes the need for a new cross-VLAN rule to reach `aster-llama` (same VLAN). Checked `03-Hardware-Inventory.md`: ~28 GiB Proxmox allocation headroom as of 2026-09-09, not a differentiator either way | Recommended Lab VLAN 70 over Servers VLAN 20, reversing the document's original framing that assumed a new, broadened firewall rule would be needed — it may need none at all. Not yet Jason's confirmed decision |
 | 2026-09-14 | 1 clustering method proposal | Proposed headline/lede similarity clustering within a rolling time window, no LLM call in the clustering step, tuned toward precision over recall, with the reasoning and trade-off documented in Milestone 1's checklist | Proposed, not yet validated against real feed data (no ingestion pipeline exists yet) |
+| 2026-09-15 | 1 placement confirmed | Jason confirmed Lab VLAN 70 | Milestone 1's placement item complete |
+| 2026-09-15 | 1 feed list drafted | Drafted a candidate feed list with Jason by category: general/world, tech (including 9to5Mac at Jason's request), and local — corrected mid-draft from "Vancouver" to **Vancouver Island** specifically (Cowichan Valley/Duncan area) once Jason clarified his actual location. Exact URLs are unverified candidates; none were live-fetched or reachability-checked in this session (a WebFetch attempt and a Browser-pane attempt at live RSS verification both failed to go through) | Candidate list recorded in Milestone 1's checklist. Live URL verification is explicitly deferred to Milestone 2's own "validate against the initial feed list with real fetches" step, not skipped |
 
 ## References
 
