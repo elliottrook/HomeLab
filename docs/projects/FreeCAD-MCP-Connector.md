@@ -1,24 +1,29 @@
 # FreeCAD MCP Connector for Local CAD Assistance
 
-> Status: Proposed — awaiting authorization
+> Status: Active — Stream A
 >
 > Owner: Jason
 >
 > Proposed: 2026-09-14
 >
-> Started: —
+> Started: 2026-09-14
 >
 > Completed: —
 >
-> Authorization stream requested: **Stream M — Monitored**. This introduces a
-> new, locally-installed, third-party MCP server that can execute arbitrary
-> Python code inside FreeCAD on this Mac. That is a materially new trust
-> boundary on the same machine that holds this repository's SSH access and
-> credentials, so each state-changing step (installing the addon, adding the
-> MCP server to Claude Code's configuration, and any run that touches files
-> outside a scratch directory) should be approved individually rather than
-> pre-authorized in bulk. Jason may upgrade this to Stream A later once its
-> behavior is well understood in practice.
+> Authorization stream: **Stream A — Autonomous**, granted by Jason
+> 2026-09-14 in this project's own conversation, per the per-project
+> authorization mechanism in `CLAUDE.md` and the `Project-Creation-Standard`.
+> The enumerated scope: install and use `neka-nat/freecad-mcp` as a
+> localhost-only bridge between FreeCAD (this Mac) and both this Claude Code
+> session and the ChatGPT Desktop app (also this Mac, added 2026-09-14 —
+> confirmed with Jason that this means a second **local** client on the same
+> machine, not a cloud-hosted ChatGPT reaching in over the internet); design
+> and print an ATX-compatible variant of the TrueNAS enclosure. This
+> authorization does not extend past that scope. Per the Standard's
+> non-waivable stop conditions, **any change that would expose the FreeCAD
+> RPC server or the MCP bridge beyond localhost — including any form of
+> ChatGPT cloud/mobile access — requires a fresh, explicit decision
+> regardless of this Stream A grant**, and is not pre-authorized here.
 
 ## Purpose and desired outcome
 
@@ -73,10 +78,17 @@ capability without a deliberate decision to widen it.
 
 ### Included
 
-- Installing FreeCAD on this Mac (Jason's own action).
+- Installing FreeCAD on this Mac (Jason's own action — done 2026-09-14).
 - Installing the `neka-nat/freecad-mcp` addon inside FreeCAD and running its
   bridge process locally, connected to this Claude Code session over
   localhost only.
+- Connecting the ChatGPT Desktop app, also running on this same Mac, to the
+  same local FreeCAD RPC server as a second local client — **only if ChatGPT
+  Desktop's own connector support can reach a local server without any
+  internet-facing relay or tunnel**. This has not yet been verified; Milestone
+  1 includes checking ChatGPT Desktop's actual current connector capability
+  before assuming it can be wired up this way, rather than building toward
+  it as a foregone conclusion.
 - Using the connector to inspect and edit the enclosure model: widening the
   PSU compartment (and any dependent joint/mating geometry) to fit a
   standard ATX PSU footprint, re-exporting printable STL files, and checking
@@ -90,6 +102,12 @@ capability without a deliberate decision to widen it.
 - Any network exposure of the FreeCAD RPC server or the MCP bridge beyond
   localhost on this Mac. The connector's own "remote connections" option is
   explicitly not used in this project.
+- ChatGPT's cloud/web/mobile app reaching this Mac's FreeCAD instance over
+  the internet, via a tunnel, port-forward, or hosted relay. This was asked
+  about and explicitly declined 2026-09-14 in favor of the local-only
+  interpretation above; it remains a non-waivable stop condition under the
+  Standard regardless of this project's Stream A grant, and would need its
+  own fresh, separately justified decision if reconsidered later.
 - Any use of this connector against files outside a dedicated scratch/CAD
   working directory until Jason decides otherwise — it should not be pointed
   at this repository's other files, credentials, or unrelated parts of the
@@ -118,22 +136,30 @@ This Mac
           +-- RPC server, localhost only
                 |
                 | (loopback, no network exposure)
-                v
-          uvx freecad-mcp bridge process (localhost)
-                |
-                | MCP (local)
+                +----------------------+
+                v                      v
+          uvx freecad-mcp bridge   ChatGPT Desktop's own local
+          process (localhost)     connector (localhost), IF its
+                |                 current capability supports this —
+                | MCP (local)     unverified, see Milestone 1
                 v
      This Claude Code session
 ```
 
-No new inbound or outbound network path is created. No credential is
-involved. The only new trust boundary is: this Claude Code session gains the
+No new inbound or outbound network path is created — both AI clients reach
+the same FreeCAD RPC server over loopback only, from processes running on
+this same machine. No credential is involved. The trust boundary this
+project introduces is: any local client able to reach that RPC server
+(today: this Claude Code session; potentially: ChatGPT Desktop) gains the
 ability to execute Python inside FreeCAD's environment on this Mac, which in
 turn has normal user-level filesystem access — meaning the practical blast
 radius of a bug or a malicious dependency in the connector is "arbitrary
-local code as the logged-in user," not merely "bad CAD geometry." That should
-be named plainly rather than undersold, even though the intended use is
-narrow.
+local code as the logged-in user," not merely "bad CAD geometry." Adding a
+second local client does not change that blast radius in kind, only in how
+many local processes could reach it — the RPC server itself has no described
+per-client access control, so this remains a single shared local capability
+surface rather than two independently-scoped ones. That should be named
+plainly rather than undersold, even though the intended use is narrow.
 
 ## Privacy and security design
 
@@ -219,7 +245,7 @@ narrow.
 
 ### Milestone 1 — Install and vet the connector
 
-- [ ] Confirm FreeCAD is installed on this Mac (Jason).
+- [x] Confirm FreeCAD is installed on this Mac (Jason, 2026-09-14).
 - [ ] Confirm `uv`/`uvx` is available on this Mac, or install it.
 - [ ] Review `neka-nat/freecad-mcp`'s actual source code (not just its
       README) for anything reaching beyond localhost or beyond FreeCAD's
@@ -228,8 +254,16 @@ narrow.
       bound to localhost only.
 - [ ] Add the MCP bridge to this Claude Code session's configuration,
       scoped to this machine.
+- [ ] Check whether ChatGPT Desktop's current connector support can reach a
+      local server without any internet-facing relay or tunnel. If it
+      cannot do this today, ChatGPT access is deferred rather than
+      implemented some other way — the internet-facing alternative was
+      explicitly declined and is not an approved fallback.
+- [ ] If confirmed possible: connect ChatGPT Desktop to the same local RPC
+      server as a second client.
 - [ ] Confirm the connection with a trivial, read-only action (e.g. opening
-      a document and reading its object list) before any edit.
+      a document and reading its object list) before any edit, from each
+      connected client.
 
 Gate: the connector is installed, reviewed, and proven to work read-only,
 with no network exposure beyond localhost.
@@ -354,6 +388,7 @@ TrueNAS DIY SAS Expansion project document.
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-09-14 | Proposal | Confirmed no CAD tool or connector exists in this session today; researched available FreeCAD MCP server projects and identified `neka-nat/freecad-mcp` (2.3k stars, 289 forks, 173 commits, MIT) as the clear adoption leader among several much smaller alternatives; confirmed its architecture is localhost-only by default with an optional, unused "remote connections" mode, and that it supports running Python scripts inside FreeCAD | Proposed as Stream M given the new local code-execution trust boundary this introduces on the same machine holding this repository's SSH access; no software installed, no MCP connection configured yet |
+| 2026-09-14 | Authorization and scope revision | Jason installed FreeCAD on this Mac; granted Stream A for this project's enumerated scope; asked to add ChatGPT access to the same FreeCAD instance. Asked Jason to clarify since a cloud-reachable ChatGPT would be a materially different, internet-facing architecture — a non-waivable stop condition regardless of Stream A. Jason confirmed the local-only interpretation: ChatGPT Desktop, on this same Mac, as a second local client of the same localhost-only RPC server, not cloud/mobile ChatGPT reaching in over the internet | Scope and architecture revised accordingly; the cloud/mobile interpretation is explicitly recorded as excluded and non-waivable. No software installed yet beyond FreeCAD itself; Milestone 1's source review and addon installation have not started |
 
 ## Close-out
 
