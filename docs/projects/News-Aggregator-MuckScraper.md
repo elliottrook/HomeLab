@@ -527,8 +527,18 @@ scoped in detail, or measured.
       are the current documentation; further updates expected at each
       milestone.
 - [ ] **Diagrams/rack records** — expected once the new LXC is placed.
-- [ ] **Homepage/service discovery** — a private link is expected once the
-      reading UI exists.
+- [x] **Homepage/service discovery** — added 2026-09-15. Backed up
+      `services.yaml` first
+      (`services.yaml.before-news-aggregator-20260915`), then a minimal
+      text insertion (not a full rewrite) adding a "News Aggregator" tile
+      to the existing "Media" group, alongside Jellyfin/Immich/Seerr/
+      Calibre/Audiobookshelf — the natural fit for a personal
+      content-reading tool. Validated the YAML inside the real Homepage
+      container (`js-yaml`, not assumed valid) before restarting it to
+      pick up the change (config isn't hot-reloaded). Verified via
+      Homepage's own `/api/services` endpoint, not just the page's raw
+      HTML shell — matching the same verification precedent already used
+      elsewhere in this repo's Homepage work.
 - [ ] **Authentication/authorization** — not yet assessed; likely
       Authentik-fronted like other internal apps, decision deferred to
       Milestone 4.
@@ -572,6 +582,7 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-15 | 4 exposure/DNS check surfaced a real access gap | Added `news.internal` to both Pi-holes (`truenas.internal`-style direct pattern, not Authentik/NPM-fronted — proportionate for a single-user tool). Confirmed zero WAN/OPNsense exposure before any change (`grep -c 192.168.70.13 config.xml`: 0). But confirming VLAN 70's isolation also proved Jason's own trusted devices had no path into VLAN 70 at all — nothing had ever considered inbound access, only outbound egress. Presented this plainly rather than opening a rule silently | Jason chose a narrow, `MGMT_ADMIN_HOSTS`-precedented fix rather than leaving it unreachable |
 | 2026-09-15 | 4 firewall rule added | Backed up `config.xml` first (`config-news-aggregator-before-20260915.xml`, matching this repo's established naming convention). Used a minimal, surgical **text** insertion of one new rule block rather than a full-tree XML re-serialization, specifically to avoid any risk of reformatting unrelated parts of a 175KB live production firewall config; the insertion script asserted every expected substitution actually happened and that the stale `opt4` value was gone before writing anything. Validated the result still parses as well-formed XML before reloading. New rule: `MGMT_ADMIN_HOSTS → 192.168.70.13:8080/tcp` only (a single host and a single port, not VLAN-wide), sequence 3150. Reloaded via `configctl filter reload`; confirmed the exact rule loaded into the live `pf` ruleset via `pfctl -sr` | **Verified end-to-end from a real approved device, not just on paper**: this Mac (`192.168.1.206`) is itself one of the three `MGMT_ADMIN_HOSTS` entries; a direct DNS lookup and HTTP request from it succeeded. Regression-checked immediately after: the Docker LXC (VLAN 20, not an approved host) still correctly cannot reach it — the rule is exactly as narrow as intended |
 | 2026-09-15 | 4 HomeLab Doctor check added | `check_news_aggregator()` added to `scripts/doctor.sh`, following the existing `check_aster_wiki()` pattern: fails on an unhealthy UI or missing recent successful fetch, warns on a mix of recent success/failure, passes when healthy. Ran the real `scripts/doctor.sh` end to end rather than testing the function in isolation; it correctly surfaced a real warning, cross-checked directly against `fetch_log` to confirm it reflected genuine data (the original pre-fix `times-colonist`/`chek-news` failures from Milestone 2, still inside the 2-hour lookback window) rather than a bug in the new check's own logic | **Milestone 4 complete.** Reading UI live, DNS resolves, no unintended exposure, a real (Jason-approved) access path exists, and Doctor coverage is proven against real data, not just written and assumed correct |
+| 2026-09-15 | 4 Homepage tile added | Jason asked whether the project had a dashboard tile — it didn't yet. Backed up `services.yaml`, added a "News Aggregator" tile to the existing "Media" group via a minimal text insertion. Validated the YAML inside the real Homepage container before restarting it (config isn't hot-reloaded); verified live via `/api/services`, not just the page HTML | Real, working dashboard entry, closing the last open item in the required integration checklist that had a concrete action to take |
 
 ## References
 
