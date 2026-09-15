@@ -64,7 +64,10 @@ be followed by `mirror-verify` before rebuilding Aster's snapshot.
 Daily collection is owned by `aster-wiki-collector.timer`. The monthly
 `aster-wiki-corpus-health.timer` writes a bounded report beneath
 `state/reports/` and checks freshness, exact provenance, source links,
-pipeline/input versions, duplicate claims and taxonomy coverage. HomeLab Doctor
+pipeline/input versions, duplicate claims, taxonomy coverage and deterministic
+directory-index drift. `mirror-verify` recomputes every source directory entry
+from its current mirror claims and fails if the routing aid is missing,
+malformed, extra or stale. HomeLab Doctor requires a zero drift count and
 reports missing, stale, warning or failed monthly state without exposing corpus
 content.
 

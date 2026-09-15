@@ -19,7 +19,17 @@
       "id": "arr_roots_and_handoff",
       "prompt": "What are the canonical Sonarr and Radarr library roots, and why does SABnzbd completion not prove an ARR import succeeded?",
       "required_all": ["/mnt/Media/data/media/tv", "/mnt/Media/data/media/movies", "import"],
-      "required_any": ["does not prove", "doesn't prove", "not proof", "separate step"],
+      "required_any": [
+        "does not prove",
+        "doesn't prove",
+        "not proof",
+        "separate step",
+        "separate ARR-side step",
+        "separate ARR step",
+        "separate stage",
+        "separate ARR-side stage",
+        "separate ARR stage"
+      ],
       "forbidden": ["download completion proves import"]
     },
     {

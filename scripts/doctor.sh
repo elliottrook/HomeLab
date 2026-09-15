@@ -472,7 +472,19 @@ check_aster() {
             agent="$(pct exec 104 -- systemctl is-active aster-agent.service 2>/dev/null || true)"
             inference="$(pct exec 110 -- systemctl is-active aster-llama.service 2>/dev/null || true)"
             api="$(pct exec 104 -- curl -sf http://192.168.70.10:9120/health 2>/dev/null || true)"
-            printf "agent=%s\\ninference=%s\\napi=%s\\n" "$agent" "$inference" "$api"
+            driver="$(basename "$(readlink /sys/bus/pci/devices/0000:04:00.0/driver 2>/dev/null)" 2>/dev/null || true)"
+            rollback_vm="$(qm status 105 2>/dev/null | sed -n "s/^status: //p")"
+            if qm config 105 2>/dev/null | grep -Eq "^hostpci[0-9]+:.*04:00\\.0"; then
+                persistent_b60=yes
+            else
+                persistent_b60=no
+            fi
+            if pct exec 110 -- vulkaninfo --summary 2>/dev/null | grep -qi "Intel.*BMG G21"; then
+                vulkan=bmg-g21
+            else
+                vulkan=missing
+            fi
+            printf "agent=%s\\ninference=%s\\napi=%s\\ndriver=%s\\nrollback_vm=%s\\npersistent_b60=%s\\nvulkan=%s\\n" "$agent" "$inference" "$api" "$driver" "$rollback_vm" "$persistent_b60" "$vulkan"
         '
     )"; then
         warn "Unable to check Aster services"
@@ -481,8 +493,12 @@ check_aster() {
 
     if grep -qx 'agent=active' <<< "$state" &&
        grep -qx 'inference=active' <<< "$state" &&
-       grep -q '"status":"ok"' <<< "$state"; then
-        pass "Aster agent API and llama.cpp inference healthy"
+       grep -q '"status":"ok"' <<< "$state" &&
+       grep -qx 'driver=xe' <<< "$state" &&
+       grep -qx 'rollback_vm=stopped' <<< "$state" &&
+       grep -qx 'persistent_b60=no' <<< "$state" &&
+       grep -qx 'vulkan=bmg-g21' <<< "$state"; then
+        pass "Aster agent API, B60 Vulkan and llama.cpp inference healthy"
     else
         fail "Aster service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
     fi
@@ -499,8 +515,9 @@ check_aster_wiki() {
             status="$(pct exec 113 -- runuser -u aster-collector -- env PYTHONPATH=/opt/aster-wiki /usr/bin/python3 -m aster_wiki.cli status --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state 2>/dev/null || true)"
             corpus_timer="$(pct exec 113 -- systemctl is-enabled aster-wiki-corpus-health.timer 2>/dev/null || true)"
             corpus_status="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json"))["status"])'\'' 2>/dev/null || true)"
+            directory_drift="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json")).get("metrics", {}).get("directory_index_drift", "missing"))'\'' 2>/dev/null || true)"
             corpus_fresh="$(pct exec 113 -- find /var/lib/aster-wiki/state/reports/corpus-health.json -mmin -64800 -print 2>/dev/null || true)"
-            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ncorpus_fresh=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$corpus_fresh"
+            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ndirectory_drift=%s\ncorpus_fresh=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$directory_drift" "$corpus_fresh"
         '
     )"; then
         warn "Unable to check Aster wiki services"
@@ -516,8 +533,9 @@ check_aster_wiki() {
     elif ! grep -qx 'corpus_timer=enabled' <<< "$state"; then
         warn "Aster wiki collector is healthy but monthly corpus-health timer is not enabled"
     elif grep -qx 'corpus_status=failed' <<< "$state" ||
+         ! grep -qx 'directory_drift=0' <<< "$state" ||
          ! grep -q '^corpus_fresh=/' <<< "$state"; then
-        fail "Aster wiki monthly corpus-health report failed, is missing or is older than 45 days"
+        fail "Aster wiki monthly corpus-health report failed, has directory-index drift, is missing or is older than 45 days"
     elif grep -qx 'corpus_status=warning' <<< "$state"; then
         warn "Aster wiki is operational but monthly corpus-health review has warnings"
     elif grep -qx 'corpus_status=healthy' <<< "$state"; then

@@ -13,6 +13,7 @@ from aster_agent import (
     ChatRequest,
     TOOLS,
     execute_arr_repair,
+    execute_tool,
     get_lab_health,
     preload_read_only_context,
     search_knowledge,
@@ -25,9 +26,23 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("every explicitly requested fact or identifier", ASTER_SYSTEM_PROMPT)
         self.assertIn("before optional", ASTER_SYSTEM_PROMPT)
 
+    def test_system_policy_frontloads_runtime_and_recovery_dependencies(self):
+        self.assertIn("Qwen3.8-27B on the B60 Vulkan path", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Always identify it explicitly as `VM 105`", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Aster is not the\nfirst recovery dependency", ASTER_SYSTEM_PROMPT)
+        self.assertIn("independent local access", ASTER_SYSTEM_PROMPT)
+
+    def test_credential_policy_omits_product_specific_recovery_details(self):
+        self.assertIn("give only that generic refusal", ASTER_SYSTEM_PROMPT)
+        self.assertIn("do not add product-specific UI", ASTER_SYSTEM_PROMPT)
+
     def test_system_policy_labels_bounded_health_source(self):
         self.assertIn("latest sanitized", ASTER_SYSTEM_PROMPT)
         self.assertIn("read-only HomeLab Doctor summary", ASTER_SYSTEM_PROMPT)
+
+    def test_system_policy_frontloads_authority_conflicts(self):
+        self.assertIn("first sentence must include both `conflict`", ASTER_SYSTEM_PROMPT)
+        self.assertIn("and `current-operational`", ASTER_SYSTEM_PROMPT)
 
     def test_arr_broker_drop_in_has_no_execution_switch_or_radarr_credential(self):
         drop_in = (
@@ -142,6 +157,7 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("album rather\nthan a single track", ASTER_SYSTEM_PROMPT)
         self.assertIn("verification and explicit review are required", ASTER_SYSTEM_PROMPT)
         self.assertIn("Do not redirect an ARR question to a live service interface", ASTER_SYSTEM_PROMPT)
+        self.assertIn("request/monitor, indexer, download queue, ARR import", ASTER_SYSTEM_PROMPT)
 
     def test_forgejo_and_netbox_policy_is_indirect_and_read_only(self):
         self.assertIn("Forgejo and NetBox access is also read-only and indirect", ASTER_SYSTEM_PROMPT)
@@ -610,7 +626,6 @@ class AsterAgentTests(unittest.TestCase):
             result = search_knowledge("What is currently true about the B60 GPU VRAM?", root=root, directory_first=True)
             self.assertEqual(result["results"][0]["source"], "docs/03-Hardware-Inventory.md")
 
-
 class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
     async def test_time_tool_is_preloaded_without_model_round_trip(self):
         result = await preload_read_only_context(
@@ -619,6 +634,14 @@ class AsterPreloadTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(result[0]["function"], "get_current_time")
         self.assertEqual(result[0]["result"]["timezone"], "America/Vancouver")
+
+    async def test_search_tool_uses_explicit_directory_feature_flag(self):
+        with (
+            patch("aster_agent.DIRECTORY_FIRST", True),
+            patch("aster_agent.search_knowledge", return_value={"results": []}) as search,
+        ):
+            await execute_tool("search_knowledge", {"query": "Sonarr notifications", "max_results": 2})
+        self.assertEqual(search.call_args.kwargs["directory_first"], True)
 
     async def test_arr_report_is_preloaded_without_model_round_trip(self):
         result = await preload_read_only_context(
