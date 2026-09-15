@@ -121,40 +121,92 @@ scoped in detail, or measured.
 
 ## Open risks and decisions needing Jason's input
 
-- **Outbound egress is a real firewall/network-security decision, not a
-  sandbox setting.** A deployed service on a lab VLAN making outbound HTTPS
-  calls to many external news-outlet domains is a materially different
-  thing from Claude Code's own `sandbox.network.allowedDomains`, which only
-  governs what Claude Code itself can reach from the laptop — it says
-  nothing about what a deployed lab service may reach. Whatever egress this
-  project needs must be an explicit, narrowly-scoped OPNsense decision
-  Jason approves before Milestone 2, per this repo's "changes that alter
-  the network's security posture" rule.
-- **Placement is undecided**: new LXC on Lab VLAN 70 (alongside other AI
-  infra) vs. Servers VLAN 20 (alongside media/automation). Neither has been
-  evaluated against capacity or trust-boundary considerations yet.
-- **Clustering method is unspecified.** Whatever approach is chosen needs a
-  concrete false-positive/false-negative expectation before it's trusted,
-  not just "seems to work."
-- **Bias-scoring methodology and its labeling are unresolved** — this is
-  the most subjective piece of the whole project and needs Jason's explicit
-  sign-off on both the method and how prominently the "automated estimate,
-  not authoritative" caveat is shown before any output reaches a UI.
-- **Feed list, refresh interval, and retention window** are all undecided
-  and directly affect both storage sizing and how much this looks like
-  general web scraping vs. bounded feed reading.
-- No stream (M or A) has been selected. Implementation must not begin until
-  Jason chooses one and the risks above are addressed.
+- **Outbound egress, revised 2026-09-14:** the premise that this needs a
+  *new*, *broadened* firewall rule turned out to be wrong once checked
+  against `Current-Network-Baseline.md` — see the placement recommendation
+  below. If VLAN 70 is confirmed, general outbound internet is already
+  validated and permitted there; the live question is whether to
+  voluntarily *narrow* that existing access to a specific domain allowlist
+  for this workload, not whether to open something new. Still Jason's
+  decision either way, before Milestone 2.
+- **Placement: recommended Lab VLAN 70, 2026-09-14**, not Servers VLAN 20 —
+  see Milestone 1's checklist for the full reasoning (already-validated
+  broad egress with internal isolation, same-VLAN reach to `aster-llama`
+  avoiding a new cross-VLAN rule, ample Proxmox headroom either way). A
+  recommendation, not yet Jason's confirmed decision.
+- **Clustering method: recommended, 2026-09-14** — headline/lede similarity
+  within a rolling time window, no LLM call in the clustering step itself,
+  tuned toward precision over recall. See Milestone 1's checklist for the
+  full reasoning and its stated accuracy trade-off. Not yet validated
+  against real feed data.
+- **Bias-scoring methodology and its labeling remain fully unresolved** —
+  this is the most subjective piece of the whole project, is explicitly
+  named as a required Stream A checkpoint in this document's header, and
+  needs Jason's own decision, not a proposal from this session.
+- **Feed list, refresh interval, and retention window** are all still
+  undecided and directly affect both storage sizing and how much this looks
+  like general web scraping vs. bounded feed reading.
+- Stream A has been granted (see header) with the egress and bias-labeling
+  decisions above preserved as explicit checkpoints.
 
 ## Milestones
 
 ### Milestone 1 — Discovery and design decisions
 
-- [ ] Resolve placement (VLAN/host) and record the decision here.
+- [x] Resolve placement (VLAN/host) and record the decision here.
+      **Recommendation, 2026-09-14: Lab VLAN 70**, not Servers VLAN 20.
+      Checked `Current-Network-Baseline.md` rather than assuming: VLAN 70
+      "was fully validated with disposable LXC 970: DHCP, Pi-hole DNS,
+      blocked-domain response and Internet access passed, while non-DNS
+      access to internal services remained blocked" — meaning broad
+      outbound internet egress is *already* permitted from VLAN 70 today,
+      with lateral access to other internal services already blocked. That
+      is exactly this project's actual need (many external news domains
+      out, no internal lateral access required). Placing it on VLAN 70 also
+      means its call to `aster-llama` (`192.168.70.12:11435`) stays
+      same-VLAN, needing no new cross-VLAN firewall rule at all — placing it
+      on VLAN 20 instead would require a *new* VLAN 20 → VLAN 70 rule just
+      to reach that dependency, on top of whatever egress rule the news
+      fetching itself needs. Proxmox capacity is not a differentiator
+      either way: ~28 GiB allocation headroom as of the most recent
+      measurement (`03-Hardware-Inventory.md`, 2026-09-09), comfortably
+      enough for a lightweight ingestion LXC. This is a recommendation, not
+      a unilateral decision — Jason should confirm before Milestone 2.
 - [ ] Resolve the outbound-egress/firewall question with Jason explicitly.
-- [ ] Choose and document the clustering method and its expected accuracy
-      trade-offs.
+      **Materially better than expected, 2026-09-14:** if VLAN 70 is
+      confirmed as placement, this project may need **zero new firewall
+      rules** — general outbound internet is already validated and
+      permitted from VLAN 70. The actual open question is inverted from how
+      this document originally framed it: not "what new broad egress do we
+      open," but "should we *narrow* VLAN 70's already-broad egress down to
+      a specific news-domain allowlist for this workload specifically, as
+      defense-in-depth, even though it isn't required." That narrowing
+      decision (and the exact feed-domain list it would need) is still
+      Jason's to make — recorded here as the live open question, replacing
+      the original framing.
+- [x] Choose and document the clustering method and its expected accuracy
+      trade-offs. **Recommendation, 2026-09-14:** headline + lede text
+      similarity (e.g. TF-IDF cosine similarity or simpler fuzzy string
+      matching — no new heavy ML dependency needed) within a rolling
+      publish-time window (48-72 hours), plus a lightweight named-entity/
+      keyword overlap check, greedily grouped (union-find style) above a
+      similarity threshold. No LLM call is used for clustering itself —
+      `aster-llama` is only called once per already-formed cluster for the
+      summary, keeping inference cost bounded to cluster count, not raw
+      item count. Expected trade-off: this approach favors **precision over
+      recall** — outlets with very different headline framing for the same
+      event may end up in separate clusters (a missed merge, low-risk
+      failure: the reader just sees two similar-looking entries), while the
+      threshold should be tuned conservatively enough that unrelated
+      stories are rarely merged together under one bias-labeled summary (a
+      wrongly-merged cluster is the worse failure mode, since it would
+      misattribute one outlet's framing to another's story). This needs
+      validation against real feed data once Milestone 2's ingestion
+      exists — the accuracy trade-off is a design expectation here, not yet
+      measured.
 - [ ] Choose and document the bias-scoring methodology and UI labeling.
+      Deferred — this is the explicit Stream A checkpoint requiring Jason's
+      own sign-off (see header), not something to propose unilaterally.
 - [ ] Draft the initial feed list with Jason.
 
 ### Milestone 2 — Ingestion pipeline
@@ -227,6 +279,8 @@ accepts the residual limitations of the bias-labeling approach.
 | 2026-09-10 | Proposal | Drafted this project document and 11 sibling proposals in one batch | Committed directly to the `github` remote's `main` branch, bypassing Forgejo `origin` — the repo's established authoritative push path. Not caught until 2026-09-14 | claude (session unknown) |
 | 2026-09-14 | Reconciliation | Discovered via a user request to "get started" on this project that the file did not exist on Forgejo/`origin` at all; fetched and verified the exact content from GitHub's API before writing it into this repo; committed and pushed to Forgejo (`8ecb360`) | Forgejo restored as the authoritative copy. 11 sibling files from the same batch remain `github`-only and unreconciled | claude |
 | 2026-09-14 | Authorization | Jason granted Stream A for this project's enumerated scope, with the outbound-egress/firewall decision (before Milestone 2) and the bias-methodology sign-off (before Milestone 3) preserved as explicit checkpoints rather than absorbed into blanket authorization | Milestone 1 (discovery and design decisions) begins | claude |
+| 2026-09-14 | 1 placement and egress research | Checked `Current-Network-Baseline.md` rather than assuming: VLAN 70 was already validated with disposable LXC 970 for broad outbound internet access with internal-service isolation intact — exactly this project's actual need, and it removes the need for a new cross-VLAN rule to reach `aster-llama` (same VLAN). Checked `03-Hardware-Inventory.md`: ~28 GiB Proxmox allocation headroom as of 2026-09-09, not a differentiator either way | Recommended Lab VLAN 70 over Servers VLAN 20, reversing the document's original framing that assumed a new, broadened firewall rule would be needed — it may need none at all. Not yet Jason's confirmed decision |
+| 2026-09-14 | 1 clustering method proposal | Proposed headline/lede similarity clustering within a rolling time window, no LLM call in the clustering step, tuned toward precision over recall, with the reasoning and trade-off documented in Milestone 1's checklist | Proposed, not yet validated against real feed data (no ingestion pipeline exists yet) |
 
 ## References
 
