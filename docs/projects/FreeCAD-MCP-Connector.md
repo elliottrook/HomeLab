@@ -1,10 +1,13 @@
 # FreeCAD MCP Connector for Local CAD Assistance
 
-> Status: Active — Stream A. **Milestone 1 complete** — connector
-> installed, source-reviewed, and proven working read-only over localhost
-> only. ChatGPT Desktop access confirmed not possible without an excluded
-> internet tunnel and is deferred. Next: Milestone 2 (baseline the
-> existing model) — not yet started.
+> Status: Active — Stream A. **Milestones 1 and 2 complete** — connector
+> installed, source-reviewed, and proven working over localhost only;
+> original STLs preserved read-only, working copies verified against the
+> documented baseline through the connector itself, and the ATX target
+> envelope (generic, 150 x 86mm, 140mm nominal depth) confirmed. ChatGPT
+> Desktop access confirmed not possible without an excluded internet
+> tunnel and is deferred. Next: Milestone 3 (adapt the PSU compartment) —
+> not yet started.
 >
 > Owner: Jason
 >
@@ -236,19 +239,25 @@ plainly rather than undersold, even though the intended use is narrow.
 
 ## Persistence plan
 
-- **Current milestone:** Milestone 1 complete; Milestone 2 not started.
-- **Last verified state (2026-09-14):** FreeCAD 1.1.3 installed; addon
-  running from `~/Library/Application Support/FreeCAD/v1-1/Mod/FreeCADMCP`;
-  RPC server started by Jason from FreeCAD's toolbar, confirmed bound to
-  `127.0.0.1:9875` only via `lsof`; `ping()`/`list_documents()`/
-  `get_rpc_status()` all returned healthy read-only responses over this
-  Claude Code session's `freecad` MCP server (`local` scope). ChatGPT
-  Desktop access confirmed not possible without an excluded tunnel,
-  deferred.
-- **Next safe action:** start Milestone 2 — download and preserve the
-  original three MakerWorld STL files untouched in a labeled rollback
-  location, then open working copies via the connector and confirm
-  measured envelopes match the original project document's table.
+- **Current milestone:** Milestones 1 and 2 complete; Milestone 3 not
+  started.
+- **Last verified state (2026-09-14):** FreeCAD 1.1.3 running with the RPC
+  server bound to `127.0.0.1:9875` only; this Claude Code session's
+  `freecad` MCP bridge (`local` scope) proven working via document
+  creation, mesh import, and geometry read-back. Original STLs preserved
+  read-only at `~/lab/homelab-cad/freecad-mcp/originals/`; working copies
+  at `~/lab/homelab-cad/freecad-mcp/working/` (`main_body_1/2/3.stl`,
+  writable), measured envelopes matching the documented baseline exactly.
+  Target PSU envelope confirmed: generic ATX, 150 x 86mm cross-section,
+  140mm nominal depth (real depth varies 140-230mm by unit — unbounded by
+  spec, re-verify once a unit is chosen). ChatGPT Desktop access confirmed
+  not possible without an excluded tunnel, deferred.
+- **Next safe action:** start Milestone 3 — widen the shared cross-section
+  (currently 132mm width x 185mm height) to fit the 150mm ATX width,
+  extend `main_body_2`'s length along the stacking axis for the target
+  depth, adjust the PSU mounting screw pattern for a standard ATX
+  rear-panel bracket, and re-verify the unmodified drive-bay sections
+  (`main_body_1`, `main_body_3`) are unaffected.
 - **Rollback location:** the original three STL files from MakerWorld model
   150766, kept untouched in a clearly labeled directory separate from any
   working copy.
@@ -337,20 +346,53 @@ with no network exposure beyond localhost. **Gate met, 2026-09-14.**
 
 ### Milestone 2 — Baseline the existing model
 
-- [ ] Download and preserve the original three MakerWorld STL files
-      untouched, in a clearly labeled rollback location.
-- [ ] Open working copies in FreeCAD via the connector and confirm the
+- [x] Download and preserve the original three MakerWorld STL files
+      untouched, in a clearly labeled rollback location. **Result,
+      2026-09-14:** Jason downloaded the full model package from MakerWorld
+      to `~/Downloads/NAS+Hard+Drive+Bay+_+Enclosure+V1/` (seven STL parts:
+      three main-body sections, Connectors, two Front Fans Cage pieces,
+      HDD Bracket). Copied the three main-body STLs plus the original zip
+      into a new local CAD working area, **outside this git repository**
+      per the scope exclusion above: `~/lab/homelab-cad/freecad-mcp/originals/`
+      (chmod'd read-only, `a-w`, immediately after copying — the untouched
+      rollback target) and `~/lab/homelab-cad/freecad-mcp/working/` (writable
+      copies, renamed `main_body_1/2/3.stl` for clarity). Required
+      `dangerouslyDisableSandbox` since this new directory sits outside the
+      Bash sandbox's writable paths — a local-only write, not a network or
+      lab-security-posture change.
+- [x] Open working copies in FreeCAD via the connector and confirm the
       measured envelopes match the original project document's table
       (Main body 1: 132 x 218.6 x 185mm; Main body 2: 132 x 82 x 185mm;
-      Main body 3: 132 x 40 x 185mm).
-- [ ] Confirm standard ATX PSU dimensions to design against (record the
+      Main body 3: 132 x 40 x 185mm). **Result, 2026-09-14:** independently
+      verified twice — once with a standalone Python STL bounding-box
+      parser (outside FreeCAD), and again for real through the connector
+      itself: created a FreeCAD document (`EnclosureBaseline`) via
+      `create_document`, imported all three working-copy STLs as
+      `Mesh::Feature` objects via `execute_code`, and read back their
+      `BoundBox` dimensions. Both methods agree and both match the
+      documented table exactly (132.00 x 218.64 x 185.00mm; 132.00 x 82.00
+      x 185.00mm; 132.00 x 40.00 x 185.00mm) — the connector genuinely
+      opens documents, imports meshes, and reports correct geometry, not
+      just a bare RPC ping.
+- [x] Confirm standard ATX PSU dimensions to design against (record the
       exact target unit, e.g. the used EVGA SuperNOVA 650 GA under
       consideration, or a generic ATX envelope if the exact unit is not yet
-      decided).
+      decided). **Result, 2026-09-14:** asked Jason; chose a **generic
+      standard ATX envelope** over any specific unit. Researched the actual
+      spec rather than assuming: width and height are fixed by the ATX
+      form factor at **150 x 86mm**; depth is **not standardized** — the
+      spec only sets minimum clearances, and real units commonly range
+      140-230mm depending on wattage/modularity. Design target: 150
+      (width) x 86mm (height) cross-section, 140mm (nominal/minimum) depth
+      as the Milestone 3 working figure — final depth must be re-verified
+      against whatever actual unit is used once purchased, at the
+      Milestone 4 physical-fit stage, since the spec itself doesn't bound
+      it.
 
 Gate: the working environment reproduces the original design's known
 measurements before any modification begins, so later changes are
-measured against a verified baseline, not assumption.
+measured against a verified baseline, not assumption. **Gate met,
+2026-09-14.**
 
 ### Milestone 3 — Adapt the PSU compartment
 
@@ -409,13 +451,18 @@ scope.
 
 ## Backup, restore and rollback
 
-- **Protected components:** the original three MakerWorld STL files.
+- **Protected components:** the original three MakerWorld STL files (plus
+  the four other supplied parts and the original zip, kept alongside them
+  for completeness).
 - **Retention:** kept indefinitely, untouched, separate from any working
-  copy.
+  copy, at `~/lab/homelab-cad/freecad-mcp/originals/` (chmod'd
+  read-only, `a-w`, as of 2026-09-14, to make accidental overwrite fail
+  loudly rather than silently).
 - **Isolated restore proof:** not applicable beyond keeping the originals
   untouched — there is no production system to restore.
-- **Last-known-good path:** the original, unmodified STL files always serve
-  this role.
+- **Last-known-good path:** `~/lab/homelab-cad/freecad-mcp/originals/`
+  always serves this role; working edits happen only in
+  `~/lab/homelab-cad/freecad-mcp/working/`.
 
 ## Documentation and systems-of-record updates
 
@@ -466,6 +513,7 @@ TrueNAS DIY SAS Expansion project document.
 | 2026-09-14 | 1 handoff, uv/uvx | Fresh Remote-Control session picked up the handoff. Neither `uv`/`uvx` nor Homebrew were present on this Mac. Asked Jason how to proceed (self-install, pip/pipx, or add astral.sh to the sandbox allowlist); Jason chose adding astral.sh. Added it to `.claude/settings.json`'s `allowedDomains` and the `CLAUDE.md` sandbox-access table in the same change, then ran the official astral.sh installer (needed `dangerouslyDisableSandbox` once the sandbox's own `mktemp -d` default path conflict surfaced as a genuine sandbox restriction, not a project-scope bypass) | `uv`/`uvx` 0.12.13 installed to `/Users/jelliott/.local/bin`, confirmed via `--version`. No FreeCAD addon installation or RPC connection performed yet |
 | 2026-09-14 | 1 addon install, MCP config, ChatGPT check | Cloned `neka-nat/freecad-mcp` to scratch, copied `addon/FreeCADMCP` into FreeCAD 1.1's addon directory (`~/Library/Application Support/FreeCAD/v1-1/Mod/FreeCADMCP`, sandbox disabled for this local write only). Added `freecad` as a `local`-scope Claude Code MCP server (`claude mcp add freecad -- uvx freecad-mcp`, stored in `~/.claude.json`, not committed to this repo). Researched ChatGPT Desktop's (v26.825.51511, installed) actual current connector capability rather than assuming it: confirmed its Developer Mode custom connectors require a public HTTPS remote server with no localhost/stdio support at all | Addon installed but RPC server not yet started — that step is a manual FreeCAD GUI action (toolbar button) this session cannot perform headlessly; needs Jason at the Mac. ChatGPT Desktop access is confirmed not possible without the excluded internet tunnel and is deferred, not implemented. Claude Code's MCP bridge is configured but not yet connectable until the RPC server is running |
 | 2026-09-14 | 1 RPC server start, read-only verification | Jason clicked **Start RPC Server** in FreeCAD's toolbar; it gave no visible in-app confirmation beyond the Report View console (easy to mistake for not having worked). Verified independently: `lsof` showed the `freecad` process listening on `127.0.0.1:9875` only (a loopback check the sandbox itself initially blocked — had to disable it for this specific local-only check, not a project-scope bypass); real XML-RPC calls returned `ping()` → `True`, `list_documents()` → `[]`, `get_rpc_status()` → healthy | Milestone 1's gate is met: connector installed, source-reviewed, and proven read-only-functional with no exposure beyond localhost. Milestone 1 closed; Milestone 2 (baseline the existing model) not yet started |
+| 2026-09-14 | 2 baseline verified, PSU target set | Jason downloaded the full MakerWorld package to `~/Downloads/`. Copied the three main-body STLs and the original zip into a new local CAD working area outside this repo, per scope: `~/lab/homelab-cad/freecad-mcp/originals/` (made read-only immediately) and `.../working/` (writable copies). Verified the three main-body envelopes two independent ways — a standalone Python STL parser, and for real through the connector itself (`create_document`, `execute_code` importing each STL as a `Mesh::Feature`, reading back `BoundBox`) — both matched the documented table exactly. Asked Jason for the ATX target rather than assuming the proposal's example unit; he chose a generic envelope. Researched the actual ATX spec: width/height fixed at 150 x 86mm, depth explicitly not standardized (real units 140-230mm) | Milestone 2's gate is met: the connector reproduces the original design's known measurements for real, not just via a bare ping. Working baseline: 150 x 86mm ATX cross-section, 140mm nominal depth (to be re-verified against the actual unit at Milestone 4). Milestone 2 closed; Milestone 3 (adapt the PSU compartment) not yet started |
 
 ## Starting the handoff session
 
