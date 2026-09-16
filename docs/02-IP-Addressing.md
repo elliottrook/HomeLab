@@ -113,6 +113,11 @@ Both Pi-hole resolvers publish `truenas.internal` as an A record for
 | Homepage | `https://home.elliottrook.com` / `http://192.168.20.20:3000` | 443/TCP / 3000/TCP | Private split-DNS HTTPS via NPM and Authentik forward auth; direct fallback retained |
 | Beszel | `https://metrics.elliottrook.com` / `http://192.168.20.20:8090` | 443/TCP / 8090/TCP | Private split-DNS HTTPS via NPM and native Authentik OIDC; direct/password fallback and agent paths retained |
 | Grafana | `https://monitoring.elliottrook.com` / `http://192.168.20.31:3000` | 443/TCP / 3000/TCP | Private split-DNS HTTPS via NPM and native Authentik OIDC; direct/local-admin fallback retained |
+| Sonarr | `https://sonarr.elliottrook.com` / `http://192.168.20.40:8989` | 443/TCP / 8989/TCP | Private split-DNS HTTPS via NPM and Authentik forward auth; direct/API fallback retained |
+| Radarr | `https://radarr.elliottrook.com` / `http://192.168.20.40:7878` | 443/TCP / 7878/TCP | Private split-DNS HTTPS via NPM and Authentik forward auth; direct/API fallback retained |
+| Lidarr | `https://lidarr.elliottrook.com` / `http://192.168.20.40:8686` | 443/TCP / 8686/TCP | Private split-DNS HTTPS via NPM and Authentik forward auth; direct/API fallback retained |
+| Prowlarr | `https://prowlarr.elliottrook.com` / `http://192.168.20.40:9696` | 443/TCP / 9696/TCP | Private split-DNS HTTPS via NPM and Authentik forward auth; direct/API fallback retained |
+| SABnzbd | `https://sabnzbd.elliottrook.com` / `http://192.168.20.40:8080` | 443/TCP / 8080/TCP | Private split-DNS HTTPS via NPM and Authentik forward auth; direct/API fallback retained |
 
 ## Source-control endpoint
 
