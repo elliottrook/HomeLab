@@ -345,4 +345,4 @@ change, or risk category.
 - [News Aggregator Phase 3 — Audio Digest](News-Aggregator-Audio-Digest.md) (successor project)
 - [News Aggregator (MuckScraper) — Phase 1](News-Aggregator-MuckScraper.md)
 - [Project Creation Standard](../../Project-Creation-Standard.md)
-- [Aster Operations](../../Aster-Operations.md)
+- [Aster Operations](../../reference/Aster-Operations.md)

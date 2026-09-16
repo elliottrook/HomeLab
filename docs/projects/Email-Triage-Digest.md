@@ -43,7 +43,7 @@ built, and nothing here is authorized for implementation.
   `/v1/chat/completions`, currently `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS` via
   llama.cpp/Vulkan on an Intel Arc Pro B60 GPU, bearer-key authenticated,
   reachable only from Lab VLAN 70). See
-  [Aster-Operations.md](../Aster-Operations.md). This project should reuse
+  [Aster-Operations.md](../reference/Aster-Operations.md). This project should reuse
   that endpoint for summarization rather than standing up a second model —
   the same pattern the News Aggregator (MuckScraper) and its Phase 2 digest
   already established with their own dedicated `aster-llama` API key. See
@@ -540,7 +540,7 @@ Not applicable — project has not started.
 
 - [Project Creation Standard](../Project-Creation-Standard.md)
 - [Project portfolio](README.md)
-- [Aster Operations](../Aster-Operations.md) — `aster-llama` endpoint detail
+- [Aster Operations](../reference/Aster-Operations.md) — `aster-llama` endpoint detail
 - [Aster Sysadmin Second-Brain](completed%20projects/Aster-Sysadmin-Second-Brain.md) — source-local reader / sanitized report pattern
 - [Aster Home Assistant Advisor](completed%20projects/Aster-Home-Assistant.md) — strict report schema precedent
 - [News Aggregator (MuckScraper)](completed%20projects/News-Aggregator-MuckScraper.md) — `aster-llama` dedicated-key pattern, VLAN 70 placement precedent

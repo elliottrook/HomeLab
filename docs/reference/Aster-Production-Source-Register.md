@@ -118,11 +118,11 @@ the expected commit. Installed-version tags remain preferred wherever present.
 
 | Source | Authority | Disposition |
 |---|---|---|
-| `docs/ARR-Stack-Operational-Reference.md` | Reviewed lab-specific current state with exclusions | Version-import/link above generic ARR material |
-| `docs/Home-Assistant-Operational-Reference.md` | Reviewed lab-specific current state with exclusions | Version-import/link above generic Home Assistant material |
+| `docs/reference/ARR-Stack-Operational-Reference.md` | Reviewed lab-specific current state with exclusions | Version-import/link above generic ARR material |
+| `docs/reference/Home-Assistant-Operational-Reference.md` | Reviewed lab-specific current state with exclusions | Version-import/link above generic Home Assistant material |
 | `docs/Current-Network-Baseline.md` | Reviewed topology/current network baseline | Select bounded current-state sections; do not import historical secrets/config |
 | `docs/03-Hardware-Inventory.md` | Reviewed equipment identity | Use to bind manuals to exact models |
-| `docs/04-Operations.md`, `docs/05-Backups.md`, `docs/Aster-Operations.md` | Reviewed operations/recovery | Select bounded procedures and retain repository path/commit |
+| `docs/04-Operations.md`, `docs/05-Backups.md`, `docs/reference/Aster-Operations.md` | Reviewed operations/recovery | Select bounded procedures and retain repository path/commit |
 
 ## Exact-model manual candidates
 

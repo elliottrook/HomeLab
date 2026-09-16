@@ -44,7 +44,7 @@ separate scope and cross-references the advisor only to avoid duplicating it.
   standing local-AI backend: `aster-llama.service` on LXC 110
   (`192.168.70.12:11435`, OpenAI-compatible `/v1`, Qwen3.8 27B `UD-IQ4_XS` on
   an Intel Arc Pro B60 via Vulkan), bearer-authenticated, Lab VLAN 70 only
-  (`docs/Aster-Operations.md`). It already serves Aster Agent (LXC 104) and
+  (`docs/reference/Aster-Operations.md`). It already serves Aster Agent (LXC 104) and
   the completed MuckScraper news aggregator's summarizer and audio-digest
   narration.
 - Local TTS is already vetted on this exact hardware family: the MuckScraper
@@ -120,7 +120,7 @@ separate scope and cross-references the advisor only to avoid duplicating it.
   Home Assistant's own Assist/intent framework is what actually executes a
   service call, gated by the entity exposure allowlist.
 - **This project document** owns the voice-specific design, risk acceptance
-  and milestone evidence. `docs/Aster-Operations.md` and Home Assistant's own
+  and milestone evidence. `docs/reference/Aster-Operations.md` and Home Assistant's own
   configuration remain authoritative for the respective services' live state.
 
 ## Architecture and data flows (proposed)
@@ -204,7 +204,7 @@ TBD), and household members whose voice/audio is processed.
 **Current versions/dependencies:** Home Assistant Core 2026.9.1 / Supervisor
 2026.09.0 as last confirmed 2026-09-10 (re-verify before implementation, since
 this document does no live discovery); `aster-llama.service` current
-production model/version per `docs/Aster-Operations.md`.
+production model/version per `docs/reference/Aster-Operations.md`.
 
 **Confidentiality/secret-handling risks:** a new bearer key must be minted for
 the conversation agent's `aster-llama` access and stored the same way existing
@@ -369,7 +369,7 @@ assumed, and continue from the last checked milestone box.
 - [ ] **Aster mirror/snapshot** — not applicable. This project adds no new
   Aster capability or credential; the existing Aster Home Assistant advisor
   entry is unaffected and should not be edited to imply otherwise.
-- [ ] **Operational reference and runbooks** — extend `docs/Aster-Operations.md`
+- [ ] **Operational reference and runbooks** — extend `docs/reference/Aster-Operations.md`
   or a Home Assistant–specific operations page with the Assist pipeline setup,
   the dedicated key's storage location, and the disable/rollback procedure.
 - [ ] **Repository documentation** — update `docs/01-Architecture.md` and
@@ -418,7 +418,7 @@ Not applicable yet — this project has not started.
   read-only advisor this project deliberately does not duplicate or modify.
 - `docs/projects/completed projects/News-Aggregator-Audio-Digest.md` — local
   Piper TTS precedent explicitly noted there as a trial for this project.
-- `docs/Aster-Operations.md` — `aster-llama.service` endpoint, key handling
+- `docs/reference/Aster-Operations.md` — `aster-llama.service` endpoint, key handling
   and service operations reference.
 - `docs/02-IP-Addressing.md`, `docs/Network-Design.md` — current VLAN and
   device inventory used for the architecture and risk sections above.

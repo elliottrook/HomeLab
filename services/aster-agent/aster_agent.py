@@ -350,7 +350,7 @@ def _source_authority(source: str, provenance: dict[str, dict[str, Any]] | None 
         return str(provenance[source].get("authority", "unknown"))
     if source == "docs/03-Hardware-Inventory.md":
         return "current_inventory"
-    if source == "docs/Aster-Operations.md":
+    if source == "docs/reference/Aster-Operations.md":
         return "current_operations"
     return "historical_or_design"
 
@@ -377,9 +377,9 @@ def _source_bonus(
         bonus += 6
         if present_state:
             bonus += 200
-    elif source == "docs/Aster-Operations.md" and tokens.intersection(operations_terms):
+    elif source == "docs/reference/Aster-Operations.md" and tokens.intersection(operations_terms):
         bonus += 12
-    elif source == "docs/AI-Hermes-Second-Brain.md" and tokens.intersection(second_brain_terms):
+    elif source == "docs/reference/AI-Hermes-Second-Brain.md" and tokens.intersection(second_brain_terms):
         bonus += 12
     elif source.endswith("Local-AI.md") and tokens.intersection(operations_terms | hardware_terms):
         bonus += 4

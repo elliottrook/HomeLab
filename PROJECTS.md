@@ -517,7 +517,7 @@ the initial build plus this build's own final reliability follow-up and small
 deferred cleanup items.
 
 The NUT/UPS project is the one exception still tracked directly from its own
-handover document rather than a `docs/projects/` tracker: [`docs/UPS-Power-Resilience-Claude-Handover.md`](docs/UPS-Power-Resilience-Claude-Handover.md).
+handover document rather than a `docs/projects/` tracker: [`docs/handovers/UPS-Power-Resilience-Claude-Handover.md`](docs/handovers/UPS-Power-Resilience-Claude-Handover.md).
 
 # Completed Post-Build Enhancement
 

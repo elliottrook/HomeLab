@@ -228,17 +228,19 @@ class AsterAgentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             docs = root / "docs"
+            reference = docs / "reference"
             projects = docs / "projects" / "completed projects"
+            reference.mkdir(parents=True)
             projects.mkdir(parents=True)
             (docs / "03-Hardware-Inventory.md").write_text(
                 "The current B60 GPU uses Vulkan because its physical BAR is 256 MB.",
                 encoding="utf-8",
             )
-            (docs / "Aster-Operations.md").write_text(
+            (reference / "Aster-Operations.md").write_text(
                 "LXC 104 runs the Aster API. LXC 110 runs llama.cpp with Qwen3.8-27B.",
                 encoding="utf-8",
             )
-            (docs / "AI-Hermes-Second-Brain.md").write_text(
+            (reference / "AI-Hermes-Second-Brain.md").write_text(
                 "Implementation tasks: the unfinished second brain task is a restore test.",
                 encoding="utf-8",
             )
@@ -253,16 +255,17 @@ class AsterAgentTests(unittest.TestCase):
             )
             sources = [item["source"] for item in result["results"]]
             self.assertEqual(sources[0], "docs/03-Hardware-Inventory.md")
-            self.assertIn("docs/Aster-Operations.md", sources)
-            self.assertIn("docs/AI-Hermes-Second-Brain.md", sources)
+            self.assertIn("docs/reference/Aster-Operations.md", sources)
+            self.assertIn("docs/reference/AI-Hermes-Second-Brain.md", sources)
             self.assertIn("docs/projects/completed projects/Local-AI.md", sources)
 
     def test_operational_source_has_distinct_authority(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             docs = root / "docs"
-            docs.mkdir()
-            (docs / "Aster-Operations.md").write_text(
+            reference = docs / "reference"
+            reference.mkdir(parents=True)
+            (reference / "Aster-Operations.md").write_text(
                 "LXC 104 runs the Aster service with the Qwen model.", encoding="utf-8"
             )
             result = search_knowledge("Aster LXC model", root=root)
@@ -371,15 +374,17 @@ class AsterAgentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             docs = root / "docs"
+            reference = docs / "reference"
             projects = docs / "projects" / "completed projects"
+            reference.mkdir(parents=True)
             projects.mkdir(parents=True)
             filler = "Aster LXC inference service operational notes. " * 40
-            (docs / "Aster-Operations.md").write_text(
+            (reference / "Aster-Operations.md").write_text(
                 f"{filler}\n\n## Runtime configuration\n"
                 "LXC 110 runs llama.cpp with Qwen3.8-27B UD-IQ4_XS and Vulkan.\n",
                 encoding="utf-8",
             )
-            (docs / "AI-Hermes-Second-Brain.md").write_text(
+            (reference / "AI-Hermes-Second-Brain.md").write_text(
                 f"Second brain task discussion. {filler}\n\n## Implementation tasks\n"
                 "- [x] Pilot retrieval.\n- [ ] Define the knowledge boundary.\n"
                 "- [ ] Test backup and restore.\n- [ ] Establish a monthly health review.\n",
@@ -396,10 +401,10 @@ class AsterAgentTests(unittest.TestCase):
                 root=root,
             )
             excerpts = {item["source"]: item["excerpt"] for item in result["results"]}
-            self.assertIn("Qwen3.8-27B", excerpts["docs/Aster-Operations.md"])
-            self.assertIn("Define the knowledge boundary", excerpts["docs/AI-Hermes-Second-Brain.md"])
-            self.assertIn("Test backup and restore", excerpts["docs/AI-Hermes-Second-Brain.md"])
-            self.assertIn("Establish a monthly health review", excerpts["docs/AI-Hermes-Second-Brain.md"])
+            self.assertIn("Qwen3.8-27B", excerpts["docs/reference/Aster-Operations.md"])
+            self.assertIn("Define the knowledge boundary", excerpts["docs/reference/AI-Hermes-Second-Brain.md"])
+            self.assertIn("Test backup and restore", excerpts["docs/reference/AI-Hermes-Second-Brain.md"])
+            self.assertIn("Establish a monthly health review", excerpts["docs/reference/AI-Hermes-Second-Brain.md"])
             self.assertIn("256 MB BAR", excerpts["docs/projects/completed projects/Local-AI.md"])
 
     def test_arr_reference_prefers_inventory_and_automation_sections(self):
@@ -480,7 +485,8 @@ class AsterAgentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             docs = root / "docs"
-            docs.mkdir()
+            reference = docs / "reference"
+            reference.mkdir(parents=True)
             prelude = "Second brain safeguards and implementation context. " * 20
             checklist = "\n".join(
                 [
@@ -494,7 +500,7 @@ class AsterAgentTests(unittest.TestCase):
                     "- [ ] Define document capture.",
                 ]
             )
-            (docs / "AI-Hermes-Second-Brain.md").write_text(
+            (reference / "AI-Hermes-Second-Brain.md").write_text(
                 f"{prelude}\n{checklist}\n", encoding="utf-8"
             )
             result = search_knowledge(
@@ -505,7 +511,7 @@ class AsterAgentTests(unittest.TestCase):
             self.assertTrue(result["results"])
             self.assertEqual(
                 {item["source"] for item in result["results"]},
-                {"docs/AI-Hermes-Second-Brain.md"},
+                {"docs/reference/AI-Hermes-Second-Brain.md"},
             )
             combined = " ".join(item["excerpt"] for item in result["results"])
             self.assertIn("Define the knowledge boundary", combined)

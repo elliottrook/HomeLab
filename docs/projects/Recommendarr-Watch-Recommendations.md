@@ -24,7 +24,7 @@ Jellyfin/Plex." That is stale: per the completed
 [Plex-to-Jellyfin Media Migration](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
 (closed 2026-09-01), Plex's source media was deleted with Jason's explicit
 approval and Plex is confirmed **stopped**. The current authoritative service
-inventory, `docs/ARR-Stack-Operational-Reference.md` (reviewed 2026-09-09),
+inventory, `docs/reference/ARR-Stack-Operational-Reference.md` (reviewed 2026-09-09),
 lists only Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd and Jellyfin as the
 current Docker-hosted media stack on TrueNAS (`192.168.20.40`) — Plex is not
 in it. This project therefore sources recommendations from **Jellyfin**
@@ -272,7 +272,7 @@ checklist below.
 
 This document is the durable checkpoint. No implementation state exists yet.
 On resume: re-read this document, the current ARR operational reference and
-`docs/Aster-Operations.md` for any drift since 2026-09-15, confirm no open
+`docs/reference/Aster-Operations.md` for any drift since 2026-09-15, confirm no open
 decision above has been silently assumed, and continue from the last checked
 milestone box.
 
@@ -364,7 +364,7 @@ milestone box.
   be able to *discuss* recommendations conversationally, that is a separate,
   explicitly scoped extension, not assumed here.
 - [ ] **Operational reference and runbooks** — extend
-  `docs/ARR-Stack-Operational-Reference.md` only if the new reader changes
+  `docs/reference/ARR-Stack-Operational-Reference.md` only if the new reader changes
   any current-state fact about Sonarr/Radarr/Jellyfin's read access; otherwise
   add a dedicated operations note for the new reader/consumer, keeping the ARR
   reference's own excluded-fields boundary (no titles) intact and unchanged.
@@ -412,7 +412,7 @@ Not applicable yet — this project has not started.
 
 - `docs/Project-Creation-Standard.md` — lab ethos, authorization streams, risk
   assessment and template requirements this document follows.
-- `docs/ARR-Stack-Operational-Reference.md` — current authoritative media
+- `docs/reference/ARR-Stack-Operational-Reference.md` — current authoritative media
   stack inventory, versions and the existing ARR sanitized-reader precedent
   this project extends rather than duplicates.
 - `docs/projects/completed projects/Plex-to-Jellyfin-Media-Migration.md` —
@@ -421,7 +421,7 @@ Not applicable yet — this project has not started.
 - `docs/projects/completed projects/Aster-Arr-Stack-Manager.md` — the
   source-local reader / sanitized-report / execution-broker pattern this
   project's architecture follows.
-- `docs/Aster-Operations.md` — `aster-llama.service` endpoint and key-handling
+- `docs/reference/Aster-Operations.md` — `aster-llama.service` endpoint and key-handling
   reference.
 - `docs/projects/completed projects/News-Aggregator-MuckScraper.md` — the
   most recent precedent for a new unprivileged Lab VLAN 70 consumer LXC using

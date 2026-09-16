@@ -45,7 +45,7 @@ request, or a candidate future integration explicitly scoped later.
   genre/tag data it holds) is a confirmed, already-used read surface — the
   existing Jellyfin-Library-Integrity-Automation project already reuses
   Lidarr's API key read-only for its scatter/duplicate detection, and
-  [ARR-Stack-Operational-Reference.md](../ARR-Stack-Operational-Reference.md)
+  [ARR-Stack-Operational-Reference.md](../reference/ARR-Stack-Operational-Reference.md)
   documents the established pattern for scoping ARR-adjacent access
   read-only rather than touching its database directly.
 - The Music Playlist Acquisition Bridge project
@@ -112,7 +112,7 @@ anything and does not write back to either source.
 
 **Source-local least-privilege readers, not raw database access**, matching
 the pattern already established for Aster's ARR-adjacent work
-(`docs/ARR-Stack-Operational-Reference.md`) and Jellyfin-Library-Integrity-
+(`docs/reference/ARR-Stack-Operational-Reference.md`) and Jellyfin-Library-Integrity-
 Automation's own Jellyfin/Lidarr API usage: a dedicated Jellyfin API key
 scoped to read-only Library/Items (and play-history endpoints, if they
 exist) and reuse of Lidarr's existing read-only key. No direct SQLite/
@@ -355,8 +355,8 @@ Not applicable — proposal stage only.
 
 - [Project Creation Standard](../Project-Creation-Standard.md)
 - [Jellyfin library integrity automation](Jellyfin-Library-Integrity-Automation.md)
-- [ARR Stack Operational Reference](../ARR-Stack-Operational-Reference.md)
+- [ARR Stack Operational Reference](../reference/ARR-Stack-Operational-Reference.md)
 - [Music playlist acquisition bridge](Music-Playlist-Acquisition-Bridge.md)
-- [Aster Operations — shared `aster-llama` endpoint](../Aster-Operations.md)
+- [Aster Operations — shared `aster-llama` endpoint](../reference/Aster-Operations.md)
 - [Jellyfin API documentation](https://api.jellyfin.org/)
 - [Lidarr API documentation](https://lidarr.audio/docs/api/)

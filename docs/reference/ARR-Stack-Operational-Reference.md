@@ -19,7 +19,7 @@ The 2026-09-09 review used, in descending order of present-state authority:
 2. Aster's schema-validated aggregate report generated at
    `2026-09-09T20:40:01Z` for a point-in-time health/queue snapshot;
 3. TrueNAS middleware metadata for enabled Cron Jobs 2–5;
-4. `docs/04-Operations.md`, `docs/Aster-Operations.md`, and the relevant
+4. `docs/04-Operations.md`, `docs/reference/Aster-Operations.md`, and the relevant
    project decision records for canonical roots, relationships and tested
    behavior.
 

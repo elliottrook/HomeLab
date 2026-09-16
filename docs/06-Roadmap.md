@@ -18,7 +18,7 @@
 - [x] [Local AI](<projects/completed projects/Local-AI.md>)
 - [ ] [Authentik service rollout](projects/Authentik-Rollout.md)
 - [ ] [Surveillance expansion](projects/Surveillance-Expansion.md)
-- [ ] [NUT/UPS deployment](UPS-Power-Resilience-Claude-Handover.md)
+- [ ] [NUT/UPS deployment](handovers/UPS-Power-Resilience-Claude-Handover.md)
 - [ ] [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)
 - [x] [Video library archiving](<projects/completed projects/Video-Library-Archiving.md>)
 - [x] [NetBox DCIM / rack & asset management](<projects/completed projects/NetBox-DCIM.md>)

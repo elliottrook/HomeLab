@@ -369,5 +369,5 @@ Not applicable — proposal stage only.
 - [Plex-to-Jellyfin media migration](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
 - [Jellyfin library integrity automation](Jellyfin-Library-Integrity-Automation.md)
 - [Video library archiving](<completed projects/Video-Library-Archiving.md>)
-- [Aster Operations — shared `aster-llama` endpoint](../Aster-Operations.md)
+- [Aster Operations — shared `aster-llama` endpoint](../reference/Aster-Operations.md)
 - [Jellyfin API documentation](https://api.jellyfin.org/)

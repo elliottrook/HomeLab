@@ -49,7 +49,7 @@ in this lab:
   early (before a `REMUX`/`4K`/well-encoded release existed) can sit
   indefinitely at a lower quality than what's now obtainable, with nothing
   in the current pipeline ever re-checking it — Radarr/Sonarr's own upgrade
-  logic ([ARR-Stack-Operational-Reference.md](../ARR-Stack-Operational-Reference.md))
+  logic ([ARR-Stack-Operational-Reference.md](../reference/ARR-Stack-Operational-Reference.md))
   only fires on a **quality profile cutoff**, which is a per-title,
   human-configured setting, not a library-wide sweep for "is something
   measurably better available now."
@@ -98,7 +98,7 @@ buy-in is based on a real number rather than a guess.
   quality profile, `mediaInfo` bitrate/video codec) through their APIs,
   already used read-only by this session's Aster ARR-manager work and by
   Video-Library-Archiving's own `Probe`/candidate logic
-  ([ARR-Stack-Operational-Reference.md](../ARR-Stack-Operational-Reference.md)).
+  ([ARR-Stack-Operational-Reference.md](../reference/ARR-Stack-Operational-Reference.md)).
   This is the natural source of quality facts for the current-library half
   of this project's scope.
 - Archive Movies/Archive TV are **not** tracked by Radarr/Sonarr at all (they
@@ -284,7 +284,7 @@ noisy one.
   no personal data beyond media titles already visible in Radarr/Sonarr.
 - **Current versions/dependencies/known consumers:** Radarr 6.3.0.10514,
   Sonarr 4.0.19.2979 (per
-  [ARR-Stack-Operational-Reference.md](../ARR-Stack-Operational-Reference.md));
+  [ARR-Stack-Operational-Reference.md](../reference/ARR-Stack-Operational-Reference.md));
   no new dependency needed beyond `ffprobe`, already installed and trusted
   via the Jellyfin container.
 - **Confidentiality/secret-handling risk:** low — same as sibling projects;
@@ -476,7 +476,7 @@ No implementation work has occurred; this document is the initial proposal.
 
 - [Jellyfin Library Integrity Automation — sibling project, its explicit out-of-scope statement and design principle this charter must reckon with](Jellyfin-Library-Integrity-Automation.md)
 - [Video Library Archiving — Shawshank incidental-duplicate finding, GPU/scheduling precedent to avoid colliding with](<completed projects/Video-Library-Archiving.md>)
-- [ARR Stack Operational Reference — Radarr/Sonarr quality metadata and canonical library roots](../ARR-Stack-Operational-Reference.md)
+- [ARR Stack Operational Reference — Radarr/Sonarr quality metadata and canonical library roots](../reference/ARR-Stack-Operational-Reference.md)
 - [Plex-to-Jellyfin media migration — Archive Movies/Archive TV provenance](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
 - [04-Operations.md — library paths and video-archiver operational details](../04-Operations.md)
 - [HomeLab Project Creation Standard](../Project-Creation-Standard.md)

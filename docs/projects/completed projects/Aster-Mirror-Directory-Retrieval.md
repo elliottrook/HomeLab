@@ -639,7 +639,7 @@ Graduated 2026-09-15. Directory-first retrieval is activated, owned by Jason,
 monitored by the existing monthly corpus-health and strengthened Doctor paths,
 and recoverable from the retained locations in the Persistence plan. VM 105 is
 a stopped disk/config rollback with on-demand-only B60 attachment; the exact
-attach/detach sequence is in `docs/Aster-Operations.md`. Sub-source topic
+attach/detach sequence is in `docs/reference/Aster-Operations.md`. Sub-source topic
 clustering remains deliberately deferred until a future corpus scale-up shows
 that it is needed. Four collector sources remain quarantined on reviewed-commit
 mismatch and must be reviewed before their next content can be accepted; the

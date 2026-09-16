@@ -201,7 +201,7 @@ cover the same ground automatically, and Beszel shows the Lenovo's own
 host-level metrics (not UPS-specific data) in its dashboard.
 
 Full architecture, shutdown behavior and recovery notes:
-[UPS-Power-Resilience-Claude-Handover.md](UPS-Power-Resilience-Claude-Handover.md).
+[UPS-Power-Resilience-Claude-Handover.md](handovers/UPS-Power-Resilience-Claude-Handover.md).
 
 ## Activity log — 2026-09-02
 
@@ -259,7 +259,7 @@ The Homepage operations dashboard and its editing workflow were reviewed and val
 
 The dashboard now acts as an operational overview of the current HomeLab service layer.
 
-![Homepage dashboard on 2026-08-22](homepage-dashboard-2026-08-22.png)
+![Homepage dashboard on 2026-08-22](images/homepage-dashboard-2026-08-22.png)
 
 ## Network incident — 2026-08-23
 

@@ -41,7 +41,7 @@ built, and nothing here is authorized for implementation.
   (`aster-llama.service` on LXC 110, `192.168.70.12:11435`, OpenAI-compatible
   `/v1/chat/completions`, currently `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS` via
   llama.cpp/Vulkan on an Intel Arc Pro B60 GPU, bearer-key authenticated,
-  Lab VLAN 70 only). See [Aster-Operations.md](../Aster-Operations.md). Any
+  Lab VLAN 70 only). See [Aster-Operations.md](../reference/Aster-Operations.md). Any
   local-LLM step in this project (briefing text generation, action-item
   extraction) should reuse this endpoint via a dedicated API key, matching
   the News Aggregator precedent, rather than deploying a second model.
@@ -562,7 +562,7 @@ Not applicable — project has not started.
 
 - [Project Creation Standard](../Project-Creation-Standard.md)
 - [Project portfolio](README.md)
-- [Aster Operations](../Aster-Operations.md) — `aster-llama` endpoint detail
+- [Aster Operations](../reference/Aster-Operations.md) — `aster-llama` endpoint detail
 - [Aster Sysadmin Second-Brain](completed%20projects/Aster-Sysadmin-Second-Brain.md) — source-local reader / sanitized report pattern
 - [Aster Home Assistant Advisor](completed%20projects/Aster-Home-Assistant.md) — strict report schema precedent
 - [News Aggregator (MuckScraper)](completed%20projects/News-Aggregator-MuckScraper.md) — `aster-llama` dedicated-key pattern, VLAN 70 placement, pipeline-under-one-timer precedent

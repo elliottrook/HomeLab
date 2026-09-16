@@ -56,7 +56,7 @@ concrete, evidence-grounded motivations are:
 
 - Media stack (Jellyfin, Plex, Sonarr, Radarr, Lidarr, Prowlarr, Seerr, plus
   SABnzbd) runs as Docker containers on TrueNAS at `192.168.20.40`
-  ([ARR-Stack-Operational-Reference.md](../ARR-Stack-Operational-Reference.md)).
+  ([ARR-Stack-Operational-Reference.md](../reference/ARR-Stack-Operational-Reference.md)).
   Radarr owns `/mnt/Media/data/media/movies`, Sonarr owns
   `/mnt/Media/data/media/tv`; Jellyfin only observes files after ARR import —
   it has no downloader/file authority. Archive Movies/Archive TV are outside
@@ -66,7 +66,7 @@ concrete, evidence-grounded motivations are:
   110 (`192.168.70.12:11435`, OpenAI-compatible `/v1` API, model
   `aster-qwen3.8-27b` / `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS`, Vulkan on the
   Intel Arc Pro B60 24GB, bearer-auth, Lab VLAN 70 —
-  [Aster-Operations.md](../Aster-Operations.md),
+  [Aster-Operations.md](../reference/Aster-Operations.md),
   [02-IP-Addressing.md](../02-IP-Addressing.md)). This is a text LLM
   endpoint, not a speech-to-text model — it cannot itself run Whisper, though
   it could plausibly be reused later for a translation pass over
@@ -438,7 +438,7 @@ No implementation work has occurred; this document is the initial proposal.
 - [Video Library Archiving — subtitle/audio track-dropping design and A380 GPU evidence](<completed projects/Video-Library-Archiving.md>)
 - [Jellyfin Library Integrity Automation — sibling project's dry-run/report/apply precedent](Jellyfin-Library-Integrity-Automation.md)
 - [Local AI — B60 GPU capacity, BAR/passthrough constraints, aster-llama service](<completed projects/Local-AI.md>)
-- [Aster Operations — aster-llama.service endpoint and model details](../Aster-Operations.md)
-- [ARR Stack Operational Reference — canonical library roots and service authority](../ARR-Stack-Operational-Reference.md)
+- [Aster Operations — aster-llama.service endpoint and model details](../reference/Aster-Operations.md)
+- [ARR Stack Operational Reference — canonical library roots and service authority](../reference/ARR-Stack-Operational-Reference.md)
 - [04-Operations.md — video-archiver operational details this project must not collide with](../04-Operations.md)
 - [HomeLab Project Creation Standard](../Project-Creation-Standard.md)

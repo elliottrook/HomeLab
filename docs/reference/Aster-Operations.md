@@ -146,7 +146,7 @@ modes. The builder includes
 private backups, credentials or unreviewed external documents to the snapshot.
 
 The graduated ARR curriculum is sourced from
-`docs/ARR-Stack-Operational-Reference.md` and deployed as
+`docs/reference/ARR-Stack-Operational-Reference.md` and deployed as
 `reference/operations/arr-stack.md`. Its provenance entry must remain
 `current-with-exclusions` with a review date. Focused tests cover installed
 versions and ports, canonical roots and handoff semantics, scheduled mutation
@@ -430,7 +430,7 @@ prompt/tool configuration is substantially slower than Aster.
   the SYCL/BAR constraint, the first unfinished second-brain task and the stale
   Ollama wording in `docs/projects/completed projects/Local-AI.md`.
 - A focused checklist query returned the first three unchecked tasks in order
-  from `docs/AI-Hermes-Second-Brain.md`, with no emitted tool-call markup.
+  from `docs/reference/AI-Hermes-Second-Brain.md`, with no emitted tool-call markup.
 - The focused checklist run processed 951 prompt tokens at 77.8 tokens/second
   and decoded at 4.9 tokens/second after B60-to-`xe` binding was restored.
 

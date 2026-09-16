@@ -405,5 +405,5 @@ Not applicable — proposal stage only.
 - [`docs/04-Operations.md` — "Calibre and Audiobookshelf (2026-09-05)"](../04-Operations.md)
 - [Music Recommender proposal](Music-Recommender.md)
 - [Jellyfin library integrity automation](Jellyfin-Library-Integrity-Automation.md)
-- [Aster Operations — shared `aster-llama` endpoint](../Aster-Operations.md)
+- [Aster Operations — shared `aster-llama` endpoint](../reference/Aster-Operations.md)
 - [Audiobookshelf API documentation](https://api.audiobookshelf.org/)

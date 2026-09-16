@@ -73,7 +73,7 @@ scoped in detail, or measured.
   summarization already exists and is production: `aster-llama.service` in
   LXC 110 at `http://192.168.70.12:11435/v1` (OpenAI-compatible chat
   completions), currently `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS` via
-  llama.cpp/Vulkan — see [Aster-Operations.md](../../Aster-Operations.md). This
+  llama.cpp/Vulkan — see [Aster-Operations.md](../../reference/Aster-Operations.md). This
   project would call that endpoint as a separate client; it would not modify
   Aster's own bounded function allowlist or become part of Aster's curriculum.
 - Lab VLAN 70 already hosts the AI-adjacent workloads (Aster LXC 104, the
@@ -703,7 +703,7 @@ accepts the residual limitations of the bias-labeling approach.
 
 - [News Aggregator Phase 2 — Digest, Sections and Source Requests](News-Aggregator-Digest-and-Sections.md) (successor project)
 - [Project Creation Standard](../../Project-Creation-Standard.md)
-- [Aster Operations](../../Aster-Operations.md)
+- [Aster Operations](../../reference/Aster-Operations.md)
 - [Local AI](Local-AI.md)
 - [Jellyfin Library Integrity Automation](../Jellyfin-Library-Integrity-Automation.md) (credential-storage precedent)
 - [Aster Offline Knowledge Wiki and Mirror](Aster-Offline-Knowledge-Wiki.md) (authentication-decision and diagrams/rack-records precedent)

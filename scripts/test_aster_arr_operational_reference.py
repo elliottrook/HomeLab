@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCE = ROOT / "docs/ARR-Stack-Operational-Reference.md"
+REFERENCE = ROOT / "docs/reference/ARR-Stack-Operational-Reference.md"
 MANIFEST = ROOT / "services/aster-agent/knowledge-sources.json"
 
 
@@ -66,7 +66,7 @@ class ArrOperationalReferenceTests(unittest.TestCase):
             matches,
             [{
                 "repository": "homelab",
-                "path": "docs/ARR-Stack-Operational-Reference.md",
+                "path": "docs/reference/ARR-Stack-Operational-Reference.md",
                 "destination": "reference/operations/arr-stack.md",
                 "authority": "current-with-exclusions",
             }],
