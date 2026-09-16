@@ -298,14 +298,57 @@ All milestones are proposed and unchecked. None has been started.
 
 - [x] Jason decided 2026-09-15: one project (not split) — Paperless
       deployment proceeds as this project's own Milestone 1.
-- [ ] Deploy Paperless-ngx (or confirm an equivalent target) on Lab VLAN 70,
-      matching the standard unprivileged-LXC placement pattern.
-- [ ] Size and provision storage against a real estimate of document
-      volume; confirm backup coverage for the document archive before any
-      real (non-synthetic) document is ingested.
-- [ ] Confirm Paperless's actual OCR pipeline, API surface, webhook/
-      notification support, and token permission granularity against the
-      real deployed version — do not assume from general product knowledge.
+- [x] Deployed Paperless-ngx 2026-09-15: new unprivileged LXC 115
+      (`paperless-ngx`), Lab VLAN 70, `192.168.70.14`, matching the LXC
+      113/114 convention (2 cores, 2048 MB memory, 512 MB swap, Debian 13,
+      `keyctl=1,nesting=1` features). Docker CE 29.8.1 + Compose v5.5.1
+      installed inside the LXC; Paperless-ngx deployed via its official
+      `docker-compose.sqlite.yml` (broker: Valkey 9-alpine; webserver:
+      `ghcr.io/paperless-ngx/paperless-ngx:latest`, SQLite backend) under
+      `/opt/paperless-ngx`, matching this lab's `/opt/<name>` placement
+      convention for Lab VLAN 70 services. A fresh `PAPERLESS_SECRET_KEY`
+      was generated server-side; an initial echo of it into command output
+      was caught and the key was silently rotated before proceeding (same
+      root-cause pattern as prior credential-exposure incidents in this
+      repo — see `CLAUDE.md`'s NUT project history). `PAPERLESS_TIME_ZONE`
+      set to `America/Vancouver` to match the Proxmox host's own timezone
+      (guest OS itself defaults to UTC, matching LXC 113/114). A superuser
+      account (`jason`) was created with a random temporary password
+      stored only at `/root/.paperless-temp-password` (mode 600) on LXC
+      115 — never displayed in this session; retrieve it via `pct exec 115
+      -- cat /root/.paperless-temp-password` and change it immediately on
+      first login.
+- [x] Storage: 32 GB `local-lvm` rootfs (10x+ headroom over a typical
+      household OCR'd-PDF document archive; resizable later if needed).
+      Paperless's `data`/`media`/`redisdata` are Docker named volumes,
+      which live under the LXC's own rootfs, so they ride the existing
+      **same-site nightly Proxmox backup** automatically — confirmed via
+      `/etc/pve/jobs.cfg`'s active `vzdump` job, which backs up `all`
+      guests (LXC 115 needed no separate job entry). **Off-site mirror
+      coverage (Backup Synology / IDrive e2) has not yet been verified for
+      this specific guest** and remains the hard gate before any real
+      (non-synthetic) document is ingested, per this document's own
+      Backup/restore/rollback section — do not ingest real documents until
+      that is confirmed.
+- [x] Confirmed live, not assumed: consume-folder ingestion and the OCR
+      pipeline both work end-to-end — a synthetic image-based test
+      document (`synthetic-ocr-test.png`, generated via ImageMagick,
+      clearly labelled, not a real document) dropped into
+      `/opt/paperless-ngx/consume/` was picked up, OCR'd via the
+      container's bundled Tesseract, and its extracted text matched the
+      source image (minor expected OCR noise: "HomeLab" read as
+      "o9meLab"). Deleted immediately after confirming (`Document.objects
+      .all().delete()`), consistent with this lab's synthetic-test-cleanup
+      convention. Confirmed the DRF token-auth endpoint (`/api/token/`)
+      exists and responds (HTTP 400 to an empty POST, i.e. present and
+      correctly validating, not 404). **Real finding for Milestone 2's
+      design:** Paperless-ngx's token auth is tied to a user account's own
+      Django permissions (no separate fine-grained API scope concept) —
+      the planned least-privilege reader needs its own dedicated
+      non-superuser account with only `view_*` permissions granted, not a
+      scoped token on the `jason` superuser account. Webhook/consumption-
+      finished-hook support not yet confirmed against this specific
+      deployed version — deferred to Milestone 2.
 
 ### Milestone 2 — Read-only integration design
 
@@ -465,7 +508,21 @@ evidence.
 
 ## Evidence log
 
-No implementation work has occurred; this document is the initial proposal.
+| Date | Milestone | Evidence | Result | Operator |
+|---|---|---|---|---|
+| 2026-09-15 | 1 | Created LXC 115 (`paperless-ngx`) on Lab VLAN 70 at `192.168.70.14`, matching LXC 113/114 convention; installed Docker CE 29.8.1 + Compose v5.5.1; deployed Paperless-ngx via its official SQLite compose file under `/opt/paperless-ngx` | `docker compose ps` showed both `broker` and `webserver` containers `Up`/`healthy`; `curl http://localhost:8000/api/` returned HTTP 302 (expected unauthenticated redirect, confirms webserver responding) | Claude |
+| 2026-09-15 | 1 | Generated `PAPERLESS_SECRET_KEY` server-side; caught it echoing into command output and rotated it before proceeding, without displaying the new value | New key confirmed present (108-char env line), never displayed in this session | Claude |
+| 2026-09-15 | 1 | Created superuser account `jason` via non-interactive `createsuperuser`, with a random temporary password stored only at `/root/.paperless-temp-password` (mode 600) on LXC 115 | `User.objects.all()` confirmed `['AnonymousUser', 'jason']`; password never displayed in this session | Claude |
+| 2026-09-15 | 1 | Confirmed same-site backup coverage: checked `/etc/pve/jobs.cfg`'s active `vzdump` job configuration directly rather than assuming | Active job has `all 1` (backs up every guest); LXC 115 needed no separate entry | Claude |
+| 2026-09-15 | 1 | End-to-end OCR pipeline smoke test: generated a clearly-labelled synthetic image (`synthetic-ocr-test.png` via ImageMagick) with known text, dropped it into the consume folder, polled for ingestion | Ingested and OCR'd within one 10s poll interval; extracted text matched the source image (minor expected OCR noise on "HomeLab"); deleted immediately after confirming (0 documents remaining) | Claude |
+| 2026-09-15 | 1 | Confirmed the DRF token-auth API surface exists (`POST /api/token/`) and investigated its permission model rather than assuming from general product knowledge | HTTP 400 on empty POST confirms the endpoint is live and validating; found token auth is tied to a user's own Django permissions, not a separate scope system — recorded as a real Milestone 2 design input (dedicated view-only user account needed, not a scoped token on `jason`) | Claude |
+
+**Not yet done, explicitly flagged rather than silently skipped:** off-site
+backup mirror verification for LXC 115 (hard gate before real documents),
+NetBox entry, DNS name, Homepage tile, the narrow `MGMT_ADMIN_HOSTS`-style
+firewall rule for admin access, webhook/consumption-hook support
+confirmation, and individual-account/MFA enforcement beyond the single
+`jason` superuser created so far.
 
 ## References
 
