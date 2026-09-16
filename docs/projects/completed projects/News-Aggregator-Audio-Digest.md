@@ -194,6 +194,18 @@ same tool.
       retained generation really is an independent full copy. Jason
       decided to leave the whole-guest backup as-is given the volume is
       negligible either way.
+      **Revisited 2026-09-16**: despite the measured footprint being
+      negligible, Jason asked to stop retaining old audio in backups at
+      all. Added `exclude-path` to the shared all-guests backup job
+      (`backup-49999802-1365`) via `pvesh set /cluster/backup/...`,
+      anchored to `/opt/news-aggregator/static/digest-audio/latest.mp3`
+      specifically — the leading `/` anchors it to each container's own
+      root, so it can only ever match inside LXC 114 (no other guest has
+      that path), not a collision risk against the other 13 guests this
+      same job also backs up. `latest.json` (121 bytes) is deliberately
+      not excluded — it's negligible and useful metadata. `news.db`
+      remains fully backed up; it is a real system of record, unlike the
+      regeneratable audio file.
 - [x] **NetBox** — not applicable; no new guest, VM, or interface.
 - [x] **Diagrams/rack records** — not applicable; no new guest.
 - [x] **Homepage/service discovery** — not applicable; no new tile needed,
@@ -238,6 +250,7 @@ HomeLab Doctor has real coverage for a silent Piper/ffmpeg failure.
 | 2026-09-16 | Post-graduation refinement | Jason listened to a real full recording and asked for: an intro naming the briefing/date, a pause or bridge between stories, a short outro, and an English male voice. Rebuilt `audio_digest.py` to synthesize intro/each story/outro as separate Piper calls joined by a fixed 1-second silence clip (`ffmpeg anullsrc`, format-matched to Piper's probed `pcm_s16le`/22050 Hz/mono output for lossless `-c copy` concatenation) instead of one continuous Piper call | New logic verified via `py_compile` before running against real data |
 | 2026-09-16 | Voice candidates generated and rejected | Downloaded `en_US-ryan-medium` and `en_GB-alan-medium` from the same Hugging Face source as the original voice; generated real samples of both narrating the actual latest 13-story digest with the new intro/pause/outro structure, to a non-production test directory (`--voice-model`/`--out-dir` overrides added to the script for exactly this); sent both to Jason before changing anything live. Jason: "Don't like either voice. Let's just go with the original. Don't change the voice." | Both candidate `.onnx`/`.onnx.json` files and their `/tmp` test-output directories deleted; production voice (`en_US-lessac-medium`) never changed |
 | 2026-09-16 | Production redeployed and verified | Backed up the pre-change script to `audio_digest.py.bak-pre-intro-pause-outro` (rollback point, kept — not deleted), promoted the new version to `audio_digest.py`, ran it for real against the live `news.db` (13 stories, digest_run `2026-09-16T12:15:57Z`). Verified live rather than assumed: `latest.json` matches the real digest_run and story count; `curl` against the actual gunicorn bind (`192.168.70.13:8080`, found by reading the real systemd unit rather than guessing a port) confirmed `/digest` returns HTTP 200 and `/static/digest-audio/latest.mp3` serves the new 4,639,976-byte file | Live and confirmed serving correctly; `run_digest.sh`/the existing 05:15/17:15 timer needed no changes since the entry point filename didn't change |
+| 2026-09-16 | Backup exclusion revisited | Confirmed on the live host first, not assumed: the audio file already only ever exists as one overwritten `latest.mp3`, no history accumulates on disk. Jason's actual concern was backup-generation bloat, previously investigated and accepted as negligible (~30-60MB total) — he asked to exclude it anyway. Read `man vzdump`'s `--exclude-path` documentation and the live `/cluster/backup` job list via `pvesh` before changing anything, rather than guessing at Proxmox's exclusion mechanism. Added `/opt/news-aggregator/static/digest-audio/latest.mp3` as an anchored `exclude-path` on the shared all-guests job via `pvesh set /cluster/backup/backup-49999802-1365` | Verified with a real manual `vzdump 114` test run (not assumed from the config alone): `tar -tvf` on the resulting archive confirmed `latest.mp3` genuinely absent while `news.db`, `app.py`, and the small `latest.json` were all still present. Test archive deleted afterward via `pvesm free`; the pre-existing 02:44 automatic backup from earlier that same morning still contains the (pre-change) audio file, as expected — tomorrow's 02:30 run is the first to benefit |
 
 ## References
 
