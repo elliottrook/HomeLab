@@ -1,0 +1,11 @@
+# /etc/sudoers.d/homelab-broker
+# Install with: visudo -cf this-file  (to lint), then copy to /etc/sudoers.d/
+# and chmod 440 /etc/sudoers.d/homelab-broker
+#
+# Lets the agent user run ONE script, as the vault user, with NO arguments
+# beyond what the script itself parses (still pass args through normally --
+# sudo doesn't limit argument content, only which command may run).
+# This is the entire trust boundary: if this line is wrong, nothing else matters.
+
+Defaults!/usr/local/bin/hb-connect !requiretty
+hlabagent ALL=(hlabvault) NOPASSWD: /usr/local/bin/hb-connect

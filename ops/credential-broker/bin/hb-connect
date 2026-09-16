@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# hb-connect — the ONLY thing the agent user is allowed to run as the vault
+# user (enforced by /etc/sudoers.d/homelab-broker). Never invoked directly
+# by a person for day-to-day use; use `hb` as the operator, or let Claude
+# call `hb run <alias> "<cmd>"` as the agent user.
+set -euo pipefail
+
+REGISTRY="/etc/homelab-broker/hosts.json"
+VAULT_DIR="/var/lib/homelab-broker/vault"
+
+usage() {
+  echo "usage: hb-connect run <alias> <command...>"
+  echo "       hb-connect add <alias> <user@host> [--port N]   (operator only, interactive)"
+  echo "       hb-connect test <alias>"
+  exit 1
+}
+
+resolve() {
+  local alias="$1"
+  jq -er --arg a "$alias" '.[$a]' "$REGISTRY" 2>/dev/null || {
+    echo "hb-connect: unknown or unregistered alias '$alias'" >&2
+    exit 2
+  }
+}
+
+require_registered_target() {
+  local host="$1"
+  case "$host" in
+    127.*|localhost|::1)
+      echo "hb-connect: refusing loopback target" >&2
+      exit 3
+      ;;
+  esac
+}
+
+cmd="${1:-}"; shift || usage
+
+case "$cmd" in
+  run)
+    alias="${1:?alias required}"; shift
+    entry="$(resolve "$alias")"
+    host="$(jq -er '.host' <<<"$entry")"
+    user="$(jq -er '.user' <<<"$entry")"
+    port="$(jq -er '.port // 22' <<<"$entry")"
+    keyfile="$VAULT_DIR/$alias.key"
+    require_registered_target "$host"
+    [ -f "$keyfile" ] || { echo "hb-connect: no key on file for '$alias'" >&2; exit 4; }
+    # -o BatchMode: never fall back to interactive password prompt from the agent path
+    exec ssh -i "$keyfile" -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+        -p "$port" "$user@$host" -- "$*"
+    ;;
+  test)
+    alias="${1:?alias required}"
+    "$0" run "$alias" "echo ok"
+    ;;
+  add)
+    # Intended to be run BY THE OPERATOR from a real shell, not via the
+    # agent path (sudoers only grants the agent 'run'/'test' in practice --
+    # keep 'add' gated at the human/CI layer too, belt-and-braces).
+    alias="${1:?alias required}"; target="${2:?user@host required}"
+    user="${target%@*}"; host="${target#*@}"
+    port=22
+    [ "${3:-}" = "--port" ] && port="${4:?}"
+    keyfile="$VAULT_DIR/$alias.key"
+    ssh-keygen -t ed25519 -N "" -f "$keyfile" -C "hb-broker:$alias" >/dev/null
+    chmod 600 "$keyfile" "$keyfile.pub"
+    tmp="$(mktemp)"
+    jq --arg a "$alias" --arg h "$host" --arg u "$user" --argjson p "$port" \
+       '.[$a] = {host:$h, user:$u, port:$p}' "$REGISTRY" > "$tmp"
+    mv "$tmp" "$REGISTRY"
+    echo "Registered '$alias' -> $user@$host:$port"
+    echo "Paste this public key into the target's authorized_keys:"
+    cat "$keyfile.pub"
+    ;;
+  *)
+    usage
+    ;;
+esac

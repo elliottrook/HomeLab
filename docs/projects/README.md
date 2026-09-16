@@ -31,6 +31,7 @@
 | Auto-written Plex/Jellyfin collection descriptions | Proposed | [Auto-written Plex/Jellyfin collection descriptions](Auto-Collection-Descriptions.md) | Reader/generator/writer over the 165 migrated Jellyfin collections via `aster-llama`, human-reviewed dry-run plus pre-write backup given this exact metadata was twice destroyed by a Jellyfin scheduled-task bug |
 | Music recommender | Proposed | [Music recommender](Music-Recommender.md) | Read-only Jellyfin/Lidarr library-and-play-history reader producing a periodic acquisition-candidate report, never auto-acquiring; open decision is whether Jellyfin's deployed instance actually exposes usable play-history data |
 | Book recommender | Proposed | [Book recommender](Book-Recommender.md) | Starts audiobooks-only via Audiobookshelf's working REST API; e-book side is explicitly blocked pending Jason's choice between deploying Kavita/calibre-web or reading Calibre's `metadata.db` directly, since neither Kavita nor a Calibre API exists in this lab today |
+| HomeLab credential broker | Proposed — Stream M | [HomeLab credential broker](homelab-credential-broker.md) | Adapts the HomelabHero three-user privilege-separation pattern (agent user / vault user / sudoers-narrowed broker script) so an AI agent can run SSH commands against real hosts without ever holding key material; untested skeleton included, no state-changing setup run yet |
 
 ## Completed projects
 

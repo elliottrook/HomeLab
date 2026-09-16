@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# hb — convenience wrapper. As the agent user this is the ONLY path to any
+# host; sudoers restricts it to invoking hb-connect as the vault user.
+set -euo pipefail
+exec sudo -n -u hlabvault /usr/local/bin/hb-connect "$@"
