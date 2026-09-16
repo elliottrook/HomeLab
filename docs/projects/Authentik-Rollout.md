@@ -508,6 +508,41 @@ target remains an individual package.
   usable. The Homepage API token still returns 200; only the tile `href` now
   uses `https://portainer.elliottrook.com` while its widget URL remains direct.
 
+**Pi-hole primary and secondary — coordinated package:**
+- [x] Audit both live services and their access paths. Primary Pi-hole
+  `2026.05.0` is healthy in Docker LXC 100 at `192.168.20.20:8082`; secondary
+  Pi-hole `2026.07.2` is running as a TrueNAS App at
+  `192.168.20.40:20720`. Their DNS listeners on TCP/UDP 53 remain explicitly
+  outside the proxy design. Neither proposed friendly name exists yet, and
+  NPM cannot reach either web backend through the current firewall policy.
+- [x] Capture the immediate recovery checkpoint. Fresh root-only Authentik
+  PostgreSQL/Compose, NPM SQLite, OPNsense XML, both Pi-hole configurations,
+  the TrueNAS application configuration and Homepage services configuration
+  are stored in protected local backup directories with recorded hashes.
+- [x] Open exactly two NPM-to-web-UI paths, one to each existing HTTP port;
+  do not expose or alter DNS port 53. Logged TCP rules permit only NPM
+  `192.168.50.23` to primary `192.168.20.20:8082` and secondary
+  `192.168.20.40:20720`; both paths now answer from inside NPM.
+- [x] Set each Pi-hole v6 `webserver.domain` through the validated FTL CLI so
+  its future friendly Host header is accepted. Changes were applied one at a
+  time; both containers, DNS authorities and direct-IP recovery paths remained
+  healthy, and each friendly Host preflight changed from 403 to the expected
+  root-to-`/admin/` redirect.
+- [x] Create `dns1.elliottrook.com` and `dns2.elliottrook.com` as staged private
+  NPM hosts with dedicated Authentik forward-auth applications and owner-only
+  bindings. Providers 23-24 have complete strict callbacks, mappings and grants;
+  NPM hosts 16-17 pass certificate-valid pinned tests and reach Authentik's
+  login flow. OPNsense Unbound and both Pi-holes now publish both private names
+  to NPM, and normal certificate-valid requests return their same-host
+  Authentik start routes.
+- [x] Test both interfaces from a fresh private session, confirm SSO and
+  sign-out, retain direct recovery and DNS service, then change only the two
+  Homepage tile links. Keep the primary widget URL and file-backed credential
+  direct. Jason completed Authentik and the retained primary Pi-hole login,
+  reached both dashboards through one SSO session, and confirmed sign-out
+  required Authentik again. Only the two tile `href` values now use friendly
+  HTTPS; the primary widget still uses its direct v6 API and returns 200.
+
 ## Validation and evaluation
 
 - Functional: login succeeds with the correct account, fails for a denied
@@ -617,10 +652,18 @@ Milestone 2 to a safely resumable state, it does not graduate the project.
 | 2026-09-15 | Milestone 3 Portainer split DNS | With explicit Stream-M approval, added `portainer.elliottrook.com -> 192.168.50.23` to OPNsense Unbound and both Pi-hole `dns.hosts` arrays, reloading Unbound after its configuration check and restarting the redundant Pi-holes one at a time. | Passed. All three authorities independently return NPM's address; both Pi-holes are healthy. Normal certificate-valid Portainer root and friendly-Origin API requests return 200, while Homepage, Beszel, Grafana and Sonarr retain their expected responses. |
 | 2026-09-15 | Milestone 3 Portainer interactive authentication gate | Jason used Private Safari on iPhone to complete Authentik OAuth and reached the existing Portainer `admin` account and local environment. Logging out ended the Portainer session; revisiting the friendly URL required authentication again. Jason separately confirmed that the direct `https://192.168.20.20:9443` local-admin break-glass login still works. | Passed. The owner login, same-host return, session termination and local recovery path are proven. The pre-cutover Authentik policy evaluation still allows only `jason` and denies `akadmin`; automatic user creation remains disabled. |
 | 2026-09-15 | Milestone 3 Portainer Homepage cutover | With explicit Stream-M approval, changed only Portainer's Homepage tile `href` from the direct recovery URL to `https://portainer.elliottrook.com`. Retained the widget URL at direct `https://192.168.20.20:9443`, environment ID 3 and its file-backed API key. | Portainer package complete. Homepage and both Portainer direct paths return 200, the existing API token returns 200 from the widget endpoint, the friendly route returns 200, all three private DNS authorities return NPM's address, and NPM database integrity and syntax pass. Existing Homepage, Beszel and Sonarr paths retain their expected responses. |
+| 2026-09-15 | Milestone 3 Pi-hole pair discovery and recovery checkpoint | Selected the redundant Pi-hole web interfaces as one coordinated package. Read-only discovery found primary `2026.05.0` healthy on `192.168.20.20:8082` and secondary `2026.07.2` running on `192.168.20.40:20720`; both DNS services answer correctly, neither proposed hostname exists, and NPM times out reaching both web ports. With explicit Stream-M approval, captured fresh protected Authentik PostgreSQL/Compose, NPM SQLite, OPNsense XML, primary and secondary Pi-hole configuration, TrueNAS application configuration and Homepage services checkpoints. | Passed without changing live behavior. The Authentik dump lists 1,818 archive entries; NPM SQLite integrity is `ok`; OPNsense XML parses; all checkpoint files are mode `0600` in mode-`0700` directories and have recorded SHA-256 hashes. Both Pi-holes remain healthy/running, their direct web responses are unchanged and each DNS server still returns the expected private Portainer record. Next gate requires exactly two web-only firewall rules; TCP/UDP 53 remains untouched. |
+| 2026-09-15 | Milestone 3 Pi-hole pair network gate | With explicit Stream-M approval, added two logged OPNsense pass rules: NPM `192.168.50.23` to primary `192.168.20.20:8082` TCP and to secondary `192.168.20.40:20720` TCP. | Passed. Persistent model and loaded `pf` state contain exactly those source/destination/port tuples. Requests from inside NPM now receive the primary's normal 302 login redirect and the secondary's normal 200 response. NPM remains blocked from the unapproved Portainer HTTPS control port; both Pi-hole DNS servers and direct web paths remain healthy. TCP/UDP 53 configuration was not changed. |
+| 2026-09-15 | Milestone 3 Pi-hole pair friendly-host compatibility | Reverse-proxy preflight returned 403 from both Pi-hole v6 webservers when presented with their future friendly Host headers. After checking the current official Pi-hole configuration reference and receiving explicit approval, set primary `webserver.domain` to `dns1.elliottrook.com` and secondary to `dns2.elliottrook.com` using the preferred `pihole-FTL --config` interface, one server at a time. | Passed. Both applications report the exact configured value, remain running/healthy and continue answering DNS. Direct-IP recovery remains available; each friendly Host request from NPM now receives the expected 308 redirect to `/admin/` instead of 403. No DNS, filter-list or application-login setting changed. |
+| 2026-09-15 | Milestone 3 credential-exposure correction | While inspecting Sonarr provider 17 as the known-good forward-auth template, a diagnostic printed its OAuth client secret. Work stopped before Pi-hole objects were created. With separate explicit approval, rotated only that provider secret and waited for the embedded outpost to synchronize. | Corrected. Sonarr's cookie-preserving unauthenticated route reaches the Authentik login flow, NPM syntax passes and every ARR direct UI returns 200. No Sonarr data, API key, application setting, download workflow or other ARR provider changed. |
+| 2026-09-15 | Milestone 3 Pi-hole pair identity and reverse-proxy gate | With explicit Stream-M approval, atomically created forward-single providers 23-24 and applications `pihole-primary`/`pihole-secondary`, each with exactly one direct enabled `jason` binding, two strict hostname-specific callbacks, five standard mappings, three expected grants and embedded-outpost attachment. Created NPM hosts 16-17 for `dns1` and `dns2` to the existing HTTP ports with wildcard certificate 8, forced TLS, HTTP/2, WebSockets, exploit blocking and the established minimal Authentik forward-auth configuration. The first pinned requests arrived before the outpost refresh and returned 500 from an upstream 404; the outpost then reported both applications loaded and no configuration correction was required. | Passed before DNS publication. Both pinned certificate-valid names now return same-host Authentik 302 start routes and complete cookie-preserving requests reach the Authentik login flow with 200. Authentik read-back confirms every field and owner binding; NPM SQLite integrity and syntax pass. Both Pi-hole direct interfaces and DNS services are healthy, and Sonarr retains its expected 302. |
+| 2026-09-15 | Milestone 3 Pi-hole pair split DNS | With explicit Stream-M approval, added `dns1.elliottrook.com` and `dns2.elliottrook.com`, both pointing to NPM `192.168.50.23`, to OPNsense Unbound and both Pi-hole `dns.hosts` lists. Validated and reloaded Unbound, then restarted the redundant Pi-holes one at a time, proving the other resolver remained available before continuing. | Passed. OPNsense and both Pi-holes independently return the intended address for both names, as does the normal client resolver. Both Pi-holes are healthy and continue serving DNS; direct web recovery is unchanged. Normal certificate-valid HTTPS requests return the correct same-host Authentik 302 routes, while NPM SQLite integrity and syntax pass. |
+| 2026-09-15 | Milestone 3 Pi-hole pair interactive authentication gate | Jason used Private Safari on iPhone to authenticate through `dns1`, then completed the deliberately retained primary Pi-hole password login and reached its dashboard. The secondary dashboard also worked through the same Authentik SSO session. Opening the `dns1` outpost sign-out route and revisiting the site required Authentik again. | Passed. Real sign-in, SSO, application login and Authentik session termination are proven for the coordinated pair. Fresh uncached policy evaluation allows `jason` and denies `akadmin` for both applications. Direct web recovery and both DNS services remain available. |
+| 2026-09-15 | Milestone 3 Pi-hole pair Homepage cutover | With explicit Stream-M approval, changed only the primary and secondary Pi-hole tile `href` values to `https://dns1.elliottrook.com` and `https://dns2.elliottrook.com`. Retained the primary widget URL at direct `http://192.168.20.20:8082`, version 6 and its file-backed credential. | Coordinated Pi-hole package complete. Homepage is healthy and the direct authenticated widget API returns 200. Both friendly routes retain their Authentik 302 gates; all three DNS authorities return NPM's address; NPM database integrity and syntax pass. Homepage, Beszel, Sonarr and Portainer retain their expected responses. |
 
 ## Close-out
 
 Not graduated. Milestones 1-2 are complete. Milestone 3 remains in progress;
-Homepage, Beszel, Grafana, the coordinated ARR package and Portainer have
-graduated, while the remaining application wave and Milestones 4-5 are still
-future work.
+Homepage, Beszel, Grafana, the coordinated ARR package, Portainer and the
+coordinated Pi-hole pair have graduated, while the remaining application wave
+and Milestones 4-5 are still future work.
