@@ -475,8 +475,38 @@ target remains an individual package.
   and was corrected to Grafana's supported group-based expression before the
   successful retest.
 
-**Next package:** not started. Select and design it only after Grafana's short
-stability observation; the ARR stack remains one coordinated package.
+**Portainer — next package:**
+- [x] Audit the live service and access path. Portainer CE `2.39.5` is healthy
+  in Docker LXC 100 with direct HTTP `:9000` and HTTPS `:9443` recovery paths,
+  internal authentication and a Docker-socket mount. NPM cannot currently
+  reach either port; no Portainer NPM host, split-DNS record or Authentik
+  application exists.
+- [x] Capture the immediate recovery checkpoint. A consistent stopped-container
+  archive of Portainer's data volume plus container metadata, fresh Authentik
+  PostgreSQL/Compose and NPM SQLite checkpoints, OPNsense XML, both Pi-hole
+  configurations and Homepage services configuration are protected locally.
+- [x] Open only the selected NPM-to-Portainer backend path. One logged TCP rule
+  permits NPM `192.168.50.23` to `192.168.20.20:9000`; Portainer's direct HTTPS
+  port 9443 remains blocked from NPM and available from the trusted client path.
+- [x] Create and validate the private HTTPS route before DNS publication. NPM
+  host 15 forwards HTTPS `portainer.elliottrook.com` to private HTTP port 9000
+  with wildcard certificate 8, forced TLS, HTTP/2, WebSockets and exploit
+  blocking; pinned-host root, Origin-header and status checks return 200.
+- [x] Configure dedicated native OAuth/OIDC while retaining the initial local
+  administrator as break-glass. The owner-only Authentik application maps
+  `jason` to existing Portainer user `admin` through a dedicated claim; automatic
+  user creation is disabled. Portainer accepted its friendly Origin without a
+  trusted-origin container change.
+- [x] Publish three-resolver split DNS. OPNsense and both Pi-holes resolve
+  `portainer.elliottrook.com` to NPM; normal root and Origin-header API requests
+  return 200 and both Pi-holes are healthy.
+- [x] Test real private-session login/sign-out,
+  non-owner denial, local recovery and the existing Homepage API widget, then
+  change only the tile link. Jason completed native OAuth from Private Safari,
+  Portainer returned to the existing `admin` account, logout required a fresh
+  Authentik authentication, and the direct HTTPS local-admin path remained
+  usable. The Homepage API token still returns 200; only the tile `href` now
+  uses `https://portainer.elliottrook.com` while its widget URL remains direct.
 
 ## Validation and evaluation
 
@@ -580,10 +610,17 @@ Milestone 2 to a safely resumable state, it does not graduate the project.
 | 2026-09-15 | Milestone 3 ARR forward-auth correction | Jason's first private-iPhone Sonarr test reached Authentik but showed `Redirect URI Error`. Live request evidence proved the generated callback was correct while all five directly-created providers lacked the callback, standard scope and grant-type fields normally populated by Authentik's serializer. With separate explicit approvals, populated two hostname-specific strict callbacks, copied the established five default proxy/OIDC scope mappings and the standard authorization-code/client-credentials/password grant set to all five providers. A diagnostic comparison inadvertently emitted Homepage's and Sonarr's provider cookie secrets, so all six affected provider cookie secrets were immediately rotated with approval. | Corrected. Read-back shows every provider has exactly two strict callbacks, five mappings, three expected grants and a unique 32-character cookie secret. Complete cookie-preserving unauthenticated requests to all five friendly names now reach the Authentik login flow with HTTP 200 rather than an error. No user password, application API key or OAuth client secret was exposed; existing direct paths remain unchanged. |
 | 2026-09-15 | Milestone 3 ARR interactive authentication gate | Jason used Private Safari on iPhone to complete a real Authentik login to Sonarr, then opened Radarr, Lidarr, Prowlarr and SABnzbd successfully through the same SSO session. The Sonarr outpost sign-out endpoint ended the session and revisiting Sonarr required authentication again. | Passed for the coordinated five-service package. Uncached policy evaluation allows `jason` and denies `akadmin` for every application. NPM syntax and database integrity pass; all containers and direct paths remain healthy. Existing application authentication modes are unchanged, and direct authenticated API probes return 200 for Sonarr, Radarr, Lidarr, Prowlarr and SABnzbd. |
 | 2026-09-15 | Milestone 3 ARR Homepage cutover | With explicit Stream-M approval, changed only the five ARR tile `href` values to their private HTTPS names. Retained every widget `url` on its direct `192.168.20.40` endpoint and retained all file-backed API-key references. | Coordinated ARR package complete. Homepage rendered all five HTTPS links, remained healthy and returned 200; each direct widget URL remains present exactly once, and all five direct service URLs return 200. |
+| 2026-09-15 | Milestone 3 Portainer discovery and recovery checkpoint | Selected Portainer as the next individual package. Read-only audit found CE `2.39.5`, internal authentication, healthy direct HTTP/HTTPS paths, no NPM/Auth/DNS objects and no NPM-to-backend firewall path. With explicit Stream-M approval, briefly stopped Portainer for a consistent archive of its Bolt-backed data volume and saved container metadata; also captured fresh protected Authentik, NPM, OPNsense, both Pi-hole and Homepage checkpoints. | Passed. Portainer restarted at the same version and both direct paths return 200; its archive lists cleanly and has a recorded SHA-256 hash. Authentik remains healthy, NPM backup integrity is `ok` with 14 active hosts, NPM syntax passes, OPNsense XML parses and all artifacts are mode `0600` in protected directories. No live behavior changed. |
+| 2026-09-15 | Milestone 3 Portainer network gate | With explicit Stream-M approval, added one logged OPNsense pass rule from NPM `192.168.50.23` to Portainer `192.168.20.20:9000`. | Passed. Persistent and loaded state contain exactly that source, destination and TCP port. Portainer returns 200 from inside NPM on 9000 while direct HTTPS port 9443 still times out from NPM; both trusted-client direct paths remain HTTP 200. |
+| 2026-09-15 | Milestone 3 Portainer private HTTPS | With explicit Stream-M approval, created NPM host 15 for `portainer.elliottrook.com` to `192.168.20.20:9000` using wildcard certificate 8, forced TLS, HTTP/2, WebSockets and exploit blocking; no forward-auth configuration was added because Portainer uses native OAuth. | Passed before DNS publication. NPM SQLite integrity and syntax pass; pinned certificate-valid root, API status and friendly-Origin requests return 200 at Portainer `2.39.5`. Direct HTTP/HTTPS and Homepage remain 200. |
+| 2026-09-15 | Milestone 3 Portainer native OAuth candidate | With explicit Stream-M approval, created confidential Authentik provider 22/application `portainer`, one strict root callback, the default OpenID/profile/email mappings plus dedicated `portainer-admin` mapping, and exactly one direct `jason` binding. Configured Portainer for authorization-code OAuth, SSO and the `portainer_username` claim with automatic user creation disabled. A first cross-host credential handoff did not deliver the file and changed no Portainer setting; the same provider credentials were then transferred through protected mode-0600 temporary files and all copies were removed. | Passed before DNS publication. A complete cookie-preserving authorization request reaches Authentik's login flow. Authentik allows `jason` and denies `akadmin`; Portainer retains exactly initial admin ID 1/role 1, its existing Homepage API token returns 200, direct access remains healthy and no trusted-origin change was required. No credential was printed or committed. |
+| 2026-09-15 | Milestone 3 Portainer split DNS | With explicit Stream-M approval, added `portainer.elliottrook.com -> 192.168.50.23` to OPNsense Unbound and both Pi-hole `dns.hosts` arrays, reloading Unbound after its configuration check and restarting the redundant Pi-holes one at a time. | Passed. All three authorities independently return NPM's address; both Pi-holes are healthy. Normal certificate-valid Portainer root and friendly-Origin API requests return 200, while Homepage, Beszel, Grafana and Sonarr retain their expected responses. |
+| 2026-09-15 | Milestone 3 Portainer interactive authentication gate | Jason used Private Safari on iPhone to complete Authentik OAuth and reached the existing Portainer `admin` account and local environment. Logging out ended the Portainer session; revisiting the friendly URL required authentication again. Jason separately confirmed that the direct `https://192.168.20.20:9443` local-admin break-glass login still works. | Passed. The owner login, same-host return, session termination and local recovery path are proven. The pre-cutover Authentik policy evaluation still allows only `jason` and denies `akadmin`; automatic user creation remains disabled. |
+| 2026-09-15 | Milestone 3 Portainer Homepage cutover | With explicit Stream-M approval, changed only Portainer's Homepage tile `href` from the direct recovery URL to `https://portainer.elliottrook.com`. Retained the widget URL at direct `https://192.168.20.20:9443`, environment ID 3 and its file-backed API key. | Portainer package complete. Homepage and both Portainer direct paths return 200, the existing API token returns 200 from the widget endpoint, the friendly route returns 200, all three private DNS authorities return NPM's address, and NPM database integrity and syntax pass. Existing Homepage, Beszel and Sonarr paths retain their expected responses. |
 
 ## Close-out
 
-Not graduated. Deferred/open: closing the two stalled sessions directly
-(needs Jason, not reachable from this session); Milestones 1-2 live
-re-verification and execution; Milestones 3-5 unchanged and still future
-work.
+Not graduated. Milestones 1-2 are complete. Milestone 3 remains in progress;
+Homepage, Beszel, Grafana, the coordinated ARR package and Portainer have
+graduated, while the remaining application wave and Milestones 4-5 are still
+future work.
