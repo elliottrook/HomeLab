@@ -5,6 +5,11 @@
 > confirmed working by Jason on both desktop and his own iPhone after two
 > real-screenshot-driven mobile rendering fixes. HomeLab Doctor gained
 > real coverage for a silent Piper/ffmpeg failure that previously had none.
+> **Updated 2026-09-15/16** after Jason listened to a real full recording:
+> added a spoken intro/outro and a silence gap between stories; evaluated
+> two candidate male voices at his request and, on his direct feedback,
+> kept the original `en_US-lessac-medium` voice unchanged — see Design
+> decisions and the evidence log below.
 >
 > Project owner: Jason
 >
@@ -43,6 +48,38 @@ same tool.
 
 ## Design decisions
 
+- **Spoken intro/outro, added 2026-09-16 after listening to a real full
+  recording.** Intro: "This is your morning/evening briefing for
+  [Weekday, Month Day]." Outro: "That was your daily briefing for
+  [date]." Morning/evening and the date are both computed from the
+  generation timestamp using the same fixed `BC_OFFSET = timedelta(hours=
+  -7)` convention `app.py`'s `get_audio_meta()` already established (BC no
+  longer observes DST) — deliberately not a second, independent
+  timezone-handling approach.
+- **Per-story silence gap, added 2026-09-16 for the same reason.** The
+  original v1 script synthesized the entire script (intro + every story)
+  in one Piper call, relying on Piper's own sentence/newline pausing alone
+  — real listening showed stories ran into each other. Rebuilt as: intro,
+  each story, and the outro are now separate Piper calls, concatenated via
+  ffmpeg's `concat` demuxer with a fixed 1-second silence clip (`ffmpeg -f
+  lavfi -i anullsrc=r=22050:cl=mono`, matching Piper's own probed output
+  format exactly — `pcm_s16le`, 22050 Hz, mono — so `-c copy` concatenation
+  is lossless and fast) inserted between each. A plain timed silence gap
+  was chosen over a spoken "next story"-style bridge phrase to avoid
+  repetition fatigue across a 13+ story briefing, and to avoid a new
+  non-text audio asset dependency.
+- **Voice change requested, evaluated, and declined — 2026-09-16.** Jason
+  asked for an English male voice. Rather than picking one unilaterally,
+  generated real samples of two candidates (`en_US-ryan-medium` and
+  `en_GB-alan-medium`, both downloaded from the same Hugging Face
+  `rhasspy/piper-voices` source as the original voice) narrating the same
+  real 13-story digest with the new intro/pause/outro structure, and sent
+  both to Jason to listen to before changing anything live — matching this
+  project's own established Milestone-1 precedent of never committing to
+  a voice without a real confirmed sample. Jason didn't like either and
+  asked to keep the original `en_US-lessac-medium` voice. Both candidate
+  models and their test-output directories were deleted afterward; nothing
+  in production was ever pointed at either candidate.
 - **Piper, not a cloud TTS API.** Local, offline, no new credential or
   egress target beyond the one-time voice-model download. Matches this
   project's own established preference for local `aster-llama` synthesis
@@ -198,6 +235,9 @@ HomeLab Doctor has real coverage for a silent Piper/ffmpeg failure.
 | 2026-09-15 | Audio timestamp shown in local time | The "generated" timestamp on the audio player was displaying raw UTC; Jason asked for local time. Converted in `get_audio_meta()` using the same fixed UTC-7 offset already established for the digest timer (BC no longer observes DST), rather than adding a second timezone convention | Verified live: 23:16 UTC correctly renders as 16:16 |
 | 2026-09-15 | Cleanup | Removed `.bak-*` development-safety-copy files from `/opt/news-aggregator/` at Jason's request. Investigated the actual disk usage first rather than assuming the `.bak` files were the bulk of it — they weren't (a few hundred KB); the Python `venv/` (41MB) was the real majority, which is normal and not bloat. Corrected that to Jason directly rather than letting the earlier imprecise framing stand | Directory tidied; inaccurate earlier framing corrected |
 | 2026-09-15 | Graduation | All three graduation criteria met with real confirmation, not assumption: Jason confirmed the audio itself ("Audio is great!") and the mobile player rendering, both on his own device rather than taken on faith from Claude's own testing; HomeLab Doctor's audio-freshness check is live and verified against both real and synthetic state. Moved this document to `docs/projects/completed projects/` via `git mv`, fixed its now-relative cross-references, and updated the portfolio README | Project closed out |
+| 2026-09-16 | Post-graduation refinement | Jason listened to a real full recording and asked for: an intro naming the briefing/date, a pause or bridge between stories, a short outro, and an English male voice. Rebuilt `audio_digest.py` to synthesize intro/each story/outro as separate Piper calls joined by a fixed 1-second silence clip (`ffmpeg anullsrc`, format-matched to Piper's probed `pcm_s16le`/22050 Hz/mono output for lossless `-c copy` concatenation) instead of one continuous Piper call | New logic verified via `py_compile` before running against real data |
+| 2026-09-16 | Voice candidates generated and rejected | Downloaded `en_US-ryan-medium` and `en_GB-alan-medium` from the same Hugging Face source as the original voice; generated real samples of both narrating the actual latest 13-story digest with the new intro/pause/outro structure, to a non-production test directory (`--voice-model`/`--out-dir` overrides added to the script for exactly this); sent both to Jason before changing anything live. Jason: "Don't like either voice. Let's just go with the original. Don't change the voice." | Both candidate `.onnx`/`.onnx.json` files and their `/tmp` test-output directories deleted; production voice (`en_US-lessac-medium`) never changed |
+| 2026-09-16 | Production redeployed and verified | Backed up the pre-change script to `audio_digest.py.bak-pre-intro-pause-outro` (rollback point, kept — not deleted), promoted the new version to `audio_digest.py`, ran it for real against the live `news.db` (13 stories, digest_run `2026-09-16T12:15:57Z`). Verified live rather than assumed: `latest.json` matches the real digest_run and story count; `curl` against the actual gunicorn bind (`192.168.70.13:8080`, found by reading the real systemd unit rather than guessing a port) confirmed `/digest` returns HTTP 200 and `/static/digest-audio/latest.mp3` serves the new 4,639,976-byte file | Live and confirmed serving correctly; `run_digest.sh`/the existing 05:15/17:15 timer needed no changes since the entry point filename didn't change |
 
 ## References
 
