@@ -1,13 +1,43 @@
 # Document OCR + Summarization Project
 
-> Status: Proposed — not yet authorized
+> Status: Active — Stream A; Milestone 1 in progress
 >
 > Project owner: Jason
 >
 > Proposed: 2026-09-15
 >
-> Authorization stream: not yet selected — Stream M or Stream A to be chosen
-> by Jason before implementation begins
+> Authorized: 2026-09-15 (Stream A, this project only)
+>
+> Authorization stream: Stream A — autonomous, scoped to this project's
+> enumerated milestones below; see "Resolved decisions" for the three
+> pre-start calls Jason made at authorization time
+
+## Resolved decisions (2026-09-15, at Stream A authorization)
+
+Jason resolved the three decisions this charter flagged as required before
+work starts:
+
+1. **One project or two:** kept as **one project**. Paperless-ngx deployment
+   is this project's own Milestone 1; the summarization work follows as
+   Milestones 2+. The Stream A authorization envelope therefore covers both
+   the document-management infrastructure work and the AI-specific work.
+2. **Write-back into Paperless:** **yes** — summaries will be written back
+   into Paperless as a custom field/note once built, overriding this
+   document's no-mutation-by-default recommendation. Per the charter's own
+   treatment of this as a non-waivable-stop-condition-adjacent decision, the
+   write path must still be a separately-scoped, narrowly-limited broker
+   (custom-field write only — never delete, move, or retention-change),
+   built and reviewed at Milestone 4, not a broad Paperless write credential
+   handed to the summarization service generally.
+3. **Sensitive-document exclusion policy:** **summarize everything by
+   default** — no tag/type-based exclusion. Milestone 2's design does not
+   need an exclusion mechanism; every ingested document's OCR text will be
+   sent to `aster-llama` for summarization regardless of document type.
+
+The fourth item (`aster-llama` shared-capacity contention across the news
+aggregator, Aster, and this project) is not a decision with options — it
+remains an accepted, monitored risk; watch for latency/contention once this
+project is actively calling the endpoint.
 
 ## Purpose and desired outcome
 
@@ -136,58 +166,27 @@ summarization" charter. See the open decision below.
      bearer-authenticated with a new dedicated least-privilege key, matching
      the news aggregator's own dedicated-key pattern) for summarization.
   4. Stores the resulting summary, keyed to the source document's Paperless
-     ID, in its own local database — not written back into Paperless as a
-     custom field or note by default (see the write-back open decision
-     below).
+     ID, in its own local database, and — per Jason's 2026-09-15 decision —
+     also writes it back into Paperless as a custom field/note via the
+     Milestone 4 scoped write broker once that exists (Milestones 1-3 write
+     to the local store only; the broker isn't built yet).
 - No component in this pipeline receives Paperless admin credentials, write
   scope, or the ability to alter/delete/misfile a document.
 
-### Open decision requiring Jason's input: is this one project or two?
+### Decided: one project (2026-09-15)
 
-The brief's own framing ("this project's real incremental value is the
-summarization layer... make that scoping decision explicit") already
-settles that OCR itself is out of scope. But deploying Paperless-ngx at all
-is a separate, substantial, non-AI infrastructure project (storage,
-backup, retention, scanning workflow) that this document is only sketching
-as a prerequisite, not fully designing. Two reasonable paths:
+Resolved by Jason at Stream A authorization — see "Resolved decisions"
+above. Kept as one project: Paperless deployment is this project's
+Milestone 1, summarization is Milestones 2+.
 
-1. **Keep it as one project** with Paperless deployment as this project's
-   Milestone 1 and summarization as Milestones 2+, accepting that the
-   project's authorization envelope then has to cover a fairly different
-   kind of work (general document-management infrastructure) alongside the
-   AI-specific work the charter is really about.
-2. **Split it**: a separate "Paperless-ngx deployment" project (infra-only,
-   its own Stream choice, its own storage/backup/retention risk assessment)
-   that this Document-OCR-Summarization project then declares as a hard
-   dependency/prerequisite, only starting its own Milestone 1 once that
-   prerequisite project has graduated.
+### Decided: write-back into Paperless, via a scoped broker (2026-09-15)
 
-This document does not choose. Recommend Jason decide at authorization
-time; Option 2 is more consistent with this repository's general pattern of
-one project per bounded concern (e.g. NetBox-DCIM and the Aster-NetBox
-integration were kept as separate completed projects rather than merged),
-but Option 1 avoids the overhead of standing up a second charter for what
-might be a fairly small deployment.
-
-### Open decision requiring Jason's input: where do summaries surface, and does anything write back to Paperless?
-
-- **Default proposed design (no Paperless mutation):** summaries live in
-  this project's own small store and are shown via a minimal separate
-  page/view (or as part of the Combined Morning Digest project, if that
-  exists by the time this is built, as a "new documents" section) — this
-  keeps Paperless's own mutation authority at zero, matching the
-  established Aster no-mutation pattern.
-- **Alternative (rejected by default, flagged for Jason to override if
-  wanted):** writing the summary back into Paperless as a custom field or
-  document note, so it's visible inside Paperless's own UI next to the
-  document. This is more convenient but requires granting write scope to a
-  system holding tax/ID/medical documents — a real trade-off this document
-  is not making unilaterally. If Jason wants this, it needs its own
-  explicitly-approved, narrowly-scoped write broker (custom-field write
-  only, never delete/move/retention-change), matching the ARR stack
-  manager's execution-disabled-broker precedent, and should be treated as
-  a non-waivable-stop-condition-adjacent decision given the document
-  sensitivity involved.
+Resolved by Jason at Stream A authorization — see "Resolved decisions"
+above. Summaries will be written back into Paperless as a custom
+field/note. The write path is a separately-scoped, narrowly-limited broker
+(custom-field write only — never delete/move/retention-change), matching
+the ARR stack manager's execution-disabled-broker precedent, designed and
+reviewed at Milestone 4 rather than granted as a general credential now.
 
 ## Privacy and security design
 
@@ -197,18 +196,18 @@ might be a fairly small deployment.
   medical records, and financial statements, all of which would pass
   through this pipeline's `aster-llama` calls as plaintext (locally, not
   leaving the lab, but still processed by a shared service).
-- **Read-only, least-privilege, source-local access only.** No mutation
-  authority over Paperless by default (see open decision above). No shared
-  admin credentials; a dedicated API token scoped as narrowly as
-  Paperless's permission model allows.
-- **Data minimization to consider at Milestone 2:** whether every document
-  should be summarized indiscriminately, or whether certain
-  Paperless document-types/tags (e.g. a "sensitive" or "ID" tag) should be
-  excluded from automatic summarization entirely, requiring an explicit
-  opt-in instead. This document flags it as an open question rather than
-  deciding it, since Jason has not yet indicated a preference and the
-  actual tag/type taxonomy depends on how he organizes Paperless once it
-  exists.
+- **Read-only, least-privilege, source-local access only, until Milestone
+  4's scoped write broker exists.** No admin credentials, no broad write
+  scope; a dedicated API token scoped as narrowly as Paperless's permission
+  model allows for the summarization reader, and a separate, narrower
+  custom-field-only token for the Milestone 4 write-back broker once built.
+- **Data minimization: decided 2026-09-15 — summarize everything by
+  default.** No tag/type-based exclusion. Every ingested document's OCR
+  text is sent to `aster-llama` regardless of document type. This raises
+  the baseline exposure of sensitive document content (tax/ID/medical) to
+  the summarization pipeline on every document, not just non-sensitive
+  ones — accepted by Jason at authorization; revisit if real-world use
+  surfaces a document class that should have been excluded.
 - **No cloud dependency.** Both OCR (inside Paperless) and summarization
   (`aster-llama`) stay local, consistent with this lab's local-first,
   maximum-practical-privacy principles.
@@ -273,17 +272,14 @@ might be a fairly small deployment.
 - **Backup/Doctor/monitoring/NetBox/wiki impacts:** see the integration
   checklist below — all currently "not applicable, no implementation yet"
   except where a real gap is identifiable in advance.
-- **Unresolved decisions requiring Jason's acceptance before work starts:**
-  1. **One project or two** (Paperless deployment vs. summarization layer)
-     — the single biggest open decision in this document, since it
-     determines the actual authorization envelope and risk profile Jason
-     is being asked to accept.
-  2. **Write-back into Paperless** — default is no; needs Jason's explicit
-     override plus a separately-scoped broker if wanted.
-  3. **Sensitive-document exclusion policy** — whether some documents
-     should never be auto-summarized, and how they'd be identified.
-  4. **`aster-llama` capacity planning** across three concurrent projects
-     (news aggregator, this project, Aster) once this project is active.
+- **Decisions resolved by Jason at Stream A authorization, 2026-09-15**
+  (see "Resolved decisions" near the top of this document): one project
+  (not split), write-back into Paperless via a Milestone 4 scoped broker,
+  and summarize everything by default (no sensitive-document exclusion).
+- **Remaining accepted, monitored risk:** `aster-llama` capacity contention
+  across three concurrent projects (news aggregator, this project, Aster)
+  once this project is active — not a decision with options, just a risk to
+  watch.
 
 ## Persistence plan
 
@@ -300,9 +296,8 @@ All milestones are proposed and unchecked. None has been started.
 
 ### Milestone 1 — Document-management substrate (prerequisite)
 
-- [ ] Jason decides: one project or two (see open decision above); if two,
-      this project's Milestone 1 becomes "confirm the prerequisite project
-      has graduated" instead of doing the deployment work here.
+- [x] Jason decided 2026-09-15: one project (not split) — Paperless
+      deployment proceeds as this project's own Milestone 1.
 - [ ] Deploy Paperless-ngx (or confirm an equivalent target) on Lab VLAN 70,
       matching the standard unprivileged-LXC placement pattern.
 - [ ] Size and provision storage against a real estimate of document
@@ -319,8 +314,8 @@ All milestones are proposed and unchecked. None has been started.
       against Milestone 1's findings.
 - [ ] Confirm connectivity from the summarization service to Paperless's
       API and to `aster-llama`, using synthetic test documents only.
-- [ ] Decide and document the sensitive-document exclusion policy (open
-      decision above) before summarizing any real document.
+- [x] Sensitive-document exclusion policy decided 2026-09-15: summarize
+      everything by default, no exclusion mechanism to build.
 
 ### Milestone 3 — Summarization pipeline
 
@@ -336,10 +331,11 @@ All milestones are proposed and unchecked. None has been started.
 
 - [ ] Build the minimal summary view decided in Architecture (standalone
       page, or a Combined Morning Digest section if that project exists by
-      then) — default: no write-back into Paperless.
-- [ ] If Jason overrides the default and wants write-back into Paperless,
-      design and separately propose the scoped write broker before building
-      it, per the non-waivable-stop-condition treatment above.
+      then).
+- [ ] Design and build the scoped write-back broker (custom-field write
+      only, never delete/move/retention-change) per Jason's 2026-09-15
+      decision to write summaries back into Paperless; review its scope
+      explicitly before granting it any credential.
 
 ### Milestone 5 — Validation and graduation
 
