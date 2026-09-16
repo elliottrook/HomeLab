@@ -1,6 +1,7 @@
 # Authentik Service Rollout Project
 
-> Status: Active — Milestone 2 complete 2026-09-14; Milestone 3 not started.
+> Status: Active — Milestone 2 complete; Milestone 3 Grafana package complete
+> 2026-09-15, next package not started.
 > Live baseline re-audited 2026-09-13. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
 > Stream: **M — Monitored**. Handed off 2026-09-10 to a fresh local session
@@ -436,7 +437,46 @@ sign-in/sign-out/denial/direct-fallback, and losing Authentik/NPM does not
 prevent direct administrative recovery of either.
 
 **Passed 2026-09-14.** Homepage and Beszel meet every Milestone 2 condition;
-Milestone 3 remains explicitly not started.
+the 2026-09-15 observation pass found no regression.
+
+### Milestone 3 — Operations/application wave
+
+Work one bounded package at a time. The ARR stack is the single coordinated
+five-application package defined in the scope decision above; every other
+target remains an individual package.
+
+**Grafana:**
+- [x] Observe Milestone 2 before starting the next service. **Passed
+  2026-09-15:** Homepage direct/protected behavior remained 200/302, Beszel
+  direct/HTTPS remained 200, all seven systems stayed `up`, its OAuth link
+  remained on the verified admin, password fallback stayed enabled, all three
+  resolvers agreed, NPM syntax passed, and Forgejo/GitHub refs matched.
+- [x] Audit the existing Grafana HTTPS, NPM, DNS, Authentik and local-admin
+  state. The hostname, proxy, wildcard certificate, three private DNS records,
+  canonical `root_url`, strict callback and confidential provider were already
+  correct; Generic OAuth was disabled and one local server administrator
+  remained available.
+- [x] Back up Authentik and Grafana immediately before activation. The
+  Authentik PostgreSQL dump/Compose checkpoint and Grafana online SQLite/INI
+  checkpoint are protected locally; `pg_restore -l` and SQLite
+  `integrity_check` passed.
+- [x] Enable native OIDC while retaining local login. Grafana now uses the
+  existing provider with authorization-code flow, PKCE, OpenID/profile/email
+  scopes and group-derived organization Admin role. The former two-member
+  `authentik Admins` application binding was replaced with the established
+  direct `jason` binding; Grafana's local login form and active local server
+  admin remain intact.
+- [x] Validate real login, dashboard access, sign-out, denial and fallback.
+  A private iPhone Safari login completed password/passkey authentication and
+  reached the provisioned HomeLab overview as the existing organization Admin.
+  Grafana sign-out returned to the page containing local and Authentik login.
+  Authentik policy evaluation allows `jason` and denies `akadmin`; direct login
+  remains HTTP 200. The first login exposed an invalid constant role expression
+  and was corrected to Grafana's supported group-based expression before the
+  successful retest.
+
+**Next package:** not started. Select and design it only after Grafana's short
+stability observation; the ARR stack remains one coordinated package.
 
 ## Validation and evaluation
 
@@ -531,6 +571,8 @@ Milestone 2 to a safely resumable state, it does not graduate the project.
 | 2026-09-14 | Milestone 2 service discovery and graduation | Changed only Homepage's live Beszel tile `href` to `https://metrics.elliottrook.com`; retained the widget's direct `http://192.168.20.20:8090` endpoint and file-backed credentials. Homepage direct rendering and Beszel widget endpoint both returned 200. Updated the service-onboarding completion record, addressing/network facts and portfolio status. | Milestone 2 complete. Homepage and Beszel are live on private friendly HTTPS names with real sign-in/sign-out, explicit denial, direct recovery and non-browser/agent behavior validated. Milestones 3–5 remain not started. |
 | 2026-09-14 | Milestone 2 Git synchronization | Created focused local commit `5776699` and, with explicit approval, pushed it to authoritative Forgejo `origin/main`. Forgejo's configured mirror advanced GitHub `main` to the identical full commit without a direct GitHub push. The repository directive and Project Creation Standard were corrected to make this single-push topology explicit. | Passed: Forgejo and GitHub both reported `577669981db0e2ea075c41cc0515444a43cc8025`; direct duplicate pushes to GitHub are no longer part of routine milestone close-out. |
 | 2026-09-14 | Milestone 3 ARR packaging decision | Jason directed that Sonarr, Radarr, Lidarr, Prowlarr and SABnzbd be handled as one coordinated work package rather than sequential rollouts. The project scope and onboarding plan now define one shared design/approval/backup/validation/rollback gate while preserving all API-key integrations and limiting Authentik to browser UI access. | Design updated; no Milestone 3 live change started. The one-service-at-a-time rule remains in force for every non-ARR target. |
+| 2026-09-15 | Milestone 2 observation | Rechecked both services after the overnight observation: direct and friendly paths, all three DNS authorities, NPM syntax, Beszel identity/password state, all seven agents and both Git refs. | Passed without regression; Milestone 3 could begin. |
+| 2026-09-15 | Grafana native OIDC | With explicit Stream-M approval, captured validated Authentik and Grafana checkpoints, narrowed the pre-existing Grafana application binding from the two-member `authentik Admins` group to direct owner `jason`, and enabled Generic OAuth against existing provider 10. Protected environment and INI credentials matched; all temporary transfer/setup files were removed. The first real callback exchanged tokens successfully but strict role evaluation rejected a constant expression; replacing it with the supported `contains(groups[*], 'authentik Admins') && 'Admin' || 'Viewer'` expression resolved the failure. | Passed. Private iPhone Safari authentication reached the provisioned HomeLab overview as organization Admin; sign-out returned to both login choices. The original local server admin and direct login remain active, `jason`/`akadmin` policy evaluates allow/deny, SQLite integrity is `ok`, NPM syntax passes, Grafana health/database are `ok`, and Homepage/Beszel regressions pass. |
 
 ## Close-out
 
