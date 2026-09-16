@@ -29,9 +29,9 @@ application's current authentication settings before selecting a path.
 |---|---|---|---|
 | Nginx Proxy Manager | Forward auth | `proxy.elliottrook.com` | Complete and tested; NPM login remains |
 | Homepage | Forward auth | `home.elliottrook.com` | Keep health/widget requests in mind |
-| Pi-hole #1 and #2 web UIs | Forward auth | `dns1.elliottrook.com`, `dns2.elliottrook.com` | DNS on TCP/UDP 53 is never proxied |
+| Pi-hole #1 and #2 web UIs | Forward auth — complete and tested (2026-09-15) | `dns1.elliottrook.com`, `dns2.elliottrook.com` | Owner-only browser gates; DNS on TCP/UDP 53 and direct recovery remain unproxied |
 | Frigate | Native OIDC if available; otherwise forward auth | `frigate.elliottrook.com` | RTSP, ONVIF and recordings remain direct |
-| Portainer | Native OAuth/OIDC if supported by the installed edition; otherwise forward auth | `portainer.elliottrook.com` | Keep a local break-glass administrator |
+| Portainer | Native OAuth/OIDC — complete and tested (2026-09-15) | `portainer.elliottrook.com` | Existing local `admin` and direct HTTPS remain break-glass paths; Homepage API token remains direct |
 | Proxmox web UI | Native OpenID Connect realm | `proxmox.elliottrook.com` | Keep the local `root@pam` recovery path |
 | TrueNAS web UI | Native OIDC if supported by the installed release; otherwise forward auth | `truenas.elliottrook.com` | SMB, NFS and iSCSI are not proxied |
 | Synology web UIs | Native SSO/OIDC if supported; otherwise forward auth | `nas.elliottrook.com`, `backup-nas.elliottrook.com` | SMB and backup traffic remain direct |
@@ -271,8 +271,14 @@ cutover:
 5. Replace three manually maintained DNS records per hostname with one
    authoritative internal `elliottrook.com` source that both Pi-holes query.
    Design and test this DNS change separately before relying on it.
-6. Onboard applications in batches by pattern, but enable and validate only one
-   service at a time.
+6. Onboard applications in bounded cohorts by pattern. Batch one shared layer
+   at a time—recovery checkpoints, narrow network/proxy staging, identity
+   objects, then private DNS—using an explicit manifest and atomic rollback.
+   Keep DNS unpublished until proxy and identity checks pass. Application-side
+   native-OIDC secrets and role mapping remain per application, and each member
+   is promoted to Homepage only after its own recovery, denial, sign-out and
+   client/API workflow tests pass. A failed member stays staged without forcing
+   already validated siblings to roll back.
 
 Authentik also supports domain-level forward auth, which can protect multiple
 hostnames with one provider. It is quicker but creates a wider failure and
@@ -293,6 +299,8 @@ Add one row only after the complete private-session and rollback tests pass:
 | Beszel | `metrics.elliottrook.com` | Native OIDC | Yes — `http://192.168.20.20:8090` and local password authentication retained and tested | Yes — private iPhone Safari password + passkey login returned to the existing admin with all seven systems; Beszel sign-out returned to both login choices; non-owner binding denied | Yes — all seven agents retained their existing private hub paths and remained `up`; Homepage widget remains on the direct private endpoint | 2026-09-14 |
 | Grafana | `monitoring.elliottrook.com` | Native OIDC | Yes — `http://192.168.20.31:3000/login`, local form and original server admin retained | Yes — private iPhone Safari password + passkey login reached the provisioned HomeLab overview as organization Admin; sign-out returned to local and Authentik choices; non-owner binding denied | Yes — Prometheus data source, dashboard provisioning and alert scheduler remained healthy; Homepage tile continues to use the provisioned overview URL | 2026-09-15 |
 | ARR package: Sonarr / Radarr / Lidarr / Prowlarr / SABnzbd | `sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`.elliottrook.com | Forward auth, one coordinated package | Yes — all five original `http://192.168.20.40:<port>` paths retained and tested | Yes — private iPhone Safari login reached all five through one SSO session; outpost sign-out required re-authentication; non-owner denied for every application | Yes — direct authenticated APIs returned 200 for all five; Homepage widgets remain direct and application authentication/API-key settings are unchanged | 2026-09-15 |
+| Portainer | `portainer.elliottrook.com` | Native OAuth/OIDC | Yes — direct HTTP `:9000`, HTTPS `:9443` and the original local `admin` login retained and tested | Yes — private iPhone Safari OAuth reached the existing `admin`; logout required Authentik again; non-owner denied | Yes — Homepage's existing API token and widget stay on direct HTTPS and return 200 | 2026-09-15 |
+| Pi-hole primary and secondary | `dns1.elliottrook.com`, `dns2.elliottrook.com` | Forward auth, one coordinated package | Yes — direct `:8082`/`:20720` web paths and both local Pi-hole logins retained; both DNS servers remain direct | Yes — private iPhone Safari reached both dashboards through one Authentik SSO session; outpost sign-out required re-authentication; non-owner denied for both | Yes — TCP/UDP 53 never traverses NPM/Auth; both resolvers remained healthy and the primary Homepage widget/API stays direct | 2026-09-15 |
 
 ## Stop conditions
 

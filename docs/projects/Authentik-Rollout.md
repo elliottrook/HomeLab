@@ -1,7 +1,9 @@
 # Authentik Service Rollout Project
 
-> Status: Active — Milestone 2 complete; Milestone 3 Grafana and coordinated
-> ARR packages complete 2026-09-15; next package not started.
+> Status: Active — Milestones 0-2 complete except the human-only stale-session
+> closure; Milestone 3 has graduated Grafana, ARR, Portainer and the coordinated
+> Pi-hole pair. Remaining work was redesigned into layer-based cohorts on
+> 2026-09-15.
 > Live baseline re-audited 2026-09-13. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
 > Stream: **M — Monitored**. Handed off 2026-09-10 to a fresh local session
@@ -16,8 +18,8 @@
 
 If you are a new session picking this project up: read this entire
 document plus `docs/09-Service-Authorization-Onboarding.md` before touching
-anything, then start at Milestone 1 (not Milestone 2 — it was never
-re-verified after the redesign). This is a **Stream M** project: present
+anything, then resume from the first unchecked cohort/layer in Milestone 3.
+Do not replay completed milestones. This is a **Stream M** project: present
 each state-changing step (target, exact change, expected effect, validation,
 rollback) and wait for Jason's approval before running it. He is expected to
 be approving remotely from his phone, not sitting at this Mac, so:
@@ -87,7 +89,10 @@ direct, private recovery access. Desired outcome: a family member or Jason
 opens a friendly `*.elliottrook.com` name, authenticates once through
 Authentik (password + passkey), and reaches the service — without losing the
 ability to reach any service directly if Authentik or the reverse proxy is
-ever down. This is a service-by-service rollout, not a bulk conversion.
+ever down. Delivery is organized as bounded, layer-based cohorts rather than
+repeating the complete workflow one service at a time. A cohort may stage
+several proxy, identity or DNS objects together only when they share a tested
+pattern, recovery checkpoint, validation and rollback.
 
 ## Current state and evidence
 
@@ -104,12 +109,10 @@ ever down. This is a service-by-service rollout, not a bulk conversion.
   JWE-encrypted tokens — see the Evidence log for full detail) plus one
   unrelated OPNsense inter-VLAN gap (Forgejo's host couldn't reach NPM at
   all) fixed with a single narrow pass rule.
-- **Homepage, Beszel — not started, re-confirmed live 2026-09-13.** Homepage
-  is healthy at `http://192.168.20.20:3000`; Beszel `0.18.7` is healthy at
-  `http://192.168.20.20:8090`. NPM has no proxy host for either intended
-  hostname, Authentik has no Homepage/Beszel application or provider, and
-  `home.elliottrook.com` / `metrics.elliottrook.com` return no A record from
-  OPNsense or either Pi-hole. The direct fallbacks remain intact.
+- **Completed through 2026-09-15:** NPM, Forgejo, Homepage, Beszel, Grafana,
+  the coordinated ARR stack, Portainer and both Pi-hole web interfaces have
+  passed their real-login, denial, sign-out and recovery gates. Non-browser
+  protocols and server-side widget/API paths remain direct.
 - Full live dashboard inventory pulled 2026-09-10 (`/opt/homepage/config/services.yaml`)
   — ~35 apps total, most never previously scoped in this project. See Scope
   below and `docs/09-Service-Authorization-Onboarding.md`'s service plan
@@ -117,15 +120,22 @@ ever down. This is a service-by-service rollout, not a bulk conversion.
 
 ## Scope and exclusions
 
-**In scope for this redesign pass:** Milestone 2 — Homepage and Beszel only.
-Milestones 3 (operations/application wave — Portainer, Pi-hole, Immich,
-Seerr, the *arr stack, Grafana, Code Server, Dockge, Dozzle, Homarr,
-Newtarr, File Browser, NetBox, Calibre/Audiobookshelf, Jellyfin) and 4
-(infrastructure interfaces — Proxmox, TrueNAS, Synology, UniFi, Home
-Assistant, OPNsense) remain explicitly out of scope until Milestone 2
-graduates and is observed stable. This project's own principle, unchanged
-from before the redesign: one service at a time, observe before the next
-wave.
+**In scope:** the completed foundation and application packages above; the
+remaining Milestone 3 browser interfaces (Immich, Seerr, Frigate, Code Server,
+Dockge, Dozzle, Homarr, Newtarr, File Browser, NetBox, Calibre,
+Audiobookshelf and Jellyfin); Milestone 4 infrastructure interfaces (Proxmox,
+TrueNAS, both Synology systems, UniFi, Home Assistant and a separately decided
+OPNsense browser path); and the explicitly defined Milestone 5 normalization,
+regression, documentation and close-out work below.
+
+**Plex scope correction:** Plex is assessment-only in this project. Retain
+Plex authentication and every TV/mobile/remote-client path. Do not add an
+Authentik enforcement layer unless a later, separately approved design proves
+browser-only administration can be isolated without affecting clients.
+
+**Frigate scope correction:** Frigate's browser UI is part of Milestone 3.
+RTSP, ONVIF, camera discovery, recordings and integrations remain direct and
+must never traverse Authentik.
 
 **Milestone 3 packaging decision:** treat the operational *arr stack as one
 coordinated work package, not five sequential service rollouts. Its fixed
@@ -136,7 +146,16 @@ still require its own hostname, NPM host and Authentik application, but those
 are components of one atomic work package. Preserve every existing API-key
 path among Prowlarr, the three ARR applications, SABnzbd, Homepage and the
 automation tools; Authentik applies only to human browser access. The general
-one-service-at-a-time rule continues to apply to all other Milestone 3 targets.
+exception is limited to this already-completed atomic work package. For the
+remaining targets, work is chunked by shared layer rather than by service:
+discover/classify the whole cohort; capture one
+verified cohort checkpoint; stage narrow network and NPM routes while DNS is
+unpublished; create the matching Authentik applications/providers; publish the
+cohort's DNS records together; then validate user workflows in risk-based
+subcohorts. One failed member stops promotion of that member but does not
+require rolling back already validated siblings. Native-OIDC application
+configuration and any secret handoff remain per-application changes because
+their rollback and credential risk are not shared.
 
 **Never proxy through Authentik:** SSH, DNS, SMB, NFS, iSCSI, RTSP, ONVIF,
 backup transports, the Ollama-compatible API, the Tailscale control path.
@@ -190,6 +209,14 @@ so the least-privilege correction is one Homepage-only TCP rule from NPM
 not included and remains a later, separately approved change after Homepage
 graduates.
 
+For remaining cohorts, replace the example names above with the approved
+cohort manifest. The trust flow stays the same: browser HTTPS terminates at
+NPM; forward-auth checks go to Authentik while native-OIDC authorization goes
+from the application to Authentik; NPM reaches only enumerated backend TCP
+ports; application APIs, agents, storage, media streams and recovery paths stay
+direct. Proxy and identity objects are staged before DNS makes a name normally
+reachable.
+
 ## Privacy and security design
 
 - Homepage forward auth gates the dashboard's browser UI only; its
@@ -200,14 +227,19 @@ graduates.
   agents (on every other host) must keep using their existing private
   direct connection to the hub — never route agent-to-hub traffic through
   Authentik.
-- Least privilege: bind both services to an explicit Authentik group
-  (`homelab-admins` or a narrower family group, per whatever Milestone 1's
-  actual current group set is — verify live rather than assume, see
-  Milestone 2 below), not open to every Authentik identity by default.
-- No credential, client secret, or API key from this rollout is committed
-  to Git or printed in this document; only their storage location.
+- Least privilege: until a deliberately designed household group replaces it,
+  bind each remaining application directly to `jason`, matching the validated
+  convention; never leave an application open to every Authentik identity.
+- No credential, client secret or API key is committed to Git or intentionally
+  printed. Safe inspection must explicitly exclude secret fields. The two
+  accidental diagnostic exposures recorded in evidence were rotated and are
+  included in Milestone 5's final secret review.
 
 ## Pre-start risk assessment
+
+The first bullets below preserve the original Milestone 2 risk baseline and
+its decisions. The 2026-09-15 addendum that follows governs the expanded
+remaining cohorts.
 
 - **Affected systems:** Homepage (Docker LXC 100), Beszel (same host),
   Authentik (LXC 106), NPM (LXC 107). No other guest is touched.
@@ -246,8 +278,40 @@ graduates.
   reachability (`check_tcp` entries in `services.conf`); no new check is
   required to detect an outage, only to confirm the *proxied* path
   specifically works once live.
-- **Unresolved decision:** whether Beszel's installed version supports
-  native OIDC — not yet confirmed live, first action of its own step below.
+- **Resolved decision:** Beszel `0.18.7` supported native OIDC and graduated
+  with password recovery retained; see Milestone 2 evidence.
+
+### Remaining-wave risk addendum — 2026-09-15 redesign
+
+- **Batch risk:** a malformed shared NPM, Authentik or DNS candidate could
+  affect several staged names at once. Control: use an explicit cohort
+  manifest, atomic database/configuration transactions where supported,
+  unpublished DNS during proxy/identity staging, exact object-count checks and
+  all-or-nothing rollback for the failed layer.
+- **Availability:** forward-auth staging does not alter direct paths. Native
+  OIDC activation can affect an application's login behavior, so those settings
+  remain per-application changes with a tested local administrator and immediate
+  rollback even though shared providers/proxies/DNS are batched.
+- **Client compatibility:** Immich, Seerr, Frigate, Calibre, Audiobookshelf,
+  Jellyfin and Home Assistant have non-browser consumers. Browser success alone
+  cannot graduate them; mobile, TV, reader/player, API and integration paths are
+  explicit workflow gates.
+- **Privilege:** Code Server, Dockge, File Browser, NetBox and every Milestone 4
+  interface can materially change infrastructure or data. Their cohort is
+  staged together for efficiency but promoted only after deny tests, direct
+  recovery and service-local role checks.
+- **Credentials:** discovery must query only safe fields. Never clone or print
+  client secrets, cookie secrets, API keys or mixed secret-bearing config.
+  Secret handoff is source-to-target through protected mode-`0600` files and is
+  validated by length/fingerprint or behavior, not value disclosure.
+- **Rollback:** each cohort manifest maps every new firewall rule, NPM host,
+  Authentik object, DNS record and application setting to its prior checkpoint.
+  Removing one failed member must not delete shared objects used by a passed
+  sibling. Direct private URLs remain the last-known-good path throughout.
+- **Interruption:** expected outages are limited to controlled application or
+  redundant-DNS restarts. The change stops if an unplanned service interruption,
+  failed checkpoint, unexpected consumer, broader network path or credential
+  exposure appears.
 
 ## Persistence plan
 
@@ -441,9 +505,9 @@ the 2026-09-15 observation pass found no regression.
 
 ### Milestone 3 — Operations/application wave
 
-Work one bounded package at a time. The ARR stack is the single coordinated
-five-application package defined in the scope decision above; every other
-target remains an individual package.
+Completed packages below retain their evidence. Remaining work follows the
+layer-based cohort design later in this milestone; it does not repeat an
+end-to-end rollout one service at a time.
 
 **Grafana:**
 - [x] Observe Milestone 2 before starting the next service. **Passed
@@ -475,7 +539,7 @@ target remains an individual package.
   and was corrected to Grafana's supported group-based expression before the
   successful retest.
 
-**Portainer — next package:**
+**Portainer — completed package:**
 - [x] Audit the live service and access path. Portainer CE `2.39.5` is healthy
   in Docker LXC 100 with direct HTTP `:9000` and HTTPS `:9443` recovery paths,
   internal authentication and a Docker-socket mount. NPM cannot currently
@@ -543,6 +607,115 @@ target remains an individual package.
   required Authentik again. Only the two tile `href` values now use friendly
   HTTPS; the primary widget still uses its direct v6 API and returns 200.
 
+#### Remaining Milestone 3 cohort design
+
+The remaining application wave is divided by blast radius and workflow, not
+into twelve repeated end-to-end service projects:
+
+- **Cohort 3A — bounded browser gates:** Dozzle, Homarr, Frigate browser UI and
+  Newtarr after discovery establishes what it is and who consumes it. These are
+  expected to use forward auth. Frigate's streams/integrations remain direct.
+- **Cohort 3B — administrator-capable interfaces:** Code Server, Dockge, File
+  Browser and NetBox. Treat the whole cohort as privileged even where an
+  interface is read-only; retain local recovery and validate denied-user
+  behavior before publishing Homepage links.
+- **Cohort 3C — client-sensitive media applications:** Immich, Seerr, Calibre,
+  Audiobookshelf and Jellyfin. Prefer supported native OIDC, but configure each
+  application's OAuth secret/role mapping separately. Mobile, TV, reader,
+  player, callback and API behavior must pass before enforcement. Plex is not a
+  member; it remains assessment-only with no authentication change.
+
+Each cohort uses the following layer gates. One approval may cover all members
+of one layer when the exact object inventory and rollback are presented:
+
+- [ ] **Discovery and classification:** record versions, direct URLs, owners,
+  existing authentication, API/mobile/automation consumers, hostname/Host
+  requirements and whether native OIDC is genuinely supported. Unknown or
+  materially different members leave the cohort before mutation.
+- [ ] **Cohort recovery checkpoint:** capture and verify Authentik, NPM,
+  OPNsense, all three DNS configurations, Homepage and every member's relevant
+  configuration/database. Do not proceed if any required checkpoint fails.
+- [ ] **Network and proxy staging:** add only the enumerated NPM-to-backend TCP
+  paths and create all cohort NPM hosts against the wildcard certificate while
+  DNS remains unpublished. Validate every backend, certificate, Host header,
+  NPM database and generated configuration in one gate.
+- [ ] **Identity-object batch:** atomically create the cohort's forward-auth or
+  native-OIDC providers/applications, strict callbacks, standard mappings and
+  direct `jason` bindings. Validate `jason` allow/`akadmin` deny and outpost
+  membership without printing credentials. Application-side native OIDC and
+  secret transfer remain individually approved substeps.
+- [ ] **DNS publication batch:** add the entire validated cohort to OPNsense and
+  both Pi-holes in one reviewed candidate, reload redundant resolvers safely,
+  and prove every name independently on all three authorities.
+- [ ] **Workflow promotion:** test real private-session login, SSO, sign-out,
+  direct recovery, non-browser consumers and service-specific clients. Promote
+  Homepage links only for members that pass; leave failed members staged and
+  unpublished from Homepage with an explicit blocker and rollback decision.
+
+Durable cohort status (update cells only from evidence, not intent):
+
+| Cohort | Discovery | Checkpoint | Network/proxy | Identity objects | DNS | Workflow/promotion |
+|---|---|---|---|---|---|---|
+| 3A — bounded browser gates | Pending | Pending | Pending | Pending | Pending | Pending |
+| 3B — administrator interfaces | Pending | Pending | Pending | Pending | Pending | Pending |
+| 3C — client-sensitive media | Pending | Pending | Pending | Pending | Pending | Pending |
+
+Milestone 3 completes when Cohorts 3A-3C pass, Plex's no-change assessment is
+recorded, and all previously completed Milestone 3 packages remain healthy.
+
+### Milestone 4 — Infrastructure-interface cohorts
+
+Infrastructure work uses the same layer batching but a higher recovery bar:
+
+- **Cohort 4A — native identity platforms:** Proxmox, TrueNAS and the main and
+  backup Synology interfaces. Batch shared discovery/checkpoints, proxy
+  staging, Authentik objects and DNS; activate native identity and map roles per
+  platform. Preserve `root@pam`, TrueNAS local administration and both Synology
+  local recovery paths. SMB, NFS, iSCSI, backup and hypervisor traffic remain
+  direct.
+- **Cohort 4B — household/control planes:** UniFi and Home Assistant. Batch
+  proxy/DNS/identity staging, but validate Home Assistant browser, companion
+  app, callbacks and emergency access separately before enforcement. Preserve
+  UniFi local console/direct recovery.
+- **OPNsense decision gate:** default is no proxy or Authentik dependency for
+  the firewall UI. `firewall.elliottrook.com` is created only after a separate
+  risk decision proves that LAN/Tailscale direct recovery cannot be impaired.
+
+- [ ] Complete Cohort 4A through the six layer gates used by Milestone 3.
+- [ ] Complete Cohort 4B through the six layer gates used by Milestone 3.
+- [ ] Record and implement the OPNsense decision (approved recovery-safe design
+  or explicit no-change conclusion).
+- [ ] Run an infrastructure-wide recovery test with Authentik/NPM unavailable
+  by reasoned path validation or controlled interruption, without risking the
+  last firewall/hypervisor/storage administration path.
+
+### Milestone 5 — Policy normalization, integration and graduation
+
+Milestone 5 is now explicit; it is not another service-onboarding wave:
+
+- [ ] Add the missing owner-only Forgejo application policy binding and verify
+  `jason` allow/`akadmin` deny without changing Forgejo's working native OIDC.
+- [ ] Inventory Synology Backup and Cloudflare Access, then either bring their
+  bindings/documentation into the project standard or record a deliberate
+  exclusion with owner and rationale.
+- [ ] Confirm the two stale pre-redesign sessions are stopped or archived and
+  record the human verification; remove no current task or automation by
+  inference.
+- [ ] Run the full regression matrix: every friendly route, direct recovery
+  path, Authentik denial, sign-out, widget/API/agent/mobile/client path, three
+  DNS authorities, NPM integrity/syntax and narrow loaded firewall rules.
+- [ ] Review secrets and temporary files without printing values; confirm all
+  credentials are protected, all accidental disclosures were rotated, and no
+  temporary access remains.
+- [ ] Finish the integration checklist: Doctor/monitoring decision, backup and
+  restore order, human wiki, Aster mirror, operational reference, onboarding
+  completion table, portfolio, architecture/addressing and Homepage.
+- [ ] Perform a proportional restore/rebuild proof for Authentik/NPM and one
+  representative native-OIDC and forward-auth service path.
+- [ ] Record accepted limitations, move the project to completed projects,
+  update all links, create the focused close-out commit, push Forgejo with
+  immediate approval and verify the GitHub mirror.
+
 ## Validation and evaluation
 
 - Functional: login succeeds with the correct account, fails for a denied
@@ -599,12 +772,13 @@ target remains an individual package.
 
 ## Graduation criteria
 
-Milestone 2 graduates when Homepage and Beszel are both live on friendly
+Milestone 2 graduated when Homepage and Beszel became live on friendly
 HTTPS names, validated end-to-end by a real login, direct fallback proven,
-and the onboarding completion record updated for both. The whole project
-graduates only after Milestones 3, 4 and 5 (unchanged, not started) also
-pass their own gates — this redesign closes out Milestone 0 and resets
-Milestone 2 to a safely resumable state, it does not graduate the project.
+and the onboarding completion record was updated for both. The whole project
+graduates only after all remaining Milestone 3 cohorts, Milestone 4 cohorts
+and the now-explicit Milestone 5 close-out gates pass. Cohort batching changes
+delivery efficiency, not the requirement for per-service recovery and workflow
+evidence.
 
 ## Evidence log
 
@@ -660,10 +834,13 @@ Milestone 2 to a safely resumable state, it does not graduate the project.
 | 2026-09-15 | Milestone 3 Pi-hole pair split DNS | With explicit Stream-M approval, added `dns1.elliottrook.com` and `dns2.elliottrook.com`, both pointing to NPM `192.168.50.23`, to OPNsense Unbound and both Pi-hole `dns.hosts` lists. Validated and reloaded Unbound, then restarted the redundant Pi-holes one at a time, proving the other resolver remained available before continuing. | Passed. OPNsense and both Pi-holes independently return the intended address for both names, as does the normal client resolver. Both Pi-holes are healthy and continue serving DNS; direct web recovery is unchanged. Normal certificate-valid HTTPS requests return the correct same-host Authentik 302 routes, while NPM SQLite integrity and syntax pass. |
 | 2026-09-15 | Milestone 3 Pi-hole pair interactive authentication gate | Jason used Private Safari on iPhone to authenticate through `dns1`, then completed the deliberately retained primary Pi-hole password login and reached its dashboard. The secondary dashboard also worked through the same Authentik SSO session. Opening the `dns1` outpost sign-out route and revisiting the site required Authentik again. | Passed. Real sign-in, SSO, application login and Authentik session termination are proven for the coordinated pair. Fresh uncached policy evaluation allows `jason` and denies `akadmin` for both applications. Direct web recovery and both DNS services remain available. |
 | 2026-09-15 | Milestone 3 Pi-hole pair Homepage cutover | With explicit Stream-M approval, changed only the primary and secondary Pi-hole tile `href` values to `https://dns1.elliottrook.com` and `https://dns2.elliottrook.com`. Retained the primary widget URL at direct `http://192.168.20.20:8082`, version 6 and its file-backed credential. | Coordinated Pi-hole package complete. Homepage is healthy and the direct authenticated widget API returns 200. Both friendly routes retain their Authentik 302 gates; all three DNS authorities return NPM's address; NPM database integrity and syntax pass. Homepage, Beszel, Sonarr and Portainer retain their expected responses. |
+| 2026-09-15 | Remaining-work scale redesign | Jason directed that the large remaining rollout be chunked by shared implementation layer rather than completed one service at a time. Reconciled the project scope with the onboarding plan: Frigate's browser UI is in Milestone 3, Plex is assessment-only/no-change by default, Milestone 5 is explicitly defined, and remaining applications/infrastructure are divided into risk-based cohorts. | Design only; no live state changed. Each cohort now batches discovery/checkpoints, network/proxy staging, Authentik objects and DNS publication while preserving per-application native-OIDC secret handling, recovery, client tests and independent promotion. Stream M per-change approval and stop-on-surprise rules remain unchanged. |
 
 ## Close-out
 
-Not graduated. Milestones 1-2 are complete. Milestone 3 remains in progress;
-Homepage, Beszel, Grafana, the coordinated ARR package, Portainer and the
-coordinated Pi-hole pair have graduated, while the remaining application wave
-and Milestones 4-5 are still future work.
+Not graduated. Milestones 1-2 are complete except the human-only stale-session
+confirmation retained in Milestone 0. Milestone 3 remains active: Homepage,
+Beszel, Grafana, ARR, Portainer and the Pi-hole pair have graduated; Cohorts
+3A-3C remain. Milestone 4 infrastructure cohorts and the explicit Milestone 5
+normalization/regression/close-out remain future work. Resume with Milestone 3
+cohort-wide read-only discovery, not with a single service implementation.
