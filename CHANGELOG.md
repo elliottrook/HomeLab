@@ -13,6 +13,11 @@
 ## Unreleased
 
 ### Added
+- Added a proposed Stream-M Cantinarr evaluation and controlled-pilot project:
+  an isolated, reversible pilot beside Seerr that begins without production
+  credentials or media mounts and separately gates remediation, Authentik,
+  local AI and a restricted Aster MCP surface behind evidence and bounded
+  approvals.
 - Added the resumable Aster wiki acquisition core: strict HTTPS/Git/manual
   boundaries, SQLite checkpoints, run-specific staging, atomic acceptance,
   retained last-good rollback, tamper verification, bounded health reports,
