@@ -904,6 +904,41 @@ silently absorbed into this project's scope.
   `192.168.70.10:9120` — Authentik's side of M2 is now functionally
   complete pending live login testing, which needs the proxy path to
   exist first.
+- 2026-09-21 — **New NPM host created for `aster.elliottrook.com`.** NPM
+  has no declarative/CLI equivalent to Authentik's blueprints, and its own
+  admin API needs a login token we don't have — but hand-writing the nginx
+  conf directly was ruled out as too risky (one syntax error there can fail
+  `nginx -t` for the whole reload, taking every proxied host in the lab
+  down, not just this one). Instead, read NPM's own internal application
+  code (`/app/internal/proxy-host.js`, `/app/internal/nginx.js` inside the
+  `nginx-proxy-manager` container) and called its internal
+  `internalNginx.configure()` directly via a small script executed with
+  `docker exec ... node` — the same safe, tested path NPM's own UI uses
+  (test config → generate → test again → only then reload; rolls back
+  automatically if the test fails), just invoked without going through the
+  HTTP/auth layer. Modeled the new row on the existing `git.elliottrook.com`
+  (Forgejo) entry — same certificate (id 8, the existing wildcard), same
+  TLS/HTTP2/websocket/exploit-blocking settings, plain reverse proxy with
+  no forward-auth `advanced_config` (Aster does native OIDC, not
+  NPM-forward-auth, matching Forgejo/Grafana's pattern not
+  Homepage/Beszel's). First attempt exposed a real gap: NPM's real
+  `create()` re-fetches the row with `certificate`/`owner`/`access_list`
+  eager-loaded before generating the config, which my script skipped —
+  the template's SSL block is gated on the *expanded* `certificate`
+  relation object, not just the `certificate_id` FK, so the first version
+  silently produced a config with no `listen 443 ssl` block at all
+  (caught by testing the live vhost directly against the container with
+  correct SNI via `curl --connect-to`, not by assuming success from the
+  "no errors" script output). Fixed by re-fetching with
+  `.withGraphFetched("[certificate,owner,access_list.[clients,items]]")`
+  before calling `configure()` again. Verified after the fix: SSL block
+  present, certificate correctly resolved to `*.elliottrook.com`, and a
+  live test now reaches nginx and gets a `504` timing out trying to reach
+  `192.168.70.10:9120` — the expected, correct result at this stage, since
+  the OPNsense path there doesn't exist yet (confirmed absent in M1). All
+  17 pre-existing hosts re-checked healthy (`nginx_online: true`) both
+  before and after — the reload didn't disturb anything else. New host is
+  id 18 in `proxy_host`.
 
 ## Close-out
 
