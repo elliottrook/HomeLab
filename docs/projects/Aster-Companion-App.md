@@ -862,9 +862,48 @@ silently absorbed into this project's scope.
   lost if the Authentik containers are ever recreated (not just restarted)
   — the git copy is the durable record; the created flow/stage rows
   themselves are safe either way since they're in Postgres, which is
-  backed up. Next step: create the `aster-companion` OAuth2/OIDC
-  provider+application (public client, PKCE) and point it at this new
-  flow as its authentication flow, rather than the shared default.
+  backed up.
+- 2026-09-21 — **`aster-companion` OAuth2 provider and application
+  created.** Before writing this blueprint, checked Authentik's own field
+  documentation via `ak shell` rather than assume — this caught a real
+  misunderstanding: `Provider.authorization_flow` is the **consent** flow
+  (every existing provider here points it at
+  `default-provider-authorization-explicit-consent`), not the login flow.
+  The actual per-app login override is `Provider.authentication_flow`
+  ("Flow used for authentication when the associated application is
+  accessed by an un-authenticated user" — Authentik's own help text). Had
+  this gone unchecked, the new passwordless flow would have been wired to
+  the wrong hook and never actually run. Also found and used
+  `/blueprints/testing/oidc-conformance.yaml`, a complete shipped
+  provider+application blueprint example, to confirm exact syntax
+  (`!Find [app.model, [field, value]]` for referencing existing objects,
+  the plain-list `redirect_uris` structure) instead of guessing — and
+  deliberately used the *real* default property mappings
+  (`goauthentik.io/providers/oauth2/scope-profile`, returning actual user
+  data) rather than that file's `scope-profile-oidc-standard` mapping,
+  which fills placeholder fields like `"website": "foo"` for conformance
+  testing only. Dry-ran clean, applied, then verified every field
+  read-only: `client_type: public`, `client_id: aster-companion`,
+  `authentication_flow: aster-companion-passwordless` (the new flow),
+  `authorization_flow: default-provider-authorization-explicit-consent`
+  and `invalidation_flow: default-provider-invalidation-flow` (matching
+  existing convention), `redirect_uris` set to the provisional
+  `aster-companion://callback` custom URL scheme (placeholder pending the
+  actual app's bundle ID/scheme in M3 — trivially changed later, it's just
+  a field on the provider), `grant_types: [authorization_code,
+  refresh_token]`, and exactly the intended 4 property mappings (openid,
+  email, profile, offline_access). Provider count went 17→18. The
+  application (`slug: aster-companion`) is linked to it, with exactly one
+  enabled `PolicyBinding` directly to user `jason` (order 0) — matching
+  the exact "one direct owner binding" pattern already used for
+  Forgejo/Grafana/Portainer/the five ARR apps. Blueprint source committed
+  at `services/authentik-blueprints/aster-companion-provider-app.yaml`,
+  same durability note as the flow blueprint (container-local file, DB
+  rows are the safe part). Next step: the new NPM host for
+  `aster.elliottrook.com` and the one narrow OPNsense rule to reach
+  `192.168.70.10:9120` — Authentik's side of M2 is now functionally
+  complete pending live login testing, which needs the proxy path to
+  exist first.
 
 ## Close-out
 

@@ -1,0 +1,48 @@
+version: 1
+metadata:
+  name: aster-companion-provider-app
+entries:
+  - model: authentik_providers_oauth2.oauth2provider
+    id: ac-provider
+    identifiers:
+      name: Aster Companion
+    attrs:
+      client_type: public
+      client_id: aster-companion
+      authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
+      authentication_flow: !Find [authentik_flows.flow, [slug, aster-companion-passwordless]]
+      invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+      issuer_mode: per_provider
+      sub_mode: hashed_user_id
+      redirect_uris:
+        - matching_mode: strict
+          url: aster-companion://callback
+          redirect_uri_type: authorization
+      grant_types:
+        - authorization_code
+        - refresh_token
+      property_mappings:
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-profile]]
+        - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-offline_access]]
+      signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+
+  - model: authentik_core.application
+    id: ac-app
+    identifiers:
+      slug: aster-companion
+    attrs:
+      name: Aster Companion
+      provider: !KeyOf ac-provider
+      meta_description: "Native macOS client for Aster - passkey-only login, voice, multi-persona chat"
+
+  - model: authentik_policies.policybinding
+    id: ac-binding
+    identifiers:
+      target: !KeyOf ac-app
+      user: !Find [authentik_core.user, [username, jason]]
+    attrs:
+      order: 0
+      enabled: true
+      negate: false
