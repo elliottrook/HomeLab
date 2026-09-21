@@ -1,264 +1,446 @@
-# Project: HomeLab Credential Broker
+# Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
 > Status: proposed
+>
 > Owner: Jason
-> Proposed: 2026-09-15
+>
+> Proposed: 2026-09-21
+>
 > Started: —
+>
 > Completed: —
-> Stream: **M (Monitored)** — recommended; requires Jason's confirmation before implementation begins (see "Decisions required")
+>
+> Stream: **M (Monitored)** for the initial security-sensitive deployment. A later bounded Stream A phase may be proposed only after approval, audit, revocation, restore and failure-path controls have graduated.
 
 ## Purpose and desired outcome
 
-Give an AI agent (Claude Code / a future homelab agent runner) the ability to
-run commands against real HomeLab hosts (Proxmox, TrueNAS-like nodes, the
-Forgejo box, etc.) over SSH **without the agent process ever holding, seeing,
-or being able to exfiltrate a credential**. The user-visible outcome is: "ask
-the agent to check on/manage a host" works, and a fully compromised or
-prompt-injected agent still cannot read an SSH key or password.
+Create a central, vendor-neutral privileged-access layer for AI-assisted HomeLab administration so Jason can start work from the Mac, continue steering it from an iPhone, and authorize narrowly scoped administrative access without copying passwords, API tokens or private keys into AI conversations.
 
-This was prompted by reviewing the HomelabHero project (serversathome/homelabhero),
-which uses a three-user privilege-separation + broker pattern for the same
-problem. This project adapts that pattern to this HomeLab rather than adopting
-the tool wholesale.
+ChatGPT/Aster, Claude Code, local Aster/Hermes and future AI clients will authenticate to one broker. The broker exposes capabilities rather than raw secrets, obtains credentials from OpenBao, and uses Authentik plus passkey/WebAuthn for human approval of sensitive actions.
+
+The user-visible result is:
+
+1. an AI can discover only the capabilities it is allowed to request;
+2. low-risk read-only work can be pre-authorized where appropriate;
+3. privileged changes create a clear approval request;
+4. Jason can approve or deny from an iPhone with a passkey;
+5. approval is bound to the exact agent, service, capability, resource and TTL;
+6. the AI normally receives the result of an operation, not the credential;
+7. any AI can be suspended or replaced without rotating unrelated service credentials;
+8. active leases/sessions can be revoked centrally; and
+9. every new HomeLab service must explicitly define its AI-administration posture before graduation.
+
+This project supersedes the narrower 2026-09-15 SSH-only credential-broker proposal at this same path. The useful privilege-separation idea is retained, but the design expands to OpenBao secret custody, Authentik approval, a capability/MCP gateway, a management GUI, replaceable agent identities and service-wide onboarding rules.
 
 ## Current state and evidence
 
-- No credential broker currently exists in this HomeLab.
-- Existing privileged access model: the Mac mini holds SSH keys/admin access to
-network devices directly; a parallel project (laptop admin parity) is
-extending equivalent direct access to the laptop by duplicating keys/scope.
-- Reference implementation reviewed: HomelabHero (github.com/serversathome/homelabhero),
-README-level detail only — three system users (operator, low-priv agent user,
-vault-owning user), a sudoers rule restricting the agent to executing exactly
-one broker binary as the vault user, and a non-secret registry separated from
-a 700-mode vault directory.
-- A first-draft, untested broker skeleton (`hb`, `hb-connect`, `setup-vault.sh`,
-a sudoers file) has been sketched conversationally and is included with this
-project document as a starting candidate — not yet reviewed against live
-HomeLab topology, NetBox, or Authentik/Tailscale identity.
+- Authentik is already an established HomeLab identity/authorization service and passkey/WebAuthn operation is proven through the normal HTTPS path.
+- Aster is deliberately bounded: it has no arbitrary shell, arbitrary filesystem path, generic credential retrieval or unrestricted network-target tool.
+- Existing Aster integrations already use sanitized readers and separately governed action paths.
+- Forgejo remains the primary Git repository authority; GitHub is the synchronized off-site protection remote.
+- NetBox remains authoritative for adopted device/IP/VLAN/service inventory facts.
+- There is no central AI credential/capability control plane today.
+- The previous credential-broker draft was SSH-only, deferred Authentik, used file-backed keys and had no management GUI or replaceable-AI lifecycle.
 
 ## Scope and exclusions
 
-**In scope:**
-- Design and stand up a broker (agent user / vault user / sudoers-narrowed
-broker script) on a chosen control-plane host.
-- Register at least one real HomeLab host (read-only commands only) through
-the broker as a proof of concept.
-- Document the credential-isolation model in the repo.
+### In scope
 
-**Explicitly out of scope for this project:**
-- Replacing or removing the Mac mini's existing direct SSH access.
-- The laptop-admin-parity project's key duplication (related, not merged in
-here — this project proposes the broker as an *alternative* worth comparing
-against that approach, not a silent replacement of it).
-- Any production write/mutating command execution through the broker until a
-separate milestone explicitly authorizes it.
-- Integrating Tailscale ACLs or Authentik as an additional access layer (noted
-as a future extension under Architecture, not built here).
+- Deploy **OpenBao** as the central machine-secret custody, policy and lease/revocation engine unless M0 discovers a material blocker.
+- Deploy a separate **AI Access Broker** exposing a versioned internal API and MCP-compatible tool surface.
+- Integrate the broker with **Authentik OIDC** and passkey-protected human approval.
+- Build a private **AI-PAM Management GUI**.
+- Give each AI client a distinct broker identity such as `agent-chatgpt`, `agent-claude`, `agent-aster` or `agent-hermes`.
+- Give each target service a separate least-privilege AI identity where supported, such as `ai-proxmox`, `ai-opnsense`, `ai-truenas`, `ai-forgejo` and `ai-homeassistant`.
+- Prefer broker/proxy execution so the AI never sees the credential.
+- Support dynamic or temporary credentials where the target supports them.
+- Permit wrapped static-secret delivery only as a documented exception.
+- Create Green/Yellow/Red/Black capability classes.
+- Create mandatory probationary onboarding and decommissioning for new AI clients.
+- Add an AI Integration Gate to the HomeLab Project Creation Standard.
+- Integrate backup, restore, monitoring, HomeLab Doctor, audit and emergency revocation.
+- Add a supported Forgejo MCP path so AI clients can work with the authoritative Forgejo repository without sharing human Git credentials.
+
+### Explicit exclusions
+
+- No AI receives OpenBao root/recovery material.
+- No AI receives Authentik recovery credentials or passkey private material.
+- No universal HomeLab superuser credential is created.
+- No requirement that every service expose a raw API key. “AI key” is operator shorthand; the real requirement is a documented AI service identity/capability path.
+- No public OpenBao administration surface.
+- No automatic promotion from probation.
+- No destructive capability merely because the broker can technically invoke it.
+- Core HomeLab operation must remain independent of AI-PAM.
+- Existing human administrator credentials remain available as break-glass access during the pilot.
 
 ## Authority model
 
-- **Registry** (alias → host/user/port): non-secret, lives in this repo,
-authoritative for "what hosts does the broker know about."
-- **Vault** (alias → private key material): secret, lives only on the
-control-plane host filesystem, mode 700, **never committed to Git** — this
-repo is not the authority for key material and must never become it.
-- **NetBox**: remains authoritative for device/IP/VLAN facts; the registry
-references NetBox-known hosts by address but does not duplicate ownership of
-that data.
+| Fact / control | Authority |
+|---|---|
+| Device/IP/VLAN/service inventory | NetBox where adopted |
+| AI-PAM design and policy intent | HomeLab Git/Forgejo |
+| AI client identities and capability roles | AI Access Broker |
+| Human identity, passkeys and OIDC authentication | Authentik |
+| Secret values, dynamic-secret configuration and leases | OpenBao |
+| Target-service permissions | Target service native RBAC/API |
+| Approval/audit history | Broker audit log correlated to Authentik identity |
+| Aster/Hermes memory | Derived/non-authoritative only |
+
+Git records metadata and procedures, never secret values.
 
 ## Architecture and data flows
 
-Three local system users on one control-plane host (candidate: a small
-unprivileged LXC on the T5810, matching HomelabHero's model):
+```text
+                         JASON
+                    iPhone / Mac
+                         |
+                  Passkey / WebAuthn
+                         |
+                         v
+                    +----------+
+                    | Authentik|
+                    +----+-----+
+                         |
+                         v
++-------------+     +----+-----------------------+
+| ChatGPT     |---->|                            |
++-------------+     |                            |
+                    |       AI ACCESS BROKER     |----> Proxmox
++-------------+     |       + MCP gateway        |----> OPNsense
+| Claude Code |---->|       + policy engine      |----> TrueNAS
++-------------+     |       + approvals          |----> Forgejo
+                    |       + audit service      |----> Home Assistant
++-------------+     |       + management API     |
+| Aster/Hermes|---->|                            |
++-------------+     +-------------+--------------+
+                                  |
+                                  v
+                             +----+-----+
+                             | OpenBao  |
+                             +----------+
+```
 
-- `hlabagent` — runs the agent/Claude session; low-privilege; cannot read the
-vault directory.
-- `hlabvault` — owns `/var/lib/homelab-broker/vault` (mode 700); the only
-identity that can read key material.
-- Trust boundary: one sudoers line lets `hlabagent` execute exactly
-`/usr/local/bin/hb-connect`, and only as `hlabvault`. No other command, no
-other target user.
+The broker and OpenBao remain outside the AI-agent trust boundary.
 
-Flow: agent calls `hb run <alias> "<command>"` → sudo invokes `hb-connect` as
-`hlabvault` → `hb-connect` resolves the alias in the non-secret registry,
-reads the matching key from the vault, opens `ssh -o BatchMode=yes` to the
-target, returns only stdout/stderr to the agent. The agent's context stream
-never contains key material.
+### Execution modes
 
-Future extension (not built in this project): put the control-plane host
-behind Tailscale ACLs so it can only reach declared HomeLab subnets, as a
-second, independent layer outside the broker itself.
+**Mode 1 — broker/proxy execution (default).** The AI calls a named capability such as `proxmox.vm.status`; the broker authenticates to the service and returns sanitized output. The credential never reaches the AI.
 
-## Privacy and security design
+**Mode 2 — dynamic/temporary credential.** Where the target supports short-lived credentials, issue a scoped credential with a TTL and revocable lease.
 
-- Least privilege: `hlabagent` has sudo rights to exactly one binary, as
-exactly one non-root target user; no wildcard in the sudoers rule.
-- Data minimization: registry holds no secrets; only the vault directory does.
-**Corrected 2026-09-15** (was inaccurately described as ".gitignore'd at the
-repo root"): the vault (`/var/lib/homelab-broker/vault`) is an absolute path
-on the control-plane host, not a path inside this repository, so there is
-nothing to `.gitignore` here — it never touches Git either way, which is the
-actually-load-bearing fact.
-- **Known gap, unresolved as of 2026-09-15 — the sudoers rule does not
-enforce read-only use.** `hlabagent ALL=(hlabvault) NOPASSWD:
-/usr/local/bin/hb-connect` restricts *which binary* `hlabagent` may run as
-`hlabvault`, but sudo does not parse or restrict the arguments passed to
-that binary. Concretely: (a) `hlabagent` can invoke `hb-connect add <alias>
-<user@host>` exactly as freely as `run`/`test` — `hb-connect`'s own source
-comment acknowledges this ("keep 'add' gated at the human/CI layer too,
-belt-and-braces") but no such gate is implemented anywhere in the sudoers
-file or the script itself; and (b) `hb-connect run` execs whatever string
-is passed straight to the remote shell with no command allowlist, so
-"read-only commands only" is a stated operational policy, not a technical
-control enforced by this code. This is a materially weaker enforcement
-model than every other AI-facing broker already in this repository (the
-Aster ARR stack manager's execution-disabled broker; Aster's read-only,
-non-mutating API-token readers), which enforce the no-mutation boundary in
-code. **This must be resolved — either a real remote-command allowlist in
-`hb-connect run`, or splitting `add` into a separate binary the sudoers
-rule does not grant `hlabagent` access to — before M1 stands up the vault
-and sudoers rule for real; it does not block adding these files to the
-repo as an unimplemented proposal.**
-- No public exposure: broker only listens for local sudo invocation; it does
-not open a network port.
-- Logging: broker should log alias + command invoked (not output, not key
-material) for audit; log location and rotation to be decided at
-implementation time and checked against HomeLab Doctor integration below.
-- Loopback and unregistered-alias targets are refused by the broker by design.
+**Mode 3 — wrapped static credential (exception).** Only when a client itself must present a static token. A broker TTL must never be represented as target-side revocation if the third-party service continues accepting the underlying token. The integration must proxy instead or include target credential rotation/revocation.
+
+## Risk classes
+
+### Green — pre-authorized low-risk/read-only
+
+Examples: health, metrics, inventory, sanitized logs, non-secret configuration, repository reads and status checks.
+
+### Yellow — explicit mobile approval
+
+Examples: restart a service/guest, modify bounded configuration, push an approved Git change, install/update a package, rotate a non-root service credential.
+
+### Red — fresh high-assurance approval
+
+Examples: firewall/routing changes, authorization-policy changes, destructive operations, backup-retention changes, OpenBao/Authenik administrative changes. Red requests require a fresh passkey assertion and a second explicit target/effect/rollback summary.
+
+### Black — never delegated to AI
+
+OpenBao root/recovery material, Authentik recovery credentials, passkey private keys, full root passwords, storage-encryption recovery keys and backup master-recovery secrets.
+
+## Management GUI
+
+The private management GUI is a required control surface, not an optional dashboard.
+
+### AI Clients
+
+Show identity, vendor/harness, lifecycle state, roles, allowed capabilities, last authentication, active leases and recent request status.
+
+Actions: add, begin probation, promote/demote, suspend, rotate client authentication, revoke sessions/leases, disable and retire.
+
+### Services and credentials
+
+Show metadata only: service, AI service identity, credential type, secret-custody identifier, execution mode, scope, rotation age/due state, revocation method and health. Normal operation must not display secret values.
+
+Actions: onboard service, test identity, rotate credential through a controlled workflow, disable AI access, revoke supported credentials and open the runbook.
+
+### Approvals
+
+Show requester, reason, service/resource, capability, risk class, duration, exact change summary and rollback.
+
+Actions: approve once, approve for allowed TTL, deny, deny-and-suspend and open audit history.
+
+### Emergency controls
+
+Provide per-agent disable/revoke controls and a prominent **REVOKE ALL AI ACCESS** control. The global control must stop new broker issuance, revoke broker sessions, revoke revocable OpenBao leases, trigger supported target revocations, and leave human break-glass administration intact.
+
+## Probationary onboarding and replaceable AI clients
+
+Every new AI begins in **Probation**. No identity can be created directly as Operator or Orchestrator.
+
+```text
+Registered -> Probation -> Observer -> Operator -> Specialist / Orchestrator
+                  |            |
+                  +-------> Suspended / Retired
+```
+
+Probation may use selected health checks, sanitized inventory/logs, documentation lookup and capability discovery. It may not retrieve raw secrets, run arbitrary shell/network calls, make configuration changes, restart services, administer accounts, change network policy or rotate credentials.
+
+Promotion requires recorded tests for identity attribution, denied-action handling, prompt-injection attempts, malformed arguments, scope expansion, expired approvals, live revocation and absence of secret material in AI-visible output.
+
+Replacing one AI means registering the replacement in Probation, validating its workload, assigning only required roles, promoting explicitly, disabling the old identity, revoking its sessions/leases and proving the old identity is denied. Target-service credentials need not be rotated merely because the AI changes unless the old AI was allowed to see that credential directly.
+
+## Forgejo MCP integration
+
+### Goal
+
+Give ChatGPT/Aster, Claude Code and local Aster/Hermes a common, revocable path to the authoritative Forgejo repository without sharing Jason's personal Git credentials or making GitHub the routine write authority.
+
+### Phase 1 — repository-scoped Forgejo service identity
+
+Use the maintained **Forgejo MCP Server** as the protocol adapter.
+
+Deploy it in a dedicated unprivileged Proxmox guest/container or alongside the broker only if isolation remains equivalent. Run streamable HTTP for remote-capable clients and keep operator-token fallback disabled.
+
+Create a dedicated Forgejo AI identity/token restricted to the HomeLab repository when the deployed Forgejo version supports repository-specific tokens. Store that token only in OpenBao. The AI client authenticates to the AI Access Broker; the broker supplies or proxies the narrow Forgejo credential.
+
+Expose explicit capabilities such as:
+
+- `forgejo.repo.read`
+- `forgejo.file.read`
+- `forgejo.history.read`
+- `forgejo.commit.create`
+- `forgejo.push.request`
+- `forgejo.issue.create`
+- `forgejo.pr.create`
+
+Do **not** expose generic Forgejo token retrieval.
+
+Repository reads are candidates for Green. Repository writes/pushes are Yellow initially and require the normal action-specific mobile approval.
+
+The desired normal flow is:
+
+```text
+AI edits project
+   -> creates local/candidate change
+   -> requests forgejo.push
+   -> AI-PAM creates approval
+   -> Jason approves on iPhone with passkey
+   -> broker/MCP performs the Forgejo write
+   -> broker verifies Forgejo ref
+   -> broker verifies GitHub mirror reached the same commit
+```
+
+### Phase 2 — Forgejo 16 Authorized Integrations / secret-less path
+
+If the deployed Forgejo is version 16 or newer and the implementation tests cleanly, prefer the Forgejo MCP resource-server mode using Authentik-issued OIDC/JWT identity plus a Forgejo Authorized Integration.
+
+In that model:
+
+- the client does not carry a Forgejo PAT;
+- the MCP endpoint validates the Authentik/OIDC access token;
+- the MCP server signs a short-lived caller JWT;
+- Forgejo validates that identity through the configured Authorized Integration; and
+- no standing Forgejo token must be distributed to the AI client.
+
+This is the preferred end state because it removes static Forgejo tokens from the normal path and aligns Forgejo access with AI-PAM's identity/lease/approval model.
+
+### ChatGPT connectivity constraint
+
+The Forgejo MCP service must be designed as a standards-compliant remote MCP endpoint rather than assuming direct LAN access from every AI. Claude Code and local AI can use LAN/stdio/HTTP paths as supported; ChatGPT access is enabled only through the MCP/plugin capability actually supported by the active ChatGPT account/environment. The broker remains the stable interface so an AI can be added, removed or replaced without redesigning Forgejo.
+
+### Forgejo-specific revocation
+
+The management GUI must support:
+
+- disable one AI's Forgejo capabilities;
+- revoke active Forgejo-related broker sessions/leases;
+- disable/rotate the Phase-1 repository token;
+- disable the Phase-2 Authorized Integration;
+- emergency-disable all AI-originating Forgejo writes while retaining human Forgejo administration.
 
 ## Pre-start risk assessment
 
-- **Affected systems:** whichever host is chosen as control-plane (proposed:
-new LXC on T5810), plus every HomeLab host subsequently registered with the
-broker (initially: read-only test target only).
-- **Data/users affected:** none directly; this is infrastructure tooling.
-- **Confidentiality/secret-handling risk:** primary risk is a flawed sudoers
-rule or vault permission that widens the trust boundary — this is the
-single highest-consequence mistake possible in this project and must be
-checked with `sudo -l -U hlabagent` before any real key is registered.
-**A concrete instance of this risk is already known and unresolved as of
-2026-09-15** (see Privacy and security design above): the sudoers rule as
-drafted does not restrict `hlabagent` to `run`/`test`, and `run` itself has
-no command allowlist — closing this is now a graduation blocker, not a
-hypothetical to watch for.
-- **Availability/integrity risk:** low in read-only phase; a broken broker
-simply fails closed (agent can't reach hosts), it doesn't corrupt anything.
-- **Irreversible operations:** none in the read-only proof-of-concept phase.
-Registering a host generates a *new* keypair — it does not touch or replace
-any existing key on the Mac mini or elsewhere.
-- **Recovery/rollback:** broker can be fully removed by deleting the two
-service users, the vault directory, and the sudoers file; no HomeLab host
-state is touched by that rollback.
-- **Test strategy:** validate against one low-value, already-known host first
-(e.g. a scratch LXC), using only `echo`/read-only commands, before
-registering anything production-relevant.
-- **Unresolved decisions requiring Jason's acceptance before work starts:**
-see "Decisions required" below.
+| Risk | Impact | Control |
+|---|---|---|
+| Broker compromise becomes privileged pivot | Critical | separate guest, deny-by-default capability API, narrow broker identity, no root secret, segmentation, audit, kill switch |
+| OpenBao compromise exposes stored static secrets | Critical | restricted surface, protected storage/backups, minimal admins, recovery-key separation |
+| Prompt injection requests dangerous capability | High | explicit capabilities, no generic secret/shell tool, risk classes, approval binding |
+| Approval fatigue | High | concise action-specific prompts, short TTLs, no approval spam |
+| Static target token outlives broker lease | High | proxy by default or rotate/revoke target credential |
+| New AI inherits excessive privileges | High | mandatory Probation and explicit promotion |
+| MCP endpoint becomes generic Forgejo admin path | High | repo-scoped identity, capability allowlist, no operator-token fallback, network restriction |
+| Broker/Authentik/OpenBao outage blocks AI work | Medium | fail closed; human direct administration remains independent |
 
-## Decisions required (before implementation)
+Initial implementation remains **Stream M** because this project establishes a new credential trust boundary.
 
-1. **Stream:** confirm Monitored (recommended) vs. Autonomous.
-2. **Control-plane host:** confirm using a new LXC on the T5810 (vs. an
-existing host).
-3. **Relationship to laptop-admin-parity project:** confirm this is explored
-as an alternative/complement, not a replacement, until you decide otherwise.
-4. **First registered host:** confirm a specific low-value test target for
-the read-only proof of concept.
+Stop immediately if a secret reaches model-visible output or Git, a denied capability succeeds, an approval can be replayed against a different payload/resource, revocation fails, or human break-glass access is lost.
 
 ## Persistence plan
 
-- Registry file and this project document are Git-tracked and durable.
-- Vault directory is durable on the control-plane host's filesystem (LXC
-rootfs) but intentionally outside Git; back it up via the LXC's own
-Proxmox backup schedule, not via this repo.
-- No long-running/background job exists yet in this project — nothing to
-checkpoint beyond normal milestone commits.
+Persist non-secret agent/service registries, roles, approval records, audit metadata, schema/version and project milestone state. Never persist secret values, passkey private material or reusable approval bearer tokens in Git/project logs.
+
+On resume: re-read the project standard and this project, inspect Git/live health, verify the last evidence gate, ensure no stale lease remains, then continue from the recorded safe action.
 
 ## Milestones
 
-- [ ] M1 — Stand up `hlabagent`/`hlabvault` users and vault directory on the
-chosen control-plane host; verify `sudo -l -U hlabagent` shows exactly the
-one narrow rule.
-- [ ] M2 — Install `hb-connect`/`hb`; register one read-only scratch host;
-confirm `hb run <alias> "echo ok"` succeeds and `hlabagent` cannot read
-the vault directly (`sudo -u hlabagent cat /var/lib/homelab-broker/vault/*`
-must fail).
-- [ ] M3 — Document the model in the repo per this project's template;
-integration-checklist pass (see below).
-- [ ] M4 — Decide graduation vs. further extension (Tailscale ACL layer,
-additional hosts, write-command support).
+### M0 — discovery, version lock and threat model
+
+- [ ] Confirm deployed Forgejo version and native token/Authorized Integration capabilities.
+- [ ] Confirm Authentik OIDC/passkey flow suitable for broker approval.
+- [ ] Confirm Proxmox placement/IP/VLAN capacity.
+- [ ] Evaluate current OpenBao release/deployment requirements.
+- [ ] Verify the maintained Forgejo MCP release and pin a tested immutable version.
+- [ ] Select first Green and Yellow production-shaped integrations.
+- [ ] Produce final data-flow/threat-model diagram.
+
+**Gate:** no production credentials or authorization are changed.
+
+### M1 — OpenBao foundation
+
+- [ ] Deploy dedicated OpenBao guest.
+- [ ] Establish human-only recovery ownership.
+- [ ] Configure minimal broker identity.
+- [ ] Configure protected backup and isolated restore.
+- [ ] Prove broker identity cannot perform root/admin operations.
+
+### M2 — Broker, policy and audit
+
+- [ ] Deploy separate AI Access Broker.
+- [ ] Implement agent/service registries.
+- [ ] Implement explicit capabilities and risk classes.
+- [ ] Implement request IDs, payload binding, TTL and revocation.
+- [ ] Implement metadata-only audit.
+- [ ] Implement global emergency disable.
+
+### M3 — Authentik mobile approval
+
+- [ ] Register broker approval application/provider.
+- [ ] Build iPhone-friendly approval flow.
+- [ ] Require passkey at the defined risk class.
+- [ ] Test approve, deny, timeout, replay and changed-payload failure.
+
+### M4 — Management GUI
+
+- [ ] AI client lifecycle.
+- [ ] roles/capabilities.
+- [ ] service/credential metadata.
+- [ ] approval inbox/history.
+- [ ] sessions/leases.
+- [ ] per-agent/per-service/global revocation.
+- [ ] audit search.
+- [ ] responsive iPhone layout.
+- [ ] secret rendering prohibited and tested.
+
+### M5 — Probationary AI lifecycle
+
+- [ ] Mandatory Probation default.
+- [ ] promotion/demotion.
+- [ ] replacement/retirement workflow.
+- [ ] prompt-injection/scope-expansion tests.
+- [ ] live revocation proof.
+
+### M6 — Forgejo MCP pilot
+
+- [ ] Deploy pinned Forgejo MCP.
+- [ ] Create repo-scoped Phase-1 AI identity/token if needed.
+- [ ] Store token only in OpenBao.
+- [ ] Register bounded Forgejo capabilities.
+- [ ] Green read-only tests.
+- [ ] Yellow approved write/push test on a safe branch/test file.
+- [ ] Verify Forgejo authoritative ref.
+- [ ] Verify GitHub mirror.
+- [ ] If Forgejo 16+, test Authorized Integration/resource-server mode and decide whether to retire the PAT path.
+
+### M7 — additional production integrations
+
+For each target service create least-privilege `ai-*` identity where supported, prefer broker proxy mode, implement revoke/rotate, test allowed and denied actions, and verify no credential appears in AI context/logs.
+
+### M8 — charter/service-onboarding integration
+
+- [ ] Adopt AI Integration Gate in `docs/Project-Creation-Standard.md`.
+- [ ] Update service onboarding docs.
+- [ ] Add AI-PAM service-registry template.
+- [ ] Update architecture/runbooks/NetBox/Homepage as authoritative.
+- [ ] Add Doctor/drift checks.
+
+### M9 — graduation
+
+- [ ] global kill-switch test;
+- [ ] per-agent/per-service revoke tests;
+- [ ] Authentik/OpenBao/broker outage tests;
+- [ ] reboot/restart tests;
+- [ ] backup + isolated restore;
+- [ ] two independent normal workflow passes;
+- [ ] no temporary access remains;
+- [ ] normal HomeLab administration still works with AI-PAM unavailable.
 
 ## Validation and evaluation
 
-- Functional: `hb run`/`hb test` succeed against the registered scratch host.
-- Least-privilege/denied-action test: confirm `hlabagent` cannot read vault
-files, cannot sudo to any command/user other than the one rule, and cannot
-run `hb-connect add` (kept operator-only per the standard's broker design).
-- Adversarial input: attempt `hb run localhost "..."` and confirm the broker's
-loopback refusal fires.
-- Restart behavior: confirm sudoers rule and vault permissions survive a
-reboot of the control-plane host.
+Test normal function, least privilege, malformed arguments, target/path injection, prompt-injection secret requests, approval replay, changed payload after approval, expired sessions, compromised-agent revocation and dependency outages. Safe failure is always closed without damaging human administration.
 
 ## Observability and maintenance
 
-- **HomeLab Doctor:** add a check for vault directory permissions (should
-always be 700, owned by `hlabvault`) and sudoers file integrity — not
-applicable yet for broker *service* uptime since it's invoked on demand,
-not a daemon.
-- Not applicable: metrics/alerting beyond Doctor at this stage (no persistent
-service to monitor yet).
+HomeLab Doctor should check broker/OpenBao/Authenik dependency health, sealed/unavailable state where safely observable, stale leases, overdue rotations, audit freshness, backup age, restore-test marker, global-disable state and service-integration drift.
+
+Monitoring should track request counts/outcomes, approval latency, denied requests, failed authentication, active leases and service proxy errors without logging secret-bearing payloads.
 
 ## Backup, restore and rollback
 
-- Vault directory: covered by the control-plane LXC's Proxmox backup, not Git.
-- Registry + all scripts: covered by normal repo backup/mirroring.
-- Rollback: remove sudoers file, delete the two service users and the vault
-directory — no effect on any existing HomeLab host.
+Protect OpenBao state/recovery material separately, broker database/config/policies, Authentik integration configuration and source/runbooks in Forgejo.
 
-## Documentation and systems-of-record updates (integration checklist)
+Restore order: network/DNS -> OpenBao -> broker state/policy -> Authentik integration -> GUI/API -> target-service integrations -> agents.
 
-- [ ] HomeLab Doctor — add vault-permission/sudoers-integrity check (M3)
-- [ ] Monitoring/alerting — not applicable yet, no persistent service
-- [ ] Backup and recovery — vault covered by LXC backup schedule (confirm at M1)
-- [ ] NetBox — not applicable; broker references existing NetBox-known hosts,
-does not add new device records
-- [ ] Human wiki — add an operator page describing what the broker is and how
-to register/deregister a host (M3)
-- [ ] Aster mirror/snapshot — not applicable at this stage
-- [ ] Operational reference/runbooks — add broker usage to homelab-reference (M3)
-- [ ] Repository documentation — this project doc + architecture note (M3)
-- [ ] Diagrams/rack records — not applicable, no physical/topology change
-- [ ] Homepage/service discovery — not applicable, broker has no UI/dashboard
-- [ ] Authentication/authorization — new local system users only; no
-Authentik/SSO integration in this project
-- [ ] DNS, certificates, firewall — not applicable, no network-facing service
-- [ ] Automation and schedules — not applicable yet (no cron/systemd unit
-in this project's scope)
-- [ ] Security inventory — record `hlabagent`/`hlabvault` as new local
-identities, vault path, and sudoers file added
+Rollback must be able to disable broker issuance, revoke leases, disable `ai-*` identities and AI-PAM network paths while preserving human administration.
+
+## Required integration impact checklist
+
+- [ ] HomeLab Doctor
+- [ ] Monitoring/alerting
+- [ ] Backup and isolated restore
+- [ ] NetBox
+- [ ] Human wiki
+- [ ] Aster mirror/snapshot (sanitized only)
+- [ ] Operational reference/runbooks
+- [ ] Repository architecture/portfolio docs
+- [ ] Homepage private operator link
+- [ ] Authentik/native target authorization
+- [ ] DNS/certificates/firewall
+- [ ] Automation/schedules
+- [ ] Security inventory
+- [ ] Forgejo MCP + mirror-verification runbook
+
+## AI Integration Gate / “AI key” standard
+
+Every newly deployed or materially replaced service must have its AI administration posture explicitly defined before graduation.
+
+The shorthand may be “AI key”, but a raw API key is neither required nor preferred. The required deliverable is a documented AI service identity/capability path or an explicit `AI administration: not currently supported` decision with reason.
+
+Where the service supports appropriate APIs/RBAC, create a dedicated `ai-*` identity with the minimum required permissions. Never share the human administrator/root identity.
+
+Credentials belong in the central secrets system and should be reached through the AI Access Broker. Prefer proxy execution; dynamic credentials are second choice; static-secret release is an exception with documented rotation/revocation.
+
+Each integration records service, AI identity, auth type, broker capabilities, risk/approval class, secret-custody identifier (not value), rotation, revocation, human break-glass path and status.
+
+Never weaken a service merely to satisfy this gate.
 
 ## Graduation criteria
 
-- M1–M3 complete and validated.
-- The known sudoers/command-allowlist gap (see Pre-start risk assessment,
-2026-09-15) is closed — `hlabagent` cannot invoke `hb-connect add`, and
-`hb-connect run` enforces an actual remote-command allowlist rather than
-executing an arbitrary agent-supplied string — before real key material is
-ever registered.
-- `sudo -l -U hlabagent` reviewed and confirmed minimal by Jason.
-- At least one successful, audited read-only broker call against a real
-(non-scratch) HomeLab host.
-- Decision recorded on relationship to laptop-admin-parity project.
-- Rollback tested once in the scratch environment.
+The project graduates only when OpenBao and broker are recoverable; root/recovery material is human-only; no generic arbitrary-shell/network/secret-dump tool exists; mobile passkey approval is proven; GUI lifecycle/revocation works; global kill switch works; probation cannot be bypassed; Forgejo read/write path and mirror verification pass; at least one additional Green and Yellow service path pass twice; backup/restore pass; documentation and monitoring are current; and human administration works with AI-PAM unavailable.
 
 ## Evidence log
 
 | Date | Action | Evidence | Residual risk |
-|------|--------|----------|----------------|
-| 2026-09-15 | Reviewed HomelabHero README for credential-isolation pattern | GitHub README, serversathome/homelabhero | None — read-only research |
-| 2026-09-15 | Drafted broker skeleton (`hb`, `hb-connect`, `setup-vault.sh`, sudoers file) conversationally | Files attached to this project | Untested; not yet reviewed against live topology |
+|---|---|---|---|
+| 2026-09-15 | Initial SSH-only broker proposal | repository history | lacked central secrets, Authentik approval, GUI and AI lifecycle |
+| 2026-09-21 | Reframed as AI-PAM | current charter/authorization/architecture reviewed | implementation not started |
+| 2026-09-21 | Added replaceable-AI model, mandatory probation, GUI and kill switches | design | requires adversarial testing |
+| 2026-09-21 | Added OpenBao + Authentik + broker/MCP architecture | design | exact deployed versions must be verified at M0 |
+| 2026-09-21 | Added Forgejo MCP access plan | Forgejo MCP current README; Forgejo v15 repo tokens; Forgejo v16 Authorized Integrations | deployed Forgejo version not yet confirmed |
+| 2026-09-21 | Drafted AI Integration Gate | project design | charter amendment included in this commit |
 
 ## Close-out
 
-Not graduated. Awaiting decisions above before M1 begins.
+Not graduated. No production credential, identity, firewall, DNS, Authentik, OpenBao or Forgejo authorization change is created merely by this documentation change.
+
+Next safe action: **M0 read-only discovery and threat-model/version lock**.

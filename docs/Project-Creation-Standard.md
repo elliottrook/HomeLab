@@ -278,6 +278,53 @@ checklist when it is not an authority for the affected fact.
   behavior, concurrency control and observable last-success state.
 - [ ] **Security inventory** — secrets kept outside Git, file ownership/modes,
   patch/update responsibility and temporary-access removal.
+- [ ] **AI administration integration** — dedicated `ai-*` identity or explicit
+  not-applicable decision, broker capability mapping, approval class,
+  credential custody metadata, revocation/rotation procedure and human
+  break-glass path.
+
+
+## AI integration gate
+
+Every newly deployed or materially replaced service must have its AI
+administration posture explicitly defined before the service can graduate.
+
+The operator shorthand may be **AI key**, but a raw API key is not required and
+is not preferred. The required deliverable is a documented AI service identity
+and capability path, or an explicit `AI administration: not currently
+supported` decision with reason.
+
+Where a service supports suitable APIs/RBAC, create a dedicated `ai-*` service
+identity using the minimum permissions required for approved AI-assisted
+administration. Do not share the human administrator/root identity.
+
+Credentials must be placed in the central secrets system and reached through
+the AI Access Broker wherever technically practical. They must not be stored in
+Git, AI prompts, agent memory, project logs or ordinary plaintext
+configuration.
+
+Prefer broker/proxy execution so the AI never receives the credential.
+Temporary/dynamic credentials are the second choice. Releasing a static
+credential is an exception requiring a documented reason and revocation or
+rotation procedure.
+
+Each service integration must record:
+
+- service;
+- AI service identity;
+- credential/authentication type;
+- broker capabilities;
+- risk class / approval requirement;
+- secret custody location identifier (not value);
+- rotation procedure;
+- revocation procedure;
+- break-glass/human recovery path; and
+- current integration status.
+
+A service is not blocked from deployment merely because no safe AI API exists.
+In that case record `AI administration: not currently supported`, the reason,
+and the human administration path. Never weaken a service's security simply to
+satisfy this gate.
 
 ## Persistence and unattended continuation
 
