@@ -413,12 +413,39 @@ begins:**
 ## Persistence plan
 
 This document is the durable checkpoint. Current milestone: **Milestone 1,
-in progress** (this document's own drafting and the open architecture
-questions above). On resume: re-read this document, `docs/reference/Aster-Operations.md`,
-and live Authentik/NPM/OPNsense/Proxmox state; confirm none of the four
-unresolved decisions above has been silently assumed; continue from the last
-checked milestone box. No implementation state exists yet outside this
-document and the (unmodified) existing Aster/ARR-broker code.
+in progress**. Jason accepted the pre-start risk assessment on 2026-09-21
+and directed Milestone 1 discovery to begin; work was stopped immediately
+after (same session) so the project could be handed to a fresh Claude Code
+session for remote steering. **No live discovery calls were made yet** —
+only local repo reading. Exact stopping point and next safe action:
+
+- Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
+  read-only wrapper for the Authentik (`auth.elliottrook.com/api/*`) and NPM
+  (`proxy.elliottrook.com/api/*`) HTTPS APIs (documented in
+  `docs/projects/Authentik-Rollout.md`'s 2026-09-10 evidence entry). It needs
+  a bearer token in the `API_TOKEN` environment variable.
+- **Not yet located:** where a read-only Authentik API token is stored for
+  this kind of discovery use (or whether one needs to be minted fresh,
+  matching the least-privilege pattern used for every other source-local
+  reader in this lab, e.g. the Forgejo/NetBox report producers). This is the
+  next safe action on resume — find or mint that token before making any
+  live Authentik API call.
+- Still outstanding from Milestone 1, none started: confirm live Authentik
+  version and passwordless-flow (identification + WebAuthn, no password)
+  support; confirm whether an existing narrow OPNsense rule already reaches
+  `192.168.70.10:9120` from Jason's admin devices; confirm the next
+  available Proxmox VMID for the speech-service guest (tentatively 115);
+  resolve the four unresolved decisions listed in the Pre-start risk
+  assessment section above with Jason.
+- No state has been changed anywhere outside this Git repository. No SSH,
+  API or Proxmox call has been made for this project yet.
+
+On resume: re-read this document in full (especially the Pre-start risk
+assessment's four unresolved decisions and this section), then
+`docs/reference/Aster-Operations.md`, then continue with the next safe
+action above. Do not assume any of the four unresolved decisions or any
+open architecture question elsewhere in this document has been settled
+just because time has passed — confirm with Jason or with live state.
 
 ## Milestones
 
