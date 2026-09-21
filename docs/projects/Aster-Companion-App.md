@@ -591,12 +591,21 @@ rotation.
 
 ## Milestones
 
-- [ ] **M1 — Discovery, architecture finalization, risk acceptance.**
-  Confirm live Authentik version and passwordless-flow support; confirm
-  existing direct-LAN reachability to `192.168.70.10:9120`; decide speech
-  service placement and OIDC client type; resolve the four unresolved
-  decisions above with Jason; Jason accepts this risk assessment for
-  Stream A. *No state-changing work in this milestone.*
+- [x] **M1 — Discovery, architecture finalization, risk acceptance.**
+  **Complete 2026-09-21.** Live Authentik version (`2026.8.0`) and
+  passwordless-flow support confirmed (native `passwordless_flow` field on
+  the identification stage). Confirmed no existing rule reaches
+  `192.168.70.10:9120` — no direct-LAN path to retire. Decisions with
+  Jason: (1) mutating-action scope stays ARR-repair-only for now; (2)
+  speech service gets its own new dedicated LXC (VMID 116) and its own
+  hostname, not the news aggregator's guest, since Jason wants Home
+  Assistant and future clients to consume it too and it's TTS-only/trial
+  today; (3) native app registers as a public OIDC client with PKCE, no
+  embedded secret; (4) M2's Authentik object creation goes through SSH +
+  `ak` (Django management CLI), not the token-gated HTTPS API — the
+  `AUTHENTIK_TOKEN` exposure earlier is moot for this project either way,
+  though still worth rotating for hygiene. No state was changed in this
+  milestone.
 - [ ] **M2 — Identity and proxy, no app yet.** Stand up the new Authentik
   passwordless provider/application/flow; create the new NPM host(s) and the
   one narrow OPNsense rule; add split-DNS entries; extend `aster_agent.py`
@@ -796,6 +805,36 @@ silently absorbed into this project's scope.
   a candidate alternative to the token-gated API path for M2's actual
   object creation, flagged as a new open decision rather than assumed.
   Every query was read-only; no row was written, no object was created.
+- 2026-09-21 — **Milestone 1 closed.** Jason confirmed all four pre-start
+  decisions plus the fifth (M2 access path) surfaced during discovery: ARR-
+  repair-only scope stands; speech service gets a new dedicated LXC (VMID
+  116) with its own hostname rather than the news aggregator's guest, since
+  Jason wants Home Assistant and future clients to consume it and today's
+  news-aggregator TTS is trial-only/TTS-only; public OIDC client with PKCE;
+  M2's Authentik object creation goes through SSH + `ak`, not the
+  token-gated API.
+- 2026-09-21 — **Milestone 2 started.** Took the same pre-change checkpoint
+  every prior Authentik-Rollout milestone took before creating anything:
+  `docker exec`'d a `pg_dump -Fc` of Authentik's database from inside LXC
+  106 (`/opt/authentik/backups/authentik-before-aster-companion-20260921.dump`,
+  root-only 0600, verified enumerable via `pg_restore -l` — 1807 TOC
+  entries) plus a compose-file checkpoint, and an online SQLite backup of
+  NPM's database from inside LXC 107 via Python's `sqlite3` module (safe
+  under concurrent writes, unlike a plain file copy) to
+  `/opt/nginx-proxy-manager/backups/database.before-aster-companion-20260921.sqlite`
+  (root-only 0600, `PRAGMA integrity_check` returned `ok`). Both match the
+  exact naming/permission convention already used for every prior milestone
+  in that directory. No Authentik or NPM object has been created or
+  modified yet. Next concrete step: create the new `aster-companion`
+  passwordless flow and its stages (identification → webauthn → login, no
+  password) — paused to flag the implementation choice first: Authentik's
+  own declarative blueprint mechanism (`ak apply_blueprint`) is the
+  idiomatic, safer way to create this, but this deployment doesn't
+  currently mount a blueprints directory, so using it means a small compose
+  change first; the alternative is a direct `ak shell` Django-ORM script
+  against only the new objects, no compose change needed, but more
+  hand-rolled. Flagging rather than picking silently, since it's a real
+  risk-profile difference, not just a style preference.
 
 ## Close-out
 
