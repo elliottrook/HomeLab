@@ -835,6 +835,36 @@ silently absorbed into this project's scope.
   against only the new objects, no compose change needed, but more
   hand-rolled. Flagging rather than picking silently, since it's a real
   risk-profile difference, not just a style preference.
+- 2026-09-21 — **New Authentik flow created via blueprint.** Jason chose
+  blueprints. Rather than a permanent compose/volume change, discovered
+  `ak apply_blueprint` resolves paths relative to Authentik's existing
+  `/blueprints/` directory (already present in the image, no mount
+  needed), so the blueprint file was `docker cp`'d directly into the
+  running `authentik-worker-1` container instead. Before writing it,
+  cross-checked field/model names against Authentik's own shipped
+  reference (`/blueprints/example/flows-login-2fa.yaml`) rather than
+  trusting the earlier schema archaeology alone — this caught a real
+  mistake in the first draft (`stage` belongs inside a
+  `flowstagebinding`'s `identifiers`, not `attrs`) before anything was
+  applied. Ran `--dry-run` clean twice, then applied for real.
+  Read-only verification after: exactly one new flow,
+  `aster-companion-passwordless` (16 flows total, was 15), with stages
+  bound in order 10 (identification) → 20 (`authenticatorvalidatestage`
+  restricted to `device_classes: [webauthn]` only, `not_configured_action:
+  deny`, `webauthn_user_verification: required`) → 100 (login) — no
+  password stage anywhere in it. `default-authentication-flow` re-checked
+  and confirmed byte-for-byte unchanged (still the same 4 stages, same
+  order) — nothing shared was touched. The blueprint source is committed
+  at `services/authentik-blueprints/aster-companion-passwordless-flow.yaml`
+  as the real source of truth: applying it registered a `BlueprintInstance`
+  tracking row in Authentik's own database, but the file itself only lives
+  in the container's writable layer (no host volume mount), so it would be
+  lost if the Authentik containers are ever recreated (not just restarted)
+  — the git copy is the durable record; the created flow/stage rows
+  themselves are safe either way since they're in Postgres, which is
+  backed up. Next step: create the `aster-companion` OAuth2/OIDC
+  provider+application (public client, PKCE) and point it at this new
+  flow as its authentication flow, rather than the shared default.
 
 ## Close-out
 
