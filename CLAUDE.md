@@ -44,6 +44,7 @@ that file in sync — update both in the same change.
 | NUT server (Lenovo) | 192.168.50.25 | UPS health, `lab doctor` |
 | Aster Agent LXC 104 | 192.168.70.10 | Local agent API/UI health |
 | Aster llama.cpp GPU LXC 110 | 192.168.70.12 | Local inference health |
+| News Aggregator ("Your News") LXC 114 | 192.168.70.13 | Ingest/digest timer and service health checks |
 | NetBox LXC 111 | 192.168.20.32 | DCIM/IPAM API population (NetBox-DCIM project) |
 | UniFi Controller LXC 101 | 192.168.50.21 | AP inventory for NetBox population |
 | UniFi Hall AP | 192.168.50.31 | Device inventory for NetBox population |
