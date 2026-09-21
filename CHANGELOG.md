@@ -13,6 +13,15 @@
 ## Unreleased
 
 ### Added
+- Added a proposed Stream-A Aster Companion App project: a native macOS
+  client with Authentik passkey-only login, one identical local/remote
+  proxied endpoint, multi-persona "Aster Agents" with per-chat tool
+  selection, a generalized gated-action framework surfacing the existing
+  ARR-repair action, lab-hosted speech-to-text/text-to-speech, and an
+  orb/EQ thinking/acting indicator. Records an explicit, bounded decision to
+  begin moving Aster from strictly read-only toward incremental autonomy,
+  and excludes web-access-for-research as separate future work requiring
+  its own risk assessment.
 - Added a proposed Stream-M Cantinarr evaluation and controlled-pilot project:
   an isolated, reversible pilot beside Seerr that begins without production
   credentials or media mounts and separately gates remediation, Authentik,

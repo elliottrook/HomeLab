@@ -1,0 +1,614 @@
+# Aster Companion App
+
+> Status: Proposed — Stream A requested by Jason; pre-start risk assessment
+> below requires his explicit acceptance before Milestone 2 (first
+> state-changing work) begins, per the Standard's Stream A gate.
+>
+> Project owner: Jason
+>
+> Proposed: 2026-09-21
+>
+> Authorization stream: **Stream A — Autonomous**, assigned by Jason at
+> proposal time. Per `docs/Project-Creation-Standard.md`, the pre-start risk
+> assessment below is the authorization envelope; work starts only after
+> Jason accepts it. Milestone 1 (discovery/design, all read-only or
+> documentation-only) is pre-agreed under the Standard's common authorization
+> and is already underway in this document.
+
+## Purpose and desired outcome
+
+A native macOS client ("Aster Companion") that gives Jason a first-class way
+to talk to Aster — locally on the lab network and remotely — instead of the
+existing bare-bones browser page. Concretely:
+
+- Sign in once with Authentik, using a passkey only (no password prompt).
+- Talk to Aster by voice: speech-to-text for Jason, text-to-speech for
+  Aster's replies, with a visual indicator (an "orb"/EQ-style graphic) that
+  shows distinct idle/listening/thinking/speaking/acting states.
+- Choose which **Aster Agent** (a named persona — e.g. "Sysadmin Aster,"
+  "Media Automation Aster") a conversation talks to, so a chat only carries
+  the system prompt, knowledge scope and tool set relevant to that persona
+  instead of every capability Aster has, all the time.
+- Within a conversation, choose which of that persona's tools are actually
+  enabled for that chat, rather than always exposing everything a persona
+  could theoretically use.
+- Work the same way whether Jason is on the lab LAN or away from it, without
+  a different login flow or a different app mode for each case.
+
+This is explicitly a client and identity/interface project, not a rebuild of
+Aster's own model, inference backend or knowledge pipeline. Aster's existing
+`aster-llama` inference, knowledge snapshot and sanitized source reports
+(`docs/reference/Aster-Operations.md`) remain exactly as they are; this
+project adds a new front door and, per an explicit design decision recorded
+below, a bounded first step toward Aster taking gated actions rather than
+only ever answering questions.
+
+## Current state and evidence
+
+- **Aster today** runs as `aster-agent.service` on LXC 104 (`192.168.70.10:9120`,
+  Lab VLAN 70), calling `aster-llama.service` on LXC 110
+  (`192.168.70.12:11435/v1`, Qwen3.8 27B on an Intel Arc Pro B60, one
+  8,192-token slot, single-user). Source is git-tracked in this repository at
+  `services/aster-agent/aster_agent.py` with an existing test suite
+  (`services/aster-agent/test_aster_agent.py`) — this project can extend it
+  with normal code review and tests, unlike some other lab services whose
+  deployed source lives only on the guest.
+- **Auth today** is a single static bearer key (`ASTER_API_KEY`), checked by
+  `require_api_key()` in `aster_agent.py`. The existing browser page
+  (`GET /`) stores that key in the browser's local storage and calls
+  `POST /v1/chat/completions` directly. There is no Authentik involvement and
+  no per-user identity — anyone with the key has full access.
+- **Tool selection today** is keyword-based and pre-execution, not a model
+  driven tool-call loop: `select_tools(messages)` inspects the incoming
+  conversation text and `preload_read_only_context()` executes whichever of
+  Aster's eight allowlisted read-only functions match, before the single
+  call to `aster-llama`. The model itself never requests a follow-up tool
+  call in production — this is a deliberate one-pass design
+  (`docs/reference/Aster-Operations.md`, "Functions and knowledge").
+- **The one existing mutating capability** is the ARR queue-record repair
+  (`docs/projects/completed projects/Aster-Arr-Stack-Manager.md`,
+  `docs/projects/Aster-ARR-First-Repair-Decision.md`). It is fully
+  implemented and tested (`services/aster-arr-broker/`) but the broker is
+  stopped and boot-disabled by default, binds to loopback only, requires an
+  explicit temporary OPNsense rule and `ASTER_ARR_EXECUTION_ENABLED=true` to
+  do anything, issues one opaque single-use candidate per eligible record,
+  and needs a fresh operator-only approval (two-minute expiry) for every
+  live attempt. There is no standing execution authority anywhere in the
+  current design — this is the shape any future gated action in this project
+  must follow.
+- **Authentik** is `2026.8.0` (last confirmed live 2026-09-13,
+  `docs/projects/Authentik-Rollout.md`) and already runs native OIDC for
+  Forgejo, Beszel, Grafana and the five ARR web UIs, each as its own
+  dedicated OAuth2/OIDC provider + application with a strict callback, PKCE
+  where applicable, and exactly one direct `jason` binding. `jason` already
+  has a working WebAuthn passkey ("Apple Passwords," live since 2026-09-10).
+  Every existing flow is **password + passkey** (two-factor). A true
+  passwordless (passkey-only, no password stage) flow does not exist
+  anywhere in this lab yet and needs live verification in Milestone 1 that
+  the installed Authentik version actually supports an
+  identification-stage-plus-WebAuthn flow with no password stage.
+  Every existing native-OIDC client so far has been a **browser-based web
+  app** behind NPM; there is no precedent yet for a genuine native
+  (non-browser) OIDC client in this lab, so the exact callback mechanism
+  (custom URL scheme vs. loopback redirect via `ASWebAuthenticationSession`)
+  needs a Milestone 1 spike, not an assumption.
+- **Network reachability:** Aster's LXC 104 sits on Lab VLAN 70. Tailscale's
+  subnet router (`homelab-gateway`, Docker LXC 100) currently advertises only
+  Trusted (`192.168.1.0/24`), Servers (`192.168.20.0/24`) and Management
+  (`192.168.50.0/24`) routes to the administrator identity
+  (`docs/Current-Network-Baseline.md`) — **not** Lab VLAN 70. So today,
+  nothing on Lab VLAN 70 (Aster, `aster-llama`, MuckScraper) is reachable
+  over Tailscale at all; local reachability from Jason's three named devices
+  is via a separate, narrow OPNsense rule pattern already used for the news
+  aggregator (`MGMT_ADMIN_HOSTS → 192.168.70.13:8080/tcp`,
+  `docs/projects/Combined-Morning-Digest.md`) — worth confirming live whether
+  an equivalent rule already exists for `192.168.70.10:9120`.
+- **Speech:** Piper TTS (`en_US-lessac-medium`, `length_scale 1.15`) is
+  already vetted and in production for the news aggregator's audio digest
+  (`docs/projects/completed projects/News-Aggregator-Audio-Digest.md`), which
+  explicitly named itself "a trial for a planned Home Assistant project" —
+  this project is a second real consumer of that same vetted voice. No local
+  speech-to-text engine is deployed anywhere in this lab yet; the proposed
+  (not yet built) Home Assistant voice assistant
+  (`docs/projects/Home-Assistant-Voice-Assistant.md`) and subtitle project
+  (`docs/projects/Subtitle-Generation-Translation.md`) both anticipate
+  Whisper-family STT but neither has deployed it.
+- **Existing Mac-native-app precedent:** the FreeCAD MCP connector
+  (`docs/projects/FreeCAD-MCP-Connector.md`) is the only prior "runs
+  natively on this Mac" project, but it is a localhost bridge process, not a
+  GUI app with its own identity/UI — limited architectural overlap.
+
+## Scope
+
+- A native macOS app (SwiftUI), the v1 client, explicitly designed to extend
+  to other Apple platforms (iOS/iPadOS) later without a rewrite — but iOS is
+  not built in this project.
+- Authentik login using a new, dedicated passwordless (passkey-only) OIDC
+  flow and application, via the system browser (`ASWebAuthenticationSession`)
+  and PKCE, with the resulting token stored in the macOS Keychain.
+- A reverse-proxied, Authentik-fronted HTTPS endpoint for Aster's chat API
+  (new NPM host + narrow OPNsense rule), used identically whether Jason is on
+  the LAN or remote over Tailscale — one code path, matching how
+  Homepage/Beszel/Grafana already work "locally and remotely" via split-DNS.
+- Extending `aster_agent.py` to accept Authentik-issued access tokens as a
+  second, additive credential type alongside the existing static bearer key
+  (no regression to the existing browser page).
+- An **Aster Agents** concept: named personas, each a bundle of {system
+  prompt/framing, knowledge scope, allowed tool set}, served by the same
+  backend/model rather than separate deployments (the shared B60/one-slot
+  inference backend cannot support multiple concurrent model deployments).
+  Two personas ship in this project: **Sysadmin Aster** (today's existing
+  capabilities/knowledge, unchanged) and **Media Automation Aster** (ARR
+  stack-focused: the existing sanitized ARR report and, per the decision
+  below, the existing ARR-repair action).
+- A per-chat tool selector: within a conversation, choose which of the
+  active persona's available tools are actually eligible for that chat.
+- **A recorded, explicit architecture-philosophy shift**, per Jason's
+  direction: Aster moves from "strictly read-only, one-pass" toward
+  incrementally more autonomous, more capable, on a deliberately bounded
+  path. This project's own concrete step on that path is: generalize the
+  existing ARR-repair broker's shape (dry-run, opaque single-use candidate,
+  operator-only time-boxed approval, audit log, no standing authority) into
+  a reusable "gated action" contract, and surface the **existing** ARR-repair
+  action through it in the app. This project does **not** invent new
+  mutating capabilities beyond ARR-repair — see Exclusions.
+- A voice pipeline: speech-to-text (Jason) and text-to-speech (Aster),
+  centralized as a shared service on a lab host per Jason's decision, rather
+  than on-device on the Mac — reusable later by other future clients.
+- A visual state indicator (orb/EQ-style graphic) with distinct idle,
+  listening, thinking, speaking and acting states — "acting" must be visually
+  unmistakable from "thinking," since one of them may mutate state and the
+  other never does.
+
+## Out of scope (exclusions)
+
+- **Any new mutating capability beyond the existing ARR-repair action.**
+  Jason's direction to move Aster toward "more autonomous, more features"
+  is recorded above as an accepted long-term philosophy, but this project
+  does not itself pre-authorize building new action brokers (e.g. "restart
+  a service," "trigger a Sonarr search," "modify a file"). Each new gated
+  action is a materially different capability and, per the Standard's
+  non-waivable stop conditions, needs its own explicit risk decision when it
+  is actually proposed. This project builds the reusable *framework* and
+  wires up the one action that already exists and is already fully
+  risk-assessed.
+- **Web access for Aster (research/browsing).** Named by Jason as the "next
+  step" after this project. Explicitly and deliberately **not** in this
+  project's scope: outbound internet access from Aster's context is a new
+  egress path, a new prompt-injection attack surface (untrusted fetched
+  content entering the model's context), and a materially different
+  objective from this project's client/identity focus. It needs its own
+  full project document, pre-start risk assessment and stream decision.
+  Recorded here only so the intent isn't lost.
+- Any change to `aster-llama`'s model, hardware, or inference configuration.
+- Any change to the existing Forgejo/NetBox/Home-Assistant sanitized source
+  reports' content or authority boundary.
+- Any change to the existing browser page's current bearer-key access — it
+  keeps working unmodified; Authentik is additive, not a replacement, in
+  this project.
+- Building or deploying the proposed Home Assistant voice assistant project
+  — that project (if separately authorized) is HA's own Assist pipeline for
+  household device control and is unrelated to this app talking to Aster.
+- Windows/Linux/web clients, and iOS/iPadOS builds (architected for, not
+  built).
+- Widening Tailscale's advertised routes to include Lab VLAN 70 (rejected in
+  favor of the NPM+Authentik proxy — see Architecture).
+
+## Authority model
+
+- **Aster (`aster_agent.py`, LXC 104)** remains the sole authority for which
+  tools/functions exist, what a persona's system prompt and knowledge scope
+  is, and whether a gated action's preconditions are met. This project adds
+  new *inputs* (persona selector, enabled-tools list, Authentik token) to
+  that existing authority; it does not move any decision-making into the
+  client app. The client cannot invoke a function or action the backend
+  doesn't already expose for the active persona.
+- **Authentik** is the sole authority for who Jason is and whether this
+  app's passkey-only flow accepts the credential presented. Aster validates
+  Authentik-issued tokens against Authentik's own signing keys; it does not
+  maintain its own user database.
+- **The ARR broker (`services/aster-arr-broker/`)** remains the sole
+  authority for whether a gated action's preconditions hold and whether an
+  approval is valid — this project's "gated action" framework is a thin,
+  generalized client/contract layer over that existing authority, not a
+  replacement for it.
+- **This project document** owns the app/identity/voice design, its own risk
+  acceptance and milestone evidence. `docs/reference/Aster-Operations.md`
+  remains authoritative for Aster's own operational facts and is updated,
+  not duplicated, as this project changes Aster's deployed behavior.
+
+## Architecture and data flows (proposed)
+
+```
+[Aster Companion (macOS, SwiftUI)]
+   |  1. Passkey-only login (system browser, PKCE)
+   v
+[Authentik 2026.8.0 — new dedicated OIDC provider/application
+ "aster-companion", new passwordless flow (identification + WebAuthn only)]
+   |  access token (JWT), stored in macOS Keychain
+   v
+[NPM, new host e.g. aster.elliottrook.com -> 192.168.70.10:9120]
+   |  one new narrow OPNsense rule: NPM (Mgmt VLAN 50, 192.168.50.23)
+   |  -> Aster API (Lab VLAN 70, 192.168.70.10:9120) only
+   v
+[aster_agent.py, LXC 104 — extended to accept Authentik tokens
+ alongside the existing static bearer key; persona + enabled-tools
+ request fields; existing one-pass function preload unchanged]
+   |                                  |
+   v                                  v
+[aster-llama /v1, LXC 110]   [aster-arr-broker "gated action" path,
+                               existing dry-run/approval/execute shape,
+                               unchanged, reused not rebuilt]
+
+[Speech, centralized lab service — placement decided in Milestone 1]
+   Mac app <--HTTPS, same Authentik-fronted ingress, new /voice path-->
+   [STT (e.g. faster-whisper, CPU) + TTS (Piper, en_US-lessac-medium)]
+```
+
+Local and remote access use the **same** hostname and the **same** login
+flow: split-DNS resolves `aster.elliottrook.com` to NPM's internal address
+for LAN clients, and Tailscale's already-advertised Management-VLAN route
+carries the same request when Jason is remote — matching exactly how
+Homepage, Beszel and Grafana already behave today. No new Tailscale route is
+added.
+
+Open architecture questions for Milestone 1 (not assumed here):
+
+- Exact native-app OIDC callback mechanism Authentik/AppAuth support cleanly
+  for a real native macOS app (custom URL scheme vs. loopback redirect).
+- Live confirmation that Authentik `2026.8.0` (or whatever is live at
+  build time) supports an identification-stage + WebAuthn-only flow with
+  no password stage, and that Jason's existing "Apple Passwords" passkey
+  authenticates against it without re-enrollment.
+- Placement of the speech service: a new dedicated Lab VLAN 70 LXC
+  (tentatively the next available VMID, 115, pending live Proxmox
+  confirmation) versus adding to an existing guest. Leaning toward a new
+  dedicated LXC to match the lab's one-purpose-per-guest convention (104
+  agent, 108 Forgejo, 110 inference, 111 NetBox, 114 news), but not decided.
+- Whether `faster-whisper` on CPU meets acceptable STT latency without GPU
+  access, given the B60 is already single-slot-committed to `aster-llama`.
+- Whether the existing MGMT_ADMIN_HOSTS-style narrow rule already reaches
+  `192.168.70.10:9120` today (affects whether any existing direct-LAN path
+  needs to be retired or can simply be left alongside the new proxied path).
+
+## Privacy and security design
+
+- Passkey-only login means no password is ever transmitted or stored for
+  this app's flow — strictly narrower than the lab's existing baseline, not
+  broader.
+- Recovery path if the passkey device is unavailable: Authentik admin
+  (`akadmin`) recovery, matching the lab's existing break-glass pattern.
+  Explicitly **not** in scope: weakening the new flow with a password
+  fallback to "make recovery easier," which would defeat the purpose of the
+  passkey-only decision.
+- The Authentik token this app receives is scoped to the `aster-companion`
+  OIDC application only; it authenticates the app to Aster (via the new NPM
+  proxy) and to the new voice service. It is never given standing authority
+  over any other Authentik-fronted application.
+- The existing ARR-repair broker's security properties (stopped by default,
+  loopback-bound, temporary firewall rule, single-use opaque candidate,
+  two-minute approval expiry, full audit log, no retry on failure) are
+  unchanged. This project's "gated action" UI in the app triggers the same
+  approval flow Jason already uses today; it does not add a new bypass or a
+  faster path to execution.
+- The new NPM→Aster and NPM→voice-service firewall rules are single-port,
+  single-source, single-destination — no broader VLAN-70 exposure is
+  created, and Tailscale's advertised routes are unchanged (see Architecture
+  for why this is preferred over widening Tailscale).
+- Speech audio: since STT/TTS is centralized on a lab host (per decision),
+  audio and synthesized speech transit the same Authentik-authenticated
+  HTTPS path as chat traffic — no separate unauthenticated audio channel.
+  Retention: transient only (processed and discarded), matching the Home
+  Assistant voice assistant proposal's same principle, unless Jason later
+  asks for debug recording, which must be time-bounded and excluded from
+  backup/Aster-visible paths if ever enabled.
+- No new inbound Internet path. No new public DNS. No Tailscale Funnel or
+  broader tailnet grant.
+
+## Pre-start risk assessment
+
+**Objective/scope/stream:** as defined above. Stream A, assigned by Jason.
+Per the Standard, this assessment is the authorization envelope for
+Milestones 2 onward; Milestone 1 (discovery/design) is already pre-agreed
+and partly reflected above.
+
+**Affected systems:** LXC 104 (Aster Agent — code change, new credential
+path), Authentik LXC 106 (new provider/application/flow), NPM LXC 107 (new
+host), OPNsense (one new narrow inter-VLAN rule, plus split-DNS entries on
+OPNsense Unbound and both Pi-holes), a new Lab VLAN 70 guest for the speech
+service (placement TBD in Milestone 1), and Jason's Mac (new native app,
+Keychain storage, microphone access).
+
+**Current versions/dependencies:** Authentik `2026.8.0` (reconfirm live at
+Milestone 1 start, since this document does not itself re-verify it),
+`aster-agent`/`aster-llama` versions per `docs/reference/Aster-Operations.md`,
+Piper `en_US-lessac-medium` per the audio-digest project.
+
+**Confidentiality/secret-handling risks:** a new OIDC client secret (if the
+client is registered confidential rather than public+PKCE — Milestone 1
+decides which) and a new dedicated bearer key for the speech service, both
+stored the same way existing Aster-adjacent keys are (root-owned,
+group-readable env file, excluded from Git, storage location recorded but
+never the value). The Keychain-stored user access token is scoped to this
+one app.
+
+**Availability/integrity/privacy/recovery risks:**
+- Adding Authentik-token validation to `aster_agent.py` is new code on a
+  production path; a bug could lock out the *new* login path without
+  affecting the *existing* bearer-key path, since the two are additive —
+  the existing browser page is the built-in rollback if the new path
+  misbehaves.
+- The new voice service adds a new guest and a new narrow firewall path;
+  bounded blast radius (STT/TTS only, no HA/ARR/knowledge authority).
+- Generalizing the ARR-repair broker into a reusable "gated action" contract
+  touches code that already has explicit, hard-won safety properties
+  (two-minute approval expiry, opaque single-use candidates, no automatic
+  retry on failure). This refactor must not weaken any of those properties;
+  Milestone 5's own test suite must re-run the existing ARR-repair test
+  suite unchanged as a regression gate, not just add new tests for the
+  generalized shape.
+- **The recorded philosophy shift itself is the largest open risk in this
+  document.** Moving Aster from strictly-read-only toward more autonomous
+  over time is a deliberate, accepted direction, but it must be revisited
+  explicitly, in its own risk assessment, every time a *new* capability
+  class (not just a new instance of an existing one) is proposed — this
+  project's own scope boundary (ARR-repair only, no new action classes) is
+  the concrete control that keeps today's decision bounded.
+
+**Irreversible/destructive operations:** none anticipated in this project's
+own scope. The one mutating action it surfaces (ARR-repair) is the same
+already-graduated, already-bounded operation described in
+`docs/reference/Aster-Operations.md`; this project changes how it is
+*presented and approved*, not what it *does*.
+
+**Expected authentication/firewall/DNS/storage/external-service changes:**
+one new Authentik application/provider/flow; one new NPM host (plus a second
+for the voice service, or the same host under a different path — Milestone 1
+decides); one new narrow OPNsense inter-VLAN rule per new NPM target; two
+new split-DNS entries (OPNsense Unbound + both Pi-holes), matching the exact
+Beszel/Grafana precedent; one new bearer key (voice service); no change to
+existing Aster/ARR/MuckScraper credentials.
+
+**Recovery checkpoint/rollback/abort:** protected pre-change backups of
+Authentik (PostgreSQL/Compose) and NPM (SQLite) before any Authentik/NPM
+object is created, matching the exact pattern used for every prior
+Authentik-Rollout milestone. `aster_agent.py` changes are Git-tracked with
+normal commit-level rollback plus a pre-deploy backup copy on LXC 104
+(matching the `app.py.bak-YYYYMMDD` convention used elsewhere). Rollback for
+the whole project is: disable the new NPM host/OPNsense rule, remove the
+Authentik application, and revert `aster_agent.py` to the pre-project
+commit — the existing browser page and bearer-key path are unaffected
+throughout, so Aster's baseline capability is never at risk during rollback.
+
+**Test strategy:** live verification against the real Authentik/NPM/OPNsense
+stack (matching this lab's established pattern — no synthetic Authentik
+instance exists or is proposed). The ARR-repair regression suite is real,
+existing, and reused, not fabricated. Speech tests use both live voice input
+and a synthetic/disposable audio fixture for adversarial cases (silence,
+static, no-match utterances).
+
+**Likely service interruption:** none expected to the existing browser page
+or any existing `aster-llama` consumer. A capacity risk exists once the
+voice service and multi-persona chat add load; Milestone 6 explicitly
+re-measures `aster-llama` latency for Aster/MuckScraper alongside this
+project's traffic, following the same "measure, don't assume" approach the
+Home Assistant voice assistant proposal already calls for.
+
+**Backup/Doctor/monitoring/NetBox/wiki impacts:** see the integration
+checklist below.
+
+**Unresolved decisions requiring Jason's acceptance before Milestone 2
+begins:**
+
+1. **This document's scope boundary on "mutating actions"** — generalize and
+   surface the existing ARR-repair action only; no new action classes. If
+   Jason meant something broader by his answer, say so before Milestone 2.
+2. Exact speech-service placement (new LXC vs. existing guest) — Milestone 1
+   proposes, Jason confirms.
+3. Public/PKCE vs. confidential OIDC client registration for the native app
+   — Milestone 1 technical spike, Jason confirms the security trade-off.
+4. Friendly hostname(s) for the new NPM host(s) (proposed:
+   `aster.elliottrook.com`; voice under the same host or a second name).
+
+## Persistence plan
+
+This document is the durable checkpoint. Current milestone: **Milestone 1,
+in progress** (this document's own drafting and the open architecture
+questions above). On resume: re-read this document, `docs/reference/Aster-Operations.md`,
+and live Authentik/NPM/OPNsense/Proxmox state; confirm none of the four
+unresolved decisions above has been silently assumed; continue from the last
+checked milestone box. No implementation state exists yet outside this
+document and the (unmodified) existing Aster/ARR-broker code.
+
+## Milestones
+
+- [ ] **M1 — Discovery, architecture finalization, risk acceptance.**
+  Confirm live Authentik version and passwordless-flow support; confirm
+  existing direct-LAN reachability to `192.168.70.10:9120`; decide speech
+  service placement and OIDC client type; resolve the four unresolved
+  decisions above with Jason; Jason accepts this risk assessment for
+  Stream A. *No state-changing work in this milestone.*
+- [ ] **M2 — Identity and proxy, no app yet.** Stand up the new Authentik
+  passwordless provider/application/flow; create the new NPM host(s) and the
+  one narrow OPNsense rule; add split-DNS entries; extend `aster_agent.py`
+  to accept Authentik-issued tokens alongside the existing bearer key with
+  no regression. Validate end-to-end with a minimal test client (not the
+  Mac app) — a real passkey login reaching Aster's existing chat API through
+  the new path and getting a normal response, both from the LAN and over
+  Tailscale.
+- [ ] **M3 — macOS app v1: single persona, no voice, no actions.** Chat UI,
+  passkey login via `ASWebAuthenticationSession`/PKCE, Keychain token
+  storage, "Sysadmin Aster" persona only (== today's Aster, unchanged
+  capability), idle/thinking visual states only. Prove the full native-app
+  round trip, local and remote.
+- [ ] **M4 — Multi-agent personas and per-chat tool selection.** Add "Media
+  Automation Aster" persona (ARR report/tools); persona picker UI; backend
+  persona + per-request enabled-tools parameters; per-chat tool selector UI.
+- [ ] **M5 — Gated-action framework, ARR-repair surfaced in-app.**
+  Generalize the ARR-repair broker's dry-run/candidate/approval/audit shape
+  into a reusable contract; wire the app's UI to request, review and approve
+  exactly that one existing action; add the "acting" visual state, visually
+  distinct from "thinking"; re-run the existing ARR-repair test suite
+  unchanged as a regression gate.
+- [ ] **M6 — Voice.** Deploy the speech service at its decided placement
+  (STT + Piper TTS, `en_US-lessac-medium`); wire it into the app for both
+  personas; listening/speaking visual states; measure `aster-llama` and
+  overall latency under concurrent load against existing consumers.
+- [ ] **M7 — Observability, backup, documentation, graduation.** Close the
+  integration checklist below; run the full validation suite; record
+  accepted limitations and the excluded "web access for research" direction
+  explicitly as future work requiring its own project; graduate.
+
+## Validation and evaluation
+
+- **Functional:** each persona answers using only its own knowledge/tool
+  scope; the per-chat tool selector actually changes which functions are
+  eligible for a given conversation, verified by disabling a tool and
+  confirming Aster reports it as unavailable rather than using it anyway.
+- **Identity/least-privilege:** a login attempt with only a password (no
+  passkey) is refused by the new flow; an Authentik token for a *different*
+  application is refused by Aster's new token check; the existing bearer-key
+  path is unaffected by any of this.
+- **Gated action:** the in-app ARR-repair flow is tested against the exact
+  disposable-fixture method already used for the original graduation
+  (`docs/reference/Aster-Operations.md`, "2026-09-09 first production gate
+  evidence") — never fabricating a live failure — and a replay/expired
+  approval is correctly refused with no additional broker call, matching
+  today's existing behavior exactly.
+- **Adversarial:** malformed/expired tokens, a stale or replayed OIDC
+  authorization code, an enabled-tools list naming a tool the active persona
+  doesn't have, and (for voice) silence/static/ambiguous audio.
+- **Regression:** existing browser-page access, existing `aster-llama`
+  consumers (Aster chat, MuckScraper), and the existing ARR-repair test
+  suite all re-tested unchanged.
+- **Performance/capacity:** `aster-llama` latency measured with this
+  project's traffic (chat + voice-intent-adjacent load) running alongside
+  MuckScraper's scheduled runs, per the same open capacity question the
+  Home Assistant voice assistant proposal raised and left unmeasured.
+- **User workflow:** Jason can log in with only a passkey, pick a persona,
+  hold a voice conversation, see the orb reflect the right state at the
+  right time, and approve the one gated action end-to-end, both on the LAN
+  and remotely, with no difference in steps between the two.
+
+## Observability and maintenance
+
+- New HomeLab Doctor checks: the new NPM host(s)/proxy path health, the new
+  Authentik application/flow presence, the speech service's systemd unit(s)
+  and health endpoint, and (reusing the existing pattern) a bearer/token
+  validity check that never prints the secret itself.
+- No duplicate alerting: reuse the existing `check_aster`-family conventions
+  rather than inventing a parallel monitoring model.
+
+## Backup, restore and rollback
+
+- Authentik (PostgreSQL/Compose) and NPM (SQLite) protected checkpoints
+  before any new object is created, exactly matching every prior
+  Authentik-Rollout milestone's own practice.
+- `aster_agent.py` changes are Git-tracked; also keep a pre-deploy backup
+  copy on LXC 104 before each deploy, matching the
+  `app.py.bak-YYYYMMDD` convention already used for other in-lab services.
+- The new speech-service guest gets the same whole-guest Proxmox
+  `vzdump` + TrueNAS off-host pull coverage already established for LXC 111/114,
+  confirmed with a real checksum-verified pull, not assumed from the
+  all-guests job description alone.
+- Rollback path: disable the new NPM host/OPNsense rule, remove the new
+  Authentik application/flow, revert `aster_agent.py` to its pre-project
+  commit, and/or stop the speech service — the existing browser page and
+  bearer-key path remain functional throughout, so Aster's baseline
+  capability is never put at risk by rolling this project back.
+
+## Documentation and systems-of-record updates (required integration checklist)
+
+- [ ] **HomeLab Doctor** — new checks per Observability above.
+- [ ] **Monitoring/alerting** — reuse existing `check_aster` conventions;
+  no new alerting surface planned beyond Doctor.
+- [ ] **Backup and recovery** — Authentik/NPM checkpoints per-change; new
+  speech-service guest backup coverage; `aster_agent.py` pre-deploy backups.
+- [ ] **NetBox** — new speech-service guest (VM/interface/IP) once placement
+  is decided in Milestone 1.
+- [ ] **Human wiki** — operator guidance: how to sign in, what each persona
+  can do, how the gated action's approval works, how to disable the app's
+  access entirely (revoke the Authentik application) if needed.
+- [ ] **Aster mirror/snapshot** — not applicable to Aster's knowledge
+  content itself; the operational facts this project changes belong in
+  `docs/reference/Aster-Operations.md`, not the knowledge snapshot.
+- [ ] **Operational reference and runbooks** — extend
+  `docs/reference/Aster-Operations.md` with the new credential path, the
+  new persona/tool-selection request shape, the generalized gated-action
+  contract, and the speech service's operations.
+- [ ] **Repository documentation** — this document, kept current through
+  each milestone; update `docs/projects/README.md` and `CHANGELOG.md`.
+- [ ] **Diagrams/rack records** — add the new speech-service guest once
+  physically/logically placed.
+- [ ] **Homepage/service discovery** — a private, Authentik-gated Homepage
+  tile for the new proxied Aster endpoint, no embedded credentials.
+- [ ] **Authentication/authorization** — the new passwordless OIDC
+  application/flow itself; recorded here as the primary authorization
+  change this project makes.
+- [ ] **DNS, certificates and firewall** — new split-DNS entries and the new
+  narrow OPNsense rule(s), per Architecture above.
+- [ ] **Automation and schedules** — not applicable; this is an interactive
+  app, not a scheduled job.
+- [ ] **Security inventory** — record the new OIDC client, the new bearer
+  key (voice service), their storage locations and rotation owners; no
+  plaintext secret in Git.
+
+## Graduation criteria
+
+All milestones complete with recorded evidence; passkey-only login proven
+end-to-end including a correctly-refused password-only attempt; both
+personas correctly scoped; per-chat tool selection proven to actually gate
+function eligibility; the ARR-repair gated action proven through the app
+using the same disposable-fixture method as its original graduation, with
+zero weakening of its existing safety properties; voice proven functional
+with measured `aster-llama` capacity impact; existing browser-page,
+bearer-key, and ARR-repair paths all regression-tested and unaffected; the
+integration checklist closed or marked not applicable with reason; the
+excluded "web access" direction recorded as explicit future work, not
+silently absorbed into this project's scope.
+
+## Evidence log
+
+- 2026-09-21 — Project proposed by Jason (this document). Four architecture
+  questions asked and answered before drafting: (1) mutating-action scope —
+  Jason chose to include mutating actions and explicitly recorded this as a
+  deliberate, accepted Aster philosophy shift toward more autonomy over
+  time, naming "web access for research" as the named next direction after
+  this project (excluded from this project's own scope, recorded above);
+  (2) passkey-recovery path — admin (`akadmin`) recovery only; (3) remote
+  transport — NPM + Authentik reverse proxy over the existing Tailscale
+  Management-VLAN route, not a new Tailscale route to Lab VLAN 70; (4)
+  speech processing — centralized on a lab host, not on-device on the Mac.
+  No implementation work has occurred yet.
+
+## Close-out
+
+Not applicable yet — this project has not started implementation.
+
+## References
+
+- `docs/Project-Creation-Standard.md` — lab ethos, authorization streams,
+  risk assessment and template requirements this document follows.
+- `docs/reference/Aster-Operations.md` — Aster's current architecture,
+  functions, ARR-repair gate and operational procedures.
+- `services/aster-agent/aster_agent.py`,
+  `services/aster-agent/test_aster_agent.py` — Aster's git-tracked source
+  and existing test suite this project extends.
+- `services/aster-arr-broker/` — the existing gated-action implementation
+  this project generalizes rather than replaces.
+- `docs/projects/Authentik-Rollout.md` — native-OIDC precedent (Forgejo,
+  Beszel, Grafana, five ARR UIs), passkey enrollment evidence, and the
+  NPM/split-DNS/OPNsense pattern this project reuses.
+- `docs/projects/completed projects/News-Aggregator-Audio-Digest.md` — the
+  vetted Piper `en_US-lessac-medium` voice this project reuses for Aster's
+  TTS.
+- `docs/projects/Home-Assistant-Voice-Assistant.md` — the sibling proposed
+  project this one deliberately does not duplicate (household device
+  control via HA's own Assist pipeline, unrelated to talking to Aster) but
+  shares the same open `aster-llama` capacity question with.
+- `docs/projects/Aster-ARR-First-Repair-Decision.md`,
+  `docs/reference/Aster-Operations.md` ("ARR first-repair production gate") —
+  the exact safety shape this project's "gated action" framework must
+  preserve.
+- `docs/Current-Network-Baseline.md` — Tailscale's currently advertised
+  routes, confirming Lab VLAN 70 is not among them.
