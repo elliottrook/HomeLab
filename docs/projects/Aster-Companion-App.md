@@ -259,7 +259,44 @@ Open architecture questions for Milestone 1 (not assumed here):
 - Live confirmation that Authentik `2026.8.0` (or whatever is live at
   build time) supports an identification-stage + WebAuthn-only flow with
   no password stage, and that Jason's existing "Apple Passwords" passkey
-  authenticates against it without re-enrollment.
+  authenticates against it without re-enrollment. **Resolved 2026-09-21,
+  without needing the (still-unrotated) Authentik API token:** read-only
+  `docker exec` into LXC 106 confirmed the live version as `2026.8.0` three
+  independent ways (image tag `ghcr.io/goauthentik/server:2026.8.0`, the
+  `ak` CLI's own boot log, and the deployment's own record) — no drift from
+  what's already documented. A read-only Postgres query
+  (`authentik_flows_flow`) shows only the 15 stock default flows exist; no
+  custom passwordless flow has been created yet. A second read-only query
+  of `default-authentication-flow`'s stage bindings confirms today's real
+  stage order: identification (10) → password (20) → mfa-validation (30) →
+  login (100), matching `CLAUDE.md`'s "password + passkey" description
+  exactly. Critically, `authentik_stages_identification_identificationstage`
+  has a native `passwordless_flow` foreign-key column in this version —
+  Authentik's own built-in mechanism for offering a passkey-only path
+  (skipping the password stage entirely) from the identification screen.
+  **This is first-class supported, not something to build from scratch on
+  generic flow/stage composition.** The concrete M2 shape this implies:
+  create one new flow (e.g. `aster-companion-passwordless`) with
+  identification → webauthn (mfa-validation) → login stages and no password
+  stage, then either point an identification stage's `passwordless_flow` at
+  it or bind it directly as the new `aster-companion` provider's own
+  authentication flow (providers can override the shared
+  `default-authentication-flow`) — either way, nothing shared with
+  Forgejo/Grafana/etc.'s login is touched. Still outstanding: whether
+  Jason's existing enrolled WebAuthn credential authenticates against a
+  freshly created flow without re-enrollment, which needs an actual test
+  flow to exist (M2, not M1).
+  **Separate finding worth flagging:** the same `docker exec` access that
+  answered this also confirms Authentik's Django management CLI (`ak`) is
+  reachable via SSH+`pct exec`+`docker exec`, independent of the HTTPS API
+  and its token entirely. That means M2's actual object creation (new flow,
+  stages, provider, application) could plausibly be done this way instead
+  of via `scripts/api-get.sh` and a rotated `AUTHENTIK_TOKEN` — worth
+  deciding with Jason before M2, since it changes which credential (if any)
+  needs to exist at all. Every read here was `SELECT`/inspection only; no
+  row was written, no flow was created, and the boot log incidentally shows
+  `"Enabled authentik enterprise"` — not investigated further, flagging
+  only because it wasn't mentioned in any prior project doc.
 - Placement of the speech service: a new dedicated Lab VLAN 70 LXC versus
   adding to an existing guest. **Live-confirmed 2026-09-21 via
   `pct list`/`qm list`:** VMID 115 (this document's earlier placeholder) is
@@ -522,15 +559,25 @@ safe action:
   currently a dependency (`fastapi`, `httpx`, `pydantic`, `uvicorn` only) —
   M2 will need to add one. This is planning only; M1 has not authorized any
   code change yet.
-- Still outstanding from Milestone 1: confirm live Authentik version and
-  passwordless-flow (identification + WebAuthn, no password) support — still
-  blocked on the Authentik API token rotation; resolve the four unresolved
-  decisions listed in the Pre-start risk assessment section above with
-  Jason. (OPNsense-rule-reachability and Proxmox-VMID are now resolved —
-  see Architecture section.)
+- **2026-09-21 — Authentik version and passwordless-flow support resolved,
+  without the API token.** Read-only `docker exec`/Postgres inspection
+  through SSH+`pct exec` (see Architecture section) confirmed live version
+  `2026.8.0` and that this version's identification stage has a native
+  `passwordless_flow` field purpose-built for exactly this project's
+  passkey-only requirement. All three of M1's live-discovery checklist
+  items are now closed this way; the Authentik API token is no longer a
+  blocker for M1 at all (it may still matter for M2 depending on which
+  implementation path — HTTPS API vs. `ak`/Django CLI via SSH — Jason
+  prefers; see the flagged decision in Architecture).
+- Only remaining Milestone 1 work: resolve the four unresolved decisions
+  listed in the Pre-start risk assessment section above with Jason, plus
+  the newly surfaced fifth question (HTTPS-API vs. SSH+`ak` for M2's actual
+  object creation). None of these are technical-discovery questions
+  anymore — they all need Jason's direct answer, not further investigation.
 - No state has been changed anywhere outside this Git repository. Read-only
-  SSH reads (Proxmox, OPNsense) have succeeded; no API call, and no
-  state-changing action of any kind, has been made for this project yet.
+  SSH reads (Proxmox, OPNsense, and now Authentik's own container/database)
+  have succeeded; no state-changing action of any kind has been made for
+  this project yet.
 
 On resume: re-read this document in full (especially the Pre-start risk
 assessment's four unresolved decisions and this section), then
@@ -731,6 +778,24 @@ silently absorbed into this project's scope.
   next available. Neither check changed any state. The Authentik API token
   rotation is still outstanding and unaffected by this — SSH access answers
   different M1 questions than the Authentik-version/passwordless-flow ones.
+- 2026-09-21 — Authentik version and passwordless-flow support resolved via
+  read-only `docker exec`/Postgres inspection through SSH+`pct exec` into
+  LXC 106, bypassing the still-unrotated API token entirely. Confirmed live
+  version `2026.8.0` three independent ways (image tag, `ak` boot log,
+  existing docs — no drift). A `SELECT` against `authentik_flows_flow` shows
+  only the 15 stock default flows exist. A `SELECT` against
+  `default-authentication-flow`'s stage bindings confirms today's real
+  order: identification → password → mfa-validation → login. Confirmed
+  `authentik_stages_identification_identificationstage` has a native
+  `passwordless_flow` foreign key in this version — Authentik's own
+  first-class mechanism for a passkey-only path, not something this project
+  would need to build from generic flow/stage composition. All three of
+  M1's live-discovery items are now closed; only Jason's direct decisions
+  remain before Milestone 2. Also surfaced that `ak` (Authentik's Django
+  management CLI) is reachable the same way, independent of the HTTPS API —
+  a candidate alternative to the token-gated API path for M2's actual
+  object creation, flagged as a new open decision rather than assumed.
+  Every query was read-only; no row was written, no object was created.
 
 ## Close-out
 
