@@ -271,6 +271,44 @@ Open architecture questions for Milestone 1 (not assumed here):
   `192.168.70.10:9120` today (affects whether any existing direct-LAN path
   needs to be retired or can simply be left alongside the new proxied path).
 
+### Milestone 2 technical prep (drafted during Milestone 1 — research only, no code changes)
+
+Read `services/aster-agent/aster_agent.py` to scope the additive
+Authentik-token change ahead of time, without making it:
+
+- `require_api_key()` (line 303) is a plain dependency function: if
+  `ASTER_API_KEY` isn't configured it 503s; otherwise it does a single exact
+  string comparison of the `Authorization` header against
+  `f"Bearer {ASTER_API_KEY}"` and 401s on any mismatch. It has no concept of
+  multiple credential types today — extending it means trying the existing
+  bearer-key comparison first (unchanged behavior, unchanged error), and
+  only on mismatch attempting Authentik-token validation, so the existing
+  browser page keeps working exactly as-is.
+- Current dependencies are `fastapi==0.133.1`, `httpx==0.28.1`,
+  `pydantic==2.13.4`, `uvicorn==0.41.0` — no JWT/JWKS library is present.
+  M2 will need to add one (e.g. `PyJWT` with its `crypto` extra, or
+  `authlib`), which is a new supply-chain dependency for a production
+  service and should be pinned and reviewed like any other, not treated as
+  incidental.
+- Token validation needs to check `iss` (Authentik's issuer URL) and `aud`
+  (the new `aster-companion` OIDC client ID) in addition to signature
+  validity against Authentik's JWKS endpoint — signature validity alone
+  would accept a token minted for a *different* Authentik application,
+  which the Validation section's adversarial test list already calls out.
+  JWKS keys should be cached with a bounded TTL rather than fetched per
+  request.
+- `test_aster_agent.py` has no existing test targeting
+  `require_api_key`/`Authorization`/`Bearer` by name (the one existing
+  `Bearer` reference at line 743 is unrelated ARR-broker client code), so
+  M2's regression gate needs new explicit cases: existing bearer key still
+  works unchanged; a valid Authentik token for the correct audience is
+  accepted; a valid token for a *different* audience is rejected; an
+  expired or malformed token is rejected; a missing `Authorization` header
+  still 401s exactly as today.
+
+This is planning only — M1 has not authorized any change to
+`aster_agent.py`, and none has been made.
+
 ## Privacy and security design
 
 - Passkey-only login means no password is ever transmitted or stored for
@@ -414,22 +452,59 @@ begins:**
 
 This document is the durable checkpoint. Current milestone: **Milestone 1,
 in progress**. Jason accepted the pre-start risk assessment on 2026-09-21
-and directed Milestone 1 discovery to begin; work was stopped immediately
-after (same session) so the project could be handed to a fresh Claude Code
-session for remote steering. **No live discovery calls were made yet** —
-only local repo reading. Exact stopping point and next safe action:
+and directed Milestone 1 discovery to begin. Exact stopping point and next
+safe action:
 
 - Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
   read-only wrapper for the Authentik (`auth.elliottrook.com/api/*`) and NPM
   (`proxy.elliottrook.com/api/*`) HTTPS APIs (documented in
   `docs/projects/Authentik-Rollout.md`'s 2026-09-10 evidence entry). It needs
   a bearer token in the `API_TOKEN` environment variable.
-- **Not yet located:** where a read-only Authentik API token is stored for
-  this kind of discovery use (or whether one needs to be minted fresh,
-  matching the least-privilege pattern used for every other source-local
-  reader in this lab, e.g. the Forgejo/NetBox report producers). This is the
-  next safe action on resume — find or mint that token before making any
-  live Authentik API call.
+- **2026-09-21 — credential-exposure incident, live Authentik API still
+  blocked.** Searching for a usable read-only Authentik API token (per
+  Jason's direction to mirror the Forgejo/NetBox `aster-readonly`
+  least-privilege pattern rather than reuse a personal admin token) found a
+  live `AUTHENTIK_TOKEN` value embedded directly in a
+  `Bash(export AUTHENTIK_TOKEN='...')` permission-allow entry in
+  `.claude/settings.local.json:186`. That file is git-ignored
+  (`~/.config/git/ignore`) and the token has never been committed, but a
+  diagnostic grep during this session printed its full value into the
+  session transcript — the same failure mode as every prior
+  credential-exposure incident in this lab (see
+  `docs/projects/Authentik-Rollout.md`'s Milestone 3 entries and the NUT
+  project's rotation history in `CLAUDE.md`). Per that same established
+  practice, **this token must be treated as exposed and rotated before use,
+  not reused as-is**, and its actual Authentik permissions should be
+  checked when it's rotated (embedding it in a permissions-allow file rather
+  than an env-only, never-echoed location suggests it may not already be the
+  narrow view-only credential this project wants). Jason will rotate it and
+  provision the replacement in person; the agreed replacement pattern is a
+  plain local file outside this repo (e.g. `~/.homelab-discovery-token`,
+  mode 600), read per-call as
+  `API_TOKEN=$(cat <path>) scripts/api-get.sh <url>` so the value never
+  appears in chat, in a tracked file, or in a permissions-allow entry again.
+  **No live Authentik API call has been made for this project.**
+- **2026-09-21 — SSH-from-sandbox finding reconfirmed.** Live-tested
+  `ssh proxmox cat /etc/hostname` from this session: `Operation not
+  permitted`, matching `docs/projects/Authentik-Rollout.md`'s 2026-09-10
+  finding that raw SSH to allowlisted hosts is denied at the sandbox network
+  layer regardless of `.claude/settings.json` `permissions.allow` patterns.
+  That finding still holds today, roughly two weeks later, contradicting
+  `CLAUDE.md`'s "General working rules" section, which still describes
+  read-only SSH as usable once a host is allowlisted — worth flagging to
+  Jason as a stale-docs follow-up (not corrected here without his sign-off,
+  since it's a sandbox-policy statement rather than a project fact). Net
+  effect for this project: M1's OPNsense-rule-reachability check and the
+  Proxmox-VMID check cannot be done by SSH from this sandbox either, and
+  will need the same HTTPS-API-only workaround the Authentik-Rollout project
+  adopted, or Jason's own hands.
+- **2026-09-21 — M2 technical prep drafted (read-only repo research, no
+  code changes).** See the new "Milestone 2 technical prep" subsection under
+  Architecture below: read `services/aster-agent/aster_agent.py`'s
+  `require_api_key()` (line 303) and confirmed no JWT/JWKS library is
+  currently a dependency (`fastapi`, `httpx`, `pydantic`, `uvicorn` only) —
+  M2 will need to add one. This is planning only; M1 has not authorized any
+  code change yet.
 - Still outstanding from Milestone 1, none started: confirm live Authentik
   version and passwordless-flow (identification + WebAuthn, no password)
   support; confirm whether an existing narrow OPNsense rule already reaches
@@ -438,14 +513,17 @@ only local repo reading. Exact stopping point and next safe action:
   resolve the four unresolved decisions listed in the Pre-start risk
   assessment section above with Jason.
 - No state has been changed anywhere outside this Git repository. No SSH,
-  API or Proxmox call has been made for this project yet.
+  API or Proxmox call has succeeded for this project yet.
 
 On resume: re-read this document in full (especially the Pre-start risk
 assessment's four unresolved decisions and this section), then
 `docs/reference/Aster-Operations.md`, then continue with the next safe
 action above. Do not assume any of the four unresolved decisions or any
 open architecture question elsewhere in this document has been settled
-just because time has passed — confirm with Jason or with live state.
+just because time has passed — confirm with Jason or with live state. Do
+not reuse the exposed `AUTHENTIK_TOKEN` value even if it is still present in
+`.claude/settings.local.json` — treat it as revoked until Jason confirms
+rotation.
 
 ## Milestones
 
@@ -607,6 +685,22 @@ silently absorbed into this project's scope.
   Management-VLAN route, not a new Tailscale route to Lab VLAN 70; (4)
   speech processing — centralized on a lab host, not on-device on the Mac.
   No implementation work has occurred yet.
+- 2026-09-21 — Milestone 1 discovery session. Searching for a read-only
+  Authentik API token (Jason directed mirroring the Forgejo/NetBox
+  `aster-readonly` least-privilege pattern) found a live `AUTHENTIK_TOKEN`
+  value embedded in `.claude/settings.local.json`; a diagnostic grep printed
+  it into the session transcript, so per this lab's established practice it
+  is treated as exposed and awaiting rotation by Jason, not reused. Not
+  git-tracked and never committed. Separately, live-tested and reconfirmed
+  that raw SSH from this sandbox to allowlisted hosts is still denied
+  (`Operation not permitted`), matching the 2026-09-10 finding in
+  `docs/projects/Authentik-Rollout.md` — blocks M1's OPNsense-reachability
+  and Proxmox-VMID checks the same way it blocks Authentik API calls. While
+  waiting on Jason to rotate the token in person, drafted read-only M2
+  technical prep (see Architecture section) from `aster_agent.py` itself: no
+  JWT library is currently a dependency, `require_api_key()`'s exact
+  extension point, and the specific regression tests M2 will need. No live
+  Authentik/OPNsense/Proxmox call has succeeded; no code changed.
 
 ## Close-out
 
