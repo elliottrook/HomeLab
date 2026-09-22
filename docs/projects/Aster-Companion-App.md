@@ -606,18 +606,23 @@ rotation.
   `AUTHENTIK_TOKEN` exposure earlier is moot for this project either way,
   though still worth rotating for hygiene. No state was changed in this
   milestone.
-- [ ] **M2 — Identity and proxy, no app yet.** Stand up the new Authentik
-  passwordless provider/application/flow; create the new NPM host(s) and the
-  one narrow OPNsense rule; add split-DNS entries; extend `aster_agent.py`
-  to accept Authentik-issued tokens alongside the existing bearer key with
-  no regression. Validate end-to-end with a minimal test client (not the
-  Mac app) — a real passkey login reaching Aster's existing chat API through
-  the new path and getting a normal response, both from the LAN and over
-  Tailscale. **LAN path proven 2026-09-21** with a real passkey login and a
-  real Authentik token accepted by Aster's live API (also surfaced and
-  fixed a genuinely missing OPNsense rule: Aster couldn't reach Authentik's
-  JWKS at all until a new egress rule was added). **Tailscale path not yet
-  separately confirmed** — same test needs to be repeated from off the LAN.
+- [x] **M2 — Identity and proxy, no app yet. Complete 2026-09-21.** Stood
+  up the new Authentik passwordless provider/application/flow; created the
+  new NPM host and the OPNsense rule; added split-DNS entries; extended
+  `aster_agent.py` to accept Authentik-issued tokens alongside the existing
+  bearer key with no regression. Validated end-to-end with a minimal test
+  client (not the Mac app) — a real passkey login reaching Aster's existing
+  chat API through the new path and getting a normal response, **both from
+  the LAN and over Tailscale**, both with real tokens from real passkey
+  logins, not simulated. Two genuine gaps were found and fixed along the
+  way, neither of them Aster-specific scope creep — both were real
+  requirements of "works both locally and remotely" that hadn't been
+  exercised before: (1) Aster's own host had no firewall path to reach
+  Authentik's JWKS at all (new egress rule, permanent); (2) Tailscale's
+  split-DNS was scoped to the `internal` namespace only, never extended to
+  `elliottrook.com` — a tailnet-wide gap affecting every app on that
+  domain, not just Aster, fixed by Jason adding the domain to Tailscale's
+  DNS settings.
 - [ ] **M3 — macOS app v1: single persona, no voice, no actions.** Chat UI,
   passkey login via `ASWebAuthenticationSession`/PKCE, Keychain token
   storage, "Sysadmin Aster" persona only (== today's Aster, unchanged
@@ -1118,6 +1123,54 @@ silently absorbed into this project's scope.
   before M2 can be marked fully closed** — this test proved the LAN path;
   M2's own definition also calls for confirming the same thing over
   Tailscale, not yet separately confirmed.
+- 2026-09-21 — **Tailscale path proven; M2 fully closed.** Repeated the
+  same real-passkey-login test with Jason's phone off Wi-Fi (cellular,
+  Tailscale connected). Re-added the temporary redirect URI and extended
+  code validity the same way as the LAN test, reverted immediately after.
+  First attempt: Authentik's own login worked correctly (real code, real
+  state match), but the browser reported "server can't be found" trying to
+  load `aster.elliottrook.com` afterward — a DNS failure, not an auth or
+  network failure, confirmed by the wording of the actual error rather
+  than assumed. The authorization code was still valid regardless (it
+  doesn't depend on the redirect page loading), so the exchange and the
+  live API call were both completed anyway: token issued
+  (`iss`/`aud`/`sub`/`amr` all correct), `GET /v1/models` against Aster's
+  real API returned `200` with the real model list. So the Authentik+Aster
+  half of the chain was already fully proven at this point — only the
+  phone's own DNS path for this one hostname remained in question.
+
+  Root cause, confirmed by checking documentation rather than
+  speculating: `docs/Current-Network-Baseline.md` already records that
+  "Tailscale split DNS sends only the `internal` namespace to OPNsense" —
+  `elliottrook.com` was never added as a second split-DNS domain, so a
+  cellular-only client falls back to public DNS, which has no record for
+  it by design. This affects every `*.elliottrook.com` host over
+  cellular-only Tailscale, not just Aster — flagged as such rather than
+  treated as an Aster-specific fix, and left for Jason to make (Tailscale's
+  admin console is a third-party account with no API access from this
+  session, and Jason's remote session couldn't see this session's own
+  browser pane either, so this genuinely needed his own action).
+
+  Jason added `elliottrook.com` as a split-DNS domain pointed at the same
+  nameserver (`192.168.1.1`) the existing `internal` entry already uses.
+  First retry still failed identically — isolated by testing
+  `git.elliottrook.com` on the same phone/connection, which worked,
+  proving the domain-wide DNS fix itself had taken effect and the problem
+  was narrower than first thought. Cross-checked directly from this Mac,
+  querying OPNsense's real resolver address rather than loopback
+  (`dig @192.168.1.1 ...`): both `git` and `aster` resolved correctly to
+  `192.168.50.23`, meaning the server-side DNS was already completely
+  correct. That left only one explanation: negative DNS caching on the
+  phone from before the fix, for the one hostname it had already tried
+  and failed on. Confirmed exactly right: after Jason toggled Tailscale
+  off and on (forcing a fresh resolver state), `aster.elliottrook.com`
+  resolved and returned Aster's genuine `{"status":"ok",...}` health
+  response over cellular data.
+
+  **Both halves of M2's validation criteria are now real, verified
+  evidence, not assumptions**: a real passkey login producing a real
+  token accepted by Aster's real API, proven independently from the LAN
+  and from cellular-only Tailscale. Milestone 2 is complete.
 
 ## Close-out
 
