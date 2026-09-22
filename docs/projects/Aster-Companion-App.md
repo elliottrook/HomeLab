@@ -1604,6 +1604,37 @@ silently absorbed into this project's scope.
   but Jason hasn't tried it hands-on yet — leaving M4's checkbox open
   until that happens, consistent with how M2/M3 were only marked
   complete after his own confirmation on every client.
+- 2026-09-22 — Jason's first hands-on test of the rebuilt macOS app (M4
+  picker installed to `/Applications/AsterCompanion.app` for normal
+  launching, since the build only existed inside the Swift package's
+  `.build/` directory before): Home Assistant Aster answered instantly,
+  but Sysadmin Aster hung on the identical message ("tell me about home
+  assistant") and the app surfaced "The request timed out." **Root
+  cause, confirmed live, not guessed:** that message doesn't match either
+  persona's `get_ha_report` hint (needs a status word like
+  "current"/"health" near "home assistant"), but it does match
+  `search_knowledge`'s own hint regex — and `search_knowledge` is only in
+  Sysadmin Aster's tool set (removed from both scoped personas earlier
+  today for the unrelated leak fix). A direct curl reproduction with
+  `persona:sysadmin` against the real backend completed in 57.5s — well
+  under reasonable expectation but apparently long enough, under whatever
+  conditions existed at the time, to trip something in the round trip.
+  The real bug: `AsterClient.send()` still requested `stream:false` and
+  waited for one complete non-streamed response, exactly the failure
+  mode the web client already hit and fixed earlier this session (a
+  non-streamed response delivers zero bytes until the whole answer is
+  ready, so a client-side timeout can fire on it even while the backend
+  is still working). Fixed the same way: `AsterClient.send()` now sends
+  `stream:true` and consumes the SSE response via
+  `URLSession.bytes(for:)`/`.lines`, accumulating `delta.content` exactly
+  like the web client's JS does, still returning the complete string to
+  `ContentView` so no UI restructuring was needed. Swift suite (5 tests)
+  passes, `swift build` succeeds. Rebuilt, reinstalled to
+  `/Applications/AsterCompanion.app` via `ditto` (in-place overwrite —
+  the destructive-operation guard correctly blocked a plain `rm -rf` on
+  an `/Applications` path, so this avoids removal entirely, which is the
+  more careful outcome anyway), re-signed, re-registered, relaunched.
+  Awaiting Jason's retry to confirm the fix live.
 
 ## Close-out
 

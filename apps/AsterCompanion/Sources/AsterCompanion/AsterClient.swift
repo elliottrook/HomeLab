@@ -45,17 +45,23 @@ struct AsterClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        // The default 60s URLSession timeout is too tight: a grounded query
-        // with preloaded context can legitimately take longer than that on
-        // this single-slot backend (docs/reference/Aster-Operations.md cites
-        // ~24s for a grounded retrieval baseline, with real headroom above
-        // that under load), and a cold/just-started backend can be slower
-        // still. Give it real room rather than fail a slow-but-honest answer.
         request.timeoutInterval = 120
 
         var payload: [String: Any] = [
             "messages": history.map { ["role": $0.role.rawValue, "content": $0.content] },
-            "stream": false,
+            // Streamed (SSE) rather than one non-streamed response: a query
+            // that pulls broad knowledge-search context into the prompt
+            // (e.g. Sysadmin Aster's search_knowledge tool) can legitimately
+            // run well past a minute on this single-slot backend, and a
+            // plain JSON response delivers zero bytes until the whole
+            // answer is ready - URLSession's timeout can fire waiting for
+            // that first byte even while the backend is still working fine.
+            // Live-caught 2026-09-22: "tell me about home assistant" under
+            // Sysadmin Aster timed out in the app while the narrowly-scoped
+            // Home Assistant persona (no tools triggered by that message)
+            // answered instantly - not a persona bug, the same class of
+            // problem the web client already hit and fixed the same way.
+            "stream": true,
             "persona": persona,
         ]
         if let enabledTools {
@@ -63,23 +69,32 @@ struct AsterClient {
         }
         request.httpBody = try JSONSerialization.data(withJSONObject: payload)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (bytes, response) = try await URLSession.shared.bytes(for: request)
         guard let http = response as? HTTPURLResponse else {
             throw AsterClientError.malformedResponse
         }
         guard http.statusCode == 200 else {
-            throw AsterClientError.server(status: http.statusCode, body: String(data: data, encoding: .utf8) ?? "")
+            var body = Data()
+            for try await byte in bytes { body.append(byte) }
+            throw AsterClientError.server(status: http.statusCode, body: String(data: body, encoding: .utf8) ?? "")
         }
 
-        guard
-            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-            let choices = json["choices"] as? [[String: Any]],
-            let message = choices.first?["message"] as? [String: Any],
-            let content = message["content"] as? String
-        else {
-            throw AsterClientError.malformedResponse
+        var replyText = ""
+        for try await line in bytes.lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard trimmed.hasPrefix("data:") else { continue }
+            let dataText = trimmed.dropFirst(5).trimmingCharacters(in: .whitespaces)
+            if dataText == "[DONE]" || dataText.isEmpty { continue }
+            guard
+                let jsonData = dataText.data(using: .utf8),
+                let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+                let choices = json["choices"] as? [[String: Any]],
+                let delta = choices.first?["delta"] as? [String: Any],
+                let content = delta["content"] as? String
+            else { continue }
+            replyText += content
         }
-        return content
+        return replyText
     }
 
     /// Fetches the backend's live persona/tool registry (GET
