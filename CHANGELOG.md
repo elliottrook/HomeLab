@@ -13,6 +13,11 @@
 ## Unreleased
 
 ### Added
+- Authorized the AI-PAM project under Stream A, completed read-only M0 against
+  live Proxmox/Authentik/Forgejo/NetBox/backup state, pinned the maintained
+  Forgejo MCP candidate, added a deny-by-default policy adapter with ten
+  passing synthetic security tests, and recorded a recovery-gated OpenBao
+  pilot manifest. No production credential, identity or service was created.
 - Added a proposed Stream-A Aster Companion App project: a native macOS
   client with Authentik passkey-only login, one identical local/remote
   proxied endpoint, multi-persona "Aster Agents" with per-chat tool

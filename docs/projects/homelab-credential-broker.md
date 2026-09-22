@@ -1,16 +1,19 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: proposed
+> Status: active — Stream A; M0 discovery complete; M1 recovery prerequisite pending
 >
 > Owner: Jason
 >
 > Proposed: 2026-09-21
 >
-> Started: —
+> Started: 2026-09-21
 >
 > Completed: —
 >
-> Stream: **M (Monitored)** for the initial security-sensitive deployment. A later bounded Stream A phase may be proposed only after approval, audit, revocation, restore and failure-path controls have graduated.
+> Stream: **A (Autonomous)** — Jason explicitly authorized Stream A on
+> 2026-09-21 for the scope, exclusions, risk assessment, gates and
+> no-secret-in-context rule recorded here. Non-waivable stops and the repository
+> requirement for immediate confirmation before each remote push still apply.
 
 ## Purpose and desired outcome
 
@@ -41,6 +44,18 @@ This project supersedes the narrower 2026-09-15 SSH-only credential-broker propo
 - NetBox remains authoritative for adopted device/IP/VLAN/service inventory facts.
 - There is no central AI credential/capability control plane today.
 - The previous credential-broker draft was SSH-only, deferred Authentik, used file-backed keys and had no management GUI or replaceable-AI lifecycle.
+- M0 live discovery confirms Proxmox 9.2.10, Authentik 2026.8.0 in
+  unprivileged LXC 106, Forgejo 15.0.7 in unprivileged LXC 108, and no existing
+  OpenBao guest/service. Forgejo 15 supports repository-specific scoped tokens
+  but not the Forgejo-16 Authorized Integration path.
+- Proxmox has ample pilot capacity. VMID 116 and `192.168.50.24/24` are the
+  current OpenBao candidates: NetBox has no assignment, ICMP received no reply
+  and the neighbor entry remained incomplete. This is evidence, not a
+  reservation.
+- The maintained Forgejo MCP is pinned for future evaluation at immutable tag
+  `v3.2.0` (`931a525dc25dfef430c4bbee51728ad3795f7491`). Its default catalogue
+  includes mutation tools and has no documented runtime tool allowlist, so it
+  must remain behind the broker's independent deny-by-default adapter.
 
 ## Scope and exclusions
 
@@ -129,6 +144,28 @@ The broker and OpenBao remain outside the AI-agent trust boundary.
 **Mode 2 — dynamic/temporary credential.** Where the target supports short-lived credentials, issue a scoped credential with a TTL and revocable lease.
 
 **Mode 3 — wrapped static credential (exception).** Only when a client itself must present a static token. A broker TTL must never be represented as target-side revocation if the third-party service continues accepting the underlying token. The integration must proxy instead or include target credential rotation/revocation.
+
+### M0 implementation findings
+
+- Use a dedicated unprivileged OpenBao LXC with integrated Raft. For the
+  single-node pilot, use Shamir human unseal rather than introducing an
+  unowned external KMS/HSM lifecycle dependency. Initialization/recovery output
+  must be encrypted directly to Jason-controlled PGP recipients and must never
+  enter the AI session, Git or ordinary logs.
+- During M1 recovery testing, bind OpenBao to TLS loopback only. Do not create
+  DNS or firewall rules until the synthetic snapshot/restore and human-unseal
+  gates pass. The exact non-secret candidate is recorded in
+  `ops/credential-broker/openbao-pilot-manifest.yaml`.
+- The maintained Forgejo MCP's credential-free OAuth resource-server mode
+  requires Forgejo 16+ and a public HTTPS issuer. It is therefore unavailable
+  on Forgejo 15.0.7 and conflicts with this project's no-public-OpenBao/control
+  surface boundary. Phase 1 must use a repository-specific, minimum-read-scope
+  service token held behind the broker, never supplied to the AI client.
+- `ops/credential-broker/mcp_policy_adapter.py` is the initial synthetic
+  enforcement prototype. It filters the MCP catalogue, requires an allowlisted
+  repository, rejects credential/environment arguments and sensitive paths,
+  and fails closed on secret-shaped or oversized output. It does not yet
+  connect to OpenBao or Forgejo.
 
 ## Risk classes
 
@@ -272,7 +309,10 @@ The management GUI must support:
 | MCP endpoint becomes generic Forgejo admin path | High | repo-scoped identity, capability allowlist, no operator-token fallback, network restriction |
 | Broker/Authentik/OpenBao outage blocks AI work | Medium | fail closed; human direct administration remains independent |
 
-Initial implementation remains **Stream M** because this project establishes a new credential trust boundary.
+Initial implementation is **Stream A** under Jason's 2026-09-21 authorization,
+but the credential trust boundary retains the project-specific and repository
+non-waivable stops. Stream A does not authorize secret material in model
+context, public exposure, a failed recovery gate or unbounded capabilities.
 
 Stop immediately if a secret reaches model-visible output or Git, a denied capability succeeds, an approval can be replayed against a different payload/resource, revocation fails, or human break-glass access is lost.
 
@@ -286,18 +326,26 @@ On resume: re-read the project standard and this project, inspect Git/live healt
 
 ### M0 — discovery, version lock and threat model
 
-- [ ] Confirm deployed Forgejo version and native token/Authorized Integration capabilities.
-- [ ] Confirm Authentik OIDC/passkey flow suitable for broker approval.
-- [ ] Confirm Proxmox placement/IP/VLAN capacity.
-- [ ] Evaluate current OpenBao release/deployment requirements.
-- [ ] Verify the maintained Forgejo MCP release and pin a tested immutable version.
-- [ ] Select first Green and Yellow production-shaped integrations.
-- [ ] Produce final data-flow/threat-model diagram.
+- [x] Confirm deployed Forgejo version and native token/Authorized Integration capabilities.
+- [x] Confirm Authentik OIDC/passkey flow suitable for broker approval.
+- [x] Confirm Proxmox placement/IP/VLAN capacity.
+- [x] Evaluate current OpenBao release/deployment requirements.
+- [x] Verify the maintained Forgejo MCP release and pin an immutable version
+  for later isolated testing: `v3.2.0` / `931a525d`.
+- [x] Select first Green and Yellow production-shaped integrations: bounded
+  Forgejo repository reads (Green) and broker-performed approved safe-branch
+  push (Yellow, not enabled during the read-only pilot).
+- [x] Produce final data-flow/threat-model diagram.
 
-**Gate:** no production credentials or authorization are changed.
+**Gate passed 2026-09-21:** discovery used only read-only system/repository
+queries. No production credential, identity, ingress, authorization or service
+was created or changed. The 10-test synthetic MCP policy prototype also passes
+locally; it contains no live client or credential.
 
 ### M1 — OpenBao foundation
 
+- [x] Record exact non-secret candidate deployment/backup/abort/rollback
+  manifest and validate its YAML structure.
 - [ ] Deploy dedicated OpenBao guest.
 - [ ] Establish human-only recovery ownership.
 - [ ] Configure minimal broker identity.
@@ -436,11 +484,21 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-21 | Reframed as AI-PAM | current charter/authorization/architecture reviewed | implementation not started |
 | 2026-09-21 | Added replaceable-AI model, mandatory probation, GUI and kill switches | design | requires adversarial testing |
 | 2026-09-21 | Added OpenBao + Authentik + broker/MCP architecture | design | exact deployed versions must be verified at M0 |
-| 2026-09-21 | Added Forgejo MCP access plan | Forgejo MCP current README; Forgejo v15 repo tokens; Forgejo v16 Authorized Integrations | deployed Forgejo version not yet confirmed |
+| 2026-09-21 | Added Forgejo MCP access plan | Forgejo MCP current README; Forgejo v15 repo tokens; Forgejo v16 Authorized Integrations | live compatibility resolved by the later M0 entry below |
 | 2026-09-21 | Drafted AI Integration Gate | project design | charter amendment included in this commit |
+| 2026-09-21 | Jason authorized the recorded project under Stream A | delegated instruction preserved by this project record | non-waivable stops and immediate per-push confirmation remain |
+| 2026-09-21 | Completed live M0 discovery | read-only PVE/LXC/service/NetBox/backup queries: PVE 9.2.10, Authentik 2026.8.0, Forgejo 15.0.7, OpenBao absent, VMID 116 and `192.168.50.24` candidates | candidates are not reserved; no production mutation |
+| 2026-09-21 | Pinned maintained Forgejo MCP candidate | upstream tag `v3.2.0`, commit `931a525dc25dfef430c4bbee51728ad3795f7491`; upstream tool/auth review | release artifact signature/SBOM still must be verified before execution |
+| 2026-09-21 | Added synthetic deny-by-default MCP adapter | `mcp_policy_adapter.py`; 10/10 tests cover catalogue filtering, repo scope, pre-forward write denial, credential/environment arguments, sensitive/traversal paths, secret-shaped/oversized output and non-tool methods | not connected to a live MCP, OpenBao or Forgejo identity |
+| 2026-09-21 | Added exact non-secret M1 candidate manifest | `openbao-pilot-manifest.yaml`; YAML validated; loopback-only recovery phase, Raft/Shamir, backup, abort and rollback gates | human PGP recovery recipients are not available on this Mac; initialization must not proceed |
 
 ## Close-out
 
-Not graduated. No production credential, identity, firewall, DNS, Authentik, OpenBao or Forgejo authorization change is created merely by this documentation change.
+Not graduated. M0 is complete. No production credential, identity, firewall,
+DNS, Authentik, OpenBao or Forgejo authorization change has been created.
 
-Next safe action: **M0 read-only discovery and threat-model/version lock**.
+Next safe action: **M1 human recovery preparation.** This Mac currently has no
+GPG secret-key record. Jason must choose or create the human-controlled PGP
+recipient(s) for encrypted OpenBao recovery shares and retain the corresponding
+private key(s) separately/offline. Do not substitute plaintext shares or
+generate recovery material inside an AI-visible session.
