@@ -1742,6 +1742,61 @@ silently absorbed into this project's scope.
   wiring matching M2's pattern, and all client-side voice UI on both
   apps — this session confirmed feasibility and stood up the guest, not
   the full service.
+- 2026-09-22 — **Voice decided, and the persistent speech service built
+  and live.** Jason found the `lessac-medium` voice "a little stalled in
+  places and not authentic" and asked to try upping quality with the
+  same voice. Checked the Hugging Face `rhasspy/piper-voices` catalog
+  read-only: `en_US-lessac-high` exists (same voice identity, larger/
+  higher-quality model, 114MB vs. medium's 63MB). Generated and sent
+  Jason a real matched-sentence comparison (medium vs. high) before
+  deciding anything, per this project's own established practice.
+  Separately, Jason asked to also try a male British voice; checked the
+  same catalog for `en_GB` options and sent real samples of `alan` and
+  `northern_english_male` (medium - no `high` tier exists for any male
+  British voice in this catalog, flagged explicitly) alongside the
+  lessac comparison. **Jason's decision: keep `lessac`, use the `high`
+  tier.** Simple to revisit later since the voice path is just an env
+  var, not a code change.
+  Built the actual persistent service (not the one-off bench script):
+  `services/aster-speech/aster_speech.py` (FastAPI, matching
+  `aster_agent.py`'s conventions) with `GET /health`, `POST /v1/stt`
+  (multipart audio upload → `faster-whisper`, model loaded once at
+  startup and serialized behind an `asyncio.Lock` rather than reloaded
+  per request) and `POST /v1/tts` (JSON text → Piper subprocess → WAV
+  bytes, matching the audio-digest project's binary-not-PyPI-package
+  choice and its `length_scale 1.15` pacing preference). Bounded blast
+  radius by design (M1 decision): no ARR/HA/knowledge authority, no
+  chat/tool surface, its own dedicated bearer key. 13 new tests, all
+  passing locally and on the real host's venv.
+  Deployed to LXC 116: dedicated `aster-speech` system account (matching
+  the lab's per-service-account convention, not reusing `aster`), venv
+  with `fastapi`/`uvicorn`/`python-multipart`/`faster-whisper`, the
+  `base.en` Whisper model pre-cached under a dedicated `HF_HOME` so the
+  hardened service never needs write access at runtime, a freshly
+  generated dedicated bearer key in `/etc/aster-speech/speech.env`
+  (`root:aster-speech 640`, matching `aster-agent`'s own pattern), and a
+  hardened systemd unit (`NoNewPrivileges`, `ProtectSystem=strict`,
+  `ProtectHome`, `PrivateTmp`) bound to `192.168.70.14:9130`. Clean
+  startup confirmed via `journalctl`.
+  **Live-verified the full round trip against the real service**, not
+  mocked: unauthenticated requests to both `/v1/tts` and `/v1/stt`
+  correctly 401; an authenticated `/v1/tts` call produced valid 22050Hz
+  mono WAV audio using the new `high`-tier voice; feeding that exact
+  audio into `/v1/stt` correctly transcribed it back
+  ("Aster Speech Service is now online, using the high quality voice.").
+  One real finding along the way, not a bug: Proxmox's own host network
+  cannot reach Lab VLAN 70 at all (confirmed against both the new host
+  and the already-working `aster-agent` on `.10`) - expected, matches
+  this project's documented segmentation; tested instead from a host
+  that actually has reach.
+  **Not yet done:** exposing this outside Lab VLAN 70 (NPM/OPNsense/
+  Authentik wiring matching M2's pattern - currently reachable only
+  within the VLAN and from hosts with an existing route to it, same as
+  `aster-agent` before M2), the `initial_prompt` vocabulary hint for
+  lab-specific terms like "Radarr" (soft "Aster"/"Radarr" mishearing
+  noted earlier still applies, not yet addressed), and all client-side
+  voice UI (microphone capture, playback, listening/speaking visual
+  states) on both apps.
 
 ## Close-out
 
