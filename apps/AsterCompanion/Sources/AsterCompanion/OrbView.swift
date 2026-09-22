@@ -64,7 +64,7 @@ struct OrbView: View {
         .animation(.easeInOut(duration: 0.6), value: state)
         .onChange(of: state) { _, newValue in
             if newValue == .thinking {
-                withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
                     isPulsing = true
                 }
             } else {
