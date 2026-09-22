@@ -1282,7 +1282,14 @@ async def companion_web_client() -> str:
     """
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Aster Companion</title><style>
+<title>Aster Companion</title>
+<link rel="apple-touch-icon" href="/companion/orb.png">
+<link rel="icon" href="/companion/orb.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Aster">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#111827">
+<style>
 body{{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0;overflow-x:hidden}}
 main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 #orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
