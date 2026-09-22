@@ -1664,6 +1664,19 @@ silently absorbed into this project's scope.
   candidate to exist, which the broker only issues opportunistically —
   today's check correctly found none), and Jason's own hands-on
   walkthrough of the action card on both clients.
+- 2026-09-22 — Jason tried the macOS app's action card himself: "Check for
+  pending ARR action" ran correctly and showed "No pending ARR action
+  right now" (confirmed by Jason: no candidate existed at the time, not a
+  bug). This proves the *request* half of "request, review and approve"
+  end to end on a real client against the real backend — auth, the GET
+  route, and the empty-state UI all correct. The *review and approve*
+  half — the card actually rendering a live proposal and a real
+  execute call succeeding — remains unexercised, since it needs a real
+  broker-issued candidate to exist at test time, and none has since M5
+  started. **M5 stays open** pending either a naturally occurring
+  candidate or a deliberate decision with Jason on how to generate one
+  for testing (which would itself touch live Radarr/broker state and
+  needs his explicit call, not something to do unprompted).
 
 ## Close-out
 
