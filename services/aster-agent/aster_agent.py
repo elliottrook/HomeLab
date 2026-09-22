@@ -1287,21 +1287,51 @@ async function validAccessToken(){{
 
 const messages=[];
 const chat=document.querySelector('#chat'), prompt=document.querySelector('#prompt'), orb=document.querySelector('#orb');
-function add(role,text){{const d=document.createElement('div');d.className='m '+(role==='user'?'u':'');d.textContent=(role==='user'?'You: ':'Aster: ')+text;chat.appendChild(d);window.scrollTo(0,document.body.scrollHeight)}}
+function add(role,text){{const d=document.createElement('div');d.className='m '+(role==='user'?'u':'');d.textContent=(role==='user'?'You: ':'Aster: ')+text;chat.appendChild(d);window.scrollTo(0,document.body.scrollHeight);return d}}
 
 async function send(){{
   const text=prompt.value.trim(); if(!text) return;
   messages.push({{role:'user',content:text}}); add('user',text); prompt.value=''; orb.classList.add('thinking');
   document.querySelector('#chatErr').textContent='';
+  // Streamed rather than waiting for the full reply: on iOS Safari a
+  // slow, heavier query (e.g. a lab-doctor-style question) risks the tab
+  // losing focus (screen lock, app switch) before a single non-streamed
+  // response finishes, and WebKit aggressively kills in-flight requests
+  // once backgrounded - confirmed live as nginx 499s ("client closed the
+  // connection") for exactly that query shape. Streaming means the first
+  // bytes arrive almost immediately instead of waiting for the whole
+  // answer, which both feels far better and makes that failure mode much
+  // less likely to bite - though it's a client-focus problem, not
+  // something any amount of server-side work can fully rule out.
+  const replyDiv = add('assistant', '');
+  let replyText = '';
   try{{
     const token=await validAccessToken();
-    if(!token){{ showLogin(); return }}
-    const r=await fetch('/v1/chat/completions', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{messages, stream:false}})}});
-    const j=await r.json();
-    if(!r.ok) throw new Error(j.detail || r.statusText);
-    const answer=j.choices[0].message.content;
-    messages.push({{role:'assistant',content:answer}}); add('assistant',answer);
-  }}catch(e){{ document.querySelector('#chatErr').textContent = e.message }}
+    if(!token){{ replyDiv.remove(); showLogin(); return }}
+    const r=await fetch('/v1/chat/completions', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{messages, stream:true}})}});
+    if(!r.ok){{ const j=await r.json().catch(()=>({{}})); throw new Error(j.detail || r.statusText) }}
+    const reader=r.body.getReader(), decoder=new TextDecoder();
+    let buf='';
+    while(true){{
+      const {{done, value}}=await reader.read();
+      if(done) break;
+      buf += decoder.decode(value, {{stream:true}});
+      const lines = buf.split('\\n');
+      buf = lines.pop();
+      for(const line of lines){{
+        const trimmed = line.trim();
+        if(!trimmed.startsWith('data:')) continue;
+        const data = trimmed.slice(5).trim();
+        if(data === '[DONE]' || !data) continue;
+        try{{
+          const delta = JSON.parse(data).choices?.[0]?.delta?.content;
+          if(delta){{ replyText += delta; replyDiv.textContent = 'Aster: ' + replyText; window.scrollTo(0,document.body.scrollHeight) }}
+        }}catch(parseErr){{ /* partial/non-JSON SSE line, ignore */ }}
+      }}
+    }}
+    if(replyText) messages.push({{role:'assistant',content:replyText}});
+    else replyDiv.remove();
+  }}catch(e){{ document.querySelector('#chatErr').textContent = e.message; if(!replyText) replyDiv.remove() }}
   finally{{ orb.classList.remove('thinking'); prompt.focus() }}
 }}
 
