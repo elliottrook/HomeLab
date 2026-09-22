@@ -65,13 +65,20 @@ this laptop that already runs from the Mac mini. It is not itself a grant of SSH
 trust or firewall access — those are separate, host-by-host and OPNsense-side
 changes, each still gated by the permission rule below.
 
-## Project 1: Synology Drive family cloud
+## Project 1: Synology Drive family cloud (Complete — closed 2026-08-31)
 Goal: reactivate Synology Drive on the existing NAS as a private family cloud
 (file sync, Finder/iOS access, controlled friend sharing) rather than deploying a
 new platform.
 
-8-milestone plan with completion gates — **stop and get my confirmation at each
-gate before moving to the next**:
+**Status: all 8 milestones and every completion gate passed for the pilot
+rollout** (Jason's own accounts). Full history moved to
+`docs/projects/completed projects/Synology-Drive-Family-Cloud.md`. One
+project-wide follow-up remains open and deliberately deferred: rolling
+mobile/desktop clients out to the rest of the family (Alisa, Carter, Justin,
+Jen) — a scope/timing decision for Jason, not blocked work.
+
+8-milestone plan with completion gates that governed the pilot rollout —
+kept here for reference:
 1. Discovery / capacity (read-only)
 2. Identity & folder design
 3. Synology Drive Server setup
@@ -81,7 +88,7 @@ gate before moving to the next**:
 7. Backup and recovery validation (Hyper Backup)
 8. Monitoring, documentation, hand-back
 
-Hard rules:
+Hard rules (still apply to any follow-on work, e.g. the family rollout above):
 - Begin with read-only discovery only.
 - Do not uninstall packages, delete old Drive state, change shared-folder encryption,
   or alter Hyper Backup selections until impact is understood and a recovery
