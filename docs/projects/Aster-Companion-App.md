@@ -986,6 +986,37 @@ silently absorbed into this project's scope.
   entries (OPNsense Unbound + both Pi-holes) and extending
   `aster_agent.py` to accept Authentik-issued tokens alongside the
   existing bearer key.
+- 2026-09-21 — **Split-DNS added on all three resolvers; full path
+  verified end-to-end from a real client.** Primary Pi-hole (`dns1`,
+  `pihole/pihole:2026.05.0` in Docker on LXC 100) and secondary Pi-hole
+  (`dns2`, `pihole/pihole:2026.07.2` in a TrueNAS app,
+  `ix-pihole-pihole-1`) both store local DNS records in a `dns.hosts`
+  array inside `pihole.toml`, applied live via the official
+  `pihole-FTL --config dns.hosts '[...]'` CLI (no file editing, no
+  restart needed — took effect immediately, confirmed via `dig` against
+  each Pi-hole directly). Read each array back first and appended to the
+  real existing 17 entries programmatically rather than retyping them, to
+  avoid a transcription error wiping out someone else's entry. OPNsense's
+  Unbound needed the same model-based approach as the firewall rule:
+  `\OPNsense\Unbound\Unbound`, `hosts.host`, matching the existing `auth`
+  host override's exact fields (`rr: A`, `addptr: 1`). Dry-ran clean,
+  applied, then found resolution didn't take effect until an explicit
+  `configctl unbound restart` (no incremental "reload" action exists for
+  this service, unlike the firewall) — checked this rather than assuming,
+  by testing resolution immediately after the config save and getting an
+  empty answer section. After the restart, `drill` against Unbound
+  confirms the correct answer and `auth`/`git` still resolve correctly
+  (no regression); Unbound remained running throughout with no reported
+  errors. **Final verification, from this Mac, using genuine DNS
+  resolution with no test harness or `--connect-to` trick** (the same
+  path any real client on the network would take):
+  `curl https://aster.elliottrook.com/health` resolves to `192.168.50.23`
+  and returns `{"status":"ok","service":"aster-agent"}` — Aster's own
+  response, through Authentik-ready NPM, through the new OPNsense rule,
+  to Aster itself. **Every infrastructure piece of Milestone 2 is now
+  live and verified except the code change.** Only remaining M2 item:
+  extend `aster_agent.py` to accept Authentik-issued tokens alongside the
+  existing bearer key, with no regression to the existing browser page.
 
 ## Close-out
 
