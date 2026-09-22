@@ -700,14 +700,23 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
     identity (every rebuild currently re-triggers the macOS Keychain
     permission prompt — cosmetic during active development, noted, not
     yet fixed).
-  - **Web client: added to this milestone's scope 2026-09-22, not started.**
-    Native iOS was decided against, not deferred (see Exclusions) — a
-    real install without a paid Apple Developer Program membership expires
-    weekly, and Jason has no interest in that subscription. A browser-based
-    client is the actual "works on my phone" answer instead, reusing the
-    same passkey/WebAuthn flow already proven working manually in Mobile
-    Safari during M2, just via ordinary redirect-based OAuth2/PKCE instead
-    of `ASWebAuthenticationSession`.
+  - **Web client: built and proven complete 2026-09-22, both LAN and
+    Tailscale.** Native iOS was decided against, not deferred (see
+    Exclusions) — a real install without a paid Apple Developer Program
+    membership expires weekly, and Jason has no interest in that
+    subscription. `GET /companion` in `aster_agent.py` is the actual
+    "works on my phone" answer instead: real passkey/WebAuthn login via
+    ordinary redirect-based OAuth2/PKCE (no `ASWebAuthenticationSession`
+    equivalent needed in a browser), the same accepted orb artwork with an
+    equivalent idle/thinking pulse via CSS, and streamed chat replies.
+    Real bugs caught and fixed live, not assumed away: a heavier query hit
+    real nginx `499`s ("client closed the connection") from iOS Safari
+    killing the in-flight request while backgrounded — confirmed in NPM's
+    own logs, not guessed — fixed by switching to the SSE streaming path
+    `aster_agent.py` already had (first bytes arrive almost immediately
+    instead of waiting for the whole reply). **Both the LAN and Tailscale
+    round trips are now confirmed fully working**, end to end, including
+    the streamed replies.
 - [ ] **M4 — Multi-agent personas and per-chat tool selection.** Add "Media
   Automation Aster" persona (ARR report/tools); persona picker UI; backend
   persona + per-request enabled-tools parameters; per-chat tool selector UI.
@@ -1387,6 +1396,46 @@ silently absorbed into this project's scope.
   natively, so this is a design-from-the-start decision rather than a
   later retrofit. Scope, Exclusions, M3 and M6 all updated to match. No
   web client code has been written yet.
+- 2026-09-22 — **Web client built, deployed, and proven working on both
+  LAN and Tailscale — a real milestone, reached through real live
+  debugging, not a clean first try.** Added `GET /companion` and
+  `GET /companion/orb.png` to `aster_agent.py` (purely additive — `GET /`
+  untouched, matching this project's own exclusions), registered a second
+  permanent Authentik redirect URI
+  (`https://aster.elliottrook.com/companion`, additive alongside the
+  native app's `aster-companion://callback`), and implemented PKCE
+  entirely with the browser's own Web Crypto API (`crypto.subtle.digest`,
+  `crypto.getRandomValues`) — no library dependency. Verified locally
+  before ever touching the deployed service: server starts clean, both
+  routes return correct content, and the Python f-string's brace-escaping
+  (a real risk in a file that already mixes literal JS/CSS braces with
+  Python interpolation throughout) was checked by reading back the actual
+  rendered output, not assumed correct. Deployed with the same discipline
+  as every prior `aster_agent.py` change tonight: pre-deploy backup, full
+  59-test suite run on the real host before restarting, restarted clean,
+  regression-checked `/` and `/health`.
+
+  First real interactive test (Jason, on Wi-Fi) got the login and orb
+  exactly right, but chat replies failed with "Load failed" — diagnosed
+  from NPM's own access/error logs rather than guessed: real `499`s
+  ("client closed the connection"), meaning iOS Safari itself killed the
+  in-flight request, most likely from the tab losing focus during a
+  slower query. Fixed by switching to the SSE streaming path
+  `aster_agent.py` already supported (`stream: true`), parsing OpenAI-style
+  `data: {...}` lines via a manual `response.body.getReader()` loop —
+  verified the exact wire format live (both hitting Aster directly and
+  through the full NPM/HTTPS path) before trusting the client-side parser
+  matched it. A first Tailscale attempt then also failed; retried after
+  the streaming fix and **now fully works on both networks** — most
+  likely the same root cause (a slow non-streamed reply losing the race
+  against iOS backgrounding it) rather than two separate bugs, though
+  that's inferred from the fix resolving both, not separately proven.
+
+  **M3's web client sub-item is now complete.** The macOS app's own
+  Tailscale round trip is still separately unproven (see that sub-item
+  above) — worth Jason's call on whether that still matters now that the
+  web client covers "works on my phone" more completely than native iOS
+  ever would have, or whether it's fine left as a known gap.
 
 ## Close-out
 
