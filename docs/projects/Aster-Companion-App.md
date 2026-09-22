@@ -1436,6 +1436,48 @@ silently absorbed into this project's scope.
   above) — worth Jason's call on whether that still matters now that the
   web client covers "works on my phone" more completely than native iOS
   ever would have, or whether it's fine left as a known gap.
+- 2026-09-22 — **Chat bubble transparency and response-length tuning, plus
+  a real design conversation about where Aster is headed.** Jason pointed
+  out the message bubbles were opaque enough to defeat the point of the
+  orb being visible behind them — a real bug on the web client
+  specifically, where the "semi-transparent" colors turned out to be
+  fully opaque hex values with no alpha channel at all. First fix
+  (`.55` alpha web, `.ultraThinMaterial` native) still wasn't transparent
+  enough per direct feedback; dropped further (`.18` alpha + stronger
+  blur web, a flat `.15`/`.1` tint replacing the material entirely on
+  native, since the material's own baseline opacity was working against
+  the goal) and verified live on both.
+
+  Separately, Jason reported responses "keep getting cut off." Traced to
+  `MAX_RESPONSE_TOKENS` defaulting to 160 — not a bug in tonight's new
+  code, a pre-existing shared limit used by every Aster consumer
+  including the original browser page. Before just raising a number,
+  asked what it should actually be *for* given Jason's real plan: Aster is
+  moving toward two new, genuinely different workload shapes — deep
+  scheduled analysis (email, news briefings, calendar, photo review) where
+  speed doesn't matter, and lightweight Home Assistant integration where
+  speed matters and depth doesn't. Neither wants the same ceiling: deep
+  analysis wants a far higher budget than fits a synchronous chat window
+  (and likely shouldn't run through this same interactive endpoint at all
+  — more a scheduled pipeline, like the News Aggregator's own), and HA
+  wants shorter replies than today's default, not longer. `get_lab_health`
+  already has its own separate, smaller cap
+  (`MAX_HEALTH_RESPONSE_TOKENS`) — the right shape here is per-context
+  budgets, one per interaction mode, decided when each becomes its own
+  scoped project, not one shared number stretched to cover all three.
+
+  Jason confirmed the Companion apps (this chat window) are a genuine
+  third category of their own — not the deep-analysis engine, "the
+  window that provides responses *to* the analysis," relaying/discussing
+  already-digested output from those future scheduled services rather
+  than doing deep synthesis itself. Set `ASTER_MAX_RESPONSE_TOKENS=500` in
+  `/etc/aster/aster.env` (the officially-supported tuning knob, no code
+  change) on that basis specifically — headroom for an occasional
+  structured reply, not a target. Verified live: the exact query that cut
+  off earlier tonight now completes naturally (`finish_reason: stop`, 342
+  of 500 tokens used) instead of truncating mid-sentence. The
+  deep-analysis and HA ceilings remain undecided, deliberately — they
+  belong to those future projects, not this one.
 
 ## Close-out
 
