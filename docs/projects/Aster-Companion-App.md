@@ -1585,6 +1585,25 @@ silently absorbed into this project's scope.
   build/test-verified locally; not yet redeployed as a built `.app` to
   Jason's actual usage since M4's live-UI check with him is still
   pending.
+- 2026-09-22 — Jason confirmed **"Works"** after the persona-leak/logout/
+  legibility fixes above, via his own live testing on his phone (the
+  actual live-UI check this project always requires before closing a
+  milestone, not just backend verification). Separately requested the
+  web client's icon show up correctly for an iOS "Add to Home Screen"
+  shortcut. Added `<link rel="apple-touch-icon">` (plus favicon and
+  `apple-mobile-web-app-*` meta tags for a chrome-free full-screen launch)
+  pointing at the existing `/companion/orb.png` route — no new artwork
+  needed, since that file is already an opaque 1254×1254 PNG with no
+  alpha channel. Deployed with the same backup/hash-verify/restart
+  discipline; confirmed live via `journalctl` (clean) and a direct curl
+  of both the new `<head>` tags and the icon route (200, `image/png`).
+  Pushed all four of this session's M4 commits to `origin` (Forgejo) at
+  Jason's request. **M4 status:** web client fully validated end-to-end
+  by Jason himself, including the persona/tool scoping fix. The macOS
+  app's equivalent picker/checklist is built and test-verified locally
+  but Jason hasn't tried it hands-on yet — leaving M4's checkbox open
+  until that happens, consistent with how M2/M3 were only marked
+  complete after his own confirmation on every client.
 
 ## Close-out
 
