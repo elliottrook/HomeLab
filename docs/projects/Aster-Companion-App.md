@@ -1520,6 +1520,26 @@ silently absorbed into this project's scope.
   session), and the native macOS app has no persona/tool UI yet. Jason
   confirmed both clients should get the same persona/tool UI, so the
   macOS app is next, followed by Jason's own live check of both.
+- 2026-09-22 — Milestone 4 macOS app, same day follow-up. Added
+  `PersonaModels.swift` (`Persona`/`ToolDescriptor`/`PersonasResponse`,
+  decoding the same `GET /v1/personas` shape the web client consumes),
+  `AsterClient.fetchPersonas()`, and threaded `persona`/`enabledTools`
+  through `AsterClient.send()`. `ContentView` gained a menu-style persona
+  picker in the header and a `DisclosureGroup("Tools")` checkbox list
+  scoped to the active persona, both persisted per-persona via
+  `UserDefaults` (the app's equivalent of the web client's
+  `localStorage`, same null-means-unrestricted / all-checked-means-no-key
+  semantics). Switching persona clears the in-progress chat, matching the
+  web client's same reasoning (persona identity rides in the system
+  prompt on every turn). Added `PersonaModelsTests.swift` decoding the
+  real backend response shape; full Swift suite (5 tests) passes. `swift
+  build` succeeds; the assembled `.app` (via `build-app.sh`) launches and
+  stays running without crashing. **Not yet done:** this session has no
+  way to drive a native macOS window's UI (no screen-automation tool
+  available, unlike the iOS Simulator or the built-in browser), so the
+  actual persona-switch/tool-checklist interaction — and both clients'
+  live passkey-login round trip generally — still needs Jason's own
+  hands-on check before M4 is marked complete.
 
 ## Close-out
 

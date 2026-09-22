@@ -30,7 +30,13 @@ enum AsterClientError: Error, LocalizedError {
 struct AsterClient {
     let authManager: AuthManager
 
-    func send(history: [ChatMessage]) async throws -> String {
+    /// - Parameters:
+    ///   - persona: One of the IDs from `fetchPersonas()` (defaults to the
+    ///     server's own "sysadmin" default if never fetched).
+    ///   - enabledTools: A further restriction on the persona's own tool
+    ///     set, or nil for "every tool the persona allows" - this can only
+    ///     narrow, never widen, matching the backend's own enforcement.
+    func send(history: [ChatMessage], persona: String = "sysadmin", enabledTools: [String]? = nil) async throws -> String {
         guard let token = await authManager.validAccessToken() else {
             throw AsterClientError.notAuthenticated
         }
@@ -47,10 +53,14 @@ struct AsterClient {
         // still. Give it real room rather than fail a slow-but-honest answer.
         request.timeoutInterval = 120
 
-        let payload: [String: Any] = [
+        var payload: [String: Any] = [
             "messages": history.map { ["role": $0.role.rawValue, "content": $0.content] },
             "stream": false,
+            "persona": persona,
         ]
+        if let enabledTools {
+            payload["enabled_tools"] = enabledTools
+        }
         request.httpBody = try JSONSerialization.data(withJSONObject: payload)
 
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -70,5 +80,26 @@ struct AsterClient {
             throw AsterClientError.malformedResponse
         }
         return content
+    }
+
+    /// Fetches the backend's live persona/tool registry (GET
+    /// /v1/personas) so the picker and tool checklist never hardcode a
+    /// list of their own that could drift from aster_agent.py's PERSONAS.
+    func fetchPersonas() async throws -> PersonasResponse {
+        guard let token = await authManager.validAccessToken() else {
+            throw AsterClientError.notAuthenticated
+        }
+
+        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("v1/personas"))
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AsterClientError.malformedResponse
+        }
+        guard http.statusCode == 200 else {
+            throw AsterClientError.server(status: http.statusCode, body: String(data: data, encoding: .utf8) ?? "")
+        }
+        return try JSONDecoder().decode(PersonasResponse.self, from: data)
     }
 }
