@@ -3,7 +3,7 @@ import time
 import unittest
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import jwt
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -12,12 +12,17 @@ from pydantic import ValidationError
 
 from aster_agent import (
     ASTER_SYSTEM_PROMPT,
+    DEFAULT_PERSONA,
+    PERSONAS,
     ArrRepairExecutionRequest,
     ChatRequest,
     TOOLS,
+    chat,
     execute_arr_repair,
     execute_tool,
     get_lab_health,
+    normalized_messages,
+    personas,
     preload_read_only_context,
     require_api_key,
     search_knowledge,
@@ -878,6 +883,152 @@ class AuthenticationTests(unittest.TestCase):
         """The two credential types are independent, not a fallback chain."""
         with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", ""):
             require_api_key(authorization=f"Bearer {self._token()}")  # does not raise
+
+
+class PersonaTests(unittest.TestCase):
+    def test_sysadmin_persona_has_every_tool(self):
+        self.assertEqual(PERSONAS["sysadmin"]["tools"], set(TOOLS.keys()))
+
+    def test_media_persona_is_scoped_to_arr_and_excludes_other_systems(self):
+        media_tools = PERSONAS["media"]["tools"]
+        self.assertIn("get_arr_report", media_tools)
+        self.assertIn("get_arr_repair_proposal", media_tools)
+        self.assertNotIn("get_ha_report", media_tools)
+        self.assertNotIn("get_forgejo_report", media_tools)
+        self.assertNotIn("get_netbox_report", media_tools)
+        self.assertNotIn("get_lab_health", media_tools)
+        self.assertTrue(media_tools.issubset(set(TOOLS.keys())))
+
+    def test_default_persona_constant_is_a_registered_persona(self):
+        self.assertIn(DEFAULT_PERSONA, PERSONAS)
+
+    def test_chat_request_defaults_to_sysadmin_persona_with_no_tool_restriction(self):
+        request = ChatRequest(messages=[{"role": "user", "content": "hi"}])
+        self.assertEqual(request.persona, "sysadmin")
+        self.assertIsNone(request.enabled_tools)
+
+    def test_select_tools_allowed_set_restricts_matches(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "Is Home Assistant Supervisor currently healthy?"}],
+                allowed={"get_current_time"},
+            )
+        ]
+        self.assertEqual(names, [])
+
+    def test_select_tools_with_no_allowed_set_is_unrestricted(self):
+        names = [
+            tool["function"]["name"]
+            for tool in select_tools(
+                [{"role": "user", "content": "Is Home Assistant Supervisor currently healthy?"}]
+            )
+        ]
+        self.assertIn("get_ha_report", names)
+
+    def test_normalized_messages_appends_persona_identity_after_base_prompt(self):
+        messages = normalized_messages(
+            [{"role": "user", "content": "hi"}], PERSONAS["media"]["identity"]
+        )
+        content = messages[0]["content"]
+        self.assertIn(ASTER_SYSTEM_PROMPT, content)
+        self.assertIn("Media Automation Aster persona", content)
+        self.assertLess(content.index(ASTER_SYSTEM_PROMPT), content.index("Media Automation Aster persona"))
+
+    def test_normalized_messages_without_persona_identity_is_unchanged(self):
+        messages = normalized_messages([{"role": "user", "content": "hi"}])
+        self.assertEqual(messages[0]["content"], ASTER_SYSTEM_PROMPT)
+
+
+class PersonaChatEndpointTests(unittest.IsolatedAsyncioTestCase):
+    @staticmethod
+    def _fake_completion():
+        return {
+            "choices": [{"message": {"role": "assistant", "content": "ok"}}],
+            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+        }
+
+    async def test_unknown_persona_is_rejected(self):
+        request = ChatRequest(messages=[{"role": "user", "content": "hi"}], persona="ghost")
+        with self.assertRaises(HTTPException) as raised:
+            await chat(request)
+        self.assertEqual(raised.exception.status_code, 400)
+
+    async def test_media_persona_excludes_home_assistant_tool_results(self):
+        request = ChatRequest(
+            messages=[{
+                "role": "user",
+                "content": (
+                    "Is Home Assistant Supervisor currently healthy, and what is "
+                    "currently stuck in the Radarr queue?"
+                ),
+            }],
+            persona="media",
+        )
+        mocked = AsyncMock(return_value=self._fake_completion())
+        with patch("aster_agent.upstream_completion", new=mocked):
+            await chat(request)
+        payload = mocked.call_args.args[0]
+        system_content = payload["messages"][0]["content"]
+        self.assertIn("Media Automation Aster persona", system_content)
+        self.assertIn('"function":"get_arr_report"', system_content)
+        self.assertNotIn("get_ha_report", system_content)
+
+    async def test_enabled_tools_further_restricts_the_persona_default(self):
+        request = ChatRequest(
+            messages=[{
+                "role": "user",
+                "content": "What time is it, and what is currently stuck in the Radarr queue?",
+            }],
+            persona="sysadmin",
+            enabled_tools=["get_current_time"],
+        )
+        mocked = AsyncMock(return_value=self._fake_completion())
+        with patch("aster_agent.upstream_completion", new=mocked):
+            await chat(request)
+        payload = mocked.call_args.args[0]
+        system_content = payload["messages"][0]["content"]
+        self.assertIn('"function":"get_current_time"', system_content)
+        self.assertNotIn("get_arr_report", system_content)
+
+    async def test_enabled_tools_cannot_widen_a_persona_beyond_its_own_set(self):
+        request = ChatRequest(
+            messages=[{
+                "role": "user",
+                "content": "Is Home Assistant Supervisor currently healthy?",
+            }],
+            persona="media",
+            enabled_tools=["get_ha_report"],
+        )
+        mocked = AsyncMock(return_value=self._fake_completion())
+        with patch("aster_agent.upstream_completion", new=mocked):
+            await chat(request)
+        payload = mocked.call_args.args[0]
+        self.assertNotIn("get_ha_report", payload["messages"][0]["content"])
+
+    async def test_persona_and_enabled_tools_are_not_forwarded_upstream(self):
+        request = ChatRequest(
+            messages=[{"role": "user", "content": "hi"}],
+            persona="media",
+            enabled_tools=["get_arr_report"],
+        )
+        mocked = AsyncMock(return_value=self._fake_completion())
+        with patch("aster_agent.upstream_completion", new=mocked):
+            await chat(request)
+        payload = mocked.call_args.args[0]
+        self.assertNotIn("persona", payload)
+        self.assertNotIn("enabled_tools", payload)
+
+    async def test_personas_endpoint_lists_both_personas_with_scoped_tools(self):
+        result = await personas()
+        self.assertEqual(result["default"], "sysadmin")
+        ids = {entry["id"] for entry in result["personas"]}
+        self.assertEqual(ids, {"sysadmin", "media"})
+        media = next(entry for entry in result["personas"] if entry["id"] == "media")
+        tool_names = {tool["name"] for tool in media["tools"]}
+        self.assertIn("get_arr_report", tool_names)
+        self.assertNotIn("get_ha_report", tool_names)
+        self.assertTrue(all("description" in tool for tool in media["tools"]))
 
 
 if __name__ == "__main__":

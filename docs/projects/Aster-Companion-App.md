@@ -1481,6 +1481,45 @@ silently absorbed into this project's scope.
   of 500 tokens used) instead of truncating mid-sentence. The
   deep-analysis and HA ceilings remain undecided, deliberately — they
   belong to those future projects, not this one.
+- 2026-09-22 — Milestone 4 backend + web client, deployed and verified.
+  Added a `PERSONAS` registry to `aster_agent.py` ("Sysadmin Aster" = all
+  existing tools, unchanged behavior; "Media Automation Aster" = scoped to
+  `get_arr_report`, `get_arr_repair_proposal`, `get_current_time`,
+  `search_knowledge` only), a per-request `persona` field (default
+  `sysadmin`) and an `enabled_tools` field that can only narrow a
+  persona's own tool set, never widen it. `select_tools()` and
+  `normalized_messages()` now respect both; a new `GET /v1/personas`
+  (authenticated) lets both clients discover personas and their allowed
+  tools without hardcoding them. The existing hardened system prompt
+  (ARR advisory-only, HA read-only, credential refusal, etc.) is
+  unchanged and applies to every persona unconditionally — personas only
+  narrow tool availability and add a short identity line, they do not
+  relax any guardrail. 14 new unit tests added (73 total), all passing
+  locally and on the real host's own venv before deploy. Deployed via the
+  established discipline: pre-change backup
+  (`aster_agent.py.before-m4-352b390` on the host), SHA-256 hash-verified
+  transfer, full suite run in an isolated dir on the host's own venv
+  before touching the live file, then swap-in and `systemctl restart`.
+  Clean restart confirmed via `journalctl` (no errors). Regression-checked
+  the untouched legacy `/` page (200), `/companion` (200), and that
+  `/v1/personas` and `/v1/models` both correctly 401 without a key.
+  Live-tested with a real bearer-key request: `GET /v1/personas`
+  authenticated returns both personas with the intended scoped tool
+  lists; a `persona:"media"` chat request asking a Home-Assistant
+  question got back "This request is out of scope for the Media
+  Automation Aster persona. Please switch to Sysadmin Aster..." —
+  confirming the scoping holds through the live model, not just in unit
+  tests. Web client (`GET /companion`) gained a persona picker
+  (switching starts a fresh chat, since persona identity is part of the
+  system prompt on every turn) and a per-chat tool checklist scoped to
+  the active persona, both wired into `/v1/chat/completions`; rendered
+  HTML and the embedded JS were both syntax-checked before deploy.
+  **Not yet done:** actual live-UI verification of the web client's new
+  picker/checklist (needs a real passkey login, which only Jason's own
+  devices can reach — see the browser-tooling limitation noted this same
+  session), and the native macOS app has no persona/tool UI yet. Jason
+  confirmed both clients should get the same persona/tool UI, so the
+  macOS app is next, followed by Jason's own live check of both.
 
 ## Close-out
 

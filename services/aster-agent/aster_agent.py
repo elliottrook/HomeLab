@@ -186,6 +186,8 @@ class ChatRequest(BaseModel):
     temperature: float | None = 0.2
     max_tokens: int | None = 640
     stream: bool = False
+    persona: str = "sysadmin"
+    enabled_tools: list[str] | None = None
 
 
 class ArrRepairExecutionRequest(BaseModel):
@@ -288,6 +290,38 @@ TOOLS: dict[str, dict[str, Any]] = {
     },
 }
 
+DEFAULT_PERSONA = "sysadmin"
+
+# Personas scope which tools a chat can use and add a short identity note to
+# the shared system prompt. They do not replace ASTER_SYSTEM_PROMPT's
+# guardrails (ARR advisory-only, HA read-only, credential refusal, etc.) -
+# those apply to every persona unconditionally. A persona only narrows what
+# is available; enabled_tools on a request can narrow it further, never
+# widen it past the persona's own set.
+PERSONAS: dict[str, dict[str, Any]] = {
+    "sysadmin": {
+        "label": "Sysadmin Aster",
+        "identity": (
+            "You are currently running as the Sysadmin Aster persona: general "
+            "homelab operations, infrastructure health, and read-only reporting "
+            "across all approved systems."
+        ),
+        "tools": set(TOOLS.keys()),
+    },
+    "media": {
+        "label": "Media Automation Aster",
+        "identity": (
+            "You are currently running as the Media Automation Aster persona, "
+            "scoped to the ARR media-automation stack (Sonarr, Radarr, Lidarr, "
+            "Prowlarr, SABnzbd, Jellyfin). If asked about homelab systems outside "
+            "that stack, say the request is out of scope for this persona and "
+            "suggest switching to Sysadmin Aster instead of answering from "
+            "general knowledge."
+        ),
+        "tools": {"get_arr_report", "get_arr_repair_proposal", "get_current_time", "search_knowledge"},
+    },
+}
+
 TOOL_HINTS = {
     "get_current_time": re.compile(r"\b(time|date|day|today|tonight|timezone)\b", re.I),
     "get_service_health": re.compile(r"\b(health|healthy|status|online|running|inference|service)\b", re.I),
@@ -352,13 +386,18 @@ def require_api_key(authorization: str | None = Header(default=None)) -> None:
     raise HTTPException(status_code=401, detail="Invalid API key")
 
 
-def select_tools(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def select_tools(
+    messages: list[dict[str, Any]], allowed: set[str] | None = None
+) -> list[dict[str, Any]]:
     recent = " ".join(
         str(message.get("content", ""))
         for message in messages[-4:]
         if message.get("role") in {"user", "system"}
     )
-    return [TOOLS[name] for name, pattern in TOOL_HINTS.items() if pattern.search(recent)]
+    names = [name for name, pattern in TOOL_HINTS.items() if pattern.search(recent)]
+    if allowed is not None:
+        names = [name for name in names if name in allowed]
+    return [TOOLS[name] for name in names]
 
 
 def _knowledge_chunks(text: str, max_chars: int = 1200, overlap_lines: int = 3) -> list[str]:
@@ -988,12 +1027,15 @@ async def execute_arr_repair(candidate_ref: str) -> dict[str, Any]:
     return {"status": status, "audit": result}
 
 
-def normalized_messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def normalized_messages(
+    messages: list[dict[str, Any]], persona_identity: str | None = None
+) -> list[dict[str, Any]]:
+    system_prompt = f"{ASTER_SYSTEM_PROMPT}\n\n{persona_identity}" if persona_identity else ASTER_SYSTEM_PROMPT
     if messages and messages[0].get("role") == "system":
         first = dict(messages[0])
-        first["content"] = f"{ASTER_SYSTEM_PROMPT}\n\nAdditional client guidance:\n{first.get('content', '')}"
+        first["content"] = f"{system_prompt}\n\nAdditional client guidance:\n{first.get('content', '')}"
         return [first, *messages[1:]]
-    return [{"role": "system", "content": ASTER_SYSTEM_PROMPT}, *messages]
+    return [{"role": "system", "content": system_prompt}, *messages]
 
 
 async def preload_read_only_context(
@@ -1090,10 +1132,37 @@ async def arr_repair_execute(request: ArrRepairExecutionRequest) -> dict[str, An
     return await execute_arr_repair(request.candidate_ref)
 
 
+@app.get("/v1/personas", dependencies=[Depends(require_api_key)])
+async def personas() -> dict[str, Any]:
+    return {
+        "default": DEFAULT_PERSONA,
+        "personas": [
+            {
+                "id": persona_id,
+                "label": persona["label"],
+                "tools": [
+                    {"name": name, "description": TOOLS[name]["function"]["description"]}
+                    for name in sorted(persona["tools"])
+                ],
+            }
+            for persona_id, persona in PERSONAS.items()
+        ],
+    }
+
+
 @app.post("/v1/chat/completions", dependencies=[Depends(require_api_key)], response_model=None)
 async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
-    selected_tools = select_tools(request.messages)
-    payload = request.model_dump(exclude_none=True, exclude={"model", "stream"})
+    persona = PERSONAS.get(request.persona)
+    if persona is None:
+        raise HTTPException(status_code=400, detail=f"Unknown persona: {request.persona}")
+    allowed_tools = persona["tools"]
+    if request.enabled_tools is not None:
+        allowed_tools = allowed_tools & set(request.enabled_tools)
+
+    selected_tools = select_tools(request.messages, allowed_tools)
+    payload = request.model_dump(
+        exclude_none=True, exclude={"model", "stream", "persona", "enabled_tools"}
+    )
     response_limit = (
         MAX_HEALTH_RESPONSE_TOKENS
         if any(tool["function"]["name"] == "get_lab_health" for tool in selected_tools)
@@ -1102,7 +1171,7 @@ async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
     payload["max_tokens"] = min(int(payload.get("max_tokens", response_limit)), response_limit)
     payload["model"] = UPSTREAM_MODEL
     payload["stream"] = request.stream
-    payload["messages"] = normalized_messages(request.messages)
+    payload["messages"] = normalized_messages(request.messages, persona["identity"])
     read_only_context = await preload_read_only_context(request.messages, selected_tools)
     if read_only_context:
         payload["messages"][0]["content"] += (
@@ -1204,18 +1273,25 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
 #chat{{min-height:55vh;white-space:pre-wrap}}.m{{padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.18);backdrop-filter:blur(6px)}}.u{{background:rgba(30,58,95,.18)}}
-textarea,button{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
+textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
 textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
+select#persona{{padding:6px 8px}}
 .muted{{color:#9ca3af;font-size:.9rem}}.err{{color:#f87171}}
 #login{{text-align:center;padding-top:20vh}}
 header{{display:flex;align-items:center;justify-content:space-between}}
+.hdrRight{{display:flex;align-items:center;gap:10px}}
 a.signout{{color:#9ca3af;text-decoration:none;cursor:pointer}}
+details{{margin:6px 0 10px}}
+summary{{cursor:pointer;color:#9ca3af;font-size:.9rem}}
+#tools{{display:flex;flex-wrap:wrap;gap:10px 16px;padding:8px 2px;font-size:.85rem;color:#cbd5e1}}
+.toolRow{{display:flex;align-items:center;gap:6px;cursor:pointer}}
 </style></head><body>
 <div id="orb"></div>
 <main>
 <div id="login" hidden><h1>Aster Companion</h1><button id="signin">Sign in with passkey</button><p class="err" id="loginErr"></p></div>
 <div id="app" hidden>
-<header><h1>Aster</h1><a class="signout" id="signout">Sign out</a></header>
+<header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
+<details id="toolsPanel"><summary>Tools</summary><div id="tools"></div></details>
 <div id="chat"></div>
 <p class="err" id="chatErr"></p>
 <textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
@@ -1289,6 +1365,87 @@ const messages=[];
 const chat=document.querySelector('#chat'), prompt=document.querySelector('#prompt'), orb=document.querySelector('#orb');
 function add(role,text){{const d=document.createElement('div');d.className='m '+(role==='user'?'u':'');d.textContent=(role==='user'?'You: ':'Aster: ')+text;chat.appendChild(d);window.scrollTo(0,document.body.scrollHeight);return d}}
 
+// Persona + per-chat tool selection (M4). Personas and their allowed tool
+// sets are authoritative on the backend (aster_agent.py PERSONAS); this
+// client only fetches and renders that list, it never invents tool names
+// of its own. Switching persona starts a fresh chat rather than silently
+// re-scoping an in-progress one, since a persona's identity framing is
+// part of the system prompt sent with every turn.
+let PERSONAS_CACHE = null;
+let currentPersona = localStorage.getItem('aster_persona') || 'sysadmin';
+const toolsStorageKey = personaId => 'aster_tools_' + personaId;
+
+function renderPersonaOptions(){{
+  const sel = document.querySelector('#persona');
+  sel.innerHTML = '';
+  for(const p of PERSONAS_CACHE.personas){{
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.label;
+    sel.appendChild(opt);
+  }}
+  sel.value = currentPersona;
+}}
+
+function renderToolChecklist(){{
+  const persona = PERSONAS_CACHE.personas.find(p => p.id === currentPersona);
+  const box = document.querySelector('#tools');
+  box.innerHTML = '';
+  if(!persona) return;
+  let saved = null;
+  try{{ saved = JSON.parse(localStorage.getItem(toolsStorageKey(currentPersona)) || 'null') }}catch(e){{ saved = null }}
+  for(const t of persona.tools){{
+    const label = document.createElement('label');
+    label.className = 'toolRow';
+    label.title = t.description;
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.dataset.tool = t.name;
+    cb.checked = saved ? saved.includes(t.name) : true;
+    cb.onchange = saveToolSelection;
+    label.appendChild(cb);
+    label.append(' ' + t.name);
+    box.appendChild(label);
+  }}
+}}
+
+function saveToolSelection(){{
+  const persona = PERSONAS_CACHE.personas.find(p => p.id === currentPersona);
+  if(!persona) return;
+  const checked = [...document.querySelectorAll('#tools input:checked')].map(cb => cb.dataset.tool);
+  // All tools enabled is the common case - store nothing so a persona
+  // gaining a new tool later shows up already enabled, rather than a
+  // stale localStorage list silently excluding it.
+  if(checked.length === persona.tools.length) localStorage.removeItem(toolsStorageKey(currentPersona));
+  else localStorage.setItem(toolsStorageKey(currentPersona), JSON.stringify(checked));
+}}
+
+function enabledToolsForRequest(){{
+  if(!PERSONAS_CACHE) return null;
+  try{{ return JSON.parse(localStorage.getItem(toolsStorageKey(currentPersona)) || 'null') }}catch(e){{ return null }}
+}}
+
+function switchPersona(newPersona){{
+  if(newPersona === currentPersona || !PERSONAS_CACHE.personas.some(p => p.id === newPersona)) return;
+  currentPersona = newPersona;
+  localStorage.setItem('aster_persona', currentPersona);
+  messages.length = 0;
+  chat.innerHTML = '';
+  document.querySelector('#chatErr').textContent = '';
+  renderToolChecklist();
+}}
+
+async function loadPersonas(){{
+  const token = await validAccessToken();
+  if(!token) return;
+  const r = await fetch('/v1/personas', {{headers:{{'Authorization':'Bearer '+token}}}});
+  if(!r.ok) return;
+  PERSONAS_CACHE = await r.json();
+  if(!PERSONAS_CACHE.personas.some(p => p.id === currentPersona)) currentPersona = PERSONAS_CACHE.default;
+  renderPersonaOptions();
+  renderToolChecklist();
+}}
+
+document.querySelector('#persona').onchange = e => switchPersona(e.target.value);
+
 async function send(){{
   const text=prompt.value.trim(); if(!text) return;
   messages.push({{role:'user',content:text}}); add('user',text); prompt.value=''; orb.classList.add('thinking');
@@ -1308,7 +1465,7 @@ async function send(){{
   try{{
     const token=await validAccessToken();
     if(!token){{ replyDiv.remove(); showLogin(); return }}
-    const r=await fetch('/v1/chat/completions', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{messages, stream:true}})}});
+    const r=await fetch('/v1/chat/completions', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{messages, stream:true, persona:currentPersona, enabled_tools:enabledToolsForRequest()}})}});
     if(!r.ok){{ const j=await r.json().catch(()=>({{}})); throw new Error(j.detail || r.statusText) }}
     const reader=r.body.getReader(), decoder=new TextDecoder();
     let buf='';
@@ -1347,6 +1504,6 @@ prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.
   const err=await handleCallback();
   if(err){{ document.querySelector('#loginErr').textContent=err }}
   const token=await validAccessToken();
-  if(token) showApp(); else showLogin();
+  if(token){{ await loadPersonas(); showApp() }} else showLogin();
 }})();
 </script></body></html>"""
