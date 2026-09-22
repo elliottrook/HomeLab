@@ -684,22 +684,25 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
   `elliottrook.com` — a tailnet-wide gap affecting every app on that
   domain, not just Aster, fixed by Jason adding the domain to Tailscale's
   DNS settings.
-- [ ] **M3 — macOS app v1 + web client v1: single persona, no voice, no
-  actions.** Chat UI, passkey login, Keychain (macOS) or browser-storage
-  (web) token storage, "Sysadmin Aster" persona only (== today's Aster,
-  unchanged capability), idle/thinking visual states only. Prove the full
-  round trip, local and remote, for both clients.
+- [x] **M3 — macOS app v1 + web client v1: single persona, no voice, no
+  actions. Complete 2026-09-22.** Chat UI, passkey login, Keychain (macOS)
+  or browser-storage (web) token storage, "Sysadmin Aster" persona only
+  (== today's Aster, unchanged capability), idle/thinking visual states
+  only. Prove the full round trip, local and remote, for both clients.
   - **macOS app: LAN round trip proven 2026-09-21** with a real
     interactive passkey login and real chat replies (including a heavier
     `lab doctor`-style query) through the actual running app, not a
     stand-in. Visual design (icon + `OrbView`) iterated to something Jason
-    is happy with. **Still open:** the same round trip hasn't been
-    repeated over Tailscale yet (only the manual-URL test from M2 was);
-    the app is still an unsigned ad-hoc-built `.app` run directly from
+    is happy with. **Accepted gap, not fixed:** the same round trip
+    hasn't been separately repeated over Tailscale (only the manual-URL
+    test from M2 was) — Jason's explicit call 2026-09-22, since the web
+    client now covers "works on my phone" more completely than native
+    iOS would have, making this not worth chasing further. The app is
+    also still an unsigned ad-hoc-built `.app` run directly from
     `.build/`, not yet in Xcode or set up for a stable local signing
     identity (every rebuild currently re-triggers the macOS Keychain
-    permission prompt — cosmetic during active development, noted, not
-    yet fixed).
+    permission prompt — cosmetic during active development, not fixed,
+    not blocking).
   - **Web client: built and proven complete 2026-09-22, both LAN and
     Tailscale.** Native iOS was decided against, not deferred (see
     Exclusions) — a real install without a paid Apple Developer Program
