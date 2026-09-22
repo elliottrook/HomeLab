@@ -29,16 +29,15 @@ enum AsterState {
 /// Visual state indicator built from the accepted app-icon artwork itself
 /// (docs/projects/Aster-Companion-App.md, "Visual identity"). Lives as a
 /// large, circular background presence behind the chat rather than a small
-/// header glyph. The gentle breathing pulse runs continuously and
-/// independently of state (started once, never restarted, so it can't
-/// glitch against a state-driven transition); idle vs. thinking is just a
-/// calm saturation/opacity crossfade on top of that, not a different
-/// animation style - deliberately kept quiet since it now sits behind the
-/// whole conversation.
+/// header glyph. The whole point of the graphic is the pulse *being* the
+/// thinking signal: idle is genuinely static (no motion at all), and only
+/// while thinking does it breathe - a continuous ambient pulse regardless
+/// of state would defeat that, so this one starts/stops explicitly on the
+/// state transition rather than always running.
 struct OrbView: View {
     let state: AsterState
     var size: CGFloat = 48
-    @State private var pulse = false
+    @State private var isPulsing = false
 
     var body: some View {
         Group {
@@ -54,13 +53,27 @@ struct OrbView: View {
         }
         .frame(width: size, height: size)
         .clipShape(Circle())
-        .saturation(state == .thinking ? 1.0 : 0.35)
+        // Saturation/brightness/scale are all derived from the same
+        // isPulsing flag so they animate together as one breathing motion -
+        // dim and still at rest, brighter and more colorful at the peak of
+        // each pulse - rather than the pulse being scale-only.
+        .saturation(state == .thinking ? (isPulsing ? 1.0 : 0.55) : 0.35)
+        .brightness(state == .thinking && isPulsing ? 0.12 : 0.0)
         .opacity(state == .thinking ? 1.0 : 0.75)
+        .scaleEffect(isPulsing ? 1.08 : 1.0)
         .animation(.easeInOut(duration: 0.6), value: state)
-        .scaleEffect(pulse ? 1.03 : 1.0)
-        .onAppear {
-            withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
-                pulse = true
+        .onChange(of: state) { _, newValue in
+            if newValue == .thinking {
+                withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                    isPulsing = true
+                }
+            } else {
+                // A fresh, shorter-duration animation on the same value
+                // interrupts the repeatForever loop and eases back to rest,
+                // rather than letting it keep cycling in the background.
+                withAnimation(.easeOut(duration: 0.4)) {
+                    isPulsing = false
+                }
             }
         }
     }
