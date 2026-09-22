@@ -16,7 +16,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import httpx
 import jwt
 from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from arr_report import get_arr_report as read_arr_report
@@ -44,6 +44,7 @@ LLAMA_API_KEY = os.environ.get("ASTER_LLAMA_API_KEY", "")
 LLAMA_BASE_URL = os.environ.get("ASTER_LLAMA_BASE_URL", "http://192.168.70.12:11435/v1").rstrip("/")
 UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 DIRECTORY_FIRST = os.environ.get("ASTER_DIRECTORY_FIRST", "").strip().lower() in {"1", "true", "yes"}
 HEALTH_REPORT_PATH = Path(os.environ.get("ASTER_HEALTH_REPORT", "/var/lib/aster/health/latest.json"))
 ARR_REPORT_PATH = Path(os.environ.get("ASTER_ARR_REPORT", "/var/lib/aster/arr-report/latest.json"))
@@ -1167,3 +1168,155 @@ async function send(){const text=prompt.value.trim();if(!text)return;localStorag
 try{const r=await fetch('/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key.value},body:JSON.stringify({model:'aster-qwen3.8-27b',messages,max_tokens:640})});const j=await r.json();if(!r.ok)throw new Error(j.detail||r.statusText);const answer=j.choices[0].message.content;messages.push({role:'assistant',content:answer});add('assistant',answer)}catch(e){add('assistant','Error: '+e.message)}finally{send.disabled=false;prompt.focus()}}
 document.querySelector('#send').onclick=send;prompt.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
 </script></main></body></html>"""
+
+
+COMPANION_CLIENT_ID = "aster-companion"
+COMPANION_AUTHORIZE_URL = "https://auth.elliottrook.com/application/o/authorize/"
+COMPANION_TOKEN_URL = "https://auth.elliottrook.com/application/o/token/"
+COMPANION_SCOPE = "openid email profile offline_access"
+
+
+@app.get("/companion/orb.png")
+async def companion_orb() -> FileResponse:
+    return FileResponse(STATIC_DIR / "aster-orb.png", media_type="image/png")
+
+
+@app.get("/companion", response_class=HTMLResponse)
+async def companion_web_client() -> str:
+    """Web client v1 (docs/projects/Aster-Companion-App.md, M3): the
+    non-native answer to "works on my phone" now that native iOS was
+    decided against. Deliberately separate from GET / above, which keeps
+    working completely unmodified on the legacy bearer-key path per this
+    project's own exclusions - this route is purely additive. Auth is a
+    real passkey login via Authentik's passwordless flow, using ordinary
+    redirect-based OAuth2/PKCE (no client secret; public client, matching
+    the macOS app) since a browser has no equivalent of
+    ASWebAuthenticationSession. Token lives in localStorage rather than
+    Keychain - the one real security trade-off of a web client, recorded
+    in the project doc.
+    """
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aster Companion</title><style>
+body{{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0;overflow-x:hidden}}
+main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
+#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
+#orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
+@keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
+#chat{{min-height:55vh;white-space:pre-wrap}}.m{{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}}.u{{background:#1e3a5f}}
+textarea,button{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
+textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
+.muted{{color:#9ca3af;font-size:.9rem}}.err{{color:#f87171}}
+#login{{text-align:center;padding-top:20vh}}
+header{{display:flex;align-items:center;justify-content:space-between}}
+a.signout{{color:#9ca3af;text-decoration:none;cursor:pointer}}
+</style></head><body>
+<div id="orb"></div>
+<main>
+<div id="login" hidden><h1>Aster Companion</h1><button id="signin">Sign in with passkey</button><p class="err" id="loginErr"></p></div>
+<div id="app" hidden>
+<header><h1>Aster</h1><a class="signout" id="signout">Sign out</a></header>
+<div id="chat"></div>
+<p class="err" id="chatErr"></p>
+<textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
+</div>
+</main>
+<script>
+const AUTH = {{
+  clientId: {json.dumps(COMPANION_CLIENT_ID)},
+  authorizeUrl: {json.dumps(COMPANION_AUTHORIZE_URL)},
+  tokenUrl: {json.dumps(COMPANION_TOKEN_URL)},
+  scope: {json.dumps(COMPANION_SCOPE)},
+  redirectUri: location.origin + '/companion',
+}};
+
+function b64url(buf){{return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'')}}
+function randomString(len){{const a=new Uint8Array(len);crypto.getRandomValues(a);return b64url(a.buffer)}}
+async function sha256(str){{return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))}}
+
+async function login(){{
+  const verifier=randomString(64), state=randomString(24);
+  const challenge=b64url(await sha256(verifier));
+  sessionStorage.setItem('pkce_verifier', verifier);
+  sessionStorage.setItem('pkce_state', state);
+  const p=new URLSearchParams({{client_id:AUTH.clientId, response_type:'code', redirect_uri:AUTH.redirectUri, scope:AUTH.scope, code_challenge:challenge, code_challenge_method:'S256', state}});
+  location.href = AUTH.authorizeUrl + '?' + p.toString();
+}}
+
+function storeTokens(j){{
+  localStorage.setItem('access_token', j.access_token);
+  if (j.refresh_token) localStorage.setItem('refresh_token', j.refresh_token);
+  localStorage.setItem('expires_at', String(Date.now() + j.expires_in*1000));
+}}
+function clearTokens(){{
+  localStorage.removeItem('access_token'); localStorage.removeItem('refresh_token'); localStorage.removeItem('expires_at');
+}}
+
+async function handleCallback(){{
+  const params=new URLSearchParams(location.search);
+  const code=params.get('code');
+  if(!code) return null;
+  const expectedState=sessionStorage.getItem('pkce_state'), verifier=sessionStorage.getItem('pkce_verifier');
+  sessionStorage.removeItem('pkce_state'); sessionStorage.removeItem('pkce_verifier');
+  history.replaceState({{}}, '', location.pathname);
+  if(params.get('state') !== expectedState) return 'Login failed: state mismatch (possible interception).';
+  const body=new URLSearchParams({{grant_type:'authorization_code', code, redirect_uri:AUTH.redirectUri, client_id:AUTH.clientId, code_verifier:verifier}});
+  const r=await fetch(AUTH.tokenUrl, {{method:'POST', headers:{{'Content-Type':'application/x-www-form-urlencoded'}}, body}});
+  const j=await r.json();
+  if(!r.ok) return 'Login failed: ' + (j.error_description || j.error || r.statusText);
+  storeTokens(j);
+  return null;
+}}
+
+async function refreshToken(){{
+  const rt=localStorage.getItem('refresh_token');
+  if(!rt){{clearTokens(); return null}}
+  const body=new URLSearchParams({{grant_type:'refresh_token', refresh_token:rt, client_id:AUTH.clientId}});
+  const r=await fetch(AUTH.tokenUrl, {{method:'POST', headers:{{'Content-Type':'application/x-www-form-urlencoded'}}, body}});
+  if(!r.ok){{clearTokens(); return null}}
+  const j=await r.json(); storeTokens(j); return j.access_token;
+}}
+
+async function validAccessToken(){{
+  const token=localStorage.getItem('access_token');
+  if(!token) return null;
+  const expiresAt=Number(localStorage.getItem('expires_at')||0);
+  if(Date.now() < expiresAt - 30000) return token;
+  return await refreshToken();
+}}
+
+const messages=[];
+const chat=document.querySelector('#chat'), prompt=document.querySelector('#prompt'), orb=document.querySelector('#orb');
+function add(role,text){{const d=document.createElement('div');d.className='m '+(role==='user'?'u':'');d.textContent=(role==='user'?'You: ':'Aster: ')+text;chat.appendChild(d);window.scrollTo(0,document.body.scrollHeight)}}
+
+async function send(){{
+  const text=prompt.value.trim(); if(!text) return;
+  messages.push({{role:'user',content:text}}); add('user',text); prompt.value=''; orb.classList.add('thinking');
+  document.querySelector('#chatErr').textContent='';
+  try{{
+    const token=await validAccessToken();
+    if(!token){{ showLogin(); return }}
+    const r=await fetch('/v1/chat/completions', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{messages, stream:false}})}});
+    const j=await r.json();
+    if(!r.ok) throw new Error(j.detail || r.statusText);
+    const answer=j.choices[0].message.content;
+    messages.push({{role:'assistant',content:answer}}); add('assistant',answer);
+  }}catch(e){{ document.querySelector('#chatErr').textContent = e.message }}
+  finally{{ orb.classList.remove('thinking'); prompt.focus() }}
+}}
+
+function showLogin(){{ document.querySelector('#login').hidden=false; document.querySelector('#app').hidden=true }}
+function showApp(){{ document.querySelector('#login').hidden=true; document.querySelector('#app').hidden=false; prompt.focus() }}
+
+document.querySelector('#signin').onclick=login;
+document.querySelector('#signout').onclick=()=>{{ clearTokens(); showLogin() }};
+document.querySelector('#send').onclick=send;
+prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.preventDefault(); send() }} }});
+
+(async()=>{{
+  const err=await handleCallback();
+  if(err){{ document.querySelector('#loginErr').textContent=err }}
+  const token=await validAccessToken();
+  if(token) showApp(); else showLogin();
+}})();
+</script></body></html>"""
