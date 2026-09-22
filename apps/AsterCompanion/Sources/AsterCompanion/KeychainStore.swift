@@ -6,7 +6,13 @@ import Security
 enum KeychainStore {
     private static let service = "com.elliottrook.aster-companion"
 
-    static func set(_ value: String, for key: String) {
+    /// Returns true on success. Callers that only care about later `get()`
+    /// results can ignore this, but a silent failure here (e.g. a code
+    /// signature mismatch) is exactly the kind of bug that looks like a
+    /// successful login until the next token read - so failures are
+    /// logged, not swallowed.
+    @discardableResult
+    static func set(_ value: String, for key: String) -> Bool {
         let data = Data(value.utf8)
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -17,7 +23,12 @@ enum KeychainStore {
         var attributes = query
         attributes[kSecValueData as String] = data
         attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-        SecItemAdd(attributes as CFDictionary, nil)
+        let status = SecItemAdd(attributes as CFDictionary, nil)
+        if status != errSecSuccess {
+            let message = SecCopyErrorMessageString(status, nil) as String? ?? "unknown"
+            FileHandle.standardError.write(Data("KeychainStore.set(\(key)) failed: \(status) \(message)\n".utf8))
+        }
+        return status == errSecSuccess
     }
 
     static func get(_ key: String) -> String? {
