@@ -117,4 +117,48 @@ struct AsterClient {
         }
         return try JSONDecoder().decode(PersonasResponse.self, from: data)
     }
+
+    /// M5's one wired gated action: read-only proposal check (GET
+    /// /v1/arr-repair/proposal), independent of any chat turn.
+    func fetchArrRepairProposal() async throws -> ArrRepairProposal {
+        guard let token = await authManager.validAccessToken() else {
+            throw AsterClientError.notAuthenticated
+        }
+
+        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("v1/arr-repair/proposal"))
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AsterClientError.malformedResponse
+        }
+        guard http.statusCode == 200 else {
+            throw AsterClientError.server(status: http.statusCode, body: String(data: data, encoding: .utf8) ?? "")
+        }
+        return try JSONDecoder().decode(ArrRepairProposal.self, from: data)
+    }
+
+    /// Structured execution of exactly the reviewed candidate - never
+    /// derived from chat, matching the backend's own separation between
+    /// this route and natural-language tool selection.
+    func executeArrRepair(candidateRef: String) async throws -> ArrRepairExecutionResult {
+        guard let token = await authManager.validAccessToken() else {
+            throw AsterClientError.notAuthenticated
+        }
+
+        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("v1/arr-repair/execute"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["candidate_ref": candidateRef])
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AsterClientError.malformedResponse
+        }
+        guard http.statusCode == 200 else {
+            throw AsterClientError.server(status: http.statusCode, body: String(data: data, encoding: .utf8) ?? "")
+        }
+        return try JSONDecoder().decode(ArrRepairExecutionResult.self, from: data)
+    }
 }

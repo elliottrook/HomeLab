@@ -15,6 +15,13 @@ struct ContentView: View {
     @State private var currentPersona: String = UserDefaults.standard.string(forKey: "aster_persona") ?? "sysadmin"
     @State private var enabledToolNames: Set<String> = []
 
+    // Gated-action framework (M5): the one wired action is ARR-repair,
+    // requested/reviewed/approved independent of chat, mirroring the web
+    // client's action card.
+    @State private var arrProposal: ArrRepairProposal?
+    @State private var arrResultText: String?
+    @State private var arrErrorText: String?
+
     private var client: AsterClient { AsterClient(authManager: auth) }
 
     private var currentPersonaModel: Persona? {
@@ -166,6 +173,56 @@ struct ContentView: View {
                     .padding(.bottom, 8)
                 }
 
+                HStack {
+                    Button("Check for pending ARR action") { checkArrAction() }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                    Spacer()
+                }
+                .padding(.horizontal)
+
+                if let proposal = arrProposal, let dryRun = proposal.dryRun {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Pending ARR action: \(dryRun.operation ?? "unknown")")
+                            .font(.headline)
+                        if let service = dryRun.service {
+                            Text("Service: \(service)").font(.caption)
+                        }
+                        if let effect = dryRun.effectIfLaterEnabled {
+                            Text("Effect: \(effect)").font(.caption)
+                        }
+                        if let preconditions = dryRun.preconditions, !preconditions.isEmpty {
+                            VStack(alignment: .leading, spacing: 2) {
+                                ForEach(preconditions, id: \.self) { item in
+                                    Text("• \(item)").font(.caption)
+                                }
+                            }
+                        }
+                        if let rollback = dryRun.rollback {
+                            Text("Rollback: \(rollback)").font(.caption)
+                        }
+                        HStack {
+                            Button("Approve") { approveArrAction() }
+                                .buttonStyle(.borderedProminent)
+                                .tint(.red)
+                            Button("Dismiss") { dismissArrAction() }
+                                .buttonStyle(.bordered)
+                        }
+                    }
+                    .padding(10)
+                    .background(Color.orange.opacity(0.15))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                }
+
+                if let arrResultText {
+                    Text(arrResultText).font(.caption).foregroundStyle(.secondary).padding(.horizontal)
+                }
+                if let arrErrorText {
+                    Text(arrErrorText).font(.caption).foregroundStyle(.red).padding(.horizontal)
+                }
+
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 12) {
                         ForEach(messages) { message in
@@ -191,13 +248,51 @@ struct ContentView: View {
                         .textFieldStyle(.roundedBorder)
                         .onSubmit { send() }
                     Button("Send") { send() }
-                        .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state == .thinking)
+                        .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state == .thinking || state == .acting)
                 }
                 .padding()
             }
         }
         .frame(minWidth: 480, minHeight: 560)
         .task { await loadPersonas() }
+    }
+
+    private func checkArrAction() {
+        arrResultText = nil
+        arrErrorText = nil
+        Task {
+            do {
+                let proposal = try await client.fetchArrRepairProposal()
+                arrProposal = proposal.isAvailable ? proposal : nil
+                if !proposal.isAvailable {
+                    arrResultText = "No pending ARR action right now."
+                }
+            } catch {
+                arrErrorText = error.localizedDescription
+            }
+        }
+    }
+
+    private func approveArrAction() {
+        guard let candidateRef = arrProposal?.dryRun?.candidateRef else { return }
+        state = .acting
+        arrErrorText = nil
+        Task {
+            do {
+                let result = try await client.executeArrRepair(candidateRef: candidateRef)
+                arrResultText = "Result: \(result.status)"
+            } catch {
+                arrErrorText = error.localizedDescription
+            }
+            arrProposal = nil
+            state = .idle
+        }
+    }
+
+    private func dismissArrAction() {
+        arrProposal = nil
+        arrResultText = nil
+        arrErrorText = nil
     }
 
     private func send() {

@@ -1635,6 +1635,35 @@ silently absorbed into this project's scope.
   an `/Applications` path, so this avoids removal entirely, which is the
   more careful outcome anyway), re-signed, re-registered, relaunched.
   Awaiting Jason's retry to confirm the fix live.
+- 2026-09-22 — Jason confirmed the streaming fix ("it tells me about home
+  assistant" — Sysadmin Aster answering HA questions is correct: it's the
+  unrestricted persona, unchanged from pre-M4 behavior). Moved on to
+  **Milestone 5 — gated-action framework, ARR-repair surfaced in-app.**
+  Backend: extracted `get_arr_repair_dry_run_proposal()` as the single
+  shared source for both the existing `get_arr_repair_proposal` chat tool
+  and a new `GET /v1/arr-repair/proposal` REST route, so the action-card
+  UI can check for a pending candidate independent of chat. The separate
+  structured `execute_arr_repair()`/`POST /v1/arr-repair/execute` path —
+  the actual write boundary — was not touched at all; its existing test
+  suite was re-run unchanged as the milestone's own required regression
+  gate (still green). 5 new backend tests (82 total). Both clients gained
+  a "Check for pending ARR action" affordance, a review card sourced
+  directly from the broker's own dry-run fields (operation, service,
+  effect, preconditions, rollback — nothing re-described or invented),
+  Approve/Dismiss, and a new `acting` visual state distinct from
+  `thinking` (faster, hue-shifted pulse on both clients) shown only while
+  an approved action is actually executing. Deployed to LXC 104 with the
+  usual discipline; live-verified `GET /v1/arr-repair/proposal` requires
+  auth and correctly reports no candidate available right now (expected —
+  candidates are report-issued and short-lived; none exists at the
+  moment). macOS: `ArrRepairModels.swift`/`AsterClient` additions,
+  8 Swift tests passing (3 new), rebuilt and reinstalled to
+  `/Applications/AsterCompanion.app`, launches cleanly.
+  **Not yet done, so M5 stays unchecked:** an actual live approve→execute
+  round trip through the UI (needs a real stale-Radarr-queue-record
+  candidate to exist, which the broker only issues opportunistically —
+  today's check correctly found none), and Jason's own hands-on
+  walkthrough of the action card on both clients.
 
 ## Close-out
 

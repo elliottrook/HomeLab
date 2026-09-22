@@ -22,8 +22,8 @@ private let asterOrbImage: NSImage? = {
 enum AsterState {
     case idle
     case thinking
-    // speaking/listening/acting states are added in later milestones
-    // (voice in M6, gated actions in M5) - not built yet.
+    case acting
+    // speaking/listening states are added in M6 (voice) - not built yet.
 }
 
 /// Visual state indicator built from the accepted app-icon artwork itself
@@ -56,18 +56,27 @@ struct OrbView: View {
         // Saturation/brightness/scale are all derived from the same
         // isPulsing flag so they animate together as one breathing motion -
         // dim and still at rest, brighter and more colorful at the peak of
-        // each pulse - rather than the pulse being scale-only.
-        .saturation(state == .thinking ? (isPulsing ? 1.0 : 0.55) : 0.35)
-        .brightness(state == .thinking && isPulsing ? 0.12 : 0.0)
-        .opacity(state == .thinking ? 1.0 : 0.75)
-        .scaleEffect(isPulsing ? 1.08 : 1.0)
+        // each pulse - rather than the pulse being scale-only. Acting uses
+        // a hue shift plus a faster, more intense pulse than thinking, so a
+        // real mutating action in flight is visually unmistakable rather
+        // than looking like an ordinary "still working" state.
+        .saturation(isActive ? (isPulsing ? (state == .acting ? 1.4 : 1.0) : (state == .acting ? 0.8 : 0.55)) : 0.35)
+        .brightness(isActive && isPulsing ? (state == .acting ? 0.2 : 0.12) : 0.0)
+        .hueRotation(.degrees(state == .acting ? -20 : 0))
+        .opacity(isActive ? 1.0 : 0.75)
+        .scaleEffect(isPulsing ? (state == .acting ? 1.12 : 1.08) : 1.0)
         .animation(.easeInOut(duration: 0.6), value: state)
         .onChange(of: state) { _, newValue in
-            if newValue == .thinking {
+            switch newValue {
+            case .thinking:
                 withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
                     isPulsing = true
                 }
-            } else {
+            case .acting:
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                    isPulsing = true
+                }
+            case .idle:
                 // A fresh, shorter-duration animation on the same value
                 // interrupts the repeatForever loop and eases back to rest,
                 // rather than letting it keep cycling in the background.
@@ -77,4 +86,6 @@ struct OrbView: View {
             }
         }
     }
+
+    private var isActive: Bool { state == .thinking || state == .acting }
 }
