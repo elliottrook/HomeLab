@@ -511,10 +511,12 @@ begins:**
 
 ## Persistence plan
 
-This document is the durable checkpoint. Current milestone: **Milestone 1,
-in progress**. Jason accepted the pre-start risk assessment on 2026-09-21
-and directed Milestone 1 discovery to begin. Exact stopping point and next
-safe action:
+This document is the durable checkpoint. Current milestone: **Milestone 3,
+in progress** (M1 and M2 are complete — see the Milestones checklist and
+the end of the Evidence log below for tonight's 2026-09-21 stopping point
+and exactly what's left in M3). Jason accepted the pre-start risk
+assessment on 2026-09-21 and directed Milestone 1 discovery to begin.
+Below is that discovery's original, still-accurate narrative:
 
 - Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
   read-only wrapper for the Authentik (`auth.elliottrook.com/api/*`) and NPM
@@ -591,15 +593,35 @@ safe action:
   have succeeded; no state-changing action of any kind has been made for
   this project yet.
 
-On resume: re-read this document in full (especially the Pre-start risk
-assessment's four unresolved decisions and this section), then
-`docs/reference/Aster-Operations.md`, then continue with the next safe
-action above. Do not assume any of the four unresolved decisions or any
-open architecture question elsewhere in this document has been settled
-just because time has passed — confirm with Jason or with live state. Do
-not reuse the exposed `AUTHENTIK_TOKEN` value even if it is still present in
-`.claude/settings.local.json` — treat it as revoked until Jason confirms
-rotation.
+*(The paragraph above and the entries immediately following it are the
+original Milestone 1 discovery narrative, left as written at the time —
+by the time you're reading this, M1's four unresolved decisions are long
+since resolved, per the Milestones checklist. The `AUTHENTIK_TOKEN`
+exposure this section describes is also resolved: M2 ended up not needing
+that token at all, since Authentik object creation went through `ak`/SSH
+instead — see the M2 evidence log entries. It's still good practice to
+rotate that token whenever convenient, but nothing in this project is
+blocked on it.)*
+
+**On resume today (2026-09-21 session end): re-read the Evidence log's
+last few entries (from "Heavier query succeeded through the app..."
+backward) and the M3 Milestones checklist item, not this section — this
+section is Milestone 1 history.** In short: M1 and M2 are fully complete
+and pushed to `origin`/GitHub. M3's native macOS app
+(`apps/AsterCompanion`) is built, running, and has proven a full real
+passkey-login-to-chat-reply round trip on the LAN, including a heavier
+`lab doctor`-style query. What's left before M3 itself can close:
+1. Repeat the same real native-app round trip over Tailscale (only the
+   manual-URL stand-in was tested over Tailscale in M2, not the actual
+   app).
+2. Decide whether to open the app in Xcode / set up a stable local code
+   signing identity — right now it's ad-hoc signed and rebuilt via
+   `apps/AsterCompanion/build-app.sh`, which means Keychain re-prompts
+   for permission on every rebuild (harmless, just repetitive during
+   active iteration).
+3. `git commit`/`git push` are current as of this session's end — check
+   `git log` and `git status` before assuming so, per this document's own
+   evidence-log discipline, rather than trusting this note indefinitely.
 
 ## Milestones
 
@@ -639,7 +661,17 @@ rotation.
   passkey login via `ASWebAuthenticationSession`/PKCE, Keychain token
   storage, "Sysadmin Aster" persona only (== today's Aster, unchanged
   capability), idle/thinking visual states only. Prove the full native-app
-  round trip, local and remote.
+  round trip, local and remote. **LAN round trip proven 2026-09-21** with
+  a real interactive passkey login and real chat replies (including a
+  heavier `lab doctor`-style query) through the actual running app, not a
+  stand-in. Visual design (icon + `OrbView`) iterated to something Jason
+  is happy with. **Still open:** the same native-app round trip hasn't
+  been repeated over Tailscale yet (only the manual-URL test from M2 was);
+  the app is still an unsigned ad-hoc-built `.app` run directly from
+  `.build/`, not yet in Xcode or set up for a stable local signing
+  identity (every rebuild currently re-triggers the macOS Keychain
+  permission prompt — cosmetic during active development, noted, not yet
+  fixed).
 - [ ] **M4 — Multi-agent personas and per-chat tool selection.** Add "Media
   Automation Aster" persona (ARR report/tools); persona picker UI; backend
   persona + per-request enabled-tools parameters; per-chat tool selector UI.
@@ -1245,6 +1277,53 @@ silently absorbed into this project's scope.
   not yet fully closed — the Tailscale side of the native-app test still
   needs to happen, and a full lab-doctor-weight query hasn't yet
   succeeded end-to-end through the app since the NPM timeout fix.
+- 2026-09-21 — **Heavier query succeeded through the app after the NPM
+  timeout fix; visual design iterated live with Jason.** Confirmed
+  "can you run lab doctor" (the exact query that hit the `504` earlier)
+  now completes successfully end-to-end through the real app. M3's LAN
+  round trip is proven for real, through the actual native app, not a
+  stand-in — the first time this whole project has had a real user
+  ask Aster something and get a real answer through the whole chain it
+  built.
+
+  Icon and `OrbView` iterated through several real rounds with Jason
+  watching the running app, each rebuilt and reverified rather than
+  guessed:
+  - Wired the accepted icon concept into `Contents/Resources/AppIcon.icns`
+    (generated via `sips`+`iconutil`, all standard sizes) and into
+    `OrbView` itself as the state-indicator artwork, replacing the
+    placeholder circle — the icon was explicitly designed for this dual
+    use per the "Visual identity" section.
+  - Two real, reported-and-fixed bugs: (1) `Image(_:bundle:)`'s
+    named-asset lookup doesn't reliably resolve a loose PNG copied in via
+    a plain SPM `resources:` rule — switched to loading it directly via
+    `Bundle.module.path(forResource:ofType:)` +
+    `NSImage(contentsOfFile:)`, with a loud stderr message instead of
+    silent empty space if it ever fails again; (2) the SPM-generated
+    resource bundle lives next to the loose executable, not inside any
+    app structure — `build-app.sh` now copies it into
+    `Contents/Resources/` alongside the icon.
+  - Redesigned per direct feedback: circular (`clipShape(Circle())`),
+    much larger (420pt), moved from a small header glyph into a faded
+    (16% opacity) background layer behind the whole chat view, and
+    dropped the original spin-when-thinking rotation.
+  - Caught and fixed a real regression of the point of the graphic: an
+    always-on continuous pulse (regardless of idle/thinking) was
+    calmer but no longer meant anything, since idle and thinking looked
+    the same. Idle is genuinely static again; the pulse now starts and
+    stops explicitly on the state transition (a fresh short animation on
+    the same driving flag interrupts the `repeatForever` loop cleanly),
+    so the pulse's presence or absence *is* the thinking signal again.
+  - Extended the pulse to also modulate saturation and brightness in sync
+    with scale (dim and still at rest, brighter and more colorful at each
+    peak), then slowed the whole cycle to 1.6s per Jason's read of it
+    live as "perfect" once slowed down.
+
+  Every source and behavioral fix above is tested (existing suite still
+  green after each change) and was verified by an actual rebuild +
+  relaunch + Jason looking at the running app, not assumed correct from
+  reading the code. Nothing here was pushed to origin until confirmed
+  working.
 
 ## Close-out
 
