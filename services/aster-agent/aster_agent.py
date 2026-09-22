@@ -1203,7 +1203,7 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 #orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
-#chat{{min-height:55vh;white-space:pre-wrap}}.m{{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}}.u{{background:#1e3a5f}}
+#chat{{min-height:55vh;white-space:pre-wrap}}.m{{padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.55);backdrop-filter:blur(4px)}}.u{{background:rgba(30,58,95,.55)}}
 textarea,button{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
 textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
 .muted{{color:#9ca3af;font-size:.9rem}}.err{{color:#f87171}}
