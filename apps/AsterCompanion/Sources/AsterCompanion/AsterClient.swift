@@ -39,6 +39,13 @@ struct AsterClient {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        // The default 60s URLSession timeout is too tight: a grounded query
+        // with preloaded context can legitimately take longer than that on
+        // this single-slot backend (docs/reference/Aster-Operations.md cites
+        // ~24s for a grounded retrieval baseline, with real headroom above
+        // that under load), and a cold/just-started backend can be slower
+        // still. Give it real room rather than fail a slow-but-honest answer.
+        request.timeoutInterval = 120
 
         let payload: [String: Any] = [
             "messages": history.map { ["role": $0.role.rawValue, "content": $0.content] },

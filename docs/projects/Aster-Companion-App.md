@@ -43,6 +43,18 @@ project adds a new front door and, per an explicit design decision recorded
 below, a bounded first step toward Aster taking gated actions rather than
 only ever answering questions.
 
+## Visual identity
+
+The accepted app-icon concept combines the two meanings behind the Aster name:
+an aster flower and the Greek-root idea of a star. Eight subdued indigo/violet
+petals surround a warm central orb, tying the identity to the app's planned
+voice-state indicator. The four cardinal petals carry a deliberately light
+compass-needle treatment, adding guidance and orientation without turning the
+mark into a literal compass rose. The source artwork is retained at
+[`docs/assets/aster-companion/aster-app-icon-concept-v2-compass.png`](../assets/aster-companion/aster-app-icon-concept-v2-compass.png).
+
+![Accepted Aster Companion app-icon concept](../assets/aster-companion/aster-app-icon-concept-v2-compass.png)
+
 ## Current state and evidence
 
 - **Aster today** runs as `aster-agent.service` on LXC 104 (`192.168.70.10:9120`,
