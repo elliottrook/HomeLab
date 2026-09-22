@@ -613,7 +613,11 @@ rotation.
   no regression. Validate end-to-end with a minimal test client (not the
   Mac app) — a real passkey login reaching Aster's existing chat API through
   the new path and getting a normal response, both from the LAN and over
-  Tailscale.
+  Tailscale. **LAN path proven 2026-09-21** with a real passkey login and a
+  real Authentik token accepted by Aster's live API (also surfaced and
+  fixed a genuinely missing OPNsense rule: Aster couldn't reach Authentik's
+  JWKS at all until a new egress rule was added). **Tailscale path not yet
+  separately confirmed** — same test needs to be repeated from off the LAN.
 - [ ] **M3 — macOS app v1: single persona, no voice, no actions.** Chat UI,
   passkey login via `ASWebAuthenticationSession`/PKCE, Keychain token
   storage, "Sysadmin Aster" persona only (== today's Aster, unchanged
@@ -1059,6 +1063,61 @@ silently absorbed into this project's scope.
   definition — a live end-to-end test with a real passkey login through
   the new flow, which needs Jason's own passkey and can't be completed by
   this session. M2 stays open until that happens.
+- 2026-09-21 — **Live passkey login proven end-to-end with a real token —
+  and a genuinely missing piece of infrastructure found and fixed in the
+  process.** No native app exists yet (M3), so a minimal manual test stood
+  in for it: temporarily added a second, additive redirect URI to the
+  `aster-companion` provider (`https://aster.elliottrook.com/`, Aster's
+  own existing page, chosen because Jason's remote session couldn't see
+  this session's own browser pane — an in-pane loopback listener
+  (`http://127.0.0.1:8765/callback`) was tried first and abandoned for
+  exactly that reason) and built a real PKCE authorization URL by hand.
+  Jason opened it on his phone and completed a genuine passkey login
+  against the new passwordless flow — confirmed live: the screen showed
+  only "Sign in to Aster Companion" with a username field, no password
+  field anywhere. The first authorization code expired before the manual
+  copy-paste round trip finished (Authentik's default
+  `access_code_validity` is `minutes=1`); temporarily extended to
+  `minutes=5` for this manual test and reverted immediately after.
+
+  The second attempt exchanged cleanly for a real token
+  (`POST /application/o/token/` → `200`, real `access_token`/`id_token`/
+  `refresh_token`). Decoded (signature ignored only for this inspection)
+  to confirm real claims: `iss`/`aud` exactly as configured, `sub` a
+  hashed user ID, `email: jason@yampy.ca`, `amr: ["mfa"]`. **Calling
+  Aster's real API with this real token first failed with `401`** — not
+  a code bug: `aster_agent.py`'s JWKS fetch was failing closed on a
+  connectivity error being silently swallowed. Checked directly rather
+  than guessing further: `curl` from Aster's own host (LXC 104) to
+  Authentik's JWKS endpoint timed out completely (`exit 28`, no response)
+  — Lab VLAN 70 had no outbound path to Management VLAN 50 at all, since
+  the only rule created earlier in M2 was NPM → Aster, the opposite
+  direction. This is a genuine missing requirement of the Authentik-token
+  feature itself, not scope creep: verifying a JWT against a JWKS
+  requires reaching the JWKS. Added one new narrow OPNsense rule (backed
+  up config first): `192.168.70.10` (Aster only, not the whole VLAN) →
+  `192.168.50.23:443` (NPM) on interface `opt6` (confirmed Lab VLAN 70's
+  real identifier from the interfaces section, not assumed), sequence
+  `2680` — positioned before `opt6`'s own `RFC1918_Networks` block
+  (sequence `2700`) using the same lesson learned earlier in M2, not
+  repeating that mistake. Reloaded; confirmed `curl` from LXC 104 to the
+  JWKS endpoint now returns `200`. **This rule is permanent, unlike the
+  redirect URI and validity-window changes — Aster genuinely needs it for
+  the Authentik-token path to function at all, in production, always.**
+
+  Retried the exact same real token against Aster's real API:
+  `GET /v1/models` → `200`, real model list returned. **This is the
+  complete, genuine end-to-end proof M2 asked for**: a real passkey
+  login, through the real passwordless flow, producing a real token,
+  accepted by Aster's real production API through the real NPM/OPNsense
+  path. All temporary test-only changes reverted immediately after
+  (redirect URIs back to just `aster-companion://callback`,
+  `access_code_validity` back to `minutes=1`); the new JWKS egress rule
+  was not reverted, since it's required infrastructure, not a test
+  artifact. Confirmed via M1's own explicit criteria: **still outstanding
+  before M2 can be marked fully closed** — this test proved the LAN path;
+  M2's own definition also calls for confirming the same thing over
+  Tailscale, not yet separately confirmed.
 
 ## Close-out
 
