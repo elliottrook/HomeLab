@@ -1183,6 +1183,68 @@ silently absorbed into this project's scope.
   evidence, not assumptions**: a real passkey login producing a real
   token accepted by Aster's real API, proven independently from the LAN
   and from cellular-only Tailscale. Milestone 2 is complete.
+- 2026-09-21 — **Milestone 3 started: native macOS app built and running,
+  first real chat round trip in progress.** Built `apps/AsterCompanion` as
+  a SwiftUI Swift Package Manager app rather than a hand-written
+  `.xcodeproj` (a hand-crafted `project.pbxproj` is a real way to end up
+  with a silently corrupted, unopenable Xcode project; a package is fully
+  buildable via `swift build`/`swift test` and Xcode can open it directly
+  for any future work). Ships: `ASWebAuthenticationSession`+PKCE login
+  against the live `aster-companion` Authentik application, Keychain
+  token storage with silent refresh, a chat UI against Aster's existing
+  `/v1/chat/completions`, and idle/thinking `OrbView` states only,
+  matching M3's stated scope exactly (no persona picker, no voice, no
+  actions). PKCE's cryptography is unit-tested against RFC 7636 Appendix
+  B's own reference vector, not just checked for plausible shape.
+  `build-app.sh` assembles a real `.app` bundle and registers it with
+  Launch Services, since the custom URL scheme needs a genuine bundle to
+  route the callback — a raw `swift run` executable can't receive it.
+
+  Jason completed a real interactive login in the running app — the
+  first genuinely interactive test of this whole project, since every
+  prior verification used a manually-built authorization URL as a
+  stand-in for the native app. Two real bugs surfaced and were fixed by
+  testing rather than trusting a clean build:
+  1. Login appeared to succeed (UI moved to the chat view) but sending a
+     message failed with "Not signed in." — the token exchange succeeded
+     only in memory. Root cause: `build-app.sh` copied the binary and
+     `Info.plist` into the `.app` structure *after* `swift build` had
+     already applied its own ad-hoc signature to the loose binary, so the
+     assembled bundle's signature didn't cover it (`codesign` showed
+     `Info.plist=not bound`) — its identity didn't match what Keychain
+     checks reads/writes against, so `SecItemAdd` was failing silently
+     every time. Fixed by re-signing the fully assembled bundle as the
+     build script's last step, and stopped `KeychainStore.set()` from
+     swallowing the result — failures now log the real `OSStatus`.
+  2. After that fix, a real message reached Aster's real API (proving
+     the entire auth chain end-to-end for the first time from the actual
+     app) but got a `502`: `aster-llama.service` on LXC 110 was
+     completely inactive — unrelated to anything touched this session, no
+     guest on that host had been touched before now. Live-checked rather
+     than guessed: the official `scripts/check-aster-b60.sh` passed clean
+     (correct `xe` binding, Vulkan sees the real BMG G21 — the documented
+     llvmpipe-fallback failure mode was *not* what this was), and a
+     directly-timed request once the service had settled came back in
+     4.5s, matching the documented baseline exactly — the earlier
+     ~14 tok/s reading in the logs was transient cold-start settling, not
+     a persistent regression. Jason separately updated drivers around the
+     same time. Bumped the app's own client-side timeout from the default
+     60s to 120s regardless, since even the documented baseline has real
+     headroom above 60s for a heavier grounded query.
+  3. A heavier query ("can you run lab doctor") then hit a `504` from NPM
+     itself (`openresty`), not from Aster or the app — nginx's default
+     60s `proxy_read_timeout` was shorter than the query legitimately
+     needed. Fixed with the same safe internal-module approach used for
+     the original proxy host (`internalNginx.configure()`, not hand-edited
+     config): set `proxy_read_timeout`/`proxy_send_timeout`/
+     `proxy_connect_timeout` to `300s` in Aster's own `advanced_config`,
+     verified the generated conf and confirmed no regression to any other
+     proxied host.
+
+  M3's own "prove the full native-app round trip, local and remote" is
+  not yet fully closed — the Tailscale side of the native-app test still
+  needs to happen, and a full lab-doctor-weight query hasn't yet
+  succeeded end-to-end through the app since the NPM timeout fix.
 
 ## Close-out
 
