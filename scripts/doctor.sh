@@ -504,6 +504,28 @@ check_aster() {
     fi
 }
 
+# Flags a recurrence of the B60's xe-driver engine-reset class of fault
+# (intel/compute-runtime#842 upstream, still open as of 2026-09-21) so it
+# surfaces here instead of only being found by hand in dmesg.
+check_xe_reset() {
+    local hits
+
+    if ! hits="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            journalctl -k --since "72 hours ago" 2>/dev/null | grep -iE "xe 0000:04:00\.0.*(engine reset|gt reset)" || true
+        '
+    )"; then
+        warn "Unable to check B60 xe driver reset history"
+        return
+    fi
+
+    if [[ -z "$hits" ]]; then
+        pass "No B60 xe driver engine resets in the last 72h"
+    else
+        warn "B60 xe driver engine reset in the last 72h: $(tail -1 <<< "$hits")"
+    fi
+}
+
 check_aster_wiki() {
     local state
 
@@ -1849,6 +1871,7 @@ check_nut
 category "Applications & Services"
 
 check_aster
+check_xe_reset
 check_aster_wiki
 check_netbox
 check_observability
