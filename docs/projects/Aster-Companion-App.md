@@ -939,6 +939,53 @@ silently absorbed into this project's scope.
   17 pre-existing hosts re-checked healthy (`nginx_online: true`) both
   before and after — the reload didn't disturb anything else. New host is
   id 18 in `proxy_host`.
+- 2026-09-21 — **OPNsense rule created for NPM → Aster; full path verified
+  end-to-end.** OPNsense's real rule storage in this version (26.7.1) is
+  not the near-empty legacy `<filter>` block — a `count()` sanity check
+  during discovery (only 2 rules found via the classic `config_read_array`
+  helper, when dozens plainly existed on-screen) caught this before any
+  write happened. All real rules, including every existing precedent this
+  project needs to match, live under `<OPNsense><Firewall><Filter>` — the
+  newer MVC-managed model. Followed
+  `/usr/local/opnsense/scripts/auth/add_user.php` (a real shipped OPNsense
+  script) as the reference pattern: `legacy_bindings.inc` bootstrap,
+  `Config::getInstance()->lock()`, instantiate `\OPNsense\Firewall\Filter`,
+  `Add()` a node, set fields directly, `performValidation()` scoped to the
+  new node, save only if clean. Matched every field to the closest existing
+  precedent (`Allow NPM to Homepage`, `192.168.50.23 → 192.168.20.20:3000`
+  on interface `opt4`, confirmed via the interfaces section to be
+  Management VLAN 50's real identifier — not assumed): same interface,
+  same action/quick/statetype, source `192.168.50.23`, destination changed
+  to `192.168.70.10:9120`. Took a root-only pre-change config backup first
+  (`/conf/backup/config-aster-companion-before-20260921.xml`, XML-validated)
+  and ran a true dry-run (validate-only, always unlocking, never saving)
+  before the real write, matching the discipline used for Authentik/NPM.
+  **First application reload succeeded cleanly but the path still didn't
+  work** — a live NPM→Aster test returned the same `504` as before the
+  rule existed. Diagnosed by checking Aster's own health directly from
+  Proxmox first (confirmed healthy — ruled out the backend), then reading
+  the live compiled ruleset (`pfctl -sr`) rather than trusting the "OK"
+  save result: the new rule had landed *after* an existing
+  `block drop ... to <RFC1918_Networks>` catch-all on the same interface
+  (sequence `2200`), because the picked sequence value (`3200`, based only
+  on this config's overall maximum) put it on the wrong side of that block
+  — every other narrow allow rule on this interface sits just under `2200`
+  for exactly this reason, which wasn't obvious until the compiled rule
+  order was actually inspected. Fixed by updating the existing rule's
+  `sequence` to `2199` (between the `2196` neighbor and the `2200` block)
+  and reloading again. **Verified after the fix:** `pfctl -sr` shows the
+  rule at line 215, the block at line 218 (correct order); a live request
+  through the full chain (NPM → OPNsense → Aster) returns the genuine
+  `{"status":"ok","service":"aster-agent"}` from Aster's own health
+  endpoint, not a proxy-layer response; rule count is 69 (was 68, no
+  duplicate left over from the fix); `git.elliottrook.com` and
+  `auth.elliottrook.com` still return correctly through NPM; the
+  pre-existing Homepage rule is untouched. Authentik → NPM → OPNsense →
+  Aster is now a fully working path end-to-end, reachable at
+  `aster.elliottrook.com` once DNS exists. Remaining M2 work: split-DNS
+  entries (OPNsense Unbound + both Pi-holes) and extending
+  `aster_agent.py` to accept Authentik-issued tokens alongside the
+  existing bearer key.
 
 ## Close-out
 
