@@ -1,0 +1,131 @@
+# Non-secret deployment manifest. This file is a reviewed plan, not an installer.
+schema_version: 1
+project: homelab-ai-pam
+milestone: M1
+status: planned
+
+openbao:
+  version: 2.6.2
+  artifact_policy:
+    source: https://github.com/openbao/openbao/releases/tag/v2.6.2
+    architecture: linux_amd64
+    require_release_checksum: true
+    require_gpg_or_sigstore_verification: true
+    prohibit_latest_tag: true
+  guest:
+    proxmox_node: proxmox
+    vmid: 116
+    hostname: openbao
+    type: unprivileged_lxc
+    template: local:vztmpl/debian-13-standard_13.6-1_amd64.tar.zst
+    cores: 2
+    memory_mib: 2048
+    swap_mib: 512
+    rootfs: local-lvm
+    rootfs_gib: 16
+    onboot: true
+    startup_order: 3
+    vlan: 50
+    bridge: vmbr0
+    ipv4: 192.168.50.24/24
+    gateway: 192.168.50.1
+    nameservers:
+      - 192.168.20.20
+      - 192.168.20.40
+    search_domain: internal
+  service:
+    user: openbao
+    group: openbao
+    config_dir: /etc/openbao
+    data_dir: /var/lib/openbao
+    snapshot_dir: /var/lib/openbao/snapshots
+    audit_dir: /var/log/openbao
+    storage: integrated_raft
+    seal: shamir
+    mlock: true
+    phase_m1_listener: https://127.0.0.1:8200
+    later_private_listener: https://192.168.50.24:8200
+    ui_enabled_m1: false
+    public_ingress: false
+  recovery:
+    shares_encrypted_to_human_pgp: true
+    share_count_in_ai_visible_files: prohibited
+    threshold_in_ai_visible_files: prohibited
+    initialization_output_in_terminal_or_logs: prohibited
+    initialization_root_token_revoked_after_bootstrap: true
+    manual_unseal_after_restart: true
+
+broker:
+  initial_host: hermesagent
+  initial_lxc: 104
+  initial_ip: 192.168.70.10
+  agent_identity: hlabagent
+  service_identity: hlabroker
+  agent_transport: unix_socket
+  socket_path: /run/homelab-broker/mcp.sock
+  credential_delivery: systemd_credentials_or_root_service_file
+  credential_in_arguments_environment_or_logs: prohibited
+
+network_gates:
+  m1:
+    openbao_listener: loopback_only
+    firewall_changes: none
+    dns_changes: none
+    forgejo_access: none
+  later_candidate:
+    source: 192.168.70.10
+    destination: 192.168.50.24
+    protocol: tcp
+    port: 8200
+    rule_scope: single_source_single_destination_single_port
+    approval_gate: M1_restore_complete
+
+backup:
+  proxmox_job: backup-49999802-1365
+  proxmox_job_scope: all_guests
+  schedule: daily_02_30
+  retention:
+    daily: 7
+    weekly: 4
+    monthly: 6
+  application_snapshot:
+    type: authenticated_raft_snapshot
+    content_m3: synthetic_only
+    off_guest_copy_required_before_live_secret: true
+    isolated_restore_required: true
+
+preconditions:
+  - vmid_116_absent
+  - ip_192_168_50_24_absent_in_netbox
+  - ip_192_168_50_24_no_icmp_or_neighbor_response
+  - signed_openbao_artifact_verified
+  - human_pgp_recipients_available_source_locally
+  - initialization_output_path_root_only_and_not_model_visible
+  - current_proxmox_backup_job_healthy
+
+abort_conditions:
+  - artifact_signature_or_checksum_mismatch
+  - candidate_ip_becomes_occupied
+  - initialization_or_recovery_material_reaches_stdout_stderr_or_git
+  - mlock_unavailable_without_an_explicit_new_risk_decision
+  - raft_snapshot_or_isolated_restore_fails
+  - unexpected_listener_outside_loopback_during_m3
+  - required_backup_target_unavailable
+
+rollback_order:
+  - seal_and_stop_openbao
+  - preserve_only_verified_synthetic_snapshot_and_nonsecret_logs
+  - destroy_disposable_restore_guest_if_created
+  - remove_vmid_116_only_if_no_live_secret_was_accepted
+  - remove_netbox_or_documentation_candidates_if_the_pilot_is_abandoned
+
+promotion_gate_from_openbao_foundation:
+  - source_local_initialization_completed_without_context_exposure
+  - initialization_root_token_revoked
+  - audit_device_enabled_and_reviewed_for_nonsecret_metadata
+  - synthetic_secret_round_trip_passed
+  - authenticated_raft_snapshot_copied_off_guest
+  - isolated_restore_and_human_unseal_passed
+  - restart_sealed_state_and_manual_recovery_passed
+  - doctor_and_monitoring_candidates_tested
+  - exact_m4_firewall_rule_and_rollback_reviewed
