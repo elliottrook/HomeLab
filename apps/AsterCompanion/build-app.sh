@@ -12,9 +12,10 @@ BIN_PATH=$(swift build -c "$CONFIG" --show-bin-path)
 APP_DIR="$BIN_PATH/AsterCompanion.app"
 
 rm -rf "$APP_DIR"
-mkdir -p "$APP_DIR/Contents/MacOS"
+mkdir -p "$APP_DIR/Contents/MacOS" "$APP_DIR/Contents/Resources"
 cp "$BIN_PATH/AsterCompanion" "$APP_DIR/Contents/MacOS/AsterCompanion"
 cp Info.plist "$APP_DIR/Contents/Info.plist"
+cp Resources/AppIcon.icns "$APP_DIR/Contents/Resources/AppIcon.icns"
 
 # swift build already applies an ad-hoc signature to the loose binary,
 # but that's from before Info.plist existed and the .app structure was
