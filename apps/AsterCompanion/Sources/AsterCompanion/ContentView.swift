@@ -33,45 +33,54 @@ struct ContentView: View {
     }
 
     private var chatView: some View {
-        VStack(spacing: 0) {
-            HStack {
-                OrbView(state: state)
-                Text("Aster").font(.headline)
-                Spacer()
-                Button("Sign out") { auth.logout() }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.secondary)
-            }
-            .padding()
+        ZStack {
+            // The orb lives as a large, quiet presence behind the whole
+            // conversation rather than a small header glyph - faded well
+            // below full opacity so message text on top stays fully
+            // readable regardless of idle/thinking state.
+            OrbView(state: state, size: 420)
+                .opacity(0.16)
+                .allowsHitTesting(false)
 
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 12) {
-                    ForEach(messages) { message in
-                        HStack {
-                            if message.role == .assistant { Spacer(minLength: 0) }
-                            Text(message.content)
-                                .padding(10)
-                                .background(message.role == .user ? Color.blue.opacity(0.2) : Color.gray.opacity(0.15))
-                                .cornerRadius(10)
-                            if message.role == .user { Spacer(minLength: 0) }
+            VStack(spacing: 0) {
+                HStack {
+                    Text("Aster").font(.headline)
+                    Spacer()
+                    Button("Sign out") { auth.logout() }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
+                }
+                .padding()
+
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 12) {
+                        ForEach(messages) { message in
+                            HStack {
+                                if message.role == .assistant { Spacer(minLength: 0) }
+                                Text(message.content)
+                                    .padding(10)
+                                    .background(message.role == .user ? Color.blue.opacity(0.2) : Color.gray.opacity(0.15))
+                                    .cornerRadius(10)
+                                if message.role == .user { Spacer(minLength: 0) }
+                            }
                         }
                     }
+                    .padding()
+                }
+
+                if let errorText {
+                    Text(errorText).foregroundStyle(.red).font(.caption).padding(.horizontal)
+                }
+
+                HStack {
+                    TextField("Ask Aster...", text: $draft, axis: .vertical)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit { send() }
+                    Button("Send") { send() }
+                        .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state == .thinking)
                 }
                 .padding()
             }
-
-            if let errorText {
-                Text(errorText).foregroundStyle(.red).font(.caption).padding(.horizontal)
-            }
-
-            HStack {
-                TextField("Ask Aster...", text: $draft, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit { send() }
-                Button("Send") { send() }
-                    .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state == .thinking)
-            }
-            .padding()
         }
         .frame(minWidth: 480, minHeight: 560)
     }

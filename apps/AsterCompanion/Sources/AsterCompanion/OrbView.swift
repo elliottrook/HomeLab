@@ -27,15 +27,17 @@ enum AsterState {
 }
 
 /// Visual state indicator built from the accepted app-icon artwork itself
-/// (docs/projects/Aster-Companion-App.md, "Visual identity") rather than a
-/// generic placeholder shape - the icon's petals/compass-needle motif was
-/// designed with this exact use in mind. Idle is the artwork at rest;
-/// thinking adds a slow continuous rotation (the compass-needle read as
-/// "searching/orienting") plus a gentle breathing pulse, distinct enough
-/// from idle at a glance without needing a second asset.
+/// (docs/projects/Aster-Companion-App.md, "Visual identity"). Lives as a
+/// large, circular background presence behind the chat rather than a small
+/// header glyph. The gentle breathing pulse runs continuously and
+/// independently of state (started once, never restarted, so it can't
+/// glitch against a state-driven transition); idle vs. thinking is just a
+/// calm saturation/opacity crossfade on top of that, not a different
+/// animation style - deliberately kept quiet since it now sits behind the
+/// whole conversation.
 struct OrbView: View {
     let state: AsterState
-    @State private var rotation: Double = 0
+    var size: CGFloat = 48
     @State private var pulse = false
 
     var body: some View {
@@ -43,37 +45,23 @@ struct OrbView: View {
             if let asterOrbImage {
                 Image(nsImage: asterOrbImage)
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
             } else {
                 // Loud, visible fallback if the artwork ever fails to load,
                 // instead of an empty space that looks like "nothing happened".
                 Circle().fill(.red).overlay(Text("!").foregroundStyle(.white))
             }
         }
-        .frame(width: 48, height: 48)
+        .frame(width: size, height: size)
+        .clipShape(Circle())
         .saturation(state == .thinking ? 1.0 : 0.35)
         .opacity(state == .thinking ? 1.0 : 0.75)
-        .rotationEffect(.degrees(rotation))
-        .scaleEffect(state == .thinking && pulse ? 1.08 : 1.0)
-        .animation(
-            state == .thinking
-                ? .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
-                : .default,
-            value: pulse
-        )
-        .onAppear { pulse = true }
-        .onChange(of: state) { _, newValue in
-            if newValue == .thinking {
-                startSpinning()
-            } else {
-                withAnimation(.easeOut(duration: 0.4)) { rotation = 0 }
+        .animation(.easeInOut(duration: 0.6), value: state)
+        .scaleEffect(pulse ? 1.03 : 1.0)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
+                pulse = true
             }
-        }
-    }
-
-    private func startSpinning() {
-        withAnimation(.linear(duration: 6).repeatForever(autoreverses: false)) {
-            rotation += 360
         }
     }
 }
