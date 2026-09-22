@@ -22,6 +22,11 @@ struct ContentView: View {
     @State private var arrResultText: String?
     @State private var arrErrorText: String?
 
+    // Voice in/out (M6). Recording and playback are tap-to-start/tap-to-
+    // stop, matching the web client's own flow - no silence detection.
+    @State private var voiceRecorder = VoiceRecorder()
+    @State private var voicePlayer = VoicePlayer()
+
     private var client: AsterClient { AsterClient(authManager: auth) }
 
     private var currentPersonaModel: Persona? {
@@ -248,7 +253,21 @@ struct ContentView: View {
                         .textFieldStyle(.roundedBorder)
                         .onSubmit { send() }
                     Button("Send") { send() }
-                        .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state == .thinking || state == .acting)
+                        .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || state != .idle)
+                    Button {
+                        toggleMic()
+                    } label: {
+                        // The Aster orb artwork itself, not a generic system
+                        // glyph - a plain SF Symbol mic "looked like a
+                        // button", per direct feedback, rather than part of
+                        // Aster's own identity.
+                        OrbView(state: .idle, size: 28)
+                            .overlay(
+                                Circle().stroke(state == .listening ? Color.green : Color.clear, lineWidth: 2)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(state == .thinking || state == .acting || state == .speaking)
                 }
                 .padding()
             }
@@ -295,7 +314,10 @@ struct ContentView: View {
         arrErrorText = nil
     }
 
-    private func send() {
+    /// - Parameter viaVoice: whether this turn started as a voice question
+    ///   - only then is the reply spoken back, matching the web client's
+    ///   same reasoning (a typed question stays silent).
+    private func send(viaVoice: Bool = false) {
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         messages.append(ChatMessage(role: .user, content: text))
@@ -307,10 +329,51 @@ struct ContentView: View {
             do {
                 let reply = try await client.send(history: messages, persona: currentPersona, enabledTools: enabledToolsPayload())
                 messages.append(ChatMessage(role: .assistant, content: reply))
+                if viaVoice {
+                    state = .speaking
+                    if let audio = try? await client.synthesize(text: reply) {
+                        await voicePlayer.play(data: audio)
+                    }
+                }
             } catch {
                 errorText = error.localizedDescription
             }
             state = .idle
+        }
+    }
+
+    private func toggleMic() {
+        if state == .listening {
+            state = .idle
+            guard let audioData = voiceRecorder.stopRecording() else { return }
+            Task {
+                do {
+                    let text = try await client.transcribe(audioData: audioData)
+                    guard !text.isEmpty else {
+                        errorText = "Could not hear anything - try again."
+                        return
+                    }
+                    draft = text
+                    send(viaVoice: true)
+                } catch {
+                    errorText = error.localizedDescription
+                }
+            }
+            return
+        }
+
+        Task {
+            guard await voiceRecorder.requestPermission() else {
+                errorText = "Microphone access denied."
+                return
+            }
+            do {
+                errorText = nil
+                try voiceRecorder.startRecording()
+                state = .listening
+            } catch {
+                errorText = error.localizedDescription
+            }
         }
     }
 }

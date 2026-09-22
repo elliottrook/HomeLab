@@ -1324,8 +1324,8 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 @keyframes listeningPulse{{0%,100%{{filter:saturate(1) brightness(1) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.3) brightness(1.15) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1.06)}}}}
 #orb.speaking{{animation:speakingPulse .5s ease-in-out infinite}}
 @keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1.05)}}}}
-button.mic{{background:#374151;font-size:1.1rem;padding:10px 14px}}
-button.mic.recording{{background:#16a34a}}
+button.mic{{background:transparent;background-image:url('/companion/orb.png');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
+button.mic.recording{{border-color:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.7)}}
 #chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
 textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
 textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
@@ -1358,7 +1358,7 @@ button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
 <div id="arrCard" hidden></div>
 <div id="chat"></div>
 <p class="err" id="chatErr"></p>
-<textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button><button id="mic" class="mic" title="Ask by voice">&#127908;</button>
+<textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button><button id="mic" class="mic" title="Ask by voice"></button>
 </div>
 </main>
 <script>

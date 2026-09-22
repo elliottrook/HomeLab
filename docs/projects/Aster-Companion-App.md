@@ -1911,6 +1911,19 @@ silently absorbed into this project's scope.
   for the original benchmark that looked fine, run again post-fix to
   confirm the actual regression source). Awaiting Jason's retry on his
   phone to confirm live.
+- 2026-09-22 — Jason: the mic button "looks like a button" - swapped its
+  icon for the Aster orb artwork on both clients instead of a generic
+  system glyph, the same reasoning behind every other visual-identity
+  choice in this project. Web: the button is now a round, borderless-fill
+  control showing `/companion/orb.png` itself (green ring while
+  recording) instead of a plain button box with a 🎤 emoji. macOS: the
+  button's label is now a small `OrbView(state: .idle, size: 28)` (the
+  same component already used for the app's own thinking/acting/
+  listening/speaking indicator) with `.buttonStyle(.plain)` to drop the
+  default button chrome, instead of a generic SF Symbol mic glyph.
+  82 backend tests and 8 Swift tests still pass; deployed/rebuilt with
+  the usual discipline; both regression-checked (`/companion` 200, app
+  launches cleanly).
 
 ## Close-out
 
