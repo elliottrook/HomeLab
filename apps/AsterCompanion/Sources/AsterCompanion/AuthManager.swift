@@ -142,19 +142,31 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         ]
         request.httpBody = Self.formEncode(body).data(using: .utf8)
 
+        let data: Data
+        let response: URLResponse
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-                logout()
-                return nil
-            }
-            let tokens = try JSONDecoder().decode(TokenResponse.self, from: data)
-            store(tokens)
-            return tokens.accessToken
+            (data, response) = try await URLSession.shared.data(for: request)
         } catch {
-            logout()
+            // A network-level failure (offline, or the request being torn
+            // down while the app was suspended in the background) is not
+            // the same as the refresh token itself being rejected - keep
+            // it and let the next attempt retry, rather than forcing a
+            // full re-login for something that will likely succeed a
+            // moment later.
             return nil
         }
+        guard let http = response as? HTTPURLResponse else { return nil }
+        guard http.statusCode == 200 else {
+            // Only a genuine rejection from Authentik (the refresh token
+            // is actually invalid, expired or revoked) should force
+            // logout. A transient server error shouldn't nuke a
+            // still-good refresh token.
+            if http.statusCode == 400 || http.statusCode == 401 { logout() }
+            return nil
+        }
+        guard let tokens = try? JSONDecoder().decode(TokenResponse.self, from: data) else { return nil }
+        store(tokens)
+        return tokens.accessToken
     }
 
     func logout() {

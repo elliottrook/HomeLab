@@ -899,6 +899,26 @@ class PersonaTests(unittest.TestCase):
         self.assertNotIn("get_lab_health", media_tools)
         self.assertTrue(media_tools.issubset(set(TOOLS.keys())))
 
+    def test_home_assistant_persona_is_scoped_to_ha_and_excludes_other_systems(self):
+        ha_tools = PERSONAS["home_assistant"]["tools"]
+        self.assertIn("get_ha_report", ha_tools)
+        self.assertNotIn("get_arr_report", ha_tools)
+        self.assertNotIn("get_forgejo_report", ha_tools)
+        self.assertNotIn("get_netbox_report", ha_tools)
+        self.assertNotIn("get_lab_health", ha_tools)
+        self.assertTrue(ha_tools.issubset(set(TOOLS.keys())))
+
+    def test_scoped_personas_exclude_broad_knowledge_search(self):
+        """search_knowledge's own hint regex spans every system in the lab
+        (including "home assistant" as a literal keyword) - live-caught
+        2026-09-22 when the media persona used it to answer a Home
+        Assistant question with real infrastructure detail, bypassing the
+        persona's own out-of-scope instruction entirely. It stays available
+        only to the unrestricted sysadmin persona."""
+        self.assertNotIn("search_knowledge", PERSONAS["media"]["tools"])
+        self.assertNotIn("search_knowledge", PERSONAS["home_assistant"]["tools"])
+        self.assertIn("search_knowledge", PERSONAS["sysadmin"]["tools"])
+
     def test_default_persona_constant_is_a_registered_persona(self):
         self.assertIn(DEFAULT_PERSONA, PERSONAS)
 
@@ -974,6 +994,45 @@ class PersonaChatEndpointTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('"function":"get_arr_report"', system_content)
         self.assertNotIn("get_ha_report", system_content)
 
+    async def test_media_persona_does_not_leak_home_assistant_knowledge(self):
+        """Exact live repro (2026-09-22, Jason's phone): persona=media,
+        "Tell me about home assistant" got back a full answer with real
+        VM/IP/version detail, because search_knowledge's hint regex
+        matches "home assistant" and was still in the media persona's
+        tool set at the time. Guards against that regressing."""
+        request = ChatRequest(
+            messages=[{"role": "user", "content": "Tell me about home assistant"}],
+            persona="media",
+        )
+        mocked = AsyncMock(return_value=self._fake_completion())
+        with patch("aster_agent.upstream_completion", new=mocked):
+            await chat(request)
+        payload = mocked.call_args.args[0]
+        system_content = payload["messages"][0]["content"]
+        self.assertNotIn("Read-only function results for this turn follow as JSON", system_content)
+        self.assertNotIn("search_knowledge", system_content)
+        self.assertNotIn("get_ha_report", system_content)
+
+    async def test_home_assistant_persona_excludes_arr_tool_results(self):
+        request = ChatRequest(
+            messages=[{
+                "role": "user",
+                "content": (
+                    "Is Home Assistant Supervisor currently healthy, and what is "
+                    "currently stuck in the Radarr queue?"
+                ),
+            }],
+            persona="home_assistant",
+        )
+        mocked = AsyncMock(return_value=self._fake_completion())
+        with patch("aster_agent.upstream_completion", new=mocked):
+            await chat(request)
+        payload = mocked.call_args.args[0]
+        system_content = payload["messages"][0]["content"]
+        self.assertIn("Home Assistant Aster persona", system_content)
+        self.assertIn('"function":"get_ha_report"', system_content)
+        self.assertNotIn("get_arr_report", system_content)
+
     async def test_enabled_tools_further_restricts_the_persona_default(self):
         request = ChatRequest(
             messages=[{
@@ -1019,16 +1078,22 @@ class PersonaChatEndpointTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("persona", payload)
         self.assertNotIn("enabled_tools", payload)
 
-    async def test_personas_endpoint_lists_both_personas_with_scoped_tools(self):
+    async def test_personas_endpoint_lists_all_personas_with_scoped_tools(self):
         result = await personas()
         self.assertEqual(result["default"], "sysadmin")
         ids = {entry["id"] for entry in result["personas"]}
-        self.assertEqual(ids, {"sysadmin", "media"})
+        self.assertEqual(ids, {"sysadmin", "media", "home_assistant"})
         media = next(entry for entry in result["personas"] if entry["id"] == "media")
-        tool_names = {tool["name"] for tool in media["tools"]}
-        self.assertIn("get_arr_report", tool_names)
-        self.assertNotIn("get_ha_report", tool_names)
+        media_tool_names = {tool["name"] for tool in media["tools"]}
+        self.assertIn("get_arr_report", media_tool_names)
+        self.assertNotIn("get_ha_report", media_tool_names)
+        self.assertNotIn("search_knowledge", media_tool_names)
         self.assertTrue(all("description" in tool for tool in media["tools"]))
+        home_assistant = next(entry for entry in result["personas"] if entry["id"] == "home_assistant")
+        ha_tool_names = {tool["name"] for tool in home_assistant["tools"]}
+        self.assertIn("get_ha_report", ha_tool_names)
+        self.assertNotIn("get_arr_report", ha_tool_names)
+        self.assertNotIn("search_knowledge", ha_tool_names)
 
 
 if __name__ == "__main__":

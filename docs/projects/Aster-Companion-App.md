@@ -1540,6 +1540,51 @@ silently absorbed into this project's scope.
   actual persona-switch/tool-checklist interaction — and both clients'
   live passkey-login round trip generally — still needs Jason's own
   hands-on check before M4 is marked complete.
+- 2026-09-22 — **Real bug caught by Jason's own live testing on his
+  phone**, same day: the Media Automation persona answered "Tell me about
+  home assistant" with real infrastructure detail (VM number, IP,
+  Core/Supervisor versions) instead of refusing as out of scope. Root
+  cause: `search_knowledge` was still in the media persona's allowed tool
+  set, and its own hint regex literally includes `home assistant` as a
+  trigger keyword — it retrieved real HA reference-doc chunks into
+  context, and the model answered from that grounded evidence, which
+  outweighed the persona identity's soft "refuse" instruction. Fixed by
+  removing `search_knowledge` from every scoped persona (it stays
+  available only to the unrestricted `sysadmin` persona, where breadth is
+  the point) and strengthening both scoped personas' identity text to
+  explicitly disregard any supplied context about another system. Added a
+  direct regression test reproducing the exact repro message. At the same
+  time, added the third persona Jason asked for: **Home Assistant
+  Aster**, scoped to `get_ha_report` + `get_current_time` only, same
+  refusal pattern as Media Automation. 4 new backend tests (77 total, all
+  passing locally and on the real host's venv). Also fixed, in the same
+  pass: (1) the message-bubble legibility Jason flagged (user vs. Aster
+  bubbles were nearly indistinguishable at low alpha) — added
+  right-alignment for user bubbles (`margin-left:auto` + `max-width`),
+  the same visual cue the macOS app's `HStack`/`Spacer` layout already
+  uses, plus a slightly more distinct blue tint, without reducing overall
+  transparency; (2) the "leaves the browser, comes back, chat is gone and
+  I'm logged out" issue — `refreshToken()` in the web client was clearing
+  stored tokens on *any* non-2xx response or network failure, including a
+  transient failure from iOS backgrounding an in-flight request, not just
+  a genuine token rejection; now only a real 400/401 from Authentik clears
+  tokens, and chat history is persisted per-persona to `localStorage` so
+  a Safari tab reload (a real iOS behavior distinct from token expiry)
+  restores the conversation instead of it looking closed. **The identical
+  bug was found and fixed in the native macOS app's `AuthManager.refresh()`
+  while reviewing for the same pattern** (it called `logout()`, wiping
+  Keychain, on any refresh failure) — not yet observed by Jason on that
+  client, but the same root cause, fixed proactively before it surfaced.
+  Deployed to LXC 104 with the same discipline as the initial M4 deploy
+  (pre-change backup, hash-verified transfer, full suite on the host's
+  own venv, clean restart, `journalctl` checked). **Live-verified against
+  the real model, not just mocked tests**: the exact repro message now
+  gets "Request is out of scope for this persona... switch to Sysadmin
+  Aster for Home Assistant questions," and the new Home Assistant persona
+  symmetrically refuses an ARR question. macOS app changes committed and
+  build/test-verified locally; not yet redeployed as a built `.app` to
+  Jason's actual usage since M4's live-UI check with him is still
+  pending.
 
 ## Close-out
 

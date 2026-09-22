@@ -313,12 +313,28 @@ PERSONAS: dict[str, dict[str, Any]] = {
         "identity": (
             "You are currently running as the Media Automation Aster persona, "
             "scoped to the ARR media-automation stack (Sonarr, Radarr, Lidarr, "
-            "Prowlarr, SABnzbd, Jellyfin). If asked about homelab systems outside "
-            "that stack, say the request is out of scope for this persona and "
-            "suggest switching to Sysadmin Aster instead of answering from "
-            "general knowledge."
+            "Prowlarr, SABnzbd, Jellyfin) only. If asked about homelab systems "
+            "outside that stack, say the request is out of scope for this "
+            "persona and suggest switching to Sysadmin Aster instead of "
+            "answering from general knowledge. This applies even if any "
+            "supplied context happens to mention another system - ignore that "
+            "part of it and still refuse."
         ),
-        "tools": {"get_arr_report", "get_arr_repair_proposal", "get_current_time", "search_knowledge"},
+        "tools": {"get_arr_report", "get_arr_repair_proposal", "get_current_time"},
+    },
+    "home_assistant": {
+        "label": "Home Assistant Aster",
+        "identity": (
+            "You are currently running as the Home Assistant Aster persona, "
+            "scoped to Home Assistant only (Core/Supervisor health, versions, "
+            "integrations, and reviewed automation knowledge, always read-only). "
+            "If asked about homelab systems outside Home Assistant, say the "
+            "request is out of scope for this persona and suggest switching to "
+            "Sysadmin Aster instead of answering from general knowledge. This "
+            "applies even if any supplied context happens to mention another "
+            "system - ignore that part of it and still refuse."
+        ),
+        "tools": {"get_ha_report", "get_current_time"},
     },
 }
 
@@ -1272,7 +1288,7 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 #orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
-#chat{{min-height:55vh;white-space:pre-wrap}}.m{{padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.18);backdrop-filter:blur(6px)}}.u{{background:rgba(30,58,95,.18)}}
+#chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
 textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
 textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
 select#persona{{padding:6px 8px}}
@@ -1348,8 +1364,24 @@ async function refreshToken(){{
   const rt=localStorage.getItem('refresh_token');
   if(!rt){{clearTokens(); return null}}
   const body=new URLSearchParams({{grant_type:'refresh_token', refresh_token:rt, client_id:AUTH.clientId}});
-  const r=await fetch(AUTH.tokenUrl, {{method:'POST', headers:{{'Content-Type':'application/x-www-form-urlencoded'}}, body}});
-  if(!r.ok){{clearTokens(); return null}}
+  let r;
+  try{{
+    r=await fetch(AUTH.tokenUrl, {{method:'POST', headers:{{'Content-Type':'application/x-www-form-urlencoded'}}, body}});
+  }}catch(networkErr){{
+    // A network-level failure (offline, or iOS killing the request while
+    // the tab was backgrounded during an app switch) is not the same as
+    // the refresh token itself being rejected - keep it and let the next
+    // attempt retry, rather than forcing a full re-login for something
+    // that will likely succeed a moment later.
+    return null;
+  }}
+  if(!r.ok){{
+    // Only a genuine rejection from Authentik (the refresh token is
+    // actually invalid, expired or revoked) should force re-login. A
+    // transient server error shouldn't nuke a still-good refresh token.
+    if(r.status === 400 || r.status === 401) clearTokens();
+    return null;
+  }}
   const j=await r.json(); storeTokens(j); return j.access_token;
 }}
 
@@ -1364,6 +1396,23 @@ async function validAccessToken(){{
 const messages=[];
 const chat=document.querySelector('#chat'), prompt=document.querySelector('#prompt'), orb=document.querySelector('#orb');
 function add(role,text){{const d=document.createElement('div');d.className='m '+(role==='user'?'u':'');d.textContent=(role==='user'?'You: ':'Aster: ')+text;chat.appendChild(d);window.scrollTo(0,document.body.scrollHeight);return d}}
+
+// Chat history is persisted per persona (localStorage, like the tokens
+// above) so an iOS Safari tab that gets reloaded from scratch after being
+// backgrounded - a real, observed iOS behavior, not just a token-expiry
+// issue - restores the conversation instead of it looking like the chat
+// "closed". Each persona keeps its own separate history.
+function chatStorageKey(personaId){{ return 'aster_chat_' + personaId }}
+function saveChatHistory(){{
+  try{{ localStorage.setItem(chatStorageKey(currentPersona), JSON.stringify(messages)) }}catch(e){{}}
+}}
+function loadChatHistory(){{
+  chat.innerHTML = '';
+  messages.length = 0;
+  let saved = [];
+  try{{ saved = JSON.parse(localStorage.getItem(chatStorageKey(currentPersona)) || '[]') }}catch(e){{ saved = [] }}
+  for(const m of saved){{ messages.push(m); add(m.role, m.content) }}
+}}
 
 // Persona + per-chat tool selection (M4). Personas and their allowed tool
 // sets are authoritative on the backend (aster_agent.py PERSONAS); this
@@ -1427,9 +1476,9 @@ function switchPersona(newPersona){{
   if(newPersona === currentPersona || !PERSONAS_CACHE.personas.some(p => p.id === newPersona)) return;
   currentPersona = newPersona;
   localStorage.setItem('aster_persona', currentPersona);
-  messages.length = 0;
-  chat.innerHTML = '';
   document.querySelector('#chatErr').textContent = '';
+  loadChatHistory();
+  renderPersonaOptions();
   renderToolChecklist();
 }}
 
@@ -1449,6 +1498,7 @@ document.querySelector('#persona').onchange = e => switchPersona(e.target.value)
 async function send(){{
   const text=prompt.value.trim(); if(!text) return;
   messages.push({{role:'user',content:text}}); add('user',text); prompt.value=''; orb.classList.add('thinking');
+  saveChatHistory();
   document.querySelector('#chatErr').textContent='';
   // Streamed rather than waiting for the full reply: on iOS Safari a
   // slow, heavier query (e.g. a lab-doctor-style question) risks the tab
@@ -1488,6 +1538,7 @@ async function send(){{
     }}
     if(replyText) messages.push({{role:'assistant',content:replyText}});
     else replyDiv.remove();
+    saveChatHistory();
   }}catch(e){{ document.querySelector('#chatErr').textContent = e.message; if(!replyText) replyDiv.remove() }}
   finally{{ orb.classList.remove('thinking'); prompt.focus() }}
 }}
@@ -1496,7 +1547,12 @@ function showLogin(){{ document.querySelector('#login').hidden=false; document.q
 function showApp(){{ document.querySelector('#login').hidden=true; document.querySelector('#app').hidden=false; prompt.focus() }}
 
 document.querySelector('#signin').onclick=login;
-document.querySelector('#signout').onclick=()=>{{ clearTokens(); showLogin() }};
+document.querySelector('#signout').onclick=()=>{{
+  clearTokens();
+  for(const k of Object.keys(localStorage)){{ if(k.startsWith('aster_chat_')) localStorage.removeItem(k) }}
+  messages.length = 0; chat.innerHTML = '';
+  showLogin();
+}};
 document.querySelector('#send').onclick=send;
 prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.preventDefault(); send() }} }});
 
@@ -1504,6 +1560,6 @@ prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.
   const err=await handleCallback();
   if(err){{ document.querySelector('#loginErr').textContent=err }}
   const token=await validAccessToken();
-  if(token){{ await loadPersonas(); showApp() }} else showLogin();
+  if(token){{ await loadPersonas(); loadChatHistory(); showApp() }} else showLogin();
 }})();
 </script></body></html>"""
