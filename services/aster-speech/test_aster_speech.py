@@ -1,43 +1,94 @@
 import asyncio
 import io
 import subprocess
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import jwt
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException, UploadFile
 
 import aster_speech
 from aster_speech import health, require_api_key, speech_to_text, text_to_speech, TTSRequest
 
 
-class FakeRequest:
-    def __init__(self, authorization: str | None):
-        self.headers = {"authorization": authorization} if authorization else {}
-
-
 class RequireApiKeyTests(unittest.TestCase):
     def test_unconfigured_key_503s(self):
         with patch("aster_speech.ASTER_SPEECH_API_KEY", ""):
             with self.assertRaises(HTTPException) as raised:
-                require_api_key(FakeRequest("Bearer anything"))
+                require_api_key(authorization="Bearer anything")
         self.assertEqual(raised.exception.status_code, 503)
 
     def test_missing_header_401s(self):
         with patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
             with self.assertRaises(HTTPException) as raised:
-                require_api_key(FakeRequest(None))
+                require_api_key(authorization=None)
         self.assertEqual(raised.exception.status_code, 401)
 
     def test_wrong_key_401s(self):
         with patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
             with self.assertRaises(HTTPException) as raised:
-                require_api_key(FakeRequest("Bearer wrong-key"))
+                require_api_key(authorization="Bearer wrong-key")
         self.assertEqual(raised.exception.status_code, 401)
 
     def test_correct_key_is_accepted(self):
         with patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
-            require_api_key(FakeRequest("Bearer the-real-key"))  # does not raise
+            require_api_key(authorization="Bearer the-real-key")  # does not raise
+
+
+class AuthentikTokenTests(unittest.TestCase):
+    """The Companion apps' existing Authentik login token also works here -
+    same "aster-companion" application aster-agent already accepts, no
+    separate voice-only login flow. Mirrors
+    services/aster-agent/test_aster_agent.py's AuthenticationTests."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cls.public_key = cls.private_key.public_key()
+        cls.other_private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+    def _token(self, private_key=None, issuer="https://auth.elliottrook.com/application/o/aster-companion/",
+               audience="aster-companion", expires_in=300):
+        now = int(time.time())
+        payload = {"iss": issuer, "aud": audience, "sub": "jason", "iat": now, "exp": now + expires_in}
+        return jwt.encode(payload, private_key or self.private_key, algorithm="RS256")
+
+    def _signing_key_patch(self):
+        return patch(
+            "aster_speech._authentik_jwks_client.get_signing_key_from_jwt",
+            return_value=MagicMock(key=self.public_key),
+        )
+
+    def test_valid_authentik_token_works_even_without_a_bearer_key_configured(self):
+        """The two credential types are independent, not a fallback chain -
+        matches aster_agent.py's own test of the identical property."""
+        with self._signing_key_patch(), patch("aster_speech.ASTER_SPEECH_API_KEY", ""):
+            require_api_key(authorization=f"Bearer {self._token()}")  # does not raise
+
+    def test_valid_authentik_token_is_accepted(self):
+        with self._signing_key_patch(), patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
+            require_api_key(authorization=f"Bearer {self._token()}")  # does not raise
+
+    def test_expired_token_is_refused(self):
+        with self._signing_key_patch(), patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=f"Bearer {self._token(expires_in=-60)}")
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_token_from_a_different_issuer_is_refused(self):
+        with self._signing_key_patch(), patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=f"Bearer {self._token(issuer='https://evil.example/')}")
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_token_signed_by_a_different_key_is_refused(self):
+        with self._signing_key_patch(), patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=f"Bearer {self._token(private_key=self.other_private_key)}")
+        self.assertEqual(raised.exception.status_code, 401)
 
 
 class HealthTests(unittest.IsolatedAsyncioTestCase):

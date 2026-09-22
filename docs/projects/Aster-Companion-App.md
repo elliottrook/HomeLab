@@ -1797,6 +1797,55 @@ silently absorbed into this project's scope.
   noted earlier still applies, not yet addressed), and all client-side
   voice UI (microphone capture, playback, listening/speaking visual
   states) on both apps.
+- 2026-09-22 — **Speech service exposed through the existing
+  `aster.elliottrook.com` ingress, matching M2's pattern exactly.** Jason
+  confirmed proceeding. Added Authentik-token support to
+  `aster_speech.py` first (`_authentik_claims()`, identical shape to
+  `aster_agent.py`'s own helper, same "aster-companion" application - the
+  Companion apps' existing login session works here too, no separate
+  voice login flow) - 5 new tests (18 total), all passing locally and on
+  the real host, deployed with the same backup/hash-verify/restart
+  discipline as every other change this session; live-regression-checked
+  the bearer-key path still worked afterward.
+  **OPNsense**: added a new narrow rule (NPM → `192.168.70.14:9130`,
+  mirroring the exact source/interface/style of the existing NPM→
+  aster-agent rule) after a config backup. Applied the same lesson
+  learned earlier in this exact project: a successful `serializeToConfig`
+  + `Config::save()` does **not** by itself recompile the live ruleset -
+  verified via `pfctl -sr` that the rule was genuinely absent after
+  "saving," then ran `configctl filter reload` and re-verified it live.
+  Used the same proven `sequence 2199` value as the working aster-agent
+  rule (confirmed via config.xml that duplicate sequence numbers are
+  already tolerated there), rather than guessing a new slot.
+  **NPM**: added a custom `/voice` location to the existing
+  `aster.elliottrook.com` proxy host (id 18) via the same
+  `proxy_host` model + `internalNginx.configure()` approach as M2,
+  eager-loading `[certificate,owner,access_list...]` per the earlier
+  SSL-rendering lesson. **Real bug hit and fixed live, not assumed
+  away**: the first version 404'd through the public path even though
+  the config looked right - traced to nginx's own prefix-substitution
+  producing a literal double slash (`/voice` + proxy_pass `/` +
+  remainder `/health` → `//health`), which Starlette does not collapse
+  and treats as a distinct, unmatched path (confirmed independently by
+  reproducing the identical 404 with a raw double-slash request straight
+  to the backend, bypassing nginx entirely). Fixed by using NPM's
+  location `path` field's actual template behavior directly (it inserts
+  verbatim into nginx's `location` directive) - `/voice/` (trailing
+  slash) with `forward_path: "/"` produces a single correctly-joined
+  slash. Backed up NPM's SQLite database before any of this.
+  **Live-verified the complete path end-to-end**, not mocked: an
+  unauthenticated request to `https://aster.elliottrook.com/voice/v1/tts`
+  correctly 401s; an authenticated TTS call over the real public HTTPS
+  hostname returns valid audio; feeding that audio back through
+  `/voice/v1/stt` over the same public path correctly transcribes it.
+  This reuses the exact hostname/route `aster-agent` already proved
+  working over both LAN and Tailscale - not independently re-tested over
+  Tailscale this session, but no reason to expect different behavior
+  given it's the identical ingress path.
+  **M6 remaining:** the `initial_prompt` STT vocabulary hint (not
+  blocking), and all client-side voice UI (microphone capture, playback,
+  listening/speaking visual states) on both apps - the backend half of
+  M6 is now essentially complete.
 
 ## Close-out
 

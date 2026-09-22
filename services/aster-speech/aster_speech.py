@@ -3,9 +3,12 @@
 Deliberately bounded blast radius (docs/projects/Aster-Companion-App.md,
 M1 decision): this service knows nothing about ARR, Home Assistant,
 personas, or the knowledge corpus. It takes audio in and gives text out,
-or takes text in and gives audio out - nothing else. It is authenticated
-with its own dedicated bearer key, separate from aster-agent's, so a leak
-of one key does not expose the other surface.
+or takes text in and gives audio out - nothing else. It accepts either its
+own dedicated bearer key or an Authentik-issued token for the same
+"aster-companion" application aster-agent already uses - the Companion
+apps' existing login session works here too, with no separate voice-only
+login flow, matching aster_agent.py's own dual-credential-type pattern
+(services/aster-agent/aster_agent.py's require_api_key/_authentik_claims).
 """
 
 from __future__ import annotations
@@ -17,10 +20,10 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException, UploadFile
+import jwt
+from fastapi import Depends, FastAPI, Header, HTTPException, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict
-from starlette.requests import Request
 
 ASTER_SPEECH_API_KEY = os.environ.get("ASTER_SPEECH_API_KEY", "")
 WHISPER_MODEL_SIZE = os.environ.get("ASTER_SPEECH_STT_MODEL", "base.en")
@@ -28,6 +31,14 @@ PIPER_BINARY = Path(os.environ.get("ASTER_SPEECH_PIPER_BIN", "/opt/piper/piper/p
 PIPER_VOICE = Path(
     os.environ.get("ASTER_SPEECH_PIPER_VOICE", "/opt/piper/voices/en_US-lessac-medium.onnx")
 )
+AUTHENTIK_ISSUER = os.environ.get(
+    "ASTER_AUTHENTIK_ISSUER", "https://auth.elliottrook.com/application/o/aster-companion/"
+)
+AUTHENTIK_JWKS_URL = os.environ.get(
+    "ASTER_AUTHENTIK_JWKS_URL", "https://auth.elliottrook.com/application/o/aster-companion/jwks/"
+)
+AUTHENTIK_AUDIENCE = os.environ.get("ASTER_AUTHENTIK_AUDIENCE", "aster-companion")
+_authentik_jwks_client = jwt.PyJWKClient(AUTHENTIK_JWKS_URL, cache_keys=True, lifespan=3600)
 # Matches the pacing Jason asked for in the audio-digest project
 # (docs/projects/completed projects/News-Aggregator-Audio-Digest.md) -
 # same voice, same preference, applied consistently rather than
@@ -57,12 +68,45 @@ async def _startup() -> None:
     _transcribe_lock = asyncio.Lock()
 
 
-def require_api_key(request: Request) -> None:
+def _authentik_claims(authorization: str | None) -> dict[str, Any] | None:
+    """Validate an Authentik-issued bearer token; return its claims, or None.
+
+    Never raises: any JWKS/network/decode/validation failure is treated as
+    "not a valid Authentik token" so a JWKS hiccup fails closed to 401
+    rather than surfacing as a server error, and so this can be tried
+    unconditionally without disturbing the existing bearer-key path.
+    Identical in shape to aster_agent.py's own helper - kept as a separate
+    copy rather than a shared import, since these are independent services
+    with their own deploy/rollback lifecycle.
+    """
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.removeprefix("Bearer ")
+    try:
+        signing_key = _authentik_jwks_client.get_signing_key_from_jwt(token)
+        return jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["RS256"],
+            issuer=AUTHENTIK_ISSUER,
+            audience=AUTHENTIK_AUDIENCE,
+        )
+    except jwt.PyJWTError:
+        return None
+    except Exception:
+        return None
+
+
+def require_api_key(authorization: str | None = Header(default=None)) -> None:
+    if ASTER_SPEECH_API_KEY and authorization and hmac.compare_digest(
+        authorization, f"Bearer {ASTER_SPEECH_API_KEY}"
+    ):
+        return
+    if _authentik_claims(authorization) is not None:
+        return
     if not ASTER_SPEECH_API_KEY:
         raise HTTPException(status_code=503, detail="Speech service is not configured")
-    authorization = request.headers.get("authorization", "")
-    if not hmac.compare_digest(authorization, f"Bearer {ASTER_SPEECH_API_KEY}"):
-        raise HTTPException(status_code=401, detail="Invalid or missing credentials")
+    raise HTTPException(status_code=401, detail="Invalid or missing credentials")
 
 
 class TTSRequest(BaseModel):
