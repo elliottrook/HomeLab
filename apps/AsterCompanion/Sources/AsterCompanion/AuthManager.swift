@@ -1,6 +1,5 @@
 import AuthenticationServices
 import AppKit
-import CryptoKit
 import Foundation
 
 @MainActor
@@ -26,9 +25,9 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
     // MARK: - Login
 
     func login() {
-        let verifier = Self.randomURLSafeString(length: 64)
-        let challenge = Self.codeChallenge(for: verifier)
-        let state = Self.randomURLSafeString(length: 24)
+        let verifier = PKCE.randomURLSafeString(length: 64)
+        let challenge = PKCE.codeChallenge(for: verifier)
+        let state = PKCE.randomURLSafeString(length: 24)
 
         var components = URLComponents(url: AsterConfig.authorizationEndpoint, resolvingAgainstBaseURL: false)!
         components.queryItems = [
@@ -165,19 +164,6 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         isAuthenticated = false
     }
 
-    // MARK: - PKCE helpers
-
-    private static func randomURLSafeString(length: Int) -> String {
-        var bytes = [UInt8](repeating: 0, count: length)
-        _ = SecRandomCopyBytes(kSecRandomDefault, length, &bytes)
-        return Data(bytes).base64URLEncodedString()
-    }
-
-    private static func codeChallenge(for verifier: String) -> String {
-        let digest = SHA256.hash(data: Data(verifier.utf8))
-        return Data(digest).base64URLEncodedString()
-    }
-
     private static func formEncode(_ params: [String: String]) -> String {
         params.map { key, value in
             let allowed = CharacterSet.urlQueryAllowed.subtracting(.init(charactersIn: "+&="))
@@ -199,11 +185,3 @@ private struct TokenResponse: Decodable {
     }
 }
 
-private extension Data {
-    func base64URLEncodedString() -> String {
-        base64EncodedString()
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "=", with: "")
-    }
-}

@@ -8,6 +8,11 @@ let package = Package(
         .executableTarget(
             name: "AsterCompanion",
             path: "Sources/AsterCompanion"
-        )
+        ),
+        .testTarget(
+            name: "AsterCompanionTests",
+            dependencies: ["AsterCompanion"],
+            path: "Tests/AsterCompanionTests"
+        ),
     ]
 )
