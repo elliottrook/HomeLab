@@ -59,8 +59,7 @@ struct ContentView: View {
                                 if message.role == .assistant { Spacer(minLength: 0) }
                                 Text(message.content)
                                     .padding(10)
-                                    .background(.ultraThinMaterial)
-                                    .background(message.role == .user ? Color.blue.opacity(0.12) : Color.gray.opacity(0.08))
+                                    .background(message.role == .user ? Color.blue.opacity(0.15) : Color.gray.opacity(0.1))
                                     .cornerRadius(10)
                                 if message.role == .user { Spacer(minLength: 0) }
                             }
