@@ -1700,6 +1700,48 @@ silently absorbed into this project's scope.
   occur naturally and confirm the approve→execute path then.** No state
   was changed on any host. M5 stays open, unblocked but not rushed;
   moving on to Milestone 6 in the meantime, per Jason's direction.
+- 2026-09-22 — **Milestone 6 (Voice) kicked off.** Confirmed VMID 116
+  free and Proxmox capacity comfortable (93% idle, load average 0.5 on
+  40 threads, 45GB RAM available) — separately noted CLAUDE.md's
+  2026-09-02 capacity figures (48GB physical) are now stale against the
+  live 78GB total; flagged, not yet fixed. Jason asked whether extra CPU
+  cores beyond the lab's usual 2-per-guest convention would help STT
+  latency given how idle the host is — yes, and provably so:
+  `faster-whisper`'s CTranslate2 backend parallelizes across threads,
+  unlike the lab's other lightweight I/O-bound service LXCs. Provisioned
+  **LXC 116 (`aster-speech`)**: Debian 13, 6 cores (vs. the usual 2),
+  4GB RAM, 16GB disk, Lab VLAN 70 at `192.168.70.14` (confirmed free;
+  .10/.11/.12/.13 are Aster/Ollama/llama.cpp/news-aggregator), SSH-key
+  access added as `Host aster-speech` in `~/.ssh/config` (direct IP -
+  Lab VLAN 70 turned out to be directly SSH-reachable from this Mac,
+  unlike the app-port-level finding from M1). Copied the existing,
+  already-proven Piper binary + `en_US-lessac-medium` voice
+  (`docs/projects/completed projects/News-Aggregator-Audio-Digest.md`)
+  from LXC 114 onto the new host rather than re-deciding TTS at all -
+  confirmed working, even faster here (0.08 real-time factor vs LXC
+  114's original 0.165, consistent with the extra cores).
+  **Settled M1's one genuinely open question — STT latency on CPU
+  without GPU access** — by measuring `faster-whisper` for real rather
+  than reasoning about it abstractly: synthesized a realistic 4.3s voice
+  command with Piper ("Aster, can you check if the Radarr queue has any
+  stuck downloads right now?") and transcribed it with `tiny.en`,
+  `base.en` and `small.en` (int8, CPU). Inference times (model already
+  loaded, which is how a persistent service would run - load time is a
+  one-off cost, not per-request): `tiny.en` 0.47s, `base.en` 0.85s,
+  `small.en` 2.30s — all comfortably real-time-or-faster against 4.3s of
+  audio. **Verdict: CPU-only STT latency is not a blocker.** Accuracy
+  note: none of the three models transcribed "Aster"/"Radarr" perfectly
+  every time (`tiny.en` heard "Esther"; all three softened "Radarr" to
+  "radar" - an unsurprising limitation for an invented product name);
+  `base.en` got "Aster" right and is the front-running default candidate
+  balancing speed and accuracy, with Whisper's `initial_prompt`
+  vocabulary-hint feature as a plausible later refinement, not a
+  blocker. Test files cleaned up from all hosts. **Not yet done:**
+  installing the actual persistent STT+TTS service (vs. this one-off
+  benchmark script), the `/voice` API surface, Authentik/NPM/OPNsense
+  wiring matching M2's pattern, and all client-side voice UI on both
+  apps — this session confirmed feasibility and stood up the guest, not
+  the full service.
 
 ## Close-out
 
