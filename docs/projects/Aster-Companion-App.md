@@ -135,9 +135,23 @@ mark into a literal compass rose. The source artwork is retained at
 - A native macOS app (SwiftUI), the v1 client, explicitly designed to extend
   to other Apple platforms (iOS/iPadOS) later without a rewrite — but iOS is
   not built in this project.
+- **A web client (added to scope 2026-09-22), the actual "works on my
+  phone" answer** — not native iOS, which Jason decided against (see
+  Exclusions) since a real install without a paid Apple Developer
+  membership expires weekly. Runs in Mobile Safari (and any other
+  browser — Android, another Mac), installable to the home screen for an
+  app-like launch. Uses the same passkey login as the macOS app, just via
+  ordinary browser-redirect OAuth2/PKCE instead of
+  `ASWebAuthenticationSession` — WebAuthn/passkeys are native to Mobile
+  Safari already, proven working manually against this exact flow during
+  M2's live testing, so nothing about the passkey experience is weaker,
+  only where the resulting token is stored (see Exclusions' security note
+  once this is built).
 - Authentik login using a new, dedicated passwordless (passkey-only) OIDC
-  flow and application, via the system browser (`ASWebAuthenticationSession`)
-  and PKCE, with the resulting token stored in the macOS Keychain.
+  flow and application, via the system browser (`ASWebAuthenticationSession`
+  for the macOS app; ordinary redirect-based OAuth2/PKCE for the web
+  client) and PKCE, with the resulting token stored in the macOS Keychain
+  (macOS app) or browser storage (web client).
 - A reverse-proxied, Authentik-fronted HTTPS endpoint for Aster's chat API
   (new NPM host + narrow OPNsense rule), used identically whether Jason is on
   the LAN or remote over Tailscale — one code path, matching how
@@ -167,10 +181,17 @@ mark into a literal compass rose. The source artwork is retained at
 - A voice pipeline: speech-to-text (Jason) and text-to-speech (Aster),
   centralized as a shared service on a lab host per Jason's decision, rather
   than on-device on the Mac — reusable later by other future clients.
+  **Confirmed 2026-09-22: voice targets both the macOS app and the web
+  client when M6 is built, not just one** — a browser can do microphone
+  capture and audio playback natively, so this isn't a web-client
+  limitation, just something to design for both from the start rather
+  than bolt onto the web client later.
 - A visual state indicator (orb/EQ-style graphic) with distinct idle,
   listening, thinking, speaking and acting states — "acting" must be visually
   unmistakable from "thinking," since one of them may mutate state and the
-  other never does.
+  other never does. Built once as shared design intent, implemented per
+  client (native `OrbView` in the macOS app, its web equivalent in the
+  web client).
 
 ## Out of scope (exclusions)
 
@@ -201,8 +222,14 @@ mark into a literal compass rose. The source artwork is retained at
 - Building or deploying the proposed Home Assistant voice assistant project
   — that project (if separately authorized) is HA's own Assist pipeline for
   household device control and is unrelated to this app talking to Aster.
-- Windows/Linux/web clients, and iOS/iPadOS builds (architected for, not
-  built).
+- Native iOS/iPadOS builds. **Decided against 2026-09-22**, not just
+  deferred: a real iOS install without a paid Apple Developer Program
+  membership ($99/year) expires after 7 days and needs Xcode +
+  a physical/wireless USB pairing with a Mac to refresh — Jason has no
+  interest in that subscription. A web client (see Scope above) is the
+  actual answer to "works on my phone" instead; see the Evidence log entry
+  explaining that choice.
+- Windows/Linux desktop clients.
 - Widening Tailscale's advertised routes to include Lab VLAN 70 (rejected in
   favor of the NPM+Authentik proxy — see Architecture).
 
@@ -657,21 +684,30 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
   `elliottrook.com` — a tailnet-wide gap affecting every app on that
   domain, not just Aster, fixed by Jason adding the domain to Tailscale's
   DNS settings.
-- [ ] **M3 — macOS app v1: single persona, no voice, no actions.** Chat UI,
-  passkey login via `ASWebAuthenticationSession`/PKCE, Keychain token
-  storage, "Sysadmin Aster" persona only (== today's Aster, unchanged
-  capability), idle/thinking visual states only. Prove the full native-app
-  round trip, local and remote. **LAN round trip proven 2026-09-21** with
-  a real interactive passkey login and real chat replies (including a
-  heavier `lab doctor`-style query) through the actual running app, not a
-  stand-in. Visual design (icon + `OrbView`) iterated to something Jason
-  is happy with. **Still open:** the same native-app round trip hasn't
-  been repeated over Tailscale yet (only the manual-URL test from M2 was);
-  the app is still an unsigned ad-hoc-built `.app` run directly from
-  `.build/`, not yet in Xcode or set up for a stable local signing
-  identity (every rebuild currently re-triggers the macOS Keychain
-  permission prompt — cosmetic during active development, noted, not yet
-  fixed).
+- [ ] **M3 — macOS app v1 + web client v1: single persona, no voice, no
+  actions.** Chat UI, passkey login, Keychain (macOS) or browser-storage
+  (web) token storage, "Sysadmin Aster" persona only (== today's Aster,
+  unchanged capability), idle/thinking visual states only. Prove the full
+  round trip, local and remote, for both clients.
+  - **macOS app: LAN round trip proven 2026-09-21** with a real
+    interactive passkey login and real chat replies (including a heavier
+    `lab doctor`-style query) through the actual running app, not a
+    stand-in. Visual design (icon + `OrbView`) iterated to something Jason
+    is happy with. **Still open:** the same round trip hasn't been
+    repeated over Tailscale yet (only the manual-URL test from M2 was);
+    the app is still an unsigned ad-hoc-built `.app` run directly from
+    `.build/`, not yet in Xcode or set up for a stable local signing
+    identity (every rebuild currently re-triggers the macOS Keychain
+    permission prompt — cosmetic during active development, noted, not
+    yet fixed).
+  - **Web client: added to this milestone's scope 2026-09-22, not started.**
+    Native iOS was decided against, not deferred (see Exclusions) — a
+    real install without a paid Apple Developer Program membership expires
+    weekly, and Jason has no interest in that subscription. A browser-based
+    client is the actual "works on my phone" answer instead, reusing the
+    same passkey/WebAuthn flow already proven working manually in Mobile
+    Safari during M2, just via ordinary redirect-based OAuth2/PKCE instead
+    of `ASWebAuthenticationSession`.
 - [ ] **M4 — Multi-agent personas and per-chat tool selection.** Add "Media
   Automation Aster" persona (ARR report/tools); persona picker UI; backend
   persona + per-request enabled-tools parameters; per-chat tool selector UI.
@@ -682,9 +718,12 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
   distinct from "thinking"; re-run the existing ARR-repair test suite
   unchanged as a regression gate.
 - [ ] **M6 — Voice.** Deploy the speech service at its decided placement
-  (STT + Piper TTS, `en_US-lessac-medium`); wire it into the app for both
-  personas; listening/speaking visual states; measure `aster-llama` and
-  overall latency under concurrent load against existing consumers.
+  (STT + Piper TTS, `en_US-lessac-medium`); wire it into **both the macOS
+  app and the web client** (confirmed in scope for both 2026-09-22, not
+  just the macOS app — a browser can do microphone capture and audio
+  playback natively) for both personas; listening/speaking visual states
+  on both clients; measure `aster-llama` and overall latency under
+  concurrent load against existing consumers.
 - [ ] **M7 — Observability, backup, documentation, graduation.** Close the
   integration checklist below; run the full validation suite; record
   accepted limitations and the excluded "web access for research" direction
@@ -1324,6 +1363,30 @@ silently absorbed into this project's scope.
   relaunch + Jason looking at the running app, not assumed correct from
   reading the code. Nothing here was pushed to origin until confirmed
   working.
+- 2026-09-22 — **Native iOS decided against; web client added to scope.**
+  Set out to prove M3's Tailscale round trip for the macOS app; the
+  request evolved once it became clear the app only runs on this Mac and
+  Jason actually wanted phone access, which surfaced a real question this
+  project's own Scope section had only partially answered ("designed to
+  extend to iOS later... but iOS is not built in this project" — silent on
+  *why not*, or what to do instead). Laid out the real mechanics rather
+  than assuming: a native iOS install without a paid Apple Developer
+  Program membership ($99/year) expires after 7 days and needs Xcode plus
+  a physical/wireless USB pairing with a Mac to refresh. Jason has no
+  interest in that subscription — a clean, explicit "decided against," not
+  a deferral.
+  Recommended a browser-based web client instead, not merely as a
+  concession: it needs no developer account on any platform, and
+  passkey/WebAuthn login isn't a downgrade at all — Mobile Safari's native
+  WebAuthn support was already proven working manually against this exact
+  Authentik flow during M2's live testing, so the *only* real trade-off is
+  weaker token storage (browser storage vs. Keychain), not a worse login
+  experience. Jason agreed, and separately confirmed voice (M6) should
+  target both the macOS app and the new web client when built, not just
+  one — a browser can already do microphone capture and audio playback
+  natively, so this is a design-from-the-start decision rather than a
+  later retrofit. Scope, Exclusions, M3 and M6 all updated to match. No
+  web client code has been written yet.
 
 ## Close-out
 
