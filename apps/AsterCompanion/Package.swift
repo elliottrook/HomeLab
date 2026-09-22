@@ -7,7 +7,8 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "AsterCompanion",
-            path: "Sources/AsterCompanion"
+            path: "Sources/AsterCompanion",
+            resources: [.copy("Resources/AsterOrb.png")]
         ),
         .testTarget(
             name: "AsterCompanionTests",

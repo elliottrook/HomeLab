@@ -17,6 +17,12 @@ cp "$BIN_PATH/AsterCompanion" "$APP_DIR/Contents/MacOS/AsterCompanion"
 cp Info.plist "$APP_DIR/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP_DIR/Contents/Resources/AppIcon.icns"
 
+# SPM builds its own resource bundle (in-app image assets declared via
+# `resources:` in Package.swift) next to the loose executable, not inside
+# any app structure - Bundle.module looks for it under Contents/Resources
+# once running inside a real .app, so it has to be copied in explicitly.
+cp -R "$BIN_PATH/AsterCompanion_AsterCompanion.bundle" "$APP_DIR/Contents/Resources/AsterCompanion_AsterCompanion.bundle"
+
 # swift build already applies an ad-hoc signature to the loose binary,
 # but that's from before Info.plist existed and the .app structure was
 # assembled - it doesn't cover the actual bundle Launch Services and
