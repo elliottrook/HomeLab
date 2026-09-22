@@ -1017,6 +1017,48 @@ silently absorbed into this project's scope.
   live and verified except the code change.** Only remaining M2 item:
   extend `aster_agent.py` to accept Authentik-issued tokens alongside the
   existing bearer key, with no regression to the existing browser page.
+- 2026-09-21 — **`aster_agent.py` extended to accept Authentik tokens;
+  fully tested, not yet deployed.** `require_api_key()` now tries the
+  existing bearer key first (byte-identical behavior/errors), then an
+  Authentik-issued JWT independently — neither is a fallback for the
+  other. Before writing this, confirmed from Authentik's own source
+  (`authentik/providers/oauth2/models.py`, docstring: *"OAuth2 access
+  token, non-opaque using a JWT as identifier"*) that its access tokens
+  are genuine signed JWTs verifiable via the provider's JWKS exactly like
+  an ID token — not the opaque/introspection-only tokens some OAuth2
+  servers issue, so this design is grounded in the real implementation,
+  not an assumption. Fetched the live discovery document and JWKS for the
+  real `aster-companion` provider first (`issuer`, `jwks_uri`, `RS256`,
+  the exact `scopes_supported` list) to hardcode correct, real defaults
+  rather than guessed endpoint shapes. Checks both `iss` and `aud`, not
+  just signature validity, so a token minted for a different Authentik
+  application is rejected. Added `PyJWT[crypto]==2.14.0` as a new
+  dependency (none existed before).
+
+  Built a real Python 3.11 virtualenv (this Mac's default `python3` is
+  too old for this project's pinned `fastapi`) with every dependency
+  actually installed, not just read, and ran the real test suite in it:
+  all 48 pre-existing tests still pass unchanged. Added 11 new tests
+  against the project's own stated validation criteria: existing bearer
+  key unaffected; missing header still 401s; wrong audience, wrong
+  issuer, wrong signing key, and expired tokens are each independently
+  refused; a malformed bearer value is refused; and a valid Authentik
+  token works even with no bearer key configured at all, confirming the
+  two credential types are genuinely independent rather than one being a
+  silent fallback for the other. Beyond the mocked unit tests, also
+  exercised the real live JWKS endpoint over the network (crafted a
+  syntactically-valid JWT with a real `kid` from the live endpoint) to
+  confirm `PyJWKClient` actually fetches and matches against the real
+  deployed Authentik instance, not just a mocked shape.
+
+  **Not yet deployed.** This is committed to git only — LXC 104 doesn't
+  have the new dependency installed and `aster-agent.service` hasn't been
+  restarted. Deploying means installing `PyJWT[crypto]` on the actual
+  host, restarting the service (a brief interruption to the existing
+  browser page, which today's few users depend on), and — per M2's own
+  definition — a live end-to-end test with a real passkey login through
+  the new flow, which needs Jason's own passkey and can't be completed by
+  this session. M2 stays open until that happens.
 
 ## Close-out
 
