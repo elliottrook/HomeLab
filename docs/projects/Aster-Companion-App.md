@@ -1677,6 +1677,29 @@ silently absorbed into this project's scope.
   candidate or a deliberate decision with Jason on how to generate one
   for testing (which would itself touch live Radarr/broker state and
   needs his explicit call, not something to do unprompted).
+- 2026-09-22 — Investigated an artificial test plan for the approve→
+  execute path (read-only, nothing changed). Found two things that
+  matter beyond this project: (1) the broker's execution HTTP endpoint
+  deliberately never grants approvals itself — `execution_server.py`'s
+  own docstring: "Approval creation is deliberately absent from HTTP.
+  The separate operator CLI records a short-lived server-side approval;
+  this service can only consume it," and `approve.py`'s docstring calls
+  it "Jason's one-candidate approval outside Aster and its chat path" —
+  by design, an AI agent should never be the one running that command,
+  even with permission, since keeping approval outside any automated
+  path is the whole point; (2) `aster-arr-broker.service` is currently
+  **inactive** on TrueNAS and `ASTER_ARR_EXECUTION_ENABLED` isn't set in
+  its live config (defaults off) — live execution capability is fully
+  switched off in production right now, not just idle. Proposed the
+  safe test shape (a disposable, isolated broker instance seeded with a
+  candidate referencing a nonexistent Radarr queue ID — confirmed via
+  `broker.py`'s own logic that a not-found queue ID returns
+  `already_absent` on the first check without ever issuing a real
+  DELETE — with Jason running the one `approve.py` step himself).
+  **Jason's decision: skip the artificial test. Let a real candidate
+  occur naturally and confirm the approve→execute path then.** No state
+  was changed on any host. M5 stays open, unblocked but not rushed;
+  moving on to Milestone 6 in the meantime, per Jason's direction.
 
 ## Close-out
 
