@@ -1846,6 +1846,71 @@ silently absorbed into this project's scope.
   blocking), and all client-side voice UI (microphone capture, playback,
   listening/speaking visual states) on both apps - the backend half of
   M6 is now essentially complete.
+- 2026-09-22 — **Voice UI built on both clients.** Web: a mic button
+  (tap to record via `MediaRecorder`, tap again to stop), uploads to
+  `/voice/v1/stt`, populates and auto-sends the transcribed text; if that
+  turn produced a reply, synthesizes it via `/voice/v1/tts` and plays it
+  back automatically - a typed question stays silent, matching how voice
+  assistants generally behave. `send()` itself untouched: the voice flow
+  just inspects the shared `messages` array after it resolves to find
+  the reply to speak. New `listening`/`speaking` orb CSS states (hue-
+  shifted pulses distinct from `thinking`/`acting`). Deployed to LXC 104;
+  82 tests still pass; legacy `/` and `/companion` both regression-
+  checked live.
+  macOS: added `NSMicrophoneUsageDescription` to `Info.plist`;
+  `OrbView`'s per-state visuals refactored into a small lookup
+  (`pulseCycleSeconds`/`hueDegrees`/etc. on `AsterState`) to add
+  `listening`/`speaking` cleanly alongside `thinking`/`acting`, matching
+  the web client's same hue choices. New `VoiceIO.swift`
+  (`VoiceRecorder`/`VoicePlayer`, `AVAudioRecorder`/`AVAudioPlayer`) and
+  `AsterClient.transcribe()`/`.synthesize()` (hand-built multipart body
+  for the upload, same Authentik token already used for chat). `send()`
+  gained a `viaVoice` parameter defaulting to `false` - only a voice-
+  initiated turn triggers synthesis + playback afterward, same reasoning
+  as the web client. 8 Swift tests still pass (no new ones added for
+  `VoiceRecorder`/`VoicePlayer`/the new `AsterClient` methods - consistent
+  with this codebase's existing pattern of live-verifying `AsterClient`'s
+  network methods rather than mocking `URLSession`, not a gap specific to
+  voice). `swift build` succeeds; rebuilt, reinstalled to
+  `/Applications/AsterCompanion.app`, launches cleanly.
+  **Cannot test the actual microphone/audio interaction on either client
+  from this session** - no browser access to lab-internal hosts for web,
+  and no screen-automation tool for a native macOS window (unlike the iOS
+  Simulator) to click the mic button and grant the permission prompt.
+  Both need Jason's own hands-on test before M6 can be marked complete -
+  this closes out the buildable backend and UI work; verification is the
+  remaining gate.
+- 2026-09-22 — **Jason's first live voice test, on his iPhone (web
+  client): mic engaged correctly but no text ever came back.** Diagnosed
+  from real evidence, not guessed: NPM's access log showed the actual
+  `/voice/v1/stt` request from his phone (Safari, iOS 18.7), buffered a
+  real request body, then got `499` (client closed the connection)
+  20-44 seconds later with zero response bytes ever sent - the same
+  "WebKit kills a slow, non-progressing request" class of problem
+  already diagnosed once this session for the main chat endpoint, just
+  on this endpoint instead. Confirmed nginx's own 300s timeouts (already
+  set host-wide) weren't the bottleneck. Jason confirmed the actual
+  recording was only ~7-8 seconds, ruling out "recording ran too long."
+  **Root cause found in the code, not assumed:** `aster_speech.py`'s
+  `/v1/stt` handler ran `faster-whisper`'s transcription directly on the
+  async event loop. `WhisperModel.transcribe()` returns a lazy
+  generator - the actual CPU-bound decoding happens while *iterating*
+  it (in the `"".join(...)` line), which was happening synchronously
+  inside an `async def` route with no thread offload. On real
+  microphone audio (room noise, less clean than the synthesized
+  benchmark clip that made this look fine earlier) that block was long
+  enough to stall the single uvicorn worker entirely, including
+  delivering its own eventual response - textbook explanation for
+  "request genuinely arrived, then nothing." Fixed: transcription now
+  runs via `asyncio.to_thread`, and `beam_size` dropped from 5 to 1 for
+  additional headroom. 18 tests still pass; deployed with the usual
+  backup/hash-verify/restart discipline. **Live-verified the fix**: a
+  realistic ~7.5s synthesized clip through the real public path now
+  completes in 0.9s end-to-end, down from the 20-44s stall - a genuine
+  fix, not just a smaller test clip (same voice-synthesis method used
+  for the original benchmark that looked fine, run again post-fix to
+  confirm the actual regression source). Awaiting Jason's retry on his
+  phone to confirm live.
 
 ## Close-out
 

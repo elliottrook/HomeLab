@@ -13,6 +13,7 @@ login flow, matching aster_agent.py's own dual-credential-type pattern
 
 from __future__ import annotations
 
+import asyncio
 import hmac
 import os
 import subprocess
@@ -61,8 +62,6 @@ def _load_whisper_model() -> Any:
 
 @app.on_event("startup")
 async def _startup() -> None:
-    import asyncio
-
     global _whisper_model, _transcribe_lock
     _whisper_model = _load_whisper_model()
     _transcribe_lock = asyncio.Lock()
@@ -120,6 +119,23 @@ async def health() -> dict[str, str]:
     return {"status": "ok", "service": "aster-speech"}
 
 
+def _run_transcription(path: str) -> str:
+    """Runs on a worker thread (see below), never directly on the event
+    loop. faster-whisper's transcribe() returns a lazy generator - the
+    actual CPU-bound decoding happens while iterating it, not when
+    transcribe() is called, so materializing it here is what must be kept
+    off the event loop. Real microphone audio (room noise, silence, a
+    less clean signal than a synthesized benchmark clip) can take
+    meaningfully longer than expected; blocking the loop for that whole
+    span would stall every other request AND the current one's own
+    response delivery - live-caught 2026-09-22 as a request that
+    genuinely reached the server but never got a response before iOS
+    Safari gave up and closed the connection.
+    """
+    segments, _info = _whisper_model.transcribe(path, beam_size=1)
+    return "".join(segment.text for segment in segments).strip()
+
+
 @app.post("/v1/stt", dependencies=[Depends(require_api_key)])
 async def speech_to_text(audio: UploadFile) -> dict[str, str]:
     data = await audio.read(MAX_AUDIO_BYTES + 1)
@@ -132,8 +148,7 @@ async def speech_to_text(audio: UploadFile) -> dict[str, str]:
         tmp.write(data)
         tmp.flush()
         async with _transcribe_lock:
-            segments, _info = _whisper_model.transcribe(tmp.name, beam_size=5)
-            text = "".join(segment.text for segment in segments).strip()
+            text = await asyncio.to_thread(_run_transcription, tmp.name)
 
     return {"text": text}
 
