@@ -1,9 +1,12 @@
 import tempfile
+import time
 import unittest
 import json
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
+import jwt
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException
 from pydantic import ValidationError
 
@@ -16,6 +19,7 @@ from aster_agent import (
     execute_tool,
     get_lab_health,
     preload_read_only_context,
+    require_api_key,
     search_knowledge,
     select_tools,
 )
@@ -780,6 +784,100 @@ class ArrRepairExecutionTests(unittest.IsolatedAsyncioTestCase):
                 await execute_arr_repair(self.reference)
         self.assertEqual(raised.exception.status_code, 503)
         self.assertNotIn("private", str(raised.exception.detail))
+
+
+class AuthenticationTests(unittest.TestCase):
+    """require_api_key: the existing bearer key plus the additive Authentik path."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cls.public_key = cls.private_key.public_key()
+        cls.other_private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+    def _token(self, private_key=None, issuer="https://auth.elliottrook.com/application/o/aster-companion/",
+               audience="aster-companion", expires_in=300):
+        now = int(time.time())
+        payload = {
+            "iss": issuer,
+            "aud": audience,
+            "sub": "jason",
+            "iat": now,
+            "exp": now + expires_in,
+        }
+        return jwt.encode(payload, private_key or self.private_key, algorithm="RS256")
+
+    def _signing_key_patch(self):
+        return patch(
+            "aster_agent._authentik_jwks_client.get_signing_key_from_jwt",
+            return_value=MagicMock(key=self.public_key),
+        )
+
+    def test_existing_bearer_key_is_unaffected(self):
+        with patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            require_api_key(authorization="Bearer the-real-key")  # does not raise
+
+    def test_wrong_bearer_key_still_401s(self):
+        with patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization="Bearer wrong")
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_missing_header_still_401s_when_key_configured(self):
+        with patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=None)
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_unconfigured_key_still_503s_with_no_authentik_token(self):
+        with patch("aster_agent.ASTER_API_KEY", ""):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=None)
+        self.assertEqual(raised.exception.status_code, 503)
+
+    def test_valid_authentik_token_is_accepted(self):
+        with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            require_api_key(authorization=f"Bearer {self._token()}")  # does not raise
+
+    def test_authentik_token_for_a_different_application_is_refused(self):
+        token = self._token(audience="some-other-app")
+        with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=f"Bearer {token}")
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_authentik_token_from_a_different_issuer_is_refused(self):
+        token = self._token(issuer="https://not-authentik.example/application/o/aster-companion/")
+        with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=f"Bearer {token}")
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_expired_authentik_token_is_refused(self):
+        token = self._token(expires_in=-60)
+        with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=f"Bearer {token}")
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_token_signed_by_a_different_key_is_refused(self):
+        """Not just a different audience/issuer string - an actual forged signature."""
+        token = self._token(private_key=self.other_private_key)
+        with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=f"Bearer {token}")
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_malformed_bearer_value_is_refused(self):
+        with patch("aster_agent.ASTER_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization="Bearer not-a-jwt-at-all")
+        self.assertEqual(raised.exception.status_code, 401)
+
+    def test_valid_authentik_token_works_even_without_a_bearer_key_configured(self):
+        """The two credential types are independent, not a fallback chain."""
+        with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", ""):
+            require_api_key(authorization=f"Bearer {self._token()}")  # does not raise
 
 
 if __name__ == "__main__":

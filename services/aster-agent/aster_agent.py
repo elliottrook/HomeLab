@@ -14,6 +14,7 @@ from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import httpx
+import jwt
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
@@ -25,6 +26,20 @@ from source_reports import get_netbox_report as read_netbox_report
 
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
+# Additive second credential type: an Authentik-issued access token for the
+# dedicated "aster-companion" OIDC application (see docs/projects/Aster-Companion-App.md).
+# Authentik's OAuth2 access tokens are JWTs signed with the provider's own key
+# (authentik/providers/oauth2/models.py: "OAuth2 access token, non-opaque using
+# a JWT as identifier"), verifiable the same way as an ID token via the
+# provider's JWKS. Scoped to this one application only via the audience check.
+AUTHENTIK_ISSUER = os.environ.get(
+    "ASTER_AUTHENTIK_ISSUER", "https://auth.elliottrook.com/application/o/aster-companion/"
+)
+AUTHENTIK_JWKS_URL = os.environ.get(
+    "ASTER_AUTHENTIK_JWKS_URL", "https://auth.elliottrook.com/application/o/aster-companion/jwks/"
+)
+AUTHENTIK_AUDIENCE = os.environ.get("ASTER_AUTHENTIK_AUDIENCE", "aster-companion")
+_authentik_jwks_client = jwt.PyJWKClient(AUTHENTIK_JWKS_URL, cache_keys=True, lifespan=3600)
 LLAMA_API_KEY = os.environ.get("ASTER_LLAMA_API_KEY", "")
 LLAMA_BASE_URL = os.environ.get("ASTER_LLAMA_BASE_URL", "http://192.168.70.12:11435/v1").rstrip("/")
 UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
@@ -300,12 +315,40 @@ TOOL_HINTS = {
 }
 
 
+def _authentik_claims(authorization: str | None) -> dict[str, Any] | None:
+    """Validate an Authentik-issued bearer token; return its claims, or None.
+
+    Never raises: any JWKS/network/decode/validation failure is treated as
+    "not a valid Authentik token" so a JWKS hiccup fails closed to 401
+    rather than surfacing as a server error, and so this can be tried
+    unconditionally without disturbing the existing bearer-key path.
+    """
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.removeprefix("Bearer ")
+    try:
+        signing_key = _authentik_jwks_client.get_signing_key_from_jwt(token)
+        return jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=["RS256"],
+            issuer=AUTHENTIK_ISSUER,
+            audience=AUTHENTIK_AUDIENCE,
+        )
+    except jwt.PyJWTError:
+        return None
+    except Exception:
+        return None
+
+
 def require_api_key(authorization: str | None = Header(default=None)) -> None:
+    if ASTER_API_KEY and authorization == f"Bearer {ASTER_API_KEY}":
+        return
+    if _authentik_claims(authorization) is not None:
+        return
     if not ASTER_API_KEY:
         raise HTTPException(status_code=503, detail="Aster API key is not configured")
-    expected = f"Bearer {ASTER_API_KEY}"
-    if authorization != expected:
-        raise HTTPException(status_code=401, detail="Invalid API key")
+    raise HTTPException(status_code=401, detail="Invalid API key")
 
 
 def select_tools(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
