@@ -898,6 +898,33 @@ def get_lab_health(report_path: Path | None = None) -> dict[str, Any]:
     }
 
 
+async def get_arr_repair_dry_run_proposal() -> dict[str, Any]:
+    """Read-only: is there a fresh, report-issued repair candidate right
+    now, and what does a dry run of it look like. Shared by the
+    get_arr_repair_proposal chat tool and the GET /v1/arr-repair/proposal
+    REST route (M5) so the Companion apps' action-card UI and natural-
+    language chat see exactly the same answer from one source, rather
+    than two copies of this logic drifting apart. Execution itself stays
+    on the separate, structured `execute_arr_repair()` path below -
+    nothing here can trigger a broker write.
+    """
+    report = read_arr_report(ARR_REPORT_PATH)
+    candidates = report.get("repair_candidates") if isinstance(report, dict) else None
+    if report.get("status") == "unavailable" or not isinstance(candidates, list) or len(candidates) != 1:
+        return {"status": "unavailable", "error": "No fresh, report-issued repair candidate is available"}
+    if not ARR_BROKER_URL or not ARR_BROKER_KEY:
+        return {"status": "unavailable", "error": "Repair broker dry-run is not configured"}
+    candidate = candidates[0]
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.post(f"{ARR_BROKER_URL}/v1/dry-run", headers={"Authorization": f"Bearer {ARR_BROKER_KEY}"}, json={"operation": candidate["operation"], "service": candidate["service"], "candidate_ref": candidate["candidate_ref"], "report_generated_at": report["generated_at"]})
+            response.raise_for_status()
+            result = response.json()
+    except (httpx.HTTPError, ValueError):
+        return {"status": "unavailable", "error": "Repair broker dry-run unavailable"}
+    return {"status": "proposal", "dry_run": result}
+
+
 async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     if name == "get_current_time":
         timezone = str(arguments.get("timezone") or DEFAULT_TIMEZONE)
@@ -932,21 +959,7 @@ async def execute_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     if name == "get_netbox_report":
         return read_netbox_report(NETBOX_REPORT_PATH)
     if name == "get_arr_repair_proposal":
-        report = read_arr_report(ARR_REPORT_PATH)
-        candidates = report.get("repair_candidates") if isinstance(report, dict) else None
-        if report.get("status") == "unavailable" or not isinstance(candidates, list) or len(candidates) != 1:
-            return {"status": "unavailable", "error": "No fresh, report-issued repair candidate is available"}
-        if not ARR_BROKER_URL or not ARR_BROKER_KEY:
-            return {"status": "unavailable", "error": "Repair broker dry-run is not configured"}
-        candidate = candidates[0]
-        try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                response = await client.post(f"{ARR_BROKER_URL}/v1/dry-run", headers={"Authorization": f"Bearer {ARR_BROKER_KEY}"}, json={"operation": candidate["operation"], "service": candidate["service"], "candidate_ref": candidate["candidate_ref"], "report_generated_at": report["generated_at"]})
-            response.raise_for_status()
-            result = response.json()
-        except (httpx.HTTPError, ValueError):
-            return {"status": "unavailable", "error": "Repair broker dry-run unavailable"}
-        return {"status": "proposal", "dry_run": result}
+        return await get_arr_repair_dry_run_proposal()
 
     if name == "search_knowledge":
         return search_knowledge(
@@ -1143,6 +1156,16 @@ async def models() -> dict[str, Any]:
     }
 
 
+@app.get("/v1/arr-repair/proposal", dependencies=[Depends(require_api_key)])
+async def arr_repair_proposal() -> dict[str, Any]:
+    """M5: lets the Companion apps' action-card UI check for a pending
+    ARR-repair candidate independent of a chat turn, so an approve/reject
+    card can be shown without the model needing to be asked first. Purely
+    read-only, identical answer to the get_arr_repair_proposal chat tool.
+    """
+    return await get_arr_repair_dry_run_proposal()
+
+
 @app.post("/v1/arr-repair/execute", dependencies=[Depends(require_api_key)])
 async def arr_repair_execute(request: ArrRepairExecutionRequest) -> dict[str, Any]:
     return await execute_arr_repair(request.candidate_ref)
@@ -1295,6 +1318,8 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 #orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
+#orb.acting{{animation:actingPulse .8s ease-in-out infinite}}
+@keyframes actingPulse{{0%,100%{{filter:saturate(.8) brightness(1) hue-rotate(-20deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.4) brightness(1.25) hue-rotate(-20deg);transform:translate(-50%,-50%) scale(1.12)}}}}
 #chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
 textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
 textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
@@ -1308,6 +1333,14 @@ details{{margin:6px 0 10px}}
 summary{{cursor:pointer;color:#9ca3af;font-size:.9rem}}
 #tools{{display:flex;flex-wrap:wrap;gap:10px 16px;padding:8px 2px;font-size:.85rem;color:#cbd5e1}}
 .toolRow{{display:flex;align-items:center;gap:6px;cursor:pointer}}
+button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
+#arrCard{{background:rgba(120,53,15,.28);backdrop-filter:blur(6px);border:1px solid rgba(251,146,60,.4);border-radius:12px;padding:14px;margin:10px 0;font-size:.9rem}}
+#arrCard h3{{margin:0 0 8px;font-size:1rem;color:#fdba74}}
+#arrCard p{{margin:4px 0}}
+#arrCard ul{{margin:8px 0;padding-left:20px;color:#cbd5e1}}
+#arrCard .row{{display:flex;gap:8px;margin-top:10px}}
+#arrCard button.approve{{background:#dc2626}}
+#arrCard button.dismiss{{background:#374151}}
 </style></head><body>
 <div id="orb"></div>
 <main>
@@ -1315,6 +1348,8 @@ summary{{cursor:pointer;color:#9ca3af;font-size:.9rem}}
 <div id="app" hidden>
 <header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
 <details id="toolsPanel"><summary>Tools</summary><div id="tools"></div></details>
+<button id="checkArr" class="checkArr">Check for pending ARR action</button>
+<div id="arrCard" hidden></div>
 <div id="chat"></div>
 <p class="err" id="chatErr"></p>
 <textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
@@ -1501,6 +1536,85 @@ async function loadPersonas(){{
 }}
 
 document.querySelector('#persona').onchange = e => switchPersona(e.target.value);
+
+// M5: the gated-action framework's one wired action - request, review,
+// approve exactly the existing ARR-repair broker's dry-run/candidate,
+// nothing invented client-side. GET /v1/arr-repair/proposal and POST
+// /v1/arr-repair/execute are the same read-only-proposal /
+// structured-execution split the chat tool and the broker itself already
+// enforce; this card is just a second, explicit way to reach them,
+// independent of asking Aster about it in chat.
+async function checkArrAction(){{
+  const token = await validAccessToken();
+  if(!token){{ showLogin(); return }}
+  const r = await fetch('/v1/arr-repair/proposal', {{headers:{{'Authorization':'Bearer '+token}}}});
+  if(!r.ok) return;
+  renderArrCard(await r.json());
+}}
+
+function renderArrCard(result){{
+  const card = document.querySelector('#arrCard');
+  card.innerHTML = '';
+  card.hidden = false;
+  if(result.status !== 'proposal'){{
+    card.textContent = 'No pending ARR action right now.';
+    setTimeout(()=>{{ card.hidden = true; card.textContent = '' }}, 4000);
+    return;
+  }}
+  const dr = result.dry_run || {{}};
+  const title = document.createElement('h3');
+  title.textContent = 'Pending ARR action: ' + (dr.operation || 'unknown');
+  card.appendChild(title);
+  const service = document.createElement('p');
+  service.textContent = 'Service: ' + (dr.service || '?');
+  card.appendChild(service);
+  const effect = document.createElement('p');
+  effect.textContent = 'Effect: ' + (dr.effect_if_later_enabled || '?');
+  card.appendChild(effect);
+  const ul = document.createElement('ul');
+  (dr.preconditions || []).forEach(p => {{ const li = document.createElement('li'); li.textContent = p; ul.appendChild(li) }});
+  card.appendChild(ul);
+  const rollback = document.createElement('p');
+  rollback.textContent = 'Rollback: ' + (dr.rollback || '?');
+  card.appendChild(rollback);
+  const row = document.createElement('div');
+  row.className = 'row';
+  const approveBtn = document.createElement('button');
+  approveBtn.className = 'approve'; approveBtn.textContent = 'Approve';
+  approveBtn.onclick = () => approveArrAction(dr.candidate_ref);
+  const dismissBtn = document.createElement('button');
+  dismissBtn.className = 'dismiss'; dismissBtn.textContent = 'Dismiss';
+  dismissBtn.onclick = () => {{ card.hidden = true; card.innerHTML = '' }};
+  row.appendChild(approveBtn); row.appendChild(dismissBtn);
+  card.appendChild(row);
+  const errEl = document.createElement('p');
+  errEl.className = 'err'; errEl.id = 'arrErr';
+  card.appendChild(errEl);
+}}
+
+async function approveArrAction(candidateRef){{
+  if(!candidateRef) return;
+  const card = document.querySelector('#arrCard');
+  orb.classList.add('acting');
+  try{{
+    const token = await validAccessToken();
+    if(!token){{ showLogin(); return }}
+    const r = await fetch('/v1/arr-repair/execute', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{candidate_ref:candidateRef}})}});
+    const j = await r.json().catch(()=>({{}}));
+    if(!r.ok) throw new Error(j.detail || r.statusText);
+    card.innerHTML = '';
+    const result = document.createElement('p');
+    result.textContent = 'Result: ' + (j.status || 'unknown');
+    card.appendChild(result);
+  }}catch(e){{
+    const errEl = document.querySelector('#arrErr');
+    if(errEl) errEl.textContent = e.message;
+  }}finally{{
+    orb.classList.remove('acting');
+  }}
+}}
+
+document.querySelector('#checkArr').onclick = checkArrAction;
 
 async function send(){{
   const text=prompt.value.trim(); if(!text) return;

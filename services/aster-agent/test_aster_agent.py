@@ -17,9 +17,11 @@ from aster_agent import (
     ArrRepairExecutionRequest,
     ChatRequest,
     TOOLS,
+    arr_repair_proposal,
     chat,
     execute_arr_repair,
     execute_tool,
+    get_arr_repair_dry_run_proposal,
     get_lab_health,
     normalized_messages,
     personas,
@@ -789,6 +791,82 @@ class ArrRepairExecutionTests(unittest.IsolatedAsyncioTestCase):
                 await execute_arr_repair(self.reference)
         self.assertEqual(raised.exception.status_code, 503)
         self.assertNotIn("private", str(raised.exception.detail))
+
+
+class ArrRepairProposalTests(unittest.IsolatedAsyncioTestCase):
+    """get_arr_repair_dry_run_proposal() (M5): read-only, shared by the
+    chat tool and the GET /v1/arr-repair/proposal REST route the
+    Companion apps' action-card UI uses. Execution stays on the separate
+    execute_arr_repair() path tested above - nothing here writes."""
+
+    def setUp(self):
+        self.reference = "radarr-q-abcdefghijklmnop"
+        self.report = {
+            "generated_at": "2026-09-09T12:00:00Z",
+            "repair_candidates": [
+                {
+                    "operation": "dismiss_stale_radarr_queue_record",
+                    "service": "radarr",
+                    "candidate_ref": self.reference,
+                    "expires_at": "2026-09-09T12:05:00Z",
+                }
+            ],
+        }
+        self.dry_run_result = {"operation": "dismiss_stale_radarr_queue_record", "preview": "would dismiss"}
+        FakeAsyncClient.requests = []
+        FakeAsyncClient.response = FakeBrokerResponse(200, self.dry_run_result)
+
+    async def test_no_candidate_is_unavailable_and_never_contacts_broker(self):
+        with patch(
+            "aster_agent.read_arr_report",
+            return_value={"generated_at": "2026-09-09T12:00:00Z", "repair_candidates": []},
+        ):
+            result = await get_arr_repair_dry_run_proposal()
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(FakeAsyncClient.requests, [])
+
+    async def test_unconfigured_broker_is_unavailable(self):
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", ""),
+            patch("aster_agent.ARR_BROKER_KEY", ""),
+        ):
+            result = await get_arr_repair_dry_run_proposal()
+        self.assertEqual(result["status"], "unavailable")
+
+    async def test_fresh_candidate_returns_dry_run_proposal(self):
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            result = await get_arr_repair_dry_run_proposal()
+        self.assertEqual(result, {"status": "proposal", "dry_run": self.dry_run_result})
+        url, headers, payload, _ = FakeAsyncClient.requests[0]
+        self.assertEqual(url, "http://broker.internal/v1/dry-run")
+        self.assertEqual(headers, {"Authorization": "Bearer broker-key"})
+
+    async def test_chat_tool_delegates_to_the_same_shared_function(self):
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            result = await execute_tool("get_arr_repair_proposal", {})
+        self.assertEqual(result, {"status": "proposal", "dry_run": self.dry_run_result})
+
+    async def test_rest_route_returns_the_same_shape_as_the_chat_tool(self):
+        with (
+            patch("aster_agent.read_arr_report", return_value=self.report),
+            patch("aster_agent.ARR_BROKER_URL", "http://broker.internal"),
+            patch("aster_agent.ARR_BROKER_KEY", "broker-key"),
+            patch("aster_agent.httpx.AsyncClient", FakeAsyncClient),
+        ):
+            route_result = await arr_repair_proposal()
+            tool_result = await execute_tool("get_arr_repair_proposal", {})
+        self.assertEqual(route_result, tool_result)
 
 
 class AuthenticationTests(unittest.TestCase):
