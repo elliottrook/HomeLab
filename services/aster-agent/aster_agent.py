@@ -1320,6 +1320,12 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
 #orb.acting{{animation:actingPulse .8s ease-in-out infinite}}
 @keyframes actingPulse{{0%,100%{{filter:saturate(.8) brightness(1) hue-rotate(-20deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.4) brightness(1.25) hue-rotate(-20deg);transform:translate(-50%,-50%) scale(1.12)}}}}
+#orb.listening{{animation:listeningPulse 1s ease-in-out infinite}}
+@keyframes listeningPulse{{0%,100%{{filter:saturate(1) brightness(1) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.3) brightness(1.15) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1.06)}}}}
+#orb.speaking{{animation:speakingPulse .5s ease-in-out infinite}}
+@keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1.05)}}}}
+button.mic{{background:#374151;font-size:1.1rem;padding:10px 14px}}
+button.mic.recording{{background:#16a34a}}
 #chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
 textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
 textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
@@ -1352,7 +1358,7 @@ button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
 <div id="arrCard" hidden></div>
 <div id="chat"></div>
 <p class="err" id="chatErr"></p>
-<textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
+<textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button><button id="mic" class="mic" title="Ask by voice">&#127908;</button>
 </div>
 </main>
 <script>
@@ -1667,6 +1673,87 @@ async function send(){{
 function showLogin(){{ document.querySelector('#login').hidden=false; document.querySelector('#app').hidden=true }}
 function showApp(){{ document.querySelector('#login').hidden=true; document.querySelector('#app').hidden=false; prompt.focus() }}
 
+// M6: voice in and voice out through the new /voice API. A reply is only
+// spoken aloud when the turn that produced it started as a voice question
+// - a typed question stays silent, matching how most voice assistants
+// behave rather than narrating every single reply unprompted. send()
+// itself is untouched: this just inspects `messages` after it resolves to
+// see whether the turn actually produced an assistant reply.
+let mediaRecorder = null;
+let audioChunks = [];
+
+async function toggleMic(){{
+  const micBtn = document.querySelector('#mic');
+  if(mediaRecorder && mediaRecorder.state === 'recording'){{ mediaRecorder.stop(); return }}
+  document.querySelector('#chatErr').textContent = '';
+  let stream;
+  try{{
+    stream = await navigator.mediaDevices.getUserMedia({{audio:true}});
+  }}catch(e){{
+    document.querySelector('#chatErr').textContent = 'Microphone access denied or unavailable.';
+    return;
+  }}
+  audioChunks = [];
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.ondataavailable = e => {{ if(e.data.size > 0) audioChunks.push(e.data) }};
+  mediaRecorder.onstop = async () => {{
+    stream.getTracks().forEach(t => t.stop());
+    orb.classList.remove('listening');
+    micBtn.classList.remove('recording');
+    const blob = new Blob(audioChunks, {{type: mediaRecorder.mimeType || 'audio/webm'}});
+    await transcribeAndSend(blob);
+  }};
+  mediaRecorder.start();
+  orb.classList.add('listening');
+  micBtn.classList.add('recording');
+}}
+
+async function transcribeAndSend(blob){{
+  try{{
+    const token = await validAccessToken();
+    if(!token){{ showLogin(); return }}
+    const form = new FormData();
+    form.append('audio', blob, 'voice.webm');
+    const r = await fetch('/voice/v1/stt', {{method:'POST', headers:{{'Authorization':'Bearer '+token}}, body:form}});
+    if(!r.ok){{ const j = await r.json().catch(()=>({{}})); throw new Error(j.detail || r.statusText) }}
+    const {{text}} = await r.json();
+    if(!text){{ document.querySelector('#chatErr').textContent = 'Could not hear anything - try again.'; return }}
+    prompt.value = text;
+    const beforeCount = messages.length;
+    await send();
+    const last = messages[messages.length - 1];
+    if(messages.length > beforeCount && last && last.role === 'assistant'){{
+      await speakReply(last.content);
+    }}
+  }}catch(e){{
+    document.querySelector('#chatErr').textContent = e.message;
+  }}
+}}
+
+async function speakReply(text){{
+  try{{
+    const token = await validAccessToken();
+    if(!token) return;
+    orb.classList.add('speaking');
+    const r = await fetch('/voice/v1/tts', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{text}})}});
+    if(!r.ok) throw new Error('Speech synthesis failed');
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    await new Promise(resolve => {{
+      audio.onended = resolve;
+      audio.onerror = resolve;
+      audio.play().catch(resolve);
+    }});
+    URL.revokeObjectURL(url);
+  }}catch(e){{
+    document.querySelector('#chatErr').textContent = e.message;
+  }}finally{{
+    orb.classList.remove('speaking');
+  }}
+}}
+
+document.querySelector('#mic').onclick = toggleMic;
 document.querySelector('#signin').onclick=login;
 document.querySelector('#signout').onclick=()=>{{
   clearTokens();
