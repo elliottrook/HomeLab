@@ -195,3 +195,12 @@ both guests reach NPM TCP 443 for Authentik signing keys. Speech uses CPU
 Whisper/Piper, not the shared B60 inference slot. No new Tailscale route or
 public ingress was added. Live ARR repair remains disabled and explicitly
 deferred to its follow-up. See [operator guide](runbooks/Aster-Companion.md).
+
+## Paperless document service — 2026-09-23
+
+Paperless LXC 115 runs on VLAN 70 at 192.168.70.15. Approved management clients
+reach NPM over HTTPS, pass the Authentik gate, then use native Paperless login.
+Paperless OCR feeds a local Unix broker and unprivileged summary worker; inference
+runs on LXC 110 and results return only to the AI summary custom field. Full
+recovery stays on local/TrueNAS backups; only service definitions go offsite.
+See [operational reference](reference/Paperless-Operational-Reference.md).

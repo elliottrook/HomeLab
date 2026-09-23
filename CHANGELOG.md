@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-23 — Paperless deployment close-out
+
+- Resolved the LXC 115/Speech IP collision; Paperless is 192.168.70.15 with
+  private HTTPS, Authentik, Homepage and NetBox integration.
+- Activated local OCR-to-summary processing with a fixed-field broker, least
+  privilege, bounded long-document processing, durable retry and Doctor checks.
+- Corrected offsite coverage to service-only, removed the seven prior database
+  archive versions, and verified a post-deployment TrueNAS isolated restore.
+- Archived the deployment record with personal login and first real-document
+  quality review explicitly retained as operator follow-ups.
+
+
 ## 2026-09-23 — Companion acceptance and notification milestone
 
 - Recorded Jason’s Mac voice and iPhone Wi-Fi/Tailscale acceptance; M6 is complete.

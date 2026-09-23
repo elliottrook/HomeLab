@@ -1,3 +1,131 @@
+# Document OCR + Summarization — deployment close-out
+
+> Status: Closed deployment — operational; user acceptance follow-ups below
+> Owner: Jason
+> Started: 2026-09-15
+> Closed: 2026-09-23
+> Stream: A, bounded to Paperless and its local summarization integration
+> Close/commit/push/archive authorization: Jason, 2026-09-23, “Yes, please complete the steps, then close, commit, push and archive. All approved.”
+
+## Delivered service
+
+Open **https://paperless.elliottrook.com** from an approved management device, or
+use the **Paperless-ngx** tile under Homepage's Application Management group.
+The HTTPS route uses NPM's valid wildcard certificate, the established Authentik
+login flow and a binding restricted to Jason; native Paperless login remains.
+Browser verification reached “Log in to continue to Paperless.” Personal login
+and passkey interaction remain the operator's responsibility.
+
+LXC 115 now owns **192.168.70.15**, resolving the collision with Aster Speech
+LXC 116 at .14. Speech was left unchanged. NetBox records are VM 17, interface
+17 and address 31. The guest has 2 vCPU, 2048 MiB RAM and a 32 GiB disk.
+Paperless 3.1.3, Valkey and the local summary services are operating.
+
+Paperless performs OCR; the five-minute summary timer processes all visible
+new documents and writes only the **AI summary** custom field through the local
+capability broker. The reader is view-only, the writer has no API token or
+password, and the worker cannot access Docker or the Paperless credential.
+Inference stays on LXC 110 with its dedicated source-local key. No source
+content is sent to an external AI provider.
+
+## Validation evidence
+
+- Approved-client backend login: HTTP 200; rendered login form verified.
+- Private HTTPS: valid TLS, both Pi-hole answers point to 192.168.50.23;
+  Authentik redirect and rendered Paperless-specific login prompt verified.
+- Negative network checks: VLAN 20 cannot reach port 8000; its HTTPS request
+  is denied with 403. NPM permits only .1.206, .1.241 and .1.112 for this host.
+- A synthetic scanned warranty image was ingested, OCR extracted
+  “15 December 2027”, and the Document Added workflow granted the reader access.
+  The resulting summary preserved that date and the receipt requirement.
+- Two complete generations succeeded, including recovery after a simulated
+  inference outage. An intervening cycle skipped the unchanged summary without
+  republishing. A broker restart and Paperless container recreation passed.
+- Native API tests in a disposable database: granted read 200; hidden/revoked
+  reads 404; document PATCH/PUT/DELETE and note writes 403; invalid token 401.
+  The broker preserved other fields/document metadata, refused stale or extra
+  arguments and revoked access, and did not invoke file-moving signals.
+- A live revocation test with a human-owned synthetic document removed its
+  derived rows. The first unowned fixture remained visible by Paperless's native
+  policy; it was corrected to test actual access revocation, not merely grant
+  removal. No production document was involved.
+- Simulated inference failure produced unavailable status and unhealthy output;
+  restoring the endpoint recovered the document and health. Production now runs
+  in all-document mode with the timer enabled and zero unresolved errors.
+- 23 local pipeline/worker tests and two strict-export tests pass. Long-document
+  tests prove complete section coverage and no partial publication on failure.
+- Post-deployment archive and TrueNAS copy SHA-256:
+  `a31c8fcf50fe6218f8826848ae2aad8e6726f0cf76f4ea1398fab98394061a88`.
+  Restored from TrueNAS into LXC 915 with no NIC/onboot. Both SQLite databases
+  passed integrity checks, release hashes matched, the key retained mode 0600,
+  broker/timer were active, and two restored login checks returned 200 with a
+  healthy web container. Guest 915 and its disposable disk were removed.
+
+## Backup scope resolved
+
+The user explicitly requires **service-only offsite backup, not the database**.
+Local Proxmox and TrueNAS whole-guest archives remain the data recovery tiers.
+The relay now excludes all `vzdump-lxc-115-*.tar.zst` files. Seven exact historical
+IDrive S3 archive versions were inventoried and removed, with zero remaining
+versions for those keys verified; no shared-bucket purge or local deletion ran.
+
+The accepted export contains only a fixed allowlist of release code, units,
+non-secret example configuration and pinned Paperless reconstruction templates.
+It excludes database, originals, OCR, summaries, credentials and runtime state.
+`paperless-service/paperless-service-20260923.tar.gz` is on TrueNAS and encrypted
+offsite storage; a decrypted read matches SHA-256
+`2cab3443ee6cc267027819a92b4e5071ac0c94da359acd2a677d797ec31bcc06`.
+The existing daily relay maintains this export; release changes require a fresh
+reviewed manifest/export. The source repository is an additional code recovery
+path, not a backup of document data.
+
+## Integration and recovery
+
+- The source-local UI/broker/timer/status checker is live and verified. The
+  Paperless Doctor hook is included in this repository; installation into the
+  separate operational checkout awaits explicit path approval after automatic
+  approval review rejected that out-of-workspace write. No new alert destination.
+- NetBox, private DNS, NPM host 25, Authentik provider 34/application `paperless`,
+  Homepage and the narrow OPNsense rules are reconciled.
+- [Operational reference](../../reference/Paperless-Operational-Reference.md),
+  [summary operations](../../runbooks/Paperless-Summary-Operations.md),
+  [isolated recovery](../../runbooks/Paperless-Isolated-Restore.md) and
+  [IP correction](../../runbooks/Paperless-IP-Collision.md) record custody,
+  revocation, rollback and checkpoints. The human wiki has a Paperless page.
+- Aster's explicit knowledge allowlist includes the reviewed operational page.
+  Document contents and summaries are excluded from the wiki/mirror corpus.
+- No physical cabling, rack or power change occurred. The repository architecture
+  and addressing records document the logical topology addition.
+
+Stop the summary timer/broker to suspend AI processing while retaining Paperless.
+Deactivate the dedicated identities to revoke access. Recover full state from a
+local/TrueNAS archive in isolation; never reconnect a restored .14 identity.
+The restricted native endpoint is an administrative recovery path, not the normal
+browser launch route. Keep protected checkpoint files out of Git and offsite
+service exports.
+
+## User acceptance and bounded limitations
+
+These remain visible follow-ups, not claims of completed validation. They do not
+prevent the requested deployment close-out and archive; they prevent claiming
+real-document quality or personal login acceptance has been demonstrated.
+
+| Follow-up / limit | Owner and review point | Compensating control |
+|---|---|---|
+| First personal HTTPS login and native credential replacement | Jason, first use | Existing Authentik gate; native bootstrap credential stays root-only on LXC 115 |
+| First real-document summary review | Jason, first real upload | Only labelled synthetic data existed; summaries are derived aids and originals remain authoritative |
+| OCR above 96,000 characters or empty OCR | Jason, first such document | Visible unavailable/error status and bounded retries; no truncation or partial publication |
+| Central AI-PAM custody migration | AI-PAM successor project, at broker readiness | Dedicated revocable key, source-local token, non-admin identities and fixed-capability Unix broker |
+| Native recovery path uses restricted HTTP | Jason, next authorization review | HTTPS is normal launch; direct access limited to approved management hosts |
+
+One clearly labelled synthetic warranty document (ID 2) is deliberately retained
+as a visible demonstration. It contains no real personal data. All restore-test
+resources are removed. Historical proposals and incomplete checkboxes below are
+retained as history and are superseded by this close-out, not reclassified as
+completed evidence.
+
+## Historical project record
+
 # Document OCR + Summarization Project
 
 > Status: Active — Stream A; Milestone 1 in progress
@@ -13,6 +141,39 @@
 > pre-start calls Jason made at authorization time
 
 ## Resolved decisions (2026-09-15, at Stream A authorization)
+
+
+### Backup scope correction — Jason, 2026-09-23
+
+Off-site backup is for the **service only, not the actual database**. This newer
+instruction supersedes prior requirements for off-site whole-guest/database
+coverage. Database recovery remains on Proxmox and TrueNAS; its successful
+same-site restore proof remains valid. Exact document/original/OCR/summary
+exclusions were asked for clarification; use no document-data export while that
+answer is pending.
+
+Live discovery found that whole-LXC 115 archives had already reached encrypted
+IDrive storage through the shared guest backup path. A full decrypted archive
+matched the local SHA-256, proving that the off-site copies include the database;
+this is now contrary to the requested scope and must be corrected, not counted
+as the final desired backup arrangement.
+
+Prepared an exact LXC 115 exclusion in `scripts/backup/idrive-relay-sync.sh`.
+Remote application awaits the requested explicit confirmation. The relay is
+currently inactive; next scheduled run was approximately 12 hours away at this
+check. This prevents future uploads but does not remove existing S3 object
+versions. Inventory and separately approve the precise existing Paperless object
+versions before deletion; never purge shared-bucket history or unrelated guests.
+A service-only export must use an allowlist of code, units, deployment manifests
+and non-secret configuration, not an exclusion-based copy of the guest rootfs.
+
+Deployment checkpoint: database backup created locally at
+`/opt/paperless-ngx/checkpoints/summary-integration-20260923/db.sqlite3` and passed
+SQLite integrity. Reviewed service files and systemd units installed on LXC 115;
+service account exists and systemd unit verification passed. Broker/worker/timer
+have not been activated; integration identities/token/workflow and key transfer
+have not yet been applied. Continue from this checkpoint after the backup-scope
+correction; do not rerun the installer blindly over its existing config.
 
 Jason resolved the three decisions this charter flagged as required before
 work starts:
@@ -49,7 +210,47 @@ assuming a document-management system already exists.
 
 ## Current state and evidence
 
-- **Paperless-ngx is not deployed anywhere in this lab.** Checked
+
+### UI access and dashboard — 2026-09-23
+
+**Update:** Approved firewall/tile changes were applied and verified, but further
+checks found a duplicate IP between Paperless LXC 115 and Aster Speech LXC 116.
+OPNsense ARP and NetBox point .14 to speech. The tile exists, but its link cannot
+work until the collision is resolved. See [collision correction plan](../../runbooks/Paperless-IP-Collision.md).
+Candidate .15 has passed read-only vacancy checks; task-specific confirmation
+is recorded in [AGENTS.md](../../../AGENTS.md). Readdressing remains pending and
+requires a fresh vacancy check. Do not claim UI access is fixed yet.
+
+Jason reported that the direct UI URL does not work and requested a dashboard
+tile. Verified guest-local login HTTP 200 and listener `0.0.0.0:8000`; requests
+from the operator Mac fail while the equivalent news UI succeeds. Live OPNsense
+has the existing MGMT_ADMIN_HOSTS-to-news rule but no Paperless port-8000 rule.
+Homepage has no Paperless tile. No application restart is indicated.
+
+Prepared and successfully dry-ran `scripts/paperless/prepare_ui_rule.py` on
+OPNsense and `scripts/paperless/add_dashboard_tile.js` inside Homepage. Proposed
+rule: LAN ingress, existing MGMT_ADMIN_HOSTS alias only, TCP to
+192.168.70.14:8000, sequence 3151, UUID
+`fdc0bfb3-9dd4-4bca-869c-a571f8d64f02`. Proposed tile: Paperless-ngx under
+Application Management, existing direct private URL, no credential-bearing
+widget or server-side health probe. Both scripts preserve protected rollback
+copies and abort on conflicting existing entries. Awaiting explicit confirmation
+for applying the rule/reloading OPNsense and adding the tile/restarting only
+Homepage. Validate from the Mac and retain a denied test from unapproved VLAN 20.
+This does not provide public ingress, TLS, SSO or access for devices outside the
+existing approved-host alias; those remain separate integration decisions.
+
+- **2026-09-21 live state:** Paperless-ngx is deployed in LXC 115 at
+  `192.168.70.14`. Its webserver container is healthy and the login endpoint
+  returns HTTP 200. It runs Granian, with no dedicated nginx component.
+  Milestone 1 remains open: local backups exist, but the current TrueNAS
+  pull filter was corrected to include LXC 115 on September 21. No matching
+  archive was present at discovery in the TrueNAS or off-site directory.
+  The approved manual pull subsequently completed and the newest TrueNAS
+  copy passed checksum/integrity verification and an isolated application
+  restore drill. Off-site verification remains pending. See the resume
+  checkpoint below. Historical proposal observations follow.
+- **At proposal time, Paperless-ngx was not recorded as deployed.** Checked
   `PROJECTS.md` directly rather than assuming: it appears exactly once,
   under "Future Services" (`# Future Services` section, alongside "Wiki"),
   as an unstarted idea with no design, no guest, no data. There is no
@@ -283,16 +484,72 @@ reviewed at Milestone 4 rather than granted as a general credential now.
 
 ## Persistence plan
 
-Not applicable in detail at proposal stage — no implementation has started.
-Once Milestone 1 begins, record current milestone, completed steps, exact
-blockers, next safe action, and rollback location, per the Standard's
-persistence requirements — with particular care given the document
-sensitivity involved (no raw document content or secrets in the
-project log or evidence entries).
+### Resume checkpoint — 2026-09-21
+
+Jason clarified that the request was to start the Paperless-ngx project,
+not restart a service. Resume the existing combined project at Milestone 1.
+No production changes or restarts were made during this discovery.
+
+- Verified: LXC 115 running; `paperless-ngx-webserver-1` healthy;
+  `paperless-ngx-broker-1` running; login HTTP 200.
+- Local recovery evidence: six Proxmox archives dated September 16–21.
+  The newest, `/mnt/backups/dump/vzdump-lxc-115-2026_09_21-02_44_54.tar.zst`,
+  is 2,192,949,035 bytes, passes `zstd -q -t`, and has SHA-256
+  `8d8ee04aee8fd1f6dbaa09cd9b3f55709af2a344438908c1e3ebbba1e55597b1`.
+  Archive integrity is not yet an isolated application restore proof.
+- Confirmed gap: TrueNAS rsync task 1 targets
+  `/mnt/Media/backup/homelab-proxmox-guests`, runs daily at 04:00,
+  has `delete=false`, and includes 100–109/111/113/114 before
+  `--exclude=*`. It excludes 115. No LXC 115 archive was found there or
+  via an exact-filter listing of `idrive-crypt:homelab-proxmox-guests`.
+- Approved and applied on 2026-09-21 under `AGENTS.md`: preserve task 1's
+  existing `extra` list, then insert only
+  `--include=vzdump-lxc-115-*.tar.zst` immediately before `--exclude=*`.
+  Preserve every other task field, including deletion, schedule, and
+  existing guest coverage. No production service interruption expected.
+  Six current archives add approximately 13.2 GB to the same-site copy;
+  assess off-site capacity/version retention before relaying them.
+- Validation after approval: re-read the task, confirm only that filter
+  changed, run the approved pull, compare source/destination SHA-256 and
+  archive integrity, then verify encrypted off-site coverage and perform
+  an isolated restore before admitting real documents. Any manual remote
+  job trigger remains subject to the repository confirmation rule.
+- Rollback for the proposed filter change: restore the captured `extra`
+  list only; preserve any copied backup archives. Never remove recovery
+  copies as incidental cleanup.
+- Applied: Jason approved the filter update; a fresh read after the update
+  confirmed `extra` was the only changed configuration field. The initial
+  request failed remote-path validation without applying the change. The
+  successful retry used request-only `validate_rpath=false` because the
+  restricted backup SSH account does not support the generic path probe;
+  middleware source confirms this option is removed before persistence.
+  Previous non-secret settings are saved at
+  `/private/tmp/paperless-task1-before.json` on the operator Mac.
+- Completed: approved manual TrueNAS task 1 run, job `52077`, returned
+  SUCCESS. All six LXC 115 archive filenames and sizes matched Proxmox.
+  The newest archive SHA-256 matched the source hash above and passed
+  `zstd -q -t` independently on both hosts. Paperless remained healthy;
+  login HTTP 200. Existing source backups were preserved.
+- Pending: recurring schedule observation, off-site capacity/coverage,
+  access/authentication and remaining
+  Milestone 1 integrations. No real document contents were inspected.
+
+### Next recovery checkpoint
+
+Prepared [isolated restore drill](../../runbooks/Paperless-Isolated-Restore.md)
+for temporary LXC 915 using the verified TrueNAS archive through the existing
+read-only `/mnt/backup-relay` mount. ID 915 is unused; capacity is sufficient.
+The drill disables autostart, removes networking before boot, inspects SQLite
+read-only, verifies offline login/container health and removes only the
+temporary guest. Jason confirmed the complete drill; it passed, including
+SQLite quick_check, healthy webserver and two HTTP 200 login checks. Temporary
+915 and its disk were removed, both source archives preserved, and production
+115 remained healthy. The tested archive predates the reader account. A fresh
+off-site exact-filter listing still returned no Paperless archives.
 
 ## Milestones
 
-All milestones are proposed and unchecked. None has been started.
+Milestone 1 is in progress; subsequent milestones remain incomplete.
 
 ### Milestone 1 — Document-management substrate (prerequisite)
 
@@ -352,6 +609,68 @@ All milestones are proposed and unchecked. None has been started.
 
 ### Milestone 2 — Read-only integration design
 
+#### Live design findings — 2026-09-21
+
+- Deployed image labels report version `3.1.3`, revision
+  `d48663e9ebaadc4b413a6ca3bc88cb5fbc4e468e`; Django `5.2.16`,
+  Django REST Framework `3.17.2`. Inspected deployed source rather than
+  assuming the proposal's permission model still describes this release.
+- Aggregate-only query found zero documents and no `ai-paperless-reader`
+  account. No document content was read. The environment-level AI enable
+  setting is false; this does not establish the database override's state.
+- Native `paperless_ai` includes classification and chat, with an
+  OpenAI-compatible client. The inspected classifier suggests title/tags/
+  correspondents; this is not evidence that it meets the project's
+  restricted summary/custom-field contract. Do not enable it as a substitute
+  without reviewing its complete mutation and credential boundaries.
+- `PaperlessObjectPermissions` requires model-level view permission for
+  GET and distinct add/change/delete permissions for mutations.
+  `PermittedObjectsFilter` also restricts owned documents to ownership or
+  explicit object grants. Model-level view alone does not authorize reading
+  every owned document. Future ingestion must deliberately grant the reader
+  view access without changing human ownership or existing permissions.
+- Prepared `scripts/paperless/provision_reader.py`: defaults to dry-run;
+  creates only an active, non-staff, non-superuser account with an unusable
+  password and exactly `documents.view_document`. It issues no token,
+  changes no document access and aborts on an incompatible existing account.
+  Live dry-run through the deployed Django runtime returned `would_create`.
+  Applying it requires the next explicit remote-change confirmation.
+- Credential custody remains a separate design gate: keep any future token
+  source-local behind a reader endpoint; do not issue or expose a token to
+  the model or reuse Jason's credentials. Additional metadata permissions
+  require demonstrated need. Test permitted reads and denied writes against
+  synthetic fixtures before activating polling.
+- Completed after Jason's explicit approval: applied the prepared account
+  script in LXC 115. An independent Django query verified active=true,
+  staff=false, superuser=false, unusable password, exactly
+  `documents.view_document`, zero groups, zero API tokens and zero object
+  grants. Paperless remained healthy and login HTTP returned 200.
+  Recovery is to deactivate this dedicated account; no documents were
+  touched. Credential custody, synthetic permission tests and ingestion
+  access grants remain pending; account creation alone does not complete
+  Milestone 2 or enable summarization.
+- Backup check still found no LXC 115 archive on TrueNAS after the filter
+  change; backup and restore gates remain open independently of this design.
+- Read-only deployed-runtime verification using
+  `scripts/paperless/verify_reader.py` passed: the document permission class
+  allows GET/HEAD/OPTIONS and rejects POST/PUT/PATCH/DELETE; the note
+  permission class rejects POST/DELETE. No mutation handler was invoked.
+  This proves the model permission gates only, not full HTTP/token behavior
+  or owned-document grants; synthetic integration tests remain pending.
+- Reviewed the AI-PAM project and credential-broker README: central custody
+  and the broker are still pending implementation in the recorded state;
+  the historical SSH skeleton is explicitly not deployable. Do not assume
+  a live token-custody integration or deploy that skeleton for Paperless.
+- Backup operation approved and completed (job `52077`, SUCCESS): ran existing TrueNAS
+  rsync task 1 once (`midclt call rsynctask.run 1`), preserving its configured
+  scope and `delete=false`. This pulls all eligible missing/changed guest
+  archives, including LXC 115, with no Paperless restart. Verify successful
+  job completion, then checksum and integrity-test the copied LXC 115 archive.
+  A failed copy leaves the Proxmox source intact; retain completed recovery
+  copies. No manual off-site sync or restore was performed. All six files
+  matched source names/sizes; the newest passed SHA-256 comparison and
+  Zstandard verification. This does not yet prove application restore.
+
 - [ ] Create a dedicated, least-privilege Paperless API token; confirm its
       actual achievable scope (read-only, ideally document-content-only)
       against Milestone 1's findings.
@@ -361,6 +680,105 @@ All milestones are proposed and unchecked. None has been started.
       everything by default, no exclusion mechanism to build.
 
 ### Milestone 3 — Summarization pipeline
+
+
+#### Local prototype checkpoint — 2026-09-21
+
+
+**Latest resume checkpoint — 2026-09-22:** prompt `summary-v3` allows one
+sentence for short reminders and gives a factual-summary example that excludes
+malicious meta-instructions. The first v2 refinement still described the
+injection; v3 fixes that behavior on the tested example. After interruption,
+confirmed no leftover evaluator process and reran the current code in memory
+on LXC 110; no installed evaluation files or service settings were changed.
+All four live synthetic cases completed in 68.53 seconds with zero failures.
+Reviewed outputs retain receipt amount/date/warranty, library due date/no fine,
+damaged-OCR uncertainty and only the bicycle appointment facts. Numeric account
+identifiers and injection commentary are absent. Saved non-secret synthetic
+results in `services/paperless-summary/evidence/2026-09-22-summary-v3.json`.
+All 12 local regression tests pass; service health HTTP 200 during evaluation.
+This is a small-sample quality check, not broad model robustness or load proof.
+
+The installed evaluation files on LXC 110 still contain the earlier prompt;
+use repository v3 for subsequent runs. Next integration gates remain actual
+Paperless HTTP/token and owned-document permission tests using synthetic
+fixtures, approved credential custody/transport, and deployment/reconciliation
+work. No real documents, new credentials, production scheduler, write-back or
+service restart was involved in this refinement. Off-site verification remains
+deferred per Jason's direction.
+
+
+Live evaluation completed after explicit approval. Added a dedicated key on
+LXC 110 at `/etc/paperless-summary/llama-api-key` (root-owned 0600, parent 0700).
+The original two-key file is retained at
+`/etc/paperless-summary/aster-llama-api-keys.before-paperless`; its contents were
+preserved exactly in the new three-key service file, with ollama ownership and
+0600 mode retained. No secret value was emitted. Restarted only
+`aster-llama.service`; it returned active/running with health HTTP 200.
+Both prior keys and the new key returned HTTP 200 from the authenticated models
+endpoint; missing and invalid keys returned 401 from chat completions.
+
+Executed four serial synthetic requests using model
+`/opt/models/qwen3.8-27b-iq4xs/Qwen3.8-27B-UD-IQ4_XS-00001-of-00002.gguf`.
+All completed in 23.65 seconds, with zero failures. Review found receipt/date/
+amount facts preserved, the numeric account identifier omitted, damaged OCR
+uncertainty acknowledged, and the malicious instruction not followed. The last
+summary unnecessarily described the injection attempt: refine the prompt to
+omit meta-instructions and repeat evaluation before claiming production quality.
+This small sample is not a general prompt-injection robustness proof.
+
+Evaluation code is retained in `/etc/paperless-summary/evaluation` on LXC 110;
+its temporary SQLite database was automatically deleted. No Paperless token,
+document, deployment or scheduler was changed. The dedicated key remains local
+to inference for testing; production credential custody/integration is pending.
+Rollback copy is available; no rollback was required. Paperless login remained
+HTTP 200. Off-site verification remains deliberately deferred.
+
+Synthetic model evaluation is prepared in
+`services/paperless-summary/evaluate_synthetic.py`. Four cases cover normal
+facts/dates, numeric identifiers, damaged OCR and embedded malicious instructions.
+It connects only to the inference host at its fixed private address, checks dedicated-key ownership and
+0600 mode, performs serial requests and deletes its temporary summary database.
+Model-output quality requires human/model review; success counts alone are not
+a quality gate. Syntax validation passed; the approved live evaluation subsequently completed
+all four cases (see results below).
+
+Live inference discovery: LXC 110 `aster-llama.service` is active/running as
+`ollama`, binary `/opt/llama.cpp-b11081/llama-server`; the API-key file is
+`/etc/aster-llama-api-keys`, mode 0600, owned by ollama. No key values were read
+into the session. Existing documented key enrollment requires a service restart.
+The listener binds only `192.168.70.12:11435`, not loopback; its models endpoint
+currently rejects unauthenticated requests (401), unlike the historical notes.
+
+Operation explicitly approved and completed: preserved the current key file
+in a protected rollback copy on LXC 110, generate a dedicated Paperless key
+there, store it at `/etc/paperless-summary/llama-api-key` root-owned mode 0600
+(directory 0700), append it atomically while preserving every existing key and
+the service key-file ownership/mode, restart only `aster-llama.service`, verify
+health and old/new-key acceptance source-locally without exposing credentials,
+verify missing/invalid-key denial, then run the four synthetic evaluations.
+The brief shared-service interruption affects Aster/news inference. No key
+transfer to Paperless or activation of its pipeline is included. Recovery:
+restore the saved key list and restart that same service if validation fails.
+This source-local test-key custody is interim; central broker integration and
+production summarizer custody remain pending. Existing credentials must not be
+used for the new project's inference workload.
+
+Jason asked to defer slow off-site verification and approved moving on with
+synthetic pipeline development. Added `services/paperless-summary/` with a
+GET-only reader, inference adapter, persisted SQLite retry state, duplicate/
+changed-content detection and atomic summary publication. Twelve synthetic tests
+passed, covering recovery/backoff, invalid OCR, numeric identifier redaction,
+redirect/pagination boundaries and absence of a model-driven action path.
+
+No production service, credential, document or schedule was changed. Inference
+in tests is a deterministic double; actual local-model quality and full HTTP
+permission tests remain unproven. The README records deployment gates, incomplete
+PII handling, single-worker constraint, context-size handling and source/access
+reconciliation limitations. Next: complete those local gaps and evaluate the real
+local model with synthetic documents after a reviewed credential-custody path is
+available. Off-site verification is deferred, not waived; real-document use stays
+blocked until its gate passes. Milestone 3 is not complete.
 
 - [ ] Build the summarization service: polls/receives new-document
       notifications, pulls OCR text + metadata, calls `aster-llama` with a
@@ -510,6 +928,11 @@ evidence.
 
 | Date | Milestone | Evidence | Result | Operator |
 |---|---|---|---|---|
+| 2026-09-21 | 3 | Approved dedicated inference key enrollment and restart of LXC 110 aster-llama only. Existing keys preserved; protected rollback copy retained. Ran four synthetic cases against the deployed Qwen model. | Auth acceptance/denial checks passed; all four summaries completed in 23.65 seconds. Factual/identifier/OCR behavior acceptable for this sample; injection-summary verbosity needs refinement. Inference health and Paperless login HTTP 200. | Codex |
+| 2026-09-21 | 1 | Jason confirmed the complete isolated restore drill. Restored the verified TrueNAS archive to LXC 915, removed networking before boot, checked SQLite read-only and started the application offline. | SQLite quick_check=ok; restored webserver healthy; two login HTTP 200 checks. Temporary guest/disk removed; source archives preserved; production 115 healthy. Off-site verification remains pending. | Codex |
+| 2026-09-21 | 1 | Jason approved one manual run of TrueNAS task 1; job `52077` completed SUCCESS. Compared all six Paperless archive filenames/sizes and independently tested the newest archive on both hosts. | Newest SHA-256 `8d8ee04aee8fd1f6dbaa09cd9b3f55709af2a344438908c1e3ebbba1e55597b1` matched; both Zstandard checks passed. Paperless healthy, login HTTP 200. Same-site copy verified; off-site and isolated restore still pending. | Codex |
+| 2026-09-21 | 2 | Jason explicitly approved creating `ai-paperless-reader`; applied `scripts/paperless/provision_reader.py` in LXC 115 and independently queried the resulting account. | Exact view-only model permission, active non-admin account, unusable password, zero groups/tokens/object grants. Webserver healthy and login HTTP 200. No document access or content changed. | Codex |
+| 2026-09-21 | 1 | Jason approved adding only `--include=vzdump-lxc-115-*.tar.zst` to TrueNAS rsync task 1 before its terminal exclusion. Updated and re-read task configuration. | Only `extra` changed; enabled state, 04:00 schedule, `delete=false`, SSH credentials and existing guest coverage preserved. No manual job triggered; first copy, off-site validation and restore proof pending. | Codex |
 | 2026-09-15 | 1 | Created LXC 115 (`paperless-ngx`) on Lab VLAN 70 at `192.168.70.14`, matching LXC 113/114 convention; installed Docker CE 29.8.1 + Compose v5.5.1; deployed Paperless-ngx via its official SQLite compose file under `/opt/paperless-ngx` | `docker compose ps` showed both `broker` and `webserver` containers `Up`/`healthy`; `curl http://localhost:8000/api/` returned HTTP 302 (expected unauthenticated redirect, confirms webserver responding) | Claude |
 | 2026-09-15 | 1 | Generated `PAPERLESS_SECRET_KEY` server-side; caught it echoing into command output and rotated it before proceeding, without displaying the new value | New key confirmed present (108-char env line), never displayed in this session | Claude |
 | 2026-09-15 | 1 | Created superuser account `jason` via non-interactive `createsuperuser`, with a random temporary password stored only at `/root/.paperless-temp-password` (mode 600) on LXC 115 | `User.objects.all()` confirmed `['AnonymousUser', 'jason']`; password never displayed in this session | Claude |
@@ -526,13 +949,13 @@ confirmation, and individual-account/MFA enforcement beyond the single
 
 ## References
 
-- [Aster Sysadmin Second-Brain](completed%20projects/Aster-Sysadmin-Second-Brain.md)
+- [Aster Sysadmin Second-Brain](Aster-Sysadmin-Second-Brain.md)
   (source-local reader / no-mutation-authority pattern referenced above)
-- [Aster Forgejo and NetBox Read-Only Integration](completed%20projects/Aster-Forgejo-NetBox-Read-Only.md)
-- [Aster ARR Stack Manager](completed%20projects/Aster-Arr-Stack-Manager.md)
+- [Aster Forgejo and NetBox Read-Only Integration](Aster-Forgejo-NetBox-Read-Only.md)
+- [Aster ARR Stack Manager](Aster-Arr-Stack-Manager.md)
   (execution-disabled broker precedent referenced above)
-- [News Aggregator (MuckScraper) — Phase 1](completed%20projects/News-Aggregator-MuckScraper.md)
+- [News Aggregator (MuckScraper) — Phase 1](News-Aggregator-MuckScraper.md)
   (dedicated least-privilege `aster-llama` key precedent)
-- [Project Creation Standard](../Project-Creation-Standard.md)
+- [Project Creation Standard](../../Project-Creation-Standard.md)
 - `PROJECTS.md` — "Future Services" section, the only prior mention of
   Paperless-ngx in this repository
