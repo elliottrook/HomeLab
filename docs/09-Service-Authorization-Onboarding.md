@@ -347,8 +347,9 @@ See the rollout project's Audiobookshelf section for checkpoints and rollback.
 Calibre Web Automated is staged at `https://books.elliottrook.com` with native
 OIDC (NPM 27/provider 39), owner-only `cwa_account` mapping to existing `admin`,
 and automatic browser launch. Existing user rows, local recovery and OPDS
-credentials are preserved; group-based role management is disabled. Library
-and reader acceptance are pending, so Homepage is not yet promoted. See the
+credentials are preserved; group-based role management is disabled. Jason
+accepted the browser/library workflow, and Homepage is promoted. Dedicated
+reader-client and logout/recovery tests remain open. See the
 rollout project for exact objects, protected checkpoints and rollback.
 
 Add one row only after the complete private-session and rollback tests pass:

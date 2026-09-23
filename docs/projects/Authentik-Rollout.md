@@ -5,7 +5,7 @@
 > Pi-hole pair. Six further browser routes now use passkey-only single login
 > with normal browser acceptance (2026-09-23). Audiobookshelf native SSO is
 > accepted on and off Wi-Fi; its Homepage link is promoted. Calibre native SSO
-> is staged for library acceptance. Media/infrastructure and final
+> is accepted and its Homepage link is promoted. Media/infrastructure and final
 > graduation gates are still open.
 > Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
@@ -320,13 +320,40 @@ open `/opds` (401); direct local recovery `/login` remains 200. CWA is healthy,
 NPM syntax passes, and 21 HTTPS route smoke checks retain expected 200/302
 responses. No synthetic owner session or token was minted.
 
-Next human gate: open `https://books.elliottrook.com`, complete Authentik if
-prompted, confirm the existing library/admin account and open a book. The
-specific ebook client remains unidentified; retain native reader/recovery
-authentication and do not infer OPDS client acceptance from a 401 test.
-Homepage promotion remains pending this normal-workflow acceptance. The stale
-Homepage HTTPS `:32016` link is recorded, not promoted prematurely. Dedicated
-logout/recovery gates and final rollout graduation remain open.
+Jason confirmed "Works" after the request to test Authentik login, the
+existing library/admin account and opening a book. Normal browser workflow is
+accepted. Homepage's stale HTTPS `:32016` href is now replaced with
+`https://books.elliottrook.com`; only that href changed. Its protected checkpoint
+is `/opt/homepage/backups/calibre-promote-20260923T215340Z/services.yaml`.
+Certificate-valid Calibre and Homepage roots both retain their expected 302.
+The specific ebook client remains unidentified; native reader/recovery
+authentication remains enabled. Dedicated OPDS-client, logout/recovery gates
+and final rollout graduation remain open.
+
+### Remaining media compatibility review — 2026-09-23
+
+Seerr's installed 3.4.1 routes contain no OIDC implementation. Its authentication
+middleware supports an API key plus optional API-user selection, which is not
+a browser SSO mechanism and must not be turned into a browser impersonation
+bridge. The upstream [OIDC testing discussion](https://github.com/seerr-team/seerr/discussions/2721)
+identifies `preview-new-oidc` as experimental; switching production to this
+preview is a different deployment risk from configuring supported native OIDC.
+Keep the stable container and its local/media-server login intact. Next safe
+work is an isolated preview compatibility/rollback assessment before proposing
+any production version change, not a forward-auth wrapper that leaves the
+second login unresolved.
+
+Jellyfin reports version 10.11.11 and has no SSO plugin installed. Its real
+configuration remains the named Docker volume at `/config`, not the `/appdata`
+bind mount. The original 9p4 SSO plugin is archived. A candidate successor,
+[Flowfin Community SSO](https://github.com/Flowfin/jellyfin-plugin-sso), documents
+4.3.0 as its frozen Jellyfin 10.11 build; its current 5.x targets Jellyfin 12.
+This is a third-party authentication dependency, not built-in OIDC. Before
+production installation, assess the exact compatible artifact, account linking,
+existing client/Quick Connect support and checkpoint/rollback of the real
+configuration volume. No plugin, container version, media account or login
+setting was changed in either application during this review.
+
 
 ### Earlier staging audit (historical)
 
@@ -535,13 +562,13 @@ authentication. This does not replace real login or full service-rebuild proof.
   `audiobookshelf://oauth` mobile redirect follow
   following the [official OIDC guide](https://audiobookshelf.org/docs/documentation/server-management/oidc-authentication/).
   Deployment objects and checkpoints are recorded above; do not recreate them.
-- **Calibre Web Automated v4.0.6:** native SSO is now staged at
+- **Calibre Web Automated v4.0.6:** native SSO is accepted at
   `https://books.elliottrook.com` (provider 39/NPM 27), with owner-only identity
   mapping to the existing `admin` and browser auto-launch at NPM. Local/reader
   authentication is preserved, anonymous/public registration/Kobo sync remain
-  off, and user rows are unchanged. Library/reader acceptance and Homepage
-  promotion are pending; see the deployment/checkpoints above. Homepage still
-  has its stale legacy HTTPS `:32016` href until acceptance. Implementation
+  off, and user rows are unchanged. Browser/library workflow is accepted and
+  Homepage is promoted. Dedicated reader/recovery tests remain open; see the
+  deployment/checkpoints above. Implementation
   follows deployed source and the [upstream OAuth guide](https://github.com/crocodilestick/Calibre-Web-Automated/wiki/OAuth-Configuration).
 - **Seerr 3.4.1:** local and media-server login settings exist; local login is
   enabled and the application URL is empty. Preserve media-server callbacks,
