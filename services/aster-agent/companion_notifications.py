@@ -206,6 +206,8 @@ class SubscriptionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     endpoint: str = Field(max_length=2048)
     keys: dict[str, str] = Field(max_length=2)
+    # Browsers may include this standard metadata; transport storage ignores it.
+    expirationTime: float | None = Field(default=None, ge=0)
 
 
 class CompanionNotifications:

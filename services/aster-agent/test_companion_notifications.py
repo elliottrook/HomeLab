@@ -108,6 +108,15 @@ class RouterTests(unittest.TestCase):
         self.assertEqual(self.client.get('/v1/companion/jobs/'+jid, headers={'Authorization':'bob'}).status_code, 404)
         self.assertEqual(self.client.get('/v1/companion/jobs/'+jid, headers={'Authorization':'alice'}).json()['result'], 'Synthetic private reply')
 
+    def test_standard_browser_expiration_metadata_is_accepted(self):
+        value = subscription()
+        value['expirationTime'] = None
+        response = self.client.post('/v1/companion/subscriptions', json=value, headers={'Authorization':'alice'})
+        self.assertEqual(response.status_code, 200, response.text)
+        with self.service.store.db() as db:
+            stored = json.loads(db.execute('SELECT value FROM subscriptions').fetchone()[0])
+        self.assertNotIn('expirationTime', stored)
+
     def test_public_key_and_stale_health(self):
         result = self.client.get('/v1/companion/notifications', headers={'Authorization':'alice'}).json()
         self.assertTrue(result['public_key']); self.assertEqual(result['health']['status'], 'unavailable')

@@ -57,3 +57,35 @@ test('expired session does not prevent browser revocation or local sign-out clea
   await f.context.companionNotify.disable();
   assert.ok(f.revoked()); assert.equal(f.values.has('aster_push_subscription'),false);
 });
+test('refresh restores a granted browser subscription even when the first server save lost its local ID',async()=>{
+  const f=browser(); f.context.Notification.permission='granted';
+  f.registration.pushManager.getSubscription=async()=>f.sub;
+  await f.context.companionNotify.init();
+  assert.equal(f.values.get('aster_push_subscription'),'synthetic-id');
+  assert.equal(f.context.companionNotify.enabled(),true);
+  assert.ok(f.elements.some(e=>e.textContent.startsWith('Notifications are on.')));
+});
+test('refresh renews the saved subscription and remains enabled',async()=>{
+  const f=browser(); f.context.Notification.permission='granted';
+  f.values.set('aster_push_subscription','previous-id');
+  f.registration.pushManager.getSubscription=async()=>f.sub;
+  await f.context.companionNotify.init();
+  assert.equal(f.context.companionNotify.enabled(),true);
+  assert.equal(f.values.get('aster_push_subscription'),'synthetic-id');
+});
+test('explicit opt-out survives refresh even if browser unsubscribe failed',async()=>{
+  const f=browser(); f.context.Notification.permission='granted';
+  f.values.set('aster_push_opt_out','true');
+  f.registration.pushManager.getSubscription=async()=>f.sub;
+  await f.context.companionNotify.init();
+  assert.equal(f.context.companionNotify.enabled(),false);
+  assert.equal(f.requests.some(r=>r.url.endsWith('/subscriptions')),false);
+});
+test('structured validation errors render readable text and leave retry controls available',async()=>{
+  const f=browser(); await f.context.companionNotify.init();
+  f.context.fetch=async()=>({ok:false,status:422,json:async()=>({detail:[{msg:'Extra inputs are not permitted',input:{private:'never display'}}]})});
+  await f.elements.find(e=>e.textContent==='Enable notifications').onclick();
+  assert.ok(f.elements.some(e=>e.textContent==='Extra inputs are not permitted (HTTP 422)'));
+  assert.equal(f.elements.some(e=>e.textContent.includes('[object Object]')),false);
+  assert.equal(f.elements.some(e=>e.textContent.includes('never display')),false);
+});

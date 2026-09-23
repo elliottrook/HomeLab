@@ -1,12 +1,13 @@
 /* Auth is always obtained from the existing Companion session, never the worker. */
 window.companionNotify = (() => {
   const sidKey = 'aster_push_subscription';
+  const optOutKey = 'aster_push_opt_out';
   const jobKey = 'aster_pending_reply';
   let registration;
   let status;
   const pending = () => { try { return JSON.parse(localStorage.getItem(jobKey)); } catch (_) { return null; } };
   const clearPending = () => localStorage.removeItem(jobKey);
-  const enabled = () => Boolean(localStorage.getItem(sidKey)) && window.Notification?.permission === 'granted';
+  const enabled = () => Boolean(localStorage.getItem(sidKey)) && localStorage.getItem(optOutKey) !== 'true' && window.Notification?.permission === 'granted';
   async function api(path, options = {}) {
     const token = await validAccessToken();
     if (!token) throw new Error('Sign in to manage notifications or recover your reply.');
@@ -14,11 +15,18 @@ window.companionNotify = (() => {
       ...options, headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
       signal: AbortSignal.timeout(15000)
     });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.detail || 'Notification service is unavailable.');
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const detail = result.detail;
+      const message = typeof detail === 'string' ? detail : Array.isArray(detail)
+        ? detail.map(item => typeof item.msg === 'string' ? item.msg : 'Invalid request').join('; ')
+        : 'Notification service is unavailable.';
+      throw new Error(message + ' (HTTP ' + response.status + ')');
+    }
     return result;
   }
   async function disable() {
+    localStorage.setItem(optOutKey, 'true');
     const sid = localStorage.getItem(sidKey);
     let serverRemoved = !sid, browserRemoved = false;
     try {
@@ -45,6 +53,7 @@ window.companionNotify = (() => {
     const subscription = await registration.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: key});
     const saved = await api('subscriptions', {method: 'POST', body: JSON.stringify({endpoint: subscription.endpoint, keys: subscription.toJSON().keys})});
     localStorage.setItem(sidKey, saved.id);
+    localStorage.removeItem(optOutKey);
     status.textContent = 'Notifications are on. Previews contain no chat or lab details.';
   }
   async function recover() {
@@ -82,21 +91,25 @@ window.companionNotify = (() => {
     try {
       registration = await navigator.serviceWorker.register('/companion/sw.js', {scope: '/companion'});
       await navigator.serviceWorker.ready;
-      status.textContent = enabled() ? 'Notifications are on.' : 'Notifications are off.';
-      const config = await api('notifications');
-      if (enabled()) {
-        const sub = await registration.pushManager.getSubscription();
-        if (sub) {
-          const saved = await api('subscriptions', {method: 'POST', body: JSON.stringify({endpoint: sub.endpoint, keys: sub.toJSON().keys})});
-          localStorage.setItem(sidKey, saved.id);
-        } else localStorage.removeItem(sidKey);
-      }
+      status.textContent = 'Checking notification settings…';
       for (const [label, action] of [['Enable notifications', enable], ['Disable notifications', disable],
         ['Send test notification', () => api('subscriptions/' + encodeURIComponent(localStorage.getItem(sidKey) || '') + '/test', {method: 'POST'})]]) {
         const button = document.createElement('button'); button.textContent = label;
         button.onclick = async () => { button.disabled = true; try { await action(); } catch (e) { status.textContent = e.message; } finally { button.disabled = false; } };
         box.append(button);
       }
+      const config = await api('notifications');
+      // Browser permission + PushManager are authoritative. A failed initial
+      // server save or missing local ID must not strand a granted subscription.
+      const sub = await registration.pushManager.getSubscription();
+      if (Notification.permission === 'granted' && sub && localStorage.getItem(optOutKey) !== 'true') {
+        const saved = await api('subscriptions', {method: 'POST', body: JSON.stringify({endpoint: sub.endpoint, keys: sub.toJSON().keys})});
+        localStorage.setItem(sidKey, saved.id);
+      } else {
+        localStorage.removeItem(sidKey);
+      }
+      status.textContent = enabled() ? 'Notifications are on. Previews contain no chat or lab details.'
+        : Notification.permission === 'denied' ? 'Notifications are blocked in Settings.' : 'Notifications are off.';
       const health = await api('lab-health');
       const healthStatus = document.createElement('p'); healthStatus.textContent = 'Lab health: ' + health.status; box.append(healthStatus);
       for (const check of health.checks.filter(c => c.status !== 'pass')) {

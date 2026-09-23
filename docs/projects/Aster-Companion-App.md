@@ -2254,6 +2254,27 @@ notification feature. ARR execution deferral is unchanged.
   acceptance of native Mac fully-quit limitation; first scheduled backup coverage;
   notification commit/push and reference-repository mirror gap. M8/M7 stay open.
 
+### 2026-09-23 — Notification refresh regression
+
+Jason's real iPhone screenshot showed `[object Object]` and reported that enabled
+notifications did not survive refresh. A read-only production check found zero
+saved subscriptions. The old startup path only renewed a subscription when a
+local server ID already existed, stranding a browser subscription after a failed
+initial registration. Structured server validation errors were also converted
+into an unreadable object string. Standard browser `expirationTime` metadata was
+a compatibility risk for previously loaded client code; the server now accepts
+that field and excludes it from stored transport data.
+
+Startup now reconciles granted browser permission and the actual PushManager
+subscription even when the local server ID is missing. Explicit opt-out is
+persisted separately so failed browser unsubscription cannot silently re-enable
+notifications. Status is rendered after reconciliation; structured errors are
+converted to safe readable messages without displaying submitted values. Retry
+controls remain available. Eight browser notification tests and thirteen backend
+notification tests pass, including missing-ID recovery, enabled-state renewal,
+opt-out persistence and standard browser metadata. Deployed to LXC 104; device
+retest is still required, so M8 remains open.
+
 ## Close-out
 
 Active: voice acceptance is complete, and system notifications are now part of
