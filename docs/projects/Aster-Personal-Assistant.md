@@ -470,6 +470,7 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 | D10 | Vision model | **M0 evaluates both** options (vision projector on the current model vs a separate small vision model used only in the photo window) before Jason chooses |
 | D11 | Photo schedule | **02:30–03:30**, starting after the Proxmox backup finishes |
 | D12 | Editing rules | **No AI; sky replacement only with Jason's own sky image; no border.** ("No background" clarified by Jason 2026-09-23 as no border.) Competitions vary; the stricter of these and the rules card applies. Formatting is mostly resolution and file size |
+| D13 | Internet egress | **Dedicated egress-proxy LXC (F4 a)**: only the proxy reaches WAN; PA guest limited to iCloud hostnames, research guest to general HTTPS |
 
 ## Persistence plan
 
@@ -498,18 +499,17 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
       (2026-09-23, F2.)
 - [x] Choose guest placement and IPs. (2026-09-23, F3; NetBox
       reservation happens at M1 creation.)
-- [ ] Egress mechanism: Jason to choose between the F4 options before M1's
-      PA egress rule.
-- [ ] Vision evaluation (D10): check whether the deployed Qwen3.8 family has
-      a compatible vision projector for llama.cpp; measure VRAM headroom on
-      the B60 and latency for both options; recommend one to Jason.
-- [ ] Immich MCP vetting (D9): shortlist maintained servers, review code
-      and tool list, confirm they honour a limited API key, and choose a
-      pinned release.
+- [x] Egress mechanism: **F4 (a), dedicated egress-proxy LXC**, chosen by
+      Jason 2026-09-23 (D13). The firewall rules themselves are still
+      presented for approval when M1/M4 add them.
+- [x] Vision evaluation (D10): findings and recommendation in F6. Jason's
+      choice between the options is pending; measured VRAM and latency come
+      in M5 under a checkpoint.
+- [x] Immich MCP vetting (D9): shortlist and recommendation in F7. Code
+      review and license confirmation of the pinned commit happen at M5
+      before deployment.
 - [ ] Confirm Immich 2.7.5's exact API-key permission names and the Immich
-      endpoint/port the PA guest will reach.
-- [ ] Jason creates the read-only Immich API key in Immich (human step;
-      never pasted into chat, Git or this document).
+      endpoint/port the PA guest will reach. Deferred to M5 with the key.
 
 #### M0 findings (2026-09-23, read-only)
 
@@ -567,8 +567,11 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
   - **(c) Proxy on each guest.** Rejected: a compromised guest controls its
     own proxy, so it provides no enforcement.
 - [x] Record D1–D7 answers. (2026-09-23, see Decisions recorded.)
-- [ ] Jason creates the assistant Apple ID and the disposable test Apple ID
-      (human step; no credentials enter chat, Git or this document).
+- [x] Account timing: Jason will create the assistant Apple ID, the test
+      Apple ID and the Immich API key **when each milestone needs them**
+      (2026-09-23). They are prerequisites of M1 (Apple IDs) and M5 (Immich
+      key), not of the M0 gate. Human steps; no credential enters chat, Git
+      or this document.
 
 Gate: every decision recorded; Jason accepts the risk assessment and stream.
 
@@ -585,6 +588,55 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
   - **Backup overlap:** the nightly Proxmox backup ran 02:30–02:46 on
     2026-09-23 (one sample; Proxmox host time is PDT, matching
     `Etc/GMT+7`).
+
+- **F6 — Vision options (2026-09-23, read-only).**
+  - **The projector is already on disk.** Unsloth publishes vision
+    projectors (`mmproj-BF16/F16.gguf`, ~930 MB) for Qwen3.8-27B. On LXC
+    110, the file symlinked as `Qwen3.8-27B-…-00002-of-00002.gguf` in both
+    `/opt/models/qwen3.8-27b-iq4xs/` and `/opt/models/qwen3.8-27b-q4ks/` is
+    a 931,146,432-byte GGUF whose header declares `general.type = mmproj`.
+    It is the vision projector, left over from the Ollama pull and misnamed
+    as a second shard. `aster-llama` loads only `-m …00001…`, so the
+    projector is unused today.
+  - **Option A (recommended):** add `--mmproj` pointing at that existing
+    file to `aster-llama`. There is no download and no second process.
+    Estimated VRAM: weights 14.25 GB + projector 0.93 GB + 8K KV and compute
+    buffers ≈ 17–19 GB of the B60's 24 GB, to be measured in M5.
+    - Trade-offs: each image uses roughly 1–1.5K of the 8K context; the
+      production inference service needs one restart (checkpoint plus
+      rollback by removing the flag); every consumer is regression-tested.
+  - **Option B:** a separate small vision model started only in the photo
+    window. It leaves production untouched, but needs a new model download,
+    a second process sharing the B60's memory, start/stop orchestration and
+    its own backup/Doctor coverage. More moving parts for weaker image
+    understanding than the 27B.
+  - **Follow-up (not in scope; do not fix in passing):** the misleading
+    `00002-of-00002` symlink names should be corrected or documented in the
+    Local-AI/Aster operations records so nobody mistakes the projector for a
+    model shard.
+- **F7 — Immich MCP vetting (2026-09-23, read-only).** Both candidates are
+  young, single-maintainer projects with very few stars and no license
+  confirmed in their READMEs. The supply-chain risk (R11) is therefore real,
+  and pinning plus review is mandatory.
+  - **`whitehara/immich-mcp` v3.1.0 (recommended):**
+    - Python, stdio or HTTP transport, 40+ tools.
+    - Exposes tools per granted key scope, so a read-only key yields no
+      write tools.
+    - Can return thumbnail/original URLs.
+    - Destructive tools default to dry-run.
+  - **`JoeRu/mcp4immich` 1.0.0 (fallback):**
+    - Python, 273 tools exposed by default, with a `read_only` profile.
+    - Its default download mode **creates temporary shared links**. That is
+      a write, and a public-URL privacy exposure, so if it is ever used it
+      must be configured for `inline_base64` only.
+  - **Deployment rules for either:**
+    - fork or vendor the reviewed commit into Forgejo;
+    - stdio transport only, with no listening port on the PA guest;
+    - read-only key;
+    - tool allowlist in the PA API;
+    - license confirmed before use (no license means the fallback is
+      Jason's earlier-declined custom adapter, raised back to him as a
+      decision).
 
 ### M1 — Principal model and read-only readers (synthetic first)
 
@@ -767,6 +819,16 @@ content is in Git, logs or Aster's corpus.
   a gated start. Formatting was interpreted as deterministic
   resolution/file-size preparation from Immich sources, and "no background"
   as no background replacement. Jason to correct if either is wrong.
+
+- **2026-09-23 — M0 checks completed; egress chosen.** Jason chose the
+  dedicated egress-proxy LXC (D13) and will create accounts and API keys
+  when each milestone needs them. Vision evaluation (F6): the Qwen3.8
+  vision projector is already on LXC 110 (misnamed as shard 2), making
+  Option A a one-flag change; recommended. Immich MCP vetting (F7):
+  `whitehara/immich-mcp` recommended, pinned and reviewed, stdio only;
+  `mcp4immich`'s shared-link download mode rejected. Read-only SSH ran
+  outside the sandbox after the same Proxmox refusal. **M0 gate remaining:
+  Jason's D10 choice.**
 
 - **2026-09-23 — Photography rules clarified.** Jason confirmed formatting
   means a fixed tool working from Immich sources, and clarified "no
