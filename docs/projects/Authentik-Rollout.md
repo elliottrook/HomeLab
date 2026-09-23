@@ -5,7 +5,8 @@
 > Pi-hole pair. Six further browser routes now use passkey-only single login
 > with normal browser acceptance (2026-09-23). Audiobookshelf native SSO is
 > accepted on and off Wi-Fi; its Homepage link is promoted. Calibre native SSO
-> is accepted and its Homepage link is promoted. Media/infrastructure and final
+> is accepted and its Homepage link is promoted. Seerr/Jellyfin are deferred;
+> Proxmox native OIDC is staged as a read-only pilot. Remaining services and final
 > graduation gates are still open.
 > Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
@@ -330,6 +331,99 @@ The specific ebook client remains unidentified; native reader/recovery
 authentication remains enabled. Dedicated OPDS-client, logout/recovery gates
 and final rollout graduation remain open.
 
+### Media deferral and Proxmox native-SSO pilot — 2026-09-23
+
+Jason instructed "Ok leave and move on to the next" after the media assessment.
+Seerr/Jellyfin are now explicitly deferred, with no production version/plugin
+change or scheduled watch. Their assessment remains the resumption reference.
+Other existing member-specific checkpoint/persistence holds remain in force.
+The next available bounded layer is Proxmox native OIDC, as already scoped in
+Milestone 4, preserving independent recovery.
+
+Live preflight: one standalone node `proxmox`, Proxmox VE 9.2.10. Only PAM/PVE
+realms exist; the human administrator is `root@pam`, alongside a read-only
+Prometheus account and Homepage token ACL. Propose native realm `authentik`,
+explicit user `jason@authentik` (no automatic users/groups), owner-only Authentik
+provider and `https://proxmox.elliottrook.com`. Start with **PVEAuditor** at `/`
+for the normal-login identity check; administrative promotion follows that
+check. Keep `root@pam`, existing users/tokens/ACLs, PAM recovery and direct
+`https://192.168.50.10:8006` unchanged. No hypervisor restart or guest changes.
+
+NPM already reaches TCP 8006 and the host reaches Authentik discovery, so no
+firewall widening is needed. The backend certificate is issued by the PVE CA
+for `proxmox.home.arpa` (its IP SAN is stale); copy only the public CA certificate
+to NPM and verify the TLS upstream using that DNS SAN rather than disabling
+certificate checks. Frontend retains wildcard certificate 8 and WebSockets.
+Native OIDC only, without forward auth on Proxmox API/console routes.
+
+Before mutations capture the live PVE cluster SQLite database with integrity
+verification, domain/user configuration, Authentik PostgreSQL, NPM SQLite,
+OPNsense XML and both resolver configurations. Credentials stay source-local
+and move only through a protected SSH handoff. Validate exact callback against
+the installed UI, actual authorization request, passkey flow, owner allow and
+non-owner deny, initial read-only PVE ACL, upstream certificate validation and
+HTTP/WebSocket capability. Publish private DNS after TLS/OIDC staging. Homepage
+promotion awaits the real sign-in and console/workflow gate.
+
+Rollback removes only the new PVE realm/user/ACL, Authentik provider/application,
+NPM host/CA copy and new DNS records; preserve existing objects and avoid whole
+cluster database restoration during ordinary rollback. The full checkpoint is
+for disaster recovery. Validate root/PAM configuration and direct transport
+remain independent of Authentik/NPM without shutting down shared infrastructure.
+
+**Proxmox pilot deployed:** NPM host **28**, Authentik native provider **40** /
+application `proxmox`, PVE realm `authentik` and user `jason@authentik` with only
+`PVEAuditor` at `/`. User/group autocreation and group overwrite are off; the
+username claim is `preferred_username`, realm default remains unchanged, and
+provider grant is explicitly `authorization_code`. Its exact strict callback is
+`https://proxmox.elliottrook.com` (origin, no trailing slash), matching the
+installed Proxmox UI. The application launch URL is that same origin.
+
+NPM forwards HTTPS to `192.168.50.10:8006`, verifying the PVE CA and the SAN
+`proxmox.home.arpa`. Public CA copy:
+`/opt/nginx-proxy-manager/data/custom/proxmox-ca.pem` (inside container
+`/data/custom/proxmox-ca.pem`), SHA-256
+`6bc46d732205213256c5c87b6bdb8a8fd5c70d0956c7f5bb8772ef2274f81dd2`.
+Only the public certificate was copied. All three private resolvers publish
+`proxmox.elliottrook.com -> 192.168.50.23`; Unbound record UUID
+`082b2065-14e3-4c4a-ba7e-74b02f7fdc82`. No firewall rule was needed or added.
+
+Protected checkpoints:
+
+- PVE `/root/authentik-proxmox-20260923T221012Z`: online cluster `config.db`
+  backup with integrity `ok`, existing configuration files and baseline
+  user/ACL inventories; `oidc-new.json` contains the protected client handoff.
+- Authentik `/opt/authentik/backups/proxmox-20260923T221015Z/authentik.dump`:
+  archive catalogue readable (1,818 lines).
+- NPM `/opt/nginx-proxy-manager/backups/proxmox-20260923T221025Z/database.sqlite`:
+  integrity `ok`.
+- OPNsense `/root/authentik-proxmox-20260923T221025Z/config.xml`: parsed.
+- Primary Pi-hole `/opt/pihole/etc-pihole/proxmox-before-20260923T221303Z/pihole.toml`.
+- Secondary Pi-hole
+  `/mnt/.ix-apps/app_mounts/pihole/config/proxmox-before-20260923T221325Z/pihole.toml`.
+
+Passed: TLS-verified backend and pinned frontend 200, NPM syntax and configured
+WebSocket forwarding, real anonymous PVE OIDC initiation with S256 and exact
+callback, Authentik's actual parameter validator, passkey-only flow, owner allow /
+non-owner deny, and unauthenticated API denial despite spoofed identity headers
+(`/api2/json/nodes` returns 401). Previous users and ACLs exactly match baseline;
+only the new auditor ACL was added. Its effective privileges are audit-only,
+with no guest control or console permission. PVE proxy/daemon/cluster services
+are active; 21 existing HTTPS routes retain expected 200/302 responses. DNS
+answers passed on all three servers and the Mac's direct DNS query; the Mac's
+system resolver initially retained the pre-publication negative lookup. No
+system DNS settings were changed to mask that cache state.
+
+Next human gate: open the new HTTPS URL, choose realm **authentik**, then
+**Login (OpenID redirect)**. There is no Proxmox password for this account.
+Confirm Authentik login lands as `jason@authentik` and the existing guest list
+is visible. Administrative ACL promotion and console/guest-operation checks
+follow this identity check; Homepage remains unchanged until workflow
+acceptance. PAM/root recovery remains available at the direct management URL
+with its existing credentials. Direct transport/configuration are verified;
+actual human root-password recovery and an authenticated console round-trip
+are not claimed by this pilot.
+
 ### Completed media SSO assessment — 2026-09-23
 
 Jason requested assessment of both paths and specifically asked whether waiting
@@ -607,8 +701,8 @@ authentication. This does not replace real login or full service-rebuild proof.
   is the Docker named volume mounted at `/config`, not `/mnt/Media/appdata/jellyfin`
   mounted at `/appdata`. Preserve this distinction for checkpoints; do not
   change TV/mobile authentication without client validation.
-- **Infrastructure:** Proxmox 9.2.10 currently has only PAM/PVE realms;
-  native-OIDC account/role mapping remains to be designed and tested. UniFi OS
+- **Infrastructure:** Proxmox 9.2.10 has the native OIDC auditor pilot recorded
+  above; human identity acceptance and administrative promotion are pending. UniFi OS
   service is active. Retired Backup Synology must not be re-onboarded; preserve
   the explicit OPNsense and Plex no-change defaults. Infrastructure cutover
   follows application workflow acceptance and its higher recovery gate.

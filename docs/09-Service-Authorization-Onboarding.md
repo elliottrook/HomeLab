@@ -352,6 +352,14 @@ accepted the browser/library workflow, and Homepage is promoted. Dedicated
 reader-client and logout/recovery tests remain open. See the
 rollout project for exact objects, protected checkpoints and rollback.
 
+Proxmox is staged at `https://proxmox.elliottrook.com` with native OpenID
+realm `authentik` (NPM 28/provider 40). Select that realm and use **Login (OpenID
+redirect)**; the pilot account `jason@authentik` has only `PVEAuditor` while real
+identity acceptance is pending. Existing root/PAM, API users/tokens and direct
+recovery are preserved. The proxy validates the PVE CA and `proxmox.home.arpa`
+backend identity. Homepage and the default realm remain unchanged. See the
+project's dated pilot section for exact checkpoints and the promotion gate.
+
 Add one row only after the complete private-session and rollback tests pass:
 
 | Service | Hostname | Pattern | Direct fallback tested | SSO/gate tested | Non-browser clients tested | Date |
