@@ -1,6 +1,6 @@
 # Aster Lab Doctor and Backup Execution
 
-> Status: Active — Stream A pilot deployed; Companion acceptance and Git publication open
+> Status: Active — Stream A pilot deployed; user acceptance confirmed, publication open
 >
 > Owner: Jason | Proposed: 2026-09-23 | Stream A — Autonomous (approved 2026-09-23)
 
@@ -110,9 +110,9 @@ standard, checking Git/live state, then finalizing adapter and identity design.
   acceptance recorded; live guest rootfs/backup defaults inspected.
 - [x] M2: broker, worker, policy, durable jobs and output schemas implemented
   locally with synthetic fixtures; misleading aggregate backup status fixed.
-  Focused local commit and Git synchronization pending alongside deployment.
-- [ ] M3: wire bounded task execution and Companion status with persona/auth
-  enforcement; deploy only after the applicable operational approval.
+  Focused implementation committed locally; Git synchronization remains pending.
+- [x] M3: bounded task execution and Companion status deployed with persona/auth
+  enforcement; Jason confirmed “Works” after the usage handoff on 2026-09-23.
 - [ ] M4: two independent real-path Doctor and representative backup passes,
   isolated restore, rollback proof, integrations and focused local commits.
 
@@ -278,3 +278,12 @@ Authentik and SAS-project working-tree edits were preserved.
   pass after normal cooldown, approved Forgejo synchronization and clean corpus
   intake. Off-host backup delivery remains the existing scheduled pull; this
   pilot does not claim it verified every new archive off-host.
+
+### User acceptance, 2026-09-23
+
+Jason confirmed “Works” after the Companion usage handoff. This closes the
+user-facing Companion acceptance item. It is user-reported acceptance, not an
+additional instrumented test of every target or authentication branch. Earlier
+locked/signed-out observations are historical. Remaining work is the second
+configuration validation pass, Git publication and clean corpus intake; existing
+off-host and full-restore verification limits remain unchanged.

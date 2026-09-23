@@ -1,6 +1,6 @@
 # Aster lab operations
 
-Status: deployed Stream A pilot; Companion UI acceptance remains open. Project authority and evidence:
+Status: deployed Stream A pilot; Jason confirmed Companion acceptance on 2026-09-23. Project authority and evidence:
 [`Aster-Lab-Operations.md`](../../docs/projects/Aster-Lab-Operations.md).
 
 ## Operator behavior
