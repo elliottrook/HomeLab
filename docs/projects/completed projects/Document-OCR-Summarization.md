@@ -113,7 +113,7 @@ real-document quality or personal login acceptance has been demonstrated.
 
 | Follow-up / limit | Owner and review point | Compensating control |
 |---|---|---|
-| First personal passkey SSO acceptance | Jason, first use | OIDC linked to existing jason account; local web password login disabled |
+| Personal passkey SSO acceptance | Complete, 2026-09-23 | Jason confirmed “It works!” after confirming access on and off Wi-Fi |
 | First real-document summary review | Jason, first real upload | Only labelled synthetic data existed; summaries are derived aids and originals remain authoritative |
 | OCR above 96,000 characters or empty OCR | Jason, first such document | Visible unavailable/error status and bounded retries; no truncation or partial publication |
 | Central AI-PAM custody migration | AI-PAM successor project, at broker readiness | Dedicated revocable key, source-local token, non-admin identities and fixed-capability Unix broker |
@@ -1028,4 +1028,14 @@ Validation: normal browser automatically reaches `paperless-passkey`; local
 password field absent; discovery TLS verified; anonymous and forged-identity
 API requests return401; unapproved proxy source returns403; Tailscale gateway
 reaches login with valid TLS; summary health passes. Real iPhone passkey
-completion is pending Jason's acceptance. See the SSO recovery runbook.
+completion was confirmed by Jason on 2026-09-23: “It works!” See the SSO
+recovery runbook.
+
+### Final user acceptance — 2026-09-23
+
+Jason confirmed Paperless works both on and off home Wi-Fi, then confirmed the
+passkey single-sign-on flow works. This closes the earlier physical-iPhone and
+personal-login acceptance items. Deployment remains complete and archived.
+The iPhone/DNS/SSO follow-up commits are local; pushing these newer commits
+requires a separate explicit push authorization. First real-document quality
+review remains ordinary use, not an access/deployment blocker.
