@@ -555,11 +555,12 @@ optional enhancements and are not part of the initial HomeLab build.
 
 # Operational Application Services
 
+[Paperless-ngx](docs/projects/completed%20projects/Document-OCR-Summarization.md) is complete and archived (2026-09-23), including local OCR/summaries, service-only offsite backup, dashboard access and verified iPhone Wi-Fi/Tailscale passkey sign-in.
+
 Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf and the existing media-automation applications are operational and represented in the live Homepage inventory. They are not future deployment work.
 
 # Future Services
 
-- Paperless-ngx
 - Wiki
 
 ---
