@@ -1,6 +1,6 @@
 # Email Triage/Summarization Digest Project
 
-> Status: Proposed — not yet authorized
+> Status: Superseded 2026-09-23 by [Aster Personal Assistant](Aster-Personal-Assistant.md) — never started; retained for its design reasoning
 >
 > Project owner: Jason
 >

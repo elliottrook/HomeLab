@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-23 — Aster Personal Assistant proposed
+
+- Proposed pivoting Aster toward a personal assistant: read-only iCloud mail and calendar analysis, a morning check-in with daytime nudges, and isolated overnight web research.
+- Consolidated the Email Triage, Calendar Personal Assistant and Combined Morning Digest proposals into the new project; the three are marked superseded.
+- Recorded the personal-data/web-research separation, multi-person design and a capability ladder for any future send/appointment ability. Flagged that iCloud app-specific passwords cannot be scoped read-only (decision D1). No system changed.
+
 ## 2026-09-23 — Companion notification pilot
 
 - Added opt-in Mac lab/reply notifications and private Apple Web Push for the iPhone Home Screen app.

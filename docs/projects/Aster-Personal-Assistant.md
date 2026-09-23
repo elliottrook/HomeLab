@@ -1,0 +1,553 @@
+# Aster Personal Assistant
+
+> Status: Proposed — pre-start risk assessment awaiting Jason's acceptance
+>
+> Owner: Jason | Proposed: 2026-09-23 | Stream M — Monitored (recommended;
+> see Stream decision below)
+>
+> Supersedes: [Email triage digest](Email-Triage-Digest.md),
+> [Calendar personal assistant](Calendar-Personal-Assistant.md) and
+> [Combined morning digest](Combined-Morning-Digest.md) (all proposed, never
+> started). Also absorbs the "web access for research" direction deferred by
+> [Aster Companion App](Aster-Companion-App.md).
+
+## Purpose and desired outcome
+
+Pivot Aster, whose local B60-backed inference is now fast enough for daily
+use, toward being Jason's personal assistant:
+
+- **Email:** read and analyze Jason's iCloud mail — what needs action, what is
+  time-sensitive, what can wait.
+- **Calendar:** digest iCloud calendars into a daily agenda, conflicts, prep
+  needed and follow-ups.
+- **Guidance through the day:** a morning check-in plus a small number of
+  timely, opt-in nudges delivered through the Companion App.
+- **Scheduled web research:** Jason queues a question ("research the best X"),
+  Aster researches it overnight and reports cited findings in the morning
+  check-in.
+
+It is **additive**: Sysadmin, Media Automation and Home Assistant personas
+and their existing tools stay as they are. The assistant is a new persona and
+a new set of isolated workers.
+
+Two design requirements from Jason (2026-09-23) shape everything below:
+
+1. **Multi-person from day one.** Jason only at launch, but the data model,
+   credentials, storage, delivery and consent are per-person so family members
+   can be added later without redesign.
+2. **Evolve under set restrictions.** Start with read and analyze only. The
+   system must include a governed way to later earn narrow write abilities —
+   eventually basic email sending and appointment creation — only through
+   training, evidence and explicit promotion, never by default.
+
+## Current state and evidence
+
+- **Aster** (LXC 104, `192.168.70.10`, Lab VLAN 70) serves the Companion App
+  (`aster.elliottrook.com/companion`, Authentik passkey-only login) with
+  per-persona tool sets enforced server-side, including a regression that
+  blocks unsolicited model tool calls ([Aster-Operations.md](../reference/Aster-Operations.md),
+  Companion M4).
+- **Inference:** `aster-llama` on LXC 110 (`192.168.70.12:11435`), shared by
+  Aster, Your News and Companion speech. Per-consumer bearer keys are the
+  established pattern.
+- **Delivery:** Companion notifications are deployed as a pilot. They use
+  generic Apple Web Push with generic lock-screen text by default, so Apple
+  sees delivery metadata only (Companion M8).
+- **News:** Your News (LXC 114) produces a twice-daily digest and Piper audio
+  at 05:15/17:15 `Etc/GMT+7`. It becomes the news section of the morning
+  check-in and is not rebuilt.
+- **Speech:** LXC 116 already provides STT/TTS for spoken check-ins.
+- **AI-PAM** defines Green/Yellow/Red/Black risk classes and a probation
+  ladder, but central custody is not deployed yet (M1 pending). This project
+  aligns with those classes and must not presume the broker exists.
+- **No email, calendar or general web-egress integration exists** in the lab.
+  Aster guests currently have no general Internet egress. The only added
+  outbound path documented is Speech → NPM for Authentik JWKS (rule
+  `bc811346-6714-44b4-bc65-46e7430f46a8`).
+- **Provider confirmed by Jason, 2026-09-23:** iCloud for mail and calendar.
+
+### Key discovered constraint: iCloud credentials are not scope-limited
+
+iCloud offers third-party access only through **app-specific passwords**.
+Based on Apple's documented model, to be re-verified in M0: an app-specific
+password is not limited to one service or to read-only. The same password
+authenticates to IMAP (read, move, delete), SMTP (send) and CalDAV/CardDAV
+(read and write) for the whole Apple ID. It can be revoked individually but
+cannot be narrowed.
+
+So "read-only" cannot be enforced by the provider for mail. It must be
+enforced by *where the credential lives* and *what code can use it*. Calendar
+has a better option. See Architecture and Pre-start risk assessment R1. This
+is an unanticipated trade-off against the lab's least-privilege standard, and
+it needs Jason's explicit decision before any credential is created.
+
+## Scope and exclusions
+
+### In scope
+
+- iCloud mail read and analysis for Jason (Inbox plus explicitly chosen
+  folders): triage buckets, one-line summaries, time-sensitive flags and
+  suggested next steps shown as text only.
+- iCloud calendar read and analysis: agenda, conflicts, travel/prep time,
+  follow-ups, and cross-referencing mail with calendar inside the private
+  zone.
+- Morning check-in: calendar, mail, overnight research and the existing news
+  digest, delivered in the Companion App, optionally spoken.
+- Daytime guidance: a small opt-in set of nudges, for example "leave in 20
+  minutes" or "reply needed today", with generic lock-screen text.
+- A research queue: topics created only by an authenticated person in the
+  Companion App, researched overnight by an isolated worker with web egress,
+  and reported with citations.
+- An **Assistant** persona in the Companion App.
+- A multi-person model: principal identity, per-person credentials, storage,
+  retention, delivery and consent.
+- The **capability ladder** and policy mechanism (see below). It is built and
+  tested in this project, but every capability graduates at **L1 (Observe)**.
+
+### Explicit exclusions (for this project's graduation)
+
+- Sending, replying, forwarding, moving, flagging, deleting or marking-read any
+  mail. Creating, editing, accepting or declining any calendar event. Each is
+  a later capability-ladder promotion with its own risk assessment.
+- Onboarding any person other than Jason. The design supports it; doing it is
+  a separate per-person decision.
+- Contacts (CardDAV), iMessage, Reminders, Notes, iCloud Drive, Photos,
+  Health, finance or any other data source.
+- Research topics derived automatically from mail or calendar content.
+- Research that logs in, submits forms, buys anything, downloads executables
+  or uses any credential.
+- Attachment content extraction or OCR. Document OCR remains its own project.
+- Any public ingress, new public DNS, or model fine-tuning. "Training" here
+  means prompts, examples, reviewed preferences and evaluation sets, not
+  weight updates.
+- A workflow-automation platform (n8n, Node-RED). Plain services and systemd
+  timers follow the lab's precedent.
+- Changes to Sysadmin/Media/HA personas, ARR execution or Lab Doctor
+  execution.
+
+## Authority model
+
+| Fact | Authority | This project's role |
+|---|---|---|
+| Messages, events, read/unread state | iCloud | Read-only derived views; never a system of record |
+| Minimized records, summaries, briefings | Personal-data store on the PA guest | Derived, retention-bounded, rebuildable from iCloud |
+| Research findings | Cited external sources | Report is an approximation; every claim links its source |
+| Who may use what capability at what level | `config/assistant-policy.yaml` in this repository (reviewed, committed) | Runtime enforces it; the model cannot change it |
+| Principals and their enrolment | Authentik users plus policy file | Enrolment requires the person's own consent |
+| Project scope, decisions, evidence | This document | — |
+
+Model output is always labelled as automated interpretation, never as a
+restatement of the source.
+
+## Architecture and data flows
+
+The central rule: **no model context and no process ever holds private
+personal data and an open Internet path at the same time.**
+
+```text
+                 ┌───────────── Personal-data zone (no web) ─────────────┐
+iCloud IMAP/  ◄──┤ PA readers (per principal)                            │
+CalDAV (egress   │   mail-reader: EXAMINE + BODY.PEEK only               │
+ allowlisted)    │   cal-reader:  PROPFIND/REPORT only                   │
+                 │ → minimized store → analyzer (aster-llama, own key)   │
+                 └───────────────┬───────────────────────────────────────┘
+                                 │ sanitized per-principal summaries (read-only API)
+                                 ▼
+ Companion ◄──── Aster (LXC 104) — Assistant persona / briefing composer
+  (Authentik)      no web tool, no send tool, no credentials
+                                 ▲
+                                 │ research reports (untrusted text, cited)
+                 ┌───────────────┴──────── Research zone (no personal data) ┐
+Jason-typed ────►│ research queue → research worker → SearXNG → web (GET)  │
+ topics only     │   via egress proxy; aster-llama with its own key        │
+                 └─────────────────────────────────────────────────────────┘
+```
+
+### Components (proposed, M0 to confirm placement and IPs)
+
+1. **PA guest** (new unprivileged LXC on Lab VLAN 70, NetBox-assigned IP):
+   - `mail-reader`: holds the per-principal iCloud app-specific password
+     (mode 600, dedicated system user, never on Aster's guest). The code opens
+     mailboxes with IMAP `EXAMINE`, which is read-only at the protocol level,
+     and fetches with `BODY.PEEK` so nothing is marked read. The IMAP client
+     wrapper allowlists commands, so `STORE`, `COPY`, `MOVE`, `EXPUNGE`,
+     `APPEND` and SMTP are absent, not just unused. It extracts a minimized
+     record: sender, date, subject, a plain-text excerpt of the newest part,
+     and attachment names/count only.
+   - `cal-reader`: see calendar-access decision D2. The preferred path uses a
+     separate **assistant Apple ID** with **view-only** shares, so
+     read-only is enforced by iCloud itself.
+   - `analyzer`: turns minimized records into triage, summaries and flags via
+     `aster-llama` with a dedicated key. It treats all message text as
+     untrusted data inside a delimited prompt and has no tools.
+   - Store: SQLite per principal, schema-versioned, with retention jobs.
+     Exposes a narrow **read-only, per-principal** HTTP API to Aster only
+     (bearer key plus source-IP firewall).
+   - Egress: iCloud mail/CalDAV endpoints and `aster-llama` only, through a
+     hostname-allowlisted forward proxy (iCloud uses Apple CDN addresses, so
+     IP rules alone are impractical; M0 to decide between proxy and OPNsense
+     FQDN alias).
+2. **Research guest** (new unprivileged LXC on Lab VLAN 70, separate from
+   the PA guest):
+   - SearXNG (self-hosted metasearch; no search-API account; queries leave
+     from the lab's public IP without a personal identity).
+   - `research-worker`: pulls topics from its queue, searches, fetches pages
+     read-only (GET only, no cookies or credentials, size, time and type
+     limits, HTML converted to text, no JavaScript execution), and writes a
+     structured report with citations via `aster-llama` using its own key.
+   - The only broad egress in the design: outbound 443 (and 80 if M0 shows
+     it is needed) via a logging egress proxy. No inbound from the Internet.
+     No route to the PA guest, Management VLAN 50 or other VLANs beyond
+     `aster-llama` and the proxy.
+   - Queue writes come from the Companion App on behalf of an authenticated
+     person, never from model output.
+3. **Aster** (existing LXC 104):
+   - New **Assistant** persona with read tools over the PA API (the current
+     principal's data only) and the latest research reports.
+   - **Server-enforced mutual exclusion:** no persona or chat may enable a PA
+     tool and any web/fetch tool together. Aster has no web tool at all in
+     this design; live interactive web browsing is excluded.
+   - The briefing composer runs on a timer and pushes a generic notification
+     ("Your morning check-in is ready"). Content is visible only after
+     Companion login.
+4. **Companion App:** check-in view, research-queue entry, nudge
+   preferences, per-capability "why am I seeing this" and feedback (useful /
+   wrong / don't do this again) that feeds the training record.
+
+### Multi-person design
+
+- **Principal** = an Authentik user. Every record, credential, key, job and
+  notification is tagged with exactly one principal. Every API call is
+  scoped by the authenticated principal, so no cross-principal read path
+  exists. This is enforced and tested, not assumed.
+- Each person uses **their own** Apple ID, their own app-specific password
+  (or their own view-only calendar share), their own retention settings and
+  their own capability levels.
+- Shared calendars and family events appear only through each person's own
+  view. The household view is a later explicit feature, not a side effect.
+- Enrolment requires the person's own consent in the Companion App, recorded
+  in the policy file. Removal revokes their credential, deletes their store
+  and is verified.
+- Minors: no one under 18 is enrolled without a documented guardian decision
+  and a tighter default policy. This is decided per person at enrolment.
+- Capacity: each principal adds analyzer load on the shared GPU. Enrolment
+  includes a capacity check.
+
+### Capability ladder (the evolution mechanism)
+
+Each capability is set per principal, for example `mail.read`,
+`calendar.read`, `mail.draft`, `mail.send`, `calendar.create`,
+`research.run`.
+
+| Level | Name | What it means | AI-PAM class |
+|---|---|---|---|
+| L0 | Off | Not available | — |
+| L1 | Observe | Read, analyze, summarize, suggest in words | Green |
+| L2 | Draft | Prepares an exact draft (email text, event) shown only in Companion; nothing leaves the lab | Green |
+| L3 | Propose and confirm | A separate narrow executor performs one exact action after the person approves it with a passkey in Companion; shows recipient/time/body and an undo where possible | Yellow |
+| L4 | Bounded autonomy | Acts without per-action approval inside a written policy (e.g. accept holds from own devices; templated reply to allowlisted recipients), rate-limited, logged, undo window, daily digest of actions taken | Yellow/Red per policy |
+| — | Never | Deleting mail, forwarding outside allowlist, account/security settings, payments, passwords, anything in AI-PAM Black | Black |
+
+**Rules that make it safe to evolve:**
+
+- Levels live in the committed policy file. Aster cannot modify it, and
+  a change is a Git commit Jason approves. The runtime refuses any action
+  above the recorded level.
+- **Promotion needs evidence**, recorded in this document's evidence log:
+  - a minimum observation period at the level below;
+  - quality metrics (e.g. share of L2 drafts accepted unedited) and zero
+    policy violations;
+  - a passed prompt-injection red-team suite for that capability, using
+    adversarial synthetic emails and events;
+  - a per-capability risk assessment; and
+  - Jason's explicit approval.
+  Thresholds are set in the capability's own assessment. Promotion is one
+  level at a time.
+- **Demotion is automatic** on any violation, injection detection or
+  anomaly (rate, new recipient, off-hours burst), with notification to the
+  person. A per-person and global **kill switch** drops everything to L0/L1
+  immediately.
+- **Write executors are separate from readers.** Send/create credentials,
+  once they exist, live in a distinct executor that accepts only structured,
+  approved action records, never free-form model output. Sending from an
+  assistant-owned address rather than the person's own is an option to
+  evaluate when `mail.send` is proposed.
+- The L3/L4 design for mail sending must specifically address exfiltration:
+  recipient allowlists, no attachments, content diffing against the
+  approved draft, and no action triggered by an inbound message's
+  instructions.
+- **Training** = curated per-person examples, feedback from Companion,
+  reviewed preference notes (plain text, principal-scoped, never in Aster's
+  shared corpus) and a growing evaluation set. All of it is versioned and
+  reversible.
+
+## Privacy and security design
+
+- **Separation (the primary control):** personal-data zone and research zone
+  run on different guests, keys and network paths. Aster sees only sanitized
+  summaries plus untrusted research text, with no egress tool. Fetched web
+  content cannot reach a process that holds mail. Mail content cannot reach a
+  process that can make arbitrary outbound requests.
+- **Prompt injection is expected, not hypothetical.** Anyone can email Jason,
+  and any web page can carry instructions. Controls: untrusted text is
+  delimited and labelled; analyzer and research worker have no tools; Aster's
+  assistant persona has read-only tools only; suggestions are text, never
+  actions; red-team fixtures are part of every gate.
+- **Credential custody:** per-principal app-specific password only on the PA
+  guest, dedicated service user, mode 600, never logged or echoed. Scripts
+  must not print secrets; this repeats the NUT-project lesson. AI-PAM
+  custody is adopted when it exists, and until then this project records the
+  custody location and rotation procedure itself. Revocation is available at
+  appleid.apple.com as a human break-glass path.
+- **Data minimization:** newest message part only, plain text, truncated;
+  no remote images or tracking; attachment names only. Calendar: title,
+  time, location, a bounded notes excerpt; attendee names only where needed.
+- **Retention (proposed defaults, D5):** raw extracted mail text 72 hours;
+  summaries and triage 30 days; calendar extracts rolling window
+  (−7 to +60 days); check-ins 30 days; research reports 180 days; research
+  fetched page text 7 days. Deletion is verified by test, not just
+  configured.
+- **Logs:** IDs, counts, timings and error classes only. No subjects, bodies,
+  addresses, event titles or research page content.
+- **Notifications:** generic lock-screen text by default. Push payloads carry
+  no personal content, because Apple Web Push metadata already leaves the
+  lab.
+- **Search privacy:** SearXNG avoids an account-linked search API. Research
+  topics are still visible to upstream engines, so the queue UI warns
+  against putting personal details in topics.
+- **Network:** no inbound Internet path. Research egress is the only broad
+  outbound rule in the lab for an AI guest. It is a **non-waivable
+  stop-condition change** and requires Jason's explicit approval at M4
+  whatever the stream.
+
+## Pre-start risk assessment
+
+| # | Risk | Likelihood / impact | Controls | Residual |
+|---|---|---|---|---|
+| R1 | iCloud app-specific password grants full mail send/delete and calendar write | Certain (provider design) / High if PA guest compromised | Credential only on PA guest, command-allowlisted client, no SMTP code, egress allowlist, revocable per password; calendar via view-only share (D2) | A PA-guest root compromise could use full mailbox rights. **Needs Jason's explicit acceptance (D1).** |
+| R2 | Prompt injection via email or web content steers Aster | High / Medium at L1 (misleading advice), High at L3+ | Zone separation, tool-less analyzers, read-only persona, delimited untrusted text, red-team gates, write levels deferred | Misleading summaries remain possible; always labelled as interpretation |
+| R3 | Data exfiltration through research egress | Medium / High | Research zone holds no personal data; topics only from people; no path PA→research | Low |
+| R4 | New broad egress from an AI guest | Certain / Medium | Separate guest, proxy with logging, no route to PA/Mgmt/other VLANs, M4 explicit approval | Accepted only at M4 |
+| R5 | Cross-principal leak once family is added | Low / High | Principal scoping in every layer, deny tests, per-person stores | Low |
+| R6 | Shared `aster-llama` contention (overnight research vs 02:30 Proxmox backup, news 05:15, interactive use) | Medium / Low–Medium | Scheduling window, queue priority for interactive chat, capacity test at M2/M4 | Measured, not assumed |
+| R7 | Stale or wrong guidance presented as current | Medium / Medium | Freshness stamps, fail-visible stale state, Doctor freshness checks | Low |
+| R8 | Sensitive personal data in backups | Certain / Medium | Store is derived and short-lived; decide whether to back up (D6); encrypted off-site only | Low |
+| R9 | Scope creep toward writes | Medium / High | Capability ladder, committed policy, graduation at L1 | Low |
+
+**Irreversible operations:** none in scope. Mail and calendar are read-only;
+the local store is rebuildable.
+
+**Rollback per milestone:** stop timers; revoke the app-specific password
+at appleid.apple.com; remove calendar shares; disable the Assistant persona
+flag; remove research egress rule; destroy or restore the new LXCs from the
+pre-change snapshot. Existing Aster personas are unaffected throughout.
+
+**Test strategy:** synthetic, labelled mail and calendar fixtures first,
+including adversarial injection messages. Real mail comes only after the
+reader is proven read-only. A disposable test Apple ID is preferred if Jason
+can create one (D3).
+
+### Decisions needed from Jason before M1
+
+- **D1 — Accept R1** (full-power app-specific password held on an isolated
+  reader with code-enforced read-only), or choose a narrower alternative:
+  - **(a)** accept R1 as designed (recommended);
+  - **(b)** calendar-only first, deferring mail until a narrower path exists
+    (none known for iCloud).
+- **D2 — Calendar access:**
+  - **(a)** create a dedicated assistant Apple ID and share calendars
+    **view-only** to it. Read-only is enforced by iCloud, family members opt
+    in by sharing, and the same identity could later be the assistant's own
+    sender (recommended; Jason must create the account and handle its 2FA);
+  - **(b)** use Jason's app-specific password for CalDAV as well (simpler,
+    inherits R1).
+- **D3 — Test identity:** is a disposable Apple ID for synthetic testing
+  acceptable?
+- **D4 — Stream:** Stream M throughout (recommended for M0–M1 and M4 at
+  least), or Stream A for M2/M3/M5 after M1 proves the read-only boundary.
+- **D5 — Retention** defaults above.
+- **D6 — Backups** of the PA store: exclude (rebuildable, maximum privacy;
+  recommended) or include encrypted.
+- **D7 — Timing:** morning check-in time (proposed 06:00 `Etc/GMT+7`, after
+  news at 05:15) and research window (proposed 22:30–02:00, clear of the
+  02:30 backup).
+
+### Stream decision
+
+Recommended: **Stream M**. This project introduces personal-correspondence
+data, a full-power provider credential and the lab's first broad AI egress.
+After M1 proves the read-only boundary, Jason may convert bounded later
+milestones to Stream A. M4's egress rule stays an explicit decision either
+way.
+
+## Persistence plan
+
+- This document is the durable checkpoint: current milestone, decisions,
+  evidence, next safe action, rollback location.
+- Jobs are idempotent by message UID/UIDVALIDITY and event ETag. Research
+  jobs have durable states (`queued/running/done/failed`) with bounded
+  retries and locks. Partial check-ins are never shown as current.
+- No credential, message content, event content or research text in Git,
+  resume notes or model-visible logs.
+- On resume: re-read the Project Creation Standard, this document, Git
+  status and live state; verify prior evidence before continuing.
+
+## Milestones
+
+### M0 — Discovery and decisions (read-only)
+
+- [ ] Re-verify iCloud app-specific password scope and IMAP `EXAMINE`/`BODY.PEEK`
+      behavior against current Apple documentation; record findings.
+- [ ] Verify view-only calendar sharing to a second Apple ID behaves as
+      read-only over CalDAV (design check; live test in M1).
+- [ ] Measure `aster-llama` headroom across the proposed windows.
+- [ ] Choose guest placement, IPs and egress mechanism (proxy vs FQDN alias).
+- [ ] Record D1–D7 answers.
+
+Gate: every decision recorded; Jason accepts the risk assessment and stream.
+
+### M1 — Principal model and read-only readers (synthetic first)
+
+- [ ] PA guest, principal model, per-principal store and schema.
+- [ ] `mail-reader` with command allowlist; `cal-reader` per D2.
+- [ ] Prove read-only: allowlist unit tests; attempted mutating command
+      refused; message read-state unchanged after fetch (test identity or
+      synthetic message).
+- [ ] Deny tests: principal A cannot read principal B (synthetic second
+      principal); no secret in logs.
+- [ ] Real Jason mailbox/calendar connected only after the above pass.
+
+Gate: read-only proven, minimized records correct, egress limited to iCloud
+and `aster-llama`.
+
+### M2 — Analysis and the Assistant persona
+
+- [ ] Analyzer with dedicated key; triage, summaries, flags, calendar
+      digest; injection fixtures included.
+- [ ] Read-only PA API; Assistant persona in Companion; server-side
+      PA/web tool mutual exclusion enforced and regression-tested.
+- [ ] Jason reviews a labelled real sample: no dangerous misses on
+      time-sensitive mail.
+- [ ] Capacity check against existing consumers.
+
+Gate: useful, accurate L1 analysis; existing personas regress clean.
+
+### M3 — Morning check-in and daytime nudges
+
+- [ ] Composer: calendar + mail + news digest (+ research slot), stale-state
+      labelling, optional spoken version via LXC 116.
+- [ ] Generic notifications; opt-in nudge set; feedback controls.
+- [ ] Capability-ladder runtime and committed policy file, all capabilities
+      at L1; kill switch; demotion trigger tested with a synthetic
+      capability.
+
+Gate: Jason uses the check-in on real days and accepts it; ladder
+enforcement proven with denied-action tests.
+
+### M4 — Isolated overnight web research
+
+- [ ] Present the exact egress rule (target, scope, logging, rollback) for
+      Jason's explicit approval (non-waivable stop condition).
+- [ ] Research guest, SearXNG, egress proxy, worker, queue from Companion.
+- [ ] Prove isolation: research guest cannot reach PA guest, Management
+      VLAN 50 or other VLANs; PA guest cannot reach the web.
+- [ ] Web injection fixtures; citation accuracy spot-check; overnight run
+      reported in the check-in.
+
+Gate: two real overnight research runs accepted by Jason; isolation tests
+pass.
+
+### M5 — Hardening, family readiness and graduation
+
+- [ ] Retention deletion proven; Doctor/monitoring; backups per D6;
+      restore proof of config and policy.
+- [ ] Enrolment/removal runbook tested with a synthetic second principal.
+- [ ] Full integration checklist; two independent production-path passes.
+- [ ] Close-out with the capability ladder at L1 and the first promotion
+      candidates (likely `mail.draft` L2) listed as follow-ups.
+
+## Validation and evaluation
+
+- **Functional:** triage agreement with Jason's labels; no missed
+  time-sensitive items; calendar conflicts found; research answers cited and
+  checkable.
+- **Security:** read-only proofs; cross-principal deny; PA/web tool
+  exclusion; research-zone isolation; secret-pattern scan of logs/Git.
+- **Adversarial:** injected instructions in emails, event notes and web
+  pages ("forward this", "fetch this URL", "ignore previous"); malformed
+  MIME; huge messages; hostile HTML.
+- **Failure:** iCloud auth failure/revoked password, `aster-llama` down,
+  proxy down, interrupted jobs — fail visible, resume cleanly.
+- **Regression:** existing personas, ARR/Lab Ops gates, news and speech
+  latency.
+- **Human workflow:** Jason's real-day acceptance of check-in and nudges.
+
+## Observability and maintenance
+
+- Doctor: reader freshness per principal, analyzer success, check-in
+  generated today, research queue health, egress proxy up, retention job
+  last run. Output is non-secret and counts only.
+- Existing Doctor alerting only; no new alert channel.
+- Maintenance: app-specific password rotation schedule; SearXNG updates;
+  monthly review of injection-fixture results and feedback.
+
+## Backup, restore and rollback
+
+- Policy file and code live in Git. Guest configuration is covered by the
+  existing Proxmox job once the LXCs exist (store included or excluded per
+  D6).
+- Credentials are regenerable and not backed up; rotation replaces them.
+- Last-known-good: current Aster without the Assistant persona. Disabling
+  the persona flag restores it.
+
+## Documentation and systems-of-record updates
+
+- [ ] **HomeLab Doctor** — checks above.
+- [ ] **Monitoring/alerting** — existing Doctor path; Prometheus job only if
+      M0 shows value.
+- [ ] **Backup and recovery** — per D6; policy/config restore proof.
+- [ ] **NetBox** — two new LXCs, IPs, VLAN 70 interfaces.
+- [ ] **Human wiki** — assistant user guide, enrolment/removal, kill switch.
+- [ ] **Aster mirror/snapshot** — operational docs only; personal data and
+      research reports never enter the shared corpus.
+- [ ] **Operational reference** — `Aster-Operations.md` assistant section.
+- [ ] **Repository documentation** — portfolio, changelog, network design
+      for the egress rule.
+- [ ] **Diagrams/rack** — not applicable (virtual only), unless the network
+      diagram shows per-guest egress.
+- [ ] **Homepage** — not applicable; the Companion App is the surface.
+- [ ] **Authentication/authorization** — Authentik users as principals;
+      passkey approval reserved for L3+.
+- [ ] **DNS, certificates, firewall** — PA egress allowlist; research egress
+      rule (M4); no public DNS.
+- [ ] **Automation and schedules** — reader, analyzer, composer, research
+      and retention timers with missed-run behavior.
+- [ ] **Security inventory** — credential locations, modes, rotation,
+      revocation.
+- [ ] **AI administration integration** — the Assistant is an AI consumer of
+      personal data, not an administrator: record the identities, keys,
+      custody and revocation; AI-PAM onboarding when available.
+
+## Graduation criteria
+
+Every milestone gate passes. Mail and calendar are proven read-only. The zone
+separation is proven by tests. Jason has used the check-in and research on
+real days and accepts them. Retention deletion is proven. Doctor coverage is
+live. Enrolment and removal are rehearsed with a synthetic principal. The
+capability ladder is enforcing L1 for every capability. No secret or personal
+content is in Git, logs or Aster's corpus.
+
+## Evidence log
+
+- **2026-09-23 — Project proposed.** Jason chose to pivot Aster toward a
+  personal assistant, consolidate the three proposed email/calendar/digest
+  charters into this project, adopt the recommended separation between
+  personal data and web research, start read-and-analyze only, use iCloud
+  for all, design for family expansion, and include a governed evolution
+  mechanism toward eventual basic sending and appointments. Read-only
+  repository review only; no system changed. Discovered constraint R1
+  (unscoped iCloud app-specific passwords) raised for decision D1.
+
+## Close-out
+
+Not started.
