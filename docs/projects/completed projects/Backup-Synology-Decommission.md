@@ -1,20 +1,21 @@
 # Backup Synology Decommission and Storage Redeployment
 
-> Status: Active — **Milestones 1, 2 and 3 gates all passed 2026-09-10.**
-> Milestone 4: `.42` disabled and powered down, 14-day observation running
-> (started 2026-09-09, ends 2026-09-23, check-in scheduled). Milestone 5
-> (destructive disk redeployment) and Milestone 6 (Immich/family-cloud
-> placement) not started, both correctly blocked on the observation
-> period. The legacy Hyper Backup bucket's exposed S3 key will **not** be
-> rotated — risk accepted by Jason 2026-09-10 (see below).
+> Status: Closed — 2026-09-22. Backup-role retirement complete; disk reuse transferred, not performed.
+> Disk redeployment not performed; removed disks and their data disposition are
+> tracked separately in the closeout follow-ups.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-10
+> Last updated: 2026-09-22
 
 ## Authorization
 
-**Not yet granted.** This project starts under the repository default in
+**Closeout authorized 2026-09-22:** Jason requested early checks and closure of
+both projects, then confirmed disks are removed but not redeployed. This permits
+retirement cleanup, not an inferred disk wipe or pool change. Remote mutations
+and Git synchronization still follow AGENTS.md.
+
+**Historical authorization at project start:** This project starts under the repository default in
 `CLAUDE.md`: ask before every meaningful action. Jason may grant a
 per-project authorization later; until then every state-changing step needs
 its own approval.
@@ -132,9 +133,9 @@ also live: full sync completed 2026-09-08, 657.091 GiB / 111,196 files / 0
 errors, spot-checked byte-exact against a real production file. Source:
 `Backup-Architecture-Redesign.md` Milestones 2–3, both gates passed.
 
-**What does not yet replace it:** Home Assistant's native automatic
-backups still land only on `.42` — no redirect to a TrueNAS target exists
-yet (Milestone 2 below).
+**Historical gap, closed 2026-09-10:** Home Assistant native backups were
+redirected from `.42` to the dedicated TrueNAS share in Milestone 2. Closeout
+reverified the active `.40` mount and a current native backup.
 
 **Correction to existing docs:** several documents describe the Backup
 Synology as "currently offline (active incident)". It is **up**, 5 days
@@ -398,21 +399,32 @@ when Jason is ready.
       2026-09-09, confirmed 2026-09-10** — SSH to `192.168.20.42` times out
       (connection timeout, not a sandbox/permission denial), consistent
       with powered off rather than unreachable for another reason.
-- [ ] **Observation period of at least 14 days** with the unit powered off
-      but recoverable. Nothing depending on it may surface in that window:
-      Doctor clean, backups current, no restore request unmet. **Started
-      2026-09-09; ends 2026-09-23.** A check-in is scheduled for then.
-- [ ] Remove `.42` from `configs/devices.conf`, Doctor checks, the sandbox
-      allowlist in `CLAUDE.md` and `.claude/settings.json`, and NetBox.
+- [x] Observation closed a few hours early at Jason's explicit request on
+      2026-09-22. `.42` SSH still times out; replacement local/HA/off-site backups
+      are current and read-only recovery hashes match across all three layers.
+      No claim is made that exactly fourteen full days elapsed. Jason confirms
+      disks are already removed, so the former power-on-only rollback no longer
+      applies; recovery of the old unit would require reinstalling its disks.
+- [x] Final inventory reconciliation: local device/service/TLS/Doctor entries
+      and obsolete access-allowlist entries removed. NetBox retains the DS220j
+      as an offline historical asset with interface disabled, no primary IP, and
+      `.42` reserved/unassigned (verified after the approved update).
 
 ### Gate
 
-Fourteen quiet days. If anything surfaces, power it back on — that is the
-whole point of leaving the disks intact.
+Early closeout explicitly requested by Jason. Backup dependencies are verified
+on TrueNAS and the relay; physical disk reuse is transferred to a separate
+follow-up and is not falsely marked done. Media capacity remains a monitored
+risk while Jason tests six new 4 TB drives in the separate expansion project.
 
 ---
 
-## Milestone 5 — Storage redeployment to TrueNAS
+## Milestone 5 — Storage redeployment to TrueNAS (transferred, not executed)
+
+**Closeout scope decision, 2026-09-22:** Jason confirms disks are removed but
+not redeployed. The uncompleted checklist below is preserved as historical scope;
+its active owner and gates move to [Backup retirement follow-ups](../../Backup-Retirement-Follow-Ups.md).
+Closing retirement does not authorize erasure or claim extra TrueNAS capacity.
 
 **Destructive and irreversible. Requires explicit per-action approval on the
 day, regardless of any authorization granted by then.**
@@ -443,7 +455,13 @@ indefinitely — a slow decision here is not a reason to force it.
 
 ---
 
-## Milestone 6 — Immich and family-cloud placement (measurement-driven)
+## Milestone 6 — Immich and family-cloud placement (deferred from retirement)
+
+**Closeout disposition:** no migration undertaken. A fresh spot-check shows low
+load and substantial available memory, but no representative week was measured.
+The optional future measurement/placement decision is tracked in
+[Backup retirement follow-ups](../../Backup-Retirement-Follow-Ups.md), not claimed
+complete as part of removing the retired DS220j.
 
 Deferred deliberately. The original reason to move these off the main NAS was
 an assumption that it was overloaded. That assumption needs testing, and the
@@ -470,7 +488,7 @@ this milestone closes as "not required".
 | Step | Rollback |
 |---|---|
 | Disable `.42` Hyper Backup tasks | Re-enable; they are disabled, not deleted |
-| Power down `.42` | Power on; disks untouched during the observation period |
+| Power down `.42` | Historical rollback was power-on; as of 2026-09-22 Jason has removed the disks, so reinstall and validate them before attempting legacy recovery |
 | Remove from inventory/monitoring | Restore entries from git history |
 | **Wipe and redeploy disks** | **None — this is the point of no return** |
 
@@ -494,3 +512,94 @@ this milestone closes as "not required".
 | 2026-09-10 | 2 | Built the Home Assistant → TrueNAS backup redirect. Discovered `qm guest exec 103` reaches the HAOS host directly (no SSH needed), and its `ha` Supervisor CLI exposes `mounts`/`backups` management. Created a dedicated TrueNAS user `ha-backup` (SMB-only, `nologin`, no broader groups) owning a mode-700 directory `/mnt/Media/backup/home-assistant`, exposed as its own SMB share (`DEFAULT_SHARE` purpose — a first attempt using an invalid `NO_PRESET` purpose value failed cleanly with no side effect other than the user's password being generated and then not retrievable, so it was simply reset on retry). Generated password never left a single local-to-remote pipeline and was never printed. Repointed HA's existing "Backup_Synology" mount via `ha mounts update` to the new destination, keeping the mount's name for continuity | Verified end-to-end: `ha mounts info` shows `state: active`; a real triggered backup (`TrueNAS-redirect-verification`) completed and reported at both `.local` and `Backup_Synology` locations (27,136,000 bytes each); independently confirmed the actual `.tar` file exists on TrueNAS, owned by `ha-backup`. **Milestone 2 gate passed** |
 | 2026-09-10 | 2/4 | Added `check_home_assistant_backup_truenas()` to HomeLab Doctor and ran the full suite | 65 passed, 2 pre-existing warnings, 2 expected failures (`.42` unreachable; Arista correctly flagging `.42`'s switch port `Et48` down) — both direct, correct consequences of Milestone 4's power-down, not new problems, left alone per that milestone's own deferred-cleanup plan |
 | 2026-09-10 | — (risk decision) | Jason explicitly accepted the risk of not rotating the exposed legacy `mini-atlas-backups` S3 key. Reasoning given: he is paying IDrive e2 overage for running two buckets simultaneously and intends to decommission the legacy bucket soon regardless, making a rotation now wasted effort against a bucket about to be deleted | Recorded as a deliberate, reasoned decision, not oversight. No further action on this key; closes the one open item from the 2026-09-10 disable-attempt exposure |
+
+## Closeout — 2026-09-22
+
+The backup role is retired. The observation endpoint was shortened by a few hours
+at Jason's request, and live replacement checks passed. Disk removal is confirmed
+by Jason; serials, data readability and eventual destination were not reverified.
+Storage reuse and any Media Backup disposition remain unperformed follow-ups,
+not an implied authorization to discard data. Immich/family-cloud services stay
+where they are pending any separately justified placement project.
+
+The local toolkit removes `.42` from device/service/TLS monitoring, drops only
+Arista Et48's expected-live-link assertion, removes the old guided-export step,
+and makes `lab backup synology-copy` stop with a retirement explanation before
+any copy. Historical source scripts remain as recovery history. No switch, DNS,
+firewall, NAS or cloud-data deletion was made.
+
+The TrueNAS Media pool is ONLINE but 92% allocated; Jason reports six new 4 TB
+drives under test. The existing Doctor capacity alert is deliberately retained.
+The preserved-data hold, legacy cloud bucket decision and future monthly snapshot
+validation have named ownership in [Backup retirement follow-ups](../../Backup-Retirement-Follow-Ups.md).
+
+Rollback: restore local entries from Git. NetBox changes require retained prior
+field values; physical legacy recovery requires the removed disks and a separate
+readability check. No disk was touched by this session.
+
+| Date | Milestone | Action | Result |
+|---|---|---|---|
+| 2026-09-22 | 4 / scope closeout | Jason requested early closeout and confirmed disks removed but not redeployed. `.42` unavailable; gowest HyperBackup stopped; TrueNAS pulls/HA mount/current archives/relay and snapshot recovery verified | Retirement gate passes with explicit early-observation exception. Storage redeployment and optional placement measurement transferred without marking them executed. |
+
+### Final validation and integration record
+
+Final immutable-copy Doctor run: **69 passed, 1 warning (existing uncommitted
+work), 1 failure (known Media pool 92% allocation)**. All backup checks and the
+remaining Arista expected-link checks pass. Five stale source-export warnings
+were resolved. An earlier run overlapped a local edit to the shell script and
+was discarded; the final run used a fixed copy and had no command errors.
+Shell syntax checks, permission-JSON parsing and operational-reference lint pass.
+The retired `synology-copy --dry-run` path exits before any write with explicit
+TrueNAS guidance. No live failure or UPS shutdown was induced.
+
+After Jason's explicit approval, NetBox device 18 remains `offline` with a
+retirement note, interface 5 is disabled, and IP 17 (`192.168.20.42/24`) is
+reserved/unassigned. The historical asset was retained rather than deleted;
+no physical chassis-location claim was added. Read-back verified each field.
+Rollback fields before this update: device primary_ip4_id=17, comments="Model
+confirmed by Jason 2026-09-02: DS220j.", interface enabled=true and empty
+description, IP status=active, empty description, assigned_object_id=5,
+assigned_object_type_id=7. Device status was already offline. A mode-0600 JSON
+checkpoint is also inside the NetBox container at
+`/tmp/backup-synology-netbox-before-2026-09-22.json`.
+
+Proxmox `/usr/local/bin/nut-shutdown.sh` now omits only the three-line `.42`
+shutdown block; the main NAS and all guest/host sequencing are unchanged.
+The script was syntax-checked, never executed. Durable rollback copy:
+`/usr/local/bin/nut-shutdown.sh.before-ds220j-retirement-2026-09-22`.
+Verified new SHA-256:
+`a97ed5bcd04e5d954cd69e021379df39a4099c56cbc6687f2154fca95c6525e9`.
+
+Integration review: Doctor, service/TLS monitoring, inventory, addressing,
+rack notes, UPS dependencies, backup operations and the local operational
+reference were reconciled. No new DNS, certificate, firewall, login, secret or
+AI administration capability was introduced. The toolkit dashboard derives its inventory from the active config; `.42` is
+removed there. The separate Homepage service was not changed. Human-wiki vendor
+manuals remain historical device documentation; no manual deletion is needed.
+The Aster operational snapshot was refreshed and retrieval-validated after
+explicit publication approval; see the deployment evidence below. Owner for residual checks is Jason; see the linked follow-up record.
+
+Local commits and Forgejo synchronization are tracked separately from the
+operational retirement; no push is authorized merely by this closeout.
+
+### Aster reference publication — 2026-09-22
+
+Published the five corrected operational-reference pages from clean reference
+commit `c2ed54ca6e8fa0b6dbca64141379eecf0daed15c`. The before-deployment page
+hashes matched the local prior committed sources, preventing overwrite of
+unseen deployed edits. All 1,823 source hashes validated; all 1,796 derived
+mirror entries and their directory index were preserved byte-for-byte.
+Reference provenance was refreshed from committed content; unrelated project
+sources retained their accepted provenance.
+
+Candidate archive SHA-256:
+`e0c5e4c798dcd704eb92d4045fae64cfd361340f03ca711e3cb82b6e3a281277`.
+New provenance-index SHA-256:
+`f98eb80b881beb699155a5e2fd47dea7a3b055c3015afb7b017ab4efffd478e2`.
+Three production-code retrieval probes (DS220j retirement, monthly retention,
+HA's historical mount name) passed as the unprivileged `aster` account against
+both staging and active trees. Activation used an atomic directory exchange;
+`aster-agent.service` stayed active and was not restarted. Prior accepted tree
+is retained at `/var/lib/aster/knowledge.ds220j-closeout-20260922`; its provenance
+hash is `3c07f286afae4206851eb2d74e16a8bc8de04db242b33b9d85c050e7e0920f34`.
+No credential, inference, human-wiki source or application-code change was made.

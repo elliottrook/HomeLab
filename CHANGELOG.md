@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-22 — Backup redesign and DS220j retirement closeout
+
+- Verified current TrueNAS/HA/off-site backups and matching snapshot/crypt recovery hashes; refreshed five stale source exports.
+- Retired `.42` from toolkit, Doctor/TLS checks and UPS shutdown; reconciled NetBox as an offline historical asset with its address reserved/unassigned.
+- Closed the observation a few hours early at Jason's request. Disks are removed but not redeployed; preservation, reuse and future retention checks remain explicit follow-ups.
+- Kept the Media 92% capacity alert active while six new 4 TB drives are tested separately.
+
 ## 2026-09-10 — Aster Home Assistant advisor graduation
 
 - Added a reviewed instance-specific Home Assistant operational curriculum.

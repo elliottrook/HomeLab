@@ -63,7 +63,9 @@
     backplane-free, independently powered printed enclosure; see
     [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)
 - Synology DS920+
-- Backup Synology (DS220j)
+- Backup Synology (DS220j) — retired 2026-09-22; powered off since
+  2026-09-09. Jason confirms disks removed but not redeployed. Preserve the
+  existing Media Backup data hold pending an explicit disposition decision.
 - Lenovo ThinkCentre M92p (NUT server, `192.168.50.25`)
   - Intel Core i5-3470T, 7.6 GB RAM, single 119.2 GB disk (LVM)
   - Debian GNU/Linux 13 (trixie), kernel `6.12.101+deb13-amd64`
@@ -71,7 +73,7 @@
 - UPS units (managed by the Lenovo NUT server above; see
   [UPS-Power-Resilience-Claude-Handover.md](handovers/UPS-Power-Resilience-Claude-Handover.md)
   for full identification method and telemetry)
-  - CyberPower CP1500PFCLCD (`proxmox-ups`, serial `CXXRO7009593`) — Proxmox + both Synology units
+  - CyberPower CP1500PFCLCD (`proxmox-ups`, serial `CXXRO7009593`) — Proxmox + main Synology; retired DS220j no longer an operating load
   - CyberPower CP1500PFCLCD (`nas-ups`, serial `CXXRP7016137`) — TrueNAS + Arista core switch
   - CyberPower OR500LCDRM1U (`network-ups`, serial `GA4KS2000999`) — OPNsense, the Lenovo NUT server itself, UniFi PoE switch, camera switch
   - APC Back-UPS Pro BN1500M2-CA — dumb battery only (no NUT/monitoring interface exists on this unit); no equipment currently assigned; final disposition undecided

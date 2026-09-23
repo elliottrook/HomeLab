@@ -23,7 +23,7 @@
 - [x] [Video library archiving](<projects/completed projects/Video-Library-Archiving.md>)
 - [x] [NetBox DCIM / rack & asset management](<projects/completed projects/NetBox-DCIM.md>)
 - [x] [Aster sysadmin second brain](<projects/completed projects/Aster-Sysadmin-Second-Brain.md>)
-- [ ] [Backup architecture redesign](projects/Backup-Architecture-Redesign.md)
+- [x] [Backup architecture redesign](projects/completed%20projects/Backup-Architecture-Redesign.md)
 - [ ] [Jellyfin library integrity automation](projects/Jellyfin-Library-Integrity-Automation.md)
 - [x] [Prometheus/Grafana observability](projects/completed%20projects/Prometheus-Grafana-Observability.md)
 - [x] [Synology Drive family cloud](projects/completed%20projects/Synology-Drive-Family-Cloud.md)

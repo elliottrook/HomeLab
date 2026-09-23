@@ -36,7 +36,7 @@ Keep this shared folder restricted to the backup account. The manual dated set r
 
 ## Automated same-site protection — TrueNAS is the backup hub
 
-**Current architecture, live since 2026-09-08** (`docs/projects/Backup-Architecture-Redesign.md`). TrueNAS (`192.168.20.40`) replaced the Backup Synology as the same-site backup hub, separating three concerns Hyper Backup used to bundle on underpowered hardware: transport, local version history, and off-site protection. Four independent pull relationships land in the shared `Media/backup` ZFS dataset, each with tiered snapshot retention (daily/14-day, weekly/8-week, monthly/6-month):
+**Current architecture, live since 2026-09-08** (`docs/projects/completed projects/Backup-Architecture-Redesign.md`). TrueNAS (`192.168.20.40`) replaced the Backup Synology as the same-site backup hub, separating three concerns Hyper Backup used to bundle on underpowered hardware: transport, local version history, and off-site protection. Four independent pull relationships land in the shared `Media/backup` ZFS dataset, each with tiered snapshot retention (daily/14-day, weekly/8-week, monthly/6-month):
 
 - **Mac config** — TrueNAS's native `rsynctask` (SSH, a dedicated restricted `rrsync`-confined macOS account `truenas-pull`, OS-level ACL scoped to `~/lab/private-backups` only) pulls to `/mnt/Media/backup/mac`. Daily at 04:15.
 - **Proxmox guest archives** — TrueNAS's native `rsynctask` (SSH, the existing restricted `homelab-backup` account, forced `rrsync` rooted at `/mnt/backups/dump`) pulls to `/mnt/Media/backup/homelab-proxmox-guests`. Scope is VMIDs 100–109, 111 (NetBox) and 113 (Aster Wiki). Daily at 04:00. VMID 113 was added on 2026-09-12; its first copied archive matched the Proxmox source SHA-256 and passed complete Zstandard verification on both hosts.
@@ -54,13 +54,12 @@ real cause, found 2026-09-05, was the unit's 484 MB of RAM failing under
 Hyper Backup's dedup/compression/encryption load) led first to
 `Backup-Architecture-Redesign.md` making TrueNAS the permanent hub instead
 of either Synology, then to `Backup-Synology-Decommission.md`, which
-retires the Backup Synology outright. Both projects are substantially
-complete: the TrueNAS architecture above has been live and verified since
-early September, the Backup Synology's Hyper Backup role was stopped
-2026-09-09, and the unit itself was powered down the same day for a 14-day
-observation period (ending 2026-09-23) before its disks are considered for
-reuse in TrueNAS. See those two project documents for full milestone-by-
-milestone evidence. The one-off LXC 100 copy is no longer in use; LXC 110's
+retires the Backup Synology outright. Final checks on 2026-09-22 confirmed
+current local pulls, off-site sync, Home Assistant backups and daily/weekly
+snapshots. Jason authorized observation closeout a few hours early and confirmed
+the disks are removed but not redeployed. Disk reuse and preserved-data disposition
+remain separate follow-up work; no disks or legacy cloud objects were erased.
+The one-off LXC 100 copy is no longer in use; LXC 110's
 former manual one-off was superseded on 2026-09-10 by the bounded recurring
 mirror described above.
 
@@ -86,7 +85,7 @@ Review IDrive e2 service, pricing, recovery performance and capacity by 2027-08-
 
 **Legacy path, retired 2026-09-10.** The main Synology previously ran Hyper Backup task `Synology Drive Backup` against the Backup Synology (share `Backup`, destination folder `GoWest_2.hbk`) — the same destination repository the pre-existing `Media Backup` task (Plex media, see below) also used. That task is now stopped: Jason stopped HyperBackup on `gowest` entirely, which necessarily also stopped `Media Backup` since both share one HyperBackup package instance on that host — accepted, since `Media Backup`'s own destination (`.42`) was already powered off by then anyway.
 
-`Media Backup` (Plex-era) itself is **not replaced** — Plex source media was already retired in the completed Plex-to-Jellyfin migration, and its stored archive on the Backup Synology is left in place, untouched, undecided, per Jason's explicit decision; see `Backup-Synology-Decommission.md` Milestone 1 and its Milestone 5 blocking condition.
+`Media Backup` (Plex-era) itself is **not replaced** — Plex source media was already retired in the completed Plex-to-Jellyfin migration, and its stored archive remains subject to the existing preservation hold; Jason confirmed the disks were removed but not redeployed on 2026-09-22, and their contents were not reverified; see `Backup-Synology-Decommission.md` Milestone 1 and its Milestone 5 blocking condition.
 
 Full detail on the original discovery that led to protecting Synology Drive data at all is in
 [docs/projects/completed projects/Synology-Drive-Family-Cloud.md](<projects/completed projects/Synology-Drive-Family-Cloud.md>)
@@ -692,7 +691,6 @@ configuration is separately documented or exported.
 | Frigate VM 102 | Doctor checks VM/service state, NFS mount and recording freshness; Beszel tracks host metrics | Current VM archive and private checksum-verified Frigate configuration backup, mirrored off-host | VM-level recovery is available; recordings remain intentionally excluded because they are high-volume and nonessential to infrastructure recovery |
 | Home Assistant VM 103 | Doctor checks Core and backup age, plus `check_home_assistant_backup_truenas` for the native-backup leg | Encrypted native backups to local storage and a dedicated TrueNAS SMB share (redirected from the Backup Synology 2026-09-10) plus current mirrored VM archives | Isolated VM 903 restored and booted HAOS, Supervisor and Core successfully; the TrueNAS redirect was verified with a real triggered backup landing correctly on both locations |
 | Main Synology (`gowest`) | Doctor checks DSM reachability | `homes`/`Family Documents` mirrored to the TrueNAS backup hub daily (NFS export + TrueNAS-side cron), with encrypted off-site protection via the relay. `gowest` is a source only — no backup data lands on it | Byte-exact verified against source (2026-09-07); real restore proven via the TrueNAS backup hub's dual-restore gate. Its own former Hyper Backup jobs (`Synology Drive Backup`, `Media Backup`) are retired/stopped, see `Backup-Architecture-Redesign.md` |
-| Backup Synology (`.42`) | Doctor's `check_home_assistant_backup_truenas` and TCP checks will show it unreachable — expected, tracked in `Backup-Synology-Decommission.md` | **Retired 2026-09-09.** Powered down for a 14-day observation period (ends 2026-09-23) before its disks are considered for reuse in TrueNAS. Everything it protected has a live TrueNAS-hub replacement except `Media Backup`'s stored data, deliberately left in place, untouched, undecided | Every replacement leg's restore was proven before this unit was touched — see `Backup-Synology-Decommission.md` Milestone 3. This row will be removed after the observation period per that project's Milestone 4 |
 | Aster Agent LXC 104 | Doctor checks guest, service and API health | Current LXC archive retained locally and checksum-mirrored to TrueNAS; named production snapshot retained locally | Earlier isolated restore as LXC 972 booted the retained Hermes rollback services; Aster boot persistence was validated in place |
 | Legacy Ollama VM 105 | Doctor checks guest state according to its intended operating mode | Current VM archive retained locally and checksum-mirrored to TrueNAS | Isolated restore as VM 973 reached its login prompt successfully |
 | Aster llama.cpp LXC 110 | Doctor checks guest/inference health, local archive age, bounded TrueNAS task configuration/run freshness and mirrored archive age | Named production snapshot, current local archives and a dedicated daily TrueNAS mirror following Proxmox retention; explicitly excluded from the capacity-limited IDrive tier | Isolated archive restore as stopped, network-isolated LXC 980 verified both active model blobs and service layout; do not start a second GPU-mapped guest during production service |
@@ -725,3 +723,21 @@ configuration is separately documented or exported.
   essential configuration or guest data. Neither Synology is a backup
   destination any longer — `gowest` is a source only, and the Backup
   Synology is retired.
+
+## 2026-09-22 closeout observations
+
+- Media pool is ONLINE at 92% raw allocation; datasets have approximately
+  978 GiB available. Jason is testing six new 4 TB drives under the separate
+  TrueNAS expansion project. Capacity alerts remain enabled; no extra capacity
+  is claimed until a supported pool expansion is completed.
+- Daily and weekly backup snapshots have run successfully. Scheduled daily
+  snapshots older than the retention window have pruned; the manually triggered
+  September 2 17:15 snapshot remains (about 368 KiB uniquely used). No snapshot
+  was deleted during closeout. Monthly snapshots first fall due October 1;
+  six-month retention cannot yet be observed and is an operational follow-up.
+- The main Synology remains the family-cloud host. The closeout spot-check found
+  load 0.20/0.23/0.18 and 5,166 MiB available memory, but this is not a week-long
+  measurement or evidence that a future migration is needed.
+- Home Assistant's historical mount name `Backup_Synology` points to TrueNAS
+  `192.168.20.40:home-assistant`; it is active and must not be removed merely
+  because its name mentions the retired appliance.

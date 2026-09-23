@@ -20,7 +20,7 @@ Orientation: U15 is the top of the rack and U1 is the bottom.
 | Rack unit | Equipment | Contents or role |
 |---:|---|---|
 | U15 | PDU | Rack power distribution, 1U |
-| U14–U10 (~5U, estimated) | Equipment shelf | Main Synology NAS, backup Synology NAS, Lutron bridge, Philips Hue bridge |
+| U14–U10 (~5U, estimated) | Equipment shelf | Main Synology NAS, Lutron bridge, Philips Hue bridge; retired DS220j chassis location not reverified |
 | U9–U6 (~4U, estimated) | Equipment shelf | Binarui PoE AP switch, OPNsense (**VMware SD-WAN Edge 620** — corrected this session; previously misrecorded repo-wide as a "Dell EMC E42W / SD-WAN Edge 610"), NUT server (Lenovo ThinkCentre M92p) |
 | U5 | Patch panel 1 | 24-port copper patch panel |
 | U4 | Arista DCS-7050TX-64-R | 10 Gb Layer 2 core switch |
@@ -38,7 +38,7 @@ Confirmed via the same photo walk-through, left to right:
 | TrueNAS (locked, vented rackmount-style chassis, not actually rack-mounted) | Storage |
 | Dell Precision T5810 | Proxmox host |
 | CyberPower UPS (reads "117V" in the confirming photo) | `nas-ups` — TrueNAS + Arista |
-| CyberPower UPS | `proxmox-ups` — Proxmox + both Synology units |
+| CyberPower UPS | `proxmox-ups` — Proxmox + main Synology (DS220j retired) |
 
 ## Front elevation
 
@@ -48,7 +48,7 @@ TOP
 | U15 | PDU                                                          |
 +-----+--------------------------------------------------------------+
 | U14 |                                                              |
-| U13 | NAS shelf: main Synology, backup Synology, Lutron, Hue       |
+| U13 | NAS shelf: main Synology, Lutron, Hue; DS220j retired       |
 | U12 | (~5U, estimated)                                             |
 | U11 |                                                              |
 | U10 |                                                              |

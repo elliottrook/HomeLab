@@ -790,7 +790,6 @@ check_arista() {
         "Et42:a-10G"
         "Et45:a-100M"
         "Et46:a-100M"
-        "Et48:a-1G"
     )
 
     if ! status_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces status')" ||

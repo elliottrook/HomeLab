@@ -15,7 +15,6 @@ endpoints=(
     'UniFi Controller|192.168.50.21|11443'
     'TrueNAS|192.168.20.40|443'
     'Main Synology|192.168.20.41|5001'
-    'Backup Synology|192.168.20.42|5001'
 )
 
 printf '%s\n' 'HomeLab certificate monitoring:'

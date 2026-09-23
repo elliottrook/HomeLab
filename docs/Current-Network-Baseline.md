@@ -30,7 +30,7 @@ Post-change recovery checkpoint completed 2026-08-08:
 
 Backup-resilience checkpoint completed 2026-08-11:
 
-- The Backup Synology independently pulls and checksum-verifies the Mac configuration recovery set and retained Proxmox guest archives.
+- TrueNAS pulls the Mac recovery set, Proxmox archives and family files; LXC 112 relays the scoped encrypted off-site copy. The Backup Synology was retired 2026-09-22.
 - LXC 100, LXC 101 and QEMU 102 archives are retrieved through a dedicated source-restricted, read-only Proxmox export identity.
 - Failure-only email notification was validated end to end; successful production runs do not send mail.
 - Hyper Backup protects configuration and guest archives in a private IDrive e2 S3-compatible bucket using client-side encryption and 23-version rotation.
@@ -408,7 +408,7 @@ Arista core — 192.168.50.2
   |     +-- Observability LXC 109 — 192.168.20.31
   |     +-- TrueNAS — 192.168.20.40
   |     +-- Main Synology — 192.168.20.41
-  |     +-- Backup Synology — 192.168.20.42
+  |     +-- [retired] Backup Synology — historical 192.168.20.42
   |
   +-- VLAN 30 IoT — 192.168.30.0/24
   |     +-- Lutron, Hue, Aqara, TVs and consumer devices
@@ -459,7 +459,7 @@ homelab-gateway — 192.168.20.20
 | 192.168.50.141 | UniFi Office AP | 84:78:48:ce:17:08 | AP Switch port 2, 2.5G full |
 | 192.168.20.40 | TrueNAS `bond0`; `truenas.internal` | 6c:92:bf:67:fb:bc | Et9 primary / Et15 standby, access VLAN 20 |
 | 192.168.20.41 | Synology DS920+ `bond0` | eth0 00:11:32:ca:e5:e5 / eth1 00:11:32:ca:e5:e6 | Et28 + Et24, both access VLAN 20, 1G, active-backup bond (2026-09-05). Formerly dual-homed with `eth1` as 192.168.1.41 on VLAN 10 — removed, see the asymmetric-routing incident below |
-| 192.168.20.42 | Backup Synology | 00:11:32:c8:06:c5 | Et48, access VLAN 20 |
+| 192.168.20.42 (historical) | Backup Synology — retired 2026-09-22 | 00:11:32:c8:06:c5 | Former Et48, access VLAN 20; no live-link expectation |
 | 192.168.30.102 | Lutron | ec:24:b8:8e:d4:10 | Et45, access VLAN 30 |
 | 192.168.30.155 | Downstairs Apple TV | d0:03:4b:29:99:23 | Current wired path not confirmed after the 2026-08-29 recabling |
 | 192.168.30.164 | Philips Hue | 00:17:88:22:42:e5 | Et46, access VLAN 30 |
@@ -727,7 +727,7 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
   48 GiB available at observation and no production capacity alarm. The earlier
   31 GiB pre-maintenance checkpoint is historical.
 - Production management endpoints are Arista `192.168.50.2`, Proxmox `192.168.50.10`, UniFi controller `192.168.50.21`, Hall AP `192.168.50.31` and Office AP `192.168.50.141`. The AP Switch is the exception: its management plane is untagged and lands in Trusted VLAN 10, so it is addressed `192.168.1.26` and reached directly from Trusted rather than through Management VLAN 50.
-- Server endpoints include Frigate `192.168.20.10`, Home Assistant `192.168.20.11`, Docker and primary Pi-hole `192.168.20.20`, TrueNAS and secondary Pi-hole `192.168.20.40`, primary Synology `192.168.20.41` and Backup Synology `192.168.20.42`.
+- Server endpoints include Frigate `192.168.20.10`, Home Assistant `192.168.20.11`, Docker and primary Pi-hole `192.168.20.20`, TrueNAS and secondary Pi-hole `192.168.20.40`, primary Synology `192.168.20.41`. Backup Synology `192.168.20.42` is retired.
 - Aster LXC 104 at `192.168.70.10`, legacy Ollama VM 105 at `192.168.70.11` and llama.cpp GPU LXC 110 at `192.168.70.12` remain isolated Lab VLAN 70 workloads. LXC 104 and VM 105 have mirrored, encrypted off-site archives and isolated restore evidence. LXC 110 has a named local production snapshot, current local and off-host archives, verified model-blob integrity and an isolated restore. The encrypted relay recovery configuration also has an independently protected, tested recovery copy.
 - Jellyfin, Immich, Plex, Seerr, Calibre, Audiobookshelf, Sonarr, Radarr, Lidarr and Prowlarr were directly reachable during reconciliation.
 - No temporary VM/LXC guests remain. Former addresses and VM 903 references retained in the repository are explicitly historical migration or restore-test evidence.

@@ -7,7 +7,7 @@ Sandbox network access is restricted to the hosts listed in `.claude/settings.js
 
 ## Network topology
 - Servers VLAN 20: Main Synology DS920+ at 192.168.20.41 (Drive server, primary family
-  data), Backup Synology at 192.168.20.42 (Hyper Backup repository)
+  data); the Backup Synology is retired (2026-09-22)
 - Management VLAN 50: Lenovo NUT server at 192.168.50.25 (Debian 13/trixie, user `jason`,
   sudo available), gateway 192.168.50.1
 - OPNsense is the gateway/DNS/firewall (VMware SD-WAN Edge 620 — corrected
@@ -40,7 +40,6 @@ that file in sync — update both in the same change.
 | Observability LXC 109 | 192.168.20.31 | Prometheus/Grafana health checks |
 | TrueNAS | 192.168.20.40 | Storage/NFS health, `lab doctor` |
 | Synology DS920+ | 192.168.20.41 | Backup verification |
-| Backup Synology | 192.168.20.42 | Backup verification |
 | NUT server (Lenovo) | 192.168.50.25 | UPS health, `lab doctor` |
 | Aster Agent LXC 104 | 192.168.70.10 | Local agent API/UI health |
 | Aster llama.cpp GPU LXC 110 | 192.168.70.12 | Local inference health |

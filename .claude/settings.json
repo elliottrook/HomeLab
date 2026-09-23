@@ -57,8 +57,6 @@
       "Bash(ssh gowest cat:*)",
       "Bash(ssh gowest ls:*)",
 
-      "Bash(ssh gowest-backup cat:*)",
-      "Bash(ssh gowest-backup ls:*)",
 
       "Bash(ssh root@192.168.20.32 cat:*)",
       "Bash(ssh root@192.168.20.32 ls:*)",
@@ -101,7 +99,6 @@
         "192.168.50.25",
         "192.168.20.40",
         "192.168.20.41",
-        "192.168.20.42",
         "192.168.50.1",
         "192.168.1.1",
         "192.168.50.2",

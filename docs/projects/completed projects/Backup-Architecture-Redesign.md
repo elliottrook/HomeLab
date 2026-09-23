@@ -1,14 +1,10 @@
 # Backup Architecture Redesign
 
-> Status: Active — Milestones 1–5 substantively complete (all three legacy
-> Hyper Backup jobs stopped, documentation and inventory updated). Only
-> the final "mark Complete" step remains, held open pending
-> `Backup-Synology-Decommission.md`'s own Milestones 4–5 (14-day
-> observation, ends 2026-09-23, then disk redeployment).
+> Status: Complete — 2026-09-22. Backup and restore checks passed; disk reuse is separate.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-10
+> Last updated: 2026-09-22
 
 ## Authorization
 
@@ -88,7 +84,7 @@ out to be primary.
 
 Separately, this is also the right moment for this change: Plex's media
 library was removed from `gowest` as part of the completed
-[Plex-to-Jellyfin media migration](completed%20projects/Plex-to-Jellyfin-Media-Migration.md),
+[Plex-to-Jellyfin media migration](Plex-to-Jellyfin-Media-Migration.md),
 freeing real capacity there, and the Backup Synology's role in the backup
 architecture is being retired outright rather than repaired — its
 low-power hardware turned out to be poorly suited to what Hyper Backup
@@ -113,24 +109,14 @@ scope for this project** — a separate decision for later.
   only — production data, not a backup destination.
 - [x] TrueNAS (`192.168.20.40`, Servers VLAN 20) is on a separate UPS
   (`nas-ups`) from both Synology units (`proxmox-ups`).
-- [ ] TrueNAS's exact current free capacity and CPU/RAM headroom —
-  **needs a fresh live check in Milestone 1**. The `Media` pool showed
-  15.6 TiB free on 2026-08-30, but the Plex-to-Jellyfin migration wrote a
-  substantial amount of data into that same pool since then; do not trust
-  the old figure.
-- [ ] IDrive e2 bucket versioning/retention support — **not yet confirmed**.
-  The existing bucket (Oregon-2, `s3.us-west-4.idrivee2.com`) is used by
-  the current Hyper Backup task; whether its configuration already
-  supports the version retention this design requires, or whether a new
-  bucket/configuration is needed, is a Milestone 1 discovery item.
-- [ ] Exact scope of what each existing Hyper Backup job protects —
-  **not yet inventoried precisely**. In particular, `Synology Drive
-  Backup` protects `SynologyDrive` package/application configuration
-  (Team Folder, sharing, quota, retention settings) in addition to plain
-  files under `homes`/`Family Documents` — a raw filesystem rsync will
-  not automatically capture that unless the relevant `@appdata` paths are
-  deliberately included. This must be nailed down before any existing job
-  is retired, not assumed equivalent.
+- [x] TrueNAS capacity and CPU/RAM checked in Milestone 1. Closeout measured
+  the Media pool ONLINE at 92% allocation, with approximately 978 GiB available
+  to datasets. Jason is testing six new 4 TB disks under the separate expansion
+  project; the capacity alert remains active.
+- [x] IDrive e2 bucket versioning confirmed enabled in Milestone 3 and an older
+  version recovered through crypt in Milestone 4.
+- [x] Legacy backup scope inventoried in Milestone 1; the later explicit
+  Synology Drive history exclusion is recorded in Milestone 2.
 
 ## Architecture decisions
 
@@ -291,11 +277,9 @@ continues through the encrypted off-site path.
   low (0.2–0.9 on 12 cores). Not treated as a blocker, but worth a second
   look if the new rsync/snapshot load turns out to be heavier than
   expected.
-- [~] Confirm the IDrive e2 bucket's current versioning/retention
-  configuration. **Deferred to Milestone 3** — this is most naturally
-  checked once `rclone` is actually configured against the bucket (it can
-  query bucket versioning directly), rather than guessed at now without
-  the tooling in hand. Recorded here so it isn't silently dropped.
+- [x] Confirm IDrive versioning/retention configuration. Deferred from this
+  milestone, then completed in Milestone 3 and proven by the Milestone 4
+  point-in-time older-version recovery test.
 - [x] Decide the TrueNAS dataset layout and naming for the backup landing
   zone. **Decision: `Media/backup/gowest`** (within the existing `Media`
   pool — no case for a dedicated new pool given 6.78T free headroom and
@@ -481,7 +465,7 @@ architecture's exact scope (see Architecture decisions above):
   reflects how this CLI reports job completion over this SSH path, not
   the snapshot itself taking a long time — same pattern observed with
   the rsync task trigger).
-- [~] Run each task, confirm data lands correctly and matches its source
+- [x] Run each task, confirm data lands correctly and matches its source
   (count/checksum comparison, not just "it ran without error"). **Proxmox
   leg done and verified.** Job state `SUCCESS`, no leftover processes.
   Compared source vs. destination directly rather than trusting the
@@ -613,12 +597,9 @@ data byte-for-byte, not just synthetic test data.
 
 **Passed 2026-09-08.** A real, full sync to IDrive e2 has completed
 (657 GiB, 111,196 files, 0 errors) and been spot-checked for integrity
-against a real production file, not just synthetic test data. One item
-remains open outside this gate's scope: Jason still needs to make an
-independent, offline protected copy of the `idrive-crypt` password/salt —
-tracked as a standing to-do, not a blocker for Milestone 4's restore
-validation, since the config Milestone 4 will test against already exists
-on the relay.
+against a real production file, not just synthetic test data. The independent
+protected recovery copy was completed and recovery-tested on 2026-09-08 (see
+Milestone 3 and the evidence log); the earlier reminder here was stale.
 
 ## Milestone 4 — Validation (hard gate before any cutover)
 
@@ -730,8 +711,8 @@ confirmed. Milestone 5 (cutover) may now begin.
   exists" section ("Jason intends to repurpose it... explicitly out of
   scope for this project — a separate decision for later"); the
   retirement itself is tracked in full in `Backup-Synology-Decommission.md`.
-- [ ] Update this project's status to `Complete` only after every prior
-  gate has passed and documentation is current.
+- [x] Mark Complete on 2026-09-22 after live backup/recovery checks and retirement
+  cleanup. Disk reuse is separately tracked and no longer holds this project open.
 
 ## Risks and mitigations
 
@@ -785,3 +766,105 @@ as current.
 | 2026-09-10 | 5 | Jason retired `Synology Drive Backup` on `gowest` by stopping HyperBackup the same way as `.42`, unavoidably also stopping `Media Backup` (they share one package instance on this host) — confirmed by Jason and by choice, since `Media Backup`'s destination was already gone. Verified live via `synopkg status HyperBackup` on `gowest`: `stop` | All three legacy Hyper Backup jobs now stopped. Remaining Milestone 5 items (updating `docs/05-Backups.md`, adding LXC 112 to `configs/devices.conf`/`services.conf`/NetBox) not yet done — not part of this request |
 | 2026-09-10 | Post-closeout LXC 110 coverage | Investigated the separately tracked inference-backup gap before expanding the shared task. Proxmox retained 8 LXC 110 archives / 306,330,893,688 bytes, while the active encrypted bucket already held 818,348,300,143 bytes against a provisioned 1 TB tier; relaying the full retained set would exceed capacity. Reverted the shared task to its original 100–109/111 filter, installed exact LXC 110 exclusions on relay LXC 112 (prior script preserved), and created dedicated TrueNAS task 3 at 04:20 with an exact LXC-only filter and deletion confined to `/mnt/Media/backup/aster-lxc110`. A shallow real-path rclone scan saw 2 LXC 110 paths without the guard and 0 with it; the historical 2026-09-01 encrypted object remains present. During validation, found the earlier aborted shared-task middleware job had left its rsync child process running with five files in `.~tmp~` (four staged, one partial); terminated only that validated process tree and removed only those five temporary files. The verified manual archive and every non-110 backup remained untouched. | Capacity exposure prevented and stray run cleaned up. Dedicated initial mirror job 13037 is running; final count/byte/integrity and Doctor evidence will follow before closeout. |
 | 2026-09-10 | Post-closeout LXC 110 verification | Dedicated job 13037 completed `SUCCESS` with no partial files. Direct source/destination inventories matched exactly at 8 filenames / 306,330,893,688 bytes. The newest 38 GB archive matched SHA-256 at both ends (`e738e2fd9cf0261ae2f7404999ce5ac2adbeefd831d2c618b278f54fb021df6d`) and passed `zstd -t`. The destination is a directory inside `Media/backup`, so the existing daily/weekly/monthly dataset snapshots cover it. Re-ran shared task 1 only after asserting live that `delete` remained false and both LXC/QEMU 110 filters were absent; job 13166 completed `SUCCESS`. Full Doctor reported 65 passed, 1 warning, 2 failures; every new LXC 110 check passed (`Proxmox backup 20h`, `TrueNAS mirror 20h`, dedicated task success 0h, relay capacity exclusions present). The failures were unrelated estate state: Arista Et48 expected-link drift and the deliberately powered-off Backup Synology. | Recurring same-site coverage and monitoring passed end-to-end. The IDrive capacity boundary is enforced and the shared task is healthy on its original scope. |
+
+## Closeout — 2026-09-22
+
+Jason requested checks a few hours before the September 23 observation endpoint
+and closure of both backup projects. Disk redeployment is no longer a dependency
+of this project's closeout: Jason confirms the DS220j disks are removed but not
+yet redeployed. Remaining disk/data decisions, future snapshot-cycle checks and
+capacity work are explicit in [Backup retirement follow-ups](../../Backup-Retirement-Follow-Ups.md).
+No storage expansion, disk wipe or legacy-bucket deletion was performed here.
+
+Live evidence: TrueNAS rsync tasks 1, 2 and 3 enabled with SUCCESS on September
+22; gowest completion marker current; Home Assistant's existing mount active
+against `192.168.20.40`, with a September 22 native archive. Relay service exited
+0 at 07:38:07 UTC September 22 after transferring 41.768 GiB, with 111,611 checks
+and 49 transferred files. Daily snapshots cover September 9–22, weekly snapshots
+September 6/13/20; monthly is enabled and first due October 1. Scheduled daily
+pruning is observed; no longer retention window is claimed elapsed.
+
+A fresh read-only recovery comparison recovered the same historical production
+configuration through the current TrueNAS file, September 22 ZFS snapshot, and
+IDrive crypt read. All three SHA-256 values match:
+`df41616946c0e7fad80c2bb28b4a065a209a463298322c1e000f160729d43d0a`.
+Contents and credentials were never printed. The first relay command had an
+incomplete executable PATH and failed; the corrected absolute-path invocation
+succeeded. Earlier September 10 evidence remains the older-version proof.
+
+Doctor identified five 64-hour-old Mac source exports despite a healthy Mac
+pull. Refreshed OPNsense, Arista, Proxmox, NUT and observability exports using
+the existing protected backup scripts, with restrictive umask and normal
+archive/checksum verification. These new exports await the next normal TrueNAS
+pull and relay cycle; the already verified remote copies remain available.
+
+AI administration: no new service identity or AI write capability was introduced
+by closeout. Existing restricted pulls and read-only relay boundary are retained;
+interactive host administration remains an operator-controlled path.
+
+| Date | Milestone | Evidence | Result |
+|---|---|---|---|
+| 2026-09-22 | Closeout checks | Current local/HA/off-site backups, healthy pool state, daily/weekly snapshots and three-way SHA-256 recovery match; source exports refreshed | Backup mechanisms pass. Capacity alert remains explicit while six-drive testing proceeds separately; monthly first run and physical disk reuse remain named follow-ups. |
+
+### Final validation and integration record
+
+Final immutable-copy Doctor run: **69 passed, 1 warning (existing uncommitted
+work), 1 failure (known Media pool 92% allocation)**. All backup checks and the
+remaining Arista expected-link checks pass. Five stale source-export warnings
+were resolved. An earlier run overlapped a local edit to the shell script and
+was discarded; the final run used a fixed copy and had no command errors.
+Shell syntax checks, permission-JSON parsing and operational-reference lint pass.
+The retired `synology-copy --dry-run` path exits before any write with explicit
+TrueNAS guidance. No live failure or UPS shutdown was induced.
+
+After Jason's explicit approval, NetBox device 18 remains `offline` with a
+retirement note, interface 5 is disabled, and IP 17 (`192.168.20.42/24`) is
+reserved/unassigned. The historical asset was retained rather than deleted;
+no physical chassis-location claim was added. Read-back verified each field.
+Rollback fields before this update: device primary_ip4_id=17, comments="Model
+confirmed by Jason 2026-09-02: DS220j.", interface enabled=true and empty
+description, IP status=active, empty description, assigned_object_id=5,
+assigned_object_type_id=7. Device status was already offline. A mode-0600 JSON
+checkpoint is also inside the NetBox container at
+`/tmp/backup-synology-netbox-before-2026-09-22.json`.
+
+Proxmox `/usr/local/bin/nut-shutdown.sh` now omits only the three-line `.42`
+shutdown block; the main NAS and all guest/host sequencing are unchanged.
+The script was syntax-checked, never executed. Durable rollback copy:
+`/usr/local/bin/nut-shutdown.sh.before-ds220j-retirement-2026-09-22`.
+Verified new SHA-256:
+`a97ed5bcd04e5d954cd69e021379df39a4099c56cbc6687f2154fca95c6525e9`.
+
+Integration review: Doctor, service/TLS monitoring, inventory, addressing,
+rack notes, UPS dependencies, backup operations and the local operational
+reference were reconciled. No new DNS, certificate, firewall, login, secret or
+AI administration capability was introduced. The toolkit dashboard derives its inventory from the active config; `.42` is
+removed there. The separate Homepage service was not changed. Human-wiki vendor
+manuals remain historical device documentation; no manual deletion is needed.
+The Aster operational snapshot was refreshed and retrieval-validated after
+explicit publication approval; see the deployment evidence below. Owner for residual checks is Jason; see the linked follow-up record.
+
+Local commits and Forgejo synchronization are tracked separately from the
+operational retirement; no push is authorized merely by this closeout.
+
+### Aster reference publication — 2026-09-22
+
+Published the five corrected operational-reference pages from clean reference
+commit `c2ed54ca6e8fa0b6dbca64141379eecf0daed15c`. The before-deployment page
+hashes matched the local prior committed sources, preventing overwrite of
+unseen deployed edits. All 1,823 source hashes validated; all 1,796 derived
+mirror entries and their directory index were preserved byte-for-byte.
+Reference provenance was refreshed from committed content; unrelated project
+sources retained their accepted provenance.
+
+Candidate archive SHA-256:
+`e0c5e4c798dcd704eb92d4045fae64cfd361340f03ca711e3cb82b6e3a281277`.
+New provenance-index SHA-256:
+`f98eb80b881beb699155a5e2fd47dea7a3b055c3015afb7b017ab4efffd478e2`.
+Three production-code retrieval probes (DS220j retirement, monthly retention,
+HA's historical mount name) passed as the unprivileged `aster` account against
+both staging and active trees. Activation used an atomic directory exchange;
+`aster-agent.service` stayed active and was not restarted. Prior accepted tree
+is retained at `/var/lib/aster/knowledge.ds220j-closeout-20260922`; its provenance
+hash is `3c07f286afae4206851eb2d74e16a8bc8de04db242b33b9d85c050e7e0920f34`.
+No credential, inference, human-wiki source or application-code change was made.

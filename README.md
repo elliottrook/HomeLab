@@ -16,8 +16,8 @@ Enterprise-inspired home lab documentation for Project Mini Atlas.
 - Homepage provides the internal service dashboard at `http://home.internal:3000`, including SSH launch links for the core infrastructure hosts.
 - Redundant Pi-hole resolvers run on Docker LXC 100 at `192.168.20.20` and TrueNAS at `192.168.20.40`; OPNsense Dnsmasq advertises both to every DHCP range.
 - Tailscale provides identity-restricted web and SSH access to the trusted LAN without inbound WAN ports.
-- The Backup Synology pulls and checksum-verifies configuration sets and retained Proxmox guest archives on independent schedules.
-- Hyper Backup provides client-side-encrypted, versioned IDrive e2 off-site protection for essential recovery material; media and Frigate recordings are excluded.
+- TrueNAS pulls configuration sets, retained Proxmox archives and family files, with ZFS snapshot history; Home Assistant also writes native backups to its dedicated TrueNAS share.
+- Backup relay LXC 112 provides encrypted, versioned IDrive e2 protection via rclone crypt; inference LXC 110, media and Frigate recordings are excluded. The Backup Synology is retired.
 - `lab doctor` functionally monitors OPNsense, Arista, Proxmox guests including Home Assistant and the Aster/llama.cpp local-AI stack, TrueNAS, Frigate, both Pi-holes and backup-report freshness using persistent counter baselines where appropriate.
 - Beszel provides lightweight historical host/container metrics for Docker, Proxmox and Frigate, with a concise systems-up widget on Homepage.
 - Authentik forward auth protects Nginx Proxy Manager at `https://proxy.elliottrook.com`; password, passkey and NPM login are tested and working.
