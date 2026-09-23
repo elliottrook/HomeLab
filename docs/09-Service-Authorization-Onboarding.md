@@ -335,13 +335,21 @@ must not be applied to this six-service cohort.
 
 ### Graduated services
 
-Audiobookshelf is separately staged at `https://audiobooks.elliottrook.com`
+Audiobookshelf is available at `https://audiobooks.elliottrook.com`
 with native OIDC (NPM 26/provider 38), passkey-only authentication, automatic
 browser SSO and an explicit link to the existing `admin` account. Its official
 mobile callback and existing API/player authentication are preserved; local
-recovery remains enabled with `autoLaunch=0`. Browser library/playback and
-actual mobile-client acceptance are pending, so it is not a graduated row.
+recovery remains enabled with `autoLaunch=0`. Jason accepted its normal workflow
+on and off Wi-Fi, and Homepage now uses this URL. Named mobile-client and
+dedicated logout/recovery tests remain open, so it is not a graduated row.
 See the rollout project's Audiobookshelf section for checkpoints and rollback.
+
+Calibre Web Automated is staged at `https://books.elliottrook.com` with native
+OIDC (NPM 27/provider 39), owner-only `cwa_account` mapping to existing `admin`,
+and automatic browser launch. Existing user rows, local recovery and OPDS
+credentials are preserved; group-based role management is disabled. Library
+and reader acceptance are pending, so Homepage is not yet promoted. See the
+rollout project for exact objects, protected checkpoints and rollback.
 
 Add one row only after the complete private-session and rollback tests pass:
 

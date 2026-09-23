@@ -4,7 +4,8 @@
 > closure; Milestone 3 has graduated Grafana, ARR, Portainer and the coordinated
 > Pi-hole pair. Six further browser routes now use passkey-only single login
 > with normal browser acceptance (2026-09-23). Audiobookshelf native SSO is
-> deployed for browser/player testing. Media/infrastructure and final
+> accepted on and off Wi-Fi; its Homepage link is promoted. Calibre native SSO
+> is staged for library acceptance. Media/infrastructure and final
 > graduation gates are still open.
 > Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
@@ -236,10 +237,96 @@ legacy token match the checkpoint. App health, nginx syntax and 20 route smoke
 checks pass. No human passkey completion, library/playback or mobile acceptance
 is inferred from these checks.
 
-Jason was asked to test the new HTTPS URL, existing library and playback.
-Homepage's Audiobookshelf link still awaits that acceptance; the direct local
-recovery entry must use `autoLaunch=0`. Do not turn off local authentication
-or claim mobile compatibility until the client tests pass.
+Jason confirmed "Works on and off wifi" after the request to test the HTTPS
+URL, library and playback. This records normal workflow acceptance on both
+network paths, without inferring a particular mobile application or dedicated
+logout/recovery testing. Homepage now links to
+`https://audiobooks.elliottrook.com`; only that href changed, with widget
+configuration preserved. Its pre-change checkpoint is
+`/opt/homepage/backups/audiobookshelf-promote-20260923T213829Z/services.yaml`.
+The direct local recovery entry uses `autoLaunch=0`; local authentication remains
+enabled while the actual mobile client and recovery gates remain open.
+
+### Calibre Web Automated native SSO layer — 2026-09-23
+
+Next bounded layer: CWA v4.0.6 (`calibre-web-automated`) on TrueNAS
+`192.168.20.40:8283`, proposed `https://books.elliottrook.com`. Existing account
+`admin` (ID 1, role 479) must be preserved. The deployed generic OAuth handler
+matches username/email before assigning its subject link, so a preinserted
+subject alone is insufficient. Use a provider-specific `cwa_account` scope
+mapping `cwa_username=admin` only for Authentik owner `jason` (ID 8), with direct
+owner application binding, and configure CWA's username mapper accordingly.
+Disable OAuth group role management to preserve the existing role. No global
+identity claims or other applications change. Native basic authentication for
+OPDS and local recovery remain enabled; anonymous access/public registration
+stay off. Current Kobo/KOReader progress and OAuth tables contain no rows.
+
+Capture and verify CWA app.db/Compose, Authentik database, NPM database,
+OPNsense XML and both resolver checkpoints before their respective mutations.
+Stage one exact NPM-to-TrueNAS TCP 8283 rule, private wildcard TLS NPM host,
+owner-only native provider with explicit authorization-code grant and strict
+`https://books.elliottrook.com/login/generic/authorized` callback, then private
+DNS on all three authorities. Existing TrueNAS-to-NPM HTTPS path is sufficient.
+NPM's exact `/login` browser path will launch `/login/generic`; direct local
+login and reader APIs retain their own authentication. Keep the Homepage link
+unchanged until normal-library/reader acceptance. Validate account/role/hash
+preservation, Authentik owner allow/non-owner deny, callback parameters, absent
+or spoofed credentials denied on OPDS, container/nginx health and route
+regressions. Human passkey completion and library workflow remain user gates.
+
+Rollback restores the protected app.db while only CWA is stopped, restarts it,
+and removes only this layer's newly created provider/mapping/application,
+NPM host, resolver records and exact firewall rule. Preserve the library,
+existing credentials and other services. Do not print provider secrets or
+mixed configuration; hand off native credentials only through protected SSH
+pipes. Generic OAuth can auto-create users, so the owner binding and exact
+existing-account claim are required controls before activation.
+
+**CWA layer deployed:** native Authentik provider **39**, application
+`calibre-web-automated`, scope mapping
+`4a4d45c0-dc75-456b-aca6-99f3ec6193da`, NPM host **27** with certificate 8,
+firewall rule `4ba91836-9aa9-4ffc-a492-b6f84f4dacd4`, and Unbound record
+`ad1a7201-f31e-4051-bef7-64e76efd8f22`. All three DNS authorities return
+`192.168.50.23` for `books.elliottrook.com`. CWA generic OAuth row 3 is active,
+login type 2, canonical OAuth host is `https://books.elliottrook.com`, scope is
+`openid profile email cwa_account`, username mapper is `cwa_username`, and
+OAuth group role management is off. The local-login switch, anonymous/public
+registration settings, reader credentials and every user row are unchanged.
+No forward-auth gate was added to its reader endpoints.
+
+Protected checkpoints:
+
+- TrueNAS `/root/authentik-cwa-20260923T214519Z`: online `app.db` backup
+  (integrity `ok`), Compose and container metadata; `oidc-new.json` holds the
+  mode-0600 credential handoff without model-visible secret output.
+- Authentik `/opt/authentik/backups/cwa-20260923T214520Z/authentik.dump`:
+  readable 1,818-line archive catalogue.
+- NPM `/opt/nginx-proxy-manager/backups/cwa-20260923T214547Z/database.sqlite`:
+  integrity `ok`. An earlier empty checkpoint directory was created before an
+  overbroad hostname substring guard stopped that attempt; no host mutation
+  occurred before the corrected exact-host check and successful backup.
+- OPNsense `/root/authentik-cwa-20260923T214547Z/config.xml`: parsed successfully.
+- Primary Pi-hole `/opt/pihole/etc-pihole/cwa-before-20260923T214809Z/pihole.toml`.
+- Secondary Pi-hole
+  `/mnt/.ix-apps/app_mounts/pihole/config/cwa-before-20260923T214844Z/pihole.toml`.
+
+Validation passed: existing user rows exactly match the checkpoint (including
+password hashes/roles); owner policy allows `jason` and denies `akadmin`; the
+custom mapping returns `admin` only for the owner; the authorization-code
+request passes Authentik's actual parameter validator. Certificate-valid root
+requests redirect through `/login` and `/login/generic` to Authentik with the
+exact HTTPS callback and requested scopes. Spoofed identity headers do not
+open `/opds` (401); direct local recovery `/login` remains 200. CWA is healthy,
+NPM syntax passes, and 21 HTTPS route smoke checks retain expected 200/302
+responses. No synthetic owner session or token was minted.
+
+Next human gate: open `https://books.elliottrook.com`, complete Authentik if
+prompted, confirm the existing library/admin account and open a book. The
+specific ebook client remains unidentified; retain native reader/recovery
+authentication and do not infer OPDS client acceptance from a 401 test.
+Homepage promotion remains pending this normal-workflow acceptance. The stale
+Homepage HTTPS `:32016` link is recorded, not promoted prematurely. Dedicated
+logout/recovery gates and final rollout graduation remain open.
 
 ### Earlier staging audit (historical)
 
@@ -438,7 +525,8 @@ authentication. This does not replace real login or full service-rebuild proof.
 - **Audiobookshelf 2.36.0:** native SSO is deployed at
   `https://audiobooks.elliottrook.com`, with existing owner subject linkage,
   automatic browser launch, no auto-registration and local recovery retained.
-  Human library/playback/mobile acceptance and Homepage promotion are pending.
+  Jason accepted the normal workflow on and off Wi-Fi; Homepage is promoted.
+  The particular mobile client and dedicated logout/recovery tests remain open.
   Its database is
   `/mnt/Media/media/audiobooks/absdatabase.sqlite`, alongside media, so back up
   the database/configuration rather than archiving the media library. Host
@@ -447,12 +535,14 @@ authentication. This does not replace real login or full service-rebuild proof.
   `audiobookshelf://oauth` mobile redirect follow
   following the [official OIDC guide](https://audiobookshelf.org/docs/documentation/server-management/oidc-authentication/).
   Deployment objects and checkpoints are recorded above; do not recreate them.
-- **Calibre Web Automated:** direct deployment is HTTP `:8283`; Homepage
-  still links to legacy HTTPS `:32016`, which needs reconciliation. Its app
-  database has an inactive generic OAuth provider; local login is enabled,
-  anonymous browsing/public registration/Kobo sync are off. Inspect the
-  deployed generic OAuth implementation and reader/OPDS consumers before
-  choosing native integration. No provider credentials were read or changed.
+- **Calibre Web Automated v4.0.6:** native SSO is now staged at
+  `https://books.elliottrook.com` (provider 39/NPM 27), with owner-only identity
+  mapping to the existing `admin` and browser auto-launch at NPM. Local/reader
+  authentication is preserved, anonymous/public registration/Kobo sync remain
+  off, and user rows are unchanged. Library/reader acceptance and Homepage
+  promotion are pending; see the deployment/checkpoints above. Homepage still
+  has its stale legacy HTTPS `:32016` href until acceptance. Implementation
+  follows deployed source and the [upstream OAuth guide](https://github.com/crocodilestick/Calibre-Web-Automated/wiki/OAuth-Configuration).
 - **Seerr 3.4.1:** local and media-server login settings exist; local login is
   enabled and the application URL is empty. Preserve media-server callbacks,
   API keys and ARR integrations; do not assume generic OIDC support from the
@@ -1130,7 +1220,7 @@ Durable cohort status (update cells only from evidence, not intent):
 |---|---|---|---|---|---|---|
 | 3A — bounded browser gates | Dozzle/Homarr verified; Newtarr/Frigate held | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Both browser workflows accepted; dedicated sign-out/recovery tests pending; HTTPS links live |
 | 3B — administrator interfaces | Four browser backends classified | Passed | Passed | Passed | Passed on all three resolvers | All four browser workflows accepted; dedicated sign-out/recovery tests pending; HTTPS links live |
-| 3C — client-sensitive media | Audiobookshelf verified; other members retain discovery/backup holds | Audiobookshelf passed | Audiobookshelf passed | Audiobookshelf native SSO passed | Audiobookshelf passed on all three resolvers | Audiobookshelf browser/player acceptance pending; Homepage not promoted |
+| 3C — client-sensitive media | Audiobookshelf verified; other members retain discovery/backup holds | Audiobookshelf passed | Audiobookshelf passed | Audiobookshelf native SSO passed | Audiobookshelf passed on all three resolvers | Audiobookshelf accepted on/off Wi-Fi; Homepage promoted; named mobile-client and recovery gates open |
 
 Milestone 3 completes when Cohorts 3A-3C pass, Plex's no-change assessment is
 recorded, and all previously completed Milestone 3 packages remain healthy.
