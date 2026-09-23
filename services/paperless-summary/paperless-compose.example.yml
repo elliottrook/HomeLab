@@ -1,0 +1,24 @@
+# Service reconstruction only. Contains no credentials or document data.
+name: paperless-ngx
+services:
+  broker:
+    image: valkey/valkey@sha256:a0dbf4c1d5708782907c10e2c72deff317518518b5288a58416981d9db95d30b
+    restart: unless-stopped
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a
+    restart: unless-stopped
+    depends_on: [broker]
+    ports: ['8000:8000']
+    env_file: .env
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_TIME_ZONE: America/Vancouver
+      PAPERLESS_OCR_LANGUAGE: eng
+    volumes:
+      - data:/usr/src/paperless/data
+      - media:/usr/src/paperless/media
+      - ./consume:/usr/src/paperless/consume
+      - ./export:/usr/src/paperless/export
+volumes:
+  data:
+  media:

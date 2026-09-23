@@ -120,3 +120,13 @@ Both Pi-hole resolvers publish `truenas.internal` as an A record for
 |---|---|---:|---|
 | Forgejo | `http://192.168.20.30:3000` | 3000/TCP | Production; primary Git remote |
 | Forgejo SSH | `git@192.168.20.30` | 22/TCP | Production clone/push path |
+
+## Paperless — verified 2026-09-23
+
+| Service | Address | Identity |
+|---|---|---|
+| Paperless-ngx | 192.168.70.15/24, VLAN 70 | LXC 115; MAC BC:24:11:62:1D:25; NetBox VM 17/interface 17/IP 31 |
+| Paperless HTTPS | https://paperless.elliottrook.com | Private DNS to NPM 192.168.50.23; Authentik and native login |
+
+192.168.70.14 belongs to Aster Speech LXC 116. The duplicate Paperless assignment
+was corrected; historical project evidence may still show its former address.

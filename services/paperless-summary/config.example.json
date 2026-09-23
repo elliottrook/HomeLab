@@ -1,0 +1,6 @@
+{
+  "mode": "synthetic",
+  "inference_endpoint": "http://192.168.70.12:11435/v1/chat/completions",
+  "inference_key_file": "/run/credentials/paperless-summary.service/llama-api-key",
+  "model": "/opt/models/qwen3.8-27b-iq4xs/Qwen3.8-27B-UD-IQ4_XS-00001-of-00002.gguf"
+}
