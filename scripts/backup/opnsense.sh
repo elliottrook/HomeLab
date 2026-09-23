@@ -2,16 +2,18 @@
 
 set -euo pipefail
 
-REPO="$HOME/lab/homelab"
+REPO="${HOMELAB_REPO:-$HOME/lab/homelab}"
 source "$REPO/scripts/lib/output.sh"
 
-BACKUP_DIR="$HOME/lab/private-backups/opnsense"
+PRIVATE_BACKUPS="${HOMELAB_BACKUP_ROOT:-$HOME/lab/private-backups}"
+
+BACKUP_DIR="$PRIVATE_BACKUPS/opnsense"
 TIMESTAMP="$(date +%Y-%m-%d_%H-%M-%S)"
 BACKUP_FILE="$BACKUP_DIR/opnsense-config-$TIMESTAMP.xml"
 CHECKSUM_FILE="$BACKUP_FILE.sha256"
 
 mkdir -p "$BACKUP_DIR"
-chmod 700 "$HOME/lab/private-backups"
+chmod 700 "$PRIVATE_BACKUPS"
 chmod 700 "$BACKUP_DIR"
 
 header "OPNsense Configuration Backup"

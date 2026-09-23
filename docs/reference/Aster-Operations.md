@@ -61,9 +61,40 @@ steps inside the warm-up script are independently bounded. This prevents
 systemd's 90-second default start timeout from killing a healthy model during a
 slow real-generation warm-up.
 
+## Lab Doctor and backup execution
+
+As of 2026-09-23, Sysadmin Aster has a bounded execution pilot for Jason's
+verified Companion identity. “Run lab doctor”, “back up OPNsense”, “back up
+Aster”, and “lab job status” use a durable job queue. A constrained planner can
+also choose one diagnostic or backup checkpoint needed by the current task.
+It never receives retrieved instructions or client system prompts. A job being
+queued is not evidence of successful completion or a usable recovery checkpoint.
+
+The operator Mac polls the existing private HTTPS endpoint and runs fixed
+Doctor/config-export adapters. A dedicated Proxmox forced-command identity
+backs up allowlisted running LXCs without shell access or pruning. Config
+exports cover OPNsense, Arista, Proxmox **host configuration**, NUT,
+Observability and Video Archiver. Guest targets are LXC 104, 109, 111, 113 and
+116. LXC 110, VMs, restores, retention/schedule changes and arbitrary commands
+remain outside this execution surface. Existing ARR approval is unchanged.
+
+Only Sysadmin's enabled lab tools and Jason's signed-in session can request
+execution; legacy API credentials and other personas cannot. Model output cannot
+widen target policy. Jobs serialize globally, deduplicate requests, enforce
+cooldowns and check current storage capacity. Unknown/interrupted jobs require
+operator reconciliation. Doctor returns bounded findings; backups return verified
+artifact coverage. Off-host/off-site transfer remains on its existing schedule
+and is not implied by successful local creation.
+
+Source and recovery procedures:
+`homelab/services/aster-lab-operations/README.md` and
+`homelab/docs/projects/Aster-Lab-Operations.md`. Human CLI operation remains
+independent. Companion UI acceptance and final corpus publication are pending;
+operator-seeded production worker validation is recorded separately.
+
 ## Functions and knowledge
 
-Aster 1.0 exposes eight allowlisted read-only functions:
+Aster retains its allowlisted read-only advisory functions:
 
 - current time in an IANA timezone;
 - Aster or inference health;

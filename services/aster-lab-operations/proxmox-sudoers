@@ -1,0 +1,2 @@
+# Root-owned helper validates a fixed target/job pair from stdin. No arguments.
+ai-lab-backup ALL=(root) NOPASSWD: /usr/local/sbin/aster-lab-guest ""

@@ -15,15 +15,12 @@ mkdir -p "$STATE_DIR"
 chmod 700 "$STATE_DIR"
 
 latest_file() {
-    find "$1" -maxdepth 1 -type f -name "$2" -print |
-        sort |
-        tail -1
-}
-
-latest_directory() {
-    find "$1" -mindepth 1 -maxdepth 1 -type d -print |
-        sort |
-        tail -1
+    # Support both scheduled dated exports and atomically published Aster bundles.
+    python3 - "$1" "$2" <<'PYTHON'
+import pathlib, sys
+files = [p for p in pathlib.Path(sys.argv[1]).rglob(sys.argv[2]) if p.is_file() and not p.is_symlink()]
+print(max(files, key=lambda p: (p.stat().st_mtime_ns, str(p))) if files else "")
+PYTHON
 }
 
 require_file() {
@@ -193,10 +190,10 @@ build_manifest() {
         latest_file "$BACKUP_ROOT/opnsense" '*.xml'
     )"
     arista_dir="$(
-        latest_directory "$BACKUP_ROOT/arista"
+        dirname "$(latest_file "$BACKUP_ROOT/arista" 'running-config.txt')"
     )"
     proxmox_dir="$(
-        latest_directory "$BACKUP_ROOT/proxmox"
+        dirname "$(latest_file "$BACKUP_ROOT/proxmox" 'proxmox-host-config.tar.gz')"
     )"
     proxmox_archive="$proxmox_dir/proxmox-host-config.tar.gz"
 

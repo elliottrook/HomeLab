@@ -2,29 +2,29 @@
 
 set -euo pipefail
 
-REPO="$HOME/lab/homelab"
+REPO="${HOMELAB_REPO:-$HOME/lab/homelab}"
 source "$REPO/scripts/lib/output.sh"
 
-BACKUP_ROOT="$HOME/lab/private-backups/proxmox"
+PRIVATE_BACKUPS="${HOMELAB_BACKUP_ROOT:-$HOME/lab/private-backups}"
+
+BACKUP_ROOT="$PRIVATE_BACKUPS/proxmox"
 TIMESTAMP="$(date +%Y-%m-%d_%H-%M-%S)"
 BACKUP_DIR="$BACKUP_ROOT/$TIMESTAMP"
 ARCHIVE="$BACKUP_DIR/proxmox-host-config.tar.gz"
 
 mkdir -p "$BACKUP_DIR"
-chmod 700 "$HOME/lab/private-backups" "$BACKUP_ROOT" "$BACKUP_DIR"
+chmod 700 "$PRIVATE_BACKUPS" "$BACKUP_ROOT" "$BACKUP_DIR"
 
 header "Proxmox Host Configuration Backup"
 
 info "Collecting Proxmox host configuration..."
 
 if ! ssh proxmox \
-    'tar -czf - \
-        /etc/pve \
-        /etc/network/interfaces \
-        /etc/hosts \
-        /etc/hostname \
-        /etc/resolv.conf \
-        2>/dev/null' > "$ARCHIVE"; then
+    'set -- /etc/pve /etc/network/interfaces /etc/hosts /etc/hostname /etc/resolv.conf
+     for path in /usr/local/sbin/aster-lab-guest /usr/local/sbin/aster-lab-guest-ssh /etc/sudoers.d/aster-lab-backup /var/lib/aster-lab-guest /var/lib/ai-lab-backup/.ssh/authorized_keys; do
+         if [ -e "$path" ]; then set -- "$@" "$path"; fi
+     done
+     tar -czf - "$@" 2>/dev/null' > "$ARCHIVE"; then
     error "Proxmox configuration backup failed"
     exit 1
 fi

@@ -6,6 +6,11 @@
 - Added account-scoped background reply recovery, bounded delivery, stale-report rejection and Doctor monitoring.
 - Connected the existing daily Doctor summary to Aster; verified notification identity/state recovery. Device acceptance remains open.
 
+## 2026-09-23 — Aster lab operations pilot
+
+- Enabled Jason’s Sysadmin Aster to request Doctor and bounded configuration/LXC backups, including task-required checkpoints, under approved Stream A.
+- Verified real worker execution for Doctor, six configuration targets and five guests; added durable job status, restricted Proxmox execution, capacity controls and protected recovery coverage. Companion UI acceptance and clean corpus publication remain open.
+
 ## 2026-09-23 — Companion acceptance and notification milestone
 
 - Recorded Jason’s Mac voice and iPhone Wi-Fi/Tailscale acceptance; M6 is complete.

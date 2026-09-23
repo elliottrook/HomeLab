@@ -2,7 +2,7 @@
 
 set -u
 
-REPO="$HOME/lab/homelab"
+REPO="${HOMELAB_REPO:-$HOME/lab/homelab}"
 SERVICES_CONFIG="$REPO/configs/services.conf"
 BACKUP_ROOT="$HOME/lab/private-backups"
 STATE_ROOT="${HOMELAB_STATE_ROOT:-$HOME/lab/monitoring-state}"
@@ -501,6 +501,15 @@ check_aster() {
         pass "Aster agent API, B60 Vulkan and llama.cpp inference healthy"
     else
         fail "Aster service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
+    fi
+}
+
+check_aster_lab_operations() {
+    local state
+    if state="$(python3 "$REPO/scripts/check-aster-lab-operations.py" 2>/dev/null)"; then
+        pass "$state"
+    else
+        fail "${state:-Aster lab operation health could not be verified}"
     fi
 }
 
@@ -1893,6 +1902,7 @@ category "Applications & Services"
 check_aster
 check_aster_speech
 check_aster_notifications
+check_aster_lab_operations
 check_xe_reset
 check_aster_wiki
 check_netbox
@@ -1953,10 +1963,11 @@ else
     fail "Mac disk usage is ${DISK_PERCENT}%"
 fi
 
-if [[ ! -d "$REPO/.git" ]]; then
+GIT_REPO="${HOMELAB_GIT_REPO:-$REPO}"
+if [[ ! -d "$GIT_REPO/.git" ]]; then
     fail "HomeLab Git repository not found"
 else
-    GIT_STATUS="$(git -C "$REPO" status --porcelain 2>/dev/null)"
+    GIT_STATUS="$(git -C "$GIT_REPO" status --porcelain 2>/dev/null)"
 
     if [[ -z "$GIT_STATUS" ]]; then
         pass "Git working tree is clean"
@@ -1964,7 +1975,7 @@ else
         warn "Git repository contains uncommitted changes"
     fi
 
-    if git -C "$REPO" remote get-url origin >/dev/null 2>&1; then
+    if git -C "$GIT_REPO" remote get-url origin >/dev/null 2>&1; then
         pass "Git remote is configured"
     else
         warn "Git remote is not configured"

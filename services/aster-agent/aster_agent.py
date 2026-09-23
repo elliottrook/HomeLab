@@ -20,6 +20,8 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
+from lab_operations import LabOperations, OWNER as LAB_OWNER
+
 from arr_report import get_arr_report as read_arr_report
 from ha_report import get_ha_report as read_ha_report
 from source_reports import get_forgejo_report as read_forgejo_report
@@ -177,6 +179,23 @@ rollback guest.
 Name retrieved source files when factual provenance helps."""
 
 app = FastAPI(title="Aster Agent", version="1.0.0")
+lab_operations = LabOperations()
+app.include_router(lab_operations.router)
+
+
+@app.middleware("http")
+async def lab_identity_context(request, call_next):
+    owner = None
+    if request.url.path in {"/v1/chat/completions", "/v1/companion/jobs"} or (request.url.path.startswith("/v1/lab/") and not request.url.path.startswith("/v1/lab/worker/")):
+        claims = _authentik_claims(request.headers.get("authorization"))
+        if claims and not claims.get("act") and isinstance(claims.get("sub"), str) and claims["sub"]:
+            owner = hashlib.sha256((AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()).hexdigest()
+    context = LAB_OWNER.set(owner)
+    try:
+        return await call_next(request)
+    finally:
+        LAB_OWNER.reset(context)
+
 
 
 class ChatRequest(BaseModel):
@@ -299,6 +318,16 @@ DEFAULT_PERSONA = "sysadmin"
 # those apply to every persona unconditionally. A persona only narrows what
 # is available; enabled_tools on a request can narrow it further, never
 # widen it past the persona's own set.
+# Execution tools are consumed by the authenticated command gateway, never
+# preloaded by keyword routing or dispatched from untrusted model tool calls.
+for _name, _description in {
+    "run_lab_doctor": "Run fresh Lab Doctor diagnostics through the bounded worker.",
+    "start_lab_backup": "Start an allowlisted verified backup through the bounded worker.",
+    "get_lab_job": "Read the last durable Lab Doctor or backup job status.",
+}.items():
+    TOOLS[_name] = {"type": "function", "function": {"name": _name, "description": _description,
+                    "parameters": {"type": "object", "properties": {}, "additionalProperties": False}}}
+
 PERSONAS: dict[str, dict[str, Any]] = {
     "sysadmin": {
         "label": "Sysadmin Aster",
@@ -1199,6 +1228,12 @@ async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
     if request.enabled_tools is not None:
         allowed_tools = allowed_tools & set(request.enabled_tools)
 
+    lab_response = lab_operations.chat(request, allowed_tools)
+    if lab_response is None:
+        lab_response = await lab_operations.plan(request, allowed_tools, upstream_completion, UPSTREAM_MODEL)
+    if lab_response is not None:
+        return lab_response
+
     selected_tools = select_tools(request.messages, allowed_tools)
     payload = request.model_dump(
         exclude_none=True, exclude={"model", "stream", "persona", "enabled_tools"}
@@ -1212,6 +1247,18 @@ async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
     payload["model"] = UPSTREAM_MODEL
     payload["stream"] = request.stream
     payload["messages"] = normalized_messages(request.messages, persona["identity"])
+    if request.persona == "sysadmin" and lab_operations.enabled:
+        payload["messages"][0]["content"] += (
+            "\n\nCurrent lab execution capability: authenticated Jason sessions can request "
+            "fresh Doctor runs and allowlisted backups through a durable job queue when the "
+            "corresponding conversation tools are enabled. Commands include 'run lab doctor', "
+            "'back up OPNsense', 'back up Aster', and 'lab job status'. "
+            "Enabled targets: " + ", ".join(sorted(lab_operations.enabled)) + ". "
+            "A queued job is not a completed or verified backup. Never claim execution "
+            "without a job result. These runtime capabilities supersede historical claims "
+            "that Aster can only read a saved Doctor report. No restore, pruning, schedule "
+            "changes or general shell capability is provided."
+        )
     read_only_context = await preload_read_only_context(request.messages, selected_tools)
     if read_only_context:
         payload["messages"][0]["content"] += (

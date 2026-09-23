@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>Label</key><string>com.jason.aster-lab-worker</string>
+<key>ProgramArguments</key><array>
+<string>/usr/bin/python3</string>
+<string>/Users/jelliott/Library/Application Support/AsterLab/worker.py</string>
+<string>--config</string><string>/Users/jelliott/Library/Application Support/AsterLab/worker.json</string>
+</array>
+<key>RunAtLoad</key><true/>
+<key>KeepAlive</key><true/>
+<key>ThrottleInterval</key><integer>30</integer>
+<key>ProcessType</key><string>Background</string>
+<key>StandardOutPath</key><string>/Users/jelliott/Library/Application Support/AsterLab/worker.log</string>
+<key>StandardErrorPath</key><string>/Users/jelliott/Library/Application Support/AsterLab/worker-error.log</string>
+</dict></plist>

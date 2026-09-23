@@ -253,15 +253,21 @@ run_backup() {
             ;;
 
         all)
-            "$REPO/scripts/backup/opnsense.sh"
-            "$REPO/scripts/backup/arista.sh"
-            "$REPO/scripts/backup/proxmox.sh"
-            "$REPO/scripts/backup/nut.sh"
-            "$REPO/scripts/backup/observability.sh"
-            "$REPO/scripts/backup/video-archiver.sh"
+            local failed=0
+            local backup_target
+            for backup_target in opnsense arista proxmox nut observability video-archiver; do
+                if ! "$REPO/scripts/backup/$backup_target.sh"; then
+                    error "Backup failed: $backup_target"
+                    failed=$((failed + 1))
+                fi
+            done
+            if (( failed > 0 )); then
+                error "$failed automated backup(s) failed; recovery coverage is incomplete."
+                return 1
+            fi
 
             echo
-            warning "Automated backups complete."
+            warning "All six automated configuration exports completed."
             warning "UniFi, TrueNAS and Synology exports still require the guided step."
             echo
 

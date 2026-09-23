@@ -2,15 +2,17 @@
 
 set -euo pipefail
 
-REPO="$HOME/lab/homelab"
+REPO="${HOMELAB_REPO:-$HOME/lab/homelab}"
 source "$REPO/scripts/lib/output.sh"
 
-BACKUP_ROOT="$HOME/lab/private-backups/video-archiver"
+PRIVATE_BACKUPS="${HOMELAB_BACKUP_ROOT:-$HOME/lab/private-backups}"
+
+BACKUP_ROOT="$PRIVATE_BACKUPS/video-archiver"
 TIMESTAMP="$(date +%Y-%m-%d_%H-%M-%S)"
 BACKUP_DIR="$BACKUP_ROOT/$TIMESTAMP"
 
 mkdir -p "$BACKUP_DIR"
-chmod 700 "$HOME/lab/private-backups" "$BACKUP_ROOT" "$BACKUP_DIR"
+chmod 700 "$PRIVATE_BACKUPS" "$BACKUP_ROOT" "$BACKUP_DIR"
 
 header "Video Archiver Configuration Backup"
 

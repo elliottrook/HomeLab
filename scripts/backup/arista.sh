@@ -2,10 +2,12 @@
 
 set -euo pipefail
 
-REPO="$HOME/lab/homelab"
+REPO="${HOMELAB_REPO:-$HOME/lab/homelab}"
 source "$REPO/scripts/lib/output.sh"
 
-BACKUP_ROOT="$HOME/lab/private-backups/arista"
+PRIVATE_BACKUPS="${HOMELAB_BACKUP_ROOT:-$HOME/lab/private-backups}"
+
+BACKUP_ROOT="$PRIVATE_BACKUPS/arista"
 TIMESTAMP="$(date +%Y-%m-%d_%H-%M-%S)"
 BACKUP_DIR="$BACKUP_ROOT/$TIMESTAMP"
 
