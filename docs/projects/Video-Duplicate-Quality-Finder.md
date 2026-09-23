@@ -22,7 +22,7 @@ not "we accidentally filed the same file twice."
 
 ## Relationship to Jellyfin-Library-Integrity-Automation — read this first
 
-[Jellyfin-Library-Integrity-Automation.md](Jellyfin-Library-Integrity-Automation.md)
+[Jellyfin-Library-Integrity-Automation.md](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
 already built and validated a duplicate/gap-fill detector, and its own
 "Out of scope" section states, verbatim:
 
@@ -474,7 +474,7 @@ No implementation work has occurred; this document is the initial proposal.
 
 ## References
 
-- [Jellyfin Library Integrity Automation — sibling project, its explicit out-of-scope statement and design principle this charter must reckon with](Jellyfin-Library-Integrity-Automation.md)
+- [Jellyfin Library Integrity Automation — sibling project, its explicit out-of-scope statement and design principle this charter must reckon with](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
 - [Video Library Archiving — Shawshank incidental-duplicate finding, GPU/scheduling precedent to avoid colliding with](<completed projects/Video-Library-Archiving.md>)
 - [ARR Stack Operational Reference — Radarr/Sonarr quality metadata and canonical library roots](../reference/ARR-Stack-Operational-Reference.md)
 - [Plex-to-Jellyfin media migration — Archive Movies/Archive TV provenance](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)

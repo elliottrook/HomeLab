@@ -5,7 +5,7 @@ album art, and candidate duplicate/gap-fill albums, using the same evidence stan
 track-duration comparison, not filename guessing) developed and validated by hand in
 2026-09-06/07. Also checks Jellyfin collection/playlist counts for the startup-task-deletion
 regression, on any library. Design and safety rationale:
-[`docs/projects/Jellyfin-Library-Integrity-Automation.md`](../../docs/projects/Jellyfin-Library-Integrity-Automation.md).
+[`docs/projects/completed projects/Jellyfin-Library-Integrity-Automation.md`](../../docs/projects/completed%20projects/Jellyfin-Library-Integrity-Automation.md).
 
 Deployed and scheduled on TrueNAS at `/mnt/Media/data/tools/jellyfin-integrity/` (this directory
 is the source of truth in git; the TrueNAS copy is the deployed, running instance and carries its

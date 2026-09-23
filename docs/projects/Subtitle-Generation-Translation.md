@@ -436,7 +436,7 @@ No implementation work has occurred; this document is the initial proposal.
 
 - [Plex-to-Jellyfin media migration — TV subtitle absence measurement](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
 - [Video Library Archiving — subtitle/audio track-dropping design and A380 GPU evidence](<completed projects/Video-Library-Archiving.md>)
-- [Jellyfin Library Integrity Automation — sibling project's dry-run/report/apply precedent](Jellyfin-Library-Integrity-Automation.md)
+- [Jellyfin Library Integrity Automation — sibling project's dry-run/report/apply precedent](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
 - [Local AI — B60 GPU capacity, BAR/passthrough constraints, aster-llama service](<completed projects/Local-AI.md>)
 - [Aster Operations — aster-llama.service endpoint and model details](../reference/Aster-Operations.md)
 - [ARR Stack Operational Reference — canonical library roots and service authority](../reference/ARR-Stack-Operational-Reference.md)

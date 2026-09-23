@@ -30,7 +30,7 @@ request, or a candidate future integration explicitly scoped later.
   cleanup — 271 orphaned tracks, a library-wide featured-artist folder-scatter
   bug, missing album art, and duplicate/gap-fill albums, all found and fixed
   by hand, then formalized into the standing
-  [Jellyfin-Library-Integrity-Automation](Jellyfin-Library-Integrity-Automation.md)
+  [Jellyfin-Library-Integrity-Automation](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
   project. That project is the authority for library *hygiene*; this project
   is a new, separate concern (what to add, not what's wrong with what's
   already there) and must not duplicate or compete with its Wednesday 3am
@@ -354,7 +354,7 @@ Not applicable — proposal stage only.
 ## References
 
 - [Project Creation Standard](../Project-Creation-Standard.md)
-- [Jellyfin library integrity automation](Jellyfin-Library-Integrity-Automation.md)
+- [Jellyfin library integrity automation](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
 - [ARR Stack Operational Reference](../reference/ARR-Stack-Operational-Reference.md)
 - [Music playlist acquisition bridge](Music-Playlist-Acquisition-Bridge.md)
 - [Aster Operations — shared `aster-llama` endpoint](../reference/Aster-Operations.md)

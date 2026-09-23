@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-23 — Jellyfin library integrity graduation
+
+- Verified three clean Wednesday runs, the 100-action cap, current Doctor checks and matching deployed source.
+- Verified configuration and both reference manifests across installed, Mac, TrueNAS and encrypted off-site copies.
+- Archived the completed project and reconciled portfolio, roadmap and links; production behavior is unchanged.
+
 ## 2026-09-22 — Backup redesign and DS220j retirement closeout
 
 - Verified current TrueNAS/HA/off-site backups and matching snapshot/crypt recovery hashes; refreshed five stale source exports.

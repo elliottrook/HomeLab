@@ -404,6 +404,6 @@ Not applicable — proposal stage only.
 - [Project Creation Standard](../Project-Creation-Standard.md)
 - [`docs/04-Operations.md` — "Calibre and Audiobookshelf (2026-09-05)"](../04-Operations.md)
 - [Music Recommender proposal](Music-Recommender.md)
-- [Jellyfin library integrity automation](Jellyfin-Library-Integrity-Automation.md)
+- [Jellyfin library integrity automation](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
 - [Aster Operations — shared `aster-llama` endpoint](../reference/Aster-Operations.md)
 - [Audiobookshelf API documentation](https://api.audiobookshelf.org/)

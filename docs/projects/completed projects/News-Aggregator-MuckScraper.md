@@ -137,7 +137,7 @@ scoped in detail, or measured.
   itself, unless a chosen source requires an API key) is stored outside
   Git, mode 600, on the host that uses it — never committed to a tracked
   file, matching every other project's credential pattern in this repo
-  (e.g. [Jellyfin-Library-Integrity-Automation.md](../Jellyfin-Library-Integrity-Automation.md)'s
+  (e.g. [Jellyfin-Library-Integrity-Automation.md](Jellyfin-Library-Integrity-Automation.md)'s
   "Safety and credentials" section).
 
 ## Open risks and decisions needing Jason's input
@@ -705,5 +705,5 @@ accepts the residual limitations of the bias-labeling approach.
 - [Project Creation Standard](../../Project-Creation-Standard.md)
 - [Aster Operations](../../reference/Aster-Operations.md)
 - [Local AI](Local-AI.md)
-- [Jellyfin Library Integrity Automation](../Jellyfin-Library-Integrity-Automation.md) (credential-storage precedent)
+- [Jellyfin Library Integrity Automation](Jellyfin-Library-Integrity-Automation.md) (credential-storage precedent)
 - [Aster Offline Knowledge Wiki and Mirror](Aster-Offline-Knowledge-Wiki.md) (authentication-decision and diagrams/rack-records precedent)

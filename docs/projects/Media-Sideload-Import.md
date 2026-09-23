@@ -21,7 +21,7 @@ salvaged download, anything not routed through an indexer/download client —
 has no equivalent path today. Dropped straight into the library roots by
 hand, it bypasses identification and naming entirely and risks exactly the
 kind of scattered/mis-tagged folder structure
-[Jellyfin-Library-Integrity-Automation.md](Jellyfin-Library-Integrity-Automation.md)
+[Jellyfin-Library-Integrity-Automation.md](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
 was written to detect and clean up after the fact. This project defines a
 **before-the-fact** path instead: get sideloaded files identified, tagged
 and correctly filed on the way in, using the same metadata sources and
@@ -90,7 +90,7 @@ Proposed workflow:
 This reuses TMDB/TVDB/MusicBrainz and each app's existing naming convention
 rather than introducing a second one, so sideloaded media is
 indistinguishable from normally-acquired media once filed — which is also
-why [Jellyfin-Library-Integrity-Automation.md](Jellyfin-Library-Integrity-Automation.md)
+why [Jellyfin-Library-Integrity-Automation.md](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
 needs no changes to cover it.
 
 ## Out of scope
@@ -141,4 +141,4 @@ needs no changes to cover it.
 - Lidarr GitHub source, 2026-09-07: [`DownloadedAlbumsScanCommand.cs`](https://github.com/Lidarr/Lidarr/tree/develop/src/NzbDrone.Core/MediaFiles/Commands)
 - [Servarr Wiki — Radarr Library (Manual/Interactive Import)](https://wiki.servarr.com/radarr/library)
 - [Video Library Archiving project — precedent for the `/mnt/Media/data/tools/` install pattern](<completed projects/Video-Library-Archiving.md>)
-- [Jellyfin Library Integrity Automation — why this project must not introduce a second tagging authority](Jellyfin-Library-Integrity-Automation.md)
+- [Jellyfin Library Integrity Automation — why this project must not introduce a second tagging authority](completed%20projects/Jellyfin-Library-Integrity-Automation.md)

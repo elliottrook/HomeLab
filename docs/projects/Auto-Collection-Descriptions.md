@@ -38,7 +38,7 @@ membership, artwork, or anything Lidarr/Radarr/Sonarr manage.
   **destroyed movie collections outright on two separate server restarts**
   (73 then 71 collections) before its `StartupTrigger` was disabled. This is
   recorded in
-  [Jellyfin-Library-Integrity-Automation.md](Jellyfin-Library-Integrity-Automation.md),
+  [Jellyfin-Library-Integrity-Automation.md](completed%20projects/Jellyfin-Library-Integrity-Automation.md),
   which also built the standing collection/playlist-count regression check
   and preserved the original Plex migration manifests
   (`plex-movie-collections.json`, `plex-to-jellyfin-movie-map.json`) as the
@@ -367,7 +367,7 @@ Not applicable — proposal stage only.
 
 - [Project Creation Standard](../Project-Creation-Standard.md)
 - [Plex-to-Jellyfin media migration](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
-- [Jellyfin library integrity automation](Jellyfin-Library-Integrity-Automation.md)
+- [Jellyfin library integrity automation](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
 - [Video library archiving](<completed projects/Video-Library-Archiving.md>)
 - [Aster Operations — shared `aster-llama` endpoint](../reference/Aster-Operations.md)
 - [Jellyfin API documentation](https://api.jellyfin.org/)

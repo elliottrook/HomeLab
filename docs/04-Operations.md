@@ -825,10 +825,15 @@ successfully for exactly this twice.
 
 ### Jellyfin library integrity automation (2026-09-07)
 
+Graduated 2026-09-23 after reviewing three clean scheduled Wednesday runs.
+Latest run: 107 collections, 13 playlists, zero action errors or trigger drift;
+three ambiguous album comparisons remain report-only. Configuration and both
+recovery manifests were hash-verified through the encrypted off-site copy.
+
 The checks and safe corrections above (orphan foldering, scatter
 consolidation, art extraction, duplicate/gap-fill detection, collection-
 count regression) are now a standing tool rather than one-off manual
-fixes. Full design: [Jellyfin-Library-Integrity-Automation.md](projects/Jellyfin-Library-Integrity-Automation.md).
+fixes. Full design: [Jellyfin-Library-Integrity-Automation.md](projects/completed%20projects/Jellyfin-Library-Integrity-Automation.md).
 
 - Installed at `/mnt/Media/data/tools/jellyfin-integrity/` on TrueNAS;
   source mirrored in git at `scripts/jellyfin-integrity/` (code only —

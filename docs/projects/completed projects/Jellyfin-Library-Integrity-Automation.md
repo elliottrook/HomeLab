@@ -1,12 +1,11 @@
 # Jellyfin Library Integrity Automation Project
 
-> Status: In progress — Milestones 1 and 2 complete, Milestone 3's unattended
-> schedule is installed and running; awaiting two consecutive clean
-> Wednesday runs before that milestone closes
+> Status: Complete — 2026-09-23. Three consecutive clean scheduled Wednesday
+> runs reviewed; monitoring, deployed-code integrity and recovery copies verified.
 >
 > Project owner: Jason
 >
-> Last updated: 2026-09-07
+> Last updated: 2026-09-23
 
 ## Purpose
 
@@ -18,7 +17,7 @@ consolidated automatically, 13 real duplicate/gap-fill pairs resolved with
 evidence, dozens of false positives correctly ruled out), missing album
 art for 30 albums, and — separately — a Jellyfin built-in maintenance task
 that silently deleted movie collections on two different server restarts.
-Full history: [04-Operations.md](../04-Operations.md) ("Music must be
+Full history: [04-Operations.md](../../04-Operations.md) ("Music must be
 foldered by album" through "Jellyfin startup cleanup task is disabled").
 
 Every one of those fixes was a one-off manual investigation. This project
@@ -59,7 +58,7 @@ The project is complete only when:
   does not follow Video-Library-Archiving's fully-unattended precedent for
   this specific category;
 - the pipeline has been validated against a real, human-supervised run
-  before being handed to the unattended Sunday 3am schedule; and
+  before being handed to the unattended Wednesday 3am schedule; and
 - the schedule, its resource limits, its logs, and its failure-reporting
   path are documented for ongoing operation.
 
@@ -111,10 +110,9 @@ against production):
 
 ## Architecture decisions
 
-These are **proposed**, based on direct precedent from this session's
-real work, and need Jason's confirmation before Milestone 1 begins —
-unlike Video-Library-Archiving's decisions, these have not yet been
-discussed and agreed.
+These decisions were implemented and validated in Milestones 1–2 on
+2026-09-07. The later schedule decision is Wednesday 03:00; the original
+Sunday proposal is superseded.
 
 ### Safe corrections run unattended; irreversible ones don't
 
@@ -163,7 +161,7 @@ on TrueNAS, in addition to (not instead of) their existing home in
 
 ## Approved target layout
 
-Proposed, following the `/mnt/Media/data/tools/` precedent Video-Library-
+Deployed, following the `/mnt/Media/data/tools/` precedent Video-Library-
 Archiving already established:
 
 ```text
@@ -261,7 +259,7 @@ Archiving already established:
   listed in that report — never a fresh re-scan at approval time that
   could silently pick up something different.
 - Runs are serialized via a lockfile; a run that hasn't finished by the
-  next Sunday's trigger is left alone rather than started concurrently.
+  next Wednesday's trigger is left alone rather than started concurrently.
 - Each run is capped at a configurable maximum number of file-moving
   actions, so a bug or unexpected library-wide change can't silently
   reorganize the entire library unattended in one pass.
@@ -372,28 +370,31 @@ Passed 2026-09-07.
   the latest report over SSH, fails on any action error, collection/
   playlist alert, or cleanup-task trigger drift, warns if no run has
   landed in >200 hours.
-- [ ] Run unattended for at least two consecutive Wednesdays and review
-  both logs before calling this milestone closed. *(Not yet possible —
-  needs real calendar time; first scheduled run is the next Wednesday.)*
+- [x] Reviewed three consecutive Wednesday apply-mode JSON and text reports
+  on 2026-09-23: September 9, 16 and 23. All started at 03:00 PDT, finished
+  successfully, remained within the 100-action cap, and recorded no action
+  errors, collection/playlist alerts or cleanup-trigger drift. See closeout
+  evidence below.
 
 ### Gate
 
-Two consecutive clean unattended runs, both reviewed, still required
-before this milestone passes — not yet met.
+**Passed 2026-09-23.** Three consecutive weekly reports were reviewed and
+correlated with the enabled Wednesday 03:00 cron definition. The completed
+reports exceed the two-run gate; no extra apply run was triggered for closeout.
 
 ## Milestone 4 — Documentation and closeout
 
 - [x] Recorded final tool location, config, schedule, and report location
-  in [04-Operations.md](../04-Operations.md) 2026-09-07.
+  in [04-Operations.md](../../04-Operations.md) 2026-09-07.
 - [x] Added to the existing backup pipeline 2026-09-07, on Jason's
   instruction: `scripts/backup/jellyfin-integrity.sh` (matching the
   `nut.sh`/`proxmox.sh` pattern) pulls `config.json` and both `reference/`
   manifests from TrueNAS into `~/lab/private-backups/jellyfin-integrity/`;
   `check_backup_age "Jellyfin Integrity" ... 192` added to `doctor.sh`.
   Run once already to create the initial backup.
-- [ ] Update this project's status to `Complete` only after Milestone 3's
-  gate passes (two consecutive clean Wednesday runs) and documentation is
-  current.
+- [x] Marked Complete and archived on 2026-09-23 after the scheduled-run
+  gate, current Doctor checks, code-hash comparison and recovery verification
+  passed. Portfolio, roadmap, operations and incoming links reconciled.
 
 ## Risks and mitigations
 
@@ -411,7 +412,7 @@ before this milestone passes — not yet met.
 
 | Date | Milestone | Evidence | Result | Operator |
 |---|---|---|---|---|
-| 2026-09-06/07 | 0 (basis) | Every detector and correction this project formalizes was already run against the real production library by hand — see [04-Operations.md](../04-Operations.md) | 271 orphans fixed, 79 scattered-album candidates resolved, 30 missing-art cases reduced to 21, 2 collection-deletion incidents recovered | Claude |
+| 2026-09-06/07 | 0 (basis) | Every detector and correction this project formalizes was already run against the real production library by hand — see [04-Operations.md](../../04-Operations.md) | 271 orphans fixed, 79 scattered-album candidates resolved, 30 missing-art cases reduced to 21, 2 collection-deletion incidents recovered | Claude |
 | 2026-09-07 | 1 | Dry-run against real library, iterated to fix 2 real bugs found by the gate (path double-prefix, stale Jellyfin catalog) | 0 orphans, 6 scatter candidates (0 auto), 68 duplicate-candidate pairs (7 queued, 1 gap-fill), 63 albums missing art (22 fillable) — all real, spot-checked against the filesystem, not false positives | Claude |
 | 2026-09-07 | 2 | Supervised `--apply` run, human watching; failure-path test (bad key, unreachable host) | 22 art extractions + 1 gap-fill applied (23/50 actions), verified on disk and via Jellyfin's own API; both failure-path tests failed loudly with exit code 2 | Claude |
 | 2026-09-07 | 3 (partial) | TrueNAS Cron Job installed, Lab Doctor check added, schedule conflict check performed | Cron id `2`, Wednesday 03:00 (moved off the original Sunday 03:00 proposal after finding it overlapped the weekly ZFS scrub); `check_jellyfin_integrity` added to `scripts/doctor.sh` | Claude |
@@ -421,9 +422,92 @@ before this milestone passes — not yet met.
 
 ## References
 
-- [04-Operations.md — full history of the manual fixes this project formalizes](../04-Operations.md)
-- [Plex-to-Jellyfin media migration project](<completed projects/Plex-to-Jellyfin-Media-Migration.md>)
-- [Video Library Archiving project — architectural precedent for safe-automation design](<completed projects/Video-Library-Archiving.md>)
+- [04-Operations.md — full history of the manual fixes this project formalizes](../../04-Operations.md)
+- [Plex-to-Jellyfin media migration project](Plex-to-Jellyfin-Media-Migration.md)
+- [Video Library Archiving project — architectural precedent for safe-automation design](Video-Library-Archiving.md)
 - [Lidarr API documentation](https://lidarr.audio/docs/api/)
 - [Jellyfin API documentation](https://api.jellyfin.org/)
-- [HomeLab backup design](../05-Backups.md)
+- [HomeLab backup design](../../05-Backups.md)
+
+## Closeout — 2026-09-23
+
+Jason requested closeout after the portfolio review identified only the
+scheduled-run observation gate as outstanding. All validation below was
+read-only; no extra library scan, correction, deletion, credential change or
+schedule change was performed.
+
+### Scheduled-run evidence
+
+Cron Job 2 remains enabled, Wednesday 03:00 TrueNAS local time, running the
+installed tool with `--apply`. Configured action cap is 100; configuration and
+reference files are mode 0600. The following dated JSON reports and matching
+human-readable reports were reviewed in `/mnt/Media/data/tools/jellyfin-integrity/reports/`:
+
+| Report | Start–finish (UTC) | Actions/cap | Collections / playlists | Result |
+|---|---|---|---|---|
+| `20260909T100437Z-run.json` | Sep 9 10:00:01–10:04:37 | 3/100 | 95 / 13 | No errors, alerts or trigger drift; post-apply scan completed |
+| `20260916T100548Z-run.json` | Sep 16 10:00:02–10:05:48 | 1/100 | 101 / 13 | No errors, alerts or trigger drift; post-apply scan completed |
+| `20260923T100435Z-run.json` | Sep 23 10:00:02–10:04:35 | 1/100 | 107 / 13 | No errors, alerts or trigger drift; post-apply scan completed |
+
+UTC 10:00 corresponds to Wednesday 03:00 PDT. These are schedule-correlated
+completed reports, not freshly induced test runs. Cron journal history and
+middleware completed-job history were not retained in the queried interfaces;
+no separate scheduler exit-code evidence is claimed. Checked top-level errors,
+orphan/scatter errors, artwork error entries and gap-fill errors directly,
+in addition to the narrower existing Doctor signals.
+
+Report SHA-256, in date order:
+
+- `e2e79cc6ddc698c2a9e0adb69f395c0878094a340b322ffd584e953635b012cf`
+- `8ddc76ccb5360e0fc53154114d224924f662cc999156ce0701835def49af3a07`
+- `b00abc8f044fe7b84994f92c45e92a08d9133f1e0e83632aed83f12c81ea783d`
+
+### Integrity, recovery and monitoring
+
+- All eleven deployed Python source files match their Git-tracked counterparts
+  byte-for-byte by SHA-256. No source or production configuration changed.
+- The September 15 13:22:52 protected backup contains `config.json` and both
+  migration-reference manifests. Each matches its installed source, Mac copy,
+  TrueNAS mirrored copy and a fresh rclone-crypt decrypted off-site read by
+  SHA-256. Contents and credentials were not printed. This proves recovery of
+  the configuration and reference files, not a full library restore.
+- The actual `check_jellyfin_integrity` and backup-age functions from Doctor
+  both pass: latest apply run 1 hour old, protected backup 183 hours old
+  (within its existing 192-hour threshold). No warnings or failures in these
+  two checks. The existing failure-only scheduled report consumes Doctor's
+  failure signals; the earlier bad-key/unreachable-host failure tests remain
+  the negative-path evidence. No production fault was injected today.
+
+### Ownership, limits and integration review
+
+Jason owns the review decisions. The tool continues to make only its bounded
+safe corrections; duplicate deletion still requires approval of the exact
+report. The latest run has zero duplicate-approval/scatter-review queue entries,
+but three ambiguous comparisons remain informational and untouched. Thirty-four
+albums still lack artwork with no successful extraction this run; supplying
+external art and deciding ambiguous editions remain outside this automation's
+completion gate. Completion does not mean an empty findings report forever.
+
+The 183-hour-old recovery copy is currently unchanged from production; keep
+using the existing export process and backup-age warning, especially after a
+configuration/credential change. Reports and move manifests remain on TrueNAS;
+no claim is made that this config-only export contains the entire media library.
+
+Integration review: existing Doctor/alerting, TrueNAS cron and backup paths are
+retained. No new host, endpoint, NetBox asset, DNS/firewall/certificate entry,
+Homepage tile or service identity is needed for this documentation-only closeout.
+The deployed Aster ARR operational reference already describes Cron Job 2 and
+its bounded correction/no-automatic-deletion behavior accurately, so no knowledge
+or human-wiki redeployment is required merely to archive the project record.
+AI administration remains read-only for the advisor; the scheduled tool's
+existing dedicated identity is not a new AI write capability.
+
+To pause future corrections, the operator can disable Cron Job 2 through the
+TrueNAS UI. Restore tool code from Git and protected configuration/reference
+files from the verified backup path; review each before/after move manifest
+before reversing a correction. No blind bulk rollback or duplicate deletion
+is authorized by this closeout.
+
+| Date | Milestone | Evidence | Result | Operator |
+|---|---|---|---|---|
+| 2026-09-23 | 3–4 closeout | Three Wednesday apply reports clean, enabled cron/cap verified, eleven source hashes matched, two Doctor checks passed, three recovery artifacts matched across installed/local/mirror/off-site copies | Scheduled-run gate passed; project Complete and archived. Ambiguous albums and unavailable artwork remain intentionally outside automatic correction. | Codex |

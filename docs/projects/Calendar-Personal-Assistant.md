@@ -57,7 +57,7 @@ built, and nothing here is authorized for implementation.
   [Video-Library-Archiving](completed%20projects/Video-Library-Archiving.md)
   (GPU-accelerated downconversion, unattended Mon–Sat schedule, plain
   Python) and
-  [Jellyfin-Library-Integrity-Automation.md](Jellyfin-Library-Integrity-Automation.md)
+  [Jellyfin-Library-Integrity-Automation.md](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
   (scheduled Sunday 3am job, plain Python checks), neither of which reached
   for a workflow engine despite being genuinely multi-step, scheduled
   pipelines. `PROJECTS.md`'s "Other Deferred Work" list explicitly names
@@ -568,6 +568,6 @@ Not applicable — project has not started.
 - [News Aggregator (MuckScraper)](completed%20projects/News-Aggregator-MuckScraper.md) — `aster-llama` dedicated-key pattern, VLAN 70 placement, pipeline-under-one-timer precedent
 - [News Aggregator Phase 2 — Digest, Sections and Rebrand](completed%20projects/News-Aggregator-Digest-and-Sections.md) — digest-page precedent
 - [Video Library Archiving](completed%20projects/Video-Library-Archiving.md) — plain-script-over-workflow-platform precedent
-- [Jellyfin Library Integrity Automation](Jellyfin-Library-Integrity-Automation.md) — plain-script-over-workflow-platform precedent
+- [Jellyfin Library Integrity Automation](completed%20projects/Jellyfin-Library-Integrity-Automation.md) — plain-script-over-workflow-platform precedent
 - [PROJECTS.md](../../PROJECTS.md) — "Other Deferred Work" (new self-hosted services require justification)
 - [Email Triage/Summarization Digest](Email-Triage-Digest.md) — sibling proposal, same session

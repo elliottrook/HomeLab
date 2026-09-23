@@ -177,7 +177,7 @@ correspondence that was never intended for automated processing.
   triage only needs Inbox, not every folder) and a dedicated
   app-specific/OAuth-scoped credential rather than the account's primary
   password, matching the lab's existing credential-isolation convention (see
-  [Jellyfin-Library-Integrity-Automation.md](Jellyfin-Library-Integrity-Automation.md)'s
+  [Jellyfin-Library-Integrity-Automation.md](completed%20projects/Jellyfin-Library-Integrity-Automation.md)'s
   credential-storage pattern, cited as precedent by the news aggregator).
 - **Data minimization before the model ever sees anything.** Decide,
   explicitly and before implementation, what is extracted from a message at
