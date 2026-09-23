@@ -26,6 +26,11 @@ proxy. This runbook applies only to browser-based web interfaces.
 The exact capabilities can vary by installed version and licence. Confirm the
 application's current authentication settings before selecting a path.
 
+The 2026-09-23 requirement is Authentik passkey/Face ID with no second normal
+application password. Historical forward-auth acceptance below does not prove
+that requirement. Do not disable application authentication until the service's
+trusted identity boundary and independent recovery path are verified.
+
 | Service | Recommended path | Suggested name | Important note |
 |---|---|---|---|
 | Nginx Proxy Manager | Forward auth | `proxy.elliottrook.com` | Complete and tested; NPM login remains |
@@ -34,9 +39,9 @@ application's current authentication settings before selecting a path.
 | Frigate | Native OIDC if available; otherwise forward auth | `frigate.elliottrook.com` | RTSP, ONVIF and recordings remain direct |
 | Portainer | Native OAuth/OIDC — complete and tested (2026-09-15) | `portainer.elliottrook.com` | Existing local `admin` and direct HTTPS remain break-glass paths; Homepage API token remains direct |
 | Proxmox web UI | Native OpenID Connect realm | `proxmox.elliottrook.com` | Keep the local `root@pam` recovery path |
-| TrueNAS web UI | Native OIDC if supported by the installed release; otherwise forward auth | `truenas.elliottrook.com` | SMB, NFS and iSCSI are not proxied |
-| Synology web UIs | Native SSO/OIDC if supported; otherwise forward auth | `nas.elliottrook.com`, `backup-nas.elliottrook.com` | SMB and backup traffic remain direct |
-| UniFi OS/Network web UI | Forward auth | `unifi.elliottrook.com` | Preserve local console and direct URL |
+| TrueNAS web UI | Held: no native browser SSO verified on 25.10.5 | `truenas.elliottrook.com` (proposed) | Forward auth alone retains a second password; storage protocols remain direct |
+| Main Synology web UI | Existing provider; client configuration/checkpoint access pending | `nas.elliottrook.com` (proposed) | Preserve Drive sharing, SMB and backups; retired Backup Synology excluded |
+| UniFi OS/Network web UI | Held: local administrator federation unverified on OS Server 5.1.42 | `unifi.elliottrook.com` (proposed) | Endpoint/Fabric identity support does not establish local admin SSO; preserve direct login |
 | OPNsense web UI | Keep LAN/Tailscale-only initially | `firewall.elliottrook.com` only if later approved | Avoid making proxy/auth failure block firewall recovery |
 | Tailscale | No Authentik proxy | Existing tailnet | It is already the private access layer |
 | SSH endpoints | No Authentik proxy | Existing addresses | Continue using SSH keys through LAN/Tailscale |

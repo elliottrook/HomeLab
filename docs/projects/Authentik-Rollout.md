@@ -20,6 +20,47 @@
 
 ## Resume audit — 2026-09-23
 
+### Remaining-work reconciliation — 2026-09-23
+
+Following Jason's “Ok carry on. What's left”, checked the next infrastructure
+targets and repeated a bounded route regression. UniFi OS Server is **5.1.42**,
+running in LXC 101 at `192.168.50.21`; its service is active. The current
+[Ubiquiti Fabric identity guide](https://help.ui.com/hc/en-us/articles/30967924245527-Binding-an-Identity-Provider-IdP-To-A-UniFi-Fabric)
+describes identity services with specified console requirements, not a verified
+generic Authentik login for this local OS Server admin UI. Local admin federation
+remains unverified; do not mistake Endpoint SAML support for that capability.
+
+Home Assistant VM 103 reports HAOS **18.2**. Its live
+`http://192.168.20.11/auth/providers` advertises only `homeassistant` (Home
+Assistant Local). The current [built-in provider documentation](https://www.home-assistant.io/docs/authentication/providers/)
+lists local, trusted-network and command-line providers, not native OIDC.
+Keep existing login and clients intact pending a separately reviewed custom
+integration; do not introduce a network-based login bypass as identity federation.
+No live authentication configuration changed in this pass.
+
+Remaining work is explicitly classified:
+
+| Work | Current disposition / next prerequisite |
+|---|---|
+| Immich and Frigate | Existing SSH identities cannot take the required privileged configuration checkpoints noninteractively; resolve authorized checkpoint access before activation. |
+| Main Synology | Inspect existing native SSO client configuration after resolving protected checkpoint access; preserve Drive/Cloudflare sharing. |
+| Newtarr | Resolve the container-writable-layer persistence risk before auth changes. |
+| TrueNAS | Installed-version native browser SSO capability hold. |
+| UniFi | Local administrator federation remains unverified; cloud/Endpoint identity documentation is insufficient. |
+| Home Assistant | No built-in OIDC path established; custom integration requires recovery and companion-client assessment. |
+| Jellyfin and Seerr | Explicitly deferred by Jason; leave production unchanged. |
+| Earlier integrations | Audit normal-browser passkey-only behaviour, including retained Pi-hole/NPM application prompts; earlier acceptance does not satisfy the later no-second-password requirement automatically. |
+| Final graduation | Dedicated sign-out/stale-session/recovery and named client tests, full regression, restore proof, integration documentation and approved remote Git synchronization. |
+
+Pinned-host, certificate-validated HTTPS smoke checks passed for all 22 deployed
+friendly routes (HTTP 200/302): home, monitoring, metrics, sonarr, radarr, lidarr,
+prowlarr, sabnzbd, portainer, dns1, dns2, proxy, git, logs, homarr, code, dockge,
+files, netbox, audiobooks, books and proxmox. NPM `nginx -t` passed and PVE
+proxy/daemon/status services are active. These checks establish route availability,
+not fresh browser login, DNS-cache recovery, sign-out or application authorization.
+The prior Proxmox macOS negative-DNS-cache observation is not overridden by this
+pinned test. Project remains active; no remote synchronization is approved.
+
 ### Updated user requirement: Authentik passkey only
 
 After the staged-route tests, Jason supplied six screenshots showing direct
@@ -1467,7 +1508,7 @@ Durable cohort status (update cells only from evidence, not intent):
 |---|---|---|---|---|---|---|
 | 3A — bounded browser gates | Dozzle/Homarr verified; Newtarr/Frigate held | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Both browser workflows accepted; dedicated sign-out/recovery tests pending; HTTPS links live |
 | 3B — administrator interfaces | Four browser backends classified | Passed | Passed | Passed | Passed on all three resolvers | All four browser workflows accepted; dedicated sign-out/recovery tests pending; HTTPS links live |
-| 3C — client-sensitive media | Audiobookshelf verified; other members retain discovery/backup holds | Audiobookshelf passed | Audiobookshelf passed | Audiobookshelf native SSO passed | Audiobookshelf passed on all three resolvers | Audiobookshelf accepted on/off Wi-Fi; Homepage promoted; named mobile-client and recovery gates open |
+| 3C — client-sensitive media | Audiobookshelf/CWA verified; Immich checkpoint hold; Seerr/Jellyfin explicitly deferred | Audiobookshelf/CWA passed | Audiobookshelf/CWA passed | Audiobookshelf/CWA native SSO passed | Audiobookshelf/CWA passed on all three resolvers | Both browser workflows accepted and Homepage promoted; Audiobookshelf accepted on/off Wi-Fi; named clients and recovery gates open |
 
 Milestone 3 completes when Cohorts 3A-3C pass, Plex's no-change assessment is
 recorded, and all previously completed Milestone 3 packages remain healthy.
