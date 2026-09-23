@@ -492,6 +492,34 @@ Only the href changed; widget/API configuration is untouched. Launcher returns
 User should refresh/sign in again for UI capabilities, then verify a guest
 console. No guest start/stop or other privileged workload action was performed.
 
+### Proxmox console acceptance and TrueNAS discovery — 2026-09-23
+
+Jason confirmed "Works" after the request to refresh/sign in with the promoted
+account and open a guest console. Record authenticated console workflow
+acceptance in addition to the prior browser/identity acceptance. Proxmox's
+remaining human gates are dedicated logout/stale-session and direct root/PAM
+password recovery; do not infer those from the console result. Administrator
+ACL and Homepage promotion remain as recorded above.
+
+Next infrastructure discovery: TrueNAS reports **25.10.5**. Source-local
+`core.get_methods` inventory contains no OIDC/OpenID/SAML/SSO method, while
+`auth.mechanism_choices` returns `API_KEY_PLAIN`, `TOKEN_PLAIN`, and
+`PASSWORD_PLAIN`. Native Authentik web-login support was not established for
+this installed version. A forward-auth proxy alone would retain the unwanted
+second application password. Leave its web authentication, local administrator,
+API credentials and all storage protocols unchanged; classify this member as a
+single-login capability hold, not a completed SSO integration. Do not expose an
+API key or mint an administrator token as a substitute for browser federation.
+The [upstream feature request](https://forums.truenas.com/t/native-oidc-openid-connect-azure-entra-id-authentication-for-web-ui-login/66149)
+is supporting context, not proof of a released capability.
+
+Read-only Authentik discovery also confirms existing main Synology provider 4
+and retired Backup Synology provider 6; neither should be recreated. Main DSM
+shares its environment with the established Cloudflare/Drive sharing design,
+so any subsequent native-login changes must preserve those consumers and first
+resolve the protected checkpoint/access requirement. Retired Backup Synology
+remains excluded. No storage or Synology authentication changes were made.
+
 ### Completed media SSO assessment — 2026-09-23
 
 Jason requested assessment of both paths and specifically asked whether waiting
@@ -770,8 +798,9 @@ authentication. This does not replace real login or full service-rebuild proof.
   mounted at `/appdata`. Preserve this distinction for checkpoints; do not
   change TV/mobile authentication without client validation.
 - **Infrastructure:** Proxmox 9.2.10 native OIDC is browser-accepted with owner
-  Administrator access and Homepage promotion; dedicated console/logout/recovery
-  checks remain open. UniFi OS
+  Administrator access, console acceptance and Homepage promotion; dedicated
+  logout/recovery checks remain open. TrueNAS 25.10.5 is held for missing verified
+  native browser SSO. UniFi OS
   service is active. Retired Backup Synology must not be re-onboarded; preserve
   the explicit OPNsense and Plex no-change defaults. Infrastructure cutover
   follows application workflow acceptance and its higher recovery gate.

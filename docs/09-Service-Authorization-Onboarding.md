@@ -359,7 +359,8 @@ the native login. Jason accepted the browser login; `jason@authentik` now has
 Administrator at `/`, and Homepage uses `/sso`. Existing root/PAM, API
 users/tokens and direct recovery are preserved. The proxy validates the PVE CA
 and `proxmox.home.arpa` backend identity; the default realm is unchanged.
-Dedicated console/logout/recovery tests remain open. See the project's dated
+Jason also accepted the guest-console workflow. Dedicated logout/recovery
+tests remain open. See the project's dated
 pilot/promotion sections for exact checkpoints and rollback.
 
 Add one row only after the complete private-session and rollback tests pass:
