@@ -2,7 +2,8 @@
 
 > Status: Active — Mac voice and iPhone Wi-Fi/Tailscale accepted 2026-09-23;
 > system notifications deployed as a pilot at Jason's request.
-> Notification device acceptance and final Git synchronization remain before graduation.
+> iPhone notifications accepted on and off Wi-Fi; Mac notification acceptance
+> and remaining close-out checks still precede graduation.
 >
 > Project owner: Jason
 >
@@ -542,8 +543,10 @@ Jason confirmed Mac voice works and the iPhone app works over both Wi-Fi and
 Tailscale, then requested a system-notifications step. M6 acceptance is complete.
 Operational integrations, backup/restore and capacity checks are recorded below.
 Live ARR execution remains deferred to its separate follow-up; do not fabricate
-a production candidate or enable the brokers. Next safe action: collect Jason's real Mac/iPhone notification results and verify
-iPhone receipt over Wi-Fi/Tailscale, permissions/revocation and reopen recovery.
+a production candidate or enable the brokers. Jason has confirmed iPhone notifications work on and off Wi-Fi after the refresh
+fix. Next safe action: collect Mac notification acceptance and remaining explicit
+permission/revocation/reopen evidence; do not confuse prior Mac voice acceptance
+with notification acceptance.
 The notification implementation and isolated recovery proof are recorded below. Git synchronization still requires the
 repository's immediate push approval. The original pre-start assessment was
 accepted on 2026-09-21; assess any new notification trust boundary before changing
@@ -2274,6 +2277,52 @@ controls remain available. Eight browser notification tests and thirteen backend
 notification tests pass, including missing-ID recovery, enabled-state renewal,
 opt-out persistence and standard browser metadata. Deployed to LXC 104; device
 retest is still required, so M8 remains open.
+
+### 2026-09-23 — iPhone notification delivery accepted
+
+After the refresh fix, Jason confirmed “Works on and off wifi.” Record this as
+successful iPhone notification delivery on Wi-Fi and away from Wi-Fi, in the
+context of the requested retest. Do not infer a specific off-Wi-Fi transport
+beyond his report, nor separate OS-revocation or Mac-notification results.
+The iPhone delivery gate is accepted. Mac voice was already accepted; Mac
+notification delivery remains unconfirmed. M8 stays open for that acceptance
+and the remaining documented checks; final Git synchronization is still pending.
+
+### 2026-09-23 — Native Mac authentication regression (candidate ready)
+
+Jason reported an authentication loop preventing Mac notification acceptance,
+and clarified this is **Aster Companion**, the native app, not the separately
+installed Safari web app. Native UI inspection showed its sign-in screen.
+No token values or Keychain contents were exported. A bounded app-error log
+query returned no Keychain error entries, so the exact interactive failure has
+not yet been proven. The installed and prior ad-hoc builds have different
+code-hash designated requirements, a relevant Keychain continuity risk.
+
+Code review found separate, unchecked token writes and unsynchronized refresh
+requests. Implemented one atomic `oidc_session_v2` Keychain record, an in-memory
+current session, verified persistence with an explicit session-only warning on
+failure, and one shared refresh task. Updating a Keychain item no longer deletes
+it first. Old split-record credentials are not read by the new version; a
+one-time passkey sign-in is required. No access control or signing trust was
+weakened. Logout cancels pending authentication and prevents a late response
+from restoring the session; transient errors retain the saved login. The
+sign-in button rejects duplicate attempts and handles a failed session start.
+
+All **16 Swift tests** pass, including six new authentication regressions:
+concurrent refresh, failed persistence, temporary identity outage, revoked
+refresh token, logout during refresh, and browser-free restoration on reopen.
+Release build succeeds. **Installation and real sign-in remain pending:** CUA
+reported the Mac locked and unable to unlock automatically. Asked Jason to
+unlock so the running old app can be quit before clean bundle replacement.
+Do not overwrite the running application or bypass the locked desktop.
+
+Browser use is restricted to Apple's `ASWebAuthenticationSession` OAuth/passkey
+handoff. Chat and voice use the native client and URLSession afterward. Reference:
+[Apple ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession).
+Next safe action: after manual unlock, quit Aster Companion, retain the old
+bundle, install the verified release from `apps/AsterCompanion/.build/out/Products/Release/`,
+reopen it, have Jason complete passkey sign-in, then verify reopen persistence
+and background notification receipt. M8 and final graduation remain open.
 
 ## Close-out
 

@@ -19,7 +19,14 @@ enum KeychainStore {
             kSecAttrService as String: service,
             kSecAttrAccount as String: key,
         ]
-        SecItemDelete(query as CFDictionary)
+        // Update in place: deleting first can lose a good session when the
+        // replacement write fails or the app is interrupted.
+        let updated = SecItemUpdate(query as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+        if updated == errSecSuccess { return true }
+        if updated != errSecItemNotFound {
+            FileHandle.standardError.write(Data("KeychainStore.update(\(key)) failed: \(updated)\n".utf8))
+            return false
+        }
         var attributes = query
         attributes[kSecValueData as String] = data
         attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly

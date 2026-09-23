@@ -120,7 +120,8 @@ struct ContentView: View {
             OrbView(state: .idle)
             Text("Aster Companion")
                 .font(.title2)
-            Button("Sign in with passkey") { auth.login() }
+            Button(auth.isSigningIn ? "Signing in…" : "Sign in with passkey") { auth.login() }
+                .disabled(auth.isSigningIn)
                 .buttonStyle(.borderedProminent)
             if let error = auth.lastError {
                 Text(error).foregroundStyle(.red).font(.caption)
@@ -267,6 +268,10 @@ struct ContentView: View {
                         }
                     }
                     .padding()
+                }
+
+                if let authWarning = auth.lastError {
+                    Text(authWarning).foregroundStyle(.orange).font(.caption).padding(.horizontal)
                 }
 
                 if let errorText {
