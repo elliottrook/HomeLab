@@ -1,16 +1,10 @@
 # FreeCAD MCP Connector for Local CAD Assistance
 
-> Status: Active — Stream A. **Milestones 1, 2 and 3 complete.**
-> `main_body_1`: +15mm rear cable clearance (added scope, at Jason's
-> request). `main_body_2`: widened to 150mm, extended to 140mm depth for
-> the ATX PSU target, mounting slots cut (not precise holes — no
-> authoritative screw-pattern spec could be found). All edits verified as
-> single connected solids after a self-caught bug where an earlier
-> "successful" edit was actually two disconnected pieces. `main_body_3`
-> and the drive-bay sections confirmed unaffected. Next: Milestone 4
-> (print and fit validation) — a physical step, not something this
-> session can do. ChatGPT Desktop access confirmed not possible without
-> an excluded internet tunnel and is deferred.
+> Status: Closed — MCP successful; remaining enclosure work abandoned and archived.
+> Closed: 2026-09-23 at Jason's request. Jason reused an old PC case instead
+> of 3D-printing a new enclosure. Milestones 1–3 retain their recorded
+> success; Milestone 4 and all remaining enclosure work are cancelled,
+> not passed. ChatGPT Desktop integration was not implemented.
 >
 > Owner: Jason
 >
@@ -18,7 +12,7 @@
 >
 > Started: 2026-09-14
 >
-> Completed: —
+> Closed: 2026-09-23 (partial success; remainder abandoned)
 >
 > Authorization stream: **Stream A — Autonomous**, granted by Jason
 > 2026-09-14 in this project's own conversation, per the per-project
@@ -46,7 +40,7 @@ working, printable, ATX-compatible enclosure variant; the MCP connector is
 the means, not the goal, and should not become a standing, unmonitored
 capability without a deliberate decision to widen it.
 
-## Current state and evidence
+## Initial state and evidence (historical, 2026-09-14)
 
 - FreeCAD is already installed on a separate "3D printer PC," not on this
   Mac. Jason intends to install FreeCAD on this Mac specifically so the MCP
@@ -242,8 +236,9 @@ plainly rather than undersold, even though the intended use is narrow.
 
 ## Persistence plan
 
-- **Current milestone:** Milestones 1, 2 and 3 complete; Milestone 4 (a
-  physical print-and-fit step) not started.
+- **Final state:** Closed 2026-09-23. MCP work succeeded; Milestones 1–3
+  retain their evidence. Milestone 4 and remaining enclosure work are
+  abandoned because Jason reused an old PC case.
 - **Last verified state (2026-09-14):** FreeCAD 1.1.3 running with the RPC
   server bound to `127.0.0.1:9875` only; this Claude Code session's
   `freecad` MCP bridge (`local` scope) proven working via document
@@ -265,14 +260,9 @@ plainly rather than undersold, even though the intended use is narrow.
   by unit — unbounded by spec, re-verify once a unit is chosen). ChatGPT
   Desktop access confirmed not possible without an excluded tunnel,
   deferred.
-- **Next safe action:** Milestone 4 — print a rear-depth/PSU-bay test
-  coupon (not the full model) and physically verify: the ATX PSU fits
-  its slot-mounted screws, the rear-clearance margin is actually enough
-  for the real H0204 connector, and whether `main_body_1`'s now-deeper
-  cross-section creates any real fit problem against `main_body_2`/`3` at
-  their physical joint (unknowable from STL coordinates alone — both
-  genuinely open questions carried from the Milestone 3 evidence log).
-  This is a physical, human step Claude Code cannot perform.
+- **Next action:** None. Do not resume enclosure design, printing, fit tests
+  or deferred client integration under this archived project. Any future
+  CAD work requires a new explicit request.
 - **Rollback location:** the original three STL files from MakerWorld model
   150766, kept untouched in a clearly labeled directory separate from any
   working copy.
@@ -522,7 +512,10 @@ placement, not a verified ATX spec, pending Milestone 4's physical
 fit test) and the still-open rear-clearance/depth-mismatch questions
 carried over from the earlier evidence entries.
 
-### Milestone 4 — Print and fit validation
+### Milestone 4 — Print and fit validation (abandoned 2026-09-23)
+
+Cancelled by Jason: an old PC case was reused. The unchecked items below
+are historical, unperformed requirements, not outstanding work.
 
 - [ ] Print a rear-depth/PSU-bay test coupon before a full print, matching
       the original project's own practice.
@@ -605,7 +598,10 @@ scope.
       persistent install of that half). Localhost-only by verified default
       config (Milestone 1 source review); not yet running.
 
-## Graduation criteria
+## Original graduation criteria (not attained; project closed by abandonment)
+
+The printed-enclosure gate below was cancelled on 2026-09-23. MCP success
+is recorded separately and does not claim physical fit validation.
 
 This project graduates when a printable, dimensionally-verified,
 ATX-compatible variant of the enclosure exists; the connector has been
@@ -628,7 +624,9 @@ TrueNAS DIY SAS Expansion project document.
 | 2026-09-14 | 3 rear clearance, self-caught connectivity bug | Before reusing the cut/translate/fuse method for the PSU-width widening, checked whether the v1 result was genuinely one connected piece rather than assuming — `len(shape.Solids)` returned `2`, not `1`: the cut-and-translate had severed every wall crossing Z=155 (confirmed 1321 facets did) and left a real 15mm air gap between the two halves, invisible in the isometric screenshot from that angle and undetected by `isValid()` (checks each piece individually) or the volume-conservation check (conserved regardless of whether the pieces touch). Fixed by extracting the real cut cross-section face(s) from the lower piece, extruding them 15mm to build a filler solid with the exact matching profile, then fusing lower + filler + shifted-upper into one piece | `main_body_1_rear_clearance_v2.stl` — confirmed `len(shape.Solids) == 1`, genuinely connected, same external dimensions (132.00 x 218.64 x 200.00mm). v1 deleted. Lesson applied going forward: verify solid count/connectivity explicitly after any cut-and-translate edit, not just validity and volume. Two things still open, unrelated to this bug: whether 44mm (29 measured + 15 added) is actually enough for the real H0204 connector (unverified spec), and whether `main_body_1`'s new depth mismatch against untouched `main_body_2`/`3` matters at their actual physical joint (can't tell from raw STL coordinates, which aren't pre-aligned) — both depend on the physical print-and-fit coupon test the TrueNAS-DIY-SAS-Expansion project already planned |
 | 2026-09-14 | 3 PSU compartment widened, extended, slotted | Applied the connectivity lesson up front this time. Widened `main_body_2` (only — narrower fix, drive-bay sections untouched) from 132mm to exactly 150mm via a two-plane cut/extrude-filler/shift/fuse; this mesh has 25656 facets and the operation took ~4-5 minutes, tripping the addon's 90s "dispatch stuck" warning — confirmed via polling `get_rpc_status` that it was genuinely still working, not hung, rather than assuming failure or restarting FreeCAD. Extended it from 82mm to exactly 140mm (ATX nominal depth) by adding 58mm on the far end only, away from the joint to `main_body_3`. For the mounting screw pattern: searched multiple sources for the ATX rear-panel screw spec and found nothing authoritative (dead/paywalled/unreadable). Asked Jason rather than guess at exact positions — a wrong guess is a hard failure here, not a margin problem. He chose slotted mounts over precise holes. Numeric face inspection (not the named-view screenshots, which kept showing a stale side view — a reproducible race condition in the addon's async GUI dispatch, not a one-off) found both Y-ends of the compartment are almost entirely open except two ~12mm structural tabs; cut two generous vertical slots into each. Verified `len(shape.Solids) == 1` after every single edit before trusting it. Re-verified `main_body_1_rear_clearance_v2` and `main_body_3` genuinely unchanged | `main_body_2_final.stl` — independently re-measured at 150.00 x 140.00 x 185.00mm, exactly matching target. Milestone 3's gate is met, with the mounting-slot placement flagged as best-effort (not a verified spec) pending Milestone 4's physical test, same as the still-open rear-clearance-sufficiency and depth-mismatch questions from the prior entries |
 
-## Starting the handoff session
+## Historical handoff session (superseded by close-out)
+
+These instructions are retained as history only; do not execute them.
 
 This project is handed off 2026-09-14 to a fresh session with Remote Control
 enabled, so Jason can approve prompts from his phone as Milestone 1
@@ -672,8 +670,38 @@ confirmed this directly rather than assuming it.
 
 ## Close-out
 
-To be completed at graduation. Will record: the final connector version/
-commit used, confirmation it remained localhost-only throughout, the
-resulting ATX-compatible enclosure design and its relationship to the
-original MakerWorld model, and whether the connector was removed after use
-or retained for future CAD work.
+Closed and archived on **2026-09-23** at Jason's explicit request.
+
+- **MCP outcome: success.** The 2026-09-14 evidence records FreeCAD 1.1.3,
+  addon commit `5dbfe2c80b53c3102bff0723951676e16edf2d84`, RPC bound to
+  `127.0.0.1:9875`, and successful document creation, mesh import, geometry
+  read-back, Boolean editing and STL export through the local Claude Code
+  MCP bridge. This close-out relies on that recorded evidence; it is not a
+  fresh installation or runtime health check.
+- **Enclosure outcome: abandoned.** Jason reused an old PC case rather than
+  3D-printing a new enclosure. The exported CAD modifications remain
+  experimental artifacts: mounting fit, cable clearance and mating joints
+  were not physically validated. No print or fit-test success is claimed.
+- **Remaining scope:** cancelled, including Milestone 4, further enclosure
+  revisions and deferred ChatGPT Desktop integration. No follow-up gate or
+  autonomous execution remains under this project.
+- **Ownership and retained artifacts:** Jason owns the local CAD working
+  area and preserved originals documented above. Archiving changes only
+  repository records; it does not delete CAD files, uninstall the addon,
+  alter client configuration or assert that an RPC process is stopped.
+  Historical localhost-only limits remain applicable to any retained setup;
+  this closure does not authorize a standing background service.
+- **Related project:** [TrueNAS DIY SAS expansion](../TrueNAS-DIY-SAS-Expansion.md)
+  continues separately, with the reused PC case replacing this printed
+  enclosure plan. Drive testing and storage deployment are not closed here.
+- **Integration impact:** repository portfolio, incoming reference and
+  changelog updated. No live service, identity, network, schedule, storage,
+  NetBox, Doctor, monitoring, wiki or Aster knowledge change is needed for
+  this documentary cancellation. Existing CAD recovery locations are
+  retained as historical references; no new backup/restore claim is made.
+
+### Final evidence
+
+| Date | Action | Result |
+|---|---|---|
+| 2026-09-23 | Jason requested MCP success be recorded and the remainder abandoned because an old PC case was reused | Accepted prior MCP evidence; cancelled unperformed enclosure gates; archived the project without claiming full graduation |

@@ -16,7 +16,6 @@
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
 | Music playlist acquisition bridge | Prototype | [Music playlist acquisition bridge](Music-Playlist-Acquisition-Bridge.md) | Hybrid Cmdarr plus local export-file bridge: translate Spotify/Apple Music and generic playlist exports into conservative Lidarr album requests, then publish a complete duplicate playlist in Jellyfin after the media is indexed |
 | Media sideload import | Active — Milestone 1 complete | [Media sideload import](Media-Sideload-Import.md) | Confirmed Radarr/Sonarr/Lidarr already file manually-acquired media correctly via Manual/Interactive Import and the `DownloadedXScan` commands, without an indexer or download client; defines a staging-inbox workflow to use that path deliberately instead of hand-placing files into the canonical roots. Staging folders created on TrueNAS at `/mnt/Media/data/inbox/{movies,tv,music}` |
-| FreeCAD MCP connector | Active — Stream A; Milestone 1 (install and vet the connector) in progress | [FreeCAD MCP connector](FreeCAD-MCP-Connector.md) | Local, localhost-only MCP bridge (`neka-nat/freecad-mcp`) to let Claude — and, if locally supported, ChatGPT Desktop — drive FreeCAD directly for CAD work, starting with adapting the TrueNAS DIY SAS Expansion enclosure to fit a standard ATX PSU instead of SFX |
 | Home Assistant voice assistant | Proposed | [Home Assistant voice assistant](Home-Assistant-Voice-Assistant.md) | Native HA Assist pipeline (wake word/push-to-talk → local STT → `aster-llama` conversation agent → local Piper TTS) against an explicit voice-exposed entity allowlist; open decision is whether the shared single-GPU `aster-llama` backend has concurrency headroom for a third live consumer |
 | Recommendarr watch recommendations | Proposed | [Recommendarr watch recommendations](Recommendarr-Watch-Recommendations.md) | Source-local sanitized reader over Jellyfin/Sonarr/Radarr feeding read-only, no-auto-add recommendations via `aster-llama`; open decision is adopting the third-party open-source Recommendarr project versus building bespoke on the lab's least-privilege reader pattern |
 | Cantinarr evaluation and controlled pilot | Proposed — Stream M | [Cantinarr evaluation and controlled pilot](Cantinarr-Evaluation-Pilot.md) | Reversible isolated evaluation beside Seerr, with no initial production credentials, media mounts, remediation, AI or MCP authority; later gates compare household requests, Import Doctor, local AI and a restricted read/request MCP surface without weakening Aster's existing ARR broker boundary |
@@ -57,6 +56,12 @@
 | News aggregator Phase 2 — digest, sections and rebrand | 2026-09-15 | [News aggregator Phase 2](completed%20projects/News-Aggregator-Digest-and-Sections.md) | Rebranded "Your News", with a twice-daily digest of multi-outlet stories only (abridged summary plus deviation notes via the existing `aster-llama` key), a `/settings` page queuing new source/category requests for verification, and a full dark-theme redesign. Fixed three real production bugs found via live testing along the way: HTML-polluted summaries, duplicate cards from cross-posted stories (whose first fix attempt was itself a caught-and-reverted false-positive regression), and an over-broad digest scope |
 | News aggregator Phase 3 — audio digest | 2026-09-15 | [News aggregator Phase 3](completed%20projects/News-Aggregator-Audio-Digest.md) | Local Piper TTS narrates the latest digest run as a single MP3 briefing on `/digest`, chained into the existing twice-daily timer; closes a real HomeLab Doctor gap (a silently-stale audio file) and gives Jason a real trial of Piper ahead of a planned Home Assistant project. Confirmed working by Jason on desktop and his own iPhone after two real-screenshot-driven mobile rendering fixes |
 
+## Closed projects — partial success or abandoned
+
+| Project | Closed | Closing document | Outcome |
+|---|---|---|---|
+| FreeCAD MCP connector | 2026-09-23 | [FreeCAD MCP connector](completed%20projects/FreeCAD-MCP-Connector.md) | MCP successful with recorded CAD editing/export evidence; remaining enclosure design and print/fit validation abandoned because Jason reused an old PC case |
+
 ## Common project rules
 
 The complete normative process is the
@@ -89,6 +94,7 @@ execution. The concise rules below remain as portfolio-level reminders.
   not passed.
 - **Complete** — every required milestone and the completion gate have passed.
 - **Deferred** — intentionally paused without being abandoned.
+- **Closed** — archived by explicit decision with incomplete or abandoned scope recorded; does not imply every graduation gate passed.
 
 ## Relationship to the initial-build record
 

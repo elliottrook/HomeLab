@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-23 — FreeCAD project archive
+
+- Recorded the local FreeCAD MCP connector as successful based on its existing verified CAD workflow evidence.
+- Abandoned remaining enclosure work and physical print/fit validation at Jason's request: an old PC case was reused instead.
+- Archived the project with a partial-success closure, preserving prior evidence and updating portfolio/reference links.
+
 ## 2026-09-23 — Jellyfin library integrity graduation
 
 - Verified three clean Wednesday runs, the 100-action cap, current Doctor checks and matching deployed source.

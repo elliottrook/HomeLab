@@ -126,7 +126,7 @@ mark into a literal compass rose. The source artwork is retained at
   (`docs/projects/Subtitle-Generation-Translation.md`) both anticipate
   Whisper-family STT but neither has deployed it.
 - **Existing Mac-native-app precedent:** the FreeCAD MCP connector
-  (`docs/projects/FreeCAD-MCP-Connector.md`) is the only prior "runs
+  (`docs/projects/completed projects/FreeCAD-MCP-Connector.md`) is the only prior "runs
   natively on this Mac" project, but it is a localhost bridge process, not a
   GUI app with its own identity/UI — limited architectural overlap.
 
