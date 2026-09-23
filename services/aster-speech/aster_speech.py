@@ -17,7 +17,9 @@ import asyncio
 import hmac
 import os
 import subprocess
+import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -39,7 +41,7 @@ AUTHENTIK_JWKS_URL = os.environ.get(
     "ASTER_AUTHENTIK_JWKS_URL", "https://auth.elliottrook.com/application/o/aster-companion/jwks/"
 )
 AUTHENTIK_AUDIENCE = os.environ.get("ASTER_AUTHENTIK_AUDIENCE", "aster-companion")
-_authentik_jwks_client = jwt.PyJWKClient(AUTHENTIK_JWKS_URL, cache_keys=True, lifespan=3600)
+_authentik_jwks_client = jwt.PyJWKClient(AUTHENTIK_JWKS_URL, cache_keys=True, lifespan=3600, timeout=5)
 # Matches the pacing Jason asked for in the audio-digest project
 # (docs/projects/completed projects/News-Aggregator-Audio-Digest.md) -
 # same voice, same preference, applied consistently rather than
@@ -90,9 +92,9 @@ def _authentik_claims(authorization: str | None) -> dict[str, Any] | None:
             issuer=AUTHENTIK_ISSUER,
             audience=AUTHENTIK_AUDIENCE,
         )
-    except jwt.PyJWTError:
-        return None
-    except Exception:
+    except Exception as exc:
+        # Log only the failure category; JWT claims and submitted content are private.
+        print(f"aster-speech: Authentik token rejected: {type(exc).__name__}", file=sys.stderr)
         return None
 
 
@@ -120,18 +122,7 @@ async def health() -> dict[str, str]:
 
 
 def _run_transcription(path: str) -> str:
-    """Runs on a worker thread (see below), never directly on the event
-    loop. faster-whisper's transcribe() returns a lazy generator - the
-    actual CPU-bound decoding happens while iterating it, not when
-    transcribe() is called, so materializing it here is what must be kept
-    off the event loop. Real microphone audio (room noise, silence, a
-    less clean signal than a synthesized benchmark clip) can take
-    meaningfully longer than expected; blocking the loop for that whole
-    span would stall every other request AND the current one's own
-    response delivery - live-caught 2026-09-22 as a request that
-    genuinely reached the server but never got a response before iOS
-    Safari gave up and closed the connection.
-    """
+    """Materialize Whisper's lazy result on a worker, keeping the event loop free."""
     segments, _info = _whisper_model.transcribe(path, beam_size=1)
     return "".join(segment.text for segment in segments).strip()
 
@@ -144,11 +135,16 @@ async def speech_to_text(audio: UploadFile) -> dict[str, str]:
     if not data:
         raise HTTPException(status_code=400, detail="No audio data received")
 
+    start = time.monotonic()
     with tempfile.NamedTemporaryFile(suffix=".audio", delete=True) as tmp:
         tmp.write(data)
         tmp.flush()
         async with _transcribe_lock:
             text = await asyncio.to_thread(_run_transcription, tmp.name)
+    print(
+        f"aster-speech: /v1/stt completed in {time.monotonic() - start:.2f}s, bytes={len(data)}",
+        file=sys.stderr,
+    )
 
     return {"text": text}
 
@@ -163,7 +159,8 @@ async def text_to_speech(request: TTSRequest) -> Response:
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmp:
         try:
-            result = subprocess.run(
+            result = await asyncio.to_thread(
+                subprocess.run,
                 [
                     str(PIPER_BINARY),
                     "--model", str(PIPER_VOICE),

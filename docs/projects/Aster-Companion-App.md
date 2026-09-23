@@ -1,19 +1,16 @@
 # Aster Companion App
 
-> Status: Proposed — Stream A requested by Jason; pre-start risk assessment
-> below requires his explicit acceptance before Milestone 2 (first
-> state-changing work) begins, per the Standard's Stream A gate.
+> Status: Active pilot — M6 voice repairs deployed 2026-09-23; physical
+> iPhone recording/playback acceptance remains pending.
 >
 > Project owner: Jason
 >
 > Proposed: 2026-09-21
 >
 > Authorization stream: **Stream A — Autonomous**, assigned by Jason at
-> proposal time. Per `docs/Project-Creation-Standard.md`, the pre-start risk
-> assessment below is the authorization envelope; work starts only after
-> Jason accepts it. Milestone 1 (discovery/design, all read-only or
-> documentation-only) is pre-agreed under the Standard's common authorization
-> and is already underway in this document.
+> proposal time; pre-start assessment accepted 2026-09-21 (see persistence
+> record). Jason explicitly authorized the speech JWKS firewall repair and
+> related updates on 2026-09-23. Repository remote-write controls still apply.
 
 ## Purpose and desired outcome
 
@@ -538,12 +535,13 @@ begins:**
 
 ## Persistence plan
 
-This document is the durable checkpoint. Current milestone: **Milestone 3,
-in progress** (M1 and M2 are complete — see the Milestones checklist and
-the end of the Evidence log below for tonight's 2026-09-21 stopping point
-and exactly what's left in M3). Jason accepted the pre-start risk
-assessment on 2026-09-21 and directed Milestone 1 discovery to begin.
-Below is that discovery's original, still-accurate narrative:
+This document is the durable checkpoint. Current milestone: **M6, voice
+acceptance pending**. On 2026-09-23 the missing speech-to-Authentik HTTPS
+permit was added and verified; web and speech-service fixes were deployed.
+Resume with the September 23 repair evidence below and Jason's physical iPhone
+result. Do not infer a passed phone test from synthetic audio or API-key tests.
+The pre-start risk assessment was accepted on 2026-09-21. The following bullets
+retain the original discovery context:
 
 - Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
   read-only wrapper for the Authentik (`auth.elliottrook.com/api/*`) and NPM
@@ -1949,9 +1947,143 @@ silently absorbed into this project's scope.
   intermittent, so a clean test run is meaningful but a single failure
   afterward wouldn't necessarily mean the fix didn't help.
 
+### 2026-09-23 voice troubleshooting follow-up (Codex)
+
+Read-only live verification identified an authentication-path blocker affecting
+both STT and TTS for Companion login tokens:
+
+- Speech journal records `PyJWKClientConnectionError` / URL timeout at
+  September 22 18:15:33 and 18:38:33 PDT. Authentication runs before the STT
+  handler, so those requests cannot reach transcription.
+- From LXC 116, DNS resolves `auth.elliottrook.com` to `192.168.50.23`, but a
+  five-second HTTPS GET of the Companion JWKS endpoint times out connecting.
+  The same GET from LXC 104 returns HTTP 200.
+- The loaded OPNsense rules permit `192.168.70.10 → 192.168.50.23:443`,
+  but contain no corresponding permit for speech host `192.168.70.14`.
+  The Lab VLAN RFC1918 block therefore catches that destination. The existing
+  NPM-to-speech inbound rule does not authorize speech-to-NPM outbound traffic.
+- Earlier successful dedicated-bearer-key round trips bypass JWKS entirely;
+  they do not validate the iPhone's Authentik authentication path. The prior
+  decoding/keep-alive explanations remain unproven for the phone failure.
+
+Concrete proposed repair: back up OPNsense configuration, add a single logged
+TCP permit on Lab VLAN 70 from `192.168.70.14` to `192.168.50.23:443` before
+the private-network block, reload and verify the loaded rule, then repeat the
+JWKS GET from LXC 116 and a real Companion voice turn. Rollback removes only
+that new rule and reloads. No public ingress or authentication bypass is needed.
+Remote mutation awaits explicit confirmation under repository authorization.
+
+Additional source findings to address after restoring authentication: the web
+client swallows `audio.play()` rejection and playback errors, submits entire
+replies despite the speech API's 2,000-character limit, and does not serialize
+recording/transcription turns. Piper also runs synchronously inside an async
+route, blocking that worker during synthesis. These are separate defects or
+risks, not evidence that audio decoding caused the observed authentication
+timeout. The current diagnostic code also attempts to retain microphone audio
+and logs transcription text; remove those temporary diagnostics after diagnosis
+to restore the documented transient-audio behavior. No live changes made in
+this investigation.
+
+### 2026-09-23 approved repair and verification
+
+Jason authorized “Please add rule and update all.” Implemented the reviewed
+single-host TCP permit on `opt6`, sequence 2681, UUID
+`bc811346-6714-44b4-bc65-46e7430f46a8`. The OPNsense model validated before
+save, and `configctl filter reload` returned OK. `pfctl -sr` confirms the
+exact `192.168.70.14 → 192.168.50.23:443` rule above the RFC1918 block.
+Configuration backup was copied, restricted to mode 0600, and hash-verified
+on the firewall at `/conf/backup/aster-speech-jwks-20260923-165924.xml`.
+The previously failing JWKS GET from LXC 116 now returns HTTP 200 in 0.373s.
+
+Speech service: bounded JWKS fetch to five seconds, moved Piper execution to
+`asyncio.to_thread`, removed diagnostic audio retention and transcript logging,
+and retained only non-content timing/size and authentication error-class logs.
+Removed the temporary `/var/lib/aster-speech/debug/latest.audio` artifact.
+Existing historical journal entries were not purged. The service backup is
+`/opt/aster-speech/aster_speech.py.pre-voice-fix-20260923`; its SHA-256 before
+replacement was `d8b0beabce7c5126bdcd18323a286c6134cb7cbd29b16bdf34c1ca5bcf0a12bf`.
+
+Web client: one serialized voice turn, explicit progress, recorder cleanup on
+failure, 60-second recording cap, matching MP4/WebM MIME and upload extension,
+60-second speech-request deadlines, reply-specific return from `send`,
+1,800-UTF-16-unit speech chunks below the 2,000-code-point API limit, reused
+audio element, visible controls when autoplay is denied, and Stop speech.
+Failures are surfaced rather than silently swallowed. The previous web source
+was verified against local HEAD before replacement; backup is
+`/opt/aster-agent/aster_agent.py.pre-voice-fix-20260923` on LXC 104.
+WebKit's [autoplay guidance](https://webkit.org/blog/7734/auto-play-policy-changes-for-macos/)
+informs the reused element and manual-play fallback; physical iPhone behavior
+still needs acceptance.
+
+Mac source: recording/transcription now holds the busy state; synthesis and
+playback failures surface to the user; long replies use bounded scalar-counted
+chunks. Existing in-progress voice source changes were retained. Rebuilt and installed
+`/Applications/AsterCompanion.app`; signature verification passes and the installed
+executable hash matches the new build. Previous bundle retained at
+`/tmp/AsterCompanion.pre-voice-fix-20260923.app` for immediate rollback (temporary
+storage, not a durable backup). An already-running Mac app must be reopened.
+
+Validation:
+
+- Speech route tests: 19 passed locally and in the deployed host's venv,
+  including a regression proving Piper does not block the event loop. Three
+  additional health-probe tests pass locally (22 total), including JWKS timeout
+  and an empty signing-key set despite a healthy speech API.
+- Agent tests: 82 passed locally and on LXC 104 after deployment.
+- Six Node behavior tests passed against both locally rendered and live HTTPS
+  JavaScript: long/Unicode replies, blocked autoplay with manual recovery,
+  playback failure cleanup, Stop speech, recorder acquisition race/failure,
+  and authentication error reporting. Full generated JS passes syntax check.
+- Ten Swift tests passed, including two new long/Unicode speech-chunk tests.
+- Through the real `/voice/` HTTPS ingress, missing credentials and a synthetic
+  JWT bearing a real JWKS key ID but an invalid signature both returned 401;
+  the latter completed in 0.11s, exercising network-backed key verification
+  without obtaining or minting a valid user credential.
+- Dedicated-key synthetic round trip: TTS HTTP 200 in 1.84s, valid mono 22050Hz
+  WAV; STT HTTP 200 in 0.83s for WAV and 0.81s for AAC/MP4 transcoded from the
+  same generated phrase. Both transcriptions matched the synthetic phrase.
+  This checks codec compatibility, not actual microphone quality or iOS timing.
+- Deployed `health_check.py` probes both service health and the public JWKS
+  dependency without credentials. Both pass from LXC 116, including execution
+  through Proxmox. HomeLab Doctor now invokes it so a healthy `/health` cannot
+  conceal this authentication outage again.
+
+Integration: updated operational/network records and Doctor. No new guest,
+address, service port, identity, DNS entry, certificate, public exposure or
+backup retention change. Existing guest backups still cover service files;
+immediate source/config checkpoints above provide rollback. No new alerting
+system introduced. The wiki and Aster mirror workspace directories are absent
+in this session, so derived publication is pending; do not claim they updated.
+Remote Git synchronization remains pending explicit approval for the actual push.
+
+Rollback: restore only the backed-up source file on the affected service and
+restart that service; remove only the added firewall rule and reload if reverting
+the connectivity change. Do not restore the whole firewall XML over unrelated
+later changes. Keep the API's issuer, audience, signature and expiry checks.
+
+### Final transport recheck and unresolved observation
+
+A later direct SSH attempt presented ED25519 fingerprint
+`SHA256:g6NBTf0MXQwWjvNK+7rH23/MIYMCGoiqDXfb/gKiwco` and strict checking refused
+it. No known-host entry was altered and no check was bypassed. Trusted Proxmox
+console inspection confirmed guest 116 remained active with the deployed speech
+hash and actual public host fingerprint
+`SHA256:66HLSB1V/TUC0bTP374cCqQcGh8zsM56+qrfTiwNpcI`. Subsequent public-key scans
+from both the Mac and OPNsense matched that actual guest key, and normal strict
+SSH resumed successfully. OPNsense ARP matched the guest's configured MAC
+`BC:24:11:E1:11:68`. One contemporaneous JWKS probe returned `URLError`; a
+subsequent certificate-validated HTTPS request pinned to NPM succeeded, DNS
+resolved correctly in 0.007s, and the ordinary dependency probe recovered.
+The transient inconsistent SSH identity/network behavior is **unexplained**;
+do not claim the firewall rule proves all intermittent transport faults resolved.
+If it recurs, investigate address/routing conflicts using trusted Proxmox access;
+never remove known-host protections to work around it.
+
 ## Close-out
 
-Not applicable yet — this project has not started implementation.
+Active pilot. Synthetic transport/authentication-path checks pass. Jason's
+physical iPhone voice round trip remains the M6 acceptance gate.
+
 
 ## References
 

@@ -319,7 +319,7 @@ struct ContentView: View {
     ///   same reasoning (a typed question stays silent).
     private func send(viaVoice: Bool = false) {
         let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
+        guard !text.isEmpty, state == .idle || viaVoice else { return }
         messages.append(ChatMessage(role: .user, content: text))
         draft = ""
         errorText = nil
@@ -331,8 +331,9 @@ struct ContentView: View {
                 messages.append(ChatMessage(role: .assistant, content: reply))
                 if viaVoice {
                     state = .speaking
-                    if let audio = try? await client.synthesize(text: reply) {
-                        await voicePlayer.play(data: audio)
+                    for chunk in speechChunks(reply) {
+                        let audio = try await client.synthesize(text: chunk)
+                        try await voicePlayer.play(data: audio)
                     }
                 }
             } catch {
@@ -344,26 +345,35 @@ struct ContentView: View {
 
     private func toggleMic() {
         if state == .listening {
-            state = .idle
-            guard let audioData = voiceRecorder.stopRecording() else { return }
+            guard let audioData = voiceRecorder.stopRecording() else {
+                state = .idle
+                errorText = "No audio was recorded."
+                return
+            }
+            state = .thinking
             Task {
                 do {
                     let text = try await client.transcribe(audioData: audioData)
                     guard !text.isEmpty else {
                         errorText = "Could not hear anything - try again."
+                        state = .idle
                         return
                     }
                     draft = text
                     send(viaVoice: true)
                 } catch {
+                    state = .idle
                     errorText = error.localizedDescription
                 }
             }
             return
         }
 
+        guard state == .idle else { return }
+        state = .thinking
         Task {
             guard await voiceRecorder.requestPermission() else {
+                state = .idle
                 errorText = "Microphone access denied."
                 return
             }
@@ -372,6 +382,7 @@ struct ContentView: View {
                 try voiceRecorder.startRecording()
                 state = .listening
             } catch {
+                state = .idle
                 errorText = error.localizedDescription
             }
         }

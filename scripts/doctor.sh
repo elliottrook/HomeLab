@@ -504,6 +504,17 @@ check_aster() {
     fi
 }
 
+# Authentication egress is a distinct dependency: /health alone cannot prove it.
+check_aster_speech() {
+    local state
+    if state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
+        'pct exec 116 -- python3 /opt/aster-speech/health_check.py' 2>/dev/null)"; then
+        pass "Aster speech API and Authentik signing-key endpoint reachable"
+    else
+        fail "Aster speech/authentication dependency unhealthy: ${state:-probe unavailable}"
+    fi
+}
+
 # Flags a recurrence of the B60's xe-driver engine-reset class of fault
 # (intel/compute-runtime#842 upstream, still open as of 2026-09-21) so it
 # surfaces here instead of only being found by hand in dmesg.
@@ -1870,6 +1881,7 @@ check_nut
 category "Applications & Services"
 
 check_aster
+check_aster_speech
 check_xe_reset
 check_aster_wiki
 check_netbox

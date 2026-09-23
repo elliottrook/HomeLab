@@ -2,6 +2,7 @@ import asyncio
 import io
 import subprocess
 import time
+import threading
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -130,6 +131,25 @@ class SpeechToTextTests(unittest.IsolatedAsyncioTestCase):
 
 
 class TextToSpeechTests(unittest.IsolatedAsyncioTestCase):
+    async def test_synthesis_does_not_block_event_loop(self):
+        entered = threading.Event()
+        release = threading.Event()
+
+        def slow_piper(*args, **kwargs):
+            entered.set()
+            release.wait(timeout=2)
+            return self._fake_piper_run(*args, **kwargs)
+
+        with patch("aster_speech.subprocess.run", side_effect=slow_piper):
+            task = asyncio.create_task(text_to_speech(TTSRequest(text="test")))
+            try:
+                await asyncio.wait_for(asyncio.to_thread(entered.wait), timeout=1)
+                self.assertFalse(task.done(), "Synthesis blocked the event loop")
+                self.assertEqual((await health())["status"], "ok")
+            finally:
+                release.set()
+                await task
+
     @staticmethod
     def _fake_piper_run(*args, **kwargs):
         argv = args[0]

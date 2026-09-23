@@ -737,3 +737,14 @@ This plan uses memorable VLAN IDs and distinct /24 networks. Existing VLAN 10 ca
   age, a 41-hour Synology Drive backup, an encrypted-relay run in progress and
   expected uncommitted closeout documentation; none represented an AI service
   failure.
+
+
+### Aster speech authentication dependency — verified 2026-09-23
+
+OPNsense Lab VLAN 70 (`opt6` / `vlan0.70`) now permits TCP from speech LXC 116
+`192.168.70.14` to NPM `192.168.50.23:443`, sequence 2681, UUID
+`bc811346-6714-44b4-bc65-46e7430f46a8`, before the RFC1918 isolation block.
+This allows the Companion speech service to fetch Authentik signing keys.
+The existing reverse direction is a separate NPM-to-speech TCP 9130 rule.
+Model validation, loaded rules and a speech-host JWKS HTTP 200 verify the change.
+No broader subnet permit, DNS change or public ingress was introduced.

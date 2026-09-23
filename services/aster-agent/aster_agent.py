@@ -1359,9 +1359,12 @@ button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
 <button id="checkArr" class="checkArr">Check for pending ARR action</button>
 <div id="arrCard" hidden></div>
 <div id="chat"></div>
-<p class="err" id="chatErr"></p>
+<p class="err" id="chatErr" role="alert"></p>
+<p class="muted" id="voiceStatus" role="status" aria-live="polite"></p>
+<audio id="voiceAudio" controls hidden></audio>
+<button id="stopSpeech" hidden>Stop speech</button>
 <textarea id="prompt" placeholder="Ask Aster…"></textarea>
-<div class="inputRow"><button id="send">Send</button><button id="mic" class="mic" title="Ask by voice"></button></div>
+<div class="inputRow"><button id="send">Send</button><button id="mic" class="mic" title="Ask by voice" aria-label="Start or stop voice recording"></button></div>
 </div>
 </main>
 <script>
@@ -1625,8 +1628,11 @@ async function approveArrAction(candidateRef){{
 
 document.querySelector('#checkArr').onclick = checkArrAction;
 
-async function send(){{
+let chatBusy = false;
+async function send(viaVoice = false){{
+  if(chatBusy || (voiceBusy && viaVoice !== true)) return;
   const text=prompt.value.trim(); if(!text) return;
+  chatBusy = true; updateVoiceControls();
   messages.push({{role:'user',content:text}}); add('user',text); prompt.value=''; orb.classList.add('thinking');
   saveChatHistory();
   document.querySelector('#chatErr').textContent='';
@@ -1669,92 +1675,207 @@ async function send(){{
     if(replyText) messages.push({{role:'assistant',content:replyText}});
     else replyDiv.remove();
     saveChatHistory();
+    return replyText;
   }}catch(e){{ document.querySelector('#chatErr').textContent = e.message; if(!replyText) replyDiv.remove() }}
-  finally{{ orb.classList.remove('thinking'); prompt.focus() }}
+  finally{{ orb.classList.remove('thinking'); chatBusy = false; updateVoiceControls(); if(!voiceBusy) prompt.focus() }}
 }}
 
 function showLogin(){{ document.querySelector('#login').hidden=false; document.querySelector('#app').hidden=true }}
 function showApp(){{ document.querySelector('#login').hidden=true; document.querySelector('#app').hidden=false; prompt.focus() }}
 
-// M6: voice in and voice out through the new /voice API. A reply is only
-// spoken aloud when the turn that produced it started as a voice question
-// - a typed question stays silent, matching how most voice assistants
-// behave rather than narrating every single reply unprompted. send()
-// itself is untouched: this just inspects `messages` after it resolves to
-// see whether the turn actually produced an assistant reply.
+// A voice turn owns the recorder through playback; typed sends cannot race it.
 let mediaRecorder = null;
-let audioChunks = [];
+let voiceBusy = false;
+let cancelPlayback = null;
+let speechAbort = null;
+const voiceAudio = document.querySelector('#voiceAudio');
+const voiceStatus = document.querySelector('#voiceStatus');
+const stopSpeech = document.querySelector('#stopSpeech');
+
+function updateVoiceControls(){{
+  document.querySelector('#send').disabled = voiceBusy || chatBusy;
+  document.querySelector('#mic').disabled = chatBusy || (voiceBusy && (!mediaRecorder || mediaRecorder.state !== 'recording'));
+  document.querySelector('#persona').disabled = voiceBusy || chatBusy;
+  prompt.disabled = voiceBusy || chatBusy;
+}}
 
 async function toggleMic(){{
-  const micBtn = document.querySelector('#mic');
-  if(mediaRecorder && mediaRecorder.state === 'recording'){{ mediaRecorder.stop(); return }}
+  if(mediaRecorder && mediaRecorder.state === 'recording'){{ mediaRecorder.stop(); updateVoiceControls(); return }}
+  if(voiceBusy || chatBusy) return;
+  voiceBusy = true;
+  updateVoiceControls();
   document.querySelector('#chatErr').textContent = '';
+  voiceStatus.textContent = 'Opening microphone…';
   let stream;
   try{{
+    if(!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') throw new Error('Voice recording is unavailable in this browser.');
+    // Reuse a single media element and prime it inside the mic gesture.
+    // Browser policy may still require Play later; the visible controls handle that.
+    voiceAudio.src = 'data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    voiceAudio.play().catch(() => {{}});
     stream = await navigator.mediaDevices.getUserMedia({{audio:true}});
+    const type = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm'].find(t => MediaRecorder.isTypeSupported(t));
+    const recorder = new MediaRecorder(stream, type ? {{mimeType:type}} : {{}});
+    const chunks = [];
+    let recordingFailed = false;
+    let recordingTimer;
+    mediaRecorder = recorder;
+    const release = () => {{
+      clearTimeout(recordingTimer);
+      stream.getTracks().forEach(t => t.stop());
+      mediaRecorder = null;
+      orb.classList.remove('listening');
+      document.querySelector('#mic').classList.remove('recording');
+    }};
+    recorder.ondataavailable = e => {{ if(e.data.size) chunks.push(e.data) }};
+    recorder.onerror = () => {{
+      recordingFailed = true;
+      release();
+      voiceBusy = false;
+      voiceStatus.textContent = '';
+      document.querySelector('#chatErr').textContent = 'Recording failed. Please try again.';
+      updateVoiceControls();
+    }};
+    recorder.onstop = async () => {{
+      release();
+      if(recordingFailed) return;
+      updateVoiceControls();
+      try{{
+        const blob = new Blob(chunks, {{type:recorder.mimeType || chunks[0]?.type || 'audio/mp4'}});
+        await transcribeAndSend(blob);
+      }}finally{{
+        voiceBusy = false;
+        voiceStatus.textContent = '';
+        updateVoiceControls();
+      }}
+    }};
+    recorder.start();
+    recordingTimer = setTimeout(() => {{ if(recorder.state === 'recording') recorder.stop() }}, 60000);
+    orb.classList.add('listening');
+    document.querySelector('#mic').classList.add('recording');
+    voiceStatus.textContent = 'Listening — tap the orb to finish (up to 60 seconds).';
+    updateVoiceControls();
   }}catch(e){{
-    document.querySelector('#chatErr').textContent = 'Microphone access denied or unavailable.';
-    return;
+    stream?.getTracks().forEach(t => t.stop());
+    mediaRecorder = null;
+    voiceBusy = false;
+    voiceStatus.textContent = '';
+    document.querySelector('#chatErr').textContent = e.name === 'NotAllowedError' ? 'Microphone access denied. Allow microphone access in Safari settings.' : e.message;
+    updateVoiceControls();
   }}
-  audioChunks = [];
-  mediaRecorder = new MediaRecorder(stream);
-  mediaRecorder.ondataavailable = e => {{ if(e.data.size > 0) audioChunks.push(e.data) }};
-  mediaRecorder.onstop = async () => {{
-    stream.getTracks().forEach(t => t.stop());
-    orb.classList.remove('listening');
-    micBtn.classList.remove('recording');
-    const blob = new Blob(audioChunks, {{type: mediaRecorder.mimeType || 'audio/webm'}});
-    await transcribeAndSend(blob);
-  }};
-  mediaRecorder.start();
-  orb.classList.add('listening');
-  micBtn.classList.add('recording');
+}}
+
+async function voiceFetch(url, options){{
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 60000);
+  const external = options.signal;
+  const abort = () => controller.abort();
+  if(external?.aborted) controller.abort();
+  external?.addEventListener('abort', abort, {{once:true}});
+  try{{
+    const r = await fetch(url, {{...options, signal:controller.signal}});
+    if(!r.ok){{
+      const j = await r.json().catch(() => ({{}}));
+      throw new Error(typeof j.detail === 'string' ? j.detail : 'Speech request failed (HTTP ' + r.status + ').');
+    }}
+    // Keep the timeout active until the body has arrived too.
+    return url.endsWith('/stt') ? await r.json() : await r.blob();
+  }}catch(e){{
+    if(e.name === 'AbortError' && !external?.aborted) throw new Error('Speech request timed out. Please try again.');
+    throw e;
+  }}finally{{
+    clearTimeout(timer);
+    external?.removeEventListener('abort', abort);
+  }}
 }}
 
 async function transcribeAndSend(blob){{
   try{{
+    if(!blob.size) throw new Error('No audio was recorded. Please try again.');
+    voiceStatus.textContent = 'Transcribing…';
     const token = await validAccessToken();
     if(!token){{ showLogin(); return }}
     const form = new FormData();
-    form.append('audio', blob, 'voice.webm');
-    const r = await fetch('/voice/v1/stt', {{method:'POST', headers:{{'Authorization':'Bearer '+token}}, body:form}});
-    if(!r.ok){{ const j = await r.json().catch(()=>({{}})); throw new Error(j.detail || r.statusText) }}
-    const {{text}} = await r.json();
-    if(!text){{ document.querySelector('#chatErr').textContent = 'Could not hear anything - try again.'; return }}
+    form.append('audio', blob, blob.type.includes('mp4') ? 'voice.m4a' : 'voice.webm');
+    const {{text}} = await voiceFetch('/voice/v1/stt', {{method:'POST', headers:{{'Authorization':'Bearer '+token}}, body:form}});
+    if(!text?.trim()) throw new Error('Could not hear anything — try again.');
     prompt.value = text;
-    const beforeCount = messages.length;
-    await send();
-    const last = messages[messages.length - 1];
-    if(messages.length > beforeCount && last && last.role === 'assistant'){{
-      await speakReply(last.content);
-    }}
+    voiceStatus.textContent = 'Thinking…';
+    const reply = await send(true);
+    if(reply) await speakReply(reply);
   }}catch(e){{
     document.querySelector('#chatErr').textContent = e.message;
   }}
 }}
 
-async function speakReply(text){{
+function speechChunks(text, limit = 1800){{
+  const chunks = [];
+  let remaining = text.trim();
+  while(remaining.length > limit){{
+    let end = remaining.lastIndexOf(' ', limit);
+    if(end < limit / 2) end = limit;
+    // Never split a UTF-16 surrogate pair.
+    if(remaining.charCodeAt(end-1) >= 0xD800 && remaining.charCodeAt(end-1) <= 0xDBFF) end--;
+    chunks.push(remaining.slice(0, end));
+    remaining = remaining.slice(end).trimStart();
+  }}
+  if(remaining) chunks.push(remaining);
+  return chunks;
+}}
+
+async function playSpeechBlob(blob){{
+  const url = URL.createObjectURL(blob);
+  voiceAudio.src = url;
+  voiceAudio.hidden = false;
   try{{
-    const token = await validAccessToken();
-    if(!token) return;
-    orb.classList.add('speaking');
-    const r = await fetch('/voice/v1/tts', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{text}})}});
-    if(!r.ok) throw new Error('Speech synthesis failed');
-    const blob = await r.blob();
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    await new Promise(resolve => {{
-      audio.onended = resolve;
-      audio.onerror = resolve;
-      audio.play().catch(resolve);
+    return await new Promise((resolve, reject) => {{
+      cancelPlayback = () => resolve(false);
+      voiceAudio.onended = () => resolve(true);
+      voiceAudio.onerror = () => reject(new Error('Audio playback failed. Please try again.'));
+      voiceAudio.onplaying = () => {{ voiceStatus.textContent = 'Speaking…'; orb.classList.add('speaking') }};
+      voiceAudio.onpause = () => {{ orb.classList.remove('speaking'); voiceStatus.textContent = 'Paused — tap Play to continue.' }};
+      voiceAudio.play().catch(e => {{
+        if(e.name === 'NotAllowedError'){{
+          voiceStatus.textContent = 'Reply ready — tap Play below to listen.';
+        }}else{{
+          reject(new Error('Audio playback failed: ' + e.message));
+        }}
+      }});
     }});
-    URL.revokeObjectURL(url);
-  }}catch(e){{
-    document.querySelector('#chatErr').textContent = e.message;
   }}finally{{
+    cancelPlayback = null;
+    voiceAudio.onended = voiceAudio.onerror = voiceAudio.onplaying = voiceAudio.onpause = null;
+    voiceAudio.pause();
+    voiceAudio.removeAttribute('src');
+    voiceAudio.load();
+    voiceAudio.hidden = true;
+    orb.classList.remove('speaking');
+    URL.revokeObjectURL(url);
+  }}
+}}
+
+async function speakReply(text){{
+  const controller = new AbortController();
+  speechAbort = controller;
+  stopSpeech.hidden = false;
+  try{{
+    for(const chunk of speechChunks(text)){{
+      if(controller.signal.aborted) break;
+      voiceStatus.textContent = 'Preparing speech…';
+      const token = await validAccessToken();
+      if(!token) throw new Error('Please sign in again to hear the reply.');
+      const blob = await voiceFetch('/voice/v1/tts', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{text:chunk}}), signal:controller.signal}});
+      if(controller.signal.aborted || !await playSpeechBlob(blob)) break;
+    }}
+  }}catch(e){{
+    if(!controller.signal.aborted) document.querySelector('#chatErr').textContent = e.message;
+  }}finally{{
+    speechAbort = null;
+    stopSpeech.hidden = true;
     orb.classList.remove('speaking');
   }}
 }}
+stopSpeech.onclick = () => {{ speechAbort?.abort(); cancelPlayback?.() }};
 
 document.querySelector('#mic').onclick = toggleMic;
 document.querySelector('#signin').onclick=login;

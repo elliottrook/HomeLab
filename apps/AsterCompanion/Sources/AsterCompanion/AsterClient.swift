@@ -161,4 +161,66 @@ struct AsterClient {
         }
         return try JSONDecoder().decode(ArrRepairExecutionResult.self, from: data)
     }
+
+    /// M6: speech-to-text via the same Authentik token already used for
+    /// chat - services/aster-speech/aster_speech.py accepts it directly,
+    /// no separate voice login. `audioData` is a raw recorded audio file
+    /// (any format ffmpeg/faster-whisper can decode - AVAudioRecorder's
+    /// default .m4a is fine).
+    func transcribe(audioData: Data) async throws -> String {
+        guard let token = await authManager.validAccessToken() else {
+            throw AsterClientError.notAuthenticated
+        }
+
+        let boundary = "AsterCompanion-\(UUID().uuidString)"
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"audio\"; filename=\"voice.m4a\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: audio/m4a\r\n\r\n".data(using: .utf8)!)
+        body.append(audioData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+
+        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("voice/v1/stt"))
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpBody = body
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AsterClientError.malformedResponse
+        }
+        guard http.statusCode == 200 else {
+            throw AsterClientError.server(status: http.statusCode, body: String(data: data, encoding: .utf8) ?? "")
+        }
+        guard
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+            let text = json["text"] as? String
+        else {
+            throw AsterClientError.malformedResponse
+        }
+        return text
+    }
+
+    /// M6: text-to-speech, returning raw WAV bytes ready for AVAudioPlayer.
+    func synthesize(text: String) async throws -> Data {
+        guard let token = await authManager.validAccessToken() else {
+            throw AsterClientError.notAuthenticated
+        }
+
+        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("voice/v1/tts"))
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["text": text])
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else {
+            throw AsterClientError.malformedResponse
+        }
+        guard http.statusCode == 200 else {
+            throw AsterClientError.server(status: http.statusCode, body: String(data: data, encoding: .utf8) ?? "")
+        }
+        return data
+    }
 }

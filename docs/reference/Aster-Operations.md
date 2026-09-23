@@ -436,3 +436,31 @@ prompt/tool configuration is substantially slower than Aster.
 
 These figures are single-user measurements. Inference intentionally has one
 slot, so simultaneous requests queue instead of competing for the B60's memory.
+
+
+## Companion speech operations (verified 2026-09-23)
+
+Aster Companion's iPhone client is `/companion` on `aster.elliottrook.com`.
+The separate STT/TTS service runs on LXC 116 (`192.168.70.14:9130`) behind
+NPM's `/voice/` location. It accepts the Companion Authentik JWT or its dedicated
+service key. Those two authentication paths require separate validation:
+service-key smoke tests do not prove Companion login works.
+
+Speech must reach `https://auth.elliottrook.com/application/o/aster-companion/jwks/`
+through NPM `192.168.50.23:443`. OPNsense permits that exact source/destination
+on Lab VLAN 70, rule UUID `bc811346-6714-44b4-bc65-46e7430f46a8`. An inbound
+NPM-to-speech permit alone is insufficient. If voice hangs before transcription,
+check this dependency and authentication error classes before tuning Whisper.
+
+`python3 /opt/aster-speech/health_check.py` on LXC 116 checks speech health and
+JWKS reachability, emits sanitized statuses, and exits nonzero on failure.
+HomeLab Doctor invokes the same probe through Proxmox. Speech data is temporary;
+normal logs contain timing/size and error categories, not recordings or transcripts.
+
+Reload the phone page after a web deployment. Tap the orb to start/stop recording.
+The web UI reports Transcribing, Thinking and Preparing speech; if automatic
+playback is blocked, tap the displayed audio Play control. Stop speech ends the
+remaining reply. Long replies are spoken in bounded chunks. Typed turns stay silent.
+Physical iPhone acceptance remains pending as of this repair; generated WAV and
+AAC/MP4 smoke tests pass. See `docs/projects/Aster-Companion-App.md` for evidence,
+rollback checkpoints and pending integration publication.
