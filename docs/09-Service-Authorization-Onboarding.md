@@ -299,6 +299,11 @@ and certificate 8. Homarr and NetBox additionally use native OIDC linked to the
 existing accounts. Homepage links now use HTTPS; the former direct browser
 addresses redirect to those protected names. Actual backend ports are private.
 
+Human result after correcting the native OAuth grants: Jason confirmed Homarr
+and Dockge work, then confirmed Dozzle, Code Server, File Browser and NetBox.
+Normal browser workflows are accepted for all six. Dedicated fresh-session,
+sign-out and recovery checks remain separate pending graduation evidence.
+
 | Service | Protected browser URL | Former direct URL (now redirects) | NPM / gate provider ID |
 |---|---|---|---|
 | Dozzle | `https://logs.elliottrook.com` | `http://192.168.20.40:8888` | 19 / 28 |
@@ -329,6 +334,14 @@ arrives. Earlier password-plus-passkey examples describe other services and
 must not be applied to this six-service cohort.
 
 ### Graduated services
+
+Audiobookshelf is separately staged at `https://audiobooks.elliottrook.com`
+with native OIDC (NPM 26/provider 38), passkey-only authentication, automatic
+browser SSO and an explicit link to the existing `admin` account. Its official
+mobile callback and existing API/player authentication are preserved; local
+recovery remains enabled with `autoLaunch=0`. Browser library/playback and
+actual mobile-client acceptance are pending, so it is not a graduated row.
+See the rollout project's Audiobookshelf section for checkpoints and rollback.
 
 Add one row only after the complete private-session and rollback tests pass:
 

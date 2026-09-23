@@ -3,7 +3,8 @@
 > Status: Active — Milestones 0-2 complete except the human-only stale-session
 > closure; Milestone 3 has graduated Grafana, ARR, Portainer and the coordinated
 > Pi-hole pair. Six further browser routes now use passkey-only single login
-> (2026-09-23); human workflow acceptance remains pending. Media/infrastructure and final
+> with normal browser acceptance (2026-09-23). Audiobookshelf native SSO is
+> deployed for browser/player testing. Media/infrastructure and final
 > graduation gates are still open.
 > Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
@@ -142,6 +143,103 @@ IP address still redirects to the HTTPS name even with a forged owner header.
 Opening the app while an Authentik session exists is expected SSO reuse, not
 evidence of an authentication bypass. Its direct app opening is not recorded
 as proof of a fresh passkey login or sign-out test.
+
+### Human acceptance update — 2026-09-23
+
+After the authorization-code grant correction, Jason replied "Works" to the
+Homarr/Dockge retest. Record successful normal browser access for those two
+apps. This does not establish fresh passkey authentication, sign-out/re-prompt,
+every privileged workflow, or acceptance of the other four apps.
+
+Next user checks: Dozzle log viewing, Code Server workspace access, File Browser
+file browsing and NetBox inventory through their protected HTTPS names, with no
+second app password. Keep destructive edits out of these acceptance tests.
+The next independent implementation candidate is Audiobookshelf's supported
+native OIDC, after its database/configuration checkpoint and existing-account/
+mobile callback validation. Immich/Frigate backup-access holds and Newtarr's
+persistence hold remain in effect; infrastructure cutover is later.
+
+### Six-app acceptance and Audiobookshelf execution — 2026-09-23
+
+Jason confirmed the remaining four browser apps work and explicitly requested
+continuation. All six now have human normal-workflow acceptance; dedicated
+sign-out/recovery tests remain separate graduation evidence.
+
+Next bounded layer: native OIDC for Audiobookshelf 2.36.0 at
+`audiobooks.elliottrook.com`, using existing TrueNAS backend
+`192.168.20.40:30067`. Checkpoint its SQLite database with the installed runtime,
+catalog configuration and container metadata, plus shared identity/proxy/DNS/
+firewall state. Add only NPM `192.168.50.23` → backend TCP 30067 and TrueNAS
+`192.168.20.40` → NPM TCP 443 for OIDC. Publish private DNS on the three existing
+authorities after staged TLS/Host validation. Use native OIDC without a browser
+forward-auth gate so existing API/player paths are preserved.
+
+Create one owner-only provider with explicit `authorization_code` grant,
+passkey-only authentication flow, strict root-host web/mobile callbacks and
+web logout return. Link the existing root `admin` account by its stable
+Authentik subject; disable auto-registration and avoid group/permission claim
+overrides. Auto-launch SSO on normal browser login, retaining local recovery
+until browser/mobile acceptance. Preserve the existing
+`audiobookshelf://oauth` mobile allowlist and add another player URI only when
+identified. No media file changes, app upgrade or session/token rotation.
+
+Rollback restores only the changed auth settings and owner subject link from
+the verified checkpoint, restarts Audiobookshelf, and removes only new proxy,
+provider, DNS and rule objects if needed. Do not replace the full media library
+or current database just to reverse login settings.
+
+**Audiobookshelf layer deployed:** NPM host **26**, native provider **38** and
+application `audiobookshelf`; default stable hashed subject explicitly linked
+to existing root user `ff5148ba-717e-4c6c-88f5-c9ae8ac8e3ca` (`admin`). No group
+or advanced-permission claims are applied. Active methods are `local,openid`,
+normal browser auto-launch is enabled and auto-registration is disabled. Local
+recovery remains available with `autoLaunch=0`; use the new HTTPS hostname for
+OIDC, because the legacy HTTP/IP origin is deliberately not an allowed callback.
+
+Exact added firewall rules: `41865587-f2e5-4a92-860c-4a23fc6508d5`
+(NPM → TrueNAS TCP 30067) and `7a2e6e50-05b9-49b7-b20f-5ebf377ba6d1`
+(TrueNAS → NPM TCP 443). Unbound host UUID:
+`5a50cd1f-6e50-4fda-a162-88ed3d13b032`. All three resolvers independently return
+`192.168.50.23`; no public DNS or inbound Internet path was added.
+
+Protected checkpoints:
+
+- TrueNAS `/root/authentik-audiobookshelf-20260923T203612Z`: consistent SQLite
+  `VACUUM INTO` copy using the installed app runtime, integrity `ok`, catalog
+  settings and container metadata. New OIDC credential handoff is retained here
+  as a separate protected file; do not print it. Media files were not copied or
+  modified.
+- Authentik `/opt/authentik/backups/audiobookshelf-20260923T203712Z`: readable
+  PostgreSQL dump catalogue before the new identity object.
+- NPM `/opt/nginx-proxy-manager/backups/audiobookshelf-20260923T203636Z`:
+  online SQLite checkpoint with integrity `ok`.
+- OPNsense `/root/authentik-audiobookshelf-20260923T203710Z`: protected config
+  before the new firewall/DNS objects.
+- Primary Pi-hole `/opt/pihole/etc-pihole/audiobookshelf-before-20260923T203918Z`
+  and secondary
+  `/mnt/.ix-apps/app_mounts/pihole/config/audiobookshelf-before-20260923T203947Z`:
+  protected TOML snapshots. Resolvers were restarted one at a time, verifying
+  the other remained available.
+
+Validation: native web and mobile callbacks pass Authentik's actual
+authorization-parameter validation with code grant and S256 PKCE; owner `jason`
+is allowed and `akadmin` denied. The deployed browser UI automatically reached
+the passkey-only Authentik flow. The legitimate web initiation request uses
+`callback=https://audiobooks.elliottrook.com/audiobookshelf/login`; the OIDC
+callback itself is `/auth/openid/callback`. Missing/invalid web callbacks are
+correctly rejected. Official mobile initiation redirects through
+`/auth/openid/mobile-redirect`; an unapproved player URI returns 400. The only
+configured mobile return remains `audiobookshelf://oauth` pending identification
+of any other player. Unauthenticated API access with spoofed identity headers
+returns 401. Existing owner, permissions, active/locked state, password hash and
+legacy token match the checkpoint. App health, nginx syntax and 20 route smoke
+checks pass. No human passkey completion, library/playback or mobile acceptance
+is inferred from these checks.
+
+Jason was asked to test the new HTTPS URL, existing library and playback.
+Homepage's Audiobookshelf link still awaits that acceptance; the direct local
+recovery entry must use `autoLaunch=0`. Do not turn off local authentication
+or claim mobile compatibility until the client tests pass.
 
 ### Earlier staging audit (historical)
 
@@ -326,25 +424,29 @@ authentication. This does not replace real login or full service-rebuild proof.
 
 ### Remaining discovery and exact resume point
 
-- **Human acceptance:** two test requests are pending for Dozzle/Homarr and
-  Code Server/Dockge/File Browser/NetBox. Do not promote Homepage links or mark
-  these services complete without responses. Test instructions and direct URLs
-  are in the onboarding runbook's staged table.
+- **Human acceptance (updated):** all six browser apps accepted by Jason after
+  the native-grant fix. Dedicated fresh-session/sign-out/recovery evidence is
+  still outstanding. The six Homepage links are already protected HTTPS
+  under Jason's single-login correction. Follow the current onboarding table,
+  not the historical direct-login staging instructions.
 - **Immich 2.7.5:** direct version endpoint responds; native OIDC is supported
   by the [official documentation](https://docs.immich.app/administration/oauth/),
   including a dedicated mobile callback. Synology's available SSH identity
   cannot run privileged Docker/backup commands without a password. No settings
   were changed; obtain a verified checkpoint through an authorized operator
   path before native-OIDC work. Do not change sudoers or bypass the restriction.
-- **Audiobookshelf 2.36.0:** local auth only, auto-registration/auto-launch off,
-  one active unlocked `admin` root account without an email. Its database is
+- **Audiobookshelf 2.36.0:** native SSO is deployed at
+  `https://audiobooks.elliottrook.com`, with existing owner subject linkage,
+  automatic browser launch, no auto-registration and local recovery retained.
+  Human library/playback/mobile acceptance and Homepage promotion are pending.
+  Its database is
   `/mnt/Media/media/audiobooks/absdatabase.sqlite`, alongside media, so back up
   the database/configuration rather than archiving the media library. Host
   SQLite is too old for this schema; the application's own sqlite3 runtime
-  returned integrity `ok`. Native OIDC requires an explicit existing-account
-  username mapping and preserved `audiobookshelf://oauth` mobile redirect,
+  returned integrity `ok`. The existing-account subject mapping and
+  `audiobookshelf://oauth` mobile redirect follow
   following the [official OIDC guide](https://audiobookshelf.org/docs/documentation/server-management/oidc-authentication/).
-  No identity or application configuration was changed.
+  Deployment objects and checkpoints are recorded above; do not recreate them.
 - **Calibre Web Automated:** direct deployment is HTTP `:8283`; Homepage
   still links to legacy HTTPS `:32016`, which needs reconciliation. Its app
   database has an inactive generic OAuth provider; local login is enabled,
@@ -1026,9 +1128,9 @@ Durable cohort status (update cells only from evidence, not intent):
 
 | Cohort | Discovery | Checkpoint | Network/proxy | Identity objects | DNS | Workflow/promotion |
 |---|---|---|---|---|---|---|
-| 3A — bounded browser gates | Dozzle/Homarr verified; Newtarr/Frigate held | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Human tests pending; links unchanged |
-| 3B — administrator interfaces | Four browser backends classified | Passed | Passed | Passed | Passed on all three resolvers | Human tests pending; links unchanged |
-| 3C — client-sensitive media | Pending | Pending | Pending | Pending | Pending | Pending |
+| 3A — bounded browser gates | Dozzle/Homarr verified; Newtarr/Frigate held | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Both browser workflows accepted; dedicated sign-out/recovery tests pending; HTTPS links live |
+| 3B — administrator interfaces | Four browser backends classified | Passed | Passed | Passed | Passed on all three resolvers | All four browser workflows accepted; dedicated sign-out/recovery tests pending; HTTPS links live |
+| 3C — client-sensitive media | Audiobookshelf verified; other members retain discovery/backup holds | Audiobookshelf passed | Audiobookshelf passed | Audiobookshelf native SSO passed | Audiobookshelf passed on all three resolvers | Audiobookshelf browser/player acceptance pending; Homepage not promoted |
 
 Milestone 3 completes when Cohorts 3A-3C pass, Plex's no-change assessment is
 recorded, and all previously completed Milestone 3 packages remain healthy.
