@@ -20,6 +20,15 @@ drift_result=$?
 doctor_output="$("$repo/scripts/doctor.sh" 2>&1)"
 doctor_result=$?
 
+# Reuse this run's bounded Doctor output; no second scan or extra alert channel.
+doctor_capture="$state_dir/doctor-output.txt"
+printf '%s\n' "$doctor_output" > "$doctor_capture"
+chmod 600 "$doctor_capture"
+/usr/bin/python3 "$repo/scripts/build-aster-health-report.py" \
+    --input "$doctor_capture" --exit-code "$doctor_result" \
+    --output "$state_dir/aster-health.json" --publish
+health_publish_result=$?
+
 certificate_output="$("$repo/scripts/certificate-check.sh" 2>&1)"
 certificate_result=$?
 set -e
@@ -35,6 +44,9 @@ set -e
 } > "$latest_log"
 
 problems=""
+if [ "$health_publish_result" -ne 0 ]; then
+    problems="Aster health-summary publication failed.\n"
+fi
 
 # Exit 1 means genuine drift; drift-check sends and deduplicates that alert.
 # Anything higher means the drift checker itself failed.

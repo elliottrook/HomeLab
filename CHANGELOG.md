@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-23 — Companion notification pilot
+
+- Added opt-in Mac lab/reply notifications and private Apple Web Push for the iPhone Home Screen app.
+- Added account-scoped background reply recovery, bounded delivery, stale-report rejection and Doctor monitoring.
+- Connected the existing daily Doctor summary to Aster; verified notification identity/state recovery. Device acceptance remains open.
+
 ## 2026-09-23 — Companion acceptance and notification milestone
 
 - Recorded Jason’s Mac voice and iPhone Wi-Fi/Tailscale acceptance; M6 is complete.

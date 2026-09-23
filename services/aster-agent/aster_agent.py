@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import re
 import time
@@ -1310,6 +1311,8 @@ async def companion_web_client() -> str:
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aster Companion</title>
+<link rel="manifest" href="/companion/manifest.webmanifest">
+<script src="/companion/notifications.js"></script>
 <link rel="apple-touch-icon" href="/companion/orb.png">
 <link rel="icon" href="/companion/orb.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1633,6 +1636,18 @@ async function approveArrAction(candidateRef){{
 document.querySelector('#checkArr').onclick = checkArrAction;
 
 let chatBusy = false;
+async function recoverNotificationReply(){{
+  if(!companionNotify.pending()) return;
+  chatBusy = true; updateVoiceControls(); orb.classList.add('thinking');
+  try{{
+    const pending = companionNotify.pending();
+    if(pending.persona !== currentPersona) switchPersona(pending.persona);
+    const reply = await companionNotify.recover();
+    if(reply){{ messages.push({{role:'assistant',content:reply}}); add('assistant',reply); saveChatHistory() }}
+  }}catch(e){{ document.querySelector('#chatErr').textContent=e.message }}
+  finally{{ chatBusy=false; updateVoiceControls(); orb.classList.remove('thinking') }}
+}}
+
 async function send(viaVoice = false){{
   if(chatBusy || (voiceBusy && viaVoice !== true)) return;
   const text=prompt.value.trim(); if(!text) return;
@@ -1655,6 +1670,12 @@ async function send(viaVoice = false){{
   try{{
     const token=await validAccessToken();
     if(!token){{ replyDiv.remove(); showLogin(); return }}
+    if(companionNotify.enabled()){{
+      replyText = await companionNotify.reply({{messages, persona:currentPersona, enabled_tools:enabledToolsForRequest()}});
+      replyDiv.textContent = 'Aster: ' + replyText;
+      messages.push({{role:'assistant',content:replyText}}); saveChatHistory();
+      return replyText;
+    }}
     const r=await fetch('/v1/chat/completions', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{messages, stream:true, persona:currentPersona, enabled_tools:enabledToolsForRequest()}})}});
     if(!r.ok){{ const j=await r.json().catch(()=>({{}})); throw new Error(j.detail || r.statusText) }}
     const reader=r.body.getReader(), decoder=new TextDecoder();
@@ -1883,12 +1904,20 @@ stopSpeech.onclick = () => {{ speechAbort?.abort(); cancelPlayback?.() }};
 
 document.querySelector('#mic').onclick = toggleMic;
 document.querySelector('#signin').onclick=login;
-document.querySelector('#signout').onclick=()=>{{
+document.querySelector('#signout').onclick=async()=>{{
+  try{{ await companionNotify.disable() }}catch(e){{ document.querySelector('#chatErr').textContent=e.message; return }}
+  companionNotify.clearPending();
   clearTokens();
   for(const k of Object.keys(localStorage)){{ if(k.startsWith('aster_chat_')) localStorage.removeItem(k) }}
   messages.length = 0; chat.innerHTML = '';
   showLogin();
 }};
+navigator.serviceWorker?.addEventListener('message', e=>{{
+  if(e.data?.type === 'aster-notification' && !chatBusy && companionNotify.pending()) recoverNotificationReply();
+}});
+document.addEventListener('visibilitychange', ()=>{{
+  if(document.visibilityState === 'visible' && !chatBusy && companionNotify.pending()) recoverNotificationReply();
+}});
 document.querySelector('#send').onclick=send;
 prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.preventDefault(); send() }} }});
 
@@ -1896,6 +1925,49 @@ prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.
   const err=await handleCallback();
   if(err){{ document.querySelector('#loginErr').textContent=err }}
   const token=await validAccessToken();
-  if(token){{ await loadPersonas(); loadChatHistory(); showApp() }} else showLogin();
+  if(token){{ await loadPersonas(); loadChatHistory(); showApp(); await companionNotify.init(); await recoverNotificationReply() }} else showLogin();
 }})();
 </script></body></html>"""
+
+
+# Companion notification state is separate from legacy chat/API credentials.
+from companion_notifications import CompanionNotifications
+
+
+def companion_owner(authorization: str | None = Header(default=None)) -> str:
+    claims = _authentik_claims(authorization)
+    if not claims or not isinstance(claims.get("sub"), str) or not claims["sub"]:
+        raise HTTPException(401, "Sign in with your Companion account")
+    return hashlib.sha256((AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()).hexdigest()
+
+
+notifications = CompanionNotifications(
+    Path(os.environ.get("ASTER_NOTIFICATION_STATE", "/var/lib/aster/notifications")),
+    Path(os.environ.get("ASTER_NOTIFICATION_KEY", "/etc/aster/notification-vapid.pem")),
+    companion_owner, ChatRequest, chat, get_lab_health,
+)
+app.include_router(notifications.router)
+app.router.add_event_handler("startup", notifications.start)
+app.router.add_event_handler("shutdown", notifications.stop)
+
+
+@app.get("/companion/manifest.webmanifest")
+async def companion_manifest():
+    from fastapi.responses import JSONResponse
+    return JSONResponse({"id": "/companion", "name": "Aster Companion", "short_name": "Aster",
+                         "start_url": "/companion", "scope": "/companion", "display": "standalone",
+                         "background_color": "#111827", "theme_color": "#111827",
+                         "icons": [{"src": "/companion/orb.png", "sizes": "any", "type": "image/png"}]},
+                        media_type="application/manifest+json")
+
+
+@app.get("/companion/sw.js")
+async def companion_worker():
+    return FileResponse(STATIC_DIR / "companion-sw.js", media_type="application/javascript",
+                        headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/companion"})
+
+
+@app.get("/companion/notifications.js")
+async def companion_notification_script():
+    return FileResponse(STATIC_DIR / "companion-notifications.js", media_type="application/javascript",
+                        headers={"Cache-Control": "no-cache"})

@@ -2,6 +2,9 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var auth: AuthManager
+    @StateObject private var notifications = CompanionNotifications()
+    @State private var labHealth: CompanionLabHealth?
+    @State private var lastHealthFingerprint: String?
     @State private var messages: [ChatMessage] = []
     @State private var draft: String = ""
     @State private var state: AsterState = .idle
@@ -151,11 +154,33 @@ struct ContentView: View {
                         .frame(maxWidth: 200)
                         .labelsHidden()
                     }
-                    Button("Sign out") { auth.logout() }
+                    Button("Sign out") { notifications.disable(); auth.logout() }
                         .buttonStyle(.plain)
                         .foregroundStyle(.secondary)
                 }
                 .padding()
+
+                DisclosureGroup("Notifications") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(notifications.status).font(.caption)
+                        Text("Private previews. Background alerts require Aster to remain running.")
+                            .font(.caption).foregroundStyle(.secondary)
+                        if let health = labHealth {
+                            Text("Lab health: " + health.status).font(.caption)
+                            if let reason = health.reason { Text(reason).font(.caption) }
+                            ForEach(Array(health.checks.filter { $0.status != "pass" }.enumerated()), id: \.offset) { _, check in
+                                Text(check.summary).font(.caption)
+                            }
+                        }
+                        if notifications.enabled {
+                            Button("Disable notifications") { notifications.disable() }
+                        } else {
+                            Button("Enable notifications") { Task { await notifications.enable() } }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 8)
 
                 if let persona = currentPersonaModel, !persona.tools.isEmpty {
                     DisclosureGroup("Tools") {
@@ -273,7 +298,22 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 480, minHeight: 560)
-        .task { await loadPersonas() }
+         .task {
+            await loadPersonas()
+            while !Task.isCancelled && auth.isAuthenticated {
+                await notifications.refresh()
+                if let report = try? await client.labHealth() {
+                    labHealth = report
+                    if let fingerprint = report.fingerprint {
+                        if lastHealthFingerprint != fingerprint && ["warning", "failed"].contains(report.status) {
+                            await notifications.post(.labAlert, eventID: "lab-" + fingerprint)
+                        }
+                        lastHealthFingerprint = fingerprint
+                    }
+                }
+                do { try await Task.sleep(for: .seconds(60)) } catch { return }
+            }
+        }
     }
 
     private func checkArrAction() {
@@ -328,7 +368,9 @@ struct ContentView: View {
         Task {
             do {
                 let reply = try await client.send(history: messages, persona: currentPersona, enabledTools: enabledToolsPayload())
+                guard auth.isAuthenticated else { state = .idle; return }
                 messages.append(ChatMessage(role: .assistant, content: reply))
+                await notifications.post(.replyReady, eventID: "reply-" + UUID().uuidString)
                 if viaVoice {
                     state = .speaking
                     for chunk in speechChunks(reply) {

@@ -115,3 +115,99 @@ Native iOS installation, Aster web research, new mutating tools, stable paid
 Apple signing and changes to the inference model are outside this project.
 Shared inference is single-slot: simultaneous news summarization can increase
 chat latency. Source and operational records take precedence over this guide.
+
+## System notifications (September 23 pilot)
+
+Mac voice and iPhone Wi-Fi/Tailscale voice are accepted. Notifications are a
+separate pilot awaiting real-device receipt and permission/revocation checks.
+Jason requested both lab system alerts and reply-ready notices and approved
+Apple Web Push with generic encrypted content on 2026-09-23.
+
+### Enable and use
+
+- **iPhone:** open the installed Home Screen Aster app, expand **Notifications**,
+  choose **Enable notifications**, accept the OS prompt, then **Send test
+  notification**. Test with the app backgrounded on Wi-Fi and on Tailscale.
+  Ordinary browser tabs may not support this path. Apple Web Push requires a
+  supported iOS Home Screen web app; no paid Apple Developer membership is used.
+- **Mac:** quit/reopen `/Applications/AsterCompanion.app`, expand Notifications
+  and enable them. Send a question and switch apps before the reply completes.
+  Native alerts require Aster to remain running; a fully quit app does not
+  receive them. No launch-at-login agent or native APNs entitlement was added.
+- Alerts contain generic text only. Open Aster and use normal authentication
+  to see the reply or lab health. An alert cannot approve or execute an action.
+  Focus/OS notification settings may silence alerts.
+- Disable in Aster or revoke its OS notification permission. Web sign-out
+  attempts server deletion and browser unsubscribe, then clears local state;
+  an unavailable server never prevents local logout. If both revocation paths
+  fail, disable Aster notifications in system settings.
+
+### Delivery and limits
+
+The Mac polls the authenticated `/v1/companion/lab-health` endpoint each minute
+while signed in and suppresses foreground local alerts. The existing daily
+08:15 Mac `ca.yampy.homelab-report` job now publishes its already-collected
+Doctor output to `/var/lib/aster/health/latest.json` on LXC 104. This is a daily
+health summary, not real-time monitoring of every service. A sleeping/offline
+Mac can delay collection. Reports over 36 hours old, malformed or future-dated
+are excluded from alerts; the UI and Doctor report that collection is stale.
+The September 23 refresh found existing TrueNAS Media capacity pressure (93%).
+
+Web subscriptions belong to the authenticated Authentik issuer/subject and
+expire after 30 days without renewal by opening the app. The sender accepts
+only `https://web.push.apple.com` endpoints, disables redirects and ambient
+proxy use, and sends only an event kind and random ID. Apple sees delivery
+metadata; the Web Push payload is encrypted. Outbound Apple HTTPS was already
+reachable from LXC 104; no new ingress, DNS or firewall rule was installed.
+
+Notifications-enabled web requests use `/v1/companion/jobs`: the request
+continues after the phone disconnects. The reply is kept **in memory only** for
+at most one hour and can be recovered on reopen. Requests are bounded to four
+active globally, one per account, 64 per hour, and 240 seconds per reply.
+Requests have stable random IDs to prevent a repeated submission starting a
+second job. Restarted/interrupted jobs fail visibly; no inference/action is
+silently replayed. Reply text and input history are absent from SQLite/backups.
+Clients without enabled Web Push retain the existing streaming chat path.
+
+A reply fetched before its push is dispatched cancels that pending alert.
+Races can still show a generic foreground Web Push: received pushes must produce
+a visible notification under Safari policy. The worker never uses arbitrary
+payload text or URLs. Delivery retries are limited to five attempts, Apple TTL
+is five minutes, and event metadata is pruned after one hour. Provider 404/410
+removes the subscription. Push acceptance is not proof of device presentation.
+Lab report fingerprints and stable notification tags reduce duplicate alerts.
+
+### Monitoring, custody and recovery
+
+`/opt/aster-agent/check_notifications.py` reports only coarse failure reasons:
+worker heartbeat older than 90 seconds, failed delivery attempts, state/key
+permission problems or stale Doctor data. `scripts/doctor.sh` invokes it through
+the existing Proxmox path. Delivery metadata stays local, without raw endpoints
+or credentials in diagnostic output. Jason owns notification preferences and
+provider/OS troubleshooting; Aster owns no new administrative capability.
+
+- VAPID identity: `/etc/aster/notification-vapid.pem`, root:aster 0640, generated
+  on LXC 104; never copied into Git or an AI prompt. This is the custody location,
+  not a credential value. Replacing it requires re-enrolling web devices; revoke
+  by disabling the sender/removing subscriptions, then explicitly plan rotation.
+  Central AI-PAM custody is not yet available and is not presumed operational.
+- Subscription/event/job metadata: `/var/lib/aster/notifications/notifications.sqlite3`,
+  aster-owned 0600 in a 0700 directory. SQLite has secure deletion enabled.
+- systemd drop-in: `aster-agent.service.d/companion-notifications.conf` grants
+  write access only to that state directory. Normal Authentik checks remain.
+- Rollback source/unit: `/var/backups/aster-notifications-20260923/` on LXC 104.
+  Restore the saved `aster_agent.py`, disable the notification drop-in, reload
+  systemd and restart. The earlier voice build is retained at
+  `/tmp/AsterCompanion.before-notifications-20260923.app` on Mac (temporary, not
+  durable storage). Use a clean app replacement; merging bundles leaves stale
+  resource signatures. Existing voice/chat can operate without notifications.
+- Protected bootstrap archive: `recovery.tar.gz` in that guest directory and
+  `/root/aster-notifications-20260923/` on Proxmox, mode 0600 in private parents.
+  SHA-256 `1aff545d3a361a48a63b32a38ecd52f271a603da2c0353e7b3b0fb7729793d54`.
+  An isolated restore verified identity/public-key equality, SQLite integrity and
+  absence of stored reply content. This initial copy had no device subscriptions.
+  Subsequent state/key coverage follows the existing LXC 104 guest backups;
+  the first scheduled backup containing this new state is still to be verified.
+
+References: [WebKit Home Screen Web Push](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/)
+and [Apple notification permission](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications).

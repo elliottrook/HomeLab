@@ -1,8 +1,8 @@
 # Aster Companion App
 
 > Status: Active — Mac voice and iPhone Wi-Fi/Tailscale accepted 2026-09-23;
-> system notifications added as a new milestone at Jason's request.
-> Notifications and final Git synchronization remain before graduation.
+> system notifications deployed as a pilot at Jason's request.
+> Notification device acceptance and final Git synchronization remain before graduation.
 >
 > Project owner: Jason
 >
@@ -537,14 +537,14 @@ begins:**
 ## Persistence plan
 
 This document is the durable checkpoint. Current milestone: **M8 system
-notifications planning**, followed by **M7 final close-out**. On 2026-09-23,
+notifications device acceptance**, followed by **M7 final close-out**. On 2026-09-23,
 Jason confirmed Mac voice works and the iPhone app works over both Wi-Fi and
 Tailscale, then requested a system-notifications step. M6 acceptance is complete.
 Operational integrations, backup/restore and capacity checks are recorded below.
 Live ARR execution remains deferred to its separate follow-up; do not fabricate
-a production candidate or enable the brokers. Next safe action: inspect existing
-notification capabilities and define event sources, delivery paths and privacy
-controls for M8 before implementation. Git synchronization still requires the
+a production candidate or enable the brokers. Next safe action: collect Jason's real Mac/iPhone notification results and verify
+iPhone receipt over Wi-Fi/Tailscale, permissions/revocation and reopen recovery.
+The notification implementation and isolated recovery proof are recorded below. Git synchronization still requires the
 repository's immediate push approval. The original pre-start assessment was
 accepted on 2026-09-21; assess any new notification trust boundary before changing
 production. The following bullets retain the original discovery context:
@@ -744,7 +744,7 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
   Reconcile notification implementation, acceptance and operational impacts,
   then finalize local commits, approved Forgejo pushes and mirror verification.
   Keep the project active until the new notification gate passes.
-- [ ] **M8 — System notifications (added by Jason 2026-09-23).** Add useful,
+- [ ] **M8 — System notifications (pilot deployed 2026-09-23; acceptance open).** Add useful,
   opt-in operating-system notifications to the Mac companion and iPhone web
   app. Preserve milestone numbers; execute this step before M7 graduation.
   - **Discovery/design:** inspect current clients and lab alert sources; define
@@ -2196,6 +2196,63 @@ step for system notifications. Added M8 with discovery, permissions, privacy,
 delivery, real-device acceptance and operational documentation gates; M7 now
 follows M8. This update records the requested plan extension, not a deployed
 notification feature. ARR execution deferral is unchanged.
+
+### 2026-09-23 — Notification implementation and push receipt
+
+- Jason authorized “Push and continue.” Pushed HomeLab `9cc649b` and operational
+  reference `a8d5865` to their Forgejo origins. Read-only GitHub verification
+  matched HomeLab `9cc649bf42b1b1d91cca1a5c4c8aaba5a281ef03`. Forgejo's database
+  has **no push mirror configured for homelab-reference**; a guessed GitHub
+  repository query failed. Reference GitHub synchronization is therefore an
+  explicit open integration gap, not a verified mirror. No mirror was created
+  and no direct GitHub push was attempted. Subsequent notification edits need
+  their own focused commit and separately authorized push.
+- Jason selected **lab system alerts and reply-ready notifications**, then
+  explicitly approved **generic Apple Web Push**. Risk envelope: same private
+  ingress/authentication, existing outbound Apple HTTPS, generic encrypted push
+  payloads with delivery metadata visible to Apple, local subscription state,
+  no paid developer membership, no new administrative tool or action approval.
+  Mac native delivery is limited to the running app; iPhone closed-app delivery
+  uses Home Screen Web Push. These limitations remain part of device acceptance.
+- Implemented account-scoped subscriptions and bounded background reply jobs,
+  Apple-only endpoint validation, no redirects/proxy credential use, generic
+  notification content/navigation, explicit permission controls, unsubscribe,
+  retries/expiry/deduplication, interruption handling and private state modes.
+  Reply text stays in memory for one hour and is not written to SQLite/backups.
+  The existing streaming client path remains for users without enabled push.
+- Found the Doctor report stale since September 1. A fresh real scan on
+  September 23 completed and reported known TrueNAS Media 93% capacity pressure.
+  Published the bounded report. Extended the existing daily 08:15 Mac report
+  job to publish its collected output, rather than running Doctor twice. Empty
+  output now fails closed. A 36-hour freshness guard prevents old failures being
+  presented as current alerts. This is daily summary alerting, not real-time
+  universal infrastructure monitoring.
+- Deployed on LXC 104 after independent candidate checks; existing gateway hash
+  was checked before replacement. Concurrent Aster lab-operations changes were
+  preserved locally and excluded from this notification-only deployment. Native
+  Mac release installed with a verified signature. Initial merging installation
+  retained stale nested signature resources; clean replacement fixed it, and
+  the prior voice app remains available for rollback.
+- Validation: **95 Python tests** (83 gateway + 12 notification), **10 browser
+  tests** (6 voice + 4 notification), **10 Swift tests** and release build pass.
+  Four synthetic producer classifications cover empty, failed, healthy and
+  warning reports. Encryption round-trip caught a VAPID library restriction on
+  HTTPS subject paths; using the origin fixed it. Unauthorized public-ingress
+  notification requests return 401. Apple HTTPS connection succeeds. Doctor's
+  notification probe reports healthy worker/state/report freshness.
+- Recovery archive restored in isolation: identity/public-key equality, SQLite
+  integrity and absence of reply content verified. Guest/Proxmox checksums match
+  `1aff545d3a361a48a63b32a38ecd52f271a603da2c0353e7b3b0fb7729793d54`. Initial
+  checkpoint contains no enrolled subscriptions. The next scheduled LXC 104
+  backup containing the identity and state is not yet verified.
+- [Operator runbook](../runbooks/Aster-Companion.md) records custody, ownership,
+  disable/revoke, rollback, monitoring and delivery limits. No NetBox, Homepage,
+  DNS, certificate or network-diagram changes are needed: same guest/host/path.
+  Wiki is refreshed from the runbook; no manual edits to Aster's derived mirror.
+  AI administration remains unsupported for this feature: no new privileged API.
+- **Remaining:** real device receipt and permission/revocation/reopen tests;
+  acceptance of native Mac fully-quit limitation; first scheduled backup coverage;
+  notification commit/push and reference-repository mirror gap. M8/M7 stay open.
 
 ## Close-out
 

@@ -30,6 +30,16 @@ enum AsterClientError: Error, LocalizedError {
 struct AsterClient {
     let authManager: AuthManager
 
+    func labHealth() async throws -> CompanionLabHealth {
+        guard let token = await authManager.validAccessToken() else { throw AsterClientError.notAuthenticated }
+        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("v1/companion/lab-health"))
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.timeoutInterval = 15
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw AsterClientError.malformedResponse }
+        return try JSONDecoder().decode(CompanionLabHealth.self, from: data)
+    }
+
     /// - Parameters:
     ///   - persona: One of the IDs from `fetchPersonas()` (defaults to the
     ///     server's own "sysadmin" default if never fetched).

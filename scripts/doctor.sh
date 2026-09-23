@@ -505,6 +505,16 @@ check_aster() {
 }
 
 # Authentication egress is a distinct dependency: /health alone cannot prove it.
+check_aster_notifications() {
+    local state
+    if state="$(ssh -o BatchMode=yes -o ConnectTimeout=8 root@192.168.50.10 \
+        'pct exec 104 -- /opt/aster-agent/venv/bin/python /opt/aster-agent/check_notifications.py' 2>&1)"; then
+        pass "Aster notifications: delivery worker, state and health-report freshness verified"
+    else
+        fail "Aster notifications need attention: ${state:-probe unavailable}"
+    fi
+}
+
 check_aster_speech() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
@@ -1882,6 +1892,7 @@ category "Applications & Services"
 
 check_aster
 check_aster_speech
+check_aster_notifications
 check_xe_reset
 check_aster_wiki
 check_netbox
