@@ -79,6 +79,12 @@ class AuthentikTokenTests(unittest.TestCase):
                 require_api_key(authorization=f"Bearer {self._token(expires_in=-60)}")
         self.assertEqual(raised.exception.status_code, 401)
 
+    def test_token_for_another_application_is_refused(self):
+        with self._signing_key_patch(), patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
+            with self.assertRaises(HTTPException) as raised:
+                require_api_key(authorization=f"Bearer {self._token(audience='other-app')}")
+        self.assertEqual(raised.exception.status_code, 401)
+
     def test_token_from_a_different_issuer_is_refused(self):
         with self._signing_key_patch(), patch("aster_speech.ASTER_SPEECH_API_KEY", "the-real-key"):
             with self.assertRaises(HTTPException) as raised:

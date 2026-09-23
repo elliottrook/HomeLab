@@ -77,3 +77,12 @@
   - CyberPower CP1500PFCLCD (`nas-ups`, serial `CXXRP7016137`) — TrueNAS + Arista core switch
   - CyberPower OR500LCDRM1U (`network-ups`, serial `GA4KS2000999`) — OPNsense, the Lenovo NUT server itself, UniFi PoE switch, camera switch
   - APC Back-UPS Pro BN1500M2-CA — dumb battery only (no NUT/monitoring interface exists on this unit); no equipment currently assigned; final disposition undecided
+
+
+## Aster speech guest — verified 2026-09-23
+
+LXC 116 `aster-speech` is an unprivileged Debian guest on the existing Proxmox
+host: 6 vCPU, 4096 MiB RAM, 16 GiB root disk, `192.168.70.14/24` on VLAN 70,
+MAC `BC:24:11:E1:11:68`. No physical rack/power change. NetBox VM 16,
+interface 16 and IP 30 now record the live guest. CPU-only Whisper/Piper serves
+the Companion voice workflow; the B60 remains owned by LXC 110 inference.

@@ -21,6 +21,7 @@ Arista core
   |     +-- LXC 107: Reverse Proxy
   |     +-- LXC 108: Forgejo (Servers VLAN 20)
   |     +-- LXC 109: Prometheus / Grafana observability (Servers VLAN 20)
+  |     +-- LXC 116: Aster Speech STT/TTS (Lab VLAN 70; CPU-only)
   +-- TrueNAS
   |     +-- NFS: Surveillance/Frigate recording storage
   +-- Synology storage
@@ -183,3 +184,14 @@ Home Assistant is the sole owner of rebuilt general automations. Vendor applicat
 Trusted media access is separately constrained to source `192.168.20.11` and the `TRUSTED_MEDIA_DEVICES` alias containing five Apple TVs. Media endpoints already on IoT, including AirPort Express and Sonos devices, use the existing Home Assistant-to-IoT path. This rule does not grant broad Servers-to-Trusted access.
 
 HomeKit Bridge is the presentation layer for Apple Home and Siri; it is not a second automation authority. It publishes only `light`, `switch`, `lock`, `climate`, `cover`, `fan`, `vacuum`, `scene`, `script` and `binary_sensor`. Media players, cameras, general sensors, automations, buttons and helpers are excluded to prevent duplicate endpoints and diagnostic clutter. Discovery depends on mDNS across the existing bounded LAN/Servers/IoT relay, and control uses the bridge TCP listener on VM 103 (default port `21063`). Pairing and live Siri control were validated on 2026-08-15.
+
+
+## Aster Companion — verified 2026-09-23
+
+Private HTTPS `aster.elliottrook.com` exposes the Companion UI/API through NPM
+and the shared `/voice/` speech path. Both use the dedicated Authentik passkey
+public client with PKCE. NPM reaches LXC 104 TCP 9120 and LXC 116 TCP 9130;
+both guests reach NPM TCP 443 for Authentik signing keys. Speech uses CPU
+Whisper/Piper, not the shared B60 inference slot. No new Tailscale route or
+public ingress was added. Live ARR repair remains disabled and explicitly
+deferred to its follow-up. See [operator guide](runbooks/Aster-Companion.md).

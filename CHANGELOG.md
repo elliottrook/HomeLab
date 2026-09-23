@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-23 — Aster Companion close-out preparation
+
+- Recorded successful iPhone voice acceptance and transferred live ARR execution to an explicit disabled-by-default follow-up at Jason’s request.
+- Closed speech off-host backup, checksum/isolated recovery, NetBox, Homepage, wiki and Doctor gaps.
+- Enforced persona/tool restrictions for unsolicited model calls; measured concurrent chat/news/speech capacity and the cold-persona latency limit.
+- Final client acceptance and approved Git synchronization remain pending; no premature graduation claim.
+
 ## 2026-09-23 — FreeCAD project archive
 
 - Recorded the local FreeCAD MCP connector as successful based on its existing verified CAD workflow evidence.

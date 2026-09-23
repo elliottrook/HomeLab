@@ -1039,6 +1039,25 @@ class PersonaTests(unittest.TestCase):
 
 
 class PersonaChatEndpointTests(unittest.IsolatedAsyncioTestCase):
+    async def test_unsolicited_model_tool_call_cannot_escape_persona_or_chat_scope(self):
+        for persona, enabled_tools, tool_name in [
+            ("media", None, "get_ha_report"),
+            ("sysadmin", [], "get_lab_health"),
+        ]:
+            with self.subTest(persona=persona):
+                tool_call = {
+                    "choices": [{"message": {"role": "assistant", "tool_calls": [{
+                        "id": "unexpected", "function": {"name": tool_name, "arguments": "{}"}
+                    }]}}],
+                    "usage": {},
+                }
+                with patch("aster_agent.upstream_completion", new=AsyncMock(
+                    side_effect=[tool_call, self._fake_completion()]
+                )), patch("aster_agent.execute_tool", new=AsyncMock()) as execute:
+                    await chat(ChatRequest(messages=[{"role": "user", "content": "hello"}],
+                                           persona=persona, enabled_tools=enabled_tools))
+                execute.assert_not_awaited()
+
     @staticmethod
     def _fake_completion():
         return {

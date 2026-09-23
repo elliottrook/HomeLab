@@ -509,7 +509,7 @@ check_aster_speech() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
         'pct exec 116 -- python3 /opt/aster-speech/health_check.py' 2>/dev/null)"; then
-        pass "Aster speech API and Authentik signing-key endpoint reachable"
+        pass "Aster speech API, HTTPS ingress and Companion identity discovery healthy"
     else
         fail "Aster speech/authentication dependency unhealthy: ${state:-probe unavailable}"
     fi
@@ -1919,6 +1919,8 @@ check_truenas_guest_mirror_age "Aster llama.cpp LXC 110" 110 30 lxc /mnt/Media/b
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_proxmox_guest_backup_age "Aster Wiki LXC 113" 113 30 lxc
+check_proxmox_guest_backup_age "Aster Speech LXC 116" 116 30 lxc
+check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Media/backup/homelab-proxmox-guests
 check_idrive_relay
 check_backup_redesign_truenas
 check_home_assistant_backup_truenas

@@ -1244,7 +1244,11 @@ async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
                 arguments = raw_arguments if isinstance(raw_arguments, dict) else json.loads(raw_arguments)
             except json.JSONDecodeError:
                 arguments = {"_invalid_arguments": raw_arguments}
-            tool_result = await execute_tool(str(function.get("name", "")), arguments)
+            tool_name = str(function.get("name", ""))
+            if tool_name not in allowed_tools:
+                tool_result = {"error": "Tool is unavailable for this persona or conversation."}
+            else:
+                tool_result = await execute_tool(tool_name, arguments)
             payload["messages"].append(
                 {
                     "role": "tool",

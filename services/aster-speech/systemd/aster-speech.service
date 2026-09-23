@@ -1,0 +1,25 @@
+[Unit]
+Description=Aster Speech Service (STT + TTS)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=aster-speech
+Group=aster-speech
+UMask=0077
+WorkingDirectory=/opt/aster-speech
+EnvironmentFile=/etc/aster-speech/speech.env
+ExecStart=/opt/aster-speech/venv/bin/uvicorn aster_speech:app --host 192.168.70.14 --port 9130 --workers 1 --no-access-log
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/aster-speech
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

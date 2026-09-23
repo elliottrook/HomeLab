@@ -1,7 +1,8 @@
 # Aster Companion App
 
-> Status: Active pilot — M6 voice repairs deployed 2026-09-23; physical
-> iPhone recording/playback acceptance remains pending.
+> Status: Active close-out — Codex took over 2026-09-23 at Jason's request;
+> iPhone voice confirmed working. Remaining operational and graduation gates
+> are being audited; this is not yet a completion claim.
 >
 > Project owner: Jason
 >
@@ -535,12 +536,15 @@ begins:**
 
 ## Persistence plan
 
-This document is the durable checkpoint. Current milestone: **M6, voice
-acceptance pending**. On 2026-09-23 the missing speech-to-Authentik HTTPS
-permit was added and verified; web and speech-service fixes were deployed.
-Resume with the September 23 repair evidence below and Jason's physical iPhone
-result. Do not infer a passed phone test from synthetic audio or API-key tests.
-The pre-start risk assessment was accepted on 2026-09-21. The following bullets
+This document is the durable checkpoint. Current milestone: **M7 close-out,
+with M4/M5/M6 evidence reconciliation underway**. Jason confirmed “It works”
+after the September 23 iPhone voice repairs, then asked Codex to take over and
+complete the project. Preserve his earlier decision to wait for a naturally
+occurring ARR candidate: do not create a production fixture or grant broker
+approval on his behalf. Outstanding audit includes speech off-host backup
+allowlisting, restore proof, NetBox/Homepage/wiki integration, capacity and
+adversarial speech tests, and client acceptance gaps. The pre-start risk
+assessment was accepted on 2026-09-21. The following bullets
 retain the original discovery context:
 
 - Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
@@ -718,26 +722,28 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
     instead of waiting for the whole reply). **Both the LAN and Tailscale
     round trips are now confirmed fully working**, end to end, including
     the streamed replies.
-- [ ] **M4 — Multi-agent personas and per-chat tool selection.** Add "Media
-  Automation Aster" persona (ARR report/tools); persona picker UI; backend
-  persona + per-request enabled-tools parameters; per-chat tool selector UI.
-- [ ] **M5 — Gated-action framework, ARR-repair surfaced in-app.**
-  Generalize the ARR-repair broker's dry-run/candidate/approval/audit shape
-  into a reusable contract; wire the app's UI to request, review and approve
-  exactly that one existing action; add the "acting" visual state, visually
-  distinct from "thinking"; re-run the existing ARR-repair test suite
-  unchanged as a regression gate.
-- [ ] **M6 — Voice.** Deploy the speech service at its decided placement
-  (STT + Piper TTS, `en_US-lessac-medium`); wire it into **both the macOS
-  app and the web client** (confirmed in scope for both 2026-09-22, not
-  just the macOS app — a browser can do microphone capture and audio
-  playback natively) for both personas; listening/speaking visual states
-  on both clients; measure `aster-llama` and overall latency under
-  concurrent load against existing consumers.
-- [ ] **M7 — Observability, backup, documentation, graduation.** Close the
-  integration checklist below; run the full validation suite; record
-  accepted limitations and the excluded "web access for research" direction
-  explicitly as future work requiring its own project; graduate.
+- [x] **M4 — Multi-agent personas and per-chat tool selection. Complete
+  2026-09-23.** Sysadmin, Media Automation and Home Assistant personas are
+  deployed. Existing interactive evidence and 83 passing agent tests cover
+  persona/tool boundaries; a new regression prevents unsolicited model tool
+  calls from bypassing disabled tools. Live registry confirms all three.
+- [x] **M5 — Closed by explicit scope deferral 2026-09-23.** Jason selected
+  “Defer live repair execution to a follow-up.” The request/empty-state UI
+  and existing broker tests remain; **no live execution is claimed**. Both
+  production brokers stay inactive. The outstanding live approval/execute
+  gate is transferred to [the follow-up](Aster-Companion-ARR-Execution-Followup.md).
+- [ ] **M6 — Voice acceptance reconciliation.** Shared CPU Whisper/Piper
+  `en_US-lessac-high` is deployed; both clients have voice UI and error handling.
+  Jason confirms physical iPhone voice works. WAV/MP4, silence/static, long-reply,
+  restore and concurrent-load checks pass. Mac physical voice and the network
+  used for the iPhone confirmation are awaiting Jason's answer; the earlier
+  web chat LAN/Tailscale acceptance remains valid. Cold persona latency is
+  documented below; no inference configuration was changed.
+- [ ] **M7 — Close-out ready pending final acceptance and synchronization.**
+  Operational integrations, inventory, backup/restore and documentation work
+  are complete with evidence below. Local commits/approved Forgejo push and
+  mirror verification remain the final record/synchronization steps. Do not
+  archive as complete before the remaining acceptance decisions are recorded.
 
 ## Validation and evaluation
 
@@ -799,48 +805,51 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
 
 ## Documentation and systems-of-record updates (required integration checklist)
 
-- [ ] **HomeLab Doctor** — new checks per Observability above.
-- [ ] **Monitoring/alerting** — reuse existing `check_aster` conventions;
-  no new alerting surface planned beyond Doctor.
-- [ ] **Backup and recovery** — Authentik/NPM checkpoints per-change; new
-  speech-service guest backup coverage; `aster_agent.py` pre-deploy backups.
-- [ ] **NetBox** — new speech-service guest (VM/interface/IP) once placement
-  is decided in Milestone 1.
-- [ ] **Human wiki** — operator guidance: how to sign in, what each persona
-  can do, how the gated action's approval works, how to disable the app's
-  access entirely (revoke the Authentik application) if needed.
-- [ ] **Aster mirror/snapshot** — not applicable to Aster's knowledge
-  content itself; the operational facts this project changes belong in
-  `docs/reference/Aster-Operations.md`, not the knowledge snapshot.
-- [ ] **Operational reference and runbooks** — extend
-  `docs/reference/Aster-Operations.md` with the new credential path, the
-  new persona/tool-selection request shape, the generalized gated-action
-  contract, and the speech service's operations.
-- [ ] **Repository documentation** — this document, kept current through
-  each milestone; update `docs/projects/README.md` and `CHANGELOG.md`.
-- [ ] **Diagrams/rack records** — add the new speech-service guest once
-  physically/logically placed.
-- [ ] **Homepage/service discovery** — a private, Authentik-gated Homepage
-  tile for the new proxied Aster endpoint, no embedded credentials.
-- [ ] **Authentication/authorization** — the new passwordless OIDC
-  application/flow itself; recorded here as the primary authorization
-  change this project makes.
-- [ ] **DNS, certificates and firewall** — new split-DNS entries and the new
-  narrow OPNsense rule(s), per Architecture above.
-- [ ] **Automation and schedules** — not applicable; this is an interactive
-  app, not a scheduled job.
-- [ ] **Security inventory** — record the new OIDC client, the new bearer
-  key (voice service), their storage locations and rotation owners; no
-  plaintext secret in Git.
+- [x] **HomeLab Doctor** — speech direct/HTTPS health, Companion OIDC discovery,
+  JWKS dependency, local and TrueNAS backup ages; focused run 3 pass / 0 fail.
+- [x] **Monitoring/alerting** — existing Doctor reporting reused, no new alerts.
+- [x] **Backup and recovery** — daily local guest archive, added only VMID 116
+  to TrueNAS task 1; job 2022 succeeded and both SHA-256 hashes match. Restored
+  Piper/Whisper from the archive into an isolated directory and ran synthetic
+  round trip. Existing Authentik/NPM source checkpoints retained. Full guest
+  boot/cutover is not claimed.
+- [x] **NetBox** — live 6 vCPU / 4096 MiB / 16 GiB reconciled; VM 16,
+  interface 16, IP 30; primary address `192.168.70.14/24` verified independently.
+- [x] **Human wiki** — authored operator guide deployed at
+  `/wiki/services/aster-companion/`, linked from wiki home and verified HTTP 200.
+- [x] **Aster mirror/snapshot** — not applicable to this deployment's knowledge
+  content, matching the original scope decision. Generated mirror entries were
+  not edited; operational changes are maintained in the authoritative records.
+- [x] **Operational reference/runbooks** — Companion operator guide, Aster
+  operations, sibling operational-reference service/inventory notes updated.
+- [x] **Repository documentation** — project, portfolio, architecture, inventory,
+  service recovery files and changelog updated. Git synchronization is separate.
+- [x] **Diagrams/rack records** — logical guest added to architecture; no physical
+  rack, cabling or power changes.
+- [x] **Homepage/service discovery** — additive Companion passkey-login tile;
+  old Aster Agent tile retained. YAML and running `/api/services` verified.
+- [x] **Authentication/authorization** — live public OIDC provider, strict native
+  and web callback URIs; identification → WebAuthn-only validation → login,
+  no password stage, unconfigured authenticators denied. Existing passkey
+  workflow accepted; wrong audience/issuer/signature/expiry regression tests.
+- [x] **DNS/certificates/firewall** — existing private hostname and certificate;
+  exact speech→NPM signing-key permit verified. No new public exposure.
+- [x] **Automation/schedules** — existing daily backup and Doctor schedules
+  reused; no new application schedule.
+- [x] **Security inventory** — key locations, owner, revocation and renewal
+  boundaries in operator guide. Speech env verified `root:aster-speech 0640`.
+- [x] **AI administration integration** — speech has no host-management API;
+  explicitly not currently supported. STT/TTS credentials do not grant admin
+  access. Existing human SSH/Proxmox recovery retained, no new AI privilege.
 
 ## Graduation criteria
 
 All milestones complete with recorded evidence; passkey-only login proven
 end-to-end including a correctly-refused password-only attempt; both
 personas correctly scoped; per-chat tool selection proven to actually gate
-function eligibility; the ARR-repair gated action proven through the app
-using the same disposable-fixture method as its original graduation, with
-zero weakening of its existing safety properties; voice proven functional
+function eligibility; the ARR-repair live gate explicitly transferred to its follow-up by Jason's
+2026-09-23 decision, with production execution remaining disabled and no
+weakening of its existing safety properties; voice proven functional
 with measured `aster-llama` capacity impact; existing browser-page,
 bearer-key, and ARR-repair paths all regression-tested and unaffected; the
 integration checklist closed or marked not applicable with reason; the
@@ -2079,10 +2088,79 @@ do not claim the firewall rule proves all intermittent transport faults resolved
 If it recurs, investigate address/routing conflicts using trusted Proxmox access;
 never remove known-host protections to work around it.
 
+### 2026-09-23 takeover and operational completion evidence
+
+Jason confirmed “It works” for the repaired iPhone voice workflow and asked
+Codex to take over and complete the project. Later he explicitly chose to defer
+live ARR execution to its follow-up. No artificial live candidate was created,
+no approval was granted, and read-only checks confirm both broker units inactive.
+The live proposal endpoint returns unavailable; 61 unchanged broker tests pass.
+
+The new persona edge-case guard was tested locally and on LXC 104 (83 tests).
+Pre-deploy source is `aster_agent.py.before-companion-closeout-20260923` in the
+service directory. A first remote test invocation put tests in `/tmp` and
+could not find their relative systemd fixtures; placing tests alongside the
+service's existing fixtures resolved that test-layout error. No failed test
+was represented as a pass. The service restarted and is active.
+
+Recovery/inventory integration:
+
+- Local archive `/mnt/backups/dump/vzdump-lxc-116-2026_09_23-02_45_55.tar.zst`
+  is 2,373,926,384 bytes. Added only `--include=vzdump-lxc-116-*.tar.zst` before
+  the existing catch-all exclude in TrueNAS task 1. Prior allowlist is retained
+  on TrueNAS at `/root/aster-companion-backup116-extra-20260923.json` (0600).
+  Task 2022 succeeded. SHA-256 on Proxmox and TrueNAS is
+  `fd147609e3b59974489160d7c91d1938b4349347e9c581fc43a7595e70fb87f4`.
+- File-level recovery under `/var/tmp/aster-speech-restore-20260923` on Proxmox
+  ran the restored Piper binary/high voice, Python environment, cached Whisper
+  model and speech module without opening a listener or replacing production.
+  Synthetic transcript was “asterback up recovery is working.” An initial
+  exact-word assertion expected “backup”; the semantic recovery/working check
+  passed after recording that transcription variation. This is a real restore
+  test, not a full guest boot test. The isolated directory remains for review.
+- NetBox transaction created VM/interface/IP 16/16/30, verified after creation;
+  no existing object was repurposed. Homepage YAML checkpoint is
+  `/opt/homepage/config/services.yaml.before-aster-companion-20260923` on LXC
+  100; parsed by Homepage's actual `js-yaml` before replacement, then the
+  running service's API confirmed the new link. Legacy tile preserved.
+- Wiki guide published from `docs/runbooks/Aster-Companion.md`; HTTP 200 and
+  expected content verified. Homepage and wiki checks did not expose secrets.
+
+Performance and adversarial evidence:
+
+- Actual 3-second silence and deterministic low-amplitude static clips both
+  produced empty STT (0.78s / 0.76s); no false speech was submitted to chat.
+- After service restart completed, sequential synthetic persona calls with
+  tools disabled took Sysadmin 1.875s, Media 110.466s, HA 11.506s. Inference
+  journal attributes the Media delay to 110.065s prompt evaluation. This is
+  existing shared-inference cold-cache behavior; no model/hardware/config
+  change was made. A prior test overlapped the planned restart and hit a
+  proxy connection-refused 502 at that exact restart time; discarded as a
+  steady-state capacity measurement.
+- Concurrent requests through the existing consumers: Companion Sysadmin
+  13.816s, news `call_aster_llama` 8.905s, speech TTS 1.68s, WAV STT 0.78s,
+  MP4 STT 0.75s. All succeeded. News used labelled synthetic article data
+  through its actual summarizer function with no database writes; the normal
+  scheduled ingest was not triggered and its latest recorded exit was 0.
+  These are bounded capacity samples, not a sustained-load guarantee.
+- Speech suite now 23 tests including wrong-audience refusal; agent 83, broker
+  61, prior web behavior 6 and Swift 10 remain verified. Focused Doctor's three
+  new/extended checks pass, 0 warnings/failures. OIDC discovery and speech HTTPS
+  are included in the deployed health probe. An initial overly broad local
+  Doctor extraction also ran existing network checks and hit sandbox denial
+  writing its ordinary WAN state; the corrected isolated function selection
+  ran only the intended three checks. No production network setting changed.
+
+Retained limits: ad-hoc Mac signing, client storage trade-off, physical Mac
+voice/network acceptance awaiting reply, cold-persona latency, the previously
+recorded transient SSH-identity anomaly, and full-guest boot recovery untested.
+No inferred acceptance is recorded for those outstanding human checks.
+
 ## Close-out
 
-Active pilot. Synthetic transport/authentication-path checks pass. Jason's
-physical iPhone voice round trip remains the M6 acceptance gate.
+Active close-out. Jason confirmed the repaired iPhone voice workflow works
+on 2026-09-23 and asked Codex to complete the project. Other documented gates
+remain open until their individual evidence is recorded.
 
 
 ## References

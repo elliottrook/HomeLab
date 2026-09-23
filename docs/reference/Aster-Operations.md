@@ -461,6 +461,31 @@ Reload the phone page after a web deployment. Tap the orb to start/stop recordin
 The web UI reports Transcribing, Thinking and Preparing speech; if automatic
 playback is blocked, tap the displayed audio Play control. Stop speech ends the
 remaining reply. Long replies are spoken in bounded chunks. Typed turns stay silent.
-Physical iPhone acceptance remains pending as of this repair; generated WAV and
-AAC/MP4 smoke tests pass. See `docs/projects/Aster-Companion-App.md` for evidence,
+Jason confirmed physical iPhone voice works on 2026-09-23; generated WAV and
+AAC/MP4 smoke tests also pass. See `docs/projects/Aster-Companion-App.md` for evidence,
 rollback checkpoints and pending integration publication.
+
+
+### Companion close-out operations
+
+See [the operator guide](../runbooks/Aster-Companion.md) for sign-in, personas,
+voice, credential locations, revocation and isolated restore steps. The three
+personas are `sysadmin`, `media` and `home_assistant`; `enabled_tools` is
+intersected with the chosen persona, including any unsolicited model tool calls.
+
+Jason deferred live ARR execution on 2026-09-23. Both production brokers remain
+inactive; the retained UI is not an enabled repair capability. The follow-up
+preserves human approval outside the chat/AI path.
+
+Speech LXC 116 now has verified local and TrueNAS task-1 backup coverage, with
+matching SHA-256 and an isolated restored Piper/Whisper round trip. Doctor checks
+speech, HTTPS ingress, OIDC discovery, JWKS and both backup ages. Homepage has
+an additive Aster Companion tile; the legacy Aster Agent tile is retained.
+NetBox VM/interface/IP IDs are 16/16/30. The wiki guide is published at
+`/wiki/services/aster-companion/` and retains repository provenance.
+
+Capacity measurement: simultaneous synthetic Companion/news requests took
+13.816s/8.905s; speech TTS 1.68s and STT WAV/MP4 0.78s/0.75s. One cold Media
+persona prompt evaluation took 110.466s. This is a measured shared-inference
+limit, not a latency guarantee; model/hardware/inference changes remain outside
+this project. Scheduled news ingest's most recent execution remained successful.
