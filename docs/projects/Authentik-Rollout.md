@@ -116,6 +116,33 @@ Jason has been asked to test Homarr then Dockge in a private Safari session.
 Keep this cohort ungraduated until human acceptance arrives. Other cohorts and
 the original project's remaining gates are still open; no Git push is approved.
 
+### Human test correction: native OAuth grants — 2026-09-23
+
+Jason reported that Homarr's Authentik button did nothing and Dockge opened
+directly. Homarr's callback contained `invalid_request`; Authentik rejected the
+authorization-code request because native providers 35 and 36 had empty
+`grant_types`. Provider creation through the model did not supply the UI's
+grant default. The earlier HTTP redirect tests did not exercise this validation
+after a real authenticated session and were insufficient to establish SSO.
+
+Set **only** `authorization_code` on those two native providers. No flow,
+account, policy binding, client secret or callback changed. Authentik's actual
+`OAuthAuthorizationParams.from_request` now accepts representative Homarr and
+NetBox requests with their strict callbacks, scopes and S256 PKCE; implicit
+requests remain denied. No owner session or token was minted for this test.
+Fresh browser completion remains required. Re-enter Homarr at its root URL,
+rather than reusing the previous callback/error page.
+The corrected database is checkpointed at
+`/opt/authentik/backups/single-login-grant-fix-20260923T202542Z`; its PostgreSQL
+dump catalogue is readable. Prefer this checkpoint over the pre-correction
+single-login dump when recovering the current provider configuration.
+
+Dockge's no-cookie HTTPS root still returns the Authentik redirect; its old
+IP address still redirects to the HTTPS name even with a forged owner header.
+Opening the app while an Authentik session exists is expected SSO reuse, not
+evidence of an authentication bypass. Its direct app opening is not recorded
+as proof of a fresh passkey login or sign-out test.
+
 ### Earlier staging audit (historical)
 
 Jason requested a completion pass. Read-only discovery confirms that the

@@ -77,6 +77,13 @@ automatic email account linking is not enabled. NetBox protects its existing
 username/email/name fields from social-auth updates. No new admin account was
 created in either app. Keep client secrets on their source hosts.
 
+Both native providers must explicitly allow `authorization_code` in
+`grant_types`. Creating a provider through the installed Authentik model leaves
+that field empty; a valid redirect into the authorization endpoint alone does
+not test this. An empty field caused Homarr's real browser callback to return
+`invalid_request` on 2026-09-23. The two providers are corrected and actual
+authorization-parameter validation now passes; implicit grants remain disabled.
+
 Protected pre-change checkpoints:
 
 - TrueNAS: `/root/authentik-single-login-20260923T191107Z` contains catalog app
