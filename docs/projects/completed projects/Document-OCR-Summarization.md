@@ -959,3 +959,24 @@ confirmation, and individual-account/MFA enforcement beyond the single
 - [Project Creation Standard](../../Project-Creation-Standard.md)
 - `PROJECTS.md` — "Future Services" section, the only prior mention of
   Paperless-ngx in this repository
+
+## iPhone access correction — 2026-09-23
+
+Jason requested home Wi-Fi and Tailscale access. NPM host 25's original source
+allowlist already included the registered administrator iPhone at 192.168.1.112,
+but blocked the Tailscale subnet router's translated source, 192.168.20.20.
+Added only that router address to the HTTPS allowlist. Authentik's Jason binding,
+native Paperless login, backend firewall and public-source denial are unchanged.
+No new VLAN route, WAN forwarding or public hostname exposure was added.
+
+Checkpoint: /root/npm-before-paperless-iphone-20260923.sqlite on LXC 107,
+SQLite integrity verified. NPM syntax passed; the router now receives the 302
+sign-in redirect with verified TLS, the existing Mac still receives 302, and an
+unapproved source receives 403. Physical iPhone acceptance remains with Jason.
+The exact update script is scripts/paperless/enable_iphone_access.mjs.
+
+The previously blocked operational Doctor installation and reference/wiki pushes
+were subsequently approved and completed. The focused live Doctor check passed;
+Forgejo reference/wiki refs are 76c2bea and c1aa96c. Neither sibling repository
+has a configured GitHub push mirror. This access follow-up is recorded locally;
+no additional Git push is implied by the iPhone access request.

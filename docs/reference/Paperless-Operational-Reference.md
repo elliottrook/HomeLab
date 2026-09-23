@@ -13,8 +13,12 @@ native bootstrap credential remains protected on LXC 115 at
 `/root/.paperless-temp-password`; never copy it into Git, chat or logs. Complete
 personal sign-in and credential replacement through the normal operator flow.
 
-Only management clients 192.168.1.206, 192.168.1.241 and 192.168.1.112 are allowed
-at the proxy. Other sources, including the public tunnel, are denied. Direct
+The proxy allows management clients 192.168.1.206, 192.168.1.241 and
+192.168.1.112 (Jason’s registered iPhone), plus the existing Tailscale subnet
+router at 192.168.20.20. The router translates remote clients to that source
+address; Authentik still restricts access to Jason. Other sources, including the
+public tunnel, are denied. Use the same HTTPS URL on home Wi-Fi and with
+Tailscale connected away from home. No Lab-VLAN route was added. Direct
 http://192.168.70.15:8000 remains a restricted administrative recovery endpoint.
 Native authentication is retained; no anonymous access or trusted-header login
 was enabled. Certificate renewal is owned by NPM's existing wildcard certificate.
@@ -54,9 +58,8 @@ several minutes. Summaries are derived aids, not an authority for decisions.
 ## Health, backup and recovery
 
 On LXC 115, `python3 /opt/paperless-summary/check_summary.py` checks the UI,
-broker, timer, worker health and freshness. The HomeLab Doctor hook is prepared in the project repository; installing it
-into the separate operational checkout is awaiting path-specific approval. It
-uses the existing failure-report channel. Worker status lives under
+broker, timer, worker health and freshness. The HomeLab Doctor hook is installed in the operational checkout and its
+focused check passed. It uses the existing failure-report channel. Worker status lives under
 /var/lib/paperless-summary/status.json; logs omit document bodies and credentials.
 
 Local Proxmox and TrueNAS whole-guest backups retain database, originals,
