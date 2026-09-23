@@ -1,6 +1,6 @@
 # Document OCR + Summarization — deployment close-out
 
-> Status: Closed deployment — operational; user acceptance follow-ups below
+> Status: Complete and archived — deployment and iPhone/passkey acceptance verified
 > Owner: Jason
 > Started: 2026-09-15
 > Closed: 2026-09-23
@@ -14,8 +14,8 @@ use the **Paperless-ngx** tile under Homepage's Application Management group.
 The HTTPS route uses NPM's valid wildcard certificate, the established Authentik
 login flow and a binding restricted to Jason. The later passkey follow-up below
 replaces the separate native login with OIDC single sign-on.
-Browser verification reached “Log in to continue to Paperless.” Personal login
-and passkey interaction remain the operator's responsibility.
+Jason confirmed access on and off Wi-Fi and successful passkey single sign-on
+on 2026-09-23. No separate Paperless password is required.
 
 LXC 115 now owns **192.168.70.15**, resolving the collision with Aster Speech
 LXC 116 at .14. Speech was left unchanged. NetBox records are VM 17, interface
@@ -32,10 +32,11 @@ content is sent to an external AI provider.
 ## Validation evidence
 
 - Approved-client backend login: HTTP 200; rendered login form verified.
-- Private HTTPS: valid TLS, both Pi-hole answers point to 192.168.50.23;
-  Authentik redirect and rendered Paperless-specific login prompt verified.
-- Negative network checks: VLAN 20 cannot reach port 8000; its HTTPS request
-  is denied with 403. NPM permits only .1.206, .1.241 and .1.112 for this host.
+- Private HTTPS: valid TLS; both Pi-holes and OPNsense resolve to 192.168.50.23.
+  Native OIDC automatically redirects to the dedicated Authentik passkey flow.
+- Negative network checks: VLAN 20 cannot reach port 8000; unapproved proxy
+  sources receive403. NPM allows .1.206, .1.241, .1.112 and the existing
+  Tailscale gateway .20.20. Anonymous and forged-header API requests return401.
 - A synthetic scanned warranty image was ingested, OCR extracted
   “15 December 2027”, and the Document Added workflow granted the reader access.
   The resulting summary preserved that date and the receipt requirement.
@@ -83,10 +84,10 @@ path, not a backup of document data.
 ## Integration and recovery
 
 - The source-local UI/broker/timer/status checker is live and verified. The
-  Paperless Doctor hook is included in this repository; installation into the
-  separate operational checkout awaits explicit path approval after automatic
-  approval review rejected that out-of-workspace write. No new alert destination.
-- NetBox, private DNS, NPM host 25, Authentik provider 34/application `paperless`,
+  Paperless Doctor hook is installed in the operational checkout and its focused
+  live check passed. The earlier path-approval blocker was resolved by Jason
+  and is closed. No new alert destination.
+- NetBox, private DNS, NPM host 25, Authentik OIDC provider 37/application `paperless`,
   Homepage and the narrow OPNsense rules are reconciled.
 - [Operational reference](../../reference/Paperless-Operational-Reference.md),
   [summary operations](../../runbooks/Paperless-Summary-Operations.md),
@@ -107,9 +108,9 @@ service exports.
 
 ## User acceptance and bounded limitations
 
-These remain visible follow-ups, not claims of completed validation. They do not
-prevent the requested deployment close-out and archive; they prevent claiming
-real-document quality or personal login acceptance has been demonstrated.
+Personal login acceptance is complete. The remaining limitations concern normal
+operation and future integration; real-document summary quality has not yet been
+validated beyond the synthetic fixture.
 
 | Follow-up / limit | Owner and review point | Compensating control |
 |---|---|---|
@@ -1036,6 +1037,6 @@ recovery runbook.
 Jason confirmed Paperless works both on and off home Wi-Fi, then confirmed the
 passkey single-sign-on flow works. This closes the earlier physical-iPhone and
 personal-login acceptance items. Deployment remains complete and archived.
-The iPhone/DNS/SSO follow-up commits are local; pushing these newer commits
-requires a separate explicit push authorization. First real-document quality
+Jason explicitly authorized documenting, committing, pushing and archiving these
+follow-ups on 2026-09-23. First real-document quality
 review remains ordinary use, not an access/deployment blocker.

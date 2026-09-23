@@ -14,6 +14,8 @@ redirects to Authentik; no separate Paperless username/password is required.
 The dedicated `paperless-passkey` authentication flow offers WebAuthn with user
 verification required and no password stage. An existing Authentik session may
 complete SSO without a new prompt. Other applications' flows are unchanged.
+Jason confirmed successful iPhone access on and off Wi-Fi and passkey sign-in
+on 2026-09-23. Deployment and user acceptance are complete.
 Only Jason is authorized; self-registration is disabled. Local web login is
 disabled, while protected administrative recovery/API credentials remain local.
 Never copy `/root/.paperless-temp-password` or OIDC secrets into Git or chat.
