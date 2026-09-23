@@ -1924,6 +1924,30 @@ silently absorbed into this project's scope.
   82 backend tests and 8 Swift tests still pass; deployed/rebuilt with
   the usual discipline; both regression-checked (`/companion` 200, app
   launches cleanly).
+- 2026-09-22/23 — Jason retried voice on his iPhone twice more, including
+  after a full fresh reload/re-login (ruling out stale-token theories) -
+  still no text came back. Diagnosed with real evidence at each step,
+  not guessed: NPM's error log showed `recv() failed (104: Connection
+  reset by peer) while reading response header from upstream` for
+  `/voice/v1/stt`, and even a plain `/voice/health` GET hit the same
+  reset moments later. Ruled out the speech service itself: a direct
+  curl straight to `192.168.70.14:9130/health` (bypassing NPM entirely)
+  and a request from inside the NPM container's own network namespace
+  both succeeded instantly; `ps`/`top` on the aster-speech process
+  showed all 18 threads idle at 0% CPU, not a stuck/hung worker. A rapid
+  15-request burst through the public path all succeeded too, confirming
+  the failure is real but intermittent, not a permanent break - the
+  signature of nginx reusing a pooled connection to the upstream after
+  uvicorn's default 5s keep-alive had already silently closed it
+  server-side, a well-known nginx-reverse-proxy pattern for exactly this
+  error. Fixed by adding `proxy_set_header Connection "close";` to the
+  `/voice` location specifically (via the same NPM `proxy_host` +
+  `internalNginx.configure()` approach as the earlier location fixes),
+  forcing a fresh connection per request rather than reusing a
+  potentially-stale one. Verified the directive is live in the generated
+  config. Awaiting Jason's next retry - this class of bug is inherently
+  intermittent, so a clean test run is meaningful but a single failure
+  afterward wouldn't necessarily mean the fix didn't help.
 
 ## Close-out
 
