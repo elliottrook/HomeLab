@@ -383,12 +383,75 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 
 ### M0 — Discovery and decisions (read-only)
 
-- [ ] Re-verify iCloud app-specific password scope and IMAP `EXAMINE`/`BODY.PEEK`
-      behavior against current Apple documentation; record findings.
+- [x] Re-verify iCloud app-specific password scope against current Apple
+      documentation. (2026-09-23, see M0 findings F1.) `EXAMINE`/`BODY.PEEK`
+      are standard IMAP (RFC 3501/9051) read-only semantics; proven live
+      against the test Apple ID in M1.
 - [ ] Verify view-only calendar sharing to a second Apple ID behaves as
-      read-only over CalDAV (design check; live test in M1).
-- [ ] Measure `aster-llama` headroom across the proposed windows.
-- [ ] Choose guest placement, IPs and egress mechanism (proxy vs FQDN alias).
+      read-only over CalDAV. Design accepted; live proof moved to M1 once
+      the assistant Apple ID exists.
+- [x] Measure `aster-llama` headroom across the proposed windows.
+      (2026-09-23, F2.)
+- [x] Choose guest placement and IPs. (2026-09-23, F3; NetBox
+      reservation happens at M1 creation.)
+- [ ] Egress mechanism: Jason to choose between the F4 options before M1's
+      PA egress rule.
+
+#### M0 findings (2026-09-23, read-only)
+
+- **F1 — iCloud credentials.** Apple's app-specific password article
+  (support.apple.com/102654) grants access to "mail, contacts, and
+  calendars" with no documented read-only or per-service scoping. Up to 25
+  can be active and each is revocable individually. **Changing or resetting
+  the Apple Account password revokes all of them**, so Doctor must report an
+  auth failure distinctly ("credential revoked") rather than as generic
+  staleness. Apple also documents a newer "authorize the app using your
+  Apple Account" path for supported third-party apps (support.apple.com/121539,
+  revocable under Sign-In and Security → Account Data Sharing). Its scopes,
+  and whether a self-hosted client can use it, are undocumented, so it is
+  not usable today. It is recorded as a follow-up: if it ever offers
+  per-service or read-only scopes, it would narrow R1. Community iCloud
+  integrations likewise report one app-specific password working across
+  IMAP, SMTP, CalDAV and CardDAV. R1 stands as accepted.
+- **F2 — `aster-llama` capacity.** Live on LXC 110: single slot (`-np 1`),
+  **8,192-token context**, decode ≈ **5.4 tokens/s**; short-prompt prefill
+  13–16 tokens/s (larger prompts prefill faster; documented 55–390 tokens/s
+  depending on size). The last 7 days show a steady background of roughly
+  190–330 requests/hour (mostly short news-aggregator calls) with peaks at
+  the 05:15/17:15 local digests. Journal hours are UTC; the lab is
+  `Etc/GMT+7`. The **22:00–02:00 local research window (05:00–09:00 UTC)
+  is among the quietest hours observed.** Consequences for the design:
+  - Everything user-facing is **precomputed**. The check-in is composed
+    before 06:00 rather than generated on demand. Interactive answers read
+    stored summaries.
+  - Email analysis runs one message per request with short outputs
+    (≈25 s/message estimated). The worker processes messages one at a time
+    so a waiting interactive chat is delayed by at most one message.
+  - The 8K context caps any single call. The research worker must
+    summarize page chunks, then synthesize. Estimated ≈15 minutes per topic,
+    so plan **3–5 topics per night** with a hard stop at 02:00 and the
+    remainder carried over.
+  - Budgets are measured again at M2/M4 against real load.
+- **F3 — Placement.** Lab VLAN 70 in use: .10 (104 Aster), .12 (110
+  inference), .13 (114 news), .14 (116 speech), **.15 (115 Paperless-ngx,
+  newly present)**. Proposed: PA guest `192.168.70.16`, research guest
+  `192.168.70.17`, next free LXC IDs at creation. Confirm free in NetBox
+  before use.
+- **F4 — Egress options (Jason to choose; firewall change under Stream M):**
+  - **(a) Dedicated egress-proxy LXC** (recommended). OPNsense lets only the
+    proxy reach WAN. The proxy allows the PA guest to reach iCloud hostnames
+    only (`imap.mail.me.com:993`, `caldav.icloud.com` and its
+    `*-caldav.icloud.com` partition redirects) and the research guest to
+    reach general 443. It is one logged choke point, and a compromised PA
+    or research guest cannot widen its own egress. Cost: one more small
+    guest.
+  - **(b) OPNsense FQDN aliases.** The PA guest gets direct egress to
+    resolved iCloud hostnames and the research guest gets 443 via a
+    per-guest rule. No new guest, but Apple's CDN addresses rotate (alias
+    refresh lag, possible over-breadth) and there is no per-request logging
+    for research.
+  - **(c) Proxy on each guest.** Rejected: a compromised guest controls its
+    own proxy, so it provides no enforcement.
 - [x] Record D1–D7 answers. (2026-09-23, see Decisions recorded.)
 - [ ] Jason creates the assistant Apple ID and the disposable test Apple ID
       (human step; no credentials enter chat, Git or this document).
@@ -537,6 +600,17 @@ content is in Git, logs or Aster's corpus.
   mechanism toward eventual basic sending and appointments. Read-only
   repository review only; no system changed. Discovered constraint R1
   (unscoped iCloud app-specific passwords) raised for decision D1.
+
+- **2026-09-23 — M0 read-only discovery.** Apple documentation reviewed
+  (F1): R1 confirmed, all app-specific passwords are revoked on Apple
+  Account password change, and a newer app-authorization path was noted as a
+  follow-up. Live read-only Proxmox/LXC 110 check (F2/F3): single-slot, 8K
+  context, ≈5.4 tokens/s decode, quiet 22:00–02:00 window, VLAN 70 .15 now
+  used by Paperless-ngx. Design adjusted: precomputed check-ins, one message
+  per request, chunked research with 3–5 topics per night. The SSH check ran
+  outside the Claude Code sandbox after a sandbox refusal to the allowlisted
+  Proxmox host; commands were read-only. **Remaining M0 items:** Jason
+  creates the assistant and test Apple IDs, and chooses egress option F4.
 
 - **2026-09-23 — Pre-start assessment accepted.** Jason accepted D1 (R1
   residual risk), D2 (assistant Apple ID with view-only shares), D3
