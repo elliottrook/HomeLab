@@ -275,13 +275,15 @@ Jason-typed ────►│ research queue → research worker → SearXNG �
   - **no AI** editing or generation;
   - **sky replacement allowed only when the replacement sky is Jason's own
     photograph**;
-  - **no background replacement**.
-  Aster cannot reliably detect edits from pixels, so these are handled as
-  **flags plus attestation**:
+  - **no border** on entries.
+  Aster cannot reliably detect AI or sky edits from pixels, so those are
+  handled as **flags plus attestation**:
   - Aster flags editing-software metadata (for example Luminar in EXIF)
     and any card rule it cannot verify;
-  - Jason attests "no AI; sky source mine if replaced; no background
-    change" when approving each entry.
+  - Jason attests "no AI; sky source mine if replaced" when approving each
+    entry.
+  Borders are checkable. The formatter never adds one, and Aster flags any
+  source whose edges look like an added frame or matte (uniform edge band).
 - **Selection:** Immich smart search and metadata narrow the library to a
   shortlist. The vision model scores the shortlist against the card and the
   category theme (composition, subject, technical quality, fit), and each
@@ -294,7 +296,7 @@ Jason-typed ────►│ research queue → research worker → SearXNG �
   - meets the maximum file size by adjusting encoder quality;
   - converts colour space;
   - strips GPS/location and other metadata unless the card requires it.
-  It never crops, retouches or composites. Outputs are drafts in Companion
+  It never crops, retouches, composites or adds a border. Outputs are drafts in Companion
   (L2) for Jason to download, approve and submit.
 - **Schedule (D11):** nightly 02:30–03:30 `Etc/GMT+7`. The job starts
   **only after the 02:30 Proxmox backup job has finished** (it ran
@@ -467,7 +469,7 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 | D9 | Immich connection | **Vetted community Immich MCP server** with a permission-limited read-only key, run on the PA guest |
 | D10 | Vision model | **M0 evaluates both** options (vision projector on the current model vs a separate small vision model used only in the photo window) before Jason chooses |
 | D11 | Photo schedule | **02:30–03:30**, starting after the Proxmox backup finishes |
-| D12 | Editing rules | **No AI; sky replacement only with Jason's own sky image; no background replacement.** Competitions vary; the stricter of these and the rules card applies. Formatting is mostly resolution and file size |
+| D12 | Editing rules | **No AI; sky replacement only with Jason's own sky image; no border.** ("No background" clarified by Jason 2026-09-23 as no border.) Competitions vary; the stricter of these and the rules card applies. Formatting is mostly resolution and file size |
 
 ## Persistence plan
 
@@ -765,6 +767,12 @@ content is in Git, logs or Aster's corpus.
   a gated start. Formatting was interpreted as deterministic
   resolution/file-size preparation from Immich sources, and "no background"
   as no background replacement. Jason to correct if either is wrong.
+
+- **2026-09-23 — Photography rules clarified.** Jason confirmed formatting
+  means a fixed tool working from Immich sources, and clarified "no
+  background" as **no border**. D12 and the formatter/flag design are
+  updated. Background replacement is not a standing rule; each competition's
+  card governs it.
 
 - **2026-09-23 — M0 read-only discovery.** Apple documentation reviewed
   (F1): R1 confirmed, all app-specific passwords are revoked on Apple
