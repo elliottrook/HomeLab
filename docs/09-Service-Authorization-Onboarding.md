@@ -355,11 +355,12 @@ rollout project for exact objects, protected checkpoints and rollback.
 Proxmox is staged at `https://proxmox.elliottrook.com` with native OpenID
 realm `authentik` (NPM 28/provider 40). Fresh browser entry now launches
 Authentik automatically through `/sso`; that URL also retries an old tab showing
-the native login. The pilot account `jason@authentik` has only `PVEAuditor` while real
-identity acceptance is pending. Existing root/PAM, API users/tokens and direct
-recovery are preserved. The proxy validates the PVE CA and `proxmox.home.arpa`
-backend identity. Homepage and the default realm remain unchanged. See the
-project's dated pilot section for exact checkpoints and the promotion gate.
+the native login. Jason accepted the browser login; `jason@authentik` now has
+Administrator at `/`, and Homepage uses `/sso`. Existing root/PAM, API
+users/tokens and direct recovery are preserved. The proxy validates the PVE CA
+and `proxmox.home.arpa` backend identity; the default realm is unchanged.
+Dedicated console/logout/recovery tests remain open. See the project's dated
+pilot/promotion sections for exact checkpoints and rollback.
 
 Add one row only after the complete private-session and rollback tests pass:
 

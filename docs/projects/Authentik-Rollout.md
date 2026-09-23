@@ -6,7 +6,8 @@
 > with normal browser acceptance (2026-09-23). Audiobookshelf native SSO is
 > accepted on and off Wi-Fi; its Homepage link is promoted. Calibre native SSO
 > is accepted and its Homepage link is promoted. Seerr/Jellyfin are deferred;
-> Proxmox native OIDC is staged as a read-only pilot. Remaining services and final
+> Proxmox native OIDC is accepted, promoted to owner administration and linked
+> from Homepage. Remaining services and final
 > graduation gates are still open.
 > Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
@@ -461,6 +462,36 @@ retry `/sso`, which also avoids an old tab retaining the former login screen.
 The earlier instruction to manually select a realm is superseded for normal
 friendly-address entry; it remains an available native recovery/UI option.
 
+### Proxmox accepted identity and administrative promotion — 2026-09-23
+
+Jason confirmed "Works" after the corrected automatic-Authentik entry and
+request to confirm the existing guest list. This closes the pilot's human
+identity/browser gate. Promote only `jason@authentik` from PVEAuditor to the
+built-in Administrator role at `/` with propagation, matching the human owner's
+administrative purpose. Retain `root@pam`, the Prometheus user and Homepage
+API-token auditor ACL unchanged. Capture a protected current cluster database
+and user/ACL checkpoint before replacement; verify effective administrative
+permissions and unchanged prior principals after it. No guest operations are
+needed to test ACL configuration. Change only Homepage's Proxmox href to the
+friendly `/sso` entry with a protected pre-change copy; keep its widget URL and
+API token direct. Dedicated authenticated console, logout and root-password
+recovery checks remain open, not inferred from normal browser acceptance.
+Rollback replaces only this owner's Administrator ACL with PVEAuditor and
+restores only the tile href from its checkpoint.
+
+**Promotion completed:** `jason@authentik` now has only the propagated
+Administrator ACL at `/`; the pilot auditor ACL is removed. Effective console,
+guest power, permission and system-administration privileges are present.
+All pre-existing users and other principals' ACLs match the pre-change state.
+PVE checkpoint `/root/authentik-proxmox-promote-20260923T222705Z` contains the
+integrity-checked cluster database, user configuration and old ACL inventory.
+Homepage now links to `https://proxmox.elliottrook.com/sso`; its prior services
+file is `/opt/homepage/backups/proxmox-promote-20260923T222710Z/services.yaml`.
+Only the href changed; widget/API configuration is untouched. Launcher returns
+200, protected Homepage returns 302, and all three PVE services remain active.
+User should refresh/sign in again for UI capabilities, then verify a guest
+console. No guest start/stop or other privileged workload action was performed.
+
 ### Completed media SSO assessment — 2026-09-23
 
 Jason requested assessment of both paths and specifically asked whether waiting
@@ -738,8 +769,9 @@ authentication. This does not replace real login or full service-rebuild proof.
   is the Docker named volume mounted at `/config`, not `/mnt/Media/appdata/jellyfin`
   mounted at `/appdata`. Preserve this distinction for checkpoints; do not
   change TV/mobile authentication without client validation.
-- **Infrastructure:** Proxmox 9.2.10 has the native OIDC auditor pilot recorded
-  above; human identity acceptance and administrative promotion are pending. UniFi OS
+- **Infrastructure:** Proxmox 9.2.10 native OIDC is browser-accepted with owner
+  Administrator access and Homepage promotion; dedicated console/logout/recovery
+  checks remain open. UniFi OS
   service is active. Retired Backup Synology must not be re-onboarded; preserve
   the explicit OPNsense and Plex no-change defaults. Infrastructure cutover
   follows application workflow acceptance and its higher recovery gate.
