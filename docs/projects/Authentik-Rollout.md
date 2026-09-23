@@ -2,8 +2,8 @@
 
 > Status: Active — Milestones 0-2 complete except the human-only stale-session
 > closure; Milestone 3 has graduated Grafana, ARR, Portainer and the coordinated
-> Pi-hole pair. Six further browser routes were staged on 2026-09-23;
-> human workflow acceptance remains pending. Media/infrastructure and final
+> Pi-hole pair. Six further browser routes now use passkey-only single login
+> (2026-09-23); human workflow acceptance remains pending. Media/infrastructure and final
 > graduation gates are still open.
 > Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
@@ -15,6 +15,108 @@
 > Proposed: 2026-08-22 · Redesigned: 2026-09-10
 
 ## Resume audit — 2026-09-23
+
+### Updated user requirement: Authentik passkey only
+
+After the staged-route tests, Jason supplied six screenshots showing direct
+IP addresses and requested removal of the second application login. He then
+confirmed "Yes—passkey/Face ID only". This explicitly replaces the earlier
+normal-browser design that retained a second password prompt. The six protected
+HTTPS roots still return Authentik 302 redirects; the screenshots alone do not
+prove those gates failed because they show the bypass/recovery paths.
+
+Implement passkey-only Authentik authentication for these six applications,
+native OIDC for Homarr/NetBox with explicit links to the existing owner accounts,
+and proxy-only application access where native SSO is unavailable. Before
+disabling native login for Code Server/Dockge/File Browser, remove their real
+backends' published ports and place a narrow nginx ingress on the original
+host/port. Only NPM's actual source address plus its verified `jason` identity
+may reach browser backends; other browser callers redirect to the protected
+HTTPS name. Apply the same boundary to Dozzle, Homarr and NetBox. TrueNAS
+catalog apps use supported `exposed` ports and dedicated external Docker
+networks because their schema rejects loopback host bindings.
+Use pinned nginx image `nginx@sha256:608a100c71651bf5b773c89083b4a1ad7ef4b2bd05d7a7e552271e03123692ad`,
+already available on TrueNAS, with declarative configuration and restart policy.
+This avoids relying on a separately timed firewall script to protect an
+application whose password has been removed. No new public ingress is created.
+
+Recovery for these proxy-only services becomes SSH plus private Docker-network access
+and the protected pre-change configuration; do not leave a network-accessible
+passwordless bypass. Keep app users/data/roles unchanged, preserve NetBox API
+authentication, use strict OIDC callbacks, and never print OIDC secrets.
+Checkpoint each layer before changing it. Validate direct-IP redirect/denial,
+spoofed-header denial, trusted-NPM reachability, WebSocket routes, passkey-flow
+selection, and unchanged user roles before requesting another human test.
+Update normal Homepage links to the HTTPS names as part of this correction.
+
+Rollback restores application authentication before reopening any direct
+backend binding; then restores the saved proxy/provider/Compose configuration.
+No global Authentik login flow, unrelated application, or password is changed.
+
+### Single-login correction deployed — 2026-09-23
+
+This section supersedes the earlier staging instructions to keep direct browser
+access, second app passwords, and direct Homepage links. Jason explicitly
+requested their replacement after testing the old direct-IP paths.
+
+- All six forward-auth providers (28–33) select the already deployed
+  `aster-companion-passwordless` flow. Its identification, WebAuthn validation
+  and user-login stages contain no password stage; the shared flow itself was
+  not edited. Existing authenticated Authentik sessions may avoid another prompt.
+- All six actual web containers have no published host ports. Narrow nginx
+  ingress containers occupy the original IPv4 ports and redirect other browser
+  clients to the protected names. NPM overwrites `X-Homelab-Authentik-User` with
+  the successful auth subrequest's username; ingress requires source
+  `192.168.50.23` and username `jason`.
+- Dockge uses its supported `disableAuth` setting and existing sole owner
+  `elliottrook`; File Browser uses trusted-header authentication mapped to its
+  existing `elliottrook` account (ID 2). Dozzle uses forward-proxy authentication
+  and now persists `/data`. Code Server remains passwordless behind the new
+  boundary; its previously unprotected direct route is closed.
+- Homarr uses only native OIDC, automatic login, explicit subject `8` linkage
+  to its existing `jelliott` account, and local group management. NetBox links
+  the same Authentik subject to existing administrator ID 1. Hidden native
+  applications/providers `homarr-native`/35 and `netbox-native`/36 each have
+  an owner-only binding, passkey flow and strict HTTPS callback. The existing
+  forward-auth gates remain in front; native SSO consumes the same session.
+- NetBox's protected `/login/` redirects to native OIDC. Its ingress preserves
+  `/api/` with existing application authentication, including localhost for
+  `aster-netbox-report.service`. A check caught loss of that loopback binding;
+  adding `127.0.0.1:8000` to ingress restored the reader (`Result=success`,
+  `ExecMainStatus=0`). Browser requests to that listener still redirect.
+- NetBox needed the exact return path `192.168.20.32` → `192.168.50.23` TCP 443
+  for OIDC discovery/token exchange: OPNsense rule
+  `67302b29-9f46-413a-8753-c791ef3a9070`. The configuration checkpoint is
+  `/root/authentik-netbox-oidc-20260923T192742Z` on OPNsense.
+- The six Homepage `href` values now use the protected HTTPS names. Widget
+  configuration was not changed. The prior Homepage file is under
+  `/opt/homepage/backups/single-login-20260923T193332Z` on LXC 100.
+
+Validation: six direct-IP roots redirect even with forged identity/source
+headers; six HTTPS roots reach the passkey-only flow with certificate validation;
+all six ingress routes deny missing/wrong identities from NPM (403). All eight
+Authentik applications allow `jason` and deny `akadmin`. Homarr and NetBox begin
+OIDC with the expected client IDs and exact callbacks. File Browser produces a
+session for existing owner ID 2; Dockge emits `autoLogin`. Nineteen existing/new
+HTTPS route smoke checks pass. These checks do not replace the user's Face ID,
+normal application workflow, account/role and sign-out acceptance.
+
+Fresh post-change Authentik checkpoint:
+`/opt/authentik/backups/single-login-20260923T193803Z` (readable dump catalogue;
+28,724,492 bytes, SHA-256
+`e0214d52a94a0fabae44a95cdeebc9f309dbe87cfc07179df47edef4f164767e`).
+Fresh NPM checkpoint:
+`/opt/nginx-proxy-manager/backups/single-login-final-20260923T193840Z`
+(SQLite integrity and nginx syntax pass). Earlier restore proof remains valid
+as database recovery evidence; no new full-stack restore is claimed.
+
+Deployment paths, targeted rollback order and checkpoint inventory are in
+[the single-login recovery runbook](../runbooks/Authentik-Single-Login.md).
+Jason has been asked to test Homarr then Dockge in a private Safari session.
+Keep this cohort ungraduated until human acceptance arrives. Other cohorts and
+the original project's remaining gates are still open; no Git push is approved.
+
+### Earlier staging audit (historical)
 
 Jason requested a completion pass. Read-only discovery confirms that the
 remaining cohorts have not been deployed; this is not a documentation-only

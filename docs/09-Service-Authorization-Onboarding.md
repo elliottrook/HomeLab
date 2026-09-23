@@ -60,10 +60,10 @@ application's current authentication settings before selecting a path.
 | Aster Agent | Keep Lab/Tailscale-only initially, same treatment as the Hermes entry above | Lab VLAN 70 address | Isolated by design; do not casually widen its exposure just to fit the Authentik pattern |
 | Aster llama.cpp | No Authentik proxy | `192.168.70.12:11435` | Same reasoning as the Ollama API row above — a model inference API, not a browser login page |
 | ARR work package: Sonarr / Radarr / Lidarr / Prowlarr / SABnzbd | Forward auth — complete and tested as one coordinated package (2026-09-15) | `sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`.elliottrook.com | Owner-only browser gate; direct recovery and every API-key path retained |
-| Media Manager (Homarr) | Forward auth | Service-specific name | A second dashboard/launcher alongside Homepage — same treatment as Homepage itself |
+| Media Manager (Homarr) | Native OIDC behind forward auth | `homarr.elliottrook.com` | Automatic SSO linked to existing owner; local group management preserves permissions |
 | Newtarr | Forward auth | Service-specific name | Confirm what this actually is/does before onboarding — not otherwise documented in this repo yet |
-| File Browser | Forward auth | Service-specific name | Admin-tier: raw filesystem browse/edit access to its host's media roots — treat with the same caution as Code Server/Dockge |
-| NetBox | Native OIDC if the installed version's SSO plugin is enabled; otherwise forward auth | `netbox.elliottrook.com` | Keep the local superuser account as break-glass, matching the pattern already used for its API token in `docs/projects/completed projects/NetBox-DCIM.md` |
+| File Browser | Forward auth plus trusted app identity header | `files.elliottrook.com` | Private backend; ingress maps the verified owner to the existing account |
+| NetBox | Native OIDC behind forward auth | `netbox.elliottrook.com` | Installed python-social-auth supports OIDC without an added plugin; existing admin explicitly linked; API authentication retained |
 | AP Switch | No Authentik proxy | Existing address | HTTP-only raw switch management with no real authentication of its own to federate — treat like the other never-proxied network/control-plane rows above, not a browser app |
 | GitHub | No Authentik proxy | Existing address | External service with its own account/auth; nothing to federate |
 
@@ -290,15 +290,16 @@ policy.
 
 ## Per-service completion record
 
-### Staged on 2026-09-23 — awaiting human acceptance
+### Single login deployed 2026-09-23 — awaiting human acceptance
 
-These are live private routes, **not graduated services**. All use owner-only
-forward auth, certificate 8, and preserved application logins/direct paths.
-Three-resolver DNS, same-host redirects, cookie-preserving entry to Authentik,
-policy-engine `jason` allow/`akadmin` deny, and spoofed identity-header denial
-passed. Homepage links remain direct until the tests below pass.
+These are live private routes, **not graduated services**. Following Jason's
+explicit correction, all six now use Authentik passkey/Face ID only and no
+second app password on the browser path. They retain owner-only forward auth
+and certificate 8. Homarr and NetBox additionally use native OIDC linked to the
+existing accounts. Homepage links now use HTTPS; the former direct browser
+addresses redirect to those protected names. Actual backend ports are private.
 
-| Service | Protected browser URL | Direct recovery URL | NPM / provider ID |
+| Service | Protected browser URL | Former direct URL (now redirects) | NPM / gate provider ID |
 |---|---|---|---|
 | Dozzle | `https://logs.elliottrook.com` | `http://192.168.20.40:8888` | 19 / 28 |
 | Homarr | `https://homarr.elliottrook.com` | `http://192.168.20.20:7575` | 20 / 29 |
@@ -307,15 +308,25 @@ passed. Homepage links remain direct until the tests below pass.
 | File Browser | `https://files.elliottrook.com` | `http://192.168.20.40:30051` | 23 / 32 |
 | NetBox | `https://netbox.elliottrook.com` | `http://192.168.20.32:8000` | 24 / 33 |
 
-In a fresh private browser, authenticate through Authentik and the retained
-application login, confirm the expected account/permissions and normal
-logs/widgets/editor/files/inventory views, then test sign-out and direct
-recovery. Avoid production writes merely to test access. The forward-auth
-sign-out path is `/outpost.goauthentik.io/sign_out` on each protected hostname.
-Application logout and Authentik logout are distinct; verify the corresponding
-login is required again. Source-host checkpoints and exact rollback object IDs
-are recorded in the rollout project. Do not add completion rows until evidence
-arrives.
+All six HTTPS roots were followed to `aster-companion-passwordless`; direct-IP
+redirects and forged-header denial passed. Missing/wrong gateway identity from
+NPM returns 403. Native providers 35/36 begin OIDC with strict expected callbacks;
+File Browser's resulting session identifies existing owner ID 2, and Dockge
+emits `autoLogin`. All eight Authentik applications allow `jason` and deny
+`akadmin`. Nineteen route smoke tests passed. NetBox's token-authenticated API
+and loopback Aster reader remain operational.
+
+In a fresh private browser, authenticate with the Authentik passkey and confirm
+there is no separate app password. Verify the existing account/permissions and
+normal logs/widgets/editor/files/inventory views, then test sign-out. Avoid
+production writes merely to test access. The forward-auth sign-out path is
+`/outpost.goauthentik.io/sign_out` on each protected hostname. App logout and
+Authentik logout can remain distinct; verify Authentik sign-out requires a new
+passkey authentication. Recovery now uses SSH/private backend access, described
+in [the single-login runbook](runbooks/Authentik-Single-Login.md), rather than an
+unguarded direct browser path. Do not add completion rows until human evidence
+arrives. Earlier password-plus-passkey examples describe other services and
+must not be applied to this six-service cohort.
 
 ### Graduated services
 
