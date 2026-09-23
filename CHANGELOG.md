@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-23 — Companion acceptance and notification milestone
+
+- Recorded Jason’s Mac voice and iPhone Wi-Fi/Tailscale acceptance; M6 is complete.
+- Added M8 for opt-in system notifications, privacy, delivery and real-device acceptance; final close-out follows that milestone.
+- Live ARR execution remains deferred; notifications are planned, not deployed.
+
 ## 2026-09-23 — Aster Companion close-out preparation
 
 - Recorded successful iPhone voice acceptance and transferred live ARR execution to an explicit disabled-by-default follow-up at Jason’s request.

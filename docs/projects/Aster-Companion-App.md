@@ -1,8 +1,8 @@
 # Aster Companion App
 
-> Status: Active close-out — Codex took over 2026-09-23 at Jason's request;
-> iPhone voice confirmed working. Remaining operational and graduation gates
-> are being audited; this is not yet a completion claim.
+> Status: Active — Mac voice and iPhone Wi-Fi/Tailscale accepted 2026-09-23;
+> system notifications added as a new milestone at Jason's request.
+> Notifications and final Git synchronization remain before graduation.
 >
 > Project owner: Jason
 >
@@ -536,16 +536,18 @@ begins:**
 
 ## Persistence plan
 
-This document is the durable checkpoint. Current milestone: **M7 close-out,
-with M4/M5/M6 evidence reconciliation underway**. Jason confirmed “It works”
-after the September 23 iPhone voice repairs, then asked Codex to take over and
-complete the project. Preserve his earlier decision to wait for a naturally
-occurring ARR candidate: do not create a production fixture or grant broker
-approval on his behalf. Outstanding audit includes speech off-host backup
-allowlisting, restore proof, NetBox/Homepage/wiki integration, capacity and
-adversarial speech tests, and client acceptance gaps. The pre-start risk
-assessment was accepted on 2026-09-21. The following bullets
-retain the original discovery context:
+This document is the durable checkpoint. Current milestone: **M8 system
+notifications planning**, followed by **M7 final close-out**. On 2026-09-23,
+Jason confirmed Mac voice works and the iPhone app works over both Wi-Fi and
+Tailscale, then requested a system-notifications step. M6 acceptance is complete.
+Operational integrations, backup/restore and capacity checks are recorded below.
+Live ARR execution remains deferred to its separate follow-up; do not fabricate
+a production candidate or enable the brokers. Next safe action: inspect existing
+notification capabilities and define event sources, delivery paths and privacy
+controls for M8 before implementation. Git synchronization still requires the
+repository's immediate push approval. The original pre-start assessment was
+accepted on 2026-09-21; assess any new notification trust boundary before changing
+production. The following bullets retain the original discovery context:
 
 - Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
   read-only wrapper for the Authentik (`auth.elliottrook.com/api/*`) and NPM
@@ -732,18 +734,46 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
   and existing broker tests remain; **no live execution is claimed**. Both
   production brokers stay inactive. The outstanding live approval/execute
   gate is transferred to [the follow-up](Aster-Companion-ARR-Execution-Followup.md).
-- [ ] **M6 — Voice acceptance reconciliation.** Shared CPU Whisper/Piper
+- [x] **M6 — Voice accepted 2026-09-23.** Shared CPU Whisper/Piper
   `en_US-lessac-high` is deployed; both clients have voice UI and error handling.
-  Jason confirms physical iPhone voice works. WAV/MP4, silence/static, long-reply,
-  restore and concurrent-load checks pass. Mac physical voice and the network
-  used for the iPhone confirmation are awaiting Jason's answer; the earlier
-  web chat LAN/Tailscale acceptance remains valid. Cold persona latency is
-  documented below; no inference configuration was changed.
-- [ ] **M7 — Close-out ready pending final acceptance and synchronization.**
-  Operational integrations, inventory, backup/restore and documentation work
-  are complete with evidence below. Local commits/approved Forgejo push and
-  mirror verification remain the final record/synchronization steps. Do not
-  archive as complete before the remaining acceptance decisions are recorded.
+  Jason confirms Mac voice works and the iPhone app works over Wi-Fi and
+  Tailscale. WAV/MP4, silence/static, long-reply, restore and concurrent-load
+  checks pass. Cold persona latency remains documented below.
+- [ ] **M7 — Final close-out, after M8.** Operational integrations, inventory,
+  backup/restore and existing documentation are complete with evidence below.
+  Reconcile notification implementation, acceptance and operational impacts,
+  then finalize local commits, approved Forgejo pushes and mirror verification.
+  Keep the project active until the new notification gate passes.
+- [ ] **M8 — System notifications (added by Jason 2026-09-23).** Add useful,
+  opt-in operating-system notifications to the Mac companion and iPhone web
+  app. Preserve milestone numbers; execute this step before M7 graduation.
+  - **Discovery/design:** inspect current clients and lab alert sources; define
+    the initial event set (candidate events: reply ready, action needs review,
+    and actionable service alerts), routing and ownership. Record which events
+    are supported while foregrounded, backgrounded or closed, and any platform
+    or installation prerequisites. These candidate events are not yet a claim
+    of implemented integrations or a decision to forward every lab alert.
+  - **Privacy and permission:** request notification permission through an
+    explicit user gesture; support disable/revoke and denied-permission states.
+    Default lock-screen content to a generic message without chat text, secrets
+    or private infrastructure details. Opening an alert must preserve normal
+    authentication and action approval; a notification never executes a repair.
+  - **Delivery:** bound retries and retention, deduplicate events, suppress
+    unnecessary foreground alerts and avoid replaying stale alerts after
+    reconnect. Document actual delivery guarantees and Wi-Fi/Tailscale behavior.
+  - **Risk/recovery:** assess any push provider, outbound network dependency,
+    subscription storage or signing requirement before deployment. Record
+    metadata exposure and credential custody; preserve local-first content
+    handling. No new public ingress or broader firewall rule is implied by this
+    planning addition. Disabling notifications must leave chat and voice working.
+  - **Acceptance:** verify enabled, denied and revoked permissions; foreground,
+    background and closed-app behavior on both devices; reconnect, duplicate and
+    stale-event handling; authenticated navigation; generic lock-screen content;
+    and Jason's real-device receipt over Wi-Fi and Tailscale. Label unsupported
+    states explicitly and resolve them before claiming the gate complete.
+  - **Operations:** update runbook/wiki and integration checklist for delivery
+    monitoring, backup/restore of new state, subscription revocation and rollback;
+    record not-applicable decisions where no infrastructure fact changes.
 
 ## Validation and evaluation
 
@@ -850,7 +880,9 @@ personas correctly scoped; per-chat tool selection proven to actually gate
 function eligibility; the ARR-repair live gate explicitly transferred to its follow-up by Jason's
 2026-09-23 decision, with production execution remaining disabled and no
 weakening of its existing safety properties; voice proven functional
-with measured `aster-llama` capacity impact; existing browser-page,
+with measured `aster-llama` capacity impact; opt-in system notifications
+accepted on Mac and iPhone with M8 permission, privacy and delivery evidence;
+existing browser-page,
 bearer-key, and ARR-repair paths all regression-tested and unaffected; the
 integration checklist closed or marked not applicable with reason; the
 excluded "web access" direction recorded as explicit future work, not
@@ -2151,16 +2183,25 @@ Performance and adversarial evidence:
   writing its ordinary WAN state; the corrected isolated function selection
   ran only the intended three checks. No production network setting changed.
 
-Retained limits: ad-hoc Mac signing, client storage trade-off, physical Mac
-voice/network acceptance awaiting reply, cold-persona latency, the previously
-recorded transient SSH-identity anomaly, and full-guest boot recovery untested.
-No inferred acceptance is recorded for those outstanding human checks.
+Retained limits: ad-hoc Mac signing, client storage trade-off, cold-persona
+latency, the previously recorded transient SSH-identity anomaly, and full-guest
+boot recovery untested. Mac voice and iPhone Wi-Fi/Tailscale acceptance were
+subsequently confirmed by Jason as recorded below.
+
+### 2026-09-23 — Client acceptance and notification scope addition
+
+Jason reported: “Mac works. iPhone app works over wifi and tailscale.” This
+closes the remaining M6 human acceptance questions. He then requested a project
+step for system notifications. Added M8 with discovery, permissions, privacy,
+delivery, real-device acceptance and operational documentation gates; M7 now
+follows M8. This update records the requested plan extension, not a deployed
+notification feature. ARR execution deferral is unchanged.
 
 ## Close-out
 
-Active close-out. Jason confirmed the repaired iPhone voice workflow works
-on 2026-09-23 and asked Codex to complete the project. Other documented gates
-remain open until their individual evidence is recorded.
+Active: voice acceptance is complete, and system notifications are now part of
+this project. M8 must pass before M7 final graduation and Git synchronization.
+Live ARR execution remains explicitly deferred to its separate follow-up.
 
 
 ## References
