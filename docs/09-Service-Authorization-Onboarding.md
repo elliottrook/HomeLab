@@ -3,9 +3,10 @@
 ## Purpose
 
 This runbook is the repeatable process for adding HomeLab services to
-Authentik without redesigning the integration each time. Complete one service
-at a time, keep its direct-management address available until validation is
-finished, and record the result in the table at the end of this document.
+Authentik without redesigning the integration each time. Use the bounded,
+layer-based cohorts in the [rollout project](projects/Authentik-Rollout.md),
+retain direct-management addresses, and record completion only after each
+service's real workflow tests pass.
 
 There is no safe one-click conversion for every service. The quickest reliable
 approach is to standardize on two patterns:
@@ -87,10 +88,10 @@ API, mobile or non-browser clients that may be affected:
 Rollback owner and method:
 ```
 
-Use a dedicated Authentik group such as `homelab-admins` for administrative
-interfaces. Create narrower groups later where another user should have access
-to media, photos, documents or home automation without receiving access to the
-infrastructure control plane.
+The current rollout convention is one enabled direct binding to `jason` per
+application; `homelab-admins` is not an existing deployed group. A future
+household/group design must explicitly preserve least privilege and separate
+media access from infrastructure administration.
 
 ## Common preparation for either path
 
@@ -288,6 +289,35 @@ forward auth later only for services that genuinely share the same users and
 policy.
 
 ## Per-service completion record
+
+### Staged on 2026-09-23 — awaiting human acceptance
+
+These are live private routes, **not graduated services**. All use owner-only
+forward auth, certificate 8, and preserved application logins/direct paths.
+Three-resolver DNS, same-host redirects, cookie-preserving entry to Authentik,
+policy-engine `jason` allow/`akadmin` deny, and spoofed identity-header denial
+passed. Homepage links remain direct until the tests below pass.
+
+| Service | Protected browser URL | Direct recovery URL | NPM / provider ID |
+|---|---|---|---|
+| Dozzle | `https://logs.elliottrook.com` | `http://192.168.20.40:8888` | 19 / 28 |
+| Homarr | `https://homarr.elliottrook.com` | `http://192.168.20.20:7575` | 20 / 29 |
+| Code Server | `https://code.elliottrook.com` | `http://192.168.20.20:8443` | 21 / 30 |
+| Dockge | `https://dockge.elliottrook.com` | `http://192.168.20.40:31014` | 22 / 31 |
+| File Browser | `https://files.elliottrook.com` | `http://192.168.20.40:30051` | 23 / 32 |
+| NetBox | `https://netbox.elliottrook.com` | `http://192.168.20.32:8000` | 24 / 33 |
+
+In a fresh private browser, authenticate through Authentik and the retained
+application login, confirm the expected account/permissions and normal
+logs/widgets/editor/files/inventory views, then test sign-out and direct
+recovery. Avoid production writes merely to test access. The forward-auth
+sign-out path is `/outpost.goauthentik.io/sign_out` on each protected hostname.
+Application logout and Authentik logout are distinct; verify the corresponding
+login is required again. Source-host checkpoints and exact rollback object IDs
+are recorded in the rollout project. Do not add completion rows until evidence
+arrives.
+
+### Graduated services
 
 Add one row only after the complete private-session and rollback tests pass:
 

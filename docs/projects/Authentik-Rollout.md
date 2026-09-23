@@ -2,42 +2,287 @@
 
 > Status: Active — Milestones 0-2 complete except the human-only stale-session
 > closure; Milestone 3 has graduated Grafana, ARR, Portainer and the coordinated
-> Pi-hole pair. Remaining work was redesigned into layer-based cohorts on
-> 2026-09-15.
-> Live baseline re-audited 2026-09-13. Redesigned 2026-09-10
+> Pi-hole pair. Six further browser routes were staged on 2026-09-23;
+> human workflow acceptance remains pending. Media/infrastructure and final
+> graduation gates are still open.
+> Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
 > under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
-> Stream: **M — Monitored**. Handed off 2026-09-10 to a fresh local session
-> for Jason to drive via remote approval — see "Starting the handoff
-> session" below before doing anything else.
+> Stream: **A — Autonomous**, approved by Jason on 2026-09-23 for the
+> remainder of this project. Earlier Stream M evidence remains historical.
 >
 > Owner: Jason
 >
 > Proposed: 2026-08-22 · Redesigned: 2026-09-10
+
+## Resume audit — 2026-09-23
+
+Jason requested a completion pass. Read-only discovery confirms that the
+remaining cohorts have not been deployed; this is not a documentation-only
+close-out. This audit preceded the Stream A approval below. No live configuration was changed by
+this audit, and no additional graduation gate is claimed.
+
+- Authentik server/worker `2026.8.0` and PostgreSQL 16 are healthy. NPM has
+  18 enabled hosts; SQLite `integrity_check` is `ok` and `nginx -t` passes.
+- Certificate-valid unauthenticated requests returned 302 for Homepage,
+  Grafana, all five ARR members, both Pi-holes and NPM; Beszel, Portainer and
+  Forgejo returned 200. These are route smoke tests, not fresh login, denial,
+  sign-out or recovery-login proof.
+- All three DNS authorities return NXDOMAIN for `logs`, `homarr`, `newtarr`
+  and `frigate` under `elliottrook.com`. No corresponding NPM hosts exist.
+  Each backend returns HTTP 200 from the Mac with its proposed Host header;
+  each request from NPM LXC 107 times out. Frigate's direct probe used its
+  existing self-signed TLS endpoint; it is not certificate-validation proof.
+
+| Proposed member | Observed backend | Classification / remaining discovery |
+|---|---|---|
+| Dozzle | TrueNAS `http://192.168.20.40:8888`, image version label `v11.1.1` | Docker socket mounted read/write; no explicit auth/actions/shell environment overrides. Confirm effective actions/shell settings before treating this as a bounded log viewer. |
+| Homarr | Docker LXC 100 `http://192.168.20.20:7575`, mutable `latest` image | Credentials authentication; `/opt/homarr/appdata` is its only mount, with no Docker socket. Exact release and consumer inventory remain unverified. |
+| Newtarr | TrueNAS `http://192.168.20.40:9705`, image tag `v1.0.0` | Persistent `/mnt/Media/appdata/newtarr`; this is an ARR automation application, not a passive viewer. Confirm effective authentication and outbound ARR consumers before promotion. |
+| Frigate | VM 102 `https://192.168.20.10:8971` | `frigate-compose.service` active; expected TrueNAS NFS recording mount present. SSH identity cannot run privileged Docker inspection noninteractively; checkpoint access remains unresolved. |
+
+The [upstream Newtarr description](https://store.elfhosted.com/blog/2026/02/24/huntarr-ends-its-hunt-newtarr-takes-it-up/)
+identifies it as a Huntarr fork. Preserve its scheduler and ARR API paths;
+do not assume browser reachability proves those workflows.
+
+**Scope drift requiring reconciliation:** the
+[Backup Synology decommission close-out](completed%20projects/Backup-Synology-Decommission.md)
+records retirement on 2026-09-22, while this project's historical Cohort 4A
+still includes that appliance. NPM host 4 and Homepage's direct `.42:5001`
+tile still exist. Do not attempt to re-onboard or resurrect the retired
+appliance. Review its identity/proxy/DNS/tile remnants as a distinct cleanup
+change before removal. No cleanup is authorized by inference.
+
+**Approved first action, 2026-09-23:** create fresh shared Authentik/NPM recovery
+checkpoints only. Capture an application-consistent Authentik PostgreSQL dump
+and deployment configuration under `/opt/authentik/backups`, plus an online
+SQLite backup and NPM deployment/generated-host configuration under
+`/opt/nginx-proxy-manager/backups`. Use new timestamped directories, directory
+mode `0700`, files `0600`, and keep secret-bearing material on its source host.
+Validate the dump catalogue, SQLite integrity, archive readability, permissions
+and SHA-256 hashes; print only non-secret validation summaries. No service
+restart, authentication change, DNS publication or firewall change is included.
+The additive checkpoint needs no production rollback; retain existing copies
+and stop if validation fails. Member, firewall and resolver checkpoints remain
+required before the corresponding rollout layers can proceed. Git push remains
+separately subject to immediate approval.
+
+## Stream A authorization — 2026-09-23
+
+### Active bounded layer manifest
+
+Proceed first with Dozzle (`logs.elliottrook.com` → HTTP
+`192.168.20.40:8888`) and Homarr (`homarr.elliottrook.com` → HTTP
+`192.168.20.20:7575`). Add exactly those two TCP paths from NPM
+`192.168.50.23`, then dedicated owner-only forward-auth providers and NPM
+hosts using certificate 8, followed by three-resolver private DNS. Keep
+Homarr's credentials login and twelve server-side integrations unchanged.
+Dozzle has neither shell nor actions command flags or environment overrides.
+DNS and Homepage promotion remain separate layers; real user workflow tests
+must precede tile changes. Roll back only the newly recorded rule UUIDs,
+providers/applications, proxy host IDs and these two DNS records.
+
+Shared checkpoints passed on 2026-09-23: Authentik
+`/opt/authentik/backups/rollout-stream-a-20260923T183234Z`
+(1,803 dump catalogue entries); NPM
+`/opt/nginx-proxy-manager/backups/rollout-stream-a-20260923T183244Z`
+(SQLite integrity `ok`). Archives are readable; directories/files are
+`0700`/`0600`, and hashes are recorded in source-local `validation.json`.
+Homarr's online SQLite/configuration/container metadata and Homepage config
+are at `/opt/homarr/backups/authentik-rollout-20260923T183446Z` on LXC 100;
+Dozzle metadata/Compose at `/root/authentik-rollout-20260923T183447Z` on
+TrueNAS. OPNsense XML checkpoint:
+`/conf/backup/config-authentik-stream-a-20260923T183502Z.xml`.
+Both Pi-hole configuration directories contain protected
+`rollout-backup-20260923T183547Z/pihole.toml` checkpoints; XML/TOML parse and
+Homarr SQLite integrity checks passed.
+
+Newtarr is held out: its actual configuration is under container `/config`,
+but its only configured bind mount is empty `/appdata`. Do not recreate it
+or claim recoverability from that mount. Persistence remediation requires a
+separate risk decision; further read-only discovery remains permitted.
+Frigate is held pending a verified configuration checkpoint with its existing
+privileged access restriction intact. Neither hold blocks Dozzle/Homarr.
+
+**Dozzle/Homarr staging passed, human workflow pending:** NPM hosts 19/20,
+Authentik providers 28/29 (`dozzle`/`homarr`), firewall UUIDs
+`f6a3506c-0204-4c06-b5f4-f5ac57b7f011` and
+`bbf240e5-c6b4-4dff-ba8c-f2b36d1b434f`. Loaded `pf` rules match the two
+exact tuples. Unbound host UUIDs are
+`0f5ee767-92bb-42c8-a074-83460f468d4b` and
+`71fd74ec-bdc6-4800-a846-4f5d84076651`; all three resolvers return
+`192.168.50.23` for both names. Pi-holes were restarted one at a time with
+the other answering. Certificate-valid cookie-preserving requests reach
+Authentik's authentication flow with 200; both roots return same-host 302.
+Fresh policy-engine evaluation allows `jason` and denies `akadmin` for each.
+Nginx syntax passes and existing Homepage/Sonarr/Pi-hole routes retain 302.
+Jason has been asked for private-browser login, widgets/logs, sign-out and
+direct recovery tests. No Homepage link has been changed.
+
+**Next independent layer: Cohort 3B.** Stage `code.elliottrook.com` →
+HTTP `192.168.20.20:8443`, `dockge.elliottrook.com` → HTTP
+`192.168.20.40:31014`, `files.elliottrook.com` → HTTP
+`192.168.20.40:30051`, and `netbox.elliottrook.com` → HTTP
+`192.168.20.32:8000`. All four direct Host-header probes pass (200/302),
+while NPM currently times out. Use four separate owner-only forward-auth
+applications and exact NPM-source TCP rules. NetBox has no enabled remote
+authentication or plugins; retain its local superuser login and API paths.
+Retain every application login and direct URL; no client/API path changes.
+Checkpoint Code Server configuration/metadata at
+`/opt/code-server/backups/authentik-rollout-20260923T184208Z` on LXC 100;
+Dockge online SQLite/Compose and File Browser configuration/metadata at
+`/root/authentik-admin-cohort-20260923T184209Z` on TrueNAS. File Browser was
+briefly paused only during its small database/configuration archive and
+successfully unpaused. Dockge SQLite integrity and both archives passed.
+NetBox PostgreSQL/configuration checkpoint at
+`/opt/netbox/backups/authentik-rollout-20260923T184211Z` on LXC 111 passed
+with 2,484 readable dump catalogue entries. Shared recovery checkpoints above
+remain available.
+Rollback targets only newly created objects, never another cohort's objects.
+
+**Cohort 3B staging:** Code Server/Dockge/File Browser/NetBox use NPM host
+IDs 21/22/23/24 and Authentik provider IDs 30/31/32/33 respectively. Their
+firewall UUIDs are `3fe574a8-0c19-41fe-b91d-8e53a6e91bd3`,
+`06649950-6709-482b-b09c-e17d8ca9c9a5`,
+`6eef27e8-9840-4510-990b-761b8873238b`, and
+`fb43e3f7-28fa-4fc8-9175-b973c1e52d47`; loaded rules match the four exact
+NPM-source TCP tuples. Additional OPNsense checkpoint:
+`/conf/backup/config-authentik-3b-before-20260923T184322Z.xml`.
+Unbound host UUIDs in the same order:
+`149bf631-51c2-4663-9ee6-3ccedf022009`,
+`afe02eb3-1600-4c02-b4d4-28a855cc5383`,
+`d9662c22-7633-46c4-9715-595eaa2b6073`,
+`2e5f207a-cc49-486d-8001-cb92733fea78`.
+All four pinned certificate-valid cookie-preserving flows reach Authentik's
+login page; policy-engine allow/deny checks pass and generated nginx hosts
+are online. DNS publication used sequential Pi-hole restarts. Human login,
+role, sign-out and direct recovery tests remain required before promotion.
+
+**Next normalization action:** add exactly one enabled direct `jason` binding
+to Forgejo application/provider 9, which currently has no binding. Keep the
+provider, client secret, callbacks and Forgejo configuration unchanged. Verify
+policy-engine owner allow/non-owner deny and existing HTTPS route. Rollback
+removes only the newly created binding. Existing Synology and Cloudflare
+Access each already have one enabled owner binding; no normalization write
+is needed there.
+
+**Normalization passed:** binding
+`7999395c-3923-41cc-9010-856996dacef5` now restricts Forgejo to `jason`.
+Policy-engine owner allow/non-owner deny passed; provider 9 was unchanged and
+the Forgejo HTTPS route remained 200. All twelve Cohort 3B DNS queries (four
+names on three resolvers) returned `192.168.50.23`; all four normal HTTPS
+roots returned 302. Human workflow requests are pending for both staged groups.
+
+**Next recovery proof:** take a fresh Authentik dump after these changes and
+restore it into an explicitly disposable, uniquely named PostgreSQL database
+inside the existing PostgreSQL container. No application will connect to the
+restored database. Validate restored application rows (including native
+Forgejo and forward-auth Homepage plus the six new routes), then drop only
+that newly created database. Retain the protected dump on the source host.
+Also create a fresh NPM online SQLite backup, reopen it read-only and verify
+all six routes. This proves database restore, not a complete service rebuild;
+the broader Milestone 5 recovery gate remains open.
+
+**Recovery proof passed:** the fresh dump at
+`/opt/authentik/backups/rollout-restore-proof-20260923T185102Z` restored
+successfully into an isolated disposable database. All eight expected
+application rows (Forgejo, Homepage and the six new applications) were present.
+The disposable database was removed; production never connected to it.
+NPM checkpoint
+`/opt/nginx-proxy-manager/backups/rollout-restore-proof-20260923T185103Z`
+reopened read-only with integrity `ok` and all six new routes. Both checkpoints
+retain source-local hash/validation records. Authentik server/worker/database
+remain healthy and production NPM integrity/syntax pass. Spoofed
+`X-authentik-username`/group headers on each new route still receive 302 into
+authentication. This does not replace real login or full service-rebuild proof.
+
+### Remaining discovery and exact resume point
+
+- **Human acceptance:** two test requests are pending for Dozzle/Homarr and
+  Code Server/Dockge/File Browser/NetBox. Do not promote Homepage links or mark
+  these services complete without responses. Test instructions and direct URLs
+  are in the onboarding runbook's staged table.
+- **Immich 2.7.5:** direct version endpoint responds; native OIDC is supported
+  by the [official documentation](https://docs.immich.app/administration/oauth/),
+  including a dedicated mobile callback. Synology's available SSH identity
+  cannot run privileged Docker/backup commands without a password. No settings
+  were changed; obtain a verified checkpoint through an authorized operator
+  path before native-OIDC work. Do not change sudoers or bypass the restriction.
+- **Audiobookshelf 2.36.0:** local auth only, auto-registration/auto-launch off,
+  one active unlocked `admin` root account without an email. Its database is
+  `/mnt/Media/media/audiobooks/absdatabase.sqlite`, alongside media, so back up
+  the database/configuration rather than archiving the media library. Host
+  SQLite is too old for this schema; the application's own sqlite3 runtime
+  returned integrity `ok`. Native OIDC requires an explicit existing-account
+  username mapping and preserved `audiobookshelf://oauth` mobile redirect,
+  following the [official OIDC guide](https://audiobookshelf.org/docs/documentation/server-management/oidc-authentication/).
+  No identity or application configuration was changed.
+- **Calibre Web Automated:** direct deployment is HTTP `:8283`; Homepage
+  still links to legacy HTTPS `:32016`, which needs reconciliation. Its app
+  database has an inactive generic OAuth provider; local login is enabled,
+  anonymous browsing/public registration/Kobo sync are off. Inspect the
+  deployed generic OAuth implementation and reader/OPDS consumers before
+  choosing native integration. No provider credentials were read or changed.
+- **Seerr 3.4.1:** local and media-server login settings exist; local login is
+  enabled and the application URL is empty. Preserve media-server callbacks,
+  API keys and ARR integrations; do not assume generic OIDC support from the
+  media-server OAuth controls. [Official user settings](https://docs.seerr.dev/using-seerr/settings/users/)
+  describe these distinct login methods.
+- **Jellyfin:** no installed plugin directories were found. Real configuration
+  is the Docker named volume mounted at `/config`, not `/mnt/Media/appdata/jellyfin`
+  mounted at `/appdata`. Preserve this distinction for checkpoints; do not
+  change TV/mobile authentication without client validation.
+- **Infrastructure:** Proxmox 9.2.10 currently has only PAM/PVE realms;
+  native-OIDC account/role mapping remains to be designed and tested. UniFi OS
+  service is active. Retired Backup Synology must not be re-onboarded; preserve
+  the explicit OPNsense and Plex no-change defaults. Infrastructure cutover
+  follows application workflow acceptance and its higher recovery gate.
+- **Persistence:** staging/normalization evidence is ready for a focused local
+  commit. Remote synchronization remains pending immediate push approval;
+  unrelated working-tree changes belong to other tasks and must be preserved.
+
+Resume by reading this section, checking current live objects, collecting the
+pending user test results, then promoting only accepted members. Do not replay
+object creation. Continue the media discovery/account-mapping work within
+Stream A; unresolved backup access and the Newtarr persistence risk are explicit
+holds on their affected services, not reasons to widen privileges.
+
+### Approved envelope
+
+Jason explicitly approved the shared recovery checkpoints and instructed:
+"Approve and move the remainder of the project to stream A". This supersedes
+the former per-change Stream M approval requirements for the remaining project.
+The existing scope, risk addendum, layer gates and recovery requirements form
+the authorization envelope. It covers source-local protected checkpoints,
+enumerated NPM-to-backend TCP rules, private NPM/TLS routes, service-specific
+Authentik providers/applications and owner bindings, narrowly scoped native
+OIDC credential handoffs, three-resolver private DNS, validated Homepage links,
+policy normalization, regression/recovery proof and documentation updates.
+Native-OIDC activation remains a separately validated operation per application,
+but no longer requires a separate conversational approval within this envelope.
+
+Use existing permitted SSH/API access; the old session's raw-TCP limitation
+does not describe this environment. Never alter sandbox or permission controls.
+Retain local authentication and every private non-browser path. Do not create
+public ingress, broaden firewall paths beyond named service backends, expose
+credentials, delete data, or re-onboard retired Backup Synology. Its obsolete
+objects remain an explicit reconciliation item pending a reviewed cleanup plan.
+OPNsense's own UI remains private with no Authentik dependency by default.
+
+Human passkey/login/client tests still require Jason where no safe existing
+test path is available; leave those gates open and continue independent work.
+Stop only the affected layer on failed checkpoints or a new material risk.
+Platform approvals and immediate remote Git write approvals remain mandatory.
+This authorization does not itself authorize a push or a new scheduled task.
 
 ## Starting the handoff session
 
 If you are a new session picking this project up: read this entire
 document plus `docs/09-Service-Authorization-Onboarding.md` before touching
 anything, then resume from the first unchecked cohort/layer in Milestone 3.
-Do not replay completed milestones. This is a **Stream M** project: present
-each state-changing step (target, exact change, expected effect, validation,
-rollback) and wait for Jason's approval before running it. He is expected to
-be approving remotely from his phone, not sitting at this Mac, so:
-
-- Batch only what the Standard allows — commands that implement one clearly
-  bounded, reversible change and share the same risk — into a single
-  approval ask. Don't ask once per trivial sub-step, and don't bundle
-  unrelated changes into one ask either.
-- Assume delay between an ask and a response. Don't leave anything
-  mid-change (e.g. old config removed, new config not yet validated) while
-  waiting — each approved step should land in a complete, working state
-  before the next ask goes out.
-- If nothing is approved for a while, that's normal for this mode; don't
-  fall back to acting without approval, and don't repeat the sandbox
-  incident's mistake of "fixing" the wait by finding a workaround that
-  expands scope.
-- Read-only discovery and planning need no approval at all (already
-  pre-agreed per the Standard) — only state-changing steps do.
+Do not replay completed milestones. Continue autonomously within the Stream A
+envelope above. Record each bounded layer's target, change, checkpoint,
+validation and rollback before execution. Preserve a working state at every
+boundary, and keep pending human tests explicit rather than claiming success.
 
 ## Why this project was taken back and redesigned
 
@@ -164,10 +409,10 @@ HTTP management page, Aster llama.cpp's inference API, GitHub (external,
 own auth). Do not make firewall recovery depend on Authentik or the reverse
 proxy.
 
-**Excluded from autonomous/unattended execution specifically** (see
-Persistence plan below): any step requiring raw SSH/TCP verification, any
-step requiring a real browser-based login test, any OPNsense change beyond
-what's explicitly pre-approved per action.
+**Excluded from autonomous execution:** human-only passkey/login/client tests,
+new public ingress, changes beyond the narrow backend paths in the cohort
+manifest, and the Standard's non-waivable stop conditions. Existing permitted
+SSH transport and scoped firewall changes are covered by the Stream A approval.
 
 ## Authority model
 
@@ -320,13 +565,9 @@ Per the new Standard's persistence requirements:
 - This document and its Evidence log are the durable state. Before any
   state-changing step, the current milestone, next action and rollback
   location are recorded here — not held only in conversational memory.
-- No long-running unattended job is used for this project's remaining work
-  at this time. Given the confirmed SSH/sandbox constraint above, Milestone
-  2's steps run in an attended (Stream M) session: read-only discovery and
-  API-based configuration can proceed without per-step approval per the
-  Standard's "Standard authorization common to all projects," but each
-  state-changing step is presented with target/change/effect/validation/
-  rollback and approved immediately before it runs.
+- Continue in this session under Stream A; no scheduled job is created by
+  inference. The historical sandbox findings are not current transport limits.
+  Keep every layer resumable and stop safely on a platform denial.
 - If this session stops (usage limit, interruption) mid-milestone: the next
   session re-reads this document, `docs/09-Service-Authorization-Onboarding.md`,
   and live state before continuing — never resumes from memory alone.
@@ -625,8 +866,8 @@ into twelve repeated end-to-end service projects:
   player, callback and API behavior must pass before enforcement. Plex is not a
   member; it remains assessment-only with no authentication change.
 
-Each cohort uses the following layer gates. One approval may cover all members
-of one layer when the exact object inventory and rollback are presented:
+Each cohort uses the following layer gates. Under Stream A, record the exact
+object inventory and rollback before executing each bounded layer:
 
 - [ ] **Discovery and classification:** record versions, direct URLs, owners,
   existing authentication, API/mobile/automation consumers, hostname/Host
@@ -643,7 +884,7 @@ of one layer when the exact object inventory and rollback are presented:
   native-OIDC providers/applications, strict callbacks, standard mappings and
   direct `jason` bindings. Validate `jason` allow/`akadmin` deny and outpost
   membership without printing credentials. Application-side native OIDC and
-  secret transfer remain individually approved substeps.
+  secret transfer remain individually checkpointed and validated substeps.
 - [ ] **DNS publication batch:** add the entire validated cohort to OPNsense and
   both Pi-holes in one reviewed candidate, reload redundant resolvers safely,
   and prove every name independently on all three authorities.
@@ -656,8 +897,8 @@ Durable cohort status (update cells only from evidence, not intent):
 
 | Cohort | Discovery | Checkpoint | Network/proxy | Identity objects | DNS | Workflow/promotion |
 |---|---|---|---|---|---|---|
-| 3A — bounded browser gates | Pending | Pending | Pending | Pending | Pending | Pending |
-| 3B — administrator interfaces | Pending | Pending | Pending | Pending | Pending | Pending |
+| 3A — bounded browser gates | Dozzle/Homarr verified; Newtarr/Frigate held | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Dozzle/Homarr passed | Human tests pending; links unchanged |
+| 3B — administrator interfaces | Four browser backends classified | Passed | Passed | Passed | Passed on all three resolvers | Human tests pending; links unchanged |
 | 3C — client-sensitive media | Pending | Pending | Pending | Pending | Pending | Pending |
 
 Milestone 3 completes when Cohorts 3A-3C pass, Plex's no-change assessment is
@@ -667,10 +908,12 @@ recorded, and all previously completed Milestone 3 packages remain healthy.
 
 Infrastructure work uses the same layer batching but a higher recovery bar:
 
-- **Cohort 4A — native identity platforms:** Proxmox, TrueNAS and the main and
-  backup Synology interfaces. Batch shared discovery/checkpoints, proxy
+- **Cohort 4A — native identity platforms:** Proxmox, TrueNAS and the main
+  Synology interface. Backup Synology was retired on 2026-09-22 and is no
+  longer an onboarding target; its stale objects require reviewed cleanup.
+  Batch shared discovery/checkpoints, proxy
   staging, Authentik objects and DNS; activate native identity and map roles per
-  platform. Preserve `root@pam`, TrueNAS local administration and both Synology
+  platform. Preserve `root@pam`, TrueNAS local administration and main Synology
   local recovery paths. SMB, NFS, iSCSI, backup and hypervisor traffic remain
   direct.
 - **Cohort 4B — household/control planes:** UniFi and Home Assistant. Batch
@@ -693,7 +936,7 @@ Infrastructure work uses the same layer batching but a higher recovery bar:
 
 Milestone 5 is now explicit; it is not another service-onboarding wave:
 
-- [ ] Add the missing owner-only Forgejo application policy binding and verify
+- [x] Add the missing owner-only Forgejo application policy binding and verify
   `jason` allow/`akadmin` deny without changing Forgejo's working native OIDC.
 - [ ] Inventory Synology Backup and Cloudflare Access, then either bring their
   bindings/documentation into the project standard or record a deliberate
@@ -784,6 +1027,10 @@ evidence.
 
 | Date | Item | Evidence | Result |
 |---|---|---|---|
+| 2026-09-23 | Stream A transition and recovery checkpoints | Jason approved the proposed backups and moved the remainder to Stream A. Protected shared/member/resolver checkpoints were validated; source-local paths are recorded above. | Stream A active; platform controls, human workflow gates and immediate remote Git write approval remain. |
+| 2026-09-23 | Six additional private browser routes | Staged Dozzle, Homarr, Code Server, Dockge, File Browser and NetBox with exact NPM-source TCP rules, six owner-only applications, wildcard TLS and three-resolver DNS. Loaded rules, all eighteen DNS answers, Authentik flows, allow/deny policy checks and spoofed-header denial pass. | Awaiting real login, account/role, sign-out and recovery acceptance; Homepage links unchanged. Newtarr and Frigate remain held as described above. |
+| 2026-09-23 | Forgejo policy normalization | Added only binding `7999395c-3923-41cc-9010-856996dacef5` to existing application/provider 9. | Owner allowed, non-owner denied; native OIDC provider untouched and HTTPS root remains 200. |
+| 2026-09-23 | Database recovery proof | Restored a fresh Authentik dump into a disposable database and verified native/forward-auth application rows, then removed it. Reopened fresh NPM backup with integrity `ok` and all six hosts. | Passed database recovery proof; full service rebuild and human workflow gates remain open. |
 | 2026-08-22 | Nginx Proxy Manager | Authentik forward auth with password and passkey | Passed |
 | 2026-08-24 | Project split | Rollout separated from initial-build record | Complete |
 | 2026-08-25 | Authentik launch URL follow-up | Verified Base URL/outpost/NPM headers; replaced dashboard HTTP fallback link with `https://auth.elliottrook.com` | Passed |
@@ -838,9 +1085,13 @@ evidence.
 
 ## Close-out
 
-Not graduated. Milestones 1-2 are complete except the human-only stale-session
-confirmation retained in Milestone 0. Milestone 3 remains active: Homepage,
-Beszel, Grafana, ARR, Portainer and the Pi-hole pair have graduated; Cohorts
-3A-3C remain. Milestone 4 infrastructure cohorts and the explicit Milestone 5
-normalization/regression/close-out remain future work. Resume with Milestone 3
-cohort-wide read-only discovery, not with a single service implementation.
+Not graduated. Stream A is active as of Jason's 2026-09-23 approval.
+Previously graduated packages remain in place; six further routes are staged
+with automated gates passed and human acceptance pending. Forgejo's owner
+binding is fixed and an isolated Authentik database restore passed. Newtarr's
+persistence risk, Frigate/Immich checkpoint access, remaining media/native
+identity work, infrastructure workflows, stale-session confirmation and final
+integration/rebuild gates remain open. Resume from the dated audit and exact
+object inventory near the start of this document; do not recreate staged
+objects or promote unaccepted Homepage links. Remote Git synchronization
+requires immediate approval and is not implied by Stream A.
