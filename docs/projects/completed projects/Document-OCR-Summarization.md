@@ -12,7 +12,8 @@
 Open **https://paperless.elliottrook.com** from an approved management device, or
 use the **Paperless-ngx** tile under Homepage's Application Management group.
 The HTTPS route uses NPM's valid wildcard certificate, the established Authentik
-login flow and a binding restricted to Jason; native Paperless login remains.
+login flow and a binding restricted to Jason. The later passkey follow-up below
+replaces the separate native login with OIDC single sign-on.
 Browser verification reached “Log in to continue to Paperless.” Personal login
 and passkey interaction remain the operator's responsibility.
 
@@ -112,7 +113,7 @@ real-document quality or personal login acceptance has been demonstrated.
 
 | Follow-up / limit | Owner and review point | Compensating control |
 |---|---|---|
-| First personal HTTPS login and native credential replacement | Jason, first use | Existing Authentik gate; native bootstrap credential stays root-only on LXC 115 |
+| First personal passkey SSO acceptance | Jason, first use | OIDC linked to existing jason account; local web password login disabled |
 | First real-document summary review | Jason, first real upload | Only labelled synthetic data existed; summaries are derived aids and originals remain authoritative |
 | OCR above 96,000 characters or empty OCR | Jason, first such document | Visible unavailable/error status and bounded retries; no truncation or partial publication |
 | Central AI-PAM custody migration | AI-PAM successor project, at broker readiness | Dedicated revocable key, source-local token, non-admin identities and fixed-capability Unix broker |
@@ -980,3 +981,51 @@ were subsequently approved and completed. The focused live Doctor check passed;
 Forgejo reference/wiki refs are 76c2bea and c1aa96c. Neither sibling repository
 has a configured GitHub push mirror. This access follow-up is recorded locally;
 no additional Git push is implied by the iPhone access request.
+
+### iPhone DNS correction — 2026-09-23
+
+Following the continued server-not-found report, direct DNS queries found both
+Pi-holes had the private record but OPNsense Unbound returned NXDOMAIN. Added
+only the missing Paperless A override to 192.168.50.23, with no shared-address
+PTR override. Protected checkpoint on OPNsense:
+`/conf/backup/config-paperless-dns-20260923-200014.xml`. Regenerated Unbound
+configuration with its configured restart action; configuration check passed.
+
+All three resolvers now return 192.168.50.23. OPNsense AAAA queries correctly
+return NOERROR with no IPv6 answer, and Authentik/Aster A records are unchanged.
+HTTPS requests from the management Mac and Tailscale subnet router both return
+302 with successful TLS verification. Physical iPhone acceptance still requires
+Jason to retry; a previously cached negative DNS result may require reconnecting.
+
+### Passkey single sign-on — 2026-09-23
+
+Jason confirmed access on and off Wi-Fi after restarting the iPhone, then
+requested removal of Paperless's separate password prompt. Implemented native
+OIDC using Authentik provider 37, the existing Paperless application and its
+Jason-only binding. Exact callback is
+`https://paperless.elliottrook.com/accounts/oidc/authentik/login/callback/`.
+Authorization-code grant only, confidential client, PKCE S256, existing signing
+key, and default openid/profile/email scopes. The existing jason account was
+pre-linked by immutable Authentik subject, preserving ownership and permissions.
+No automatic account creation, group escalation, or remote-user headers.
+
+Dedicated `paperless-passkey` flow: WebAuthn validation (user verification
+required; missing device denied), then user login. No identification/password
+stage; existing Authentik sessions retain normal SSO behavior. Provider 34 is
+retained only as a rollback object. NPM host25 now passes to Paperless's native
+OIDC, preserves its source allowlist and strips caller identity headers.
+OPNsense sequence2682 permits only .70.15 to .50.23 TCP443 for OIDC.
+
+Regular web login disabled, automatic SSO redirect enabled, social signups
+disabled. OIDC secret transferred directly between guests and held in the
+root-only Compose environment; excluded from service-only offsite backups.
+Checkpoints: LXC115 `/root/paperless-env-before-sso-20260923` and
+`/root/paperless-db-before-sso-20260923.sqlite3`; LXC107
+`/root/npm-before-paperless-sso-20260923.sqlite`; OPNsense
+`/conf/backup/config-paperless-before-oidc-20260923.xml`.
+
+Validation: normal browser automatically reaches `paperless-passkey`; local
+password field absent; discovery TLS verified; anonymous and forged-identity
+API requests return401; unapproved proxy source returns403; Tailscale gateway
+reaches login with valid TLS; summary health passes. Real iPhone passkey
+completion is pending Jason's acceptance. See the SSO recovery runbook.

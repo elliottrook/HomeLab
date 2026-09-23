@@ -101,7 +101,7 @@ revocation, inference failure/recovery, restart, long-document unit tests and
 post-deployment isolated recovery passed. HTTPS, private DNS, Authentik,
 Homepage and NetBox are deployed. See the archived project for exact evidence.
 
-Personal browser login, credential replacement and first real-document quality
+Personal passkey SSO acceptance and first real-document quality
 review remain operator acceptance tasks. Do not describe these as tested.
 
 ## Service-only offsite policy

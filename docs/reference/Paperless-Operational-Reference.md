@@ -7,11 +7,16 @@
 ## Access and ownership
 
 Open https://paperless.elliottrook.com from an approved management device. The
-Homepage Application Management tile opens this HTTPS address. Authentik gates
-access to Jason; Paperless then uses its native `jason` account. The existing
-native bootstrap credential remains protected on LXC 115 at
-`/root/.paperless-temp-password`; never copy it into Git, chat or logs. Complete
-personal sign-in and credential replacement through the normal operator flow.
+Homepage Application Management tile opens this HTTPS address. Paperless uses
+native Authentik OpenID Connect with PKCE and links Jason's immutable Authentik
+subject to the existing Paperless `jason` account. The normal login automatically
+redirects to Authentik; no separate Paperless username/password is required.
+The dedicated `paperless-passkey` authentication flow offers WebAuthn with user
+verification required and no password stage. An existing Authentik session may
+complete SSO without a new prompt. Other applications' flows are unchanged.
+Only Jason is authorized; self-registration is disabled. Local web login is
+disabled, while protected administrative recovery/API credentials remain local.
+Never copy `/root/.paperless-temp-password` or OIDC secrets into Git or chat.
 
 The proxy allows management clients 192.168.1.206, 192.168.1.241 and
 192.168.1.112 (Jason’s registered iPhone), plus the existing Tailscale subnet
@@ -20,9 +25,12 @@ address; Authentik still restricts access to Jason. Other sources, including the
 public tunnel, are denied. Use the same HTTPS URL on home Wi-Fi and with
 Tailscale connected away from home. No Lab-VLAN route was added. Direct
 http://192.168.70.15:8000 remains a restricted administrative recovery endpoint.
-Native authentication is retained; no anonymous access or trusted-header login
-was enabled. Certificate renewal is owned by NPM's existing wildcard certificate.
-Both private Pi-hole resolvers map paperless.elliottrook.com to 192.168.50.23.
+Paperless verifies OIDC identity; anonymous access and trusted-header login
+remain disabled. Certificate renewal is owned by NPM's existing wildcard certificate.
+Both private Pi-hole resolvers (192.168.20.20 and 192.168.20.40) and OPNsense
+Unbound (192.168.1.1, used by Tailscale split DNS) map
+paperless.elliottrook.com to 192.168.50.23. The missing Unbound override was
+corrected on 2026-09-23 after the iPhone reported server not found.
 
 ## Deployment
 
