@@ -1,9 +1,9 @@
 # Aster Companion App
 
-> Status: Active — Mac voice and iPhone Wi-Fi/Tailscale accepted 2026-09-23;
-> system notifications deployed as a pilot at Jason's request.
-> iPhone notifications accepted on and off Wi-Fi; Mac notification acceptance
-> and remaining close-out checks still precede graduation.
+> Status: Complete — archived 2026-09-23 at Jason's request, with the
+> bounded operational exceptions recorded in Close-out.
+>
+> Completed: 2026-09-23
 >
 > Project owner: Jason
 >
@@ -50,9 +50,9 @@ petals surround a warm central orb, tying the identity to the app's planned
 voice-state indicator. The four cardinal petals carry a deliberately light
 compass-needle treatment, adding guidance and orientation without turning the
 mark into a literal compass rose. The source artwork is retained at
-[`docs/assets/aster-companion/aster-app-icon-concept-v2-compass.png`](../assets/aster-companion/aster-app-icon-concept-v2-compass.png).
+[`docs/assets/aster-companion/aster-app-icon-concept-v2-compass.png`](../../assets/aster-companion/aster-app-icon-concept-v2-compass.png).
 
-![Accepted Aster Companion app-icon concept](../assets/aster-companion/aster-app-icon-concept-v2-compass.png)
+![Accepted Aster Companion app-icon concept](../../assets/aster-companion/aster-app-icon-concept-v2-compass.png)
 
 ## Current state and evidence
 
@@ -537,20 +537,14 @@ begins:**
 
 ## Persistence plan
 
-This document is the durable checkpoint. Current milestone: **M8 system
-notifications device acceptance**, followed by **M7 final close-out**. On 2026-09-23,
-Jason confirmed Mac voice works and the iPhone app works over both Wi-Fi and
-Tailscale, then requested a system-notifications step. M6 acceptance is complete.
-Operational integrations, backup/restore and capacity checks are recorded below.
-Live ARR execution remains deferred to its separate follow-up; do not fabricate
-a production candidate or enable the brokers. Jason has confirmed iPhone notifications work on and off Wi-Fi after the refresh
-fix. Next safe action: collect Mac notification acceptance and remaining explicit
-permission/revocation/reopen evidence; do not confuse prior Mac voice acceptance
-with notification acceptance.
-The notification implementation and isolated recovery proof are recorded below. Git synchronization still requires the
-repository's immediate push approval. The original pre-start assessment was
-accepted on 2026-09-21; assess any new notification trust boundary before changing
-production. The following bullets retain the original discovery context:
+This project is complete and archived. Jason accepted Mac/iPhone voice,
+iPhone notifications on/off Wi-Fi, and native Mac sign-in, reopen persistence
+and background reply notifications. On 2026-09-23 he instructed: “Complete,
+commit and push and move project to archive.” Final regression and recovery
+receipts and bounded exceptions are in Close-out. No implementation resumes
+from this record. ARR execution remains disabled and belongs to its separate
+follow-up. Jason owns routine operation through the Companion runbook.
+The following bullets retain the original discovery context:
 
 - Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
   read-only wrapper for the Authentik (`auth.elliottrook.com/api/*`) and NPM
@@ -736,20 +730,20 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
   “Defer live repair execution to a follow-up.” The request/empty-state UI
   and existing broker tests remain; **no live execution is claimed**. Both
   production brokers stay inactive. The outstanding live approval/execute
-  gate is transferred to [the follow-up](Aster-Companion-ARR-Execution-Followup.md).
+  gate is transferred to [the follow-up](../Aster-Companion-ARR-Execution-Followup.md).
 - [x] **M6 — Voice accepted 2026-09-23.** Shared CPU Whisper/Piper
   `en_US-lessac-high` is deployed; both clients have voice UI and error handling.
   Jason confirms Mac voice works and the iPhone app works over Wi-Fi and
   Tailscale. WAV/MP4, silence/static, long-reply, restore and concurrent-load
   checks pass. Cold persona latency remains documented below.
-- [ ] **M7 — Final close-out, after M8.** Operational integrations, inventory,
-  backup/restore and existing documentation are complete with evidence below.
-  Reconcile notification implementation, acceptance and operational impacts,
-  then finalize local commits, approved Forgejo pushes and mirror verification.
-  Keep the project active until the new notification gate passes.
-- [ ] **M8 — System notifications (pilot deployed 2026-09-23; acceptance open).** Add useful,
-  opt-in operating-system notifications to the Mac companion and iPhone web
-  app. Preserve milestone numbers; execute this step before M7 graduation.
+- [x] **M7 — Final close-out 2026-09-23.** Operational integrations, inventory,
+  recovery and runbook reconciled; archived at Jason's explicit instruction.
+  Final regression and synchronization evidence is recorded below.
+- [x] **M8 — System notifications complete 2026-09-23.** Lab alerts and
+  reply-ready notifications delivered; device acceptance, automated permission
+  failure tests and recovery evidence are recorded below. The original design
+  checklist follows; physical OS-settings retesting and first overnight backup
+  observation are bounded close-out exceptions, not claimed live evidence.
   - **Discovery/design:** inspect current clients and lab alert sources; define
     the initial event set (candidate events: reply ready, action needs review,
     and actionable service alerts), routing and ownership. Record which events
@@ -840,7 +834,8 @@ passkey-login-to-chat-reply round trip on the LAN, including a heavier
 
 - [x] **HomeLab Doctor** — speech direct/HTTPS health, Companion OIDC discovery,
   JWKS dependency, local and TrueNAS backup ages; focused run 3 pass / 0 fail.
-- [x] **Monitoring/alerting** — existing Doctor reporting reused, no new alerts.
+- [x] **Monitoring/alerting** — existing Doctor reporting feeds generic opt-in lab
+  alerts; notification heartbeat, permissions, freshness and delivery checked.
 - [x] **Backup and recovery** — daily local guest archive, added only VMID 116
   to TrueNAS task 1; job 2022 succeeded and both SHA-256 hashes match. Restored
   Piper/Whisper from the archive into an isolated directory and ran synthetic
@@ -2248,7 +2243,7 @@ notification feature. ARR execution deferral is unchanged.
   `1aff545d3a361a48a63b32a38ecd52f271a603da2c0353e7b3b0fb7729793d54`. Initial
   checkpoint contains no enrolled subscriptions. The next scheduled LXC 104
   backup containing the identity and state is not yet verified.
-- [Operator runbook](../runbooks/Aster-Companion.md) records custody, ownership,
+- [Operator runbook](../../runbooks/Aster-Companion.md) records custody, ownership,
   disable/revoke, rollback, monitoring and delivery limits. No NetBox, Homepage,
   DNS, certificate or network-diagram changes are needed: same guest/host/path.
   Wiki is refreshed from the runbook; no manual edits to Aster's derived mirror.
@@ -2324,11 +2319,99 @@ bundle, install the verified release from `apps/AsterCompanion/.build/out/Produc
 reopen it, have Jason complete passkey sign-in, then verify reopen persistence
 and background notification receipt. M8 and final graduation remain open.
 
+### 2026-09-23 — Native repair installed; passkey acceptance pending
+
+Jason reiterated that the loop affects Aster Companion and distinguished the
+older `Aster.app`. Confirmed these are separate apps: the older Safari web app
+is not the native client under repair and was left unchanged. The installed
+native executable was still the pre-repair build (SHA-256 beginning `bb4659fb`),
+while the tested candidate was `ffa292f42296e265dfe1c7e4d2a82228e6b67c7053336c7bd992b280a6c0727c`.
+The prior locked-desktop attempt had correctly not installed it.
+
+With the desktop accessible, quit the native app via its normal UI, retained
+its bundle at `/tmp/AsterCompanion.before-auth-repair-20260923.app`, and installed
+a clean copy of the tested release. Strict/deep signature verification passed;
+installed executable SHA-256 matches the candidate above. Reopened the explicit
+`/Applications/AsterCompanion.app` path and initiated login. The visible button
+changed to disabled “Signing in…”. Jason must complete the passkey challenge;
+chat-screen arrival and reopen persistence are not yet verified. Do not claim
+the authentication loop or Mac notification acceptance resolved from this
+intermediate UI state alone.
+
+### 2026-09-23 — Native sign-in persistence and notifications accepted
+
+After installation of the authentication repair, Jason confirmed “Works” for
+native sign-in. Asked specifically to quit/reopen Aster Companion and test a
+reply notification while another app was in front, he again confirmed “Works”.
+This records successful native sign-in, session restoration after reopening,
+and background reply-notification receipt. Together with his earlier iPhone
+on/off-Wi-Fi confirmation, the main device workflows now have user acceptance.
+No further repeat of these successful tests is required unless a regression
+occurs. This does not invent separate OS-permission revocation tests or evidence
+for the already documented unsupported fully-quit native Mac delivery state.
+Remaining project closure items retain their own gates and evidence.
+
 ## Close-out
 
-Active: voice acceptance is complete, and system notifications are now part of
-this project. M8 must pass before M7 final graduation and Git synchronization.
-Live ARR execution remains explicitly deferred to its separate follow-up.
+Completed and archived 2026-09-23 on Jason's explicit instruction after real-device
+acceptance. The deployed architecture is the native Mac client and iPhone Home
+Screen web client, private NPM/Authentik ingress, Aster on LXC 104 and local
+Whisper/Piper speech on LXC 116. Generic Apple Web Push serves iPhone background
+alerts; native local notifications serve the running Mac app. No new public
+ingress or standing repair authority was introduced. Jason owns operation and
+recovery using [the operator guide](../../runbooks/Aster-Companion.md).
+
+### Final evidence
+
+- Final regressions: **96 backend tests**, **17 JavaScript tests** (11 notification,
+  six voice), and **16 Swift tests**, all passed. New synthetic browser tests
+  cover denied permission, revocation after a saved subscription, and simultaneous
+  failed server/browser revocation. Existing tests cover ownership, provider 410,
+  retry limits, stale reports, duplicate requests, encryption and session recovery.
+- Native code checks current OS authorization before every delivery and suppresses
+  foreground delivery; disable clears both pending and delivered notices. This is
+  source-reviewed behavior, not a claim of a new physical OS-settings test.
+- Live notification monitor: `status=ok`, no problems. Aster service active;
+  speech direct/HTTPS, Companion OIDC and Authentik JWKS checks all `ok`.
+- Real whole-guest backup `vzdump-lxc-104-2026_09_23-13_00_35.tar.zst` contains
+  the VAPID identity, notification SQLite state and systemd drop-in. An isolated
+  restore verified identity equality to live state and SQLite integrity; temporary
+  recovery data was removed without displaying keys, subscriptions or replies.
+- The earlier same-day `vzdump-lxc-104-2026_09_23-12_22_05.tar.zst` also contains
+  those three files, and its Proxmox/TrueNAS copies have matching SHA-256
+  `de3bee598ff106205cc49e10e9052cd4a9b3c2e3acfb3bf096c9c52a0adee197`.
+  TrueNAS path: `/mnt/Media/backup/homelab-proxmox-guests/`. The enabled 02:30
+  all-guests job includes rootfs-only LXC 104, with no notification-path exclusion.
+  These are real on-demand guest archives; the first post-deployment overnight
+  run has not happened yet and is not mislabelled as observed.
+- Project moved to `docs/projects/completed projects/`, portfolio and incoming
+  links reconciled, runbook/wiki and operational reference updated. Forgejo is
+  the authorized push target; final ref receipts are reported with delivery.
+
+### Bounded close-out exceptions and retained limits
+
+Jason's archive instruction closes implementation with the following explicit
+operational handoff rather than keeping the accepted app in pilot indefinitely:
+
+| Item | Evidence boundary / compensating control | Owner and review point |
+|---|---|---|
+| Physical denied/revoked OS permission retest | Synthetic browser failure tests and native authorization guards verified; real-device receipt accepted. No fresh iPhone/Mac Settings toggle is claimed. Normal app disable and OS permission revocation remain documented recovery paths. | Jason; review on the next OS/app upgrade or notification regression. |
+| First overnight run after deployment | Existing enabled schedule includes the exact paths; two real guest archives and matching off-host copy prove coverage; isolated restore passed. | Jason; next daily backup/Doctor review after 2026-09-24 02:30. |
+| Reference repository protection mirror | Forgejo is authoritative; homelab-reference has no configured GitHub push mirror. No mirror was invented or created during close-out; missing secondary Git replication remains a repository-maintenance issue, not a verified mirror. | Jason; next repository backup/mirror maintenance review. |
+
+Native Mac alerts require the process to remain running; fully quit delivery is
+unsupported. iPhone notifications require the Home Screen app and OS permission.
+Web reply text is memory-only and expires after an hour; interrupted work is not
+replayed. Lab alerts summarize the daily Doctor report, not real-time monitoring.
+Ad-hoc Mac signing/Keychain prompts, single-slot cold-persona latency, file-level
+rather than full-guest restore proof, and the previously recorded transient speech
+SSH-key observation retain the runbook's limits and response procedures.
+
+Live ARR execution remains disabled and explicitly deferred to
+[its separately governed follow-up](../Aster-Companion-ARR-Execution-Followup.md).
+Web research and personal-assistant expansion belong to their separately approved
+projects. The older Safari `Aster.app` remains installed; this project does not
+remove it or confuse it with `/Applications/AsterCompanion.app`.
 
 
 ## References

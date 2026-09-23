@@ -9,7 +9,7 @@
 > [Calendar personal assistant](Calendar-Personal-Assistant.md) and
 > [Combined morning digest](Combined-Morning-Digest.md) (all proposed, never
 > started). Also absorbs the "web access for research" direction deferred by
-> [Aster Companion App](Aster-Companion-App.md).
+> [Aster Companion App](completed%20projects/Aster-Companion-App.md).
 
 ## Purpose and desired outcome
 

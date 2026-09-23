@@ -81,6 +81,34 @@ test('explicit opt-out survives refresh even if browser unsubscribe failed',asyn
   assert.equal(f.context.companionNotify.enabled(),false);
   assert.equal(f.requests.some(r=>r.url.endsWith('/subscriptions')),false);
 });
+test('denied permission never registers a subscription and explains recovery',async()=>{
+  const f=browser(); await f.context.companionNotify.init();
+  f.context.Notification.requestPermission=async()=>{f.context.Notification.permission='denied';return 'denied'};
+  await f.elements.find(e=>e.textContent==='Enable notifications').onclick();
+  assert.equal(f.context.companionNotify.enabled(),false);
+  assert.equal(f.requests.some(r=>r.url.endsWith('/subscriptions')),false);
+  assert.ok(f.elements.some(e=>e.textContent.includes('blocked. Review notification permissions in Settings.')));
+});
+test('revoked OS permission clears a stale enabled flag on refresh without resubscribing',async()=>{
+  const f=browser(); f.context.Notification.permission='denied';
+  f.values.set('aster_push_subscription','previous-id');
+  f.registration.pushManager.getSubscription=async()=>f.sub;
+  await f.context.companionNotify.init();
+  assert.equal(f.context.companionNotify.enabled(),false);
+  assert.equal(f.values.has('aster_push_subscription'),false);
+  assert.equal(f.requests.some(r=>r.url.endsWith('/subscriptions')),false);
+  assert.ok(f.elements.some(e=>e.textContent==='Notifications are blocked in Settings.'));
+});
+test('failed server and browser revocation preserves opt-out and directs user to OS settings',async()=>{
+  const f=browser(); await f.context.companionNotify.init();
+  f.values.set('aster_push_subscription','previous-id');
+  f.registration.pushManager.getSubscription=async()=>({unsubscribe:async()=>{throw Error('offline')}});
+  f.context.validAccessToken=async()=>null;
+  await f.context.companionNotify.disable();
+  assert.equal(f.values.get('aster_push_opt_out'),'true');
+  assert.equal(f.context.companionNotify.enabled(),false);
+  assert.ok(f.elements.some(e=>e.textContent.includes('device revocation could not be confirmed')));
+});
 test('structured validation errors render readable text and leave retry controls available',async()=>{
   const f=browser(); await f.context.companionNotify.init();
   f.context.fetch=async()=>({ok:false,status:422,json:async()=>({detail:[{msg:'Extra inputs are not permitted',input:{private:'never display'}}]})});

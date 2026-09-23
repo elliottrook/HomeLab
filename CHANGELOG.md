@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-23 — Aster Companion completed and archived
+
+- Recorded Mac/iPhone acceptance, fixed native session persistence and completed notification failure/recovery verification.
+- Passed 96 backend, 17 browser/voice and 16 Swift regressions; verified notification identity/state in real guest backups and a checksum-matching TrueNAS copy.
+- Archived the project and refreshed its runbook, wiki and reference links. ARR execution stays deferred; physical OS-permission retesting, first overnight-run observation and the reference protection-mirror gap remain explicit operational exceptions.
+
 ## 2026-09-23 — Aster Personal Assistant proposed
 
 - Proposed pivoting Aster toward a personal assistant: read-only iCloud mail and calendar analysis, a morning check-in with daytime nudges, and isolated overnight web research.

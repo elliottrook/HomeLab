@@ -3,7 +3,7 @@
 CPU Whisper STT and Piper TTS for Aster Companion. Production runs in LXC 116,
 `192.168.70.14:9130`, exposed under `https://aster.elliottrook.com/voice/`.
 See [operator guide](../../docs/runbooks/Aster-Companion.md) for recovery and
-[project evidence](../../docs/projects/Aster-Companion-App.md) for acceptance.
+[project evidence](../../docs/projects/completed%20projects/Aster-Companion-App.md) for acceptance.
 
 - `/health`: service liveness, no credentials.
 - `/v1/stt`: multipart `audio`, at most 15 MiB, temporary file only.

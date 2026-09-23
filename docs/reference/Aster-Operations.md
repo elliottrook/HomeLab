@@ -493,7 +493,7 @@ The web UI reports Transcribing, Thinking and Preparing speech; if automatic
 playback is blocked, tap the displayed audio Play control. Stop speech ends the
 remaining reply. Long replies are spoken in bounded chunks. Typed turns stay silent.
 Jason confirmed physical iPhone voice works on 2026-09-23; generated WAV and
-AAC/MP4 smoke tests also pass. See `docs/projects/Aster-Companion-App.md` for evidence,
+AAC/MP4 smoke tests also pass. See `docs/projects/completed projects/Aster-Companion-App.md` for evidence,
 rollback checkpoints and pending integration publication.
 
 

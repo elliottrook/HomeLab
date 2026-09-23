@@ -2,7 +2,7 @@
 
 > Authority: operator-guide
 > Reviewed: 2026-09-23
-> Sources: `homelab/docs/projects/Aster-Companion-App.md`, live service and NetBox verification
+> Sources: `homelab/docs/projects/completed projects/Aster-Companion-App.md`, live service and NetBox verification
 > Owner: Jason
 
 ## Use Aster
@@ -13,6 +13,13 @@ The same hostname works on the LAN and through the existing Tailscale route;
 there is no public WAN port forward. On iPhone, Safari's Add to Home Screen is
 optional. On Mac, reopen `/Applications/AsterCompanion.app` after an update.
 The ad-hoc Mac build can prompt for Keychain access again after a rebuild.
+Use the native **Aster Companion**, not the older Safari **Aster.app**. Browser
+presentation during passkey sign-in is the system authentication session; normal
+native chat/voice uses the API directly. Session tokens persist as one Keychain
+record (`oidc_session_v2`). A visible session-only warning means persistence failed;
+resolve Keychain access and sign in again. Temporary network errors retain the
+saved session; a revoked refresh token requires a fresh sign-in. Quit the app
+before replacing its bundle, and replace it cleanly rather than merging bundles.
 
 Choose **Sysadmin Aster**, **Media Automation Aster**, or **Home Assistant Aster**.
 Sysadmin has the broad existing read-only lab tools. Media is limited to ARR
@@ -116,10 +123,13 @@ Apple signing and changes to the inference model are outside this project.
 Shared inference is single-slot: simultaneous news summarization can increase
 chat latency. Source and operational records take precedence over this guide.
 
-## System notifications (September 23 pilot)
+## System notifications (accepted September 23)
 
-Mac voice and iPhone Wi-Fi/Tailscale voice are accepted. Notifications are a
-separate pilot awaiting real-device receipt and permission/revocation checks.
+Mac voice and iPhone Wi-Fi/Tailscale voice are accepted. Jason also accepted
+iPhone notification delivery on/off Wi-Fi and native Mac sign-in, reopening and
+background reply notifications. Automated tests cover denied/revoked permissions,
+failed unsubscribe and stale state. A fresh physical OS Settings toggle was not
+performed; review that path on the next app/OS upgrade or notification regression.
 Jason requested both lab system alerts and reply-ready notices and approved
 Apple Web Push with generic encrypted content on 2026-09-23.
 
@@ -206,8 +216,13 @@ provider/OS troubleshooting; Aster owns no new administrative capability.
   SHA-256 `1aff545d3a361a48a63b32a38ecd52f271a603da2c0353e7b3b0fb7729793d54`.
   An isolated restore verified identity/public-key equality, SQLite integrity and
   absence of stored reply content. This initial copy had no device subscriptions.
-  Subsequent state/key coverage follows the existing LXC 104 guest backups;
-  the first scheduled backup containing this new state is still to be verified.
+  Subsequent state/key coverage is verified in the September 23 12:22:05 and
+  13:00:35 whole-guest LXC 104 archives. The 13:00 archive passed an isolated
+  key-equality/SQLite-integrity restore; the 12:22 archive matches its TrueNAS
+  copy with SHA-256 `de3bee598ff106205cc49e10e9052cd4a9b3c2e3acfb3bf096c9c52a0adee197`.
+  The enabled 02:30 all-guests schedule includes these paths. These were on-demand
+  checkpoints; Jason should review the next overnight run after September 24
+  02:30 through normal backup/Doctor maintenance, without inferring it ran already.
 
 References: [WebKit Home Screen Web Push](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/)
 and [Apple notification permission](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications).
