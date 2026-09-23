@@ -424,6 +424,43 @@ with its existing credentials. Direct transport/configuration are verified;
 actual human root-password recovery and an authenticated console round-trip
 are not claimed by this pilot.
 
+### Proxmox automatic entry correction — 2026-09-23
+
+Jason reported that the friendly address still showed the Proxmox login.
+The native realm works at the protocol-initiation layer but does not satisfy
+automatic browser entry. Add a small same-origin `/sso` launcher on NPM host 28
+that invokes Proxmox's existing unauthenticated OpenID authorization-URL API
+and redirects to the returned Authentik URL. No credentials or tickets are
+created by the launcher. A fresh unauthenticated GET to `/` redirects to the
+launcher; existing PVE cookies and OAuth callback/error query parameters pass
+through to the original Proxmox UI. Direct IP/PAM recovery, app source, API
+routes and auditor permissions stay unchanged. Authentik's application launch
+URL becomes `/sso`. Checkpoint host 28's current NPM row/database first;
+rollback restores just its advanced configuration and removes the launcher.
+Validate fresh root, callback pass-through, existing-cookie pass-through,
+launcher API behavior, TLS and existing-route regressions before user retry.
+
+**Automatic entry deployed and checked:** host 28's protected pre-change
+SQLite/row checkpoint is
+`/opt/nginx-proxy-manager/backups/proxmox-autostart-20260923T222045Z`.
+The launcher is `/opt/nginx-proxy-manager/data/custom/proxmox-sso.html`, served
+only at the exact `/sso` path with no-store. Fresh root requests now return 302
+to `/sso`; the launcher POSTs to the native authorization-URL API and accepts
+only `https://auth.elliottrook.com/application/o/authorize/` as its redirect
+origin/path. Authentik's application launch URL is now
+`https://proxmox.elliottrook.com/sso`.
+
+Verified: fresh root 302; launcher 200; synthetic OAuth callback and existing-
+cookie requests reach the original UI (200); a forged identity header still
+gets API 401. The real initiation API returns the correct Authentik path and
+origin callback. A Node VM contract check of the deployed script validates the
+POST realm/callback and rejects a foreign redirect destination. This is not a
+real-browser passkey completion. NPM syntax passes; native UI/source, realm
+default, direct-IP recovery and auditor ACL remain unchanged. Ask Jason to
+retry `/sso`, which also avoids an old tab retaining the former login screen.
+The earlier instruction to manually select a realm is superseded for normal
+friendly-address entry; it remains an available native recovery/UI option.
+
 ### Completed media SSO assessment — 2026-09-23
 
 Jason requested assessment of both paths and specifically asked whether waiting
