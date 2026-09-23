@@ -330,7 +330,35 @@ The specific ebook client remains unidentified; native reader/recovery
 authentication remains enabled. Dedicated OPDS-client, logout/recovery gates
 and final rollout graduation remain open.
 
-### Remaining media compatibility review — 2026-09-23
+### Completed media SSO assessment — 2026-09-23
+
+Jason requested assessment of both paths and specifically asked whether waiting
+for Jellyfin 12 would improve the outcome. The [full assessment](Authentik-Media-SSO-Assessment.md)
+records live account/client inventory, exact candidate releases, source findings,
+package checksums, recovery requirements and a bounded isolated rehearsal.
+
+- Jellyfin 12.0 and 12.1 are already stable (September 8 and 15 GitHub releases).
+  Plan for 12.x rather than deploying the retiring 10.11 SSO line. The older
+  README-based 4.3.0 finding below is superseded: stable 4.3.2 was released
+  September 22 and verified against its manifest/package.
+- Flowfin 5.0 is stable for Jellyfin 12; beta 5.1 adds preservation of unmanaged
+  folder grants and one-use logout tickets. Recommend waiting for these changes
+  to reach stable and pass local tests before production SSO, while assessing
+  the core server upgrade independently. No stable-5.1 date was verified.
+- Both `jason` and `elliottrook` are existing Jellyfin administrators; confirm
+  the intended account UUID before linking. Six accounts and multiple TV/mobile
+  client types make global password disabling inappropriate for an owner pilot.
+- Keep Seerr 3.4.1 stable. OIDC PR 2715 remains unmerged. Its preview needs an
+  isolated account/request-preservation and rollback test before a production
+  risk decision. Main API headers support the current Jellyfin form, but its
+  logout device cleanup still uses a legacy header disabled by default in
+  Jellyfin 12; test/fix that specific path before cutover.
+- Production was unchanged in this assessment. No runtime migration, passkey
+  round-trip or restore success is inferred from static source/package checks.
+  No automated watch or future task was scheduled. Remote Git sync remains
+  pending immediate push approval.
+
+### Initial media compatibility review — 2026-09-23 (superseded versions)
 
 Seerr's installed 3.4.1 routes contain no OIDC implementation. Its authentication
 middleware supports an API key plus optional API-user selection, which is not
