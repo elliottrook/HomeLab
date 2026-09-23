@@ -25,11 +25,16 @@ use, toward being Jason's personal assistant:
 - **Scheduled web research:** Jason queues a question ("research the best X"),
   Aster researches it overnight and reports cited findings in the morning
   check-in.
+- **Photography competitions:** for a competition Jason names, Aster turns
+  its rules into a checklist, searches Jason's Immich library, analyzes
+  candidate photographs, recommends entries with reasons, and prepares
+  correctly sized files for Jason to approve. Jason submits them himself.
 
 It is **additive**: Sysadmin, Media Automation and Home Assistant personas
 and their existing tools stay as they are. Jason confirmed (2026-09-23) this
-adds **two new personas**, **Personal Assistant** and **Researcher**, plus a
-new set of isolated workers.
+adds **three new personas**, **Personal Assistant**, **Researcher** and
+**Photography Assistant** (added the same day, same project), plus a new set
+of isolated workers.
 
 Two design requirements from Jason (2026-09-23) shape everything below:
 
@@ -99,12 +104,22 @@ it needs Jason's explicit decision before any credential is created.
 - A research queue: topics created only by an authenticated person in the
   Companion App, researched overnight by an isolated worker with web egress,
   and reported with citations.
-- Two Companion personas: **Personal Assistant** (mail, calendar, check-in)
-  and **Researcher** (research queue and reports; no personal data).
+- Three Companion personas: **Personal Assistant** (mail, calendar,
+  check-in), **Researcher** (research queue and reports; no personal data)
+  and **Photography Assistant** (competition rules, Immich library analysis,
+  entry recommendations and formatted entries).
+- Photography: read-only Immich access through a vetted community Immich
+  MCP server with a permission-limited API key. The Researcher fetches
+  competition rules and turns them into a **rules card** that Jason confirms.
+  Candidates are pre-filtered with Immich smart search, analyzed by a local
+  vision model and formatted into entry files (resolution and file size, as
+  the rules require) for Jason's approval. The nightly job runs 02:30–03:30.
 - A multi-person model: principal identity, per-person credentials, storage,
   retention, delivery and consent.
 - The **capability ladder** and policy mechanism (see below). It is built and
-  tested in this project, but every capability graduates at **L1 (Observe)**.
+  tested in this project. Every capability graduates at **L1 (Observe)**
+  except `photo.format`, which graduates at **L2 (Draft)**. Jason asked for
+  prepared entry files, and those files never leave the lab without him.
 
 ### Explicit exclusions (for this project's graduation)
 
@@ -113,8 +128,19 @@ it needs Jason's explicit decision before any credential is created.
   a later capability-ladder promotion with its own risk assessment.
 - Onboarding any person other than Jason. The design supports it; doing it is
   a separate per-person decision.
-- Contacts (CardDAV), iMessage, Reminders, Notes, iCloud Drive, Photos,
-  Health, finance or any other data source.
+- Contacts (CardDAV), iMessage, Reminders, Notes, iCloud Drive, Apple
+  Photos, Health, finance or any other data source. Immich is the only photo
+  source.
+- **Luminar Neo integration.** Luminar has no public API, scripting interface
+  or MCP server (M0 finding F5), and driving its GUI on the Mac is rejected.
+  Jason's Luminar edits reach Aster only as files he has exported into Immich.
+- Writing to Immich: uploading, editing, deleting, favouriting, tagging or
+  creating albums. A "shortlist album" write is a later ladder promotion.
+- Submitting competition entries, creating competition accounts or paying
+  entry fees. Jason submits. An emailed entry could later use `mail.send`.
+- Creative or generative image edits of any kind, including AI enhancement,
+  sky or background replacement. Formatting is limited to deterministic
+  resize, file-size/quality, colour-space conversion and metadata handling.
 - Research topics derived automatically from mail or calendar content.
 - Research that logs in, submits forms, buys anything, downloads executables
   or uses any credential.
@@ -136,6 +162,8 @@ it needs Jason's explicit decision before any credential is created.
 | Research findings | Cited external sources | Report is an approximation; every claim links its source |
 | Who may use what capability at what level | `config/assistant-policy.yaml` in this repository (reviewed, committed) | Runtime enforces it; the model cannot change it |
 | Principals and their enrolment | Authentik users plus policy file | Enrolment requires the person's own consent |
+| Photographs, albums, people, EXIF | Immich (main Synology) | Read-only derived analysis; never modifies the library |
+| Competition rules | The competition's published rules | The rules card is derived; Jason's confirmation is required before use |
 | Project scope, decisions, evidence | This document | — |
 
 Model output is always labelled as automated interpretation, never as a
@@ -189,6 +217,13 @@ Jason-typed ────►│ research queue → research worker → SearXNG �
      hostname-allowlisted forward proxy (iCloud uses Apple CDN addresses, so
      IP rules alone are impractical; M0 to decide between proxy and OPNsense
      FQDN alias).
+   - `photo-worker` (Photography Assistant back end, same private zone, no
+     web): runs the vetted **Immich MCP server** locally with a
+     per-principal Immich API key (see Photography design). It pre-filters
+     with Immich smart search and metadata, sends preview-size images to the
+     local vision model, and writes the formatted entry files and
+     recommendations to the per-principal store. Aster's persona reaches it
+     only through the PA API, so Aster never holds the Immich key.
 2. **Research guest** (new unprivileged LXC on Lab VLAN 70, separate from
    the PA guest):
    - SearXNG (self-hosted metasearch; no search-API account; queries leave
@@ -221,6 +256,63 @@ Jason-typed ────►│ research queue → research worker → SearXNG �
    preferences, per-capability "why am I seeing this" and feedback (useful /
    wrong / don't do this again) that feeds the training record.
 
+### Photography design
+
+- **Rules card:** the Researcher fetches a competition's published rules
+  (web zone) and extracts a structured card. The card records:
+  - category and entry limits;
+  - deadline;
+  - date-taken window;
+  - resolution (long edge / pixel dimensions);
+  - maximum file size, format and colour space;
+  - metadata requirements;
+  - editing rules and model-release requirements.
+  Rules are untrusted text and the extraction may be wrong, so
+  **Jason confirms each card before it can be used**. The card is stored
+  with the source URL and retrieval date.
+- **Jason's standing editing rules** (2026-09-23; competitions vary, and the
+  stricter of these and the card applies):
+  - **no AI** editing or generation;
+  - **sky replacement allowed only when the replacement sky is Jason's own
+    photograph**;
+  - **no background replacement**.
+  Aster cannot reliably detect edits from pixels, so these are handled as
+  **flags plus attestation**:
+  - Aster flags editing-software metadata (for example Luminar in EXIF)
+    and any card rule it cannot verify;
+  - Jason attests "no AI; sky source mine if replaced; no background
+    change" when approving each entry.
+- **Selection:** Immich smart search and metadata narrow the library to a
+  shortlist. The vision model scores the shortlist against the card and the
+  category theme (composition, subject, technical quality, fit), and each
+  recommendation carries its reasons and any rule risks.
+- **Formatting ("use Immich to format", 2026-09-23):** the Immich original,
+  or Jason's Luminar export already in Immich, is the only source. Luminar
+  is not involved. A deterministic formatter (libvips/Pillow class, chosen
+  in M1) only:
+  - resizes to the card's resolution;
+  - meets the maximum file size by adjusting encoder quality;
+  - converts colour space;
+  - strips GPS/location and other metadata unless the card requires it.
+  It never crops, retouches or composites. Outputs are drafts in Companion
+  (L2) for Jason to download, approve and submit.
+- **Schedule (D11):** nightly 02:30–03:30 `Etc/GMT+7`. The job starts
+  **only after the 02:30 Proxmox backup job has finished** (it ran
+  02:30–02:46 on 2026-09-23) and stops at 03:30, carrying unfinished work
+  to the next night. Interactive requests during the day use the same
+  worker at chat priority.
+- **Immich key permissions (read-only):** `asset.read`, `asset.view`,
+  `asset.download`, `album.read`, `person.read`, `tag.read`,
+  `server.about`, confirmed against Immich 2.7.5's permission list in M1.
+  No upload, update, delete, album-write or shared-link permissions. The key
+  enforces read-only even if the MCP server exposes write tools; those tools
+  are also disabled or allowlisted out.
+- **Privacy:** the library holds family faces, children and locations.
+  Location data is stripped from outputs by default. Photos with
+  identifiable people are flagged for the competition's model-release rules,
+  and children are always flagged. Each person's key sees only that
+  person's library.
+
 ### Multi-person design
 
 - **Principal** = an Authentik user. Every record, credential, key, job and
@@ -244,6 +336,7 @@ Jason-typed ────►│ research queue → research worker → SearXNG �
 
 Each capability is set per principal, for example `mail.read`,
 `calendar.read`, `mail.draft`, `mail.send`, `calendar.create`,
+`photo.read`, `photo.format`, `photo.album.write`,
 `research.run`.
 
 | Level | Name | What it means | AI-PAM class |
@@ -253,7 +346,7 @@ Each capability is set per principal, for example `mail.read`,
 | L2 | Draft | Prepares an exact draft (email text, event) shown only in Companion; nothing leaves the lab | Green |
 | L3 | Propose and confirm | A separate narrow executor performs one exact action after the person approves it with a passkey in Companion; shows recipient/time/body and an undo where possible | Yellow |
 | L4 | Bounded autonomy | Acts without per-action approval inside a written policy (e.g. accept holds from own devices; templated reply to allowlisted recipients), rate-limited, logged, undo window, daily digest of actions taken | Yellow/Red per policy |
-| — | Never | Deleting mail, forwarding outside allowlist, account/security settings, payments, passwords, anything in AI-PAM Black | Black |
+| — | Never | Submitting competition entries or paying fees, deleting or editing Immich assets, generative image edits, deleting mail, forwarding outside allowlist, account/security settings, payments, passwords, anything in AI-PAM Black | Black |
 
 **Rules that make it safe to evolve:**
 
@@ -340,7 +433,11 @@ Each capability is set per principal, for example `mail.read`,
 | R6 | Shared `aster-llama` contention (overnight research vs 02:30 Proxmox backup, news 05:15, interactive use) | Medium / Low–Medium | Scheduling window, queue priority for interactive chat, capacity test at M2/M4 | Measured, not assumed |
 | R7 | Stale or wrong guidance presented as current | Medium / Medium | Freshness stamps, fail-visible stale state, Doctor freshness checks | Low |
 | R8 | Sensitive personal data in backups | Certain / Medium | Store is derived and short-lived; excluded from backups (D6) | Low |
-| R9 | Scope creep toward writes | Medium / High | Capability ladder, committed policy, graduation at L1 | Low |
+| R9 | Scope creep toward writes | Medium / High | Capability ladder, committed policy, graduation at L1 (L2 for `photo.format`) | Low |
+| R10 | Read access to the family photo library on the primary Synology | Certain / High if PA guest compromised | Permission-limited read-only Immich key, key only on PA guest, narrow VLAN 70 → Immich firewall path, per-principal keys | Accepted with D8 |
+| R11 | Third-party Immich MCP server (supply chain, extra write tools) | Medium / Medium | Pin a reviewed release, disable/allowlist tools, read-only key, no web egress from PA guest | Low |
+| R12 | Vision model change affects shared `aster-llama` consumers | Medium / Medium | M0 evaluation of both options with measured VRAM/latency; rollback to current text model | Decided at D10 |
+| R13 | Misread rules or an undetectable edit breach disqualifies an entry | Medium / Medium | Jason-confirmed rules card, conservative formatting, flags plus attestation, Jason submits | Low |
 
 **Irreversible operations:** none in scope. Mail and calendar are read-only;
 the local store is rebuildable.
@@ -365,7 +462,12 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 | D5 | Retention | **Raw mail text 24 h / summaries 15 days / research reports 60 days** |
 | D6 | Backups of the PA store | **Excluded** (store is derived and rebuildable from iCloud); policy, code and guest config still covered |
 | D7 | Timing | **Research window 22:00–02:00 `Etc/GMT+7`**, ending 30 min before the 02:30 Proxmox backup; morning check-in 06:00 `Etc/GMT+7` (proposed, not objected to) |
-| — | Personas | **Two new personas, Personal Assistant and Researcher**, added alongside existing ones |
+| — | Personas | **Three new personas: Personal Assistant, Researcher and Photography Assistant**, added alongside existing ones, in this one project |
+| D8 | Photography source and formatting | **Immich only; format from Immich originals/exports.** Luminar is not integrated (no API) |
+| D9 | Immich connection | **Vetted community Immich MCP server** with a permission-limited read-only key, run on the PA guest |
+| D10 | Vision model | **M0 evaluates both** options (vision projector on the current model vs a separate small vision model used only in the photo window) before Jason chooses |
+| D11 | Photo schedule | **02:30–03:30**, starting after the Proxmox backup finishes |
+| D12 | Editing rules | **No AI; sky replacement only with Jason's own sky image; no background replacement.** Competitions vary; the stricter of these and the rules card applies. Formatting is mostly resolution and file size |
 
 ## Persistence plan
 
@@ -396,6 +498,16 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
       reservation happens at M1 creation.)
 - [ ] Egress mechanism: Jason to choose between the F4 options before M1's
       PA egress rule.
+- [ ] Vision evaluation (D10): check whether the deployed Qwen3.8 family has
+      a compatible vision projector for llama.cpp; measure VRAM headroom on
+      the B60 and latency for both options; recommend one to Jason.
+- [ ] Immich MCP vetting (D9): shortlist maintained servers, review code
+      and tool list, confirm they honour a limited API key, and choose a
+      pinned release.
+- [ ] Confirm Immich 2.7.5's exact API-key permission names and the Immich
+      endpoint/port the PA guest will reach.
+- [ ] Jason creates the read-only Immich API key in Immich (human step;
+      never pasted into chat, Git or this document).
 
 #### M0 findings (2026-09-23, read-only)
 
@@ -458,6 +570,20 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 
 Gate: every decision recorded; Jason accepts the risk assessment and stream.
 
+- **F5 — Photography (2026-09-23, read-only).**
+  - **Immich 2.7.5** runs on the main Synology (`photos.elliottrook.com`).
+    Immich (1.138+) supports permission-scoped API keys, `asset.read`
+    covers search including smart search, and community MCP servers exist,
+    including ones with a read-only profile.
+  - **Luminar Neo** has no public API, scripting or MCP server, official or
+    community.
+  - **Vision:** `aster-llama` runs the text-only
+    `Qwen3.8-27B-UD-IQ4_XS` with no vision projector loaded, so image
+    analysis needs a model change (D10).
+  - **Backup overlap:** the nightly Proxmox backup ran 02:30–02:46 on
+    2026-09-23 (one sample; Proxmox host time is PDT, matching
+    `Etc/GMT+7`).
+
 ### M1 — Principal model and read-only readers (synthetic first)
 
 - [ ] PA guest, principal model, per-principal store and schema.
@@ -510,7 +636,29 @@ enforcement proven with denied-action tests.
 Gate: two real overnight research runs accepted by Jason; isolation tests
 pass.
 
-### M5 — Hardening, family readiness and graduation
+### M5 — Photography Assistant
+
+- [ ] Vision option from D10 deployed with rollback, and existing consumers
+      regression-tested.
+- [ ] Immich MCP (pinned, tool-allowlisted) on the PA guest with a read-only
+      key. Prove denied writes (upload/update/delete/album) with the real
+      key. Narrow VLAN 70 → Immich firewall path approved and added.
+- [ ] Rules-card extraction via the Researcher, with Jason's confirmation
+      flow in Companion. Test with at least two real competitions.
+- [ ] Shortlist and vision scoring. Flag editing software, people/children
+      and unverifiable rules.
+- [ ] Deterministic formatter: output resolution, file size and colour
+      space checked against the card. Location stripped. No crop or
+      retouch.
+- [ ] Nightly 02:30–03:30 job gated on backup completion, with carry-over.
+      Photography Assistant persona has no web and no write tools.
+- [ ] Jason approves real prepared entries for at least one competition.
+
+Gate: denied-write proof against Immich, rules cards confirmed by Jason,
+formatted files pass their card's checks, and Jason accepts the
+recommendations as useful.
+
+### M6 — Hardening, family readiness and graduation
 
 - [ ] Retention deletion proven; Doctor/monitoring; backups per D6;
       restore proof of config and policy.
@@ -533,13 +681,18 @@ pass.
   proxy down, interrupted jobs — fail visible, resume cleanly.
 - **Regression:** existing personas, ARR/Lab Ops gates, news and speech
   latency.
-- **Human workflow:** Jason's real-day acceptance of check-in and nudges.
+- **Photography:** formatted outputs measured against the card (pixels,
+  bytes, colour profile, no GPS). Immich unchanged after runs. Injection
+  text in competition rules and in photo captions/EXIF is ignored.
+- **Human workflow:** Jason's real-day acceptance of check-in, nudges and
+  photo recommendations.
 
 ## Observability and maintenance
 
 - Doctor: reader freshness per principal, analyzer success, check-in
   generated today, research queue health, egress proxy up, retention job
-  last run. Output is non-secret and counts only.
+  last run, photo job last completion and Immich reachability/key validity.
+  Output is non-secret and counts only.
 - Existing Doctor alerting only; no new alert channel.
 - Maintenance: app-specific password rotation schedule; SearXNG updates;
   monthly review of injection-fixture results and feedback.
@@ -572,9 +725,9 @@ pass.
 - [ ] **Authentication/authorization** — Authentik users as principals;
       passkey approval reserved for L3+.
 - [ ] **DNS, certificates, firewall** — PA egress allowlist; research egress
-      rule (M4); no public DNS.
-- [ ] **Automation and schedules** — reader, analyzer, composer, research
-      and retention timers with missed-run behavior.
+      rule (M4); VLAN 70 PA guest → Immich path (M5); no public DNS.
+- [ ] **Automation and schedules** — reader, analyzer, composer, research,
+      photo (backup-gated) and retention timers with missed-run behavior.
 - [ ] **Security inventory** — credential locations, modes, rotation,
       revocation.
 - [ ] **AI administration integration** — the Assistant is an AI consumer of
@@ -585,9 +738,11 @@ pass.
 
 Every milestone gate passes. Mail and calendar are proven read-only. The zone
 separation is proven by tests. Jason has used the check-in and research on
-real days and accepts them. Retention deletion is proven. Doctor coverage is
+real days and accepts them, and has approved real prepared competition
+entries with Immich proven unchanged. Retention deletion is proven. Doctor coverage is
 live. Enrolment and removal are rehearsed with a synthetic principal. The
-capability ladder is enforcing L1 for every capability. No secret or personal
+capability ladder is enforcing L1 for every capability except
+`photo.format` at L2. No secret or personal
 content is in Git, logs or Aster's corpus.
 
 ## Evidence log
@@ -600,6 +755,16 @@ content is in Git, logs or Aster's corpus.
   mechanism toward eventual basic sending and appointments. Read-only
   repository review only; no system changed. Discovered constraint R1
   (unscoped iCloud app-specific passwords) raised for decision D1.
+
+- **2026-09-23 — Photography Assistant added.** Jason added a third persona
+  to this project: competition-rule-aware Immich library analysis,
+  recommendations and formatted entries for his approval, nightly
+  02:30–03:30. Decisions D8–D12 recorded. Read-only discovery (F5): Immich
+  2.7.5 supports scoped read-only keys; Luminar has no API or MCP, so it is
+  excluded; the current model is text-only; the backup overlap is handled by
+  a gated start. Formatting was interpreted as deterministic
+  resolution/file-size preparation from Immich sources, and "no background"
+  as no background replacement. Jason to correct if either is wrong.
 
 - **2026-09-23 — M0 read-only discovery.** Apple documentation reviewed
   (F1): R1 confirmed, all app-specific passwords are revoked on Apple
