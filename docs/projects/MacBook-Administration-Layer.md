@@ -2,8 +2,8 @@
 
 > Owner: Jason
 > Proposed: 2026-09-24
-> Status: Proposed — project creation only; implementation not started
-> Stream: A requested; execution scope and risk assessment below await acceptance
+> Status: Stream A accepted 2026-09-24; M0 in progress
+> Stream: A accepted 2026-09-24; execution underway starting at M0
 > Charter: [Project Creation Standard](../Project-Creation-Standard.md)
 
 ## 1. Purpose and desired outcome
@@ -181,12 +181,19 @@ change has occurred. User asked for project creation, not implementation now.
 
 ### M0 — Baseline and accepted access manifest
 
-- [ ] Accept Stream A scope/risks and establish an authorized MacBook session.
+- [x] Accept Stream A scope/risks and establish an authorized MacBook session.
+  Accepted 2026-09-24 in a new Mac-mini-hosted Claude Code session. MacBook-side
+  session (physical presence or a reachable admin path) not yet established —
+  blocking item, see evidence log.
 - [ ] Inventory OS/tools, shell resolution, FileVault, network path and backup.
-- [ ] Enumerate required SSH targets/accounts, web services, diagnostic APIs,
+  Blocked on MacBook session above.
+- [x] Enumerate required SSH targets/accounts, web services, diagnostic APIs,
   dependencies and current permission classes; identify remote-write gates.
+  See evidence log 2026-09-24 (mini-side access manifest).
 - [ ] Preserve existing MacBook configuration and source/dirty-work checkpoints.
-- [ ] Resolve missing knowledge-mirror requirements without inventing authority.
+  Blocked on MacBook session above.
+- [x] Resolve missing knowledge-mirror requirements without inventing authority.
+  Resolved 2026-09-24 — see evidence log; no local checkout is required.
 
 ### M1 — Repeatable local toolkit and knowledge
 
@@ -297,6 +304,89 @@ portfolio, backup and remote-administration records. Read-only storage assessmen
 and path/dependency discovery completed. No secret contents inspected. Jason
 chose internal SSDs and removed external workspace migration from the project.
 Drafted this MacBook-only Stream A plan; implementation has not started.
+
+2026-09-24: Jason accepted Stream A scope and risk assessment in a new
+Mac-mini-hosted Claude Code session and authorized execution starting at M0,
+milestone by milestone, with the charter's non-waivable stops (§3 remote-write
+confirmation, §6 local MacBook-side key generation, physical FileVault check)
+still in force. M0 begun.
+
+2026-09-24: **Credential exposure during M0 discovery (self-caught).** While
+checking LaunchAgent configs for the aster-knowledge-mirror question below,
+`cat ~/Library/Application Support/AsterLab/worker.json` printed the Aster lab
+worker's `worker_key` bearer token in full into the session transcript. Session
+halted immediately per §7's "exposed secrets" stop condition. Jason is handling
+rotation directly (not done by this session). Same root cause documented
+repeatedly in the UPS project: a read command echoing a secret that wasn't
+suppressed. **Follow-up for future sessions: prefer `grep -v` / targeted key
+extraction over `cat` on any file under `~/Library/Application Support/AsterLab/`
+or similar config paths that may hold live tokens.**
+
+2026-09-24: M0 mini-side access manifest (SSH targets/accounts currently used
+by `scripts/doctor.sh` and related tooling, from `~/.ssh/config` and script
+inspection — read-only, no secret values read):
+
+| Alias | Host | Account | Purpose |
+|---|---|---|---|
+| `proxmox` | 192.168.50.10 | root | Guest/host health, backups, Lab Doctor |
+| `hermes` | LXC 104 (chained via `proxmox` + `pct exec`+`nc`, no direct network path) | hermes | Aster agent local exec |
+| `docker` | 192.168.20.20 | root | Homepage/Portainer/Pi-hole |
+| `opnsense` | 192.168.1.1 | root | Gateway/firewall/DNS |
+| `truenas` | 192.168.20.40 | root | Storage/NFS health |
+| `arista` | 192.168.50.2 | admin | Switch health |
+| `frigate` | 192.168.20.10 | jelliott | Surveillance health |
+| `nut` | 192.168.50.25 | jason | UPS health |
+| `forgejo` | 192.168.20.30 | root | Git remote |
+| `gowest` | 192.168.20.41 | Jason | Synology DS920+ backup verification |
+| `gowest-backup` | 192.168.20.42 | Jason | Retired backup Synology |
+| `aster-speech` | 192.168.70.14 | root | STT/TTS service health |
+| *(no alias, direct)* | root@192.168.20.31 | root | Observability (Grafana/Prometheus health, curled over loopback inside the SSH session) |
+
+Web/API diagnostic surfaces (no direct network calls from the mini except
+where noted; all secrets stay in local files or env vars, never in the repo):
+
+- `auth.elliottrook.com/api/*`, `proxy.elliottrook.com/api/*` — bearer token
+  via `API_TOKEN` env var, through `scripts/api-get.sh`'s host allowlist.
+- UniFi Controller `https://192.168.50.21:11443` — `X-API-Key` read from
+  `~/.config/lab/unifi-api-key`.
+- NetBox (LXC 111), Aster Agent (LXC 104, port 9120), News Aggregator
+  (LXC 114, port 8080) — reached via `pct exec` through the `proxmox` SSH
+  alias, not direct HTTP from the mini.
+
+Remote-write gates unaffected by Stream A (unchanged from the repo's standing
+rules): SSH key enrollment on any target, any state-changing SSH/SCP command,
+`sudo`, package installs, and `git push` all remain always-ask; VLAN/firewall/
+DNS/credential/ACL/trust changes remain gated by the three-part test in
+`CLAUDE.md`. A MacBook key would be enrolled read-only-first at the same
+privilege class per target as the mini's existing key, not broader — exact
+scope to be nailed down at M2.
+
+2026-09-24: Knowledge-mirror question resolved. `~/lab/` on the mini has
+`homelab`, `homelab-cad`, `homelab-reference`, `homelab-wiki`,
+`monitoring-state`, `private-backups`, `bin` — **no `aster-knowledge-mirror`
+checkout**, confirming the earlier note that a "configured" local workspace
+was absent. Traced why: `scripts/aster-knowledge-review.py` (the only script
+actually run on a schedule, via `com.jason.homelab.aster-knowledge-review`)
+only reads `homelab-reference`, never the mirror. `scripts/build-aster-
+knowledge-snapshot.sh` (which does read a mirror tree) takes `--root` as a
+plain CLI argument with no default — it's an on-demand tool, not something
+any LaunchAgent invokes automatically, and the actual deployed mirror instance
+lives on Aster Wiki LXC 113 (`/var/lib/aster-wiki/aster-knowledge-mirror`, per
+`docs/projects/completed projects/Aster-Mirror-Directory-Retrieval.md`), not
+as a standing local checkout anywhere. Conclusion: **no local
+`aster-knowledge-mirror` workspace is required on the MacBook.** If the
+snapshot builder is ever run from the MacBook, the operator clones the
+`jason/aster-knowledge-mirror` Forgejo repo on demand and passes `--root`,
+exactly as on the mini today — nothing to bootstrap in M1 for this.
+
+2026-09-24: Remaining M0 items (MacBook OS/tools/shell/FileVault/backup
+inventory, and preserving any existing MacBook config/dirty work) are blocked
+on establishing an actual MacBook-side session — this Claude Code session runs
+on the Mac mini and has no configured network or SSH path to the MacBook yet
+(it isn't in `.claude/settings.json`'s sandbox allowlist, and no SSH trust
+exists). Needs Jason's input on how to proceed: enable Remote Login on the
+MacBook and share its current address, or run the inventory commands directly
+at the MacBook.
 
 ## 16. Resume instructions
 
