@@ -237,12 +237,19 @@ scope for this session per Jason's instruction and has not been started.
 - [~] Enroll public key on exact approved targets with required confirmations;
   verify host trust and read-only commands without using mini credentials.
   12 of the M0 manifest's 13 targets enrolled from the mini (see evidence log);
-  `gowest-backup` deliberately excluded (retired hardware, Jason's call). Fresh
-  MacBook-side login verified independently for `arista` only so far — the
-  other 11 still need the same independent verification from the MacBook
-  itself before this item is fully done.
+  `gowest-backup` deliberately excluded (retired hardware, Jason's call). All
+  12 now independently verified from the MacBook itself: 10 of 11 remaining
+  targets plus `hermes` pass cleanly; `gowest` and `observability` both
+  cleanly reject the correctly-offered key — real enrollment gaps on those
+  two specific hosts, not a MacBook-side problem — see evidence log. Item
+  stays open until those two are actually enrolled and re-verified.
 - [ ] Establish required browser/password-manager and diagnostic access.
-- [ ] Document individual identity revocation and prove relevant denied actions.
+- [x] Document individual identity revocation and prove relevant denied actions.
+  Done 2026-09-24 — revocation procedure documented per-target (including
+  `arista`'s account-deletion path, not a key swap on `admin`); privilege
+  boundary proven with two real refused attempts on `frigate`'s non-root
+  `jelliott` account (`sudo -n` and reading `/etc/shadow`), not merely
+  asserted — see evidence log.
 
 ### M3 — Diagnostic parity and execution ownership
 
@@ -758,3 +765,135 @@ MacBook session's task), independently verifying the remaining 11 targets
 from the MacBook itself (only `arista` has been verified that way so far),
 establishing browser/password-manager/diagnostic access, and documenting
 identity revocation with a proven denied action.
+
+### 2026-09-24 M2 — session-scoped agent caching set up
+
+Jason set up SSH agent caching himself per plan, in a plain Terminal, so he
+wouldn't have to retype the key's passphrase for every check below. First
+attempt used `eval "$(ssh-agent -s)"` then `ssh-add`, which spawns a brand
+new agent process with its own private socket — invisible to this session
+(a different process tree) and, it turned out, also invisible to a second
+Terminal tab, since the new socket only exists in the shell that spawned it.
+Diagnosed by comparing `$SSH_AUTH_SOCK`: this session was already pointed at
+macOS's own per-login-session launchd agent
+(`/var/run/com.apple.launchd.QkH4O8TzGP/Listeners`), which is genuinely
+shared across Terminal windows and this session without spawning anything
+new. Second attempt reused the same Terminal tab as the first, so its
+`$SSH_AUTH_SOCK` was still overridden to the abandoned throwaway agent from
+attempt one — `ssh-add -l` still came back empty. Third attempt, in a fresh
+Terminal window with no leftover environment, confirmed `$SSH_AUTH_SOCK`
+matched the shared launchd socket before adding the key; `ssh-add -l`
+afterward correctly showed one identity loaded:
+`256 SHA256:f+lbQznytUYvMbpxAzG72HiBs/avxd+FnrDpICFFG1I
+macbook-admin-jasonelliott-2026-09-24 (ED25519)` — matching the fingerprint
+already on record. Session-scoped only, as intended: this agent doesn't
+survive logout/reboot and nothing was added to the persistent keychain.
+
+### 2026-09-24 M2 — 11 remaining targets independently verified from the MacBook
+
+Fingerprint already recorded above (M2's key-generation entry); reconfirmed
+unchanged: `SHA256:f+lbQznytUYvMbpxAzG72HiBs/avxd+FnrDpICFFG1I`.
+
+Ran `ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -i
+~/.ssh/id_ed25519_macbook_admin <user>@<ip> hostname` (explicit `user@ip` for
+each — this MacBook intentionally has no copy of the mini's `~/.ssh/config`
+aliases, per the project's own exclusions) against all 11 targets the mini
+hadn't already independently verified via `arista`. First MacBook-to-host
+contact for every one of these, so each accepted a new host key
+(`StrictHostKeyChecking=accept-new`) rather than one cross-checked against
+the mini's existing `known_hosts` — the charter's host-key-verification
+intent is only partially met this way; noted as a real limitation, not
+glossed over.
+
+| Target | Command | Result | Returned hostname / error |
+|---|---|---|---|
+| proxmox | `root@192.168.50.10` | PASS | `proxmox` |
+| docker | `root@192.168.20.20` | PASS | `docker` |
+| opnsense | `root@192.168.1.1` | PASS (on retry) | `OPNsense.internal` |
+| truenas | `root@192.168.20.40` | PASS | `truenas` |
+| frigate | `jelliott@192.168.20.10` | PASS | `frigate` |
+| nut | `jason@192.168.50.25` | PASS | `nut-server` |
+| forgejo | `root@192.168.20.30` | PASS | `forgejo` |
+| gowest | `Jason@192.168.20.41` | **FAIL** | `Permission denied (publickey,password)` |
+| aster-speech | `root@192.168.70.14` | PASS | `aster-speech` |
+| observability | `root@192.168.20.31` | **FAIL** | `Permission denied (publickey,password)` |
+| hermes | `hermes@hermes-lxc-104` via `ProxyCommand`-chained `pct exec 104 -- nc 127.0.0.1 22` through `root@192.168.50.10` | PASS | `hermesagent` |
+
+**opnsense**, first pass: `ssh: connect to host 192.168.1.1 port 22: No route
+to host`. Treated as possibly transient rather than a real block, since
+192.168.1.1 is this Mac's own LAN gateway and already in the sandbox
+allowlist — retried immediately and it succeeded cleanly, then re-confirmed
+independently with `ping` (0% loss, ~3-8ms) and `nc -z` (`succeeded`). Not
+chasing further: a single one-off ARP/routing hiccup right after this
+session's own SSH agent troubleshooting is a plausible, non-alarming
+explanation, and every subsequent check against the same host worked.
+
+**gowest** and **observability** both fail with the identical signature, not
+a client-side problem: `ssh -v` confirms the agent offered exactly the right
+key (`Offering public key: ... SHA256:f+lbQznytUYvMbpxAzG72HiBs/avxd+FnrDpICFFG1I
+... explicit agent`) and the server cleanly refuses it
+(`Authentications that can continue: publickey,password` with no further
+method succeeding). Both accounts are on the mini's own "12 approved
+targets" list from the enrollment entry above, so this reads as a real
+enrollment gap on those two specific hosts, not a MacBook-side
+misconfiguration or an intentional exclusion — flagged for the mini session
+to investigate (possibly a Synology-specific `authorized_keys` path for
+`gowest`'s DSM account, or a step that silently didn't apply for
+`observability`'s no-alias `root@192.168.20.31` target). 9 of 11 pass; 2
+real, reproducible gaps recorded rather than retried into a different
+result.
+
+### 2026-09-24 M2 — revocation procedure and a real privilege-boundary test
+
+**Revocation procedure**, documented (not yet exercised as a real action —
+no revocation was requested or performed):
+
+- Every target except `arista`: remove the MacBook key's exact line from
+  that account's `~/.ssh/authorized_keys` (`/root/.ssh/authorized_keys` for
+  the `root@`-enrolled targets, `/home/jelliott/.ssh/authorized_keys` for
+  `frigate`, `/home/jason/.ssh/authorized_keys` for `nut`, the equivalent
+  home-directory path for `gowest`'s `Jason` DSM account once it's actually
+  enrolled, and `/home/hermes/.ssh/authorized_keys` inside LXC 104 for
+  `hermes`, reached the same way it was enrolled — via `proxmox`'s trust and
+  `pct exec`). Matching by the key's exact public-key line (not just the
+  comment string) avoids any risk of deleting a different key that happens
+  to share a comment.
+- `arista`: **delete the `jason-macbook` username entirely**
+  (`no username jason-macbook` in `configure terminal`, then `write
+  memory`), never touch `admin`'s own key or secret. This is exactly why
+  Jason had the mini create a separate account in the first place, per the
+  earlier evidence log entry — revocation is a clean single-command removal
+  with zero risk to the mini's own switch access, instead of trying to
+  reason about whether re-issuing `admin`'s single-value `sshkey` command
+  would append or replace.
+- A lost/compromised MacBook is revoked independently on this basis; per the
+  project's own scope, no mini key rotation is required solely because the
+  MacBook key is revoked (`docs/projects/MacBook-Administration-Layer.md`
+  §12).
+
+**Privilege-boundary test**, chosen and reasoned about before running:
+picked `frigate`'s `jelliott` account specifically because it's the one
+enrolled account that isn't `root` or a switch-admin role, so it's the
+clearest real test of "this identity's privilege is bounded, not just
+described as bounded." Ran `id` first rather than assuming: `jelliott` is
+actually a member of the `sudo` group (`uid=1000(jelliott)
+groups=...,27(sudo),...`) — worth recording honestly rather than picking a
+cleaner-sounding account after the fact, since it changes what the test
+actually proves. Two real attempts, both genuinely refused, not simulated:
+  1. `sudo -n whoami` (non-interactive, no TTY for a password prompt) →
+     `sudo: a password is required`, exit 1. Proves the SSH key alone does
+     not grant root even to a sudo-capable account; an interactive password
+     jelliott would have to know and type is still required.
+  2. `cat /etc/shadow` → `cat: /etc/shadow: Permission denied`, exit 1. The
+     unconditional proof: regardless of `sudo`-group membership, the
+     unprivileged process itself cannot read a root-only file. This is the
+     one that actually demonstrates a real OS-level privilege boundary
+     independent of any password/sudoers nuance.
+Both attempts logged with their real output above, not just their exit
+codes, so a "silently allowed" false pass would have been visible either
+way.
+
+M2's remaining open items: establishing browser/password-manager/diagnostic
+access, and closing the two real enrollment gaps found above
+(`gowest`, `observability`) — the latter is the mini session's action, once
+Jason relays these results.
