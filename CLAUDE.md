@@ -303,9 +303,10 @@ Current state:
     and re-confirmed live 2026-09-23.
   - The **Intel Arc Pro B60 24GB GPU** was installed 2026-08-30 and backs
     Aster's inference (`docs/projects/completed projects/Local-AI.md`).
-  - Guest memory on 2026-09-23: ~66 GiB configured across running guests
-    after LXC 110 was raised to 16 GiB (Aster Personal Assistant, RA2),
-    with ~33 GiB actually in use.
+  - Guest memory on 2026-09-23: ~70 GiB configured across running guests
+    after LXC 110 → 16 GiB, 101 UniFi and 106 Authentik → 6 GiB, 115
+    Paperless → 4 GiB and 108 Forgejo → 1 GiB, with ~33 GiB actually in use
+    (`docs/projects/Aster-Personal-Assistant.md`, RA2/RA4).
   - VM 105 (`ollama`, 8 GiB) must stay stopped. A VM reserves its full
     allocation when started.
   - **Open follow-up:** `proxmox-ups` load/runtime has not been re-measured

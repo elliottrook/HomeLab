@@ -685,8 +685,10 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
     anonymous memory is high or the guest keeps hitting `memory.high`/`max`.
     Page cache near the limit is harmless and is reclaimed. With 114 needing
     no raise, the Aster-estate total becomes ≈ 72.5 GiB.
-  - **Recommendations for non-Aster guests** (outside this project; nothing
-    applied, each needs Jason's approval):
+  - **Recommendations for non-Aster guests** (outside this project). **RA4,
+    2026-09-23: Jason approved the three raises and the Forgejo trim, and
+    they are applied** (see evidence log). Jason kept LXC 104 Aster at
+    4 GiB because Aster changes are coming soon.
 
     | Guest | Limit | Anon / file cache | Signals | Recommendation |
     |---|---|---|---|---|
@@ -1008,6 +1010,33 @@ content is in Git, logs or Aster's corpus.
   a gated start. Formatting was interpreted as deterministic
   resolution/file-size preparation from Immich sources, and "no background"
   as no background replacement. Jason to correct if either is wrong.
+
+- **2026-09-23 — RA4 memory changes applied (Jason-approved, outside
+  this project's Aster scope).** Live `pct set`, no restarts, 17:55 PDT:
+
+  | Guest | Before | After | Usage at change |
+  |---|---|---|---|
+  | 101 UniFi | 4096 MiB | 6144 MiB | 3,589 MiB |
+  | 106 Authentik | 4096 MiB | 6144 MiB | 3,925 MiB |
+  | 115 Paperless | 2048 MiB | 4096 MiB | 1,621 MiB |
+  | 108 Forgejo | 2048 MiB | 1024 MiB | 441 MiB |
+
+  - `memory.max` confirmed on each, with no OOM kills.
+  - Services confirmed healthy afterwards:
+    - UniFi: `unifi-core` and Java running, 11443 listening;
+    - Authentik: server, worker and PostgreSQL healthy;
+    - Paperless: webserver healthy;
+    - Forgejo: `/api/healthz` 200.
+  - LXC 104 left at 4 GiB at Jason's request.
+  - Rollback: `pct set <id> -memory <before>`.
+  - Running-guest limits are now ≈ 70 GiB of 78.5 GiB.
+  - **Pending:** NetBox guest memory values for 101, 106, 108, 110 and 115
+    now differ from live. The update needs a NetBox write token, so it is
+    left for Jason to authorize.
+  - **Noticed, not caused, not fixed:** Forgejo LXC 108's `tmp.mount` has
+    failed about every 5 minutes for at least 2 days (556 failures; "tmpfs
+    already mounted on /dev/shm"). `/tmp` is on the root disk and writable,
+    and Forgejo is healthy. It is a separate follow-up.
 
 - **2026-09-23 — RA3 memory re-check (read-only).** Split each guest's
   usage into anonymous memory and page cache, and counted limit events.
