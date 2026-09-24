@@ -2,8 +2,8 @@
 
 > Owner: Jason
 > Proposed: 2026-09-24
-> Status: Stream A accepted 2026-09-24; M0 and M1 closed, M2 not started
-> Stream: A accepted 2026-09-24; execution underway, M0 and M1 closed
+> Status: Stream A accepted 2026-09-24; M0, M1, M2 closed
+> Stream: A accepted 2026-09-24; execution underway, M0, M1, M2 closed
 > Charter: [Project Creation Standard](../Project-Creation-Standard.md)
 
 ## 1. Purpose and desired outcome
@@ -246,15 +246,18 @@ scope for this session per Jason's instruction and has not been started.
   `AuthorizedKeysFile` path), both now MacBook-side re-verified and passing —
   see evidence log. All 12 approved targets confirmed reachable from the
   MacBook using only its own key.
-- [ ] Establish required browser/password-manager and diagnostic access.
-  Scoped 2026-09-24, not closed — see evidence log. Diagnostic credentials
-  (UniFi API key, Authentik/NPM `API_TOKEN`) are confirmed non-blocking
-  (both already degrade gracefully when absent) but need Jason to issue new,
-  independent, least-privilege tokens from each service's own admin UI, not
-  a copy of the mini's. Browser sign-ins are entirely Jason's own task; a
-  concrete 18-service list is in the evidence log rather than left vague.
-  This item is blocked on Jason's own action, not on anything this session
-  can do.
+- [x] Establish required browser/password-manager and diagnostic access.
+  Done 2026-09-24, with two pieces deliberately deferred rather than
+  blocking. **UniFi API key: done and verified** — Jason created
+  `~/.config/lab/unifi-api-key` (600, his own, matching the mini's exact
+  convention); both real `doctor.sh` checks that depend on it now run
+  cleanly against the live controller instead of warning it's absent — see
+  evidence log. **Authentik/NPM `API_TOKEN` and the 18 browser sign-ins:
+  intentionally deferred, not blocking** — nothing on this Mac currently
+  needs either (confirmed: `API_TOKEN` isn't called by `doctor.sh` at all,
+  and no service currently requires a fresh MacBook-side sign-in), so this
+  is a documented, deliberate deferral rather than an open gap. Revisit when
+  a real project on this Mac actually needs one of them.
 - [x] Document individual identity revocation and prove relevant denied actions.
   Done 2026-09-24 — revocation procedure documented per-target (including
   `arista`'s account-deletion path, not a key swap on `admin`); privilege
@@ -1039,3 +1042,46 @@ tokens issued from UniFi's and Authentik's own admin UIs), not missing
 MacBook access or missing investigation. Recorded as scoped-and-blocked
 rather than left vague, per the instruction to close it or say exactly
 what's blocking it.
+
+### 2026-09-24 M2 — UniFi API key verified; M2 closed
+
+Jason created `~/.config/lab/unifi-api-key` himself, matching the mini's
+exact convention. Confirmed the file (not its contents): `-rw-------`
+(600), 32 bytes, owned by `jasonelliott`.
+
+`doctor.sh` has no `--only`/targeted-check flag (confirmed by reading its
+argument handling — there genuinely isn't one, consistent with the earlier
+evidence-log note about an "unsupported `--only` flag" causing an
+accidental full lab-wide run). Rather than run the entire suite against
+every lab host for a one-key check, extracted the two real,
+unifi-key-dependent functions verbatim from `scripts/doctor.sh`
+(`check_unifi`, `check_wireless_tagging`) with `sed`, and ran each in
+isolation under a minimal harness that sources the same
+`scripts/lib/output.sh` and defines the same `pass`/`warn`/`fail` wrappers
+doctor.sh itself uses — the real, unmodified function bodies, not a
+rewritten stand-in. Both ran clean against the live UniFi Controller:
+
+```
+check_unifi:            🟢 UniFi access points healthy; 2/2 online
+check_wireless_tagging: 🟢 Wireless VLAN mapping correct; 3 SSID(s) match the designed tagging
+```
+
+Both previously warned "skipped — no API key" on this Mac (confirmed by
+code reading in the prior entry, not re-demonstrated by removing the real
+key just to show the negative case). Confirms the key is readable, valid,
+and the exact `~/.config/lab/unifi-api-key` / `UNIFI_API_KEY_FILE`
+convention works unmodified on the MacBook.
+
+**M2 gate passed 2026-09-24.** MacBook SSH identity generated (Jason,
+interactively, this session never touching the private key or its
+passphrase), fingerprinted, and independently verified against all 12
+approved M0-manifest targets using only its own key — including
+root-causing and closing two real enrollment gaps found along the way
+(`gowest`, `observability`). Revocation procedure documented per-target,
+including `arista`'s clean separate-account design, and the privilege
+boundary proven with two real refused attempts, not merely asserted.
+Diagnostic/browser access scoped accurately rather than guessed: the UniFi
+API key is done and verified; the Authentik token and the 18 browser
+sign-ins are intentionally deferred as genuinely non-blocking, not silently
+skipped. M3 (diagnostic parity and execution ownership) has not been
+started.
