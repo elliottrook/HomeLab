@@ -198,9 +198,10 @@ Current state:
     triple Proxmox's RAM and add a substantial GPU — today's measured
     12%/~120W load on `proxmox-ups` should not be treated as a stable
     planning baseline; re-measure runtime once that hardware lands.
-    **RAM landed 2026-09-02** (see status entry below) — the GPU has not
-    yet landed, and `proxmox-ups` runtime has not yet been re-measured
-    under the new load; both remain open.
+    **All of that hardware has since landed** (see the 2026-09-02 and
+    2026-09-23 status entries below): 80 GB RAM, an E5-2698 v4 CPU and the
+    Intel Arc Pro B60 GPU. `proxmox-ups` load/runtime has **not** been
+    re-measured since then, and that remains an open follow-up.
   - `nas-ups` still has the shortest measured runtime (~22.5 min at
     33%/~330W), but that figure was recorded under the corrected
     TrueNAS+Arista load, not the originally planned TrueNAS+Synology
@@ -286,13 +287,31 @@ Current state:
   2026-08-29 entry above has not yet landed, and `proxmox-ups`
   runtime/load has still not been re-measured under the new
   configuration — both remain open follow-ups.
-- 2026-09-02: `proxmox-ups` re-measured live via `upsc` post-RAM-upgrade:
+- 2026-09-02: `proxmox-ups` re-measured live via `upsc` post-RAM-upgrade
+  (48GB interim state — superseded, see 2026-09-23 below):
   `ups.load` 15% (~150W, up from the pre-upgrade 12%/~120W baseline),
   `battery.charge` 100%, `battery.runtime` ~3200s (~53 min, down from
   ~3675s/~61 min). Modest increase, well within the 80% `LB` threshold's
   margin — closes the RAM half of the re-measurement follow-up. Still
   need a follow-up re-measurement once the GPU upgrade lands, since that
   draw will likely be far larger than RAM's.
+- **Corrected 2026-09-23**: the 2026-09-02 entries above describe an
+  interim 48GB state and are stale.
+  - Proxmox now has **80 GB (4×16GB + 4×4GB ECC RDIMM, all 8 DIMM slots
+    populated, ~78.5 GiB usable)** and an **Intel Xeon E5-2698 v4**, both
+    confirmed via `dmidecode` 2026-09-04 (`docs/03-Hardware-Inventory.md`)
+    and re-confirmed live 2026-09-23.
+  - The **Intel Arc Pro B60 24GB GPU** was installed 2026-08-30 and backs
+    Aster's inference (`docs/projects/completed projects/Local-AI.md`).
+  - Guest memory on 2026-09-23: ~66 GiB configured across running guests
+    after LXC 110 was raised to 16 GiB (Aster Personal Assistant, RA2),
+    with ~33 GiB actually in use.
+  - VM 105 (`ollama`, 8 GiB) must stay stopped. A VM reserves its full
+    allocation when started.
+  - **Open follow-up:** `proxmox-ups` load/runtime has not been re-measured
+    since the CPU, RAM and GPU changes. The ~150W/~53 min figure predates
+    the B60 and E5-2698 v4. Re-measure with Jason's approval, per the hard
+    rule below.
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.
