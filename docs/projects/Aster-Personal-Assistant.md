@@ -1060,10 +1060,18 @@ content is in Git, logs or Aster's corpus.
     - **Impact:** log and audit noise only. `/tmp` stays on the root disk
       (the pre-Debian-13 behaviour), the report and Forgejo work, and
       `PrivateTmp` isolation still functions.
-    - **Proposed fix (awaiting approval):** `systemctl mask tmp.mount` in
-      LXCs 108, 109 and 112. This is Debian 13's documented opt-out from
-      tmpfs `/tmp` and matches what those containers already do.
-      Rollback: `systemctl unmask tmp.mount`.
+    - **Fix applied 2026-09-23 (Jason-approved):** `systemctl mask
+      tmp.mount` plus `reset-failed` in LXCs 108, 109 and 112. This is
+      Debian 13's documented opt-out from tmpfs `/tmp` and matches what
+      those containers were already doing.
+      - Verified: `tmp.mount` is masked and inactive, and `/tmp` remains
+        on the root filesystem.
+      - A triggered `aster-forgejo-report.service` run returned `success`,
+        with no `tmp.mount` attempt and no AppArmor denial for `lxc-108`.
+      - Rollback: `systemctl unmask tmp.mount`.
+      - Left as-is: the boot-time-only `dev-mqueue.mount` and
+        `run-lock.mount` failures in the same three containers. They come
+        from the same AppArmor restriction, never retry and are harmless.
     - **Rejected alternatives:** enabling `nesting=1` (it broadens the
       containers' AppArmor profile only to gain tmpfs `/tmp`), and dropping
       `PrivateTmp` from the report unit (it weakens that service's
