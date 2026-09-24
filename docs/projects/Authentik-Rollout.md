@@ -47,6 +47,18 @@ runbook; refreshed operational reference access-control/onboarding guidance and
 added a human wiki sign-in page. These are local changes pending publication.
 The independent operator access and dedicated recovery gates remain open.
 
+Local commits: HomeLab `77dfa4c`, operational reference `ec1b704`, wiki
+`67cbfa4`. A clean, isolated checkout of the two source commits built the
+27-source Aster snapshot successfully, including both updated auth-reference
+pages with review date 2026-09-23 and clean provenance. Archive SHA-256:
+`10516e1bec1eaf7998b2a7a4d1dca790eb7d1d6c00daf3a4e7cebe1116fe3737`.
+This validates snapshot generation only: it was not deployed and the new wiki
+page was not ingested into the derived mirror. Do not replace the live corpus
+with this reference-only proof archive; normal publication must retain the
+existing mirror and other sources. No remote Git write was performed.
+Anonymous direct NetBox `/api/dcim/devices/` separately returned 403, confirming
+the preserved native API denial in addition to the friendly-route outer gate.
+
 ### Earlier-provider passkey normalization — 2026-09-23
 
 Read-only policy evaluation passed `jason` allow / `akadmin` deny for all 30
