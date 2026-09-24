@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly LXC thin-pool trim (Sunday 04:15, after the 02:30 backup)
+
+[Timer]
+OnCalendar=Sun *-*-* 04:15:00
+RandomizedDelaySec=10m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

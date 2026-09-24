@@ -229,6 +229,24 @@
 - A firmware check found no updates available. python313-3.13.15 stays
   flagged by `pkg audit` until OPNsense ships a fix.
 
+## Thin-pool safeguards (Jason: "please complete")
+
+- **Doctor `check_thin_pool`**:
+  - warns at ≥80% and fails at ≥90% for `pve/data` data or metadata;
+  - warns if `pct-fstrim.timer` is not enabled or its last run failed.
+  - Current reading: data 19%, metadata 0%.
+- **Weekly LXC trim:** `/usr/local/sbin/pct-fstrim-all` via
+  `pct-fstrim.service`/`.timer` on the Proxmox host (Sunday 04:15 ±10 min,
+  `Persistent=true`, idle I/O priority). It trims every running container's
+  rootfs and skips bind mounts. Canonical copies are in `configs/systemd/`.
+  The host config backup (`scripts/backup/proxmox.sh`) now includes all
+  three files, verified in a fresh archive.
+- **First run** (2026-09-23): all 14 LXCs trimmed successfully, and
+  `pve/data` fell from **24.11% to 19.30%** (about 38 GiB returned). VMs 102
+  and 103 already use `discard=on`.
+- Rollback: `systemctl disable --now pct-fstrim.timer`, then remove the
+  three files.
+
 ## Open items needing Jason
 
 1. ~~**LXC 112 package access:**~~ Resolved with the apt proxy above.

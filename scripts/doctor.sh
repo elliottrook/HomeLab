@@ -974,6 +974,35 @@ check_arista() {
     fi
 }
 
+check_thin_pool() {
+    # pve/data is thin-provisioned and overcommitted on paper (~1.03 TiB of
+    # guest disks on a ~930 GiB pool). Running out affects every guest on
+    # it at once, so warn well before the limit.
+    local state data meta trim
+    if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+        lvs --noheadings --separator " " -o data_percent,metadata_percent pve/data 2>/dev/null
+        systemctl is-enabled pct-fstrim.timer 2>/dev/null || echo missing
+        systemctl show pct-fstrim.service -p Result --value 2>/dev/null
+    ')"; then
+        warn "Unable to read Proxmox thin pool usage"
+        return
+    fi
+    read -r data meta <<< "$(sed -n 1p <<< "$state")"
+    trim="$(sed -n 2p <<< "$state")/$(sed -n 3p <<< "$state")"
+    data="${data%.*}"; meta="${meta%.*}"
+    if [[ -z "$data" || -z "$meta" ]]; then
+        warn "Proxmox thin pool usage unavailable"
+    elif (( data >= 90 || meta >= 90 )); then
+        fail "Proxmox thin pool pve/data critical: data ${data}%, metadata ${meta}%; all guests on it fail writes at 100%"
+    elif (( data >= 80 || meta >= 80 )); then
+        warn "Proxmox thin pool pve/data high: data ${data}%, metadata ${meta}%"
+    elif [[ "$trim" != enabled/success ]]; then
+        warn "Proxmox thin pool fine (data ${data}%) but weekly LXC trim is not healthy (${trim})"
+    else
+        pass "Proxmox thin pool pve/data data ${data}%, metadata ${meta}%; weekly LXC trim enabled"
+    fi
+}
+
 check_proxmox() {
     local node_json
     local guest_json
@@ -1949,6 +1978,7 @@ category "Core Infrastructure"
 
 check_arista
 check_proxmox
+check_thin_pool
 check_truenas
 check_nut
 
