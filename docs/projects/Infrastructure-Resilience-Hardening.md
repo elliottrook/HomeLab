@@ -1,7 +1,7 @@
 # Infrastructure Resilience and Operations Hardening
 
-> Status: Proposed — pre-start risk assessment awaiting Jason's decisions
-> (D1–D6)
+> Status: Proposed — second-node design chosen 2026-09-24; hardware, UPS
+> and D4–D6 pending
 >
 > Owner: Jason | Proposed: 2026-09-24 | Stream M — Monitored (recommended;
 > see D6)
@@ -31,6 +31,12 @@ Make the lab survive the routine events that exposed its weak points on
    - script errors are caught before they reach the live lab.
 
 This project hardens the existing lab; it does not re-platform it.
+
+**Design chosen by Jason (2026-09-24): one small second node.** PBS, the
+standby critical-path services and the ops runner all run on a single,
+independent small-form-factor host. It shares no hardware with the primary
+Proxmox host or TrueNAS. This collapses the original decisions D1–D3 into
+one design.
 
 ## Current state and evidence (2026-09-23)
 
@@ -88,13 +94,14 @@ This project hardens the existing lab; it does not re-platform it.
 
 ## Scope and exclusions
 
-### In scope (seven workstreams)
+### In scope (eight workstreams)
 
 | WS | Workstream | Outcome |
 |---|---|---|
-| A | Proxmox Backup Server (PBS) | Deduplicated, incremental, verified guest backups with file-level restore, replacing `vzdump`-to-directory as the primary local backup. Existing TrueNAS and IDrive legs are re-pointed or retained |
-| B | Critical-path resilience | A documented and **tested** "Proxmox host down" path. Optionally a small second node carrying standby DNS, NPM and a sign-in break-glass path (D2) |
-| C | Always-on ops runner | Doctor, the weekly exporters and the scheduled report run on lab infrastructure, not the Mac. The Mac keeps interactive use |
+| N | Second node build | A small standalone Proxmox VE host (not clustered) on its own UPS feed, hosting workstreams A, B and C. Rebuildable from Git and NetBox |
+| A | Proxmox Backup Server (PBS) | PBS installed on the second node's host OS (supported alongside PVE). Deduplicated, incremental, verified guest backups with file-level restore, replacing `vzdump`-to-directory as the primary local backup. Existing TrueNAS and IDrive legs are re-pointed or retained |
+| B | Critical-path resilience | Standby Pi-hole and NPM containers on the second node, plus a sign-in break-glass path, and a documented, **drilled** "primary Proxmox down" procedure |
+| C | Always-on ops runner | An unprivileged container on the second node runs Doctor, the weekly exporters and the scheduled report, instead of the Mac. The Mac keeps interactive use |
 | D | Image pinning and update notification | All long-running containers pinned to explicit versions. A notifier (Diun, D4) reports new releases; updates remain manual |
 | E | Drift visibility | Doctor warns on pending reboots, host security updates older than 30 days, and held/blacklisted packages with updates available |
 | F | Failure alerting | Doctor failures (not passes) pushed to Jason's phone through the existing Aster Companion Web Push path (D5) |
@@ -106,8 +113,11 @@ This project hardens the existing lab; it does not re-platform it.
   project).
 - New household services (Vaultwarden, Uptime Kuma, ntfy); each would need
   its own charter.
-- A Proxmox cluster with shared storage or live migration. WS B is about a
-  standby path, not HA clustering, unless Jason chooses otherwise in D2.
+- A Proxmox cluster with shared storage or live migration. The second node
+  is standalone; clustering two nodes would also need a QDevice for quorum.
+- Hosting NUT on the second node. The Lenovo M92p NUT server stays
+  dedicated and independent, since it is the last host to shut down and
+  orchestrates the others.
 - Changes to Authentik policy, OPNsense firewall design or VLAN layout,
   except the minimal rules WS A–C strictly require, approved per change.
 - Automatic updating of containers, hosts or firmware. Notification only.
@@ -127,16 +137,52 @@ This project hardens the existing lab; it does not re-platform it.
 ## Architecture (target)
 
 ```text
-                 ┌──────────── Proxmox (primary) ────────────┐
-                 │ guests … │ nightly backup job ──► PBS datastore
-                 └──────────┬────────────────────────────────┘
-                            │ (sync job)
-   PBS (D1: TrueNAS VM or dedicated box) ──► TrueNAS copy ──► IDrive (via LXC 112, unchanged)
-   Ops runner (D3) ── timers: Doctor 08:15, exporters Sun 06:00, report ──► Aster Companion push (failures)
-   Second node (D2, optional) ── standby Pi-hole / NPM / break-glass sign-in
-   Forgejo Actions runner ── lint scripts on push
-   Diun ── watches pinned images ──► notification
+ ┌──────── Primary Proxmox (existing) ────────┐        ┌──────── Second node (new, standalone PVE) ─────────┐
+ │ all current guests                          │ backup │ host OS: Proxmox VE + Proxmox Backup Server        │
+ │ nightly PBS backup job ─────────────────────┼───────►│   datastore on dedicated SSD (encrypted)           │
+ └─────────────────────────────────────────────┘        │ LXC pihole-standby   (VLAN 20)                     │
+                                                        │ LXC npm-standby      (VLAN 50, cold/warm per M5)   │
+                                                        │ LXC ops-runner       (VLAN 50) ── Doctor 08:15,    │
+                                                        │                        exporters Sun 06:00, report │
+                                                        │                        ──► Companion push (failures)│
+                                                        └──────────────┬─────────────────────────────────────┘
+                                                                       │ PBS sync / pull
+                                            TrueNAS copy ──► IDrive (via LXC 112, unchanged)
+ Forgejo Actions runner (lint) · Diun (image notifications) — placement decided in M1/M2
 ```
+
+### Second-node hardware
+
+| | Recommended | Budget option |
+|---|---|---|
+| Model | Used Lenovo ThinkCentre **M720q / M920q** (8th/9th-gen Intel, Tiny) or equivalent | Lenovo **M92p Tiny**, the same model as the NUT server |
+| CPU | 6-core i5/i7 (8th/9th gen), AES-NI | i5-3470T, 2c/4t, AES-NI. Verify jobs will be slow |
+| RAM | 32 GB (up to 64 GB) | Must be upgraded to **16 GB** (its maximum). Tight |
+| Storage | NVMe (OS and containers, ≥256 GB) **plus** 2.5" SATA SSD for the PBS datastore (**2 TB**) | One 2.5" bay: OS and datastore share one **2 TB** SSD (no separation) |
+| Network | 1 GbE onboard, plus an optional PCIe NIC | 1 GbE only |
+| Power | ~15–35 W | ~15–35 W |
+
+- **Datastore sizing:** today's `vzdump` archives occupy ~663 GiB without
+  deduplication. PBS deduplication should fit the existing 7 daily /
+  4 weekly / 6 monthly retention within 2 TB with headroom. Confirmed in
+  M0 from the actual archives.
+- **Networking:** one port carries VLAN 20 (standby Pi-hole) and VLAN 50
+  (host management, NPM standby, runner) as a tagged trunk. The switch port
+  change is approved per change.
+- **Power (pending H2):** recommended on **`network-ups`**, at ~75 W of
+  300 W as of 2026-09-23. Adding ~25 W is estimated to cut its runtime from
+  ~32 min to ~22 min. That keeps the node out of the primary Proxmox's
+  power fate, but shares it with the gateway and NUT server. The
+  alternative is `proxmox-ups` (ample headroom, but shared fate with what
+  it protects).
+- **Shutdown integration:** the node joins NUT as a `secondary` of its UPS,
+  with thresholds set in M-N so it shuts down before the NUT server does.
+- **Failure of the node itself:** loses local PBS history and the standby,
+  but no primary data. TrueNAS and IDrive copies continue. The node is
+  rebuildable from Git plus NetBox, and its PBS configuration is backed up
+  to TrueNAS.
+
+
 
 ## Privacy and security design
 
@@ -166,12 +212,14 @@ This project hardens the existing lab; it does not re-platform it.
 |---|---|---|---|---|
 | R1 | Backup gap during the PBS cutover | Low / High | Run PBS in parallel with `vzdump` until two verified restores per guest class pass; retire old legs last | Low |
 | R2 | PBS encryption key loss makes backups unrecoverable | Low / Very high | Offline key custody documented before the first encrypted backup; restore test uses the escrowed key | Low |
-| R3 | The ops runner concentrates lab-wide SSH reach on one guest | Medium / High | Per-target restricted keys, read-only by default, NetBox and Doctor coverage, no personal credentials | Medium, accepted at D3 |
-| R4 | The ops runner placed on the same Proxmox host keeps a SPOF | Certain if on Proxmox / Medium | Prefer the second node or another always-on host (D3); Doctor alerts via push even when the Mac is off | Depends on D2/D3 |
+| R3 | The ops runner concentrates lab-wide SSH reach on one guest | Medium / High | Unprivileged LXC, per-target restricted keys, read-only by default, NetBox and Doctor coverage, no personal credentials | Medium, accepted with the second-node design |
+| R4 | PBS, the standby and the runner share one small box (a new, smaller SPOF) | Low / Medium | Node loss affects no primary data; backups continue to TrueNAS and IDrive; Doctor alerts from the primary side when the node is down; rebuild from Git | Low |
+| R9 | Budget M92p option: a single disk holds OS and datastore, 13-year-old hardware | Medium / Medium | Recommend M720q/M920q-class; if the M92p is chosen, SMART monitoring in Doctor and an accepted-risk note | Accepted only if H1 = budget |
+| R10 | Adding the node to `network-ups` shortens gateway runtime (~32 → ~22 min) | Certain / Low–Medium | Measure after install; NUT secondary shutdown before the NUT server; alternatively `proxmox-ups` | Decided at H2 |
 | R5 | Second-node standby services drift from primary | Medium / Medium | Config sync from Git; Doctor checks standby health and version parity | Low |
 | R6 | Pinning images delays security fixes | Medium / Medium | Diun notifications plus a monthly maintenance window | Low |
 | R7 | Push alerting becomes noisy | Medium / Low | Failures only, deduplicated, with a daily digest for warnings | Low |
-| R8 | Hardware purchase (D1/D2) delays the project | Medium / Low | Workstreams C–G proceed independently | Low |
+| R8 | Hardware purchase delays the project | Medium / Low | WS D–G proceed without it; the runner can start as an interim LXC on the primary if needed | Low |
 
 - **Irreversible operations:** none planned. Old backup legs are retired
   only after verified restores; every host change has a documented revert.
@@ -183,29 +231,24 @@ This project hardens the existing lab; it does not re-platform it.
   - a planned "primary Proxmox off" drill for WS B;
   - synthetic Doctor failures for WS E/F.
 
-### Decisions needed from Jason
+### Decisions
 
-- **D1 — PBS placement:**
-  - **(a)** a small dedicated box (recommended; independent of both
-    Proxmox and TrueNAS);
-  - **(b)** a VM on TrueNAS (no purchase, but it shares TrueNAS's failure
-    domain and the 93% pool);
-  - **(c)** a VM on Proxmox (not recommended: it is the machine being
-    protected).
-- **D2 — Critical-path resilience level:**
-  - **(a)** runbook plus drill only;
-  - **(b)** a small second node running standby Pi-hole, NPM and a
-    sign-in break-glass path (recommended);
-  - **(c)** a full two-node Proxmox cluster (more complexity; needs a
-    QDevice).
-- **D3 — Ops-runner host:** on the second node if D2(b) (recommended);
-  otherwise a small LXC on Proxmox as an interim, accepting R4.
-- **D4 — Update notifier:** Diun (recommended; lightweight, per-host) or
-  What's Up Docker (has a web UI).
-- **D5 — Failure alerts:** Aster Companion Web Push (recommended; exists),
-  or a new ntfy service (out of scope unless chosen).
-- **D6 — Stream:** Stream M (recommended for WS A–C because of backup and
-  critical-path risk), with the option to run WS D–G as Stream A.
+**Recorded (Jason, 2026-09-24):**
+- **D1–D3 → one second node.** A single standalone small-form-factor
+  Proxmox VE node hosts PBS (on its host OS), the standby Pi-hole and NPM
+  containers, and the ops-runner container.
+
+**Still needed:**
+- **H1 — Hardware:** M720q/M920q-class with 32 GB RAM, NVMe and a 2 TB
+  SATA SSD (recommended), or a budget M92p upgraded to 16 GB with one 2 TB
+  SSD (accepts R9). Jason buys and installs it; this is a physical step.
+- **H2 — UPS feed:** `network-ups` (recommended; accepts R10) or
+  `proxmox-ups`.
+- **D4 — Update notifier:** Diun (recommended) or What's Up Docker.
+- **D5 — Failure alerts:** Aster Companion Web Push (recommended) or a new
+  ntfy service.
+- **D6 — Stream:** Stream M for the node build, PBS, standby and runner
+  (recommended), with optional Stream A for WS D–G.
 
 ## Persistence plan
 
@@ -218,13 +261,14 @@ This project hardens the existing lab; it does not re-platform it.
 ## Milestones
 
 ### M0 — Discovery and decisions (read-only)
-- [ ] Record D1–D6.
+- [x] Record the second-node design (D1–D3), 2026-09-24.
+- [ ] Record H1, H2 and D4–D6.
 - [ ] Inventory every scheduled job on the Mac and its dependencies (SSH
       aliases, local paths, secrets).
 - [ ] Inventory all container images and compose locations; list unpinned
       ones.
-- [ ] Hardware shortlist for D1/D2 (power draw against the `proxmox-ups`
-      and `network-ups` headroom measured 2026-09-23).
+- [ ] Confirm the hardware shortlist and power draw for H1/H2 against the
+      UPS headroom measured 2026-09-23.
 - [ ] Size PBS storage from current `vzdump` archives and retention
       (7 daily / 4 weekly / 6 monthly).
 
@@ -248,8 +292,21 @@ seeded syntax error.
 
 Gate: no unpinned long-running image; a notifier test fires.
 
+### M-N — Second node build (WS N; needs H1 hardware on site)
+- [ ] Jason installs the hardware and cabling (physical step); VLAN trunk
+      on the switch port (approved per change).
+- [ ] Install Proxmox VE, then PBS on the host OS; NetBox records; Doctor
+      reachability check.
+- [ ] Join NUT as a `secondary` of the H2 UPS with a shutdown threshold
+      ahead of the NUT server; re-measure UPS runtime.
+- [ ] Host config backup added to `lab backup` / the ops runner.
+
+Gate: node reachable, monitored, on UPS with a tested shutdown signal, and
+recorded in NetBox.
+
 ### M3 — Ops runner (WS C)
-- [ ] Provision per D3; dedicated identity and restricted per-target keys.
+- [ ] Unprivileged LXC on the second node; dedicated identity and
+      restricted per-target keys.
 - [ ] Port the four Mac LaunchAgents to systemd timers; run them in
       parallel for one week.
 - [ ] Retire the Mac schedules after parity is shown. The Mac keeps the
@@ -258,7 +315,9 @@ Gate: no unpinned long-running image; a notifier test fires.
 Gate: a week of parity, and one Mac-off week with no missed runs.
 
 ### M4 — Proxmox Backup Server (WS A)
-- [ ] Deploy per D1; offline key custody documented and tested first.
+- [ ] PBS on the second node's host OS, datastore on its dedicated SSD (or
+      the shared SSD under the budget option); offline key custody
+      documented and tested first.
 - [ ] Parallel-run PBS jobs with `vzdump`; scheduled verify jobs.
 - [ ] Restore proofs: one LXC, one VM, LXC 112 (bind mount) and a
       file-level restore.
@@ -270,8 +329,9 @@ Gate: all restore proofs pass, and Doctor checks backup age plus verify
 results.
 
 ### M5 — Critical-path resilience (WS B)
-- [ ] Per D2: runbook and/or second node with standby Pi-hole, NPM and a
-      sign-in break-glass path.
+- [ ] Standby Pi-hole on the second node, added as a DNS server in DHCP
+      (approved per change). Standby NPM with config synced from the
+      primary. Sign-in break-glass path documented. "Primary down" runbook.
 - [ ] Planned drill with the primary Proxmox powered off: DNS, proxied
       sites (or documented degraded mode) and admin access verified.
 
@@ -346,6 +406,13 @@ All milestone gates pass:
 - documentation and NetBox agree.
 
 ## Evidence log
+
+- **2026-09-24 — Second-node design chosen.** Jason asked whether PBS,
+  the standby and the runner could share one machine, and whether NUT-class
+  hardware could do it. Answer recorded above: yes on one node. The M92p is
+  workable only with 16 GB RAM and a single 2 TB SSD; an M720q/M920q-class
+  node is recommended. D1–D3 merged into the second-node design; H1, H2 and
+  D4–D6 are pending.
 
 - **2026-09-24 — Project proposed** from the 2026-09-23 health-check
   recommendations, at Jason's request. No system changed by this proposal.
