@@ -1,10 +1,10 @@
 # Infrastructure Resilience and Operations Hardening
 
-> Status: Proposed — second-node design chosen 2026-09-24; hardware, UPS
-> and D4–D6 pending
+> Status: Approved — Stream A (2026-09-24). Hardware (H1) postponed while
+> Jason looks for deals; hardware-independent workstreams may start.
 >
-> Owner: Jason | Proposed: 2026-09-24 | Stream M — Monitored (recommended;
-> see D6)
+> Owner: Jason | Proposed: 2026-09-24 | Stream A — Autonomous (approved
+> 2026-09-24)
 >
 > Origin: the recommendations from the 2026-09-23 lab health check
 > ([Lab health remediation runbook](../runbooks/Lab-Health-Remediation-2026-09-23.md)).
@@ -238,17 +238,21 @@ one design.
   Proxmox VE node hosts PBS (on its host OS), the standby Pi-hole and NPM
   containers, and the ops-runner container.
 
-**Still needed:**
-- **H1 — Hardware:** M720q/M920q-class with 32 GB RAM, NVMe and a 2 TB
-  SATA SSD (recommended), or a budget M92p upgraded to 16 GB with one 2 TB
-  SSD (accepts R9). Jason buys and installs it; this is a physical step.
-- **H2 — UPS feed:** `network-ups` (recommended; accepts R10) or
-  `proxmox-ups`.
-- **D4 — Update notifier:** Diun (recommended) or What's Up Docker.
-- **D5 — Failure alerts:** Aster Companion Web Push (recommended) or a new
-  ntfy service.
-- **D6 — Stream:** Stream M for the node build, PBS, standby and runner
-  (recommended), with optional Stream A for WS D–G.
+- **H2 — UPS feed:** **`network-ups`** (R10 accepted; re-measure after
+  install).
+- **D4 — Update notifier:** **Diun**.
+- **D5 — Failure alerts:** **Aster Companion Web Push**.
+- **D6 — Stream:** **Stream A, the whole project.** The risk assessment
+  above is the authorization envelope. Non-waivable stop conditions still
+  require a fresh decision from Jason, including any materially broader
+  firewall or trust rule than designed, retiring a backup leg without a
+  verified restore, and credential exposure. Git pushes still follow the
+  repository rule.
+
+**Postponed:**
+- **H1 — Hardware:** Jason is looking for deals. M720q/M920q-class
+  (recommended) or a budget M92p at 16 GB (accepts R9). Workstreams D–G
+  (M1, M2) do not depend on it. M-N, M3, M4 and M5 wait for the hardware.
 
 ## Persistence plan
 
@@ -262,7 +266,8 @@ one design.
 
 ### M0 — Discovery and decisions (read-only)
 - [x] Record the second-node design (D1–D3), 2026-09-24.
-- [ ] Record H1, H2 and D4–D6.
+- [x] Record H2, D4, D5 and D6 (2026-09-24). H1 is postponed while Jason
+      looks for deals.
 - [ ] Inventory every scheduled job on the Mac and its dependencies (SSH
       aliases, local paths, secrets).
 - [ ] Inventory all container images and compose locations; list unpinned
@@ -406,6 +411,10 @@ All milestone gates pass:
 - documentation and NetBox agree.
 
 ## Evidence log
+
+- **2026-09-24 — Decisions recorded.** H2 `network-ups`, D4 Diun, D5
+  Companion Web Push, D6 Stream A for the whole project. H1 (hardware) is
+  postponed while Jason looks for deals.
 
 - **2026-09-24 — Second-node design chosen.** Jason asked whether PBS,
   the standby and the runner could share one machine, and whether NUT-class
