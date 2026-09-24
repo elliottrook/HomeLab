@@ -201,11 +201,18 @@
 - `check-aster-b60.sh` passes: `xe` binding, Vulkan sees BMG G21.
 - The first post-restart request was slow (1.0 tokens/s decode), consistent
   with the driver update invalidating the Vulkan pipeline/shader cache.
-  Subsequent throughput is verified from real traffic (see evidence below).
+  Subsequent throughput is verified from real traffic.
+- **Evidence (04:13–05:0x UTC 2026-09-24):** five real short requests after
+  the update decoded at 6.23–6.46 tokens/s, against 6.29–6.42 before it,
+  and prefilled at 22–69 tokens/s, against 29–37 before. There was no
+  regression.
+- The `gpu-stack-20260923` snapshot (LXC 110) and the `kernel-20260923`
+  snapshot (VM 102) were then removed; the thin pool is at 24.16% data and
+  1.04% metadata.
 - The unattended-upgrades GPU blacklist (`53homelab-gpu-stack`) remains, so
   future GPU-stack updates stay deliberate. The apt holds were not
   re-applied.
-- Rollback: `pct rollback 110 gpu-stack-20260923`.
+- Rollback now: re-install `mesa-vulkan-drivers=26.1.2-1~bpo13+1` if it is still in the archive, or restore from vzdump. The snapshot was removed after verification.
 
 ### Frigate VM kernel 6.12.101 → 6.12.107
 - Snapshot `kernel-20260923` taken. The new kernel and headers were
@@ -216,7 +223,7 @@
 - Afterwards: running 6.12.107, `apex`/`gasket` loaded, `/dev/apex_0`
   present, Frigate container healthy, log shows "TPU found".
 - Fallback kernels 6.12.101 and 6.12.94 remain in GRUB.
-- Rollback: boot 6.12.101, or `qm rollback 102 kernel-20260923`.
+- Rollback now: boot 6.12.101 from GRUB. The snapshot was removed after the Coral and Frigate were verified.
 
 ### OPNsense python313
 - A firmware check found no updates available. python313-3.13.15 stays
