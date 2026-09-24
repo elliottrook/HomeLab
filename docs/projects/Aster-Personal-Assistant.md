@@ -502,9 +502,10 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 - [x] Egress mechanism: **F4 (a), dedicated egress-proxy LXC**, chosen by
       Jason 2026-09-23 (D13). The firewall rules themselves are still
       presented for approval when M1/M4 add them.
-- [x] Vision evaluation (D10): findings and recommendation in F6. Jason's
-      choice between the options is pending; measured VRAM and latency come
-      in M5 under a checkpoint.
+- [x] Vision evaluation (D10): findings and recommendation in F6.
+- [ ] **Vision overhead test V1** (Jason, 2026-09-23: measure the cost of a
+      permanent projector before deciding D10). Plan below; it needs Stream M
+      approval immediately before execution.
 - [x] Immich MCP vetting (D9): shortlist and recommendation in F7. Code
       review and license confirmation of the pinned commit happen at M5
       before deployment.
@@ -614,6 +615,48 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
     `00002-of-00002` symlink names should be corrected or documented in the
     Local-AI/Aster operations records so nobody mistakes the projector for a
     model shard.
+- **V1 — Vision overhead test plan (awaiting approval).**
+  - **Baseline (read-only, 2026-09-23 17:21 PDT):**
+    - B60 VRAM: 14.09 GB in use, 11,046 MiB free of 24,480 MiB (xe
+      debugfs `vram_mm`).
+    - `llama-server` RSS 8.80 GB (8.57 GB anonymous), 19 MB swapped.
+    - LXC 110 RAM: 10,240 MiB limit, ~1.8 GiB available.
+    - Decode ≈ 5.4 tokens/s.
+    - **The container's RAM, not VRAM, is the likely constraint.** A
+      0.93 GB projector could push it into swap or an out-of-memory kill.
+  - **Change:** no unit file or config is edited.
+    1. Stop `aster-llama.service`.
+    2. Run **run A**: a transient `systemd-run` unit with the identical
+       `ExecStart`.
+    3. Run **run B**: the same unit plus
+       `--mmproj /opt/models/qwen3.8-27b-iq4xs/Qwen3.8-27B-UD-IQ4_XS-00002-of-00002.gguf`.
+    4. Start the unchanged `aster-llama.service` again.
+    Both transient runs serve on the same address with the production key
+    file plus a temporary test key. The combined key file is generated
+    inside LXC 110 on tmpfs (`/run`, mode 600), never printed, and deleted
+    afterwards. No production key enters the session. A host reboot
+    mid-test brings back the normal, unchanged service.
+  - **Measurements:** for each run:
+    - VRAM used/free;
+    - `llama-server` RSS, swap and container available RAM;
+    - model load time;
+    - the same fixed text prompt run 3 times (prefill/decode tokens/s).
+    Run B also sends three synthetic, non-personal test images (≈768, 1024
+    and 1536 px long edge, generated locally and pushed to `/tmp` in LXC
+    110) and measures image prompt-token cost and latency.
+  - **Expected effect:** three service restarts of roughly 35 s each. Other
+    consumers (Aster, news, Companion) are served by the transient instances
+    between restarts. Total window ≈ 15 minutes, run between :15 and :45 past
+    the hour to avoid the news ingest near :02.
+  - **Abort and roll back immediately if:** container available RAM drops
+    below 200 MiB, the transient instance is OOM-killed or fails, or the B60
+    leaves `xe`. Rollback: stop the transient unit, start
+    `aster-llama.service`, confirm `scripts/check-aster-b60.sh` and
+    `/health`, delete the temporary key file and test images.
+  - **Validation afterwards:** the normal service is active with the
+    unchanged `ExecStart`, natural-traffic timings are back at baseline, and
+    Doctor's Aster checks pass.
+
 - **F7 — Immich MCP vetting (2026-09-23, read-only).** Both candidates are
   young, single-maintainer projects with very few stars and no license
   confirmed in their READMEs. The supply-chain risk (R11) is therefore real,
