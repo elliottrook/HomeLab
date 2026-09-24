@@ -234,18 +234,18 @@ scope for this session per Jason's instruction and has not been started.
   Fingerprint: `SHA256:f+lbQznytUYvMbpxAzG72HiBs/avxd+FnrDpICFFG1I`
   (`macbook-admin-jasonelliott-2026-09-24`, ED25519) — see evidence log for the
   full verification (permissions, no stray copies on disk).
-- [~] Enroll public key on exact approved targets with required confirmations;
+- [x] Enroll public key on exact approved targets with required confirmations;
   verify host trust and read-only commands without using mini credentials.
-  12 of the M0 manifest's 13 targets enrolled from the mini (see evidence log);
-  `gowest-backup` deliberately excluded (retired hardware, Jason's call). All
-  12 independently verified from the MacBook itself: 10 of 11 remaining
-  targets plus `hermes` passed cleanly first try; `gowest` and `observability`
-  initially failed real enrollment gaps (root-caused and fixed from the
-  mini — a malformed `authorized_keys` line on `observability`, and the
-  wrong file entirely on `gowest`'s DSM `AuthorizedKeysFile` path — see
-  evidence log). Both fixed and mini-side verified; MacBook-side
-  re-verification of these two specific targets is still needed to fully
-  close this item.
+  Done 2026-09-24 — 12 of the M0 manifest's 13 targets enrolled from the mini
+  (see evidence log); `gowest-backup` deliberately excluded (retired
+  hardware, Jason's call). All 12 independently verified from the MacBook
+  itself: 10 of 11 remaining targets plus `hermes` passed cleanly first try;
+  `gowest` and `observability` initially failed on real enrollment gaps
+  (root-caused and fixed from the mini — a malformed `authorized_keys` line
+  on `observability`, and the wrong file entirely on `gowest`'s DSM
+  `AuthorizedKeysFile` path), both now MacBook-side re-verified and passing —
+  see evidence log. All 12 approved targets confirmed reachable from the
+  MacBook using only its own key.
 - [ ] Establish required browser/password-manager and diagnostic access.
 - [x] Document individual identity revocation and prove relevant denied actions.
   Done 2026-09-24 — revocation procedure documented per-target (including
@@ -949,3 +949,21 @@ untouched, plus the new key on its own correctly-terminated line).
 Both fixes verified from the mini; MacBook-side independent re-verification
 of these two specific targets (the actual proof this milestone needs) is
 the MacBook session's next step.
+
+### 2026-09-24 M2 — gowest and observability re-verified from the MacBook; enrollment fully closed
+
+Same command shape as the original 11-target pass, via the SSH agent, no
+mini credentials involved:
+
+```
+ssh -o BatchMode=yes root@192.168.20.31 hostname   ->  observability
+ssh -o BatchMode=yes Jason@192.168.20.41 hostname  ->  GoWest
+```
+
+Both succeeded cleanly (`gowest`'s output also carried an OpenSSH
+post-quantum-KEX advisory about the server's own supported algorithms — the
+same informational notice seen on `arista` earlier in this project, not an
+error). All 12 approved M0-manifest targets are now confirmed reachable from
+the MacBook using only its own key: `proxmox`, `hermes`, `docker`,
+`opnsense`, `truenas`, `arista`, `frigate`, `nut`, `forgejo`, `gowest`,
+`aster-speech`, `observability`. Enrollment checklist item closed.
