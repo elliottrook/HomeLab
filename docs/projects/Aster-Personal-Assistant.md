@@ -116,6 +116,11 @@ it needs Jason's explicit decision before any credential is created.
   the rules require) for Jason's approval. The nightly job runs 02:30–03:30.
 - A multi-person model: principal identity, per-person credentials, storage,
   retention, delivery and consent.
+- **RAM assessment and right-sizing for the Aster estate** (added by Jason
+  2026-09-23, since the host now has spare capacity and Aster is doing more):
+  memory limits for the existing Aster guests (104, 110, 114, 116) and the
+  new PA, research and egress-proxy guests, sized from measured use. Non-Aster
+  guests are out of scope and only flagged.
 - The **capability ladder** and policy mechanism (see below). It is built and
   tested in this project. Every capability graduates at **L1 (Observe)**
   except `photo.format`, which graduates at **L2 (Draft)**. Jason asked for
@@ -471,6 +476,7 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 | D11 | Photo schedule | **02:30–03:30**, starting after the Proxmox backup finishes |
 | D12 | Editing rules | **No AI; sky replacement only with Jason's own sky image; no border.** ("No background" clarified by Jason 2026-09-23 as no border.) Competitions vary; the stricter of these and the rules card applies. Formatting is mostly resolution and file size |
 | D13 | Internet egress | **Dedicated egress-proxy LXC (F4 a)**: only the proxy reaches WAN; PA guest limited to iCloud hostnames, research guest to general HTTPS |
+| D14 | RAM | **Right-size the Aster estate within this project** (F8); each memory change is still approved per change under Stream M |
 
 ## Persistence plan
 
@@ -503,6 +509,11 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
       Jason 2026-09-23 (D13). The firewall rules themselves are still
       presented for approval when M1/M4 add them.
 - [x] Vision evaluation (D10): findings and recommendation in F6.
+- [x] **RAM assessment RA1** (read-only, 2026-09-23): findings and
+      proposed allocations in F8.
+- [ ] **RA2 — raise LXC 110 memory limit to 16 GiB** before V1, so the test
+      measures vision overhead rather than hitting the current ceiling.
+      Awaiting Stream M approval.
 - [ ] **Vision overhead test V1** (Jason, 2026-09-23: measure the cost of a
       permanent projector before deciding D10). Plan below; it needs Stream M
       approval immediately before execution.
@@ -615,7 +626,53 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
     `00002-of-00002` symlink names should be corrected or documented in the
     Local-AI/Aster operations records so nobody mistakes the projector for a
     model shard.
+- **F8 — RAM assessment RA1 (2026-09-23, read-only).**
+  - **Host:** Proxmox has **78.5 GiB usable** (dmidecode: 4 × 16 GB +
+    4 × 4 GB, all 8 slots populated), 46.9 GiB available, and 1.6 GiB of
+    8 GiB swap in use. Uptime is 19 days, with no kernel OOM kill in 30 days.
+    ZFS ARC is capped at 1.6 GiB.
+  - **Allocated to running guests:** 60 GiB (LXCs 48 GiB, VMs 102/103
+    12 GiB). Stopped rollback VM 105 has 8 GiB configured, and a VM reserves
+    its full allocation when started.
+  - **Aster guests (limit / current / peak / swap / OOM kills):**
+
+    | Guest | Limit | Current | Peak | Swap | OOM kills | Assessment |
+    |---|---|---|---|---|---|---|
+    | 104 Aster | 4 GiB | 0.5 GiB | 0.6 GiB | 0 | 0 | Ample. The new personas call PA/research APIs, and heavy work runs in other guests. **No change.** |
+    | 110 inference | 10 GiB | 8.2 GiB | **9.9 GiB (99%)** | 112 MiB | 0 | **At its ceiling today, before vision.** The vision projector adds ~0.9 GiB plus image buffers. **Raise.** |
+    | 114 news | 2 GiB | 1.4 GiB | 1.9 GiB (94%) | 0 | 0 | Near its ceiling. It feeds the morning check-in. **Raise to 3 GiB at M3.** |
+    | 116 speech | 4 GiB | 1.0 GiB | 3.2 GiB (80%) | 0 | 0 | Adequate. Spoken check-ins add one nightly synthesis. **Review at M3.** |
+
+  - **Proposed allocations:**
+
+    | Guest | Proposed | When |
+    |---|---|---|
+    | 110 inference | **16 GiB** for V1. The permanent value is set from V1's measurement at the D10 decision, expected 14–16 GiB | RA2, before V1 |
+    | 114 news | 3 GiB | M3 |
+    | New PA guest (readers, analyzer, Immich MCP, image formatter) | 4 GiB (decoding large originals is the peak) | M1 (formatter re-measured at M5) |
+    | New research guest (SearXNG, worker) | 2 GiB | M4 |
+    | New egress-proxy guest | 512 MiB | M1 |
+
+  - **Totals:** allocated limits rise from 60 GiB to ≈ 72.5 GiB (≈ 92% of
+    78.5 GiB). Measured use is about 33 GiB, and LXC limits are ceilings,
+    not reservations, so this is acceptable. The binding rule is that **VM
+    105 stays stopped** (its 8 GiB is reserved in full when started); if it
+    must run, stop the photo/research jobs first. Each change is a live
+    `pct set <id> -memory <MiB>` with no guest restart, and rollback sets
+    the previous value.
+  - **Flagged, not changed (outside this project):** non-Aster guests at or
+    near their limits:
+    - 106 Authentik (peak 99%, 367 MiB swap);
+    - 101 UniFi (99%);
+    - 107 reverse proxy (99%);
+    - 112 backup relay (99%);
+    - 115 Paperless-ngx (99%).
+    `CLAUDE.md` still records Proxmox at 48 GB (6 of 8 slots), which is
+    stale. The Proxmox UPS runtime has not been re-measured since the RAM
+    grew.
+
 - **V1 — Vision overhead test plan (awaiting approval).**
+  - **Prerequisite:** RA2 (LXC 110 at 16 GiB) is applied first.
   - **Baseline (read-only, 2026-09-23 17:21 PDT):**
     - B60 VRAM: 14.09 GB in use, 11,046 MiB free of 24,480 MiB (xe
       debugfs `vram_mm`).
@@ -623,7 +680,8 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
     - LXC 110 RAM: 10,240 MiB limit, ~1.8 GiB available.
     - Decode ≈ 5.4 tokens/s.
     - **The container's RAM, not VRAM, is the likely constraint.** A
-      0.93 GB projector could push it into swap or an out-of-memory kill.
+      0.93 GB projector could push it into swap or an out-of-memory kill;
+      RA2 removes that risk for the test.
   - **Change:** no unit file or config is edited.
     1. Stop `aster-llama.service`.
     2. Run **run A**: a transient `systemd-run` unit with the identical
@@ -809,7 +867,8 @@ recommendations as useful.
 - [ ] **Monitoring/alerting** — existing Doctor path; Prometheus job only if
       M0 shows value.
 - [ ] **Backup and recovery** — per D6; policy/config restore proof.
-- [ ] **NetBox** — two new LXCs, IPs, VLAN 70 interfaces.
+- [ ] **NetBox** — three new LXCs (PA, research, egress proxy), IPs,
+      VLAN 70 interfaces, and updated memory for 110/114.
 - [ ] **Human wiki** — assistant user guide, enrolment/removal, kill switch.
 - [ ] **Aster mirror/snapshot** — operational docs only; personal data and
       research reports never enter the shared corpus.
@@ -862,6 +921,14 @@ content is in Git, logs or Aster's corpus.
   a gated start. Formatting was interpreted as deterministic
   resolution/file-size preparation from Immich sources, and "no background"
   as no background replacement. Jason to correct if either is wrong.
+
+- **2026-09-23 — RAM assessment added (D14).** Jason added right-sizing
+  Aster's memory to the project. The read-only RA1 (F8) found the host at
+  78.5 GiB with 60 GiB allocated, and LXC 110 already peaking at 99% of its
+  10 GiB before any vision work. Proposed 16 GiB for LXC 110 (RA2) ahead of
+  V1, plus sizes for 114 and the three new guests (≈ 72.5 GiB total limits).
+  Flagged non-Aster guests at their ceilings and the stale 48 GB record in
+  `CLAUDE.md`, without changing them.
 
 - **2026-09-23 — M0 checks completed; egress chosen.** Jason chose the
   dedicated egress-proxy LXC (D13) and will create accounts and API keys
