@@ -230,14 +230,17 @@ scope for this session per Jason's instruction and has not been started.
 - [x] Generate unique protected MacBook key and record public fingerprint.
   Done 2026-09-24 — Jason generated `~/.ssh/id_ed25519_macbook_admin` himself,
   interactively, in a plain Terminal on this Mac; this session never touched or
-  viewed the private key's contents and never asked for its passphrase. See
-  evidence log for the fingerprint and permission verification.
-- [ ] Enroll public key on exact approved targets with required confirmations;
+  viewed the private key's contents and never asked for its passphrase.
+  Fingerprint: `SHA256:f+lbQznytUYvMbpxAzG72HiBs/avxd+FnrDpICFFG1I`
+  (`macbook-admin-jasonelliott-2026-09-24`, ED25519) — see evidence log for the
+  full verification (permissions, no stray copies on disk).
+- [~] Enroll public key on exact approved targets with required confirmations;
   verify host trust and read-only commands without using mini credentials.
-  Not started by this session, by design — this MacBook has no pre-existing
-  trust to any lab host's `authorized_keys`, so enrollment happens from the
-  mini-hosted session, which does. The public key is recorded below for Jason
-  to relay there.
+  12 of the M0 manifest's 13 targets enrolled from the mini (see evidence log);
+  `gowest-backup` deliberately excluded (retired hardware, Jason's call). Fresh
+  MacBook-side login verified independently for `arista` only so far — the
+  other 11 still need the same independent verification from the MacBook
+  itself before this item is fully done.
 - [ ] Establish required browser/password-manager and diagnostic access.
 - [ ] Document individual identity revocation and prove relevant denied actions.
 
@@ -665,3 +668,93 @@ Data-volume firmlink to the exact same file, not a second copy. No stray
 placement of `id_ed25519_macbook_admin`/`.pub` exists anywhere else on this
 Mac. Key-generation verification for M2's first checklist item is now
 complete end to end.
+
+### 2026-09-24 M2 — key received, enrollment target list agreed
+
+Jason generated `~/.ssh/id_ed25519_macbook_admin` himself, interactively, in a
+plain Terminal on the MacBook — this session never touched the private key or
+its passphrase. He relayed the public key
+(`ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBiVLzjvq5bNqchbg6RYgoC9D5/PALPCj390bXw0/zYI
+macbook-admin-jasonelliott-2026-09-24`) into this mini-hosted session directly —
+fine to record here, since a public key isn't secret material.
+
+Presented the full M0-manifest target list (13 accounts) for explicit
+confirmation before touching anything, per the repo's standing remote-write
+rule. Jason excluded `gowest-backup` (192.168.20.42) — CLAUDE.md already
+records that Synology as retired since 2026-09-22, so enrolling a new identity
+on hardware being decommissioned was unnecessary scope, not a security
+decision either way. 12 targets approved: `proxmox`, `hermes` (LXC 104, via
+`proxmox`), `docker`, `opnsense`, `truenas`, `arista`, `frigate`, `nut`,
+`forgejo`, `gowest`, `aster-speech`, and `observability` (`root@192.168.20.31`,
+no SSH alias configured for it).
+
+### 2026-09-24 M2 — 11 targets enrolled from the mini
+
+Enrolled the MacBook's public key on 11 of the 12 approved targets
+(`arista` handled separately below), idempotently — checked each
+`authorized_keys` for an existing exact match before appending, to avoid
+duplicate entries on a re-run. All 11 succeeded; `opnsense`'s FreeBSD shell
+threw a harmless `grep: 2: No such file or directory` on the idempotency
+check itself (a quoting/shell difference, not a real error) before falling
+through to append the key anyway — verified afterward with a direct
+`grep -c`/`wc -l` pass against every one of the 11 targets: exactly one
+occurrence of the new key's comment string on each, no duplicates, no
+corruption. `hermes`'s key went into `/home/hermes/.ssh/authorized_keys`
+inside LXC 104, reached via `proxmox`'s existing trust and `pct exec`, with
+ownership/permissions (`hermes:hermes`, `600`) set explicitly since that
+account isn't `root`.
+
+### 2026-09-24 M2 — `arista` handled as a separate account, not a key swap
+
+Flagged a real risk before touching the switch: Arista EOS configures SSH
+access as `username <name> sshkey <key>`, a single-value command per
+username, and it wasn't established whether re-issuing it for the existing
+`admin` account would *append* a second key or *replace* the existing one —
+getting that wrong would have broken the mini's own switch access, which
+`lab doctor`'s `check_arista` depends on for the core switch. Stopped and
+asked Jason rather than guessing or testing destructively.
+
+Jason's instruction: create a **separate** `jason-macbook` account instead,
+matching `admin`'s existing role (`privilege 15 role network-admin`), with
+its own real secret (explicitly **not** a passwordless-account shortcut) and
+the MacBook's key — leaving the `admin` account and its key completely
+untouched. Generated the account's secret as a salted MD5-crypt hash
+(matching the hash format already used by `admin`'s own `secret 5` line)
+from a locally-generated random password that was never stored, displayed,
+or used for anything else — only the resulting hash (not reversible in any
+practical sense) appears in the switch's config or this log. Applied via
+`configure terminal` over the mini's existing trusted SSH session, to
+running-config only, not yet saved.
+
+Verification, in the order Jason specified, before saving anything:
+1. Fresh mini login with the existing `admin` account (`show clock`) —
+   succeeded cleanly, confirming `admin` and its key were untouched.
+2. `lab doctor`'s actual switch health check — ran all four commands
+   `check_arista` uses directly (`show interfaces status`, `show interfaces
+   counters errors`, `show environment temperature`, `show environment
+   power`): all healthy, no degradation from the change. (A separate,
+   accidental full `doctor.sh` run — triggered by an unsupported `--only`
+   flag on an earlier attempt — also completed clean lab-wide in the
+   background: all backup ages green, one pre-existing unrelated bug noted,
+   `FAIL_ITEMS[@]: unbound variable` at `scripts/doctor.sh:2085` when the
+   fail list is empty — not fixed here, flagged as a follow-up, out of this
+   milestone's scope.)
+3. Fresh MacBook login with the new `jason-macbook` account and its own key
+   (`ssh -i ~/.ssh/id_ed25519_macbook_admin jason-macbook@192.168.50.2 'show
+   clock'`, run by Jason himself in a plain Terminal, passphrase typed
+   interactively) — succeeded, returned the switch's clock correctly. An
+   OpenSSH post-quantum-KEX advisory in the output is informational only
+   (about the switch's own supported key-exchange algorithms) and out of
+   this project's scope.
+
+All three passed. Saved with `write memory` (`Copy completed successfully`)
+and confirmed via `show startup-config | grep '^username'` that both
+`admin` (original secret hash and key, unchanged) and `jason-macbook` (new
+secret hash and key) persisted correctly. `arista` enrollment is complete —
+12 of 12 approved targets now hold the MacBook's identity.
+
+Still open for M2: recording the MacBook key's fingerprint in this doc (the
+MacBook session's task), independently verifying the remaining 11 targets
+from the MacBook itself (only `arista` has been verified that way so far),
+establishing browser/password-manager/diagnostic access, and documenting
+identity revocation with a proven denied action.
