@@ -40,13 +40,42 @@
 | Same-res smaller encodes (The Predator, Iron Man 3, Carry On Again Doctor, Doctor Who S00E10) | 4 | 11.8 GB |
 | **Total deleted** (videos 291; 295 entries including their own sidecars) | | **255.2 GB of file data** |
 
-- **Space actually returned to the pool: 177.9 GB.** `Media/data`
-  available went from 829.7 GB to 1,007.6 GB, and usage from 93% to 90%.
-- The remaining ~77 GB belonged to identical pairs that already shared
-  storage (hard links or ZFS block clones), so removing one name freed no
-  blocks. No data was lost.
-- `Media/data@pre-plex-migration-20260830` stayed at 243 GB and was not
-  touched.
+- **Space returned: ~254.8 GB**, essentially all of the deleted file data.
+  `Media/data` available went from 829.7 GB before the cleanup to 1,084.4 GB
+  once ZFS finished freeing blocks in the background.
+  - *Correction:* an immediate post-run reading showed only +177.9 GB and
+    was wrongly attributed to shared storage (hard links or block clones).
+    The shortfall was ZFS's asynchronous freeing still in progress.
+
+## Snapshot removal (Jason: "No just delete please")
+
+`Media/data@pre-plex-migration-20260830-205932` was destroyed on
+2026-09-24.
+- **What it was:** the rollback checkpoint for the Plex→Jellyfin migration,
+  which closed on 2026-09-01. The Plex source media had lived on the
+  Synology and was already deleted, so it was not part of this snapshot.
+- **What it held:** files removed from the current libraries since
+  2026-08-30:
+  - download leftovers (~9 GB);
+  - a *Rango* UHD `.iso` (64.6 GB);
+  - music consolidation leftovers (6 GB);
+  - full-quality originals of titles the video archiver later downconverted
+    (~118 GB: *The Shawshank Redemption*, *Ready or Not: Here I Come*,
+    *72 Hours*, *Furious* S1, and a *Doctor Who* "Season 4" mix);
+  - titles with no other copy (~64 GB: *Departure* S2–S3, *Gone* (2026)
+    S1, *Adults* (2025) 2 episodes, and the films *No Limit* (2022),
+    *Fall for Me* (2025) and *Don't Say Good Luck* (2026)).
+- Jason was shown this breakdown and chose deletion without restoring
+  anything.
+- **No holds or clones** existed. `zfs destroy` reported "will reclaim
+  243G". Measured available space rose by **260.9 GB**, from 1,084.4 GB to
+  1,345.4 GB. `usedbysnapshots` is now 0.
+- The small `Media/ix-apps@pre-plex-migration-20260830-210033` snapshot
+  (Jellyfin application data, 0 B used) was kept.
+
+**Combined result for 2026-09-24:** `Media/data` available went from
+829.7 GB to **1,345.4 GB (+515.7 GB)**. Usage dropped from 93% to **88%**
+(`df`). `zpool list` capacity lags while freeing completes.
 
 ## Mismatch corrections (renames and moves; no overwrites)
 
