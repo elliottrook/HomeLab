@@ -2,8 +2,8 @@
 
 > Owner: Jason
 > Proposed: 2026-09-24
-> Status: Stream A accepted 2026-09-24; M0 in progress
-> Stream: A accepted 2026-09-24; execution underway starting at M0
+> Status: Stream A accepted 2026-09-24; M0 closed, M1 in progress
+> Stream: A accepted 2026-09-24; execution underway, M0 closed, M1 started
 > Charter: [Project Creation Standard](../Project-Creation-Standard.md)
 
 ## 1. Purpose and desired outcome
@@ -202,11 +202,25 @@ see evidence log: the MacBook's OPNsense management-VLAN reachability
 
 ### M1 — Repeatable local toolkit and knowledge
 
-- [ ] Create bootstrap/manifest with pinned or recorded supported dependencies.
-- [ ] Clone required repos to MacBook internal storage; preserve mini-only work.
+- [x] Create bootstrap/manifest with pinned or recorded supported dependencies.
+  Done 2026-09-24 — [`docs/runbooks/MacBook-Bootstrap-Manifest.md`](../runbooks/MacBook-Bootstrap-Manifest.md);
+  every entry is a version actually observed on this MacBook, not an assumed pin.
+- [x] Clone required repos to MacBook internal storage; preserve mini-only work.
+  `homelab` was already an existing clean checkout (M0 finding) and is now current
+  (`git pull`, 490 commits, fast-forward only, no local changes lost). `homelab-wiki`
+  and `homelab-reference` deliberately **not** cloned — neither is a dependency of the
+  core admin toolkit and cloning them isn't required by this project's scope; see the
+  bootstrap manifest's "Bookmarks and offline recovery docs" section.
 - [ ] Canonical `lab` is selected in a normal interactive shell; stale launcher
   cannot shadow it; bookmarks and offline recovery docs are accessible.
-- [ ] Dependency/permission errors give actionable output without secrets.
+  No stale launcher exists (confirmed) and bookmarks/recovery docs are already
+  reachable (confirmed) — but `lab` does not yet resolve on PATH in a real interactive
+  shell, since no shell dotfiles exist on this Mac. The fix (symlink `~/bin/lab`, add
+  `~/bin` to PATH via a new `~/.zprofile`) is blocked on Jason's explicit confirmation
+  before writing a machine-wide dotfile outside this repo — see evidence log.
+- [x] Dependency/permission errors give actionable output without secrets.
+  Verified 2026-09-24 by direct invocation and code reading — see evidence log and
+  the bootstrap manifest's last section.
 
 ### M2 — Independent human access
 
@@ -499,3 +513,71 @@ independently re-read. No Git push performed.
 Proposed, not graduated. Current deliverable is the project document and portfolio
 entry. No external storage change, new key, MacBook installation or remote write
 was performed. Local project commit/synchronization status is reported separately.
+
+### 2026-09-24 M1 session start and toolkit dependency verification
+
+Session confirmed running natively on the MacBook itself (`hostname` =
+`Jasons-Mac.local`, `192.168.1.241` on `en0` — matches the reservation from the
+close-out above) rather than over SSH from the mini, per this milestone's own
+instruction that M1 needs no SSH back to the mini. `~/lab/homelab` is a pre-existing
+symlink to `/Users/jasonelliott/AI_Projects/homelab`.
+
+`git status --short` was empty before touching anything; `git pull` fast-forwarded
+`041550d` → `b5de76d` (490 commits, matching M0's count exactly), no local work to
+lose. `sw_vers`/`uname`/`fdesetup status` re-confirmed directly on-machine match the
+M0 remote-SSH inventory exactly (macOS 26.5.2 build 25F84, Darwin 25.5.0 arm64,
+FileVault On) — no drift between the two inventory passes.
+
+Scanned `scripts/lab`, `scripts/doctor.sh`, `scripts/backup/*.sh`,
+`scripts/api-get.sh` and `scripts/lib/output.sh` for real external command
+dependencies (excluding commands that run remotely over `ssh`/`pct exec` on lab
+hosts, not on the MacBook itself). Full detail and verified versions are in the new
+[`docs/runbooks/MacBook-Bootstrap-Manifest.md`](../runbooks/MacBook-Bootstrap-Manifest.md).
+Headline finding: every real local dependency (`bash`, `ssh`, `scp`, `nc`, `curl`,
+`git`, `python3`, `rsync`, `sqlite3`, `shasum`) is already present via the Apple base
+system and Xcode Command Line Tools. **No Homebrew install was needed or performed**
+for the core toolkit — Homebrew and Node remain confirmed not installed, matching M0,
+and nothing in the dependency scan calls either of them (two `age`/`node` regex hits
+in an earlier pass were false positives on variable names like `backup age` and
+`node_json`, not real binary calls — corrected before writing the manifest).
+
+Confirmed no legacy `~/lab/bin/lab` exists on this Mac (nothing to avoid
+replicating) and no `lab` binary exists on any default system PATH entry. Ran
+`scripts/lab` directly by path — `lab` (no args), `lab totally-bogus-command`,
+`lab ssh nonexistent-device` and `lab list` all produced clear, specific,
+secret-free output (e.g. `Unknown device: nonexistent-device` followed by the real
+device table). Read `scripts/doctor.sh`'s `check_backup_age`: it already warns
+`"$display backup directory does not exist"` rather than erroring raw or falsely
+passing when a backup directory is absent — directly relevant since
+`~/lab/private-backups` does not exist on this MacBook yet (no backup destination
+configured; tracked for M4, not this milestone). No code changes were needed for
+either check — both were existing, already-correct behavior, verified rather than
+assumed.
+
+Confirmed "bookmarks" means `configs/devices.conf`'s checked-in `web_url` column
+(opened via macOS's native `open` by `lab dashboard`/`lab web`), and "offline
+recovery docs" means `docs/05-Backups.md`, `docs/runbooks/*` and the rest of this
+same checkout — both already reachable now that the checkout is current, no
+separate action needed. Deliberately did **not** clone the mini's separate
+`homelab-wiki`/`homelab-reference` repositories: neither is a dependency of the
+core admin toolkit found in the scan above, and this project's scope (§3) doesn't
+call for replicating the Aster second-brain corpus onto the MacBook — flagged in
+the bootstrap manifest as an open question for Jason rather than decided
+unilaterally.
+
+**Blocked, needs Jason's explicit confirmation:** the canonical-`lab`-resolves
+checklist item requires a PATH fix, since no `~/.zshrc`/`~/.zprofile`/`~/.zshenv`
+exists on this Mac at all — confirmed independent of this session's own environment
+via `env -i /usr/libexec/path_helper`, which shows the true default interactive-shell
+PATH has no `~/bin` on it. Planned, minimal fix: symlink
+`~/bin/lab -> ~/lab/homelab/scripts/lab` (`~/bin` already exists and already holds
+one Jason-created script, `arista-console`, for the same USB-serial device `lab
+arista` uses — reusing that existing convention rather than inventing a new
+location), plus a new two-line `~/.zprofile` (`export PATH="$HOME/bin:$PATH"`).
+Attempting the `~/.zprofile` write was denied by this session's own auto-mode
+classifier as "Unauthorized Persistence" — a new, standing, machine-wide
+shell-startup file outside this repo, which is exactly the kind of action that
+classifier is designed to hold for explicit confirmation rather than a repo-scoped
+edit. Stopped rather than working around it; asked Jason directly in the same
+conversation turn. The symlink itself is inert until that PATH change lands, so it
+was not created separately.
