@@ -1,0 +1,28 @@
+[Unit]
+Description=Paperless local document summary cycle
+After=paperless-summary-broker.service
+Requires=paperless-summary-broker.service
+
+[Service]
+Type=oneshot
+User=paperless-summary
+Group=paperless-summary
+WorkingDirectory=/opt/paperless-summary
+ExecStart=/usr/bin/python3 /opt/paperless-summary/worker.py
+StateDirectory=paperless-summary
+StateDirectoryMode=0700
+LoadCredential=llama-api-key:/etc/paperless-summary/llama-api-key
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=192.168.70.12/32
+ReadWritePaths=/var/lib/paperless-summary
+TimeoutStartSec=20min

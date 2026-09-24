@@ -338,7 +338,7 @@ Open architecture questions for Milestone 1 (not assumed here):
 - Placement of the speech service: a new dedicated Lab VLAN 70 LXC versus
   adding to an existing guest. **Live-confirmed 2026-09-21 via
   `pct list`/`qm list`:** VMID 115 (this document's earlier placeholder) is
-  already `paperless-ngx` (`docs/projects/Document-OCR-Summarization.md`,
+  already `paperless-ngx` (`docs/projects/completed projects/Document-OCR-Summarization.md`,
   deployed 2026-09-15, six days before this project was proposed — the
   placeholder was already stale when written). **116 is the next available
   VMID.** Leaning toward a new dedicated LXC to match the lab's

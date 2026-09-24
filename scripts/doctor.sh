@@ -597,6 +597,15 @@ check_aster_wiki() {
     fi
 }
 
+check_paperless() {
+    if ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
+        'pct exec 115 -- python3 /opt/paperless-summary/check_summary.py' >/dev/null 2>&1; then
+        pass "Paperless UI, summary broker, timer and worker are healthy"
+    else
+        fail "Paperless service or summary cycle needs attention; inspect LXC 115 check_summary.py"
+    fi
+}
+
 check_news_aggregator() {
     local state
 
@@ -1911,6 +1920,7 @@ check_frigate
 check_jellyfin_integrity
 check_video_archiver
 check_news_aggregator
+check_paperless
 
 category "Service Reachability"
 
