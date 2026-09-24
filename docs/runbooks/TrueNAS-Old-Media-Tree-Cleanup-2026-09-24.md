@@ -73,3 +73,45 @@
 `Media` pool: **3.29 TiB (3.62 TB) available**, up from 1.16 TB before this
 cleanup. There is no effect on Jellyfin, whose libraries never pointed at
 the old tree.
+
+## Follow-up: remaining empty datasets and Filebrowser (same day)
+
+- **Deleted the 11 busy `Media/configs/*` datasets** with Filebrowser stopped
+  (Jason approved the stop):
+  - `Immich/{backups,picture,thumbs,upload,video}`;
+  - `vaultwarden/{config,db}`;
+  - `wordpress`, `readarr`, `calibre`, `dozzle`.
+  - All verified empty immediately before deletion.
+  - Total datasets removed today: 33.
+- **Filebrowser, before:** it mounted only `/mnt/Media/configs` (read-write)
+  at `/mnt/media`, so it showed only app configs.
+- **Filebrowser, after:** Jason chose "everything read-write" over the
+  recommended option (backup and Surveillance read-only), after being shown
+  that this exposes `backup` (Mac config exports, Home Assistant backups,
+  family documents), `configs` (app databases including Vaultwarden's) and
+  Frigate recordings through a web app.
+  - The storage is now `host_path /mnt/Media` → `/mnt/media`, not read-only.
+    The mount path is unchanged, so Filebrowser's settings and users still
+    apply.
+  - Rollback: restore `additional_storage` from
+    `/tmp/fb-storage-before.json` on TrueNAS (host path `/mnt/Media/configs`).
+- **Checked before starting:**
+  - the app's root `permissions` init container only touches its own config
+    volume (no recursive `chown` of the pool);
+  - no host port is published, so Filebrowser is reachable only via the
+    `authentik-filebrowser-ingress` network (Authentik).
+- **Effective access** (Filebrowser runs as `apps` 568):
+  - every dataset is visible;
+  - write works on `data`, `media` and `configs`;
+  - `backup`, `Photos`, `Notes`, `Surveillance` and `homes` are read-only by
+    filesystem ownership.
+  - Jason chose **not** to add write ACLs for `apps` (2026-09-24).
+- **Notes:**
+  - TrueNAS lists the app as **"File Browser (Deprecated)"**; it will be
+    removed from the catalog. A replacement is a future decision.
+  - Pool-root leftover folders, not deleted:
+    - `/mnt/Media/backups` (empty skeleton folders);
+    - `/mnt/Media/docker` (old Dockge compose and database; Dockge now uses
+      `appdata/dockge`);
+    - `/mnt/Media/plex` (old Plex home dotfiles).
+  - `/mnt/Media/apps` is **in use** by Calibre-Web Automated.
