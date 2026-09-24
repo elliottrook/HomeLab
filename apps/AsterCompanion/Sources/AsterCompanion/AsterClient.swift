@@ -5,12 +5,16 @@ struct ChatMessage: Identifiable, Equatable {
     let id = UUID()
     let role: Role
     let content: String
+    /// Steps, timing and token stats for an assistant reply; display only,
+    /// never sent back to Aster.
+    var summary: ReplySummary? = nil
 }
 
 enum AsterClientError: Error, LocalizedError {
     case notAuthenticated
     case server(status: Int, body: String)
     case malformedResponse
+    case stream(String)
 
     var errorDescription: String? {
         switch self {
@@ -20,6 +24,8 @@ enum AsterClientError: Error, LocalizedError {
             return "Aster returned \(status): \(body)"
         case .malformedResponse:
             return "Aster's response wasn't in the expected shape."
+        case .stream(let detail):
+            return detail
         }
     }
 }
@@ -46,7 +52,14 @@ struct AsterClient {
     ///   - enabledTools: A further restriction on the persona's own tool
     ///     set, or nil for "every tool the persona allows" - this can only
     ///     narrow, never widen, matching the backend's own enforcement.
-    func send(history: [ChatMessage], persona: String = "sysadmin", enabledTools: [String]? = nil) async throws -> String {
+    ///   - onEvent: Receives live tool steps, streamed text and final
+    ///     usage (the server's opt-in `progress` stream).
+    func send(
+        history: [ChatMessage],
+        persona: String = "sysadmin",
+        enabledTools: [String]? = nil,
+        onEvent: (@MainActor (ChatStreamEvent) -> Void)? = nil
+    ) async throws -> String {
         guard let token = await authManager.validAccessToken() else {
             throw AsterClientError.notAuthenticated
         }
@@ -72,6 +85,7 @@ struct AsterClient {
             // answered instantly - not a persona bug, the same class of
             // problem the web client already hit and fixed the same way.
             "stream": true,
+            "progress": onEvent != nil,
             "persona": persona,
         ]
         if let enabledTools {
@@ -97,12 +111,23 @@ struct AsterClient {
             if dataText == "[DONE]" || dataText.isEmpty { continue }
             guard
                 let jsonData = dataText.data(using: .utf8),
-                let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+                let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+            else { continue }
+            if json["object"] as? String == "aster.progress" {
+                if json["type"] as? String == "error" {
+                    throw AsterClientError.stream(json["detail"] as? String ?? "Aster could not finish this reply.")
+                }
+                if let event = ChatStreamEvent.progress(from: json) { await onEvent?(event) }
+                continue
+            }
+            guard
                 let choices = json["choices"] as? [[String: Any]],
                 let delta = choices.first?["delta"] as? [String: Any],
-                let content = delta["content"] as? String
+                let content = delta["content"] as? String,
+                !content.isEmpty
             else { continue }
             replyText += content
+            await onEvent?(.token(content))
         }
         return replyText
     }

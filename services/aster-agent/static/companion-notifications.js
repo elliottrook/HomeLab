@@ -56,7 +56,9 @@ window.companionNotify = (() => {
     localStorage.removeItem(optOutKey);
     status.textContent = 'Notifications are on. Previews contain no chat or lab details.';
   }
+  let lastUsage = null;
   async function recover() {
+    lastUsage = null;
     const job = pending();
     if (!job) return '';
     for (;;) {
@@ -66,7 +68,7 @@ window.companionNotify = (() => {
         if (error.message.includes('expired or not found')) clearPending();
         throw error;
       }
-      if (result.state === 'done') { clearPending(); return result.result; }
+      if (result.state === 'done') { clearPending(); lastUsage = result.usage || null; return result.result; }
       if (result.state === 'failed') { clearPending(); throw new Error('Aster could not finish this reply. Please send it again.'); }
       if (Date.now() - job.created > 300000) throw new Error('Reply is still pending. Reopen Aster to check it.');
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -120,5 +122,5 @@ window.companionNotify = (() => {
       }
     } catch (e) { status.textContent = e.message; }
   }
-  return {init, enabled, pending, reply, recover, clearPending, disable};
+  return {init, enabled, pending, reply, recover, clearPending, disable, usage: () => lastUsage};
 })();

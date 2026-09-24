@@ -2413,6 +2413,85 @@ Web research and personal-assistant expansion belong to their separately approve
 projects. The older Safari `Aster.app` remains installed; this project does not
 remove it or confuse it with `/Applications/AsterCompanion.app`.
 
+## Post-close follow-ups
+
+### 2026-09-24: live progress, timer and token counts
+
+Jason asked for an indicator like Claude Code's in both clients: an elapsed
+timer, a token count, and a step notice that updates while Aster works. He
+approved building it as a small follow-up to this closed project.
+
+**Design:**
+- **Opt-in stream.** `ChatRequest.progress` (default false) is only honoured
+  with `stream: true`. Without it, `/v1/chat/completions` behaves exactly as
+  before. It is never forwarded to llama.cpp, and plain OpenAI-compatible
+  callers never see the extra events.
+- **Streaming worker.** `progress_chat()` runs the same routing as `chat()`
+  (lab-operations fast path, lab planner, read-only tool preload, then
+  inference). It runs in a task that feeds a queue, so steps reach the client
+  while tools are still running.
+- **Events.** The stream interleaves `aster.progress` frames with the normal
+  chunks:
+  - `step`, running then done or failed with `ms`, for each preloaded tool, the
+    lab planner call, a lab-job reply and llama.cpp prompt processing
+    (`Reading context`, often the longest wait: about 11s for about 1.8k
+    tokens);
+  - `usage`: exact prompt/completion tokens and decode tok/s from llama.cpp's
+    final `timings`, plus planner usage;
+  - `error`.
+- **What events carry.** Only step names, timings and counts. Tool arguments
+  and results stay server-side.
+- **Error semantics.** A backend failure after the 200 has been sent arrives as
+  an `error` event instead of an HTTP status; both clients raise it as a normal
+  error.
+- **Background replies** (notification path, not streamed): the stored reply
+  now keeps the aggregated `usage`, so the web client shows the timer plus
+  final totals, with no live steps.
+
+**Client display, same on both:**
+- While working: `Reading lab health… · 3.1s` and the step list.
+- While answering: `Answering · 6.3s · 10 tokens · 6.9 tok/s`.
+- When finished: a collapsible `✓ Checked the time, read lab health, read
+  context · 7.4s` summary above the reply, and a
+  `7.4s · 1,797 in / 58 out · 6.9 tok/s` footer.
+- The Mac app now also shows the reply text as it streams. Before this change
+  it waited for the whole reply.
+
+**Files:**
+- `services/aster-agent/aster_agent.py`: `ChatProgress`, `progress_chat`,
+  `build_payload` (extracted from `chat`), `relay_progress_stream`,
+  `TOOL_STEP_LABELS`, and the web client's `createProgress`.
+- `companion_notifications.py` and `static/companion-notifications.js`:
+  background usage.
+- `apps/AsterCompanion`: `ReplyProgress.swift`, `AsterClient.send(onEvent:)`
+  and `ContentView`.
+
+**Verification:**
+- 125 agent tests passed on LXC 104's venv, including 4 new
+  `ProgressStreamTests`: event order, the error event, plain streams
+  unchanged, and llama.cpp timings parsing.
+- 18 Swift tests passed, including the new `ReplyProgressTests`.
+- `node --check` passed on the rendered page script.
+- Two live probes on LXC 104 against the real model:
+  - steps arrived within 0.1s;
+  - `Reading context` took 1.9s, and the first token followed;
+  - usage was reported as 1,764 in / 25 out at 6.9 tok/s (24 streamed chunks
+    against 25 counted tokens).
+- The live page's own progress code was replayed at iPhone width in a local
+  harness, and the working, answering and finished states rendered correctly.
+- **Not yet checked:** a real-device check on Jason's iPhone and the reopened
+  Mac app.
+
+**Rollback:**
+- LXC 104 keeps `*.before-progress-20260924` copies of `aster_agent.py`,
+  `companion_notifications.py`, `static/companion-notifications.js` and
+  `test_aster_agent.py`. Restore them and restart `aster-agent.service`.
+- The previous Mac bundle is at the session scratchpad path
+  `AsterCompanion.pre-progress-20260924.app`. That is temporary storage; the
+  durable rollback is the git revert plus `build-app.sh release`.
+- The old Mac app still works against the new server, because it doesn't send
+  `progress`.
+
 
 ## References
 

@@ -177,6 +177,7 @@ class Store:
         if result['state'] == 'done':
             entry = self.replies.get(jid)
             result['result'] = entry[1] if entry else None
+            result['usage'] = entry[2] if entry and len(entry) > 2 else None
             if entry is None:
                 result['state'] = 'failed'
         return result
@@ -317,7 +318,7 @@ class CompanionNotifications:
             if not isinstance(reply, str) or not reply.strip() or len(reply.encode()) > 65536:
                 raise ValueError("Invalid response")
             with self.store.db() as db:
-                self.store.replies[jid] = (time.time(), reply)
+                self.store.replies[jid] = (time.time(), reply, result.get("usage"))
                 db.execute("UPDATE jobs SET state='done',result=NULL WHERE id=?", (jid,))
             if sid:
                 self.store.event("reply", owner, sid, event_id=jid)
