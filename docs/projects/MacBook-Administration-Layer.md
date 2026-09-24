@@ -446,6 +446,19 @@ starts. Two open decisions carry into M1/M2: the OPNsense address mismatch
 above, and whether/how to establish MacBook backup coverage before M1's
 bootstrap work begins.
 
+2026-09-24: **Address mismatch resolved.** Jason reserved `192.168.1.241` for
+the MacBook (previously DHCP-assigned to `192.168.1.187` with no reservation)
+and confirmed the move — this is the address CLAUDE.md's OPNsense
+`MGMT_ADMIN_HOSTS` alias already documents, so the MacBook now has Management
+VLAN 50 access without any firewall-side change. Verified from this session:
+TCP 22 on `192.168.1.241` reachable from the mini (`nc` succeeded); no SSH
+trust exists to it yet (expected — the M0 temporary key was already revoked
+and nothing new has been enrolled). CLAUDE.md's own network-topology record
+did not need correcting — it was the live network state that had drifted
+away from it, not the documentation. `192.168.1.187` is stale for this
+device now; harmless to leave in the sandbox allowlist, but Jason will want
+to add `192.168.1.241` there for M1's SSH work to proceed.
+
 ## 16. Resume instructions
 
 Read charter and this project; inspect Git status and preserve unrelated work.
@@ -456,6 +469,32 @@ and direct MacBook discovery. Do not copy `~/.ssh`, install duplicate LaunchAgen
 move mini files or touch the attached external SSD.
 
 ## 17. Close-out
+
+### 2026-09-24 MacBook DHCP reservation correction
+
+Jason authorized repairing the existing reservation after investigation. Live
+OPNsense inspection corrects the M0 claim above: a reservation **did exist** for
+`jasons-laptop`, `192.168.1.241`, but matched the old MAC `3a:e4:54:d3:c7:42`.
+The current lease was `192.168.1.187` for `f2:9e:a7:a2:bb:80`. Jason's MacBook
+screenshot confirmed GoWest uses **Fixed** Private Wi-Fi Address with that MAC.
+
+Updated only reservation UUID `bc4c0668-a93a-4f34-9e6c-d0f7fb13675d` to the
+confirmed MAC using the Dnsmasq model, validated and saved it, then restarted
+Dnsmasq. Persistent and generated configuration both now map
+`f2:9e:a7:a2:bb:80` to `192.168.1.241`; Dnsmasq is running. Firewall rules and
+`MGMT_ADMIN_HOSTS` were unchanged; the loaded alias still includes `.241`.
+No `.241` lease or responding host was found before the change.
+
+Recovery checkpoint on OPNsense (root-only):
+`/conf/backup/config-before-macbook-reservation-20260924-195228.xml`.
+Prefer a targeted reservation-field rollback over restoring the whole checkpoint
+if other configuration has changed; the old MAC would not restore access for the
+current MacBook identity.
+
+Jason subsequently confirmed the MacBook connection test works after the DHCP
+renewal instructions and direct Proxmox test at `https://192.168.50.10:8006`.
+End-to-end management access is user-verified. The renewed lease was not
+independently re-read. No Git push performed.
 
 Proposed, not graduated. Current deliverable is the project document and portfolio
 entry. No external storage change, new key, MacBook installation or remote write
