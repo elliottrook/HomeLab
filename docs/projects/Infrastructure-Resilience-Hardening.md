@@ -182,6 +182,30 @@ one design.
   rebuildable from Git plus NetBox, and its PBS configuration is backed up
   to TrueNAS.
 
+### H1 hardware options — eBay Canada snapshot (2026-09-24)
+
+A read-only search shipping to Jason's postcode. Prices are in CAD and
+change quickly, and nothing was purchased. Totals are estimates.
+
+| Listing | Price + shipping | Seller | Notes |
+|---|---|---|---|
+| M720q, i5-8400T, 8 GB, 256 GB NVMe | C$199.99 + C$30 (~C$230), accepts offers | tim.nexthop7 (100%, 73 ratings) | Cheapest sensible base; add RAM and a 2 TB SSD |
+| M720q, i5-8400T, 8 GB, 1 TB HDD (open box) | C$204 with coupon, free shipping and returns | vipoutletcanada (93.3%, 29K ratings) | Replace the HDD with an SSD; add an NVMe drive |
+| M920q, i5-8600T, 16 GB, 256 GB | C$365 + C$19.99 (~C$385), accepts offers | bdmicro (100%, 58 sold) | Canadian seller; 16 GB fitted |
+| M70q Gen 2, i5-11400T, 16 GB, 256 GB NVMe | C$345 + C$22.87 (~C$368), free returns | calgarycomputerwholesale (100%, 61.8K ratings) | 11th gen; **verify a 2.5" bay is present** |
+| M720q, i5-9500T, 16 GB, 256 GB (refurbished) | C$419, free shipping and returns | refurbio (99%) | Hassle-free, pricier |
+| M920q, i5-8500T, 16 GB, no drive | C$211.52 + C$39.78 (~C$251) | harddrivesonly (99.8%, 41K ratings) | Ships from the US; possible duties or brokerage |
+
+- **Add-ons (estimated):** 2×16 GB DDR4 SODIMM about C$70–100; 2 TB 2.5"
+  SATA SSD about C$130–170.
+- **Estimated totals:**
+  - cheapest M720q plus 32 GB and a 2 TB SSD: ~C$430–500;
+  - M920q i5-8600T (16 GB) plus a 2 TB SSD: ~C$515–555;
+  - M92p budget route (16 GB DDR3 plus a 2 TB SSD): ~C$180–210 in parts.
+- **Pre-purchase checks:** power adapter included (65 W or 90 W Lenovo
+  rectangular); 2.5" drive caddy present; offers accepted (try 10–15%
+  below the asking price).
+
 
 
 ## Privacy and security design
@@ -411,6 +435,11 @@ All milestone gates pass:
 - documentation and NetBox agree.
 
 ## Evidence log
+
+- **2026-09-24 — H1 market snapshot.** A read-only eBay Canada search
+  found complete M720q/M920q/M70q Gen 2 units from ~C$204–C$419. The
+  estimated all-in cost for the recommended spec is ~C$430–555. Recorded in
+  the H1 options table; the decision stays with Jason.
 
 - **2026-09-24 — Decisions recorded.** H2 `network-ups`, D4 Diun, D5
   Companion Web Push, D6 Stream A for the whole project. H1 (hardware) is
