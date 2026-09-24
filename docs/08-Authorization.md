@@ -2,6 +2,13 @@
 
 ## Authentik-protected Nginx Proxy Manager
 
+**Current update — 2026-09-23:** NPM's Authentik provider now explicitly uses
+the existing passkey-only flow. The password-plus-passkey sequence below is
+historical test evidence. NPM's own application password remains enabled.
+See [current service status](09-Service-Authorization-Onboarding.md) and the
+[single-login recovery runbook](runbooks/Authentik-Single-Login.md) for the
+later services whose direct browser ports now redirect to HTTPS.
+
 **Status: TESTED AND WORKING — 2026-08-22**
 
 Nginx Proxy Manager (NPM) is the first service protected by Authentik. This is

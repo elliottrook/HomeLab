@@ -43,6 +43,15 @@ database over later work. The shared passkey flow itself was not edited.
 
 ## Access boundary
 
+From an approved management client, run
+`python3 scripts/check-authentik-browser-boundary.py` in the HomeLab repository.
+It checks 22 names against all three DNS authorities, certificate-validated
+HTTPS routing, and plain/spoofed direct-IP requests to the six private browser
+ingresses. It uses no credentials and prints no response bodies. A pass does
+not establish real login, sign-out, authorized app identity or disaster recovery.
+Run it from a client, not NPM: direct-IP requests from NPM intentionally have
+different failure behaviour. It is an on-demand check, not a scheduled job.
+
 NPM hosts 19–24 retain owner-only forward authentication. NPM sets
 `X-Homelab-Authentik-User` from the successful auth subrequest's
 `X-Authentik-Username` response, replacing any supplied client header.

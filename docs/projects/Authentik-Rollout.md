@@ -20,6 +20,33 @@
 
 ## Resume audit — 2026-09-23
 
+### Independent regression and documentation pass — 2026-09-23
+
+Jason cannot currently open the administrator session and requested other work
+first. Synology/Immich and Frigate remain unchanged pending that session; no
+credential or privilege workaround was attempted.
+
+Added `scripts/check-authentik-browser-boundary.py`, an on-demand, credential-free
+management-client check. The live run passed **100/100**: 66 DNS answers across
+Unbound and both Pi-holes, 22 certificate-validated pinned HTTPS roots, and 12
+plain/spoofed direct-IP requests across the six private app ingresses. Grafana
+correctly redirects its root to `/login`; that native-app entry is distinct from
+an Authentik forward-auth redirect. No response bodies or credentials are logged.
+
+Separate source-side checks passed all **12/12** missing/wrong identity denials
+from NPM (HTTP 403). All six actual app containers have no published host ports;
+their ingress containers are running with read-only roots and `unless-stopped`
+restart policies. NetBox retains its deliberate loopback reader publication.
+NPM SQLite integrity is `ok` and `nginx -t` passes. Anonymous Proxmox nodes and
+CWA OPDS requests return 401; the friendly NetBox API is gated by Authentik.
+These results do not close human login/logout, named-client or full-rebuild gates.
+
+Corrected stale blanket rollback advice that claimed direct app login always
+remained available. Updated the portfolio, authorization history and single-login
+runbook; refreshed operational reference access-control/onboarding guidance and
+added a human wiki sign-in page. These are local changes pending publication.
+The independent operator access and dedicated recovery gates remain open.
+
 ### Earlier-provider passkey normalization — 2026-09-23
 
 Read-only policy evaluation passed `jason` allow / `akadmin` deny for all 30
@@ -1645,9 +1672,13 @@ Milestone 5 is now explicit; it is not another service-onboarding wave:
 
 - Authentik and NPM configuration backed up before the first state change
   (Milestone 1).
-- Rollback for any step here is direct: delete the NPM proxy host and/or
-  Authentik provider/application; the service's direct URL was never
-  removed, so no outage results.
+- Rollback is service-specific. The early direct-login pattern does not apply
+  to the later six passwordless private backends. Their old browser ports
+  deliberately redirect; restore native authentication behind the private
+  boundary before any host-port publication. Follow
+  [the single-login runbook](../runbooks/Authentik-Single-Login.md), retain
+  independent recovery and reverse only the intended provider/host settings.
+  Removing a provider or proxy is not by itself a safe rollback.
 - Homepage's Compose checkpoint and Beszel's Compose plus online SQLite
   checkpoints cover their canonical-host/OIDC changes. Beszel also has an
   integrity-checked checkpoint immediately before the guarded OAuth-link

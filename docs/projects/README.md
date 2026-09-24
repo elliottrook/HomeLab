@@ -10,7 +10,7 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
-| Authentik rollout | Active — Stream A; six additional apps now use passkey-only single login, private backends and corrected dashboard links; human acceptance, media/infrastructure and graduation remain | [Authentik rollout](Authentik-Rollout.md) | [Authorization runbook](../08-Authorization.md), [service onboarding](../09-Service-Authorization-Onboarding.md), [single-login recovery](../runbooks/Authentik-Single-Login.md) |
+| Authentik rollout | Active — Stream A; six private browser apps, Audiobookshelf, Calibre and Proxmox accepted; 13 earlier providers normalized to passkeys; admin-access/capability holds and final logout/recovery/client gates remain; Jellyfin/Seerr deferred | [Authentik rollout](Authentik-Rollout.md) | [Authorization runbook](../08-Authorization.md), [service onboarding](../09-Service-Authorization-Onboarding.md), [single-login recovery](../runbooks/Authentik-Single-Login.md) |
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
 | NUT/UPS deployment | Handover ready | [NUT/UPS handover](../handovers/UPS-Power-Resilience-Claude-Handover.md) | Architecture, shutdown and recovery requirements are contained in the handover |
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
