@@ -31,6 +31,9 @@ fetch() {
 fetch "/mnt/Media/data/tools/video-archiver/config.json" "$BACKUP_DIR/config.json"
 fetch "/mnt/Media/data/tools/video-archiver/.env" "$BACKUP_DIR/.env"
 fetch "/mnt/Media/data/tools/video-archiver/run-scheduled.sh" "$BACKUP_DIR/run-scheduled.sh"
+# Archive compaction (added 2026-09-24): scheduled wrapper and per-file outcome state.
+fetch "/mnt/Media/data/tools/video-archiver/run-compact.sh" "$BACKUP_DIR/run-compact.sh"
+fetch "/mnt/Media/data/tools/video-archiver/work/compact-state.json" "$BACKUP_DIR/compact-state.json"
 
 chmod 600 "$BACKUP_DIR"/* "$BACKUP_DIR"/.env
 

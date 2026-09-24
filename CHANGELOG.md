@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-24 — Archive cleanup and large-file compaction
+
+- Removed 291 duplicate or lower-resolution archive videos, corrected 9 mis-identified files, and destroyed the expired `pre-plex-migration` snapshot: Media/data went from 830 GB to 1.35 TB free.
+- Added `video_archiver.compact`: nightly GPU re-encode of archive files over 2.5 GB, in place (HEVC, max 1080p, HDR kept, ≤2.3 GB), with verification and 7-day ZFS rollback. Pilot SSIM 0.976–0.994; ~1.68 TB expected saving over about 8–10 nights.
+
 ## 2026-09-24 — Infrastructure resilience project proposed
 
 - Chartered the 2026-09-23 health-check recommendations as one project: PBS, critical-path resilience, an always-on ops runner, image pinning and update notification, drift checks, failure push alerts and small hardening.
