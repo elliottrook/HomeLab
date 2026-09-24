@@ -654,3 +654,14 @@ Next step is Jason relaying this public key to the mini-hosted Claude Code
 session, which holds the existing trust to enroll it on the approved lab
 hosts per the M0 access manifest — not this session, by design, since this
 MacBook has no pre-existing entry in any lab host's `authorized_keys`.
+
+### 2026-09-24 M2 no-stray-copy check completed
+
+The whole-filesystem `find` from the previous entry finished clean: it
+returned two path hits, both under `/System/Volumes/Data/Users/jasonelliott/
+.ssh/` — confirmed via matching inode numbers (`128605219` for both the
+`/Users/...` and `/System/Volumes/Data/Users/...` paths) to be macOS's own
+Data-volume firmlink to the exact same file, not a second copy. No stray
+placement of `id_ed25519_macbook_admin`/`.pub` exists anywhere else on this
+Mac. Key-generation verification for M2's first checklist item is now
+complete end to end.
