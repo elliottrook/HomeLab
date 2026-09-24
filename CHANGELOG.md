@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-24 — Infrastructure resilience project proposed
+
+- Chartered the 2026-09-23 health-check recommendations as one project: PBS, critical-path resilience, an always-on ops runner, image pinning and update notification, drift checks, failure push alerts and small hardening.
+- Decisions D1–D6 (PBS placement, resilience level, runner host, notifier, alert channel, stream) await Jason. No system changed.
+
 ## 2026-09-23 — Aster Personal Assistant M0 complete, paused
 
 - Added Photography Assistant and RAM right-sizing to the Aster Personal Assistant project; recorded decisions D1–D14.
