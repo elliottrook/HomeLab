@@ -182,18 +182,23 @@ change has occurred. User asked for project creation, not implementation now.
 ### M0 — Baseline and accepted access manifest
 
 - [x] Accept Stream A scope/risks and establish an authorized MacBook session.
-  Accepted 2026-09-24 in a new Mac-mini-hosted Claude Code session. MacBook-side
-  session (physical presence or a reachable admin path) not yet established —
-  blocking item, see evidence log.
-- [ ] Inventory OS/tools, shell resolution, FileVault, network path and backup.
-  Blocked on MacBook session above.
+  Accepted 2026-09-24 in a new Mac-mini-hosted Claude Code session. A temporary,
+  one-time read-only SSH session was established to the MacBook 2026-09-24 —
+  see evidence log; removed after inventory per its own rollback plan.
+- [x] Inventory OS/tools, shell resolution, FileVault, network path and backup.
+  Completed 2026-09-24 over the temporary SSH session — see evidence log.
 - [x] Enumerate required SSH targets/accounts, web services, diagnostic APIs,
   dependencies and current permission classes; identify remote-write gates.
   See evidence log 2026-09-24 (mini-side access manifest).
-- [ ] Preserve existing MacBook configuration and source/dirty-work checkpoints.
-  Blocked on MacBook session above.
+- [x] Preserve existing MacBook configuration and source/dirty-work checkpoints.
+  Completed 2026-09-24 — an existing `~/lab/homelab` checkout was found and
+  confirmed clean (no dirty work to lose), just stale. See evidence log.
 - [x] Resolve missing knowledge-mirror requirements without inventing authority.
   Resolved 2026-09-24 — see evidence log; no local checkout is required.
+
+M0 gate passed 2026-09-24. Two items need Jason's decision before M1 starts —
+see evidence log: the MacBook's OPNsense management-VLAN reachability
+(address mismatch) and its lack of any configured backup destination.
 
 ### M1 — Repeatable local toolkit and knowledge
 
@@ -387,6 +392,59 @@ on the Mac mini and has no configured network or SSH path to the MacBook yet
 exists). Needs Jason's input on how to proceed: enable Remote Login on the
 MacBook and share its current address, or run the inventory commands directly
 at the MacBook.
+
+2026-09-24: Jason chose the SSH-inventory path. Rather than reuse or wait for
+the permanent MacBook identity planned in M2, a **temporary, unencrypted
+ed25519 keypair** was generated on the mini (`m0-macbook-inventory-temp-
+2026-09-24`, scoped to this one inventory pass only) — narrower than a
+standing trust relationship, per the trade-off discussed with Jason before
+generating it. Jason enabled Remote Login on the MacBook (restricted to his
+own account, address `192.168.1.187`), added the public key to
+`~/.ssh/authorized_keys` himself, and added `192.168.1.187` to
+`.claude/settings.json`'s sandbox allowlist himself (this session cannot write
+that file). The running session's in-memory sandbox policy hadn't picked up
+the edit yet, so the actual SSH command needed a one-off `dangerouslyDisableSandbox`
+bypass rather than the updated allowlist — expected, not a policy gap, since
+the settings file is only read at session start.
+
+2026-09-24: **M0 MacBook inventory (read-only, no secret contents read):**
+- OS: macOS 26.5.2 (build 25F84), Darwin 25.5.0, arm64 (Apple Silicon).
+- FileVault: **On.**
+- Shell: `/bin/zsh` (dscl-confirmed default). No `~/.zshrc` exists yet.
+- Tools: Apple-provided `git` 2.50.1 and `python3` 3.9.6 (Xcode Command Line
+  Tools already installed at `/Library/Developer/CommandLineTools`); Homebrew
+  and Node are **not installed**.
+- Network: DHCP-assigned `192.168.1.187`, gateway `192.168.1.1` — **no static
+  reservation**. This does not match the address CLAUDE.md's OPNsense
+  `MGMT_ADMIN_HOSTS` alias documents for the MacBook (`192.168.1.241`).
+  Unresolved: either this is a different address for the same device (DHCP
+  drift, never reserved) or CLAUDE.md is stale — on today's evidence the
+  MacBook likely cannot reach Management VLAN 50 at the network layer.
+  **Needs Jason's decision, not this session's**, since it's a network/
+  firewall-adjacent fact outside read-only discovery scope: reserve
+  `192.168.1.187` (or `.241`) and correct whichever record is wrong.
+- Backup: `tmutil destinationinfo` — **no Time Machine destination
+  configured**; `tmutil listbackups` found no machine directory. No backup
+  coverage exists for this MacBook today. Flagged for M4 (recovery/backup
+  milestone), not fixed now.
+- Existing lab footprint: **`~/lab/homelab` already exists** as a clean git
+  checkout (`git status --short` empty — no uncommitted work to lose) with
+  `origin` correctly set to `https://git.elliottrook.com/jason/homelab.git`
+  and git identity already configured (`elliottrook` / `jason@yampy.ca`). It
+  is **490 commits behind** current `main` (`041550d` vs. today's tip) but
+  needs only a fetch/pull to catch up in M1 — not a fresh clone. No other
+  lab-related dotfiles (`.zshrc`, `.bash_profile`) exist yet.
+- `~/.ssh/authorized_keys` contained only the temporary key just added —
+  confirmed no pre-existing unexpected entries.
+
+2026-09-24: **M0 closed.** Temporary key removed from both ends immediately
+after the inventory pass, per its own rollback plan: deleted from the
+MacBook's `~/.ssh/authorized_keys` and from the mini's local scratch storage.
+No standing MacBook trust relationship exists after M0 — M2 will generate the
+real, permanent, passphrase-protected MacBook identity when that milestone
+starts. Two open decisions carry into M1/M2: the OPNsense address mismatch
+above, and whether/how to establish MacBook backup coverage before M1's
+bootstrap work begins.
 
 ## 16. Resume instructions
 
