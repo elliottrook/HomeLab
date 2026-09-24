@@ -238,11 +238,14 @@ scope for this session per Jason's instruction and has not been started.
   verify host trust and read-only commands without using mini credentials.
   12 of the M0 manifest's 13 targets enrolled from the mini (see evidence log);
   `gowest-backup` deliberately excluded (retired hardware, Jason's call). All
-  12 now independently verified from the MacBook itself: 10 of 11 remaining
-  targets plus `hermes` pass cleanly; `gowest` and `observability` both
-  cleanly reject the correctly-offered key — real enrollment gaps on those
-  two specific hosts, not a MacBook-side problem — see evidence log. Item
-  stays open until those two are actually enrolled and re-verified.
+  12 independently verified from the MacBook itself: 10 of 11 remaining
+  targets plus `hermes` passed cleanly first try; `gowest` and `observability`
+  initially failed real enrollment gaps (root-caused and fixed from the
+  mini — a malformed `authorized_keys` line on `observability`, and the
+  wrong file entirely on `gowest`'s DSM `AuthorizedKeysFile` path — see
+  evidence log). Both fixed and mini-side verified; MacBook-side
+  re-verification of these two specific targets is still needed to fully
+  close this item.
 - [ ] Establish required browser/password-manager and diagnostic access.
 - [x] Document individual identity revocation and prove relevant denied actions.
   Done 2026-09-24 — revocation procedure documented per-target (including
@@ -897,3 +900,52 @@ M2's remaining open items: establishing browser/password-manager/diagnostic
 access, and closing the two real enrollment gaps found above
 (`gowest`, `observability`) — the latter is the mini session's action, once
 Jason relays these results.
+
+### 2026-09-24 M2 — `gowest` and `observability` enrollment gaps root-caused and fixed
+
+**`observability` root cause: a malformed `authorized_keys` line, not a missing
+key.** The original append command (`echo '$PUBKEY' >> ~/.ssh/authorized_keys`)
+assumed the existing file ended in a trailing newline; it didn't. The new key
+text landed immediately after the mini's existing key with no line break
+between them, producing one syntactically-broken line. OpenSSH's
+`authorized_keys` parser treats everything after a key's base64 blob as a
+freeform comment, so it silently accepted the mini's key (still parseable,
+just with a bizarre oversized comment) while the MacBook's key — buried
+inside that comment text — was never recognized as a key entry at all. This
+is exactly why `grep -c`/`wc -l` looked clean in the original enrollment
+pass (one matching line existed) while independent MacBook-side testing
+still failed: the check only proved the text was present in the file, not
+that it parsed as a valid line. Fixed by rewriting the file with both keys
+on their own clean lines (atomic temp-file-then-`mv`, not an in-place edit);
+confirmed `wc -l` = 2 and `cat -A` shows each key terminated with `$`
+(newline) correctly. **Every one of the other 10 straightforward targets
+was independently re-checked and is fine** — their original files already
+had proper trailing newlines, so only `observability` was affected.
+
+**`gowest` root cause: DSM doesn't use `~/.ssh/authorized_keys` at all.**
+`sshd_config` there sets `AuthorizedKeysFile /etc/ssh/authorized_keys/%u` —
+a centrally-managed, root-owned path DSM uses instead of the Linux-standard
+per-home-directory file. The original enrollment appended to the wrong file
+entirely; it had no effect on real authentication, which was silently still
+working via the mini's key already correctly present in the real path. The
+`Jason` DSM account is in the `administrators` group but has no passwordless
+`sudo`, so writing the real (root-owned, 644) file needed Jason directly:
+he ran an idempotent `grep -qxF ... || echo ... >>` append via
+`ssh -t gowest 'sudo sh -c "..."'` himself, entering the DSM account's own
+password interactively (confirmed this is a separate credential from the
+Mac's own login/sudo password — a real point of confusion mid-troubleshooting).
+One wrinkle: a `sudo sh -c` under a one-shot `ssh -t host 'command'` only
+gets one password attempt, and the session closing immediately afterward is
+completely normal SSH behavior for a finished one-shot command, not a
+failure signal — Jason read the closed connection as a failure with no
+"second try"; verified directly instead of guessing, which is what actually
+resolved it (the key was there on the first real attempt). Confirmed the
+target file (`/etc/ssh/authorized_keys/Jason`) already ended in a proper
+trailing newline before the append, so no version of the `observability`
+corruption was possible here. Verified clean afterward: 4 lines total (the
+pre-existing mini/`root@proxmox`/restricted-rsync-migration entries, all
+untouched, plus the new key on its own correctly-terminated line).
+
+Both fixes verified from the mini; MacBook-side independent re-verification
+of these two specific targets (the actual proof this milestone needs) is
+the MacBook session's next step.
