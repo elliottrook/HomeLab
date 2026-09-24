@@ -247,6 +247,14 @@ scope for this session per Jason's instruction and has not been started.
   see evidence log. All 12 approved targets confirmed reachable from the
   MacBook using only its own key.
 - [ ] Establish required browser/password-manager and diagnostic access.
+  Scoped 2026-09-24, not closed — see evidence log. Diagnostic credentials
+  (UniFi API key, Authentik/NPM `API_TOKEN`) are confirmed non-blocking
+  (both already degrade gracefully when absent) but need Jason to issue new,
+  independent, least-privilege tokens from each service's own admin UI, not
+  a copy of the mini's. Browser sign-ins are entirely Jason's own task; a
+  concrete 18-service list is in the evidence log rather than left vague.
+  This item is blocked on Jason's own action, not on anything this session
+  can do.
 - [x] Document individual identity revocation and prove relevant denied actions.
   Done 2026-09-24 — revocation procedure documented per-target (including
   `arista`'s account-deletion path, not a key swap on `admin`); privilege
@@ -967,3 +975,67 @@ error). All 12 approved M0-manifest targets are now confirmed reachable from
 the MacBook using only its own key: `proxmox`, `hermes`, `docker`,
 `opnsense`, `truenas`, `arista`, `frigate`, `nut`, `forgejo`, `gowest`,
 `aster-speech`, `observability`. Enrollment checklist item closed.
+
+### 2026-09-24 M2 — browser/password-manager/diagnostic access scoped, not closed
+
+Investigated what M2's last item actually requires on this MacBook, rather
+than guessing. Two genuinely different things live under one checklist
+line, and neither can be finished by this session — both are real,
+scoped, and ready for Jason, not vague.
+
+**Diagnostic API credentials (read-only, code-level).** Grepped
+`scripts/doctor.sh` for every credential-bearing diagnostic call:
+
+- `~/.config/lab/unifi-api-key` (`UNIFI_API_KEY_FILE` override) — read by
+  `check_unifi()` and the wireless-VLAN-tagging drift check. Confirmed
+  absent on this Mac. Confirmed **not a blocker**: both call sites already
+  do exactly what `docs/Current-Network-Baseline.md` says they're designed
+  to do — `warn` and skip cleanly when the file is missing ("Doctor still
+  runs on machines without the key" is the documented intent, not an
+  oversight). `lab doctor` runs today on this MacBook without it; it just
+  won't cover UniFi AP health or SSID/VLAN drift until a key exists here.
+- `API_TOKEN` (read by `scripts/api-get.sh`, for `auth.elliottrook.com`/
+  `proxy.elliottrook.com`) — confirmed **not called anywhere in
+  `doctor.sh` at all**. It's an on-demand tool for ad-hoc Authentik/NPM API
+  reads during specific projects (`Authentik-Rollout.md`,
+  `Aster-Companion-App.md`), not part of baseline Doctor coverage. Nothing
+  on this Mac needs it today.
+
+Neither credential can be created by this session, on principle, not just
+practicality: both require Jason to issue a **new, independent,
+least-privilege token through each service's own admin UI** — UniFi
+Controller's own API-key page, and an Authentik-issued read-only token
+matching the existing `aster-readonly` pattern the mini already uses (see
+`Aster-Companion-App.md`'s 2026-09-21 entry — reusing the mini's own token
+here was explicitly rejected there after a real credential-exposure
+incident, and copying it would repeat exactly that mistake). Creating an
+API credential is an account/credential-provisioning action; per this
+session's own standing rules, that's Jason's to do, not mine.
+
+If/when Jason creates a MacBook-specific UniFi key: save it to
+`~/.config/lab/unifi-api-key`, mode 600, outside this repo, matching the
+mini's existing convention exactly. Not doing this now isn't a gap in M2 —
+per the design intent above, it's genuinely optional until UniFi-specific
+Doctor coverage from this Mac is actually wanted.
+
+**Browser/password-manager sign-in paths.** Entirely Jason's own task —
+entering credentials or setting up sign-ins is outside what this session
+should ever do. To make it concrete rather than vague, compiled the real
+list of every web-UI-bearing service from `configs/devices.conf` (18
+entries): OPNsense, Proxmox, Portainer, UniFi Controller, AP switch web UI,
+TrueNAS, Synology DSM (`gowest`), Frigate, Home Assistant, Aster Agent,
+Reolink camera UI, Forgejo, the NPM reverse-proxy admin UI, Authentik,
+Observability (Grafana), NetBox, plus Aster Speech/Aster Wiki (no listed
+web URL in the config — API/backend only). Several of these (Authentik,
+NPM, Grafana, NetBox, Forgejo) may already be reachable via Jason's
+existing SSO session in his regular browser rather than needing a fresh
+sign-in per service — not verified here, since that's exactly the kind of
+check that means opening his browser and signing in, which is his to do.
+
+**Conclusion: this checklist item is not closed, and isn't something this
+session can close.** What's actually blocking it is Jason's own action
+(browser sign-ins with his password manager; new least-privilege API
+tokens issued from UniFi's and Authentik's own admin UIs), not missing
+MacBook access or missing investigation. Recorded as scoped-and-blocked
+rather than left vague, per the instruction to close it or say exactly
+what's blocking it.
