@@ -1030,13 +1030,44 @@ content is in Git, logs or Aster's corpus.
   - LXC 104 left at 4 GiB at Jason's request.
   - Rollback: `pct set <id> -memory <before>`.
   - Running-guest limits are now ≈ 70 GiB of 78.5 GiB.
-  - **Pending:** NetBox guest memory values for 101, 106, 108, 110 and 115
-    now differ from live. The update needs a NetBox write token, so it is
-    left for Jason to authorize.
-  - **Noticed, not caused, not fixed:** Forgejo LXC 108's `tmp.mount` has
-    failed about every 5 minutes for at least 2 days (556 failures; "tmpfs
-    already mounted on /dev/shm"). `/tmp` is on the root disk and writable,
-    and Forgejo is healthy. It is a separate follow-up.
+  - **NetBox corrected (Jason: "fix netbox"):** `VirtualMachine.memory`
+    now matches live for authentik 6144, unifi-os-server 6144, forgejo
+    1024, paperless-ngx 4096 and ollama-gpu-pilot (LXC 110) 16384. It also
+    fixes a **pre-existing drift**: netbox (LXC 111) 2048 → 4096, missed
+    when it was raised on 2026-09-04.
+    - Method: a Django ORM script run through `manage.py nbshell` inside
+      `netbox-netbox-1`. No API token was minted or read.
+    - Because the script ran outside a web request, NetBox's change log
+      will not list these edits; this entry is their record.
+    - A re-check shows zero memory drift, and vCPUs match live for every
+      guest. The temporary script is removed.
+    - Rollback: set the previous values above.
+  - **Forgejo `tmp.mount` failures diagnosed** (read-only; not caused by the
+    memory change):
+    - **Trigger:** Aster's `aster-forgejo-report.service` (5-minute timer)
+      has `PrivateTmp=true`, which pulls in `tmp.mount` on every run: 277
+      failures in 24 h.
+    - **Cause:** Debian 13 makes `/tmp` a tmpfs via `tmp.mount`. In
+      unprivileged containers **without** `features: nesting=1`, the
+      default Proxmox AppArmor profile denies that mount. The host kernel
+      logs `apparmor="DENIED" operation="mount" … profile="lxc-108_…"
+      name="/tmp/" flags="rw, move"`, and util-linux prints the misleading
+      "tmpfs already mounted on /dev/shm".
+    - **Evidence:** all three containers without nesting (108, 109, 112)
+      have `tmp.mount` failed since boot. All eleven with nesting mount
+      tmpfs `/tmp` normally. 109 and 112 fail only occasionally because
+      nothing there triggers it every 5 minutes.
+    - **Impact:** log and audit noise only. `/tmp` stays on the root disk
+      (the pre-Debian-13 behaviour), the report and Forgejo work, and
+      `PrivateTmp` isolation still functions.
+    - **Proposed fix (awaiting approval):** `systemctl mask tmp.mount` in
+      LXCs 108, 109 and 112. This is Debian 13's documented opt-out from
+      tmpfs `/tmp` and matches what those containers already do.
+      Rollback: `systemctl unmask tmp.mount`.
+    - **Rejected alternatives:** enabling `nesting=1` (it broadens the
+      containers' AppArmor profile only to gain tmpfs `/tmp`), and dropping
+      `PrivateTmp` from the report unit (it weakens that service's
+      sandbox).
 
 - **2026-09-23 — RA3 memory re-check (read-only).** Split each guest's
   usage into anonymous memory and page cache, and counted limit events.
