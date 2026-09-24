@@ -1,7 +1,8 @@
 # Authentik single-login browser cohort
 
 Deployed 2026-09-23 under the approved Stream A rollout and Jason's explicit
-request for passkey/Face ID only. Human workflow acceptance remains pending.
+request for passkey/Face ID only. The six browser workflows are accepted;
+dedicated logout and recovery checks remain pending.
 See [the rollout project](../projects/Authentik-Rollout.md) for authoritative
 status and the wider project's remaining gates.
 
@@ -23,7 +24,22 @@ can reuse the Authentik session without another prompt.
 No app password is required on these browser paths. Authentik's shared
 `aster-companion-passwordless` flow contains identification, WebAuthn validation
 and user-login stages; this deployment references it without modifying it.
-Other previously graduated services retain their earlier configuration.
+
+The earlier rollout's Authentik providers now reference the same flow:
+NPM (2), Forgejo (9), Grafana (10), Homepage (15), Beszel (16), ARR (17–21),
+Portainer (22) and Pi-hole (23–24). Fresh unauthenticated requests reach the
+passkey flow for all 13. This changes only the Authentik step: Pi-hole and NPM
+still have application password prompts, and native applications can still
+show an SSO button before starting their OIDC login. Local recovery accounts,
+credentials and API integrations were not changed. Cloudflare/Drive, Synology,
+Paperless and other Aster integrations were excluded from this normalization.
+
+The protected checkpoint is on Authentik LXC 106 at
+`/opt/authentik/backups/passkey-normalize-20260924T031315Z` (UTC timestamp).
+For targeted rollback, restore only each provider's `authentication_flow_id`
+from `provider-flows-before.json`; provider 2 previously selected the default
+flow, while the other 12 inherited flow selection. Do not restore the entire
+database over later work. The shared passkey flow itself was not edited.
 
 ## Access boundary
 

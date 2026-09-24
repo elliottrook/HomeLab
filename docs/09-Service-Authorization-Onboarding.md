@@ -31,6 +31,13 @@ application password. Historical forward-auth acceptance below does not prove
 that requirement. Do not disable application authentication until the service's
 trusted identity boundary and independent recovery path are verified.
 
+Authentik-side normalization is applied for NPM, Forgejo, Grafana, Homepage,
+Beszel, ARR, Portainer and both Pi-holes: all 13 providers explicitly select
+the existing passkey-only flow. Fresh unauthenticated redirect checks and
+owner/non-owner policy checks pass. Pi-hole/NPM application password removal
+and fresh human-session acceptance remain open; this is not a claim of full
+single-login graduation for those services.
+
 | Service | Recommended path | Suggested name | Important note |
 |---|---|---|---|
 | Nginx Proxy Manager | Forward auth | `proxy.elliottrook.com` | Complete and tested; NPM login remains |

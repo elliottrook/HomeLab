@@ -20,6 +20,56 @@
 
 ## Resume audit — 2026-09-23
 
+### Earlier-provider passkey normalization — 2026-09-23
+
+Read-only policy evaluation passed `jason` allow / `akadmin` deny for all 30
+current applications. Earlier rollout providers still inherit authentication
+selection, except NPM which explicitly uses `default-authentication-flow`.
+The existing tested `aster-companion-passwordless` flow has identification,
+WebAuthn validation and login stages at orders 10/20/100.
+
+Bounded Stream A action: capture and validate a fresh protected Authentik dump
+and a per-provider before-state record, then atomically set only
+`authentication_flow` for providers 2, 9, 10, 15–24 (NPM, Forgejo, Grafana,
+Homepage, Beszel, ARR, Portainer and the Pi-hole pair) to that existing flow.
+Preserve secrets, grants, callbacks, authorization and invalidation flows,
+application bindings and all application-local recovery accounts. Leave
+Cloudflare/Drive, Synology, retired Backup Synology, Paperless and Aster-owned
+integrations unchanged. Recheck owner/non-owner policy, provider read-back and
+fresh unauthenticated redirect chains. This corrects Authentik authentication;
+it does not remove the Pi-hole/NPM application password. Rollback restores only
+these 13 provider authentication-flow IDs from the checkpoint, not the database.
+
+**Applied and validated:** checkpoint
+`/opt/authentik/backups/passkey-normalize-20260924T031315Z` on LXC 106
+contains `authentik.dump` (1,818 readable catalogue lines, mode 0600) and
+`provider-flows-before.json`. The UTC date is September 24; local execution
+date is September 23. The transaction updated all 13 providers and verified
+that other provider fields were unchanged. All 13 still allow `jason` and deny
+`akadmin`. Nine real forward-auth route chains and four synthetic native OIDC
+authorization requests with their exact registered callbacks all returned
+HTTP 200 at `/if/flow/aster-companion-passwordless/`. No authenticated code
+exchange, user session revocation or human passkey completion was performed;
+fresh human-session acceptance remains open.
+
+The post-change `authentik-after.dump` was restored into a uniquely named
+disposable PostgreSQL database. All 13 restored provider rows reference the
+expected passkey-flow UUID; the disposable database was then removed.
+`restore-validation.json` retains the hash and validation result beside the
+protected dump. Production never connected to the test database. This is a
+current database restore proof, not a full-stack rebuild or browser-login test.
+
+Synology/Frigate access was rechecked: Frigate's socket is `root:docker`, the
+saved user is not in that group and `sudo -n -l` requires a password. Synology's
+saved administrator has general password-backed sudo; its only passwordless
+exception is shutdown, which is irrelevant and must not be used. Requested an
+operator-assisted path without asking for passwords or changing privileges.
+Jason selected an authenticated admin session. Computer-use discovery reports
+the Mac is locked, so the next dependent step is manual unlock and an admin DSM
+session at `https://192.168.20.41:5001` in that Mac's browser. No browser session
+has yet been inspected or modified. A phone-only session is not available to
+the computer-use tool.
+
 ### Remaining-work reconciliation — 2026-09-23
 
 Following Jason's “Ok carry on. What's left”, checked the next infrastructure
