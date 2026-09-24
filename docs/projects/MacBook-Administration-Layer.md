@@ -2,8 +2,8 @@
 
 > Owner: Jason
 > Proposed: 2026-09-24
-> Status: Stream A accepted 2026-09-24; M0 closed, M1 in progress
-> Stream: A accepted 2026-09-24; execution underway, M0 closed, M1 started
+> Status: Stream A accepted 2026-09-24; M0 and M1 closed, M2 not started
+> Stream: A accepted 2026-09-24; execution underway, M0 and M1 closed
 > Charter: [Project Creation Standard](../Project-Creation-Standard.md)
 
 ## 1. Purpose and desired outcome
@@ -211,16 +211,19 @@ see evidence log: the MacBook's OPNsense management-VLAN reachability
   and `homelab-reference` deliberately **not** cloned — neither is a dependency of the
   core admin toolkit and cloning them isn't required by this project's scope; see the
   bootstrap manifest's "Bookmarks and offline recovery docs" section.
-- [ ] Canonical `lab` is selected in a normal interactive shell; stale launcher
+- [x] Canonical `lab` is selected in a normal interactive shell; stale launcher
   cannot shadow it; bookmarks and offline recovery docs are accessible.
-  No stale launcher exists (confirmed) and bookmarks/recovery docs are already
-  reachable (confirmed) — but `lab` does not yet resolve on PATH in a real interactive
-  shell, since no shell dotfiles exist on this Mac. The fix (symlink `~/bin/lab`, add
-  `~/bin` to PATH via a new `~/.zprofile`) is blocked on Jason's explicit confirmation
-  before writing a machine-wide dotfile outside this repo — see evidence log.
+  Done 2026-09-24 — Jason confirmed the PATH change; see evidence log.
 - [x] Dependency/permission errors give actionable output without secrets.
   Verified 2026-09-24 by direct invocation and code reading — see evidence log and
   the bootstrap manifest's last section.
+
+M1 gate passed 2026-09-24. Repeatable local toolkit confirmed: current checkout,
+verified (not invented) dependency manifest, `lab` resolves in a normal
+interactive shell with nothing able to shadow it, bookmarks/recovery docs
+reachable, and error output already actionable and secret-free. M2 (independent
+human access — MacBook SSH key generation and enrollment) is explicitly out of
+scope for this session per Jason's instruction and has not been started.
 
 ### M2 — Independent human access
 
@@ -581,3 +584,16 @@ classifier is designed to hold for explicit confirmation rather than a repo-scop
 edit. Stopped rather than working around it; asked Jason directly in the same
 conversation turn. The symlink itself is inert until that PATH change lands, so it
 was not created separately.
+
+### 2026-09-24 M1 PATH fix — canonical `lab` now resolves
+
+Jason confirmed. Created `~/.zprofile` (new file, two lines:
+`export PATH="$HOME/bin:$PATH"` under a one-line comment) and
+`~/bin/lab -> ~/lab/homelab/scripts/lab` (symlink, not a copy, so future `git
+pull` updates apply automatically with nothing to keep in sync). Verified in a
+fresh `zsh -l` login shell (not this session's own possibly-nonstandard
+environment): `which -a lab` returns exactly one match, `~/Users/jasonelliott/bin/
+lab`, with `~/bin` leading `$PATH` ahead of every system directory — confirming
+nothing else on the machine can shadow it — and `lab help` runs correctly through
+the resolved symlink. M1's canonical-command-resolution checklist item is closed;
+this was the last open M1 item.
