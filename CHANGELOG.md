@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-23 — Aster Personal Assistant M0 complete, paused
+
+- Added Photography Assistant and RAM right-sizing to the Aster Personal Assistant project; recorded decisions D1–D14.
+- Raised inference LXC 110's memory limit to 16 GiB; the vision overhead test measured +1.2 GB VRAM and about +1 GB RAM with no text slowdown. Vision Option A chosen (enabled later, in M5).
+- Project paused after M0 at Jason's request; resume instructions are in the project document.
+
 ## 2026-09-23 — Aster Companion completed and archived
 
 - Recorded Mac/iPhone acceptance, fixed native session persistence and completed notification failure/recovery verification.

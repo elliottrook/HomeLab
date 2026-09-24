@@ -1,6 +1,6 @@
 # Aster Personal Assistant
 
-> Status: Active — M0 discovery; risk assessment and decisions D1–D7 accepted 2026-09-23
+> Status: Paused — M0 complete 2026-09-23; resume at M1 when Jason chooses (see Persistence plan)
 >
 > Owner: Jason | Proposed: 2026-09-23 | Stream M — Monitored (accepted
 > 2026-09-23)
@@ -476,10 +476,27 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 | D11 | Photo schedule | **02:30–03:30**, starting after the Proxmox backup finishes |
 | D12 | Editing rules | **No AI; sky replacement only with Jason's own sky image; no border.** ("No background" clarified by Jason 2026-09-23 as no border.) Competitions vary; the stricter of these and the rules card applies. Formatting is mostly resolution and file size |
 | D13 | Internet egress | **Dedicated egress-proxy LXC (F4 a)**: only the proxy reaches WAN; PA guest limited to iCloud hostnames, research guest to general HTTPS |
-| D10a | Vision test | **V1 approved and run 2026-09-23**; results in M0 findings. Option choice pending |
+| D10a | Vision test | **V1 approved and run 2026-09-23**; results in M0 findings |
+| D10 (final) | Vision model | **Option A chosen by Jason 2026-09-23**: enable `--mmproj` on the existing `aster-llama` model. Not yet enabled in production; that change is made in M5 with checkpoint and regression tests. LXC 110 stays at 16 GiB permanently |
 | D14 | RAM | **Right-size the Aster estate within this project** (F8); each memory change is still approved per change under Stream M |
 
 ## Persistence plan
+
+**Current state (2026-09-23): paused at Jason's request after M0.**
+- M0 is complete: all decisions D1–D14 recorded, discovery findings F1–F8
+  and V1 captured.
+- Only one live change exists: LXC 110's memory limit is 16 GiB
+  (permanent, D10/D14).
+- No guest, credential, firewall rule, persona or code has been created.
+- **Next safe action when resuming:** start M1.
+  1. Confirm VLAN 70 `.16`/`.17` and the next free LXC IDs in NetBox.
+  2. Present the egress-proxy LXC and PA guest creation plus their firewall
+     rules for Stream M approval.
+  3. Jason creates the assistant and test Apple IDs (prerequisite for the
+     M1 readers).
+- **Before resuming:** re-read the Project Creation Standard, this
+  document, Git status and live state, and re-verify F2/F3/F8, since the
+  VLAN 70 addressing and the memory figures may have drifted.
 
 - This document is the durable checkpoint: current milestone, decisions,
   evidence, next safe action, rollback location.
@@ -516,6 +533,7 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
       Jason and applied 2026-09-23 17:29 PDT with a live `pct set`; cgroup
       `memory.max` confirmed at 16,384 MiB; service unaffected). Rollback:
       `pct set 110 -memory 10240`.
+- [x] **D10 decided: Option A** (Jason, 2026-09-23).
 - [x] **Vision overhead test V1** (approved and run 2026-09-23 17:31–17:40
       PDT). Results in V1 below. **D10 is now Jason's decision, with
       data.**
@@ -964,6 +982,11 @@ content is in Git, logs or Aster's corpus.
   a gated start. Formatting was interpreted as deterministic
   resolution/file-size preparation from Immich sources, and "no background"
   as no background replacement. Jason to correct if either is wrong.
+
+- **2026-09-23 — M0 complete; project paused.** Jason chose vision Option A
+  (D10) and asked to pause the project until a later date. The document is
+  updated with resume instructions; the commit is pushed to Forgejo at
+  Jason's instruction.
 
 - **2026-09-23 — RA2 applied and V1 run.** With Jason's approval:
   - LXC 110 memory limit raised 10 → 16 GiB live (17:29 PDT).
