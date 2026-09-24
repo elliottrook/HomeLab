@@ -611,6 +611,33 @@ check_paperless() {
     fi
 }
 
+check_apt_proxy() {
+    # apt-cacher-ng on LXC 100 is the only Debian package path for the
+    # egress-restricted backup relay (LXC 112); if it stops, 112 silently
+    # stops receiving security updates.
+    local state
+    if ! state="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            svc="$(pct exec 100 -- systemctl is-active apt-cacher-ng 2>/dev/null || true)"
+            code="$(pct exec 112 -- bash -c "exec 3<>/dev/tcp/192.168.20.20/3142 && printf \"HEAD http://deb.debian.org/debian/dists/trixie/InRelease HTTP/1.1\r\nHost: deb.debian.org\r\nConnection: close\r\n\r\n\" >&3 && head -1 <&3 | cut -d\" \" -f2" 2>/dev/null || true)"
+            uu="$(pct exec 112 -- sh -c "find /var/lib/apt/lists -maxdepth 1 -name \"*InRelease\" -mmin -2880 -print | head -1" 2>/dev/null || true)"
+            printf "svc=%s\ncode=%s\nuu=%s\n" "$svc" "$code" "$uu"
+        '
+    )"; then
+        warn "Unable to check the apt proxy for the backup relay"
+        return
+    fi
+    if ! grep -qx 'svc=active' <<< "$state"; then
+        fail "apt-cacher-ng on LXC 100 is not active; backup relay LXC 112 cannot receive security updates"
+    elif ! grep -qx 'code=200' <<< "$state"; then
+        fail "Backup relay LXC 112 cannot fetch Debian metadata through the apt proxy ($(sed -n 's/^code=//p' <<< "$state" | grep . || echo no response))"
+    elif ! grep -q '^uu=/' <<< "$state"; then
+        warn "Apt proxy healthy, but backup relay LXC 112 has not refreshed package lists in 48h"
+    else
+        pass "Apt proxy on LXC 100 serves backup relay LXC 112; its package lists are fresh"
+    fi
+}
+
 check_news_aggregator() {
     local state
 
@@ -1940,6 +1967,7 @@ check_jellyfin_integrity
 check_video_archiver
 check_news_aggregator
 check_paperless
+check_apt_proxy
 
 category "Service Reachability"
 

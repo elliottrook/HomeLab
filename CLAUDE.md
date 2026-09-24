@@ -315,10 +315,18 @@ Current state:
     (`docs/projects/Aster-Personal-Assistant.md`, RA2/RA4).
   - VM 105 (`ollama`, 8 GiB) must stay stopped. A VM reserves its full
     allocation when started.
-  - **Open follow-up:** `proxmox-ups` load/runtime has not been re-measured
-    since the CPU, RAM and GPU changes. The ~150W/~53 min figure predates
-    the B60 and E5-2698 v4. Re-measure with Jason's approval, per the hard
-    rule below.
+  - **Re-measured 2026-09-23** (read-only `upsc`, Jason-approved):
+    - `proxmox-ups` 14% load (~140W of 1000W nominal), runtime ~3050s
+      (~51 min), 100% charge, OL. That is essentially unchanged from the
+      2026-09-02 15%/~53 min, so the B60 and CPU changes add little draw at
+      idle; a sustained inference load was not measured. **Closes the
+      proxmox-ups re-measurement follow-up.**
+    - `nas-ups` **40% load (~400W), runtime ~1000s (~17 min)**, up from
+      the 33%/~22.5 min baseline. This is attributed to the six spare
+      ST4000NM0023 drives currently spun up for Jason's drive testing. Its
+      50% `LB` threshold then fires after roughly 8 min on battery.
+      Re-check once the spares are removed or installed.
+    - `network-ups` 25% (~75W of 300W), runtime ~1950s (~32 min).
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

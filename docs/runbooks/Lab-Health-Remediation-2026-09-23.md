@@ -178,6 +178,50 @@
 - Jason chose to ignore it for now. Doctor keeps warning while sources are
   quarantined.
 
+## Held-back items completed (Jason: "do the worth doing and deliberately held back stuff now")
+
+### UPS runtime re-measured (read-only `upsc`, approved)
+- `proxmox-ups` 14%/~51 min (unchanged from 09-02).
+- `nas-ups` 40%/~17 min, attributed to the spare drives under test.
+- `network-ups` 25%/~32 min.
+- Details are in `CLAUDE.md`.
+
+### Doctor: `check_apt_proxy`
+- Fails if apt-cacher-ng on LXC 100 is down, or if LXC 112 cannot fetch
+  Debian's `InRelease` through it. The fetch is a raw HTTP HEAD via
+  `/dev/tcp`, because 112 has no curl.
+- Warns if 112's package lists are older than 48h.
+- Verified passing against live state.
+
+### LXC 110 GPU stack (deliberate update)
+- Snapshot `gpu-stack-20260923` taken, then holds released on libdrm*,
+  libllvm19, libvulkan1, mesa-vulkan-drivers and vulkan-tools.
+- The only pending update was **mesa-vulkan-drivers 26.1.2 → 26.1.6**
+  (trixie-backports). It was installed and `aster-llama` restarted.
+- `check-aster-b60.sh` passes: `xe` binding, Vulkan sees BMG G21.
+- The first post-restart request was slow (1.0 tokens/s decode), consistent
+  with the driver update invalidating the Vulkan pipeline/shader cache.
+  Subsequent throughput is verified from real traffic (see evidence below).
+- The unattended-upgrades GPU blacklist (`53homelab-gpu-stack`) remains, so
+  future GPU-stack updates stay deliberate. The apt holds were not
+  re-applied.
+- Rollback: `pct rollback 110 gpu-stack-20260923`.
+
+### Frigate VM kernel 6.12.101 → 6.12.107
+- Snapshot `kernel-20260923` taken. The new kernel and headers were
+  installed via the guest agent plus `systemd-run`.
+- The Coral Edge TPU (`1ac1:089a`) uses the `apex`/`gasket` DKMS module.
+  **The DKMS rebuild for 6.12.107 was confirmed before rebooting**
+  (`dkms status`; `apex` vermagic 6.12.107).
+- Afterwards: running 6.12.107, `apex`/`gasket` loaded, `/dev/apex_0`
+  present, Frigate container healthy, log shows "TPU found".
+- Fallback kernels 6.12.101 and 6.12.94 remain in GRUB.
+- Rollback: boot 6.12.101, or `qm rollback 102 kernel-20260923`.
+
+### OPNsense python313
+- A firmware check found no updates available. python313-3.13.15 stays
+  flagged by `pkg audit` until OPNsense ships a fix.
+
 ## Open items needing Jason
 
 1. ~~**LXC 112 package access:**~~ Resolved with the apt proxy above.
