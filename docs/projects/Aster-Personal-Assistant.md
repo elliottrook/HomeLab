@@ -476,6 +476,7 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 | D11 | Photo schedule | **02:30–03:30**, starting after the Proxmox backup finishes |
 | D12 | Editing rules | **No AI; sky replacement only with Jason's own sky image; no border.** ("No background" clarified by Jason 2026-09-23 as no border.) Competitions vary; the stricter of these and the rules card applies. Formatting is mostly resolution and file size |
 | D13 | Internet egress | **Dedicated egress-proxy LXC (F4 a)**: only the proxy reaches WAN; PA guest limited to iCloud hostnames, research guest to general HTTPS |
+| D10a | Vision test | **V1 approved and run 2026-09-23**; results in M0 findings. Option choice pending |
 | D14 | RAM | **Right-size the Aster estate within this project** (F8); each memory change is still approved per change under Stream M |
 
 ## Persistence plan
@@ -511,12 +512,13 @@ reader is proven read-only. A disposable test Apple ID is used (D3).
 - [x] Vision evaluation (D10): findings and recommendation in F6.
 - [x] **RAM assessment RA1** (read-only, 2026-09-23): findings and
       proposed allocations in F8.
-- [ ] **RA2 — raise LXC 110 memory limit to 16 GiB** before V1, so the test
-      measures vision overhead rather than hitting the current ceiling.
-      Awaiting Stream M approval.
-- [ ] **Vision overhead test V1** (Jason, 2026-09-23: measure the cost of a
-      permanent projector before deciding D10). Plan below; it needs Stream M
-      approval immediately before execution.
+- [x] **RA2 — LXC 110 memory limit raised 10 → 16 GiB** (approved by
+      Jason and applied 2026-09-23 17:29 PDT with a live `pct set`; cgroup
+      `memory.max` confirmed at 16,384 MiB; service unaffected). Rollback:
+      `pct set 110 -memory 10240`.
+- [x] **Vision overhead test V1** (approved and run 2026-09-23 17:31–17:40
+      PDT). Results in V1 below. **D10 is now Jason's decision, with
+      data.**
 - [x] Immich MCP vetting (D9): shortlist and recommendation in F7. Code
       review and license confirmation of the pinned commit happen at M5
       before deployment.
@@ -656,7 +658,8 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
   - **Totals:** allocated limits rise from 60 GiB to ≈ 72.5 GiB (≈ 92% of
     78.5 GiB). Measured use is about 33 GiB, and LXC limits are ceilings,
     not reservations, so this is acceptable. The binding rule is that **VM
-    105 stays stopped** (its 8 GiB is reserved in full when started); if it
+    105 stays stopped**. LXC 110's 16 GiB is recommended as permanent after
+    V1 (the prompt cache alone is sized at 8 GiB) (its 8 GiB is reserved in full when started); if it
     must run, stop the photo/research jobs first. Each change is a live
     `pct set <id> -memory <MiB>` with no guest restart, and rollback sets
     the previous value.
@@ -671,7 +674,7 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
     stale. The Proxmox UPS runtime has not been re-measured since the RAM
     grew.
 
-- **V1 — Vision overhead test plan (awaiting approval).**
+- **V1 — Vision overhead test (plan as approved; results follow).**
   - **Prerequisite:** RA2 (LXC 110 at 16 GiB) is applied first.
   - **Baseline (read-only, 2026-09-23 17:21 PDT):**
     - B60 VRAM: 14.09 GB in use, 11,046 MiB free of 24,480 MiB (xe
@@ -714,6 +717,46 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
   - **Validation afterwards:** the normal service is active with the
     unchanged `ExecStart`, natural-traffic timings are back at baseline, and
     Doctor's Aster checks pass.
+
+- **V1 results (2026-09-23).** Run A = current settings; run B = same plus
+  the vision projector. Both were transient units against the production
+  key file plus a tmpfs test key.
+
+  | Measure | Run A (no vision) | Run B (vision) | Permanent cost of vision |
+  |---|---|---|---|
+  | B60 VRAM used after load | 13.92 GB | 15.12 GB | **+1.19 GB** (≈10 GB still free of 24 GB) |
+  | VRAM after benchmark | 13.95 GB | 15.15 GB | +1.2 GB |
+  | `llama-server` RSS after load | 0.59 GB | 0.80 GB | +0.2 GB |
+  | RSS after benchmark (incl. prompt cache) | 1.11 GB | 2.11 GB | ≈ +1.0 GB (image prompts in the host-RAM prompt cache) |
+  | Load time | 27 s (cold file cache) | 10 s (warm) | No measurable penalty |
+  | Text: prefill / decode, 3 runs | 59.6–60.0 / **11.82** tokens/s | 59.7–60.2 / **11.85** tokens/s | **None** |
+  | Image ≈768 px | — | 410 prompt tokens, 35.4 s (first image includes vision-encoder warm-up) | 5% of the 8K context |
+  | Image ≈1024 px | — | 698 tokens, 14.7 s | 9% of context |
+  | Image ≈1536 px | — | 1,562 tokens, 22.3 s | 19% of context |
+  | Decode with an image in the prompt | — | ≈ 6.1 tokens/s | Longer context, not a vision penalty |
+
+  - **What makes the service's RAM grow:** `llama-server` b11081 keeps a
+    host-RAM prompt cache that defaults to **8,192 MiB** (`--cache-ram`).
+    That explains the long-running service's 8.6 GB of anonymous memory and
+    LXC 110 hitting 99% of its old 10 GiB limit. It is by design, not a
+    leak, and vision prompts feed the same cache. Expected steady state with
+    vision: ≈ 8 GiB cache + ≈ 1–2 GiB process + page cache for the mmap'd
+    model. **Keeping LXC 110 at 16 GiB permanently is recommended.** Capping
+    `--cache-ram` is an alternative lever, but it trades memory for slower
+    repeat prompts and is not proposed.
+  - **Correction to F2:** the 5.4 tokens/s figure came from very short
+    production requests. Real generation decodes at **≈ 11.8 tokens/s**, so
+    the email and research time estimates in F2 are conservative by roughly
+    2×.
+  - **Recommendation for D10: Option A.** The permanent cost is about
+    1.2 GB of VRAM and 1 GB of RAM, with no text-speed penalty. Photos
+    should be sent at ≈1024 px long edge for analysis (≈700 tokens, ≈15 s
+    each once warm).
+  - **Restore and cleanup verified:** the normal `aster-llama.service` is
+    active with the unchanged `ExecStart` (production key file), and the
+    transient units are gone. The tmpfs keys were shredded, the test images
+    and host `/tmp/v1` removed, and `check-aster-b60.sh` passes. No consumer
+    requests or authentication failures occurred during the test window.
 
 - **F7 — Immich MCP vetting (2026-09-23, read-only).** Both candidates are
   young, single-maintainer projects with very few stars and no license
@@ -921,6 +964,17 @@ content is in Git, logs or Aster's corpus.
   a gated start. Formatting was interpreted as deterministic
   resolution/file-size preparation from Immich sources, and "no background"
   as no background replacement. Jason to correct if either is wrong.
+
+- **2026-09-23 — RA2 applied and V1 run.** With Jason's approval:
+  - LXC 110 memory limit raised 10 → 16 GiB live (17:29 PDT).
+  - V1 ran 17:31–17:40 PDT using transient units; each restart took
+    ≈10–27 s to load.
+  - Vision costs +1.19 GB VRAM and ≈ +1 GB RAM, with no text-speed change
+    (11.8 tokens/s decode). Images cost 410–1,562 prompt tokens.
+  - The long-running service's RAM is the 8 GiB default prompt cache.
+  - Normal service restored unchanged; cleanup and the B60 check verified.
+  - The Proxmox SSH again needed to run outside the Claude Code sandbox.
+  - Remaining M0 item: Jason's D10 choice.
 
 - **2026-09-23 — RAM assessment added (D14).** Jason added right-sizing
   Aster's memory to the project. The read-only RA1 (F8) found the host at
