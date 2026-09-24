@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-24 — MacBook administration layer proposed
+
+- Created a Stream A project for independent MacBook lab administration, machine-specific access, diagnostic parity and tested recovery.
+- Measured the mini lab workspace at approximately 483 MiB, including 369 MiB of rebuildable output; Jason chose to retain internal storage and excluded external-SSD migration.
+- Scheduled operations remain on the mini. Project creation only; no access, storage or MacBook configuration changed.
+
 ## 2026-09-23 — Aster Personal Assistant M0 complete, paused
 
 - Added Photography Assistant and RAM right-sizing to the Aster Personal Assistant project; recorded decisions D1–D14.
