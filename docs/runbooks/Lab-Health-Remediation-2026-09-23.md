@@ -1,0 +1,139 @@
+# Lab Health Check and Remediation — 2026-09-23
+
+> Requested by Jason ("run a thorough system check … make suggestions", then
+> "Do all"). A read-only sweep came first (HomeLab Doctor plus deeper
+> host/guest/network checks). The approved fixes were then applied one at a
+> time, each with a rollback point. TrueNAS storage was excluded at Jason's
+> request because old-drive testing is in progress; the SMART and
+> uncorrectable-error alerts on the spare ST4000NM0023 drives come from that
+> testing, not from the Media pool.
+
+## Findings (read-only sweep)
+
+| Area | Finding | Disposition |
+|---|---|---|
+| Doctor: NetBox | "login page HTTP 302" | Not a fault. NetBox moved behind Authentik on 2026-09-23. The check has been updated |
+| Doctor: TrueNAS Media 93% | Known | Excluded (SAS expansion project) |
+| Doctor: Jellyfin integrity backup 196h | The exporter existed but nothing scheduled it | Fixed |
+| Doctor: news feed failures | One dpreview timeout and one item-summary timeout | No action |
+| Proxmox host | 110 pending packages, incl. 12 security, kernel 7.0.14-8 → -19 and pve-manager 9.2.10 → 9.2.20 | Patched and rebooted |
+| LXCs | Most had 18–21 security updates pending; no automatic updates anywhere | Patched; security-only automatic updates enabled |
+| LXC 112 backup relay | Cannot reach Debian mirrors; packages last refreshed 2026-07-14 | **Open:** needs a firewall/egress decision |
+| Frigate VM 102 | 15 pending updates | Patched (kernel meta-packages deliberately held) |
+| Aster wiki collector (LXC 113) | Exits as failed daily since at least 09-18; 7 sources quarantined for upstream commit mismatch; Doctor did not notice | Doctor now warns. **Open:** a reviewed re-pin of the seven sources |
+| OPNsense 26.7.1 | `pkg audit` flags Unbound, OpenSSL, OpenSSH, OpenVPN, strongSwan and Python; 82 package updates including base and kernel | See OPNsense section |
+| OPNsense gateways | WAN gateway monitoring is disabled (no delay or loss data) | **Open:** a one-click GUI change for Jason |
+| Claude Code sandbox | SSH to allowlisted lab IPs fails inside the sandbox | Explained below. **Open:** Jason's decision |
+| Docker LXC 100 | 2.27 GB of unused images | Pruned |
+| Proxmox thin pool | Provisioned 1.03 TiB against a 930 GiB pool; 23% actually used | Watch. `prepatch-20260923` snapshots add to it; remove them once patching is accepted |
+| No-nesting LXCs 108/109/112 | Boot-time `dev-mqueue.mount`/`run-lock.mount` failures | No action; harmless (same AppArmor cause as the earlier `tmp.mount` fix) |
+
+## Changes applied
+
+### Repository
+- `scripts/doctor.sh`:
+  - The NetBox check accepts a 302 to `https://netbox.elliottrook.com/…`
+    and then requires `authentik-netbox-ingress` to be running.
+  - The wiki check warns when the collector's latest run failed or
+    quarantined any sources. It reads the persistent journal, because
+    systemd's `Result` resets when the container reboots.
+- `scripts/lab`: new `lab backup jellyfin-integrity` target, also part of
+  `lab backup all`.
+- `docs/05-Backups.md`: the weekly job now runs seven exporters.
+
+### Mac
+- `~/Library/LaunchAgents/ca.yampy.homelab-weekly-backup.plist`: appended
+  `jellyfin-integrity.sh` (last, because the chain uses `&&`), then
+  reloaded with `launchctl bootout`/`bootstrap`. The original is saved in
+  the session scratchpad. The exporter was run once manually: success.
+
+### Proxmox guests (`apt-get upgrade`, `--force-confold`, no removals)
+- Each LXC was snapshotted as `prepatch-20260923` first; LXC 112's
+  snapshot failed, and its nightly vzdump is the fallback.
+- Health was compared before and after: failed units and Docker running
+  or unhealthy counts.
+- Upgraded (package counts): 113 (59), 114 (39), 116 (40), 109 (54),
+  108 (62), 104 (68), 111 (67), 115 (49), 100 (73), 101 (66), 107 (59),
+  106 (44), 110 (53). LXC 112: 0, because it has no mirror access.
+- **LXC 110 GPU stack held** (`apt-mark hold`): libdrm*, libllvm19,
+  libvulkan1, mesa-vulkan-drivers, vulkan-tools. `aster-llama` stayed
+  active and `check-aster-b60.sh` passed. Update these deliberately, with
+  the B60 check, and `apt-mark unhold` afterwards.
+- Rollback: `pct rollback <id> prepatch-20260923`.
+- Verified afterwards: UniFi (Java and 11443 up), Pi-hole resolving, and
+  NPM ingress (`auth`/`netbox` 302 to Authentik, `aster` 200).
+
+### Automatic security-only updates (13 LXCs; all except 112)
+- `unattended-upgrades` 2.12, with `/etc/apt/apt.conf.d/20auto-upgrades`
+  and `52homelab-security-only`.
+- `#clear` resets the origin list; the only allowed origin is
+  `origin=Debian,codename=${distro_codename}-security,label=Debian-Security`.
+- No automatic reboot, and no automatic removal of dependencies.
+- LXC 110 also has `53homelab-gpu-stack`, a package blacklist for the
+  Mesa/Vulkan/libdrm/LLVM/Intel stack.
+- Verified with `unattended-upgrade --dry-run -d` ("Allowed origins").
+- Docker-CE and other third-party repositories are not auto-updated.
+- Rollback: `apt-get purge unattended-upgrades` and remove the two or three
+  config files.
+
+### Frigate VM 102
+- Snapshot `prepatch-20260923` taken. Patched through the QEMU guest agent,
+  as Jason approved, because `sudo` on the VM requires a password.
+- The first attempt was interrupted: upgrading `qemu-guest-agent` restarts
+  the agent, which killed the agent-spawned apt. It was completed with
+  `systemd-run` (`dpkg --configure -a`, then `apt-get -f install` and
+  `upgrade`). `dpkg --audit` is clean.
+- `linux-image-amd64`/`linux-headers-amd64` were held back by `upgrade`.
+  The VM has PCI passthrough, so update its kernel deliberately.
+- The Frigate container is healthy.
+
+### Proxmox host
+- Before: host config backup (`scripts/backup/proxmox.sh`) and the list of
+  running guests.
+- `apt-get dist-upgrade`: 110 upgraded, 2 new, 0 removed, exit 0.
+  pve-manager is 9.2.20.
+- Rebooted into **7.0.14-19-pve**. 7.0.14-8 and 7.0.2-6 remain installed
+  as fallbacks (GRUB boot; pin with
+  `proxmox-boot-tool kernel pin 7.0.14-8-pve` if needed).
+- After: all 14 LXCs and VMs 102/103 running (the same set as before),
+  the B60 bound to `xe`, and no failed host units.
+
+### Docker LXC 100
+- `docker image prune -a -f` reclaimed 2.27 GB. All 9 running containers
+  are unaffected. The stopped `code-server-pre-authentik` rollback
+  container and its image are kept until the Authentik rollout graduates.
+
+## Open items needing Jason
+
+1. **LXC 112 package access:** it cannot reach deb.debian.org or
+   security.debian.org, so it has not been patched since 2026-07-14.
+   Options:
+   - a narrow OPNsense allow rule to the Debian mirrors;
+   - an apt proxy on another guest;
+   - periodic patching through a temporarily opened path.
+2. **OPNsense WAN gateway monitoring:** in System → Gateways →
+   Configuration → WAN_DHCP, untick "Disable Gateway Monitoring" and set
+   a monitor IP (for example a public resolver). This gives outage and
+   latency history and makes dpinger meaningful.
+3. **Aster wiki re-pin review:** seven sources, all pinned to `master`,
+   are quarantined because upstream moved. The design requires a reviewed
+   re-pin that checks the new upstream content still matches the deployed
+   versions (Proxmox 9.2, TrueNAS 25.10.5, Jellyfin 10.11, and so on).
+   Partial review, 2026-09-23:
+   - OPNsense docs: 2 commits, none within the source boundary.
+   - TrueNAS docs: 8 commits, 1 boundary file (+10 lines,
+     `ManagingDatasets.md`).
+   - The rest were not assessed, because the sandbox proxy truncates large
+     GitHub compare responses.
+4. **Claude Code sandbox and SSH:** the sandbox proxy carries HTTP(S) only,
+   and `NO_PROXY` includes 192.168.0.0/16. So SSH to allowlisted lab IPs
+   is blocked by Seatbelt, and every SSH call needs an unsandboxed approval
+   prompt. The only effective setting is `sandbox.excludedCommands`
+   (`ssh`, `scp`). That runs SSH outside the sandbox without the
+   per-command prompt, but it also stops the domain allowlist applying to
+   SSH. The trade-off is Jason's call; the settings file is protected from
+   Claude's writes.
+5. **Cleanup after acceptance:** remove the `prepatch-20260923` snapshots
+   (13 LXCs and VM 102) once the patched state is accepted
+   (`pct delsnapshot <id> prepatch-20260923`,
+   `qm delsnapshot 102 prepatch-20260923`).

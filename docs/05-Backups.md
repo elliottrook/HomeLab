@@ -14,6 +14,8 @@ Back up OPNsense, Proxmox, UniFi, Arista, TrueNAS and Synology configurations.
 
 **Automated 2026-09-10.** These five Mac-run config exports (`scripts/backup/{opnsense,arista,proxmox,nut,observability}.sh`) previously had no scheduled trigger at all — only the daily 08:15 Doctor/report job checked their age and alerted past 48h, so they only refreshed when someone ran `lab backup all` by hand (which is exactly why they'd gone stale before). A weekly launchd job (`~/Library/LaunchAgents/ca.yampy.homelab-weekly-backup.plist`, Sunday 06:00, before the daily report) now runs all five directly in sequence. None of the five needed any change to run unattended — they already used key-based SSH/`scp` and (for NUT) `sudo -n` with no password prompts. Verified with a real manual trigger (`launchctl start ca.yampy.homelab-weekly-backup`): all five completed successfully, no stderr output. Output logs: `~/lab/monitoring-state/reports/weekly-backup-{output,error}.log`.
 
+**Updated 2026-09-23:** the weekly job's chain now runs seven exporters. `video-archiver.sh` was already in it, and `jellyfin-integrity.sh` has been appended last, after Doctor warned that the Jellyfin integrity config backup (192h threshold) had gone stale. Its exporter existed, but no schedule or `lab backup all` step ever called it. `lab backup all` and `lab backup jellyfin-integrity` include it too. The chain uses `&&`, so a failure stops later exporters. That is why the Jellyfin exporter is last, and Doctor's per-target age checks still surface any gap.
+
 ## Verified 2026-08-08 recovery set
 
 The dated recovery set is retained in two locations:

@@ -42,6 +42,8 @@ Backup Commands
   lab backup arista      Back up Arista configuration and state
   lab backup proxmox     Back up Proxmox host configuration
   lab backup nut         Back up NUT / UPS server configuration
+  lab backup jellyfin-integrity
+                         Back up Jellyfin integrity tool configuration
   lab backup guided      Open guided export checklist
   lab backup synology-copy [--dry-run]
                          Copy private backups to the backup Synology
@@ -244,6 +246,10 @@ run_backup() {
             "$REPO/scripts/backup/video-archiver.sh"
             ;;
 
+        jellyfin-integrity)
+            "$REPO/scripts/backup/jellyfin-integrity.sh"
+            ;;
+
         guided)
             "$REPO/scripts/backup/guided.sh"
             ;;
@@ -255,7 +261,7 @@ run_backup() {
         all)
             local failed=0
             local backup_target
-            for backup_target in opnsense arista proxmox nut observability video-archiver; do
+            for backup_target in opnsense arista proxmox nut observability video-archiver jellyfin-integrity; do
                 if ! "$REPO/scripts/backup/$backup_target.sh"; then
                     error "Backup failed: $backup_target"
                     failed=$((failed + 1))
@@ -267,7 +273,7 @@ run_backup() {
             fi
 
             echo
-            warning "All six automated configuration exports completed."
+            warning "All seven automated configuration exports completed."
             warning "UniFi, TrueNAS and Synology exports still require the guided step."
             echo
 
@@ -287,6 +293,8 @@ run_backup() {
             echo "               Protected Prometheus and Grafana configuration"
             echo "  video-archiver"
             echo "               Video archiver config/state (config.json, .env, run-scheduled.sh)"
+            echo "  jellyfin-integrity"
+            echo "               Jellyfin integrity tool config and reference manifests"
             echo "  guided      Guided UniFi, TrueNAS and Synology exports"
             echo "  synology-copy [--dry-run]"
             echo "               Copy private backups to the backup Synology"

@@ -569,7 +569,9 @@ check_aster_wiki() {
             corpus_status="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json"))["status"])'\'' 2>/dev/null || true)"
             directory_drift="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json")).get("metrics", {}).get("directory_index_drift", "missing"))'\'' 2>/dev/null || true)"
             corpus_fresh="$(pct exec 113 -- find /var/lib/aster-wiki/state/reports/corpus-health.json -mmin -64800 -print 2>/dev/null || true)"
-            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ndirectory_drift=%s\ncorpus_fresh=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$directory_drift" "$corpus_fresh"
+            collector_result="$(pct exec 113 -- systemctl show aster-wiki-collector.service -p Result --value 2>/dev/null || true)"
+            quarantined="$(pct exec 113 -- journalctl -u aster-wiki-collector.service --no-pager -n 50 -o cat 2>/dev/null | grep -o "\"quarantined\": [0-9]*" | tail -1 | grep -o "[0-9]*$" || true)"
+            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ndirectory_drift=%s\ncorpus_fresh=%s\ncollector_result=%s\nquarantined=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$directory_drift" "$corpus_fresh" "$collector_result" "$quarantined"
         '
     )"; then
         warn "Unable to check Aster wiki services"
@@ -582,6 +584,9 @@ check_aster_wiki() {
         fail "Aster wiki unhealthy or has no collector state"
     elif ! grep -qx 'timer_enabled=enabled' <<< "$state"; then
         warn "Aster wiki intake healthy but collector timer is not enabled"
+    elif ! grep -qx 'collector_result=success' <<< "$state" ||
+         grep -qE '^quarantined=[1-9]' <<< "$state"; then
+        warn "Aster wiki collector's latest run failed or quarantined sources ($(sed -n 's/^quarantined=//p' <<< "$state" | grep . || echo unknown) source(s) quarantined); review pinned sources in LXC 113"
     elif ! grep -qx 'corpus_timer=enabled' <<< "$state"; then
         warn "Aster wiki collector is healthy but monthly corpus-health timer is not enabled"
     elif grep -qx 'corpus_status=failed' <<< "$state" ||
@@ -1355,11 +1360,15 @@ check_netbox() {
     local output
     local containers=""
     local login_status=""
+    local login_redirect=""
+    local ingress=""
 
     if ! output="$(
         ssh -o BatchMode=yes -o ConnectTimeout=8 proxmox /bin/bash -s <<'REMOTE'
 printf 'containers=%s\n' "$(pct exec 111 -- bash -c 'cd /opt/netbox && docker compose ps --format "{{.Service}}={{.Health}}"' 2>/dev/null | tr '\n' ' ')"
 printf 'login_status=%s\n' "$(pct exec 111 -- curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://127.0.0.1:8000/login/ 2>/dev/null)"
+printf 'login_redirect=%s\n' "$(pct exec 111 -- curl -s -o /dev/null -w '%{redirect_url}' --connect-timeout 3 http://127.0.0.1:8000/login/ 2>/dev/null)"
+printf 'ingress=%s\n' "$(pct exec 111 -- docker inspect -f '{{.State.Running}}' authentik-netbox-ingress 2>/dev/null)"
 REMOTE
     )"; then
         warn "Unable to collect NetBox health data"
@@ -1370,6 +1379,8 @@ REMOTE
         case "$key" in
             containers) containers="$value" ;;
             login_status) login_status="$value" ;;
+            login_redirect) login_redirect="$value" ;;
+            ingress) ingress="$value" ;;
         esac
     done <<< "$output"
 
@@ -1385,14 +1396,22 @@ REMOTE
         fi
     done
 
-    if [[ "$login_status" != "200" ]]; then
+    # Since 2026-09-23 NetBox sits behind Authentik: the local login page
+    # redirects to the Authentik-protected hostname, served by the ingress.
+    local login_desc="login page HTTP 200"
+    if [[ "$login_status" == "302" && "$login_redirect" == https://netbox.elliottrook.com/* ]]; then
+        login_desc="login redirects to Authentik-protected netbox.elliottrook.com"
+        if [[ "$ingress" != "true" ]]; then
+            failures+=("authentik-netbox-ingress not running")
+        fi
+    elif [[ "$login_status" != "200" ]]; then
         failures+=("login page HTTP ${login_status:-unreachable}")
     fi
 
     if (( ${#failures[@]} > 0 )); then
         fail "NetBox health issue: ${failures[*]}"
     else
-        pass "NetBox healthy; all five containers up, login page HTTP 200"
+        pass "NetBox healthy; all five containers up, $login_desc"
     fi
 }
 
