@@ -10,3 +10,7 @@
   wrapper for LXC 112's read-only TrueNAS → encrypted IDrive e2 relay. The
   protected rclone configuration and recovery material remain on the relay,
   outside Git.
+- `systemd/pct-fstrim*` are the Proxmox host's weekly LXC trim service,
+  timer and wrapper (`/usr/local/sbin/pct-fstrim-all`). They return freed
+  container blocks to the `pve/data` thin pool; the host's own
+  `fstrim.timer` cannot reach container rootfs mounts. Deployed 2026-09-23.

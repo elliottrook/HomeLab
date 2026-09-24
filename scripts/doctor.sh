@@ -569,7 +569,9 @@ check_aster_wiki() {
             corpus_status="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json"))["status"])'\'' 2>/dev/null || true)"
             directory_drift="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json")).get("metrics", {}).get("directory_index_drift", "missing"))'\'' 2>/dev/null || true)"
             corpus_fresh="$(pct exec 113 -- find /var/lib/aster-wiki/state/reports/corpus-health.json -mmin -64800 -print 2>/dev/null || true)"
-            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ndirectory_drift=%s\ncorpus_fresh=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$directory_drift" "$corpus_fresh"
+            collector_result="$(pct exec 113 -- systemctl show aster-wiki-collector.service -p Result --value 2>/dev/null || true)"
+            quarantined="$(pct exec 113 -- journalctl -u aster-wiki-collector.service --no-pager -n 50 -o cat 2>/dev/null | grep -o "\"quarantined\": [0-9]*" | tail -1 | grep -o "[0-9]*$" || true)"
+            printf "intake=%s\ntimer_enabled=%s\nhealth=%s\nstatus=%s\ncorpus_timer=%s\ncorpus_status=%s\ndirectory_drift=%s\ncorpus_fresh=%s\ncollector_result=%s\nquarantined=%s\n" "$intake" "$timer_enabled" "$health" "$status" "$corpus_timer" "$corpus_status" "$directory_drift" "$corpus_fresh" "$collector_result" "$quarantined"
         '
     )"; then
         warn "Unable to check Aster wiki services"
@@ -582,6 +584,9 @@ check_aster_wiki() {
         fail "Aster wiki unhealthy or has no collector state"
     elif ! grep -qx 'timer_enabled=enabled' <<< "$state"; then
         warn "Aster wiki intake healthy but collector timer is not enabled"
+    elif ! grep -qx 'collector_result=success' <<< "$state" ||
+         grep -qE '^quarantined=[1-9]' <<< "$state"; then
+        warn "Aster wiki collector's latest run failed or quarantined sources ($(sed -n 's/^quarantined=//p' <<< "$state" | grep . || echo unknown) source(s) quarantined); review pinned sources in LXC 113"
     elif ! grep -qx 'corpus_timer=enabled' <<< "$state"; then
         warn "Aster wiki collector is healthy but monthly corpus-health timer is not enabled"
     elif grep -qx 'corpus_status=failed' <<< "$state" ||
@@ -594,6 +599,42 @@ check_aster_wiki() {
         pass "Aster wiki intake, daily collector and monthly corpus-health review are healthy"
     else
         fail "Aster wiki monthly corpus-health report has an invalid status"
+    fi
+}
+
+check_paperless() {
+    if ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
+        'pct exec 115 -- python3 /opt/paperless-summary/check_summary.py' >/dev/null 2>&1; then
+        pass "Paperless UI, summary broker, timer and worker are healthy"
+    else
+        fail "Paperless service or summary cycle needs attention; inspect LXC 115 check_summary.py"
+    fi
+}
+
+check_apt_proxy() {
+    # apt-cacher-ng on LXC 100 is the only Debian package path for the
+    # egress-restricted backup relay (LXC 112); if it stops, 112 silently
+    # stops receiving security updates.
+    local state
+    if ! state="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            svc="$(pct exec 100 -- systemctl is-active apt-cacher-ng 2>/dev/null || true)"
+            code="$(pct exec 112 -- bash -c "exec 3<>/dev/tcp/192.168.20.20/3142 && printf \"HEAD http://deb.debian.org/debian/dists/trixie/InRelease HTTP/1.1\r\nHost: deb.debian.org\r\nConnection: close\r\n\r\n\" >&3 && head -1 <&3 | cut -d\" \" -f2" 2>/dev/null || true)"
+            uu="$(pct exec 112 -- sh -c "find /var/lib/apt/lists -maxdepth 1 -name \"*InRelease\" -mmin -2880 -print | head -1" 2>/dev/null || true)"
+            printf "svc=%s\ncode=%s\nuu=%s\n" "$svc" "$code" "$uu"
+        '
+    )"; then
+        warn "Unable to check the apt proxy for the backup relay"
+        return
+    fi
+    if ! grep -qx 'svc=active' <<< "$state"; then
+        fail "apt-cacher-ng on LXC 100 is not active; backup relay LXC 112 cannot receive security updates"
+    elif ! grep -qx 'code=200' <<< "$state"; then
+        fail "Backup relay LXC 112 cannot fetch Debian metadata through the apt proxy ($(sed -n 's/^code=//p' <<< "$state" | grep . || echo no response))"
+    elif ! grep -q '^uu=/' <<< "$state"; then
+        warn "Apt proxy healthy, but backup relay LXC 112 has not refreshed package lists in 48h"
+    else
+        pass "Apt proxy on LXC 100 serves backup relay LXC 112; its package lists are fresh"
     fi
 }
 
@@ -930,6 +971,35 @@ check_arista() {
         fail "Arista interface errors increased: ${error_deltas[*]}"
     else
         pass "Arista expected links, temperature and PSU2 healthy; interface errors unchanged"
+    fi
+}
+
+check_thin_pool() {
+    # pve/data is thin-provisioned and overcommitted on paper (~1.03 TiB of
+    # guest disks on a ~930 GiB pool). Running out affects every guest on
+    # it at once, so warn well before the limit.
+    local state data meta trim
+    if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+        lvs --noheadings --separator " " -o data_percent,metadata_percent pve/data 2>/dev/null
+        systemctl is-enabled pct-fstrim.timer 2>/dev/null || echo missing
+        systemctl show pct-fstrim.service -p Result --value 2>/dev/null
+    ')"; then
+        warn "Unable to read Proxmox thin pool usage"
+        return
+    fi
+    read -r data meta <<< "$(sed -n 1p <<< "$state")"
+    trim="$(sed -n 2p <<< "$state")/$(sed -n 3p <<< "$state")"
+    data="${data%.*}"; meta="${meta%.*}"
+    if [[ -z "$data" || -z "$meta" ]]; then
+        warn "Proxmox thin pool usage unavailable"
+    elif (( data >= 90 || meta >= 90 )); then
+        fail "Proxmox thin pool pve/data critical: data ${data}%, metadata ${meta}%; all guests on it fail writes at 100%"
+    elif (( data >= 80 || meta >= 80 )); then
+        warn "Proxmox thin pool pve/data high: data ${data}%, metadata ${meta}%"
+    elif [[ "$trim" != enabled/success ]]; then
+        warn "Proxmox thin pool fine (data ${data}%) but weekly LXC trim is not healthy (${trim})"
+    else
+        pass "Proxmox thin pool pve/data data ${data}%, metadata ${meta}%; weekly LXC trim enabled"
     fi
 }
 
@@ -1346,11 +1416,15 @@ check_netbox() {
     local output
     local containers=""
     local login_status=""
+    local login_redirect=""
+    local ingress=""
 
     if ! output="$(
         ssh -o BatchMode=yes -o ConnectTimeout=8 proxmox /bin/bash -s <<'REMOTE'
 printf 'containers=%s\n' "$(pct exec 111 -- bash -c 'cd /opt/netbox && docker compose ps --format "{{.Service}}={{.Health}}"' 2>/dev/null | tr '\n' ' ')"
 printf 'login_status=%s\n' "$(pct exec 111 -- curl -s -o /dev/null -w '%{http_code}' --connect-timeout 3 http://127.0.0.1:8000/login/ 2>/dev/null)"
+printf 'login_redirect=%s\n' "$(pct exec 111 -- curl -s -o /dev/null -w '%{redirect_url}' --connect-timeout 3 http://127.0.0.1:8000/login/ 2>/dev/null)"
+printf 'ingress=%s\n' "$(pct exec 111 -- docker inspect -f '{{.State.Running}}' authentik-netbox-ingress 2>/dev/null)"
 REMOTE
     )"; then
         warn "Unable to collect NetBox health data"
@@ -1361,6 +1435,8 @@ REMOTE
         case "$key" in
             containers) containers="$value" ;;
             login_status) login_status="$value" ;;
+            login_redirect) login_redirect="$value" ;;
+            ingress) ingress="$value" ;;
         esac
     done <<< "$output"
 
@@ -1376,14 +1452,22 @@ REMOTE
         fi
     done
 
-    if [[ "$login_status" != "200" ]]; then
+    # Since 2026-09-23 NetBox sits behind Authentik: the local login page
+    # redirects to the Authentik-protected hostname, served by the ingress.
+    local login_desc="login page HTTP 200"
+    if [[ "$login_status" == "302" && "$login_redirect" == https://netbox.elliottrook.com/* ]]; then
+        login_desc="login redirects to Authentik-protected netbox.elliottrook.com"
+        if [[ "$ingress" != "true" ]]; then
+            failures+=("authentik-netbox-ingress not running")
+        fi
+    elif [[ "$login_status" != "200" ]]; then
         failures+=("login page HTTP ${login_status:-unreachable}")
     fi
 
     if (( ${#failures[@]} > 0 )); then
         fail "NetBox health issue: ${failures[*]}"
     else
-        pass "NetBox healthy; all five containers up, login page HTTP 200"
+        pass "NetBox healthy; all five containers up, $login_desc"
     fi
 }
 
@@ -1894,6 +1978,7 @@ category "Core Infrastructure"
 
 check_arista
 check_proxmox
+check_thin_pool
 check_truenas
 check_nut
 
@@ -1911,6 +1996,8 @@ check_frigate
 check_jellyfin_integrity
 check_video_archiver
 check_news_aggregator
+check_paperless
+check_apt_proxy
 
 category "Service Reachability"
 

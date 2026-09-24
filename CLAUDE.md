@@ -60,6 +60,12 @@ that file in sync — update both in the same change.
 | deb.debian.org, security.debian.org | — | Package installs on Debian guests |
 | astral.sh | — | `uv`/`uvx` official installer, needed to run the `freecad-mcp` bridge (FreeCAD-MCP-Connector project, this Mac only, no lab VLAN involvement) |
 
+`sandbox.excludedCommands` is `["ssh", "scp"]` (2026-09-23). The sandbox's network
+proxy carries HTTP(S) only, and `NO_PROXY` covers 192.168.0.0/16, so SSH to lab IPs
+cannot work inside the sandbox. `ssh`/`scp` therefore run outside it and are
+governed by the `permissions` allow/ask rules instead. See
+`docs/runbooks/Lab-Health-Remediation-2026-09-23.md`.
+
 This list exists to let Claude run the same read-only `lab`/`doctor.sh` tooling from
 this laptop that already runs from the Mac mini. It is not itself a grant of SSH
 trust or firewall access — those are separate, host-by-host and OPNsense-side
@@ -198,9 +204,10 @@ Current state:
     triple Proxmox's RAM and add a substantial GPU — today's measured
     12%/~120W load on `proxmox-ups` should not be treated as a stable
     planning baseline; re-measure runtime once that hardware lands.
-    **RAM landed 2026-09-02** (see status entry below) — the GPU has not
-    yet landed, and `proxmox-ups` runtime has not yet been re-measured
-    under the new load; both remain open.
+    **All of that hardware has since landed** (see the 2026-09-02 and
+    2026-09-23 status entries below): 80 GB RAM, an E5-2698 v4 CPU and the
+    Intel Arc Pro B60 GPU. `proxmox-ups` load/runtime has **not** been
+    re-measured since then, and that remains an open follow-up.
   - `nas-ups` still has the shortest measured runtime (~22.5 min at
     33%/~330W), but that figure was recorded under the corrected
     TrueNAS+Arista load, not the originally planned TrueNAS+Synology
@@ -286,13 +293,40 @@ Current state:
   2026-08-29 entry above has not yet landed, and `proxmox-ups`
   runtime/load has still not been re-measured under the new
   configuration — both remain open follow-ups.
-- 2026-09-02: `proxmox-ups` re-measured live via `upsc` post-RAM-upgrade:
+- 2026-09-02: `proxmox-ups` re-measured live via `upsc` post-RAM-upgrade
+  (48GB interim state — superseded, see 2026-09-23 below):
   `ups.load` 15% (~150W, up from the pre-upgrade 12%/~120W baseline),
   `battery.charge` 100%, `battery.runtime` ~3200s (~53 min, down from
   ~3675s/~61 min). Modest increase, well within the 80% `LB` threshold's
   margin — closes the RAM half of the re-measurement follow-up. Still
   need a follow-up re-measurement once the GPU upgrade lands, since that
   draw will likely be far larger than RAM's.
+- **Corrected 2026-09-23**: the 2026-09-02 entries above describe an
+  interim 48GB state and are stale.
+  - Proxmox now has **80 GB (4×16GB + 4×4GB ECC RDIMM, all 8 DIMM slots
+    populated, ~78.5 GiB usable)** and an **Intel Xeon E5-2698 v4**, both
+    confirmed via `dmidecode` 2026-09-04 (`docs/03-Hardware-Inventory.md`)
+    and re-confirmed live 2026-09-23.
+  - The **Intel Arc Pro B60 24GB GPU** was installed 2026-08-30 and backs
+    Aster's inference (`docs/projects/completed projects/Local-AI.md`).
+  - Guest memory on 2026-09-23: ~70 GiB configured across running guests
+    after LXC 110 → 16 GiB, 101 UniFi and 106 Authentik → 6 GiB, 115
+    Paperless → 4 GiB and 108 Forgejo → 1 GiB, with ~33 GiB actually in use
+    (`docs/projects/Aster-Personal-Assistant.md`, RA2/RA4).
+  - VM 105 (`ollama`, 8 GiB) must stay stopped. A VM reserves its full
+    allocation when started.
+  - **Re-measured 2026-09-23** (read-only `upsc`, Jason-approved):
+    - `proxmox-ups` 14% load (~140W of 1000W nominal), runtime ~3050s
+      (~51 min), 100% charge, OL. That is essentially unchanged from the
+      2026-09-02 15%/~53 min, so the B60 and CPU changes add little draw at
+      idle; a sustained inference load was not measured. **Closes the
+      proxmox-ups re-measurement follow-up.**
+    - `nas-ups` **40% load (~400W), runtime ~1000s (~17 min)**, up from
+      the 33%/~22.5 min baseline. This is attributed to the six spare
+      ST4000NM0023 drives currently spun up for Jason's drive testing. Its
+      50% `LB` threshold then fires after roughly 8 min on battery.
+      Re-check once the spares are removed or installed.
+    - `network-ups` 25% (~75W of 300W), runtime ~1950s (~32 min).
 
 Hard rules:
 - Milestone-based, same as above — confirm with me at each gate.

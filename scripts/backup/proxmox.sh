@@ -21,7 +21,7 @@ info "Collecting Proxmox host configuration..."
 
 if ! ssh proxmox \
     'set -- /etc/pve /etc/network/interfaces /etc/hosts /etc/hostname /etc/resolv.conf
-     for path in /usr/local/sbin/aster-lab-guest /usr/local/sbin/aster-lab-guest-ssh /etc/sudoers.d/aster-lab-backup /var/lib/aster-lab-guest /var/lib/ai-lab-backup/.ssh/authorized_keys; do
+     for path in /usr/local/sbin/aster-lab-guest /usr/local/sbin/aster-lab-guest-ssh /etc/sudoers.d/aster-lab-backup /var/lib/aster-lab-guest /var/lib/ai-lab-backup/.ssh/authorized_keys /usr/local/sbin/pct-fstrim-all /etc/systemd/system/pct-fstrim.service /etc/systemd/system/pct-fstrim.timer; do
          if [ -e "$path" ]; then set -- "$@" "$path"; fi
      done
      tar -czf - "$@" 2>/dev/null' > "$ARCHIVE"; then

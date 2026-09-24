@@ -1,0 +1,9 @@
+[Unit]
+Description=Trim running LXC root filesystems back to the pve/data thin pool
+After=pve-guests.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/pct-fstrim-all
+Nice=19
+IOSchedulingClass=idle

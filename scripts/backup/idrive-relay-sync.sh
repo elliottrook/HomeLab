@@ -3,6 +3,8 @@
 # Canonical relay command for LXC 112. LXC 110 model archives are deliberately
 # kept out of the metered 1 TB off-site tier; their dedicated TrueNAS mirror is
 # same-site recovery coverage only.
+# Paperless whole-guest archives include its document database and are also
+# same-site only. Off-site Paperless protection must use a service-only export.
 
 set -eu
 
@@ -17,6 +19,7 @@ exec flock -n "$lock_file" /usr/local/bin/rclone sync \
   idrive-crypt: \
   --exclude '/aster-lxc110/**' \
   --exclude '/homelab-proxmox-guests/vzdump-lxc-110-*.tar.zst' \
+  --exclude '/homelab-proxmox-guests/vzdump-lxc-115-*.tar.zst' \
   --transfers 4 \
   --checkers 8 \
   --bwlimit 20M \

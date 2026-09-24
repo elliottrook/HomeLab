@@ -1,0 +1,26 @@
+[Unit]
+Description=Paperless fixed-capability summary broker
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=root
+Group=paperless-summary
+WorkingDirectory=/opt/paperless-summary
+ExecStart=/usr/bin/python3 /opt/paperless-summary/gateway.py
+RuntimeDirectory=paperless-summary
+RuntimeDirectoryMode=0750
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateNetwork=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_UNIX
+ReadWritePaths=/run/paperless-summary
+
+[Install]
+WantedBy=multi-user.target

@@ -660,7 +660,7 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
     |---|---|---|---|---|---|---|
     | 104 Aster | 4 GiB | 0.5 GiB | 0.6 GiB | 0 | 0 | Ample. The new personas call PA/research APIs, and heavy work runs in other guests. **No change.** |
     | 110 inference | 10 GiB | 8.2 GiB | **9.9 GiB (99%)** | 112 MiB | 0 | **At its ceiling today, before vision.** The vision projector adds ~0.9 GiB plus image buffers. **Raise.** |
-    | 114 news | 2 GiB | 1.4 GiB | 1.9 GiB (94%) | 0 | 0 | Near its ceiling. It feeds the morning check-in. **Raise to 3 GiB at M3.** |
+    | 114 news | 2 GiB | 1.4 GiB | 1.9 GiB (94%) | 0 | 0 | **Corrected 2026-09-23 (RA3): no change.** The peak is page cache (anonymous only ~63 MiB, no `memory.high` events) |
     | 116 speech | 4 GiB | 1.0 GiB | 3.2 GiB (80%) | 0 | 0 | Adequate. Spoken check-ins add one nightly synthesis. **Review at M3.** |
 
   - **Proposed allocations:**
@@ -668,7 +668,6 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
     | Guest | Proposed | When |
     |---|---|---|
     | 110 inference | **16 GiB** for V1. The permanent value is set from V1's measurement at the D10 decision, expected 14–16 GiB | RA2, before V1 |
-    | 114 news | 3 GiB | M3 |
     | New PA guest (readers, analyzer, Immich MCP, image formatter) | 4 GiB (decoding large originals is the peak) | M1 (formatter re-measured at M5) |
     | New research guest (SearXNG, worker) | 2 GiB | M4 |
     | New egress-proxy guest | 512 MiB | M1 |
@@ -681,7 +680,36 @@ Gate: every decision recorded; Jason accepts the risk assessment and stream.
     must run, stop the photo/research jobs first. Each change is a live
     `pct set <id> -memory <MiB>` with no guest restart, and rollback sets
     the previous value.
-  - **Flagged, not changed (outside this project):** non-Aster guests at or
+  - **RA3 re-check (2026-09-23, read-only, cgroup `memory.stat` and
+    `memory.events`):** a peak near the limit is only real pressure when
+    anonymous memory is high or the guest keeps hitting `memory.high`/`max`.
+    Page cache near the limit is harmless and is reclaimed. With 114 needing
+    no raise, the Aster-estate total becomes ≈ 72.5 GiB.
+  - **Recommendations for non-Aster guests** (outside this project). **RA4,
+    2026-09-23: Jason approved the three raises and the Forgejo trim, and
+    they are applied** (see evidence log). Jason kept LXC 104 Aster at
+    4 GiB because Aster changes are coming soon.
+
+    | Guest | Limit | Anon / file cache | Signals | Recommendation |
+    |---|---|---|---|---|
+    | 101 UniFi OS Server | 4 GiB | 1.9 / 1.4 GiB (Java 1.2 GB, MongoDB 0.3 GB) | **310 hard-limit (`max`) hits**, 1,167 `high` | **Raise to 6 GiB.** Real pressure |
+    | 115 Paperless-ngx | 2 GiB | 0.7 / 0.7 GiB (celery workers, granian) | 7,704 `high` | **Raise to 4 GiB.** OCR and summary jobs are throttled at the ceiling |
+    | 106 Authentik | 4 GiB | 0.7 / 2.6 GiB (gunicorn, workers, PostgreSQL) | 10,818 `high`, **367 MiB swapped** | **Raise to 6 GiB.** It is the single-sign-on dependency for every onboarded app |
+    | 107 reverse proxy | 2 GiB | 0.5 / 1.0 GiB | 7 `high` | No change (cache) |
+    | 112 backup relay | 2 GiB | 0.01 / 0.2 GiB now | 2.6M `high` during relay transfers | No change. Streaming large files fills the cache, and it has no anonymous pressure |
+    | 111 NetBox | 4 GiB | 1.4 / 0.6 GiB | 143 `high`, 229 MiB swapped | No change. Watch |
+    | VM 102 Frigate | 8 GiB | Guest reports 3.0 GiB available | — | No change |
+    | VM 103 Home Assistant | 4 GiB | Host view only | — | No change |
+
+    - **Totals if all three raises and the planned Aster guests are
+      applied:** ≈ 78.5 GiB of limits on a 78.5 GiB host. Container limits
+      are ceilings, not reservations, measured use is ~33 GiB, and host
+      memory pressure (PSI) is zero, so this is workable.
+    - **Headroom still worth reclaiming:** LXC 104 Aster (4 GiB limit, 0.6
+      GiB peak) → 2 GiB, and LXC 108 Forgejo (2 GiB, 0.5 GiB peak) →
+      1 GiB, which restores ≈ 3 GiB.
+    - **VM 105 must stay stopped** in every scenario.
+  - **Originally flagged (RA1), now assessed above:** non-Aster guests at or
     near their limits:
     - 106 Authentik (peak 99%, 367 MiB swap);
     - 101 UniFi (99%);
@@ -982,6 +1010,82 @@ content is in Git, logs or Aster's corpus.
   a gated start. Formatting was interpreted as deterministic
   resolution/file-size preparation from Immich sources, and "no background"
   as no background replacement. Jason to correct if either is wrong.
+
+- **2026-09-23 — RA4 memory changes applied (Jason-approved, outside
+  this project's Aster scope).** Live `pct set`, no restarts, 17:55 PDT:
+
+  | Guest | Before | After | Usage at change |
+  |---|---|---|---|
+  | 101 UniFi | 4096 MiB | 6144 MiB | 3,589 MiB |
+  | 106 Authentik | 4096 MiB | 6144 MiB | 3,925 MiB |
+  | 115 Paperless | 2048 MiB | 4096 MiB | 1,621 MiB |
+  | 108 Forgejo | 2048 MiB | 1024 MiB | 441 MiB |
+
+  - `memory.max` confirmed on each, with no OOM kills.
+  - Services confirmed healthy afterwards:
+    - UniFi: `unifi-core` and Java running, 11443 listening;
+    - Authentik: server, worker and PostgreSQL healthy;
+    - Paperless: webserver healthy;
+    - Forgejo: `/api/healthz` 200.
+  - LXC 104 left at 4 GiB at Jason's request.
+  - Rollback: `pct set <id> -memory <before>`.
+  - Running-guest limits are now ≈ 70 GiB of 78.5 GiB.
+  - **NetBox corrected (Jason: "fix netbox"):** `VirtualMachine.memory`
+    now matches live for authentik 6144, unifi-os-server 6144, forgejo
+    1024, paperless-ngx 4096 and ollama-gpu-pilot (LXC 110) 16384. It also
+    fixes a **pre-existing drift**: netbox (LXC 111) 2048 → 4096, missed
+    when it was raised on 2026-09-04.
+    - Method: a Django ORM script run through `manage.py nbshell` inside
+      `netbox-netbox-1`. No API token was minted or read.
+    - Because the script ran outside a web request, NetBox's change log
+      will not list these edits; this entry is their record.
+    - A re-check shows zero memory drift, and vCPUs match live for every
+      guest. The temporary script is removed.
+    - Rollback: set the previous values above.
+  - **Forgejo `tmp.mount` failures diagnosed** (read-only; not caused by the
+    memory change):
+    - **Trigger:** Aster's `aster-forgejo-report.service` (5-minute timer)
+      has `PrivateTmp=true`, which pulls in `tmp.mount` on every run: 277
+      failures in 24 h.
+    - **Cause:** Debian 13 makes `/tmp` a tmpfs via `tmp.mount`. In
+      unprivileged containers **without** `features: nesting=1`, the
+      default Proxmox AppArmor profile denies that mount. The host kernel
+      logs `apparmor="DENIED" operation="mount" … profile="lxc-108_…"
+      name="/tmp/" flags="rw, move"`, and util-linux prints the misleading
+      "tmpfs already mounted on /dev/shm".
+    - **Evidence:** all three containers without nesting (108, 109, 112)
+      have `tmp.mount` failed since boot. All eleven with nesting mount
+      tmpfs `/tmp` normally. 109 and 112 fail only occasionally because
+      nothing there triggers it every 5 minutes.
+    - **Impact:** log and audit noise only. `/tmp` stays on the root disk
+      (the pre-Debian-13 behaviour), the report and Forgejo work, and
+      `PrivateTmp` isolation still functions.
+    - **Fix applied 2026-09-23 (Jason-approved):** `systemctl mask
+      tmp.mount` plus `reset-failed` in LXCs 108, 109 and 112. This is
+      Debian 13's documented opt-out from tmpfs `/tmp` and matches what
+      those containers were already doing.
+      - Verified: `tmp.mount` is masked and inactive, and `/tmp` remains
+        on the root filesystem.
+      - A triggered `aster-forgejo-report.service` run returned `success`,
+        with no `tmp.mount` attempt and no AppArmor denial for `lxc-108`.
+      - Rollback: `systemctl unmask tmp.mount`.
+      - Left as-is: the boot-time-only `dev-mqueue.mount` and
+        `run-lock.mount` failures in the same three containers. They come
+        from the same AppArmor restriction, never retry and are harmless.
+    - **Rejected alternatives:** enabling `nesting=1` (it broadens the
+      containers' AppArmor profile only to gain tmpfs `/tmp`), and dropping
+      `PrivateTmp` from the report unit (it weakens that service's
+      sandbox).
+
+- **2026-09-23 — RA3 memory re-check (read-only).** Split each guest's
+  usage into anonymous memory and page cache, and counted limit events.
+  - Corrected the 114 raise: its peak is page cache.
+  - Recommended raising 101 UniFi to 6 GiB, 115 Paperless to 4 GiB and
+    106 Authentik to 6 GiB, and optionally trimming 104 to 2 GiB and 108
+    to 1 GiB.
+  - Nothing was applied.
+  - Corrected the stale 48GB/"GPU not landed" entries in `CLAUDE.md`, and
+    recorded the pending `proxmox-ups` re-measurement.
 
 - **2026-09-23 — M0 complete; project paused.** Jason chose vision Option A
   (D10) and asked to pause the project until a later date. The document is

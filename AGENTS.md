@@ -58,3 +58,31 @@ operation that modifies Forgejo or another remote, including:
 
 Local commits do not authorize a later push. Approval must be obtained for each
 push operation unless the user explicitly authorizes that specific push.
+
+## Confirmed Paperless IP correction — 2026-09-23
+
+Jason directed that confirmation for the proposed Paperless IP-collision fix
+be recorded here. This is approval for this one bounded operation:
+
+- Move only Paperless LXC 115 from `192.168.70.14/24` to
+  `192.168.70.15/24`, after rechecking that the new address is available.
+  Preserve its existing MAC, VLAN, gateway and other guest settings.
+- Update only the Paperless UI firewall rule
+  `fdc0bfb3-9dd4-4bca-869c-a571f8d64f02` and its Homepage tile to the new
+  address; reload the firewall and restart only Homepage as needed.
+- Register Paperless and its new address in NetBox without changing the
+  existing Aster Speech address record.
+- Capture recovery checkpoints, validate UI access and network isolation,
+  and record the result in the project and operational documentation.
+
+Leave Aster Speech LXC 116 and its existing network rules unchanged. Do not
+restore an active conflicting `.14` assignment as a rollback. This approval
+does not authorize unrelated changes, backup deletion, Git pushes or a general
+waiver of the remote-change confirmation rule. Once completed, this section
+is an authorization record, not permission to repeat the operation blindly.
+
+Completion record: the IP correction, UI rule/tile update and NetBox registration
+were completed and validated on 2026-09-23. Jason subsequently approved completing
+the remaining deployment, closing, committing, pushing and archiving this project.
+That task-specific close-out authorization does not waive approval for unrelated
+projects or future remote operations.

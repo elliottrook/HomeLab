@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Paperless summary cycle every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=5min
+Unit=paperless-summary.service
+
+[Install]
+WantedBy=timers.target

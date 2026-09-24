@@ -106,3 +106,40 @@ Pick a time window that does not overlap other heavy scheduled TrueNAS work (bac
 - GPU encoding (`hevc_vaapi`) requires explicit `-rc_mode VBR` plus `-maxrate`/`-bufsize` — its
   default rate control ignores the target bitrate outright (confirmed: ~20-30 Mbps output against
   a 3.3 Mbps target without it).
+
+## Archive compaction (added 2026-09-24)
+
+`python3 -m video_archiver.compact` re-encodes **files already in the archive roots** that are
+larger than `compact.size_threshold_bytes` (2.5 GB). Unlike the archiver it does not talk to
+Radarr/Sonarr and never changes a path. See
+`docs/projects/Archive-Large-File-Compaction.md` for the design.
+
+- **Output:** HEVC via `hevc_vaapi` on the Arc A380. Never upscaled, capped at 1920×1080
+  with the aspect ratio preserved. HDR10/HLG (including Dolby Vision 7/8 base layers)
+  stays 10-bit HDR. Dolby Vision profile 5 and `.m2ts`/`.mpg`/`.avi` sources are skipped
+  and reported.
+- **Same path, same extension:** `.mkv` stays Matroska, `.mp4`/`.m4v` stay MP4 (`hvc1`,
+  faststart). Jellyfin keeps the same item, including collections, watch state and
+  metadata.
+- **Audio and subtitles:** one audio track and English subtitles only, the same policy as
+  the archiver. MP4 keeps only `mov_text` subtitles.
+- **Verification before replacement:**
+  - output ≤ `cap_bytes` and ≤ `max_output_fraction` × source;
+  - HEVC at the planned height;
+  - duration within tolerance;
+  - three-point decode spot-check;
+  - source unchanged since it was probed.
+- **Replacement and rollback:** replacement is an atomic `os.replace` with the original
+  owner and mode. A ZFS snapshot (`Media/data@archive-compact-*`) is taken before the
+  first replacement of each run and expired after `snapshot_retention_days`.
+- **Scheduling:** it shares `lock_file` with the archiver and waits up to 90 min for it,
+  then processes the largest files first until `compact.deadline`. State is kept in
+  `work/compact-state.json` (skipped or failed files aren't retried unless `--retry`).
+
+```bash
+# dry run (default): plan every candidate, change nothing
+set -a; source .env; set +a; python3 -m video_archiver.compact --config config.json
+# pilot specific files
+python3 -m video_archiver.compact --config config.json --execute --paths "/mnt/Media/data/archive-movies/X/X.m4v"
+# scheduled (TrueNAS cron, root): run-compact.sh
+```

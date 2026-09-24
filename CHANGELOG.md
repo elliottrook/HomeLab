@@ -1,10 +1,20 @@
 # Changelog
 
-## 2026-09-24 — MacBook administration layer proposed
+## 2026-09-24 — MacBook administration layer: Stream A accepted, M0 in progress
 
 - Created a Stream A project for independent MacBook lab administration, machine-specific access, diagnostic parity and tested recovery.
 - Measured the mini lab workspace at approximately 483 MiB, including 369 MiB of rebuildable output; Jason chose to retain internal storage and excluded external-SSD migration.
-- Scheduled operations remain on the mini. Project creation only; no access, storage or MacBook configuration changed.
+- Jason accepted Stream A scope/risk; M0 begun. Enumerated the mini-side SSH/API access manifest and resolved the `aster-knowledge-mirror` local-workspace question (none needed). MacBook-side inventory pending a reachable session.
+
+## 2026-09-24 — Archive cleanup and large-file compaction
+
+- Removed 291 duplicate or lower-resolution archive videos, corrected 9 mis-identified files, and destroyed the expired `pre-plex-migration` snapshot: Media/data went from 830 GB to 1.35 TB free.
+- Added `video_archiver.compact`: nightly GPU re-encode of archive files over 2.5 GB, in place (HEVC, max 1080p, HDR kept, ≤2.3 GB), with verification and 7-day ZFS rollback. Pilot SSIM 0.976–0.994; ~1.68 TB expected saving over about 8–10 nights.
+
+## 2026-09-24 — Infrastructure resilience project proposed
+
+- Chartered the 2026-09-23 health-check recommendations as one project: PBS, critical-path resilience, an always-on ops runner, image pinning and update notification, drift checks, failure push alerts and small hardening.
+- Decisions D1–D6 (PBS placement, resilience level, runner host, notifier, alert channel, stream) await Jason. No system changed.
 
 ## 2026-09-23 — Aster Personal Assistant M0 complete, paused
 
@@ -34,6 +44,18 @@
 
 - Enabled Jason’s Sysadmin Aster to request Doctor and bounded configuration/LXC backups, including task-required checkpoints, under approved Stream A.
 - Verified real worker execution for Doctor, six configuration targets and five guests; added durable job status, restricted Proxmox execution, capacity controls and protected recovery coverage. Companion UI acceptance and clean corpus publication remain open.
+
+## 2026-09-23 — Paperless deployment close-out
+
+- Resolved the LXC 115/Speech IP collision; Paperless is 192.168.70.15 with
+  private HTTPS, Authentik, Homepage and NetBox integration.
+- Activated local OCR-to-summary processing with a fixed-field broker, least
+  privilege, bounded long-document processing, durable retry and Doctor checks.
+- Corrected offsite coverage to service-only, removed the seven prior database
+  archive versions, and verified a post-deployment TrueNAS isolated restore.
+- Archived the deployment record with personal login and first real-document
+  quality review explicitly retained as operator follow-ups.
+
 
 ## 2026-09-23 — Companion acceptance and notification milestone
 
