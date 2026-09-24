@@ -94,7 +94,7 @@ one design.
 
 ## Scope and exclusions
 
-### In scope (eight workstreams)
+### In scope (ten workstreams)
 
 | WS | Workstream | Outcome |
 |---|---|---|
@@ -105,6 +105,8 @@ one design.
 | D | Image pinning and update notification | All long-running containers pinned to explicit versions. A notifier (Diun, D4) reports new releases; updates remain manual |
 | E | Drift visibility | Doctor warns on pending reboots, host security updates older than 30 days, and held/blacklisted packages with updates available |
 | F | Failure alerting | Doctor failures (not passes) pushed to Jason's phone through the existing Aster Companion Web Push path (D5) |
+| O | **Ops console** (added 2026-09-24) | An always-on Debian shell holding the repo, the `lab` CLI, Doctor, scheduled jobs, the Aster lab worker and **Claude Code in a persistent `tmux` session**. Reachable from the iPhone over Tailscale. Starts now as an LXC on Proxmox; moves to the second node when H1 lands. The Mac becomes a client |
+| W | **Mobile lab GUI** (added 2026-09-24) | An iPhone-first way to see and operate the lab without the Mac: extend the existing Aster Companion with a Lab view, plus a web terminal to the ops console (D7) |
 | G | Small hardening | Host `vm.swappiness=10`; Forgejo Actions runner running `bash -n`, `sh -n` and shellcheck on `scripts/` for every push |
 
 ### Explicit exclusions
@@ -230,6 +232,42 @@ change quickly, and nothing was purchased. Totals are estimates.
 - **Notifications:** generic push text ("HomeLab Doctor: 2 failures") with
   detail only after Companion login, reusing the Companion privacy design.
 
+### Ops console and mobile GUI (added 2026-09-24)
+
+- **Trigger:** on 2026-09-23/24 the Mac went to sleep mid-session. Jason lost
+  lab visibility and the remote Claude session could not be reached from the
+  iPhone. Doctor, the scheduled exports, the Aster lab worker
+  (`com.jason.aster-lab-worker`) and all interactive work depend on the Mac
+  being awake.
+- **Ops console (WS O):**
+  - An unprivileged Debian 13 LXC on Management VLAN 50 (~2 vCPU, 2–4 GB).
+  - The repo is cloned from Forgejo. `doctor.sh` and the exporters are ported
+    from macOS-isms (BSD `stat`/`date`, launchd) to Linux, and the LaunchAgents
+    become systemd timers.
+  - **Dedicated per-target SSH keys**, never copies of Jason's Mac keys.
+    Access is Tailscale plus SSH keys only; it joins `MGMT_ADMIN_HOSTS` by an
+    approved OPNsense change.
+  - Claude Code runs in `tmux`, so sessions survive client sleep. Evaluate
+    Claude Code Remote Control for iPhone access alongside SSH clients (Blink
+    or Termius over Tailscale).
+  - `~/lab/private-backups` moves here; TrueNAS's pull source is updated in
+    the same change.
+  - The Mac keeps working as a client until the console has run clean for a
+    week.
+  - Interim placement on Proxmox accepts that it goes down with a Proxmox
+    reboot; the second node removes that.
+- **Mobile lab GUI (WS W), options considered:**
+
+  | Option | Verdict |
+  |---|---|
+  | **Extend Aster Companion with a "Lab" view** | **Recommended.** It is already an iPhone web app with passkey-only Authentik login, Web Push notifications and the Aster Lab Operations job queue (Doctor, bounded backups, durable job status). The view would show Doctor status, job history, backup ages, compaction progress and snapshot state, plus one-tap *approved* actions routed through the existing lab worker and approval model. No new platform |
+  | **Web terminal to the ops console** (reuse the Authentik-protected **Code Server**, or add **ttyd**) | **Recommended as the complement:** a full shell and the `tmux` Claude session from Safari. Code Server already exists behind Authentik, so pointing it at (or running it on) the ops console avoids a new service |
+  | Cronicle / Semaphore / Rundeck (job-runner UIs) | Not recommended: duplicates the Aster lab worker's job queue and approvals |
+  | Cockpit / Webmin | Host-level only; useful on the console itself, not a lab-wide view |
+  | Homepage / Homarr (already deployed) | Keep as link dashboards; read-only, not an operations surface |
+  | Uptime Kuma | Monitoring only; overlaps Doctor, Prometheus and Grafana |
+  | A new custom app | Not justified while Companion exists |
+
 ## Pre-start risk assessment
 
 | # | Risk | Likelihood / impact | Controls | Residual |
@@ -243,6 +281,8 @@ change quickly, and nothing was purchased. Totals are estimates.
 | R5 | Second-node standby services drift from primary | Medium / Medium | Config sync from Git; Doctor checks standby health and version parity | Low |
 | R6 | Pinning images delays security fixes | Medium / Medium | Diun notifications plus a monthly maintenance window | Low |
 | R7 | Push alerting becomes noisy | Medium / Low | Failures only, deduplicated, with a daily digest for warnings | Low |
+| R11 | The ops console becomes the lab's most powerful host (SSH reach plus an AI with admin authority) | Certain / High | Dedicated revocable per-target keys, Tailscale/SSH-key-only access, no inbound Internet, Management VLAN, deny-by-default aligned with AI-PAM, Doctor coverage; Stream A stop conditions apply to trust and firewall changes | Medium, accepted with WS O |
+| R12 | A mobile GUI adds a write path into the lab | Medium / High | Actions only through the existing lab worker and approval classes; passkey-only Authentik; generic notification text | Low |
 | R8 | Hardware purchase delays the project | Medium / Low | WS D–G proceed without it; the runner can start as an interim LXC on the primary if needed | Low |
 
 - **Irreversible operations:** none planned. Old backup legs are retired
@@ -272,6 +312,10 @@ change quickly, and nothing was purchased. Totals are estimates.
   firewall or trust rule than designed, retiring a backup leg without a
   verified restore, and credential exposure. Git pushes still follow the
   repository rule.
+
+- **D7 — Mobile GUI approach:** recommended to extend Aster Companion with a
+  Lab view plus a web terminal (Code Server or ttyd) to the ops console.
+  *Pending Jason's confirmation.*
 
 **Postponed:**
 - **H1 — Hardware:** Jason is looking for deals. M720q/M920q-class
@@ -320,6 +364,29 @@ seeded syntax error.
 - [ ] Deploy Diun (D4) with notifications to the chosen channel.
 
 Gate: no unpinned long-running image; a notifier test fires.
+
+### M-O — Ops console (starts now; no hardware needed)
+- [ ] LXC on Proxmox (VLAN 50), NetBox record, dedicated SSH keys per
+      target, Tailscale, `MGMT_ADMIN_HOSTS` membership (approved OPNsense
+      change).
+- [ ] Port `doctor.sh`, `lab` and the exporters to Linux; LaunchAgents
+      become systemd timers; move `private-backups` and update the TrueNAS
+      pull source.
+- [ ] Move the Aster lab worker from the Mac.
+- [ ] Claude Code in `tmux`; iPhone access verified (SSH client and/or
+      Remote Control).
+- [ ] One week of parity with the Mac, then retire the Mac schedules.
+
+Gate: a Mac-asleep week with no missed runs, and a lab session driven from
+the iPhone.
+
+### M-W — Mobile lab GUI (after D7)
+- [ ] Companion Lab view: Doctor status, job history, backup ages,
+      compaction progress; approved one-tap actions via the lab worker.
+- [ ] Web terminal to the ops console behind Authentik.
+
+Gate: Jason completes a routine check and a backup run from the iPhone with
+the Mac off.
 
 ### M-N — Second node build (WS N; needs H1 hardware on site)
 - [ ] Jason installs the hardware and cabling (physical step); VLAN trunk
@@ -435,6 +502,13 @@ All milestone gates pass:
 - documentation and NetBox agree.
 
 ## Evidence log
+
+- **2026-09-24 — Ops console and mobile GUI added.** After the Mac slept
+  mid-session, Jason asked to move the lab "interface" to an always-on Linux
+  shell and to consider an iPhone GUI (built or existing self-hosted).
+  Workstreams O and W were added: the console starts now as an LXC on
+  Proxmox and moves to the second node later. For the GUI, extending Aster
+  Companion plus a web terminal is recommended (D7 pending).
 
 - **2026-09-24 — H1 market snapshot.** A read-only eBay Canada search
   found complete M720q/M920q/M70q Gen 2 units from ~C$204–C$419. The
