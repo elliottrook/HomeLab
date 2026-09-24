@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var draft: String = ""
     @State private var state: AsterState = .idle
     @State private var errorText: String?
+    @StateObject private var replyProgress = ReplyProgress()
 
     // Persona + per-chat tool selection (M4). The backend's PERSONAS
     // registry is authoritative (services/aster-agent/aster_agent.py) -
@@ -259,12 +260,31 @@ struct ContentView: View {
                         ForEach(messages) { message in
                             HStack {
                                 if message.role == .assistant { Spacer(minLength: 0) }
-                                Text(message.content)
-                                    .padding(10)
-                                    .background(message.role == .user ? Color.blue.opacity(0.15) : Color.gray.opacity(0.1))
-                                    .cornerRadius(10)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    if let summary = message.summary, let steps = summary.steps {
+                                        DisclosureGroup(steps) {
+                                            ForEach(summary.stepLines, id: \.self) { line in
+                                                Text(line).padding(.leading, 12)
+                                            }
+                                        }
+                                        .font(.caption.monospacedDigit())
+                                        .foregroundStyle(.secondary)
+                                    }
+                                    Text(message.content)
+                                        .padding(10)
+                                        .background(message.role == .user ? Color.blue.opacity(0.15) : Color.gray.opacity(0.1))
+                                        .cornerRadius(10)
+                                    if let stats = message.summary?.stats {
+                                        Text(stats)
+                                            .font(.caption2.monospacedDigit())
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
                                 if message.role == .user { Spacer(minLength: 0) }
                             }
+                        }
+                        if replyProgress.isActive {
+                            ReplyProgressView(progress: replyProgress)
                         }
                     }
                     .padding()
@@ -370,11 +390,17 @@ struct ContentView: View {
         errorText = nil
         state = .thinking
 
+        replyProgress.begin()
+
         Task {
             do {
-                let reply = try await client.send(history: messages, persona: currentPersona, enabledTools: enabledToolsPayload())
+                let reply = try await client.send(
+                    history: messages, persona: currentPersona, enabledTools: enabledToolsPayload(),
+                    onEvent: { replyProgress.handle($0) }
+                )
+                let summary = replyProgress.finish()
                 guard auth.isAuthenticated else { state = .idle; return }
-                messages.append(ChatMessage(role: .assistant, content: reply))
+                messages.append(ChatMessage(role: .assistant, content: reply, summary: summary))
                 await notifications.post(.replyReady, eventID: "reply-" + UUID().uuidString)
                 if viaVoice {
                     state = .speaking
@@ -384,6 +410,7 @@ struct ContentView: View {
                     }
                 }
             } catch {
+                if replyProgress.isActive { _ = replyProgress.finish() }
                 errorText = error.localizedDescription
             }
             state = .idle

@@ -9,12 +9,14 @@ import jwt
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException
 from pydantic import ValidationError
+import httpx
 
 from aster_agent import (
     ASTER_SYSTEM_PROMPT,
     DEFAULT_PERSONA,
     PERSONAS,
     ArrRepairExecutionRequest,
+    ChatProgress,
     ChatRequest,
     TOOLS,
     arr_repair_proposal,
@@ -26,6 +28,7 @@ from aster_agent import (
     normalized_messages,
     personas,
     preload_read_only_context,
+    relay_progress_stream,
     require_api_key,
     search_knowledge,
     select_tools,
@@ -1191,6 +1194,78 @@ class PersonaChatEndpointTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("get_ha_report", ha_tool_names)
         self.assertNotIn("get_arr_report", ha_tool_names)
         self.assertNotIn("search_knowledge", ha_tool_names)
+
+
+class ProgressStreamTests(unittest.IsolatedAsyncioTestCase):
+    @staticmethod
+    async def _events(response):
+        frames = [frame async for frame in response.body_iterator]
+        return [frame.strip()[6:] if frame.strip() == "data: [DONE]" else json.loads(frame.strip()[6:]) for frame in frames]
+
+    @staticmethod
+    def _request(**extra):
+        return ChatRequest(messages=[{"role": "user", "content": "What time is it?"}], stream=True,
+                           progress=True, persona="sysadmin", enabled_tools=["get_current_time"], **extra)
+
+    async def test_steps_content_and_usage_stream_in_order(self):
+        seen = {}
+
+        async def fake_relay(payload, progress):
+            seen["payload"] = payload
+            progress.content("It is noon.")
+            progress.prompt_tokens, progress.completion_tokens, progress.tokens_per_second = 100, 5, 6.25
+
+        with patch("aster_agent.relay_progress_stream", new=fake_relay), \
+                patch("aster_agent.execute_tool", new=AsyncMock(return_value={"display": "noon"})):
+            events = await self._events(await chat(self._request()))
+        running, done, content, usage, end = events
+        self.assertEqual((running["type"], running["tool"], running["state"]), ("step", "get_current_time", "running"))
+        self.assertEqual(running["label"], "Checking the time")
+        self.assertEqual((done["id"], done["state"]), (running["id"], "done"))
+        self.assertIsInstance(done["ms"], int)
+        self.assertEqual(content["choices"][0]["delta"]["content"], "It is noon.")
+        self.assertEqual((usage["type"], usage["prompt_tokens"], usage["completion_tokens"], usage["tokens_per_second"]),
+                         ("usage", 100, 5, 6.25))
+        self.assertEqual(end, "[DONE]")
+        # The progress flag and tool results never leak into the stream frames.
+        self.assertNotIn("progress", seen["payload"])
+        self.assertNotIn("noon", json.dumps(running) + json.dumps(done))
+
+    async def test_backend_failure_arrives_as_error_event(self):
+        async def failing_relay(payload, progress):
+            raise HTTPException(status_code=502, detail="Inference backend error: down")
+
+        with patch("aster_agent.relay_progress_stream", new=failing_relay), \
+                patch("aster_agent.execute_tool", new=AsyncMock(return_value={})):
+            events = await self._events(await chat(self._request()))
+        error = next(event for event in events if isinstance(event, dict) and event.get("type") == "error")
+        self.assertEqual(error["detail"], "Inference backend error: down")
+        self.assertEqual(events[-1], "[DONE]")
+
+    async def test_plain_stream_has_no_progress_events(self):
+        request = ChatRequest(messages=[{"role": "user", "content": "hi"}], stream=True)
+        with patch("aster_agent.upstream_stream", new=AsyncMock(return_value="plain")) as plain:
+            self.assertEqual(await chat(request), "plain")
+        self.assertNotIn("progress", plain.call_args.args[0])
+
+    async def test_relay_reports_llama_timings_as_usage(self):
+        body = (
+            'data: {"choices":[{"index":0,"delta":{"content":"Hi"}}]}\n\n'
+            'data: {"choices":[{"index":0,"delta":{},"finish_reason":"stop"}],'
+            '"timings":{"cache_n":40,"prompt_n":60,"predicted_n":12,"predicted_per_second":11.8}}\n\n'
+            "data: [DONE]\n\n"
+        )
+        transport = httpx.MockTransport(lambda request: httpx.Response(
+            200, text=body, headers={"content-type": "text/event-stream"}))
+        real_client = httpx.AsyncClient
+        progress = ChatProgress()
+        with patch("aster_agent.httpx.AsyncClient", new=lambda **kwargs: real_client(transport=transport, **kwargs)):
+            await relay_progress_stream({"messages": []}, progress)
+        self.assertEqual((progress.prompt_tokens, progress.completion_tokens, progress.tokens_per_second), (100, 12, 11.8))
+        frames = [json.loads(progress.queue.get_nowait()[6:]) for _ in range(progress.queue.qsize())]
+        kinds = [(f.get("type"), f.get("state")) if f.get("object") == "aster.progress" else "content" for f in frames]
+        self.assertEqual(kinds, [("step", "running"), ("step", "done"), "content", "content"])
+        self.assertEqual(frames[0]["label"], "Reading context")
 
 
 if __name__ == "__main__":
