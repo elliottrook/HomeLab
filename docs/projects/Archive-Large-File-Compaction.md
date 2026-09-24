@@ -156,6 +156,12 @@ The desired outcome:
     the Jellyfin container cannot see the snapshot directory.
   - **Throughput:** ~24–32× real time, so an estimated 40–50 GPU-hours for the
     477 files, about 8–10 nights in the 02:00–07:30 window.
+- **2026-09-24 02:00 — First scheduled night.**
+  - Snapshot `Media/data@archive-compact-20260924-020820`.
+  - **72 files replaced, 861.6 GB → 130.1 GB, 0 failures**, stopping at the
+    07:30 deadline. Cumulative with the pilot: 75 files, 889.3 GB → 135.1 GB.
+  - The originals are held by the two rollback snapshots until they expire
+    about 7 days later.
 - **Follow-ups:**
   - The archiver's own `scale_vaapi=w=min(iw,1920):h=min(ih,1080)` distorts
     non-16:9 sources above 1080p; its scaling should be fixed separately.
