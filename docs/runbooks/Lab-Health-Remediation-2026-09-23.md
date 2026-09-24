@@ -103,19 +103,96 @@
   are unaffected. The stopped `code-server-pre-authentik` rollback
   container and its image are kept until the Authentik rollout graduates.
 
+## Follow-up changes (Jason's decisions, 2026-09-23)
+
+### OPNsense firmware 26.7.1 → 26.7.4_1
+- Config backup taken first (`opnsense-config-2026-09-23_20-41-30.xml`)
+  plus ZFS boot environment **`pre-update-20260923`** (rollback: select it
+  at the console or run `bectl activate pre-update-20260923`). The boot
+  environment is kept.
+- `configctl firmware update`: 82 packages including base and kernel
+  (FreeBSD 15.1-RELEASE-p3), then an automatic reboot.
+- `pkg audit` dropped from six flagged packages to one (python313).
+- Doctor afterwards: internet, DNS and WAN all pass.
+
+### WAN gateway monitoring enabled
+- WAN_DHCP was an automatic gateway with monitoring disabled by default.
+  A stored `gateway_item` was created through OPNsense's own
+  `OPNsense\Routing\Gateways` model (validated as the GUI would):
+  `gateway=dynamic`, `defaultgw=1`, `monitor_disable=0`,
+  `monitor=1.1.1.1`. It was then applied with `rc.routing_configure`.
+- Verified: dpinger is running, WAN_DHCP shows 5.3 ms and 0.0% loss, and
+  the default route is unchanged. The added 1.1.1.1 host route goes via
+  WAN.
+- Rollback: delete the WAN_DHCP entry in System → Gateways →
+  Configuration, or restore the 20:41 config backup.
+
+### Apt proxy for LXC 112 (closes the "cannot reach Debian mirrors" item)
+- `apt-cacher-ng` 3.7.5 on **LXC 100 (192.168.20.20:3142)**. LXC 112 is on
+  the same VLAN 20, so **no OPNsense rule was needed**.
+- Configured in `/etc/apt-cacher-ng/zz-homelab.conf`:
+  - binds only 192.168.20.20 and 127.0.0.1;
+  - `ForceManaged: 1`, so only known Debian repositories are served;
+  - `PassThroughPattern: ^$`, so there are no HTTPS tunnels;
+  - `UseWrap: 1` (libwrap linked), with `/etc/hosts.allow` set to
+    `apt-cacher-ng: 192.168.20.33 127.0.0.1` and `/etc/hosts.deny` to
+    `apt-cacher-ng: ALL`.
+- Verified:
+  - LXC 112 fetches Debian indexes through the proxy;
+  - a non-Debian URL returns `403 Forbidden file type or location`;
+  - NetBox LXC 111 and TrueNAS get connection resets.
+- LXC 112: `/etc/apt/apt.conf.d/01homelab-proxy` points at the proxy.
+  - Patched 49 packages; health unchanged; the IDrive relay timer is
+    intact.
+  - Security-only unattended-upgrades are enabled, so **all 14 LXCs**
+    now have them.
+  - Rollback: this morning's vzdump (`vzdump-lxc-112-2026_09_23-02_44_27`),
+    since 112 cannot be snapshotted because of its bind mount.
+- Rollback for the proxy: `apt-get purge apt-cacher-ng` on LXC 100, remove
+  the hosts.allow/deny lines, and remove 112's `01homelab-proxy`.
+
+### Claude Code sandbox: `sandbox.excludedCommands: ["ssh", "scp"]`
+- Rationale: the sandbox's network proxy is HTTP(S)-only and `NO_PROXY`
+  covers 192.168.0.0/16, so the macOS sandbox blocks every SSH connection
+  to lab IPs even though they are on the allowlist. Every SSH call had to
+  run through an extra unsandboxed-approval step, and a timed-out prompt
+  of that kind silently dropped steps during this session.
+- Excluding `ssh`/`scp` from the sandbox keeps the real control intact:
+  the `permissions` rules still decide. Read-only `ssh <host> cat/ls/...`
+  forms are allowed, and every other `ssh`/`scp` asks, via
+  `"ask": ["Bash(ssh:*)", "Bash(scp:*)"]`.
+- Trade-off: SSH egress is no longer restricted by `allowedDomains`. The
+  destination is bounded by the approval prompt and the SSH keys and
+  config instead.
+- Rollback: remove the `excludedCommands` line.
+- It takes effect from the next Claude Code session; it was not live in the
+  session that added it.
+
+### Snapshot cleanup
+- Removed the `prepatch-20260923` snapshots from LXCs 100, 101, 104, 106,
+  107, 108, 109, 110, 111, 113, 114, 115 and 116 and from VM 102. None
+  remain, and pve/data is at 24% data. Rollback from here is the nightly
+  vzdump backups.
+
+### Aster wiki re-pin
+- Jason chose to ignore it for now. Doctor keeps warning while sources are
+  quarantined.
+
 ## Open items needing Jason
 
-1. **LXC 112 package access:** it cannot reach deb.debian.org or
+1. ~~**LXC 112 package access:**~~ Resolved with the apt proxy above.
+   Originally: **LXC 112 package access:** it cannot reach deb.debian.org or
    security.debian.org, so it has not been patched since 2026-07-14.
    Options:
    - a narrow OPNsense allow rule to the Debian mirrors;
    - an apt proxy on another guest;
    - periodic patching through a temporarily opened path.
-2. **OPNsense WAN gateway monitoring:** in System → Gateways →
+2. ~~**OPNsense WAN gateway monitoring:**~~ Enabled above. Originally:
+   **OPNsense WAN gateway monitoring:** in System → Gateways →
    Configuration → WAN_DHCP, untick "Disable Gateway Monitoring" and set
    a monitor IP (for example a public resolver). This gives outage and
    latency history and makes dpinger meaningful.
-3. **Aster wiki re-pin review:** seven sources, all pinned to `master`,
+3. **Aster wiki re-pin review** (deferred; Jason: ignore for now): seven sources, all pinned to `master`,
    are quarantined because upstream moved. The design requires a reviewed
    re-pin that checks the new upstream content still matches the deployed
    versions (Proxmox 9.2, TrueNAS 25.10.5, Jellyfin 10.11, and so on).
@@ -125,7 +202,8 @@
      `ManagingDatasets.md`).
    - The rest were not assessed, because the sandbox proxy truncates large
      GitHub compare responses.
-4. **Claude Code sandbox and SSH:** the sandbox proxy carries HTTP(S) only,
+4. ~~**Claude Code sandbox and SSH:**~~ Applied above. Originally:
+   **Claude Code sandbox and SSH:** the sandbox proxy carries HTTP(S) only,
    and `NO_PROXY` includes 192.168.0.0/16. So SSH to allowlisted lab IPs
    is blocked by Seatbelt, and every SSH call needs an unsandboxed approval
    prompt. The only effective setting is `sandbox.excludedCommands`
@@ -133,7 +211,8 @@
    per-command prompt, but it also stops the domain allowlist applying to
    SSH. The trade-off is Jason's call; the settings file is protected from
    Claude's writes.
-5. **Cleanup after acceptance:** remove the `prepatch-20260923` snapshots
+5. ~~**Cleanup after acceptance:**~~ Done above. Originally:
+   **Cleanup after acceptance:** remove the `prepatch-20260923` snapshots
    (13 LXCs and VM 102) once the patched state is accepted
    (`pct delsnapshot <id> prepatch-20260923`,
    `qm delsnapshot 102 prepatch-20260923`).

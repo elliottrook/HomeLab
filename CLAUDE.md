@@ -60,6 +60,12 @@ that file in sync — update both in the same change.
 | deb.debian.org, security.debian.org | — | Package installs on Debian guests |
 | astral.sh | — | `uv`/`uvx` official installer, needed to run the `freecad-mcp` bridge (FreeCAD-MCP-Connector project, this Mac only, no lab VLAN involvement) |
 
+`sandbox.excludedCommands` is `["ssh", "scp"]` (2026-09-23). The sandbox's network
+proxy carries HTTP(S) only, and `NO_PROXY` covers 192.168.0.0/16, so SSH to lab IPs
+cannot work inside the sandbox. `ssh`/`scp` therefore run outside it and are
+governed by the `permissions` allow/ask rules instead. See
+`docs/runbooks/Lab-Health-Remediation-2026-09-23.md`.
+
 This list exists to let Claude run the same read-only `lab`/`doctor.sh` tooling from
 this laptop that already runs from the Mac mini. It is not itself a grant of SSH
 trust or firewall access — those are separate, host-by-host and OPNsense-side
