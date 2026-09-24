@@ -94,6 +94,7 @@
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": false,
+    "excludedCommands": ["ssh", "scp"],
     "network": {
       "allowedDomains": [
         "192.168.50.25",
