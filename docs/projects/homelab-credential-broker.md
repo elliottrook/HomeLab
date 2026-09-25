@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0–M2 complete; M3 deployed, human passkey validation pending
+> Status: active — Stream A; M0–M3 complete; M4 is next
 >
 > Owner: Jason
 >
@@ -390,24 +390,25 @@ credential was created.
 - [x] Reuse the dedicated passkey-only Aster Companion application/provider;
   do not create a second identity stack.
 - [x] Build and deploy the iPhone-friendly approval flow.
-- [ ] Require passkey at the defined risk class.
-- [ ] Test approve, deny, timeout, replay and changed-payload failure.
+- [x] Require passkey at the defined risk class.
+- [x] Test approve, deny, timeout, replay and changed-payload failure.
 
-**Gate pending:** the approval bridge is deployed on LXC 104. Aster validates
+**Gate passed 2026-09-24:** the approval bridge is deployed on LXC 104. Aster validates
 the signed Authentik token and derives a one-way actor identifier plus
 `auth_time`; it never accepts those identity values from the browser. A
 separate `AF_UNIX` approval service accepts only the kernel UID of `aster`.
 Yellow and Red requests remain payload-hash-bound, one-use and TTL-bound; Red
 also requires passkey assurance and authentication no more than 120 seconds
 old. Companion shows only allowlisted, length-bounded non-secret summaries and
-forces a new OIDC login (`prompt=login`, `max_age=0`) before a Red approval.
+forces fresh OIDC authentication (`max_age=0`) before a Red approval.
 
 The complete deployed-runtime suites pass (30 broker tests and 94 Aster tests).
 Live checks proved unauthenticated HTTP rejection, denial of the agent UID at
-the approval socket, changed-payload rejection, successful exact-payload
-approval, replay rejection and timeout rejection. The remaining gate is a real
-iPhone passkey approval and denial by Jason; it was deferred because Jason was
-remote and could not complete sign-in. No production target is connected.
+the approval socket, changed-payload rejection, timeout rejection, a real
+fresh-passkey Red approval followed by exact one-time consumption and replay
+rejection, and a real human Yellow denial. The broker audit recorded only the
+one-way actor identifier and request metadata. Zero requests remain open. No
+production target is connected.
 
 ### M4 — Management GUI
 
@@ -545,16 +546,17 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Completed M2 synthetic broker foundation | `broker_core.py`, Unix-socket service/client/admin, hardened systemd unit, installer and 23 passing tests; live LXC 104 probation, payload-binding, one-time consumption, risk denial and global-disable checks | M3 must supply Authentik/passkey approval; M2 exposes no TCP endpoint and holds no OpenBao or production credential |
 | 2026-09-24 | Deployed M3 mobile approval candidate | Existing passkey-only Aster Companion OIDC reused; separate approver-only Unix socket; kernel UID and signed-token identity boundary; sanitized approval inbox; 30 broker and 93 Aster tests; live changed-payload, replay and timeout failures passed | Real iPhone approve/deny gate deferred until Jason can sign in locally; M3 is not complete and no production target is connected |
 | 2026-09-24 | Corrected silent approval-inbox behavior | Inbox/list and denial now require a valid signed Companion identity but not a fresh `auth_time`; the broker still fails Red approval closed unless fresh authentication supplies it. Companion now shows an immediate loading/result message and serves the page with `Cache-Control: no-store`; 94 Aster tests pass live | Real-device approve/deny remains pending; Red freshness enforcement is unchanged |
+| 2026-09-24 | Corrected Authentik fresh-login compatibility | Real Safari test showed Authentik 2026.8.0 returned `Not Found` from a stale Companion page using `prompt=login&max_age=0`; retained standards-based `max_age=0`, removed the incompatible `prompt` value and disabled Companion HTML caching | Private Safari fetched the corrected page and completed the required fresh passkey; normal Safari no longer needs the stale page |
+| 2026-09-24 | Completed M3 human mobile gate | Jason completed a real fresh-passkey Red approval; the exact synthetic request consumed once and replay failed. Jason separately denied a clearly labeled Yellow request; broker read-back shows `consumed` and `denied`, metadata-only actor attribution and zero open requests | M3 remains synthetic-only; M4 lifecycle GUI is next and no production target credential is connected |
 
 ## Close-out
 
-Not graduated. M0 through M2 are complete and the M3 candidate is deployed,
-but its real-device passkey approval/denial gate remains open. OpenBao and the
-broker contain only synthetic data and no active target credential; no
-production credential, DNS, firewall or Forgejo authorization path has been
-added. M3 reused the already deployed Aster Companion Authentik application.
+Not graduated. M0 through M3 are complete. OpenBao and the broker contain only
+synthetic data and no active target credential; no production credential, DNS,
+firewall or Forgejo authorization path has been added. M3 reused the already
+deployed Aster Companion Authentik application.
 
-Next safe action: when Jason can sign in from his iPhone, create fresh synthetic
-Yellow and Red requests, deny Yellow, approve Red through a fresh passkey login,
-then verify terminal state and one-time consumption. Keep OpenBao loopback-only
-and the broker on its Unix sockets until the later integration gate.
+Next safe action: **M4 management GUI.** Add lifecycle, capability, revocation,
+history and audit views without exposing secret material. Keep OpenBao
+loopback-only and the broker on its Unix sockets until the later integration
+gate.

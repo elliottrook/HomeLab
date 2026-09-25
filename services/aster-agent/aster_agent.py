@@ -1658,7 +1658,7 @@ async function login(fresh=false, approval=null){{
   sessionStorage.setItem('pkce_state', state);
   if(approval) sessionStorage.setItem('pending_approval_action', JSON.stringify(approval));
   const p=new URLSearchParams({{client_id:AUTH.clientId, response_type:'code', redirect_uri:AUTH.redirectUri, scope:AUTH.scope, code_challenge:challenge, code_challenge_method:'S256', state}});
-  if(fresh){{ p.set('prompt','login'); p.set('max_age','0') }}
+  if(fresh) p.set('max_age','0');
   location.href = AUTH.authorizeUrl + '?' + p.toString();
 }}
 

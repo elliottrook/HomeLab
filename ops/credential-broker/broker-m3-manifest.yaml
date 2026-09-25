@@ -1,7 +1,7 @@
 schema_version: 1
 project: homelab-ai-pam
 milestone: M3
-status: human_validation_pending
+status: complete
 
 deployment:
   host: hermesagent
@@ -44,5 +44,7 @@ validation:
   exact_payload: approved
   replay: denied
   timeout: denied
-  real_iphone_passkey_approve: pending
-  real_iphone_deny: pending
+  real_iphone_passkey_approve: passed
+  real_iphone_deny: passed
+  exact_payload_consumption: passed
+  open_requests_after_test: 0

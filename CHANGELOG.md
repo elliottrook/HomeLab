@@ -15,6 +15,12 @@
   signed sessions can now list and deny, while Red approval still requires the
   broker's fresh-auth gate. Added visible loading feedback and disabled caching
   of the Companion HTML; the live Aster suite now passes 94 tests.
+- Removed `prompt=login` from Red reauthentication after Authentik 2026.8.0
+  returned its Not Found page for an existing session. `max_age=0` remains and
+  the broker still requires the resulting fresh `auth_time` within 120 seconds.
+- Completed the real-device gate: fresh-passkey Red approval, exact one-time
+  synthetic consumption, replay rejection and a separate Yellow denial all
+  passed, with zero open requests afterward. M3 is complete; M4 is next.
 
 ## 2026-09-24 — MacBook administration layer: M0-M3 closed, M4 in progress
 
