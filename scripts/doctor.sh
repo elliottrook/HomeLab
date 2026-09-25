@@ -863,10 +863,17 @@ check_arista() {
         "Et46:a-100M"
     )
 
-    if ! status_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces status')" ||
-       ! error_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces counters errors')" ||
-       ! temperature_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show environment temperature')" ||
-       ! power_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show environment power')"; then
+    # Arista's EOS SSH server doesn't offer post-quantum key exchange, so
+    # every connection prints OpenSSH's own "** WARNING: ... post-quantum
+    # ..." advisory to stderr. That's informational noise about the switch's
+    # own crypto stack, not a real error, and not something upgrading this
+    # script can fix (it would need an EOS upgrade, out of scope here) --
+    # filtered out by prefix so it doesn't clutter every run, while any
+    # *other* stderr (a real connection/auth failure) still comes through.
+    if ! status_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces status' 2> >(grep -v '^\*\*' >&2))" ||
+       ! error_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show interfaces counters errors' 2> >(grep -v '^\*\*' >&2))" ||
+       ! temperature_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show environment temperature' 2> >(grep -v '^\*\*' >&2))" ||
+       ! power_output="$(ssh -o BatchMode=yes -o ConnectTimeout=5 arista 'show environment power' 2> >(grep -v '^\*\*' >&2))"; then
         warn "Unable to collect Arista health data"
         return
     fi
