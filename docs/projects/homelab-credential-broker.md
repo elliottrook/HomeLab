@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0–M5 complete; M6 Forgejo pilot is next
+> Status: active — Stream A; M0–M5 complete; M6 Green Forgejo read path complete
 >
 > Owner: Jason
 >
@@ -591,16 +591,17 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Created and validated the Phase-1 Forgejo credential | Restricted non-admin `ai-pam-mcp`; sole collaboration `jason/homelab` in read mode; PAT `ai-pam-m6-read` has exactly `read:repository`; stored and round-trip verified only at OpenBao `secret/ai-pam/forgejo-mcp-read`. Live API validation returned pull=true, push=false, admin=false; `/api/v1/user` returned HTTP 403 because `read:user` was deliberately omitted | One-shot bootstrap helper removed after success. Broker/OpenBao private listener and MCP policy adapter are not connected yet; no Yellow write credential exists |
 | 2026-09-24 | Opened the broker-only OpenBao service path | Added TLS listener `192.168.50.24:8200` while preserving loopback recovery; replacement certificate has SANs only for `127.0.0.1` and `192.168.50.24`. LXC 117 nftables and logged OPNsense rule `7d50a11f-0fe6-4546-bff6-572f14b6541b` permit only `192.168.70.10` TCP 8200; OPNsense checkpoint `/conf/backup/config-ai-pam-openbao-before-20260924.xml`; repository configs `openbao-m6-listener.hcl` and `openbao-m6-nftables.conf` | After human 2-of-3 unseal, broker path returns HTTP 200 with certificate validation; Forgejo LXC 108 times out. Existing loopback recovery remains healthy |
 | 2026-09-24 | Connected the M6 Green Forgejo MCP path | CIDR-bound AppRole `hlabroker-forgejo-m6` can read only `secret/data/ai-pam/forgejo-mcp-read`; five-minute tokens, 30-minute maximum, no default policy. Broker-private gateway socket is mode 0600 and starts checksum-pinned MCP 3.2.0 per call, filtering its catalogue and requests through the independent allowlist. Registered Green `forgejo.read.repository` for `agent-hermes` | Real agent → broker → OpenBao → MCP → Forgejo `jason/homelab` read passed and consumed once. Another repo and `delete_repo` were denied before forwarding; policy administration and another secret path returned 403; all observed test tokens were revoked. The restored root token remains temporarily valid and encrypted pending a separately approved human-only operator recovery path |
+| 2026-09-25 | Closed the temporary OpenBao root-recovery window | Created loopback/CIDR-bound `human-root-ceremony` AppRole with only authenticated root-ceremony start/status/cancel/update and self-revoke rights; its sole credential is PGP-encrypted to Recovery A in the human recovery bundle. Jason proved login, a zero-share 2-of-3 ceremony start, cancellation and token self-revocation, then revoked the temporarily restored root token. OpenBao remained healthy/unsealed and a fresh agent → broker → AppRole → Forgejo MCP read passed and consumed once after revocation | A future root token still requires this human-held AppRole credential plus two independent recovery shares; the legacy encrypted initial-root-token file is retained only as historical/recovery evidence and its contained token is revoked |
 
 ## Close-out
 
-Not graduated. M0 through M3 are complete. OpenBao and the broker contain only
-synthetic data and no active target credential; no production credential, DNS,
-firewall or Forgejo authorization path has been added. M3 reused the already
-deployed Aster Companion Authentik application.
+Not graduated. M0 through M5 and the M6 Green Forgejo read path are complete.
+OpenBao holds the restricted Forgejo read credential; the broker-only private
+listener, CIDR-bound AppRole and deny-by-default MCP gateway are live. The
+temporary restored root token is revoked, while the tested human-only
+root-ceremony AppRole still requires two independent recovery shares.
 
-Next safe action: **M6 Forgejo MCP pilot.** Revalidate the pinned adapter and
-current Forgejo version, verify artifact provenance, then introduce only a
-repository-scoped synthetic/read-only identity before any Yellow safe-branch
-write test. Keep OpenBao loopback-only and preserve Forgejo as the sole push
-authority with GitHub mirror verification.
+Next safe action: **M6 Yellow safe-branch write test.** Add a distinct,
+least-privilege write capability and fresh human approval without broadening
+the proven Green token. Verify the authoritative Forgejo ref, then verify its
+GitHub mirror; Forgejo remains the sole push authority.
