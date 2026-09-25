@@ -45,7 +45,7 @@ database over later work. The shared passkey flow itself was not edited.
 
 From an approved management client, run
 `python3 scripts/check-authentik-browser-boundary.py` in the HomeLab repository.
-It checks 22 names against all three DNS authorities, certificate-validated
+It checks 23 names against all three DNS authorities, certificate-validated
 HTTPS routing, and plain/spoofed direct-IP requests to the six private browser
 ingresses. It uses no credentials and prints no response bodies. A pass does
 not establish real login, sign-out, authorized app identity or disaster recovery.

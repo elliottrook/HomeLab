@@ -20,6 +20,62 @@
 
 ## Resume audit — 2026-09-23
 
+### Synology administrator session and native SSO — 2026-09-25
+
+Jason opened DSM in external Brave, signed in as the existing administrator.
+Observed DSM 7.4.1-90080 on GoWest. The existing SSO client is already enabled
+and selected by default: name `authentik`, OIDC discovery for application
+`synology`, scopes `openid profile email`, claim `preferred_username`,
+account type Domain/LDAP/local and callback `https://synology.elliottrook.com`.
+Its public client ID matches existing provider 4. NPM host 3 already forwards
+that hostname to HTTPS `192.168.20.41:5001`. No DSM client field, secret,
+user/group, local recovery account, storage setting or Drive/Cloudflare setting
+was changed.
+
+Exported DSM configuration through its admin UI; the export dialog explicitly
+includes SSO Client settings. `GoWest_20260925.dss` is 70,092 bytes and all 15
+archive files are readable; SHA-256
+`e032b723689c1aef0070c97fd20c9a20dc0903dbc4dd9c7e384fd858f2507ac6`.
+This verifies archive readability, not a destructive restore rehearsal or Immich
+database backup. Copies:
+
+- Mac `/private/tmp/authentik-synology-20260925T214316Z/GoWest_20260925.dss`,
+  directory 0700/file 0600; downloaded original in Jason's Downloads is 0600.
+- NAS `/volume1/homes/Jason/authentik-rollout-backups/20260925T214316Z/GoWest_20260925.dss`.
+  Hash matches. Synology initially applied inherited 0777 modes despite umask;
+  explicit chmod then verified directory 0700/file 0600. This copy is retained
+  in the existing owner's home, not a shared export.
+- Authentik `/opt/authentik/backups/synology-passkey-20260925T214448Z` contains
+  a fresh dump (1,818 readable catalogue lines) and prior provider-flow record.
+
+Changed only provider 4 `authentication_flow` from null to the existing tested
+`aster-companion-passwordless`. Transaction verified other provider fields
+unchanged and `jason` allow / `akadmin` deny. Existing duplicate redirect/grant
+entries were preserved rather than folded into this change. A fresh unauthenticated
+OIDC request with the exact registered callback returns HTTP 200 at the passkey
+flow. Targeted rollback sets only provider 4's authentication flow back to null.
+
+Opened the friendly HTTPS name in a new Brave tab, observed its native
+“Continue with authentik” login and clicked Sign In. The next observable UI was
+the DSM desktop without another app password. Subsequently computer use returned
+only desktop icons, no browser controls and no screenshot; account/role inspection
+could not be completed despite refreshing the tool connection. Jason was asked
+to confirm the Jason account and Control Panel. This is observed SSO navigation,
+not yet human role acceptance, fresh Face ID, logout or recovery acceptance.
+The original direct-IP admin tab was retained; Homepage is not promoted here.
+
+Discovered an existing DNS inconsistency: both Pi-holes returned NPM, but
+Unbound returned NXDOMAIN and had no Synology host override. Added only
+`synology.elliottrook.com -> 192.168.50.23` using the validated Unbound model,
+UUID `bc2dc738-c7cf-4270-92af-088e5a2edc2f`, with no PTR. Checkpoint:
+`/root/authentik-synology-dns-20260925T214818Z/config.xml` on OPNsense.
+Configuration check and Unbound restart succeeded. Rollback removes only that
+new host record; Pi-hole records were unchanged. Immich and Frigate still need
+their own privileged application checkpoints; DSM's export does not cover them.
+Post-change boundary check passed **104/104**: 69 DNS answers for 23 names,
+23 HTTPS roots and 12 direct-IP/spoofed-header checks. Normal client-resolved
+Synology HTTPS returned 200 as well. No remote Git push was performed.
+
 ### Independent regression and documentation pass — 2026-09-23
 
 Jason cannot currently open the administrator session and requested other work
