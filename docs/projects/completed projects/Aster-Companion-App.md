@@ -112,7 +112,7 @@ mark into a literal compass rose. The source artwork is retained at
   over Tailscale at all; local reachability from Jason's three named devices
   is via a separate, narrow OPNsense rule pattern already used for the news
   aggregator (`MGMT_ADMIN_HOSTS → 192.168.70.13:8080/tcp`,
-  `docs/projects/Combined-Morning-Digest.md`) — worth confirming live whether
+  `docs/projects/archive/Combined-Morning-Digest.md`) — worth confirming live whether
   an equivalent rule already exists for `192.168.70.10:9120`.
 - **Speech:** Piper TTS (`en_US-lessac-medium`, `length_scale 1.15`) is
   already vetted and in production for the news aggregator's audio digest
@@ -121,7 +121,7 @@ mark into a literal compass rose. The source artwork is retained at
   this project is a second real consumer of that same vetted voice. No local
   speech-to-text engine is deployed anywhere in this lab yet; the proposed
   (not yet built) Home Assistant voice assistant
-  (`docs/projects/Home-Assistant-Voice-Assistant.md`) and subtitle project
+  (`docs/projects/archive/Home-Assistant-Voice-Assistant.md`) and subtitle project
   (`docs/projects/Subtitle-Generation-Translation.md`) both anticipate
   Whisper-family STT but neither has deployed it.
 - **Existing Mac-native-app precedent:** the FreeCAD MCP connector
@@ -2510,7 +2510,7 @@ approved building it as a small follow-up to this closed project.
 - `docs/projects/completed projects/News-Aggregator-Audio-Digest.md` — the
   vetted Piper `en_US-lessac-medium` voice this project reuses for Aster's
   TTS.
-- `docs/projects/Home-Assistant-Voice-Assistant.md` — the sibling proposed
+- `docs/projects/archive/Home-Assistant-Voice-Assistant.md` — the sibling proposed
   project this one deliberately does not duplicate (household device
   control via HA's own Assist pipeline, unrelated to talking to Aster) but
   shares the same open `aster-llama` capacity question with.

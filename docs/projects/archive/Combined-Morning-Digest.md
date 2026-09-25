@@ -1,6 +1,8 @@
 # Combined Morning Digest Project
 
-> Status: Superseded 2026-09-23 by [Aster Personal Assistant](Aster-Personal-Assistant.md) — never started; retained for its design reasoning
+> Successor: [Aster Adaptive Computing](../AI%20Projects/Aster-Adaptive-Computing.md), authorized by Jason as Stream A on 2026-09-25. This archived plan is no longer an independent execution queue. Existing privacy, exclusion and safety decisions remain requirements; future release gates govern implementation.
+
+> Status: Superseded — 2026-09-25; retained as historical requirements and evidence.
 >
 > Project owner: Jason
 >
@@ -386,12 +388,12 @@ No implementation work has occurred; this document is the initial proposal.
 
 ## References
 
-- [News Aggregator (MuckScraper) — Phase 1](completed%20projects/News-Aggregator-MuckScraper.md)
-- [News Aggregator Phase 2 — Digest, Sections and Source Requests](completed%20projects/News-Aggregator-Digest-and-Sections.md)
-- [News Aggregator Phase 3 — Audio Digest](completed%20projects/News-Aggregator-Audio-Digest.md)
-- [Aster Sysadmin Second-Brain](completed%20projects/Aster-Sysadmin-Second-Brain.md) (source-local
+- [News Aggregator (MuckScraper) — Phase 1](../completed%20projects/News-Aggregator-MuckScraper.md)
+- [News Aggregator Phase 2 — Digest, Sections and Source Requests](../completed%20projects/News-Aggregator-Digest-and-Sections.md)
+- [News Aggregator Phase 3 — Audio Digest](../completed%20projects/News-Aggregator-Audio-Digest.md)
+- [Aster Sysadmin Second-Brain](../completed%20projects/Aster-Sysadmin-Second-Brain.md) (source-local
   reader / no-mutation-authority pattern referenced above)
-- [Aster Forgejo and NetBox Read-Only Integration](completed%20projects/Aster-Forgejo-NetBox-Read-Only.md)
-- [Project Creation Standard](../Project-Creation-Standard.md)
-- [docs/projects/README.md](README.md) — confirms no Email Triage or
+- [Aster Forgejo and NetBox Read-Only Integration](../completed%20projects/Aster-Forgejo-NetBox-Read-Only.md)
+- [Project Creation Standard](../../Project-Creation-Standard.md)
+- [docs/projects/README.md](../README.md) — confirms no Email Triage or
   Calendar PA project currently exists in the portfolio

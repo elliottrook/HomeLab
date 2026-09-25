@@ -1,6 +1,8 @@
 # Home Assistant Voice Assistant Project
 
-> Status: Proposed — not yet authorized
+> Successor: [Aster Adaptive Computing](../AI%20Projects/Aster-Adaptive-Computing.md), authorized by Jason as Stream A on 2026-09-25. This archived plan is no longer an independent execution queue. Existing privacy, exclusion and safety decisions remain requirements; future release gates govern implementation.
+
+> Status: Superseded — 2026-09-25; retained as historical requirements and evidence.
 >
 > Project owner: Jason
 >

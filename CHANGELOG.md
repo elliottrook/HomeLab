@@ -15,6 +15,21 @@
   credential-bearing GitHub mirror URL without retaining or using its value.
   Revocation/rotation remains a separately authorized workflow.
 
+## 2026-09-25 — Aster Adaptive Computing programme started
+
+- Adopted the architecture assessment, inventory, harness comparison and
+  governing foundation project under `docs/projects/AI Projects/`.
+- Recorded Jason's explicit Stream A start authorization with bounded scope,
+  milestone gates and preserved repository/platform approval requirements.
+- Marked five standalone assistant plans superseded and moved them to
+  `docs/projects/archive/`, preserving requirements/history and repairing links.
+  AI-PAM, Lab Operations and domain-specific execution remain active dependencies.
+- Verified Forgejo main and active service/broker source baseline read-only.
+  Completed M0 and began M1 with two required-denial regressions: 36 existing
+  tests pass, two added tests reproduce known gaps as expected failures.
+- No production changes, new dependencies or private-data collection. Security
+  fixes and remaining M1 gates are pending; publication requires separate push approval.
+
 ## 2026-09-25 — B60 inference engineering proposed
 
 - Created a Proposed — Stream M project to pursue safe, reproducible performance
