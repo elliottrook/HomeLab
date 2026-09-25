@@ -10,6 +10,7 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
+| Aster Adaptive Computing — Foundation and First Evidence Loop | Active — Stream A; M0 verified, M1 local security regressions started; no production changes | [Implementation project](AI%20Projects/Aster-Adaptive-Computing.md) | [AI Projects index and assessment](AI%20Projects/README.md); replaces five archived standalone assistant plans; retains AI-PAM and operational dependencies |
 | MacBook administration layer | Active — Stream A; M0-M3 closed (baseline, toolkit, independent SSH identity/enrollment, Doctor parity); M4 (recovery, integration, graduation) in progress | [MacBook administration layer](MacBook-Administration-Layer.md) | Independent internal toolkit, credentials and recovery; mini-only scheduled automation; no SSD migration |
 | Authentik rollout | Active — Stream A; six private browser apps, Audiobookshelf, Calibre and Proxmox accepted; 13 earlier providers normalized to passkeys; admin-access/capability holds and final logout/recovery/client gates remain; Jellyfin/Seerr deferred | [Authentik rollout](Authentik-Rollout.md) | [Authorization runbook](../08-Authorization.md), [service onboarding](../09-Service-Authorization-Onboarding.md), [single-login recovery](../runbooks/Authentik-Single-Login.md) |
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
@@ -17,7 +18,6 @@
 | TrueNAS DIY SAS expansion | Ready | [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) | Eight-bay backplane-free enclosure using two vacant x4 ports on the LSI SAS 9300-16i |
 | Music playlist acquisition bridge | Prototype | [Music playlist acquisition bridge](Music-Playlist-Acquisition-Bridge.md) | Hybrid Cmdarr plus local export-file bridge: translate Spotify/Apple Music and generic playlist exports into conservative Lidarr album requests, then publish a complete duplicate playlist in Jellyfin after the media is indexed |
 | Media sideload import | Active — Milestone 1 complete | [Media sideload import](Media-Sideload-Import.md) | Confirmed Radarr/Sonarr/Lidarr already file manually-acquired media correctly via Manual/Interactive Import and the `DownloadedXScan` commands, without an indexer or download client; defines a staging-inbox workflow to use that path deliberately instead of hand-placing files into the canonical roots. Staging folders created on TrueNAS at `/mnt/Media/data/inbox/{movies,tv,music}` |
-| Home Assistant voice assistant | Proposed | [Home Assistant voice assistant](Home-Assistant-Voice-Assistant.md) | Native HA Assist pipeline (wake word/push-to-talk → local STT → `aster-llama` conversation agent → local Piper TTS) against an explicit voice-exposed entity allowlist; open decision is whether the shared single-GPU `aster-llama` backend has concurrency headroom for a third live consumer |
 | Recommendarr watch recommendations | Proposed | [Recommendarr watch recommendations](Recommendarr-Watch-Recommendations.md) | Source-local sanitized reader over Jellyfin/Sonarr/Radarr feeding read-only, no-auto-add recommendations via `aster-llama`; open decision is adopting the third-party open-source Recommendarr project versus building bespoke on the lab's least-privilege reader pattern |
 | Cantinarr evaluation and controlled pilot | Proposed — Stream M | [Cantinarr evaluation and controlled pilot](Cantinarr-Evaluation-Pilot.md) | Reversible isolated evaluation beside Seerr, with no initial production credentials, media mounts, remediation, AI or MCP authority; later gates compare household requests, Import Doctor, local AI and a restricted read/request MCP surface without weakening Aster's existing ARR broker boundary |
 | Local subtitle generation/translation | Proposed | [Local subtitle generation/translation](Subtitle-Generation-Translation.md) | Whisper pipeline writing additive `.srt` sidecars to close the measured TV-subtitle gap and restore non-English tracks Video-Library-Archiving strips; open decision is which GPU/host runs it without contending with existing transcode/inference workloads |
@@ -28,7 +28,6 @@
 | AI Privileged Access Management (AI-PAM) / credential broker | Active — Stream A; M0–M5 and M6 Green Forgejo read complete | [AI-PAM and credential broker](homelab-credential-broker.md) | Recoverable OpenBao, Unix-only capability/approval services, mobile management and mandatory Probation are live; broker-private Forgejo MCP read is proven with root revoked, and the next gate is a separately approved Yellow safe-branch write |
 | Aster Lab Doctor and backup execution | Active — Stream A; staged deployment and validation | [Aster lab operations](Aster-Lab-Operations.md) | Bounded on-request and task-required diagnostics/backups, durable job status, target allowlists and verified recovery coverage; production access not enabled |
 | Aster Companion ARR execution | Proposed — deferred follow-up, production disabled | [ARR execution follow-up](Aster-Companion-ARR-Execution-Followup.md) | Preserve separate operator approval and wait for a natural eligible candidate before live UI execution testing |
-| Aster Personal Assistant | Paused — Stream M; M0 complete (vision Option A chosen, LXC 110 at 16 GiB); resume at M1 | [Aster Personal Assistant](Aster-Personal-Assistant.md) | Pivots Aster toward a multi-person-ready personal assistant: read-only iCloud mail/calendar analysis, morning check-in and nudges via Companion, isolated overnight web research, and competition-aware photo selection/formatting from Immich via new Personal Assistant, Researcher and Photography Assistant personas; personal-data and web zones never share a process; a committed capability ladder governs any future send/appointment ability, graduating at read-and-analyze only |
 | Infrastructure resilience and operations hardening | Approved — Stream A; always-on ops console (M-O) can start now; second-node hardware (H1) postponed; mobile GUI approach (D7) pending | [Infrastructure resilience and operations hardening](Infrastructure-Resilience-Hardening.md) | From the 2026-09-23 health check: one small second node hosting Proxmox Backup Server, standby DNS/NPM and the ops runner (scheduled jobs off the Mac), pinned images with an update notifier, Doctor drift checks, failure push alerts, host swappiness and CI lint |
 | Archive large-file compaction | Active — pilot passed (SSIM 0.976–0.994); nightly 02:00–07:30 schedule live | [Archive large-file compaction](Archive-Large-File-Compaction.md) | Re-encodes the 477 archive files over 2.5 GB (2.41 TB) in place on the Arc A380: HEVC, never upscaled, capped at 1080p with aspect kept, HDR10 retained, ≤2.3 GB, same path for Jellyfin identity, 7-day ZFS rollback snapshots; ~1.68 TB expected saving |
 
@@ -64,9 +63,19 @@
 | Project | Closed | Closing document | Outcome |
 |---|---|---|---|
 | FreeCAD MCP connector | 2026-09-23 | [FreeCAD MCP connector](completed%20projects/FreeCAD-MCP-Connector.md) | MCP successful with recorded CAD editing/export evidence; remaining enclosure design and print/fit validation abandoned because Jason reused an old PC case |
-| Email triage/summarization digest | 2026-09-23 | [Email triage/summarization digest](Email-Triage-Digest.md) | Superseded before start by [Aster Personal Assistant](Aster-Personal-Assistant.md) |
-| Calendar personal assistant | 2026-09-23 | [Calendar personal assistant](Calendar-Personal-Assistant.md) | Superseded before start by [Aster Personal Assistant](Aster-Personal-Assistant.md) |
-| Combined morning digest | 2026-09-23 | [Combined morning digest](Combined-Morning-Digest.md) | Superseded before start by [Aster Personal Assistant](Aster-Personal-Assistant.md) |
+| Email triage/summarization digest | 2026-09-23 | [Email triage/summarization digest](archive/Email-Triage-Digest.md) | Superseded before start by [Aster Personal Assistant](archive/Aster-Personal-Assistant.md) |
+| Calendar personal assistant | 2026-09-23 | [Calendar personal assistant](archive/Calendar-Personal-Assistant.md) | Superseded before start by [Aster Personal Assistant](archive/Aster-Personal-Assistant.md) |
+| Combined morning digest | 2026-09-23 | [Combined morning digest](archive/Combined-Morning-Digest.md) | Superseded before start by [Aster Personal Assistant](archive/Aster-Personal-Assistant.md) |
+
+## Superseded AI plans — 2026-09-25
+
+The [Aster Adaptive Computing project](AI%20Projects/Aster-Adaptive-Computing.md) is the governing execution plan. [Archive index](archive/README.md) preserves predecessor requirements and status. Supersession does not mean implementation completed or remove prior privacy/safety constraints.
+
+| Archived plan | Disposition |
+|---|---|
+| [Aster Personal Assistant](archive/Aster-Personal-Assistant.md) | Standalone queue superseded; M0 evidence and later personal/research/photography requirements retained |
+| [Home Assistant Voice Assistant](archive/Home-Assistant-Voice-Assistant.md) | Standalone architecture superseded; household requirements retained for a later gated release |
+| Email / Calendar / Combined Morning Digest | Previously superseded predecessors now archived; see closed-project links above |
 
 ## Common project rules
 

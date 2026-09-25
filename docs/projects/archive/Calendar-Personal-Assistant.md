@@ -1,6 +1,8 @@
 # Calendar Personal Assistant Project
 
-> Status: Superseded 2026-09-23 by [Aster Personal Assistant](Aster-Personal-Assistant.md) — never started; retained for its design reasoning
+> Successor: [Aster Adaptive Computing](../AI%20Projects/Aster-Adaptive-Computing.md), authorized by Jason as Stream A on 2026-09-25. This archived plan is no longer an independent execution queue. Existing privacy, exclusion and safety decisions remain requirements; future release gates govern implementation.
+
+> Status: Superseded — 2026-09-25; retained as historical requirements and evidence.
 >
 > Project owner: Jason
 >
@@ -41,7 +43,7 @@ built, and nothing here is authorized for implementation.
   (`aster-llama.service` on LXC 110, `192.168.70.12:11435`, OpenAI-compatible
   `/v1/chat/completions`, currently `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS` via
   llama.cpp/Vulkan on an Intel Arc Pro B60 GPU, bearer-key authenticated,
-  Lab VLAN 70 only). See [Aster-Operations.md](../reference/Aster-Operations.md). Any
+  Lab VLAN 70 only). See [Aster-Operations.md](../../reference/Aster-Operations.md). Any
   local-LLM step in this project (briefing text generation, action-item
   extraction) should reuse this endpoint via a dedicated API key, matching
   the News Aggregator precedent, rather than deploying a second model.
@@ -54,10 +56,10 @@ built, and nothing here is authorized for implementation.
 - This lab has **no workflow-automation platform today**, and its
   established pattern for scheduled/automated work is a plain, purpose-built
   script triggered by a systemd timer or cron job — see
-  [Video-Library-Archiving](completed%20projects/Video-Library-Archiving.md)
+  [Video-Library-Archiving](../completed%20projects/Video-Library-Archiving.md)
   (GPU-accelerated downconversion, unattended Mon–Sat schedule, plain
   Python) and
-  [Jellyfin-Library-Integrity-Automation.md](completed%20projects/Jellyfin-Library-Integrity-Automation.md)
+  [Jellyfin-Library-Integrity-Automation.md](../completed%20projects/Jellyfin-Library-Integrity-Automation.md)
   (scheduled Sunday 3am job, plain Python checks), neither of which reached
   for a workflow engine despite being genuinely multi-step, scheduled
   pipelines. `PROJECTS.md`'s "Other Deferred Work" list explicitly names
@@ -70,9 +72,9 @@ built, and nothing here is authorized for implementation.
   external system is a **source-local, least-privilege reader** that
   publishes a **sanitized, schema-validated, non-secret report**, with the
   AI/summarization component only ever reading that report. See
-  [Aster-Sysadmin-Second-Brain.md](completed%20projects/Aster-Sysadmin-Second-Brain.md)
+  [Aster-Sysadmin-Second-Brain.md](../completed%20projects/Aster-Sysadmin-Second-Brain.md)
   and
-  [Aster-Home-Assistant.md](completed%20projects/Aster-Home-Assistant.md).
+  [Aster-Home-Assistant.md](../completed%20projects/Aster-Home-Assistant.md).
   Calendar data is sensitive in a specific way this project must account
   for: shared/family events, other people's names and contact details in
   invites, and event locations/descriptions can reveal a lot about a
@@ -560,14 +562,14 @@ Not applicable — project has not started.
 
 ## References
 
-- [Project Creation Standard](../Project-Creation-Standard.md)
-- [Project portfolio](README.md)
-- [Aster Operations](../reference/Aster-Operations.md) — `aster-llama` endpoint detail
-- [Aster Sysadmin Second-Brain](completed%20projects/Aster-Sysadmin-Second-Brain.md) — source-local reader / sanitized report pattern
-- [Aster Home Assistant Advisor](completed%20projects/Aster-Home-Assistant.md) — strict report schema precedent
-- [News Aggregator (MuckScraper)](completed%20projects/News-Aggregator-MuckScraper.md) — `aster-llama` dedicated-key pattern, VLAN 70 placement, pipeline-under-one-timer precedent
-- [News Aggregator Phase 2 — Digest, Sections and Rebrand](completed%20projects/News-Aggregator-Digest-and-Sections.md) — digest-page precedent
-- [Video Library Archiving](completed%20projects/Video-Library-Archiving.md) — plain-script-over-workflow-platform precedent
-- [Jellyfin Library Integrity Automation](completed%20projects/Jellyfin-Library-Integrity-Automation.md) — plain-script-over-workflow-platform precedent
-- [PROJECTS.md](../../PROJECTS.md) — "Other Deferred Work" (new self-hosted services require justification)
+- [Project Creation Standard](../../Project-Creation-Standard.md)
+- [Project portfolio](../README.md)
+- [Aster Operations](../../reference/Aster-Operations.md) — `aster-llama` endpoint detail
+- [Aster Sysadmin Second-Brain](../completed%20projects/Aster-Sysadmin-Second-Brain.md) — source-local reader / sanitized report pattern
+- [Aster Home Assistant Advisor](../completed%20projects/Aster-Home-Assistant.md) — strict report schema precedent
+- [News Aggregator (MuckScraper)](../completed%20projects/News-Aggregator-MuckScraper.md) — `aster-llama` dedicated-key pattern, VLAN 70 placement, pipeline-under-one-timer precedent
+- [News Aggregator Phase 2 — Digest, Sections and Rebrand](../completed%20projects/News-Aggregator-Digest-and-Sections.md) — digest-page precedent
+- [Video Library Archiving](../completed%20projects/Video-Library-Archiving.md) — plain-script-over-workflow-platform precedent
+- [Jellyfin Library Integrity Automation](../completed%20projects/Jellyfin-Library-Integrity-Automation.md) — plain-script-over-workflow-platform precedent
+- [PROJECTS.md](../../../PROJECTS.md) — "Other Deferred Work" (new self-hosted services require justification)
 - [Email Triage/Summarization Digest](Email-Triage-Digest.md) — sibling proposal, same session

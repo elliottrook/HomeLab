@@ -312,7 +312,7 @@ Current state:
   - Guest memory on 2026-09-23: ~70 GiB configured across running guests
     after LXC 110 → 16 GiB, 101 UniFi and 106 Authentik → 6 GiB, 115
     Paperless → 4 GiB and 108 Forgejo → 1 GiB, with ~33 GiB actually in use
-    (`docs/projects/Aster-Personal-Assistant.md`, RA2/RA4).
+    (`docs/projects/archive/Aster-Personal-Assistant.md`, RA2/RA4).
   - VM 105 (`ollama`, 8 GiB) must stay stopped. A VM reserves its full
     allocation when started.
   - **Re-measured 2026-09-23** (read-only `upsc`, Jason-approved):

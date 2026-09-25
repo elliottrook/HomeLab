@@ -1,6 +1,8 @@
 # Email Triage/Summarization Digest Project
 
-> Status: Superseded 2026-09-23 by [Aster Personal Assistant](Aster-Personal-Assistant.md) — never started; retained for its design reasoning
+> Successor: [Aster Adaptive Computing](../AI%20Projects/Aster-Adaptive-Computing.md), authorized by Jason as Stream A on 2026-09-25. This archived plan is no longer an independent execution queue. Existing privacy, exclusion and safety decisions remain requirements; future release gates govern implementation.
+
+> Status: Superseded — 2026-09-25; retained as historical requirements and evidence.
 >
 > Project owner: Jason
 >
@@ -43,13 +45,13 @@ built, and nothing here is authorized for implementation.
   `/v1/chat/completions`, currently `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS` via
   llama.cpp/Vulkan on an Intel Arc Pro B60 GPU, bearer-key authenticated,
   reachable only from Lab VLAN 70). See
-  [Aster-Operations.md](../reference/Aster-Operations.md). This project should reuse
+  [Aster-Operations.md](../../reference/Aster-Operations.md). This project should reuse
   that endpoint for summarization rather than standing up a second model —
   the same pattern the News Aggregator (MuckScraper) and its Phase 2 digest
   already established with their own dedicated `aster-llama` API key. See
-  [News-Aggregator-MuckScraper.md](completed%20projects/News-Aggregator-MuckScraper.md)
+  [News-Aggregator-MuckScraper.md](../completed%20projects/News-Aggregator-MuckScraper.md)
   and
-  [News-Aggregator-Digest-and-Sections.md](completed%20projects/News-Aggregator-Digest-and-Sections.md).
+  [News-Aggregator-Digest-and-Sections.md](../completed%20projects/News-Aggregator-Digest-and-Sections.md).
 - `aster-llama` is a **shared resource** other Aster/AI projects already
   depend on (Aster itself, the news aggregator's digest and per-story
   language-note calls). Adding a recurring email-triage workload is a real
@@ -61,9 +63,9 @@ built, and nothing here is authorized for implementation.
   publishes a **sanitized, schema-validated, non-secret report**, with the
   AI/summarization component only ever reading that report — never holding
   the source credential or contacting the source system directly. See
-  [Aster-Sysadmin-Second-Brain.md](completed%20projects/Aster-Sysadmin-Second-Brain.md)
+  [Aster-Sysadmin-Second-Brain.md](../completed%20projects/Aster-Sysadmin-Second-Brain.md)
   (Milestone 5, the `/var/lib/aster/health` report pattern) and
-  [Aster-Home-Assistant.md](completed%20projects/Aster-Home-Assistant.md)
+  [Aster-Home-Assistant.md](../completed%20projects/Aster-Home-Assistant.md)
   (the strict, aggregate-only report schema). Email content is materially
   more sensitive than either system's health telemetry — personal
   correspondence, financial/medical references, other people's data in
@@ -97,7 +99,7 @@ built, and nothing here is authorized for implementation.
   project introduces exactly one new access category (mailbox read access)
   and should be scoped as a small, purpose-built reader/summarizer, not a
   general automation platform. See
-  [PROJECTS.md](../../PROJECTS.md)'s "Other Deferred Work" list, which
+  [PROJECTS.md](../../../PROJECTS.md)'s "Other Deferred Work" list, which
   explicitly names "New self-hosted services not required by this roadmap"
   as requiring real justification.
 - Attachments beyond what is strictly needed to note their presence (e.g. "1
@@ -177,7 +179,7 @@ correspondence that was never intended for automated processing.
   triage only needs Inbox, not every folder) and a dedicated
   app-specific/OAuth-scoped credential rather than the account's primary
   password, matching the lab's existing credential-isolation convention (see
-  [Jellyfin-Library-Integrity-Automation.md](completed%20projects/Jellyfin-Library-Integrity-Automation.md)'s
+  [Jellyfin-Library-Integrity-Automation.md](../completed%20projects/Jellyfin-Library-Integrity-Automation.md)'s
   credential-storage pattern, cited as precedent by the news aggregator).
 - **Data minimization before the model ever sees anything.** Decide,
   explicitly and before implementation, what is extracted from a message at
@@ -209,7 +211,7 @@ correspondence that was never intended for automated processing.
   Jason's explicit approval — it is not assumed here, matching the
   established Aster pattern of "no write capability is proposed for
   graduation" (see
-  [Aster-Sysadmin-Second-Brain.md](completed%20projects/Aster-Sysadmin-Second-Brain.md)).
+  [Aster-Sysadmin-Second-Brain.md](../completed%20projects/Aster-Sysadmin-Second-Brain.md)).
 - **Credential storage.** The mail credential and the dedicated
   `aster-llama` key are stored outside Git, mode 600, on the one host that
   uses each, never logged, never echoed by any diagnostic command (this
@@ -538,12 +540,12 @@ Not applicable — project has not started.
 
 ## References
 
-- [Project Creation Standard](../Project-Creation-Standard.md)
-- [Project portfolio](README.md)
-- [Aster Operations](../reference/Aster-Operations.md) — `aster-llama` endpoint detail
-- [Aster Sysadmin Second-Brain](completed%20projects/Aster-Sysadmin-Second-Brain.md) — source-local reader / sanitized report pattern
-- [Aster Home Assistant Advisor](completed%20projects/Aster-Home-Assistant.md) — strict report schema precedent
-- [News Aggregator (MuckScraper)](completed%20projects/News-Aggregator-MuckScraper.md) — `aster-llama` dedicated-key pattern, VLAN 70 placement precedent
-- [News Aggregator Phase 2 — Digest, Sections and Rebrand](completed%20projects/News-Aggregator-Digest-and-Sections.md) — digest-page precedent
-- [PROJECTS.md](../../PROJECTS.md) — "Other Deferred Work" (new self-hosted services require justification)
+- [Project Creation Standard](../../Project-Creation-Standard.md)
+- [Project portfolio](../README.md)
+- [Aster Operations](../../reference/Aster-Operations.md) — `aster-llama` endpoint detail
+- [Aster Sysadmin Second-Brain](../completed%20projects/Aster-Sysadmin-Second-Brain.md) — source-local reader / sanitized report pattern
+- [Aster Home Assistant Advisor](../completed%20projects/Aster-Home-Assistant.md) — strict report schema precedent
+- [News Aggregator (MuckScraper)](../completed%20projects/News-Aggregator-MuckScraper.md) — `aster-llama` dedicated-key pattern, VLAN 70 placement precedent
+- [News Aggregator Phase 2 — Digest, Sections and Rebrand](../completed%20projects/News-Aggregator-Digest-and-Sections.md) — digest-page precedent
+- [PROJECTS.md](../../../PROJECTS.md) — "Other Deferred Work" (new self-hosted services require justification)
 - [Calendar Personal Assistant](Calendar-Personal-Assistant.md) — sibling proposal, same session

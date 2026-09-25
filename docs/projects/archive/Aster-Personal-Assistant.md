@@ -1,6 +1,8 @@
 # Aster Personal Assistant
 
-> Status: Paused — M0 complete 2026-09-23; resume at M1 when Jason chooses (see Persistence plan)
+> Successor: [Aster Adaptive Computing](../AI%20Projects/Aster-Adaptive-Computing.md), authorized by Jason as Stream A on 2026-09-25. This archived plan is no longer an independent execution queue. Existing privacy, exclusion and safety decisions remain requirements; future release gates govern implementation.
+
+> Status: Superseded — 2026-09-25; retained as historical requirements and evidence.
 >
 > Owner: Jason | Proposed: 2026-09-23 | Stream M — Monitored (accepted
 > 2026-09-23)
@@ -9,7 +11,7 @@
 > [Calendar personal assistant](Calendar-Personal-Assistant.md) and
 > [Combined morning digest](Combined-Morning-Digest.md) (all proposed, never
 > started). Also absorbs the "web access for research" direction deferred by
-> [Aster Companion App](completed%20projects/Aster-Companion-App.md).
+> [Aster Companion App](../completed%20projects/Aster-Companion-App.md).
 
 ## Purpose and desired outcome
 
@@ -51,7 +53,7 @@ Two design requirements from Jason (2026-09-23) shape everything below:
 - **Aster** (LXC 104, `192.168.70.10`, Lab VLAN 70) serves the Companion App
   (`aster.elliottrook.com/companion`, Authentik passkey-only login) with
   per-persona tool sets enforced server-side, including a regression that
-  blocks unsolicited model tool calls ([Aster-Operations.md](../reference/Aster-Operations.md),
+  blocks unsolicited model tool calls ([Aster-Operations.md](../../reference/Aster-Operations.md),
   Companion M4).
 - **Inference:** `aster-llama` on LXC 110 (`192.168.70.12:11435`), shared by
   Aster, Your News and Companion speech. Per-consumer bearer keys are the
