@@ -1,7 +1,7 @@
 schema_version: 1
 project: homelab-ai-pam
 milestone: M4
-status: human_validation_pending
+status: complete
 
 deployment:
   host: hermesagent
@@ -41,6 +41,15 @@ validation:
   stale_management_authentication: denied
   agent_uid_approval_socket: denied
   active_requests_before_human_test: 0
-  iphone_layout: pending
-  human_agent_suspend_restore: pending
-  human_global_disable_enable: pending
+  iphone_layout: passed
+  human_agent_suspend_restore: passed
+  human_global_disable_enable: passed
+  service_disable_enable: passed
+  issuance_while_agent_suspended: denied
+  issuance_while_global_disabled: denied
+  issuance_while_service_disabled: denied
+  restored_green_issuance: passed
+  final_global_enabled: true
+  final_agent_state: operator
+  final_service_enabled: true
+  active_requests_after_test: 0

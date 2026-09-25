@@ -11,6 +11,10 @@
 - Passed 36 broker and 97 Aster tests; live stale-auth rejection, service
   health, zero-open-request state and metadata-only snapshots passed. iPhone
   layout and representative human revoke/restore acceptance remain pending.
+- Completed M4 acceptance on iPhone: fresh-passkey agent suspend/restore and
+  global disable/re-enable both denied issuance while off and recovered cleanly.
+  Synthetic service disable/restore passed separately. Final state is global
+  enabled, agent Operator, service enabled and zero active requests.
 
 ## 2026-09-24 — AI-PAM M3 candidate deployed
 
