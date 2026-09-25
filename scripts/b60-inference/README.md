@@ -13,6 +13,8 @@ python3 scripts/b60-inference/harness.py plan > /tmp/b60-plan.json
 python3 -m unittest scripts/b60-inference/test_harness.py
 python3 scripts/b60-inference/harness.py validate-ledger RECORD.json
 python3 scripts/b60-inference/harness.py summarize RECORD.json
+python3 scripts/b60-inference/runner.py --fixture pp512-cold-pos0 \
+  --endpoint http://127.0.0.1:11435
 ```
 
 The plan expands deterministic, non-secret prompts and records their SHA-256
@@ -27,3 +29,9 @@ Token targets are fixture construction targets, not claims about a particular
 model tokenizer. A production runner must record the actual prompt/completion
 token counts reported by the pinned runtime and must reject unsupported context
 rather than silently shortening it.
+
+`runner.py` is dry-run by default and refuses non-loopback execution unless
+both `--execute` and `--allow-production-endpoint` are supplied. Those switches
+are safety interlocks, not Stream M approval. The runner brackets each case
+with health checks and performs one warm-up plus five measured repetitions.
+Tests use an injected fake transport and never contact production.

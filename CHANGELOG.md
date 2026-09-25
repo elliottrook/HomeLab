@@ -8,7 +8,9 @@
   production state.
 - Added an offline schema-validating benchmark planner with 13 deterministic,
   synthetic fixtures covering prefill, decode and representative Aster
-  workflows at supported 0/4K/8K positions. Five harness tests pass.
+  workflows at supported 0/4K/8K positions. Added a guarded dry-run-first
+  OpenAI-compatible runner with loopback/production interlocks and fake
+  transport coverage; nine combined tests pass without contacting production.
 - Recorded a required security follow-up for a previously exposed
   credential-bearing GitHub mirror URL without retaining or using its value.
   Revocation/rotation remains a separately authorized workflow.
