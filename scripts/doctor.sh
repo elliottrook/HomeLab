@@ -2074,12 +2074,16 @@ divider
 if (( FAIL_COUNT > 0 || WARN_COUNT > 0 )); then
     echo "Needs Attention"
     echo
-    for item in "${FAIL_ITEMS[@]}"; do
-        echo "🔴 $item"
-    done
-    for item in "${WARN_ITEMS[@]}"; do
-        echo "🟡 $item"
-    done
+    if (( ${#FAIL_ITEMS[@]} > 0 )); then
+        for item in "${FAIL_ITEMS[@]}"; do
+            echo "🔴 $item"
+        done
+    fi
+    if (( ${#WARN_ITEMS[@]} > 0 )); then
+        for item in "${WARN_ITEMS[@]}"; do
+            echo "🟡 $item"
+        done
+    fi
 
     divider
 fi
