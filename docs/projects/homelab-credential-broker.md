@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0 and M1 complete; M2 is next
+> Status: active — Stream A; M0–M2 complete; M3 is next
 >
 > Owner: Jason
 >
@@ -167,6 +167,11 @@ The broker and OpenBao remain outside the AI-agent trust boundary.
   repository, rejects credential/environment arguments and sensitive paths,
   and fails closed on secret-shaped or oversized output. It does not yet
   connect to OpenBao or Forgejo.
+- The M2 broker is deployed on LXC 104 as a distinct `hlabroker` service
+  identity. Its only agent-facing transport is a group-restricted Unix socket;
+  Linux peer credentials bind UID `hlabagent` to probationary identity
+  `agent-hermes`. M2 remains synthetic-only with no OpenBao connection or
+  production credential.
 
 ## Risk classes
 
@@ -364,12 +369,21 @@ restore LXC 118 was destroyed after validation.
 
 ### M2 — Broker, policy and audit
 
-- [ ] Deploy separate AI Access Broker.
-- [ ] Implement agent/service registries.
-- [ ] Implement explicit capabilities and risk classes.
-- [ ] Implement request IDs, payload binding, TTL and revocation.
-- [ ] Implement metadata-only audit.
-- [ ] Implement global emergency disable.
+- [x] Deploy separate AI Access Broker.
+- [x] Implement agent/service registries.
+- [x] Implement explicit capabilities and risk classes.
+- [x] Implement request IDs, payload binding, TTL and revocation.
+- [x] Implement metadata-only audit.
+- [x] Implement global emergency disable.
+
+**Gate passed 2026-09-24:** the synthetic-only broker runs as `hlabroker` on
+LXC 104 with `AF_UNIX` as its only permitted address family. Kernel peer
+credentials bind `hlabagent` to `agent-hermes`, which starts in Probation and
+discovers only the explicitly probation-safe Green health capability. All 23
+tests pass. Live tests proved one-time payload-bound execution, probationary
+Yellow/Black denial, global disable/re-enable, zero open requests and an audit
+schema containing metadata/hashes but no payload column. No OpenBao or target
+credential was created.
 
 ### M3 — Authentik mobile approval
 
@@ -511,15 +525,15 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Completed human recovery, least-privilege and root-token lifecycle gates | Jason performed 2-of-3 unseal; file audit enabled declaratively; synthetic KV round trip passed; `hlabroker` AppRole read passed and admin policy listing returned HTTP 403; transient test token and initial root token revoked | later broker deployment must mint a fresh one-use SecretID through an approved administrative workflow |
 | 2026-09-24 | Completed authenticated snapshot and isolated restore | SHA-256 recorded for off-guest snapshot on `backups`; disposable network-isolated LXC 118 restored the Raft snapshot, accepted the original human shares, and verified synthetic data/audit/policy/AppRole before destruction | recovery remains human-operated by design; encrypted shares must remain on their separate recovery devices |
 | 2026-09-24 | Adopted the deployed placement in NetBox and repository references | NetBox VM/interface/IP IDs 18/18/32; `configs/devices.conf`, IP addressing and backup coverage updated | OpenBao remains loopback-only; no DNS, firewall, Authentik or production-secret integration exists yet |
+| 2026-09-24 | Completed M2 synthetic broker foundation | `broker_core.py`, Unix-socket service/client/admin, hardened systemd unit, installer and 23 passing tests; live LXC 104 probation, payload-binding, one-time consumption, risk denial and global-disable checks | M3 must supply Authentik/passkey approval; M2 exposes no TCP endpoint and holds no OpenBao or production credential |
 
 ## Close-out
 
-Not graduated. M0 and M1 are complete. The OpenBao foundation contains only
-synthetic data and a broker role with no active credential; no production credential,
-DNS, firewall, Authentik or Forgejo authorization path has been added.
+Not graduated. M0 through M2 are complete. OpenBao and the broker contain only
+synthetic data and no active target credential; no production credential, DNS,
+firewall, Authentik or Forgejo authorization path has been added.
 
-Next safe action: **M2 broker, policy and audit.** Deploy the separate broker
-with explicit agent/service registries and Green/Yellow/Red/Black capability
-classes. Keep OpenBao loopback-only until the exact single-source M4 network
-rule and rollback are reviewed, and mint any broker SecretID only through a
-non-model-visible administrative workflow.
+Next safe action: **M3 Authentik mobile approval.** Define the private approval
+application/provider and payload-bound callback contract, then test approval,
+denial, expiry, replay and changed-payload failure. Keep OpenBao loopback-only
+and the broker on its Unix socket until the later network rule is reviewed.

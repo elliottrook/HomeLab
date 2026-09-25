@@ -1,0 +1,34 @@
+[Unit]
+Description=HomeLab AI Access Broker (M2 synthetic-only)
+After=local-fs.target
+
+[Service]
+Type=simple
+User=hlabroker
+Group=hlabroker
+SupplementaryGroups=hlabroker-clients
+RuntimeDirectory=homelab-broker
+RuntimeDirectoryMode=0755
+StateDirectory=homelab-broker
+StateDirectoryMode=0700
+UMask=0077
+ExecStart=/usr/bin/python3 /opt/homelab-broker/broker_service.py --database /var/lib/homelab-broker/broker.db --socket /run/homelab-broker/mcp.sock --socket-group hlabroker-clients
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

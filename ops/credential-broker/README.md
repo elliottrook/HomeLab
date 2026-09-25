@@ -1,33 +1,45 @@
-# credential-broker
+# HomeLab AI Access Broker
 
-Untested skeleton for a HomelabHero-style SSH credential broker: a
-sudoers-narrowed script lets a low-privilege agent user run remote commands
-via a separate vault-owning user, without the agent ever reading key
-material. See ../../docs/projects/homelab-credential-broker.md for the full
-project document, risk assessment, and Stream A authorization envelope.
+This directory contains the deny-by-default implementation artifacts for the
+broader AI-PAM project in
+`docs/projects/homelab-credential-broker.md`.
 
-The original `hb-connect`/sudoers skeleton is retained as historical design
-input and is **not deployable**: it permits arbitrary remote command strings and
-does not prevent the agent from invoking its `add` path.
+M2 deploys a **synthetic-only** broker service on LXC 104. It does not connect
+to OpenBao, Forgejo or another production target and contains no credential.
+The service accepts JSON requests only over a group-restricted Unix socket and
+derives the caller identity from kernel peer credentials rather than a
+caller-supplied identity field.
 
-The M0 safety prototype adds `mcp_policy_adapter.py`, a local,
-dependency-free boundary for a pinned upstream Forgejo MCP. It exposes only an
-explicit read-tool allowlist, requires an allowlisted repository, refuses
-credential/environment arguments and sensitive paths, and rejects oversized or
-secret-shaped output. It contains no live OpenBao/Forgejo client or credential.
+Implemented controls:
 
-Run its synthetic adversarial suite:
+- SQLite-backed agent, service and capability registries;
+- mandatory Probation state for every newly registered agent;
+- explicit Green, Yellow, Red and Black risk classes;
+- Black capabilities can never be delegated;
+- canonical SHA-256 payload binding, bounded TTLs and one-time consumption;
+- Yellow/Red approval state ready for the M3 Authentik approval path;
+- agent suspension and global emergency disable revoke open requests;
+- metadata-only audit rows containing hashes rather than request payloads;
+- hardened systemd service with no TCP/IP socket capability; and
+- the pre-existing Forgejo MCP response/argument safety adapter.
+
+The old SSH/sudo wrapper was removed during M2. It allowed arbitrary command
+strings and was not a valid AI-PAM enforcement boundary; its history remains in
+Git if design archaeology is needed.
+
+Run all synthetic tests:
 
 ```sh
-cd ops/credential-broker
-python3 -m unittest -v test_mcp_policy_adapter.py
+python3 -m unittest discover -s ops/credential-broker -p 'test_*.py' -v
 ```
 
-Layout:
-  bin/hb              - operator/agent entrypoint (calls hb-connect via sudo)
-  bin/hb-connect       - the broker itself; only this may run as the vault user
-  setup/setup-vault.sh - one-time user/directory/sudoers installer
-  setup/etc-sudoers.d-homelab-broker - the sudoers rule installed by the above
-  mcp_policy_adapter.py - deny-by-default Forgejo MCP policy boundary
-  test_mcp_policy_adapter.py - synthetic allow/deny and output-safety tests
-  openbao-pilot-manifest.yaml - non-secret M1 candidate and recovery gates
+Key files:
+
+- `broker_core.py` — registries, policy, request lifecycle, audit and kill switch
+- `broker_service.py` — kernel-identified Unix-socket transport
+- `broker_client.py` — local JSON client
+- `broker_admin.py` — root-only state administration
+- `homelab-broker.service` — systemd confinement
+- `setup/install-m2-broker.sh` — idempotent synthetic deployment installer
+- `mcp_policy_adapter.py` — deny-by-default Forgejo MCP boundary prototype
+- `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record

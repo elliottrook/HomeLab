@@ -1,0 +1,48 @@
+schema_version: 1
+project: homelab-ai-pam
+milestone: M2
+status: complete
+
+deployment:
+  host: hermesagent
+  lxc: 104
+  service: homelab-broker.service
+  service_identity: hlabroker
+  synthetic_agent_identity: agent-hermes
+  unix_identity: hlabagent
+  transport: unix_socket
+  socket: /run/homelab-broker/mcp.sock
+  tcp_listener: prohibited
+  openbao_connection: none_during_m2
+  production_credentials: none_during_m2
+
+controls:
+  peer_identity: kernel_unix_credentials
+  new_agent_state: probation
+  risk_classes:
+    - green
+    - yellow
+    - red
+    - black
+  payload_binding: canonical_json_sha256
+  request_ttl_seconds:
+    minimum: 1
+    maximum: 900
+  consumption: one_time
+  audit: metadata_only
+  emergency_global_disable: true
+  database_mode: "0600"
+  socket_mode: "0660"
+  address_families:
+    - AF_UNIX
+
+validation:
+  synthetic_tests: 23
+  probation_green_discovery: passed
+  green_payload_round_trip: passed
+  changed_payload_denial: passed
+  yellow_probation_denial: passed
+  black_denial: passed
+  global_disable_and_reenable: passed
+  open_requests_after_test: 0
+  systemd_security_exposure: 3.3_OK
