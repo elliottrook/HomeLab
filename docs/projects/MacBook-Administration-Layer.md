@@ -1305,3 +1305,81 @@ automation confirmed unaffected. This milestone's own stated goal — "a
 clear statement of what's covered from this Mac today and what isn't, not
 100% parity" — is met; full parity itself is not, and that's expected until
 Jason decides how to fix `~/.ssh/config`.
+
+### 2026-09-24 M2/M3 follow-up — `~/.ssh/config` replaced, near-full parity reached
+
+Jason decided: replace the file wholesale rather than edit the 9 wrong
+blocks in place, mirroring the mini's actual per-host structure with this
+Mac's own key. Backed up first — `cp ~/.ssh/config
+~/.ssh/config.pre-macbook-admin.bak` (verified byte-identical to the
+original via `diff` immediately after), a real rollback point, kept.
+
+**Asked explicitly before writing, rather than defaulting either way**: the
+mini's config carries a top-level `Host * { UseKeychain yes }` block, which
+persists the key's passphrase in macOS Keychain across reboots — a standing
+change that directly conflicts with M2's deliberate session-scoped-only
+agent decision. Jason chose to include it, mirroring the mini exactly (his
+call to make, not this session's).
+
+Built the replacement with `IdentityFile ~/.ssh/id_ed25519_macbook_admin`
+throughout, three corrected accounts matching M2's actual enrollment
+(`truenas`: `root`, not `truenas_admin`; `forgejo`: `root`, not `git`;
+`arista`: `jason-macbook`, not `arista`), all 11 direct M2-enrolled targets
+plus `hermes` (`ProxyCommand ssh -o BatchMode=yes proxmox pct exec 104 --
+nc 127.0.0.1 22`, referencing the `proxmox` alias by name rather than
+duplicating its identity/user, so there's one place to update if the key
+ever changes again), `observability` deliberately excluded (mirrors the
+mini — `check_observability` already uses a literal `root@192.168.20.31`,
+unaffected either way) and `gowest-backup` deliberately excluded (never
+enrolled; M2 excluded it as retired hardware, not adding a dead entry). One
+top-level `Host * { UseKeychain yes }` block at the end, per Jason's
+decision above. Diffed the result against the backup line-by-line before
+trusting it: exactly the intended changes, nothing else moved.
+
+Verified every one of the 11 direct/proxied aliases individually
+(`ssh -o BatchMode=yes <alias> hostname`, or `show clock` for `arista`,
+since EOS doesn't have a `hostname` command and its first attempt's
+`% Invalid input` was a command-syntax rejection after successful auth, not
+an auth failure — re-verified to be sure rather than leaving an ambiguous
+result on the record): all 11 authenticate cleanly.
+
+**Re-ran `bash scripts/doctor.sh`: 70 passed, 9 warnings, 1 failed** — up
+from the broken run's 39/36/5, and directly comparable to the mini's
+77/3/0 for the first time. Both runs total exactly **80 checks** (77+3+0 =
+70+9+1), confirming this is the same check set on both machines, not a
+different-sized comparison. Every individual difference reconciles exactly,
+nothing left unexplained:
+
+- **7 checks flip pass (mini) → warn (MacBook):** the same 7
+  `check_backup_age` calls flagged as an honest, already-known gap in M1/M3
+  (OPNsense/Arista/Proxmox/NUT/Observability/Video-Archiver/Jellyfin-Integrity)
+  — the mini's `~/lab/private-backups` is populated, this Mac's doesn't
+  exist yet (no backup destination configured here, a real, separate, not
+  this session's problem — tracked for M4).
+- **1 check flips warn (mini) → pass (MacBook):** "Git repository contains
+  uncommitted changes" — the mini's own pre-existing dirty files (this
+  project was told not to touch them) don't exist in this Mac's separate
+  checkout, which was clean at run time. Expected, not concerning.
+- **1 check is fail on MacBook only, not part of the reconciliation above:**
+  "Mac disk usage is 91%" — the same genuinely new, real, MacBook-specific
+  finding from the earlier broken run, unrelated to SSH and unaffected by
+  today's fix. Still Jason's to act on separately.
+- **2 warnings reproduce identically on both machines**, as expected since
+  they reflect shared live production state, not per-machine
+  configuration: Aster wiki's 7 quarantined sources, and News Aggregator's
+  recent feed-fetch failures alongside successes.
+
+Arithmetic check: 77 (mini pass) − 7 (flip to warn) − 1 (disk-usage fail,
+MacBook-only) + 1 (git-clean flip to pass) = **70**, exactly matching the
+real result. Nothing hand-waved.
+
+**M3's Doctor-inventory classification (above) is superseded for the
+"needs a decision" bucket**: every check that was blocked by the wrong
+`~/.ssh/config` now works identically to the mini. The only remaining
+non-identical checks are the 7 backup-directory warnings, which were
+already correctly classified as "degrades honestly when genuinely absent"
+in bucket B, not bucket C — that classification holds unchanged; only the
+SSH-alias bucket (C) collapsed to zero real unresolved items.
+
+M3 remains closed (it already was); this follow-up closes the loop M3's
+own evidence log flagged as pending Jason's decision.
