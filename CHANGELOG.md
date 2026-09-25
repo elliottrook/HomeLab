@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-24 — AI-PAM M3 candidate deployed
+
+- Reused Aster Companion's existing passkey-only Authentik application for a
+  mobile Yellow/Red approval inbox; no second identity stack or TCP broker
+  listener was introduced.
+- Added a separately confined approver socket that accepts only Aster's kernel
+  UID, derives actor and authentication time from validated signed claims, and
+  enforces exact payload binding, TTL, one-time use and fresh Red authentication.
+- Passed 30 broker and 93 Aster tests plus live unauthenticated, wrong-UID,
+  changed-payload, replay and timeout denial checks. Real iPhone approve/deny is
+  intentionally pending because Jason was remote and could not sign in.
+
 ## 2026-09-24 — MacBook administration layer: M0-M3 closed, M4 in progress
 
 - Independent MacBook SSH identity generated and enrolled on all 12 approved lab targets; verified from the MacBook itself, not assumed from the mini's own trust.

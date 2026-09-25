@@ -55,9 +55,13 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             payload = request.get("payload")
             if not isinstance(payload, dict):
                 raise BrokerDenied("payload must be an object")
+            display = request.get("display")
+            if display is not None and not isinstance(display, dict):
+                raise BrokerDenied("display must be an object")
             record = self.server.store.create_request(  # type: ignore[attr-defined]
                 agent_id, str(request.get("capability", "")), payload,
                 ttl_seconds=int(request.get("ttl_seconds", 300)),
+                display=display,
             )
             return asdict(record)
         if method == "request.consume":

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 import time
 import uuid
@@ -16,6 +17,10 @@ from typing import Any, Mapping
 RISK_CLASSES = frozenset({"green", "yellow", "red", "black"})
 AGENT_STATES = frozenset({"probation", "observer", "operator", "specialist", "orchestrator", "suspended", "retired"})
 TERMINAL_REQUEST_STATES = frozenset({"consumed", "denied", "expired", "revoked"})
+DISPLAY_FIELDS = frozenset({"reason", "target", "effect", "rollback"})
+DISPLAY_SECRET_PATTERN = re.compile(
+    r"(?i)(password|passwd|secret|token|api[_ -]?key|private[_ -]?key|authorization|bearer)"
+)
 
 
 class BrokerDenied(RuntimeError):
@@ -110,6 +115,16 @@ class BrokerStore:
             """
         )
         self.connection.commit()
+        self._ensure_column("requests", "approval_actor", "TEXT")
+        self._ensure_column("requests", "approval_auth_time", "INTEGER")
+        self._ensure_column("requests", "approval_assurance", "TEXT")
+        self._ensure_column("requests", "display_json", "TEXT")
+
+    def _ensure_column(self, table: str, column: str, definition: str) -> None:
+        columns = {row[1] for row in self.connection.execute(f"PRAGMA table_info({table})")}
+        if column not in columns:
+            self.connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+            self.connection.commit()
 
     def _now(self) -> int:
         return int(self.clock())
@@ -195,7 +210,25 @@ class BrokerStore:
                 )
             self._audit("global.enable" if enabled else "global.disable", "operator", "enabled" if enabled else "disabled")
 
-    def create_request(self, agent_id: str, capability: str, payload: Mapping[str, Any], *, ttl_seconds: int = 300) -> RequestRecord:
+    @staticmethod
+    def _display_json(display: Mapping[str, Any] | None) -> str:
+        if display is None:
+            return "{}"
+        if not isinstance(display, Mapping) or set(display) - DISPLAY_FIELDS:
+            raise BrokerDenied("approval display contains unsupported fields")
+        cleaned: dict[str, str] = {}
+        for key, value in display.items():
+            if not isinstance(value, str) or not value.strip() or len(value) > 512:
+                raise BrokerDenied("approval display values must be non-empty text up to 512 characters")
+            if DISPLAY_SECRET_PATTERN.search(key) or DISPLAY_SECRET_PATTERN.search(value):
+                raise BrokerDenied("approval display may not contain credential material")
+            cleaned[key] = value.strip()
+        return json.dumps(cleaned, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+    def create_request(
+        self, agent_id: str, capability: str, payload: Mapping[str, Any], *,
+        ttl_seconds: int = 300, display: Mapping[str, Any] | None = None,
+    ) -> RequestRecord:
         if not self.global_enabled():
             raise BrokerDenied("global emergency disable is active")
         if not 1 <= ttl_seconds <= 900:
@@ -223,15 +256,25 @@ class BrokerStore:
             risk_class=str(row["risk_class"]), payload_hash=canonical_payload_hash(payload),
             status=status, expires_at=now + ttl_seconds,
         )
+        display_json = self._display_json(display)
         with self.connection:
             self.connection.execute(
-                "INSERT INTO requests(request_id,agent_id,capability,risk_class,payload_hash,status,created_at,expires_at,approved_at) VALUES(?,?,?,?,?,?,?,?,?)",
-                (record.request_id, agent_id, capability, record.risk_class, record.payload_hash, status, now, record.expires_at, now if status == "approved" else None),
+                "INSERT INTO requests(request_id,agent_id,capability,risk_class,payload_hash,status,created_at,expires_at,approved_at,display_json) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                (record.request_id, agent_id, capability, record.risk_class, record.payload_hash, status, now, record.expires_at, now if status == "approved" else None, display_json),
             )
             self._audit("request.create", agent_id, status, record)
         return record
 
-    def approve_request(self, request_id: str, expected_payload_hash: str) -> None:
+    def approve_request(
+        self,
+        request_id: str,
+        expected_payload_hash: str,
+        *,
+        actor: str = "human-approval",
+        auth_time: int | None = None,
+        assurance: str = "authenticated",
+        red_freshness_seconds: int = 120,
+    ) -> None:
         record = self.get_request(request_id)
         if record.risk_class not in {"yellow", "red"} or record.status != "pending":
             raise BrokerDenied("request is not approval-eligible")
@@ -240,9 +283,47 @@ class BrokerStore:
         if self._now() >= record.expires_at:
             self.expire_request(request_id)
             raise BrokerDenied("request expired")
+        if record.risk_class == "red":
+            if assurance != "passkey" or auth_time is None:
+                raise BrokerDenied("red approval requires passkey assurance")
+            age = self._now() - int(auth_time)
+            if age < 0 or age > red_freshness_seconds:
+                raise BrokerDenied("red approval requires fresh authentication")
         with self.connection:
-            self.connection.execute("UPDATE requests SET status='approved',approved_at=? WHERE request_id=?", (self._now(), request_id))
-            self._audit("request.approve", "human-approval", "approved", record)
+            self.connection.execute(
+                "UPDATE requests SET status='approved',approved_at=?,approval_actor=?,approval_auth_time=?,approval_assurance=? WHERE request_id=?",
+                (self._now(), actor, auth_time, assurance, request_id),
+            )
+            self._audit("request.approve", actor, "approved", record)
+
+    def deny_request(self, request_id: str, expected_payload_hash: str, *, actor: str = "human-approval") -> None:
+        record = self.get_request(request_id)
+        if record.status != "pending":
+            raise BrokerDenied("request is not pending")
+        if record.payload_hash != expected_payload_hash:
+            raise BrokerDenied("denial payload binding mismatch")
+        with self.connection:
+            self.connection.execute(
+                "UPDATE requests SET status='denied',approval_actor=? WHERE request_id=?",
+                (actor, request_id),
+            )
+            self._audit("request.deny", actor, "denied", record)
+
+    def pending_requests(self) -> list[dict[str, Any]]:
+        now = self._now()
+        with self.connection:
+            self.connection.execute(
+                "UPDATE requests SET status='expired' WHERE status='pending' AND expires_at<=?",
+                (now,),
+            )
+        result: list[dict[str, Any]] = []
+        for row in self.connection.execute(
+            "SELECT request_id,agent_id,capability,risk_class,payload_hash,created_at,expires_at,display_json FROM requests WHERE status='pending' ORDER BY created_at"
+        ):
+            item = dict(row)
+            item["display"] = json.loads(item.pop("display_json") or "{}")
+            result.append(item)
+        return result
 
     def consume_request(self, request_id: str, payload: Mapping[str, Any]) -> RequestRecord:
         if not self.global_enabled():

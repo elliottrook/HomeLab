@@ -1,0 +1,33 @@
+[Unit]
+Description=HomeLab AI-PAM Authentik approval bridge
+Requires=homelab-broker.service
+After=homelab-broker.service
+
+[Service]
+Type=simple
+User=hlabroker
+Group=hlabroker
+SupplementaryGroups=hlabroker-approvers
+UMask=0077
+StateDirectory=homelab-broker
+StateDirectoryMode=0700
+ExecStart=/usr/bin/python3 /opt/homelab-broker/broker_approval_service.py --database /var/lib/homelab-broker/broker.db --socket /run/homelab-broker/approval.sock --approver-user aster --socket-group hlabroker-approvers
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0–M2 complete; M3 is next
+> Status: active — Stream A; M0–M2 complete; M3 deployed, human passkey validation pending
 >
 > Owner: Jason
 >
@@ -387,10 +387,27 @@ credential was created.
 
 ### M3 — Authentik mobile approval
 
-- [ ] Register broker approval application/provider.
-- [ ] Build iPhone-friendly approval flow.
+- [x] Reuse the dedicated passkey-only Aster Companion application/provider;
+  do not create a second identity stack.
+- [x] Build and deploy the iPhone-friendly approval flow.
 - [ ] Require passkey at the defined risk class.
 - [ ] Test approve, deny, timeout, replay and changed-payload failure.
+
+**Gate pending:** the approval bridge is deployed on LXC 104. Aster validates
+the signed Authentik token and derives a one-way actor identifier plus
+`auth_time`; it never accepts those identity values from the browser. A
+separate `AF_UNIX` approval service accepts only the kernel UID of `aster`.
+Yellow and Red requests remain payload-hash-bound, one-use and TTL-bound; Red
+also requires passkey assurance and authentication no more than 120 seconds
+old. Companion shows only allowlisted, length-bounded non-secret summaries and
+forces a new OIDC login (`prompt=login`, `max_age=0`) before a Red approval.
+
+The complete deployed-runtime suites pass (30 broker tests and 93 Aster tests).
+Live checks proved unauthenticated HTTP rejection, denial of the agent UID at
+the approval socket, changed-payload rejection, successful exact-payload
+approval, replay rejection and timeout rejection. The remaining gate is a real
+iPhone passkey approval and denial by Jason; it was deferred because Jason was
+remote and could not complete sign-in. No production target is connected.
 
 ### M4 — Management GUI
 
@@ -526,14 +543,17 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Completed authenticated snapshot and isolated restore | SHA-256 recorded for off-guest snapshot on `backups`; disposable network-isolated LXC 118 restored the Raft snapshot, accepted the original human shares, and verified synthetic data/audit/policy/AppRole before destruction | recovery remains human-operated by design; encrypted shares must remain on their separate recovery devices |
 | 2026-09-24 | Adopted the deployed placement in NetBox and repository references | NetBox VM/interface/IP IDs 18/18/32; `configs/devices.conf`, IP addressing and backup coverage updated | OpenBao remains loopback-only; no DNS, firewall, Authentik or production-secret integration exists yet |
 | 2026-09-24 | Completed M2 synthetic broker foundation | `broker_core.py`, Unix-socket service/client/admin, hardened systemd unit, installer and 23 passing tests; live LXC 104 probation, payload-binding, one-time consumption, risk denial and global-disable checks | M3 must supply Authentik/passkey approval; M2 exposes no TCP endpoint and holds no OpenBao or production credential |
+| 2026-09-24 | Deployed M3 mobile approval candidate | Existing passkey-only Aster Companion OIDC reused; separate approver-only Unix socket; kernel UID and signed-token identity boundary; sanitized approval inbox; 30 broker and 93 Aster tests; live changed-payload, replay and timeout failures passed | Real iPhone approve/deny gate deferred until Jason can sign in locally; M3 is not complete and no production target is connected |
 
 ## Close-out
 
-Not graduated. M0 through M2 are complete. OpenBao and the broker contain only
-synthetic data and no active target credential; no production credential, DNS,
-firewall, Authentik or Forgejo authorization path has been added.
+Not graduated. M0 through M2 are complete and the M3 candidate is deployed,
+but its real-device passkey approval/denial gate remains open. OpenBao and the
+broker contain only synthetic data and no active target credential; no
+production credential, DNS, firewall or Forgejo authorization path has been
+added. M3 reused the already deployed Aster Companion Authentik application.
 
-Next safe action: **M3 Authentik mobile approval.** Define the private approval
-application/provider and payload-bound callback contract, then test approval,
-denial, expiry, replay and changed-payload failure. Keep OpenBao loopback-only
-and the broker on its Unix socket until the later network rule is reviewed.
+Next safe action: when Jason can sign in from his iPhone, create fresh synthetic
+Yellow and Red requests, deny Yellow, approve Red through a fresh passkey login,
+then verify terminal state and one-time consumption. Keep OpenBao loopback-only
+and the broker on its Unix sockets until the later integration gate.

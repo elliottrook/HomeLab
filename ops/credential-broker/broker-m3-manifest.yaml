@@ -1,0 +1,48 @@
+schema_version: 1
+project: homelab-ai-pam
+milestone: M3
+status: human_validation_pending
+
+deployment:
+  host: hermesagent
+  lxc: 104
+  identity_provider: existing_aster_companion_authentik_oidc
+  identity_policy: passkey_only
+  companion_service: aster-agent.service
+  broker_service: homelab-broker.service
+  approval_service: homelab-broker-approval.service
+  broker_socket: /run/homelab-broker/mcp.sock
+  approval_socket: /run/homelab-broker/approval.sock
+  tcp_listener: prohibited
+  production_credentials: none
+
+controls:
+  browser_identity: signed_oidc_claims
+  actor_identifier: sha256_issuer_and_subject
+  browser_supplied_identity: prohibited
+  approval_peer_identity: kernel_unix_uid_aster
+  approval_socket_mode: "0660"
+  approval_socket_group: hlabroker-approvers
+  payload_binding: canonical_json_sha256
+  replay: prohibited
+  red_assurance: passkey
+  red_max_authentication_age_seconds: 120
+  display_fields:
+    - reason
+    - target
+    - effect
+    - rollback
+  secret_rendering: prohibited
+
+validation:
+  broker_tests: 30
+  aster_tests: 93
+  unauthenticated_http: denied
+  agent_uid_approval_socket: denied
+  aster_uid_approval_socket: passed
+  changed_payload: denied
+  exact_payload: approved
+  replay: denied
+  timeout: denied
+  real_iphone_passkey_approve: pending
+  real_iphone_deny: pending

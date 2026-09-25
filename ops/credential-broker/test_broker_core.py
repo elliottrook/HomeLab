@@ -60,6 +60,32 @@ class BrokerCoreTests(unittest.TestCase):
         with self.assertRaisesRegex(BrokerDenied, "binding mismatch"):
             self.store.approve_request(request.request_id, canonical_payload_hash({"rule": "two"}))
 
+    def test_red_requires_fresh_passkey(self):
+        self.store.set_agent_state("agent-test", "operator")
+        request = self.store.create_request("agent-test", "network.change", {"rule": "one"})
+        with self.assertRaisesRegex(BrokerDenied, "passkey"):
+            self.store.approve_request(request.request_id, request.payload_hash)
+        with self.assertRaisesRegex(BrokerDenied, "fresh"):
+            self.store.approve_request(
+                request.request_id, request.payload_hash,
+                auth_time=self.now - 121, assurance="passkey",
+            )
+        self.store.approve_request(
+            request.request_id, request.payload_hash,
+            actor="owner-hash", auth_time=self.now, assurance="passkey",
+        )
+        self.assertEqual("approved", self.store.get_request(request.request_id).status)
+
+    def test_denial_is_payload_bound_and_terminal(self):
+        self.store.set_agent_state("agent-test", "operator")
+        request = self.store.create_request("agent-test", "service.restart", {"target": "one"})
+        with self.assertRaisesRegex(BrokerDenied, "binding mismatch"):
+            self.store.deny_request(request.request_id, canonical_payload_hash({"target": "two"}))
+        self.store.deny_request(request.request_id, request.payload_hash, actor="owner-hash")
+        self.assertEqual("denied", self.store.get_request(request.request_id).status)
+        with self.assertRaisesRegex(BrokerDenied, "not pending"):
+            self.store.deny_request(request.request_id, request.payload_hash)
+
     def test_expiry_fails_closed(self):
         request = self.store.create_request("agent-test", "health.read", {}, ttl_seconds=1)
         self.now += 1
@@ -92,6 +118,30 @@ class BrokerCoreTests(unittest.TestCase):
         audit_text = str(self.store.audit_rows())
         self.assertIn(request.payload_hash, audit_text)
         self.assertNotIn("do-not-copy-this-value", audit_text)
+
+    def test_pending_display_is_sanitized_and_not_audited(self):
+        self.store.set_agent_state("agent-test", "operator")
+        request = self.store.create_request(
+            "agent-test", "service.restart", {"target": "synthetic"},
+            display={"target": "Synthetic service", "effect": "Restart one test service", "rollback": "Service returns to its prior version"},
+        )
+        pending = self.store.pending_requests()[0]
+        self.assertEqual(pending["request_id"], request.request_id)
+        self.assertEqual(pending["display"]["target"], "Synthetic service")
+        self.assertNotIn("Synthetic service", str(self.store.audit_rows()))
+
+    def test_pending_display_rejects_secret_shaped_content(self):
+        self.store.set_agent_state("agent-test", "operator")
+        with self.assertRaisesRegex(BrokerDenied, "credential"):
+            self.store.create_request(
+                "agent-test", "service.restart", {"target": "synthetic"},
+                display={"reason": "rotate API token"},
+            )
+        with self.assertRaisesRegex(BrokerDenied, "unsupported"):
+            self.store.create_request(
+                "agent-test", "service.restart", {"target": "synthetic"},
+                display={"details": "not allowlisted"},
+            )
 
     def test_ttl_is_bounded(self):
         for ttl in (0, 901):

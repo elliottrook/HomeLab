@@ -25,6 +25,7 @@ from aster_agent import (
     execute_tool,
     get_arr_repair_dry_run_proposal,
     get_lab_health,
+    companion_claims,
     normalized_messages,
     personas,
     preload_read_only_context,
@@ -964,6 +965,24 @@ class AuthenticationTests(unittest.TestCase):
         """The two credential types are independent, not a fallback chain."""
         with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", ""):
             require_api_key(authorization=f"Bearer {self._token()}")  # does not raise
+
+    def test_companion_claims_derives_actor_from_verified_subject(self):
+        token = self._token()
+        with self._signing_key_patch():
+            claims = companion_claims(authorization=f"Bearer {token}")
+        self.assertEqual(len(claims["owner_hash"]), 64)
+        self.assertNotEqual(claims["owner_hash"], "jason")
+
+    def test_companion_claims_rejects_delegated_actor_token(self):
+        now = int(time.time())
+        token = jwt.encode({
+            "iss": "https://auth.elliottrook.com/application/o/aster-companion/",
+            "aud": "aster-companion", "sub": "jason", "act": {"sub": "agent"},
+            "iat": now, "exp": now + 300,
+        }, self.private_key, algorithm="RS256")
+        with self._signing_key_patch(), self.assertRaises(HTTPException) as raised:
+            companion_claims(authorization=f"Bearer {token}")
+        self.assertEqual(raised.exception.status_code, 401)
 
 
 class PersonaTests(unittest.TestCase):

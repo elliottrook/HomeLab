@@ -29,6 +29,7 @@ from arr_report import get_arr_report as read_arr_report
 from ha_report import get_ha_report as read_ha_report
 from source_reports import get_forgejo_report as read_forgejo_report
 from source_reports import get_netbox_report as read_netbox_report
+from broker_approvals import BrokerApprovalClient, approval_router
 
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
@@ -84,6 +85,7 @@ REQUEST_TIMEOUT = float(os.environ.get("ASTER_REQUEST_TIMEOUT", "180"))
 MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
 MAX_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_RESPONSE_TOKENS", "160"))
 MAX_HEALTH_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_HEALTH_RESPONSE_TOKENS", "112"))
+BROKER_APPROVAL_SOCKET = os.environ.get("ASTER_BROKER_APPROVAL_SOCKET", "/run/homelab-broker/approval.sock")
 
 ASTER_SYSTEM_PROMPT = """You are Aster, Jason's concise local home and homelab assistant.
 Answer directly and honestly. Unless the user asks for depth, keep answers to
@@ -1603,6 +1605,12 @@ button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
 #arrCard .row{{display:flex;gap:8px;margin-top:10px}}
 #arrCard button.approve{{background:#dc2626}}
 #arrCard button.dismiss{{background:#374151}}
+#approvalInbox{{margin:10px 0}}
+.approvalCard{{background:rgba(30,41,59,.82);border:1px solid #64748b;border-radius:12px;padding:14px;margin:10px 0}}
+.approvalCard.red{{border-color:#ef4444}}.approvalCard.yellow{{border-color:#f59e0b}}
+.approvalCard h3{{margin:0 0 8px}}.approvalCard p{{margin:5px 0;overflow-wrap:anywhere}}
+.approvalCard .hash{{font:12px ui-monospace,monospace;color:#94a3b8}}
+.approvalCard .row{{display:flex;gap:8px}}.approvalCard button.deny{{background:#475569}}
 details.prog{{margin:4px 0 0;font-size:.8rem;color:#9ca3af}}
 details.prog summary{{font-size:.8rem;font-variant-numeric:tabular-nums}}
 details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-nums}}
@@ -1613,6 +1621,8 @@ details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-num
 <div id="login" hidden><h1>Aster Companion</h1><button id="signin">Sign in with passkey</button><p class="err" id="loginErr"></p></div>
 <div id="app" hidden>
 <header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
+<button id="checkApprovals" class="checkArr">Approval inbox</button>
+<div id="approvalInbox"></div>
 <details id="toolsPanel"><summary>Tools</summary><div id="tools"></div></details>
 <button id="checkArr" class="checkArr">Check for pending ARR action</button>
 <div id="arrCard" hidden></div>
@@ -1638,12 +1648,14 @@ function b64url(buf){{return btoa(String.fromCharCode(...new Uint8Array(buf))).r
 function randomString(len){{const a=new Uint8Array(len);crypto.getRandomValues(a);return b64url(a.buffer)}}
 async function sha256(str){{return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))}}
 
-async function login(){{
+async function login(fresh=false, approval=null){{
   const verifier=randomString(64), state=randomString(24);
   const challenge=b64url(await sha256(verifier));
   sessionStorage.setItem('pkce_verifier', verifier);
   sessionStorage.setItem('pkce_state', state);
+  if(approval) sessionStorage.setItem('pending_approval_action', JSON.stringify(approval));
   const p=new URLSearchParams({{client_id:AUTH.clientId, response_type:'code', redirect_uri:AUTH.redirectUri, scope:AUTH.scope, code_challenge:challenge, code_challenge_method:'S256', state}});
+  if(fresh){{ p.set('prompt','login'); p.set('max_age','0') }}
   location.href = AUTH.authorizeUrl + '?' + p.toString();
 }}
 
@@ -1806,6 +1818,58 @@ async function loadPersonas(){{
 }}
 
 document.querySelector('#persona').onchange = e => switchPersona(e.target.value);
+
+async function approvalApi(path='', options={{}}){{
+  const token=await validAccessToken();
+  if(!token){{ showLogin(); throw new Error('Sign in required') }}
+  const headers=Object.assign({{'Authorization':'Bearer '+token}}, options.headers||{{}});
+  const r=await fetch('/v1/companion/approvals'+path, Object.assign({{}}, options, {{headers}}));
+  const j=await r.json().catch(()=>({{}}));
+  if(!r.ok) throw new Error(j.detail||r.statusText);
+  return j;
+}}
+
+async function loadApprovals(){{
+  const box=document.querySelector('#approvalInbox'); box.textContent='';
+  try{{
+    const pending=await approvalApi();
+    if(!pending.length){{ box.textContent='No pending approvals.'; return }}
+    for(const item of pending){{
+      const card=document.createElement('section'); card.className='approvalCard '+item.risk_class;
+      const title=document.createElement('h3'); title.textContent=item.risk_class.toUpperCase()+': '+item.capability; card.appendChild(title);
+      const display=item.display||{{}};
+      for(const key of ['reason','target','effect','rollback']) if(display[key]){{ const p=document.createElement('p'); p.textContent=key[0].toUpperCase()+key.slice(1)+': '+display[key]; card.appendChild(p) }}
+      const expiry=document.createElement('p'); expiry.textContent='Expires: '+new Date(item.expires_at*1000).toLocaleString(); card.appendChild(expiry);
+      const hash=document.createElement('p'); hash.className='hash'; hash.textContent='Payload SHA-256: '+item.payload_hash; card.appendChild(hash);
+      const row=document.createElement('div'); row.className='row';
+      const approve=document.createElement('button'); approve.textContent=item.risk_class==='red'?'Re-authenticate & approve':'Approve';
+      approve.onclick=()=>approveBrokerRequest(item);
+      const deny=document.createElement('button'); deny.className='deny'; deny.textContent='Deny'; deny.onclick=()=>finishBrokerAction(item,'deny');
+      row.append(approve,deny); card.appendChild(row); box.appendChild(card);
+    }}
+  }}catch(e){{ box.textContent='Approval inbox error: '+e.message }}
+}}
+
+async function approveBrokerRequest(item){{
+  if(item.risk_class==='red'){{ await login(true,{{request_id:item.request_id,payload_hash:item.payload_hash,action:'approve'}}); return }}
+  await finishBrokerAction(item,'approve');
+}}
+
+async function finishBrokerAction(item,action){{
+  try{{
+    await approvalApi('/'+encodeURIComponent(item.request_id)+'/'+action,{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{payload_hash:item.payload_hash}})}});
+    await loadApprovals();
+  }}catch(e){{ document.querySelector('#approvalInbox').textContent='Approval action failed: '+e.message }}
+}}
+
+async function resumeApprovalAction(){{
+  const raw=sessionStorage.getItem('pending_approval_action');
+  if(!raw) return;
+  sessionStorage.removeItem('pending_approval_action');
+  try{{ const item=JSON.parse(raw); await finishBrokerAction(item,item.action) }}catch(e){{ document.querySelector('#approvalInbox').textContent='Approval action failed: '+e.message }}
+}}
+
+document.querySelector('#checkApprovals').onclick=loadApprovals;
 
 // M5: the gated-action framework's one wired action - request, review,
 // approve exactly the existing ARR-repair broker's dry-run/candidate,
@@ -2220,7 +2284,7 @@ async function speakReply(text){{
 stopSpeech.onclick = () => {{ speechAbort?.abort(); cancelPlayback?.() }};
 
 document.querySelector('#mic').onclick = toggleMic;
-document.querySelector('#signin').onclick=login;
+document.querySelector('#signin').onclick=()=>login(false);
 document.querySelector('#signout').onclick=async()=>{{
   try{{ await companionNotify.disable() }}catch(e){{ document.querySelector('#chatErr').textContent=e.message; return }}
   companionNotify.clearPending();
@@ -2242,7 +2306,7 @@ prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.
   const err=await handleCallback();
   if(err){{ document.querySelector('#loginErr').textContent=err }}
   const token=await validAccessToken();
-  if(token){{ await loadPersonas(); loadChatHistory(); showApp(); await companionNotify.init(); await recoverNotificationReply() }} else showLogin();
+  if(token){{ await loadPersonas(); loadChatHistory(); showApp(); await companionNotify.init(); await resumeApprovalAction(); await loadApprovals(); await recoverNotificationReply() }} else showLogin();
 }})();
 </script></body></html>"""
 
@@ -2252,10 +2316,19 @@ from companion_notifications import CompanionNotifications
 
 
 def companion_owner(authorization: str | None = Header(default=None)) -> str:
+    return companion_claims(authorization)["owner_hash"]
+
+
+def companion_claims(authorization: str | None = Header(default=None)) -> dict[str, Any]:
     claims = _authentik_claims(authorization)
-    if not claims or not isinstance(claims.get("sub"), str) or not claims["sub"]:
+    if (not claims or claims.get("act") or not isinstance(claims.get("sub"), str)
+            or not claims["sub"]):
         raise HTTPException(401, "Sign in with your Companion account")
-    return hashlib.sha256((AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()).hexdigest()
+    result = dict(claims)
+    result["owner_hash"] = hashlib.sha256(
+        (AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()
+    ).hexdigest()
+    return result
 
 
 notifications = CompanionNotifications(
@@ -2264,6 +2337,7 @@ notifications = CompanionNotifications(
     companion_owner, ChatRequest, chat, get_lab_health,
 )
 app.include_router(notifications.router)
+app.include_router(approval_router(BrokerApprovalClient(BROKER_APPROVAL_SOCKET), companion_claims))
 app.router.add_event_handler("startup", notifications.start)
 app.router.add_event_handler("shutdown", notifications.stop)
 
