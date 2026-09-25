@@ -47,7 +47,7 @@ single-login graduation for those services.
 | Portainer | Native OAuth/OIDC — complete and tested (2026-09-15) | `portainer.elliottrook.com` | Existing local `admin` and direct HTTPS remain break-glass paths; Homepage API token remains direct |
 | Proxmox web UI | Native OpenID Connect realm | `proxmox.elliottrook.com` | Keep the local `root@pam` recovery path |
 | TrueNAS web UI | Held: no native browser SSO verified on 25.10.5 | `truenas.elliottrook.com` (proposed) | Forward auth alone retains a second password; storage protocols remain direct |
-| Main Synology web UI | Existing native OIDC verified; provider 4 normalized to passkeys on 2026-09-25 | `synology.elliottrook.com` (existing) | DSM export checkpoint captured; SSO reached desktop, account/role and fresh-session acceptance pending; preserve Drive/SMB/recovery |
+| Main Synology web UI | Native OIDC; provider 4 uses passkeys; desktop/Control Panel accepted 2026-09-25 | `synology.elliottrook.com` | Homepage promoted; dedicated fresh Face ID/logout/recovery tests pending; preserve Drive/SMB/recovery |
 | UniFi OS/Network web UI | Held: local administrator federation unverified on OS Server 5.1.42 | `unifi.elliottrook.com` (proposed) | Endpoint/Fabric identity support does not establish local admin SSO; preserve direct login |
 | OPNsense web UI | Keep LAN/Tailscale-only initially | `firewall.elliottrook.com` only if later approved | Avoid making proxy/auth failure block firewall recovery |
 | Tailscale | No Authentik proxy | Existing tailnet | It is already the private access layer |

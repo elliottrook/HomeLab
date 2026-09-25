@@ -20,6 +20,54 @@
 
 ## Resume audit — 2026-09-23
 
+### Synology promotion and Immich native backup progress — 2026-09-25
+
+Jason confirmed “it opens” in response to the Control Panel test on the new
+Synology SSO tab. Browser control subsequently showed the friendly-host DSM
+Control Panel, including administrator settings. Promoted only its Homepage
+href from `https://192.168.20.41:5001` to
+`https://synology.elliottrook.com`; all other service/widget configuration is
+byte-for-byte unchanged. Checkpoint on LXC 100:
+`/opt/homepage/backups/synology-promote-20260925T222708Z/services.yaml`.
+Dedicated fresh Face ID, logout and local-recovery tests remain open.
+
+The authenticated DSM session exposes Container Manager: Immich has four
+running containers (`immich_server`, `immich_machine_learning`,
+`immich_postgres`, `immich_redis`) in project `immich-app` at
+`/volume1/docker/dockge/stacks/immich-app`. The SSH user still cannot read that
+directory or access Docker; no privileges were widened. Opening the existing
+Immich address in a new Brave tab found an existing Jason administrator
+session on v2.7.5, providing a supported application-level backup path.
+
+Exported settings as `immich-config.json`, protected the downloaded file as
+0600, and retained a 0600 copy in 0700 directory
+`/private/tmp/authentik-immich-20260925/immich-config-before.json`.
+SHA-256: `604c9575cd718c7156a444f14ff24890b1f21b45a66c19776100b365d53801a0`.
+OAuth is currently disabled, password login enabled, no OIDC credentials are
+configured, and database backups are enabled with retention 14.
+
+Ran exactly one built-in Create Database Dump job, following the
+[official backup workflow](https://docs.immich.app/administration/backup-and-restore/).
+The UI lists the new 46.1 MiB backup
+`immich-db-backup-20260925T222925-v2.7.5-pg14.19.sql.gz`.
+Download was attempted for protected checksum/gzip verification, but Brave
+blocked it as an insecure HTTP download. The browser tool's security-warning
+handoff rule requires Jason to click Keep; requested that action. No warning
+was bypassed, no restore was attempted, and successful creation/listing is not
+yet download-integrity or restore proof. No new OAuth or network setting was
+applied to Immich.
+
+Read-only next-layer preflight: no existing `photos.elliottrook.com` NPM host;
+NPM-to-Synology TCP 2283 fails to connect. Synology can already reach Authentik's
+HTTPS discovery endpoint. Next steps after verified application checkpoint:
+stage the narrowly scoped private HTTPS route and owner-only native OIDC,
+preserve existing accounts/password recovery, disable OAuth auto-registration,
+and validate browser/mobile callbacks. Current
+[Immich OAuth documentation](https://docs.immich.app/administration/oauth/)
+describes `/auth/login`, `/user-settings` and `app.immich:///oauth-callback`;
+confirm these against installed 2.7.5 before activation. No version upgrade is
+part of this change.
+
 ### Synology administrator session and native SSO — 2026-09-25
 
 Jason opened DSM in external Brave, signed in as the existing administrator.
