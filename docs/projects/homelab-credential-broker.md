@@ -467,8 +467,8 @@ removed, the retired audit identity remains, and zero requests are open.
 ### M6 — Forgejo MCP pilot
 
 - [x] Deploy pinned Forgejo MCP.
-- [ ] Create repo-scoped Phase-1 AI identity/token if needed.
-- [ ] Store token only in OpenBao.
+- [x] Create repo-scoped Phase-1 AI identity/token if needed.
+- [x] Store token only in OpenBao.
 - [ ] Register bounded Forgejo capabilities.
 - [ ] Green read-only tests.
 - [ ] Yellow approved write/push test on a safe branch/test file.
@@ -587,6 +587,8 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Completed M5 probationary replacement lifecycle | Disposable kernel-bound identity started in Probation; allowed Green and denied Yellow/Red/Black/scope expansion/malformed/arbitrary-method/identity-spoof cases; prompt-shaped text stayed out of audit. Jason promoted then retired it through fresh passkeys; retirement revoked its pending request and execution. A retired-catalogue leak was found, fixed and live-regressed; Unix test account removed, retired record retained, zero requests open | M6 Forgejo MCP remains gated; no production credential or target was introduced |
 | 2026-09-24 | Verified the pinned M6 Forgejo MCP release artifacts | Forgejo release API maps `v3.2.0` to source commit `e30bb7e2e45c0e447506b5df1fe83ebce4b43944`; the checksum bundle's P-256 signature verifies with the upstream public key pinned at GitOps commit `cd3715fa8283a2069a2e3e299744a7b55b1b0260`. The Linux amd64 archive SHA-256 is `bf8f744d53dd06c0e7830ee13a0507464b3ab301fcf01de4744db03d770039df`; its CycloneDX 1.7 SBOM SHA-256 is `5ae227404314345c48828b41a96f43f525b0501c0c4c9e5a856852732e8917d0`; both match the signed checksum list | Artifact execution and all Forgejo identity/token creation remain gated; the tag signature itself could not be independently validated because its OpenPGP public key was unavailable locally |
 | 2026-09-24 | Began the authorized M6 read-only Forgejo pilot | Installed the checksum-verified `forgejo-mcp` 3.2.0 binary at `/opt/forgejo-mcp/bin/forgejo-mcp` on LXC 104 without starting it. Created restricted, non-admin Forgejo user `ai-pam-mcp` and granted only read collaborator mode on `jason/homelab`; no PAT exists yet | A one-use `jason` bootstrap token granted the collaborator permission but its intentionally narrow scope could not self-revoke through the API (HTTP 403); the exact token row was deleted locally and verified absent. Service-PAT creation is deferred until it can be transferred directly into OpenBao |
+| 2026-09-24 | Recovered OpenBao administrative access after discovering the 2.6 authenticated-root-generation change | Proxmox snapshot `ai-pam-pre-m6-root-recovery` plus cold Raft/audit copy `/root/openbao-pre-m6-20260924T224849Z`; restored the authenticated M1 Raft snapshot and Jason supplied two encrypted recovery shares directly, returning the service to unsealed state | OpenBao 2.6 rejected both unauthenticated legacy root-generation calls and the authenticated CLI call without a token. The restored initial root token is temporarily valid again and remains PGP-encrypted under Recovery A; create/test a limited operator recovery path and revoke root before M6 completion |
+| 2026-09-24 | Created and validated the Phase-1 Forgejo credential | Restricted non-admin `ai-pam-mcp`; sole collaboration `jason/homelab` in read mode; PAT `ai-pam-m6-read` has exactly `read:repository`; stored and round-trip verified only at OpenBao `secret/ai-pam/forgejo-mcp-read`. Live API validation returned pull=true, push=false, admin=false; `/api/v1/user` returned HTTP 403 because `read:user` was deliberately omitted | One-shot bootstrap helper removed after success. Broker/OpenBao private listener and MCP policy adapter are not connected yet; no Yellow write credential exists |
 
 ## Close-out
 
