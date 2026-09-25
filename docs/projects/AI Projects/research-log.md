@@ -83,3 +83,10 @@ b3619ce 2026-09-24 Complete AI-PAM mobile approval milestone
 - Octelium or other relevant work outside the searched tracked/local repositories may exist. It is explicitly UNKNOWN.
 - The source manifest is a reproducibility aid, not proof that every copied file was read line by line. Core architecture/security and relevant project sections were reviewed; no exhaustive dependency/source-code audit is claimed.
 - Report artifacts were written outside project repositories. No migration, archive, commit, push or production modification was performed.
+
+
+## 2026-09-25 — M1 deployment preparation follow-up
+
+Read-only service/hash/status projections on104 and read-only Authentik ORM/source projections on106 verified provider26 owner binding, subject mode, flow stages, generic ACR and the distinct authentication-method behavior. No tokens, sessions, provider secrets or recovery material were queried. The exact observations and current limitations are in [M1 deployment plan](evidence/M1-deployment-plan.md). Official OAuth2 and WebAuthn documentation was opened, but installed-source evidence governs the claim mapping. The generic ACR cannot safely be selected as passkey assurance.
+
+Concurrent AI-PAM M6 deployment invalidated the first transport baseline; it was caught before any mutation. Re-queried hashes and service commands, matched M6's worktree source to deployed transport and preserved it while adding caller binding. Added fake-gateway denial tests; combined broker suite57 passes, staged Stage1 subset37 passes, legacy approval compatibility passes. This task has made no production or remote Git changes. A separately owned pending M6 request and deployment approval remain gates.

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "status": "prepared-not-approved-not-deployed",
+  "target_guest": 104,
+  "stage": 1,
+  "base_core_commit": "39221b7",
+  "transport_provenance": "AI-PAM M6 worktree source verified against live SHA-256; authenticated-agent binding added",
+  "expected_live": {
+    "broker_core.py": "c8f95571ab5b7be1783fe54394047a8d5c40d9cc9121ffcbdc7ad1af99a87cb1",
+    "broker_service.py": "cb52ca372b9af8f4abefc6b5ef3ac55655482e7f537773e45d90ccd2ab068eec",
+    "broker_approval_service.py": "a73625fa3b68fe3a5e65f8960b6c96d9fec8fbf4c9dbdc75fe4136a5625c50d8"
+  },
+  "install_files": [
+    "broker_core.py",
+    "broker_service.py"
+  ],
+  "restart_services": [
+    "homelab-broker.service",
+    "homelab-broker-approval.service"
+  ],
+  "files": {
+    "broker_core.py": "a7dbf6206e8643ccf3b52260a83f8da07597acd0cca2d74152aaab28418c60d0",
+    "broker_service.py": "478638e4855d283d42c750a5c5662cc0386343cf502d024e97d5f09e71769498",
+    "test_broker_core.py": "b850885f090f8c2ca40e98dbdffcc495d6e0955aac6eee42059df98e7105c369",
+    "test_broker_service.py": "a611a007f48f0057120ca3ac36a4f30e6f5355351a4d221e5417c16464bd0677",
+    "test_adaptive_foundation_regressions.py": "da569095ce48dea5db719c555fcb2a7f657bf36a28afa7593a56b821f4bbbb1e",
+    "verify_legacy_approval.py": "ea00e7638948f3f17802fa2d9c7ff7aab468b30d060af985b304641c300a7bf1"
+  },
+  "blocked_on": [
+    "explicit deployment approval",
+    "AI-PAM quiescence and no active requests",
+    "verified recovery checkpoint"
+  ]
+}
