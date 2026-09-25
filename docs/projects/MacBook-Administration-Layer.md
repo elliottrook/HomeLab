@@ -2,8 +2,8 @@
 
 > Owner: Jason
 > Proposed: 2026-09-24
-> Status: Stream A accepted 2026-09-24; M0, M1, M2, M3 closed
-> Stream: A accepted 2026-09-24; execution underway, M0, M1, M2, M3 closed
+> Status: Stream A accepted 2026-09-24; M0-M4 closed, graduated
+> Stream: A accepted 2026-09-24; execution complete, M0-M4 closed, graduated 2026-09-24
 > Charter: [Project Creation Standard](../Project-Creation-Standard.md)
 
 ## 1. Purpose and desired outcome
@@ -296,10 +296,12 @@ scope for this session per Jason's instruction and has not been started.
 
 ### M4 — Recovery, integration and graduation
 
-- [ ] Jason runs Doctor, opens service UIs and SSH directly from MacBook without
-  Screen Sharing, AI, the mini or a shared filesystem. **Not started — the
-  actual graduation test, deliberately left for Jason to run unassisted, not
-  this session.**
+- [x] Jason runs Doctor, opens service UIs and SSH directly from MacBook without
+  Screen Sharing, AI, the mini or a shared filesystem. **Done 2026-09-24 —
+  Jason confirmed directly: ran Doctor, SSH, and service UIs himself,
+  unassisted, all working correctly.** This is the actual graduation test;
+  everything before it in this milestone was preparation and evidence, not
+  a substitute for it.
 - [x] Test with mini unavailable through a safe client-side isolation method;
   no reboot of the only active administration path as an incidental test.
   Done 2026-09-24, via code-level evidence rather than a live network block —
@@ -324,6 +326,12 @@ scope for this session per Jason's instruction and has not been started.
   GitHub mirror confirmed matching Forgejo HEAD (`544fcda`) 2026-09-24,
   read-only check only, no push attempted. Milestone commit discipline
   maintained throughout M0-M4.
+
+M4 gate passed 2026-09-24. All six items closed, including the one that
+actually matters most: Jason confirmed running Doctor, SSH and service UIs
+directly from the MacBook himself, unassisted — the real graduation test,
+not a session-side proxy for it. See §14 below for the graduation-criteria
+evaluation this unlocks.
 
 ## 10. Validation and evaluation
 
@@ -389,6 +397,84 @@ documentation agrees with live state, access remains least privilege and neither
 Mac requires the other for ordinary administration. Explain shared network/service
 failure domains. Record exceptions with reason, owner and review point; unchecked
 gates are not complete. Production remote synchronization remains explicit.
+
+### Evaluation, 2026-09-24
+
+- **All applicable gates pass.** M0, M1, M2, M3, M4 all closed with real,
+  live evidence — see each milestone's own gate-passed note in the
+  checklists and evidence log above.
+- **Repeated direct operation and recovery are proven.** Doctor, SSH and
+  service UIs run correctly from the MacBook across multiple independent
+  passes this project (M2's per-target verification, M3's and M4's full
+  `doctor.sh` runs) and, decisively, by Jason himself running them
+  unassisted (M4). Recovery is proven for git-tracked bootstrap/docs (fresh
+  isolated-location clone, M4) but **not** for untracked local
+  config/credentials — no backup destination exists for those on this Mac.
+  This is a real, open exception, not proven, recorded below rather than
+  waved through.
+- **Documentation agrees with live state.** Portfolio and changelog were
+  found stale (still saying M0-in-progress) and corrected today; this
+  project document's own evidence log has been kept current at every step,
+  not written up after the fact.
+- **Access remains least privilege.** M2: scoped SSH key, per-target
+  enrollment only on the approved 12, revocation procedure documented,
+  privilege boundary proven with real refused attempts (not asserted) on a
+  non-root account.
+- **Neither Mac requires the other for ordinary administration.** True for
+  the MacBook not requiring the mini or Forgejo for local toolkit use
+  (M4 items 1-2) — with the honest caveat that the mini-unavailable side was
+  proven via code-level evidence (zero toolkit references to the mini
+  found), not a live network-level test, per Jason's own choice after the
+  available live-test methods needed sudo this session couldn't supply.
+  True for the mini not requiring the MacBook: nothing about this project
+  altered the mini's own configuration, automation, or access (confirmed
+  unaffected in M3).
+- **Shared network/service failure domains, explained concretely rather
+  than left as the original proposal's abstract line (§5):** both Macs sit
+  on the same physical LAN and depend on the same OPNsense
+  gateway/DHCP/DNS, the same Authentik SSO instance for any
+  Authentik-fronted service, and the same single Forgejo origin as the only
+  git remote either Mac pushes to (GitHub is a read-only mirror, not a
+  second independent remote). A LAN-wide outage, an OPNsense failure, or a
+  Forgejo outage affects both machines identically and simultaneously —
+  physical device independence (two Macs, two keys, two local checkouts)
+  is real and proven, but it is not disaster independence from the shared
+  lab network or the single git origin. This was already stated in
+  principle at proposal time (§5); this evaluation is what actually backs
+  it with the project's real, closed milestones.
+- **Exceptions, each with reason, owner and review point** (per this
+  section's own requirement — recorded, not silently carried):
+  1. Untracked local config/credential backup destination — doesn't exist
+     on this Mac. *Reason:* a real infrastructure decision (what encrypted/
+     versioned path to use), not this session's to make unilaterally.
+     *Owner:* Jason. *Review point:* whenever he decides on a destination;
+     not blocking ordinary use in the meantime.
+  2. Authentik read-only API token and the 18 browser sign-ins — not
+     provisioned. *Reason:* confirmed non-blocking (M2); nothing on this
+     Mac currently needs either. *Owner:* Jason, via each service's own
+     admin UI. *Review point:* whenever a real project on this Mac needs
+     one.
+  3. Mini-unavailable test used code-level evidence, not a live network
+     block. *Reason:* the live methods needed sudo this session couldn't
+     supply, and Jason chose not to run it himself given the evidence
+     already found. *Owner:* Jason, if he ever wants the live version run.
+     *Review point:* optional, low priority — the code-level evidence is
+     solid (zero references found in a comprehensive scan).
+  4. This Mac's disk usage is at 91% (Doctor's own fail threshold). *Reason:*
+     found incidentally during M3's functional pass, unrelated to this
+     project's own scope. *Owner:* Jason. *Review point:* whenever
+     convenient — not part of this project's graduation, but not hidden
+     either.
+- **Production remote synchronization remains explicit.** Every Forgejo
+  push across this entire project was made only after Jason's explicit
+  per-message confirmation, matching the repo's standing rule; nothing was
+  ever auto-pushed. All git pulls were explicit operator/session actions,
+  not a background sync process.
+
+**Graduation: met**, with the four recorded exceptions above — none of
+which are unchecked gates in the sense this section warns against; each is
+a deliberately scoped, reasoned, owned deferral, not an unresolved item
+quietly left incomplete.
 
 ## 15. Evidence log
 
@@ -549,12 +635,22 @@ to add `192.168.1.241` there for M1's SSH work to proceed.
 
 ## 16. Resume instructions
 
+**Superseded 2026-09-24 — the project has graduated; this section described
+the original M0-start resume path, kept below for history.**
+
 Read charter and this project; inspect Git status and preserve unrelated work.
 At discovery `.claude/settings.json`, `scripts/doctor.sh` and
 `docs/projects/TrueNAS-DIY-SAS-Expansion.md` were already modified. Do not overwrite
 or include them in project commits. Next implementation step is M0 acceptance
 and direct MacBook discovery. Do not copy `~/.ssh`, install duplicate LaunchAgents,
 move mini files or touch the attached external SSD.
+
+**Actual resume path now**, if this project is ever revisited (e.g. one of
+the recorded exceptions in §14 gets picked up): read this document in full,
+starting from §14's graduation evaluation and the four recorded exceptions,
+rather than from M0 — the baseline, toolkit, SSH identity and Doctor parity
+work described below is done and should not be redone or assumed stale
+without checking live state first.
 
 ## 17. Close-out
 
@@ -584,9 +680,12 @@ renewal instructions and direct Proxmox test at `https://192.168.50.10:8006`.
 End-to-end management access is user-verified. The renewed lease was not
 independently re-read. No Git push performed.
 
-Proposed, not graduated. Current deliverable is the project document and portfolio
-entry. No external storage change, new key, MacBook installation or remote write
-was performed. Local project commit/synchronization status is reported separately.
+Proposed, not graduated **at the time of this entry** — M0 had not yet
+started. Current deliverable *then* was the project document and portfolio
+entry only; no external storage change, new key, MacBook installation or
+remote write had been performed *at that point*. Superseded by the full
+M0-M4 record below and the graduation evaluation in §14: the project has
+since graduated, 2026-09-24.
 
 ### 2026-09-24 M1 session start and toolkit dependency verification
 
@@ -1485,8 +1584,37 @@ M4-in-progress state.
 `544fcda3bf83502e7ea21723433ab9f2fa62029a`, exactly matching Forgejo/local
 HEAD (`544fcda`). Mirror is current; no push attempted or needed.
 
-**M4 not closed, as instructed.** Five of six checklist items now done;
-the sixth — Jason running Doctor, opening service UIs and using SSH
-directly from the MacBook, unassisted, without this session, Screen
-Sharing or the mini — is the actual graduation test and is deliberately
-left for him to run. Graduation criteria (§14) untouched.
+**M4 not closed yet at this point in the session, as instructed** — five of
+six checklist items done; the sixth, Jason running Doctor, opening service
+UIs and using SSH directly from the MacBook unassisted, without this
+session, Screen Sharing or the mini, was deliberately left for him to run
+rather than approximated. See the next entry for its outcome.
+
+### 2026-09-24 M4 closed — graduation confirmed by Jason directly
+
+Jason ran the actual graduation test himself, unassisted: Doctor, SSH and
+service UIs directly from the MacBook. Confirmed working. This is the one
+checklist item no session-side evidence could substitute for, and it's now
+done for real, not approximated.
+
+M4's remaining checklist item marked done; M4 gate passed. Evaluated §14's
+graduation criteria against the full M0-M4 record rather than leaving it as
+abstract proposal-time prose — see §14 above for the full evaluation,
+including a concrete explanation of the shared network/service failure
+domains (OPNsense/DHCP/DNS, Authentik SSO, the single Forgejo origin) and
+four explicitly recorded exceptions, each with a reason, an owner (Jason in
+every case) and a review point, per the section's own requirement. None of
+the four are unresolved gates quietly left incomplete — each is a
+deliberate, reasoned deferral.
+
+Corrected two other stale spots found while closing out: §17's original
+"Proposed, not graduated" line (accurate only at the time it was written,
+before M0 had even started — annotated rather than deleted, so the history
+stays readable) and §16's Resume Instructions (still described the
+original M0-start path; superseded with the actual resume path for a
+graduated project).
+
+**Project status: graduated, 2026-09-24.** Independent MacBook lab
+administration — its own SSH identity, its own local toolkit and docs, its
+own Doctor coverage nearly matching the mini's — works for real, confirmed
+by Jason operating it directly, not by this session's evidence alone.
