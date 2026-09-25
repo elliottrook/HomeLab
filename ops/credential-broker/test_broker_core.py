@@ -111,6 +111,8 @@ class BrokerCoreTests(unittest.TestCase):
         request = self.store.create_request("agent-test", "health.read", {})
         self.store.set_agent_state("agent-test", "suspended")
         self.assertEqual("revoked", self.store.get_request(request.request_id).status)
+        with self.assertRaisesRegex(BrokerDenied, "not active"):
+            self.store.discover_capabilities("agent-test")
 
     def test_audit_contains_hashes_but_not_payloads(self):
         secret_shaped_payload = {"note": "do-not-copy-this-value"}

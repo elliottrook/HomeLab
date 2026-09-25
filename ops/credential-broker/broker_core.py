@@ -404,6 +404,8 @@ class BrokerStore:
                 ORDER BY c.capability""",
             (agent_id,),
         ).fetchall()
+        if rows and rows[0]["state"] in {"suspended", "retired"}:
+            raise BrokerDenied("agent is not active")
         return [dict(row) for row in rows if row["state"] != "probation" or row["probation_allowed"]]
 
     def audit_rows(self) -> list[dict[str, Any]]:

@@ -1662,7 +1662,10 @@ async function login(fresh=false, approval=null){{
   const challenge=b64url(await sha256(verifier));
   sessionStorage.setItem('pkce_verifier', verifier);
   sessionStorage.setItem('pkce_state', state);
-  if(approval) sessionStorage.setItem('pending_approval_action', JSON.stringify(approval));
+  if(approval){{
+    localStorage.setItem('pending_approval_action', JSON.stringify(approval));
+    localStorage.setItem('pending_approval_created_at', String(Date.now()));
+  }}
   const p=new URLSearchParams({{client_id:AUTH.clientId, response_type:'code', redirect_uri:AUTH.redirectUri, scope:AUTH.scope, code_challenge:challenge, code_challenge_method:'S256', state}});
   if(fresh) p.set('max_age','0');
   location.href = AUTH.authorizeUrl + '?' + p.toString();
@@ -1872,9 +1875,11 @@ async function finishBrokerAction(item,action){{
 }}
 
 async function resumeApprovalAction(){{
-  const raw=sessionStorage.getItem('pending_approval_action');
+  const raw=localStorage.getItem('pending_approval_action');
   if(!raw) return;
-  sessionStorage.removeItem('pending_approval_action');
+  const created=Number(localStorage.getItem('pending_approval_created_at')||0);
+  localStorage.removeItem('pending_approval_action'); localStorage.removeItem('pending_approval_created_at');
+  if(!created || Date.now()-created > 300000){{ document.querySelector('#approvalInbox').textContent='Pending action expired; review it again.'; return }}
   try{{
     const item=JSON.parse(raw);
     if(item.kind==='management') await finishManagementAction(item.body);
@@ -1902,7 +1907,8 @@ async function loadManagement(){{
       const list=document.createElement('ul'); for(const cap of agent.capabilities) list.appendChild(mgmtText('li',cap.capability+' · '+cap.risk_class+' · '+cap.service_id)); card.appendChild(list);
       const row=document.createElement('div'); row.className='mgmtRow'; const select=document.createElement('select');
       for(const state of ['probation','observer','operator','specialist','orchestrator','suspended','retired']){{ const o=document.createElement('option'); o.value=state;o.textContent=state;o.selected=state===agent.state;select.appendChild(o) }}
-      const apply=mgmtText('button','Apply state'); apply.onclick=()=>freshManagement({{action:'agent_state',target:agent.agent_id,state:select.value}}); row.append(select,apply); card.appendChild(row); panel.appendChild(card);
+      const apply=mgmtText('button',agent.state==='probation'?'Promote to operator':'Apply state');
+      apply.onclick=()=>freshManagement({{action:'agent_state',target:agent.agent_id,state:agent.state==='probation'?'operator':select.value}}); row.append(select,apply); card.appendChild(row); panel.appendChild(card);
     }}
     for(const service of snapshot.services){{
       const card=document.createElement('section'); card.className='mgmtCard'; card.appendChild(mgmtText('h3','Service: '+service.service_id));
@@ -2353,6 +2359,7 @@ document.querySelector('#signout').onclick=async()=>{{
   try{{ await companionNotify.disable() }}catch(e){{ document.querySelector('#chatErr').textContent=e.message; return }}
   companionNotify.clearPending();
   clearTokens();
+  localStorage.removeItem('pending_approval_action'); localStorage.removeItem('pending_approval_created_at');
   for(const k of Object.keys(localStorage)){{ if(k.startsWith('aster_chat_')) localStorage.removeItem(k) }}
   messages.length = 0; chat.innerHTML = '';
   showLogin();

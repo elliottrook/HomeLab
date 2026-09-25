@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0–M4 complete; M5 is next
+> Status: active — Stream A; M0–M5 complete; M6 Forgejo pilot is next
 >
 > Owner: Jason
 >
@@ -441,11 +441,25 @@ enabled and zero active requests.
 
 ### M5 — Probationary AI lifecycle
 
-- [ ] Mandatory Probation default.
-- [ ] promotion/demotion.
-- [ ] replacement/retirement workflow.
-- [ ] prompt-injection/scope-expansion tests.
-- [ ] live revocation proof.
+- [x] Mandatory Probation default.
+- [x] promotion/demotion.
+- [x] replacement/retirement workflow.
+- [x] prompt-injection/scope-expansion tests.
+- [x] live revocation proof.
+
+**Gate passed 2026-09-24:** disposable Unix identity `hlabagent-m5` was bound
+to `agent-replacement-m5`, which entered Probation regardless of its four
+assigned synthetic capabilities. It discovered only the explicitly
+probation-safe Green capability. Yellow, Red, Black, ungranted scope expansion,
+malformed payload, arbitrary method and caller-supplied identity attempts were
+denied. Prompt-injection-shaped payload text never entered audit output;
+changed-payload consumption failed and the exact Green request consumed once.
+After Jason's fresh-passkey promotion to Operator, a Yellow request became
+pending. Fresh-passkey retirement revoked it and blocked further execution.
+A live check then found retired identities could still enumerate their prior
+catalogue; discovery was corrected to fail closed and the 36-test broker suite
+plus live retired/active regression passed. The disposable Unix user was
+removed, the retired audit identity remains, and zero requests are open.
 
 ### M6 — Forgejo MCP pilot
 
@@ -567,6 +581,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Completed M3 human mobile gate | Jason completed a real fresh-passkey Red approval; the exact synthetic request consumed once and replay failed. Jason separately denied a clearly labeled Yellow request; broker read-back shows `consumed` and `denied`, metadata-only actor attribution and zero open requests | M3 remains synthetic-only; M4 lifecycle GUI is next and no production target credential is connected |
 | 2026-09-24 | Deployed M4 synthetic management candidate | Companion management view plus approver-only snapshot/history/audit and fresh-passkey lifecycle/revocation actions; 36 broker and 97 Aster tests; live services healthy, zero active requests and stale management auth denied | Human iPhone layout and representative revoke/restore acceptance pending; no production service or credential is connected |
 | 2026-09-24 | Completed M4 management GUI | Jason accepted the responsive iPhone view, suspended/restored `agent-hermes` and disabled/re-enabled global AI access through fresh passkeys. Live requests were denied while disabled and succeeded after restoration. Synthetic service disable/restore also denied/re-enabled issuance; final snapshot is globally enabled, agent Operator, service enabled and zero active requests | M4 remains synthetic-only; M5 probation/replacement adversarial lifecycle is next |
+| 2026-09-24 | Completed M5 probationary replacement lifecycle | Disposable kernel-bound identity started in Probation; allowed Green and denied Yellow/Red/Black/scope expansion/malformed/arbitrary-method/identity-spoof cases; prompt-shaped text stayed out of audit. Jason promoted then retired it through fresh passkeys; retirement revoked its pending request and execution. A retired-catalogue leak was found, fixed and live-regressed; Unix test account removed, retired record retained, zero requests open | M6 Forgejo MCP remains gated; no production credential or target was introduced |
 
 ## Close-out
 
@@ -575,8 +590,8 @@ synthetic data and no active target credential; no production credential, DNS,
 firewall or Forgejo authorization path has been added. M3 reused the already
 deployed Aster Companion Authentik application.
 
-Next safe action: **M5 probationary AI lifecycle.** Register a disposable
-replacement identity in Probation, test scope/prompt-injection/malformed input,
-promote it only after the recorded gate, then retire it and prove revocation.
-Keep OpenBao loopback-only and the broker on its Unix sockets until the later
-integration gate.
+Next safe action: **M6 Forgejo MCP pilot.** Revalidate the pinned adapter and
+current Forgejo version, verify artifact provenance, then introduce only a
+repository-scoped synthetic/read-only identity before any Yellow safe-branch
+write test. Keep OpenBao loopback-only and preserve Forgejo as the sole push
+authority with GitHub mirror verification.

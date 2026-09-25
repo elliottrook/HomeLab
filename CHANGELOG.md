@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-09-24 — AI-PAM M5 probation lifecycle complete
+
+- Registered a disposable kernel-bound replacement identity in mandatory
+  Probation and proved only its explicit Green capability was discoverable.
+- Denied Yellow, Red, Black, scope expansion, malformed payload, arbitrary
+  method and caller-identity spoof attempts; prompt-shaped payload text stayed
+  out of audit and exact payload binding held.
+- Jason promoted and retired the replacement through fresh passkeys. Retirement
+  revoked its pending request and blocked execution. A remaining retired-client
+  catalogue leak was found, fixed and live-regressed; the disposable Unix user
+  was removed and zero requests remain open.
+- Made pending passkey actions survive iOS/Authenik app switching using a
+  non-secret, five-minute local action descriptor; broker-side identity,
+  freshness and action validation remain authoritative.
+
 ## 2026-09-24 — AI-PAM M4 management candidate deployed
 
 - Added a secret-free Aster Companion management view for AI lifecycle and

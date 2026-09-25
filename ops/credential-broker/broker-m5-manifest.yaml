@@ -1,0 +1,33 @@
+schema_version: 1
+project: homelab-ai-pam
+milestone: M5
+status: complete
+
+test_identity:
+  agent_id: agent-replacement-m5
+  unix_identity: hlabagent-m5
+  initial_state: probation
+  final_state: retired
+  unix_identity_after_test: removed
+  audit_record_after_test: retained
+
+validation:
+  probation_green_discovery: passed
+  probation_yellow: denied
+  probation_red: denied
+  probation_black: denied
+  ungranted_scope_expansion: denied
+  malformed_payload: denied
+  arbitrary_method: denied
+  caller_identity_spoof: denied
+  prompt_text_in_audit: absent
+  changed_payload: denied
+  exact_green_consumption: passed
+  human_passkey_promotion: passed
+  human_passkey_retirement: passed
+  pending_request_on_retirement: revoked
+  retired_execution: denied
+  retired_capability_discovery: denied
+  primary_agent_regression: passed
+  broker_tests: 36
+  active_requests_after_test: 0
