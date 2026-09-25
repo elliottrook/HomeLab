@@ -268,10 +268,17 @@ scope for this session per Jason's instruction and has not been started.
 ### M3 — Diagnostic parity and execution ownership
 
 - [ ] Separate local counters/state and mini-only jobs; no automatic MacBook alerts.
+  Mini side unaffected (see evidence log); MacBook side not yet checked.
 - [ ] Doctor required checks use valid evidence; unsupported checks are resolved
   or explicitly accepted, never silently marked healthy.
-- [ ] Two independent functional passes per Mac compare against baseline failures.
-- [ ] Existing mini backup/report/Aster worker behavior remains unchanged.
+- [~] Two independent functional passes per Mac compare against baseline failures.
+  Mini-side baseline captured 2026-09-24 (see evidence log) — also fixed a
+  real pre-existing `doctor.sh` bug found while establishing it. MacBook-side
+  pass still needed.
+- [x] Existing mini backup/report/Aster worker behavior remains unchanged.
+  Confirmed 2026-09-24 — see evidence log. All four lab-related LaunchAgents
+  (`homelab-report`, `homelab-weekly-backup`, `aster-lab-worker`,
+  `aster-knowledge-review`) load and run in their expected states.
 
 ### M4 — Recovery, integration and graduation
 
@@ -1085,3 +1092,49 @@ API key is done and verified; the Authentik token and the 18 browser
 sign-ins are intentionally deferred as genuinely non-blocking, not silently
 skipped. M3 (diagnostic parity and execution ownership) has not been
 started.
+
+### 2026-09-24 M3 started — mini-side regression check and baseline
+
+**Existing mini automation unaffected.** Checked every lab-related
+LaunchAgent directly (`launchctl print gui/<uid>/<label>`, not the plain
+`launchctl list` enumeration, which returned nothing useful in this
+session's environment for unrelated reasons): `homelab-report` and
+`homelab-weekly-backup` both load correctly and are `not running` between
+their own scheduled windows (expected, not a regression);
+`aster-lab-worker` is actively `running` (a `KeepAlive` daemon, as
+designed); `aster-knowledge-review` loads correctly, `not running` between
+its monthly `StartCalendarInterval` firings (expected). Nothing from M1/M2
+touched any of these.
+
+**Mini-side `doctor.sh` baseline — and a real bug found and fixed getting
+there.** First attempt ran without the sandbox bypass this session needs
+for outbound network commands; the result was a cascade of failures across
+every host, including one that gave itself away as illegitimate — `ssh:
+connect to host 192.168.50.10 port 22: Operation not permitted` is the
+sandbox's own denial message, not a real host failure. Discarded that run
+entirely rather than treat it as evidence and re-ran correctly.
+
+The corrected run crashed too, but for a real reason: `./scripts/doctor.sh:
+line 2085: FAIL_ITEMS[@]: unbound variable`, with no Summary or exit status
+ever printed. Root cause: macOS's stock `/bin/bash` (3.2.57 — already
+confirmed in M1's bootstrap manifest) has a well-known bug, fixed in bash
+4.4+ but never backported to Apple's frozen 3.2, where `"${array[@]}"`
+throws "unbound variable" under `set -u` for a *properly declared but
+empty* array. `FAIL_ITEMS=()`/`WARN_ITEMS=()` were already correctly
+initialized at the top of the script (line 16) — the bug isn't a missing
+declaration, it's macOS's bash itself. This hits any run with at least one
+warning and zero failures, which is common, not an edge case — exactly
+what a clean baseline run looks like. Fixed by guarding both loops with an
+`${#array[@]} -gt 0` length check before expanding (`scripts/doctor.sh`
+commit `55a73c3`); checked every other `for ... in "${x[@]}"` loop in the
+script and confirmed the rest iterate either static non-empty lists or are
+already guarded, so this was the only real instance. Confirmed fixed with a
+clean re-run.
+
+**Mini baseline, 2026-09-24, sandbox-bypassed, post-fix:** 77 passed, 3
+warnings, 0 failed. Warnings: Aster wiki collector has 7 quarantined
+sources (pre-existing, unrelated to this project), News Aggregator has
+recent feed-fetch failures alongside successes (same), and the standing
+"Git repository contains uncommitted changes" (expected — the pre-existing
+dirty files this project was told not to touch). This is the baseline the
+MacBook's own independent pass should be compared against.
