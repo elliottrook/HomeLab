@@ -1,6 +1,6 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 baseline complete, M1 regression work started locally; production unchanged.
+**Status:** Active — Stream A; M0 baseline complete, M1 authority candidate tested locally; deployment/identity gates open; production unchanged.
 
 **Owner:** Jason.
 
@@ -150,17 +150,20 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | Single implementation project drafted | Review artifact only; no production/repository mutation, approval or milestone completion implied |
 | 2026-09-25 | Jason authorized Stream A and consolidation | Canonical project adopted; five predecessors archived; M0 reverified; M1 started with 36 passing tests and two explicit expected-failure blockers; no production mutation |
 
+| 2026-09-25 | Local M1 corrective candidate and independent review | 55 broker + 163 Aster tests pass; migration race identified by reviewer and fixed; production/identity/assurance gates remain open — see M1 evidence |
+
 ## 16. Later releases within the programme
 
 After foundation graduation, propose bounded amendments under this document for: deterministic voice/household reliability; isolated live calendar/public-web composition; limited Class 1 optimization under explicit standing authorization; and one guarded operational remediation after AI-PAM/recovery graduation. Each amendment adds its own risk, acceptance, measurement and rollback gates. Unrelated storage, network and hardware projects remain independent dependencies.
 
 ## 17. Close-out and current resume point
 
-**Active, not graduated.** M0 baseline/start scope is complete; M1 has begun with executable security regression cases. Existing broker suite: 36 passing tests. Two new required-denial regressions are expected failures against the current baseline and remain explicit blockers, not passed controls. See [baseline evidence](evidence/M0-baseline.md).
+**Active, not graduated.** M0 is complete. M1 has a local corrective candidate: 55 broker tests pass with no expected failures, and 163 Aster tests pass, including 10 approval-bridge tests. Caller binding, current-policy revalidation, lifecycle revocation, atomic consumption/migration, expiry/restart/restore and explicit approver/assurance configuration are implemented locally. See [M1 candidate evidence and gates](evidence/M1-authority-candidate.md).
 
-Next: implement originating-agent binding and consume-time policy/demotion checks in a local candidate; remove the corresponding expected-failure markers only when tests pass. Then test concurrency, expiry/revocation, approver entitlement and restart behavior before proposing a bounded deployment. No model/framework installation, personal-data collection or production mutation has occurred. Do not enable expanded tools while M1 remains open.
+M1 remains open: actual approver/ACR mapping, coordinated compatibility/recovery plan, explicit bounded deployment approval and live verification are not complete. Independent review passed after resolving its migration-race finding. Production controls have not changed. Do not enable expanded tools or assume the local fixes are live. Offline M2 contract work may proceed independently.
 
-Initial documentation/baseline milestone will be locally committed; remote publication remains pending the repository's separate immediate push confirmation. Supporting source observations remain pinned to e50b670, not retrospectively rewritten as current evidence.
+The initial programme baseline was published to Forgejo and verified at its GitHub mirror as merge `d954ae4e6d81cfde52e04a99f7768ff3919deb00`. This M1 candidate is a new local checkpoint; its publication needs a separate immediate push confirmation. Supporting assessment observations remain pinned to their original baseline.
+
 
 
 ## Consolidated requirements and dependency ownership

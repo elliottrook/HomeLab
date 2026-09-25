@@ -38,10 +38,10 @@ class BrokerCoreTests(unittest.TestCase):
         request = self.store.create_request("agent-test", "health.read", payload)
         self.assertEqual("approved", request.status)
         with self.assertRaisesRegex(BrokerDenied, "changed"):
-            self.store.consume_request(request.request_id, {"target": "other"})
-        self.assertEqual("consumed", self.store.consume_request(request.request_id, payload).status)
+            self.store.consume_request(request.request_id, {"target": "other"}, agent_id="agent-test")
+        self.assertEqual("consumed", self.store.consume_request(request.request_id, payload, agent_id="agent-test").status)
         with self.assertRaisesRegex(BrokerDenied, "not approved"):
-            self.store.consume_request(request.request_id, payload)
+            self.store.consume_request(request.request_id, payload, agent_id="agent-test")
 
     def test_non_green_requires_promotion_and_approval(self):
         with self.assertRaisesRegex(BrokerDenied, "probation"):
@@ -50,9 +50,9 @@ class BrokerCoreTests(unittest.TestCase):
         request = self.store.create_request("agent-test", "service.restart", {"target": "synthetic"})
         self.assertEqual("pending", request.status)
         with self.assertRaisesRegex(BrokerDenied, "not approved"):
-            self.store.consume_request(request.request_id, {"target": "synthetic"})
+            self.store.consume_request(request.request_id, {"target": "synthetic"}, agent_id="agent-test")
         self.store.approve_request(request.request_id, request.payload_hash)
-        self.assertEqual("consumed", self.store.consume_request(request.request_id, {"target": "synthetic"}).status)
+        self.assertEqual("consumed", self.store.consume_request(request.request_id, {"target": "synthetic"}, agent_id="agent-test").status)
 
     def test_approval_rejects_changed_payload_hash(self):
         self.store.set_agent_state("agent-test", "operator")
@@ -90,7 +90,7 @@ class BrokerCoreTests(unittest.TestCase):
         request = self.store.create_request("agent-test", "health.read", {}, ttl_seconds=1)
         self.now += 1
         with self.assertRaisesRegex(BrokerDenied, "expired"):
-            self.store.consume_request(request.request_id, {})
+            self.store.consume_request(request.request_id, {}, agent_id="agent-test")
         self.assertEqual("expired", self.store.get_request(request.request_id).status)
 
     def test_black_capability_is_never_delegated(self):
@@ -105,7 +105,7 @@ class BrokerCoreTests(unittest.TestCase):
         with self.assertRaisesRegex(BrokerDenied, "emergency"):
             self.store.create_request("agent-test", "health.read", {})
         with self.assertRaisesRegex(BrokerDenied, "emergency"):
-            self.store.consume_request(request.request_id, {})
+            self.store.consume_request(request.request_id, {}, agent_id="agent-test")
 
     def test_suspension_revokes_open_requests(self):
         request = self.store.create_request("agent-test", "health.read", {})

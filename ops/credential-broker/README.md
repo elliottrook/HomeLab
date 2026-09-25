@@ -57,3 +57,25 @@ Key files:
 - `openbao-m6-listener.hcl` / `openbao-m6-nftables.conf` — private TLS listener
   and broker-only ingress policy
 - `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record
+
+
+## Unreleased M1 authority candidate (2026-09-25)
+
+The local Aster Adaptive Computing candidate requires authenticated `agent_id`
+at consume, rechecks a versioned policy digest, invalidates authorizations on
+lifecycle changes, and serializes SQLite checks/transitions and schema migration.
+Legacy requests without a policy digest are denied; create new requests after a
+coordinated release. Bump `AUTHORIZATION_POLICY_VERSION` for changes to policy
+semantics so pending plans cannot inherit new rules silently.
+
+Approval transport now requires `actor` on reads as well as mutations, an explicit
+`--approver-subject-hash` allowlist, and the existing configured peer UID.
+Companion requires matching `ASTER_BROKER_APPROVER_SUBJECT_HASHES` (comma-separated)
+and only maps verified claims to passkey using explicitly configured
+`ASTER_BROKER_PASSKEY_ACRS`. Empty configuration fails closed. No production
+subject/ACR has been chosen or configured by this candidate. Existing unit files
+are not a ready-to-deploy configuration for the new approval service.
+
+See [M1 candidate evidence](../../docs/projects/AI%20Projects/evidence/M1-authority-candidate.md)
+for validation, M6 compatibility, identity/recovery/deployment gates and the
+at-most-once authorization limit. This source update is **not deployed**.

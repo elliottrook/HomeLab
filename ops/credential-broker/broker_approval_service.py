@@ -42,6 +42,8 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
         actor = request.get("actor")
         if not isinstance(actor, str) or not ACTOR_PATTERN.fullmatch(actor):
             raise BrokerDenied("approval actor must be a hashed Authentik subject")
+        if actor not in self.server.approver_subject_hashes:  # type: ignore[attr-defined]
+            raise BrokerDenied("subject is not an authorized approver")
         return actor
 
     def _fresh_actor(self, request: dict[str, Any]) -> str:
@@ -49,7 +51,7 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
         if request.get("assurance") != "passkey":
             raise BrokerDenied("management action requires passkey assurance")
         auth_time = request.get("auth_time")
-        if not isinstance(auth_time, int):
+        if type(auth_time) is not int:
             raise BrokerDenied("management action requires fresh authentication")
         age = self.server.store._now() - auth_time  # type: ignore[attr-defined]
         if age < 0 or age > 120:
@@ -57,6 +59,7 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
         return actor
 
     def dispatch(self, request: dict[str, Any]) -> Any:
+        actor = self._actor(request)
         method = request.get("method")
         if method == "pending.list":
             return self.server.store.pending_requests()  # type: ignore[attr-defined]
@@ -73,7 +76,7 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
             actor = self._actor(request)
             self.server.store.approve_request(  # type: ignore[attr-defined]
                 str(request.get("request_id", "")), str(request.get("payload_hash", "")),
-                actor=actor, auth_time=int(request.get("auth_time", 0)),
+                actor=actor, auth_time=request.get("auth_time"),
                 assurance=str(request.get("assurance", "")),
             )
             return {"status": "approved"}
@@ -112,8 +115,11 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
 
 
 class ApprovalServer(socketserver.UnixStreamServer):
-    def __init__(self, socket_path: str, store: BrokerStore, approver_uid: int):
+    def __init__(self, socket_path: str, store: BrokerStore, approver_uid: int, *, approver_subject_hashes: frozenset[str] = frozenset()):
         self.store = store
+        if any(not ACTOR_PATTERN.fullmatch(value) for value in approver_subject_hashes):
+            raise ValueError("approver subjects must be SHA-256 hashes")
+        self.approver_subject_hashes = approver_subject_hashes
         self.approver_uid = approver_uid
         super().__init__(socket_path, ApprovalHandler)
 
@@ -123,6 +129,7 @@ def main() -> None:
     parser.add_argument("--database", required=True)
     parser.add_argument("--socket", required=True)
     parser.add_argument("--approver-user", required=True)
+    parser.add_argument("--approver-subject-hash", action="append", default=[])
     parser.add_argument("--socket-group", required=True)
     args = parser.parse_args()
     socket_path = Path(args.socket)
@@ -130,7 +137,8 @@ def main() -> None:
     if socket_path.exists():
         socket_path.unlink()
     store = BrokerStore(args.database)
-    server = ApprovalServer(str(socket_path), store, pwd.getpwnam(args.approver_user).pw_uid)
+    server = ApprovalServer(str(socket_path), store, pwd.getpwnam(args.approver_user).pw_uid,
+                            approver_subject_hashes=frozenset(args.approver_subject_hash))
     os.chmod(socket_path, 0o660)
     os.chown(socket_path, -1, grp.getgrnam(args.socket_group).gr_gid)
     try:

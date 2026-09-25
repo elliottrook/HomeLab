@@ -68,7 +68,7 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             payload = request.get("payload")
             if not isinstance(payload, dict):
                 raise BrokerDenied("payload must be an object")
-            record = self.server.store.consume_request(str(request.get("request_id", "")), payload)  # type: ignore[attr-defined]
+            record = self.server.store.consume_request(str(request.get("request_id", "")), payload, agent_id=agent_id)  # type: ignore[attr-defined]
             if record.capability == "forgejo.read.repository":
                 rpc = {
                     "jsonrpc": "2.0", "id": record.request_id, "method": "tools/call",

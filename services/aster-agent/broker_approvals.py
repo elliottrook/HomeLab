@@ -54,58 +54,69 @@ class BrokerApprovalClient:
         return decoded.get("result")
 
 
-def approval_router(client: BrokerApprovalClient, require_claims: Callable[..., dict[str, Any]]) -> APIRouter:
+def approval_router(
+    client: BrokerApprovalClient, require_claims: Callable[..., dict[str, Any]], *,
+    approver_subject_hashes: frozenset[str] = frozenset(),
+    passkey_acrs: frozenset[str] = frozenset(),
+) -> APIRouter:
     router = APIRouter(prefix="/v1/companion/approvals", tags=["approvals"])
 
-    def identity(claims: dict[str, Any] = Depends(require_claims)) -> tuple[str, int | None]:
+    def identity(claims: dict[str, Any] = Depends(require_claims)) -> tuple[str, int | None, str]:
         actor = claims.get("owner_hash")
         auth_time = claims.get("auth_time")
         if not isinstance(actor, str):
             raise HTTPException(401, "Sign in with your Companion account")
-        return actor, auth_time if isinstance(auth_time, int) else None
+        if actor not in approver_subject_hashes:
+            raise HTTPException(403, "Your account is not an infrastructure approver")
+        # require_claims verifies issuer/audience/signature before these claims
+        # reach this adapter. No client JSON, login UI or generic MFA label is
+        # evidence of passkey authentication. Exact ACR mapping is operator-owned.
+        acr = claims.get("acr")
+        assurance = "passkey" if isinstance(acr, str) and acr in passkey_acrs else "authenticated"
+        return actor, auth_time if type(auth_time) is int else None, assurance
 
     @router.get("")
-    def pending(_: tuple[str, int | None] = Depends(identity)) -> Any:
-        return client.call({"method": "pending.list"})
+    def pending(user: tuple[str, int | None, str] = Depends(identity)) -> Any:
+        return client.call({"method": "pending.list", "actor": user[0]})
 
     @router.post("/{request_id}/approve")
-    def approve(request_id: str, action: ApprovalAction, user: tuple[str, int | None] = Depends(identity)) -> Any:
-        actor, auth_time = user
+    def approve(request_id: str, action: ApprovalAction, user: tuple[str, int | None, str] = Depends(identity)) -> Any:
+        actor, auth_time, assurance = user
         # The broker independently enforces that Red requests have a recent
         # integer auth_time. Passing None is safe and fails closed there; Yellow
         # approvals do not need to disrupt an otherwise valid OIDC session.
         return client.call({"method": "request.approve", "request_id": request_id,
                             "payload_hash": action.payload_hash, "actor": actor,
-                            "auth_time": auth_time, "assurance": "passkey"})
+                            "auth_time": auth_time, "assurance": assurance})
 
     @router.post("/{request_id}/deny")
-    def deny(request_id: str, action: ApprovalAction, user: tuple[str, int | None] = Depends(identity)) -> Any:
-        actor, _ = user
+    def deny(request_id: str, action: ApprovalAction, user: tuple[str, int | None, str] = Depends(identity)) -> Any:
+        actor, _, _ = user
         return client.call({"method": "request.deny", "request_id": request_id,
                             "payload_hash": action.payload_hash, "actor": actor})
 
     @router.get("/management/snapshot")
-    def management_snapshot(_: tuple[str, int | None] = Depends(identity)) -> Any:
-        return client.call({"method": "management.snapshot"})
+    def management_snapshot(user: tuple[str, int | None, str] = Depends(identity)) -> Any:
+        return client.call({"method": "management.snapshot", "actor": user[0]})
 
     @router.get("/management/history")
     def management_history(limit: int = Query(default=100, ge=1, le=200),
-                           _: tuple[str, int | None] = Depends(identity)) -> Any:
-        return client.call({"method": "request.history", "limit": limit})
+                           user: tuple[str, int | None, str] = Depends(identity)) -> Any:
+        return client.call({"method": "request.history", "limit": limit, "actor": user[0]})
 
     @router.get("/management/audit")
     def management_audit(limit: int = Query(default=100, ge=1, le=200), event: str | None = None,
-                         _: tuple[str, int | None] = Depends(identity)) -> Any:
-        request: dict[str, Any] = {"method": "audit.search", "limit": limit}
+                         user: tuple[str, int | None, str] = Depends(identity)) -> Any:
+        request: dict[str, Any] = {"method": "audit.search", "limit": limit, "actor": user[0]}
         if event is not None:
             request["event"] = event
         return client.call(request)
 
     @router.post("/management/action")
     def management_action(action: ManagementAction,
-                          user: tuple[str, int | None] = Depends(identity)) -> Any:
-        actor, auth_time = user
-        base = {"actor": actor, "auth_time": auth_time, "assurance": "passkey"}
+                          user: tuple[str, int | None, str] = Depends(identity)) -> Any:
+        actor, auth_time, assurance = user
+        base = {"actor": actor, "auth_time": auth_time, "assurance": assurance}
         if action.action == "agent_state":
             if action.target is None or action.state is None:
                 raise HTTPException(422, "agent_state requires target and state")
