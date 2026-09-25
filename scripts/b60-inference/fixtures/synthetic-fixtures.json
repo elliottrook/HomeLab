@@ -1,0 +1,155 @@
+{
+  "schema_version": "1.0.0",
+  "fixtures": [
+    {
+      "name": "pp512-cold-pos0",
+      "kind": "prefill",
+      "target_prompt_tokens": 512,
+      "context_position": 0,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 1,
+      "prompt_seed": "aster local private inference benchmark deterministic reversible evidence",
+      "correctness": ["response_is_nonempty"]
+    },
+    {
+      "name": "pp4096-cold-pos0",
+      "kind": "prefill",
+      "target_prompt_tokens": 4096,
+      "context_position": 0,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 1,
+      "prompt_seed": "synthetic context measures prefill without personal retrieval content",
+      "correctness": ["response_is_nonempty"]
+    },
+    {
+      "name": "pp512-cold-pos4k",
+      "kind": "prefill",
+      "target_prompt_tokens": 512,
+      "context_position": 4096,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 1,
+      "prompt_seed": "positioned prefill synthetic cache isolation four kilotoken history",
+      "correctness": ["response_is_nonempty"]
+    },
+    {
+      "name": "pp512-cold-pos8k",
+      "kind": "prefill",
+      "target_prompt_tokens": 512,
+      "context_position": 8192,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 1,
+      "prompt_seed": "positioned prefill synthetic cache isolation eight kilotoken boundary",
+      "correctness": ["response_is_nonempty", "unsupported_context_is_explicit"]
+    },
+    {
+      "name": "pp4096-cold-pos4k",
+      "kind": "prefill",
+      "target_prompt_tokens": 4096,
+      "context_position": 4096,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 1,
+      "prompt_seed": "large positioned prefill synthetic cache isolation supported context",
+      "correctness": ["response_is_nonempty", "unsupported_context_is_explicit"]
+    },
+    {
+      "name": "tg128-warm-pos0",
+      "kind": "decode",
+      "target_prompt_tokens": 64,
+      "context_position": 0,
+      "cache_state": "warm",
+      "repetitions": 5,
+      "max_output_tokens": 128,
+      "prompt_seed": "write distinct numbered words for deterministic decode timing",
+      "correctness": ["completion_tokens_at_least_120", "response_is_nonempty"]
+    },
+    {
+      "name": "tg128-warm-pos4k",
+      "kind": "decode",
+      "target_prompt_tokens": 4096,
+      "context_position": 4096,
+      "cache_state": "warm",
+      "repetitions": 5,
+      "max_output_tokens": 128,
+      "prompt_seed": "four kilotoken synthetic history remains private and deterministic",
+      "correctness": ["completion_tokens_at_least_120", "response_is_nonempty"]
+    },
+    {
+      "name": "tg128-warm-pos8k",
+      "kind": "decode",
+      "target_prompt_tokens": 8064,
+      "context_position": 8192,
+      "cache_state": "warm",
+      "repetitions": 5,
+      "max_output_tokens": 128,
+      "prompt_seed": "eight kilotoken boundary test contains no production or secret material",
+      "correctness": ["completion_tokens_at_least_120", "response_is_nonempty", "unsupported_context_is_explicit"]
+    },
+    {
+      "name": "aster-conversation",
+      "kind": "aster_workflow",
+      "target_prompt_tokens": 512,
+      "context_position": 0,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 192,
+      "prompt_prefix": "You are Aster. Give a concise plan for organizing a fictional workshop. No real user data is present.",
+      "prompt_seed": "fictional workshop labelled bins safe cleanup reversible plan",
+      "correctness": ["response_is_nonempty", "mentions_fictional_scope", "no_tool_call"]
+    },
+    {
+      "name": "aster-persona",
+      "kind": "aster_workflow",
+      "target_prompt_tokens": 512,
+      "context_position": 0,
+      "cache_state": "warm",
+      "repetitions": 5,
+      "max_output_tokens": 192,
+      "prompt_prefix": "Respond warmly, directly, and privately. Explain why rollback evidence matters in a fictional lab.",
+      "prompt_seed": "evidence recovery clear friendly concise local systems",
+      "correctness": ["response_is_nonempty", "mentions_rollback", "no_external_claim"]
+    },
+    {
+      "name": "aster-read-only-tool",
+      "kind": "aster_workflow",
+      "target_prompt_tokens": 512,
+      "context_position": 0,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 128,
+      "prompt_prefix": "Select the read-only health tool for fictional service alpha and do not request a mutation.",
+      "prompt_seed": "fictional alpha health inspect status read only tool",
+      "tool_schema": {"name": "get_service_health", "arguments": {"service": "string"}, "read_only": true},
+      "correctness": ["tool_name_is_get_service_health", "tool_argument_service_is_alpha", "no_mutating_tool"]
+    },
+    {
+      "name": "aster-grounded-retrieval",
+      "kind": "aster_workflow",
+      "target_prompt_tokens": 2048,
+      "context_position": 0,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 192,
+      "prompt_prefix": "Use only SOURCE-A and cite it. SOURCE-A says fictional service alpha is healthy and owned by Example Team.",
+      "prompt_seed": "source a fictional grounded retrieval attribution healthy example team",
+      "grounding_sources": ["SOURCE-A"],
+      "correctness": ["cites_source_a", "mentions_example_team", "no_unsupported_source"]
+    },
+    {
+      "name": "aster-context-8k",
+      "kind": "aster_workflow",
+      "target_prompt_tokens": 8064,
+      "context_position": 8192,
+      "cache_state": "mixed",
+      "repetitions": 5,
+      "max_output_tokens": 128,
+      "prompt_prefix": "Remember marker ASTER-FIXTURE-8192 and return it at the end. Everything here is synthetic.",
+      "prompt_seed": "long context synthetic recall privacy correctness latency marker",
+      "correctness": ["contains_marker_aster_fixture_8192", "unsupported_context_is_explicit"]
+    }
+  ]
+}
