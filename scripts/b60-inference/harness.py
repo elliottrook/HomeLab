@@ -23,6 +23,14 @@ DEFAULT_SCHEMA = ROOT / "docs/projects/B60-Inference-Engineering/ledger.schema.j
 DEFAULT_FIXTURES = Path(__file__).with_name("fixtures") / "synthetic-fixtures.json"
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
+CORRECTNESS_ASSERTIONS = {
+    "response_is_nonempty", "completion_tokens_at_least_120",
+    "unsupported_context_is_explicit", "mentions_fictional_scope",
+    "no_tool_call", "mentions_rollback", "no_external_claim",
+    "tool_name_is_get_service_health", "tool_argument_service_is_alpha",
+    "no_mutating_tool", "cites_source_a", "mentions_example_team",
+    "no_unsupported_source", "contains_marker_aster_fixture_8192",
+}
 
 
 class ValidationError(ValueError):
@@ -143,6 +151,9 @@ def validate_fixtures(payload: Any) -> list[dict[str, Any]]:
             raise ValidationError(f"{where}.cache_state: invalid")
         if not isinstance(case["correctness"], list) or not case["correctness"]:
             raise ValidationError(f"{where}.correctness: requires assertions")
+        unknown = sorted(set(case["correctness"]) - CORRECTNESS_ASSERTIONS)
+        if unknown:
+            raise ValidationError(f"{where}.correctness: unsupported assertions {unknown!r}")
         expand_prompt(case)
     return payload["fixtures"]
 

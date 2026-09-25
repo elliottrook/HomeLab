@@ -34,4 +34,6 @@ rather than silently shortening it.
 both `--execute` and `--allow-production-endpoint` are supplied. Those switches
 are safety interlocks, not Stream M approval. The runner brackets each case
 with health checks and performs one warm-up plus five measured repetitions.
-Tests use an injected fake transport and never contact production.
+Execution also requires a new `--output` path; the result is created mode 0600,
+fsynced, hashed and never overwritten. Tests use an injected fake transport and
+never contact production.

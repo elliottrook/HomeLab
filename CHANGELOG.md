@@ -10,7 +10,9 @@
   synthetic fixtures covering prefill, decode and representative Aster
   workflows at supported 0/4K/8K positions. Added a guarded dry-run-first
   OpenAI-compatible runner with loopback/production interlocks and fake
-  transport coverage; nine combined tests pass without contacting production.
+  transport coverage. Correctness assertions, separate prefill/decode samples,
+  reported cache-hit capture and immutable mode-0600 evidence output are tested;
+  twelve combined tests pass without contacting production.
 - Recorded a required security follow-up for a previously exposed
   credential-bearing GitHub mirror URL without retaining or using its value.
   Revocation/rotation remains a separately authorized workflow.
