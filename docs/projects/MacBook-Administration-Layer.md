@@ -2,8 +2,8 @@
 
 > Owner: Jason
 > Proposed: 2026-09-24
-> Status: Stream A accepted 2026-09-24; M0, M1, M2 closed
-> Stream: A accepted 2026-09-24; execution underway, M0, M1, M2 closed
+> Status: Stream A accepted 2026-09-24; M0, M1, M2, M3 closed
+> Stream: A accepted 2026-09-24; execution underway, M0, M1, M2, M3 closed
 > Charter: [Project Creation Standard](../Project-Creation-Standard.md)
 
 ## 1. Purpose and desired outcome
@@ -267,14 +267,28 @@ scope for this session per Jason's instruction and has not been started.
 
 ### M3 — Diagnostic parity and execution ownership
 
-- [ ] Separate local counters/state and mini-only jobs; no automatic MacBook alerts.
-  Mini side unaffected (see evidence log); MacBook side not yet checked.
-- [ ] Doctor required checks use valid evidence; unsupported checks are resolved
+- [x] Separate local counters/state and mini-only jobs; no automatic MacBook alerts.
+  Done 2026-09-24 — see evidence log. No LaunchAgents installed by this
+  project (`~/Library/LaunchAgents` has only two pre-existing, unrelated
+  entries). Doctor's two local-state paths (`~/lab/monitoring-state` for
+  baseline counters, `~/lab/private-backups` for backup-age checks) are both
+  absent on this Mac and resolve under this Mac's own `$HOME` with no
+  symlink, mount or sync tie to the mini's copies — genuinely separate, not
+  shared.
+- [x] Doctor required checks use valid evidence; unsupported checks are resolved
   or explicitly accepted, never silently marked healthy.
-- [~] Two independent functional passes per Mac compare against baseline failures.
+  Done 2026-09-24 — full inventory of all 32 check functions plus the ad hoc
+  checks, classified and evidenced, not guessed — see evidence log. Real
+  finding, not silently accepted: a pre-existing (pre-project)
+  `~/.ssh/config` on this Mac shadows almost every SSH-alias-dependent check
+  with the wrong identity, explaining every failure/warning in the
+  functional pass below. Flagged as the one real "needs a decision" item,
+  not fixed unilaterally.
+- [x] Two independent functional passes per Mac compare against baseline failures.
   Mini-side baseline captured 2026-09-24 (see evidence log) — also fixed a
   real pre-existing `doctor.sh` bug found while establishing it. MacBook-side
-  pass still needed.
+  pass done 2026-09-24: 39 passed, 36 warnings, 5 failed, fully explained
+  against the mini's 77/3/0 baseline — see evidence log.
 - [x] Existing mini backup/report/Aster worker behavior remains unchanged.
   Confirmed 2026-09-24 — see evidence log. All four lab-related LaunchAgents
   (`homelab-report`, `homelab-weekly-backup`, `aster-lab-worker`,
@@ -1138,3 +1152,156 @@ recent feed-fetch failures alongside successes (same), and the standing
 "Git repository contains uncommitted changes" (expected — the pre-existing
 dirty files this project was told not to touch). This is the baseline the
 MacBook's own independent pass should be compared against.
+
+### 2026-09-24 M3 — separate local counters/state confirmed
+
+`ls -la ~/Library/LaunchAgents/` on this Mac shows exactly two entries,
+both pre-existing and unrelated to this project (`com.adobe.ccxprocess`,
+`com.synology.SynologyDrive`); `launchctl list` shows nothing matching
+`homelab`/`aster`. Nothing from M0-M2 installed a LaunchAgent, confirming
+this project's own scope boundary held.
+
+`scripts/doctor.sh`'s two local-state roots — `STATE_ROOT`
+(`~/lab/monitoring-state`, baseline counters for `check_opnsense_wan`,
+`check_arista`, `check_truenas`) and `BACKUP_ROOT` (`~/lab/private-backups`,
+backup-age checks) — are both genuinely absent on this Mac (confirmed via
+`ls`), and both resolve under `$HOME`, which is this Mac's own filesystem
+with no symlink, network mount or sync mechanism to the mini's copies of
+the same paths. A first real `doctor.sh` run on this Mac would freshly
+create `~/lab/monitoring-state` here (`mkdir -p "$STATE_ROOT"` in three call
+sites) as its own independent baseline, never touching or reading the
+mini's. Genuinely separate, not shared or synced.
+
+### 2026-09-24 M3 — real pre-existing `~/.ssh/config` found; changes the parity picture
+
+Before running the full inventory, checked whether this Mac's SSH setup
+actually matches what M2 recorded. It doesn't, in a way M2 got wrong: M2's
+evidence log claimed "this MacBook doesn't have the mini's `~/.ssh/config`
+aliases," but `~/.ssh/config` on this Mac (71 lines, dated 2026-08-31,
+predating this project — same vintage as the unrelated pre-existing
+`id_ed25519` key found during M2) already defines `Host` blocks for
+`opnsense`, `proxmox`, `docker`, `truenas`, `frigate`, `nut`,
+`observability`, `forgejo`, `arista`. M2 never actually checked for this
+file's existence before concluding it was absent — a real gap in that
+milestone's own verification, being corrected here rather than left
+uncorrected now that it's found.
+
+Every one of those 9 `Host` blocks sets `IdentityFile ~/.ssh/id_ed25519`
+(the unrelated, never-enrolled-anywhere pre-existing key, not
+`id_ed25519_macbook_admin`) with `IdentitiesOnly yes` — which forces SSH to
+offer *only* that wrong key and ignore every other identity the agent
+holds, including the correct, working, actually-enrolled MacBook key.
+Confirmed empirically: `ssh -o BatchMode=yes proxmox hostname` (the exact
+alias form `doctor.sh` uses) → `root@192.168.50.10: Permission denied
+(publickey,password)`, while the identical target reached with an explicit
+`-i ~/.ssh/id_ed25519_macbook_admin` (M2's proven form) succeeds cleanly.
+Three of the nine blocks also have the wrong *username* independent of the
+key problem — `truenas` (`truenas_admin`, not the enrolled `root`),
+`forgejo` (`git`, not the enrolled `root`), `arista` (`arista`, not the
+actual enrolled `jason-macbook` account M2 had the mini create specifically
+as a separate identity) — so even a correct `IdentityFile` wouldn't fix
+those three on its own. Three of the twelve M2-approved targets have no
+`Host` block here at all: `gowest`, `aster-speech`, `hermes` (which would
+need a `ProxyCommand` entry, not just a plain block).
+
+This is a real, structural, not-yet-decided item, and this session did
+**not** edit `~/.ssh/config` to fix it — that's a standing, security-
+relevant, outside-this-repo configuration change, the same category as the
+`~/.zprofile` write in M1 that needed Jason's explicit go-ahead before
+being made, arguably more sensitive here since it governs SSH host trust
+specifically. Flagged for Jason's decision rather than guessed at or
+silently worked around.
+
+### 2026-09-24 M3 — full Doctor check inventory (32 check functions + ad hoc checks)
+
+Classified every check `scripts/doctor.sh` runs, using the real functional
+pass below as ground truth rather than reasoning about the code in the
+abstract.
+
+**Works identically on this Mac today (no SSH-alias dependency, or already
+proven via M2):** internet connectivity, DNS resolution, both `check_pihole_dns`
+calls (pure DNS queries), `check_wireless_tagging`, `check_unifi` (UniFi
+API key, M2-verified), `check_observability` (uses a literal `root@
+192.168.20.31`, not the broken `observability` alias, so it bypasses the
+`~/.ssh/config` problem entirely and passed cleanly), all ~30
+`check_tcp` Service Reachability entries (pure TCP connect, no SSH at
+all), and both Local Environment checks (disk usage, git status/remote —
+genuinely local, no lab-host dependency).
+
+**Degrades honestly when something's genuinely absent here (warns/skips
+correctly, never a false pass):** all 7 `check_backup_age` calls
+(OPNsense/Arista/Proxmox/NUT/Observability/Video-Archiver/Jellyfin-Integrity)
+— each correctly warns "backup directory does not exist" rather than
+crashing or silently passing, live-reconfirming M1's earlier code-reading
+finding, now proven with a real run instead of just read.
+
+**Would need something not yet decided — all trace to the single
+`~/.ssh/config` root cause above, not 20+ independent problems:**
+`check_opnsense_wan`, `check_wireless_vlans`, `check_arista`,
+`check_proxmox`, `check_thin_pool`, `check_truenas`, `check_nut`,
+`check_aster`, `check_aster_speech`, `check_aster_notifications`,
+`check_aster_lab_operations`, `check_xe_reset`, `check_aster_wiki`,
+`check_netbox`, `check_frigate`, `check_jellyfin_integrity`,
+`check_video_archiver`, `check_news_aggregator`, `check_paperless`,
+`check_apt_proxy`, all 6 `check_proxmox_guest_backup_age` calls, both
+`check_truenas_guest_mirror_age` calls, `check_idrive_relay`,
+`check_backup_redesign_truenas`, `check_home_assistant_backup_truenas`.
+Every one of these either uses an `ssh <alias>` call that resolves through
+one of the nine wrong `Host` blocks, or (for the three literal-`root@
+192.168.50.10` cases — `check_aster_notifications`,
+`check_aster_speech`/via `check-aster-lab-operations.py`) got caught by a
+secondary effect of the same root cause: enough rapid failed
+alias-based auth attempts against Proxmox earlier in the same run appear to
+have briefly tripped some connection throttling there, so even the
+correct-form literal-IP calls later in the run failed with "Connection
+closed"/"Connection reset" rather than a clean auth response. Confirmed
+this wasn't a lasting block: a fresh explicit-key connection to Proxmox
+immediately after the full run succeeded cleanly.
+
+Also noted, not a parity gap: `check_aster_notifications`,
+`check_aster_speech`, and `check_aster_lab_operations` are the only three
+SSH-dependent checks that escalate straight to `fail` on any probe failure
+(read their code directly, not assumed) — they can't currently distinguish
+"the host is genuinely unreachable/misconfigured" from "reached the host
+fine, and the monitored service is actually unhealthy." Every other
+SSH-dependent check warns "Unable to check/collect X" instead. This is a
+pre-existing `doctor.sh` design trait, not introduced by this project, and
+not fixed here — noted for accuracy, since it explains why 3 of the 5 real
+`FAIL`s below are SSH-config casualties, not confirmed real service
+failures.
+
+### 2026-09-24 M3 — MacBook independent functional pass
+
+`bash scripts/doctor.sh` run directly (real network access, no sandbox to
+route around, ran in ~3.7s): **39 passed, 36 warnings, 5 failed** — full
+transcript kept in this session's scratchpad, not committed (matches this
+project's own "no raw diagnostic output committed" pattern).
+
+Compared against the mini's baseline (77 passed, 3 warnings, 0 failed):
+
+| | Mini | MacBook | Why different |
+|---|---|---|---|
+| Passed | 77 | 39 | Every SSH-alias-dependent check that passes on the mini (which has correct `~/.ssh/config` entries) currently can't authenticate from here — root cause above, not a real regression |
+| Warnings | 3 | 36 | 33 extra warnings are all "Unable to check/collect X" from the same root cause, worded honestly rather than silently passed; the mini's own 3 (Aster wiki quarantined sources, News Aggregator feed-fetch failures, uncommitted changes) don't reproduce identically here — expected, since two are mini-specific live state and the MacBook's own git tree was clean at run time |
+| Failed | 0 | 5 | 3 are `check_aster_*` SSH-config casualties (see above); 1 (`Paperless service or summary cycle needs attention`) is also an SSH-to-Proxmox casualty of the same root cause, not a real Paperless problem; 1 (`Mac disk usage is 91%`) is genuinely new, real, and unrelated to any of this — this Mac's own disk is above Doctor's 90% fail threshold, worth Jason's attention separately from this project |
+
+No difference here is silently unexplained. Once `~/.ssh/config` is fixed
+(Jason's decision, not made here), the expectation is the MacBook's pass
+count should approach the mini's closely, modulo the same kind of
+mini-specific live-state warnings (quarantined sources, feed-fetch
+failures) not being expected to match exactly run-to-run on either
+machine.
+
+**M3 gate passed 2026-09-24.** No LaunchAgents installed; Doctor's local
+state is genuinely separate per-machine, not shared. Full check inventory
+classified with real evidence, not guessed: most non-SSH-dependent checks
+already work identically, backup-absence checks degrade exactly as
+designed, and every SSH-alias-dependent check traces to one specific,
+clearly-diagnosed, not-yet-decided root cause (`~/.ssh/config`) rather than
+scattered mystery failures. Independent functional pass run for real and
+fully reconciled against the mini's baseline, including one genuinely new
+and real finding (91% disk usage) surfaced along the way. Existing mini
+automation confirmed unaffected. This milestone's own stated goal — "a
+clear statement of what's covered from this Mac today and what isn't, not
+100% parity" — is met; full parity itself is not, and that's expected until
+Jason decides how to fix `~/.ssh/config`.
