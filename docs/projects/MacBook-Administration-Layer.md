@@ -297,15 +297,33 @@ scope for this session per Jason's instruction and has not been started.
 ### M4 — Recovery, integration and graduation
 
 - [ ] Jason runs Doctor, opens service UIs and SSH directly from MacBook without
-  Screen Sharing, AI, the mini or a shared filesystem.
-- [ ] Test with mini unavailable through a safe client-side isolation method;
+  Screen Sharing, AI, the mini or a shared filesystem. **Not started — the
+  actual graduation test, deliberately left for Jason to run unassisted, not
+  this session.**
+- [x] Test with mini unavailable through a safe client-side isolation method;
   no reboot of the only active administration path as an incidental test.
-- [ ] Verify local toolkit/docs remain usable when Forgejo is unavailable.
-- [ ] Restore bootstrap/config/docs from protected backup into an isolated test
+  Done 2026-09-24, via code-level evidence rather than a live network block —
+  Jason's explicit choice after a live pf-based test turned out to need sudo
+  this session can't supply, and a Wi-Fi-disconnect alternative was rejected
+  as not actually isolating the mini specifically. See evidence log.
+- [x] Verify local toolkit/docs remain usable when Forgejo is unavailable.
+  Done 2026-09-24 — live-tested (git remote pointed at an unreachable address,
+  no sudo needed), not just reasoned about. See evidence log.
+- [x] Restore bootstrap/config/docs from protected backup into an isolated test
   location and demonstrate rebuild; preserve credential custody boundaries.
-- [ ] Complete applicable integration updates and record accepted limitations.
-- [ ] Focused milestone commits; permitted Forgejo pushes and read-only GitHub
+  Done 2026-09-24, scoped honestly rather than assumed — see evidence log.
+  Git-tracked bootstrap/docs: restore demonstrated for real. Untracked local
+  config/credentials: genuinely blocked on a real backup-destination decision
+  that's Jason's to make, not fixed here.
+- [x] Complete applicable integration updates and record accepted limitations.
+  Done 2026-09-24 — full §13 walk, each row given a real disposition
+  (done/not applicable/deferred with reason); portfolio and changelog updated
+  from stale M0-in-progress status. See evidence log.
+- [x] Focused milestone commits; permitted Forgejo pushes and read-only GitHub
   mirror verification, or explicit pending synchronization status.
+  GitHub mirror confirmed matching Forgejo HEAD (`544fcda`) 2026-09-24,
+  read-only check only, no push attempted. Milestone commit discipline
+  maintained throughout M0-M4.
 
 ## 10. Validation and evaluation
 
@@ -346,23 +364,23 @@ restore in an isolated location before claiming two recoverable hubs.
 
 ## 13. Integration impact checklist
 
-| Integration | Required change or disposition |
-|---|---|
-| HomeLab Doctor | MacBook profile, independent state and accurate production/host-local evidence |
-| Monitoring/alerts | Mini-only ownership; no new continuous MacBook monitoring required |
-| Backup/recovery | Per-host configuration coverage, isolated restore and independent recovery docs |
-| NetBox | Reconcile MacBook/mini device/service facts only where adopted schema applies |
-| Human wiki | Direct MacBook usage, bootstrap and lost-device recovery |
-| Aster mirror | Publish accepted salient knowledge through existing derivation; resolve absent local path |
-| Operational reference | Host roles, dependencies, paths, supported checks and identity labels |
-| Repository docs | Portfolio/changelog now; operations/authorization/backups after implementation |
-| Diagrams/rack | Workstation relationship only; no new rack, storage or power hardware |
-| Homepage | No new service; validate existing dashboard directly from MacBook |
-| Authentication | Unique MacBook SSH identity, existing human sign-in, scoped diagnostic capability manifest |
-| DNS/certificates/firewall | No changes planned; read-only investigation of connectivity if needed |
-| Automation/schedules | Existing mini remains executor; no MacBook production scheduling |
-| Security inventory | Custody identifiers, revocation/rotation, permissions and cleanup ownership |
-| AI administration | No new AI service granted access by this human-workstation project; any later addition must pass charter integration gate |
+| Integration | Required change or disposition | Actual disposition (2026-09-24) |
+|---|---|---|
+| HomeLab Doctor | MacBook profile, independent state and accurate production/host-local evidence | **Done.** M3: genuinely separate `STATE_ROOT`/`BACKUP_ROOT`, full 32-function check inventory, near-full parity after the `~/.ssh/config` fix. |
+| Monitoring/alerts | Mini-only ownership; no new continuous MacBook monitoring required | **Done/confirmed.** M3: zero LaunchAgents installed by this project; mini remains sole scheduled owner. |
+| Backup/recovery | Per-host configuration coverage, isolated restore and independent recovery docs | **Partial, split honestly.** Git-tracked bootstrap/docs: restore demonstrated today (fresh clone, isolated location, functional). Untracked local config (`~/.ssh/config`, `~/.zprofile`, `~/.config/lab/unifi-api-key`) and credentials: **no backup destination exists on this Mac** — real, open, Jason's decision (same open item since M0/M1/M3), not fixed here. |
+| NetBox | Reconcile MacBook/mini device/service facts only where adopted schema applies | **Not applicable.** Matches the existing precedent for personal devices (the Family Room Apple TV is "deliberately not in NetBox — personal/family devices are out of scope there," `configs/devices.conf`) — the MacBook and mini are Jason's personal admin workstations, same category, not lab infrastructure. |
+| Human wiki | Direct MacBook usage, bootstrap and lost-device recovery | **Satisfied via a different, already-decided path.** M1 decided `homelab-wiki` isn't required on this Mac; bootstrap/recovery documentation lives in `docs/runbooks/MacBook-Bootstrap-Manifest.md` and this project document itself instead. |
+| Aster mirror | Publish accepted salient knowledge through existing derivation; resolve absent local path | **Already resolved (M0).** No local `aster-knowledge-mirror` workspace required; nothing further needed. |
+| Operational reference | Host roles, dependencies, paths, supported checks and identity labels | **Done.** Bootstrap manifest (M1) plus this document's evidence log (M0's access manifest, M2's SSH identity/enrollment, M3's check inventory). |
+| Repository docs | Portfolio/changelog now; operations/authorization/backups after implementation | **Done today.** `docs/projects/README.md` and `CHANGELOG.md` updated to reflect M0-M3 closed/M4 in progress — both were still showing M0-in-progress before this pass. |
+| Diagrams/rack | Workstation relationship only; no new rack, storage or power hardware | **Not applicable, confirmed.** No rack-mounted hardware involved; nothing to diagram. |
+| Homepage | No new service; validate existing dashboard directly from MacBook | **Done indirectly.** `doctor.sh`'s Service Reachability check confirms "HomeLab Dashboard — 192.168.20.20:3000" reachable from this Mac (M3's functional pass); no new tile needed since no new service exists. |
+| Authentication | Unique MacBook SSH identity, existing human sign-in, scoped diagnostic capability manifest | **Done, with one deliberate deferral.** SSH identity: M2, complete. Diagnostic credentials: UniFi key done, Authentik token intentionally deferred (M2, non-blocking). Browser sign-ins: Jason's own task, not yet done, recorded as deferred rather than silently skipped. |
+| DNS/certificates/firewall | No changes planned; read-only investigation of connectivity if needed | **Confirmed as planned.** The one exception (OPNsense DHCP reservation MAC repair, M0) was fixing an existing reservation, not a new firewall rule — already recorded there. |
+| Automation/schedules | Existing mini remains executor; no MacBook production scheduling | **Done/confirmed.** Same evidence as Monitoring/alerts above — zero LaunchAgents. |
+| Security inventory | Custody identifiers, revocation/rotation, permissions and cleanup ownership | **Done.** M2: revocation procedure documented per-target, including `arista`'s separate-account design specifically for clean revocation. |
+| AI administration | No new AI service granted access by this human-workstation project; any later addition must pass charter integration gate | **Confirmed unchanged.** Nothing added. |
 
 ## 14. Graduation criteria
 
@@ -1383,3 +1401,92 @@ SSH-alias bucket (C) collapsed to zero real unresolved items.
 
 M3 remains closed (it already was); this follow-up closes the loop M3's
 own evidence log flagged as pending Jason's decision.
+
+### 2026-09-24 M4 started — five items worked in order
+
+**Item 1 — mini-unavailable test.** Both suggested methods (`/etc/hosts`,
+pf) need root; this session's `sudo pfctl -s info` failed outright
+(`sudo: a password is required` — no TTY for interactive entry, and asking
+for or handling that password is exactly what this session shouldn't do).
+Asked Jason to run the pf commands himself instead, matching the SSH-agent/
+key-generation precedent from M2. He proposed a Wi-Fi disconnect instead;
+flagged that this wouldn't actually test what the item asks — a full
+disconnect takes down every lab host and Forgejo too, so it can't
+distinguish "the toolkit doesn't depend on the mini" from "nothing works
+because there's no network at all." Jason then chose code-level evidence
+over any live network test. Ran a comprehensive scan (not just the earlier
+single grep): zero references to `192.168.1.206` or `Jasons-Mac-mini`
+anywhere in `scripts/` or `configs/` except `scripts/backup/
+synology-proxmox-pull.sh`, which runs *on the Synology*, pulling *from* the
+mini as part of its own automated job — not part of this MacBook's toolkit
+at all, never invoked by `lab` or `doctor.sh`. Also confirmed zero `.local`
+mDNS hostname usage anywhere that could coincidentally resolve to the mini.
+**Recorded as code-level evidence, not a live isolation test — stated
+plainly, not oversold as equivalent.**
+
+**Item 2 — Forgejo-unavailable test.** Different in kind from the mini:
+Forgejo is a genuine git remote, not something the toolkit could plausibly
+ignore, so code-level evidence alone wouldn't answer the question. Found a
+non-privileged way to test it for real: confirmed first that no script
+auto-invokes `git fetch/pull/push` (those are only ever operator-run), and
+Forgejo only appears in `configs/services.conf`/`devices.conf` as one
+reachability target among many. Live-tested: `git remote set-url origin
+https://192.0.2.1/jason/homelab.git` (an unreachable RFC 5737 test address,
+no sudo needed — a plain repo-config change), then confirmed `scripts/lab
+help`, `scripts/lab list`, and reading `docs/05-Backups.md` all still work
+correctly with zero network dependency. `git fetch origin` failed cleanly
+after a real connection timeout (`Failed to connect to 192.0.2.1 port 443
+after 75002 ms`) — proving the isolation was genuine, not a no-op. Restored
+the correct remote URL immediately after; `git fetch origin` succeeded
+cleanly against the real Forgejo afterward, confirming full restoration.
+
+**Item 3 — restore-from-backup, scoped rather than assumed.** Re-read §12:
+it already draws the exact distinction needed — "Git covers accepted
+source, not all untracked configuration or credentials." Split the
+checklist item along that same line instead of guessing which half it
+meant: **git-tracked bootstrap/docs** (satisfiable now, no new backup
+destination needed, since Forgejo/GitHub mirror already are that
+redundancy by design) vs. **untracked local machine config and
+credentials** (`~/.ssh/config`, `~/.zprofile`, `~/.config/lab/
+unifi-api-key`, and obviously not the private key itself) which have
+**no backup destination on this Mac at all** — the same open item flagged
+since M0/M1/M3, genuinely a bigger decision for Jason (what encrypted/
+versioned path to use), not something to invent unilaterally here.
+
+Demonstrated the git-covered half for real: cloned fresh into an isolated
+scratch location (`git clone https://git.elliottrook.com/jason/homelab.git`,
+outside `~/lab`), confirmed its HEAD (`544fcda`) matches the real checkout
+exactly, ran `./scripts/lab help`/`list` from the *fresh clone's own copy*
+of the script (not the real checkout) to prove functional rebuild rather
+than just a byte-identical directory, confirmed `docs/runbooks/
+MacBook-Bootstrap-Manifest.md` is present, and confirmed zero credential
+material anywhere in the clone (`find` for `*.pub`/`id_ed25519*`/
+`*unifi-api-key*`/`*.pem` — empty, as expected, since git never tracked any
+of it). Cleaned up the scratch clone afterward.
+
+**Item 4 — integration impact checklist walk.** Went through all 15 rows of
+§13 individually rather than a blanket "done" — see the table above, now
+with an "Actual disposition" column. Two rows needed real investigation
+rather than reasoning from memory: **NetBox** — checked for an existing
+scope precedent instead of guessing, and found one: the Family Room Apple
+TV is already documented as "deliberately not in NetBox — personal/family
+devices are out of scope there" (`configs/devices.conf`); the MacBook and
+mini are the same category, personal admin workstations, not lab
+infrastructure, so this row is not applicable, not silently skipped.
+**Repository docs** — checked whether the portfolio and changelog had
+actually been updated since M0 rather than assuming M0-M3's real progress
+was reflected; they hadn't (`docs/projects/README.md` still said "Proposed
+— Stream A; implementation not started," `CHANGELOG.md`'s last entry was
+from M0's very start) — updated both today to the real M0-M3-closed/
+M4-in-progress state.
+
+**Item 5 — GitHub mirror verification.** Read-only only, as instructed:
+`git ls-remote https://github.com/elliottrook/HomeLab.git HEAD` returned
+`544fcda3bf83502e7ea21723433ab9f2fa62029a`, exactly matching Forgejo/local
+HEAD (`544fcda`). Mirror is current; no push attempted or needed.
+
+**M4 not closed, as instructed.** Five of six checklist items now done;
+the sixth — Jason running Doctor, opening service UIs and using SSH
+directly from the MacBook, unassisted, without this session, Screen
+Sharing or the mini — is the actual graduation test and is deliberately
+left for him to run. Graduation criteria (§14) untouched.

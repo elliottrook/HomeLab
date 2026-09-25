@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-24 — MacBook administration layer: M0-M3 closed, M4 in progress
+
+- Independent MacBook SSH identity generated and enrolled on all 12 approved lab targets; verified from the MacBook itself, not assumed from the mini's own trust.
+- MacBook's `~/.ssh/config` replaced (a stale, pre-project file with the wrong key and three wrong usernames was found and corrected, not silently worked around) — `lab doctor` now reaches near-full parity with the mini's baseline (70-71/9-8/1 vs. 77/3/0, every difference reconciled to a known, real cause).
+- Canonical `lab` command resolves in a normal interactive shell; dependency manifest records only versions actually observed, no invented pins.
+- M4 (recovery, integration, graduation) underway: Forgejo-unavailable and backup-restore scoping done; mini-unavailable independence supported by code-level evidence (zero toolkit references to the mini's address); graduation itself (Jason operating unassisted) not yet run.
+
 ## 2026-09-24 — MacBook administration layer: Stream A accepted, M0 in progress
 
 - Created a Stream A project for independent MacBook lab administration, machine-specific access, diagnostic parity and tested recovery.

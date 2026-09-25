@@ -10,7 +10,7 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
-| MacBook administration layer | Proposed — Stream A; implementation not started | [MacBook administration layer](MacBook-Administration-Layer.md) | Independent internal toolkit, credentials and recovery; mini-only scheduled automation; no SSD migration |
+| MacBook administration layer | Active — Stream A; M0-M3 closed (baseline, toolkit, independent SSH identity/enrollment, Doctor parity); M4 (recovery, integration, graduation) in progress | [MacBook administration layer](MacBook-Administration-Layer.md) | Independent internal toolkit, credentials and recovery; mini-only scheduled automation; no SSD migration |
 | Authentik rollout | Active — Stream A; six private browser apps, Audiobookshelf, Calibre and Proxmox accepted; 13 earlier providers normalized to passkeys; admin-access/capability holds and final logout/recovery/client gates remain; Jellyfin/Seerr deferred | [Authentik rollout](Authentik-Rollout.md) | [Authorization runbook](../08-Authorization.md), [service onboarding](../09-Service-Authorization-Onboarding.md), [single-login recovery](../runbooks/Authentik-Single-Login.md) |
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
 | NUT/UPS deployment | Handover ready | [NUT/UPS handover](../handovers/UPS-Power-Resilience-Claude-Handover.md) | Architecture, shutdown and recovery requirements are contained in the handover |
