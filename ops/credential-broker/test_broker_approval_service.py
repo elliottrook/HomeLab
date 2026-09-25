@@ -76,6 +76,30 @@ class ApprovalServiceTests(unittest.TestCase):
         self.assertTrue(response["ok"])
         self.assertEqual("denied", self.store.get_request(pending.request_id).status)
 
+    def test_management_reads_are_available_to_approver_identity(self):
+        response = self.call({"method": "management.snapshot"})
+        self.assertTrue(response["ok"])
+        self.assertEqual(response["result"]["agents"][0]["agent_id"], "agent")
+        self.assertTrue(self.call({"method": "request.history", "limit": 10})["ok"])
+        self.assertTrue(self.call({"method": "audit.search", "event": "agent.register"})["ok"])
+
+    def test_management_mutation_requires_fresh_passkey(self):
+        stale = self.call({"method": "management.agent-state", "agent_id": "agent", "state": "suspended",
+                           "actor": "a" * 64, "auth_time": self.now - 121, "assurance": "passkey"})
+        self.assertFalse(stale["ok"])
+        fresh = self.call({"method": "management.agent-state", "agent_id": "agent", "state": "suspended",
+                           "actor": "a" * 64, "auth_time": self.now, "assurance": "passkey"})
+        self.assertTrue(fresh["ok"])
+        self.assertEqual("suspended", self.store.management_snapshot()["agents"][0]["state"])
+
+    def test_global_disable_via_management_revokes_requests(self):
+        pending = self.store.create_request("agent", "restart", {"target": "one"})
+        response = self.call({"method": "management.global-enabled", "enabled": False,
+                              "actor": "a" * 64, "auth_time": self.now, "assurance": "passkey"})
+        self.assertTrue(response["ok"])
+        self.assertFalse(self.store.global_enabled())
+        self.assertEqual("revoked", self.store.get_request(pending.request_id).status)
+
 
 if __name__ == "__main__":
     unittest.main()

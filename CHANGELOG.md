@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-24 — AI-PAM M4 management candidate deployed
+
+- Added a secret-free Aster Companion management view for AI lifecycle and
+  capabilities, service/credential metadata, active requests, approval history
+  and audit events.
+- Added fresh-passkey-only agent, service, request and global revocation paths
+  over the existing approver-only Unix socket. Disables revoke matching open
+  requests and preserve independent human administration.
+- Passed 36 broker and 97 Aster tests; live stale-auth rejection, service
+  health, zero-open-request state and metadata-only snapshots passed. iPhone
+  layout and representative human revoke/restore acceptance remain pending.
+
 ## 2026-09-24 — AI-PAM M3 candidate deployed
 
 - Reused Aster Companion's existing passkey-only Authentik application for a

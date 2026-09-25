@@ -119,6 +119,12 @@ class BrokerStore:
         self._ensure_column("requests", "approval_auth_time", "INTEGER")
         self._ensure_column("requests", "approval_assurance", "TEXT")
         self._ensure_column("requests", "display_json", "TEXT")
+        self._ensure_column("services", "credential_type", "TEXT NOT NULL DEFAULT 'none'")
+        self._ensure_column("services", "custody_identifier", "TEXT NOT NULL DEFAULT 'none'")
+        self._ensure_column("services", "credential_scope", "TEXT NOT NULL DEFAULT 'synthetic-only'")
+        self._ensure_column("services", "rotation_due", "TEXT NOT NULL DEFAULT 'not-applicable'")
+        self._ensure_column("services", "revocation_method", "TEXT NOT NULL DEFAULT 'disable-service'")
+        self._ensure_column("services", "health", "TEXT NOT NULL DEFAULT 'unknown'")
 
     def _ensure_column(self, table: str, column: str, definition: str) -> None:
         columns = {row[1] for row in self.connection.execute(f"PRAGMA table_info({table})")}
@@ -150,7 +156,7 @@ class BrokerStore:
             )
             self._audit("agent.register", "operator", "probation")
 
-    def set_agent_state(self, agent_id: str, state: str) -> None:
+    def set_agent_state(self, agent_id: str, state: str, *, actor: str = "operator") -> None:
         if state not in AGENT_STATES:
             raise ValueError("invalid agent state")
         with self.connection:
@@ -162,15 +168,23 @@ class BrokerStore:
                     "UPDATE requests SET status='revoked',revoked_at=? WHERE agent_id=? AND status IN ('approved','pending')",
                     (self._now(), agent_id),
                 )
-            self._audit("agent.state", "operator", state)
+            self._audit("agent.state", actor, state)
 
-    def register_service(self, service_id: str, execution_mode: str = "proxy") -> None:
+    def register_service(
+        self, service_id: str, execution_mode: str = "proxy", *, credential_type: str = "none",
+        custody_identifier: str = "none", credential_scope: str = "synthetic-only",
+        rotation_due: str = "not-applicable", revocation_method: str = "disable-service",
+        health: str = "unknown",
+    ) -> None:
         if execution_mode not in {"proxy", "dynamic", "wrapped-static"}:
             raise ValueError("invalid execution mode")
         with self.connection:
             self.connection.execute(
-                "INSERT INTO services(service_id,execution_mode,enabled,created_at) VALUES(?,?,1,?)",
-                (service_id, execution_mode, self._now()),
+                """INSERT INTO services(service_id,execution_mode,enabled,created_at,credential_type,
+                       custody_identifier,credential_scope,rotation_due,revocation_method,health)
+                   VALUES(?,?,1,?,?,?,?,?,?,?)""",
+                (service_id, execution_mode, self._now(), credential_type, custody_identifier,
+                 credential_scope, rotation_due, revocation_method, health),
             )
 
     def register_capability(self, capability: str, service_id: str, risk_class: str, *, probation_allowed: bool = False) -> None:
@@ -200,7 +214,7 @@ class BrokerStore:
     def global_enabled(self) -> bool:
         return self.connection.execute("SELECT value FROM settings WHERE key='global_enabled'").fetchone()[0] == "1"
 
-    def set_global_enabled(self, enabled: bool) -> None:
+    def set_global_enabled(self, enabled: bool, *, actor: str = "operator") -> None:
         with self.connection:
             self.connection.execute("UPDATE settings SET value=? WHERE key='global_enabled'", ("1" if enabled else "0",))
             if not enabled:
@@ -208,7 +222,32 @@ class BrokerStore:
                     "UPDATE requests SET status='revoked',revoked_at=? WHERE status IN ('approved','pending')",
                     (self._now(),),
                 )
-            self._audit("global.enable" if enabled else "global.disable", "operator", "enabled" if enabled else "disabled")
+            self._audit("global.enable" if enabled else "global.disable", actor, "enabled" if enabled else "disabled")
+
+    def set_service_enabled(self, service_id: str, enabled: bool, *, actor: str = "operator") -> None:
+        with self.connection:
+            changed = self.connection.execute(
+                "UPDATE services SET enabled=? WHERE service_id=?", (int(enabled), service_id)
+            ).rowcount
+            if changed != 1:
+                raise KeyError(service_id)
+            if not enabled:
+                self.connection.execute(
+                    "UPDATE requests SET status='revoked',revoked_at=? WHERE status IN ('approved','pending') AND capability IN (SELECT capability FROM capabilities WHERE service_id=?)",
+                    (self._now(), service_id),
+                )
+            self._audit("service.enable" if enabled else "service.disable", actor, "enabled" if enabled else "disabled")
+
+    def revoke_request(self, request_id: str, *, actor: str = "operator") -> None:
+        record = self.get_request(request_id)
+        if record.status not in {"pending", "approved"}:
+            raise BrokerDenied("request is not active")
+        with self.connection:
+            self.connection.execute(
+                "UPDATE requests SET status='revoked',revoked_at=? WHERE request_id=?",
+                (self._now(), request_id),
+            )
+            self._audit("request.revoke", actor, "revoked", record)
 
     @staticmethod
     def _display_json(display: Mapping[str, Any] | None) -> str:
@@ -369,3 +408,59 @@ class BrokerStore:
 
     def audit_rows(self) -> list[dict[str, Any]]:
         return [dict(row) for row in self.connection.execute("SELECT * FROM audit ORDER BY sequence")]
+
+    def management_snapshot(self) -> dict[str, Any]:
+        agents = [dict(row) for row in self.connection.execute(
+            """SELECT a.agent_id,a.unix_uid,a.state,a.created_at,
+                      COUNT(ac.capability) AS capability_count
+                 FROM agents a LEFT JOIN agent_capabilities ac ON ac.agent_id=a.agent_id
+                GROUP BY a.agent_id ORDER BY a.agent_id"""
+        )]
+        for agent in agents:
+            agent["capabilities"] = [dict(row) for row in self.connection.execute(
+                """SELECT c.capability,c.risk_class,c.service_id
+                     FROM agent_capabilities ac JOIN capabilities c ON c.capability=ac.capability
+                    WHERE ac.agent_id=? ORDER BY c.capability""", (agent["agent_id"],)
+            )]
+        services = [dict(row) for row in self.connection.execute(
+            """SELECT s.service_id,s.execution_mode,s.enabled,s.created_at,s.credential_type,
+                      s.custody_identifier,s.credential_scope,s.rotation_due,s.revocation_method,s.health,
+                      COUNT(c.capability) AS capability_count
+                 FROM services s LEFT JOIN capabilities c ON c.service_id=s.service_id
+                GROUP BY s.service_id ORDER BY s.service_id"""
+        )]
+        active = [dict(row) for row in self.connection.execute(
+            """SELECT request_id,agent_id,capability,risk_class,status,created_at,expires_at
+                 FROM requests WHERE status IN ('pending','approved') ORDER BY created_at"""
+        )]
+        return {"global_enabled": self.global_enabled(), "agents": agents,
+                "services": services, "active_requests": active}
+
+    def request_history(self, *, limit: int = 100) -> list[dict[str, Any]]:
+        if not 1 <= limit <= 200:
+            raise BrokerDenied("history limit is outside policy")
+        rows = self.connection.execute(
+            """SELECT request_id,agent_id,capability,risk_class,payload_hash,status,
+                      created_at,expires_at,approved_at,consumed_at,revoked_at,
+                      approval_actor,approval_auth_time,approval_assurance,display_json
+                 FROM requests ORDER BY created_at DESC LIMIT ?""", (limit,)
+        )
+        result = []
+        for row in rows:
+            item = dict(row)
+            item["display"] = json.loads(item.pop("display_json") or "{}")
+            result.append(item)
+        return result
+
+    def audit_search(self, *, limit: int = 100, event: str | None = None) -> list[dict[str, Any]]:
+        if not 1 <= limit <= 200:
+            raise BrokerDenied("audit limit is outside policy")
+        if event is not None and (not event or len(event) > 64 or not re.fullmatch(r"[a-z.]+", event)):
+            raise BrokerDenied("invalid audit event filter")
+        if event:
+            rows = self.connection.execute(
+                "SELECT * FROM audit WHERE event=? ORDER BY sequence DESC LIMIT ?", (event, limit)
+            )
+        else:
+            rows = self.connection.execute("SELECT * FROM audit ORDER BY sequence DESC LIMIT ?", (limit,))
+        return [dict(row) for row in rows]

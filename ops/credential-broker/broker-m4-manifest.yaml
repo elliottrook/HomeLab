@@ -1,0 +1,46 @@
+schema_version: 1
+project: homelab-ai-pam
+milestone: M4
+status: human_validation_pending
+
+deployment:
+  host: hermesagent
+  lxc: 104
+  interface: existing_aster_companion
+  broker_transport: unix_socket_only
+  approval_transport: unix_socket_only
+  production_credentials: none
+
+views:
+  - agent_lifecycle
+  - capabilities
+  - service_credential_metadata
+  - active_requests
+  - approval_history
+  - audit_events
+
+mutations:
+  - agent_state
+  - service_enabled
+  - request_revoke
+  - global_enabled
+
+controls:
+  mutation_assurance: passkey
+  maximum_authentication_age_seconds: 120
+  browser_supplied_actor: prohibited
+  secret_values: prohibited
+  disabling_agent_revokes_requests: true
+  disabling_service_revokes_requests: true
+  global_disable_revokes_requests: true
+
+validation:
+  broker_tests: 36
+  aster_tests: 97
+  services_active: 3
+  stale_management_authentication: denied
+  agent_uid_approval_socket: denied
+  active_requests_before_human_test: 0
+  iphone_layout: pending
+  human_agent_suspend_restore: pending
+  human_global_disable_enable: pending

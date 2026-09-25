@@ -1614,6 +1614,10 @@ button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
 .approvalCard h3{{margin:0 0 8px}}.approvalCard p{{margin:5px 0;overflow-wrap:anywhere}}
 .approvalCard .hash{{font:12px ui-monospace,monospace;color:#94a3b8}}
 .approvalCard .row{{display:flex;gap:8px}}.approvalCard button.deny{{background:#475569}}
+#managementPanel{{margin:10px 0}}.mgmtCard{{background:rgba(15,23,42,.88);border:1px solid #475569;border-radius:12px;padding:14px;margin:10px 0}}
+.mgmtCard h3{{margin:0 0 8px}}.mgmtCard ul{{padding-left:20px}}.danger{{background:#b91c1c}}
+.statusOn{{color:#4ade80}}.statusOff{{color:#f87171}}.mgmtRow{{display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
+.mgmtRow select,.mgmtRow input{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:8px}}
 details.prog{{margin:4px 0 0;font-size:.8rem;color:#9ca3af}}
 details.prog summary{{font-size:.8rem;font-variant-numeric:tabular-nums}}
 details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-nums}}
@@ -1625,7 +1629,9 @@ details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-num
 <div id="app" hidden>
 <header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
 <button id="checkApprovals" class="checkArr">Approval inbox</button>
+<button id="openManagement" class="checkArr">AI-PAM management</button>
 <div id="approvalInbox"></div>
+<div id="managementPanel" hidden></div>
 <details id="toolsPanel"><summary>Tools</summary><div id="tools"></div></details>
 <button id="checkArr" class="checkArr">Check for pending ARR action</button>
 <div id="arrCard" hidden></div>
@@ -1869,10 +1875,65 @@ async function resumeApprovalAction(){{
   const raw=sessionStorage.getItem('pending_approval_action');
   if(!raw) return;
   sessionStorage.removeItem('pending_approval_action');
-  try{{ const item=JSON.parse(raw); await finishBrokerAction(item,item.action) }}catch(e){{ document.querySelector('#approvalInbox').textContent='Approval action failed: '+e.message }}
+  try{{
+    const item=JSON.parse(raw);
+    if(item.kind==='management') await finishManagementAction(item.body);
+    else await finishBrokerAction(item,item.action);
+  }}catch(e){{ document.querySelector('#approvalInbox').textContent='Approval action failed: '+e.message }}
 }}
 
 document.querySelector('#checkApprovals').onclick=loadApprovals;
+
+function mgmtText(tag,text,className=''){{ const e=document.createElement(tag); e.textContent=text; if(className)e.className=className; return e }}
+async function loadManagement(){{
+  const panel=document.querySelector('#managementPanel'); panel.hidden=false; panel.textContent='Loading AI-PAM state…';
+  try{{
+    const [snapshot,history,audit]=await Promise.all([
+      approvalApi('/management/snapshot'), approvalApi('/management/history?limit=40'), approvalApi('/management/audit?limit=40')
+    ]);
+    panel.innerHTML='';
+    const global=document.createElement('section'); global.className='mgmtCard'; global.appendChild(mgmtText('h3','Emergency controls'));
+    global.appendChild(mgmtText('p','Global AI access: '+(snapshot.global_enabled?'ENABLED':'DISABLED'),snapshot.global_enabled?'statusOn':'statusOff'));
+    const globalBtn=mgmtText('button',snapshot.global_enabled?'REVOKE ALL AI ACCESS':'Re-enable synthetic AI access','danger');
+    globalBtn.onclick=()=>freshManagement({{action:'global_enabled',enabled:!snapshot.global_enabled}}); global.appendChild(globalBtn); panel.appendChild(global);
+    for(const agent of snapshot.agents){{
+      const card=document.createElement('section'); card.className='mgmtCard'; card.appendChild(mgmtText('h3','AI client: '+agent.agent_id));
+      card.appendChild(mgmtText('p','State: '+agent.state+' · Unix UID: '+agent.unix_uid));
+      const list=document.createElement('ul'); for(const cap of agent.capabilities) list.appendChild(mgmtText('li',cap.capability+' · '+cap.risk_class+' · '+cap.service_id)); card.appendChild(list);
+      const row=document.createElement('div'); row.className='mgmtRow'; const select=document.createElement('select');
+      for(const state of ['probation','observer','operator','specialist','orchestrator','suspended','retired']){{ const o=document.createElement('option'); o.value=state;o.textContent=state;o.selected=state===agent.state;select.appendChild(o) }}
+      const apply=mgmtText('button','Apply state'); apply.onclick=()=>freshManagement({{action:'agent_state',target:agent.agent_id,state:select.value}}); row.append(select,apply); card.appendChild(row); panel.appendChild(card);
+    }}
+    for(const service of snapshot.services){{
+      const card=document.createElement('section'); card.className='mgmtCard'; card.appendChild(mgmtText('h3','Service: '+service.service_id));
+      card.appendChild(mgmtText('p','Mode: '+service.execution_mode+' · Capabilities: '+service.capability_count+' · '+(service.enabled?'enabled':'disabled')));
+      card.appendChild(mgmtText('p','Credential: '+service.credential_type+' · Custody: '+service.custody_identifier+' · Scope: '+service.credential_scope));
+      card.appendChild(mgmtText('p','Rotation: '+service.rotation_due+' · Revocation: '+service.revocation_method+' · Health: '+service.health));
+      const toggle=mgmtText('button',service.enabled?'Disable AI access':'Enable AI access',service.enabled?'danger':'');
+      toggle.onclick=()=>freshManagement({{action:'service_enabled',target:service.service_id,enabled:!Boolean(service.enabled)}}); card.appendChild(toggle); panel.appendChild(card);
+    }}
+    const active=document.createElement('section'); active.className='mgmtCard'; active.appendChild(mgmtText('h3','Active sessions / requests'));
+    if(!snapshot.active_requests.length) active.appendChild(mgmtText('p','None'));
+    for(const item of snapshot.active_requests){{ const row=document.createElement('div'); row.className='mgmtRow'; row.appendChild(mgmtText('span',item.capability+' · '+item.status+' · '+item.request_id)); const revoke=mgmtText('button','Revoke','danger'); revoke.onclick=()=>freshManagement({{action:'request_revoke',target:item.request_id}}); row.appendChild(revoke); active.appendChild(row) }} panel.appendChild(active);
+    const hist=document.createElement('section'); hist.className='mgmtCard'; hist.appendChild(mgmtText('h3','Approval history'));
+    const histList=document.createElement('ul'); for(const item of history) histList.appendChild(mgmtText('li',item.status+' · '+item.risk_class+' · '+item.capability+' · '+new Date(item.created_at*1000).toLocaleString())); hist.appendChild(histList); panel.appendChild(hist);
+    const auditCard=document.createElement('section'); auditCard.className='mgmtCard'; auditCard.appendChild(mgmtText('h3','Recent audit'));
+    const auditControls=document.createElement('div'); auditControls.className='mgmtRow'; const auditFilter=document.createElement('input'); auditFilter.placeholder='Exact event, e.g. request.deny';
+    const auditSearch=mgmtText('button','Search'); auditControls.append(auditFilter,auditSearch); auditCard.appendChild(auditControls);
+    const auditList=document.createElement('ul'); for(const item of audit) auditList.appendChild(mgmtText('li',item.sequence+' · '+item.event+' · '+item.outcome)); auditCard.appendChild(auditList); panel.appendChild(auditCard);
+    auditSearch.onclick=async()=>{{
+      try{{ const event=auditFilter.value.trim(); const rows=await approvalApi('/management/audit?limit=40'+(event?'&event='+encodeURIComponent(event):'')); auditList.innerHTML=''; for(const item of rows) auditList.appendChild(mgmtText('li',item.sequence+' · '+item.event+' · '+item.outcome)) }}
+      catch(e){{ auditList.innerHTML=''; auditList.appendChild(mgmtText('li','Audit search failed: '+e.message,'err')) }}
+    }};
+  }}catch(e){{ panel.textContent='Management view error: '+e.message }}
+}}
+
+async function freshManagement(body){{ await login(true,{{kind:'management',body}}) }}
+async function finishManagementAction(body){{
+  try{{ await approvalApi('/management/action',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(body)}}); await loadManagement() }}
+  catch(e){{ document.querySelector('#managementPanel').hidden=false; document.querySelector('#managementPanel').textContent='Management action failed: '+e.message }}
+}}
+document.querySelector('#openManagement').onclick=loadManagement;
 
 // M5: the gated-action framework's one wired action - request, review,
 // approve exactly the existing ARR-repair broker's dry-run/candidate,

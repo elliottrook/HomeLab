@@ -4,7 +4,7 @@ This directory contains the deny-by-default implementation artifacts for the
 broader AI-PAM project in
 `docs/projects/homelab-credential-broker.md`.
 
-M2/M3 deploy a **synthetic-only** broker service on LXC 104. It does not connect
+M2–M4 deploy a **synthetic-only** broker service on LXC 104. It does not connect
 to OpenBao, Forgejo or another production target and contains no credential.
 The service accepts JSON requests only over a group-restricted Unix socket and
 derives the caller identity from kernel peer credentials rather than a
@@ -23,6 +23,8 @@ Implemented controls:
   payload-hash binding, denial and replay protection;
 - allowlisted non-secret approval summaries for the mobile inbox;
 - agent suspension and global emergency disable revoke open requests;
+- secret-free lifecycle, capability, service metadata, request history and
+  audit views, with fresh-passkey agent/service/request/global revocation;
 - metadata-only audit rows containing hashes rather than request payloads;
 - hardened systemd service with no TCP/IP socket capability; and
 - the pre-existing Forgejo MCP response/argument safety adapter.

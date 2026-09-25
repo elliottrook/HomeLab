@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0–M3 complete; M4 is next
+> Status: active — Stream A; M0–M3 complete; M4 deployed, human validation pending
 >
 > Owner: Jason
 >
@@ -412,15 +412,30 @@ production target is connected.
 
 ### M4 — Management GUI
 
-- [ ] AI client lifecycle.
-- [ ] roles/capabilities.
-- [ ] service/credential metadata.
-- [ ] approval inbox/history.
-- [ ] sessions/leases.
-- [ ] per-agent/per-service/global revocation.
-- [ ] audit search.
+- [x] AI client lifecycle.
+- [ ] roles/capabilities (capability inventory is live; explicit role records
+  and assignment controls remain).
+- [x] service/credential metadata.
+- [x] approval inbox/history.
+- [x] sessions/leases.
+- [x] per-agent/per-service/global revocation.
+- [x] audit search.
 - [ ] responsive iPhone layout.
-- [ ] secret rendering prohibited and tested.
+- [x] secret rendering prohibited and tested.
+
+**Gate pending:** the synthetic-only management candidate is deployed inside
+Aster Companion. Read-only views cover lifecycle state, explicit capabilities,
+service and non-secret credential metadata, active requests, approval history
+and recent audit events. Mutations cover agent state, service access, individual
+request revocation and the global kill switch. Every mutation requires a fresh
+passkey-backed `auth_time` no older than 120 seconds at the broker boundary;
+caller-supplied identity is rejected. Disabling an agent, service or the global
+broker revokes matching open requests. History and snapshot tests prove request
+payloads are absent. The live candidate passes 36 broker tests and 97 Aster
+tests; three hardened services are active, the agent UID remains denied at the
+approval socket and stale management authentication is rejected. Human iPhone
+layout and representative revocation/restore acceptance remain before M4 can
+close.
 
 ### M5 — Probationary AI lifecycle
 
@@ -548,6 +563,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Corrected silent approval-inbox behavior | Inbox/list and denial now require a valid signed Companion identity but not a fresh `auth_time`; the broker still fails Red approval closed unless fresh authentication supplies it. Companion now shows an immediate loading/result message and serves the page with `Cache-Control: no-store`; 94 Aster tests pass live | Real-device approve/deny remains pending; Red freshness enforcement is unchanged |
 | 2026-09-24 | Corrected Authentik fresh-login compatibility | Real Safari test showed Authentik 2026.8.0 returned `Not Found` from a stale Companion page using `prompt=login&max_age=0`; retained standards-based `max_age=0`, removed the incompatible `prompt` value and disabled Companion HTML caching | Private Safari fetched the corrected page and completed the required fresh passkey; normal Safari no longer needs the stale page |
 | 2026-09-24 | Completed M3 human mobile gate | Jason completed a real fresh-passkey Red approval; the exact synthetic request consumed once and replay failed. Jason separately denied a clearly labeled Yellow request; broker read-back shows `consumed` and `denied`, metadata-only actor attribution and zero open requests | M3 remains synthetic-only; M4 lifecycle GUI is next and no production target credential is connected |
+| 2026-09-24 | Deployed M4 synthetic management candidate | Companion management view plus approver-only snapshot/history/audit and fresh-passkey lifecycle/revocation actions; 36 broker and 97 Aster tests; live services healthy, zero active requests and stale management auth denied | Human iPhone layout and representative revoke/restore acceptance pending; no production service or credential is connected |
 
 ## Close-out
 
@@ -556,7 +572,8 @@ synthetic data and no active target credential; no production credential, DNS,
 firewall or Forgejo authorization path has been added. M3 reused the already
 deployed Aster Companion Authentik application.
 
-Next safe action: **M4 management GUI.** Add lifecycle, capability, revocation,
-history and audit views without exposing secret material. Keep OpenBao
-loopback-only and the broker on its Unix sockets until the later integration
-gate.
+Next safe action: validate the M4 view on iPhone, then perform one bounded
+synthetic agent suspend/restore and global disable/re-enable sequence through
+fresh passkey prompts. Confirm zero open requests and retained human access.
+Keep OpenBao loopback-only and the broker on its Unix sockets until the later
+integration gate.

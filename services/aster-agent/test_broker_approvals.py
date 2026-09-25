@@ -68,6 +68,34 @@ class ApprovalRouterTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(self.client_backend.call.call_args.args[0]["auth_time"])
 
+    def test_management_snapshot_and_audit_are_read_only_calls(self):
+        self.http.get("/v1/companion/approvals/management/snapshot")
+        self.client_backend.call.assert_called_with({"method": "management.snapshot"})
+        self.http.get("/v1/companion/approvals/management/audit?limit=25&event=request.deny")
+        self.client_backend.call.assert_called_with(
+            {"method": "audit.search", "limit": 25, "event": "request.deny"}
+        )
+
+    def test_management_action_uses_server_derived_fresh_identity(self):
+        response = self.http.post("/v1/companion/approvals/management/action", json={
+            "action": "agent_state", "target": "agent-test", "state": "suspended",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.client_backend.call.assert_called_with({
+            "method": "management.agent-state", "agent_id": "agent-test", "state": "suspended",
+            "actor": "a" * 64, "auth_time": 1234, "assurance": "passkey",
+        })
+
+    def test_management_action_rejects_extra_fields_and_missing_values(self):
+        extra = self.http.post("/v1/companion/approvals/management/action", json={
+            "action": "global_enabled", "enabled": False, "secret": "no",
+        })
+        self.assertEqual(extra.status_code, 422)
+        missing = self.http.post("/v1/companion/approvals/management/action", json={
+            "action": "service_enabled", "target": "synthetic",
+        })
+        self.assertEqual(missing.status_code, 422)
+
 
 if __name__ == "__main__":
     unittest.main()

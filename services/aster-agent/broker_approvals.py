@@ -8,13 +8,21 @@ import socket
 from pathlib import Path
 from typing import Any, Callable
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class ApprovalAction(BaseModel):
     model_config = ConfigDict(extra="forbid")
     payload_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class ManagementAction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    action: str = Field(pattern=r"^(agent_state|service_enabled|request_revoke|global_enabled)$")
+    target: str | None = Field(default=None, min_length=1, max_length=128)
+    state: str | None = Field(default=None, pattern=r"^(probation|observer|operator|specialist|orchestrator|suspended|retired)$")
+    enabled: bool | None = None
 
 
 class BrokerApprovalClient:
@@ -75,5 +83,45 @@ def approval_router(client: BrokerApprovalClient, require_claims: Callable[..., 
         actor, _ = user
         return client.call({"method": "request.deny", "request_id": request_id,
                             "payload_hash": action.payload_hash, "actor": actor})
+
+    @router.get("/management/snapshot")
+    def management_snapshot(_: tuple[str, int | None] = Depends(identity)) -> Any:
+        return client.call({"method": "management.snapshot"})
+
+    @router.get("/management/history")
+    def management_history(limit: int = Query(default=100, ge=1, le=200),
+                           _: tuple[str, int | None] = Depends(identity)) -> Any:
+        return client.call({"method": "request.history", "limit": limit})
+
+    @router.get("/management/audit")
+    def management_audit(limit: int = Query(default=100, ge=1, le=200), event: str | None = None,
+                         _: tuple[str, int | None] = Depends(identity)) -> Any:
+        request: dict[str, Any] = {"method": "audit.search", "limit": limit}
+        if event is not None:
+            request["event"] = event
+        return client.call(request)
+
+    @router.post("/management/action")
+    def management_action(action: ManagementAction,
+                          user: tuple[str, int | None] = Depends(identity)) -> Any:
+        actor, auth_time = user
+        base = {"actor": actor, "auth_time": auth_time, "assurance": "passkey"}
+        if action.action == "agent_state":
+            if action.target is None or action.state is None:
+                raise HTTPException(422, "agent_state requires target and state")
+            request = {"method": "management.agent-state", "agent_id": action.target, "state": action.state}
+        elif action.action == "service_enabled":
+            if action.target is None or action.enabled is None:
+                raise HTTPException(422, "service_enabled requires target and enabled")
+            request = {"method": "management.service-enabled", "service_id": action.target, "enabled": action.enabled}
+        elif action.action == "request_revoke":
+            if action.target is None:
+                raise HTTPException(422, "request_revoke requires target")
+            request = {"method": "management.request-revoke", "request_id": action.target}
+        else:
+            if action.enabled is None:
+                raise HTTPException(422, "global_enabled requires enabled")
+            request = {"method": "management.global-enabled", "enabled": action.enabled}
+        return client.call(request | base)
 
     return router

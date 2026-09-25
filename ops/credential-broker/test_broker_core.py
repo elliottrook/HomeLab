@@ -148,6 +148,40 @@ class BrokerCoreTests(unittest.TestCase):
             with self.subTest(ttl=ttl), self.assertRaisesRegex(BrokerDenied, "TTL"):
                 self.store.create_request("agent-test", "health.read", {}, ttl_seconds=ttl)
 
+    def test_management_snapshot_and_history_are_secret_free(self):
+        request = self.store.create_request(
+            "agent-test", "health.read", {"hidden": "credential-value"},
+            display={"target": "Synthetic health"},
+        )
+        snapshot = self.store.management_snapshot()
+        self.assertTrue(snapshot["global_enabled"])
+        self.assertEqual(snapshot["agents"][0]["agent_id"], "agent-test")
+        self.assertEqual(snapshot["services"][0]["service_id"], "synthetic")
+        self.assertEqual(snapshot["services"][0]["credential_type"], "none")
+        self.assertEqual(snapshot["services"][0]["credential_scope"], "synthetic-only")
+        self.assertEqual(snapshot["active_requests"][0]["request_id"], request.request_id)
+        history = self.store.request_history()
+        self.assertEqual(history[0]["display"], {"target": "Synthetic health"})
+        self.assertNotIn("credential-value", str(snapshot) + str(history))
+
+    def test_service_disable_and_direct_revocation_close_active_requests(self):
+        first = self.store.create_request("agent-test", "health.read", {"case": 1})
+        self.store.revoke_request(first.request_id, actor="a" * 64)
+        self.assertEqual("revoked", self.store.get_request(first.request_id).status)
+        second = self.store.create_request("agent-test", "health.read", {"case": 2})
+        self.store.set_service_enabled("synthetic", False, actor="a" * 64)
+        self.assertEqual("revoked", self.store.get_request(second.request_id).status)
+        with self.assertRaisesRegex(BrokerDenied, "not granted"):
+            self.store.create_request("agent-test", "health.read", {"case": 3})
+
+    def test_audit_search_is_bounded_and_filterable(self):
+        rows = self.store.audit_search(event="agent.register")
+        self.assertEqual(1, len(rows))
+        with self.assertRaisesRegex(BrokerDenied, "event"):
+            self.store.audit_search(event="agent.register OR 1=1")
+        with self.assertRaisesRegex(BrokerDenied, "limit"):
+            self.store.audit_search(limit=201)
+
 
 if __name__ == "__main__":
     unittest.main()
