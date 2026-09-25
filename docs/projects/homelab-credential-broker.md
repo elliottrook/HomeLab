@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0 discovery complete; M1 recovery prerequisite pending
+> Status: active — Stream A; M0 and M1 complete; M2 is next
 >
 > Owner: Jason
 >
@@ -48,10 +48,11 @@ This project supersedes the narrower 2026-09-15 SSH-only credential-broker propo
   unprivileged LXC 106, Forgejo 15.0.7 in unprivileged LXC 108, and no existing
   OpenBao guest/service. Forgejo 15 supports repository-specific scoped tokens
   but not the Forgejo-16 Authorized Integration path.
-- Proxmox has ample pilot capacity. VMID 116 and `192.168.50.24/24` are the
-  current OpenBao candidates: NetBox has no assignment, ICMP received no reply
-  and the neighbor entry remained incomplete. This is evidence, not a
-  reservation.
+- Proxmox has ample pilot capacity. The OpenBao placement was revised on
+  2026-09-24 from VMID 116 to VMID 117 because the intervening Aster Speech
+  project legitimately assigned 116. `192.168.50.24/24` was unassigned in
+  NetBox and did not answer the live probe. LXC 117 is now deployed and NetBox
+  records VM/interface/IP IDs 18/18/32 for `192.168.50.24/24`.
 - The maintained Forgejo MCP is pinned for future evaluation at immutable tag
   `v3.2.0` (`931a525dc25dfef430c4bbee51728ad3795f7491`). Its default catalogue
   includes mutation tools and has no documented runtime tool allowlist, so it
@@ -346,11 +347,20 @@ locally; it contains no live client or credential.
 
 - [x] Record exact non-secret candidate deployment/backup/abort/rollback
   manifest and validate its YAML structure.
-- [ ] Deploy dedicated OpenBao guest.
-- [ ] Establish human-only recovery ownership.
-- [ ] Configure minimal broker identity.
-- [ ] Configure protected backup and isolated restore.
-- [ ] Prove broker identity cannot perform root/admin operations.
+- [x] Deploy dedicated OpenBao guest.
+- [x] Establish human-only recovery ownership.
+- [x] Configure minimal broker identity.
+- [x] Configure protected backup and isolated restore.
+- [x] Prove broker identity cannot perform root/admin operations.
+
+**Gate passed 2026-09-24:** OpenBao 2.6.3 runs in dedicated unprivileged LXC
+117 with Raft, TLS loopback-only, UI disabled and effective
+`MemorySwapMax=0`. Human-held 2-of-3 PGP recovery passed initial, restart and
+isolated-restore unseal tests. Audit and a synthetic secret round trip passed;
+the `hlabroker` AppRole could read only the synthetic path and received HTTP
+403 for administrative policy enumeration. The test token and initial root
+token were revoked. The authenticated snapshot is off-guest, and disposable
+restore LXC 118 was destroyed after validation.
 
 ### M2 — Broker, policy and audit
 
@@ -445,8 +455,8 @@ Rollback must be able to disable broker issuance, revoke leases, disable `ai-*` 
 
 - [ ] HomeLab Doctor
 - [ ] Monitoring/alerting
-- [ ] Backup and isolated restore
-- [ ] NetBox
+- [x] Backup and isolated restore
+- [x] NetBox
 - [ ] Human wiki
 - [ ] Aster mirror/snapshot (sanitized only)
 - [ ] Operational reference/runbooks
@@ -491,14 +501,25 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-21 | Pinned maintained Forgejo MCP candidate | upstream tag `v3.2.0`, commit `931a525dc25dfef430c4bbee51728ad3795f7491`; upstream tool/auth review | release artifact signature/SBOM still must be verified before execution |
 | 2026-09-21 | Added synthetic deny-by-default MCP adapter | `mcp_policy_adapter.py`; 10/10 tests cover catalogue filtering, repo scope, pre-forward write denial, credential/environment arguments, sensitive/traversal paths, secret-shaped/oversized output and non-tool methods | not connected to a live MCP, OpenBao or Forgejo identity |
 | 2026-09-21 | Added exact non-secret M1 candidate manifest | `openbao-pilot-manifest.yaml`; YAML validated; loopback-only recovery phase, Raft/Shamir, backup, abort and rollback gates | human PGP recovery recipients are not available on this Mac; initialization must not proceed |
+| 2026-09-24 | Jason confirmed all three private recovery-key backups decrypt successfully | human recovery test; public-only A/B/C files revalidated locally | private keys/passphrases remain human-held and were not inspected |
+| 2026-09-24 | Revalidated M1 placement after resuming | VMID 116 is now production `aster-speech`; current LXC/VM inventory leaves 117 free; NetBox still has no `192.168.50.24`; address probe received no reply; daily all-guests backup remains enabled | manifest moved to VMID 117 before any mutation; address still must be checked immediately before creation |
+| 2026-09-24 | Revalidated the OpenBao release pin before installation | upstream published 2.6.3 with security fixes on 2026-09-23; candidate manifest advanced from 2.6.2 to the maintained 2.6.x patch | artifact signature and checksum still must pass before installation |
+| 2026-09-24 | Created the empty M1 guest and installed the verified OpenBao package | unprivileged LXC 117; Debian 13; exact CPU/memory/disk/VLAN/IP; official signing-key fingerprint, detached GPG signature and SHA-256 all passed for OpenBao 2.6.3 | guest required the established Debian 13 `nesting=1` compatibility feature; no initialization or credential material exists |
+| 2026-09-24 | Hit the recorded mlock abort gate before first service start | OpenBao 2.6.3 refuses `disable_mlock=false` because mlock support was removed upstream; vendor unit supplies `MemorySwapMax=0`; service stopped, disabled and has no listener | Jason must explicitly accept replacing the obsolete mlock requirement with verified per-service no-swap enforcement before initialization |
+| 2026-09-24 | Jason approved the OpenBao 2.6.3 swap-control update | explicit risk decision in the project task; obsolete mlock gate replaced by required and verified systemd `MemorySwapMax=0` | service must still prove its effective cgroup swap limit before initialization |
+| 2026-09-24 | Started and initialized the loopback-only OpenBao foundation | effective `MemorySwapMax=0`; only `127.0.0.1:8200` listens; Raft storage; UI disabled; three public recipients and 2-of-3 encrypted initialization; encrypted root token; off-guest bundle in `Documents/OpenBao Recovery` | instance remains sealed pending two human-held private-key operations; no plaintext share/token entered the task or Git |
+| 2026-09-24 | Completed human recovery, least-privilege and root-token lifecycle gates | Jason performed 2-of-3 unseal; file audit enabled declaratively; synthetic KV round trip passed; `hlabroker` AppRole read passed and admin policy listing returned HTTP 403; transient test token and initial root token revoked | later broker deployment must mint a fresh one-use SecretID through an approved administrative workflow |
+| 2026-09-24 | Completed authenticated snapshot and isolated restore | SHA-256 recorded for off-guest snapshot on `backups`; disposable network-isolated LXC 118 restored the Raft snapshot, accepted the original human shares, and verified synthetic data/audit/policy/AppRole before destruction | recovery remains human-operated by design; encrypted shares must remain on their separate recovery devices |
+| 2026-09-24 | Adopted the deployed placement in NetBox and repository references | NetBox VM/interface/IP IDs 18/18/32; `configs/devices.conf`, IP addressing and backup coverage updated | OpenBao remains loopback-only; no DNS, firewall, Authentik or production-secret integration exists yet |
 
 ## Close-out
 
-Not graduated. M0 is complete. No production credential, identity, firewall,
-DNS, Authentik, OpenBao or Forgejo authorization change has been created.
+Not graduated. M0 and M1 are complete. The OpenBao foundation contains only
+synthetic data and a broker role with no active credential; no production credential,
+DNS, firewall, Authentik or Forgejo authorization path has been added.
 
-Next safe action: **M1 human recovery preparation.** This Mac currently has no
-GPG secret-key record. Jason must choose or create the human-controlled PGP
-recipient(s) for encrypted OpenBao recovery shares and retain the corresponding
-private key(s) separately/offline. Do not substitute plaintext shares or
-generate recovery material inside an AI-visible session.
+Next safe action: **M2 broker, policy and audit.** Deploy the separate broker
+with explicit agent/service registries and Green/Yellow/Red/Black capability
+classes. Keep OpenBao loopback-only until the exact single-source M4 network
+rule and rollback are reviewed, and mint any broker SecretID only through a
+non-model-visible administrative workflow.

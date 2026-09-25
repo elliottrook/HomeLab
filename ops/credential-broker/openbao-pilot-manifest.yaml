@@ -2,19 +2,31 @@
 schema_version: 1
 project: homelab-ai-pam
 milestone: M1
-status: planned
+status: m1_complete
+
+runtime_checkpoint:
+  guest_created: true
+  artifact_installed: true
+  initialized: true
+  service_enabled: true
+  listener_active: loopback_only
+  sealed: false
+  encrypted_recovery_bundle_off_guest: true
+  isolated_restore_passed: true
+  restart_manual_unseal_passed: true
+  initialization_root_token_revoked: true
 
 openbao:
-  version: 2.6.2
+  version: 2.6.3
   artifact_policy:
-    source: https://github.com/openbao/openbao/releases/tag/v2.6.2
+    source: https://github.com/openbao/openbao/releases/tag/v2.6.3
     architecture: linux_amd64
     require_release_checksum: true
     require_gpg_or_sigstore_verification: true
     prohibit_latest_tag: true
   guest:
     proxmox_node: proxmox
-    vmid: 116
+    vmid: 117
     hostname: openbao
     type: unprivileged_lxc
     template: local:vztmpl/debian-13-standard_13.6-1_amd64.tar.zst
@@ -42,7 +54,9 @@ openbao:
     audit_dir: /var/log/openbao
     storage: integrated_raft
     seal: shamir
-    mlock: true
+    mlock: unsupported_by_openbao_2_6_3
+    swap_control: systemd_memory_swap_max_0
+    vendor_service_memory_swap_max: 0
     phase_m1_listener: https://127.0.0.1:8200
     later_private_listener: https://192.168.50.24:8200
     ui_enabled_m1: false
@@ -90,12 +104,12 @@ backup:
     monthly: 6
   application_snapshot:
     type: authenticated_raft_snapshot
-    content_m3: synthetic_only
+    content_m1: synthetic_only
     off_guest_copy_required_before_live_secret: true
     isolated_restore_required: true
 
 preconditions:
-  - vmid_116_absent
+  - vmid_117_absent
   - ip_192_168_50_24_absent_in_netbox
   - ip_192_168_50_24_no_icmp_or_neighbor_response
   - signed_openbao_artifact_verified
@@ -107,16 +121,16 @@ abort_conditions:
   - artifact_signature_or_checksum_mismatch
   - candidate_ip_becomes_occupied
   - initialization_or_recovery_material_reaches_stdout_stderr_or_git
-  - mlock_unavailable_without_an_explicit_new_risk_decision
+  - memory_swap_max_not_zero
   - raft_snapshot_or_isolated_restore_fails
-  - unexpected_listener_outside_loopback_during_m3
+  - unexpected_listener_outside_loopback_during_m1
   - required_backup_target_unavailable
 
 rollback_order:
   - seal_and_stop_openbao
   - preserve_only_verified_synthetic_snapshot_and_nonsecret_logs
   - destroy_disposable_restore_guest_if_created
-  - remove_vmid_116_only_if_no_live_secret_was_accepted
+  - remove_vmid_117_only_if_no_live_secret_was_accepted
   - remove_netbox_or_documentation_candidates_if_the_pilot_is_abandoned
 
 promotion_gate_from_openbao_foundation:
