@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unix-socket transport for the synthetic-only M2 AI Access Broker."""
+"""Unix-socket transport for the HomeLab AI Access Broker."""
 
 from __future__ import annotations
 
@@ -69,13 +69,26 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             if not isinstance(payload, dict):
                 raise BrokerDenied("payload must be an object")
             record = self.server.store.consume_request(str(request.get("request_id", "")), payload)  # type: ignore[attr-defined]
+            if record.capability == "forgejo.read.repository":
+                rpc = {
+                    "jsonrpc": "2.0", "id": record.request_id, "method": "tools/call",
+                    "params": {"name": "get_repo", "arguments": payload},
+                }
+                with socket.socket(socket.AF_UNIX) as gateway:
+                    gateway.connect(self.server.forgejo_socket)  # type: ignore[attr-defined]
+                    gateway.sendall(json.dumps(rpc, separators=(",", ":")).encode() + b"\n")
+                    result = json.loads(gateway.makefile("rb").readline())
+                if "error" in result:
+                    raise BrokerDenied("Forgejo gateway denied the request")
+                return {"request_id": record.request_id, "status": record.status, "result": result.get("result")}
             return {"request_id": record.request_id, "status": record.status, "synthetic": True}
         raise BrokerDenied("method is not exposed")
 
 
 class BrokerServer(socketserver.UnixStreamServer):
-    def __init__(self, socket_path: str, store: BrokerStore):
+    def __init__(self, socket_path: str, store: BrokerStore, forgejo_socket: str = "/run/homelab-forgejo-mcp/gateway.sock"):
         self.store = store
+        self.forgejo_socket = forgejo_socket
         super().__init__(socket_path, BrokerHandler)
 
 
@@ -84,13 +97,14 @@ def main() -> None:
     parser.add_argument("--database", required=True)
     parser.add_argument("--socket", required=True)
     parser.add_argument("--socket-group", required=True)
+    parser.add_argument("--forgejo-socket", default="/run/homelab-forgejo-mcp/gateway.sock")
     args = parser.parse_args()
     socket_path = Path(args.socket)
     socket_path.parent.mkdir(parents=True, exist_ok=True)
     if socket_path.exists():
         socket_path.unlink()
     store = BrokerStore(args.database)
-    server = BrokerServer(str(socket_path), store)
+    server = BrokerServer(str(socket_path), store, args.forgejo_socket)
     os.chmod(socket_path, 0o660)
     os.chown(socket_path, -1, grp.getgrnam(args.socket_group).gr_gid)
     try:

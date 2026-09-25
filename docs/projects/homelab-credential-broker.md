@@ -469,8 +469,8 @@ removed, the retired audit identity remains, and zero requests are open.
 - [x] Deploy pinned Forgejo MCP.
 - [x] Create repo-scoped Phase-1 AI identity/token if needed.
 - [x] Store token only in OpenBao.
-- [ ] Register bounded Forgejo capabilities.
-- [ ] Green read-only tests.
+- [x] Register bounded Forgejo capabilities.
+- [x] Green read-only tests.
 - [ ] Yellow approved write/push test on a safe branch/test file.
 - [ ] Verify Forgejo authoritative ref.
 - [ ] Verify GitHub mirror.
@@ -590,6 +590,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Recovered OpenBao administrative access after discovering the 2.6 authenticated-root-generation change | Proxmox snapshot `ai-pam-pre-m6-root-recovery` plus cold Raft/audit copy `/root/openbao-pre-m6-20260924T224849Z`; restored the authenticated M1 Raft snapshot and Jason supplied two encrypted recovery shares directly, returning the service to unsealed state | OpenBao 2.6 rejected both unauthenticated legacy root-generation calls and the authenticated CLI call without a token. The restored initial root token is temporarily valid again and remains PGP-encrypted under Recovery A; create/test a limited operator recovery path and revoke root before M6 completion |
 | 2026-09-24 | Created and validated the Phase-1 Forgejo credential | Restricted non-admin `ai-pam-mcp`; sole collaboration `jason/homelab` in read mode; PAT `ai-pam-m6-read` has exactly `read:repository`; stored and round-trip verified only at OpenBao `secret/ai-pam/forgejo-mcp-read`. Live API validation returned pull=true, push=false, admin=false; `/api/v1/user` returned HTTP 403 because `read:user` was deliberately omitted | One-shot bootstrap helper removed after success. Broker/OpenBao private listener and MCP policy adapter are not connected yet; no Yellow write credential exists |
 | 2026-09-24 | Opened the broker-only OpenBao service path | Added TLS listener `192.168.50.24:8200` while preserving loopback recovery; replacement certificate has SANs only for `127.0.0.1` and `192.168.50.24`. LXC 117 nftables and logged OPNsense rule `7d50a11f-0fe6-4546-bff6-572f14b6541b` permit only `192.168.70.10` TCP 8200; OPNsense checkpoint `/conf/backup/config-ai-pam-openbao-before-20260924.xml`; repository configs `openbao-m6-listener.hcl` and `openbao-m6-nftables.conf` | After human 2-of-3 unseal, broker path returns HTTP 200 with certificate validation; Forgejo LXC 108 times out. Existing loopback recovery remains healthy |
+| 2026-09-24 | Connected the M6 Green Forgejo MCP path | CIDR-bound AppRole `hlabroker-forgejo-m6` can read only `secret/data/ai-pam/forgejo-mcp-read`; five-minute tokens, 30-minute maximum, no default policy. Broker-private gateway socket is mode 0600 and starts checksum-pinned MCP 3.2.0 per call, filtering its catalogue and requests through the independent allowlist. Registered Green `forgejo.read.repository` for `agent-hermes` | Real agent → broker → OpenBao → MCP → Forgejo `jason/homelab` read passed and consumed once. Another repo and `delete_repo` were denied before forwarding; policy administration and another secret path returned 403; all observed test tokens were revoked. The restored root token remains temporarily valid and encrypted pending a separately approved human-only operator recovery path |
 
 ## Close-out
 

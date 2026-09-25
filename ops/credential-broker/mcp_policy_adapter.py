@@ -18,7 +18,6 @@ from typing import Any, Callable, Mapping
 
 ALLOWED_TOOLS = frozenset(
     {
-        "get_my_user_info",
         "get_repo",
         "list_branches",
         "get_file_content",
@@ -35,7 +34,7 @@ ALLOWED_TOOLS = frozenset(
     }
 )
 
-TOOLS_WITHOUT_REPOSITORY = frozenset({"get_my_user_info"})
+TOOLS_WITHOUT_REPOSITORY = frozenset()
 PATH_TOOLS = frozenset({"get_file_content", "list_repo_contents"})
 FORBIDDEN_ARGUMENT_KEYS = re.compile(
     r"(?:token|password|secret|credential|authorization|api[_-]?key|private[_-]?key|env(?:ironment)?)",

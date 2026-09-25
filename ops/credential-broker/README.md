@@ -4,9 +4,9 @@ This directory contains the deny-by-default implementation artifacts for the
 broader AI-PAM project in
 `docs/projects/homelab-credential-broker.md`.
 
-M2–M4 deploy a **synthetic-only** broker service on LXC 104. It does not connect
-to OpenBao, Forgejo or another production target and contains no credential.
-The service accepts JSON requests only over a group-restricted Unix socket and
+M2–M5 deploy the synthetic broker foundation on LXC 104. M6 adds a
+broker-private Forgejo MCP gateway whose repository-read credential remains in
+OpenBao. The service accepts JSON requests only over a group-restricted Unix socket and
 derives the caller identity from kernel peer credentials rather than a
 caller-supplied identity field.
 
@@ -26,8 +26,8 @@ Implemented controls:
 - secret-free lifecycle, capability, service metadata, request history and
   audit views, with fresh-passkey agent/service/request/global revocation;
 - metadata-only audit rows containing hashes rather than request payloads;
-- hardened systemd service with no TCP/IP socket capability; and
-- the pre-existing Forgejo MCP response/argument safety adapter.
+- hardened broker and gateway systemd services; and
+- an independent Forgejo MCP response/argument safety adapter.
 
 The old SSH/sudo wrapper was removed during M2. It allowed arbitrary command
 strings and was not a valid AI-PAM enforcement boundary; its history remains in
@@ -50,5 +50,10 @@ Key files:
 - `homelab-broker-approval.service` — separately confined approval unit
 - `services/aster-agent/broker_approvals.py` — signed-identity Companion bridge
 - `setup/install-m2-broker.sh` — idempotent synthetic deployment installer
-- `mcp_policy_adapter.py` — deny-by-default Forgejo MCP boundary prototype
+- `mcp_policy_adapter.py` — deny-by-default Forgejo MCP boundary
+- `forgejo_mcp_gateway.py` — broker-private gateway that retrieves the PAT from
+  OpenBao and invokes the pinned MCP process
+- `forgejo-mcp-gateway.service` — separately confined gateway unit
+- `openbao-m6-listener.hcl` / `openbao-m6-nftables.conf` — private TLS listener
+  and broker-only ingress policy
 - `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record
