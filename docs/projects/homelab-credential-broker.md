@@ -466,7 +466,7 @@ removed, the retired audit identity remains, and zero requests are open.
 
 ### M6 — Forgejo MCP pilot
 
-- [ ] Deploy pinned Forgejo MCP.
+- [x] Deploy pinned Forgejo MCP.
 - [ ] Create repo-scoped Phase-1 AI identity/token if needed.
 - [ ] Store token only in OpenBao.
 - [ ] Register bounded Forgejo capabilities.
@@ -586,6 +586,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Completed M4 management GUI | Jason accepted the responsive iPhone view, suspended/restored `agent-hermes` and disabled/re-enabled global AI access through fresh passkeys. Live requests were denied while disabled and succeeded after restoration. Synthetic service disable/restore also denied/re-enabled issuance; final snapshot is globally enabled, agent Operator, service enabled and zero active requests | M4 remains synthetic-only; M5 probation/replacement adversarial lifecycle is next |
 | 2026-09-24 | Completed M5 probationary replacement lifecycle | Disposable kernel-bound identity started in Probation; allowed Green and denied Yellow/Red/Black/scope expansion/malformed/arbitrary-method/identity-spoof cases; prompt-shaped text stayed out of audit. Jason promoted then retired it through fresh passkeys; retirement revoked its pending request and execution. A retired-catalogue leak was found, fixed and live-regressed; Unix test account removed, retired record retained, zero requests open | M6 Forgejo MCP remains gated; no production credential or target was introduced |
 | 2026-09-24 | Verified the pinned M6 Forgejo MCP release artifacts | Forgejo release API maps `v3.2.0` to source commit `e30bb7e2e45c0e447506b5df1fe83ebce4b43944`; the checksum bundle's P-256 signature verifies with the upstream public key pinned at GitOps commit `cd3715fa8283a2069a2e3e299744a7b55b1b0260`. The Linux amd64 archive SHA-256 is `bf8f744d53dd06c0e7830ee13a0507464b3ab301fcf01de4744db03d770039df`; its CycloneDX 1.7 SBOM SHA-256 is `5ae227404314345c48828b41a96f43f525b0501c0c4c9e5a856852732e8917d0`; both match the signed checksum list | Artifact execution and all Forgejo identity/token creation remain gated; the tag signature itself could not be independently validated because its OpenPGP public key was unavailable locally |
+| 2026-09-24 | Began the authorized M6 read-only Forgejo pilot | Installed the checksum-verified `forgejo-mcp` 3.2.0 binary at `/opt/forgejo-mcp/bin/forgejo-mcp` on LXC 104 without starting it. Created restricted, non-admin Forgejo user `ai-pam-mcp` and granted only read collaborator mode on `jason/homelab`; no PAT exists yet | A one-use `jason` bootstrap token granted the collaborator permission but its intentionally narrow scope could not self-revoke through the API (HTTP 403); the exact token row was deleted locally and verified absent. Service-PAT creation is deferred until it can be transferred directly into OpenBao |
 
 ## Close-out
 
