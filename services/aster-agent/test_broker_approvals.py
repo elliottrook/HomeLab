@@ -45,7 +45,7 @@ class ApprovalRouterTests(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.client_backend.call.assert_not_called()
 
-    def test_missing_auth_time_fails_closed(self):
+    def test_missing_auth_time_still_allows_inbox(self):
         app = FastAPI()
 
         def incomplete_claims():
@@ -53,7 +53,20 @@ class ApprovalRouterTests(unittest.TestCase):
 
         app.include_router(approval_router(self.client_backend, incomplete_claims))
         response = TestClient(app).get("/v1/companion/approvals")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 200)
+
+    def test_missing_auth_time_is_forwarded_for_broker_red_enforcement(self):
+        app = FastAPI()
+
+        def incomplete_claims():
+            return {"owner_hash": "a" * 64}
+
+        app.include_router(approval_router(self.client_backend, incomplete_claims))
+        response = TestClient(app).post(
+            "/v1/companion/approvals/req-1/approve", json={"payload_hash": "b" * 64}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(self.client_backend.call.call_args.args[0]["auth_time"])
 
 
 if __name__ == "__main__":

@@ -11,6 +11,10 @@
 - Passed 30 broker and 93 Aster tests plus live unauthenticated, wrong-UID,
   changed-payload, replay and timeout denial checks. Real iPhone approve/deny is
   intentionally pending because Jason was remote and could not sign in.
+- Fixed the approval inbox requiring `auth_time` just to list requests. Normal
+  signed sessions can now list and deny, while Red approval still requires the
+  broker's fresh-auth gate. Added visible loading feedback and disabled caching
+  of the Companion HTML; the live Aster suite now passes 94 tests.
 
 ## 2026-09-24 — MacBook administration layer: M0-M3 closed, M4 in progress
 

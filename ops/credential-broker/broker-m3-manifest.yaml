@@ -36,7 +36,7 @@ controls:
 
 validation:
   broker_tests: 30
-  aster_tests: 93
+  aster_tests: 94
   unauthenticated_http: denied
   agent_uid_approval_socket: denied
   aster_uid_approval_socket: passed

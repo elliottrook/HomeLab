@@ -49,26 +49,29 @@ class BrokerApprovalClient:
 def approval_router(client: BrokerApprovalClient, require_claims: Callable[..., dict[str, Any]]) -> APIRouter:
     router = APIRouter(prefix="/v1/companion/approvals", tags=["approvals"])
 
-    def identity(claims: dict[str, Any] = Depends(require_claims)) -> tuple[str, int]:
+    def identity(claims: dict[str, Any] = Depends(require_claims)) -> tuple[str, int | None]:
         actor = claims.get("owner_hash")
         auth_time = claims.get("auth_time")
-        if not isinstance(actor, str) or not isinstance(auth_time, int):
-            raise HTTPException(401, "A fresh Companion sign-in is required")
-        return actor, auth_time
+        if not isinstance(actor, str):
+            raise HTTPException(401, "Sign in with your Companion account")
+        return actor, auth_time if isinstance(auth_time, int) else None
 
     @router.get("")
-    def pending(_: tuple[str, int] = Depends(identity)) -> Any:
+    def pending(_: tuple[str, int | None] = Depends(identity)) -> Any:
         return client.call({"method": "pending.list"})
 
     @router.post("/{request_id}/approve")
-    def approve(request_id: str, action: ApprovalAction, user: tuple[str, int] = Depends(identity)) -> Any:
+    def approve(request_id: str, action: ApprovalAction, user: tuple[str, int | None] = Depends(identity)) -> Any:
         actor, auth_time = user
+        # The broker independently enforces that Red requests have a recent
+        # integer auth_time. Passing None is safe and fails closed there; Yellow
+        # approvals do not need to disrupt an otherwise valid OIDC session.
         return client.call({"method": "request.approve", "request_id": request_id,
                             "payload_hash": action.payload_hash, "actor": actor,
                             "auth_time": auth_time, "assurance": "passkey"})
 
     @router.post("/{request_id}/deny")
-    def deny(request_id: str, action: ApprovalAction, user: tuple[str, int] = Depends(identity)) -> Any:
+    def deny(request_id: str, action: ApprovalAction, user: tuple[str, int | None] = Depends(identity)) -> Any:
         actor, _ = user
         return client.call({"method": "request.deny", "request_id": request_id,
                             "payload_hash": action.payload_hash, "actor": actor})

@@ -197,7 +197,10 @@ async def lab_identity_context(request, call_next):
             owner = hashlib.sha256((AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()).hexdigest()
     context = LAB_OWNER.set(owner)
     try:
-        return await call_next(request)
+        response = await call_next(request)
+        if request.url.path == "/companion":
+            response.headers["Cache-Control"] = "no-store"
+        return response
     finally:
         LAB_OWNER.reset(context)
 
@@ -1830,7 +1833,7 @@ async function approvalApi(path='', options={{}}){{
 }}
 
 async function loadApprovals(){{
-  const box=document.querySelector('#approvalInbox'); box.textContent='';
+  const box=document.querySelector('#approvalInbox'); box.textContent='Loading approvals…';
   try{{
     const pending=await approvalApi();
     if(!pending.length){{ box.textContent='No pending approvals.'; return }}

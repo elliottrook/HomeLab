@@ -402,7 +402,7 @@ also requires passkey assurance and authentication no more than 120 seconds
 old. Companion shows only allowlisted, length-bounded non-secret summaries and
 forces a new OIDC login (`prompt=login`, `max_age=0`) before a Red approval.
 
-The complete deployed-runtime suites pass (30 broker tests and 93 Aster tests).
+The complete deployed-runtime suites pass (30 broker tests and 94 Aster tests).
 Live checks proved unauthenticated HTTP rejection, denial of the agent UID at
 the approval socket, changed-payload rejection, successful exact-payload
 approval, replay rejection and timeout rejection. The remaining gate is a real
@@ -544,6 +544,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Adopted the deployed placement in NetBox and repository references | NetBox VM/interface/IP IDs 18/18/32; `configs/devices.conf`, IP addressing and backup coverage updated | OpenBao remains loopback-only; no DNS, firewall, Authentik or production-secret integration exists yet |
 | 2026-09-24 | Completed M2 synthetic broker foundation | `broker_core.py`, Unix-socket service/client/admin, hardened systemd unit, installer and 23 passing tests; live LXC 104 probation, payload-binding, one-time consumption, risk denial and global-disable checks | M3 must supply Authentik/passkey approval; M2 exposes no TCP endpoint and holds no OpenBao or production credential |
 | 2026-09-24 | Deployed M3 mobile approval candidate | Existing passkey-only Aster Companion OIDC reused; separate approver-only Unix socket; kernel UID and signed-token identity boundary; sanitized approval inbox; 30 broker and 93 Aster tests; live changed-payload, replay and timeout failures passed | Real iPhone approve/deny gate deferred until Jason can sign in locally; M3 is not complete and no production target is connected |
+| 2026-09-24 | Corrected silent approval-inbox behavior | Inbox/list and denial now require a valid signed Companion identity but not a fresh `auth_time`; the broker still fails Red approval closed unless fresh authentication supplies it. Companion now shows an immediate loading/result message and serves the page with `Cache-Control: no-store`; 94 Aster tests pass live | Real-device approve/deny remains pending; Red freshness enforcement is unchanged |
 
 ## Close-out
 
