@@ -54,7 +54,9 @@ This project supersedes the narrower 2026-09-15 SSH-only credential-broker propo
   NetBox and did not answer the live probe. LXC 117 is now deployed and NetBox
   records VM/interface/IP IDs 18/18/32 for `192.168.50.24/24`.
 - The maintained Forgejo MCP is pinned for future evaluation at immutable tag
-  `v3.2.0` (`931a525dc25dfef430c4bbee51728ad3795f7491`). Its default catalogue
+  `v3.2.0` (annotated tag object
+  `931a525dc25dfef430c4bbee51728ad3795f7491`, peeled source commit
+  `e30bb7e2e45c0e447506b5df1fe83ebce4b43944`). Its default catalogue
   includes mutation tools and has no documented runtime tool allowlist, so it
   must remain behind the broker's independent deny-by-default adapter.
 
@@ -337,7 +339,8 @@ On resume: re-read the project standard and this project, inspect Git/live healt
 - [x] Confirm Proxmox placement/IP/VLAN capacity.
 - [x] Evaluate current OpenBao release/deployment requirements.
 - [x] Verify the maintained Forgejo MCP release and pin an immutable version
-  for later isolated testing: `v3.2.0` / `931a525d`.
+  for later isolated testing: `v3.2.0`, annotated tag object `931a525d`,
+  peeled source commit `e30bb7e2`.
 - [x] Select first Green and Yellow production-shaped integrations: bounded
   Forgejo repository reads (Green) and broker-performed approved safe-branch
   push (Yellow, not enabled during the read-only pilot).
@@ -561,7 +564,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-21 | Drafted AI Integration Gate | project design | charter amendment included in this commit |
 | 2026-09-21 | Jason authorized the recorded project under Stream A | delegated instruction preserved by this project record | non-waivable stops and immediate per-push confirmation remain |
 | 2026-09-21 | Completed live M0 discovery | read-only PVE/LXC/service/NetBox/backup queries: PVE 9.2.10, Authentik 2026.8.0, Forgejo 15.0.7, OpenBao absent, VMID 116 and `192.168.50.24` candidates | candidates are not reserved; no production mutation |
-| 2026-09-21 | Pinned maintained Forgejo MCP candidate | upstream tag `v3.2.0`, commit `931a525dc25dfef430c4bbee51728ad3795f7491`; upstream tool/auth review | release artifact signature/SBOM still must be verified before execution |
+| 2026-09-21 | Pinned maintained Forgejo MCP candidate | upstream tag `v3.2.0`, annotated tag object `931a525dc25dfef430c4bbee51728ad3795f7491`, peeled source commit `e30bb7e2e45c0e447506b5df1fe83ebce4b43944`; upstream tool/auth review | release artifact signature/SBOM still must be verified before execution |
 | 2026-09-21 | Added synthetic deny-by-default MCP adapter | `mcp_policy_adapter.py`; 10/10 tests cover catalogue filtering, repo scope, pre-forward write denial, credential/environment arguments, sensitive/traversal paths, secret-shaped/oversized output and non-tool methods | not connected to a live MCP, OpenBao or Forgejo identity |
 | 2026-09-21 | Added exact non-secret M1 candidate manifest | `openbao-pilot-manifest.yaml`; YAML validated; loopback-only recovery phase, Raft/Shamir, backup, abort and rollback gates | human PGP recovery recipients are not available on this Mac; initialization must not proceed |
 | 2026-09-24 | Jason confirmed all three private recovery-key backups decrypt successfully | human recovery test; public-only A/B/C files revalidated locally | private keys/passphrases remain human-held and were not inspected |
@@ -582,6 +585,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Deployed M4 synthetic management candidate | Companion management view plus approver-only snapshot/history/audit and fresh-passkey lifecycle/revocation actions; 36 broker and 97 Aster tests; live services healthy, zero active requests and stale management auth denied | Human iPhone layout and representative revoke/restore acceptance pending; no production service or credential is connected |
 | 2026-09-24 | Completed M4 management GUI | Jason accepted the responsive iPhone view, suspended/restored `agent-hermes` and disabled/re-enabled global AI access through fresh passkeys. Live requests were denied while disabled and succeeded after restoration. Synthetic service disable/restore also denied/re-enabled issuance; final snapshot is globally enabled, agent Operator, service enabled and zero active requests | M4 remains synthetic-only; M5 probation/replacement adversarial lifecycle is next |
 | 2026-09-24 | Completed M5 probationary replacement lifecycle | Disposable kernel-bound identity started in Probation; allowed Green and denied Yellow/Red/Black/scope expansion/malformed/arbitrary-method/identity-spoof cases; prompt-shaped text stayed out of audit. Jason promoted then retired it through fresh passkeys; retirement revoked its pending request and execution. A retired-catalogue leak was found, fixed and live-regressed; Unix test account removed, retired record retained, zero requests open | M6 Forgejo MCP remains gated; no production credential or target was introduced |
+| 2026-09-24 | Verified the pinned M6 Forgejo MCP release artifacts | Forgejo release API maps `v3.2.0` to source commit `e30bb7e2e45c0e447506b5df1fe83ebce4b43944`; the checksum bundle's P-256 signature verifies with the upstream public key pinned at GitOps commit `cd3715fa8283a2069a2e3e299744a7b55b1b0260`. The Linux amd64 archive SHA-256 is `bf8f744d53dd06c0e7830ee13a0507464b3ab301fcf01de4744db03d770039df`; its CycloneDX 1.7 SBOM SHA-256 is `5ae227404314345c48828b41a96f43f525b0501c0c4c9e5a856852732e8917d0`; both match the signed checksum list | Artifact execution and all Forgejo identity/token creation remain gated; the tag signature itself could not be independently validated because its OpenPGP public key was unavailable locally |
 
 ## Close-out
 
