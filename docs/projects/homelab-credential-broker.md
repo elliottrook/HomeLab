@@ -487,6 +487,18 @@ For each target service create least-privilege `ai-*` identity where supported, 
 - [ ] Add AI-PAM service-registry template.
 - [ ] Update architecture/runbooks/NetBox/Homepage as authoritative.
 - [ ] Add Doctor/drift checks.
+- [ ] Bring the native macOS Aster Companion app to functional parity with
+  the web AI-PAM surface. It must provide the approval inbox with approve/deny
+  and fresh-passkey reauthentication; agent, service, capability, active
+  request/session, history and audit views; agent/service/request lifecycle
+  controls; and the global emergency revoke/restore control. Keep all existing
+  broker-side freshness, payload-binding, identity and no-secret-rendering
+  enforcement unchanged.
+- [ ] Add native Swift coverage for AI-PAM response decoding, secret-free
+  rendering, approval and management actions, reauthentication, denial/error
+  states and emergency controls. Complete a real-Mac acceptance pass against
+  the deployed broker, including an approved request, a denial, one lifecycle
+  change and global disable/re-enable.
 
 ### M9 — graduation
 
@@ -496,6 +508,7 @@ For each target service create least-privilege `ai-*` identity where supported, 
 - [ ] reboot/restart tests;
 - [ ] backup + isolated restore;
 - [ ] two independent normal workflow passes;
+- [ ] web and native macOS AI-PAM feature-parity acceptance;
 - [ ] no temporary access remains;
 - [ ] normal HomeLab administration still works with AI-PAM unavailable.
 
@@ -592,6 +605,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Opened the broker-only OpenBao service path | Added TLS listener `192.168.50.24:8200` while preserving loopback recovery; replacement certificate has SANs only for `127.0.0.1` and `192.168.50.24`. LXC 117 nftables and logged OPNsense rule `7d50a11f-0fe6-4546-bff6-572f14b6541b` permit only `192.168.70.10` TCP 8200; OPNsense checkpoint `/conf/backup/config-ai-pam-openbao-before-20260924.xml`; repository configs `openbao-m6-listener.hcl` and `openbao-m6-nftables.conf` | After human 2-of-3 unseal, broker path returns HTTP 200 with certificate validation; Forgejo LXC 108 times out. Existing loopback recovery remains healthy |
 | 2026-09-24 | Connected the M6 Green Forgejo MCP path | CIDR-bound AppRole `hlabroker-forgejo-m6` can read only `secret/data/ai-pam/forgejo-mcp-read`; five-minute tokens, 30-minute maximum, no default policy. Broker-private gateway socket is mode 0600 and starts checksum-pinned MCP 3.2.0 per call, filtering its catalogue and requests through the independent allowlist. Registered Green `forgejo.read.repository` for `agent-hermes` | Real agent → broker → OpenBao → MCP → Forgejo `jason/homelab` read passed and consumed once. Another repo and `delete_repo` were denied before forwarding; policy administration and another secret path returned 403; all observed test tokens were revoked. The restored root token remains temporarily valid and encrypted pending a separately approved human-only operator recovery path |
 | 2026-09-25 | Closed the temporary OpenBao root-recovery window | Created loopback/CIDR-bound `human-root-ceremony` AppRole with only authenticated root-ceremony start/status/cancel/update and self-revoke rights; its sole credential is PGP-encrypted to Recovery A in the human recovery bundle. Jason proved login, a zero-share 2-of-3 ceremony start, cancellation and token self-revocation, then revoked the temporarily restored root token. OpenBao remained healthy/unsealed and a fresh agent → broker → AppRole → Forgejo MCP read passed and consumed once after revocation | A future root token still requires this human-held AppRole credential plus two independent recovery shares; the legacy encrypted initial-root-token file is retained only as historical/recovery evidence and its contained token is revoked |
+| 2026-09-25 | Made native macOS AI-PAM parity mandatory | M8 now requires the native Aster Companion app to match the web approval inbox, management views, lifecycle actions and emergency controls without weakening broker enforcement; Swift coverage and a real-Mac acceptance matrix are explicit | The web implementation remains the deployed reference until the native work and acceptance pass are complete; M9 cannot graduate without parity |
 
 ## Close-out
 
