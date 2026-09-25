@@ -15,6 +15,18 @@
 - No production changes, new dependencies or private-data collection. Security
   fixes and remaining M1 gates are pending; publication requires separate push approval.
 
+## 2026-09-25 — B60 inference engineering proposed
+
+- Created a Proposed — Stream M project to pursue safe, reproducible performance
+  improvements on the fixed Dell T5810 and Intel Arc Pro B60 platform.
+- Reconciled the live read-only baseline: Proxmox 9.2.20/kernel 7.0.14-19,
+  BIOS A31, B60 on `xe`, 256 MiB BAR, real PCIe 3.0 x8 host link, Mesa 26.1.6,
+  llama.cpp b11081, healthy private service and fresh LXC 110 backup.
+- Added the pre-start risk assessment, proposed authorization envelope,
+  hypothesis tree, phased gates and versioned experiment-ledger schema. No
+  production setting, service, package, firmware, boot state or remote Git
+  state changed.
+
 ## 2026-09-24 — AI-PAM M5 probation lifecycle complete
 
 - Registered a disposable kernel-bound replacement identity in mandatory
