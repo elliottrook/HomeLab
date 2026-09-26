@@ -1,6 +1,6 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 baseline complete, M1 authority candidate tested locally; deployment/identity gates open; production unchanged.
+**Status:** Active — Stream A; M0 complete; M1 Stage1 installed and verified; Stage2 identity/assurance gates remain open.
 
 **Owner:** Jason.
 
@@ -158,11 +158,22 @@ After foundation graduation, propose bounded amendments under this document for:
 
 ## 17. Close-out and current resume point
 
-**Active, not graduated.** M0 is complete. M1 has a local corrective candidate: 55 broker tests pass with no expected failures, and 163 Aster tests pass, including 10 approval-bridge tests. Caller binding, current-policy revalidation, lifecycle revocation, atomic consumption/migration, expiry/restart/restore and explicit approver/assurance configuration are implemented locally. See [M1 candidate evidence and gates](evidence/M1-authority-candidate.md).
+**Active, not graduated.** M0 is complete. Jason approved M1 Stage1, and the
+core/transport changes are installed on LXC104. All 45 staged guest tests and
+legacy approval compatibility passed. Initial live validation passed after a
+bounded readiness-aware recovery from the installer's startup probe race. The
+ten-minute observation passed with stable services, unchanged request counts and no checked error markers. See [deployment evidence](evidence/M1-stage1-deployment.md).
 
-M1 remains open: actual approver/ACR mapping, coordinated compatibility/recovery plan, explicit bounded deployment approval and live verification are not complete. Independent review passed after resolving its migration-race finding. Production controls have not changed. Do not enable expanded tools or assume the local fixes are live. Offline M2 contract work may proceed independently. Read-only deployment preparation found generic Authentik ACR and concurrent M6 drift; a revised two-file Stage 1 candidate preserves M6 and passes 57 broker tests plus the 37-test staged subset. See [exact deployment plan](evidence/M1-deployment-plan.md) and [release manifest](evidence/M1-stage1-manifest.json). Deployment remains unapproved; coordinate the separately owned pending AI-PAM request first.
+M1 remains open: explicit approver entitlement and verified passkey assurance
+(Stage2) are still local candidates and require separate review/approval/live
+validation. Do not expand tool authority or claim M1 graduation. Offline M2
+contract work can proceed independently. No Git push occurred for these changes;
+publication requires a separate immediate confirmation.
 
-The initial programme baseline was published to Forgejo and verified at its GitHub mirror as merge `d954ae4e6d81cfde52e04a99f7768ff3919deb00`. This M1 candidate is a new local checkpoint; its publication needs a separate immediate push confirmation. Supporting assessment observations remain pinned to their original baseline.
+The programme baseline was previously published and mirror-verified as merge
+`d954ae4e6d81cfde52e04a99f7768ff3919deb00`. Historical preparation entries below
+retain their original time-specific state; this resume point and deployment
+evidence govern current status.
 
 
 
@@ -195,3 +206,14 @@ zero usable approvals. The current next step is the exact Stage1 deployment
 approval in [operator commands](evidence/M1-stage1-commands.md), followed by a
 fresh immediate preflight. Previous notes about an active M6 cleanup window are
 historical. Production is unchanged by this task; no push is authorized.
+
+
+### Current checkpoint — Stage1 complete, Stage2 open
+
+Jason's exact deployment approval was executed. Protected backup/restore,45 guest
+tests, compatibility, live denial/health/permissions and the full ten-minute
+observation passed. A Type=simple startup-readiness race caused a fail-closed stop;
+a bounded same-candidate start recovered it without source changes or DB restore.
+[Deployment evidence](evidence/M1-stage1-deployment.md) is authoritative for this
+rollout. No Git push occurred. Continue with offline M2 contracts or the separately
+reviewed Stage2 assurance design; do not claim full M1 graduation or widen tools.

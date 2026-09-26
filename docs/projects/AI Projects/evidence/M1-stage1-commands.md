@@ -1,6 +1,14 @@
-# Stage 1 exact operator commands — NOT EXECUTED
+# Stage 1 approved operator commands — execution record
 
-These commands are a reviewable production change, not standing authorization.
+Executed with Jason's explicit approval on 2026-09-25. Do not replay this
+installer: installation/migration completed, but its immediate Type=simple health
+probe raced socket startup. Both services were stopped by its failure trap;
+a bounded readiness-aware start of the identical approved candidate passed.
+See [deployment evidence](M1-stage1-deployment.md) for the final outcome and
+recovery details. The manifest/archive below preserve the exact approved release.
+Future installers must wait for socket and application readiness.
+
+The commands below are historical, not standing authorization.
 Use only after Jason approves this exact Stage 1 deployment and AI-PAM confirms
 an immediately current quiescent window. Do not use while its remote test/rollback
 workflow is active. Do not approve, consume, deny or revoke that workflow's
@@ -85,7 +93,7 @@ ssh -o BatchMode=yes root@192.168.50.10 'pct exec 104 -- curl --silent --output 
 ```
 
 Require candidate core/transport hashes, unchanged approval hash, both services
-active, expected socket owners/mode0660, DB owner `hlabroker`/mode0600, a successful
+active, expected socket owners/mode 0660, DB owner `hlabroker`/mode 0600, a successful
 catalogue response, and unauthenticated HTTP401. Use a denied-peer socket check
 with the existing `hlabagent` identity only if its separate approval connection
 is rejected; do not submit a real approval payload. Retain only boolean/status

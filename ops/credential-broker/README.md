@@ -59,16 +59,16 @@ Key files:
 - `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record
 
 
-## Unreleased M1 authority candidate (2026-09-25)
+## Aster M1 deployment split (2026-09-25)
 
-The local Aster Adaptive Computing candidate requires authenticated `agent_id`
+The deployed Stage1 Aster Adaptive Computing core requires authenticated `agent_id`
 at consume, rechecks a versioned policy digest, invalidates authorizations on
 lifecycle changes, and serializes SQLite checks/transitions and schema migration.
 Legacy requests without a policy digest are denied; create new requests after a
 coordinated release. Bump `AUTHORIZATION_POLICY_VERSION` for changes to policy
 semantics so pending plans cannot inherit new rules silently.
 
-Approval transport now requires `actor` on reads as well as mutations, an explicit
+The **local-only Stage2 candidate** approval transport requires `actor` on reads as well as mutations, an explicit
 `--approver-subject-hash` allowlist, and the existing configured peer UID.
 Companion requires matching `ASTER_BROKER_APPROVER_SUBJECT_HASHES` (comma-separated)
 and only maps verified claims to passkey using explicitly configured
@@ -78,4 +78,13 @@ are not a ready-to-deploy configuration for the new approval service.
 
 See [M1 candidate evidence](../../docs/projects/AI%20Projects/evidence/M1-authority-candidate.md)
 for validation, M6 compatibility, identity/recovery/deployment gates and the
-at-most-once authorization limit. This source update is **not deployed**.
+at-most-once authorization limit. Only core and broker transport are deployed;
+the approval service and Companion retain their prior implementations. Installed
+Authentik claims have not yet established a verified passkey-specific assurance
+mapping; do not treat generic ACR/MFA as that proof. Full M1 remains open.
+
+[Stage1 deployment evidence](../../docs/projects/AI%20Projects/evidence/M1-stage1-deployment.md)
+records exact hashes, protected checkpoint, startup-readiness recovery and live
+validation. The release installer is an execution record, not an idempotent
+redeployment command. Do not restore an older database or restart old core code
+as a casual rollback: that may restore consumed approvals or weaken controls.

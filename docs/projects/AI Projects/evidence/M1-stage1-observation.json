@@ -1,0 +1,743 @@
+{
+  "schema_version": 1,
+  "scope": "Stage1 low-traffic read-only operational observation",
+  "readiness_unix": 1790385497,
+  "completed_unix": 1790386098,
+  "elapsed_since_readiness_seconds": 601,
+  "poll_count": 13,
+  "polls": [
+    {
+      "time": 1790385559,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385605,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385651,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385697,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385744,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385790,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385836,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385882,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385928,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790385974,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790386021,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790386067,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    },
+    {
+      "time": 1790386098,
+      "states": {
+        "homelab-broker": {
+          "MainPID": "11450",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "homelab-broker-approval": {
+          "MainPID": "11451",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-gateway": {
+          "MainPID": "7334",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "forgejo-mcp-write-gateway": {
+          "MainPID": "10613",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        },
+        "aster-agent": {
+          "MainPID": "6904",
+          "NRestarts": "0",
+          "ActiveState": "active"
+        }
+      },
+      "health": true,
+      "integrity": "ok",
+      "counts": [
+        [
+          "consumed",
+          11
+        ],
+        [
+          "denied",
+          1
+        ],
+        [
+          "expired",
+          8
+        ],
+        [
+          "revoked",
+          1
+        ]
+      ],
+      "log_markers": {
+        "traceback": 0,
+        "database is locked": 0,
+        "exception": 0,
+        "error": 0
+      }
+    }
+  ],
+  "limitations": [
+    "No real target write or approval created",
+    "Not a load or contention benchmark",
+    "Stage2 identity and assurance controls remain undeployed"
+  ]
+}

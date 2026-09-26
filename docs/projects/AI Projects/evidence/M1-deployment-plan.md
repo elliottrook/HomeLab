@@ -113,3 +113,28 @@ Current gate: Jason's explicit approval of the exact two-file Stage1 deployment,
 including the possible fail-closed AI-PAM outage. No deployment or Git push has
 occurred. The exact current archive and manifest digests are in the operator
 commands; earlier bundle digests are superseded. Stage2 assurance remains open.
+
+
+## Approved execution and readiness recovery — 2026-09-25
+
+Jason approved the exact Stage1 deployment after local commit85d2e46. AI-PAM
+explicitly held its maintenance window. Archive/manifest hashes matched on both
+transfer hops. Preflight passed with zero usable approvals. Checkpoint
+`/var/lib/homelab-broker/rollback/m1-stage1-20260926T011710Z` passed backup and
+isolated restore checks; 45 guest tests and legacy approval compatibility passed.
+The two source replacements, migration, integrity and preserved-count checks
+passed. Python3.13 emitted test-fixture unclosed-connection ResourceWarnings;
+these did not fail tests and need separate cleanup.
+
+The immediate health call encountered a missing socket after Type=simple units
+reported active. The trap stopped both services. Read-only investigation found
+both killed by the trap's SIGTERM in their startup second, zero restarts, no
+journal traceback/error/exception markers, candidate hashes exact and approval
+source unchanged. This supports a readiness race, not proof of an application
+fault. No target action or authorization request ran.
+
+Recovery decision within the approved two-service rollout: start the installed,
+unchanged restrictive candidate once with a bounded 15-second socket/health
+readiness check; stop both on any failure. Do not rerun the installer, replace
+sources, restore the DB, or restart old code. A successful readiness check must
+still pass every post-install check and the full ten-minute observation window.

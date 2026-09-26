@@ -520,3 +520,37 @@ Capacity measurement: simultaneous synthetic Companion/news requests took
 persona prompt evaluation took 110.466s. This is a measured shared-inference
 limit, not a latency guarantee; model/hardware/inference changes remain outside
 this project. Scheduled news ingest's most recent execution remained successful.
+
+
+## AI-PAM authority boundary — Aster M1 Stage1, 2026-09-25
+
+The shared AI-PAM core and Unix transport on LXC104 now bind consumption to the
+kernel-authenticated caller, revalidate current policy and lifecycle, invalidate
+stale/unbound approvals, and serialize authorization transitions/migration. This
+is a corrective boundary change, not authorization to add tools or grants.
+The approval service and Companion retain their preceding versions; the new
+explicit approver/verified-assurance candidates are **not deployed**.
+
+The exact hashes and rollout validation are recorded in
+[Stage1 evidence](../projects/AI%20Projects/evidence/M1-stage1-deployment.md).
+The two services are `homelab-broker` and `homelab-broker-approval`; existing
+read/write Forgejo gateways are separate and were not restarted. Stage1 initial
+health, catalogue, socket permissions and unauthenticated HTTP denial passed;
+the deployment record owns the final observation result.
+
+Recovery checkpoint on104:
+`/var/lib/homelab-broker/rollback/m1-stage1-20260926T011710Z`.
+Keep it protected: it includes the broker database and old source, not merely
+public test fixtures. Backup and isolated restore integrity/count checks passed.
+Do not export its contents into Git, prompts or the knowledge mirror.
+
+If authorization integrity is uncertain, stop both broker entrypoints and retain
+human SSH access. Do not blindly restore an older DB: it could resurrect an
+already consumed authorization. Do not restart old vulnerable code with active
+grants. Diagnose and use a reviewed restrictive candidate. A `Type=simple` unit
+reporting active does not prove readiness; wait for both sockets and assert a
+registered-peer application health response with a bounded timeout.
+
+No device/IP/DNS/firewall/credential/grant change was part of this deployment.
+Existing service monitoring remains applicable; no new collector or schedule
+was installed. Stage2 assurance and full M1 graduation remain separate gates.

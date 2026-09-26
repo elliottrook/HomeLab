@@ -90,3 +90,13 @@ b3619ce 2026-09-24 Complete AI-PAM mobile approval milestone
 Read-only service/hash/status projections on104 and read-only Authentik ORM/source projections on106 verified provider26 owner binding, subject mode, flow stages, generic ACR and the distinct authentication-method behavior. No tokens, sessions, provider secrets or recovery material were queried. The exact observations and current limitations are in [M1 deployment plan](evidence/M1-deployment-plan.md). Official OAuth2 and WebAuthn documentation was opened, but installed-source evidence governs the claim mapping. The generic ACR cannot safely be selected as passkey assurance.
 
 Concurrent AI-PAM M6 deployment invalidated the first transport baseline; it was caught before any mutation. Re-queried hashes and service commands, matched M6's worktree source to deployed transport and preserved it while adding caller binding. Added fake-gateway denial tests; combined broker suite57 passes, staged Stage1 subset37 passes, legacy approval compatibility passes. This task has made no production or remote Git changes. A separately owned pending M6 request and deployment approval remain gates.
+
+
+## Approved Stage1 execution — 2026-09-25
+
+Jason approved the exact two-file LXC104 change. Source and database preflight,
+protected backup/restore,45 guest tests and legacy approval compatibility passed.
+The installer raced Type=simple socket readiness and failed closed. Read-only
+diagnosis followed by one bounded same-candidate start passed. No DB restore,
+credential/grant/gateway change or target write occurred. The full ten-minute observation passed; [deployment record](evidence/M1-stage1-deployment.md) holds the
+exact scope, hashes, checkpoint and limits. Stage2 and Git push remain excluded.

@@ -7,3 +7,7 @@
 - [M0 baseline](M0-baseline.md): project-start evidence and exact next gate.
 
 No runtime data, credentials or personal interaction datasets are included. Original raw web-research captures remain in the local assessment bundle; the checked-in documents cite authoritative primary sources directly.
+
+- [Stage1 deployment](M1-stage1-deployment.md): approved two-file production change,
+  checkpoint, readiness incident/recovery and bounded observation evidence.
+  The original assessment probes above remain historical.
