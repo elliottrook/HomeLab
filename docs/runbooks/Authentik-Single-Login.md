@@ -64,7 +64,8 @@ only Jason and NPM overwrites the verified owner header. The host guard on
 8972 requires NPM's actual source and that header before reaching Frigate's
 loopback internal API. Frigate reports its internal anonymous/admin identity;
 no Frigate account was created or changed. Browser access was observed without
-a second password; live/playback acceptance remains pending.
+a second password; Jason accepted live video and older-recording playback.
+Homepage now links to the friendly HTTPS route.
 
 Native recovery remains `https://192.168.20.10:8971` with its existing login.
 LAN port 5000 now serves only `/api/metrics` to monitoring host `.20.31`;

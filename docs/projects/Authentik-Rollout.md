@@ -20,6 +20,26 @@
 
 ## Resume audit — 2026-09-23
 
+### Frigate browser acceptance and Homepage promotion — 2026-09-26
+
+Jason confirmed live video and older-recording playback work through the new
+friendly HTTPS route. Browser workflow accepted. Promoted only Homepage's
+Frigate href from `https://192.168.20.10:8971` to
+`https://frigate.elliottrook.com`; all other dashboard content is unchanged.
+Checkpoint on LXC 100:
+`/opt/homepage/backups/frigate-promote-20260926T205629Z/services.yaml`.
+Homepage returns 200 and all 116 boundary checks pass after promotion.
+
+Immich browser/mobile and Frigate browser milestones are now accepted. Main
+Synology browser administration was accepted earlier. Remaining rollout work
+includes Newtarr persistence remediation, NPM/Pi-hole second-login limitations,
+TrueNAS/UniFi/Home Assistant capability holds, and final logout/recovery/reboot,
+monitoring/documentation and synchronization gates. Jellyfin/Seerr remain
+explicitly deferred. Frigate Home Assistant integration is not installed and
+is future work, not a failed existing integration. Fresh Frigate passkey and
+logout/recovery tests are not implied by browser acceptance using an existing
+Authentik session. Local commits are retained; remote pushes are not authorized.
+
 ### Frigate deployed; infrastructure checks passed — 2026-09-26
 
 Jason ran the prepared script successfully. Deployment checkpoint:

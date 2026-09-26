@@ -25,7 +25,8 @@ metrics path to Prometheus `.20.31` at the old LAN 5000 address, and forwards
 browser requests on 8972 only from NPM `.50.23` with its verified owner header.
 RTSP/WebRTC bindings and camera/recording settings are unchanged. Monitoring,
 fresh recording segments and access-denial checks passed after deployment.
-Browser live/playback acceptance and reboot/recovery validation remain open.
+Jason accepted browser live video and older-recording playback; Homepage now
+links to the friendly route. Reboot/recovery validation remains open.
 See [single-login operations](runbooks/Authentik-Single-Login.md).
 
 ## Streams and recording
