@@ -10,6 +10,12 @@ with no virtual NIC is a credible replacement for LXC100. It separates the S0
 runner from household services and avoids relying on namespace creation inside an
 LXC. The first VM activity must still use invented fixtures only.
 
+The concrete follow-on is now recorded in
+[`DISPOSABLE-VM-BUILD-PLAN.md`](DISPOSABLE-VM-BUILD-PLAN.md). It selects a dated,
+checksum-pinned Debian generic cloud image, local NoCloud seed and bounded serial
+result protocol. That document remains a review candidate and does not itself
+authorize VM creation.
+
 ## Verified current evidence
 
 Read-only Proxmox queries reported:

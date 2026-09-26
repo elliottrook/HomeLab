@@ -472,3 +472,16 @@ has665,394,887 KiB available. Existing Debian13.6 netinst ISO SHA-256
 matches Debian's archived checksum. Proposed design is1 vCPU,1 GiB RAM,8 GiB disk,
 no vNIC/GPU/credentials, offline pinned input and bounded output. This is feasibility
 evidence only: no VMID reservation, image download, VM creation or corpus access.
+
+
+### 2026-09-26 — disposable VM concrete build gate
+
+Selected a dated Debian13 generic qcow2 rather than netinst or the mutable `latest`
+alias; observed published SHA-512
+`a733e7d49442a03e70d03e4eb5aaf3967f3efc69ef70952f9bb10fc1ee2c4876eb95956b5ad2d31350e5fada768feb651352535fb8cd1233f61998a5a7d2e93c`.
+Cloud-init NoCloud supplies an offline immutable seed. QEMU Guest Agent, vNIC,
+credentials and shared filesystems remain absent. A strict 4-MiB/five-minute framed
+serial capture carries a 2-MiB digest-bound result; rejection never auto-retries.
+Planned gates are local parser/seed proof, stopped-state creation, bootstrap canary,
+invented S0 fixture, then explicit boundary GO/NO-GO. No download, VM mutation,
+accepted-corpus access or package installation occurred.

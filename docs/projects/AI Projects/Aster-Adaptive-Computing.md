@@ -721,3 +721,15 @@ snapshots show room for planning but are not reservations. The existing Debian
 13.6 ISO matches Debian's archived checksum. VM creation remains unauthorized;
 offline installation contents, artifact/result channel, exact Proxmox config,
 teardown and creation-window capacity still need proof.
+
+
+### Disposable VM concrete build gate
+
+[The concrete build plan](experiments/s0-routing-descriptive-v1/DISPOSABLE-VM-BUILD-PLAN.md)
+selects a dated, SHA-512-pinned Debian 13 generic cloud image, immutable local
+NoCloud seed and a framed serial result protocol. The proposed VM remains one
+vCPU/1 GiB/8 GiB with no vNIC, guest agent, credentials, GPU, passthrough or shared
+filesystem. Local parser/seed tests precede any mutation; creation is stopped-state
+first, and bootstrap canary plus invented S0 fixtures must pass before a separate
+boundary decision. Accepted-corpus execution remains blocked. No image was
+downloaded, VMID reserved or Proxmox state changed at this checkpoint.
