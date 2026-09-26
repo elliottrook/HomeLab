@@ -378,3 +378,17 @@ separate and unresolved. Documentation review checks are recorded in
 [label readiness evidence](evidence/M3-label-readiness.md). Publication remains pending: automatic approval review rejected the coordination
 message asserting fresh push authority. No remote write was attempted. This does
 not change the separate data-collection boundary.
+
+
+### Current checkpoint — implementation-only S0 fixture tooling
+
+Published baseline `4702ee0` is verified on Forgejo and GitHub. Jason's separate
+[implementation-only approval](labeling/approvals/2026-09-25-implementation-only.md)
+covers empty local forms, stdlib validation and tests. The new fixture-only checker
+checks reference/state/privacy/revision/split invariants and rejects real content
+and human authority claims. 23 new tests and 96 complete adaptive tests pass.
+[Evidence and limitations](evidence/M3-local-tooling/README.md) distinguish this
+from a human collector. Technical review passed; the local milestone is ready
+for a focused commit, with collection still disabled.
+Next gate remains explicit authorization for collection and durable S0 retention;
+no case/label/review was collected. No production change or further push.

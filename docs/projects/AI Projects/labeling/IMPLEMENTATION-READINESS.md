@@ -1,7 +1,8 @@
 # M3 S0 pilot implementation readiness proposal
 
 Status: **proposal only**. The [protocol design](approvals/2026-09-25-protocol-design.md)
-was accepted; intake implementation and case collection remain unapproved.
+was accepted. [Implementation-only approval](approvals/2026-09-25-implementation-only.md)
+now covers empty local forms and fixture validation. Case collection remains unapproved.
 Owner: Jason. Scope: at most 30 sanitized, authored S0 train/dev families.
 No real interactions, private facts, cloud/model calls or tool execution.
 
@@ -70,8 +71,8 @@ No new identity, signing key, token or credential is required for R.
 
 ## State machine
 
-1. **DESIGN_ACCEPTED** — current state; no implementation or collection authority.
-2. **IMPLEMENTATION_APPROVED** — bounded forms/validator implementation and tests only;
+1. **DESIGN_ACCEPTED** — historical state; no implementation or collection authority.
+2. **IMPLEMENTATION_APPROVED** — current state; bounded forms/validator implementation and tests only;
    no case creation or collection from this approval alone.
 3. **COLLECTION_APPROVED** — separately authorized cap of 30 sanitized train/dev
    families, named human reviewer, dates and explicit durable Git retention acceptance.
@@ -166,8 +167,8 @@ no new authority, broker deployment or infrastructure mutation is proposed.
 
 ## Next concrete gate
 
-Approve implementation of **R: local S0 forms/validator**, with fixture-based tests
-and no collection. After review of that implementation, separately authorize up to
+Complete technical review of the approved **R: local S0 forms/validator**
+implementation, with fixture-based tests and no collection. After review of that implementation, separately authorize up to
 30 sanitized train/dev families with explicit durable-retention acceptance. No
 case creation is inferred from design/readiness approval. Paper remains optional;
 separate OS custody is reserved for a later protected study. M4 remains separate.

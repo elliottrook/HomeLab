@@ -167,3 +167,17 @@ with approved durable S0 Git retention and unnecessarily obstructive to evaluati
 Revised to recommend repository-native, human-reviewed S0 train/dev forms/validator;
 no collection from implementation approval. Private/secret facts remain excluded.
 Separate custody applies to later hidden tests and the distinct M4 checkpoint gate.
+
+
+## Implementation-only S0 tooling
+
+Recorded scoped implementation approval from coordinating task, on published
+4702ee0. Added empty local forms and stdlib fixture-only reference/state checker.
+Synthetic in-memory fixtures exercise transitions and adversarial privacy/revision
+failures; no pilot content or human receipt was created. 23 new / 96 total tests
+pass. No network/write/staging path; all authority outputs remain false. Review
+requested before commit. Operational collection/retention and M4 gates remain open.
+
+Technical reviewer independently reran the initial 18 added / 91 total tests and
+accepted the non-collecting candidate. Subsequent local additions passed 23/96.
+Review permits local commit only; next gate remains collection/retention approval.

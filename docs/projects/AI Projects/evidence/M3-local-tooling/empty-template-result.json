@@ -1,0 +1,16 @@
+{
+  "schema_version": "s0-fixture-validation.v1",
+  "fixture_records": 0,
+  "fixture_families": 0,
+  "fixture_frozen": 0,
+  "fixture_unresolved": 0,
+  "human_labels_verified": 0,
+  "collection_authorized": false,
+  "evaluation_authorized": false,
+  "staging_authorized": false,
+  "human_retention_accepted": false,
+  "limitations": [
+    "Fixture structural checks only; no human authenticity or content privacy proof",
+    "No writes, staging, collection, execution, or evaluation"
+  ]
+}
