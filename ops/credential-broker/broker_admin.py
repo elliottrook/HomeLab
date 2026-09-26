@@ -17,6 +17,7 @@ def main() -> None:
     initialize.add_argument("--agent-uid", required=True, type=int)
     subparsers.add_parser("global-disable")
     subparsers.add_parser("global-enable")
+    subparsers.add_parser("enable-forgejo-safe-write")
     subparsers.add_parser("status")
     for command in ("approver-enable", "approver-disable"):
         enrollment = subparsers.add_parser(command)
@@ -46,6 +47,33 @@ def main() -> None:
         elif args.command in {"approver-enable", "approver-disable"}:
             store.set_approver_enabled(args.subject_hash, args.command == "approver-enable")
             print("APPROVER_UPDATED")
+        elif args.command == "enable-forgejo-safe-write":
+            if store.connection.execute(
+                "SELECT 1 FROM agents WHERE agent_id='agent-hermes'"
+            ).fetchone() is None:
+                raise SystemExit("agent-hermes is not registered")
+            with store.connection:
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO services(
+                           service_id,execution_mode,enabled,created_at,credential_type,
+                           custody_identifier,credential_scope,rotation_due,revocation_method,health
+                       ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                    (
+                        "forgejo-mcp-safe-write", "proxy", 1, store._now(), "Forgejo PAT",
+                        "secret/ai-pam/forgejo-mcp-safe-write", "jason/homelab safe-branch create only",
+                        "operator-managed", "disable service and revoke PAT", "candidate",
+                    ),
+                )
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO capabilities(
+                           capability,service_id,risk_class,probation_allowed,enabled
+                       ) VALUES('forgejo.write.safe-branch','forgejo-mcp-safe-write','yellow',0,1)"""
+                )
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO agent_capabilities(agent_id,capability)
+                       VALUES('agent-hermes','forgejo.write.safe-branch')"""
+                )
+            print("FORGEJO_SAFE_WRITE_ENABLED")
         else:
             print(json.dumps({"global_enabled": store.global_enabled(), "audit_events": len(store.audit_rows())}, sort_keys=True))
     finally:

@@ -4,9 +4,9 @@ This directory contains the deny-by-default implementation artifacts for the
 broader AI-PAM project in
 `docs/projects/homelab-credential-broker.md`.
 
-M2–M5 deploy the synthetic broker foundation on LXC 104. M6 adds a
-broker-private Forgejo MCP gateway whose repository-read credential remains in
-OpenBao. The service accepts JSON requests only over a group-restricted Unix socket and
+M2–M5 deploy the synthetic broker foundation on LXC 104. M6 adds separate
+broker-private Forgejo MCP read and safe-write gateways whose credentials remain
+in distinct OpenBao paths. The service accepts JSON requests only over a group-restricted Unix socket and
 derives the caller identity from kernel peer credentials rather than a
 caller-supplied identity field.
 
@@ -27,7 +27,10 @@ Implemented controls:
   audit views, with fresh-passkey agent/service/request/global revocation;
 - metadata-only audit rows containing hashes rather than request payloads;
 - hardened broker and gateway systemd services; and
-- an independent Forgejo MCP response/argument safety adapter.
+- independent Forgejo MCP response/argument safety adapters. The Yellow adapter
+  exposes only new-file creation from `main` onto a new `ai-pam/` branch beneath
+  `ai-pam-pilot/`; update, delete, merge and direct default-branch writes remain
+  unavailable.
 
 The old SSH/sudo wrapper was removed during M2. It allowed arbitrary command
 strings and was not a valid AI-PAM enforcement boundary; its history remains in
@@ -54,6 +57,10 @@ Key files:
 - `forgejo_mcp_gateway.py` — broker-private gateway that retrieves the PAT from
   OpenBao and invokes the pinned MCP process
 - `forgejo-mcp-gateway.service` — separately confined gateway unit
+- `forgejo-mcp-write-gateway.service` — separate Unix identity/socket for the
+  Yellow safe-branch credential and gateway
+- `setup/install-m6-safe-write.sh` — fail-closed safe-write deployment after
+  the distinct AppRole credential has been installed
 - `openbao-m6-listener.hcl` / `openbao-m6-nftables.conf` — private TLS listener
   and broker-only ingress policy
 - `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record

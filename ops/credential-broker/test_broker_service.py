@@ -3,6 +3,7 @@
 import json
 import os
 import socket
+import socketserver
 import tempfile
 import threading
 import unittest
@@ -13,6 +14,13 @@ from broker_core import BrokerStore
 from broker_service import BrokerServer
 
 
+class FakeGatewayHandler(socketserver.StreamRequestHandler):
+    def handle(self):
+        request = json.loads(self.rfile.readline())
+        self.server.requests.append(request)
+        self.wfile.write(json.dumps({"jsonrpc": "2.0", "id": request["id"], "result": {"forwarded": True}}).encode() + b"\n")
+
+
 class BrokerServiceTests(unittest.TestCase):
     def setUp(self):
         self.peer_patch = patch("broker_service.peer_uid", return_value=os.getuid())
@@ -20,18 +28,36 @@ class BrokerServiceTests(unittest.TestCase):
         self.tempdir = tempfile.TemporaryDirectory()
         root = Path(self.tempdir.name)
         self.socket_path = root / "broker.sock"
+        self.read_gateway_path = root / "read-gateway.sock"
+        self.write_gateway_path = root / "write-gateway.sock"
+        self.read_gateway = socketserver.UnixStreamServer(str(self.read_gateway_path), FakeGatewayHandler)
+        self.read_gateway.requests = []
+        self.write_gateway = socketserver.UnixStreamServer(str(self.write_gateway_path), FakeGatewayHandler)
+        self.write_gateway.requests = []
+        self.gateway_threads = [
+            threading.Thread(target=self.read_gateway.serve_forever, daemon=True),
+            threading.Thread(target=self.write_gateway.serve_forever, daemon=True),
+        ]
+        for thread in self.gateway_threads:
+            thread.start()
         self.store = BrokerStore(root / "broker.db")
         self.store.register_agent("agent-test", os.getuid())
         self.store.register_service("synthetic")
         self.store.register_capability("health.read", "synthetic", "green", probation_allowed=True)
         self.store.grant_capability("agent-test", "health.read")
-        self.server = BrokerServer(str(self.socket_path), self.store)
+        self.server = BrokerServer(
+            str(self.socket_path), self.store, str(self.read_gateway_path), str(self.write_gateway_path)
+        )
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
 
     def tearDown(self):
         self.server.shutdown()
         self.server.server_close()
+        self.read_gateway.shutdown()
+        self.read_gateway.server_close()
+        self.write_gateway.shutdown()
+        self.write_gateway.server_close()
         self.store.close()
         self.peer_patch.stop()
         self.tempdir.cleanup()
@@ -54,6 +80,36 @@ class BrokerServiceTests(unittest.TestCase):
         self.assertFalse(changed["ok"])
         consumed = self.call({"method": "request.consume", "request_id": request_id, "payload": payload})
         self.assertEqual("consumed", consumed["result"]["status"])
+
+    def test_yellow_safe_branch_write_uses_separate_gateway_after_approval(self):
+        self.store.set_agent_state("agent-test", "operator")
+        self.store.register_service("forgejo-mcp")
+        self.store.register_capability("forgejo.write.safe-branch", "forgejo-mcp", "yellow")
+        self.store.grant_capability("agent-test", "forgejo.write.safe-branch")
+        payload = {
+            "owner": "jason",
+            "repo": "homelab",
+            "filePath": "ai-pam-pilot/m6.txt",
+            "content": "test\n",
+            "message": "AI-PAM pilot: test",
+            "branch_name": "main",
+            "new_branch_name": "ai-pam/m6-yellow-test",
+        }
+        created = self.call({
+            "method": "request.create", "capability": "forgejo.write.safe-branch", "payload": payload
+        })
+        self.assertEqual("pending", created["result"]["status"])
+        request_id = created["result"]["request_id"]
+        self.store.set_approver_enabled("a" * 64, True)
+        self.store.approve_request(
+            request_id,
+            created["result"]["payload_hash"],
+            actor="a" * 64,
+        )
+        consumed = self.call({"method": "request.consume", "request_id": request_id, "payload": payload})
+        self.assertTrue(consumed["ok"])
+        self.assertEqual("create_file", self.write_gateway.requests[0]["params"]["name"])
+        self.assertEqual([], self.read_gateway.requests)
 
 
 if __name__ == "__main__":
