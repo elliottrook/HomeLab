@@ -227,7 +227,7 @@ production service.
 - [x] Implement schema-validated environment and result capture.
 - [x] Add synthetic pp512, pp4096 and tg128 tests at context positions 0, 4K
   and 8K where supported, with warm-up, five repetitions and pre/post controls.
-- [ ] Add cold-prefill isolation, prompt-cache state and CPU-fallback checks.
+- [x] Add cold-prefill isolation, prompt-cache state and CPU-fallback checks.
 - [x] Add GPU frequency, temperature, power, VRAM/RAM, CPU/affinity and bounded
   sanitized kernel-log capture where supported.
 - [x] Add real Aster conversation, persona, read-only tool, grounded retrieval,
@@ -426,6 +426,7 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-09-26 | Telemetry engineer | Added a read-only LXC collector plus strict parser for `xe` temperatures, process VRAM/GTT residency, guest RAM and CPU affinity. Unknown, duplicate, impossible and credential-like fields are rejected; unsupported frequency, power and CPU-fallback values remain explicit nulls. Ran the collector live through stdin without installing or writing it; it returned the expected strict fields for PID 441 | Fifteen local tests pass and the live read-only format is proven. This is partial M1 telemetry: bounded host kernel-log capture and positive CPU-fallback detection remain before the checkbox can close |
 | 2026-09-26 | Telemetry engineer | Added bounded Proxmox kernel-log collection plus strict sanitization/classification for reset, device loss, hang and OOM. Added affirmative CPU-fallback classification: explicit CPU fallback is failure; full Vulkan layer offload plus material VRAM residency is pass; insufficient evidence remains unknown. A live read-only last-hour collection returned no relevant failure lines | Nineteen local tests pass. The M1 telemetry-capture checkbox closes; orchestration into complete ledger records remains next |
 | 2026-09-26 | Owner authorization | Jason directed the project to continue as Stream A | Bounded autonomous envelope accepted as recorded above. M1 gates still prohibit production load; firmware/boot/reboot, packages, persistent promotion, schedulers, credentials, destructive work and every Git push remain immediate-approval operations |
+| 2026-09-26 | Harness engineer | Added complete experiment-record assembly binding deterministic fixture identity, raw artifact hash, environment hashes, telemetry, kernel findings, health, correctness and affirmative fallback evidence. Measured-only median/MAD is calculated, incomplete samples are rejected and the validated record is written create-once mode 0600 | Twenty-one local tests pass. Cold-prefill/cache/fallback and record-assembly gates close; fresh immutable production control and finalizer rollback proof remain before production load |
 
 ## Close-out
 

@@ -46,6 +46,9 @@
   post-gate reversible M2 Vulkan experiments are autonomous. Git pushes,
   firmware/boot/reboots, packages, persistent promotion, schedulers,
   credentials, destructive work, SYCL/Level Zero and BAR changes remain gated.
+- Added immutable experiment-record assembly binding fixture, raw artifact,
+  environment hashes, telemetry, kernel findings, health, correctness and
+  affirmative fallback evidence. Twenty-one B60 tests pass locally.
 
 ## 2026-09-25 — B60 inference engineering M0 inventory and local harness
 

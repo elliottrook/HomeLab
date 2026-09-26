@@ -51,3 +51,9 @@ oversized, control-character or credential-like content and classifies reset,
 device-loss, hang and OOM evidence. CPU fallback is reported true or false only
 from affirmative backend/offload evidence plus material resident VRAM;
 otherwise it remains unknown.
+
+`record.py` binds the raw runner artifact to its deterministic fixture, exact
+environment hashes, telemetry, bounded kernel excerpt, health and backend
+evidence. It calculates measured-only median/MAD, refuses incomplete sample
+sets, validates the complete ledger schema and writes the resulting record with
+the same create-once mode-0600 evidence semantics.
