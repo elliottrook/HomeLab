@@ -278,3 +278,19 @@ authority services;105 is stopped recovery guest. No verified dedicated test
 context. Official tagged systemd257 manuals used after rendered docs403.
 Proposed conditional100 fixture feasibility design only, no worker/unit/container
 created, accepted data accessed, install, infrastructure change or push.
+
+
+## LXC100 feasibility candidate correction and local supervisor
+
+Review caught invalid nested quoting. Replaced with fixed shlex-generated argv;
+syntax/roundtrip/disposable local path tests pass. Added fixed-fixture-only Mac
+supervisor: combined8KiB stdout/stderr bound, deadline, kill/reap, fallback command
+representation and permanent remote denial.9 focused/140 full tests pass.
+No remote command executed by supervisor, no accepted corpus access, no unit
+started or live gate enabled. Candidate returned for review before commit.
+
+Environment review found clear() only proved self-erasure. Added fixed locale,
+systemd pre-start unset list, initial-key allowlist and early rejection before
+probe imports/operations. Local invented environment tests never print values.
+Added exact cleanup-mode checks and rejection tests; current13/144 pass.
+Regenerated hashes; no remote unit or full payload executed, no commit yet.

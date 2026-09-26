@@ -498,3 +498,14 @@ remains blocked/unverified; hard memory and crash recovery remain unproven.
 No accepted corpus accessed, no live launcher created, gate remains disabled.
 Next: technical review and a concrete permitted execution-context proposal before
 any actual run approval. No deployment, installation or push.
+
+
+### Current checkpoint — fixed LXC100 proposal and local supervisor fixtures
+
+[LXC100 probe plan](experiments/s0-routing-descriptive-v1/LXC100-FEASIBILITY-PLAN.md)
+now has argument-safe canary commands and exact not-found preflight requirement.
+[Supervisor evidence](experiments/s0-routing-descriptive-v1/LXC100-SUPERVISOR-EVIDENCE.md)
+records13 focused/144 full tests. Only invented local child programs can execute;
+remote execution unconditionally denied. Proposed stop fallback is not invoked.
+Candidate awaits technical review before commit/run-approval request; no LXC
+mutation, accepted-corpus access, model evaluation, installation or push.

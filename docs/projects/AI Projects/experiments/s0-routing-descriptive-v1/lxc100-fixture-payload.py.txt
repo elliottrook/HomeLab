@@ -1,0 +1,56 @@
+# Constant invented feasibility payload; NOT EXECUTED.
+import os
+EXPECTED_ENV_KEYS = frozenset({
+    'LANG', 'LC_ALL', 'PATH', 'USER', 'LOGNAME', 'HOME', 'SHELL',
+    'INVOCATION_ID', 'SYSTEMD_EXEC_PID', 'JOURNAL_STREAM',
+    'MEMORY_PRESSURE_WATCH', 'MEMORY_PRESSURE_WRITE',
+})
+initial_env_keys = frozenset(os.environ)
+initial_environment_allowed = initial_env_keys <= EXPECTED_ENV_KEYS
+fixed_locale = os.environ.get('LANG') == 'C' and os.environ.get('LC_ALL') == 'C'
+os.environ.clear()
+import errno, json, socket, time
+checks = {'inherited_environment_allowlisted': initial_environment_allowed,
+          'fixed_locale': fixed_locale, 'environment_cleared': not os.environ}
+if not all(checks.values()):
+    print(json.dumps({'scope':'invented-fixture-only','phase':'environment-rejected',
+                      'checks':checks,'passed':False},sort_keys=True),flush=True)
+    raise SystemExit(1)
+def denied(name, operation, allowed):
+    try:
+        operation()
+    except OSError as exc:
+        checks[name] = exc.errno in allowed
+    else:
+        checks[name] = False
+
+def socket_attempt(family):
+    s = socket.socket(family, socket.SOCK_STREAM)
+    s.close()
+
+def fork_attempt():
+    child = os.fork()
+    if child == 0:
+        os._exit(0)
+    os.waitpid(child, 0)
+
+def canary_read():
+    with open('/var/tmp/aster-s0-feasibility-20260926/canary', 'rb') as stream:
+        stream.read(1)
+
+def runtime_write():
+    fd = os.open('/usr/aster-s0-feasibility-denied', os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    os.close(fd)
+    os.unlink('/usr/aster-s0-feasibility-denied')
+
+denied('inet_socket_denied', lambda: socket_attempt(socket.AF_INET), {errno.EPERM, errno.EACCES, errno.EAFNOSUPPORT})
+denied('unix_socket_denied', lambda: socket_attempt(socket.AF_UNIX), {errno.EPERM, errno.EACCES, errno.EAFNOSUPPORT})
+denied('fork_denied', fork_attempt, {errno.EPERM, errno.EACCES, errno.EAGAIN})
+denied('canary_read_denied', canary_read, {errno.EPERM, errno.EACCES})
+denied('runtime_write_readonly', runtime_write, {errno.EROFS})
+checks['unprivileged'] = os.geteuid() != 0
+print(json.dumps({'scope':'invented-fixture-only','phase':'ready','checks':checks},sort_keys=True),flush=True)
+# Inspection window for parent systemctl/cgroup checks; no load-generating work.
+time.sleep(5)
+print(json.dumps({'scope':'invented-fixture-only','phase':'done','passed':all(checks.values())}),flush=True)
+raise SystemExit(0 if all(checks.values()) else 1)
