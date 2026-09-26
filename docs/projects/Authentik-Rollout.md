@@ -20,6 +20,48 @@
 
 ## Resume audit — 2026-09-23
 
+### Frigate exact-version and integration-boundary preflight — 2026-09-26
+
+Jason's container-local query confirms version `0.17.2-3d4dd3a`, native auth
+and TLS enabled, no proxy configuration. Published ports are TCP 5000, 8554,
+8555, 8971 and UDP 8555, on IPv4/IPv6 wildcard addresses. An SSH established
+connection snapshot found no current 5000/8971 peers; this does not prove
+absence of integration consumers. Repository search found no documented
+5000 consumer. Requested Jason identify Home Assistant/other integrations
+before changing that boundary.
+
+Reviewed the exact v0.17.2 `frigate/api/auth.py`: internal port 5000 returns
+administrator access independently of native auth/proxy secret; on 8971 the
+proxy secret is checked first, and proxy user/role mapping is used only when
+native auth is disabled. Therefore simply adding forward-auth while retaining
+native auth cannot eliminate the second login. Do not disable native auth or
+alter published ports until the replacement trust boundary and required direct
+integration paths are specified and tested. No live Frigate mutation occurred.
+
+Candidate architecture: owner-only Authentik gate on private friendly HTTPS,
+verified proxy identity/role on the authenticated Frigate port, strict protection
+against direct/spoofed requests, and only explicitly identified internal API
+consumers retained. Preserve RTSP/WebRTC and recording storage. Final design
+and deployment command remain pending the integration answer.
+
+### Frigate operator-assisted checkpoint — 2026-09-26
+
+Jason authenticated with `sudo -i` on VM 102. Computer Use explicitly refuses
+Terminal access; no alternative UI or privilege bypass was attempted. Jason ran
+the supplied bounded backup script and reported successful SQLite integrity
+validation at `/root/authentik-frigate-20260926T202355Z`. The script copied
+Compose, optional .env, non-database top-level config files (including JWT
+material), an online SQLite backup of frigate.db, and container inspection,
+under root-only permissions. This is operator-reported checkpoint evidence,
+not a restore rehearsal; recordings were not copied or stopped.
+
+Container `frigate` is healthy, using the mutable `stable` image tag; obtain
+its exact running version, published ports and sanitized authentication flags
+before drafting deployment. Host Python lacks PyYAML. Frigate's official
+current documentation specifies proxy authentication rather than native OIDC;
+verify installed-version support and protect against direct header spoofing.
+No Frigate authentication or network change has been made.
+
 ### Immich mobile acceptance and next prerequisite — 2026-09-26
 
 Jason confirmed the Immich mobile app works after selecting the new HTTPS
