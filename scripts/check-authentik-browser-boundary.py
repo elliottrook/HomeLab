@@ -16,7 +16,7 @@ NPM = "192.168.50.23"
 RESOLVERS = ("192.168.50.1", "192.168.20.20", "192.168.20.40")
 SERVICES = """home monitoring metrics sonarr radarr lidarr prowlarr sabnzbd
 portainer dns1 dns2 proxy git logs homarr code dockge files netbox audiobooks
-books proxmox synology photos""".split()
+books proxmox synology photos frigate""".split()
 NATIVE_ROOTS = {"metrics", "portainer", "git", "audiobooks", "synology", "photos"}
 BACKENDS = {
     "logs": "192.168.20.40:8888", "homarr": "192.168.20.20:7575",
@@ -71,6 +71,17 @@ def http(name, backend=False, spoof=False):
         target.path.startswith("/if/flow/"))
 
 
+def frigate_denied(port, spoof):
+    args = ["curl", "--silent", "--show-error", "--noproxy", "*",
+            "--connect-timeout", "4", "--max-time", "10", "--output",
+            "/dev/null", "--write-out", "%{http_code}"]
+    if spoof:
+        args += ["--header", "X-Homelab-Authentik-User: jason",
+                 "--header", "X-Forwarded-For: " + NPM]
+    result = run(args + [f"http://192.168.20.10:{port}/api/profile"])
+    return result.returncode == 0 and result.stdout == "403"
+
+
 def main():
     if not all(shutil.which(command) for command in ("curl", "dig")):
         print("curl and dig are required", file=sys.stderr)
@@ -79,6 +90,9 @@ def main():
     jobs += [(f"https:{n}", http, (n,)) for n in SERVICES]
     jobs += [(f"direct:{n}:{mode}", http, (n, True, spoof))
              for n in BACKENDS for mode, spoof in (("plain", False), ("spoof", True))]
+    jobs += [(f"frigate:{port}:{mode}", frigate_denied, (port, spoof))
+             for port in (5000, 8972)
+             for mode, spoof in (("plain", False), ("spoof", True))]
 
     def check(job):
         label, function, arguments = job

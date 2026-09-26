@@ -57,13 +57,39 @@ No forward-auth gate was placed in front of the mobile/API endpoints; Immich
 continues enforcing its own API sessions and authorization. The rollout project
 records database/configuration checkpoints and scoped rollback instructions.
 
+## Frigate browser route
+
+Deployed 2026-09-26 at `https://frigate.elliottrook.com`. Authentik permits
+only Jason and NPM overwrites the verified owner header. The host guard on
+8972 requires NPM's actual source and that header before reaching Frigate's
+loopback internal API. Frigate reports its internal anonymous/admin identity;
+no Frigate account was created or changed. Browser access was observed without
+a second password; live/playback acceptance remains pending.
+
+Native recovery remains `https://192.168.20.10:8971` with its existing login.
+LAN port 5000 now serves only `/api/metrics` to monitoring host `.20.31`;
+all other requests are denied. Home Assistant is not integrated or allowed yet.
+The camera streams on 8554/8555 and recording configuration are unchanged.
+
+Persistent guard config: `/opt/frigate/authentik-ingress/nginx.conf`.
+Container: `authentik-frigate-ingress`, pinned image and restart policy specified
+in `scripts/authentik/frigate-browser-ingress.py`. That script is initial
+installation only, not a repeatable restore command. Checkpoint before applying:
+`/root/authentik-frigate-deploy-20260926T204848Z`. For rollback, first stop/remove
+only the guard, restore only Compose from that checkpoint, then recreate
+Frigate with `--pull never`; this returns the earlier broad internal-port
+publication and therefore needs an explicit security-risk decision. Do not
+restore the database for an ingress-only problem. Prefer fixing the guard while
+using native recovery. Full reboot/restore and logout tests remain pending.
+
 ## Access boundary
 
 From an approved management client, run
 `python3 scripts/check-authentik-browser-boundary.py` in the HomeLab repository.
-It checks 24 names against all three DNS authorities, certificate-validated
+It checks 25 names against all three DNS authorities, certificate-validated
 HTTPS routing, and plain/spoofed direct-IP requests to the six private browser
-ingresses. It uses no credentials and prints no response bodies. A pass does
+ingresses, plus plain/spoofed Frigate API denial on ports 5000 and 8972.
+It uses no credentials and prints no response bodies. A pass does
 not establish real login, sign-out, authorized app identity or disaster recovery.
 Run it from a client, not NPM: direct-IP requests from NPM intentionally have
 different failure behaviour. It is an on-demand check, not a scheduled job.

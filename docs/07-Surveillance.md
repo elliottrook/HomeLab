@@ -16,6 +16,18 @@ is published on TCP 8971. The camera provides HTTP management on TCP 80, RTSP
 on TCP 554 and ONVIF on TCP 8000. OPNsense permits only those three ports from
 the Frigate host to the camera.
 
+## Authentik browser access — 2026-09-26
+
+Normal browser route: `https://frigate.elliottrook.com`, owner-only Authentik.
+The original authenticated UI on TCP 8971 remains for recovery. Frigate's
+internal TCP 5000 now binds to loopback; a host nginx guard serves only the
+metrics path to Prometheus `.20.31` at the old LAN 5000 address, and forwards
+browser requests on 8972 only from NPM `.50.23` with its verified owner header.
+RTSP/WebRTC bindings and camera/recording settings are unchanged. Monitoring,
+fresh recording segments and access-denial checks passed after deployment.
+Browser live/playback acceptance and reboot/recovery validation remain open.
+See [single-login operations](runbooks/Authentik-Single-Login.md).
+
 ## Streams and recording
 
 - Main stream: 5120x1552, 20 FPS, HEVC/AAC; recording and audio roles.

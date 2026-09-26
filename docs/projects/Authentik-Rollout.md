@@ -20,6 +20,30 @@
 
 ## Resume audit — 2026-09-23
 
+### Frigate deployed; infrastructure checks passed — 2026-09-26
+
+Jason ran the prepared script successfully. Deployment checkpoint:
+`/root/authentik-frigate-deploy-20260926T204848Z`. Operator output confirms
+healthy Frigate, unchanged image/configuration and preserved stream bindings.
+Independent SSH checks show the service active, internal API on loopback 5000,
+guard on LAN 5000/8972 and native recovery still on 8971.
+
+From NPM, missing/wrong identity headers return 403 and verified `jason` returns
+200 with the expected internal anonymous/admin profile and original camera.
+From the management client, direct LAN 5000 and spoofed 8972 requests return
+403. Prometheus reports target up with no error; an independent metrics request
+from LXC 109 returns 200. Fresh recording segments are present (newest age 2.5
+seconds at inspection), and camera/process FPS are approximately 5. All 108
+previous boundary checks pass.
+
+Brave opened the friendly HTTPS root using the existing Authentik session and
+reached Frigate Live without an application password; the page reports healthy.
+The expanded boundary checker passes all 116 checks, including Frigate DNS,
+HTTPS gating and direct/spoofed API denial. Requested human confirmation of
+live video and older-recording playback.
+Homepage promotion is pending that answer. Dedicated fresh passkey, logout,
+recovery and reboot tests remain open; do not claim these from session reuse.
+
 ### Frigate browser guard staged; operator deployment pending — 2026-09-26
 
 Jason clarified Home Assistant is not integrated yet; only browser access is
