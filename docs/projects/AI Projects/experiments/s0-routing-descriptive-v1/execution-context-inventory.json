@@ -1,0 +1,75 @@
+{
+  "scope": "read-only-existing-context-inventory",
+  "date": "2026-09-26",
+  "host": "Proxmox via established direct SSH",
+  "running_lxc_ids": [
+    100,
+    101,
+    104,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117
+  ],
+  "running_vm_ids": [
+    102,
+    103
+  ],
+  "stopped_vm_ids": [
+    105
+  ],
+  "lxc100": {
+    "python": "3.13.5",
+    "systemd": "257.13-1~deb13u1",
+    "docker": "29.8.1",
+    "cgroup_version": "2",
+    "docker_security_options": [
+      "seccomp builtin",
+      "cgroupns"
+    ],
+    "bwrap_on_path": false,
+    "unshare_on_path": true,
+    "timeout_on_path": true,
+    "systemd_run_on_path": true,
+    "existing_images": [
+      "homarr",
+      "code-server",
+      "portainer",
+      "nginx",
+      "homepage",
+      "pihole",
+      "beszel-agent",
+      "beszel"
+    ],
+    "services_include": [
+      "pihole",
+      "homepage",
+      "homarr",
+      "code-server",
+      "beszel",
+      "portainer"
+    ]
+  },
+  "lxc104": {
+    "python": "3.13.5",
+    "systemd": "257.13-1~deb13u1",
+    "bwrap_on_path": false,
+    "docker_on_path": false,
+    "unshare_on_path": true,
+    "timeout_on_path": true,
+    "systemd_run_on_path": true
+  },
+  "new_process_units_or_containers_created": false,
+  "guest_configuration_changed": false,
+  "accepted_corpus_accessed": false,
+  "isolation_enforcement_tested": false,
+  "run_ready": false
+}

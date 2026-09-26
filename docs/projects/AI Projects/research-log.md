@@ -267,3 +267,14 @@ Mac/Python support parent process control; six disposable fixture probes pass af
 observing/scrubbing an OS-injected environment key. Full suite131 passes. Retained
 blocked nested sandbox result; no weaker substitute. Documented hard isolation,
 external-root, memory containment and recovery gaps. No accepted corpus accessed.
+
+
+## Existing context inventory — read-only, pending review
+
+Inspected established PVE inventory and bounded version/tool/image metadata in
+LXC100/104 via direct read-only SSH. Shared Docker100 has Python3.13.5/systemd257/
+Docker29.8.1/cgroupv2; no standalone minimal Python image observed.104 carries
+authority services;105 is stopped recovery guest. No verified dedicated test
+context. Official tagged systemd257 manuals used after rendered docs403.
+Proposed conditional100 fixture feasibility design only, no worker/unit/container
+created, accepted data accessed, install, infrastructure change or push.
