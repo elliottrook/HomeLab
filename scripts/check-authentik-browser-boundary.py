@@ -16,12 +16,13 @@ NPM = "192.168.50.23"
 RESOLVERS = ("192.168.50.1", "192.168.20.20", "192.168.20.40")
 SERVICES = """home monitoring metrics sonarr radarr lidarr prowlarr sabnzbd
 portainer dns1 dns2 proxy git logs homarr code dockge files netbox audiobooks
-books proxmox synology photos frigate""".split()
+books proxmox synology photos frigate newtarr""".split()
 NATIVE_ROOTS = {"metrics", "portainer", "git", "audiobooks", "synology", "photos"}
 BACKENDS = {
     "logs": "192.168.20.40:8888", "homarr": "192.168.20.20:7575",
     "code": "192.168.20.20:8443", "dockge": "192.168.20.40:31014",
     "files": "192.168.20.40:30051", "netbox": "192.168.20.32:8000",
+    "newtarr": "192.168.20.40:9705",
 }
 
 

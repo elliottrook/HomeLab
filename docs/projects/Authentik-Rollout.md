@@ -20,6 +20,52 @@
 
 ## Resume audit — 2026-09-23
 
+### Newtarr Authentik browser gate deployed — 2026-09-26
+
+Continued within the approved Stream A envelope after the verified persistence
+repair. Newtarr's nine settings documents, immutable image and `/config` host
+mount remain unchanged. Its app port is now only `127.0.0.1:19705`; the host
+guard on `192.168.20.40:9705` redirects non-NPM callers to friendly HTTPS and
+requires verified `jason` from actual NPM source `.50.23`. NPM overwrites that
+header from its Authentik subrequest, preventing client-supplied identity.
+Existing proxy-auth bypass is behind this boundary; no app credential changed.
+
+- Authentik provider **43**, app `newtarr`, embedded outpost attachment,
+  existing passkey-only flow and two strict callbacks. One direct owner binding;
+  policy engine allows Jason and denies akadmin. Verified database checkpoint:
+  `/opt/authentik/backups/newtarr-20260926T213009Z/authentik.dump`.
+- NPM host **31**, `https://newtarr.elliottrook.com`, forwarding to the guard
+  on `.20.40:9705`. Checkpoint:
+  `/opt/nginx-proxy-manager/backups/newtarr-20260926T213018Z/database.sqlite`.
+- Firewall **`2a22f830-a6eb-4378-88ec-e6ce3a302443`**, NPM only to the guard
+  TCP 9705. OPNsense checkpoint `/root/authentik-newtarr-20260926T213136Z`;
+  Unbound record **`107ce7dc-aadc-405d-ab73-74c677003c7e`**. Pi-hole backups:
+  primary `/opt/pihole/backups/newtarr-20260926`, secondary
+  `/root/authentik-newtarr-dns-20260926`.
+- TrueNAS checkpoint `/root/authentik-newtarr-deploy-20260926T213111Z` contains
+  pre-auth Compose, container metadata/config archive and validation. Guard
+  `authentik-newtarr-ingress` runs the same pinned nginx as the earlier cohort,
+  UID 101, read-only root, temporary /tmp, no capabilities, no new privileges
+  and restart unless-stopped. Definition and nginx config are under
+  `/mnt/Media/appdata/authentik-browser-ingress/newtarr/`. The compose.json is
+  a recreation definition; avoid creating a second container over the existing
+  standalone container name.
+
+NPM-source tests: missing/wrong identity 403; verified owner 200. All 122
+expanded boundary checks pass, including three-resolver DNS, valid TLS gate,
+direct IP redirect and spoofed-header redirect. Brave private window reused the
+existing Authentik session and displayed Newtarr v1.0.0 without a second login.
+Asked Jason to confirm UI and Settings access; Homepage promotion awaits that
+acceptance. Fresh passkey/logout/recovery tests remain open. No ARR connection
+was configured and no automation workflow is claimed.
+
+Recovery retains repaired persistent /config. For an ingress fault, repair or
+recreate only the guard using its saved definition; never revert the volume to
+/appdata. Protected config can be reached via a deliberate SSH loopback tunnel
+for recovery. Re-exposing the bare 9705 app without Authentik would weaken the
+boundary and is not a routine rollback. Do not restore shared firewall/NPM/Auth
+state wholesale over unrelated work. No remote Git push performed.
+
 ### Newtarr persistence repair completed — 2026-09-26
 
 The approved repair completed successfully. Stopped only Newtarr, captured a

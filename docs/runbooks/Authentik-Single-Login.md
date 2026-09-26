@@ -83,12 +83,27 @@ publication and therefore needs an explicit security-risk decision. Do not
 restore the database for an ingress-only problem. Prefer fixing the guard while
 using native recovery. Full reboot/restore and logout tests remain pending.
 
+## Newtarr browser route
+
+Deployed 2026-09-26 at `https://newtarr.elliottrook.com`, owner-only Authentik.
+The old IP/9705 address redirects to HTTPS. The guard requires actual NPM
+source plus verified Jason identity; the app itself listens only on host
+loopback 19705. No second app login is required. Browser acceptance is pending.
+
+Persistent application configuration is `/mnt/Media/appdata/newtarr`, mounted
+at `/config`, not `/appdata`. Guard nginx and recreation definition:
+`/mnt/Media/appdata/authentik-browser-ingress/newtarr/`. Its container is
+`authentik-newtarr-ingress`; avoid duplicate creation over that name. For recovery,
+use an authorized SSH tunnel to loopback 19705 or repair the guard. Do not expose
+the bare app while proxy authentication is bypassed. Recovery checkpoints and
+image are recorded in the rollout project. No ARR connections are configured.
+
 ## Access boundary
 
 From an approved management client, run
 `python3 scripts/check-authentik-browser-boundary.py` in the HomeLab repository.
-It checks 25 names against all three DNS authorities, certificate-validated
-HTTPS routing, and plain/spoofed direct-IP requests to the six private browser
+It checks 26 names against all three DNS authorities, certificate-validated
+HTTPS routing, and plain/spoofed direct-IP requests to the seven private browser
 ingresses, plus plain/spoofed Frigate API denial on ports 5000 and 8972.
 It uses no credentials and prints no response bodies. A pass does
 not establish real login, sign-out, authorized app identity or disaster recovery.
