@@ -147,3 +147,23 @@ review. 17 new tests pass; 73 total harness/evidence tests. Empty validation out
 contains zero cases and no authority. Primary calibration references checked;
 no model/cloud execution, real collection, install, deployment or push occurred.
 M4 acceptance/custody and M3 human protocol/readiness decisions remain open.
+
+
+## 2026-09-25 — protocol approval and custody readiness
+
+Recorded the narrowly conveyed human design approval against the original protocol
+commit/hash. Prepared a documentation-only readiness comparison: paper pilot versus
+separate human OS account versus restricted Forgejo storage. Paper minimizes runtime
+complexity but cannot supply machine evaluation without a later import decision.
+No custody location/account, labels, cases, collection workflow or authentication
+evidence was invented. Numeric retention and future acceptance tests are proposals,
+not executed controls. Review clarified incident preservation must receive an explicit
+human custody/deadline decision rather than unconditional destruction within 24 hours.
+M4 approval remains distinct. Publication requested by Jason; remote reconciliation
+must preserve the newer AI-PAM M7 work.
+
+Technical review rejected the initial paper-default recommendation as inconsistent
+with approved durable S0 Git retention and unnecessarily obstructive to evaluation.
+Revised to recommend repository-native, human-reviewed S0 train/dev forms/validator;
+no collection from implementation approval. Private/secret facts remain excluded.
+Separate custody applies to later hidden tests and the distinct M4 checkpoint gate.

@@ -1,6 +1,8 @@
 # M3 human-label and held-out evaluation protocol
 
-Status: draft for human labeling/retention approval. Protocol ID:
+Status: design accepted by Jason on 2026-09-25; collection and implementation
+remain unapproved. See [scoped approval record](approvals/2026-09-25-protocol-design.md).
+Protocol ID:
 `m3-human-labels-draft-v1`. Owner and final adjudicator: Jason.
 No real interaction collection, human label assertion, model call, installation,
 production mutation or remote publication is authorized by this document.
@@ -289,8 +291,9 @@ these states by trusting a JSON `human_verified` boolean. No human record exists
 
 ## Concrete approval gate
 
-First, Jason must accept/reject/revise the design below. Actual collection remains
-blocked on the separate implementation/retention readiness gate just defined:
+Jason accepted the design below on 2026-09-25. This historical design decision
+does not open collection; the separate implementation/retention readiness gate
+remains required:
 1. S0-only 30-family pilot and its effort/ambiguity stop rules.
 2. No real interaction capture or private-data retention.
 3. Human labeling/adjudication method and independent holdout custody before main study.

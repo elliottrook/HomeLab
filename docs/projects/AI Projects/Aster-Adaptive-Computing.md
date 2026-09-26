@@ -356,5 +356,25 @@ statistical definitions. The current validator is a design-only metadata check,
 not an executable human-label collector:17new tests / 73 harness tests pass and the
 empty batch reports zero human labels and no collection/evaluation authority.
 See [label-design evidence and approval gate](evidence/M3-label-design/README.md).
-Human protocol acceptance and a separate implementation/retention readiness gate
-are required before collection. No deployment, models, real data or push.
+This historical checkpoint preceded the scoped protocol approval below. A separate
+implementation/retention readiness gate remains required before collection.
+
+
+### Current checkpoint — approved design and proposed pilot custody
+
+Jason accepted the S0-only protocol design; the [approval record](labeling/approvals/2026-09-25-protocol-design.md)
+pins the exact approved commit and SHA256. This does not authorize collection,
+implementation of intake tooling, model evaluation or deployment. The
+[implementation readiness proposal](labeling/IMPLEMENTATION-READINESS.md) specifies
+records, transition authority, custody alternatives, retention, failure tests and
+rollback. Technical review rejected paper-only as the default: sanitized S0 train/dev
+records may use durable Git retention under the approved protocol. The proposal
+now recommends local forms/validator, with human content review before retention.
+Separate custody remains required for the later hidden test study.
+
+Next gate: approve bounded local forms/validator implementation without collection;
+then separately authorize the 30-family pilot and durable sanitized Git retention. M4 human acceptance and independent checkpoint custody remain
+separate and unresolved. Documentation review checks are recorded in
+[label readiness evidence](evidence/M3-label-readiness.md). Publication remains pending: automatic approval review rejected the coordination
+message asserting fresh push authority. No remote write was attempted. This does
+not change the separate data-collection boundary.
