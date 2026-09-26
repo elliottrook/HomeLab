@@ -146,6 +146,8 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 HStack {
                     Text("Aster").font(.headline)
+                    Button("AI-PAM") { showingAIPAM = true }
+                        .buttonStyle(.bordered)
                     Spacer()
                     if let personas = personasResponse?.personas, !personas.isEmpty {
                         Picker("", selection: Binding(get: { currentPersona }, set: switchPersona)) {
@@ -160,8 +162,6 @@ struct ContentView: View {
                     Button("Sign out") { notifications.disable(); auth.logout() }
                         .buttonStyle(.plain)
                         .foregroundStyle(.secondary)
-                    Button("AI-PAM") { showingAIPAM = true }
-                        .buttonStyle(.bordered)
                 }
                 .padding()
                 .sheet(isPresented: $showingAIPAM) { AIPAMView(auth: auth).environmentObject(auth) }

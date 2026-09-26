@@ -539,6 +539,11 @@ SHA-256 `2bdb6e7a5022efef3661c2aed1b98f75d9adfd7ebc41b1641141b7dc675a203c`.
 The Mac locked before UI/passkey acceptance, so neither native-parity checkbox
 is complete yet.
 
+Initial visual acceptance found the AI-PAM button could fall beyond the visible
+right edge at the operator's narrower window width. The button was moved beside
+the Aster title, 23/23 tests passed again, and the signed bundle was replaced
+without removing the 0.1.0 rollback copy. Approval acceptance remains pending.
+
 ### M9 — graduation
 
 - [ ] global kill-switch test;
