@@ -506,9 +506,9 @@ its bearer credential or any backup target. See
 
 ### M8 — charter/service-onboarding integration
 
-- [ ] Adopt AI Integration Gate in `docs/Project-Creation-Standard.md`.
-- [ ] Update service onboarding docs.
-- [ ] Add AI-PAM service-registry template.
+- [x] Adopt AI Integration Gate in `docs/Project-Creation-Standard.md`.
+- [x] Update service onboarding docs.
+- [x] Add AI-PAM service-registry template.
 - [ ] Update architecture/runbooks/NetBox/Homepage as authoritative.
 - [ ] Add Doctor/drift checks.
 - [ ] Bring the native macOS Aster Companion app to functional parity with
