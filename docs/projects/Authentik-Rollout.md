@@ -20,6 +20,27 @@
 
 ## Resume audit — 2026-09-23
 
+### Pi-hole isolated single-login proof — 2026-09-26
+
+Completed 17 synthetic checks on the primary installed Pi-hole image (including
+the installed Homepage widget) and 16 on the secondary image, using isolated
+containers with no production mounts, published ports or external networking.
+The proposed guard enforces actual peer plus verified owner, same-origin API
+writes, and a separate statistics-only widget route. Both live containers kept
+their original IDs/start times; fixtures were removed. No production auth or
+DNS change occurred. Reproducible script and detailed remaining deployment gates
+are in [Pi-hole single-login preflight](../runbooks/Pi-hole-Single-Login-Preflight.md).
+
+Home Assistant has no configured pi_hole integration or Pi-hole references in
+its three main YAML files. Both persisted session tables are empty, which does
+not prove no clients. Jason is unsure about other API consumers. Homepage is a
+confirmed consumer; its installed build passed the isolated no-key widget test
+through the restricted statistics route with all four expected response fields.
+Next: finish durable backend isolation and primary Compose/secondary managed-app
+candidates, checkpoint/recovery proof and consumer compatibility before cutover.
+Do not interpret synthetic tests as production acceptance or remove live API
+credentials merely because the persisted session tables are empty.
+
 ### Newtarr UI verification and remaining capability assessment — 2026-09-26
 
 Observed the protected Newtarr Settings page in Brave using the existing
