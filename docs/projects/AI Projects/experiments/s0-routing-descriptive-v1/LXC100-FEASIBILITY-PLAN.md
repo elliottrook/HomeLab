@@ -329,3 +329,20 @@ Technical review subsequently passed with 213 local tests and both prior evidenc
 verifiers. The final candidate manifest is bound by the external pending approval
 record. Human approval, exclusive-window confirmation and execution release remain
 unset; this is a review result, not authority to run.
+
+Jason subsequently approved exactly one run003 fixture invocation together with
+the reviewed commit push. The final record is released only after regenerating and
+verifying all pinned hashes. The unchanged exclusions and hard stop remain in
+force; this approval does not permit a retry.
+
+## Run 003 result — namespace isolation infeasible on LXC100
+
+Preflight passed and the owned canary was created. The transient unit then failed
+before readiness with systemd `226/NAMESPACE`. Receipt-guarded manual recovery
+restored the unit, canary, cgroup, runtime path, system state and Docker baseline.
+The full evidence chain is preserved under `run-003/`.
+
+This is an evidence-backed negative result for the reviewed isolation combination
+inside LXC100. No fourth shared-host attempt is allowed. Retire this execution
+context for the S0 fixture; evaluate a VM or materially different isolation design
+without reducing the authority/security boundary.

@@ -39,7 +39,7 @@ def verify_bundle(expected_sha256):
     if len(raw)>32768 or hashlib.sha256(raw).hexdigest()!=expected_sha256:raise ValueError('manifest pin mismatch')
     value=json.loads(raw,object_pairs_hook=unique)
     if set(value)!={'format','status','base_commit','parent_integrated_manifest_sha256','artifacts','command_catalog_sha256','tests_passed','live_invoked'}:raise ValueError('manifest schema')
-    if value['format']!='s0-live-candidate.v1' or value['status']!='attempt-3-unapproved-candidate' or value['base_commit']!='9a94f3a' or value['live_invoked'] is not False:raise ValueError('manifest state')
+    if value['format']!='s0-live-candidate.v1' or value['status']!='attempt-3-released-candidate' or value['base_commit']!='4d561d7' or value['live_invoked'] is not False:raise ValueError('manifest state')
     if set(value['artifacts'])!=ARTIFACTS:raise ValueError('artifact set mismatch')
     for name,expected in value['artifacts'].items():
         path=ROOT/name
@@ -183,8 +183,8 @@ SCOPE={
 }
 PROVENANCE={
     'human':'Jason',
-    'authorization':'fresh explicit approval for run-003 is required',
-    'source':'run-003 candidate preparation; run-002 approval is consumed',
+    'authorization':'fresh explicit approval granted for exactly one run-003',
+    'source':'Jason replied approve to the approve-both request after final run-003 scope was presented',
     'coordinating_task':'01a0d957-799b-7353-acbc-4765e85619f2',
     'cryptographic_identity_proof':False,
 }

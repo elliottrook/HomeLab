@@ -436,3 +436,18 @@ Twenty-one focused and 213 full tests pass. Final manifest is
 `188fc6a6e6ed8dda082e71c46e232145a782ad21c1ad03f795135a933ffc0c29`.
 Technical review passed; human approval and execution release remain pending. No
 SSH, DNS, live journal, package, corpus, infrastructure mutation or new push.
+
+
+### 2026-09-26 — run003 namespace failure and verified recovery
+
+The one approved run003 passed preflight, created the receipt-bound canary and
+failed at payload readiness. Bounded evidence records `run-readiness` / `validation`;
+systemd reports `226/NAMESPACE`, MainPID0 and no cgroup/runtime probe. Manual
+recovery revalidated the exact invocation and canary inode/content, reset only the
+failed transient unit and removed only that canary. Final unit state is not-found,
+probe paths are absent, systemd is running and Docker state matches baseline.
+
+This is a negative feasibility result for the reviewed namespace combination in
+LXC100. No accepted corpus ran. The one-shot approval is consumed and run004 is
+prohibited on this shared host. Next architecture work must examine a VM or a
+different isolation boundary without weakening deterministic controls.

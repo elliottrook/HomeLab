@@ -30,7 +30,7 @@
   "release": {
     "technical_review": "passed",
     "exclusive_operator_window": "confirmed",
-    "one_shot_execution": "consumed-run-003-namespace-failure",
+    "one_shot_execution": "released",
     "human_approval": "approved-for-run-003"
   }
 }

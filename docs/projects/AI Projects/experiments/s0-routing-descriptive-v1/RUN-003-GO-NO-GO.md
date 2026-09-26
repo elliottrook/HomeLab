@@ -66,3 +66,30 @@ The only execution-path change is bounded failure boundary/class telemetry.
 Technical review passes with 213 local tests; human approval, exclusive-window and
 one-shot release fields remain pending. Candidate preparation performs no SSH,
 DNS, journal creation or remote action.
+
+## Fresh one-shot authorization
+
+Jason replied `approve` to the explicit request to approve both the reviewed
+commit push and exactly one run003 fixture probe. This authorizes one invocation
+after final hash/test verification. It does not authorize a retry, accepted-corpus
+evaluation, package installation, unrelated infrastructure change, automatic
+recovery or a later push. The external record carries this provenance and binds
+the final released manifest; the distinct journal still enforces one-shot use.
+
+## Outcome — hard stop reached
+
+Run003 passed preflight, created the exact canary and attempted the transient unit.
+The unit failed before payload readiness with `226/NAMESPACE`; the bounded record
+identifies `run-readiness` / `validation`. No accepted corpus was evaluated.
+
+Read-only recovery checks proved `MainPID=0`, the exact invocation ID, absent
+cgroup/runtime probe and an unchanged canary receipt. Manual recovery reset only
+that failed transient unit and removed only the matching canary. Final state is
+unit `not-found`, all probe paths absent, systemd `running`, and the Docker baseline
+restored. Evidence is in `run-003/`; the approval is consumed.
+
+The configured namespace isolation cannot be treated as feasible inside LXC100.
+The hard stop is active: do not attempt run004 on this shared host and do not weaken
+the controls merely to obtain a pass. Any continuation must choose a different
+execution boundary, such as a VM or another isolation design, and begin with a new
+architecture and evidence review.

@@ -686,3 +686,17 @@ focused and 213 full tests pass; manifest
 is bound to the pending external record. Technical review passed. Human approval,
 exclusive-window confirmation and one-shot release remain pending. No live query,
 journal or infrastructure change occurred during preparation.
+
+
+### Run003 outcome — LXC100 execution context rejected
+
+Run003 passed preflight and reached the transient-unit attempt, which failed before
+payload readiness with systemd `226/NAMESPACE` at the bounded `run-readiness` /
+`validation` boundary. Manual receipt-guarded recovery reset the exact failed unit,
+removed the exact canary and restored systemd and the Docker baseline. No corpus
+was evaluated. The approval is consumed and evidence is preserved in `run-003/`.
+
+The hard stop now applies: no run004 on LXC100 and no weakening of namespace
+controls to force a pass. Stream A must treat this as a negative architecture
+result and evaluate a VM or different isolation boundary before any further live
+fixture execution.

@@ -89,13 +89,13 @@ class AuthorityGateTests(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):live.invoke_once()
             prepared.assert_not_called()
 
-    def test_real_third_attempt_approval_is_pending_and_denies_execution(self):
+    def test_real_third_attempt_is_consumed_and_denies_reuse(self):
         value=json.loads(reader.read_owned_regular(live.APPROVAL,8192))
         self.assertEqual(value['reviewed_manifest_sha256'],hashlib.sha256(reader.read_owned_regular(live.MANIFEST,32768)).hexdigest())
         self.assertEqual(value['scope'],live.SCOPE)
         self.assertEqual(value['provenance'],live.PROVENANCE)
-        self.assertEqual(value['provenance']['authorization'],'fresh explicit approval for run-003 is required')
-        self.assertEqual(value['release'],{'technical_review':'passed','exclusive_operator_window':'pending','one_shot_execution':'pending','human_approval':'pending'})
+        self.assertEqual(value['provenance']['authorization'],'fresh explicit approval granted for exactly one run-003')
+        self.assertEqual(value['release'],{'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'consumed-run-003-namespace-failure','human_approval':'approved-for-run-003'})
         with patch.object(live,'_prepared_one_shot',return_value={'status':'mock-only'}) as prepared,patch.object(live.sys,'argv',['launcher']):
             with self.assertRaises(PermissionError):live.invoke_once()
             prepared.assert_not_called()
