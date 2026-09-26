@@ -1,0 +1,6 @@
+{
+  "schema_version": "label-batch.v1",
+  "protocol": "m3-human-labels-draft-v1",
+  "data_class": "synthetic-design-only",
+  "rows": []
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "label-design-manifest.v1",
+  "status": "design-only-awaiting-human-protocol-and-readiness-gates",
+  "tests": {
+    "label_validator": 17,
+    "harness_suite": 73
+  },
+  "human_labels_collected": 0,
+  "files": {
+    "docs/projects/AI Projects/labeling/M3-Human-Label-Protocol.md": "0b516bd8ede0c65ad26ad640b7b251181565a456956a02f0d2624316f6bb758f",
+    "docs/projects/AI Projects/labeling/batch-template.json": "b3fbd90985918ceb5d38131d25efb0e2a3476b35d45de1ac3b2dbbe7d69d297f",
+    "docs/projects/AI Projects/labeling/CASE-TEMPLATE.md": "3c0ce4ef77a79f2f59ccc38b2082d81955ef4dd4d54bd1d7705d2b170d48f831",
+    "scripts/aster-adaptive/validate_label_batch.py": "2d7ec8286b80dad0b6322f1ed2dc76f4ec372a88e6bfcbd796f752061eba614c",
+    "scripts/aster-adaptive/test_label_batch.py": "32dd6e90a403a21f915537fd63f7be96e3215d819e53cb4570619c39bcc1dc66",
+    "docs/projects/AI Projects/evidence/M3-label-design/empty-template-result.json": "1168a2e360a81f29590999c7b4ee2a64dadcab4a0d1e9f252cf30d81fd4b6ded",
+    "docs/projects/AI Projects/evidence/M3-label-design/README.md": "a974044962aa982382ab7fc049c43bc4caf76d05be15058cb0d9d76c723eb99f"
+  }
+}

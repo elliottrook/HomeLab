@@ -123,3 +123,61 @@ remote M3/M4 work and explicitly namespaced the selector-only contract profile;
 29probe +52harness +76broker +163Aster tests pass. Current manifests and complete
 commit map are in evidence/M2-reconciliation. Primary dirty checkout untouched;
 no push or deployment by this task.
+
+
+## Published integration and next M4 gate
+
+User authorized push7133f3f; the push returned up-to-date after concurrent
+publication, and read-only Forgejo/GitHub checks verified the exact matching head.
+Reused existing localaf2cc4f review candidate rather than repeating experiments.
+Resolved its stale header against deployed Stage1;56+29 tests and a network-blocked
+164-event replay pass, with its original manifest unchanged. Prepared exact review
+packet; no authenticated review or independent checkpoint custody is claimed.
+The remaining gate needs human/external evidence, not another synthetic run.
+
+
+## M3 representative-label design
+
+Inventoried four payload cases, eight tool-loop scenarios, 30 authored routing
+families and 12 selector fixtures; none became human gold. Drafted bounded S0-only
+pilot/held-out protocol and empty forms. Review found missing semantic privacy
+inheritance and ambiguous execution/label provenance; corrected those, specified
+all-test second-human review, fixed statistic definitions and explicit content
+review. 17 new tests pass; 73 total harness/evidence tests. Empty validation output
+contains zero cases and no authority. Primary calibration references checked;
+no model/cloud execution, real collection, install, deployment or push occurred.
+M4 acceptance/custody and M3 human protocol/readiness decisions remain open.
+
+
+## 2026-09-25 — protocol approval and custody readiness
+
+Recorded the narrowly conveyed human design approval against the original protocol
+commit/hash. Prepared a documentation-only readiness comparison: paper pilot versus
+separate human OS account versus restricted Forgejo storage. Paper minimizes runtime
+complexity but cannot supply machine evaluation without a later import decision.
+No custody location/account, labels, cases, collection workflow or authentication
+evidence was invented. Numeric retention and future acceptance tests are proposals,
+not executed controls. Review clarified incident preservation must receive an explicit
+human custody/deadline decision rather than unconditional destruction within 24 hours.
+M4 approval remains distinct. Publication requested by Jason; remote reconciliation
+must preserve the newer AI-PAM M7 work.
+
+Technical review rejected the initial paper-default recommendation as inconsistent
+with approved durable S0 Git retention and unnecessarily obstructive to evaluation.
+Revised to recommend repository-native, human-reviewed S0 train/dev forms/validator;
+no collection from implementation approval. Private/secret facts remain excluded.
+Separate custody applies to later hidden tests and the distinct M4 checkpoint gate.
+
+
+## Implementation-only S0 tooling
+
+Recorded scoped implementation approval from coordinating task, on published
+4702ee0. Added empty local forms and stdlib fixture-only reference/state checker.
+Synthetic in-memory fixtures exercise transitions and adversarial privacy/revision
+failures; no pilot content or human receipt was created. 23 new / 96 total tests
+pass. No network/write/staging path; all authority outputs remain false. Review
+requested before commit. Operational collection/retention and M4 gates remain open.
+
+Technical reviewer independently reran the initial 18 added / 91 total tests and
+accepted the non-collecting candidate. Subsequent local additions passed 23/96.
+Review permits local commit only; next gate remains collection/retention approval.
