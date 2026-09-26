@@ -114,6 +114,13 @@ class GatewayHandler(socketserver.StreamRequestHandler):
             response = self.server.adapter.handle(request, self.server.backend.call)  # type: ignore[attr-defined]
         except (PolicyDenied, ValueError, KeyError, json.JSONDecodeError) as error:
             response = {"jsonrpc": "2.0", "id": None, "error": {"code": -32000, "message": str(error)}}
+        except Exception:
+            # Dependency/network/process failures are expected outage modes.
+            # Never expose exception text, URLs, paths or credential-adjacent
+            # details across the broker boundary.
+            response = {"jsonrpc": "2.0", "id": None, "error": {
+                "code": -32001, "message": "Forgejo dependency unavailable",
+            }}
         self.wfile.write(json.dumps(response, separators=(",", ":")).encode() + b"\n")
 
 

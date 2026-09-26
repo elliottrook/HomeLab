@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-09-26 — AI-PAM M9 graduation completed locally
+
+- Proved broker, Authentik and broker-to-OpenBao dependency outages fail closed
+  while direct human administration remains independent; all dependencies
+  recovered, and a full Aster LXC 104 reboot restored six units and five sockets.
+- Fixed two findings from live graduation: the approval bridge no longer stops
+  with the execution broker, and Forgejo gateway dependency failures return a
+  stable sanitized denial rather than internal parser text. The 82-test broker
+  suite passes.
+- Expanded Doctor coverage to Authentik discovery, rotation dates, audit
+  freshness, current Aster/OpenBao guest backups, isolated-restore age and
+  aggregate terminal outcomes. Seven focused tests and the live probe pass.
+- Reconciled live NetBox and Homepage: the existing Aster/OpenBao guest records
+  are authoritative, the Companion tile is the correct approval entry point,
+  and no direct private vault or broker tile is exposed.
+
 ## 2026-09-26 — AI-PAM M8 integration and native parity complete
 
 - Graduated Aster Companion 0.2.2 with native approval/denial, lifecycle,

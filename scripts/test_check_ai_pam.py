@@ -13,13 +13,17 @@ spec.loader.exec_module(module)
 def healthy():
     return {
         "integrity": "ok", "global_enabled": "1",
-        "services": [[name, 1] for name in sorted(module.EXPECTED_SERVICES)],
+        "now": module.RESTORE_TESTED_AT + 60,
+        "services": [[name, 1, "not-applicable"] for name in sorted(module.EXPECTED_SERVICES)],
         "capabilities": [[name, service, risk, 1] for name, (service, risk) in sorted(module.EXPECTED_CAPABILITIES.items())],
         "agents": [["agent-hermes", "operator"], ["agent-replacement-m5", "retired"]],
         "active_requests": 0, "expired_active": 0,
+        "audit": [module.RESTORE_TESTED_AT, 1], "outcomes": [["consumed", 1]],
         "services_active": {"unit": True},
         "sockets": {"socket": {"socket": True, "mode": 0o660, "uid": 1, "gid": 2}},
         "openbao": {"reachable": True, "sealed": False, "initialized": True},
+        "authentik": {"reachable": True, "issuer": "https://auth.elliottrook.com/application/o/aster-companion/"},
+        "backups": {"104": module.RESTORE_TESTED_AT, "117": module.RESTORE_TESTED_AT},
     }
 
 
@@ -42,6 +46,16 @@ class CheckAIPAMTests(unittest.TestCase):
     def test_expired_active_request_fails(self):
         data = healthy(); data["expired_active"] = 1
         self.assertIn("expired active requests", module.classify(data)[1])
+
+    def test_stale_backup_and_authentik_outage_fail(self):
+        data = healthy(); data["backups"]["117"] = 0; data["authentik"]["reachable"] = False
+        result = module.classify(data)[1]
+        self.assertIn("AI-PAM guest backup stale", result)
+        self.assertIn("Authentik discovery unavailable", result)
+
+    def test_overdue_rotation_fails(self):
+        data = healthy(); data["services"][0][2] = "2020-01-01"
+        self.assertIn("overdue credential rotation", module.classify(data)[1])
 
 
 if __name__ == "__main__":

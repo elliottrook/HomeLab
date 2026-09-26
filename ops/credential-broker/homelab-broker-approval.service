@@ -1,6 +1,5 @@
 [Unit]
 Description=HomeLab AI-PAM Authentik approval bridge
-Requires=homelab-broker.service
 After=homelab-broker.service
 
 [Service]
