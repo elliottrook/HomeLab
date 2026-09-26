@@ -82,4 +82,13 @@ final class AuthManagerTests: XCTestCase {
         XCTAssertEqual(calls, 0)
         XCTAssertTrue(auth.isAuthenticated)
     }
+
+    func testFreshAuthorizationRequiresMaxAgeZeroWithoutPromptLogin() {
+        let fresh = AuthManager.authorizationURL(verifier: "verifier", state: "state", fresh: true)
+        let normal = AuthManager.authorizationURL(verifier: "verifier", state: "state", fresh: false)
+        let freshItems = URLComponents(url: fresh, resolvingAgainstBaseURL: false)!.queryItems!
+        XCTAssertEqual(freshItems.first(where: { $0.name == "max_age" })?.value, "0")
+        XCTAssertNil(freshItems.first(where: { $0.name == "prompt" }))
+        XCTAssertNil(URLComponents(url: normal, resolvingAgainstBaseURL: false)!.queryItems!.first(where: { $0.name == "max_age" }))
+    }
 }

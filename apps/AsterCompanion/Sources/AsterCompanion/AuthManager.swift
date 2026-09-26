@@ -54,7 +54,7 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         NSApplication.shared.windows.first ?? ASPresentationAnchor()
     }
 
-    func login() {
+    func login(fresh: Bool = false, completion: (@MainActor (Bool) -> Void)? = nil) {
         guard !isSigningIn else { return }
         generation += 1
         let attempt = generation
@@ -64,6 +64,41 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         lastError = nil
         let verifier = PKCE.randomURLSafeString(length: 64)
         let state = PKCE.randomURLSafeString(length: 24)
+        let authorizationURL = Self.authorizationURL(verifier: verifier, state: state, fresh: fresh)
+        let session = ASWebAuthenticationSession(url: authorizationURL, callbackURLScheme: "aster-companion") { [weak self] url, error in
+            Task { @MainActor in
+                guard let self, self.generation == attempt else { return }
+                self.session = nil
+                guard error == nil else {
+                    self.isSigningIn = false
+                    self.lastError = "Sign-in was cancelled or could not finish. Try again."
+                    completion?(false)
+                    return
+                }
+                guard let url, url.scheme == "aster-companion", url.host == "callback",
+                      let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
+                      items.first(where: { $0.name == "state" })?.value == state,
+                      let code = items.first(where: { $0.name == "code" })?.value else {
+                    self.isSigningIn = false
+                    self.lastError = "Sign-in returned an invalid callback. Please try again."
+                    completion?(false)
+                    return
+                }
+                completion?(await self.exchangeCode(code, verifier: verifier, attempt: attempt))
+            }
+        }
+        session.presentationContextProvider = self
+        session.prefersEphemeralWebBrowserSession = false
+        self.session = session
+        if !session.start() {
+            self.session = nil
+            isSigningIn = false
+            lastError = "The system sign-in window could not start. Try again with Aster in the foreground."
+            completion?(false)
+        }
+    }
+
+    static func authorizationURL(verifier: String, state: String, fresh: Bool) -> URL {
         var components = URLComponents(url: AsterConfig.authorizationEndpoint, resolvingAgainstBaseURL: false)!
         components.queryItems = [
             URLQueryItem(name: "client_id", value: AsterConfig.clientID),
@@ -74,34 +109,8 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
             URLQueryItem(name: "code_challenge_method", value: "S256"),
             URLQueryItem(name: "state", value: state),
         ]
-        let session = ASWebAuthenticationSession(url: components.url!, callbackURLScheme: "aster-companion") { [weak self] url, error in
-            Task { @MainActor in
-                guard let self, self.generation == attempt else { return }
-                self.session = nil
-                guard error == nil else {
-                    self.isSigningIn = false
-                    self.lastError = "Sign-in was cancelled or could not finish. Try again."
-                    return
-                }
-                guard let url, url.scheme == "aster-companion", url.host == "callback",
-                      let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems,
-                      items.first(where: { $0.name == "state" })?.value == state,
-                      let code = items.first(where: { $0.name == "code" })?.value else {
-                    self.isSigningIn = false
-                    self.lastError = "Sign-in returned an invalid callback. Please try again."
-                    return
-                }
-                await self.exchangeCode(code, verifier: verifier, attempt: attempt)
-            }
-        }
-        session.presentationContextProvider = self
-        session.prefersEphemeralWebBrowserSession = false
-        self.session = session
-        if !session.start() {
-            self.session = nil
-            isSigningIn = false
-            lastError = "The system sign-in window could not start. Try again with Aster in the foreground."
-        }
+        if fresh { components.queryItems?.append(URLQueryItem(name: "max_age", value: "0")) }
+        return components.url!
     }
 
     private func tokenRequest(_ parameters: [String: String]) -> URLRequest {
@@ -113,21 +122,23 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         return result
     }
 
-    private func exchangeCode(_ code: String, verifier: String, attempt: Int) async {
+    private func exchangeCode(_ code: String, verifier: String, attempt: Int) async -> Bool {
         defer { if generation == attempt { isSigningIn = false } }
         do {
             let (data, response) = try await request(tokenRequest([
                 "grant_type": "authorization_code", "code": code, "redirect_uri": AsterConfig.redirectURI,
                 "client_id": AsterConfig.clientID, "code_verifier": verifier,
             ]))
-            guard generation == attempt else { return }
+            guard generation == attempt else { return false }
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 lastError = "Sign-in could not be completed by the identity service. Please try again."
-                return
+                return false
             }
             try accept(JSONDecoder().decode(TokenResponse.self, from: data), previousRefresh: nil)
+            return true
         } catch {
             if generation == attempt { lastError = "Sign-in could not finish. Check the connection and try again." }
+            return false
         }
     }
 

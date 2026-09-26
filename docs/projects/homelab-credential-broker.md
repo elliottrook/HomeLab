@@ -524,6 +524,13 @@ its bearer credential or any backup target. See
   the deployed broker, including an approved request, a denial, one lifecycle
   change and global disable/re-enable.
 
+Native candidate status: the Mac source now implements the full approval and
+management surface through the existing OIDC API, including `max_age=0` fresh
+passkey continuation for Red and every management action. Typed models omit
+credential values/raw payloads and Swift tests cover response shapes, action
+encoding and fresh-auth URL construction. Source compiles with 23/23 tests;
+bundle replacement and the real-Mac acceptance matrix remain gated.
+
 ### M9 — graduation
 
 - [ ] global kill-switch test;

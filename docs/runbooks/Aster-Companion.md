@@ -27,6 +27,30 @@ context; Home Assistant is limited to its sanitized HA report. Tool checkboxes
 only remove tools from that conversation; they cannot expand a persona's scope.
 A model's general knowledge or speculation is not live lab evidence.
 
+### Native AI-PAM
+
+The native Mac app's **AI-PAM** button opens the same authenticated approval and
+management surface as the web Companion. The approval tab shows only the
+broker-provided reason, target, effect, rollback, expiry and payload hash. Yellow
+may be approved directly from a valid Companion session; Red explicitly starts
+a fresh passkey flow (`max_age=0`) before submitting the payload-bound approval.
+Deny never executes the request.
+
+Management shows the global switch, AI clients and their capabilities, services
+and credential-custody identifiers, active requests, history and metadata-only
+audit. Agent state, service enablement, request revocation and global controls
+always start a fresh passkey flow. The app has no broker socket, service token,
+OpenBao credential or raw secret model; it calls only the existing authenticated
+Companion API. If the API is unavailable or returns an unexpected shape, the
+native surface reports the error and performs no fallback action.
+
+For acceptance after an update: refresh the inbox, approve one disposable
+request, deny another, apply and restore one reversible lifecycle change, and
+disable/re-enable global access. Verify the web view shows the same final state,
+no pending request remains, and ordinary chat/voice still work. Quit the app
+before bundle replacement and retain the previous complete bundle until this
+matrix passes.
+
 Tap the small orb to record, then tap again to finish. The web client limits
 recordings to 60 seconds. It reports transcription and response progress.
 Only voice-initiated replies are spoken. If the browser blocks automatic audio,
