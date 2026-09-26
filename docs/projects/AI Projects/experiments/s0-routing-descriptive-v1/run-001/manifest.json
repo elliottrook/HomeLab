@@ -1,0 +1,32 @@
+{
+  "format": "s0-run-evidence.v1",
+  "attempt": "run-001",
+  "source_commit": "6715a05",
+  "source_journal": "/private/tmp/aster-s0-lxc100-one-shot-20260926",
+  "journal_files_sha256": {
+    "000.json": "2e45f4081c170b4202022914d5d045df81ee4401dc7693332af74f76070412c4",
+    "001.json": "3f04c7f23785fd1e87c030e7a5dd581e4bd3fa95a92209e2cedddb80d28a3611",
+    "002.json": "e33009b28ba8df7dbbbd1b83b71e4f37e7b7182acb15a0b1aa081e573e7a2bcd",
+    "003.json": "7b16a710b365c546e2efcd011573fd92f173101f411f1027608ca1505b195d8a",
+    "004.json": "17760afd789db6d76f115256c754a7373cf6ce39342004f9d237e2c40c830021"
+  },
+  "chain_verified": true,
+  "outcome": "failed-closed-read-only-health-preflight",
+  "mutation_attempted": false,
+  "ownership_receipt_present": false,
+  "corpus_accessed": false,
+  "automatic_retry_allowed": false,
+  "live_diagnosis_source": "coordinating task message; not independently queried by preparation task",
+  "diagnosis": {
+    "additional_container": "code-server-pre-authentik",
+    "guest_state": "running",
+    "guest_cgroup_memory_max": "max",
+    "lxcfs_mem_total_kib": 4194304,
+    "lxcfs_mem_available_kib_approx": 3504251,
+    "pct_maxmem": 4294967296,
+    "pct_mem_approx": 739872768,
+    "pct_maxswap": 536870912,
+    "pct_swap": 0,
+    "pct_status": "running"
+  }
+}

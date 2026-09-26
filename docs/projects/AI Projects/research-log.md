@@ -348,3 +348,12 @@ Pending-gate checkpoint `eb1deef` preserves the preceding state. Release record
 bound to regenerated final manifest; 200 full tests pass with real-record execution
 mocked. No invocation by this preparation task. Final commit/hashes handed to the
 coordinating task for its final verification and one authorized attempt.
+
+
+### 2026-09-26 — run 001 safe read-only preflight failure
+
+Copied/hash-verified the untouched five-record journal. No mutation intent or
+ownership receipt. Coordinating task diagnosis reports an added container and
+unbounded guest-root memory.max despite host-side 4 GiB LXC maxmem. Collector
+assumptions need revision; this is not evidence of isolation failure. New attempt
+requires separate journal, approval and fresh absent-state preflight.

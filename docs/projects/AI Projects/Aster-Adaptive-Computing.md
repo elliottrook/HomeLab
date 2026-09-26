@@ -585,3 +585,14 @@ cycle. All 200 tests pass; the real released record was exercised only with
 or the one-shot launcher and has not pushed. Next: the coordinating task verifies
 the final committed hashes/preflight and performs the authorized single attempt.
 Existing scope, no automatic retries and manual-recovery rules remain unchanged.
+
+
+### Current checkpoint — run 001 read-only abort; no retry authorized
+
+The coordinating task invoked the released one-shot once. [Run 001 evidence](experiments/s0-routing-descriptive-v1/run-001/RESULT.md)
+preserves the verified five-record journal: unit/paths passed; health child failed;
+mutation_attempted=false. The original journal remains untouched. Coordinator
+read-only diagnosis identifies a changed container inventory and guest-root
+memory.max=`max`, invalidating collector assumptions. No confinement result exists.
+Next: prepare/test a bounded second-attempt candidate using dynamic inventory and
+host-side LXC resource accounting, then request new approval. No automatic retry.
