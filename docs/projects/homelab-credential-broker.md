@@ -544,6 +544,18 @@ right edge at the operator's narrower window width. The button was moved beside
 the Aster title, 23/23 tests passed again, and the signed bundle was replaced
 without removing the 0.1.0 rollback copy. Approval acceptance remains pending.
 
+Native approval and denial then passed, but the first management acceptance
+correctly failed closed with HTTP 409: Authentik had immediately reused its
+browser session and the new token retained stale `auth_time`. Version 0.2.1
+(build 3) isolates every fresh privileged web-authentication session while
+retaining the shared browser session for ordinary sign-in. This forces the
+intended passkey ceremony before the action is submitted.
+The regression test brings the native suite to 24/24 passing, and the signed
+0.2.1 bundle builds successfully. The replacement candidate was installed with
+release binary SHA-256
+`d91cb232299c645f06c7d477f0a7f77ddd7c552bfb9fc35876ba5f2d5315351b`;
+the separate 0.1.0 rollback bundle remains untouched.
+
 ### M9 — graduation
 
 - [ ] global kill-switch test;

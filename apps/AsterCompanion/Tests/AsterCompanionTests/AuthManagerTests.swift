@@ -91,4 +91,9 @@ final class AuthManagerTests: XCTestCase {
         XCTAssertNil(freshItems.first(where: { $0.name == "prompt" }))
         XCTAssertNil(URLComponents(url: normal, resolvingAgainstBaseURL: false)!.queryItems!.first(where: { $0.name == "max_age" }))
     }
+
+    func testOnlyFreshAuthorizationUsesEphemeralBrowserSession() {
+        XCTAssertTrue(AuthManager.prefersEphemeralSession(fresh: true))
+        XCTAssertFalse(AuthManager.prefersEphemeralSession(fresh: false))
+    }
 }

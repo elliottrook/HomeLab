@@ -88,7 +88,11 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
             }
         }
         session.presentationContextProvider = self
-        session.prefersEphemeralWebBrowserSession = false
+        // A privileged AI-PAM action must not inherit Authentik's existing
+        // browser cookie. Authentik can otherwise return immediately with a
+        // token carrying the old auth_time, which the broker correctly rejects
+        // as stale. Normal sign-in keeps the shared session for convenience.
+        session.prefersEphemeralWebBrowserSession = Self.prefersEphemeralSession(fresh: fresh)
         self.session = session
         if !session.start() {
             self.session = nil
@@ -112,6 +116,8 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         if fresh { components.queryItems?.append(URLQueryItem(name: "max_age", value: "0")) }
         return components.url!
     }
+
+    static func prefersEphemeralSession(fresh: Bool) -> Bool { fresh }
 
     private func tokenRequest(_ parameters: [String: String]) -> URLRequest {
         var result = URLRequest(url: AsterConfig.tokenEndpoint)

@@ -51,7 +51,10 @@ no pending request remains, and ordinary chat/voice still work. Quit the app
 before bundle replacement and retain the previous complete bundle until this
 matrix passes.
 
-The first AI-PAM parity candidate is native version 0.2.0 (build 2). Its
+The current AI-PAM parity candidate is native version 0.2.1 (build 3). Fresh
+privileged actions use an ephemeral web-authentication session in addition to
+`max_age=0`, preventing a cached Authentik browser session from returning an
+old `auth_time` that the broker must reject. Its
 temporary acceptance rollback is
 `/Applications/AsterCompanion.pre-ai-pam-20260925.app`; do not remove that copy
 until the matrix above and ordinary chat/voice regression have passed.
