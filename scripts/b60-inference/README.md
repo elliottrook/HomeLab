@@ -57,3 +57,12 @@ environment hashes, telemetry, bounded kernel excerpt, health and backend
 evidence. It calculates measured-only median/MAD, refuses incomplete sample
 sets, validates the complete ledger schema and writes the resulting record with
 the same create-once mode-0600 evidence semantics.
+
+`guard.py` accepts only a five-minute-fresh preflight collected from 00:20–00:29
+America/Vancouver. It requires fresh successful local backup and TrueNAS mirror,
+accepted hashes, healthy xe/Vulkan service and fixed disk/RAM/VRAM headroom. No
+experiment may start before 00:30 or continue past 01:40; 20 minutes are reserved
+for finalization before the absolute 02:00 restoration deadline. The finalizer
+stops only the named candidate unit, restarts the accepted service, and validates
+its binary/unit hashes, xe binding, B60 Vulkan enumeration and health. It is
+dry-run-only unless both production interlocks are explicitly supplied.

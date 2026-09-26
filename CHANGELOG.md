@@ -49,6 +49,10 @@
 - Added immutable experiment-record assembly binding fixture, raw artifact,
   environment hashes, telemetry, kernel findings, health, correctness and
   affirmative fallback evidence. Twenty-one B60 tests pass locally.
+- Added a fail-closed preflight/finalizer with five-minute evidence freshness,
+  accepted hashes and headroom gates, a 00:30 start, 01:40 experiment cutoff and
+  02:00 restoration deadline. Twenty-five tests pass; live freshness and
+  authenticated restoration validation remain intentionally pending.
 
 ## 2026-09-25 — B60 inference engineering M0 inventory and local harness
 

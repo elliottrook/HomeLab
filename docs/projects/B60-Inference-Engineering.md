@@ -237,6 +237,27 @@ production service.
 Gate: a repeatable baseline, known variance, verified GPU residency and a tested
 rollback invocation.
 
+### M1 preflight and finalizer timing
+
+The guarded invocation is `python3 scripts/b60-inference/guard.py preflight
+PREFLIGHT.json --estimated-minutes N`. Its evidence must be collected from
+00:20 through 00:29 America/Vancouver and be no more than five minutes old. It
+fails closed unless the latest LXC 110 backup and TrueNAS mirror are no more
+than 26 hours old, the mirror job state is `SUCCESS`, accepted binary/unit
+hashes match, service health is `ok`, the B60 is on `xe`, Vulkan reports BMG
+G21, and disk/RAM/VRAM headroom is at least 20 GiB/4 GiB/2 GiB.
+
+No experiment starts before 00:30. The experiment hard-stops at 01:40, reserving
+20 minutes for `python3 scripts/b60-inference/guard.py finalize --execute
+--allow-production`. The absolute restoration deadline is 02:00. The finalizer
+stops only `aster-b60-candidate.service`, restarts the accepted
+`aster-llama.service`, then requires active state, accepted binary/unit hashes,
+host `xe` binding, BMG G21 Vulkan enumeration and healthy endpoint. Candidate
+absence is acceptable; failure of any restoration or validation step is not.
+Authenticated synthetic generation remains an additional required validation
+before a live control can close because credential access is outside the
+autonomous envelope.
+
 ### M2 — Non-disruptive Vulkan optimization
 
 - [ ] Compare the accepted runtime with selected upstream llama.cpp revisions.
@@ -427,6 +448,7 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-09-26 | Telemetry engineer | Added bounded Proxmox kernel-log collection plus strict sanitization/classification for reset, device loss, hang and OOM. Added affirmative CPU-fallback classification: explicit CPU fallback is failure; full Vulkan layer offload plus material VRAM residency is pass; insufficient evidence remains unknown. A live read-only last-hour collection returned no relevant failure lines | Nineteen local tests pass. The M1 telemetry-capture checkbox closes; orchestration into complete ledger records remains next |
 | 2026-09-26 | Owner authorization | Jason directed the project to continue as Stream A | Bounded autonomous envelope accepted as recorded above. M1 gates still prohibit production load; firmware/boot/reboot, packages, persistent promotion, schedulers, credentials, destructive work and every Git push remain immediate-approval operations |
 | 2026-09-26 | Harness engineer | Added complete experiment-record assembly binding deterministic fixture identity, raw artifact hash, environment hashes, telemetry, kernel findings, health, correctness and affirmative fallback evidence. Measured-only median/MAD is calculated, incomplete samples are rejected and the validated record is written create-once mode 0600 | Twenty-one local tests pass. Cold-prefill/cache/fallback and record-assembly gates close; fresh immutable production control and finalizer rollback proof remain before production load |
+| 2026-09-26 | Reliability engineer | Added fail-closed preflight and finalizer orchestration with accepted hashes, exact candidate/accepted units, headroom/freshness gates and 00:20/00:30/01:40/02:00 timing. Fake execution verifies exact rollback order and failure handling; dry-run emits the command plan without mutation | Twenty-five local tests pass. Current time was 13:29 PDT, so immediately-before-window backup/mirror verification was correctly deferred; live finalizer execution and authenticated generation remain unproven and no production benchmark ran |
 
 ## Close-out
 
