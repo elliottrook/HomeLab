@@ -110,7 +110,7 @@ Pick a time window that does not overlap other heavy scheduled TrueNAS work (bac
 ## Archive compaction (added 2026-09-24)
 
 `python3 -m video_archiver.compact` re-encodes **files already in the archive roots** that are
-larger than `compact.size_threshold_bytes` (2.5 GB). Unlike the archiver it does not talk to
+larger than `compact.size_threshold_bytes` (2.0 GB). Unlike the archiver it does not talk to
 Radarr/Sonarr and never changes a path. See
 `docs/projects/Archive-Large-File-Compaction.md` for the design.
 
@@ -134,7 +134,9 @@ Radarr/Sonarr and never changes a path. See
   first replacement of each run and expired after `snapshot_retention_days`.
 - **Scheduling:** it shares `lock_file` with the archiver and waits up to 90 min for it,
   then processes the largest files first until `compact.deadline`. State is kept in
-  `work/compact-state.json` (skipped or failed files aren't retried unless `--retry`).
+  `work/compact-state.json` (unchanged skipped/failed files and completed outputs aren't
+  retried unless `--retry`). The daily schedule remains installed after the initial backlog
+  is complete, so newly added oversized archive files are picked up automatically.
 
 ```bash
 # dry run (default): plan every candidate, change nothing

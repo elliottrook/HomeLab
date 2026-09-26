@@ -1,5 +1,5 @@
 #!/bin/bash
-# Nightly archive compaction (re-encode archive files > 2.5 GB in place; see
+# Permanent nightly archive-only compaction (re-encode archive files > 2.0 GB in place; see
 # docs/projects/Archive-Large-File-Compaction.md). Shares the archiver's lock and
 # waits for it; stops starting new files at the configured deadline.
 set -euo pipefail
