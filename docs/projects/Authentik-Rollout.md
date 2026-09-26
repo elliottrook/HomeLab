@@ -2,7 +2,7 @@
 
 > Status: Close-out verification — implementation complete within the accepted
 > scope; NPM, TrueNAS, UniFi and Home Assistant are explicit follow-ups approved
-> by Jason on 2026-09-26. Jellyfin/Seerr remain deferred by prior direction.
+> by Jason on 2026-09-26. Seerr remains deferred. Jellyfin optional browser SSO accepted on 2026-09-26.
 > Stream: **A — Autonomous**. Owner: Jason.
 > Proposed: 2026-08-22 · Redesigned: 2026-09-10 · Close-out: 2026-09-26.
 > Standard: [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
@@ -21,13 +21,14 @@ a claim that every original target now has single login.
 | Earlier services | Homepage, Beszel, Grafana, Forgejo, ARR and Portainer remain deployed; Authentik providers use the passkey flow. Existing app recovery/API routes remain service-specific. |
 | Browser tools | Dozzle, Homarr, code-server, Dockge, File Browser and NetBox accepted; private ingress prevents direct/spoofed browser bypass. |
 | Media and cameras | Audiobookshelf and Calibre native SSO accepted; Immich browser/mobile accepted; Frigate live view/recordings accepted with metrics and streams preserved. |
+| Jellyfin | Both existing administrator account choices accepted through owner-only optional SSO; JellyTV playback observed and native client credentials preserved. |
 | Newtarr | Persistence repaired, protected HTTPS promoted, Sonarr/Radarr/Lidarr connected; both missing and quality-upgrade searches enabled at the recorded limits. |
 | Pi-hole pair | Passkey-only browser entry accepted, application/account logout checked, DNS and the statistics-only Homepage widget verified. Recovery is host-private. |
 | Infrastructure | Proxmox OIDC and Synology SSO accepted; independent local administrator recovery retained. |
 
 Final automated evidence:
 
-- `scripts/check-authentik-browser-boundary.py`: **126/126 passed**, covering
+- `scripts/check-authentik-browser-boundary.py`: **134/134 passed**, covering
   three DNS authorities, certificate-valid routes and plain/spoofed direct
   access denial. This does not simulate biometric login or every client.
 - All **33** Authentik applications evaluated with an uncached policy engine:
@@ -64,17 +65,48 @@ Final automated evidence:
   Authored operations are consumed from the authoritative reference snapshot;
   generated upstream claims are not hand-edited.
 
-### Jellyfin reassessment requested during close-out
+### Jellyfin browser SSO accepted — 2026-09-26
 
-Live public system information on 2026-09-26 now reports **12.1.0**. The
-[Community SSO stable manifest](https://raw.githubusercontent.com/Flowfin/jellyfin-plugin-sso/manifest-release/manifest.json)
-lists plugin 5.0.0.0 targeting Jellyfin ABI 12.0.0.0. Its
-[documentation](https://github.com/Flowfin/jellyfin-plugin-sso) supports Authentik
-OIDC; [client guidance](https://github.com/Flowfin/jellyfin-plugin-sso/wiki/Client-Compatibility)
-uses browser redirects or Quick Connect. This is a viable plugin candidate,
-not verified native built-in SSO or proof of compatibility with every client.
-Jason asked whether the new version can work; deployment versus a separate
-follow-up is awaiting his scope decision. No Jellyfin settings changed.
+Jason explicitly requested deployment on installed **12.1.0**, preserving
+native clients, then selected **both** existing `jason` and `elliottrook`
+accounts through his usual Authentik identity. The bounded design uses two
+separately named OIDC providers and explicit existing-UUID links, with labelled
+Jellyfin login buttons. No password disabling, user creation, permission/username
+synchronization, global logout, API forward-auth gate or server-image change.
+The browser hostname is `jellyfin-sso.elliottrook.com`, leaving any existing
+client URL and direct 8096 route unchanged. Seerr remains outside this deployment.
+
+Stable Community SSO **5.0.0.0**, ABI 12.0.0.0, package SHA-256
+`29bfc6ca2fa76a08f72b724ddf27ef3ea1c853ab087b182da5d67a72ef0e13e9`,
+loaded successfully on the installed image in a network-none fixture with no
+media or production configuration. Tests proved separate provider links can
+map the same subject to different accounts, conflicting rebind returns 409,
+existing account policies/token remain valid, password login stays enabled and
+two login buttons render. These are isolated API tests, not completed live OIDC.
+
+Live `/config` is now the dedicated dataset mounted at
+`/mnt/Media/appdata/jellyfin`, superseding the older named-volume assessment.
+Full snapshot `Media/appdata/jellyfin@authentik-sso-20260926T225837Z` restored
+as a separate read-only clone; copied SQLite/WAL restored with integrity `ok`,
+6 users, 1,616 watch-state rows and 24 device rows. Checkpoint
+`/root/authentik-jellyfin-20260926T225837Z`; clone mount
+`/mnt/root/authentik-jellyfin-20260926T225837Z/restored-config` has a protected
+0700 parent. A partial initial file copy is explicitly not the backup.
+The exact server image is
+`sha256:2e68d77a7543f915ea9491497907ffbc9a897d710f96610fc4115bde88d0a189`.
+
+Active playback was detected before any interruption. Jason stopped it and
+asked to be told when playback can resume. The plugin installation/restart completed; Jason was told playback can resume.
+Both providers are linked and enabled, discovery passes, and both HTTPS launch
+routes redirect to Authentik. All six account policies, native credentials and
+24 device tokens were preserved. The expanded boundary checks pass 134/134.
+Jason confirmed both account choices work. Post-login checks again preserved
+all six policies, native credentials and 24 original device tokens; JellyTV
+was actively playing as `jason`, with Quick Connect still enabled. Homepage
+now opens the private SSO login; only the tile href changed, with checkpoint
+`/opt/homepage/backups/jellyfin-promote-20260926T231857Z`. See
+[Jellyfin browser SSO](../runbooks/Jellyfin-Single-Login.md) for exact objects,
+recovery checkpoints and the corrected firewall-rule order.
 
 ## Follow-ups and practical limits
 
@@ -87,7 +119,7 @@ before starting any further deployment; this archive is not future authorization
 | TrueNAS | Keep local administration; reassess supported browser federation on the installed edition without placing storage recovery behind SSO. |
 | UniFi | Keep existing console login; endpoint/Fabric identity support is not proof of console administrator SSO. |
 | Home Assistant | Keep native authentication; require browser, companion app, callback and emergency-access compatibility before integration. |
-| Jellyfin / Seerr | Deferred at Jason's direction; reassess released versions and client support later. |
+| Seerr | Deferred at Jason's direction; reassess released versions and client support later. Jellyfin was reopened separately above. |
 | OPNsense / Plex | Explicit no-change decision: independent firewall recovery and existing media-client authentication take priority. |
 | Optional clients / logout | Only the named tested workflows are accepted. Frigate HA integration is not installed. Unused reader/TV/API consumers and per-app global logout are not claimed tested; test them when introduced. App logout may retain the Authentik session; use account logout when ending SSO. |
 | Pi-hole recovery | Primary SSH loopback browser recovery is proven. TrueNAS prohibits SSH TCP forwarding; secondary recovery uses the verified host-local API/CLI. Do not weaken that SSH policy or expose its passwordless backend. |

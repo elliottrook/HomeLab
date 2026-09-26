@@ -16,7 +16,7 @@ NPM = "192.168.50.23"
 RESOLVERS = ("192.168.50.1", "192.168.20.20", "192.168.20.40")
 SERVICES = """home monitoring metrics sonarr radarr lidarr prowlarr sabnzbd
 portainer dns1 dns2 proxy git logs homarr code dockge files netbox audiobooks
-books proxmox synology photos frigate newtarr""".split()
+books proxmox synology photos frigate newtarr jellyfin-sso""".split()
 NATIVE_ROOTS = {"metrics", "portainer", "git", "audiobooks", "synology", "photos"}
 BACKENDS = {
     "logs": "192.168.20.40:8888", "homarr": "192.168.20.20:7575",
@@ -60,6 +60,8 @@ def http(name, backend=False, spoof=False):
         return status == "200"
     if status != "302":
         return False
+    if name == "jellyfin-sso":
+        return target.hostname == host and target.path == "/web/"
     if name == "proxmox":
         return target.hostname == host and target.path == "/sso"
     if name == "monitoring":
@@ -96,6 +98,26 @@ def pihole_denied(address, spoof):
     return result.returncode == 0 and result.stdout == "403"
 
 
+def jellyfin_check(account=None, spoof=False):
+    host = "jellyfin-sso.elliottrook.com"
+    path = "/sso/OID/start/authentik-" + account if account else "/Users"
+    args = ["curl", "--silent", "--show-error", "--noproxy", "*",
+            "--connect-timeout", "4", "--max-time", "10", "--output",
+            "/dev/null", "--write-out", "%{http_code} %{redirect_url}",
+            "--resolve", host + ":443:" + NPM]
+    if spoof:
+        args += ["--header", "X-Authentik-Username: jason",
+                 "--header", "X-Homelab-Authentik-User: jason"]
+    result = run(args + ["https://" + host + path])
+    status, _, location = result.stdout.partition(" ")
+    if result.returncode:
+        return False
+    if account:
+        target = urlsplit(location)
+        return status == "302" and target.scheme == "https" and target.hostname == "auth.elliottrook.com" and target.path == "/application/o/authorize/"
+    return status == "401"
+
+
 def main():
     if not all(shutil.which(command) for command in ("curl", "dig")):
         print("curl and dig are required", file=sys.stderr)
@@ -110,6 +132,11 @@ def main():
 
     jobs += [(f"pihole:{address}:{mode}", pihole_denied, (address, spoof))
              for address in ("192.168.20.20:8082", "192.168.20.40:20720")
+             for mode, spoof in (("plain", False), ("spoof", True))]
+
+    jobs += [("jellyfin:sso:" + account, jellyfin_check, (account,))
+             for account in ("jason", "elliottrook")]
+    jobs += [("jellyfin:api:" + mode, jellyfin_check, (None, spoof))
              for mode, spoof in (("plain", False), ("spoof", True))]
 
     def check(job):

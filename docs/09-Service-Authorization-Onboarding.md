@@ -24,8 +24,9 @@ proxy. This runbook applies only to browser-based web interfaces.
 ## Rollout close-out — 2026-09-26
 
 The rollout closes with NPM, TrueNAS, UniFi and Home Assistant explicitly
-deferred by Jason; retain their secure existing logins. Jellyfin/Seerr remain
-deferred. Synology, Immich, Frigate, Newtarr and both Pi-hole browser routes are
+deferred by Jason; retain their secure existing logins. Seerr remains
+deferred. Jellyfin optional browser SSO for both existing administrator accounts
+is accepted at `jellyfin-sso.elliottrook.com`; native clients remain unchanged. Synology, Immich, Frigate, Newtarr and both Pi-hole browser routes are
 now deployed; earlier hold statements below are historical where superseded by
 the dated completion records. See the rollout archive for restore evidence and
 limits; individual recovery/API credentials remain intentional.
@@ -64,7 +65,7 @@ NPM application password removal is an accepted follow-up (2026-09-26).
 | Reolink camera UI | No general proxy | Existing camera address | Keep isolated; use Frigate as the normal interface |
 | Home Assistant | Retain native authentication unless a reviewed OIDC integration supports every client | `homeassistant.elliottrook.com` | Test mobile app, callbacks and emergency access |
 | Beszel | Native OIDC if supported by the installed version; otherwise forward auth | `metrics.elliottrook.com` | Keep agents on their private direct path |
-| Jellyfin | Native SSO only with a supported integration; otherwise forward auth | `jellyfin.elliottrook.com` | Test TV and mobile clients before enforcing |
+| Jellyfin | Optional Community SSO 5.0.0.0 on 12.1.0; both owner-selected accounts accepted | `jellyfin-sso.elliottrook.com` | Native URLs/passwords/API preserved; JellyTV playback observed; see Jellyfin-Single-Login runbook |
 | Plex | Retain Plex authentication; optionally add forward auth for browser-only administration | `plex.elliottrook.com` | Do not break TV, mobile or remote clients |
 | Seerr | Native OIDC if supported by the installed version; otherwise forward auth | `requests.elliottrook.com` | Test Plex/Jellyfin callbacks |
 | Calibre/Audiobookshelf | Native OIDC where supported; otherwise forward auth | Service-specific names | Test mobile readers and players |
