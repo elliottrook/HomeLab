@@ -42,6 +42,10 @@
 - Added bounded, allowlisted host kernel-log capture and fallback classification
   requiring affirmative backend/offload evidence plus resident VRAM. Nineteen
   tests pass; a live read-only last-hour excerpt contained no relevant failures.
+- Jason changed the project to a bounded Stream A: local/read-only work and
+  post-gate reversible M2 Vulkan experiments are autonomous. Git pushes,
+  firmware/boot/reboots, packages, persistent promotion, schedulers,
+  credentials, destructive work, SYCL/Level Zero and BAR changes remain gated.
 
 ## 2026-09-25 — B60 inference engineering M0 inventory and local harness
 

@@ -1,6 +1,6 @@
 # B60 inference engineering
 
-> Status: Active — Stream M
+> Status: Active — Stream A (bounded)
 >
 > Owner: Jason
 >
@@ -150,7 +150,7 @@ restored by a bounded finalizer after every scheduled experiment.
 
 | Risk | Likelihood / impact | Control and rollback | Residual decision |
 |---|---|---|---|
-| Production Aster interruption | Medium / high | Side-by-side builds, one variable per test, fixed window, hard timeout, finalizer and health/generation validation | Stream M approval per operational change |
+| Production Aster interruption | Medium / high | Side-by-side builds, one variable per test, fixed window, hard timeout, finalizer and health/generation validation | Covered only by the bounded Stream A envelope after all M1 preflight gates pass |
 | GPU reset, device loss or host instability | Medium / high | Baseline kernel log, live health/telemetry, immediate abort, no automatic retry, restore accepted binary/unit | Accept only for an explicitly bounded test |
 | Firmware/boot failure without console | Low-to-medium / critical | Do not attempt remotely; require attended console and verified recovery; retain normal boot path | Separate immediate approval is mandatory |
 | Incorrect or misleading output | Medium / high | Fixed correctness assertions, two real-workflow passes, independent evidence audit, control rerun | No promotion with regression |
@@ -166,23 +166,30 @@ Expected users affected by later tests are Aster users and dependent local
 services; interruption is detected by service health, authenticated synthetic
 generation and dependent-workflow checks.
 
-## Proposed Stream M authorization envelope
+## Accepted bounded Stream A authorization envelope
 
-Pre-agreed now under the repository standard: non-secret read-only LAN checks,
-primary-source research, local documentation, synthetic fixtures, harness code,
-local tests and local commits.
+Jason changed the project to Stream A on 2026-09-26. Autonomous work covers
+non-secret read-only LAN checks, primary-source research, local documentation,
+synthetic fixtures, harness code, local tests and local commits. After the M1
+harness, immutable control, checkpoint, time-window and tested-finalizer gates
+all pass, it also covers the enumerated reversible non-firmware Vulkan
+experiments in M2: side-by-side llama.cpp candidates and one-variable tests of
+batch/microbatch, threads/affinity, flash attention, supported KV types,
+context, prompt/graph cache reuse and memory headroom. Each experiment must run
+only from 00:30–02:00 America/Vancouver, retain the accepted b11081 artifacts,
+use synthetic data, stop on the documented abort conditions and restore and
+validate production before 02:00. This authorization does not waive a platform
+approval prompt.
 
-Every state-changing host/guest command or external write requires Jason's
-immediate approval with exact target, change, effect, validation and rollback.
-This includes installing packages, starting/stopping services, executing a
-production GPU benchmark that materially loads the shared service, creating a
-scheduler on a lab system, changing firmware/BIOS/boot state and pushing Git.
-
-An optional future Stream A envelope may cover only enumerated non-firmware,
-reversible Vulkan experiments after the Phase 1 harness and rollback have been
-reviewed. Firmware, BIOS, bootloader, reboot, GPU reset, production promotion
-and remote Git writes remain immediate-approval operations even under that
-envelope.
+The following remain outside Stream A and require Jason's immediate approval:
+every Git push; firmware, BIOS, bootloader or kernel-parameter change; reboot or
+GPU reset; package installation/removal; persistent service/unit/configuration
+change or production promotion; scheduler deployment; credential access or
+rotation; firewall/network/public-exposure change; destructive storage work;
+backup deletion; and any experiment whose rollback or checkpoint cannot be
+verified. SYCL/Level Zero/OpenVINO, model downloads and BAR changes remain
+outside this envelope until separately reviewed because their prerequisites and
+blast radius differ from the bounded Vulkan work.
 
 ## Persistence plan
 
@@ -418,9 +425,10 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-09-25 | Telemetry engineer | Read-only LXC 110 discovery found `xe` hwmon package/VRAM/channel temperatures, per-process DRM fdinfo with 13,762,772 KiB resident VRAM and 1,017,304 KiB resident GTT at idle, 16 GiB guest RAM with 7,547,627 KiB available, and llama-server CPU affinity `3,9,19,20` | Temperature, VRAM/GTT, RAM and affinity can be captured without new packages; frequency and power counters were not exposed and must be recorded unavailable rather than inferred. Only `vulkaninfo` is installed; no `intel_gpu_top`, `xpu-smi` or `sensors` |
 | 2026-09-26 | Telemetry engineer | Added a read-only LXC collector plus strict parser for `xe` temperatures, process VRAM/GTT residency, guest RAM and CPU affinity. Unknown, duplicate, impossible and credential-like fields are rejected; unsupported frequency, power and CPU-fallback values remain explicit nulls. Ran the collector live through stdin without installing or writing it; it returned the expected strict fields for PID 441 | Fifteen local tests pass and the live read-only format is proven. This is partial M1 telemetry: bounded host kernel-log capture and positive CPU-fallback detection remain before the checkbox can close |
 | 2026-09-26 | Telemetry engineer | Added bounded Proxmox kernel-log collection plus strict sanitization/classification for reset, device loss, hang and OOM. Added affirmative CPU-fallback classification: explicit CPU fallback is failure; full Vulkan layer offload plus material VRAM residency is pass; insufficient evidence remains unknown. A live read-only last-hour collection returned no relevant failure lines | Nineteen local tests pass. The M1 telemetry-capture checkbox closes; orchestration into complete ledger records remains next |
+| 2026-09-26 | Owner authorization | Jason directed the project to continue as Stream A | Bounded autonomous envelope accepted as recorded above. M1 gates still prohibit production load; firmware/boot/reboot, packages, persistent promotion, schedulers, credentials, destructive work and every Git push remain immediate-approval operations |
 
 ## Close-out
 
-Not started. The project is active for read-only discovery and local development
-under Stream M. Production load, host/guest changes, scheduler deployment and
-remote Git writes remain individually gated.
+Not started. The project is active under the bounded Stream A envelope above.
+Production load remains blocked by incomplete M1 preflight and rollback gates;
+the explicitly excluded operations remain individually gated.
