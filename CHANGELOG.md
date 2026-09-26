@@ -1,5 +1,55 @@
 # Changelog
 
+## 2026-09-26 — AI-PAM M9 graduation completed locally
+
+- Proved broker, Authentik and broker-to-OpenBao dependency outages fail closed
+  while direct human administration remains independent; all dependencies
+  recovered, and a full Aster LXC 104 reboot restored six units and five sockets.
+- Fixed two findings from live graduation: the approval bridge no longer stops
+  with the execution broker, and Forgejo gateway dependency failures return a
+  stable sanitized denial rather than internal parser text. The 82-test broker
+  suite passes.
+- Expanded Doctor coverage to Authentik discovery, rotation dates, audit
+  freshness, current Aster/OpenBao guest backups, isolated-restore age and
+  aggregate terminal outcomes. Seven focused tests and the live probe pass.
+- Reconciled live NetBox and Homepage: the existing Aster/OpenBao guest records
+  are authoritative, the Companion tile is the correct approval entry point,
+  and no direct private vault or broker tile is exposed.
+
+## 2026-09-26 — AI-PAM M8 integration and native parity complete
+
+- Graduated Aster Companion 0.2.2 with native approval/denial, lifecycle,
+  history/audit and global emergency controls. The real-Mac matrix proved
+  approval and denial, service disable/restore, global fail-closed/restore,
+  ordinary typed chat, reliable close/reopen and persistent Keychain access;
+  24 Swift tests pass.
+- Made the architecture and operator references authoritative for the broker,
+  OpenBao, NetBox and Homepage boundaries. No direct vault or broker dashboard
+  exposure was added.
+- Added a read-only Doctor policy-drift probe covering the exact four-service/
+  eight-capability catalogue, agent lifecycle, expired requests, five units and
+  Unix sockets, database integrity and CA-validated OpenBao seal health. Five
+  regression tests and the live non-secret probe pass.
+
+## 2026-09-26 — B60 inference telemetry foundation
+
+- Added a read-only LXC 110 telemetry collector and strict local parser for
+  `xe` package/VRAM temperature, process VRAM/GTT residency, guest RAM and CPU
+  affinity.
+- Rejects unknown, duplicate, impossible and credential-like telemetry fields.
+  Unsupported frequency, power and CPU-fallback values remain explicit nulls
+  rather than inferred; fifteen combined B60 tests pass without production load.
+- Added bounded, allowlisted host kernel-log capture and fallback classification
+  requiring affirmative backend/offload evidence plus resident VRAM. Nineteen
+  tests pass; a live read-only last-hour excerpt contained no relevant failures.
+- Jason changed the project to a bounded Stream A: local/read-only work and
+  post-gate reversible M2 Vulkan experiments are autonomous. Git pushes,
+  firmware/boot/reboots, packages, persistent promotion, schedulers,
+  credentials, destructive work, SYCL/Level Zero and BAR changes remain gated.
+- Added immutable experiment-record assembly binding fixture, raw artifact,
+  environment hashes, telemetry, kernel findings, health, correctness and
+  affirmative fallback evidence. Twenty-one B60 tests pass locally.
+
 ## 2026-09-25 — B60 inference engineering M0 inventory and local harness
 
 - Verified the bounded LXC 110 TrueNAS mirror is enabled at 04:20 and completed

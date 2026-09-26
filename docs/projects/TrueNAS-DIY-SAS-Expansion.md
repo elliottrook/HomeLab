@@ -369,6 +369,418 @@ procedures are current.
 
 ## Evidence log
 
+### 2026-09-26 — Failed-drive identification and handoff
+
+Read-only sysfs mapping places both failed drives on the second SAS3008
+controller, PCI 0000:2b:00.0 (host11 at inspection): Z1Z472CR00009443T65S
+on PHY 2 and Z1Z4K8VL00009442RE3P on PHY 5. These are controller lane
+identifiers, not physical bay numbers; Linux disk names and host numbers can
+change. No enclosure device or locator interface was exposed. Jason confirmed
+there are no drive activity lights and that the controller mapping helps locate
+the returns. Physical removal has not been verified.
+
+The final-test heartbeat is confirmed PAUSED. Testing is complete; replacement
+and pool-expansion decisions remain pending. No new disks have joined a pool.
+
+### 2026-09-25 23:47 PDT — Final Z1Z0BTVM test PASS; keep per user decision
+
+Final full-disk zero-pattern write/read completed at 23:42:10 PDT after
+approximately 16 hours 15 minutes. Service exited successfully (status 0).
+Log confirms `Pass completed, 0 bad blocks found. (0/0/0 errors)`; bad-block
+file is empty. Before/after SMART confirms zero grown defects and zero
+uncorrected read/write/verify errors. Non-medium count remained 18311797
+through the completed test (delta zero). At the 23:46 live check it had risen
+to 18311808 (+11 after completion), consistent with the previously observed
+unresolved idle behavior; this is disclosed, not treated as a media failure.
+SAS counters unchanged, temperature 42 C, all pools healthy.
+
+Disposition: KEEP under the user's explicit final-test pass/fail rule. This
+pass does not guarantee future reliability. Z1Z472CR and Z1Z4K8VL remain
+the two confirmed failed returns. No retries or additional tests started;
+no disks added to pools. Evidence remains in
+`/var/tmp/drive-retest-20260923/Z1Z0BTVM/final-surface-20260925/`.
+Final monitoring heartbeat was paused following this terminal result.
+
+### 2026-09-25 23:16 PDT — Final test routine check
+
+Z1Z0BTVM final worker active; readback 96.40% at 15:48:17 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 43 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 22:45 PDT — Final readback beyond 90 percent
+
+Z1Z0BTVM final worker active; readback 91.79% at 15:17:07 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 43 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 22:14 PDT — Final test routine check
+
+Z1Z0BTVM final worker active; readback 86.90% at 14:46:07 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 43 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 21:43 PDT — Final test routine check
+
+Z1Z0BTVM final worker active; readback 81.56% at 14:15:06 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 43 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 21:12 PDT — Final readback three quarters complete
+
+Z1Z0BTVM final worker active; readback 75.96% at 13:44:34 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 43 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 20:42 PDT — Final test routine check
+
+Z1Z0BTVM final worker active; readback 70.02% at 13:14:05 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 44 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 20:11 PDT — Final test routine check
+
+Z1Z0BTVM final worker active; readback 63.70% at 12:43:33 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 44 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 19:40 PDT — Final test routine check
+
+Z1Z0BTVM final worker active; readback 57.06% at 12:12:33 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 44 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 19:09 PDT — Final readback halfway complete
+
+Z1Z0BTVM final worker active; readback 50.08% at 11:41:37 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 44 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 18:38 PDT — Final test routine check
+
+Z1Z0BTVM final worker active; readback 42.77% at 11:10:33 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 44 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 18:07 PDT — Final test routine check
+
+Z1Z0BTVM final worker active; readback 35.27% at 10:39:45 total elapsed.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 (baseline delta zero);
+SAS counters unchanged. Temperature 44 C; all pools healthy. Final SMART
+report pending. No intervention or additional tests; continue monitoring.
+
+### 2026-09-25 17:36 PDT — Final test routine check
+
+Z1Z0BTVM final worker remains active; readback 27.52% at 10:08:36 total
+elapsed. Zero test errors, empty bad-block file, zero grown defects and
+uncorrected read/write/verify errors. Non-medium count 18311797 (baseline
+delta zero); SAS counters unchanged. Temperature 45 C; all pools healthy.
+Final SMART report pending. No intervention or additional tests; monitoring
+continues for the single authorized final pass.
+
+### 2026-09-25 17:04 PDT — Final test entered readback
+
+Live check after a gap in conversational updates: Z1Z0BTVM worker remains active.
+Full write phase completed; readback is 19.06% complete at 9:36 elapsed.
+Zero reported test errors, empty bad-block file, zero grown defects and
+uncorrected read/write/verify errors. Non-medium count remains baseline
+18311797; SAS counters unchanged. Temperature 45 C; all pools healthy.
+Final SMART report not yet present. No test interruption, restart or additional
+test observed or performed. Continue monitoring this single final pass.
+
+### 2026-09-25 15:15 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 95.05%, readback and final SMART pending.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count remains baseline 18311797;
+SAS counters unchanged. Temperature 44 C; all pools healthy. No intervention
+or additional tests; continue monitoring the single final pass.
+
+### 2026-09-25 14:44 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 90.60%, readback and final SMART pending.
+Zero reported test errors, empty bad-block file, zero grown defects and
+uncorrected read/write/verify errors. Non-medium count remains baseline
+18311797; SAS counters unchanged. Temperature 44 C; all pools healthy.
+No intervention or additional tests; monitoring continues.
+
+### 2026-09-25 14:13 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 85.88%, readback and final SMART pending.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count remains baseline 18311797;
+SAS counters unchanged. Temperature 45 C; all pools healthy. No intervention
+or additional tests; monitoring continues.
+
+### 2026-09-25 13:12 PDT — Final test write phase three-quarters complete
+
+Z1Z0BTVM worker active; write phase 75.60%, readback and final SMART pending.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count remains baseline 18311797;
+SAS counters unchanged. Temperature 43 C; all pools healthy. No intervention
+or additional tests; continue monitoring the single final pass.
+
+### 2026-09-25 12:41 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 69.92%, readback and final SMART pending.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count remains baseline 18311797;
+SAS counters unchanged. Temperature 43 C; all pools healthy. No intervention
+or additional tests; monitoring continues.
+
+### 2026-09-25 12:10 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 64.04%, readback and final SMART pending.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count remains baseline 18311797;
+SAS counters unchanged. Temperature 43 C; all pools healthy. No intervention
+or additional tests. Continue monitoring the single final pass.
+
+### 2026-09-25 11:39 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 57.89%, readback and final SMART pending.
+Zero reported test errors, empty bad-block file, zero grown defects and
+uncorrected read/write/verify errors. Non-medium count remains baseline
+18311797; SAS counters unchanged. Temperature 43 C; all pools healthy.
+No intervention or additional tests; continue scheduled monitoring.
+
+### 2026-09-25 11:08 PDT — Final test write phase past halfway
+
+Z1Z0BTVM worker active; write phase 51.43%, readback and final SMART pending.
+Zero test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count 18311797 remains at baseline;
+SAS counters unchanged. Temperature 43 C; all pools healthy. No intervention
+or additional tests. Continue monitoring the single final pass.
+
+### 2026-09-25 10:37 PDT — Final test routine check
+
+Z1Z0BTVM worker active, write phase 44.74%; readback and final SMART report
+pending. Zero reported test errors, empty bad-block file, zero grown defects
+and uncorrected read/write/verify errors. Non-medium count remains baseline
+18311797; SAS counters unchanged. Temperature 43 C; all pools healthy.
+No intervention or additional tests; continue scheduled monitoring.
+
+### 2026-09-25 10:06 PDT — Final test routine check
+
+Z1Z0BTVM worker active, write phase 37.82%, readback pending. Zero test errors,
+empty bad-block file, zero grown defects and uncorrected read/write/verify
+errors. Non-medium count 18311797 remains at baseline; SAS counters unchanged.
+Corrected verify ECC count rose from 49860 to 64245 with no uncorrected verify
+errors; record without treating corrected ECC alone as a failed test.
+Temperature 43 C; all pools healthy. No intervention or additional tests.
+
+### 2026-09-25 09:35 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 30.80%, readback pending. Zero reported
+test errors, empty bad-block file, zero grown defects and uncorrected
+read/write/verify errors. Non-medium count remains baseline 18311797;
+SAS counters unchanged. Temperature 44 C; all pools healthy. No intervention.
+
+### 2026-09-25 09:05 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 23.63%, readback pending. Zero test errors,
+empty bad-block file, zero grown defects and uncorrected read/write/verify
+errors. Non-medium count remains 18311797 (baseline delta zero); SAS counters
+unchanged. Temperature 44 C; all pools healthy. No intervention or new tests.
+
+### 2026-09-25 08:34 PDT — Final test routine check
+
+Z1Z0BTVM worker active; write phase 16.18%, readback pending. Zero test errors,
+empty bad-block file, zero grown defects and uncorrected read/write/verify
+errors. Non-medium count remains at baseline 18311797; SAS counters unchanged.
+Temperature 44 C; all pools healthy. No intervention; monitoring continues.
+
+### 2026-09-25 08:03 PDT — Final Z1Z0BTVM test progressing
+
+Worker active, write phase 8.70%, zero test errors and empty bad-block file;
+readback pending. Grown defects and uncorrected read/write/verify counts remain
+zero. Non-medium count 18311797 equals the saved pre-test baseline (delta 0).
+Temperature 44 C. SAS port counters unchanged: zero invalid DWORD/disparity/
+reset-problem counts, two historical loss-of-sync events. All pools healthy.
+No new tests or retries. Continue 30-minute monitoring of this final pass.
+
+### 2026-09-25 — Final authorized Z1Z0BTVM surface test
+
+Jason authorized one last test: keep if it passes, otherwise return with the
+two failed drives; timely result needed for returns. Launched drive-final-5611797b
+using final-surface-20260925.py, restricted to serial Z1Z0BTVM and persistent
+WWN 5000c5005611797b with the same serial/capacity/unmounted/no-holder/no-ZFS/
+no-pool-member/healthy-pool and format guards. Evidence resides in its
+final-surface-20260925 subdirectory. One full zero-pattern write/read pass,
+badblocks -e 1 to terminate on first reported bad block; no further test queued.
+
+Reactivated heartbeat at 30-minute intervals for timely completion/failure
+reporting. New media errors or grown defects mean hold/failure; pre-existing
+non-medium counter behavior is reported separately, not misrepresented as
+media failure. Successful full pass plus stable media counters supports the
+user's keep decision but is not a reliability guarantee. No pool addition.
+On terminal result report and pause heartbeat; no retries or extra tests.
+
+### 2026-09-25 — Z1Z0BTVM targeted diagnosis
+
+Read-only checks confirm serial Z1Z0BTVM, GE11 firmware, 4 TB plain 512-byte
+sectors, zero grown defects and zero uncorrected read/write/verify errors.
+Prior extended SMART completed successfully; 1072 background scans with no
+listed failing scan entries. Temperature 40 C and informational exceptions
+ASC/ASCQ 0/0. Non-medium count initially 18311760, still increasing.
+
+SAS negotiated 6 Gbps. Drive port has zero invalid DWORD/disparity/reset-problem
+counts and two historical loss-of-sync events, unchanged during diagnosis.
+HBA phy-11:3 has zero values for all four corresponding error counters. Kernel
+log filter since September 24 returned no matching disk/controller I/O failures,
+resets or aborts. No evidence here establishes a current cable fault.
+
+Five consecutive supported non-medium log queries did not change the counter.
+A 30-second otherwise idle observation increased it by 3; system background
+activity was not disabled. Individual smartctl -i/-a/-x queries and three more
+-x queries produced no measured counter increase. -x returns status 4 because
+general statistics/performance logging is unsupported; no evidence this is the
+source of the increasing counter. Error-event log page 07 is unsupported, so
+the drive provides no detailed event list through that interface.
+
+A 1 GiB direct read passed at approximately 178 MB/s, followed by eight 64 MiB
+direct reads distributed from the start to near the end of the disk. Every read
+succeeded with zero non-medium counter increase during each batch. This samples
+1.5 GiB and is not a complete surface test. No writes or configuration changes.
+
+Conclusion: cause of non-medium increments remains unresolved; no observed
+media failure or growing SAS link errors. Cannot attribute it to harmless
+monitoring, cable/power, or internal drive hardware from available evidence.
+Keep unassigned pending full surface qualification and, if increments persist,
+controlled powered-down substitution onto a known-good cable/power path.
+All pools remain healthy. No new scheduled tests or pool changes performed.
+
+### 2026-09-25 07:00 PDT — Both candidate surface passes successful
+
+Z1Z4BJ7Z completed at 05:14:27 after 15:44:34; Z1Z471FR completed at
+05:12:30 after 15:42:36. Each full zero-pattern write/read pass finished with
+zero bad blocks and zero read/write/corruption errors. Compared saved before
+and after SMART reports and current telemetry: grown defects remain 0/110,
+historical uncorrected reads 3/3, uncorrected writes 0/0, non-medium counts
+37/393. No adverse counter increases. Current temperatures 40/41 C.
+
+Both have now passed original extended SMART tests and post-format full-surface
+write/read verification. No fresh extended SMART tests were launched. Existing
+defect/history limitations remain, especially Z1Z471FR's 110 grown defects;
+passing these tests is not a guarantee of future reliability. All pools healthy;
+drives remain unassigned. Paused the two-hour heartbeat after both terminal
+results. No pool changes, retries or new test jobs.
+
+### 2026-09-25 05:03 PDT — Candidate readback nearly finished
+
+Both workers remain active: Z1Z4BJ7Z readback 98.36%, Z1Z471FR 98.65%.
+Zero reported test errors and empty bad-block files; final post-test SMART
+reports are not yet present. Grown defects remain 0/110, uncorrected reads
+3/3, uncorrected writes 0/0, non-medium counts 37/393, unchanged from baseline.
+Temperatures 43/44 C respectively; all pools healthy. No new tests, retries
+or pool changes. Continue monitoring until terminal results are verified.
+
+### 2026-09-25 03:03 PDT — Candidate readback continues
+
+Both workers active: Z1Z4BJ7Z readback 78.45%, Z1Z471FR 78.92%. Zero
+reported test errors and empty bad-block files. Grown defects remain 0/110,
+uncorrected reads 3/3, uncorrected writes 0/0, non-medium counts 37/393;
+no increases from pre-test baselines. Both drives are 44 C; all pools healthy.
+No additional tests, restarts or pool changes. Continue two-hour monitoring.
+
+### 2026-09-25 01:02 PDT — Candidate readback past halfway
+
+Both surface workers remain active: Z1Z4BJ7Z readback 52.46%, Z1Z471FR
+53.12%. Both report zero test errors and empty bad-block files. Grown defects
+remain 0/110, uncorrected reads 3/3, uncorrected writes 0/0 and non-medium
+counts 37/393, unchanged from pre-test baselines. Both drives are 45 C.
+All pools remain healthy. No new tests, retries or pool changes. Continue
+monitoring until both jobs have terminal outcomes.
+
+### 2026-09-24 23:01 PDT — Both candidate drives in readback
+
+Both complete write phases finished; readback is now 21.95% for Z1Z4BJ7Z
+and 22.56% for Z1Z471FR. Workers remain active, with zero reported test errors
+and empty bad-block files. Grown defects remain 0/110, uncorrected reads 3/3,
+uncorrected writes 0/0, and non-medium counters 37/393, unchanged from baseline.
+Temperatures are 45/46 C respectively. All pools healthy. No new tests, retries,
+or pool changes. Continue monitoring; neither surface test has finished yet.
+
+### 2026-09-24 21:01 PDT — Candidate writes nearing completion
+
+Both surface workers remain active in the write phase: Z1Z4BJ7Z 94.41%,
+Z1Z471FR 94.63%; readback has not begun. Both report zero test errors and empty
+bad-block files. Grown defects 0/110, uncorrected reads 3/3, uncorrected writes
+0/0 and non-medium counts 37/393 remain unchanged. Both drives are 44 C.
+All pools healthy. No new tests, retries or pool changes; monitoring continues.
+
+### 2026-09-24 18:59 PDT — Candidate surface-test progress
+
+Both workers remain active in the write phase: Z1Z4BJ7Z 74.47%, Z1Z471FR
+74.77%; readback pending. Zero reported test errors and empty bad-block files.
+Grown defects remain 0/110, uncorrected reads 3/3, uncorrected writes 0/0,
+non-medium counts 37/393; no increases from pre-test baselines. Temperatures
+45/44 C respectively. All pools healthy. No new jobs, retries or pool changes;
+continue scheduled monitoring until both surface passes have terminal outcomes.
+
+### 2026-09-24 16:59 PDT — Candidate surface-test progress
+
+Both surface workers are active in the write phase: Z1Z4BJ7Z 49.94%,
+Z1Z471FR 50.35%. Readback has not started. Both report zero test errors and
+empty bad-block files. Compared with their saved pre-test SMART baselines,
+grown defects remain 0/110, uncorrected reads 3/3, uncorrected writes 0/0,
+and non-medium counters 37/393. Temperatures are 45/44 C respectively.
+All pools remain healthy. No additional tests, restarts or pool changes.
+Continue two-hour checks until both jobs have terminal outcomes.
+
+### 2026-09-24 — Two remaining candidates: authorized surface testing
+
+Jason requested the recommended read/write tests on Z1Z4BJ7Z0000C4453Q38
+(WWN 5000c50058c120ef) and Z1Z471FR00009443T8ED (5000c50058afa24b).
+Launched drive-surface-58c120ef and drive-surface-58afa24b using separate
+surface-only-20260924.py with exact serial/capacity, unmounted/no-holder,
+no-ZFS/no-pool-member, healthy-pool and 512-byte/no-PI guards. Baselines and
+results are preserved under each serial's surface-20260924 subdirectory within
+/var/tmp/drive-retest-20260923. Original format/test evidence remains intact.
+
+One full destructive zero-pattern write/read pass uses badblocks with 4096-byte
+blocks; captures before/after SMART and stops on errors. No reformat, additional
+extended self-test, or pool addition is queued. Both workers confirmed active
+and writing; all pools healthy. Reactivated the existing two-hour heartbeat to
+monitor these two jobs, hold fresh material faults, and report/pause on terminal
+outcomes. Other disks remain waiting or held; no work launched against them.
+
+### 2026-09-24 13:15 PDT — Final scheduled check
+
+Z1Z4BK81 passed the fresh extended SMART retest; worker recorded completion at
+12:54:23, following successful full write/read verification. Grown defects remain
+1205 and historical uncorrected reads/writes 3/5; prior failure and defect growth
+still require review before any pool use. Z1Z472CR and Z1Z4K8VL remain held after
+fresh medium errors; their qualification was stopped and is not a pass.
+
+Z1Z4BJ7Z, Z1Z471FR and Z1Z0BTVM passed original extended tests and completed
+format verification, but have not received post-format full write/read tests,
+as requested. They remain waiting. Z1Z0BTVM non-medium count is now 18309328,
+another +160 since 12:06; zero grown defects and uncorrected reads/writes.
+Investigate that continuing increase before pool use. Other counters unchanged.
+All pools healthy; no drives added. Paused truenas-drive-tests heartbeat after
+these terminal outcomes. Overall expansion and pool approval remain pending.
+
 | Date | Milestone | Evidence | Result |
 |---|---|---|---|
 | 2026-08-27 | Project definition | Six-disk RAIDZ2 baseline, full internal bays and backplane-free decision recorded | Proposed |

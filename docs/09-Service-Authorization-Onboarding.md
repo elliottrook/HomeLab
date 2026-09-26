@@ -8,6 +8,14 @@ layer-based cohorts in the [rollout project](projects/Authentik-Rollout.md),
 retain direct-management addresses, and record completion only after each
 service's real workflow tests pass.
 
+Authentication onboarding is only one half of a new service's authority
+review. Before graduation, also complete the repository's
+[AI integration gate](Project-Creation-Standard.md#ai-integration-gate) using
+the [AI-PAM service-registry template](templates/AI-PAM-Service-Registry.md).
+This is required even when the correct decision is that AI administration is
+not supported. Never create an API key or weaken a service merely to make the
+AI-PAM row non-empty.
+
 There is no safe one-click conversion for every service. The quickest reliable
 approach is to standardize on two patterns:
 
@@ -98,6 +106,14 @@ Backup completed:
 Authentik group allowed:
 API, mobile or non-browser clients that may be affected:
 Rollback owner and method:
+
+AI administration: brokered / dynamic / static exception / not currently supported
+AI service identity (or reason unsupported):
+Broker capabilities and Green/Yellow/Red/Black class:
+Secret custody identifier (never the value):
+Rotation and revocation procedure:
+Human break-glass path:
+Registry status: proposed / pilot / active / suspended / retired
 ```
 
 The current rollout convention is one enabled direct binding to `jason` per

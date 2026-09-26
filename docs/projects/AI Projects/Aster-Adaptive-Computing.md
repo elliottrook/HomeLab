@@ -3,7 +3,7 @@
 **Status:** Active — Stream A; M0 complete; M1 Stage1 installed and verified;
 Stage2 identity/assurance gates remain open; M2 offline foundation verified;
 M3 controlled comparisons retained Aster/rules; M4 offline evidence/recovery
-verified and operational review design proposed; full M1/M4 remain incomplete.
+verified and review design prepared; independent custody/review gates remain open.
 
 
 **Owner:** Jason.
@@ -183,6 +183,14 @@ validation. Do not expand tool authority or claim M1 graduation. The M6 Forgejo
 read and safe-write transports were preserved through Stage1. Offline M2 work may
 continue independently.
 
+The reconciled local integration keeps `scripts/aster-adaptive` as the canonical
+offline harness/evidence path and retains `services/aster-adaptive` only as a
+namespaced selector conformance probe. The probe's31 vectors and29 tests do not
+supersede the harness's52 tests or its M3/M4 findings. See [integration map and
+current probe evidence](evidence/M2-reconciliation/README.md). Stage1 through
+a08114b is represented in authoritative f25df18; this integration itself is local,
+unpublished, and does not deploy Stage2 or alter the broker.
+
 M2's offline foundation gate is complete: five contract families, a fixture-only
 catalogue, 26 passing adaptive tests (including seven actual HTTP path tests),
 89 passing existing Aster tests and the retained four-case baseline measurement.
@@ -299,3 +307,126 @@ a bounded same-candidate start recovered it without source changes or DB restore
 [Deployment evidence](evidence/M1-stage1-deployment.md) is authoritative for this
 rollout. No Git push occurred. Continue with offline M2 contracts or the separately
 reviewed Stage2 assurance design; do not claim full M1 graduation or widen tools.
+
+
+### Historical local selector-probe continuation — M2 and Stage2 design
+
+The next local-only candidate is in `services/aster-adaptive` and `schemas/aster`.
+Strict contracts, an execution-disabled fixture catalogue and the extracted current
+Aster tool selector pass28 tests and 12 fixture comparisons, with local timing and
+pinned evidence in [M2 results](evidence/M2-offline-contracts.md). No framework
+replacement, calibrated accuracy or live authority projection is claimed. M2's
+connected acceptance gate remains open; M1 remains ungraduated.
+
+[Stage2 design](evidence/M1-stage2-candidate.md) defines the smallest entitlement/
+assurance candidate, negative cases, process-trust limitation and fail-closed
+recovery. Existing 10 bridge + 10 approval-service tests pass. Actual signed
+passkey-assurance provenance and a fresh user-session validation are unresolved;
+no deployment approval is requested until that concrete candidate exists.
+
+AI-PAM owns concurrent reconciliation of the alternate a5e8b22 all-at-once
+implementation with exact deployed Stage1. Its old DB-approver tests must retain
+a coverage/supersession map; they are not silently discarded. No shared broker
+or approval source was edited in this M2 continuation, and its commits are outside
+AI-PAM's pending remote publication unless separately reviewed. No push.
+
+
+### Historical local selector-probe checkpoint
+
+M2 corrective review passed at026e5e9 (supersedes30f79ea). An additional portable
+conformance corpus passes31 vectors;29 adaptive tests pass in total. Evidence and
+limits are linked from [M2 results](evidence/M2-offline-contracts.md). Stage1 remains
+the only deployed change. Stage2 needs verified real-session assurance and an
+explicit process-trust decision; the connected M2 gate remains open behind it.
+No production/private data collection, authority expansion, new dependency or
+Git push occurred. The AI-PAM task owns alternate-design reconciliation.
+
+
+### Current integration resume point
+
+Isolated branch `codex/aster-m2-reconcile-20260925`, based onf25df18, reconciles
+local1a8fa68 without overwriting primary checkout edits. Seven earlier local
+commits were already represented by AI-PAM; three M2 commits are retained as the
+explicit selector-probe profile. Broker/approval/Aster and remote harness sources
+are unchanged;52+29+76+163 tests pass. See the integration map for provenance,
+semantic namespace resolution and rollback. No push or production change.
+Recheck remote head and coordinate before any separately authorized publication.
+
+
+### Current checkpoint — published integration and M4 review packet
+
+Forgejo and its GitHub mirror were both verified at7133f3f after Jason's explicit
+push instruction. Subsequent work is local-only. The pre-existingaf2cc4f M4 verifier
+and design were reconciled onto that published baseline, preserving Stage1 and
+all newer M2/M3/M4 evidence.56 harness/evidence +29 selector-probe tests pass; the
+164-event paired export replays offline with unchanged historical hashes.
+[Review packet](evidence/M4-review/REVIEW-PACKET.md) identifies the exact artifact,
+verifier, checkpoint, decision and limitations. Independent human judgment and
+checkpoint custody are not established. M4 is not graduated; no real collection,
+new identity, Stage2 deployment or further push is authorized.
+
+
+### Current M3 checkpoint — human-label design, no collection
+
+M4 acceptance and independent custody remain pending. Existing M3 fixture sets
+were inventoried, not rerun or relabeled as human gold. A proposed S0-only
+30-family pilot and later separately approved 300-family screening design now
+have taxonomy, adjudication/privacy/retention rules, protected splits and frozen
+statistical definitions. The current validator is a design-only metadata check,
+not an executable human-label collector:17new tests / 73 harness tests pass and the
+empty batch reports zero human labels and no collection/evaluation authority.
+See [label-design evidence and approval gate](evidence/M3-label-design/README.md).
+This historical checkpoint preceded the scoped protocol approval below. A separate
+implementation/retention readiness gate remains required before collection.
+
+
+### Current checkpoint — approved design and proposed pilot custody
+
+Jason accepted the S0-only protocol design; the [approval record](labeling/approvals/2026-09-25-protocol-design.md)
+pins the exact approved commit and SHA256. This does not authorize collection,
+implementation of intake tooling, model evaluation or deployment. The
+[implementation readiness proposal](labeling/IMPLEMENTATION-READINESS.md) specifies
+records, transition authority, custody alternatives, retention, failure tests and
+rollback. Technical review rejected paper-only as the default: sanitized S0 train/dev
+records may use durable Git retention under the approved protocol. The proposal
+now recommends local forms/validator, with human content review before retention.
+Separate custody remains required for the later hidden test study.
+
+Next gate: approve bounded local forms/validator implementation without collection;
+then separately authorize the 30-family pilot and durable sanitized Git retention. M4 human acceptance and independent checkpoint custody remain
+separate and unresolved. Documentation review checks are recorded in
+[label readiness evidence](evidence/M3-label-readiness.md). Publication remains pending: automatic approval review rejected the coordination
+message asserting fresh push authority. No remote write was attempted. This does
+not change the separate data-collection boundary.
+
+
+### Current checkpoint — implementation-only S0 fixture tooling
+
+Published baseline `4702ee0` is verified on Forgejo and GitHub. Jason's separate
+[implementation-only approval](labeling/approvals/2026-09-25-implementation-only.md)
+covers empty local forms, stdlib validation and tests. The new fixture-only checker
+checks reference/state/privacy/revision/split invariants and rejects real content
+and human authority claims. 23 new tests and 96 complete adaptive tests pass.
+[Evidence and limitations](evidence/M3-local-tooling/README.md) distinguish this
+from a human collector. Technical review passed; the local milestone is ready
+for a focused commit, with collection still disabled.
+Next gate remains explicit authorization for collection and durable S0 retention;
+no case/label/review was collected. No production change or further push.
+
+
+### Latest integrated checkpoint — 2026-09-26
+
+Source-pin work through `69c2a7e` is reconciled with Forgejo `616a5af`. The incoming
+retrieval-only Aster change was reviewed explicitly; all eight extracted definitions
+are unchanged, and both offline source pins were revised with retained evidence.
+102 adaptive + 29 selector + 82 broker + 170 Aster tests pass. The 164-event historical
+M4 proof still verifies. See [integration evidence](evidence/2026-09-26-integration.md).
+This supersedes earlier notes calling the selector continuation unpublished or
+AI-PAM an unfinished M6 candidate. No production or collection change occurred here.
+Jason requested publication; verify the accepted commit and automatic mirror.
+
+Next gates are the separately authorized S0 collection/retention step, actual M4
+human review/independent custody, and Stage2 real-session assurance/process trust.
+Implementation-only labeling approval does not cover collection. Consult newer
+approval records before proceeding; do not manufacture human evidence or repeat
+synthetic benchmarks in place of these gates.

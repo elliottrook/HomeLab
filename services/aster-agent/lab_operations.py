@@ -111,11 +111,19 @@ class Store:
         value["reused"] = reused
         return value
 
-    def start(self, owner, request: Start):
+    def start(self, owner, request: Start, *, reconcile_stale: bool = True):
         if request.target not in self.enabled:
             raise HTTPException(403, "This lab target is disabled")
         with self.db() as db:
-            self.expire(db)
+            if reconcile_stale:
+                self.expire(db)
+            elif db.execute(
+                """SELECT 1 FROM jobs
+                     WHERE (state='queued' AND updated<?)
+                        OR (state='running' AND updated<?)""",
+                (self.now() - 300, self.now() - 7200),
+            ).fetchone():
+                raise HTTPException(409, "A stale lab job needs operator reconciliation")
             existing = db.execute("SELECT * FROM jobs WHERE owner=? AND request_id=?", (owner, request.request_id)).fetchone()
             if existing:
                 if (existing["target"], existing["purpose"]) != (request.target, request.purpose):

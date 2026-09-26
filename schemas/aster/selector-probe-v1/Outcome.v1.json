@@ -1,0 +1,60 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "selector-probe.outcome.v1",
+      "default": "selector-probe.outcome.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "result": {
+      "enum": [
+        "selection_recorded",
+        "abstained",
+        "denied",
+        "invalid"
+      ],
+      "title": "Result",
+      "type": "string"
+    },
+    "execution": {
+      "const": "not_attempted",
+      "default": "not_attempted",
+      "title": "Execution",
+      "type": "string"
+    },
+    "label_source": {
+      "enum": [
+        "synthetic_expectation",
+        "unlabeled"
+      ],
+      "title": "Label Source",
+      "type": "string"
+    },
+    "route_correct": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Route Correct"
+    }
+  },
+  "required": [
+    "run_id",
+    "result",
+    "label_source",
+    "route_correct"
+  ],
+  "title": "Outcome",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -1,0 +1,995 @@
+{
+  "experiment": {
+    "schema_version": "experiment.v1",
+    "experiment_id": "m2-selector-conformance-001",
+    "hypothesis": "contract-adapter-preserves-baseline-selection",
+    "baseline_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "candidate_digest": "12997b0947bfa3e22e8452db505c49a127e152be1d651f2677de11b51a256cba",
+    "dataset_digest": "ce55fe8c61b6fbe82bb9721ef9737e282702fb6b9753426df3b9d1f35fddc31b",
+    "evaluator_digest": "213d7e9869338f60138dc004a10a40ebfbea71108f26ca45ca610821c209036a",
+    "evidence_class": "synthetic-conformance-and-local-microbenchmark",
+    "state": "evaluated",
+    "decision": "no-production-promotion",
+    "observation_count": 12
+  },
+  "trusted_expected_source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+  "measured_source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+  "environment": {
+    "python": "3.12.14",
+    "pydantic": "2.13.4",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "fixture_count": 12,
+  "repeats_per_fixture": 100,
+  "baseline_selector": {
+    "p50_ns": 8875,
+    "p95_ns": 19166
+  },
+  "adapter_plus_contract_validation": {
+    "p50_ns": 46375,
+    "p95_ns": 57458
+  },
+  "manifest": {
+    "services/aster-agent/aster_agent.py": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "services/aster-adaptive/baseline.py": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+    "services/aster-adaptive/contracts.py": "78e78137d3fb67de4f8fd2a4634728d5a9a0e4ad07fa86c719556dbd1a074a4e",
+    "services/aster-adaptive/evaluate.py": "213d7e9869338f60138dc004a10a40ebfbea71108f26ca45ca610821c209036a",
+    "services/aster-adaptive/test_contracts.py": "e802628c6beaa038d9f62f22ad9d47340d2871cc033cdbea06fd33b81bfb73a6",
+    "services/aster-adaptive/fixtures.json": "ce55fe8c61b6fbe82bb9721ef9737e282702fb6b9753426df3b9d1f35fddc31b",
+    "services/aster-adaptive/experiment-definition.json": "2c641aef15ab260c71a64f7482dcb56a46263d4dd53a04352736cb03b4762072",
+    "schemas/aster/Capability.v1.json": "0c7b565c47898341c806d9c0107cf1aa00a25650d01b69bddedc1ffdb363caf9",
+    "schemas/aster/Catalogue.v1.json": "6fc1995aefd581ba698ebc7f14ba9ded0da22c8c902a0af7d0a4871407e8291a",
+    "schemas/aster/Decision.v1.json": "0644b9647a2ff9483f0b0ec5a1f07753cfc58bf8fd403bae839fb0e49bf4a405",
+    "schemas/aster/DecisionRequest.v1.json": "209bcff48f6ef069a4f167487b8d367529c48ff03d4e7c6ffbeec1f89af503b1",
+    "schemas/aster/Experiment.v1.json": "5ed14dfa560437d0ac0aabf306c085805d1c91db43273460e3b202e2d2dc1127",
+    "schemas/aster/HarnessRun.v1.json": "a3b3ac0f553100018ee4da4d3ada621487950214d6107b4b8f3c05dbe1f6d29a",
+    "schemas/aster/Outcome.v1.json": "e65d091ef2f93aad328c29b147ed0cbc8b6bff28b74743a828418f690ca2dbe6"
+  },
+  "catalogue": {
+    "schema_version": "catalogue.v1",
+    "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "capabilities": [
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "get_arr_repair_proposal",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "proposal",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "get_arr_report",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "get_current_time",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "get_forgejo_report",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "get_ha_report",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "get_lab_health",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "get_netbox_report",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "get_service_health",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "capability.v1",
+        "capability_id": "search_knowledge",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      }
+    ],
+    "scope": "offline-fixture-not-permission"
+  },
+  "eligibility_projections": {
+    "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19": {
+      "schema_version": "catalogue.v1",
+      "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+      "capabilities": [
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_arr_repair_proposal",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "proposal",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_arr_report",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_current_time",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_forgejo_report",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_ha_report",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_lab_health",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_netbox_report",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_service_health",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "search_knowledge",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        }
+      ],
+      "scope": "offline-fixture-not-permission"
+    },
+    "6e87e64831fce8a1203b895d7d1a39ab17a77c90151b6e1daa1e8f010ca1af5c": {
+      "schema_version": "catalogue.v1",
+      "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+      "capabilities": [
+        {
+          "schema_version": "capability.v1",
+          "capability_id": "get_current_time",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        }
+      ],
+      "scope": "offline-fixture-not-permission"
+    }
+  },
+  "results": [
+    {
+      "fixture_id": "timer",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "timer",
+        "content_handle": "timer",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "timer",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "timer",
+        "request_id": "timer",
+        "decision_digest": "4644c2dd56c469868ee1ec22a96fc43d9077ac60c4d32b426785d46b900afab4",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 47208,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "timer",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "lights",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "lights",
+        "content_handle": "lights",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "search_knowledge"
+      ],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "lights",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "lights",
+        "request_id": "lights",
+        "decision_digest": "15d5a9eb86b186a4a5163dd4621af4fda69a8f470cd1727df191b743db4f94a5",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 50917,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "lights",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "media",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "media",
+        "content_handle": "media",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "media",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "media",
+        "request_id": "media",
+        "decision_digest": "372e9f4f5d5e10ddeacf023b5b9575524ebedc36ecaa6a44c9d34803b31c4095",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 38458,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "media",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "fact",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "fact",
+        "content_handle": "fact",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "fact",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "fact",
+        "request_id": "fact",
+        "decision_digest": "dcebbe4c27f89841945c3a2f936bc3b74fa292cecc0f65a4497afbc438fcfa47",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 41666,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "fact",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "calendar",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "calendar",
+        "content_handle": "calendar",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "get_current_time"
+      ],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "calendar",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_current_time",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "calendar",
+        "request_id": "calendar",
+        "decision_digest": "f80211c5476847cc848bbef6a58e046c0dc5b01394699b4862da7cb64efe3a8d",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 43417,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "calendar",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "web",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "web",
+        "content_handle": "web",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "web",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "web",
+        "request_id": "web",
+        "decision_digest": "909d9a3a55aa0ef75519a22de756415e812d28c5b7039111b2701d3b614e92a1",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 49000,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "web",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "mixed",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "mixed",
+        "content_handle": "mixed",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "mixed",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "mixed",
+        "request_id": "mixed",
+        "decision_digest": "009888b393a7884edaafe44c59fec1e4354b507ebc240f2f7fec01e919bbbb14",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 52875,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "mixed",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "personal",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "personal",
+        "content_handle": "personal",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "search_knowledge"
+      ],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "personal",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "personal",
+        "request_id": "personal",
+        "decision_digest": "9c919faab6f32d3cc5c083aa2a0c88166babd1a06a37c0cc74faaa60601f75f4",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 48250,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "personal",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "sysadmin",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "sysadmin",
+        "content_handle": "sysadmin",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "get_service_health",
+        "search_knowledge"
+      ],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "sysadmin",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_service_health",
+            "after": []
+          },
+          {
+            "step_id": "step-1",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "sysadmin",
+        "request_id": "sysadmin",
+        "decision_digest": "79383cd63c3ba08651f40fcc40e44b541909d70e285968d8f0c83cecaeef18ae",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 46000,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "sysadmin",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "ambiguous",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "ambiguous",
+        "content_handle": "ambiguous",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "ambiguous",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "ambiguous",
+        "request_id": "ambiguous",
+        "decision_digest": "2e8f6d4164c8812c31fea829adf225a5f0f848270095912270d2d6b254b60a84",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 38708,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "ambiguous",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "ha-health",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "ha-health",
+        "content_handle": "ha-health",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "get_ha_report",
+        "search_knowledge"
+      ],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "ha-health",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_ha_report",
+            "after": []
+          },
+          {
+            "step_id": "step-1",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "ha-health",
+        "request_id": "ha-health",
+        "decision_digest": "b1155d460a41386ef260a18019d6744b3572785f7e91994de423f15088e60c4a",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 50916,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "ha-health",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "scope",
+      "request": {
+        "schema_version": "decision-request.v1",
+        "request_id": "scope",
+        "content_handle": "scope",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "6e87e64831fce8a1203b895d7d1a39ab17a77c90151b6e1daa1e8f010ca1af5c",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "decision.v1",
+        "request_id": "scope",
+        "registry_digest": "6e87e64831fce8a1203b895d7d1a39ab17a77c90151b6e1daa1e8f010ca1af5c",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "deny",
+        "steps": [],
+        "reason_codes": [
+          "FIXTURE_POLICY_DENY"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "harness-run.v1",
+        "run_id": "scope",
+        "request_id": "scope",
+        "decision_digest": "3075a84c03c34fa223c18840ebf395085d68edb2347fedb738fecd71eb788e25",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 20000,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "outcome.v1",
+        "run_id": "scope",
+        "result": "denied",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    }
+  ],
+  "limits": [
+    "Tool selection only, not full harness/model latency",
+    "Abstention here means no selected tool, not runtime answer refusal",
+    "Synthetic expectations are not human gold labels or calibrated accuracy",
+    "No model/tool/network execution, permission or deployment"
+  ]
+}

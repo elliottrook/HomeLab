@@ -309,6 +309,32 @@ class AsterAgentTests(unittest.TestCase):
             self.assertEqual(result["results"][0]["source"], "project/Aster-Operations.md")
             self.assertIn("no API token", result["results"][0]["excerpt"])
 
+    def test_ai_pam_query_prefers_dedicated_operational_reference(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "reference/operations/ai-pam.md"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "# AI-PAM Operational Reference\n\n"
+                "## Current service boundary\n"
+                "OpenBao remains outside the AI trust boundary. Aster Companion "
+                "provides passkey approval and the global AI-access kill switch.",
+                encoding="utf-8",
+            )
+            decoy = root / "reference/REFERENCE-CONTRACT.md"
+            decoy.parent.mkdir(parents=True, exist_ok=True)
+            decoy.write_text(
+                "Authority and approval contract. " * 100,
+                encoding="utf-8",
+            )
+            result = search_knowledge(
+                "How do AI-PAM, OpenBao and Companion approval work?", root=root
+            )
+            self.assertEqual(
+                result["results"][0]["source"], "reference/operations/ai-pam.md"
+            )
+            self.assertIn("global AI-access kill switch", result["results"][0]["excerpt"])
+
     def test_provenance_controls_authority_and_is_returned(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

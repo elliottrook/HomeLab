@@ -37,3 +37,23 @@ with health checks and performs one warm-up plus five measured repetitions.
 Execution also requires a new `--output` path; the result is created mode 0600,
 fsynced, hashed and never overwritten. Tests use an injected fake transport and
 never contact production.
+
+`collect-telemetry.sh` is a read-only, secret-free collector intended to run
+inside LXC 110 after separate approval of a benchmark. `telemetry.py` accepts
+only its strict key set, rejects duplicate/unknown/credential-like fields, and
+converts supported counters to ledger units. Frequency, power and CPU fallback
+remain explicit `null` values when they cannot be proven; resident VRAM alone is
+not misrepresented as proof that every operation used the GPU.
+
+`collect-kernel-log.sh` runs read-only on Proxmox for an exact epoch range and
+caps its output at 500 relevant lines. `kernel_log.py` rejects irrelevant,
+oversized, control-character or credential-like content and classifies reset,
+device-loss, hang and OOM evidence. CPU fallback is reported true or false only
+from affirmative backend/offload evidence plus material resident VRAM;
+otherwise it remains unknown.
+
+`record.py` binds the raw runner artifact to its deterministic fixture, exact
+environment hashes, telemetry, bounded kernel excerpt, health and backend
+evidence. It calculates measured-only median/MAD, refuses incomplete sample
+sets, validates the complete ledger schema and writes the resulting record with
+the same create-once mode-0600 evidence semantics.

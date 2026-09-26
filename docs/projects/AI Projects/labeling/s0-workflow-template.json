@@ -1,0 +1,7 @@
+{
+  "schema_version": "s0-workflow-fixture.v1",
+  "protocol_ref": "c384f8d:0b516bd8ede0c65ad26ad640b7b251181565a456956a02f0d2624316f6bb758f",
+  "mode": "synthetic-fixture-only",
+  "retention_ack": "fixture-only-no-human-acceptance",
+  "records": []
+}
