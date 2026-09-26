@@ -74,7 +74,7 @@ async def measure():
         FixtureAdapter()
         cold.append((time.perf_counter()-start)*1000)
     return {'schema_version': 'baseline-evidence.v1', 'scope': 'synthetic-source-slice-only',
-            'aster_source_digest': adapter.source_digest,
+            'aster_source_digest': adapter.source_digest, 'source_provenance': adapter.source_provenance,
             'dataset_digest': content_digest(CASES), 'python': platform.python_version(),
             'pydantic': pydantic.__version__, 'platform': platform.platform(),
             'source_slice_load': summarize(cold), 'cases': records,

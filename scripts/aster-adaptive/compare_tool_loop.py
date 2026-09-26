@@ -17,6 +17,7 @@ from unittest.mock import patch
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 from offline_baseline import SOURCE, digest
+from source_policy import read_pinned_source
 
 MANIFEST = Path(__file__).parent/'fixtures/tool-loop-v1.json'
 
@@ -60,7 +61,7 @@ class Boundary:
 
 
 def aster_chat():
-    node = next(n for n in ast.parse(SOURCE.read_bytes()).body
+    node = next(n for n in ast.parse(read_pinned_source()[0]).body
                 if isinstance(n, ast.AsyncFunctionDef) and n.name == 'chat')
     node.decorator_list = []
     tree = ast.Module(body=[ast.ImportFrom(module='__future__',names=[ast.alias(name='annotations')],level=0),node],type_ignores=[])
@@ -135,6 +136,7 @@ async def run_case(mode, case):
 
 
 async def measure(mode):
+    _, source_provenance = read_pinned_source()
     dataset = json.loads(MANIFEST.read_text())
     rows = []
     for case in dataset['cases']:
@@ -157,7 +159,8 @@ async def measure(mode):
         rows.append(row)
     return {'schema_version':'tool-loop-comparison.v1','mode':mode,'cases':rows,
             'dataset_digest':digest(MANIFEST.read_bytes()),'evaluator_digest':digest(Path(__file__).read_bytes()),
-            'aster_source_digest':digest(SOURCE.read_bytes()),
+            'aster_source_digest':source_provenance['observed_digest'],
+            'source_provenance':source_provenance,
             'limits':['synthetic responses, no quality evidence','setup excluded from timed loop for both candidates',
                       'baseline payload and Lab Operations are stubs','policy enforced by shared independent fixture boundary']}
 

@@ -161,3 +161,14 @@ directory using `--selector-dir`, and a new result path with `--output`. The scr
 checks source/corpus pins before importing the trusted module. It performs no
 conversion. Shared version labels do not imply interchangeable records; see the
 [contract map](../../docs/projects/AI%20Projects/evidence/M2-contract-reconciliation.md).
+
+## Reviewed source pin
+
+`source-definition.json` fixes the expected Aster source before any payload-slice or
+chat-loop compilation. `source_policy.py` rejects missing/invalid definitions and
+source drift; there is no accept-current-source switch. New result files retain
+expected and observed source hashes plus the definition hash. Change the pin only
+as a reviewed experiment revision and keep historical evidence intact. This is a
+local content check, not reviewer authentication or a source-execution sandbox.
+The suite now has 62 tests; see the
+[source-pin checkpoint](../../docs/projects/AI%20Projects/evidence/M2-source-pin-checkpoint.md).

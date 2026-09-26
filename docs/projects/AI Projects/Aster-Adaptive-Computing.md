@@ -252,8 +252,10 @@ The two offline contract candidates have been compared using pinned snapshots:
 samples are rejected in both directions; four version strings name incompatible
 formats. See [contract mapping and decision](evidence/M2-contract-reconciliation.md).
 Retain both scoped tools; no automatic converter or connected adoption is approved.
-Next local work is independent expected-source pinning before the fixture harness
-compiles source. A read-only Forgejo check found newer `2c71d6b`; recheck/reconcile
+Independent expected-source pinning is now implemented before payload/chat-loop
+compilation. All 62 adaptive tests pass; four lineage cases and eight tool-loop
+cases passed with restore/provenance checks. See the
+[source-pin checkpoint](evidence/M2-source-pin-checkpoint.md). A read-only Forgejo check found newer `2c71d6b`; recheck/reconcile
 before any later integration. Stage2 and M4 review gates remain open. No push or
 production mutation occurred in this comparison.
 

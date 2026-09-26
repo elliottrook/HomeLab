@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from contracts import HarnessRun, Outcome
+from source_policy import read_pinned_source
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'services/aster-agent/aster_agent.py'
@@ -29,7 +30,7 @@ def digest(data: bytes) -> str:
 
 
 def load_slice():
-    source = SOURCE.read_bytes()
+    source, provenance = read_pinned_source()
     parsed = ast.parse(source)
     selected, found = [], set()
     for node in parsed.body:
@@ -53,7 +54,7 @@ def load_slice():
                  'UPSTREAM_MODEL': 'fixture-no-model', 'DEFAULT_TIMEZONE': 'UTC',
                  'lab_operations': SimpleNamespace(enabled=set())}
     exec(compile(module, str(SOURCE), 'exec'), namespace)
-    return namespace, digest(source)
+    return namespace, digest(source), provenance
 
 
 class FixtureRequest:
@@ -73,7 +74,7 @@ class FixtureExpired(Exception):
 
 class FixtureAdapter:
     def __init__(self):
-        self.namespace, self.source_digest = load_slice()
+        self.namespace, self.source_digest, self.source_provenance = load_slice()
 
     async def run(self, contract: HarnessRun, prompt: str, *, now: int,
                   cancelled=lambda: False, monotonic=time.perf_counter) -> Outcome:

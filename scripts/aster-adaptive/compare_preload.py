@@ -85,7 +85,7 @@ async def compare(mode):
     return {'schema_version': 'preload-comparison.v1', 'mode': mode, 'cases': records,
             'candidate_import_ms': import_ms,
             'peak_rss_bytes': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * (1 if sys.platform=='darwin' else 1024),
-            'aster_source_digest': fixture.source_digest, 'dataset_digest': content_digest(CASES),
+            'aster_source_digest': fixture.source_digest, 'source_provenance': fixture.source_provenance, 'dataset_digest': content_digest(CASES),
             'evaluator_digest': digest(Path(__file__).read_bytes()),
             'limits': ['fixed responses, no quality evidence', 'preload profile only',
                        'no provider request serialization or real token counts',
