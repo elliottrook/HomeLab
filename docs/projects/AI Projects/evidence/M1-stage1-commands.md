@@ -9,8 +9,8 @@ requests here. No Git push is included.
 ## Release identity
 
 - Local archive: `/private/tmp/aster-m1-stage1-20260925.tar.gz`
-- Archive SHA-256: `13bc0fe0d9ef2b3cc75e0746d818e8c5f0190042204166cb91ce6848b5a14a2b`
-- Manifest SHA-256: `abd8a018435d37894d9777c75ae09f2dc53d6d44e656bddeaee8a8dff09b075d`
+- Archive SHA-256: `0d9632a3683a5efe740921a360cf65ca6e2644b6d7aee3a5b33d04c56b659d49`
+- Manifest SHA-256: `6336acc608c23bf2168e875adc652f43c45c8b5663884fe4171bb53323de2589`
 - Target: LXC104 via Proxmox `192.168.50.10`.
 - Install only `/opt/homelab-broker/broker_core.py` and `broker_service.py`.
 - Restart only `homelab-broker.service` and `homelab-broker-approval.service`.

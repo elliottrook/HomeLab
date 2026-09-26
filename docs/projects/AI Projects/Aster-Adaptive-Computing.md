@@ -183,3 +183,15 @@ Jason explicitly requested this project start as Stream A and the folder/archive
 ### M1 executable rollout preparation checkpoint
 
 The prepared candidate now includes a read-only preflight, eight preflight regressions, a bounded two-file apply script and [exact operator commands](evidence/M1-stage1-commands.md). Broker suite65 and staged subset45 pass. No production execution or push has occurred. Expired pending rows were distinguished from usable approvals without mutation. The latest AI-PAM coordination has reopened its M6 workflow, so its earlier quiescent window is no longer valid. Resume by rechecking the live hashes/TTL summary, obtaining an immediately current coordination window and reviewing the exact Stage1 deployment with Jason. Do not infer approval from this checkpoint.
+
+
+### Latest M1 resume gate — reviewed Stage1 candidate
+
+Local checkpoint `7ef0b96` was completed. Both independent reviews have now
+returned; the recovery-directory reporting finding is fixed and the rebuilt
+release passes 45 staged tests. AI-PAM reports M6 rollback complete. Fresh
+read-only verification found unchanged baseline source, healthy services and
+zero usable approvals. The current next step is the exact Stage1 deployment
+approval in [operator commands](evidence/M1-stage1-commands.md), followed by a
+fresh immediate preflight. Previous notes about an active M6 cleanup window are
+historical. Production is unchanged by this task; no push is authorized.

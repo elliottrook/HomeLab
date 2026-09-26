@@ -84,3 +84,32 @@ Official references accessed 2026-09-25: [OAuth2 provider](https://docs.goauthen
 Read-only check at Unix1790384449: hashes unchanged; database integrityok; the two status-pending rows were expired by over three hours, so they were not usable authorizations. No row was changed. The new read-only preflight tests this distinction, live/release drift, scope expansion, missing DB, traversal and committed WAL visibility (8 tests). Complete broker suite65 and staged subset45 pass. Installer shell syntax validates; it has not been executed against production. Exact transfer/apply/verify/recovery commands are in [Stage1 commands](M1-stage1-commands.md).
 
 AI-PAM briefly confirmed quiescence, then reported renewed separately approved M6 work and pending remote test-branch cleanup. Its latest coordination supersedes the earlier window: Stage1 remains paused until it confirms an immediately current safe restart window. No request or remote branch is cancelled or changed by this task. This is an operational coordination gate, not a request to restart the whole project.
+
+
+## Final local review checkpoint — 2026-09-25
+
+Independent reviews from the assessment and AI-PAM tasks found the bounded
+candidate suitable for an explicit deployment decision. One recovery-output
+finding was corrected: the installer announces the recovery directory on creation,
+labels it unverified until backup/restore validation passes, prints the verified
+checkpoint immediately afterward, and repeats the directory on failure. No
+production installer execution or full installer rehearsal is claimed.
+
+The rebuilt release passes all 45 staged tests and shell syntax validation.
+Run unittest from `ops/credential-broker` (or the staged directory), using the
+module names in the operator commands. A dotted invocation through the hyphenated
+`ops.credential-broker` directory is not supported and fails imports; that is not
+a failing security regression. The prior complete broker run passed 65 tests.
+
+AI-PAM confirmed its M6 execution and remote rollback completed and its work is
+quiescent. Fresh read-only verification at Unix1790385270 found all three baseline
+source hashes unchanged, SQLite integrity `ok`, zero usable pending/approved
+requests, and counts consumed11/denied1/expired8/revoked1. Both entrypoints and
+both gateways were active with zero restarts. A subsequent targeted socket check
+found no connected non-stdio descriptor on the broker/approval processes. This
+is point-in-time evidence and must be repeated immediately before maintenance.
+
+Current gate: Jason's explicit approval of the exact two-file Stage1 deployment,
+including the possible fail-closed AI-PAM outage. No deployment or Git push has
+occurred. The exact current archive and manifest digests are in the operator
+commands; earlier bundle digests are superseded. Stage2 assurance remains open.

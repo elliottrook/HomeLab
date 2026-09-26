@@ -31,9 +31,10 @@ export checkpoint
 mkdir -p /var/lib/homelab-broker/rollback
 chmod 0700 /var/lib/homelab-broker/rollback
 mkdir -m 0700 "$checkpoint"
+printf 'Recovery directory created (checkpoint verification pending): %s\n' "$checkpoint"
 # A failure after entering maintenance leaves both entrypoints stopped.
 # The trap never restarts potentially inconsistent or unsafe code.
-trap 'result=$?; if [ "$result" -ne 0 ]; then systemctl stop homelab-broker-approval.service homelab-broker.service || true; fi; exit "$result"' 0
+trap 'result=$?; if [ "$result" -ne 0 ]; then systemctl stop homelab-broker-approval.service homelab-broker.service || true; if [ -n "${checkpoint:-}" ]; then printf "Recovery directory (verify checkpoint completeness before use): %s\n" "$checkpoint" >&2; fi; fi; exit "$result"' 0
 systemctl stop homelab-broker-approval.service homelab-broker.service
 for service in homelab-broker.service homelab-broker-approval.service; do
     [ "$(systemctl show "$service" --property=MainPID --value)" = 0 ]

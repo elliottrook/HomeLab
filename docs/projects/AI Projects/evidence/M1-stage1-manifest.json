@@ -27,7 +27,7 @@
     "verify_legacy_approval.py": "ea00e7638948f3f17802fa2d9c7ff7aab468b30d060af985b304641c300a7bf1",
     "stage1_preflight.py": "cfbdab122d1aa280e0d5b4403642975b1b29aa7a08432b56d650f78a42600825",
     "test_stage1_preflight.py": "254cb3b35d4dd6891e69067fa34f6b335be45eb76d972811b9ec718c0db34b17",
-    "apply-m1-stage1.sh": "203a4d32e6a872e33b79c9fd4f98649aa7f7c6c8d31d96bea522b5bc8a90c53c"
+    "apply-m1-stage1.sh": "401f1b60f44785f586fd48925fe63b81054230320a68d66c543fb7b2513f8195"
   },
   "blocked_on": [
     "explicit deployment approval",
