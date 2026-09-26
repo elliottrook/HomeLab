@@ -741,3 +741,17 @@ the full adaptive suite passes 234 tests. The checked
 candidate contains no accepted-corpus marker, credentials, package update, network
 device or grant of authority. The ISO and live PTY capture remain unbuilt/unverified;
 no Proxmox mutation or external download occurred.
+
+
+### Disposable VM V1/V2 outcome — failed safely
+
+After explicit V1/V2 approval, VM118 `aster-s0-fixture-v0` was created from the
+dated checksum-matched Debian image. Its stopped configuration proved one core,
+1 GiB fixed RAM, 8-GiB disk, serial/seed devices and no vNIC, agent, credential,
+passthrough, shared filesystem or automatic start. The single bootstrap boot
+reported only loopback and reached the reviewed canary unit. That unit failed before
+emitting a protocol result; the wrapper powered the VM off and the strict parser
+rejected the capture as incomplete. VM118 is retained stopped, existing guests are
+unchanged and no accepted corpus ran. Exact cause remains UNKNOWN / REQUIRES
+VERIFICATION. [V2 evidence](experiments/s0-routing-descriptive-v1/run-v2-bootstrap/README.md)
+blocks V3 and any retry pending a separately reviewed offline diagnosis.

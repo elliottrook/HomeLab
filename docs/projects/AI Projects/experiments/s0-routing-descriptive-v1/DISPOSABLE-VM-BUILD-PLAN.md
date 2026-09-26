@@ -232,6 +232,14 @@ passing; the full adaptive suite passes 234 tests. YAML parsing and persisted
 manifest verification pass. ISO generation, `qm terminal`
 capture behavior and all Proxmox mutation remain untested and unauthorized.
 
+**V1/V2 outcome:** after explicit approval, V1 created stopped VM118 and its exact
+configuration passed the no-vNIC/no-agent gate. The one V2 bootstrap boot failed
+safely: cloud-init invoked the canary unit, the unit failed before emitting any
+protocol record, and the fallback powered the VM off. The parser rejected the
+105,115-byte capture as incomplete. Evidence is retained in
+[`run-v2-bootstrap/`](run-v2-bootstrap/). V3 is blocked; no retry or offline disk
+inspection is authorized by the consumed V2 approval.
+
 ### V1 — create but do not boot
 
 At the approved window, recheck host health, memory, storage, next VMID and name

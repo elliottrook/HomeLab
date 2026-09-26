@@ -499,3 +499,17 @@ parsed the generated cloud-config; persisted file hashes match the candidate
 manifest. Candidate manifest SHA-256 is
 `0d015cc70e6df5b31048fd203916dcaf0b783e8ecd3bbaae6b6c76f339610c47`.
 No ISO, image download, VMID reservation, Proxmox mutation or corpus execution.
+
+
+### 2026-09-26 — disposable VM V1/V2 negative result
+
+Forgejo and GitHub mirror advanced to `dcc3623`. The dated Debian image matched its
+published SHA-512 and stopped VM118 matched the reviewed one-core/1-GiB/8-GiB
+networkless configuration. One approved bootstrap boot reported only loopback.
+Cloud-init invoked `aster-s0-canary.service`, which failed before emitting a framed
+result; the shutdown fallback powered off cleanly. Capture is 105,115 bytes, SHA-256
+`23e071c370e952d64c08b678900121ee03098ec7444b1d26f5e5661fc9027fdb`, with zero
+protocol records; strict parse result is `incomplete protocol`. VM118 remains
+stopped, host/existing guests are healthy and unchanged, and no corpus ran. Exact
+unit cause is UNKNOWN pending separately approved read-only offline forensics. No
+retry or V3 is authorized.
