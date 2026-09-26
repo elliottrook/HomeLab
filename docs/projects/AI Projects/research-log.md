@@ -181,3 +181,14 @@ requested before commit. Operational collection/retention and M4 gates remain op
 Technical reviewer independently reran the initial 18 added / 91 total tests and
 accepted the non-collecting candidate. Subsequent local additions passed 23/96.
 Review permits local commit only; next gate remains collection/retention approval.
+
+
+## 2026-09-25 — direct bounded pilot approval
+
+Recorded direct approval of September 26–October 25 manual pilot, including exact
+case-by-case review and durable-retention limits. A coordinating message suggested
+September 25; the direct approved statement governs. Clock confirms collection
+not yet open. Read-only checks: `/private/tmp` Time Machine Included; existing
+per-user temporary root Excluded; Spotlight disabled. No backup configuration
+changed and no cases/data directories created. Third-party capture remains unknown.
+No scheduler, model call, evaluation, deployment or push.

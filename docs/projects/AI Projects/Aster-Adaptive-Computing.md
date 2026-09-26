@@ -392,3 +392,16 @@ from a human collector. Technical review passed; the local milestone is ready
 for a focused commit, with collection still disabled.
 Next gate remains explicit authorization for collection and durable S0 retention;
 no case/label/review was collected. No production change or further push.
+
+
+### Current checkpoint — manual pilot approved, start pending
+
+Jason [approved the bounded manual S0 pilot](labeling/approvals/2026-09-25-pilot-collection.md)
+for **26 September–25 October 2026**, with durable sanitized Git retention and
+individual case/label review. The current local date is still September 25; no
+case or label was created. Time Machine includes `/private/tmp`; the existing
+per-user temporary root is excluded and Spotlight is disabled. Recheck the actual
+draft subdirectory at start. Third-party capture is not established by these checks.
+Next safe action after the start date: prepare ten clearly AI-proposed synthetic
+train/dev drafts outside Git for Jason's individual review. No model/router
+evaluation, production change, scheduling or further push is authorized.
