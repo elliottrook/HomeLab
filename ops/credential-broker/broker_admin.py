@@ -18,6 +18,8 @@ def main() -> None:
     subparsers.add_parser("global-disable")
     subparsers.add_parser("global-enable")
     subparsers.add_parser("enable-forgejo-safe-write")
+    subparsers.add_parser("enable-lab-doctor")
+    subparsers.add_parser("disable-lab-doctor")
     subparsers.add_parser("status")
     args = parser.parse_args()
     store = BrokerStore(args.database)
@@ -68,6 +70,64 @@ def main() -> None:
                        VALUES('agent-hermes','forgejo.write.safe-branch')"""
                 )
             print("FORGEJO_SAFE_WRITE_ENABLED")
+        elif args.command == "enable-lab-doctor":
+            if store.connection.execute(
+                "SELECT 1 FROM agents WHERE agent_id='agent-hermes'"
+            ).fetchone() is None:
+                raise SystemExit("agent-hermes is not registered")
+            with store.connection:
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO services(
+                           service_id,execution_mode,enabled,created_at,credential_type,
+                           custody_identifier,credential_scope,rotation_due,revocation_method,health
+                       ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                    (
+                        "lab-operations", "proxy", 1, store._now(), "none", "none",
+                        "doctor diagnostics only", "not-applicable",
+                        "disable lab-operations broker service", "candidate",
+                    ),
+                )
+                store.connection.execute(
+                    "UPDATE services SET enabled=1 WHERE service_id='lab-operations'"
+                )
+                service = store.connection.execute(
+                    """SELECT execution_mode,credential_type,custody_identifier,credential_scope,
+                              rotation_due,revocation_method
+                         FROM services WHERE service_id='lab-operations'"""
+                ).fetchone()
+                if tuple(service) != (
+                    "proxy", "none", "none", "doctor diagnostics only", "not-applicable",
+                    "disable lab-operations broker service",
+                ):
+                    raise SystemExit("existing lab-operations service metadata does not match M7")
+                for capability, risk, probation in (
+                    ("lab.doctor.latest", "green", 1),
+                    ("lab.doctor.run", "yellow", 0),
+                ):
+                    store.connection.execute(
+                        """INSERT OR IGNORE INTO capabilities(
+                               capability,service_id,risk_class,probation_allowed,enabled
+                           ) VALUES(?,?,?,?,1)""",
+                        (capability, "lab-operations", risk, probation),
+                    )
+                    store.connection.execute(
+                        "UPDATE capabilities SET enabled=1 WHERE capability=?", (capability,),
+                    )
+                    registered = store.connection.execute(
+                        """SELECT service_id,risk_class,probation_allowed
+                             FROM capabilities WHERE capability=?""", (capability,),
+                    ).fetchone()
+                    if tuple(registered) != ("lab-operations", risk, probation):
+                        raise SystemExit(f"existing {capability} metadata does not match M7")
+                    store.connection.execute(
+                        """INSERT OR IGNORE INTO agent_capabilities(agent_id,capability)
+                           VALUES('agent-hermes',?)""",
+                        (capability,),
+                    )
+            print("LAB_DOCTOR_ENABLED")
+        elif args.command == "disable-lab-doctor":
+            store.set_service_enabled("lab-operations", False)
+            print("LAB_DOCTOR_DISABLED")
         else:
             print(json.dumps({"global_enabled": store.global_enabled(), "audit_events": len(store.audit_rows())}, sort_keys=True))
     finally:

@@ -72,3 +72,10 @@ Companion parity remains required by M8.
 The local candidate adds a broker-private adapter, unit, routing and synthetic
 tests. It does not register capabilities, create the group/environment file,
 restart a service, access the live job database, run Doctor or modify production.
+
+The deployment bundle now includes a preflighted installer and explicit rollback
+script. The installer refuses active or uncertain Lab Operations work, requires
+`agent-hermes` to remain an operator, copies the broker database and replaced
+files into a timestamped root-only checkpoint, derives only the existing owner
+hash (never the worker key), and starts the private gateway before restarting
+the broker. Deployment remains unauthorized until the operator approves it.
