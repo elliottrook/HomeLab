@@ -3,8 +3,9 @@
 Deployed 2026-09-26. Use [primary](https://dns1.elliottrook.com/admin/) and
 [secondary](https://dns2.elliottrook.com/admin/) through the existing Authentik
 passkey-only owner flow. Both were observed in Brave using an existing Authentik
-session without a second application login. Fresh passkey and logout acceptance
-remain open; this is not full project graduation.
+session without a second application login. Jason subsequently confirmed the
+requested fresh private-browser Face ID/passkey test with “works.” Logout and
+recovery acceptance remain open; this is not full project graduation.
 
 ## Access paths
 
@@ -118,6 +119,6 @@ both resolvers. Primary container/guard restart and secondary managed-app
 stop/start pass. Unrelated Docker-network access to both secondary addresses is
 denied; primary Homepage cannot access the raw backend or configuration API.
 
-Remaining human gates: fresh passkey, logout/session behaviour, settings saves
+Remaining human gates: logout/session behaviour, settings saves
 and upload workflows, and interactive browser recovery. Full host reboot and
 scheduled-backup restoration are not claimed by these restart tests.

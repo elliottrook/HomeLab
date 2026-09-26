@@ -20,6 +20,14 @@
 
 ## Resume audit — 2026-09-23
 
+### Pi-hole browser acceptance — 2026-09-26
+
+Jason replied “works” to the requested fresh private-browser Face ID/passkey
+check using the primary and secondary Pi-hole links. Record the requested
+single-login browser acceptance as user-confirmed. This does not establish
+logout/re-prompt, settings-save/upload, interactive recovery or host-reboot
+acceptance. Those and the scheduled-backup coverage checks remain open.
+
 ### Pi-hole pair single-login deployment — 2026-09-26
 
 Primary and secondary now use the verified-owner browser guards described in
@@ -44,7 +52,8 @@ configuration passes both DNS transports and managed-app stop/start. Primary
 restart also passes. Homepage uses a verified statistics-only route and its
 source address is pinned in Compose; live widget statistics pass.
 
-All 126 boundary checks pass. Fresh passkey/logout, native settings-save/upload,
+All 126 boundary checks pass. Fresh passkey browser acceptance is recorded
+above; logout, native settings-save/upload,
 interactive browser recovery and scheduled-backup coverage remain open, as do
 other project graduation gates. Unknown intermittent API consumers need a narrow
 integration route if discovered. Do not roll back the secondary to its formerly
