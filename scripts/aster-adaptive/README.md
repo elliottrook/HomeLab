@@ -106,3 +106,18 @@ databases. It does not import or retrospectively preregister previous M3 results
 The current test suite has 40 tests. See the
 [M4 checkpoint](../../docs/projects/AI%20Projects/evidence/M4-storage-checkpoint.md)
 for recovery instructions and the limits of hash chains and reviewer metadata.
+
+`Dataset`, `RegisteredRun` and `LinkedOutcome` add explicit lineage for new
+measurements. A dataset manifest hashes synthetic inputs and expected labels;
+registered runs bind its case IDs and the frozen experiment artifact. Linked
+outcomes reference the exact run event. Legacy `outcome.v1` records remain readable
+but do not carry this cross-record guarantee. There are now 45 adaptive tests.
+
+```sh
+/private/tmp/aster-lab-ops-venv/bin/python scripts/aster-adaptive/measure_lineage.py --output /private/tmp/lineage-proof-new.json
+```
+
+This runner refuses an existing output path, freezes its experiment before execution,
+then retains four new fixture outcomes and restores the ten-event ledger. It records
+no aggregate evaluation or reviewer decision. See the
+[lineage checkpoint](../../docs/projects/AI%20Projects/evidence/M4-lineage-checkpoint.md).

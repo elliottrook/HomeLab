@@ -1,0 +1,14 @@
+{
+  "schema_version": "lineage-manifest.v1",
+  "tests_passed": 45,
+  "files": {
+    "scripts/aster-adaptive/evidence_store.py": "sha256:ef57caea65364e5aa263ce3bfad7831071da08838b35125d3593987afc10b6fb",
+    "scripts/aster-adaptive/measure_lineage.py": "sha256:fc93bd11c89cca87fb1e76a5c49259b1307ae7a635c5a6555dfc05dfeef75a6f",
+    "scripts/aster-adaptive/test_evidence_lineage.py": "sha256:2db72a3e3fbdf14985e806749dae2293c0ff3f3ee3ff046769c07ee3669fa36f",
+    "docs/projects/AI Projects/evidence/M4-lineage/dataset.schema.json": "sha256:997c8e88d053f3fe1c36e9b35884f1677a53aa4a6997a1dcd2abb38ed6ae484f",
+    "docs/projects/AI Projects/evidence/M4-lineage/linkedoutcome.schema.json": "sha256:a57981c267b18568e10ba3c128b6ed2bdffd0ae1aaf8ac03cfe25be4f65c871f",
+    "docs/projects/AI Projects/evidence/M4-lineage/measurement-001.json": "sha256:3c8e65ba416330947898f66cc09847980d270ba69cfc17f9c9c51fa18db98d82",
+    "docs/projects/AI Projects/evidence/M4-lineage/registeredrun.schema.json": "sha256:7224512177a973163879dddeec91022550c7bdca4634685ad2d817c1767172e4",
+    "docs/projects/AI Projects/evidence/M4-lineage-plan.md": "sha256:c27068d89e7b3db2c871cbbce96470baf4e266b60dcc3b0b29a2f975e3f2304b"
+  }
+}

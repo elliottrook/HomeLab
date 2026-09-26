@@ -210,9 +210,16 @@ evaluation-bound reviews, idempotent transactional appends and an externally pin
 hash-chain restore check. **40 adaptive tests pass**, and a disposable three-event
 backup restored successfully. This is not authenticated review or production storage.
 See [M4 storage checkpoint and limits](evidence/M4-storage-checkpoint.md).
-Next safe local work is measured-outcome linkage and dataset manifests, exercised
-with a new preregistered synthetic paired experiment. M4 remains open. No production
-changes or installs occurred in this storage step. All newer M2–M4 work is local;
+The checkpoints through `c10bf84` were then pushed with Jason's explicit approval;
+Forgejo and GitHub main were verified at `c10bf84b020860616cd26fe6b10be4a64aa63d35`.
+
+The next local M4 step adds dataset manifests, registered runs and exact outcome
+lineage. **45 adaptive tests pass**; four fresh fixture outcomes passed and their
+ten-event ledger restored successfully. This is a lineage exercise, not a paired
+performance result. See [M4 lineage evidence and resume point](evidence/M4-lineage-checkpoint.md).
+Next safe work is a newly preregistered paired synthetic experiment whose aggregate
+evaluation binds exact outcome events and family denominators. M4 remains open.
+No production changes or installs occurred. This newer lineage work is local;
 a further push needs explicit authorization.
 
 

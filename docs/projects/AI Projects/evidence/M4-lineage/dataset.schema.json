@@ -1,0 +1,78 @@
+{
+  "$defs": {
+    "DatasetCase": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "family_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Family Id",
+          "type": "string"
+        },
+        "input_digest": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Input Digest",
+          "type": "string"
+        },
+        "expected_digest": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Expected Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "family_id",
+        "input_digest",
+        "expected_digest"
+      ],
+      "title": "DatasetCase",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "dataset.v1",
+      "default": "dataset.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "dataset_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Dataset Id",
+      "type": "string"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/DatasetCase"
+      },
+      "maxItems": 1000,
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    },
+    "label_provenance": {
+      "const": "synthetic-authored",
+      "default": "synthetic-authored",
+      "title": "Label Provenance",
+      "type": "string"
+    },
+    "data_class": {
+      "const": "synthetic",
+      "default": "synthetic",
+      "title": "Data Class",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dataset_id",
+    "cases"
+  ],
+  "title": "Dataset",
+  "type": "object"
+}

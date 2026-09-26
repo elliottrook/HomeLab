@@ -7,8 +7,44 @@ import sqlite3
 from pathlib import Path
 from typing import Annotated, Literal
 
-from pydantic import Field
-from contracts import Contract, Digest, Experiment, Outcome, Ref
+from pydantic import Field, model_validator
+from contracts import Contract, Digest, Experiment, HarnessRun, Outcome, Ref
+
+
+class DatasetCase(Contract):
+    case_id: Ref
+    family_id: Ref
+    input_digest: Digest
+    expected_digest: Digest
+
+
+class Dataset(Contract):
+    schema_version: Literal['dataset.v1'] = 'dataset.v1'
+    dataset_id: Ref
+    cases: Annotated[tuple[DatasetCase, ...], Field(min_length=1, max_length=1000)]
+    label_provenance: Literal['synthetic-authored'] = 'synthetic-authored'
+    data_class: Literal['synthetic'] = 'synthetic'
+
+    @model_validator(mode='after')
+    def unique_cases(self):
+        if len({c.case_id for c in self.cases}) != len(self.cases):
+            raise ValueError('duplicate dataset case')
+        return self
+
+
+class RegisteredRun(Contract):
+    schema_version: Literal['registered-run.v1'] = 'registered-run.v1'
+    dataset_digest: Digest
+    case_id: Ref
+    candidate_role: Literal['baseline', 'candidate']
+    run: HarnessRun
+
+
+class LinkedOutcome(Contract):
+    schema_version: Literal['linked-outcome.v1'] = 'linked-outcome.v1'
+    experiment_id: Ref
+    run_event_digest: Digest
+    outcome: Outcome
 
 
 class Evaluation(Contract):
@@ -35,7 +71,8 @@ class Review(Contract):
     data_class: Literal['synthetic'] = 'synthetic'
 
 
-MODELS = {'experiment': Experiment, 'outcome': Outcome, 'evaluation': Evaluation, 'review': Review}
+MODELS = {'experiment': Experiment, 'outcome': Outcome, 'evaluation': Evaluation, 'review': Review,
+          'dataset': Dataset, 'run': RegisteredRun, 'linked-outcome': LinkedOutcome}
 ZERO = 'sha256:' + '0'*64
 
 
@@ -87,7 +124,35 @@ class EvidenceStore:
         return model.model_dump(mode='json')
 
     def _relationships(self, kind, record, prior):
-        if kind == 'experiment':
+        if kind == 'dataset':
+            if any(p['kind']=='dataset' and p['record']['dataset_id']==record['dataset_id'] for p in prior):
+                raise ValueError('dataset manifest already frozen')
+        elif kind == 'run':
+            run=record['run']
+            specs=[p['record'] for p in prior if p['kind']=='experiment'
+                   and p['record']['experiment_id']==run['experiment_id']]
+            if len(specs)!=1 or specs[0]['dataset_digest']!=record['dataset_digest']:
+                raise ValueError('run needs matching frozen experiment and dataset')
+            if any(p['kind']=='review' and p['record']['experiment_id']==run['experiment_id'] for p in prior):
+                raise ValueError('experiment already reviewed; use a new experiment')
+            manifests=[p['record'] for p in prior if p['kind']=='dataset'
+                       and digest(p['record'])==record['dataset_digest']]
+            if len(manifests)!=1 or record['case_id'] not in {c['case_id'] for c in manifests[0]['cases']}:
+                raise ValueError('run needs registered dataset case')
+            if run['harness_digest']!=specs[0][record['candidate_role']+'_digest']:
+                raise ValueError('run harness differs from frozen artifact')
+            if any(p['kind']=='run' and p['record']['run']['run_id']==run['run_id'] for p in prior):
+                raise ValueError('run identity already registered')
+        elif kind == 'linked-outcome':
+            runs=[p['record']['run'] for p in prior if p['kind']=='run'
+                  and p['event_digest']==record['run_event_digest']]
+            if len(runs)!=1 or runs[0]['experiment_id']!=record['experiment_id'] or runs[0]['run_id']!=record['outcome']['run_id']:
+                raise ValueError('outcome needs exact registered run')
+            if any(p['kind']=='review' and p['record']['experiment_id']==record['experiment_id'] for p in prior):
+                raise ValueError('experiment already reviewed; use a new experiment')
+            if any(p['kind']=='linked-outcome' and p['record']['run_event_digest']==record['run_event_digest'] for p in prior):
+                raise ValueError('run outcome already recorded')
+        elif kind == 'experiment':
             if record['status'] != 'preregistered':
                 raise ValueError('experiments enter ledger only as preregistered')
             if any(p['kind']=='experiment' and p['record']['experiment_id']==record['experiment_id'] for p in prior):
