@@ -71,3 +71,21 @@ hashes and use new evidence paths for later runs. See the
 [M3 result](../../docs/projects/AI%20Projects/evidence/M3-preload-results.md) and its
 hashed dependency lock. The preload result retains Aster and is not a completed
 M3 routing/tool-loop/model-quality comparison.
+
+## Tool-loop and routing smoke runners
+
+The isolated candidate environment runs both actual Aster chat-loop source and
+PydanticAI against the same frozen eight-case tool script:
+
+```sh
+/private/tmp/aster-adaptive-pydanticai/bin/python scripts/aster-adaptive/compare_tool_loop.py --mode aster --output /private/tmp/aster-loop-new.json
+PYDANTIC_AI_NO_BANNER=1 /private/tmp/aster-adaptive-pydanticai/bin/python scripts/aster-adaptive/compare_tool_loop.py --mode pydanticai --output /private/tmp/pydanticai-loop-new.json
+python3 scripts/aster-adaptive/routing_smoke.py --output /private/tmp/routing-smoke-new.json
+```
+
+Routing is a separate dependency-free smoke comparison, not a production router.
+Its 300 presentation variants represent 30 authored families, only ten in the test
+split. No execution path exists and all outputs explicitly deny implied authority.
+The negative challenger result is retained; do not tune against its test split.
+See [tool-loop/routing results](../../docs/projects/AI%20Projects/evidence/M3-tool-loop-results.md).
+The normal adaptive test command now runs 30 tests.

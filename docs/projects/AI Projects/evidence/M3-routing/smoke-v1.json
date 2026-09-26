@@ -1,0 +1,352 @@
+{
+  "schema_version": "routing-smoke.v1",
+  "dataset_digest": "sha256:c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec",
+  "evaluator_digest": "sha256:3e52c69f25dcf22100c521aeaa5b68b83e334ddf8ce9469d14d79822c8aa5864",
+  "family_split_counts": {
+    "train": 10,
+    "calibration": 10,
+    "test": 10
+  },
+  "total_examples": 300,
+  "threshold": 0.4,
+  "calibration_choices": [
+    {
+      "family_exact": 5,
+      "threshold": 0
+    },
+    {
+      "family_exact": 5,
+      "threshold": 0.1
+    },
+    {
+      "family_exact": 5,
+      "threshold": 0.2
+    },
+    {
+      "family_exact": 5,
+      "threshold": 0.3
+    },
+    {
+      "family_exact": 5,
+      "threshold": 0.4
+    },
+    {
+      "family_exact": 1,
+      "threshold": 0.5
+    }
+  ],
+  "results": {
+    "rules": {
+      "family_exact": 10,
+      "family_count": 10,
+      "example_exact": 100,
+      "example_count": 100,
+      "prohibited_label_violations": 0,
+      "families": [
+        {
+          "family_id": "timer-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "timer"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "ha-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "home"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "media-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "media"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "fact-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "facts"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "calendar-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "calendar"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "web-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "web"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "mixed-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "calendar",
+              "local_join",
+              "web"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "sysadmin-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "lab_read"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "ambiguous-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "clarify",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "private-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "private_context"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        }
+      ]
+    },
+    "tfidf-nearest": {
+      "family_exact": 1,
+      "family_count": 10,
+      "example_exact": 10,
+      "example_count": 100,
+      "prohibited_label_violations": 0,
+      "families": [
+        {
+          "family_id": "timer-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "abstain",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "ha-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "abstain",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "media-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "abstain",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "fact-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "abstain",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "calendar-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "abstain",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "web-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "abstain",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "mixed-test",
+          "all_variants_exact": true,
+          "variants_exact": 10,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "calendar",
+              "local_join",
+              "web"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "sysadmin-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "abstain",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "ambiguous-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "plan",
+            "labels": [
+              "timer"
+            ],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        },
+        {
+          "family_id": "private-test",
+          "all_variants_exact": false,
+          "variants_exact": 0,
+          "variants": 10,
+          "prediction": {
+            "status": "abstain",
+            "labels": [],
+            "authorization": "not-granted",
+            "confidence": null
+          },
+          "presentation_invariant": true
+        }
+      ]
+    }
+  },
+  "decision": "no-production-adoption",
+  "limits": [
+    "author-labelled synthetic data, not human gold",
+    "ten independent test families, not 100 independent examples",
+    "corpus and rule baseline authored in same session; design bias possible",
+    "lexical similarity is not calibrated confidence",
+    "labels cannot authorize execution"
+  ]
+}

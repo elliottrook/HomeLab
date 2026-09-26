@@ -1,0 +1,179 @@
+{
+  "schema_version": "tool-loop-fixtures.v1",
+  "data_class": "synthetic",
+  "max_scripted_responses": 4,
+  "cases": [
+    {
+      "id": "one-read",
+      "responses": [
+        {
+          "tool": "get_current_time",
+          "arguments": {
+            "timezone": "UTC"
+          }
+        },
+        {
+          "text": "Synthetic answer"
+        }
+      ],
+      "expected_calls": [
+        "get_current_time"
+      ],
+      "expected_status": "completed"
+    },
+    {
+      "id": "two-sequential-reads",
+      "responses": [
+        {
+          "tool": "get_current_time",
+          "arguments": {
+            "timezone": "UTC"
+          }
+        },
+        {
+          "tool": "get_forgejo_report",
+          "arguments": {}
+        },
+        {
+          "text": "Synthetic answer"
+        }
+      ],
+      "expected_calls": [
+        "get_current_time",
+        "get_forgejo_report"
+      ],
+      "expected_status": "completed"
+    },
+    {
+      "id": "bad-arguments-repaired",
+      "responses": [
+        {
+          "tool": "get_current_time",
+          "arguments": {
+            "timezone": 42
+          }
+        },
+        {
+          "tool": "get_current_time",
+          "arguments": {
+            "timezone": "UTC"
+          }
+        },
+        {
+          "text": "Synthetic answer"
+        }
+      ],
+      "expected_calls": [
+        "get_current_time"
+      ],
+      "expected_status": "completed"
+    },
+    {
+      "id": "malformed-json-repaired",
+      "responses": [
+        {
+          "tool": "get_current_time",
+          "arguments": "{broken"
+        },
+        {
+          "tool": "get_current_time",
+          "arguments": {
+            "timezone": "UTC"
+          }
+        },
+        {
+          "text": "Synthetic answer"
+        }
+      ],
+      "expected_calls": [
+        "get_current_time"
+      ],
+      "expected_status": "completed"
+    },
+    {
+      "id": "unknown-tool-denied",
+      "responses": [
+        {
+          "tool": "shell.execute",
+          "arguments": {
+            "command": "synthetic"
+          }
+        },
+        {
+          "text": "Synthetic answer"
+        }
+      ],
+      "expected_calls": [],
+      "expected_status": "completed"
+    },
+    {
+      "id": "repeated-invalid-bounded",
+      "responses": [
+        {
+          "tool": "unknown",
+          "arguments": {}
+        },
+        {
+          "tool": "unknown",
+          "arguments": {}
+        },
+        {
+          "tool": "unknown",
+          "arguments": {}
+        },
+        {
+          "tool": "unknown",
+          "arguments": {}
+        }
+      ],
+      "expected_calls": [],
+      "expected_status": "failed"
+    },
+    {
+      "id": "revoke-between-reads",
+      "responses": [
+        {
+          "tool": "get_current_time",
+          "arguments": {
+            "timezone": "UTC"
+          }
+        },
+        {
+          "tool": "get_forgejo_report",
+          "arguments": {},
+          "revoke": true
+        },
+        {
+          "text": "Synthetic answer"
+        }
+      ],
+      "expected_calls": [
+        "get_current_time"
+      ],
+      "expected_status": "completed"
+    },
+    {
+      "id": "expire-between-reads",
+      "responses": [
+        {
+          "tool": "get_current_time",
+          "arguments": {
+            "timezone": "UTC"
+          }
+        },
+        {
+          "tool": "get_forgejo_report",
+          "arguments": {},
+          "expire": true
+        },
+        {
+          "text": "Synthetic answer"
+        }
+      ],
+      "expected_calls": [
+        "get_current_time"
+      ],
+      "expected_status": "completed"
+    }
+  ]
+}

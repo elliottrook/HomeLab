@@ -1,6 +1,6 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 baseline complete, M1 candidate published; M2 offline foundation verified; M3 minimal preload comparison retained Aster; review/deployment gates open; production unchanged.
+**Status:** Active — Stream A; M0 baseline complete, M1 candidate published; M2 offline foundation verified; M3 controlled harness/routing comparisons retained Aster/rules; review/deployment gates open; production unchanged.
 
 **Owner:** Jason.
 
@@ -153,6 +153,7 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | M1 publication and M2 offline start | Forgejo/GitHub verified at 35175c8; 19 M2 conformance tests and four-case source-slice baseline retained; neither M1 deployment nor full M2 gate is complete |
 | 2026-09-25 | M2 integration and M3 preregistration | 26 adaptive + 89 existing Aster tests pass; live hashes/packages reconciled; offline M2 gate complete; minimal challenger plan and 17-package dry-run resolution retained; no install/deployment |
 | 2026-09-25 | M3 minimal preload experiment | Isolated 17-package/5.45 MB install; two process repeats per candidate; ~1 ms PydanticAI p95 and ~22 MiB incremental RSS; guardrails pass but no measured benefit, retain Aster; M3 overall open |
+| 2026-09-25 | M3 tool-loop/routing smoke | Eight cases pass twice per harness; 30 adaptive tests pass; rules 10/10 held-out synthetic families vs TF-IDF 1/10, no test tuning; retain baseline, M3 model/representativeness gate open |
 
 ## 16. Later releases within the programme
 
@@ -192,9 +193,18 @@ but established no correctness/maintenance advantage. **Retain Aster; do not
 migrate.** Four candidate smoke/denial/cancellation checks pass. See
 [M3 results, limitations and next steps](evidence/M3-preload-results.md).
 
-M3 remains open for justified tool-loop/adverse-case work, routing comparison and
-local-model compatibility/quality evidence. No LangGraph installation or production
-change occurred. M1's independent security review/deployment gates remain open.
+The eight-case tool-loop comparison also passed for both implementations in two
+fresh-process repeats. PydanticAI rejects malformed arguments earlier, but does not
+remove the need for deterministic validation. A separate 300-variant/30-family
+routing smoke test found rules exact on 10/10 held-out families versus TF-IDF 1/10;
+these are biased-risk authored synthetic data, not production accuracy claims.
+Thirty adaptive tests pass. See [M3 tool-loop/routing evidence](evidence/M3-tool-loop-results.md).
+
+M3 remains open for representative reviewed routing labels and local-model
+compatibility/quality/resource evidence. Next safe independent work is M4's local
+evidence store and restore proof; inference measurements need a bounded current-load
+and consumer-overlap check. M1's independent security review/deployment gates remain
+open. No new production changes or installs occurred in this comparison step.
 All newer M2/M3 work is local; a further push needs explicit authorization.
 
 
