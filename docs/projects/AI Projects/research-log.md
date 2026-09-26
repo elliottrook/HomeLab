@@ -338,3 +338,13 @@ stub execution. Bounded same-descriptor reads reject symlinks, unsafe files and
 observed changes. External approval record binds the final manifest without a
 hash cycle and records conveyed conditional authorization. All technical/operator/
 execution release fields remain pending; no network/LXC invocation occurred.
+
+
+### 2026-09-26 — coordinated single-probe release
+
+Last preflight review passed in the coordinating task; it confirmed the exclusive
+operator window and instructed release under Jason's conditional authorization.
+Pending-gate checkpoint `eb1deef` preserves the preceding state. Release record
+bound to regenerated final manifest; 200 full tests pass with real-record execution
+mocked. No invocation by this preparation task. Final commit/hashes handed to the
+coordinating task for its final verification and one authorized attempt.

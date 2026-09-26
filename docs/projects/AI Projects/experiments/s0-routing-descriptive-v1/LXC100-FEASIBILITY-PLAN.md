@@ -277,3 +277,11 @@ fixed external approval record before the prepared lifecycle. This record binds
 Jason's conveyed conditional authorization, exact fixture scope and final manifest
 hash; it is not cryptographic identity proof. Its technical/operator/execution
 release fields remain pending until the last review. No live invocation occurred.
+
+## Single-probe release — 2026-09-26
+
+The last preflight review passed and the coordinating task confirmed the exclusive
+operator window for this single probe under Jason's conditional authorization.
+The external record is released after pinning the final manifest; actual
+invocation remains reserved to the coordinating task following its final hash
+check. The preparation task performs no SSH/LXC100 invocation or Git push.

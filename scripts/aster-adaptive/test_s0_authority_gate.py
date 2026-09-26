@@ -89,13 +89,14 @@ class AuthorityGateTests(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):live.invoke_once()
             prepared.assert_not_called()
 
-    def test_real_record_is_bound_but_not_released(self):
+    def test_real_released_record_uses_mocked_prepared_path_only(self):
         value=json.loads(reader.read_owned_regular(live.APPROVAL,8192))
         self.assertEqual(value['reviewed_manifest_sha256'],hashlib.sha256(reader.read_owned_regular(live.MANIFEST,32768)).hexdigest())
         self.assertEqual(value['scope'],live.SCOPE)
-        with patch.object(live,'_prepared_one_shot') as prepared,patch.object(live.sys,'argv',['launcher']):
-            with self.assertRaises(PermissionError):live.invoke_once()
-            prepared.assert_not_called()
+        self.assertEqual(value['release'],{'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released'})
+        with patch.object(live,'_prepared_one_shot',return_value={'status':'mock-only'}) as prepared,patch.object(live.sys,'argv',['launcher']):
+            self.assertEqual(live.invoke_once(),{'status':'mock-only'})
+            prepared.assert_called_once_with(value['reviewed_manifest_sha256'])
 
 
 if __name__=='__main__':unittest.main()

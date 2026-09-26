@@ -571,3 +571,17 @@ conveyed by the coordinating task, not cryptographic identity proof.
 set and remains pending in all release fields. No live invocation, production
 change, accepted-corpus evaluation or push occurred. Next: last preflight review
 of the ready manifest and pending approval record before any release or invocation.
+
+
+### Current checkpoint — single probe released, invocation handed to coordinator
+
+Pending-gate checkpoint saved as `eb1deef`. The coordinating task passed its last
+preflight review and confirmed the exclusive operator window for this single
+fixture probe under Jason's conditional authorization. The fixed external record
+now marks technical review passed, operator window confirmed and one-shot release.
+The final manifest is bound after the documentation/test changes, without a hash
+cycle. All 200 tests pass; the real released record was exercised only with
+`_prepared_one_shot` mocked. This preparation task has not invoked SSH, DNS, LXC100
+or the one-shot launcher and has not pushed. Next: the coordinating task verifies
+the final committed hashes/preflight and performs the authorized single attempt.
+Existing scope, no automatic retries and manual-recovery rules remain unchanged.

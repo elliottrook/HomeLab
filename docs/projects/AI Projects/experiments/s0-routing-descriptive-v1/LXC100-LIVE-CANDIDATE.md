@@ -1,7 +1,9 @@
-# Fixed approval-gated one-shot — preflight review pending
+# Fixed approval-gated one-shot — released for coordinating invocation
 
 2026-09-26. Prior reviewed invocation-disabled checkpoint `d476158`; integrated base `28a9e49`.
-Invocation now requires a released fixed approval record; the supplied record is pending.
+Invocation requires the fixed released approval record. Last preflight review passed;
+the coordinating task confirmed the exclusive window for this single probe.
+This preparation task has not invoked it.
 No SSH, live DNS, LXC100 modification, accepted-corpus evaluation or push occurred.
 
 ## Inspection timing
@@ -54,8 +56,10 @@ tests: they used injected temporary paths and stub adapters only.
 only the fixed external `lxc100-approval-record.json`, validates exact fixture scope
 and conveyed conditional human authorization, requires passed technical review,
 confirmed exclusive operator window and explicit one-shot release, then verifies
-the recorded manifest hash before the prepared lifecycle. The supplied record
-has all release conditions pending, so execution remains blocked. The record is
+the recorded manifest hash before the prepared lifecycle. The released record
+marks technical review passed, the exclusive operator window confirmed for this
+one coordinated probe, and one-shot execution released under Jason's conveyed
+conditional authorization. Invocation is reserved to the coordinating task. The record is
 outside the manifest artifact set: code/plan are pinned first, then approval binds
 the final manifest hash. It is provenance, not cryptographic identity proof.
 
@@ -98,9 +102,25 @@ size/mode, final/intermediate symlinks, hardlinks, FIFO, mutation during read an
 path replacement after open. Temporary approval records and stub prepared calls
 exercise released scope, pending release, mismatched scope/provenance/pin,
 arguments, duplicate keys and missing records. No actual lifecycle/network call
-is used. The repository approval remains pending and bound to this manifest.
+is used. The released repository approval is bound to this manifest and its test calls
+only a mocked `_prepared_one_shot`, even when release validation succeeds.
 
 Final local validation: 8 authority/read tests, 16 combined timing/adapter/authority
 tests and 200 full adaptive tests pass. All external adapters were mocked; no
 network or production mutation occurred. Source/manifest/approval pins were
-regenerated after the final edits. The approval is deliberately unreleased.
+regenerated after the final edits. Release validation is exercised with execution mocked; the actual probe has not
+been invoked by this preparation task.
+
+## Release provenance — 2026-09-26
+
+The coordinating task independently reproduced 8 authority/read and 200 full tests
+and verified every artifact of pending-gate manifest
+`71ab5e6ef00d779e4cc3401c051e4ad9ab4a34df7b5d3b3aa4d8db397c21c6df`.
+It passed the last preflight review, confirmed the exclusive operator window for
+this single probe and instructed release under Jason's conditional approval.
+The pending-gate checkpoint is `eb1deef`. This revision changes only release
+provenance/documentation, the real-record test (mocked execution) and corresponding
+hashes; it does not expand probe scope or permissions. After regeneration, the
+external approval record binds the new final manifest. The coordinating task will
+perform its final hash/preflight check before the authorized one-shot. No invocation
+or remote Git synchronization is performed by this preparation step.

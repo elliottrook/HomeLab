@@ -23,10 +23,10 @@
     "coordinating_task": "01a0d957-799b-7353-acbc-4765e85619f2",
     "cryptographic_identity_proof": false
   },
-  "reviewed_manifest_sha256": "71ab5e6ef00d779e4cc3401c051e4ad9ab4a34df7b5d3b3aa4d8db397c21c6df",
+  "reviewed_manifest_sha256": "f05adeaa96fbda652fcc5b040b4fb7604441f301455e8883c02156b88d3e2b97",
   "release": {
-    "technical_review": "pending",
-    "exclusive_operator_window": "pending",
-    "one_shot_execution": "pending"
+    "technical_review": "passed",
+    "exclusive_operator_window": "confirmed",
+    "one_shot_execution": "released"
   }
 }
