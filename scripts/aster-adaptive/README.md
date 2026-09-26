@@ -1,9 +1,9 @@
 # Aster Adaptive Computing — offline contracts and baseline slice
 
-Local M2 scaffold, not a production integration or completed M2 gate. No service,
-model, broker socket, credentials, live report or application initializer is used.
-Reuse the repository's existing Pydantic 2.13.4 dependency; no PydanticAI or other
-harness has been installed. Run from the repository root with Python 3.12:
+Offline M2–M4 experiments, not a production integration. The baseline runner uses
+no service, model, broker socket, credentials, live report or application initializer.
+Reuse the repository's existing Pydantic 2.13.4 dependency; the optional PydanticAI
+comparison uses a separate disposable environment. Run from the repository root with Python 3.12:
 
 ```sh
 /private/tmp/aster-lab-ops-venv/bin/python -m unittest discover -s scripts/aster-adaptive -p 'test_*.py'
@@ -54,7 +54,7 @@ for remaining gates and measured artifact provenance.
 
 `test_full_aster.py` adds seven actual Aster ASGI chat-path checks, using synthetic
 key authentication, fake readers/model, blocked connections and no startup workers.
-The normal test command now runs 26 tests. It does not require PydanticAI.
+Those checks brought the M2 suite to 26 tests. It does not require PydanticAI.
 
 An optional hash-pinned temporary PydanticAI environment was used for the minimal
 preload comparison. It is separate from the existing test/production environments:
@@ -88,4 +88,21 @@ Its 300 presentation variants represent 30 authored families, only ten in the te
 split. No execution path exists and all outputs explicitly deny implied authority.
 The negative challenger result is retained; do not tune against its test split.
 See [tool-loop/routing results](../../docs/projects/AI%20Projects/evidence/M3-tool-loop-results.md).
-The normal adaptive test command now runs 30 tests.
+Those checks brought the adaptive suite to 30 tests.
+
+## Synthetic evidence storage
+
+`evidence_store.py` stores strict experiment, outcome, evaluation and review
+records in caller-owned SQLite files. Frozen experiment digests bind evaluations;
+reviews reference the exact evaluation event and close further evaluation under
+that experiment ID. No record can confer execution or promotion authority.
+
+```sh
+/private/tmp/aster-lab-ops-venv/bin/python scripts/aster-adaptive/evidence_demo.py --output /private/tmp/storage-proof-new.json
+```
+
+The demo creates and restores a disposable three-event ledger, then removes the
+databases. It does not import or retrospectively preregister previous M3 results.
+The current test suite has 40 tests. See the
+[M4 checkpoint](../../docs/projects/AI%20Projects/evidence/M4-storage-checkpoint.md)
+for recovery instructions and the limits of hash chains and reviewer metadata.

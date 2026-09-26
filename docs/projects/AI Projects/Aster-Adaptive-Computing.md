@@ -201,11 +201,19 @@ these are biased-risk authored synthetic data, not production accuracy claims.
 Thirty adaptive tests pass. See [M3 tool-loop/routing evidence](evidence/M3-tool-loop-results.md).
 
 M3 remains open for representative reviewed routing labels and local-model
-compatibility/quality/resource evidence. Next safe independent work is M4's local
-evidence store and restore proof; inference measurements need a bounded current-load
-and consumer-overlap check. M1's independent security review/deployment gates remain
-open. No new production changes or installs occurred in this comparison step.
-All newer M2/M3 work is local; a further push needs explicit authorization.
+compatibility/quality/resource evidence; inference measurements need a bounded
+current-load and consumer-overlap check. M1's independent security review/deployment
+gates remain open.
+
+M4 now has a synthetic SQLite evidence-store candidate: frozen experiment lineage,
+evaluation-bound reviews, idempotent transactional appends and an externally pinned
+hash-chain restore check. **40 adaptive tests pass**, and a disposable three-event
+backup restored successfully. This is not authenticated review or production storage.
+See [M4 storage checkpoint and limits](evidence/M4-storage-checkpoint.md).
+Next safe local work is measured-outcome linkage and dataset manifests, exercised
+with a new preregistered synthetic paired experiment. M4 remains open. No production
+changes or installs occurred in this storage step. All newer M2–M4 work is local;
+a further push needs explicit authorization.
 
 
 ## Consolidated requirements and dependency ownership

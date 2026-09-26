@@ -1,0 +1,75 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "evaluation.v1",
+      "default": "evaluation.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "evaluator_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Evaluator Digest",
+      "type": "string"
+    },
+    "dataset_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Dataset Digest",
+      "type": "string"
+    },
+    "candidate_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Candidate Digest",
+      "type": "string"
+    },
+    "independent_units": {
+      "maximum": 1000000,
+      "minimum": 1,
+      "title": "Independent Units",
+      "type": "integer"
+    },
+    "passed_units": {
+      "maximum": 1000000,
+      "minimum": 0,
+      "title": "Passed Units",
+      "type": "integer"
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail",
+        "inconclusive"
+      ],
+      "title": "Verdict",
+      "type": "string"
+    },
+    "label_provenance": {
+      "const": "synthetic-authored",
+      "default": "synthetic-authored",
+      "title": "Label Provenance",
+      "type": "string"
+    },
+    "data_class": {
+      "const": "synthetic",
+      "default": "synthetic",
+      "title": "Data Class",
+      "type": "string"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "evaluator_digest",
+    "dataset_digest",
+    "candidate_digest",
+    "independent_units",
+    "passed_units",
+    "verdict"
+  ],
+  "title": "Evaluation",
+  "type": "object"
+}
