@@ -62,3 +62,17 @@ privacy boundary and must never log model validation errors with raw input.
 Rollback is removal of this unused directory and candidate schemas/evidence
 pointers; retain historical evidence. No service restart or infrastructure restore
 is required. No auto-promotion or permission change exists.
+
+## Portable conformance corpus
+
+`conformance-vectors.json` provides31 accepted/rejected contract and cross-record
+examples independent of Python test code. Run:
+
+```sh
+/private/tmp/aster-lab-ops-venv/bin/python services/aster-adaptive/conformance.py --output /private/tmp/m2-conformance.json
+```
+
+All31 vectors pass in this Python implementation. Another validator must match
+these outcomes plus the documented semantic invariants; no cross-language result
+is claimed. The corpus contains only synthetic records, no live permissions.
+Keep expected outcomes reviewed and versioned separately from candidate results.

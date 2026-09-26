@@ -1,0 +1,2366 @@
+{
+  "schema_version": "conformance-vectors.v1",
+  "source": "synthetic reviewed M2 contracts; not human routing labels",
+  "vectors": [
+    {
+      "id": "capability-valid",
+      "contract": "Capability",
+      "input": {
+        "schema_version": "capability.v1",
+        "capability_id": "get_arr_repair_proposal",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "proposal",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      "accept": true,
+      "scope": "structural"
+    },
+    {
+      "id": "capability-extra-field",
+      "contract": "Capability",
+      "input": {
+        "schema_version": "capability.v1",
+        "capability_id": "get_arr_repair_proposal",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "proposal",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled",
+        "raw_prompt": "synthetic-only-canary"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "capability-unknown-version",
+      "contract": "Capability",
+      "input": {
+        "schema_version": "unknown.v999",
+        "capability_id": "get_arr_repair_proposal",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "proposal",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "catalogue-valid",
+      "contract": "Catalogue",
+      "input": {
+        "schema_version": "catalogue.v1",
+        "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "capabilities": [
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_arr_repair_proposal",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "proposal",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_arr_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_current_time",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_forgejo_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_ha_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_lab_health",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_netbox_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_service_health",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "search_knowledge",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          }
+        ],
+        "scope": "offline-fixture-not-permission"
+      },
+      "accept": true,
+      "scope": "structural"
+    },
+    {
+      "id": "catalogue-extra-field",
+      "contract": "Catalogue",
+      "input": {
+        "schema_version": "catalogue.v1",
+        "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "capabilities": [
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_arr_repair_proposal",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "proposal",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_arr_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_current_time",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_forgejo_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_ha_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_lab_health",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_netbox_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_service_health",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "search_knowledge",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          }
+        ],
+        "scope": "offline-fixture-not-permission",
+        "raw_prompt": "synthetic-only-canary"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "catalogue-unknown-version",
+      "contract": "Catalogue",
+      "input": {
+        "schema_version": "unknown.v999",
+        "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "capabilities": [
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_arr_repair_proposal",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "proposal",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_arr_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_current_time",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_forgejo_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_ha_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_lab_health",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_netbox_report",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "get_service_health",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          },
+          {
+            "schema_version": "capability.v1",
+            "capability_id": "search_knowledge",
+            "implementation": "aster.selector.v1",
+            "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+            "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+            "effect": "read",
+            "locality": "local",
+            "sensitivity": "internal",
+            "owner": "jason",
+            "execution": "disabled"
+          }
+        ],
+        "scope": "offline-fixture-not-permission"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "decisionrequest-valid",
+      "contract": "DecisionRequest",
+      "input": {
+        "schema_version": "decision-request.v1",
+        "request_id": "ha-health",
+        "content_handle": "ha-health",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "accept": true,
+      "scope": "structural"
+    },
+    {
+      "id": "decisionrequest-extra-field",
+      "contract": "DecisionRequest",
+      "input": {
+        "schema_version": "decision-request.v1",
+        "request_id": "ha-health",
+        "content_handle": "ha-health",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only",
+        "raw_prompt": "synthetic-only-canary"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "decisionrequest-unknown-version",
+      "contract": "DecisionRequest",
+      "input": {
+        "schema_version": "unknown.v999",
+        "request_id": "ha-health",
+        "content_handle": "ha-health",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "decision-valid",
+      "contract": "Decision",
+      "input": {
+        "schema_version": "decision.v1",
+        "request_id": "ha-health",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_ha_report",
+            "after": []
+          },
+          {
+            "step_id": "step-1",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "accept": true,
+      "scope": "structural"
+    },
+    {
+      "id": "decision-extra-field",
+      "contract": "Decision",
+      "input": {
+        "schema_version": "decision.v1",
+        "request_id": "ha-health",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_ha_report",
+            "after": []
+          },
+          {
+            "step_id": "step-1",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31,
+        "raw_prompt": "synthetic-only-canary"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "decision-unknown-version",
+      "contract": "Decision",
+      "input": {
+        "schema_version": "unknown.v999",
+        "request_id": "ha-health",
+        "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_ha_report",
+            "after": []
+          },
+          {
+            "step_id": "step-1",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "harnessrun-valid",
+      "contract": "HarnessRun",
+      "input": {
+        "schema_version": "harness-run.v1",
+        "run_id": "ha-health",
+        "request_id": "ha-health",
+        "decision_digest": "b1155d460a41386ef260a18019d6744b3572785f7e91994de423f15088e60c4a",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 50916,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "accept": true,
+      "scope": "structural"
+    },
+    {
+      "id": "harnessrun-extra-field",
+      "contract": "HarnessRun",
+      "input": {
+        "schema_version": "harness-run.v1",
+        "run_id": "ha-health",
+        "request_id": "ha-health",
+        "decision_digest": "b1155d460a41386ef260a18019d6744b3572785f7e91994de423f15088e60c4a",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 50916,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted",
+        "raw_prompt": "synthetic-only-canary"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "harnessrun-unknown-version",
+      "contract": "HarnessRun",
+      "input": {
+        "schema_version": "unknown.v999",
+        "run_id": "ha-health",
+        "request_id": "ha-health",
+        "decision_digest": "b1155d460a41386ef260a18019d6744b3572785f7e91994de423f15088e60c4a",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 50916,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "outcome-valid",
+      "contract": "Outcome",
+      "input": {
+        "schema_version": "outcome.v1",
+        "run_id": "ha-health",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      },
+      "accept": true,
+      "scope": "structural"
+    },
+    {
+      "id": "outcome-extra-field",
+      "contract": "Outcome",
+      "input": {
+        "schema_version": "outcome.v1",
+        "run_id": "ha-health",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null,
+        "raw_prompt": "synthetic-only-canary"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "outcome-unknown-version",
+      "contract": "Outcome",
+      "input": {
+        "schema_version": "unknown.v999",
+        "run_id": "ha-health",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "experiment-valid",
+      "contract": "Experiment",
+      "input": {
+        "schema_version": "experiment.v1",
+        "experiment_id": "m2-selector-conformance-001",
+        "hypothesis": "contract-adapter-preserves-baseline-selection",
+        "baseline_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "candidate_digest": "12997b0947bfa3e22e8452db505c49a127e152be1d651f2677de11b51a256cba",
+        "dataset_digest": "ce55fe8c61b6fbe82bb9721ef9737e282702fb6b9753426df3b9d1f35fddc31b",
+        "evaluator_digest": "213d7e9869338f60138dc004a10a40ebfbea71108f26ca45ca610821c209036a",
+        "evidence_class": "synthetic-conformance-and-local-microbenchmark",
+        "state": "evaluated",
+        "decision": "no-production-promotion",
+        "observation_count": 12
+      },
+      "accept": true,
+      "scope": "structural"
+    },
+    {
+      "id": "experiment-extra-field",
+      "contract": "Experiment",
+      "input": {
+        "schema_version": "experiment.v1",
+        "experiment_id": "m2-selector-conformance-001",
+        "hypothesis": "contract-adapter-preserves-baseline-selection",
+        "baseline_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "candidate_digest": "12997b0947bfa3e22e8452db505c49a127e152be1d651f2677de11b51a256cba",
+        "dataset_digest": "ce55fe8c61b6fbe82bb9721ef9737e282702fb6b9753426df3b9d1f35fddc31b",
+        "evaluator_digest": "213d7e9869338f60138dc004a10a40ebfbea71108f26ca45ca610821c209036a",
+        "evidence_class": "synthetic-conformance-and-local-microbenchmark",
+        "state": "evaluated",
+        "decision": "no-production-promotion",
+        "observation_count": 12,
+        "raw_prompt": "synthetic-only-canary"
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "experiment-unknown-version",
+      "contract": "Experiment",
+      "input": {
+        "schema_version": "unknown.v999",
+        "experiment_id": "m2-selector-conformance-001",
+        "hypothesis": "contract-adapter-preserves-baseline-selection",
+        "baseline_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "candidate_digest": "12997b0947bfa3e22e8452db505c49a127e152be1d651f2677de11b51a256cba",
+        "dataset_digest": "ce55fe8c61b6fbe82bb9721ef9737e282702fb6b9753426df3b9d1f35fddc31b",
+        "evaluator_digest": "213d7e9869338f60138dc004a10a40ebfbea71108f26ca45ca610821c209036a",
+        "evidence_class": "synthetic-conformance-and-local-microbenchmark",
+        "state": "evaluated",
+        "decision": "no-production-promotion",
+        "observation_count": 12
+      },
+      "accept": false,
+      "scope": "structural"
+    },
+    {
+      "id": "proposal-valid",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": true
+    },
+    {
+      "id": "wrong-engine",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": false
+    },
+    {
+      "id": "wrong-policy",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": false
+    },
+    {
+      "id": "wrong-registry",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": false
+    },
+    {
+      "id": "unknown-capability",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "shell.execute",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": false
+    },
+    {
+      "id": "expiry-boundary",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 31
+      },
+      "accept": false
+    },
+    {
+      "id": "cycle",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": [
+                "step-0"
+              ]
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": false
+    },
+    {
+      "id": "duplicate-step",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            },
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": false
+    },
+    {
+      "id": "false-authority",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": null,
+          "authorization": "granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": false
+    },
+    {
+      "id": "invented-confidence",
+      "scope": "semantic",
+      "input": {
+        "request": {
+          "schema_version": "decision-request.v1",
+          "request_id": "ha-health",
+          "content_handle": "ha-health",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "sensitivity": "internal",
+          "egress": "none",
+          "deadline_ms": 5000,
+          "max_steps": 8,
+          "retention": "synthetic-only"
+        },
+        "decision": {
+          "schema_version": "decision.v1",
+          "request_id": "ha-health",
+          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+          "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "status": "plan",
+          "steps": [
+            {
+              "step_id": "step-0",
+              "capability_id": "get_ha_report",
+              "after": []
+            },
+            {
+              "step_id": "step-1",
+              "capability_id": "search_knowledge",
+              "after": []
+            }
+          ],
+          "reason_codes": [
+            "BASELINE_TOOL_MATCH"
+          ],
+          "probability": 0.9,
+          "authorization": "not_granted",
+          "expires_unix": 31
+        },
+        "catalogue": {
+          "schema_version": "catalogue.v1",
+          "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+          "capabilities": [
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_repair_proposal",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "proposal",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_arr_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_current_time",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_forgejo_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_ha_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_lab_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_netbox_report",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "get_service_health",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            },
+            {
+              "schema_version": "capability.v1",
+              "capability_id": "search_knowledge",
+              "implementation": "aster.selector.v1",
+              "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+              "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+              "effect": "read",
+              "locality": "local",
+              "sensitivity": "internal",
+              "owner": "jason",
+              "execution": "disabled"
+            }
+          ],
+          "scope": "offline-fixture-not-permission"
+        },
+        "now": 1
+      },
+      "accept": false
+    }
+  ]
+}

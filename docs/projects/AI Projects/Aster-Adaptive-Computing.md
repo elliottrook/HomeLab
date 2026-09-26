@@ -239,3 +239,14 @@ implementation with exact deployed Stage1. Its old DB-approver tests must retain
 a coverage/supersession map; they are not silently discarded. No shared broker
 or approval source was edited in this M2 continuation, and its commits are outside
 AI-PAM's pending remote publication unless separately reviewed. No push.
+
+
+### Latest offline checkpoint
+
+M2 corrective review passed at026e5e9 (supersedes30f79ea). An additional portable
+conformance corpus passes31 vectors;29 adaptive tests pass in total. Evidence and
+limits are linked from [M2 results](evidence/M2-offline-contracts.md). Stage1 remains
+the only deployed change. Stage2 needs verified real-session assurance and an
+explicit process-trust decision; the connected M2 gate remains open behind it.
+No production/private data collection, authority expansion, new dependency or
+Git push occurred. The AI-PAM task owns alternate-design reconciliation.

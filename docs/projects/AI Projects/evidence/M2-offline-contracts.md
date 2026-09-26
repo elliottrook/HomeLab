@@ -116,3 +116,21 @@ Independent corrective review reran all28 tests and verified the expected/measur
 source pin, engine binding, filtered catalogue records and explicit scope denial.
 The corrected checkpoint supersedes30f79ea; Git history retains that initial
 candidate and the review findings. No deployment or push is included.
+
+
+## Subsequent portable acceptance item
+
+Corrective commit026e5e9 supersedes30f79ea. The next offline acceptance item adds
+31 portable structural/semantic vectors covering all seven contracts, unknown
+versions/fields, bound engine/policy/registry, expiry, unknown capabilities, cycles,
+duplicate steps, false authorization and invented confidence. All31 pass; the
+combined adaptive suite now has29 passing tests, including no-egress execution
+of the conformance runner. [Conformance evidence](M2-portable-conformance.json)
+pins its own corpus, validator and schemas. Original benchmark timings remain
+historical to their recorded manifest; they were not rerun merely for this new
+corpus. No second language implementation has been validated.
+
+The offline candidate is reviewable and unused by production. Full connected M2
+acceptance remains blocked by M1 Stage2's real identity/assurance evidence, and
+M3 workload-quality claims need independently reviewed labels/holdout data.
+Passing these synthetic vectors does not satisfy either gate.
