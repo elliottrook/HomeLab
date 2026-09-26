@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-09-25 — B60 inference engineering M0 inventory and local harness
+
+- Verified the bounded LXC 110 TrueNAS mirror is enabled at 04:20 and completed
+  successfully, then recorded exact accepted/prior runtime and unit hashes,
+  package versions and all four resident model-shard hashes without changing
+  production state.
+- Added an offline schema-validating benchmark planner with 13 deterministic,
+  synthetic fixtures covering prefill, decode and representative Aster
+  workflows at supported 0/4K/8K positions. Added a guarded dry-run-first
+  OpenAI-compatible runner with loopback/production interlocks and fake
+  transport coverage. Correctness assertions, separate prefill/decode samples,
+  reported cache-hit capture and immutable mode-0600 evidence output are tested;
+  twelve combined tests pass without contacting production.
+- Recorded a required security follow-up for a previously exposed
+  credential-bearing GitHub mirror URL without retaining or using its value.
+  Revocation/rotation remains a separately authorized workflow.
+
 ## 2026-09-25 — Aster Adaptive Computing programme started
 
 - Adopted the architecture assessment, inventory, harness comparison and

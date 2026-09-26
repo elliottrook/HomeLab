@@ -73,11 +73,20 @@
         "additionalProperties": false,
         "required": ["phase", "tokens", "seconds", "tokens_per_second"],
         "properties": {
+          "run_index": { "type": "integer", "minimum": 0 },
+          "control_role": { "enum": ["pre_control", "warmup", "measured", "post_control"] },
           "phase": { "enum": ["prefill", "ttft", "decode", "end_to_end", "idle"] },
           "tokens": { "type": "integer", "minimum": 0 },
           "seconds": { "type": "number", "minimum": 0 },
           "tokens_per_second": { "type": ["number", "null"], "minimum": 0 },
           "gpu_resident": { "type": "boolean" },
+          "cpu_fallback_detected": { "type": "boolean" },
+          "prompt_cache_hit": { "type": ["boolean", "null"] },
+          "gpu_frequency_mhz": { "type": ["number", "null"], "minimum": 0 },
+          "gpu_temperature_c": { "type": ["number", "null"], "minimum": 0 },
+          "gpu_power_w": { "type": ["number", "null"], "minimum": 0 },
+          "vram_used_bytes": { "type": ["integer", "null"], "minimum": 0 },
+          "ram_used_bytes": { "type": ["integer", "null"], "minimum": 0 },
           "correct": { "type": "boolean" },
           "notes": { "type": "string" }
         }
