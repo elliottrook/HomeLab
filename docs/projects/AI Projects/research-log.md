@@ -294,3 +294,12 @@ systemd pre-start unset list, initial-key allowlist and early rejection before
 probe imports/operations. Local invented environment tests never print values.
 Added exact cleanup-mode checks and rejection tests; current13/144 pass.
 Regenerated hashes; no remote unit or full payload executed, no commit yet.
+
+
+## Full fixture-only probe state machine
+
+Committed reviewed supervisor at1e506bd. Added exact fake-transport preflight,
+health/DNS/control checks, ordered execution and cleanup/final verification.
+Every transition has failure-injection coverage;17 new/161 full tests pass.
+Uncertain ownership never authorizes stop/delete. No remote branch, accepted
+data, actual DNS packet, unit lifecycle, install or push. Returned for review.

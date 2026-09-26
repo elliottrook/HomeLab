@@ -509,3 +509,14 @@ records13 focused/144 full tests. Only invented local child programs can execute
 remote execution unconditionally denied. Proposed stop fallback is not invoked.
 Candidate awaits technical review before commit/run-approval request; no LXC
 mutation, accepted-corpus access, model evaluation, installation or push.
+
+
+### Current checkpoint — complete fake probe flow, real transport absent
+
+Reviewed feasibility plan/supervisor saved locally at1e506bd.
+[Dry-run evidence](experiments/s0-routing-descriptive-v1/LXC100-DRY-RUN-EVIDENCE.md)
+records17 new/161 full tests for the complete fake-transport state machine, exact
+preflight, health/DNS comparison and ownership-aware failure cleanup. Actual
+observation collectors and remote transport remain absent/disabled. No LXC100 or
+accepted-corpus access. Candidate awaits technical review before commit or exact
+shared-host run approval. No installation, infrastructure change or push.

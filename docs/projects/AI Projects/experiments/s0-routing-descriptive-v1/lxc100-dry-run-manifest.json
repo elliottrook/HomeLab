@@ -1,0 +1,12 @@
+{
+  "status": "fake-transport-only-awaiting-review",
+  "artifacts": {
+    "scripts/aster-adaptive/s0_probe_state.py": "c18ca3e19c7edc022325fbf81e5df54dfee1c0df8beb16f5552dd89e615c7c6f",
+    "scripts/aster-adaptive/test_s0_probe_state.py": "e99482f627b66bc426da47ce2b0e91a4ce6ac7a4a18f3958929d10c1239cac95"
+  },
+  "focused_tests_passed": 17,
+  "full_tests_passed": 161,
+  "real_transport_implemented": false,
+  "live_authorized": false,
+  "accepted_corpus_accessed": false
+}
