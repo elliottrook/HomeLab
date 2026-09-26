@@ -65,8 +65,8 @@ def approval_router(client: BrokerApprovalClient, require_claims: Callable[..., 
         return actor, auth_time if isinstance(auth_time, int) else None
 
     @router.get("")
-    def pending(_: tuple[str, int | None] = Depends(identity)) -> Any:
-        return client.call({"method": "pending.list"})
+    def pending(user: tuple[str, int | None] = Depends(identity)) -> Any:
+        return client.call({"method": "pending.list", "actor": user[0]})
 
     @router.post("/{request_id}/approve")
     def approve(request_id: str, action: ApprovalAction, user: tuple[str, int | None] = Depends(identity)) -> Any:
@@ -85,18 +85,18 @@ def approval_router(client: BrokerApprovalClient, require_claims: Callable[..., 
                             "payload_hash": action.payload_hash, "actor": actor})
 
     @router.get("/management/snapshot")
-    def management_snapshot(_: tuple[str, int | None] = Depends(identity)) -> Any:
-        return client.call({"method": "management.snapshot"})
+    def management_snapshot(user: tuple[str, int | None] = Depends(identity)) -> Any:
+        return client.call({"method": "management.snapshot", "actor": user[0]})
 
     @router.get("/management/history")
     def management_history(limit: int = Query(default=100, ge=1, le=200),
-                           _: tuple[str, int | None] = Depends(identity)) -> Any:
-        return client.call({"method": "request.history", "limit": limit})
+                           user: tuple[str, int | None] = Depends(identity)) -> Any:
+        return client.call({"method": "request.history", "limit": limit, "actor": user[0]})
 
     @router.get("/management/audit")
     def management_audit(limit: int = Query(default=100, ge=1, le=200), event: str | None = None,
-                         _: tuple[str, int | None] = Depends(identity)) -> Any:
-        request: dict[str, Any] = {"method": "audit.search", "limit": limit}
+                         user: tuple[str, int | None] = Depends(identity)) -> Any:
+        request: dict[str, Any] = {"method": "audit.search", "limit": limit, "actor": user[0]}
         if event is not None:
             request["event"] = event
         return client.call(request)

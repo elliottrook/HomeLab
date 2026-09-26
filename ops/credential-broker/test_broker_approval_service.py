@@ -22,6 +22,7 @@ class ApprovalServiceTests(unittest.TestCase):
         root = Path(self.tempdir.name)
         self.socket_path = root / "approval.sock"
         self.store = BrokerStore(root / "broker.db", clock=lambda: self.now)
+        self.store.set_approver_enabled("a" * 64, True)
         self.store.register_agent("agent", 1234)
         self.store.set_agent_state("agent", "operator")
         self.store.register_service("synthetic")
@@ -41,6 +42,7 @@ class ApprovalServiceTests(unittest.TestCase):
         self.tempdir.cleanup()
 
     def call(self, request):
+        request = {"actor": "a" * 64, **request}
         with socket.socket(socket.AF_UNIX) as client:
             client.connect(str(self.socket_path))
             client.sendall(json.dumps(request).encode() + b"\n")

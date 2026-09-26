@@ -25,7 +25,7 @@ class ApprovalRouterTests(unittest.TestCase):
         self.client_backend.call.return_value = []
         response = self.http.get("/v1/companion/approvals")
         self.assertEqual(response.status_code, 200)
-        self.client_backend.call.assert_called_once_with({"method": "pending.list"})
+        self.client_backend.call.assert_called_once_with({"method": "pending.list", "actor": "a" * 64})
 
     def test_approve_supplies_server_derived_actor_and_auth_time(self):
         response = self.http.post(
@@ -70,10 +70,10 @@ class ApprovalRouterTests(unittest.TestCase):
 
     def test_management_snapshot_and_audit_are_read_only_calls(self):
         self.http.get("/v1/companion/approvals/management/snapshot")
-        self.client_backend.call.assert_called_with({"method": "management.snapshot"})
+        self.client_backend.call.assert_called_with({"method": "management.snapshot", "actor": "a" * 64})
         self.http.get("/v1/companion/approvals/management/audit?limit=25&event=request.deny")
         self.client_backend.call.assert_called_with(
-            {"method": "audit.search", "limit": 25, "event": "request.deny"}
+            {"method": "audit.search", "limit": 25, "event": "request.deny", "actor": "a" * 64}
         )
 
     def test_management_action_uses_server_derived_fresh_identity(self):

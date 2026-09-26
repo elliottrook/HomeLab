@@ -18,6 +18,9 @@ def main() -> None:
     subparsers.add_parser("global-disable")
     subparsers.add_parser("global-enable")
     subparsers.add_parser("status")
+    for command in ("approver-enable", "approver-disable"):
+        enrollment = subparsers.add_parser(command)
+        enrollment.add_argument("--subject-hash", required=True)
     args = parser.parse_args()
     store = BrokerStore(args.database)
     try:
@@ -40,6 +43,9 @@ def main() -> None:
         elif args.command == "global-enable":
             store.set_global_enabled(True)
             print("GLOBAL_ENABLED")
+        elif args.command in {"approver-enable", "approver-disable"}:
+            store.set_approver_enabled(args.subject_hash, args.command == "approver-enable")
+            print("APPROVER_UPDATED")
         else:
             print(json.dumps({"global_enabled": store.global_enabled(), "audit_events": len(store.audit_rows())}, sort_keys=True))
     finally:

@@ -1,6 +1,6 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 baseline complete, M1 regression work started locally; production unchanged.
+**Status:** Active — Stream A; M0 baseline complete, M1 local authority candidate tested; review/deployment gates open; production unchanged.
 
 **Owner:** Jason.
 
@@ -149,6 +149,7 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | Current harness alternatives reviewed | Existing Aster baseline; Pydantic AI first challenger; LangGraph conditional; no installations or lab benchmark claims |
 | 2026-09-25 | Single implementation project drafted | Review artifact only; no production/repository mutation, approval or milestone completion implied |
 | 2026-09-25 | Jason authorized Stream A and consolidation | Canonical project adopted; five predecessors archived; M0 reverified; M1 started with 36 passing tests and two explicit expected-failure blockers; no production mutation |
+| 2026-09-25 | M1 local authority candidate | Caller/demotion blockers fixed; 58 broker and 8 Companion tests pass; atomic concurrency/crash/restart and approver regressions retained; independent review and deployment still open |
 
 ## 16. Later releases within the programme
 
@@ -156,11 +157,25 @@ After foundation graduation, propose bounded amendments under this document for:
 
 ## 17. Close-out and current resume point
 
-**Active, not graduated.** M0 baseline/start scope is complete; M1 has begun with executable security regression cases. Existing broker suite: 36 passing tests. Two new required-denial regressions are expected failures against the current baseline and remain explicit blockers, not passed controls. See [baseline evidence](evidence/M0-baseline.md).
+**Active, not graduated.** M0 is complete. M1 now has a local corrective candidate:
+authenticated caller binding, current-policy checks, irreversible revocation of old
+requests on policy transitions, atomic lifecycle transactions and explicit approver
+entitlement. **58 broker tests and 8 Companion bridge tests pass.** The original two
+expected-failure markers were removed only after their denial assertions passed.
+See [M1 local evidence and exact resume instructions](evidence/M1-local-authority-candidate.md).
 
-Next: implement originating-agent binding and consume-time policy/demotion checks in a local candidate; remove the corresponding expected-failure markers only when tests pass. Then test concurrency, expiry/revocation, approver entitlement and restart behavior before proposing a bounded deployment. No model/framework installation, personal-data collection or production mutation has occurred. Do not enable expanded tools while M1 remains open.
+M1 remains open for independent review, approval trust-base separation/acceptance,
+production migration planning and M6 integration checks, and an explicitly approved corrective
+deployment with production-path validation. The existing AI-PAM task has a dirty
+safe-write candidate in its separate checkout; reconcile before combined deployment.
+No production change, dependency installation, private-data collection or remote
+write has occurred in this candidate run. Offline M2 work remains independently
+permitted; expanded connected tools remain gated.
 
-Initial documentation/baseline milestone will be locally committed; remote publication remains pending the repository's separate immediate push confirmation. Supporting source observations remain pinned to e50b670, not retrospectively rewritten as current evidence.
+Candidate base is published `d954ae4`; remote main advanced separately during this
+run. Preserve all other work and recheck refs before synchronization. Save a local
+checkpoint; remote publication requires its own immediate push approval. Historical
+M0/source observations remain dated evidence, not retrospectively current claims.
 
 
 ## Consolidated requirements and dependency ownership

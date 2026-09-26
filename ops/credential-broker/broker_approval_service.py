@@ -9,6 +9,7 @@ import json
 import os
 import pwd
 import re
+import sqlite3
 import socketserver
 from pathlib import Path
 from typing import Any
@@ -36,6 +37,8 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
             response: dict[str, Any] = {"ok": True, "result": result}
         except (BrokerDenied, KeyError, ValueError, json.JSONDecodeError) as error:
             response = {"ok": False, "error": str(error)}
+        except sqlite3.Error:
+            response = {"ok": False, "error": "broker state is unavailable; no execution authorized"}
         self.wfile.write(json.dumps(response, sort_keys=True, separators=(",", ":")).encode() + b"\n")
 
     def _actor(self, request: dict[str, Any]) -> str:
@@ -49,7 +52,7 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
         if request.get("assurance") != "passkey":
             raise BrokerDenied("management action requires passkey assurance")
         auth_time = request.get("auth_time")
-        if not isinstance(auth_time, int):
+        if type(auth_time) is not int:
             raise BrokerDenied("management action requires fresh authentication")
         age = self.server.store._now() - auth_time  # type: ignore[attr-defined]
         if age < 0 or age > 120:
@@ -57,6 +60,11 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
         return actor
 
     def dispatch(self, request: dict[str, Any]) -> Any:
+        with self.server.store._transaction():  # type: ignore[attr-defined]
+            self.server.store.require_approver(self._actor(request))  # type: ignore[attr-defined]
+            return self._dispatch_authorized(request)
+
+    def _dispatch_authorized(self, request: dict[str, Any]) -> Any:
         method = request.get("method")
         if method == "pending.list":
             return self.server.store.pending_requests()  # type: ignore[attr-defined]
@@ -73,7 +81,7 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
             actor = self._actor(request)
             self.server.store.approve_request(  # type: ignore[attr-defined]
                 str(request.get("request_id", "")), str(request.get("payload_hash", "")),
-                actor=actor, auth_time=int(request.get("auth_time", 0)),
+                actor=actor, auth_time=request.get("auth_time"),
                 assurance=str(request.get("assurance", "")),
             )
             return {"status": "approved"}

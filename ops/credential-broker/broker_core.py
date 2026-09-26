@@ -7,7 +7,10 @@ import hashlib
 import json
 import re
 import sqlite3
+import threading
 import time
+from contextlib import contextmanager
+from functools import wraps
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,6 +28,28 @@ DISPLAY_SECRET_PATTERN = re.compile(
 
 class BrokerDenied(RuntimeError):
     """A request failed closed at the broker policy boundary."""
+
+
+class _RequestExpired(BrokerDenied):
+    """A denial whose terminal expiry update must be retained."""
+
+
+def locked(method):
+    """Keep readers on a shared connection outside unfinished transactions."""
+    @wraps(method)
+    def wrapped(self, *args, **kwargs):
+        with self._lock:
+            return method(self, *args, **kwargs)
+    return wrapped
+
+
+def atomic(method):
+    """Serialize policy checks and state changes, including across processes."""
+    @wraps(method)
+    def wrapped(self, *args, **kwargs):
+        with self._transaction():
+            return method(self, *args, **kwargs)
+    return wrapped
 
 
 def canonical_payload_hash(payload: Mapping[str, Any]) -> str:
@@ -47,11 +72,47 @@ class BrokerStore:
     def __init__(self, database: str | Path, *, clock=time.time) -> None:
         self.database = str(database)
         self.clock = clock
-        self.connection = sqlite3.connect(self.database, check_same_thread=False)
+        self._lock = threading.RLock()
+        self._transaction_depth = 0
+        self.connection = sqlite3.connect(self.database, check_same_thread=False, timeout=1.0)
         self.connection.row_factory = sqlite3.Row
         self.connection.execute("PRAGMA foreign_keys = ON")
         self._migrate()
 
+    @contextmanager
+    def _transaction(self):
+        # RLock protects the shared connection; BEGIN IMMEDIATE orders independent
+        # broker/approval/admin connections before any authorization reads.
+        with self._lock:
+            outer = self._transaction_depth == 0
+            if outer:
+                self.connection.execute("BEGIN IMMEDIATE")
+            self._transaction_depth += 1
+            try:
+                yield
+            except _RequestExpired:
+                if outer:
+                    try:
+                        self.connection.commit()
+                    except BaseException:
+                        self.connection.rollback()
+                        raise
+                raise
+            except BaseException:
+                if outer:
+                    self.connection.rollback()
+                raise
+            else:
+                if outer:
+                    try:
+                        self.connection.commit()
+                    except BaseException:
+                        self.connection.rollback()
+                        raise
+            finally:
+                self._transaction_depth -= 1
+
+    @locked
     def close(self) -> None:
         self.connection.close()
 
@@ -101,6 +162,10 @@ class BrokerStore:
                 consumed_at INTEGER,
                 revoked_at INTEGER
             );
+            CREATE TABLE IF NOT EXISTS approvers (
+                actor TEXT PRIMARY KEY,
+                enabled INTEGER NOT NULL CHECK(enabled IN (0,1))
+            );
             CREATE TABLE IF NOT EXISTS audit (
                 sequence INTEGER PRIMARY KEY AUTOINCREMENT,
                 occurred_at INTEGER NOT NULL,
@@ -126,6 +191,37 @@ class BrokerStore:
         self._ensure_column("services", "revocation_method", "TEXT NOT NULL DEFAULT 'disable-service'")
         self._ensure_column("services", "health", "TEXT NOT NULL DEFAULT 'unknown'")
 
+        self.connection.executescript("""
+            CREATE TRIGGER IF NOT EXISTS revoke_on_agent_state
+            AFTER UPDATE OF state ON agents WHEN OLD.state != NEW.state
+            BEGIN
+                UPDATE requests SET status='revoked' WHERE agent_id=OLD.agent_id
+                    AND status IN ('pending','approved');
+            END;
+            CREATE TRIGGER IF NOT EXISTS revoke_on_capability_policy
+            AFTER UPDATE ON capabilities
+            WHEN OLD.service_id != NEW.service_id OR OLD.risk_class != NEW.risk_class
+                OR OLD.probation_allowed != NEW.probation_allowed OR OLD.enabled != NEW.enabled
+            BEGIN
+                UPDATE requests SET status='revoked' WHERE capability=OLD.capability
+                    AND status IN ('pending','approved');
+            END;
+            CREATE TRIGGER IF NOT EXISTS revoke_on_grant_removal
+            AFTER DELETE ON agent_capabilities
+            BEGIN
+                UPDATE requests SET status='revoked' WHERE agent_id=OLD.agent_id
+                    AND capability=OLD.capability AND status IN ('pending','approved');
+            END;
+            CREATE TRIGGER IF NOT EXISTS revoke_on_service_policy
+            AFTER UPDATE ON services
+            WHEN OLD.enabled != NEW.enabled OR OLD.execution_mode != NEW.execution_mode
+            BEGIN
+                UPDATE requests SET status='revoked'
+                    WHERE capability IN (SELECT capability FROM capabilities WHERE service_id=OLD.service_id)
+                    AND status IN ('pending','approved');
+            END;
+        """)
+
     def _ensure_column(self, table: str, column: str, definition: str) -> None:
         columns = {row[1] for row in self.connection.execute(f"PRAGMA table_info({table})")}
         if column not in columns:
@@ -148,8 +244,34 @@ class BrokerStore:
             ),
         )
 
+    def set_approver_enabled(self, subject_hash: str, enabled: bool) -> None:
+        """Operator-only enrollment. Never exposed on model/approval sockets."""
+        if not re.fullmatch(r"[a-f0-9]{64}", subject_hash):
+            raise ValueError("approver must be a hashed authenticated subject")
+        with self._transaction():
+            self.connection.execute(
+                "INSERT INTO approvers(actor,enabled) VALUES(?,?) "
+                "ON CONFLICT(actor) DO UPDATE SET enabled=excluded.enabled",
+                (subject_hash, int(enabled)),
+            )
+            if not enabled:
+                self.connection.execute(
+                    "UPDATE requests SET status='revoked',revoked_at=? "
+                    "WHERE approval_actor=? AND status='approved'",
+                    (self._now(), subject_hash),
+                )
+            self._audit("approver.enable" if enabled else "approver.disable", "operator", "updated")
+
+    @locked
+    def require_approver(self, actor: str) -> None:
+        row = self.connection.execute(
+            "SELECT enabled FROM approvers WHERE actor=?", (actor,),
+        ).fetchone()
+        if row is None or not row["enabled"]:
+            raise BrokerDenied("subject is not an entitled approver")
+
     def register_agent(self, agent_id: str, unix_uid: int) -> None:
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 "INSERT INTO agents(agent_id,unix_uid,state,created_at) VALUES(?,?,'probation',?)",
                 (agent_id, unix_uid, self._now()),
@@ -159,7 +281,7 @@ class BrokerStore:
     def set_agent_state(self, agent_id: str, state: str, *, actor: str = "operator") -> None:
         if state not in AGENT_STATES:
             raise ValueError("invalid agent state")
-        with self.connection:
+        with self._transaction():
             changed = self.connection.execute("UPDATE agents SET state=? WHERE agent_id=?", (state, agent_id)).rowcount
             if changed != 1:
                 raise KeyError(agent_id)
@@ -178,7 +300,7 @@ class BrokerStore:
     ) -> None:
         if execution_mode not in {"proxy", "dynamic", "wrapped-static"}:
             raise ValueError("invalid execution mode")
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 """INSERT INTO services(service_id,execution_mode,enabled,created_at,credential_type,
                        custody_identifier,credential_scope,rotation_due,revocation_method,health)
@@ -192,30 +314,32 @@ class BrokerStore:
             raise ValueError("invalid risk class")
         if risk_class == "black" and probation_allowed:
             raise ValueError("black capabilities cannot be probationary")
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 "INSERT INTO capabilities(capability,service_id,risk_class,probation_allowed,enabled) VALUES(?,?,?,?,1)",
                 (capability, service_id, risk_class, int(probation_allowed)),
             )
 
     def grant_capability(self, agent_id: str, capability: str) -> None:
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 "INSERT INTO agent_capabilities(agent_id,capability) VALUES(?,?)",
                 (agent_id, capability),
             )
 
+    @locked
     def agent_for_uid(self, unix_uid: int) -> str:
         row = self.connection.execute("SELECT agent_id FROM agents WHERE unix_uid=?", (unix_uid,)).fetchone()
         if row is None:
             raise BrokerDenied("unregistered peer identity")
         return str(row["agent_id"])
 
+    @locked
     def global_enabled(self) -> bool:
         return self.connection.execute("SELECT value FROM settings WHERE key='global_enabled'").fetchone()[0] == "1"
 
     def set_global_enabled(self, enabled: bool, *, actor: str = "operator") -> None:
-        with self.connection:
+        with self._transaction():
             self.connection.execute("UPDATE settings SET value=? WHERE key='global_enabled'", ("1" if enabled else "0",))
             if not enabled:
                 self.connection.execute(
@@ -225,7 +349,7 @@ class BrokerStore:
             self._audit("global.enable" if enabled else "global.disable", actor, "enabled" if enabled else "disabled")
 
     def set_service_enabled(self, service_id: str, enabled: bool, *, actor: str = "operator") -> None:
-        with self.connection:
+        with self._transaction():
             changed = self.connection.execute(
                 "UPDATE services SET enabled=? WHERE service_id=?", (int(enabled), service_id)
             ).rowcount
@@ -238,11 +362,12 @@ class BrokerStore:
                 )
             self._audit("service.enable" if enabled else "service.disable", actor, "enabled" if enabled else "disabled")
 
+    @atomic
     def revoke_request(self, request_id: str, *, actor: str = "operator") -> None:
         record = self.get_request(request_id)
         if record.status not in {"pending", "approved"}:
             raise BrokerDenied("request is not active")
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 "UPDATE requests SET status='revoked',revoked_at=? WHERE request_id=?",
                 (self._now(), request_id),
@@ -264,14 +389,9 @@ class BrokerStore:
             cleaned[key] = value.strip()
         return json.dumps(cleaned, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
-    def create_request(
-        self, agent_id: str, capability: str, payload: Mapping[str, Any], *,
-        ttl_seconds: int = 300, display: Mapping[str, Any] | None = None,
-    ) -> RequestRecord:
+    def _authorize(self, agent_id: str, capability: str):
         if not self.global_enabled():
             raise BrokerDenied("global emergency disable is active")
-        if not 1 <= ttl_seconds <= 900:
-            raise BrokerDenied("request TTL is outside policy")
         row = self.connection.execute(
             """SELECT a.state,c.risk_class,c.probation_allowed,c.enabled AS capability_enabled,s.enabled AS service_enabled,
                       EXISTS(SELECT 1 FROM agent_capabilities ac WHERE ac.agent_id=a.agent_id AND ac.capability=c.capability) AS granted
@@ -288,6 +408,17 @@ class BrokerStore:
         if row["risk_class"] == "black":
             raise BrokerDenied("black capabilities are never delegated")
 
+        return row
+
+    @atomic
+    def create_request(
+        self, agent_id: str, capability: str, payload: Mapping[str, Any], *,
+        ttl_seconds: int = 300, display: Mapping[str, Any] | None = None,
+    ) -> RequestRecord:
+        if not 1 <= ttl_seconds <= 900:
+            raise BrokerDenied("request TTL is outside policy")
+        row = self._authorize(agent_id, capability)
+
         now = self._now()
         status = "approved" if row["risk_class"] == "green" else "pending"
         record = RequestRecord(
@@ -296,7 +427,7 @@ class BrokerStore:
             status=status, expires_at=now + ttl_seconds,
         )
         display_json = self._display_json(display)
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 "INSERT INTO requests(request_id,agent_id,capability,risk_class,payload_hash,status,created_at,expires_at,approved_at,display_json) VALUES(?,?,?,?,?,?,?,?,?,?)",
                 (record.request_id, agent_id, capability, record.risk_class, record.payload_hash, status, now, record.expires_at, now if status == "approved" else None, display_json),
@@ -304,16 +435,18 @@ class BrokerStore:
             self._audit("request.create", agent_id, status, record)
         return record
 
+    @atomic
     def approve_request(
         self,
         request_id: str,
         expected_payload_hash: str,
         *,
-        actor: str = "human-approval",
+        actor: str,
         auth_time: int | None = None,
         assurance: str = "authenticated",
         red_freshness_seconds: int = 120,
     ) -> None:
+        self.require_approver(actor)
         record = self.get_request(request_id)
         if record.risk_class not in {"yellow", "red"} or record.status != "pending":
             raise BrokerDenied("request is not approval-eligible")
@@ -321,36 +454,42 @@ class BrokerStore:
             raise BrokerDenied("approval payload binding mismatch")
         if self._now() >= record.expires_at:
             self.expire_request(request_id)
-            raise BrokerDenied("request expired")
+            raise _RequestExpired("request expired")
+        policy = self._authorize(record.agent_id, record.capability)
+        if policy["risk_class"] != record.risk_class:
+            raise BrokerDenied("request policy changed")
         if record.risk_class == "red":
-            if assurance != "passkey" or auth_time is None:
+            if assurance != "passkey" or type(auth_time) is not int:
                 raise BrokerDenied("red approval requires passkey assurance")
             age = self._now() - int(auth_time)
             if age < 0 or age > red_freshness_seconds:
                 raise BrokerDenied("red approval requires fresh authentication")
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 "UPDATE requests SET status='approved',approved_at=?,approval_actor=?,approval_auth_time=?,approval_assurance=? WHERE request_id=?",
                 (self._now(), actor, auth_time, assurance, request_id),
             )
             self._audit("request.approve", actor, "approved", record)
 
-    def deny_request(self, request_id: str, expected_payload_hash: str, *, actor: str = "human-approval") -> None:
+    @atomic
+    def deny_request(self, request_id: str, expected_payload_hash: str, *, actor: str) -> None:
+        self.require_approver(actor)
         record = self.get_request(request_id)
         if record.status != "pending":
             raise BrokerDenied("request is not pending")
         if record.payload_hash != expected_payload_hash:
             raise BrokerDenied("denial payload binding mismatch")
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 "UPDATE requests SET status='denied',approval_actor=? WHERE request_id=?",
                 (actor, request_id),
             )
             self._audit("request.deny", actor, "denied", record)
 
+    @locked
     def pending_requests(self) -> list[dict[str, Any]]:
         now = self._now()
-        with self.connection:
+        with self._transaction():
             self.connection.execute(
                 "UPDATE requests SET status='expired' WHERE status='pending' AND expires_at<=?",
                 (now,),
@@ -364,27 +503,39 @@ class BrokerStore:
             result.append(item)
         return result
 
-    def consume_request(self, request_id: str, payload: Mapping[str, Any]) -> RequestRecord:
+    @atomic
+    def consume_request(self, request_id: str, payload: Mapping[str, Any], *, agent_id: str) -> RequestRecord:
         if not self.global_enabled():
             raise BrokerDenied("global emergency disable is active")
         record = self.get_request(request_id)
+        if record.agent_id != agent_id:
+            raise BrokerDenied("request belongs to another agent")
         if record.status != "approved":
             raise BrokerDenied("request is not approved")
         if self._now() >= record.expires_at:
             self.expire_request(request_id)
-            raise BrokerDenied("request expired")
+            raise _RequestExpired("request expired")
+        policy = self._authorize(agent_id, record.capability)
+        if policy["risk_class"] != record.risk_class:
+            raise BrokerDenied("request policy changed")
+        if record.risk_class in {"yellow", "red"}:
+            approval = self.connection.execute(
+                "SELECT approval_actor FROM requests WHERE request_id=?", (request_id,),
+            ).fetchone()
+            self.require_approver(approval["approval_actor"])
         if record.payload_hash != canonical_payload_hash(payload):
             raise BrokerDenied("payload changed after authorization")
-        with self.connection:
+        with self._transaction():
             self.connection.execute("UPDATE requests SET status='consumed',consumed_at=? WHERE request_id=?", (self._now(), request_id))
             consumed = self.get_request(request_id)
             self._audit("request.consume", record.agent_id, "consumed", consumed)
         return consumed
 
     def expire_request(self, request_id: str) -> None:
-        with self.connection:
+        with self._transaction():
             self.connection.execute("UPDATE requests SET status='expired' WHERE request_id=? AND status IN ('pending','approved')", (request_id,))
 
+    @locked
     def get_request(self, request_id: str) -> RequestRecord:
         row = self.connection.execute(
             "SELECT request_id,agent_id,capability,risk_class,payload_hash,status,expires_at FROM requests WHERE request_id=?",
@@ -394,6 +545,7 @@ class BrokerStore:
             raise KeyError(request_id)
         return RequestRecord(**dict(row))
 
+    @locked
     def discover_capabilities(self, agent_id: str) -> list[dict[str, Any]]:
         rows = self.connection.execute(
             """SELECT c.capability,c.risk_class,s.service_id,s.execution_mode,a.state,c.probation_allowed
@@ -408,9 +560,11 @@ class BrokerStore:
             raise BrokerDenied("agent is not active")
         return [dict(row) for row in rows if row["state"] != "probation" or row["probation_allowed"]]
 
+    @locked
     def audit_rows(self) -> list[dict[str, Any]]:
         return [dict(row) for row in self.connection.execute("SELECT * FROM audit ORDER BY sequence")]
 
+    @locked
     def management_snapshot(self) -> dict[str, Any]:
         agents = [dict(row) for row in self.connection.execute(
             """SELECT a.agent_id,a.unix_uid,a.state,a.created_at,
@@ -438,6 +592,7 @@ class BrokerStore:
         return {"global_enabled": self.global_enabled(), "agents": agents,
                 "services": services, "active_requests": active}
 
+    @locked
     def request_history(self, *, limit: int = 100) -> list[dict[str, Any]]:
         if not 1 <= limit <= 200:
             raise BrokerDenied("history limit is outside policy")
@@ -454,6 +609,7 @@ class BrokerStore:
             result.append(item)
         return result
 
+    @locked
     def audit_search(self, *, limit: int = 100, event: str | None = None) -> list[dict[str, Any]]:
         if not 1 <= limit <= 200:
             raise BrokerDenied("audit limit is outside policy")

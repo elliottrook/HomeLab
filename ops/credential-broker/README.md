@@ -57,3 +57,23 @@ Key files:
 - `openbao-m6-listener.hcl` / `openbao-m6-nftables.conf` — private TLS listener
   and broker-only ingress policy
 - `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record
+
+
+## Adaptive foundation candidate — not deployed
+
+The local M1 candidate requires `agent_id` on core consumption and an explicit
+`actor` on approvals. Transport identity remains kernel-derived. Policy changes
+invalidate old requests; checks, claims and audit commit atomically. At-most-one
+claim does not establish an external effect completed: reconcile uncertain outcomes.
+
+Approval and management socket requests now all require an enrolled hashed human
+subject. Operator-only `broker_admin.py approver-enable --subject-hash HASH` and
+`approver-disable --subject-hash HASH` manage that allowlist; no socket can enroll
+an approver. The allowlist starts empty and revocation invalidates that approver's
+outstanding grants. Do not infer enrollment from ordinary Companion authentication.
+
+This candidate requires a compatible core/transport/Companion deployment, independent
+security review, verified human identity and migration/recovery planning. The Aster
+process remains trusted to assert human identity/assurance; this residual trust must
+be resolved or explicitly accepted before expansion. No deployment occurred here.
+See [M1 evidence and rollout gate](../../docs/projects/AI%20Projects/evidence/M1-local-authority-candidate.md).

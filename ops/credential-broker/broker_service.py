@@ -8,6 +8,7 @@ import grp
 import json
 import os
 import socket
+import sqlite3
 import socketserver
 import struct
 from dataclasses import asdict
@@ -43,6 +44,8 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             response: dict[str, Any] = {"ok": True, "result": result}
         except (BrokerDenied, KeyError, ValueError, json.JSONDecodeError) as error:
             response = {"ok": False, "error": str(error)}
+        except sqlite3.Error:
+            response = {"ok": False, "error": "broker state is unavailable; no execution authorized"}
         self.wfile.write(json.dumps(response, sort_keys=True, separators=(",", ":")).encode() + b"\n")
 
     def dispatch(self, agent_id: str, request: dict[str, Any]) -> Any:
@@ -68,7 +71,7 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             payload = request.get("payload")
             if not isinstance(payload, dict):
                 raise BrokerDenied("payload must be an object")
-            record = self.server.store.consume_request(str(request.get("request_id", "")), payload)  # type: ignore[attr-defined]
+            record = self.server.store.consume_request(str(request.get("request_id", "")), payload, agent_id=agent_id)  # type: ignore[attr-defined]
             if record.capability == "forgejo.read.repository":
                 rpc = {
                     "jsonrpc": "2.0", "id": record.request_id, "method": "tools/call",
