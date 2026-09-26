@@ -344,3 +344,17 @@ all newer M2/M3/M4 evidence.56 harness/evidence +29 selector-probe tests pass; t
 verifier, checkpoint, decision and limitations. Independent human judgment and
 checkpoint custody are not established. M4 is not graduated; no real collection,
 new identity, Stage2 deployment or further push is authorized.
+
+
+### Current M3 checkpoint — human-label design, no collection
+
+M4 acceptance and independent custody remain pending. Existing M3 fixture sets
+were inventoried, not rerun or relabeled as human gold. A proposed S0-only
+30-family pilot and later separately approved 300-family screening design now
+have taxonomy, adjudication/privacy/retention rules, protected splits and frozen
+statistical definitions. The current validator is a design-only metadata check,
+not an executable human-label collector:17new tests / 73 harness tests pass and the
+empty batch reports zero human labels and no collection/evaluation authority.
+See [label-design evidence and approval gate](evidence/M3-label-design/README.md).
+Human protocol acceptance and a separate implementation/retention readiness gate
+are required before collection. No deployment, models, real data or push.

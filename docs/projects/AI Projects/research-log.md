@@ -134,3 +134,16 @@ Resolved its stale header against deployed Stage1;56+29 tests and a network-bloc
 164-event replay pass, with its original manifest unchanged. Prepared exact review
 packet; no authenticated review or independent checkpoint custody is claimed.
 The remaining gate needs human/external evidence, not another synthetic run.
+
+
+## M3 representative-label design
+
+Inventoried four payload cases, eight tool-loop scenarios, 30 authored routing
+families and 12 selector fixtures; none became human gold. Drafted bounded S0-only
+pilot/held-out protocol and empty forms. Review found missing semantic privacy
+inheritance and ambiguous execution/label provenance; corrected those, specified
+all-test second-human review, fixed statistic definitions and explicit content
+review. 17 new tests pass; 73 total harness/evidence tests. Empty validation output
+contains zero cases and no authority. Primary calibration references checked;
+no model/cloud execution, real collection, install, deployment or push occurred.
+M4 acceptance/custody and M3 human protocol/readiness decisions remain open.
