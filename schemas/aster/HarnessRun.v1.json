@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "harness-run.v1",
+      "default": "harness-run.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "run_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "request_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Request Id",
+      "type": "string"
+    },
+    "decision_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Decision Digest",
+      "type": "string"
+    },
+    "adapter_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Adapter Digest",
+      "type": "string"
+    },
+    "mode": {
+      "const": "offline-selection-only",
+      "default": "offline-selection-only",
+      "title": "Mode",
+      "type": "string"
+    },
+    "duration_ns": {
+      "minimum": 0,
+      "title": "Duration Ns",
+      "type": "integer"
+    },
+    "model_calls": {
+      "const": 0,
+      "default": 0,
+      "title": "Model Calls",
+      "type": "integer"
+    },
+    "tool_calls": {
+      "const": 0,
+      "default": 0,
+      "title": "Tool Calls",
+      "type": "integer"
+    },
+    "external_cost_usd": {
+      "const": 0,
+      "default": 0,
+      "title": "External Cost Usd",
+      "type": "integer"
+    },
+    "execution": {
+      "const": "not_attempted",
+      "default": "not_attempted",
+      "title": "Execution",
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "request_id",
+    "decision_digest",
+    "adapter_digest",
+    "duration_ns"
+  ],
+  "title": "HarnessRun",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

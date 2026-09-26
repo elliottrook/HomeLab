@@ -217,3 +217,25 @@ a bounded same-candidate start recovered it without source changes or DB restore
 [Deployment evidence](evidence/M1-stage1-deployment.md) is authoritative for this
 rollout. No Git push occurred. Continue with offline M2 contracts or the separately
 reviewed Stage2 assurance design; do not claim full M1 graduation or widen tools.
+
+
+### Current offline continuation — M2 contract slice and Stage2 design
+
+The next local-only candidate is in `services/aster-adaptive` and `schemas/aster`.
+Strict contracts, an execution-disabled fixture catalogue and the extracted current
+Aster tool selector pass25 tests and 12 fixture comparisons, with local timing and
+pinned evidence in [M2 results](evidence/M2-offline-contracts.md). No framework
+replacement, calibrated accuracy or live authority projection is claimed. M2's
+connected acceptance gate remains open; M1 remains ungraduated.
+
+[Stage2 design](evidence/M1-stage2-candidate.md) defines the smallest entitlement/
+assurance candidate, negative cases, process-trust limitation and fail-closed
+recovery. Existing 10 bridge + 10 approval-service tests pass. Actual signed
+passkey-assurance provenance and a fresh user-session validation are unresolved;
+no deployment approval is requested until that concrete candidate exists.
+
+AI-PAM owns concurrent reconciliation of the alternate a5e8b22 all-at-once
+implementation with exact deployed Stage1. Its old DB-approver tests must retain
+a coverage/supersession map; they are not silently discarded. No shared broker
+or approval source was edited in this M2 continuation, and its commits are outside
+AI-PAM's pending remote publication unless separately reviewed. No push.

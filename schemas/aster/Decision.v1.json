@@ -1,0 +1,129 @@
+{
+  "$defs": {
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "step_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+          "title": "Step Id",
+          "type": "string"
+        },
+        "capability_id": {
+          "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "after": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "After",
+          "type": "array"
+        }
+      },
+      "required": [
+        "step_id",
+        "capability_id"
+      ],
+      "title": "Step",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "decision.v1",
+      "default": "decision.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "request_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Request Id",
+      "type": "string"
+    },
+    "registry_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Registry Digest",
+      "type": "string"
+    },
+    "policy_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Policy Digest",
+      "type": "string"
+    },
+    "engine_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Engine Digest",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "plan",
+        "abstain",
+        "deny",
+        "degraded",
+        "unsupported",
+        "clarify"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "maxItems": 8,
+      "title": "Steps",
+      "type": "array"
+    },
+    "reason_codes": {
+      "items": {
+        "enum": [
+          "BASELINE_TOOL_MATCH",
+          "NO_BASELINE_TOOL",
+          "UNKNOWN_CAPABILITY",
+          "STALE_REGISTRY",
+          "DEADLINE_EXCEEDED",
+          "FIXTURE_POLICY_DENY",
+          "STEP_BUDGET_EXCEEDED"
+        ],
+        "type": "string"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "probability": {
+      "default": null,
+      "title": "Probability",
+      "type": "null"
+    },
+    "authorization": {
+      "const": "not_granted",
+      "default": "not_granted",
+      "title": "Authorization",
+      "type": "string"
+    },
+    "expires_unix": {
+      "exclusiveMinimum": 0,
+      "title": "Expires Unix",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "request_id",
+    "registry_digest",
+    "policy_digest",
+    "engine_digest",
+    "status",
+    "reason_codes",
+    "expires_unix"
+  ],
+  "title": "Decision",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

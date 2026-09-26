@@ -1,0 +1,76 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "decision-request.v1",
+      "default": "decision-request.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "request_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Request Id",
+      "type": "string"
+    },
+    "content_handle": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Content Handle",
+      "type": "string"
+    },
+    "registry_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Registry Digest",
+      "type": "string"
+    },
+    "policy_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Policy Digest",
+      "type": "string"
+    },
+    "sensitivity": {
+      "enum": [
+        "public",
+        "internal",
+        "personal"
+      ],
+      "title": "Sensitivity",
+      "type": "string"
+    },
+    "egress": {
+      "const": "none",
+      "default": "none",
+      "title": "Egress",
+      "type": "string"
+    },
+    "deadline_ms": {
+      "maximum": 5000,
+      "minimum": 1,
+      "title": "Deadline Ms",
+      "type": "integer"
+    },
+    "max_steps": {
+      "default": 8,
+      "maximum": 8,
+      "minimum": 1,
+      "title": "Max Steps",
+      "type": "integer"
+    },
+    "retention": {
+      "const": "synthetic-only",
+      "default": "synthetic-only",
+      "title": "Retention",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "content_handle",
+    "registry_digest",
+    "policy_digest",
+    "sensitivity",
+    "deadline_ms"
+  ],
+  "title": "DecisionRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

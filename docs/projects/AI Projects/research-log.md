@@ -100,3 +100,15 @@ The installer raced Type=simple socket readiness and failed closed. Read-only
 diagnosis followed by one bounded same-candidate start passed. No DB restore,
 credential/grant/gateway change or target write occurred. The full ten-minute observation passed; [deployment record](evidence/M1-stage1-deployment.md) holds the
 exact scope, hashes, checkpoint and limits. Stage2 and Git push remain excluded.
+
+
+## Offline M2 continuation
+
+Built a synthetic-only candidate contract layer and extracted Aster selector
+adapter without importing the application.25 tests and 12 fixture comparisons
+pass; local timings and full source/evaluator provenance retained. No tools,
+models, network or new dependencies. Existing Stage2 bridge/service suites pass
+10+10; real assurance provenance remains an external verification gate.
+Read a5e8b22 alternate lifecycle tests/admin diff during AI-PAM integration;
+requested invariant coverage mapping instead of deleting tests to green the suite.
+AI-PAM owns that reconciliation; no overlapping source edit here.
