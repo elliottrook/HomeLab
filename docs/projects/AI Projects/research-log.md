@@ -413,3 +413,14 @@ exception text into DNS and journal failures and prove it is not retained. Defau
 denied transport remains distinguishable. Full suite: 210 passing. No live query,
 retry, new approval, package, corpus or infrastructure change. Next decision is
 whether a third fixture run has enough expected information gain to justify risk.
+
+
+### 2026-09-26 — run003 go/no-go review
+
+Decision: prepare a distinct candidate locally, but do not execute it. A final
+one-shot can add evidence because both earlier attempts stopped before mutation and
+the new bounded codes distinguish the unresolved preflight interval. Reusing the
+run002 artifact is rejected. A disposable clone remains preferable for later
+corpus/destructive work, but no verified ready target or safe spare-allocation
+budget is established. Run003 must pin both evidence sets and obtain fresh approval.
+A third pre-mutation failure ends live retries pending redesign.

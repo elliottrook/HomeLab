@@ -663,3 +663,14 @@ Exception messages and tracebacks are not retained. Injected DNS-timeout and
 journal-I/O tests prove the codes distinguish the unresolved run002 interval
 without persisting a sentinel secret. All 210 adaptive tests pass. This does not
 retroactively identify run002's cause or authorize run003.
+
+
+### Run003 decision gate
+
+[The go/no-go review](experiments/s0-routing-descriptive-v1/RUN-003-GO-NO-GO.md)
+permits local candidate preparation but explicitly rejects live execution at the
+current checkpoint. One separately reviewed run003 may be justified because the
+new telemetry creates information gain and neither prior attempt mutated LXC100.
+It must use a new journal and approval, pin both evidence sets and preserve all
+resource limits. A third pre-mutation failure is a hard stop on further live
+attempts until the method or target changes.
