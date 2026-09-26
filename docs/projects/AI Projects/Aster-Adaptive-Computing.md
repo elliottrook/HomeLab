@@ -457,3 +457,15 @@ All artifact/case hashes and counts verified. No unresolved review decisions;
 no actual median or independent correctness evidence. Collection cap reached.
 Next: separately reviewed offline descriptive experiment plan, not execution.
 No evaluation, new cases, deployment or push authorized; M4 remains open.
+
+
+### Current checkpoint — descriptive offline comparison plan
+
+[Plan](experiments/s0-routing-descriptive-v1/PLAN.md) proposes always-abstain, existing
+keyword rules and fixed-threshold TF-IDF nearest baselines on20train/10dev families.
+Request-only and context-assisted inputs are reported separately; context can leak
+route hints, so no generalization/calibration claims or production promotion.
+Corpus/source pins verified without invoking routers. Adapter/evaluator and actual
+isolation checks are not implemented; null implementation pins block execution.
+Next gate: local implementation/fixture tests only, followed by separate approval
+for the bounded run. No evaluation, models, production changes or push performed.

@@ -234,3 +234,13 @@ Verified all30 per-case hashes and nine artifact hashes; 20train/10dev, 3/stratu
 Total reported review13minutes. Recorded anchoring/nonblind proposal-review limits,
 no independent annotation-cost or routing-quality claim. Collection closed at cap.
 No evaluation, deployment, further case creation or push.
+
+
+## 2026-09-26 — offline comparison planning
+
+Read existing stdlib rules/Nearest implementation; its default evaluate entry point
+tunes on another corpus and is unsuitable here. Pinned it without invocation.
+Proposed fixed0.2 similarity threshold, no tuning, three engines/two input profiles,
+all10dev cases retained in denominators. Context hints and exposed labels preclude
+generalization claims. Privacy/model selection remain unmeasured, not backfilled
+from reference labels. Wrote plan and null implementation pins; no runner executed.
