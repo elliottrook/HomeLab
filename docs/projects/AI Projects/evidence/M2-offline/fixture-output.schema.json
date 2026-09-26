@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "fixture": {
+      "const": true
+    },
+    "status": {
+      "const": "available"
+    }
+  },
+  "required": [
+    "fixture",
+    "status"
+  ]
+}

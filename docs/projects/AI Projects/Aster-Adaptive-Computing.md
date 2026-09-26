@@ -1,6 +1,6 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 baseline complete, M1 local authority candidate tested; review/deployment gates open; production unchanged.
+**Status:** Active — Stream A; M0 baseline complete, M1 candidate published; M2 offline contracts/baseline started; review/deployment gates open; production unchanged.
 
 **Owner:** Jason.
 
@@ -150,6 +150,7 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | Single implementation project drafted | Review artifact only; no production/repository mutation, approval or milestone completion implied |
 | 2026-09-25 | Jason authorized Stream A and consolidation | Canonical project adopted; five predecessors archived; M0 reverified; M1 started with 36 passing tests and two explicit expected-failure blockers; no production mutation |
 | 2026-09-25 | M1 local authority candidate | Caller/demotion blockers fixed; 58 broker and 8 Companion tests pass; atomic concurrency/crash/restart and approver regressions retained; independent review and deployment still open |
+| 2026-09-25 | M1 publication and M2 offline start | Forgejo/GitHub verified at 35175c8; 19 M2 conformance tests and four-case source-slice baseline retained; neither M1 deployment nor full M2 gate is complete |
 
 ## 16. Later releases within the programme
 
@@ -172,10 +173,18 @@ No production change, dependency installation, private-data collection or remote
 write has occurred in this candidate run. Offline M2 work remains independently
 permitted; expanded connected tools remain gated.
 
-Candidate base is published `d954ae4`; remote main advanced separately during this
-run. Preserve all other work and recheck refs before synchronization. Save a local
-checkpoint; remote publication requires its own immediate push approval. Historical
-M0/source observations remain dated evidence, not retrospectively current claims.
+M1 checkpoint `a5e8b22` was published with intervening non-overlapping updates as
+`35175c8` after Jason's explicit push instruction; Forgejo and GitHub main were
+verified at the same full hash. M1 remains undeployed.
+
+M2 has begun independently: five contract families, a fixture-only catalogue,
+nineteen passing conformance tests and a four-case source-slice payload benchmark.
+See [M2 offline checkpoint](evidence/M2-offline-checkpoint.md). This measures only
+controlled construction overhead; full runtime compatibility, version/headroom
+manifest and model measurements remain open. Next: review contract scope and
+validate a complete isolated Aster adapter before the minimal PydanticAI comparison.
+No framework installation is required merely to compare architecture. M2's new
+local checkpoint requires a separate future push authorization.
 
 
 ## Consolidated requirements and dependency ownership
