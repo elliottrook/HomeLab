@@ -1,6 +1,10 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 baseline complete, M1 candidate published; M2 offline foundation verified; M3 controlled comparisons retained Aster/rules; M4 offline evidence/recovery path verified and review design proposed; review/deployment gates open; production unchanged.
+**Status:** Active — Stream A; M0 complete; M1 Stage1 installed and verified;
+Stage2 identity/assurance gates remain open; M2 offline foundation verified;
+M3 controlled comparisons retained Aster/rules; M4 offline evidence/recovery
+verified and operational review design proposed; full M1/M4 remain incomplete.
+
 
 **Owner:** Jason.
 
@@ -157,30 +161,27 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | M4 storage, lineage and paired evaluation | Frozen manifests, outcome-bound totals and 164-event restore verified; four synthetic families pass controlled guardrail; 52 tests pass; no independent review or live-use approval |
 | 2026-09-25 | M4 review preparation | Storage/retention/custody design proposed; offline export verifier reproduces 164 events and rejects forged summary; 56 tests pass; independent reviewer/custody still required |
 
+| 2026-09-25 | Local M1 corrective candidate and independent review | 55 broker + 163 Aster tests pass; migration race identified by reviewer and fixed; production/identity/assurance gates remain open — see M1 evidence |
+
 ## 16. Later releases within the programme
 
 After foundation graduation, propose bounded amendments under this document for: deterministic voice/household reliability; isolated live calendar/public-web composition; limited Class 1 optimization under explicit standing authorization; and one guarded operational remediation after AI-PAM/recovery graduation. Each amendment adds its own risk, acceptance, measurement and rollback gates. Unrelated storage, network and hardware projects remain independent dependencies.
 
 ## 17. Close-out and current resume point
 
-**Active, not graduated.** M0 is complete. M1 now has a local corrective candidate:
-authenticated caller binding, current-policy checks, irreversible revocation of old
-requests on policy transitions, atomic lifecycle transactions and explicit approver
-entitlement. **58 broker tests and 8 Companion bridge tests pass.** The original two
-expected-failure markers were removed only after their denial assertions passed.
-See [M1 local evidence and exact resume instructions](evidence/M1-local-authority-candidate.md).
+**Active, not graduated.** M0 is complete. Jason approved M1 Stage1, and the
+authenticated-caller, versioned-policy and atomic core/transport changes are
+installed on LXC104. All 45 staged guest tests and legacy approval compatibility
+passed. An initial socket-readiness race failed closed; a bounded same-code restart
+recovered without a database restore. The subsequent 601-second observation passed
+with stable services, zero restarts, unchanged request counts and no checked error
+markers. See [deployment evidence](evidence/M1-stage1-deployment.md).
 
-M1 remains open for independent review, approval trust-base separation/acceptance,
-production migration planning and M6 integration checks, and an explicitly approved corrective
-deployment with production-path validation. The existing AI-PAM task has a dirty
-safe-write candidate in its separate checkout; reconcile before combined deployment.
-No production change, dependency installation, private-data collection or remote
-write has occurred in this candidate run. Offline M2 work remains independently
-permitted; expanded connected tools remain gated.
-
-M1 checkpoint `a5e8b22` was published with intervening non-overlapping updates as
-`35175c8` after Jason's explicit push instruction; Forgejo and GitHub main were
-verified at the same full hash. M1 remains undeployed.
+M1 remains open: explicit approver entitlement and verified passkey assurance
+(Stage2) are local candidates requiring separate review, approval and live
+validation. Do not expand tool authority or claim M1 graduation. The M6 Forgejo
+read and safe-write transports were preserved through Stage1. Offline M2 work may
+continue independently.
 
 M2's offline foundation gate is complete: five contract families, a fixture-only
 catalogue, 26 passing adaptive tests (including seven actual HTTP path tests),
@@ -204,8 +205,8 @@ Thirty adaptive tests pass. See [M3 tool-loop/routing evidence](evidence/M3-tool
 
 M3 remains open for representative reviewed routing labels and local-model
 compatibility/quality/resource evidence; inference measurements need a bounded
-current-load and consumer-overlap check. M1's independent security review/deployment
-gates remain open.
+current-load and consumer-overlap check. M1 Stage1 is deployed; the separate
+Stage2 identity/assurance gates remain open.
 
 M4 now has a synthetic SQLite evidence-store candidate: frozen experiment lineage,
 evaluation-bound reviews, idempotent transactional appends and an externally pinned
@@ -234,11 +235,15 @@ ownership, retention, checkpoint custody and recovery boundaries. A separate off
 verification command reconstructs 164 saved events and rejects a forged summary;
 **56 adaptive tests pass**. See [review-preparation evidence](evidence/M4-review-checkpoint.md).
 M4 remains open for actual independent review/custody and accepted operational design.
-Next safe independent work is M1's review packet and read-only/local-test reconciliation
-with the AI-PAM candidate; preserve that checkout's edits. M3 representative/model
-gates remain open. No production changes or installs occurred. The newer review work
-is local; a further push needs explicit authorization.
-
+Read-only reconciliation now confirms AI-PAM's integrated Stage1/M6 baseline at
+`f25df1812b7ef339acb9cb59339c704a4032ea26`. Live core/transport/approval hashes match
+the deployment record. The merged checkout passes 76 broker, 10 approval-bridge and
+56 adaptive tests. See [M1 current review packet](evidence/M1-current-review-packet.md).
+The earlier all-at-once candidate is superseded, not awaiting deployment. Stage2
+still requires actual assurance provenance and a process-trust decision. A separate
+unpublished M2/Stage2 continuation was observed and left untouched. No production
+mutation occurred in this reconciliation; this merge and review work remain local.
+A further push needs explicit authorization.
 
 ## Consolidated requirements and dependency ownership
 
@@ -253,3 +258,30 @@ AI-PAM, Lab Operations and the ARR execution follow-up remain active dependencie
 ### Authorization and start evidence — 2026-09-25
 
 Jason explicitly requested this project start as Stream A and the folder/archive consolidation. Read-only Forgejo verification matched e50b670; local main was fast-forwarded from 586457f without overwriting unrelated edits. Active service and broker hash checks matched the assessed baseline. Local synthetic test baseline and the two reproduced authorization gaps are recorded in M0 evidence. No new authority or production changes were introduced by project start.
+
+### Historical M1 executable rollout preparation checkpoint
+
+The prepared candidate now includes a read-only preflight, eight preflight regressions, a bounded two-file apply script and [exact operator commands](evidence/M1-stage1-commands.md). Broker suite65 and staged subset45 pass. No production execution or push has occurred. Expired pending rows were distinguished from usable approvals without mutation. The latest AI-PAM coordination has reopened its M6 workflow, so its earlier quiescent window is no longer valid. Resume by rechecking the live hashes/TTL summary, obtaining an immediately current coordination window and reviewing the exact Stage1 deployment with Jason. Do not infer approval from this checkpoint.
+
+
+### Historical M1 resume gate — reviewed Stage1 candidate
+
+Local checkpoint `7ef0b96` was completed. Both independent reviews have now
+returned; the recovery-directory reporting finding is fixed and the rebuilt
+release passes 45 staged tests. AI-PAM reports M6 rollback complete. Fresh
+read-only verification found unchanged baseline source, healthy services and
+zero usable approvals. The current next step is the exact Stage1 deployment
+approval in [operator commands](evidence/M1-stage1-commands.md), followed by a
+fresh immediate preflight. Previous notes about an active M6 cleanup window are
+historical. Production is unchanged by this task; no push is authorized.
+
+
+### Current checkpoint — Stage1 complete, Stage2 open
+
+Jason's exact deployment approval was executed. Protected backup/restore,45 guest
+tests, compatibility, live denial/health/permissions and the full ten-minute
+observation passed. A Type=simple startup-readiness race caused a fail-closed stop;
+a bounded same-candidate start recovered it without source changes or DB restore.
+[Deployment evidence](evidence/M1-stage1-deployment.md) is authoritative for this
+rollout. No Git push occurred. Continue with offline M2 contracts or the separately
+reviewed Stage2 assurance design; do not claim full M1 graduation or widen tools.

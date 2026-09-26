@@ -2408,7 +2408,15 @@ notifications = CompanionNotifications(
     companion_owner, ChatRequest, chat, get_lab_health,
 )
 app.include_router(notifications.router)
-app.include_router(approval_router(BrokerApprovalClient(BROKER_APPROVAL_SOCKET), companion_claims))
+app.include_router(approval_router(
+    BrokerApprovalClient(BROKER_APPROVAL_SOCKET), companion_claims,
+    approver_subject_hashes=frozenset(filter(None, (
+        value.strip() for value in os.environ.get("ASTER_BROKER_APPROVER_SUBJECT_HASHES", "").split(",")
+    ))),
+    passkey_acrs=frozenset(filter(None, (
+        value.strip() for value in os.environ.get("ASTER_BROKER_PASSKEY_ACRS", "").split(",")
+    ))),
+))
 app.router.add_event_handler("startup", notifications.start)
 app.router.add_event_handler("shutdown", notifications.stop)
 

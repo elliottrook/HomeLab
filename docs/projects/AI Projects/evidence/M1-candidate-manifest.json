@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "kind": "local-candidate-not-deployed",
+  "date": "2026-09-25",
+  "base_commit": "d954ae4e6d81cfde52e04a99f7768ff3919deb00",
+  "files": {
+    "ops/credential-broker/broker_core.py": "a7dbf6206e8643ccf3b52260a83f8da07597acd0cca2d74152aaab28418c60d0",
+    "ops/credential-broker/broker_service.py": "bc123d8cc5f827bd5dd41b6f13bd5f25a581ae0064b3d9eb244c0d745a255c10",
+    "ops/credential-broker/broker_approval_service.py": "c0f2e5fa5585e3867fad760b9dfa4dd917d3116a80dbf7a9d5b420372ce1d6a4",
+    "ops/credential-broker/test_adaptive_foundation_regressions.py": "da569095ce48dea5db719c555fcb2a7f657bf36a28afa7593a56b821f4bbbb1e",
+    "ops/credential-broker/test_broker_core.py": "b850885f090f8c2ca40e98dbdffcc495d6e0955aac6eee42059df98e7105c369",
+    "ops/credential-broker/test_broker_approval_service.py": "ac4828ae3531d6ca5343c07bdb3e27911b1acf4bb8479bc3719ccc3d47ee413e",
+    "services/aster-agent/broker_approvals.py": "96ea11944eb47e916abf10ad2c26d2ad63c2242150205df9b72cfde2a6a9f3b5",
+    "services/aster-agent/aster_agent.py": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "services/aster-agent/test_broker_approvals.py": "9b3b293cb3d067dc35057342c93e110f708a3e1c5320c543633b1d2e6f42ce9f"
+  },
+  "validation": {
+    "broker_tests": 55,
+    "aster_tests": 163,
+    "independent_review": "passed after migration-race correction",
+    "production_validation": false
+  }
+}

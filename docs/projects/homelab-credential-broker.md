@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0–M5 complete; M6 Green Forgejo read path complete
+> Status: active — Stream A; M0–M6 complete
 >
 > Owner: Jason
 >
@@ -471,10 +471,25 @@ removed, the retired audit identity remains, and zero requests are open.
 - [x] Store token only in OpenBao.
 - [x] Register bounded Forgejo capabilities.
 - [x] Green read-only tests.
-- [ ] Yellow approved write/push test on a safe branch/test file.
-- [ ] Verify Forgejo authoritative ref.
-- [ ] Verify GitHub mirror.
-- [ ] If Forgejo 16+, test Authorized Integration/resource-server mode and decide whether to retire the PAT path.
+- [x] Yellow approved write/push test on a safe branch/test file.
+- [x] Verify Forgejo authoritative ref.
+- [x] Verify GitHub mirror.
+- [x] If Forgejo 16+, test Authorized Integration/resource-server mode and decide
+  whether to retire the PAT path. **Not applicable on deployed Forgejo 15.0.7;**
+  retain the restricted Phase-1 path until a separately reviewed upgrade.
+
+**Gate passed 2026-09-25:** a distinct non-admin Forgejo service identity and
+OpenBao AppRole expose only the `forgejo.write.safe-branch` Yellow capability.
+The gateway permits only `create_file` in `jason/homelab`, from `main` to a new
+`ai-pam/` branch, under `ai-pam-pilot/`, with bounded non-secret content and a
+fixed commit-message prefix. Direct-main writes, other paths and destructive
+tools were denied before forwarding. Jason approved the exact disposable
+request in Aster; the broker consumed it once and created commit `2deacea` on
+`ai-pam/m6-yellow-20260925` while `main` remained `35175c8`. Forgejo and GitHub
+showed the same commit. Jason then separately authorized rollback: the branch
+was removed from Forgejo and, after the mirror failed to prune it, removed
+directly from GitHub as explicit mirror recovery. Both remotes retained the
+unchanged `main` ref. No credential appeared in request, audit or Git output.
 
 ### M7 — additional production integrations
 
@@ -606,16 +621,17 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-24 | Connected the M6 Green Forgejo MCP path | CIDR-bound AppRole `hlabroker-forgejo-m6` can read only `secret/data/ai-pam/forgejo-mcp-read`; five-minute tokens, 30-minute maximum, no default policy. Broker-private gateway socket is mode 0600 and starts checksum-pinned MCP 3.2.0 per call, filtering its catalogue and requests through the independent allowlist. Registered Green `forgejo.read.repository` for `agent-hermes` | Real agent → broker → OpenBao → MCP → Forgejo `jason/homelab` read passed and consumed once. Another repo and `delete_repo` were denied before forwarding; policy administration and another secret path returned 403; all observed test tokens were revoked. The restored root token remains temporarily valid and encrypted pending a separately approved human-only operator recovery path |
 | 2026-09-25 | Closed the temporary OpenBao root-recovery window | Created loopback/CIDR-bound `human-root-ceremony` AppRole with only authenticated root-ceremony start/status/cancel/update and self-revoke rights; its sole credential is PGP-encrypted to Recovery A in the human recovery bundle. Jason proved login, a zero-share 2-of-3 ceremony start, cancellation and token self-revocation, then revoked the temporarily restored root token. OpenBao remained healthy/unsealed and a fresh agent → broker → AppRole → Forgejo MCP read passed and consumed once after revocation | A future root token still requires this human-held AppRole credential plus two independent recovery shares; the legacy encrypted initial-root-token file is retained only as historical/recovery evidence and its contained token is revoked |
 | 2026-09-25 | Made native macOS AI-PAM parity mandatory | M8 now requires the native Aster Companion app to match the web approval inbox, management views, lifecycle actions and emergency controls without weakening broker enforcement; Swift coverage and a real-Mac acceptance matrix are explicit | The web implementation remains the deployed reference until the native work and acceptance pass are complete; M9 cannot graduate without parity |
+| 2026-09-25 | Completed the M6 Yellow Forgejo safe-branch pilot | Separate `ai-pam-mcp-write` identity, CIDR-bound AppRole, OpenBao secret path, Unix gateway and policy adapter limit the Yellow capability to one bounded `create_file` operation on a new `ai-pam/` branch under `ai-pam-pilot/`; direct-main, path expansion and destructive tools were denied. Jason approved request `572d03b6-a638-4686-b327-cabf39dfcfe3`; commit `2deacea` appeared identically on Forgejo and GitHub while `main` stayed `35175c8` | Jason separately approved deletion of the disposable branch. Forgejo deletion succeeded; the mirror did not prune, so Jason explicitly approved direct GitHub mirror recovery. The branch is absent from both remotes and `main` is unchanged. Forgejo 16 Authorized Integrations remain not applicable on deployed 15.0.7 |
 
 ## Close-out
 
-Not graduated. M0 through M5 and the M6 Green Forgejo read path are complete.
-OpenBao holds the restricted Forgejo read credential; the broker-only private
-listener, CIDR-bound AppRole and deny-by-default MCP gateway are live. The
-temporary restored root token is revoked, while the tested human-only
-root-ceremony AppRole still requires two independent recovery shares.
+Not graduated. M0 through M6 are complete. OpenBao holds separate restricted
+Forgejo read and safe-write credentials; the broker-only private listener,
+CIDR-bound AppRoles and deny-by-default MCP gateways are live. The temporary
+root tokens used during recovery/bootstrap are revoked, while the tested
+human-only root-ceremony AppRole still requires two independent recovery
+shares.
 
-Next safe action: **M6 Yellow safe-branch write test.** Add a distinct,
-least-privilege write capability and fresh human approval without broadening
-the proven Green token. Verify the authoritative Forgejo ref, then verify its
-GitHub mirror; Forgejo remains the sole push authority.
+Next safe action: **M7 additional production integrations.** Select one
+reversible Green path and one tightly bounded Yellow path, define target-side
+revocation before enabling either, and repeat the allow/deny/no-secret tests.

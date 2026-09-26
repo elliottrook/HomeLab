@@ -2,7 +2,7 @@
 
 **Active — Stream A, authorized by Jason on 2026-09-25.**
 
-Start with [Aster Adaptive Computing — Foundation and First Evidence Loop](Aster-Adaptive-Computing.md). This is the governing implementation document. M0 baseline verification is complete; M1 security regression work has started locally. Production is unchanged.
+Start with [Aster Adaptive Computing — Foundation and First Evidence Loop](Aster-Adaptive-Computing.md). This is the governing implementation document. M0 baseline verification is complete. M1 Stage1 core/transport is installed and verified; Stage2 approver/assurance controls remain undeployed. See [deployment evidence](evidence/M1-stage1-deployment.md).
 
 | Document | Role |
 |---|---|
