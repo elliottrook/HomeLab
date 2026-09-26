@@ -83,6 +83,19 @@ def frigate_denied(port, spoof):
     return result.returncode == 0 and result.stdout == "403"
 
 
+
+def pihole_denied(address, spoof):
+    args = ["curl", "--silent", "--show-error", "--noproxy", "*",
+            "--connect-timeout", "4", "--max-time", "10", "--output",
+            "/dev/null", "--write-out", "%{http_code}"]
+    if spoof:
+        args += ["--header", "X-Homelab-Authentik-User: jason",
+                 "--header", "X-Authentik-Username: jason",
+                 "--header", "X-Forwarded-For: " + NPM]
+    result = run(args + [f"http://{address}/api/config"])
+    return result.returncode == 0 and result.stdout == "403"
+
+
 def main():
     if not all(shutil.which(command) for command in ("curl", "dig")):
         print("curl and dig are required", file=sys.stderr)
@@ -93,6 +106,10 @@ def main():
              for n in BACKENDS for mode, spoof in (("plain", False), ("spoof", True))]
     jobs += [(f"frigate:{port}:{mode}", frigate_denied, (port, spoof))
              for port in (5000, 8972)
+             for mode, spoof in (("plain", False), ("spoof", True))]
+
+    jobs += [(f"pihole:{address}:{mode}", pihole_denied, (address, spoof))
+             for address in ("192.168.20.20:8082", "192.168.20.40:20720")
              for mode, spoof in (("plain", False), ("spoof", True))]
 
     def check(job):

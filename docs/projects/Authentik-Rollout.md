@@ -20,6 +20,37 @@
 
 ## Resume audit — 2026-09-23
 
+### Pi-hole pair single-login deployment — 2026-09-26
+
+Primary and secondary now use the verified-owner browser guards described in
+[Pi-hole single login](../runbooks/Pi-hole-Single-Login.md). Brave showed both
+without a second application login using its existing Authentik session.
+Primary native password prompt is removed; the secondary was already
+passwordless and its direct API exposure is now closed. NPM 16/17 overwrite the
+verified owner header. No Authentik flow, LAN firewall, DNS record, blocklist or
+application image was changed.
+
+Protected stopped checkpoints were restored and verified: primary 49 files,
+secondary 133 files, both gravity/FTL databases passed integrity checks. Primary
+checkpoint `/opt/pihole/backups/single-login-20260926T220655Z`; secondary
+`/root/pihole-single-login-20260926T221046Z`; NPM checkpoint
+`/opt/nginx-proxy-manager/backups/pihole-single-login-20260926T220448Z`.
+
+TrueNAS rejected loopback host-IP publication. The supported exposed-only app
+port now uses an internal Docker network for its host guard, plus a separate
+service network for DNS/upstream connectivity. The first internal-only attempt
+failed DNS validation while primary DNS stayed available; the final two-network
+configuration passes both DNS transports and managed-app stop/start. Primary
+restart also passes. Homepage uses a verified statistics-only route and its
+source address is pinned in Compose; live widget statistics pass.
+
+All 126 boundary checks pass. Fresh passkey/logout, native settings-save/upload,
+interactive browser recovery and scheduled-backup coverage remain open, as do
+other project graduation gates. Unknown intermittent API consumers need a narrow
+integration route if discovered. Do not roll back the secondary to its formerly
+exposed passwordless API. Detailed configuration, checkpoint and recovery paths
+are in the runbook. No remote Git push authorized or performed.
+
 ### Pi-hole isolated single-login proof — 2026-09-26
 
 Completed 17 synthetic checks on the primary installed Pi-hole image (including

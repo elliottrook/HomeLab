@@ -28,9 +28,10 @@ and user-login stages; this deployment references it without modifying it.
 The earlier rollout's Authentik providers now reference the same flow:
 NPM (2), Forgejo (9), Grafana (10), Homepage (15), Beszel (16), ARR (17–21),
 Portainer (22) and Pi-hole (23–24). Fresh unauthenticated requests reach the
-passkey flow for all 13. This changes only the Authentik step: Pi-hole and NPM
-still have application password prompts, and native applications can still
-show an SSO button before starting their OIDC login. Local recovery accounts,
+passkey flow for all 13. That normalization changed only the Authentik step;
+Pi-hole browser protection was subsequently replaced as described below. NPM
+still has its application password prompt, and native applications can show an
+SSO button before starting their OIDC login. Local recovery accounts,
 credentials and API integrations were not changed. Cloudflare/Drive, Synology,
 Paperless and other Aster integrations were excluded from this normalization.
 
@@ -83,6 +84,13 @@ publication and therefore needs an explicit security-risk decision. Do not
 restore the database for an ingress-only problem. Prefer fixing the guard while
 using native recovery. Full reboot/restore and logout tests remain pending.
 
+## Pi-hole browser routes
+
+Both Pi-holes now have private backends and verified-owner guards (2026-09-26),
+with no second application password. Homepage statistics and DNS remain working.
+See [Pi-hole single login](Pi-hole-Single-Login.md) for recovery and the remaining
+fresh-passkey/logout gates. NPM itself still retains its native app login.
+
 ## Newtarr browser route
 
 Deployed 2026-09-26 at `https://newtarr.elliottrook.com`, owner-only Authentik.
@@ -108,7 +116,8 @@ From an approved management client, run
 `python3 scripts/check-authentik-browser-boundary.py` in the HomeLab repository.
 It checks 26 names against all three DNS authorities, certificate-validated
 HTTPS routing, and plain/spoofed direct-IP requests to the seven private browser
-ingresses, plus plain/spoofed Frigate API denial on ports 5000 and 8972.
+ingresses, plus plain/spoofed Frigate API denial on ports 5000 and 8972 and both Pi-hole
+API denials (126 checks total).
 It uses no credentials and prints no response bodies. A pass does
 not establish real login, sign-out, authorized app identity or disaster recovery.
 Run it from a client, not NPM: direct-IP requests from NPM intentionally have

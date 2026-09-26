@@ -34,15 +34,15 @@ trusted identity boundary and independent recovery path are verified.
 Authentik-side normalization is applied for NPM, Forgejo, Grafana, Homepage,
 Beszel, ARR, Portainer and both Pi-holes: all 13 providers explicitly select
 the existing passkey-only flow. Fresh unauthenticated redirect checks and
-owner/non-owner policy checks pass. Pi-hole/NPM application password removal
-and fresh human-session acceptance remain open; this is not a claim of full
-single-login graduation for those services.
+owner/non-owner policy checks pass. Pi-hole now has private backend/owner guards
+without a second password (2026-09-26); see [its runbook](runbooks/Pi-hole-Single-Login.md).
+NPM application password removal and fresh human-session acceptance remain open.
 
 | Service | Recommended path | Suggested name | Important note |
 |---|---|---|---|
 | Nginx Proxy Manager | Forward auth | `proxy.elliottrook.com` | Complete and tested; NPM login remains |
 | Homepage | Forward auth | `home.elliottrook.com` | Keep health/widget requests in mind |
-| Pi-hole #1 and #2 web UIs | Forward auth — complete and tested (2026-09-15) | `dns1.elliottrook.com`, `dns2.elliottrook.com` | Owner-only browser gates; DNS on TCP/UDP 53 and direct recovery remain unproxied |
+| Pi-hole #1 and #2 web UIs | Forward auth plus verified-owner private ingress (2026-09-26) | `dns1.elliottrook.com`, `dns2.elliottrook.com` | No second app password; DNS 53 remains direct, web recovery is host-private. Fresh passkey/logout acceptance remains open |
 | Frigate | Native OIDC if available; otherwise forward auth | `frigate.elliottrook.com` | RTSP, ONVIF and recordings remain direct |
 | Portainer | Native OAuth/OIDC — complete and tested (2026-09-15) | `portainer.elliottrook.com` | Existing local `admin` and direct HTTPS remain break-glass paths; Homepage API token remains direct |
 | Proxmox web UI | Native OpenID Connect realm | `proxmox.elliottrook.com` | Keep the local `root@pam` recovery path |

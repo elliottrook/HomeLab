@@ -1,6 +1,7 @@
 # Pi-hole single-login preflight
 
-Status: isolated proof complete; production cutover not performed.
+Status: historical preflight. Production cutover is now documented in
+[Pi-hole single login](Pi-hole-Single-Login.md).
 Owner: Jason. Project: [Authentik rollout](../projects/Authentik-Rollout.md).
 
 ## Verified on 2026-09-26
