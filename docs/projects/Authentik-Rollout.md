@@ -20,6 +20,21 @@
 
 ## Resume audit — 2026-09-23
 
+### Immich mobile acceptance and next prerequisite — 2026-09-26
+
+Jason confirmed the Immich mobile app works after selecting the new HTTPS
+server address and Authentik sign-in. Browser and mobile native-SSO workflows
+are accepted; do not infer an off-Wi-Fi mobile test or logout/recovery proof
+from this confirmation. Homepage is already promoted. Final recovery/logout
+and project-wide graduation gates remain open.
+
+Next service: Frigate VM 102. A fresh read-only SSH check still identifies
+`jelliott` without Docker-group membership; `sudo -n -l` requires a password.
+No privilege changes or configuration mutations were attempted. The next
+prerequisite is an operator-authenticated administrator terminal on that VM
+for a verified protected checkpoint and bounded deployment. Existing recording
+and camera integrations must remain unchanged.
+
 ### Immich browser passkey accepted and Homepage promoted — 2026-09-26
 
 Jason completed the fresh private-window passkey prompt. Browser verification

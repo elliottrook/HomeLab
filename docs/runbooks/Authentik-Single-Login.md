@@ -47,7 +47,8 @@ Accepted on 2026-09-26 at `https://photos.elliottrook.com` and linked from
 Homepage. A fresh private browser automatically redirects to Authentik's
 passkey flow, then returns to the original Jason administrator and photo library.
 Provider 41 is owner-only; automatic account registration is disabled.
-Mobile app sign-in and logout behavior still need validation. Use the same
+Mobile app sign-in was also accepted by Jason; logout behavior still needs
+validation. Use the same
 HTTPS server address in the mobile app and select OAuth sign-in.
 
 Local password recovery remains at
