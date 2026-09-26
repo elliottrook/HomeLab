@@ -24,11 +24,14 @@
     "test_broker_core.py": "b850885f090f8c2ca40e98dbdffcc495d6e0955aac6eee42059df98e7105c369",
     "test_broker_service.py": "a611a007f48f0057120ca3ac36a4f30e6f5355351a4d221e5417c16464bd0677",
     "test_adaptive_foundation_regressions.py": "da569095ce48dea5db719c555fcb2a7f657bf36a28afa7593a56b821f4bbbb1e",
-    "verify_legacy_approval.py": "ea00e7638948f3f17802fa2d9c7ff7aab468b30d060af985b304641c300a7bf1"
+    "verify_legacy_approval.py": "ea00e7638948f3f17802fa2d9c7ff7aab468b30d060af985b304641c300a7bf1",
+    "stage1_preflight.py": "cfbdab122d1aa280e0d5b4403642975b1b29aa7a08432b56d650f78a42600825",
+    "test_stage1_preflight.py": "254cb3b35d4dd6891e69067fa34f6b335be45eb76d972811b9ec718c0db34b17",
+    "apply-m1-stage1.sh": "203a4d32e6a872e33b79c9fd4f98649aa7f7c6c8d31d96bea522b5bc8a90c53c"
   },
   "blocked_on": [
     "explicit deployment approval",
-    "AI-PAM quiescence and no active requests",
+    "immediate recheck of AI-PAM quiescence and no unexpired authorizations",
     "verified recovery checkpoint"
   ]
 }
