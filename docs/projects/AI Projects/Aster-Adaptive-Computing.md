@@ -674,3 +674,15 @@ new telemetry creates information gain and neither prior attempt mutated LXC100.
 It must use a new journal and approval, pin both evidence sets and preserve all
 resource limits. A third pre-mutation failure is a hard stop on further live
 attempts until the method or target changes.
+
+
+### Run003 candidate checkpoint — reviewed, execution pending
+
+The distinct run003 candidate validates the immutable run001 and run002 evidence,
+uses a fresh absent journal and retains the same fixed commands and resource
+ceilings. Its only execution-path change is bounded failure telemetry. Twenty-one
+focused and 213 full tests pass; manifest
+`188fc6a6e6ed8dda082e71c46e232145a782ad21c1ad03f795135a933ffc0c29`
+is bound to the pending external record. Technical review passed. Human approval,
+exclusive-window confirmation and one-shot release remain pending. No live query,
+journal or infrastructure change occurred during preparation.

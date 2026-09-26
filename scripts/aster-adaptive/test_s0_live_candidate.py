@@ -40,11 +40,9 @@ class TimingTests(unittest.TestCase):
 
 
 class LiveCandidateTests(unittest.TestCase):
-    def test_consumed_bundle_is_not_releasable_and_tamper_rejected(self):
+    def test_real_bundle_pin_and_tamper_rejection(self):
         raw=live.MANIFEST.read_bytes();pin=hashlib.sha256(raw).hexdigest()
-        # Post-run evidence updates intentionally invalidate the former launch
-        # bundle; the consumed approval and exclusive journal prevent reuse.
-        with self.assertRaises(ValueError):live.verify_bundle(pin)
+        value=live.verify_bundle(pin);self.assertEqual(value['command_catalog_sha256'],observe.catalog_digest())
         with self.assertRaises(ValueError):live.verify_bundle('0'*64)
         changed=json.loads(raw);changed['artifacts']['/etc/shadow']='0'*64
         raw=json.dumps(changed).encode()

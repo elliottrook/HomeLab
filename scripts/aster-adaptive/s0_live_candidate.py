@@ -19,16 +19,16 @@ from s0_verified_read import read_owned_regular
 
 ROOT=Path(__file__).resolve().parents[2]
 EXPERIMENT='docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/'
-MANIFEST=ROOT/EXPERIMENT/'lxc100-attempt-2-manifest.json'
-APPROVAL=ROOT/EXPERIMENT/'lxc100-attempt-2-approval.json'
-JOURNAL=Path('/private/tmp/aster-s0-lxc100-attempt-2-20260926')
-MODULES=('s0_lxc_memory.py','test_s0_attempt_2.py','s0_verified_read.py','test_s0_authority_gate.py','s0_live_candidate.py','s0_probe_timing.py','s0_probe_lifecycle.py','s0_probe_journal.py',
+MANIFEST=ROOT/EXPERIMENT/'lxc100-attempt-3-manifest.json'
+APPROVAL=ROOT/EXPERIMENT/'lxc100-attempt-3-approval.json'
+JOURNAL=Path('/private/tmp/aster-s0-lxc100-attempt-3-20260926')
+MODULES=('s0_lxc_memory.py','test_s0_attempt_2.py','test_s0_attempt_3.py','s0_verified_read.py','test_s0_authority_gate.py','s0_live_candidate.py','s0_probe_timing.py','s0_probe_lifecycle.py','s0_probe_journal.py',
          's0_owned_cleanup.py','s0_fixed_session.py','s0_lxc100_observe.py','s0_dns_observe.py',
          's0_probe_state.py','s0_feasibility_supervisor.py','validate_label_batch.py',
          'test_s0_live_candidate.py','test_s0_probe_lifecycle.py','test_s0_lxc100_candidate.py',
          'test_s0_probe_state.py','test_s0_feasibility_supervisor.py')
 ARTIFACTS=frozenset('scripts/aster-adaptive/'+name for name in MODULES)|frozenset(EXPERIMENT+name for name in
-    ('lxc100-fixture-payload.py.txt','LXC100-FEASIBILITY-PLAN.md','LXC100-ATTEMPT-2.md','lxc100-integrated-manifest.json','lxc100-live-candidate-manifest.json','run-001/manifest.json','run-001/000.json','run-001/001.json','run-001/002.json','run-001/003.json','run-001/004.json','fixtures/pct-status-100-run001-diagnosis.txt'))
+    ('lxc100-fixture-payload.py.txt','LXC100-FEASIBILITY-PLAN.md','LXC100-ATTEMPT-2.md','RUN-FAILURE-OBSERVABILITY.md','RUN-003-GO-NO-GO.md','lxc100-integrated-manifest.json','lxc100-live-candidate-manifest.json','run-001/manifest.json','run-001/000.json','run-001/001.json','run-001/002.json','run-001/003.json','run-001/004.json','run-002/manifest.json','fixtures/pct-status-100-run001-diagnosis.txt'))
 OPERATIONS=frozenset({'load-state','paths','health','create-owned-canary','run-proposal-only',
                       'unit-properties','cgroup','canary-stat','absence','host-lxc-status'})
 
@@ -39,7 +39,7 @@ def verify_bundle(expected_sha256):
     if len(raw)>32768 or hashlib.sha256(raw).hexdigest()!=expected_sha256:raise ValueError('manifest pin mismatch')
     value=json.loads(raw,object_pairs_hook=unique)
     if set(value)!={'format','status','base_commit','parent_integrated_manifest_sha256','artifacts','command_catalog_sha256','tests_passed','live_invoked'}:raise ValueError('manifest schema')
-    if value['format']!='s0-live-candidate.v1' or value['status']!='attempt-2-released-candidate' or value['base_commit']!='ab34738' or value['live_invoked'] is not False:raise ValueError('manifest state')
+    if value['format']!='s0-live-candidate.v1' or value['status']!='attempt-3-unapproved-candidate' or value['base_commit']!='9a94f3a' or value['live_invoked'] is not False:raise ValueError('manifest state')
     if set(value['artifacts'])!=ARTIFACTS:raise ValueError('artifact set mismatch')
     for name,expected in value['artifacts'].items():
         path=ROOT/name
@@ -67,6 +67,39 @@ def verify_prior_readonly_abort():
         raise ValueError('prior mutation uncertainty')
     if [r['data']['operation'] for r in events[1:4]]!=['load-state','paths','health']:
         raise ValueError('unexpected prior operations')
+
+
+def verify_prior_run002():
+    root=ROOT/EXPERIMENT/'run-002'
+    evidence=json.loads(read_owned_regular(root/'manifest.json',16384),object_pairs_hook=unique)
+    required={'format','attempt','date','result','failure_stage','precise_failure_cause','mutation_attempted',
+              'manual_recovery_required','remote_stop_issued','corpus_evaluated','reviewed_manifest_sha256',
+              'approval_record_sha256','command_catalog_sha256','post_run_readonly_dns_diagnostic',
+              'files_sha256','consumed_approval_record_sha256'}
+    if set(evidence)!=required or evidence['format']!='s0-run-evidence.v1' or evidence['attempt']!='run-002':
+        raise ValueError('run002 evidence schema')
+    if (evidence['result']!='failed-or-inconclusive' or evidence['failure_stage']!='preflight' or
+        evidence['mutation_attempted'] is not False or evidence['manual_recovery_required'] is not False or
+        evidence['remote_stop_issued'] is not False or evidence['corpus_evaluated'] is not False):
+        raise ValueError('run002 mutation uncertainty')
+    files=evidence['files_sha256']
+    if type(files) is not dict or not files:raise ValueError('run002 file index')
+    for name,expected in files.items():
+        if type(name) is not str or '/' in name or name in ('.','..') or type(expected) is not str or len(expected)!=64:
+            raise ValueError('run002 file index')
+        if hashlib.sha256(read_owned_regular(root/name,131072)).hexdigest()!=expected:raise ValueError('run002 file hash')
+    if files.get('reviewed-manifest.json')!=evidence['reviewed_manifest_sha256'] or files.get('approval-record.json')!=evidence['approval_record_sha256'] or files.get('consumed-approval-record.json')!=evidence['consumed_approval_record_sha256']:
+        raise ValueError('run002 provenance hash')
+    previous='0'*64;events=[]
+    expected_events=['begin','observed','observed','observed','observed','resource-observation','failed']
+    for i,event in enumerate(expected_events):
+        raw=read_owned_regular(root/f'{i:03}.json',8192);row=json.loads(raw,object_pairs_hook=unique)
+        if canonical(row)!=raw or row['sequence']!=i or row['previous']!=previous or row['event']!=event:raise ValueError('run002 journal chain')
+        previous=hashlib.sha256(raw).hexdigest();events.append(row)
+    if events[-1]['data']!={'manual_recovery_required':False,'mutation_attempted':False,'stage':'preflight'}:
+        raise ValueError('run002 terminal uncertainty')
+    if [r['data']['operation'] for r in events[1:5]]!=['load-state','paths','health','host-lxc-status']:
+        raise ValueError('run002 operation order')
 
 
 class FixedDNS:
@@ -130,7 +163,7 @@ def _prepared_one_shot(reviewed_pin):
 
 
 SCOPE={
-    'attempt':'run-002',
+    'attempt':'run-003',
     'host_resource_query':'pct status 100 --verbose',
     'maximum_container_inventory':32,
     'target':'Proxmox 192.168.50.10 / LXC 100',
@@ -150,8 +183,8 @@ SCOPE={
 }
 PROVENANCE={
     'human':'Jason',
-    'authorization':'fresh explicit approval granted for exactly one run-002',
-    'source':'Jason replied approve in coordinating task after corrected run-002 scope was presented',
+    'authorization':'fresh explicit approval for run-003 is required',
+    'source':'run-003 candidate preparation; run-002 approval is consumed',
     'coordinating_task':'01a0d957-799b-7353-acbc-4765e85619f2',
     'cryptographic_identity_proof':False,
 }
@@ -166,11 +199,12 @@ def validate_approval():
     release=value['release']
     if type(release) is not dict or set(release)!={'technical_review','exclusive_operator_window','one_shot_execution','human_approval'}:
         raise ValueError('release schema')
-    if release!={'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released','human_approval':'approved-for-run-002'}:
+    if release!={'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released','human_approval':'approved-for-run-003'}:
         raise PermissionError('final technical review and operator window release required')
     pin=value['reviewed_manifest_sha256']
     verify_bundle(pin)
     verify_prior_readonly_abort()
+    verify_prior_run002()
     return pin
 
 

@@ -50,3 +50,19 @@ attempts and redesign the feasibility method or create a disposable target. If i
 reaches mutation and becomes uncertain, use only the existing receipt-based manual
 recovery process. A pass establishes fixture isolation feasibility only; it does
 not authorize accepted-corpus evaluation or operational autonomy.
+
+## Candidate preparation checkpoint
+
+The local candidate uses journal
+`/private/tmp/aster-s0-lxc100-attempt-3-20260926`, manifest
+`lxc100-attempt-3-manifest.json` and approval record
+`lxc100-attempt-3-approval.json`. It validates the complete run-001 and run-002
+evidence chains before a prepared invocation. Run-002's exact reviewed and
+consumed approval records are separate evidence objects; neither can satisfy the
+run-003 scope.
+
+The execution commands, unit/canary names and resource ceilings are unchanged.
+The only execution-path change is bounded failure boundary/class telemetry.
+Technical review passes with 213 local tests; human approval, exclusive-window and
+one-shot release fields remain pending. Candidate preparation performs no SSH,
+DNS, journal creation or remote action.

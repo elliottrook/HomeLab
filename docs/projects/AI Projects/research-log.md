@@ -424,3 +424,15 @@ run002 artifact is rejected. A disposable clone remains preferable for later
 corpus/destructive work, but no verified ready target or safe spare-allocation
 budget is established. Run003 must pin both evidence sets and obtain fresh approval.
 A third pre-mutation failure ends live retries pending redesign.
+
+
+### 2026-09-26 — run003 candidate prepared and reviewed
+
+Created distinct attempt3 journal/manifest/approval identities. The launcher now
+verifies both prior no-mutation evidence sets, including exact run002 reviewed and
+consumed approval records, before any prepared invocation. Bounded failure telemetry
+is the only execution-path change; commands and resource limits are unchanged.
+Twenty-one focused and 213 full tests pass. Final manifest is
+`188fc6a6e6ed8dda082e71c46e232145a782ad21c1ad03f795135a933ffc0c29`.
+Technical review passed; human approval and execution release remain pending. No
+SSH, DNS, live journal, package, corpus, infrastructure mutation or new push.

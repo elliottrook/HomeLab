@@ -27,6 +27,8 @@
     "README.md": "e0a81cfde63d60c0e4916404cc11d674466671441b2868cb686c840191d99d9d",
     "approval-record.json": "78b549480ec05ce7f5ad69ac0490878d26fb27ead44595db718a98dd6a979feb",
     "reviewed-LXC100-FEASIBILITY-PLAN.md": "0e739e1c7e2bf0d5ee603843c4bda1e8e98e86ed67aae43471bf094933d16438",
-    "reviewed-manifest.json": "1713058f4f280e116933295ec633f5c59925f8a9cba1635dae9a371ea0e322b2"
-  }
+    "reviewed-manifest.json": "1713058f4f280e116933295ec633f5c59925f8a9cba1635dae9a371ea0e322b2",
+    "consumed-approval-record.json": "9f73972ca6b538c8a75c23fd33fc9cec8f3e4a676f530aef8e63f8e3f6ee0e6d"
+  },
+  "consumed_approval_record_sha256": "9f73972ca6b538c8a75c23fd33fc9cec8f3e4a676f530aef8e63f8e3f6ee0e6d"
 }

@@ -315,3 +315,17 @@ precise cause remains UNKNOWN / REQUIRES VERIFICATION; a later read-only fixed D
 diagnostic succeeded and therefore cannot establish the earlier cause. Evidence is
 preserved in `run-002/`. The one-shot approval is consumed and no retry is
 authorized.
+
+## Run 003 candidate — pending review and approval
+
+The run003 decision permits local preparation only. The candidate has a distinct
+journal, manifest and approval identity, validates both prior no-mutation evidence
+sets, and retains the run002 commands and resource limits. Failure records now add
+only allowlisted boundary/class codes; exception text remains excluded. A third
+pre-mutation failure is a hard stop on live retries. No release field is set, no
+live journal exists and no execution is authorized at this checkpoint.
+
+Technical review subsequently passed with 213 local tests and both prior evidence
+verifiers. The final candidate manifest is bound by the external pending approval
+record. Human approval, exclusive-window confirmation and execution release remain
+unset; this is a review result, not authority to run.

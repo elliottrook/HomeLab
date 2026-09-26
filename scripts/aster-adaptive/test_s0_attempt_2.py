@@ -100,15 +100,13 @@ class AttemptTwoTests(unittest.TestCase):
         baseline,_=memory.combined_health({'returncode':0,'stdout':output.getvalue().encode(),'stderr':b''},host())
         self.assertEqual(set(baseline['containers']),set(names));self.assertEqual(len(calls),4)
 
-    def test_distinct_attempt_identity_and_fresh_approval(self):
-        self.assertIn('attempt-2',live.JOURNAL.name)
-        self.assertIn('attempt-2',live.APPROVAL.name)
-        self.assertIn('attempt-2',live.MANIFEST.name)
-        value=json.loads(live.APPROVAL.read_text())
+    def test_consumed_attempt_identity_is_preserved(self):
+        path=live.ROOT/live.EXPERIMENT/'run-002/consumed-approval-record.json'
+        value=json.loads(path.read_text())
         self.assertEqual(value['scope']['attempt'],'run-002')
         self.assertEqual(value['release']['human_approval'],'approved-for-run-002')
         self.assertEqual(value['release']['one_shot_execution'],'consumed-run-002-failed-preflight')
-        self.assertEqual(value['provenance'],live.PROVENANCE)
+        self.assertEqual(value['provenance']['authorization'],'fresh explicit approval granted for exactly one run-002')
         self.assertEqual(observe.command_catalog()['host-lxc-status'][-1],'pct status 100 --verbose')
 
 
