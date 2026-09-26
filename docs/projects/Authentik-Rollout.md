@@ -1,22 +1,98 @@
 # Authentik Service Rollout Project
 
-> Status: Active — Milestones 0-2 complete except the human-only stale-session
-> closure; Milestone 3 has graduated Grafana, ARR, Portainer and the coordinated
-> Pi-hole pair. Six further browser routes now use passkey-only single login
-> with normal browser acceptance (2026-09-23). Audiobookshelf native SSO is
-> accepted on and off Wi-Fi; its Homepage link is promoted. Calibre native SSO
-> is accepted and its Homepage link is promoted. Seerr/Jellyfin are deferred;
-> Proxmox native OIDC is accepted, promoted to owner administration and linked
-> from Homepage. Remaining services and final
-> graduation gates are still open.
-> Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
-> under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
-> Stream: **A — Autonomous**, approved by Jason on 2026-09-23 for the
-> remainder of this project. Earlier Stream M evidence remains historical.
->
-> Owner: Jason
->
-> Proposed: 2026-08-22 · Redesigned: 2026-09-10
+> Status: Close-out verification — implementation complete within the accepted
+> scope; NPM, TrueNAS, UniFi and Home Assistant are explicit follow-ups approved
+> by Jason on 2026-09-26. Jellyfin/Seerr remain deferred by prior direction.
+> Stream: **A — Autonomous**. Owner: Jason.
+> Proposed: 2026-08-22 · Redesigned: 2026-09-10 · Close-out: 2026-09-26.
+> Standard: [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
+
+## Final scope and verification — 2026-09-26
+
+This section supersedes the historical status statements and unchecked planning
+lists below. Those remain an audit trail, not instructions to repeat deployment.
+Jason requested completion, push and archival, and explicitly chose to close
+with NPM, TrueNAS, UniFi and Home Assistant documented as follow-ups with their
+existing secure logins retained. This is completion of the accepted scope, not
+a claim that every original target now has single login.
+
+| Delivered cohort | Final disposition |
+|---|---|
+| Earlier services | Homepage, Beszel, Grafana, Forgejo, ARR and Portainer remain deployed; Authentik providers use the passkey flow. Existing app recovery/API routes remain service-specific. |
+| Browser tools | Dozzle, Homarr, code-server, Dockge, File Browser and NetBox accepted; private ingress prevents direct/spoofed browser bypass. |
+| Media and cameras | Audiobookshelf and Calibre native SSO accepted; Immich browser/mobile accepted; Frigate live view/recordings accepted with metrics and streams preserved. |
+| Newtarr | Persistence repaired, protected HTTPS promoted, Sonarr/Radarr/Lidarr connected; both missing and quality-upgrade searches enabled at the recorded limits. |
+| Pi-hole pair | Passkey-only browser entry accepted, application/account logout checked, DNS and the statistics-only Homepage widget verified. Recovery is host-private. |
+| Infrastructure | Proxmox OIDC and Synology SSO accepted; independent local administrator recovery retained. |
+
+Final automated evidence:
+
+- `scripts/check-authentik-browser-boundary.py`: **126/126 passed**, covering
+  three DNS authorities, certificate-valid routes and plain/spoofed direct
+  access denial. This does not simulate biometric login or every client.
+- All **33** Authentik applications evaluated with an uncached policy engine:
+  `jason` allowed, `akadmin` denied, including Cloudflare Access and the retired
+  Synology Backup record. Cloudflare remains outside this browser rollout;
+  Jason owns its separate external-access design. The retired Synology object
+  remains owner-restricted as a recovery/audit artifact; retirement cleanup is
+  separate and must not delete an active callback by inference.
+- Fresh Authentik dump restored into the installed PostgreSQL image, with
+  network disabled, no production mounts or published ports. Restored counts
+  matched: 33 applications, 4 users, 45 policy bindings. Scratch container and
+  its volumes removed. Protected checkpoint:
+  `/opt/authentik/backups/closeout-20260926T223843Z`.
+- NPM online SQLite backup restored to a separate database: integrity `ok`,
+  31 active proxy hosts; production `nginx -t` passed. Checkpoint:
+  `/opt/nginx-proxy-manager/backups/closeout-20260926T223932Z`.
+- Representative native-OIDC database restore: Calibre checkpoint restored
+  separately, integrity `ok`, 29 tables, at
+  `/root/authentik-cwa-restore-20260926T223947Z`. This is a database restoration,
+  not a destructive live rollback or fresh SSO replay.
+- Representative forward-auth recovery: both stopped Pi-hole checkpoints were
+  byte-compared after restoration (49/133 files), SQLite integrity passed, and
+  isolated guards passed 17/16 checks. Production primary restart and secondary
+  managed-app stop/start passed while redundant DNS remained available.
+- Loaded OPNsense rules still use specific NPM source/backend TCP destinations;
+  no public ingress was added. Existing direct management and storage/stream
+  protocols remain independent of Authentik/NPM. Infrastructure failure recovery
+  uses reasoned path validation, not a disruptive firewall/hypervisor outage.
+- Authentik/Immich/Synology recovery artifacts inspected by metadata only;
+  local secret-bearing files remain 0600 inside 0700 directories. Recovery
+  images and checkpoints are retained. Temporary recovery tunnels were removed.
+- Live generated Aster mirror verified: 1,796 entries, 25 directory sources,
+  content hash `bf0c002f46a7aaffadadc2490045aaa9927cc091ea04eead2f413860e97491e8`.
+  Authored operations are consumed from the authoritative reference snapshot;
+  generated upstream claims are not hand-edited.
+
+### Jellyfin reassessment requested during close-out
+
+Live public system information on 2026-09-26 now reports **12.1.0**. The
+[Community SSO stable manifest](https://raw.githubusercontent.com/Flowfin/jellyfin-plugin-sso/manifest-release/manifest.json)
+lists plugin 5.0.0.0 targeting Jellyfin ABI 12.0.0.0. Its
+[documentation](https://github.com/Flowfin/jellyfin-plugin-sso) supports Authentik
+OIDC; [client guidance](https://github.com/Flowfin/jellyfin-plugin-sso/wiki/Client-Compatibility)
+uses browser redirects or Quick Connect. This is a viable plugin candidate,
+not verified native built-in SSO or proof of compatibility with every client.
+Jason asked whether the new version can work; deployment versus a separate
+follow-up is awaiting his scope decision. No Jellyfin settings changed.
+
+## Follow-ups and practical limits
+
+Owner for each follow-up is **Jason**. Reassess versions and supported interfaces
+before starting any further deployment; this archive is not future authorization.
+
+| Item | Disposition / next action |
+|---|---|
+| NPM | Keep its application login behind Authentik; reassess a released, supported native SSO implementation. Do not deploy an unmerged upstream PR. |
+| TrueNAS | Keep local administration; reassess supported browser federation on the installed edition without placing storage recovery behind SSO. |
+| UniFi | Keep existing console login; endpoint/Fabric identity support is not proof of console administrator SSO. |
+| Home Assistant | Keep native authentication; require browser, companion app, callback and emergency-access compatibility before integration. |
+| Jellyfin / Seerr | Deferred at Jason's direction; reassess released versions and client support later. |
+| OPNsense / Plex | Explicit no-change decision: independent firewall recovery and existing media-client authentication take priority. |
+| Optional clients / logout | Only the named tested workflows are accepted. Frigate HA integration is not installed. Unused reader/TV/API consumers and per-app global logout are not claimed tested; test them when introduced. App logout may retain the Authentik session; use account logout when ending SSO. |
+| Pi-hole recovery | Primary SSH loopback browser recovery is proven. TrueNAS prohibits SSH TCP forwarding; secondary recovery uses the verified host-local API/CLI. Do not weaken that SSH policy or expose its passwordless backend. |
+| Backup observation | Reconstruction bundle checksums pass locally and through the relay. First scheduled post-change archive/replication has not yet been observed; do not describe the bundle as already replicated. |
+| Legacy unattended sessions | The old schedule was disabled in the redesign. Historical `local_312ca3ad...` / `local_a30ead75...` sessions are not reachable here; explicit closure is unverified. Their instructions are superseded. Do not resume them or treat missing inventory as proof of termination. |
 
 ## Resume audit — 2026-09-23
 
@@ -2437,13 +2513,7 @@ evidence.
 
 ## Close-out
 
-Not graduated. Stream A is active as of Jason's 2026-09-23 approval.
-Previously graduated packages remain in place; six further routes are staged
-with automated gates passed and human acceptance pending. Forgejo's owner
-binding is fixed and an isolated Authentik database restore passed. Newtarr's
-persistence risk, Frigate/Immich checkpoint access, remaining media/native
-identity work, infrastructure workflows, stale-session confirmation and final
-integration/rebuild gates remain open. Resume from the dated audit and exact
-object inventory near the start of this document; do not recreate staged
-objects or promote unaccepted Homepage links. Remote Git synchronization
-requires immediate approval and is not implied by Stream A.
+Use the final scope, verification and follow-up tables at the beginning of this
+record. Historical unchecked items document the earlier wider plan; unsupported
+SSO targets are expressly deferred. Final publication and knowledge deployment
+results will be recorded with the archive.

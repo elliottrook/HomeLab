@@ -21,6 +21,15 @@ Do not place network control-plane protocols, SSH, DNS, storage protocols,
 camera streams or the Tailscale control path behind an HTTP authentication
 proxy. This runbook applies only to browser-based web interfaces.
 
+## Rollout close-out — 2026-09-26
+
+The rollout closes with NPM, TrueNAS, UniFi and Home Assistant explicitly
+deferred by Jason; retain their secure existing logins. Jellyfin/Seerr remain
+deferred. Synology, Immich, Frigate, Newtarr and both Pi-hole browser routes are
+now deployed; earlier hold statements below are historical where superseded by
+the dated completion records. See the rollout archive for restore evidence and
+limits; individual recovery/API credentials remain intentional.
+
 ## Service plan
 
 The exact capabilities can vary by installed version and licence. Confirm the
@@ -36,13 +45,13 @@ Beszel, ARR, Portainer and both Pi-holes: all 13 providers explicitly select
 the existing passkey-only flow. Fresh unauthenticated redirect checks and
 owner/non-owner policy checks pass. Pi-hole now has private backend/owner guards
 without a second password (2026-09-26); see [its runbook](runbooks/Pi-hole-Single-Login.md).
-NPM application password removal and fresh human-session acceptance remain open.
+NPM application password removal is an accepted follow-up (2026-09-26).
 
 | Service | Recommended path | Suggested name | Important note |
 |---|---|---|---|
 | Nginx Proxy Manager | Forward auth | `proxy.elliottrook.com` | Complete and tested; NPM login remains |
 | Homepage | Forward auth | `home.elliottrook.com` | Keep health/widget requests in mind |
-| Pi-hole #1 and #2 web UIs | Forward auth plus verified-owner private ingress (2026-09-26) | `dns1.elliottrook.com`, `dns2.elliottrook.com` | No second app password; DNS 53 remains direct, web recovery is host-private. Fresh passkey/logout acceptance remains open |
+| Pi-hole #1 and #2 web UIs | Forward auth plus verified-owner private ingress (2026-09-26) | `dns1.elliottrook.com`, `dns2.elliottrook.com` | No second app password; DNS 53 remains direct, web recovery is host-private. Fresh passkey acceptance and account logout verified 2026-09-26 |
 | Frigate | Native OIDC if available; otherwise forward auth | `frigate.elliottrook.com` | RTSP, ONVIF and recordings remain direct |
 | Portainer | Native OAuth/OIDC — complete and tested (2026-09-15) | `portainer.elliottrook.com` | Existing local `admin` and direct HTTPS remain break-glass paths; Homepage API token remains direct |
 | Proxmox web UI | Native OpenID Connect realm | `proxmox.elliottrook.com` | Keep the local `root@pam` recovery path |
