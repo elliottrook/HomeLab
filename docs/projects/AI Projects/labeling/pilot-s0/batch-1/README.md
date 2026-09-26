@@ -28,3 +28,14 @@ Accepted sanitized records have durable Git retention under the approved pilot;
 withdrawal stops use but cannot promise removal from history, mirrors or backups.
 No push is authorized. No real calendar, preferences, hosts or public pages were
 queried. The next step is checking reported effort before batch 2 preparation.
+
+## Subsequent effort report
+
+Jason answered “5” to the question asking for approximate active review minutes
+for all ten cases. The separate `effort.json` records five minutes total and an
+approximate derived 30-second average. Individual durations and actual median
+remain unmeasured. Conditional on a 300-second nonnegative total, the ten-case
+median cannot exceed 50 seconds (six equal 50-second observations maximize it).
+This clears the two-minute stop threshold on self-reported aggregate evidence,
+not instrumented timing. Zero unresolved review decisions also clears that gate.
+Batch 2 may be proposed; no approval of its content or labels is inferred.

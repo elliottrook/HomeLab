@@ -201,3 +201,11 @@ Preserved exact proposal bytes and separate per-case/hash-bound acceptance recor
 This is personalized review, not human authorship or independent gold. No timing
 inferred; effort gate remains unknown and next batch is paused. No router/model
 evaluation or execution; fixture-only validator remains unchanged.
+
+
+## 2026-09-26 — batch 1 reported effort
+
+Jason reported five active-review minutes across ten cases. Recorded as approximate
+aggregate self-report; derived average30 seconds, no measured median/per-case times.
+Conditional median bound50 seconds clears effort stop rule; zero unresolved
+annotations. Batch2 remains AI-proposed and requires human content/label decisions.

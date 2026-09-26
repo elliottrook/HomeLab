@@ -416,3 +416,13 @@ AI-proposed, human-approved, not independent correctness. Zero unresolved review
 decisions; intentionally ambiguous case 10 is accepted as clarify. Labeling effort
 was not reported: median UNKNOWN, effort gate not passed. Pause before batch 2
 until effort is reported. No evaluation, execution, deployment or push.
+
+
+### Batch 1 effort checkpoint
+
+Jason reported approximately five minutes active review for ten cases.
+[Effort evidence](labeling/pilot-s0/batch-1/effort.json) records the aggregate and
+30-second derived average, without fabricating per-case timing or measured median.
+The aggregate bounds median below the two-minute stop threshold; zero unresolved
+review decisions. Proceed to batch 2 proposals outside Git, pending human review.
+No router/model evaluation or push authorized.
