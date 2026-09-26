@@ -2549,3 +2549,25 @@ Use the final scope, verification and follow-up tables at the beginning of this
 record. Historical unchecked items document the earlier wider plan; unsupported
 SSO targets are expressly deferred. Final publication and knowledge deployment
 results will be recorded with the archive.
+
+### Post-acceptance documentation and backup scope — 2026-09-26
+
+Jellyfin accepted milestone committed as `e6e6c3c`; authoritative reference
+`6534e2a`, operator wiki `ed86b0b`. Updated wiki deployed with checkpoint
+`/var/lib/aster-wiki/state/authentik-closeout-20260926T232017Z`.
+Aster snapshot updated from committed reference sources only: 1,825 sources,
+1,796 upstream entries unchanged; provenance hash
+`8be3c90a6f54bbcb708420d99f20443ccb33880c8daaf5012222f7eecb85e659`.
+Previous live tree retained at
+`/var/lib/aster/knowledge.authentik-closeout-20260926-verified`.
+Explicit local-backup, Jellyfin SSO and Frigate queries passed before and after
+atomic activation. A generic Pi-hole backup query instead preferred upstream
+DNS claims; this retrieval limitation remains recorded, not silently fixed.
+The rejected first candidate remains an isolated staging tree, never activated.
+
+Jason asked which applications/data lack backup coverage. The bounded live
+[audit](../runbooks/Backup-Coverage-Audit-2026-09-26.md) identifies broader NAS
+application-state gaps, deliberate off-site exclusions and unverified Immich
+photo coverage. No schedules were changed. Archival remains pending the backup
+scope/acceptance decision; manual SSO checkpoints must not be described as
+recurring application backup. Do not repeat deployment while awaiting it.
