@@ -20,6 +20,44 @@
 
 ## Resume audit — 2026-09-23
 
+### Newtarr persistence repair prepared; risk decision pending — 2026-09-26
+
+Live `newtarr` remains healthy on TrueNAS, image v1.0.0 with immutable image
+ID `sha256:a099fd6afe0498156a1f7defc82076dac7827f5a1fdf33038903d573403611e7`.
+Its only mount is empty `/mnt/Media/appdata/newtarr` to `/appdata`; actual
+settings/state are in the container writable layer at `/config`. Compose owner
+is `/mnt/Media/appdata/dockge/new_arr/compose.yaml`, service `newtarr`, network
+`new_arr_default`, port 9705. Native proxy-auth bypass is already enabled and
+local-access bypass disabled; no auth setting was changed.
+
+Protected running preflight copy, full container inspection and original
+Compose are in `/root/authentik-newtarr-preflight-20260926T210518Z`.
+Config archive SHA-256:
+`857802ecab8e67843af24e307c68044204666e8964af5b090feba89588cbf681`.
+All 28 JSON configuration/state documents parse. Eight files named
+`state/*/last_reset.json` are not JSON documents; retained byte-for-byte, not
+rewritten or claimed corrupt. This is a running copy; migration must take a
+fresh stopped-container copy before cutover.
+
+Restored the archive into a disposable root-only directory and started the
+exact image with `--network none`, no published ports and the restored `/config`
+bind. Internal HTTP returned 200. Removed the disposable container afterwards;
+no ARR consumers were reachable. `restore-proof.json` records the result.
+The protected `compose.candidate.yaml` validates, changing only
+`${CONFIG_PATH}/newtarr:/appdata` to `${CONFIG_PATH}/newtarr:/config`.
+Other services and configuration are byte-for-byte unchanged.
+
+Concrete pending repair: briefly stop only Newtarr, capture a final coherent
+config archive and recoverable container image, verify and populate the empty
+host directory, apply the single mount correction, and recreate only Newtarr
+without pulling/upgrading its image. Validate exact settings, outbound consumer
+configuration, host persistence and UI health before Authentik work. Retain all
+recovery material; no old checkpoint is deleted. The earlier project record
+explicitly requires a separate persistence-risk decision before recreation;
+request that decision against this prepared and isolated-tested change.
+Production Newtarr is still running unchanged; no repair or auth deployment
+is claimed yet.
+
 ### Frigate browser acceptance and Homepage promotion — 2026-09-26
 
 Jason confirmed live video and older-recording playback work through the new
