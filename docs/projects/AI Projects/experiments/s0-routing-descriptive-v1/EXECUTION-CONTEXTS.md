@@ -27,7 +27,7 @@ the queried node's inventory; other nodes/devices remain UNKNOWN, not absent.
 |---|---|---|---|
 | Current Mac Codex sandbox | Existing Python3.12.14; supervisor primitives tested | Nested sandbox_apply denied; OS read/network/process restrictions unavailable here | NO-GO for corpus run; retain design/test work here |
 | Same Mac, another execution context | Physical/runtime already exists | No separately permitted launcher context established or tested | Possible first fixture-only feasibility option if explicitly authorized; no sandbox bypass implied |
-| LXC100, native Python/systemd | Python3.13.5, systemd257, unshare/timeout present; running shared application guest | Namespace/seccomp/cgroup delegation enforcement under LXC untested; no restricted worker identity/root; production blast radius | Most plausible existing-runtime fixture candidate; conditional only, not approved or preferred over isolation safety |
+| LXC100, native Python/systemd | Python3.13.5, systemd257 and bounded preflight/recovery verified | Run003 failed before readiness with `226/NAMESPACE`; reviewed namespace combination cannot be established | **NO-GO / retired for S0 execution.** Do not weaken controls or attempt run004 |
 | LXC100, Docker | Docker29.8.1, cgroupv2; daemon reports builtin seccomp and cgroupns; application images available | No purpose-built minimal Python test image observed; controls untested; daemon privileged path and shared kernel/services | Do not repurpose application containers or mount daemon socket into worker; not the minimal first choice |
 | LXC104 | Python3.13.5, systemd257, unshare/timeout; no bwrap/Docker on PATH | Hosts Aster/broker; shares authority/credential integration surface | Reject placement for this experiment despite convenient Python |
 | VM105 | Stopped; repository calls it inference rollback guest | Starting changes recovery posture/resources; no isolation/runtime inspection inside it | Reject reuse as a disposable lab; do not start |
@@ -85,6 +85,16 @@ Neither option authorizes actual evaluation. Full launch readiness still require
 externally frozen pins, immutable inputs, proven denied operations, hard timeout,
 memory containment, exclusive run IDs, bounded atomic output and recovery evidence,
 then one exact human-approved corpus run. Current live gate stays disabled.
+
+## Post-feasibility update — 2026-09-26
+
+The recommended fixture series completed with a negative result. Run003 reached
+the transient-unit boundary and failed with systemd `226/NAMESPACE`; exact manual
+recovery restored LXC100. The conditional LXC100 recommendation above is superseded
+by [the post-LXC100 decision](POST-LXC100-EXECUTION-DECISION.md). A dedicated,
+disposable VM is now the preferred future boundary, subject to capacity, network,
+image-provenance and explicit creation approvals. No existing guest is silently
+repurposed.
 
 ## Rollback and publication
 

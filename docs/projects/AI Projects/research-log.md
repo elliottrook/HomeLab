@@ -451,3 +451,13 @@ This is a negative feasibility result for the reviewed namespace combination in
 LXC100. No accepted corpus ran. The one-shot approval is consumed and run004 is
 prohibited on this shared host. Next architecture work must examine a VM or a
 different isolation boundary without weakening deterministic controls.
+
+
+### 2026-09-26 — LXC100 retired as S0 execution boundary
+
+Recorded an explicit architecture decision from the run003 negative evidence.
+Do not bisect namespace directives on the shared household guest or weaken the
+reviewed controls to force readiness. Accepted-corpus execution remains blocked.
+A dedicated disposable Linux VM is the preferred future target, but VM105 remains
+reserved/rejected and no capacity or placement is assumed. VM design needs its own
+read-only capacity/network/image assessment and explicit creation approval.

@@ -700,3 +700,14 @@ The hard stop now applies: no run004 on LXC100 and no weakening of namespace
 controls to force a pass. Stream A must treat this as a negative architecture
 result and evaluate a VM or different isolation boundary before any further live
 fixture execution.
+
+
+### Execution-boundary decision after run003
+
+[The post-LXC100 decision](experiments/s0-routing-descriptive-v1/POST-LXC100-EXECUTION-DECISION.md)
+retires the shared Docker LXC as the S0 execution target and keeps accepted-corpus
+evaluation blocked. A dedicated disposable VM is the preferred future boundary,
+but no existing guest is approved for reuse and no current capacity claim is made.
+The next safe work is a read-only VM capacity/network design followed by a separate
+creation approval. Local routing implementation and invented-fixture tests may
+continue meanwhile.
