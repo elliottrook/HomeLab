@@ -1,0 +1,92 @@
+{
+  "schema_version": "integration-map.v1",
+  "initial_observed_remote": "a86a428",
+  "authoritative_baseline": "f25df1812b7ef339acb9cb59339c704a4032ea26",
+  "local_tip": "1a8fa680908eac8e0b7bb76845a0b1b061e593d7",
+  "commits": [
+    {
+      "commit": "39221b756037de21e44096621df5049fa5c5819e",
+      "subject": "Harden local AI-PAM authority boundaries for Aster M1",
+      "patch_id": "5bc40b369757616c3a2e6b759c25e1c74c7214d9",
+      "contained_in_baseline": true,
+      "disposition": "already represented through AI-PAM integration; do not replay"
+    },
+    {
+      "commit": "09de3b732ee64418020dc800ce6d600346286083",
+      "subject": "Enable Synology passkey flow and repair private DNS consistency",
+      "patch_id": "3e6400bded8558ba43f4f7d7d9c5789f4cceebf5",
+      "contained_in_baseline": true,
+      "disposition": "already represented through AI-PAM integration; do not replay"
+    },
+    {
+      "commit": "9f11b707d88ed78ff22cee9e901e9893683fd29f",
+      "subject": "Prepare M6-compatible M1 staged deployment and identity evidence",
+      "patch_id": "4b546728d70bfbf9a95f11f18be7a06588d526f6",
+      "contained_in_baseline": true,
+      "disposition": "already represented through AI-PAM integration; do not replay"
+    },
+    {
+      "commit": "23ca836757d3b000419877457a05e8e5380ee434",
+      "subject": "Accept Synology admin SSO and record Immich backup progress",
+      "patch_id": "fb9d43e45b9573108550d4049e954d6c119541b0",
+      "contained_in_baseline": true,
+      "disposition": "already represented through AI-PAM integration; do not replay"
+    },
+    {
+      "commit": "7ef0b96d36f5f7edae233c524c989ffdc54cc990",
+      "subject": "Add read-only M1 preflight and bounded deployment procedure",
+      "patch_id": "37112d8d6a97bde01860279dd7876df8658a3406",
+      "contained_in_baseline": true,
+      "disposition": "already represented through AI-PAM integration; do not replay"
+    },
+    {
+      "commit": "85d2e460222cf6e0cc38753c8d60b18f95d71645",
+      "subject": "Resolve M1 recovery reporting review and record deployment gate",
+      "patch_id": "62c80a8834a9ff3c17f37a29cde8f08b9d9e0c11",
+      "contained_in_baseline": true,
+      "disposition": "already represented through AI-PAM integration; do not replay"
+    },
+    {
+      "commit": "a08114b0a632bdce496756dd0d68a950b8887993",
+      "subject": "Record approved M1 Stage1 deployment and verified recovery",
+      "patch_id": "9338a1855054edda45f4e7e6dd2353c282d3a4d5",
+      "contained_in_baseline": true,
+      "disposition": "already represented through AI-PAM integration; do not replay"
+    },
+    {
+      "commit": "30f79ea9a50f773e887101e38efa5622576ebca9",
+      "subject": "Add offline adaptive contracts and bound Stage2 assurance design",
+      "patch_id": "77ca25846b8b362bed3a3af4a169aa1bc5c5d1a6",
+      "contained_in_baseline": false,
+      "disposition": "unique selector-probe work; preserve reviewed invariants and namespace separately"
+    },
+    {
+      "commit": "026e5e9980aea45a9e845bd1e302a10025436753",
+      "subject": "Bind offline experiments to reviewed source engine and eligibility",
+      "patch_id": "a6818a0b69f4cee4f0f397be00714de806ba18d3",
+      "contained_in_baseline": false,
+      "disposition": "unique selector-probe work; preserve reviewed invariants and namespace separately"
+    },
+    {
+      "commit": "1a8fa680908eac8e0b7bb76845a0b1b061e593d7",
+      "subject": "Add portable offline adaptive contract conformance evidence",
+      "patch_id": "3c789aabd0aa3cfe6d83fcd4b71e14463734770a",
+      "contained_in_baseline": false,
+      "disposition": "unique selector-probe work; preserve reviewed invariants and namespace separately"
+    }
+  ],
+  "unchanged_authority_and_harness_trees": {
+    "ops/credential-broker": true,
+    "services/aster-agent": true,
+    "scripts/aster-adaptive": true
+  },
+  "tests": {
+    "remote_adaptive": 52,
+    "selector_probe": 29,
+    "broker": 76,
+    "aster": 163,
+    "portable_vectors": 31
+  },
+  "no_remote_write": true,
+  "no_production_change": true
+}

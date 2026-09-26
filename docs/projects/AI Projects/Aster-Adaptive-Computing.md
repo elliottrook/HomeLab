@@ -180,6 +180,14 @@ validation. Do not expand tool authority or claim M1 graduation. The M6 Forgejo
 read and safe-write transports were preserved through Stage1. Offline M2 work may
 continue independently.
 
+The reconciled local integration keeps `scripts/aster-adaptive` as the canonical
+offline harness/evidence path and retains `services/aster-adaptive` only as a
+namespaced selector conformance probe. The probe's31 vectors and29 tests do not
+supersede the harness's52 tests or its M3/M4 findings. See [integration map and
+current probe evidence](evidence/M2-reconciliation/README.md). Stage1 through
+a08114b is represented in authoritative f25df18; this integration itself is local,
+unpublished, and does not deploy Stage2 or alter the broker.
+
 M2's offline foundation gate is complete: five contract families, a fixture-only
 catalogue, 26 passing adaptive tests (including seven actual HTTP path tests),
 89 passing existing Aster tests and the retained four-case baseline measurement.
@@ -269,3 +277,47 @@ a bounded same-candidate start recovered it without source changes or DB restore
 [Deployment evidence](evidence/M1-stage1-deployment.md) is authoritative for this
 rollout. No Git push occurred. Continue with offline M2 contracts or the separately
 reviewed Stage2 assurance design; do not claim full M1 graduation or widen tools.
+
+
+### Historical local selector-probe continuation — M2 and Stage2 design
+
+The next local-only candidate is in `services/aster-adaptive` and `schemas/aster`.
+Strict contracts, an execution-disabled fixture catalogue and the extracted current
+Aster tool selector pass28 tests and 12 fixture comparisons, with local timing and
+pinned evidence in [M2 results](evidence/M2-offline-contracts.md). No framework
+replacement, calibrated accuracy or live authority projection is claimed. M2's
+connected acceptance gate remains open; M1 remains ungraduated.
+
+[Stage2 design](evidence/M1-stage2-candidate.md) defines the smallest entitlement/
+assurance candidate, negative cases, process-trust limitation and fail-closed
+recovery. Existing 10 bridge + 10 approval-service tests pass. Actual signed
+passkey-assurance provenance and a fresh user-session validation are unresolved;
+no deployment approval is requested until that concrete candidate exists.
+
+AI-PAM owns concurrent reconciliation of the alternate a5e8b22 all-at-once
+implementation with exact deployed Stage1. Its old DB-approver tests must retain
+a coverage/supersession map; they are not silently discarded. No shared broker
+or approval source was edited in this M2 continuation, and its commits are outside
+AI-PAM's pending remote publication unless separately reviewed. No push.
+
+
+### Historical local selector-probe checkpoint
+
+M2 corrective review passed at026e5e9 (supersedes30f79ea). An additional portable
+conformance corpus passes31 vectors;29 adaptive tests pass in total. Evidence and
+limits are linked from [M2 results](evidence/M2-offline-contracts.md). Stage1 remains
+the only deployed change. Stage2 needs verified real-session assurance and an
+explicit process-trust decision; the connected M2 gate remains open behind it.
+No production/private data collection, authority expansion, new dependency or
+Git push occurred. The AI-PAM task owns alternate-design reconciliation.
+
+
+### Current integration resume point
+
+Isolated branch `codex/aster-m2-reconcile-20260925`, based onf25df18, reconciles
+local1a8fa68 without overwriting primary checkout edits. Seven earlier local
+commits were already represented by AI-PAM; three M2 commits are retained as the
+explicit selector-probe profile. Broker/approval/Aster and remote harness sources
+are unchanged;52+29+76+163 tests pass. See the integration map for provenance,
+semantic namespace resolution and rollback. No push or production change.
+Recheck remote head and coordinate before any separately authorized publication.
