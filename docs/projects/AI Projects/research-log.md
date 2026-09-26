@@ -485,3 +485,17 @@ serial capture carries a 2-MiB digest-bound result; rejection never auto-retries
 Planned gates are local parser/seed proof, stopped-state creation, bootstrap canary,
 invented S0 fixture, then explicit boundary GO/NO-GO. No download, VM mutation,
 accepted-corpus access or package installation occurred.
+
+
+### 2026-09-26 — V0 bootstrap and serial candidate
+
+Implemented a pure strict serial frame encoder/parser and deterministic offline
+bootstrap-canary source renderer. Twenty focused and 234 full adaptive tests pass,
+covering framing, bounds,
+identity/digest checks, malformed/noncanonical JSON, candidate determinism, no
+corpus/authority, no login/package/network config, systemd outer limits and
+rejection of any guest interface beyond loopback. Ruby
+parsed the generated cloud-config; persisted file hashes match the candidate
+manifest. Candidate manifest SHA-256 is
+`0d015cc70e6df5b31048fd203916dcaf0b783e8ecd3bbaae6b6c76f339610c47`.
+No ISO, image download, VMID reservation, Proxmox mutation or corpus execution.

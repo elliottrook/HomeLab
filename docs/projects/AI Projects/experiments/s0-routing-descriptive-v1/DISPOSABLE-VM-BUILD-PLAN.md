@@ -225,6 +225,13 @@ No Proxmox mutation.
 **Gate:** all local tests pass; candidate hashes are frozen; independent review
 finds no corpus or secret; operational approval names the exact mutation envelope.
 
+**Current checkpoint:** candidate seed sources and VM configuration now exist under
+[`vm-candidate-v0/`](vm-candidate-v0/). The pure serial encoder/parser has 12 focused
+synthetic tests and the deterministic candidate renderer/validator has 8, all
+passing; the full adaptive suite passes 234 tests. YAML parsing and persisted
+manifest verification pass. ISO generation, `qm terminal`
+capture behavior and all Proxmox mutation remain untested and unauthorized.
+
 ### V1 — create but do not boot
 
 At the approved window, recheck host health, memory, storage, next VMID and name

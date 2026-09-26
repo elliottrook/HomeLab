@@ -733,3 +733,11 @@ filesystem. Local parser/seed tests precede any mutation; creation is stopped-st
 first, and bootstrap canary plus invented S0 fixtures must pass before a separate
 boundary decision. Accepted-corpus execution remains blocked. No image was
 downloaded, VMID reserved or Proxmox state changed at this checkpoint.
+
+V0 local preparation now adds a deterministic bootstrap-canary seed candidate,
+proposed stopped VM configuration and strict serial protocol. Twenty focused
+synthetic tests pass: 12 protocol/parser cases and 8 seed/config/semantic cases;
+the full adaptive suite passes 234 tests. The checked
+candidate contains no accepted-corpus marker, credentials, package update, network
+device or grant of authority. The ISO and live PTY capture remain unbuilt/unverified;
+no Proxmox mutation or external download occurred.
