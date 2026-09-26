@@ -402,3 +402,14 @@ worker, cleanup, remote-stop or corpus event exists. A later bounded DNS diagnos
 succeeded, so the exact failure remains UNKNOWN / REQUIRES VERIFICATION. Preserved
 the seven-record chain, exact reviewed manifest/approval bytes and the one changed
 pinned plan artifact under `run-002/`. The approval is consumed; no retry or push.
+
+
+### 2026-09-26 — bounded failure-code telemetry
+
+Implemented local-only failure boundary and class fields after run002 showed that
+a broad `preflight` stage was insufficient. Codes are lifecycle-owned; classes are
+limited to timeout, permission, I/O, validation and internal. Tests inject sentinel
+exception text into DNS and journal failures and prove it is not retained. Default
+denied transport remains distinguishable. Full suite: 210 passing. No live query,
+retry, new approval, package, corpus or infrastructure change. Next decision is
+whether a third fixture run has enough expected information gain to justify risk.

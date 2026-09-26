@@ -653,3 +653,13 @@ and no corpus evaluation. A post-run fixed DNS diagnostic succeeded but does not
 prove the earlier cause, which remains UNKNOWN / REQUIRES VERIFICATION. Exact
 evidence is preserved under `run-002/`; the approval is consumed and no retry is
 authorized.
+
+
+### Failure observability milestone — local only
+
+[Bounded run-failure observability](experiments/s0-routing-descriptive-v1/RUN-FAILURE-OBSERVABILITY.md)
+adds lifecycle-controlled boundary codes and a five-value failure-class allowlist.
+Exception messages and tracebacks are not retained. Injected DNS-timeout and
+journal-I/O tests prove the codes distinguish the unresolved run002 interval
+without persisting a sentinel secret. All 210 adaptive tests pass. This does not
+retroactively identify run002's cause or authorize run003.

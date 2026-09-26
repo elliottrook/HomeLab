@@ -101,7 +101,37 @@ class LifecycleTests(unittest.TestCase):
     def test_default_transports_denied(self):
         with tempfile.TemporaryDirectory() as tmp,Journal(Path(tmp)/'attempt',create=True) as journal:
             self.assertEqual(life.run_candidate(journal,observe.catalog_digest())['status'],'failed-or-inconclusive')
+            self.assertEqual(journal.records[-1]['data']['failure_boundary'],'command-load-state')
+            self.assertEqual(journal.records[-1]['data']['failure_class'],'permission')
         with self.assertRaises(PermissionError):life.live_entry(approved=True)
+
+    def test_bounded_failure_codes_distinguish_dns_and_journal_without_text(self):
+        class TimeoutDNS(DNS):
+            def recvfrom(self,n):raise TimeoutError('DO-NOT-RETAIN')
+        with tempfile.TemporaryDirectory() as tmp,Journal(Path(tmp)/'dns',create=True) as journal:
+            result=life.run_candidate(journal,observe.catalog_digest(),spawn=Transport(),socket_factory=TimeoutDNS)
+            self.assertEqual(result['status'],'failed-or-inconclusive')
+            self.assertEqual(journal.records[-1]['data'],{'stage':'preflight','mutation_attempted':False,
+                'manual_recovery_required':False,'failure_boundary':'preflight-dns','failure_class':'timeout'})
+            self.assertNotIn('DO-NOT-RETAIN',json.dumps(journal.records))
+        with tempfile.TemporaryDirectory() as tmp,Journal(Path(tmp)/'journal',create=True) as journal:
+            append=journal.append;failed=[False]
+            def fail_once(event,data):
+                if event=='preflight-verified' and not failed[0]:
+                    failed[0]=True;raise OSError('DO-NOT-RETAIN')
+                return append(event,data)
+            journal.append=fail_once
+            result=life.run_candidate(journal,observe.catalog_digest(),spawn=Transport(),socket_factory=DNS)
+            self.assertEqual(result['status'],'failed-or-inconclusive')
+            self.assertEqual(journal.records[-1]['data']['failure_boundary'],'preflight-journal')
+            self.assertEqual(journal.records[-1]['data']['failure_class'],'io')
+            self.assertNotIn('DO-NOT-RETAIN',json.dumps(journal.records))
+
+    def test_failure_class_allowlist(self):
+        cases=[(TimeoutError(),'timeout'),(PermissionError(),'permission'),(OSError(),'io'),
+               (ValueError(),'validation'),(AssertionError(),'validation'),(RuntimeError(),'internal')]
+        for error,expected in cases:
+            with self.subTest(error=type(error).__name__):self.assertEqual(life.failure_class(error),expected)
 
 
 class JournalTests(unittest.TestCase):
