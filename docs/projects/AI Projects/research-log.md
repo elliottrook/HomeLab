@@ -244,3 +244,17 @@ Proposed fixed0.2 similarity threshold, no tuning, three engines/two input profi
 all10dev cases retained in denominators. Context hints and exposed labels preclude
 generalization claims. Privacy/model selection remain unmeasured, not backfilled
 from reference labels. Wrote plan and null implementation pins; no runner executed.
+
+
+## 2026-09-26 — implementation-only descriptive evaluator
+
+Direct approval covered local code/tests, not pilot execution. Added bounded manual
+evidence adapter and descriptive metrics plus pinned-source fixture comparison.
+26 focused /122 full tests pass using invented in-memory records only. No accepted
+case routed or fitted. Documented cooperative-budget and missing OS-launch/output
+controls; no readiness claim from sandbox-exec existence. Technical review requested.
+
+Review accepted the26/122-test candidate. Added family-alignment checks and three
+more adversarial cases;29/125 pass. Harmless sandbox-exec true probe failed with
+Operation not permitted (exit71); no corpus run or workaround. Recorded environment
+blocker and future frozen-root/exclusive-output/hard-timeout requirements.

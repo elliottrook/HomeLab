@@ -469,3 +469,20 @@ Corpus/source pins verified without invoking routers. Adapter/evaluator and actu
 isolation checks are not implemented; null implementation pins block execution.
 Next gate: local implementation/fixture tests only, followed by separate approval
 for the bounded run. No evaluation, models, production changes or push performed.
+
+
+### Current checkpoint — evaluator implementation, accepted-corpus launch disabled
+
+Jason approved local evaluator/adapter implementation and fixture tests only.
+[Implementation evidence](experiments/s0-routing-descriptive-v1/IMPLEMENTATION.md)
+records29 new /125 full tests passing, with no accepted pilot case evaluated.
+Pinned-source adapter, scoring and fixture comparison exist. Accepted-corpus launch
+remains unconditionally disabled. OS isolation, hard timeout/resource enforcement
+and durable output launcher are not verified; plan execution pins remain null.
+Next: technical review and bounded launcher readiness, then separate exact run
+approval. No collection, model call, deployment or push.
+
+Harmless OS-isolation readiness probe failed with sandbox_apply Operation not
+permitted. Accepted-corpus launch remains disabled; no weaker isolation substituted.
+Independent review passed for implementation-only scope; further launcher/environment
+readiness must be proposed separately. No plan execution pins populated.

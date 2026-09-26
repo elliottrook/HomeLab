@@ -1,0 +1,12 @@
+{
+  "status": "fixture-tested-not-run-ready",
+  "artifacts": {
+    "scripts/aster-adaptive/s0_descriptive.py": "77d6e6a1604c0b32edac531663c6dfa2180add4288f5814568be01f0e6060fd3",
+    "scripts/aster-adaptive/s0_descriptive_runner.py": "9e921020126bc24173ae14dd3b3da7246690e46e3782c40f5dd053a3116afa9d",
+    "scripts/aster-adaptive/test_s0_descriptive.py": "b571f371948ec3e2bf7d932454bf4dfa2b2e52e46a58f8bcbf74d378e426cd73"
+  },
+  "validation": "29 focused tests / 125 full adaptive tests passed",
+  "accepted_corpus_evaluated": false,
+  "evaluation_authorized": false,
+  "sandbox_probe": "sandbox_apply Operation not permitted; harmless true process not launched"
+}
