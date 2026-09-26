@@ -963,3 +963,17 @@ minute, importing all 46 titles with cover art and metadata auto-matched.
 Neither app's TrueNAS-side container config, mounts, or the double-mount on
 Audiobookshelf were otherwise touched — only each app's own library-path
 setting was changed, per the task's scope.
+
+## Newtarr persistence — 2026-09-26
+
+TrueNAS service `newtarr` belongs to Dockge Compose project `new_arr` at
+`/mnt/Media/appdata/dockge/new_arr/compose.yaml`. Its real configuration path
+is `/config`, now correctly backed by `/mnt/Media/appdata/newtarr`. Do not
+change this mount back to `/appdata`. The repair preserved image v1.0.0, all
+settings, ports and networks. No ARR connections are currently configured.
+
+Protected recovery checkpoint: `/root/newtarr-persistence-20260926T212721Z`.
+The retained `local/newtarr-recovery:20260926t212721z` image and exported image
+archive include the previous container writable layer; preserve them until
+recovery coverage is graduated. See the Authentik rollout project for hashes
+and exact validation. Browser authentication deployment remains pending.

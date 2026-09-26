@@ -20,6 +20,54 @@
 
 ## Resume audit — 2026-09-23
 
+### Newtarr persistence repair completed — 2026-09-26
+
+The approved repair completed successfully. Stopped only Newtarr, captured a
+final coherent archive and committed/saved its original writable layer as a
+recovery image before recreation. Recovery directory:
+`/root/newtarr-persistence-20260926T212721Z`; local recovery image:
+`local/newtarr-recovery:20260926t212721z`; exported image:
+`container-recovery-image.tar` (tar manifest verified). Final config archive
+SHA-256: `16769923dc1f124848eeec669f21c5ede3ffdc2491091e43e0557e59ce769697`.
+The checkpoint contains original Compose, container metadata, file hashes and
+`validation.json`. No backup or recovery image was deleted.
+
+Copied and verified all 44 files into `/mnt/Media/appdata/newtarr`, then changed
+only the Newtarr mount destination in the shared Compose from `/appdata` to
+`/config`. Recreated only service `newtarr` with `--no-deps --pull never`.
+The immutable image is unchanged, port/network bindings are unchanged, nine
+settings/scheduling documents compare equal, and all 18 other running container
+IDs/start times remain unchanged. Live UI returns 200 and the running container
+has the expected writable host bind to `/config`. Host config directory is
+0700; copied files are 0600. All 116 existing boundary checks still pass.
+
+Source-local settings inspection finds only default instance entries: none of
+the six ARR application configuration files has both an API URL and API key.
+No configured connection was removed or altered. Do not claim an operational
+ARR automation workflow. Integration setup is distinct from browser SSO.
+
+Persistence hold is cleared. Next: owner-only Authentik browser gate and private
+backend boundary for Newtarr; existing proxy-auth bypass is not an identity
+gate by itself. Do not expose the bare app publicly. Authentik deployment and
+Homepage promotion have not yet occurred. Preserve the recovery image when
+cleaning Docker images; it contains the pre-repair writable-layer configuration.
+Rollback, if required, uses original Compose plus a Newtarr-only image override
+to the retained recovery image, not the unmodified upstream image with an empty
+/config. Prefer keeping the now-correct persistent mount when fixing later auth
+issues. Remote Git synchronization remains pending separate push authorization.
+
+### Newtarr persistence repair approved and running — 2026-09-26
+
+Jason explicitly approved the prepared persistence repair after reviewing the
+brief stop, final backup, host-storage correction and same-image restart plan.
+This resolves the earlier separate-risk-decision hold for this bounded repair.
+Fresh preflight found original Compose unchanged and host destination still
+empty. Repair checkpoint: `/root/newtarr-persistence-20260926T212721Z`.
+Execution is pending final verification; do not replay until live state and
+`validation.json` are checked. The first long inline command hit a sudo command
+environment-length mismatch before stopping Newtarr; the same bounded script
+was then delivered through stdin using established sudo access.
+
 ### Newtarr persistence repair prepared; risk decision pending — 2026-09-26
 
 Live `newtarr` remains healthy on TrueNAS, image v1.0.0 with immutable image
