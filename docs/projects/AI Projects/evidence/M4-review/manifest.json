@@ -1,0 +1,13 @@
+{
+  "schema_version": "review-preparation-manifest.v1",
+  "tests_passed": 56,
+  "files": {
+    "scripts/aster-adaptive/verify_evidence.py": "sha256:9b04d938a79c6c2c61a2b4328b77d2f3b4292fee066cca1b5c7500071f8b8af7",
+    "scripts/aster-adaptive/test_verify_evidence.py": "sha256:6411a8a479012610f7822761a60b0127dec902e421d6db7c824f4b3ff34e40ac",
+    "scripts/aster-adaptive/evidence_store.py": "sha256:93a61706072fcc3a33d57c8fd1a4b03107b4c783e75c45d3b5d571613b96bd1b",
+    "scripts/aster-adaptive/paired_evidence.py": "sha256:9befaa636e3d182db07bb65c1adf201e36d8d5baa7e368c33e8c19c11139a09c",
+    "scripts/aster-adaptive/contracts.py": "sha256:58bbf65cf3dc929bc80d1882c40fa1d5caf4a1e63105ac557456cc7d981941ec",
+    "docs/projects/AI Projects/evidence/M4-review/export-verification.json": "sha256:0ba23004246786637413727f538b4a5c1a863f190cec4096a289bcd2fd63b5b3",
+    "docs/projects/AI Projects/M4-Storage-and-Review-Design.md": "sha256:2c18fd84d739fd91e1f073d67aa7aaecb6ab9f3409dc0e5812132a120d1315ca"
+  }
+}
