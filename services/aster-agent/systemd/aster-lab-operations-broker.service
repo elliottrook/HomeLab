@@ -1,0 +1,35 @@
+[Unit]
+Description=Aster broker-private Lab Operations Doctor gateway
+After=local-fs.target
+
+[Service]
+Type=simple
+User=aster
+Group=aster-lab-broker
+SupplementaryGroups=aster
+UMask=0077
+WorkingDirectory=/opt/aster-agent
+EnvironmentFile=/etc/aster/lab-operations-broker.env
+RuntimeDirectory=aster-lab-operations-broker
+RuntimeDirectoryMode=0750
+ExecStart=/opt/aster-agent/venv/bin/python /opt/aster-agent/lab_operations_broker_gateway.py --socket /run/aster-lab-operations-broker/gateway.sock --socket-group aster-lab-broker --broker-user hlabroker --state /var/lib/aster/lab-operations/jobs.sqlite3 --owner ${ASTER_LAB_OWNER}
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/aster/lab-operations
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

@@ -18,7 +18,11 @@ class FakeGatewayHandler(socketserver.StreamRequestHandler):
     def handle(self):
         request = json.loads(self.rfile.readline())
         self.server.requests.append(request)
-        self.wfile.write(json.dumps({"jsonrpc": "2.0", "id": request["id"], "result": {"forwarded": True}}).encode() + b"\n")
+        if request.get("jsonrpc") == "2.0":
+            response = {"jsonrpc": "2.0", "id": request["id"], "result": {"forwarded": True}}
+        else:
+            response = {"ok": True, "result": {"forwarded": True}}
+        self.wfile.write(json.dumps(response).encode() + b"\n")
 
 
 class BrokerServiceTests(unittest.TestCase):
@@ -30,13 +34,17 @@ class BrokerServiceTests(unittest.TestCase):
         self.socket_path = root / "broker.sock"
         self.read_gateway_path = root / "read-gateway.sock"
         self.write_gateway_path = root / "write-gateway.sock"
+        self.lab_gateway_path = root / "lab-gateway.sock"
         self.read_gateway = socketserver.UnixStreamServer(str(self.read_gateway_path), FakeGatewayHandler)
         self.read_gateway.requests = []
         self.write_gateway = socketserver.UnixStreamServer(str(self.write_gateway_path), FakeGatewayHandler)
         self.write_gateway.requests = []
+        self.lab_gateway = socketserver.UnixStreamServer(str(self.lab_gateway_path), FakeGatewayHandler)
+        self.lab_gateway.requests = []
         self.gateway_threads = [
             threading.Thread(target=self.read_gateway.serve_forever, daemon=True),
             threading.Thread(target=self.write_gateway.serve_forever, daemon=True),
+            threading.Thread(target=self.lab_gateway.serve_forever, daemon=True),
         ]
         for thread in self.gateway_threads:
             thread.start()
@@ -46,7 +54,8 @@ class BrokerServiceTests(unittest.TestCase):
         self.store.register_capability("health.read", "synthetic", "green", probation_allowed=True)
         self.store.grant_capability("agent-test", "health.read")
         self.server = BrokerServer(
-            str(self.socket_path), self.store, str(self.read_gateway_path), str(self.write_gateway_path)
+            str(self.socket_path), self.store, str(self.read_gateway_path),
+            str(self.write_gateway_path), str(self.lab_gateway_path),
         )
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -58,6 +67,8 @@ class BrokerServiceTests(unittest.TestCase):
         self.read_gateway.server_close()
         self.write_gateway.shutdown()
         self.write_gateway.server_close()
+        self.lab_gateway.shutdown()
+        self.lab_gateway.server_close()
         self.store.close()
         self.peer_patch.stop()
         self.tempdir.cleanup()
@@ -130,6 +141,56 @@ class BrokerServiceTests(unittest.TestCase):
                     self.assertFalse(self.call(message)["ok"])
                 self.assertEqual(count, len(self.write_gateway.requests))
                 self.assertEqual([], self.read_gateway.requests)
+
+    def test_doctor_latest_and_approved_run_use_lab_gateway(self):
+        self.store.register_service("lab-operations")
+        self.store.register_capability(
+            "lab.doctor.latest", "lab-operations", "green", probation_allowed=True,
+        )
+        self.store.register_capability("lab.doctor.run", "lab-operations", "yellow")
+        self.store.grant_capability("agent-test", "lab.doctor.latest")
+        self.store.grant_capability("agent-test", "lab.doctor.run")
+
+        latest = self.call({
+            "method": "request.create", "capability": "lab.doctor.latest", "payload": {},
+        })
+        self.assertTrue(self.call({
+            "method": "request.consume", "request_id": latest["result"]["request_id"], "payload": {},
+        })["ok"])
+        self.assertEqual("doctor.latest", self.lab_gateway.requests[-1]["method"])
+
+        self.store.set_agent_state("agent-test", "operator")
+        payload = {"purpose": "user_request"}
+        created = self.call({
+            "method": "request.create", "capability": "lab.doctor.run", "payload": payload,
+        })
+        count = len(self.lab_gateway.requests)
+        self.assertFalse(self.call({
+            "method": "request.consume", "request_id": created["result"]["request_id"], "payload": payload,
+        })["ok"])
+        self.assertEqual(count, len(self.lab_gateway.requests))
+        self.store.approve_request(created["result"]["request_id"], created["result"]["payload_hash"])
+        self.assertTrue(self.call({
+            "method": "request.consume", "request_id": created["result"]["request_id"], "payload": payload,
+        })["ok"])
+        self.assertEqual("doctor.run", self.lab_gateway.requests[-1]["method"])
+
+    def test_doctor_gateway_unavailable_returns_bounded_denial(self):
+        self.store.register_service("lab-operations")
+        self.store.register_capability(
+            "lab.doctor.latest", "lab-operations", "green", probation_allowed=True,
+        )
+        self.store.grant_capability("agent-test", "lab.doctor.latest")
+        self.server.lab_operations_socket = str(Path(self.tempdir.name) / "missing.sock")
+        created = self.call({
+            "method": "request.create", "capability": "lab.doctor.latest", "payload": {},
+        })
+        response = self.call({
+            "method": "request.consume", "request_id": created["result"]["request_id"], "payload": {},
+        })
+        self.assertEqual(
+            {"ok": False, "error": "Lab Operations gateway is unavailable"}, response,
+        )
 
 
 if __name__ == "__main__":
