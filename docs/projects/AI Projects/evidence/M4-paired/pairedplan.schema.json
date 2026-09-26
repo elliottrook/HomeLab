@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "paired-plan.v1",
+      "default": "paired-plan.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "repetitions": {
+      "maximum": 100,
+      "minimum": 2,
+      "title": "Repetitions",
+      "type": "integer"
+    },
+    "warmups": {
+      "maximum": 20,
+      "minimum": 0,
+      "title": "Warmups",
+      "type": "integer"
+    },
+    "maximum_p95_delta_ms": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Maximum P95 Delta Ms",
+      "type": "number"
+    },
+    "interpretation": {
+      "const": "synthetic-overhead-guardrail-only",
+      "default": "synthetic-overhead-guardrail-only",
+      "title": "Interpretation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "repetitions",
+    "warmups",
+    "maximum_p95_delta_ms"
+  ],
+  "title": "PairedPlan",
+  "type": "object"
+}

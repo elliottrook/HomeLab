@@ -121,3 +121,18 @@ This runner refuses an existing output path, freezes its experiment before execu
 then retains four new fixture outcomes and restores the ten-event ledger. It records
 no aggregate evaluation or reviewer decision. See the
 [lineage checkpoint](../../docs/projects/AI%20Projects/evidence/M4-lineage-checkpoint.md).
+
+`paired_evidence.py` adds a frozen protocol and an evaluation derived from exact
+baseline/candidate outcome events. It requires complete case/repetition coverage,
+rejects reused or omitted outcomes and counts families separately from repetitions.
+Finalized paired experiments cannot accept further measurements. Legacy evaluation
+records do not acquire this guarantee retroactively. The current suite has 52 tests.
+
+```sh
+/private/tmp/aster-lab-ops-venv/bin/python scripts/aster-adaptive/measure_paired.py --output /private/tmp/paired-proof-new.json
+```
+
+The paired runner excludes ledger I/O from timing and denies network connections.
+It records no independent reviewer decision. See the
+[paired checkpoint](../../docs/projects/AI%20Projects/evidence/M4-paired-checkpoint.md)
+for measured results, exact scope and remaining live-use gates.
