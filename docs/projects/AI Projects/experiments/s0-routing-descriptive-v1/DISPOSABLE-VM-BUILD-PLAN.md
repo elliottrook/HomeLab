@@ -249,6 +249,13 @@ success. Twenty-one focused and 235 full adaptive tests pass; YAML, shell syntax
 and persisted hashes validate. A new seed, fresh VM and V2b boot remain
 unauthorized, and V3 remains blocked.
 
+**V1b release checkpoint:** read-only preflight found VMID119 and the v1 seed/run
+paths absent, with memory/storage above gates and existing guests at baseline. The
+[`vm-release-v1b/`](vm-release-v1b/) packet binds the exact stopped creation and
+single-boot scripts. Four stopped-config tests bring the focused release/candidate/
+protocol set to 25 and the full adaptive suite to 239. No ISO or VM119 was created;
+V1b/V2b execution requires explicit approval.
+
 ### V1 — create but do not boot
 
 At the approved window, recheck host health, memory, storage, next VMID and name

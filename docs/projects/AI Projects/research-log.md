@@ -527,3 +527,15 @@ stopped. The v1 candidate retains private devices, writes the framed output to a
 bounded file and delegates serial publication to the outer cloud-init lifecycle.
 Twenty-one focused and 235 full adaptive tests pass. No new ISO or VM exists, no
 boot or corpus run occurred, and V2b/V3 remain unauthorized.
+
+
+### 2026-09-26 — V1b/V2b read-only preflight and frozen release
+
+Proxmox preflight observed 48,981,213,184 bytes available memory, 664,145,554 KiB
+available on active `local-lvm`, 68,233,444 KiB on active `local`, VMID119 free,
+VM118 stopped and all service containers at baseline. The dated image SHA-512 and
+checksum-file digest revalidated; v1 seed/ISO/release/run paths are absent. A
+manifest-bound release now proposes stopped VM119 and one bounded no-retry V2b
+boot, with fail-closed configuration validation and stop-and-retain recovery.
+Twenty-five focused and 239 full adaptive tests pass. No remote file, ISO, VM or
+boot was created; V1b/V2b await explicit execution approval.

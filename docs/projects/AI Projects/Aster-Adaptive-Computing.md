@@ -762,3 +762,14 @@ keeps `PrivateDevices=yes`, writes the protocol into the unit's bounded output
 directory and lets the outer lifecycle publish it to serial only after success.
 Twenty-one focused and 235 full adaptive tests pass. A new seed, fresh VM and V2b
 boot require a new approval; V3 and accepted-corpus execution remain blocked.
+
+
+### Disposable VM V1b/V2b release preflight
+
+Read-only preflight on 2026-09-26 found VMID119 and all release paths free, VM118
+stopped, 48.98GB available memory, and `local-lvm`/`local` above their gates. The
+pinned image checksum revalidated and existing service-guest states matched the
+recorded baseline. The exact [release packet](experiments/s0-routing-descriptive-v1/vm-release-v1b/PREFLIGHT.md)
+binds the seed, stopped VM validator, one-boot wrapper, limits and stop-and-retain
+failure behavior. Twenty-five focused and 239 full adaptive tests pass. No seed,
+VM119 or boot exists; V1b/V2b await one explicit bounded execution approval.
