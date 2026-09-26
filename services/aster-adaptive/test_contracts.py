@@ -8,15 +8,15 @@ from unittest.mock import patch
 from pydantic import ValidationError
 from baseline import BaselineSelector
 from contracts import CONTRACTS, Decision, DecisionRequest, HarnessRun, Outcome, Step, validate_proposal
-from evaluate import SOURCE, catalogue, request, run
+from evaluate import DEFINITION, SOURCE, catalogue, request, run
 
 
 class ContractsTests(unittest.TestCase):
     def setUp(self):
-        self.selector=BaselineSelector(SOURCE,hashlib.sha256(SOURCE.read_bytes()).hexdigest())
+        self.selector=BaselineSelector(SOURCE,json.loads(DEFINITION.read_text())['expected_baseline_source_digest'])
         self.catalogue=catalogue(self.selector)
         self.request=request({'id':'fixture'},self.catalogue)
-        self.decision=self.selector.propose(self.request,self.catalogue,[{'role':'user','content':'What is the current time?'}],allowed=self.selector.names,now=10)
+        self.decision=self.selector.propose(self.request,self.catalogue,[{'role':'user','content':'What is the current time?'}],now=10)
 
     def test_exported_schemas_match_candidate(self):
         root=Path(__file__).resolve().parents[2]
@@ -78,13 +78,13 @@ class ContractsTests(unittest.TestCase):
 
     def test_stale_registry_rejected(self):
         req=DecisionRequest.model_validate(self.request.model_dump() | {'registry_digest':'0'*64})
-        result=self.selector.propose(req,self.catalogue,[],allowed=self.selector.names,now=10)
+        result=self.selector.propose(req,self.catalogue,[],now=10)
         self.assertEqual(result.status,'deny')
         with self.assertRaises(ValueError):validate_proposal(req,result,self.catalogue,now=10)
 
     def test_catalogue_from_other_baseline_rejected(self):
         cat=self.catalogue.model_copy(update={'source_digest':'0'*64});req=request({'id':'fixture'},cat)
-        result=self.selector.propose(req,cat,[],allowed=self.selector.names,now=10)
+        result=self.selector.propose(req,cat,[],now=10)
         self.assertEqual(result.status,'deny')
 
     def test_unknown_capability_rejected(self):
@@ -93,25 +93,44 @@ class ContractsTests(unittest.TestCase):
 
     def test_missing_catalogue_entry_denies_selector(self):
         cat=self.catalogue.model_copy(update={'capabilities':[]});req=request({'id':'fixture'},cat)
-        decision=self.selector.propose(req,cat,[{'role':'user','content':'time'}],allowed=self.selector.names,now=10)
-        self.assertEqual(decision.status,'deny');self.assertEqual(decision.steps,[])
+        decision=self.selector.propose(req,cat,[{'role':'user','content':'time'}],now=10)
+        self.assertEqual(decision.status,'deny');self.assertEqual(decision.reason_codes,['FIXTURE_POLICY_DENY']);self.assertEqual(decision.steps,[])
 
     def test_allowlist_empty_never_expands_scope(self):
-        result=self.selector.propose(self.request,self.catalogue,[{'role':'user','content':'time'}],allowed=frozenset(),now=10)
-        self.assertEqual(result.status,'abstain')
+        cat=catalogue(self.selector,frozenset());req=request({'id':'fixture'},cat)
+        result=self.selector.propose(req,cat,[{'role':'user','content':'time'}],now=10)
+        self.assertEqual(result.status,'deny')
+        self.assertEqual(result.reason_codes,['FIXTURE_POLICY_DENY'])
+
+    def test_out_of_scope_plan_fails_projection_validation(self):
+        cat=catalogue(self.selector,frozenset({'search_knowledge'}));req=request({'id':'fixture'},cat)
+        data=self.decision.model_dump();data['registry_digest']=cat.digest()
+        with self.assertRaises(ValueError):validate_proposal(req,Decision.model_validate(data),cat,now=10)
+
+    def test_engine_substitution_rejected(self):
+        data=self.decision.model_dump();data['engine_digest']='0'*64
+        with self.assertRaises(ValueError):validate_proposal(self.request,Decision.model_validate(data),self.catalogue,now=10)
+        req=DecisionRequest.model_validate(self.request.model_dump() | {'engine_digest':'0'*64})
+        self.assertEqual(self.selector.propose(req,self.catalogue,[],now=10).status,'deny')
+
+    def test_evaluator_rejects_changed_source_without_pin_revision(self):
+        with tempfile.TemporaryDirectory() as temp:
+            p=Path(temp)/'source.py';p.write_bytes(SOURCE.read_bytes()+b'\n# modified without review\n')
+            with patch('evaluate.SOURCE',p),self.assertRaisesRegex(ValueError,'baseline source changed'):
+                run(repeats=1)
 
     def test_deadline_abstention(self):
         with patch('baseline.time.monotonic_ns',side_effect=[0,6_000_000_000]):
-            result=self.selector.propose(self.request,self.catalogue,[],allowed=self.selector.names,now=10)
+            result=self.selector.propose(self.request,self.catalogue,[],now=10)
         self.assertEqual(result.status,'degraded')
 
     def test_oversized_or_nested_input_rejected(self):
         for messages in ([{'role':'user','content':'x'*4097}], [{'role':'user','content':{'secret':'value'}}], [{'role':'user','content':'x','token':'x'}]):
-            with self.assertRaises(ValueError):self.selector.propose(self.request,self.catalogue,messages,allowed=self.selector.names,now=10)
+            with self.assertRaises(ValueError):self.selector.propose(self.request,self.catalogue,messages,now=10)
 
     def test_plan_budget_blocks_extra_steps(self):
         req=DecisionRequest.model_validate(self.request.model_dump() | {'max_steps':1})
-        result=self.selector.propose(req,self.catalogue,[{'role':'user','content':'current homelab service status'}],allowed=self.selector.names,now=10)
+        result=self.selector.propose(req,self.catalogue,[{'role':'user','content':'current homelab service status'}],now=10)
         self.assertEqual(result.status,'abstain')
         self.assertEqual(result.reason_codes,['STEP_BUDGET_EXCEEDED'])
 

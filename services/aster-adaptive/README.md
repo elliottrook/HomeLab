@@ -22,13 +22,18 @@ semantic validation in another implementation; JSON Schema alone is insufficient
 only its literal regex declarations and pure `select_tools` function. It does not
 import Aster or run application initialization. The extracted function is executed
 Python, not a sandbox for arbitrary source: use only the reviewed local source.
-`evaluate.py` records the source and candidate digests in every evidence manifest.
+`experiment-definition.json` independently pins the reviewed baseline source.
+`evaluate.py` rejects source drift before selection and records the expected and
+measured digests separately, alongside candidate and definition provenance.
+The pin must change only through a reviewed experiment revision, never by accepting
+whatever source the evaluator happens to read.
 It extracts actual input schemas; output schemas remain explicitly opaque because
 no tools execute. This is a selector adapter, not a complete harness replacement.
 
 The fixture catalogue is a scoped *eligibility projection*, never an authority.
-All entries have execution disabled. The supplied `allowed` set is a synthetic
-policy fixture. A future trusted adapter must obtain a policy-filtered projection
+All entries have execution disabled. Each request uses a recorded policy-filtered fixture catalogue; its digest is
+bound in both request and decision. Validation rejects steps outside that exact
+projection. The request also binds the expected baseline engine digest. A future trusted adapter must obtain a policy-filtered projection
 and reauthorize every effect through AI-PAM; client-controlled IDs, catalogue
 membership and a valid plan cannot grant authority. M1 must graduate before a
 connected pilot relies on that path.

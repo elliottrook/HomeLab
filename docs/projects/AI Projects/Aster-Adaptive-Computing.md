@@ -223,7 +223,7 @@ reviewed Stage2 assurance design; do not claim full M1 graduation or widen tools
 
 The next local-only candidate is in `services/aster-adaptive` and `schemas/aster`.
 Strict contracts, an execution-disabled fixture catalogue and the extracted current
-Aster tool selector pass25 tests and 12 fixture comparisons, with local timing and
+Aster tool selector pass28 tests and 12 fixture comparisons, with local timing and
 pinned evidence in [M2 results](evidence/M2-offline-contracts.md). No framework
 replacement, calibrated accuracy or live authority projection is claimed. M2's
 connected acceptance gate remains open; M1 remains ungraduated.

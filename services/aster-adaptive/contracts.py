@@ -49,6 +49,7 @@ class DecisionRequest(Contract):
     schema_version: Literal['decision-request.v1'] = 'decision-request.v1'
     request_id: Identifier
     content_handle: Identifier  # no prompt or arbitrary URL; fixture key only
+    engine_digest: Digest
     registry_digest: Digest
     policy_digest: Digest
     sensitivity: Literal['public', 'internal', 'personal']
@@ -131,6 +132,8 @@ class Experiment(Contract):
 
 def validate_proposal(request: DecisionRequest, decision: Decision, catalogue: Catalogue, *, now: int):
     """Compatibility check only; even True never grants execution permission."""
+    if not (decision.engine_digest == request.engine_digest == catalogue.source_digest):
+        raise ValueError('engine mismatch')
     if request.request_id != decision.request_id or request.policy_digest != decision.policy_digest:
         raise ValueError('request/policy mismatch')
     if not (request.registry_digest == decision.registry_digest == catalogue.digest()):

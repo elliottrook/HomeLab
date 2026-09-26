@@ -40,17 +40,20 @@ class BaselineSelector:
         self.select = namespace['select_tools']
         self.names = frozenset(patterns)
 
-    def propose(self, request: DecisionRequest, catalogue: Catalogue, messages: list[dict], *, allowed: frozenset[str], now: int) -> Decision:
+    def propose(self, request: DecisionRequest, catalogue: Catalogue, messages: list[dict], *, now: int) -> Decision:
         if len(messages) > 32 or any(not isinstance(m, dict) or set(m) - {'role', 'content'} or m.get('role') not in {'user', 'system', 'assistant', 'tool'} or not isinstance(m.get('content'), str) or len(m['content']) > 4096 for m in messages):
             raise ValueError('unsupported or oversized synthetic messages')
         started = time.monotonic_ns()
-        if request.registry_digest != catalogue.digest() or catalogue.source_digest != self.digest:
+        if request.registry_digest != catalogue.digest() or catalogue.source_digest != self.digest or request.engine_digest != self.digest:
             status, reason, names = 'deny', 'STALE_REGISTRY', []
         else:
-            names = [t['function']['name'] for t in self.select(messages, set(allowed))]
             known = {c.capability_id for c in catalogue.capabilities}
-            if not set(names) <= known:
+            all_names = [t['function']['name'] for t in self.select(messages)]
+            names = [name for name in all_names if name in known]
+            if not known <= self.names:
                 status, reason, names = 'deny', 'UNKNOWN_CAPABILITY', []
+            elif all_names and not names:
+                status, reason, names = 'deny', 'FIXTURE_POLICY_DENY', []
             elif len(names) > request.max_steps:
                 status, reason, names = 'abstain', 'STEP_BUDGET_EXCEEDED', []
             else:

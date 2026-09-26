@@ -1,0 +1,6 @@
+{
+  "schema_version": "offline-experiment-definition.v1",
+  "expected_baseline_source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+  "trust": "reviewed-local-source-pin; changes require explicit experiment revision",
+  "policy_profile": "offline-selection-no-authority-v1"
+}

@@ -28,15 +28,15 @@ reviewed synthetic runner is authorized here. Production ingestion remains gated
 
 ## Evidence
 
-- 25 conformance/adversarial tests pass, including socket/subprocess denial during
+- 28 conformance/adversarial tests pass, including socket/subprocess denial during
  evaluation, unknown versions/fields/capabilities, source drift, cross-baseline
  catalogues, policy/registry mismatch, expired proposals, cycles, step/deadline
  bounds, empty scope and false authority/execution claims.
 - 12 synthetic fixtures cover timers, lights, media, knowledge, calendar, web,
  mixed calendar/web, personal context, sysadmin, ambiguity, an existing HA report
  and scope denial. 100 repetitions each; baseline selection matches exactly.
-- Local warm selector p50/p95: 8.875/18.667 microseconds.
-- Adapter plus semantic validation p50/p95: 46.875/56.208 microseconds.
+- Local warm selector p50/p95: 8.875/19.166 microseconds.
+- Adapter plus semantic validation p50/p95: 46.375/57.458 microseconds.
 - Existing environment: Python3.12.14, Pydantic2.13.4 on the Mac; no installation.
 - The current Stage2 approval candidate still passes10 bridge and 10 approval-service
  tests. No overlapping broker/approval source was edited.
@@ -82,7 +82,7 @@ full harness/model experiments before any framework adoption decision.
 
 ## Acceptance and rollback
 
-Local slice acceptance: schemas exist, 25 tests pass, fixture selection preserved,
+Local slice acceptance: schemas exist, 28 tests pass, fixture selection preserved,
 no network/process/tool/model execution, reproducible source manifest and measured
 CPU overhead. M2's full connected adapter/authorized catalogue gate remains open
 behind M1 Stage2 and explicit pilot approval. The current fixture projection is
@@ -97,3 +97,22 @@ capability labels; a controlled M3 harness baseline can use synthetic dependenci
 No connected pilot, private interaction collection or expanded authority may start
 from a passing fixture result. Stage2 remains blocked on actual verified assurance
 provenance and a bounded, separately reviewed deployment choice.
+
+
+## Independent review and corrections
+
+Review rejected the initial30f79ea checkpoint's tautological source pin, missing
+engine binding and unrecorded eligibility scope. These findings were corrected:
+`experiment-definition.json` independently pins the reviewed source; a changed
+source now fails before evaluation; the request binds the engine digest; and
+each request's recorded catalogue is its complete policy-filtered eligibility
+projection. Validation rejects engine substitution and out-of-scope plans.
+A match excluded by the projection returns explicit fixture policy denial, not
+an indistinguishable no-match.28 tests pass, including all three regressions.
+The rebuilt evidence distinguishes expected/measured source and includes exact
+request/projection records. The first result is superseded, retained in Git.
+
+Independent corrective review reran all28 tests and verified the expected/measured
+source pin, engine binding, filtered catalogue records and explicit scope denial.
+The corrected checkpoint supersedes30f79ea; Git history retains that initial
+candidate and the review findings. No deployment or push is included.
