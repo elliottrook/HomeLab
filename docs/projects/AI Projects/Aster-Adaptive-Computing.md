@@ -436,3 +436,12 @@ bytes and separate hash-bound acceptance. Five train/five dev; pilot total20/30.
 Zero unresolved review decisions. Batch2 effort remains UNKNOWN; do not reuse
 batch1 timing. Pause before batch3 pending reported effort. No evaluation,
 execution, deployment, permission change or push.
+
+
+### Batch 2 effort checkpoint
+
+Jason reported the same five active-review minutes as batch1.
+[Batch2 effort](labeling/pilot-s0/batch-2/effort.json) records this approximate
+aggregate, not individual timings. Effort/ambiguity stop thresholds are not
+triggered. Prepare final batch3 outside Git; no case or label acceptance inferred.
+The 30-family cap remains binding. No evaluation, execution or push authorized.

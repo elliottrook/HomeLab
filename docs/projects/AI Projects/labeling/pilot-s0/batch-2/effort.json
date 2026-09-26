@@ -1,0 +1,19 @@
+{
+  "format": "s0-manual-effort.v1",
+  "batch": "batch-2",
+  "recorded_at": "2026-09-26T13:00:02.759134-07:00",
+  "source_thread": "01a0da33-48a7-7130-b567-5e0eb698139f",
+  "source_user_message": "same",
+  "source_context": "Reply to active review minutes question for batch 2; refers to five minutes previously reported for batch 1.",
+  "measure": "self-reported approximate aggregate active review time",
+  "minutes": 5,
+  "families": 10,
+  "derived_average_seconds": 30,
+  "measured_median_seconds": null,
+  "per_case_timings": null,
+  "gate_decision": "continue-with-aggregate-effort-evidence",
+  "gate_basis": "Conditional on ten nonnegative durations totaling 300 seconds, median is at most 50 seconds. Approximate self-report, not measured median.",
+  "unresolved_review_decisions": 0,
+  "unresolved_fraction": 0,
+  "evaluation_authorized": false
+}

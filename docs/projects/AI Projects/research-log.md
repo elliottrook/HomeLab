@@ -217,3 +217,11 @@ Direct “accept” response accepted cases11–20 and their proposed labels wit
 revision. Preserved exact proposal/hash and separate manual acceptance receipt.
 Five train/five dev; total20 accepted families. No independent-gold or timing
 claim; batch2 effort remains unknown. No evaluation, execution or push.
+
+
+## 2026-09-26 — batch 2 effort and final-batch preparation
+
+“Same” resolves to five active-review minutes for batch2. Preserved aggregate
+self-report and conditional median bound, no invented per-case timings. Verified
+batch3 scratch directory Time Machine Excluded and Spotlight disabled before
+writing. Final ten proposals remain outside Git pending case/label approval.

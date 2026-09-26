@@ -21,3 +21,11 @@ The fixture-only validator is unchanged and did not authenticate these manual
 records. Future machine consumption requires separately reviewed validation and
 an authorized experiment. Durable sanitized Git retention follows the pilot
 approval; withdrawal stops use but cannot guarantee historical erasure.
+
+## Subsequent effort report
+
+Jason answered “same” to the batch2 active-review time question, referring to
+batch1's five minutes. Recorded as approximate aggregate five minutes, derived
+average30 seconds/case. Actual median and individual times remain unmeasured.
+Conditional aggregate bound50 seconds is below the two-minute median stop rule;
+zero unresolved review decisions. Proceed to final batch3 proposals only.
