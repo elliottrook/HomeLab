@@ -357,3 +357,48 @@ ownership receipt. Coordinating task diagnosis reports an added container and
 unbounded guest-root memory.max despite host-side 4 GiB LXC maxmem. Collector
 assumptions need revision; this is not evidence of isolation failure. New attempt
 requires separate journal, approval and fresh absent-state preflight.
+
+
+### 2026-09-26 — unapproved attempt2 candidate
+
+206 local tests pass. Dynamic inventory retains inactive containers in an exact
+state baseline; fixed host-side pct accounting replaces invalid guest-root limit
+assumptions. Guest MemAvailable/PSI and unit64MiB/no-swap/process limits remain.
+New journal/approval identity and prior-run read-only proof prevent automatic retry.
+No live diagnosis/execution by this preparation task; fresh approval still required.
+
+
+### 2026-09-26 — fresh run002 approval conveyed
+
+Coordinating task reports Jason's explicit `approve` for exactly one corrected
+run002 probe once technically reviewed. Recorded separate provenance without
+releasing the pending machine gate or inventing a final reviewed hash. No code,
+manifest or run journal changed; no live action occurred.
+
+
+### 2026-09-26 — captured pct output regression corrected
+
+Added the full coordinator-provided host status fixture, including vmid/name/type/
+tags and six pressure fields. Strict identity/metadata validation retains unknown-
+field rejection. 8 focused attempt2 and 208 full tests pass. Corrected manifest
+pins verified; machine gate remains closed. No live query or invocation performed.
+
+
+### 2026-09-26 — reviewed run002 release-only preparation
+
+Independent technical review passed. Updated stale approval language, exact fresh
+approval provenance and released-record tests, with prepared execution mocked.
+Eight focused and208 full tests pass. Final binding occurs after all pinned edits;
+no invocation, fixed-journal creation, network query, commit or push in this step.
+
+
+### 2026-09-26 — run002 failed safely in preflight
+
+The coordinating task independently verified the released hashes and performed
+the single approved invocation. Unit-state, path, guest-health and host-LXC-status
+operations completed and resource telemetry was retained. The terminal record is
+preflight failure with no mutation and no manual recovery requirement. No create,
+worker, cleanup, remote-stop or corpus event exists. A later bounded DNS diagnostic
+succeeded, so the exact failure remains UNKNOWN / REQUIRES VERIFICATION. Preserved
+the seven-record chain, exact reviewed manifest/approval bytes and the one changed
+pinned plan artifact under `run-002/`. The approval is consumed; no retry or push.

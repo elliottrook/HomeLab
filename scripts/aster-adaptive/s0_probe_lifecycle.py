@@ -12,6 +12,7 @@ from s0_lxc100_observe import (catalog_digest, require_pinned_catalog, parse_can
                                parse_running, parse_health, parse_absence)
 from s0_feasibility_supervisor import load_state_ok
 from s0_probe_timing import inspect_worker
+from s0_lxc_memory import combined_health
 
 
 def response(result):
@@ -40,8 +41,13 @@ def run_candidate(journal,root_hash,*,spawn=denied_spawn,socket_factory=denied_s
         try:return record(op,session.finish())
         finally:session.close()
 
+    def read_health():
+        measured,resources=combined_health(call('health'),call('host-lxc-status'))
+        journal.append('resource-observation',resources)
+        return measured
+
     def check_services():
-        reject(health(parse_health(call('health')))!=baseline,'health changed')
+        reject(read_health()!=baseline,'health changed')
         dns_result=collect_stub_dns(socket_factory=socket_factory)
         journal.append('health-dns-verified',{'dns_elapsed_ms':[r['elapsed_ms'] for r in dns_result['responses']]})
 
@@ -50,7 +56,7 @@ def run_candidate(journal,root_hash,*,spawn=denied_spawn,socket_factory=denied_s
         reject(not load_state_ok(**initial),'unit exists or uncertain')
         paths=decode(call('paths'));exact(paths,{'canary_directory_absent','runtime_probe_absent'})
         reject(any(v is not True for v in paths.values()),'existing paths')
-        baseline=health(parse_health(call('health')))
+        baseline=read_health()
         dns_result=collect_stub_dns(socket_factory=socket_factory)
         journal.append('preflight-verified',{'baseline':baseline,'dns_elapsed_ms':[r['elapsed_ms'] for r in dns_result['responses']]})
         stage='create';journal.append('create-intent',{});mutation=True

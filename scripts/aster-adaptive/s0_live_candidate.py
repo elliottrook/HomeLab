@@ -19,18 +19,18 @@ from s0_verified_read import read_owned_regular
 
 ROOT=Path(__file__).resolve().parents[2]
 EXPERIMENT='docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/'
-MANIFEST=ROOT/EXPERIMENT/'lxc100-live-candidate-manifest.json'
-APPROVAL=ROOT/EXPERIMENT/'lxc100-approval-record.json'
-JOURNAL=Path('/private/tmp/aster-s0-lxc100-one-shot-20260926')
-MODULES=('s0_verified_read.py','test_s0_authority_gate.py','s0_live_candidate.py','s0_probe_timing.py','s0_probe_lifecycle.py','s0_probe_journal.py',
+MANIFEST=ROOT/EXPERIMENT/'lxc100-attempt-2-manifest.json'
+APPROVAL=ROOT/EXPERIMENT/'lxc100-attempt-2-approval.json'
+JOURNAL=Path('/private/tmp/aster-s0-lxc100-attempt-2-20260926')
+MODULES=('s0_lxc_memory.py','test_s0_attempt_2.py','s0_verified_read.py','test_s0_authority_gate.py','s0_live_candidate.py','s0_probe_timing.py','s0_probe_lifecycle.py','s0_probe_journal.py',
          's0_owned_cleanup.py','s0_fixed_session.py','s0_lxc100_observe.py','s0_dns_observe.py',
          's0_probe_state.py','s0_feasibility_supervisor.py','validate_label_batch.py',
          'test_s0_live_candidate.py','test_s0_probe_lifecycle.py','test_s0_lxc100_candidate.py',
          'test_s0_probe_state.py','test_s0_feasibility_supervisor.py')
 ARTIFACTS=frozenset('scripts/aster-adaptive/'+name for name in MODULES)|frozenset(EXPERIMENT+name for name in
-    ('lxc100-fixture-payload.py.txt','LXC100-FEASIBILITY-PLAN.md','LXC100-LIVE-CANDIDATE.md','lxc100-integrated-manifest.json'))
+    ('lxc100-fixture-payload.py.txt','LXC100-FEASIBILITY-PLAN.md','LXC100-ATTEMPT-2.md','lxc100-integrated-manifest.json','lxc100-live-candidate-manifest.json','run-001/manifest.json','run-001/000.json','run-001/001.json','run-001/002.json','run-001/003.json','run-001/004.json','fixtures/pct-status-100-run001-diagnosis.txt'))
 OPERATIONS=frozenset({'load-state','paths','health','create-owned-canary','run-proposal-only',
-                      'unit-properties','cgroup','canary-stat','absence'})
+                      'unit-properties','cgroup','canary-stat','absence','host-lxc-status'})
 
 
 def verify_bundle(expected_sha256):
@@ -39,7 +39,7 @@ def verify_bundle(expected_sha256):
     if len(raw)>32768 or hashlib.sha256(raw).hexdigest()!=expected_sha256:raise ValueError('manifest pin mismatch')
     value=json.loads(raw,object_pairs_hook=unique)
     if set(value)!={'format','status','base_commit','parent_integrated_manifest_sha256','artifacts','command_catalog_sha256','tests_passed','live_invoked'}:raise ValueError('manifest schema')
-    if value['format']!='s0-live-candidate.v1' or value['status']!='approval-gated-ready-candidate' or value['base_commit']!='d476158' or value['live_invoked'] is not False:raise ValueError('manifest state')
+    if value['format']!='s0-live-candidate.v1' or value['status']!='attempt-2-released-candidate' or value['base_commit']!='ab34738' or value['live_invoked'] is not False:raise ValueError('manifest state')
     if set(value['artifacts'])!=ARTIFACTS:raise ValueError('artifact set mismatch')
     for name,expected in value['artifacts'].items():
         path=ROOT/name
@@ -47,6 +47,26 @@ def verify_bundle(expected_sha256):
     if value['parent_integrated_manifest_sha256']!=value['artifacts'][EXPERIMENT+'lxc100-integrated-manifest.json']:raise ValueError('parent pin mismatch')
     if value['command_catalog_sha256']!=catalog_digest():raise ValueError('catalog mismatch')
     return value
+
+
+def verify_prior_readonly_abort():
+    root=ROOT/EXPERIMENT/'run-001'
+    evidence=json.loads(read_owned_regular(root/'manifest.json',8192),object_pairs_hook=unique)
+    if evidence['attempt']!='run-001' or evidence['source_commit']!='6715a05' or evidence['mutation_attempted'] is not False:
+        raise ValueError('prior attempt not read-only')
+    previous='0'*64;events=[]
+    expected=['begin','observed','observed','observed','failed']
+    for i in range(5):
+        name=f'{i:03}.json';raw=read_owned_regular(root/name,8192)
+        digest=hashlib.sha256(raw).hexdigest()
+        if evidence['journal_files_sha256'][name]!=digest:raise ValueError('prior record hash')
+        row=json.loads(raw,object_pairs_hook=unique)
+        if canonical(row)!=raw or row['sequence']!=i or row['previous']!=previous or row['event']!=expected[i]:raise ValueError('prior journal chain/event')
+        previous=digest;events.append(row)
+    if events[-1]['data']!={'manual_recovery_required':False,'mutation_attempted':False,'stage':'preflight'}:
+        raise ValueError('prior mutation uncertainty')
+    if [r['data']['operation'] for r in events[1:4]]!=['load-state','paths','health']:
+        raise ValueError('unexpected prior operations')
 
 
 class FixedDNS:
@@ -110,6 +130,9 @@ def _prepared_one_shot(reviewed_pin):
 
 
 SCOPE={
+    'attempt':'run-002',
+    'host_resource_query':'pct status 100 --verbose',
+    'maximum_container_inventory':32,
     'target':'Proxmox 192.168.50.10 / LXC 100',
     'unit':'aster-s0-feasibility-20260926.service',
     'canary':'/var/tmp/aster-s0-feasibility-20260926',
@@ -127,8 +150,8 @@ SCOPE={
 }
 PROVENANCE={
     'human':'Jason',
-    'authorization':'conditional approve when technically ready',
-    'source':'coordinating task conveyed Jason conditional authorization',
+    'authorization':'fresh explicit approval granted for exactly one run-002',
+    'source':'Jason replied approve in coordinating task after corrected run-002 scope was presented',
     'coordinating_task':'01a0d957-799b-7353-acbc-4765e85619f2',
     'cryptographic_identity_proof':False,
 }
@@ -141,12 +164,13 @@ def validate_approval():
     if value['format']!='s0-fixture-approval.v1' or canonical(value['scope'])!=canonical(SCOPE) or canonical(value['provenance'])!=canonical(PROVENANCE):
         raise ValueError('approval scope/provenance mismatch')
     release=value['release']
-    if type(release) is not dict or set(release)!={'technical_review','exclusive_operator_window','one_shot_execution'}:
+    if type(release) is not dict or set(release)!={'technical_review','exclusive_operator_window','one_shot_execution','human_approval'}:
         raise ValueError('release schema')
-    if release!={'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released'}:
+    if release!={'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released','human_approval':'approved-for-run-002'}:
         raise PermissionError('final technical review and operator window release required')
     pin=value['reviewed_manifest_sha256']
     verify_bundle(pin)
+    verify_prior_readonly_abort()
     return pin
 
 

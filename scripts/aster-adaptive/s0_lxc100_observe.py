@@ -6,10 +6,12 @@ or during local tests. They do not read accepted pilot data or credentials.
 import hashlib
 import json
 import re
+import shlex
 from pathlib import Path
 
 import s0_feasibility_supervisor as supervisor
-from s0_probe_state import EXPECTED, decode, health
+from s0_probe_state import EXPECTED, decode
+from s0_lxc_memory import guest_health
 from validate_label_batch import exact, reject
 
 UNIT=supervisor.UNIT
@@ -20,22 +22,24 @@ PROPERTIES=('LoadState','ActiveState','SubState','MainPID','InvocationID','Contr
 # These strings are fixed proposals, not remotely executed by this module.
 BOUNDED_SOURCE="import os,selectors,signal,subprocess,time\n_end=time.monotonic()+12\n\ndef bounded(argv):\n p=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,close_fds=True,env={'LANG':'C','LC_ALL':'C'})\n sel=selectors.DefaultSelector(); chunks={'out':bytearray(),'err':bytearray()}; total=0\n try:\n  for stream,key in ((p.stdout,'out'),(p.stderr,'err')):\n   os.set_blocking(stream.fileno(),False);sel.register(stream,selectors.EVENT_READ,key)\n  while sel.get_map():\n   if time.monotonic()>=_end:raise TimeoutError('collector deadline')\n   for key,_ in sel.select(min(.05,max(0,_end-time.monotonic()))):\n    data=os.read(key.fileobj.fileno(),1024)\n    if not data:sel.unregister(key.fileobj);continue\n    total+=len(data)\n    if total>4096:raise ValueError('collector output limit')\n    chunks[key.data].extend(data)\n  p.wait(timeout=max(.001,_end-time.monotonic()))\n  if p.returncode or chunks['err']:raise ValueError('collector command failed')\n  return bytes(chunks['out'])\n finally:\n  sel.close()\n  if p.poll() is None:\n   try:os.killpg(p.pid,signal.SIGKILL)\n   except ProcessLookupError:pass\n  p.wait(timeout=2);p.stdout.close();p.stderr.close()\n"
 HEALTH_SOURCE=BOUNDED_SOURCE+r'''
-import json,pathlib
+import json,pathlib,re
 names=bounded(['/usr/bin/docker','ps','-a','--format','{{.Names}}']).decode().splitlines()
-expected={'homarr','authentik-homarr-ingress','authentik-code-ingress','code-server','beszel','homepage','beszel-agent','pihole','portainer'}
-assert set(names)==expected and len(names)==len(expected)
+assert 1<=len(names)<=32 and len(set(names))==len(names)
+assert all(re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}',name) for name in names)
+assert 'pihole' in names
 containers={}
-for name in sorted(expected):
- r=bounded(['/usr/bin/docker','inspect','--format','{{.State.Running}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} {{.RestartCount}}',name])
+for name in sorted(names):
+ r=bounded(['/usr/bin/docker','inspect','--format','{{.State.Running}} {{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} {{.RestartCount}}',name])
  assert len(r)<128
- run,h,n=r.decode().strip().split(); assert run in ('true','false')
- containers[name]={'running':run=='true','health':h,'restarts':int(n)}
+ run,state,h,n=r.decode().strip().split(); assert run in ('true','false')
+ containers[name]={'running':run=='true','state':state,'health':h,'restarts':int(n)}
 host=bounded(['/usr/bin/systemctl','is-system-running'])
 assert host==b'running\n'
-mem=pathlib.Path('/proc/meminfo').read_text(); available=int(next(x.split()[1] for x in mem.splitlines() if x.startswith('MemAvailable:')))*1024
-root=pathlib.Path('/sys/fs/cgroup'); current=int((root/'memory.current').read_text()); maximum=int((root/'memory.max').read_text())
-psi=(root/'memory.pressure').read_text(); some=next(x for x in psi.splitlines() if x.startswith('some ')); avg=float(next(x.split('=')[1] for x in some.split() if x.startswith('avg10=')))
-print(json.dumps({'host':'running','pihole':containers['pihole'],'containers':containers,'guest_mem_available':available,'cgroup_memory_current':current,'cgroup_memory_max':maximum,'memory_psi_some_avg10':avg}))
+mem=pathlib.Path('/proc/meminfo').read_text()
+size=lambda key:int(next(x.split()[1] for x in mem.splitlines() if x.startswith(key+':')))*1024
+psi=pathlib.Path('/sys/fs/cgroup/memory.pressure').read_text()
+some=next(x for x in psi.splitlines() if x.startswith('some '));avg=float(next(x.split('=')[1] for x in some.split() if x.startswith('avg10=')))
+print(json.dumps({'host':'running','pihole':containers['pihole'],'containers':containers,'guest_mem_total':size('MemTotal'),'guest_mem_available':size('MemAvailable'),'memory_psi_some_avg10':avg}))
 '''
 PATH_SOURCE=r'''import os,json
 print(json.dumps({'canary_directory_absent':not os.path.lexists('/var/tmp/aster-s0-feasibility-20260926'),'runtime_probe_absent':not os.path.lexists('/usr/aster-s0-feasibility-denied')}))
@@ -64,6 +68,7 @@ print(json.dumps({'directory_absent':not os.path.lexists('/var/tmp/aster-s0-feas
 def command_catalog():
     proposal=supervisor.command_proposal()
     commands=dict(proposal['commands'])
+    commands['host-lxc-status']=[*supervisor.SSH,shlex.join(['pct','status','100','--verbose'])]
     commands['create-owned-canary']=supervisor.remote_args(['/usr/bin/python3.13','-I','-S','-B','-c',supervisor.CREATE_SOURCE+'\n'+CANARY_SOURCE])
     for key,source in {'health':HEALTH_SOURCE,'paths':PATH_SOURCE,'canary-stat':CANARY_SOURCE,
                        'cgroup':CGROUP_SOURCE,'absence':ABSENCE_SOURCE}.items():
@@ -128,7 +133,7 @@ def parse_running(response,cgroup_response):
 
 
 def parse_health(response):
-    value=decode(response);health(value);return value
+    value=decode(response);guest_health(value);return value
 
 
 def parse_canary(response):

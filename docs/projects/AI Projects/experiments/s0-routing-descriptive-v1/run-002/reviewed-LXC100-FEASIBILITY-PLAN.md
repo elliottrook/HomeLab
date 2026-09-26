@@ -293,25 +293,3 @@ preserved, not reset. `LXC100-ATTEMPT-2.md` proposes dynamic bounded inventory,
 host-side `pct status 100 --verbose` accounting and unchanged guest/unit resource
 checks. New journal and approval identities prevent reuse of run001 authorization.
 Preparation only; no live invocation is authorized by this candidate.
-
-## Corrected run002 release preparation — reviewed, not invoked
-
-The complete captured host-status regression now passes, including strict vmid,
-type, metadata and pressure validation. The coordinating task passed technical
-review after independently reproducing eight focused and208 full tests. Jason's
-fresh explicit approval covers exactly one corrected run002, with the exclusive
-operator window confirmed. The external attempt2 record is bound to the final
-settled manifest and marked released; the preparation task performs no invocation,
-journal creation, SSH/DNS action, commit or push. Earlier pending statements above
-are historical checkpoints, not the current authorization state.
-
-## Attempt 2 result — failed safely before mutation
-
-The coordinating task invoked the reviewed run002 manifest once. Read-only unit,
-path, guest-health and host-accounting observations completed, but the lifecycle
-failed later in preflight before recording `preflight-verified`. The terminal
-record proves no mutation was attempted and no manual recovery is required. The
-precise cause remains UNKNOWN / REQUIRES VERIFICATION; a later read-only fixed DNS
-diagnostic succeeded and therefore cannot establish the earlier cause. Evidence is
-preserved in `run-002/`. The one-shot approval is consumed and no retry is
-authorized.

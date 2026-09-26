@@ -52,9 +52,9 @@ def ready():return {'scope':'invented-fixture-only','phase':'ready','checks':dic
 class CollectorTests(unittest.TestCase):
     def test_fixed_catalog_and_pins(self):
         catalog=o.command_catalog();o.require_pinned_catalog(o.catalog_digest())
-        for argv in catalog.values():
+        for operation,argv in catalog.items():
             self.assertEqual(argv[:len(supervisor.SSH)],list(supervisor.SSH))
-            self.assertEqual(shlex.split(argv[-1])[:4],['pct','exec','100','--'])
+            self.assertEqual(shlex.split(argv[-1])[:4],['pct','status','100','--verbose'] if operation=='host-lxc-status' else ['pct','exec','100','--'])
         with self.assertRaises(ValueError):o.require_pinned_catalog('0'*64)
         with self.assertRaises(PermissionError):o.live_entry(approved=True)
 
@@ -103,11 +103,11 @@ class CollectorTests(unittest.TestCase):
             self.assertNotIn('shell',kwargs)
             if argv[:3]==['/usr/bin/docker','ps','-a']:out=('\n'.join(names)+'\n').encode()
             elif argv[:2]==['/usr/bin/docker','inspect']:
-                self.assertIn(argv[-1],names);out=b'true healthy 0\n'
+                self.assertIn(argv[-1],names);out=b'true running healthy 0\n'
             elif argv==['/usr/bin/systemctl','is-system-running']:out=b'running\n'
             else:raise AssertionError('unexpected command')
             return out
-        readings={'/proc/meminfo':'MemAvailable: 1048576 kB\n','/sys/fs/cgroup/memory.current':'1',
+        readings={'/proc/meminfo':'MemTotal: 4194304 kB\nMemAvailable: 1048576 kB\n','/sys/fs/cgroup/memory.current':'1',
                   '/sys/fs/cgroup/memory.max':str(1024**3),'/sys/fs/cgroup/memory.pressure':'some avg10=0.00 avg60=0.00\n'}
         output=io.StringIO()
         with patch.object(Path,'read_text',lambda p:readings[str(p)]),contextlib.redirect_stdout(output):

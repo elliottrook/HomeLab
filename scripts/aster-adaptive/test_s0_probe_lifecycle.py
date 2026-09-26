@@ -27,10 +27,9 @@ class DNS:
 
 
 def health_response():
-    status={'running':True,'health':'healthy','restarts':0}
+    status={'running':True,'state':'running','health':'healthy','restarts':0}
     return state.envelope({'host':'running','pihole':status,'containers':{'pihole':status},
-                           'guest_mem_available':1024**3,'cgroup_memory_current':1,
-                           'cgroup_memory_max':1024**3,'memory_psi_some_avg10':0})
+                           'guest_mem_total':4*1024**3,'guest_mem_available':1024**3,'memory_psi_some_avg10':0})
 
 
 class Transport:
@@ -44,7 +43,7 @@ class Transport:
             assert argv==cleanup.argv(json.loads(inner[10]))
         self.calls.append(op)
         outputs={'load-state':b'LoadState=not-found\n','paths':state.envelope({'canary_directory_absent':True,'runtime_probe_absent':True})['stdout'],
-                 'health':health_response()['stdout'],'create-owned-canary':canary()['stdout'],
+                 'health':health_response()['stdout'],'host-lxc-status':b'status: running\nmaxmem: 4294967296\nmem: 739872768\nmaxswap: 536870912\nswap: 0\ntype: lxc\nvmid: 100\n','create-owned-canary':canary()['stdout'],
                  'canary-stat':canary()['stdout'],'unit-properties':props()['stdout'],'cgroup':cgroup()['stdout'],
                  'guarded-cleanup':b'{"removed_owned_canary":true}',
                  'absence':state.envelope({'directory_absent':True,'runtime_probe_absent':True,'cgroup_absent':True})['stdout']}
@@ -69,7 +68,7 @@ class LifecycleTests(unittest.TestCase):
             self.assertTrue(all(p.poll() is not None for p in transport.children))
 
     def test_failure_at_each_operation_never_blind_cleanup(self):
-        for failure in ['load-state','paths','health','create-owned-canary','run-proposal-only','unit-properties','cgroup','canary-stat','guarded-cleanup','absence']:
+        for failure in ['load-state','paths','health','host-lxc-status','create-owned-canary','run-proposal-only','unit-properties','cgroup','canary-stat','guarded-cleanup','absence']:
             with self.subTest(failure=failure),tempfile.TemporaryDirectory() as tmp:
                 transport=Transport(failure)
                 with Journal(Path(tmp)/'attempt',create=True) as journal:

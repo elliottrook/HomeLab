@@ -14,7 +14,7 @@ import s0_verified_read as reader
 def record():
     return {'format':'s0-fixture-approval.v1','scope':copy.deepcopy(live.SCOPE),
             'provenance':copy.deepcopy(live.PROVENANCE),'reviewed_manifest_sha256':'a'*64,
-            'release':{'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released'}}
+            'release':{'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released','human_approval':'approved-for-run-002'}}
 
 
 class VerifiedReadTests(unittest.TestCase):
@@ -89,14 +89,18 @@ class AuthorityGateTests(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):live.invoke_once()
             prepared.assert_not_called()
 
-    def test_real_released_record_uses_mocked_prepared_path_only(self):
+    def test_real_second_attempt_approval_is_consumed_and_denies_reuse(self):
         value=json.loads(reader.read_owned_regular(live.APPROVAL,8192))
-        self.assertEqual(value['reviewed_manifest_sha256'],hashlib.sha256(reader.read_owned_regular(live.MANIFEST,32768)).hexdigest())
+        evidence=live.ROOT/live.EXPERIMENT/'run-002/reviewed-manifest.json'
+        self.assertEqual(value['reviewed_manifest_sha256'],hashlib.sha256(reader.read_owned_regular(evidence,32768)).hexdigest())
         self.assertEqual(value['scope'],live.SCOPE)
-        self.assertEqual(value['release'],{'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released'})
+        self.assertEqual(value['provenance'],live.PROVENANCE)
+        self.assertEqual(value['provenance']['authorization'],'fresh explicit approval granted for exactly one run-002')
+        self.assertEqual(value['provenance']['source'],'Jason replied approve in coordinating task after corrected run-002 scope was presented')
+        self.assertEqual(value['release'],{'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'consumed-run-002-failed-preflight','human_approval':'approved-for-run-002'})
         with patch.object(live,'_prepared_one_shot',return_value={'status':'mock-only'}) as prepared,patch.object(live.sys,'argv',['launcher']):
-            self.assertEqual(live.invoke_once(),{'status':'mock-only'})
-            prepared.assert_called_once_with(value['reviewed_manifest_sha256'])
+            with self.assertRaises(PermissionError):live.invoke_once()
+            prepared.assert_not_called()
 
 
 if __name__=='__main__':unittest.main()

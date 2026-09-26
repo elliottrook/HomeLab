@@ -596,3 +596,60 @@ read-only diagnosis identifies a changed container inventory and guest-root
 memory.max=`max`, invalidating collector assumptions. No confinement result exists.
 Next: prepare/test a bounded second-attempt candidate using dynamic inventory and
 host-side LXC resource accounting, then request new approval. No automatic retry.
+
+
+### Current checkpoint — second-attempt candidate, no new approval
+
+[Attempt 2 plan](experiments/s0-routing-descriptive-v1/LXC100-ATTEMPT-2.md) proposes
+bounded dynamic Docker inventory, fixed host-side LXC memory/swap accounting and
+unchanged guest pressure/unit isolation gates. 206 full tests pass. New attempt2
+journal/manifest/approval identities preserve run001 and prevent implicit retry.
+All release fields, including fresh human approval, are pending. The original
+journal remains untouched; no preparation-stage SSH/DNS/LXC operation occurred.
+Next: technical review, then the explicit new approval question in the plan.
+
+
+### Current authorization checkpoint — fresh run002 approval, review still pending
+
+The coordinating task reports Jason explicitly approved the corrected second
+attempt. [Fresh run002 authorization](experiments/s0-routing-descriptive-v1/RUN-002-AUTHORIZATION.md)
+records exactly one fixture-only probe once technical review passes, with unchanged
+exclusions and no automatic retry. The machine-readable gate stays pending;
+final manifest binding must occur only after review. Candidate code and the 206
+passing-test result are unchanged. Return the disabled candidate for final review;
+no live execution or push during preparation.
+
+
+### Latest attempt2 review checkpoint — full captured host output supported
+
+The coordinating task supplied the complete sanitized host status capture.
+Its exact fixture now parses, including all six pressure fields, bounded name/tags,
+required type=lxc and required vmid=100. Unknown fields and malformed/negative/
+nonfinite values remain rejected. Eight focused attempt2 tests and 208 full tests
+pass. Candidate hash: `87ec5b4c9a8ae28728112182db79008895ad3049908f54993943d30e317f64ab`.
+Fresh conditional approval is recorded separately, but technical review and
+machine release remain pending. No commit/release/run since this correction.
+
+
+### Current run002 checkpoint — final release prepared, invocation reserved
+
+Corrected candidate technical review passed independently (8 focused/208 full).
+Fresh Jason approval provenance now states exactly one run002. Released-record
+tests use only a mocked prepared lifecycle. Final manifest and external record
+are regenerated/bound after pinned artifacts settle; record validation is read-only.
+The preparation task performs no probe invocation, journal creation, SSH/DNS,
+commit or push. Next: coordinating task verifies final hashes and directs the
+single authorized execution; no retry or scope expansion is implied.
+
+
+### Run002 result — inconclusive preflight, no mutation
+
+The coordinating task verified and invoked reviewed manifest
+`1713058f4f280e116933295ec633f5c59925f8a9cba1635dae9a371ea0e322b2`
+once. Read-only unit, path, guest-health and host-accounting observations completed,
+then the lifecycle failed in preflight before any create or run intent. The journal
+proves `mutation_attempted=false`, `manual_recovery_required=false`, no remote stop
+and no corpus evaluation. A post-run fixed DNS diagnostic succeeded but does not
+prove the earlier cause, which remains UNKNOWN / REQUIRES VERIFICATION. Exact
+evidence is preserved under `run-002/`; the approval is consumed and no retry is
+authorized.
