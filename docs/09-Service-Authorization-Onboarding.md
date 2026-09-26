@@ -73,7 +73,7 @@ single-login graduation for those services.
 | Aster llama.cpp | No Authentik proxy | `192.168.70.12:11435` | Same reasoning as the Ollama API row above — a model inference API, not a browser login page |
 | ARR work package: Sonarr / Radarr / Lidarr / Prowlarr / SABnzbd | Forward auth — complete and tested as one coordinated package (2026-09-15) | `sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`.elliottrook.com | Owner-only browser gate; direct recovery and every API-key path retained |
 | Media Manager (Homarr) | Native OIDC behind forward auth | `homarr.elliottrook.com` | Automatic SSO linked to existing owner; local group management preserves permissions |
-| Newtarr | Forward auth | Service-specific name | Confirm what this actually is/does before onboarding — not otherwise documented in this repo yet |
+| Newtarr | Owner-only forward auth and private host guard | `newtarr.elliottrook.com` | Deployed and Homepage promoted 2026-09-26; persistent `/config` repaired. Sonarr/Radarr/Lidarr connected with missing and quality-upgrade searches enabled; fresh passkey/logout/recovery checks remain open |
 | File Browser | Forward auth plus trusted app identity header | `files.elliottrook.com` | Private backend; ingress maps the verified owner to the existing account |
 | NetBox | Native OIDC behind forward auth | `netbox.elliottrook.com` | Installed python-social-auth supports OIDC without an added plugin; existing admin explicitly linked; API authentication retained |
 | AP Switch | No Authentik proxy | Existing address | HTTP-only raw switch management with no real authentication of its own to federate — treat like the other never-proxied network/control-plane rows above, not a browser app |

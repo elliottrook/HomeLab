@@ -20,6 +20,36 @@
 
 ## Resume audit — 2026-09-23
 
+### Newtarr UI verification and remaining capability assessment — 2026-09-26
+
+Observed the protected Newtarr Settings page in Brave using the existing
+Authentik session, without a second app login. Homepage now links to
+`https://newtarr.elliottrook.com`; only that href changed and Homepage returned
+HTTP 200. LXC 100 checkpoint:
+`/opt/homepage/backups/newtarr-promote-20260926T214657Z/services.yaml`.
+Fresh biometric authentication, logout and recovery remain separate open gates.
+A subsequent source-local read-back confirms all three ARR apps have missing
+and upgrade counts set to 1, sleep 900 seconds, hourly cap 20 and monitored-only
+true. All 122 unauthenticated boundary checks pass. This verifies configuration,
+not completed searches, downloads or quality improvements.
+
+Remaining double-login assessment: installed NPM 2.15.1 has no verified native
+OIDC implementation. Upstream [OIDC PR #5513](https://github.com/NginxProxyManager/nginx-proxy-manager/pull/5513)
+is still open; no unmerged authentication patch or upgrade was deployed.
+Pi-hole primary uses image 2026.05.0 and secondary 2026.07.2. Both retain
+application-password configuration; secondary's main password is supplied by
+environment, so an empty TOML hash must not be interpreted as disabled auth.
+Primary Homepage consumes its private v6 API with a file-backed credential.
+[Pi-hole API documentation](https://docs.pi-hole.net/api/auth/) confirms that
+removing the password removes API authentication too. No Pi-hole authentication,
+container, DNS or consumer changes were made during this assessment.
+
+Next safe Pi-hole step: finish consumer inventory and prove an isolated guarded
+UI/API design, including Homepage access and independent DNS recovery, before
+any production password removal. NPM remains a capability hold pending supported
+SSO or a separately assessed alternative. Existing app passwords remain active.
+No remote Git synchronization has been authorized for these milestones.
+
 ### Newtarr ARR connections and missing/upgrade searches enabled — 2026-09-26
 
 Jason requested connections to the running ARR applications. Discovered Sonarr,
@@ -47,9 +77,8 @@ Pre-upgrade-toggle checkpoint:
 These contain protected settings and sanitized validation; do not print raw
 settings or secrets. Newtarr general debug mode was verified false before
 using the settings API (its debug logging can include request bodies).
-All 122 boundary checks remain passing. Browser acceptance/Homepage promotion
-is still pending the earlier UI test; ARR connection authorization is recorded
-separately from that human browser acceptance.
+All 122 boundary checks remain passing. Settings-page observation and Homepage
+promotion are recorded above; fresh passkey/logout/recovery tests remain open.
 
 ### Newtarr Authentik browser gate deployed — 2026-09-26
 
@@ -86,9 +115,8 @@ NPM-source tests: missing/wrong identity 403; verified owner 200. All 122
 expanded boundary checks pass, including three-resolver DNS, valid TLS gate,
 direct IP redirect and spoofed-header redirect. Brave private window reused the
 existing Authentik session and displayed Newtarr v1.0.0 without a second login.
-Asked Jason to confirm UI and Settings access; Homepage promotion awaits that
-acceptance. Fresh passkey/logout/recovery tests remain open. No ARR connection
-was configured and no automation workflow is claimed.
+Subsequent Settings-page observation, Homepage promotion and ARR connections
+are recorded above. Fresh passkey/logout/recovery tests remain open.
 
 Recovery retains repaired persistent /config. For an ingress fault, repair or
 recreate only the guard using its saved definition; never revert the volume to

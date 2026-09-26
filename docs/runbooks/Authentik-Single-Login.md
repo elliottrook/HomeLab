@@ -88,7 +88,9 @@ using native recovery. Full reboot/restore and logout tests remain pending.
 Deployed 2026-09-26 at `https://newtarr.elliottrook.com`, owner-only Authentik.
 The old IP/9705 address redirects to HTTPS. The guard requires actual NPM
 source plus verified Jason identity; the app itself listens only on host
-loopback 19705. No second app login is required. Browser acceptance is pending.
+loopback 19705. No second app login is required. Settings access was observed using an existing
+Authentik session and Homepage is promoted. Fresh passkey, logout and recovery
+verification remain open.
 
 Persistent application configuration is `/mnt/Media/appdata/newtarr`, mounted
 at `/config`, not `/appdata`. Guard nginx and recreation definition:
