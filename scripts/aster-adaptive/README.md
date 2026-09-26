@@ -136,3 +136,19 @@ The paired runner excludes ledger I/O from timing and denies network connections
 It records no independent reviewer decision. See the
 [paired checkpoint](../../docs/projects/AI%20Projects/evidence/M4-paired-checkpoint.md)
 for measured results, exact scope and remaining live-use gates.
+
+## Offline review of retained exports
+
+`verify_evidence.py` reconstructs a bounded synthetic export in temporary storage
+and recalculates paired totals without running measurement code. Supply an expected
+head from independent custody; copying the candidate's own hash proves consistency
+only. Pin and review the verifier code/dependencies before use. There are now 56 tests.
+
+```sh
+/private/tmp/aster-lab-ops-venv/bin/python scripts/aster-adaptive/verify_evidence.py /path/to/export.json --expected-head sha256:REPLACE_WITH_REVIEWER_RETAINED_HEAD
+```
+
+The verifier grants no review approval or measurement-authenticity claim. The
+[storage and review design](../../docs/projects/AI%20Projects/M4-Storage-and-Review-Design.md)
+defines the proposed ownership, retention and recovery boundaries; operational
+acceptance and separate identities/custody have not been established.

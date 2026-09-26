@@ -123,3 +123,14 @@ remote M3/M4 work and explicitly namespaced the selector-only contract profile;
 29probe +52harness +76broker +163Aster tests pass. Current manifests and complete
 commit map are in evidence/M2-reconciliation. Primary dirty checkout untouched;
 no push or deployment by this task.
+
+
+## Published integration and next M4 gate
+
+User authorized push7133f3f; the push returned up-to-date after concurrent
+publication, and read-only Forgejo/GitHub checks verified the exact matching head.
+Reused existing localaf2cc4f review candidate rather than repeating experiments.
+Resolved its stale header against deployed Stage1;56+29 tests and a network-blocked
+164-event replay pass, with its original manifest unchanged. Prepared exact review
+packet; no authenticated review or independent checkpoint custody is claimed.
+The remaining gate needs human/external evidence, not another synthetic run.

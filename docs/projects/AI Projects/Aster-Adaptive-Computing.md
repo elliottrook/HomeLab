@@ -2,8 +2,8 @@
 
 **Status:** Active — Stream A; M0 complete; M1 Stage1 installed and verified;
 Stage2 identity/assurance gates remain open; M2 offline foundation verified;
-M3 controlled harness/routing comparisons retained Aster/rules; M4 synthetic
-evidence lineage remains local and incomplete.
+M3 controlled comparisons retained Aster/rules; M4 offline verifier and storage
+review design prepared, independent custody/review gates still open.
 
 **Owner:** Jason.
 
@@ -157,6 +157,8 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | M2 integration and M3 preregistration | 26 adaptive + 89 existing Aster tests pass; live hashes/packages reconciled; offline M2 gate complete; minimal challenger plan and 17-package dry-run resolution retained; no install/deployment |
 | 2026-09-25 | M3 minimal preload experiment | Isolated 17-package/5.45 MB install; two process repeats per candidate; ~1 ms PydanticAI p95 and ~22 MiB incremental RSS; guardrails pass but no measured benefit, retain Aster; M3 overall open |
 | 2026-09-25 | M3 tool-loop/routing smoke | Eight cases pass twice per harness; 30 adaptive tests pass; rules 10/10 held-out synthetic families vs TF-IDF 1/10, no test tuning; retain baseline, M3 model/representativeness gate open |
+| 2026-09-25 | M4 storage, lineage and paired evaluation | Frozen manifests, outcome-bound totals and 164-event restore verified; four synthetic families pass controlled guardrail; 52 tests pass; no independent review or live-use approval |
+| 2026-09-25 | M4 review preparation | Storage/retention/custody design proposed; offline export verifier reproduces 164 events and rejects forged summary; 56 tests pass; independent reviewer/custody still required |
 
 | 2026-09-25 | Local M1 corrective candidate and independent review | 55 broker + 163 Aster tests pass; migration race identified by reviewer and fixed; production/identity/assurance gates remain open — see M1 evidence |
 
@@ -232,10 +234,18 @@ A newly preregistered paired synthetic experiment now binds aggregate evaluation
 to exact outcomes and family denominators. All four authored families passed the
 5 ms p95 overhead guardrail; the 164-event ledger restored successfully. **52 adaptive
 tests pass.** See [M4 paired evaluation evidence](evidence/M4-paired-checkpoint.md).
-The offline evidence path is demonstrated; M4 remains open for independent review
-separation and approved operational storage/retention. Next safe local work is that
-ownership, checkpoint-custody and lifecycle design. No production changes or installs
-occurred. This newer paired work is local; a further push needs explicit authorization.
+The paired checkpoint was pushed with Jason's authorization; Forgejo and GitHub were
+verified at `a86a4283fed99d70c3b41285c22fc4a021549527`.
+
+The [storage and review design](M4-Storage-and-Review-Design.md) now records proposed
+ownership, retention, checkpoint custody and recovery boundaries. A separate offline
+verification command reconstructs 164 saved events and rejects a forged summary;
+**56 adaptive tests pass**. See [review-preparation evidence](evidence/M4-review-checkpoint.md).
+M4 remains open for actual independent review/custody and accepted operational design.
+Next safe independent work is M1's review packet and read-only/local-test reconciliation
+with the AI-PAM candidate; preserve that checkout's edits. M3 representative/model
+gates remain open. No production changes or installs occurred. The newer review work
+is local; a further push needs explicit authorization.
 
 ## Consolidated requirements and dependency ownership
 
@@ -321,3 +331,16 @@ explicit selector-probe profile. Broker/approval/Aster and remote harness source
 are unchanged;52+29+76+163 tests pass. See the integration map for provenance,
 semantic namespace resolution and rollback. No push or production change.
 Recheck remote head and coordinate before any separately authorized publication.
+
+
+### Current checkpoint — published integration and M4 review packet
+
+Forgejo and its GitHub mirror were both verified at7133f3f after Jason's explicit
+push instruction. Subsequent work is local-only. The pre-existingaf2cc4f M4 verifier
+and design were reconciled onto that published baseline, preserving Stage1 and
+all newer M2/M3/M4 evidence.56 harness/evidence +29 selector-probe tests pass; the
+164-event paired export replays offline with unchanged historical hashes.
+[Review packet](evidence/M4-review/REVIEW-PACKET.md) identifies the exact artifact,
+verifier, checkpoint, decision and limitations. Independent human judgment and
+checkpoint custody are not established. M4 is not graduated; no real collection,
+new identity, Stage2 deployment or further push is authorized.
