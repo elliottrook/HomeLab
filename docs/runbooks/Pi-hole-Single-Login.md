@@ -4,8 +4,8 @@ Deployed 2026-09-26. Use [primary](https://dns1.elliottrook.com/admin/) and
 [secondary](https://dns2.elliottrook.com/admin/) through the existing Authentik
 passkey-only owner flow. Both were observed in Brave using an existing Authentik
 session without a second application login. Jason subsequently confirmed the
-requested fresh private-browser Face ID/passkey test with “works.” Logout and
-recovery acceptance remain open; this is not full project graduation.
+requested fresh private-browser Face ID/passkey test with “works.” Application and Authentik account logout were subsequently checked as described
+below. This is not full project graduation.
 
 ## Access paths
 
@@ -94,14 +94,18 @@ Protected checkpoints:
 
 Checkpoints contain secrets and DNS history: retain restricted ownership and
 permissions, never print them or commit them to Git. Restored copies are retained
-as recovery proof. Existing scheduled-backup coverage of the new secondary guard
-and host Docker-network definitions still needs a separate close-out check.
+as recovery proof. The primary files are within the existing nightly all-guest LXC backup scope.
+The secondary reconstruction export is described below; ongoing secondary
+application-data protection remains a separate gap.
 
 For an Authentik/NPM outage, authorized administrators can reach the primary API
 from LXC 100 via `127.0.0.1:18082` and the secondary from TrueNAS via
-`172.31.250.2:20720`. Both source-local recovery paths were tested. An SSH tunnel
-from TrueNAS to the latter address can provide browser recovery without NPM;
-interactive tunnel/browser recovery has not yet been accepted by Jason.
+`172.31.250.2:20720`. Both source-local recovery paths were tested. A primary loopback-only SSH tunnel through alias `docker` was tested against
+both the UI and summary API, then removed. The analogous `truenas` tunnel was
+rejected with “administratively prohibited”: SSH forwarding is disabled. Do not
+claim secondary browser-tunnel recovery or enable forwarding as a workaround.
+Existing authorized TrueNAS host-local API/CLI administration remains the tested
+secondary recovery path.
 
 Repair guards from the saved Compose/config files. Restore only affected NPM
 rows, never the entire shared database over later changes. For primary rollback,
@@ -119,6 +123,43 @@ both resolvers. Primary container/guard restart and secondary managed-app
 stop/start pass. Unrelated Docker-network access to both secondary addresses is
 denied; primary Homepage cannot access the raw backend or configuration API.
 
-Remaining human gates: logout/session behaviour, settings saves
-and upload workflows, and interactive browser recovery. Full host reboot and
-scheduled-backup restoration are not claimed by these restart tests.
+Remaining gates: settings saves/uploads, user-operated recovery and the broader
+secondary application-data backup gap. Full host reboot and scheduled-backup
+restoration are not claimed by these restart tests.
+
+## Logout check — 2026-09-26
+
+Visited the secondary's `/outpost.goauthentik.io/sign_out` in an authenticated
+Brave tab. Authentik confirmed application logout and offered a separate
+**Log out of authentik** link. Application-only logout retains the central SSO
+session; it is not a forced fresh biometric check. Used that separate account
+logout action, then reopened the protected Pi-hole page and observed the
+passwordless flow's identification prompt. Visiting primary also left the
+browser at the authentication page. No logout-flow settings or shared stages
+were changed. This does not prove logout propagation to every other application.
+See [Authentik's proxy logout documentation](https://docs.goauthentik.io/add-secure-apps/providers/proxy/).
+
+## Backup coverage — 2026-09-26
+
+The active Proxmox nightly 02:30 snapshot-mode job selects all guests; its only
+observed path exclusion is unrelated news audio. Primary `/opt` is on LXC 100's
+root disk, so Pi-hole, guard and Homepage configuration are in that scope. The
+first post-change scheduled archive/copy still needs subsequent confirmation.
+
+TrueNAS snapshot task 1 protects `Media` non-recursively. It does **not** cover
+`Media/appdata` or `Media/ix-apps/app_mounts/pihole/config`. Do not treat that
+parent snapshot as a backup of secondary Pi-hole data.
+
+Exported a credential-free reconstruction bundle to:
+`/mnt/Media/backup/service-reconstruction/pihole-secondary/20260926T222850Z`.
+It contains the guard config/Compose, selected managed-app networking/ACL patch,
+Docker-network definitions, README and SHA-256 manifest. All five files were also checksum-verified through the relay's read-only
+`/srv/backup` view. No query history, gravity database,
+application password or credential store is included. The existing Media/backup
+snapshot tasks and encrypted relay encompass this path; their first actual
+post-export completion remains pending, not claimed.
+
+Refresh with [the source-local exporter](../../scripts/authentik/export-pihole-guard-reconstruction.py)
+after changing the deployment. This deliberately adds no new schedule, changes
+no retention and does not expand off-site coverage to DNS history. It supplements
+rather than replaces a future recurring secondary application-data backup plan.

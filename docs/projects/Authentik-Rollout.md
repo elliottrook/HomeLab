@@ -20,6 +20,29 @@
 
 ## Resume audit — 2026-09-23
 
+### Pi-hole logout, recovery and backup-coverage audit — 2026-09-26
+
+Observed secondary application logout, then used its separate Authentik account
+logout link. Reopening the protected page required identification in the
+passwordless flow; primary also returned to authentication. Shared logout flows
+were unchanged. The test Brave session is signed out. Do not infer SLO coverage
+for every unrelated app from this check.
+
+Primary SSH loopback recovery successfully served UI and API without NPM/Auth;
+tunnels were removed. TrueNAS rejected TCP forwarding as administratively
+prohibited. Its existing host-local API recovery is verified, but no secondary
+browser-tunnel claim is made and SSH policy was not weakened.
+
+Primary guard/Homepage files are inside the existing nightly LXC 100 archive
+scope. Secondary app/guard datasets are not covered by the non-recursive Media
+snapshot. A credential-free guard/network reconstruction bundle now resides at
+`/mnt/Media/backup/service-reconstruction/pihole-secondary/20260926T222850Z`;
+five files were checksum-verified both locally and through the read-only relay. Existing hub snapshot/relay schedules include this
+path, but their first post-export runs remain unverified. No DNS history or
+credentials were added to off-site scope. Recurring secondary application-data
+backup is a separate remaining gap. Runbook includes the reusable exporter and
+exact recovery limitations. No new schedule or remote Git push was performed.
+
 ### Pi-hole browser acceptance — 2026-09-26
 
 Jason replied “works” to the requested fresh private-browser Face ID/passkey
