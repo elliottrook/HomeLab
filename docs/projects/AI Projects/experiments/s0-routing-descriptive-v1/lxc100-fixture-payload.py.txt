@@ -51,6 +51,6 @@ denied('runtime_write_readonly', runtime_write, {errno.EROFS})
 checks['unprivileged'] = os.geteuid() != 0
 print(json.dumps({'scope':'invented-fixture-only','phase':'ready','checks':checks,'pid':os.getpid()},sort_keys=True),flush=True)
 # Inspection window for parent systemctl/cgroup checks; no load-generating work.
-time.sleep(5)
+time.sleep(10)
 print(json.dumps({'scope':'invented-fixture-only','phase':'done','passed':all(checks.values())}),flush=True)
 raise SystemExit(0 if all(checks.values()) else 1)

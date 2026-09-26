@@ -320,3 +320,12 @@ cleanup; already-unloaded unit accepted only after verified completed execution
 and matching canary identity with absent cgroup. Interrupted runs never replay
 mutations. Live confinement and remote termination remain UNKNOWN. Candidate and
 remaining-risk statement submitted for final technical review, no live invocation.
+
+
+### 2026-09-26 — timing margin and manifest-bound one-shot candidate
+
+192 full tests pass, including 8 focused timing/adapter tests. Fake-clock delayed
+observations validate a single eight-second inspection deadline against the
+worker's ten-second window. Fixed direct SSH and DNS adapters are implemented and
+mock-tested; public invocation is disabled. Actual LXC100 support remains UNKNOWN.
+Prior integrated checkpoint: `28a9e49`; current pins in the live-candidate manifest.

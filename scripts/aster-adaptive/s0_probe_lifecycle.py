@@ -11,6 +11,7 @@ from s0_probe_state import decode, health, exact, reject, unique, CHECKS
 from s0_lxc100_observe import (catalog_digest, require_pinned_catalog, parse_canary,
                                parse_running, parse_health, parse_absence)
 from s0_feasibility_supervisor import load_state_ok
+from s0_probe_timing import inspect_worker
 
 
 def response(result):
@@ -18,11 +19,12 @@ def response(result):
     return {k:result[k] for k in ('returncode','stdout','stderr')}
 
 
-def run_candidate(journal,root_hash,*,spawn=denied_spawn,socket_factory=denied_socket):
+def run_candidate(journal,root_hash,*,spawn=denied_spawn,socket_factory=denied_socket,reviewed_manifest_sha256=None):
     require_pinned_catalog(root_hash)
     reject(bool(journal.records),'existing attempt must use read-only recovery')
     baseline=None;receipt=None;worker=None;mutation=False;total=0;stage='preflight';passed=False
-    journal.append('begin',{'catalog_sha256':root_hash,'live_enabled':False})
+    journal.append('begin',{'catalog_sha256':root_hash,'reviewed_manifest_sha256':reviewed_manifest_sha256,
+                            'transport':'fixed-live-adapter' if reviewed_manifest_sha256 else 'injected-fixture'})
 
     def record(op,result):
         nonlocal total
@@ -59,9 +61,9 @@ def run_candidate(journal,root_hash,*,spawn=denied_spawn,socket_factory=denied_s
         ready=worker.await_ready();exact(ready,{'scope','phase','checks','pid'})
         reject(ready['scope']!='invented-fixture-only' or ready['phase']!='ready' or type(ready['pid']) is not int,'readiness schema')
         exact(ready['checks'],CHECKS);reject(any(v is not True for v in ready['checks'].values()),'probe checks failed')
-        running=parse_running(call('unit-properties'),call('cgroup'))
+        running,current_canary=inspect_worker(call,worker.started)
         reject(running['main_pid']!=ready['pid'],'worker identity mismatch')
-        reject(parse_canary(call('canary-stat'))!=created,'canary changed')
+        reject(current_canary!=created,'canary changed')
         receipt={'canary':created,'invocation_id':running['invocation_id'],'main_pid':running['main_pid'],'completed':False}
         journal.append('ownership-bound',receipt)
         result=record('run-proposal-only',worker.finish())
@@ -89,7 +91,7 @@ def run_candidate(journal,root_hash,*,spawn=denied_spawn,socket_factory=denied_s
             except Exception:journal.append('health-unverified',{})
     return {'status':'fixture-pass' if passed else 'failed-or-inconclusive',
             'manual_recovery_required':mutation and not passed,'corpus_evaluated':False,
-            'remote_stop_issued':False,'live_enabled':False}
+            'remote_stop_issued':False,'live_enabled':reviewed_manifest_sha256 is not None}
 
 
 def live_entry(*_,**__):raise PermissionError('integrated live entry disabled pending final review')

@@ -543,3 +543,15 @@ No SSH, live DNS, LXC100 mutation, accepted-corpus evaluation or push occurred.
 Next: final technical review of source pins and remaining risks, particularly
 manual recovery after uncertain termination and concurrent privileged changes.
 Keep all live adapters disabled pending that review.
+
+
+### Current checkpoint — fixed one-shot adapter awaiting final review
+
+Integrated checkpoint saved locally as `28a9e49`. The
+[fixed one-shot candidate](experiments/s0-routing-descriptive-v1/LXC100-LIVE-CANDIDATE.md)
+adds a ten-second readiness window, shared eight-second inspection deadline,
+manifest-bound direct SSH/fixed DNS adapter and exclusive one-shot journal.
+8 focused and 192 full tests pass; public invocation remains unconditionally
+disabled. No live SSH/DNS/LXC100 operation or push occurred. Next: final review of
+the pinned candidate before any invocation-enabling change. Existing manual
+recovery behavior and accepted-corpus exclusion remain in force.

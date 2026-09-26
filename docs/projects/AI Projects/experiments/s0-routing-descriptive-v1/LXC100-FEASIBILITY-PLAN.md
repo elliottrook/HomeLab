@@ -56,9 +56,9 @@ The worker itself must not send DNS or any network traffic.
 ## Exact candidate payload and properties
 
 `lxc100-fixture-payload.py.txt` is syntax-parsed locally only; SHA256:
-`497ffce4be2431284dc8a03b5bc33e48ed4264199dba36e9c0925fe8252f9850`.
+`72aa3c115ad03020b2f9ebceb97b7b17f83b040ef3e94f7e29b787e7450085e1`.
 It attempts only fixed denied operations, reads a planted one-byte canary, emits
-small constant-schema JSON, waits five seconds for parent inspection, and exits.
+small constant-schema JSON, waits ten seconds for parent inspection, and exits.
 If fork unexpectedly succeeds its child exits immediately; parent reaps it and
 reports failure. If write unexpectedly succeeds it removes only its own new
 exclusive probe file and reports failure. No secret path is touched.
@@ -258,3 +258,13 @@ The run proposal adds `--quiet`; create returns filesystem identity immediately.
 The integrated controller never uses the older name-only stop/reset/delete
 proposals. Completed-run cleanup is receipt-guarded; interruption recovery is
 read-only and requires manual review. No live adapter has been enabled.
+
+## Timed one-shot candidate — final review pending
+
+Readiness now holds for ten seconds within the unchanged 15-second RuntimeMax.
+Unit properties, cgroup and canary observations share an eight-second aggregate
+deadline measured before worker launch, retaining at least two seconds of margin
+before normal completion. Late readiness/observations fail closed. The prepared
+fixed adapter verifies every current manifest artifact and exact catalog before
+external operations, but its public invocation remains unconditionally disabled.
+See `LXC100-LIVE-CANDIDATE.md`; no live command has been invoked.
