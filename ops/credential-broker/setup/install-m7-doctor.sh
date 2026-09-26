@@ -75,5 +75,10 @@ systemctl daemon-reload
 systemctl enable --now aster-lab-operations-broker.service
 systemctl restart homelab-broker.service
 systemctl is-active --quiet aster-lab-operations-broker.service homelab-broker.service
+attempt=0
+while test "$attempt" -lt 20 && ! test -S /run/aster-lab-operations-broker/gateway.sock; do
+  attempt=$((attempt + 1))
+  sleep 0.25
+done
 test -S /run/aster-lab-operations-broker/gateway.sock
 echo "M7_DOCTOR_INSTALLED checkpoint=$checkpoint"

@@ -79,3 +79,20 @@ script. The installer refuses active or uncertain Lab Operations work, requires
 files into a timestamped root-only checkpoint, derives only the existing owner
 hash (never the worker key), and starts the private gateway before restarting
 the broker. Deployment remains unauthorized until the operator approves it.
+
+## Initial production deployment — 2026-09-25
+
+Jason authorized the bounded deployment from commit `2a81a78`. LXC 104 created
+root-only checkpoint
+`/var/lib/homelab-broker/m7-doctor-rollback-20260925-191251`, installed the
+peer-bound gateway, registered and granted the Green/Yellow Doctor capabilities,
+and restarted only the broker. Both services remained active.
+
+The first Green request returned the existing sanitized successful Doctor result.
+A non-broker peer received only the generic denial. A Yellow validation request
+remained pending, created no Lab Operations job, and was revoked without approval.
+The job database still had zero queued/running/unknown records and seven historic
+Doctor records. The installer initially reached its one-shot socket assertion
+before the new service had created the socket; production became ready moments
+later, and the source installer now uses a bounded readiness loop. Two real
+approved Yellow runs and revocation checks remain before M7 graduation.
