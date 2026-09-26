@@ -970,10 +970,13 @@ TrueNAS service `newtarr` belongs to Dockge Compose project `new_arr` at
 `/mnt/Media/appdata/dockge/new_arr/compose.yaml`. Its real configuration path
 is `/config`, now correctly backed by `/mnt/Media/appdata/newtarr`. Do not
 change this mount back to `/appdata`. The repair preserved image v1.0.0, all
-settings, ports and networks. No ARR connections are currently configured.
+settings, ports and networks. Sonarr, Radarr and Lidarr are now connected via
+internal Docker service addresses. Missing-item and quality-upgrade searches
+are enabled at one of each per 15-minute cycle, monitored-only, hourly cap 20.
 
 Protected recovery checkpoint: `/root/newtarr-persistence-20260926T212721Z`.
 The retained `local/newtarr-recovery:20260926t212721z` image and exported image
 archive include the previous container writable layer; preserve them until
 recovery coverage is graduated. See the Authentik rollout project for hashes
-and exact validation. Browser authentication deployment remains pending.
+and exact validation. Owner-only Authentik browser access is deployed; human
+UI acceptance and Homepage promotion remain pending.

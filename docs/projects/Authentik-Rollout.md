@@ -20,6 +20,37 @@
 
 ## Resume audit — 2026-09-23
 
+### Newtarr ARR connections and missing/upgrade searches enabled — 2026-09-26
+
+Jason requested connections to the running ARR applications. Discovered Sonarr,
+Radarr and Lidarr, all on `new_arr_default`; Readarr, Whisparr and Eros are not
+running and were not added. Existing API keys were read source-locally from
+each application's actual /config/config.xml and passed directly to Newtarr,
+without printing or changing credentials. Internal Docker service URLs avoid
+browser SSO redirects. API system-status tests from Newtarr returned 200 for
+Sonarr 4.0.19.2979, Radarr 6.3.0.10514 and Lidarr 3.1.0.4875.
+
+Saved connections through Newtarr's supported settings API and verified exact
+read-back. Initial missing-only selection was immediately corrected by Jason
+to both missing searches and quality upgrades; final state is one missing item
+and one upgrade item per cycle for each app, 900-second sleep, monitored-only,
+existing skip-future settings, hourly cap 20. No quality profiles, indexers,
+download clients or ARR library settings were changed. Background code checks
+for newly configured app workers every 15 seconds; no container restart or
+manual bulk search was needed. Enabling does not prove successful downloads
+or available upgrade candidates. Existing app files remain mode 0600.
+
+Pre-connection checkpoint:
+`/root/newtarr-arr-connections-20260926T214344Z`.
+Pre-upgrade-toggle checkpoint:
+`/root/newtarr-quality-upgrades-20260926T214404Z`.
+These contain protected settings and sanitized validation; do not print raw
+settings or secrets. Newtarr general debug mode was verified false before
+using the settings API (its debug logging can include request bodies).
+All 122 boundary checks remain passing. Browser acceptance/Homepage promotion
+is still pending the earlier UI test; ARR connection authorization is recorded
+separately from that human browser acceptance.
+
 ### Newtarr Authentik browser gate deployed — 2026-09-26
 
 Continued within the approved Stream A envelope after the verified persistence

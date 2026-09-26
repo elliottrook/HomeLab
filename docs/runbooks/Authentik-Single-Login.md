@@ -96,7 +96,9 @@ at `/config`, not `/appdata`. Guard nginx and recreation definition:
 `authentik-newtarr-ingress`; avoid duplicate creation over that name. For recovery,
 use an authorized SSH tunnel to loopback 19705 or repair the guard. Do not expose
 the bare app while proxy authentication is bypassed. Recovery checkpoints and
-image are recorded in the rollout project. No ARR connections are configured.
+image are recorded in the rollout project. Sonarr, Radarr and Lidarr connections
+are verified; missing-item and upgrade searches are enabled at one of each
+per 15-minute cycle, with existing monitored-only and hourly-cap settings.
 
 ## Access boundary
 
