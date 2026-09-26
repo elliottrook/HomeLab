@@ -495,10 +495,10 @@ unchanged `main` ref. No credential appeared in request, audit or Git output.
 
 For each target service create least-privilege `ai-*` identity where supported, prefer broker proxy mode, implement revoke/rotate, test allowed and denied actions, and verify no credential appears in AI context/logs.
 
-- [ ] Doctor Green latest-result path: local candidate and denial tests complete;
-  deployment and two live passes remain gated.
-- [ ] Doctor Yellow one-run path: local candidate and denial tests complete;
-  approval, deployment, live idempotency and revocation remain gated.
+- [x] Doctor Green latest-result path: deployed; historic/new-result reads,
+  wrong-peer denial, target-side revocation and restoration passed.
+- [x] Doctor Yellow one-run path: deployed; two independently approved runs,
+  one-use/idempotency, broker-side revocation and zero-job denial passed.
 
 The first candidate reuses the existing Lab Operations worker without exposing
 its bearer credential or any backup target. See
@@ -634,6 +634,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-25 | Prepared the local-only M7 Doctor candidate | Green latest-result and Yellow one-run capabilities route through a dedicated peer-bound Unix gateway into the existing durable Lab Operations store; backup targets, worker credentials, shell, paths and raw logs remain unavailable. Review found and fixed a potential cross-target housekeeping effect: broker-initiated Doctor now fails closed on stale work rather than reconciling unrelated jobs | Synthetic broker and Aster suites pass; no capability, group, service, job, credential or production file was created. Exact deployment and two real approved passes remain gated |
 | 2026-09-25 | Deployed the bounded M7 Doctor gateway | Jason authorized commit `2a81a78`; LXC 104 created a root-only recovery checkpoint, installed the peer-bound service, and registered Green latest-result plus Yellow one-run for `agent-hermes`. Green returned the sanitized historic result; wrong-peer denial passed; a pending Yellow validation created no job and was revoked | Both services are active and the Lab Operations queue has no active/uncertain job. Two human-approved Yellow runs plus revocation validation remain gated; the deployment source gained a bounded socket-readiness loop after observing a harmless startup race |
 | 2026-09-25 | Completed both M7 approved Doctor runs | Jason independently approved two payload-bound Yellow requests. Each was consumed once, created one distinct durable Doctor job and completed `succeeded/checks_complete`; first-request replay was denied and Green latest returned the new sanitized record. Each result reported 72 passes, 4 warnings and 1 health failure in 32 bounded checks | Pre-revocation review added a structured timeout/unavailable denial for the private gateway. Deploying that hardening and proving live broker-side/target-side revocation remain before graduation |
+| 2026-09-25 | Graduated the first M7 Doctor capability pair | Installed the bounded timeout/unavailable hardening, then proved target-side gateway stop/restart and broker-side service disable/enable. Denials created no Doctor job; Green recovered afterward. Final state: both services active, 9 historic Doctor records, 0 active/uncertain jobs and 0 pending approvals | Recovery checkpoint remains `/var/lib/homelab-broker/m7-doctor-rollback-20260925-191251`; the Doctor result still reports the underlying NetBox redirect failure and aging-backup warnings for operational follow-up, not automatic repair |
 
 ## Close-out
 

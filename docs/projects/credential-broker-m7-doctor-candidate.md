@@ -110,3 +110,11 @@ could close the broker connection without a structured response. The candidate
 now applies a ten-second Unix-socket timeout and translates transport/JSON
 failure into a bounded denial. Its regression test passes; that small transport
 hardening and the live broker/target revocation checks remain gated.
+
+The hardening was then installed with its SHA-256 verified. Target-side
+revocation returned the bounded unavailable denial while the private gateway
+was stopped; broker-side revocation denied capability creation while the service
+was disabled. Both controls were restored, Green latest succeeded again, and
+the final state was two active services, nine historic Doctor records, zero
+active/uncertain jobs and zero pending Doctor approvals. M7 Doctor validation is
+complete; the remaining repository step is to publish this evidence.

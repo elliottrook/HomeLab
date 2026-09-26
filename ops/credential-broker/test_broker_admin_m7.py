@@ -38,6 +38,15 @@ class BrokerAdminM7Tests(unittest.TestCase):
                 "SELECT enabled FROM services WHERE service_id='lab-operations'"
             ).fetchone()[0])
             store.close()
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            subprocess.run(
+                command[:-1] + ["graduate-lab-doctor"], check=True, capture_output=True, text=True,
+            )
+            store = BrokerStore(database)
+            self.assertEqual("healthy", store.connection.execute(
+                "SELECT health FROM services WHERE service_id='lab-operations'"
+            ).fetchone()[0])
+            store.close()
 
     def test_enable_refuses_conflicting_registration(self):
         with tempfile.TemporaryDirectory() as directory:
