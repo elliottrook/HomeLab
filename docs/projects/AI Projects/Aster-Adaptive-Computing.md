@@ -486,3 +486,15 @@ Harmless OS-isolation readiness probe failed with sandbox_apply Operation not
 permitted. Accepted-corpus launch remains disabled; no weaker isolation substituted.
 Independent review passed for implementation-only scope; further launcher/environment
 readiness must be proposed separately. No plan execution pins populated.
+
+
+### Current checkpoint — launcher design, current environment no-go
+
+[Launcher readiness](experiments/s0-routing-descriptive-v1/LAUNCHER-READINESS.md)
+proposes a stdlib supervisor and isolated worker without installing dependencies.
+Six harmless primitive tests pass (131 full); timeouts, file/output bounds and
+exclusive/atomic path primitives observed. OS network/process/read confinement
+remains blocked/unverified; hard memory and crash recovery remain unproven.
+No accepted corpus accessed, no live launcher created, gate remains disabled.
+Next: technical review and a concrete permitted execution-context proposal before
+any actual run approval. No deployment, installation or push.

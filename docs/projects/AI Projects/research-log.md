@@ -258,3 +258,12 @@ Review accepted the26/122-test candidate. Added family-alignment checks and thre
 more adversarial cases;29/125 pass. Harmless sandbox-exec true probe failed with
 Operation not permitted (exit71); no corpus run or workaround. Recorded environment
 blocker and future frozen-root/exclusive-output/hard-timeout requirements.
+
+
+## Launcher readiness design and harmless primitive probes
+
+PATH has sandbox-exec/Python, not queried container/namespace executables. Existing
+Mac/Python support parent process control; six disposable fixture probes pass after
+observing/scrubbing an OS-injected environment key. Full suite131 passes. Retained
+blocked nested sandbox result; no weaker substitute. Documented hard isolation,
+external-root, memory containment and recovery gaps. No accepted corpus accessed.
