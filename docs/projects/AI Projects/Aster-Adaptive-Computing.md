@@ -426,3 +426,13 @@ Jason reported approximately five minutes active review for ten cases.
 The aggregate bounds median below the two-minute stop threshold; zero unresolved
 review decisions. Proceed to batch 2 proposals outside Git, pending human review.
 No router/model evaluation or push authorized.
+
+
+### Current checkpoint — batch 2 accepted, effort pending
+
+Jason directly accepted cases 11–20 and their proposed labels.
+[Batch 2 evidence](labeling/pilot-s0/batch-2/README.md) preserves exact reviewed
+bytes and separate hash-bound acceptance. Five train/five dev; pilot total20/30.
+Zero unresolved review decisions. Batch2 effort remains UNKNOWN; do not reuse
+batch1 timing. Pause before batch3 pending reported effort. No evaluation,
+execution, deployment, permission change or push.
