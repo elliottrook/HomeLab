@@ -20,6 +20,78 @@
 
 ## Resume audit — 2026-09-23
 
+### Immich checkpoint verified; HTTPS and native provider staged — 2026-09-26
+
+Jason completed Brave's download handoff. The protected database dump at
+`/private/tmp/authentik-immich-20260925/immich-db-backup-20260925T222925-v2.7.5-pg14.19.sql.gz`
+is 48,289,789 bytes, fully decompresses to 129,617,534 bytes, and contains the
+PostgreSQL dump-complete marker. SHA-256:
+`91992be54b00c4a0fc7e310b3595748c89c15ea25cf4bc9b271afa3f9575b729`.
+File mode is 0600 in a 0700 directory; the downloaded source is also 0600.
+This verifies the database archive, not restoration or photo-file coverage.
+Source-local inspection found one active administrator, Jason, without an
+OAuth link; his email matches Authentik. The installed v2.7.5
+`server/src/services/auth.service.ts` links an existing account by email before
+the auto-registration gate and updates only its OAuth ID.
+
+Staged the approved private native-SSO path, without changing Immich settings:
+
+- NPM host **29**, `https://photos.elliottrook.com`, forwards to
+  `http://192.168.20.41:2283`, with existing wildcard certificate 8, WebSockets,
+  large uploads, disabled request buffering and 600-second timeouts. Online
+  SQLite checkpoint:
+  `/opt/nginx-proxy-manager/backups/immich-20260926T200136Z/database.sqlite`.
+- OPNsense rule **`9abca213-cc47-43bd-bc91-b812cd9e8502`** permits only NPM
+  `192.168.50.23` to Synology `192.168.20.41` TCP 2283 on management ingress.
+  Loaded PF rule verified. Checkpoint directory:
+  `/root/authentik-immich-20260926T200114Z` (`config.xml` before firewall,
+  `config-before-dns.xml` before DNS).
+- Unbound record **`c666bd76-739d-46a5-9d07-ee04255f1125`** and both Pi-hole
+  records resolve the friendly hostname to NPM. Pi-hole checkpoints:
+  primary `/opt/pihole/backups/immich-20260926/pihole.toml`, secondary
+  `/root/authentik-immich-20260926/pihole.toml`. Both restarted sequentially.
+- Authentik confidential provider **41**, application `immich`, authorization
+  code grant, standard OpenID/email/profile mappings, existing passkey-only
+  authentication flow, signing key inherited from provider 22, no encryption
+  key. Strict callbacks: friendly `/auth/login`, friendly `/user-settings`,
+  and `app.immich:///oauth-callback`. One direct owner binding; policy engine
+  allows Jason and denies `akadmin`. Verified pg_dump checkpoint:
+  `/opt/authentik/backups/immich-20260926T200351Z/authentik.dump`
+  (1,818 catalogue lines).
+
+Validation: all three DNS authorities agree; certificate-verified HTTPS root
+returns 200, API ping returns pong, NPM syntax passes, Synology reaches the
+new issuer's discovery with 200, and all 104 existing boundary checks pass.
+Live Immich feature flags still show OAuth disabled and password login enabled.
+Homepage is not promoted and no version upgrade was performed.
+
+Prepared a protected settings import at
+`/private/tmp/authentik-immich-20260925/immich-authentik-settings.json`.
+Only seven OAuth fields differ from the exported checkpoint: enabled,
+autoLaunch, autoRegister (false), issuerUrl, buttonText, clientId and
+clientSecret. Password recovery and all non-OAuth settings are preserved.
+Credentials were transferred directly into the mode-0600 file without
+model-visible output; do not print, commit or attach its contents.
+
+**Resume:** Brave is on the new HTTPS login page with a continuation to
+`/admin/system-settings`; the original authenticated HTTP tab remains open.
+Jason must sign in once at the new origin. Before import, compare a fresh
+settings export to the previous checkpoint and preserve any intervening changes.
+The computer-use tool requires human handoff before entering new credentials,
+including importing this OAuth client secret: Jason must select the prepared
+file and complete submission himself. Then verify OAuth activation, existing
+administrator/library retention, browser passkey and mobile callback behavior;
+promote Homepage only after acceptance. Remove the temporary credential import
+after verified activation. No restoration, deployment to Immich, remote Git
+push or final project graduation is claimed here.
+
+Rollback is scoped: preserve current Immich settings; remove only staged host
+29, provider 41/application and its binding, the named DNS records and firewall
+rule if abandoning staging. Regenerate/reload affected services and validate.
+Do not restore shared databases or firewall configuration wholesale over other
+projects' changes. Password recovery remains available after activation using
+`/auth/login?autoLaunch=0`.
+
 ### Synology promotion and Immich native backup progress — 2026-09-25
 
 Jason confirmed “it opens” in response to the Control Panel test on the new
