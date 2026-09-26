@@ -1,0 +1,86 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "baseline_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Baseline Digest",
+      "type": "string"
+    },
+    "candidate_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Candidate Digest",
+      "type": "string"
+    },
+    "data_class": {
+      "const": "synthetic",
+      "default": "synthetic",
+      "title": "Data Class",
+      "type": "string"
+    },
+    "dataset_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Dataset Digest",
+      "type": "string"
+    },
+    "evaluator_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Evaluator Digest",
+      "type": "string"
+    },
+    "experiment_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "interpretation": {
+      "const": "controlled-overhead-only",
+      "default": "controlled-overhead-only",
+      "title": "Interpretation",
+      "type": "string"
+    },
+    "metric": {
+      "const": "offline-payload-construction-ms",
+      "title": "Metric",
+      "type": "string"
+    },
+    "owner": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Owner",
+      "type": "string"
+    },
+    "promotion_authority": {
+      "const": "none",
+      "default": "none",
+      "title": "Promotion Authority",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "experiment.v1",
+      "default": "experiment.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "preregistered",
+        "measured",
+        "retain",
+        "reject"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "owner",
+    "baseline_digest",
+    "candidate_digest",
+    "evaluator_digest",
+    "dataset_digest",
+    "status",
+    "metric"
+  ],
+  "title": "Experiment",
+  "type": "object"
+}

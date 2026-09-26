@@ -1,0 +1,108 @@
+{
+  "aster_source_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+  "cases": [
+    {
+      "answer_quality": "not-evaluated",
+      "case_id": "no-tool",
+      "direct_slice": {
+        "p50_ms": 0.017249956727027893,
+        "p95_ms": 0.018875114619731903,
+        "samples": 200
+      },
+      "model_calls": 0,
+      "payload_bytes": 7333,
+      "process_cpu_ms_including_warmup": 9.796,
+      "prompt_tokens": null,
+      "tool_calls": 0,
+      "validated_adapter": {
+        "p50_ms": 0.02674991264939308,
+        "p95_ms": 0.02920767292380333,
+        "samples": 200
+      }
+    },
+    {
+      "answer_quality": "not-evaluated",
+      "case_id": "one-read",
+      "direct_slice": {
+        "p50_ms": 0.017333775758743286,
+        "p95_ms": 0.01912517473101616,
+        "samples": 200
+      },
+      "model_calls": 0,
+      "payload_bytes": 7555,
+      "process_cpu_ms_including_warmup": 10.555000000000009,
+      "prompt_tokens": null,
+      "tool_calls": 1,
+      "validated_adapter": {
+        "p50_ms": 0.03064563497900963,
+        "p95_ms": 0.03337487578392029,
+        "samples": 200
+      }
+    },
+    {
+      "answer_quality": "not-evaluated",
+      "case_id": "two-reads",
+      "direct_slice": {
+        "p50_ms": 0.022249994799494743,
+        "p95_ms": 0.02350006252527237,
+        "samples": 200
+      },
+      "model_calls": 0,
+      "payload_bytes": 7681,
+      "process_cpu_ms_including_warmup": 12.913000000000007,
+      "prompt_tokens": null,
+      "tool_calls": 2,
+      "validated_adapter": {
+        "p50_ms": 0.03795884549617767,
+        "p95_ms": 0.04062522202730179,
+        "samples": 200
+      }
+    },
+    {
+      "answer_quality": "not-evaluated",
+      "case_id": "ha-read",
+      "direct_slice": {
+        "p50_ms": 0.02277083694934845,
+        "p95_ms": 0.02429075539112091,
+        "samples": 200
+      },
+      "model_calls": 0,
+      "payload_bytes": 7579,
+      "process_cpu_ms_including_warmup": 12.655,
+      "prompt_tokens": null,
+      "tool_calls": 1,
+      "validated_adapter": {
+        "p50_ms": 0.035854522138834,
+        "p95_ms": 0.038500409573316574,
+        "samples": 200
+      }
+    }
+  ],
+  "dataset_digest": "sha256:f68dc521df1bc92249a9436d4ffcee5e680d3ff2d4d9ff5424ca04e6dfb30bb0",
+  "implementation_sha256": {
+    "benchmark.py": "sha256:a22ca1a469c7a5a3e4c7e7e177972f6d1c5cd3e2903818e3b65e73d7e3843bea",
+    "contracts.py": "sha256:58bbf65cf3dc929bc80d1882c40fa1d5caf4a1e63105ac557456cc7d981941ec",
+    "fixtures.py": "sha256:6144a4808710016e4354f785c3d7b92ba10643759c06d1fa9f6006907779c92b",
+    "offline_baseline.py": "sha256:9511b12cbbc8495f5fbf3300104fb59dacdd2694413ad175098ec013080e96b0",
+    "test_contracts.py": "sha256:f8b73f69939346ba483ba31844d3a790c139432ba7943775e785590111f14dce"
+  },
+  "limits": [
+    "No model, provider, production reader or broker execution",
+    "RSS is process high-water mark, not incremental adapter memory",
+    "No tokenizer: bytes are not prompt tokens",
+    "Source-slice loading excludes full app startup and imported runtime modules",
+    "Constants use documented fixture overrides, not verified live configuration",
+    "Timing is descriptive, not a preregistered adoption threshold"
+  ],
+  "peak_process_rss_bytes": 51511296,
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "pydantic": "2.13.4",
+  "python": "3.12.14",
+  "schema_version": "baseline-evidence.v1",
+  "scope": "synthetic-source-slice-only",
+  "source_slice_load": {
+    "p50_ms": 5.968853831291199,
+    "p95_ms": 6.044292356818914,
+    "samples": 20
+  }
+}

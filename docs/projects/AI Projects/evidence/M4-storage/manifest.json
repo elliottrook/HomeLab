@@ -1,0 +1,18 @@
+{
+  "schema_version": "storage-manifest.v1",
+  "data_class": "synthetic",
+  "validation": {
+    "adaptive_tests_passed": 40,
+    "restore_events": 3,
+    "production_changes": false
+  },
+  "files": {
+    "scripts/aster-adaptive/contracts.py": "sha256:58bbf65cf3dc929bc80d1882c40fa1d5caf4a1e63105ac557456cc7d981941ec",
+    "scripts/aster-adaptive/evidence_store.py": "sha256:fca9fb1efaa5458add4f9f7f714f2663cfc3fe6ec30d9c220960d08aee5d94c1",
+    "scripts/aster-adaptive/evidence_demo.py": "sha256:2dfb5252867d9afdccfec722a78cc504e8f2b136dc0833e2da6ad132d75cf616",
+    "scripts/aster-adaptive/test_evidence_store.py": "sha256:bfa37ca90c8f8abcddbf89904d088e1ebc82ada33adf7c8ea6173f276200a37c",
+    "docs/projects/AI Projects/evidence/M4-storage/evaluation.schema.json": "sha256:1b07a857fd599737f3b47fe5965ce1144d1b1edceeb2708c143f6881cb09eb9c",
+    "docs/projects/AI Projects/evidence/M4-storage/review.schema.json": "sha256:d551f696b26480938abedbfda353a24f2302e05e0ac9f353f163b06941f870ab",
+    "docs/projects/AI Projects/evidence/M4-storage/restore-proof.json": "sha256:c29496a76063c2730900dbe9ff240834738be6f822657d64211dd0adc5ecd4d3"
+  }
+}

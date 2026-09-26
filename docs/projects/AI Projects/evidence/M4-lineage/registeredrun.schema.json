@@ -1,0 +1,375 @@
+{
+  "$defs": {
+    "Budget": {
+      "additionalProperties": false,
+      "properties": {
+        "wall_ms": {
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Wall Ms",
+          "type": "integer"
+        },
+        "model_calls": {
+          "const": 0,
+          "default": 0,
+          "title": "Model Calls",
+          "type": "integer"
+        },
+        "tool_calls": {
+          "maximum": 8,
+          "minimum": 0,
+          "title": "Tool Calls",
+          "type": "integer"
+        },
+        "output_bytes": {
+          "maximum": 65536,
+          "minimum": 1,
+          "title": "Output Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "wall_ms",
+        "tool_calls",
+        "output_bytes"
+      ],
+      "title": "Budget",
+      "type": "object"
+    },
+    "Capability": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "capability.v1",
+          "default": "capability.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "capability_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "implementation": {
+          "enum": [
+            "get_current_time",
+            "get_ha_report",
+            "get_forgejo_report",
+            "get_netbox_report"
+          ],
+          "title": "Implementation",
+          "type": "string"
+        },
+        "owner": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Owner",
+          "type": "string"
+        },
+        "permission_ref": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Permission Ref",
+          "type": "string"
+        },
+        "input_schema": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Input Schema",
+          "type": "string"
+        },
+        "output_schema": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Output Schema",
+          "type": "string"
+        },
+        "locality": {
+          "const": "fixture-only",
+          "default": "fixture-only",
+          "title": "Locality",
+          "type": "string"
+        },
+        "effects": {
+          "const": "none",
+          "default": "none",
+          "title": "Effects",
+          "type": "string"
+        }
+      },
+      "required": [
+        "capability_id",
+        "implementation",
+        "owner",
+        "permission_ref",
+        "input_schema",
+        "output_schema"
+      ],
+      "title": "Capability",
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "decision.v1",
+          "default": "decision.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "request_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Request Id",
+          "type": "string"
+        },
+        "principal_ref": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Principal Ref",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "plan",
+            "answer",
+            "clarify",
+            "abstain",
+            "unsupported",
+            "deny"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "steps": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Step"
+          },
+          "maxItems": 8,
+          "title": "Steps",
+          "type": "array"
+        },
+        "reason": {
+          "enum": [
+            "supported",
+            "ambiguous",
+            "unavailable",
+            "policy-denied"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "expires_at": {
+          "minimum": 1,
+          "title": "Expires At",
+          "type": "integer"
+        },
+        "policy_digest": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Policy Digest",
+          "type": "string"
+        },
+        "registry_digest": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Registry Digest",
+          "type": "string"
+        },
+        "confidence": {
+          "default": null,
+          "title": "Confidence",
+          "type": "null"
+        },
+        "authorization": {
+          "const": "not-granted",
+          "default": "not-granted",
+          "title": "Authorization",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_id",
+        "principal_ref",
+        "status",
+        "reason",
+        "expires_at",
+        "policy_digest",
+        "registry_digest"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "HarnessRun": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "run.v1",
+          "default": "run.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "experiment_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Experiment Id",
+          "type": "string"
+        },
+        "principal_ref": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Principal Ref",
+          "type": "string"
+        },
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "projection": {
+          "$ref": "#/$defs/Projection"
+        },
+        "budget": {
+          "$ref": "#/$defs/Budget"
+        },
+        "harness_digest": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Harness Digest",
+          "type": "string"
+        },
+        "data_class": {
+          "const": "synthetic",
+          "default": "synthetic",
+          "title": "Data Class",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "experiment_id",
+        "principal_ref",
+        "decision",
+        "projection",
+        "budget",
+        "harness_digest"
+      ],
+      "title": "HarnessRun",
+      "type": "object"
+    },
+    "Projection": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "projection.v1",
+          "default": "projection.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "principal_ref": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Principal Ref",
+          "type": "string"
+        },
+        "policy_digest": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Policy Digest",
+          "type": "string"
+        },
+        "registry_digest": {
+          "pattern": "^sha256:[a-f0-9]{64}$",
+          "title": "Registry Digest",
+          "type": "string"
+        },
+        "expires_at": {
+          "minimum": 1,
+          "title": "Expires At",
+          "type": "integer"
+        },
+        "capabilities": {
+          "items": {
+            "$ref": "#/$defs/Capability"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "authority": {
+          "const": "not-granted",
+          "default": "not-granted",
+          "title": "Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "principal_ref",
+        "policy_digest",
+        "registry_digest",
+        "expires_at",
+        "capabilities"
+      ],
+      "title": "Projection",
+      "type": "object"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "step_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Step Id",
+          "type": "string"
+        },
+        "capability_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "after": {
+          "default": [],
+          "items": {
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+            "type": "string"
+          },
+          "title": "After",
+          "type": "array"
+        }
+      },
+      "required": [
+        "step_id",
+        "capability_id"
+      ],
+      "title": "Step",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "registered-run.v1",
+      "default": "registered-run.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "dataset_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Dataset Digest",
+      "type": "string"
+    },
+    "case_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Case Id",
+      "type": "string"
+    },
+    "candidate_role": {
+      "enum": [
+        "baseline",
+        "candidate"
+      ],
+      "title": "Candidate Role",
+      "type": "string"
+    },
+    "run": {
+      "$ref": "#/$defs/HarnessRun"
+    }
+  },
+  "required": [
+    "dataset_digest",
+    "case_id",
+    "candidate_role",
+    "run"
+  ],
+  "title": "RegisteredRun",
+  "type": "object"
+}

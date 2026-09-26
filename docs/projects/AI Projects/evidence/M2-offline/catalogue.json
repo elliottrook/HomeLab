@@ -1,0 +1,46 @@
+[
+  {
+    "schema_version": "capability.v1",
+    "capability_id": "fixture.time",
+    "implementation": "get_current_time",
+    "owner": "fixture-owner",
+    "permission_ref": "fixture.time",
+    "input_schema": "sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf",
+    "output_schema": "sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d",
+    "locality": "fixture-only",
+    "effects": "none"
+  },
+  {
+    "schema_version": "capability.v1",
+    "capability_id": "fixture.ha",
+    "implementation": "get_ha_report",
+    "owner": "fixture-owner",
+    "permission_ref": "fixture.ha",
+    "input_schema": "sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf",
+    "output_schema": "sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d",
+    "locality": "fixture-only",
+    "effects": "none"
+  },
+  {
+    "schema_version": "capability.v1",
+    "capability_id": "fixture.forgejo",
+    "implementation": "get_forgejo_report",
+    "owner": "fixture-owner",
+    "permission_ref": "fixture.forgejo",
+    "input_schema": "sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf",
+    "output_schema": "sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d",
+    "locality": "fixture-only",
+    "effects": "none"
+  },
+  {
+    "schema_version": "capability.v1",
+    "capability_id": "fixture.netbox",
+    "implementation": "get_netbox_report",
+    "owner": "fixture-owner",
+    "permission_ref": "fixture.netbox",
+    "input_schema": "sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf",
+    "output_schema": "sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d",
+    "locality": "fixture-only",
+    "effects": "none"
+  }
+]
