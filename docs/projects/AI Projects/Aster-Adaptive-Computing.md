@@ -530,3 +530,16 @@ bounded session and PID/invocation ownership checks are implemented as disabled
 candidates. Complete lifecycle integration and unloaded-unit recovery remain
 unresolved. Next: review this candidate, then complete those local gates before
 any live probe. No SSH/LXC100 invocation, corpus evaluation or push in this step.
+
+
+### Current checkpoint — integrated candidate awaiting final review
+
+Collector checkpoint committed locally as `50500ff`. The
+[integrated candidate](experiments/s0-routing-descriptive-v1/LXC100-INTEGRATED-CANDIDATE.md)
+now combines fixed sessions/collectors, durable ownership journal, guarded
+completed-run cleanup and conservative read-only interruption recovery.
+184 full tests pass, including 8 new tests with failure/interruption subcases.
+No SSH, live DNS, LXC100 mutation, accepted-corpus evaluation or push occurred.
+Next: final technical review of source pins and remaining risks, particularly
+manual recovery after uncertain termination and concurrent privileged changes.
+Keep all live adapters disabled pending that review.

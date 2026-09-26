@@ -64,6 +64,7 @@ print(json.dumps({'directory_absent':not os.path.lexists('/var/tmp/aster-s0-feas
 def command_catalog():
     proposal=supervisor.command_proposal()
     commands=dict(proposal['commands'])
+    commands['create-owned-canary']=supervisor.remote_args(['/usr/bin/python3.13','-I','-S','-B','-c',supervisor.CREATE_SOURCE+'\n'+CANARY_SOURCE])
     for key,source in {'health':HEALTH_SOURCE,'paths':PATH_SOURCE,'canary-stat':CANARY_SOURCE,
                        'cgroup':CGROUP_SOURCE,'absence':ABSENCE_SOURCE}.items():
         commands[key]=supervisor.remote_args(['/usr/bin/python3.13','-I','-S','-B','-c',source])
@@ -73,7 +74,8 @@ def command_catalog():
 
 
 def catalog_digest():
-    return hashlib.sha256(json.dumps(command_catalog(),sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    from s0_owned_cleanup import SOURCE
+    return hashlib.sha256(json.dumps({'commands':command_catalog(),'guarded_cleanup_source':SOURCE},sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
 def require_pinned_catalog(expected):

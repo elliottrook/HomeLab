@@ -14,5 +14,7 @@
   "new_tests_passed": 15,
   "full_tests_passed": 176,
   "live_invoked": false,
-  "accepted_corpus_accessed": false
+  "accepted_corpus_accessed": false,
+  "historical_snapshot": true,
+  "evidence_revision": "50500ff"
 }

@@ -19,9 +19,13 @@ def denied_spawn(*_, **__):
 
 
 class FixedSession:
-    def __init__(self, operation, root_hash, *, spawn=denied_spawn, deadline=20):
+    def __init__(self, operation, root_hash, *, spawn=denied_spawn, deadline=20, receipt=None):
         require_pinned_catalog(root_hash)
         catalog=command_catalog()
+        if operation=='guarded-cleanup':
+            from s0_owned_cleanup import argv
+            catalog[operation]=argv(receipt)
+        elif receipt is not None:raise ValueError('unexpected receipt')
         if type(operation) is not str or operation not in catalog:raise ValueError('unknown fixed operation')
         if type(deadline) not in (int,float) or not 0<deadline<=20:raise ValueError('deadline')
         self.operation=operation;self.argv=catalog[operation]
@@ -82,7 +86,9 @@ class FixedSession:
     def close(self):
         if self.closed:return
         self.closed=True;self.selector.close()
-        if self.process.poll() is None:os.killpg(self.process.pid,signal.SIGKILL)
+        if self.process.poll() is None:
+            try:os.killpg(self.process.pid,signal.SIGKILL)
+            except ProcessLookupError:pass
         try:self.process.wait(timeout=2)
         finally:self.process.stdout.close();self.process.stderr.close()
 

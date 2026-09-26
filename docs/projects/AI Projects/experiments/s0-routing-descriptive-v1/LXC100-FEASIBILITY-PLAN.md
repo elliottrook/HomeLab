@@ -250,3 +250,11 @@ shared collector deadline and 4 KiB combined output limit per child command.
 This revision is not live-ready: integrated lifecycle and recovery review remain
 outstanding. Earlier supervisor evidence hashes describe commit `1e506bd`; use
 `lxc100-candidate-manifest.json` for this revision. No live entry is enabled.
+
+## Integrated candidate revision — final review pending
+
+See `LXC100-INTEGRATED-CANDIDATE.md` for the exact lifecycle/recovery changes.
+The run proposal adds `--quiet`; create returns filesystem identity immediately.
+The integrated controller never uses the older name-only stop/reset/delete
+proposals. Completed-run cleanup is receipt-guarded; interruption recovery is
+read-only and requires manual review. No live adapter has been enabled.

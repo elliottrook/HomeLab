@@ -311,3 +311,12 @@ Local evidence: 15 new/176 full tests pass. Added byte/time limits to proposed
 metadata collectors and PID/invocation checks to candidate ownership receipts.
 No remote execution. Unloaded-unit recovery and lifecycle integration remain
 UNKNOWN/unimplemented; see LXC100-CANDIDATE-EVIDENCE.md and pinned manifest.
+
+
+### 2026-09-26 — integrated fixture lifecycle and recovery
+
+184 full tests pass. Added durable intent/ownership records and receipt-guarded
+cleanup; already-unloaded unit accepted only after verified completed execution
+and matching canary identity with absent cgroup. Interrupted runs never replay
+mutations. Live confinement and remote termination remain UNKNOWN. Candidate and
+remaining-risk statement submitted for final technical review, no live invocation.

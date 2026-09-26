@@ -76,7 +76,7 @@ def command_proposal():
         'load-state': remote_args(['/usr/bin/systemctl', 'show', UNIT, '-p', 'LoadState']),
         'stop-only-probe': remote_args(['/usr/bin/systemctl', 'stop', UNIT]),
         'reset-only-probe': remote_args(['/usr/bin/systemctl', 'reset-failed', UNIT]),
-        'run-proposal-only': remote_args(['/usr/bin/systemd-run', '--unit='+UNIT, '--wait', '--pipe',
+        'run-proposal-only': remote_args(['/usr/bin/systemd-run', '--unit='+UNIT, '--wait', '--pipe', '--quiet',
                                           *['--property='+x for x in PROPERTIES],
                                           '/usr/bin/python3.13', '-I', '-S', '-B', '-c', payload]),
     }
