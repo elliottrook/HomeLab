@@ -225,3 +225,12 @@ claim; batch2 effort remains unknown. No evaluation, execution or push.
 self-report and conditional median bound, no invented per-case timings. Verified
 batch3 scratch directory Time Machine Excluded and Spotlight disabled before
 writing. Final ten proposals remain outside Git pending case/label approval.
+
+
+## 2026-09-26 — final pilot acceptance and bounded close-out
+
+“approve 3 minutes” accepted final10 cases/labels and reported aggregate effort.
+Verified all30 per-case hashes and nine artifact hashes; 20train/10dev, 3/stratum.
+Total reported review13minutes. Recorded anchoring/nonblind proposal-review limits,
+no independent annotation-cost or routing-quality claim. Collection closed at cap.
+No evaluation, deployment, further case creation or push.

@@ -445,3 +445,15 @@ Jason reported the same five active-review minutes as batch1.
 aggregate, not individual timings. Effort/ambiguity stop thresholds are not
 triggered. Prepare final batch3 outside Git; no case or label acceptance inferred.
 The 30-family cap remains binding. No evaluation, execution or push authorized.
+
+
+### Current checkpoint — 30-family manual pilot complete, no evaluation
+
+Jason approved final cases21–30 and reported three minutes review. Total30/30,
+20train/10dev, three cases per stratum; aggregate reported effort13minutes.
+[Results and limitations](labeling/pilot-s0/RESULTS.md) distinguish proposal-review
+from independent annotation and forbid router-accuracy/calibration claims.
+All artifact/case hashes and counts verified. No unresolved review decisions;
+no actual median or independent correctness evidence. Collection cap reached.
+Next: separately reviewed offline descriptive experiment plan, not execution.
+No evaluation, new cases, deployment or push authorized; M4 remains open.
