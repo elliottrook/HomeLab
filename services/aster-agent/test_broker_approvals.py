@@ -16,9 +16,9 @@ class ApprovalRouterTests(unittest.TestCase):
         app = FastAPI()
 
         def claims():
-            return {"owner_hash": "a" * 64, "auth_time": 1234}
+            return {"owner_hash": "a" * 64, "auth_time": 1234, "acr": "fixture-passkey"}
 
-        app.include_router(approval_router(self.client_backend, claims))
+        app.include_router(approval_router(self.client_backend, claims, approver_subject_hashes=frozenset({"a" * 64}), passkey_acrs=frozenset({"fixture-passkey"})))
         self.http = TestClient(app)
 
     def test_pending_uses_authenticated_identity(self):
@@ -51,7 +51,7 @@ class ApprovalRouterTests(unittest.TestCase):
         def incomplete_claims():
             return {"owner_hash": "a" * 64}
 
-        app.include_router(approval_router(self.client_backend, incomplete_claims))
+        app.include_router(approval_router(self.client_backend, incomplete_claims, approver_subject_hashes=frozenset({"a" * 64})))
         response = TestClient(app).get("/v1/companion/approvals")
         self.assertEqual(response.status_code, 200)
 
@@ -61,7 +61,7 @@ class ApprovalRouterTests(unittest.TestCase):
         def incomplete_claims():
             return {"owner_hash": "a" * 64}
 
-        app.include_router(approval_router(self.client_backend, incomplete_claims))
+        app.include_router(approval_router(self.client_backend, incomplete_claims, approver_subject_hashes=frozenset({"a" * 64})))
         response = TestClient(app).post(
             "/v1/companion/approvals/req-1/approve", json={"payload_hash": "b" * 64}
         )
@@ -95,6 +95,36 @@ class ApprovalRouterTests(unittest.TestCase):
             "action": "service_enabled", "target": "synthetic",
         })
         self.assertEqual(missing.status_code, 422)
+
+    def test_authenticated_non_approver_and_empty_configuration_are_denied(self):
+        for allowed in (frozenset(), frozenset({"c" * 64})):
+            with self.subTest(allowed=allowed):
+                app = FastAPI()
+                app.include_router(approval_router(
+                    self.client_backend, lambda: {"owner_hash": "a" * 64},
+                    approver_subject_hashes=allowed,
+                ))
+                http = TestClient(app)
+                self.assertEqual(403, http.get("/v1/companion/approvals").status_code)
+                self.assertEqual(403, http.post("/v1/companion/approvals/req/approve",
+                    json={"payload_hash": "b" * 64}).status_code)
+                self.assertEqual(403, http.post("/v1/companion/approvals/management/action",
+                    json={"action": "global_enabled", "enabled": True}).status_code)
+        self.client_backend.call.assert_not_called()
+
+    def test_only_explicit_verified_acr_mapping_asserts_passkey(self):
+        for extra in ({}, {"amr": ["mfa"]}, {"acr": "unknown"}, {"acr": ["fixture-passkey"]}):
+            with self.subTest(extra=extra):
+                app = FastAPI()
+                app.include_router(approval_router(
+                    self.client_backend, lambda: {"owner_hash": "a" * 64, "auth_time": 1234} | extra,
+                    approver_subject_hashes=frozenset({"a" * 64}),
+                    passkey_acrs=frozenset({"fixture-passkey"}),
+                ))
+                response = TestClient(app).post("/v1/companion/approvals/req/approve",
+                    json={"payload_hash": "b" * 64})
+                self.assertEqual(200, response.status_code)
+                self.assertEqual("authenticated", self.client_backend.call.call_args.args[0]["assurance"])
 
 
 if __name__ == "__main__":

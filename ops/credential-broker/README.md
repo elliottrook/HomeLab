@@ -66,21 +66,32 @@ Key files:
 - `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record
 
 
-## Adaptive foundation candidate — not deployed
+## Aster M1 deployment split (2026-09-25)
 
-The local M1 candidate requires `agent_id` on core consumption and an explicit
-`actor` on approvals. Transport identity remains kernel-derived. Policy changes
-invalidate old requests; checks, claims and audit commit atomically. At-most-one
-claim does not establish an external effect completed: reconcile uncertain outcomes.
+The deployed Stage1 Aster Adaptive Computing core requires authenticated `agent_id`
+at consume, rechecks a versioned policy digest, invalidates authorizations on
+lifecycle changes, and serializes SQLite checks/transitions and schema migration.
+Legacy requests without a policy digest are denied; create new requests after a
+coordinated release. Bump `AUTHORIZATION_POLICY_VERSION` for changes to policy
+semantics so pending plans cannot inherit new rules silently.
 
-Approval and management socket requests now all require an enrolled hashed human
-subject. Operator-only `broker_admin.py approver-enable --subject-hash HASH` and
-`approver-disable --subject-hash HASH` manage that allowlist; no socket can enroll
-an approver. The allowlist starts empty and revocation invalidates that approver's
-outstanding grants. Do not infer enrollment from ordinary Companion authentication.
+The **local-only Stage2 candidate** approval transport requires `actor` on reads as well as mutations, an explicit
+`--approver-subject-hash` allowlist, and the existing configured peer UID.
+Companion requires matching `ASTER_BROKER_APPROVER_SUBJECT_HASHES` (comma-separated)
+and only maps verified claims to passkey using explicitly configured
+`ASTER_BROKER_PASSKEY_ACRS`. Empty configuration fails closed. No production
+subject/ACR has been chosen or configured by this candidate. Existing unit files
+are not a ready-to-deploy configuration for the new approval service.
 
-This candidate requires a compatible core/transport/Companion deployment, independent
-security review, verified human identity and migration/recovery planning. The Aster
-process remains trusted to assert human identity/assurance; this residual trust must
-be resolved or explicitly accepted before expansion. No deployment occurred here.
-See [M1 evidence and rollout gate](../../docs/projects/AI%20Projects/evidence/M1-local-authority-candidate.md).
+See [M1 candidate evidence](../../docs/projects/AI%20Projects/evidence/M1-authority-candidate.md)
+for validation, M6 compatibility, identity/recovery/deployment gates and the
+at-most-once authorization limit. Only core and broker transport are deployed;
+the approval service and Companion retain their prior implementations. Installed
+Authentik claims have not yet established a verified passkey-specific assurance
+mapping; do not treat generic ACR/MFA as that proof. Full M1 remains open.
+
+[Stage1 deployment evidence](../../docs/projects/AI%20Projects/evidence/M1-stage1-deployment.md)
+records exact hashes, protected checkpoint, startup-readiness recovery and live
+validation. The release installer is an execution record, not an idempotent
+redeployment command. Do not restore an older database or restart old core code
+as a casual rollback: that may restore consumed approvals or weaken controls.

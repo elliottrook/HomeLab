@@ -100,16 +100,36 @@ class BrokerServiceTests(unittest.TestCase):
         })
         self.assertEqual("pending", created["result"]["status"])
         request_id = created["result"]["request_id"]
-        self.store.set_approver_enabled("a" * 64, True)
-        self.store.approve_request(
-            request_id,
-            created["result"]["payload_hash"],
-            actor="a" * 64,
-        )
+        self.store.approve_request(request_id, created["result"]["payload_hash"])
         consumed = self.call({"method": "request.consume", "request_id": request_id, "payload": payload})
         self.assertTrue(consumed["ok"])
         self.assertEqual("create_file", self.write_gateway.requests[0]["params"]["name"])
         self.assertEqual([], self.read_gateway.requests)
+
+    def test_authority_denials_never_reach_write_gateway(self):
+        self.store.register_service("forgejo-mcp")
+        self.store.register_capability("forgejo.write.safe-branch", "forgejo-mcp", "yellow")
+        self.store.grant_capability("agent-test", "forgejo.write.safe-branch")
+        self.store.register_agent("other-agent", os.getuid() + 1000)
+        for case in ("pending", "wrong-caller", "demoted", "changed-payload", "replay"):
+            with self.subTest(case=case):
+                self.store.set_agent_state("agent-test", "operator")
+                request = self.store.create_request("agent-test", "forgejo.write.safe-branch", {})
+                if case != "pending":
+                    self.store.approve_request(request.request_id, request.payload_hash)
+                message = {"method": "request.consume", "request_id": request.request_id, "payload": {}}
+                if case == "replay":
+                    self.assertTrue(self.call(message)["ok"])
+                if case == "demoted":
+                    self.store.set_agent_state("agent-test", "probation")
+                if case == "changed-payload":
+                    message["payload"] = {"changed": True}
+                count = len(self.write_gateway.requests)
+                uid = os.getuid() + 1000 if case == "wrong-caller" else os.getuid()
+                with patch("broker_service.peer_uid", return_value=uid):
+                    self.assertFalse(self.call(message)["ok"])
+                self.assertEqual(count, len(self.write_gateway.requests))
+                self.assertEqual([], self.read_gateway.requests)
 
 
 if __name__ == "__main__":

@@ -19,9 +19,6 @@ def main() -> None:
     subparsers.add_parser("global-enable")
     subparsers.add_parser("enable-forgejo-safe-write")
     subparsers.add_parser("status")
-    for command in ("approver-enable", "approver-disable"):
-        enrollment = subparsers.add_parser(command)
-        enrollment.add_argument("--subject-hash", required=True)
     args = parser.parse_args()
     store = BrokerStore(args.database)
     try:
@@ -44,9 +41,6 @@ def main() -> None:
         elif args.command == "global-enable":
             store.set_global_enabled(True)
             print("GLOBAL_ENABLED")
-        elif args.command in {"approver-enable", "approver-disable"}:
-            store.set_approver_enabled(args.subject_hash, args.command == "approver-enable")
-            print("APPROVER_UPDATED")
         elif args.command == "enable-forgejo-safe-write":
             if store.connection.execute(
                 "SELECT 1 FROM agents WHERE agent_id='agent-hermes'"

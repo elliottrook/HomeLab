@@ -8,7 +8,6 @@ import grp
 import json
 import os
 import socket
-import sqlite3
 import socketserver
 import struct
 from dataclasses import asdict
@@ -44,8 +43,6 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             response: dict[str, Any] = {"ok": True, "result": result}
         except (BrokerDenied, KeyError, ValueError, json.JSONDecodeError) as error:
             response = {"ok": False, "error": str(error)}
-        except sqlite3.Error:
-            response = {"ok": False, "error": "broker state is unavailable; no execution authorized"}
         self.wfile.write(json.dumps(response, sort_keys=True, separators=(",", ":")).encode() + b"\n")
 
     def dispatch(self, agent_id: str, request: dict[str, Any]) -> Any:

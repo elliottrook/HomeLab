@@ -20,6 +20,110 @@
 
 ## Resume audit — 2026-09-23
 
+### Synology promotion and Immich native backup progress — 2026-09-25
+
+Jason confirmed “it opens” in response to the Control Panel test on the new
+Synology SSO tab. Browser control subsequently showed the friendly-host DSM
+Control Panel, including administrator settings. Promoted only its Homepage
+href from `https://192.168.20.41:5001` to
+`https://synology.elliottrook.com`; all other service/widget configuration is
+byte-for-byte unchanged. Checkpoint on LXC 100:
+`/opt/homepage/backups/synology-promote-20260925T222708Z/services.yaml`.
+Dedicated fresh Face ID, logout and local-recovery tests remain open.
+
+The authenticated DSM session exposes Container Manager: Immich has four
+running containers (`immich_server`, `immich_machine_learning`,
+`immich_postgres`, `immich_redis`) in project `immich-app` at
+`/volume1/docker/dockge/stacks/immich-app`. The SSH user still cannot read that
+directory or access Docker; no privileges were widened. Opening the existing
+Immich address in a new Brave tab found an existing Jason administrator
+session on v2.7.5, providing a supported application-level backup path.
+
+Exported settings as `immich-config.json`, protected the downloaded file as
+0600, and retained a 0600 copy in 0700 directory
+`/private/tmp/authentik-immich-20260925/immich-config-before.json`.
+SHA-256: `604c9575cd718c7156a444f14ff24890b1f21b45a66c19776100b365d53801a0`.
+OAuth is currently disabled, password login enabled, no OIDC credentials are
+configured, and database backups are enabled with retention 14.
+
+Ran exactly one built-in Create Database Dump job, following the
+[official backup workflow](https://docs.immich.app/administration/backup-and-restore/).
+The UI lists the new 46.1 MiB backup
+`immich-db-backup-20260925T222925-v2.7.5-pg14.19.sql.gz`.
+Download was attempted for protected checksum/gzip verification, but Brave
+blocked it as an insecure HTTP download. The browser tool's security-warning
+handoff rule requires Jason to click Keep; requested that action. No warning
+was bypassed, no restore was attempted, and successful creation/listing is not
+yet download-integrity or restore proof. No new OAuth or network setting was
+applied to Immich.
+
+Read-only next-layer preflight: no existing `photos.elliottrook.com` NPM host;
+NPM-to-Synology TCP 2283 fails to connect. Synology can already reach Authentik's
+HTTPS discovery endpoint. Next steps after verified application checkpoint:
+stage the narrowly scoped private HTTPS route and owner-only native OIDC,
+preserve existing accounts/password recovery, disable OAuth auto-registration,
+and validate browser/mobile callbacks. Current
+[Immich OAuth documentation](https://docs.immich.app/administration/oauth/)
+describes `/auth/login`, `/user-settings` and `app.immich:///oauth-callback`;
+confirm these against installed 2.7.5 before activation. No version upgrade is
+part of this change.
+
+### Synology administrator session and native SSO — 2026-09-25
+
+Jason opened DSM in external Brave, signed in as the existing administrator.
+Observed DSM 7.4.1-90080 on GoWest. The existing SSO client is already enabled
+and selected by default: name `authentik`, OIDC discovery for application
+`synology`, scopes `openid profile email`, claim `preferred_username`,
+account type Domain/LDAP/local and callback `https://synology.elliottrook.com`.
+Its public client ID matches existing provider 4. NPM host 3 already forwards
+that hostname to HTTPS `192.168.20.41:5001`. No DSM client field, secret,
+user/group, local recovery account, storage setting or Drive/Cloudflare setting
+was changed.
+
+Exported DSM configuration through its admin UI; the export dialog explicitly
+includes SSO Client settings. `GoWest_20260925.dss` is 70,092 bytes and all 15
+archive files are readable; SHA-256
+`e032b723689c1aef0070c97fd20c9a20dc0903dbc4dd9c7e384fd858f2507ac6`.
+This verifies archive readability, not a destructive restore rehearsal or Immich
+database backup. Copies:
+
+- Mac `/private/tmp/authentik-synology-20260925T214316Z/GoWest_20260925.dss`,
+  directory 0700/file 0600; downloaded original in Jason's Downloads is 0600.
+- NAS `/volume1/homes/Jason/authentik-rollout-backups/20260925T214316Z/GoWest_20260925.dss`.
+  Hash matches. Synology initially applied inherited 0777 modes despite umask;
+  explicit chmod then verified directory 0700/file 0600. This copy is retained
+  in the existing owner's home, not a shared export.
+- Authentik `/opt/authentik/backups/synology-passkey-20260925T214448Z` contains
+  a fresh dump (1,818 readable catalogue lines) and prior provider-flow record.
+
+Changed only provider 4 `authentication_flow` from null to the existing tested
+`aster-companion-passwordless`. Transaction verified other provider fields
+unchanged and `jason` allow / `akadmin` deny. Existing duplicate redirect/grant
+entries were preserved rather than folded into this change. A fresh unauthenticated
+OIDC request with the exact registered callback returns HTTP 200 at the passkey
+flow. Targeted rollback sets only provider 4's authentication flow back to null.
+
+Opened the friendly HTTPS name in a new Brave tab, observed its native
+“Continue with authentik” login and clicked Sign In. The next observable UI was
+the DSM desktop without another app password. Subsequently computer use returned
+only desktop icons, no browser controls and no screenshot; account/role inspection
+could not be completed despite refreshing the tool connection. Jason was asked
+to confirm the Jason account and Control Panel. This is observed SSO navigation,
+not yet human role acceptance, fresh Face ID, logout or recovery acceptance.
+The original direct-IP admin tab was retained; Homepage is not promoted here.
+
+Discovered an existing DNS inconsistency: both Pi-holes returned NPM, but
+Unbound returned NXDOMAIN and had no Synology host override. Added only
+`synology.elliottrook.com -> 192.168.50.23` using the validated Unbound model,
+UUID `bc2dc738-c7cf-4270-92af-088e5a2edc2f`, with no PTR. Checkpoint:
+`/root/authentik-synology-dns-20260925T214818Z/config.xml` on OPNsense.
+Configuration check and Unbound restart succeeded. Rollback removes only that
+new host record; Pi-hole records were unchanged. Immich and Frigate still need
+their own privileged application checkpoints; DSM's export does not cover them.
+Post-change boundary check passed **104/104**: 69 DNS answers for 23 names,
+23 HTTPS roots and 12 direct-IP/spoofed-header checks. Normal client-resolved
+Synology HTTPS returned 200 as well. No remote Git push was performed.
+
 ### Independent regression and documentation pass — 2026-09-23
 
 Jason cannot currently open the administrator session and requested other work

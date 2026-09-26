@@ -9,7 +9,6 @@ import json
 import os
 import pwd
 import re
-import sqlite3
 import socketserver
 from pathlib import Path
 from typing import Any
@@ -37,14 +36,14 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
             response: dict[str, Any] = {"ok": True, "result": result}
         except (BrokerDenied, KeyError, ValueError, json.JSONDecodeError) as error:
             response = {"ok": False, "error": str(error)}
-        except sqlite3.Error:
-            response = {"ok": False, "error": "broker state is unavailable; no execution authorized"}
         self.wfile.write(json.dumps(response, sort_keys=True, separators=(",", ":")).encode() + b"\n")
 
     def _actor(self, request: dict[str, Any]) -> str:
         actor = request.get("actor")
         if not isinstance(actor, str) or not ACTOR_PATTERN.fullmatch(actor):
             raise BrokerDenied("approval actor must be a hashed Authentik subject")
+        if actor not in self.server.approver_subject_hashes:  # type: ignore[attr-defined]
+            raise BrokerDenied("subject is not an authorized approver")
         return actor
 
     def _fresh_actor(self, request: dict[str, Any]) -> str:
@@ -60,11 +59,7 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
         return actor
 
     def dispatch(self, request: dict[str, Any]) -> Any:
-        with self.server.store._transaction():  # type: ignore[attr-defined]
-            self.server.store.require_approver(self._actor(request))  # type: ignore[attr-defined]
-            return self._dispatch_authorized(request)
-
-    def _dispatch_authorized(self, request: dict[str, Any]) -> Any:
+        actor = self._actor(request)
         method = request.get("method")
         if method == "pending.list":
             return self.server.store.pending_requests()  # type: ignore[attr-defined]
@@ -120,8 +115,11 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
 
 
 class ApprovalServer(socketserver.UnixStreamServer):
-    def __init__(self, socket_path: str, store: BrokerStore, approver_uid: int):
+    def __init__(self, socket_path: str, store: BrokerStore, approver_uid: int, *, approver_subject_hashes: frozenset[str] = frozenset()):
         self.store = store
+        if any(not ACTOR_PATTERN.fullmatch(value) for value in approver_subject_hashes):
+            raise ValueError("approver subjects must be SHA-256 hashes")
+        self.approver_subject_hashes = approver_subject_hashes
         self.approver_uid = approver_uid
         super().__init__(socket_path, ApprovalHandler)
 
@@ -131,6 +129,7 @@ def main() -> None:
     parser.add_argument("--database", required=True)
     parser.add_argument("--socket", required=True)
     parser.add_argument("--approver-user", required=True)
+    parser.add_argument("--approver-subject-hash", action="append", default=[])
     parser.add_argument("--socket-group", required=True)
     args = parser.parse_args()
     socket_path = Path(args.socket)
@@ -138,7 +137,8 @@ def main() -> None:
     if socket_path.exists():
         socket_path.unlink()
     store = BrokerStore(args.database)
-    server = ApprovalServer(str(socket_path), store, pwd.getpwnam(args.approver_user).pw_uid)
+    server = ApprovalServer(str(socket_path), store, pwd.getpwnam(args.approver_user).pw_uid,
+                            approver_subject_hashes=frozenset(args.approver_subject_hash))
     os.chmod(socket_path, 0o660)
     os.chown(socket_path, -1, grp.getgrnam(args.socket_group).gr_gid)
     try:
