@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-09-26 — AI-PAM M8 integration and native parity complete
+
+- Graduated Aster Companion 0.2.2 with native approval/denial, lifecycle,
+  history/audit and global emergency controls. The real-Mac matrix proved
+  approval and denial, service disable/restore, global fail-closed/restore,
+  ordinary typed chat, reliable close/reopen and persistent Keychain access;
+  24 Swift tests pass.
+- Made the architecture and operator references authoritative for the broker,
+  OpenBao, NetBox and Homepage boundaries. No direct vault or broker dashboard
+  exposure was added.
+- Added a read-only Doctor policy-drift probe covering the exact four-service/
+  eight-capability catalogue, agent lifecycle, expired requests, five units and
+  Unix sockets, database integrity and CA-validated OpenBao seal health. Five
+  regression tests and the live non-secret probe pass.
+
 ## 2026-09-25 — B60 inference engineering M0 inventory and local harness
 
 - Verified the bounded LXC 110 TrueNAS mirror is enabled at 04:20 and completed

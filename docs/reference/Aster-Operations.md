@@ -522,14 +522,16 @@ limit, not a latency guarantee; model/hardware/inference changes remain outside
 this project. Scheduled news ingest's most recent execution remained successful.
 
 
-## AI-PAM authority boundary — Aster M1 Stage1, 2026-09-25
+## AI-PAM authority boundary — current through M8, 2026-09-26
 
-The shared AI-PAM core and Unix transport on LXC104 now bind consumption to the
+The shared AI-PAM core and Unix transport on LXC104 bind consumption to the
 kernel-authenticated caller, revalidate current policy and lifecycle, invalidate
 stale/unbound approvals, and serialize authorization transitions/migration. This
 is a corrective boundary change, not authorization to add tools or grants.
-The approval service and Companion retain their preceding versions; the new
-explicit approver/verified-assurance candidates are **not deployed**.
+The Authentik-backed approval service derives actor, assurance and `auth_time`
+server-side. Aster Companion 0.2.2 provides native approval, denial, lifecycle,
+history/audit and global emergency controls; privileged actions use isolated
+`max_age=0` authentication so a cached browser session cannot satisfy freshness.
 
 The exact hashes and rollout validation are recorded in
 [Stage1 evidence](../projects/AI%20Projects/evidence/M1-stage1-deployment.md).
@@ -551,6 +553,22 @@ grants. Diagnose and use a reviewed restrictive candidate. A `Type=simple` unit
 reporting active does not prove readiness; wait for both sockets and assert a
 registered-peer application health response with a bounded timeout.
 
-No device/IP/DNS/firewall/credential/grant change was part of this deployment.
-Existing service monitoring remains applicable; no new collector or schedule
-was installed. Stage2 assurance and full M1 graduation remain separate gates.
+The active catalogue has four enabled services: `synthetic`, `forgejo-mcp`,
+`forgejo-mcp-safe-write` and `lab-operations`. Its eight exact capabilities are
+the four synthetic risk-class fixtures, Green Forgejo repository read, Yellow
+safe-branch create, Green Doctor latest and Yellow Doctor run. `agent-hermes`
+is Operator; the M5 replacement remains Retired as lifecycle evidence.
+
+The read-only `scripts/check-ai-pam.py` Doctor probe is the drift authority for
+this deployed shape. It validates database integrity, global enablement, the
+exact service/capability catalogue, agent lifecycle, expired active requests,
+all five service units and Unix sockets, and OpenBao's CA-validated initialized/
+unsealed health response. It never reads an AppRole credential or target secret.
+Any intentional catalogue expansion must update its reviewed expected set in
+the same change; an unreviewed extra capability is a failure, not auto-adopted.
+
+NetBox owns the existing Aster LXC 104 and OpenBao LXC 117/IP records. AI-PAM's
+local Unix sockets create no additional endpoint to register. Homepage's
+existing Aster Companion tile is the supported human entry point; do not add a
+direct OpenBao, broker or gateway tile. Recovery checkpoint and restrictive
+rollback warnings above remain applicable.
