@@ -20,6 +20,65 @@
 
 ## Resume audit — 2026-09-23
 
+### Frigate browser guard staged; operator deployment pending — 2026-09-26
+
+Jason clarified Home Assistant is not integrated yet; only browser access is
+currently needed. Live Prometheus configuration on LXC 109 nevertheless uses
+`http://192.168.20.10:5000/api/metrics` (older reference documentation says
+8971 and is stale). Target health is up. Preserve this exact monitoring path.
+
+Prepared `scripts/authentik/frigate-browser-ingress.py` and copied it to
+`/home/jelliott/frigate-browser-ingress.py`. Jason must run it in his existing
+root terminal; Terminal automation remains unavailable. Syntax validation
+passed. The script takes a fresh protected config/container/SQLite checkpoint,
+validates the pinned nginx guard, and changes only Frigate's 5000 publication
+to IPv4 loopback. It keeps the current Frigate image and native authentication,
+8971 recovery endpoint, stream bindings, and camera/storage configuration.
+A separate unprivileged, read-only nginx container with host networking serves
+only `/api/metrics` to actual source `192.168.20.31` on LAN port 5000. Browser
+port 8972 requires both actual NPM source `192.168.50.23` and the overwritten,
+verified `jason` identity header, then forwards to loopback 5000. Requests with
+wrong/missing identity or a spoof from another source are denied. The sole
+owner receives Frigate's internal anonymous/admin identity; no native account
+or credential is changed. This deliberately uses the protected internal API
+behind the guard, preserving independent native recovery on 8971. Do not
+switch global auth off. Home Assistant is not granted access yet.
+
+Applying the port change recreates Frigate briefly, interrupting recording;
+this was communicated before requesting execution. No image upgrade occurs.
+The script restores original Compose/ports and removes the guard on a failed
+post-change check. It does not claim full data restore or continued recording
+until validation. Existing root-only checkpoint remains retained.
+
+Independent staging is complete:
+
+- Authentik proxy provider **42**, app `frigate`, existing passwordless flow,
+  one direct owner binding; Jason allowed and akadmin denied; embedded outpost
+  attached. Database checkpoint
+  `/opt/authentik/backups/frigate-20260926T203353Z/authentik.dump`, catalogue
+  1,818 lines verified.
+- NPM host **30**, friendly `https://frigate.elliottrook.com`, forward-auth
+  template from host 19, backend HTTP `192.168.20.10:8972`, WebSocket support,
+  buffering off and 3,600-second read timeout. SQLite checkpoint
+  `/opt/nginx-proxy-manager/backups/frigate-20260926T203440Z/database.sqlite`.
+- Firewall rule **`ba4b1063-f898-4fc2-8aa3-2bd64a6237c4`**, only NPM to
+  Frigate TCP 8972. OPNsense checkpoint directory
+  `/root/authentik-frigate-20260926T203434Z`; configuration validates/reloads.
+- Unbound record **`dc0746eb-123f-48b4-94f1-5dabe29983d0`** and both Pi-holes
+  resolve friendly hostname to NPM. Pi-hole backups: primary
+  `/opt/pihole/backups/frigate-20260926/pihole.toml`, secondary
+  `/root/authentik-frigate-20260926/pihole.toml`.
+
+All three DNS answers agree, certificate-validated friendly HTTPS returns the
+expected Authentik 302, and all 108 previous service checks pass. At the latest
+host check, 5000 was still published on wildcard addresses and 8972 was absent:
+operator deployment has not yet been verified. Homepage remains unchanged.
+Next: obtain script outcome, verify NPM allowed/denied identity cases, direct
+and spoofed requests, Prometheus health, native recovery, unchanged image/config,
+fresh recording segments and real passkey/live-view/playback acceptance. Then
+promote Homepage, update reference monitoring-port drift and operational docs.
+No remote Git push is authorized by this staging record.
+
 ### Frigate exact-version and integration-boundary preflight — 2026-09-26
 
 Jason's container-local query confirms version `0.17.2-3d4dd3a`, native auth
