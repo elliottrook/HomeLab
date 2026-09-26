@@ -405,3 +405,14 @@ draft subdirectory at start. Third-party capture is not established by these che
 Next safe action after the start date: prepare ten clearly AI-proposed synthetic
 train/dev drafts outside Git for Jason's individual review. No model/router
 evaluation, production change, scheduling or further push is authorized.
+
+
+### Current checkpoint — batch 1 accepted, effort unknown
+
+Jason directly approved all ten batch-1 revision-1 cases and proposed labels.
+[Manual evidence](labeling/pilot-s0/batch-1/README.md) preserves exact reviewed
+bytes and hash-bound separate acceptance. Six train/four dev, no hidden test data;
+AI-proposed, human-approved, not independent correctness. Zero unresolved review
+decisions; intentionally ambiguous case 10 is accepted as clarify. Labeling effort
+was not reported: median UNKNOWN, effort gate not passed. Pause before batch 2
+until effort is reported. No evaluation, execution, deployment or push.

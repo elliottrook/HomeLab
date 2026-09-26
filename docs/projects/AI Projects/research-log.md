@@ -192,3 +192,12 @@ not yet open. Read-only checks: `/private/tmp` Time Machine Included; existing
 per-user temporary root Excluded; Spotlight disabled. No backup configuration
 changed and no cases/data directories created. Third-party capture remains unknown.
 No scheduler, model call, evaluation, deployment or push.
+
+
+## 2026-09-26 — batch 1 direct human acceptance
+
+Direct “Approve” response accepted all ten displayed cases and proposed labels.
+Preserved exact proposal bytes and separate per-case/hash-bound acceptance record.
+This is personalized review, not human authorship or independent gold. No timing
+inferred; effort gate remains unknown and next batch is paused. No router/model
+evaluation or execution; fixture-only validator remains unchanged.
