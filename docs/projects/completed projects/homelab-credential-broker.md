@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0–M6 complete
+> Status: Complete — graduated and archived 2026-09-26
 >
 > Owner: Jason
 >
@@ -8,7 +8,7 @@
 >
 > Started: 2026-09-21
 >
-> Completed: —
+> Completed: 2026-09-26
 >
 > Stream: **A (Autonomous)** — Jason explicitly authorized Stream A on
 > 2026-09-21 for the scope, exclusions, risk assessment, gates and
@@ -502,7 +502,7 @@ For each target service create least-privilege `ai-*` identity where supported, 
 
 The first candidate reuses the existing Lab Operations worker without exposing
 its bearer credential or any backup target. See
-[M7 Doctor candidate](credential-broker-m7-doctor-candidate.md).
+[M7 Doctor candidate](../credential-broker-m7-doctor-candidate.md).
 
 ### M8 — charter/service-onboarding integration
 
@@ -607,8 +607,10 @@ Rollback must be able to disable broker issuance, revoke leases, disable `ai-*` 
 - [x] Monitoring/alerting
 - [x] Backup and isolated restore
 - [x] NetBox
-- [ ] Human wiki — reviewed update complete locally; publication pending.
-- [ ] Aster mirror/snapshot (sanitized only) — refresh after wiki publication.
+- [x] Human wiki — operator guidance published to Forgejo and deployed on the
+  private wiki.
+- [x] Aster mirror/snapshot (sanitized only) — accepted mirror preserved and a
+  dedicated allowlisted AI-PAM operational reference deployed and retrieved.
 - [x] Operational reference/runbooks
 - [x] Repository architecture/portfolio docs
 - [x] Homepage private operator link
@@ -686,16 +688,20 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-26 | Completed M8 governance, native parity and monitoring integration | Architecture and operations now define NetBox as host/IP authority and the existing Homepage Companion tile as the only human entry point. Added a non-secret read-only Doctor probe for exact catalogue/lifecycle drift, expired requests, five units/sockets and CA-validated OpenBao seal health; five regression tests and live probe passed. Native 0.2.2 close/reopen and Keychain acceptance also passed | M0–M8 are complete; M9 destructive/outage/reboot/restore graduation scenarios remain separately gated |
 | 2026-09-26 | Completed M9 dependency and restart graduation | Root-only checkpoint `/var/lib/homelab-broker/m9-graduation-checkpoint-20260926` plus same-day LXC 104/117/106 backups preceded testing. Broker stop denied execution while approval, Aster and direct Forgejo human planes survived. Authentik Docker stop blocked identity discovery while broker/human administration survived and recovered. A broker-only blackhole to OpenBao denied Forgejo execution without sealing the vault, then a fresh read consumed after route restoration. LXC 104 reboot restored six units, five sockets and Aster health | Initial broker restart stopped but did not restart the approval bridge; removing the unnecessary `Requires=` coupling fixed and regressed it. Initial OpenBao outage returned an internal JSON parse message; the gateway now returns only a stable sanitized dependency error. 82 broker tests pass |
 | 2026-09-26 | Closed M9 temporary-access and operational integration gates | Broker integrity passed with global access enabled and zero active requests; 22 consumed, 2 denied, 9 expired and 2 revoked historic requests are terminal. Disposable restore LXC 118 and known bootstrap helpers are absent; temporary root tokens were already revoked and only the encrypted human root ceremony plus scoped service AppRoles remain. NetBox live report contains active `hermesagent` and `openbao`; Homepage live config contains the existing Companion tile and no unsafe vault/broker tile. Doctor now also checks Authentik discovery, rotations, audit freshness, current LXC 104/117 backups and restore-test age; seven tests and live probe pass | Human wiki update is locally committed/pending publication; sanitized mirror refresh follows its separately authorized push |
+| 2026-09-26 | Published human guidance and refreshed the sanitized Aster snapshot | Wiki commit `e1dcf07` is on Forgejo and the private wiki page is deployed with a retained pre-AI-PAM copy. The deterministic candidate preserved the accepted 1,796-entry derived mirror, added the allowlisted AI-PAM operational reference and contained 1,825 provenance-tracked sources. The accepted archive hash is recorded by the follow-up deployment evidence commit. LXC 104 retained `/var/lib/aster/knowledge.before-ai-pam-m9-20260926`; Aster restarted healthy and direct AI-PAM retrieval returned `reference/operations/ai-pam.md` | Detailed human recovery material remains deliberately excluded; only the sanitized authority and recovery boundary are available to Aster |
 
 ## Close-out
 
-Graduation evidence is complete locally for M0 through M9. OpenBao holds separate restricted
+Graduation and publication are complete for M0 through M9. OpenBao holds separate restricted
 Forgejo read and safe-write credentials; the broker-only private listener,
 CIDR-bound AppRoles and deny-by-default MCP gateways are live. The temporary
 root tokens used during recovery/bootstrap are revoked, while the tested
 human-only root-ceremony AppRole still requires two independent recovery
 shares.
 
-Next safe action: publish the M9 fixes/evidence and the reviewed human-wiki
-guidance, verify both Forgejo/GitHub mirrors, refresh the sanitized Aster wiki
-snapshot, then archive the project without deleting recovery checkpoints.
+The human wiki is published, the sanitized Aster snapshot is deployed with its
+prior generation retained, and Forgejo/GitHub publication was verified. The
+project is archived without deleting recovery checkpoints. Ongoing work is
+ordinary operations: review Doctor findings, rotate service credentials on
+schedule, preserve human recovery material and start any capability expansion
+as a separately scoped project.

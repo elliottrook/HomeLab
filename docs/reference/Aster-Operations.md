@@ -89,7 +89,7 @@ and is not implied by successful local creation.
 Source and recovery procedures:
 `homelab/services/aster-lab-operations/README.md` and
 `homelab/docs/projects/Aster-Lab-Operations.md`. Human CLI operation remains
-independent. Companion UI acceptance and final corpus publication are pending;
+independent. Companion UI acceptance and corpus publication passed on 2026-09-26;
 operator-seeded production worker validation is recorded separately.
 
 ## Functions and knowledge
@@ -522,7 +522,7 @@ limit, not a latency guarantee; model/hardware/inference changes remain outside
 this project. Scheduled news ingest's most recent execution remained successful.
 
 
-## AI-PAM authority boundary — current through M8, 2026-09-26
+## AI-PAM authority boundary — graduated through M9, 2026-09-26
 
 The shared AI-PAM core and Unix transport on LXC104 bind consumption to the
 kernel-authenticated caller, revalidate current policy and lifecycle, invalidate

@@ -2,7 +2,7 @@
 
 This directory contains the deny-by-default implementation artifacts for the
 broader AI-PAM project in
-`docs/projects/homelab-credential-broker.md`.
+`docs/projects/completed projects/homelab-credential-broker.md`.
 
 M2–M5 deploy the synthetic broker foundation on LXC 104. M6 adds separate
 broker-private Forgejo MCP read and safe-write gateways whose credentials remain
