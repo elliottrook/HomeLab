@@ -1,0 +1,997 @@
+{
+  "experiment": {
+    "schema_version": "selector-probe.experiment.v1",
+    "experiment_id": "m2-selector-conformance-001",
+    "hypothesis": "contract-adapter-preserves-baseline-selection",
+    "baseline_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "candidate_digest": "d8fc2b178f1c29f7e87f42272b7578053ff5d58608d374480090a0ceef8a62ba",
+    "dataset_digest": "ce55fe8c61b6fbe82bb9721ef9737e282702fb6b9753426df3b9d1f35fddc31b",
+    "evaluator_digest": "7ac201006c321909c17bb6c4714c38e5ad40c2ad4880030c00051600c2290653",
+    "evidence_class": "synthetic-conformance-and-local-microbenchmark",
+    "state": "evaluated",
+    "decision": "no-production-promotion",
+    "observation_count": 12
+  },
+  "trusted_expected_source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+  "measured_source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+  "environment": {
+    "python": "3.12.14",
+    "pydantic": "2.13.4",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  },
+  "fixture_count": 12,
+  "repeats_per_fixture": 100,
+  "baseline_selector": {
+    "p50_ns": 8667,
+    "p95_ns": 17542
+  },
+  "adapter_plus_contract_validation": {
+    "p50_ns": 46292,
+    "p95_ns": 53917
+  },
+  "manifest": {
+    "services/aster-agent/aster_agent.py": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "services/aster-adaptive/baseline.py": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+    "services/aster-adaptive/conformance.py": "e9c0ef40d9c018d560b2f48402db1d70ae9a6e150b89a1c66178e4f059b14ec7",
+    "services/aster-adaptive/contracts.py": "7400a0c4659766697ca57961ef4b85f15384f683a0cbf14894319077b99e56c1",
+    "services/aster-adaptive/evaluate.py": "7ac201006c321909c17bb6c4714c38e5ad40c2ad4880030c00051600c2290653",
+    "services/aster-adaptive/test_conformance.py": "99793754eb59a6d330a9404c22f1d3f7b6d9bcb0ff5e0fb4d7b45904f2ec6013",
+    "services/aster-adaptive/test_contracts.py": "f0d78f3341a84b6d95e56a85d81ea7eec82b32f274eb2970880e321b1c3d270c",
+    "services/aster-adaptive/fixtures.json": "ce55fe8c61b6fbe82bb9721ef9737e282702fb6b9753426df3b9d1f35fddc31b",
+    "services/aster-adaptive/experiment-definition.json": "2c641aef15ab260c71a64f7482dcb56a46263d4dd53a04352736cb03b4762072",
+    "schemas/aster/selector-probe-v1/Capability.v1.json": "370f1014153139da5b4b91cdea0b6e71b8fcd8417b12da13cc22aac700de0c25",
+    "schemas/aster/selector-probe-v1/Catalogue.v1.json": "77d316e104e6918e12a6634c05744ebbf74be4dfac426ed13a3ff595ecca897c",
+    "schemas/aster/selector-probe-v1/Decision.v1.json": "fcc3c14ebbe418834a284cf24eddbe4d8ed2bb2c9451d029a246748ee3559da9",
+    "schemas/aster/selector-probe-v1/DecisionRequest.v1.json": "a94f2383307bc5e6c4da742df9ae4c62c81b0c804fae066fb82f69262c9a4259",
+    "schemas/aster/selector-probe-v1/Experiment.v1.json": "c24bb3edc44bf6c0e70b61c2d8be5c9d9da8c2fd2af792999ab7b2291988bb1d",
+    "schemas/aster/selector-probe-v1/HarnessRun.v1.json": "1ae72bd057cb408c92e26c7860ca90cef5495a15133a55f270c415e00c948fc0",
+    "schemas/aster/selector-probe-v1/Outcome.v1.json": "a745c2d5535870f14912bf3336d50113de06d9fe4f704008765d4b00db0dfb29"
+  },
+  "catalogue": {
+    "schema_version": "selector-probe.catalogue.v1",
+    "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "capabilities": [
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "get_arr_repair_proposal",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "proposal",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "get_arr_report",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "get_current_time",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "get_forgejo_report",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "get_ha_report",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "get_lab_health",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "get_netbox_report",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "get_service_health",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      },
+      {
+        "schema_version": "selector-probe.capability.v1",
+        "capability_id": "search_knowledge",
+        "implementation": "aster.selector.v1",
+        "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+        "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+        "effect": "read",
+        "locality": "local",
+        "sensitivity": "internal",
+        "owner": "jason",
+        "execution": "disabled"
+      }
+    ],
+    "scope": "offline-fixture-not-permission"
+  },
+  "eligibility_projections": {
+    "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9": {
+      "schema_version": "selector-probe.catalogue.v1",
+      "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+      "capabilities": [
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_arr_repair_proposal",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "proposal",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_arr_report",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_current_time",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_forgejo_report",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_ha_report",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_lab_health",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_netbox_report",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_service_health",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        },
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "search_knowledge",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        }
+      ],
+      "scope": "offline-fixture-not-permission"
+    },
+    "91e208a3bd3050c5cdc9f69848387e0b8a07fd646046bc584a9fdf9b092184d5": {
+      "schema_version": "selector-probe.catalogue.v1",
+      "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+      "capabilities": [
+        {
+          "schema_version": "selector-probe.capability.v1",
+          "capability_id": "get_current_time",
+          "implementation": "aster.selector.v1",
+          "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
+          "output_schema_digest": "83e87440e61d3e94c62696398dc5caffcf460ca96348624abf2f61e825eb6da3",
+          "effect": "read",
+          "locality": "local",
+          "sensitivity": "internal",
+          "owner": "jason",
+          "execution": "disabled"
+        }
+      ],
+      "scope": "offline-fixture-not-permission"
+    }
+  },
+  "results": [
+    {
+      "fixture_id": "timer",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "timer",
+        "content_handle": "timer",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "timer",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "timer",
+        "request_id": "timer",
+        "decision_digest": "dda914bd6bf3086d46cff83210d9515c091c546f0b2847b571d4e68af50416ad",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 44584,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "timer",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "lights",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "lights",
+        "content_handle": "lights",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "search_knowledge"
+      ],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "lights",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "lights",
+        "request_id": "lights",
+        "decision_digest": "e8c8ea36aa41a5e1a988b4bae763c51bf3c05495bf070bdb05b89e3ae3760376",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 46834,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "lights",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "media",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "media",
+        "content_handle": "media",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "media",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "media",
+        "request_id": "media",
+        "decision_digest": "32d8b15a4df92ab4f10c8621d6c1479ef47a5ef4a08d220c5c5114a9c4902d84",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 38750,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "media",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "fact",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "fact",
+        "content_handle": "fact",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "fact",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "fact",
+        "request_id": "fact",
+        "decision_digest": "780c3a654b097baf7c16e01d1f899c734ecde5964927810aa5e961b775ba58a2",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 46250,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "fact",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "calendar",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "calendar",
+        "content_handle": "calendar",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "get_current_time"
+      ],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "calendar",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_current_time",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "calendar",
+        "request_id": "calendar",
+        "decision_digest": "c46b8d2df359f9d14d535062e32a0428b177ac100fddf77276cfccdab48abe88",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 48250,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "calendar",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "web",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "web",
+        "content_handle": "web",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "web",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "web",
+        "request_id": "web",
+        "decision_digest": "c87034ca7158bbe375e0bf644b75c5c36260800ae195e6eff23f340ef09e0165",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 44125,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "web",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "mixed",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "mixed",
+        "content_handle": "mixed",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "mixed",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "mixed",
+        "request_id": "mixed",
+        "decision_digest": "b5781d85727a46fa0c1456702f03b05e4a2b898dad35cc51a4032bb8dbb103e5",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 58625,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "mixed",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "personal",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "personal",
+        "content_handle": "personal",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "search_knowledge"
+      ],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "personal",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "personal",
+        "request_id": "personal",
+        "decision_digest": "a655ad22c502308b0fcc5537c7d03947d22ad7770b806e634e9aa26fde0f4fee",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 44417,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "personal",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "sysadmin",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "sysadmin",
+        "content_handle": "sysadmin",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "get_service_health",
+        "search_knowledge"
+      ],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "sysadmin",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_service_health",
+            "after": []
+          },
+          {
+            "step_id": "step-1",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "sysadmin",
+        "request_id": "sysadmin",
+        "decision_digest": "b7980196b720b1f127cfc20d33cca3d03c8f3d90bc60059b46d9131d4ae7cb7d",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 46666,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "sysadmin",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "ambiguous",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "ambiguous",
+        "content_handle": "ambiguous",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "ambiguous",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "abstain",
+        "steps": [],
+        "reason_codes": [
+          "NO_BASELINE_TOOL"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "ambiguous",
+        "request_id": "ambiguous",
+        "decision_digest": "ac51447c45c83238ef1d0dd28c1d61cc52431a17918010ed4610448f26da0312",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 43166,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "ambiguous",
+        "result": "abstained",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "ha-health",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "ha-health",
+        "content_handle": "ha-health",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [
+        "get_ha_report",
+        "search_knowledge"
+      ],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "ha-health",
+        "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "plan",
+        "steps": [
+          {
+            "step_id": "step-0",
+            "capability_id": "get_ha_report",
+            "after": []
+          },
+          {
+            "step_id": "step-1",
+            "capability_id": "search_knowledge",
+            "after": []
+          }
+        ],
+        "reason_codes": [
+          "BASELINE_TOOL_MATCH"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "ha-health",
+        "request_id": "ha-health",
+        "decision_digest": "a1b843060bdfa1aee8c1f12e5c7687e71978328f8efed08b07d299400251f992",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 46083,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "ha-health",
+        "result": "selection_recorded",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    },
+    {
+      "fixture_id": "scope",
+      "request": {
+        "schema_version": "selector-probe.decision-request.v1",
+        "request_id": "scope",
+        "content_handle": "scope",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "registry_digest": "91e208a3bd3050c5cdc9f69848387e0b8a07fd646046bc584a9fdf9b092184d5",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "sensitivity": "internal",
+        "egress": "none",
+        "deadline_ms": 5000,
+        "max_steps": 8,
+        "retention": "synthetic-only"
+      },
+      "selected": [],
+      "decision": {
+        "schema_version": "selector-probe.decision.v1",
+        "request_id": "scope",
+        "registry_digest": "91e208a3bd3050c5cdc9f69848387e0b8a07fd646046bc584a9fdf9b092184d5",
+        "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
+        "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+        "status": "deny",
+        "steps": [],
+        "reason_codes": [
+          "FIXTURE_POLICY_DENY"
+        ],
+        "probability": null,
+        "authorization": "not_granted",
+        "expires_unix": 31
+      },
+      "run": {
+        "schema_version": "selector-probe.harness-run.v1",
+        "run_id": "scope",
+        "request_id": "scope",
+        "decision_digest": "148fa0ecdb10b4ee60fab1176b3ab7c21c9a050d8d5019b34ca373bccbc967f0",
+        "adapter_digest": "14ec87acf66f421dca22790155998766d51e2687aea0c8dfb47ddb91b113a337",
+        "mode": "offline-selection-only",
+        "duration_ns": 20166,
+        "model_calls": 0,
+        "tool_calls": 0,
+        "external_cost_usd": 0,
+        "execution": "not_attempted"
+      },
+      "outcome": {
+        "schema_version": "selector-probe.outcome.v1",
+        "run_id": "scope",
+        "result": "denied",
+        "execution": "not_attempted",
+        "label_source": "synthetic_expectation",
+        "route_correct": null
+      }
+    }
+  ],
+  "limits": [
+    "Tool selection only, not full harness/model latency",
+    "Abstention here means no selected tool, not runtime answer refusal",
+    "Synthetic expectations are not human gold labels or calibrated accuracy",
+    "No model/tool/network execution, permission or deployment"
+  ]
+}
