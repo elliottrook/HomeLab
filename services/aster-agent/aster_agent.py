@@ -529,6 +529,10 @@ def _source_bonus(
 
 def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     bonus = 0
+    if source == "reference/operations/ai-pam.md" and re.search(
+        r"\b(ai-pam|openbao|access broker|approval|kill switch|probation)\b", query, re.I
+    ):
+        bonus += 900
     if source == "reference/operations/arr-stack.md":
         for service in ("sonarr", "radarr", "lidarr", "prowlarr", "sabnzbd", "jellyfin"):
             if re.search(rf"\b{service}\b", query, re.I) and re.search(
@@ -792,6 +796,12 @@ def _rank_knowledge(query: str, tokens: set[str], root: Path, max_results: int,
                     r"\b(recovery|whole-network|outage|remote access)\b", query, re.I
                 ):
                     preferred_anchor = normalized.find("recovery order")
+                elif relative == "reference/operations/ai-pam.md" and re.search(
+                    r"\b(ai-pam|openbao|access broker|approval|kill switch|probation)\b",
+                    query,
+                    re.I,
+                ):
+                    preferred_anchor = normalized.find("## current service boundary")
                 elif relative == "reference/operations/arr-stack.md":
                     if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity)\b", query, re.I):
                         preferred_anchor = normalized.find("automation and mutation map")
