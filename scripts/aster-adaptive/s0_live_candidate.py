@@ -1,6 +1,6 @@
-"""Fixed one-shot adapter implementation; invocation entry remains disabled.
+"""Fixed one-shot adapter implementation; invocation requires the approval record.
 
-No command-line interface, operation/path argument, environment inheritance,
+No command-line options, generic operation/path argument, environment inheritance,
 credential output or automatic retry. Trusted tests replace Popen/socket only.
 """
 import hashlib
@@ -8,18 +8,21 @@ import json
 from pathlib import Path
 import socket
 import subprocess
+import sys
 
 from s0_lxc100_observe import command_catalog, catalog_digest
 from s0_owned_cleanup import argv as cleanup_argv
-from s0_probe_journal import Journal
+from s0_probe_journal import Journal, canonical
 from s0_probe_lifecycle import run_candidate
 from validate_label_batch import unique
+from s0_verified_read import read_owned_regular
 
 ROOT=Path(__file__).resolve().parents[2]
 EXPERIMENT='docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/'
 MANIFEST=ROOT/EXPERIMENT/'lxc100-live-candidate-manifest.json'
+APPROVAL=ROOT/EXPERIMENT/'lxc100-approval-record.json'
 JOURNAL=Path('/private/tmp/aster-s0-lxc100-one-shot-20260926')
-MODULES=('s0_live_candidate.py','s0_probe_timing.py','s0_probe_lifecycle.py','s0_probe_journal.py',
+MODULES=('s0_verified_read.py','test_s0_authority_gate.py','s0_live_candidate.py','s0_probe_timing.py','s0_probe_lifecycle.py','s0_probe_journal.py',
          's0_owned_cleanup.py','s0_fixed_session.py','s0_lxc100_observe.py','s0_dns_observe.py',
          's0_probe_state.py','s0_feasibility_supervisor.py','validate_label_batch.py',
          'test_s0_live_candidate.py','test_s0_probe_lifecycle.py','test_s0_lxc100_candidate.py',
@@ -32,15 +35,15 @@ OPERATIONS=frozenset({'load-state','paths','health','create-owned-canary','run-p
 
 def verify_bundle(expected_sha256):
     if type(expected_sha256) is not str or len(expected_sha256)!=64:raise ValueError('review pin required')
-    with MANIFEST.open('rb') as f:raw=f.read(32769)
+    raw=read_owned_regular(MANIFEST,32768)
     if len(raw)>32768 or hashlib.sha256(raw).hexdigest()!=expected_sha256:raise ValueError('manifest pin mismatch')
     value=json.loads(raw,object_pairs_hook=unique)
     if set(value)!={'format','status','base_commit','parent_integrated_manifest_sha256','artifacts','command_catalog_sha256','tests_passed','live_invoked'}:raise ValueError('manifest schema')
-    if value['format']!='s0-live-candidate.v1' or value['status']!='review-required-invocation-disabled' or value['base_commit']!='28a9e49' or value['live_invoked'] is not False:raise ValueError('manifest state')
+    if value['format']!='s0-live-candidate.v1' or value['status']!='approval-gated-ready-candidate' or value['base_commit']!='d476158' or value['live_invoked'] is not False:raise ValueError('manifest state')
     if set(value['artifacts'])!=ARTIFACTS:raise ValueError('artifact set mismatch')
     for name,expected in value['artifacts'].items():
         path=ROOT/name
-        if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest()!=expected:raise ValueError('artifact mismatch')
+        if hashlib.sha256(read_owned_regular(path,131072)).hexdigest()!=expected:raise ValueError('artifact mismatch')
     if value['parent_integrated_manifest_sha256']!=value['artifacts'][EXPERIMENT+'lxc100-integrated-manifest.json']:raise ValueError('parent pin mismatch')
     if value['command_catalog_sha256']!=catalog_digest():raise ValueError('catalog mismatch')
     return value
@@ -97,7 +100,7 @@ class FixedAdapter:
 
 
 def _prepared_one_shot(reviewed_pin):
-    """Complete call path for review only. Never called by enabled entry/tests."""
+    """Fixed call path; the no-argument launcher validates the record first."""
     adapter=FixedAdapter(reviewed_pin)
     # Fixed exclusive path means a previous/partial attempt prevents a rerun.
     with Journal(JOURNAL,create=True) as journal:
@@ -106,8 +109,55 @@ def _prepared_one_shot(reviewed_pin):
                              reviewed_manifest_sha256=reviewed_pin)
 
 
-def invoke_once(*_,**__):
-    raise PermissionError('final technical review pending; one-shot invocation disabled')
+SCOPE={
+    'target':'Proxmox 192.168.50.10 / LXC 100',
+    'unit':'aster-s0-feasibility-20260926.service',
+    'canary':'/var/tmp/aster-s0-feasibility-20260926',
+    'purpose':'one fixed invented-fixture isolation feasibility probe',
+    'dns_target':'192.168.20.20:53',
+    'runtime_max_seconds':15,
+    'memory_max_bytes':67108864,
+    'tasks_max':1,
+    'accepted_corpus_evaluation':False,
+    'package_installation':False,
+    'other_infrastructure_changes':False,
+    'git_push':False,
+    'automatic_retry':False,
+    'automatic_interrupted_recovery':False,
+}
+PROVENANCE={
+    'human':'Jason',
+    'authorization':'conditional approve when technically ready',
+    'source':'coordinating task conveyed Jason conditional authorization',
+    'coordinating_task':'01a0d957-799b-7353-acbc-4765e85619f2',
+    'cryptographic_identity_proof':False,
+}
 
 
-if __name__=='__main__':invoke_once()
+def validate_approval():
+    raw=read_owned_regular(APPROVAL,8192)
+    value=json.loads(raw,object_pairs_hook=unique)
+    if set(value)!={'format','scope','provenance','reviewed_manifest_sha256','release'}:raise ValueError('approval schema')
+    if value['format']!='s0-fixture-approval.v1' or canonical(value['scope'])!=canonical(SCOPE) or canonical(value['provenance'])!=canonical(PROVENANCE):
+        raise ValueError('approval scope/provenance mismatch')
+    release=value['release']
+    if type(release) is not dict or set(release)!={'technical_review','exclusive_operator_window','one_shot_execution'}:
+        raise ValueError('release schema')
+    if release!={'technical_review':'passed','exclusive_operator_window':'confirmed','one_shot_execution':'released'}:
+        raise PermissionError('final technical review and operator window release required')
+    pin=value['reviewed_manifest_sha256']
+    verify_bundle(pin)
+    return pin
+
+
+def invoke_once():
+    # No flags, approval Boolean or caller-supplied hash/path can bypass the record.
+    if len(sys.argv)!=1:raise PermissionError('one-shot launcher accepts no arguments')
+    pin=validate_approval()
+    return _prepared_one_shot(pin)
+
+
+if __name__=='__main__':
+    result=invoke_once()
+    print(json.dumps(result,sort_keys=True))
+    raise SystemExit(0 if result['status']=='fixture-pass' else 1)

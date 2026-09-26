@@ -47,7 +47,7 @@ class LiveCandidateTests(unittest.TestCase):
         changed=json.loads(raw);changed['artifacts']['/etc/shadow']='0'*64
         raw=json.dumps(changed).encode()
         with tempfile.TemporaryDirectory() as tmp:
-            p=Path(tmp)/'manifest';p.write_bytes(raw)
+            p=Path(tmp).resolve()/'manifest';p.write_bytes(raw)
             with patch.object(live,'MANIFEST',p),self.assertRaises(ValueError):live.verify_bundle(hashlib.sha256(raw).hexdigest())
 
     def test_exact_spawn_only_and_no_generic_options(self):
@@ -96,9 +96,10 @@ class LiveCandidateTests(unittest.TestCase):
             with Journal(Path(tmp)/'attempt') as journal:self.assertEqual(journal.records[0]['data']['manifest_sha256'],'review-pin')
         adapter.spawn.assert_not_called();adapter.dns.assert_not_called()
 
-    def test_public_invocation_unconditionally_disabled(self):
-        with patch.object(live,'_prepared_one_shot') as prepared:
-            with self.assertRaises(PermissionError):live.invoke_once(approved=True,reviewed_pin='x')
+    def test_public_invocation_rejects_unreleased_record(self):
+        with patch.object(live,'_prepared_one_shot') as prepared,patch.object(live.sys,'argv',['launcher']),patch.object(live,'validate_approval',side_effect=PermissionError('pending')):
+            with self.assertRaises(PermissionError):live.invoke_once()
+            with self.assertRaises(TypeError):live.invoke_once(approved=True)
             prepared.assert_not_called()
 
 

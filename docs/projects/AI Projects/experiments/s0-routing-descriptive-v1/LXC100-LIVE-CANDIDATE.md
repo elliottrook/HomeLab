@@ -1,6 +1,7 @@
-# Fixed one-shot candidate — final technical review pending
+# Fixed approval-gated one-shot — preflight review pending
 
-2026-09-26. Base integrated checkpoint `28a9e49`. Invocation remains disabled.
+2026-09-26. Prior reviewed invocation-disabled checkpoint `d476158`; integrated base `28a9e49`.
+Invocation now requires a released fixed approval record; the supplied record is pending.
 No SSH, live DNS, LXC100 modification, accepted-corpus evaluation or push occurred.
 
 ## Inspection timing
@@ -49,12 +50,22 @@ is the existing read-only journal inspection; no retry, stop or delete is inferr
 from prior approval or apparent absence. No journal at this path was created by
 tests: they used injected temporary paths and stub adapters only.
 
-`invoke_once` and the module's command-line invocation unconditionally raise
-PermissionError. The internal prepared call path exists for review but is not
-called by any enabled public entry. Tests exercise its wiring only with a stub
-adapter and stub lifecycle; actual Popen and sockets are mocked in adapter tests.
-Enabling invocation requires the next technical review and a deliberate code
-change, including refreshed hashes; there is no approval Boolean bypass.
+`invoke_once()` now accepts no arguments and rejects every CLI argument. It reads
+only the fixed external `lxc100-approval-record.json`, validates exact fixture scope
+and conveyed conditional human authorization, requires passed technical review,
+confirmed exclusive operator window and explicit one-shot release, then verifies
+the recorded manifest hash before the prepared lifecycle. The supplied record
+has all release conditions pending, so execution remains blocked. The record is
+outside the manifest artifact set: code/plan are pinned first, then approval binds
+the final manifest hash. It is provenance, not cryptographic identity proof.
+
+Manifest, artifact and approval reads now traverse path components using
+O_NOFOLLOW, open the final file nonblocking with O_NOFOLLOW, require regular files,
+current effective-user ownership, one link, no group/other writes and bounded
+size. Content is read and hashed from that descriptor; before/after descriptor
+metadata and length must agree. Symlink/path-swap, in-place change and special-file
+fixtures are rejected. This removes the earlier check-then-open symlink race; it
+does not protect against a malicious trusted owner rewriting code and provenance.
 
 ## Remaining risk before invocation
 
@@ -69,9 +80,9 @@ insufficient timing budget yield an inconclusive result, never an automatic retr
 A pass would establish only this fixture's feasibility. It cannot authorize
 accepted-corpus evaluation, install packages, alter other infrastructure or push.
 
-## Local validation evidence
+## Previous checkpoint validation
 
-8 focused timing/adapter tests and 192 full adaptive tests pass. The focused tests
+At `d476158`, 8 focused timing/adapter tests and 192 full adaptive tests pass. The focused tests
 cover aggregate delayed observations, late readiness, bundle/artifact allowlist
 validation, exact direct SSH argv/options, rejected name-only mutation proposals,
 canonical guarded-cleanup data, fixed DNS query/target, exclusive prepared-journal
@@ -79,3 +90,17 @@ wiring and unconditional public invocation denial. No real network/process adapt
 operation was used: Popen/socket were mocked, journal paths were disposable and
 the prepared lifecycle was stubbed. Existing integrated tests use only invented
 local subprocesses. `git diff --check` passes.
+
+## Final authority hardening validation
+
+The authority/read test suite adds temporary-file coverage for regular ownership,
+size/mode, final/intermediate symlinks, hardlinks, FIFO, mutation during read and
+path replacement after open. Temporary approval records and stub prepared calls
+exercise released scope, pending release, mismatched scope/provenance/pin,
+arguments, duplicate keys and missing records. No actual lifecycle/network call
+is used. The repository approval remains pending and bound to this manifest.
+
+Final local validation: 8 authority/read tests, 16 combined timing/adapter/authority
+tests and 200 full adaptive tests pass. All external adapters were mocked; no
+network or production mutation occurred. Source/manifest/approval pins were
+regenerated after the final edits. The approval is deliberately unreleased.

@@ -329,3 +329,12 @@ observations validate a single eight-second inspection deadline against the
 worker's ten-second window. Fixed direct SSH and DNS adapters are implemented and
 mock-tested; public invocation is disabled. Actual LXC100 support remains UNKNOWN.
 Prior integrated checkpoint: `28a9e49`; current pins in the live-candidate manifest.
+
+
+### 2026-09-26 — descriptor reads and conditional approval provenance
+
+200 full tests pass, including 8 authority/read tests using temporary records and
+stub execution. Bounded same-descriptor reads reject symlinks, unsafe files and
+observed changes. External approval record binds the final manifest without a
+hash cycle and records conveyed conditional authorization. All technical/operator/
+execution release fields remain pending; no network/LXC invocation occurred.

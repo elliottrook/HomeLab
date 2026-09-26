@@ -268,3 +268,12 @@ before normal completion. Late readiness/observations fail closed. The prepared
 fixed adapter verifies every current manifest artifact and exact catalog before
 external operations, but its public invocation remains unconditionally disabled.
 See `LXC100-LIVE-CANDIDATE.md`; no live command has been invoked.
+
+## Authority/provenance gate revision — last preflight review pending
+
+Read manifest/artifacts through bounded O_NOFOLLOW descriptors with type, owner,
+mode and before/after identity checks. The no-argument launcher validates the
+fixed external approval record before the prepared lifecycle. This record binds
+Jason's conveyed conditional authorization, exact fixture scope and final manifest
+hash; it is not cryptographic identity proof. Its technical/operator/execution
+release fields remain pending until the last review. No live invocation occurred.

@@ -555,3 +555,19 @@ manifest-bound direct SSH/fixed DNS adapter and exclusive one-shot journal.
 disabled. No live SSH/DNS/LXC100 operation or push occurred. Next: final review of
 the pinned candidate before any invocation-enabling change. Existing manual
 recovery behavior and accepted-corpus exclusion remain in force.
+
+
+### Current checkpoint — approval-gated candidate, last preflight review pending
+
+Reviewed timing/adapter checkpoint committed locally as `d476158`. The candidate
+now verifies files through bounded O_NOFOLLOW descriptors with regular-file,
+owner/mode/link checks and before/after identity checks. The no-argument launcher
+requires the fixed external approval record to match the final reviewed manifest,
+exact fixture-only scope, passed technical review, confirmed operator window and
+explicit one-shot release. Jason's conditional authorization is recorded as
+conveyed by the coordinating task, not cryptographic identity proof.
+
+200 full tests pass. `lxc100-approval-record.json` is outside the manifest artifact
+set and remains pending in all release fields. No live invocation, production
+change, accepted-corpus evaluation or push occurred. Next: last preflight review
+of the ready manifest and pending approval record before any release or invocation.
