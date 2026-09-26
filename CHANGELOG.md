@@ -31,6 +31,15 @@
   Unix sockets, database integrity and CA-validated OpenBao seal health. Five
   regression tests and the live non-secret probe pass.
 
+## 2026-09-26 — B60 inference telemetry foundation
+
+- Added a read-only LXC 110 telemetry collector and strict local parser for
+  `xe` package/VRAM temperature, process VRAM/GTT residency, guest RAM and CPU
+  affinity.
+- Rejects unknown, duplicate, impossible and credential-like telemetry fields.
+  Unsupported frequency, power and CPU-fallback values remain explicit nulls
+  rather than inferred; fifteen combined B60 tests pass without production load.
+
 ## 2026-09-25 — B60 inference engineering M0 inventory and local harness
 
 - Verified the bounded LXC 110 TrueNAS mirror is enabled at 04:20 and completed

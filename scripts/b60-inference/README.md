@@ -37,3 +37,10 @@ with health checks and performs one warm-up plus five measured repetitions.
 Execution also requires a new `--output` path; the result is created mode 0600,
 fsynced, hashed and never overwritten. Tests use an injected fake transport and
 never contact production.
+
+`collect-telemetry.sh` is a read-only, secret-free collector intended to run
+inside LXC 110 after separate approval of a benchmark. `telemetry.py` accepts
+only its strict key set, rejects duplicate/unknown/credential-like fields, and
+converts supported counters to ledger units. Frequency, power and CPU fallback
+remain explicit `null` values when they cannot be proven; resident VRAM alone is
+not misrepresented as proof that every operation used the GPU.
