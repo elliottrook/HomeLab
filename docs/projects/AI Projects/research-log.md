@@ -461,3 +461,14 @@ reviewed controls to force readiness. Accepted-corpus execution remains blocked.
 A dedicated disposable Linux VM is the preferred future target, but VM105 remains
 reserved/rejected and no capacity or placement is assumed. VM design needs its own
 read-only capacity/network/image assessment and explicit creation approval.
+
+
+### 2026-09-26 — disposable VM read-only feasibility
+
+Proxmox reports 84.24 GB total /49.42 GB available memory at one instant; 17
+running guests total78.38 GB configured maxima and28.70 GB observed use. Local-lvm
+has665,394,887 KiB available. Existing Debian13.6 netinst ISO SHA-256
+`65273beed27b2df543b68b65630ba525cfbad8df2b12035732b2dff87d6664e7`
+matches Debian's archived checksum. Proposed design is1 vCPU,1 GiB RAM,8 GiB disk,
+no vNIC/GPU/credentials, offline pinned input and bounded output. This is feasibility
+evidence only: no VMID reservation, image download, VM creation or corpus access.

@@ -711,3 +711,13 @@ but no existing guest is approved for reuse and no current capacity claim is mad
 The next safe work is a read-only VM capacity/network design followed by a separate
 creation approval. Local routing implementation and invented-fixture tests may
 continue meanwhile.
+
+
+### Disposable VM feasibility checkpoint
+
+[The read-only VM design](experiments/s0-routing-descriptive-v1/DISPOSABLE-VM-DESIGN.md)
+finds a credible 1-vCPU, 1-GiB, 8-GiB no-vNIC boundary. Current memory/storage
+snapshots show room for planning but are not reservations. The existing Debian
+13.6 ISO matches Debian's archived checksum. VM creation remains unauthorized;
+offline installation contents, artifact/result channel, exact Proxmox config,
+teardown and creation-window capacity still need proof.
