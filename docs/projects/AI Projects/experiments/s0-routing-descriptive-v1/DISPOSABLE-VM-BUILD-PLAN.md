@@ -238,7 +238,16 @@ safely: cloud-init invoked the canary unit, the unit failed before emitting any
 protocol record, and the fallback powered the VM off. The parser rejected the
 105,115-byte capture as incomplete. Evidence is retained in
 [`run-v2-bootstrap/`](run-v2-bootstrap/). V3 is blocked; no retry or offline disk
-inspection is authorized by the consumed V2 approval.
+inspection was authorized by the consumed V2 approval.
+
+**Forensic/correction checkpoint:** a later approved read-only inspection proved
+`status=209/STDOUT`: `PrivateDevices=yes` prevented systemd from attaching the
+unit directly to `/dev/ttyS0`. Candidate
+[`vm-candidate-v1/`](vm-candidate-v1/) retains private devices and instead writes a
+bounded protocol file that the outer cloud-init lifecycle publishes after unit
+success. Twenty-one focused and 235 full adaptive tests pass; YAML, shell syntax
+and persisted hashes validate. A new seed, fresh VM and V2b boot remain
+unauthorized, and V3 remains blocked.
 
 ### V1 — create but do not boot
 

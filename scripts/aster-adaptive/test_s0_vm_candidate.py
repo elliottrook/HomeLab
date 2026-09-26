@@ -45,13 +45,25 @@ class CandidateTests(unittest.TestCase):
             self.assertIn(required, user)
         for forbidden in (b'password:', b'ssh_authorized_keys', b'apt-get', b'curl ', b'wget '):
             self.assertNotIn(forbidden, user)
+        self.assertFalse(any(line.endswith(b' ') for line in user.splitlines()))
 
-    def test_unit_has_outer_limits_and_serial_only_output(self):
+    def test_unit_has_outer_limits_and_keeps_private_devices(self):
         unit = self.files['aster-s0-canary.service']
         for required in (b'NoNewPrivileges=yes', b'CapabilityBoundingSet=', b'PrivateDevices=yes',
                          b'ProtectSystem=strict', b'RestrictAddressFamilies=AF_UNIX',
-                         b'MemoryMax=512M', b'RuntimeMaxSec=90', b'TTYPath=/dev/ttyS0'):
+                         b'MemoryMax=512M', b'RuntimeMaxSec=90', b'TimeoutStartSec=90',
+                         b'StandardOutput=journal'):
             self.assertIn(required, unit)
+        self.assertNotIn(b'TTYPath=', unit)
+        self.assertNotIn(b'StandardOutput=tty', unit)
+
+    def test_serial_export_is_outside_sandboxed_unit(self):
+        canary = self.files['canary.py']
+        user = self.files['user-data']
+        self.assertIn(b"(out/'protocol.txt').write_bytes", canary)
+        self.assertNotIn(b'sys.stdout', canary)
+        self.assertIn(b'cat /var/lib/aster-s0/output/protocol.txt > /dev/ttyS0', user)
+        self.assertIn(b'systemctl poweroff', user)
 
     def test_canary_result_is_protocol_compatible(self):
         payload = json.loads(self.files['payload-manifest.json'])

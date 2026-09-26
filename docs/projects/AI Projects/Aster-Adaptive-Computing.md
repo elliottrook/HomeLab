@@ -752,6 +752,13 @@ passthrough, shared filesystem or automatic start. The single bootstrap boot
 reported only loopback and reached the reviewed canary unit. That unit failed before
 emitting a protocol result; the wrapper powered the VM off and the strict parser
 rejected the capture as incomplete. VM118 is retained stopped, existing guests are
-unchanged and no accepted corpus ran. Exact cause remains UNKNOWN / REQUIRES
-VERIFICATION. [V2 evidence](experiments/s0-routing-descriptive-v1/run-v2-bootstrap/README.md)
-blocks V3 and any retry pending a separately reviewed offline diagnosis.
+unchanged and no accepted corpus ran. An approved read-only forensic inspection
+then proved systemd status `209/STDOUT`: direct TTY output conflicted with the
+unit's private-device namespace. [V2 evidence](experiments/s0-routing-descriptive-v1/run-v2-bootstrap/README.md)
+retains the bounded journal and cleanup receipts.
+
+The local [v1 correction candidate](experiments/s0-routing-descriptive-v1/vm-candidate-v1/OPERATIONS-PLAN.md)
+keeps `PrivateDevices=yes`, writes the protocol into the unit's bounded output
+directory and lets the outer lifecycle publish it to serial only after success.
+Twenty-one focused and 235 full adaptive tests pass. A new seed, fresh VM and V2b
+boot require a new approval; V3 and accepted-corpus execution remain blocked.

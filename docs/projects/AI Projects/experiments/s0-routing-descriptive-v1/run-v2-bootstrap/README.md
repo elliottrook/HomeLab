@@ -12,7 +12,11 @@ had no network device, guest agent, credential, passthrough or shared filesystem
 
 The single approved V2 boot reached cloud-init and attempted
 `aster-s0-canary.service`. The unit failed before it emitted an `ASTER_S0_V1`
-record. The cloud-init wrapper still issued the designed poweroff, the VM stopped
+record. A later explicitly approved read-only forensic inspection proved why:
+systemd could not attach the service's standard output to `/dev/ttyS0` while
+`PrivateDevices=yes` isolated the service device namespace. It failed with
+`status=209/STDOUT` and `Operation not permitted` before Python executed. The
+cloud-init wrapper still issued the designed poweroff, the VM stopped
 cleanly, and the host capture command returned zero after the serial session ended.
 The capture is 105,115 bytes with SHA-256
 `23e071c370e952d64c08b678900121ee03098ec7444b1d26f5e5661fc9027fdb`.
@@ -35,10 +39,17 @@ protocol`. This is not a successful canary.
 - No `netN`, agent, host PCI, USB, VirtioFS, GPU, credential or on-boot setting.
 - Guest cloud-init reported only `lo` with loopback IPv4/IPv6.
 - Cloud-init reached its final stage and invoked the canary unit at about 130 seconds.
-- The unit failed with a control-process error. Exact unit failure cause is
-  **UNKNOWN / REQUIRES VERIFICATION**.
+- The unit failed before `ExecStart` at systemd's STDOUT setup step:
+  `Failed to set up standard output: Operation not permitted`, status
+  `209/STDOUT`.
+- The generated unit, canary and payload manifest match the reviewed SHA-256
+  values; `/var/lib/aster-s0/output/result.json` is absent.
+- The ext4 filesystem reported `clean` before the forensic mount.
+- The inspection used a read-only loop and `ro,noload` (reported by ext4 as
+  `norecovery`), then verified that both mount and loop device were absent.
 - The wrapper powered off the VM even after the unit failure.
-- VM118 is stopped and retained with its OS disk; no disk was mounted offline.
+- VM118 is stopped and retained with its OS disk; its one approved offline
+  inspection completed read-only and detached cleanly.
 - The host is `running`; available memory and storage remain above the gates.
 - All pre-existing VMs/LXCs retained their preflight running/stopped states.
 - Accepted corpus evaluated: **false**.
@@ -63,21 +74,27 @@ directory records its digest, size, bounded findings and exact VM facts instead.
 The source image, checksum file, seed sources and ISO are retained in their reviewed
 host paths. `evidence.json` is the structured record.
 
+The sanitized forensic receipts and seven bounded unit-journal records are in
+[`forensics/`](forensics/). Their individual remote SHA-256 values are retained in
+`evidence-sha256.txt`; local retrieval revalidated every digest. The collection
+script SHA-256 is
+`52627d1dbb04b0d8d78a00a8202e9d04a7d371781c3a22511d939f474fe246c1`.
+
+Two pre-access attempts stopped on receipt-format assertions and detached cleanly:
+the device mapper exposed the source as `/dev/dm-27` rather than its
+`/dev/pve/...` symlink, and ext4 reported `norecovery` for the requested `noload`
+option. Both assertions were corrected without weakening read-only enforcement.
+
 ## Decision and next gate
 
 V2's success gate did not pass. Do not run V3, access the accepted corpus, reboot
 VM118, modify its disk, or treat poweroff as proof of confinement.
 
-The smallest useful next action is a separately reviewed, read-only offline forensic
-inspection of VM118's retained disk to obtain:
+The evidence supports a narrow correction: keep `PrivateDevices=yes`, have the
+unprivileged canary write a bounded protocol file in its only writable directory,
+and let the outer cloud-init lifecycle copy that file to `/dev/ttyS0` only after a
+successful unit exit. This separates computation from the serial device boundary.
 
-- `systemctl status aster-s0-canary.service` equivalent state;
-- its bounded journal records;
-- the generated unit/source hashes; and
-- whether `/var/lib/aster-s0/output/result.json` exists.
-
-Use a read-only attachment/mount with journal replay disabled, retain exact device
-receipts, and detach it immediately after collection. That forensic step is not
-authorized by the consumed V2 approval. A corrected seed and another boot require a
-new candidate, new run identity and fresh approval.
-
+Candidate `vm-candidate-v1` uses new run and instance identities. It remains a
+local source artifact. Creating a new seed/VM or booting any candidate requires a
+fresh explicit approval; VM118 must not be reused as though cloud-init were fresh.

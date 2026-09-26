@@ -3,7 +3,7 @@
   "date": "2026-09-26",
   "status": "failed-inconclusive",
   "failure_boundary": "guest-canary-unit-start",
-  "failure_cause": "unknown-requires-verification",
+  "failure_cause": "systemd-status-209-stdout-private-device-tty-conflict",
   "vm": {
     "host": "proxmox",
     "vmid": 118,
@@ -40,7 +40,7 @@
     "cloud_init_reached_final": true,
     "canary_unit_started": true,
     "canary_unit_succeeded": false,
-    "canary_unit_exact_failure": "unknown-requires-verification",
+    "canary_unit_exact_failure": "Failed to set up standard output: Operation not permitted; status=209/STDOUT",
     "wrapper_poweroff_completed": true,
     "network_wait_online_failed_after_about_seconds": 120,
     "ssh_host_keys_generated": true
@@ -50,9 +50,19 @@
     "accepted_corpus_evaluated": false,
     "credentials_injected": false,
     "retry_performed": false,
-    "offline_disk_inspection_performed": false,
+    "offline_disk_inspection_performed": true,
+    "offline_disk_inspection_read_only": true,
+    "offline_mount_and_loop_cleanup_verified": true,
     "existing_guest_state_changed": false,
     "v3_authorized": false
   },
-  "decision": "v2-gate-failed-preserve-and-diagnose-before-new-candidate"
+  "forensics": {
+    "method": "read-only loop plus ext4 ro,noload/norecovery mount",
+    "source_filesystem_state": "clean",
+    "result_json": "absent",
+    "generated_artifact_hashes_match": true,
+    "journal_records_retained": 7,
+    "collection_script_sha256": "52627d1dbb04b0d8d78a00a8202e9d04a7d371781c3a22511d939f474fe246c1"
+  },
+  "decision": "v2-failed-exact-cause-proven-prepare-new-identity-candidate-no-retry-authorized"
 }

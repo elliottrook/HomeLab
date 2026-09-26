@@ -513,3 +513,17 @@ protocol records; strict parse result is `incomplete protocol`. VM118 remains
 stopped, host/existing guests are healthy and unchanged, and no corpus ran. Exact
 unit cause is UNKNOWN pending separately approved read-only offline forensics. No
 retry or V3 is authorized.
+
+
+### 2026-09-26 — V2 forensic cause and v1 correction candidate
+
+An approved offline inspection attached VM118's stopped OS disk through a read-only
+loop and mounted ext4 `ro,noload` (`norecovery`). The filesystem was clean, the
+reviewed unit/canary/manifest hashes matched, and no result file existed. Seven
+bounded journal records prove systemd failed before Python with
+`status=209/STDOUT`: direct `/dev/ttyS0` output conflicted with
+`PrivateDevices=yes`. Mount and loop cleanup were verified and VM118 remains
+stopped. The v1 candidate retains private devices, writes the framed output to a
+bounded file and delegates serial publication to the outer cloud-init lifecycle.
+Twenty-one focused and 235 full adaptive tests pass. No new ISO or VM exists, no
+boot or corpus run occurred, and V2b/V3 remain unauthorized.

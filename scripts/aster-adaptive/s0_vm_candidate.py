@@ -13,14 +13,14 @@ IMAGE = {
     'sha512': ('a733e7d49442a03e70d03e4eb5aaf3967f3efc69ef70952f9bb10fc1ee2c4876'
                'eb95956b5ad2d31350e5fada768feb651352535fb8cd1233f61998a5a7d2e93c'),
 }
-RUN_ID = 'bootstrap-canary-001'
-INSTANCE_ID = 'aster-s0-bootstrap-canary-001'
+RUN_ID = 'bootstrap-canary-002'
+INSTANCE_ID = 'aster-s0-bootstrap-canary-002'
 FORBIDDEN = ('reviewed-proposal', 'acceptance.json', 'labeling/pilot-s0',
              'private_context', 'human-review')
 
 
 CANARY_TEMPLATE = '''"""Generated synthetic bootstrap canary; no external inputs."""
-import base64,hashlib,json,pathlib,sys
+import base64,hashlib,json,pathlib
 RUN_ID = {run_id!r}
 MANIFEST = {manifest!r}
 PREFIX = b'ASTER_S0_V1'
@@ -36,8 +36,9 @@ lines = [b' '.join((PREFIX,b'BEGIN',RUN_ID.encode(),MANIFEST.encode(),str(len(ra
 for sequence,part in enumerate(parts):
     lines.append(b' '.join((PREFIX,b'CHUNK',RUN_ID.encode(),str(sequence).encode(),base64.b64encode(part))))
 lines.append(b' '.join((PREFIX,b'END',RUN_ID.encode(),str(len(raw)).encode(),digest.encode())))
-out = pathlib.Path('/var/lib/aster-s0/output/result.json')
-out.write_bytes(raw); sys.stdout.buffer.write(b'\\n'.join(lines)+b'\\n'); sys.stdout.buffer.flush()
+out = pathlib.Path('/var/lib/aster-s0/output')
+(out/'result.json').write_bytes(raw)
+(out/'protocol.txt').write_bytes(b'\\n'.join(lines)+b'\\n')
 '''
 
 
@@ -50,9 +51,8 @@ User=aster-s0
 Group=aster-s0
 WorkingDirectory=/var/lib/aster-s0
 ExecStart=/usr/bin/python3 -I -S -B /usr/local/lib/aster-s0/canary.py
-StandardOutput=tty
-StandardError=tty
-TTYPath=/dev/ttyS0
+StandardOutput=journal
+StandardError=journal
 NoNewPrivileges=yes
 CapabilityBoundingSet=
 AmbientCapabilities=
@@ -75,7 +75,7 @@ MemoryMax=512M
 TasksMax=64
 CPUQuota=100%
 RuntimeMaxSec=90
-TimeoutStartSec=100
+TimeoutStartSec=90
 '''
 
 
@@ -102,7 +102,7 @@ def validate_canary(value):
 
 def _literal(text, spaces=6):
     pad = ' ' * spaces
-    return ''.join(pad + line + '\n' for line in text.splitlines())
+    return ''.join((pad + line if line else '') + '\n' for line in text.splitlines())
 
 
 def render():
@@ -139,7 +139,7 @@ def render():
             "runcmd:\n"
             "  - [install, -d, -o, aster-s0, -g, aster-s0, -m, '0700', /var/lib/aster-s0/output]\n"
             "  - [systemctl, daemon-reload]\n"
-            "  - [sh, -c, 'systemctl start aster-s0-canary.service; rc=$?; systemctl poweroff; exit $rc']\n"
+            "  - [sh, -c, 'systemctl start aster-s0-canary.service; rc=$?; if test \"$rc\" -eq 0; then cat /var/lib/aster-s0/output/protocol.txt > /dev/ttyS0 || rc=$?; fi; sync; systemctl poweroff; exit \"$rc\"']\n"
             "final_message: 'aster-s0 bootstrap completed'\n").encode('utf-8')
     config = {
         'schema': 'aster-s0-vm-config-proposal.v1',

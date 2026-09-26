@@ -1,0 +1,9 @@
+81aaca46481632a707876858a737d5c2da5985f402ae54e21e31d387e56bfaae  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/canary-journal.jsonl
+8d12658847ec7b19b4b58126f7c7b417d02f74af815f97a8297ed92f9bb26813  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/cloud-init-canary-lines.txt
+5e23b2dbe19e2b1e6cd409ab75c1c7b1d1fd771cc0955b648b4815620a9d0692  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/filesystem-state.txt
+57a65546b25bf592b9e6c89cd3302b2ce9440d48de2e08ec5e6429cce68edeb0  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/generated-artifacts.txt
+dd3e7fe44535a10f46ba5df738fbf8e4e6c8ced621042efcb8638e46fd754c62  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/loop-receipt.txt
+3a1426672ff833d864011af240a0f1b8e2378c2226060f9894c6c838fea6887d  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/lsblk-before-mount.txt
+f65db026c39ac3c15f22af026c08259b4181f37b5c6aa8c1d8c03f1e520af164  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/mount-receipt.txt
+74c4101dd6f2f5940bd678a4db4a6470dd0afe14eff09bd3279eeb345092f747  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/partition-table.txt
+7925d3e9a9613a093e5eb4054b32aa39de910d2b03ba7e8046c3b4550b8de1e4  /var/lib/vz/template/cache/aster-s0-20260926/run-v2/forensics/result-metadata.txt
