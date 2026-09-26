@@ -96,3 +96,17 @@ Doctor records. The installer initially reached its one-shot socket assertion
 before the new service had created the socket; production became ready moments
 later, and the source installer now uses a bounded readiness loop. Two real
 approved Yellow runs and revocation checks remain before M7 graduation.
+
+Jason then approved two distinct production Yellow requests. Each approval was
+payload-bound and consumed once, each created exactly one distinct Doctor job,
+and replay of the first consumed request was denied. Both jobs completed
+`succeeded/checks_complete`; each sanitized result contained 72 passing checks,
+4 warnings and 1 reported health failure across the bounded 32-check response.
+Green latest returned the first new job after completion. No raw output or
+credential field crossed the gateway.
+
+Pre-revocation review found that an unavailable gateway would fail closed but
+could close the broker connection without a structured response. The candidate
+now applies a ten-second Unix-socket timeout and translates transport/JSON
+failure into a bounded denial. Its regression test passes; that small transport
+hardening and the live broker/target revocation checks remain gated.

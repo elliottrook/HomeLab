@@ -175,6 +175,23 @@ class BrokerServiceTests(unittest.TestCase):
         })["ok"])
         self.assertEqual("doctor.run", self.lab_gateway.requests[-1]["method"])
 
+    def test_doctor_gateway_unavailable_returns_bounded_denial(self):
+        self.store.register_service("lab-operations")
+        self.store.register_capability(
+            "lab.doctor.latest", "lab-operations", "green", probation_allowed=True,
+        )
+        self.store.grant_capability("agent-test", "lab.doctor.latest")
+        self.server.lab_operations_socket = str(Path(self.tempdir.name) / "missing.sock")
+        created = self.call({
+            "method": "request.create", "capability": "lab.doctor.latest", "payload": {},
+        })
+        response = self.call({
+            "method": "request.consume", "request_id": created["result"]["request_id"], "payload": {},
+        })
+        self.assertEqual(
+            {"ok": False, "error": "Lab Operations gateway is unavailable"}, response,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

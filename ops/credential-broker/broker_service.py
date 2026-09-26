@@ -94,10 +94,14 @@ class BrokerHandler(socketserver.StreamRequestHandler):
                     "request_id": record.request_id,
                     "arguments": payload,
                 }
-                with socket.socket(socket.AF_UNIX) as gateway:
-                    gateway.connect(self.server.lab_operations_socket)  # type: ignore[attr-defined]
-                    gateway.sendall(json.dumps(rpc, separators=(",", ":")).encode() + b"\n")
-                    result = json.loads(gateway.makefile("rb").readline())
+                try:
+                    with socket.socket(socket.AF_UNIX) as gateway:
+                        gateway.settimeout(10)
+                        gateway.connect(self.server.lab_operations_socket)  # type: ignore[attr-defined]
+                        gateway.sendall(json.dumps(rpc, separators=(",", ":")).encode() + b"\n")
+                        result = json.loads(gateway.makefile("rb").readline())
+                except (OSError, json.JSONDecodeError) as error:
+                    raise BrokerDenied("Lab Operations gateway is unavailable") from error
                 if not result.get("ok"):
                     raise BrokerDenied("Lab Operations gateway denied the request")
                 return {"request_id": record.request_id, "status": record.status, "result": result.get("result")}
