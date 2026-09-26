@@ -245,6 +245,18 @@ unpublished M2/Stage2 continuation was observed and left untouched. No productio
 mutation occurred in this reconciliation; this merge and review work remain local.
 A further push needs explicit authorization.
 
+### Current contract reconciliation — 2026-09-26
+
+The two offline contract candidates have been compared using pinned snapshots:
+56 harness tests, 29 selector tests and 31 portable vectors pass. Ten cross-profile
+samples are rejected in both directions; four version strings name incompatible
+formats. See [contract mapping and decision](evidence/M2-contract-reconciliation.md).
+Retain both scoped tools; no automatic converter or connected adoption is approved.
+Next local work is independent expected-source pinning before the fixture harness
+compiles source. A read-only Forgejo check found newer `2c71d6b`; recheck/reconcile
+before any later integration. Stage2 and M4 review gates remain open. No push or
+production mutation occurred in this comparison.
+
 ## Consolidated requirements and dependency ownership
 
 The following standalone plans are superseded as execution queues, with history retained in `../archive/`:

@@ -152,3 +152,12 @@ The verifier grants no review approval or measurement-authenticity claim. The
 [storage and review design](../../docs/projects/AI%20Projects/M4-Storage-and-Review-Design.md)
 defines the proposed ownership, retention and recovery boundaries; operational
 acceptance and separate identities/custody have not been established.
+
+## Contract profile comparison
+
+`compare_contract_wires.py` compares this fixture-harness profile with the pinned
+selector-only candidate at `1a8fa68`. Supply its extracted `services/aster-adaptive`
+directory using `--selector-dir`, and a new result path with `--output`. The script
+checks source/corpus pins before importing the trusted module. It performs no
+conversion. Shared version labels do not imply interchangeable records; see the
+[contract map](../../docs/projects/AI%20Projects/evidence/M2-contract-reconciliation.md).
