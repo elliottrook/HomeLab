@@ -520,3 +520,13 @@ preflight, health/DNS comparison and ownership-aware failure cleanup. Actual
 observation collectors and remote transport remain absent/disabled. No LXC100 or
 accepted-corpus access. Candidate awaits technical review before commit or exact
 shared-host run approval. No installation, infrastructure change or push.
+
+
+### Current checkpoint — bounded observation/session candidate
+
+[Candidate evidence](experiments/s0-routing-descriptive-v1/LXC100-CANDIDATE-EVIDENCE.md)
+records 15 new and 176 full passing local tests. Fixed metadata collectors,
+bounded session and PID/invocation ownership checks are implemented as disabled
+candidates. Complete lifecycle integration and unloaded-unit recovery remain
+unresolved. Next: review this candidate, then complete those local gates before
+any live probe. No SSH/LXC100 invocation, corpus evaluation or push in this step.

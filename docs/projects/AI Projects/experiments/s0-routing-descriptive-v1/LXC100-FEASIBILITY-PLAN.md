@@ -56,7 +56,7 @@ The worker itself must not send DNS or any network traffic.
 ## Exact candidate payload and properties
 
 `lxc100-fixture-payload.py.txt` is syntax-parsed locally only; SHA256:
-`95fa3ec4927007559e5ed82d008c6464f65c802c38bb246ce3da3f68db5d6656`.
+`497ffce4be2431284dc8a03b5bc33e48ed4264199dba36e9c0925fe8252f9850`.
 It attempts only fixed denied operations, reads a planted one-byte canary, emits
 small constant-schema JSON, waits five seconds for parent inspection, and exits.
 If fork unexpectedly succeeds its child exits immediately; parent reaps it and
@@ -241,3 +241,12 @@ execution-readiness claim follows from this local test.
 Cleanup now also requires exact0755 directory and0644 regular-file modes. Changed
 modes abort without deleting the canary or directory. Only local disposable tests
 have exercised this; no remote cleanup or new permission changes were performed.
+
+## Candidate collector revision — 2026-09-26
+
+The readiness record now includes the worker PID for comparison with MainPID.
+The candidate observation catalog adds bounded metadata commands, a 12-second
+shared collector deadline and 4 KiB combined output limit per child command.
+This revision is not live-ready: integrated lifecycle and recovery review remain
+outstanding. Earlier supervisor evidence hashes describe commit `1e506bd`; use
+`lxc100-candidate-manifest.json` for this revision. No live entry is enabled.

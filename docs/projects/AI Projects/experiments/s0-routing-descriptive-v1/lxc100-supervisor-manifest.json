@@ -13,5 +13,7 @@
   "ssh_invoked_by_supervisor": false,
   "accepted_corpus_accessed": false,
   "unit_started": false,
-  "live_authorized": false
+  "live_authorized": false,
+  "evidence_revision": "1e506bd",
+  "historical_snapshot": true
 }

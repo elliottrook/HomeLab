@@ -17,7 +17,7 @@ from pathlib import Path
 
 UNIT = 'aster-s0-feasibility-20260926.service'
 CANARY_DIR = '/var/tmp/aster-s0-feasibility-20260926'
-PAYLOAD_SHA256 = '95fa3ec4927007559e5ed82d008c6464f65c802c38bb246ce3da3f68db5d6656'
+PAYLOAD_SHA256 = '497ffce4be2431284dc8a03b5bc33e48ed4264199dba36e9c0925fe8252f9850'
 PAYLOAD = (Path(__file__).resolve().parents[2] / 'docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/lxc100-fixture-payload.py.txt')
 SSH = ('/usr/bin/ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', 'root@192.168.50.10')
 CAP = 8192

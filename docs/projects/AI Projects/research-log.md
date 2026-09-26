@@ -303,3 +303,11 @@ health/DNS/control checks, ordered execution and cleanup/final verification.
 Every transition has failure-injection coverage;17 new/161 full tests pass.
 Uncertain ownership never authorizes stop/delete. No remote branch, accepted
 data, actual DNS packet, unit lifecycle, install or push. Returned for review.
+
+
+### 2026-09-26 — bounded LXC100 collector candidate
+
+Local evidence: 15 new/176 full tests pass. Added byte/time limits to proposed
+metadata collectors and PID/invocation checks to candidate ownership receipts.
+No remote execution. Unloaded-unit recovery and lifecycle integration remain
+UNKNOWN/unimplemented; see LXC100-CANDIDATE-EVIDENCE.md and pinned manifest.

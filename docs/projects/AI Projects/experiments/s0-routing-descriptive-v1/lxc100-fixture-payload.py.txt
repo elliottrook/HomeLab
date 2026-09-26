@@ -49,7 +49,7 @@ denied('fork_denied', fork_attempt, {errno.EPERM, errno.EACCES, errno.EAGAIN})
 denied('canary_read_denied', canary_read, {errno.EPERM, errno.EACCES})
 denied('runtime_write_readonly', runtime_write, {errno.EROFS})
 checks['unprivileged'] = os.geteuid() != 0
-print(json.dumps({'scope':'invented-fixture-only','phase':'ready','checks':checks},sort_keys=True),flush=True)
+print(json.dumps({'scope':'invented-fixture-only','phase':'ready','checks':checks,'pid':os.getpid()},sort_keys=True),flush=True)
 # Inspection window for parent systemctl/cgroup checks; no load-generating work.
 time.sleep(5)
 print(json.dumps({'scope':'invented-fixture-only','phase':'done','passed':all(checks.values())}),flush=True)

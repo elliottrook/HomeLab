@@ -1,0 +1,18 @@
+{
+  "status": "local-tested-incomplete-live-disabled",
+  "artifacts": {
+    "scripts/aster-adaptive/s0_lxc100_observe.py": "1f7d7a19bfcedcb6fd6bb8b5475fef8787d0e75277e6345899141ec713852dab",
+    "scripts/aster-adaptive/s0_fixed_session.py": "0c88f90d066577d0c3d2d6583fd5a3979a41571c9cb78eb74d0ea1fb0848c05d",
+    "scripts/aster-adaptive/s0_dns_observe.py": "e0ed9222ddf642f62f4e9d05cb454b0dffe962ff4d9f8691c8d3ec9fb73b088b",
+    "scripts/aster-adaptive/test_s0_lxc100_candidate.py": "d9736e5606a6564d5de074be962e994513a0330b3ede137bf6f84510fc46ff3f",
+    "scripts/aster-adaptive/s0_feasibility_supervisor.py": "0ceb0486bb1c4ec33ef8ecf93be244bd7225169f44a213f6c586aa37bedf1b78",
+    "docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/lxc100-fixture-payload.py.txt": "497ffce4be2431284dc8a03b5bc33e48ed4264199dba36e9c0925fe8252f9850",
+    "docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/LXC100-FEASIBILITY-PLAN.md": "5d46baa8e7f5ace1d367569a07665de8fe3ab1bcc0b73eb20dba0021a05a8898",
+    "docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/LXC100-CANDIDATE-EVIDENCE.md": "b3f75d3151da21fc9b512aeaef6c4eb2bdfda0a1a4641bfc01698fef242cd759"
+  },
+  "command_catalog_sha256": "25f4062dda49905560f4efd1c9c6576812df350a15458da8845631037fb876d9",
+  "new_tests_passed": 15,
+  "full_tests_passed": 176,
+  "live_invoked": false,
+  "accepted_corpus_accessed": false
+}
