@@ -49,3 +49,25 @@ threshold or harness choice is inferred from these descriptive timings.
 
 See the [M2 checkpoint](../../docs/projects/AI%20Projects/evidence/M2-offline-checkpoint.md)
 for remaining gates and measured artifact provenance.
+
+## Actual HTTP path and optional challenger
+
+`test_full_aster.py` adds seven actual Aster ASGI chat-path checks, using synthetic
+key authentication, fake readers/model, blocked connections and no startup workers.
+The normal test command now runs 26 tests. It does not require PydanticAI.
+
+An optional hash-pinned temporary PydanticAI environment was used for the minimal
+preload comparison. It is separate from the existing test/production environments:
+
+```sh
+PYDANTIC_AI_NO_BANNER=1 /private/tmp/aster-adaptive-pydanticai/bin/python scripts/aster-adaptive/candidate_checks.py
+/private/tmp/aster-adaptive-pydanticai/bin/python scripts/aster-adaptive/compare_preload.py --mode aster --output /private/tmp/aster-preload-new.json
+PYDANTIC_AI_NO_BANNER=1 /private/tmp/aster-adaptive-pydanticai/bin/python scripts/aster-adaptive/compare_preload.py --mode pydanticai --output /private/tmp/pydanticai-preload-new.json
+```
+
+The original four-case slice evidence remains immutable; new test files do not
+retroactively change its measured implementation manifest. Compare current source
+hashes and use new evidence paths for later runs. See the
+[M3 result](../../docs/projects/AI%20Projects/evidence/M3-preload-results.md) and its
+hashed dependency lock. The preload result retains Aster and is not a completed
+M3 routing/tool-loop/model-quality comparison.

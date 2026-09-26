@@ -1,0 +1,62 @@
+{
+  "host_snapshot_mib": {
+    "available": 47802,
+    "swap_used": 1,
+    "total": 80338
+  },
+  "inference": {
+    "allowlisted_process_flags": {
+      "-b": "256",
+      "-c": "8192",
+      "-fa": "on",
+      "-m": "/opt/models/qwen3.8-27b-iq4xs/Qwen3.8-27B-UD-IQ4_XS-00001-of-00002.gguf",
+      "-ngl": "999",
+      "-np": "1",
+      "-t": "4",
+      "-tb": "4",
+      "-ub": "128"
+    },
+    "binary_sha256": "47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693",
+    "executable": "/opt/llama.cpp-b11081/llama-server",
+    "memory_current_bytes": 9501990912,
+    "server_implementation_sha256": "b89200852d6f1cbf4c2f4764b19ce86bc316c41280798cab3dc0b2afded1985d",
+    "vulkan_backend_sha256": "dfbfe66354e7b9f7a0236194d665874152983284315d6c4f76a36aaff96b0dc5"
+  },
+  "limits": [
+    "Snapshots are not sustained headroom measurements",
+    "Model shard hashes reused as dated B60 project evidence, not rehashed",
+    "Live broker remains pre-M1",
+    "HTTP integration substitutes readers/model; background lifecycle and real OIDC not tested",
+    "Local Python differs from deployed Python"
+  ],
+  "live_aster_packages": {
+    "PyJWT": "2.14.0",
+    "fastapi": "0.133.1",
+    "httpx": "0.28.1",
+    "pydantic": "2.13.4",
+    "uvicorn": "0.41.0"
+  },
+  "live_aster_python": "3.13.5",
+  "local_validation": {
+    "adaptive_tests": 26,
+    "aster_existing_tests": 89,
+    "full_http_tests_in_adaptive": 7,
+    "model_requests": 0,
+    "network_connections": "forbidden",
+    "python": "3.12.14"
+  },
+  "observed_date": "2026-09-25",
+  "schema_version": 1,
+  "scope": "read-only service/hash/version checks and synthetic local HTTP tests",
+  "services": {
+    "aster-agent": "active",
+    "aster-llama": "active",
+    "homelab-broker": "active",
+    "homelab-broker-approval": "active"
+  },
+  "source_sha256": {
+    "live_aster_agent.py": "8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+    "live_broker_core.py": "c8f95571ab5b7be1783fe54394047a8d5c40d9cc9121ffcbdc7ad1af99a87cb1"
+  },
+  "test_sha256": "cfb002baac2f0f751a2749b5afb1d16f79efabe43f6a2b2e06c6f1f6eb76260f"
+}

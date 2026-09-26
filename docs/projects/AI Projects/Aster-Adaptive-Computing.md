@@ -1,6 +1,6 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 baseline complete, M1 candidate published; M2 offline contracts/baseline started; review/deployment gates open; production unchanged.
+**Status:** Active — Stream A; M0 baseline complete, M1 candidate published; M2 offline foundation verified; M3 minimal preload comparison retained Aster; review/deployment gates open; production unchanged.
 
 **Owner:** Jason.
 
@@ -86,7 +86,7 @@ Checkboxes are milestone evidence claims. M0 is complete for baseline/start scop
 |---|---|---|---|
 | **M0 — baseline and scope** | Reverify source/live versions, owners, resource budget and authority boundaries | [x] Dated manifest; known/unknown list; current test baseline; approved local foundation/start scope — see evidence/M0-baseline.md | No runtime mutation. Continue only with pinned evidence and preserved user work |
 | **M1 — authority regression boundary** | Design/fix caller binding and demotion revocation; review approver role, atomic consume and policy-change handling | [ ] Synthetic wrong-caller, demoted/revoked, expired, stale-policy, duplicate/concurrent-consume and restart tests; independent review; approved deployment if required | Retain restrictive disable/revoke path; do not roll back to unsafe broader grants. Offline experiments can proceed independently; integration cannot |
-| **M2 — contracts and baseline adapters** | Decision/run/outcome/experiment schemas; minimal catalogue; current Aster adapter | [ ] Contract fixtures; no execution through unknown capabilities; zero leaked secret fields; no behavior/authority expansion; baseline overhead measured | Remove adapter/config and retain current runtime; schema/version/evidence manifest |
+| **M2 — contracts and baseline adapters** | Decision/run/outcome/experiment schemas; minimal catalogue; current Aster adapter | [x] Offline synthetic contract fixtures; unknown-capability denial; no leaked secret fields; no production behavior/authority expansion; baseline overhead measured — see evidence/M2-integration-checkpoint.md | Remove adapter/config and retain current runtime; schema/version/evidence manifest |
 | **M3 — harness and routing decisions** | M2; existing Aster vs minimal Pydantic AI; LangGraph on multi-step subset; rules vs one routing challenger | [ ] Separate controlled harness tests and local-model task tests; frozen corpus; quality, p50/p95, prompt tokens, calls, retries, resource and maintenance results; explicit choose/retain/reject ADR | No live migration required. Discard challengers; evidence must support the choice rather than framework preference |
 | **M4 — minimal evidence loop** | M2; privacy-approved schema and storage design | [ ] Reproducible dataset manifests, label provenance, calibration where supported, paired evaluation, experiment record and proposal/review separation; storage restore test | Stop collector/runner; restore last-known-good manifests; no opaque data dependency |
 | **M5 — read-only shadow pilot** | M1 for any connected broker path; M3/M4; explicit collection/deployment approval | [ ] Finite observation window, proposed 14 days plus sufficient labeled independent examples; no effectful calls; audited egress/retention; measured overhead and shared-service impact | Disable shadow switch, remove candidate traffic and disallowed data; extend window or declare inconclusive if sample inadequate |
@@ -151,6 +151,8 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | Jason authorized Stream A and consolidation | Canonical project adopted; five predecessors archived; M0 reverified; M1 started with 36 passing tests and two explicit expected-failure blockers; no production mutation |
 | 2026-09-25 | M1 local authority candidate | Caller/demotion blockers fixed; 58 broker and 8 Companion tests pass; atomic concurrency/crash/restart and approver regressions retained; independent review and deployment still open |
 | 2026-09-25 | M1 publication and M2 offline start | Forgejo/GitHub verified at 35175c8; 19 M2 conformance tests and four-case source-slice baseline retained; neither M1 deployment nor full M2 gate is complete |
+| 2026-09-25 | M2 integration and M3 preregistration | 26 adaptive + 89 existing Aster tests pass; live hashes/packages reconciled; offline M2 gate complete; minimal challenger plan and 17-package dry-run resolution retained; no install/deployment |
+| 2026-09-25 | M3 minimal preload experiment | Isolated 17-package/5.45 MB install; two process repeats per candidate; ~1 ms PydanticAI p95 and ~22 MiB incremental RSS; guardrails pass but no measured benefit, retain Aster; M3 overall open |
 
 ## 16. Later releases within the programme
 
@@ -177,14 +179,23 @@ M1 checkpoint `a5e8b22` was published with intervening non-overlapping updates a
 `35175c8` after Jason's explicit push instruction; Forgejo and GitHub main were
 verified at the same full hash. M1 remains undeployed.
 
-M2 has begun independently: five contract families, a fixture-only catalogue,
-nineteen passing conformance tests and a four-case source-slice payload benchmark.
-See [M2 offline checkpoint](evidence/M2-offline-checkpoint.md). This measures only
-controlled construction overhead; full runtime compatibility, version/headroom
-manifest and model measurements remain open. Next: review contract scope and
-validate a complete isolated Aster adapter before the minimal PydanticAI comparison.
-No framework installation is required merely to compare architecture. M2's new
-local checkpoint requires a separate future push authorization.
+M2's offline foundation gate is complete: five contract families, a fixture-only
+catalogue, 26 passing adaptive tests (including seven actual HTTP path tests),
+89 passing existing Aster tests and the retained four-case baseline measurement.
+Read-only live source/binary/package checks match the dated baseline; no production
+mutation or model call occurred. See [M2 integration checkpoint](evidence/M2-integration-checkpoint.md).
+
+M3's preregistered minimal preload comparison ran in a disposable, hash-pinned
+PydanticAI slim environment (17 packages, 5.45 MB wheels; no provider extras).
+Two independent process runs per candidate met the controlled overhead guardrails,
+but established no correctness/maintenance advantage. **Retain Aster; do not
+migrate.** Four candidate smoke/denial/cancellation checks pass. See
+[M3 results, limitations and next steps](evidence/M3-preload-results.md).
+
+M3 remains open for justified tool-loop/adverse-case work, routing comparison and
+local-model compatibility/quality evidence. No LangGraph installation or production
+change occurred. M1's independent security review/deployment gates remain open.
+All newer M2/M3 work is local; a further push needs explicit authorization.
 
 
 ## Consolidated requirements and dependency ownership
