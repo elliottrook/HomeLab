@@ -51,6 +51,11 @@ no pending request remains, and ordinary chat/voice still work. Quit the app
 before bundle replacement and retain the previous complete bundle until this
 matrix passes.
 
+The first AI-PAM parity candidate is native version 0.2.0 (build 2). Its
+temporary acceptance rollback is
+`/Applications/AsterCompanion.pre-ai-pam-20260925.app`; do not remove that copy
+until the matrix above and ordinary chat/voice regression have passed.
+
 Tap the small orb to record, then tap again to finish. The web client limits
 recordings to 60 seconds. It reports transcription and response progress.
 Only voice-initiated replies are spoken. If the browser blocks automatic audio,

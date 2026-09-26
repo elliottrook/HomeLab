@@ -531,6 +531,14 @@ credential values/raw payloads and Swift tests cover response shapes, action
 encoding and fresh-auth URL construction. Source compiles with 23/23 tests;
 bundle replacement and the real-Mac acceptance matrix remain gated.
 
+The signed 0.2.0 (build 2) candidate was installed on the Mac after verifying
+release binary SHA-256 `0336a91007be7f19663aa6ea88937e4211dd3c743be6fa668bda845bc92d840a`.
+The preceding 0.1.0 bundle is retained intact at
+`/Applications/AsterCompanion.pre-ai-pam-20260925.app` with its original binary
+SHA-256 `2bdb6e7a5022efef3661c2aed1b98f75d9adfd7ebc41b1641141b7dc675a203c`.
+The Mac locked before UI/passkey acceptance, so neither native-parity checkbox
+is complete yet.
+
 ### M9 — graduation
 
 - [ ] global kill-switch test;
