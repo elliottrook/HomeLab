@@ -9,6 +9,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field, model_validator
 from contracts import Contract, Digest, Experiment, HarnessRun, Outcome, Ref
+from paired_evidence import PairedPlan, PairedEvaluation, aggregate
 
 
 class DatasetCase(Contract):
@@ -72,7 +73,8 @@ class Review(Contract):
 
 
 MODELS = {'experiment': Experiment, 'outcome': Outcome, 'evaluation': Evaluation, 'review': Review,
-          'dataset': Dataset, 'run': RegisteredRun, 'linked-outcome': LinkedOutcome}
+          'dataset': Dataset, 'run': RegisteredRun, 'linked-outcome': LinkedOutcome,
+          'paired-plan': PairedPlan, 'paired-evaluation': PairedEvaluation}
 ZERO = 'sha256:' + '0'*64
 
 
@@ -124,6 +126,20 @@ class EvidenceStore:
         return model.model_dump(mode='json')
 
     def _relationships(self, kind, record, prior):
+        experiment_id = record.get('experiment_id') or record.get('run',{}).get('experiment_id')
+        if kind in {'run','linked-outcome','paired-evaluation','evaluation','paired-plan'} and any(
+                p['kind'] in {'review','paired-evaluation'} and p['record']['experiment_id']==experiment_id for p in prior):
+            raise ValueError('experiment already reviewed or finalized; use a new experiment')
+        if kind == 'paired-plan':
+            if not any(p['kind']=='experiment' and p['record']['experiment_id']==experiment_id for p in prior):
+                raise ValueError('paired plan needs frozen experiment')
+            if any((p['kind']=='paired-plan' and p['record']['experiment_id']==experiment_id) or
+                   (p['kind']=='run' and p['record']['run']['experiment_id']==experiment_id) for p in prior):
+                raise ValueError('paired plan must precede all runs and be unique')
+        elif kind == 'paired-evaluation':
+            derived, _ = aggregate(record, prior, digest)
+            if any(record[k]!=v for k,v in derived.items()):
+                raise ValueError('paired totals differ from measured evidence')
         if kind == 'dataset':
             if any(p['kind']=='dataset' and p['record']['dataset_id']==record['dataset_id'] for p in prior):
                 raise ValueError('dataset manifest already frozen')
@@ -168,7 +184,7 @@ class EvidenceStore:
                 if record[key]!=experiments[0][key]:
                     raise ValueError('evaluation changed frozen provenance')
         elif kind == 'review':
-            matches=[p for p in prior if p['kind']=='evaluation' and p['event_digest']==record['evaluation_digest']]
+            matches=[p for p in prior if p['kind'] in {'evaluation','paired-evaluation'} and p['event_digest']==record['evaluation_digest']]
             if len(matches)!=1 or matches[0]['record']['experiment_id']!=record['experiment_id']:
                 raise ValueError('review needs the exact evaluation event')
             if any(p['kind']=='review' and p['record']['experiment_id']==record['experiment_id'] for p in prior):

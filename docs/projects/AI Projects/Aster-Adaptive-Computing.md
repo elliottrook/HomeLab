@@ -217,10 +217,17 @@ The next local M4 step adds dataset manifests, registered runs and exact outcome
 lineage. **45 adaptive tests pass**; four fresh fixture outcomes passed and their
 ten-event ledger restored successfully. This is a lineage exercise, not a paired
 performance result. See [M4 lineage evidence and resume point](evidence/M4-lineage-checkpoint.md).
-Next safe work is a newly preregistered paired synthetic experiment whose aggregate
-evaluation binds exact outcome events and family denominators. M4 remains open.
-No production changes or installs occurred. This newer lineage work is local;
-a further push needs explicit authorization.
+Jason then authorized pushing `7ece818`; Forgejo and the GitHub mirror were verified
+at `7ece81892982fee10a5999cd7844d7360a2d6e25`.
+
+A newly preregistered paired synthetic experiment now binds aggregate evaluation
+to exact outcomes and family denominators. All four authored families passed the
+5 ms p95 overhead guardrail; the 164-event ledger restored successfully. **52 adaptive
+tests pass.** See [M4 paired evaluation evidence](evidence/M4-paired-checkpoint.md).
+The offline evidence path is demonstrated; M4 remains open for independent review
+separation and approved operational storage/retention. Next safe local work is that
+ownership, checkpoint-custody and lifecycle design. No production changes or installs
+occurred. This newer paired work is local; a further push needs explicit authorization.
 
 ## Consolidated requirements and dependency ownership
 
