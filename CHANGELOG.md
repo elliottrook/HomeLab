@@ -39,6 +39,9 @@
 - Rejects unknown, duplicate, impossible and credential-like telemetry fields.
   Unsupported frequency, power and CPU-fallback values remain explicit nulls
   rather than inferred; fifteen combined B60 tests pass without production load.
+- Added bounded, allowlisted host kernel-log capture and fallback classification
+  requiring affirmative backend/offload evidence plus resident VRAM. Nineteen
+  tests pass; a live read-only last-hour excerpt contained no relevant failures.
 
 ## 2026-09-25 — B60 inference engineering M0 inventory and local harness
 

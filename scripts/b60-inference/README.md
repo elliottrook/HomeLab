@@ -44,3 +44,10 @@ only its strict key set, rejects duplicate/unknown/credential-like fields, and
 converts supported counters to ledger units. Frequency, power and CPU fallback
 remain explicit `null` values when they cannot be proven; resident VRAM alone is
 not misrepresented as proof that every operation used the GPU.
+
+`collect-kernel-log.sh` runs read-only on Proxmox for an exact epoch range and
+caps its output at 500 relevant lines. `kernel_log.py` rejects irrelevant,
+oversized, control-character or credential-like content and classifies reset,
+device-loss, hang and OOM evidence. CPU fallback is reported true or false only
+from affirmative backend/offload evidence plus material resident VRAM;
+otherwise it remains unknown.

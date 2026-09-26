@@ -89,6 +89,20 @@ def measurement(snapshot: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def classify_cpu_fallback(startup_excerpt: str, snapshot: dict[str, Any]) -> Any:
+    """Return True/False only with affirmative evidence; otherwise None."""
+    lowered = startup_excerpt.lower()
+    if any(marker in lowered for marker in ("cpu backend only", "falling back to cpu", "offloaded 0/")):
+        return True
+    match = re.search(r"offload(?:ed|ing)\s+(\d+)\s*/\s*(\d+).*layer", lowered)
+    full_offload = bool(match and int(match.group(1)) == int(match.group(2)) and int(match.group(2)) > 0)
+    vulkan = "vulkan" in lowered and ("bmg g21" in lowered or "intel" in lowered)
+    resident = snapshot.get("vram_resident_kib", 0) > 1024 * 1024
+    if full_offload and vulkan and resident:
+        return False
+    return None
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("snapshot", type=Path)

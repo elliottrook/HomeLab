@@ -87,6 +87,8 @@
           "gpu_power_w": { "type": ["number", "null"], "minimum": 0 },
           "vram_used_bytes": { "type": ["integer", "null"], "minimum": 0 },
           "ram_used_bytes": { "type": ["integer", "null"], "minimum": 0 },
+          "gtt_resident_bytes": { "type": ["integer", "null"], "minimum": 0 },
+          "cpu_affinity": { "type": ["string", "null"] },
           "correct": { "type": "boolean" },
           "notes": { "type": "string" }
         }

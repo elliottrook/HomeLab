@@ -41,6 +41,13 @@ class TelemetryTests(unittest.TestCase):
         with self.assertRaises(telemetry.TelemetryError):
             telemetry.parse_snapshot(self.text.replace("cpu_affinity=3,9,19,20", "cpu_affinity=all"))
 
+    def test_cpu_fallback_requires_affirmative_evidence(self):
+        snapshot = telemetry.parse_snapshot(self.text)
+        accepted = "Vulkan0: Intel BMG G21; offloaded 65/65 layers to GPU"
+        self.assertFalse(telemetry.classify_cpu_fallback(accepted, snapshot))
+        self.assertTrue(telemetry.classify_cpu_fallback("CPU backend only; offloaded 0/65 layers", snapshot))
+        self.assertIsNone(telemetry.classify_cpu_fallback("backend details unavailable", snapshot))
+
 
 if __name__ == "__main__":
     unittest.main()

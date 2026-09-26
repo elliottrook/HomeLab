@@ -221,7 +221,7 @@ production service.
 - [x] Add synthetic pp512, pp4096 and tg128 tests at context positions 0, 4K
   and 8K where supported, with warm-up, five repetitions and pre/post controls.
 - [ ] Add cold-prefill isolation, prompt-cache state and CPU-fallback checks.
-- [ ] Add GPU frequency, temperature, power, VRAM/RAM, CPU/affinity and bounded
+- [x] Add GPU frequency, temperature, power, VRAM/RAM, CPU/affinity and bounded
   sanitized kernel-log capture where supported.
 - [x] Add real Aster conversation, persona, read-only tool, grounded retrieval,
   2K and 8K fixtures with TTFT, completion and correctness assertions.
@@ -417,6 +417,7 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-09-25 | Harness engineer | Added executable correctness evaluators for all fixture assertions, separate prefill/decode samples, conservative server-reported cache-hit detection and create-once mode-0600 raw evidence with fsync and SHA-256 | Twelve local tests pass, including incorrect tool/source rejection and overwrite refusal; CPU-fallback and live telemetry collectors remain incomplete |
 | 2026-09-25 | Telemetry engineer | Read-only LXC 110 discovery found `xe` hwmon package/VRAM/channel temperatures, per-process DRM fdinfo with 13,762,772 KiB resident VRAM and 1,017,304 KiB resident GTT at idle, 16 GiB guest RAM with 7,547,627 KiB available, and llama-server CPU affinity `3,9,19,20` | Temperature, VRAM/GTT, RAM and affinity can be captured without new packages; frequency and power counters were not exposed and must be recorded unavailable rather than inferred. Only `vulkaninfo` is installed; no `intel_gpu_top`, `xpu-smi` or `sensors` |
 | 2026-09-26 | Telemetry engineer | Added a read-only LXC collector plus strict parser for `xe` temperatures, process VRAM/GTT residency, guest RAM and CPU affinity. Unknown, duplicate, impossible and credential-like fields are rejected; unsupported frequency, power and CPU-fallback values remain explicit nulls. Ran the collector live through stdin without installing or writing it; it returned the expected strict fields for PID 441 | Fifteen local tests pass and the live read-only format is proven. This is partial M1 telemetry: bounded host kernel-log capture and positive CPU-fallback detection remain before the checkbox can close |
+| 2026-09-26 | Telemetry engineer | Added bounded Proxmox kernel-log collection plus strict sanitization/classification for reset, device loss, hang and OOM. Added affirmative CPU-fallback classification: explicit CPU fallback is failure; full Vulkan layer offload plus material VRAM residency is pass; insufficient evidence remains unknown. A live read-only last-hour collection returned no relevant failure lines | Nineteen local tests pass. The M1 telemetry-capture checkbox closes; orchestration into complete ledger records remains next |
 
 ## Close-out
 
