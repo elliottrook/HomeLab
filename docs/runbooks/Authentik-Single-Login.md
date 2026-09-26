@@ -41,11 +41,26 @@ from `provider-flows-before.json`; provider 2 previously selected the default
 flow, while the other 12 inherited flow selection. Do not restore the entire
 database over later work. The shared passkey flow itself was not edited.
 
+## Immich native sign-in
+
+Accepted on 2026-09-26 at `https://photos.elliottrook.com` and linked from
+Homepage. A fresh private browser automatically redirects to Authentik's
+passkey flow, then returns to the original Jason administrator and photo library.
+Provider 41 is owner-only; automatic account registration is disabled.
+Mobile app sign-in and logout behavior still need validation. Use the same
+HTTPS server address in the mobile app and select OAuth sign-in.
+
+Local password recovery remains at
+`https://photos.elliottrook.com/auth/login?autoLaunch=0`.
+No forward-auth gate was placed in front of the mobile/API endpoints; Immich
+continues enforcing its own API sessions and authorization. The rollout project
+records database/configuration checkpoints and scoped rollback instructions.
+
 ## Access boundary
 
 From an approved management client, run
 `python3 scripts/check-authentik-browser-boundary.py` in the HomeLab repository.
-It checks 23 names against all three DNS authorities, certificate-validated
+It checks 24 names against all three DNS authorities, certificate-validated
 HTTPS routing, and plain/spoofed direct-IP requests to the six private browser
 ingresses. It uses no credentials and prints no response bodies. A pass does
 not establish real login, sign-out, authorized app identity or disaster recovery.

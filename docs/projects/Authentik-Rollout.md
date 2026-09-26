@@ -20,6 +20,45 @@
 
 ## Resume audit — 2026-09-23
 
+### Immich browser passkey accepted and Homepage promoted — 2026-09-26
+
+Jason completed the fresh private-window passkey prompt. Browser verification
+shows the existing photo timeline at `https://photos.elliottrook.com/photos`
+and administrator Users page with exactly the original Jason account UUID
+`49c76364-cab5-4419-90d7-c2f543b0500d`. No duplicate account or second app-password
+step appeared. This verifies native callback completion and retained owner
+administration/library access; mobile and logout tests remain open.
+
+Promoted only Homepage's Immich href to `https://photos.elliottrook.com`.
+All other service/widget configuration is unchanged. Checkpoint:
+`/opt/homepage/backups/immich-promote-20260926T201158Z/services.yaml` on LXC 100.
+Homepage returns 200. Added the native photos hostname to the read-only boundary
+checker; all 108 checks pass. Removed the temporary credential-import candidate; the activated
+mode-0600 configuration checkpoint remains protected outside Git. The export
+in Downloads also remains mode 0600. Password recovery remains enabled via
+`/auth/login?autoLaunch=0`; routine login automatically uses Authentik.
+
+Next operator test: Immich mobile app using the new HTTPS server address and
+OAuth/passkey login. Frigate's privileged backup/deployment access is still an
+independent blocker. No remote Git push or whole-project completion is claimed.
+
+### Immich OAuth activated; fresh passkey test awaiting Jason — 2026-09-26
+
+Jason completed the protected JSON import through HTTPS. A fresh pre-import
+export matched the original checkpoint exactly. A post-import export matches
+the prepared candidate exactly: OAuth and auto-launch enabled, automatic user
+registration disabled, all non-OAuth settings unchanged. Protected activated
+configuration: `/private/tmp/authentik-immich-20260925/immich-config-activated.json`;
+its Downloads source `immich-config (2).json` was restricted to mode 0600.
+The public feature endpoint independently confirms OAuth and auto-launch enabled.
+
+Opened a fresh Brave private window at the friendly root. Immich automatically
+redirected to Authentik with the expected HTTPS callback and PKCE S256. Entered
+existing username Jason; the operating-system passkey dialog is now awaiting
+his Continue/biometric action. No app password was requested in this fresh flow.
+Callback completion, existing library/admin retention, mobile testing and
+Homepage promotion remain pending. Original administrator session is preserved.
+
 ### Immich checkpoint verified; HTTPS and native provider staged — 2026-09-26
 
 Jason completed Brave's download handoff. The protected database dump at
