@@ -495,6 +495,15 @@ unchanged `main` ref. No credential appeared in request, audit or Git output.
 
 For each target service create least-privilege `ai-*` identity where supported, prefer broker proxy mode, implement revoke/rotate, test allowed and denied actions, and verify no credential appears in AI context/logs.
 
+- [ ] Doctor Green latest-result path: local candidate and denial tests complete;
+  deployment and two live passes remain gated.
+- [ ] Doctor Yellow one-run path: local candidate and denial tests complete;
+  approval, deployment, live idempotency and revocation remain gated.
+
+The first candidate reuses the existing Lab Operations worker without exposing
+its bearer credential or any backup target. See
+[M7 Doctor candidate](credential-broker-m7-doctor-candidate.md).
+
 ### M8 — charter/service-onboarding integration
 
 - [ ] Adopt AI Integration Gate in `docs/Project-Creation-Standard.md`.
@@ -622,6 +631,7 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-25 | Closed the temporary OpenBao root-recovery window | Created loopback/CIDR-bound `human-root-ceremony` AppRole with only authenticated root-ceremony start/status/cancel/update and self-revoke rights; its sole credential is PGP-encrypted to Recovery A in the human recovery bundle. Jason proved login, a zero-share 2-of-3 ceremony start, cancellation and token self-revocation, then revoked the temporarily restored root token. OpenBao remained healthy/unsealed and a fresh agent → broker → AppRole → Forgejo MCP read passed and consumed once after revocation | A future root token still requires this human-held AppRole credential plus two independent recovery shares; the legacy encrypted initial-root-token file is retained only as historical/recovery evidence and its contained token is revoked |
 | 2026-09-25 | Made native macOS AI-PAM parity mandatory | M8 now requires the native Aster Companion app to match the web approval inbox, management views, lifecycle actions and emergency controls without weakening broker enforcement; Swift coverage and a real-Mac acceptance matrix are explicit | The web implementation remains the deployed reference until the native work and acceptance pass are complete; M9 cannot graduate without parity |
 | 2026-09-25 | Completed the M6 Yellow Forgejo safe-branch pilot | Separate `ai-pam-mcp-write` identity, CIDR-bound AppRole, OpenBao secret path, Unix gateway and policy adapter limit the Yellow capability to one bounded `create_file` operation on a new `ai-pam/` branch under `ai-pam-pilot/`; direct-main, path expansion and destructive tools were denied. Jason approved request `572d03b6-a638-4686-b327-cabf39dfcfe3`; commit `2deacea` appeared identically on Forgejo and GitHub while `main` stayed `35175c8` | Jason separately approved deletion of the disposable branch. Forgejo deletion succeeded; the mirror did not prune, so Jason explicitly approved direct GitHub mirror recovery. The branch is absent from both remotes and `main` is unchanged. Forgejo 16 Authorized Integrations remain not applicable on deployed 15.0.7 |
+| 2026-09-25 | Prepared the local-only M7 Doctor candidate | Green latest-result and Yellow one-run capabilities route through a dedicated peer-bound Unix gateway into the existing durable Lab Operations store; backup targets, worker credentials, shell, paths and raw logs remain unavailable. Review found and fixed a potential cross-target housekeeping effect: broker-initiated Doctor now fails closed on stale work rather than reconciling unrelated jobs | Synthetic broker and Aster suites pass; no capability, group, service, job, credential or production file was created. Exact deployment and two real approved passes remain gated |
 
 ## Close-out
 

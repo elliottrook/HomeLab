@@ -87,6 +87,20 @@ class BrokerHandler(socketserver.StreamRequestHandler):
                 if "error" in result:
                     raise BrokerDenied("Forgejo gateway denied the request")
                 return {"request_id": record.request_id, "status": record.status, "result": result.get("result")}
+            if record.capability in {"lab.doctor.latest", "lab.doctor.run"}:
+                method = "doctor.latest" if record.capability == "lab.doctor.latest" else "doctor.run"
+                rpc = {
+                    "method": method,
+                    "request_id": record.request_id,
+                    "arguments": payload,
+                }
+                with socket.socket(socket.AF_UNIX) as gateway:
+                    gateway.connect(self.server.lab_operations_socket)  # type: ignore[attr-defined]
+                    gateway.sendall(json.dumps(rpc, separators=(",", ":")).encode() + b"\n")
+                    result = json.loads(gateway.makefile("rb").readline())
+                if not result.get("ok"):
+                    raise BrokerDenied("Lab Operations gateway denied the request")
+                return {"request_id": record.request_id, "status": record.status, "result": result.get("result")}
             return {"request_id": record.request_id, "status": record.status, "synthetic": True}
         raise BrokerDenied("method is not exposed")
 
@@ -98,10 +112,12 @@ class BrokerServer(socketserver.UnixStreamServer):
         store: BrokerStore,
         forgejo_socket: str = "/run/homelab-forgejo-mcp/gateway.sock",
         forgejo_write_socket: str = "/run/homelab-forgejo-mcp-write/gateway.sock",
+        lab_operations_socket: str = "/run/aster-lab-operations-broker/gateway.sock",
     ):
         self.store = store
         self.forgejo_socket = forgejo_socket
         self.forgejo_write_socket = forgejo_write_socket
+        self.lab_operations_socket = lab_operations_socket
         super().__init__(socket_path, BrokerHandler)
 
 
@@ -112,13 +128,17 @@ def main() -> None:
     parser.add_argument("--socket-group", required=True)
     parser.add_argument("--forgejo-socket", default="/run/homelab-forgejo-mcp/gateway.sock")
     parser.add_argument("--forgejo-write-socket", default="/run/homelab-forgejo-mcp-write/gateway.sock")
+    parser.add_argument("--lab-operations-socket", default="/run/aster-lab-operations-broker/gateway.sock")
     args = parser.parse_args()
     socket_path = Path(args.socket)
     socket_path.parent.mkdir(parents=True, exist_ok=True)
     if socket_path.exists():
         socket_path.unlink()
     store = BrokerStore(args.database)
-    server = BrokerServer(str(socket_path), store, args.forgejo_socket, args.forgejo_write_socket)
+    server = BrokerServer(
+        str(socket_path), store, args.forgejo_socket, args.forgejo_write_socket,
+        args.lab_operations_socket,
+    )
     os.chmod(socket_path, 0o660)
     os.chown(socket_path, -1, grp.getgrnam(args.socket_group).gr_gid)
     try:
