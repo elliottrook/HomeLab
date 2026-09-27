@@ -819,6 +819,33 @@ and none of the ten controls is proven. No retry or corpus access occurred; VMs1
 
 The [V3 evidence](experiments/s0-routing-descriptive-v1/run-v3-isolation/README.md)
 therefore records FAILED/INCONCLUSIVE and the V4 decision is **NO-GO for accepted
-corpus execution**. The exact cause is UNKNOWN pending separately approved read-only
-stopped-disk forensics. A clean VM shutdown is correctly treated as transport
-success rather than isolation success.
+corpus execution**. At that checkpoint the exact cause was UNKNOWN pending a
+separately approved read-only stopped-disk inspection. A clean VM shutdown is
+correctly treated as transport success rather than isolation success.
+
+Jason then approved the bounded stopped-disk inspection. A read-only loop and
+`ro,noload,nosuid,nodev,noexec` mount proved the filesystem clean, all three
+generated artifact hashes exact, and both result files absent. The journal records
+`226/NAMESPACE`: `/var/tmp/aster-s0-isolation-fixture-001` was absent while systemd
+constructed the unit namespace, so Python never ran. Cleanup detached the loop and
+left VMs118–120 stopped. The high-confidence design inference is an interaction with
+`PrivateTmp=yes`; the corrected design should preserve private temporary directories
+and move the planted denial target elsewhere. This diagnosis does not change the
+NO-GO or authorize another boot.
+
+
+### Disposable VM V3b correction prepared
+
+The local [V3b candidate](experiments/s0-routing-descriptive-v1/vm-isolation-candidate-v2/OPERATIONS-PLAN.md)
+preserves `PrivateTmp=yes` and every other security/resource control while moving
+only the planted read-denial target to `/srv/aster-s0-isolation-fixture-002`. It
+uses new run/instance identities and proposes a fresh image import into VM121; no
+prior fixture disk is reused. Nine focused and 263 full adaptive tests pass, the
+generated cloud-config and shell scripts parse, and the manifest file hashes
+recompute. Release SHA-256 is
+`825d6d40cde3b1388484e37581473bb2c9c0d4e6e88d905406562536782fc4e1`.
+
+Read-only preflight found next VMID121, the new paths absent, VM120 stopped and
+capacity above the established gates. [V3b release](experiments/s0-routing-descriptive-v1/vm-release-v3b/PREFLIGHT.md)
+is prepared locally but not staged or authorized. Accepted-corpus execution remains
+NO-GO regardless of the future fixture outcome until a new V4 decision.

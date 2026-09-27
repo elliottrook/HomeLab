@@ -1,0 +1,44 @@
+{
+  "schema": "aster-s0-v3-forensic-evidence.v1",
+  "date": "2026-09-26",
+  "vmid": 120,
+  "collection": "complete",
+  "custody": {
+    "loop_readonly": true,
+    "mount_options": [
+      "ro",
+      "norecovery",
+      "nosuid",
+      "nodev",
+      "noexec"
+    ],
+    "filesystem_state": "clean",
+    "detached_after": true,
+    "mount_absent_after": true,
+    "vm120_stopped_after": true
+  },
+  "artifacts": {
+    "unit_hash_match": true,
+    "probe_hash_match": true,
+    "payload_hash_match": true,
+    "result_json": "absent",
+    "protocol_txt": "absent"
+  },
+  "verified_proximate_cause": {
+    "systemd_status": "226/NAMESPACE",
+    "message": "Failed to set up mount namespacing: /var/tmp/aster-s0-isolation-fixture-001: No such file or directory",
+    "probe_started": false
+  },
+  "architectural_inference": {
+    "cause": "PrivateTmp=yes gives the service a private /tmp and /var/tmp view, so the host-planted /var/tmp canary is not a valid InaccessiblePaths target in that namespace",
+    "confidence": "high",
+    "correction": "preserve PrivateTmp and place the planted denial target outside /tmp and /var/tmp; verify again in a new candidate"
+  },
+  "authority": {
+    "accepted_corpus_evaluated": false,
+    "retry_performed": false,
+    "correction_authorized": false,
+    "new_boot_authorized": false
+  },
+  "excluded_raw_file": "cloud-init-isolation-lines.txt excluded because the hostname-matching filter also captured generated public SSH host-key fingerprints"
+}

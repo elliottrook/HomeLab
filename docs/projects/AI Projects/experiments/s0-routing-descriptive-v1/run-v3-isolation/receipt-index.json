@@ -2,28 +2,80 @@
   "schema": "aster-s0-v3-receipt-index.v1",
   "files": {
     "BOUNDARY-DECISION.md": {
-      "bytes": 1057,
-      "sha256": "3c168e7a6b41716e16b0dc9780ce4695eb9f9c49886bc9816fdefa4921eff972"
+      "bytes": 1197,
+      "sha256": "168c66f0871c0149ea7d3fab1a761eeb4c4e145595901461d19aa8e41bc7d946"
     },
     "OFFLINE-FORENSIC-PLAN.md": {
       "bytes": 2198,
       "sha256": "cfe2ac595fb0fe8fc0f6788c78d3676ab36d1b8af84aa3a26930dc3fe974079b"
     },
     "README.md": {
-      "bytes": 2032,
-      "sha256": "8318a6a886775acd7ecdb7904501165247bf5d7d760c956ac36bd0d52432f770"
+      "bytes": 2678,
+      "sha256": "62dcd1842f7f095f7cd503eaa2432dd4d51d8dcba27d91e03f50fcffe6b8ba6b"
     },
     "approval-record.json": {
       "bytes": 713,
       "sha256": "bd9a6e789e216f2c4593ab15e38c28e52fbf4542646b19dd3365cf62d48feeeb"
     },
     "evidence.json": {
-      "bytes": 1607,
-      "sha256": "4a5346e117e8fdb9ebbfaca8132bf75d2ba4a4c0ade94c683361cc883e285256"
+      "bytes": 1733,
+      "sha256": "3f1ef4517b16e6893340f232f6603b74b190d7d63523208bb1d92bf7a8768869"
     },
     "failure-lines.txt": {
       "bytes": 270,
       "sha256": "e090eaf81a3192506e1dd6f3003e7d56b3016e1b10d3310c194d90535dc447a9"
+    },
+    "forensic-approval-record.json": {
+      "bytes": 631,
+      "sha256": "13e58c1bfa759baa1d78497a9659950023afdae69f32cfbe157d82b99cfb5627"
+    },
+    "forensic-evidence.json": {
+      "bytes": 1488,
+      "sha256": "123b31e09c5aae2dcb57ef83f14c8f4095622ea65cd928b1f97aa57d812777eb"
+    },
+    "forensic-receipts/cloud-init-service-lines.txt": {
+      "bytes": 206,
+      "sha256": "897b5732404b80e356a0565bca64b281d9a17f2fa18abd82105c0d401c7d953d"
+    },
+    "forensic-receipts/evidence-sha256.txt": {
+      "bytes": 1509,
+      "sha256": "44a14928ccbd9b42bccf49b06871077aa7e4d954dde0602daf31dd54aec3862c"
+    },
+    "forensic-receipts/filesystem-state.txt": {
+      "bytes": 398,
+      "sha256": "e1e68b445d6dcf10b6fd14ba3d685a79b25702194f9481668ebcf5bf762fda63"
+    },
+    "forensic-receipts/generated-artifacts.txt": {
+      "bytes": 659,
+      "sha256": "af51df7e9d9753f23b0650a2290256435e15e6a94b6f1e2c23d216fbe33512d5"
+    },
+    "forensic-receipts/isolation-journal.jsonl": {
+      "bytes": 1789,
+      "sha256": "2ab4899b12855a0590faf9684ab4f21958471f6630e0e1fdfbb4977a35db6c31"
+    },
+    "forensic-receipts/loop-receipt.txt": {
+      "bytes": 50,
+      "sha256": "8aeadc493342c30470c5ca1cc1279446fecba886baf298a96bd580206ed134b3"
+    },
+    "forensic-receipts/lsblk-before-mount.txt": {
+      "bytes": 232,
+      "sha256": "3a1426672ff833d864011af240a0f1b8e2378c2226060f9894c6c838fea6887d"
+    },
+    "forensic-receipts/mount-receipt.txt": {
+      "bytes": 61,
+      "sha256": "f65db026c39ac3c15f22af026c08259b4181f37b5c6aa8c1d8c03f1e520af164"
+    },
+    "forensic-receipts/partition-table.txt": {
+      "bytes": 192,
+      "sha256": "74c4101dd6f2f5940bd678a4db4a6470dd0afe14eff09bd3279eeb345092f747"
+    },
+    "forensic-receipts/protocol.txt.metadata.txt": {
+      "bytes": 7,
+      "sha256": "7925d3e9a9613a093e5eb4054b32aa39de910d2b03ba7e8046c3b4550b8de1e4"
+    },
+    "forensic-receipts/result.json.metadata.txt": {
+      "bytes": 7,
+      "sha256": "7925d3e9a9613a093e5eb4054b32aa39de910d2b03ba7e8046c3b4550b8de1e4"
     },
     "forensic-vm120.sh": {
       "bytes": 4458,

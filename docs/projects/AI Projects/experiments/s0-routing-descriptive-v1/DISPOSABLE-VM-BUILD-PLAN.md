@@ -315,6 +315,13 @@ NO-GO for accepted-corpus execution. Evidence is under
 [`run-v3-isolation/`](run-v3-isolation/); exact cause remains UNKNOWN pending
 read-only stopped-disk forensics.
 
+**Forensic cause and V3b:** approved read-only inspection established systemd
+`226/NAMESPACE`; the host-planted `/var/tmp` path was absent in the unit namespace,
+and Python never ran. The frozen V3b candidate preserves `PrivateTmp=yes`, moves
+only that planted target to `/srv`, advances every run/instance/VM identity and
+retains all other controls. The [`vm-release-v3b/`](vm-release-v3b/) packet is local
+and unexecuted. V4 remains NO-GO until a valid fixture result supports reassessment.
+
 ### V4 — boundary decision
 
 Preserve configuration, captures, decoded output, hashes, resource telemetry and

@@ -10,8 +10,9 @@ mandatory control, so absence of an observed escape cannot be counted as a pass.
 
 This is a gate decision, not retirement of the VM design. Preserve VM120 stopped
 and retain the failed run. Determine the exact cause through the prepared read-only
-stopped-disk forensic plan. A correction may proceed only as a new immutable
-candidate with a new
+stopped-disk forensic plan. That inspection proved pre-exec systemd status
+`226/NAMESPACE`: the `/var/tmp` denial target was absent in the private temporary
+namespace. A correction may proceed only as a new immutable candidate with a new
 run and instance identity, reviewed hashes and a new execution approval. Do not
 reuse this cloud-init instance or call a second boot a retry.
 

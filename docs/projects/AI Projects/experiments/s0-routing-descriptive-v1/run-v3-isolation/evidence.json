@@ -5,7 +5,7 @@
   "result": "failed-or-inconclusive",
   "gate": "V3-invented-fixture",
   "boundary_decision": "NO-GO",
-  "precise_failure_cause": "UNKNOWN_REQUIRES_STOPPED_DISK_FORENSICS",
+  "precise_failure_cause": "SYSTEMD_226_NAMESPACE_INACCESSIBLE_PATH_ABSENT",
   "observed": {
     "release_config_validation": "pass",
     "vmid": 120,
@@ -34,5 +34,6 @@
     "committed": false,
     "reason": "noisy boot transcript contains generated public SSH host-key material; hash and bounded sanitized findings retained"
   },
-  "next_gate": "separately approved read-only stopped-disk forensic inspection; no reboot or rerun"
+  "next_gate": "new immutable local candidate preserving PrivateTmp and moving the planted denial target outside /tmp and /var/tmp; separate execution approval required",
+  "forensic_evidence": "forensic-evidence.json"
 }

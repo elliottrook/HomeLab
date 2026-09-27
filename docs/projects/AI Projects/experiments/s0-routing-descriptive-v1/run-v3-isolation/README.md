@@ -19,8 +19,11 @@ movement of the `backup` lock between the before/after container listings.
 
 The host capture command's zero exit code means the bounded terminal capture
 completed. It is not fixture success. None of the ten proposed isolation checks is
-proven because there is no authenticated result. The precise service failure is
-**UNKNOWN / REQUIRES VERIFICATION** from the stopped disk. The raw capture is kept
+proven because there is no authenticated result. Approved stopped-disk forensics
+subsequently proved systemd status `226/NAMESPACE`: it could not establish
+`InaccessiblePaths=/var/tmp/aster-s0-isolation-fixture-001` because that path was
+absent in the service namespace. The exact reviewed unit, probe and payload hashes
+matched, both output files were absent, and Python never ran. The raw capture is kept
 only in private temporary and Proxmox evidence storage because it includes noisy
 boot output and generated public SSH host-key material; its digest and sanitized
 failure lines are retained here.
@@ -28,6 +31,11 @@ failure lines are retained here.
 The V4 boundary decision is NO-GO in
 [`BOUNDARY-DECISION.md`](BOUNDARY-DECISION.md). Do not run the accepted corpus,
 reboot VM120, retry V3, weaken the unit, or infer that any negative probe passed.
-The next useful action is the separately approved
-[`OFFLINE-FORENSIC-PLAN.md`](OFFLINE-FORENSIC-PLAN.md) for the stopped disk,
-followed by a new candidate only if the evidence supports one.
+The high-confidence architectural explanation is the combination with
+`PrivateTmp=yes`, which gives the service a private `/tmp` and `/var/tmp` view;
+systemd documents that these directories are not shared outside that namespace.
+Preserve `PrivateTmp` and move the planted denial target outside those paths in a
+new immutable candidate. [Forensic evidence](forensic-evidence.json) records the
+verified cause separately from that inference. No corrected boot is yet authorized.
+
+Authoritative reference: [systemd.exec `PrivateTmp=`](https://man7.org/linux/man-pages/man5/systemd.exec.5.html).

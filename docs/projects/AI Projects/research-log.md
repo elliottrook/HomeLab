@@ -588,3 +588,36 @@ corpus access occurred, and VMs118/119/120 remain stopped. A concurrent Proxmox
 backup completed OK and explains transient container backup-lock changes. V4 is
 NO-GO for accepted-corpus execution. Precise cause is UNKNOWN pending separately
 approved read-only stopped-disk forensics.
+
+
+### 2026-09-26 — V3 stopped-disk cause established
+
+Jason approved the exact offline forensic scope. The reviewed script hash matched,
+created a read-only loop, mounted ext4 `ro,noload,nosuid,nodev,noexec`, collected the
+allowlist, then unmounted and detached successfully. The filesystem was clean and
+the unit, probe and payload hashes matched the repository. `result.json` and
+`protocol.txt` were absent.
+
+Seven journal records prove systemd failed before Python with status
+`226/NAMESPACE`: `/var/tmp/aster-s0-isolation-fixture-001` was not present while
+setting up mount namespacing. The high-confidence design inference is that
+`PrivateTmp=yes` replaced the service's `/var/tmp` view before `InaccessiblePaths=`
+could mask the host-planted canary. The correction should retain `PrivateTmp` and
+move the denial target outside `/tmp` and `/var/tmp`. No second boot, corpus access,
+cleanup or push is authorized; the V4 decision remains NO-GO.
+
+
+### 2026-09-26 — V3b correction frozen locally
+
+Prepared a new immutable candidate rather than altering or rebooting VM120. The
+single boundary correction retains `PrivateTmp=yes` and moves the planted canary
+from private `/var/tmp` to `/srv/aster-s0-isolation-fixture-002`. All ten probes,
+syscall filters, filesystem protections and resource bounds remain. New identities
+are `isolation-fixture-002`, `aster-s0-isolation-fixture-002` and proposed VM121.
+
+Nine focused and 263 full tests pass; shell parsing, cloud-config YAML and manifest
+hash verification pass. Read-only preflight found next VMID121, the target paths
+absent and memory/storage above gates. Release manifest SHA-256 is
+`825d6d40cde3b1388484e37581473bb2c9c0d4e6e88d905406562536782fc4e1`.
+Nothing was staged and no VM121/ISO/boot exists. V3b requires a new exact execution
+approval; corpus access and push remain unauthorized.

@@ -1,0 +1,47 @@
+[Unit]
+Description=Aster S0 invented isolation fixture
+
+[Service]
+Type=oneshot
+User=aster-s0
+Group=aster-s0
+WorkingDirectory=/var/lib/aster-s0
+Environment=LANG=C LC_ALL=C
+UnsetEnvironment=PYTHONPATH PYTHONHOME PYTHONUSERBASE PYTHONSTARTUP PYTHONINSPECT PYTHONWARNINGS PYTHONBREAKPOINT PYTHONPYCACHEPREFIX LD_PRELOAD LD_LIBRARY_PATH LD_AUDIT LD_DEBUG LD_PROFILE GLIBC_TUNABLES SSH_AUTH_SOCK SSH_AGENT_PID GPG_AGENT_INFO DBUS_SESSION_BUS_ADDRESS KRB5CCNAME AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN OPENAI_API_KEY ANTHROPIC_API_KEY VAULT_TOKEN BAO_TOKEN
+ExecStart=/usr/bin/python3 -I -S -B /usr/local/lib/aster-s0/isolation_probe.py
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateNetwork=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectClock=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX
+SystemCallArchitectures=native
+SystemCallFilter=~@network-io clone clone3 fork vfork
+SystemCallErrorNumber=EPERM
+InaccessiblePaths=/srv/aster-s0-isolation-fixture-002
+ReadWritePaths=/var/lib/aster-s0/output
+MemoryMax=64M
+MemorySwapMax=0
+TasksMax=1
+CPUQuota=10%
+LimitCPU=2
+LimitFSIZE=8192
+RuntimeMaxSec=15
+TimeoutStartSec=15
+TimeoutStopSec=2
+KillMode=control-group
+UMask=0077
