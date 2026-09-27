@@ -997,5 +997,7 @@ The proposed [S1 holdout plan](experiments/s1-routing-holdout-v1/PLAN.md) define
 that remaining evidence as 50 new human-authored, no-suggestion families across ten
 request strata. It freezes the retained baselines and permits only a later, separately
 approved offline evaluation. S0 records cannot be relabeled or resplit into S1.
-Collection remains unauthorized until a concrete local form, custody and retention
-packet is reviewed.
+The concrete [collection gate](experiments/s1-routing-holdout-v1/COLLECTION-GATE.md)
+now binds a blank form/schema, syntax-only validator, registry, custody design and
+58 passing focused tests. Collection remains unauthorized pending Jason's review;
+evaluation remains a later separate gate.

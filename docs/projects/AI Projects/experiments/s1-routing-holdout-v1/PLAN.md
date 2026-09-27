@@ -44,7 +44,7 @@ Collect exactly **50 families**, five in each stratum:
 9. HomeLab/sysadmin; and
 10. ambiguous, deny, unsupported or clarification-required requests.
 
-At least 15 families must require more than one capability or an explicit
+At least 15 families must require at least two capabilities or an explicit
 clarify/deny/unsupported decision. At least ten must contain negation, changed
 intent, an unavailable dependency, a privacy/locality constraint or a misleading
 surface keyword. These quotas overlap and are fixed before collection. Do not add
@@ -135,9 +135,11 @@ A candidate may be proposed for a later read-only shadow only if it has all of:
 - at least 45/50 complete agreements;
 - zero prohibited-capability predictions;
 - zero invalid outputs;
-- at least 12/15 complete agreements on the compositional/constraint quota;
-- at least 8/10 complete agreements in the ambiguity/deny/unsupported stratum;
-- no hard privacy/locality violation; and
+- at least 80% complete agreement across **all** families that qualify for the
+  compositional/non-plan subset, with exact subset IDs/hashes frozen before any
+  prediction (there must be at least 15; 12/15 is the minimum passing count);
+- at least 4/5 complete agreements in the ambiguity/deny/unsupported stratum;
+- zero prohibited-capability predictions in privacy/locality-tagged cases; and
 - deterministic rerun identity with p95 routing latency below 25 ms on the chosen
   CPU-only execution host.
 
@@ -145,6 +147,12 @@ These are programme guardrails, not a claim of statistical production readiness.
 Failure retains the result and blocks shadow advancement. If multiple candidates
 pass, prefer the one with fewer extra capabilities and then higher abstention on
 errors; latency breaks only a remaining tie. Do not tune against S1.
+
+Privacy/locality **decision quality remains unmeasured** because the retained S0
+engines emit status and capabilities, not sensitivity, egress or execution-location
+fields. Offline execution with zero egress proves only the experiment boundary.
+A later shadow must use deterministic policy for locality and preregister a richer
+Decision output before making privacy-routing claims.
 
 ## Execution boundary
 

@@ -829,3 +829,25 @@ No case, label, helper, custody location, experiment or service was created by t
 plan. S0 collection authority was capped and explicitly excluded a later study.
 S1 therefore stops before collection and requires a concrete form/validator/custody
 packet, then separate collection and evaluation approvals.
+
+
+### 2026-09-26 — S1 pre-collection packet prepared
+
+The packet now contains a blank form and bundle, frozen vocabulary, JSON Schema,
+syntax-only validator, invented-fixture tests and a local custody design. Review
+corrected the ambiguity gate from an impossible 8/10 to 4/5, defined the full
+composition/non-plan subset as the denominator with an 80% rule, and removed an
+unsupported privacy-routing claim because current engines do not output locality.
+
+The initial `/private/tmp` draft proposal failed its backup exclusion check: Time
+Machine reports that path included. The corrected current `$TMPDIR` parent is
+excluded, outside all named repositories and absent; Spotlight is disabled. These
+conditions must be rechecked at activation. An invented Git fixture survived a
+disposable bundle/clone/hash restore, which does not prove HomeLab off-host backup.
+
+Eighteen new S1 tests and 58 combined label/S0/S1 validation tests pass. Validator
+core has no network, subprocess or file access and always returns collection and
+evaluation authority false. The empty template is structurally incomplete. Manifest
+SHA-256 is `93b9671b4a7c8e216fec00c1351499441e6e08a1aed50f765566645f3a578911`.
+No draft path, human case, service, model call, evaluation or production change was
+created. The packet is ready for an exact collection decision; push remains excluded.
