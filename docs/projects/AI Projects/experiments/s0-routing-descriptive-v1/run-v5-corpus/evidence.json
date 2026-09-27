@@ -6,8 +6,8 @@
   "gate": "V5-accepted-corpus-descriptive-comparison",
   "release_commit": "dc506f3",
   "release_manifest_sha256": "1ae0bdeda1e5043a98065b4de8515d4a75045d936271a79f6f77cd80059c8a8c",
-  "precise_failure_cause": "UNKNOWN_REQUIRES_VERIFICATION",
-  "accepted_corpus_evaluation_state": "UNKNOWN_REQUIRES_VERIFICATION",
+  "precise_failure_cause": "MISSING_PACKAGED_DEPENDENCY_validate_label_batch",
+  "accepted_corpus_evaluation_state": "HASH_VERIFICATION_ONLY_NO_JSON_PARSE_OR_ROUTING",
   "observed": {
     "remote_stage_files": 23,
     "remote_stage_hashes": "pass",
@@ -29,17 +29,27 @@
     "vm119_state_after": "stopped",
     "vm120_state_after": "stopped",
     "vm121_state_after": "stopped",
-    "unrelated_guest_lifecycle_change_observed": false
+    "unrelated_guest_lifecycle_change_observed": false,
+    "filesystem_state": "clean",
+    "generated_artifact_hashes": "15_of_15_match",
+    "result_json": "absent",
+    "protocol_txt": "absent",
+    "corpus_artifacts_hash_verified": 9,
+    "accepted_rows_parsed": 0,
+    "accepted_rows_adapted": 0,
+    "accepted_rows_routed": 0
   },
   "interpretation": [
     "Staging, stopped-state validation, bounded serial capture and shutdown operated as designed.",
     "The corpus service failed before a result was published, so no routing or performance metric is credited.",
-    "Protocol absence cannot prove whether zero, some or all accepted rows were processed before failure.",
+    "Control flow plus the bounded journal proves all corpus artifacts were read for SHA-256 verification, then import failed before JSON blobs, adaptation, engine loading or routing.",
+    "RuntimeMaxSec was ineffective for the oneshot unit; TimeoutStartSec and the outer host wrapper remained active.",
     "No engine, threshold, route, policy or permission is promoted."
   ],
   "raw_capture": {
     "committed": false,
     "reason": "noisy boot transcript contains generated public SSH host-key material; hash and bounded sanitized findings retained"
   },
-  "next_gate": "separately approved read-only stopped-disk forensics on retained VM122; no retry"
+  "forensic_evidence": "forensics/",
+  "next_gate": "new immutable corrected candidate and separate exact execution approval; no VM122 retry"
 }

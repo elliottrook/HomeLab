@@ -916,8 +916,17 @@ mismatches. No routing or performance metric is credited. Whether the worker rea
 or partially processed accepted rows before failing is **UNKNOWN / REQUIRES
 VERIFICATION**; protocol absence cannot prove it did not.
 
-VM122 is retained stopped. A local
-[read-only forensic plan](experiments/s0-routing-descriptive-v1/run-v5-corpus/OFFLINE-FORENSIC-PLAN.md)
-can inspect only exact artifact hashes, bounded output files and the unit journal.
-It requires separate approval and grants no retry, correction, promotion, cleanup
-or push.
+VM122 is retained stopped. Jason approved the local
+[read-only forensic plan](experiments/s0-routing-descriptive-v1/run-v5-corpus/OFFLINE-FORENSIC-PLAN.md).
+The clean stopped filesystem contained all 15 exact generated artifacts and no
+result or protocol file. Its bounded journal proves `s0_descriptive.py` could not
+import the omitted `validate_label_batch` module. The entry point had verified all
+nine corpus hashes but failed before JSON parsing, adaptation, engine construction
+or routing; zero accepted rows were evaluated.
+
+The same evidence showed `RuntimeMaxSec=` is ignored for a oneshot unit, although
+`TimeoutStartSec=75` and the host's 300-second wrapper remained effective. A V5b
+candidate must close the package dependency set, statically verify that closure,
+remove the ineffective directive, preserve the effective bounds and use a fresh
+run, instance and VM identity. The forensic approval granted no retry, correction
+execution, cleanup, promotion or push.

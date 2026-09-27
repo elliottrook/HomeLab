@@ -692,3 +692,26 @@ read or partially processed are UNKNOWN pending separately approved read-only
 stopped-disk forensics. The raw capture is not committed because it contains noisy
 boot output and generated public SSH host-key material. A bounded forensic plan is
 prepared locally; it authorizes nothing by itself.
+
+
+### 2026-09-26 — V5 stopped-disk forensics established packaging cause
+
+Jason approved the exact read-only VM122 inspection. The reviewed script mounted
+the stopped disk through a read-only loop with journal replay disabled, exported
+only the bounded allowlist, then unmounted and detached successfully. The
+filesystem is clean; all 15 exact generated artifacts match, and `result.json` and
+`protocol.txt` are absent. Corpus content was not exported.
+
+Twelve journal records establish `ModuleNotFoundError: No module named
+'validate_label_batch'` while importing `s0_descriptive.py`. Control flow proves
+the entry point first read and SHA-256 verified all nine accepted corpus artifacts,
+then failed before constructing JSON blobs, parsing accepted rows, adapting them,
+loading or constructing an engine, or routing. The evidence classification is
+therefore hash-verification-only, with zero accepted rows parsed, adapted or routed.
+
+Systemd also reported `RuntimeMaxSec=` ineffective with `Type=oneshot`.
+`TimeoutStartSec=75` and the host's 300-second capture bound remained active. Any
+V5b candidate must package `validate_label_batch.py`, prove static import closure,
+remove the ineffective directive, retain effective limits, use fresh identities,
+and obtain a new exact approval. VM122 remains stopped; no retry, correction boot,
+cleanup, promotion or push was authorized.
