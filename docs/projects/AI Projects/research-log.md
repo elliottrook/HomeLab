@@ -851,3 +851,16 @@ evaluation authority false. The empty template is structurally incomplete. Manif
 SHA-256 is `93b9671b4a7c8e216fec00c1351499441e6e08a1aed50f765566645f3a578911`.
 No draft path, human case, service, model call, evaluation or production change was
 created. The packet is ready for an exact collection decision; push remains excluded.
+
+
+### 2026-09-26 — S1 collection custody activated empty
+
+Jason approved push and continuation. Forgejo and GitHub mirror refs both verified
+at `a769867e5187b30e3b8ed52613119708bab29566`. The S1 packet and all artifact hashes
+revalidated before the single draft directory was created.
+
+The current per-user temporary child is mode `0700`; its 619-byte `bundle.json` is
+mode `0600` and byte-identical to the approved empty template. Validation reports
+zero cases/receipts, structurally not ready and no authority claims. No request,
+label, timestamps or active effort were invented. Collection starts with Jason's
+first request text; evaluation and another push remain excluded.

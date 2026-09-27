@@ -999,5 +999,8 @@ request strata. It freezes the retained baselines and permits only a later, sepa
 approved offline evaluation. S0 records cannot be relabeled or resplit into S1.
 The concrete [collection gate](experiments/s1-routing-holdout-v1/COLLECTION-GATE.md)
 now binds a blank form/schema, syntax-only validator, registry, custody design and
-58 passing focused tests. Collection remains unauthorized pending Jason's review;
-evaluation remains a later separate gate.
+58 passing focused tests. Jason approved the bounded collection window; the
+[activation checkpoint](experiments/s1-routing-holdout-v1/ACTIVATION.md) records an
+empty mode-`0700` scratch directory and byte-identical empty bundle. Collection
+dates remain unset until the first human request. Evaluation remains a later
+separate gate.
