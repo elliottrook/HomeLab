@@ -1,8 +1,8 @@
 # Aster, Doctor and configuration drift — 2026-09-27
 
 Owner: Jason. Status: Doctor repaired; coordinated AI-PAM repair deployed under
-Jason's subsequent **“Authorize full repair”** instruction; real iPhone acceptance
-pending; drift reviewed, baseline not changed. The bounded Stream A repair and
+Jason's subsequent **“Authorize full repair”** instruction; iPhone sign-in confirmed,
+synthetic action checks in progress; drift reviewed, baseline not changed. The bounded Stream A repair and
 current resume point are recorded in [repair evidence](../projects/AI%20Projects/evidence/M1-stage2-repair-2026-09-27.md).
 Private Mac toolkit installation was separately approved through the platform prompt.
 
@@ -42,8 +42,8 @@ is retained; a new Companion Doctor request is required to prove queue-path reco
 allow the verified owner; the matching restrictive approval daemon is installed.
 A dedicated Authentik mapping proves WebAuthn from the token's own login event
 and preserves original authentication time. Doctor now checks owner/assurance
-configuration. Service, denial and offline tests pass; Jason's fresh iPhone login
-and synthetic approve/deny/management acceptance remain necessary. No production
+configuration. Service, denial and offline tests pass; Jason confirmed fresh
+iPhone login works. Synthetic approve/deny/management acceptance remains open. No production
 target action or general grant was added. The interim proposal below was not used.
 
 ### Original incident findings

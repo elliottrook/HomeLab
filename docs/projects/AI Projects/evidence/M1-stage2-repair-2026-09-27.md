@@ -1,6 +1,7 @@
 # M1 Stage2 — authorized availability and passkey repair
 
-Status: deployed; real iPhone signed-session and workflow acceptance pending.
+Status: deployed; Jason confirmed iPhone sign-in works. Synthetic approve/deny
+and management-action acceptance is in progress.
 Owner: Jason. Authorization: on 2026-09-27 Jason explicitly said **“Authorize full
 repair”**, following the recommendation to complete identity/passkey checks and
 restore the previously accepted AI-PAM approvals and management. This is a bounded
@@ -60,18 +61,22 @@ over subsequent actions or remove entitlement/assurance checks to reopen access.
 - [x] Protected checkpoint and isolated restore checks.
 - [x] Coordinated provider mapping, exact-owner configurations and matching daemon.
 - [x] Denial regressions, readiness/health and unchanged neighboring service hashes.
-- [ ] Fresh real iPhone session proves signed passkey claim; approval/deny and
-      management workflow accepted without performing production target actions.
+- [x] Jason confirmed the requested repeated iPhone login/management check works.
+- [ ] Synthetic approval/deny and management-action workflow accepted without
+      performing production target actions.
 - [x] Monitoring readiness, documentation/evidence and local commit.
 
-Current safe resume: do not redeploy. Read this record, Git status and live hashes;
-ask Jason to sign out and sign in with his passkey, open AI-PAM management and
-confirm the new “Passkey verified” message. Then create clearly labelled,
-short-lived synthetic Red/Yellow requests for his approve/deny checks and a
-fixture-only management action. Use a new broker fixture with no Unix account,
-credential or execution adapter. Retire it and disable its service afterward;
-preserve audit history. No such fixture has been created yet. Do not substitute
-fabricated claims for signed-session acceptance or claim M1 graduation.
+Current safe resume: do not redeploy. Jason answered “Works” to the final repeated
+sign-in/Passkey-verified check. A clearly labelled fixture agent/service
+`repair-test-20260927` now exists, assigned unused UID65027 with **no Unix account,
+credential or execution adapter**. Jason was asked to approve its RED request
+`089aeae7-6267-46e2-bff0-81382564e690`, deny its YELLOW request
+`37df2816-d3a7-4b6b-aae8-a85db4bdcad0`, then suspend only that fixture agent.
+Requests expire at Unix1790547618 (15-minute policy limit). Read back results;
+do not approve on Jason's behalf or claim human action from synthetic calls.
+Retire the fixture and disable its service after acceptance or timeout, retaining
+audit history. If it expires before testing, record that outcome and retire it;
+do not silently create more requests. M1 graduation remains open.
 
 ## Deployment evidence — 2026-09-27
 
