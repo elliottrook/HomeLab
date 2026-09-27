@@ -1,0 +1,59 @@
+{
+  "schema": "aster-s0-vm-bootstrap-evidence.v2",
+  "date": "2026-09-26",
+  "status": "bootstrap-canary-passed",
+  "release_commit": "3a962a5",
+  "release_manifest_sha256": "315e674701de2f1962d6f41442834920b5b39243a82a461853529c1be3665f74",
+  "vm": {
+    "host": "proxmox",
+    "vmid": 119,
+    "name": "aster-s0-fixture-v1",
+    "final_state": "stopped",
+    "network_devices": [],
+    "agent": "absent",
+    "cores": 1,
+    "memory_mib": 1024,
+    "os_disk_bytes": 8589934592,
+    "efi_disk_bytes": 4194304,
+    "configuration_validation": "pass",
+    "retained": true
+  },
+  "seed_iso": {
+    "filename": "aster-s0-bootstrap-canary-002.iso",
+    "bytes": 376832,
+    "sha256": "af8278b6fe270f3a45651a376c426284d51a894fff1820173615f04051cd2ee5",
+    "files": ["meta-data", "user-data"],
+    "extracted_source_hashes_match": true
+  },
+  "capture": {
+    "started_at": "2026-09-26T16:53:21-07:00",
+    "bytes": 104501,
+    "sha256": "ddd74734c972dd553cbdca7830230fe6b28875d91db7d55bd0f2322e9da7acb1",
+    "command_exit_code": 0,
+    "host_stop_required": false,
+    "protocol_records": 3,
+    "remote_path": "/var/lib/vz/template/cache/aster-s0-20260926/run-v2b/serial.capture",
+    "raw_capture_committed": false
+  },
+  "protocol": {
+    "parser": "scripts/aster-adaptive/s0_vm_serial.py",
+    "parser_result": "pass",
+    "run_id": "bootstrap-canary-002",
+    "manifest_sha256": "56da5b4614220bfc8e51e5b625e8b6bdd87ba30177696a89df6dc66b45fc7f56",
+    "result_bytes": 119,
+    "result_sha256": "59b9326cb92efe7e07553cea3ac6e827b0f5629c008fdf1e7e283a816d5ee9b4",
+    "interfaces": ["lo"],
+    "canonical_json": true
+  },
+  "outcome": {
+    "canary_unit_succeeded": true,
+    "wrapper_poweroff_completed": true,
+    "existing_guest_state_changed": false,
+    "accepted_corpus_included": false,
+    "accepted_corpus_evaluated": false,
+    "credentials_injected": false,
+    "automatic_retry_performed": false,
+    "v3_authorized": false
+  },
+  "decision": "v2b-bootstrap-gate-passed-prepare-v3-invented-fixture-candidate"
+}

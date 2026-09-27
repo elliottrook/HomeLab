@@ -256,6 +256,14 @@ single-boot scripts. Four stopped-config tests bring the focused release/candida
 protocol set to 25 and the full adaptive suite to 239. No ISO or VM119 was created;
 V1b/V2b execution requires explicit approval.
 
+**V1b/V2b outcome:** after approval, stopped VM119 passed the exact configuration
+gate and the one V2b boot produced a complete digest-bound result. The guest
+reported only `lo`, the unit succeeded, the strict parser accepted canonical JSON,
+and the guest powered off without a host stop. Existing guests retained baseline
+state. Evidence is under [`run-v2b-bootstrap/`](run-v2b-bootstrap/). This completes
+V2 bootstrap proof and unblocks local V3 candidate preparation only; V3 execution
+and accepted-corpus access remain unauthorized.
+
 ### V1 — create but do not boot
 
 At the approved window, recheck host health, memory, storage, next VMID and name

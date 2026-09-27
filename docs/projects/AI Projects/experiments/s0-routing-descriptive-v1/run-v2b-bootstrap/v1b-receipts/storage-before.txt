@@ -1,0 +1,4 @@
+Name             Type     Status     Total (KiB)      Used (KiB) Available (KiB)        %
+backups           dir     active      3844549616       700775504      2948406896   18.23%
+local             dir     active        98497780        25215064        68233168   25.60%
+local-lvm     lvmthin     active       832888832       168743277       664145554   20.26%

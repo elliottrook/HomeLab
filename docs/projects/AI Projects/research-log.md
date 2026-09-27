@@ -539,3 +539,15 @@ manifest-bound release now proposes stopped VM119 and one bounded no-retry V2b
 boot, with fail-closed configuration validation and stop-and-retain recovery.
 Twenty-five focused and 239 full adaptive tests pass. No remote file, ISO, VM or
 boot was created; V1b/V2b await explicit execution approval.
+
+
+### 2026-09-26 — V1b/V2b bootstrap gate passed
+
+Jason approved the frozen V1b/V2b envelope. VM119 was created from a fresh import
+and passed the stopped no-vNIC/no-agent validator. Its 376,832-byte seed ISO is
+SHA-256 `af8278b6fe270f3a45651a376c426284d51a894fff1820173615f04051cd2ee5`.
+One boot produced a 104,501-byte capture with one complete protocol envelope; the
+strict parser accepted the expected run/manifest, 119 canonical bytes, result digest
+and `interfaces=["lo"]`. The canary unit succeeded, no host stop or retry was
+needed, VM119 is stopped, existing guests remain at baseline and no corpus ran.
+V3 invented-fixture preparation is next; execution remains separately gated.

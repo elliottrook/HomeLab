@@ -773,3 +773,15 @@ recorded baseline. The exact [release packet](experiments/s0-routing-descriptive
 binds the seed, stopped VM validator, one-boot wrapper, limits and stop-and-retain
 failure behavior. Twenty-five focused and 239 full adaptive tests pass. No seed,
 VM119 or boot exists; V1b/V2b await one explicit bounded execution approval.
+
+
+### Disposable VM V1b/V2b outcome — bootstrap gate passed
+
+Jason approved the manifest-bound window. V1b created stopped VM119 and its
+configuration/seed gates passed. The single V2b boot emitted one valid
+`bootstrap-canary-002` envelope, reported only loopback, and powered off without a
+host stop. The strict parser accepted 119 canonical result bytes and the expected
+payload identity; VM119 and all existing guests are stopped/running as expected.
+[V2b evidence](experiments/s0-routing-descriptive-v1/run-v2b-bootstrap/README.md)
+retains the sanitized receipts. This proves bootstrap/capture only. V3 now requires
+a new invented-fixture candidate and separate execution approval; no corpus ran.
