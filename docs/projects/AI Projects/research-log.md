@@ -773,3 +773,30 @@ retains all three engines as benchmark baselines and authorizes no router select
 threshold tuning, policy change, permission change, cleanup or push. The S0
 comparison is complete; M3 remains open for controlled harness and local-model
 comparisons.
+
+
+### 2026-09-26 — M3 serving-harness decision retains Aster
+
+Read-only checks found the Aster and llama.cpp services active with zero systemd
+restarts and the authenticated inference health endpoint healthy. Aster used about
+44.6 MiB and llama.cpp about 9.55 GiB at the observation point. The deployed Aster
+source, current worktree source and original controlled-comparison slice have three
+different SHA-256 values; this prevents treating the earlier synthetic timings as a
+fresh byte-for-byte benchmark of the live service.
+
+The retained controlled evidence still answers the architecture question.
+PydanticAI slim passed the preregistered overhead and conformance guardrails, but
+added roughly 22 MiB peak RSS and measurable loop overhead without removing Aster's
+deterministic validation or authorization boundary. Recorded Hermes configurations
+remain much heavier in prompt and wall time. Existing Aster sysadmin, Home Assistant
+and mirror graduations establish useful production local-model behavior, although
+they are not comparative challenger runs.
+
+The accepted ADR retains the bounded Aster Python runtime, treats Hermes as an
+optional client/workflow harness, keeps PydanticAI as a probationary specialist
+challenger, and defers LangGraph and Pi until a concrete requirement justifies them.
+A live PydanticAI run is rejected for now because the offline evidence supplies no
+benefit hypothesis worth adding provider integration, credential handling and load
+to the single-slot model. The harness subdecision is complete. M3 remains open for
+representative independently reviewed routing evidence; no framework, service,
+permission, policy or production configuration changed.

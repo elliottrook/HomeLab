@@ -2,8 +2,9 @@
 
 **Status:** Active — Stream A; M0 complete; M1 Stage1 installed and verified;
 Stage2 identity/assurance gates remain open; M2 offline foundation verified;
-M3 controlled comparisons retained Aster/rules; M4 offline verifier and storage
-review design prepared, independent custody/review gates still open.
+M3 harness subdecision retains Aster and keeps routing evidence open; M4 offline
+verifier and storage review design prepared, independent custody/review gates still
+open.
 
 **Owner:** Jason.
 
@@ -25,7 +26,7 @@ Success does not require replacing the existing runtime or deploying a learned r
 
 The assessment verified main `e50b670b906f397e1e70b6d51cf07e88235ac5c5` at Forgejo and its GitHub mirror. The checkout was behind; reverify the baseline before implementation. Existing user edits must be preserved.
 
-Aster is the active bounded Python harness, with local llama.cpp inference, speech, source-local reports, Companion, Authentik, monitoring and an emerging AI-PAM integration. Hermes is not a required runtime dependency. Historical Hermes measurements demonstrate substantial prompt/tool overhead; current alternatives have not been benchmarked on this lab.
+Aster is the active bounded Python harness, with local llama.cpp inference, speech, source-local reports, Companion, Authentik, monitoring and an emerging AI-PAM integration. Hermes is not a required runtime dependency. Historical Hermes measurements demonstrate substantial prompt/tool overhead. An isolated PydanticAI comparison passed guardrails but established no correctness or maintenance benefit, so the foundation baseline retains Aster; other alternatives remain conditional and unbenchmarked.
 
 AI-PAM has implemented milestones and an initial read integration, but not full graduation. Isolated tests found missing originating-agent binding at consume and approvals surviving demotion to probation. Repair and verification are prerequisites to broadening broker use. No production exploit was attempted. Most components share one Proxmox host; host-loss availability is not promised by this project.
 
@@ -90,7 +91,7 @@ Checkboxes are milestone evidence claims. M0 is complete for baseline/start scop
 | **M0 — baseline and scope** | Reverify source/live versions, owners, resource budget and authority boundaries | [x] Dated manifest; known/unknown list; current test baseline; approved local foundation/start scope — see evidence/M0-baseline.md | No runtime mutation. Continue only with pinned evidence and preserved user work |
 | **M1 — authority regression boundary** | Design/fix caller binding and demotion revocation; review approver role, atomic consume and policy-change handling | [ ] Synthetic wrong-caller, demoted/revoked, expired, stale-policy, duplicate/concurrent-consume and restart tests; independent review; approved deployment if required | Retain restrictive disable/revoke path; do not roll back to unsafe broader grants. Offline experiments can proceed independently; integration cannot |
 | **M2 — contracts and baseline adapters** | Decision/run/outcome/experiment schemas; minimal catalogue; current Aster adapter | [x] Offline synthetic contract fixtures; unknown-capability denial; no leaked secret fields; no production behavior/authority expansion; baseline overhead measured — see evidence/M2-integration-checkpoint.md | Remove adapter/config and retain current runtime; schema/version/evidence manifest |
-| **M3 — harness and routing decisions** | M2; existing Aster vs minimal Pydantic AI; LangGraph on multi-step subset; rules vs one routing challenger | [ ] Separate controlled harness tests and local-model task tests; frozen corpus; quality, p50/p95, prompt tokens, calls, retries, resource and maintenance results; explicit choose/retain/reject ADR | No live migration required. Discard challengers; evidence must support the choice rather than framework preference |
+| **M3 — harness and routing decisions** | M2; existing Aster vs minimal Pydantic AI; LangGraph only on a demonstrated graph-shaped need; rules vs routing challengers | [ ] Harness subdecision complete: retain Aster, keep Hermes optional and PydanticAI probationary. Overall gate remains open for representative independently reviewed routing evidence; a live harness challenger is required only after a concrete benefit hypothesis. See evidence/M3-harness-decision.md | No live migration required. Discard challengers; evidence must support the choice rather than framework preference |
 | **M4 — minimal evidence loop** | M2; privacy-approved schema and storage design | [ ] Reproducible dataset manifests, label provenance, calibration where supported, paired evaluation, experiment record and proposal/review separation; storage restore test | Stop collector/runner; restore last-known-good manifests; no opaque data dependency |
 | **M5 — read-only shadow pilot** | M1 for any connected broker path; M3/M4; explicit collection/deployment approval | [ ] Finite observation window, proposed 14 days plus sufficient labeled independent examples; no effectful calls; audited egress/retention; measured overhead and shared-service impact | Disable shadow switch, remove candidate traffic and disallowed data; extend window or declare inconclusive if sample inadequate |
 | **M6 — one complete change decision** | M5 identifies a justified candidate or evidence to reject it | [ ] Preregistered benefit/guardrails; held-out result; human review; rejection recorded or approved reversible canary; proposed 14-day continued observation if promoted | Atomic versioned revert; invalidate incompatible pending plans; no evaluator/permission modifications |
@@ -157,6 +158,7 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | M2 integration and M3 preregistration | 26 adaptive + 89 existing Aster tests pass; live hashes/packages reconciled; offline M2 gate complete; minimal challenger plan and 17-package dry-run resolution retained; no install/deployment |
 | 2026-09-25 | M3 minimal preload experiment | Isolated 17-package/5.45 MB install; two process repeats per candidate; ~1 ms PydanticAI p95 and ~22 MiB incremental RSS; guardrails pass but no measured benefit, retain Aster; M3 overall open |
 | 2026-09-25 | M3 tool-loop/routing smoke | Eight cases pass twice per harness; 30 adaptive tests pass; rules 10/10 held-out synthetic families vs TF-IDF 1/10, no test tuning; retain baseline, M3 model/representativeness gate open |
+| 2026-09-26 | M3 serving-harness decision | Retain bounded Aster; Hermes optional; PydanticAI guardrails pass but no migration benefit; LangGraph/Pi deferred; existing local-model graduations prove baseline utility but not challenger equivalence. Harness subdecision complete, representative routing gate open — see evidence/M3-harness-decision.md |
 | 2026-09-25 | M4 storage, lineage and paired evaluation | Frozen manifests, outcome-bound totals and 164-event restore verified; four synthetic families pass controlled guardrail; 52 tests pass; no independent review or live-use approval |
 | 2026-09-25 | M4 review preparation | Storage/retention/custody design proposed; offline export verifier reproduces 164 events and rejects forged summary; 56 tests pass; independent reviewer/custody still required |
 
@@ -210,10 +212,12 @@ routing smoke test found rules exact on 10/10 held-out families versus TF-IDF 1/
 these are biased-risk authored synthetic data, not production accuracy claims.
 Thirty adaptive tests pass. See [M3 tool-loop/routing evidence](evidence/M3-tool-loop-results.md).
 
-M3 remains open for representative reviewed routing labels and local-model
-compatibility/quality/resource evidence; inference measurements need a bounded
-current-load and consumer-overlap check. M1 Stage1 is deployed; the separate
-Stage2 identity/assurance gates remain open.
+The later [M3 harness ADR](evidence/M3-harness-decision.md) completes the harness
+subdecision by retaining Aster and rejecting a migration without a demonstrated
+benefit. M3 remains open for representative independently reviewed routing labels.
+A new local-model challenger run is conditional on a concrete benefit hypothesis,
+current-source reconciliation and a separately bounded load/credential plan. M1
+Stage1 is deployed; the separate Stage2 identity/assurance gates remain open.
 
 M4 now has a synthetic SQLite evidence-store candidate: frozen experiment lineage,
 evaluation-bound reviews, idempotent transactional appends and an externally pinned
@@ -973,6 +977,18 @@ threshold change, calibration or privacy claim.
 
 The evaluator used about 0.118 seconds while the disposable VM lifecycle took about
 135 seconds. The VM is therefore retained as an offline experiment boundary, not a
-serving harness. This closes the S0 descriptive comparison only. M3 remains open for
-controlled harness and local-model comparisons; M4 and production/shadow gates
-remain open.
+serving harness. This closes the S0 descriptive comparison only.
+
+### M3 serving-harness decision
+
+The [M3 harness ADR](evidence/M3-harness-decision.md) combines the controlled
+preload/tool-loop comparisons, current read-only serving checks, historical Hermes
+measurements and existing production local-model graduations. The evidence supports
+retaining the bounded Aster Python runtime. Hermes remains an optional client or
+workflow harness; PydanticAI remains a probationary specialist challenger;
+LangGraph and Pi remain conditional research options. No live challenger run is
+justified until a concrete benefit hypothesis exists.
+
+The harness subdecision is complete without a migration. M3 overall remains open
+for representative independently reviewed routing evidence. M4 and all production
+or shadow gates remain open.
