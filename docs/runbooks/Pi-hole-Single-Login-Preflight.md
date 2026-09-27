@@ -2,7 +2,7 @@
 
 Status: historical preflight. Production cutover is now documented in
 [Pi-hole single login](Pi-hole-Single-Login.md).
-Owner: Jason. Project: [Authentik rollout](../projects/Authentik-Rollout.md).
+Owner: Jason. Project: [Authentik rollout](../projects/completed%20projects/Authentik-Rollout.md).
 
 ## Verified on 2026-09-26
 

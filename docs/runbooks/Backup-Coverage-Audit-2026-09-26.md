@@ -1,5 +1,10 @@
 # Backup coverage audit — 2026-09-26
 
+> Historical pre-implementation assessment. The subsequent authorized
+> [configuration backup deployment](Configuration-Backups.md) closes the active
+> configuration gaps below. Immich photos remain Jason’s separate process;
+> legacy dataset contents and accepted media/history exclusions are unchanged.
+
 Read-only evidence: TrueNAS `pool.snapshottask.query`, `rsynctask.query`,
 `cronjob.query`, `replication.query`, ZFS mount inventory and running Docker
 mounts; Proxmox `/etc/pve/jobs.cfg`; existing backup runbooks. This is a scope

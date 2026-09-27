@@ -71,7 +71,7 @@ change does not erase old backups or expand photo/media replication.
   hub snapshots retain daily/weekly/monthly history; the existing rclone crypt
   relay provides the encrypted off-site copy. Its timer is explicitly 07:00
   America/Vancouver, with the existing 15-minute jitter, after NAS exports and
-  snapshots; the prior UTC timer ran before them. Keep its independent protected
+  snapshots (daily 05:30, weekly Sunday 05:45, monthly day 1 at 06:00); the prior UTC timer ran before them. Keep its independent protected
   recovery bundle and OpenBao recovery shares available outside their services.
 - The Mac weekly wrapper attempts every exporter and reports failure afterward,
   so one unavailable host does not prevent the remaining configurations being
@@ -79,7 +79,7 @@ change does not erase old backups or expand photo/media replication.
 
 ## Verification and monitoring
 
-Final TrueNAS export: 17 application entries, 18 SQLite databases, 3,604
+Final TrueNAS export: 17 application entries, 18 SQLite databases, 3,620
 verified files, approximately 545 MiB compressed. Calibre desktop settings and
 both library catalogues are included without book files. A separate directory restore
 matched every file hash; all 18 restored databases passed integrity checks using
@@ -127,19 +127,27 @@ repeatability and recovery have been tested.
 
 Synology's older `systemctl` does not support `enable --now`: use separate
 `systemctl enable homelab-config-backup.timer` and `systemctl start ...` commands.
-Timer/service definitions are backed up. After a DSM upgrade, verify that the
+Timer/service definitions are backed up and tracked under `configs/systemd/homelab-config-backup.{service,timer}`. The existing `After=docker.service` ordering name does not resolve on DSM; missed-run boot ordering is not tested. The exporter fails on unavailable Docker and Doctor detects failure/staleness. After a DSM upgrade, verify that the
 custom timer remains enabled; Doctor alerts when its status/backup age fails.
 
 ## Close-out evidence
 
 - TrueNAS published archive SHA-256:
-  `1dfc1686f6ba03b63934c61f86ebda138c5db57e52f50636d423134a73e293d4`.
+  `9b1089d5f00b472b0a51f8b80474d6ca65c9f7a8b347e3b92c2bf068fb159963`.
 - Synology published/copied archive SHA-256:
   `0f2ca69285991e4a072380db6b036f1b4ea873b57c6e84a0ec5c4985452b6b80`.
 - Operator configuration archive SHA-256:
   `e509fcb319ecf9e2749960ec5a23a8a091c9762a917e2431e9207a42069f5192`.
 - TrueNAS pull configuration checkpoint: `/root/config-backup-closeout-20260926`.
 - Relay script checkpoint: `/root/idrive-relay-sync.before-config-backups-20260926`.
-- Manual hub snapshot: `Media/backup@config-closeout-20260926T2344Z`.
-- Fresh changed-guest archives and final off-site round-trip verification are
-  still in progress; do not claim project archival until their outcomes are recorded.
+- Final hub snapshot after refreshed guest pull: `Media/backup@config-closeout-20260927T0028Z`.
+- Encrypted off-site configuration round-trip: **28 files downloaded and SHA-256 matched**, including the final TrueNAS/Synology archives and current operator/infrastructure exports. Protected relay proof: `/root/config-offsite-verification-20260926.json`.
+- Existing full relay completed successfully (49.248 GiB transferred, 82 files); existing exclusions and 20 MiB/s limit preserved.
+- Fresh guests 100, 102, 106, 107, 112 and 113 completed with retention deletion disabled; all six passed Zstandard integrity testing. All six TrueNAS copies matched source SHA-256, and all six encrypted off-site objects passed `rclone cryptcheck`. Protected relay proof: `/root/config-guests-offsite-verification-20260926.json`.
+
+AI administration: these are fixed, administrator-owned backup jobs using the
+existing protected host transports, not new AI-facing services or permission to
+release credentials. New exporters are not automatically added to Aster's broker
+capability allowlist. Jason owns schedule/recovery changes. No addresses, VLANs,
+VM allocation, public ingress or physical inventory changed, so NetBox/rack
+updates are not applicable to this backup addition.

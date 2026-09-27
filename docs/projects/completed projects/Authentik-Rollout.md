@@ -1,11 +1,11 @@
 # Authentik Service Rollout Project
 
-> Status: Close-out verification — implementation complete within the accepted
+> Status: **Completed and archived — 2026-09-26.** Implementation complete within the accepted
 > scope; NPM, TrueNAS, UniFi and Home Assistant are explicit follow-ups approved
 > by Jason on 2026-09-26. Seerr remains deferred. Jellyfin optional browser SSO accepted on 2026-09-26.
 > Stream: **A — Autonomous**. Owner: Jason.
 > Proposed: 2026-08-22 · Redesigned: 2026-09-10 · Close-out: 2026-09-26.
-> Standard: [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
+> Standard: [HomeLab Project Creation Standard](../../Project-Creation-Standard.md).
 
 ## Final scope and verification — 2026-09-26
 
@@ -25,19 +25,20 @@ a claim that every original target now has single login.
 | Newtarr | Persistence repaired, protected HTTPS promoted, Sonarr/Radarr/Lidarr connected; both missing and quality-upgrade searches enabled at the recorded limits. |
 | Pi-hole pair | Passkey-only browser entry accepted, application/account logout checked, DNS and the statistics-only Homepage widget verified. Recovery is host-private. |
 | Infrastructure | Proxmox OIDC and Synology SSO accepted; independent local administrator recovery retained. |
+| Configuration recovery | Daily NAS/Immich and scheduled guest/infrastructure protection verified locally and off-site; isolated restores passed. Immich photos remain Jason’s separate process. |
 
 Final automated evidence:
 
 - `scripts/check-authentik-browser-boundary.py`: **134/134 passed**, covering
   three DNS authorities, certificate-valid routes and plain/spoofed direct
   access denial. This does not simulate biometric login or every client.
-- All **33** Authentik applications evaluated with an uncached policy engine:
+- All **35** final Authentik applications evaluated with an uncached policy engine:
   `jason` allowed, `akadmin` denied, including Cloudflare Access and the retired
   Synology Backup record. Cloudflare remains outside this browser rollout;
   Jason owns its separate external-access design. The retired Synology object
   remains owner-restricted as a recovery/audit artifact; retirement cleanup is
   separate and must not delete an active callback by inference.
-- Fresh Authentik dump restored into the installed PostgreSQL image, with
+- Pre-Jellyfin Authentik dump restored into the installed PostgreSQL image, with
   network disabled, no production mounts or published ports. Restored counts
   matched: 33 applications, 4 users, 45 policy bindings. Scratch container and
   its volumes removed. Protected checkpoint:
@@ -105,7 +106,7 @@ all six policies, native credentials and 24 original device tokens; JellyTV
 was actively playing as `jason`, with Quick Connect still enabled. Homepage
 now opens the private SSO login; only the tile href changed, with checkpoint
 `/opt/homepage/backups/jellyfin-promote-20260926T231857Z`. See
-[Jellyfin browser SSO](../runbooks/Jellyfin-Single-Login.md) for exact objects,
+[Jellyfin browser SSO](../../runbooks/Jellyfin-Single-Login.md) for exact objects,
 recovery checkpoints and the corrected firewall-rule order.
 
 ## Follow-ups and practical limits
@@ -123,7 +124,7 @@ before starting any further deployment; this archive is not future authorization
 | OPNsense / Plex | Explicit no-change decision: independent firewall recovery and existing media-client authentication take priority. |
 | Optional clients / logout | Only the named tested workflows are accepted. Frigate HA integration is not installed. Unused reader/TV/API consumers and per-app global logout are not claimed tested; test them when introduced. App logout may retain the Authentik session; use account logout when ending SSO. |
 | Pi-hole recovery | Primary SSH loopback browser recovery is proven. TrueNAS prohibits SSH TCP forwarding; secondary recovery uses the verified host-local API/CLI. Do not weaken that SSH policy or expose its passwordless backend. |
-| Backup observation | Reconstruction bundle checksums pass locally and through the relay. First scheduled post-change archive/replication has not yet been observed; do not describe the bundle as already replicated. |
+| Backup observation | Configuration exports, isolated restores, off-site download/hash checks and fresh guest cryptographic checks passed. First future calendar-triggered runs remain monitored observation items; Immich photos remain Jason’s separate backup process. |
 | Legacy unattended sessions | The old schedule was disabled in the redesign. Historical `local_312ca3ad...` / `local_a30ead75...` sessions are not reachable here; explicit closure is unverified. Their instructions are superseded. Do not resume them or treat missing inventory as proof of termination. |
 
 ## Resume audit — 2026-09-23
@@ -162,7 +163,7 @@ acceptance. Those and the scheduled-backup coverage checks remain open.
 ### Pi-hole pair single-login deployment — 2026-09-26
 
 Primary and secondary now use the verified-owner browser guards described in
-[Pi-hole single login](../runbooks/Pi-hole-Single-Login.md). Brave showed both
+[Pi-hole single login](../../runbooks/Pi-hole-Single-Login.md). Brave showed both
 without a second application login using its existing Authentik session.
 Primary native password prompt is removed; the secondary was already
 passwordless and its direct API exposure is now closed. NPM 16/17 overwrite the
@@ -200,7 +201,7 @@ The proposed guard enforces actual peer plus verified owner, same-origin API
 writes, and a separate statistics-only widget route. Both live containers kept
 their original IDs/start times; fixtures were removed. No production auth or
 DNS change occurred. Reproducible script and detailed remaining deployment gates
-are in [Pi-hole single-login preflight](../runbooks/Pi-hole-Single-Login-Preflight.md).
+are in [Pi-hole single-login preflight](../../runbooks/Pi-hole-Single-Login-Preflight.md).
 
 Home Assistant has no configured pi_hole integration or Pi-hole references in
 its three main YAML files. Both persisted session tables are empty, which does
@@ -1003,7 +1004,7 @@ Fresh NPM checkpoint:
 as database recovery evidence; no new full-stack restore is claimed.
 
 Deployment paths, targeted rollback order and checkpoint inventory are in
-[the single-login recovery runbook](../runbooks/Authentik-Single-Login.md).
+[the single-login recovery runbook](../../runbooks/Authentik-Single-Login.md).
 Jason has been asked to test Homarr then Dockge in a private Safari session.
 Keep this cohort ungraduated until human acceptance arrives. Other cohorts and
 the original project's remaining gates are still open; no Git push is approved.
@@ -1411,7 +1412,7 @@ remains excluded. No storage or Synology authentication changes were made.
 ### Completed media SSO assessment — 2026-09-23
 
 Jason requested assessment of both paths and specifically asked whether waiting
-for Jellyfin 12 would improve the outcome. The [full assessment](Authentik-Media-SSO-Assessment.md)
+for Jellyfin 12 would improve the outcome. The [full assessment](../Authentik-Media-SSO-Assessment.md)
 records live account/client inventory, exact candidate releases, source findings,
 package checksums, recovery requirements and a bounded isolated rehearsal.
 
@@ -1492,7 +1493,7 @@ identifies it as a Huntarr fork. Preserve its scheduler and ARR API paths;
 do not assume browser reachability proves those workflows.
 
 **Scope drift requiring reconciliation:** the
-[Backup Synology decommission close-out](completed%20projects/Backup-Synology-Decommission.md)
+[Backup Synology decommission close-out](Backup-Synology-Decommission.md)
 records retirement on 2026-09-22, while this project's historical Cohort 4A
 still includes that appliance. NPM host 4 and Homepage's direct `.42:5001`
 tile still exist. Do not attempt to re-onboard or resurrect the retired
@@ -1749,7 +1750,7 @@ committing a repo-wide change that disabled the Bash sandbox entirely
 instead of stopping to ask, on infrastructure (`.claude/settings.json`) no
 authorization here ever covered. Jason reverted that change (`ee4c841`) and
 asked for the project to be taken back, redesigned under the new
-[Project Creation Standard](../Project-Creation-Standard.md), and for a real
+[Project Creation Standard](../../Project-Creation-Standard.md), and for a real
 workaround for autonomous read-only checks that does not involve weakening
 the sandbox.
 
@@ -2446,7 +2447,7 @@ Milestone 5 is now explicit; it is not another service-onboarding wave:
   to the later six passwordless private backends. Their old browser ports
   deliberately redirect; restore native authentication behind the private
   boundary before any host-port publication. Follow
-  [the single-login runbook](../runbooks/Authentik-Single-Login.md), retain
+  [the single-login runbook](../../runbooks/Authentik-Single-Login.md), retain
   independent recovery and reverse only the intended provider/host settings.
   Removing a provider or proxy is not by itself a safe rollback.
 - Homepage's Compose checkpoint and Beszel's Compose plus online SQLite
@@ -2566,7 +2567,7 @@ DNS claims; this retrieval limitation remains recorded, not silently fixed.
 The rejected first candidate remains an isolated staging tree, never activated.
 
 Jason asked which applications/data lack backup coverage. The bounded live
-[audit](../runbooks/Backup-Coverage-Audit-2026-09-26.md) identifies broader NAS
+[audit](../../runbooks/Backup-Coverage-Audit-2026-09-26.md) identifies broader NAS
 application-state gaps, deliberate off-site exclusions and unverified Immich
 photo coverage. No schedules were changed. Archival remains pending the backup
 scope/acceptance decision; manual SSO checkpoints must not be described as
@@ -2634,12 +2635,12 @@ completion/archival early. Runbook: `docs/runbooks/Configuration-Backups.md`.
 Post-backup browser regression remains **134/134 passed**.
 
 Final NAS configuration inventory is now **17 applications / 18 SQLite
-Databases / 3,604 files**, including the stopped Calibre desktop settings and
+Databases / 3,620 files**, including the stopped Calibre desktop settings and
 both Calibre catalogues, without ebook payload. The final archive restored all
 18 databases successfully. File Browser's restored Bolt database also opened
 successfully using its exact application image in a network-none fixture; no
 user records or credentials were printed. Final archive SHA-256:
-`1dfc1686f6ba03b63934c61f86ebda138c5db57e52f50636d423134a73e293d4`.
+`9b1089d5f00b472b0a51f8b80474d6ca65c9f7a8b347e3b92c2bf068fb159963`.
 
 Found relay timer UTC/NAS-local ordering mismatch. Timer is now explicitly
 07:00 `America/Vancouver` (15-minute existing jitter retained), after the NAS
@@ -2649,3 +2650,72 @@ was not restarted. Checkpoint:
 A bounded off-site verifier is queued behind the relay lock: it will copy the
 final config generations and download/hash-check NAS and infrastructure config
 artifacts without printing any contents. It does not delete remote data.
+
+### Final integration publication — 2026-09-26
+
+Configuration implementation committed as `e3ccbe7`; reference `c7a6e0f`, wiki
+`0b8ed4e`. Authentik's final uncached policy test passed for **35 applications**:
+Jason allowed, akadmin denied. The final 17-app/18-database archive restored with
+matching hashes and database integrity; File Browser's separate Bolt restore
+opened using its exact application image. No production restore occurred.
+
+Live human wiki updated (checkpoint
+`/var/lib/aster-wiki/state/authentik-closeout-20260927T000904Z`). Aster's accepted
+snapshot was updated only for committed backup and ARR/Jellyfin operational
+records; other previously accepted project sources and all 1,796 generated
+upstream entries were retained. Per-source commit provenance is preserved across
+these bounded updates. Snapshot hash:
+`eaa569f4ff83c14813ef22d7e2baf88600719975c9faa20b793cd482e4d32d14`.
+Previous tree retained at `/var/lib/aster/knowledge.config-backups-20260926`.
+Source-qualified probes retrieve the authoritative 17-app backup scope, Jellyfin
+12.1.0 and the separate Immich photo process. Generic backup/media wording can
+still prefer unrelated upstream excerpts; this existing retrieval limitation is
+recorded, not treated as a successful operational-source test.
+
+### Final configuration recovery proof — 2026-09-26
+
+Latest TrueNAS generation restored **3,620 files / 18 databases**, all hashes and
+integrity checks passed. The completed full relay transferred 49.248 GiB /
+82 files. A second bounded copy followed it, and **28 decrypted off-site
+configuration files matched SHA-256**: TrueNAS, Synology, operator and current
+infrastructure exports. Protected relay evidence:
+`/root/config-offsite-verification-20260926.json`. No secret contents were printed.
+
+Fresh guests 100/102/106/107/112/113 completed and passed Zstandard integrity;
+TrueNAS pull succeeded. Final hub snapshot:
+`Media/backup@config-closeout-20260927T0028Z`. Fresh guest off-site cryptographic
+verification is still running; wait for its result before archive/push.
+
+## Graduation — 2026-09-26
+
+The accepted Authentik rollout and requested configuration-backup extension are
+complete. Jason authorized close-out, push and archival. The four unsupported
+SSO integrations and Seerr remain the explicit follow-ups above; no application
+login was removed where doing so would break native clients or recovery.
+
+- TrueNAS daily exports cover 17 applications, 18 databases and 3,620 verified
+  files; the latest archive passed an isolated restore. DSM/Immich daily exports
+  passed exact-image database restoration (61 Immich tables). Both timers/jobs
+  are enabled and backup freshness is monitored.
+- All 28 selected decrypted off-site configuration files matched SHA-256.
+  Fresh guests 100/102/106/107/112/113 passed archive integrity, source-to-TrueNAS
+  SHA-256 and encrypted off-site `rclone cryptcheck`. No backup retention was
+  reduced and no media replication was added. Immich photo backup is Jason’s
+  separate responsibility.
+- Protected proofs on relay 112: `/root/config-offsite-verification-20260926.json`
+  and `/root/config-guests-offsite-verification-20260926.json`. Final hub
+  snapshot: `Media/backup@config-closeout-20260927T0028Z`.
+- Final browser-boundary regression: 134/134 passed; uncached authorization:
+  all 35 applications allow Jason and deny akadmin. Jason accepted the named
+  human workflows, including both Jellyfin account choices; native playback
+  remained functional.
+- Recovery documentation, Doctor, project portfolio, operational reference and
+  human wiki reflect the final scope. Aster receives only bounded committed
+  reference updates with existing accepted sources and generated mirror retained.
+  Generic retrieval limitations and future scheduled-run observation remain
+  documented, rather than claimed solved.
+
+The historical pending statements below/above are dated execution evidence, not
+remaining implementation instructions. Current recovery is documented in
+[Configuration backups](../../runbooks/Configuration-Backups.md) and
+[Authentik single login](../../runbooks/Authentik-Single-Login.md).

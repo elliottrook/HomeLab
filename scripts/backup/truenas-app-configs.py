@@ -97,7 +97,11 @@ def main():
     if name=='ix-filebrowser-filebrowser-1' and c['State']['Running']:
      assert not c['State']['Paused'];run('docker','pause',name);paused=True
     for m in selected:
-     source=P(m['Source']);target=dest/'mounts'/m['Destination'].strip('/').replace('/','_')
+     source=P(m['Source'])
+     allowed=[P('/mnt/Media/appdata'),P('/mnt/.ix-apps/app_mounts'),P('/mnt/.ix-apps/docker/volumes'),P('/mnt/Media/apps/calibre-web-automated/config')]
+     exact={P('/mnt/Media/media/audiobooks'),P('/mnt/Media/configs')}
+     assert source in exact or any(source==root or root in source.parents for root in allowed),'Unexpected configuration source; review scope'
+     target=dest/'mounts'/m['Destination'].strip('/').replace('/','_')
      if name=='calibre':
       for child in ['.bashrc','.config','.local','.pki','.dbus','.XDG','ssl']:
        if (source/child).exists():copy_config(source/child,target/child,dbs)
@@ -132,6 +136,7 @@ def main():
      check=work/'truenas-check.db';check.write_bytes(tf.extractfile(m).read())
      with sqlite3.connect(check) as con:assert con.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
   hashes={str(p.relative_to(payload)):digest(p) for p in payload.rglob('*') if p.is_file() and not p.is_symlink()}
+  assert len(dbs)>=18,'Expected database inventory changed; review before publication'
   manifest={'created_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'apps':covered,'files':hashes,'sqlite_databases':len(dbs),'media_included':False,'scope':'configuration and restoration-critical account state; excludes media, caches, DNS query history'}
   (payload/'manifest.json').write_text(json.dumps(manifest,indent=2))
   archive=work/'configs.tar.gz'

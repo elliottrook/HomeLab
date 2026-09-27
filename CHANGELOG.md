@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-09-26 — Authentik rollout and configuration recovery complete
+
+- Archived the accepted passkey/SSO rollout, including optional Jellyfin account
+  choice with native clients preserved; retained agreed unsupported-integration
+  follow-ups and Seerr deferral.
+- Added recurring, protected NAS/Immich/operator configuration exports, restored
+  18 SQLite databases and the Immich PostgreSQL database in isolation, verified
+  28 off-site configuration files, and refreshed six guest archives through
+  source, TrueNAS and encrypted off-site checks. Bulk media is excluded; Immich
+  photos remain a separate owner-managed process.
+- Added backup monitoring and corrected relay schedule ordering; retained
+  existing backup history, recovery credentials and privacy exclusions.
+
 ## 2026-09-25 — Aster Adaptive Computing programme started
 
 - Adopted the architecture assessment, inventory, harness comparison and

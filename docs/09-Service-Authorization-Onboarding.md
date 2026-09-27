@@ -4,7 +4,7 @@
 
 This runbook is the repeatable process for adding HomeLab services to
 Authentik without redesigning the integration each time. Use the bounded,
-layer-based cohorts in the [rollout project](projects/Authentik-Rollout.md),
+layer-based cohorts in the [rollout project](projects/completed%20projects/Authentik-Rollout.md),
 retain direct-management addresses, and record completion only after each
 service's real workflow tests pass.
 

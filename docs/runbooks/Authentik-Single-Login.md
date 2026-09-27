@@ -3,7 +3,7 @@
 Deployed 2026-09-23 under the approved Stream A rollout and Jason's explicit
 request for passkey/Face ID only. The six browser workflows are accepted;
 dedicated logout and recovery checks remain pending.
-See [the rollout project](../projects/Authentik-Rollout.md) for authoritative
+See [the rollout project](../projects/completed%20projects/Authentik-Rollout.md) for authoritative
 status and the wider project's remaining gates.
 
 ## Normal use

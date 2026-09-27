@@ -90,7 +90,7 @@ one design.
     failed long self-tests, a finding handed to that project.
   - [AI-PAM credential broker](homelab-credential-broker.md) owns credential
     custody.
-  - [Authentik rollout](Authentik-Rollout.md) owns SSO policy.
+  - [Authentik rollout](completed%20projects/Authentik-Rollout.md) owns SSO policy.
 
 ## Scope and exclusions
 

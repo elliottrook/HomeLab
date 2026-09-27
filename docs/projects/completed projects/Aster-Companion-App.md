@@ -88,7 +88,7 @@ mark into a literal compass rose. The source artwork is retained at
   current design — this is the shape any future gated action in this project
   must follow.
 - **Authentik** is `2026.8.0` (last confirmed live 2026-09-13,
-  `docs/projects/Authentik-Rollout.md`) and already runs native OIDC for
+  `docs/projects/completed projects/Authentik-Rollout.md`) and already runs native OIDC for
   Forgejo, Beszel, Grafana and the five ARR web UIs, each as its own
   dedicated OAuth2/OIDC provider + application with a strict callback, PKCE
   where applicable, and exactly one direct `jason` binding. `jason` already
@@ -549,7 +549,7 @@ The following bullets retain the original discovery context:
 - Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
   read-only wrapper for the Authentik (`auth.elliottrook.com/api/*`) and NPM
   (`proxy.elliottrook.com/api/*`) HTTPS APIs (documented in
-  `docs/projects/Authentik-Rollout.md`'s 2026-09-10 evidence entry). It needs
+  `docs/projects/completed projects/Authentik-Rollout.md`'s 2026-09-10 evidence entry). It needs
   a bearer token in the `API_TOKEN` environment variable.
 - **2026-09-21 — credential-exposure incident, live Authentik API still
   blocked.** Searching for a usable read-only Authentik API token (per
@@ -562,7 +562,7 @@ The following bullets retain the original discovery context:
   diagnostic grep during this session printed its full value into the
   session transcript — the same failure mode as every prior
   credential-exposure incident in this lab (see
-  `docs/projects/Authentik-Rollout.md`'s Milestone 3 entries and the NUT
+  `docs/projects/completed projects/Authentik-Rollout.md`'s Milestone 3 entries and the NUT
   project's rotation history in `CLAUDE.md`). Per that same established
   practice, **this token must be treated as exposed and rotated before use,
   not reused as-is**, and its actual Authentik permissions should be
@@ -577,7 +577,7 @@ The following bullets retain the original discovery context:
   **No live Authentik API call has been made for this project.**
 - **2026-09-21 — SSH-from-sandbox finding reconfirmed, then resolved for
   this session.** Live-tested `ssh proxmox cat /etc/hostname`: `Operation
-  not permitted`, matching `docs/projects/Authentik-Rollout.md`'s 2026-09-10
+  not permitted`, matching `docs/projects/completed projects/Authentik-Rollout.md`'s 2026-09-10
   finding that raw SSH to allowlisted hosts is denied at the sandbox network
   layer regardless of `.claude/settings.json` `permissions.allow` patterns —
   contradicting `CLAUDE.md`'s "General working rules" section, which still
@@ -908,7 +908,7 @@ silently absorbed into this project's scope.
   git-tracked and never committed. Separately, live-tested and reconfirmed
   that raw SSH from this sandbox to allowlisted hosts is still denied
   (`Operation not permitted`), matching the 2026-09-10 finding in
-  `docs/projects/Authentik-Rollout.md` — blocks M1's OPNsense-reachability
+  `docs/projects/completed projects/Authentik-Rollout.md` — blocks M1's OPNsense-reachability
   and Proxmox-VMID checks the same way it blocks Authentik API calls. While
   waiting on Jason to rotate the token in person, drafted read-only M2
   technical prep (see Architecture section) from `aster_agent.py` itself: no
@@ -2504,7 +2504,7 @@ approved building it as a small follow-up to this closed project.
   and existing test suite this project extends.
 - `services/aster-arr-broker/` — the existing gated-action implementation
   this project generalizes rather than replaces.
-- `docs/projects/Authentik-Rollout.md` — native-OIDC precedent (Forgejo,
+- `docs/projects/completed projects/Authentik-Rollout.md` — native-OIDC precedent (Forgejo,
   Beszel, Grafana, five ARR UIs), passkey enrollment evidence, and the
   NPM/split-DNS/OPNsense pattern this project reuses.
 - `docs/projects/completed projects/News-Aggregator-Audio-Digest.md` — the
