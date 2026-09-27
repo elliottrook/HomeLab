@@ -2355,7 +2355,7 @@ async function speakReply(text){{
 stopSpeech.onclick = () => {{ speechAbort?.abort(); cancelPlayback?.() }};
 
 document.querySelector('#mic').onclick = toggleMic;
-document.querySelector('#signin').onclick=()=>login(false);
+document.querySelector('#signin').onclick=()=>login(true);
 document.querySelector('#signout').onclick=async()=>{{
   try{{ await companionNotify.disable() }}catch(e){{ document.querySelector('#chatErr').textContent=e.message; return }}
   companionNotify.clearPending();

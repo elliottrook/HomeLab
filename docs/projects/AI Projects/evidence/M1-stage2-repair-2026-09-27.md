@@ -119,6 +119,26 @@ the coordinated configuration and signed-session gate pass again.
 
 ## Integration and remaining work
 
+### Fresh-login correction after iPhone feedback
+
+Jason reported that sign-out/sign-in reused the Authentik session without a new
+passkey challenge. Companion sign-out clears app tokens, not the Authentik SSO
+cookie; its explicit sign-in button called `login(false)`. Changed that button
+to `login(true)`, which requests `max_age=0` using the existing fresh-approval
+path. No sessions or devices were deleted and no other application was signed
+out. A JavaScript execution check verified fresh-login parameters, PKCE and no
+queued approval action. The exact one-line patch was applied to the current live
+source, preserving unrelated live changes, and Aster alone restarted.
+
+Current live Aster SHA-256:
+`e208cf3515d01eddfe79befc2393fdf8bf6499808d5bd982d212d84dd2e98912`.
+Pre-change source is `aster-before-fresh-login.py` inside the LXC104 checkpoint.
+The initial probe incorrectly used loopback while Aster binds its guest IP;
+corrected read-only checks on `192.168.70.10:9120` verified health and the served
+fresh-login handler with `Cache-Control: no-store`. Service remained active with
+zero automatic restarts. Jason must reload the page before using Sign in so
+the already-open page does not retain the old handler. Real acceptance remains open.
+
 - Doctor: repository and pinned Mac toolkit include approval readiness; the
   live check passes. Toolkit rollback copy is
   `~/Library/Application Support/AsterLab/rollback-doctor-20260927T204514Z/doctor-before-approval-readiness.sh`.
