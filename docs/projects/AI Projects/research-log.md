@@ -800,3 +800,11 @@ benefit hypothesis worth adding provider integration, credential handling and lo
 to the single-slot model. The harness subdecision is complete. M3 remains open for
 representative independently reviewed routing evidence; no framework, service,
 permission, policy or production configuration changed.
+
+Follow-up source archaeology resolved the apparent live-source uncertainty. The
+read-only copy from LXC 104 is byte-identical to Aster source in commit `2c71d6b`
+and the current local `origin/main` tracking tree. Its delta from the Stream A
+worktree is ten lines of AI-PAM knowledge-source ranking and section anchoring.
+The histories are 43 commits on each side beyond their merge base, so this task did
+not merge them. Future live comparison must use the eventual reconciled intended
+tree; this finding does not change the retain-Aster decision.

@@ -44,8 +44,13 @@ harness implementations remain replaceable behind them.
   `f3d460fbf0af81befc1e296a6f518fdc6b7e5cb11c3eb189d1c905b7c695bddb`.
   The current worktree source SHA-256 was
   `62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407`.
-  They are not byte-identical. This decision therefore does not present the
-  earlier synthetic measurements as a fresh benchmark of today's deployed file.
+  They are not byte-identical. Follow-up read-only comparison proved the deployed
+  bytes exactly match commit `2c71d6b12abcf3ed4d71aa9f9ea2af60a2fcfae2`
+  and the current local `origin/main` tree. That commit adds ten lines of narrowly
+  scoped AI-PAM knowledge ranking/anchoring over this worktree's Aster source. The
+  Stream A branch and local `origin/main` are otherwise divergent histories, so no
+  merge was attempted as part of this evidence decision. The earlier synthetic
+  measurements are not presented as a fresh benchmark of today's deployed file.
 - The isolated PydanticAI comparison used Aster source slice SHA-256
   `8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6`,
   `pydantic-ai-slim==2.51.0`, Pydantic 2.13.4 and a 17-wheel, 5.45 MB locked
@@ -99,8 +104,10 @@ benchmark.
   PydanticAI, LangGraph, Pi or a current stripped Hermes configuration.
 - Maintenance effort has qualitative records and dependency counts, but no long
   observation window with measured engineer hours for competing implementations.
-- The current deployed and worktree Aster files differ. Their intended release
-  lineage must be reconciled before any future byte-specific live comparison.
+- The current deployed file has verified Git lineage, but the Stream A branch and
+  local `origin/main` each contain 43 commits absent from the other at this
+  checkpoint. Integration must preserve both histories and is outside this ADR.
+  A future byte-specific comparison must begin from the reconciled intended tree.
 - Pi and LangGraph have not been installed or benchmarked in this lab.
 
 ## Alternatives and disposition
