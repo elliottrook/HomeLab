@@ -1,0 +1,25 @@
+{
+  "schema": "aster-s0-v5-approval.v1",
+  "human": "Jason",
+  "date": "2026-09-26",
+  "source": "Jason replied Approve to the exact release-manifest-bound V5 execution question",
+  "authorized": {
+    "stage_reviewed_packet": true,
+    "create_iso_and_stopped_vm122": true,
+    "single_offline_boot": true,
+    "capture_max_bytes": 4194304,
+    "capture_max_seconds": 300,
+    "stop_and_retain": true
+  },
+  "excluded": {
+    "automatic_retry": true,
+    "cleanup_or_destruction": true,
+    "network_attachment": true,
+    "credentials": true,
+    "tuning_or_relabeling": true,
+    "promotion": true,
+    "git_push": true,
+    "vm118_through_vm121_mutation": true
+  },
+  "release_manifest_sha256": "1ae0bdeda1e5043a98065b4de8515d4a75045d936271a79f6f77cd80059c8a8c"
+}

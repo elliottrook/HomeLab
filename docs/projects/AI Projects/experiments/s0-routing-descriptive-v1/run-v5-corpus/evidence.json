@@ -1,0 +1,45 @@
+{
+  "schema": "aster-s0-v5-evidence.v1",
+  "run_id": "corpus-descriptive-001",
+  "date": "2026-09-26",
+  "result": "failed-or-inconclusive",
+  "gate": "V5-accepted-corpus-descriptive-comparison",
+  "release_commit": "dc506f3",
+  "release_manifest_sha256": "1ae0bdeda1e5043a98065b4de8515d4a75045d936271a79f6f77cd80059c8a8c",
+  "precise_failure_cause": "UNKNOWN_REQUIRES_VERIFICATION",
+  "accepted_corpus_evaluation_state": "UNKNOWN_REQUIRES_VERIFICATION",
+  "observed": {
+    "remote_stage_files": 23,
+    "remote_stage_hashes": "pass",
+    "release_config_validation": "pass",
+    "release_receipt_hash_mismatches": 0,
+    "run_receipt_hash_mismatches": 0,
+    "vmid": 122,
+    "vm_name": "aster-s0-corpus-v1",
+    "vm_state_after": "stopped",
+    "capture_exit_code": 0,
+    "capture_bytes": 104662,
+    "capture_sha256": "d8dc426db310dfe2855007da0edebc96170abcb293b997d76bcf65ea4c944aa8",
+    "host_stop_required": false,
+    "protocol_records": 0,
+    "strict_parser": "incomplete protocol",
+    "service_start": "failed",
+    "automatic_retry": false,
+    "vm118_state_after": "stopped",
+    "vm119_state_after": "stopped",
+    "vm120_state_after": "stopped",
+    "vm121_state_after": "stopped",
+    "unrelated_guest_lifecycle_change_observed": false
+  },
+  "interpretation": [
+    "Staging, stopped-state validation, bounded serial capture and shutdown operated as designed.",
+    "The corpus service failed before a result was published, so no routing or performance metric is credited.",
+    "Protocol absence cannot prove whether zero, some or all accepted rows were processed before failure.",
+    "No engine, threshold, route, policy or permission is promoted."
+  ],
+  "raw_capture": {
+    "committed": false,
+    "reason": "noisy boot transcript contains generated public SSH host-key material; hash and bounded sanitized findings retained"
+  },
+  "next_gate": "separately approved read-only stopped-disk forensics on retained VM122; no retry"
+}

@@ -353,6 +353,13 @@ an exact manifest-bound approval for one offline boot and capture. A completed,
 valid run permits descriptive result review only; it cannot promote an engine,
 change routing/policy/permissions or authorize another run.
 
+**V5 outcome:** staging, fresh stopped VM122 creation and capture bounds passed, but
+the corpus unit exited before publishing any protocol record. Strict parsing is
+`incomplete protocol`; no metric is credited and no retry occurred. The precise
+cause and degree of corpus processing are UNKNOWN. Evidence and a separately gated
+read-only forensic plan are under [`run-v5-corpus/`](run-v5-corpus/). VM122 remains
+stopped; a future correction requires a new immutable identity and approval.
+
 ## Failure, stop and recovery semantics
 
 | Failure | Required response |

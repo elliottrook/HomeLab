@@ -1,0 +1,67 @@
+{
+  "files": [
+    {
+      "bytes": 20,
+      "path": "release-receipts/config-validation.txt",
+      "sha256": "1a051464cb073b4d0ba6f348798b962eb8dd9f760eb6cb67c1c7a1bf1359376b"
+    },
+    {
+      "bytes": 22,
+      "path": "release-receipts/iso-files.txt",
+      "sha256": "f59d9c85a58b687ab105a30e5901ace1c8d0225f9ef0c8f2c6df1819881dab0b"
+    },
+    {
+      "bytes": 666,
+      "path": "release-receipts/qm-config.txt",
+      "sha256": "27b1a0a4c9438b3afd9892aa4831490bc87e26da0a085480987f96d6835f400f"
+    },
+    {
+      "bytes": 132,
+      "path": "release-receipts/seed-iso.sha256",
+      "sha256": "012cc0a13685b153ebbad9e333f9559d3221c70ad611c6e0eaef8ee17236788b"
+    },
+    {
+      "bytes": 81,
+      "path": "release-receipts/seed-iso.stat",
+      "sha256": "902c4425408f1c3aaa35006c448a347fb116bf8e429c92d1c4097dd55ecdeb33"
+    },
+    {
+      "bytes": 26,
+      "path": "release-receipts/start-time.txt",
+      "sha256": "fc5c87059d262cf6c4e5df19837ece71105c53ec2d164a1b35d4f4d254a01c3c"
+    },
+    {
+      "bytes": 2,
+      "path": "run-receipts/capture-exit-code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 21,
+      "path": "run-receipts/capture-size.txt",
+      "sha256": "bc58247a9319168311fc065f9c8319ff5a36425997419b6f1b392d74b5c9008d"
+    },
+    {
+      "bytes": 13,
+      "path": "run-receipts/host-stop.txt",
+      "sha256": "3a7be9ecedd9df814079ec84fcf3acd509a412f5beedfaa1b86108890f64f519"
+    },
+    {
+      "bytes": 666,
+      "path": "run-receipts/qm-config-after.txt",
+      "sha256": "27b1a0a4c9438b3afd9892aa4831490bc87e26da0a085480987f96d6835f400f"
+    },
+    {
+      "bytes": 133,
+      "path": "run-receipts/serial.capture.sha256",
+      "sha256": "74abf1873767798a23b32f40ef477c1ac33e11a24f58dfd4ae3a555d7620b189"
+    },
+    {
+      "bytes": 26,
+      "path": "run-receipts/start-time.txt",
+      "sha256": "ee3e4b1a80f137875c3d5967a3f47f94850ac3e34f968d986e87129c81a8546c"
+    }
+  ],
+  "raw_capture_included": false,
+  "remote_evidence_indexes_verified": true,
+  "schema": "aster-s0-receipt-index.v1"
+}

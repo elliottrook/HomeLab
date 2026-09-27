@@ -669,3 +669,26 @@ No corpus evaluation, remote staging, ISO/VM creation, boot, cleanup or push
 occurred. One exact stage/create/offline-boot/capture/stop-and-retain window needs
 new human approval; low router agreement will be retained as a valid result and
 will not trigger a retry.
+
+
+### 2026-09-26 — V5 accepted-corpus attempt failed safely
+
+Jason approved frozen release manifest
+`1ae0bdeda1e5043a98065b4de8515d4a75045d936271a79f6f77cd80059c8a8c`.
+All 23 staged files matched the candidate and release manifests. The generated
+483,328-byte ISO has SHA-256
+`f425e3bd7c330886d195a6d3e4d58b9a3950607c6ddb9d3103cbe58b4d0fa6fe`;
+fresh stopped VM122 passed the exact configuration validator.
+
+The one offline boot reached `aster-s0-corpus.service`, but the unit exited with an
+error before publishing any framed record. The 104,662-byte serial capture has
+SHA-256 `d8dc426db310dfe2855007da0edebc96170abcb293b997d76bcf65ea4c944aa8`.
+Both receipt indexes verify with zero mismatches; strict parsing reports
+`incomplete protocol`. The guest powered off without host intervention, VMs118–122
+are stopped, and no retry occurred.
+
+No routing metric is credited. Exact service cause and whether any accepted row was
+read or partially processed are UNKNOWN pending separately approved read-only
+stopped-disk forensics. The raw capture is not committed because it contains noisy
+boot output and generated public SSH host-key material. A bounded forensic plan is
+prepared locally; it authorizes nothing by itself.

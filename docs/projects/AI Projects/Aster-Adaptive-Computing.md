@@ -897,3 +897,27 @@ is local and unexecuted. Release-manifest SHA-256 is
 `1ae0bdeda1e5043a98065b4de8515d4a75045d936271a79f6f77cd80059c8a8c`.
 No accepted case was evaluated while building the packet. Remote staging, VM/ISO
 creation, boot, evaluation, cleanup and push require separate authorization.
+
+
+### Disposable VM V5 outcome — failed/inconclusive
+
+Jason approved the exact V5 window. The 23 staged files reproduced both manifests;
+fresh VM122 passed the stopped no-vNIC/no-agent validator. Its 483,328-byte ISO and
+extracted seed sources matched. The one offline boot reached
+`aster-s0-corpus.service`, which exited with an error before publishing a protocol
+record. The guest powered off within bounds without a host stop and no retry
+occurred. VMs118–122 are stopped.
+
+The [V5 evidence](experiments/s0-routing-descriptive-v1/run-v5-corpus/README.md)
+records a 104,662-byte capture with SHA-256
+`d8dc426db310dfe2855007da0edebc96170abcb293b997d76bcf65ea4c944aa8`,
+zero protocol records, strict parse `incomplete protocol`, and zero receipt-index
+mismatches. No routing or performance metric is credited. Whether the worker read
+or partially processed accepted rows before failing is **UNKNOWN / REQUIRES
+VERIFICATION**; protocol absence cannot prove it did not.
+
+VM122 is retained stopped. A local
+[read-only forensic plan](experiments/s0-routing-descriptive-v1/run-v5-corpus/OFFLINE-FORENSIC-PLAN.md)
+can inspect only exact artifact hashes, bounded output files and the unit journal.
+It requires separate approval and grants no retry, correction, promotion, cleanup
+or push.
