@@ -2735,3 +2735,8 @@ Prior accepted tree remains at
 Forgejo remains the authoritative push target; only HomeLab has a configured
 GitHub protection mirror. Reference/wiki synchronization is verified against
 their own Forgejo main refs. Unrelated working-tree changes were not staged.
+
+The final push was integrated with already-published Forgejo updates in an
+isolated worktree. Changelog and completed-project rows retain both projects;
+Doctor retains both AI-PAM and configuration-backup checks. Unrelated local
+edits were preserved, and no history was force-pushed.

@@ -11,3 +11,6 @@ No runtime data, credentials or personal interaction datasets are included. Orig
 - [Stage1 deployment](M1-stage1-deployment.md): approved two-file production change,
   checkpoint, readiness incident/recovery and bounded observation evidence.
   The original assessment probes above remain historical.
+- [M1 `a5e8b22` supersession map](M1-a5e-supersession.md): maps the earlier
+  all-at-once candidate tests and DB approver design to deployed Stage1 coverage,
+  the current Stage2 gate, or an explicitly retained limitation.

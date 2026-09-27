@@ -1,0 +1,18 @@
+{
+  "schema_version": "contract-map-manifest.v1",
+  "tests": {
+    "harness": 56,
+    "selector_snapshot": 29,
+    "selector_vectors": 31,
+    "native_samples": 10,
+    "cross_profile_rejections": 10
+  },
+  "files": {
+    "scripts/aster-adaptive/compare_contract_wires.py": "sha256:bbac42eb087f9d83e31077d4c90f4d995d8ccb90085134050bab7a1b39f3a5d6",
+    "scripts/aster-adaptive/contracts.py": "sha256:58bbf65cf3dc929bc80d1882c40fa1d5caf4a1e63105ac557456cc7d981941ec",
+    "scripts/aster-adaptive/fixtures.py": "sha256:6144a4808710016e4354f785c3d7b92ba10643759c06d1fa9f6006907779c92b",
+    "docs/projects/AI Projects/evidence/M2-contract-map/wire-comparison.json": "sha256:3807d0e4762688944d59d1b3a8359b2d84b9f40611e016f5f77c385d8d954428",
+    "docs/projects/AI Projects/evidence/M2-contract-map/selector-conformance.json": "sha256:a9376c7cd79a93faadf3bb86f8f1e4f8bcfd2c828cbcf3f0c4973ce88e12c8cf",
+    "docs/projects/AI Projects/evidence/M2-contract-reconciliation.md": "sha256:7fe7e24c6cd4785bba3fe7d9b7a1d13419e0719ec697397c82bd2c7c6dd4e9fd"
+  }
+}

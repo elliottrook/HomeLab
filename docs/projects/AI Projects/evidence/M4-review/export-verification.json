@@ -1,0 +1,55 @@
+{
+  "schema_version": "export-verification.v1",
+  "event_count": 164,
+  "verified_head": "sha256:59fa02fe1a196ba123c447d4e773bd9404290970f4446113c8dd61b1b12cc7c9",
+  "evaluations": [
+    {
+      "event_digest": "sha256:59fa02fe1a196ba123c447d4e773bd9404290970f4446113c8dd61b1b12cc7c9",
+      "totals": {
+        "family_count": 4,
+        "passed_families": 4,
+        "verdict": "pass"
+      },
+      "case_details": {
+        "no-tool": {
+          "p95_ms": {
+            "baseline": 0.04300009459257126,
+            "candidate": 0.04912493750452995
+          },
+          "delta_ms": 0.0061248429119586945,
+          "passed": true
+        },
+        "one-read": {
+          "p95_ms": {
+            "baseline": 0.032791867852211,
+            "candidate": 0.05429098382592201
+          },
+          "delta_ms": 0.021499115973711014,
+          "passed": true
+        },
+        "two-reads": {
+          "p95_ms": {
+            "baseline": 0.03691716119647026,
+            "candidate": 0.061125028878450394
+          },
+          "delta_ms": 0.024207867681980133,
+          "passed": true
+        },
+        "ha-read": {
+          "p95_ms": {
+            "baseline": 0.04933308809995651,
+            "candidate": 0.06874976679682732
+          },
+          "delta_ms": 0.019416678696870804,
+          "passed": true
+        }
+      }
+    }
+  ],
+  "measurement_authenticity": "not-established",
+  "review_approval": "not-granted",
+  "checkpoint_custody": "same-workspace test only; independent custody not established",
+  "forged_summary_rejected": true,
+  "input_digest": "sha256:9a3e0447adbf27f24bf5d9ab777ebbd5565bbce7873f554034304a4ce88fea38",
+  "verifier_digest": "sha256:9b04d938a79c6c2c61a2b4328b77d2f3b4292fee066cca1b5c7500071f8b8af7"
+}

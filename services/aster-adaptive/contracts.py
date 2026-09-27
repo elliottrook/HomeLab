@@ -16,7 +16,7 @@ class Contract(BaseModel):
 
 
 class Capability(Contract):
-    schema_version: Literal['capability.v1'] = 'capability.v1'
+    schema_version: Literal['selector-probe.capability.v1'] = 'selector-probe.capability.v1'
     capability_id: Identifier
     implementation: Identifier
     input_schema_digest: Digest
@@ -29,7 +29,7 @@ class Capability(Contract):
 
 
 class Catalogue(Contract):
-    schema_version: Literal['catalogue.v1'] = 'catalogue.v1'
+    schema_version: Literal['selector-probe.catalogue.v1'] = 'selector-probe.catalogue.v1'
     source_digest: Digest
     capabilities: Annotated[list[Capability], Field(max_length=32)]
     scope: Literal['offline-fixture-not-permission'] = 'offline-fixture-not-permission'
@@ -46,7 +46,7 @@ class Catalogue(Contract):
 
 
 class DecisionRequest(Contract):
-    schema_version: Literal['decision-request.v1'] = 'decision-request.v1'
+    schema_version: Literal['selector-probe.decision-request.v1'] = 'selector-probe.decision-request.v1'
     request_id: Identifier
     content_handle: Identifier  # no prompt or arbitrary URL; fixture key only
     engine_digest: Digest
@@ -66,7 +66,7 @@ class Step(Contract):
 
 
 class Decision(Contract):
-    schema_version: Literal['decision.v1'] = 'decision.v1'
+    schema_version: Literal['selector-probe.decision.v1'] = 'selector-probe.decision.v1'
     request_id: Identifier
     registry_digest: Digest
     policy_digest: Digest
@@ -93,7 +93,7 @@ class Decision(Contract):
 
 
 class HarnessRun(Contract):
-    schema_version: Literal['harness-run.v1'] = 'harness-run.v1'
+    schema_version: Literal['selector-probe.harness-run.v1'] = 'selector-probe.harness-run.v1'
     run_id: Identifier
     request_id: Identifier
     decision_digest: Digest
@@ -107,7 +107,7 @@ class HarnessRun(Contract):
 
 
 class Outcome(Contract):
-    schema_version: Literal['outcome.v1'] = 'outcome.v1'
+    schema_version: Literal['selector-probe.outcome.v1'] = 'selector-probe.outcome.v1'
     run_id: Identifier
     result: Literal['selection_recorded', 'abstained', 'denied', 'invalid']
     execution: Literal['not_attempted'] = 'not_attempted'
@@ -117,7 +117,7 @@ class Outcome(Contract):
 
 
 class Experiment(Contract):
-    schema_version: Literal['experiment.v1'] = 'experiment.v1'
+    schema_version: Literal['selector-probe.experiment.v1'] = 'selector-probe.experiment.v1'
     experiment_id: Identifier
     hypothesis: Literal['contract-adapter-preserves-baseline-selection']
     baseline_digest: Digest

@@ -1,0 +1,65 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "review.v1",
+      "default": "review.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "evaluation_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Evaluation Digest",
+      "type": "string"
+    },
+    "reviewer_ref": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Reviewer Ref",
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "retain-baseline",
+        "reject-candidate",
+        "request-more-evidence"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "reason": {
+      "enum": [
+        "no-measured-benefit",
+        "guardrail-failed",
+        "insufficient-evidence"
+      ],
+      "title": "Reason",
+      "type": "string"
+    },
+    "execution_authority": {
+      "const": "none",
+      "default": "none",
+      "title": "Execution Authority",
+      "type": "string"
+    },
+    "data_class": {
+      "const": "synthetic",
+      "default": "synthetic",
+      "title": "Data Class",
+      "type": "string"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "evaluation_digest",
+    "reviewer_ref",
+    "decision",
+    "reason"
+  ],
+  "title": "Review",
+  "type": "object"
+}

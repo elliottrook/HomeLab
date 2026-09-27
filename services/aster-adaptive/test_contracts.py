@@ -22,7 +22,7 @@ class ContractsTests(unittest.TestCase):
         root=Path(__file__).resolve().parents[2]
         for cls in CONTRACTS:
             expected=cls.model_json_schema();expected['$schema']='https://json-schema.org/draft/2020-12/schema'
-            self.assertEqual(json.loads((root/'schemas/aster'/f'{cls.__name__}.v1.json').read_text()),expected)
+            self.assertEqual(json.loads((root/'schemas/aster/selector-probe-v1'/f'{cls.__name__}.v1.json').read_text()),expected)
 
     def test_fixture_conformance(self):
         self.assertEqual(run(repeats=1)['fixture_count'],12)

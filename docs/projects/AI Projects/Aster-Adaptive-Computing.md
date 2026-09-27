@@ -1,6 +1,10 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 complete; M1 Stage1 installed and verified; Stage2 identity/assurance gates remain open.
+**Status:** Active — Stream A; M0 complete; M1 Stage1 installed and verified;
+Stage2 identity/assurance gates remain open; M2 offline foundation verified;
+M3 controlled comparisons retained Aster/rules; M4 offline evidence/recovery
+verified and review design prepared; independent custody/review gates remain open.
+
 
 **Owner:** Jason.
 
@@ -86,7 +90,7 @@ Checkboxes are milestone evidence claims. M0 is complete for baseline/start scop
 |---|---|---|---|
 | **M0 — baseline and scope** | Reverify source/live versions, owners, resource budget and authority boundaries | [x] Dated manifest; known/unknown list; current test baseline; approved local foundation/start scope — see evidence/M0-baseline.md | No runtime mutation. Continue only with pinned evidence and preserved user work |
 | **M1 — authority regression boundary** | Design/fix caller binding and demotion revocation; review approver role, atomic consume and policy-change handling | [ ] Synthetic wrong-caller, demoted/revoked, expired, stale-policy, duplicate/concurrent-consume and restart tests; independent review; approved deployment if required | Retain restrictive disable/revoke path; do not roll back to unsafe broader grants. Offline experiments can proceed independently; integration cannot |
-| **M2 — contracts and baseline adapters** | Decision/run/outcome/experiment schemas; minimal catalogue; current Aster adapter | [ ] Contract fixtures; no execution through unknown capabilities; zero leaked secret fields; no behavior/authority expansion; baseline overhead measured | Remove adapter/config and retain current runtime; schema/version/evidence manifest |
+| **M2 — contracts and baseline adapters** | Decision/run/outcome/experiment schemas; minimal catalogue; current Aster adapter | [x] Offline synthetic contract fixtures; unknown-capability denial; no leaked secret fields; no production behavior/authority expansion; baseline overhead measured — see evidence/M2-integration-checkpoint.md | Remove adapter/config and retain current runtime; schema/version/evidence manifest |
 | **M3 — harness and routing decisions** | M2; existing Aster vs minimal Pydantic AI; LangGraph on multi-step subset; rules vs one routing challenger | [ ] Separate controlled harness tests and local-model task tests; frozen corpus; quality, p50/p95, prompt tokens, calls, retries, resource and maintenance results; explicit choose/retain/reject ADR | No live migration required. Discard challengers; evidence must support the choice rather than framework preference |
 | **M4 — minimal evidence loop** | M2; privacy-approved schema and storage design | [ ] Reproducible dataset manifests, label provenance, calibration where supported, paired evaluation, experiment record and proposal/review separation; storage restore test | Stop collector/runner; restore last-known-good manifests; no opaque data dependency |
 | **M5 — read-only shadow pilot** | M1 for any connected broker path; M3/M4; explicit collection/deployment approval | [ ] Finite observation window, proposed 14 days plus sufficient labeled independent examples; no effectful calls; audited egress/retention; measured overhead and shared-service impact | Disable shadow switch, remove candidate traffic and disallowed data; extend window or declare inconclusive if sample inadequate |
@@ -149,6 +153,13 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-25 | Current harness alternatives reviewed | Existing Aster baseline; Pydantic AI first challenger; LangGraph conditional; no installations or lab benchmark claims |
 | 2026-09-25 | Single implementation project drafted | Review artifact only; no production/repository mutation, approval or milestone completion implied |
 | 2026-09-25 | Jason authorized Stream A and consolidation | Canonical project adopted; five predecessors archived; M0 reverified; M1 started with 36 passing tests and two explicit expected-failure blockers; no production mutation |
+| 2026-09-25 | M1 local authority candidate | Caller/demotion blockers fixed; 58 broker and 8 Companion tests pass; atomic concurrency/crash/restart and approver regressions retained; independent review and deployment still open |
+| 2026-09-25 | M1 publication and M2 offline start | Forgejo/GitHub verified at 35175c8; 19 M2 conformance tests and four-case source-slice baseline retained; neither M1 deployment nor full M2 gate is complete |
+| 2026-09-25 | M2 integration and M3 preregistration | 26 adaptive + 89 existing Aster tests pass; live hashes/packages reconciled; offline M2 gate complete; minimal challenger plan and 17-package dry-run resolution retained; no install/deployment |
+| 2026-09-25 | M3 minimal preload experiment | Isolated 17-package/5.45 MB install; two process repeats per candidate; ~1 ms PydanticAI p95 and ~22 MiB incremental RSS; guardrails pass but no measured benefit, retain Aster; M3 overall open |
+| 2026-09-25 | M3 tool-loop/routing smoke | Eight cases pass twice per harness; 30 adaptive tests pass; rules 10/10 held-out synthetic families vs TF-IDF 1/10, no test tuning; retain baseline, M3 model/representativeness gate open |
+| 2026-09-25 | M4 storage, lineage and paired evaluation | Frozen manifests, outcome-bound totals and 164-event restore verified; four synthetic families pass controlled guardrail; 52 tests pass; no independent review or live-use approval |
+| 2026-09-25 | M4 review preparation | Storage/retention/custody design proposed; offline export verifier reproduces 164 events and rejects forged summary; 56 tests pass; independent reviewer/custody still required |
 
 | 2026-09-25 | Local M1 corrective candidate and independent review | 55 broker + 163 Aster tests pass; migration race identified by reviewer and fixed; production/identity/assurance gates remain open — see M1 evidence |
 
@@ -159,23 +170,102 @@ After foundation graduation, propose bounded amendments under this document for:
 ## 17. Close-out and current resume point
 
 **Active, not graduated.** M0 is complete. Jason approved M1 Stage1, and the
-core/transport changes are installed on LXC104. All 45 staged guest tests and
-legacy approval compatibility passed. Initial live validation passed after a
-bounded readiness-aware recovery from the installer's startup probe race. The
-ten-minute observation passed with stable services, unchanged request counts and no checked error markers. See [deployment evidence](evidence/M1-stage1-deployment.md).
+authenticated-caller, versioned-policy and atomic core/transport changes are
+installed on LXC104. All 45 staged guest tests and legacy approval compatibility
+passed. An initial socket-readiness race failed closed; a bounded same-code restart
+recovered without a database restore. The subsequent 601-second observation passed
+with stable services, zero restarts, unchanged request counts and no checked error
+markers. See [deployment evidence](evidence/M1-stage1-deployment.md).
 
 M1 remains open: explicit approver entitlement and verified passkey assurance
-(Stage2) are still local candidates and require separate review/approval/live
-validation. Do not expand tool authority or claim M1 graduation. Offline M2
-contract work can proceed independently. No Git push occurred for these changes;
-publication requires a separate immediate confirmation.
+(Stage2) are local candidates requiring separate review, approval and live
+validation. Do not expand tool authority or claim M1 graduation. The M6 Forgejo
+read and safe-write transports were preserved through Stage1. Offline M2 work may
+continue independently.
 
-The programme baseline was previously published and mirror-verified as merge
-`d954ae4e6d81cfde52e04a99f7768ff3919deb00`. Historical preparation entries below
-retain their original time-specific state; this resume point and deployment
-evidence govern current status.
+The reconciled local integration keeps `scripts/aster-adaptive` as the canonical
+offline harness/evidence path and retains `services/aster-adaptive` only as a
+namespaced selector conformance probe. The probe's31 vectors and29 tests do not
+supersede the harness's52 tests or its M3/M4 findings. See [integration map and
+current probe evidence](evidence/M2-reconciliation/README.md). Stage1 through
+a08114b is represented in authoritative f25df18; this integration itself is local,
+unpublished, and does not deploy Stage2 or alter the broker.
 
+M2's offline foundation gate is complete: five contract families, a fixture-only
+catalogue, 26 passing adaptive tests (including seven actual HTTP path tests),
+89 passing existing Aster tests and the retained four-case baseline measurement.
+Read-only live source/binary/package checks match the dated baseline; no production
+mutation or model call occurred. See [M2 integration checkpoint](evidence/M2-integration-checkpoint.md).
 
+M3's preregistered minimal preload comparison ran in a disposable, hash-pinned
+PydanticAI slim environment (17 packages, 5.45 MB wheels; no provider extras).
+Two independent process runs per candidate met the controlled overhead guardrails,
+but established no correctness/maintenance advantage. **Retain Aster; do not
+migrate.** Four candidate smoke/denial/cancellation checks pass. See
+[M3 results, limitations and next steps](evidence/M3-preload-results.md).
+
+The eight-case tool-loop comparison also passed for both implementations in two
+fresh-process repeats. PydanticAI rejects malformed arguments earlier, but does not
+remove the need for deterministic validation. A separate 300-variant/30-family
+routing smoke test found rules exact on 10/10 held-out families versus TF-IDF 1/10;
+these are biased-risk authored synthetic data, not production accuracy claims.
+Thirty adaptive tests pass. See [M3 tool-loop/routing evidence](evidence/M3-tool-loop-results.md).
+
+M3 remains open for representative reviewed routing labels and local-model
+compatibility/quality/resource evidence; inference measurements need a bounded
+current-load and consumer-overlap check. M1 Stage1 is deployed; the separate
+Stage2 identity/assurance gates remain open.
+
+M4 now has a synthetic SQLite evidence-store candidate: frozen experiment lineage,
+evaluation-bound reviews, idempotent transactional appends and an externally pinned
+hash-chain restore check. **40 adaptive tests pass**, and a disposable three-event
+backup restored successfully. This is not authenticated review or production storage.
+See [M4 storage checkpoint and limits](evidence/M4-storage-checkpoint.md).
+The checkpoints through `c10bf84` were then pushed with Jason's explicit approval;
+Forgejo and GitHub main were verified at `c10bf84b020860616cd26fe6b10be4a64aa63d35`.
+
+The next local M4 step adds dataset manifests, registered runs and exact outcome
+lineage. **45 adaptive tests pass**; four fresh fixture outcomes passed and their
+ten-event ledger restored successfully. This is a lineage exercise, not a paired
+performance result. See [M4 lineage evidence and resume point](evidence/M4-lineage-checkpoint.md).
+Jason then authorized pushing `7ece818`; Forgejo and the GitHub mirror were verified
+at `7ece81892982fee10a5999cd7844d7360a2d6e25`.
+
+A newly preregistered paired synthetic experiment now binds aggregate evaluation
+to exact outcomes and family denominators. All four authored families passed the
+5 ms p95 overhead guardrail; the 164-event ledger restored successfully. **52 adaptive
+tests pass.** See [M4 paired evaluation evidence](evidence/M4-paired-checkpoint.md).
+The paired checkpoint was pushed with Jason's authorization; Forgejo and GitHub were
+verified at `a86a4283fed99d70c3b41285c22fc4a021549527`.
+
+The [storage and review design](M4-Storage-and-Review-Design.md) now records proposed
+ownership, retention, checkpoint custody and recovery boundaries. A separate offline
+verification command reconstructs 164 saved events and rejects a forged summary;
+**56 adaptive tests pass**. See [review-preparation evidence](evidence/M4-review-checkpoint.md).
+M4 remains open for actual independent review/custody and accepted operational design.
+Read-only reconciliation now confirms AI-PAM's integrated Stage1/M6 baseline at
+`f25df1812b7ef339acb9cb59339c704a4032ea26`. Live core/transport/approval hashes match
+the deployment record. The merged checkout passes 76 broker, 10 approval-bridge and
+56 adaptive tests. See [M1 current review packet](evidence/M1-current-review-packet.md).
+The earlier all-at-once candidate is superseded, not awaiting deployment. Stage2
+still requires actual assurance provenance and a process-trust decision. A separate
+unpublished M2/Stage2 continuation was observed and left untouched. No production
+mutation occurred in this reconciliation; this merge and review work remain local.
+A further push needs explicit authorization.
+
+### Current contract reconciliation — 2026-09-26
+
+The two offline contract candidates have been compared using pinned snapshots:
+56 harness tests, 29 selector tests and 31 portable vectors pass. Ten cross-profile
+samples are rejected in both directions; four version strings name incompatible
+formats. See [contract mapping and decision](evidence/M2-contract-reconciliation.md).
+Retain both scoped tools; no automatic converter or connected adoption is approved.
+Independent expected-source pinning is now implemented before payload/chat-loop
+compilation. All 62 adaptive tests pass; four lineage cases and eight tool-loop
+cases passed with restore/provenance checks. See the
+[source-pin checkpoint](evidence/M2-source-pin-checkpoint.md). A read-only Forgejo check found newer `2c71d6b`; recheck/reconcile
+before any later integration. Stage2 and M4 review gates remain open. No push or
+production mutation occurred in this comparison.
 
 ## Consolidated requirements and dependency ownership
 
@@ -191,12 +281,12 @@ AI-PAM, Lab Operations and the ARR execution follow-up remain active dependencie
 
 Jason explicitly requested this project start as Stream A and the folder/archive consolidation. Read-only Forgejo verification matched e50b670; local main was fast-forwarded from 586457f without overwriting unrelated edits. Active service and broker hash checks matched the assessed baseline. Local synthetic test baseline and the two reproduced authorization gaps are recorded in M0 evidence. No new authority or production changes were introduced by project start.
 
-### M1 executable rollout preparation checkpoint
+### Historical M1 executable rollout preparation checkpoint
 
 The prepared candidate now includes a read-only preflight, eight preflight regressions, a bounded two-file apply script and [exact operator commands](evidence/M1-stage1-commands.md). Broker suite65 and staged subset45 pass. No production execution or push has occurred. Expired pending rows were distinguished from usable approvals without mutation. The latest AI-PAM coordination has reopened its M6 workflow, so its earlier quiescent window is no longer valid. Resume by rechecking the live hashes/TTL summary, obtaining an immediately current coordination window and reviewing the exact Stage1 deployment with Jason. Do not infer approval from this checkpoint.
 
 
-### Latest M1 resume gate — reviewed Stage1 candidate
+### Historical M1 resume gate — reviewed Stage1 candidate
 
 Local checkpoint `7ef0b96` was completed. Both independent reviews have now
 returned; the recovery-directory reporting finding is fixed and the rebuilt
@@ -219,7 +309,7 @@ rollout. No Git push occurred. Continue with offline M2 contracts or the separat
 reviewed Stage2 assurance design; do not claim full M1 graduation or widen tools.
 
 
-### Current offline continuation — M2 contract slice and Stage2 design
+### Historical local selector-probe continuation — M2 and Stage2 design
 
 The next local-only candidate is in `services/aster-adaptive` and `schemas/aster`.
 Strict contracts, an execution-disabled fixture catalogue and the extracted current
@@ -241,7 +331,7 @@ or approval source was edited in this M2 continuation, and its commits are outsi
 AI-PAM's pending remote publication unless separately reviewed. No push.
 
 
-### Latest offline checkpoint
+### Historical local selector-probe checkpoint
 
 M2 corrective review passed at026e5e9 (supersedes30f79ea). An additional portable
 conformance corpus passes31 vectors;29 adaptive tests pass in total. Evidence and
@@ -250,3 +340,93 @@ the only deployed change. Stage2 needs verified real-session assurance and an
 explicit process-trust decision; the connected M2 gate remains open behind it.
 No production/private data collection, authority expansion, new dependency or
 Git push occurred. The AI-PAM task owns alternate-design reconciliation.
+
+
+### Current integration resume point
+
+Isolated branch `codex/aster-m2-reconcile-20260925`, based onf25df18, reconciles
+local1a8fa68 without overwriting primary checkout edits. Seven earlier local
+commits were already represented by AI-PAM; three M2 commits are retained as the
+explicit selector-probe profile. Broker/approval/Aster and remote harness sources
+are unchanged;52+29+76+163 tests pass. See the integration map for provenance,
+semantic namespace resolution and rollback. No push or production change.
+Recheck remote head and coordinate before any separately authorized publication.
+
+
+### Current checkpoint — published integration and M4 review packet
+
+Forgejo and its GitHub mirror were both verified at7133f3f after Jason's explicit
+push instruction. Subsequent work is local-only. The pre-existingaf2cc4f M4 verifier
+and design were reconciled onto that published baseline, preserving Stage1 and
+all newer M2/M3/M4 evidence.56 harness/evidence +29 selector-probe tests pass; the
+164-event paired export replays offline with unchanged historical hashes.
+[Review packet](evidence/M4-review/REVIEW-PACKET.md) identifies the exact artifact,
+verifier, checkpoint, decision and limitations. Independent human judgment and
+checkpoint custody are not established. M4 is not graduated; no real collection,
+new identity, Stage2 deployment or further push is authorized.
+
+
+### Current M3 checkpoint — human-label design, no collection
+
+M4 acceptance and independent custody remain pending. Existing M3 fixture sets
+were inventoried, not rerun or relabeled as human gold. A proposed S0-only
+30-family pilot and later separately approved 300-family screening design now
+have taxonomy, adjudication/privacy/retention rules, protected splits and frozen
+statistical definitions. The current validator is a design-only metadata check,
+not an executable human-label collector:17new tests / 73 harness tests pass and the
+empty batch reports zero human labels and no collection/evaluation authority.
+See [label-design evidence and approval gate](evidence/M3-label-design/README.md).
+This historical checkpoint preceded the scoped protocol approval below. A separate
+implementation/retention readiness gate remains required before collection.
+
+
+### Current checkpoint — approved design and proposed pilot custody
+
+Jason accepted the S0-only protocol design; the [approval record](labeling/approvals/2026-09-25-protocol-design.md)
+pins the exact approved commit and SHA256. This does not authorize collection,
+implementation of intake tooling, model evaluation or deployment. The
+[implementation readiness proposal](labeling/IMPLEMENTATION-READINESS.md) specifies
+records, transition authority, custody alternatives, retention, failure tests and
+rollback. Technical review rejected paper-only as the default: sanitized S0 train/dev
+records may use durable Git retention under the approved protocol. The proposal
+now recommends local forms/validator, with human content review before retention.
+Separate custody remains required for the later hidden test study.
+
+Next gate: approve bounded local forms/validator implementation without collection;
+then separately authorize the 30-family pilot and durable sanitized Git retention. M4 human acceptance and independent checkpoint custody remain
+separate and unresolved. Documentation review checks are recorded in
+[label readiness evidence](evidence/M3-label-readiness.md). Publication remains pending: automatic approval review rejected the coordination
+message asserting fresh push authority. No remote write was attempted. This does
+not change the separate data-collection boundary.
+
+
+### Current checkpoint — implementation-only S0 fixture tooling
+
+Published baseline `4702ee0` is verified on Forgejo and GitHub. Jason's separate
+[implementation-only approval](labeling/approvals/2026-09-25-implementation-only.md)
+covers empty local forms, stdlib validation and tests. The new fixture-only checker
+checks reference/state/privacy/revision/split invariants and rejects real content
+and human authority claims. 23 new tests and 96 complete adaptive tests pass.
+[Evidence and limitations](evidence/M3-local-tooling/README.md) distinguish this
+from a human collector. Technical review passed; the local milestone is ready
+for a focused commit, with collection still disabled.
+Next gate remains explicit authorization for collection and durable S0 retention;
+no case/label/review was collected. No production change or further push.
+
+
+### Latest integrated checkpoint — 2026-09-26
+
+Source-pin work through `69c2a7e` is reconciled with Forgejo `616a5af`. The incoming
+retrieval-only Aster change was reviewed explicitly; all eight extracted definitions
+are unchanged, and both offline source pins were revised with retained evidence.
+102 adaptive + 29 selector + 82 broker + 170 Aster tests pass. The 164-event historical
+M4 proof still verifies. See [integration evidence](evidence/2026-09-26-integration.md).
+This supersedes earlier notes calling the selector continuation unpublished or
+AI-PAM an unfinished M6 candidate. No production or collection change occurred here.
+Jason requested publication; verify the accepted commit and automatic mirror.
+
+Next gates are the separately authorized S0 collection/retention step, actual M4
+human review/independent custody, and Stage2 real-session assurance/process trust.
+Implementation-only labeling approval does not cover collection. Consult newer
+approval records before proceeding; do not manufacture human evidence or repeat
+synthetic benchmarks in place of these gates.

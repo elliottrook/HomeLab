@@ -1,0 +1,77 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "selector-probe.capability.v1",
+      "default": "selector-probe.capability.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "capability_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Capability Id",
+      "type": "string"
+    },
+    "implementation": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Implementation",
+      "type": "string"
+    },
+    "input_schema_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Input Schema Digest",
+      "type": "string"
+    },
+    "output_schema_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Output Schema Digest",
+      "type": "string"
+    },
+    "effect": {
+      "enum": [
+        "read",
+        "proposal"
+      ],
+      "title": "Effect",
+      "type": "string"
+    },
+    "locality": {
+      "const": "local",
+      "default": "local",
+      "title": "Locality",
+      "type": "string"
+    },
+    "sensitivity": {
+      "enum": [
+        "public",
+        "internal",
+        "personal"
+      ],
+      "title": "Sensitivity",
+      "type": "string"
+    },
+    "owner": {
+      "const": "jason",
+      "default": "jason",
+      "title": "Owner",
+      "type": "string"
+    },
+    "execution": {
+      "const": "disabled",
+      "default": "disabled",
+      "title": "Execution",
+      "type": "string"
+    }
+  },
+  "required": [
+    "capability_id",
+    "implementation",
+    "input_schema_digest",
+    "output_schema_digest",
+    "effect",
+    "sensitivity"
+  ],
+  "title": "Capability",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

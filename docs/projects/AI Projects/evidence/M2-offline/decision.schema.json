@@ -1,0 +1,121 @@
+{
+  "$defs": {
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "default": [],
+          "items": {
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+            "type": "string"
+          },
+          "title": "After",
+          "type": "array"
+        },
+        "capability_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "step_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Step Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_id",
+        "capability_id"
+      ],
+      "title": "Step",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authorization": {
+      "const": "not-granted",
+      "default": "not-granted",
+      "title": "Authorization",
+      "type": "string"
+    },
+    "confidence": {
+      "default": null,
+      "title": "Confidence",
+      "type": "null"
+    },
+    "expires_at": {
+      "minimum": 1,
+      "title": "Expires At",
+      "type": "integer"
+    },
+    "policy_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Policy Digest",
+      "type": "string"
+    },
+    "principal_ref": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Principal Ref",
+      "type": "string"
+    },
+    "reason": {
+      "enum": [
+        "supported",
+        "ambiguous",
+        "unavailable",
+        "policy-denied"
+      ],
+      "title": "Reason",
+      "type": "string"
+    },
+    "registry_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Registry Digest",
+      "type": "string"
+    },
+    "request_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Request Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "decision.v1",
+      "default": "decision.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "plan",
+        "answer",
+        "clarify",
+        "abstain",
+        "unsupported",
+        "deny"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "steps": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "maxItems": 8,
+      "title": "Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "request_id",
+    "principal_ref",
+    "status",
+    "reason",
+    "expires_at",
+    "policy_digest",
+    "registry_digest"
+  ],
+  "title": "Decision",
+  "type": "object"
+}

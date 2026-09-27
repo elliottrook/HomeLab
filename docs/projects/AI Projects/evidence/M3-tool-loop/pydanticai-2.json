@@ -1,0 +1,158 @@
+{
+  "schema_version": "tool-loop-comparison.v1",
+  "mode": "pydanticai",
+  "cases": [
+    {
+      "case_id": "one-read",
+      "conformance_passed": true,
+      "observed": {
+        "status": "completed",
+        "error_type": null,
+        "executed": [
+          "get_current_time"
+        ],
+        "boundary_attempts": 1,
+        "boundary_denials": 0,
+        "proposed": 1,
+        "response_steps": 2,
+        "actual_model_requests": 0,
+        "elapsed_ms": 6.815209053456783
+      },
+      "timing": {
+        "samples": 200,
+        "p50_ms": 1.4211046509444714,
+        "p95_ms": 1.6567502170801163
+      }
+    },
+    {
+      "case_id": "two-sequential-reads",
+      "conformance_passed": true,
+      "observed": {
+        "status": "completed",
+        "error_type": null,
+        "executed": [
+          "get_current_time",
+          "get_forgejo_report"
+        ],
+        "boundary_attempts": 2,
+        "boundary_denials": 0,
+        "proposed": 2,
+        "response_steps": 3,
+        "actual_model_requests": 0,
+        "elapsed_ms": 1.9816672429442406
+      },
+      "timing": {
+        "samples": 200,
+        "p50_ms": 1.9648540765047073,
+        "p95_ms": 2.247166819870472
+      }
+    },
+    {
+      "case_id": "bad-arguments-repaired",
+      "conformance_passed": true,
+      "observed": {
+        "status": "completed",
+        "error_type": null,
+        "executed": [
+          "get_current_time"
+        ],
+        "boundary_attempts": 1,
+        "boundary_denials": 0,
+        "proposed": 2,
+        "response_steps": 3,
+        "actual_model_requests": 0,
+        "elapsed_ms": 2.2298330441117287
+      }
+    },
+    {
+      "case_id": "malformed-json-repaired",
+      "conformance_passed": true,
+      "observed": {
+        "status": "completed",
+        "error_type": null,
+        "executed": [
+          "get_current_time"
+        ],
+        "boundary_attempts": 1,
+        "boundary_denials": 0,
+        "proposed": 2,
+        "response_steps": 3,
+        "actual_model_requests": 0,
+        "elapsed_ms": 2.0000003278255463
+      }
+    },
+    {
+      "case_id": "unknown-tool-denied",
+      "conformance_passed": true,
+      "observed": {
+        "status": "completed",
+        "error_type": null,
+        "executed": [],
+        "boundary_attempts": 0,
+        "boundary_denials": 0,
+        "proposed": 1,
+        "response_steps": 2,
+        "actual_model_requests": 0,
+        "elapsed_ms": 1.436999998986721
+      }
+    },
+    {
+      "case_id": "repeated-invalid-bounded",
+      "conformance_passed": true,
+      "observed": {
+        "status": "failed",
+        "error_type": "UnexpectedModelBehavior",
+        "executed": [],
+        "boundary_attempts": 0,
+        "boundary_denials": 0,
+        "proposed": 4,
+        "response_steps": 4,
+        "actual_model_requests": 0,
+        "elapsed_ms": 2.4053752422332764
+      }
+    },
+    {
+      "case_id": "revoke-between-reads",
+      "conformance_passed": true,
+      "observed": {
+        "status": "completed",
+        "error_type": null,
+        "executed": [
+          "get_current_time"
+        ],
+        "boundary_attempts": 2,
+        "boundary_denials": 1,
+        "proposed": 2,
+        "response_steps": 3,
+        "actual_model_requests": 0,
+        "elapsed_ms": 1.9912500865757465
+      }
+    },
+    {
+      "case_id": "expire-between-reads",
+      "conformance_passed": true,
+      "observed": {
+        "status": "completed",
+        "error_type": null,
+        "executed": [
+          "get_current_time"
+        ],
+        "boundary_attempts": 2,
+        "boundary_denials": 1,
+        "proposed": 2,
+        "response_steps": 3,
+        "actual_model_requests": 0,
+        "elapsed_ms": 2.2212909534573555
+      }
+    }
+  ],
+  "dataset_digest": "sha256:c19db90e2ffb8b3fff794d0a23c96ad368b5730b38fe7d103c8a382ab1542c2a",
+  "evaluator_digest": "sha256:f38edd3bdcda23ff32746ac6999c519bc82f52689eb176f0e32a9e3439a8475b",
+  "aster_source_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+  "limits": [
+    "synthetic responses, no quality evidence",
+    "setup excluded from timed loop for both candidates",
+    "baseline payload and Lab Operations are stubs",
+    "policy enforced by shared independent fixture boundary"
+  ]
+}

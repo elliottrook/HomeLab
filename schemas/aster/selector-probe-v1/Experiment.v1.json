@@ -1,0 +1,80 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "selector-probe.experiment.v1",
+      "default": "selector-probe.experiment.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_id": {
+      "pattern": "^[a-z][a-z0-9_.-]{0,95}$",
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "hypothesis": {
+      "const": "contract-adapter-preserves-baseline-selection",
+      "title": "Hypothesis",
+      "type": "string"
+    },
+    "baseline_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Baseline Digest",
+      "type": "string"
+    },
+    "candidate_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Candidate Digest",
+      "type": "string"
+    },
+    "dataset_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Dataset Digest",
+      "type": "string"
+    },
+    "evaluator_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Evaluator Digest",
+      "type": "string"
+    },
+    "evidence_class": {
+      "const": "synthetic-conformance-and-local-microbenchmark",
+      "title": "Evidence Class",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "proposed",
+        "evaluated",
+        "rejected"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "decision": {
+      "const": "no-production-promotion",
+      "default": "no-production-promotion",
+      "title": "Decision",
+      "type": "string"
+    },
+    "observation_count": {
+      "minimum": 1,
+      "title": "Observation Count",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "hypothesis",
+    "baseline_digest",
+    "candidate_digest",
+    "dataset_digest",
+    "evaluator_digest",
+    "evidence_class",
+    "state",
+    "observation_count"
+  ],
+  "title": "Experiment",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

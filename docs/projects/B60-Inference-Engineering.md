@@ -1,12 +1,12 @@
 # B60 inference engineering
 
-> Status: Proposed — Stream M
+> Status: Active — Stream A (bounded)
 >
 > Owner: Jason
 >
 > Proposed: 2026-09-25
 >
-> Started: not authorized
+> Started: 2026-09-25
 >
 > Completed: not applicable
 
@@ -60,6 +60,13 @@ Read-only discovery on 2026-09-25 reconciled the documented baseline:
 - Prior isolated testing proved that Intel Compute Runtime rejects the current
   256 MiB physical BAR. It did not prove that a safely enlarged BAR is
   impossible on this platform.
+- The bounded TrueNAS pull task for LXC 110 is enabled at 04:20 daily. Its
+  2026-09-25 run completed successfully from 04:20:01 to 04:24:36 PDT, and the
+  mirrored `2026_09_25-02_39_12` archive is present at 38,433,987,658 bytes.
+- A credential-bearing GitHub mirror URL was exposed during an earlier local
+  bare-repository configuration inspection. The credential value is not
+  retained here. Treat it as compromised and revoke/rotate it only through a
+  separately authorized security workflow; this project must not use it.
 
 Current upstream research adds a credible performance lead, not proof: current
 llama.cpp material reports Intel B60 results and ongoing SYCL/Vulkan work,
@@ -143,7 +150,7 @@ restored by a bounded finalizer after every scheduled experiment.
 
 | Risk | Likelihood / impact | Control and rollback | Residual decision |
 |---|---|---|---|
-| Production Aster interruption | Medium / high | Side-by-side builds, one variable per test, fixed window, hard timeout, finalizer and health/generation validation | Stream M approval per operational change |
+| Production Aster interruption | Medium / high | Side-by-side builds, one variable per test, fixed window, hard timeout, finalizer and health/generation validation | Covered only by the bounded Stream A envelope after all M1 preflight gates pass |
 | GPU reset, device loss or host instability | Medium / high | Baseline kernel log, live health/telemetry, immediate abort, no automatic retry, restore accepted binary/unit | Accept only for an explicitly bounded test |
 | Firmware/boot failure without console | Low-to-medium / critical | Do not attempt remotely; require attended console and verified recovery; retain normal boot path | Separate immediate approval is mandatory |
 | Incorrect or misleading output | Medium / high | Fixed correctness assertions, two real-workflow passes, independent evidence audit, control rerun | No promotion with regression |
@@ -159,23 +166,30 @@ Expected users affected by later tests are Aster users and dependent local
 services; interruption is detected by service health, authenticated synthetic
 generation and dependent-workflow checks.
 
-## Proposed Stream M authorization envelope
+## Accepted bounded Stream A authorization envelope
 
-Pre-agreed now under the repository standard: non-secret read-only LAN checks,
-primary-source research, local documentation, synthetic fixtures, harness code,
-local tests and local commits.
+Jason changed the project to Stream A on 2026-09-26. Autonomous work covers
+non-secret read-only LAN checks, primary-source research, local documentation,
+synthetic fixtures, harness code, local tests and local commits. After the M1
+harness, immutable control, checkpoint, time-window and tested-finalizer gates
+all pass, it also covers the enumerated reversible non-firmware Vulkan
+experiments in M2: side-by-side llama.cpp candidates and one-variable tests of
+batch/microbatch, threads/affinity, flash attention, supported KV types,
+context, prompt/graph cache reuse and memory headroom. Each experiment must run
+only from 00:30–02:00 America/Vancouver, retain the accepted b11081 artifacts,
+use synthetic data, stop on the documented abort conditions and restore and
+validate production before 02:00. This authorization does not waive a platform
+approval prompt.
 
-Every state-changing host/guest command or external write requires Jason's
-immediate approval with exact target, change, effect, validation and rollback.
-This includes installing packages, starting/stopping services, executing a
-production GPU benchmark that materially loads the shared service, creating a
-scheduler on a lab system, changing firmware/BIOS/boot state and pushing Git.
-
-An optional future Stream A envelope may cover only enumerated non-firmware,
-reversible Vulkan experiments after the Phase 1 harness and rollback have been
-reviewed. Firmware, BIOS, bootloader, reboot, GPU reset, production promotion
-and remote Git writes remain immediate-approval operations even under that
-envelope.
+The following remain outside Stream A and require Jason's immediate approval:
+every Git push; firmware, BIOS, bootloader or kernel-parameter change; reboot or
+GPU reset; package installation/removal; persistent service/unit/configuration
+change or production promotion; scheduler deployment; credential access or
+rotation; firewall/network/public-exposure change; destructive storage work;
+backup deletion; and any experiment whose rollback or checkpoint cannot be
+verified. SYCL/Level Zero/OpenVINO, model downloads and BAR changes remain
+outside this envelope until separately reviewed because their prerequisites and
+blast radius differ from the bounded Vulkan work.
 
 ## Persistence plan
 
@@ -200,9 +214,9 @@ envelope.
 - [x] Reconcile host/kernel/BIOS, GPU driver/BAR/topology, guest allocation,
   runtime/Mesa version, service flags and current health read-only.
 - [x] Confirm active 02:30 backup schedule and a fresh LXC 110 archive.
-- [ ] Confirm the approximately 04:20 mirror schedule and last success live.
-- [ ] Record model shard SHA-256 values without disrupting production.
-- [ ] Inventory exact last-known-good binary, unit, packages and rollback paths.
+- [x] Confirm the approximately 04:20 mirror schedule and last success live.
+- [x] Record model shard SHA-256 values without disrupting production.
+- [x] Inventory exact last-known-good binary, unit, packages and rollback paths.
 - [ ] Capture a fresh immutable control with the Phase 1 harness.
 
 Gate: an independent reader can reproduce the control and restore the accepted
@@ -210,18 +224,39 @@ production service.
 
 ### M1 — Baseline and instrumentation
 
-- [ ] Implement schema-validated environment and result capture.
-- [ ] Add synthetic pp512, pp4096 and tg128 tests at context positions 0, 4K
+- [x] Implement schema-validated environment and result capture.
+- [x] Add synthetic pp512, pp4096 and tg128 tests at context positions 0, 4K
   and 8K where supported, with warm-up, five repetitions and pre/post controls.
-- [ ] Add cold-prefill isolation, prompt-cache state and CPU-fallback checks.
-- [ ] Add GPU frequency, temperature, power, VRAM/RAM, CPU/affinity and bounded
+- [x] Add cold-prefill isolation, prompt-cache state and CPU-fallback checks.
+- [x] Add GPU frequency, temperature, power, VRAM/RAM, CPU/affinity and bounded
   sanitized kernel-log capture where supported.
-- [ ] Add real Aster conversation, persona, read-only tool, grounded retrieval,
+- [x] Add real Aster conversation, persona, read-only tool, grounded retrieval,
   2K and 8K fixtures with TTFT, completion and correctness assertions.
 - [ ] Characterize variance and quantitatively explain the synthetic/real gap.
 
 Gate: a repeatable baseline, known variance, verified GPU residency and a tested
 rollback invocation.
+
+### M1 preflight and finalizer timing
+
+The guarded invocation is `python3 scripts/b60-inference/guard.py preflight
+PREFLIGHT.json --estimated-minutes N`. Its evidence must be collected from
+00:20 through 00:29 America/Vancouver and be no more than five minutes old. It
+fails closed unless the latest LXC 110 backup and TrueNAS mirror are no more
+than 26 hours old, the mirror job state is `SUCCESS`, accepted binary/unit
+hashes match, service health is `ok`, the B60 is on `xe`, Vulkan reports BMG
+G21, and disk/RAM/VRAM headroom is at least 20 GiB/4 GiB/2 GiB.
+
+No experiment starts before 00:30. The experiment hard-stops at 01:40, reserving
+20 minutes for `python3 scripts/b60-inference/guard.py finalize --execute
+--allow-production`. The absolute restoration deadline is 02:00. The finalizer
+stops only `aster-b60-candidate.service`, restarts the accepted
+`aster-llama.service`, then requires active state, accepted binary/unit hashes,
+host `xe` binding, BMG G21 Vulkan enumeration and healthy endpoint. Candidate
+absence is acceptable; failure of any restoration or validation step is not.
+Authenticated synthetic generation remains an additional required validation
+before a live control can close because credential access is outside the
+autonomous envelope.
 
 ### M2 — Non-disruptive Vulkan optimization
 
@@ -320,6 +355,40 @@ unverifiable rollback/checkpoint, material topology surprise, secret exposure
 or approach to the 02:00 restoration deadline. Do not auto-retry a potentially
 destabilizing failure class.
 
+### M0 accepted and rollback artifact inventory
+
+Read-only inventory on 2026-09-25 established the following immutable anchors:
+
+| Role | Path / version | SHA-256 or evidence |
+|---|---|---|
+| Accepted server | `/opt/llama.cpp-b11081/llama-server` | `47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693` |
+| Accepted server implementation | `/opt/llama.cpp-b11081/libllama-server-impl.so` | `b89200852d6f1cbf4c2f4764b19ce86bc316c41280798cab3dc0b2afded1985d` |
+| Accepted Vulkan backend | `/opt/llama.cpp-b11081/libggml-vulkan.so` | `dfbfe66354e7b9f7a0236194d665874152983284315d6c4f76a36aaff96b0dc5` |
+| Accepted unit | `/etc/systemd/system/aster-llama.service` | `7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013` |
+| Prior runtime | `/opt/llama.cpp-b10507/llama-server` | `c5aabbf808bab4029ac7fcdb382fe3ab0806a1abe1b036ad2bf160e8742320f5` |
+| Prior server implementation | `/opt/llama.cpp-b10507/libllama-server-impl.so` | `e50ee38d96dc769c9e9cfbee020e4f968cfc76f4b9d6e20e251bb915054a31d4` |
+| Prior Vulkan backend | `/opt/llama.cpp-b10507/libggml-vulkan.so` | `f448536ac8a7b95d3d05448f0317e835b91bff0f2a4a62576a31d98028abd701` |
+| Prior unit copy | `/etc/systemd/system/aster-llama.service.bak-b10507` | `2850809f20608af7b4ffe76cc4166cfda52e48caaedcf39b9ca59f9b3bc7a105` |
+| Older unit copy | `/etc/systemd/system/aster-llama.service.backup-20260901-aster-fix` | `83960f7dc8476980b955fab40fc879aa72bdc461fa99956d1986528106301651` |
+
+The guest package inventory records `mesa-vulkan-drivers` 26.1.6-1~bpo13+1,
+`libvulkan1` 1.4.309.0-1 and `vulkan-tools` 1.4.304.0+dfsg1-1. The accepted
+IQ4_XS shards hash to
+`40fac4050e940397dbf13087afd50f4734a11805bf9d65ef8ddd7483470e6199`
+and `83ee4f4f205fa514161778c41df1ea14144faa0f713510893b63c2395f5c2d53`.
+The resident Q4_K_S alternative hashes to
+`75bc9c8adba2842e72f0ab5201aaa07133c5010b566305c09187fcbdcd364017`
+and `83ee4f4f205fa514161778c41df1ea14144faa0f713510893b63c2395f5c2d53`.
+The identical second-shard hash is expected from the observed files but is not
+yet a quality or compatibility conclusion. Checksums were calculated with idle
+I/O and lowest CPU scheduling priority; the production service was not changed.
+
+The accepted rollback target for any future candidate experiment is b11081 plus
+the accepted unit above, not b10507. The b10507 pair is retained as an older
+known runtime comparison. Exact restoration commands and an actual rollback
+proof remain gated operational work and must be reviewed before the first load
+test.
+
 ## Documentation and systems-of-record updates
 
 - [ ] **HomeLab Doctor** — add only actionable runtime/config/health/drift checks
@@ -366,9 +435,23 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-09-25 | Platform/runtime engineer | Read-only Proxmox/LXC inventory captured BIOS, kernel, root-link width, BAR, `xe`, guest allocation, Mesa, llama.cpp, unit flags, hashes and health | Starting facts reconciled; model hashes, mirror success and exact rollback inventory remain M0 gaps |
 | 2026-09-25 | SRE reviewer | Confirmed active 02:30 snapshot job, fresh LXC 110 archive and seven-day kernel-log absence of resets/OOM/device loss | Keep 00:30–02:00 disruptive window and verify the 04:20 mirror before tests |
 | 2026-09-25 | Research monitor | Reviewed current official llama.cpp documentation/issues/discussion and Dell documentation | B60 performance lead warrants controlled research; SYCL correctness risk and small-BAR gate remain; candidate register expansion is next |
+| 2026-09-25 | Inference engineer | Re-read governing instructions; verified TrueNAS task 3 is the enabled bounded 04:20 LXC 110 pull, last state `SUCCESS` at 04:24:36 PDT, and confirmed the newest mirrored archive | M0 mirror gap closed without changing TrueNAS or Proxmox |
+| 2026-09-25 | Inference engineer | Inventoried and hashed accepted b11081, prior b10507, unit backups, Vulkan packages and four resident model shards; shard hashing used idle I/O and lowest CPU priority | Exact accepted rollback artifacts and model identities are recorded; no service, package or configuration state changed |
+| 2026-09-25 | Harness engineer | Added an offline schema validator, deterministic planner, 13 synthetic fixture cases and unit tests under `scripts/b60-inference/`; all five tests, fixture validation, plan generation and bytecode compilation pass | Local M1 foundation is ready; it cannot execute production load, and the runner/production control remain separately gated |
+| 2026-09-25 | Security reviewer | Recorded that an earlier bare-repository inspection exposed a credential-bearing GitHub mirror URL, without copying the value | Jason must revoke/rotate the credential through a separately authorized security workflow; do not use it |
+| 2026-09-25 | Harness engineer | Added a guarded OpenAI-compatible runner: dry-run by default, explicit execution interlock, a second non-loopback interlock, pre/post health checks, one warm-up and five measurements; fake transport tests make no network request | Nine combined harness/runner tests pass; production execution, telemetry integration and correctness evaluators remain pending |
+| 2026-09-25 | Repository operator | Attempted the approved push through this checkout's `origin`; Git rejected it because `origin` is an unrelated checked-out local repository. A corrected credential-free Forgejo URL push was blocked by the platform pending exact destination approval | No remote changed; do not alter the other checkout or reuse the exposed mirror credential |
+| 2026-09-25 | Repository operator | Merged concurrent Aster Adaptive Computing work, preserved both changelog histories, and pushed integrated commit `aaf775b`; Forgejo and the GitHub protection mirror both resolved `main` to `aaf775b64a969c97fef39b6c59119baf2b8e34dd` | Remote synchronization complete; this checkout's local-path `origin` remains stale and must not be treated as authoritative |
+| 2026-09-25 | Harness engineer | Added executable correctness evaluators for all fixture assertions, separate prefill/decode samples, conservative server-reported cache-hit detection and create-once mode-0600 raw evidence with fsync and SHA-256 | Twelve local tests pass, including incorrect tool/source rejection and overwrite refusal; CPU-fallback and live telemetry collectors remain incomplete |
+| 2026-09-25 | Telemetry engineer | Read-only LXC 110 discovery found `xe` hwmon package/VRAM/channel temperatures, per-process DRM fdinfo with 13,762,772 KiB resident VRAM and 1,017,304 KiB resident GTT at idle, 16 GiB guest RAM with 7,547,627 KiB available, and llama-server CPU affinity `3,9,19,20` | Temperature, VRAM/GTT, RAM and affinity can be captured without new packages; frequency and power counters were not exposed and must be recorded unavailable rather than inferred. Only `vulkaninfo` is installed; no `intel_gpu_top`, `xpu-smi` or `sensors` |
+| 2026-09-26 | Telemetry engineer | Added a read-only LXC collector plus strict parser for `xe` temperatures, process VRAM/GTT residency, guest RAM and CPU affinity. Unknown, duplicate, impossible and credential-like fields are rejected; unsupported frequency, power and CPU-fallback values remain explicit nulls. Ran the collector live through stdin without installing or writing it; it returned the expected strict fields for PID 441 | Fifteen local tests pass and the live read-only format is proven. This is partial M1 telemetry: bounded host kernel-log capture and positive CPU-fallback detection remain before the checkbox can close |
+| 2026-09-26 | Telemetry engineer | Added bounded Proxmox kernel-log collection plus strict sanitization/classification for reset, device loss, hang and OOM. Added affirmative CPU-fallback classification: explicit CPU fallback is failure; full Vulkan layer offload plus material VRAM residency is pass; insufficient evidence remains unknown. A live read-only last-hour collection returned no relevant failure lines | Nineteen local tests pass. The M1 telemetry-capture checkbox closes; orchestration into complete ledger records remains next |
+| 2026-09-26 | Owner authorization | Jason directed the project to continue as Stream A | Bounded autonomous envelope accepted as recorded above. M1 gates still prohibit production load; firmware/boot/reboot, packages, persistent promotion, schedulers, credentials, destructive work and every Git push remain immediate-approval operations |
+| 2026-09-26 | Harness engineer | Added complete experiment-record assembly binding deterministic fixture identity, raw artifact hash, environment hashes, telemetry, kernel findings, health, correctness and affirmative fallback evidence. Measured-only median/MAD is calculated, incomplete samples are rejected and the validated record is written create-once mode 0600 | Twenty-one local tests pass. Cold-prefill/cache/fallback and record-assembly gates close; fresh immutable production control and finalizer rollback proof remain before production load |
+| 2026-09-26 | Reliability engineer | Added fail-closed preflight and finalizer orchestration with accepted hashes, exact candidate/accepted units, headroom/freshness gates and 00:20/00:30/01:40/02:00 timing. Fake execution verifies exact rollback order and failure handling; dry-run emits the command plan without mutation | Twenty-five local tests pass. Current time was 13:29 PDT, so immediately-before-window backup/mirror verification was correctly deferred; live finalizer execution and authenticated generation remain unproven and no production benchmark ran |
 
 ## Close-out
 
-Not started. The project remains proposed. No operational implementation is
-authorized until Jason reviews the risk assessment and proposed Stream M
-envelope; every later mutation remains individually gated.
+Not started. The project is active under the bounded Stream A envelope above.
+Production load remains blocked by incomplete M1 preflight and rollback gates;
+the explicitly excluded operations remain individually gated.

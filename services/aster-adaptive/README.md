@@ -1,4 +1,10 @@
-# Offline adaptive contract candidate
+# Selector-only conformance probe
+
+This package is an offline diagnostic probe, not the programme's canonical
+harness/evidence framework. `scripts/aster-adaptive` retains that role. Its
+`selector-probe.*.v1` wire records are deliberately distinct from the harness
+`decision.v1`/`outcome.v1` families. No transparent conversion or ledger ingestion
+is supported; matching words do not establish compatible semantics.
 
 No deployed service. No credentials, tool execution, model call, network client,
 production catalogue fetch or raw interaction collection. Uses the **existing**
@@ -9,7 +15,7 @@ local Python3.12/Pydantic2.13.4 environment; no dependency was installed.
 /private/tmp/aster-lab-ops-venv/bin/python services/aster-adaptive/evaluate.py --output /private/tmp/m2-result.json --schemas /private/tmp/m2-schemas
 ```
 
-The repository schemas in `schemas/aster` are exported JSON Schema2020-12 from
+The repository schemas in `schemas/aster/selector-probe-v1` are exported JSON Schema2020-12 from
 strict models in `contracts.py`. The JSON wire representation is the contract;
 Pydantic is an interchangeable validator implementation. This is a **candidate
 v1**, not a published stable interface. Before connecting any runtime, review

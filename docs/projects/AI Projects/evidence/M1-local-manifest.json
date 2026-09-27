@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "scope": "synthetic local M1 candidate; not deployed",
+  "base": "d954ae4e6d81cfde52e04a99f7768ff3919deb00",
+  "validation": {
+    "broker_tests": 58,
+    "companion_tests": 8,
+    "legacy_migration": "passed; pinned baseline source",
+    "expected_failures": 0
+  },
+  "sha256": {
+    "ops/credential-broker/broker_core.py": "39cd993fc82dfcd572c3f115f967eda30a24e238aeb90d2031b308cba6a626fd",
+    "ops/credential-broker/broker_service.py": "8a8916f2e3efd69627bed73537e26cf6159a93a3cadc881b16e5e363bd68480f",
+    "ops/credential-broker/broker_approval_service.py": "94d0d5d27430eaca7eb43dcfa972c285870bae262a26d5cd6142d7083a35f4e1",
+    "ops/credential-broker/broker_admin.py": "38883d6345917fec2acd193987d59e63fb809de1f0e9a7139c07627b19d49251",
+    "ops/credential-broker/test_adaptive_foundation_regressions.py": "db84dfb742ee369b01cc9bf6610a8289bba364ecdfaf860ddc1c95dbb31f548c",
+    "ops/credential-broker/test_adaptive_lifecycle.py": "c3bdd88f7861993c8a3102993b8553d8ea802e1aec46340fe4ea0c1917ee403d",
+    "ops/credential-broker/test_broker_core.py": "571cb5f981bc41ec43fc81ee3f6870832a4b3e8e32a3ff8e65beb98dd6e78047",
+    "ops/credential-broker/test_broker_approval_service.py": "c5e045e57c1f5cdc7c1eeee74816952eb0f0c8dba4c342053d8688b08ff0ff60",
+    "ops/credential-broker/check_adaptive_migration.py": "ce7331b3adcf5beed3eb807e791130294d79a4a363dcea638f0a0f98bb7475c1",
+    "services/aster-agent/broker_approvals.py": "24545c94820e44b33d93780334ec444ed6dbfa6136749a6de08d59e796205cfc",
+    "services/aster-agent/test_broker_approvals.py": "e51095479edb897949793ff85dc897cad9ba2febbef2c36e080ce4e9115e230a"
+  }
+}

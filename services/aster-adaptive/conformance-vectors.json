@@ -6,7 +6,7 @@
       "id": "capability-valid",
       "contract": "Capability",
       "input": {
-        "schema_version": "capability.v1",
+        "schema_version": "selector-probe.capability.v1",
         "capability_id": "get_arr_repair_proposal",
         "implementation": "aster.selector.v1",
         "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -24,7 +24,7 @@
       "id": "capability-extra-field",
       "contract": "Capability",
       "input": {
-        "schema_version": "capability.v1",
+        "schema_version": "selector-probe.capability.v1",
         "capability_id": "get_arr_repair_proposal",
         "implementation": "aster.selector.v1",
         "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -61,11 +61,11 @@
       "id": "catalogue-valid",
       "contract": "Catalogue",
       "input": {
-        "schema_version": "catalogue.v1",
+        "schema_version": "selector-probe.catalogue.v1",
         "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
         "capabilities": [
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_arr_repair_proposal",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -77,7 +77,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_arr_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -89,7 +89,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_current_time",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -101,7 +101,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_forgejo_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -113,7 +113,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_ha_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -125,7 +125,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_lab_health",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -137,7 +137,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_netbox_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -149,7 +149,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_service_health",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -161,7 +161,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "search_knowledge",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -182,11 +182,11 @@
       "id": "catalogue-extra-field",
       "contract": "Catalogue",
       "input": {
-        "schema_version": "catalogue.v1",
+        "schema_version": "selector-probe.catalogue.v1",
         "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
         "capabilities": [
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_arr_repair_proposal",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -198,7 +198,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_arr_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -210,7 +210,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_current_time",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -222,7 +222,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_forgejo_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -234,7 +234,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_ha_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -246,7 +246,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_lab_health",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -258,7 +258,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_netbox_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -270,7 +270,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_service_health",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -282,7 +282,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "search_knowledge",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -308,7 +308,7 @@
         "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
         "capabilities": [
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_arr_repair_proposal",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -320,7 +320,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_arr_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -332,7 +332,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_current_time",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -344,7 +344,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_forgejo_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -356,7 +356,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_ha_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -368,7 +368,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_lab_health",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -380,7 +380,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_netbox_report",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -392,7 +392,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "get_service_health",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -404,7 +404,7 @@
             "execution": "disabled"
           },
           {
-            "schema_version": "capability.v1",
+            "schema_version": "selector-probe.capability.v1",
             "capability_id": "search_knowledge",
             "implementation": "aster.selector.v1",
             "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -425,7 +425,7 @@
       "id": "decisionrequest-valid",
       "contract": "DecisionRequest",
       "input": {
-        "schema_version": "decision-request.v1",
+        "schema_version": "selector-probe.decision-request.v1",
         "request_id": "ha-health",
         "content_handle": "ha-health",
         "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
@@ -444,7 +444,7 @@
       "id": "decisionrequest-extra-field",
       "contract": "DecisionRequest",
       "input": {
-        "schema_version": "decision-request.v1",
+        "schema_version": "selector-probe.decision-request.v1",
         "request_id": "ha-health",
         "content_handle": "ha-health",
         "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
@@ -483,7 +483,7 @@
       "id": "decision-valid",
       "contract": "Decision",
       "input": {
-        "schema_version": "decision.v1",
+        "schema_version": "selector-probe.decision.v1",
         "request_id": "ha-health",
         "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
         "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
@@ -515,7 +515,7 @@
       "id": "decision-extra-field",
       "contract": "Decision",
       "input": {
-        "schema_version": "decision.v1",
+        "schema_version": "selector-probe.decision.v1",
         "request_id": "ha-health",
         "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
         "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
@@ -580,7 +580,7 @@
       "id": "harnessrun-valid",
       "contract": "HarnessRun",
       "input": {
-        "schema_version": "harness-run.v1",
+        "schema_version": "selector-probe.harness-run.v1",
         "run_id": "ha-health",
         "request_id": "ha-health",
         "decision_digest": "b1155d460a41386ef260a18019d6744b3572785f7e91994de423f15088e60c4a",
@@ -599,7 +599,7 @@
       "id": "harnessrun-extra-field",
       "contract": "HarnessRun",
       "input": {
-        "schema_version": "harness-run.v1",
+        "schema_version": "selector-probe.harness-run.v1",
         "run_id": "ha-health",
         "request_id": "ha-health",
         "decision_digest": "b1155d460a41386ef260a18019d6744b3572785f7e91994de423f15088e60c4a",
@@ -638,7 +638,7 @@
       "id": "outcome-valid",
       "contract": "Outcome",
       "input": {
-        "schema_version": "outcome.v1",
+        "schema_version": "selector-probe.outcome.v1",
         "run_id": "ha-health",
         "result": "selection_recorded",
         "execution": "not_attempted",
@@ -652,7 +652,7 @@
       "id": "outcome-extra-field",
       "contract": "Outcome",
       "input": {
-        "schema_version": "outcome.v1",
+        "schema_version": "selector-probe.outcome.v1",
         "run_id": "ha-health",
         "result": "selection_recorded",
         "execution": "not_attempted",
@@ -681,7 +681,7 @@
       "id": "experiment-valid",
       "contract": "Experiment",
       "input": {
-        "schema_version": "experiment.v1",
+        "schema_version": "selector-probe.experiment.v1",
         "experiment_id": "m2-selector-conformance-001",
         "hypothesis": "contract-adapter-preserves-baseline-selection",
         "baseline_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
@@ -700,7 +700,7 @@
       "id": "experiment-extra-field",
       "contract": "Experiment",
       "input": {
-        "schema_version": "experiment.v1",
+        "schema_version": "selector-probe.experiment.v1",
         "experiment_id": "m2-selector-conformance-001",
         "hypothesis": "contract-adapter-preserves-baseline-selection",
         "baseline_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
@@ -740,11 +740,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -753,9 +753,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "status": "plan",
@@ -779,11 +779,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -795,7 +795,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -807,7 +807,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -819,7 +819,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -831,7 +831,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -843,7 +843,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -855,7 +855,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -867,7 +867,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -879,7 +879,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -902,11 +902,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -915,9 +915,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "engine_digest": "0000000000000000000000000000000000000000000000000000000000000000",
           "status": "plan",
@@ -941,11 +941,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -957,7 +957,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -969,7 +969,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -981,7 +981,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -993,7 +993,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1005,7 +1005,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1017,7 +1017,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1029,7 +1029,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -1041,7 +1041,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -1064,11 +1064,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -1077,9 +1077,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "0000000000000000000000000000000000000000000000000000000000000000",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "status": "plan",
@@ -1103,11 +1103,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1119,7 +1119,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1131,7 +1131,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -1143,7 +1143,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1155,7 +1155,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1167,7 +1167,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1179,7 +1179,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1191,7 +1191,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -1203,7 +1203,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -1226,11 +1226,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -1239,7 +1239,7 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
           "registry_digest": "0000000000000000000000000000000000000000000000000000000000000000",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
@@ -1265,11 +1265,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1281,7 +1281,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1293,7 +1293,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -1305,7 +1305,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1317,7 +1317,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1329,7 +1329,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1341,7 +1341,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1353,7 +1353,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -1365,7 +1365,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -1388,11 +1388,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -1401,9 +1401,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "status": "plan",
@@ -1427,11 +1427,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1443,7 +1443,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1455,7 +1455,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -1467,7 +1467,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1479,7 +1479,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1491,7 +1491,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1503,7 +1503,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1515,7 +1515,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -1527,7 +1527,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -1550,11 +1550,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -1563,9 +1563,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "status": "plan",
@@ -1589,11 +1589,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1605,7 +1605,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1617,7 +1617,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -1629,7 +1629,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1641,7 +1641,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1653,7 +1653,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1665,7 +1665,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1677,7 +1677,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -1689,7 +1689,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -1712,11 +1712,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -1725,9 +1725,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "status": "plan",
@@ -1753,11 +1753,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1769,7 +1769,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1781,7 +1781,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -1793,7 +1793,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1805,7 +1805,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1817,7 +1817,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1829,7 +1829,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1841,7 +1841,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -1853,7 +1853,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -1876,11 +1876,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -1889,9 +1889,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "status": "plan",
@@ -1920,11 +1920,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1936,7 +1936,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1948,7 +1948,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -1960,7 +1960,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1972,7 +1972,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1984,7 +1984,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -1996,7 +1996,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2008,7 +2008,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -2020,7 +2020,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -2043,11 +2043,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -2056,9 +2056,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "status": "plan",
@@ -2082,11 +2082,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2098,7 +2098,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2110,7 +2110,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -2122,7 +2122,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2134,7 +2134,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2146,7 +2146,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2158,7 +2158,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2170,7 +2170,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -2182,7 +2182,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",
@@ -2205,11 +2205,11 @@
       "scope": "semantic",
       "input": {
         "request": {
-          "schema_version": "decision-request.v1",
+          "schema_version": "selector-probe.decision-request.v1",
           "request_id": "ha-health",
           "content_handle": "ha-health",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "sensitivity": "internal",
           "egress": "none",
@@ -2218,9 +2218,9 @@
           "retention": "synthetic-only"
         },
         "decision": {
-          "schema_version": "decision.v1",
+          "schema_version": "selector-probe.decision.v1",
           "request_id": "ha-health",
-          "registry_digest": "0cb56d2d0a1dfbcad9d4d0a6a9af484b5209a4d7e506507fc4e7954a4d105a19",
+          "registry_digest": "3b2ebddd6c1e5bf905295f3a798fdbcb9d790dd9f84dba91635910ba344e37f9",
           "policy_digest": "4f992db60e596c44093ca95b539fdf5e710ddf62cfc8a7226852dbe209653613",
           "engine_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "status": "plan",
@@ -2244,11 +2244,11 @@
           "expires_unix": 31
         },
         "catalogue": {
-          "schema_version": "catalogue.v1",
+          "schema_version": "selector-probe.catalogue.v1",
           "source_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
           "capabilities": [
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_repair_proposal",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2260,7 +2260,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_arr_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2272,7 +2272,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_current_time",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "785f03a908bc98e5fc3b276d4f309c8560cd145f10df3ab90d490d8f8a58ffd5",
@@ -2284,7 +2284,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_forgejo_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2296,7 +2296,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_ha_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2308,7 +2308,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_lab_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2320,7 +2320,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_netbox_report",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49",
@@ -2332,7 +2332,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "get_service_health",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "9be9408be8409295f2f70de6fd98eea24d04901194c0c9f0d73f5139d54c1c68",
@@ -2344,7 +2344,7 @@
               "execution": "disabled"
             },
             {
-              "schema_version": "capability.v1",
+              "schema_version": "selector-probe.capability.v1",
               "capability_id": "search_knowledge",
               "implementation": "aster.selector.v1",
               "input_schema_digest": "cc8139e18b65e3047c35a95c52466913a2f099f3581b717886f37607c0e7143e",

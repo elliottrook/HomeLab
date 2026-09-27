@@ -1,0 +1,89 @@
+{
+  "schema_version": "contract-wire-comparison.v1",
+  "selector_commit": "1a8fa680908eac8e0b7bb76845a0b1b061e593d7",
+  "selector_pins": {
+    "contracts.py": "78e78137d3fb67de4f8fd2a4634728d5a9a0e4ad07fa86c719556dbd1a074a4e",
+    "conformance-vectors.json": "18d6dddb66b56a200d0ede7bd7cd1e9ca310caac895f3b56cf56f47916217465"
+  },
+  "harness_contract_digest": "58bbf65cf3dc929bc80d1882c40fa1d5caf4a1e63105ac557456cc7d981941ec",
+  "results": [
+    {
+      "contract": "Capability",
+      "source": "harness",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "capability.v1"
+    },
+    {
+      "contract": "Capability",
+      "source": "selector",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "capability.v1"
+    },
+    {
+      "contract": "Decision",
+      "source": "harness",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "decision.v1"
+    },
+    {
+      "contract": "Decision",
+      "source": "selector",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "decision.v1"
+    },
+    {
+      "contract": "HarnessRun",
+      "source": "harness",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "run.v1"
+    },
+    {
+      "contract": "HarnessRun",
+      "source": "selector",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "harness-run.v1"
+    },
+    {
+      "contract": "Outcome",
+      "source": "harness",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "outcome.v1"
+    },
+    {
+      "contract": "Outcome",
+      "source": "selector",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "outcome.v1"
+    },
+    {
+      "contract": "Experiment",
+      "source": "harness",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "experiment.v1"
+    },
+    {
+      "contract": "Experiment",
+      "source": "selector",
+      "self_accept": true,
+      "other_accept": false,
+      "schema_version": "experiment.v1"
+    }
+  ],
+  "shared_version_collisions": [
+    "Capability",
+    "Decision",
+    "Outcome",
+    "Experiment"
+  ],
+  "scope": "ten structural sample checks; not general semantic equivalence or a migration",
+  "conclusion": "distinct incompatible profiles; no automatic conversion or authority"
+}
