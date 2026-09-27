@@ -873,3 +873,27 @@ change the boundary gate to **GO for preparation of a separately immutable
 accepted-corpus candidate**. Corpus execution remains unauthorized. The next
 candidate requires a fresh disk and identity, pinned corpus/code/result contract,
 reviewed resource and lifecycle bounds, and a new exact human approval.
+
+
+### Disposable VM V5 accepted-corpus candidate prepared
+
+The local [V5 candidate](experiments/s0-routing-descriptive-v1/vm-corpus-candidate-v1/OPERATIONS-PLAN.md)
+pins the nine already accepted S0 artifacts, their 20-train/10-development split,
+the existing adapter and standard-library routing source, and a new bounded worker.
+It compares always-abstain, existing keyword rules and fixed-0.2 TF-IDF nearest
+under request-only and verbatim-synthetic-context profiles. It makes no cloud,
+model or tool call and cannot promote a route. Confidence, privacy quality, cloud
+requirement and production local-resolution remain explicitly unmeasured.
+
+The proposed fresh VM122 retains the proven no-vNIC/no-agent boundary, runs one
+unprivileged task with private network/devices/tmp and read-only inputs, and adds
+384-MiB memory, 75-second unit, 4-MiB output and 300-second outer capture bounds.
+Nine focused and 272 full adaptive tests pass; the generated cloud-config and host
+scripts parse. Read-only preflight found VMID122 free, VMs118–121 stopped, all new
+paths absent, the retained image exact and capacity above gates.
+
+The [V5 release](experiments/s0-routing-descriptive-v1/vm-release-v5/PREFLIGHT.md)
+is local and unexecuted. Release-manifest SHA-256 is
+`1ae0bdeda1e5043a98065b4de8515d4a75045d936271a79f6f77cd80059c8a8c`.
+No accepted case was evaluated while building the packet. Remote staging, VM/ISO
+creation, boot, evaluation, cleanup and push require separate authorization.

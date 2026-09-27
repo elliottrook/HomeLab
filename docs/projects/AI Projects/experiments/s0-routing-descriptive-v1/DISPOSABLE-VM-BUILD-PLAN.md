@@ -340,6 +340,19 @@ result accepts the disposable no-vNIC VM as the boundary for the next experiment
 Corpus execution remains separately approval-gated; VM121 is retained stopped and
 must not be reused as the corpus candidate.
 
+### V5 — accepted 30-family descriptive comparison
+
+The frozen [`vm-corpus-candidate-v1/`](vm-corpus-candidate-v1/) and
+[`vm-release-v5/`](vm-release-v5/) packet binds the nine accepted artifacts, three
+fixed standard-library engines, two input profiles, exact result validator and
+fresh VM122 identity. Nine focused and 272 full tests pass. Read-only preflight
+found VMID122 free, prior experimental VMs stopped and capacity above the gates.
+
+This is preparation evidence only. No accepted family has been evaluated. V5 needs
+an exact manifest-bound approval for one offline boot and capture. A completed,
+valid run permits descriptive result review only; it cannot promote an engine,
+change routing/policy/permissions or authorize another run.
+
 ## Failure, stop and recovery semantics
 
 | Failure | Required response |

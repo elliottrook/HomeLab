@@ -646,3 +646,26 @@ router quality, repeatability, scale or production suitability. The raw serial
 capture remains on Proxmox because it contains noisy boot output and generated
 public SSH host-key material; its bounded digest and sanitized decoded evidence are
 retained in `run-v3b-isolation/`.
+
+
+### 2026-09-26 — V5 accepted-corpus candidate frozen locally
+
+Prepared the new-identity `corpus-descriptive-001` candidate after the V4 boundary
+GO. It copies and pins the nine accepted 30-family pilot artifacts without running
+the adapter or routers, and includes only the reviewed standard-library adapter,
+router source and bounded worker. The comparison remains descriptive: three fixed
+engines, two fixed profiles, 20 train/10 development, no tuning, model, cloud,
+tool, credential or promotion path.
+
+Proposed fresh VM122 keeps the proven no-vNIC/no-agent controls and adds exact
+memory, CPU, task, file, unit and outer capture bounds. Nine focused and 272 full
+adaptive tests pass; Python and shell syntax, cloud-config YAML and generated file
+hashes validate. Read-only Proxmox preflight found `nextid=122`, VMs118–121 stopped,
+new ISO/staging/release/run paths absent, the retained image exact and capacity
+above gates. Release-manifest SHA-256 is
+`1ae0bdeda1e5043a98065b4de8515d4a75045d936271a79f6f77cd80059c8a8c`.
+
+No corpus evaluation, remote staging, ISO/VM creation, boot, cleanup or push
+occurred. One exact stage/create/offline-boot/capture/stop-and-retain window needs
+new human approval; low router agreement will be retained as a valid result and
+will not trigger a retry.
