@@ -62,7 +62,7 @@ over subsequent actions or remove entitlement/assurance checks to reopen access.
 - [x] Denial regressions, readiness/health and unchanged neighboring service hashes.
 - [ ] Fresh real iPhone session proves signed passkey claim; approval/deny and
       management workflow accepted without performing production target actions.
-- [ ] Monitoring readiness, documentation/evidence and local commit.
+- [x] Monitoring readiness, documentation/evidence and local commit.
 
 Current safe resume: do not redeploy. Read this record, Git status and live hashes;
 ask Jason to sign out and sign in with his passkey, open AI-PAM management and
@@ -133,8 +133,9 @@ the coordinated configuration and signed-session gate pass again.
 - Operational reference: incident runbook and canonical programme link this
   evidence. Human wiki/Aster mirror contain no new target or capability to
   advertise; publish accepted workflow guidance only after human acceptance.
-- No push or drift-baseline acceptance. Local commit/synchronization status and
-  final human acceptance must be recorded at close-out.
+- Implementation, monitoring and evidence are locally committed. No push or
+  drift-baseline acceptance; Forgejo synchronization is pending separate push
+  authorization. Final human acceptance must be recorded at close-out.
 
 ## Source evidence
 
