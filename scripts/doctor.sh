@@ -1235,9 +1235,9 @@ for line in open('$latest'):
     d = json.loads(line)
     if d.get('event') == 'summary':
         summary = d
-    elif d.get('event') == 'error':
-        title = (d.get('title') or '?').replace('|||', '/')
-        reason = (d.get('error') or '').replace('|||', '/').replace(chr(10), ' ').strip()
+    elif d.get('event') == 'error' or (d.get('event') == 'file' and d.get('status') == 'failed'):
+        title = (d.get('title') or d.get('path', '').rsplit('/', 1)[-1] or '?').replace('|||', '/')
+        reason = (d.get('error') or d.get('reason') or '').replace('|||', '/').replace(chr(10), ' ').strip()
         # Keep the notification line scannable -- the full reason (and any
         # ISO-handling instructions) is always in the log file itself.
         reason_short = (reason[:77] + '...') if len(reason) > 80 else reason
@@ -1245,10 +1245,10 @@ for line in open('$latest'):
 if summary is None:
     print('no_summary=1')
 else:
-    print(f'dry_run={1 if summary.get(\"dry_run\") else 0}')
-    print(f'found={summary.get(\"total_candidates_found\", 0)}')
+    print(f'dry_run={1 if summary.get(\"dry_run\", summary.get(\"mode\") != \"EXECUTE\") else 0}')
+    print(f'found={summary.get(\"total_candidates_found\", summary.get(\"considered\", 0))}')
     print(f'processed={summary.get(\"processed\", 0)}')
-    print(f'succeeded={summary.get(\"succeeded\", 0)}')
+    print(f'succeeded={summary.get(\"succeeded\", summary.get(\"replaced\", 0))}')
     print(f'failed={summary.get(\"failed\", 0)}')
     for title, reason in errors:
         print(f'error_entry={title}|||{reason}')
@@ -1292,7 +1292,9 @@ REMOTE
     if [[ "$failed" =~ ^[0-9]+$ ]] && (( failed > 0 )); then
         local formatted=()
         local entry title reason
-        for entry in "${error_entries[@]}"; do
+        # Bash 3.2 (macOS) treats an empty array as unset under `set -u`.
+        # Some archiver runs report failures only in the summary.
+        for entry in ${error_entries[@]+"${error_entries[@]}"}; do
             title="${entry%%|||*}"
             reason="${entry#*|||}"
             if [[ -n "$reason" ]]; then
@@ -1302,8 +1304,11 @@ REMOTE
             fi
         done
         local list
-        list="$(printf '; %s' "${formatted[@]}")"
-        list="${list:2}"
+        list=""
+        if (( ${#formatted[@]} > 0 )); then
+            list="$(printf '; %s' "${formatted[@]}")"
+            list="${list:2}"
+        fi
         fail "video-archiver: ${failed} failure(s) on last run (${age_hours}h ago, ${mode_label}) — ${list:-see log}: ${log_path}"
     elif (( age_hours > max_age_hours )); then
         warn "video-archiver last run ${age_hours} hour(s) ago (expected ~daily, Mon-Sat)"
