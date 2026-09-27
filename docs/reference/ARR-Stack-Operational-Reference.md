@@ -43,7 +43,7 @@ credentials are outside this reference.
 | Lidarr | 3.1.0.4875 (`ls39`) | 8686 | Album-oriented music monitoring, acquisition, import, metadata and naming | `/mnt/Media/data/media/music` | Uses the shared Prowlarr/SABnzbd acquisition path; requests and imports are album-scoped |
 | Prowlarr | 2.5.2.5491 (`ls157`) | 9696 | Indexer authority and application synchronization | No media-library root | Synchronizes indexer definitions to connected ARR applications; it is upstream of search/grab, not the downloader |
 | SABnzbd | 5.1.2 | 8080 | Download queue, unpack/post-processing and handoff | No canonical library root; working data remains under the shared dataset | Downloads for the ARR applications; completion is not proof that an ARR import succeeded |
-| Jellyfin | 10.11.11 (`ls46`) | 8096 | Downstream library scan, metadata match and playback visibility | Movies, Shows and Music roots above, plus `/mnt/Media/data/archive-movies` and `/mnt/Media/data/archive-tv` | No downloader authority; observes files only after ARR import or an explicitly managed side workflow |
+| Jellyfin | 12.1.0 (live check 2026-09-26) | 8096 | Downstream library scan, metadata match and playback visibility | Movies, Shows and Music roots above, plus `/mnt/Media/data/archive-movies` and `/mnt/Media/data/archive-tv` | No downloader authority; observes files only after ARR import or an explicitly managed side workflow |
 
 The diagnostic dependency order is:
 
@@ -137,3 +137,10 @@ reviewed and added; do not fill them from stale config directories.
 - Prior import, rename, orphan, artwork and migration incidents explain the
   safeguards above. Their titles, counts and one-time corrective commands are
   historical evidence, not instructions for a current incident.
+
+## Configuration recovery — 2026-09-26
+
+Actual ARR `/config` Docker volumes, Jellyfin state and the NAS deployment
+definitions now have a verified daily media-free export into the TrueNAS
+backup hub. The image and library paths were not changed by this backup work.
+See `docs/runbooks/Configuration-Backups.md`; bulk media is excluded.

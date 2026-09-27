@@ -2571,3 +2571,81 @@ application-state gaps, deliberate off-site exclusions and unverified Immich
 photo coverage. No schedules were changed. Archival remains pending the backup
 scope/acceptance decision; manual SSO checkpoints must not be described as
 recurring application backup. Do not repeat deployment while awaiting it.
+
+### Authorized configuration-backup completion — 2026-09-26
+
+Jason requires ALL application/infrastructure configurations backed up before
+close-out. Media payload is excluded; Immich photos will be backed up separately
+by Jason. This explicitly authorizes the previously held recurring config
+backup work. Include restoration-critical application databases/account state,
+compose/environment definitions and encryption material in protected archives,
+not Git. Existing family-file/Paperless backup policies are not removed.
+
+Plan/risk envelope: inventory actual mounts, export consistent SQLite databases,
+briefly quiesce only a non-SQLite application when needed, verify isolated
+restoration, add bounded recurring exports into the existing protected hub,
+then verify encrypted off-site recovery. Exclude download/library/recording and
+cache payloads. Preserve current backups and services. Keep a previous verified
+export, fail closed on unknown topology/verification failure, record run age and
+integrate Doctor. No public ingress, credential rotation or media relocation.
+TrueNAS and Proxmox can run unattended; Synology currently requires Jason's
+interactive sudo session. Do not archive until all config coverage is verified.
+
+### Configuration-backup implementation and recovery — 2026-09-26
+
+New TrueNAS root-only exporter and daily 05:00 cron task 7 deployed. The first
+complete export covered 16 active applications and 14 SQLite databases, actual
+ARR Docker config volumes, managed-app/network/guard definitions, native TrueNAS
+config including secret seed, automation tools and SSH recovery configuration.
+Two repeated exports passed; the 3,528-file archive was separately restored and
+all 14 databases passed integrity checks in a network-none fixture. Native ABS
+SQLite 3.44.2 is required for its newer schema; an initial host-library attempt
+failed closed before publication. Owned failed staging was removed. Synthetic
+active-WAL/media-exclusion and monitor failure tests pass. Retained Calibre
+desktop settings and library catalogue databases are being added in a final pass.
+
+Jason ran the Synology root installer. Vendor DSM export, protected Immich
+compose/env and PostgreSQL custom dumps were verified; no photo library or ML
+cache was copied. The older DSM systemctl rejected `enable --now`; Jason used
+separate enable/start commands. Read-only validation confirms its daily 03:30
+timer active/enabled. The existing 04:30 family-file pull copied the 52 MiB
+archive to TrueNAS with matching SHA-256. Both databases were restored with the
+exact pinned image in a network-none scratch container; Immich restored 61
+tables. Scratch container/volumes removed. No production database was restored.
+
+The existing TrueNAS Proxmox pull now includes relay LXC 112 and OpenBao 117;
+its schedule and previous include rules are preserved. Bounded checkpoint at
+`/root/config-backup-closeout-20260926`. Existing remote-path validation rejected
+the forced-rrsync source; update used `validate_rpath=false` for the unchanged
+known source, and the actual pull succeeded. This did not widen SSH privileges.
+Fresh OPNsense/Arista/Proxmox/NUT/monitoring exports succeeded. Operator SSH/lab
+configuration and AsterLab custody were exported (37 files, hashes verified) and
+added to the weekly Mac job; every exporter is now attempted independently.
+Root/private archive contents never entered Git or model-visible output.
+
+Doctor now checks NAS config-manifest freshness/counts/failure markers, copied
+Synology backup and active timer, plus operator-config age. Backup relay excludes
+incomplete export candidates, preserving its existing media/Paperless/LXC110
+exclusions. Checkpoint `/root/idrive-relay-sync.before-config-backups-20260926`.
+Full relay started and is progressing under the existing 20 MiB/s limit.
+Fresh snapshot-mode guest archives 100/102/106/107/112/113 are in progress with
+retention deletion disabled. Do not terminate them or claim final off-site
+completion/archival early. Runbook: `docs/runbooks/Configuration-Backups.md`.
+Post-backup browser regression remains **134/134 passed**.
+
+Final NAS configuration inventory is now **17 applications / 18 SQLite
+Databases / 3,604 files**, including the stopped Calibre desktop settings and
+both Calibre catalogues, without ebook payload. The final archive restored all
+18 databases successfully. File Browser's restored Bolt database also opened
+successfully using its exact application image in a network-none fixture; no
+user records or credentials were printed. Final archive SHA-256:
+`1dfc1686f6ba03b63934c61f86ebda138c5db57e52f50636d423134a73e293d4`.
+
+Found relay timer UTC/NAS-local ordering mismatch. Timer is now explicitly
+07:00 `America/Vancouver` (15-minute existing jitter retained), after the NAS
+exports/snapshots; systemd validated the expression. Existing in-flight service
+was not restarted. Checkpoint:
+`/root/idrive-relay-sync.timer.before-config-backups-20260926`.
+A bounded off-site verifier is queued behind the relay lock: it will copy the
+final config generations and download/hash-check NAS and infrastructure config
+artifacts without printing any contents. It does not delete remote data.

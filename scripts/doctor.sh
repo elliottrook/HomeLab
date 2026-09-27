@@ -2019,6 +2019,7 @@ check_backup_age "NUT" "$BACKUP_ROOT/nut" 48
 check_backup_age "Observability" "$BACKUP_ROOT/observability" 48
 check_backup_age "Video Archiver config" "$BACKUP_ROOT/video-archiver" 192
 check_backup_age "Jellyfin Integrity" "$BACKUP_ROOT/jellyfin-integrity" 192
+check_backup_age "Operator lab config" "$BACKUP_ROOT/operator-configs" 192
 check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
@@ -2030,6 +2031,11 @@ check_proxmox_guest_backup_age "Aster Wiki LXC 113" 113 30 lxc
 check_proxmox_guest_backup_age "Aster Speech LXC 116" 116 30 lxc
 check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Media/backup/homelab-proxmox-guests
 check_idrive_relay
+if config_backup_result="$(python3 "$REPO/scripts/check-configuration-backups.py")"; then
+    pass "$config_backup_result"
+else
+    fail "$config_backup_result"
+fi
 check_backup_redesign_truenas
 check_home_assistant_backup_truenas
 

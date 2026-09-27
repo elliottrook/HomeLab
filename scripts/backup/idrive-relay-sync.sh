@@ -17,6 +17,10 @@ install -d -m 0700 "$log_dir"
 exec flock -n "$lock_file" /usr/local/bin/rclone sync \
   /srv/backup \
   idrive-crypt: \
+  --exclude '**/.candidate-*/**' \
+  --exclude '**/configs.candidate.tar.gz' \
+  --exclude '**/status.candidate.json' \
+  --exclude '**/.previous-candidate' \
   --exclude '/aster-lxc110/**' \
   --exclude '/homelab-proxmox-guests/vzdump-lxc-110-*.tar.zst' \
   --exclude '/homelab-proxmox-guests/vzdump-lxc-115-*.tar.zst' \
