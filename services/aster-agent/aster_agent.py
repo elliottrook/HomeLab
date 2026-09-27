@@ -1667,7 +1667,7 @@ async function login(fresh=false, approval=null){{
     localStorage.setItem('pending_approval_created_at', String(Date.now()));
   }}
   const p=new URLSearchParams({{client_id:AUTH.clientId, response_type:'code', redirect_uri:AUTH.redirectUri, scope:AUTH.scope, code_challenge:challenge, code_challenge_method:'S256', state}});
-  if(fresh) p.set('max_age','0');
+  if(fresh) p.set('prompt','login');
   location.href = AUTH.authorizeUrl + '?' + p.toString();
 }}
 

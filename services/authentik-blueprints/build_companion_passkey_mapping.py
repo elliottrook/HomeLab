@@ -14,7 +14,7 @@ from django.utils import timezone
 try:
     if provider.client_id != "aster-companion" or provider.pk != 26:
         return {}
-    if provider.authentication_flow.slug != "aster-companion-passwordless":
+    if provider.authentication_flow.slug != "aster-companion-reauthentication":
         return {}
     stage = AuthenticatorValidateStage.objects.get(name="aster-companion-webauthn-validate")
     if (list(stage.device_classes) != ["webauthn"]

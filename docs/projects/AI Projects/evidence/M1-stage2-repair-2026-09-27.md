@@ -121,6 +121,46 @@ the coordinated configuration and signed-session gate pass again.
 
 ### Fresh-login correction after iPhone feedback
 
+**Current deployed correction:** provider26 now uses dedicated flow
+`aster-companion-reauthentication` (`30ccaa43-c15e-4b8d-a30f-f5b4a1819740`). The
+original shared flow and every other provider are unchanged. Both anonymous and
+authenticated installed FlowPlanner tests produce all three mandatory stages
+(identification, required WebAuthn, login). Fresh Companion sign-ins, Red approvals
+and management changes now send `prompt=login`, not the ignored `max_age=0`.
+The installed authorize-handler test checks initial, repeated-same-event and
+new-event behavior without creating sessions or tokens. Live readiness/health and
+the served no-cache page pass. Real iPhone acceptance still governs completion.
+
+Current Aster SHA-256:
+`dcd2ec2b373602abb13e6ae9c3adc625e79363c41039b1b4747ed4160550aaa4`.
+Current mapping expression SHA-256:
+`d085bbab7f0c91d21690f54e4969329f4b8bc85bd88174a834fa77b95eca561a`.
+The original release manifest above is historical; these two hashes supersede
+its Aster/expression entries. Expression source and builder now require the new
+exact flow path with the same policy epoch. Protected LXC106 rollback metadata:
+`/opt/authentik/data/aster-reauth-checkpoint-20260927.json`; restore its provider
+flow and mapping expression together if needed. Prior Aster source is
+`aster-before-prompt-login.py` in the LXC104 checkpoint. No shared stage changed,
+no session was deleted and no device enrollment changed. The old named blueprint
+instances have no embedded contents and their files were absent on the inspected
+server; the repository blueprint now records the dedicated flow and reference.
+
+Second feedback (“Same”) exposed two installed-source defects in the proposed
+path: Authentik2026.8 evaluates `if self.params.max_age`, so zero skips the age
+check, and the old flow rejects already-authenticated users. It is referenced by
+31 providers, despite its Companion-specific name. Scope the correction to a new
+Companion-only flow admitting both initial and repeat authentication into the
+same mandatory stages; switch provider26 alone and bind its claim mapping to
+that exact new path. Keep the other30 providers and original flow unchanged.
+Change fresh requests to `prompt=login`; no global logout/session deletion.
+This is within the authorized full repair, with no passkey requirement removed.
+Installed-source tests confirm old/same login events require reauthentication,
+a new event advances, and candidate flow entry supports both session states.
+Capture prior provider/claim configuration before activation; restore those two
+fields together if needed, retaining the original flow and denying privileged
+actions on missing assurance. The earlier correction below was insufficient and
+must not be considered human acceptance.
+
 Jason reported that sign-out/sign-in reused the Authentik session without a new
 passkey challenge. Companion sign-out clears app tokens, not the Authentik SSO
 cookie; its explicit sign-in button called `login(false)`. Changed that button

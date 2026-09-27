@@ -1,0 +1,41 @@
+version: 1
+metadata:
+  name: aster-companion-reauthentication-flow
+entries:
+  - model: authentik_flows.flow
+    id: ac-reauth-flow
+    identifiers:
+      slug: aster-companion-reauthentication
+    attrs:
+      name: Aster Companion fresh passkey login
+      title: Verify your passkey for Aster
+      designation: authentication
+      # Both initial login and explicit OIDC reauthentication must enter the
+      # required stages. This does not bypass authentication inside the flow.
+      authentication: none
+      policy_engine_mode: any
+      compatibility_mode: false
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !KeyOf ac-reauth-flow
+      stage: !Find [authentik_stages_identification.identificationstage, [name, aster-companion-identification]]
+      order: 10
+    attrs:
+      evaluate_on_plan: false
+      re_evaluate_policies: true
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !KeyOf ac-reauth-flow
+      stage: !Find [authentik_stages_authenticator_validate.authenticatorvalidatestage, [name, aster-companion-webauthn-validate]]
+      order: 20
+    attrs:
+      evaluate_on_plan: false
+      re_evaluate_policies: true
+  - model: authentik_flows.flowstagebinding
+    identifiers:
+      target: !KeyOf ac-reauth-flow
+      stage: !Find [authentik_stages_user_login.userloginstage, [name, aster-companion-login]]
+      order: 100
+    attrs:
+      evaluate_on_plan: false
+      re_evaluate_policies: true

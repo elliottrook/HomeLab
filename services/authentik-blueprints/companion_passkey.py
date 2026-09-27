@@ -5,7 +5,7 @@ Embedded in a provider-specific ScopeMapping; never consumes browser JSON.
 from datetime import datetime
 
 PASSKEY_ACR = "urn:homelab:aster:webauthn:1"
-COMPANION_FLOW_PATH = "/api/v3/flows/executor/aster-companion-passwordless/"
+COMPANION_FLOW_PATH = "/api/v3/flows/executor/aster-companion-reauthentication/"
 
 
 def companion_passkey_claims(provider, token, user, event, policy_epoch, now_epoch):
