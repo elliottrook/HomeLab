@@ -1,0 +1,13 @@
+{
+  "capture_bytes": 153377,
+  "capture_sha256": "f85a6a7cdcfd2f16a84e08ca0792e03eea60ff95659d1b49a868ce05b3da71f0",
+  "development_families": 10,
+  "elapsed_ns": 118140122,
+  "families": 30,
+  "manifest_sha256": "dc2a9274ae01c6c56c2216f6ae151f96eecd748103e57dce5638d661879165c0",
+  "peak_rss_mib": 20.33984375,
+  "result_bytes": 36453,
+  "result_sha256": "accfb55f825605451a6742e6aa5c25b0c52b40722915f2cc737f20342bec3198",
+  "run_id": "corpus-descriptive-002",
+  "stop_reason": null
+}

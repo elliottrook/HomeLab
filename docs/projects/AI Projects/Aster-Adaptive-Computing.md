@@ -949,3 +949,30 @@ Read-only preflight found VM123 and all new paths absent, VMs118–122 stopped, 
 pinned image exact and capacity above gates. No accepted row was evaluated while
 preparing it. Staging, creation and its one offline boot require a separate exact
 approval; cleanup, retry, promotion and Git push remain excluded.
+
+
+### Disposable VM V5b outcome — S0 comparison complete
+
+Jason approved the exact V5b window. Initial staging failed closed because the
+macOS archive added 30 AppleDouble files. Under a second explicit approval, a
+hash-bound script deleted only that enumerated metadata set and proved the exact
+24-file stage before infrastructure creation.
+
+Fresh VM123 passed its stopped no-vNIC/no-agent gate and booted once offline. The
+[V5b result](experiments/s0-routing-descriptive-v1/run-v5b-corpus/README.md)
+contains one valid 36,453-byte canonical result for `corpus-descriptive-002`.
+Strict framing and semantic validation passed, receipt hashes match, no host stop or
+retry was required, and VMs118–123 are stopped.
+
+On ten exposed development families, complete counts for abstain, keyword and fixed
+nearest were 0/4/6 with request only and 0/3/8 with synthetic context. Context gave
+nearest two gains but keyword one loss; nearest also produced missing and extra
+capability errors. The [decision](experiments/s0-routing-descriptive-v1/run-v5b-corpus/DECISION.md)
+retains all three as benchmark baselines and makes no production selection,
+threshold change, calibration or privacy claim.
+
+The evaluator used about 0.118 seconds while the disposable VM lifecycle took about
+135 seconds. The VM is therefore retained as an offline experiment boundary, not a
+serving harness. This closes the S0 descriptive comparison only. M3 remains open for
+controlled harness and local-model comparisons; M4 and production/shadow gates
+remain open.

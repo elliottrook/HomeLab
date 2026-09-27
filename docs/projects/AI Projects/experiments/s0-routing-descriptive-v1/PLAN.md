@@ -1,6 +1,8 @@
 # S0 descriptive routing comparison — proposed experiment
 
-Status: **plan only; evaluation not authorized**. Owner: Jason. Baseline95f4258.
+Status: **completed under later exact approvals; no production promotion**. Owner:
+Jason. Baseline95f4258. Result:
+[`run-v5b-corpus/`](run-v5b-corpus/README.md).
 Scope: exposed, accepted synthetic train/dev data only. No new collection, service,
 model, cloud provider, GPU, real requests, credentials, tool execution or deployment.
 
@@ -181,3 +183,16 @@ verified isolation and technical review, present one concrete bounded run for
 separate execution approval. This sequencing implements the existing collection
 approval's explicit exclusion of router/model evaluation; “continue” was not treated
 as authority to run one. No further collection, model calls, deployment or push.
+
+## Completed outcome
+
+After the intervening implementation, isolation and approval gates, corrected run
+`corpus-descriptive-002` completed in fresh offline VM123. Strict framing and result
+validation passed. H1, H2 and H3 passed only as finite-corpus descriptive
+hypotheses: keyword rules beat abstention; fixed nearest beat keyword rules in both
+profiles; and context changed predictions but did not uniformly improve them.
+
+The result retains all three engines as baselines and explicitly rejects production
+selection or threshold tuning from ten exposed development families. See the
+[result](run-v5b-corpus/README.md), [evidence](run-v5b-corpus/evidence.json) and
+[decision](run-v5b-corpus/DECISION.md). M3 and production/shadow gates remain open.

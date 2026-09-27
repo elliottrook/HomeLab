@@ -376,6 +376,20 @@ stopped, the retained image exact and capacity above gates. Release-manifest
 SHA-256 is `721c377dccca4fef1a685427d85f791559f67686b8bbf533439589f88b3a5d0f`.
 Nothing has been staged or executed; V5b requires separate exact approval.
 
+**V5b outcome:** after exact approval, the first stage failed closed on 30
+archive-added AppleDouble files before ISO or VM creation. A separately approved,
+hash-bound cleanup removed only that enumerated set and proved the exact 24-file
+stage. Fresh stopped VM123 passed configuration validation, booted once offline,
+emitted one valid 36,453-byte result and powered off without a host stop. Strict
+framing and semantic validation passed; all receipt hashes match. Evidence is under
+[`run-v5b-corpus/`](run-v5b-corpus/).
+
+On the ten exposed development families, request-only complete counts were 0, 4
+and 6 for abstain, keyword and fixed nearest; context-assisted counts were 0, 3 and
+8. This closes the descriptive S0 comparison without selecting or promoting a
+router. VM lifecycle was about 135 seconds for 0.118 seconds evaluator work, so the
+boundary is retained for offline evidence rather than serving.
+
 ## Failure, stop and recovery semantics
 
 | Failure | Required response |

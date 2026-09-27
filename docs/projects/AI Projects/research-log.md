@@ -740,3 +740,36 @@ stopped, the retained image exact and capacity above gates. Release-manifest
 SHA-256 is `721c377dccca4fef1a685427d85f791559f67686b8bbf533439589f88b3a5d0f`.
 No accepted row was evaluated, and no staging, ISO, VM, boot, cleanup or push
 occurred. V5b execution is a separate exact human gate.
+
+
+### 2026-09-26 — V5b descriptive comparison completed
+
+Jason approved the exact V5b manifest-bound VM123 window. The first archive stage
+contained 30 macOS AppleDouble metadata files; exact-set validation stopped before
+ISO or VM creation. Jason separately approved a script with SHA-256
+`b395d369e2d1333ea7e2c3ece141872a61818348a8ef3fcb9a0ea81f2dd18c7a`.
+It verified the complete unexpected set and every intended hash, deleted only the
+30 metadata files and proved the exact 24-file stage.
+
+Fresh VM123 passed stopped no-vNIC/no-agent validation. Its 491,520-byte ISO is
+SHA-256 `2de12b7c2d5e10b0c36d298ac2a89d9fbb7dae304d2c6225fa561a79b8c08627`.
+One offline boot produced a complete `corpus-descriptive-002` envelope. The strict
+parser and result validator accepted 36,453 canonical bytes with SHA-256
+`accfb55f825605451a6742e6aa5c25b0c52b40722915f2cc737f20342bec3198`.
+The evaluator took 118,140,122 ns with 20.34 MiB peak RSS. The guest powered off;
+no host stop or retry was required; VMs118–123 are stopped; both receipt sets have
+zero hash mismatches.
+
+Request-only complete counts on ten exposed dev families were 0/10 abstain, 4/10
+keyword and 6/10 fixed nearest. Context-assisted counts were 0/10, 3/10 and 8/10.
+Nearest had full coverage but still produced missing and extra capability errors.
+Context yielded two nearest gains but one keyword loss. The hypotheses pass only as
+descriptive finite-corpus statements. No confidence, privacy, production-locality,
+cloud need or generalization claim is made.
+
+The disposable VM took roughly 135 seconds end to end for 0.118 seconds evaluator
+work. It remains an offline evidence boundary, not a serving harness. The result
+retains all three engines as benchmark baselines and authorizes no router selection,
+threshold tuning, policy change, permission change, cleanup or push. The S0
+comparison is complete; M3 remains open for controlled harness and local-model
+comparisons.
