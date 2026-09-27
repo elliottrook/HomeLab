@@ -1,0 +1,17 @@
+{
+  "schema": "aster-s0-vm-corpus-release-validation.v2",
+  "status": "local-ready-not-authorized",
+  "date": "2026-09-26",
+  "focused_tests": "9-pass",
+  "static_local_import_closure": "pass",
+  "isolated_generated_source_import": "pass",
+  "invented_fixture_comparison": "pass",
+  "cloud_config_yaml": "pass-16-write-files-3-runcmd",
+  "shell_syntax": "pass",
+  "candidate_manifest_sha256": "1222881382e7c5e7c9e33d95078dd2f640bedb69f0260bc663ca09d5242ff2c0",
+  "release_manifest_sha256": "721c377dccca4fef1a685427d85f791559f67686b8bbf533439589f88b3a5d0f",
+  "adaptive_tests": "274-pass; test_full_aster unavailable because httpx is absent",
+  "remote_staging": false,
+  "vm_created": false,
+  "accepted_rows_evaluated": 0
+}

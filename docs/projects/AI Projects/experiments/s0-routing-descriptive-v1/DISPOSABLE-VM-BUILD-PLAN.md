@@ -365,6 +365,17 @@ and separate approval. The correction must also remove ineffective
 `RuntimeMaxSec=` from the oneshot unit while retaining effective inner and outer
 deadlines.
 
+**V5b preparation checkpoint:** corrected candidate
+[`vm-corpus-candidate-v2/`](vm-corpus-candidate-v2/) packages the missing validator,
+proves static sibling-import closure and isolated generated-source imports, removes
+only the ineffective `RuntimeMaxSec=` line and advances to run
+`corpus-descriptive-002`, instance `aster-s0-corpus-002` and proposed fresh VM123.
+Corpus bytes, split, engines, profiles, threshold and effective limits are
+unchanged. Read-only preflight found VM123 and all V5b paths absent, VMs118–122
+stopped, the retained image exact and capacity above gates. Release-manifest
+SHA-256 is `721c377dccca4fef1a685427d85f791559f67686b8bbf533439589f88b3a5d0f`.
+Nothing has been staged or executed; V5b requires separate exact approval.
+
 ## Failure, stop and recovery semantics
 
 | Failure | Required response |

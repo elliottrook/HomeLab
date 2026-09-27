@@ -715,3 +715,28 @@ V5b candidate must package `validate_label_batch.py`, prove static import closur
 remove the ineffective directive, retain effective limits, use fresh identities,
 and obtain a new exact approval. VM122 remains stopped; no retry, correction boot,
 cleanup, promotion or push was authorized.
+
+
+### 2026-09-26 — V5b packaging correction frozen locally
+
+Prepared a fresh immutable candidate rather than altering or rebooting VM122. The
+V5b bundle adds the omitted `validate_label_batch.py`, statically verifies every
+imported sibling module is packaged, and proves the generated sources import under
+the guest's `-I -S -B` Python flags. It removes `RuntimeMaxSec=75`, which the V5
+journal proved ineffective for a oneshot unit, while retaining `LimitCPU=70`,
+`TimeoutStartSec=75` and the outer 300-second capture limit.
+
+The nine corpus artifacts and hashes, 20/10 split, engines, fixed 0.2 threshold,
+profiles, result contract and all security controls are unchanged. Fresh identities
+are `corpus-descriptive-002`, `aster-s0-corpus-002`,
+`aster-s0-corpus-descriptive-002.iso` and proposed VM123. Nine focused tests pass
+using only invented fixture rows; candidate/release hashes, cloud-config and shell
+syntax validate. The available adaptive suite passes 274 tests; the existing
+`test_full_aster.py` module was unavailable because this workstation runtime lacks
+`httpx`, and no dependency was installed.
+
+Read-only preflight found next ID 123, VM123 and every V5b path absent, VMs118–122
+stopped, the retained image exact and capacity above gates. Release-manifest
+SHA-256 is `721c377dccca4fef1a685427d85f791559f67686b8bbf533439589f88b3a5d0f`.
+No accepted row was evaluated, and no staging, ISO, VM, boot, cleanup or push
+occurred. V5b execution is a separate exact human gate.

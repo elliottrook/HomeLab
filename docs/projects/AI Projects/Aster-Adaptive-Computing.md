@@ -930,3 +930,22 @@ candidate must close the package dependency set, statically verify that closure,
 remove the ineffective directive, preserve the effective bounds and use a fresh
 run, instance and VM identity. The forensic approval granted no retry, correction
 execution, cleanup, promotion or push.
+
+
+### Disposable VM V5b correction prepared
+
+The [V5b candidate](experiments/s0-routing-descriptive-v1/vm-corpus-candidate-v2/OPERATIONS-PLAN.md)
+uses a fresh identity and proposed VM123. It packages the validator omitted from V5,
+adds a static sibling-import closure check, and proves the generated source set
+imports under the guest's isolated Python flags. It removes the ineffective
+`RuntimeMaxSec=` declaration while retaining `LimitCPU=70`,
+`TimeoutStartSec=75` and the 300-second outer deadline. Corpus artifacts, split,
+engines, profiles, threshold, security controls and result contract are unchanged.
+
+The [V5b release](experiments/s0-routing-descriptive-v1/vm-release-v5b/PREFLIGHT.md)
+is frozen locally at manifest SHA-256
+`721c377dccca4fef1a685427d85f791559f67686b8bbf533439589f88b3a5d0f`.
+Read-only preflight found VM123 and all new paths absent, VMs118–122 stopped, the
+pinned image exact and capacity above gates. No accepted row was evaluated while
+preparing it. Staging, creation and its one offline boot require a separate exact
+approval; cleanup, retry, promotion and Git push remain excluded.
