@@ -1629,7 +1629,7 @@ details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-num
 <div id="app" hidden>
 <header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
 <button id="checkApprovals" class="checkArr">Approval inbox</button>
-<button id="openManagement" class="checkArr">AI-PAM management</button>
+<button id="openManagement" class="checkArr" aria-controls="managementPanel" aria-expanded="false">AI-PAM management</button>
 <div id="approvalInbox"></div>
 <div id="managementPanel" hidden></div>
 <details id="toolsPanel"><summary>Tools</summary><div id="tools"></div></details>
@@ -1898,6 +1898,7 @@ document.querySelector('#checkApprovals').onclick=loadApprovals;
 function mgmtText(tag,text,className=''){{ const e=document.createElement(tag); e.textContent=text; if(className)e.className=className; return e }}
 async function loadManagement(){{
   const panel=document.querySelector('#managementPanel'); panel.hidden=false; panel.textContent='Loading AI-PAM state…';
+  document.querySelector('#openManagement').setAttribute('aria-expanded','true');
   try{{
     const [snapshot,history,audit,session]=await Promise.all([
       approvalApi('/management/snapshot'), approvalApi('/management/history?limit=40'), approvalApi('/management/audit?limit=40'), approvalApi('/session')
@@ -1944,9 +1945,14 @@ async function loadManagement(){{
 async function freshManagement(body){{ await login(true,{{kind:'management',body}}) }}
 async function finishManagementAction(body){{
   try{{ await approvalApi('/management/action',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(body)}}); await loadManagement() }}
-  catch(e){{ document.querySelector('#managementPanel').hidden=false; document.querySelector('#managementPanel').textContent='Management action failed: '+e.message }}
+  catch(e){{ document.querySelector('#managementPanel').hidden=false; document.querySelector('#openManagement').setAttribute('aria-expanded','true'); document.querySelector('#managementPanel').textContent='Management action failed: '+e.message }}
 }}
-document.querySelector('#openManagement').onclick=loadManagement;
+document.querySelector('#openManagement').onclick=()=>{{
+  const panel=document.querySelector('#managementPanel');
+  if(panel.hidden) return loadManagement();
+  panel.hidden=true;
+  document.querySelector('#openManagement').setAttribute('aria-expanded','false');
+}};
 
 // M5: the gated-action framework's one wired action - request, review,
 // approve exactly the existing ARR-repair broker's dry-run/candidate,

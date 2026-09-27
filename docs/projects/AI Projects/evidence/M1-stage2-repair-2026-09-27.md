@@ -3,6 +3,15 @@
 Status: repair complete and accepted September 27. Jason confirmed repeated
 iPhone passkey sign-in and all three synthetic approve/deny/management actions.
 Broker read-back independently verified the results; test access is disabled.
+
+Follow-up requested by Jason: AI-PAM management button now toggles its panel
+open/closed, with `aria-expanded` reflecting visibility. Opening refreshes its
+data; closing performs no broker action or fetch. Open/close/reopen behavior,
+served no-cache HTML and service health verified after deploying the bounded UI
+change. Current live Aster SHA-256 is
+`f7b5c82b8a401162e5151a2c8289b061e3d4a8bb162fa9598997ed67081e99a1`;
+rollback source is `aster-before-pam-toggle.py` in the existing LXC104 checkpoint.
+Authentication and approval policy are unchanged by this UI follow-up.
 Owner: Jason. Authorization: on 2026-09-27 Jason explicitly said **“Authorize full
 repair”**, following the recommendation to complete identity/passkey checks and
 restore the previously accepted AI-PAM approvals and management. This is a bounded
