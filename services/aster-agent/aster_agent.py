@@ -1667,8 +1667,14 @@ async function login(fresh=false, approval=null){{
     localStorage.setItem('pending_approval_created_at', String(Date.now()));
   }}
   const p=new URLSearchParams({{client_id:AUTH.clientId, response_type:'code', redirect_uri:AUTH.redirectUri, scope:AUTH.scope, code_challenge:challenge, code_challenge_method:'S256', state}});
-  if(fresh) p.set('prompt','login');
-  location.href = AUTH.authorizeUrl + '?' + p.toString();
+  const authorize = new URL(AUTH.authorizeUrl + '?' + p.toString());
+  if(fresh){{
+    // Authentik 2026.8 ignores max_age=0 and retains prompt=login's marker.
+    // Enter the mandatory passkey flow on every explicit fresh request.
+    const flow = new URL('/if/flow/aster-companion-reauthentication/', authorize.origin);
+    flow.searchParams.set('next', authorize.pathname + authorize.search);
+    location.href = flow.toString();
+  }}else location.href = authorize.toString();
 }}
 
 function storeTokens(j){{

@@ -13,7 +13,7 @@ const session = new Map();
 const storage = new Map();
 const ctx = {
   AUTH: {clientId:'fixture', redirectUri:'https://fixture.invalid/companion', scope:'openid', authorizeUrl:'https://auth.invalid/authorize'},
-  URLSearchParams,
+  URLSearchParams, URL,
   sessionStorage: {setItem:(k,v)=>session.set(k,v)},
   localStorage: {setItem:(k,v)=>storage.set(k,v)},
   document: {querySelector:()=>button}, location: {},
@@ -23,16 +23,22 @@ vm.createContext(ctx);
 vm.runInContext(login + '\n' + handler, ctx);
 (async()=>{
   await button.onclick();
-  let q = new URL(ctx.location.href).searchParams;
-  assert.equal(q.get('prompt'), 'login');
+  let flow = new URL(ctx.location.href);
+  assert.equal(flow.pathname, '/if/flow/aster-companion-reauthentication/');
+  let authorize = new URL(flow.searchParams.get('next'), flow.origin);
+  assert.equal(authorize.origin, flow.origin);
+  assert.equal(authorize.pathname, '/authorize');
+  let q = authorize.searchParams;
+  assert.equal(q.get('prompt'), null);
   assert.equal(q.get('max_age'), null);
   assert.equal(q.get('code_challenge_method'), 'S256');
   assert.ok(session.get('pkce_state'));
   assert.equal(storage.size, 0);
+  await button.onclick();
+  assert.equal(new URL(ctx.location.href).pathname, flow.pathname);
   const action = {kind:'management',body:{action:'agent_state',target:'fixture-only',state:'suspended'}};
   await ctx.login(true, action);
-  q = new URL(ctx.location.href).searchParams;
-  assert.equal(q.get('prompt'), 'login');
+  assert.equal(new URL(ctx.location.href).pathname, flow.pathname);
   assert.deepEqual(JSON.parse(storage.get('pending_approval_action')), action);
-  console.log('PASS: explicit sign-in and privileged reauthentication require prompt=login; PKCE and pending action preserved');
+  console.log('PASS: repeated sign-ins and privileged reauthentication enter mandatory passkey flow; same-origin OAuth continuation, PKCE and pending action preserved');
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -121,6 +121,26 @@ the coordinated configuration and signed-session gate pass again.
 
 ### Fresh-login correction after iPhone feedback
 
+**Latest correction, superseding `prompt=login` below:** Jason observed one
+passkey prompt followed by silent subsequent sign-ins. Installed Authentik keeps
+`SESSION_KEY_LAST_LOGIN_UID` after the first successful reauthentication, so its
+prompt handler skips later requests whose login event differs from that marker.
+Explicit fresh operations now navigate directly to
+`/if/flow/aster-companion-reauthentication/`, with a relative same-origin `next`
+URL containing the normal OAuth authorize request and fresh PKCE/state. No
+`prompt` or `max_age` workaround is used. The required flow runs before OAuth
+authorization; issuer/audience/signature and broker freshness checks remain.
+Completed Authentik flows clear their active plan, so the next explicit attempt
+plans the required stages again. Existing shared flow/stages remain unchanged.
+
+Current live Aster SHA-256:
+`60d67f007f5f21be32fbc77138e04ac866eaf96ea6dd5344b1cf5d9457376e18`.
+Recovery source: `aster-before-direct-flow.py` within the LXC104 checkpoint.
+JavaScript regression executes two sign-ins and a privileged action, checking
+the mandatory flow URL, relative OAuth continuation, PKCE and preserved pending
+action. Live health and served no-cache HTML pass. Two real consecutive iPhone
+attempts are explicitly pending; do not infer acceptance from the first prompt.
+
 **Current deployed correction:** provider26 now uses dedicated flow
 `aster-companion-reauthentication` (`30ccaa43-c15e-4b8d-a30f-f5b4a1819740`). The
 original shared flow and every other provider are unchanged. Both anonymous and
