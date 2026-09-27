@@ -992,3 +992,10 @@ justified until a concrete benefit hypothesis exists.
 The harness subdecision is complete without a migration. M3 overall remains open
 for representative independently reviewed routing evidence. M4 and all production
 or shadow gates remain open.
+
+The proposed [S1 holdout plan](experiments/s1-routing-holdout-v1/PLAN.md) defines
+that remaining evidence as 50 new human-authored, no-suggestion families across ten
+request strata. It freezes the retained baselines and permits only a later, separately
+approved offline evaluation. S0 records cannot be relabeled or resplit into S1.
+Collection remains unauthorized until a concrete local form, custody and retention
+packet is reviewed.

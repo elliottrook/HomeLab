@@ -808,3 +808,24 @@ worktree is ten lines of AI-PAM knowledge-source ranking and section anchoring.
 The histories are 43 commits on each side beyond their merge base, so this task did
 not merge them. Future live comparison must use the eventual reconciled intended
 tree; this finding does not change the retain-Aster decision.
+
+
+### 2026-09-26 — S1 representative holdout proposed
+
+Repository review confirmed S0 cannot serve as M3's independent holdout. Its cases
+were AI proposed, Jason saw proposed labels, and its development families are now
+exposed. Resplitting or paraphrasing them would not remove suggestion anchoring or
+test exposure.
+
+The proposed S1 plan uses 50 new human-authored, no-suggestion families: five in
+each of the ten required request strata, with fixed composition/constraint and
+ambiguity quotas. It compares only abstain, unchanged keyword rules and fixed 0.2
+nearest trained on S0 train rows. Confidence stays null. Predeclared shadow-entry
+guardrails require 45/50 complete, no prohibited or invalid predictions, constraint
+and ambiguity minima, no hard privacy/locality violation and CPU p95 below 25 ms.
+Passing can only justify a separate read-only shadow proposal.
+
+No case, label, helper, custody location, experiment or service was created by the
+plan. S0 collection authority was capped and explicitly excluded a later study.
+S1 therefore stops before collection and requires a concrete form/validator/custody
+packet, then separate collection and evaluation approvals.
