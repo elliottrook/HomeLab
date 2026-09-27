@@ -2719,3 +2719,19 @@ The historical pending statements below/above are dated execution evidence, not
 remaining implementation instructions. Current recovery is documented in
 [Configuration backups](../../runbooks/Configuration-Backups.md) and
 [Authentik single login](../../runbooks/Authentik-Single-Login.md).
+
+### Final publication evidence
+
+Close-out commit `65e0d65`; operational reference `098b717`; human wiki
+`0b81727`. Live wiki checkpoint:
+`/var/lib/aster-wiki/state/authentik-closeout-20260927T004245Z`.
+Aster accepted snapshot SHA-256:
+`6e7772484d2f596c237213ffbf5bf71ab638f87d11e168ebac4943dae05c3b4d`.
+Only the committed backup/access-control reference records changed; all 1,825
+sources and 1,796 generated upstream entries were retained. Three
+source-qualified retrieval probes passed before and after atomic publication.
+Prior accepted tree remains at
+`/var/lib/aster/knowledge.authentik-archived-20260926`; no service restart.
+Forgejo remains the authoritative push target; only HomeLab has a configured
+GitHub protection mirror. Reference/wiki synchronization is verified against
+their own Forgejo main refs. Unrelated working-tree changes were not staged.
