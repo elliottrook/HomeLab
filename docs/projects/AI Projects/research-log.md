@@ -621,3 +621,28 @@ absent and memory/storage above gates. Release manifest SHA-256 is
 `825d6d40cde3b1388484e37581473bb2c9c0d4e6e88d905406562536782fc4e1`.
 Nothing was staged and no VM121/ISO/boot exists. V3b requires a new exact execution
 approval; corpus access and push remain unauthorized.
+
+
+### 2026-09-26 — V3b isolation boundary passed
+
+Jason approved the exact V3b execution window. All staged hashes matched release
+manifest `825d6d40cde3b1388484e37581473bb2c9c0d4e6e88d905406562536782fc4e1`.
+The generated ISO is 380,928 bytes with SHA-256
+`c8ad6005bfc221f522c4832208c6a869c936e5eddb885df4eab1f60375b07aae`;
+fresh stopped VM121 passed the strict no-vNIC/no-agent configuration validator.
+
+One offline boot produced a 104,695-byte capture with SHA-256
+`5fbdb31fe58d9c2020bacca9953660dc137a5a3bbdbe081b0a83f056ecd65499`.
+The strict parser accepted one complete envelope for `isolation-fixture-002`, exact
+payload identity, 364 canonical bytes and result digest. The semantic validator
+accepted all ten required isolation checks. The guest powered off without a host
+stop; zero receipt-index mismatches were found; VMs118–121 are stopped. No retry,
+accepted corpus, network device, credential, cleanup or unrelated VM mutation was
+in scope.
+
+The V4 boundary decision is GO for preparation of a fresh, separately reviewed
+accepted-corpus candidate. It does not authorize corpus execution or establish
+router quality, repeatability, scale or production suitability. The raw serial
+capture remains on Proxmox because it contains noisy boot output and generated
+public SSH host-key material; its bounded digest and sanitized decoded evidence are
+retained in `run-v3b-isolation/`.

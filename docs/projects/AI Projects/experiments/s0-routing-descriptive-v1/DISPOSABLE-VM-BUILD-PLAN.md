@@ -319,8 +319,11 @@ read-only stopped-disk forensics.
 `226/NAMESPACE`; the host-planted `/var/tmp` path was absent in the unit namespace,
 and Python never ran. The frozen V3b candidate preserves `PrivateTmp=yes`, moves
 only that planted target to `/srv`, advances every run/instance/VM identity and
-retains all other controls. The [`vm-release-v3b/`](vm-release-v3b/) packet is local
-and unexecuted. V4 remains NO-GO until a valid fixture result supports reassessment.
+retains all other controls. The [`vm-release-v3b/`](vm-release-v3b/) packet was
+staged under exact approval and fresh VM121 booted once offline. Its strict protocol
+and semantic validators accepted all ten mandatory checks; the guest powered off
+within bounds without a host stop. Evidence is under
+[`run-v3b-isolation/`](run-v3b-isolation/).
 
 ### V4 — boundary decision
 
@@ -331,6 +334,11 @@ router quality from fixtures and do not run the accepted corpus.
 **Gate:** an architecture decision explicitly says GO/NO-GO and identifies residual
 risk. A GO permits preparation of a separately pinned accepted-corpus candidate;
 it does not authorize that run.
+
+**V4 outcome:** GO to accepted-corpus candidate preparation. The positive V3b
+result accepts the disposable no-vNIC VM as the boundary for the next experiment.
+Corpus execution remains separately approval-gated; VM121 is retained stopped and
+must not be reused as the corpus candidate.
 
 ## Failure, stop and recovery semantics
 

@@ -847,5 +847,29 @@ recompute. Release SHA-256 is
 
 Read-only preflight found next VMID121, the new paths absent, VM120 stopped and
 capacity above the established gates. [V3b release](experiments/s0-routing-descriptive-v1/vm-release-v3b/PREFLIGHT.md)
-is prepared locally but not staged or authorized. Accepted-corpus execution remains
-NO-GO regardless of the future fixture outcome until a new V4 decision.
+was frozen for a separately approved execution window.
+
+
+### Disposable VM V3b outcome — boundary preparation GO
+
+Jason approved the exact frozen V3b window. Every remotely staged source matched
+the release manifest. The generated 380,928-byte seed ISO has SHA-256
+`c8ad6005bfc221f522c4832208c6a869c936e5eddb885df4eab1f60375b07aae`,
+contains exactly `meta-data` and `user-data`, and extracted bytes match the reviewed
+sources. Fresh VM121 passed the stopped no-vNIC/no-agent configuration gate.
+
+The one permitted boot emitted one complete, digest-bound envelope and powered off
+without host intervention. The strict parser accepted the exact run and manifest,
+364 canonical result bytes and digest. The semantic validator accepted all ten
+mandatory checks: the environment was cleared and allowlisted with a fixed locale;
+the process was unprivileged and loopback-only; IPv4 and Unix sockets, fork, system
+write and the planted unrelated read were denied. Receipt-index verification found
+zero mismatches. VMs118–121 are stopped, no retry or corpus access occurred, and
+the raw 104,695-byte serial capture remains uncommitted because it contains noisy
+boot output and generated public SSH host-key material.
+
+The [V3b evidence and V4 decision](experiments/s0-routing-descriptive-v1/run-v3b-isolation/README.md)
+change the boundary gate to **GO for preparation of a separately immutable
+accepted-corpus candidate**. Corpus execution remains unauthorized. The next
+candidate requires a fresh disk and identity, pinned corpus/code/result contract,
+reviewed resource and lifecycle bounds, and a new exact human approval.
