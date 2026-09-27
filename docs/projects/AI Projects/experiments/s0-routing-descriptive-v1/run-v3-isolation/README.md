@@ -28,6 +28,6 @@ failure lines are retained here.
 The V4 boundary decision is NO-GO in
 [`BOUNDARY-DECISION.md`](BOUNDARY-DECISION.md). Do not run the accepted corpus,
 reboot VM120, retry V3, weaken the unit, or infer that any negative probe passed.
-The next useful action is a separately approved read-only forensic inspection of
-the stopped disk, followed by a new candidate only if the evidence supports one.
-
+The next useful action is the separately approved
+[`OFFLINE-FORENSIC-PLAN.md`](OFFLINE-FORENSIC-PLAN.md) for the stopped disk,
+followed by a new candidate only if the evidence supports one.

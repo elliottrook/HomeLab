@@ -2,12 +2,16 @@
   "schema": "aster-s0-v3-receipt-index.v1",
   "files": {
     "BOUNDARY-DECISION.md": {
-      "bytes": 1041,
-      "sha256": "e4bd4c2da145f88f7cb822e523a58dfed97f28b205327f4e037388f6b8a1f982"
+      "bytes": 1057,
+      "sha256": "3c168e7a6b41716e16b0dc9780ce4695eb9f9c49886bc9816fdefa4921eff972"
+    },
+    "OFFLINE-FORENSIC-PLAN.md": {
+      "bytes": 2198,
+      "sha256": "cfe2ac595fb0fe8fc0f6788c78d3676ab36d1b8af84aa3a26930dc3fe974079b"
     },
     "README.md": {
-      "bytes": 2005,
-      "sha256": "8551428bdd9535c278f4aeff77ca8fce9460c71a9809a6feffb6a2ac34fe186e"
+      "bytes": 2032,
+      "sha256": "8318a6a886775acd7ecdb7904501165247bf5d7d760c956ac36bd0d52432f770"
     },
     "approval-record.json": {
       "bytes": 713,
@@ -20,6 +24,10 @@
     "failure-lines.txt": {
       "bytes": 270,
       "sha256": "e090eaf81a3192506e1dd6f3003e7d56b3016e1b10d3310c194d90535dc447a9"
+    },
+    "forensic-vm120.sh": {
+      "bytes": 4458,
+      "sha256": "f05038e380fc15f67cb6b4e1d7d82106212dfd3d4e164bdc2f4043a49684945b"
     },
     "release-receipts/config-validation.txt": {
       "bytes": 20,
