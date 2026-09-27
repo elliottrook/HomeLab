@@ -1,6 +1,9 @@
 # Aster approval availability repair candidate
 
-Prepared 2026-09-27. Not deployed or authorized. Incident record:
+Historical interim proposal, superseded by Jason's **“Authorize full repair”**
+instruction and the [deployed full repair](../../../../docs/projects/AI%20Projects/evidence/M1-stage2-repair-2026-09-27.md).
+Do not deploy the empty-ACR configuration below over the coordinated repair.
+The rest of this file preserves the original proposal. Incident record:
 [Doctor, Aster and drift](../../../../docs/runbooks/Lab-Health-Review-2026-09-27.md).
 
 ## Exact bounded change proposed

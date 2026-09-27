@@ -1,9 +1,10 @@
 # Aster, Doctor and configuration drift — 2026-09-27
 
-Owner: Jason. Status: Doctor repaired; AI-PAM repair candidate awaits explicit
-approval; drift reviewed, baseline not changed. Stream M for remaining operational
-changes. Investigation and local fixes requested by Jason; private Mac toolkit
-installation separately approved through the platform prompt.
+Owner: Jason. Status: Doctor repaired; coordinated AI-PAM repair deployed under
+Jason's subsequent **“Authorize full repair”** instruction; real iPhone acceptance
+pending; drift reviewed, baseline not changed. The bounded Stream A repair and
+current resume point are recorded in [repair evidence](../projects/AI%20Projects/evidence/M1-stage2-repair-2026-09-27.md).
+Private Mac toolkit installation was separately approved through the platform prompt.
 
 ## Findings and recovery scope
 
@@ -36,6 +37,16 @@ Scheduled Doctor uses the repaired repository file. Existing failed job history
 is retained; a new Companion Doctor request is required to prove queue-path recovery.
 
 ## AI-PAM approval inbox and management
+
+**Update:** The mismatch described below has been repaired. Both entrypoints now
+allow the verified owner; the matching restrictive approval daemon is installed.
+A dedicated Authentik mapping proves WebAuthn from the token's own login event
+and preserves original authentication time. Doctor now checks owner/assurance
+configuration. Service, denial and offline tests pass; Jason's fresh iPhone login
+and synthetic approve/deny/management acceptance remain necessary. No production
+target action or general grant was added. The interim proposal below was not used.
+
+### Original incident findings
 
 Both views reject the user because the running Aster process has **no**
 `ASTER_BROKER_APPROVER_SUBJECT_HASHES` configured. Its installed `broker_approvals.py`
@@ -146,5 +157,7 @@ notification suppression state were not modified by this investigation.
   assurance readiness reporting in the coordinated repair, rather than relying
   on service-active checks alone.
 
-No remote writes, Git pushes, baseline acceptance, authentication changes,
-credential changes, guest deletion or storage cleanup were performed.
+The initial investigation made no remote writes. The subsequent authorized repair
+changed only the scoped Aster/approval runtime and Companion claim mapping,
+with protected restore-tested checkpoints. No Git push, baseline acceptance,
+credential rotation, guest deletion or storage cleanup occurred.

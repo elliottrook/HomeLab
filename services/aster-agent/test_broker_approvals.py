@@ -21,6 +21,12 @@ class ApprovalRouterTests(unittest.TestCase):
         app.include_router(approval_router(self.client_backend, claims, approver_subject_hashes=frozenset({"a" * 64}), passkey_acrs=frozenset({"fixture-passkey"})))
         self.http = TestClient(app)
 
+    def test_session_assurance_returns_only_verified_booleans(self):
+        response = self.http.get("/v1/companion/approvals/session")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"authorized": True, "passkey_verified": True, "fresh": False})
+        self.client_backend.call.assert_not_called()
+
     def test_pending_uses_authenticated_identity(self):
         self.client_backend.call.return_value = []
         response = self.http.get("/v1/companion/approvals")

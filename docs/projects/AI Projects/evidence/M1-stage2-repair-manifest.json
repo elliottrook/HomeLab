@@ -1,0 +1,13 @@
+{
+  "policy_epoch": 1790543081,
+  "files": {
+    "broker_approvals.py": "cf37fb1782c875622155b50d7b69f31b7c9acc2c30f7881f5da9b4a6538dd324",
+    "broker_approval_service.py": "c0f2e5fa5585e3867fad760b9dfa4dd917d3116a80dbf7a9d5b420372ce1d6a4",
+    "aster-approver.conf": "cf0f588d6edaf695a913cef0dfcf88fb37a39611c5a072ec6800487d39e00e18",
+    "check_approval_readiness.py": "c5f63b8e01aff55a5c166a4cd87e152ea0334ca9d7b4180397e92721f62478ab",
+    "passkey-expression.txt": "843035b7321bf48ad4e0c0430e808d8264d7302cf315f1503af42537ed31bced",
+    "broker-approver.conf": "9a8417433b175fc3217ba72d268e0a7f5fb34c38f161f23fe9685d04668d957b",
+    "aster_agent.py": "f72f2932383eaf15dda49d60fe9604d5b8e615e279a9a82b78baf89ac72e45be"
+  },
+  "live_agent_sha256": "f3d460fbf0af81befc1e296a6f518fdc6b7e5cb11c3eb189d1c905b7c695bddb"
+}

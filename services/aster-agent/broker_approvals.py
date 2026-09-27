@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import json
+import logging
 import socket
+import time
 from pathlib import Path
 from typing import Any, Callable
 
@@ -74,6 +76,18 @@ def approval_router(
         acr = claims.get("acr")
         assurance = "passkey" if isinstance(acr, str) and acr in passkey_acrs else "authenticated"
         return actor, auth_time if type(auth_time) is int else None, assurance
+
+    @router.get("/session")
+    def session_assurance(user: tuple[str, int | None, str] = Depends(identity)) -> Any:
+        # Signed-token-derived booleans only; never expose the actor or token.
+        _, auth_time, assurance = user
+        fresh = type(auth_time) is int and 0 <= time.time() - auth_time <= 120
+        logging.getLogger(__name__).info(
+            "approval_session_check authorized=true passkey_verified=%s fresh=%s",
+            assurance == "passkey", bool(fresh),
+        )
+        return {"authorized": True, "passkey_verified": assurance == "passkey",
+                "fresh": bool(fresh)}
 
     @router.get("")
     def pending(user: tuple[str, int | None, str] = Depends(identity)) -> Any:

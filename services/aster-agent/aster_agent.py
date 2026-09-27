@@ -1893,10 +1893,11 @@ function mgmtText(tag,text,className=''){{ const e=document.createElement(tag); 
 async function loadManagement(){{
   const panel=document.querySelector('#managementPanel'); panel.hidden=false; panel.textContent='Loading AI-PAM state…';
   try{{
-    const [snapshot,history,audit]=await Promise.all([
-      approvalApi('/management/snapshot'), approvalApi('/management/history?limit=40'), approvalApi('/management/audit?limit=40')
+    const [snapshot,history,audit,session]=await Promise.all([
+      approvalApi('/management/snapshot'), approvalApi('/management/history?limit=40'), approvalApi('/management/audit?limit=40'), approvalApi('/session')
     ]);
     panel.innerHTML='';
+    panel.appendChild(mgmtText('p',session.passkey_verified?'Passkey verified. Changes require a fresh passkey confirmation.':'Sign in again with your passkey before making changes.'));
     const global=document.createElement('section'); global.className='mgmtCard'; global.appendChild(mgmtText('h3','Emergency controls'));
     global.appendChild(mgmtText('p','Global AI access: '+(snapshot.global_enabled?'ENABLED':'DISABLED'),snapshot.global_enabled?'statusOn':'statusOff'));
     const globalBtn=mgmtText('button',snapshot.global_enabled?'REVOKE ALL AI ACCESS':'Re-enable synthetic AI access','danger');
