@@ -785,3 +785,23 @@ payload identity; VM119 and all existing guests are stopped/running as expected.
 [V2b evidence](experiments/s0-routing-descriptive-v1/run-v2b-bootstrap/README.md)
 retains the sanitized receipts. This proves bootstrap/capture only. V3 now requires
 a new invented-fixture candidate and separate execution approval; no corpus ran.
+
+
+### Disposable VM V3 release prepared — isolation fixture only
+
+The local [V3 candidate](experiments/s0-routing-descriptive-v1/vm-isolation-candidate-v1/OPERATIONS-PLAN.md)
+turns the remaining boundary question into ten explicit checks: environment
+allowlisting and clearing, fixed locale, unprivileged execution, loopback-only
+interfaces, denied IPv4 and Unix socket creation, denied fork, denied read of a
+planted non-secret canary, and denied system write. The systemd profile adds a
+private network namespace, syscall filter, strict filesystem protection, one-task,
+64-MiB/no-swap, 10%-CPU, 8-KiB-file and 15-second bounds. Result validation is
+fail-closed and binds the exact run and payload manifest.
+
+The [V3 release](experiments/s0-routing-descriptive-v1/vm-release-v3/PREFLIGHT.md)
+proposes a fresh source-image import and new VM120/instance identity; it does not
+reuse VM119's booted disk. Read-only preflight found next VMID120 and VMs118/119
+stopped. Fifteen focused and 254 full adaptive tests pass, both host scripts pass
+shell parsing, the generated cloud-config parses, and all manifest file hashes
+recompute. No V3 file was staged remotely, ISO or VM120 was created, boot occurred,
+or accepted corpus was read. Exact V3 execution remains a separate gate.

@@ -551,3 +551,21 @@ strict parser accepted the expected run/manifest, 119 canonical bytes, result di
 and `interfaces=["lo"]`. The canary unit succeeded, no host stop or retry was
 needed, VM119 is stopped, existing guests remain at baseline and no corpus ran.
 V3 invented-fixture preparation is next; execution remains separately gated.
+
+
+### 2026-09-26 — V3 invented-fixture release prepared
+
+Implemented a deterministic local V3 renderer, ten-check semantic validator,
+strict stopped-VM120 configuration gate, fresh-image creation script and one-boot
+capture script. The fixture tests environment hygiene, unprivileged identity,
+loopback-only topology, network-socket and fork denial, an inaccessible planted
+canary, and read-only system paths. The reviewed unit requests private network,
+syscall, filesystem and resource controls; the experiment exists to verify that
+those requests are actually enforced rather than treating the unit text as proof.
+
+Read-only Proxmox observations found `nextid=120` and retained VMs118/119 stopped.
+Fifteen focused and254 full adaptive tests pass; shell syntax, cloud-config YAML and
+release-manifest hashes validate. Release-manifest SHA-256 is
+`f4d5b29491dafcd8393c290500da964084d5596de9943fae49b625ca854b0b6e`.
+No remote staging, ISO, VM120, boot, corpus access, cleanup or push occurred. The
+exact V3 window remains separately approval-gated and fail-closed.

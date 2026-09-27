@@ -1,0 +1,120 @@
+{
+  "schema": "aster-s0-vm-release.v1",
+  "release_id": "v3-isolation-fixture-001",
+  "status": "prepared-awaiting-exact-execution-approval",
+  "observed_at": "2026-09-26T17:09:08-07:00",
+  "base_commit": "570e774",
+  "target": {
+    "host": "proxmox",
+    "vmid": 120,
+    "name": "aster-s0-isolation-v1",
+    "vmid_observed_free": true,
+    "nextid_at_preflight": 120,
+    "seed_iso": "aster-s0-isolation-fixture-001.iso",
+    "seed_iso_requires_absence": true,
+    "network_devices": [],
+    "agent": "absent",
+    "cores": 1,
+    "memory_mib": 1024,
+    "disk_gib": 8,
+    "fresh_os_import_required": true,
+    "reuse_vm119_disk": false
+  },
+  "source_image": {
+    "bytes": 433651712,
+    "filename": "debian-13-generic-amd64-20260914-2601.qcow2",
+    "sha512": "a733e7d49442a03e70d03e4eb5aaf3967f3efc69ef70952f9bb10fc1ee2c4876eb95956b5ad2d31350e5fada768feb651352535fb8cd1233f61998a5a7d2e93c",
+    "url": "https://cloud.debian.org/images/cloud/trixie/20260914-2601/debian-13-generic-amd64-20260914-2601.qcow2"
+  },
+  "candidate": {
+    "run_id": "isolation-fixture-001",
+    "instance_id": "aster-s0-isolation-fixture-001",
+    "payload_manifest_sha256": "c61b1ce0bc6f56b9bf31bfa1aedf68a4dc57c615cb2cb7ebbb3595e997a07f7f",
+    "candidate_manifest_sha256": "f71ba3ec8eef9e4228a54c539a614d23f3dacbdefcf9c1716726e024d7471d96",
+    "accepted_corpus_included": false,
+    "accepted_corpus_evaluation_authorized": false,
+    "invented_fixture_only": true
+  },
+  "files": {
+    "user-data": {
+      "bytes": 7585,
+      "sha256": "d0c695cb72c87c39f12eb2f6d0484fdb96b4c62795edf96cd754273def195909"
+    },
+    "meta-data": {
+      "bytes": 79,
+      "sha256": "52eafb7a9060d6af7e26d3ee4c03802e0dcd1db371c6f9fdec03879878d1e4ce"
+    },
+    "payload-manifest.json": {
+      "bytes": 1121,
+      "sha256": "da59afcadc25d3ca4707024ad145a8e83d028b2367036d4f990a23d78321b89d"
+    },
+    "candidate-manifest.json": {
+      "bytes": 1031,
+      "sha256": "f71ba3ec8eef9e4228a54c539a614d23f3dacbdefcf9c1716726e024d7471d96"
+    },
+    "vm-config-proposal.json": {
+      "bytes": 651,
+      "sha256": "214735eeb3f0f6b7c24dfdfe106d3a2a992e70dc6dd0abcb3e8d8e71b91b7e38"
+    },
+    "isolation_probe.py": {
+      "bytes": 3087,
+      "sha256": "ba4c78c810a432b55abae6eb90a3b77df53e8ce4b71ac25d23233fa8b1a69ec0"
+    },
+    "aster-s0-isolation.service": {
+      "bytes": 1461,
+      "sha256": "5d328814648e47f3b028d2b846a5b3b81fce91b54b694766889a55665f9ced5d"
+    },
+    "s0_vm_isolation_candidate.py": {
+      "bytes": 12085,
+      "sha256": "2af19416c88d3019e1f28c6bfa1a50b40239576562b23a33fd8bd7374bc02146"
+    },
+    "s0_vm_isolation_release.py": {
+      "bytes": 3516,
+      "sha256": "2cdf73f4f4cc65ca993cdfaed44ad90a9da75e0424c968214d4bbc1cecf0caf1"
+    },
+    "s0_vm_serial.py": {
+      "bytes": 6108,
+      "sha256": "2d9ab4e9961f29efa3559f54b4645fecca1af74765675eb6f4b5440e25267ab6"
+    },
+    "create-stopped-vm-v3.sh": {
+      "bytes": 5041,
+      "sha256": "a86d00f03763062a0be4b72c9b331f36393fb6ac9623c907be43f671124e140f"
+    },
+    "run-once-v3.sh": {
+      "bytes": 2041,
+      "sha256": "918e875ab0c5cf33c4bd63f5f315bdd7a5f04eff20c324e40f7f445c21f2ee41"
+    }
+  },
+  "required_checks": [
+    "environment_allowlisted",
+    "environment_cleared",
+    "fixed_locale",
+    "fork_denied",
+    "inet_socket_denied",
+    "loopback_only",
+    "system_write_denied",
+    "unix_socket_denied",
+    "unprivileged",
+    "unrelated_read_denied"
+  ],
+  "limits": {
+    "capture_seconds": 300,
+    "capture_bytes": 1048576,
+    "result_bytes": 8192,
+    "unit_seconds": 15,
+    "unit_memory_mib": 64,
+    "unit_tasks": 1,
+    "automatic_retries": 0
+  },
+  "execution": {
+    "v3_authorized": false,
+    "destruction_authorized": false,
+    "partial_failure_action": "stop-and-retain",
+    "existing_vm118_mutation": false,
+    "existing_vm119_mutation": false,
+    "network_attachment_authorized": false,
+    "credential_use_authorized": false,
+    "accepted_corpus_authorized": false,
+    "git_push_authorized": false
+  }
+}

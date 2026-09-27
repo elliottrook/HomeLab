@@ -302,6 +302,12 @@ and host/guest state before and after.
 **Gate:** one successful fixture result plus explicit negative tests; any boundary
 escape, unbounded capture, unexpected device or inability to stop the VM is NO-GO.
 
+**V3 preparation checkpoint:** a fresh-identity candidate and exact
+[`vm-release-v3/`](vm-release-v3/) packet now bind VM120, a new image import, ten
+negative/identity checks and the bounded serial path. Fifteen focused and254 full
+adaptive tests pass. This is local readiness evidence only: nothing has been staged
+or executed, and the accepted corpus remains excluded.
+
 ### V4 — boundary decision
 
 Preserve configuration, captures, decoded output, hashes, resource telemetry and
