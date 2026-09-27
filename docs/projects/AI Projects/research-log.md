@@ -569,3 +569,22 @@ release-manifest hashes validate. Release-manifest SHA-256 is
 `f4d5b29491dafcd8393c290500da964084d5596de9943fae49b625ca854b0b6e`.
 No remote staging, ISO, VM120, boot, corpus access, cleanup or push occurred. The
 exact V3 window remains separately approval-gated and fail-closed.
+
+
+### 2026-09-26 — V3 isolation fixture failed safely
+
+Jason approved the frozen V3 scope. Remote staging hashes matched release manifest
+`f4d5b29491dafcd8393c290500da964084d5596de9943fae49b625ca854b0b6e`.
+The ISO is 380,928 bytes with SHA-256
+`51cd876edbfaaaa0c6d328aced51e4aaaa47995030c5e3e39807adf11b576d2a`;
+fresh stopped VM120 passed the exact no-vNIC/no-agent validator. One boot produced
+a 105,156-byte capture, SHA-256
+`11984e6a9cd19351a8d360c20f556d11db3c19c171879780b50c746e9e2ced86`.
+
+Cloud-init reached `aster-s0-isolation.service`, which failed before emitting any
+framed record. Strict parse result is `incomplete protocol`; no proposed isolation
+check is credited. The guest powered off without host intervention, no retry or
+corpus access occurred, and VMs118/119/120 remain stopped. A concurrent Proxmox
+backup completed OK and explains transient container backup-lock changes. V4 is
+NO-GO for accepted-corpus execution. Precise cause is UNKNOWN pending separately
+approved read-only stopped-disk forensics.

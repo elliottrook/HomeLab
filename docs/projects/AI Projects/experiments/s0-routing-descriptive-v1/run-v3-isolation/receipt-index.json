@@ -1,0 +1,129 @@
+{
+  "schema": "aster-s0-v3-receipt-index.v1",
+  "files": {
+    "BOUNDARY-DECISION.md": {
+      "bytes": 1041,
+      "sha256": "e4bd4c2da145f88f7cb822e523a58dfed97f28b205327f4e037388f6b8a1f982"
+    },
+    "README.md": {
+      "bytes": 2005,
+      "sha256": "8551428bdd9535c278f4aeff77ca8fce9460c71a9809a6feffb6a2ac34fe186e"
+    },
+    "approval-record.json": {
+      "bytes": 713,
+      "sha256": "bd9a6e789e216f2c4593ab15e38c28e52fbf4542646b19dd3365cf62d48feeeb"
+    },
+    "evidence.json": {
+      "bytes": 1607,
+      "sha256": "4a5346e117e8fdb9ebbfaca8132bf75d2ba4a4c0ade94c683361cc883e285256"
+    },
+    "failure-lines.txt": {
+      "bytes": 270,
+      "sha256": "e090eaf81a3192506e1dd6f3003e7d56b3016e1b10d3310c194d90535dc447a9"
+    },
+    "release-receipts/config-validation.txt": {
+      "bytes": 20,
+      "sha256": "1a051464cb073b4d0ba6f348798b962eb8dd9f760eb6cb67c1c7a1bf1359376b"
+    },
+    "release-receipts/evidence-sha256.txt": {
+      "bytes": 2369,
+      "sha256": "67a01cbd02b29f062cf4f1a7ca761ccbcbed608f23a624bf17bca94d400aca38"
+    },
+    "release-receipts/iso-files.expected": {
+      "bytes": 22,
+      "sha256": "f59d9c85a58b687ab105a30e5901ace1c8d0225f9ef0c8f2c6df1819881dab0b"
+    },
+    "release-receipts/iso-files.txt": {
+      "bytes": 22,
+      "sha256": "f59d9c85a58b687ab105a30e5901ace1c8d0225f9ef0c8f2c6df1819881dab0b"
+    },
+    "release-receipts/memory-before.txt": {
+      "bytes": 25,
+      "sha256": "70a010600adf456f2e6ff2eb7e2eee4549ddb28bc5daea54e7d92f49dddf471d"
+    },
+    "release-receipts/pct-list-after.txt": {
+      "bytes": 896,
+      "sha256": "c904f58564c69b40b1ec247c1ffa23264b3746359f6049b687b61f84bc09c3a6"
+    },
+    "release-receipts/pct-list-before.txt": {
+      "bytes": 896,
+      "sha256": "c904f58564c69b40b1ec247c1ffa23264b3746359f6049b687b61f84bc09c3a6"
+    },
+    "release-receipts/qm-config.txt": {
+      "bytes": 658,
+      "sha256": "0394a4042f30bd49c0ed60213045b4e8a8d0c96b263f047d4bfb036fe7d10212"
+    },
+    "release-receipts/qm-list-after.txt": {
+      "bytes": 547,
+      "sha256": "e10022d1784e8c9bcaf1e91f7377fa13d3e6f090f779be6a8c1556da33b7d38f"
+    },
+    "release-receipts/qm-list-before.txt": {
+      "bytes": 468,
+      "sha256": "97aa12c126d45cd954f64a4753032bb695d551d1ce5489a740ec96bd975e3695"
+    },
+    "release-receipts/seed-iso.sha256": {
+      "bytes": 131,
+      "sha256": "b38bfcc56f76a489efdb6d60b7b84711e8ef1a9277ff9bf7a120c8b25493a326"
+    },
+    "release-receipts/seed-iso.stat": {
+      "bytes": 80,
+      "sha256": "76c0e3383da944909c9efa987badd3636ff96936bfc9d9ab2edd8120c57d66be"
+    },
+    "release-receipts/start-time.txt": {
+      "bytes": 26,
+      "sha256": "af5922a3dfa2e557c5d9bde794dca1de95e1a4e05b2972eb91ec9a9bf75ea757"
+    },
+    "release-receipts/storage-before.txt": {
+      "bytes": 360,
+      "sha256": "547223b0b6dcdcb3413b054bb9f8c07562a619760e22978727cc4f40ecf14bd7"
+    },
+    "release-receipts/volumes.txt": {
+      "bytes": 172,
+      "sha256": "ac8932b97d68317d10ca464ae95a700f2bcb4829a91b8e4559adf3b63d0aa23b"
+    },
+    "run-receipts/capture-exit-code.txt": {
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    "run-receipts/capture-size.txt": {
+      "bytes": 21,
+      "sha256": "c0364bdbdcb64ac795729d9eeb72a4705b5dfb98255e5e24694b373638a02933"
+    },
+    "run-receipts/evidence-sha256.txt": {
+      "bytes": 1499,
+      "sha256": "b80fb974a9ba14e583113680f11528c5c9fd50f9a730d3d4b10f5c7165122b42"
+    },
+    "run-receipts/host-stop.txt": {
+      "bytes": 13,
+      "sha256": "3a7be9ecedd9df814079ec84fcf3acd509a412f5beedfaa1b86108890f64f519"
+    },
+    "run-receipts/pct-list-after.txt": {
+      "bytes": 896,
+      "sha256": "2286fa609dc030c8980d02aa10b979e49b6348164059a704851b420009419432"
+    },
+    "run-receipts/pct-list-before.txt": {
+      "bytes": 896,
+      "sha256": "c904f58564c69b40b1ec247c1ffa23264b3746359f6049b687b61f84bc09c3a6"
+    },
+    "run-receipts/qm-config-after.txt": {
+      "bytes": 658,
+      "sha256": "0394a4042f30bd49c0ed60213045b4e8a8d0c96b263f047d4bfb036fe7d10212"
+    },
+    "run-receipts/qm-list-after.txt": {
+      "bytes": 547,
+      "sha256": "e10022d1784e8c9bcaf1e91f7377fa13d3e6f090f779be6a8c1556da33b7d38f"
+    },
+    "run-receipts/qm-list-before.txt": {
+      "bytes": 547,
+      "sha256": "e10022d1784e8c9bcaf1e91f7377fa13d3e6f090f779be6a8c1556da33b7d38f"
+    },
+    "run-receipts/serial.capture.sha256": {
+      "bytes": 133,
+      "sha256": "b974206666e16883111c8d8ef673dbb0c9b2aed8eb4bc082c0257933d124ea99"
+    },
+    "run-receipts/start-time.txt": {
+      "bytes": 26,
+      "sha256": "fc21248469f208b889b0b16895924efefd5094d60d6f9329c7814f70f694863b"
+    }
+  }
+}

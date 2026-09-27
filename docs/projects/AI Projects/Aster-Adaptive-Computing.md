@@ -805,3 +805,20 @@ stopped. Fifteen focused and 254 full adaptive tests pass, both host scripts pas
 shell parsing, the generated cloud-config parses, and all manifest file hashes
 recompute. No V3 file was staged remotely, ISO or VM120 was created, boot occurred,
 or accepted corpus was read. Exact V3 execution remains a separate gate.
+
+
+### Disposable VM V3 outcome — boundary remains NO-GO
+
+After Jason's exact approval, the frozen V3 files were staged and hash-verified.
+Fresh VM120 passed its stopped no-vNIC/no-agent configuration gate and booted once.
+The 105,156-byte capture completed within bounds, the guest showed only loopback,
+and it powered off without a host stop. The isolation unit failed before publishing
+an `ASTER_S0_V1` result, however, so strict parsing returned `incomplete protocol`
+and none of the ten controls is proven. No retry or corpus access occurred; VMs118,
+119 and120 remain stopped and existing guests are healthy.
+
+The [V3 evidence](experiments/s0-routing-descriptive-v1/run-v3-isolation/README.md)
+therefore records FAILED/INCONCLUSIVE and the V4 decision is **NO-GO for accepted
+corpus execution**. The exact cause is UNKNOWN pending separately approved read-only
+stopped-disk forensics. A clean VM shutdown is correctly treated as transport
+success rather than isolation success.

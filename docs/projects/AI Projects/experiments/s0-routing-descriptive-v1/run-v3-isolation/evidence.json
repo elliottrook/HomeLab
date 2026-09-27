@@ -1,0 +1,38 @@
+{
+  "schema": "aster-s0-v3-evidence.v1",
+  "run_id": "isolation-fixture-001",
+  "date": "2026-09-26",
+  "result": "failed-or-inconclusive",
+  "gate": "V3-invented-fixture",
+  "boundary_decision": "NO-GO",
+  "precise_failure_cause": "UNKNOWN_REQUIRES_STOPPED_DISK_FORENSICS",
+  "observed": {
+    "release_config_validation": "pass",
+    "vmid": 120,
+    "vm_state_after": "stopped",
+    "capture_exit_code": 0,
+    "capture_bytes": 105156,
+    "capture_sha256": "11984e6a9cd19351a8d360c20f556d11db3c19c171879780b50c746e9e2ced86",
+    "host_stop_required": false,
+    "protocol_records": 0,
+    "strict_parser": "incomplete protocol",
+    "service_start": "failed",
+    "accepted_corpus_evaluated": false,
+    "automatic_retry": false,
+    "vm118_state_after": "stopped",
+    "vm119_state_after": "stopped",
+    "unrelated_guest_lifecycle_change_observed": false,
+    "concurrent_backup_task": "completed OK; explains transient pct backup-lock movement"
+  },
+  "interpretation": [
+    "Bootstrap, serial capture, shutdown and stopped-state controls operated as designed.",
+    "The isolation service failed before a result was published, so none of the ten guest checks is proven.",
+    "A clean shutdown and host capture exit code are not treated as fixture success.",
+    "Accepted-corpus execution remains prohibited."
+  ],
+  "raw_capture": {
+    "committed": false,
+    "reason": "noisy boot transcript contains generated public SSH host-key material; hash and bounded sanitized findings retained"
+  },
+  "next_gate": "separately approved read-only stopped-disk forensic inspection; no reboot or rerun"
+}

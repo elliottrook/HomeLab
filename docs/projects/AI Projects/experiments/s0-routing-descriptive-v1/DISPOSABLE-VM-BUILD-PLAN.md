@@ -308,6 +308,13 @@ negative/identity checks and the bounded serial path. Fifteen focused and254 ful
 adaptive tests pass. This is local readiness evidence only: nothing has been staged
 or executed, and the accepted corpus remains excluded.
 
+**V3 outcome:** the fresh VM passed stopped-state configuration and transport
+bounds, but the isolation unit failed before a protocol result existed. The guest
+powered off cleanly and no retry occurred. This is FAILED/INCONCLUSIVE, and V4 is
+NO-GO for accepted-corpus execution. Evidence is under
+[`run-v3-isolation/`](run-v3-isolation/); exact cause remains UNKNOWN pending
+read-only stopped-disk forensics.
+
 ### V4 — boundary decision
 
 Preserve configuration, captures, decoded output, hashes, resource telemetry and
