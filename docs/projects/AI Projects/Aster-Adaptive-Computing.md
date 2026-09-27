@@ -1,6 +1,6 @@
 # Aster Adaptive Computing — Foundation and First Evidence Loop
 
-**Status:** Active — Stream A; M0 complete; M1 Stage1 verified; Stage2 iPhone sign-in accepted September 27, synthetic action acceptance in progress.
+**Status:** Active — Stream A; M0 complete; M1 Stage1 verified; Stage2 incident repair and iPhone approval/management workflows accepted September 27. Broader programme gates remain open.
 
 **Owner:** Jason.
 
@@ -167,8 +167,9 @@ ten-minute observation passed with stable services, unchanged request counts and
 M1 remains open: Jason authorized full repair on September 27 after a partial
 Stage2 rollout broke approval views. The coordinated owner configuration, daemon
 and session-specific passkey mapping are now deployed and machine checks pass;
-Jason confirmed fresh iPhone sign-in works; synthetic approve/deny and management
-action acceptance remains open. See the controlling
+Jason confirmed fresh iPhone sign-in and synthetic approve/deny/management actions;
+broker read-back verified fresh passkey approval, denial and suspension revocation.
+The test fixture is retired and disabled. See the controlling
 [repair evidence and resume point](evidence/M1-stage2-repair-2026-09-27.md).
 Do not expand tool authority or claim M1 graduation. Offline M2
 contract work can proceed independently. No Git push occurred for these changes;

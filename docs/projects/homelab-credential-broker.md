@@ -394,8 +394,9 @@ September 27 repair note: the September 24 mobile acceptance below remains a
 historical result. Later Adaptive Computing M1 review required session-specific
 assurance and exact approver entitlement. A partial rollout caused the September 27
 outage. Jason authorized full repair; the coordinated replacement is deployed,
-with fresh iPhone sign-in now confirmed by Jason and synthetic action checks in
-progress. See the controlling
+with fresh iPhone sign-in and synthetic approve/deny/management checks confirmed
+by Jason and verified in broker records. The test fixture is retired/disabled.
+See the controlling
 [repair record](AI%20Projects/evidence/M1-stage2-repair-2026-09-27.md). Do not infer
 that the new assurance implementation has human acceptance from the old gate.
 

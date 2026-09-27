@@ -1,7 +1,8 @@
 # M1 Stage2 — authorized availability and passkey repair
 
-Status: deployed; Jason confirmed iPhone sign-in works. Synthetic approve/deny
-and management-action acceptance is in progress.
+Status: repair complete and accepted September 27. Jason confirmed repeated
+iPhone passkey sign-in and all three synthetic approve/deny/management actions.
+Broker read-back independently verified the results; test access is disabled.
 Owner: Jason. Authorization: on 2026-09-27 Jason explicitly said **“Authorize full
 repair”**, following the recommendation to complete identity/passkey checks and
 restore the previously accepted AI-PAM approvals and management. This is a bounded
@@ -62,21 +63,29 @@ over subsequent actions or remove entitlement/assurance checks to reopen access.
 - [x] Coordinated provider mapping, exact-owner configurations and matching daemon.
 - [x] Denial regressions, readiness/health and unchanged neighboring service hashes.
 - [x] Jason confirmed the requested repeated iPhone login/management check works.
-- [ ] Synthetic approval/deny and management-action workflow accepted without
+- [x] Synthetic approval/deny and management-action workflow accepted without
       performing production target actions.
 - [x] Monitoring readiness, documentation/evidence and local commit.
 
-Current safe resume: do not redeploy. Jason answered “Works” to the final repeated
-sign-in/Passkey-verified check. A clearly labelled fixture agent/service
-`repair-test-20260927` now exists, assigned unused UID65027 with **no Unix account,
-credential or execution adapter**. Jason was asked to approve its RED request
-`089aeae7-6267-46e2-bff0-81382564e690`, deny its YELLOW request
-`37df2816-d3a7-4b6b-aae8-a85db4bdcad0`, then suspend only that fixture agent.
-Requests expire at Unix1790547618 (15-minute policy limit). Read back results;
-do not approve on Jason's behalf or claim human action from synthetic calls.
-Retire the fixture and disable its service after acceptance or timeout, retaining
-audit history. If it expires before testing, record that outcome and retire it;
-do not silently create more requests. M1 graduation remains open.
+Current safe resume: repair acceptance is complete; do not redeploy or reactivate
+the fixture. Jason answered “Works” to repeated sign-in/Passkey-verified checks,
+then “All three worked” to the synthetic action checklist. Exact evidence:
+
+- RED `089aeae7-6267-46e2-bff0-81382564e690`: approved by the verified owner with
+  `passkey` assurance and authentication age within120 seconds at approval.
+- YELLOW `37df2816-d3a7-4b6b-aae8-a85db4bdcad0`: denied by the verified owner.
+- Agent `repair-test-20260927`: Jason suspended it through management. The broker
+  owner-attributed audit and suspended state agree; suspension revoked the
+  previously approved RED request. No request was executed against a target.
+- Cleanup: fixture agent retired, fixture service disabled, new fixture requests
+  denied, zero active fixture requests. No Unix account, credential or execution
+  adapter ever existed for UID65027. Retired metadata and audit are retained.
+- Final live approval-readiness check passes. The broader Adaptive Computing
+  programme and its other gates remain open; this repair does not graduate them.
+
+Historical pending statements below describe intermediate checkpoints and are
+superseded by this acceptance record. Remote Git synchronization remains pending
+separate authorization; no drift baseline was accepted.
 
 ## Deployment evidence — 2026-09-27
 
