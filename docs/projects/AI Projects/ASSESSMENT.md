@@ -66,7 +66,15 @@ The local serving path is llama.cpp rather than the old Ollama deployment. The r
 
 ### AI-PAM is real but not fully graduated
 
-The current project records M0–M5 completion and a connected Green Forgejo read pilot. Yellow write/native-client parity and final graduation gates remain incomplete. Broker registries and lifecycle machinery already exist; six new registry servers would duplicate that foundation. Human-held Shamir custody, AppRole use and scoped execution are valuable. However a short-lived OpenBao token retrieving a stored Forgejo PAT does **not** turn that PAT into a short-lived target credential. [AI-PAM project](https://github.com/elliottrook/homelab/blob/e50b670b906f397e1e70b6d51cf07e88235ac5c5/docs/projects/homelab-credential-broker.md); [OpenBao lease semantics](https://openbao.org/docs/concepts/lease/).
+The completed project records M0–M9 graduation, including bounded Green
+Forgejo reads, Yellow safe-branch writes, native Companion parity, lifecycle
+and emergency controls, dependency failure, recovery and sanitized knowledge
+publication. Broker registries and lifecycle machinery already exist; six new
+registry servers would duplicate that foundation. Human-held Shamir custody,
+AppRole use and scoped execution are valuable. However a short-lived OpenBao
+token retrieving a stored Forgejo PAT does **not** turn that PAT into a
+short-lived target credential. [AI-PAM project](../completed%20projects/homelab-credential-broker.md);
+[OpenBao lease semantics](https://openbao.org/docs/concepts/lease/).
 
 Two isolated synthetic tests against the reviewed broker code returned unexpected authorization success:
 

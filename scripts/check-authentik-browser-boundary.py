@@ -16,12 +16,13 @@ NPM = "192.168.50.23"
 RESOLVERS = ("192.168.50.1", "192.168.20.20", "192.168.20.40")
 SERVICES = """home monitoring metrics sonarr radarr lidarr prowlarr sabnzbd
 portainer dns1 dns2 proxy git logs homarr code dockge files netbox audiobooks
-books proxmox synology""".split()
-NATIVE_ROOTS = {"metrics", "portainer", "git", "audiobooks", "synology"}
+books proxmox synology photos frigate newtarr jellyfin-sso""".split()
+NATIVE_ROOTS = {"metrics", "portainer", "git", "audiobooks", "synology", "photos"}
 BACKENDS = {
     "logs": "192.168.20.40:8888", "homarr": "192.168.20.20:7575",
     "code": "192.168.20.20:8443", "dockge": "192.168.20.40:31014",
     "files": "192.168.20.40:30051", "netbox": "192.168.20.32:8000",
+    "newtarr": "192.168.20.40:9705",
 }
 
 
@@ -59,6 +60,8 @@ def http(name, backend=False, spoof=False):
         return status == "200"
     if status != "302":
         return False
+    if name == "jellyfin-sso":
+        return target.hostname == host and target.path == "/web/"
     if name == "proxmox":
         return target.hostname == host and target.path == "/sso"
     if name == "monitoring":
@@ -71,6 +74,50 @@ def http(name, backend=False, spoof=False):
         target.path.startswith("/if/flow/"))
 
 
+def frigate_denied(port, spoof):
+    args = ["curl", "--silent", "--show-error", "--noproxy", "*",
+            "--connect-timeout", "4", "--max-time", "10", "--output",
+            "/dev/null", "--write-out", "%{http_code}"]
+    if spoof:
+        args += ["--header", "X-Homelab-Authentik-User: jason",
+                 "--header", "X-Forwarded-For: " + NPM]
+    result = run(args + [f"http://192.168.20.10:{port}/api/profile"])
+    return result.returncode == 0 and result.stdout == "403"
+
+
+
+def pihole_denied(address, spoof):
+    args = ["curl", "--silent", "--show-error", "--noproxy", "*",
+            "--connect-timeout", "4", "--max-time", "10", "--output",
+            "/dev/null", "--write-out", "%{http_code}"]
+    if spoof:
+        args += ["--header", "X-Homelab-Authentik-User: jason",
+                 "--header", "X-Authentik-Username: jason",
+                 "--header", "X-Forwarded-For: " + NPM]
+    result = run(args + [f"http://{address}/api/config"])
+    return result.returncode == 0 and result.stdout == "403"
+
+
+def jellyfin_check(account=None, spoof=False):
+    host = "jellyfin-sso.elliottrook.com"
+    path = "/sso/OID/start/authentik-" + account if account else "/Users"
+    args = ["curl", "--silent", "--show-error", "--noproxy", "*",
+            "--connect-timeout", "4", "--max-time", "10", "--output",
+            "/dev/null", "--write-out", "%{http_code} %{redirect_url}",
+            "--resolve", host + ":443:" + NPM]
+    if spoof:
+        args += ["--header", "X-Authentik-Username: jason",
+                 "--header", "X-Homelab-Authentik-User: jason"]
+    result = run(args + ["https://" + host + path])
+    status, _, location = result.stdout.partition(" ")
+    if result.returncode:
+        return False
+    if account:
+        target = urlsplit(location)
+        return status == "302" and target.scheme == "https" and target.hostname == "auth.elliottrook.com" and target.path == "/application/o/authorize/"
+    return status == "401"
+
+
 def main():
     if not all(shutil.which(command) for command in ("curl", "dig")):
         print("curl and dig are required", file=sys.stderr)
@@ -79,6 +126,18 @@ def main():
     jobs += [(f"https:{n}", http, (n,)) for n in SERVICES]
     jobs += [(f"direct:{n}:{mode}", http, (n, True, spoof))
              for n in BACKENDS for mode, spoof in (("plain", False), ("spoof", True))]
+    jobs += [(f"frigate:{port}:{mode}", frigate_denied, (port, spoof))
+             for port in (5000, 8972)
+             for mode, spoof in (("plain", False), ("spoof", True))]
+
+    jobs += [(f"pihole:{address}:{mode}", pihole_denied, (address, spoof))
+             for address in ("192.168.20.20:8082", "192.168.20.40:20720")
+             for mode, spoof in (("plain", False), ("spoof", True))]
+
+    jobs += [("jellyfin:sso:" + account, jellyfin_check, (account,))
+             for account in ("jason", "elliottrook")]
+    jobs += [("jellyfin:api:" + mode, jellyfin_check, (None, spoof))
+             for mode, spoof in (("plain", False), ("spoof", True))]
 
     def check(job):
         label, function, arguments = job

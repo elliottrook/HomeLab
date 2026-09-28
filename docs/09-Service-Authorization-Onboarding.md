@@ -4,9 +4,17 @@
 
 This runbook is the repeatable process for adding HomeLab services to
 Authentik without redesigning the integration each time. Use the bounded,
-layer-based cohorts in the [rollout project](projects/Authentik-Rollout.md),
+layer-based cohorts in the [rollout project](projects/completed%20projects/Authentik-Rollout.md),
 retain direct-management addresses, and record completion only after each
 service's real workflow tests pass.
+
+Authentication onboarding is only one half of a new service's authority
+review. Before graduation, also complete the repository's
+[AI integration gate](Project-Creation-Standard.md#ai-integration-gate) using
+the [AI-PAM service-registry template](templates/AI-PAM-Service-Registry.md).
+This is required even when the correct decision is that AI administration is
+not supported. Never create an API key or weaken a service merely to make the
+AI-PAM row non-empty.
 
 There is no safe one-click conversion for every service. The quickest reliable
 approach is to standardize on two patterns:
@@ -21,6 +29,16 @@ Do not place network control-plane protocols, SSH, DNS, storage protocols,
 camera streams or the Tailscale control path behind an HTTP authentication
 proxy. This runbook applies only to browser-based web interfaces.
 
+## Rollout close-out — 2026-09-26
+
+The rollout closes with NPM, TrueNAS, UniFi and Home Assistant explicitly
+deferred by Jason; retain their secure existing logins. Seerr remains
+deferred. Jellyfin optional browser SSO for both existing administrator accounts
+is accepted at `jellyfin-sso.elliottrook.com`; native clients remain unchanged. Synology, Immich, Frigate, Newtarr and both Pi-hole browser routes are
+now deployed; earlier hold statements below are historical where superseded by
+the dated completion records. See the rollout archive for restore evidence and
+limits; individual recovery/API credentials remain intentional.
+
 ## Service plan
 
 The exact capabilities can vary by installed version and licence. Confirm the
@@ -34,15 +52,15 @@ trusted identity boundary and independent recovery path are verified.
 Authentik-side normalization is applied for NPM, Forgejo, Grafana, Homepage,
 Beszel, ARR, Portainer and both Pi-holes: all 13 providers explicitly select
 the existing passkey-only flow. Fresh unauthenticated redirect checks and
-owner/non-owner policy checks pass. Pi-hole/NPM application password removal
-and fresh human-session acceptance remain open; this is not a claim of full
-single-login graduation for those services.
+owner/non-owner policy checks pass. Pi-hole now has private backend/owner guards
+without a second password (2026-09-26); see [its runbook](runbooks/Pi-hole-Single-Login.md).
+NPM application password removal is an accepted follow-up (2026-09-26).
 
 | Service | Recommended path | Suggested name | Important note |
 |---|---|---|---|
 | Nginx Proxy Manager | Forward auth | `proxy.elliottrook.com` | Complete and tested; NPM login remains |
 | Homepage | Forward auth | `home.elliottrook.com` | Keep health/widget requests in mind |
-| Pi-hole #1 and #2 web UIs | Forward auth — complete and tested (2026-09-15) | `dns1.elliottrook.com`, `dns2.elliottrook.com` | Owner-only browser gates; DNS on TCP/UDP 53 and direct recovery remain unproxied |
+| Pi-hole #1 and #2 web UIs | Forward auth plus verified-owner private ingress (2026-09-26) | `dns1.elliottrook.com`, `dns2.elliottrook.com` | No second app password; DNS 53 remains direct, web recovery is host-private. Fresh passkey acceptance and account logout verified 2026-09-26 |
 | Frigate | Native OIDC if available; otherwise forward auth | `frigate.elliottrook.com` | RTSP, ONVIF and recordings remain direct |
 | Portainer | Native OAuth/OIDC — complete and tested (2026-09-15) | `portainer.elliottrook.com` | Existing local `admin` and direct HTTPS remain break-glass paths; Homepage API token remains direct |
 | Proxmox web UI | Native OpenID Connect realm | `proxmox.elliottrook.com` | Keep the local `root@pam` recovery path |
@@ -55,7 +73,7 @@ single-login graduation for those services.
 | Reolink camera UI | No general proxy | Existing camera address | Keep isolated; use Frigate as the normal interface |
 | Home Assistant | Retain native authentication unless a reviewed OIDC integration supports every client | `homeassistant.elliottrook.com` | Test mobile app, callbacks and emergency access |
 | Beszel | Native OIDC if supported by the installed version; otherwise forward auth | `metrics.elliottrook.com` | Keep agents on their private direct path |
-| Jellyfin | Native SSO only with a supported integration; otherwise forward auth | `jellyfin.elliottrook.com` | Test TV and mobile clients before enforcing |
+| Jellyfin | Optional Community SSO 5.0.0.0 on 12.1.0; both owner-selected accounts accepted | `jellyfin-sso.elliottrook.com` | Native URLs/passwords/API preserved; JellyTV playback observed; see Jellyfin-Single-Login runbook |
 | Plex | Retain Plex authentication; optionally add forward auth for browser-only administration | `plex.elliottrook.com` | Do not break TV, mobile or remote clients |
 | Seerr | Native OIDC if supported by the installed version; otherwise forward auth | `requests.elliottrook.com` | Test Plex/Jellyfin callbacks |
 | Calibre/Audiobookshelf | Native OIDC where supported; otherwise forward auth | Service-specific names | Test mobile readers and players |
@@ -73,7 +91,7 @@ single-login graduation for those services.
 | Aster llama.cpp | No Authentik proxy | `192.168.70.12:11435` | Same reasoning as the Ollama API row above — a model inference API, not a browser login page |
 | ARR work package: Sonarr / Radarr / Lidarr / Prowlarr / SABnzbd | Forward auth — complete and tested as one coordinated package (2026-09-15) | `sonarr`, `radarr`, `lidarr`, `prowlarr`, `sabnzbd`.elliottrook.com | Owner-only browser gate; direct recovery and every API-key path retained |
 | Media Manager (Homarr) | Native OIDC behind forward auth | `homarr.elliottrook.com` | Automatic SSO linked to existing owner; local group management preserves permissions |
-| Newtarr | Forward auth | Service-specific name | Confirm what this actually is/does before onboarding — not otherwise documented in this repo yet |
+| Newtarr | Owner-only forward auth and private host guard | `newtarr.elliottrook.com` | Deployed and Homepage promoted 2026-09-26; persistent `/config` repaired. Sonarr/Radarr/Lidarr connected with missing and quality-upgrade searches enabled; fresh passkey/logout/recovery checks remain open |
 | File Browser | Forward auth plus trusted app identity header | `files.elliottrook.com` | Private backend; ingress maps the verified owner to the existing account |
 | NetBox | Native OIDC behind forward auth | `netbox.elliottrook.com` | Installed python-social-auth supports OIDC without an added plugin; existing admin explicitly linked; API authentication retained |
 | AP Switch | No Authentik proxy | Existing address | HTTP-only raw switch management with no real authentication of its own to federate — treat like the other never-proxied network/control-plane rows above, not a browser app |
@@ -98,6 +116,14 @@ Backup completed:
 Authentik group allowed:
 API, mobile or non-browser clients that may be affected:
 Rollback owner and method:
+
+AI administration: brokered / dynamic / static exception / not currently supported
+AI service identity (or reason unsupported):
+Broker capabilities and Green/Yellow/Red/Black class:
+Secret custody identifier (never the value):
+Rotation and revocation procedure:
+Human break-glass path:
+Registry status: proposed / pilot / active / suspended / retired
 ```
 
 The current rollout convention is one enabled direct binding to `jason` per

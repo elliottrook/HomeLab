@@ -1,24 +1,679 @@
 # Authentik Service Rollout Project
 
-> Status: Active — Milestones 0-2 complete except the human-only stale-session
-> closure; Milestone 3 has graduated Grafana, ARR, Portainer and the coordinated
-> Pi-hole pair. Six further browser routes now use passkey-only single login
-> with normal browser acceptance (2026-09-23). Audiobookshelf native SSO is
-> accepted on and off Wi-Fi; its Homepage link is promoted. Calibre native SSO
-> is accepted and its Homepage link is promoted. Seerr/Jellyfin are deferred;
-> Proxmox native OIDC is accepted, promoted to owner administration and linked
-> from Homepage. Remaining services and final
-> graduation gates are still open.
-> Live baseline re-audited 2026-09-23. Redesigned 2026-09-10
-> under [HomeLab Project Creation Standard](../Project-Creation-Standard.md).
-> Stream: **A — Autonomous**, approved by Jason on 2026-09-23 for the
-> remainder of this project. Earlier Stream M evidence remains historical.
->
-> Owner: Jason
->
-> Proposed: 2026-08-22 · Redesigned: 2026-09-10
+> Status: **Completed and archived — 2026-09-26.** Implementation complete within the accepted
+> scope; NPM, TrueNAS, UniFi and Home Assistant are explicit follow-ups approved
+> by Jason on 2026-09-26. Seerr remains deferred. Jellyfin optional browser SSO accepted on 2026-09-26.
+> Stream: **A — Autonomous**. Owner: Jason.
+> Proposed: 2026-08-22 · Redesigned: 2026-09-10 · Close-out: 2026-09-26.
+> Standard: [HomeLab Project Creation Standard](../../Project-Creation-Standard.md).
+
+## Final scope and verification — 2026-09-26
+
+This section supersedes the historical status statements and unchecked planning
+lists below. Those remain an audit trail, not instructions to repeat deployment.
+Jason requested completion, push and archival, and explicitly chose to close
+with NPM, TrueNAS, UniFi and Home Assistant documented as follow-ups with their
+existing secure logins retained. This is completion of the accepted scope, not
+a claim that every original target now has single login.
+
+| Delivered cohort | Final disposition |
+|---|---|
+| Earlier services | Homepage, Beszel, Grafana, Forgejo, ARR and Portainer remain deployed; Authentik providers use the passkey flow. Existing app recovery/API routes remain service-specific. |
+| Browser tools | Dozzle, Homarr, code-server, Dockge, File Browser and NetBox accepted; private ingress prevents direct/spoofed browser bypass. |
+| Media and cameras | Audiobookshelf and Calibre native SSO accepted; Immich browser/mobile accepted; Frigate live view/recordings accepted with metrics and streams preserved. |
+| Jellyfin | Both existing administrator account choices accepted through owner-only optional SSO; JellyTV playback observed and native client credentials preserved. |
+| Newtarr | Persistence repaired, protected HTTPS promoted, Sonarr/Radarr/Lidarr connected; both missing and quality-upgrade searches enabled at the recorded limits. |
+| Pi-hole pair | Passkey-only browser entry accepted, application/account logout checked, DNS and the statistics-only Homepage widget verified. Recovery is host-private. |
+| Infrastructure | Proxmox OIDC and Synology SSO accepted; independent local administrator recovery retained. |
+| Configuration recovery | Daily NAS/Immich and scheduled guest/infrastructure protection verified locally and off-site; isolated restores passed. Immich photos remain Jason’s separate process. |
+
+Final automated evidence:
+
+- `scripts/check-authentik-browser-boundary.py`: **134/134 passed**, covering
+  three DNS authorities, certificate-valid routes and plain/spoofed direct
+  access denial. This does not simulate biometric login or every client.
+- All **35** final Authentik applications evaluated with an uncached policy engine:
+  `jason` allowed, `akadmin` denied, including Cloudflare Access and the retired
+  Synology Backup record. Cloudflare remains outside this browser rollout;
+  Jason owns its separate external-access design. The retired Synology object
+  remains owner-restricted as a recovery/audit artifact; retirement cleanup is
+  separate and must not delete an active callback by inference.
+- Pre-Jellyfin Authentik dump restored into the installed PostgreSQL image, with
+  network disabled, no production mounts or published ports. Restored counts
+  matched: 33 applications, 4 users, 45 policy bindings. Scratch container and
+  its volumes removed. Protected checkpoint:
+  `/opt/authentik/backups/closeout-20260926T223843Z`.
+- NPM online SQLite backup restored to a separate database: integrity `ok`,
+  31 active proxy hosts; production `nginx -t` passed. Checkpoint:
+  `/opt/nginx-proxy-manager/backups/closeout-20260926T223932Z`.
+- Representative native-OIDC database restore: Calibre checkpoint restored
+  separately, integrity `ok`, 29 tables, at
+  `/root/authentik-cwa-restore-20260926T223947Z`. This is a database restoration,
+  not a destructive live rollback or fresh SSO replay.
+- Representative forward-auth recovery: both stopped Pi-hole checkpoints were
+  byte-compared after restoration (49/133 files), SQLite integrity passed, and
+  isolated guards passed 17/16 checks. Production primary restart and secondary
+  managed-app stop/start passed while redundant DNS remained available.
+- Loaded OPNsense rules still use specific NPM source/backend TCP destinations;
+  no public ingress was added. Existing direct management and storage/stream
+  protocols remain independent of Authentik/NPM. Infrastructure failure recovery
+  uses reasoned path validation, not a disruptive firewall/hypervisor outage.
+- Authentik/Immich/Synology recovery artifacts inspected by metadata only;
+  local secret-bearing files remain 0600 inside 0700 directories. Recovery
+  images and checkpoints are retained. Temporary recovery tunnels were removed.
+- Live generated Aster mirror verified: 1,796 entries, 25 directory sources,
+  content hash `bf0c002f46a7aaffadadc2490045aaa9927cc091ea04eead2f413860e97491e8`.
+  Authored operations are consumed from the authoritative reference snapshot;
+  generated upstream claims are not hand-edited.
+
+### Jellyfin browser SSO accepted — 2026-09-26
+
+Jason explicitly requested deployment on installed **12.1.0**, preserving
+native clients, then selected **both** existing `jason` and `elliottrook`
+accounts through his usual Authentik identity. The bounded design uses two
+separately named OIDC providers and explicit existing-UUID links, with labelled
+Jellyfin login buttons. No password disabling, user creation, permission/username
+synchronization, global logout, API forward-auth gate or server-image change.
+The browser hostname is `jellyfin-sso.elliottrook.com`, leaving any existing
+client URL and direct 8096 route unchanged. Seerr remains outside this deployment.
+
+Stable Community SSO **5.0.0.0**, ABI 12.0.0.0, package SHA-256
+`29bfc6ca2fa76a08f72b724ddf27ef3ea1c853ab087b182da5d67a72ef0e13e9`,
+loaded successfully on the installed image in a network-none fixture with no
+media or production configuration. Tests proved separate provider links can
+map the same subject to different accounts, conflicting rebind returns 409,
+existing account policies/token remain valid, password login stays enabled and
+two login buttons render. These are isolated API tests, not completed live OIDC.
+
+Live `/config` is now the dedicated dataset mounted at
+`/mnt/Media/appdata/jellyfin`, superseding the older named-volume assessment.
+Full snapshot `Media/appdata/jellyfin@authentik-sso-20260926T225837Z` restored
+as a separate read-only clone; copied SQLite/WAL restored with integrity `ok`,
+6 users, 1,616 watch-state rows and 24 device rows. Checkpoint
+`/root/authentik-jellyfin-20260926T225837Z`; clone mount
+`/mnt/root/authentik-jellyfin-20260926T225837Z/restored-config` has a protected
+0700 parent. A partial initial file copy is explicitly not the backup.
+The exact server image is
+`sha256:2e68d77a7543f915ea9491497907ffbc9a897d710f96610fc4115bde88d0a189`.
+
+Active playback was detected before any interruption. Jason stopped it and
+asked to be told when playback can resume. The plugin installation/restart completed; Jason was told playback can resume.
+Both providers are linked and enabled, discovery passes, and both HTTPS launch
+routes redirect to Authentik. All six account policies, native credentials and
+24 device tokens were preserved. The expanded boundary checks pass 134/134.
+Jason confirmed both account choices work. Post-login checks again preserved
+all six policies, native credentials and 24 original device tokens; JellyTV
+was actively playing as `jason`, with Quick Connect still enabled. Homepage
+now opens the private SSO login; only the tile href changed, with checkpoint
+`/opt/homepage/backups/jellyfin-promote-20260926T231857Z`. See
+[Jellyfin browser SSO](../../runbooks/Jellyfin-Single-Login.md) for exact objects,
+recovery checkpoints and the corrected firewall-rule order.
+
+## Follow-ups and practical limits
+
+Owner for each follow-up is **Jason**. Reassess versions and supported interfaces
+before starting any further deployment; this archive is not future authorization.
+
+| Item | Disposition / next action |
+|---|---|
+| NPM | Keep its application login behind Authentik; reassess a released, supported native SSO implementation. Do not deploy an unmerged upstream PR. |
+| TrueNAS | Keep local administration; reassess supported browser federation on the installed edition without placing storage recovery behind SSO. |
+| UniFi | Keep existing console login; endpoint/Fabric identity support is not proof of console administrator SSO. |
+| Home Assistant | Keep native authentication; require browser, companion app, callback and emergency-access compatibility before integration. |
+| Seerr | Deferred at Jason's direction; reassess released versions and client support later. Jellyfin was reopened separately above. |
+| OPNsense / Plex | Explicit no-change decision: independent firewall recovery and existing media-client authentication take priority. |
+| Optional clients / logout | Only the named tested workflows are accepted. Frigate HA integration is not installed. Unused reader/TV/API consumers and per-app global logout are not claimed tested; test them when introduced. App logout may retain the Authentik session; use account logout when ending SSO. |
+| Pi-hole recovery | Primary SSH loopback browser recovery is proven. TrueNAS prohibits SSH TCP forwarding; secondary recovery uses the verified host-local API/CLI. Do not weaken that SSH policy or expose its passwordless backend. |
+| Backup observation | Configuration exports, isolated restores, off-site download/hash checks and fresh guest cryptographic checks passed. First future calendar-triggered runs remain monitored observation items; Immich photos remain Jason’s separate backup process. |
+| Legacy unattended sessions | The old schedule was disabled in the redesign. Historical `local_312ca3ad...` / `local_a30ead75...` sessions are not reachable here; explicit closure is unverified. Their instructions are superseded. Do not resume them or treat missing inventory as proof of termination. |
 
 ## Resume audit — 2026-09-23
+
+### Pi-hole logout, recovery and backup-coverage audit — 2026-09-26
+
+Observed secondary application logout, then used its separate Authentik account
+logout link. Reopening the protected page required identification in the
+passwordless flow; primary also returned to authentication. Shared logout flows
+were unchanged. The test Brave session is signed out. Do not infer SLO coverage
+for every unrelated app from this check.
+
+Primary SSH loopback recovery successfully served UI and API without NPM/Auth;
+tunnels were removed. TrueNAS rejected TCP forwarding as administratively
+prohibited. Its existing host-local API recovery is verified, but no secondary
+browser-tunnel claim is made and SSH policy was not weakened.
+
+Primary guard/Homepage files are inside the existing nightly LXC 100 archive
+scope. Secondary app/guard datasets are not covered by the non-recursive Media
+snapshot. A credential-free guard/network reconstruction bundle now resides at
+`/mnt/Media/backup/service-reconstruction/pihole-secondary/20260926T222850Z`;
+five files were checksum-verified both locally and through the read-only relay. Existing hub snapshot/relay schedules include this
+path, but their first post-export runs remain unverified. No DNS history or
+credentials were added to off-site scope. Recurring secondary application-data
+backup is a separate remaining gap. Runbook includes the reusable exporter and
+exact recovery limitations. No new schedule or remote Git push was performed.
+
+### Pi-hole browser acceptance — 2026-09-26
+
+Jason replied “works” to the requested fresh private-browser Face ID/passkey
+check using the primary and secondary Pi-hole links. Record the requested
+single-login browser acceptance as user-confirmed. This does not establish
+logout/re-prompt, settings-save/upload, interactive recovery or host-reboot
+acceptance. Those and the scheduled-backup coverage checks remain open.
+
+### Pi-hole pair single-login deployment — 2026-09-26
+
+Primary and secondary now use the verified-owner browser guards described in
+[Pi-hole single login](../../runbooks/Pi-hole-Single-Login.md). Brave showed both
+without a second application login using its existing Authentik session.
+Primary native password prompt is removed; the secondary was already
+passwordless and its direct API exposure is now closed. NPM 16/17 overwrite the
+verified owner header. No Authentik flow, LAN firewall, DNS record, blocklist or
+application image was changed.
+
+Protected stopped checkpoints were restored and verified: primary 49 files,
+secondary 133 files, both gravity/FTL databases passed integrity checks. Primary
+checkpoint `/opt/pihole/backups/single-login-20260926T220655Z`; secondary
+`/root/pihole-single-login-20260926T221046Z`; NPM checkpoint
+`/opt/nginx-proxy-manager/backups/pihole-single-login-20260926T220448Z`.
+
+TrueNAS rejected loopback host-IP publication. The supported exposed-only app
+port now uses an internal Docker network for its host guard, plus a separate
+service network for DNS/upstream connectivity. The first internal-only attempt
+failed DNS validation while primary DNS stayed available; the final two-network
+configuration passes both DNS transports and managed-app stop/start. Primary
+restart also passes. Homepage uses a verified statistics-only route and its
+source address is pinned in Compose; live widget statistics pass.
+
+All 126 boundary checks pass. Fresh passkey browser acceptance is recorded
+above; logout, native settings-save/upload,
+interactive browser recovery and scheduled-backup coverage remain open, as do
+other project graduation gates. Unknown intermittent API consumers need a narrow
+integration route if discovered. Do not roll back the secondary to its formerly
+exposed passwordless API. Detailed configuration, checkpoint and recovery paths
+are in the runbook. No remote Git push authorized or performed.
+
+### Pi-hole isolated single-login proof — 2026-09-26
+
+Completed 17 synthetic checks on the primary installed Pi-hole image (including
+the installed Homepage widget) and 16 on the secondary image, using isolated
+containers with no production mounts, published ports or external networking.
+The proposed guard enforces actual peer plus verified owner, same-origin API
+writes, and a separate statistics-only widget route. Both live containers kept
+their original IDs/start times; fixtures were removed. No production auth or
+DNS change occurred. Reproducible script and detailed remaining deployment gates
+are in [Pi-hole single-login preflight](../../runbooks/Pi-hole-Single-Login-Preflight.md).
+
+Home Assistant has no configured pi_hole integration or Pi-hole references in
+its three main YAML files. Both persisted session tables are empty, which does
+not prove no clients. Jason is unsure about other API consumers. Homepage is a
+confirmed consumer; its installed build passed the isolated no-key widget test
+through the restricted statistics route with all four expected response fields.
+Next: finish durable backend isolation and primary Compose/secondary managed-app
+candidates, checkpoint/recovery proof and consumer compatibility before cutover.
+Do not interpret synthetic tests as production acceptance or remove live API
+credentials merely because the persisted session tables are empty.
+
+### Newtarr UI verification and remaining capability assessment — 2026-09-26
+
+Observed the protected Newtarr Settings page in Brave using the existing
+Authentik session, without a second app login. Homepage now links to
+`https://newtarr.elliottrook.com`; only that href changed and Homepage returned
+HTTP 200. LXC 100 checkpoint:
+`/opt/homepage/backups/newtarr-promote-20260926T214657Z/services.yaml`.
+Fresh biometric authentication, logout and recovery remain separate open gates.
+A subsequent source-local read-back confirms all three ARR apps have missing
+and upgrade counts set to 1, sleep 900 seconds, hourly cap 20 and monitored-only
+true. All 122 unauthenticated boundary checks pass. This verifies configuration,
+not completed searches, downloads or quality improvements.
+
+Remaining double-login assessment: installed NPM 2.15.1 has no verified native
+OIDC implementation. Upstream [OIDC PR #5513](https://github.com/NginxProxyManager/nginx-proxy-manager/pull/5513)
+is still open; no unmerged authentication patch or upgrade was deployed.
+Pi-hole primary uses image 2026.05.0 and secondary 2026.07.2. Both retain
+application-password configuration; secondary's main password is supplied by
+environment, so an empty TOML hash must not be interpreted as disabled auth.
+Primary Homepage consumes its private v6 API with a file-backed credential.
+[Pi-hole API documentation](https://docs.pi-hole.net/api/auth/) confirms that
+removing the password removes API authentication too. No Pi-hole authentication,
+container, DNS or consumer changes were made during this assessment.
+
+Next safe Pi-hole step: finish consumer inventory and prove an isolated guarded
+UI/API design, including Homepage access and independent DNS recovery, before
+any production password removal. NPM remains a capability hold pending supported
+SSO or a separately assessed alternative. Existing app passwords remain active.
+No remote Git synchronization has been authorized for these milestones.
+
+### Newtarr ARR connections and missing/upgrade searches enabled — 2026-09-26
+
+Jason requested connections to the running ARR applications. Discovered Sonarr,
+Radarr and Lidarr, all on `new_arr_default`; Readarr, Whisparr and Eros are not
+running and were not added. Existing API keys were read source-locally from
+each application's actual /config/config.xml and passed directly to Newtarr,
+without printing or changing credentials. Internal Docker service URLs avoid
+browser SSO redirects. API system-status tests from Newtarr returned 200 for
+Sonarr 4.0.19.2979, Radarr 6.3.0.10514 and Lidarr 3.1.0.4875.
+
+Saved connections through Newtarr's supported settings API and verified exact
+read-back. Initial missing-only selection was immediately corrected by Jason
+to both missing searches and quality upgrades; final state is one missing item
+and one upgrade item per cycle for each app, 900-second sleep, monitored-only,
+existing skip-future settings, hourly cap 20. No quality profiles, indexers,
+download clients or ARR library settings were changed. Background code checks
+for newly configured app workers every 15 seconds; no container restart or
+manual bulk search was needed. Enabling does not prove successful downloads
+or available upgrade candidates. Existing app files remain mode 0600.
+
+Pre-connection checkpoint:
+`/root/newtarr-arr-connections-20260926T214344Z`.
+Pre-upgrade-toggle checkpoint:
+`/root/newtarr-quality-upgrades-20260926T214404Z`.
+These contain protected settings and sanitized validation; do not print raw
+settings or secrets. Newtarr general debug mode was verified false before
+using the settings API (its debug logging can include request bodies).
+All 122 boundary checks remain passing. Settings-page observation and Homepage
+promotion are recorded above; fresh passkey/logout/recovery tests remain open.
+
+### Newtarr Authentik browser gate deployed — 2026-09-26
+
+Continued within the approved Stream A envelope after the verified persistence
+repair. Newtarr's nine settings documents, immutable image and `/config` host
+mount remain unchanged. Its app port is now only `127.0.0.1:19705`; the host
+guard on `192.168.20.40:9705` redirects non-NPM callers to friendly HTTPS and
+requires verified `jason` from actual NPM source `.50.23`. NPM overwrites that
+header from its Authentik subrequest, preventing client-supplied identity.
+Existing proxy-auth bypass is behind this boundary; no app credential changed.
+
+- Authentik provider **43**, app `newtarr`, embedded outpost attachment,
+  existing passkey-only flow and two strict callbacks. One direct owner binding;
+  policy engine allows Jason and denies akadmin. Verified database checkpoint:
+  `/opt/authentik/backups/newtarr-20260926T213009Z/authentik.dump`.
+- NPM host **31**, `https://newtarr.elliottrook.com`, forwarding to the guard
+  on `.20.40:9705`. Checkpoint:
+  `/opt/nginx-proxy-manager/backups/newtarr-20260926T213018Z/database.sqlite`.
+- Firewall **`2a22f830-a6eb-4378-88ec-e6ce3a302443`**, NPM only to the guard
+  TCP 9705. OPNsense checkpoint `/root/authentik-newtarr-20260926T213136Z`;
+  Unbound record **`107ce7dc-aadc-405d-ab73-74c677003c7e`**. Pi-hole backups:
+  primary `/opt/pihole/backups/newtarr-20260926`, secondary
+  `/root/authentik-newtarr-dns-20260926`.
+- TrueNAS checkpoint `/root/authentik-newtarr-deploy-20260926T213111Z` contains
+  pre-auth Compose, container metadata/config archive and validation. Guard
+  `authentik-newtarr-ingress` runs the same pinned nginx as the earlier cohort,
+  UID 101, read-only root, temporary /tmp, no capabilities, no new privileges
+  and restart unless-stopped. Definition and nginx config are under
+  `/mnt/Media/appdata/authentik-browser-ingress/newtarr/`. The compose.json is
+  a recreation definition; avoid creating a second container over the existing
+  standalone container name.
+
+NPM-source tests: missing/wrong identity 403; verified owner 200. All 122
+expanded boundary checks pass, including three-resolver DNS, valid TLS gate,
+direct IP redirect and spoofed-header redirect. Brave private window reused the
+existing Authentik session and displayed Newtarr v1.0.0 without a second login.
+Subsequent Settings-page observation, Homepage promotion and ARR connections
+are recorded above. Fresh passkey/logout/recovery tests remain open.
+
+Recovery retains repaired persistent /config. For an ingress fault, repair or
+recreate only the guard using its saved definition; never revert the volume to
+/appdata. Protected config can be reached via a deliberate SSH loopback tunnel
+for recovery. Re-exposing the bare 9705 app without Authentik would weaken the
+boundary and is not a routine rollback. Do not restore shared firewall/NPM/Auth
+state wholesale over unrelated work. No remote Git push performed.
+
+### Newtarr persistence repair completed — 2026-09-26
+
+The approved repair completed successfully. Stopped only Newtarr, captured a
+final coherent archive and committed/saved its original writable layer as a
+recovery image before recreation. Recovery directory:
+`/root/newtarr-persistence-20260926T212721Z`; local recovery image:
+`local/newtarr-recovery:20260926t212721z`; exported image:
+`container-recovery-image.tar` (tar manifest verified). Final config archive
+SHA-256: `16769923dc1f124848eeec669f21c5ede3ffdc2491091e43e0557e59ce769697`.
+The checkpoint contains original Compose, container metadata, file hashes and
+`validation.json`. No backup or recovery image was deleted.
+
+Copied and verified all 44 files into `/mnt/Media/appdata/newtarr`, then changed
+only the Newtarr mount destination in the shared Compose from `/appdata` to
+`/config`. Recreated only service `newtarr` with `--no-deps --pull never`.
+The immutable image is unchanged, port/network bindings are unchanged, nine
+settings/scheduling documents compare equal, and all 18 other running container
+IDs/start times remain unchanged. Live UI returns 200 and the running container
+has the expected writable host bind to `/config`. Host config directory is
+0700; copied files are 0600. All 116 existing boundary checks still pass.
+
+Source-local settings inspection finds only default instance entries: none of
+the six ARR application configuration files has both an API URL and API key.
+No configured connection was removed or altered. Do not claim an operational
+ARR automation workflow. Integration setup is distinct from browser SSO.
+
+Persistence hold is cleared. Next: owner-only Authentik browser gate and private
+backend boundary for Newtarr; existing proxy-auth bypass is not an identity
+gate by itself. Do not expose the bare app publicly. Authentik deployment and
+Homepage promotion have not yet occurred. Preserve the recovery image when
+cleaning Docker images; it contains the pre-repair writable-layer configuration.
+Rollback, if required, uses original Compose plus a Newtarr-only image override
+to the retained recovery image, not the unmodified upstream image with an empty
+/config. Prefer keeping the now-correct persistent mount when fixing later auth
+issues. Remote Git synchronization remains pending separate push authorization.
+
+### Newtarr persistence repair approved and running — 2026-09-26
+
+Jason explicitly approved the prepared persistence repair after reviewing the
+brief stop, final backup, host-storage correction and same-image restart plan.
+This resolves the earlier separate-risk-decision hold for this bounded repair.
+Fresh preflight found original Compose unchanged and host destination still
+empty. Repair checkpoint: `/root/newtarr-persistence-20260926T212721Z`.
+Execution is pending final verification; do not replay until live state and
+`validation.json` are checked. The first long inline command hit a sudo command
+environment-length mismatch before stopping Newtarr; the same bounded script
+was then delivered through stdin using established sudo access.
+
+### Newtarr persistence repair prepared; risk decision pending — 2026-09-26
+
+Live `newtarr` remains healthy on TrueNAS, image v1.0.0 with immutable image
+ID `sha256:a099fd6afe0498156a1f7defc82076dac7827f5a1fdf33038903d573403611e7`.
+Its only mount is empty `/mnt/Media/appdata/newtarr` to `/appdata`; actual
+settings/state are in the container writable layer at `/config`. Compose owner
+is `/mnt/Media/appdata/dockge/new_arr/compose.yaml`, service `newtarr`, network
+`new_arr_default`, port 9705. Native proxy-auth bypass is already enabled and
+local-access bypass disabled; no auth setting was changed.
+
+Protected running preflight copy, full container inspection and original
+Compose are in `/root/authentik-newtarr-preflight-20260926T210518Z`.
+Config archive SHA-256:
+`857802ecab8e67843af24e307c68044204666e8964af5b090feba89588cbf681`.
+All 28 JSON configuration/state documents parse. Eight files named
+`state/*/last_reset.json` are not JSON documents; retained byte-for-byte, not
+rewritten or claimed corrupt. This is a running copy; migration must take a
+fresh stopped-container copy before cutover.
+
+Restored the archive into a disposable root-only directory and started the
+exact image with `--network none`, no published ports and the restored `/config`
+bind. Internal HTTP returned 200. Removed the disposable container afterwards;
+no ARR consumers were reachable. `restore-proof.json` records the result.
+The protected `compose.candidate.yaml` validates, changing only
+`${CONFIG_PATH}/newtarr:/appdata` to `${CONFIG_PATH}/newtarr:/config`.
+Other services and configuration are byte-for-byte unchanged.
+
+Concrete pending repair: briefly stop only Newtarr, capture a final coherent
+config archive and recoverable container image, verify and populate the empty
+host directory, apply the single mount correction, and recreate only Newtarr
+without pulling/upgrading its image. Validate exact settings, outbound consumer
+configuration, host persistence and UI health before Authentik work. Retain all
+recovery material; no old checkpoint is deleted. The earlier project record
+explicitly requires a separate persistence-risk decision before recreation;
+request that decision against this prepared and isolated-tested change.
+Production Newtarr is still running unchanged; no repair or auth deployment
+is claimed yet.
+
+### Frigate browser acceptance and Homepage promotion — 2026-09-26
+
+Jason confirmed live video and older-recording playback work through the new
+friendly HTTPS route. Browser workflow accepted. Promoted only Homepage's
+Frigate href from `https://192.168.20.10:8971` to
+`https://frigate.elliottrook.com`; all other dashboard content is unchanged.
+Checkpoint on LXC 100:
+`/opt/homepage/backups/frigate-promote-20260926T205629Z/services.yaml`.
+Homepage returns 200 and all 116 boundary checks pass after promotion.
+
+Immich browser/mobile and Frigate browser milestones are now accepted. Main
+Synology browser administration was accepted earlier. Remaining rollout work
+includes Newtarr persistence remediation, NPM/Pi-hole second-login limitations,
+TrueNAS/UniFi/Home Assistant capability holds, and final logout/recovery/reboot,
+monitoring/documentation and synchronization gates. Jellyfin/Seerr remain
+explicitly deferred. Frigate Home Assistant integration is not installed and
+is future work, not a failed existing integration. Fresh Frigate passkey and
+logout/recovery tests are not implied by browser acceptance using an existing
+Authentik session. Local commits are retained; remote pushes are not authorized.
+
+### Frigate deployed; infrastructure checks passed — 2026-09-26
+
+Jason ran the prepared script successfully. Deployment checkpoint:
+`/root/authentik-frigate-deploy-20260926T204848Z`. Operator output confirms
+healthy Frigate, unchanged image/configuration and preserved stream bindings.
+Independent SSH checks show the service active, internal API on loopback 5000,
+guard on LAN 5000/8972 and native recovery still on 8971.
+
+From NPM, missing/wrong identity headers return 403 and verified `jason` returns
+200 with the expected internal anonymous/admin profile and original camera.
+From the management client, direct LAN 5000 and spoofed 8972 requests return
+403. Prometheus reports target up with no error; an independent metrics request
+from LXC 109 returns 200. Fresh recording segments are present (newest age 2.5
+seconds at inspection), and camera/process FPS are approximately 5. All 108
+previous boundary checks pass.
+
+Brave opened the friendly HTTPS root using the existing Authentik session and
+reached Frigate Live without an application password; the page reports healthy.
+The expanded boundary checker passes all 116 checks, including Frigate DNS,
+HTTPS gating and direct/spoofed API denial. Requested human confirmation of
+live video and older-recording playback.
+Homepage promotion is pending that answer. Dedicated fresh passkey, logout,
+recovery and reboot tests remain open; do not claim these from session reuse.
+
+### Frigate browser guard staged; operator deployment pending — 2026-09-26
+
+Jason clarified Home Assistant is not integrated yet; only browser access is
+currently needed. Live Prometheus configuration on LXC 109 nevertheless uses
+`http://192.168.20.10:5000/api/metrics` (older reference documentation says
+8971 and is stale). Target health is up. Preserve this exact monitoring path.
+
+Prepared `scripts/authentik/frigate-browser-ingress.py` and copied it to
+`/home/jelliott/frigate-browser-ingress.py`. Jason must run it in his existing
+root terminal; Terminal automation remains unavailable. Syntax validation
+passed. The script takes a fresh protected config/container/SQLite checkpoint,
+validates the pinned nginx guard, and changes only Frigate's 5000 publication
+to IPv4 loopback. It keeps the current Frigate image and native authentication,
+8971 recovery endpoint, stream bindings, and camera/storage configuration.
+A separate unprivileged, read-only nginx container with host networking serves
+only `/api/metrics` to actual source `192.168.20.31` on LAN port 5000. Browser
+port 8972 requires both actual NPM source `192.168.50.23` and the overwritten,
+verified `jason` identity header, then forwards to loopback 5000. Requests with
+wrong/missing identity or a spoof from another source are denied. The sole
+owner receives Frigate's internal anonymous/admin identity; no native account
+or credential is changed. This deliberately uses the protected internal API
+behind the guard, preserving independent native recovery on 8971. Do not
+switch global auth off. Home Assistant is not granted access yet.
+
+Applying the port change recreates Frigate briefly, interrupting recording;
+this was communicated before requesting execution. No image upgrade occurs.
+The script restores original Compose/ports and removes the guard on a failed
+post-change check. It does not claim full data restore or continued recording
+until validation. Existing root-only checkpoint remains retained.
+
+Independent staging is complete:
+
+- Authentik proxy provider **42**, app `frigate`, existing passwordless flow,
+  one direct owner binding; Jason allowed and akadmin denied; embedded outpost
+  attached. Database checkpoint
+  `/opt/authentik/backups/frigate-20260926T203353Z/authentik.dump`, catalogue
+  1,818 lines verified.
+- NPM host **30**, friendly `https://frigate.elliottrook.com`, forward-auth
+  template from host 19, backend HTTP `192.168.20.10:8972`, WebSocket support,
+  buffering off and 3,600-second read timeout. SQLite checkpoint
+  `/opt/nginx-proxy-manager/backups/frigate-20260926T203440Z/database.sqlite`.
+- Firewall rule **`ba4b1063-f898-4fc2-8aa3-2bd64a6237c4`**, only NPM to
+  Frigate TCP 8972. OPNsense checkpoint directory
+  `/root/authentik-frigate-20260926T203434Z`; configuration validates/reloads.
+- Unbound record **`dc0746eb-123f-48b4-94f1-5dabe29983d0`** and both Pi-holes
+  resolve friendly hostname to NPM. Pi-hole backups: primary
+  `/opt/pihole/backups/frigate-20260926/pihole.toml`, secondary
+  `/root/authentik-frigate-20260926/pihole.toml`.
+
+All three DNS answers agree, certificate-validated friendly HTTPS returns the
+expected Authentik 302, and all 108 previous service checks pass. At the latest
+host check, 5000 was still published on wildcard addresses and 8972 was absent:
+operator deployment has not yet been verified. Homepage remains unchanged.
+Next: obtain script outcome, verify NPM allowed/denied identity cases, direct
+and spoofed requests, Prometheus health, native recovery, unchanged image/config,
+fresh recording segments and real passkey/live-view/playback acceptance. Then
+promote Homepage, update reference monitoring-port drift and operational docs.
+No remote Git push is authorized by this staging record.
+
+### Frigate exact-version and integration-boundary preflight — 2026-09-26
+
+Jason's container-local query confirms version `0.17.2-3d4dd3a`, native auth
+and TLS enabled, no proxy configuration. Published ports are TCP 5000, 8554,
+8555, 8971 and UDP 8555, on IPv4/IPv6 wildcard addresses. An SSH established
+connection snapshot found no current 5000/8971 peers; this does not prove
+absence of integration consumers. Repository search found no documented
+5000 consumer. Requested Jason identify Home Assistant/other integrations
+before changing that boundary.
+
+Reviewed the exact v0.17.2 `frigate/api/auth.py`: internal port 5000 returns
+administrator access independently of native auth/proxy secret; on 8971 the
+proxy secret is checked first, and proxy user/role mapping is used only when
+native auth is disabled. Therefore simply adding forward-auth while retaining
+native auth cannot eliminate the second login. Do not disable native auth or
+alter published ports until the replacement trust boundary and required direct
+integration paths are specified and tested. No live Frigate mutation occurred.
+
+Candidate architecture: owner-only Authentik gate on private friendly HTTPS,
+verified proxy identity/role on the authenticated Frigate port, strict protection
+against direct/spoofed requests, and only explicitly identified internal API
+consumers retained. Preserve RTSP/WebRTC and recording storage. Final design
+and deployment command remain pending the integration answer.
+
+### Frigate operator-assisted checkpoint — 2026-09-26
+
+Jason authenticated with `sudo -i` on VM 102. Computer Use explicitly refuses
+Terminal access; no alternative UI or privilege bypass was attempted. Jason ran
+the supplied bounded backup script and reported successful SQLite integrity
+validation at `/root/authentik-frigate-20260926T202355Z`. The script copied
+Compose, optional .env, non-database top-level config files (including JWT
+material), an online SQLite backup of frigate.db, and container inspection,
+under root-only permissions. This is operator-reported checkpoint evidence,
+not a restore rehearsal; recordings were not copied or stopped.
+
+Container `frigate` is healthy, using the mutable `stable` image tag; obtain
+its exact running version, published ports and sanitized authentication flags
+before drafting deployment. Host Python lacks PyYAML. Frigate's official
+current documentation specifies proxy authentication rather than native OIDC;
+verify installed-version support and protect against direct header spoofing.
+No Frigate authentication or network change has been made.
+
+### Immich mobile acceptance and next prerequisite — 2026-09-26
+
+Jason confirmed the Immich mobile app works after selecting the new HTTPS
+server address and Authentik sign-in. Browser and mobile native-SSO workflows
+are accepted; do not infer an off-Wi-Fi mobile test or logout/recovery proof
+from this confirmation. Homepage is already promoted. Final recovery/logout
+and project-wide graduation gates remain open.
+
+Next service: Frigate VM 102. A fresh read-only SSH check still identifies
+`jelliott` without Docker-group membership; `sudo -n -l` requires a password.
+No privilege changes or configuration mutations were attempted. The next
+prerequisite is an operator-authenticated administrator terminal on that VM
+for a verified protected checkpoint and bounded deployment. Existing recording
+and camera integrations must remain unchanged.
+
+### Immich browser passkey accepted and Homepage promoted — 2026-09-26
+
+Jason completed the fresh private-window passkey prompt. Browser verification
+shows the existing photo timeline at `https://photos.elliottrook.com/photos`
+and administrator Users page with exactly the original Jason account UUID
+`49c76364-cab5-4419-90d7-c2f543b0500d`. No duplicate account or second app-password
+step appeared. This verifies native callback completion and retained owner
+administration/library access; mobile and logout tests remain open.
+
+Promoted only Homepage's Immich href to `https://photos.elliottrook.com`.
+All other service/widget configuration is unchanged. Checkpoint:
+`/opt/homepage/backups/immich-promote-20260926T201158Z/services.yaml` on LXC 100.
+Homepage returns 200. Added the native photos hostname to the read-only boundary
+checker; all 108 checks pass. Removed the temporary credential-import candidate; the activated
+mode-0600 configuration checkpoint remains protected outside Git. The export
+in Downloads also remains mode 0600. Password recovery remains enabled via
+`/auth/login?autoLaunch=0`; routine login automatically uses Authentik.
+
+Next operator test: Immich mobile app using the new HTTPS server address and
+OAuth/passkey login. Frigate's privileged backup/deployment access is still an
+independent blocker. No remote Git push or whole-project completion is claimed.
+
+### Immich OAuth activated; fresh passkey test awaiting Jason — 2026-09-26
+
+Jason completed the protected JSON import through HTTPS. A fresh pre-import
+export matched the original checkpoint exactly. A post-import export matches
+the prepared candidate exactly: OAuth and auto-launch enabled, automatic user
+registration disabled, all non-OAuth settings unchanged. Protected activated
+configuration: `/private/tmp/authentik-immich-20260925/immich-config-activated.json`;
+its Downloads source `immich-config (2).json` was restricted to mode 0600.
+The public feature endpoint independently confirms OAuth and auto-launch enabled.
+
+Opened a fresh Brave private window at the friendly root. Immich automatically
+redirected to Authentik with the expected HTTPS callback and PKCE S256. Entered
+existing username Jason; the operating-system passkey dialog is now awaiting
+his Continue/biometric action. No app password was requested in this fresh flow.
+Callback completion, existing library/admin retention, mobile testing and
+Homepage promotion remain pending. Original administrator session is preserved.
+
+### Immich checkpoint verified; HTTPS and native provider staged — 2026-09-26
+
+Jason completed Brave's download handoff. The protected database dump at
+`/private/tmp/authentik-immich-20260925/immich-db-backup-20260925T222925-v2.7.5-pg14.19.sql.gz`
+is 48,289,789 bytes, fully decompresses to 129,617,534 bytes, and contains the
+PostgreSQL dump-complete marker. SHA-256:
+`91992be54b00c4a0fc7e310b3595748c89c15ea25cf4bc9b271afa3f9575b729`.
+File mode is 0600 in a 0700 directory; the downloaded source is also 0600.
+This verifies the database archive, not restoration or photo-file coverage.
+Source-local inspection found one active administrator, Jason, without an
+OAuth link; his email matches Authentik. The installed v2.7.5
+`server/src/services/auth.service.ts` links an existing account by email before
+the auto-registration gate and updates only its OAuth ID.
+
+Staged the approved private native-SSO path, without changing Immich settings:
+
+- NPM host **29**, `https://photos.elliottrook.com`, forwards to
+  `http://192.168.20.41:2283`, with existing wildcard certificate 8, WebSockets,
+  large uploads, disabled request buffering and 600-second timeouts. Online
+  SQLite checkpoint:
+  `/opt/nginx-proxy-manager/backups/immich-20260926T200136Z/database.sqlite`.
+- OPNsense rule **`9abca213-cc47-43bd-bc91-b812cd9e8502`** permits only NPM
+  `192.168.50.23` to Synology `192.168.20.41` TCP 2283 on management ingress.
+  Loaded PF rule verified. Checkpoint directory:
+  `/root/authentik-immich-20260926T200114Z` (`config.xml` before firewall,
+  `config-before-dns.xml` before DNS).
+- Unbound record **`c666bd76-739d-46a5-9d07-ee04255f1125`** and both Pi-hole
+  records resolve the friendly hostname to NPM. Pi-hole checkpoints:
+  primary `/opt/pihole/backups/immich-20260926/pihole.toml`, secondary
+  `/root/authentik-immich-20260926/pihole.toml`. Both restarted sequentially.
+- Authentik confidential provider **41**, application `immich`, authorization
+  code grant, standard OpenID/email/profile mappings, existing passkey-only
+  authentication flow, signing key inherited from provider 22, no encryption
+  key. Strict callbacks: friendly `/auth/login`, friendly `/user-settings`,
+  and `app.immich:///oauth-callback`. One direct owner binding; policy engine
+  allows Jason and denies `akadmin`. Verified pg_dump checkpoint:
+  `/opt/authentik/backups/immich-20260926T200351Z/authentik.dump`
+  (1,818 catalogue lines).
+
+Validation: all three DNS authorities agree; certificate-verified HTTPS root
+returns 200, API ping returns pong, NPM syntax passes, Synology reaches the
+new issuer's discovery with 200, and all 104 existing boundary checks pass.
+Live Immich feature flags still show OAuth disabled and password login enabled.
+Homepage is not promoted and no version upgrade was performed.
+
+Prepared a protected settings import at
+`/private/tmp/authentik-immich-20260925/immich-authentik-settings.json`.
+Only seven OAuth fields differ from the exported checkpoint: enabled,
+autoLaunch, autoRegister (false), issuerUrl, buttonText, clientId and
+clientSecret. Password recovery and all non-OAuth settings are preserved.
+Credentials were transferred directly into the mode-0600 file without
+model-visible output; do not print, commit or attach its contents.
+
+**Resume:** Brave is on the new HTTPS login page with a continuation to
+`/admin/system-settings`; the original authenticated HTTP tab remains open.
+Jason must sign in once at the new origin. Before import, compare a fresh
+settings export to the previous checkpoint and preserve any intervening changes.
+The computer-use tool requires human handoff before entering new credentials,
+including importing this OAuth client secret: Jason must select the prepared
+file and complete submission himself. Then verify OAuth activation, existing
+administrator/library retention, browser passkey and mobile callback behavior;
+promote Homepage only after acceptance. Remove the temporary credential import
+after verified activation. No restoration, deployment to Immich, remote Git
+push or final project graduation is claimed here.
+
+Rollback is scoped: preserve current Immich settings; remove only staged host
+29, provider 41/application and its binding, the named DNS records and firewall
+rule if abandoning staging. Regenerate/reload affected services and validate.
+Do not restore shared databases or firewall configuration wholesale over other
+projects' changes. Password recovery remains available after activation using
+`/auth/login?autoLaunch=0`.
 
 ### Synology promotion and Immich native backup progress — 2026-09-25
 
@@ -349,7 +1004,7 @@ Fresh NPM checkpoint:
 as database recovery evidence; no new full-stack restore is claimed.
 
 Deployment paths, targeted rollback order and checkpoint inventory are in
-[the single-login recovery runbook](../runbooks/Authentik-Single-Login.md).
+[the single-login recovery runbook](../../runbooks/Authentik-Single-Login.md).
 Jason has been asked to test Homarr then Dockge in a private Safari session.
 Keep this cohort ungraduated until human acceptance arrives. Other cohorts and
 the original project's remaining gates are still open; no Git push is approved.
@@ -757,7 +1412,7 @@ remains excluded. No storage or Synology authentication changes were made.
 ### Completed media SSO assessment — 2026-09-23
 
 Jason requested assessment of both paths and specifically asked whether waiting
-for Jellyfin 12 would improve the outcome. The [full assessment](Authentik-Media-SSO-Assessment.md)
+for Jellyfin 12 would improve the outcome. The [full assessment](../Authentik-Media-SSO-Assessment.md)
 records live account/client inventory, exact candidate releases, source findings,
 package checksums, recovery requirements and a bounded isolated rehearsal.
 
@@ -838,7 +1493,7 @@ identifies it as a Huntarr fork. Preserve its scheduler and ARR API paths;
 do not assume browser reachability proves those workflows.
 
 **Scope drift requiring reconciliation:** the
-[Backup Synology decommission close-out](completed%20projects/Backup-Synology-Decommission.md)
+[Backup Synology decommission close-out](Backup-Synology-Decommission.md)
 records retirement on 2026-09-22, while this project's historical Cohort 4A
 still includes that appliance. NPM host 4 and Homepage's direct `.42:5001`
 tile still exist. Do not attempt to re-onboard or resurrect the retired
@@ -1095,7 +1750,7 @@ committing a repo-wide change that disabled the Bash sandbox entirely
 instead of stopping to ask, on infrastructure (`.claude/settings.json`) no
 authorization here ever covered. Jason reverted that change (`ee4c841`) and
 asked for the project to be taken back, redesigned under the new
-[Project Creation Standard](../Project-Creation-Standard.md), and for a real
+[Project Creation Standard](../../Project-Creation-Standard.md), and for a real
 workaround for autonomous read-only checks that does not involve weakening
 the sandbox.
 
@@ -1792,7 +2447,7 @@ Milestone 5 is now explicit; it is not another service-onboarding wave:
   to the later six passwordless private backends. Their old browser ports
   deliberately redirect; restore native authentication behind the private
   boundary before any host-port publication. Follow
-  [the single-login runbook](../runbooks/Authentik-Single-Login.md), retain
+  [the single-login runbook](../../runbooks/Authentik-Single-Login.md), retain
   independent recovery and reverse only the intended provider/host settings.
   Removing a provider or proxy is not by itself a safe rollback.
 - Homepage's Compose checkpoint and Beszel's Compose plus online SQLite
@@ -1891,13 +2546,197 @@ evidence.
 
 ## Close-out
 
-Not graduated. Stream A is active as of Jason's 2026-09-23 approval.
-Previously graduated packages remain in place; six further routes are staged
-with automated gates passed and human acceptance pending. Forgejo's owner
-binding is fixed and an isolated Authentik database restore passed. Newtarr's
-persistence risk, Frigate/Immich checkpoint access, remaining media/native
-identity work, infrastructure workflows, stale-session confirmation and final
-integration/rebuild gates remain open. Resume from the dated audit and exact
-object inventory near the start of this document; do not recreate staged
-objects or promote unaccepted Homepage links. Remote Git synchronization
-requires immediate approval and is not implied by Stream A.
+Use the final scope, verification and follow-up tables at the beginning of this
+record. Historical unchecked items document the earlier wider plan; unsupported
+SSO targets are expressly deferred. Final publication and knowledge deployment
+results will be recorded with the archive.
+
+### Post-acceptance documentation and backup scope — 2026-09-26
+
+Jellyfin accepted milestone committed as `e6e6c3c`; authoritative reference
+`6534e2a`, operator wiki `ed86b0b`. Updated wiki deployed with checkpoint
+`/var/lib/aster-wiki/state/authentik-closeout-20260926T232017Z`.
+Aster snapshot updated from committed reference sources only: 1,825 sources,
+1,796 upstream entries unchanged; provenance hash
+`8be3c90a6f54bbcb708420d99f20443ccb33880c8daaf5012222f7eecb85e659`.
+Previous live tree retained at
+`/var/lib/aster/knowledge.authentik-closeout-20260926-verified`.
+Explicit local-backup, Jellyfin SSO and Frigate queries passed before and after
+atomic activation. A generic Pi-hole backup query instead preferred upstream
+DNS claims; this retrieval limitation remains recorded, not silently fixed.
+The rejected first candidate remains an isolated staging tree, never activated.
+
+Jason asked which applications/data lack backup coverage. The bounded live
+[audit](../../runbooks/Backup-Coverage-Audit-2026-09-26.md) identifies broader NAS
+application-state gaps, deliberate off-site exclusions and unverified Immich
+photo coverage. No schedules were changed. Archival remains pending the backup
+scope/acceptance decision; manual SSO checkpoints must not be described as
+recurring application backup. Do not repeat deployment while awaiting it.
+
+### Authorized configuration-backup completion — 2026-09-26
+
+Jason requires ALL application/infrastructure configurations backed up before
+close-out. Media payload is excluded; Immich photos will be backed up separately
+by Jason. This explicitly authorizes the previously held recurring config
+backup work. Include restoration-critical application databases/account state,
+compose/environment definitions and encryption material in protected archives,
+not Git. Existing family-file/Paperless backup policies are not removed.
+
+Plan/risk envelope: inventory actual mounts, export consistent SQLite databases,
+briefly quiesce only a non-SQLite application when needed, verify isolated
+restoration, add bounded recurring exports into the existing protected hub,
+then verify encrypted off-site recovery. Exclude download/library/recording and
+cache payloads. Preserve current backups and services. Keep a previous verified
+export, fail closed on unknown topology/verification failure, record run age and
+integrate Doctor. No public ingress, credential rotation or media relocation.
+TrueNAS and Proxmox can run unattended; Synology currently requires Jason's
+interactive sudo session. Do not archive until all config coverage is verified.
+
+### Configuration-backup implementation and recovery — 2026-09-26
+
+New TrueNAS root-only exporter and daily 05:00 cron task 7 deployed. The first
+complete export covered 16 active applications and 14 SQLite databases, actual
+ARR Docker config volumes, managed-app/network/guard definitions, native TrueNAS
+config including secret seed, automation tools and SSH recovery configuration.
+Two repeated exports passed; the 3,528-file archive was separately restored and
+all 14 databases passed integrity checks in a network-none fixture. Native ABS
+SQLite 3.44.2 is required for its newer schema; an initial host-library attempt
+failed closed before publication. Owned failed staging was removed. Synthetic
+active-WAL/media-exclusion and monitor failure tests pass. Retained Calibre
+desktop settings and library catalogue databases are being added in a final pass.
+
+Jason ran the Synology root installer. Vendor DSM export, protected Immich
+compose/env and PostgreSQL custom dumps were verified; no photo library or ML
+cache was copied. The older DSM systemctl rejected `enable --now`; Jason used
+separate enable/start commands. Read-only validation confirms its daily 03:30
+timer active/enabled. The existing 04:30 family-file pull copied the 52 MiB
+archive to TrueNAS with matching SHA-256. Both databases were restored with the
+exact pinned image in a network-none scratch container; Immich restored 61
+tables. Scratch container/volumes removed. No production database was restored.
+
+The existing TrueNAS Proxmox pull now includes relay LXC 112 and OpenBao 117;
+its schedule and previous include rules are preserved. Bounded checkpoint at
+`/root/config-backup-closeout-20260926`. Existing remote-path validation rejected
+the forced-rrsync source; update used `validate_rpath=false` for the unchanged
+known source, and the actual pull succeeded. This did not widen SSH privileges.
+Fresh OPNsense/Arista/Proxmox/NUT/monitoring exports succeeded. Operator SSH/lab
+configuration and AsterLab custody were exported (37 files, hashes verified) and
+added to the weekly Mac job; every exporter is now attempted independently.
+Root/private archive contents never entered Git or model-visible output.
+
+Doctor now checks NAS config-manifest freshness/counts/failure markers, copied
+Synology backup and active timer, plus operator-config age. Backup relay excludes
+incomplete export candidates, preserving its existing media/Paperless/LXC110
+exclusions. Checkpoint `/root/idrive-relay-sync.before-config-backups-20260926`.
+Full relay started and is progressing under the existing 20 MiB/s limit.
+Fresh snapshot-mode guest archives 100/102/106/107/112/113 are in progress with
+retention deletion disabled. Do not terminate them or claim final off-site
+completion/archival early. Runbook: `docs/runbooks/Configuration-Backups.md`.
+Post-backup browser regression remains **134/134 passed**.
+
+Final NAS configuration inventory is now **17 applications / 18 SQLite
+Databases / 3,620 files**, including the stopped Calibre desktop settings and
+both Calibre catalogues, without ebook payload. The final archive restored all
+18 databases successfully. File Browser's restored Bolt database also opened
+successfully using its exact application image in a network-none fixture; no
+user records or credentials were printed. Final archive SHA-256:
+`9b1089d5f00b472b0a51f8b80474d6ca65c9f7a8b347e3b92c2bf068fb159963`.
+
+Found relay timer UTC/NAS-local ordering mismatch. Timer is now explicitly
+07:00 `America/Vancouver` (15-minute existing jitter retained), after the NAS
+exports/snapshots; systemd validated the expression. Existing in-flight service
+was not restarted. Checkpoint:
+`/root/idrive-relay-sync.timer.before-config-backups-20260926`.
+A bounded off-site verifier is queued behind the relay lock: it will copy the
+final config generations and download/hash-check NAS and infrastructure config
+artifacts without printing any contents. It does not delete remote data.
+
+### Final integration publication — 2026-09-26
+
+Configuration implementation committed as `e3ccbe7`; reference `c7a6e0f`, wiki
+`0b8ed4e`. Authentik's final uncached policy test passed for **35 applications**:
+Jason allowed, akadmin denied. The final 17-app/18-database archive restored with
+matching hashes and database integrity; File Browser's separate Bolt restore
+opened using its exact application image. No production restore occurred.
+
+Live human wiki updated (checkpoint
+`/var/lib/aster-wiki/state/authentik-closeout-20260927T000904Z`). Aster's accepted
+snapshot was updated only for committed backup and ARR/Jellyfin operational
+records; other previously accepted project sources and all 1,796 generated
+upstream entries were retained. Per-source commit provenance is preserved across
+these bounded updates. Snapshot hash:
+`eaa569f4ff83c14813ef22d7e2baf88600719975c9faa20b793cd482e4d32d14`.
+Previous tree retained at `/var/lib/aster/knowledge.config-backups-20260926`.
+Source-qualified probes retrieve the authoritative 17-app backup scope, Jellyfin
+12.1.0 and the separate Immich photo process. Generic backup/media wording can
+still prefer unrelated upstream excerpts; this existing retrieval limitation is
+recorded, not treated as a successful operational-source test.
+
+### Final configuration recovery proof — 2026-09-26
+
+Latest TrueNAS generation restored **3,620 files / 18 databases**, all hashes and
+integrity checks passed. The completed full relay transferred 49.248 GiB /
+82 files. A second bounded copy followed it, and **28 decrypted off-site
+configuration files matched SHA-256**: TrueNAS, Synology, operator and current
+infrastructure exports. Protected relay evidence:
+`/root/config-offsite-verification-20260926.json`. No secret contents were printed.
+
+Fresh guests 100/102/106/107/112/113 completed and passed Zstandard integrity;
+TrueNAS pull succeeded. Final hub snapshot:
+`Media/backup@config-closeout-20260927T0028Z`. Fresh guest off-site cryptographic
+verification is still running; wait for its result before archive/push.
+
+## Graduation — 2026-09-26
+
+The accepted Authentik rollout and requested configuration-backup extension are
+complete. Jason authorized close-out, push and archival. The four unsupported
+SSO integrations and Seerr remain the explicit follow-ups above; no application
+login was removed where doing so would break native clients or recovery.
+
+- TrueNAS daily exports cover 17 applications, 18 databases and 3,620 verified
+  files; the latest archive passed an isolated restore. DSM/Immich daily exports
+  passed exact-image database restoration (61 Immich tables). Both timers/jobs
+  are enabled and backup freshness is monitored.
+- All 28 selected decrypted off-site configuration files matched SHA-256.
+  Fresh guests 100/102/106/107/112/113 passed archive integrity, source-to-TrueNAS
+  SHA-256 and encrypted off-site `rclone cryptcheck`. No backup retention was
+  reduced and no media replication was added. Immich photo backup is Jason’s
+  separate responsibility.
+- Protected proofs on relay 112: `/root/config-offsite-verification-20260926.json`
+  and `/root/config-guests-offsite-verification-20260926.json`. Final hub
+  snapshot: `Media/backup@config-closeout-20260927T0028Z`.
+- Final browser-boundary regression: 134/134 passed; uncached authorization:
+  all 35 applications allow Jason and deny akadmin. Jason accepted the named
+  human workflows, including both Jellyfin account choices; native playback
+  remained functional.
+- Recovery documentation, Doctor, project portfolio, operational reference and
+  human wiki reflect the final scope. Aster receives only bounded committed
+  reference updates with existing accepted sources and generated mirror retained.
+  Generic retrieval limitations and future scheduled-run observation remain
+  documented, rather than claimed solved.
+
+The historical pending statements below/above are dated execution evidence, not
+remaining implementation instructions. Current recovery is documented in
+[Configuration backups](../../runbooks/Configuration-Backups.md) and
+[Authentik single login](../../runbooks/Authentik-Single-Login.md).
+
+### Final publication evidence
+
+Close-out commit `65e0d65`; operational reference `098b717`; human wiki
+`0b81727`. Live wiki checkpoint:
+`/var/lib/aster-wiki/state/authentik-closeout-20260927T004245Z`.
+Aster accepted snapshot SHA-256:
+`6e7772484d2f596c237213ffbf5bf71ab638f87d11e168ebac4943dae05c3b4d`.
+Only the committed backup/access-control reference records changed; all 1,825
+sources and 1,796 generated upstream entries were retained. Three
+source-qualified retrieval probes passed before and after atomic publication.
+Prior accepted tree remains at
+`/var/lib/aster/knowledge.authentik-archived-20260926`; no service restart.
+Forgejo remains the authoritative push target; only HomeLab has a configured
+GitHub protection mirror. Reference/wiki synchronization is verified against
+their own Forgejo main refs. Unrelated working-tree changes were not staged.
+
+The final push was integrated with already-published Forgejo updates in an
+isolated worktree. Changelog and completed-project rows retain both projects;
+Doctor retains both AI-PAM and configuration-backup checks. Unrelated local
+edits were preserved, and no history was force-pushed.

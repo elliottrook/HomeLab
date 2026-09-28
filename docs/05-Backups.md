@@ -1,5 +1,20 @@
 # Backups
 
+## Configuration coverage — updated 2026-09-26
+
+Jason requires all active application/infrastructure configurations protected.
+Daily TrueNAS and Synology/Immich configuration exports are now installed and
+verified, including application databases and recovery-critical credentials.
+Bulk media is excluded; Immich photo backup is Jason’s separate process.
+The [configuration-backup runbook](runbooks/Configuration-Backups.md) supersedes
+older manual-only/gap statements below and gives exact scope and restore proof.
+Relay 112 and OpenBao 117 are now included in the TrueNAS guest pull. The weekly
+Mac job also protects operator lab settings and attempts all exporters despite
+individual failures. Existing family-file and Paperless privacy scopes remain.
+Configuration recovery now includes 28 decrypted off-site files with matching
+SHA-256. Six refreshed guest archives also passed source/TrueNAS SHA-256 and
+encrypted off-site cryptographic checks; close-out is complete.
+
 Back up OPNsense, Proxmox, UniFi, Arista, TrueNAS and Synology configurations.
 
 ## Handling rules
@@ -14,7 +29,7 @@ Back up OPNsense, Proxmox, UniFi, Arista, TrueNAS and Synology configurations.
 
 **Automated 2026-09-10.** These five Mac-run config exports (`scripts/backup/{opnsense,arista,proxmox,nut,observability}.sh`) previously had no scheduled trigger at all — only the daily 08:15 Doctor/report job checked their age and alerted past 48h, so they only refreshed when someone ran `lab backup all` by hand (which is exactly why they'd gone stale before). A weekly launchd job (`~/Library/LaunchAgents/ca.yampy.homelab-weekly-backup.plist`, Sunday 06:00, before the daily report) now runs all five directly in sequence. None of the five needed any change to run unattended — they already used key-based SSH/`scp` and (for NUT) `sudo -n` with no password prompts. Verified with a real manual trigger (`launchctl start ca.yampy.homelab-weekly-backup`): all five completed successfully, no stderr output. Output logs: `~/lab/monitoring-state/reports/weekly-backup-{output,error}.log`.
 
-**Updated 2026-09-23:** the weekly job's chain now runs seven exporters. `video-archiver.sh` was already in it, and `jellyfin-integrity.sh` has been appended last, after Doctor warned that the Jellyfin integrity config backup (192h threshold) had gone stale. Its exporter existed, but no schedule or `lab backup all` step ever called it. `lab backup all` and `lab backup jellyfin-integrity` include it too. The chain uses `&&`, so a failure stops later exporters. That is why the Jellyfin exporter is last, and Doctor's per-target age checks still surface any gap.
+**Updated 2026-09-23:** the weekly job's chain now runs seven exporters. `video-archiver.sh` was already in it, and `jellyfin-integrity.sh` has been appended last, after Doctor warned that the Jellyfin integrity config backup (192h threshold) had gone stale. Its exporter existed, but no schedule or `lab backup all` step ever called it. `lab backup all` and `lab backup jellyfin-integrity` include it too. That historical chain used `&&` and stopped on failure. **Updated 2026-09-26:** `weekly-configs.sh` now attempts all eight exporters, including operator configuration, and exits nonzero if any fail; the Sunday 06:00 schedule is preserved.
 
 ## Verified 2026-08-08 recovery set
 
@@ -332,33 +347,14 @@ scheduled job for this today.
 
 ## Jellyfin
 
-Jellyfin runs on TrueNAS (`192.168.20.40`) as a Docker Compose service
-(container name `6f532232719b…`, not a TrueNAS catalog app). Media is a
-host bind mount of `/mnt/Media/data` at `/media` inside the container — that
-payload is intentionally excluded from encrypted off-site backup, per the
-existing media-exclusion policy above. Separately, Jellyfin's own
-application database (users, watch state, playlists, collections, plugin
-configuration) lives in a Docker-managed named volume under `Media/ix-apps`,
-which is a much smaller, non-replaceable dataset distinct from the media
-payload.
+Updated 2026-09-26: Jellyfin 12.1.0 uses `/mnt/Media/appdata/jellyfin` as
+`/config`. The daily media-free exporter now protects its database, accounts,
+watch state, playlists, collections, plugin configuration and SSO encryption key.
+The isolated restore/integrity proof passed. The actual movie/TV/music payload
+remains excluded. See the configuration-backup runbook for retention, encryption,
+monitoring and the final off-site verification status.
 
-**Current coverage is incomplete.** Only three manual, one-off ZFS
-snapshots of `Media/ix-apps` exist: two taken as pre-change checkpoints
-during the Plex-to-Jellyfin migration project
-(`pre-plex-migration-20260830-210033` and
-`pre-boxsets-plugin-20260901-100925` — see
-[docs/projects/completed projects/Plex-to-Jellyfin-Media-Migration.md](<projects/completed projects/Plex-to-Jellyfin-Media-Migration.md>)),
-plus one general point-in-time checkpoint (`config-backup-20260902-004225`,
-2026-09-01) taken via TrueNAS's `zfs.snapshot.create` middleware API (the
-`truenas_admin` account lacks direct `zfs snapshot` shell permission — use
-the API method instead). There is no recurring/scheduled snapshot task for
-`Media/ix-apps`, and
-neither snapshot is mirrored to the Backup Synology or the encrypted
-off-site IDrive e2 task — unlike every other application covered in this
-document (Home Assistant, Authentik, Homepage, Pi-hole, etc.), Jellyfin has
-no automated backup path at all today. This is a real gap, not a documented
-exclusion: the excluded-by-policy item is the media payload, not the
-application database.
+Historical incidents that motivated recurring protection:
 
 This matters concretely: on 2026-09-01, a Jellyfin built-in maintenance
 task (`Clean up collections and playlists`, triggered on every server
@@ -388,15 +384,9 @@ a deleted film may now leave a stale entry in a collection, against no
 longer losing ~70 real collections on every restart. To reverse, restore
 the trigger with `[{"Type": "StartupTrigger"}]`.
 
-**Recommended follow-up, not yet actioned:** add `Media/ix-apps` (or
-specifically Jellyfin's named config volume within it) to a recurring
-snapshot schedule and to the TrueNAS backup hub / encrypted off-site
-pipeline, following the same pattern already used for Home Assistant and
-the other applications in this document. This needs an explicit decision
-on schedule and mechanism before implementation — not made unilaterally as
-part of documenting current state. (Note: since this data already lives
-*on* TrueNAS, "recurring snapshot" is the relevant local-protection piece —
-the off-site relay would need this dataset added to its scope separately.)
+The earlier recurring-config-backup follow-up was implemented on 2026-09-26
+using bounded application exports, rather than replicating the entire Docker
+image/media dataset. This preserves private recoverable state without bulk media.
 
 ## Prometheus / Grafana observability
 
@@ -687,8 +677,8 @@ configuration is separately documented or exported.
 | Proxmox host | Doctor checks guests, storage, memory and swap; Beszel supplies history; TLS expiry and configuration drift are monitored | Host configuration export plus retained guest archives on local backup storage and the TrueNAS backup hub | Multiple isolated guest restores prove archive usability; complete bare-metal host recovery remains a documented manual procedure |
 | Docker LXC 100 | Doctor checks SSH and hosted service endpoints; Beszel monitors the host and containers | Current LXC archive retained locally and checksum-mirrored to TrueNAS | Homepage application recovery was tested independently; Proxmox LXC recovery was validated using an isolated disposable guest |
 | UniFi LXC 101 | Doctor checks controller reachability | Current LXC archive plus UniFi application backups, mirrored off-host | Isolated LXC restoration and recovered UniFi database inspection succeeded |
-| TrueNAS | Doctor checks pools, NFS, bond health and management access; certificate expiry is monitored | System configuration export (`config.save`, via CLI/API or the guided browser flow) is included in the protected infrastructure set; ZFS protects local media integrity | Configuration recovery is documented; media is intentionally excluded from encrypted off-site backup because of size and replaceability. Export is currently manual/one-off, not scheduled |
-| Jellyfin (on TrueNAS) | No dedicated Doctor check yet | **Incomplete** — only three manual, one-off `Media/ix-apps` snapshots exist (two migration-project checkpoints plus one general checkpoint, 2026-09-01); no recurring snapshot schedule and no off-site relay coverage for the application database (playlists, collections, users, watch state) | Not tested; see the "Jellyfin" section above for the 2026-09-01 incident that exposed this gap and the recommended follow-up |
+| TrueNAS | Doctor checks pools, NFS, bond health and management access; certificate expiry is monitored | System configuration export (`config.save`, via CLI/API or the guided browser flow) is included in the protected infrastructure set; ZFS protects local media integrity | Configuration recovery is documented; media is intentionally excluded from encrypted off-site backup because of size and replaceability. Native config plus secret seed now exported daily; see Configuration-Backups runbook |
+| Jellyfin (on TrueNAS) | Doctor checks the daily config export, manifest age/counts and failure marker | Daily database/configuration/key export into the snapshot-protected encrypted-relay hub; media excluded | Eighteen application databases including Jellyfin restored and integrity-checked; final off-site result recorded in Configuration-Backups |
 | Pi-hole primary and secondary | Doctor performs public, local and blocked-domain DNS tests through both resolvers | Primary inherits Docker LXC protection; secondary inherits TrueNAS application/configuration protection; Teleporter exports are documented | Functional recovery validation is performed through the redundant resolver pair; either resolver can carry DNS while the other is rebuilt |
 | Frigate VM 102 | Doctor checks VM/service state, NFS mount and recording freshness; Beszel tracks host metrics | Current VM archive and private checksum-verified Frigate configuration backup, mirrored off-host | VM-level recovery is available; recordings remain intentionally excluded because they are high-volume and nonessential to infrastructure recovery |
 | Home Assistant VM 103 | Doctor checks Core and backup age, plus `check_home_assistant_backup_truenas` for the native-backup leg | Encrypted native backups to local storage and a dedicated TrueNAS SMB share (redirected from the Backup Synology 2026-09-10) plus current mirrored VM archives | Isolated VM 903 restored and booted HAOS, Supervisor and Core successfully; the TrueNAS redirect was verified with a real triggered backup landing correctly on both locations |

@@ -33,6 +33,13 @@ purpose-specific board** for media app management (a `Media Manager` tile
 was added under Homepage's `Media Automation` group linking to it), which
 Jason is customizing by hand.
 
+For AI-PAM, the existing **Aster Companion** tile is the only supported human
+dashboard entry point. Do not add direct Homepage links to OpenBao, the local
+broker, approval socket or private MCP/Doctor gateways. Those are enforcement
+components rather than operator web applications; their health and drift are
+reported through HomeLab Doctor. NetBox remains authoritative for their host
+guests and addresses.
+
 - Homarr URL: `http://192.168.20.20:7575`
 - Homarr config/data: `/opt/homarr/appdata` (bind-mounted), compose file at
   `/opt/homarr/compose.yaml`, secrets (admin password, Beszel read-only
@@ -914,6 +921,10 @@ through the already-running Jellyfin container, then relocates them into
 - `lab doctor`'s `check_video_archiver` reads the latest log and names any
   failed title by title, not just a count; warns if no run has landed in 48+
   hours.
+  It also reports Jellyfin scan failures, including a run whose replacements all
+  succeeded. The September 28 repair corrects compaction's Matroska audio bitrate
+  budgeting and uses Jellyfin 12's supported authorization header with the existing
+  key; [repair and recovery evidence](runbooks/Video-Archiver-Repair-2026-09-28.md).
 - Only the source's own flagged-default audio track is kept (or first English,
   or first stream) — not every audio stream — and only English-tagged
   subtitle tracks; both non-English audio and subtitles are dropped rather
@@ -963,3 +974,20 @@ minute, importing all 46 titles with cover art and metadata auto-matched.
 Neither app's TrueNAS-side container config, mounts, or the double-mount on
 Audiobookshelf were otherwise touched — only each app's own library-path
 setting was changed, per the task's scope.
+
+## Newtarr persistence — 2026-09-26
+
+TrueNAS service `newtarr` belongs to Dockge Compose project `new_arr` at
+`/mnt/Media/appdata/dockge/new_arr/compose.yaml`. Its real configuration path
+is `/config`, now correctly backed by `/mnt/Media/appdata/newtarr`. Do not
+change this mount back to `/appdata`. The repair preserved image v1.0.0, all
+settings, ports and networks. Sonarr, Radarr and Lidarr are now connected via
+internal Docker service addresses. Missing-item and quality-upgrade searches
+are enabled at one of each per 15-minute cycle, monitored-only, hourly cap 20.
+
+Protected recovery checkpoint: `/root/newtarr-persistence-20260926T212721Z`.
+The retained `local/newtarr-recovery:20260926t212721z` image and exported image
+archive include the previous container writable layer; preserve them until
+recovery coverage is graduated. See the Authentik rollout project for hashes
+and exact validation. Owner-only Authentik browser access, human Settings UI
+acceptance and Homepage promotion completed on 2026-09-26.

@@ -513,6 +513,15 @@ check_aster_lab_operations() {
     fi
 }
 
+check_ai_pam() {
+    local state
+    if state="$(python3 "$REPO/scripts/check-ai-pam.py" 2>/dev/null)"; then
+        pass "$state"
+    else
+        fail "${state:-AI-PAM health could not be verified}"
+    fi
+}
+
 # Authentication egress is a distinct dependency: /health alone cannot prove it.
 check_aster_notifications() {
     local state
@@ -1228,6 +1237,7 @@ python3 -c "
 import json
 summary = None
 errors = []
+scan_failures = 0
 for line in open('$latest'):
     line = line.strip()
     if not line:
@@ -1235,9 +1245,13 @@ for line in open('$latest'):
     d = json.loads(line)
     if d.get('event') == 'summary':
         summary = d
-    elif d.get('event') == 'error':
-        title = (d.get('title') or '?').replace('|||', '/')
-        reason = (d.get('error') or '').replace('|||', '/').replace(chr(10), ' ').strip()
+    elif d.get('event') == 'jellyfin_scan_failed':
+        scan_failures += 1
+        reason = (d.get('error') or 'library scan failed').replace('|||', '/').replace(chr(10), ' ').strip()
+        errors.append(('Jellyfin scan', reason[:160]))
+    elif d.get('event') == 'error' or (d.get('event') == 'file' and d.get('status') == 'failed'):
+        title = (d.get('title') or d.get('path', '').rsplit('/', 1)[-1] or '?').replace('|||', '/')
+        reason = (d.get('error') or d.get('reason') or '').replace('|||', '/').replace(chr(10), ' ').strip()
         # Keep the notification line scannable -- the full reason (and any
         # ISO-handling instructions) is always in the log file itself.
         reason_short = (reason[:77] + '...') if len(reason) > 80 else reason
@@ -1245,11 +1259,11 @@ for line in open('$latest'):
 if summary is None:
     print('no_summary=1')
 else:
-    print(f'dry_run={1 if summary.get(\"dry_run\") else 0}')
-    print(f'found={summary.get(\"total_candidates_found\", 0)}')
+    print(f'dry_run={1 if summary.get(\"dry_run\", summary.get(\"mode\") != \"EXECUTE\") else 0}')
+    print(f'found={summary.get(\"total_candidates_found\", summary.get(\"considered\", 0))}')
     print(f'processed={summary.get(\"processed\", 0)}')
-    print(f'succeeded={summary.get(\"succeeded\", 0)}')
-    print(f'failed={summary.get(\"failed\", 0)}')
+    print(f'succeeded={summary.get(\"succeeded\", summary.get(\"replaced\", 0))}')
+    print(f'failed={summary.get(\"failed\", 0) + max(scan_failures, summary.get(\"scan_failed\", 0))}')
     for title, reason in errors:
         print(f'error_entry={title}|||{reason}')
 "
@@ -1292,7 +1306,9 @@ REMOTE
     if [[ "$failed" =~ ^[0-9]+$ ]] && (( failed > 0 )); then
         local formatted=()
         local entry title reason
-        for entry in "${error_entries[@]}"; do
+        # Bash 3.2 (macOS) treats an empty array as unset under `set -u`.
+        # Some archiver runs report failures only in the summary.
+        for entry in ${error_entries[@]+"${error_entries[@]}"}; do
             title="${entry%%|||*}"
             reason="${entry#*|||}"
             if [[ -n "$reason" ]]; then
@@ -1302,8 +1318,11 @@ REMOTE
             fi
         done
         local list
-        list="$(printf '; %s' "${formatted[@]}")"
-        list="${list:2}"
+        list=""
+        if (( ${#formatted[@]} > 0 )); then
+            list="$(printf '; %s' "${formatted[@]}")"
+            list="${list:2}"
+        fi
         fail "video-archiver: ${failed} failure(s) on last run (${age_hours}h ago, ${mode_label}) — ${list:-see log}: ${log_path}"
     elif (( age_hours > max_age_hours )); then
         warn "video-archiver last run ${age_hours} hour(s) ago (expected ~daily, Mon-Sat)"
@@ -1988,6 +2007,7 @@ check_aster
 check_aster_speech
 check_aster_notifications
 check_aster_lab_operations
+check_ai_pam
 check_xe_reset
 check_aster_wiki
 check_netbox
@@ -2019,6 +2039,7 @@ check_backup_age "NUT" "$BACKUP_ROOT/nut" 48
 check_backup_age "Observability" "$BACKUP_ROOT/observability" 48
 check_backup_age "Video Archiver config" "$BACKUP_ROOT/video-archiver" 192
 check_backup_age "Jellyfin Integrity" "$BACKUP_ROOT/jellyfin-integrity" 192
+check_backup_age "Operator lab config" "$BACKUP_ROOT/operator-configs" 192
 check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
@@ -2030,6 +2051,11 @@ check_proxmox_guest_backup_age "Aster Wiki LXC 113" 113 30 lxc
 check_proxmox_guest_backup_age "Aster Speech LXC 116" 116 30 lxc
 check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Media/backup/homelab-proxmox-guests
 check_idrive_relay
+if config_backup_result="$(python3 "$REPO/scripts/check-configuration-backups.py")"; then
+    pass "$config_backup_result"
+else
+    fail "$config_backup_result"
+fi
 check_backup_redesign_truenas
 check_home_assistant_backup_truenas
 

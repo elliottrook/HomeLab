@@ -1,0 +1,13 @@
+schema_version=1.0.0
+recorded_at=2026-09-25T23:00:00-07:00
+source_pid=441
+gpu_driver=xe
+gpu_temp_pkg_millic=58000
+gpu_temp_vram_millic=60000
+vram_resident_kib=13762772
+gtt_resident_kib=1017304
+ram_total_kib=16777216
+ram_available_kib=7547627
+cpu_affinity=3,9,19,20
+gpu_frequency_mhz=unavailable
+gpu_power_w=unavailable

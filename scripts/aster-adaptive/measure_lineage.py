@@ -21,7 +21,7 @@ def source_digest(path):
 async def measure(root):
     script_root = Path(__file__).parent
     sources = {name:source_digest(script_root/name) for name in (
-        'measure_lineage.py', 'offline_baseline.py', 'contracts.py', 'fixtures.py', 'evidence_store.py')}
+        'measure_lineage.py', 'offline_baseline.py', 'contracts.py', 'fixtures.py', 'evidence_store.py', 'source_policy.py', 'source-definition.json')}
     adapter = FixtureAdapter()
     dataset = Dataset(dataset_id='m4-lineage-four-cases', cases=tuple(dict(
         case_id=name, family_id=name, input_digest=digest(prompt),
@@ -56,7 +56,7 @@ async def measure(root):
             restored.verify(expected_head=head)
         finally:
             restored.close()
-        return dict(schema_version='lineage-proof.v1', data_class='synthetic',
+        return dict(schema_version='lineage-proof.v1',source_provenance=adapter.source_provenance, data_class='synthetic',
             experiment_id=experiment_id, implementation_digests=sources,
             preregistered_head=before, final_head=head, backup_head=backup_head,
             restore_verified=True, cases_passed=passed, case_count=len(CASES),

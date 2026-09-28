@@ -215,6 +215,7 @@ def main(argv: list[str] | None = None) -> int:
         result = {
             "schema_version": "1.0.0", "fixture": case["name"],
             "prompt_sha256": harness.sha256_bytes(harness.expand_prompt(case).encode()),
+            "health_passed": True,
             "samples": samples,
         }
         digest = write_immutable(args.output, result)

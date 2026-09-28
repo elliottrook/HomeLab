@@ -88,9 +88,9 @@ one design.
   - [TrueNAS DIY SAS expansion](TrueNAS-DIY-SAS-Expansion.md) owns storage
     capacity and drive choice. Note: three of six spare ST4000NM0023 drives
     failed long self-tests, a finding handed to that project.
-  - [AI-PAM credential broker](homelab-credential-broker.md) owns credential
+  - [AI-PAM credential broker](completed%20projects/homelab-credential-broker.md) owns credential
     custody.
-  - [Authentik rollout](Authentik-Rollout.md) owns SSO policy.
+  - [Authentik rollout](completed%20projects/Authentik-Rollout.md) owns SSO policy.
 
 ## Scope and exclusions
 

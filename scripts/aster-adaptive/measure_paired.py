@@ -20,7 +20,7 @@ async def measure(root):
     scripts = Path(__file__).parent
     sources = {name:source_digest(scripts/name) for name in (
         'measure_paired.py','measure_lineage.py','offline_baseline.py','contracts.py',
-        'fixtures.py','evidence_store.py','paired_evidence.py')}
+        'fixtures.py','evidence_store.py','paired_evidence.py','source_policy.py','source-definition.json')}
     adapter, baseline = FixtureAdapter(), FixtureAdapter()
     dataset = Dataset(dataset_id='m4-paired-four-cases',cases=tuple(dict(
         case_id=name,family_id=name,input_digest=digest(prompt),
@@ -83,7 +83,7 @@ async def measure(root):
             restored.verify(expected_head=head)
         finally:
             restored.close()
-        return dict(schema_version='paired-proof.v1',data_class='synthetic',implementation_digests=sources,
+        return dict(schema_version='paired-proof.v1',source_provenance=adapter.source_provenance,data_class='synthetic',implementation_digests=sources,
             protocol_head=plan_head,final_head=head,backup_head=backup_head,restore_verified=True,
             totals=totals,case_details=details,events=store.records(),limits=[
                 'Four authored synthetic families; repetitions are not independent quality examples',

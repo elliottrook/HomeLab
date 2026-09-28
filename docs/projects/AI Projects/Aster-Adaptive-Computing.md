@@ -267,10 +267,29 @@ ownership, retention, checkpoint custody and recovery boundaries. A separate off
 verification command reconstructs 164 saved events and rejects a forged summary;
 **56 adaptive tests pass**. See [review-preparation evidence](evidence/M4-review-checkpoint.md).
 M4 remains open for actual independent review/custody and accepted operational design.
-Next safe independent work is M1's review packet and read-only/local-test reconciliation
-with the AI-PAM candidate; preserve that checkout's edits. M3 representative/model
-gates remain open. No production changes or installs occurred. The newer review work
-is local; a further push needs explicit authorization.
+Read-only reconciliation now confirms AI-PAM's integrated Stage1/M6 baseline at
+`f25df1812b7ef339acb9cb59339c704a4032ea26`. Live core/transport/approval hashes match
+the deployment record. The merged checkout passes 76 broker, 10 approval-bridge and
+56 adaptive tests. See [M1 current review packet](evidence/M1-current-review-packet.md).
+The earlier all-at-once candidate is superseded, not awaiting deployment. Stage2
+still requires actual assurance provenance and a process-trust decision. A separate
+unpublished M2/Stage2 continuation was observed and left untouched. No production
+mutation occurred in this reconciliation; this merge and review work remain local.
+A further push needs explicit authorization.
+
+### Current contract reconciliation — 2026-09-26
+
+The two offline contract candidates have been compared using pinned snapshots:
+56 harness tests, 29 selector tests and 31 portable vectors pass. Ten cross-profile
+samples are rejected in both directions; four version strings name incompatible
+formats. See [contract mapping and decision](evidence/M2-contract-reconciliation.md).
+Retain both scoped tools; no automatic converter or connected adoption is approved.
+Independent expected-source pinning is now implemented before payload/chat-loop
+compilation. All 62 adaptive tests pass; four lineage cases and eight tool-loop
+cases passed with restore/provenance checks. See the
+[source-pin checkpoint](evidence/M2-source-pin-checkpoint.md). A read-only Forgejo check found newer `2c71d6b`; recheck/reconcile
+before any later integration. Stage2 and M4 review gates remain open. No push or
+production mutation occurred in this comparison.
 
 ## Consolidated requirements and dependency ownership
 
@@ -1025,3 +1044,20 @@ now binds a blank form/schema, syntax-only validator, registry, custody design a
 empty mode-`0700` scratch directory and byte-identical empty bundle. Collection
 dates remain unset until the first human request. Evaluation remains a later
 separate gate.
+### Historical integrated checkpoint — 2026-09-26
+
+Source-pin work through `69c2a7e` is reconciled with Forgejo `616a5af`. The incoming
+retrieval-only Aster change was reviewed explicitly; all eight extracted definitions
+are unchanged, and both offline source pins were revised with retained evidence.
+102 adaptive + 29 selector + 82 broker + 170 Aster tests pass. The 164-event historical
+M4 proof still verifies. See [integration evidence](evidence/2026-09-26-integration.md).
+This supersedes earlier notes calling the selector continuation unpublished or
+AI-PAM an unfinished M6 candidate. No production or collection change occurred here.
+Jason requested publication; verify the accepted commit and automatic mirror.
+
+Next gates are the separately authorized S0 collection/retention step, actual M4
+human review/independent custody, and Stage2 real-session assurance/process trust.
+Implementation-only labeling approval does not cover collection. Consult newer
+approval records before proceeding; do not manufacture human evidence or repeat
+synthetic benchmarks in place of these gates. This checkpoint is retained as
+evidence only; the 2026-09-28 controlling resume instruction above supersedes it.

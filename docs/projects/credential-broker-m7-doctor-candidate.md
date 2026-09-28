@@ -2,7 +2,7 @@
 
 > Status: local candidate only — not authorized or deployed
 >
-> Date: 2026-09-25 | Parent: [HomeLab Credential Broker](homelab-credential-broker.md)
+> Date: 2026-09-25 | Parent: [HomeLab Credential Broker](completed%20projects/homelab-credential-broker.md)
 
 ## Decision
 

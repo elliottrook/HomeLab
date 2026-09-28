@@ -1,6 +1,6 @@
 # Project: AI Privileged Access Management (AI-PAM) and Credential Broker
 
-> Status: active — Stream A; M0–M6 complete
+> Status: Complete — graduated and archived 2026-09-26
 >
 > Owner: Jason
 >
@@ -8,7 +8,7 @@
 >
 > Started: 2026-09-21
 >
-> Completed: —
+> Completed: 2026-09-26
 >
 > Stream: **A (Autonomous)** — Jason explicitly authorized Stream A on
 > 2026-09-21 for the scope, exclusions, risk assessment, gates and
@@ -502,39 +502,86 @@ For each target service create least-privilege `ai-*` identity where supported, 
 
 The first candidate reuses the existing Lab Operations worker without exposing
 its bearer credential or any backup target. See
-[M7 Doctor candidate](credential-broker-m7-doctor-candidate.md).
+[M7 Doctor candidate](../credential-broker-m7-doctor-candidate.md).
 
 ### M8 — charter/service-onboarding integration
 
-- [ ] Adopt AI Integration Gate in `docs/Project-Creation-Standard.md`.
-- [ ] Update service onboarding docs.
-- [ ] Add AI-PAM service-registry template.
-- [ ] Update architecture/runbooks/NetBox/Homepage as authoritative.
-- [ ] Add Doctor/drift checks.
-- [ ] Bring the native macOS Aster Companion app to functional parity with
+- [x] Adopt AI Integration Gate in `docs/Project-Creation-Standard.md`.
+- [x] Update service onboarding docs.
+- [x] Add AI-PAM service-registry template.
+- [x] Update architecture/runbooks/NetBox/Homepage as authoritative.
+- [x] Add Doctor/drift checks.
+- [x] Bring the native macOS Aster Companion app to functional parity with
   the web AI-PAM surface. It must provide the approval inbox with approve/deny
   and fresh-passkey reauthentication; agent, service, capability, active
   request/session, history and audit views; agent/service/request lifecycle
   controls; and the global emergency revoke/restore control. Keep all existing
   broker-side freshness, payload-binding, identity and no-secret-rendering
   enforcement unchanged.
-- [ ] Add native Swift coverage for AI-PAM response decoding, secret-free
+- [x] Add native Swift coverage for AI-PAM response decoding, secret-free
   rendering, approval and management actions, reauthentication, denial/error
   states and emergency controls. Complete a real-Mac acceptance pass against
   the deployed broker, including an approved request, a denial, one lifecycle
   change and global disable/re-enable.
 
+Native candidate status: the Mac source implements the full approval and
+management surface through the existing OIDC API, including `max_age=0` fresh
+passkey continuation for Red and every management action. Typed models omit
+credential values/raw payloads and Swift tests cover response shapes, action
+encoding, fresh-auth URL construction and ephemeral privileged sessions. Source
+compiles with 24/24 tests and the real-Mac acceptance matrix passed.
+
+The signed 0.2.0 (build 2) candidate was installed on the Mac after verifying
+release binary SHA-256 `0336a91007be7f19663aa6ea88937e4211dd3c743be6fa668bda845bc92d840a`.
+The preceding 0.1.0 bundle is retained intact at
+`/Applications/AsterCompanion.pre-ai-pam-20260925.app` with its original binary
+SHA-256 `2bdb6e7a5022efef3661c2aed1b98f75d9adfd7ebc41b1641141b7dc675a203c`.
+That bundle was retained as the first acceptance candidate and was superseded
+by the 0.2.1 fresh-authentication correction described below.
+
+Initial visual acceptance found the AI-PAM button could fall beyond the visible
+right edge at the operator's narrower window width. The button was moved beside
+the Aster title, 23/23 tests passed again, and the signed bundle was replaced
+without removing the 0.1.0 rollback copy.
+
+Native approval and denial then passed, but the first management acceptance
+correctly failed closed with HTTP 409: Authentik had immediately reused its
+browser session and the new token retained stale `auth_time`. Version 0.2.1
+(build 3) isolates every fresh privileged web-authentication session while
+retaining the shared browser session for ordinary sign-in. This forces the
+intended passkey ceremony before the action is submitted.
+The regression test brings the native suite to 24/24 passing, and the signed
+0.2.1 bundle builds successfully. The replacement candidate was installed with
+release binary SHA-256
+`d91cb232299c645f06c7d477f0a7f77ddd7c552bfb9fc35876ba5f2d5315351b`;
+the separate 0.1.0 rollback bundle remains untouched.
+
+Real-Mac acceptance passed against the deployed broker: a native Yellow request
+was approved and consumed, a second was denied without execution, `synthetic`
+was disabled and restored with matching audit events, and global access was
+disabled and restored. While globally disabled, a real request failed closed
+before creation; after restoration, a Green request created and consumed once.
+The final snapshot is globally enabled, `synthetic` enabled and zero active
+requests. Ordinary typed chat replied successfully after the AI-PAM sequence.
+Version 0.2.2 (build 4) also corrected the window-only application lifecycle:
+closing the final window terminates the process, so a later Dock/Applications
+launch reliably recreates it. The installed binary SHA-256 is
+`00bc03f6e607468efc410f992d211624741fc04bf8b203e908b1fa2cdecb8adf`.
+Real-Mac close/reopen passed, and the existing Keychain item was permanently
+allowed for the installed build; reopening no longer repeats the password
+prompt.
+
 ### M9 — graduation
 
-- [ ] global kill-switch test;
-- [ ] per-agent/per-service revoke tests;
-- [ ] Authentik/OpenBao/broker outage tests;
-- [ ] reboot/restart tests;
-- [ ] backup + isolated restore;
-- [ ] two independent normal workflow passes;
-- [ ] web and native macOS AI-PAM feature-parity acceptance;
-- [ ] no temporary access remains;
-- [ ] normal HomeLab administration still works with AI-PAM unavailable.
+- [x] global kill-switch test;
+- [x] per-agent/per-service revoke tests;
+- [x] Authentik/OpenBao/broker outage tests;
+- [x] reboot/restart tests;
+- [x] backup + isolated restore;
+- [x] two independent normal workflow passes;
+- [x] web and native macOS AI-PAM feature-parity acceptance;
+- [x] no temporary access remains;
+- [x] normal HomeLab administration still works with AI-PAM unavailable.
 
 ## Validation and evaluation
 
@@ -556,20 +603,22 @@ Rollback must be able to disable broker issuance, revoke leases, disable `ai-*` 
 
 ## Required integration impact checklist
 
-- [ ] HomeLab Doctor
-- [ ] Monitoring/alerting
+- [x] HomeLab Doctor
+- [x] Monitoring/alerting
 - [x] Backup and isolated restore
 - [x] NetBox
-- [ ] Human wiki
-- [ ] Aster mirror/snapshot (sanitized only)
-- [ ] Operational reference/runbooks
-- [ ] Repository architecture/portfolio docs
-- [ ] Homepage private operator link
-- [ ] Authentik/native target authorization
-- [ ] DNS/certificates/firewall
-- [ ] Automation/schedules
-- [ ] Security inventory
-- [ ] Forgejo MCP + mirror-verification runbook
+- [x] Human wiki — operator guidance published to Forgejo and deployed on the
+  private wiki.
+- [x] Aster mirror/snapshot (sanitized only) — accepted mirror preserved and a
+  dedicated allowlisted AI-PAM operational reference deployed and retrieved.
+- [x] Operational reference/runbooks
+- [x] Repository architecture/portfolio docs
+- [x] Homepage private operator link
+- [x] Authentik/native target authorization
+- [x] DNS/certificates/firewall
+- [x] Automation/schedules
+- [x] Security inventory
+- [x] Forgejo MCP + mirror-verification runbook
 
 ## AI Integration Gate / “AI key” standard
 
@@ -635,16 +684,24 @@ The project graduates only when OpenBao and broker are recoverable; root/recover
 | 2026-09-25 | Deployed the bounded M7 Doctor gateway | Jason authorized commit `2a81a78`; LXC 104 created a root-only recovery checkpoint, installed the peer-bound service, and registered Green latest-result plus Yellow one-run for `agent-hermes`. Green returned the sanitized historic result; wrong-peer denial passed; a pending Yellow validation created no job and was revoked | Both services are active and the Lab Operations queue has no active/uncertain job. Two human-approved Yellow runs plus revocation validation remain gated; the deployment source gained a bounded socket-readiness loop after observing a harmless startup race |
 | 2026-09-25 | Completed both M7 approved Doctor runs | Jason independently approved two payload-bound Yellow requests. Each was consumed once, created one distinct durable Doctor job and completed `succeeded/checks_complete`; first-request replay was denied and Green latest returned the new sanitized record. Each result reported 72 passes, 4 warnings and 1 health failure in 32 bounded checks | Pre-revocation review added a structured timeout/unavailable denial for the private gateway. Deploying that hardening and proving live broker-side/target-side revocation remain before graduation |
 | 2026-09-25 | Graduated the first M7 Doctor capability pair | Installed the bounded timeout/unavailable hardening, then proved target-side gateway stop/restart and broker-side service disable/enable. Denials created no Doctor job; Green recovered afterward. Final state: both services active, 9 historic Doctor records, 0 active/uncertain jobs and 0 pending approvals | Recovery checkpoint remains `/var/lib/homelab-broker/m7-doctor-rollback-20260925-191251`; the Doctor result still reports the underlying NetBox redirect failure and aging-backup warnings for operational follow-up, not automatic repair |
+| 2026-09-26 | Completed native Aster Companion AI-PAM parity acceptance | Installed 0.2.1 build 3 after correcting cached-session `auth_time` reuse with ephemeral privileged authentication; 24/24 Swift tests passed. Native approve/consume, deny/no-execution, service disable/restore and global disable/restore all passed with live broker and audit read-back. Issuance failed closed while globally disabled and resumed afterward; final state is globally enabled, `synthetic` enabled, zero active requests, and typed chat still replies | The intact 0.1.0 rollback bundle remains at `/Applications/AsterCompanion.pre-ai-pam-20260925.app`; removal is not authorized or required for M8 |
+| 2026-09-26 | Completed M8 governance, native parity and monitoring integration | Architecture and operations now define NetBox as host/IP authority and the existing Homepage Companion tile as the only human entry point. Added a non-secret read-only Doctor probe for exact catalogue/lifecycle drift, expired requests, five units/sockets and CA-validated OpenBao seal health; five regression tests and live probe passed. Native 0.2.2 close/reopen and Keychain acceptance also passed | M0–M8 are complete; M9 destructive/outage/reboot/restore graduation scenarios remain separately gated |
+| 2026-09-26 | Completed M9 dependency and restart graduation | Root-only checkpoint `/var/lib/homelab-broker/m9-graduation-checkpoint-20260926` plus same-day LXC 104/117/106 backups preceded testing. Broker stop denied execution while approval, Aster and direct Forgejo human planes survived. Authentik Docker stop blocked identity discovery while broker/human administration survived and recovered. A broker-only blackhole to OpenBao denied Forgejo execution without sealing the vault, then a fresh read consumed after route restoration. LXC 104 reboot restored six units, five sockets and Aster health | Initial broker restart stopped but did not restart the approval bridge; removing the unnecessary `Requires=` coupling fixed and regressed it. Initial OpenBao outage returned an internal JSON parse message; the gateway now returns only a stable sanitized dependency error. 82 broker tests pass |
+| 2026-09-26 | Closed M9 temporary-access and operational integration gates | Broker integrity passed with global access enabled and zero active requests; 22 consumed, 2 denied, 9 expired and 2 revoked historic requests are terminal. Disposable restore LXC 118 and known bootstrap helpers are absent; temporary root tokens were already revoked and only the encrypted human root ceremony plus scoped service AppRoles remain. NetBox live report contains active `hermesagent` and `openbao`; Homepage live config contains the existing Companion tile and no unsafe vault/broker tile. Doctor now also checks Authentik discovery, rotations, audit freshness, current LXC 104/117 backups and restore-test age; seven tests and live probe pass | Human wiki update is locally committed/pending publication; sanitized mirror refresh follows its separately authorized push |
+| 2026-09-26 | Published human guidance and refreshed the sanitized Aster snapshot | Wiki commit `e1dcf07` is on Forgejo and the private wiki page is deployed with a retained pre-AI-PAM copy. Deterministic archive `1ca0a6808639cd138b79040e842779572b2a38aad5679a6df513cbf4204b39cf` preserved the accepted 1,796-entry derived mirror, added the allowlisted AI-PAM operational reference and contains 1,825 provenance-tracked sources bound to clean HomeLab commit `8b6725d` and published reference commit `b33b003`. LXC 104 retains both the pre-M9 and pre-final generations; Aster restarted healthy. A focused routing rule and regression test corrected generic sources outranking the new reference; the combined Aster/approval suite passes 100/100 and live retrieval now returns `reference/operations/ai-pam.md` first with `current-with-exclusions` authority | Detailed human recovery material remains deliberately excluded; only the sanitized authority and recovery boundary are available to Aster |
 
 ## Close-out
 
-Not graduated. M0 through M6 are complete. OpenBao holds separate restricted
+Graduation and publication are complete for M0 through M9. OpenBao holds separate restricted
 Forgejo read and safe-write credentials; the broker-only private listener,
 CIDR-bound AppRoles and deny-by-default MCP gateways are live. The temporary
 root tokens used during recovery/bootstrap are revoked, while the tested
 human-only root-ceremony AppRole still requires two independent recovery
 shares.
 
-Next safe action: **M7 additional production integrations.** Select one
-reversible Green path and one tightly bounded Yellow path, define target-side
-revocation before enabling either, and repeat the allow/deny/no-secret tests.
+The human wiki is published, the sanitized Aster snapshot is deployed with its
+prior generation retained, and Forgejo/GitHub publication was verified. The
+project is archived without deleting recovery checkpoints. Ongoing work is
+ordinary operations: review Doctor findings, rotate service credentials on
+schedule, preserve human recovery material and start any capability expansion
+as a separately scoped project.

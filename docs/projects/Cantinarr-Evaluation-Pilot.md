@@ -487,7 +487,7 @@ Not applicable yet. The project is proposed and implementation has not begun.
 - `docs/Project-Creation-Standard.md`
 - `docs/reference/ARR-Stack-Operational-Reference.md`
 - `docs/projects/completed projects/Aster-Arr-Stack-Manager.md`
-- `docs/projects/Authentik-Rollout.md`
+- `docs/projects/completed projects/Authentik-Rollout.md`
 - `docs/projects/Recommendarr-Watch-Recommendations.md`
 - `docs/reference/Aster-Operations.md`
 - `docs/05-Backups.md`
