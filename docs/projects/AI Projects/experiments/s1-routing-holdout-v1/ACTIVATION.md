@@ -35,3 +35,18 @@ production changes and further push remain excluded.
 
 Next action: collect request text before showing or discussing labels, beginning
 with up to five sanitized timer/alarm requests authored by Jason.
+
+## 2026-09-28 — first accepted batch
+
+Jason supplied and accepted five sanitized timer/alarm requests, then completed a
+human-authored label review in a local workbook. He self-reported ten active
+labeling minutes and explicitly approved durable local-Git retention. The accepted
+records and exact hash-bound receipts are in
+[`accepted/2026-09-28-timer-batch.json`](accepted/2026-09-28-timer-batch.json).
+
+The syntax-only validator accepted all five cases and receipts against the frozen
+plan and registry hashes. The partial batch has five timer strata and five
+composition cases, but zero adverse-constraint cases; it is consequently not a
+complete S1 corpus and cannot authorize evaluation, deployment, routing, policy or
+credential changes. The collection clock began at `2026-09-27T04:21:34Z`; its
+draft expiry and 30/90-day review timestamps remain recorded in the bundle.
