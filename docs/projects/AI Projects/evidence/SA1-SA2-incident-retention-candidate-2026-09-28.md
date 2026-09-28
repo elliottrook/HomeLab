@@ -1,7 +1,7 @@
 # SA1/SA2 incident retention and quota candidate
 
 Date: 2026-09-28
-Status: **local implementation candidate; not deployed**
+Status: **installed disabled on LXC 104; no authenticated pilot run**
 
 ## Boundaries
 
@@ -22,14 +22,18 @@ allowing a record to cross the stated limit.
 
 Sixteen local tests pass across the incident, producer/store, presentation and
 Doctor adapter contracts. New tests prove expiry before a later write/reconnect,
-count-limit denial and storage-limit denial. This is not deployed on LXC 104;
-the existing adapter remains disabled and its prior canary state was removed.
+count-limit denial and storage-limit denial. The published store was then
+installed on LXC 104 with the prior file retained in the existing rollback
+directory. Its deployed SHA-256 is
+`4e8a36a803c3d8e5eac362e4c17a0cadc1f4ae2accca05cc73283b646b8e5c4b`, matching
+source. `aster-agent` restarted active, its health response remained normal and
+the Doctor adapter was confirmed disabled. No state or authenticated pilot ran.
 
 ## Next gate
 
-The retention prerequisite is now represented in source but needs a separate
-review/deployment decision. A future real authenticated-Companion pilot must
-deploy this exact version, verify state-directory owner/mode and bounded-database
+The retention prerequisite is now deployed but remains inactive with the
+adapter. A future real authenticated-Companion pilot must verify
+state-directory owner/mode and bounded-database
 behavior as the `aster` service user, then validate one real session's incident
 creation and reconnect stream. It must retain the feature-disable rollback and
 must not add any target, model change, repair path or collector refresh.
