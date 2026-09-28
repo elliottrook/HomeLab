@@ -63,6 +63,11 @@ create a 20-case holdout, and does not authorize a model, tool, or deployment
 change. The intake validator rejects cases that omit any required field or
 source reference, exceed split caps, or allow non-advisory outcomes.
 
+The source inventory for the remaining work is recorded in the
+[development-source queue](SA3-development-source-queue-2026-09-28.md). It
+identifies a family-count/source-overlap gap; no case is invented to satisfy the
+twelve-case target.
+
 ## Configuration and decision rules
 
 The current Qwen non-thinking baseline remains the only measured configuration.
