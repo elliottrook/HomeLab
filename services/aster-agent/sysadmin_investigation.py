@@ -39,7 +39,7 @@ class InvestigationError(ValueError):
 def _parse_utc(value: str) -> datetime:
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except (TypeError, ValueError) as exc:
+    except (AttributeError, TypeError, ValueError) as exc:
         raise InvestigationError("observed_at must be an ISO-8601 UTC timestamp") from exc
     if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
         raise InvestigationError("observed_at must be UTC")
@@ -185,6 +185,39 @@ class Incident:
             "observations": copy.deepcopy(self.observations),
             "next": self.next_observation(),
         }
+
+    def to_record(self) -> dict[str, Any]:
+        """Stable, local-only persistence shape; no model transcript is stored."""
+        return {
+            "schema_version": 1,
+            "incident_id": self.incident_id,
+            "title": self.title,
+            "observation_plan": [request.__dict__.copy() for request in self.observation_plan],
+            "observations": copy.deepcopy(self.observations),
+            "hypotheses": list(self.hypotheses),
+            "cursor": self.cursor,
+        }
+
+    @classmethod
+    def from_record(cls, record: dict[str, Any], now: datetime) -> "Incident":
+        expected = {"schema_version", "incident_id", "title", "observation_plan", "observations", "hypotheses", "cursor"}
+        if not isinstance(record, dict) or set(record) != expected or record.get("schema_version") != 1:
+            raise InvestigationError("invalid persisted incident record")
+        plan = [EvidenceRequest(**item) for item in record["observation_plan"]]
+        incident = create_incident(record["incident_id"], record["title"], plan)
+        if not isinstance(record["observations"], list) or not isinstance(record["hypotheses"], list):
+            raise InvestigationError("invalid persisted incident contents")
+        for hypothesis in record["hypotheses"]:
+            incident.add_hypothesis(hypothesis)
+        # Stored records have already been validated, but reapply the full
+        # evidence contract when restoring so an altered SQLite row fails closed.
+        for item in record["observations"]:
+            copy_item = dict(item)
+            copy_item.pop("age_seconds", None)
+            incident.add_observation(Observation(**copy_item), now)
+        if type(record["cursor"]) is not int or record["cursor"] != incident.cursor:
+            raise InvestigationError("invalid persisted incident cursor")
+        return incident
 
 
 def create_incident(incident_id: str, title: str, observation_plan: list[EvidenceRequest]) -> Incident:

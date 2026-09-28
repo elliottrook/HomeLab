@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "producer": "aster-gateway-status/v1",
+  "produced_at": "2026-09-28T17:58:30Z",
+  "observation": {
+    "evidence_id": "fixture-gateway-status-001",
+    "incident_id": "fixture-incident-001",
+    "target": "aster-gateway",
+    "kind": "status",
+    "observed_at": "2026-09-28T17:58:00Z",
+    "state": "warn",
+    "summary": "Fixture: response budget reached before the requested diagnosis was complete.",
+    "facts": {"response_cap": 500, "fixture_only": true},
+    "truncated": false
+  }
+}
