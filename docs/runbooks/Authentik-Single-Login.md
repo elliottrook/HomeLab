@@ -42,6 +42,17 @@ from `provider-flows-before.json`; provider 2 previously selected the default
 flow, while the other 12 inherited flow selection. Do not restore the entire
 database over later work. The shared passkey flow itself was not edited.
 
+## ARR dashboard login correction — September 27
+
+Sonarr, Radarr, Lidarr, Prowlarr and SABnzbd retain their existing app
+authentication/API settings. NPM's Authentik-protected app location suppresses
+forwarded browser-address headers so the app sees the actual local proxy
+connection; Authentik still receives the original address and enforces the owner
+policy. This corrects second app-login prompts after successful Authentik login.
+NPM/Authentik retain client-address attribution; app logs see the proxy.
+Use the dashboard HTTPS tiles. Recovery and validation are in the
+[ARR repair record](ARR-SSO-Repair-2026-09-27.md).
+
 ## Immich native sign-in
 
 Accepted on 2026-09-26 at `https://photos.elliottrook.com` and linked from
