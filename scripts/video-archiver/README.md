@@ -122,7 +122,10 @@ Radarr/Sonarr and never changes a path. See
   faststart). Jellyfin keeps the same item, including collections, watch state and
   metadata.
 - **Audio and subtitles:** one audio track and English subtitles only, the same policy as
-  the archiver. MP4 keeps only `mov_text` subtitles.
+  the archiver. MP4 keeps only `mov_text` subtitles. Compaction reads Matroska
+  `BPS`/`BPS-eng` tags when the stream bitrate is absent. Audio with no known bitrate
+  is encoded at a known rate (E-AC-3 384k surround or AAC 192k stereo), and planning
+  reserves 5% headroom for muxing and rate-control variation.
 - **Verification before replacement:**
   - output ≤ `cap_bytes` and ≤ `max_output_fraction` × source;
   - HEVC at the planned height;
@@ -135,6 +138,10 @@ Radarr/Sonarr and never changes a path. See
 - **Scheduling:** it shares `lock_file` with the archiver and waits up to 90 min for it,
   then processes the largest files first until `compact.deadline`. State is kept in
   `work/compact-state.json` (skipped or failed files aren't retried unless `--retry`).
+- **Library scan:** the existing Jellyfin key is sent using `Authorization: MediaBrowser`,
+  compatible with Jellyfin 12. A rejected scan records `jellyfin_scan_failed`, sets
+  the compaction summary's `scan_failed`, and causes a nonzero exit. Doctor reports
+  this failure even when every file replacement succeeded.
 
 ```bash
 # dry run (default): plan every candidate, change nothing
