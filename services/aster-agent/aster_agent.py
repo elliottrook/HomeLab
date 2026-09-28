@@ -12,7 +12,7 @@ import os
 import re
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -30,6 +30,10 @@ from ha_report import get_ha_report as read_ha_report
 from source_reports import get_forgejo_report as read_forgejo_report
 from source_reports import get_netbox_report as read_netbox_report
 from broker_approvals import BrokerApprovalClient, approval_router
+from doctor_incident_adapter import read_doctor_observation
+from sysadmin_incident_store import IncidentStore
+from sysadmin_incident_stream import reconnect_frames
+from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
@@ -86,6 +90,9 @@ MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
 MAX_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_RESPONSE_TOKENS", "160"))
 MAX_HEALTH_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_HEALTH_RESPONSE_TOKENS", "112"))
 BROKER_APPROVAL_SOCKET = os.environ.get("ASTER_BROKER_APPROVAL_SOCKET", "/run/homelab-broker/approval.sock")
+SYSADMIN_DOCTOR_EVIDENCE = os.environ.get("ASTER_SYSADMIN_DOCTOR_EVIDENCE", "").strip().lower() in {"1", "true", "yes"}
+SYSADMIN_INCIDENT_STATE = Path(os.environ.get("ASTER_SYSADMIN_INCIDENT_STATE", "/var/lib/aster/lab-operations/sysadmin-incidents.sqlite3"))
+_sysadmin_incident_store: IncidentStore | None = None
 
 ASTER_SYSTEM_PROMPT = """You are Aster, Jason's concise local home and homelab assistant.
 Answer directly and honestly. Unless the user asks for depth, keep answers to
@@ -228,6 +235,14 @@ class ArrRepairExecutionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_ref: str = Field(pattern=r"^radarr-q-[a-z2-7]{16}$")
+
+
+class DoctorIncidentRequest(BaseModel):
+    """The first pilot intentionally exposes no caller-chosen target or tool."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    title: str = Field(default="Doctor status investigation", min_length=1, max_length=300)
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -1315,6 +1330,43 @@ async def relay_progress_stream(payload: dict[str, Any], progress: ChatProgress)
         progress.add_usage(usage)
 
 
+def _require_doctor_incident_owner() -> None:
+    """Keep the pilot local to Jason's verified Companion identity.
+
+    The legacy API key intentionally cannot open or inspect incident state.
+    This does not reuse Lab Operations' executor; its owner binding is used
+    solely as an already deployed verified-identity boundary.
+    """
+    if not SYSADMIN_DOCTOR_EVIDENCE:
+        raise HTTPException(status_code=404, detail="Doctor incident evidence is disabled")
+    if not lab_operations.owner or LAB_OWNER.get() != lab_operations.owner:
+        raise HTTPException(status_code=403, detail="Doctor incident evidence requires Jason's authenticated Companion session")
+
+
+def _doctor_incident_store() -> IncidentStore:
+    global _sysadmin_incident_store
+    if _sysadmin_incident_store is None:
+        _sysadmin_incident_store = IncidentStore(SYSADMIN_INCIDENT_STATE)
+    return _sysadmin_incident_store
+
+
+def start_doctor_incident(title: str, now: datetime | None = None) -> dict[str, Any]:
+    """Create one bounded incident and read the existing health file once."""
+    _require_doctor_incident_owner()
+    now = now or datetime.now(timezone.utc)
+    incident_id = "inc-doctor-" + uuid.uuid4().hex
+    incident = create_incident(
+        incident_id,
+        title,
+        [EvidenceRequest("homelab-doctor", "status", "Read the existing sanitized Doctor status report.")],
+    )
+    observation = read_doctor_observation(incident_id, HEALTH_REPORT_PATH, now)
+    incident.add_observation(observation, now)
+    store = _doctor_incident_store()
+    store.save(incident, now)
+    return store.reconnect_snapshot(incident_id, now)
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": "aster-agent"}
@@ -1341,6 +1393,21 @@ async def arr_repair_proposal() -> dict[str, Any]:
 @app.post("/v1/arr-repair/execute", dependencies=[Depends(require_api_key)])
 async def arr_repair_execute(request: ArrRepairExecutionRequest) -> dict[str, Any]:
     return await execute_arr_repair(request.candidate_ref)
+
+
+@app.post("/v1/sysadmin/incidents/doctor", dependencies=[Depends(require_api_key)])
+async def doctor_incident(request: DoctorIncidentRequest) -> dict[str, Any]:
+    return start_doctor_incident(request.title)
+
+
+@app.get("/v1/sysadmin/incidents/{incident_id}/stream", dependencies=[Depends(require_api_key)])
+async def doctor_incident_stream(incident_id: str) -> StreamingResponse:
+    _require_doctor_incident_owner()
+    try:
+        frames = reconnect_frames(_doctor_incident_store(), incident_id, datetime.now(timezone.utc))
+    except InvestigationError as exc:
+        raise HTTPException(status_code=404, detail="Doctor incident not found") from exc
+    return StreamingResponse(iter(frames), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/v1/personas", dependencies=[Depends(require_api_key)])
