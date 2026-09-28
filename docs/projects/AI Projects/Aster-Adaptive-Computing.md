@@ -165,6 +165,7 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 
 | Date | Activity | Result / limits |
 |---|---|---|
+| 2026-09-28 | SA0 publication and initial runtime/source reconciliation | Forgejo main and GitHub mirror verified at `007ef82`; it merges Forgejo and adaptive histories, but omits local production-history tip `d2f771d`. Live Lab Operations matches source; the live Aster gateway’s Companion/passkey UI behavior corresponds to omitted commits and its exact hash remains separate drift. Reasoning remains disabled. No runtime change; merge and publish the omitted history next — see [SA0 evidence](evidence/SA0-reconciliation-2026-09-28.md) |
 | 2026-09-28 | Jason approved the sysadmin-readiness recommendation and directed incorporation into the existing unified project | Adopted SA0–SA5 as next delivery priority; Qwen-first trial and conditional hybrid decision; mandatory sysadmin graduation gate; supporting assessment/live diagnostics retained; implementation gates remain open; documentation only, no deployment or push |
 | 2026-09-25 | Repository/live architectural assessment | GO WITH RESTRUCTURING; baseline/provenance and security findings retained in assessment |
 | 2026-09-25 | Current harness alternatives reviewed | Existing Aster baseline; Pydantic AI first challenger; LangGraph conditional; no installations or lab benchmark claims |
@@ -187,7 +188,7 @@ After foundation graduation, propose bounded amendments under this document for:
 
 ## 17. Close-out and current resume point
 
-**Controlling resume instruction — 2026-09-28:** the approved workstream amendment is recorded; start SA0. Reverify Forgejo main, both local histories and live hashes; prepare a reviewed integration candidate preserving the September 27 owner/passkey fixes, live AI-PAM retrieval additions, September 28 archiver repair and the adaptive branch's later M2/M3/M4 evidence. Record a runtime manifest and integration decision before implementation. Do not overwrite unrelated edits or infer deployment from Git. Then continue read-only SA1/SA2. The historical S1-label requests below are no longer the next delivery prerequisite. All SA checkboxes remain open. This change is local documentation; remote synchronization is pending separate authorization.
+**Controlling resume instruction — 2026-09-28:** SA0 is active. Forgejo main, GitHub mirror and initial running manifest are recorded in [SA0 evidence](evidence/SA0-reconciliation-2026-09-28.md). Before deriving a candidate, merge the omitted local production-history tip `d2f771d` into the published branch and verify the mirror. Preserve the live gateway's remaining exact-source drift; do not deploy the published gateway. Then continue read-only SA1/SA2. The historical S1-label requests below are no longer the next delivery prerequisite. All SA checkboxes remain open. Remote synchronization for this subsequent evidence remains pending separate authorization.
 
 The checkpoints below retain their original evidence and limits. They do not override the current resume instruction or establish current live state.
 
