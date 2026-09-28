@@ -165,7 +165,8 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 
 | Date | Activity | Result / limits |
 |---|---|---|
-| 2026-09-28 | SA0 publication and initial runtime/source reconciliation | Forgejo/GitHub initially reached `007ef82`, which omitted local production history. Local merge `dc673e8` now retains Forgejo, adaptive and `d2f771d` histories; its Aster gateway SHA-256 exactly matches live. Lab Operations already matched. Reasoning remains disabled. No runtime change; publish/verify `dc673e8`, then derive the SA1/SA2 candidate — see [SA0 evidence](evidence/SA0-reconciliation-2026-09-28.md) |
+| 2026-09-28 | SA0 publication and source reconciliation | Forgejo and GitHub `main` were verified at `ccd0ead`; the merged history retains Forgejo, adaptive and `d2f771d` production work. The source gateway SHA-256 exactly matches live, as does the already-reconciled Lab Operations adapter. Reasoning remains disabled; no runtime change — see [SA0 evidence](evidence/SA0-reconciliation-2026-09-28.md) |
+| 2026-09-28 | SA1/SA2 typed incident evidence candidate | Added an offline, no-I/O incident/evidence contract with registered read-only targets, provenance/age/truncation fields and bounded follow-up proposals. Five local contract tests pass. It is neither a deployed adapter nor a completed SA gate — see [candidate evidence](evidence/SA1-SA2-offline-candidate-2026-09-28.md) |
 | 2026-09-28 | Jason approved the sysadmin-readiness recommendation and directed incorporation into the existing unified project | Adopted SA0–SA5 as next delivery priority; Qwen-first trial and conditional hybrid decision; mandatory sysadmin graduation gate; supporting assessment/live diagnostics retained; implementation gates remain open; documentation only, no deployment or push |
 | 2026-09-25 | Repository/live architectural assessment | GO WITH RESTRUCTURING; baseline/provenance and security findings retained in assessment |
 | 2026-09-25 | Current harness alternatives reviewed | Existing Aster baseline; Pydantic AI first challenger; LangGraph conditional; no installations or lab benchmark claims |
@@ -188,7 +189,7 @@ After foundation graduation, propose bounded amendments under this document for:
 
 ## 17. Close-out and current resume point
 
-**Controlling resume instruction — 2026-09-28:** SA0 is active. The reconciled local merge `dc673e8` combines Forgejo, adaptive and local production histories; its gateway hash exactly matches live. Publish and verify that merge, then derive a reviewed, immutable SA1/SA2 candidate from the reconciled source. Do not enable reasoning, deploy a gateway or broaden tool authority during this source/release step. The historical S1-label requests below are no longer the next delivery prerequisite. All SA checkboxes remain open. See [SA0 evidence](evidence/SA0-reconciliation-2026-09-28.md).
+**Controlling resume instruction — 2026-09-28:** SA0 source reconciliation is published and verified at `ccd0ead`; its gateway hash exactly matches live. The initial offline SA1/SA2 typed incident-evidence candidate is implemented and locally tested. Next, define an immutable source-local producer schema and credential-free fixture for one individually disableable read-only adapter, then validate reconnect/persistence and streaming behavior before any live connection. Do not enable reasoning, deploy a gateway or broaden tool authority during this candidate work. All SA checkboxes remain open. See [SA0 evidence](evidence/SA0-reconciliation-2026-09-28.md) and [SA1/SA2 candidate evidence](evidence/SA1-SA2-offline-candidate-2026-09-28.md).
 
 The checkpoints below retain their original evidence and limits. They do not override the current resume instruction or establish current live state.
 
