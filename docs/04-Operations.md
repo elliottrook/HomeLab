@@ -914,6 +914,10 @@ through the already-running Jellyfin container, then relocates them into
 - `lab doctor`'s `check_video_archiver` reads the latest log and names any
   failed title by title, not just a count; warns if no run has landed in 48+
   hours.
+  It also reports Jellyfin scan failures, including a run whose replacements all
+  succeeded. The September 28 repair corrects compaction's Matroska audio bitrate
+  budgeting and uses Jellyfin 12's supported authorization header with the existing
+  key; [repair and recovery evidence](runbooks/Video-Archiver-Repair-2026-09-28.md).
 - Only the source's own flagged-default audio track is kept (or first English,
   or first stream) — not every audio stream — and only English-tagged
   subtitle tracks; both non-English audio and subtitles are dropped rather

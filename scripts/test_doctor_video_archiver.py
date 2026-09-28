@@ -41,6 +41,27 @@ fail() { printf 'FAIL %s\\n' "$1"; }
     def test_missing_summary(self):
         self.assertIn('WARN video-archiver has no run log yet', self.run_check('no_summary=1'))
 
+    def test_scan_failure_is_reported_even_with_successful_files(self):
+        import json
+        import tempfile
+        start = FUNCTION.index('python3 -c "') + len('python3 -c "')
+        end = FUNCTION.index('\n"\nREMOTE', start)
+        code = FUNCTION[start:end].replace('\\"', '"')
+        for summary_count in (0, 1):
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl') as f:
+                f.write(json.dumps({'event': 'jellyfin_scan_failed', 'error': 'HTTP 401'}) + '\n')
+                f.write(json.dumps({'event': 'summary', 'mode': 'EXECUTE', 'failed': 0,
+                                   'scan_failed': summary_count}) + '\n')
+                f.flush()
+                result = subprocess.run(['python3', '-c', code.replace('$latest', f.name)],
+                                        text=True, capture_output=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('failed=1', result.stdout)
+                self.assertIn('error_entry=Jellyfin scan|||HTTP 401', result.stdout)
+                output = self.run_check(self.fixture(0) + result.stdout)
+                self.assertIn('FAIL video-archiver: 1 failure(s)', output)
+                self.assertNotIn('PASS', output)
+
     def test_live_and_legacy_log_schemas(self):
         # Execute the embedded Python producer itself with a temporary JSONL.
         import json

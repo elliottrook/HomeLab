@@ -168,3 +168,9 @@ The desired outcome:
   - Manual handling is needed for the six `.m2ts`, two `.mpg` and one DV5
     (*Predators*) files.
   - M3 Doctor check.
+
+- **2026-09-28 — Repair completed:** corrected Matroska audio bitrate budgeting and
+  Jellyfin 12 authorization; added scan-failure visibility. Eleven local tests pass;
+  approved deployment and both retries passed (Scream 7: 1.86 GB; X-Files: 1.78 GB).
+  Repository and Aster pinned Doctor both report a clean two-file run; Jellyfin
+  completed the requested library scan at 13:50 PDT. [Repair evidence and resume](../runbooks/Video-Archiver-Repair-2026-09-28.md).

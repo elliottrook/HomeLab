@@ -1238,6 +1238,7 @@ python3 -c "
 import json
 summary = None
 errors = []
+scan_failures = 0
 for line in open('$latest'):
     line = line.strip()
     if not line:
@@ -1245,6 +1246,10 @@ for line in open('$latest'):
     d = json.loads(line)
     if d.get('event') == 'summary':
         summary = d
+    elif d.get('event') == 'jellyfin_scan_failed':
+        scan_failures += 1
+        reason = (d.get('error') or 'library scan failed').replace('|||', '/').replace(chr(10), ' ').strip()
+        errors.append(('Jellyfin scan', reason[:160]))
     elif d.get('event') == 'error' or (d.get('event') == 'file' and d.get('status') == 'failed'):
         title = (d.get('title') or d.get('path', '').rsplit('/', 1)[-1] or '?').replace('|||', '/')
         reason = (d.get('error') or d.get('reason') or '').replace('|||', '/').replace(chr(10), ' ').strip()
@@ -1259,7 +1264,7 @@ else:
     print(f'found={summary.get(\"total_candidates_found\", summary.get(\"considered\", 0))}')
     print(f'processed={summary.get(\"processed\", 0)}')
     print(f'succeeded={summary.get(\"succeeded\", summary.get(\"replaced\", 0))}')
-    print(f'failed={summary.get(\"failed\", 0)}')
+    print(f'failed={summary.get(\"failed\", 0) + max(scan_failures, summary.get(\"scan_failed\", 0))}')
     for title, reason in errors:
         print(f'error_entry={title}|||{reason}')
 "

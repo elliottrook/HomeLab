@@ -104,6 +104,19 @@ def _run(cmd, timeout=None):
     return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
 
 
+def audio_bitrate(stream: dict) -> int | None:
+    """Matroska commonly stores bitrate in BPS tags, not stream.bit_rate."""
+    tags = {k.upper(): v for k, v in (stream.get("tags") or {}).items()}
+    for value in (stream.get("bit_rate"), tags.get("BPS"), tags.get("BPS-ENG")):
+        try:
+            bitrate = int(value)
+            if bitrate > 0:
+                return bitrate
+        except (TypeError, ValueError):
+            pass
+    return None
+
+
 def probe_full(path: Path, cfg: Config) -> SrcInfo:
     r = _run([cfg.ffprobe_bin, "-v", "error", "-print_format", "json", "-show_format",
               "-show_streams", str(path)], timeout=300)
@@ -123,7 +136,7 @@ def probe_full(path: Path, cfg: Config) -> SrcInfo:
     ai = si = 0
     for s in d.get("streams", []):
         if s.get("codec_type") == "audio":
-            br = s.get("bit_rate")
+            br = audio_bitrate(s)
             audio.append(AudioStreamInfo(index=ai, codec_name=s.get("codec_name", ""),
                                          channels=int(s.get("channels", 2)),
                                          bit_rate=int(br) if br else None,
@@ -159,7 +172,9 @@ def make_plan(src: Path, info: SrcInfo, cfg: Config, opts: dict) -> Plan:
     primary = _select_primary_audio_stream(info.audio)
     high = (primary.codec_name in HIGH_BITRATE_AUDIO_CODECS or
             (primary.bit_rate is not None and primary.bit_rate > HIGH_BITRATE_THRESHOLD_BPS))
-    if high or (muxer == "mp4" and primary.codec_name not in MP4_AUDIO_COPY_OK):
+    # Unknown copied audio cannot be safely budgeted at an assumed 160 kbps.
+    # Encode it at a known rate, preserving surround channels.
+    if high or primary.bit_rate is None or (muxer == "mp4" and primary.codec_name not in MP4_AUDIO_COPY_OK):
         if primary.channels > 2:
             audio_args, audio_kbps = ["-c:a:0", "eac3", "-b:a:0", "384k"], 384
         else:
@@ -174,7 +189,7 @@ def make_plan(src: Path, info: SrcInfo, cfg: Config, opts: dict) -> Plan:
         subs = [i for i, lang, codec in info.subs if lang in ("eng", "en")]
 
     def budget(size_bytes: int) -> int:
-        return int(size_bytes * 8 * 0.98 / info.duration_s / 1000 - audio_kbps)
+        return int(size_bytes * 8 * 0.95 / info.duration_s / 1000 - audio_kbps)
 
     preferred, cap = budget(cfg.target_size_bytes), budget(opts["cap_bytes"])
     # Start at the smallest tier whose box already contains the source (never upscale,
@@ -332,7 +347,7 @@ def run_compact(cfg: Config, opts: dict, execute: bool, max_files: int | None,
     if deadline <= now:
         deadline += timedelta(days=1)
     summary = dict(mode="EXECUTE" if execute else "DRY RUN", considered=0, replaced=0, skipped=0,
-                   failed=0, bytes_before=0, bytes_after=0, log_file=str(logger.path))
+                   failed=0, scan_failed=0, bytes_before=0, bytes_after=0, log_file=str(logger.path))
     snapshot = None
     cfg.work_dir.mkdir(parents=True, exist_ok=True)
     for src in candidates(cfg, opts, state, only, retry):
@@ -396,6 +411,7 @@ def run_compact(cfg: Config, opts: dict, execute: bool, max_files: int | None,
             JellyfinClient(cfg.jellyfin_url, cfg.jellyfin_api_key, cfg.jellyfin_scan_task_id).refresh_all_libraries()
             logger.record(event="jellyfin_scan_requested")
         except Exception as exc:  # noqa: BLE001
+            summary["scan_failed"] = 1
             logger.record(event="jellyfin_scan_failed", error=str(exc)[:300])
     logger.record(event="summary", **summary)
     return summary
@@ -431,7 +447,7 @@ def main(argv=None) -> int:
     print(f"[{s['mode']}] considered {s['considered']}, replaced {s['replaced']}, skipped {s['skipped']}, "
           f"failed {s['failed']}; {gb(s['bytes_before']):.1f} GB -> {gb(s['bytes_after']):.1f} GB")
     print(f"Log: {s['log_file']}")
-    return 0 if s["failed"] == 0 else 2
+    return 0 if s["failed"] == 0 and s["scan_failed"] == 0 else 2
 
 
 if __name__ == "__main__":
