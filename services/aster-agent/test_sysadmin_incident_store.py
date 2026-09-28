@@ -1,7 +1,7 @@
 import json
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from sysadmin_incident_store import IncidentStore, parse_producer_envelope
@@ -56,6 +56,27 @@ class ProducerAndStoreTests(unittest.TestCase):
         self.store.ingest(self.fixture, NOW)
         with self.assertRaises(InvestigationError):
             self.store.ingest(self.fixture, NOW)
+
+    def test_retention_prunes_expired_incidents_before_new_write_or_reconnect(self):
+        later = NOW + timedelta(hours=24, seconds=1)
+        replacement = create_incident("fixture-incident-002", "Replacement", [
+            EvidenceRequest("homelab-doctor", "status", "Read the sanitized report."),
+        ])
+        self.store.save(replacement, later)
+        with self.assertRaises(InvestigationError):
+            self.store.load("fixture-incident-001", later)
+        self.assertEqual(self.store.load("fixture-incident-002", later).title, "Replacement")
+
+    def test_count_and_storage_limits_fail_closed(self):
+        store = IncidentStore(Path(self.tmp.name) / "limited.sqlite3", max_incidents=1)
+        first = create_incident("limited-1", "First", [EvidenceRequest("homelab-doctor", "status", "Read report.")])
+        second = create_incident("limited-2", "Second", [EvidenceRequest("homelab-doctor", "status", "Read report.")])
+        store.save(first, NOW)
+        with self.assertRaises(InvestigationError):
+            store.save(second, NOW)
+        tiny = IncidentStore(Path(self.tmp.name) / "tiny.sqlite3", max_database_bytes=16_384)
+        with self.assertRaises(InvestigationError):
+            tiny.save(first, NOW)
 
 
 if __name__ == "__main__":
