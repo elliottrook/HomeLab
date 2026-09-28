@@ -37,10 +37,10 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
              patch.object(agent, "HEALTH_REPORT_PATH", self.report), \
              patch.object(agent, "_sysadmin_incident_store", None):
             with TestClient(agent.app) as client:
-                denied = client.post("/v1/sysadmin/incidents/doctor", headers={"Authorization": "Bearer legacy"})
+                denied = client.post("/v1/sysadmin/incidents/doctor", json={}, headers={"Authorization": "Bearer legacy"})
                 self.assertEqual(denied.status_code, 403)
-                created = client.post("/v1/sysadmin/incidents/doctor", headers={"Authorization": "Bearer jwt-jason"})
-                self.assertEqual(created.status_code, 200)
+                created = client.post("/v1/sysadmin/incidents/doctor", json={}, headers={"Authorization": "Bearer jwt-jason"})
+                self.assertEqual(created.status_code, 200, created.text)
                 snapshot = created.json()
                 self.assertEqual(snapshot["incident"]["observations"][0]["state"], "warn")
                 incident_id = snapshot["incident"]["incident_id"]

@@ -198,7 +198,7 @@ app.include_router(lab_operations.router)
 @app.middleware("http")
 async def lab_identity_context(request, call_next):
     owner = None
-    if request.url.path in {"/v1/chat/completions", "/v1/companion/jobs"} or (request.url.path.startswith("/v1/lab/") and not request.url.path.startswith("/v1/lab/worker/")):
+    if request.url.path in {"/v1/chat/completions", "/v1/companion/jobs"} or request.url.path.startswith("/v1/sysadmin/") or (request.url.path.startswith("/v1/lab/") and not request.url.path.startswith("/v1/lab/worker/")):
         claims = _authentik_claims(request.headers.get("authorization"))
         if claims and not claims.get("act") and isinstance(claims.get("sub"), str) and claims["sub"]:
             owner = hashlib.sha256((AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()).hexdigest()
