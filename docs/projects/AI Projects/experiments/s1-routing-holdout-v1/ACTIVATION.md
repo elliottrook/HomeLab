@@ -79,3 +79,18 @@ The syntax-only validator accepted all five cases and receipts against the froze
 plan and registry hashes. The partial batch contains five facts-stratum,
 facts/web-composition families. It remains incomplete and cannot authorize
 evaluation, deployment, routing, policy, credential, or production changes.
+
+## 2026-09-28 — fourth accepted batch
+
+Jason supplied and accepted five sanitized media requests, completed a local
+no-suggestion label workbook, self-reported five active labeling minutes, and
+explicitly approved durable local-Git retention. He explicitly approved adding
+the validator-required `multi-capability` tag to all five cases and changing the
+one internal case's cloud class to `forbidden`. The exact records and hash-bound
+receipts are in
+[`accepted/2026-09-28-media-batch.json`](accepted/2026-09-28-media-batch.json).
+
+The syntax-only validator accepted all five cases and receipts against the frozen
+plan and registry hashes. The partial batch contains five media-stratum,
+media/home-composition families. It remains incomplete and cannot authorize
+evaluation, deployment, routing, policy, credential, or production changes.

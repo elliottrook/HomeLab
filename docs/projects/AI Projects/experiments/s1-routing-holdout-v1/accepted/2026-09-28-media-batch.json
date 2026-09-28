@@ -1,0 +1,262 @@
+{
+  "schema_version": "s1-collection-bundle.v1",
+  "experiment_id": "s1-routing-holdout-v1",
+  "plan_sha256": "4727ba248959cc4ed3514c99ca608842e9622c0a0493bccacafae7c1a681c696",
+  "registry_sha256": "19da446b6e4d810bb47c5a7e01cc6823dba39110fa9e56aa20f15d116331adb6",
+  "mode": "collection-candidate-no-evaluation",
+  "retention_ack": "sanitized-local-git-after-human-acceptance",
+  "session": {
+    "collection_started_at": "2026-09-27T04:21:34Z",
+    "draft_expires_at": "2026-10-04T04:21:34Z",
+    "day30_review_at": "2026-10-27T04:21:34Z",
+    "day90_review_at": "2026-12-26T04:21:34Z",
+    "active_effort_seconds": 300,
+    "unresolved_labels": 0
+  },
+  "cases": [
+    {
+      "case_id": "s1-media-01",
+      "family_id": "s1-family-s1-media-01",
+      "revision": 1,
+      "stratum": "media",
+      "request_text": "play the next episode of reacher on the family room tv",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "media",
+        "home"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Internal media request that may need clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-media-02",
+      "family_id": "s1-family-s1-media-02",
+      "revision": 1,
+      "stratum": "media",
+      "request_text": "play playlist country",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "media",
+        "home"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Internal media request that may need clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-media-03",
+      "family_id": "s1-family-s1-media-03",
+      "revision": 1,
+      "stratum": "media",
+      "request_text": "what was th last superman movie I watched in the collection",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "media",
+        "home"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Internal media request that may need clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-media-04",
+      "family_id": "s1-family-s1-media-04",
+      "revision": 1,
+      "stratum": "media",
+      "request_text": "play santana's first album",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "media",
+        "home"
+      ],
+      "optional": [
+        "web"
+      ],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Internal media request that may need clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-media-05",
+      "family_id": "s1-family-s1-media-05",
+      "revision": 1,
+      "stratum": "media",
+      "request_text": "whats playing right now on all tvs",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "media",
+        "home"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Internal media request that may need clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    }
+  ],
+  "acceptances": [
+    {
+      "case_id": "s1-media-01",
+      "revision": 1,
+      "case_sha256": "c0c0159899e1a24de85a4c2867bdfe871bd21929a680fbc7c3ceabee93046721",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:30:15.399Z"
+    },
+    {
+      "case_id": "s1-media-02",
+      "revision": 1,
+      "case_sha256": "4ede09da868d1c1d5667805ea373cb65bf30732027afbfc64c5da1f7ac5868e9",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:30:15.399Z"
+    },
+    {
+      "case_id": "s1-media-03",
+      "revision": 1,
+      "case_sha256": "d70b31d9828fad8e1d0a5afd9fa4008661f1982b9a3b0468facfdd1dfb370eb0",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:30:15.399Z"
+    },
+    {
+      "case_id": "s1-media-04",
+      "revision": 1,
+      "case_sha256": "d3e864d89fec7f73e84262c01b0bcdbdd3faafb282637af9262ca6b4c109cf62",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:30:15.399Z"
+    },
+    {
+      "case_id": "s1-media-05",
+      "revision": 1,
+      "case_sha256": "ca58b2b2b8514cb7eb31bfb151484278b72815afb1e1553961f53a5f9af6a045",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:30:15.399Z"
+    }
+  ]
+}
