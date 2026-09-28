@@ -65,3 +65,17 @@ and one multi-capability home/media composition case; it adds no adverse-constra
 case. It remains incomplete and cannot authorize evaluation, deployment, routing,
 policy, credential, or production changes. The original collection clock and
 review timestamps remain recorded in the bundle.
+
+## 2026-09-28 — third accepted batch
+
+Jason supplied and accepted five sanitized general-knowledge requests, completed
+a local no-suggestion label workbook, self-reported five active labeling minutes,
+and explicitly approved durable local-Git retention. A validator-required
+`multi-capability` tag was added to each case only after Jason explicitly
+approved that structural correction. The exact records and hash-bound receipts
+are in [`accepted/2026-09-28-facts-batch.json`](accepted/2026-09-28-facts-batch.json).
+
+The syntax-only validator accepted all five cases and receipts against the frozen
+plan and registry hashes. The partial batch contains five facts-stratum,
+facts/web-composition families. It remains incomplete and cannot authorize
+evaluation, deployment, routing, policy, credential, or production changes.

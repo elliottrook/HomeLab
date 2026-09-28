@@ -1,0 +1,260 @@
+{
+  "schema_version": "s1-collection-bundle.v1",
+  "experiment_id": "s1-routing-holdout-v1",
+  "plan_sha256": "4727ba248959cc4ed3514c99ca608842e9622c0a0493bccacafae7c1a681c696",
+  "registry_sha256": "19da446b6e4d810bb47c5a7e01cc6823dba39110fa9e56aa20f15d116331adb6",
+  "mode": "collection-candidate-no-evaluation",
+  "retention_ack": "sanitized-local-git-after-human-acceptance",
+  "session": {
+    "collection_started_at": "2026-09-27T04:21:34Z",
+    "draft_expires_at": "2026-10-04T04:21:34Z",
+    "day30_review_at": "2026-10-27T04:21:34Z",
+    "day90_review_at": "2026-12-26T04:21:34Z",
+    "active_effort_seconds": 300,
+    "unresolved_labels": 0
+  },
+  "cases": [
+    {
+      "case_id": "s1-facts-01",
+      "family_id": "s1-family-s1-facts-01",
+      "revision": 1,
+      "stratum": "facts",
+      "request_text": "when was the movie cannonball run released",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "facts",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "public",
+      "cloud": "public-only",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Simple external web look up, no sensitive information",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-facts-02",
+      "family_id": "s1-family-s1-facts-02",
+      "revision": 1,
+      "stratum": "facts",
+      "request_text": "can dogs eat pineapple",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "facts",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "public",
+      "cloud": "public-only",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Simple external web look up, no sensitive information",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-facts-03",
+      "family_id": "s1-family-s1-facts-03",
+      "revision": 1,
+      "stratum": "facts",
+      "request_text": "how do you say hello in Japanese",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "facts",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "public",
+      "cloud": "public-only",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Simple external web look up, no sensitive information",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-facts-04",
+      "family_id": "s1-family-s1-facts-04",
+      "revision": 1,
+      "stratum": "facts",
+      "request_text": "who was the third person on the moon",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "facts",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "public",
+      "cloud": "public-only",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Simple external web look up, no sensitive information",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-facts-05",
+      "family_id": "s1-family-s1-facts-05",
+      "revision": 1,
+      "stratum": "facts",
+      "request_text": "what was miles davis 9th album and when was it released",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "facts",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "public",
+      "cloud": "public-only",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Simple external web look up, no sensitive information",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    }
+  ],
+  "acceptances": [
+    {
+      "case_id": "s1-facts-01",
+      "revision": 1,
+      "case_sha256": "96ef6c17e93b09918330c7b882b8e193b92a442daa97fdb90e85b43243b993e5",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:15:55.480Z"
+    },
+    {
+      "case_id": "s1-facts-02",
+      "revision": 1,
+      "case_sha256": "4d3a958a9dc066c8144faefdefcdfd7737e6a0625f465e034237310b738cfe0a",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:15:55.480Z"
+    },
+    {
+      "case_id": "s1-facts-03",
+      "revision": 1,
+      "case_sha256": "2d8cf601971e6f23465f560125f515aed884a21ad96f36d592d76681a9ef0ea2",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:15:55.480Z"
+    },
+    {
+      "case_id": "s1-facts-04",
+      "revision": 1,
+      "case_sha256": "1c0e07bf966156783c37a0d233850d47e00ae7e44912f1eedb1bd317bbb40137",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:15:55.480Z"
+    },
+    {
+      "case_id": "s1-facts-05",
+      "revision": 1,
+      "case_sha256": "c11d17e5d060ac00847bbff02bae8582a76cb38455a1652a7b01fe8ca316c229",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:15:55.480Z"
+    }
+  ]
+}
