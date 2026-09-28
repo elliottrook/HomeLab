@@ -1639,7 +1639,7 @@ details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-num
 <div id="app" hidden>
 <header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
 <button id="checkApprovals" class="checkArr">Approval inbox</button>
-<button id="openManagement" class="checkArr">AI-PAM management</button>
+<button id="openManagement" class="checkArr" aria-controls="managementPanel" aria-expanded="false">AI-PAM management</button>
 <div id="approvalInbox"></div>
 <div id="managementPanel" hidden></div>
 <details id="toolsPanel"><summary>Tools</summary><div id="tools"></div></details>
@@ -1677,8 +1677,14 @@ async function login(fresh=false, approval=null){{
     localStorage.setItem('pending_approval_created_at', String(Date.now()));
   }}
   const p=new URLSearchParams({{client_id:AUTH.clientId, response_type:'code', redirect_uri:AUTH.redirectUri, scope:AUTH.scope, code_challenge:challenge, code_challenge_method:'S256', state}});
-  if(fresh) p.set('max_age','0');
-  location.href = AUTH.authorizeUrl + '?' + p.toString();
+  const authorize = new URL(AUTH.authorizeUrl + '?' + p.toString());
+  if(fresh){{
+    // Authentik 2026.8 ignores max_age=0 and retains prompt=login's marker.
+    // Enter the mandatory passkey flow on every explicit fresh request.
+    const flow = new URL('/if/flow/aster-companion-reauthentication/', authorize.origin);
+    flow.searchParams.set('next', authorize.pathname + authorize.search);
+    location.href = flow.toString();
+  }}else location.href = authorize.toString();
 }}
 
 function storeTokens(j){{
@@ -1902,11 +1908,13 @@ document.querySelector('#checkApprovals').onclick=loadApprovals;
 function mgmtText(tag,text,className=''){{ const e=document.createElement(tag); e.textContent=text; if(className)e.className=className; return e }}
 async function loadManagement(){{
   const panel=document.querySelector('#managementPanel'); panel.hidden=false; panel.textContent='Loading AI-PAM state…';
+  document.querySelector('#openManagement').setAttribute('aria-expanded','true');
   try{{
-    const [snapshot,history,audit]=await Promise.all([
-      approvalApi('/management/snapshot'), approvalApi('/management/history?limit=40'), approvalApi('/management/audit?limit=40')
+    const [snapshot,history,audit,session]=await Promise.all([
+      approvalApi('/management/snapshot'), approvalApi('/management/history?limit=40'), approvalApi('/management/audit?limit=40'), approvalApi('/session')
     ]);
     panel.innerHTML='';
+    panel.appendChild(mgmtText('p',session.passkey_verified?'Passkey verified. Changes require a fresh passkey confirmation.':'Sign in again with your passkey before making changes.'));
     const global=document.createElement('section'); global.className='mgmtCard'; global.appendChild(mgmtText('h3','Emergency controls'));
     global.appendChild(mgmtText('p','Global AI access: '+(snapshot.global_enabled?'ENABLED':'DISABLED'),snapshot.global_enabled?'statusOn':'statusOff'));
     const globalBtn=mgmtText('button',snapshot.global_enabled?'REVOKE ALL AI ACCESS':'Re-enable synthetic AI access','danger');
@@ -1947,9 +1955,14 @@ async function loadManagement(){{
 async function freshManagement(body){{ await login(true,{{kind:'management',body}}) }}
 async function finishManagementAction(body){{
   try{{ await approvalApi('/management/action',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(body)}}); await loadManagement() }}
-  catch(e){{ document.querySelector('#managementPanel').hidden=false; document.querySelector('#managementPanel').textContent='Management action failed: '+e.message }}
+  catch(e){{ document.querySelector('#managementPanel').hidden=false; document.querySelector('#openManagement').setAttribute('aria-expanded','true'); document.querySelector('#managementPanel').textContent='Management action failed: '+e.message }}
 }}
-document.querySelector('#openManagement').onclick=loadManagement;
+document.querySelector('#openManagement').onclick=()=>{{
+  const panel=document.querySelector('#managementPanel');
+  if(panel.hidden) return loadManagement();
+  panel.hidden=true;
+  document.querySelector('#openManagement').setAttribute('aria-expanded','false');
+}};
 
 // M5: the gated-action framework's one wired action - request, review,
 // approve exactly the existing ARR-repair broker's dry-run/candidate,
@@ -2364,7 +2377,7 @@ async function speakReply(text){{
 stopSpeech.onclick = () => {{ speechAbort?.abort(); cancelPlayback?.() }};
 
 document.querySelector('#mic').onclick = toggleMic;
-document.querySelector('#signin').onclick=()=>login(false);
+document.querySelector('#signin').onclick=()=>login(true);
 document.querySelector('#signout').onclick=async()=>{{
   try{{ await companionNotify.disable() }}catch(e){{ document.querySelector('#chatErr').textContent=e.message; return }}
   companionNotify.clearPending();

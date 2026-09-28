@@ -523,6 +523,16 @@ check_ai_pam() {
 }
 
 # Authentication egress is a distinct dependency: /health alone cannot prove it.
+check_aster_approval_readiness() {
+    local state
+    if state="$(ssh -o BatchMode=yes -o ConnectTimeout=8 root@192.168.50.10 \
+        'pct exec 104 -- python3 /opt/aster-agent/check_approval_readiness.py' 2>/dev/null)"; then
+        pass "$state"
+    else
+        fail "Aster approval identity/assurance configuration is missing or inconsistent"
+    fi
+}
+
 check_aster_notifications() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=8 root@192.168.50.10 \
@@ -2006,6 +2016,7 @@ category "Applications & Services"
 check_aster
 check_aster_speech
 check_aster_notifications
+check_aster_approval_readiness
 check_aster_lab_operations
 check_ai_pam
 check_xe_reset

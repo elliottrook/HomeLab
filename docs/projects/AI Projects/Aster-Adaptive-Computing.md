@@ -1,6 +1,6 @@
 # Aster Adaptive Computing — Foundation and Operational Sysadmin Capability
 
-**Status:** Active — Stream A. Operational Sysadmin Capability (SA0–SA5) is the next delivery priority, approved by Jason on 2026-09-28. SA0 reconciliation is next; all SA gates remain open. M0 and the offline M2 foundation have evidence; M1 and remaining foundation acceptance gates are not declared complete. September 27 production repairs and newer branch evidence must be reconciled at SA0.
+**Status:** Active — Stream A. Operational Sysadmin Capability (SA0–SA5) is the next delivery priority, approved by Jason on 2026-09-28. SA0 reconciliation is active; all SA gates remain open. M0 and the offline M2 foundation have evidence. M1 Stage1 is verified and the September 27 Stage2 incident repair/iPhone approval workflows were accepted, but M1 and broader programme acceptance gates are not declared complete.
 
 **Owner:** Jason.
 
@@ -200,11 +200,16 @@ recovered without a database restore. The subsequent 601-second observation pass
 with stable services, zero restarts, unchanged request counts and no checked error
 markers. See [deployment evidence](evidence/M1-stage1-deployment.md).
 
-M1 remains open: explicit approver entitlement and verified passkey assurance
-(Stage2) are local candidates requiring separate review, approval and live
-validation. Do not expand tool authority or claim M1 graduation. The M6 Forgejo
-read and safe-write transports were preserved through Stage1. Offline M2 work may
-continue independently.
+M1 remains open: Jason authorized full repair on September 27 after a partial
+Stage2 rollout broke approval views. The coordinated owner configuration, daemon
+and session-specific passkey mapping are now deployed and machine checks pass;
+Jason confirmed fresh iPhone sign-in and synthetic approve/deny/management actions;
+broker read-back verified fresh passkey approval, denial and suspension revocation.
+The test fixture is retired and disabled. See the controlling
+[repair evidence and resume point](evidence/M1-stage2-repair-2026-09-27.md).
+Do not expand tool authority or claim M1 graduation. Offline M2
+contract work can proceed independently. Further authority expansion requires its
+own reviewed gate.
 
 The reconciled local integration keeps `scripts/aster-adaptive` as the canonical
 offline harness/evidence path and retains `services/aster-adaptive` only as a

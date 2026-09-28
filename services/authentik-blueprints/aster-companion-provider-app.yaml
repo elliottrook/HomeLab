@@ -10,7 +10,7 @@ entries:
       client_type: public
       client_id: aster-companion
       authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-explicit-consent]]
-      authentication_flow: !Find [authentik_flows.flow, [slug, aster-companion-passwordless]]
+      authentication_flow: !Find [authentik_flows.flow, [slug, aster-companion-reauthentication]]
       invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
       issuer_mode: per_provider
       sub_mode: hashed_user_id

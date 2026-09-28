@@ -9,6 +9,12 @@
 
 ## Final scope and verification — 2026-09-26
 
+Post-close-out maintenance, September27: Jason reported Sonarr/Radarr native
+login prompts after dashboard SSO. NPM hosts10–14 now suppress browser-address
+headers only toward ARR backends, preserving owner-only Authentik enforcement
+and app credentials/API settings. Machine checks pass; dashboard acceptance is
+tracked in the [repair record](../../runbooks/ARR-SSO-Repair-2026-09-27.md).
+
 This section supersedes the historical status statements and unchecked planning
 lists below. Those remain an audit trail, not instructions to repeat deployment.
 Jason requested completion, push and archival, and explicitly chose to close

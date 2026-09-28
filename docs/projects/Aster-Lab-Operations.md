@@ -287,3 +287,14 @@ additional instrumented test of every target or authentication branch. Earlier
 locked/signed-out observations are historical. Remaining work is the second
 configuration validation pass, Git publication and clean corpus intake; existing
 off-host and full-restore verification limits remain unchanged.
+
+
+### 2026-09-27 Doctor incident and runtime refresh
+
+Jason reported a failed iPhone Doctor job and scheduled health crash. The
+[incident and full drift review](../runbooks/Lab-Health-Review-2026-09-27.md) records
+the macOS empty-array crash, archiver schema correction, five focused and 18
+worker regressions, completed 77/3/2 health run, and separately approved pinned
+Mac toolkit refresh. AI-PAM inbox/management also have a partial identity rollout;
+its bounded repair remains approval-gated. Existing job history and drift baseline
+are preserved; fresh Companion queue-path acceptance remains open.

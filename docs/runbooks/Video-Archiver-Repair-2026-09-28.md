@@ -139,10 +139,10 @@ Repair complete. No service restarts, credential rotation, schedule changes,
 snapshot deletion or Git push. Local source/documentation changes are retained
 for commit; remote Git synchronization awaits separate authorization. The repair
 snapshot deliberately remains available outside automatic compaction expiry.
-
 ## Publication integration
 
-Jason authorized pushing the completed repair. Forgejo main had independently
-advanced to `28a992b`; this publication applies only the archiver repair plus its
-required Doctor schema/empty-array fix to that base. Unrelated local commits and
-uncommitted work remain untouched. Original local repair commit: `d2f771d`.
+SA0 reconciles original local repair commit `d2f771d` with the previously published
+Forgejo and adaptive-programme histories. The merge preserves the repair and its
+required Doctor schema/empty-array fix without replaying media work or changing the
+retained recovery snapshot. This records source reconciliation only; it is not a
+new archiver run.
