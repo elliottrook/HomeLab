@@ -50,3 +50,18 @@ composition cases, but zero adverse-constraint cases; it is consequently not a
 complete S1 corpus and cannot authorize evaluation, deployment, routing, policy or
 credential changes. The collection clock began at `2026-09-27T04:21:34Z`; its
 draft expiry and 30/90-day review timestamps remain recorded in the bundle.
+
+## 2026-09-28 — second accepted batch
+
+Jason supplied and accepted five sanitized household-control requests, then
+returned a local workbook with human-authored labels. He self-reported five
+active labeling minutes and explicitly approved durable local-Git retention.
+The exact records and hash-bound receipts are in
+[`accepted/2026-09-28-home-media-batch.json`](accepted/2026-09-28-home-media-batch.json).
+
+The syntax-only validator accepted all five cases and receipts against the frozen
+plan and registry hashes. The partial batch contains five home-stratum families
+and one multi-capability home/media composition case; it adds no adverse-constraint
+case. It remains incomplete and cannot authorize evaluation, deployment, routing,
+policy, credential, or production changes. The original collection clock and
+review timestamps remain recorded in the bundle.

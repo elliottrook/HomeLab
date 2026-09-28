@@ -875,3 +875,14 @@ batch passed the syntax-only validator with five receipts, frozen plan/registry
 hashes and no authority claims. It supplies five timer families and five
 composition cases, but no adverse-constraint cases and no complete 50-family
 corpus. It cannot be evaluated or used to promote a route.
+
+
+### 2026-09-28 — S1 second accepted household-control batch
+
+Jason supplied and accepted five sanitized household-control requests, completed
+a local no-suggestion label workbook, self-reported five active labeling minutes,
+and explicitly approved durable local-Git retention. The batch passed the
+syntax-only validator with five receipts, frozen plan/registry hashes and no
+authority claims. It supplies five home families, including one home/media
+composition case, but no adverse-constraint cases and no complete 50-family
+corpus. It cannot be evaluated or used to promote a route.

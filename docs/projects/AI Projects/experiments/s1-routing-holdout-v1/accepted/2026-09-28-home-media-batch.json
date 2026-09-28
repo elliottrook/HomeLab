@@ -1,0 +1,248 @@
+{
+  "schema_version": "s1-collection-bundle.v1",
+  "experiment_id": "s1-routing-holdout-v1",
+  "plan_sha256": "4727ba248959cc4ed3514c99ca608842e9622c0a0493bccacafae7c1a681c696",
+  "registry_sha256": "19da446b6e4d810bb47c5a7e01cc6823dba39110fa9e56aa20f15d116331adb6",
+  "mode": "collection-candidate-no-evaluation",
+  "retention_ack": "sanitized-local-git-after-human-acceptance",
+  "session": {
+    "collection_started_at": "2026-09-27T04:21:34Z",
+    "draft_expires_at": "2026-10-04T04:21:34Z",
+    "day30_review_at": "2026-10-27T04:21:34Z",
+    "day90_review_at": "2026-12-26T04:21:34Z",
+    "active_effort_seconds": 300,
+    "unresolved_labels": 0
+  },
+  "cases": [
+    {
+      "case_id": "s1-b2-01",
+      "family_id": "s1-family-s1-b2-01",
+      "revision": 1,
+      "stratum": "home",
+      "request_text": "turn off the living room lights",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "home"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [],
+      "observable_reason": "Local home automation, multiple smart appliances may require clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-b2-02",
+      "family_id": "s1-family-s1-b2-02",
+      "revision": 1,
+      "stratum": "home",
+      "request_text": "what temperature is it in the family room?",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "home"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [],
+      "observable_reason": "Local home automation, multiple smart appliances may require clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-b2-03",
+      "family_id": "s1-family-s1-b2-03",
+      "revision": 1,
+      "stratum": "home",
+      "request_text": "turn on the lights at the pool",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "home"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [],
+      "observable_reason": "Local home automation, multiple smart appliances may require clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-b2-04",
+      "family_id": "s1-family-s1-b2-04",
+      "revision": 1,
+      "stratum": "home",
+      "request_text": "play my playlist new york state of mind on the kitchen speakers",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "home",
+        "media"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Local home automation, multiple smart appliances may require clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-b2-05",
+      "family_id": "s1-family-s1-b2-05",
+      "revision": 1,
+      "stratum": "home",
+      "request_text": "is the garage door closed?",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "home"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [],
+      "observable_reason": "Local home automation, multiple smart appliances may require clarification",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    }
+  ],
+  "acceptances": [
+    {
+      "case_id": "s1-b2-01",
+      "revision": 1,
+      "case_sha256": "88f83a0f5cc581f1058f937fdff12eba6b1cf65c0faacc99464ed00102a12edd",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:00:22.911Z"
+    },
+    {
+      "case_id": "s1-b2-02",
+      "revision": 1,
+      "case_sha256": "c592c4680f35e294805fe4fe932be460c39158996a6c29050d3051625db1e506",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:00:22.911Z"
+    },
+    {
+      "case_id": "s1-b2-03",
+      "revision": 1,
+      "case_sha256": "c9500bafe2698787c5670ac2e549cd5b42ba18ffe18a354297c0efef42a8c89b",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:00:22.911Z"
+    },
+    {
+      "case_id": "s1-b2-04",
+      "revision": 1,
+      "case_sha256": "a7d5ecb4386eab10c05357aeae6b0bd2075083f3be2da880ea989cf664bcb15f",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:00:22.911Z"
+    },
+    {
+      "case_id": "s1-b2-05",
+      "revision": 1,
+      "case_sha256": "c50bf941c2e88020d9d153eced0eb9d63106b784742f03e5ba3ecc385e8f6cea",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:00:22.911Z"
+    }
+  ]
+}
