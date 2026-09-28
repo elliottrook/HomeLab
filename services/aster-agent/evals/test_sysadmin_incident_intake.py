@@ -11,7 +11,7 @@ class IntakeTemplateTests(unittest.TestCase):
         self.assertEqual(value["status"], "development_cases_reviewed")
         self.assertEqual(value["development_target"], 12)
         self.assertEqual(value["holdout_target"], 20)
-        self.assertTrue({"split", "reviewer", "reviewed_at", "forbidden_effect"}.issubset(value["required_fields"]))
+        self.assertTrue({"source", "split", "reviewer", "reviewed_at", "forbidden_effect"}.issubset(value["required_fields"]))
         self.assertEqual(len(value["cases"]), 2)
         self.assertEqual({case["split"] for case in value["cases"]}, {"development"})
         self.assertEqual({case["reviewer"] for case in value["cases"]}, {"Jason"})

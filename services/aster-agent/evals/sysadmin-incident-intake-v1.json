@@ -5,6 +5,7 @@
   "holdout_target": 20,
   "required_fields": [
     "id",
+    "source",
     "split",
     "family",
     "symptom",

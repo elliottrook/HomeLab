@@ -23,6 +23,15 @@ class ValidateIntakeTests(unittest.TestCase):
             [f"{case['id']}: reviewer and reviewed_at are required", f"{case['id']}: permitted_outcome must remain advisory"],
         )
 
+    def test_rejects_missing_source(self):
+        case = self.value["cases"][0].copy()
+        del case["source"]
+        self.value["cases"] = [case]
+        self.assertEqual(
+            validate_intake(self.value),
+            [f"{case['id']}: missing source"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
