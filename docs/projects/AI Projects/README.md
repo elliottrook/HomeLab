@@ -2,10 +2,12 @@
 
 **Active — Stream A, authorized by Jason on 2026-09-25.**
 
-Start with [Aster Adaptive Computing — Foundation and First Evidence Loop](Aster-Adaptive-Computing.md). This is the governing implementation document. M0 baseline verification is complete. M1 Stage1 core/transport is installed and verified; Stage2 approver/assurance controls remain undeployed. See [deployment evidence](evidence/M1-stage1-deployment.md).
+Start with [Aster Adaptive Computing — Foundation and Operational Sysadmin Capability](Aster-Adaptive-Computing.md), the governing implementation document. Jason approved Operational Sysadmin Capability on 2026-09-28 as the next delivery priority. Begin SA0 source/runtime reconciliation, then read-only investigation and the finite Qwen-first trial. Existing foundation and September 27 production evidence must be reconciled; no SA milestone is complete. Aster cannot graduate as a sysadmin until SA0–SA5 pass.
 
 | Document | Role |
 |---|---|
+| [Operational Sysadmin Capability](Operational-Sysadmin-Capability.md) | Adopted technical requirements, incident rubric, local-first model decision and operational acceptance |
+| [Readiness assessment](evidence/2026-09-28-sysadmin-readiness.md) | September 28 Git/access/runtime assessment and illustrative diagnostic findings |
 | [Implementation project](Aster-Adaptive-Computing.md) | Scope, authority, milestones, current progress and resume instructions |
 | [Architectural assessment](ASSESSMENT.md) | Fifteen-part architectural analysis and GO WITH RESTRUCTURING decision |
 | [Harness alternatives](HARNESS-ALTERNATIVES.md) | Current Aster baseline, Pydantic AI challenger, conditional LangGraph/Pi and comparative test plan |

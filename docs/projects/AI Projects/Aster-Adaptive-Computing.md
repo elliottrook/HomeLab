@@ -1,10 +1,6 @@
-# Aster Adaptive Computing — Foundation and First Evidence Loop
+# Aster Adaptive Computing — Foundation and Operational Sysadmin Capability
 
-**Status:** Active — Stream A; M0 complete; M1 Stage1 installed and verified;
-Stage2 identity/assurance gates remain open; M2 offline foundation verified;
-M3 harness subdecision retains Aster and keeps routing evidence open; M4 offline
-verifier and storage review design prepared, independent custody/review gates still
-open.
+**Status:** Active — Stream A. Operational Sysadmin Capability (SA0–SA5) is the next delivery priority, approved by Jason on 2026-09-28. SA0 reconciliation is next; all SA gates remain open. M0 and the offline M2 foundation have evidence; M1 and remaining foundation acceptance gates are not declared complete. September 27 production repairs and newer branch evidence must be reconciled at SA0.
 
 **Owner:** Jason.
 
@@ -12,17 +8,23 @@ open.
 
 **Authorization stream:** Stream A — Autonomous, explicitly authorized by Jason on 2026-09-25: create the AI Projects folder, adopt these documents, mark superseded plans and archive them, and start this project. The authorization covers the bounded foundation milestones and their existing exclusions, not general administrator authority, later-release scope or automatic promotion authority. Repository/platform controls and per-push confirmation remain mandatory.
 
+**2026-09-28 amendment authorization:** Jason approved adding Operational Sysadmin Capability to this existing programme and making it the next delivery priority. This adopts the SA0–SA5 scope, local-first decision process and acceptance criteria below. Routine read-only discovery, local implementation and fixture evaluation proceed under the existing Stream A envelope. Exact connected deployments, new capability/credential paths, cloud egress and supervised repair canaries retain their stated risk and authorization gates; this amendment is not a blanket grant of root access or production mutation. Remote Git publication remains separately gated.
+
 **Canonical project document:** `docs/projects/AI Projects/Aster-Adaptive-Computing.md`. Assessment and inventory are dated supporting evidence; this document governs implementation.
 
 **Supporting assessment:** [architecture](ASSESSMENT.md), [inventory](INVENTORY.md), [harness comparison](HARNESS-ALTERNATIVES.md), [research log](research-log.md).
 
 ## 1. Purpose and desired outcome
 
+The next user-visible outcome is an Aster sysadmin that can investigate an unfamiliar lab incident, gather missing evidence, distinguish competing explanations, prepare a bounded correction, execute through an authorized adapter and independently verify the result. [Operational Sysadmin Capability](Operational-Sysadmin-Capability.md) defines the adopted technical requirements and evaluation protocol; milestone status is maintained only in this document. Routing, knowledge recall and refusal tests alone do not qualify Aster for this role.
+
 Establish one coherent programme in which Aster's independently replaceable components improve through retained evidence, with deterministic authority and human governance. Deliver a finite foundation release that can compare routing and harness choices, explain outcomes, reject regressions and demonstrate one complete evidence-backed decision cycle.
 
 Success does not require replacing the existing runtime or deploying a learned router. Keeping a simpler baseline after a reproducible comparison is a valid engineering result. It must still leave usable contracts, measurements, decision records and an operational improvement process—not merely another research report.
 
 ## 2. Current state and evidence
+
+The [September 28 readiness assessment](evidence/2026-09-28-sysadmin-readiness.md) and [two illustrative live diagnostics](evidence/2026-09-28-sysadmin-diagnostics.json) establish the amendment baseline: reasoning disabled, one-pass evidence preparation, a live ordinary-answer cap of 500 tokens, limited diagnostic access, and inadequate incident answers. These are observations, not proof Qwen can never succeed. The adaptive branch at `8fd5f8d`, local main at `d2f771d` and observed Forgejo main at `ca22e78` differ. Later production repairs must be preserved; earlier status prose below is dated history where superseded by this amendment.
 
 The assessment verified main `e50b670b906f397e1e70b6d51cf07e88235ac5c5` at Forgejo and its GitHub mirror. The checkout was behind; reverify the baseline before implementation. Existing user edits must be preserved.
 
@@ -36,7 +38,7 @@ AI-PAM has implemented milestones and an initial read integration, but not full 
 
 **Excludes:** general shell/admin agents; automatic privilege changes; automatic security/evaluator-policy changes; new public ingress; production destructive tests; wholesale repository moves; new hardware; replacing Authentik/OpenBao; adopting Octelium; installing multiple orchestration/evaluation platforms; indiscriminate raw conversation retention; broad personal-data integration; an automatic production-remediation programme. Routine local implementation and synthetic evaluation are authorized within this foundation scope. New major dependencies, deployment targets, data collection and production boundary changes require the relevant milestone risk/compatibility gate; no such deployment is included in this initial baseline commit.
 
-Full voice replacement, private/public live composition and guarded remediation remain later release gates in this same programme. Existing domain projects remain historical evidence and independently bounded implementation dependencies; their permissions do not transfer automatically.
+The adopted SA workstream includes bounded investigative tools, a Qwen-first capability trial, a provider decision and one supervised repair class after its gates. It does not introduce a general shell/admin agent or automatic remediation. Full voice replacement and private/public live composition remain later release gates in this same programme. Existing domain projects remain historical evidence and independently bounded implementation dependencies; their permissions do not transfer automatically.
 
 ## 4. Authority model
 
@@ -64,6 +66,8 @@ Broker corrective work is tracked here as a prerequisite work package, with link
 
 ## 7. Pre-start risk assessment
 
+The SA amendment adds reasoning/queue contention, stale or incomplete observations, evidence leakage, tool-loop escape and ambiguous repair outcomes. Its controls, deployment prerequisites and rollback requirements are specified in [the workstream risk and integration section](Operational-Sysadmin-Capability.md#risk-integration-and-recovery). Existing authority invariants remain mandatory; no SA work may silently weaken them.
+
 | Risk | Likelihood / impact | Controls and residual risk |
 |---|---|---|
 | Framework swap reproduces prompt overhead | Plausible / poor responsiveness | Same-model comparison, prompt/call tracing, minimal tools, baseline retained; performance remains unknown until measured |
@@ -84,6 +88,8 @@ On resume: read this project's progress/evidence sections; verify Git status and
 
 ## 9. Milestones and gates
 
+**Delivery order:** SA0, then read-only SA1/SA2 and SA3. Finish applicable M1 controls before any connected capability relies on them and before SA4 writes. Generic S1 routing collection, learned routing and broad adaptive-learning promotion are deferred as delivery priorities; preserve their records and custody requirements, but do not require further household-routing labels before useful sysadmin diagnosis. M2/M4 contracts and evidence infrastructure are reused where applicable. No deployed timer or collection service is changed by this documentation amendment.
+
 Checkboxes are milestone evidence claims. M0 is complete for baseline/start scope; later gates remain open until their full implementation, validation and documentation are complete.
 
 | Gate | Work and dependency | Acceptance / measurement | Rollback and evidence before continuing |
@@ -95,11 +101,19 @@ Checkboxes are milestone evidence claims. M0 is complete for baseline/start scop
 | **M4 — minimal evidence loop** | M2; privacy-approved schema and storage design | [ ] Reproducible dataset manifests, label provenance, calibration where supported, paired evaluation, experiment record and proposal/review separation; storage restore test | Stop collector/runner; restore last-known-good manifests; no opaque data dependency |
 | **M5 — read-only shadow pilot** | M1 for any connected broker path; M3/M4; explicit collection/deployment approval | [ ] Finite observation window, proposed 14 days plus sufficient labeled independent examples; no effectful calls; audited egress/retention; measured overhead and shared-service impact | Disable shadow switch, remove candidate traffic and disallowed data; extend window or declare inconclusive if sample inadequate |
 | **M6 — one complete change decision** | M5 identifies a justified candidate or evidence to reject it | [ ] Preregistered benefit/guardrails; held-out result; human review; rejection recorded or approved reversible canary; proposed 14-day continued observation if promoted | Atomic versioned revert; invalidate incompatible pending plans; no evaluator/permission modifications |
-| **M7 — operational graduation** | All prior gates and open risks reconciled | [ ] Operator explanation, monitoring/Doctor integration, restore and degradation tests, documentation, reproducible rerun and Jason acceptance; pending publication stated | Current stable path and documented uninstall/disable remain available; final manifest and evidence index |
+| **M7 — operational graduation** | Applicable foundation gates, SA0–SA5 and open risks reconciled | [ ] Operator explanation, monitoring/Doctor integration, restore and degradation tests, documentation, reproducible rerun and Jason acceptance of demonstrated sysadmin operation; pending publication stated | Current stable path and documented uninstall/disable remain available; final manifest and evidence index |
+| **SA0 — reconcile production and source** | Next; preserve production repairs and useful adaptive-branch work | [ ] One reviewed release tree and runtime manifest; live/repository diffs explained; checkpoint and reproducible release inventory | No blind reset; retain every source history and known-good production bundle |
+| **SA1 — iterative investigation** | SA0; separate sysadmin mode and shared streaming/non-streaming loop | [ ] Follow-up tool selection, hypothesis revision, bounded context/reasoning/output, durable incident state and reconnect behavior; no fabricated execution | Feature-disable returns to accepted advisor; no new effectful tools |
+| **SA2 — diagnostic evidence access** | SA0; develop alongside SA1; applicable M1 boundary checks | [ ] Registered-target Git/log/status/network/backup/config observations with provenance, age, truncation and denied-action tests | Revoke/disable individual read adapters; credentials remain outside model |
+| **SA3 — Qwen capability and provider decision** | SA1/SA2; pinned corpus and settings | [ ] Current baseline versus improved non-thinking/thinking configurations; held-out quality and latency gates; recorded Qwen-only, narrow local/hybrid or cloud-sysadmin decision | At most two improvement configurations; no automatic cloud enrollment or production promotion |
+| **SA4 — supervised reversible repair** | Diagnostic acceptance and applicable M1/AI-PAM/recovery gates; exact canary authorization | [ ] One repair class with bound plan, preconditions, checkpoint, approval, execution, independent postchecks, rollback and uncertain-outcome handling | Disable adapter; restore only bounded affected state; reconcile before retry |
+| **SA5 — operational role acceptance** | SA0–SA4; representative held-outs and finite live shadow/canary observation | [ ] Accepted rubric, useful normal workflow, two independent critical production-path passes, recovery/degradation proof and Jason acceptance | Retain human recovery and proven narrower role; document limits, do not claim universal autonomy |
 
 The proposed windows and thresholds are finalized before data inspection. Calendar duration alone does not establish enough evidence. Harness replacement and learned routing are optional outcomes; a retained baseline still requires the evidence-loop and operational graduation gates.
 
 ## 10. Validation and evaluation
+
+For the SA workstream, the incident rubric in [Operational Sysadmin Capability](Operational-Sysadmin-Capability.md#finite-useful-evaluation) is controlling: 12 development incidents, at least 20 independently reviewed held-out variants, at least 18/20 correct/actionable investigations on the initial fixed set, zero unauthorized effects or false completion claims, and correct escalation on deliberately insufficient evidence. Freeze the precise set, labels, latency protocol and configuration before running; do not tune against the holdout. The adopted latency targets and finite trial cap are planning/acceptance requirements, not measured current capability. Retain the tests below as supporting regressions.
 
 Use two independent comparisons: harness implementation with controlled model/tool fixtures, and routing strategy with frozen capability labels. Then measure the chosen candidates on pinned local serving configurations. Record warm/cold timing, model queue/prefill/decode, prompt/schema tokens, model calls, retries, RSS/CPU, task success, abstention, unauthorized-attempt blocks and development/maintenance effort.
 
@@ -141,6 +155,8 @@ Test isolated reconstruction of the evaluation environment and restoration of ap
 
 ## 14. Graduation criteria
 
+**Mandatory operational gate:** the programme cannot graduate Aster as a sysadmin until SA0–SA5 pass. Foundation or advisor completion may be recorded separately, with that limited label. The approved grade must distinguish knowledge advisor, diagnostic investigator, supervised repair operator and narrowly authorized scheduled operator. A model/harness selection or routing pass cannot substitute for incident evidence, independent verification and Jason's operational acceptance.
+
 The project graduates when Aster has stable replaceable contracts, an evidence-backed harness/routing decision, trustworthy outcome records, a reproducible benchmark, an independently governed change process, tested disable/restore paths and one completed improvement-or-rejection cycle. Jason must be able to answer what changed, why, with what evidence, under whose authority and how to revert it.
 
 No unresolved authorization invariant can be marked as passed. Any accepted limitation is explicit. Full Alexa replacement, high availability and operational autonomy are not graduation claims for this foundation release.
@@ -149,6 +165,7 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 
 | Date | Activity | Result / limits |
 |---|---|---|
+| 2026-09-28 | Jason approved the sysadmin-readiness recommendation and directed incorporation into the existing unified project | Adopted SA0–SA5 as next delivery priority; Qwen-first trial and conditional hybrid decision; mandatory sysadmin graduation gate; supporting assessment/live diagnostics retained; implementation gates remain open; documentation only, no deployment or push |
 | 2026-09-25 | Repository/live architectural assessment | GO WITH RESTRUCTURING; baseline/provenance and security findings retained in assessment |
 | 2026-09-25 | Current harness alternatives reviewed | Existing Aster baseline; Pydantic AI first challenger; LangGraph conditional; no installations or lab benchmark claims |
 | 2026-09-25 | Single implementation project drafted | Review artifact only; no production/repository mutation, approval or milestone completion implied |
@@ -166,9 +183,13 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 
 ## 16. Later releases within the programme
 
-After foundation graduation, propose bounded amendments under this document for: deterministic voice/household reliability; isolated live calendar/public-web composition; limited Class 1 optimization under explicit standing authorization; and one guarded operational remediation after AI-PAM/recovery graduation. Each amendment adds its own risk, acceptance, measurement and rollback gates. Unrelated storage, network and hardware projects remain independent dependencies.
+After foundation graduation, propose bounded amendments under this document for: deterministic voice/household reliability; isolated live calendar/public-web composition; limited Class 1 optimization under explicit standing authorization; and additional remediation classes beyond the current SA4 scope after AI-PAM/recovery graduation. Each amendment adds its own risk, acceptance, measurement and rollback gates. Unrelated storage, network and hardware projects remain independent dependencies.
 
 ## 17. Close-out and current resume point
+
+**Controlling resume instruction — 2026-09-28:** the approved workstream amendment is recorded; start SA0. Reverify Forgejo main, both local histories and live hashes; prepare a reviewed integration candidate preserving the September 27 owner/passkey fixes, live AI-PAM retrieval additions, September 28 archiver repair and the adaptive branch's later M2/M3/M4 evidence. Record a runtime manifest and integration decision before implementation. Do not overwrite unrelated edits or infer deployment from Git. Then continue read-only SA1/SA2. The historical S1-label requests below are no longer the next delivery prerequisite. All SA checkboxes remain open. This change is local documentation; remote synchronization is pending separate authorization.
+
+The checkpoints below retain their original evidence and limits. They do not override the current resume instruction or establish current live state.
 
 **Active, not graduated.** M0 is complete. Jason approved M1 Stage1, and the
 authenticated-caller, versioned-policy and atomic core/transport changes are

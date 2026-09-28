@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-28 — Operational Sysadmin Capability adopted within Aster
+
+- Recorded Jason's approval to add SA0–SA5 to the existing unified programme, with production/source reconciliation and useful diagnosis as the next delivery priority.
+- Added iterative diagnostic tools, a finite Qwen-first incident trial, conditional provider selection and supervised verified repair gates; routing and fact-recall scores no longer establish sysadmin graduation.
+- Preserved foundation evidence, AI-PAM/recovery boundaries, personal-module scope and B60 engineering dependency; deferred broad routing/learning work as a delivery priority.
+- Retained September 28 readiness evidence and two illustrative live diagnostic answers. Documentation adoption only; no production changes, authority expansion or remote publication.
+
 ## 2026-09-25 — B60 inference engineering M0 inventory and local harness
 
 - Verified the bounded LXC 110 TrueNAS mirror is enabled at 04:20 and completed

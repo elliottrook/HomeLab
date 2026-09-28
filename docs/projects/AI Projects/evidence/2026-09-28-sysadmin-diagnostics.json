@@ -1,0 +1,46 @@
+{
+  "date": "2026-09-28",
+  "scope": "Two illustrative read-only prompts, no production changes, not blind or statistically representative; credentials omitted.",
+  "cases": [
+    {
+      "case": 1,
+      "prompt": "Read-only diagnostic exercise; do not run jobs or change anything. Since the Authentik rollout, Sonarr and Radarr opened through Homepage ask for a second native login after successful Authentik login. Give competing causes, the next specific observations that distinguish them, and how a correction should be verified. Do not claim a cause is proven or that you executed checks.",
+      "seconds": 89.69,
+      "choices": [
+        {
+          "finish_reason": "length",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "**Competing causes**\n\n1. **Homepage proxy misconfiguration**: Homepage forwards to ARR services without preserving the Authentik-issued session cookie or with an incorrect `Authorization` header, causing ARR to see an unauthenticated request and present its native login.\n2. **ARR SSO/SSO-redirect misconfiguration**: Sonarr/Radarr are not correctly configured to trust the Authentik IdP (e.g., wrong callback URL, missing SSO enabled, or cookie domain mismatch), so even a valid Authentik session is not recognized by ARR.\n3. **Cookie domain/path scope mismatch**: The Authentik session cookie is scoped to a domain or path that does not match the ARR service URLs as seen through Homepage, so the browser does not send it to ARR.\n4. **Homepage caching or stale upstream state**: Homepage is serving a cached or stale response that predates the Authentik integration, or its upstream health check is hitting an unauthenticated endpoint that triggers a login redirect.\n\n**Distinguishing observations**\n\n- **Check browser DevTools → Network tab** when clicking Sonarr/Radarr in Homepage:\n  - If the request to ARR includes the Authentik cookie but ARR still returns a 302 to its native login page, the issue is likely ARR SSO configuration (Cause 2) or cookie domain mismatch (Cause 3).\n  - If the request to ARR does **not** include the Authentik cookie, the issue is likely Homepage proxy configuration (Cause 1) or cookie scope (Cause 3).\n- **Check ARR logs** (via sanitized report or approved access) for SSO authentication attempts:\n  - If ARR logs show \"SSO login failed\" or \"invalid token,\" the issue is ARR SSO configuration (Cause 2).\n  - If ARR logs show no SSO attempt at all, the issue is that the request never reached ARR with SSO credentials (Cause 1 or 3).\n- **Check Homepage configuration** for the Sonarr/Radarr entries:\n  - Verify that the upstream URL points to the correct ARR service and that any proxy headers (e.g., `X-Forwarded-For`, `Authorization`) are correctly set.\n  - Verify that Homepage is not stripping or modifying cookies.\n- **Check Authentik application configuration** for Sonarr/Radarr:\n  - Verify that the callback URL matches the ARR service URL"
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2655,
+        "completion_tokens": 500,
+        "total_tokens": 3155
+      }
+    },
+    {
+      "case": 2,
+      "prompt": "Read-only diagnostic exercise; do not run jobs or change anything. The video archiver completed most files, but two copied-audio MKV outputs exceeded the cap. ffprobe stream.bit_rate is missing but BPS tags exist. Jellyfin GET returns 401 with X-Emby-Token and 200 with Authorization: MediaBrowser using the same key. Explain likely causes and a bounded repair and verification plan, separating the two problems.",
+      "seconds": 65.21,
+      "choices": [
+        {
+          "finish_reason": "stop",
+          "index": 0,
+          "message": {
+            "role": "assistant",
+            "content": "**Problem 1: MKV bitrate cap exceeded**\nLikely cause: The video archiver’s size/bitrate cap logic relies on `ffprobe` stream `bit_rate`, which is missing. It likely fell back to a default or failed to calculate the effective bitrate, causing the output to exceed the cap despite BPS tags existing in the container.\n*   **Repair:** Update the archiver’s bitrate detection to parse BPS tags or calculate from file size/duration when `stream.bit_rate` is null. Re-run the two failed files.\n*   **Verification:** Confirm new outputs meet the cap. Check `ffprobe` output for the new files to ensure bitrate metadata is present or correctly inferred.\n\n**Problem 2: Jellyfin 401 with X-Emby-Token**\nLikely cause: Jellyfin 10.11+ deprecated or removed support for the legacy `X-Emby-Token` header in favor of the standard `Authorization: MediaBrowser` header. The 200 response with the latter confirms the key is valid and the server expects the new header format.\n*   **Repair:** Update the client or script making the GET request to use `Authorization: MediaBrowser <key>` instead of `X-Emby-Token`.\n*   **Verification:** Re-issue the GET request with the new header. Confirm a 200 response and valid JSON payload.\n\n**Note:** The retrieved sources confirm Jellyfin 10.11.11 is the version in use but do not explicitly document the header deprecation. This is a known upstream change. No live changes were made."
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 2626,
+        "completion_tokens": 340,
+        "total_tokens": 2966
+      }
+    }
+  ]
+}
