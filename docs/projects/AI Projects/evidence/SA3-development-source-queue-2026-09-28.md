@@ -19,6 +19,16 @@ tool use, or deployment.
 | `video_archiver_jellyfin_verification` | `Video-Archiver-Repair-2026-09-28` | Jason-approved development case |
 | `paperless_ip_collision` | `Paperless-IP-Collision` | Jason-approved development case |
 
+## Source-selection decision
+
+On 2026-09-28, Jason approved all ten candidates in this queue as eligible
+**sources** for development-case authoring. The reviewed packet records the
+same decision and each candidate's no-effect boundary. This approval permits
+only the preparation of sanitized development-case drafts from these records.
+It does not add any case to the intake, approve a source as a holdout, authorize
+fresh collection, enable reasoning, add a tool target, change a provider, or
+deploy any runtime change.
+
 ## Candidate source records
 
 Each candidate requires a separate sanitized scenario, label, reviewer decision,
