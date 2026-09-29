@@ -16,19 +16,31 @@ reuse a development case's answer sequence, sanitized observation bundle, or
 label. A related family is allowed only when the new variant is demonstrably
 independent from the development case.
 
-## Required roles
+## Solo-lab procedural independence
 
-Before activation, Jason designates named people for all three roles:
+This is Jason's personal lab. Requiring three unrelated humans would make the
+holdout impractical without materially improving safe day-to-day operation. The
+holdout therefore uses **procedural independence**, not external human
+independence: separate, fresh GPT/Codex sessions perform distinct roles under
+fixed access rules, and Jason remains the sole policy owner and final authority.
+
+This design supports a meaningful anti-contamination check for a personal lab.
+It must not be described as third-party audit, external validation, or proof of
+universal model reliability.
+
+Before activation, Jason names or starts a separate session for each role:
 
 | Role | Required separation |
 |---|---|
-| Holdout custodian | Keeps raw candidate text, accepted sanitized case content, and labels outside the repository and the Aster knowledge corpus. |
-| Independent reviewer | Is not the author of the case and is not the person tuning the evaluated model; approves privacy, causality, rubric, and label before release. |
-| Evaluation operator | Receives only the fixed evaluation bundle for a run and cannot edit cases, labels, or the manifest after its release digest is recorded. |
+| Custodian session | Creates candidate case content and labels from approved sources; keeps them outside the repository and Aster knowledge corpus; does not inspect model runs or edit the evaluated implementation. |
+| Review session | Receives the candidate and rubric, but not the implementation workspace, development answer sequence, or model results; checks privacy, causality, rubric, and label consistency. |
+| Evaluation session | Receives only a fixed release bundle for the run, with labels withheld; cannot edit the cases, labels, or manifest after the release digest is recorded. |
+| Scoring session | Receives the fixed run record and labels only after the run digest is sealed; cannot edit the evaluated implementation or rerun selected cases. |
 
-One person may not hold all three roles. If a suitable independent reviewer is
-not available, do not claim an independent holdout; record the limitation and
-retain development-only evaluation.
+The same GPT/Codex conversation must not perform more than one of these roles
+for a release. Sessions use separate task histories and separate local
+directories. Jason may inspect all artifacts and approves every transition, but
+does not need to recruit an organization or external reviewer.
 
 ## Proposed custody workflow
 
@@ -39,20 +51,22 @@ retain development-only evaluation.
    mode `0600`. The activation check must reject symlinks, foreign ownership,
    broader permissions, a path inside any repository, backup inclusion, search
    indexing, or Aster knowledge/mirror inclusion.
-3. The custodian authors a sanitized candidate with no credentials, identifiers,
+3. The custodian session authors a sanitized candidate with no credentials, identifiers,
    internal addresses, raw logs, copied private conversations, or repair
    commands. The candidate records its source category, evidence age policy,
    allowed observations, expected discriminating checks, permitted outcome,
    forbidden effects, latency protocol, and a causality-separation note.
-4. The independent reviewer accepts or rejects the exact case and label. The
+4. The review session accepts or rejects the exact case and label. The
    custodian records a canonical-content hash and a separate label hash. Rejected
    text is deleted; retain only a content-free count and reason code.
 5. Before any model run, freeze a 20-case release manifest containing case IDs,
    split, family, case hash, label hash, reviewer receipt hash, release digest,
    evaluator version, and latency protocol. It contains no case text or labels.
-6. The evaluation operator receives the fixed bundle through a reviewed local
-   handoff. Results record case ID, digest, timing, tool/effect audit, outcome,
-   and uncertainty without copying private evidence into Git.
+6. The evaluation session receives the fixed bundle through a reviewed local
+   handoff with labels withheld. The scoring session receives the label bundle
+   only after the evaluation digest is sealed. Results record case ID, digest,
+   timing, tool/effect audit, outcome, and uncertainty without copying private
+   evidence into Git.
 7. Git may retain only the content-free release manifest, aggregate evaluation
    results, and reviewer receipt hashes after a local review. A remote push
    remains separately authorized.
@@ -61,7 +75,7 @@ retain development-only evaluation.
 
 Activation requires all of the following before a single case is authored:
 
-- Jason names the custodian, independent reviewer, and evaluation operator.
+- Jason designates separate custodian, review, evaluation, and scoring sessions.
 - A read-only exclusion check verifies the exact scratch path, ownership, mode,
   repository separation, backup behavior, indexing state, and absence from Aster
   sources.
@@ -78,6 +92,6 @@ Activation requires all of the following before a single case is authored:
 - On a secret/private-data incident, stop authoring, do not stage or publish the
   material, delete the draft, record a content-free incident fact, and reassess
   custody.
-- If custody, reviewer separation, or bundle integrity cannot be demonstrated,
-  do not run the holdout. Report SA3 as incomplete rather than substituting
-  development scores.
+- If session separation or bundle integrity cannot be demonstrated, do not run
+  the holdout. Report SA3 as incomplete rather than substituting development
+  scores.
