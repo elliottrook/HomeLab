@@ -40,7 +40,8 @@ unreviewed service output.
 
 The approved families remain: ARR second login; Doctor parser/schema crash;
 Paperless IP collision; NetBox guest-reboot startup; B60 software rendering;
-DNS asymmetry; missing/interrupted backup; Jellyfin authentication change;
+DNS asymmetry; missing backup configuration; interrupted backup; Jellyfin
+authentication change;
 copied-audio budgeting; stale inventory; and ambiguous ownership. A holdout must
 change causal detail or use a later incident so retrieval cannot simply repeat a
 known repair.

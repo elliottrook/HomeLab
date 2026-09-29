@@ -31,22 +31,26 @@ case but must not be reused as an answer key or relabeled as a holdout.
 | Doctor parser/schema crash | `docs/runbooks/Lab-Health-Review-2026-09-27.md` at `a05047a` | Separate malformed/empty report handling from a target failure; no Doctor, service, or broker change. |
 | B60 software rendering | `docs/projects/B60-Inference-Engineering.md` and `scripts/b60-inference/README.md` at `127eb08` | Interpret retained capability evidence; no model, kernel, driver, or service change. |
 | DNS asymmetry | `docs/Current-Network-Baseline.md` at `c6c0191` | Distinguish routing/interface evidence from name-resolution symptoms; no address, route, DNS, or firewall change. |
-| Missing/interrupted backup | `docs/runbooks/Backup-Coverage-Audit-2026-09-26.md` at `83e0901` | Evaluate retained coverage and recovery-order evidence; no backup schedule, retention, or storage mutation. |
+| Missing backup configuration | `docs/runbooks/Backup-Coverage-Audit-2026-09-26.md` at `83e0901` | Evaluate retained coverage evidence; no backup schedule, retention, or storage mutation. |
+| Interrupted backup | `docs/runbooks/Backup-Coverage-Audit-2026-09-26.md` at `83e0901` | Evaluate retained interruption and recovery-order evidence; no backup schedule, retention, or storage mutation. |
 | Empty Doctor inventory | `scripts/doctor.sh` at `55a73c3` | Distinguish an empty collection from a shell/parser failure; no script or target change. |
 | B60 preflight/rollback | `scripts/b60-inference/guard.py` and README at `b62a6d3` | Interpret a failed preflight and correct abstention/rollback advice; no benchmark, package, or hardware action. |
+| Stale inventory | `docs/projects/Backup-Synology-Decommission.md` at `816b544` | Distinguish stale offline claims from current retained inventory evidence; no backup, device, or inventory mutation. |
 
 ## Explicit gaps
 
-The preregistration's family list has eleven labels, not twelve. Several labels
-also overlap the two reviewed sources: Jellyfin authentication and copied-audio
-budgeting are part of the reviewed Video Archiver/Jellyfin history; ambiguous
-ownership is part of the reviewed Paperless collision. They must not be counted
-again without a causally distinct, sanitized source record.
+The earlier preregistration wording compressed **missing backup configuration**
+and **interrupted backup** into one phrase. The controlling Operational Sysadmin
+Capability specification keeps them as two of the twelve coverage labels, and
+this queue now does the same. Several labels also overlap the two reviewed
+sources: Jellyfin authentication and copied-audio budgeting are part of the
+reviewed Video Archiver/Jellyfin history; ambiguous ownership is part of the
+reviewed Paperless collision. They must not be counted again without a causally
+distinct, sanitized source record.
 
-`NetBox guest-reboot startup` and `stale inventory` currently lack a clearly
-identified incident source in this audit. A future case needs a newly selected
-source record with its own sanitized evidence and review; it must not be
-invented to fill the target.
+`NetBox guest-reboot startup` still lacks a clearly identified incident source
+in this audit. A future case needs a newly selected source record with its own
+sanitized evidence and review; it must not be invented to fill the target.
 
 The next review packet should select at most one distinct source per proposed
 case, state its retained observation bounds and forbidden effects, and keep the
