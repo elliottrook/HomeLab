@@ -84,6 +84,15 @@ Activation requires all of the following before a single case is authored:
   development intake without disclosing new holdout content.
 - Retention, withdrawal, and private-data incident handling are accepted.
 
+## Local handoff validator
+
+`services/aster-agent/evals/validate_sa3_holdout_release.py` validates a
+content-free handoff manifest. The accompanying template contains no sessions,
+cases, labels, or digest. A sealed manifest requires exactly 20 unique case IDs,
+four distinct session receipts, three SHA-256 receipts per case (case, label,
+and review), and a canonical release digest. It rejects case text, labels,
+symptoms, evidence, prompts, and responses as manifest fields.
+
 ## Retention and failure handling
 
 - Unaccepted drafts are deleted at rejection or after seven days.
