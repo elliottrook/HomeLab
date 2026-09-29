@@ -95,3 +95,17 @@ Activation requires all of the following before a single case is authored:
 - If session separation or bundle integrity cannot be demonstrated, do not run
   the holdout. Report SA3 as incomplete rather than substituting development
   scores.
+
+## Content-free procedural rehearsal
+
+On 2026-09-28, separate fresh GPT/Codex sessions rehearsed the four roles using
+one temporary, fully generic authorization-state scenario. The custodian drafted
+it, the review session required a stricter rubric, the evaluation session saw no
+label, and the scoring session rejected the output because it omitted required
+evidence and proposed a different verification. No case text, label, bundle,
+hash, model configuration, latency measurement, or source data was retained.
+No lab system was accessed or changed.
+
+This confirms the role handoff can reject an insufficient answer in a solo-lab
+workflow. It is not a holdout case, does not count toward the 20-case target,
+and provides no Qwen/provider performance claim.
