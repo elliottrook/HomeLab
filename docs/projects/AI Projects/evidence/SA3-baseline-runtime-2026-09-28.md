@@ -34,3 +34,10 @@ in the timing record.
 At most two deliberate local improvements may be compared only after this
 baseline result is sealed. Do not enable reasoning, change model settings, or
 route to a cloud provider merely to make a result pass.
+
+`services/aster-agent/evals/run_sa3_holdout_baseline.py` is the serial
+label-blind runner for this baseline. It verifies every local case against the
+sealed manifest, sends no tools or labels, fixes temperature at `0.2` and the
+response cap at `160`, records elapsed time and output in an owner-only result
+file, and does not modify runtime settings. It is not executed by this
+observation record.
