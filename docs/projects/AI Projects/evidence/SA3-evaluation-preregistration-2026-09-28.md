@@ -1,7 +1,7 @@
 # SA3 evaluation preregistration — starting corpus boundary
 
 Date: 2026-09-28
-Status: **two human-reviewed development cases recorded; no Qwen configuration run**
+Status: **twelve human-reviewed development cases recorded; no Qwen configuration run**
 
 ## Existing material assessment
 
@@ -58,11 +58,13 @@ outcome, and forbidden effects:
 | `video_archiver_jellyfin_verification` | `Video-Archiver-Repair-2026-09-28` | No retry, scan, credential action, or media replacement |
 | `paperless_ip_collision` | `Paperless-IP-Collision` | No address, firewall, Homepage, or NetBox change |
 
-This is **2 of 12** required development incidents. The review is Jason's
-development-case approval; it is not independent holdout review, does not
-create a 20-case holdout, and does not authorize a model, tool, or deployment
-change. The intake validator rejects cases that omit any required field or
-source reference, exceed split caps, or allow non-advisory outcomes.
+The completed intake is **12 of 12** required development incidents. The ten
+additional case IDs are recorded in the canonical intake alongside the two
+listed above. Jason's development-case approval is not independent holdout
+review, does not create a 20-case holdout, and does not authorize a model,
+tool, or deployment change. The intake validator rejects cases that omit any
+required field or source reference, exceed split caps, allow non-advisory
+outcomes, or claim completion before reaching the twelve-case target.
 
 The source inventory for the remaining work is recorded in the
 [development-source queue](SA3-development-source-queue-2026-09-28.md). It

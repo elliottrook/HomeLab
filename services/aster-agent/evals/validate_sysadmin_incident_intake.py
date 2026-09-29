@@ -39,6 +39,8 @@ def validate_intake(value):
 
     if split_counts["development"] > value.get("development_target", 0):
         errors.append("development case count exceeds development_target")
+    if value.get("status") == "development_intake_complete" and split_counts["development"] != value.get("development_target", 0):
+        errors.append("complete development intake must equal development_target")
     if split_counts["holdout"] > value.get("holdout_target", 0):
         errors.append("holdout case count exceeds holdout_target")
     return errors
