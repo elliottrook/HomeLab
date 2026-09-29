@@ -1,0 +1,260 @@
+{
+  "schema_version": "s1-collection-bundle.v1",
+  "experiment_id": "s1-routing-holdout-v1",
+  "plan_sha256": "4727ba248959cc4ed3514c99ca608842e9622c0a0493bccacafae7c1a681c696",
+  "registry_sha256": "19da446b6e4d810bb47c5a7e01cc6823dba39110fa9e56aa20f15d116331adb6",
+  "mode": "collection-candidate-no-evaluation",
+  "retention_ack": "sanitized-local-git-after-human-acceptance",
+  "session": {
+    "collection_started_at": "2026-09-27T04:21:34Z",
+    "draft_expires_at": "2026-10-04T04:21:34Z",
+    "day30_review_at": "2026-10-27T04:21:34Z",
+    "day90_review_at": "2026-12-26T04:21:34Z",
+    "active_effort_seconds": 300,
+    "unresolved_labels": 0
+  },
+  "cases": [
+    {
+      "case_id": "s1-sysadmin-01",
+      "family_id": "s1-family-s1-sysadmin-01",
+      "revision": 1,
+      "stratum": "sysadmin",
+      "request_text": "check the lab doctor and advise whats wrong with jellyfin",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "lab_read",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Personal knowledge needed, clarify needed",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-sysadmin-02",
+      "family_id": "s1-family-s1-sysadmin-02",
+      "revision": 1,
+      "stratum": "sysadmin",
+      "request_text": "check my truenas  deployment and determine if its up to date, if it is not, review everything and develop an update plan, deploy and test",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "lab_read",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Personal knowledge needed, clarify needed",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-sysadmin-03",
+      "family_id": "s1-family-s1-sysadmin-03",
+      "revision": 1,
+      "stratum": "sysadmin",
+      "request_text": "are my backups up to date",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "lab_read",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Personal knowledge needed, clarify needed",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-sysadmin-04",
+      "family_id": "s1-family-s1-sysadmin-04",
+      "revision": 1,
+      "stratum": "sysadmin",
+      "request_text": "opnsense keeps winking out, whats wrong?  develop a plan to fix it",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "lab_read",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Personal knowledge needed, clarify needed",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-sysadmin-05",
+      "family_id": "s1-family-s1-sysadmin-05",
+      "revision": 1,
+      "stratum": "sysadmin",
+      "request_text": "check the ARR stack review for any errors and run an internet search for replacing media approval system",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "lab_read",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "internal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Personal knowledge needed, clarify needed",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    }
+  ],
+  "acceptances": [
+    {
+      "case_id": "s1-sysadmin-01",
+      "revision": 1,
+      "case_sha256": "4ac82b66c324cacb49c4bb500ed4c2f15ca5c8513c6cd5fa5a3d21c823d9ed5e",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-29T01:04:21.847Z"
+    },
+    {
+      "case_id": "s1-sysadmin-02",
+      "revision": 1,
+      "case_sha256": "a1628a890a4bc2c3b0bb36d46bcbbbbff98dca6aafc0045bb614207d88fc1b19",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-29T01:04:21.847Z"
+    },
+    {
+      "case_id": "s1-sysadmin-03",
+      "revision": 1,
+      "case_sha256": "d9894694dcb1ba7a3f40de4a555e2910d12e0dc2ff69eb9b1e05f63dc6f75906",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-29T01:04:21.847Z"
+    },
+    {
+      "case_id": "s1-sysadmin-04",
+      "revision": 1,
+      "case_sha256": "bd4c9049ce4ae45671d487692a4db86e01439806604357ebb2f9e6dc1c68ab55",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-29T01:04:21.847Z"
+    },
+    {
+      "case_id": "s1-sysadmin-05",
+      "revision": 1,
+      "case_sha256": "d08f0bb2caa016130225eb607e9bc9a3a317a6c81cdf9774e6feed34d841ddec",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-29T01:04:21.847Z"
+    }
+  ]
+}
