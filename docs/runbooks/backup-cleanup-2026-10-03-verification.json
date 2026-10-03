@@ -1,0 +1,142 @@
+{
+  "checked_utc": "2026-10-03T17:18:35.754Z",
+  "description": "Read-only newest retained archives: source/TrueNAS SHA256 equality and TrueNAS zstd integrity. Not a VM boot restore or cloud cryptographic verification.",
+  "archives": [
+    {
+      "name": "vzdump-lxc-100-2026_10_03-02_30_02.tar.zst",
+      "sha256": "a80f9a3c18f398af11abb3f42905ac8925668f560e502a996d1f7cea911e4d12",
+      "bytes": 2755012974,
+      "source_sha256": "a80f9a3c18f398af11abb3f42905ac8925668f560e502a996d1f7cea911e4d12",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-101-2026_10_03-02_30_59.tar.zst",
+      "sha256": "b420c7486c4f65b5349b5cdbfc3cf10ab712f61e0985d6d23ad202456bb81b67",
+      "bytes": 2927885697,
+      "source_sha256": "b420c7486c4f65b5349b5cdbfc3cf10ab712f61e0985d6d23ad202456bb81b67",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-qemu-102-2026_10_03-02_31_53.vma.zst",
+      "sha256": "7bdec91b1590695aab1e9e6773d157acc4a5dadc416ca339dd0317175a84bd81",
+      "bytes": 5990281540,
+      "source_sha256": "7bdec91b1590695aab1e9e6773d157acc4a5dadc416ca339dd0317175a84bd81",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-qemu-103-2026_10_03-02_33_22.vma.zst",
+      "sha256": "0b6a964dd10689df92a98dc6b2a2dfe3b7c4e9dfeb5a442eb7d462ad4f41c005",
+      "bytes": 2709159143,
+      "source_sha256": "0b6a964dd10689df92a98dc6b2a2dfe3b7c4e9dfeb5a442eb7d462ad4f41c005",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-104-2026_10_03-02_34_11.tar.zst",
+      "sha256": "6f7bf4e67e60eb29b9849bf4ada2d931f8029c51da0e18080391d37e11216154",
+      "bytes": 1949819918,
+      "source_sha256": "6f7bf4e67e60eb29b9849bf4ada2d931f8029c51da0e18080391d37e11216154",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-qemu-105-2026_10_03-02_35_05.vma.zst",
+      "sha256": "148474e4bd351ef2294838c8745aac03be86a55601b8684beb67ebdf7ddf19df",
+      "bytes": 9172380531,
+      "source_sha256": "148474e4bd351ef2294838c8745aac03be86a55601b8684beb67ebdf7ddf19df",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-106-2026_10_03-02_36_32.tar.zst",
+      "sha256": "c93dd43a1cd15e1a45d713ceeb2327169fa80eb5b6c30c985f13e523c68e8b49",
+      "bytes": 2107099347,
+      "source_sha256": "c93dd43a1cd15e1a45d713ceeb2327169fa80eb5b6c30c985f13e523c68e8b49",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-107-2026_10_03-02_37_38.tar.zst",
+      "sha256": "7e3cb9d3bac0346e11842b2b06f75cb27458a9fd7a1c01603de06c97d94cdbbd",
+      "bytes": 1505832783,
+      "source_sha256": "7e3cb9d3bac0346e11842b2b06f75cb27458a9fd7a1c01603de06c97d94cdbbd",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-108-2026_10_03-02_38_17.tar.zst",
+      "sha256": "bd2c5345dba518a82b13f33f11268fb72084a4337c40baaf1d1c69550a180ee5",
+      "bytes": 432745788,
+      "source_sha256": "bd2c5345dba518a82b13f33f11268fb72084a4337c40baaf1d1c69550a180ee5",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-109-2026_10_03-02_38_30.tar.zst",
+      "sha256": "f17fac9012eb70d9435d960fa7340db3939057820b725d16641c3ba06599a689",
+      "bytes": 1144758290,
+      "source_sha256": "f17fac9012eb70d9435d960fa7340db3939057820b725d16641c3ba06599a689",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-111-2026_10_03-02_44_03.tar.zst",
+      "sha256": "2c883512a18116df930fe99991bc5485464034b9b52346cf3eeaf1e397491530",
+      "bytes": 1548179021,
+      "source_sha256": "2c883512a18116df930fe99991bc5485464034b9b52346cf3eeaf1e397491530",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-112-2026_10_03-02_44_48.tar.zst",
+      "sha256": "435eccf1c1c63a48660b209866170983cc2fc6fe27e00e7c7665a14fb2d2e683",
+      "bytes": 295531199,
+      "source_sha256": "435eccf1c1c63a48660b209866170983cc2fc6fe27e00e7c7665a14fb2d2e683",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-113-2026_10_03-02_44_59.tar.zst",
+      "sha256": "81914f27db0d81cd9c57984632e7e6142ce392ebf762d9f3efca7c75a0e354c3",
+      "bytes": 580015756,
+      "source_sha256": "81914f27db0d81cd9c57984632e7e6142ce392ebf762d9f3efca7c75a0e354c3",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-114-2026_10_03-02_45_14.tar.zst",
+      "sha256": "013f8fdce3605710e9ad26257fde4dfd6d06b95e2e90e4c7416542f974182406",
+      "bytes": 1023643214,
+      "source_sha256": "013f8fdce3605710e9ad26257fde4dfd6d06b95e2e90e4c7416542f974182406",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-115-2026_10_03-02_45_35.tar.zst",
+      "sha256": "97ce091d21dd77464458075eb6fb33c9d6b42856cb89041d91f560323cc119d2",
+      "bytes": 2237606477,
+      "source_sha256": "97ce091d21dd77464458075eb6fb33c9d6b42856cb89041d91f560323cc119d2",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-116-2026_10_03-02_46_25.tar.zst",
+      "sha256": "65db8901685b197c4f934bf89c08d56185813a512312961ea6bc3f78e2569a6d",
+      "bytes": 2401458297,
+      "source_sha256": "65db8901685b197c4f934bf89c08d56185813a512312961ea6bc3f78e2569a6d",
+      "match": true,
+      "zstd_exit": 0
+    },
+    {
+      "name": "vzdump-lxc-117-2026_10_03-02_47_00.tar.zst",
+      "sha256": "cf625472f2aa7e3f394a27c5f20eac843f4a8dab99f34b4c8998c50894cf3e4a",
+      "bytes": 380114545,
+      "source_sha256": "cf625472f2aa7e3f394a27c5f20eac843f4a8dab99f34b4c8998c50894cf3e4a",
+      "match": true,
+      "zstd_exit": 0
+    }
+  ]
+}

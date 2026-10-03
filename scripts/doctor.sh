@@ -194,6 +194,16 @@ check_idrive_relay() {
     fi
 }
 
+check_guest_retention() {
+    local result
+    if result="$(ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
+        'python3 -c '\''import json,time; p="/mnt/Media/backup-ops/guest-retention-state.json"; s=json.load(open(p)); age=(time.time()-s.get("checked_epoch",0))/3600; print("Guest retention: status=%s, last success %.1f hours ago" % (s.get("status"),age)); raise SystemExit(0 if s.get("status")=="success" and age<30 else 1)'\''')"; then
+        pass "$result"
+    else
+        fail "Guest retention guard failed or stale: $result"
+    fi
+}
+
 check_backup_redesign_truenas() {
     local rsynctask_json gowest_epoch_raw snapshot_epoch
 
@@ -2058,6 +2068,7 @@ else
     fail "$config_backup_result"
 fi
 check_backup_redesign_truenas
+check_guest_retention
 check_home_assistant_backup_truenas
 
 category "Local Environment"

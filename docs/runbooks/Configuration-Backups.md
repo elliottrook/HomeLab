@@ -151,3 +151,12 @@ release credentials. New exporters are not automatically added to Aster's broker
 capability allowlist. Jason owns schedule/recovery changes. No addresses, VLANs,
 VM allocation, public ingress or physical inventory changed, so NetBox/rack
 updates are not applicable to this backup addition.
+
+## Guest archive retention correction — 2026-10-03
+
+TrueNAS task 1 still pulls without native deletion. A separate bounded guard
+(cron 8, daily 06:00 local) removes only approved guest archives pruned from the
+source, after validating retained recovery copies and source/pull health. The
+07:00 encrypted relay propagates that retained set. Legacy LXC 110 and Paperless
+cloud exclusions remain unchanged. See the [cleanup record](Backup-Cleanup-Proposal-2026-10-03.md)
+for scope, guard limits, validation, monitoring and suspension instructions.
