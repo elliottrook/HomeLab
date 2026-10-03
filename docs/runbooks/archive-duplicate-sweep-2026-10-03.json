@@ -1,0 +1,305 @@
+{
+  "status": "completed-confirmed-duplicates; four ambiguous groups retained",
+  "authorization": "User requested duplicate archive media removal, clarified snapshots/stashed transcode originals, and explicitly wants completed transcodes kept without old originals.",
+  "pairs": [
+    {
+      "keep": "/mnt/Media/data/archive-movies/Ghostbusters - Afterlife (2021)/Ghostbusters.Afterlife.2021.2160p.UHD.BluRay.Atmos.DV.x265-W4NK3R.mkv-xpost.mkv",
+      "drop": "/mnt/Media/data/archive-movies/Ghostbusters After Life (2021)/Ghostbusters After Life (2021).m4v",
+      "reason": "Keep higher measured resolution",
+      "keep_stat": {
+        "bytes": 2271495721,
+        "mtime_ns": 1790243014384693500,
+        "inode": 4943
+      },
+      "drop_stat": {
+        "bytes": 1573587824,
+        "mtime_ns": 1790414032216626200,
+        "inode": 7878
+      },
+      "decode_checks": [
+        {
+          "offset": 743.6429,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 3718.2145,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 6692.7861,
+          "rc": 0,
+          "error": ""
+        }
+      ]
+    },
+    {
+      "keep": "/mnt/Media/data/archive-movies/Home/Spider-Man.No.Way.Home.2021.2160p.BDRip.TrueHD.7.1.Atmos.HDR10.x265.10bit-MarkII.mkv",
+      "drop": "/mnt/Media/data/archive-movies/Spiderman/Spider-Man No Way Home (2021).m4v",
+      "reason": "Keep higher measured resolution",
+      "keep_stat": {
+        "bytes": 1925332433,
+        "mtime_ns": 1790586364837528600,
+        "inode": 24558
+      },
+      "drop_stat": {
+        "bytes": 1571643801,
+        "mtime_ns": 1790330550957162000,
+        "inode": 6541
+      },
+      "decode_checks": [
+        {
+          "offset": 888.9882,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 4444.941,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 8000.8938,
+          "rc": 0,
+          "error": ""
+        }
+      ]
+    },
+    {
+      "keep": "/mnt/Media/data/archive-movies/Pulp Fiction (1994) {tmdb-680}/Pulp.Fiction.1994.BluRay.1080p.x265.10bit.MNHD-FRDS.mkv",
+      "drop": "/mnt/Media/data/archive-movies/Pulp Fiction (1994)/Pulp Fiction (1994).m4v",
+      "reason": "Keep higher measured resolution",
+      "keep_stat": {
+        "bytes": 1901785641,
+        "mtime_ns": 1790500388782993200,
+        "inode": 24861
+      },
+      "drop_stat": {
+        "bytes": 1532831398,
+        "mtime_ns": 1790508195848803300,
+        "inode": 24179
+      },
+      "decode_checks": [
+        {
+          "offset": 926.413,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 4632.065,
+          "rc": 0,
+          "error": "tream 0: 104 >= 104\n[null @ 0x561513683a40] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 108 >= 108\n[null @ 0x561513683a40] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 111 >= 111\n[null @ 0x561513683a40] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 115 >= 115\n[null @ 0x561513683a40] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 118 >= 118\n"
+        },
+        {
+          "offset": 8337.716999999999,
+          "rc": 0,
+          "error": ""
+        }
+      ]
+    },
+    {
+      "keep": "/mnt/Media/data/archive-movies/Iron Man 3 (2013)/Iron.Man.3.2013.BluRay.1080p.DDP.5.1.x264-hallowed.mkv",
+      "drop": "/mnt/Media/data/archive-movies/Marvel/Iron Man 3 (2013).mp4",
+      "reason": "Keep higher measured resolution",
+      "keep_stat": {
+        "bytes": 1882189716,
+        "mtime_ns": 1790500189278376400,
+        "inode": 25091
+      },
+      "drop_stat": {
+        "bytes": 1534739511,
+        "mtime_ns": 1790329811333627000,
+        "inode": 5561
+      },
+      "decode_checks": [
+        {
+          "offset": 783.2896000000001,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 3916.448,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 7049.6064,
+          "rc": 0,
+          "error": ""
+        }
+      ]
+    },
+    {
+      "keep": "/mnt/Media/data/archive-movies/The Predator (2018)/The.Predator.2018.2160p.DSNP.WEB-DL.DDP5.1.Atmos.HDR.H.265-OnlyWeb.mkv",
+      "drop": "/mnt/Media/data/archive-movies/Predator/The Predator (2018).mp4",
+      "reason": "Same resolution; keep HDR/multichannel/subtitled copy",
+      "keep_stat": {
+        "bytes": 1770720676,
+        "mtime_ns": 1790672742999800000,
+        "inode": 27191
+      },
+      "drop_stat": {
+        "bytes": 1750767524,
+        "mtime_ns": 1790252391962878200,
+        "inode": 5440
+      },
+      "decode_checks": [
+        {
+          "offset": 641.7664,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 3208.832,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 5775.8976,
+          "rc": 0,
+          "error": ""
+        }
+      ]
+    },
+    {
+      "keep": "/mnt/Media/data/archive-movies/SINNERS/Sinners.2025.INTERNAL.1080p.BluRay.HEVC.10bit.AAC5.1-LUCY.mkv",
+      "drop": "/mnt/Media/data/archive-movies/SINNERS/C1_t00.mkv",
+      "reason": "Keep 1920x696 over 720x480; near-identical duration",
+      "keep_stat": {
+        "bytes": 1830712476,
+        "mtime_ns": 1789416950000000000,
+        "inode": 157369
+      },
+      "drop_stat": {
+        "bytes": 1330902722,
+        "mtime_ns": 1790251004362199000,
+        "inode": 4841
+      },
+      "decode_checks": [
+        {
+          "offset": 825.5205000000001,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 4127.6025,
+          "rc": 0,
+          "error": "in stream 0: 90 >= 90\n[null @ 0x5652fccdde80] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 97 >= 97\n[null @ 0x5652fccdde80] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 100 >= 100\n[null @ 0x5652fccdde80] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 107 >= 107\n[null @ 0x5652fccdde80] Application provided invalid, non monotonically increasing dts to muxer in stream 0: 114 >= 114\n"
+        },
+        {
+          "offset": 7429.6845,
+          "rc": 0,
+          "error": ""
+        }
+      ]
+    },
+    {
+      "keep": "/mnt/Media/data/archive-movies/Carry On Matron (1972)/Carry On Matron (1972) [720p] [WEBRip].part1.mp4",
+      "drop": "/mnt/Media/data/archive-movies/Carry On/Carry On Matron (1972).m4v",
+      "reason": "Keep 1280x1024 over 720x404; durations within 0.4 percent",
+      "keep_stat": {
+        "bytes": 824915456,
+        "mtime_ns": 1709461794000000000,
+        "inode": 9390
+      },
+      "drop_stat": {
+        "bytes": 846558966,
+        "mtime_ns": 1790849040405783300,
+        "inode": 63008
+      },
+      "decode_checks": [
+        {
+          "offset": 514.1408,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 2570.704,
+          "rc": 0,
+          "error": ""
+        },
+        {
+          "offset": 4627.2672,
+          "rc": 0,
+          "error": ""
+        }
+      ]
+    }
+  ],
+  "snapshot_audit": {
+    "snapshot_video_counts": {
+      "archive-compact-20260923-233906": 5696,
+      "archive-compact-20260927-020455": 5726,
+      "archive-compact-20260928-020606": 5729,
+      "archive-repair-repair-20260928T203837Z": 5730,
+      "archive-compact-20260929-020544": 5730,
+      "archive-compact-20260930-020333": 5731,
+      "archive-compact-20261001-020138": 5731,
+      "archive-compact-20261003-020625": 5738
+    },
+    "snapshot_only_paths": {
+      "archive-tv/Daryl Dixon/The Walking Dead Daryl Dixon - S01E05 - Deux Amours.m4v": [
+        "archive-compact-20260923-233906"
+      ],
+      "archive-tv/Daryl Dixon/The Walking Dead Daryl Dixon - S01E04 - La Dame de Fer.m4v": [
+        "archive-compact-20260923-233906"
+      ],
+      "archive-tv/Daryl Dixon/The Walking Dead Daryl Dixon - S01E01 - L'\u00c2me Perdue.m4v": [
+        "archive-compact-20260923-233906"
+      ],
+      "archive-tv/Daryl Dixon/The Walking Dead Daryl Dixon - S01E03 - Paris Sera Toujours Paris.m4v": [
+        "archive-compact-20260923-233906"
+      ],
+      "archive-tv/Daryl Dixon/The Walking Dead Daryl Dixon - S01E06 - Coming Home.m4v": [
+        "archive-compact-20260923-233906"
+      ],
+      "archive-tv/Daryl Dixon/The Walking Dead Daryl Dixon - S01E02 - Alouette.m4v": [
+        "archive-compact-20260923-233906"
+      ]
+    },
+    "extra_formats_live": [
+      "archive-movies/Christy (2025).mpg",
+      "archive-movies/Poor Things (2023).mpg",
+      "archive-movies/Despicable Me (2010)/00250.m2ts",
+      "archive-movies/The Devil Wears Prada 2 (2026)/00294.m2ts",
+      "archive-movies/ZOOTOPIA_2/00036.m2ts",
+      "archive-movies/Downton Abbey - The Grand Finale (2025)/00062.m2ts",
+      "archive-movies/RoboCop 3 (1993)/00800.m2ts",
+      "archive-movies/Rise of the Planet of the Apes (2011)/00600.m2ts"
+    ]
+  },
+  "held": [
+    "Doc Martin S06E08: embedded title Doc Martin S10 D3; duration mismatch",
+    "Doc Martin S07E02: 47 versus 92 minutes",
+    "Doctor Who S01E09: 44 versus 69 minutes",
+    "Night at the Museum: runtime difference requires edition/speed confirmation"
+  ],
+  "scope": "Archive media only; no guest backup cleanup or photo changes",
+  "execution": {
+    "date": "2026-10-03",
+    "deleted_movie_files": 7,
+    "deleted_movie_bytes": 10141031746,
+    "deleted_snapshots": [
+      "Media/data@archive-compact-20260923-233906",
+      "Media/data@archive-compact-20260927-020455",
+      "Media/data@archive-compact-20260928-020606",
+      "Media/data@archive-repair-repair-20260928T203837Z",
+      "Media/data@archive-compact-20260929-020544",
+      "Media/data@archive-compact-20260930-020333",
+      "Media/data@archive-compact-20261001-020138",
+      "Media/data@archive-compact-20261003-020625"
+    ],
+    "all_deleted_paths_absent": true,
+    "all_retained_paths_size_inode_unchanged": true,
+    "decode_validation": "Three-point sampled audio/video decode; Pulp Fiction and Sinners timestamp warnings cleared using fps_mode passthrough on recheck. Not full-file integrity tests.",
+    "snapshot_used_bytes_after": 0,
+    "zpool_freeing_bytes_after": 0,
+    "pool_capacity_after_percent": 72,
+    "dataset_available_after": "3.81 TiB",
+    "pool_health": "ONLINE",
+    "jellyfin_filesystem_scan": "requested successfully",
+    "nightly_compactor": "run-compact.sh now passes --no-snapshot; bash syntax passed",
+    "scope_note": "Only archive media and eight Media/data processing snapshots deleted; guest/cloud backup proposal not executed."
+  }
+}
