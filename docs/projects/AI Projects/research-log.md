@@ -982,3 +982,11 @@ outcomes, all required controls, and empty effects for all 12 cases with no
 invalid output; median latency was 9.065 seconds. This is format-conformance
 evidence only. It does not retest the sealed holdout, establish diagnostic
 quality, select a provider, or change production behavior.
+
+### 2026-10-03 — SA3 fresh schema-confirmation preregistration
+
+The original sealed Qwen baseline set is permanently excluded from retest after
+the development-only schema configuration was introduced. A fresh 20-case,
+private, single-operator confirmation protocol now fixes the candidate, runner,
+request settings and format-only decision gate before any new case/key is made.
+It cannot select a provider or promote production behavior.
