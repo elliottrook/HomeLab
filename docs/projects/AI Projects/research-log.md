@@ -972,3 +972,13 @@ prompt/output/runner files were verified removed from LXC 110 and its host.
 Detailed prompts, answer keys and predictions remain private. The loaded model
 lacks a newly established immutable artifact digest, further limiting this to an
 exploratory baseline.
+
+### 2026-10-03 — SA3 development schema-conformance challenger
+
+After the local Qwen exploratory baseline produced four malformed structured
+outputs on the sealed set, a single development-only challenger used llama.cpp
+schema-constrained JSON on the exposed 12-case corpus. It produced valid
+outcomes, all required controls, and empty effects for all 12 cases with no
+invalid output; median latency was 9.065 seconds. This is format-conformance
+evidence only. It does not retest the sealed holdout, establish diagnostic
+quality, select a provider, or change production behavior.

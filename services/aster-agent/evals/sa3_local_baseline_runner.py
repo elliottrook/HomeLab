@@ -11,6 +11,7 @@ import json
 import os
 import sys
 import time
+import argparse
 import urllib.request
 
 SYSTEM = """You classify a sanitized infrastructure-support request. You have no tools,
@@ -25,6 +26,16 @@ REQUIRED_CONTROLS = {
     "read_only_or_planning_only",
 }
 ALLOWED_OUTCOMES = {"acceptable_plan", "clarify_needed"}
+RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "outcome": {"type": "string", "enum": sorted(ALLOWED_OUTCOMES)},
+        "controls": {"type": "array", "items": {"type": "string"}},
+        "effects": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["outcome", "controls", "effects"],
+    "additionalProperties": False,
+}
 
 
 def parse_model_content(content: str) -> dict:
@@ -42,12 +53,13 @@ def parse_model_content(content: str) -> dict:
     return {"outcome": outcome, "controls": [str(item) for item in controls], "effects": [str(item) for item in effects]}
 
 
-def evaluate_case(case_id: str, prompt: str, endpoint: str, key: str, model: str) -> dict:
+def evaluate_case(case_id: str, prompt: str, endpoint: str, key: str, model: str, structured: bool) -> dict:
     payload = json.dumps({
         "model": model,
         "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}],
         "temperature": 0,
         "max_tokens": 96,
+        **({"response_format": {"type": "json_object", "schema": RESPONSE_SCHEMA}} if structured else {}),
     }).encode("utf-8")
     request = urllib.request.Request(endpoint, data=payload, headers={
         "Authorization": f"Bearer {key}", "Content-Type": "application/json",
@@ -65,18 +77,32 @@ def evaluate_case(case_id: str, prompt: str, endpoint: str, key: str, model: str
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--structured-output", action="store_true")
+    parser.add_argument("--runner-label", default="sa3-local-baseline-v1")
+    args = parser.parse_args()
     source = json.load(sys.stdin)
-    cases = source.get("cases")
-    if not isinstance(cases, list) or not all(isinstance(item, str) for item in cases):
-        raise SystemExit("input must contain a cases string array")
+    raw_cases = source.get("cases")
+    if not isinstance(raw_cases, list):
+        raise SystemExit("input must contain a cases array")
+    cases = []
+    for index, item in enumerate(raw_cases, start=1):
+        if isinstance(item, str):
+            cases.append((f"sa3-holdout-{index:02d}", item))
+        elif isinstance(item, dict) and isinstance(item.get("id"), str) and isinstance(item.get("prompt"), str):
+            cases.append((item["id"], item["prompt"]))
+        else:
+            raise SystemExit("each case must be a prompt string or an id/prompt object")
     key = os.environ.get("ASTER_LLAMA_API_KEY")
     if not key:
         raise SystemExit("ASTER_LLAMA_API_KEY is required")
     endpoint = os.environ.get("ASTER_LLAMA_BASE_URL", "http://192.168.70.12:11435/v1").rstrip("/") + "/chat/completions"
     model = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
-    predictions = [evaluate_case(f"sa3-holdout-{index:02d}", prompt, endpoint, key, model)
-                   for index, prompt in enumerate(cases, start=1)]
-    print(json.dumps({"schema_version": 1, "runner": "sa3-local-baseline-v1", "predictions": predictions}, sort_keys=True))
+    predictions = [evaluate_case(case_id, prompt, endpoint, key, model, args.structured_output)
+                   for case_id, prompt in cases]
+    print(json.dumps({"schema_version": 1, "runner": args.runner_label,
+                      "structured_output_constraint": args.structured_output,
+                      "predictions": predictions}, sort_keys=True))
     return 0
 
 
