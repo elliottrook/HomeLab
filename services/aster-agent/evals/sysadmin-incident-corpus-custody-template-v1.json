@@ -46,7 +46,7 @@
   ],
   "required_before_collection": [
     "named_custodian",
-    "independent_holdout_reviewer",
+    "single_operator_temporal_separation_plan",
     "approved_local_storage_location",
     "answer_key_separation_method",
     "sanitization_and_exclusion_check",
@@ -59,6 +59,22 @@
     "configured_location": null,
     "configured_access_identities": []
   },
+  "single_operator_governance": {
+    "mode": "single_operator_not_independently_reviewed",
+    "independence_claim": "prohibited",
+    "required_controls": [
+      "holdout_case_and_answer_key_created_before_development_tuning",
+      "holdout_digest_recorded_before_development_tuning",
+      "holdout_answer_key_not_reopened_until_frozen_evaluation",
+      "evaluation_report_labels_results_as_single_operator_internal_evidence"
+    ],
+    "permitted_claim": "within-lab comparative evidence only",
+    "prohibited_claims": [
+      "independent_holdout_evaluation",
+      "generalized_model_quality_claim",
+      "unreviewed_automatic_promotion"
+    ]
+  },
   "content_exclusions": [
     "credentials_or_secrets",
     "raw_logs_or_unreviewed_service_output",
@@ -66,6 +82,6 @@
     "production_commands_or_live_tool_results",
     "model_outputs_or_scores"
   ],
-  "freeze_rule": "A corpus may be frozen only after every case has independent review, a manifest digest, and a recorded settings/latency/scoring protocol.",
+  "freeze_rule": "A corpus may be frozen only after every case has the configured review status, a manifest digest, and a recorded settings/latency/scoring protocol. In single-operator mode, the report must retain the non-independence limitation.",
   "cases": []
 }

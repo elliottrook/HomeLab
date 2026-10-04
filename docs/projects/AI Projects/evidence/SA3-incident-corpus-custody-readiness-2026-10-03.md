@@ -17,8 +17,9 @@ contract now lists the required case fields, but it does not itself define who
 holds answer labels, how a holdout stays out of retrieval/tuning, or what must
 be decided before collecting an incident.
 
-No populated SA3 incident corpus, custodian, independent reviewer, answer-key
-location or approved retention arrangement exists in this repository.
+No populated SA3 incident corpus, custodian, answer-key location or approved
+retention arrangement exists in this repository. Jason is the sole operator, so
+the programme must not claim independent review.
 
 ## Local readiness improvement
 
@@ -27,13 +28,13 @@ is intentionally empty and records the preconditions for future collection:
 
 - development and holdout uses are distinct;
 - holdout labels are prohibited from model retrieval and implementation tuning;
-- a named custodian, independent reviewer, storage location, separation method,
-  sanitization check, retention rule and digest/freeze procedure are required
-  before collection;
+- a named custodian, local storage location, temporal answer-key separation
+  method, sanitization check, retention rule and digest/freeze procedure are
+  required before collection;
 - credentials, raw logs, private content, live output and model output are
   excluded; and
-- a corpus cannot become evaluable until its independent review, manifest digest
-  and settings/latency/scoring protocol are recorded.
+- single-operator evidence may support within-lab comparisons only; it cannot
+  claim independent evaluation or generalized model quality.
 
 The companion unit test checks that the template stays empty, retains the
 holdout prohibitions, has no configured answer-key location or identities, and
@@ -44,8 +45,8 @@ uses precisely the case fields of the SA3 intake contract.
 This is a proposed custody boundary, not authorization to collect content or a
 claim that any future storage method is secure. Before incident collection,
 Jason must approve a bounded collection/custody plan that names the custodian,
-independent reviewer, local storage and answer-key separation method. A later,
-separate authorization is still required before any Qwen or provider comparison.
+local storage and temporal answer-key separation method. A later, separate
+authorization is still required before any Qwen or provider comparison.
 
 No model, provider, network, credential, production system or remote service was
 accessed for this record.

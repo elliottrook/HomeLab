@@ -24,7 +24,14 @@ class Sa3IncidentCorpusCustodyTests(unittest.TestCase):
         )
         self.assertIsNone(value["answer_key_policy"]["configured_location"])
         self.assertEqual(value["answer_key_policy"]["configured_access_identities"], [])
-        self.assertIn("independent_holdout_reviewer", value["required_before_collection"])
+        self.assertIn(
+            "single_operator_temporal_separation_plan",
+            value["required_before_collection"],
+        )
+        governance = value["single_operator_governance"]
+        self.assertEqual(governance["mode"], "single_operator_not_independently_reviewed")
+        self.assertEqual(governance["independence_claim"], "prohibited")
+        self.assertIn("independent_holdout_evaluation", governance["prohibited_claims"])
         self.assertIn("credentials_or_secrets", value["content_exclusions"])
         self.assertIn("model_outputs_or_scores", value["content_exclusions"])
 
