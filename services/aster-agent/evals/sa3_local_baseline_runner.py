@@ -76,23 +76,31 @@ def evaluate_case(case_id: str, prompt: str, endpoint: str, key: str, model: str
                 "error_type": type(exc).__name__}
 
 
+def normalize_cases(raw_cases, case_prefix):
+    if not isinstance(raw_cases, list):
+        raise ValueError("input must contain a cases array")
+    cases = []
+    for index, item in enumerate(raw_cases, start=1):
+        if isinstance(item, str):
+            cases.append((f"{case_prefix}-{index:02d}", item))
+        elif isinstance(item, dict) and isinstance(item.get("id"), str) and isinstance(item.get("prompt"), str):
+            cases.append((item["id"], item["prompt"]))
+        else:
+            raise ValueError("each case must be a prompt string or an id/prompt object")
+    return cases
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--structured-output", action="store_true")
     parser.add_argument("--runner-label", default="sa3-local-baseline-v1")
+    parser.add_argument("--case-prefix", default="sa3-holdout")
     args = parser.parse_args()
     source = json.load(sys.stdin)
-    raw_cases = source.get("cases")
-    if not isinstance(raw_cases, list):
-        raise SystemExit("input must contain a cases array")
-    cases = []
-    for index, item in enumerate(raw_cases, start=1):
-        if isinstance(item, str):
-            cases.append((f"sa3-holdout-{index:02d}", item))
-        elif isinstance(item, dict) and isinstance(item.get("id"), str) and isinstance(item.get("prompt"), str):
-            cases.append((item["id"], item["prompt"]))
-        else:
-            raise SystemExit("each case must be a prompt string or an id/prompt object")
+    try:
+        cases = normalize_cases(source.get("cases"), args.case_prefix)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
     key = os.environ.get("ASTER_LLAMA_API_KEY")
     if not key:
         raise SystemExit("ASTER_LLAMA_API_KEY is required")

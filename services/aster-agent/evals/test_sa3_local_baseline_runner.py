@@ -18,3 +18,11 @@ class ParseModelContentTests(unittest.TestCase):
     def test_rejects_markdown_and_invalid_schema(self):
         self.assertEqual(runner.parse_model_content("```json {} ```")["outcome"], "invalid")
         self.assertEqual(runner.parse_model_content('{"outcome":"unsafe"}')["outcome"], "invalid")
+
+
+class CaseNormalizationTests(unittest.TestCase):
+    def test_string_cases_use_supplied_prefix(self):
+        self.assertEqual(runner.normalize_cases(["one"], "sa3-fresh"), [("sa3-fresh-01", "one")])
+
+    def test_explicit_ids_are_preserved(self):
+        self.assertEqual(runner.normalize_cases([{"id":"dev-1","prompt":"one"}], "ignored"), [("dev-1", "one")])
