@@ -1024,3 +1024,11 @@ Jason approved the fresh operational-quality corpus scope. Twenty sanitized
 private incident packets and a separately frozen answer key were created in
 local custody; Git records their digests only. The corpus is not yet evaluated,
 and it cannot select a provider or authorize production behavior.
+
+### 2026-10-03 — Qwen operational-quality rejection and Responses challenger
+
+The local Qwen quality run rejected Qwen for the read-only operational pilot:
+format and controls conformed, but operational outcome/check scoring did not.
+A separate stateless, tool-free OpenAI Responses API challenger is proposed for
+a newly created sanitized corpus; no cloud request, credential, adapter, or
+provider selection has occurred.
