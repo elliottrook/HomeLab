@@ -1046,3 +1046,11 @@ Read-only inspection confirmed active Aster broker/approval services on LXC 104
 and private active OpenBao on LXC 117. No existing Responses evaluator identity,
 credential path, service, or egress rule was evidenced. No secret was read. The
 bounded deployment remains blocked on a user-created OpenAI project credential.
+
+### 2026-10-03 — Local-only operational decision
+
+Following the subscription/API billing decision and Qwen quality rejection,
+Stream A adopted deterministic, broker-gated Doctor evidence collection and
+human-reviewed incident packets as the immediate operational path. The local
+typed investigation, retention, Doctor adapter, incident gateway and broker
+gateway tests passed. Cloud challenger deployment is deferred.
