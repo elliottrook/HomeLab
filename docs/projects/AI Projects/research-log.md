@@ -1039,3 +1039,10 @@ A local-only onboarding candidate specifies a service-specific OpenBao path,
 stateless Responses scope, outbound-only API boundary, audit restrictions and
 revocation path. It is not deployed and contains no secret, token, egress rule
 or operational credential.
+
+### 2026-10-03 — Responses challenger deployment preflight
+
+Read-only inspection confirmed active Aster broker/approval services on LXC 104
+and private active OpenBao on LXC 117. No existing Responses evaluator identity,
+credential path, service, or egress rule was evidenced. No secret was read. The
+bounded deployment remains blocked on a user-created OpenAI project credential.
