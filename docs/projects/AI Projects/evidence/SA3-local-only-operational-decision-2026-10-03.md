@@ -19,11 +19,10 @@ only where separately evidenced for constrained local assistance. The proposed
 Responses challenger is deferred without deployment, credential creation, or
 cloud request.
 
-The repository contains typed investigation, persistence/retention, Doctor
-adaptation, authenticated incident gateway, and broker gateway tests. They were
-not runnable in this worktree's macOS interpreter because the Aster dependencies
-are absent, and the deployed LXC does not retain the test files. Treat their
-current runtime validation as **UNKNOWN** until the project dependency environment
-is made available. The next delivery gate is a finite authenticated Doctor
+Fourteen typed-investigation, persistence/retention, and Doctor-adapter tests
+passed in the bundled workspace runtime. The two FastAPI gateway suites remain
+**UNKNOWN** there because FastAPI is absent; nothing was installed. The deployed
+LXC does not retain test files, but its Doctor adapter, typed investigation, and
+incident store exactly match the current source hashes. The next delivery gate is a finite authenticated Doctor
 read-only pilot with freshness/deduplication evidence; it needs its own
 deployment and observation approval.
