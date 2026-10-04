@@ -36,9 +36,11 @@ workflow.
 
 That workflow claimed one fixed-script job and performed no remediation, but
 ended `unknown` with code `interrupted`, `coverage: none`, and zero recorded
-checks. Its private worker output lacked the `Passed`, `Warnings`, and `Failed`
-summary markers that the current worker parser requires. The worker therefore
-failed closed rather than presenting a health claim. No retry was initiated.
+checks. Its pending record had no result, which proves only that the worker was
+interrupted before result delivery. The private operation log also lacked the
+final `Passed`, `Warnings`, and `Failed` summary markers. This is a separate
+incomplete-output observation, not proof of the interruption's cause. No retry
+was initiated.
 
 This is evidence of a contract mismatch between the fixed Doctor script output
 and Lab Operations result parser. It is **not** evidence that the lab is
