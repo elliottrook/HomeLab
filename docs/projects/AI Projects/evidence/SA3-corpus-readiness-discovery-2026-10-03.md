@@ -50,9 +50,15 @@ programme still needs:
 The current change has no network, model, cloud, credential, tool, deployment or
 production effect. It does not reopen S1 or make S1 material eligible for SA3.
 
+## Follow-up local readiness improvement
+
+The companion [custody readiness record](SA3-incident-corpus-custody-readiness-2026-10-03.md)
+and its empty machine-readable template now make the split/answer-key boundary
+explicit. They add no incident content or storage arrangement.
+
 ## Next safe action
 
-Review the now-complete empty intake contract and decide whether to authorize a
-separately bounded, sanitized incident-corpus collection/custody plan. Do not
-populate a case, run a model or select a provider merely from this readiness
-record.
+Review the now-complete intake and custody templates and decide whether to
+authorize a separately bounded, sanitized incident-corpus collection/custody
+plan. Do not populate a case, run a model or select a provider merely from this
+readiness record.

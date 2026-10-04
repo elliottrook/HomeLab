@@ -933,3 +933,15 @@ scope, expected postcheck and latency protocol, matching the existing SA3
 preregistration. This added no case, reviewer, model call, provider choice,
 credential, network operation or production change. Unit tests cover the new
 contract and hash-bound S1 close-out manifest.
+
+### 2026-10-03 — SA3 custody boundary template
+
+The empty SA3 intake contract did not express custody of answer labels or the
+development/holdout separation. A local empty custody template now requires a
+named custodian, independent holdout reviewer, approved local storage,
+answer-key separation, sanitization/retention rules and digest/freeze procedure
+before collection. It explicitly blocks holdout use for retrieval and
+implementation tuning, contains no case content or configured storage identity,
+and is unit-tested against the intake field contract. This is readiness work
+only: it did not collect an incident, contact a model/provider or access any
+production system.

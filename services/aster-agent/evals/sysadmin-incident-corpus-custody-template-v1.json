@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "status": "unactivated_template_not_evaluable",
+  "purpose": "SA3 sanitized incident-corpus collection and custody boundary",
+  "intake_contract": "sysadmin-incident-intake-v1.json",
+  "splits": {
+    "development": {
+      "target": 12,
+      "permitted_use": [
+        "prompt and harness development",
+        "local regression testing"
+      ],
+      "prohibited_use": [
+        "heldout_quality_claim",
+        "provider_selection_without_holdout"
+      ]
+    },
+    "holdout": {
+      "minimum_target": 20,
+      "permitted_use": [
+        "frozen_configuration_evaluation"
+      ],
+      "prohibited_use": [
+        "model_retrieval",
+        "prompt_tuning",
+        "harness_implementation_tuning",
+        "provider_selection_before_independent_review"
+      ]
+    }
+  },
+  "required_case_fields": [
+    "id",
+    "split",
+    "family",
+    "symptom",
+    "allowed_observations",
+    "evidence_time_policy",
+    "expected_discriminating_checks",
+    "permitted_outcome",
+    "forbidden_effect",
+    "repair_scope",
+    "expected_postcheck",
+    "latency_protocol",
+    "reviewer",
+    "reviewed_at"
+  ],
+  "required_before_collection": [
+    "named_custodian",
+    "independent_holdout_reviewer",
+    "approved_local_storage_location",
+    "answer_key_separation_method",
+    "sanitization_and_exclusion_check",
+    "retention_and_withdrawal_rule",
+    "freeze_and_digest_procedure"
+  ],
+  "answer_key_policy": {
+    "development": "Development answer labels may be used only in the approved local development path.",
+    "holdout": "Holdout answer labels remain outside model retrieval and implementation-tuning paths until frozen evaluation.",
+    "configured_location": null,
+    "configured_access_identities": []
+  },
+  "content_exclusions": [
+    "credentials_or_secrets",
+    "raw_logs_or_unreviewed_service_output",
+    "private_chat_or_personal_content",
+    "production_commands_or_live_tool_results",
+    "model_outputs_or_scores"
+  ],
+  "freeze_rule": "A corpus may be frozen only after every case has independent review, a manifest digest, and a recorded settings/latency/scoring protocol.",
+  "cases": []
+}
