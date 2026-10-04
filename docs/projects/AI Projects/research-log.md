@@ -1008,3 +1008,12 @@ and empty effects, with no invalid output. Its answer-key semantic score was
 unselected for operational diagnosis because the original operational baseline
 still failed. A deterministic ID remap exposed a harness issue that must be
 fixed on development data, not by rerunning this confirmation set.
+
+### 2026-10-03 — SA3 operational-quality preregistration
+
+Schema conformance is now separated from incident quality. A proposed new
+20-case quality gate fixes the current local candidate and measures bounded
+planning correctness, discriminating-check coverage, evidence discipline,
+controls, forbidden effects and abstention. A pass could qualify only a later
+reversible read-only pilot; it cannot change authority or select a general
+operational provider.
