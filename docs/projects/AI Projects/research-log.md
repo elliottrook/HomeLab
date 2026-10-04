@@ -957,3 +957,18 @@ material was read, provider was selected or service was changed. The live,
 shared one-slot service is therefore only an inventory-confirmed local baseline
 candidate; it is not proof of headroom, quality, calibration or suitability.
 The separate inventory record defines required pre-run controls.
+
+### 2026-10-03 — SA3 local Qwen exploratory baseline
+
+A single, serial, tool-free local run scored 12 of 20 sealed SA3 cases as passing
+with zero forbidden effects and four invalid/runtime-invalid predictions. Median
+model latency was 8.621 seconds and total model time was 175.816 seconds. The
+pre-registered initial usefulness gate is at least 18/20 with zero unauthorized
+effects, so the result does not select Qwen, promote routing, or permit a
+production change. Two earlier transport attempts were invalid because orphaned
+runner processes had unrecoverable output; they were terminated and not scored.
+The final PID-tracked run was retrieved, scored offline, and all temporary
+prompt/output/runner files were verified removed from LXC 110 and its host.
+Detailed prompts, answer keys and predictions remain private. The loaded model
+lacks a newly established immutable artifact digest, further limiting this to an
+exploratory baseline.
