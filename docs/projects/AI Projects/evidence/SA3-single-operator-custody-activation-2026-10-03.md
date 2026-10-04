@@ -21,3 +21,6 @@ not independent evaluation or generalized model quality.
 Before collection, a separate plan must define sanitization, the initial
 development/holdout assignment, retention/withdrawal handling, and the exact
 freeze procedure. Before evaluation, separate approval remains required.
+
+The source-only candidate inventory is
+[`SA3-incident-source-inventory-2026-10-03.md`](SA3-incident-source-inventory-2026-10-03.md).
