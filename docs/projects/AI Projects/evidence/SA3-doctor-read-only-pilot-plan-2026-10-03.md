@@ -1,6 +1,6 @@
 # SA3 Doctor read-only pilot plan
 
-Status: **prepared; not launched**
+Status: **prepared; adapter pilot not launched; related existing Doctor job observed**
 
 ## Scope
 
@@ -26,6 +26,25 @@ schedule is enabled.
 - reconnect/presentation exposes only the safe public shape;
 - repeated request follows dedup/cooldown behavior;
 - disablement is verified after observation.
+
+## Observed execution — 2026-10-03
+
+Jason sent one authenticated Doctor request through Aster. It did **not** reach
+this adapter: `ASTER_SYSADMIN_DOCTOR_EVIDENCE` was disabled on the live Aster
+runtime. The request instead used the separately deployed Lab Operations Doctor
+workflow.
+
+That workflow claimed one fixed-script job and performed no remediation, but
+ended `unknown` with code `interrupted`, `coverage: none`, and zero recorded
+checks. Its private worker output lacked the `Passed`, `Warnings`, and `Failed`
+summary markers that the current worker parser requires. The worker therefore
+failed closed rather than presenting a health claim. No retry was initiated.
+
+This is evidence of a contract mismatch between the fixed Doctor script output
+and Lab Operations result parser. It is **not** evidence that the lab is
+healthy, unhealthy, or that this incident adapter satisfies its acceptance
+criteria. The adapter pilot remains unlaunched and cannot be promoted from this
+observation.
 
 ## Stop and rollback
 
