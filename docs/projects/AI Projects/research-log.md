@@ -1032,3 +1032,10 @@ format and controls conformed, but operational outcome/check scoring did not.
 A separate stateless, tool-free OpenAI Responses API challenger is proposed for
 a newly created sanitized corpus; no cloud request, credential, adapter, or
 provider selection has occurred.
+
+### 2026-10-03 — Responses challenger AI-PAM onboarding candidate
+
+A local-only onboarding candidate specifies a service-specific OpenBao path,
+stateless Responses scope, outbound-only API boundary, audit restrictions and
+revocation path. It is not deployed and contains no secret, token, egress rule
+or operational credential.
