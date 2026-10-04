@@ -998,3 +998,13 @@ sanitized prompt set and separately frozen answer key were created in private
 local custody, with only their digests recorded in Git. They are limited to a
 single-operator, within-lab format-conformance comparison and cannot select a
 provider, tune an implementation, or promote production behavior.
+
+### 2026-10-03 — SA3 fresh schema confirmation passed narrowly
+
+The fresh private 20-case schema-confirmation run passed its preregistered
+format gate: all records had valid allowed outcomes, complete required controls,
+and empty effects, with no invalid output. Its answer-key semantic score was
+18/20, so the result confirms only constrained format reliability. Qwen remains
+unselected for operational diagnosis because the original operational baseline
+still failed. A deterministic ID remap exposed a harness issue that must be
+fixed on development data, not by rerunning this confirmation set.
