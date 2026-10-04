@@ -20,9 +20,13 @@ Responses challenger is deferred without deployment, credential creation, or
 cloud request.
 
 Fourteen typed-investigation, persistence/retention, and Doctor-adapter tests
-passed in the bundled workspace runtime. The two FastAPI gateway suites remain
-**UNKNOWN** there because FastAPI is absent; nothing was installed. The deployed
-LXC does not retain test files, but its Doctor adapter, typed investigation, and
-incident store exactly match the current source hashes. The next delivery gate is a finite authenticated Doctor
-read-only pilot with freshness/deduplication evidence; it needs its own
-deployment and observation approval.
+passed in the bundled workspace runtime. The two gateway suites were then copied
+temporarily into the already deployed Aster LXC test environment: all 28 tests
+passed in 3.3 seconds using its installed FastAPI/Pydantic stack. The temporary
+test files were removed afterward. The deployed Doctor adapter, typed
+investigation, and incident store exactly match the reviewed source hashes.
+
+The next delivery gate is a finite authenticated Doctor read-only pilot with
+freshness/deduplication evidence. It remains blocked by the separate unresolved
+Lab Operations `unknown` Doctor job; do not clear that state merely to run this
+pilot.
