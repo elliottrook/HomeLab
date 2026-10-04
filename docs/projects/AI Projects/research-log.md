@@ -1051,6 +1051,8 @@ bounded deployment remains blocked on a user-created OpenAI project credential.
 
 Following the subscription/API billing decision and Qwen quality rejection,
 Stream A adopted deterministic, broker-gated Doctor evidence collection and
-human-reviewed incident packets as the immediate operational path. The local
-typed investigation, retention, Doctor adapter, incident gateway and broker
-gateway tests passed. Cloud challenger deployment is deferred.
+human-reviewed incident packets as the immediate operational path. The repository
+contains typed investigation, retention, Doctor adapter, incident gateway and
+broker gateway tests, but their runtime validation is UNKNOWN here: the local
+interpreter lacks Aster dependencies and the deployed LXC lacks test files.
+Cloud challenger deployment is deferred.

@@ -19,8 +19,11 @@ only where separately evidenced for constrained local assistance. The proposed
 Responses challenger is deferred without deployment, credential creation, or
 cloud request.
 
-Local validation passed for typed investigation, persistence/retention, Doctor
-adaptation, authenticated incident gateway, and broker gateway boundaries.
-The next delivery gate is a finite authenticated Doctor read-only pilot with
-freshness/deduplication evidence; it needs its own deployment and observation
-approval.
+The repository contains typed investigation, persistence/retention, Doctor
+adaptation, authenticated incident gateway, and broker gateway tests. They were
+not runnable in this worktree's macOS interpreter because the Aster dependencies
+are absent, and the deployed LXC does not retain the test files. Treat their
+current runtime validation as **UNKNOWN** until the project dependency environment
+is made available. The next delivery gate is a finite authenticated Doctor
+read-only pilot with freshness/deduplication evidence; it needs its own
+deployment and observation approval.
