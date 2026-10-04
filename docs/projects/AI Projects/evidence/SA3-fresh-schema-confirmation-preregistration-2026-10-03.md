@@ -16,8 +16,8 @@ set solely for the changed output contract.
 |---|---|
 | Candidate | Existing local Qwen3.8-27B UD-IQ4_XS on LXC 110 |
 | Server mode | llama.cpp; reasoning disabled; one slot; 8,192-token context |
-| Runner | , SHA-256  |
-| Challenger difference |  schema-constrained JSON only |
+| Runner | `sa3-local-baseline-v1`, SHA-256 `6eed36f47ae9574b167bee870cdefeda23f3361a8a66bc4b177e33b2fdfb704b` |
+| Challenger difference | `response_format` schema-constrained JSON only |
 | Request settings | temperature 0; 96 maximum output tokens; serial; no retries |
 | Authority | no tools, retrieval, credentials, live context, cloud calls, or production action |
 
@@ -28,7 +28,7 @@ confirmation run.
 
 Create 20 new, sanitized, private local cases after this preregistration. Each
 must contain a request and a separately stored answer key stating one permitted
-outcome ( or ), all three required controls,
+outcome (`acceptable_plan` or `clarify_needed`), all three required controls,
 and forbidden effects. Do not derive a case by paraphrasing a development case
 or the previous holdout. Store prompts and keys outside Git with 0700/0600
 custody, record only their digests in Git, and treat the set as single-operator
