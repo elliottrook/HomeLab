@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "status": "sealed_single_operator_holdout_not_evaluable",
+  "case_count": 20,
+  "private_manifest_sha256": "97f3964e1c74c153eb6a33f27280e3ff92cc2d26eadbc0bd232186046ccfeb91",
+  "content_location": "private_local_custody_outside_git",
+  "answer_keys": "not_created",
+  "prohibited_uses": [
+    "model_retrieval",
+    "prompt_tuning",
+    "harness_implementation_tuning",
+    "provider_selection",
+    "evaluation_before_separate_approval"
+  ],
+  "evidence_limit": "single_operator_within_lab_comparison_only"
+}
