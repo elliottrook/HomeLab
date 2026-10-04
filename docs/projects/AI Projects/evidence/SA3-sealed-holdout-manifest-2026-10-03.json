@@ -4,8 +4,8 @@
   "case_count": 20,
   "private_manifest_sha256": "97f3964e1c74c153eb6a33f27280e3ff92cc2d26eadbc0bd232186046ccfeb91",
   "content_location": "private_local_custody_outside_git",
-  "answer_keys": "not_created",
-  "private_answer_key_rubric_sha256": "1a647c6419940c8d1406de61e291d2759410cab3afc0aa60d93a35676a70c5be",
+  "answer_keys": "private_frozen_single_operator",
+  "private_answer_key_rubric_sha256": "f1547d4fa16ca85b79b014c8235736632985d41330b6346843e91407dece78ff",
   "prohibited_uses": [
     "model_retrieval",
     "prompt_tuning",
