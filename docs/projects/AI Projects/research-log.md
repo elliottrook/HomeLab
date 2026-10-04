@@ -945,3 +945,15 @@ implementation tuning, contains no case content or configured storage identity,
 and is unit-tested against the intake field contract. This is readiness work
 only: it did not collect an incident, contact a model/provider or access any
 production system.
+
+### 2026-10-03 — SA3 local-model candidate inventory
+
+A direct, read-only query confirmed that LXC 110's `aster-llama.service` is
+active and enabled. Its running process selects Qwen3.8-27B UD-IQ4_XS through
+llama.cpp with Vulkan, one parallel slot, an 8,192-token context and reasoning
+disabled. The container was running with point-in-time load averages below one
+and 9,154 MiB of 16,384 MiB reported used. No prompt was submitted, credential
+material was read, provider was selected or service was changed. The live,
+shared one-slot service is therefore only an inventory-confirmed local baseline
+candidate; it is not proof of headroom, quality, calibration or suitability.
+The separate inventory record defines required pre-run controls.
