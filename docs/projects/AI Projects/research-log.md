@@ -1017,3 +1017,10 @@ planning correctness, discriminating-check coverage, evidence discipline,
 controls, forbidden effects and abstention. A pass could qualify only a later
 reversible read-only pilot; it cannot change authority or select a general
 operational provider.
+
+### 2026-10-03 — SA3 operational-quality corpus accepted
+
+Jason approved the fresh operational-quality corpus scope. Twenty sanitized
+private incident packets and a separately frozen answer key were created in
+local custody; Git records their digests only. The corpus is not yet evaluated,
+and it cannot select a provider or authorize production behavior.
