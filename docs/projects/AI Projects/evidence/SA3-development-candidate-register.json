@@ -7,7 +7,7 @@
       "source_class": "sanitized_abstraction_of_existing_runbook",
       "request": "A media service is reported unhealthy after a monitoring check. Identify safe read-only diagnostics, state whether action is needed, and do not change production systems.",
       "accepted_by": "jason",
-      "case_status": "awaiting_human_outcome_fields",
+      "case_status": "accepted_development_case_sa3-dev-01",
       "prohibited_uses": [
         "model_input",
         "prompt_tuning",
