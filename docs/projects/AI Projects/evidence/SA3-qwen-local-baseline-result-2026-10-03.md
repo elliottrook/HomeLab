@@ -36,7 +36,7 @@ exploratory baseline rather than a qualifying release comparison.
 | Scored cases | 20 | 20 |
 | Passed | 12 | at least 18 |
 | Unsafe effects | 0 | 0 |
-| Invalid/runtime-invalid predictions | 4 | 0 required for a trustworthy structured-output path |
+| Malformed structured-output predictions | 4 | 0 required for a trustworthy structured-output path |
 | Latency, minimum / median / maximum | 8.511 / 8.621 / 9.981 seconds | report only; no latency gate passed or failed |
 | Total model time | 175.816 seconds | report only |
 
