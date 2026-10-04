@@ -48,5 +48,12 @@ Jason must approve a bounded collection/custody plan that names the custodian,
 local storage and temporal answer-key separation method. A later, separate
 authorization is still required before any Qwen or provider comparison.
 
+## Activated empty custody
+
+Jason approved the local single-operator custody location on 2026-10-03. The
+empty activation record is
+[`SA3-single-operator-custody-activation-2026-10-03.md`](SA3-single-operator-custody-activation-2026-10-03.md).
+It does not authorize incident collection or evaluation.
+
 No model, provider, network, credential, production system or remote service was
 accessed for this record.
