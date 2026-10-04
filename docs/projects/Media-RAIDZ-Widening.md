@@ -3,7 +3,7 @@
 Owner Jason; started 2026-10-03; Stream M. User authorized beginning sequential
 addition of the four SAS candidates, healthiest first. First bounded operation:
 attach Z1Z4BJ7Z0000C4453Q38 (WWN 5000c50058c120ef) to the existing RAIDZ2 vdev.
-Status: first expansion running; TrueNAS pool.attach job 292. No other candidate queued.
+Status: first expansion completed 2026-10-04 05:39 PDT; post-expansion scrub running. No other candidate queued.
 
 ## Scope and live evidence
 
@@ -85,3 +85,10 @@ Recovery SATA extended tests continue separately. No further SAS disks submitted
 2026-10-03 19:59 PDT check: 8.11/15.9 TiB redistributed, 50.98%, 266 MiB/s;
 ZFS estimated 8h32 remaining (approximately October 4 04:31 PDT). All seven
 leaves ONLINE, zero read/write/checksum errors. No further disks added.
+
+2026-10-04 07:51 PDT: expansion finished at 05:39:56 after 18h33m21s,
+15.9 TiB redistributed. All seven members ONLINE, no ZFS errors. BJ7Z remains
+zero grown defects, read/write/verify uncorrected 3/0/0 unchanged. Media dataset
+availability now 6.10 TiB (previously 3.81 TiB). Scrub started at expansion
+completion: 26.93%, 0B repaired, estimated 5h56 remaining. Wait for scrub result
+before another expansion or bulk backup migration.

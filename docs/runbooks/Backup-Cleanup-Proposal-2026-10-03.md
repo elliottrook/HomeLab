@@ -208,3 +208,11 @@ DNS/firewall, Homepage, rack records and AI service identities are unaffected.
 No new public exposure or secret handling. The script/manifest are reproducible
 from Git; the source inventory state can be re-established only after review.
 Remote Git synchronization remains pending separate push authorization.
+
+## First scheduled-cycle observation — 2026-10-04
+
+At 07:51 PDT, the overnight TrueNAS guest pull had succeeded, 06:00 retention
+reconciliation succeeded with zero candidates, and cloud relay completed
+successfully at 07:41 PDT (35.623 GiB uploaded, 28 files). This verifies the
+scheduled sequence, including a safe no-op; no production prune candidates
+occurred in this cycle, so recurring deletion is not claimed exercised overnight.
