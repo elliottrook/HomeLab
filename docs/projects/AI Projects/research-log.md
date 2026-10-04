@@ -911,3 +911,25 @@ syntax-only validator with five receipts, frozen plan/registry hashes and no
 authority claims. It supplies five home families, including one home/media
 composition case, but no adverse-constraint cases and no complete 50-family
 corpus. It cannot be evaluated or used to promote a route.
+
+
+### 2026-10-03 — S1 closed incomplete; SA3 corpus readiness started
+
+The S1 manifest was reconciled across all nine accepted bundles without reading
+or reproducing request text in the close-out record. It contains 45 accepted
+families and receipts with 50 minutes of reported active labeling effort. The
+human-accepted strata are uneven (web 1, mixed 4, ambiguous 3, personal 6 and
+sysadmin 6), and no accepted case has an adverse-constraint tag. The frozen S1
+protocol requires 50 cases, five per stratum and at least ten adverse-constraint
+cases. Therefore S1 is closed as collection-feasibility evidence only. Its
+accepted records, receipts and packet are preserved, while evaluation, routing
+selection, training, calibration, shadow use and production promotion remain
+blocked.
+
+The successor task is local SA3 incident-corpus readiness. Repository review found
+the intake manifest intentionally empty and the existing advisor slice explicitly
+development-only. The empty intake contract was strengthened to require repair
+scope, expected postcheck and latency protocol, matching the existing SA3
+preregistration. This added no case, reviewer, model call, provider choice,
+credential, network operation or production change. Unit tests cover the new
+contract and hash-bound S1 close-out manifest.

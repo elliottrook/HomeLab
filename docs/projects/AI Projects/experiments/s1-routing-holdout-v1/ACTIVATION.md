@@ -33,8 +33,20 @@ created. The 30-day, seven-day and 30/90-day clocks begin only when Jason suppli
 the first request. Evaluation, services, model calls, routing predictions,
 production changes and further push remain excluded.
 
-Next action: collect request text before showing or discussing labels, beginning
-with up to five sanitized timer/alarm requests authored by Jason.
+## 2026-10-03 — incomplete close-out
+
+S1 is closed incomplete with all accepted records preserved. The corpus has 45
+accepted families and receipts, but its human-accepted strata are uneven and it
+has zero of the ten required adverse-constraint cases. It cannot satisfy the
+frozen 50-family/quota protocol and therefore cannot be evaluated or used for
+routing, training, calibration, a shadow, or production selection. The exact
+bundle digests, counts and prohibited follow-on uses are recorded in
+[`CLOSEOUT-2026-10-03.md`](CLOSEOUT-2026-10-03.md) and
+[`closeout-manifest-v1.json`](closeout-manifest-v1.json). No accepted record was
+changed and no model/router/tool received S1 content.
+
+The earlier collection next action is superseded. Do not collect further S1
+requests under this frozen protocol.
 
 ## 2026-09-28 — first accepted batch
 

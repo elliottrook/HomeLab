@@ -12,7 +12,15 @@ class IntakeTemplateTests(unittest.TestCase):
         self.assertEqual(value["development_target"], 12)
         self.assertEqual(value["holdout_target"], 20)
         self.assertEqual(value["cases"], [])
-        self.assertTrue({"split", "reviewer", "reviewed_at", "forbidden_effect"}.issubset(value["required_fields"]))
+        self.assertEqual(
+            set(value["required_fields"]),
+            {
+                "id", "split", "family", "symptom", "allowed_observations",
+                "evidence_time_policy", "expected_discriminating_checks",
+                "permitted_outcome", "forbidden_effect", "repair_scope",
+                "expected_postcheck", "latency_protocol", "reviewer", "reviewed_at",
+            },
+        )
 
 
 if __name__ == "__main__":

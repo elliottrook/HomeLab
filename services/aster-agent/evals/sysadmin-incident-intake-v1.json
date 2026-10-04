@@ -13,6 +13,9 @@
     "expected_discriminating_checks",
     "permitted_outcome",
     "forbidden_effect",
+    "repair_scope",
+    "expected_postcheck",
+    "latency_protocol",
     "reviewer",
     "reviewed_at"
   ],
