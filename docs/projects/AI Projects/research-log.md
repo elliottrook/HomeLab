@@ -990,3 +990,11 @@ the development-only schema configuration was introduced. A fresh 20-case,
 private, single-operator confirmation protocol now fixes the candidate, runner,
 request settings and format-only decision gate before any new case/key is made.
 It cannot select a provider or promote production behavior.
+
+### 2026-10-03 — SA3 fresh schema-confirmation set accepted
+
+Jason approved the preregistered fresh confirmation scope. A new 20-case
+sanitized prompt set and separately frozen answer key were created in private
+local custody, with only their digests recorded in Git. They are limited to a
+single-operator, within-lab format-conformance comparison and cannot select a
+provider, tune an implementation, or promote production behavior.
