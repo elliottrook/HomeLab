@@ -2,7 +2,7 @@
 
 Owner: Jason. Started 2026-10-03. Stream M, bounded allocation approved by Jason:
 “Nothing to keep on the sata drives. Please allocate them as recommended.”
-Status: allocation complete; extended qualification running; migration pending.
+Status: allocation and extended SMART qualification complete; migration pending.
 
 ## Purpose, scope and authority
 
@@ -47,7 +47,7 @@ and update consumers during the separately scoped migration.
 - [x] Exact identity/unused verification and fresh short SMART tests pass.
 - [x] TrueNAS-managed Recovery mirror online with both exact disks.
 - [x] Four private datasets and quotas verified; bounded write/read test passes.
-- [ ] Extended SMART tests pass on both disks before production data migration.
+- [x] Extended SMART tests pass on both disks before production data migration.
 - [ ] Migration, restore proof, backup consumers and retention: future phase.
 
 Persist job identifiers and results here. Do not recreate an existing Recovery
@@ -88,3 +88,10 @@ ZDH9JCR8 20:57 on October 3. These are running, not passed. On resume query
 both latest Extended offline entries complete without error, no new relevant
 SMART errors and pool health before scheduling migration. No migration or
 backup-consumer cutover is performed by this allocation task.
+
+2026-10-03 19:59 PDT: both latest Extended offline SMART tests completed without
+error (ZGY7C8NF at 25,853 hours; ZDH9JCR8 at 22,267 hours). Reallocated, pending,
+offline uncorrectable, reported uncorrectable and CRC counts all remain zero.
+Recovery ONLINE with zero ZFS errors. Qualification gate passed; backup migration
+has not started. Media expansion is still active, so avoid extra bulk migration
+load until it finishes.

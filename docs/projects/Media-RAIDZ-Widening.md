@@ -81,3 +81,7 @@ Do not interpret middleware's initial 25% formatting/job progress as actual data
 expansion progress; use `zpool status Media`. Completion and final capacity are
 pending. The operation persists on TrueNAS independently of this conversation.
 Recovery SATA extended tests continue separately. No further SAS disks submitted.
+
+2026-10-03 19:59 PDT check: 8.11/15.9 TiB redistributed, 50.98%, 266 MiB/s;
+ZFS estimated 8h32 remaining (approximately October 4 04:31 PDT). All seven
+leaves ONLINE, zero read/write/checksum errors. No further disks added.
