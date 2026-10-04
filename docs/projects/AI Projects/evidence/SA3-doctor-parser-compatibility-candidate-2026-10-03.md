@@ -1,6 +1,6 @@
 # SA3 Doctor parser compatibility candidate
 
-Status: **offline candidate; not deployed**  
+Status: **deployed; live Doctor result confirmation blocked by prior unknown job**  
 Date: 2026-10-03  
 Change class: implementation repair candidate; no live promotion decision
 
@@ -35,10 +35,24 @@ individual findings.
 - Incomplete output is rejected.
 - The full local worker suite passed: 20 tests.
 
-## Promotion gate
+## Deployment record
 
-Before any deployment, inspect the worker interruption separately, verify the
-pinned Mac deployment copy and its source provenance, run the bounded local
-validation in the deployment environment, define rollback, and obtain the
-applicable live-change approval. This candidate cannot resolve an interrupted
-execution by itself.
+The worker-only repair was installed on the existing private Mac worker path on
+2026-10-03. The previously deployed worker was preserved as a private rollback
+copy with its original restrictive mode. The replacement digest matched the
+reviewed candidate, retained mode `0700`, and the LaunchAgent restarted into an
+active process. After a bounded observation, its error log remained empty and
+no pending job existed.
+
+The existing `unknown/interrupted` Doctor job was deliberately retained. It
+blocks a new run under the Lab Operations safety model, so this deployment has
+not yet been proven by a fresh live Doctor result. No job state was cleared and
+no Doctor retry occurred.
+
+## Remaining gate
+
+Investigate and reconcile the prior interrupted job under the Lab Operations
+uncertain-outcome procedure before any new Doctor run. Then perform one bounded
+read-only Doctor observation and verify aggregate counts, bounded redaction,
+result delivery and no collateral effect. This candidate cannot resolve an
+interrupted execution by itself.
