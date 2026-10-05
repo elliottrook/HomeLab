@@ -22,9 +22,12 @@ comparison has run. Paired request construction is now tested offline; the
 supports per-request overrides. Jason subsequently approved the two-request
 [smoke pair](evidence/SA3-thinking-smoke-result-2026-10-05.md): switching worked
 without restart; off took 24.431 seconds and on 158.706 seconds. Neither mode is
-qualified for operational diagnosis by this example. Next safe local work is a
-synthetic multi-step investigation simulator and development fixtures. Additional
-connected model requests retain their gates; production defaults remain unchanged.
+qualified for operational diagnosis by this example. The synthetic multi-step
+simulator, development fixtures and explicit-execution runner are now implemented
+and locally validated. The [four-investigation plan](evidence/SA3-simulated-investigation-plan-2026-10-05.md)
+is ready for connected-run approval (up to 12 calls/20 minutes inference). Continue
+Stream A local work without milestone-by-milestone confirmation, pause only at
+required gates and resume when granted. Production defaults remain unchanged.
 
 **Proposed:** 2026-09-25.
 

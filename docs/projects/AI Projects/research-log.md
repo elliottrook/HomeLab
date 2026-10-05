@@ -1,5 +1,13 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Multi-step synthetic investigator ready
+
+Implemented bounded simulated evidence lookup, two exposed development scenarios,
+network-free default runner and containment/transport tests. All 27 SA3 tests pass;
+no connected call made. [Exact proposed batch and rubric](evidence/SA3-simulated-investigation-plan-2026-10-05.md)
+are ready for approval. Jason directed continued Stream A work until required gates,
+with continuation after approval; no additional approval for routine local milestones.
+
 ## 2026-10-05 — Authorized off/on smoke pair completed
 
 Jason approved two serial synthetic requests, each with a four-minute limit.
