@@ -44,6 +44,11 @@ stalls in its recursive ownership pass on this TrueNAS dataset, the eventual
 single writer must be a separately evaluated Calibre import/conversion worker,
 with LazyLibrarian delivering files to the ingest boundary.
 
+The existing LinuxServer Calibre image is the current worker candidate:
+`calibredb add` and `ebook-convert` have both passed against disposable paths.
+The worker still needs a bounded ingest wrapper, duplicate handling, metadata
+policy and backup/restore test before it can write the production library.
+
 ## Lifecycle
 
 1. Create a protected export/checkpoint for the current Audiobookshelf App,

@@ -508,3 +508,10 @@ the evidence log.
   an acceptable migration target on this TrueNAS dataset until its startup
   ownership behavior is resolved; evaluate a separate Calibre worker/import
   path while retaining Calibre-Web for presentation.
+- 2026-10-05: M1 tested the existing `ghcr.io/linuxserver/calibre:9.13.0`
+  image as a disposable worker. With a separate library and read-only input,
+  `calibredb add` created a new `metadata.db` with one imported EPUB, and
+  `ebook-convert` produced a valid AZW3 output (`10,658` bytes). The
+  disposable worker paths were removed afterward. This validates the worker
+  primitive without authorizing LazyLibrarian credentials, live-library
+  writes or a production ingest change.
