@@ -543,3 +543,11 @@ the evidence log.
   before a second completion could be made. The queue and Dune staging data
   were cancelled/removed; no Calibre or audiobook library was touched. The
   remaining test gap is final handoff into the disposable ingest path.
+- 2026-10-05: A fresh Dune-series result from the second Prowlarr indexer
+  completed the bounded acquisition test. SABnzbd reported `Download
+  Completed` in `books-shadow`, producing one EPUB; the guarded Calibre worker
+  then imported it into a separate temporary library and reported one Calibre
+  record. The temporary library, output and downloaded payload were removed,
+  while the empty `books-shadow` boundary was retained with `apps` ownership.
+  The test did not touch production Calibre, Audiobookshelf, active media or
+  archive roots.
