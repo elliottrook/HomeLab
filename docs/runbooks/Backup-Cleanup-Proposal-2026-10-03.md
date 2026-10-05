@@ -216,3 +216,12 @@ reconciliation succeeded with zero candidates, and cloud relay completed
 successfully at 07:41 PDT (35.623 GiB uploaded, 28 files). This verifies the
 scheduled sequence, including a safe no-op; no production prune candidates
 occurred in this cycle, so recurring deletion is not claimed exercised overnight.
+
+## Scheduled deletion verified — 2026-10-05
+
+The overnight pull succeeded. At 06:00 the guard successfully removed 17 obsolete
+local archives, 38,884,945,923 bytes. The cloud relay completed at 07:39:45 PDT,
+uploading 36.602 GiB and deleting 17 objects / 34.158 GiB (including one
+Home Assistant history object). The local/cloud counts differ by the intended
+Paperless exclusion and the unrelated normal Home Assistant rotation. This
+confirms the recurring production prune path, beyond the prior no-op cycle.

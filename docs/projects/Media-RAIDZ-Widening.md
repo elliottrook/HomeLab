@@ -3,7 +3,7 @@
 Owner Jason; started 2026-10-03; Stream M. User authorized beginning sequential
 addition of the four SAS candidates, healthiest first. First bounded operation:
 attach Z1Z4BJ7Z0000C4453Q38 (WWN 5000c50058c120ef) to the existing RAIDZ2 vdev.
-Status: first expansion completed 2026-10-04 05:39 PDT; post-expansion scrub running. No other candidate queued.
+Status: first expansion and post-expansion scrub complete without errors. No other candidate queued.
 
 ## Scope and live evidence
 
@@ -59,7 +59,7 @@ serial mapping; never blindly replay attach. Git push requires separate approval
 
 - [x] Fresh short test and exact live preflight pass.
 - [x] Attach initiated; correct seven-leaf RAIDZ2 and active expansion verified.
-- [ ] Expansion completes; pool/SMART/capacity checks pass.
+- [x] Expansion completes; pool/SMART/capacity checks pass.
 - [ ] Review next candidate independently before another permanent expansion.
 
 ## Reference
@@ -92,3 +92,8 @@ zero grown defects, read/write/verify uncorrected 3/0/0 unchanged. Media dataset
 availability now 6.10 TiB (previously 3.81 TiB). Scrub started at expansion
 completion: 26.93%, 0B repaired, estimated 5h56 remaining. Wait for scrub result
 before another expansion or bulk backup migration.
+
+2026-10-05 09:58 PDT: post-expansion scrub completed October 4 at 14:26:11
+after 8h46m15s, zero bytes repaired and zero errors. All seven leaves remain
+ONLINE with zero counters. Media available 5.98 TiB; Recovery 3.51 TiB.
+No further expansion or backup migration has been initiated.
