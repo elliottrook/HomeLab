@@ -606,3 +606,8 @@ the evidence log.
   shadow Audiobookshelf and shadow LazyLibrarian respond on their private LAN
   endpoints; Lidarr reports `3.1.0.4875`. No reader credentials were printed,
   and no snapshot or recurring job was enabled.
+- 2026-10-05: M3 added sanitized snapshot contracts for merging library,
+  archive and request-reader output by authority identity. Duplicate records
+  combine conservatively, unsafe ownership/archive state is retained, and raw
+  service payloads never enter ranking. Eleven Python 3.9 tests pass; no
+  reader credentials or recurring job were enabled.
