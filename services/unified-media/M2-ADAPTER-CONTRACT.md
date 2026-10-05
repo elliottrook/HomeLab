@@ -31,3 +31,9 @@ human-visible title/author/album evidence. Before mutation it must:
 Failures are visible and retryable, but retries must reuse the same
 idempotency key. The adapter tests must use mocked HTTP responses first, then
 one explicitly selected live candidate per authority.
+
+The initial implementation is in `authority_adapters.py`. Its transport is
+injected, keeping credentials and cookies outside the planner while making
+approval behavior testable. The LazyLibrarian wanted route remains
+configuration-owned until it is confirmed against the isolated shadow
+instance; guessing a fork-specific route is not acceptable.

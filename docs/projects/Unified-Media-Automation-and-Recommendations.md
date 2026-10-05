@@ -260,6 +260,10 @@ removing the source Apps.
 - [ ] Implement LazyLibrarian wanted-item actions.
 - [ ] Add duplicate, ambiguous-match, idempotency and failure handling.
 
+The adapter implementation and mocked contract tests are present, but these
+items remain open until the Seerr identity and one explicitly selected live
+candidate per authority are authorized and validated.
+
 Gate: Jason can approve one synthetic or explicitly selected item in each
 domain and observe the correct downstream request without direct AI authority.
 
@@ -566,3 +570,9 @@ the evidence log.
   covering explicit approval, stable idempotency keys, ambiguous matches,
   owned items and archived items. The module performs no HTTP or production
   mutation; live authority adapters remain pending the Seerr identity gate.
+- 2026-10-05: M2 added transport-injected Seerr, Lidarr and LazyLibrarian
+  authority adapters with seven passing Python 3.9 unit tests. Tests prove
+  explicit approval is required, Seerr TV seasons are shaped correctly,
+  Lidarr is album-only, and ambiguous LazyLibrarian matches are blocked. The
+  LazyLibrarian wanted route remains configuration-owned until discovered and
+  tested against the isolated shadow instance. No live write was attempted.
