@@ -1,6 +1,6 @@
 # Bazarr subtitle automation
 
-> Status: Active — Stream A
+> Status: Archived — Stream A delivered; residual graduation gates documented
 >
 > Owner: Jason
 >
@@ -27,9 +27,8 @@ both a complete English track and foreign-dialogue-only subtitles.
 - The `English + Forced` profile is configured with regular English and
   `Forced (foreign part only)` rows, and selected as the default for new TV
   and movie items.
-- Sonarr/Radarr addresses are staged as Docker service names (`sonarr` and
-  `radarr`), but their API keys and the OpenSubtitles.com credentials remain
-  the final operator-entered gate before connectivity tests and downloads.
+- Sonarr/Radarr addresses use Docker service names (`sonarr` and `radarr`);
+  credentials remain protected in Bazarr and are not documented here.
 
 ## Scope and exclusions
 
@@ -207,3 +206,7 @@ rollout leaves no unexplained side effects or temporary credentials.
   Radarr, and SignalR import searches remain immediate. Bazarr restarted
   cleanly; both missing-search tasks report `Never`, while the service and
   both ARR SignalR connections are healthy.
+- 2026-10-05: Archived at the user's request after the Stream A pilot and
+  production policy were delivered. Remaining unchecked graduation gates are
+  intentionally retained as follow-up work: isolated restore validation and
+  alternate-user Authentik denial testing.
