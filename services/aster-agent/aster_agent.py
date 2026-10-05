@@ -1517,6 +1517,8 @@ async def build_payload(
 async def browser_chat() -> str:
     return """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="/aster-app-icon.png">
+<link rel="apple-touch-icon" href="/aster-app-icon.png">
 <title>Aster</title><style>
 body{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0}main{max-width:850px;margin:auto;padding:24px}
 #chat{min-height:55vh;white-space:pre-wrap}.m{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}.u{background:#1e3a5f}
@@ -1546,6 +1548,11 @@ async def companion_orb() -> FileResponse:
     return FileResponse(STATIC_DIR / "aster-orb.png", media_type="image/png")
 
 
+@app.get("/aster-app-icon.png")
+async def aster_app_icon() -> FileResponse:
+    return FileResponse(STATIC_DIR / "aster-app-icon.png", media_type="image/png")
+
+
 @app.get("/companion", response_class=HTMLResponse)
 async def companion_web_client() -> str:
     """Web client v1 (docs/projects/Aster-Companion-App.md, M3): the
@@ -1565,8 +1572,8 @@ async def companion_web_client() -> str:
 <title>Aster Companion</title>
 <link rel="manifest" href="/companion/manifest.webmanifest">
 <script src="/companion/notifications.js"></script>
-<link rel="apple-touch-icon" href="/companion/orb.png">
-<link rel="icon" href="/companion/orb.png">
+<link rel="apple-touch-icon" href="/aster-app-icon.png">
+<link rel="icon" type="image/png" href="/aster-app-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Aster">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -2440,7 +2447,8 @@ async def companion_manifest():
     return JSONResponse({"id": "/companion", "name": "Aster Companion", "short_name": "Aster",
                          "start_url": "/companion", "scope": "/companion", "display": "standalone",
                          "background_color": "#111827", "theme_color": "#111827",
-                         "icons": [{"src": "/companion/orb.png", "sizes": "any", "type": "image/png"}]},
+                         "icons": [{"src": "/aster-app-icon.png", "sizes": "2048x2048", "type": "image/png",
+                                    "purpose": "any maskable"}]},
                         media_type="application/manifest+json")
 
 

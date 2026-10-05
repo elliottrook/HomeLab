@@ -32,6 +32,7 @@
 | Aster Companion ARR execution | Proposed — deferred follow-up, production disabled | [ARR execution follow-up](Aster-Companion-ARR-Execution-Followup.md) | Preserve separate operator approval and wait for a natural eligible candidate before live UI execution testing |
 | Infrastructure resilience and operations hardening | Approved — Stream A; always-on ops console (M-O) can start now; second-node hardware (H1) postponed; mobile GUI approach (D7) pending | [Infrastructure resilience and operations hardening](Infrastructure-Resilience-Hardening.md) | From the 2026-09-23 health check: one small second node hosting Proxmox Backup Server, standby DNS/NPM and the ops runner (scheduled jobs off the Mac), pinned images with an update notifier, Doctor drift checks, failure push alerts, host swappiness and CI lint |
 | Archive large-file compaction | Active — pilot passed (SSIM 0.976–0.994); nightly 02:00–07:30 schedule live | [Archive large-file compaction](Archive-Large-File-Compaction.md) | Re-encodes the 477 archive files over 2.5 GB (2.41 TB) in place on the Arc A380: HEVC, never upscaled, capped at 1080p with aspect kept, HDR10 retained, ≤2.3 GB, same path for Jellyfin identity, 7-day ZFS rollback snapshots; ~1.68 TB expected saving |
+| App icon family | Active — Stream M; local preparation complete, deployment pending approval | [App icon family](App-Icon-Family.md) | Git-controlled Aster and News Digest icon sources, Aster native/web wiring, News Digest deployment contract |
 
 ## Completed projects
 
