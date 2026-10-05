@@ -280,6 +280,9 @@ domain and observe the correct downstream request without direct AI authority.
 Gate: a reviewed recommendation batch contains no owned, archived, duplicate
 or ambiguous items and every action routes to the correct authority.
 
+The deterministic ranking/suppression primitive is implemented and unit-tested
+locally; service readers and the portal remain open.
+
 ### M4 — Music integration and playlist lifecycle
 
 - [ ] Integrate the Music Recommender logic with the portal.
@@ -594,3 +597,8 @@ the evidence log.
   `438631`); Seerr returned no downstream service assignment and did not
   auto-approve it. Its password is outside Git under the shadow secret
   boundary with mode `0600`.
+- 2026-10-05: M3 added a deterministic recommendation model with fail-closed
+  suppression for owned, archived and ambiguous candidates, stable tie
+  ordering, bounded result size and local explanations. The model has nine
+  passing Python 3.9 tests across M2 and M3; no reader, LLM job or recurring
+  schedule is enabled.
