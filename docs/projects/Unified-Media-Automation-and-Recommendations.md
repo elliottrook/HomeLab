@@ -494,3 +494,9 @@ the evidence log.
   bind is `rw=false`, its health endpoint returns HTTP 200, and LazyLibrarian
   remains reachable with HTTP 303. Both containers remain loopback-only;
   their configuration/metadata paths are separate shadow paths.
+- 2026-10-05: M1 read-only topology inspection confirmed the live
+  `calibre-web-automated` container is the only current container mounting
+  `/mnt/Media/media/books` read-write; its separate ingest directory is empty,
+  and the container remains unhealthy. No test book was placed in the live
+  ingest path. The migration therefore retains the single-writer requirement
+  and needs a disposable ingest/conversion test before any cutover decision.
