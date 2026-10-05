@@ -455,3 +455,21 @@ the evidence log.
   approved Proxmox read-only path during the Kavita setup check (SSH timeout
   and ICMP loss). No retrying mutation, production restart or cutover was
   attempted; the remaining shadow API/library validation is resumable.
+- 2026-10-05: Diagnosis corrected the enforcement point to OPNsense, not
+  UniFi. With Jason's approval, OPNsense received two logged, host-specific
+  rules: Proxmox `192.168.50.10` to TrueNAS `192.168.20.40` TCP 22
+  (`9f8d5c1e-6e6d-4b61-9b43-0c9b5f29e2a1`) and TCP 443
+  (`a2b7d4f0-7f3c-4d72-9b4d-1e8c6a54f903`). A protected pre-change copy was
+  saved at `/conf/backup/config-unified-media-before-20261005.xml`; the
+  rules were applied with `configctl filter reload` and live counters showed
+  one state and seven packets on each rule. Proxmox TCP connection tests to
+  both ports succeeded. No VLAN-wide route, Docker port, or service exposure
+  was added.
+- 2026-10-05: Kavita shadow setup completed registration and library creation,
+  but the LinuxServer build (`v0.9.1.4`) rejected both a copied Calibre EPUB
+  and a generated valid EPUB during scanning, producing zero series. The
+  upstream `jvmilazz0/kavita:latest` image was also tested on a separate
+  loopback port and remained stuck during first-run startup. Both disposable
+  containers were stopped and removed; production Calibre, CWA,
+  Audiobookshelf and ebook data were untouched. Kavita is not adopted for
+  cutover until a version-specific parser/startup test succeeds.
