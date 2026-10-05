@@ -531,3 +531,15 @@ the evidence log.
   100 results through the two Prowlarr indexer endpoints. The shadow provider
   was then enabled with explicit `book` mappings for ebook and audiobook
   searches; SABnzbd connectivity still passed and no grab/download was made.
+- 2026-10-05: With Jason's approval, SABnzbd's API created the isolated
+  `books-shadow` category at `/media/downloads/books-shadow`; a pre-change
+  configuration copy was saved at
+  `/mnt/Media/appdata/unified-media-shadow/sabnzbd-before-dune-20261005.ini`.
+  A bounded Dune EPUB test was submitted. Prowlarr returned a valid NZB and
+  SABnzbd downloaded, verified and extracted the payload, but the first
+  post-processing move failed because the new category directory was owned by
+  root. Ownership was corrected to the existing `apps` UID, but the same
+  one-time result was then protected by Prowlarr's duplicate-download rule
+  before a second completion could be made. The queue and Dune staging data
+  were cancelled/removed; no Calibre or audiobook library was touched. The
+  remaining test gap is final handoff into the disposable ingest path.

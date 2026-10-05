@@ -78,7 +78,7 @@ set_value(values, "sab_port", "8080")
 set_value(values, "sab_user", "")
 set_value(values, "sab_pass", "")
 set_value(values, "sab_api", SAB_KEY)
-set_value(values, "sab_cat", "prowlarr")
+set_value(values, "sab_cat", "books-shadow")
 set_value(values, "sab_subdir", "")
 set_value(values, "sab_remote", "")
 set_value(values, "sab_local", "")
@@ -106,7 +106,7 @@ with urllib.request.urlopen(request, timeout=20) as response:
 
 status, result = get(
     "/test_sabnzbd",
-    {"host": "192.168.20.40", "port": "8080", "user": "", "pwd": "", "api": SAB_KEY, "cat": "prowlarr", "subdir": ""},
+    {"host": "192.168.20.40", "port": "8080", "user": "", "pwd": "", "api": SAB_KEY, "cat": "books-shadow", "subdir": ""},
 )
 result = re.sub(r"\s+", " ", result.replace(SAB_KEY, "REDACTED").replace(PROWLARR_KEY, "REDACTED"))
 print(f"sab_test_http={status} result={result[:180]}")

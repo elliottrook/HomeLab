@@ -52,6 +52,9 @@ policy and backup/restore test before it can write the production library.
 `scripts/configure_shadow_lazy.py` configures only the shadow LazyLibrarian
 instance. It validates SABnzbd connectivity and enables one Prowlarr Newznab
 provider with explicit `book` mappings after a read-only search check.
+Shadow downloads use the separately created SABnzbd `books-shadow` category;
+the production `movies`, `tv` and `audio` categories are not used by the
+shadow workflow.
 
 ## Lifecycle
 
