@@ -4,6 +4,18 @@
 
 **Owner:** Jason.
 
+**Current coordination and priority — 2026-10-05:** Jason requested one Codex
+window for delivery, supporting agents coordinated there, and plain-language
+explanations of practical consequences. The immediate priority is repairing the
+local-Qwen evaluation contract before a further model or hardware decision.
+The [validity review](evidence/SA3-evaluation-validity-review-2026-10-05.md)
+reproduces scorer limitations without accessing private answers. Qwen remains
+unqualified for operational diagnosis; general local-model inability and B60
+inadequacy are not established. Next safe work is a separate offline evaluator
+candidate with synthetic development tests. Doctor recovery is a separate pending
+integration task. No deployment, push or model run is authorized by this update.
+This priority supersedes older next-action prose below.
+
 **Proposed:** 2026-09-25.
 
 **Authorization stream:** Stream A — Autonomous, explicitly authorized by Jason on 2026-09-25: create the AI Projects folder, adopt these documents, mark superseded plans and archive them, and start this project. The authorization covers the bounded foundation milestones and their existing exclusions, not general administrator authority, later-release scope or automatic promotion authority. Repository/platform controls and per-push confirmation remain mandatory.

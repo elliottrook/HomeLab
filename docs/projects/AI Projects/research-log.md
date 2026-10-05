@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Evaluation validity and single-window coordination
+
+Reviewed the checked-in operational runner, scorer, preregistration and result.
+Four synthetic reproductions show exact-label sensitivity, duplicate-ID acceptance
+and incomplete effects rejection. No private holdout or model was accessed.
+Historical results remain unchanged; no Qwen promotion or hardware verdict follows.
+The [review and replacement-test proposal](evidence/SA3-evaluation-validity-review-2026-10-05.md)
+defines the next offline work. Jason requested one coordinating Codex window and
+plain-language updates explaining the practical implications of decisions.
+
 ## Harness follow-up
 
 Jason asked to evaluate Hermes as a replaceable harness, compare current alternatives and recommend one implementation project document. Added `HARNESS-ALTERNATIVES.md`, linked it into the main assessment and drafted `Aster-Adaptive-Computing.md` outside the repository. Preserved the initial assessment/log/manifest under `revisions/initial-assessment/`.
