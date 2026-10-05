@@ -1622,7 +1622,11 @@ COMPANION_SCOPE = "openid email profile offline_access"
 
 @app.get("/companion/orb.png")
 async def companion_orb() -> FileResponse:
-    return FileResponse(STATIC_DIR / "aster-orb.png", media_type="image/png")
+    return FileResponse(
+        STATIC_DIR / "aster-orb.png",
+        media_type="image/png",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.get("/aster-app-icon.png")
@@ -1658,7 +1662,7 @@ async def companion_web_client() -> str:
 <style>
 body{{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0;overflow-x:hidden}}
 main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
-#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
+#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
 #orb.acting{{animation:actingPulse .8s ease-in-out infinite}}
@@ -1667,7 +1671,7 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 @keyframes listeningPulse{{0%,100%{{filter:saturate(1) brightness(1) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.3) brightness(1.15) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1.06)}}}}
 #orb.speaking{{animation:speakingPulse .5s ease-in-out infinite}}
 @keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1.05)}}}}
-button.mic{{background:transparent;background-image:url('/companion/orb.png');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
+button.mic{{background:transparent;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
 button.mic.recording{{border-color:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.7)}}
 #chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
 textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
