@@ -562,3 +562,7 @@ the evidence log.
   request, so the future portal adapter must use a dedicated private Seerr
   service identity/session. No request was created; no Lidarr mutation was
   attempted.
+- 2026-10-05: M2 added pure request-planning primitives and four unit tests
+  covering explicit approval, stable idempotency keys, ambiguous matches,
+  owned items and archived items. The module performs no HTTP or production
+  mutation; live authority adapters remain pending the Seerr identity gate.
