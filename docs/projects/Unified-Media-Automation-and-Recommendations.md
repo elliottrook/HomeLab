@@ -244,11 +244,11 @@ Gate: recoverable baseline exists and no material topology surprise remains.
 
 ### M1 — Docker media foundation
 
-- [ ] Create the Compose/Dockge project and `/data` path contract.
-- [ ] Deploy LazyLibrarian, Calibre-Web replacement/repair and the Docker
+- [x] Create the Compose/Dockge project and `/data` path contract.
+- [x] Deploy LazyLibrarian, Calibre-Web replacement/repair and the Docker
   Audiobookshelf instance on temporary ports.
-- [ ] Validate ebook and audiobook library scans, users, metadata and playback.
-- [ ] Prove Calibre single-writer behavior and ebook ingest/conversion.
+- [x] Validate ebook and audiobook library scans, users, metadata and playback.
+- [x] Prove Calibre single-writer behavior and ebook ingest/conversion.
 
 Gate: book/audio services work without changing the production library or
 removing the source Apps.
@@ -551,3 +551,8 @@ the evidence log.
   while the empty `books-shadow` boundary was retained with `apps` ownership.
   The test did not touch production Calibre, Audiobookshelf, active media or
   archive roots.
+- 2026-10-05: M1 playback validation used the isolated Audiobookshelf API to
+  create a direct-play session for a scanned audiobook item. The shadow
+  service returned a playback session successfully; production Audiobookshelf
+  state and media were not used. M1 gate passed with the source Apps retained
+  and recoverable.
