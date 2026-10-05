@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Original investigation batch stopped; compact candidate prepared
+
+Approved frozen batch attempted five calls: non-thinking concluded in 56.902 seconds;
+thinking hit the 300-second investigation limit during its second call. The remaining
+case was not run. First postcheck saw outstanding inference; subsequent read-only
+check confirmed healthy idle and unchanged PID. Preserved synthetic results and
+[reviewed rubric weaknesses](evidence/SA3-investigation-development-review-2026-10-05.md).
+Prepared a 384-token thinking candidate, explicit bounded follow-up schedule and
+attempt/failure metadata; all 29 SA3 tests pass. No connected rerun or promotion.
+
 ## 2026-10-05 — Multi-step synthetic investigator ready
 
 Implemented bounded simulated evidence lookup, two exposed development scenarios,

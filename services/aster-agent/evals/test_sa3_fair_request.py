@@ -40,5 +40,11 @@ class RequestTests(unittest.TestCase):
         build_request(self.case, "thinking", "fixture-model")
         self.assertEqual(self.case, original)
 
+    def test_compact_thinking_preserves_answer_headroom(self):
+        request = build_request(self.case, 'thinking_compact', 'fixture-model')
+        self.assertIs(request['chat_template_kwargs']['enable_thinking'], True)
+        self.assertEqual(request['reasoning_budget_tokens'], 384)
+        self.assertEqual(request['max_tokens']-request['reasoning_budget_tokens'], 1024)
+
 
 if __name__ == "__main__": unittest.main()

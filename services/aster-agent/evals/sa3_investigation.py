@@ -52,15 +52,21 @@ def investigate(case, mode, model, transport, clock=time.monotonic):
         raise ValueError('duplicate fixture evidence identity')
     started = clock()
     used, steps = [], []
+    attempts, failure = 0, None
     status = 'call_budget_exhausted'
     for _ in range(3):
         remaining = 300-(clock()-started)
         if remaining <= 0:
             status = 'time_budget_exhausted'; break
         payload = request_for(case, observations, used, mode, model)
+        attempts += 1
+        attempt_started = clock()
         try:
             response = transport(payload, min(240, remaining))
         except Exception as exc:
+            failure = {'type': type(exc).__name__, 'attempt': attempts,
+                       'elapsed_seconds': round(clock()-attempt_started, 3),
+                       'request_timeout_seconds': min(240, remaining)}
             status = 'transport_error:' + type(exc).__name__; break
         # Never retain raw responses or reasoning fields supplied by a transport.
         answer = response.get('answer')
@@ -98,4 +104,5 @@ def investigate(case, mode, model, transport, clock=time.monotonic):
             status = answer['decision']; break
     return {'case_id': case['id'], 'mode': mode, 'status': status, 'steps': steps,
             'checks': used, 'observations': observations, 'elapsed_seconds': round(clock()-started, 3),
+            'attempted_calls': attempts, 'failure': failure,
             'limit': 'synthetic development only; terminal status is not a correctness grade'}

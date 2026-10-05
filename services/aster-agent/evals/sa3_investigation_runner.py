@@ -33,13 +33,17 @@ def sanitize_response(value, elapsed):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--plan', choices=['original', 'compact-followup'], default='original')
     args = parser.parse_args()
     cases = json.loads(Path(__file__).with_name('sa3-investigation-development.json').read_text())['cases']
     schedule = [(cases[0], 'nonthinking'), (cases[0], 'thinking'),
                 (cases[1], 'thinking'), (cases[1], 'nonthinking')]
+    if args.plan == 'compact-followup':
+        schedule = [(cases[1], 'nonthinking'), (cases[1], 'thinking_compact'),
+                    (cases[0], 'thinking_compact')]
     if not args.execute:
         print(json.dumps({'execute': False, 'cases': [c['id'] for c in cases],
-                          'sessions': 4, 'max_model_calls': 12,
+                          'plan': args.plan, 'sessions': len(schedule), 'max_model_calls': 3*len(schedule),
                           'session_seconds': 300, 'request_seconds': 240,
                           'scope': 'synthetic development only; no model-quality gate'}))
         return 0

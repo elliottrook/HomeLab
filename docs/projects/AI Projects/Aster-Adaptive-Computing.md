@@ -25,7 +25,12 @@ without restart; off took 24.431 seconds and on 158.706 seconds. Neither mode is
 qualified for operational diagnosis by this example. The synthetic multi-step
 simulator, development fixtures and explicit-execution runner are now implemented
 and locally validated. The [four-investigation plan](evidence/SA3-simulated-investigation-plan-2026-10-05.md)
-is ready for connected-run approval (up to 12 calls/20 minutes inference). Continue
+was approved and stopped at its deadline: non-thinking diagnosed the synthetic
+configuration fault in 56.902 seconds with some unsupported wording; thinking
+timed out at 300.075 seconds. The other case was not run. The server returned to
+healthy idle with unchanged PID. A [compact-thinking follow-up](evidence/SA3-investigation-development-review-2026-10-05.md)
+is prepared and tested locally, awaiting its own connected-run approval (up to
+nine calls/15 minutes inference). Continue
 Stream A local work without milestone-by-milestone confirmation, pause only at
 required gates and resume when granted. Production defaults remain unchanged.
 

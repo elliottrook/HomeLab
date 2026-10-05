@@ -19,6 +19,14 @@ class RunnerTests(unittest.TestCase):
         self.assertTrue(result['reasoning_present'])
         self.assertNotIn('private synthetic reasoning', json.dumps(result))
 
+    def test_followup_dry_run_is_bounded_and_explicit(self):
+        result = subprocess.run([sys.executable, str(Path(__file__).with_name('sa3_investigation_runner.py')),
+                                 '--plan', 'compact-followup'], env={}, capture_output=True, text=True, check=True)
+        plan = json.loads(result.stdout)
+        self.assertFalse(plan['execute'])
+        self.assertEqual(plan['sessions'], 3)
+        self.assertEqual(plan['max_model_calls'], 9)
+
     def test_unparsed_content_not_retained(self):
         result = sanitize_response({'choices': [{'finish_reason': 'length', 'message': {
             'content': '<think>discard this raw output'}}]}, 2)

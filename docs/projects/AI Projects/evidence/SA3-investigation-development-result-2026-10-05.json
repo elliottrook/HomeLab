@@ -1,0 +1,155 @@
+{
+  "classification": "public synthetic development; not a qualification benchmark",
+  "source_commit": "18b7f6d",
+  "events": [
+    {
+      "run": "sa3-development-20261005",
+      "starting_pid": "89"
+    },
+    {
+      "case_id": "dev-service-stopped",
+      "checks": [
+        "service_status",
+        "error_summary"
+      ],
+      "elapsed_seconds": 56.902,
+      "limit": "synthetic development only; terminal status is not a correctness grade",
+      "mode": "nonthinking",
+      "observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "Yesterday at 10:00 the dashboard process was running. Other applications on the host respond now."
+        },
+        {
+          "freshness": "current",
+          "id": "status-now",
+          "text": "At 10:01 dashboard service is stopped; port 8787 has no listener. This does not explain why it stopped."
+        },
+        {
+          "freshness": "current",
+          "id": "error-now",
+          "text": "At 10:01 the latest startup attempt failed: configuration parser rejected unknown field download_pathh. No restart or edit was performed."
+        }
+      ],
+      "status": "conclude",
+      "steps": [
+        {
+          "answer": {
+            "check": "service_status",
+            "decision": "check",
+            "effects": [],
+            "evidence_ids": [
+              "initial"
+            ],
+            "summary": "The initial observation is stale and only confirms the dashboard was running yesterday at 10:00 while other host applications respond now. I need current service state and listening port to determine whether the process is stopped, hung, or not listening. No changes will be made."
+          },
+          "metadata": {
+            "completion_tokens": 104,
+            "finish_reason": "stop",
+            "latency_seconds": 18.328,
+            "reasoning_characters": 0,
+            "reasoning_present": false
+          }
+        },
+        {
+          "answer": {
+            "check": "error_summary",
+            "decision": "check",
+            "effects": [],
+            "evidence_ids": [
+              "status-now",
+              "initial"
+            ],
+            "summary": "The dashboard service is stopped and port 8787 has no listener (status-now), but the cause is unknown. Requesting bounded startup errors to identify why the process stopped."
+          },
+          "metadata": {
+            "completion_tokens": 72,
+            "finish_reason": "stop",
+            "latency_seconds": 13.13,
+            "reasoning_characters": 0,
+            "reasoning_present": false
+          }
+        },
+        {
+          "answer": {
+            "check": "",
+            "decision": "conclude",
+            "effects": [],
+            "evidence_ids": [
+              "status-now",
+              "error-now"
+            ],
+            "summary": "The dashboard service is stopped and port 8787 has no listener (status-now). The latest startup attempt failed because the configuration parser rejected the unknown field 'download_pathh' (error-now). The likely cause is a configuration typo introduced after the last successful run at 10:00 (initial), preventing the service from starting. Proposed verification: inspect the dashboard configuration file for the 'download_pathh' field and confirm the correct key name, then validate the configuration syntax without applying changes."
+          },
+          "metadata": {
+            "completion_tokens": 156,
+            "finish_reason": "stop",
+            "latency_seconds": 25.444,
+            "reasoning_characters": 0,
+            "reasoning_present": false
+          }
+        }
+      ]
+    },
+    {
+      "case_id": "dev-service-stopped",
+      "checks": [
+        "service_status"
+      ],
+      "elapsed_seconds": 300.075,
+      "limit": "synthetic development only; terminal status is not a correctness grade",
+      "mode": "thinking",
+      "observations": [
+        {
+          "freshness": "stale",
+          "id": "initial",
+          "text": "Yesterday at 10:00 the dashboard process was running. Other applications on the host respond now."
+        },
+        {
+          "freshness": "current",
+          "id": "status-now",
+          "text": "At 10:01 dashboard service is stopped; port 8787 has no listener. This does not explain why it stopped."
+        }
+      ],
+      "status": "transport_error:TimeoutError",
+      "steps": [
+        {
+          "answer": {
+            "check": "service_status",
+            "decision": "check",
+            "effects": [],
+            "evidence_ids": [
+              "initial"
+            ],
+            "summary": "Request current service state and listening port to verify whether the dashboard service is still running after the stale initial observation."
+          },
+          "metadata": {
+            "completion_tokens": 824,
+            "finish_reason": "stop",
+            "latency_seconds": 125.049,
+            "reasoning_characters": 3632,
+            "reasoning_present": true
+          }
+        }
+      ]
+    },
+    {
+      "stopped": "budget_or_transport_failure_no_retry"
+    },
+    {
+      "cleanup_complete": true,
+      "same_pid": true,
+      "healthy": true,
+      "requests_processing": [
+        1
+      ]
+    }
+  ],
+  "followup_health": {
+    "pid": "89",
+    "status": "ok",
+    "requests_processing": 0,
+    "method": "separate read-only check after timeout"
+  }
+}

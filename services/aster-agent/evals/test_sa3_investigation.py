@@ -57,6 +57,8 @@ class InvestigationTests(unittest.TestCase):
         result = investigate(self.case, 'thinking', 'fixture-model', transport)
         self.assertEqual(len(calls), 1)
         self.assertEqual(result['status'], 'transport_error:TimeoutError')
+        self.assertEqual(result['attempted_calls'], 1)
+        self.assertEqual(result['failure']['type'], 'TimeoutError')
 
     def test_overall_deadline_enforced(self):
         now = [0]
