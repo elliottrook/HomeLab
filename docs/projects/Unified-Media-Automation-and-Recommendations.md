@@ -490,3 +490,7 @@ the evidence log.
   reported 24 indexed items. LazyLibrarian remained healthy on HTTP 303 to
   `/home` with no providers or downloader credentials configured. Production
   Audiobookshelf, media files and acquisition workflows were not changed.
+- 2026-10-05: M1 smoke checks confirmed the shadow Audiobookshelf audiobook
+  bind is `rw=false`, its health endpoint returns HTTP 200, and LazyLibrarian
+  remains reachable with HTTP 303. Both containers remain loopback-only;
+  their configuration/metadata paths are separate shadow paths.
