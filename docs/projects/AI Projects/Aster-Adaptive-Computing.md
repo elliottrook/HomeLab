@@ -19,8 +19,12 @@ now specifies paired thinking-off/on evaluation with adequate answer budgets.
 An offline scorer candidate and synthetic fixture tests exist; no connected model
 comparison has run. Paired request construction is now tested offline; the
 [installed-version source review](evidence/SA3-per-request-thinking-2026-10-05.md)
-supports per-request overrides but loaded-template behavior is unverified. Next
-is a bounded synthetic mode-verification smoke pair under the connected-run gate.
+supports per-request overrides. Jason subsequently approved the two-request
+[smoke pair](evidence/SA3-thinking-smoke-result-2026-10-05.md): switching worked
+without restart; off took 24.431 seconds and on 158.706 seconds. Neither mode is
+qualified for operational diagnosis by this example. Next safe local work is a
+synthetic multi-step investigation simulator and development fixtures. Additional
+connected model requests retain their gates; production defaults remain unchanged.
 
 **Proposed:** 2026-09-25.
 

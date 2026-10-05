@@ -1,5 +1,14 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Authorized off/on smoke pair completed
+
+Jason approved two serial synthetic requests, each with a four-minute limit.
+Both completed: off 24.431 seconds; on 158.706 seconds with a nonempty separate
+reasoning field whose content was discarded. Same server PID, healthy afterward,
+no tools, production changes, private data or retries. Both requested fresh
+evidence; no quality superiority or sysadmin qualification established.
+[Result and limitations](evidence/SA3-thinking-smoke-result-2026-10-05.md).
+
 ## 2026-10-05 — Per-task thinking and paired request construction
 
 Verified the live server build and matched primary source. Both enable_thinking

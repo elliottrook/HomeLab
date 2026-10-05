@@ -20,6 +20,7 @@ class RequestTests(unittest.TestCase):
         self.assertEqual(off["max_tokens"], 1024)
         self.assertEqual(on["max_tokens"], 2560)
         self.assertNotIn("tools", on)
+        self.assertEqual(on["reasoning_format"], "deepseek")
 
     def test_rejects_answer_key_unknown_profile_and_missing_catalogue(self):
         for case, mode in [(dict(self.case, answer_key="hidden"), "thinking"),

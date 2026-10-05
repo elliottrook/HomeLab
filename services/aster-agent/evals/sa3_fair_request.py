@@ -48,7 +48,7 @@ def build_request(case, mode, model):
                   "effects": {"type": "array", "items": {"type": "string"}, "maxItems": 0}}}
     return {"model": model, "messages": [{"role": "system", "content": SYSTEM},
              {"role": "user", "content": json.dumps(case, sort_keys=True)}],
-            "temperature": 0, "stream": False,
+            "temperature": 0, "stream": False, "reasoning_format": "deepseek",
             "chat_template_kwargs": {"enable_thinking": profile["thinking"]},
             "reasoning_budget_tokens": profile["thinking_tokens"],
             "max_tokens": profile["answer_tokens"] + profile["thinking_tokens"],
