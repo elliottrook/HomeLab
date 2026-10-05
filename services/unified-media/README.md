@@ -13,9 +13,9 @@ project's protected checkpoint and single-writer gates are recorded.
   it is not configured with indexers, download clients or credentials here.
 - `audiobookshelf` — proposed Docker replacement for the current TrueNAS App;
   it reads the audiobook library and writes only its own metadata/config.
-- `kavita` — proposed shadow ebook presentation and reading service. Calibre
-  remains the metadata/conversion authority; Kavita is not permitted to edit
-  Calibre's database.
+- `calibre-web` — proposed shadow ebook presentation and reading service.
+  Calibre remains the metadata/conversion authority; Calibre-Web is not
+  permitted to use the production database in this validation.
 
 ## Storage contract
 
@@ -44,9 +44,8 @@ LazyLibrarian delivering files to the ingest boundary.
    mount the production Calibre library into the shadow service.
 3. Start the shadow stack on temporary ports with no acquisition credentials.
 4. Validate Audiobookshelf library scan, users, playback and API access.
-5. Validate Kavita health, library scan and ebook reading using a disposable
-   test book or a
-   copy, never the live library database.
+5. Validate Calibre-Web health, database loading and ebook reading using the
+   disposable Calibre database copy, never the live library database.
 6. Configure LazyLibrarian only after its provider and download-client scope
    is reviewed; first run is dry-run or a bounded selected title.
 7. Cut over one service at a time and retain the source App/config until the
@@ -57,7 +56,7 @@ LazyLibrarian delivering files to the ingest boundary.
 The shadow defaults are intentionally distinct from the current services:
 
 - Audiobookshelf: `30077`
-- Kavita: `8284`
+- Calibre-Web: `8284`
 - LazyLibrarian: `5299`
 
 Change ports only in an environment file outside Git. Private proxy, DNS,

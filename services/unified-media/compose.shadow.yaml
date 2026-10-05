@@ -26,19 +26,19 @@ services:
       - "127.0.0.1:30077:80"
     restart: "no"
 
-  kavita:
-    image: lscr.io/linuxserver/kavita:latest
-    container_name: unified-kavita-shadow
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: unified-calibre-web-shadow
     environment:
       - PUID=568
       - PGID=568
       - TZ=${TZ:-America/Vancouver}
     volumes:
-      - ${UNIFIED_CONFIG_PATH}/kavita:/config
-      # Use a disposable metadata/library copy for shadow validation. The
-      # production Calibre library is not mounted into this shadow container.
-      - ${UNIFIED_EBOOK_SHADOW_PATH}:/calibre-library
+      - ${UNIFIED_CONFIG_PATH}/calibre-web:/config
+      # Use a disposable Calibre metadata/library copy for shadow validation.
+      # The production Calibre library is not mounted into this container.
+      - ${UNIFIED_EBOOK_SHADOW_PATH}:/books
       - ${UNIFIED_MEDIA_PATH}/ingest/books:/ingest
     ports:
-      - "127.0.0.1:8284:5000"
+      - "127.0.0.1:8284:8083"
     restart: "no"

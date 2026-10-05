@@ -245,8 +245,8 @@ Gate: recoverable baseline exists and no material topology surprise remains.
 ### M1 — Docker media foundation
 
 - [ ] Create the Compose/Dockge project and `/data` path contract.
-- [ ] Deploy LazyLibrarian, Calibre-Web Automated replacement/repair and the
-  Docker Audiobookshelf instance on temporary ports.
+- [ ] Deploy LazyLibrarian, Calibre-Web replacement/repair and the Docker
+  Audiobookshelf instance on temporary ports.
 - [ ] Validate ebook and audiobook library scans, users, metadata and playback.
 - [ ] Prove Calibre single-writer behavior and ebook ingest/conversion.
 
@@ -473,3 +473,10 @@ the evidence log.
   containers were stopped and removed; production Calibre, CWA,
   Audiobookshelf and ebook data were untouched. Kavita is not adopted for
   cutover until a version-specific parser/startup test succeeds.
+- 2026-10-05: M1 evaluated LinuxServer Calibre-Web on loopback port `8284`
+  using the disposable Calibre database/library copy. It loaded the database,
+  rendered 128 book links without a database error, served a book detail page,
+  and returned a working reader page. The shadow container was stopped after
+  validation; production CWA, Calibre metadata and ebook files were not
+  mounted or changed. Calibre-Web is now the ebook presentation candidate;
+  acquisition and single-writer cutover remain open.
