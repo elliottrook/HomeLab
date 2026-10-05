@@ -2,7 +2,7 @@
 
 Owner: Jason. Started 2026-10-03. Stream M, bounded allocation approved by Jason:
 “Nothing to keep on the sata drives. Please allocate them as recommended.”
-Status: allocation and extended SMART qualification complete; migration pending.
+Status: qualified; owner-approved backup migration copy running since 2026-10-05.
 
 ## Purpose, scope and authority
 
@@ -95,3 +95,9 @@ offline uncorrectable, reported uncorrectable and CRC counts all remain zero.
 Recovery ONLINE with zero ZFS errors. Qualification gate passed; backup migration
 has not started. Media expansion is still active, so avoid extra bulk migration
 load until it finishes.
+
+2026-10-05: Jason authorized backup migration. Immutable source checkpoint and
+resumable copy/full-checksum worker started, PID 161223. Existing producers and
+cloud relay still use Media; no cutover yet. Exact mappings, estimated duration,
+cutover/rollback gates and progress paths are in
+[Recovery migration](../runbooks/Recovery-Migration-2026-10-05.md).
