@@ -431,8 +431,8 @@ the evidence log.
   this project; shared `/data` changes must preserve its final mount contract.
 - 2026-10-05: M1 created the reversible shadow-stack artifacts at
   `services/unified-media/compose.shadow.yaml` and its README. The stack uses
-  temporary loopback ports, no credentials, a read-only audiobook mount and a
-  read-only live Calibre library; it has not been started. Local Docker Compose
+  temporary loopback ports, no acquisition credentials, a read-only audiobook
+  mount and a read-only live Calibre library. Local Docker Compose
   validation was unavailable because the calling Mac has no `docker` binary;
   validation remains a TrueNAS-side gate before startup.
 - 2026-10-05: M1 TrueNAS validation started the shadow Audiobookshelf and
@@ -480,3 +480,13 @@ the evidence log.
   validation; production CWA, Calibre metadata and ebook files were not
   mounted or changed. Calibre-Web is now the ebook presentation candidate;
   acquisition and single-writer cutover remain open.
+- 2026-10-05: M1 corrected the shadow Audiobookshelf source after the first
+  scan exposed an empty-path mismatch: `/mnt/Media/data/media/audiobooks`
+  exists but is empty, while the production App mounts
+  `/mnt/Media/media/audiobooks`. The compose file now uses an explicit
+  `UNIFIED_AUDIOBOOKS_PATH` defaulting to the confirmed production dataset and
+  mounts it read-only. After recreating only the shadow container, it saw 757
+  audiobook files; the scan endpoint returned HTTP 200 and the library API
+  reported 24 indexed items. LazyLibrarian remained healthy on HTTP 303 to
+  `/home` with no providers or downloader credentials configured. Production
+  Audiobookshelf, media files and acquisition workflows were not changed.

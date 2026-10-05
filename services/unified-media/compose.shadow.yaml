@@ -21,7 +21,9 @@ services:
     volumes:
       - ${UNIFIED_CONFIG_PATH}/audiobookshelf:/config
       - ${UNIFIED_CONFIG_PATH}/audiobookshelf-metadata:/metadata
-      - ${UNIFIED_MEDIA_PATH}/media/audiobooks:/audiobooks:ro
+      # Audiobooks live in the TrueNAS media dataset, outside the data/downloads tree.
+      # Keep this explicit and read-only so the shadow instance cannot alter production media.
+      - ${UNIFIED_AUDIOBOOKS_PATH:-/mnt/Media/media/audiobooks}:/audiobooks:ro
     ports:
       - "127.0.0.1:30077:80"
     restart: "no"

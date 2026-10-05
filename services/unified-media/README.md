@@ -19,9 +19,10 @@ project's protected checkpoint and single-writer gates are recorded.
 
 ## Storage contract
 
-The production media dataset remains authoritative. The shadow stack uses the
-same host dataset through a common `/data` path, but its ebook ingest path is
-separate from the live Calibre library:
+The production media dataset remains authoritative. The shadow stack uses a
+common `/data` path for the book/download staging tree, while the existing
+audiobook library is mounted explicitly from its confirmed TrueNAS dataset
+path and read-only:
 
 ```text
 /data/media/books             # existing Calibre library; never mounted into shadow services
@@ -31,6 +32,11 @@ separate from the live Calibre library:
 /data/downloads/books         # book download staging
 /data/downloads/audiobooks    # audiobook download staging
 ```
+
+The Audiobookshelf shadow source is `/mnt/Media/media/audiobooks` on TrueNAS
+(`UNIFIED_AUDIOBOOKS_PATH`), not the empty `/mnt/Media/data/media/audiobooks`
+directory. This explicit variable prevents an accidental empty-library scan
+and keeps the production audiobook files read-only to the shadow container.
 
 No service in the shadow stack may directly write Calibre's `metadata.db`.
 Calibre-Web Automated remains the sole planned writer after cutover, with
