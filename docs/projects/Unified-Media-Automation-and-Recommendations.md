@@ -602,3 +602,7 @@ the evidence log.
   ordering, bounded result size and local explanations. The model has nine
   passing Python 3.9 tests across M2 and M3; no reader, LLM job or recurring
   schedule is enabled.
+- 2026-10-05: Read-only M3 service discovery confirmed Jellyfin, Seerr,
+  shadow Audiobookshelf and shadow LazyLibrarian respond on their private LAN
+  endpoints; Lidarr reports `3.1.0.4875`. No reader credentials were printed,
+  and no snapshot or recurring job was enabled.
