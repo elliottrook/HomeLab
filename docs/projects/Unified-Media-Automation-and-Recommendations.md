@@ -521,3 +521,11 @@ the evidence log.
   explicit override was supplied, while the disposable library listed 505
   records and converted a test EPUB to a 10,658-byte AZW3. Temporary test
   files were removed; no production library or ingest path was mounted.
+- 2026-10-05: With Jason's approval, the isolated LazyLibrarian shadow was
+  given separate `/downloads`, `/books` and `/audio` paths and configured to
+  use the existing SABnzbd service through the valid `prowlarr` category.
+  SABnzbd connection testing passed with version `5.1.3`; no download was
+  submitted. Both existing Prowlarr indexers advertise no Newznab book or
+  audiobook search capability, so the shadow provider remains disabled rather
+  than presenting a false-positive request path. Adding a capable provider or
+  changing Prowlarr indexers remains a separate authorization gate.

@@ -9,6 +9,10 @@ services:
     volumes:
       - ${UNIFIED_CONFIG_PATH}/lazylibrarian:/config
       - ${UNIFIED_MEDIA_PATH}:/data
+      # Keep shadow acquisition/import boundaries separate from production.
+      - ${UNIFIED_MEDIA_PATH}/downloads:/downloads
+      - ${UNIFIED_MEDIA_PATH}/ingest/books:/books
+      - ${UNIFIED_MEDIA_PATH}/ingest/audiobooks:/audio
     ports:
       - "127.0.0.1:5299:5299"
     restart: "no"
