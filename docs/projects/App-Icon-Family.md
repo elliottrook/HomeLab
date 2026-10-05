@@ -1,7 +1,6 @@
 # App icon family
 
-**Status:** Active — Stream M, local preparation complete; deployment pending
-explicit operational approval
+**Status:** Complete — Stream M; web and native Mac deployment validated
 
 **Owner:** Jason
 
@@ -64,10 +63,10 @@ remote command.
 1. [x] Capture the linked-chat handoff and current repository/runtime evidence.
 2. [x] Add icon assets, duplication stylesheet, and design contract to Git;
    update Aster web source.
-3. [ ] Obtain approval for the exact LXC 114 and Aster runtime file update,
-   deploy only the static assets/metadata, and validate private URLs.
-4. [ ] Create a focused local commit, then request confirmation immediately
-   before pushing `origin`.
+3. [x] Deploy only the static assets/metadata to LXC 104 and LXC 114 and
+   validate private URLs.
+4. [x] Install and verify the native Aster Companion release on the Mac.
+5. [x] Commit the project record and synchronize `main` through Forgejo.
 
 Rollback is to restore the prior Aster HTML/manifest references and the prior
 News Digest icon files. The deployed News Digest bytes are retained in the
@@ -96,3 +95,5 @@ configuration changes are required for static icon assets.
 | 2026-10-04 | Read LXC 114 runtime assets | `icon-32.png` `a3d8410f…387d5ca`; `icon-180.png` `492e517e…8fe1be`; `icon-512.png` `b2f31110…e65dab` | Existing deployed icon family captured without remote mutation |
 | 2026-10-04 | Local preparation | Aster web metadata now references `/aster-app-icon.png`; source assets and guide added | Ready for separately approved deployment |
 | 2026-10-04 | Follow-up asset handoff | Shared chats supplied refined Aster flower and folded-newspaper PNGs | Replaced stale source PNGs and generated News Digest 32/180px derivatives; native ICNS remains the supplied tracked bundle artifact because this host's `iconutil` rejects iconsets during conversion |
+| 2026-10-04 | Runtime deployment | Aster LXC 104 restarted; Aster root/Companion HTML and manifest reference `/aster-app-icon.png`; News Digest LXC 114 UI restarted with 32/180/512px references | Live icon hashes match Git sources; private URL validation passed |
+| 2026-10-04 | Mac completion | `/Applications/AsterCompanion.app` replaced atomically after preserving rollback copy; `codesign --verify --deep --strict` passed; Swift test suite passed 24/24 | Native app installed and Launch Services re-registered; ad-hoc signature remains expected on this Mac |
