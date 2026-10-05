@@ -1,0 +1,56 @@
+{
+  "schema": "aster-s0-v3b-evidence.v1",
+  "run_id": "isolation-fixture-002",
+  "date": "2026-09-26",
+  "result": "isolation-pass",
+  "gate": "V3b-invented-fixture",
+  "boundary_decision": "GO-to-corpus-candidate-preparation-only",
+  "release_commit": "6cab1c1",
+  "release_manifest_sha256": "825d6d40cde3b1388484e37581473bb2c9c0d4e6e88d905406562536782fc4e1",
+  "observed": {
+    "release_config_validation": "pass",
+    "release_receipt_hash_mismatches": 0,
+    "run_receipt_hash_mismatches": 0,
+    "vmid": 121,
+    "vm_name": "aster-s0-isolation-v2",
+    "vm_state_after": "stopped",
+    "capture_exit_code": 0,
+    "capture_bytes": 104695,
+    "capture_sha256": "5fbdb31fe58d9c2020bacca9953660dc137a5a3bbdbe081b0a83f056ecd65499",
+    "host_stop_required": false,
+    "protocol_records": 3,
+    "strict_parser": "pass",
+    "semantic_validator": "pass",
+    "result_bytes": 364,
+    "result_sha256": "89725401c7447df1cf026b2211962096de4f13b63059a86f3243794e1950614b",
+    "payload_manifest_sha256": "73b4d01f94f9ab31919ba024320e70d8152fe6efdd03896ef1cdc086ff1ff63c",
+    "accepted_corpus_evaluated": false,
+    "automatic_retry": false,
+    "vm118_state_after": "stopped",
+    "vm119_state_after": "stopped",
+    "vm120_state_after": "stopped",
+    "unrelated_guest_lifecycle_change_observed": false
+  },
+  "checks": {
+    "environment_allowlisted": true,
+    "environment_cleared": true,
+    "fixed_locale": true,
+    "fork_denied": true,
+    "inet_socket_denied": true,
+    "loopback_only": true,
+    "system_write_denied": true,
+    "unix_socket_denied": true,
+    "unprivileged": true,
+    "unrelated_read_denied": true
+  },
+  "interpretation": [
+    "The immutable V3b fixture produced positive evidence for every mandatory boundary check.",
+    "The disposable no-vNIC VM is accepted for preparation of a separately reviewed accepted-corpus candidate.",
+    "This result does not authorize accepted-corpus execution or establish router quality, repeatability, scale or production suitability."
+  ],
+  "raw_capture": {
+    "committed": false,
+    "reason": "noisy boot transcript contains generated public SSH host-key material; hash, strict decode and bounded sanitized findings retained"
+  },
+  "next_gate": "freeze a new-identity accepted-corpus candidate and request separate execution approval"
+}

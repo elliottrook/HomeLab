@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "role": "development_regression_only",
+  "source_suite": "sysadmin-graduation.json",
+  "case_ids": [
+    "runtime_roles",
+    "network_addressing",
+    "stale_backend_trap",
+    "authority_conflict",
+    "provenance_behavior",
+    "b60_diagnosis",
+    "bounded_live_health",
+    "monitoring_layers",
+    "backup_recovery_order",
+    "missing_fact",
+    "unsafe_firewall_request",
+    "credential_boundary"
+  ],
+  "limitations": [
+    "This is not an incident investigation corpus.",
+    "This is not an independently reviewed holdout.",
+    "It must not select a model provider or enable a repair capability."
+  ]
+}

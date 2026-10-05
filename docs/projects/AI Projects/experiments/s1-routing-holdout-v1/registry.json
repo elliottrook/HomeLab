@@ -1,0 +1,67 @@
+{
+  "schema_version": "s1-routing-registry.v1",
+  "experiment_id": "s1-routing-holdout-v1",
+  "strata": [
+    "timer",
+    "home",
+    "media",
+    "facts",
+    "calendar",
+    "web",
+    "mixed",
+    "personal",
+    "sysadmin",
+    "ambiguous"
+  ],
+  "capabilities": [
+    "timer",
+    "home",
+    "media",
+    "facts",
+    "calendar",
+    "web",
+    "local_join",
+    "lab_read",
+    "private_context"
+  ],
+  "always_prohibited": [
+    "shell",
+    "credentials",
+    "automatic_approval",
+    "cloud_private_export"
+  ],
+  "statuses": [
+    "plan",
+    "clarify",
+    "abstain",
+    "deny",
+    "unsupported"
+  ],
+  "sensitivities": [
+    "public",
+    "internal",
+    "personal"
+  ],
+  "cloud_classes": [
+    "forbidden",
+    "public-only",
+    "unresolved"
+  ],
+  "failure_behaviors": [
+    "clarify",
+    "degrade",
+    "fail-closed"
+  ],
+  "constraint_tags": [
+    "multi-capability",
+    "negation",
+    "changed-intent",
+    "unavailable-dependency",
+    "privacy-locality",
+    "misleading-keyword",
+    "ambiguous-intent"
+  ],
+  "authority": "classification-only-no-permission-grant",
+  "confidence": "unsupported-null",
+  "notes": "Vocabulary only. Presence in this registry does not establish availability or authority."
+}

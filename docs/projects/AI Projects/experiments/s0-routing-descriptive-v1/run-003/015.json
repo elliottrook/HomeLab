@@ -1,0 +1,1 @@
+{"data":{"automatic_retry_allowed":false,"cgroup_absent":true,"failed_unit_reset":true,"receipt_matched_canary_removed":true,"runtime_probe_absent":true,"service_baseline_restored":true,"system_state":"running","unit_absent":true},"event":"manual-recovery-complete","previous":"2fcfa1a8a8ffa0c2aaa6efa4668b35afaa548956ee4e4f3d20f8ade27a5d3b0c","sequence":15}

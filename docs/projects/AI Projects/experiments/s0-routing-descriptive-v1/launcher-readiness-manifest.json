@@ -1,0 +1,11 @@
+{
+  "status": "design-and-fixture-primitives-only",
+  "test_source_sha256": "10b314f6b071af83867331ba9fc8e67e440f962b194b714175a74cc28923c165",
+  "new_tests_passed": 6,
+  "full_tests_passed": 131,
+  "initial_failed_probe": "OS injected __CF_USER_TEXT_ENCODING; bootstrap scrub corrected",
+  "sandbox_status": "BLOCKED: previous sandbox_apply Operation not permitted",
+  "accepted_corpus_accessed": false,
+  "live_launcher_implemented": false,
+  "evaluation_authorized": false
+}

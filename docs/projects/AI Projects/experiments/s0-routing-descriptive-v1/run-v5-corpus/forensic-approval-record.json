@@ -1,0 +1,21 @@
+{
+  "schema": "aster-s0-v5-forensic-approval.v1",
+  "human": "Jason",
+  "date": "2026-09-26",
+  "source": "Jason replied Approve to the exact VM122 stopped-disk forensic question",
+  "authorized": {
+    "read_only_loop": true,
+    "journal_replay_disabled": true,
+    "bounded_allowlist_collection": true,
+    "cleanup_mount_and_loop": true
+  },
+  "excluded": {
+    "guest_boot_or_code_execution": true,
+    "corpus_content_export": true,
+    "retry_or_correction_execution": true,
+    "cleanup_or_destruction": true,
+    "promotion": true,
+    "git_push": true
+  },
+  "script_sha256": "b16a56903fe18ab3813e82ee5911391b42bcbf4ca0f460b4645c0ab3388a0a19"
+}

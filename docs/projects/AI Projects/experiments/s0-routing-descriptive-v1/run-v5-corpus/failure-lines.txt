@@ -1,0 +1,3 @@
+Starting aster-s0-corpus.service - Aster S0 accepted-corpus descriptive comparison...
+FAILED: aster-s0-corpus.service exited with an error before a protocol record was published.
+Cloud-init reported scripts-user failure and completed the reviewed poweroff lifecycle.

@@ -1,0 +1,101 @@
+{
+  "format": "s0-manual-acceptance.v1",
+  "recorded_at": "2026-09-26T13:04:23.284357-07:00",
+  "source_thread": "01a0da33-48a7-7130-b567-5e0eb698139f",
+  "source_user_message": "approve 3 minutes",
+  "source_context": "Direct reply requesting acceptance, revision or rejection of cases21\u201330 and proposed labels plus approximate active review time.",
+  "reviewed_proposal_sha256": "962bf5f1c2adaefe4dbbedc92116640019b77c7e4580bc2c2d6b3462750f7a95",
+  "reviewer": "Jason",
+  "evidence_class": "personalized-human-review",
+  "authorship": "AI-proposed; human-approved, not human-authored",
+  "independent_review": false,
+  "cryptographic_human_authentication": false,
+  "retention": "durable-sanitized-git-approved-in-pilot-authorization",
+  "evaluation_authorized": false,
+  "execution_authorized": false,
+  "push_authorized": false,
+  "median_labeling_seconds": null,
+  "effort_gate": "see effort.json; aggregate self-report only",
+  "cases": [
+    {
+      "family_id": "s0-b3-f01",
+      "revision": 1,
+      "proposal_record_sha256": "cd55a92363702a79cd473c3e55ccf98928ea7da528139c1cc3935d9aaf6bf0e8",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    },
+    {
+      "family_id": "s0-b3-f02",
+      "revision": 1,
+      "proposal_record_sha256": "123d6d232ab83fdca9ab2ae4cfd1479bcb5cfa65f2271a7b355156a3d4cc9f42",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "dev"
+    },
+    {
+      "family_id": "s0-b3-f03",
+      "revision": 1,
+      "proposal_record_sha256": "0f781c92743b4f459acea7b4e8324b337b6c2840b232044427be66ade0ba25b5",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    },
+    {
+      "family_id": "s0-b3-f04",
+      "revision": 1,
+      "proposal_record_sha256": "7f0271e1b2a9d48dff5e825e0fddb177d4f70e08f6b0b0cd1defad1b07a5ca45",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    },
+    {
+      "family_id": "s0-b3-f05",
+      "revision": 1,
+      "proposal_record_sha256": "b7b92853050203e78efa90a7d4837b4f5d178565bc5944747f452183fe0a62f7",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    },
+    {
+      "family_id": "s0-b3-f06",
+      "revision": 1,
+      "proposal_record_sha256": "4abdaa155ab63445107c59082041397202fabba6fb9e2633cfc3fc2105ed9b82",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    },
+    {
+      "family_id": "s0-b3-f07",
+      "revision": 1,
+      "proposal_record_sha256": "df1dbebd4b2088f578748e10e44b2859edefa7ae52ce842de3c4c9fe3b47fac7",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    },
+    {
+      "family_id": "s0-b3-f08",
+      "revision": 1,
+      "proposal_record_sha256": "21a2d45caf2b8d4c4f2fed02ae19182849edb7edaa963c20294e0a70583b530a",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    },
+    {
+      "family_id": "s0-b3-f09",
+      "revision": 1,
+      "proposal_record_sha256": "b57f0859136379f71afa7ad48d0cec9e40d7674afb70e5dad4c11a7344e4eac5",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    },
+    {
+      "family_id": "s0-b3-f10",
+      "revision": 1,
+      "proposal_record_sha256": "3326eb068d1a26e6a1945bfd4070ece62149ee5c450ea157e888ddcd1adabbea",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "split": "train"
+    }
+  ]
+}

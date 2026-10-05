@@ -1,0 +1,5 @@
+Filesystem UUID:          b35e4ad2-f69a-47d1-89ef-41b62a859fcc
+Filesystem features:      has_journal ext_attr resize_inode dir_index orphan_file filetype extent 64bit flex_bg metadata_csum_seed sparse_super large_file huge_file dir_nlink extra_isize metadata_csum
+Filesystem state:         clean
+Last mount time:          Sat Sep 26 16:13:34 2026
+Last write time:          Sat Sep 26 16:13:36 2026

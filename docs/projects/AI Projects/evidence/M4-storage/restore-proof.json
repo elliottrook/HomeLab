@@ -1,0 +1,15 @@
+{
+  "schema_version": "storage-proof.v1",
+  "data_class": "synthetic",
+  "event_count": 3,
+  "external_head": "sha256:8e1504dbadddb8c87b2a3c023b7ba7bbe8e6c24c3399a81355b4d3e8d537ee3e",
+  "backup_head": "sha256:8e1504dbadddb8c87b2a3c023b7ba7bbe8e6c24c3399a81355b4d3e8d537ee3e",
+  "restored_head_verified": true,
+  "raw_database_retained": false,
+  "script_digest": "sha256:2dfb5252867d9afdccfec722a78cc504e8f2b136dc0833e2da6ad132d75cf616",
+  "limits": [
+    "fixture labels are illustrative, not measured harness results",
+    "reviewer references are metadata, not authenticated identity",
+    "hash chain requires independently retained head to detect truncation/replacement"
+  ]
+}

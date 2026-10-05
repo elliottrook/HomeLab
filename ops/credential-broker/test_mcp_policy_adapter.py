@@ -2,7 +2,12 @@
 
 import unittest
 
-from mcp_policy_adapter import ALLOWED_TOOLS, MCPPolicyAdapter, PolicyDenied
+from mcp_policy_adapter import (
+    ALLOWED_TOOLS,
+    MCPPolicyAdapter,
+    PolicyDenied,
+    SafeBranchWritePolicyAdapter,
+)
 
 
 class MCPPolicyAdapterTests(unittest.TestCase):
@@ -78,6 +83,16 @@ class MCPPolicyAdapterTests(unittest.TestCase):
                     self.forward({}),
                 )
 
+    def test_denies_sensitive_file_path_spelling_used_by_upstream(self):
+        with self.assertRaises(PolicyDenied):
+            self.adapter.handle(
+                self.call(
+                    "get_file_content",
+                    {"owner": "jason", "repo": "pilot", "ref": "main", "filePath": "keys/id_ed25519"},
+                ),
+                self.forward({}),
+            )
+
     def test_denies_secret_shaped_backend_output(self):
         request = self.call("get_file_content", {"owner": "jason", "repo": "pilot", "path": "README.md"})
         outputs = (
@@ -97,6 +112,78 @@ class MCPPolicyAdapterTests(unittest.TestCase):
     def test_rejects_non_tool_protocol_surface(self):
         with self.assertRaisesRegex(PolicyDenied, "only tools"):
             self.adapter.handle({"method": "resources/read", "params": {}}, self.forward({}))
+
+
+class SafeBranchWritePolicyAdapterTests(unittest.TestCase):
+    def setUp(self):
+        self.adapter = SafeBranchWritePolicyAdapter({("jason", "pilot")}, max_response_bytes=2048)
+        self.arguments = {
+            "owner": "jason",
+            "repo": "pilot",
+            "filePath": "ai-pam-pilot/m6.txt",
+            "content": "bounded disposable test\n",
+            "message": "AI-PAM pilot: validate Yellow safe branch",
+            "branch_name": "main",
+            "new_branch_name": "ai-pam/m6-yellow-test",
+        }
+
+    def call(self, name="create_file", arguments=None):
+        return {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {"name": name, "arguments": arguments or self.arguments},
+        }
+
+    def test_allows_only_bounded_new_file_on_new_safe_branch(self):
+        response = {"jsonrpc": "2.0", "id": 1, "result": {"content": [{"type": "text", "text": "created"}]}}
+        self.assertEqual(response, self.adapter.handle(self.call(), lambda _: response))
+
+    def test_tool_catalogue_contains_only_create_file(self):
+        response = {"result": {"tools": [{"name": "create_file"}, {"name": "update_file"}]}}
+        actual = self.adapter.handle({"method": "tools/list"}, lambda _: response)
+        self.assertEqual([{"name": "create_file"}], actual["result"]["tools"])
+
+    def test_denies_other_mutations_before_forwarding(self):
+        for tool in ("update_file", "delete_file", "create_branch", "merge_pull_request"):
+            called = False
+
+            def backend(_):
+                nonlocal called
+                called = True
+                return {}
+
+            with self.subTest(tool=tool), self.assertRaises(PolicyDenied):
+                self.adapter.handle(self.call(tool), backend)
+            self.assertFalse(called)
+
+    def test_denies_main_write_and_unsafe_branch_or_path(self):
+        changes = (
+            {"new_branch_name": "main"},
+            {"new_branch_name": "other/m6"},
+            {"new_branch_name": "ai-pam/../escape"},
+            {"branch_name": "release"},
+            {"filePath": "docs/real-file.md"},
+            {"filePath": "ai-pam-pilot/../secret"},
+            {"filePath": "ai-pam-pilot/key.pem"},
+        )
+        for change in changes:
+            arguments = self.arguments | change
+            with self.subTest(change=change), self.assertRaises(PolicyDenied):
+                self.adapter.handle(self.call(arguments=arguments), lambda _: {})
+
+    def test_denies_schema_expansion_large_or_secret_content_and_bad_message(self):
+        changes = (
+            {"sha": "unexpected"},
+            {"content": "x" * 4097},
+            {"content": "access_token=do-not-store"},
+            {"message": "unlabelled commit"},
+            {"message": "AI-PAM pilot: first line\nsecond line"},
+        )
+        for change in changes:
+            arguments = self.arguments | change
+            with self.subTest(change=change), self.assertRaises(PolicyDenied):
+                self.adapter.handle(self.call(arguments=arguments), lambda _: {})
 
 
 if __name__ == "__main__":

@@ -1,0 +1,44 @@
+{
+  "status": "local-v0-candidate-passed",
+  "validated_at": "2026-09-26",
+  "focused": {
+    "command": "python3 -m unittest -v test_s0_vm_serial.py test_s0_vm_candidate.py",
+    "python": "3.9.6",
+    "passed": 20,
+    "failed": 0
+  },
+  "full_adaptive": {
+    "command": "/private/tmp/aster-lab-ops-venv/bin/python -m unittest discover -s scripts/aster-adaptive -p test_*.py",
+    "python": "3.12.14",
+    "passed": 234,
+    "failed": 0
+  },
+  "yaml": {
+    "parser": "Ruby Psych via Ruby 2.6.10",
+    "write_files": 3,
+    "runcmd": 3,
+    "result": "pass"
+  },
+  "persisted_manifest_verification": "pass",
+  "source_sha256": {
+    "scripts/aster-adaptive/s0_vm_candidate.py": "9ed6e5044baebbc3b792d5de2f248d1cda0cc05daf104c8547349d8272805ea6",
+    "scripts/aster-adaptive/s0_vm_serial.py": "2d9ab4e9961f29efa3559f54b4645fecca1af74765675eb6f4b5440e25267ab6",
+    "scripts/aster-adaptive/test_s0_vm_candidate.py": "ae91ee55e640fa0b6c94e7ed8a181fda41c1a5813f404f3d50c1ee815100dfb0",
+    "scripts/aster-adaptive/test_s0_vm_serial.py": "b2cb67cfe379985c54d1e6351dfe5cb644ec37f68580e1d182777cab798d1c47"
+  },
+  "candidate_manifest_sha256": "0d015cc70e6df5b31048fd203916dcaf0b783e8ecd3bbaae6b6c76f339610c47",
+  "iso_created": false,
+  "image_downloaded": false,
+  "vm_created": false,
+  "proxmox_mutated": false,
+  "accepted_corpus_included": false,
+  "accepted_corpus_evaluated": false,
+  "infrastructure_authorized": false,
+  "remaining_unknowns": [
+    "cloud image boot compatibility",
+    "cloud-init execution",
+    "systemd TTY output with PrivateDevices",
+    "bounded qm terminal PTY capture",
+    "live no-vNIC guest observation"
+  ]
+}

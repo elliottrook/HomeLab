@@ -4,6 +4,9 @@ import unittest
 import tempfile
 import threading
 import sqlite3
+import os
+import subprocess
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from types import SimpleNamespace
@@ -178,6 +181,81 @@ class DurableAuthorityRegressions(unittest.TestCase):
         other.set_global_enabled(True)
         with self.assertRaises(BrokerDenied):
             self.store.consume_request(request.request_id, {}, agent_id="owner")
+
+    def test_service_disable_enable_revokes_without_resurrection(self):
+        request = self.store.create_request("owner", "read", {})
+        self.store.set_service_enabled("fixture", False)
+        self.store.set_service_enabled("fixture", True)
+        with self.assertRaises(BrokerDenied):
+            self.store.consume_request(request.request_id, {}, agent_id="owner")
+        self.assertEqual("revoked", self.store.get_request(request.request_id).status)
+
+    def test_noop_policy_updates_preserve_request(self):
+        request = self.store.create_request("owner", "read", {})
+        self.store.set_agent_state("owner", "probation")
+        self.store.set_service_enabled("fixture", True)
+        self.assertEqual(
+            "consumed",
+            self.store.consume_request(request.request_id, {}, agent_id="owner").status,
+        )
+
+    def test_lock_timeout_leaves_request_unconsumed(self):
+        request = self.store.create_request("owner", "read", {})
+        other = self.open_store()
+        with other._transaction():
+            with self.assertRaisesRegex(sqlite3.OperationalError, "locked"):
+                self.store.consume_request(request.request_id, {}, agent_id="owner")
+        self.assertEqual("approved", self.store.get_request(request.request_id).status)
+        self.assertEqual(
+            "consumed",
+            self.store.consume_request(request.request_id, {}, agent_id="owner").status,
+        )
+
+    def test_process_exit_before_commit_rolls_back_claim(self):
+        request = self.store.create_request("owner", "read", {})
+        code = """
+import os, sys
+from broker_core import BrokerStore
+s = BrokerStore(sys.argv[1], clock=lambda: 1000)
+s._audit = lambda *args: os._exit(73)
+s.consume_request(sys.argv[2], {}, agent_id='owner')
+"""
+        environment = dict(os.environ, PYTHONPATH=str(Path(__file__).parent.resolve()))
+        child = subprocess.run(
+            [sys.executable, "-c", code, str(self.path), request.request_id],
+            env=environment,
+            capture_output=True,
+            timeout=10,
+        )
+        self.assertEqual(73, child.returncode, child.stderr)
+        resumed = self.open_store()
+        self.assertEqual("approved", resumed.get_request(request.request_id).status)
+        self.assertEqual(
+            "consumed",
+            resumed.consume_request(request.request_id, {}, agent_id="owner").status,
+        )
+
+    def test_process_exit_after_commit_never_replays(self):
+        request = self.store.create_request("owner", "read", {})
+        code = """
+import os, sys
+from broker_core import BrokerStore
+s = BrokerStore(sys.argv[1], clock=lambda: 1000)
+s.consume_request(sys.argv[2], {}, agent_id='owner')
+os._exit(74)
+"""
+        environment = dict(os.environ, PYTHONPATH=str(Path(__file__).parent.resolve()))
+        child = subprocess.run(
+            [sys.executable, "-c", code, str(self.path), request.request_id],
+            env=environment,
+            capture_output=True,
+            timeout=10,
+        )
+        self.assertEqual(74, child.returncode, child.stderr)
+        resumed = self.open_store()
+        with self.assertRaises(BrokerDenied):
+            resumed.consume_request(request.request_id, {}, agent_id="owner")
+        self.assertEqual("consumed", resumed.get_request(request.request_id).status)
 
     def test_approval_and_revocation_cannot_resurrect_request(self):
         self.store.set_agent_state("owner", "operator")

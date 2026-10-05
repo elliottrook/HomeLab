@@ -1,0 +1,16 @@
+{
+  "schema_version": "source-pin-validation.v1",
+  "tests_passed": 62,
+  "files": {
+    "scripts/aster-adaptive/source_policy.py": "sha256:85518250a47de76821964b296e444e6de960f05a885648028d5e75b66ad453d2",
+    "scripts/aster-adaptive/source-definition.json": "sha256:8673f16c82f7a86868362763f099d7bba64684f6c5fe352aa14280652f0ac938",
+    "scripts/aster-adaptive/offline_baseline.py": "sha256:2f33106178a8278bd1e5aaac510f75c8689ef050c2655687ae193b0eb3eacfa4",
+    "scripts/aster-adaptive/test_source_policy.py": "sha256:5fe4b60ae0a7faebc9ca0fef583656db8669fec75070e127032b3d4331f13c65",
+    "scripts/aster-adaptive/benchmark.py": "sha256:5da5125f62aac88a888a891671a2b1b43b632a733d3fd9abf3d36f980fe530a4",
+    "scripts/aster-adaptive/compare_preload.py": "sha256:c4f7ea9560cce86bd81509319b0df60e5a68f6c9f0b60ab2f1597b54c88d7ea0",
+    "scripts/aster-adaptive/compare_tool_loop.py": "sha256:a35d402e85ac9cfa67c397f42c5b498266084f81efb818904cb373046b6ffcec",
+    "scripts/aster-adaptive/measure_lineage.py": "sha256:dd02e4cf67a94d36722ad871c4c0b8d77f919866707c32a4dc4331278a93d7d6",
+    "scripts/aster-adaptive/measure_paired.py": "sha256:7a0e87369c628cacacf0f0b56d75a690a9b8936eab427329e48886821bde3119",
+    "docs/projects/AI Projects/evidence/M2-source-pin/validation.json": "sha256:5c3a345d3dfa5e7f0e9b961b72c02d212c321ab8b61d1be96c29b23448513a60"
+  }
+}

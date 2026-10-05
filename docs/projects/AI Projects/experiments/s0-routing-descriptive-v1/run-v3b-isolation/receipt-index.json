@@ -1,0 +1,67 @@
+{
+  "files": [
+    {
+      "bytes": 20,
+      "path": "release-receipts/config-validation.txt",
+      "sha256": "1a051464cb073b4d0ba6f348798b962eb8dd9f760eb6cb67c1c7a1bf1359376b"
+    },
+    {
+      "bytes": 22,
+      "path": "release-receipts/iso-files.txt",
+      "sha256": "f59d9c85a58b687ab105a30e5901ace1c8d0225f9ef0c8f2c6df1819881dab0b"
+    },
+    {
+      "bytes": 659,
+      "path": "release-receipts/qm-config.txt",
+      "sha256": "61483fc23c30b382a8ddb677d4b1939fd14ad2c08bb89b066e7a4384a85a737f"
+    },
+    {
+      "bytes": 131,
+      "path": "release-receipts/seed-iso.sha256",
+      "sha256": "f5dd26a049ae799ed16e93c9f7d277c86cfb23d771ce51a764149a1ccb60eed6"
+    },
+    {
+      "bytes": 80,
+      "path": "release-receipts/seed-iso.stat",
+      "sha256": "482e97c05b51f8a1c6961a07fdb5078f51b049312a2f28bb1579a3375baf947d"
+    },
+    {
+      "bytes": 26,
+      "path": "release-receipts/start-time.txt",
+      "sha256": "d8e5c2f7de57d73f153f09d161f78c3f702675e7a023f733311a48192d421c7a"
+    },
+    {
+      "bytes": 2,
+      "path": "run-receipts/capture-exit-code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 21,
+      "path": "run-receipts/capture-size.txt",
+      "sha256": "ea88509d5155257fe3048f06306e93aa4b94b2fd08a3af0e569620a3bb34059c"
+    },
+    {
+      "bytes": 13,
+      "path": "run-receipts/host-stop.txt",
+      "sha256": "3a7be9ecedd9df814079ec84fcf3acd509a412f5beedfaa1b86108890f64f519"
+    },
+    {
+      "bytes": 659,
+      "path": "run-receipts/qm-config-after.txt",
+      "sha256": "61483fc23c30b382a8ddb677d4b1939fd14ad2c08bb89b066e7a4384a85a737f"
+    },
+    {
+      "bytes": 134,
+      "path": "run-receipts/serial.capture.sha256",
+      "sha256": "43adc2800b133a5670f28f18d54df3c0d81427d4dd96c88a0ab5fd282af8db9d"
+    },
+    {
+      "bytes": 26,
+      "path": "run-receipts/start-time.txt",
+      "sha256": "12f948879d828afc6f3a0ddc50f3a39a92365a7f28b8bcb2577ba672ce2021dd"
+    }
+  ],
+  "raw_capture_included": false,
+  "remote_evidence_indexes_verified": true,
+  "schema": "aster-s0-receipt-index.v1"
+}

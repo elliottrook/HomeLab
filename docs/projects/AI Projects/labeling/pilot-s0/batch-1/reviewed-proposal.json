@@ -1,0 +1,323 @@
+{
+  "format": "s0-human-review-draft.v1",
+  "status": "unreviewed-ai-proposal",
+  "created_at": "2026-09-26T09:02:08.764469-07:00",
+  "draft_expires_at": "2026-10-03T09:02:08.764469-07:00",
+  "baseline": "720c313c576588fce01c302ef51f0912c3f86ad6",
+  "scenario_assumptions": "For labeling only, named capabilities are assumed available and permitted in the fictional scenario. No claim about live implementation or grants. No execution is requested by this packet.",
+  "boundary": "All content synthetic. Privacy labels describe the hypothetical routed workload, not real retained private data. Mixed workloads remain wholly local under the current conservative label contract.",
+  "records": [
+    {
+      "number": 1,
+      "family_id": "s0-b1-f01",
+      "revision": 1,
+      "stratum": "timer",
+      "request": "Set a timer for eight minutes.",
+      "synthetic_context": "A fictional speaker requests a new timer; duration is explicit.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "timer"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 2,
+      "family_id": "s0-b1-f02",
+      "revision": 1,
+      "stratum": "home",
+      "request": "Turn off the kitchen lights.",
+      "synthetic_context": "Fictional home: kitchen lights identify one light group. No other devices are included.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "home"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 3,
+      "family_id": "s0-b1-f03",
+      "revision": 1,
+      "stratum": "media",
+      "request": "Play the built-in rain sound on this speaker.",
+      "synthetic_context": "Fictional speaker has one built-in rain sound. No personal library, account or streaming service is required.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "media"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 4,
+      "family_id": "s0-b1-f04",
+      "revision": 1,
+      "stratum": "facts",
+      "request": "How many sides does a hexagon have?",
+      "synthetic_context": "A general geometry question; no personal context or current information is needed.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "facts"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "public-only",
+        "uncertainty": [],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 5,
+      "family_id": "s0-b1-f05",
+      "revision": 1,
+      "stratum": "calendar",
+      "request": "What time is my next meeting today?",
+      "synthetic_context": "Fictional scenario: current local date and time zone are available, and a read-only calendar exists. No calendar entries are supplied or retrieved.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "calendar"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "personal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 6,
+      "family_id": "s0-b1-f06",
+      "revision": 1,
+      "stratum": "web",
+      "request": "What opening hours are listed on this museum page?",
+      "synthetic_context": "Fictional museum page locator: https://example.org/museum. Page contents are not supplied; retrieving the public page is the requested capability. No actual lookup is performed.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "web"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "public-only",
+        "uncertainty": [],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 7,
+      "family_id": "s0-b1-f07",
+      "revision": 1,
+      "stratum": "mixed",
+      "request": "Does the gala on this page overlap anything on my calendar?",
+      "synthetic_context": "Fictional page locator: https://example.org/gala. Its schedule and the fictional calendar are not supplied. Compare event time intervals only, not travel feasibility; local time zone is available.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "calendar",
+          "web",
+          "local_join"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "personal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 8,
+      "family_id": "s0-b1-f08",
+      "revision": 1,
+      "stratum": "personal",
+      "request": "Which tea did I say I preferred?",
+      "synthetic_context": "Fictional scenario: an authorized local preference store contains one unambiguous tea preference. Its value is neither supplied nor retrieved.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "private_context"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "personal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 9,
+      "family_id": "s0-b1-f09",
+      "revision": 1,
+      "stratum": "sysadmin",
+      "request": "Show me whether the latest backup check passed; do not change anything.",
+      "synthetic_context": "Fictional lab: a sanitized read-only latest-backup status report exists. No hostnames, addresses, credentials or real status are supplied.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "lab_read"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "internal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 10,
+      "family_id": "s0-b1-f10",
+      "revision": 1,
+      "stratum": "ambiguous",
+      "request": "Turn it off.",
+      "synthetic_context": "There is no preceding conversation, selected device, room or other referent. Ask what should be turned off.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "clarify"
+        ],
+        "sensitivity": "public",
+        "cloud": "forbidden",
+        "uncertainty": [
+          "missing-context"
+        ],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    }
+  ]
+}

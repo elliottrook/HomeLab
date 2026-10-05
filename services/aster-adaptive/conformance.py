@@ -30,7 +30,7 @@ def run():
         except (ValidationError,ValueError):
             accepted=False
         results.append({'id':vector['id'],'expected_accept':vector['accept'],'actual_accept':accepted,'passed':accepted==vector['accept']})
-    files=[corpus,HERE/'contracts.py',HERE/'conformance.py',*sorted((ROOT/'schemas/aster').glob('*.json'))]
+    files=[corpus,HERE/'contracts.py',HERE/'conformance.py',*sorted((ROOT/'schemas/aster/selector-probe-v1').glob('*.json'))]
     return {'schema_version':'conformance-result.v1','all_passed':all(r['passed'] for r in results),'vector_count':len(results),'results':results,'manifest':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files},'limitations':['One Python validator implementation tested; cross-language compatibility unproven','No execution, calibration or production routing quality claim']}
 
 

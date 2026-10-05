@@ -1,0 +1,14 @@
+{
+  "schema": "aster-s0-vm-corpus-release-validation.v1",
+  "status": "local-ready-not-authorized",
+  "date": "2026-09-26",
+  "focused_tests": 9,
+  "cloud_config_yaml": "pass-15-write-files-3-runcmd",
+  "shell_syntax": "pass",
+  "candidate_manifest_sha256": "683944a06b63c1106c308525940409184d46f7b4138864c685c3e118c56c6374",
+  "release_manifest_sha256": "1ae0bdeda1e5043a98065b4de8515d4a75045d936271a79f6f77cd80059c8a8c",
+  "full_adaptive_tests": "272-pass",
+  "remote_staging": false,
+  "vm_created": false,
+  "corpus_evaluated": false
+}

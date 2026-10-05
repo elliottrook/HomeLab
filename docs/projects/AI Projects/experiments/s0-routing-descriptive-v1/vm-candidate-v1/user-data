@@ -1,0 +1,84 @@
+#cloud-config
+package_update: false
+package_upgrade: false
+ssh_pwauth: false
+disable_root: true
+users:
+  - name: aster-s0
+    system: true
+    lock_passwd: true
+    no_create_home: true
+    shell: /usr/sbin/nologin
+write_files:
+  - path: /usr/local/lib/aster-s0/canary.py
+    owner: root:root
+    permissions: '0444'
+    content: |
+      """Generated synthetic bootstrap canary; no external inputs."""
+      import base64,hashlib,json,pathlib
+      RUN_ID = 'bootstrap-canary-002'
+      MANIFEST = '56da5b4614220bfc8e51e5b625e8b6bdd87ba30177696a89df6dc66b45fc7f56'
+      PREFIX = b'ASTER_S0_V1'
+      CHUNK = 3072
+      value = {'authorization':'not-granted','corpus_evaluated':False,
+               'fixture':True,'interfaces':sorted(p.name for p in pathlib.Path('/sys/class/net').iterdir()),
+               'result':'bootstrap-canary'}
+      raw = json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False).encode('ascii')
+      if len(raw) > 2*1024*1024: raise SystemExit('result-size')
+      digest = hashlib.sha256(raw).hexdigest()
+      parts = [raw[i:i+CHUNK] for i in range(0,len(raw),CHUNK)]
+      lines = [b' '.join((PREFIX,b'BEGIN',RUN_ID.encode(),MANIFEST.encode(),str(len(raw)).encode(),digest.encode(),str(len(parts)).encode()))]
+      for sequence,part in enumerate(parts):
+          lines.append(b' '.join((PREFIX,b'CHUNK',RUN_ID.encode(),str(sequence).encode(),base64.b64encode(part))))
+      lines.append(b' '.join((PREFIX,b'END',RUN_ID.encode(),str(len(raw)).encode(),digest.encode())))
+      out = pathlib.Path('/var/lib/aster-s0/output')
+      (out/'result.json').write_bytes(raw)
+      (out/'protocol.txt').write_bytes(b'\n'.join(lines)+b'\n')
+  - path: /etc/systemd/system/aster-s0-canary.service
+    owner: root:root
+    permissions: '0444'
+    content: |
+      [Unit]
+      Description=Aster S0 synthetic bootstrap canary
+
+      [Service]
+      Type=oneshot
+      User=aster-s0
+      Group=aster-s0
+      WorkingDirectory=/var/lib/aster-s0
+      ExecStart=/usr/bin/python3 -I -S -B /usr/local/lib/aster-s0/canary.py
+      StandardOutput=journal
+      StandardError=journal
+      NoNewPrivileges=yes
+      CapabilityBoundingSet=
+      AmbientCapabilities=
+      PrivateDevices=yes
+      PrivateTmp=yes
+      ProtectSystem=strict
+      ProtectHome=yes
+      ProtectControlGroups=yes
+      ProtectKernelModules=yes
+      ProtectKernelTunables=yes
+      ProtectKernelLogs=yes
+      ProtectClock=yes
+      LockPersonality=yes
+      MemoryDenyWriteExecute=yes
+      RestrictRealtime=yes
+      RestrictSUIDSGID=yes
+      RestrictAddressFamilies=AF_UNIX
+      ReadWritePaths=/var/lib/aster-s0/output
+      MemoryMax=512M
+      TasksMax=64
+      CPUQuota=100%
+      RuntimeMaxSec=90
+      TimeoutStartSec=90
+  - path: /usr/local/lib/aster-s0/payload-manifest.json
+    owner: root:root
+    permissions: '0444'
+    content: |
+      {"accepted_corpus":"absent","artifact_templates":{"canary_sha256_with_zero_manifest":"f5367e3206c1fe8c423b9c642237f790bd86dd043a82a3f91a16aa0e04dc56ab","unit_sha256":"19c2010707bbae88451a84f62c0d46809ce69e3b7b5174bcf2d0f81c5aaca435"},"evaluation_authorized":false,"image":{"bytes":433651712,"filename":"debian-13-generic-amd64-20260914-2601.qcow2","sha512":"a733e7d49442a03e70d03e4eb5aaf3967f3efc69ef70952f9bb10fc1ee2c4876eb95956b5ad2d31350e5fada768feb651352535fb8cd1233f61998a5a7d2e93c","url":"https://cloud.debian.org/images/cloud/trixie/20260914-2601/debian-13-generic-amd64-20260914-2601.qcow2"},"infrastructure_authorized":false,"limits":{"capture_bytes":4194304,"capture_seconds":300,"result_bytes":2097152,"unit_memory_mib":512,"unit_seconds":90},"run_id":"bootstrap-canary-002","schema":"aster-s0-vm-payload.v1","status":"bootstrap-canary-only"}
+runcmd:
+  - [install, -d, -o, aster-s0, -g, aster-s0, -m, '0700', /var/lib/aster-s0/output]
+  - [systemctl, daemon-reload]
+  - [sh, -c, 'systemctl start aster-s0-canary.service; rc=$?; if test "$rc" -eq 0; then cat /var/lib/aster-s0/output/protocol.txt > /dev/ttyS0 || rc=$?; fi; sync; systemctl poweroff; exit "$rc"']
+final_message: 'aster-s0 bootstrap completed'

@@ -1,0 +1,209 @@
+{
+  "schema_version": "conformance-result.v1",
+  "all_passed": true,
+  "vector_count": 31,
+  "results": [
+    {
+      "id": "capability-valid",
+      "expected_accept": true,
+      "actual_accept": true,
+      "passed": true
+    },
+    {
+      "id": "capability-extra-field",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "capability-unknown-version",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "catalogue-valid",
+      "expected_accept": true,
+      "actual_accept": true,
+      "passed": true
+    },
+    {
+      "id": "catalogue-extra-field",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "catalogue-unknown-version",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "decisionrequest-valid",
+      "expected_accept": true,
+      "actual_accept": true,
+      "passed": true
+    },
+    {
+      "id": "decisionrequest-extra-field",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "decisionrequest-unknown-version",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "decision-valid",
+      "expected_accept": true,
+      "actual_accept": true,
+      "passed": true
+    },
+    {
+      "id": "decision-extra-field",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "decision-unknown-version",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "harnessrun-valid",
+      "expected_accept": true,
+      "actual_accept": true,
+      "passed": true
+    },
+    {
+      "id": "harnessrun-extra-field",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "harnessrun-unknown-version",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "outcome-valid",
+      "expected_accept": true,
+      "actual_accept": true,
+      "passed": true
+    },
+    {
+      "id": "outcome-extra-field",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "outcome-unknown-version",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "experiment-valid",
+      "expected_accept": true,
+      "actual_accept": true,
+      "passed": true
+    },
+    {
+      "id": "experiment-extra-field",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "experiment-unknown-version",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "proposal-valid",
+      "expected_accept": true,
+      "actual_accept": true,
+      "passed": true
+    },
+    {
+      "id": "wrong-engine",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "wrong-policy",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "wrong-registry",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "unknown-capability",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "expiry-boundary",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "cycle",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "duplicate-step",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "false-authority",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    },
+    {
+      "id": "invented-confidence",
+      "expected_accept": false,
+      "actual_accept": false,
+      "passed": true
+    }
+  ],
+  "manifest": {
+    "services/aster-adaptive/conformance-vectors.json": "18d6dddb66b56a200d0ede7bd7cd1e9ca310caac895f3b56cf56f47916217465",
+    "services/aster-adaptive/contracts.py": "78e78137d3fb67de4f8fd2a4634728d5a9a0e4ad07fa86c719556dbd1a074a4e",
+    "services/aster-adaptive/conformance.py": "1b4571e51030ec0721c6ad6b157563954e813fb70cca8bbe11c1bcee983cc5c3",
+    "schemas/aster/Capability.v1.json": "0c7b565c47898341c806d9c0107cf1aa00a25650d01b69bddedc1ffdb363caf9",
+    "schemas/aster/Catalogue.v1.json": "6fc1995aefd581ba698ebc7f14ba9ded0da22c8c902a0af7d0a4871407e8291a",
+    "schemas/aster/Decision.v1.json": "0644b9647a2ff9483f0b0ec5a1f07753cfc58bf8fd403bae839fb0e49bf4a405",
+    "schemas/aster/DecisionRequest.v1.json": "209bcff48f6ef069a4f167487b8d367529c48ff03d4e7c6ffbeec1f89af503b1",
+    "schemas/aster/Experiment.v1.json": "5ed14dfa560437d0ac0aabf306c085805d1c91db43273460e3b202e2d2dc1127",
+    "schemas/aster/HarnessRun.v1.json": "a3b3ac0f553100018ee4da4d3ada621487950214d6107b4b8f3c05dbe1f6d29a",
+    "schemas/aster/Outcome.v1.json": "e65d091ef2f93aad328c29b147ed0cbc8b6bff28b74743a828418f690ca2dbe6"
+  },
+  "limitations": [
+    "One Python validator implementation tested; cross-language compatibility unproven",
+    "No execution, calibration or production routing quality claim"
+  ]
+}

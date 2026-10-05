@@ -1,0 +1,11 @@
+{
+  "lineage_cases_passed": 4,
+  "restore_verified": true,
+  "tool_loop_cases_passed": 8,
+  "source_provenance": {
+    "expected_digest": "sha256:62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "observed_digest": "sha256:62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+    "definition_digest": "sha256:8673f16c82f7a86868362763f099d7bba64684f6c5fe352aa14280652f0ac938",
+    "review_ref": "integrated-stage1-source-39221b7"
+  }
+}

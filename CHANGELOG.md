@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-28 — Operational Sysadmin Capability adopted within Aster
+
+- Recorded Jason's approval to add SA0–SA5 to the existing unified programme, with production/source reconciliation and useful diagnosis as the next delivery priority.
+- Added iterative diagnostic tools, a finite Qwen-first incident trial, conditional provider selection and supervised verified repair gates; routing and fact-recall scores no longer establish sysadmin graduation.
+- Preserved foundation evidence, AI-PAM/recovery boundaries, personal-module scope and B60 engineering dependency; deferred broad routing/learning work as a delivery priority.
+- Retained September 28 readiness evidence and two illustrative live diagnostic answers. Documentation adoption only; no production changes, authority expansion or remote publication.
 ## 2026-09-26 — Authentik rollout and configuration recovery complete
 
 - Archived the accepted passkey/SSO rollout, including optional Jellyfin account
@@ -12,6 +18,77 @@
   photos remain a separate owner-managed process.
 - Added backup monitoring and corrected relay schedule ordering; retained
   existing backup history, recovery credentials and privacy exclusions.
+
+## 2026-09-26 — AI-PAM M9 graduation completed locally
+
+- Proved broker, Authentik and broker-to-OpenBao dependency outages fail closed
+  while direct human administration remains independent; all dependencies
+  recovered, and a full Aster LXC 104 reboot restored six units and five sockets.
+- Fixed two findings from live graduation: the approval bridge no longer stops
+  with the execution broker, and Forgejo gateway dependency failures return a
+  stable sanitized denial rather than internal parser text. The 82-test broker
+  suite passes.
+- Expanded Doctor coverage to Authentik discovery, rotation dates, audit
+  freshness, current Aster/OpenBao guest backups, isolated-restore age and
+  aggregate terminal outcomes. Seven focused tests and the live probe pass.
+- Reconciled live NetBox and Homepage: the existing Aster/OpenBao guest records
+  are authoritative, the Companion tile is the correct approval entry point,
+  and no direct private vault or broker tile is exposed.
+
+## 2026-09-26 — AI-PAM M8 integration and native parity complete
+
+- Graduated Aster Companion 0.2.2 with native approval/denial, lifecycle,
+  history/audit and global emergency controls. The real-Mac matrix proved
+  approval and denial, service disable/restore, global fail-closed/restore,
+  ordinary typed chat, reliable close/reopen and persistent Keychain access;
+  24 Swift tests pass.
+- Made the architecture and operator references authoritative for the broker,
+  OpenBao, NetBox and Homepage boundaries. No direct vault or broker dashboard
+  exposure was added.
+- Added a read-only Doctor policy-drift probe covering the exact four-service/
+  eight-capability catalogue, agent lifecycle, expired requests, five units and
+  Unix sockets, database integrity and CA-validated OpenBao seal health. Five
+  regression tests and the live non-secret probe pass.
+
+## 2026-09-26 — B60 inference telemetry foundation
+
+- Added a read-only LXC 110 telemetry collector and strict local parser for
+  `xe` package/VRAM temperature, process VRAM/GTT residency, guest RAM and CPU
+  affinity.
+- Rejects unknown, duplicate, impossible and credential-like telemetry fields.
+  Unsupported frequency, power and CPU-fallback values remain explicit nulls
+  rather than inferred; fifteen combined B60 tests pass without production load.
+- Added bounded, allowlisted host kernel-log capture and fallback classification
+  requiring affirmative backend/offload evidence plus resident VRAM. Nineteen
+  tests pass; a live read-only last-hour excerpt contained no relevant failures.
+- Jason changed the project to a bounded Stream A: local/read-only work and
+  post-gate reversible M2 Vulkan experiments are autonomous. Git pushes,
+  firmware/boot/reboots, packages, persistent promotion, schedulers,
+  credentials, destructive work, SYCL/Level Zero and BAR changes remain gated.
+- Added immutable experiment-record assembly binding fixture, raw artifact,
+  environment hashes, telemetry, kernel findings, health, correctness and
+  affirmative fallback evidence. Twenty-one B60 tests pass locally.
+- Added a fail-closed preflight/finalizer with five-minute evidence freshness,
+  accepted hashes and headroom gates, a 00:30 start, 01:40 experiment cutoff and
+  02:00 restoration deadline. Twenty-five tests pass; live freshness and
+  authenticated restoration validation remain intentionally pending.
+
+## 2026-09-25 — B60 inference engineering M0 inventory and local harness
+
+- Verified the bounded LXC 110 TrueNAS mirror is enabled at 04:20 and completed
+  successfully, then recorded exact accepted/prior runtime and unit hashes,
+  package versions and all four resident model-shard hashes without changing
+  production state.
+- Added an offline schema-validating benchmark planner with 13 deterministic,
+  synthetic fixtures covering prefill, decode and representative Aster
+  workflows at supported 0/4K/8K positions. Added a guarded dry-run-first
+  OpenAI-compatible runner with loopback/production interlocks and fake
+  transport coverage. Correctness assertions, separate prefill/decode samples,
+  reported cache-hit capture and immutable mode-0600 evidence output are tested;
+  twelve combined tests pass without contacting production.
+- Recorded a required security follow-up for a previously exposed
+  credential-bearing GitHub mirror URL without retaining or using its value.
+  Revocation/rotation remains a separately authorized workflow.
 
 ## 2026-09-25 — Aster Adaptive Computing programme started
 

@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:aster:s1-routing-holdout-v1:collection-bundle",
+  "title": "S1 syntax-only collection bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "plan_sha256",
+    "registry_sha256",
+    "mode",
+    "retention_ack",
+    "session",
+    "cases",
+    "acceptances"
+  ],
+  "properties": {
+    "schema_version": {"const": "s1-collection-bundle.v1"},
+    "experiment_id": {"const": "s1-routing-holdout-v1"},
+    "plan_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "mode": {"const": "collection-candidate-no-evaluation"},
+    "retention_ack": {"const": "sanitized-local-git-after-human-acceptance"},
+    "session": {"$ref": "#/$defs/session"},
+    "cases": {"type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/case"}},
+    "acceptances": {"type": "array", "maxItems": 50, "items": {"$ref": "#/$defs/acceptance"}}
+  },
+  "$defs": {
+    "opaque_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]{0,63}$"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collection_started_at", "draft_expires_at", "day30_review_at", "day90_review_at", "active_effort_seconds", "unresolved_labels"],
+      "properties": {
+        "collection_started_at": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/timestamp"}]},
+        "draft_expires_at": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/timestamp"}]},
+        "day30_review_at": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/timestamp"}]},
+        "day90_review_at": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/timestamp"}]},
+        "active_effort_seconds": {"type": "integer", "minimum": 0, "maximum": 5400},
+        "unresolved_labels": {"type": "integer", "minimum": 0, "maximum": 10}
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "family_id", "revision", "stratum", "request_text", "origin", "label_origin", "acceptable_statuses", "required", "optional", "prohibited", "sensitivity", "cloud", "failure_behavior", "constraint_tags", "observable_reason", "content_checks"],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/opaque_id"},
+        "family_id": {"$ref": "#/$defs/opaque_id"},
+        "revision": {"const": 1},
+        "stratum": {"enum": ["timer", "home", "media", "facts", "calendar", "web", "mixed", "personal", "sysadmin", "ambiguous"]},
+        "request_text": {"type": "string", "minLength": 3, "maxLength": 512},
+        "origin": {"const": "human-authored-no-suggestion"},
+        "label_origin": {"const": "human-authored-no-suggestion"},
+        "acceptable_statuses": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["plan", "clarify", "abstain", "deny", "unsupported"]}},
+        "required": {"$ref": "#/$defs/capability_list"},
+        "optional": {"$ref": "#/$defs/capability_list"},
+        "prohibited": {"type": "array", "uniqueItems": true, "items": {"enum": ["timer", "home", "media", "facts", "calendar", "web", "local_join", "lab_read", "private_context", "shell", "credentials", "automatic_approval", "cloud_private_export"]}},
+        "sensitivity": {"enum": ["public", "internal", "personal"]},
+        "cloud": {"enum": ["forbidden", "public-only", "unresolved"]},
+        "failure_behavior": {"enum": ["clarify", "degrade", "fail-closed"]},
+        "constraint_tags": {"type": "array", "uniqueItems": true, "items": {"enum": ["multi-capability", "negation", "changed-intent", "unavailable-dependency", "privacy-locality", "misleading-keyword", "ambiguous-intent"]}},
+        "observable_reason": {"type": "string", "minLength": 3, "maxLength": 240},
+        "content_checks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["no_secrets", "no_identifiers", "no_exact_private_context", "no_copied_conversation", "placeholders_only"],
+          "properties": {
+            "no_secrets": {"const": true},
+            "no_identifiers": {"const": true},
+            "no_exact_private_context": {"const": true},
+            "no_copied_conversation": {"const": true},
+            "placeholders_only": {"const": true}
+          }
+        }
+      }
+    },
+    "capability_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["timer", "home", "media", "facts", "calendar", "web", "local_join", "lab_read", "private_context"]}
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "revision", "case_sha256", "actor_ref", "content_decision", "label_decision", "durable_sanitized_git", "accepted_at"],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/opaque_id"},
+        "revision": {"const": 1},
+        "case_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "actor_ref": {"const": "jason-local"},
+        "content_decision": {"const": "accept"},
+        "label_decision": {"const": "accept"},
+        "durable_sanitized_git": {"const": true},
+        "accepted_at": {"$ref": "#/$defs/timestamp"}
+      }
+    }
+  }
+}

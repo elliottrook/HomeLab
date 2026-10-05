@@ -1,0 +1,6 @@
+/mnt/aster-s0-v2-forensic/etc/systemd/system/aster-s0-canary.service 758 444 0:0
+f105dc8a3a8dbbab339cc492f7f36c1f09779d88ea35566084cb96555c201a0d  /mnt/aster-s0-v2-forensic/etc/systemd/system/aster-s0-canary.service
+/mnt/aster-s0-v2-forensic/usr/local/lib/aster-s0/canary.py 1262 444 0:0
+7c8295cdd39d5d2133decb522da22047b4cffd87195068735070b072a4c2b321  /mnt/aster-s0-v2-forensic/usr/local/lib/aster-s0/canary.py
+/mnt/aster-s0-v2-forensic/usr/local/lib/aster-s0/payload-manifest.json 854 444 0:0
+20ede161a4783101dba418a124493a5c5860f404d9959674a122cae527b7cbe3  /mnt/aster-s0-v2-forensic/usr/local/lib/aster-s0/payload-manifest.json

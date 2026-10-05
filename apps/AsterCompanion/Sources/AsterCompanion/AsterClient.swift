@@ -36,6 +36,67 @@ enum AsterClientError: Error, LocalizedError {
 struct AsterClient {
     let authManager: AuthManager
 
+    private func companionRequest<T: Decodable>(
+        path: String, method: String = "GET", body: Data? = nil, as type: T.Type = T.self
+    ) async throws -> T {
+        guard let token = await authManager.validAccessToken() else { throw AsterClientError.notAuthenticated }
+        let base = URL(string: AsterConfig.asterBaseURL.absoluteString + "/")!
+        guard let url = URL(string: path, relativeTo: base)?.absoluteURL else {
+            throw AsterClientError.malformedResponse
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.timeoutInterval = 15
+        if let body {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = body
+        }
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw AsterClientError.malformedResponse }
+        guard (200..<300).contains(http.statusCode) else {
+            let detail = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["detail"] as? String
+            throw AsterClientError.server(status: http.statusCode, body: detail ?? "Request denied")
+        }
+        do { return try AIPAMCoding.decoder.decode(T.self, from: data) }
+        catch { throw AsterClientError.malformedResponse }
+    }
+
+    func fetchAIPAMPending() async throws -> [AIPAMPendingApproval] {
+        try await companionRequest(path: "v1/companion/approvals")
+    }
+
+    func actOnAIPAMApproval(_ item: AIPAMPendingApproval, approve: Bool) async throws -> AIPAMActionResult {
+        let body = try AIPAMCoding.encoder.encode(["payload_hash": item.payloadHash])
+        let verb = approve ? "approve" : "deny"
+        return try await companionRequest(
+            path: "v1/companion/approvals/\(item.requestId)/\(verb)", method: "POST", body: body
+        )
+    }
+
+    func fetchAIPAMSnapshot() async throws -> AIPAMSnapshot {
+        try await companionRequest(path: "v1/companion/approvals/management/snapshot")
+    }
+
+    func fetchAIPAMHistory(limit: Int = 40) async throws -> [AIPAMHistoryItem] {
+        try await companionRequest(path: "v1/companion/approvals/management/history?limit=\(limit)")
+    }
+
+    func fetchAIPAMAudit(limit: Int = 40, event: String? = nil) async throws -> [AIPAMAuditItem] {
+        var path = "v1/companion/approvals/management/audit?limit=\(limit)"
+        if let event, !event.isEmpty {
+            path += "&event=" + event.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        }
+        return try await companionRequest(path: path)
+    }
+
+    func performAIPAMManagement(_ action: AIPAMManagementAction) async throws -> AIPAMActionResult {
+        try await companionRequest(
+            path: "v1/companion/approvals/management/action", method: "POST",
+            body: AIPAMCoding.encoder.encode(action)
+        )
+    }
+
     func labHealth() async throws -> CompanionLabHealth {
         guard let token = await authManager.validAccessToken() else { throw AsterClientError.notAuthenticated }
         var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("v1/companion/lab-health"))

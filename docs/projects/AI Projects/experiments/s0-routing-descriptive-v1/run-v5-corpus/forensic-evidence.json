@@ -1,0 +1,38 @@
+{
+  "schema": "aster-s0-v5-forensic-evidence.v1",
+  "date": "2026-09-26",
+  "vmid": 122,
+  "disk": "local-lvm:vm-122-disk-0",
+  "filesystem_state": "clean",
+  "read_only_custody": {
+    "loop": "/dev/loop0",
+    "mount_options": ["ro", "nosuid", "nodev", "noexec", "norecovery"],
+    "mount_cleaned": true,
+    "loop_detached": true,
+    "vm118_through_vm122_stopped_after": true
+  },
+  "artifact_verification": {
+    "expected": 15,
+    "matched": 15,
+    "corpus_content_exported": false
+  },
+  "outputs": {
+    "result.json": "absent",
+    "protocol.txt": "absent"
+  },
+  "cause": {
+    "exception": "ModuleNotFoundError",
+    "missing_module": "validate_label_batch",
+    "importing_module": "s0_descriptive",
+    "stage": "after all frozen-file SHA-256 checks; before JSON blob construction",
+    "accepted_rows_parsed": 0,
+    "accepted_rows_adapted": 0,
+    "accepted_rows_routed": 0
+  },
+  "secondary_finding": {
+    "directive": "RuntimeMaxSec=75",
+    "finding": "ignored by systemd for Type=oneshot",
+    "remaining_effective_bounds": ["TimeoutStartSec=75", "host capture timeout=300s"]
+  },
+  "evidence_directory": "forensics"
+}

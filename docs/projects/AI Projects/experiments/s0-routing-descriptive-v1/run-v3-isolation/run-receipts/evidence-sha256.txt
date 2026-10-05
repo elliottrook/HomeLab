@@ -1,0 +1,11 @@
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/capture-exit-code.txt
+c0364bdbdcb64ac795729d9eeb72a4705b5dfb98255e5e24694b373638a02933  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/capture-size.txt
+3a7be9ecedd9df814079ec84fcf3acd509a412f5beedfaa1b86108890f64f519  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/host-stop.txt
+2286fa609dc030c8980d02aa10b979e49b6348164059a704851b420009419432  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/pct-list-after.txt
+c904f58564c69b40b1ec247c1ffa23264b3746359f6049b687b61f84bc09c3a6  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/pct-list-before.txt
+0394a4042f30bd49c0ed60213045b4e8a8d0c96b263f047d4bfb036fe7d10212  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/qm-config-after.txt
+e10022d1784e8c9bcaf1e91f7377fa13d3e6f090f779be6a8c1556da33b7d38f  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/qm-list-after.txt
+e10022d1784e8c9bcaf1e91f7377fa13d3e6f090f779be6a8c1556da33b7d38f  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/qm-list-before.txt
+11984e6a9cd19351a8d360c20f556d11db3c19c171879780b50c746e9e2ced86  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/serial.capture
+b974206666e16883111c8d8ef673dbb0c9b2aed8eb4bc082c0257933d124ea99  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/serial.capture.sha256
+fc21248469f208b889b0b16895924efefd5094d60d6f9329c7814f70f694863b  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/start-time.txt

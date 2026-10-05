@@ -1,0 +1,17 @@
+1a051464cb073b4d0ba6f348798b962eb8dd9f760eb6cb67c1c7a1bf1359376b  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/config-validation.txt
+1cda2a2a811a9282a3f2edee120af5d159c08232de905bc0f07a0498ee490aef  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/genisoimage.txt
+f59d9c85a58b687ab105a30e5901ace1c8d0225f9ef0c8f2c6df1819881dab0b  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/iso-files.expected
+f59d9c85a58b687ab105a30e5901ace1c8d0225f9ef0c8f2c6df1819881dab0b  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/iso-files.txt
+70a010600adf456f2e6ff2eb7e2eee4549ddb28bc5daea54e7d92f49dddf471d  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/memory-before.txt
+52eafb7a9060d6af7e26d3ee4c03802e0dcd1db371c6f9fdec03879878d1e4ce  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/meta-data.extracted
+c904f58564c69b40b1ec247c1ffa23264b3746359f6049b687b61f84bc09c3a6  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/pct-list-after.txt
+c904f58564c69b40b1ec247c1ffa23264b3746359f6049b687b61f84bc09c3a6  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/pct-list-before.txt
+0394a4042f30bd49c0ed60213045b4e8a8d0c96b263f047d4bfb036fe7d10212  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/qm-config.txt
+e10022d1784e8c9bcaf1e91f7377fa13d3e6f090f779be6a8c1556da33b7d38f  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/qm-list-after.txt
+97aa12c126d45cd954f64a4753032bb695d551d1ce5489a740ec96bd975e3695  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/qm-list-before.txt
+b38bfcc56f76a489efdb6d60b7b84711e8ef1a9277ff9bf7a120c8b25493a326  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/seed-iso.sha256
+76c0e3383da944909c9efa987badd3636ff96936bfc9d9ab2edd8120c57d66be  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/seed-iso.stat
+af5922a3dfa2e557c5d9bde794dca1de95e1a4e05b2972eb91ec9a9bf75ea757  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/start-time.txt
+547223b0b6dcdcb3413b054bb9f8c07562a619760e22978727cc4f40ecf14bd7  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/storage-before.txt
+d0c695cb72c87c39f12eb2f6d0484fdb96b4c62795edf96cd754273def195909  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/user-data.extracted
+ac8932b97d68317d10ca464ae95a700f2bcb4829a91b8e4559adf3b63d0aa23b  /var/lib/vz/template/cache/aster-s0-20260926/release-v3/volumes.txt

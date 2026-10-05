@@ -1,0 +1,34 @@
+{
+  "format": "s0-run-evidence.v1",
+  "attempt": "run-002",
+  "date": "2026-09-26",
+  "result": "failed-or-inconclusive",
+  "failure_stage": "preflight",
+  "precise_failure_cause": "unknown-requires-verification",
+  "mutation_attempted": false,
+  "manual_recovery_required": false,
+  "remote_stop_issued": false,
+  "corpus_evaluated": false,
+  "reviewed_manifest_sha256": "1713058f4f280e116933295ec633f5c59925f8a9cba1635dae9a371ea0e322b2",
+  "approval_record_sha256": "78b549480ec05ce7f5ad69ac0490878d26fb27ead44595db718a98dd6a979feb",
+  "command_catalog_sha256": "dfb246f2fb42f2fe070383614bb05468ba9e87ebd42a0f456d0f1a6377bc13c7",
+  "post_run_readonly_dns_diagnostic": {
+    "two_fixed_queries_succeeded": true,
+    "proves_attempt_failure_cause": false
+  },
+  "files_sha256": {
+    "000.json": "6afad4444454585598872859c01d2a2ad9821fc120b01c5a69e7c93cde267320",
+    "001.json": "1bcbc6dcc47e038e92b18ef5bed42d58e4cace3561ae36c1ee4329d012c0a92c",
+    "002.json": "f58f6af000378fb3af010e2efb3cab42c2f0ec89f1064418e34663a92c332f31",
+    "003.json": "8a2908c3f5a6b3d60f63134f3774ab90c622768839642ca7b6f3bfe9457a6f0b",
+    "004.json": "91518efd56801e05f182b9c9738adfba4c98e59e11e9589b6c1f397e81cd4d50",
+    "005.json": "d208f74bf97abd1d6cbdf42fce44e64d58e9e3f7b9c738a364a9f0c20bbd218c",
+    "006.json": "b4ef38410b0f4ae9a0aa6458535d767079344e774c18ca34df5356bef3fcf5cf",
+    "README.md": "e0a81cfde63d60c0e4916404cc11d674466671441b2868cb686c840191d99d9d",
+    "approval-record.json": "78b549480ec05ce7f5ad69ac0490878d26fb27ead44595db718a98dd6a979feb",
+    "reviewed-LXC100-FEASIBILITY-PLAN.md": "0e739e1c7e2bf0d5ee603843c4bda1e8e98e86ed67aae43471bf094933d16438",
+    "reviewed-manifest.json": "1713058f4f280e116933295ec633f5c59925f8a9cba1635dae9a371ea0e322b2",
+    "consumed-approval-record.json": "9f73972ca6b538c8a75c23fd33fc9cec8f3e4a676f530aef8e63f8e3f6ee0e6d"
+  },
+  "consumed_approval_record_sha256": "9f73972ca6b538c8a75c23fd33fc9cec8f3e4a676f530aef8e63f8e3f6ee0e6d"
+}

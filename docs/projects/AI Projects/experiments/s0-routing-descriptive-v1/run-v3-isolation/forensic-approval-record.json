@@ -1,0 +1,20 @@
+{
+  "schema": "aster-s0-v3-forensic-approval.v1",
+  "human": "Jason",
+  "date": "2026-09-26",
+  "source": "Jason replied Approve to the exact stopped-VM120 read-only forensic request",
+  "authorized": {
+    "temporary_readonly_loop": true,
+    "readonly_noload_mount": true,
+    "bounded_allowlisted_evidence": true,
+    "mandatory_detach": true
+  },
+  "excluded": {
+    "guest_boot_or_retry": true,
+    "filesystem_repair_or_journal_replay": true,
+    "accepted_corpus": true,
+    "vm_cleanup_or_destruction": true,
+    "git_push": true
+  },
+  "script_sha256": "f05038e380fc15f67cb6b4e1d7d82106212dfd3d4e164bdc2f4043a49684945b"
+}

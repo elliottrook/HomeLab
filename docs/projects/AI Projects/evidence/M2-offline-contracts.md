@@ -1,3 +1,7 @@
+> Historical local selector-probe evidence. Integrated current schemas/results
+> use an explicit probe namespace; see [reconciliation](M2-reconciliation/README.md).
+> The remote harness/evidence programme remains canonical.
+
 # M2 offline contracts and baseline adapter — 2026-09-25
 
 Status: local candidate, not deployed. No M1 graduation or connected-pilot claim.

@@ -1,0 +1,14 @@
+{
+  "schema_version": "experiment.v1",
+  "experiment_id": "m2-baseline",
+  "owner": "fixture-owner",
+  "baseline_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+  "candidate_digest": "sha256:9511b12cbbc8495f5fbf3300104fb59dacdd2694413ad175098ec013080e96b0",
+  "evaluator_digest": "sha256:a22ca1a469c7a5a3e4c7e7e177972f6d1c5cd3e2903818e3b65e73d7e3843bea",
+  "dataset_digest": "sha256:f68dc521df1bc92249a9436d4ffcee5e680d3ff2d4d9ff5424ca04e6dfb30bb0",
+  "status": "measured",
+  "metric": "offline-payload-construction-ms",
+  "interpretation": "controlled-overhead-only",
+  "promotion_authority": "none",
+  "data_class": "synthetic"
+}

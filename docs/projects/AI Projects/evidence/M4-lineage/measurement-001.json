@@ -1,0 +1,463 @@
+{
+  "schema_version": "lineage-proof.v1",
+  "data_class": "synthetic",
+  "experiment_id": "m4-lineage-001",
+  "implementation_digests": {
+    "measure_lineage.py": "sha256:fc93bd11c89cca87fb1e76a5c49259b1307ae7a635c5a6555dfc05dfeef75a6f",
+    "offline_baseline.py": "sha256:9511b12cbbc8495f5fbf3300104fb59dacdd2694413ad175098ec013080e96b0",
+    "contracts.py": "sha256:58bbf65cf3dc929bc80d1882c40fa1d5caf4a1e63105ac557456cc7d981941ec",
+    "fixtures.py": "sha256:6144a4808710016e4354f785c3d7b92ba10643759c06d1fa9f6006907779c92b",
+    "evidence_store.py": "sha256:ef57caea65364e5aa263ce3bfad7831071da08838b35125d3593987afc10b6fb"
+  },
+  "preregistered_head": "sha256:2c91d10326bdd34fbaf15da33c2b48c92ecfcefeaba5806e59504f98a0f16f91",
+  "final_head": "sha256:233adacb9e9d5a63af9480ce194d54c9312b1346bedcb63388cdd013d8e00645",
+  "backup_head": "sha256:233adacb9e9d5a63af9480ce194d54c9312b1346bedcb63388cdd013d8e00645",
+  "restore_verified": true,
+  "cases_passed": 4,
+  "case_count": 4,
+  "events": [
+    {
+      "sequence": 1,
+      "event_id": "dataset",
+      "kind": "dataset",
+      "record_json": "{\"cases\":[{\"case_id\":\"no-tool\",\"expected_digest\":\"sha256:bcb94243637b501712d305e00c099b7dee50186227f69690ba5c845a575d52a1\",\"family_id\":\"no-tool\",\"input_digest\":\"sha256:1d794e50988ac7766c9375b12f34e59e246254accb2c5cca12ea4fd4be193060\"},{\"case_id\":\"one-read\",\"expected_digest\":\"sha256:86760cd88b404e3c99f84f841d9f41f60354526815d974a6ae8039915a13323b\",\"family_id\":\"one-read\",\"input_digest\":\"sha256:94aa893823d301c9c7ab57ede0cdde311b829f034cfb5378f8b23bd29995a0b2\"},{\"case_id\":\"two-reads\",\"expected_digest\":\"sha256:e1468c4127d70fe558e16f3fc15f3122e62f5b5d1bec2af03af63c55b050d899\",\"family_id\":\"two-reads\",\"input_digest\":\"sha256:36c6141db669374a143d344f2afa88d37646398aa0b9cb37004ef76a7a89511f\"},{\"case_id\":\"ha-read\",\"expected_digest\":\"sha256:86760cd88b404e3c99f84f841d9f41f60354526815d974a6ae8039915a13323b\",\"family_id\":\"ha-read\",\"input_digest\":\"sha256:ad707ff003233a9f6d9936a996e4f945b6bfb52472e3a7d61d80ae8a79a91b85\"}],\"data_class\":\"synthetic\",\"dataset_id\":\"m4-lineage-four-cases\",\"label_provenance\":\"synthetic-authored\",\"schema_version\":\"dataset.v1\"}",
+      "previous_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "event_digest": "sha256:4242ecefb78feb923b83460e4c90c6d63a988b65a59b1c864cf66629a89c862c",
+      "record": {
+        "cases": [
+          {
+            "case_id": "no-tool",
+            "expected_digest": "sha256:bcb94243637b501712d305e00c099b7dee50186227f69690ba5c845a575d52a1",
+            "family_id": "no-tool",
+            "input_digest": "sha256:1d794e50988ac7766c9375b12f34e59e246254accb2c5cca12ea4fd4be193060"
+          },
+          {
+            "case_id": "one-read",
+            "expected_digest": "sha256:86760cd88b404e3c99f84f841d9f41f60354526815d974a6ae8039915a13323b",
+            "family_id": "one-read",
+            "input_digest": "sha256:94aa893823d301c9c7ab57ede0cdde311b829f034cfb5378f8b23bd29995a0b2"
+          },
+          {
+            "case_id": "two-reads",
+            "expected_digest": "sha256:e1468c4127d70fe558e16f3fc15f3122e62f5b5d1bec2af03af63c55b050d899",
+            "family_id": "two-reads",
+            "input_digest": "sha256:36c6141db669374a143d344f2afa88d37646398aa0b9cb37004ef76a7a89511f"
+          },
+          {
+            "case_id": "ha-read",
+            "expected_digest": "sha256:86760cd88b404e3c99f84f841d9f41f60354526815d974a6ae8039915a13323b",
+            "family_id": "ha-read",
+            "input_digest": "sha256:ad707ff003233a9f6d9936a996e4f945b6bfb52472e3a7d61d80ae8a79a91b85"
+          }
+        ],
+        "data_class": "synthetic",
+        "dataset_id": "m4-lineage-four-cases",
+        "label_provenance": "synthetic-authored",
+        "schema_version": "dataset.v1"
+      }
+    },
+    {
+      "sequence": 2,
+      "event_id": "spec",
+      "kind": "experiment",
+      "record_json": "{\"baseline_digest\":\"sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6\",\"candidate_digest\":\"sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6\",\"data_class\":\"synthetic\",\"dataset_digest\":\"sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397\",\"evaluator_digest\":\"sha256:813251e71c13c9ec59dfe4430a0881a83bdfa14615e691c0735a215b21bd3c0f\",\"experiment_id\":\"m4-lineage-001\",\"interpretation\":\"controlled-overhead-only\",\"metric\":\"offline-payload-construction-ms\",\"owner\":\"fixture-proposer\",\"promotion_authority\":\"none\",\"schema_version\":\"experiment.v1\",\"status\":\"preregistered\"}",
+      "previous_digest": "sha256:4242ecefb78feb923b83460e4c90c6d63a988b65a59b1c864cf66629a89c862c",
+      "event_digest": "sha256:2c91d10326bdd34fbaf15da33c2b48c92ecfcefeaba5806e59504f98a0f16f91",
+      "record": {
+        "baseline_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+        "candidate_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+        "data_class": "synthetic",
+        "dataset_digest": "sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397",
+        "evaluator_digest": "sha256:813251e71c13c9ec59dfe4430a0881a83bdfa14615e691c0735a215b21bd3c0f",
+        "experiment_id": "m4-lineage-001",
+        "interpretation": "controlled-overhead-only",
+        "metric": "offline-payload-construction-ms",
+        "owner": "fixture-proposer",
+        "promotion_authority": "none",
+        "schema_version": "experiment.v1",
+        "status": "preregistered"
+      }
+    },
+    {
+      "sequence": 3,
+      "event_id": "run-no-tool",
+      "kind": "run",
+      "record_json": "{\"candidate_role\":\"candidate\",\"case_id\":\"no-tool\",\"dataset_digest\":\"sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397\",\"run\":{\"budget\":{\"model_calls\":0,\"output_bytes\":65536,\"tool_calls\":0,\"wall_ms\":1000},\"data_class\":\"synthetic\",\"decision\":{\"authorization\":\"not-granted\",\"confidence\":null,\"expires_at\":1200,\"policy_digest\":\"sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b\",\"principal_ref\":\"fixture-user\",\"reason\":\"supported\",\"registry_digest\":\"sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47\",\"request_id\":\"fixture-request\",\"schema_version\":\"decision.v1\",\"status\":\"answer\",\"steps\":[]},\"experiment_id\":\"m4-lineage-001\",\"harness_digest\":\"sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6\",\"principal_ref\":\"fixture-user\",\"projection\":{\"authority\":\"not-granted\",\"capabilities\":[],\"expires_at\":1300,\"policy_digest\":\"sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b\",\"principal_ref\":\"fixture-user\",\"registry_digest\":\"sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47\",\"schema_version\":\"projection.v1\"},\"run_id\":\"lineage-no-tool\",\"schema_version\":\"run.v1\"},\"schema_version\":\"registered-run.v1\"}",
+      "previous_digest": "sha256:2c91d10326bdd34fbaf15da33c2b48c92ecfcefeaba5806e59504f98a0f16f91",
+      "event_digest": "sha256:93abb6f55ec471055e05f01522de70dc4b2b5cc15a17dd01c537c35fcb0140fb",
+      "record": {
+        "candidate_role": "candidate",
+        "case_id": "no-tool",
+        "dataset_digest": "sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397",
+        "run": {
+          "budget": {
+            "model_calls": 0,
+            "output_bytes": 65536,
+            "tool_calls": 0,
+            "wall_ms": 1000
+          },
+          "data_class": "synthetic",
+          "decision": {
+            "authorization": "not-granted",
+            "confidence": null,
+            "expires_at": 1200,
+            "policy_digest": "sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b",
+            "principal_ref": "fixture-user",
+            "reason": "supported",
+            "registry_digest": "sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47",
+            "request_id": "fixture-request",
+            "schema_version": "decision.v1",
+            "status": "answer",
+            "steps": []
+          },
+          "experiment_id": "m4-lineage-001",
+          "harness_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+          "principal_ref": "fixture-user",
+          "projection": {
+            "authority": "not-granted",
+            "capabilities": [],
+            "expires_at": 1300,
+            "policy_digest": "sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b",
+            "principal_ref": "fixture-user",
+            "registry_digest": "sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47",
+            "schema_version": "projection.v1"
+          },
+          "run_id": "lineage-no-tool",
+          "schema_version": "run.v1"
+        },
+        "schema_version": "registered-run.v1"
+      }
+    },
+    {
+      "sequence": 4,
+      "event_id": "outcome-no-tool",
+      "kind": "linked-outcome",
+      "record_json": "{\"experiment_id\":\"m4-lineage-001\",\"outcome\":{\"data_class\":\"synthetic\",\"elapsed_ms\":0.055999960750341415,\"model_calls\":0,\"output_bytes\":7333,\"prompt_tokens\":null,\"quality\":\"not-evaluated\",\"run_id\":\"lineage-no-tool\",\"schema_version\":\"outcome.v1\",\"status\":\"completed\",\"tool_calls\":0,\"verification\":\"fixture-conformance\"},\"run_event_digest\":\"sha256:93abb6f55ec471055e05f01522de70dc4b2b5cc15a17dd01c537c35fcb0140fb\",\"schema_version\":\"linked-outcome.v1\"}",
+      "previous_digest": "sha256:93abb6f55ec471055e05f01522de70dc4b2b5cc15a17dd01c537c35fcb0140fb",
+      "event_digest": "sha256:3875ab0f1e8bd5f1a2201a383079af2397fe4dcb6f826eee9223c39e88a4bc30",
+      "record": {
+        "experiment_id": "m4-lineage-001",
+        "outcome": {
+          "data_class": "synthetic",
+          "elapsed_ms": 0.055999960750341415,
+          "model_calls": 0,
+          "output_bytes": 7333,
+          "prompt_tokens": null,
+          "quality": "not-evaluated",
+          "run_id": "lineage-no-tool",
+          "schema_version": "outcome.v1",
+          "status": "completed",
+          "tool_calls": 0,
+          "verification": "fixture-conformance"
+        },
+        "run_event_digest": "sha256:93abb6f55ec471055e05f01522de70dc4b2b5cc15a17dd01c537c35fcb0140fb",
+        "schema_version": "linked-outcome.v1"
+      }
+    },
+    {
+      "sequence": 5,
+      "event_id": "run-one-read",
+      "kind": "run",
+      "record_json": "{\"candidate_role\":\"candidate\",\"case_id\":\"one-read\",\"dataset_digest\":\"sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397\",\"run\":{\"budget\":{\"model_calls\":0,\"output_bytes\":65536,\"tool_calls\":1,\"wall_ms\":1000},\"data_class\":\"synthetic\",\"decision\":{\"authorization\":\"not-granted\",\"confidence\":null,\"expires_at\":1200,\"policy_digest\":\"sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b\",\"principal_ref\":\"fixture-user\",\"reason\":\"supported\",\"registry_digest\":\"sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47\",\"request_id\":\"fixture-request\",\"schema_version\":\"decision.v1\",\"status\":\"plan\",\"steps\":[{\"after\":[],\"capability_id\":\"fixture.time\",\"step_id\":\"s0\"}]},\"experiment_id\":\"m4-lineage-001\",\"harness_digest\":\"sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6\",\"principal_ref\":\"fixture-user\",\"projection\":{\"authority\":\"not-granted\",\"capabilities\":[{\"capability_id\":\"fixture.time\",\"effects\":\"none\",\"implementation\":\"get_current_time\",\"input_schema\":\"sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf\",\"locality\":\"fixture-only\",\"output_schema\":\"sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d\",\"owner\":\"fixture-owner\",\"permission_ref\":\"fixture.time\",\"schema_version\":\"capability.v1\"}],\"expires_at\":1300,\"policy_digest\":\"sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b\",\"principal_ref\":\"fixture-user\",\"registry_digest\":\"sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47\",\"schema_version\":\"projection.v1\"},\"run_id\":\"lineage-one-read\",\"schema_version\":\"run.v1\"},\"schema_version\":\"registered-run.v1\"}",
+      "previous_digest": "sha256:3875ab0f1e8bd5f1a2201a383079af2397fe4dcb6f826eee9223c39e88a4bc30",
+      "event_digest": "sha256:3a59f45488e33a3a545cee1e3f7f602a7cc40d6bfdd6088716fd0ff66fe940ec",
+      "record": {
+        "candidate_role": "candidate",
+        "case_id": "one-read",
+        "dataset_digest": "sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397",
+        "run": {
+          "budget": {
+            "model_calls": 0,
+            "output_bytes": 65536,
+            "tool_calls": 1,
+            "wall_ms": 1000
+          },
+          "data_class": "synthetic",
+          "decision": {
+            "authorization": "not-granted",
+            "confidence": null,
+            "expires_at": 1200,
+            "policy_digest": "sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b",
+            "principal_ref": "fixture-user",
+            "reason": "supported",
+            "registry_digest": "sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47",
+            "request_id": "fixture-request",
+            "schema_version": "decision.v1",
+            "status": "plan",
+            "steps": [
+              {
+                "after": [],
+                "capability_id": "fixture.time",
+                "step_id": "s0"
+              }
+            ]
+          },
+          "experiment_id": "m4-lineage-001",
+          "harness_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+          "principal_ref": "fixture-user",
+          "projection": {
+            "authority": "not-granted",
+            "capabilities": [
+              {
+                "capability_id": "fixture.time",
+                "effects": "none",
+                "implementation": "get_current_time",
+                "input_schema": "sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf",
+                "locality": "fixture-only",
+                "output_schema": "sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d",
+                "owner": "fixture-owner",
+                "permission_ref": "fixture.time",
+                "schema_version": "capability.v1"
+              }
+            ],
+            "expires_at": 1300,
+            "policy_digest": "sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b",
+            "principal_ref": "fixture-user",
+            "registry_digest": "sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47",
+            "schema_version": "projection.v1"
+          },
+          "run_id": "lineage-one-read",
+          "schema_version": "run.v1"
+        },
+        "schema_version": "registered-run.v1"
+      }
+    },
+    {
+      "sequence": 6,
+      "event_id": "outcome-one-read",
+      "kind": "linked-outcome",
+      "record_json": "{\"experiment_id\":\"m4-lineage-001\",\"outcome\":{\"data_class\":\"synthetic\",\"elapsed_ms\":0.04675006493926048,\"model_calls\":0,\"output_bytes\":7555,\"prompt_tokens\":null,\"quality\":\"not-evaluated\",\"run_id\":\"lineage-one-read\",\"schema_version\":\"outcome.v1\",\"status\":\"completed\",\"tool_calls\":1,\"verification\":\"fixture-conformance\"},\"run_event_digest\":\"sha256:3a59f45488e33a3a545cee1e3f7f602a7cc40d6bfdd6088716fd0ff66fe940ec\",\"schema_version\":\"linked-outcome.v1\"}",
+      "previous_digest": "sha256:3a59f45488e33a3a545cee1e3f7f602a7cc40d6bfdd6088716fd0ff66fe940ec",
+      "event_digest": "sha256:ea900c41bf9e05376e073a28ae049e1276c26b09ddef41db41bc239cd8c3601b",
+      "record": {
+        "experiment_id": "m4-lineage-001",
+        "outcome": {
+          "data_class": "synthetic",
+          "elapsed_ms": 0.04675006493926048,
+          "model_calls": 0,
+          "output_bytes": 7555,
+          "prompt_tokens": null,
+          "quality": "not-evaluated",
+          "run_id": "lineage-one-read",
+          "schema_version": "outcome.v1",
+          "status": "completed",
+          "tool_calls": 1,
+          "verification": "fixture-conformance"
+        },
+        "run_event_digest": "sha256:3a59f45488e33a3a545cee1e3f7f602a7cc40d6bfdd6088716fd0ff66fe940ec",
+        "schema_version": "linked-outcome.v1"
+      }
+    },
+    {
+      "sequence": 7,
+      "event_id": "run-two-reads",
+      "kind": "run",
+      "record_json": "{\"candidate_role\":\"candidate\",\"case_id\":\"two-reads\",\"dataset_digest\":\"sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397\",\"run\":{\"budget\":{\"model_calls\":0,\"output_bytes\":65536,\"tool_calls\":2,\"wall_ms\":1000},\"data_class\":\"synthetic\",\"decision\":{\"authorization\":\"not-granted\",\"confidence\":null,\"expires_at\":1200,\"policy_digest\":\"sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b\",\"principal_ref\":\"fixture-user\",\"reason\":\"supported\",\"registry_digest\":\"sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47\",\"request_id\":\"fixture-request\",\"schema_version\":\"decision.v1\",\"status\":\"plan\",\"steps\":[{\"after\":[],\"capability_id\":\"fixture.forgejo\",\"step_id\":\"s0\"},{\"after\":[],\"capability_id\":\"fixture.netbox\",\"step_id\":\"s1\"}]},\"experiment_id\":\"m4-lineage-001\",\"harness_digest\":\"sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6\",\"principal_ref\":\"fixture-user\",\"projection\":{\"authority\":\"not-granted\",\"capabilities\":[{\"capability_id\":\"fixture.forgejo\",\"effects\":\"none\",\"implementation\":\"get_forgejo_report\",\"input_schema\":\"sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf\",\"locality\":\"fixture-only\",\"output_schema\":\"sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d\",\"owner\":\"fixture-owner\",\"permission_ref\":\"fixture.forgejo\",\"schema_version\":\"capability.v1\"},{\"capability_id\":\"fixture.netbox\",\"effects\":\"none\",\"implementation\":\"get_netbox_report\",\"input_schema\":\"sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf\",\"locality\":\"fixture-only\",\"output_schema\":\"sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d\",\"owner\":\"fixture-owner\",\"permission_ref\":\"fixture.netbox\",\"schema_version\":\"capability.v1\"}],\"expires_at\":1300,\"policy_digest\":\"sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b\",\"principal_ref\":\"fixture-user\",\"registry_digest\":\"sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47\",\"schema_version\":\"projection.v1\"},\"run_id\":\"lineage-two-reads\",\"schema_version\":\"run.v1\"},\"schema_version\":\"registered-run.v1\"}",
+      "previous_digest": "sha256:ea900c41bf9e05376e073a28ae049e1276c26b09ddef41db41bc239cd8c3601b",
+      "event_digest": "sha256:8769c69cd15d210ba7748787e4f1ac5892898db54fba3e07fb5364b191256ab7",
+      "record": {
+        "candidate_role": "candidate",
+        "case_id": "two-reads",
+        "dataset_digest": "sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397",
+        "run": {
+          "budget": {
+            "model_calls": 0,
+            "output_bytes": 65536,
+            "tool_calls": 2,
+            "wall_ms": 1000
+          },
+          "data_class": "synthetic",
+          "decision": {
+            "authorization": "not-granted",
+            "confidence": null,
+            "expires_at": 1200,
+            "policy_digest": "sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b",
+            "principal_ref": "fixture-user",
+            "reason": "supported",
+            "registry_digest": "sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47",
+            "request_id": "fixture-request",
+            "schema_version": "decision.v1",
+            "status": "plan",
+            "steps": [
+              {
+                "after": [],
+                "capability_id": "fixture.forgejo",
+                "step_id": "s0"
+              },
+              {
+                "after": [],
+                "capability_id": "fixture.netbox",
+                "step_id": "s1"
+              }
+            ]
+          },
+          "experiment_id": "m4-lineage-001",
+          "harness_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+          "principal_ref": "fixture-user",
+          "projection": {
+            "authority": "not-granted",
+            "capabilities": [
+              {
+                "capability_id": "fixture.forgejo",
+                "effects": "none",
+                "implementation": "get_forgejo_report",
+                "input_schema": "sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf",
+                "locality": "fixture-only",
+                "output_schema": "sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d",
+                "owner": "fixture-owner",
+                "permission_ref": "fixture.forgejo",
+                "schema_version": "capability.v1"
+              },
+              {
+                "capability_id": "fixture.netbox",
+                "effects": "none",
+                "implementation": "get_netbox_report",
+                "input_schema": "sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf",
+                "locality": "fixture-only",
+                "output_schema": "sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d",
+                "owner": "fixture-owner",
+                "permission_ref": "fixture.netbox",
+                "schema_version": "capability.v1"
+              }
+            ],
+            "expires_at": 1300,
+            "policy_digest": "sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b",
+            "principal_ref": "fixture-user",
+            "registry_digest": "sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47",
+            "schema_version": "projection.v1"
+          },
+          "run_id": "lineage-two-reads",
+          "schema_version": "run.v1"
+        },
+        "schema_version": "registered-run.v1"
+      }
+    },
+    {
+      "sequence": 8,
+      "event_id": "outcome-two-reads",
+      "kind": "linked-outcome",
+      "record_json": "{\"experiment_id\":\"m4-lineage-001\",\"outcome\":{\"data_class\":\"synthetic\",\"elapsed_ms\":0.04024989902973175,\"model_calls\":0,\"output_bytes\":7681,\"prompt_tokens\":null,\"quality\":\"not-evaluated\",\"run_id\":\"lineage-two-reads\",\"schema_version\":\"outcome.v1\",\"status\":\"completed\",\"tool_calls\":2,\"verification\":\"fixture-conformance\"},\"run_event_digest\":\"sha256:8769c69cd15d210ba7748787e4f1ac5892898db54fba3e07fb5364b191256ab7\",\"schema_version\":\"linked-outcome.v1\"}",
+      "previous_digest": "sha256:8769c69cd15d210ba7748787e4f1ac5892898db54fba3e07fb5364b191256ab7",
+      "event_digest": "sha256:171298b4c81a9a196f9c3dc31d7c2d4a91117731413c92bc48b702b822d14008",
+      "record": {
+        "experiment_id": "m4-lineage-001",
+        "outcome": {
+          "data_class": "synthetic",
+          "elapsed_ms": 0.04024989902973175,
+          "model_calls": 0,
+          "output_bytes": 7681,
+          "prompt_tokens": null,
+          "quality": "not-evaluated",
+          "run_id": "lineage-two-reads",
+          "schema_version": "outcome.v1",
+          "status": "completed",
+          "tool_calls": 2,
+          "verification": "fixture-conformance"
+        },
+        "run_event_digest": "sha256:8769c69cd15d210ba7748787e4f1ac5892898db54fba3e07fb5364b191256ab7",
+        "schema_version": "linked-outcome.v1"
+      }
+    },
+    {
+      "sequence": 9,
+      "event_id": "run-ha-read",
+      "kind": "run",
+      "record_json": "{\"candidate_role\":\"candidate\",\"case_id\":\"ha-read\",\"dataset_digest\":\"sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397\",\"run\":{\"budget\":{\"model_calls\":0,\"output_bytes\":65536,\"tool_calls\":1,\"wall_ms\":1000},\"data_class\":\"synthetic\",\"decision\":{\"authorization\":\"not-granted\",\"confidence\":null,\"expires_at\":1200,\"policy_digest\":\"sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b\",\"principal_ref\":\"fixture-user\",\"reason\":\"supported\",\"registry_digest\":\"sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47\",\"request_id\":\"fixture-request\",\"schema_version\":\"decision.v1\",\"status\":\"plan\",\"steps\":[{\"after\":[],\"capability_id\":\"fixture.ha\",\"step_id\":\"s0\"}]},\"experiment_id\":\"m4-lineage-001\",\"harness_digest\":\"sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6\",\"principal_ref\":\"fixture-user\",\"projection\":{\"authority\":\"not-granted\",\"capabilities\":[{\"capability_id\":\"fixture.ha\",\"effects\":\"none\",\"implementation\":\"get_ha_report\",\"input_schema\":\"sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf\",\"locality\":\"fixture-only\",\"output_schema\":\"sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d\",\"owner\":\"fixture-owner\",\"permission_ref\":\"fixture.ha\",\"schema_version\":\"capability.v1\"}],\"expires_at\":1300,\"policy_digest\":\"sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b\",\"principal_ref\":\"fixture-user\",\"registry_digest\":\"sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47\",\"schema_version\":\"projection.v1\"},\"run_id\":\"lineage-ha-read\",\"schema_version\":\"run.v1\"},\"schema_version\":\"registered-run.v1\"}",
+      "previous_digest": "sha256:171298b4c81a9a196f9c3dc31d7c2d4a91117731413c92bc48b702b822d14008",
+      "event_digest": "sha256:f6439a25068efc917cfbf796fa0941e6e7540df7b8c1d40aaa0ebb51e4854b99",
+      "record": {
+        "candidate_role": "candidate",
+        "case_id": "ha-read",
+        "dataset_digest": "sha256:4b27378d0676704509bc8476e9ca9b6dac9dc7e2086205993786bf6fef214397",
+        "run": {
+          "budget": {
+            "model_calls": 0,
+            "output_bytes": 65536,
+            "tool_calls": 1,
+            "wall_ms": 1000
+          },
+          "data_class": "synthetic",
+          "decision": {
+            "authorization": "not-granted",
+            "confidence": null,
+            "expires_at": 1200,
+            "policy_digest": "sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b",
+            "principal_ref": "fixture-user",
+            "reason": "supported",
+            "registry_digest": "sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47",
+            "request_id": "fixture-request",
+            "schema_version": "decision.v1",
+            "status": "plan",
+            "steps": [
+              {
+                "after": [],
+                "capability_id": "fixture.ha",
+                "step_id": "s0"
+              }
+            ]
+          },
+          "experiment_id": "m4-lineage-001",
+          "harness_digest": "sha256:8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+          "principal_ref": "fixture-user",
+          "projection": {
+            "authority": "not-granted",
+            "capabilities": [
+              {
+                "capability_id": "fixture.ha",
+                "effects": "none",
+                "implementation": "get_ha_report",
+                "input_schema": "sha256:82ef96cebaf5fbe16269fd18b0240d78f5b9b90a4155a17eb797115b09148ecf",
+                "locality": "fixture-only",
+                "output_schema": "sha256:d2bf696e635dc7798f286f6604188f792aeb15ef8ec3413a0485bc9c5f15307d",
+                "owner": "fixture-owner",
+                "permission_ref": "fixture.ha",
+                "schema_version": "capability.v1"
+              }
+            ],
+            "expires_at": 1300,
+            "policy_digest": "sha256:a6c247a0e37479d2c5b19a87c1d0441c06db77b6995e726aff66e66f4518244b",
+            "principal_ref": "fixture-user",
+            "registry_digest": "sha256:9c140a98e75ab5e1a84fa045d0372f37b644f51da73112c96d8a65826ac04e47",
+            "schema_version": "projection.v1"
+          },
+          "run_id": "lineage-ha-read",
+          "schema_version": "run.v1"
+        },
+        "schema_version": "registered-run.v1"
+      }
+    },
+    {
+      "sequence": 10,
+      "event_id": "outcome-ha-read",
+      "kind": "linked-outcome",
+      "record_json": "{\"experiment_id\":\"m4-lineage-001\",\"outcome\":{\"data_class\":\"synthetic\",\"elapsed_ms\":0.03508385270833969,\"model_calls\":0,\"output_bytes\":7579,\"prompt_tokens\":null,\"quality\":\"not-evaluated\",\"run_id\":\"lineage-ha-read\",\"schema_version\":\"outcome.v1\",\"status\":\"completed\",\"tool_calls\":1,\"verification\":\"fixture-conformance\"},\"run_event_digest\":\"sha256:f6439a25068efc917cfbf796fa0941e6e7540df7b8c1d40aaa0ebb51e4854b99\",\"schema_version\":\"linked-outcome.v1\"}",
+      "previous_digest": "sha256:f6439a25068efc917cfbf796fa0941e6e7540df7b8c1d40aaa0ebb51e4854b99",
+      "event_digest": "sha256:233adacb9e9d5a63af9480ce194d54c9312b1346bedcb63388cdd013d8e00645",
+      "record": {
+        "experiment_id": "m4-lineage-001",
+        "outcome": {
+          "data_class": "synthetic",
+          "elapsed_ms": 0.03508385270833969,
+          "model_calls": 0,
+          "output_bytes": 7579,
+          "prompt_tokens": null,
+          "quality": "not-evaluated",
+          "run_id": "lineage-ha-read",
+          "schema_version": "outcome.v1",
+          "status": "completed",
+          "tool_calls": 1,
+          "verification": "fixture-conformance"
+        },
+        "run_event_digest": "sha256:f6439a25068efc917cfbf796fa0941e6e7540df7b8c1d40aaa0ebb51e4854b99",
+        "schema_version": "linked-outcome.v1"
+      }
+    }
+  ],
+  "limits": [
+    "Four previously authored fixtures, not independent representative quality labels",
+    "One observation per case; elapsed times are not a performance comparison",
+    "No paired baseline, aggregate evaluation or authenticated review recorded",
+    "Source digests bind content, not the authenticity of asserted measurements",
+    "No model requests, production readers or broker access"
+  ]
+}

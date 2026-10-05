@@ -1,0 +1,125 @@
+{
+  "artifacts": [
+    {
+      "bytes": 1503,
+      "gid": 0,
+      "guest_path": "/etc/systemd/system/aster-s0-corpus.service",
+      "mode": "0o444",
+      "sha256": "879aa45a09fe539bfac59f43f337f12d9f976c8aab495b66a6be6558f5a475c6",
+      "uid": 0
+    },
+    {
+      "bytes": 3510,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-1/acceptance.json",
+      "mode": "0o444",
+      "sha256": "5e5c498bea895e50a1279b2e89c128b92ac7e7fa3b0e42ed250ec8be45a71437",
+      "uid": 0
+    },
+    {
+      "bytes": 901,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-1/effort.json",
+      "mode": "0o444",
+      "sha256": "2c8e795f2f3b2d76639269d0df7f876c949a832844044b8d2669480f04cf4d8d",
+      "uid": 0
+    },
+    {
+      "bytes": 9919,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-1/reviewed-proposal.json",
+      "mode": "0o444",
+      "sha256": "64459d47a6a48bb7e67f6aad766a623ba4fae2f6c0bad0c309f55c880c7e7288",
+      "uid": 0
+    },
+    {
+      "bytes": 3530,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-2/acceptance.json",
+      "mode": "0o444",
+      "sha256": "9524eb1e737f553c71db782efafa2a8fde4c6a233bc39ac7e7a765ae75295520",
+      "uid": 0
+    },
+    {
+      "bytes": 856,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-2/effort.json",
+      "mode": "0o444",
+      "sha256": "1401158fb3e63fed350aafff2056090f544f9543e3ae9d51439e408d53da6ef4",
+      "uid": 0
+    },
+    {
+      "bytes": 10312,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-2/reviewed-proposal.json",
+      "mode": "0o444",
+      "sha256": "0731464ba0d7ea3db596f48d920a7f8492004c34c45600f0efcc15c9aaec5308",
+      "uid": 0
+    },
+    {
+      "bytes": 3543,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-3/acceptance.json",
+      "mode": "0o444",
+      "sha256": "d165a0bb2927674fe742628d36e8b843acc4b381b328da16af84035cab48a268",
+      "uid": 0
+    },
+    {
+      "bytes": 728,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-3/effort.json",
+      "mode": "0o444",
+      "sha256": "b2f62ea4843a5927f71f65d8594ef968798f80f8071e91a8b6e2c540e18e3f5c",
+      "uid": 0
+    },
+    {
+      "bytes": 10439,
+      "gid": 0,
+      "guest_path": "/usr/local/share/aster-s0/corpus/batch-3/reviewed-proposal.json",
+      "mode": "0o444",
+      "sha256": "962bf5f1c2adaefe4dbbedc92116640019b77c7e4580bc2c2d6b3462750f7a95",
+      "uid": 0
+    },
+    {
+      "bytes": 4101,
+      "gid": 0,
+      "guest_path": "/usr/local/lib/aster-s0/corpus_entry.py",
+      "mode": "0o444",
+      "sha256": "c63301a03c4261e984075be1bc49493385319ad96d0f1e38473d69743114e1e8",
+      "uid": 0
+    },
+    {
+      "bytes": 2499,
+      "gid": 0,
+      "guest_path": "/usr/local/lib/aster-s0/payload-manifest.json",
+      "mode": "0o444",
+      "sha256": "4c6abae20160875196a2a94d998f0cba7553199876f1f88b9687d4410c95fd9d",
+      "uid": 0
+    },
+    {
+      "bytes": 6452,
+      "gid": 0,
+      "guest_path": "/usr/local/lib/aster-s0/routing_smoke.py",
+      "mode": "0o444",
+      "sha256": "3e52c69f25dcf22100c521aeaa5b68b83e334ddf8ce9469d14d79822c8aa5864",
+      "uid": 0
+    },
+    {
+      "bytes": 15126,
+      "gid": 0,
+      "guest_path": "/usr/local/lib/aster-s0/s0_descriptive.py",
+      "mode": "0o444",
+      "sha256": "77d6e6a1604c0b32edac531663c6dfa2180add4288f5814568be01f0e6060fd3",
+      "uid": 0
+    },
+    {
+      "bytes": 7057,
+      "gid": 0,
+      "guest_path": "/usr/local/lib/aster-s0/s0_vm_corpus_worker.py",
+      "mode": "0o444",
+      "sha256": "7d2c4091900019ea4249e8f8ebc2ff37813979cbea6c3235e9792b87ad112666",
+      "uid": 0
+    }
+  ],
+  "content_exported": false
+}

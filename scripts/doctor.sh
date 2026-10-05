@@ -523,6 +523,15 @@ check_aster_lab_operations() {
     fi
 }
 
+check_ai_pam() {
+    local state
+    if state="$(python3 "$REPO/scripts/check-ai-pam.py" 2>/dev/null)"; then
+        pass "$state"
+    else
+        fail "${state:-AI-PAM health could not be verified}"
+    fi
+}
+
 # Authentication egress is a distinct dependency: /health alone cannot prove it.
 check_aster_approval_readiness() {
     local state
@@ -2019,6 +2028,7 @@ check_aster_speech
 check_aster_notifications
 check_aster_approval_readiness
 check_aster_lab_operations
+check_ai_pam
 check_xe_reset
 check_aster_wiki
 check_netbox

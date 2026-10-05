@@ -1,0 +1,45 @@
+{
+  "status": "local-v1-correction-candidate-passed",
+  "validated_at": "2026-09-26",
+  "evidence_basis": "run-v2-bootstrap/forensics/canary-journal.jsonl",
+  "correction": "protocol-file-exported-by-outer-cloud-init-lifecycle",
+  "focused": {
+    "command": "python3 -m unittest -v test_s0_vm_serial.py test_s0_vm_candidate.py",
+    "python": "3.9.6",
+    "passed": 21,
+    "failed": 0
+  },
+  "full_adaptive": {
+    "command": "/private/tmp/aster-lab-ops-venv/bin/python -m unittest discover -s scripts/aster-adaptive -p test_*.py",
+    "python": "3.12.14",
+    "passed": 235,
+    "failed": 0
+  },
+  "yaml": {
+    "parser": "Ruby Psych via Ruby 2.6.10",
+    "write_files": 3,
+    "runcmd": 3,
+    "result": "pass"
+  },
+  "outer_shell_syntax": "pass",
+  "persisted_manifest_verification": "pass",
+  "source_sha256": {
+    "scripts/aster-adaptive/s0_vm_candidate.py": "92fa5e5b4f9e6ad99453822ff2f415233f845897f0226a8f0bef2915e8701dc1",
+    "scripts/aster-adaptive/s0_vm_serial.py": "2d9ab4e9961f29efa3559f54b4645fecca1af74765675eb6f4b5440e25267ab6",
+    "scripts/aster-adaptive/test_s0_vm_candidate.py": "95680edf5be3a97cb0769f7b2d32e6306973dae678bffb9dcff616b96ec45317",
+    "scripts/aster-adaptive/test_s0_vm_serial.py": "b2cb67cfe379985c54d1e6351dfe5cb644ec37f68580e1d182777cab798d1c47"
+  },
+  "candidate_manifest_sha256": "c5e4eb98bc7847e97969b9a853b3da4cf801bcbb5748e53ac2f9c9b6f82831bf",
+  "iso_created": false,
+  "vm_created": false,
+  "proxmox_mutated": false,
+  "accepted_corpus_included": false,
+  "accepted_corpus_evaluated": false,
+  "infrastructure_authorized": false,
+  "remaining_unknowns": [
+    "runtime protocol-file publication to serial",
+    "corrected seed ISO hash and listing",
+    "new stopped VM identity and volume receipts",
+    "one-boot V2b outcome"
+  ]
+}

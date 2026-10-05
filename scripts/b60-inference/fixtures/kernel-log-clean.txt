@@ -1,0 +1,1 @@
+2026-09-25T01:00:00-07:00 proxmox kernel: xe 0000:04:00.0: [drm] GuC firmware initialized

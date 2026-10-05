@@ -1,0 +1,57 @@
+{
+  "schema": "aster-s0-vm-release.v1",
+  "release_id": "v1b-bootstrap-canary-002",
+  "status": "preflight-passed-awaiting-execution-approval",
+  "observed_at": "2026-09-26T16:41:51-07:00",
+  "target": {
+    "host": "proxmox",
+    "vmid": 119,
+    "name": "aster-s0-fixture-v1",
+    "vmid_observed_free": true,
+    "nextid_at_preflight": 119,
+    "seed_iso": "aster-s0-bootstrap-canary-002.iso",
+    "seed_iso_observed_absent": true,
+    "network_devices": [],
+    "agent": "absent",
+    "cores": 1,
+    "memory_mib": 1024,
+    "disk_gib": 8
+  },
+  "source_image": {
+    "bytes": 433651712,
+    "sha512": "a733e7d49442a03e70d03e4eb5aaf3967f3efc69ef70952f9bb10fc1ee2c4876eb95956b5ad2d31350e5fada768feb651352535fb8cd1233f61998a5a7d2e93c"
+  },
+  "candidate": {
+    "run_id": "bootstrap-canary-002",
+    "instance_id": "aster-s0-bootstrap-canary-002",
+    "payload_manifest_sha256": "56da5b4614220bfc8e51e5b625e8b6bdd87ba30177696a89df6dc66b45fc7f56",
+    "candidate_manifest_sha256": "c5e4eb98bc7847e97969b9a853b3da4cf801bcbb5748e53ac2f9c9b6f82831bf",
+    "accepted_corpus_included": false,
+    "accepted_corpus_evaluation_authorized": false
+  },
+  "files": {
+    "user-data": {"bytes": 4094, "sha256": "e81ee511b3bac0a361fdfb660386f2e61ef8af2925a7f744557ec25283eaab68"},
+    "meta-data": {"bytes": 75, "sha256": "a043603996ec3e8bebd6d65578818879811fdec070648deada99173cd5821274"},
+    "candidate-manifest.json": {"bytes": 988, "sha256": "c5e4eb98bc7847e97969b9a853b3da4cf801bcbb5748e53ac2f9c9b6f82831bf"},
+    "vm-config-proposal.json": {"bytes": 649, "sha256": "2d102a23a9937bf0efe504ebb10a616a63ba2fe2abc33593022649939f6c1f81"},
+    "s0_vm_release.py": {"bytes": 3499, "sha256": "63347c7952411206c7fde19d1187c63ce6a5f46f44059ee3501e39cbee8a7e72"},
+    "s0_vm_serial.py": {"bytes": 6108, "sha256": "2d9ab4e9961f29efa3559f54b4645fecca1af74765675eb6f4b5440e25267ab6"},
+    "create-stopped-vm.sh": {"bytes": 4951, "sha256": "7b698acd297d5f223de822fa722779d5254e2375f6d63a1c79259cb9bcf1c2ea"},
+    "run-once-v2b.sh": {"bytes": 2034, "sha256": "f3bc0158f4f231c9b5199256a68a928fb4946ca9d58579d42dbf0f284610faa4"}
+  },
+  "limits": {
+    "capture_seconds": 300,
+    "capture_bytes": 4194304,
+    "unit_seconds": 90,
+    "unit_memory_mib": 512,
+    "automatic_retries": 0
+  },
+  "execution": {
+    "v1b_authorized": false,
+    "v2b_authorized": false,
+    "v3_authorized": false,
+    "destruction_authorized": false,
+    "partial_failure_action": "stop-and-retain",
+    "existing_vm118_mutation": false
+  }
+}

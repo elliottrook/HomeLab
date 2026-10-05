@@ -1,0 +1,6 @@
+/mnt/aster-s0-v3-forensic/etc/systemd/system/aster-s0-isolation.service 1461 444 0:0
+5d328814648e47f3b028d2b846a5b3b81fce91b54b694766889a55665f9ced5d  /mnt/aster-s0-v3-forensic/etc/systemd/system/aster-s0-isolation.service
+/mnt/aster-s0-v3-forensic/usr/local/lib/aster-s0/isolation_probe.py 3087 444 0:0
+ba4c78c810a432b55abae6eb90a3b77df53e8ce4b71ac25d23233fa8b1a69ec0  /mnt/aster-s0-v3-forensic/usr/local/lib/aster-s0/isolation_probe.py
+/mnt/aster-s0-v3-forensic/usr/local/lib/aster-s0/payload-manifest.json 1121 444 0:0
+da59afcadc25d3ca4707024ad145a8e83d028b2367036d4f990a23d78321b89d  /mnt/aster-s0-v3-forensic/usr/local/lib/aster-s0/payload-manifest.json

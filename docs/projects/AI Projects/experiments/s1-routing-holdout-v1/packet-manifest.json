@@ -1,0 +1,74 @@
+{
+  "artifacts": [
+    {
+      "bytes": 10830,
+      "path": "docs/projects/AI Projects/experiments/s1-routing-holdout-v1/PLAN.md",
+      "sha256": "4727ba248959cc4ed3514c99ca608842e9622c0a0493bccacafae7c1a681c696"
+    },
+    {
+      "bytes": 1236,
+      "path": "docs/projects/AI Projects/experiments/s1-routing-holdout-v1/registry.json",
+      "sha256": "19da446b6e4d810bb47c5a7e01cc6823dba39110fa9e56aa20f15d116331adb6"
+    },
+    {
+      "bytes": 1889,
+      "path": "docs/projects/AI Projects/experiments/s1-routing-holdout-v1/FORM.md",
+      "sha256": "3e7f67f031fd70cdfb74eff9ac99c0ac7d03ad8663fe60dbcfa7231857c58b26"
+    },
+    {
+      "bytes": 3765,
+      "path": "docs/projects/AI Projects/experiments/s1-routing-holdout-v1/CUSTODY.md",
+      "sha256": "80889693a6176e41ee9ea96581111e247c37fbbc5266055ed89277a832748605"
+    },
+    {
+      "bytes": 5304,
+      "path": "docs/projects/AI Projects/experiments/s1-routing-holdout-v1/bundle.schema.json",
+      "sha256": "4d322fd8726d6ca55b1271b8207f27cb35ad63bdd630a41e5ea315218e4b10bc"
+    },
+    {
+      "bytes": 619,
+      "path": "docs/projects/AI Projects/experiments/s1-routing-holdout-v1/bundle-template.json",
+      "sha256": "3ad58d8f775527a06dc7e045fffd88e1ba5e113ed3e71ad6813ecd763f5199aa"
+    },
+    {
+      "bytes": 13764,
+      "path": "scripts/aster-adaptive/s1_collection_validator.py",
+      "sha256": "1870b0714334f43400d82a0f4d922402241e9b320c48bafc17cec3ddcfa0016b"
+    },
+    {
+      "bytes": 11775,
+      "path": "scripts/aster-adaptive/test_s1_collection_validator.py",
+      "sha256": "909abcff8fc9ca30b1cd531fdba1b287d920f7cadfd29bcfb740b4c990c1597d"
+    }
+  ],
+  "authority": {
+    "collection_authorized": false,
+    "deployment_authorized": false,
+    "evaluation_authorized": false,
+    "push_authorized": false
+  },
+  "custody_observations": {
+    "current_tmpdir_time_machine_excluded": true,
+    "draft_path_created": false,
+    "homeLab_offhost_restore": "not-tested",
+    "invented_git_restore_fixture": "pass",
+    "outside_named_repositories": true,
+    "spotlight_status": "disabled"
+  },
+  "date": "2026-09-26",
+  "experiment_id": "s1-routing-holdout-v1",
+  "schema_version": "s1-precollection-packet.v1",
+  "status": "prepared-not-authorized",
+  "validation": {
+    "empty_template_validation": "pass-structurally-ready-false",
+    "focused_tests": 58,
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "python": "3.9.6",
+    "result": "pass",
+    "suites": [
+      "test_label_batch.py",
+      "test_s0_fixture.py",
+      "test_s1_collection_validator.py"
+    ]
+  }
+}

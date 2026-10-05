@@ -33,6 +33,13 @@ purpose-specific board** for media app management (a `Media Manager` tile
 was added under Homepage's `Media Automation` group linking to it), which
 Jason is customizing by hand.
 
+For AI-PAM, the existing **Aster Companion** tile is the only supported human
+dashboard entry point. Do not add direct Homepage links to OpenBao, the local
+broker, approval socket or private MCP/Doctor gateways. Those are enforcement
+components rather than operator web applications; their health and drift are
+reported through HomeLab Doctor. NetBox remains authoritative for their host
+guests and addresses.
+
 - Homarr URL: `http://192.168.20.20:7575`
 - Homarr config/data: `/opt/homarr/appdata` (bind-mounted), compose file at
   `/opt/homarr/compose.yaml`, secrets (admin password, Beszel read-only
@@ -982,5 +989,5 @@ Protected recovery checkpoint: `/root/newtarr-persistence-20260926T212721Z`.
 The retained `local/newtarr-recovery:20260926t212721z` image and exported image
 archive include the previous container writable layer; preserve them until
 recovery coverage is graduated. See the Authentik rollout project for hashes
-and exact validation. Owner-only Authentik browser access is deployed; human
-UI acceptance and Homepage promotion remain pending.
+and exact validation. Owner-only Authentik browser access, human Settings UI
+acceptance and Homepage promotion completed on 2026-09-26.

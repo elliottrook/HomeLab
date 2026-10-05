@@ -2,6 +2,15 @@
 
 Supplement to the [architectural assessment](ASSESSMENT.md), 25 September 2026. External capability descriptions are based on current official sources. Rankings below are **ARCHITECTURAL INFERENCE / PROPOSAL**, not lab benchmark results. No candidate was installed or executed during this comparison.
 
+> **Subsequent evidence:** the isolated PydanticAI preload and tool-loop
+> comparisons, production Aster history, current serving checks and the accepted
+> S0 routing run now support a formal **retain Aster** decision. PydanticAI remains
+> a probationary specialist challenger; Hermes remains optional rather than part
+> of the stable core. See the [M3 harness ADR](evidence/M3-harness-decision.md).
+> The original external review below is retained as preregistered research context.
+
+**2026-09-28 scope update:** Jason adopted [Operational Sysadmin Capability](Operational-Sysadmin-Capability.md) within the existing programme. Its iterative incident investigation is a concrete new capability requirement, so the earlier retain-baseline decision does not prohibit a bounded specialist-loop comparison. Retain existing evidence and authority boundaries; judge any change on end-to-end incident quality, latency and maintenance, not framework overhead alone. No migration is implied.
+
 ## Recommendation
 
 Treat **Hermes as one replaceable harness**, not Aster's identity, authority or required operational brain. Retain the existing bounded Python Aster runtime as the production baseline. Evaluate **Pydantic AI's minimal typed loop first** for specialist reasoning and tool orchestration. Evaluate **LangGraph selectively** if explicit resumable branching and human pauses justify a workflow abstraction. Keep **Pi agent core** as a credible lean alternative, with the cost of a TypeScript integration boundary. No agent harness belongs in the deterministic household fast path.

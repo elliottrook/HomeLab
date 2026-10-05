@@ -1,0 +1,25 @@
+{
+  "status": "release-v1b-local-validation-passed",
+  "validated_at": "2026-09-26",
+  "focused": {
+    "command": "python3 -m unittest -v test_s0_vm_release.py test_s0_vm_candidate.py test_s0_vm_serial.py",
+    "passed": 25,
+    "failed": 0
+  },
+  "full_adaptive": {
+    "command": "/private/tmp/aster-lab-ops-venv/bin/python -m unittest discover -s scripts/aster-adaptive -p test_*.py",
+    "passed": 239,
+    "failed": 0
+  },
+  "shell_syntax": {
+    "create-stopped-vm.sh": "pass",
+    "run-once-v2b.sh": "pass"
+  },
+  "release_manifest_file_verification": "pass",
+  "release_manifest_sha256": "315e674701de2f1962d6f41442834920b5b39243a82a461853529c1be3665f74",
+  "proxmox_mutated": false,
+  "iso_created": false,
+  "vm119_created": false,
+  "v2b_executed": false,
+  "accepted_corpus_evaluated": false
+}
