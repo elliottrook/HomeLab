@@ -50,9 +50,8 @@ The worker still needs a bounded ingest wrapper, duplicate handling, metadata
 policy and backup/restore test before it can write the production library.
 
 `scripts/configure_shadow_lazy.py` configures only the shadow LazyLibrarian
-instance. It validates SABnzbd connectivity but leaves the Newznab provider
-disabled when the available Prowlarr indexers do not advertise book or
-audiobook search support.
+instance. It validates SABnzbd connectivity and enables one Prowlarr Newznab
+provider with explicit `book` mappings after a read-only search check.
 
 ## Lifecycle
 

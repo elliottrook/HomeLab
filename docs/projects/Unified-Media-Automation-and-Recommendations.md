@@ -526,6 +526,8 @@ the evidence log.
   use the existing SABnzbd service through the valid `prowlarr` category.
   SABnzbd connection testing passed with version `5.1.3`; no download was
   submitted. Both existing Prowlarr indexers advertise no Newznab book or
-  audiobook search capability, so the shadow provider remains disabled rather
-  than presenting a false-positive request path. Adding a capable provider or
-  changing Prowlarr indexers remains a separate authorization gate.
+  audiobook search capability in their advertised caps, so the first provider
+  test failed. Read-only `t=book&q=Dune` probes nevertheless returned 83 and
+  100 results through the two Prowlarr indexer endpoints. The shadow provider
+  was then enabled with explicit `book` mappings for ebook and audiobook
+  searches; SABnzbd connectivity still passed and no grab/download was made.

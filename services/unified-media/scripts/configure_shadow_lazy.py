@@ -89,9 +89,11 @@ set_value(values, "alternate_dir", "/ingest")
 
 # Use one existing Prowlarr indexer through its Newznab-compatible endpoint.
 set_value(values, "newznab_0_dispname", "Prowlarr Nzb.life")
-set_value(values, "newznab_0_enabled", None)
+set_value(values, "newznab_0_enabled", "1")
 set_value(values, "newznab_0_host", "http://192.168.20.40:9696/1/api")
 set_value(values, "newznab_0_api", PROWLARR_KEY)
+set_value(values, "newznab_0_booksearch", "book")
+set_value(values, "newznab_0_audiosearch", "book")
 
 # LazyLibrarian must not write the Calibre database directly.
 for field in ("imp_calibre_ebook", "imp_calibre_comic", "imp_calibre_magazine"):
@@ -109,4 +111,4 @@ status, result = get(
 result = re.sub(r"\s+", " ", result.replace(SAB_KEY, "REDACTED").replace(PROWLARR_KEY, "REDACTED"))
 print(f"sab_test_http={status} result={result[:180]}")
 
-print("provider_enabled=0 reason=existing Prowlarr indexers report no book/audio search capability")
+print("provider_enabled=1 search_type=book (validated through Prowlarr despite incomplete caps metadata)")
