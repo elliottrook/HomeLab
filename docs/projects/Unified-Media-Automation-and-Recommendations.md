@@ -556,3 +556,9 @@ the evidence log.
   service returned a playback session successfully; production Audiobookshelf
   state and media were not used. M1 gate passed with the source Apps retained
   and recoverable.
+- 2026-10-05: M2 read-only API discovery confirmed Lidarr `3.1.0.4875` is
+  reachable through its API-key authority and Seerr `3.5.0` is healthy. Seerr
+  request/search routes require its session cookie rather than an anonymous
+  request, so the future portal adapter must use a dedicated private Seerr
+  service identity/session. No request was created; no Lidarr mutation was
+  attempted.
