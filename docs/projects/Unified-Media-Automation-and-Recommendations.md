@@ -620,3 +620,8 @@ the evidence log.
   retain only stable IDs, titles, media type, ownership/archive state and safe
   signals; unsupported or incomplete records are discarded. Seventeen Python
   3.9 tests pass, with no live snapshot write or scheduled reader enabled.
+- 2026-10-05: A one-shot live snapshot populated the loopback portal with two
+  sanitized, unmanaged candidates: Arrival from Seerr and Kind of Blue from
+  Lidarr. The HTML and JSON views rendered successfully; the action route is
+  intentionally absent and returned `501`. The snapshot remains a read-only
+  mount, and no recurring reader or authority mutation was enabled.
