@@ -1,6 +1,6 @@
 # Bazarr subtitle automation
 
-> Status: Active — Stream A completion resumed
+> Status: Completed and archived — Stream A
 >
 > Owner: Jason
 >
@@ -123,9 +123,9 @@ mappings will preserve Sonarr's and Radarr's current container paths.
   network topology change.
 - [x] **Homepage/service discovery** — added and restarted the private Bazarr
   tile pointing to the HTTPS hostname; no credentials are in tracked YAML.
-- [ ] **Authentication/authorization** — Authentik forward-auth and Jason-only
+- [x] **Authentication/authorization** — Authentik forward-auth and Jason-only
   binding are deployed, native/direct recovery is retained, and HTTPS redirect
-  is validated; alternate-user denial still needs an operator validation.
+  is validated; a non-Jason Authentik login was denied as expected.
 - [x] **DNS, certificates and firewall** — added private split-DNS records to
   OPNsense and both Pi-holes, used wildcard certificate 8, and added only the
   NPM `192.168.50.23` → TrueNAS `192.168.20.40:6767/TCP` allowance.
@@ -147,12 +147,12 @@ mappings will preserve Sonarr's and Radarr's current container paths.
   OpenSubtitles.com and the English/forced profile; credentials remain UI-only.
 - [x] **M2 — Pilot:** process `Hijack` season 2; verify regular and forced
   subtitle tracks in Jellyfin and retain a review report.
-- [ ] **M3 — Private service integration:** complete Authentik, NPM, DNS,
+- [x] **M3 — Private service integration:** complete Authentik, NPM, DNS,
   firewall, certificate, Homepage, Doctor and monitoring gates.
 - [x] **M4 — Recovery and bounded rollout:** restore Bazarr config in isolation,
   run a bounded existing-library scan, verify no ARR mutations, and review
   forced-subtitle coverage.
-- [ ] **M5 — Graduation:** complete documentation, backup/restore, security,
+- [x] **M5 — Graduation:** complete documentation, backup/restore, security,
   two independent production-path passes and accepted limitations.
 
 ## Validation and rollback
@@ -237,3 +237,7 @@ rollout leaves no unexplained side effects or temporary credentials.
   Bazarr row is present in the live snapshot, and Aster `/health` returned 200.
 - 2026-10-05: Extended HomeLab Doctor to fail on Bazarr policy drift; live
   validation returned `container=running`, `http=200`, and `policy=ok`.
+- 2026-10-05: Jason completed the alternate-user authentication test; a
+  non-Jason Authentik login was denied by the Bazarr application as intended.
+  This closed the final authorization gate. Stream A is complete and archived
+  with the documented provider-rate-limit and forced-subtitle coverage limits.
