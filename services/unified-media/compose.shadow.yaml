@@ -44,3 +44,26 @@ services:
     ports:
       - "127.0.0.1:8284:8083"
     restart: "no"
+
+  calibre-worker:
+    profiles: ["worker"]
+    image: ghcr.io/linuxserver/calibre:9.13.0
+    container_name: unified-calibre-worker-shadow
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=${TZ:-America/Vancouver}
+      - HOME=/tmp
+      - UNIFIED_CALIBRE_LIBRARY_PATH=${UNIFIED_CALIBRE_LIBRARY_PATH:?set a disposable or explicitly approved Calibre library}
+      - UNIFIED_BOOK_INGEST_PATH=${UNIFIED_BOOK_INGEST_PATH:?set a bounded ebook ingest directory}
+      - UNIFIED_BOOK_OUTPUT_PATH=${UNIFIED_BOOK_OUTPUT_PATH:?set a bounded conversion output directory}
+    volumes:
+      # These variables are intentionally mandatory: never infer a production
+      # Calibre path for a one-shot database writer.
+      - ${UNIFIED_CALIBRE_LIBRARY_PATH:?set a disposable or explicitly approved Calibre library}:/library
+      - ${UNIFIED_BOOK_INGEST_PATH:?set a bounded ebook ingest directory}:/ingest:ro
+      - ${UNIFIED_BOOK_OUTPUT_PATH:?set a bounded conversion output directory}:/output
+      - ./calibre-worker:/worker:ro
+    entrypoint: ["/worker/run.sh"]
+    command: ["list"]
+    restart: "no"

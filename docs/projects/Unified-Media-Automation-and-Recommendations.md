@@ -515,3 +515,9 @@ the evidence log.
   disposable worker paths were removed afterward. This validates the worker
   primitive without authorizing LazyLibrarian credentials, live-library
   writes or a production ingest change.
+- 2026-10-05: M1 added a profile-only guarded Calibre worker definition under
+  `services/unified-media/calibre-worker`. Compose validation passed on
+  TrueNAS. The wrapper refused the live library with exit code 2 unless its
+  explicit override was supplied, while the disposable library listed 505
+  records and converted a test EPUB to a 10,658-byte AZW3. Temporary test
+  files were removed; no production library or ingest path was mounted.
