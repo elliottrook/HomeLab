@@ -14,7 +14,11 @@ unqualified for operational diagnosis; general local-model inability and B60
 inadequacy are not established. Next safe work is a separate offline evaluator
 candidate with synthetic development tests. Doctor recovery is a separate pending
 integration task. No deployment, push or model run is authorized by this update.
-This priority supersedes older next-action prose below.
+This priority supersedes older next-action prose below. The [fair thinking comparison](evidence/SA3-fair-thinking-comparison-2026-10-05.md)
+now specifies paired thinking-off/on evaluation with adequate answer budgets.
+An offline scorer candidate and synthetic fixture tests exist; no connected model
+comparison has run. Next is development-only request construction and verification
+of the installed server's mode controls, before a bounded connected-run decision.
 
 **Proposed:** 2026-09-25.
 

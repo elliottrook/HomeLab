@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Thinking-mode comparison and offline grading candidate
+
+Jason requested that a fair sysadmin assessment consider reasoning enabled.
+Read-only live inspection confirmed reasoning off and budget zero; installed help
+supports on/off and positive budgets. Built a separate strict offline scorer and
+synthetic tests without changing historical results or production. The
+[paired comparison plan](evidence/SA3-fair-thinking-comparison-2026-10-05.md)
+separates diagnostic quality, reasoning-mode verification, response time and later
+simulated investigation. Request-level override behavior remains unverified.
+
 ## 2026-10-05 — Evaluation validity and single-window coordination
 
 Reviewed the checked-in operational runner, scorer, preregistration and result.
