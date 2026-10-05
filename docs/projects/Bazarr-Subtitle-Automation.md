@@ -143,9 +143,9 @@ mappings will preserve Sonarr's and Radarr's current container paths.
 
 - [x] **M0 — Checkpoints and deployment:** captured live config checkpoints and
   deployed Bazarr without restarting existing containers.
-- [ ] **M1 — ARR/provider configuration:** configure Sonarr, Radarr,
+- [x] **M1 — ARR/provider configuration:** configure Sonarr, Radarr,
   OpenSubtitles.com and the English/forced profile; credentials remain UI-only.
-- [ ] **M2 — Pilot:** process `Hijack` season 2; verify regular and forced
+- [x] **M2 — Pilot:** process `Hijack` season 2; verify regular and forced
   subtitle tracks in Jellyfin and retain a review report.
 - [ ] **M3 — Private service integration:** complete Authentik, NPM, DNS,
   firewall, certificate, Homepage, Doctor and monitoring gates.
@@ -189,3 +189,15 @@ rollout leaves no unexplained side effects or temporary credentials.
   the Authentik outpost as expected.
 - 2026-10-05: Added the Homepage tile, Doctor check and backup inventory entry;
   the post-change TrueNAS config export completed with Bazarr included.
+- 2026-10-05: Completed the bounded `Hijack` S02 pilot. Sonarr and Radarr
+  SignalR connections were healthy, both shared-media path mappings were
+  applied, and the Bazarr series view reported 8 files and 0 missing subtitles
+  under `English + Forced`. Episodes 1–8 each expose regular English and
+  `EN:FORCED`; episode 2 also exposes its embedded hearing-impaired track.
+  Jellyfin retained the selectable subtitle tracks from the existing sidecars
+  and embedded episode-2 streams.
+- 2026-10-05: OpenSubtitles.com credentials were accepted and the provider was
+  enabled with AI/machine-translated results disabled. A bounded provider
+  search then received `TooManyRequests`; Bazarr honored the throttle and no
+  AI transcription fallback was introduced. The pilot required no replacement
+  downloads because all eight episodes already had the required coverage.
