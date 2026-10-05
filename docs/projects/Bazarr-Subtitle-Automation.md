@@ -201,3 +201,9 @@ rollout leaves no unexplained side effects or temporary credentials.
   search then received `TooManyRequests`; Bazarr honored the throttle and no
   AI transcription fallback was introduced. The pilot required no replacement
   downloads because all eight episodes already had the required coverage.
+- 2026-10-05: Changed the production search policy to new-media-only:
+  scheduled missing-series and missing-movie searches are disabled, subtitle
+  upgrades are disabled, monitored-only safeguards are enabled for Sonarr and
+  Radarr, and SignalR import searches remain immediate. Bazarr restarted
+  cleanly; both missing-search tasks report `Never`, while the service and
+  both ARR SignalR connections are healthy.
