@@ -611,3 +611,8 @@ the evidence log.
   combine conservatively, unsafe ownership/archive state is retained, and raw
   service payloads never enter ranking. Eleven Python 3.9 tests pass; no
   reader credentials or recurring job were enabled.
+- 2026-10-05: The read-only shadow recommendation portal was deployed on
+  TrueNAS at loopback port `8787`. Health, JSON and HTML endpoints returned
+  successfully with an empty snapshot. Its only container mount is the
+  recommendation JSON file as read-only; it has no media mount, authority
+  credential or action endpoint.

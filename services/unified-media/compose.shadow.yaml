@@ -1,4 +1,16 @@
 services:
+  recommendation-portal:
+    build: ./portal
+    container_name: unified-recommendation-portal-shadow
+    environment:
+      - PORT=8787
+      - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/portal/recommendations.json:/data/recommendations.json:ro
+    ports:
+      - "127.0.0.1:8787:8787"
+    restart: "no"
+
   lazylibrarian:
     image: lscr.io/linuxserver/lazylibrarian:latest
     container_name: unified-lazylibrarian-shadow
