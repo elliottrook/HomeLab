@@ -44,6 +44,7 @@ credentials are outside this reference.
 | Prowlarr | 2.5.2.5491 (`ls157`) | 9696 | Indexer authority and application synchronization | No media-library root | Synchronizes indexer definitions to connected ARR applications; it is upstream of search/grab, not the downloader |
 | SABnzbd | 5.1.2 | 8080 | Download queue, unpack/post-processing and handoff | No canonical library root; working data remains under the shared dataset | Downloads for the ARR applications; completion is not proof that an ARR import succeeded |
 | Jellyfin | 12.1.0 (live check 2026-09-26) | 8096 | Downstream library scan, metadata match and playback visibility | Movies, Shows and Music roots above, plus `/mnt/Media/data/archive-movies` and `/mnt/Media/data/archive-tv` | No downloader authority; observes files only after ARR import or an explicitly managed side workflow |
+| Bazarr | 1.6.2-ls366 | 6767 | Regular English and forced-English subtitle sidecar automation | Reads the shared `/mnt/Media/data` tree; writes additive subtitle sidecars | Receives Sonarr/Radarr import events; scheduled missing-subtitle and upgrade searches are disabled to protect provider quotas |
 
 The diagnostic dependency order is:
 
