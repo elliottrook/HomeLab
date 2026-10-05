@@ -640,6 +640,23 @@ check_paperless() {
     fi
 }
 
+check_bazarr() {
+    local state
+    if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 truenas '
+        container="$(docker inspect -f "{{.State.Status}}" bazarr 2>/dev/null || true)"
+        http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:6767/ 2>/dev/null || true)"
+        printf "container=%s\\nhttp=%s\\n" "$container" "$http"
+    ')"; then
+        fail "Bazarr health check could not reach TrueNAS"
+        return
+    fi
+    if grep -qx 'container=running' <<< "$state" && grep -qx 'http=200' <<< "$state"; then
+        pass "Bazarr container and direct UI are healthy"
+    else
+        fail "Bazarr container or direct UI is unhealthy"
+    fi
+}
+
 check_apt_proxy() {
     # apt-cacher-ng on LXC 100 is the only Debian package path for the
     # egress-restricted backup relay (LXC 112); if it stops, 112 silently
@@ -2038,6 +2055,7 @@ check_jellyfin_integrity
 check_video_archiver
 check_news_aggregator
 check_paperless
+check_bazarr
 check_apt_proxy
 
 category "Service Reachability"

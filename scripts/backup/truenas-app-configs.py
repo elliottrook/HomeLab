@@ -16,6 +16,7 @@ MEDIA={'.mp4','.mkv','.avi','.mov','.m4v','.mp3','.m4b','.m4a','.flac','.aac','.
 MOUNTS={
 'newtarr':{'/appdata'},'prowlarr':{'/config','/appdata'},'lidarr':{'/config','/appdata'},
 'sonarr':{'/config','/appdata'},'radarr':{'/config','/appdata'},'sabnzbd':{'/config','/appdata'},
+'bazarr':{'/config'},
 'jellyfin':{'/config'},'ix-pihole-pihole-1':{'/etc/pihole','/etc/dnsmasq.d'},
 'ix-filebrowser-filebrowser-1':{'/config','/database'},'dozzle':{'/data'},
 'ix-dockge-dockge-1':{'/app/data'},'flaresolverr':{'/config'},
@@ -168,4 +169,3 @@ if __name__=='__main__':
    (ROOT/'failure.json').write_text(json.dumps({'failed_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'error_class':type(error).__name__}))
   print('Configuration backup failed: '+type(error).__name__,file=sys.stderr)
   sys.exit(1)
-
