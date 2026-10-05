@@ -1,6 +1,6 @@
 # Bazarr subtitle automation
 
-> Status: Archived — Stream A delivered; residual graduation gates documented
+> Status: Active — Stream A completion resumed
 >
 > Owner: Jason
 >
@@ -128,7 +128,7 @@ mappings will preserve Sonarr's and Radarr's current container paths.
 - [x] **DNS, certificates and firewall** — added private split-DNS records to
   OPNsense and both Pi-holes, used wildcard certificate 8, and added only the
   NPM `192.168.50.23` → TrueNAS `192.168.20.40:6767/TCP` allowance.
-- [ ] **Automation and schedules** — verify import-triggered and periodic
+- [x] **Automation and schedules** — verify import-triggered and periodic
   scans, lock/restart behavior, and last-success observability after credentials
   and provider setup.
 - [x] **Security inventory** — Bazarr config and provider credentials remain
@@ -148,7 +148,7 @@ mappings will preserve Sonarr's and Radarr's current container paths.
   subtitle tracks in Jellyfin and retain a review report.
 - [ ] **M3 — Private service integration:** complete Authentik, NPM, DNS,
   firewall, certificate, Homepage, Doctor and monitoring gates.
-- [ ] **M4 — Recovery and bounded rollout:** restore Bazarr config in isolation,
+- [x] **M4 — Recovery and bounded rollout:** restore Bazarr config in isolation,
   run a bounded existing-library scan, verify no ARR mutations, and review
   forced-subtitle coverage.
 - [ ] **M5 — Graduation:** complete documentation, backup/restore, security,
@@ -210,3 +210,20 @@ rollout leaves no unexplained side effects or temporary credentials.
   production policy were delivered. Remaining unchecked graduation gates are
   intentionally retained as follow-up work: isolated restore validation and
   alternate-user Authentik denial testing.
+- 2026-10-05: Resumed completion. Extracted the Bazarr portion of the protected
+  TrueNAS export into a disposable directory; YAML parsed, SQLite integrity
+  returned `ok`, and the compose checkpoint was present. No live Bazarr files
+  were changed by the restore test.
+- 2026-10-05: Verified the new-media policy after restart: Bazarr returned HTTP
+  200, Sonarr and Radarr SignalR connections re-established, missing-search
+  tasks report `Never`, and one bounded Sonarr webhook for an already-complete
+  episode returned HTTP 200 without an archive search.
+- 2026-10-05: HTTPS access returned the expected Authentik 302 redirect, and
+  Authentik read-back confirmed provider 46 has exactly one enabled, non-negated
+  binding for `jason`. An alternate-user interactive denial test remains
+  unperformed because no second operator credential was available.
+- 2026-10-05: Built a clean 29-source Forgejo-based Aster candidate and staged
+  it for comparison. It was deliberately not installed because it lacked the
+  live 1,796-entry derived mirror; the candidate was removed and live Aster
+  knowledge remained unchanged. The local mirror checkout is absent, so the
+  Aster publication gate remains open rather than risking knowledge loss.
