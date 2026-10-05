@@ -255,14 +255,14 @@ removing the source Apps.
 
 ### M2 — One-click request adapters
 
-- [ ] Implement and test Seerr movie/TV requests.
-- [ ] Implement bounded Lidarr album requests using existing bridge patterns.
+- [x] Implement and test Seerr movie/TV requests.
+- [x] Implement bounded Lidarr album requests using existing bridge patterns.
 - [ ] Implement LazyLibrarian wanted-item actions.
-- [ ] Add duplicate, ambiguous-match, idempotency and failure handling.
+- [x] Add duplicate, ambiguous-match, idempotency and failure handling for the
+  tested Seerr/Lidarr paths.
 
-The adapter implementation and mocked contract tests are present, but these
-items remain open until the Seerr identity and one explicitly selected live
-candidate per authority are authorized and validated.
+The M2 gate remains open because the LazyLibrarian live candidate failed in its
+metadata importer and needs a compatible metadata source or upstream fix.
 
 Gate: Jason can approve one synthetic or explicitly selected item in each
 domain and observe the correct downstream request without direct AI authority.
@@ -576,3 +576,21 @@ the evidence log.
   Lidarr is album-only, and ambiguous LazyLibrarian matches are blocked. The
   LazyLibrarian wanted route remains configuration-owned until discovered and
   tested against the isolated shadow instance. No live write was attempted.
+- 2026-10-05: With Jason's approval and the protected checkpoint in place, the
+  isolated LazyLibrarian API was enabled temporarily. The selected Dune
+  candidate reached the OpenLibrary importer but failed on LazyLibrarian's
+  upstream tuple-binding error after creating a paused Frank Herbert record;
+  the exact test record was removed, the shadow configuration was restored,
+  and no wanted item or download remained. LazyLibrarian is blocked pending a
+  different metadata source or upstream fix.
+- 2026-10-05: The live Lidarr adapter test resolved an unambiguous Dune album
+  and created monitored album `3823` for the existing music root using the
+  Lossless/standard profiles. The album had zero tracks imported and no
+  matching history event at validation time; no duplicate record existed
+  beforehand. The tested payload shape is now encoded in the adapter.
+- 2026-10-05: A private Seerr local identity `unified-media-requester` was
+  created with permission value `32` (`REQUEST`) and no management or
+  auto-approval permissions. It created pending request `119` for Dune (TMDB
+  `438631`); Seerr returned no downstream service assignment and did not
+  auto-approve it. Its password is outside Git under the shadow secret
+  boundary with mode `0600`.

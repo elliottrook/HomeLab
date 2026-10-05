@@ -49,15 +49,33 @@ class LidarrAdapter:
     def __init__(self, transport: Transport):
         self._transport = transport
 
-    def add_album(self, candidate: Candidate, *, album_id: str, artist_id: str,
-                  approve: bool = False) -> AdapterResult:
+    def add_album(self, candidate: Candidate, *, lookup: Mapping[str, Any],
+                  root_folder_path: str, quality_profile_id: int,
+                  metadata_profile_id: int, approve: bool = False) -> AdapterResult:
         plan = plan_action(candidate, approve=approve)
         if not plan["approved"]:
             return AdapterResult(self.authority, "add_album", None, "blocked", plan)
         if candidate.media_type != "album":
             raise ValueError("Lidarr adapter requires an album candidate")
-        body = {"albumId": album_id, "artistId": artist_id, "monitored": True,
-                "addOptions": {"searchForNewAlbum": True}}
+        # Lidarr accepts the resolved album-lookup object, not an album/artist
+        # ID pair. Keep this shaping here so the portal remains the only
+        # caller of the write authority.
+        body = dict(lookup)
+        body.update({
+            "rootFolderPath": root_folder_path,
+            "qualityProfileId": quality_profile_id,
+            "metadataProfileId": metadata_profile_id,
+            "monitored": True,
+            "addOptions": {"monitor": "all", "searchForNewAlbum": True},
+        })
+        artist = dict(body.get("artist") or {})
+        artist.update({
+            "rootFolderPath": root_folder_path,
+            "qualityProfileId": quality_profile_id,
+            "metadataProfileId": metadata_profile_id,
+            "monitored": True,
+        })
+        body["artist"] = artist
         response = self._transport("POST", "/api/v1/album", body)
         return AdapterResult(self.authority, "add_album", _request_id(response), "submitted", response)
 
@@ -73,15 +91,16 @@ class LazyLibrarianAdapter:
         self._transport = transport
         self._wanted_path = wanted_path
 
-    def add_wanted(self, candidate: Candidate, *, author_id: str,
-                   approve: bool = False) -> AdapterResult:
+    def add_wanted(self, candidate: Candidate, *, approve: bool = False) -> AdapterResult:
         plan = plan_action(candidate, approve=approve)
         if not plan["approved"]:
             return AdapterResult(self.authority, "add_wanted", None, "blocked", plan)
         if candidate.media_type not in {"ebook", "audiobook"}:
             raise ValueError("LazyLibrarian requires an ebook or audiobook candidate")
-        body = {"authorId": author_id, "title": candidate.title, "mediaType": candidate.media_type}
-        response = self._transport("POST", self._wanted_path, body)
+        # LazyLibrarian's API uses a command query rather than a JSON POST;
+        # the transport adds the full-access key without exposing it here.
+        params = {"cmd": "addBook", "id": candidate.authority_id}
+        response = self._transport("GET", self._wanted_path, params)
         return AdapterResult(self.authority, "add_wanted", _request_id(response), "submitted", response)
 
 

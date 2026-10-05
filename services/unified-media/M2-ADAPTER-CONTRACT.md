@@ -13,9 +13,10 @@ calls Radarr, Sonarr, SABnzbd or download clients directly.
   resolves an unambiguous MusicBrainz/Lidarr album before a user-confirmed
   add/monitor/search action.
 - Ebooks and audiobooks: LazyLibrarian wanted-item API. The shadow pilot uses
-  a separate SABnzbd category and Calibre ingest boundary; its current web
-  search path has a parser error, so the adapter must use a tested API route
-  and retain deterministic title/author matching.
+  a separate SABnzbd category and Calibre ingest boundary. Its API route is
+  `GET /api?apikey=...&cmd=addBook&id=...`, but the selected Dune test exposed
+  an upstream OpenLibrary tuple-binding failure, so the adapter remains
+  disabled until a compatible metadata source is proven.
 
 ## Action contract
 
@@ -34,6 +35,6 @@ one explicitly selected live candidate per authority.
 
 The initial implementation is in `authority_adapters.py`. Its transport is
 injected, keeping credentials and cookies outside the planner while making
-approval behavior testable. The LazyLibrarian wanted route remains
-configuration-owned until it is confirmed against the isolated shadow
-instance; guessing a fork-specific route is not acceptable.
+approval behavior testable. The Seerr and Lidarr paths have passed one live
+bounded test each; LazyLibrarian remains an explicit blocked adapter rather
+than guessing around the importer failure.

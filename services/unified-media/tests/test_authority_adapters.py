@@ -31,16 +31,25 @@ class AuthorityAdapterTests(unittest.TestCase):
         transport = FakeTransport({"id": 77})
         adapter = LidarrAdapter(transport)
         candidate = Candidate("album", "lidarr", "mb-1", "Kind of Blue", evidence=("mbid",))
-        result = adapter.add_album(candidate, album_id="77", artist_id="9", approve=True)
+        result = adapter.add_album(
+            candidate,
+            lookup={"foreignAlbumId": "mb-1", "title": "Kind of Blue",
+                    "artist": {"foreignArtistId": "9"}},
+            root_folder_path="/media/media/music",
+            quality_profile_id=1,
+            metadata_profile_id=1,
+            approve=True,
+        )
         self.assertEqual(result.request_id, "77")
         self.assertTrue(transport.calls[0][2]["monitored"])
+        self.assertEqual(transport.calls[0][2]["addOptions"]["monitor"], "all")
 
     def test_lazy_wanted_route_blocks_ambiguous_match(self):
         transport = FakeTransport({"bookId": 5})
         adapter = LazyLibrarianAdapter(transport, "/api/wanted")
         candidate = Candidate("ebook", "lazylibrarian", "book-1", "Dune",
                               evidence=("author",), match_count=2)
-        result = adapter.add_wanted(candidate, author_id="herbert", approve=True)
+        result = adapter.add_wanted(candidate, approve=True)
         self.assertEqual(result.state, "blocked")
         self.assertEqual(transport.calls, [])
 
