@@ -645,15 +645,38 @@ check_bazarr() {
     if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 truenas '
         container="$(docker inspect -f "{{.State.Status}}" bazarr 2>/dev/null || true)"
         http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:6767/ 2>/dev/null || true)"
-        printf "container=%s\\nhttp=%s\\n" "$container" "$http"
+        policy="$(python3 - <<"PY"
+import yaml
+try:
+    data=yaml.safe_load(open("/mnt/Media/appdata/bazarr/config/config.yaml"))
+    general=data["general"]
+    sonarr=data["sonarr"]
+    radarr=data["radarr"]
+    ok=(general["wanted_search_frequency"] >= 876000 and
+        general["wanted_search_frequency_movie"] >= 876000 and
+        general["upgrade_subs"] is False and
+        sonarr["defer_search_signalr"] is False and
+        sonarr["sync_only_monitored_series"] is True and
+        sonarr["sync_only_monitored_episodes"] is True and
+        radarr["defer_search_signalr"] is False and
+        radarr["only_monitored"] is True and
+        radarr["sync_only_monitored_movies"] is True)
+    print("ok" if ok else "drift")
+except Exception:
+    print("unreadable")
+PY
+        )"
+        printf "container=%s\\nhttp=%s\\npolicy=%s\\n" "$container" "$http" "$policy"
     ')"; then
         fail "Bazarr health check could not reach TrueNAS"
         return
     fi
-    if grep -qx 'container=running' <<< "$state" && grep -qx 'http=200' <<< "$state"; then
-        pass "Bazarr container and direct UI are healthy"
+    if grep -qx 'container=running' <<< "$state" &&
+       grep -qx 'http=200' <<< "$state" &&
+       grep -qx 'policy=ok' <<< "$state"; then
+        pass "Bazarr container, direct UI and new-media-only policy are healthy"
     else
-        fail "Bazarr container or direct UI is unhealthy"
+        fail "Bazarr container, direct UI or new-media-only policy is unhealthy"
     fi
 }
 

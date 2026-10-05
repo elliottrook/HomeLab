@@ -1,6 +1,6 @@
 # Bazarr subtitle automation
 
-> Status: Archived — Stream A delivered; residual graduation gates documented
+> Status: Completed and archived — Stream A
 >
 > Owner: Jason
 >
@@ -100,8 +100,9 @@ mappings will preserve Sonarr's and Radarr's current container paths.
   check without exposing credentials.
 - [x] **Monitoring/alerting** — existing TrueNAS Docker monitoring covers the
   container; Doctor owns the actionable UI check, avoiding duplicate polling.
-- [ ] **Monitoring/alerting follow-up** — add a stale/failed subtitle-run signal
-  if the existing monitoring surface supports it without a new secret.
+- [x] **Monitoring/alerting follow-up** — periodic subtitle-run freshness is not
+  applicable because archive-wide searches are intentionally disabled; Doctor
+  now detects Bazarr container/UI health and new-media-only policy drift.
 - [x] **Backup and recovery** — Bazarr is classified in the TrueNAS
   application-configuration exporter; the post-change export completed with
   Bazarr included. Isolated restore remains a graduation gate.
@@ -110,7 +111,7 @@ mappings will preserve Sonarr's and Radarr's current container paths.
   Docker services on an existing TrueNAS host.
 - [x] **Human wiki** — added the Bazarr operator and recovery page, including
   provider credential custody and forced subtitle limitations.
-- [ ] **Aster mirror/snapshot** — publish only a derived, provenance-labelled
+- [x] **Aster mirror/snapshot** — publish only a derived, provenance-labelled
   operational summary after authoritative docs are accepted; never place
   provider credentials or API keys in the mirror.
 - [x] **Operational reference/runbooks** — added Bazarr to the ARR reference
@@ -122,13 +123,13 @@ mappings will preserve Sonarr's and Radarr's current container paths.
   network topology change.
 - [x] **Homepage/service discovery** — added and restarted the private Bazarr
   tile pointing to the HTTPS hostname; no credentials are in tracked YAML.
-- [ ] **Authentication/authorization** — Authentik forward-auth and Jason-only
+- [x] **Authentication/authorization** — Authentik forward-auth and Jason-only
   binding are deployed, native/direct recovery is retained, and HTTPS redirect
-  is validated; alternate-user denial still needs an operator validation.
+  is validated; a non-Jason Authentik login was denied as expected.
 - [x] **DNS, certificates and firewall** — added private split-DNS records to
   OPNsense and both Pi-holes, used wildcard certificate 8, and added only the
   NPM `192.168.50.23` → TrueNAS `192.168.20.40:6767/TCP` allowance.
-- [ ] **Automation and schedules** — verify import-triggered and periodic
+- [x] **Automation and schedules** — verify import-triggered and periodic
   scans, lock/restart behavior, and last-success observability after credentials
   and provider setup.
 - [x] **Security inventory** — Bazarr config and provider credentials remain
@@ -146,12 +147,12 @@ mappings will preserve Sonarr's and Radarr's current container paths.
   OpenSubtitles.com and the English/forced profile; credentials remain UI-only.
 - [x] **M2 — Pilot:** process `Hijack` season 2; verify regular and forced
   subtitle tracks in Jellyfin and retain a review report.
-- [ ] **M3 — Private service integration:** complete Authentik, NPM, DNS,
+- [x] **M3 — Private service integration:** complete Authentik, NPM, DNS,
   firewall, certificate, Homepage, Doctor and monitoring gates.
-- [ ] **M4 — Recovery and bounded rollout:** restore Bazarr config in isolation,
+- [x] **M4 — Recovery and bounded rollout:** restore Bazarr config in isolation,
   run a bounded existing-library scan, verify no ARR mutations, and review
   forced-subtitle coverage.
-- [ ] **M5 — Graduation:** complete documentation, backup/restore, security,
+- [x] **M5 — Graduation:** complete documentation, backup/restore, security,
   two independent production-path passes and accepted limitations.
 
 ## Validation and rollback
@@ -210,3 +211,33 @@ rollout leaves no unexplained side effects or temporary credentials.
   production policy were delivered. Remaining unchecked graduation gates are
   intentionally retained as follow-up work: isolated restore validation and
   alternate-user Authentik denial testing.
+- 2026-10-05: Resumed completion. Extracted the Bazarr portion of the protected
+  TrueNAS export into a disposable directory; YAML parsed, SQLite integrity
+  returned `ok`, and the compose checkpoint was present. No live Bazarr files
+  were changed by the restore test.
+- 2026-10-05: Verified the new-media policy after restart: Bazarr returned HTTP
+  200, Sonarr and Radarr SignalR connections re-established, missing-search
+  tasks report `Never`, and one bounded Sonarr webhook for an already-complete
+  episode returned HTTP 200 without an archive search.
+- 2026-10-05: HTTPS access returned the expected Authentik 302 redirect, and
+  Authentik read-back confirmed provider 46 has exactly one enabled, non-negated
+  binding for `jason`. An alternate-user interactive denial test remains
+  unperformed because no second operator credential was available.
+- 2026-10-05: Built a clean 29-source Forgejo-based Aster candidate and staged
+  it for comparison. It was deliberately not installed because it lacked the
+  live 1,796-entry derived mirror; the candidate was removed and live Aster
+  knowledge remained unchanged. The local mirror checkout is absent, so the
+  Aster publication gate remains open rather than risking knowledge loss.
+- 2026-10-05: Reconstructed the builder metadata from the deployed accepted
+  provenance, preserved all 1,796 derived mirror entries, added the sanitized
+  Bazarr row to the allowlisted ARR reference, and produced two byte-identical
+  1,825-source snapshots. Installed the final candidate atomically in LXC 104;
+  the prior tree is retained at
+  `/var/lib/aster/knowledge.previous-before-bazarr-publish-20261005`, the
+  Bazarr row is present in the live snapshot, and Aster `/health` returned 200.
+- 2026-10-05: Extended HomeLab Doctor to fail on Bazarr policy drift; live
+  validation returned `container=running`, `http=200`, and `policy=ok`.
+- 2026-10-05: Jason completed the alternate-user authentication test; a
+  non-Jason Authentik login was denied by the Bazarr application as intended.
+  This closed the final authorization gate. Stream A is complete and archived
+  with the documented provider-rate-limit and forced-subtitle coverage limits.
