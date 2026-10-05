@@ -500,3 +500,11 @@ the evidence log.
   and the container remains unhealthy. No test book was placed in the live
   ingest path. The migration therefore retains the single-writer requirement
   and needs a disposable ingest/conversion test before any cutover decision.
+- 2026-10-05: A second bounded CWA shadow test used a separate config,
+  ingest directory and a tiny disposable ebook library. CWA completed its
+  database initialization and then stalled during its recursive ownership
+  pass over the library/ingest paths; it remained health `starting` and never
+  opened its web listener. The disposable container was removed. CWA is not
+  an acceptable migration target on this TrueNAS dataset until its startup
+  ownership behavior is resolved; evaluate a separate Calibre worker/import
+  path while retaining Calibre-Web for presentation.

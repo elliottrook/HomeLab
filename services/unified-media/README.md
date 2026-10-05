@@ -39,8 +39,10 @@ directory. This explicit variable prevents an accidental empty-library scan
 and keeps the production audiobook files read-only to the shadow container.
 
 No service in the shadow stack may directly write Calibre's `metadata.db`.
-Calibre-Web Automated remains the sole planned writer after cutover, with
-LazyLibrarian delivering files to the ingest boundary.
+Calibre-Web is presentation-only. Because Calibre-Web Automated currently
+stalls in its recursive ownership pass on this TrueNAS dataset, the eventual
+single writer must be a separately evaluated Calibre import/conversion worker,
+with LazyLibrarian delivering files to the ingest boundary.
 
 ## Lifecycle
 
@@ -52,9 +54,11 @@ LazyLibrarian delivering files to the ingest boundary.
 4. Validate Audiobookshelf library scan, users, playback and API access.
 5. Validate Calibre-Web health, database loading and ebook reading using the
    disposable Calibre database copy, never the live library database.
-6. Configure LazyLibrarian only after its provider and download-client scope
+6. Evaluate a dedicated Calibre import/conversion worker against a disposable
+   library before changing the live single-writer contract.
+7. Configure LazyLibrarian only after its provider and download-client scope
    is reviewed; first run is dry-run or a bounded selected title.
-7. Cut over one service at a time and retain the source App/config until the
+8. Cut over one service at a time and retain the source App/config until the
    restore gate passes.
 
 ## Port plan
