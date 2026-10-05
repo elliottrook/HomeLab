@@ -616,3 +616,7 @@ the evidence log.
   successfully with an empty snapshot. Its only container mount is the
   recommendation JSON file as read-only; it has no media mount, authority
   credential or action endpoint.
+- 2026-10-05: M3 added pure Jellyfin, Seerr and Lidarr snapshot readers. They
+  retain only stable IDs, titles, media type, ownership/archive state and safe
+  signals; unsupported or incomplete records are discarded. Seventeen Python
+  3.9 tests pass, with no live snapshot write or scheduled reader enabled.
