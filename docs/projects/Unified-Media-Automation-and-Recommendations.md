@@ -625,3 +625,14 @@ the evidence log.
   Lidarr. The HTML and JSON views rendered successfully; the action route is
   intentionally absent and returned `501`. The snapshot remains a read-only
   mount, and no recurring reader or authority mutation was enabled.
+- 2026-10-05: With Jason's approval, the portal action path was enabled behind
+  `PORTAL_ACTIONS_ENABLED=YES` using individual mode-`0600` secret mounts. A
+  portal-approved Arrival candidate created pending Seerr request `120`;
+  repeating the same action returned request `120` from the idempotency state
+  without creating a duplicate. The portal never calls a downloader directly.
+- 2026-10-05: The portal's Lidarr revalidation initially rejected a stale
+  Kind of Blue card because Lidarr reported the album already existed; this
+  exposed and fixed an incorrect numeric-ID lookup. A fresh unmanaged Miles
+  Davis candidate then created Lidarr album `3828`, and a repeat returned
+  `3828` from idempotency state. The portal action path now passes Seerr and
+  Lidarr bounded tests with stale-candidate suppression.
