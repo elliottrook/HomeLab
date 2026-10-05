@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Per-task thinking and paired request construction
+
+Verified the live server build and matched primary source. Both enable_thinking
+and reasoning_budget_tokens can override defaults per request; loaded-template
+behavior remains untested. Built offline paired request construction with tests.
+[Evidence and operating profiles](evidence/SA3-per-request-thinking-2026-10-05.md)
+separate thinking from authority and background scheduling. Single-slot contention
+means queue priority alone cannot guarantee fast interactive inference. No model
+request, service change, private data access or production promotion occurred.
+
 ## 2026-10-05 — Thinking-mode comparison and offline grading candidate
 
 Jason requested that a fair sysadmin assessment consider reasoning enabled.

@@ -17,8 +17,10 @@ integration task. No deployment, push or model run is authorized by this update.
 This priority supersedes older next-action prose below. The [fair thinking comparison](evidence/SA3-fair-thinking-comparison-2026-10-05.md)
 now specifies paired thinking-off/on evaluation with adequate answer budgets.
 An offline scorer candidate and synthetic fixture tests exist; no connected model
-comparison has run. Next is development-only request construction and verification
-of the installed server's mode controls, before a bounded connected-run decision.
+comparison has run. Paired request construction is now tested offline; the
+[installed-version source review](evidence/SA3-per-request-thinking-2026-10-05.md)
+supports per-request overrides but loaded-template behavior is unverified. Next
+is a bounded synthetic mode-verification smoke pair under the connected-run gate.
 
 **Proposed:** 2026-09-25.
 
