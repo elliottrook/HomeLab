@@ -26,6 +26,8 @@ services:
       - AUDIOBOOKSHELF_TOKEN_PATH=/run/unified-secrets/audiobookshelf-reader-token
       - AUDIOBOOKSHELF_LIBRARY_IDS=${AUDIOBOOKSHELF_LIBRARY_IDS:-d314ea90-ce9a-4a50-8186-9159bbf4a755}
       - AUDIOBOOKSHELF_USER_ID=${AUDIOBOOKSHELF_USER_ID:-09bc1b6d-f639-4800-8023-06d9497129c5}
+      - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://lazylibrarian:5299}
+      - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
       - PORTAL_SEERR_QUERIES=${PORTAL_SEERR_QUERIES:-Arrival,Dune}
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Kind of Blue,Bitches Brew}
       - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
@@ -41,6 +43,7 @@ services:
       - ${UNIFIED_CONFIG_PATH}/secrets/radarr-api-key:/run/unified-secrets/radarr-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/jellyfin-api-key:/run/unified-secrets/jellyfin-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/audiobookshelf-reader-token:/run/unified-secrets/audiobookshelf-reader-token:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/lazylibrarian-api-key:/run/unified-secrets/lazylibrarian-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/aster-llama-recommendation-key:/run/unified-secrets/aster-llama-recommendation-key:ro
     command: ["python", "/app/refresh.py"]
     restart: unless-stopped
@@ -63,7 +66,7 @@ services:
       - LIDARR_ROOT=${LIDARR_ROOT:-/media/media/music}
       - LIDARR_QUALITY_PROFILE_ID=${LIDARR_QUALITY_PROFILE_ID:-1}
       - LIDARR_METADATA_PROFILE_ID=${LIDARR_METADATA_PROFILE_ID:-1}
-      - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://192.168.20.40:5299}
+      - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://lazylibrarian:5299}
       - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
     volumes:
       - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data:ro

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from service_collectors import (collect_arr, collect_audiobookshelf,
                                 collect_audiobookshelf_history, collect_jellyfin,
-                                collect_lidarr)
+                                collect_lazylibrarian, collect_lidarr)
 
 
 class CollectorTests(unittest.TestCase):
@@ -30,6 +30,8 @@ class CollectorTests(unittest.TestCase):
             return {"sessions": [{"libraryItemId": "a1", "title": "Dune",
                                    "startedAt": 1, "updatedAt": 2,
                                    "timeListening": 30}]}, {}
+        if url.endswith("/api"):
+            return {"books": [{"bookid": "b1", "bookname": "Dune", "status": "Wanted"}]}, {}
         return {"results": [{"id": "a1", "media": {"title": "Dune"}}]}, {}
 
     def test_arr_collector_is_read_only_and_sanitized(self):
@@ -57,6 +59,11 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual(result[0]["authority_id"], "a1")
         self.assertEqual(result[0]["time_listening"], 30)
         self.assertIn("/api/users/user1/listening-sessions", self.calls[0][0])
+
+    def test_lazylibrarian_collector_uses_read_only_list_route(self):
+        result = collect_lazylibrarian("http://lazy", str(self.key), request=self.request)
+        self.assertEqual(result[0].authority_id, "b1")
+        self.assertEqual(self.calls[0][1]["params"]["cmd"], "getAllBooks")
 
     def test_lidarr_collector_uses_v1_read_route(self):
         result = collect_lidarr("http://lidarr", str(self.key), request=self.request)

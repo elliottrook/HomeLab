@@ -16,6 +16,7 @@ from service_collectors import (
     collect_audiobookshelf,
     collect_audiobookshelf_history,
     collect_jellyfin,
+    collect_lazylibrarian,
     collect_lidarr as collect_lidarr_library,
 )
 
@@ -141,12 +142,26 @@ def collect_lidarr():
     return results
 
 
+def _prepare_candidates(candidates, limit=20):
+    """Deduplicate by title identity and fail closed on collisions."""
+    by_identity = {}
+    for candidate in candidates:
+        key = (candidate["authority"], candidate["media_type"], candidate["title"].casefold())
+        existing = by_identity.get(key)
+        if existing is None:
+            by_identity[key] = dict(candidate, match_count=1)
+        else:
+            existing["match_count"] = existing.get("match_count", 1) + 1
+    safe = [item for item in by_identity.values()
+            if item.get("match_count") == 1 and not item.get("owned") and not item.get("archived")]
+    safe.sort(key=lambda item: (-item.get("score", 0), item["media_type"],
+                               item["title"].casefold(), item["authority_id"]))
+    return safe[:max(0, limit)]
+
+
 def refresh_once():
     candidates = collect_seerr() + collect_lidarr()
-    unique = {}
-    for candidate in candidates:
-        unique.setdefault((candidate["authority"], candidate["authority_id"]), candidate)
-    output = _narrate(list(unique.values())[:20])
+    output = _narrate(_prepare_candidates(candidates))
     _refresh_library_snapshot()
     _refresh_history_snapshot()
     SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -195,6 +210,10 @@ def _refresh_library_snapshot():
                 os.environ.get("AUDIOBOOKSHELF_URL", "http://192.168.20.40:30067"),
                 os.environ["AUDIOBOOKSHELF_TOKEN_PATH"], request=request_json,
                 library_ids=library_ids))
+    if os.environ.get("LAZYLIBRARIAN_API_KEY_PATH"):
+        libraries.extend(collect_lazylibrarian(
+            os.environ.get("LAZYLIBRARIAN_URL", "http://192.168.20.40:5299"),
+            os.environ["LAZYLIBRARIAN_API_KEY_PATH"], request=request_json))
     target = Path(LIBRARY_SNAPSHOT_PATH)
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(".tmp")

@@ -124,6 +124,18 @@ def collect_audiobookshelf_history(url: str, token_path: str, user_id: str, *,
     return tuple(output)
 
 
+def collect_lazylibrarian(url: str, token_path: str, *, request: Request) -> Tuple[SnapshotItem, ...]:
+    """Read LazyLibrarian's tracked books without invoking any write command."""
+    payload, _ = request(
+        url.rstrip("/") + "/api",
+        params={"apikey": _secret(token_path), "cmd": "getAllBooks", "json": "1"},
+    )
+    books = payload.get("books", []) if isinstance(payload, Mapping) else payload
+    if not isinstance(books, list):
+        raise ValueError("LazyLibrarian library response was not a list")
+    return lazylibrarian_items({"books": books})
+
+
 def collect_optional_books(payload: Any, *, source: str) -> Tuple[SnapshotItem, ...]:
     """Normalize already-fetched book data without adding a network path."""
     if source == "calibre":

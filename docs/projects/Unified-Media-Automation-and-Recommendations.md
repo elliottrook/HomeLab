@@ -731,3 +731,12 @@ the evidence log.
   contained one `Wanted` record during the test, no `books-shadow` payload was
   created, and the snapshot, action state, database, config and temporary key
   were restored or removed afterward. Production portal actions remain off.
+- 2026-10-06: M3 portal hardening added one-button approval controls that are
+  disabled for owned, archived or ambiguous cards. Recommendation preparation
+  now filters title collisions before rendering; the live batch fell from raw
+  duplicate search results to seven unique candidates. LazyLibrarian library
+  reads use the Compose-private `lazylibrarian:5299` route and its mode-0600
+  read key; the current clean shadow database contributes zero tracked books.
+  No host listener or firewall exposure was added, and 30 unified-media tests
+  pass. M3 remains open for the remaining history/Calibre evidence and final
+  recommendation review.

@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from portal.server import (_lazylibrarian_request, action_key,
                            load_recommendations, render_html)
+from portal.refresh import _prepare_candidates
 
 
 class PortalTests(unittest.TestCase):
@@ -13,6 +14,23 @@ class PortalTests(unittest.TestCase):
         html = render_html([{"title": "<Dune>", "media_type": "movie", "explanation": "safe"}])
         self.assertIn("&lt;Dune&gt;", html)
         self.assertNotIn("<Dune>", html)
+        self.assertIn("class='request-button'", html)
+
+    def test_render_disables_owned_candidate(self):
+        html = render_html([{"title": "Dune", "media_type": "movie", "owned": True}])
+        self.assertIn("disabled>Unavailable", html)
+        self.assertNotIn("data-authority=", html)
+
+    def test_candidate_preparation_filters_title_collisions(self):
+        items = _prepare_candidates([
+            {"authority": "seerr", "media_type": "movie", "authority_id": "1",
+             "title": "Arrival", "score": 0.8},
+            {"authority": "seerr", "media_type": "movie", "authority_id": "2",
+             "title": "arrival", "score": 0.9},
+            {"authority": "seerr", "media_type": "movie", "authority_id": "3",
+             "title": "Dune", "score": 0.7},
+        ])
+        self.assertEqual([item["title"] for item in items], ["Dune"])
 
     def test_missing_snapshot_is_empty(self):
         with tempfile.TemporaryDirectory() as directory:

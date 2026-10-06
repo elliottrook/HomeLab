@@ -36,10 +36,38 @@ def render_html(items: list[dict[str, Any]]) -> str:
         title = html.escape(str(item.get("title", "Untitled")))
         media_type = html.escape(str(item.get("media_type", "unknown")))
         explanation = html.escape(str(item.get("explanation", "")))
-        cards.append(f"<article><h2>{title}</h2><p>{media_type}</p><p>{explanation}</p></article>")
+        eligible = not item.get("owned") and not item.get("archived") and item.get("match_count", 1) == 1
+        if eligible:
+            authority = html.escape(str(item.get("authority", "")), quote=True)
+            authority_id = html.escape(str(item.get("authority_id", "")), quote=True)
+            raw_title = html.escape(str(item.get("title", "")), quote=True)
+            action = (
+                f"<button type='button' class='request-button' data-authority='{authority}' "
+                f"data-authority-id='{authority_id}' data-title='{raw_title}'>Request</button>"
+            )
+        else:
+            action = "<button type='button' disabled>Unavailable</button>"
+        cards.append(f"<article><h2>{title}</h2><p>{media_type}</p><p>{explanation}</p>{action}</article>")
     body = "\n".join(cards) or "<p>No recommendations are available.</p>"
+    script = """
+<script>
+document.querySelectorAll('.request-button:not([disabled])').forEach((button) => {
+  button.addEventListener('click', async () => {
+    button.disabled = true;
+    button.textContent = 'Submitting…';
+    const response = await fetch('/api/request', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({approve: true, authority: button.dataset.authority,
+        authority_id: button.dataset.authorityId, title: button.dataset.title})
+    });
+    button.textContent = response.ok ? 'Requested' : 'Failed';
+    if (!response.ok) button.disabled = false;
+  });
+});
+</script>
+"""
     return "<!doctype html><meta charset='utf-8'><title>Unified Media</title>" \
-           "<h1>Unified Media Recommendations</h1>" + body
+           "<h1>Unified Media Recommendations</h1>" + body + script
 
 
 def action_key(item: Mapping[str, Any]) -> str:
