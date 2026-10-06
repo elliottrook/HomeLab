@@ -35,7 +35,7 @@ def main():
         source = (guard / name).read_text()
         assert not any(word in source.lower() for word in ('password', 'secret', 'api_key', 'bearer '))
     stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
-    target = Path('/mnt/Media/backup/service-reconstruction/pihole-secondary') / stamp
+    target = Path('/mnt/Recovery/configuration/service-reconstruction/pihole-secondary') / stamp
     target.mkdir(parents=True, mode=0o700)
     for directory in (target, target.parent, target.parent.parent):
         directory.chmod(0o700)

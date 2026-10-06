@@ -10,7 +10,7 @@ from contextlib import closing
 import sys,signal
 import datetime,fcntl,hashlib,json,os,pathlib,shutil,sqlite3,subprocess,tarfile,tempfile,time,urllib.request
 P=pathlib.Path
-ROOT=P('/mnt/Media/backup/configuration/truenas')
+ROOT=P('/mnt/Recovery/configuration/exports/truenas')
 SKIP={'metadata','cache','.cache','logs','log','log_archive','transcodes','thumbnails','MediaCover','Sentry','Backups','backups','SQLiteBackups','Downloads','processed_books','.cwa_conversion_tmp','streams','tmp','listsCache','gravity_backups','config_backups','migration_backup','perm-fix-backup'}
 MEDIA={'.mp4','.mkv','.avi','.mov','.m4v','.mp3','.m4b','.m4a','.flac','.aac','.ogg','.wav','.epub','.pdf','.mobi','.azw3','.cbz','.cbr','.iso'}
 MOUNTS={
@@ -21,7 +21,9 @@ MOUNTS={
 'ix-filebrowser-filebrowser-1':{'/config','/database'},'dozzle':{'/data'},
 'ix-dockge-dockge-1':{'/app/data'},'flaresolverr':{'/config'},
 'calibre':{'/config'},'calibre-web-automated':{'/config'},'seerr':{'/app/config'},'profilarr':{'/config'},
-'ix-audiobookshelf-audiobookshelf-1':{'/config','/metadata'}}
+'ix-audiobookshelf-audiobookshelf-1':{'/config','/metadata'},
+'unified-lazylibrarian-shadow':{'/config'},
+'unified-audiobookshelf-shadow':{'/config'}}
 
 def run(*args):return subprocess.check_output(args,stderr=subprocess.PIPE)
 def digest(p):
@@ -61,9 +63,9 @@ def copy_config(src,dst,dbs,excludes=()):
   else:raise RuntimeError('Configuration changed repeatedly during copy')
  dst.chmod(0o600)
 
-def backup_abs(dst):
+def backup_abs(dst, name='ix-audiobookshelf-audiobookshelf-1'):
  dst.parent.mkdir(parents=True,exist_ok=True)
- name='ix-audiobookshelf-audiobookshelf-1';tmp='/tmp/homelab-config-'+str(os.getpid())+'.sqlite'
+ tmp='/tmp/homelab-config-'+str(os.getpid())+'.sqlite'
  code=r"""process.umask(0o077); const s=require('sqlite3');const p=process.argv[1];
  const db=new s.Database('/config/absdatabase.sqlite',s.OPEN_READONLY);
  db.configure('busyTimeout',30000);
@@ -108,9 +110,9 @@ def main():
        if (source/child).exists():copy_config(source/child,target/child,dbs)
       catalogue=source/'Calibre Library/metadata.db'
       if catalogue.exists():copy_config(catalogue,target/'Calibre Library/metadata.db',dbs)
-     elif name=='ix-audiobookshelf-audiobookshelf-1' and m['Destination']=='/config':
+     elif name in {'ix-audiobookshelf-audiobookshelf-1','unified-audiobookshelf-shadow'} and m['Destination']=='/config':
       assert (source/'absdatabase.sqlite').is_file()
-      backup_abs(target/'absdatabase.sqlite');dbs.append(str(target/'absdatabase.sqlite'))
+      backup_abs(target/'absdatabase.sqlite', name);dbs.append(str(target/'absdatabase.sqlite'))
       if (source/'migrations').is_dir():copy_config(source/'migrations',target/'migrations',dbs)
      else:copy_config(source,target,dbs,{'metadata','subtitles'} if name=='jellyfin' and source.name=='data' else ())
    finally:

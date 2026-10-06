@@ -2,7 +2,7 @@
 
 Owner: Jason. Started 2026-10-03. Stream M, bounded allocation approved by Jason:
 “Nothing to keep on the sata drives. Please allocate them as recommended.”
-Status: qualified; owner-approved backup migration copy running since 2026-10-05.
+Status: mirror qualified and backup migration complete; old-source retirement pending scheduled-cycle validation.
 
 ## Purpose, scope and authority
 
@@ -48,7 +48,7 @@ and update consumers during the separately scoped migration.
 - [x] TrueNAS-managed Recovery mirror online with both exact disks.
 - [x] Four private datasets and quotas verified; bounded write/read test passes.
 - [x] Extended SMART tests pass on both disks before production data migration.
-- [ ] Migration, restore proof, backup consumers and retention: future phase.
+- [x] Backup migration, file restore proof, consumer cutover and bounded retention verified.
 
 Persist job identifiers and results here. Do not recreate an existing Recovery
 pool on resume. Query pool topology, SMART test logs and dataset properties first.
@@ -101,3 +101,9 @@ resumable copy/full-checksum worker started, PID 161223. Existing producers and
 cloud relay still use Media; no cutover yet. Exact mappings, estimated duration,
 cutover/rollback gates and progress paths are in
 [Recovery migration](../runbooks/Recovery-Migration-2026-10-05.md).
+
+2026-10-05 18:38 PDT: live backup migration completed and validated, including
+full baseline checksums, configuration file restoration, three guest/Mac pull
+jobs, family pull, Home Assistant share write, new configuration export and
+encrypted cloud verification. Old Media copies retained until a new scheduled
+cycle passes; photo backup reconciliation remains separate. See migration runbook.

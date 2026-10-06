@@ -718,3 +718,13 @@ and ZDH9JCR8, with separate quota-controlled guest/configuration/family/photo
 backup datasets. Short tests and bounded write/direct-read checks passed;
 extended SMART tests running, production migration pending. Existing pools and
 backup destinations unchanged. See docs/projects/Recovery-SATA-Mirror.md.
+
+## 2026-10-05 — Recovery backup migration
+
+Moved live guest, family and configuration backups to the qualified SATA mirror;
+verified full copied data and configuration restoration, switched producer/share/
+relay paths, and verified the latest encrypted cloud configuration archive.
+Preserved cloud prefixes and local-only exclusions. Added bounded family/config
+snapshot retention and updated monitoring; original Media copies remain for
+rollback. Configuration coverage includes the two current shadow library apps,
+using instance-specific Audiobookshelf SQLite backups.

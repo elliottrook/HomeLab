@@ -9,9 +9,9 @@
 
 | Configuration group | Recurring protection | Restore material |
 |---|---|---|
-| TrueNAS applications | Daily 05:00 TrueNAS cron task 7 | `/mnt/Media/backup/configuration/truenas/configs.tar.gz` |
+| TrueNAS applications | Daily 05:00 TrueNAS cron task 7 | `/mnt/Recovery/configuration/exports/truenas/configs.tar.gz` |
 | TrueNAS OS / managed apps / browser guards | Same daily export | Native config export including its secret seed; managed-app definitions, Docker inventory/networks, guard definitions and host SSH configuration |
-| Synology DSM and Immich | Daily 03:30 DSM `homelab-config-backup.timer`; existing 04:30 TrueNAS family-file pull | `/volume1/homes/.homelab-config-backups/configs.tar.gz`, copied to `/mnt/Media/backup/gowest/homes/.homelab-config-backups/` |
+| Synology DSM and Immich | Daily 03:30 DSM `homelab-config-backup.timer`; existing 04:30 TrueNAS family-file pull | `/volume1/homes/.homelab-config-backups/configs.tar.gz`, copied to `/mnt/Recovery/family/gowest/homes/.homelab-config-backups/` |
 | Proxmox-hosted apps | Existing all-guest nightly 02:30 archives; TrueNAS pull at 04:00 | Guests 100–109, 111–117 in the normal pull; 110 retains its separate 04:20 same-site task |
 | OPNsense, Arista, Proxmox host, NUT, monitoring | Existing Sunday 06:00 Mac job; TrueNAS daily 04:15 pull | `~/lab/private-backups/<service>/` |
 | Media automation configuration | Same weekly job plus TrueNAS daily tool export | Video archiver, Jellyfin integrity reference manifests and `/mnt/Media/data/tools` |
@@ -160,3 +160,14 @@ source, after validating retained recovery copies and source/pull health. The
 07:00 encrypted relay propagates that retained set. Legacy LXC 110 and Paperless
 cloud exclusions remain unchanged. See the [cleanup record](Backup-Cleanup-Proposal-2026-10-03.md)
 for scope, guard limits, validation, monitoring and suspension instructions.
+
+## Recovery mirror cutover — 2026-10-05
+
+Live backup destinations moved to Recovery/guests, Recovery/family and
+Recovery/configuration after full baseline checksum verification. The cloud
+relay reads three restricted read-only NFS exports; cloud prefixes and exclusions
+remain unchanged. Home Assistant's existing SMB share name is preserved and its
+mount was reconnected and write-tested. Guest archive retention remains guarded;
+family/configuration snapshots use 14 daily, 4 weekly and 3 monthly points.
+Old Media copies and history remain for rollback; their snapshot schedules are
+disabled. See [migration record](Recovery-Migration-2026-10-05.md).

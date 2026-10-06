@@ -12,7 +12,7 @@ import re
 import subprocess
 import time
 
-ROOT = Path('/mnt/Media/backup/homelab-proxmox-guests')
+ROOT = Path('/mnt/Recovery/guests/homelab-proxmox-guests')
 STATE = Path('/mnt/Media/backup-ops/guest-retention-state.json')
 ALLOWED = set(range(100, 118)) - {110}
 PATTERN = re.compile(r'vzdump-(?:lxc|qemu)-(\d+)-(\d{4}_\d\d_\d\d-\d\d_\d\d_\d\d)\.(?:tar|vma)\.zst')

@@ -222,7 +222,7 @@ check_backup_redesign_truenas() {
     )" ||
        ! snapshot_epoch="$(
         ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
-            'zfs list -t snapshot -r Media/backup -o name,creation -s creation -H -p 2>/dev/null | grep "@backup-daily-" | tail -1 | awk "{print \$2}"'
+            'zfs list -t snapshot -r Recovery/family Recovery/configuration -o name,creation -s creation -H -p 2>/dev/null | grep "@backup-daily-" | tail -1 | awk "{print \$2}"'
     )"; then
         warn "Unable to check backup-redesign TrueNAS legs (rsync freshness, snapshots)"
         return
@@ -245,7 +245,7 @@ required_extra = {
 }
 matches = [
     task for task in tasks
-    if task.get('path') == '/mnt/Media/backup/aster-lxc110'
+    if task.get('path') == '/mnt/Recovery/guests/aster-lxc110'
     and task.get('enabled') is True
     and task.get('delete') is True
     and task.get('direction') == 'PULL'
@@ -321,7 +321,7 @@ print(finished // 1000 if finished else '')
     fi
 
     if [[ ! "$snapshot_epoch" =~ ^[0-9]+$ ]]; then
-        failures+=("no daily snapshot found on Media/backup")
+        failures+=("no daily snapshot found on Recovery")
     else
         local snapshot_age_hours
         snapshot_age_hours=$(( (now_epoch - snapshot_epoch) / 3600 ))
@@ -346,7 +346,7 @@ check_home_assistant_backup_truenas() {
 
     if ! latest_epoch="$(
         ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
-            "find /mnt/Media/backup/home-assistant -maxdepth 1 -type f -name '*.tar' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
+            "find /mnt/Recovery/configuration/home-assistant -maxdepth 1 -type f -name '*.tar' -printf '%T@\\n' 2>/dev/null | sort -nr | head -n 1"
     )"; then
         warn "Unable to check Home Assistant backup leg on TrueNAS"
         return
@@ -428,7 +428,7 @@ check_truenas_guest_mirror_age() {
     local vmid="$2"
     local maximum_hours="${3:-30}"
     local guest_type="${4:-qemu}"
-    local mirror_directory="${5:-/mnt/Media/backup/homelab-proxmox-guests}"
+    local mirror_directory="${5:-/mnt/Recovery/guests/homelab-proxmox-guests}"
     local archive_pattern
     local latest_epoch
 
@@ -2106,12 +2106,12 @@ check_proxmox_guest_backup_age "Home Assistant VM 103" 103 30
 check_proxmox_guest_backup_age "Aster Agent LXC 104" 104 30 lxc
 check_proxmox_guest_backup_age "Legacy Ollama VM 105" 105 30
 check_proxmox_guest_backup_age "Aster llama.cpp LXC 110" 110 30 lxc
-check_truenas_guest_mirror_age "Aster llama.cpp LXC 110" 110 30 lxc /mnt/Media/backup/aster-lxc110
+check_truenas_guest_mirror_age "Aster llama.cpp LXC 110" 110 30 lxc /mnt/Recovery/guests/aster-lxc110
 check_proxmox_guest_backup_age "Observability LXC 109" 109 30 lxc
 check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_proxmox_guest_backup_age "Aster Wiki LXC 113" 113 30 lxc
 check_proxmox_guest_backup_age "Aster Speech LXC 116" 116 30 lxc
-check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Media/backup/homelab-proxmox-guests
+check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Recovery/guests/homelab-proxmox-guests
 check_idrive_relay
 if config_backup_result="$(python3 "$REPO/scripts/check-configuration-backups.py")"; then
     pass "$config_backup_result"
