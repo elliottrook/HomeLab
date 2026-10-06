@@ -69,6 +69,24 @@ class HoldoutReleaseTests(unittest.TestCase):
         }
         self.assertEqual(validate_release(template), [])
 
+    def test_rejects_top_level_content_even_with_valid_digest(self):
+        value = sealed_release()
+        value['prompts'] = ['synthetic content that must not be published']
+        value['release_digest'] = canonical_digest(value)
+        self.assertIn('unexpected top-level fields; content is forbidden', validate_release(value))
+
+    def test_malformed_types_fail_closed_without_crashing(self):
+        self.assertEqual(validate_release([]), ['release must be an object'])
+        value = sealed_release()
+        value['roles']['custodian_session'] = []
+        value['cases'][0]['id'] = []
+        value['cases'][0]['case_hash'] = 123
+        value['release_digest'] = 456
+        errors = validate_release(value)
+        self.assertIn('every case requires an id', errors)
+        self.assertIn('sealed release requires all custody sessions', errors)
+        self.assertIn('sealed release requires a SHA-256 release_digest', errors)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,13 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Publication verified; fresh evaluation plan prepared
+
+Jason-approved push put `edb7cca` on Forgejo main; direct read-only GitHub ref
+verification confirmed the mirror. Prepared the bounded 20-fictional-case
+[one-window custody/review plan](evidence/SA3-fresh-evaluation-preparation-2026-10-05.md),
+without authoring cases or running models. Tightened manifest top-level/type rejection;
+all 52 evaluation tests pass. Preparation is local; corpus approval remains next.
+
 ## 2026-10-05 — Local publication reconciliation
 
 Merged fetched Forgejo main `ec6ebd2` locally, preserving both histories and newer
