@@ -1,5 +1,23 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Fresh cases sealed; paired-run approval pending
+
+Jason approved authoring/review, carried out by separate supporting roles in
+this window. Twenty fictional cases were revised and accepted before any model
+run. The evaluator has not read keys. Content-free receipts, source pins,
+release manifest and full runtime artifact identity are retained in Git;
+private cases/keys remain outside it. This is procedural separation, not an
+external human audit. Time Machine exclusion is not established.
+
+The durable runner passes all 61 evaluation tests; the sealed package passes
+offline validation. Eighty possible prompt paths fit within 1991 bytes of
+message text (not measured template tokens). Current runtime PID differs from
+the earlier trials; cause is unknown, with observed build/settings unchanged.
+The [readiness record](evidence/SA3-fresh-evaluation-readiness-2026-10-05.md)
+defines the exact next approval: 40 investigations, maximum 120 calls and
+200 minutes inference on the shared local model, no real tools or repairs.
+No fresh model call, deployment, source tuning or push occurred in preparation.
+
 ## 2026-10-05 — Publication verified; fresh evaluation plan prepared
 
 Jason-approved push put `edb7cca` on Forgejo main; direct read-only GitHub ref

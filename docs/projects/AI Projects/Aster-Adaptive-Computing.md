@@ -37,9 +37,14 @@ closes budget tuning without promotion. Remote history through `ec6ebd2` is
 twelve previously reviewed development records with explicitly pending newer
 contract fields. Jason approved publication; Forgejo main and GitHub mirror both
 verified `edb7cca`. A [one-window fresh evaluation preparation plan](evidence/SA3-fresh-evaluation-preparation-2026-10-05.md)
-is ready for its required fictional-corpus authoring/review approval. It uses
-separate supporting roles here, not additional user windows; no new cases or model
-requests have been created/run under that plan. Continue
+was approved and completed: twenty fictional cases were authored, revised,
+reviewed and sealed through supporting roles in this window. Answers remain
+withheld from the evaluator/model. All 61 evaluation tests and the actual package
+dry run pass. The [fresh evaluation readiness record](evidence/SA3-fresh-evaluation-readiness-2026-10-05.md)
+freezes source/model identity and the next connected-run gate: 40 paired
+investigations, maximum 120 calls and 200 minutes of inference. No fresh model
+request has run; this bounded shared-service window requires separate approval.
+Continue
 Stream A local work without milestone-by-milestone confirmation, pause only at
 required gates and resume when granted. Production defaults remain unchanged.
 

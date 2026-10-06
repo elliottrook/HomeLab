@@ -1,0 +1,155 @@
+{
+  "cases": [
+    {
+      "case_hash": "d41a58f942be895bae494f35fb6216d61068235d147f2a3bcdee6dee6ded8e8c",
+      "family": "service/configuration/dependency",
+      "id": "P95",
+      "label_hash": "e5644c4f34f74f34a25d00153ec90726d58be73a7a98844e386a0b2a5506fbf4",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "843bb864056f2af1a62d702c3fc4ca57ba39019b348c30141ccf0f097692c7f4",
+      "family": "insufficient/contradictory evidence",
+      "id": "G35",
+      "label_hash": "cee47cb6a1a920e1b67b90669a687ca5c93d7c43e4b8b36368c6b0a7669b4a5d",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "395485678b1d1c5d899b145dc296e9aaa6cb847bd5f817b6cd59f2dd46857a35",
+      "family": "DNS/reachability/identity",
+      "id": "H06",
+      "label_hash": "9999a2d297cff6e35c64f3b9396a504f1d1d5678d48b1adfaed77f7944e96c8f",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "711f7cd68b0480fd1d1b7bca3a418ac116dde27da2ebf7faf2e4bf48fa6bfe94",
+      "family": "backup/storage",
+      "id": "W12",
+      "label_hash": "3f5d49652124382f862be5f443dfc3e7e4c737fda5a54c0328c2b5847814f9e7",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "5f1aabcf0ab10b9ea3fb34a641036db4dbf5875f9f80b059a123375f06230940",
+      "family": "service/configuration/dependency",
+      "id": "M19",
+      "label_hash": "2b6391cdd5a9f97c85f7d87b3166ed01edf316dde553fcc07fdf028a13fcc88d",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "b747c306bcfeb896a6ae3cfce65d7921384e69f557f2972f15d7e6cefdbffb80",
+      "family": "DNS/reachability/identity",
+      "id": "D71",
+      "label_hash": "e9185f899102d3dad4ff5e299953b0f5f9ff968aaa5445833647b179842513fe",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "8e5259a930e1e260a0f0dd3ba09908e55517243aef147912442234b5c9f1b0ce",
+      "family": "insufficient/contradictory evidence",
+      "id": "U92",
+      "label_hash": "87101147fb35a2227bfdb2056e7335f1e186970ff2044c4406a049d2c66c3209",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "3c2df96483f8999e2d3951e0081534187045a1dab7b5252b6d9580b831aacb74",
+      "family": "backup/storage",
+      "id": "A51",
+      "label_hash": "0a03fdb15efa6e36583c8c53c26a40c9dbf343d1f023ea0052ff7f3f1971a48a",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "0a201c09aa9fdee4883d11e795d01c4a23ea2bd16db4011b2b9b255c7e7ae519",
+      "family": "API/auth compatibility",
+      "id": "N23",
+      "label_hash": "a060af969d40135d159a547297eaee5aaa7a7bce49da9b27687df8d0dbf25106",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "06215198407236ddc46308578194b01603ad2d76edd393e5db23f632e8083024",
+      "family": "service/configuration/dependency",
+      "id": "K47",
+      "label_hash": "35bcb362f8d8d062fdf082eb495e40a97f304233718b911b395d2e19623d884c",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "76921cbfc0064224d904107199e35a6ac4c04cc41fbb56ad2625fdab527cff2b",
+      "family": "insufficient/contradictory evidence",
+      "id": "E67",
+      "label_hash": "7da4c94426929ace8479be486fc7e82a128669891a85275a42afbf3d69ec4f53",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "3560fd4d709110863a061c169dfee90ac638e3d5b753af334996dd859699dc05",
+      "family": "DNS/reachability/identity",
+      "id": "T34",
+      "label_hash": "c824d68f09263118c2a85a3f90da6047fb75fdf5b157ecc299f4b4ce742c65bf",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "6a37808a90abf33c7e1ce3ec6fbafa64ffc651d1d6ddaee033f86a1124699620",
+      "family": "insufficient/contradictory evidence",
+      "id": "L03",
+      "label_hash": "bfd8f25fecdb6331524502f05575f2ceabaa0a28983879895bb129ddbc07cbd2",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "ead37f84d0d11b20fe952bef9781a232983c7ced2e680c2c625865704023d109",
+      "family": "service/configuration/dependency",
+      "id": "B28",
+      "label_hash": "b31868f9fe3c002a46114b0742a478bf1a2bedfc56b769780c1e8f7255070e29",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "e4fa5fc4ab9a19041c391803d7523cce2e6e6c18be8f06b625d9abfef3bf477b",
+      "family": "API/auth compatibility",
+      "id": "F88",
+      "label_hash": "744a39ade7be08e562f49a4199c365abd55459c09c02377ba12ab67711b19305",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "7818aa18e6d678f73d4c65ce88e8f8ce0e1d67dd8204f0d1b53f3f70cac860c7",
+      "family": "service/configuration/dependency",
+      "id": "R82",
+      "label_hash": "20452ba09258be5840671a6507eb33c8022cbdac472cde130e311b046c7bc80f",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "ac6b04a71b594f2e7ee054e33a1091070477153338d40cc702d2637f9ba30937",
+      "family": "service/configuration/dependency",
+      "id": "V63",
+      "label_hash": "e652bae24898bd691d2993e97e5e515daf0f6a7887342e181eec6ce607f2bbbb",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "de5acdad59fca54ebb15167b74df8e747f6645bf0cb0ea699fb99909d02da54c",
+      "family": "backup/storage",
+      "id": "S76",
+      "label_hash": "87354765efc6e69bedf39675f18163fc4d0b71009644d60168558e0bc2caec99",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "f340b3ddae509b1be55bce0733ce81a7ba4a3eec330afbe629d1e1bbab9ed660",
+      "family": "DNS/reachability/identity",
+      "id": "C58",
+      "label_hash": "ca2fd1de5b053ead655e7bcca3589059df24307fb5d2352726f545ef16a4e06a",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    },
+    {
+      "case_hash": "2eb0ba3277cb1f753cac24702e33ed565ec1238a862b5391dc6eae8f2a87c12c",
+      "family": "API/auth compatibility",
+      "id": "J40",
+      "label_hash": "8b58d288876fd2d575e59fc4778999621a524606aa254cd3ea598d33fc37e257",
+      "review_receipt_hash": "4f420d78d262fafcfe21e63dbd985c291bdc9edcf876df1706e63994d588ceeb"
+    }
+  ],
+  "release_digest": "211f0bf6a83b0c9f148da5a6497a9bd0e993b5b392b149a85866007d0a0f30c6",
+  "release_id": "sa3-fresh-20261005",
+  "roles": {
+    "custodian_session": "/root/fresh_custodian",
+    "evaluation_session": "/root",
+    "review_session": "/root/fresh_reviewer",
+    "scoring_session": "/root/fresh_scorer"
+  },
+  "schema_version": 1,
+  "status": "sealed",
+  "target_cases": 20
+}

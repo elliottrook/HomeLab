@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "release_digest": "211f0bf6a83b0c9f148da5a6497a9bd0e993b5b392b149a85866007d0a0f30c6",
+  "hash_method": "SHA-256 of file bytes",
+  "files": {
+    "services/aster-agent/evals/sa3_fresh_execute.py": "94ab61a1f24943ce85ee4db280d469542754c19934c423878dc948fa8f0f0afb",
+    "services/aster-agent/evals/sa3_fresh_package.py": "3b8f799bdd3fa4ca7b536471c4b44fd7c5adf77c022ddb2d37ec2f5cde658927",
+    "services/aster-agent/evals/sa3_fair_request.py": "048573965c474a21f03baf4ce76d2e75c8e78b61f3086db943b78d612209c9ea",
+    "services/aster-agent/evals/sa3_investigation.py": "e50c664428bfb5613d08366e0044d6288e8c7b0e9c79e58edb861e1d8e1c2026",
+    "services/aster-agent/evals/sa3_investigation_runner.py": "82e63b179924f5cd59691814d0ee33cbd87814ed574319f80fc0191065bf40d7",
+    "services/aster-agent/evals/validate_sa3_holdout_release.py": "64b5344243bf99e11c81bd058f23ee0cf63f1a17de133e8326fcde44a97840c7"
+  }
+}

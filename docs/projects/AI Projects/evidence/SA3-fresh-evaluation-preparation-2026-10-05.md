@@ -1,6 +1,9 @@
 # Fresh evaluation preparation — one-window workflow
 
-Status: preparation plan ready; fresh case creation and model execution not started.
+Status: Jason approved preparation; authoring, review, sealing and offline
+validation are complete. Model execution has not started. The
+[readiness record](SA3-fresh-evaluation-readiness-2026-10-05.md) controls the next
+gate; the original proposal below remains provenance.
 
 ## Purpose
 

@@ -1,0 +1,160 @@
+{
+  "accepted": true,
+  "answer_key_count": 20,
+  "canonical_json_sha256": {
+    "cases.json": "1678140559e2ee7017eb26abe1baca10c90331c9223c006735142caf483e4ed0",
+    "keys.json": "f6d5941945b3034b9b3004c729932b5985420cfa6094d2f7b52a3d59534b614e"
+  },
+  "canonicalization": "json.dumps(sort_keys=True,separators=(',',':')) with default ensure_ascii=True; UTF-8, excluding file newline",
+  "case_count": 20,
+  "case_results": [
+    {
+      "accepted": true,
+      "id": "P95",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "G35",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "H06",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "W12",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "M19",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "D71",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "U92",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "A51",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "N23",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "K47",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "E67",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "T34",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "L03",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "B28",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "F88",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "R82",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "V63",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "S76",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "C58",
+      "issues": [],
+      "rejected": false
+    },
+    {
+      "accepted": true,
+      "id": "J40",
+      "issues": [],
+      "rejected": false
+    }
+  ],
+  "content_free_issues": [],
+  "family_counts": {
+    "API/auth compatibility": 3,
+    "DNS/reachability/identity": 4,
+    "backup/storage": 3,
+    "insufficient/contradictory evidence": 4,
+    "service/configuration/dependency": 6
+  },
+  "limitations": [
+    "Procedural separation on the same platform and shared filesystem; not independent human validation or cryptographic access isolation.",
+    "Synthetic fixture acceptance does not establish operational safety or external validity.",
+    "No model calls, infrastructure access, Git edits, remote actions, or additional agents."
+  ],
+  "must_abstain_count": 4,
+  "pre_output_review_method": "Manually reviewed all twenty fresh fictional case/evidence/key pairings before any model outputs. Examined privacy, causal separation from supplied exemplar descriptions, causal sufficiency and competing explanations, freshness and chronology, clarification fairness, budgets, verification grounding, semantic equivalence, all-turn unsupported claims, terminal label contract, and effects/success prohibitions. Requested author revisions and re-reviewed changes; programmatically verified exact case and observation schemas, ID mappings, counts, limits, terminal decisions, and file permissions. Inspected only the scoped fresh-artifact directory; did not inspect repository, prior corpora, implementations or model outputs.",
+  "resolved_issue_categories": [
+    "ordering leakage",
+    "causal separation",
+    "clarification fairness",
+    "intermediate evidence grading",
+    "verification grounding",
+    "terminal contract clarity",
+    "freshness rubric consistency",
+    "visible completion protocol"
+  ],
+  "role": "separate pre-output procedural reviewer",
+  "role_id": "/root/fresh_reviewer",
+  "schema_version": 1
+}
