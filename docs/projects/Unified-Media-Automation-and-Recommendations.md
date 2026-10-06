@@ -257,12 +257,15 @@ removing the source Apps.
 
 - [x] Implement and test Seerr movie/TV requests.
 - [x] Implement bounded Lidarr album requests using existing bridge patterns.
-- [ ] Implement LazyLibrarian wanted-item actions.
+- [x] Implement and shadow-test LazyLibrarian add-and-queue wanted-item actions.
 - [x] Add duplicate, ambiguous-match, idempotency and failure handling for the
   tested Seerr/Lidarr paths.
 
-The M2 gate remains open because the LazyLibrarian live candidate failed in its
-metadata importer and needs a compatible metadata source or upstream fix.
+The M2 gate remains open until the portal is wired to the two-step
+LazyLibrarian add-and-queue action and its idempotency/revalidation behavior is
+tested through the approval surface. The isolated shadow API path now passes
+the metadata import and wanted-state transition without downloading a test
+payload.
 
 Gate: Jason can approve one synthetic or explicitly selected item in each
 domain and observe the correct downstream request without direct AI authority.

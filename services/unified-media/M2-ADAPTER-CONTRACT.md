@@ -14,9 +14,10 @@ calls Radarr, Sonarr, SABnzbd or download clients directly.
   add/monitor/search action.
 - Ebooks and audiobooks: LazyLibrarian wanted-item API. The shadow pilot uses
   a separate SABnzbd category and Calibre ingest boundary. Its API route is
-  `GET /api?apikey=...&cmd=addBook&id=...`, but the selected Dune test exposed
-  an upstream OpenLibrary tuple-binding failure, so the adapter remains
-  disabled until a compatible metadata source is proven.
+  `GET /api?apikey=...&cmd=addBook&id=...` followed by
+  `GET /api?apikey=...&cmd=queueBook&id=...&type=eBook|AudioBook`. The shadow
+  Dune test now passes both calls; the adapter remains disabled in production
+  until a portal-integrated action test is approved.
 
 ## Action contract
 
@@ -35,6 +36,5 @@ one explicitly selected live candidate per authority.
 
 The initial implementation is in `authority_adapters.py`. Its transport is
 injected, keeping credentials and cookies outside the planner while making
-approval behavior testable. The Seerr and Lidarr paths have passed one live
-bounded test each; LazyLibrarian remains an explicit blocked adapter rather
-than guessing around the importer failure.
+approval behavior testable. The Seerr, Lidarr and shadow LazyLibrarian paths
+have bounded tests; production portal wiring remains a separate gate.

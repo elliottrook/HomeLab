@@ -46,12 +46,24 @@ class AuthorityAdapterTests(unittest.TestCase):
 
     def test_lazy_wanted_route_blocks_ambiguous_match(self):
         transport = FakeTransport({"bookId": 5})
-        adapter = LazyLibrarianAdapter(transport, "/api/wanted")
+        adapter = LazyLibrarianAdapter(transport)
         candidate = Candidate("ebook", "lazylibrarian", "book-1", "Dune",
                               evidence=("author",), match_count=2)
         result = adapter.add_wanted(candidate, approve=True)
         self.assertEqual(result.state, "blocked")
         self.assertEqual(transport.calls, [])
+
+    def test_lazy_wanted_adds_then_queues_ebook(self):
+        transport = FakeTransport(True)
+        adapter = LazyLibrarianAdapter(transport)
+        candidate = Candidate("ebook", "lazylibrarian", "book-1", "Dune",
+                              evidence=("author",), match_count=1)
+        result = adapter.add_wanted(candidate, approve=True)
+        self.assertEqual(result.state, "submitted")
+        self.assertEqual(transport.calls, [
+            ("GET", "/api", {"cmd": "addBook", "id": "book-1"}),
+            ("GET", "/api", {"cmd": "queueBook", "id": "book-1", "type": "eBook"}),
+        ])
 
 
 if __name__ == "__main__":

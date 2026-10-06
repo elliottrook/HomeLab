@@ -7,7 +7,7 @@ from typing import Any, Callable, Mapping, Optional
 
 from request_contract import Candidate, plan_action
 
-Transport = Callable[[str, str, Optional[Mapping[str, Any]]], Mapping[str, Any]]
+Transport = Callable[[str, str, Optional[Mapping[str, Any]]], Any]
 
 
 @dataclass(frozen=True)
@@ -81,11 +81,11 @@ class LidarrAdapter:
 
 
 class LazyLibrarianAdapter:
-    """Configured wanted-item boundary for ebook/audiobook requests."""
+    """Add and queue an ebook/audiobook through LazyLibrarian's API."""
 
     authority = "lazylibrarian"
 
-    def __init__(self, transport: Transport, wanted_path: str):
+    def __init__(self, transport: Transport, wanted_path: str = "/api"):
         if not wanted_path.startswith("/"):
             raise ValueError("wanted_path must be an absolute API path")
         self._transport = transport
@@ -97,16 +97,40 @@ class LazyLibrarianAdapter:
             return AdapterResult(self.authority, "add_wanted", None, "blocked", plan)
         if candidate.media_type not in {"ebook", "audiobook"}:
             raise ValueError("LazyLibrarian requires an ebook or audiobook candidate")
-        # LazyLibrarian's API uses a command query rather than a JSON POST;
+        # LazyLibrarian's API uses command queries rather than JSON POSTs;
         # the transport adds the full-access key without exposing it here.
-        params = {"cmd": "addBook", "id": candidate.authority_id}
-        response = self._transport("GET", self._wanted_path, params)
-        return AdapterResult(self.authority, "add_wanted", _request_id(response), "submitted", response)
+        add_response = self._transport(
+            "GET", self._wanted_path,
+            {"cmd": "addBook", "id": candidate.authority_id})
+        if not _successful(add_response):
+            return AdapterResult(self.authority, "add_wanted", None, "failed", add_response)
+
+        queue_response = self._transport(
+            "GET", self._wanted_path,
+            {"cmd": "queueBook", "id": candidate.authority_id,
+             "type": "AudioBook" if candidate.media_type == "audiobook" else "eBook"})
+        if not _successful(queue_response):
+            return AdapterResult(self.authority, "add_wanted", None, "failed", {
+                "add": add_response, "queue": queue_response})
+        return AdapterResult(self.authority, "add_wanted",
+                             _request_id(queue_response) or _request_id(add_response),
+                             "submitted", {"add": add_response, "queue": queue_response})
 
 
 def _request_id(response: Mapping[str, Any]) -> str | None:
+    if not isinstance(response, Mapping):
+        return None
     for key in ("id", "requestId", "albumId", "bookId", "itemId"):
         value = response.get(key)
         if value is not None:
             return str(value)
     return None
+
+
+def _successful(response: Any) -> bool:
+    """Treat explicit API errors as failures while accepting LazyLibrarian's true/OK responses."""
+    if isinstance(response, Mapping):
+        if response.get("Success") is False or response.get("Error"):
+            return False
+        return True
+    return response is True or response == "OK"
