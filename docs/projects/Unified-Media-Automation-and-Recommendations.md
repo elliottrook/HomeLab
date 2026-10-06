@@ -655,3 +655,12 @@ the evidence log.
   candidates per batch, and deterministic explanations remain the fallback.
   The authenticated live call and portal readback passed; no acquisition
   authority was added.
+- 2026-10-05: With Jason's approval, the portal private access layer was
+  provisioned as `https://recommendations.elliottrook.com`: one owner-bound
+  Authentik forward-auth application, NPM host `34` using wildcard TLS, one
+  NPM-to-TrueNAS `8787/TCP` firewall rule, private DNS on OPNsense and both
+  Pi-hole authorities, and a Homepage tile. TrueNAS keeps both loopback and
+  host bindings; its Docker-user firewall permits only NPM to the host-facing
+  listener. Unauthenticated HTTPS redirects to Authentik, NPM reaches the
+  portal health endpoint, non-NPM backend access is denied, and the loopback
+  recovery URL remains healthy.
