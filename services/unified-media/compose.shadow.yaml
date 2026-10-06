@@ -10,6 +10,7 @@ services:
       - PORTAL_REFRESH_INTERVAL_SECONDS=${PORTAL_REFRESH_INTERVAL_SECONDS:-21600}
       - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
       - PORTAL_LIBRARY_SNAPSHOT_PATH=/data/library.json
+      - PORTAL_HISTORY_SNAPSHOT_PATH=/data/history.json
       - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
       - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
       - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
@@ -21,6 +22,10 @@ services:
       - RADARR_API_KEY_PATH=/run/unified-secrets/radarr-api-key
       - JELLYFIN_URL=${JELLYFIN_URL:-http://192.168.20.40:8096}
       - JELLYFIN_API_KEY_PATH=/run/unified-secrets/jellyfin-api-key
+      - AUDIOBOOKSHELF_URL=${AUDIOBOOKSHELF_URL:-http://192.168.20.40:30067}
+      - AUDIOBOOKSHELF_TOKEN_PATH=/run/unified-secrets/audiobookshelf-reader-token
+      - AUDIOBOOKSHELF_LIBRARY_IDS=${AUDIOBOOKSHELF_LIBRARY_IDS:-d314ea90-ce9a-4a50-8186-9159bbf4a755}
+      - AUDIOBOOKSHELF_USER_ID=${AUDIOBOOKSHELF_USER_ID:-09bc1b6d-f639-4800-8023-06d9497129c5}
       - PORTAL_SEERR_QUERIES=${PORTAL_SEERR_QUERIES:-Arrival,Dune}
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Kind of Blue,Bitches Brew}
       - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
@@ -35,6 +40,7 @@ services:
       - ${UNIFIED_CONFIG_PATH}/secrets/sonarr-api-key:/run/unified-secrets/sonarr-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/radarr-api-key:/run/unified-secrets/radarr-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/jellyfin-api-key:/run/unified-secrets/jellyfin-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/audiobookshelf-reader-token:/run/unified-secrets/audiobookshelf-reader-token:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/aster-llama-recommendation-key:/run/unified-secrets/aster-llama-recommendation-key:ro
     command: ["python", "/app/refresh.py"]
     restart: unless-stopped
@@ -68,14 +74,16 @@ services:
     restart: "no"
 
   lazylibrarian:
-    image: lscr.io/linuxserver/lazylibrarian:latest
+    image: lscr.io/linuxserver/lazylibrarian:streama-new
     container_name: unified-lazylibrarian-shadow
     environment:
       - PUID=568
       - PGID=568
+      - LSIO_NON_ROOT_USER=true
       - TZ=${TZ:-America/Vancouver}
     volumes:
       - ${UNIFIED_CONFIG_PATH}/lazylibrarian:/config
+      - ${UNIFIED_CONFIG_PATH}/lazylibrarian-jsoncache:/config/cache/JSONCache
       - ${UNIFIED_MEDIA_PATH}:/data
       # Keep shadow acquisition/import boundaries separate from production.
       - ${UNIFIED_MEDIA_PATH}/downloads:/downloads

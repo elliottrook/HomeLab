@@ -95,7 +95,8 @@ def audiobookshelf_items(payload: Any) -> Tuple[SnapshotItem, ...]:
             continue
         media = raw.get("media") or {}
         item_id = raw.get("id") or raw.get("_id")
-        title = raw.get("title") or media.get("title")
+        metadata = media.get("metadata") or {}
+        title = raw.get("title") or media.get("title") or metadata.get("title")
         if not item_id or not title:
             continue
         items.append(SnapshotItem(

@@ -688,3 +688,37 @@ the evidence log.
   The recurring refresher was recreated and its portal health/recovery path
   remained healthy. Cross-authority identity matching is intentionally still
   disabled until validated.
+- 2026-10-05: With Jason's authorization, a dedicated Audiobookshelf reader
+  identity was added and its token stored as a mode-0600 TrueNAS secret. The
+  refresher now reads the configured Audiobookshelf library through the
+  bearer-token API without exposing the token to the portal or action
+  container. The live sanitized library snapshot contains 46 Audiobookshelf
+  records in addition to the existing ARR/Jellyfin authorities; the parser
+  handles Audiobookshelf's nested `media.metadata.title` response shape.
+- 2026-10-05: A read-only overlap audit found six exact normalized-title
+  collisions involving Audiobookshelf, all expected cross-medium cases
+  (audiobooks versus films or music). Cross-authority ownership matching
+  remains disabled; these results are evidence that title-only matching would
+  be unsafe.
+- 2026-10-06: A separate sanitized Audiobookshelf listening-history snapshot
+  was added to the refresher. The reader key can access the session endpoint;
+  the current dedicated reader has zero sessions, so history-based ranking
+  correctly remains inactive and library-composition fallback remains the
+  selected behavior.
+- 2026-10-06: A read-only LazyLibrarian image refresh found the newer image
+  (`120ec585-ls366`) unable to bring the shadow service to its HTTP-ready
+  state under the normal PUID/PGID path; its startup process hung during
+  LinuxServer `init-adduser`. No production book workflow was changed.
+- 2026-10-06: Follow-up isolation identified the exact startup boundary: the
+  LinuxServer `init-adduser` stage hangs while changing the `abc` group to
+  PGID 568, even with an empty config and with the newer image. The supported
+  `LSIO_NON_ROOT_USER=true` mode was deployed only to the shadow service,
+  together with a dedicated writable TrueNAS `JSONCache` tree mounted at
+  `/config/cache/JSONCache`. The shadow service now reaches HTTP 303, runs its
+  scheduler, and writes OpenLibrary responses to the dedicated cache. The
+  temporary API configuration had to be injected while the service was
+  stopped because shutdown persists in-memory settings; the real HTTP
+  `addBook` path then returned success for Dune, with no tuple-binding error.
+  The temporary API settings and test record were removed, the original config
+  restored, and the shadow service returned to HTTP 303. No production book
+  workflow was changed.

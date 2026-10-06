@@ -39,9 +39,11 @@ class SnapshotReaderTests(unittest.TestCase):
 
     def test_book_and_audio_readers_sanitize_to_owned_records(self):
         audio = audiobookshelf_items({"results": [{"id": "a1", "media": {"title": "Dune"}}]})
+        nested_audio = audiobookshelf_items({"results": [{"id": "a2", "media": {"metadata": {"title": "The Hobbit"}}}]})
         books = calibre_books({"books": [{"id": 2, "title": "Dune"}]})
         lazy = lazylibrarian_items({"books": [{"bookid": "b3", "bookname": "Dune", "status": "Have"}]})
         self.assertEqual(audio[0].media_type, "audiobook")
+        self.assertEqual(nested_audio[0].title, "The Hobbit")
         self.assertEqual(books[0].authority, "calibre")
         self.assertTrue(lazy[0].owned)
 

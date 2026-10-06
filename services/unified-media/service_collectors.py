@@ -93,6 +93,37 @@ def collect_audiobookshelf(url: str, token_path: str, *, request: Request,
     return tuple(items)
 
 
+def collect_audiobookshelf_history(url: str, token_path: str, user_id: str, *,
+                                   request: Request) -> Tuple[Mapping[str, Any], ...]:
+    """Read and sanitize one Audiobookshelf user's listening sessions."""
+    payload, _ = request(
+        url.rstrip("/") + "/api/users/" + str(user_id) + "/listening-sessions",
+        params={"itemsPerPage": "100"},
+        headers={"Authorization": "Bearer " + _secret(token_path)},
+    )
+    sessions = payload.get("sessions", []) if isinstance(payload, Mapping) else []
+    output = []
+    for session in sessions:
+        if not isinstance(session, Mapping):
+            continue
+        item = session.get("libraryItem") or {}
+        media = item.get("media") or {}
+        metadata = media.get("metadata") or {}
+        item_id = item.get("id") or session.get("libraryItemId")
+        title = metadata.get("title") or media.get("title") or session.get("title")
+        if not item_id or not title:
+            continue
+        output.append({
+            "authority": "audiobookshelf",
+            "authority_id": str(item_id),
+            "title": str(title),
+            "started_at": session.get("startedAt"),
+            "updated_at": session.get("updatedAt"),
+            "time_listening": session.get("timeListening"),
+        })
+    return tuple(output)
+
+
 def collect_optional_books(payload: Any, *, source: str) -> Tuple[SnapshotItem, ...]:
     """Normalize already-fetched book data without adding a network path."""
     if source == "calibre":

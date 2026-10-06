@@ -13,12 +13,15 @@ from pathlib import Path
 
 from service_collectors import (
     collect_arr,
+    collect_audiobookshelf,
+    collect_audiobookshelf_history,
     collect_jellyfin,
     collect_lidarr as collect_lidarr_library,
 )
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
 LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
+HISTORY_SNAPSHOT_PATH = os.environ.get("PORTAL_HISTORY_SNAPSHOT_PATH")
 
 
 def _narrate(candidates):
@@ -145,6 +148,7 @@ def refresh_once():
         unique.setdefault((candidate["authority"], candidate["authority_id"]), candidate)
     output = _narrate(list(unique.values())[:20])
     _refresh_library_snapshot()
+    _refresh_history_snapshot()
     SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(dir=str(SNAPSHOT_PATH.parent))
     os.close(fd)
@@ -184,6 +188,13 @@ def _refresh_library_snapshot():
         libraries.extend(collect_jellyfin(
             os.environ.get("JELLYFIN_URL", "http://192.168.20.40:8096"),
             os.environ["JELLYFIN_API_KEY_PATH"], request=request_json))
+    if os.environ.get("AUDIOBOOKSHELF_TOKEN_PATH"):
+        library_ids = _csv("AUDIOBOOKSHELF_LIBRARY_IDS", "")
+        if library_ids:
+            libraries.extend(collect_audiobookshelf(
+                os.environ.get("AUDIOBOOKSHELF_URL", "http://192.168.20.40:30067"),
+                os.environ["AUDIOBOOKSHELF_TOKEN_PATH"], request=request_json,
+                library_ids=library_ids))
     target = Path(LIBRARY_SNAPSHOT_PATH)
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(".tmp")
@@ -195,6 +206,25 @@ def _refresh_library_snapshot():
 
 def _csv(name: str, default: str):
     return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
+
+
+def _refresh_history_snapshot():
+    """Write a separate sanitized history snapshot when explicitly configured."""
+    if not HISTORY_SNAPSHOT_PATH or not os.environ.get("AUDIOBOOKSHELF_TOKEN_PATH"):
+        return
+    user_id = os.environ.get("AUDIOBOOKSHELF_USER_ID")
+    if not user_id:
+        return
+    history = collect_audiobookshelf_history(
+        os.environ.get("AUDIOBOOKSHELF_URL", "http://192.168.20.40:30067"),
+        os.environ["AUDIOBOOKSHELF_TOKEN_PATH"], user_id, request=request_json)
+    target = Path(HISTORY_SNAPSHOT_PATH)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary = target.with_suffix(".tmp")
+    with temporary.open("w", encoding="utf-8") as handle:
+        json.dump(list(history), handle, indent=2)
+    os.chmod(temporary, 0o644)
+    os.replace(temporary, target)
 
 
 if __name__ == "__main__":
