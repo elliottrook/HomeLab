@@ -1,0 +1,47 @@
+import tempfile
+import unittest
+from pathlib import Path
+
+from service_collectors import collect_arr, collect_audiobookshelf, collect_jellyfin
+
+
+class CollectorTests(unittest.TestCase):
+    def setUp(self):
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.key = Path(self.tempdir.name) / "key"
+        self.key.write_text("test-secret\n", encoding="utf-8")
+        self.calls = []
+
+    def tearDown(self):
+        self.tempdir.cleanup()
+
+    def request(self, url, **kwargs):
+        self.calls.append((url, kwargs))
+        if url.endswith("/api/v3/movie"):
+            return [{"tmdbId": 8, "title": "Arrival", "hasFile": True}], {}
+        if url.endswith("/Items"):
+            return {"Items": [{"Id": "j1", "Name": "Dune", "Type": "Movie"}]}, {}
+        return {"results": [{"id": "a1", "media": {"title": "Dune"}}]}, {}
+
+    def test_arr_collector_is_read_only_and_sanitized(self):
+        result = collect_arr("http://radarr", str(self.key), "radarr", request=self.request)
+        self.assertEqual(result[0].title, "Arrival")
+        self.assertEqual(result[0].authority_id, "8")
+        self.assertEqual(self.calls[0][0], "http://radarr/api/v3/movie")
+        self.assertEqual(self.calls[0][1]["headers"]["X-Api-Key"], "test-secret")
+
+    def test_jellyfin_collector_uses_token_header_and_omits_history(self):
+        result = collect_jellyfin("http://jellyfin", str(self.key), request=self.request)
+        self.assertEqual(result[0].authority_id, "j1")
+        self.assertNotIn("UserData", self.calls[0][1].get("params", {}))
+        self.assertEqual(self.calls[0][1]["headers"]["X-Emby-Token"], "test-secret")
+
+    def test_audiobookshelf_collector_scopes_library_requests(self):
+        result = collect_audiobookshelf("http://abs", str(self.key), request=self.request,
+                                       library_ids=("lib1",))
+        self.assertEqual(result[0].media_type, "audiobook")
+        self.assertIn("/api/libraries/lib1/items", self.calls[0][0])
+
+
+if __name__ == "__main__":
+    unittest.main()
