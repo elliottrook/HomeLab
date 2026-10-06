@@ -14,10 +14,16 @@ services:
       - LIDARR_API_KEY_PATH=/run/unified-secrets/lidarr-api-key
       - PORTAL_SEERR_QUERIES=${PORTAL_SEERR_QUERIES:-Arrival,Dune}
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Kind of Blue,Bitches Brew}
+      - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
+      - PORTAL_AI_DEBUG=${PORTAL_AI_DEBUG:-NO}
+      - ASTER_LLAMA_URL=${ASTER_LLAMA_URL:-http://192.168.70.12:11435/v1/chat/completions}
+      - ASTER_LLAMA_API_KEY_PATH=/run/unified-secrets/aster-llama-recommendation-key
+      - ASTER_MODEL=${ASTER_MODEL:-local}
     volumes:
       - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data
       - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/aster-llama-recommendation-key:/run/unified-secrets/aster-llama-recommendation-key:ro
     restart: unless-stopped
 
   recommendation-portal:

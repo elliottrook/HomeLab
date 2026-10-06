@@ -6,6 +6,7 @@ import json
 import os
 import tempfile
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -13,12 +14,55 @@ from pathlib import Path
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
 
 
-def request_json(url: str, *, method: str = "GET", body=None, headers=None):
+def _narrate(candidates):
+    """Add bounded local-AI explanations without making AI authoritative."""
+    if os.environ.get("PORTAL_AI_ENABLED", "NO") != "YES":
+        return candidates
+    key_path = os.environ.get("ASTER_LLAMA_API_KEY_PATH")
+    if not key_path:
+        return candidates
+    try:
+        key = Path(key_path).read_text(encoding="utf-8").strip()
+        if not key:
+            return candidates
+        ai_candidates = candidates[:min(8, int(os.environ.get("PORTAL_AI_MAX_ITEMS", "8")))]
+        prompt_items = [{"index": index, "media_type": item["media_type"],
+                         "title": item["title"], "reason": item["explanation"]}
+                        for index, item in enumerate(ai_candidates)]
+        body = {"model": os.environ.get("ASTER_MODEL", "local"),
+                "messages": [{"role": "system", "content":
+                              "Return only a JSON array of short explanations, one per input item, in order. "
+                              "Do not invent facts, availability, ratings, or viewing history."},
+                             {"role": "user", "content": json.dumps(prompt_items)}],
+                "temperature": 0.2, "max_tokens": 480}
+        payload, _ = request_json(
+            os.environ.get("ASTER_LLAMA_URL", "http://192.168.70.12:11435/v1/chat/completions"),
+            method="POST", body=body,
+            headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+            timeout=90)
+        content = payload["choices"][0]["message"]["content"]
+        if os.environ.get("PORTAL_AI_DEBUG", "NO") == "YES":
+            print(f"ai_narration_response={content[:300]!r}")
+        explanations = json.loads(content)
+        if not isinstance(explanations, list) or len(explanations) != len(prompt_items):
+            return candidates
+        output = [dict(item) for item in candidates]
+        for index, explanation in enumerate(explanations):
+            if isinstance(explanation, str) and 1 <= len(explanation) <= 280:
+                output[index]["explanation"] = explanation
+        return output
+    except (OSError, KeyError, TypeError, ValueError, IndexError, urllib.error.URLError) as exc:
+        if os.environ.get("PORTAL_AI_DEBUG", "NO") == "YES":
+            print(f"ai_narration_failed={type(exc).__name__}")
+        return candidates
+
+
+def request_json(url: str, *, method: str = "GET", body=None, headers=None, timeout: int = 20):
     encoded = None if body is None else json.dumps(body).encode("utf-8")
     request = urllib.request.Request(url, data=encoded, method=method)
     for key, value in (headers or {}).items():
         request.add_header(key, value)
-    with urllib.request.urlopen(request, timeout=20) as response:
+    with urllib.request.urlopen(request, timeout=timeout) as response:
         return json.loads(response.read() or b"{}"), dict(response.headers)
 
 
@@ -89,7 +133,7 @@ def refresh_once():
     unique = {}
     for candidate in candidates:
         unique.setdefault((candidate["authority"], candidate["authority_id"]), candidate)
-    output = list(unique.values())[:20]
+    output = _narrate(list(unique.values())[:20])
     SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(dir=str(SNAPSHOT_PATH.parent))
     os.close(fd)

@@ -647,3 +647,11 @@ the evidence log.
   `portal-refresh` directory, while the portal mounts that directory
   read-only. A successful refresh and portal readback were verified; the
   action-state directory and secret mounts remain separate.
+- 2026-10-06: With Jason's approval, the refresher gained a bounded Aster
+  narration layer. A dedicated revocable llama.cpp key is mounted read-only;
+  the TrueNAS-to-Aster path is limited to `192.168.70.12:11435/TCP` by a
+  host-specific OPNsense rule, with a protected pre-change configuration
+  backup. The model receives only sanitized candidate metadata, at most eight
+  candidates per batch, and deterministic explanations remain the fallback.
+  The authenticated live call and portal readback passed; no acquisition
+  authority was added.
