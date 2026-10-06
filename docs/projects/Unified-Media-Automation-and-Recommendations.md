@@ -275,7 +275,7 @@ domain and observe the correct downstream request without direct AI authority.
   library composition when history is unavailable.
 - [ ] Add deterministic ranking, AI explanations, media-type cards and one
   action button per candidate.
-- [ ] Add private Authentik/NPM route, Homepage tile and direct recovery URL.
+- [x] Add private Authentik/NPM route, Homepage tile and direct recovery URL.
 
 Gate: a reviewed recommendation batch contains no owned, archived, duplicate
 or ambiguous items and every action routes to the correct authority.
