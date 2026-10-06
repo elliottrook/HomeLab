@@ -4,11 +4,13 @@ from django.db import transaction
 
 from authentik.core.models import Application
 from authentik.outposts.models import Outpost
+from authentik.flows.models import Flow
 from authentik.policies.models import PolicyBinding
 from authentik.providers.proxy.models import ProxyProvider
 
 
 EXTERNAL_HOST = "https://recommendations.elliottrook.com"
+PASSKEY_FLOW = Flow.objects.get(slug="aster-companion-passwordless")
 
 with transaction.atomic():
     template_app = Application.objects.get(slug="nginx-proxy-manager")
@@ -22,6 +24,7 @@ with transaction.atomic():
             "mode": "forward_single",
             "external_host": EXTERNAL_HOST,
             "internal_host": "http://192.168.20.40:8787",
+            "authentication_flow": PASSKEY_FLOW,
         },
     )
     provider.set_oauth_defaults()
