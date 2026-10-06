@@ -1,6 +1,9 @@
 import unittest
 
-from snapshot_readers import jellyfin_items, lidarr_albums, seerr_requests
+from snapshot_readers import (
+    audiobookshelf_items, calibre_books, jellyfin_items, lazylibrarian_items,
+    lidarr_albums, radarr_movies, seerr_requests, sonarr_series,
+)
 
 
 class SnapshotReaderTests(unittest.TestCase):
@@ -26,6 +29,21 @@ class SnapshotReaderTests(unittest.TestCase):
         }])
         self.assertFalse(result[0].owned)
         self.assertIn("monitored", result[0].signals[0])
+
+    def test_arr_readers_preserve_ids_and_file_state(self):
+        sonarr = sonarr_series([{"tvdbId": 7, "title": "Dune", "monitored": True, "hasFile": False}])
+        radarr = radarr_movies([{"tmdbId": 8, "title": "Arrival", "hasFile": True}])
+        self.assertEqual(sonarr[0].authority_id, "7")
+        self.assertFalse(sonarr[0].owned)
+        self.assertTrue(radarr[0].owned)
+
+    def test_book_and_audio_readers_sanitize_to_owned_records(self):
+        audio = audiobookshelf_items({"results": [{"id": "a1", "media": {"title": "Dune"}}]})
+        books = calibre_books({"books": [{"id": 2, "title": "Dune"}]})
+        lazy = lazylibrarian_items({"books": [{"bookid": "b3", "bookname": "Dune", "status": "Have"}]})
+        self.assertEqual(audio[0].media_type, "audiobook")
+        self.assertEqual(books[0].authority, "calibre")
+        self.assertTrue(lazy[0].owned)
 
 
 if __name__ == "__main__":

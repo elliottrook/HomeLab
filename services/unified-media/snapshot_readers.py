@@ -76,6 +76,109 @@ def lidarr_albums(payload: Iterable[Mapping[str, Any]]) -> Tuple[SnapshotItem, .
     return tuple(items)
 
 
+def sonarr_series(payload: Iterable[Mapping[str, Any]]) -> Tuple[SnapshotItem, ...]:
+    """Normalize Sonarr series while preserving active/archive separation."""
+    return _arr_items(payload, media_type="tv", authority="sonarr", id_keys=("tvdbId", "id"))
+
+
+def radarr_movies(payload: Iterable[Mapping[str, Any]]) -> Tuple[SnapshotItem, ...]:
+    """Normalize Radarr movies while preserving active/archive separation."""
+    return _arr_items(payload, media_type="movie", authority="radarr", id_keys=("tmdbId", "imdbId", "id"))
+
+
+def audiobookshelf_items(payload: Any) -> Tuple[SnapshotItem, ...]:
+    """Normalize Audiobookshelf item responses without retaining descriptions."""
+    raw_items = payload.get("results", payload.get("items", [])) if isinstance(payload, Mapping) else payload
+    items = []
+    for raw in raw_items or []:
+        if not isinstance(raw, Mapping):
+            continue
+        media = raw.get("media") or {}
+        item_id = raw.get("id") or raw.get("_id")
+        title = raw.get("title") or media.get("title")
+        if not item_id or not title:
+            continue
+        items.append(SnapshotItem(
+            media_type="audiobook",
+            authority="audiobookshelf",
+            authority_id=str(item_id),
+            title=str(title),
+            owned=True,
+            signals=("in Audiobookshelf",),
+        ))
+    return tuple(items)
+
+
+def calibre_books(payload: Any) -> Tuple[SnapshotItem, ...]:
+    """Normalize Calibre/Calibre-Web book lists as owned ebook records."""
+    raw_items = payload.get("books", payload.get("results", [])) if isinstance(payload, Mapping) else payload
+    items = []
+    for raw in raw_items or []:
+        if not isinstance(raw, Mapping):
+            continue
+        book_id = raw.get("id") or raw.get("book_id")
+        title = raw.get("title")
+        if not book_id or not title:
+            continue
+        items.append(SnapshotItem(
+            media_type="ebook",
+            authority="calibre",
+            authority_id=str(book_id),
+            title=str(title),
+            owned=True,
+            signals=("in Calibre library",),
+        ))
+    return tuple(items)
+
+
+def lazylibrarian_items(payload: Any) -> Tuple[SnapshotItem, ...]:
+    """Normalize LazyLibrarian wanted/library responses without raw metadata."""
+    raw_items = payload.get("books", payload.get("results", [])) if isinstance(payload, Mapping) else payload
+    items = []
+    for raw in raw_items or []:
+        if not isinstance(raw, Mapping):
+            continue
+        item_id = raw.get("bookid") or raw.get("book_id") or raw.get("id")
+        title = raw.get("title") or raw.get("bookname")
+        if not item_id or not title:
+            continue
+        status = str(raw.get("status", "")).casefold()
+        owned = status in {"have", "read", "downloaded", "open"}
+        media_type = "audiobook" if str(raw.get("format", "")).casefold() in {"audio", "audiobook"} else "ebook"
+        items.append(SnapshotItem(
+            media_type=media_type,
+            authority="lazylibrarian",
+            authority_id=str(item_id),
+            title=str(title),
+            owned=owned,
+            signals=(("owned in LazyLibrarian" if owned else "tracked in LazyLibrarian"),),
+        ))
+    return tuple(items)
+
+
+def _arr_items(payload: Iterable[Mapping[str, Any]], *, media_type: str,
+               authority: str, id_keys: Tuple[str, ...]) -> Tuple[SnapshotItem, ...]:
+    items = []
+    for raw in payload:
+        if not isinstance(raw, Mapping):
+            continue
+        item_id = _first(raw, *id_keys)
+        title = _first(raw, "title", "seriesTitle")
+        if not item_id or not title:
+            continue
+        monitored = bool(raw.get("monitored"))
+        has_file = bool(raw.get("hasFile"))
+        items.append(SnapshotItem(
+            media_type=media_type,
+            authority=authority,
+            authority_id=str(item_id),
+            title=str(title),
+            owned=has_file,
+            signals=(("monitored in " + authority) if monitored else ("in " + authority),),
+        ))
+    return tuple(items)
+
+
 def _jellyfin_type(value: Optional[str]) -> Optional[str]:
     return {"Movie": "movie", "Series": "tv", "MusicAlbum": "album", "Book": "ebook"}.get(value)
 
