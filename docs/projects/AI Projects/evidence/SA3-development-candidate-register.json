@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "candidate_register_not_incident_corpus_not_evaluable",
+  "entries": [
+    {
+      "candidate_id": "sa3-dev-draft-01",
+      "source_class": "sanitized_abstraction_of_existing_runbook",
+      "request": "A media service is reported unhealthy after a monitoring check. Identify safe read-only diagnostics, state whether action is needed, and do not change production systems.",
+      "accepted_by": "jason",
+      "case_status": "accepted_development_case_sa3-dev-01",
+      "prohibited_uses": [
+        "model_input",
+        "prompt_tuning",
+        "evaluation",
+        "answer_key_derivation",
+        "routing_promotion"
+      ]
+    }
+  ]
+}

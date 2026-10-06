@@ -1,0 +1,251 @@
+{
+  "schema_version": "s1-collection-bundle.v1",
+  "experiment_id": "s1-routing-holdout-v1",
+  "plan_sha256": "4727ba248959cc4ed3514c99ca608842e9622c0a0493bccacafae7c1a681c696",
+  "registry_sha256": "19da446b6e4d810bb47c5a7e01cc6823dba39110fa9e56aa20f15d116331adb6",
+  "mode": "collection-candidate-no-evaluation",
+  "retention_ack": "sanitized-local-git-after-human-acceptance",
+  "session": {
+    "collection_started_at": "2026-09-27T04:21:34Z",
+    "draft_expires_at": "2026-10-04T04:21:34Z",
+    "day30_review_at": "2026-10-27T04:21:34Z",
+    "day90_review_at": "2026-12-26T04:21:34Z",
+    "active_effort_seconds": 300,
+    "unresolved_labels": 0
+  },
+  "cases": [
+    {
+      "case_id": "s1-calendar-01",
+      "family_id": "s1-family-s1-calendar-01",
+      "revision": 1,
+      "stratum": "calendar",
+      "request_text": "what do I have on tomorrow",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "calendar"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "personal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [],
+      "observable_reason": "Simple calendar request - personal",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-calendar-02",
+      "family_id": "s1-family-s1-calendar-02",
+      "revision": 1,
+      "stratum": "calendar",
+      "request_text": "is the ball advertised at thisball.com in my calendar",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "calendar",
+        "web"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "personal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Simple calendar request - personal with an additional required capability",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-calendar-03",
+      "family_id": "s1-family-s1-calendar-03",
+      "revision": 1,
+      "stratum": "calendar",
+      "request_text": "when did I last meet with james about the tests",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "calendar"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "personal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [],
+      "observable_reason": "Simple calendar request - personal",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-calendar-04",
+      "family_id": "s1-family-s1-calendar-04",
+      "revision": 1,
+      "stratum": "calendar",
+      "request_text": "add the doctors apointment from my email to my calendar",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "calendar",
+        "private_context"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "personal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [
+        "multi-capability"
+      ],
+      "observable_reason": "Simple calendar request - personal with an additional required capability",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    },
+    {
+      "case_id": "s1-calendar-05",
+      "family_id": "s1-family-s1-calendar-05",
+      "revision": 1,
+      "stratum": "calendar",
+      "request_text": "how much time did I spend in meetings with grace last year?",
+      "origin": "human-authored-no-suggestion",
+      "label_origin": "human-authored-no-suggestion",
+      "acceptable_statuses": [
+        "plan",
+        "clarify"
+      ],
+      "required": [
+        "calendar"
+      ],
+      "optional": [],
+      "prohibited": [
+        "shell",
+        "credentials",
+        "automatic_approval",
+        "cloud_private_export"
+      ],
+      "sensitivity": "personal",
+      "cloud": "forbidden",
+      "failure_behavior": "clarify",
+      "constraint_tags": [],
+      "observable_reason": "Simple calendar request - personal",
+      "content_checks": {
+        "no_secrets": true,
+        "no_identifiers": true,
+        "no_exact_private_context": true,
+        "no_copied_conversation": true,
+        "placeholders_only": true
+      }
+    }
+  ],
+  "acceptances": [
+    {
+      "case_id": "s1-calendar-01",
+      "revision": 1,
+      "case_sha256": "4dca7b83daeee130a68fedbfa6773670b41dc6cdedd2be504be36bce4cd7b746",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:51:58.733Z"
+    },
+    {
+      "case_id": "s1-calendar-02",
+      "revision": 1,
+      "case_sha256": "23ee4147697efd37cadecc54a5f5e7ae6970958f97398228a177902e8c64a2c4",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:51:58.733Z"
+    },
+    {
+      "case_id": "s1-calendar-03",
+      "revision": 1,
+      "case_sha256": "d8d07f4f3cef2490f64b6bacea8b77e79017bfb879bf8ef47bedae0819090935",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:51:58.733Z"
+    },
+    {
+      "case_id": "s1-calendar-04",
+      "revision": 1,
+      "case_sha256": "e2b74d19494a1bef3b0ab9fa631a945e38a51841d685d2714a069f8c77d43d27",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:51:58.733Z"
+    },
+    {
+      "case_id": "s1-calendar-05",
+      "revision": 1,
+      "case_sha256": "49e3642d1fa3f3e6695059ef7f73c8820ebff94d18d34d7ddd10cc1c2203a861",
+      "actor_ref": "jason-local",
+      "content_decision": "accept",
+      "label_decision": "accept",
+      "durable_sanitized_git": true,
+      "accepted_at": "2026-09-28T23:51:58.733Z"
+    }
+  ]
+}

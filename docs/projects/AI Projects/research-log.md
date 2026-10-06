@@ -1,5 +1,81 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Local publication reconciliation
+
+Merged fetched Forgejo main `ec6ebd2` locally, preserving both histories and newer
+unrelated projects. Retained twelve previously reviewed development records without
+inventing their missing newer contract fields; evaluation readiness stays blocked
+until those fields receive review. All 50 evaluation tests pass after conflict
+resolution. [Publication checkpoint](evidence/SA3-publication-reconciliation-2026-10-05.md).
+No push or deployment occurred; source-pin equivalence is not silently assumed.
+
+## 2026-10-05 — Compact trial completed; budget tuning closed
+
+Approved compact batch completed nine requests. Unavailable-evidence off/compact:
+56.649/214.254 seconds; configuration-fault compact: 213.856 seconds. Both modes
+showed useful evidence use, but contract/attribution/verification weaknesses remain.
+Service healthy and idle, same PID, temporary guest files removed. No promotion.
+[Finite-trial decision](evidence/SA3-local-qwen-development-decision-2026-10-05.md)
+preserves exact outputs and closes further budget tuning. Forgejo main was observed
+at `ec6ebd29c572f61aade8a91c1bff863645fd3acc`; reconcile its history before publication.
+
+## 2026-10-05 — Original investigation batch stopped; compact candidate prepared
+
+Approved frozen batch attempted five calls: non-thinking concluded in 56.902 seconds;
+thinking hit the 300-second investigation limit during its second call. The remaining
+case was not run. First postcheck saw outstanding inference; subsequent read-only
+check confirmed healthy idle and unchanged PID. Preserved synthetic results and
+[reviewed rubric weaknesses](evidence/SA3-investigation-development-review-2026-10-05.md).
+Prepared a 384-token thinking candidate, explicit bounded follow-up schedule and
+attempt/failure metadata; all 29 SA3 tests pass. No connected rerun or promotion.
+
+## 2026-10-05 — Multi-step synthetic investigator ready
+
+Implemented bounded simulated evidence lookup, two exposed development scenarios,
+network-free default runner and containment/transport tests. All 27 SA3 tests pass;
+no connected call made. [Exact proposed batch and rubric](evidence/SA3-simulated-investigation-plan-2026-10-05.md)
+are ready for approval. Jason directed continued Stream A work until required gates,
+with continuation after approval; no additional approval for routine local milestones.
+
+## 2026-10-05 — Authorized off/on smoke pair completed
+
+Jason approved two serial synthetic requests, each with a four-minute limit.
+Both completed: off 24.431 seconds; on 158.706 seconds with a nonempty separate
+reasoning field whose content was discarded. Same server PID, healthy afterward,
+no tools, production changes, private data or retries. Both requested fresh
+evidence; no quality superiority or sysadmin qualification established.
+[Result and limitations](evidence/SA3-thinking-smoke-result-2026-10-05.md).
+
+## 2026-10-05 — Per-task thinking and paired request construction
+
+Verified the live server build and matched primary source. Both enable_thinking
+and reasoning_budget_tokens can override defaults per request; loaded-template
+behavior remains untested. Built offline paired request construction with tests.
+[Evidence and operating profiles](evidence/SA3-per-request-thinking-2026-10-05.md)
+separate thinking from authority and background scheduling. Single-slot contention
+means queue priority alone cannot guarantee fast interactive inference. No model
+request, service change, private data access or production promotion occurred.
+
+## 2026-10-05 — Thinking-mode comparison and offline grading candidate
+
+Jason requested that a fair sysadmin assessment consider reasoning enabled.
+Read-only live inspection confirmed reasoning off and budget zero; installed help
+supports on/off and positive budgets. Built a separate strict offline scorer and
+synthetic tests without changing historical results or production. The
+[paired comparison plan](evidence/SA3-fair-thinking-comparison-2026-10-05.md)
+separates diagnostic quality, reasoning-mode verification, response time and later
+simulated investigation. Request-level override behavior remains unverified.
+
+## 2026-10-05 — Evaluation validity and single-window coordination
+
+Reviewed the checked-in operational runner, scorer, preregistration and result.
+Four synthetic reproductions show exact-label sensitivity, duplicate-ID acceptance
+and incomplete effects rejection. No private holdout or model was accessed.
+Historical results remain unchanged; no Qwen promotion or hardware verdict follows.
+The [review and replacement-test proposal](evidence/SA3-evaluation-validity-review-2026-10-05.md)
+defines the next offline work. Jason requested one coordinating Codex window and
+plain-language updates explaining the practical implications of decisions.
+
 ## Harness follow-up
 
 Jason asked to evaluate Hermes as a replaceable harness, compare current alternatives and recommend one implementation project document. Added `HARNESS-ALTERNATIVES.md`, linked it into the main assessment and drafted `Aster-Adaptive-Computing.md` outside the repository. Preserved the initial assessment/log/manifest under `revisions/initial-assessment/`.
@@ -889,6 +965,19 @@ five facts/web composition cases, but no adverse-constraint cases and no complet
 50-family corpus. It cannot be evaluated or used to promote a route.
 
 
+### 2026-09-28 — S1 fourth accepted media batch
+
+Jason supplied and accepted five sanitized media requests, completed a local
+no-suggestion label workbook, self-reported five active labeling minutes, and
+explicitly approved durable local-Git retention. He explicitly approved adding
+the validator-required `multi-capability` tag to all five cases and changing the
+one internal case's cloud class to `forbidden`. The accepted batch passed the
+syntax-only validator with five receipts, frozen plan/registry hashes and no
+authority claims. It supplies five media families and five media/home composition
+cases, but no adverse-constraint cases and no complete 50-family corpus. It
+cannot be evaluated or used to promote a route.
+
+
 ### 2026-09-28 — S1 second accepted household-control batch
 
 Jason supplied and accepted five sanitized household-control requests, completed
@@ -898,3 +987,148 @@ syntax-only validator with five receipts, frozen plan/registry hashes and no
 authority claims. It supplies five home families, including one home/media
 composition case, but no adverse-constraint cases and no complete 50-family
 corpus. It cannot be evaluated or used to promote a route.
+
+
+### 2026-10-03 — S1 closed incomplete; SA3 corpus readiness started
+
+The S1 manifest was reconciled across all nine accepted bundles without reading
+or reproducing request text in the close-out record. It contains 45 accepted
+families and receipts with 50 minutes of reported active labeling effort. The
+human-accepted strata are uneven (web 1, mixed 4, ambiguous 3, personal 6 and
+sysadmin 6), and no accepted case has an adverse-constraint tag. The frozen S1
+protocol requires 50 cases, five per stratum and at least ten adverse-constraint
+cases. Therefore S1 is closed as collection-feasibility evidence only. Its
+accepted records, receipts and packet are preserved, while evaluation, routing
+selection, training, calibration, shadow use and production promotion remain
+blocked.
+
+The successor task is local SA3 incident-corpus readiness. Repository review found
+the intake manifest intentionally empty and the existing advisor slice explicitly
+development-only. The empty intake contract was strengthened to require repair
+scope, expected postcheck and latency protocol, matching the existing SA3
+preregistration. This added no case, reviewer, model call, provider choice,
+credential, network operation or production change. Unit tests cover the new
+contract and hash-bound S1 close-out manifest.
+
+### 2026-10-03 — SA3 custody boundary template
+
+The empty SA3 intake contract did not express custody of answer labels or the
+development/holdout separation. A local empty custody template now requires a
+named custodian, independent holdout reviewer, approved local storage,
+answer-key separation, sanitization/retention rules and digest/freeze procedure
+before collection. It explicitly blocks holdout use for retrieval and
+implementation tuning, contains no case content or configured storage identity,
+and is unit-tested against the intake field contract. This is readiness work
+only: it did not collect an incident, contact a model/provider or access any
+production system.
+
+### 2026-10-03 — SA3 local-model candidate inventory
+
+A direct, read-only query confirmed that LXC 110's `aster-llama.service` is
+active and enabled. Its running process selects Qwen3.8-27B UD-IQ4_XS through
+llama.cpp with Vulkan, one parallel slot, an 8,192-token context and reasoning
+disabled. The container was running with point-in-time load averages below one
+and 9,154 MiB of 16,384 MiB reported used. No prompt was submitted, credential
+material was read, provider was selected or service was changed. The live,
+shared one-slot service is therefore only an inventory-confirmed local baseline
+candidate; it is not proof of headroom, quality, calibration or suitability.
+The separate inventory record defines required pre-run controls.
+
+### 2026-10-03 — SA3 local Qwen exploratory baseline
+
+A single, serial, tool-free local run scored 12 of 20 sealed SA3 cases as passing
+with zero forbidden effects and four invalid/runtime-invalid predictions. Median
+model latency was 8.621 seconds and total model time was 175.816 seconds. The
+pre-registered initial usefulness gate is at least 18/20 with zero unauthorized
+effects, so the result does not select Qwen, promote routing, or permit a
+production change. Two earlier transport attempts were invalid because orphaned
+runner processes had unrecoverable output; they were terminated and not scored.
+The final PID-tracked run was retrieved, scored offline, and all temporary
+prompt/output/runner files were verified removed from LXC 110 and its host.
+Detailed prompts, answer keys and predictions remain private. The loaded model
+lacks a newly established immutable artifact digest, further limiting this to an
+exploratory baseline.
+
+### 2026-10-03 — SA3 development schema-conformance challenger
+
+After the local Qwen exploratory baseline produced four malformed structured
+outputs on the sealed set, a single development-only challenger used llama.cpp
+schema-constrained JSON on the exposed 12-case corpus. It produced valid
+outcomes, all required controls, and empty effects for all 12 cases with no
+invalid output; median latency was 9.065 seconds. This is format-conformance
+evidence only. It does not retest the sealed holdout, establish diagnostic
+quality, select a provider, or change production behavior.
+
+### 2026-10-03 — SA3 fresh schema-confirmation preregistration
+
+The original sealed Qwen baseline set is permanently excluded from retest after
+the development-only schema configuration was introduced. A fresh 20-case,
+private, single-operator confirmation protocol now fixes the candidate, runner,
+request settings and format-only decision gate before any new case/key is made.
+It cannot select a provider or promote production behavior.
+
+### 2026-10-03 — SA3 fresh schema-confirmation set accepted
+
+Jason approved the preregistered fresh confirmation scope. A new 20-case
+sanitized prompt set and separately frozen answer key were created in private
+local custody, with only their digests recorded in Git. They are limited to a
+single-operator, within-lab format-conformance comparison and cannot select a
+provider, tune an implementation, or promote production behavior.
+
+### 2026-10-03 — SA3 fresh schema confirmation passed narrowly
+
+The fresh private 20-case schema-confirmation run passed its preregistered
+format gate: all records had valid allowed outcomes, complete required controls,
+and empty effects, with no invalid output. Its answer-key semantic score was
+18/20, so the result confirms only constrained format reliability. Qwen remains
+unselected for operational diagnosis because the original operational baseline
+still failed. A deterministic ID remap exposed a harness issue that must be
+fixed on development data, not by rerunning this confirmation set.
+
+### 2026-10-03 — SA3 operational-quality preregistration
+
+Schema conformance is now separated from incident quality. A proposed new
+20-case quality gate fixes the current local candidate and measures bounded
+planning correctness, discriminating-check coverage, evidence discipline,
+controls, forbidden effects and abstention. A pass could qualify only a later
+reversible read-only pilot; it cannot change authority or select a general
+operational provider.
+
+### 2026-10-03 — SA3 operational-quality corpus accepted
+
+Jason approved the fresh operational-quality corpus scope. Twenty sanitized
+private incident packets and a separately frozen answer key were created in
+local custody; Git records their digests only. The corpus is not yet evaluated,
+and it cannot select a provider or authorize production behavior.
+
+### 2026-10-03 — Qwen operational-quality rejection and Responses challenger
+
+The local Qwen quality run rejected Qwen for the read-only operational pilot:
+format and controls conformed, but operational outcome/check scoring did not.
+A separate stateless, tool-free OpenAI Responses API challenger is proposed for
+a newly created sanitized corpus; no cloud request, credential, adapter, or
+provider selection has occurred.
+
+### 2026-10-03 — Responses challenger AI-PAM onboarding candidate
+
+A local-only onboarding candidate specifies a service-specific OpenBao path,
+stateless Responses scope, outbound-only API boundary, audit restrictions and
+revocation path. It is not deployed and contains no secret, token, egress rule
+or operational credential.
+
+### 2026-10-03 — Responses challenger deployment preflight
+
+Read-only inspection confirmed active Aster broker/approval services on LXC 104
+and private active OpenBao on LXC 117. No existing Responses evaluator identity,
+credential path, service, or egress rule was evidenced. No secret was read. The
+bounded deployment remains blocked on a user-created OpenAI project credential.
+
+### 2026-10-03 — Local-only operational decision
+
+Following the subscription/API billing decision and Qwen quality rejection,
+Stream A adopted deterministic, broker-gated Doctor evidence collection and
+human-reviewed incident packets as the immediate operational path. The repository
+contains typed investigation, retention, Doctor adapter, incident gateway and
+broker gateway tests, but their runtime validation is UNKNOWN here: the local
+interpreter lacks Aster dependencies and the deployed LXC lacks test files.
+Cloud challenger deployment is deferred.

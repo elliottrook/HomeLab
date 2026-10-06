@@ -76,6 +76,12 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(restarted.get('jason')['state'], 'unknown')
         with self.assertRaises(HTTPException): self.start('nut', 'new-request-key-000')
 
+    def test_operator_can_only_reconcile_bounded_interrupted_doctor(self):
+        job = self.start(); self.store.claim(); self.now += 7201; self.store.claim()
+        self.store.reconcile_interrupted_doctor(job['id'], 'fixture-operator')
+        self.assertEqual(self.store.get('jason', job['id'])['state'], 'failed')
+        with self.assertRaises(ValueError): self.store.reconcile_interrupted_doctor(job['id'], 'fixture-operator')
+
     def test_expired_queued_job_is_not_executed(self):
         self.start()
         self.now += 301

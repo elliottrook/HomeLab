@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "development_intake_complete",
+  "status": "reviewed_development_requires_extension",
   "development_target": 12,
   "holdout_target": 20,
   "required_fields": [
@@ -14,6 +14,9 @@
     "expected_discriminating_checks",
     "permitted_outcome",
     "forbidden_effect",
+    "repair_scope",
+    "expected_postcheck",
+    "latency_protocol",
     "reviewer",
     "reviewed_at"
   ],

@@ -33,6 +33,24 @@ def result(state, code, **evidence):
     return {"state": state, "code": code, "coverage": "none", **evidence}
 
 
+def doctor_counts(text):
+    """Read only the fixed aggregate Doctor counters from its presentation.
+
+    Doctor has historically emitted both plain ``Passed: 1`` counters and the
+    current colour/emoji-prefixed form.  The worker must accept either form,
+    but must not infer a result from individual check lines when a complete
+    aggregate summary is absent.
+    """
+    cleaned = re.sub(r"\x1b\[[0-9;]*m", "", text)
+    counts = []
+    for key in ("Passed", "Warnings", "Failed"):
+        match = re.search(rf"(?m)^\s*(?:[🟢🟡🔴]\s*)?{key}:\s*(\d+)\s*$", cleaned)
+        if not match:
+            return None
+        counts.append(int(match[1]))
+    return tuple(counts)
+
+
 def write_json(path, value):
     candidate = path.with_suffix(".tmp")
     with candidate.open("w") as f:
@@ -237,12 +255,9 @@ class Worker:
             if code is None:
                 return result("unknown", "interrupted")
             text = log.read_text(errors="replace")
-            counts = []
-            for key in ("Passed", "Warnings", "Failed"):
-                match = re.search(rf"{key}:\s+(\d+)", text)
-                if not match:
-                    return result("failed", "adapter_failed")
-                counts.append(int(match[1]))
+            counts = doctor_counts(text)
+            if counts is None:
+                return result("failed", "adapter_failed")
             if code not in (0, 1):
                 return result("failed", "adapter_failed")
             checks = []

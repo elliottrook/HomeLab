@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "status": "unactivated_template_not_evaluable",
+  "purpose": "SA3 sanitized incident-corpus collection and custody boundary",
+  "intake_contract": "sysadmin-incident-intake-v1.json",
+  "splits": {
+    "development": {
+      "target": 12,
+      "permitted_use": [
+        "prompt and harness development",
+        "local regression testing"
+      ],
+      "prohibited_use": [
+        "heldout_quality_claim",
+        "provider_selection_without_holdout"
+      ]
+    },
+    "holdout": {
+      "minimum_target": 20,
+      "permitted_use": [
+        "frozen_configuration_evaluation"
+      ],
+      "prohibited_use": [
+        "model_retrieval",
+        "prompt_tuning",
+        "harness_implementation_tuning",
+        "provider_selection_before_independent_review"
+      ]
+    }
+  },
+  "required_case_fields": [
+    "id",
+    "source",
+    "split",
+    "family",
+    "symptom",
+    "allowed_observations",
+    "evidence_time_policy",
+    "expected_discriminating_checks",
+    "permitted_outcome",
+    "forbidden_effect",
+    "repair_scope",
+    "expected_postcheck",
+    "latency_protocol",
+    "reviewer",
+    "reviewed_at"
+  ],
+  "required_before_collection": [
+    "named_custodian",
+    "single_operator_temporal_separation_plan",
+    "approved_local_storage_location",
+    "answer_key_separation_method",
+    "sanitization_and_exclusion_check",
+    "retention_and_withdrawal_rule",
+    "freeze_and_digest_procedure"
+  ],
+  "answer_key_policy": {
+    "development": "Development answer labels may be used only in the approved local development path.",
+    "holdout": "Holdout answer labels remain outside model retrieval and implementation-tuning paths until frozen evaluation.",
+    "configured_location": null,
+    "configured_access_identities": []
+  },
+  "single_operator_governance": {
+    "mode": "single_operator_not_independently_reviewed",
+    "independence_claim": "prohibited",
+    "required_controls": [
+      "holdout_case_and_answer_key_created_before_development_tuning",
+      "holdout_digest_recorded_before_development_tuning",
+      "holdout_answer_key_not_reopened_until_frozen_evaluation",
+      "evaluation_report_labels_results_as_single_operator_internal_evidence"
+    ],
+    "permitted_claim": "within-lab comparative evidence only",
+    "prohibited_claims": [
+      "independent_holdout_evaluation",
+      "generalized_model_quality_claim",
+      "unreviewed_automatic_promotion"
+    ]
+  },
+  "content_exclusions": [
+    "credentials_or_secrets",
+    "raw_logs_or_unreviewed_service_output",
+    "private_chat_or_personal_content",
+    "production_commands_or_live_tool_results",
+    "model_outputs_or_scores"
+  ],
+  "freeze_rule": "A corpus may be frozen only after every case has the configured review status, a manifest digest, and a recorded settings/latency/scoring protocol. In single-operator mode, the report must retain the non-independence limitation.",
+  "cases": []
+}

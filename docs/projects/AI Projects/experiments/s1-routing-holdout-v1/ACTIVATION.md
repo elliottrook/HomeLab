@@ -33,8 +33,20 @@ created. The 30-day, seven-day and 30/90-day clocks begin only when Jason suppli
 the first request. Evaluation, services, model calls, routing predictions,
 production changes and further push remain excluded.
 
-Next action: collect request text before showing or discussing labels, beginning
-with up to five sanitized timer/alarm requests authored by Jason.
+## 2026-10-03 — incomplete close-out
+
+S1 is closed incomplete with all accepted records preserved. The corpus has 45
+accepted families and receipts, but its human-accepted strata are uneven and it
+has zero of the ten required adverse-constraint cases. It cannot satisfy the
+frozen 50-family/quota protocol and therefore cannot be evaluated or used for
+routing, training, calibration, a shadow, or production selection. The exact
+bundle digests, counts and prohibited follow-on uses are recorded in
+[`CLOSEOUT-2026-10-03.md`](CLOSEOUT-2026-10-03.md) and
+[`closeout-manifest-v1.json`](closeout-manifest-v1.json). No accepted record was
+changed and no model/router/tool received S1 content.
+
+The earlier collection next action is superseded. Do not collect further S1
+requests under this frozen protocol.
 
 ## 2026-09-28 — first accepted batch
 
@@ -78,4 +90,19 @@ are in [`accepted/2026-09-28-facts-batch.json`](accepted/2026-09-28-facts-batch.
 The syntax-only validator accepted all five cases and receipts against the frozen
 plan and registry hashes. The partial batch contains five facts-stratum,
 facts/web-composition families. It remains incomplete and cannot authorize
+evaluation, deployment, routing, policy, credential, or production changes.
+
+## 2026-09-28 — fourth accepted batch
+
+Jason supplied and accepted five sanitized media requests, completed a local
+no-suggestion label workbook, self-reported five active labeling minutes, and
+explicitly approved durable local-Git retention. He explicitly approved adding
+the validator-required `multi-capability` tag to all five cases and changing the
+one internal case's cloud class to `forbidden`. The exact records and hash-bound
+receipts are in
+[`accepted/2026-09-28-media-batch.json`](accepted/2026-09-28-media-batch.json).
+
+The syntax-only validator accepted all five cases and receipts against the frozen
+plan and registry hashes. The partial batch contains five media-stratum,
+media/home-composition families. It remains incomplete and cannot authorize
 evaluation, deployment, routing, policy, credential, or production changes.

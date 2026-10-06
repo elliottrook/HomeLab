@@ -4,6 +4,42 @@
 
 **Owner:** Jason.
 
+**Current coordination and priority — 2026-10-05:** Jason requested one Codex
+window for delivery, supporting agents coordinated there, and plain-language
+explanations of practical consequences. The immediate priority is repairing the
+local-Qwen evaluation contract before a further model or hardware decision.
+The [validity review](evidence/SA3-evaluation-validity-review-2026-10-05.md)
+reproduces scorer limitations without accessing private answers. Qwen remains
+unqualified for operational diagnosis; general local-model inability and B60
+inadequacy are not established. Next safe work is a separate offline evaluator
+candidate with synthetic development tests. Doctor recovery is a separate pending
+integration task. No deployment, push or model run is authorized by this update.
+This priority supersedes older next-action prose below. The [fair thinking comparison](evidence/SA3-fair-thinking-comparison-2026-10-05.md)
+now specifies paired thinking-off/on evaluation with adequate answer budgets.
+An offline scorer candidate and synthetic fixture tests exist; no connected model
+comparison has run. Paired request construction is now tested offline; the
+[installed-version source review](evidence/SA3-per-request-thinking-2026-10-05.md)
+supports per-request overrides. Jason subsequently approved the two-request
+[smoke pair](evidence/SA3-thinking-smoke-result-2026-10-05.md): switching worked
+without restart; off took 24.431 seconds and on 158.706 seconds. Neither mode is
+qualified for operational diagnosis by this example. The synthetic multi-step
+simulator, development fixtures and explicit-execution runner are now implemented
+and locally validated. The [four-investigation plan](evidence/SA3-simulated-investigation-plan-2026-10-05.md)
+was approved and stopped at its deadline: non-thinking diagnosed the synthetic
+configuration fault in 56.902 seconds with some unsupported wording; thinking
+timed out at 300.075 seconds. The other case was not run. The server returned to
+healthy idle with unchanged PID. A [compact-thinking follow-up](evidence/SA3-investigation-development-review-2026-10-05.md)
+was subsequently approved and completed all nine calls. Compact thinking completed
+both synthetic cases in about 214 seconds each; evidence/contract weaknesses remain.
+The [finite-trial decision](evidence/SA3-local-qwen-development-decision-2026-10-05.md)
+closes budget tuning without promotion. Remote history through `ec6ebd2` is
+[reconciled locally](evidence/SA3-publication-reconciliation-2026-10-05.md), preserving
+twelve previously reviewed development records with explicitly pending newer
+contract fields. Next: obtain push approval and synchronize, then prepare a broader
+fresh independently reviewed evaluation under its existing gates. Continue
+Stream A local work without milestone-by-milestone confirmation, pause only at
+required gates and resume when granted. Production defaults remain unchanged.
+
 **Proposed:** 2026-09-25.
 
 **Authorization stream:** Stream A — Autonomous, explicitly authorized by Jason on 2026-09-25: create the AI Projects folder, adopt these documents, mark superseded plans and archive them, and start this project. The authorization covers the bounded foundation milestones and their existing exclusions, not general administrator authority, later-release scope or automatic promotion authority. Repository/platform controls and per-push confirmation remain mandatory.
@@ -174,6 +210,10 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-09-28 | SA1/SA2 one-run Doctor canary | Temporarily enabled the fixed-path adapter, read one existing sanitized Doctor report and confirmed concise presentation excluding facts/hypotheses. It observed aggregate `fail`, then disabled the adapter and removed the temporary incident state. No repair or real-user flow ran — see [canary evidence](evidence/SA1-SA2-doctor-canary-2026-09-28.md) |
 | 2026-09-28 | SA1/SA2 incident retention deployment | Added and installed 24-hour expiry, eight-incident and 256 KiB bounded-state controls; 16 contract tests pass and the deployed digest matches source. The adapter remains disabled — see [retention evidence](evidence/SA1-SA2-incident-retention-candidate-2026-09-28.md) |
 | 2026-09-28 | SA3 evaluation preregistration | Audited the existing 14-case advisor and 7-case paraphrase suites; froze a 12-case development regression slice and rejected both as the required incident holdout. No Qwen setting or provider decision changed — see [SA3 preregistration](evidence/SA3-evaluation-preregistration-2026-09-28.md) |
+| 2026-10-03 | S1 close-out and SA3 corpus readiness | Closed the 45-case S1 collection as incomplete without evaluation: final strata and adverse-constraint quotas do not satisfy the frozen protocol. Preserved every accepted record, added the missing empty SA3 intake-contract fields for repair scope, postcheck and latency, and added an empty custody template that separates future development/holdout uses and answer keys. No model, provider, router, tool or production change — see [S1 close-out](experiments/s1-routing-holdout-v1/CLOSEOUT-2026-10-03.md), [SA3 discovery](evidence/SA3-corpus-readiness-discovery-2026-10-03.md) and [custody readiness](evidence/SA3-incident-corpus-custody-readiness-2026-10-03.md) |
+| 2026-10-03 | Doctor observation, parser repair and bounded deployment | A user Doctor request reached the existing fixed-worker route but was safely retained as `unknown/interrupted`; it is not a health result. Read-only provenance found a separate summary-format incompatibility. A 21-test worker-only repair was installed with a private rollback copy and healthy post-restart observation. The uncertain job was deliberately not cleared, so a fresh Doctor result remains blocked pending reconciliation — see [observation](evidence/SA3-doctor-observation-2026-10-03.md) and [candidate/deployment record](evidence/SA3-doctor-parser-compatibility-candidate-2026-10-03.md). |
+| 2026-10-03 | Gateway regression validation | The two FastAPI-dependent Lab Operations gateway suites previously unavailable on the workstation ran in the existing Aster LXC environment: 28/28 passed in 3.3 seconds. Temporary tests were removed; no service, policy, model, credential, or configuration changed. |
+| 2026-10-03 | Offline evidence source-pin revision | Whole-file source pins failed closed after unrelated Aster changes. AST review found the harness and selector slices unchanged; explicit reviewed pin revisions were bound to the current live-matching source. In isolated LXC validation, 51/51 evidence-harness and 29/29 selector-probe tests passed. No runtime behavior changed — see [source-pin revision](evidence/SA3-offline-source-pin-revision-2026-10-03.md). |
 | 2026-09-28 | SA3 reviewed development intake | Jason approved a complete source-referenced, advisory-only 12-case development intake. The machine-validated intake is 12/12 development cases and 0/20 holdouts; no runtime, provider, reasoning, tool, or deployment change occurred — see [SA3 preregistration](evidence/SA3-evaluation-preregistration-2026-09-28.md) |
 | 2026-09-28 | SA3 holdout custody plan | Defined an unactivated 20-case solo-lab procedural-independence design with separate custodian, review, evaluation, and scoring sessions; Git retains only content-free digests and receipts. No holdout content, label, collection, evaluation, or model change exists — see [SA3 holdout custody](evidence/SA3-holdout-custody-2026-09-28.md) |
 | 2026-09-28 | SA3 custody-role rehearsal | Separate GPT/Codex sessions performed a temporary generic custody/review/evaluation/scoring handoff. The scoring role rejected an insufficient answer; no content, labels, bundle, model measurement, source data, or runtime change was retained. It is not a holdout result — see [SA3 holdout custody](evidence/SA3-holdout-custody-2026-09-28.md) |
