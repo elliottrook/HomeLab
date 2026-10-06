@@ -1,5 +1,18 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Fresh paired run approved; shared model unavailable
+
+Jason approved execution. Source and live artifact/settings checks matched.
+The launch-only authentication lookup was corrected before any evaluation call;
+frozen test code did not change. Repeated busy checks and a final 60-check bounded
+wait found no idle slot. Final health was ok, PID 489, processing 1/deferred 0,
+with no evaluation guest directory or runner. A connected client maps in the
+repository to the news aggregator; request contents were not inspected.
+See the [attempt and resumption record](evidence/SA3-fresh-evaluation-attempt-2026-10-05.md).
+All 40 investigations remain unrun; the existing approval survives this
+availability block. No scheduler, production change, model quality conclusion
+or remote Git write was introduced.
+
 ## 2026-10-05 — Fresh cases sealed; paired-run approval pending
 
 Jason approved authoring/review, carried out by separate supporting roles in

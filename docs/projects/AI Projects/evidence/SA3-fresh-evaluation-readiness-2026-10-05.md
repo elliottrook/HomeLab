@@ -1,7 +1,11 @@
 # SA3 fresh paired evaluation — readiness and execution gate
 
-Status: preparation completed on 2026-10-05; connected evaluation awaiting approval.
-No fresh model request, production change or push occurred during preparation.
+Status: preparation completed on 2026-10-05. Jason subsequently approved the
+bounded paired run in this window. The [execution attempt](SA3-fresh-evaluation-attempt-2026-10-05.md)
+matched source/runtime identity but stopped before inference because the shared
+service remained busy. Approval remains valid for resumption. No fresh model
+request, production change or push
+occurred during preparation.
 
 ## Practical purpose
 

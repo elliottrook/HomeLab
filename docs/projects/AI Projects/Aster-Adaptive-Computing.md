@@ -43,7 +43,11 @@ withheld from the evaluator/model. All 61 evaluation tests and the actual packag
 dry run pass. The [fresh evaluation readiness record](evidence/SA3-fresh-evaluation-readiness-2026-10-05.md)
 freezes source/model identity and the next connected-run gate: 40 paired
 investigations, maximum 120 calls and 200 minutes of inference. No fresh model
-request has run; this bounded shared-service window requires separate approval.
+request has run. Jason approved this bounded shared-service window, but the
+[execution preflight](evidence/SA3-fresh-evaluation-attempt-2026-10-05.md)
+stopped before inference because the single slot remained occupied by another
+client. Resume when idle under the existing approval; do not request the identical
+approval again or interrupt other workloads. No evaluator is running in the background.
 Continue
 Stream A local work without milestone-by-milestone confirmation, pause only at
 required gates and resume when granted. Production defaults remain unchanged.
