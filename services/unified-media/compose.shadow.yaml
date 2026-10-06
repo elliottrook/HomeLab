@@ -1,4 +1,25 @@
 services:
+  snapshot-refresh:
+    profiles: ["scheduled"]
+    build: ./portal
+    container_name: unified-recommendation-refresh-shadow
+    environment:
+      - PORTAL_REFRESH_LOOP=YES
+      - PORTAL_REFRESH_INTERVAL_SECONDS=${PORTAL_REFRESH_INTERVAL_SECONDS:-21600}
+      - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
+      - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
+      - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
+      - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
+      - LIDARR_URL=${LIDARR_URL:-http://192.168.20.40:8686}
+      - LIDARR_API_KEY_PATH=/run/unified-secrets/lidarr-api-key
+      - PORTAL_SEERR_QUERIES=${PORTAL_SEERR_QUERIES:-Arrival,Dune}
+      - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Kind of Blue,Bitches Brew}
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data
+      - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro
+    restart: unless-stopped
+
   recommendation-portal:
     build: ./portal
     container_name: unified-recommendation-portal-shadow
@@ -16,7 +37,7 @@ services:
       - LIDARR_QUALITY_PROFILE_ID=${LIDARR_QUALITY_PROFILE_ID:-1}
       - LIDARR_METADATA_PROFILE_ID=${LIDARR_METADATA_PROFILE_ID:-1}
     volumes:
-      - ${UNIFIED_CONFIG_PATH}/portal/recommendations.json:/data/recommendations.json:ro
+      - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data:ro
       - ${UNIFIED_CONFIG_PATH}/portal/state:/state
       - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro

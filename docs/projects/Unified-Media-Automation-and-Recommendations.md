@@ -636,3 +636,14 @@ the evidence log.
   Davis candidate then created Lidarr album `3828`, and a repeat returned
   `3828` from idempotency state. The portal action path now passes Seerr and
   Lidarr bounded tests with stale-candidate suppression.
+- 2026-10-05: With Jason's authorization, the scheduled snapshot refresher was
+  enabled as a read-only Compose profile. It uses the request-only Seerr
+  identity and Lidarr lookup reads, writes only the sanitized portal snapshot,
+  and has no media, action-state or downloader mount. Its six-hour interval is
+  explicitly bounded; failed refreshes retain the prior snapshot.
+- 2026-10-05: The first scheduled refresher run exposed and resolved a bind
+  boundary issue: atomic replacement of a single-file bind left the portal
+  reading a stale inode. The refresher now writes within a dedicated
+  `portal-refresh` directory, while the portal mounts that directory
+  read-only. A successful refresh and portal readback were verified; the
+  action-state directory and secret mounts remain separate.
