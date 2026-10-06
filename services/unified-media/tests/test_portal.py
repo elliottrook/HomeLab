@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from portal.server import (_lazylibrarian_request, action_key,
                            load_recommendations, render_html)
-from portal.refresh import _prepare_candidates
+from portal.refresh import _prepare_candidates, _unique_exact_title
 
 
 class PortalTests(unittest.TestCase):
@@ -31,6 +31,12 @@ class PortalTests(unittest.TestCase):
              "title": "Dune", "score": 0.7},
         ])
         self.assertEqual([item["title"] for item in items], ["Dune"])
+
+    def test_lidarr_title_collision_is_rejected(self):
+        self.assertIsNone(_unique_exact_title([
+            {"title": "Kind of Blue", "foreignAlbumId": "1"},
+            {"title": "KIND OF BLUE", "foreignAlbumId": "2"},
+        ], "Kind of Blue"))
 
     def test_missing_snapshot_is_empty(self):
         with tempfile.TemporaryDirectory() as directory:

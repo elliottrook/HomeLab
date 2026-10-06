@@ -747,3 +747,9 @@ the evidence log.
   the live snapshot contains 100 Jellyfin records and zero Audiobookshelf
   sessions. No user names, credentials or raw service payloads enter the
   snapshot, and library-composition fallback remains available.
+- 2026-10-06: Fixed-sample review exposed unsafe title-only Lidarr selection:
+  `Bitches Brew` and `KIND OF BLUE` had been paired with unrelated artists.
+  The refresher now requires one exact, case-insensitive title match and
+  suppresses collisions. The live sample consequently contains only five
+  unambiguous Seerr movie candidates until music queries include an explicit
+  artist identity.

@@ -123,24 +123,30 @@ def collect_lidarr():
             os.environ["LIDARR_URL"] + "/api/v1/album/lookup?" + urllib.parse.urlencode({"term": query}),
             headers=headers,
         )
-        for item in payload:
-            album_id = item.get("foreignAlbumId")
-            if not album_id or not item.get("title"):
-                continue
-            existing, _ = request_json(
-                os.environ["LIDARR_URL"] + "/api/v1/album?" + urllib.parse.urlencode({"foreignAlbumId": album_id}),
-                headers=headers,
-            )
-            if existing:
-                continue
-            artist = (item.get("artist") or {}).get("artistName", "")
-            results.append({"media_type": "album", "authority": "lidarr",
-                            "authority_id": str(album_id), "title": item["title"],
-                            "score": 0.65,
-                            "explanation": "Unmanaged album from the Lidarr catalog" +
-                            (f" by {artist}." if artist else ".")})
-            break
+        item = _unique_exact_title(payload, query)
+        if item is None:
+            continue
+        album_id = item.get("foreignAlbumId")
+        if not album_id:
+            continue
+        existing, _ = request_json(
+            os.environ["LIDARR_URL"] + "/api/v1/album?" + urllib.parse.urlencode({"foreignAlbumId": album_id}),
+            headers=headers,
+        )
+        if existing:
+            continue
+        artist = (item.get("artist") or {}).get("artistName", "")
+        results.append({"media_type": "album", "authority": "lidarr",
+                        "authority_id": str(album_id), "title": item["title"],
+                        "score": 0.65,
+                        "explanation": "Unmanaged album from the Lidarr catalog" +
+                        (f" by {artist}." if artist else ".")})
     return results
+
+
+def _unique_exact_title(items, query):
+    matches = [item for item in items if item.get("title", "").casefold() == query.casefold()]
+    return matches[0] if len(matches) == 1 else None
 
 
 def _prepare_candidates(candidates, limit=20):
