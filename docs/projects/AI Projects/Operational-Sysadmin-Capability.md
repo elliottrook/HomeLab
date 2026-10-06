@@ -1,5 +1,14 @@
 # Operational Sysadmin Capability — adopted workstream
 
+**2026-10-06 controlling amendment:** Jason adopted
+[subscription-backed Codex delegation](Codex-Delegation.md). The finite Qwen
+qualification trial is closed without promotion. Aster remains the interface;
+complex sysadmin work will delegate to the Codex agent, preserving policy,
+approval and verification. The old local-budget and Qwen-first directions below
+are historical requirements of that closed trial, not instructions to restart it.
+The programme's D0–D4 table now controls delivery order. General operational
+acceptance and authority requirements remain applicable to the delegated system.
+
 Approved by Jason on 2026-09-28 as a workstream within [Aster Adaptive Computing](Aster-Adaptive-Computing.md), not an independent project. The governing document owns authorization, milestone status and resume instructions. This specification owns technical requirements and acceptance protocol. Identity, privacy, approval and recovery foundations remain in force. Adoption changes project scope and priority; it does not claim implementation or deployment.
 
 ## Replace the success criterion
@@ -43,7 +52,11 @@ Give the preferred local option a finite trial: one pinned baseline and at most 
 
 If Qwen meets the gates, retain Qwen-only sysadmin operation within its proven scope. If it handles bounded triage but not complex investigations, use local-first triage with explicit cloud escalation. If it fails the diagnosis gate, route sysadmin work directly to a capable OpenAI reasoning model while retaining Qwen for personal analysis, summaries and tested scheduled jobs. Do not require the failing local model to recognize every case that needs escalation.
 
-For the OpenAI path, build a dedicated Responses API adapter and start with an explicitly configured capable reasoning model, such as GPT-6 Astra, at an appropriate nonzero effort. Do not only change the URL/model name in Aster's existing Chat Completions request. Evaluate it using the same task rubric and available tools. Model/API availability, billing and account setup require implementation-time verification.
+For the adopted OpenAI path, integrate the Codex agent through the supported
+subscription-backed interface. The earlier paid Responses challenger is deferred,
+not a fallback. Do not merely change Aster's Chat Completions URL/model. Verify
+installed protocol, subscription authentication and actual inference eligibility;
+maintain deterministic authority outside the model. Never silently switch billing.
 
 The local orchestrator selects the authorized provider, supplies a sanitized evidence packet, receives proposed tool calls and executes them locally through the same policy boundary. Credentials remain local. Default personal email/calendar content to Qwen-only; cloud failure leaves queued work or a clear unavailable result. The cloud model is not the only route to recover the infrastructure that hosts Aster.
 

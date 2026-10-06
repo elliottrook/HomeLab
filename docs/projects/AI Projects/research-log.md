@@ -1,5 +1,27 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Subscription delegation adopted and metadata path verified
+
+Jason directed recording the reasoning, retooling the existing project and
+continuing Stream A. Adopted Codex delegation instead of further local general
+sysadmin qualification; retained local functions and all evaluation evidence.
+Official OpenAI auth/app-server/plan-usage and Hermes provider documentation
+support the distinctions recorded in [the amendment](Codex-Delegation.md).
+
+Installed Codex CLI 0.158.0-alpha.2.1 generated protocol schemas locally.
+The initial restricted metadata probe disconnected; with platform-approved normal
+runtime access, initialize/account/read/model/list succeeded: ChatGPT auth and
+six catalogue entries. No thread/turn, inference, login/credential copy or
+production deployment occurred. Catalogue presence does not prove entitlement.
+The probe uses an allowlist of three metadata methods and suppresses account
+identifiers and subprocess stderr. Eighteen offline routing/lifecycle/storage
+tests pass. Durable dispatch claims survive reopening and reject duplicate claims;
+this is not yet an integrated transport. Nullable message phases require explicit
+abstention. The installed feature list confirms a default child may inherit tools;
+tool isolation must be verified before inference. Candidate remains outside live
+Aster; connected round trip and UI are not claimed complete. See
+[checkpoint, schema hashes and D2 preregistration](evidence/D0-D1-delegation-2026-10-06.md).
+
 ## 2026-10-06 — Fresh paired evaluation completed and blind grades reconciled
 
 Forty investigations / 120 calls completed with four clean contention pauses,

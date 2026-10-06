@@ -2,7 +2,12 @@
 
 **Active — Stream A, authorized by Jason on 2026-09-25.**
 
-Start with [Aster Adaptive Computing — Foundation and Operational Sysadmin Capability](Aster-Adaptive-Computing.md), the governing implementation document. Jason approved Operational Sysadmin Capability on 2026-09-28 as the next delivery priority. Begin SA0 source/runtime reconciliation, then read-only investigation and the finite Qwen-first trial. Existing foundation and September 27 production evidence must be reconciled; no SA milestone is complete. Aster cannot graduate as a sysadmin until SA0–SA5 pass.
+Start with [Aster Adaptive Computing](Aster-Adaptive-Computing.md), the governing
+implementation document. Jason adopted [subscription-backed Codex delegation](Codex-Delegation.md)
+on 2026-10-06: one Aster interface, deterministic/local skills for suitable work,
+and the Codex agent for complex sysadmin tasks. The finite Qwen trial is complete
+without promotion; further general-sysadmin tuning is no longer the priority.
+Follow D0–D4 in the governing document. Existing security and recovery gates remain.
 
 | Document | Role |
 |---|---|

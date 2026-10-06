@@ -1,69 +1,42 @@
 # Aster Adaptive Computing — Foundation and Operational Sysadmin Capability
 
-**Status:** Active — Stream A. Operational Sysadmin Capability (SA0–SA5) is the next delivery priority, approved by Jason on 2026-09-28. SA0 reconciliation is active; all SA gates remain open. M0 and the offline M2 foundation have evidence. M1 Stage1 is verified and the September 27 Stage2 incident repair/iPhone approval workflows were accepted, but M1 and broader programme acceptance gates are not declared complete.
+**Status:** Active — Stream A. Subscription-backed Codex delegation (D0–D4) is the next priority, adopted by Jason on 2026-10-06. The finite local-Qwen trial is closed without sysadmin promotion. Existing foundation and operational security gates remain; adopting a new engine does not complete them.
 
 **Owner:** Jason.
 
-**Current coordination and priority — 2026-10-05:** Jason requested one Codex
-window for delivery, supporting agents coordinated there, and plain-language
-explanations of practical consequences. The immediate priority is repairing the
-local-Qwen evaluation contract before a further model or hardware decision.
-The [validity review](evidence/SA3-evaluation-validity-review-2026-10-05.md)
-reproduces scorer limitations without accessing private answers. Qwen remains
-unqualified for operational diagnosis; general local-model inability and B60
-inadequacy are not established. Next safe work is a separate offline evaluator
-candidate with synthetic development tests. Doctor recovery is a separate pending
-integration task. No deployment, push or model run is authorized by this update.
-This priority supersedes older next-action prose below. The [fair thinking comparison](evidence/SA3-fair-thinking-comparison-2026-10-05.md)
-now specifies paired thinking-off/on evaluation with adequate answer budgets.
-An offline scorer candidate and synthetic fixture tests exist; no connected model
-comparison has run. Paired request construction is now tested offline; the
-[installed-version source review](evidence/SA3-per-request-thinking-2026-10-05.md)
-supports per-request overrides. Jason subsequently approved the two-request
-[smoke pair](evidence/SA3-thinking-smoke-result-2026-10-05.md): switching worked
-without restart; off took 24.431 seconds and on 158.706 seconds. Neither mode is
-qualified for operational diagnosis by this example. The synthetic multi-step
-simulator, development fixtures and explicit-execution runner are now implemented
-and locally validated. The [four-investigation plan](evidence/SA3-simulated-investigation-plan-2026-10-05.md)
-was approved and stopped at its deadline: non-thinking diagnosed the synthetic
-configuration fault in 56.902 seconds with some unsupported wording; thinking
-timed out at 300.075 seconds. The other case was not run. The server returned to
-healthy idle with unchanged PID. A [compact-thinking follow-up](evidence/SA3-investigation-development-review-2026-10-05.md)
-was subsequently approved and completed all nine calls. Compact thinking completed
-both synthetic cases in about 214 seconds each; evidence/contract weaknesses remain.
-The [finite-trial decision](evidence/SA3-local-qwen-development-decision-2026-10-05.md)
-closes budget tuning without promotion. Remote history through `ec6ebd2` is
-[reconciled locally](evidence/SA3-publication-reconciliation-2026-10-05.md), preserving
-twelve previously reviewed development records with explicitly pending newer
-contract fields. Jason approved publication; Forgejo main and GitHub mirror both
-verified `edb7cca`. A [one-window fresh evaluation preparation plan](evidence/SA3-fresh-evaluation-preparation-2026-10-05.md)
-was approved and completed: twenty fictional cases were authored, revised,
-reviewed and sealed through supporting roles in this window. Answers remain
-withheld from the evaluator/model. All 61 evaluation tests and the actual package
-dry run pass. The [fresh evaluation readiness record](evidence/SA3-fresh-evaluation-readiness-2026-10-05.md)
-freezes source/model identity and the next connected-run gate: 40 paired
-investigations, maximum 120 calls and 200 minutes of inference. No fresh model
-request has run. Jason approved this bounded shared-service window, but the
-[execution preflight](evidence/SA3-fresh-evaluation-attempt-2026-10-05.md)
-stopped before inference because the single slot remained occupied by another
-client. Resume when idle under the existing approval; do not request the identical
-approval again or interrupt other workloads. Subsequent evening recheck found
-digest text complete and Qwen idle while audio generation continued. Exact
-source/runtime pins were reverified and the approved evaluator started on LXC 110
-as PID 589. Its private journal is /var/tmp/aster-sa3-fresh-20261005/results.jsonl;
-check process/journal before any resumption. Subsequent check-ins safely resumed
-four clean busy pauses. All 40 investigations now completed (120 calls, zero
-timeouts), with healthy idle postcheck. The retrieved journal is sealed and
-verified; [mode-blind scoring is complete](evidence/SA3-fresh-evaluation-result-2026-10-06.md).
-Both modes scored 20/20 diagnostic meaning, but complete correctness was 6/20 off
-and 4/20 compact, primarily because verification plans were missing/inadequate.
-Neither meets the frozen promotion gate. Compact reasoning averaged 226 seconds
-versus 110 off and did not improve overall pass rate. No inference runner remains.
-Next local work is an offline structured-verification candidate; new qualification
-requires fresh evidence. Do not rerun this consumed corpus as unseen evidence.
-Continue
-Stream A local work without milestone-by-milestone confirmation, pause only at
-required gates and resume when granted. Production defaults remain unchanged.
+**Current direction and resume point — 2026-10-06:** Jason adopted
+[subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the
+voice/chat interface; deterministic skills and qualified local AI remain local;
+complex sysadmin work delegates to the Codex agent through an authorized
+subscription-backed path. Stop further Qwen general-sysadmin tuning as the default
+priority. Its completed evaluation is retained, not reopened or regraded.
+Jason is the owner and approver, not the technical correctness backstop.
+
+The [fresh evaluation](evidence/SA3-fresh-evaluation-result-2026-10-06.md) completed
+40 investigations: diagnostic meaning 20/20 per mode; complete correctness 6/20
+off and 4/20 compact, with verification failures dominant. Neither qualified for
+promotion. This does not prove a permanent local-AI ceiling or inadequate hardware.
+No evaluator remains running; do not replay the consumed corpus as unseen evidence.
+
+Proceed through D0–D4 below in this one window. Local implementation/read-only
+preflight proceed under Stream A. No paid API fallback, permission expansion,
+production deployment or remote Git write follows automatically. Historical SA
+and foundation records remain provenance; this direction controls conflicting
+next-action prose, including the old Section 17 resume instruction.
+
+| Gate | Current status | Required evidence before proceeding |
+|---|---|---|
+| D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth, six catalogue entries; inference entitlement unproven |
+| D1 — offline delegation contract | Initial candidate passes 18 tests; not production-ready | Routing, privacy/auth blocks, terminal result integrity, cancellation, server-request rejection and durable dispatch claims; integrated transport/reconciliation, quota handling and effective tool isolation remain |
+| D2 — synthetic subscription round trip | Not started | Fixed run manifest, permitted tools, data/host scope and successful terminal result |
+| D3 — Companion integration | Not started | Durable jobs, approvals, reconnect/cancel and local degradation checks |
+| D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
+
+Evidence and the fixed fictional D2 fixture are in
+[the D0/D1 checkpoint](evidence/D0-D1-delegation-2026-10-06.md).
+Resume with D1 transport integration and effective child-session isolation.
+Do not run the D2 fixture through a default session inheriting local tools.
+The fixture is preregistered; a reviewed executable runner is still outstanding.
 
 **Proposed:** 2026-09-25.
 
@@ -99,7 +72,7 @@ AI-PAM has implemented milestones and an initial read integration, but not full 
 
 **Excludes:** general shell/admin agents; automatic privilege changes; automatic security/evaluator-policy changes; new public ingress; production destructive tests; wholesale repository moves; new hardware; replacing Authentik/OpenBao; adopting Octelium; installing multiple orchestration/evaluation platforms; indiscriminate raw conversation retention; broad personal-data integration; an automatic production-remediation programme. Routine local implementation and synthetic evaluation are authorized within this foundation scope. New major dependencies, deployment targets, data collection and production boundary changes require the relevant milestone risk/compatibility gate; no such deployment is included in this initial baseline commit.
 
-The adopted SA workstream includes bounded investigative tools, a Qwen-first capability trial, a provider decision and one supervised repair class after its gates. It does not introduce a general shell/admin agent or automatic remediation. Full voice replacement and private/public live composition remain later release gates in this same programme. Existing domain projects remain historical evidence and independently bounded implementation dependencies; their permissions do not transfer automatically.
+The adopted SA workstream now prioritizes subscription-backed Codex agent delegation through Aster, following the closed Qwen capability trial. Bounded investigative tools and one supervised repair class retain their separate gates. Delegation introduces no unrestricted administrator authority or automatic remediation. Full voice replacement and private/public live composition remain later release gates in this same programme. Existing domain projects remain historical evidence and independently bounded implementation dependencies; their permissions do not transfer automatically.
 
 ## 4. Authority model
 
