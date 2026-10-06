@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from service_collectors import collect_arr, collect_audiobookshelf, collect_jellyfin
+from service_collectors import collect_arr, collect_audiobookshelf, collect_jellyfin, collect_lidarr
 
 
 class CollectorTests(unittest.TestCase):
@@ -19,6 +19,9 @@ class CollectorTests(unittest.TestCase):
         self.calls.append((url, kwargs))
         if url.endswith("/api/v3/movie"):
             return [{"tmdbId": 8, "title": "Arrival", "hasFile": True}], {}
+        if url.endswith("/api/v1/album"):
+            return [{"foreignAlbumId": "mb-1", "title": "Kind of Blue",
+                     "statistics": {"trackFileCount": 1}}], {}
         if url.endswith("/Items"):
             return {"Items": [{"Id": "j1", "Name": "Dune", "Type": "Movie"}]}, {}
         return {"results": [{"id": "a1", "media": {"title": "Dune"}}]}, {}
@@ -41,6 +44,11 @@ class CollectorTests(unittest.TestCase):
                                        library_ids=("lib1",))
         self.assertEqual(result[0].media_type, "audiobook")
         self.assertIn("/api/libraries/lib1/items", self.calls[0][0])
+
+    def test_lidarr_collector_uses_v1_read_route(self):
+        result = collect_lidarr("http://lidarr", str(self.key), request=self.request)
+        self.assertTrue(result[0].owned)
+        self.assertEqual(self.calls[0][0], "http://lidarr/api/v1/album")
 
 
 if __name__ == "__main__":

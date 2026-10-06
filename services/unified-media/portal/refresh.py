@@ -11,7 +11,10 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from service_collectors import collect_arr, collect_lidarr as collect_lidarr_library
+
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
+LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
 
 
 def _narrate(candidates):
@@ -134,6 +137,7 @@ def refresh_once():
     for candidate in candidates:
         unique.setdefault((candidate["authority"], candidate["authority_id"]), candidate)
     output = _narrate(list(unique.values())[:20])
+    _refresh_library_snapshot()
     SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(dir=str(SNAPSHOT_PATH.parent))
     os.close(fd)
@@ -146,6 +150,36 @@ def refresh_once():
         if os.path.exists(temporary):
             os.unlink(temporary)
     return output
+
+
+def _refresh_library_snapshot():
+    """Optionally write a separate sanitized ARR library snapshot.
+
+    This is deliberately separate from recommendations until cross-authority
+    identity matching has been validated. Missing configuration disables it.
+    """
+    if not LIBRARY_SNAPSHOT_PATH:
+        return
+    libraries = []
+    if os.environ.get("SONARR_API_KEY_PATH"):
+        libraries.extend(collect_arr(
+            os.environ.get("SONARR_URL", "http://192.168.20.40:8989"),
+            os.environ["SONARR_API_KEY_PATH"], "sonarr", request=request_json))
+    if os.environ.get("RADARR_API_KEY_PATH"):
+        libraries.extend(collect_arr(
+            os.environ.get("RADARR_URL", "http://192.168.20.40:7878"),
+            os.environ["RADARR_API_KEY_PATH"], "radarr", request=request_json))
+    if os.environ.get("LIDARR_API_KEY_PATH"):
+        libraries.extend(collect_lidarr_library(
+            os.environ.get("LIDARR_URL", "http://192.168.20.40:8686"),
+            os.environ["LIDARR_API_KEY_PATH"], request=request_json))
+    target = Path(LIBRARY_SNAPSHOT_PATH)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    temporary = target.with_suffix(".tmp")
+    with temporary.open("w", encoding="utf-8") as handle:
+        json.dump([item.__dict__ for item in libraries], handle, indent=2)
+    os.chmod(temporary, 0o644)
+    os.replace(temporary, target)
 
 
 def _csv(name: str, default: str):

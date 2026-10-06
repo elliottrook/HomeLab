@@ -678,3 +678,12 @@ the evidence log.
   credentials returned HTTP 200 from Sonarr v3 (195 series), Radarr v3 (925
   movies) and Lidarr v1 (3,806 albums). The collector layer remains opt-in;
   no API write route, scheduler configuration or secret mount was changed.
+- 2026-10-05: With Jason's authorization, the scheduled refresher gained
+  narrow, opt-in Sonarr/Radarr/Lidarr library collectors. Dedicated API keys
+  are mode-0600, container-user-owned files mounted read-only only into the
+  refresher; the portal and action container receive none of them. A bounded
+  first pass wrote a separate sanitized `library.json` containing 4,926
+  records while leaving the 20-item recommendation snapshot behavior intact.
+  The recurring refresher was recreated and its portal health/recovery path
+  remained healthy. Cross-authority identity matching is intentionally still
+  disabled until validated.

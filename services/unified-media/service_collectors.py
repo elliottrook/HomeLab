@@ -16,6 +16,7 @@ from snapshot_readers import (
     calibre_books,
     jellyfin_items,
     lazylibrarian_items,
+    lidarr_albums,
     radarr_movies,
     sonarr_series,
 )
@@ -44,6 +45,17 @@ def collect_arr(url: str, secret_path: str, authority: str, *, request: Request,
     if authority == "radarr":
         return radarr_movies(payload)
     raise ValueError("unsupported ARR authority")
+
+
+def collect_lidarr(url: str, secret_path: str, *, request: Request) -> Tuple[SnapshotItem, ...]:
+    """Read the Lidarr album library using its v1 API and API key."""
+    payload, _ = request(
+        url.rstrip("/") + "/api/v1/album",
+        headers={"X-Api-Key": _secret(secret_path)},
+    )
+    if not isinstance(payload, list):
+        raise ValueError("Lidarr library response was not a list")
+    return lidarr_albums(payload)
 
 
 def collect_jellyfin(url: str, secret_path: str, *, request: Request,

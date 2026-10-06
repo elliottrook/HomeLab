@@ -1,17 +1,24 @@
 services:
   snapshot-refresh:
     profiles: ["scheduled"]
-    build: ./portal
+    build:
+      context: .
+      dockerfile: portal/Dockerfile
     container_name: unified-recommendation-refresh-shadow
     environment:
       - PORTAL_REFRESH_LOOP=YES
       - PORTAL_REFRESH_INTERVAL_SECONDS=${PORTAL_REFRESH_INTERVAL_SECONDS:-21600}
       - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
+      - PORTAL_LIBRARY_SNAPSHOT_PATH=/data/library.json
       - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
       - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
       - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
       - LIDARR_URL=${LIDARR_URL:-http://192.168.20.40:8686}
       - LIDARR_API_KEY_PATH=/run/unified-secrets/lidarr-api-key
+      - SONARR_URL=${SONARR_URL:-http://192.168.20.40:8989}
+      - SONARR_API_KEY_PATH=/run/unified-secrets/sonarr-api-key
+      - RADARR_URL=${RADARR_URL:-http://192.168.20.40:7878}
+      - RADARR_API_KEY_PATH=/run/unified-secrets/radarr-api-key
       - PORTAL_SEERR_QUERIES=${PORTAL_SEERR_QUERIES:-Arrival,Dune}
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Kind of Blue,Bitches Brew}
       - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
@@ -23,11 +30,16 @@ services:
       - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data
       - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/sonarr-api-key:/run/unified-secrets/sonarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/radarr-api-key:/run/unified-secrets/radarr-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/aster-llama-recommendation-key:/run/unified-secrets/aster-llama-recommendation-key:ro
+    command: ["python", "/app/refresh.py"]
     restart: unless-stopped
 
   recommendation-portal:
-    build: ./portal
+    build:
+      context: .
+      dockerfile: portal/Dockerfile
     container_name: unified-recommendation-portal-shadow
     environment:
       - PORT=8787
