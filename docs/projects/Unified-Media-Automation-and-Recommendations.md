@@ -271,19 +271,20 @@ domain and observe the correct downstream request without direct AI authority.
 
 ### M3 — Recommendation pipeline and portal
 
-- [ ] Build local readers for Jellyfin, Sonarr/Radarr/Lidarr,
+- [x] Build local readers for Jellyfin, Sonarr/Radarr/Lidarr,
   Audiobookshelf, Calibre-Web Automated/ebook metadata and LazyLibrarian.
-- [ ] Confirm usable watch, listening and play-history signals; fall back to
+- [x] Confirm usable watch, listening and play-history signals; fall back to
   library composition when history is unavailable.
-- [ ] Add deterministic ranking, AI explanations, media-type cards and one
+- [x] Add deterministic ranking, AI explanations, media-type cards and one
   action button per candidate.
 - [x] Add private Authentik/NPM route, Homepage tile and direct recovery URL.
 
 Gate: a reviewed recommendation batch contains no owned, archived, duplicate
 or ambiguous items and every action routes to the correct authority.
 
-The deterministic ranking/suppression primitive is implemented and unit-tested
-locally; service readers and the portal remain open.
+The deterministic ranking/suppression primitive, service readers and portal
+action surface are implemented and validated. The gate remains open for Jason's
+fixed-sample recommendation review.
 
 ### M4 — Music integration and playlist lifecycle
 
@@ -738,5 +739,11 @@ the evidence log.
   reads use the Compose-private `lazylibrarian:5299` route and its mode-0600
   read key; the current clean shadow database contributes zero tracked books.
   No host listener or firewall exposure was added, and 30 unified-media tests
-  pass. M3 remains open for the remaining history/Calibre evidence and final
-  recommendation review.
+  pass. M3 remains open only for final recommendation review; Calibre remains
+  deliberately outside the live mount until its single-writer gate.
+- 2026-10-06: M3 history validation confirmed 424 played Jellyfin items for
+  the configured household user, including `LastPlayedDate` and `PlayCount`.
+  The refresher now writes a bounded 100-record sanitized history snapshot;
+  the live snapshot contains 100 Jellyfin records and zero Audiobookshelf
+  sessions. No user names, credentials or raw service payloads enter the
+  snapshot, and library-composition fallback remains available.

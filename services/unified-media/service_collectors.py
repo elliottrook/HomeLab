@@ -79,6 +79,38 @@ def collect_jellyfin(url: str, secret_path: str, *, request: Request,
     return jellyfin_items(payload, archive_ids=archive_ids)
 
 
+def collect_jellyfin_history(url: str, secret_path: str, user_id: str, *,
+                             request: Request) -> Tuple[Mapping[str, Any], ...]:
+    """Read one Jellyfin user's played-item signals without exposing identity."""
+    payload, _ = request(
+        url.rstrip("/") + "/Users/" + str(user_id) + "/Items",
+        params={"Recursive": "true", "IsPlayed": "true",
+                "IncludeItemTypes": "Movie,Episode,Audio,MusicAlbum",
+                "Fields": "UserData", "Limit": "100",
+                "SortBy": "DatePlayed", "SortOrder": "Descending"},
+        headers={"Authorization": (
+            'MediaBrowser Client="unified-media-reader", Device="TrueNAS", '
+            'DeviceId="unified-media-reader", Version="1", '
+            "Token=\"" + _secret(secret_path) + "\""
+        )},
+    )
+    items = payload.get("Items", []) if isinstance(payload, Mapping) else []
+    output = []
+    for item in items:
+        if not isinstance(item, Mapping) or not item.get("Id") or not item.get("Name"):
+            continue
+        user_data = item.get("UserData") or {}
+        output.append({
+            "authority": "jellyfin",
+            "authority_id": str(item["Id"]),
+            "title": str(item["Name"]),
+            "media_type": str(item.get("Type", "unknown")).lower(),
+            "last_played": user_data.get("LastPlayedDate"),
+            "play_count": user_data.get("PlayCount", 0),
+        })
+    return tuple(output)
+
+
 def collect_audiobookshelf(url: str, token_path: str, *, request: Request,
                            library_ids: Iterable[str]) -> Tuple[SnapshotItem, ...]:
     """Read configured Audiobookshelf libraries with a bearer token."""

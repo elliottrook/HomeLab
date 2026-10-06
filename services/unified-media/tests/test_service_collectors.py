@@ -4,7 +4,7 @@ from pathlib import Path
 
 from service_collectors import (collect_arr, collect_audiobookshelf,
                                 collect_audiobookshelf_history, collect_jellyfin,
-                                collect_lazylibrarian, collect_lidarr)
+                                collect_jellyfin_history, collect_lazylibrarian, collect_lidarr)
 
 
 class CollectorTests(unittest.TestCase):
@@ -24,6 +24,9 @@ class CollectorTests(unittest.TestCase):
         if url.endswith("/api/v1/album"):
             return [{"foreignAlbumId": "mb-1", "title": "Kind of Blue",
                      "statistics": {"trackFileCount": 1}}], {}
+        if "/Users/" in url:
+            return {"Items": [{"Id": "j1", "Name": "Dune", "Type": "Movie",
+                                "UserData": {"LastPlayedDate": "2026-10-01", "PlayCount": 2}}]}, {}
         if url.endswith("/Items"):
             return {"Items": [{"Id": "j1", "Name": "Dune", "Type": "Movie"}]}, {}
         if "/listening-sessions" in url:
@@ -46,6 +49,12 @@ class CollectorTests(unittest.TestCase):
         self.assertEqual(result[0].authority_id, "j1")
         self.assertNotIn("UserData", self.calls[0][1].get("params", {}))
         self.assertIn('Token="test-secret"', self.calls[0][1]["headers"]["Authorization"])
+
+    def test_jellyfin_history_is_sanitized(self):
+        result = collect_jellyfin_history("http://jellyfin", str(self.key), "user1", request=self.request)
+        self.assertEqual(result[0]["play_count"], 2)
+        self.assertEqual(result[0]["media_type"], "movie")
+        self.assertEqual(self.calls[0][1]["params"]["IsPlayed"], "true")
 
     def test_audiobookshelf_collector_scopes_library_requests(self):
         result = collect_audiobookshelf("http://abs", str(self.key), request=self.request,

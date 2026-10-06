@@ -16,6 +16,7 @@ from service_collectors import (
     collect_audiobookshelf,
     collect_audiobookshelf_history,
     collect_jellyfin,
+    collect_jellyfin_history,
     collect_lazylibrarian,
     collect_lidarr as collect_lidarr_library,
 )
@@ -234,14 +235,20 @@ def _refresh_history_snapshot():
     user_id = os.environ.get("AUDIOBOOKSHELF_USER_ID")
     if not user_id:
         return
-    history = collect_audiobookshelf_history(
+    history = list(collect_audiobookshelf_history(
         os.environ.get("AUDIOBOOKSHELF_URL", "http://192.168.20.40:30067"),
-        os.environ["AUDIOBOOKSHELF_TOKEN_PATH"], user_id, request=request_json)
+        os.environ["AUDIOBOOKSHELF_TOKEN_PATH"], user_id, request=request_json))
+    jellyfin_user_id = os.environ.get("JELLYFIN_USER_ID")
+    if jellyfin_user_id and os.environ.get("JELLYFIN_API_KEY_PATH"):
+        history.extend(collect_jellyfin_history(
+            os.environ.get("JELLYFIN_URL", "http://192.168.20.40:8096"),
+            os.environ["JELLYFIN_API_KEY_PATH"], jellyfin_user_id,
+            request=request_json))
     target = Path(HISTORY_SNAPSHOT_PATH)
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(".tmp")
     with temporary.open("w", encoding="utf-8") as handle:
-        json.dump(list(history), handle, indent=2)
+        json.dump(history, handle, indent=2)
     os.chmod(temporary, 0o644)
     os.replace(temporary, target)
 
