@@ -37,7 +37,7 @@ class CollectorTests(unittest.TestCase):
         result = collect_jellyfin("http://jellyfin", str(self.key), request=self.request)
         self.assertEqual(result[0].authority_id, "j1")
         self.assertNotIn("UserData", self.calls[0][1].get("params", {}))
-        self.assertEqual(self.calls[0][1]["headers"]["X-Emby-Token"], "test-secret")
+        self.assertIn('Token="test-secret"', self.calls[0][1]["headers"]["Authorization"])
 
     def test_audiobookshelf_collector_scopes_library_requests(self):
         result = collect_audiobookshelf("http://abs", str(self.key), request=self.request,

@@ -68,7 +68,11 @@ def collect_jellyfin(url: str, secret_path: str, *, request: Request,
             "IncludeItemTypes": "Movie,Series,MusicAlbum,Book",
             "Fields": "ProviderIds",
         },
-        headers={"X-Emby-Token": _secret(secret_path)},
+        headers={"Authorization": (
+            'MediaBrowser Client="unified-media-reader", Device="TrueNAS", '
+            'DeviceId="unified-media-reader", Version="1", '
+            "Token=\"" + _secret(secret_path) + "\""
+        )},
     )
     if not isinstance(payload, Mapping):
         raise ValueError("Jellyfin response was not an object")

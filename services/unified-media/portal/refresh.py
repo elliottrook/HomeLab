@@ -11,7 +11,11 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-from service_collectors import collect_arr, collect_lidarr as collect_lidarr_library
+from service_collectors import (
+    collect_arr,
+    collect_jellyfin,
+    collect_lidarr as collect_lidarr_library,
+)
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
 LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
@@ -60,7 +64,10 @@ def _narrate(candidates):
         return candidates
 
 
-def request_json(url: str, *, method: str = "GET", body=None, headers=None, timeout: int = 20):
+def request_json(url: str, *, method: str = "GET", body=None, headers=None,
+                 params=None, timeout: int = 20):
+    if params:
+        url += ("&" if "?" in url else "?") + urllib.parse.urlencode(params)
     encoded = None if body is None else json.dumps(body).encode("utf-8")
     request = urllib.request.Request(url, data=encoded, method=method)
     for key, value in (headers or {}).items():
@@ -173,6 +180,10 @@ def _refresh_library_snapshot():
         libraries.extend(collect_lidarr_library(
             os.environ.get("LIDARR_URL", "http://192.168.20.40:8686"),
             os.environ["LIDARR_API_KEY_PATH"], request=request_json))
+    if os.environ.get("JELLYFIN_API_KEY_PATH"):
+        libraries.extend(collect_jellyfin(
+            os.environ.get("JELLYFIN_URL", "http://192.168.20.40:8096"),
+            os.environ["JELLYFIN_API_KEY_PATH"], request=request_json))
     target = Path(LIBRARY_SNAPSHOT_PATH)
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_suffix(".tmp")

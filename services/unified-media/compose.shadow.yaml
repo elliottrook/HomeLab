@@ -19,6 +19,8 @@ services:
       - SONARR_API_KEY_PATH=/run/unified-secrets/sonarr-api-key
       - RADARR_URL=${RADARR_URL:-http://192.168.20.40:7878}
       - RADARR_API_KEY_PATH=/run/unified-secrets/radarr-api-key
+      - JELLYFIN_URL=${JELLYFIN_URL:-http://192.168.20.40:8096}
+      - JELLYFIN_API_KEY_PATH=/run/unified-secrets/jellyfin-api-key
       - PORTAL_SEERR_QUERIES=${PORTAL_SEERR_QUERIES:-Arrival,Dune}
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Kind of Blue,Bitches Brew}
       - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
@@ -32,6 +34,7 @@ services:
       - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/sonarr-api-key:/run/unified-secrets/sonarr-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/radarr-api-key:/run/unified-secrets/radarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/jellyfin-api-key:/run/unified-secrets/jellyfin-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/aster-llama-recommendation-key:/run/unified-secrets/aster-llama-recommendation-key:ro
     command: ["python", "/app/refresh.py"]
     restart: unless-stopped
