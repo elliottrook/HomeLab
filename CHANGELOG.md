@@ -710,3 +710,11 @@
 
 - Initial infrastructure baseline
 - Completed the Phase 11 firewall and recovery-coverage review: removed the obsolete Beszel rule and empty legacy UniFi alias, reconciled all six guest archives and verified mirrors, and documented representative restore evidence plus accepted recovery boundaries.
+
+## 2026-10-03 — Recovery SATA allocation
+
+Created TrueNAS Recovery mirror from owner-released IronWolf drives ZGY7C8NF
+and ZDH9JCR8, with separate quota-controlled guest/configuration/family/photo
+backup datasets. Short tests and bounded write/direct-read checks passed;
+extended SMART tests running, production migration pending. Existing pools and
+backup destinations unchanged. See docs/projects/Recovery-SATA-Mirror.md.

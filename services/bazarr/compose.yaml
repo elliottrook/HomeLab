@@ -1,0 +1,20 @@
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=America/Vancouver
+    volumes:
+      - /mnt/Media/appdata/bazarr:/config
+      - /mnt/Media/data:/media
+    ports:
+      - "6767:6767"
+    networks:
+      - new_arr_default
+    restart: unless-stopped
+
+networks:
+  new_arr_default:
+    external: true

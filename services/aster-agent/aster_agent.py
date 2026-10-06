@@ -1594,6 +1594,8 @@ async def build_payload(
 async def browser_chat() -> str:
     return """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="/aster-app-icon.png">
+<link rel="apple-touch-icon" href="/aster-app-icon.png">
 <title>Aster</title><style>
 body{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0}main{max-width:850px;margin:auto;padding:24px}
 #chat{min-height:55vh;white-space:pre-wrap}.m{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}.u{background:#1e3a5f}
@@ -1620,7 +1622,16 @@ COMPANION_SCOPE = "openid email profile offline_access"
 
 @app.get("/companion/orb.png")
 async def companion_orb() -> FileResponse:
-    return FileResponse(STATIC_DIR / "aster-orb.png", media_type="image/png")
+    return FileResponse(
+        STATIC_DIR / "aster-orb.png",
+        media_type="image/png",
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@app.get("/aster-app-icon.png")
+async def aster_app_icon() -> FileResponse:
+    return FileResponse(STATIC_DIR / "aster-app-icon.png", media_type="image/png")
 
 
 @app.get("/companion", response_class=HTMLResponse)
@@ -1642,8 +1653,8 @@ async def companion_web_client() -> str:
 <title>Aster Companion</title>
 <link rel="manifest" href="/companion/manifest.webmanifest">
 <script src="/companion/notifications.js"></script>
-<link rel="apple-touch-icon" href="/companion/orb.png">
-<link rel="icon" href="/companion/orb.png">
+<link rel="apple-touch-icon" href="/aster-app-icon.png">
+<link rel="icon" type="image/png" href="/aster-app-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Aster">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1651,7 +1662,7 @@ async def companion_web_client() -> str:
 <style>
 body{{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0;overflow-x:hidden}}
 main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
-#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
+#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
 #orb.acting{{animation:actingPulse .8s ease-in-out infinite}}
@@ -1660,7 +1671,7 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 @keyframes listeningPulse{{0%,100%{{filter:saturate(1) brightness(1) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.3) brightness(1.15) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1.06)}}}}
 #orb.speaking{{animation:speakingPulse .5s ease-in-out infinite}}
 @keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1.05)}}}}
-button.mic{{background:transparent;background-image:url('/companion/orb.png');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
+button.mic{{background:transparent;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
 button.mic.recording{{border-color:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.7)}}
 #chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
 textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
@@ -2517,7 +2528,8 @@ async def companion_manifest():
     return JSONResponse({"id": "/companion", "name": "Aster Companion", "short_name": "Aster",
                          "start_url": "/companion", "scope": "/companion", "display": "standalone",
                          "background_color": "#111827", "theme_color": "#111827",
-                         "icons": [{"src": "/companion/orb.png", "sizes": "any", "type": "image/png"}]},
+                         "icons": [{"src": "/aster-app-icon.png", "sizes": "2048x2048", "type": "image/png",
+                                    "purpose": "any maskable"}]},
                         media_type="application/manifest+json")
 
 

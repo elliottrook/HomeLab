@@ -1,0 +1,45 @@
+:root {
+  /* Shared family palette: deep navy, electric blue, violet, and warm gold. */
+  --icon-navy: #050b2b;
+  --icon-blue: #155cff;
+  --icon-violet: #762cff;
+  --icon-lilac: #c7a8ff;
+  --icon-gold: #ffd36a;
+  --icon-cream: #fff7dc;
+
+  /* Use these radii and glow layers for derivative family artwork. */
+  --icon-radius: 22%;
+  --icon-glow-blue: 0 0 18% rgba(21, 92, 255, 0.95),
+                    0 0 42% rgba(21, 92, 255, 0.58);
+  --icon-glow-warm: 0 0 16% rgba(255, 211, 106, 0.88),
+                    0 0 34% rgba(255, 146, 92, 0.42);
+}
+
+/* Reference container for previews and generated derivatives. */
+.icon-family-canvas {
+  aspect-ratio: 1;
+  background: var(--icon-navy);
+  border-radius: var(--icon-radius);
+  overflow: hidden;
+  position: relative;
+}
+
+.icon-family-canvas::after {
+  background: radial-gradient(circle at 50% 48%,
+    rgba(118, 44, 255, 0.34), transparent 58%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* Aster and News Digest derivatives share the same framing treatment. */
+.icon-family-aster,
+.icon-family-news {
+  border-radius: var(--icon-radius);
+  box-shadow: var(--icon-glow-blue), var(--icon-glow-warm);
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}

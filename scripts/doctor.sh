@@ -194,6 +194,16 @@ check_idrive_relay() {
     fi
 }
 
+check_guest_retention() {
+    local result
+    if result="$(ssh -o BatchMode=yes -o ConnectTimeout=8 truenas \
+        'python3 -c '\''import json,time; p="/mnt/Media/backup-ops/guest-retention-state.json"; s=json.load(open(p)); age=(time.time()-s.get("checked_epoch",0))/3600; print("Guest retention: status=%s, last success %.1f hours ago" % (s.get("status"),age)); raise SystemExit(0 if s.get("status")=="success" and age<30 else 1)'\''')"; then
+        pass "$result"
+    else
+        fail "Guest retention guard failed or stale: $result"
+    fi
+}
+
 check_backup_redesign_truenas() {
     local rsynctask_json gowest_epoch_raw snapshot_epoch
 
@@ -627,6 +637,46 @@ check_paperless() {
         pass "Paperless UI, summary broker, timer and worker are healthy"
     else
         fail "Paperless service or summary cycle needs attention; inspect LXC 115 check_summary.py"
+    fi
+}
+
+check_bazarr() {
+    local state
+    if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 truenas '
+        container="$(docker inspect -f "{{.State.Status}}" bazarr 2>/dev/null || true)"
+        http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:6767/ 2>/dev/null || true)"
+        policy="$(python3 - <<"PY"
+import yaml
+try:
+    data=yaml.safe_load(open("/mnt/Media/appdata/bazarr/config/config.yaml"))
+    general=data["general"]
+    sonarr=data["sonarr"]
+    radarr=data["radarr"]
+    ok=(general["wanted_search_frequency"] >= 876000 and
+        general["wanted_search_frequency_movie"] >= 876000 and
+        general["upgrade_subs"] is False and
+        sonarr["defer_search_signalr"] is False and
+        sonarr["sync_only_monitored_series"] is True and
+        sonarr["sync_only_monitored_episodes"] is True and
+        radarr["defer_search_signalr"] is False and
+        radarr["only_monitored"] is True and
+        radarr["sync_only_monitored_movies"] is True)
+    print("ok" if ok else "drift")
+except Exception:
+    print("unreadable")
+PY
+        )"
+        printf "container=%s\\nhttp=%s\\npolicy=%s\\n" "$container" "$http" "$policy"
+    ')"; then
+        fail "Bazarr health check could not reach TrueNAS"
+        return
+    fi
+    if grep -qx 'container=running' <<< "$state" &&
+       grep -qx 'http=200' <<< "$state" &&
+       grep -qx 'policy=ok' <<< "$state"; then
+        pass "Bazarr container, direct UI and new-media-only policy are healthy"
+    else
+        fail "Bazarr container, direct UI or new-media-only policy is unhealthy"
     fi
 }
 
@@ -2028,6 +2078,7 @@ check_jellyfin_integrity
 check_video_archiver
 check_news_aggregator
 check_paperless
+check_bazarr
 check_apt_proxy
 
 category "Service Reachability"
@@ -2068,6 +2119,7 @@ else
     fail "$config_backup_result"
 fi
 check_backup_redesign_truenas
+check_guest_retention
 check_home_assistant_backup_truenas
 
 category "Local Environment"

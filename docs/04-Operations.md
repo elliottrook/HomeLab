@@ -991,3 +991,18 @@ archive include the previous container writable layer; preserve them until
 recovery coverage is graduated. See the Authentik rollout project for hashes
 and exact validation. Owner-only Authentik browser access, human Settings UI
 acceptance and Homepage promotion completed on 2026-09-26.
+
+## Bazarr subtitle automation — 2026-10-05
+
+Bazarr runs on TrueNAS as container `bazarr`, from the tracked definition at
+`services/bazarr/compose.yaml`, with persistent configuration at
+`/mnt/Media/appdata/bazarr` and the shared `/mnt/Media/data` media mount. It
+joins `new_arr_default`, listens on TCP 6767, and writes additive subtitle
+sidecars for the current Sonarr/Radarr roots; archive roots are excluded.
+
+The private operator path is `https://bazarr.elliottrook.com` through NPM and
+Authentik, with Jason-only forward-auth and direct LAN recovery at
+`http://192.168.20.40:6767`. OPNsense and both Pi-holes carry the private DNS
+record; the ARR UI firewall alias includes the additional NPM-to-TrueNAS TCP
+6767 destination. Bazarr is classified in the TrueNAS application-config
+backup exporter and is checked by HomeLab Doctor.

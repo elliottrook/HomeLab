@@ -30,6 +30,7 @@
   },
   "required_case_fields": [
     "id",
+    "source",
     "split",
     "family",
     "symptom",

@@ -94,11 +94,11 @@ The desired outcome:
   - source size and mtime unchanged since it was probed.
 - **Replacement:** the output is encoded into `work/` on the same dataset, then
   `chown`/`chmod` to the original's and `os.replace` over the source (atomic).
-- **Rollback window:** `zfs snapshot Media/data@archive-compact-<ts>` before
-  the first replacement of each run. Snapshots older than 7 days are destroyed
-  by the next run. Originals are recoverable from
-  `/mnt/Media/data/.zfs/snapshot/<snap>/...` during that window, and space is
-  freed as they expire.
+- **Original retention (updated 2026-10-03):** Jason explicitly directed that
+  completed transcodes be kept and old originals deleted. The nightly runner
+  now passes `--no-snapshot`, superseding the original seven-day rollback policy.
+  Verification and atomic replacement remain required. Successful replacements
+  no longer have a snapshot recovery window.
 - **Scheduling:** TrueNAS cron, root, 02:00 daily, running `run-compact.sh`.
   - It waits up to 90 minutes for the archiver's lock.
   - Largest files are processed first, and nothing new starts past 07:30 or
@@ -174,3 +174,20 @@ The desired outcome:
   approved deployment and both retries passed (Scream 7: 1.86 GB; X-Files: 1.78 GB).
   Repository and Aster pinned Doctor both report a clean two-file run; Jellyfin
   completed the requested library scan at 13:50 PDT. [Repair evidence and resume](../runbooks/Video-Archiver-Repair-2026-09-28.md).
+
+## 2026-10-03 owner-directed archive cleanup
+
+Jason approved deleting confirmed duplicate media and old transcoding originals.
+Seven duplicate movie files were removed after probing and sampled decode checks
+on retained copies. Seven compaction snapshots and one completed repair snapshot
+on `Media/data` were deleted individually after checking holds, clones and current
+replacements. No force or recursive destruction was used. Four title matches with
+conflicting runtimes/metadata remain unresolved, not confirmed duplicates.
+
+Final verification: deleted paths absent, retained sizes/inodes unchanged,
+`Media/data` snapshot usage zero, pool ONLINE, pending freeing zero. Pool capacity
+fell from 95% to 72%; dataset available space reached 3.81 TiB. Jellyfin filesystem
+scan requested successfully. The nightly runner now uses `--no-snapshot`. This
+explicit owner decision supersedes snapshot controls R1/R2/R6 above; originals
+cannot be restored after successful replacement. No guest/cloud backup deletion
+was performed. Evidence: [duplicate sweep](../runbooks/archive-duplicate-sweep-2026-10-03.json).

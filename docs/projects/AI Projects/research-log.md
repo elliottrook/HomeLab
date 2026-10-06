@@ -1,5 +1,14 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Local publication reconciliation
+
+Merged fetched Forgejo main `ec6ebd2` locally, preserving both histories and newer
+unrelated projects. Retained twelve previously reviewed development records without
+inventing their missing newer contract fields; evaluation readiness stays blocked
+until those fields receive review. All 50 evaluation tests pass after conflict
+resolution. [Publication checkpoint](evidence/SA3-publication-reconciliation-2026-10-05.md).
+No push or deployment occurred; source-pin equivalence is not silently assumed.
+
 ## 2026-10-05 — Compact trial completed; budget tuning closed
 
 Approved compact batch completed nine requests. Unavailable-evidence off/compact:

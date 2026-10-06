@@ -1,0 +1,44 @@
+services:
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian:latest
+    container_name: unified-lazylibrarian-shadow
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=${TZ:-America/Vancouver}
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/lazylibrarian:/config
+      - ${UNIFIED_MEDIA_PATH}:/data
+    ports:
+      - "127.0.0.1:5299:5299"
+    restart: "no"
+
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:2.36.0
+    container_name: unified-audiobookshelf-shadow
+    environment:
+      - TZ=${TZ:-America/Vancouver}
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/audiobookshelf:/config
+      - ${UNIFIED_CONFIG_PATH}/audiobookshelf-metadata:/metadata
+      - ${UNIFIED_MEDIA_PATH}/media/audiobooks:/audiobooks:ro
+    ports:
+      - "127.0.0.1:30077:80"
+    restart: "no"
+
+  kavita:
+    image: lscr.io/linuxserver/kavita:latest
+    container_name: unified-kavita-shadow
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=${TZ:-America/Vancouver}
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/kavita:/config
+      # Use a disposable metadata/library copy for shadow validation. The
+      # production Calibre library is not mounted into this shadow container.
+      - ${UNIFIED_EBOOK_SHADOW_PATH}:/calibre-library
+      - ${UNIFIED_MEDIA_PATH}/ingest/books:/ingest
+    ports:
+      - "127.0.0.1:8284:5000"
+    restart: "no"

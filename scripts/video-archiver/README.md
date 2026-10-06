@@ -133,8 +133,10 @@ Radarr/Sonarr and never changes a path. See
   - three-point decode spot-check;
   - source unchanged since it was probed.
 - **Replacement and rollback:** replacement is an atomic `os.replace` with the original
-  owner and mode. A ZFS snapshot (`Media/data@archive-compact-*`) is taken before the
-  first replacement of each run and expired after `snapshot_retention_days`.
+  owner and mode. Since Jason’s 2026-10-03 instruction, the nightly runner passes
+  `--no-snapshot`: verified transcodes replace their originals without retaining
+  rollback copies. The CLI still supports snapshots for explicitly requested
+  manual runs; its default retention setting does not apply to the nightly runner.
 - **Scheduling:** it shares `lock_file` with the archiver and waits up to 90 min for it,
   then processes the largest files first until `compact.deadline`. State is kept in
   `work/compact-state.json` (skipped or failed files aren't retried unless `--retry`).

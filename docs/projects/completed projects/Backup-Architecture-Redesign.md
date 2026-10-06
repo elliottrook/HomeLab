@@ -868,3 +868,14 @@ both staging and active trees. Activation used an atomic directory exchange;
 is retained at `/var/lib/aster/knowledge.ds220j-closeout-20260922`; its provenance
 hash is `3c07f286afae4206851eb2d74e16a8bc8de04db242b33b9d85c050e7e0920f34`.
 No credential, inference, human-wiki source or application-code change was made.
+
+## Operational correction — 2026-10-03
+
+Jason approved removal of obsolete downstream guest archives and guarded
+retention reconciliation. The exact local/cloud cleanup completed; visible cloud
+payload fell from 1.675 TB to 764 GB. Source retention and family/configuration
+coverage remain unchanged. TrueNAS cron 8 now reconciles at 06:00 using the
+existing restricted read-only export, with failure/spike guards and Doctor state
+monitoring. Native rsync deletion remains disabled. No backup snapshots or cloud
+object versions were purged. Next overnight cycle validation remains pending.
+See [execution and recovery record](../../runbooks/Backup-Cleanup-Proposal-2026-10-03.md).

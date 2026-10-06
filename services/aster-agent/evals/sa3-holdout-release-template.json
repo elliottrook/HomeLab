@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "status": "template",
+  "release_id": "sa3-holdout-v1",
+  "target_cases": 20,
+  "roles": {
+    "custodian_session": "",
+    "review_session": "",
+    "evaluation_session": "",
+    "scoring_session": ""
+  },
+  "cases": []
+}

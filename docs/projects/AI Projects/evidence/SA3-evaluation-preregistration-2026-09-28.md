@@ -1,7 +1,7 @@
 # SA3 evaluation preregistration — starting corpus boundary
 
 Date: 2026-09-28
-Status: **development-only preregistration; no Qwen configuration run**
+Status: **twelve human-reviewed development cases recorded; no Qwen configuration run**
 
 ## Existing material assessment
 
@@ -40,10 +40,36 @@ unreviewed service output.
 
 The approved families remain: ARR second login; Doctor parser/schema crash;
 Paperless IP collision; NetBox guest-reboot startup; B60 software rendering;
-DNS asymmetry; missing/interrupted backup; Jellyfin authentication change;
+DNS asymmetry; missing backup configuration; interrupted backup; Jellyfin
+authentication change;
 copied-audio budgeting; stale inventory; and ambiguous ownership. A holdout must
 change causal detail or use a later incident so retrieval cannot simply repeat a
 known repair.
+
+## Reviewed development intake
+
+Jason approved two sanitized development cases on 2026-09-28. They are recorded
+in `services/aster-agent/evals/sysadmin-incident-intake-v1.json` and each
+retains an explicit source reference, allowed observations, advisory-only
+outcome, and forbidden effects:
+
+| Case | Source | Boundary retained |
+|---|---|---|
+| `video_archiver_jellyfin_verification` | `Video-Archiver-Repair-2026-09-28` | No retry, scan, credential action, or media replacement |
+| `paperless_ip_collision` | `Paperless-IP-Collision` | No address, firewall, Homepage, or NetBox change |
+
+The completed intake is **12 of 12** required development incidents. The ten
+additional case IDs are recorded in the canonical intake alongside the two
+listed above. Jason's development-case approval is not independent holdout
+review, does not create a 20-case holdout, and does not authorize a model,
+tool, or deployment change. The intake validator rejects cases that omit any
+required field or source reference, exceed split caps, allow non-advisory
+outcomes, or claim completion before reaching the twelve-case target.
+
+The source inventory for the remaining work is recorded in the
+[development-source queue](SA3-development-source-queue-2026-09-28.md). It
+identifies a family-count/source-overlap gap; no case is invented to satisfy the
+twelve-case target.
 
 ## Configuration and decision rules
 
