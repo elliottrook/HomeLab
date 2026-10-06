@@ -3,7 +3,7 @@
 Owner Jason; started 2026-10-03; Stream M. User authorized beginning sequential
 addition of the four SAS candidates, healthiest first. First bounded operation:
 attach Z1Z4BJ7Z0000C4453Q38 (WWN 5000c50058c120ef) to the existing RAIDZ2 vdev.
-Status: first expansion and post-expansion scrub complete without errors. No other candidate queued.
+Status: second expansion running since 2026-10-05 18:45 PDT, job 7963. Eight ONLINE members; BTVM and BK81 remain unused.
 
 ## Scope and live evidence
 
@@ -97,3 +97,38 @@ before another expansion or bulk backup migration.
 after 8h46m15s, zero bytes repaired and zero errors. All seven leaves remain
 ONLINE with zero counters. Media available 5.98 TiB; Recovery 3.51 TiB.
 No further expansion or backup migration has been initiated.
+
+## Second candidate preflight — 2026-10-05 18:43 PDT
+
+Jason requested continuing with the next SAS drive after the Recovery cutover.
+Recovery's migration and first cloud relay validation passed; the next overnight
+producer cycle is still pending, and the original backup sources remain intact.
+Media's first expansion and scrub passed, all seven members are ONLINE with zero
+errors, and no middleware jobs are running.
+
+Selected candidate Z1Z471FR00009443T8ED, WWN 5000c50058afa24b, remains unused,
+4,000,787,030,016 bytes. Its September 25 full write/read test passed; current
+110 grown defects, read/write/verify uncorrected 3/0/0 and non-medium 393 remain
+unchanged. It is a used disk with historical defects, not a clean-health disk.
+A fresh short self-test is running. Attach only if that test completes without
+error and a repeated exact-identity, topology and counter check passes. The
+bounded next operation widens the existing RAIDZ2 from seven to eight members;
+permanent topology change has no detach rollback. Leave BTVM and BK81 unused.
+Resume by checking live topology first; never replay an attach blindly.
+
+## Second expansion initiated — 2026-10-05 18:45 PDT
+
+Fresh short test completed without error at 63,424 power-on hours. Repeated
+preflight confirmed exact unused serial/WWN/size, unchanged health counters,
+seven healthy leaves, no active scan/expansion or middleware jobs. Submitted
+pool.attach for pool 1 and existing RAIDZ2 GUID 13190488833263279493, disk sdg
+(Z1Z471FR00009443T8ED). Job **7963** returned successfully and expansion began
+at 18:45:44 PDT. New partition UUID: 5806fe1c-c62b-4f87-86da-2222c18aac1d.
+
+Verified eight ONLINE leaves in the same RAIDZ2, zero read/write/checksum errors,
+and 16.3 TiB to redistribute. Initial ZFS estimate is not yet meaningful.
+Previous expansion took 18h33 plus an 8h46 scrub; allow roughly a day or more
+for expansion and verification, subject to live workload. Recovery stays separate.
+No further candidate queued. Next check: job 7963, zpool status Media, then
+candidate SMART counters. After completion require clean scrub and capacity/
+application checks before considering any additional expansion.
