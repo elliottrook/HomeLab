@@ -1,5 +1,23 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Fresh paired evaluation completed and blind grades reconciled
+
+Forty investigations / 120 calls completed with four clean contention pauses,
+no recorded timeout, and healthy idle final service. Sealed scoring hash verified
+before unmasking modes. Diagnostic meaning passed 20/20 in each mode; complete
+correctness passed 6/20 off and 4/20 compact. Verification omissions/inadequacies
+dominated failures. Off had two unsupported intermediate claims; compact had one
+terminal-contract failure. Both handled all four deliberate insufficiencies;
+neither claimed completed repairs or unauthorized effects.
+
+Neither candidate passes the unchanged promotion gate. The
+[decision record](evidence/SA3-fresh-evaluation-result-2026-10-06.md) recommends
+an offline structured-verification candidate, not autonomous sysadmin promotion,
+new hardware or another budget-tuning loop. Compact reasoning cost roughly twice
+the elapsed time without better overall pass rate in this small synthetic set.
+The scorer received the exact existing system verification instruction after
+noticing it was absent from the masked export; no rubric change occurred.
+
 ## 2026-10-05 — Fresh paired run approved; shared model unavailable
 
 Jason approved execution. Source and live artifact/settings checks matched.

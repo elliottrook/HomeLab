@@ -47,7 +47,20 @@ request has run. Jason approved this bounded shared-service window, but the
 [execution preflight](evidence/SA3-fresh-evaluation-attempt-2026-10-05.md)
 stopped before inference because the single slot remained occupied by another
 client. Resume when idle under the existing approval; do not request the identical
-approval again or interrupt other workloads. No evaluator is running in the background.
+approval again or interrupt other workloads. Subsequent evening recheck found
+digest text complete and Qwen idle while audio generation continued. Exact
+source/runtime pins were reverified and the approved evaluator started on LXC 110
+as PID 589. Its private journal is /var/tmp/aster-sa3-fresh-20261005/results.jsonl;
+check process/journal before any resumption. Subsequent check-ins safely resumed
+four clean busy pauses. All 40 investigations now completed (120 calls, zero
+timeouts), with healthy idle postcheck. The retrieved journal is sealed and
+verified; [mode-blind scoring is complete](evidence/SA3-fresh-evaluation-result-2026-10-06.md).
+Both modes scored 20/20 diagnostic meaning, but complete correctness was 6/20 off
+and 4/20 compact, primarily because verification plans were missing/inadequate.
+Neither meets the frozen promotion gate. Compact reasoning averaged 226 seconds
+versus 110 off and did not improve overall pass rate. No inference runner remains.
+Next local work is an offline structured-verification candidate; new qualification
+requires fresh evidence. Do not rerun this consumed corpus as unseen evidence.
 Continue
 Stream A local work without milestone-by-milestone confirmation, pause only at
 required gates and resume when granted. Production defaults remain unchanged.
