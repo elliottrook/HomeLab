@@ -261,11 +261,10 @@ removing the source Apps.
 - [x] Add duplicate, ambiguous-match, idempotency and failure handling for the
   tested Seerr/Lidarr paths.
 
-The M2 gate remains open until the portal is wired to the two-step
-LazyLibrarian add-and-queue action and its idempotency/revalidation behavior is
-tested through the approval surface. The isolated shadow API path now passes
-the metadata import and wanted-state transition without downloading a test
-payload.
+M2 gate passed in the isolated shadow path: the portal revalidated a
+LazyLibrarian candidate, performed the two-step add-and-queue action, reused
+the same result on repeat approval, and produced no test download. The
+production portal remains action-disabled until the later graduation gate.
 
 Gate: Jason can approve one synthetic or explicitly selected item in each
 domain and observe the correct downstream request without direct AI authority.
@@ -725,3 +724,10 @@ the evidence log.
   The temporary API settings and test record were removed, the original config
   restored, and the shadow service returned to HTTP 303. No production book
   workflow was changed.
+- 2026-10-06: The shadow portal integration completed the LazyLibrarian M2
+  gate. With a disposable recommendation card and temporary loopback-only API
+  key, an approved ebook action returned `add=true` and `queue=OK`; repeating
+  the same approval returned the same idempotent result. The shadow database
+  contained one `Wanted` record during the test, no `books-shadow` payload was
+  created, and the snapshot, action state, database, config and temporary key
+  were restored or removed afterward. Production portal actions remain off.

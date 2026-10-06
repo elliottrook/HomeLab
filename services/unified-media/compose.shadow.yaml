@@ -63,11 +63,14 @@ services:
       - LIDARR_ROOT=${LIDARR_ROOT:-/media/media/music}
       - LIDARR_QUALITY_PROFILE_ID=${LIDARR_QUALITY_PROFILE_ID:-1}
       - LIDARR_METADATA_PROFILE_ID=${LIDARR_METADATA_PROFILE_ID:-1}
+      - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://192.168.20.40:5299}
+      - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
     volumes:
       - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data:ro
       - ${UNIFIED_CONFIG_PATH}/portal/state:/state
       - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/lazylibrarian-api-key:/run/unified-secrets/lazylibrarian-api-key:ro
     ports:
       - "127.0.0.1:8787:8787"
       - "192.168.20.40:8787:8787"

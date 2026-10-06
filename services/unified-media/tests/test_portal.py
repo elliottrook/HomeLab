@@ -4,7 +4,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from portal.server import action_key, load_recommendations, render_html
+from portal.server import (_lazylibrarian_request, action_key,
+                           load_recommendations, render_html)
 
 
 class PortalTests(unittest.TestCase):
@@ -30,6 +31,22 @@ class PortalTests(unittest.TestCase):
         item = {"authority": "seerr", "authority_id": "1"}
         self.assertEqual(action_key(item), action_key(dict(item)))
         self.assertNotEqual(action_key(item), action_key({"authority": "lidarr", "authority_id": "1"}))
+
+    def test_lazylibrarian_revalidates_then_adds_and_queues(self):
+        with tempfile.NamedTemporaryFile(mode="w") as token:
+            token.write("shadow-key")
+            token.flush()
+            responses = [(200, [], {}), (200, True, {}), (200, "OK", {})]
+            with patch.dict("os.environ", {
+                    "LAZYLIBRARIAN_API_KEY_PATH": token.name,
+                    "LAZYLIBRARIAN_URL": "http://lazy"}), \
+                    patch("portal.server._request_json", side_effect=responses) as request:
+                result = _lazylibrarian_request({
+                    "authority_id": "OL1", "title": "Dune", "media_type": "ebook"})
+            self.assertEqual(result["authority"], "lazylibrarian")
+            self.assertEqual(request.call_count, 3)
+            self.assertIn("cmd=getAllBooks", request.call_args_list[0].args[0])
+            self.assertIn("cmd=queueBook", request.call_args_list[2].args[0])
 
 
 if __name__ == "__main__":
