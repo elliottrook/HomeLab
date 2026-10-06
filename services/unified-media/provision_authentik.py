@@ -24,6 +24,8 @@ with transaction.atomic():
             "internal_host": "http://192.168.20.40:8787",
         },
     )
+    provider.set_oauth_defaults()
+    provider.save()
     application, _ = Application.objects.update_or_create(
         slug="unified-media-recommendations",
         defaults={
