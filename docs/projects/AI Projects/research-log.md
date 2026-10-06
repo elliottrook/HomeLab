@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-05 — Compact trial completed; budget tuning closed
+
+Approved compact batch completed nine requests. Unavailable-evidence off/compact:
+56.649/214.254 seconds; configuration-fault compact: 213.856 seconds. Both modes
+showed useful evidence use, but contract/attribution/verification weaknesses remain.
+Service healthy and idle, same PID, temporary guest files removed. No promotion.
+[Finite-trial decision](evidence/SA3-local-qwen-development-decision-2026-10-05.md)
+preserves exact outputs and closes further budget tuning. Forgejo main was observed
+at `ec6ebd29c572f61aade8a91c1bff863645fd3acc`; reconcile its history before publication.
+
 ## 2026-10-05 — Original investigation batch stopped; compact candidate prepared
 
 Approved frozen batch attempted five calls: non-thinking concluded in 56.902 seconds;

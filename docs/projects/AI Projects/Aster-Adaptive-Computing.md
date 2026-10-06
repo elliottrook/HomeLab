@@ -29,8 +29,12 @@ was approved and stopped at its deadline: non-thinking diagnosed the synthetic
 configuration fault in 56.902 seconds with some unsupported wording; thinking
 timed out at 300.075 seconds. The other case was not run. The server returned to
 healthy idle with unchanged PID. A [compact-thinking follow-up](evidence/SA3-investigation-development-review-2026-10-05.md)
-is prepared and tested locally, awaiting its own connected-run approval (up to
-nine calls/15 minutes inference). Continue
+was subsequently approved and completed all nine calls. Compact thinking completed
+both synthetic cases in about 214 seconds each; evidence/contract weaknesses remain.
+The [finite-trial decision](evidence/SA3-local-qwen-development-decision-2026-10-05.md)
+closes budget tuning without promotion. Next: synchronize reviewed local work after
+remote-history reconciliation and push approval, then prepare a broader fresh
+independently reviewed evaluation under its existing gates. Continue
 Stream A local work without milestone-by-milestone confirmation, pause only at
 required gates and resume when granted. Production defaults remain unchanged.
 
