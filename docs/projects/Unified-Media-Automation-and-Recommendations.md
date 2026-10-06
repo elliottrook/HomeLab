@@ -664,3 +664,13 @@ the evidence log.
   listener. Unauthenticated HTTPS redirects to Authentik, NPM reaches the
   portal health endpoint, non-NPM backend access is denied, and the loopback
   recovery URL remains healthy.
+- 2026-10-05: The portal's Authentik provider was corrected to use Authentik's
+  canonical OAuth defaults and the existing `aster-companion-passwordless`
+  flow. Fresh unauthenticated requests now reach the WebAuthn/passkey-only
+  flow; password authentication is not used for this application.
+- 2026-10-05: Production service discovery confirmed read-only health responses
+  from Jellyfin, Seerr, Sonarr, Radarr, Lidarr, Calibre-Web Automated and the
+  production Audiobookshelf endpoint. Sanitized parser coverage was expanded
+  for those library authorities plus LazyLibrarian; 20 unified-media tests and
+  16 playlist-bridge tests pass. Live reader wiring remains gated on explicit
+  credential-path configuration and cross-authority identity validation.
