@@ -674,3 +674,7 @@ the evidence log.
   for those library authorities plus LazyLibrarian; 20 unified-media tests and
   16 playlist-bridge tests pass. Live reader wiring remains gated on explicit
   credential-path configuration and cross-authority identity validation.
+- 2026-10-05: Read-only API validation using the existing local service
+  credentials returned HTTP 200 from Sonarr v3 (195 series), Radarr v3 (925
+  movies) and Lidarr v1 (3,806 albums). The collector layer remains opt-in;
+  no API write route, scheduler configuration or secret mount was changed.
