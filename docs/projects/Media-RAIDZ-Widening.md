@@ -132,3 +132,15 @@ for expansion and verification, subject to live workload. Recovery stays separat
 No further candidate queued. Next check: job 7963, zpool status Media, then
 candidate SMART counters. After completion require clean scrub and capacity/
 application checks before considering any additional expansion.
+
+2026-10-06 08:17 PDT check: second expansion 65.39%, 10.8/16.5 TiB at
+232 MiB/s, estimated 7h09 remaining (about 15:25 PDT), before verification
+scrub. All eight leaves ONLINE, zero ZFS errors. 471FR SMART passed, 41 C,
+grown defects 110 and uncorrected read/write/verify 3/0/0 unchanged. Non-medium
+counter increased from 393 to 396; cause unconfirmed. SAS PHY invalid DWORD,
+disparity, synchronization-loss and reset-problem counters are all zero. Track
+this small increase at next check; do not describe all SMART counters as stable.
+Recovery ONLINE, zero errors, 1.13 TiB used and 2.38 TiB available. Overnight
+rsync tasks 1/2/3 succeeded (9219/9259/9277), configuration checks pass, retention
+guard succeeded at 06:00, cloud relay succeeded at 07:50:32 PDT. Old Media/backup
+and histories remain intact; source retirement requires separately reviewed scope.

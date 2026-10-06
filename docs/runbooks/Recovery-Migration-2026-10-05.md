@@ -183,3 +183,67 @@ Original photo-source reconciliation/Google retirement remains a separate phase.
 Git changes are local only until push approval. The two shadow configuration
 allowlist entries must be reviewed when their owning project retires those
 containers; the unknown-app/missing-app guards remain enabled.
+
+## Old-source retirement review — 2026-10-06
+
+Review only; no deletion authorized or executed by this review. Overnight rsync
+jobs 9219/9259/9277 passed, guard succeeded at 06:00, cloud relay succeeded at
+07:50:32 PDT, and both configuration freshness/manifest checks passed. Recovery
+is ONLINE with no ZFS errors, about 1.13 TiB used and 2.38 TiB available.
+
+Candidate boundary is exactly the single dataset Media/backup and its 24
+snapshots (September 2 through October 5, including two config-closeout snapshots
+and recovery-migration-20261005). There are no child datasets, snapshot clones,
+or user holds. ZFS reports 2,954,996,446,248 bytes used (2.69 TiB):
+1,244,343,825,648 bytes current dataset and 1,710,652,620,600 bytes snapshot-only
+history. These are dataset accounting figures, not a promise of an identical
+change in RAIDZ physical free space. Deleting only files would leave blocks
+pinned by snapshots and would not recover the whole amount.
+
+All three rsync tasks target Recovery. SMB home-assistant and three enabled
+backup NFS exports target Recovery; the old backup NFS export is disabled.
+Proxmox has only the three Recovery NFS mounts. No replication jobs exist.
+Old backup snapshot tasks 2/3/4 are disabled. The remaining Media snapshot task
+is nonrecursive, so it does not snapshot this child dataset. Config exporter
+and retention guard scripts contain no old /mnt/Media/backup/ destination.
+No container mounts this dataset directly; Filebrowser mounts its parent
+/mnt/Media and can browse it, so source removal will remove this old location
+from that UI. The active Media/backup-ops sibling must be preserved.
+
+All nine current trees passed full checksum/metadata comparison during migration.
+The fresh lightweight comparison is for changes since cutover, not a repeated
+multi-terabyte checksum read while expansion is running. Guest differences:
+17 September 29 archives removed by the successful retention guard (39,005,084,588
+bytes), with 17 new October 6 archives on Recovery. Aster's separate pull likewise
+replaced its September 29 archive with October 6. These old generations are
+intentional retention expiry, not missing migration data.
+
+Recommended sequence: finish expansion and clean verification scrub, repeat
+healthy/fresh-backup and no-writer checks, then obtain explicit approval for the
+exact Media/backup dataset plus all 24 old snapshots and removal of its disabled
+NFS/snapshot task references. Deletion of history is permanent; current migrated
+backups and new Recovery retention remain, but pre-cutover deleted/changed family
+or configuration versions in old snapshots would no longer be recoverable there.
+Do not imply every historical snapshot is duplicated on Recovery. Do not remove
+Media/backup-ops, Media/appdata, media/photo originals, Recovery datasets, cloud
+objects or cloud versions. No restore of the deleted old history is promised.
+
+Fresh comparison completed: 111,802 old regular files inspected across all nine
+trees. All 110,796 Gowest regular files have counterparts on Recovery; its only
+four metadata differences are newer Synology config export/status/previous/lock
+files under homes/.homelab-config-backups. All five TrueNAS config files are
+newer export/status/log/previous/lock generations. Mac (778), Jellyfin (8),
+Paperless service (1) and reconstruction (12) files have zero missing or changed
+size/mtime entries. Home Assistant rotated the October 3 archive (28,047,360
+bytes) out and created October 6 (28,252,160 bytes). Together with the 18 guest
+rotations above, no unexplained missing current regular files were found.
+Symlink/content integrity relies on the prior full rsync -aHAX checksum migration
+verification; this review deliberately did not reread all file contents.
+
+Review outcome: retirement is recommended after expansion plus clean scrub,
+subject to explicit approval for permanent loss of all 24 old snapshot versions.
+Nothing deleted. The source currently offers rollback/history only; new backups
+and monitoring use Recovery. Disabled NFS/task cleanup is included in the proposed
+bounded operation to avoid stale dataset references. Recheck exact snapshot set,
+no active writers, matching source inventory and fresh backup health immediately
+before execution; stop if the reviewed scope has changed.
