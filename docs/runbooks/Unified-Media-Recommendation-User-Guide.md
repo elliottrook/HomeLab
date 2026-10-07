@@ -62,9 +62,12 @@ stale data, missing credentials or a failed dependency.
 7. Follow progress in the authority's normal UI: Seerr for films/TV, Lidarr
    for music and LazyLibrarian for books.
 
-The current interface has an **All**, **Film** and **TV** filter when those
-categories have candidates. Each card shows a poster when available, synopsis,
-year, rating, genres, source, why it was selected and whether it is ready for
+The current interface has an **All** filter plus one filter for each category
+that currently has candidates: **Film**, **TV**, **Music album**, **Ebook** and
+**Audiobook**. The refresh is bounded at up to 40 safe candidates, so the page
+may contain fewer than 40 when provider limits, duplicates or owned/archive
+suppression apply. Each card shows a poster when available, synopsis, year,
+rating, genres, source, why it was selected and whether it is ready for
 approval. This is a deliberate improvement over the original diagnostic page.
 
 ## Category-specific behavior
