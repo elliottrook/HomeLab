@@ -1,5 +1,9 @@
 # D3 Mac Keychain custody — exact approval gate
 
+**Completed:** approved check passed; independent cleanup returned item not found.
+See [result](D3-keychain-custody-result-2026-10-06.md). Approval is consumed.
+The procedure below is retained as historical provenance.
+
 **Prepared, not executed.** The gateway's encrypted delivery passed; this is the
 remaining unverified storage primitive on the Mac. The private provisioning
 controller must not assume that a compiled helper proves Keychain access works.

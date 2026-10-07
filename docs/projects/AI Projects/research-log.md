@@ -1,5 +1,14 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved Mac Keychain check passed
+
+Exact fingerprint ran once: create, fixed reader equality, delete and helper
+cleanup passed. Independent name-only query returned Keychain status 44/not found.
+No real credentials, recovery material, model call or persistent item. Same-user
+custody limits and legacy API warnings remain. Approval consumed; continue the
+protected controller rather than repeating custody checks. See
+[result](evidence/D3-keychain-custody-result-2026-10-06.md).
+
 ## 2026-10-06 — Exact Mac custody validation prepared
 
 Added a default-inert create/read/delete check for only the fictional worker
