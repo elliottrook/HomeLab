@@ -26,6 +26,9 @@ It is not an Aster service, an intent classifier or a complete security boundary
   `aster_agent.py`, and the renderer is not loaded by the live page. No endpoint
   starts or retries model work. The route factory must receive `companion_owner`
   from the gateway, never an owner supplied in the request body.
+- `runtime.py`: explicit private state owner with an exclusive OS lock. Disabled
+  by default; no background service or network listener. Startup/shutdown marks
+  unfinished jobs unknown, preserving identity and preventing replay.
 
 Run offline checks from the repository root:
 
@@ -37,7 +40,7 @@ node services/aster-agent/delegation/test_companion_view.cjs
 HTTP tests require Python 3.10+ and the existing gateway's pinned FastAPI, httpx
 and Pydantic versions. Without them those seven tests explicitly skip; do not
 report that run as full HTTP validation. On 2026-10-06 a disposable Python 3.11
-environment ran all 71 Python tests plus five renderer scenarios successfully.
+environment ran all 80 Python tests plus five renderer scenarios successfully.
 
 The metadata probe requires `--inspect-installed` to do anything. It uses the
 existing supported Codex sign-in and prints no account address or credentials.
@@ -79,8 +82,11 @@ Usage received before acknowledgement is associated only after turn matching;
 late usage can be retained after completion. The one-turn pilot may close before
 a late event arrives, so missing telemetry still stays unknown.
 
-Production integration still needs a single session/process owner, protected
-state directory, bounded retention, startup reconciliation, transport recovery,
-real Authentik testing and a reviewed Mac-to-Aster deployment boundary. The local
+The local runtime now enforces single-process state ownership, private state,
+restart uncertainty, 24-hour numeric-usage expiry and a 64-job admission cap.
+Identifiers are retained to prevent replay; a full ledger fails closed. This is
+a bounded pilot policy, not complete long-term archival. Production integration
+still needs two-host receipt reconciliation, transport recovery, real Authentik
+testing and a reviewed Mac-to-Aster deployment boundary. The local
 HTTP tests use fixture identities, not real identity-provider tokens. Do not
 route Codex jobs through the old notification `run_job` restart/failure behavior.

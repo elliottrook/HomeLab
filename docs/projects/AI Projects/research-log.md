@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Gateway reconciliation and private worker lifecycle
+
+Read-only LAN checks found the LXC 104 gateway active with one worker and its
+main source hash identical to this worktree. Mac HTTPS access to Companion
+returned 200; authenticated worker access remains untested. Proposed an outbound
+Mac worker through the existing private gateway, keeping Codex credentials local.
+Implemented exclusive private state ownership, crash/startup uncertainty,
+bounded job admission and telemetry expiry. 80 Python tests and five renderer
+scenarios pass. No live mutation or new inference. See
+[placement/lifecycle evidence](evidence/D3-placement-lifecycle-2026-10-06.md).
+
 ## 2026-10-06 — Usage and owner-scoped Companion candidate
 
 Added numeric usage snapshots, owner-bound claims, uncertainty persistence,
