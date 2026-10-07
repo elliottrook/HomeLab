@@ -53,6 +53,23 @@ def _poster_url(item: Mapping[str, Any]) -> str:
     return ""
 
 
+def _source_url(item: Mapping[str, Any]) -> str:
+    """Return a read-only source page for the item's authority identity."""
+    authority = str(item.get("authority", ""))
+    media_type = str(item.get("media_type", ""))
+    authority_id = str(item.get("authority_id", "")).strip()
+    if not authority_id:
+        return ""
+    if authority == "seerr" and media_type in {"movie", "tv"} and authority_id.isdigit():
+        return f"https://www.themoviedb.org/{media_type}/{urllib.parse.quote(authority_id, safe='')}"
+    if authority == "openlibrary":
+        key = authority_id if authority_id.startswith("/") else f"/works/{authority_id}"
+        return "https://openlibrary.org" + urllib.parse.quote(key, safe="/")
+    if authority == "musicbrainz":
+        return f"https://musicbrainz.org/release-group/{urllib.parse.quote(authority_id, safe='')}"
+    return ""
+
+
 def render_html(items: list[dict[str, Any]]) -> str:
     counts: dict[str, int] = {}
     cards = []
@@ -73,8 +90,11 @@ def render_html(items: list[dict[str, Any]]) -> str:
         genres = item.get("genres") if isinstance(item.get("genres"), list) else []
         genre_text = html.escape(" · ".join(str(value) for value in genres[:3]))
         poster = _poster_url(item)
-        poster_html = (f"<img class='poster' src='{html.escape(poster, quote=True)}' alt='{title} artwork' loading='lazy'>"
+        source_url = _source_url(item)
+        poster_image = (f"<img class='poster' src='{html.escape(poster, quote=True)}' alt='{title} artwork' loading='lazy'>"
                        if poster else "<div class='poster poster-fallback' aria-label='Artwork unavailable'>✦</div>")
+        poster_html = (f"<a class='poster-link' href='{html.escape(source_url, quote=True)}' target='_blank' rel='noopener noreferrer' aria-label='Open {title} source page'>{poster_image}</a>"
+                       if source_url else poster_image)
         metadata = " · ".join(value for value in (year, rating_text, genre_text) if value)
         source = html.escape(str(item.get("source_label") or item.get("authority", "")))
         eligible = not item.get("owned") and not item.get("archived") and item.get("match_count", 1) == 1
@@ -90,12 +110,14 @@ def render_html(items: list[dict[str, Any]]) -> str:
         else:
             action = "<button type='button' class='request-button' disabled>Unavailable</button>"
             status = "<span class='status'>Already owned, archived, or ambiguous</span>"
+        source_link = (f"<a class='source-link' href='{html.escape(source_url, quote=True)}' target='_blank' rel='noopener noreferrer'>Open source page ↗</a>"
+                       if source_url else "")
         cards.append(
             f"<article class='card' data-type='{html.escape(kind, quote=True)}'>"
             f"{poster_html}<div class='card-content'><div class='eyebrow'>{display_type}"
             f"<span class='source'>{source}</span></div><h2>{title}</h2>"
             f"<p class='metadata'>{metadata}</p>{creator_html}<p class='overview'>{overview}</p>"
-            f"<div class='why'><strong>Why this is here</strong><p>{explanation}</p></div>"
+            f"<div class='why'><strong>Why this is here</strong><p>{explanation}</p></div>{source_link}"
             f"<div class='card-footer'>{status}{action}<span class='result' role='status'></span></div>"
             f"</div></article>"
         )
@@ -157,7 +179,7 @@ document.querySelectorAll('.request-button:not([disabled])').forEach((button) =>
 """
     style = """
 <style>
-:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--panel2:#1b2740;--text:#f4f7fb;--muted:#aab6ca;--accent:#8bd3ff;--accent2:#b9f2d0;--line:#2b3a58}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#25395a 0,#0b1020 48%);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1180px;margin:auto;padding:42px 24px 72px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px}.kicker,.eyebrow{color:var(--accent);font-size:.78rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.kicker{margin-bottom:10px}h1{font-size:clamp(2.2rem,6vw,4.5rem);line-height:1.02;margin:0;letter-spacing:-.05em}header p{max-width:560px;color:var(--muted);margin:.9rem 0 0}.toolbar{display:flex;align-items:center;gap:12px;margin:0 0 14px}.toolbar label{font-size:.8rem;color:var(--muted);white-space:nowrap}.toolbar input{width:min(520px,100%);border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--text);font:inherit;padding:10px 13px}.refreshed{margin-left:auto;color:var(--muted);font-size:.76rem}.filters{display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:#111a2c;border:1px solid var(--line);border-radius:16px;margin-bottom:24px}.filter{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:9px 15px;font:inherit;cursor:pointer}.filter.active,.filter:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.filter span{font-size:.8em;opacity:.75}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card{display:grid;grid-template-columns:116px 1fr;gap:18px;background:linear-gradient(145deg,var(--panel),#10182a);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 30px #0003}.poster{width:116px;height:174px;border-radius:11px;object-fit:cover;background:#263653}.poster-fallback{display:grid;place-items:center;font-size:2.5rem;color:var(--accent)}.card-content{min-width:0}.source{float:right;color:var(--muted);font-size:.72rem;letter-spacing:0;text-transform:none}.card h2{font-size:1.35rem;line-height:1.12;margin:.5rem 0 .2rem}.metadata{color:var(--muted);font-size:.82rem;min-height:1.25em;margin:0 0 .8rem}.creator{color:#dce4f1;font-size:.84rem;margin:.25rem 0 .65rem}.creator strong{color:var(--accent2);font-weight:700}.overview{color:#dce4f1;font-size:.9rem;margin:.4rem 0 1rem;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.why{border-left:3px solid var(--accent);padding-left:10px;color:var(--muted);font-size:.82rem}.why strong{color:var(--accent2)}.why p{margin:.2rem 0}.card-footer{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:18px}.request-button{border:0;border-radius:10px;background:var(--accent);color:#07111d;font:700 .9rem system-ui;padding:10px 13px;cursor:pointer}.request-button:hover{filter:brightness(1.08)}.request-button:disabled{background:#44516a;color:#c1cada;cursor:not-allowed}.status{font-size:.72rem;color:var(--muted);flex:1}.status-ready{color:var(--accent2)}.result{width:100%;font-size:.78rem}.success{color:var(--accent2)}.error{color:#ffaaa8}.empty{padding:50px;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}footer{color:var(--muted);font-size:.8rem;margin-top:28px}@media(max-width:600px){main{padding:26px 14px 50px}header{display:block}.toolbar{display:block}.toolbar label{display:block;margin-bottom:6px}.refreshed{display:block;margin:8px 0}.grid{display:block}.card{margin-bottom:16px}.card h2{font-size:1.2rem}}
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--panel2:#1b2740;--text:#f4f7fb;--muted:#aab6ca;--accent:#8bd3ff;--accent2:#b9f2d0;--line:#2b3a58}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#25395a 0,#0b1020 48%);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1180px;margin:auto;padding:42px 24px 72px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px}.kicker,.eyebrow{color:var(--accent);font-size:.78rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.kicker{margin-bottom:10px}h1{font-size:clamp(2.2rem,6vw,4.5rem);line-height:1.02;margin:0;letter-spacing:-.05em}header p{max-width:560px;color:var(--muted);margin:.9rem 0 0}.toolbar{display:flex;align-items:center;gap:12px;margin:0 0 14px}.toolbar label{font-size:.8rem;color:var(--muted);white-space:nowrap}.toolbar input{width:min(520px,100%);border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--text);font:inherit;padding:10px 13px}.refreshed{margin-left:auto;color:var(--muted);font-size:.76rem}.filters{display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:#111a2c;border:1px solid var(--line);border-radius:16px;margin-bottom:24px}.filter{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:9px 15px;font:inherit;cursor:pointer}.filter.active,.filter:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.filter span{font-size:.8em;opacity:.75}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card{display:grid;grid-template-columns:116px 1fr;gap:18px;background:linear-gradient(145deg,var(--panel),#10182a);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 30px #0003}.poster-link{display:block;text-decoration:none}.poster-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.poster{width:116px;height:174px;border-radius:11px;object-fit:cover;background:#263653}.poster-fallback{display:grid;place-items:center;font-size:2.5rem;color:var(--accent)}.card-content{min-width:0}.source{float:right;color:var(--muted);font-size:.72rem;letter-spacing:0;text-transform:none}.source-link{display:inline-block;color:var(--accent);font-size:.78rem;margin-top:10px;text-decoration:none}.source-link:hover{text-decoration:underline}.card h2{font-size:1.35rem;line-height:1.12;margin:.5rem 0 .2rem}.metadata{color:var(--muted);font-size:.82rem;min-height:1.25em;margin:0 0 .8rem}.creator{color:#dce4f1;font-size:.84rem;margin:.25rem 0 .65rem}.creator strong{color:var(--accent2);font-weight:700}.overview{color:#dce4f1;font-size:.9rem;margin:.4rem 0 1rem;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.why{border-left:3px solid var(--accent);padding-left:10px;color:var(--muted);font-size:.82rem}.why strong{color:var(--accent2)}.why p{margin:.2rem 0}.card-footer{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:18px}.request-button{border:0;border-radius:10px;background:var(--accent);color:#07111d;font:700 .9rem system-ui;padding:10px 13px;cursor:pointer}.request-button:hover{filter:brightness(1.08)}.request-button:disabled{background:#44516a;color:#c1cada;cursor:not-allowed}.status{font-size:.72rem;color:var(--muted);flex:1}.status-ready{color:var(--accent2)}.result{width:100%;font-size:.78rem}.success{color:var(--accent2)}.error{color:#ffaaa8}.empty{padding:50px;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}footer{color:var(--muted);font-size:.8rem;margin-top:28px}@media(max-width:600px){main{padding:26px 14px 50px}header{display:block}.toolbar{display:block}.toolbar label{display:block;margin-bottom:6px}.refreshed{display:block;margin:8px 0}.grid{display:block}.card{margin-bottom:16px}.card h2{font-size:1.2rem}}
 </style>
 """
     for item, card in zip(items, cards):

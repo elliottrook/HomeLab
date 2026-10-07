@@ -22,8 +22,9 @@ engine supplies better candidates, evidence and freshness.
 
 ## Recommendation contract
 
-- Video candidates combine Jellyfin history/library signals with TMDb/Seerr
-  discovery; Seerr remains the request authority.
+- Video candidates combine Jellyfin history/library signals with TMDb per-title
+  recommendations and, optionally, personal Trakt recommendations; Seerr
+  remains the request authority.
 - Music candidates use Jellyfin listening signals plus MusicBrainz identity and
   a configured discovery source such as ListenBrainz or Last.fm; Lidarr remains
   the request authority.
@@ -33,9 +34,13 @@ engine supplies better candidates, evidence and freshness.
 - The B60 may produce local explanations and embeddings, but not direct access
   to download clients or production credentials. Core ranking is deterministic
   and auditable.
-- Every card records source, rationale, candidate age and exact downstream
-  action. No automatic acquisition, artist following, author following or
-  series following.
+- Every card records source, rationale, candidate age, read-only source link
+  and exact downstream action. No automatic acquisition, artist following,
+  author following or series following.
+- Jellyfin's official Trakt plugin is an optional personal-history feed. It may
+  synchronize Jason's selected Jellyfin watch state to Trakt after explicit
+  account authorization; it is not a bulk catalogue mirror or an authority
+  for acquisition.
 
 ## Design-system prerequisite
 
@@ -57,10 +62,9 @@ be separate revisions rather than incidental redesign during engine work.
 
 - The private recommendation portal already runs in the shadow Docker project
   at `recommendations.elliottrook.com` behind the existing Authentik/NPM path.
-- The current snapshot is refreshed by the shadow refresher and currently has
-  real Seerr discovery candidates for film and TV, with the deterministic
-  ranking foundation now in Git. Music, ebook and audiobook provider feeds
-  remain to be connected.
+- The current snapshot is refreshed by the shadow refresher and uses bounded
+  TMDb per-title video recommendations plus the deployed non-video adapters.
+  Trakt is a planned optional personal-history source, not yet connected.
 - TrueNAS remains authoritative for the media services and active/archive
   libraries. Jellyfin and Audiobookshelf own user history; Sonarr/Radarr/Lidarr
   own managed media; Seerr/Lidarr/LazyLibrarian own request actions.
@@ -72,8 +76,10 @@ be separate revisions rather than incidental redesign during engine work.
 
 In scope are read-only signal collection, bounded external metadata adapters,
 deterministic ranking, local explanations, source/rationale display, the
-existing explicit request adapters, portal icon/manifest integration, and the
-operator manual required for the resulting user workflow.
+existing explicit request adapters, portal icon/manifest integration, source
+detail links, the unified media search/discovery page, optional Trakt
+personal-history integration, and the operator manual required for the
+resulting user workflow.
 
 Excluded are a second GPU, migration of Jellyfin/ARR services, changes to the
 four-month active-to-archive lifecycle, automatic acquisition, whole-artist or
@@ -119,13 +125,13 @@ mandatory.
 ```text
 Jellyfin / Audiobookshelf / Calibre signals (read-only)
                     +
-   Seerr/TMDb · MusicBrainz/music discovery · Open Library/Books
+   Seerr/TMDb · optional Trakt · MusicBrainz/music discovery · Open Library/Books
                     |
           sanitized candidate adapters
                     |
        deterministic ranker + local B60 explanation
                     |
-      private recommendation portal and audit state
+      private recommendations + unified discovery portal
                     |
  Seerr / Lidarr / LazyLibrarian only after explicit user approval
 ```
@@ -140,8 +146,9 @@ Readers use dedicated least-privilege API keys/tokens from protected secret
 paths. Raw service responses and credentials are not written to the Git tree or
 sent to the B60. Provider queries are bounded, cached and rate-limited. Logs
 must contain source names, counts and failure classes, never tokens, passwords,
-session cookies or personal history payloads. Request adapters remain the only
-write boundary.
+session cookies or personal history payloads. Personal watch history is sent
+to Trakt only if Jason explicitly authorizes the Jellyfin/Trakt connection.
+Request adapters remain the only write boundary.
 
 ## Milestones
 
@@ -157,6 +164,12 @@ write boundary.
 - [ ] **M2 — Candidate adapters.** Add TMDb/Seerr, MusicBrainz plus the chosen
   music discovery provider, and Open Library/Google Books adapters with cache,
   rate limits and stale-source handling.
+- [ ] **M2b — Personal taste and discovery.** Install/configure Jellyfin's
+  official Trakt plugin only after Jason's account authorization; read personal
+  Trakt recommendations and synchronized watch/rating signals without exposing
+  credentials to the recommendation UI. Add source links behind artwork and
+  begin the unified all-media search page using TMDb, Open Library and
+  MusicBrainz.
 - [ ] **M3 — Ranking and explanations.** Implement deterministic scoring,
   duplicate/owned/archive suppression, source evidence, and optional local B60
   explanations.
@@ -264,6 +277,7 @@ only the portal if needed.
 | 2026-10-07 | Video source refactor prepared locally | Replaced generic Seerr discovery in the refresher with bounded TMDB per-title recommendations seeded from Radarr/Sonarr identities; Seerr remains only the request authority. Added regression coverage; 51 tests pass. | Local refactor awaits shadow deployment and live source validation |
 | 2026-10-07 | TMDB fail-soft fix prepared locally | A live probe found one Seerr-proxied TMDB seed returning HTTP 500, which could abort the entire refresh. TMDB seed and TV-detail failures now skip only the affected item; 52 tests pass. | Local fix awaits redeployment and completion-time validation |
 | 2026-10-07 | TMDB per-title source deployed and validated | Preserved a timestamped rollback build, rebuilt and recreated only `snapshot-refresh`, and waited for a completed refresh. The live snapshot now contains 10 candidates: 4 video items labeled `TMDB per-title recommendations`, 3 ebooks, 2 albums and 1 audiobook; the previous `Seerr discovery` label is absent. A failed provider seed was skipped without aborting the refresh, and the refresher remains running. | TMDB-backed video source is live in the shadow portal; generic Seerr discovery is removed from the recommendation path |
+| 2026-10-07 | Trakt/discovery expansion started | Verified Jellyfin's official Trakt plugin is available through the Jellyfin plugin catalog for watch-state synchronization. Added the optional personal-history integration, unified search/discovery page, and source-link requirements to Stream A. The portal now links artwork and an explicit `Open source page` affordance to TMDB, Open Library or MusicBrainz; focused portal tests pass 17/17. | Trakt account authorization and live plugin configuration remain intentionally pending; unified search backend and Trakt adapter are the next implementation milestone |
 
 ## Acceptance evidence
 

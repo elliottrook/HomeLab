@@ -47,6 +47,20 @@ class PortalTests(unittest.TestCase):
         self.assertIn("A desert planet becomes the centre of an empire.", html)
         self.assertIn("https://covers.example/dune.jpg", html)
 
+    def test_render_links_artwork_to_read_only_source_pages(self):
+        html = render_html([
+            {"title": "Arrival", "media_type": "movie", "authority": "seerr",
+             "authority_id": "329865", "poster_path": "/arrival.jpg"},
+            {"title": "Dune", "media_type": "ebook", "authority": "openlibrary",
+             "authority_id": "/works/OL123W", "poster_path": "https://covers.example/dune.jpg"},
+            {"title": "Dummy", "media_type": "album", "authority": "musicbrainz",
+             "authority_id": "abc-123", "poster_path": "https://cover.example/dummy.jpg"},
+        ])
+        self.assertIn("https://www.themoviedb.org/movie/329865", html)
+        self.assertIn("https://openlibrary.org/works/OL123W", html)
+        self.assertIn("https://musicbrainz.org/release-group/abc-123", html)
+        self.assertIn("target='_blank'", html)
+
     def test_render_links_approved_branding_assets(self):
         html = render_html([])
         self.assertIn("rel='icon'", html)
