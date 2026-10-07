@@ -34,6 +34,7 @@ services:
       - PORTAL_SEERR_SOURCE=${PORTAL_SEERR_SOURCE:-discover}
       - PORTAL_DISCOVERY_PAGES=${PORTAL_DISCOVERY_PAGES:-1}
       - PORTAL_DISCOVERY_LIMIT=${PORTAL_DISCOVERY_LIMIT:-12}
+      - PORTAL_RECOMMENDATION_LIMIT=${PORTAL_RECOMMENDATION_LIMIT:-40}
       - PORTAL_SEERR_QUERIES=${PORTAL_SEERR_QUERIES:-Arrival,Dune}
       # Music candidates require an explicit artist|album identity. Legacy
       # title-only entries are ignored by the refresher.

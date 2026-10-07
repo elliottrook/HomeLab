@@ -270,6 +270,7 @@ def refresh_once():
     _refresh_history_snapshot()
     output = _narrate(_prepare_candidates(
         candidates,
+        limit=max(1, min(40, int(os.environ.get("PORTAL_RECOMMENDATION_LIMIT", "40")))),
         library=_read_snapshot_items(LIBRARY_SNAPSHOT_PATH),
         history=_read_snapshot_items(HISTORY_SNAPSHOT_PATH),
     ))
