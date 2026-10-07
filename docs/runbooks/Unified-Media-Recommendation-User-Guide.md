@@ -38,6 +38,12 @@ The embedded Codex browser cannot complete this passkey flow reliably. If it
 stops at the Authentik passwordless page, that is an authentication limitation,
 not evidence that the portal is broken.
 
+The portal uses the approved Unified Media Recommendations icon as its browser
+favicon and as its iPhone/iPad home-screen icon. If you add the page to your
+home screen, use the browser's Share menu after the authenticated page has
+loaded. A stale icon can be cached by the browser; reload the page or remove
+and re-add the shortcut before reporting a branding problem.
+
 If the page is read-only or action buttons are disabled, do not work around it
 by retrying requests. This is the fail-closed behavior used for maintenance,
 stale data, missing credentials or a failed dependency.

@@ -251,7 +251,7 @@ only the portal if needed.
 | 2026-10-07 | Stream A start requested | Jason explicitly asked to start this mini-project as Stream A | Scope, risks and exclusions recorded; project active |
 | 2026-10-07 | Icon approved | Local asset revision `7c14030`; six-petal Aster compass with balanced colour-shifting media orbit | Accepted as the webpage icon deliverable; portal integration remains M0b |
 | 2026-10-07 | Engine foundation present | Local commits `12692ab` and `0eab42d`; 41 unified-media tests passing | Deterministic ranking foundation ready for provider milestones |
-| 2026-10-07 | M0b portal icon implementation prepared | Portal now serves a fixed allow-list of approved icon assets and manifest metadata; 43 tests pass, including branding-link and static-asset route checks | Rebuild the shadow portal and validate favicon/touch/install metadata in desktop and mobile browsers before marking M0b complete |
+| 2026-10-07 | M0b portal icon deployed | TrueNAS shadow portal rebuilt from a timestamped rollback copy; health returned `ok`, all four icon/manifest routes returned HTTP 200 with expected content types, and the page references the favicon and manifest. The refresher, LazyLibrarian and Audiobookshelf containers remained unchanged. | Backend deployment is validated; visual favicon/home-screen review in Jason's authenticated desktop and mobile browsers remains before marking M0b complete |
 
 ## Acceptance evidence
 
