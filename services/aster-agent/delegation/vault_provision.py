@@ -36,7 +36,7 @@ class ProvisioningIncomplete(Exception):
         super().__init__('Provisioning incomplete; reconcile recorded stages before retry')
 
 
-def provision(api, deliver, secrets, *, approved_sha256=None):
+def provision(api, deliver, secrets, *, approved_sha256=None, observe=None):
     """api(method,path,payload) returns (status, dict), never logs bodies.
 
     deliver(packet) must return literal True after protected destination receipt.
@@ -51,6 +51,10 @@ def provision(api, deliver, secrets, *, approved_sha256=None):
         raise ValueError('Invalid source-local provisioning input')
     stages=[]
 
+    def note(stage):
+        stages.append(stage)
+        if observe is not None: observe(stage)
+
     def absent(path):
         status,_=api('GET',path,None)
         if status!=404:
@@ -58,10 +62,10 @@ def provision(api, deliver, secrets, *, approved_sha256=None):
 
     def write(path,value,name):
         # Record intent before sending: a lost response may follow a real write.
-        stages.append(name+':attempted')
+        note(name+':attempted')
         status,result=api('POST',path,value)
         if status not in (200,204): raise ValueError('Write unconfirmed')
-        stages.append(name+':confirmed')
+        note(name+':confirmed')
         return result
 
     try:
@@ -87,9 +91,9 @@ def provision(api, deliver, secrets, *, approved_sha256=None):
                 'secret_id_accessor':result.get('data',{}).get('secret_id_accessor')}
         if any(not isinstance(v,str) or not 1<=len(v)<=16384 for v in packet.values()):
             raise ValueError('Invalid role credential response')
-        stages.append('delivery:attempted')
+        note('delivery:attempted')
         if deliver(packet) is not True: raise ValueError('Protected delivery unconfirmed')
-        stages.append('delivery:confirmed')
+        note('delivery:confirmed')
         return {'complete':True,'stages':stages,'credentials_printed':False}
     except Exception:
         # No broad deletion on uncertainty; retain an explicit recovery boundary.

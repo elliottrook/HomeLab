@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Controller assembled; vault expiry advisory found
+
+Added owned-pipe controller/node and private durable stage journal; 184 fixture
+tests pass, including lost acknowledgements and refusal to replay an existing run.
+During primary-source recovery research found October 1 OpenBao AppRole expiry
+advisory affecting installed 2.6.3. Maintainer severity low; no exploit/compromise
+inferred. Downloaded 2.6.4 locally, verified official key fingerprint, package and
+checksum signatures/hash, and inspected package scripts. Read-only backup/service
+baseline retained. Prepared bounded patch gate with fresh recovery checkpoint and
+human unseal; no production changes or credentials. See
+[evidence, sources and approval gate](evidence/D3-controller-and-vault-patch-gate-2026-10-06.md).
+
 ## 2026-10-06 — Approved Mac Keychain check passed
 
 Exact fingerprint ran once: create, fixed reader equality, delete and helper

@@ -62,7 +62,7 @@ class IdentityProvisioningIncomplete(Exception):
         super().__init__('Worker remains inactive; reconcile custody before proceeding')
 
 
-def provision(deliver, *, approved_sha256=None):
+def provision(deliver, *, approved_sha256=None, observe=None):
     if approved_sha256!=fingerprint(): raise ValueError('Exact identity fingerprint required')
     from datetime import timedelta
     import secrets
@@ -72,6 +72,7 @@ def provision(deliver, *, approved_sha256=None):
     from authentik.policies.models import PolicyBinding
     from authentik.providers.oauth2.models import OAuth2Provider, ScopeMapping
     record={'activated':False,'delivery_confirmed':False}
+    if observe is not None: observe('identity:attempted',record)
     # No network side effects inside the DB transaction. It commits only an
     # inactive identity; delivery failure must never leave an active worker.
     with transaction.atomic():
@@ -92,6 +93,7 @@ def provision(deliver, *, approved_sha256=None):
             ('user',user),('scope',scope),('provider',provider),('application',app),
             ('binding',binding),('token',token))},existing_apps_checked=count)
     try:
+        if observe is not None: observe('identity:confirmed',record)
         if deliver({'client_secret':provider.client_secret,'app_password':token.key}) is not True:
             raise ValueError('Custody delivery not confirmed')
         record['delivery_confirmed']=True
