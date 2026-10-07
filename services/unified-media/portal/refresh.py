@@ -103,14 +103,26 @@ def collect_seerr():
             headers={"Cookie": cookie},
         )
         for item in payload.get("results", []):
-            if item.get("mediaType") != "movie" or item.get("mediaInfo"):
+            if item.get("mediaType") not in {"movie", "tv"} or item.get("mediaInfo"):
                 continue
-            if not item.get("id") or not item.get("title"):
+            title = item.get("title") or item.get("name")
+            if not item.get("id") or not title:
                 continue
-            results.append({"media_type": "movie", "authority": "seerr",
-                            "authority_id": str(item["id"]), "title": item["title"],
+            media_type = str(item["mediaType"])
+            candidate = {"media_type": media_type, "authority": "seerr",
+                            "authority_id": str(item["id"]), "title": title,
                             "score": 0.70,
-                            "explanation": "Unrequested movie from the Seerr catalog."})
+                            "explanation": f"Unrequested {media_type} from the Seerr catalog."}
+            if media_type == "tv":
+                detail, _ = request_json(os.environ["SEERR_URL"] + f"/api/v1/tv/{item['id']}",
+                                         headers={"Cookie": cookie})
+                seasons = [season.get("seasonNumber") for season in detail.get("seasons", [])
+                           if isinstance(season, dict) and isinstance(season.get("seasonNumber"), int)
+                           and season.get("seasonNumber") > 0]
+                if not seasons:
+                    continue
+                candidate["seasons"] = seasons
+            results.append(candidate)
     return results
 
 

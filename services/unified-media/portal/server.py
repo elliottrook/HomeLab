@@ -134,9 +134,15 @@ def _seerr_request(item: Mapping[str, Any]) -> dict[str, Any]:
     cookie = headers.get("Set-Cookie", "").split(";", 1)[0]
     if not cookie:
         raise RuntimeError("Seerr login returned no session cookie")
+    body = {"mediaType": item["media_type"], "mediaId": int(item["authority_id"])}
+    if item.get("media_type") == "tv":
+        seasons = item.get("seasons")
+        if not isinstance(seasons, list) or not seasons:
+            raise RuntimeError("TV candidate has no validated seasons")
+        body["seasons"] = seasons
     status, response, _ = _request_json(
         os.environ["SEERR_URL"] + "/api/v1/request", method="POST",
-        body={"mediaType": item["media_type"], "mediaId": int(item["authority_id"])},
+        body=body,
         headers={"Content-Type": "application/json", "Cookie": cookie},
     )
     if status not in (200, 201):

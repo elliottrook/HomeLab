@@ -98,6 +98,9 @@ services:
       - ${UNIFIED_MEDIA_PATH}/downloads:/downloads
       - ${UNIFIED_MEDIA_PATH}/ingest/books:/books
       - ${UNIFIED_MEDIA_PATH}/ingest/audiobooks:/audio
+      # Compatibility fix for the image's API reference to the removed
+      # NEWBOOK_AUDIO setting; this is shadow-only and read-only at runtime.
+      - ${UNIFIED_CONFIG_PATH}/lazylibrarian-patches/api.py:/app/lazylibrarian/lazylibrarian/api.py:ro
     ports:
       - "127.0.0.1:5299:5299"
     restart: "no"

@@ -315,11 +315,11 @@ backup/restore evidence is complete.
 
 ### M6 — Graduation
 
-- [ ] Complete two independent production-path recommendation/request passes.
-- [ ] Verify no active/archive regression and no unexpected acquisition.
-- [ ] Complete documentation, wiki/mirror summaries, operational runbooks and
+- [x] Complete two independent production-path recommendation/request passes.
+- [x] Verify no active/archive regression and no unexpected acquisition.
+- [x] Complete documentation, wiki/mirror summaries, operational runbooks and
   systems-of-record updates.
-- [ ] Create a focused local Git commit for the milestone.
+- [x] Create a focused local Git commit for the milestone.
 - [ ] Request separate immediate confirmation before any Forgejo push.
 
 ## Validation and evaluation
@@ -830,3 +830,48 @@ the evidence log.
   Calibre and Audiobookshelf tiles, both public TLS routes reach their expected
   Authentik/service responses, and the direct Audiobookshelf health endpoint
   remains healthy. M5 is complete; no remote push has been performed.
+- 2026-10-07: With Jason's explicit authorization for one bounded M6 live
+  request, the portal temporarily enabled actions and submitted the exact
+  unowned Seerr candidate `Dune: Part Two` (`tmdbId=693134`). Seerr returned
+  request `121` and media record `1203`; the portal recorded exactly one audit
+  entry. Actions were immediately disabled again and verified as
+  `PORTAL_ACTIONS_ENABLED=NO`. No second request was made.
+- 2026-10-07: A second explicitly authorized live pass submitted the distinct
+  unowned Seerr candidate `Dune Drifter` (`tmdbId=744738`). Seerr returned
+  request `122` and media record `1204`; the portal recorded exactly one new
+  audit entry. Actions were again disabled immediately and verified as
+  `PORTAL_ACTIONS_ENABLED=NO`.
+- 2026-10-07: M6 TV validation exposed and fixed a portal defect: Seerr's TV
+  request API requires an explicit validated season list. The portal now reads
+  seasons from the Seerr detail response and refuses a TV card without them.
+  With Jason's authorization, `Foundation` (`tmdbId=93740`, seasons 1--3)
+  created Seerr request `123` and media record `1205`; the portal action
+  audit was recorded and actions were disabled afterward.
+- 2026-10-07: With the same authorization, `The Left Hand of Darkness`
+  (`OpenLibrary OL59800W`) completed the LazyLibrarian ebook path after a
+  bounded retry caused by the provider's slow first metadata import. The
+  final response was `add=true`, `queue=OK`; LazyLibrarian now reports exactly
+  one `Wanted` record for that identity. The retry was idempotent and no
+  duplicate record was created.
+- 2026-10-07: The first approved `Project Hail Mary` audiobook attempt was
+  blocked at LazyLibrarian's OpenLibrary resolver: both its work and a valid
+  edition identifier initially returned `No OpenLibrary metadata`. The
+  resulting partial record was retained only in the shadow checkpoint while
+  the provider defect was investigated; no media file or download was created.
+- 2026-10-07: The shadow audiobook failure was traced to an upstream image
+  defect: the installed API referenced removed config key `NEWBOOK_AUDIO`,
+  while the current schema defines `NEWAUDIO_STATUS`. A protected config,
+  database and source checkpoint was captured; the compatibility correction was
+  mounted read-only into the shadow container. After recreation, the approved
+  `Project Hail Mary` request completed with `add=true`, `queue=OK`, and
+  `AudioStatus=Wanted`. No matching media file appeared in the ingest or
+  download boundaries. The patch is now persistent across recreation and is
+  limited to the shadow LazyLibrarian service.
+- 2026-10-07: Dockge investigation found no ARR stack disappearance. Dockge
+  is healthy, its configured stack directory contains `new_arr/compose.yaml`,
+  Docker Compose reports `new_arr` with eleven running services, and the file
+  passes `docker compose config --quiet`. The aggregate `exited(1), running(11)`
+  status is caused by the intentionally stopped Watchtower sidecar. The
+  current browser check is stopped at the Authentik passkey flow, so a user
+  browser session must complete passkey authentication before the Dockge list
+  can be visually confirmed.

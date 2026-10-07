@@ -74,6 +74,23 @@ class PortalTests(unittest.TestCase):
             self.assertIn("cmd=getAllBooks", request.call_args_list[0].args[0])
             self.assertIn("cmd=queueBook", request.call_args_list[2].args[0])
 
+    def test_seerr_tv_request_requires_validated_seasons(self):
+        with tempfile.NamedTemporaryFile(mode="w") as password:
+            password.write("shadow-password")
+            password.flush()
+            responses = [(200, {}, {"Set-Cookie": "connect.sid=test; Path=/"}),
+                         (200, {"id": 123}, {})]
+            with patch.dict("os.environ", {
+                    "SEERR_PASSWORD_PATH": password.name,
+                    "SEERR_EMAIL": "requester@example.invalid",
+                    "SEERR_URL": "http://seerr"}), \
+                    patch("portal.server._request_json", side_effect=responses) as request:
+                from portal.server import _seerr_request
+                result = _seerr_request({"media_type": "tv", "authority_id": "93740",
+                                         "title": "Foundation", "seasons": [1, 2, 3]})
+            self.assertEqual(result["request_id"], 123)
+            self.assertEqual(request.call_args_list[1].kwargs["body"]["seasons"], [1, 2, 3])
+
 
 if __name__ == "__main__":
     unittest.main()
