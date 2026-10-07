@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 from unittest.mock import Mock
@@ -88,6 +89,22 @@ class PortalTests(unittest.TestCase):
         self.assertEqual(result[0]["source_label"], "TMDB per-title recommendations")
         self.assertEqual(result[0]["authority_id"], "55")
         self.assertIn("/api/v1/movie/10/recommendations", request.call_args.args[0])
+
+    def test_tmdb_seed_failure_does_not_abort_other_seeds(self):
+        failure = urllib.error.HTTPError("http://seerr", 500, "upstream", {}, None)
+        with patch.dict("os.environ", {"SEERR_URL": "http://seerr"}), \
+                patch("portal.refresh.seerr_session", return_value="sid"), \
+                patch("portal.refresh.request_json", side_effect=[
+                    (failure),
+                    ({"results": [{"id": 56, "title": "Arrival", "overview": "A linguist meets visitors.",
+                                    "releaseDate": "2016-11-10", "voteAverage": 8.0,
+                                    "genreIds": [18, 878], "posterPath": "/arrival.jpg"}]}, {}),
+                ]):
+            result = collect_tmdb_recommendations([
+                {"authority": "radarr", "media_type": "movie", "authority_id": "10"},
+                {"authority": "radarr", "media_type": "movie", "authority_id": "11"},
+            ])
+        self.assertEqual([item["authority_id"] for item in result], ["56"])
 
     def test_render_disables_owned_candidate(self):
         html = render_html([{"title": "Dune", "media_type": "movie", "owned": True}])

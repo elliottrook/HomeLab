@@ -262,6 +262,7 @@ only the portal if needed.
 | 2026-10-07 | Non-video metadata/art enrichment prepared locally | Book candidates now retain author, first sentence, subjects and Open Library cover art; album candidates retain artist, description and Cover Art Archive front art where available; cards render creator fields and explicit artwork fallbacks. 49 tests pass. | Local UI/data change awaits focused shadow deployment and visual review |
 | 2026-10-07 | Non-video metadata/art enrichment deployed | Preserved a rollback copy, rebuilt both shadow services, and completed a fresh refresh. The live snapshot contains 27 candidates; every displayed album, ebook and audiobook has creator metadata, synopsis/description and artwork, with zero missing-art records. Portal health remains `ok`. | Metadata/art deployment validated; visual review of the updated cards remains part of user handover |
 | 2026-10-07 | Video source refactor prepared locally | Replaced generic Seerr discovery in the refresher with bounded TMDB per-title recommendations seeded from Radarr/Sonarr identities; Seerr remains only the request authority. Added regression coverage; 51 tests pass. | Local refactor awaits shadow deployment and live source validation |
+| 2026-10-07 | TMDB fail-soft fix prepared locally | A live probe found one Seerr-proxied TMDB seed returning HTTP 500, which could abort the entire refresh. TMDB seed and TV-detail failures now skip only the affected item; 52 tests pass. | Local fix awaits redeployment and completion-time validation |
 
 ## Acceptance evidence
 

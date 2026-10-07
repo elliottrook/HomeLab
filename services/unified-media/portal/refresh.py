@@ -126,9 +126,12 @@ def collect_tmdb_recommendations(library):
     tv_detail_count = 0
     for media_type, media_id in unique_seeds:
         endpoint = f"/api/v1/{media_type}/{media_id}/recommendations"
-        payload, _ = request_json(os.environ["SEERR_URL"] + endpoint,
-                                  headers={"Cookie": cookie},
-                                  timeout=int(os.environ.get("PORTAL_TMDB_TIMEOUT", "10")))
+        try:
+            payload, _ = request_json(os.environ["SEERR_URL"] + endpoint,
+                                      headers={"Cookie": cookie},
+                                      timeout=int(os.environ.get("PORTAL_TMDB_TIMEOUT", "10")))
+        except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+            continue
         for item in payload.get("results", [])[:4]:
             if item.get("mediaInfo"):
                 continue
@@ -140,9 +143,12 @@ def collect_tmdb_recommendations(library):
                 if tv_detail_count >= 4:
                     continue
                 tv_detail_count += 1
-                detail, _ = request_json(os.environ["SEERR_URL"] + f"/api/v1/tv/{item['id']}",
-                                         headers={"Cookie": cookie},
-                                         timeout=int(os.environ.get("PORTAL_TMDB_TIMEOUT", "10")))
+                try:
+                    detail, _ = request_json(os.environ["SEERR_URL"] + f"/api/v1/tv/{item['id']}",
+                                             headers={"Cookie": cookie},
+                                             timeout=int(os.environ.get("PORTAL_TMDB_TIMEOUT", "10")))
+                except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+                    continue
                 seasons = [season.get("seasonNumber") for season in detail.get("seasons", [])
                            if isinstance(season, dict) and isinstance(season.get("seasonNumber"), int)
                            and season.get("seasonNumber") > 0]
