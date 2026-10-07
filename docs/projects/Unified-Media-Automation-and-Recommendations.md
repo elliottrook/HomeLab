@@ -308,7 +308,7 @@ represented accurately in the portal.
   Docker after restore and playback tests.
 - [x] Add Doctor checks, service health, stale-run and failed-action signals.
 - [x] Add protected config backups and perform isolated restore tests.
-- [ ] Validate Authentik, direct recovery, Homepage, DNS and TLS paths.
+- [x] Validate Authentik, direct recovery, Homepage, DNS and TLS paths.
 
 Gate: source Apps remain recoverable, Docker services survive restart, and
 backup/restore evidence is complete.
@@ -826,3 +826,7 @@ the evidence log.
   same SQLite runtime family as the service; the host SQLite 3.40 CLI was not
   used for that database because it cannot parse the service's newer trigger
   syntax. No active service or production media was changed.
+- 2026-10-06: Final M5 integration validation confirmed Homepage contains the
+  Calibre and Audiobookshelf tiles, both public TLS routes reach their expected
+  Authentik/service responses, and the direct Audiobookshelf health endpoint
+  remains healthy. M5 is complete; no remote push has been performed.
