@@ -19,6 +19,14 @@ from urllib.parse import urlparse
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
 STATE_PATH = Path(os.environ.get("PORTAL_STATE_PATH", "/state/actions.json"))
 ACTION_ENABLED = os.environ.get("PORTAL_ACTIONS_ENABLED", "NO") == "YES"
+ASSET_DIR = Path(__file__).with_name("assets")
+STATIC_ASSETS = {
+    "/favicon.png": ("icon-32.png", "image/png"),
+    "/icon-32.png": ("icon-32.png", "image/png"),
+    "/icon-180.png": ("icon-180.png", "image/png"),
+    "/icon-512.png": ("icon-512.png", "image/png"),
+    "/manifest.webmanifest": ("manifest.webmanifest", "application/manifest+json"),
+}
 
 
 def load_recommendations() -> list[dict[str, Any]]:
@@ -152,7 +160,7 @@ document.querySelectorAll('.request-button:not([disabled])').forEach((button) =>
         search_value = html.escape(" ".join(str(item.get(key, "")) for key in ("title", "overview", "explanation")).casefold(), quote=True)
         cards[cards.index(card)] = card.replace("<article class='card'", f"<article data-search='{search_value}' class='card'", 1)
     body = "\n".join(cards) or "<div class='empty'><h2>No safe recommendations yet</h2><p>The refresh service has not produced any candidates. Check its health before requesting anything.</p></div>"
-    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Unified Media Recommendations</title>" + style + "</head><body><main><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='toolbar'><label for='search'>Find in recommendations</label><input id='search' type='search' placeholder='Search titles, genres or explanations…' autocomplete='off'><span class='refreshed'>Updated " + html.escape(refreshed) + "</span></div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Seerr, Lidarr and LazyLibrarian remain the systems of record.</footer></main>" + script + "</body></html>"
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='toolbar'><label for='search'>Find in recommendations</label><input id='search' type='search' placeholder='Search titles, genres or explanations…' autocomplete='off'><span class='refreshed'>Updated " + html.escape(refreshed) + "</span></div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Seerr, Lidarr and LazyLibrarian remain the systems of record.</footer></main>" + script + "</body></html>"
 
 
 def action_key(item: Mapping[str, Any]) -> str:
@@ -340,6 +348,16 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/health":
             self._send(200, b"ok", "text/plain; charset=utf-8")
             return
+        asset = STATIC_ASSETS.get(path)
+        if asset:
+            asset_path = ASSET_DIR / asset[0]
+            try:
+                payload = asset_path.read_bytes()
+            except OSError:
+                self._send(404, b"not found", "text/plain; charset=utf-8")
+                return
+            self._send(200, payload, asset[1], cache_control="public, max-age=86400")
+            return
         try:
             items = load_recommendations()
         except (OSError, ValueError, json.JSONDecodeError) as exc:
@@ -364,10 +382,13 @@ class Handler(BaseHTTPRequestHandler):
         except (KeyError, RuntimeError, ValueError, json.JSONDecodeError, OSError) as exc:
             self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")
 
-    def _send(self, status: int, body: bytes, content_type: str) -> None:
+    def _send(self, status: int, body: bytes, content_type: str,
+              cache_control: Optional[str] = None) -> None:
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
+        if cache_control:
+            self.send_header("Cache-Control", cache_control)
         self.end_headers()
         self.wfile.write(body)
 

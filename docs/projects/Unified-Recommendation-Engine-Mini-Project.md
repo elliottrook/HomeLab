@@ -149,7 +149,8 @@ write boundary.
   update the shared guide, and add the new icon assets.
 - [ ] **M0b — Portal icon integration.** Add the approved icon to the private
   webpage favicon/manifest/touch metadata and validate desktop/mobile loading;
-  leave Authentik, NPM and request behavior unchanged.
+  leave Authentik, NPM and request behavior unchanged. Code is prepared locally;
+  live shadow rebuild and browser validation remain open.
 - [ ] **M1 — Signal readers.** Read Jellyfin, Audiobookshelf, Calibre and
   existing music/recommendation state with least-privilege credentials and
   bounded retention.
@@ -250,6 +251,7 @@ only the portal if needed.
 | 2026-10-07 | Stream A start requested | Jason explicitly asked to start this mini-project as Stream A | Scope, risks and exclusions recorded; project active |
 | 2026-10-07 | Icon approved | Local asset revision `7c14030`; six-petal Aster compass with balanced colour-shifting media orbit | Accepted as the webpage icon deliverable; portal integration remains M0b |
 | 2026-10-07 | Engine foundation present | Local commits `12692ab` and `0eab42d`; 41 unified-media tests passing | Deterministic ranking foundation ready for provider milestones |
+| 2026-10-07 | M0b portal icon implementation prepared | Portal now serves a fixed allow-list of approved icon assets and manifest metadata; 43 tests pass, including branding-link and static-asset route checks | Rebuild the shadow portal and validate favicon/touch/install metadata in desktop and mobile browsers before marking M0b complete |
 
 ## Acceptance evidence
 

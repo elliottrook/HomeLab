@@ -3,8 +3,9 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+from unittest.mock import Mock
 
-from portal.server import (_lazylibrarian_request, action_key,
+from portal.server import (Handler, _lazylibrarian_request, action_key,
                            load_recommendations, render_html)
 from portal.refresh import _prepare_candidates, _seerr_candidate, _unique_exact_album
 
@@ -29,6 +30,24 @@ class PortalTests(unittest.TestCase):
         self.assertIn("2016 · 8.0/10 · Drama · Science Fiction", html)
         self.assertIn("https://image.tmdb.org/t/p/w500/arrival.jpg", html)
         self.assertIn("Matches your science-fiction interests.", html)
+
+    def test_render_links_approved_branding_assets(self):
+        html = render_html([])
+        self.assertIn("rel='icon'", html)
+        self.assertIn("href='/icon-32.png'", html)
+        self.assertIn("rel='apple-touch-icon'", html)
+        self.assertIn("href='/manifest.webmanifest'", html)
+
+    def test_static_asset_allow_list_serves_icon_without_snapshot(self):
+        handler = object.__new__(Handler)
+        handler.path = "/icon-32.png"
+        handler.headers = {}
+        handler._send = Mock()
+        with patch("portal.server.ASSET_DIR") as asset_dir:
+            asset_dir.__truediv__.return_value.read_bytes.return_value = b"png"
+            Handler.do_GET(handler)
+        handler._send.assert_called_once_with(
+            200, b"png", "image/png", cache_control="public, max-age=86400")
 
     def test_seerr_discovery_candidate_preserves_explainable_metadata(self):
         item = _seerr_candidate({
