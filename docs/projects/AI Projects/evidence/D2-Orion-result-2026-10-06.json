@@ -1,0 +1,7 @@
+{
+  "state": "completed",
+  "answer": "Known:\n\n- Service Orion returned HTTP 503 once.\n- A later health check returned HTTP 200.\n- This suggests the later health check succeeded, but does not establish when or why the earlier failure occurred.\n\nUnknown:\n\n- Whether the 503 was transient or recurring.\n- The timing, duration, and cause of the 503.\n- Whether dependencies were unavailable or degraded.\n- Whether real user request paths were affected.\n- Whether the service is currently healthy beyond that single 200 response.\n- Whether any configuration, deployment, infrastructure, or network event was involved.\n\nNext read-only checks:\n\n- Review the timestamps and response details for both checks.\n- Inspect existing service and platform logs around the 503 timeframe.\n- Check dependency health and recent dependency errors.\n- Exercise representative user-facing request paths without changing data.\n- Review read-only monitoring, uptime, deployment, and infrastructure event history.\n- Repeat health and user-path checks over time to determine whether the issue recurs.",
+  "automatic_retry": false,
+  "failure_class": null,
+  "elapsed_seconds": 5.509
+}

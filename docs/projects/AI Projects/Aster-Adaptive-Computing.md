@@ -26,21 +26,22 @@ next-action prose, including the old Section 17 resume instruction.
 
 | Gate | Current status | Required evidence before proceeding |
 |---|---|---|
-| D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth, six catalogue entries; inference entitlement unproven |
+| D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
-| D2 — synthetic subscription round trip | Prepared, awaiting exact connected-test approval | Pinned fictional Orion manifest, ChatGPT auth, installed gpt-5.6-luna/medium; no real inference yet; token telemetry remains a D2 follow-up |
+| D2 — synthetic subscription round trip | Approved connectivity test passed in 5.509 s; partial acceptance | ChatGPT-authenticated turn completed; identical answer recovered through fresh connection; one turn/no tool items; usage and live cancellation remain outstanding |
 | D3 — Companion integration | Not started | Durable jobs, approvals, reconnect/cancel and local degradation checks |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
 [the D0/D1 checkpoint](evidence/D0-D1-delegation-2026-10-06.md).
-Resume at [the exact D2 pilot gate](evidence/D2-pilot-ready-2026-10-06.md).
-The bounded executable candidate and manifest are ready. Do not run the fixture
-through a default session inheriting local tools or claim production readiness.
+Jason approved and completed [the D2 pilot](evidence/D2-subscription-result-2026-10-06.md).
+Resume with local usage-event handling and authenticated Companion job/status
+fixtures. Do not repeat the consumed approval, enable production delegation or
+claim sysadmin qualification from this connectivity result.
 Latest [D1 session/isolation checkpoint](evidence/D1-session-isolation-2026-10-06.md)
-records the inherited MCP issue and verified configuration correction. No
-connected inference has run; local engineering can continue without a new
-project approval.
+records the inherited MCP issue and verified configuration correction. The D2
+result supersedes that checkpoint's no-inference status. Local engineering can
+continue without a new project approval.
 
 **Proposed:** 2026-09-25.
 

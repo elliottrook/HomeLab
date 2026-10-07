@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved subscription pilot succeeded
+
+Jason approved the exact fictional Orion request. One ChatGPT-authenticated
+gpt-5.6-luna/medium turn completed in 5.509 seconds with a usable final answer.
+It distinguished known/unknown evidence without claiming inspection or repair.
+A fresh restricted app-server thread/read recovered the identical answer, with
+one turn and only user/agent message items. No new inference for recovery, tool
+activity recorded, API fallback, production change or push. Token usage remains
+UNKNOWN and live cancellation untested. See the
+[result and resume point](evidence/D2-subscription-result-2026-10-06.md).
+
 ## 2026-10-06 — D2 runner prepared after offline tool-offer capture
 
 50 offline tests pass: bounded pipe transport and restart snapshot recovery added.

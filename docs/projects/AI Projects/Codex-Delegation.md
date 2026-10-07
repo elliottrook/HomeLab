@@ -38,7 +38,11 @@ ChatGPT subscription sign-in from API-key billing. Local CLI inspection reported
 ChatGPT login and codex-cli 0.158.0-alpha.2.1. The metadata-only adapter successfully
 completed initialize, account/read and model/list: ChatGPT authentication and six
 catalogue entries. Successful inference and usable subscription capacity through
-the new adapter are not yet demonstrated.
+the new adapter were initially unproven. The subsequently approved
+[D2 Orion pilot](evidence/D2-subscription-result-2026-10-06.md) completed one real
+ChatGPT-authenticated turn and recovered the identical answer through a fresh
+connection. This demonstrates bounded connectivity, not general capacity or
+production readiness.
 
 [Codex App Server](https://learn.chatgpt.com/docs/app-server) documents embedding
 authentication, conversation, approval and streamed events. Its command/transport
