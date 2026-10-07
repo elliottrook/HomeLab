@@ -31,6 +31,20 @@ class PortalTests(unittest.TestCase):
         self.assertIn("https://image.tmdb.org/t/p/w500/arrival.jpg", html)
         self.assertIn("Matches your science-fiction interests.", html)
 
+    def test_render_shows_book_author_and_album_artist(self):
+        html = render_html([
+            {"title": "Dune", "media_type": "ebook", "author": "Frank Herbert",
+             "overview": "A desert planet becomes the centre of an empire.",
+             "poster_path": "https://covers.example/dune.jpg"},
+            {"title": "Dummy", "media_type": "album", "artist": "Portishead",
+             "overview": "An influential trip-hop album.",
+             "poster_path": "https://cover.example/dummy.jpg"},
+        ])
+        self.assertIn("Author</strong> Frank Herbert", html)
+        self.assertIn("Artist</strong> Portishead", html)
+        self.assertIn("A desert planet becomes the centre of an empire.", html)
+        self.assertIn("https://covers.example/dune.jpg", html)
+
     def test_render_links_approved_branding_assets(self):
         html = render_html([])
         self.assertIn("rel='icon'", html)

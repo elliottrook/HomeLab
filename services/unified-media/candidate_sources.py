@@ -39,6 +39,34 @@ def _meaningful_tokens(value: str) -> set[str]:
             if token not in _STOPWORDS and len(token) > 1}
 
 
+def _first_sentence(value: Any) -> str:
+    if isinstance(value, list):
+        value = value[0] if value else ""
+    return _text(value)
+
+
+def _music_artwork(mbid: str, request: Request) -> str:
+    try:
+        payload, _ = request(
+            f"https://coverartarchive.org/release-group/{urllib.parse.quote(mbid, safe='')}",
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "UnifiedMediaRecommendations/1.0 (private homelab)",
+            },
+        )
+    except (OSError, TimeoutError, ValueError):
+        return ""
+    images = payload.get("images", []) if isinstance(payload, Mapping) else []
+    if not isinstance(images, list):
+        return ""
+    image = next((item for item in images if isinstance(item, Mapping) and item.get("front")), None)
+    image = image or next((item for item in images if isinstance(item, Mapping)), None)
+    if not isinstance(image, Mapping):
+        return ""
+    thumbnails = image.get("thumbnails") if isinstance(image.get("thumbnails"), Mapping) else {}
+    return _text(thumbnails.get("large") or thumbnails.get("500") or image.get("image"))
+
+
 def collect_openlibrary(query: str, *, media_type: str, request: Request,
                         limit: int = 6) -> list[dict[str, Any]]:
     """Return bounded Open Library work candidates for ebook-like media."""
@@ -47,7 +75,7 @@ def collect_openlibrary(query: str, *, media_type: str, request: Request,
     payload, _ = request(
         "https://openlibrary.org/search.json?" + urllib.parse.urlencode({
             "q": _text(query), "limit": max(1, min(int(limit), 10)),
-            "fields": "key,title,author_name,first_publish_year,cover_i,ratings_average",
+            "fields": "key,title,author_name,first_publish_year,cover_i,ratings_average,first_sentence,subject",
         }),
         headers={"Accept": "application/json"},
     )
@@ -66,6 +94,8 @@ def collect_openlibrary(query: str, *, media_type: str, request: Request,
             continue
         authors = doc.get("author_name") if isinstance(doc.get("author_name"), list) else []
         author = _text(authors[0]) if authors else ""
+        subjects = doc.get("subject") if isinstance(doc.get("subject"), list) else []
+        genres = [_text(value) for value in subjects[:3] if _text(value)]
         label = "Open Library audiobook discovery" if media_type == "audiobook" else "Open Library ebook discovery"
         results.append({
             "media_type": media_type,
@@ -76,6 +106,9 @@ def collect_openlibrary(query: str, *, media_type: str, request: Request,
             "year": _first_year(doc.get("first_publish_year")),
             "rating": doc.get("ratings_average"),
             "score": _score(doc.get("ratings_average")),
+            "genres": genres,
+            "overview": (_first_sentence(doc.get("first_sentence")) or
+                         (f"A work by {author}." if author else "")),
             "poster_path": (f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg"
                             if doc.get("cover_i") else ""),
             "source_label": label,
@@ -125,6 +158,8 @@ def collect_musicbrainz(query: str, *, request: Request, limit: int = 6) -> list
             "artist": credited_artist,
             "year": _first_year(group.get("first-release-date")),
             "score": _score(group.get("score"), 0.62),
+            "poster_path": _music_artwork(mbid, request),
+            "overview": f"{title} by {credited_artist}.",
             "source_label": "MusicBrainz exact release-group discovery",
             "signals": [f"matches the configured music seed: {artist} — {album}"],
             "explanation": "Exact artist and album match from MusicBrainz; Lidarr remains the request authority.",

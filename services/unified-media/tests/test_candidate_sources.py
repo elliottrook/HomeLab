@@ -13,10 +13,14 @@ class CandidateSourceTests(unittest.TestCase):
             return {"docs": [{
                 "key": "/works/OL1W", "title": "Dune", "author_name": ["Frank Herbert"],
                 "first_publish_year": 1965, "cover_i": 123, "ratings_average": 4.2,
+                "first_sentence": "A desert planet becomes the centre of an empire.",
+                "subject": ["Science fiction", "Political fiction"],
             }, {
                 "key": "/works/OL2W", "title": "An Unrelated Book", "author_name": ["Someone"],
                 "first_publish_year": 2020,
             }]}, {}
+        if "coverartarchive.org" in url:
+            return {"images": [{"front": True, "thumbnails": {"large": "https://cover.test/front.jpg"}}]}, {}
         return {"release-groups": [{
             "id": "mbid-1", "title": "Kind of Blue", "first-release-date": "1959-08-17",
             "artist-credit": [{"name": "Miles Davis"}], "score": 100,
@@ -27,6 +31,8 @@ class CandidateSourceTests(unittest.TestCase):
         self.assertEqual(result[0]["authority_id"], "/works/OL1W")
         self.assertEqual(result[0]["author"], "Frank Herbert")
         self.assertEqual(result[0]["year"], "1965")
+        self.assertEqual(result[0]["overview"], "A desert planet becomes the centre of an empire.")
+        self.assertEqual(result[0]["genres"], ["Science fiction", "Political fiction"])
         self.assertEqual(len(result), 1)
         self.assertIn("fields=key%2Ctitle", self.calls[0][0])
         self.assertEqual(self.calls[0][1]["headers"]["Accept"], "application/json")
@@ -39,6 +45,7 @@ class CandidateSourceTests(unittest.TestCase):
         result = collect_musicbrainz("Miles Davis|Kind of Blue", request=self.request)
         self.assertEqual(result[0]["authority_id"], "mbid-1")
         self.assertEqual(result[0]["artist"], "Miles Davis")
+        self.assertEqual(result[0]["poster_path"], "https://cover.test/front.jpg")
         self.assertIn("User-Agent", self.calls[0][1]["headers"])
 
     def test_musicbrainz_rejects_title_only_seed(self):
