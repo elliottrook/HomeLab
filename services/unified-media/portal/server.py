@@ -6,6 +6,7 @@ import html
 import json
 import os
 import hashlib
+import secrets
 from datetime import datetime, timezone
 import urllib.error
 import urllib.parse
@@ -14,6 +15,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Mapping, Optional
 from urllib.parse import urlparse
+
+from trakt_oauth import begin_pkce, exchange_code, write_secret
 
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
@@ -27,6 +30,11 @@ STATIC_ASSETS = {
     "/icon-512.png": ("icon-512.png", "image/png"),
     "/manifest.webmanifest": ("manifest.webmanifest", "application/manifest+json"),
 }
+TRAKT_CLIENT_ID_PATH = os.environ.get("TRAKT_CLIENT_ID_PATH", "/run/unified-secrets/trakt-client-id")
+TRAKT_ACCESS_TOKEN_PATH = os.environ.get("TRAKT_ACCESS_TOKEN_PATH", "/run/unified-secrets/trakt-access-token")
+TRAKT_REFRESH_TOKEN_PATH = os.environ.get("TRAKT_REFRESH_TOKEN_PATH", "/run/unified-secrets/trakt-refresh-token")
+TRAKT_OAUTH_STATE_PATH = Path(os.environ.get("TRAKT_OAUTH_STATE_PATH", "/state/trakt-oauth.json"))
+TRAKT_REDIRECT_URI = os.environ.get("TRAKT_REDIRECT_URI", "https://recommendations.elliottrook.com/oauth/trakt/callback")
 
 
 def load_recommendations() -> list[dict[str, Any]]:
@@ -37,6 +45,34 @@ def load_recommendations() -> list[dict[str, Any]]:
     if not isinstance(payload, list):
         raise ValueError("recommendation snapshot must be a JSON list")
     return [item for item in payload if isinstance(item, dict)]
+
+
+def _trakt_connect_url() -> str:
+    client_id = Path(TRAKT_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
+    if not client_id:
+        raise RuntimeError("Trakt client ID is not configured")
+    state, pending = begin_pkce(client_id, TRAKT_REDIRECT_URI)
+    TRAKT_OAUTH_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    TRAKT_OAUTH_STATE_PATH.write_text(json.dumps({"state": state, "verifier": pending["verifier"]}), encoding="utf-8")
+    TRAKT_OAUTH_STATE_PATH.chmod(0o600)
+    return pending["url"]
+
+
+def _trakt_callback(query: Mapping[str, list[str]]) -> str:
+    state = (query.get("state") or [""])[0]
+    code = (query.get("code") or [""])[0]
+    if not state or not code or not TRAKT_OAUTH_STATE_PATH.exists():
+        raise RuntimeError("Trakt authorization response is incomplete")
+    pending = json.loads(TRAKT_OAUTH_STATE_PATH.read_text(encoding="utf-8"))
+    if not isinstance(pending, Mapping) or not secrets.compare_digest(state, str(pending.get("state", ""))):
+        raise RuntimeError("Trakt authorization state did not match")
+    client_id = Path(TRAKT_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
+    payload = exchange_code(client_id=client_id, code=code,
+                            verifier=str(pending["verifier"]), redirect_uri=TRAKT_REDIRECT_URI)
+    write_secret(TRAKT_ACCESS_TOKEN_PATH, str(payload["access_token"]))
+    write_secret(TRAKT_REFRESH_TOKEN_PATH, str(payload["refresh_token"]))
+    TRAKT_OAUTH_STATE_PATH.unlink(missing_ok=True)
+    return "Trakt connected. You may close this tab."
 
 
 def _display_type(media_type: Any) -> str:
@@ -373,9 +409,25 @@ def submit_action(body: Mapping[str, Any]) -> dict[str, Any]:
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
         if path == "/health":
             self._send(200, b"ok", "text/plain; charset=utf-8")
+            return
+        if path == "/oauth/trakt/start":
+            try:
+                self.send_response(302)
+                self.send_header("Location", _trakt_connect_url())
+                self.end_headers()
+            except (OSError, RuntimeError, ValueError) as exc:
+                self._send(503, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
+        if path == "/oauth/trakt/callback":
+            try:
+                message = _trakt_callback(urllib.parse.parse_qs(parsed.query))
+                self._send(200, message.encode(), "text/plain; charset=utf-8")
+            except (OSError, RuntimeError, ValueError, KeyError, json.JSONDecodeError) as exc:
+                self._send(400, json.dumps({"error": str(exc)}).encode(), "application/json")
             return
         asset = STATIC_ASSETS.get(path)
         if asset:
