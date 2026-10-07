@@ -39,9 +39,9 @@ services:
       # title-only entries are ignored by the refresher.
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Miles Davis|Kind of Blue,The Beatles|Abbey Road}
       # Optional read-only discovery seeds. Empty by default until reviewed.
-      - PORTAL_BOOK_QUERIES=${PORTAL_BOOK_QUERIES:-}
-      - PORTAL_AUDIOBOOK_QUERIES=${PORTAL_AUDIOBOOK_QUERIES:-}
-      - PORTAL_MUSIC_MB_QUERIES=${PORTAL_MUSIC_MB_QUERIES:-}
+      - PORTAL_BOOK_QUERIES=${PORTAL_BOOK_QUERIES:-The Dispossessed,The Fifth Season}
+      - PORTAL_AUDIOBOOK_QUERIES=${PORTAL_AUDIOBOOK_QUERIES:-The Murderbot Diaries,The Long Way to a Small Angry Planet}
+      - PORTAL_MUSIC_MB_QUERIES=${PORTAL_MUSIC_MB_QUERIES:-Talk Talk|Spirit of Eden,Portishead|Dummy,Joni Mitchell|Blue}
       - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
       - PORTAL_AI_DEBUG=${PORTAL_AI_DEBUG:-NO}
       - ASTER_LLAMA_URL=${ASTER_LLAMA_URL:-http://192.168.70.12:11435/v1/chat/completions}
