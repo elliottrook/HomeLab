@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from portal.server import (_lazylibrarian_request, action_key,
                            load_recommendations, render_html)
-from portal.refresh import _prepare_candidates, _unique_exact_album
+from portal.refresh import _prepare_candidates, _seerr_candidate, _unique_exact_album
 
 
 class PortalTests(unittest.TestCase):
@@ -15,6 +15,30 @@ class PortalTests(unittest.TestCase):
         self.assertIn("&lt;Dune&gt;", html)
         self.assertNotIn("<Dune>", html)
         self.assertIn("class='request-button'", html)
+
+    def test_render_includes_media_navigation_and_rich_metadata(self):
+        html = render_html([{
+            "title": "Arrival", "media_type": "movie", "overview": "A linguist meets visitors.",
+            "year": "2016", "rating": 8.0, "genres": ["Drama", "Science Fiction"],
+            "poster_path": "/arrival.jpg", "explanation": "Matches your science-fiction interests.",
+            "source_label": "Seerr catalog",
+        }, {"title": "Kind of Blue", "media_type": "album", "explanation": "A precise album match."}])
+        self.assertIn("data-filter='movie'", html)
+        self.assertIn("data-filter='album'", html)
+        self.assertIn("A linguist meets visitors.", html)
+        self.assertIn("2016 · 8.0/10 · Drama · Science Fiction", html)
+        self.assertIn("https://image.tmdb.org/t/p/w500/arrival.jpg", html)
+        self.assertIn("Matches your science-fiction interests.", html)
+
+    def test_seerr_discovery_candidate_preserves_explainable_metadata(self):
+        item = _seerr_candidate({
+            "id": 1, "title": "Arrival", "overview": "A linguist meets visitors.",
+            "releaseDate": "2016-11-10", "voteAverage": 8.0,
+            "genreIds": [18, 878], "posterPath": "/arrival.jpg",
+        }, "movie", "Seerr discovery")
+        self.assertEqual(item["year"], "2016")
+        self.assertEqual(item["genres"], ["Drama", "Science Fiction"])
+        self.assertEqual(item["source_label"], "Seerr discovery")
 
     def test_render_disables_owned_candidate(self):
         html = render_html([{"title": "Dune", "media_type": "movie", "owned": True}])

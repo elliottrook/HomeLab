@@ -96,6 +96,8 @@ def seerr_session():
 
 def collect_seerr():
     cookie = seerr_session()
+    if os.environ.get("PORTAL_SEERR_SOURCE", "discover") == "discover":
+        return _collect_seerr_discover(cookie)
     results = []
     for query in _csv("PORTAL_SEERR_QUERIES", "Arrival,Dune"):
         payload, _ = request_json(
@@ -112,6 +114,13 @@ def collect_seerr():
             candidate = {"media_type": media_type, "authority": "seerr",
                             "authority_id": str(item["id"]), "title": title,
                             "score": 0.70,
+                            "overview": item.get("overview") or "",
+                            "poster_path": item.get("posterPath") or "",
+                            "backdrop_path": item.get("backdropPath") or "",
+                            "year": str(item.get("releaseDate") or item.get("firstAirDate") or "")[:4],
+                            "rating": item.get("voteAverage"),
+                            "genres": item.get("genres") if isinstance(item.get("genres"), list) else [],
+                            "source_label": "Seerr catalog",
                             "explanation": f"Unrequested {media_type} from the Seerr catalog."}
             if media_type == "tv":
                 detail, _ = request_json(os.environ["SEERR_URL"] + f"/api/v1/tv/{item['id']}",
@@ -124,6 +133,64 @@ def collect_seerr():
                 candidate["seasons"] = seasons
             results.append(candidate)
     return results
+
+
+_TMDB_GENRES = {
+    12: "Adventure", 14: "Fantasy", 16: "Animation", 18: "Drama", 27: "Horror",
+    28: "Action", 35: "Comedy", 36: "History", 37: "Western", 53: "Thriller",
+    80: "Crime", 99: "Documentary", 878: "Science Fiction", 9648: "Mystery",
+    10402: "Music", 10749: "Romance", 10751: "Family", 10752: "War", 10759: "Action & Adventure",
+    10762: "Kids", 10763: "News", 10764: "Reality", 10765: "Sci-Fi & Fantasy",
+    10766: "Soap", 10767: "Talk", 10768: "War & Politics",
+}
+
+
+def _collect_seerr_discover(cookie):
+    """Collect real Seerr discovery results rather than test search fixtures."""
+    results = []
+    page_limit = max(1, min(3, int(os.environ.get("PORTAL_DISCOVERY_PAGES", "1"))))
+    per_type_limit = max(1, min(20, int(os.environ.get("PORTAL_DISCOVERY_LIMIT", "12"))))
+    for endpoint, media_type in (("movies", "movie"), ("tv", "tv")):
+        selected = 0
+        for page in range(1, page_limit + 1):
+            payload, _ = request_json(
+                os.environ["SEERR_URL"] + f"/api/v1/discover/{endpoint}?" +
+                urllib.parse.urlencode({"page": page}), headers={"Cookie": cookie})
+            for item in payload.get("results", []):
+                if selected >= per_type_limit or not item.get("id") or item.get("mediaInfo"):
+                    continue
+                title = item.get("title") or item.get("name")
+                if not title or not item.get("overview"):
+                    continue
+                candidate = _seerr_candidate(item, media_type, "Seerr discovery")
+                if media_type == "tv":
+                    detail, _ = request_json(os.environ["SEERR_URL"] + f"/api/v1/tv/{item['id']}",
+                                             headers={"Cookie": cookie})
+                    seasons = [season.get("seasonNumber") for season in detail.get("seasons", [])
+                               if isinstance(season, dict) and isinstance(season.get("seasonNumber"), int)
+                               and season.get("seasonNumber") > 0]
+                    if not seasons:
+                        continue
+                    candidate["seasons"] = seasons
+                results.append(candidate)
+                selected += 1
+    return results
+
+
+def _seerr_candidate(item, media_type, source_label):
+    genre_ids = item.get("genreIds") if isinstance(item.get("genreIds"), list) else []
+    genres = [_TMDB_GENRES[value] for value in genre_ids if value in _TMDB_GENRES]
+    return {"media_type": media_type, "authority": "seerr",
+            "authority_id": str(item["id"]),
+            "title": item.get("title") or item.get("name"),
+            "score": float(item.get("voteAverage") or 0.0),
+            "overview": item.get("overview") or "",
+            "poster_path": item.get("posterPath") or "",
+            "backdrop_path": item.get("backdropPath") or "",
+            "year": str(item.get("releaseDate") or item.get("firstAirDate") or "")[:4],
+            "rating": item.get("voteAverage"), "genres": genres,
+            "source_label": source_label,
+            "explanation": f"Popular {media_type} discovery result not currently managed or requested."}
 
 
 def collect_lidarr():

@@ -29,6 +29,11 @@ services:
       - JELLYFIN_USER_ID=${JELLYFIN_USER_ID:-329ac173978e43ae8d427d3a561db005}
       - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://lazylibrarian:5299}
       - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
+      # Prefer Seerr's real discovery feed. Search queries remain available as
+      # an explicit fallback for diagnostics and controlled tests.
+      - PORTAL_SEERR_SOURCE=${PORTAL_SEERR_SOURCE:-discover}
+      - PORTAL_DISCOVERY_PAGES=${PORTAL_DISCOVERY_PAGES:-1}
+      - PORTAL_DISCOVERY_LIMIT=${PORTAL_DISCOVERY_LIMIT:-12}
       - PORTAL_SEERR_QUERIES=${PORTAL_SEERR_QUERIES:-Arrival,Dune}
       # Music candidates require an explicit artist|album identity. Legacy
       # title-only entries are ignored by the refresher.
