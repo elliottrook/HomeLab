@@ -31,7 +31,7 @@ class WorkerClient:
         if not isinstance(job_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,128}', job_id):
             raise WorkerConnectionError('Invalid job identifier')
         try:
-            token = self.token()
+            token = await asyncio.to_thread(self.token)
             if (not isinstance(token, str) or not 1 <= len(token) <= 16384
                     or any(c.isspace() for c in token)):
                 raise ValueError('Invalid worker token')

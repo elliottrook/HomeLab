@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Native UI and gateway assembly candidates built; broker status read deployed | 152 delegation tests; prior 84 broker, 26 Swift and five renderer checks retained; live status-read/denial checks passed; credential custody and full delegation deployment remain |
+| D3 — Companion integration | Native UI, gateway, custody adapters and finite Mac worker candidates built; broker status read deployed | 163 delegation tests; prior 84 broker, 26 Swift and five renderer checks retained; provisioning, custody delivery/ACL checks and full delegation deployment remain |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
@@ -57,6 +57,11 @@ gateway/worker wiring. Credential custody remains candidate-only and delegation 
 The [gateway assembly checkpoint](evidence/D3-gateway-assembly-2026-10-06.md)
 now joins private state, owner/worker routes and broker checks locally. Resume
 with custody adapters and Mac lifecycle/configuration; production mounts remain absent.
+The [custody and manual-worker checkpoint](evidence/D3-custody-and-worker-preparation-2026-10-06.md)
+now implements those adapters and a one-assignment launcher. Resume with the
+source-local provisioning helper, runtime credential delivery and provider/Keychain
+access checks. Human recovery availability was requested; no secrets should be
+submitted in chat. Provisioning is not execution-ready and no new approval is consumed.
 Do not run another authentication-only canary or claim deployed delegation.
 Do not repeat the consumed approval, enable
 production delegation or claim sysadmin qualification from connectivity evidence.

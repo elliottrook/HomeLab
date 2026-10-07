@@ -22,6 +22,11 @@ recovery procedure, independent of Aster.
 
 ## Credential custody proposal and unresolved facts
 
+Update: [custody adapters and a manual connected-worker candidate](D3-custody-and-worker-preparation-2026-10-06.md)
+are implemented locally with 163 passing tests. Exact proposed role/policy inputs
+and pilot TTLs are recorded there. Provisioning, runtime delivery and Keychain
+access checks remain incomplete; neither secret has been issued or accessed.
+
 Two independent credentials are required:
 
 1. Mac worker's Authentik service-account credential. Proposed authoritative

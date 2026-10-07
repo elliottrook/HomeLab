@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Custody adapters and manual connected worker prepared
+
+Added fixed-purpose vault and Keychain/Auth­entik adapters, exact proposed vault
+policy/role inputs and an inert-by-default one-assignment HTTPS worker. No secret
+access occurred. 163 delegation tests pass. Read official Authentik/OpenBao docs;
+recorded provider-secret authority and same-user Keychain limitations. Provisioning
+helper, runtime credential delivery and ACL/provider binding remain blockers.
+Asked only whether human recovery material is available, not for its contents.
+See [custody/worker checkpoint and sources](evidence/D3-custody-and-worker-preparation-2026-10-06.md).
+
 ## 2026-10-06 — Gateway assembly prepared locally
 
 Composed private gateway lifecycle, owner/worker routes and deployed broker status
