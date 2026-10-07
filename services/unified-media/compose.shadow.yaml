@@ -29,13 +29,14 @@ services:
       - JELLYFIN_USER_ID=${JELLYFIN_USER_ID:-329ac173978e43ae8d427d3a561db005}
       - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://lazylibrarian:5299}
       - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
-      # Prefer Seerr's real discovery feed. Search queries remain available as
-      # an explicit fallback for diagnostics and controlled tests.
-      - PORTAL_SEERR_SOURCE=${PORTAL_SEERR_SOURCE:-discover}
       - PORTAL_RECOMMENDATION_LIMIT=${PORTAL_RECOMMENDATION_LIMIT:-40}
       # Optional explicit TMDB IDs supplement the bounded Radarr/Sonarr seeds.
       - PORTAL_TMDB_SEEDS=${PORTAL_TMDB_SEEDS:-}
       - PORTAL_TMDB_TIMEOUT=${PORTAL_TMDB_TIMEOUT:-10}
+      - TRAKT_ACCESS_TOKEN_PATH=/run/unified-secrets/trakt-access-token
+      - TRAKT_CLIENT_ID_PATH=/run/unified-secrets/trakt-client-id
+      - TRAKT_REFRESH_TOKEN_PATH=/run/unified-secrets/trakt-refresh-token
+      - PORTAL_TRAKT_LIMIT=${PORTAL_TRAKT_LIMIT:-6}
       # Music candidates require an explicit artist|album identity. Legacy
       # title-only entries are ignored by the refresher.
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Miles Davis|Kind of Blue,The Beatles|Abbey Road}
@@ -58,6 +59,9 @@ services:
       - ${UNIFIED_CONFIG_PATH}/secrets/audiobookshelf-reader-token:/run/unified-secrets/audiobookshelf-reader-token:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/lazylibrarian-api-key:/run/unified-secrets/lazylibrarian-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/aster-llama-recommendation-key:/run/unified-secrets/aster-llama-recommendation-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-access-token:/run/unified-secrets/trakt-access-token:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-client-id:/run/unified-secrets/trakt-client-id:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-refresh-token:/run/unified-secrets/trakt-refresh-token:ro
     command: ["python", "/app/refresh.py"]
     restart: unless-stopped
 
@@ -81,12 +85,20 @@ services:
       - LIDARR_METADATA_PROFILE_ID=${LIDARR_METADATA_PROFILE_ID:-1}
       - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://lazylibrarian:5299}
       - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
+      - TRAKT_CLIENT_ID_PATH=/run/unified-secrets/trakt-client-id
+      - TRAKT_ACCESS_TOKEN_PATH=/run/unified-secrets/trakt-access-token
+      - TRAKT_REFRESH_TOKEN_PATH=/run/unified-secrets/trakt-refresh-token
+      - TRAKT_REDIRECT_URI=${TRAKT_REDIRECT_URI:-https://recommendations.elliottrook.com/oauth/trakt/callback}
+      - TRAKT_OAUTH_STATE_PATH=/state/trakt-oauth.json
     volumes:
       - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data:ro
       - ${UNIFIED_CONFIG_PATH}/portal/state:/state
       - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/lazylibrarian-api-key:/run/unified-secrets/lazylibrarian-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-access-token:/run/unified-secrets/trakt-access-token
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-client-id:/run/unified-secrets/trakt-client-id:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-refresh-token:/run/unified-secrets/trakt-refresh-token
     ports:
       - "127.0.0.1:8787:8787"
       - "192.168.20.40:8787:8787"
