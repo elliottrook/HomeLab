@@ -3,7 +3,10 @@
 Never issues requests, infers a missing turn identity, or resubmits work.
 The caller must obtain the snapshot from the authenticated, expected server.
 """
-from contract import Job
+if __package__:
+    from .contract import Job
+else:
+    from contract import Job
 
 
 def reconcile(store, job_id, snapshot):
@@ -33,6 +36,6 @@ def reconcile(store, job_id, snapshot):
                 "threadId": thread_id, "turnId": turn_id, "item": item}})
     job.apply({"method": "turn/completed", "params": {
         "threadId": thread_id, "turn": {"id": turn_id, "status": turn["status"]}}})
-    if job.state in {"completed", "failed", "interrupted"} and previous == "running":
+    if job.state in {"completed", "failed", "interrupted"} and previous in {"running", "unknown", "cancel_requested"}:
         store.finish(job_id, thread_id, turn_id, job.state)
     return {"state": job.state, "answer": job.final_text}

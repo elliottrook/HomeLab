@@ -70,7 +70,7 @@ def manifest(config, account, models):
         raise ValueError("Configured model absent from catalogue")
     sources = {name: hashlib.sha256((Path(__file__).parent/name).read_bytes()).hexdigest()
                for name in ("pilot.py", "transport.py", "session.py", "store.py",
-                            "contract.py", "probe.py", "isolation_probe.py")}
+                            "contract.py", "probe.py", "isolation_probe.py", "usage.py")}
     executable = shutil.which("codex")
     binary_hash = hashlib.sha256(Path(executable).read_bytes()).hexdigest() if executable else None
     return {"fixture": FIXTURE, "model": model, "source_hashes": sources,
@@ -130,6 +130,7 @@ def execute(client, cwd, prepared, output_dir):
                       answer="", error="Pilot stopped; reconcile before any retry")
     finally:
         result["elapsed_seconds"] = round(time.monotonic()-started, 3)
+        result["usage"] = store.usage("orion-d2")
         (output_dir / "result.json").write_text(json.dumps(result, indent=2)+"\n")
         transport.close(); store.close()
     return {"state": result["state"], "elapsed_seconds": result["elapsed_seconds"],

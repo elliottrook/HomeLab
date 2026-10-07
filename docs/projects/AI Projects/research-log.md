@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Usage and owner-scoped Companion candidate
+
+Added numeric usage snapshots, owner-bound claims, uncertainty persistence,
+disabled status/stop-request facade, unregistered HTTP router and text-only
+renderer. 71 Python tests plus five Node scenarios pass. Existing Companion's
+failed-on-restart/resend behavior is unsuitable for uncertain Codex work and was
+left unchanged. Tested gateway dependencies in disposable Python 3.11 using
+repository pins; system Python 3.9 could not resolve the pinned FastAPI version.
+No new inference, live authentication test, deployment or push. See
+[D3 evidence and resume](evidence/D3-companion-candidate-2026-10-06.md).
+
 ## 2026-10-06 — Approved subscription pilot succeeded
 
 Jason approved the exact fictional Orion request. One ChatGPT-authenticated

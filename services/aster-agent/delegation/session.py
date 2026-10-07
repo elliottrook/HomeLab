@@ -4,20 +4,27 @@ The adapter owner sends only the returned messages. Call prepare before sending;
 persisted claims are intentionally never automatically retried. A live owner
 must separately establish isolation and obtain the connected-test authorization.
 """
-from contract import Job
+if __package__:
+    from .contract import Job
+    from .usage import parse_usage
+else:
+    from contract import Job
+    from usage import parse_usage
 
 
 class Session:
-    def __init__(self, store, job_id, thread_id):
+    def __init__(self, store, job_id, thread_id, owner=None):
         self.store, self.job_id, self.thread_id = store, job_id, thread_id
         self.job = None
         self.state = "new"
         self.pending = []
         self.pending_bytes = 0
         self.failure_class = None
+        self.owner = owner
+        self.early_usage = None
 
     def prepare(self, text):
-        if self.state != "new" or not self.store.claim(self.job_id, self.thread_id):
+        if self.state != "new" or not self.store.claim(self.job_id, self.thread_id, self.owner):
             raise ValueError("Job already claimed; reconcile, never redispatch")
         self.state = "dispatch_unknown"
         return {"method": "turn/start", "params": {
@@ -34,22 +41,36 @@ class Session:
         self.pending_bytes = 0
         for message in pending:
             self.receive(message)
+        if self.early_usage:
+            turn, usage = self.early_usage
+            self.early_usage = None
+            if turn == turn_id:
+                self.store.note_usage(self.job_id, self.thread_id, turn_id, usage)
 
     def receive(self, message):
         if not isinstance(message, dict):
             raise ValueError("Invalid event")
         if "method" in message and "id" in message:
             self.state = "blocked_server_request"
+            self.store.pending_state(self.job_id, "unknown")
             if self.job:
                 self.job.final_text = ""
             return {"id": message["id"], "error": {
                 "code": -32601, "message": "No server requests supported"}}
-        if self.state not in {"dispatch_unknown", "running", "unknown", "cancel_requested"}:
-            return None
         p = message.get("params")
         if not isinstance(p, dict) or p.get("threadId") != self.thread_id:
             return None
         method = message.get("method")
+        if method == "thread/tokenUsage/updated":
+            clean = parse_usage(p.get("tokenUsage"))
+            if clean is not None:
+                if self.job and p.get("turnId") == self.job.turn_id:
+                    self.store.note_usage(self.job_id, self.thread_id, self.job.turn_id, clean)
+                elif self.job is None and self.state == "dispatch_unknown":
+                    self.early_usage = (p.get("turnId"), clean)
+            return None
+        if self.state not in {"dispatch_unknown", "running", "unknown", "cancel_requested"}:
+            return None
         if method not in {"item/completed", "turn/completed"}:
             return None
         # Drop reasoning/tool payloads before buffering; never retain hidden text.
@@ -109,6 +130,7 @@ class Session:
     def disconnect(self):
         if self.state in {"dispatch_unknown", "running", "cancel_requested"}:
             self.state = "unknown"
+            self.store.pending_state(self.job_id, "unknown")
             if self.job:
                 self.job.disconnect()
 
@@ -117,4 +139,5 @@ class Session:
             return None
         request = self.job.cancel()
         self.state = self.job.state
+        self.store.pending_state(self.job_id, self.state)
         return request
