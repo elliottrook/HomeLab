@@ -1,5 +1,9 @@
 # D3 encrypted custody check — approval gate
 
+**Completed:** Jason approved this exact gate; the real host check passed and
+temporary resources were removed. See [result](D3-encrypted-custody-result-2026-10-06.md).
+Approval is consumed. The procedure below is historical provenance, not a pending request.
+
 Jason confirmed Recovery A and a second independent recovery key are available.
 This confirms availability only: it is not authorization to access recovery
 material or change the vault. No keys were requested or accessed.

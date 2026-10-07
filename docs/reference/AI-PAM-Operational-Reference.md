@@ -17,6 +17,13 @@ This narrow check does not revalidate the whole September 26 reference.
 
 ## Current service boundary
 
+Narrow custody update, 2026-10-06: the approved fictional credential check on
+LXC 104 created the systemd host encryption key (root UID 0, mode 0400) and
+validated delivery to a transient Aster-UID process. All test resources were
+removed. No real delegation credential or permanent unit was installed. Retain
+the host key; do not delete it as test cleanup. This did not verify backup/restore
+or protection against root. See [check evidence](../projects/AI%20Projects/evidence/D3-encrypted-custody-result-2026-10-06.md).
+
 AI-PAM is the privileged-access control plane for AI-assisted HomeLab work. The
 broker runs on Aster LXC 104 and exposes only peer-bound Unix sockets; it has no
 general shell, arbitrary network target or secret-dump capability. OpenBao LXC

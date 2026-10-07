@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved encrypted custody host check passed
+
+The exact approved bundle passed real encryption/decryption and transient
+Aster-UID credential delivery on LXC 104. Ordinary Aster access to the stored
+encrypted source was denied. The new host key is UID 0/mode 0400; only metadata
+was read. Fixture, transient unit and staged tools independently verified absent.
+Aster and approval services remained active; Companion HTTP 200. No real secret,
+vault operation, restart, model call or push. Approval consumed. See
+[host evidence and resume](evidence/D3-encrypted-custody-result-2026-10-06.md).
+
 ## 2026-10-06 — Recovery availability confirmed; encrypted custody gate prepared
 
 Jason confirmed both required recovery keys are available, without disclosing
