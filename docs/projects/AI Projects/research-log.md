@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved vault update paused at sealed baseline
+
+Jason approved the exact patch. Read-only preflight found OpenBao already sealed
+before any maintenance; threshold 2 of 3, progress zero. Container/service started
+October 5 at 16:29 UTC, consistent with but not proof of the cause. Aster/broker/
+approval units remain active, which does not verify vault-dependent functions.
+No production mutation. Human private unseal is required to establish baseline
+before exercising the recorded patch approval. See
+[preflight evidence](evidence/D3-controller-and-vault-patch-gate-2026-10-06.md).
+
 ## 2026-10-06 — Controller assembled; vault expiry advisory found
 
 Added owned-pipe controller/node and private durable stage journal; 184 fixture

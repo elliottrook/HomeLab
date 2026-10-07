@@ -116,6 +116,27 @@ check approvals are consumed and do not authorize this update.
 
 ## Resume after maintenance
 
+### Approved preflight paused — 2026-10-06
+
+Jason approved the bounded update in chat. Read-only preflight reconfirmed the
+package hash, version 2.6.3, staging/snapshot absence and backup space. However,
+the vault is already sealed: health and seal-status both report `sealed=true`,
+Shamir threshold 2 of 3, progress 0, Raft storage. Service/container start times
+are October 5 at 16:29:22/16:29:20 UTC; service restart count is zero. A container
+start is consistent with the sealed state, but does not prove its cause or explain
+why it remained sealed. Broker, approval and Aster services are active; that alone
+does not prove their vault-dependent operations work.
+
+No production mutation was performed. Per the approved abort-on-drift gate,
+establish an unsealed healthy baseline through Jason's private terminal before
+stopping, backing up or installing. The bounded patch approval remains recorded;
+no additional approval is needed for the same scope once the baseline is healthy.
+Do not treat the existing sealed state as an update result. Recovery shares must
+never enter chat/tool input. Config SHA-256 before maintenance:
+`331bd87de4e6226deafdb872f92b7877ce905b0db8fdb62fadd24c694834ec9a`;
+public TLS certificate SHA-256:
+`86fa3b74acf9aff4df1cefd2aef54763d70d431fa0ee289ac9f3642ec3c5bf74`.
+
 Finish protected staging and the complete human administrator ceremony instructions,
 then review one inactive-identity/credential provisioning deployment. Keep gateway
 delegation disabled. The no-tools pilot and later sysadmin tool authority remain
