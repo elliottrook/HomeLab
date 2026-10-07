@@ -294,8 +294,8 @@ fixed-sample recommendation review.
 - [x] Extract a dependency-free playlist lifecycle contract covering exact
   track matching, bounded retries and complete-versus-incomplete reconciliation
   planning. The existing playlist bridge remains the only mutation authority.
-- [ ] Validate one-album requests and private Jellyfin playlist creation.
-- [ ] Keep whole-artist following disabled unless separately accepted.
+- [x] Validate one-album requests and private Jellyfin playlist creation.
+- [x] Keep whole-artist following disabled unless separately accepted.
 
 Gate: a requested album imports through Lidarr, appears in Jellyfin and is
 represented accurately in the portal.
@@ -764,3 +764,15 @@ the evidence log.
   and Jellyfin mutations. Thirty-five unified-media tests and sixteen bridge
   tests pass. The M4 live album and private-playlist gate remains blocked until
   Jason authorizes one bounded write test.
+- 2026-10-06: With Jason's explicit authorization, the M4 live gate acquired
+  the exact unowned Hans Zimmer album `The Dune Sketchbook: Music From the
+  Soundtrack` through the portal's Lidarr path. Lidarr required the bridge's
+  explicit single-album search command; the release imported at 100% with all
+  nine tracks in the canonical music root. Jellyfin indexed the album and a
+  new private Jason-owned playlist was created with all nine tracks in disc /
+  track order. No existing playlist was replaced or deleted.
+- 2026-10-06: The live test exposed that the prior portal payload could mark a
+  newly created artist as monitored. Hans Zimmer was immediately corrected to
+  `monitored=false`, `monitorNewItems=none`, and the portal plus adapter code
+  now enforce album-only monitoring. No whole-artist following remains enabled
+  by this project.

@@ -43,6 +43,8 @@ class AuthorityAdapterTests(unittest.TestCase):
         self.assertEqual(result.request_id, "77")
         self.assertTrue(transport.calls[0][2]["monitored"])
         self.assertEqual(transport.calls[0][2]["addOptions"]["monitor"], "all")
+        self.assertFalse(transport.calls[0][2]["artist"]["monitored"])
+        self.assertEqual(transport.calls[0][2]["artist"]["monitorNewItems"], "none")
 
     def test_lazy_wanted_route_blocks_ambiguous_match(self):
         transport = FakeTransport({"bookId": 5})

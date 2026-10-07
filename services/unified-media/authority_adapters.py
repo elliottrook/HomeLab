@@ -73,7 +73,10 @@ class LidarrAdapter:
             "rootFolderPath": root_folder_path,
             "qualityProfileId": quality_profile_id,
             "metadataProfileId": metadata_profile_id,
-            "monitored": True,
+            # Album acquisition must never implicitly follow the whole artist.
+            "monitored": False,
+            "monitorNewItems": "none",
+            "addOptions": {"monitor": "none", "searchForMissingAlbums": False},
         })
         body["artist"] = artist
         response = self._transport("POST", "/api/v1/album", body)

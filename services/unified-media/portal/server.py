@@ -167,7 +167,10 @@ def _lidarr_request(item: Mapping[str, Any]) -> dict[str, Any]:
     artist.update({"rootFolderPath": os.environ["LIDARR_ROOT"],
                    "qualityProfileId": int(os.environ["LIDARR_QUALITY_PROFILE_ID"]),
                    "metadataProfileId": int(os.environ["LIDARR_METADATA_PROFILE_ID"]),
-                   "monitored": True})
+                   # A one-album request must not start following the artist.
+                   "monitored": False,
+                   "monitorNewItems": "none",
+                   "addOptions": {"monitor": "none", "searchForMissingAlbums": False}})
     body["artist"] = artist
     status, response, _ = _request_json(base + "/api/v1/album", method="POST", body=body,
                                         headers={"X-Api-Key": key, "Content-Type": "application/json"})
