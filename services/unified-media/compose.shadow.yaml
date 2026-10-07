@@ -90,6 +90,7 @@ services:
       - TRAKT_REFRESH_TOKEN_PATH=/run/unified-secrets/trakt-refresh-token
       - TRAKT_REDIRECT_URI=${TRAKT_REDIRECT_URI:-https://recommendations.elliottrook.com/oauth/trakt/callback}
       - TRAKT_OAUTH_STATE_PATH=/state/trakt-oauth.json
+      - TRAKT_DEVICE_STATE_PATH=/state/trakt-device.json
     volumes:
       - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data:ro
       - ${UNIFIED_CONFIG_PATH}/portal/state:/state

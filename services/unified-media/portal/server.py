@@ -16,7 +16,8 @@ from pathlib import Path
 from typing import Any, Mapping, Optional
 from urllib.parse import urlparse
 
-from trakt_oauth import begin_pkce, exchange_code, write_secret
+from trakt_oauth import (begin_device, begin_pkce, exchange_code, poll_device,
+                         write_secret)
 
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
@@ -34,6 +35,7 @@ TRAKT_CLIENT_ID_PATH = os.environ.get("TRAKT_CLIENT_ID_PATH", "/run/unified-secr
 TRAKT_ACCESS_TOKEN_PATH = os.environ.get("TRAKT_ACCESS_TOKEN_PATH", "/run/unified-secrets/trakt-access-token")
 TRAKT_REFRESH_TOKEN_PATH = os.environ.get("TRAKT_REFRESH_TOKEN_PATH", "/run/unified-secrets/trakt-refresh-token")
 TRAKT_OAUTH_STATE_PATH = Path(os.environ.get("TRAKT_OAUTH_STATE_PATH", "/state/trakt-oauth.json"))
+TRAKT_DEVICE_STATE_PATH = Path(os.environ.get("TRAKT_DEVICE_STATE_PATH", "/state/trakt-device.json"))
 TRAKT_REDIRECT_URI = os.environ.get("TRAKT_REDIRECT_URI", "https://recommendations.elliottrook.com/oauth/trakt/callback")
 
 
@@ -73,6 +75,34 @@ def _trakt_callback(query: Mapping[str, list[str]]) -> str:
     write_secret(TRAKT_REFRESH_TOKEN_PATH, str(payload["refresh_token"]))
     TRAKT_OAUTH_STATE_PATH.unlink(missing_ok=True)
     return "Trakt connected. You may close this tab."
+
+
+def _trakt_device_start() -> dict[str, Any]:
+    client_id = Path(TRAKT_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
+    payload = begin_device(client_id)
+    TRAKT_DEVICE_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    TRAKT_DEVICE_STATE_PATH.write_text(json.dumps({
+        "device_code": payload["device_code"], "client_id": client_id,
+        "user_code": payload.get("user_code", ""),
+        "verification_url": payload.get("verification_url", "https://trakt.tv/activate"),
+        "expires_in": payload.get("expires_in", 600),
+    }), encoding="utf-8")
+    TRAKT_DEVICE_STATE_PATH.chmod(0o600)
+    return payload
+
+
+def _trakt_device_status() -> str:
+    if not TRAKT_DEVICE_STATE_PATH.exists():
+        return "not_started"
+    pending = json.loads(TRAKT_DEVICE_STATE_PATH.read_text(encoding="utf-8"))
+    result = poll_device(client_id=str(pending["client_id"]),
+                         device_code=str(pending["device_code"]))
+    if result.get("error"):
+        return str(result["error"])
+    write_secret(TRAKT_ACCESS_TOKEN_PATH, str(result["access_token"]))
+    write_secret(TRAKT_REFRESH_TOKEN_PATH, str(result["refresh_token"]))
+    TRAKT_DEVICE_STATE_PATH.unlink(missing_ok=True)
+    return "connected"
 
 
 def _display_type(media_type: Any) -> str:
@@ -426,6 +456,28 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 message = _trakt_callback(urllib.parse.parse_qs(parsed.query))
                 self._send(200, message.encode(), "text/plain; charset=utf-8")
+            except (OSError, RuntimeError, ValueError, KeyError, json.JSONDecodeError) as exc:
+                self._send(400, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
+        if path == "/oauth/trakt/device":
+            try:
+                if TRAKT_DEVICE_STATE_PATH.exists():
+                    device = json.loads(TRAKT_DEVICE_STATE_PATH.read_text(encoding="utf-8"))
+                else:
+                    device = _trakt_device_start()
+                verification_url = html.escape(str(device.get("verification_url", "https://trakt.tv/activate")), quote=True)
+                user_code = html.escape(str(device.get("user_code", "")))
+                body = ("<!doctype html><html><body style='font:20px system-ui;padding:2rem'>"
+                        "<h1>Connect Trakt</h1><p>Open <a href='" + verification_url + "' target='_blank' rel='noopener'>Trakt activation</a> in your normal browser.</p>"
+                        "<p>Enter this code:</p><p style='font-size:3rem;letter-spacing:.2em'><strong>" + user_code + "</strong></p>"
+                        "<p id='status'>Waiting for approval…</p><script>setInterval(async()=>{const r=await fetch('/oauth/trakt/device/status');const j=await r.json();document.querySelector('#status').textContent=j.status==='connected'?'Trakt connected. You may close this tab.':('Status: '+j.status)},5000)</script></body></html>")
+                self._send(200, body.encode(), "text/html; charset=utf-8")
+            except (OSError, RuntimeError, ValueError, KeyError, json.JSONDecodeError) as exc:
+                self._send(503, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
+        if path == "/oauth/trakt/device/status":
+            try:
+                self._send(200, json.dumps({"status": _trakt_device_status()}).encode(), "application/json")
             except (OSError, RuntimeError, ValueError, KeyError, json.JSONDecodeError) as exc:
                 self._send(400, json.dumps({"error": str(exc)}).encode(), "application/json")
             return

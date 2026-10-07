@@ -6,6 +6,7 @@ import base64
 import hashlib
 import json
 import secrets
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -14,6 +15,8 @@ from typing import Any
 
 AUTHORIZE_URL = "https://auth.trakt.tv/oauth/authorize"
 TOKEN_URL = "https://auth.trakt.tv/oauth/token"
+DEVICE_CODE_URL = "https://api.trakt.tv/oauth/device/code"
+DEVICE_TOKEN_URL = "https://api.trakt.tv/oauth/device/token"
 
 
 def _b64(value: bytes) -> str:
@@ -41,13 +44,51 @@ def exchange_code(*, client_id: str, code: str, verifier: str,
     request = urllib.request.Request(
         TOKEN_URL, data=body, method="POST",
         headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded",
-                 "trakt-api-key": client_id, "trakt-api-version": "2"},
+                 "trakt-api-key": client_id, "trakt-api-version": "2",
+                 "User-Agent": "UnifiedMediaRecommendations/1.0 (private homelab)"},
     )
     with urllib.request.urlopen(request, timeout=20) as response:
         payload = json.loads(response.read() or b"{}")
     if not payload.get("access_token") or not payload.get("refresh_token"):
         raise ValueError("Trakt returned incomplete OAuth credentials")
     return payload
+
+
+def begin_device(client_id: str) -> dict[str, Any]:
+    body = json.dumps({"client_id": client_id}).encode("utf-8")
+    request = urllib.request.Request(
+        DEVICE_CODE_URL, data=body, method="POST",
+        headers={"Accept": "application/json", "Content-Type": "application/json",
+                 "trakt-api-key": client_id, "trakt-api-version": "2",
+                 "User-Agent": "UnifiedMediaRecommendations/1.0 (private homelab)"},
+    )
+    with urllib.request.urlopen(request, timeout=20) as response:
+        payload = json.loads(response.read() or b"{}")
+    if not payload.get("device_code") or not payload.get("user_code"):
+        raise ValueError("Trakt returned an incomplete device authorization")
+    return payload
+
+
+def poll_device(*, client_id: str, device_code: str) -> dict[str, Any]:
+    body = urllib.parse.urlencode({"code": device_code, "client_id": client_id}).encode("ascii")
+    request = urllib.request.Request(
+        DEVICE_TOKEN_URL, data=body, method="POST",
+        headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded",
+                 "trakt-api-key": client_id, "trakt-api-version": "2",
+                 "User-Agent": "UnifiedMediaRecommendations/1.0 (private homelab)"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            payload = json.loads(response.read() or b"{}")
+            if not payload.get("access_token") or not payload.get("refresh_token"):
+                raise ValueError("Trakt returned incomplete device credentials")
+            return payload
+    except urllib.error.HTTPError as error:
+        try:
+            payload = json.loads(error.read() or b"{}")
+        except (OSError, ValueError):
+            payload = {}
+        return {"error": payload.get("error", "authorization_pending")}
 
 
 def write_secret(path: str, value: str) -> None:
