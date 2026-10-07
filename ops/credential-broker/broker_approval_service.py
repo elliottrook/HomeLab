@@ -59,6 +59,10 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
         return actor
 
     def dispatch(self, request: dict[str, Any]) -> Any:
+        # handle() has already enforced the configured Unix peer UID. Reading
+        # one kill-switch boolean needs no invented human actor or wider group.
+        if request == {"method": "automation.status"}:
+            return {"global_enabled": self.server.store.global_enabled()}  # type: ignore[attr-defined]
         actor = self._actor(request)
         method = request.get("method")
         if method == "pending.list":

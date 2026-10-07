@@ -36,6 +36,25 @@ enum AsterClientError: Error, LocalizedError {
 struct AsterClient {
     let authManager: AuthManager
 
+    private func delegationPath(_ id: String) throws -> String {
+        guard id.range(of: "^[A-Za-z0-9_-]{1,128}$", options: .regularExpression) != nil else {
+            throw AsterClientError.malformedResponse
+        }
+        return "v1/companion/delegation/jobs/" + id
+    }
+
+    func fetchDelegationJobs() async throws -> [DelegationJob] {
+        try await companionRequest(path: "v1/companion/delegation/jobs")
+    }
+
+    func fetchDelegationJob(_ id: String) async throws -> DelegationSnapshot {
+        try await companionRequest(path: delegationPath(id))
+    }
+
+    func stopDelegationJob(_ id: String) async throws -> DelegationStopResult {
+        try await companionRequest(path: delegationPath(id) + "/cancel", method: "POST")
+    }
+
     private func companionRequest<T: Decodable>(
         path: String, method: String = "GET", body: Data? = nil, as type: T.Type = T.self
     ) async throws -> T {

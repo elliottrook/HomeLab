@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Finite worker has live answer/usage/stop evidence; not deployed | 144 Python tests plus five renderer scenarios; post-test ordering guard locally verified; production custody, kill-switch binding and deployed UI wiring remain |
+| D3 — Companion integration | Native UI candidate built; narrow broker status deployment awaits approval | 147 delegation tests, 84 broker tests, 26 Swift tests and five renderer scenarios pass; identity/model tests complete; exact status-read gate prepared; credential custody and full deployment remain |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
@@ -48,8 +48,10 @@ Both identity approvals and the assembled-worker one-turn approval are consumed.
 The assembled run proved real answer/usage delivery. The subsequently approved
 stop test did not meet its reporting criterion. The separately approved diagnostic
 repetition passed; see [result and deployment resume](evidence/D3-stop-diagnostic-result-2026-10-06.md).
-Both stop approvals are consumed. The first failure remains unexplained. Continue
-the concrete deployment/custody package, not repetitive cloud tests.
+Both stop approvals are consumed. The first failure remains unexplained. The
+[deployment preparation](evidence/D3-deployment-preparation-2026-10-06.md) now
+contains the exact narrow broker status-read approval and native UI build evidence.
+Resume there; credential custody remains candidate-only and delegation disabled.
 Do not run another authentication-only canary or claim deployed delegation.
 Do not repeat the consumed approval, enable
 production delegation or claim sysadmin qualification from connectivity evidence.

@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Native Companion candidate and narrow broker status gate
+
+Live metadata confirmed Aster belongs only to the broker approvers group, not
+the general client group. Added a peer-bound one-boolean status read without
+widening groups or inventing a human actor, plus a fail-closed local callback.
+Added owner-only job listing and build-disabled native Companion status/answer/
+stop view. 147 delegation tests, 84 broker tests (including 12 approval-service tests), 26 native Swift tests
+and five JS renderer scenarios pass. Prepared exact one-file broker deployment,
+baseline hash, checkpoint and rollback; no deployment, credential issue or model
+call occurred. See [deployment gate](evidence/D3-deployment-preparation-2026-10-06.md)
+and [custody candidate](evidence/D3-credential-registry-candidate.md).
+
 ## 2026-10-06 — Approved diagnostic stop repetition passed
 
 One approved turn reported interrupted in 0.077 seconds, no final answer and no

@@ -25,6 +25,11 @@ class HandoffTests(unittest.TestCase):
 
     def offer(self): return self.gateway.offer('mac','j')
 
+    def test_job_list_is_owner_scoped_without_answer_or_worker_identity(self):
+        self.assertEqual(self.gateway.list_owned('owner'),[{'id':'j','state':'queued'}])
+        self.assertEqual(self.gateway.list_owned('other'),[])
+        with self.assertRaises(KeyError): self.gateway.list_owned('')
+
     def test_lost_ack_duplicate_offer_does_not_repeat_admission(self):
         first = self.offer()
         self.assertTrue(self.worker.accept('gateway',first,self.payload))

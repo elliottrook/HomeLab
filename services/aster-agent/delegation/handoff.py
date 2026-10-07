@@ -131,6 +131,16 @@ class Gateway(Ledger):
         return {"job_id": job_id, "state": state, "result_sha256": result,
                 "automatic_retry": False}
 
+    def list_owned(self, authenticated_owner):
+        if not isinstance(authenticated_owner, str) or not authenticated_owner:
+            raise KeyError('Owner required')
+        # Bounded by ledger admission capacity. Do not expose other owners' IDs.
+        jobs = []
+        for job_id, raw, state in self.db.execute('SELECT id,envelope,state FROM handoff_jobs ORDER BY rowid DESC'):
+            if json.loads(raw)['owner'] == authenticated_owner:
+                jobs.append({'id':job_id,'state':state})
+        return jobs
+
     def deliver_answer(self, authenticated_worker, job_id, delivery_id, answer):
         """Publish only a digest-matching completed result; never persist text."""
         if not isinstance(answer, str) or not answer.strip() or len(answer) > 32000:

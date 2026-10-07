@@ -101,6 +101,13 @@ def owner_result_router(gateway, owner_dependency, *, enabled=False):
     """Remote-worker projection; do not mount beside same-path local router."""
     router = APIRouter(prefix="/v1/companion/delegation/jobs")
 
+    @router.get('')
+    async def list_jobs(response: Response, owner=Depends(owner_dependency)):
+        if not enabled:
+            raise HTTPException(503, 'Worker integration is not enabled')
+        response.headers['Cache-Control'] = 'no-store'
+        return gateway.list_owned(owner)
+
     @router.get("/{job_id}")
     async def result(job_id: str, response: Response, owner=Depends(owner_dependency)):
         if not enabled:

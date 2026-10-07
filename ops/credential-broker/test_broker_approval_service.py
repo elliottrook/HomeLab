@@ -47,6 +47,27 @@ class ApprovalServiceTests(unittest.TestCase):
             client.sendall(json.dumps(request).encode() + b"\n")
             return json.loads(client.makefile("rb").readline())
 
+    def raw_call(self, request):
+        with socket.socket(socket.AF_UNIX) as client:
+            client.connect(str(self.socket_path))
+            client.sendall(json.dumps(request).encode()+b'\n')
+            return json.loads(client.makefile('rb').readline())
+
+    def test_automation_status_exposes_only_live_boolean_without_actor(self):
+        self.assertEqual(self.raw_call({'method':'automation.status'}),
+                         {'ok':True,'result':{'global_enabled':True}})
+        self.store.set_global_enabled(False)
+        self.assertEqual(self.raw_call({'method':'automation.status'}),
+                         {'ok':True,'result':{'global_enabled':False}})
+
+    def test_automation_status_does_not_bypass_peer_or_expand_to_management(self):
+        with patch('broker_approval_service.peer_uid',return_value=os.getuid()+1):
+            self.assertFalse(self.raw_call({'method':'automation.status'})['ok'])
+        for value in ({'method':'management.snapshot'},
+                      {'method':'management.global-enabled','enabled':True},
+                      {'method':'automation.status','enabled':True}):
+            self.assertFalse(self.raw_call(value)['ok'])
+
     def test_yellow_approval_is_hash_bound_and_replay_safe(self):
         pending = self.store.create_request("agent", "restart", {"target": "one"})
         actor = "a" * 64

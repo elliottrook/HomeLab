@@ -6,6 +6,8 @@ import Foundation
 /// client secret), so the client_id and endpoints are meant to ship in
 /// the app binary.
 enum AsterConfig {
+    // Candidate only; enable in a separately approved gateway/app deployment.
+    static let delegationEnabled = false
     static let clientID = "aster-companion"
     static let authorizationEndpoint = URL(string: "https://auth.elliottrook.com/application/o/authorize/")!
     static let tokenEndpoint = URL(string: "https://auth.elliottrook.com/application/o/token/")!
