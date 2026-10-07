@@ -680,6 +680,48 @@ PY
     fi
 }
 
+check_unified_media() {
+    local state
+    if ! state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 truenas '
+        abs="$(docker inspect -f "{{.State.Status}}" unified-audiobookshelf-shadow 2>/dev/null || true)"
+        cwa="$(docker inspect -f "{{.State.Status}}" calibre-web-automated 2>/dev/null || true)"
+        cwa_health="$(docker inspect -f "{{.State.Health.Status}}" calibre-web-automated 2>/dev/null || true)"
+        abs_http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://192.168.20.40:30067/healthcheck 2>/dev/null || true)"
+        cwa_http="$(curl -sS -o /dev/null -w "%{http_code}" --max-time 5 http://127.0.0.1:8283/ 2>/dev/null || true)"
+        snapshot="/mnt/Media/appdata/unified-media-shadow/portal-refresh/recommendations.json"
+        actions="/mnt/Media/appdata/unified-media-shadow/portal/state/actions.json"
+        now="$(date +%s)"
+        snapshot_mtime="$(stat -c %Y "$snapshot" 2>/dev/null || echo 0)"
+        actions_mtime="$(stat -c %Y "$actions" 2>/dev/null || echo 0)"
+        snapshot_age=$(( now - snapshot_mtime ))
+        actions_age=$(( now - actions_mtime ))
+        json="$(python3 -m json.tool "$actions" >/dev/null 2>&1 && echo ok || true)"
+        printf "abs=%s\\ncwa=%s\\ncwa_health=%s\\nabs_http=%s\\ncwa_http=%s\\nsnapshot_age=%s\\nactions_age=%s\\nactions_json=%s\\n" \
+            "$abs" "$cwa" "$cwa_health" "$abs_http" "$cwa_http" "$snapshot_age" "$actions_age" "$json"
+    ')"; then
+        warn "Unable to check unified-media services on TrueNAS"
+        return
+    fi
+    if ! grep -qx 'abs=running' <<< "$state" ||
+       ! grep -qx 'abs_http=200' <<< "$state"; then
+        fail "Audiobookshelf Docker service or health endpoint is unhealthy"
+    elif ! grep -qx 'cwa=running' <<< "$state" ||
+         ! grep -qx 'cwa_health=healthy' <<< "$state" ||
+         ! grep -qx 'cwa_http=302' <<< "$state"; then
+        fail "Calibre-Web Automated Docker service, healthcheck or local endpoint is unhealthy"
+    elif ! grep -qx 'actions_json=ok' <<< "$state"; then
+        fail "Unified-media portal action state is not valid JSON"
+    elif (( $(sed -n 's/^snapshot_age=//p' <<< "$state") > 172800 )); then
+        fail "Unified-media recommendation snapshot is more than 48 hours old"
+    elif (( $(sed -n 's/^snapshot_age=//p' <<< "$state") > 86400 )); then
+        warn "Unified-media recommendation snapshot is more than 24 hours old"
+    elif (( $(sed -n 's/^actions_age=//p' <<< "$state") > 604800 )); then
+        warn "Unified-media portal action state has not changed in seven days"
+    else
+        pass "Unified-media Audiobookshelf/CWA health, portal state and snapshot freshness are healthy"
+    fi
+}
+
 check_apt_proxy() {
     # apt-cacher-ng on LXC 100 is the only Debian package path for the
     # egress-restricted backup relay (LXC 112); if it stops, 112 silently
@@ -2079,6 +2121,7 @@ check_video_archiver
 check_news_aggregator
 check_paperless
 check_bazarr
+check_unified_media
 check_apt_proxy
 
 category "Service Reachability"

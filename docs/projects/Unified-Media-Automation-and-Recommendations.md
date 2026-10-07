@@ -93,12 +93,14 @@ Explicit exclusions:
 - The TrueNAS host has an Intel Arc A380 (`8086:56a5`) using `i915`; Jellyfin
   receives `/dev/dri`. The Proxmox host separately has the Intel Arc Pro B60,
   mapped to Aster llama.cpp LXC 110. These are separate ownership domains.
-- Audiobookshelf currently runs as a TrueNAS App with approximately 49 GB of
-  audiobooks and about 46 titles. It has a working API and is the playback,
-  user and listening-progress authority.
-- Calibre-Web Automated currently runs in Docker but is unhealthy. The
-  existing ebook library is `/mnt/Media/media/books`; its current Calibre
-  workflow and metadata database require a single-writer migration plan.
+- Audiobookshelf is now promoted to the Docker-managed service at the existing
+  private route, with the source TrueNAS App stopped but recoverable. It has a
+  working API and remains the playback, user and listening-progress authority.
+- Calibre-Web Automated is Docker-managed and healthy through a documented
+  staged web-process workaround; the existing ebook library is
+  `/mnt/Media/media/books`. The Calibre metadata database remains governed by
+  the single-writer contract, with conversion work performed while CWA is
+  stopped and checkpoints retained.
 - The existing Music Recommender is report-only and proposed. The Music
   Playlist Acquisition Bridge already translates playlists into conservative
   Lidarr album requests and creates Jellyfin playlists after import.
@@ -302,10 +304,10 @@ represented accurately in the portal.
 
 ### M5 — App cutover and operational hardening
 
-- [ ] Cut over Audiobookshelf and Calibre-Web Automated from TrueNAS Apps to
+- [x] Cut over Audiobookshelf and Calibre-Web Automated from TrueNAS Apps to
   Docker after restore and playback tests.
-- [ ] Add Doctor checks, service health, stale-run and failed-action signals.
-- [ ] Add protected config backups and perform isolated restore tests.
+- [x] Add Doctor checks, service health, stale-run and failed-action signals.
+- [x] Add protected config backups and perform isolated restore tests.
 - [ ] Validate Authentik, direct recovery, Homepage, DNS and TLS paths.
 
 Gate: source Apps remain recoverable, Docker services survive restart, and
@@ -776,3 +778,51 @@ the evidence log.
   `monitored=false`, `monitorNewItems=none`, and the portal plus adapter code
   now enforce album-only monitoring. No whole-artist following remains enabled
   by this project.
+- 2026-10-06: M5 Audiobookshelf cutover work stopped the recoverable TrueNAS
+  App after exporting its configuration, copied the production database and
+  metadata into the Docker shadow, and promoted the service at the existing
+  private LAN address and reverse-proxy route. A reader-token API check and
+  sanitized refresh pass succeeded. Playback initially failed because the
+  migrated database retained the old App directory layout; a read-only
+  compatibility tree of 223 symlinks now resolves those legacy paths without
+  rewriting the database or moving media. The source App checkpoint remains
+  at `checkpoints/audiobookshelf-app-config-before-m5.json`.
+- 2026-10-06: M5 CWA validation found the image's default healthcheck followed
+  the HTTPS reverse-proxy redirect against its local HTTP port. The service
+  was checkpointed before correction. A restart then exposed a separate
+  image-init `chown` wait, so the approved staged workaround runs only the CWA
+  web process as UID/GID 568, preserves the existing config/library/ingest
+  mounts, and uses a local non-following HTTP healthcheck. CWA now returns the
+  expected local 302 and reports healthy; the image's auxiliary init/ingest
+  services remain bypassed pending a future image-level fix. No ebook files or
+  Calibre metadata database were rewritten.
+- 2026-10-06: CWA cover rendering worked but KFX download failed because the
+  bypass also skipped the image's Calibre binary-link setup. Startup now
+  recreates only the disposable `/usr/bin/calibredb` and
+  `/usr/bin/ebook-convert` links to the bundled binaries; CWA is healthy and
+  OAuth initialization remains successful. KFX playback/download still needs
+  an authenticated user retry.
+- 2026-10-06: A bounded ebook-reader test converted the existing `1984` MOBI
+  to EPUB and attached it to the existing Calibre record, preserving the MOBI
+  and KFX originals. The record now exposes both EPUB and MOBI formats; the
+  browser-reader action should appear after refreshing the book detail page.
+  The duplicate `1984` record was also given the EPUB format so either visible
+  duplicate is readable. The remaining library formats are 167 EPUB, 151 MOBI,
+  14 AZW3, 14 KFX, and 325 KFX-ZIP; the KFX-family records remain download-only
+  where no safe conversion source exists.
+- 2026-10-06: With a fresh metadata checkpoint and CWA stopped for single-writer
+  safety, the bounded ebook batch converted all 163 eligible MOBI/AZW3 records
+  to EPUB and attached them to their existing Calibre records. All originals
+  were retained, the batch reported zero failures, CWA restarted healthy, and
+  the local endpoint returned its expected OAuth redirect.
+- 2026-10-06: HomeLab Doctor now checks the unified-media Audiobookshelf and
+  CWA containers, their direct health responses, portal action-state JSON and
+  recommendation snapshot freshness. A full run passed the new unified-media
+  check; unrelated existing findings remain for AI-PAM, the apt proxy and the
+  encrypted IDrive relay.
+- 2026-10-06: M5 restore validation passed for the Calibre metadata checkpoint,
+  CWA app database checkpoint and Audiobookshelf exported configuration. The
+  Audiobookshelf database checkpoint also passed integrity validation using the
+  same SQLite runtime family as the service; the host SQLite 3.40 CLI was not
+  used for that database because it cannot parse the service's newer trigger
+  syntax. No active service or production media was changed.
