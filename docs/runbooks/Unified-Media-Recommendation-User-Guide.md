@@ -13,6 +13,11 @@ The recommendation service is advisory. It explains why an item was suggested,
 but it never silently acquires media. Every acquisition is an explicit button
 press and is recorded by the target service.
 
+The current deployed discovery feed is populated with real Seerr film and TV
+catalogue candidates. Music, ebook and audiobook request adapters exist, but
+their recommendation feeds are still being populated and should not be
+considered available merely because their buttons are supported by the backend.
+
 The existing video lifecycle is unchanged. New high-quality film and TV stays
 in the active Jellyfin libraries for the existing four-month period. The
 existing Arc A380-backed archiver then creates the smaller archive copy and
@@ -50,6 +55,11 @@ stale data, missing credentials or a failed dependency.
    presses are suppressed, but waiting is clearer and safer.
 7. Follow progress in the authority's normal UI: Seerr for films/TV, Lidarr
    for music and LazyLibrarian for books.
+
+The current interface has an **All**, **Film** and **TV** filter when those
+categories have candidates. Each card shows a poster when available, synopsis,
+year, rating, genres, source, why it was selected and whether it is ready for
+approval. This is a deliberate improvement over the original diagnostic page.
 
 ## Category-specific behavior
 
