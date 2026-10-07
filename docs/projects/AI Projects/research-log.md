@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved diagnostic stop repetition passed
+
+One approved turn reported interrupted in 0.077 seconds, no final answer and no
+diagnostic exception. Fresh read-only provider inspection independently matched
+one interrupted turn and the worker ledger. The first failure remains unexplained;
+do not erase it or infer a reliability rate. Added a subsequent local guard against
+an extra read after a terminal notification arrives inside the interrupt RPC;
+144 Python tests and five renderer scenarios pass. This guard was not part of
+the successful live run and is not claimed as its cause. No deployment or push.
+See [evidence and deployment preparation resume](evidence/D3-stop-diagnostic-result-2026-10-06.md).
+
 ## 2026-10-06 — Live stop reporting failure retained; diagnostic retest prepared
 
 Approved stop test ran once: worker reported unknown in 0.075 s. Fresh read-only

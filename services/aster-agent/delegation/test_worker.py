@@ -80,6 +80,24 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         result = await self.run_worker()
         self.assertNotIn('secret material',str(result))
         self.assertEqual(result['diagnostic']['error_type'],'RuntimeError')
+
+    async def test_terminal_inside_interrupt_rpc_needs_no_further_read(self):
+        original = self.agent.start
+        def start(request):
+            self.gateway.request_stop('owner','j')
+            return original(request)
+        def interrupt(request):
+            self.agent.stops += 1
+            self.agent.session.receive(end('interrupted'))
+        def read(deadline):
+            self.fail('Terminal notification already received inside interrupt RPC')
+        self.agent.start = start
+        self.agent.interrupt = interrupt
+        self.agent.read = read
+        result = await self.run_worker()
+        self.assertEqual(result['state'],'interrupted')
+        self.assertEqual(self.runtime.store.inspect('j')[0],'interrupted')
+        self.assertEqual(self.gateway.status('owner','j')['state'],'interrupted')
         self.assertIsNone(self.gateway.owner_result('owner','j')['answer'])
 
     async def test_control_outage_attempts_stop_and_preserves_unknown(self):

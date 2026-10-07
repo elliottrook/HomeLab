@@ -1,0 +1,21 @@
+{
+  "state": "interrupted",
+  "automatic_retry": false,
+  "elapsed_seconds": 0.077,
+  "owner_view": {
+    "id": "orion-assembled",
+    "state": "interrupted",
+    "reply": null,
+    "message": "Codex confirmed the request stopped.",
+    "usage": {
+      "status": "unknown"
+    },
+    "can_request_cancel": false,
+    "automatic_retry": false,
+    "recovery_required": false
+  },
+  "production_deployment": false,
+  "model": "gpt-5.6-luna",
+  "cancellation_requested": true,
+  "cancellation_confirmed": true
+}

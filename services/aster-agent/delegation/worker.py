@@ -81,6 +81,11 @@ async def run_one(client, inbox, store, agent, job_id, payload, *, enabled=False
                 stop_deadline = clock()+5
             if stop_deadline is not None and clock() >= stop_deadline:
                 session.disconnect(); break
+            # RPC calls dispatch notifications while awaiting their response.
+            # A terminal event can therefore have arrived inside interrupt().
+            # Do not turn a confirmed result into uncertainty by reading again.
+            if session.state not in {'running', 'cancel_requested'}:
+                break
             try:
                 stage = 'event_read'
                 message = agent.read(min(clock()+0.1, stop_deadline or deadline))
