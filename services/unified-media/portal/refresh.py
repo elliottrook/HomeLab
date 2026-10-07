@@ -118,7 +118,7 @@ def collect_tmdb_recommendations(library):
             seeds.append(("tv", str(item.get("authority_id"))))
     unique_seeds = list(dict.fromkeys(
         (media_type, media_id) for media_type, media_id in seeds if media_id.isdigit()
-    ))[:4]
+    ))[:3]
     if not unique_seeds:
         return []
     cookie = seerr_session()
@@ -127,7 +127,8 @@ def collect_tmdb_recommendations(library):
     for media_type, media_id in unique_seeds:
         endpoint = f"/api/v1/{media_type}/{media_id}/recommendations"
         payload, _ = request_json(os.environ["SEERR_URL"] + endpoint,
-                                  headers={"Cookie": cookie})
+                                  headers={"Cookie": cookie},
+                                  timeout=int(os.environ.get("PORTAL_TMDB_TIMEOUT", "10")))
         for item in payload.get("results", [])[:4]:
             if item.get("mediaInfo"):
                 continue
@@ -136,11 +137,12 @@ def collect_tmdb_recommendations(library):
                 continue
             candidate = _seerr_candidate(item, media_type, "TMDB per-title recommendations")
             if media_type == "tv":
-                if tv_detail_count >= 8:
+                if tv_detail_count >= 4:
                     continue
                 tv_detail_count += 1
                 detail, _ = request_json(os.environ["SEERR_URL"] + f"/api/v1/tv/{item['id']}",
-                                         headers={"Cookie": cookie})
+                                         headers={"Cookie": cookie},
+                                         timeout=int(os.environ.get("PORTAL_TMDB_TIMEOUT", "10")))
                 seasons = [season.get("seasonNumber") for season in detail.get("seasons", [])
                            if isinstance(season, dict) and isinstance(season.get("seasonNumber"), int)
                            and season.get("seasonNumber") > 0]

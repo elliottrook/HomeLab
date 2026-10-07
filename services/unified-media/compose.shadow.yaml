@@ -35,6 +35,7 @@ services:
       - PORTAL_RECOMMENDATION_LIMIT=${PORTAL_RECOMMENDATION_LIMIT:-40}
       # Optional explicit TMDB IDs supplement the bounded Radarr/Sonarr seeds.
       - PORTAL_TMDB_SEEDS=${PORTAL_TMDB_SEEDS:-}
+      - PORTAL_TMDB_TIMEOUT=${PORTAL_TMDB_TIMEOUT:-10}
       # Music candidates require an explicit artist|album identity. Legacy
       # title-only entries are ignored by the refresher.
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Miles Davis|Kind of Blue,The Beatles|Abbey Road}
