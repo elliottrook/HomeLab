@@ -20,6 +20,7 @@ from service_collectors import (
     collect_lazylibrarian,
     collect_lidarr as collect_lidarr_library,
 )
+from recommendation_engine import rank_candidates
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
 LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
@@ -236,28 +237,20 @@ def _unique_exact_album(items, artist_query, album_query):
     return matches[0] if len(matches) == 1 else None
 
 
-def _prepare_candidates(candidates, limit=20):
-    """Deduplicate by title identity and fail closed on collisions."""
-    by_identity = {}
-    for candidate in candidates:
-        key = (candidate["authority"], candidate["media_type"], candidate["title"].casefold())
-        existing = by_identity.get(key)
-        if existing is None:
-            by_identity[key] = dict(candidate, match_count=1)
-        else:
-            existing["match_count"] = existing.get("match_count", 1) + 1
-    safe = [item for item in by_identity.values()
-            if item.get("match_count") == 1 and not item.get("owned") and not item.get("archived")]
-    safe.sort(key=lambda item: (-item.get("score", 0), item["media_type"],
-                               item["title"].casefold(), item["authority_id"]))
-    return safe[:max(0, limit)]
+def _prepare_candidates(candidates, limit=20, *, library=(), history=()):
+    """Rank provider candidates through the shared fail-closed engine."""
+    return rank_candidates(candidates, library=library, history=history, limit=limit)
 
 
 def refresh_once():
     candidates = collect_seerr() + collect_lidarr()
-    output = _narrate(_prepare_candidates(candidates))
     _refresh_library_snapshot()
     _refresh_history_snapshot()
+    output = _narrate(_prepare_candidates(
+        candidates,
+        library=_read_snapshot_items(LIBRARY_SNAPSHOT_PATH),
+        history=_read_snapshot_items(HISTORY_SNAPSHOT_PATH),
+    ))
     SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(dir=str(SNAPSHOT_PATH.parent))
     os.close(fd)
@@ -270,6 +263,17 @@ def refresh_once():
         if os.path.exists(temporary):
             os.unlink(temporary)
     return output
+
+
+def _read_snapshot_items(path):
+    """Read a sanitized auxiliary snapshot, failing closed when unavailable."""
+    if not path:
+        return ()
+    try:
+        value = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, TypeError, ValueError):
+        return ()
+    return value if isinstance(value, list) else ()
 
 
 def _refresh_library_snapshot():

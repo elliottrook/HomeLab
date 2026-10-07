@@ -1,6 +1,6 @@
 FROM python:3.12-alpine
 WORKDIR /app
-COPY portal/server.py portal/refresh.py service_collectors.py snapshot_contract.py snapshot_readers.py recommendation_model.py /app/
+COPY portal/server.py portal/refresh.py service_collectors.py snapshot_contract.py snapshot_readers.py recommendation_model.py recommendation_engine.py /app/
 EXPOSE 8787
 USER nobody
 CMD ["python", "/app/server.py"]
