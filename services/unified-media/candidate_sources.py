@@ -96,6 +96,10 @@ def collect_openlibrary(query: str, *, media_type: str, request: Request,
         author = _text(authors[0]) if authors else ""
         subjects = doc.get("subject") if isinstance(doc.get("subject"), list) else []
         genres = [_text(value) for value in subjects[:3] if _text(value)]
+        poster_path = (f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg"
+                       if doc.get("cover_i") else "")
+        if not poster_path:
+            continue
         label = "Open Library audiobook discovery" if media_type == "audiobook" else "Open Library ebook discovery"
         results.append({
             "media_type": media_type,
@@ -109,8 +113,7 @@ def collect_openlibrary(query: str, *, media_type: str, request: Request,
             "genres": genres,
             "overview": (_first_sentence(doc.get("first_sentence")) or
                          (f"A work by {author}." if author else "")),
-            "poster_path": (f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg"
-                            if doc.get("cover_i") else ""),
+            "poster_path": poster_path,
             "source_label": label,
             "signals": [f"matches the configured {media_type} seed: {_text(query)}"],
             "explanation": f"Discovered through {label.lower()} for the configured seed.",
@@ -150,6 +153,9 @@ def collect_musicbrainz(query: str, *, request: Request, limit: int = 6) -> list
         credited_artist = _text((artists[0] or {}).get("name")) if artists and isinstance(artists[0], Mapping) else ""
         if credited_artist.casefold() != artist.casefold() or title.casefold() != album.casefold():
             continue
+        poster_path = _music_artwork(mbid, request)
+        if not poster_path:
+            continue
         results.append({
             "media_type": "album",
             "authority": "musicbrainz",
@@ -158,7 +164,7 @@ def collect_musicbrainz(query: str, *, request: Request, limit: int = 6) -> list
             "artist": credited_artist,
             "year": _first_year(group.get("first-release-date")),
             "score": _score(group.get("score"), 0.62),
-            "poster_path": _music_artwork(mbid, request),
+            "poster_path": poster_path,
             "overview": f"{title} by {credited_artist}.",
             "source_label": "MusicBrainz exact release-group discovery",
             "signals": [f"matches the configured music seed: {artist} — {album}"],

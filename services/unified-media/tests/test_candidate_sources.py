@@ -41,6 +41,11 @@ class CandidateSourceTests(unittest.TestCase):
         self.assertEqual(collect_openlibrary("Dune", media_type="movie", request=self.request), [])
         self.assertEqual(self.calls, [])
 
+    def test_openlibrary_skips_records_without_art(self):
+        def no_art_request(url, **kwargs):
+            return {"docs": [{"key": "/works/OL3W", "title": "Dune", "author_name": ["Frank Herbert"]}]}, {}
+        self.assertEqual(collect_openlibrary("Dune", media_type="ebook", request=no_art_request), [])
+
     def test_musicbrainz_requires_exact_artist_album_identity(self):
         result = collect_musicbrainz("Miles Davis|Kind of Blue", request=self.request)
         self.assertEqual(result[0]["authority_id"], "mbid-1")
