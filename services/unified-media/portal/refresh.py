@@ -118,12 +118,17 @@ def collect_lidarr():
     key = Path(os.environ["LIDARR_API_KEY_PATH"]).read_text(encoding="utf-8").strip()
     headers = {"X-Api-Key": key}
     results = []
-    for query in _csv("PORTAL_LIDARR_QUERIES", "Kind of Blue,Bitches Brew"):
+    for query in _csv("PORTAL_LIDARR_QUERIES", "Miles Davis|Kind of Blue,The Beatles|Abbey Road"):
+        artist_query, separator, album_query = query.partition("|")
+        if not separator:
+            # Legacy title-only configuration is intentionally fail-closed.
+            # A title is not enough to identify a safe music acquisition.
+            continue
         payload, _ = request_json(
-            os.environ["LIDARR_URL"] + "/api/v1/album/lookup?" + urllib.parse.urlencode({"term": query}),
+            os.environ["LIDARR_URL"] + "/api/v1/album/lookup?" + urllib.parse.urlencode({"term": f"{artist_query} {album_query}"}),
             headers=headers,
         )
-        item = _unique_exact_title(payload, query)
+        item = _unique_exact_album(payload, artist_query, album_query)
         if item is None:
             continue
         album_id = item.get("foreignAlbumId")
@@ -144,8 +149,11 @@ def collect_lidarr():
     return results
 
 
-def _unique_exact_title(items, query):
-    matches = [item for item in items if item.get("title", "").casefold() == query.casefold()]
+def _unique_exact_album(items, artist_query, album_query):
+    matches = [item for item in items
+               if item.get("title", "").casefold() == album_query.casefold()
+               and (item.get("artist") or {}).get("artistName", "").casefold()
+               == artist_query.casefold()]
     return matches[0] if len(matches) == 1 else None
 
 

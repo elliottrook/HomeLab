@@ -288,8 +288,12 @@ fixed-sample recommendation review.
 
 ### M4 — Music integration and playlist lifecycle
 
-- [ ] Integrate the Music Recommender logic with the portal.
-- [ ] Reuse playlist-bridge matching, retries and post-import reconciliation.
+- [x] Integrate the Music Recommender identity contract with the portal. Music
+  candidates now require an explicit `artist|album` query and one exact
+  case-insensitive artist/title match; legacy title-only queries fail closed.
+- [x] Extract a dependency-free playlist lifecycle contract covering exact
+  track matching, bounded retries and complete-versus-incomplete reconciliation
+  planning. The existing playlist bridge remains the only mutation authority.
 - [ ] Validate one-album requests and private Jellyfin playlist creation.
 - [ ] Keep whole-artist following disabled unless separately accepted.
 
@@ -753,3 +757,10 @@ the evidence log.
   suppresses collisions. The live sample consequently contains only five
   unambiguous Seerr movie candidates until music queries include an explicit
   artist identity.
+- 2026-10-06: M4 read-only implementation added the explicit artist/album
+  identity contract to the portal refresher and added pure playlist lifecycle
+  planning for exact matching, bounded retries and post-import completeness.
+  The existing bridge remains dry-run by default and continues to own Lidarr
+  and Jellyfin mutations. Thirty-five unified-media tests and sixteen bridge
+  tests pass. The M4 live album and private-playlist gate remains blocked until
+  Jason authorizes one bounded write test.
