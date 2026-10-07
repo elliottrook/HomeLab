@@ -58,7 +58,9 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
     async def test_lost_start_ack_stays_unknown_and_never_repeats(self):
         def lost(request): self.agent.starts += 1; raise ConnectionError('lost')
         self.agent.start = lost
-        self.assertEqual((await self.run_worker())['state'],'unknown')
+        result = await self.run_worker()
+        self.assertEqual(result['state'],'unknown')
+        self.assertEqual(result['diagnostic'],{'stage':'turn_start','error_type':'ConnectionError','stop_rpc_acknowledged':False})
         await self.run_worker()
         self.assertEqual(self.agent.starts,1)
         self.assertEqual(self.runtime.store.inspect('j')[0],'unknown')
@@ -71,6 +73,13 @@ class WorkerTests(unittest.IsolatedAsyncioTestCase):
         self.agent.start = start; self.agent.events = [end('interrupted')]
         self.assertEqual((await self.run_worker())['state'],'interrupted')
         self.assertEqual(self.agent.stops,1)
+
+    async def test_failure_diagnostic_never_retains_raw_exception(self):
+        def failed(request): raise RuntimeError('secret material must not be stored')
+        self.agent.start = failed
+        result = await self.run_worker()
+        self.assertNotIn('secret material',str(result))
+        self.assertEqual(result['diagnostic']['error_type'],'RuntimeError')
         self.assertIsNone(self.gateway.owner_result('owner','j')['answer'])
 
     async def test_control_outage_attempts_stop_and_preserves_unknown(self):

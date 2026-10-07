@@ -28,8 +28,8 @@ next-action prose, including the old Section 17 resume instruction.
 |---|---|---|
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
-| D2 — synthetic subscription round trip | Connectivity and later usage delivery passed; real-stop test awaits approval | Original D2 completed in 5.509 s; D3 later delivered provider usage; confirmed live cancellation remains outstanding |
-| D3 — Companion integration | Real assembled worker turn passed in 5.311 s; deployment remains pending | 141 Python tests plus five renderer scenarios; exact owner answer and usage verified, one turn/no tools; live stop gate, production custody and deployed UI wiring remain |
+| D2 — synthetic subscription round trip | Connectivity/usage passed; stop confirmation failed acceptance | Saved provider turn is interrupted, but worker reported unknown; diagnostic retest awaits approval |
+| D3 — Companion integration | Successful answer path; live stop reporting unresolved | 143 Python tests plus five renderer scenarios; real answer/usage verified, first stop run retained as a failure; instrumented retest, production custody and deployed UI wiring remain |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
@@ -45,8 +45,11 @@ connects those components through owner-bound answer delivery. The
 [authentication result and network gate](evidence/D3-authentication-result-2026-10-06.md)
 records both successful approved identity tests and independent cleanup.
 Both identity approvals and the assembled-worker one-turn approval are consumed.
-The [assembled result and stop gate](evidence/D3-assembled-result-and-stop-gate-2026-10-06.md)
-records real answer/usage delivery and the exact next live-cancellation approval.
+The assembled run proved real answer/usage delivery. The subsequently approved
+stop test did not meet its reporting criterion; see the
+[stop result and diagnostic gate](evidence/D3-stop-result-and-diagnostic-gate-2026-10-06.md).
+Resume at that exact new approval. Do not reinterpret later recovery as a passed
+live-confirmation test or repeat the consumed test approval.
 Do not run another authentication-only canary or claim deployed delegation.
 Do not repeat the consumed approval, enable
 production delegation or claim sysadmin qualification from connectivity evidence.

@@ -90,6 +90,7 @@ async def execute(client, cwd, prepared, directory):
                           'usage_status':view['usage']['status'],'elapsed_seconds':result['elapsed_seconds'],
                           'cancellation_requested':worker.stop_requested,
                           'cancellation_confirmed':result['cancellation_confirmed'],
+                          'diagnostic':result.get('diagnostic'),
                           'production_deployment':False}))
     finally:
         if agent: agent.close()

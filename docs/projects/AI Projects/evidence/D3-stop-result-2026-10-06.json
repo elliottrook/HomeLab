@@ -1,0 +1,21 @@
+{
+  "state": "unknown",
+  "automatic_retry": false,
+  "elapsed_seconds": 0.075,
+  "owner_view": {
+    "id": "orion-assembled",
+    "state": "unknown",
+    "reply": null,
+    "message": "Stop requested; waiting for worker confirmation.",
+    "usage": {
+      "status": "unknown"
+    },
+    "can_request_cancel": false,
+    "automatic_retry": false,
+    "recovery_required": false
+  },
+  "production_deployment": false,
+  "model": "gpt-5.6-luna",
+  "cancellation_requested": true,
+  "cancellation_confirmed": false
+}

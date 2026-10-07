@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Live stop reporting failure retained; diagnostic retest prepared
+
+Approved stop test ran once: worker reported unknown in 0.075 s. Fresh read-only
+inspection verified one interrupted provider turn with no final answer, but did
+not establish why live reporting failed or whether the interrupt RPC caused the
+stop. Two explicitly local fake-provider reproductions passed without cloud
+inference; root cause remains unknown. Added fixed stage/type/RPC-code diagnostics
+without error text or sensitive content. 143 Python tests and five renderer
+scenarios pass. A single instrumented repetition awaits new approval; no automatic
+retry or production change. See [failure evidence and gate](evidence/D3-stop-result-and-diagnostic-gate-2026-10-06.md).
+
 ## 2026-10-06 — Approved assembled worker turn succeeded
 
 One ChatGPT-backed Codex turn through the assembled worker completed in 5.311 s.

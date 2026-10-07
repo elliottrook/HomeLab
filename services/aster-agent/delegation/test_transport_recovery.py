@@ -71,6 +71,14 @@ class TransportTests(unittest.TestCase):
             self.transport.call('config/value/write', {})
         self.assertEqual(self.transport.serial, 0)
 
+    def test_rpc_rejection_keeps_code_without_provider_text(self):
+        from transport import RPCRejected
+        self.feed({'id':1,'error':{'code':-32602,'message':'sensitive provider diagnostic'}})
+        with self.assertRaises(RPCRejected) as caught:
+            self.transport.call('turn/start',{})
+        self.assertEqual(caught.exception.rpc_code,-32602)
+        self.assertNotIn('sensitive',str(caught.exception))
+
 
 class RecoveryTests(unittest.TestCase):
     def setUp(self):

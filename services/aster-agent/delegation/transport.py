@@ -9,6 +9,13 @@ import selectors
 import time
 
 
+class RPCRejected(RuntimeError):
+    def __init__(self, value):
+        super().__init__('RPC rejected')
+        code = value.get('code') if isinstance(value, dict) else None
+        self.rpc_code = code if type(code) is int and -(2**31) <= code < 2**31 else None
+
+
 class Transport:
     def __init__(self, reader, writer, methods, on_event):
         self.reader, self.writer = reader, writer
@@ -74,7 +81,7 @@ class Transport:
                 if message.get("id") != self.serial:
                     raise ValueError("Unmatched RPC response")
                 if "error" in message:
-                    raise RuntimeError("RPC rejected")
+                    raise RPCRejected(message['error'])
                 return message["result"]
         except Exception:
             self.broken = True

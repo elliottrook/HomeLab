@@ -1,0 +1,12 @@
+{
+  "dispatch_records": 1,
+  "recorded_state": "unknown",
+  "turn_count": 1,
+  "matching_turn_count": 1,
+  "provider_state": "interrupted",
+  "item_types": [
+    "userMessage"
+  ],
+  "final_answer_count": 0,
+  "new_inference": false
+}
