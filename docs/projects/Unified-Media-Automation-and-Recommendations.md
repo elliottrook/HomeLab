@@ -320,7 +320,7 @@ backup/restore evidence is complete.
 - [x] Complete documentation, wiki/mirror summaries, operational runbooks and
   systems-of-record updates.
 - [x] Create a focused local Git commit for the milestone.
-- [ ] Request separate immediate confirmation before any Forgejo push.
+- [x] Request separate immediate confirmation before any Forgejo push.
 
 ## Validation and evaluation
 
@@ -875,3 +875,8 @@ the evidence log.
   current browser check is stopped at the Authentik passkey flow, so a user
   browser session must complete passkey authentication before the Dockge list
   can be visually confirmed.
+- 2026-10-07: Jason requested Watchtower remain active. The existing
+  `new_arr` Compose definition recreated it with `unless-stopped`; Watchtower
+  is running and Docker Compose now reports `new_arr` as `running(12)`. The
+  M6 commit `e16ffbf` was pushed to Forgejo `origin/main`, and the configured
+  GitHub mirror was verified at the same commit without a direct GitHub push.
