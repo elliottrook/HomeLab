@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Finite worker assembled, live model validation prepared
+
+Joined admission, control polling, correlated app-server Session, bounded stop,
+final delivery and usage in one finite runner. 140 Python tests and five renderer
+scenarios pass. The complete pilot fixture returns the exact owner answer and
+preserves private state; acknowledgement/control/delivery failures do not retry
+inference. Prepared metadata-only manifest with existing ChatGPT sign-in,
+gpt-5.6-luna/medium and disabled tools. No new model turn or production change.
+Await the [exact one-turn approval](evidence/D3-assembled-worker-gate-2026-10-06.md).
+
 ## 2026-10-06 — Approved Mac HTTPS identity test passed
 
 The exact approved network manifest executed once: four real HTTPS requests,
