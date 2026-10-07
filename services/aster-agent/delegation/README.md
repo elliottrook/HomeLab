@@ -29,6 +29,10 @@ It is not an Aster service, an intent classifier or a complete security boundary
 - `runtime.py`: explicit private state owner with an exclusive OS lock. Disabled
   by default; no background service or network listener. Startup/shutdown marks
   unfinished jobs unknown, preserving identity and preventing replay.
+- `handoff.py`: bounded gateway and worker-admission ledgers with immutable
+  owner/request/scope bindings, duplicate suppression and receipt recovery.
+- `worker_router.py`: default-disabled, unregistered offer/receipt routes. It
+  requires a dedicated verified worker-identity dependency, not user auth.
 
 Run offline checks from the repository root:
 
@@ -38,9 +42,9 @@ node services/aster-agent/delegation/test_companion_view.cjs
 ```
 
 HTTP tests require Python 3.10+ and the existing gateway's pinned FastAPI, httpx
-and Pydantic versions. Without them those seven tests explicitly skip; do not
+and Pydantic versions. Without them those twelve HTTP tests explicitly skip; do not
 report that run as full HTTP validation. On 2026-10-06 a disposable Python 3.11
-environment ran all 80 Python tests plus five renderer scenarios successfully.
+environment ran all 102 Python tests plus five renderer scenarios successfully.
 
 The metadata probe requires `--inspect-installed` to do anything. It uses the
 existing supported Codex sign-in and prints no account address or credentials.
@@ -90,3 +94,9 @@ still needs two-host receipt reconciliation, transport recovery, real Authentik
 testing and a reviewed Mac-to-Aster deployment boundary. The local
 HTTP tests use fixture identities, not real identity-provider tokens. Do not
 route Codex jobs through the old notification `run_job` restart/failure behavior.
+
+Two-host receipt semantics are now locally modelled and tested in `handoff.py`.
+Actual actor wiring, authenticated transport, private lifecycle/storage for both
+ledgers and final-answer delivery are not connected. A first durable admission
+permits consideration of dispatch; duplicate admission never does. This sacrifices
+automatic retry after uncertain crashes and does not claim exactly-once execution.

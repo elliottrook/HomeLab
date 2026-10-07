@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Durable gateway/worker handoff and receipt recovery
+
+Implemented bounded immutable job envelopes, gateway delivery and worker
+admission ledgers, duplicate suppression and terminal receipt reconciliation.
+Completion lost across a worker restart was recovered from the owner-bound
+dispatch record and fixture thread snapshot without new execution. Added
+default-disabled unregistered worker routes with dedicated identity dependency.
+102 Python tests and five renderer scenarios pass. At-most-one admission is not
+exactly-once distributed execution; uncertain crashes deliberately need review.
+No real identity, transport or deployment is claimed. See
+[handoff evidence and next integration gate](evidence/D3-handoff-2026-10-06.md).
+
 ## 2026-10-06 — Gateway reconciliation and private worker lifecycle
 
 Read-only LAN checks found the LXC 104 gateway active with one worker and its
