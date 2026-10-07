@@ -16,13 +16,13 @@ class DispatchStore:
             thread_id TEXT, turn_id TEXT)""")
         self.db.commit()
 
-    def claim(self, job_id):
+    def claim(self, job_id, thread_id=None):
         if not isinstance(job_id, str) or not 1 <= len(job_id) <= 128:
             raise ValueError("Invalid job identifier")
         with self.db:
             result = self.db.execute(
-                "INSERT OR IGNORE INTO jobs(job_id,state) VALUES (?, 'dispatch_unknown')",
-                (job_id,))
+                "INSERT OR IGNORE INTO jobs(job_id,state,thread_id) VALUES (?, 'dispatch_unknown', ?)",
+                (job_id, thread_id))
         return result.rowcount == 1
 
     def bind(self, job_id, thread_id, turn_id):
@@ -31,8 +31,9 @@ class DispatchStore:
         with self.db:
             result = self.db.execute("""UPDATE jobs SET state='running',
                 thread_id=?, turn_id=? WHERE job_id=? AND
-                state='dispatch_unknown' AND thread_id IS NULL""",
-                (thread_id, turn_id, job_id))
+                state='dispatch_unknown' AND turn_id IS NULL AND
+                (thread_id IS NULL OR thread_id=?)""",
+                (thread_id, turn_id, job_id, thread_id))
             if result.rowcount != 1:
                 raise ValueError("Claim absent or already bound")
 

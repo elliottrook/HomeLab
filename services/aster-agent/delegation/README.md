@@ -10,6 +10,15 @@ It is not an Aster service, an intent classifier or a complete security boundary
   and terminal persistence, including events arriving before acknowledgement.
 - `isolation_probe.py`: metadata-only effective child configuration check. Tool
   feature and MCP disables affect only the owned child, not saved user settings.
+- `transport.py` and `recovery.py`: bounded pipe deadlines and recovery from a
+  matching complete thread snapshot, tested with local pipes and fixtures.
+- `offline_tool_capture.py`: explicit offline diagnostic, runs a temporary
+  loopback fake provider and a synthetic turn. Captures only tool names/counts
+  and authorization-header presence, then returns an intentional HTTP error.
+  No real model call. The installed build offered zero tools and no authorization.
+- `pilot.py`: defaults to metadata-only manifest preparation. `--run` is reserved
+  for the approved fictional D2 test; requires a matching manifest fingerprint
+  and fresh absolute result directory. Not a deployed user-facing bridge.
 
 Run offline checks from the repository root:
 
@@ -27,9 +36,9 @@ The router accepts an already classified intent; it does not classify free text.
 Cloud permission and capacity are caller inputs, not authorization grants.
 No unqualified local model becomes an administrator by passing this router.
 
-Job events and dispatch storage now have an offline coordinator, but no live
-transport. No production queue, access-controlled database deployment, retention
-cleanup, reconnect reconciliation or Companion integration exists yet. Only a
+Job events and dispatch storage now have a coordinator and bounded pipe transport.
+No production queue, access-controlled database deployment, retention
+cleanup or Companion integration exists yet. Only a
 single owner may orchestrate a job; the SQLite claim prevents repeated dispatch,
 not every possible concurrency problem. Storage failures must prevent dispatch.
 
@@ -43,3 +52,8 @@ Rejecting client-directed tool/approval requests does not disable tools that
 Codex executes internally. D2 requires independently verified effective tool and
 context isolation before inference. Do not connect these primitives to a normal
 fully privileged Codex session and call it a safe read-only pilot.
+
+The pinned restriction profile passed an offline outgoing tool-inventory check.
+This supports the bounded fictional test, not a general OS isolation claim.
+Real HomeLab context and tool access remain later gates. Unknown dispatch lacking
+a turn acknowledgement requires manual reconciliation; it cannot auto-retry.

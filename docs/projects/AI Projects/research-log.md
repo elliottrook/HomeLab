@@ -1,5 +1,19 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — D2 runner prepared after offline tool-offer capture
+
+50 offline tests pass: bounded pipe transport and restart snapshot recovery added.
+The outgoing request to a local fake provider offered zero tools and carried no
+Authorization header; it intentionally returned HTTP 400. No real inference.
+Added a manifest-pinned single-turn pilot; metadata preparation verified native
+provider, ChatGPT auth and configured gpt-5.6-luna with medium reasoning. Initial
+guards stopped on implicit provider/default endpoint representations; corrected
+with explicit native provider and exact canonical URL allowlist, not relaxed
+custom endpoint acceptance. Actual cloud execution awaits
+[the concrete gate](evidence/D2-pilot-ready-2026-10-06.md). Model choice here is a
+connectivity fixture, not a sysadmin-quality recommendation. Token telemetry is
+explicitly outstanding. No production changes or Git push.
+
 ## 2026-10-06 — Offline coordination and effective configuration checks
 
 Continued Stream A locally. Added durable session coordination, early-event

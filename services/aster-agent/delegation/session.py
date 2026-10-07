@@ -17,7 +17,7 @@ class Session:
         self.failure_class = None
 
     def prepare(self, text):
-        if self.state != "new" or not self.store.claim(self.job_id):
+        if self.state != "new" or not self.store.claim(self.job_id, self.thread_id):
             raise ValueError("Job already claimed; reconcile, never redispatch")
         self.state = "dispatch_unknown"
         return {"method": "turn/start", "params": {

@@ -27,16 +27,16 @@ next-action prose, including the old Section 17 resume instruction.
 | Gate | Current status | Required evidence before proceeding |
 |---|---|---|
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth, six catalogue entries; inference entitlement unproven |
-| D1 — offline delegation contract | Candidate passes 31 tests; incomplete | Offline session/storage integration and typed quota failures added; restriction-only metadata probe confirms zero enabled MCP connections; live transport/restart reconciliation and effective runtime tool/context isolation remain |
-| D2 — synthetic subscription round trip | Not started | Fixed run manifest, permitted tools, data/host scope and successful terminal result |
+| D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
+| D2 — synthetic subscription round trip | Prepared, awaiting exact connected-test approval | Pinned fictional Orion manifest, ChatGPT auth, installed gpt-5.6-luna/medium; no real inference yet; token telemetry remains a D2 follow-up |
 | D3 — Companion integration | Not started | Durable jobs, approvals, reconnect/cancel and local degradation checks |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
 [the D0/D1 checkpoint](evidence/D0-D1-delegation-2026-10-06.md).
-Resume with D1 transport integration and effective child-session isolation.
-Do not run the D2 fixture through a default session inheriting local tools.
-The fixture is preregistered; a reviewed executable runner is still outstanding.
+Resume at [the exact D2 pilot gate](evidence/D2-pilot-ready-2026-10-06.md).
+The bounded executable candidate and manifest are ready. Do not run the fixture
+through a default session inheriting local tools or claim production readiness.
 Latest [D1 session/isolation checkpoint](evidence/D1-session-isolation-2026-10-06.md)
 records the inherited MCP issue and verified configuration correction. No
 connected inference has run; local engineering can continue without a new
