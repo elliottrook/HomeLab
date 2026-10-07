@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Authentication boundary and concrete identity gate
+
+Read-only inspection verified Authentik 2026.8.0 and absence of candidate worker
+identity. Installed source confirms introspection checks expiry/revocation.
+Added default-disabled online worker verifier, digest-bound answer endpoint and
+owner renderer projection. 117 Python tests and five renderer scenarios pass.
+Prepared a temporary source-local identity canary; its metadata-only default
+passed on the installed server without creating objects. Actual issuance and
+revocation await explicit remote-change authorization. See
+[exact scope, source hash, cleanup and acceptance](evidence/D3-authentication-gate-2026-10-06.md).
+
 ## 2026-10-06 — Local vertical handoff and owner answer delivery
 
 Connected worker admission, private runtime, Session and snapshot recovery in a
