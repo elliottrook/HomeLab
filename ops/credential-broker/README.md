@@ -10,6 +10,15 @@ in distinct OpenBao paths. The service accepts JSON requests only over a group-r
 derives the caller identity from kernel peer credentials rather than a
 caller-supplied identity field.
 
+## Deployed status-read addition — 2026-10-06
+
+The approval socket accepts exact `{"method":"automation.status"}` after its
+configured kernel peer-UID check. It returns only `global_enabled`. No human
+actor is needed for this one read; all management/approval methods retain actor
+requirements. Extra fields do not select this branch. No group or switch change
+accompanied deployment. The delegation callback remains a local candidate.
+See [deployment and checkpoint evidence](../../docs/projects/AI%20Projects/evidence/D3-broker-deployment-result-2026-10-06.md).
+
 Implemented controls:
 
 - SQLite-backed agent, service and capability registries;

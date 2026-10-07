@@ -1,6 +1,10 @@
 # D3 deployment preparation — native UI and narrow kill-switch read
 
-## Verified current deployment facts
+**Completion:** approved and deployed; denial/health checks passed. See
+[deployment result](D3-broker-deployment-result-2026-10-06.md). Approval is consumed.
+The baseline and approval procedure below are retained as historical provenance.
+
+## Verified pre-deployment facts
 
 Read-only direct SSH on LXC 104 confirms:
 

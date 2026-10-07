@@ -4,6 +4,17 @@
 >
 > Reviewed: 2026-09-26
 
+## Narrow operational update — 2026-10-06
+
+The approved LXC 104 approval-service update exposes exact request
+`{"method":"automation.status"}` on `/run/homelab-broker/approval.sock` to its
+configured Aster peer UID. It returns only the global-enabled boolean without
+a human actor. Management/approval methods retain human identity requirements.
+Socket permissions and switch value were unchanged; wrong-peer and actor-less
+management requests were denied live. This does not enable Codex delegation.
+See [deployment and recovery evidence](../projects/AI%20Projects/evidence/D3-broker-deployment-result-2026-10-06.md).
+This narrow check does not revalidate the whole September 26 reference.
+
 ## Current service boundary
 
 AI-PAM is the privileged-access control plane for AI-assisted HomeLab work. The

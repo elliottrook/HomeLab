@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved broker status read deployed
+
+Updated the approved single source on LXC 104 with a root-only recovery checkpoint.
+Aster's status read passed; wrong peer and actor-less management requests were
+denied. Global switch and socket permissions stayed unchanged. Separate checks
+found Aster/approval services active and Companion HTTP 200. No complete human
+approval-flow validation is claimed. Delegation remains disabled; credential
+custody and gateway wiring remain. No model call or push. See
+[deployment evidence](evidence/D3-broker-deployment-result-2026-10-06.md).
+
 ## 2026-10-06 — Native Companion candidate and narrow broker status gate
 
 Live metadata confirmed Aster belongs only to the broker approvers group, not
