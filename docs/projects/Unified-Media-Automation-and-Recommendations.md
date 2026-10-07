@@ -1,6 +1,6 @@
 # Unified Media Automation and Recommendations
 
-> Status: Active — Stream A; M0 in progress
+> Status: Completed — Stream A
 >
 > Project owner: Jason
 >
@@ -396,6 +396,18 @@ versus archive video lifecycle is unchanged and verified, all actions are
 explicit and auditable, the A380/B60 ownership split remains intact, Doctor and
 backups cover the new services, and the remaining limitations are accepted in
 the evidence log.
+
+## Close-out and user handover
+
+The project is complete as Stream A. The operator-facing workflow is documented
+in [Unified Media Recommendation User Guide](../runbooks/Unified-Media-Recommendation-User-Guide.md).
+That guide covers the private portal, one-button approval semantics, the
+separate-browser passkey step, music and book request differences, active versus
+archive behavior, and the safe response to failed or stale recommendations.
+
+The remaining work is optional recommendation-quality tuning, not a missing
+production safety gate. The portal remains fail-closed when actions are
+disabled, stale, ambiguous or already owned.
 
 ## Evidence log
 
@@ -880,3 +892,7 @@ the evidence log.
   is running and Docker Compose now reports `new_arr` as `running(12)`. The
   M6 commit `e16ffbf` was pushed to Forgejo `origin/main`, and the configured
   GitHub mirror was verified at the same commit without a direct GitHub push.
+- 2026-10-07: Final close-out adds the permanent GUI/user-facing handover
+  requirement to the project charter, publishes the unified media operator
+  guide, records the project as Completed — Stream A, and preserves the
+  active/archive lifecycle and A380/B60 ownership split.

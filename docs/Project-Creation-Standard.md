@@ -241,6 +241,26 @@ Create the project under `docs/projects/` and add it to
 17. **Close-out** — final architecture, ownership, recovery references and
     deliberately deferred work.
 
+### User-facing handover requirement
+
+Any project that changes a GUI, browser workflow, authentication step, URL,
+button, dashboard, request flow or other user-operated behavior must include a
+user-facing handover before graduation. The handover must:
+
+- identify exactly what changed and what did not;
+- provide the external URL or launch path and authentication method;
+- explain the normal task in plain language, including important statuses,
+  buttons and failure messages;
+- provide a small manual or training note that a non-author can follow;
+- state safe operating boundaries, approval points and recovery guidance;
+- record any manual action Jason must perform, such as completing passkey
+  authentication in a separate browser; and
+- be validated by a walkthrough or explicit user acceptance before the project
+  can be marked completed.
+
+This requirement applies to future projects and is applied retroactively to
+the unified media project through its operator guide.
+
 Checkboxes are evidence claims: mark one complete only after implementation,
 validation and documentation are all true. A project remains proposed, ready,
 active or pilot until its graduation gate passes.
