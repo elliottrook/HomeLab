@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Identity access guard and Mac installer prepared
+
+Inspected installed Authentik grant/policy code and live metadata: 20 relevant
+applications each bind one existing user. The candidate's conservative preflight
+passed against installed ORM without mutations. Added inactive identity
+provisioning and a default-inert Swift Keychain installer; 174 local tests pass.
+Swift compiled with legacy Keychain deprecation warnings; actual ACL remains
+unvalidated. No credentials accessed or issued. Recorded missing runnable human
+ceremony instructions and same-user custody limitation before future tool access.
+See [evidence and remaining controller work](evidence/D3-identity-provisioning-2026-10-06.md).
+
 ## 2026-10-06 — Approved encrypted custody host check passed
 
 The exact approved bundle passed real encryption/decryption and transient
