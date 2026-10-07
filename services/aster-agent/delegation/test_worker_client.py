@@ -32,13 +32,23 @@ class WorkerClientTests(unittest.IsolatedAsyncioTestCase):
                 transport = httpx.ASGITransport(app=app)
                 worker = WorkerClient(lambda: 'fixture-token', enabled=True, transport=transport)
                 envelope = await worker.offer('job-1')
+                self.assertFalse((await worker.controls('job-1', envelope['delivery_id']))['cancel_requested'])
+                async with httpx.AsyncClient(transport=transport, base_url='https://aster.elliottrook.com') as client:
+                    stopped = await client.post('/v1/companion/delegation/jobs/job-1/cancel')
+                    self.assertEqual(stopped.status_code, 202)
+                    self.assertEqual(stopped.json()['state'], 'offered')
+                self.assertTrue((await worker.controls('job-1', envelope['delivery_id']))['cancel_requested'])
                 receipt = dict(delivery_id=envelope['delivery_id'], event='completed',
                                result_sha256=hashlib.sha256(b'Exact fixture answer').hexdigest())
                 await worker.receipt('job-1', receipt)
+                counts = dict(inputTokens=4,cachedInputTokens=0,outputTokens=2,reasoningOutputTokens=0,totalTokens=6)
+                await worker.usage('job-1', envelope['delivery_id'], {'last':counts,'total':counts})
                 await worker.answer('job-1', envelope['delivery_id'], 'Exact fixture answer')
                 async with httpx.AsyncClient(transport=transport, base_url='https://aster.elliottrook.com') as client:
                     value = (await client.get('/v1/companion/delegation/jobs/job-1')).json()
                     self.assertEqual(value['reply'], 'Exact fixture answer')
+                    self.assertEqual(value['usage']['provider_snapshots']['total']['totalTokens'],6)
+                    self.assertFalse(value['can_request_cancel'])
                 active = False
                 with self.assertRaises(WorkerConnectionError): await worker.offer('job-1')
             finally: gateway.close()

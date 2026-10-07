@@ -54,6 +54,9 @@ class Gateway(Ledger):
         self.db.execute("""CREATE TABLE IF NOT EXISTS handoff_jobs (
             id TEXT PRIMARY KEY, envelope TEXT NOT NULL, state TEXT NOT NULL,
             result_sha256 TEXT)""")
+        self.db.execute("""CREATE TABLE IF NOT EXISTS handoff_controls (
+            job_id TEXT PRIMARY KEY, cancel_requested INTEGER NOT NULL DEFAULT 0,
+            usage TEXT, usage_at REAL)""")
         self.db.commit()
 
     def create(self, job_id, owner, worker, request_sha256, scope_sha256, model, expires_at):
@@ -148,7 +151,53 @@ class Gateway(Ledger):
         result["answer"] = cached[1] if cached else None
         result["answer_available"] = cached is not None
         result["recovery_required"] = result["state"] == "completed" and cached is None
+        with self.db:
+            self.db.execute("UPDATE handoff_controls SET usage=NULL,usage_at=NULL WHERE usage_at<=?",
+                            (now-86400,))
+        control = self.db.execute("SELECT cancel_requested,usage FROM handoff_controls WHERE job_id=?",
+                                  (job_id,)).fetchone()
+        result['cancel_requested'] = bool(control and control[0])
+        result['usage'] = json.loads(control[1]) if control and control[1] else None
         return result
+
+    def request_stop(self, authenticated_owner, job_id):
+        """Persist intent only. A provider terminal event confirms interruption."""
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            envelope, state, _ = self._row(job_id)
+            if envelope['owner'] != authenticated_owner:
+                raise KeyError('Job not found')
+            if state not in TERMINAL:
+                self.db.execute('INSERT INTO handoff_controls (job_id,cancel_requested) VALUES (?,1) '
+                                'ON CONFLICT(job_id) DO UPDATE SET cancel_requested=1', (job_id,))
+        return self.owner_result(authenticated_owner, job_id)
+
+    def controls(self, authenticated_worker, job_id, delivery_id):
+        envelope, state, _ = self._row(job_id)
+        if envelope['worker'] != authenticated_worker or envelope['delivery_id'] != delivery_id:
+            raise KeyError('Job not found')
+        row = self.db.execute('SELECT cancel_requested FROM handoff_controls WHERE job_id=?',
+                              (job_id,)).fetchone()
+        return {'cancel_requested': bool(row and row[0]), 'state': state}
+
+    def report_usage(self, authenticated_worker, job_id, delivery_id, usage):
+        if __package__:
+            from .usage import parse_usage
+        else:
+            from usage import parse_usage
+        clean = parse_usage(usage)
+        if clean is None:
+            raise ValueError('Invalid usage')
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            envelope, state, _ = self._row(job_id)
+            if envelope['worker'] != authenticated_worker or envelope['delivery_id'] != delivery_id:
+                raise KeyError('Job not found')
+            if state in {'queued', 'offered', 'expired'}:
+                raise ValueError('Usage requires admitted work')
+            self.db.execute('INSERT INTO handoff_controls (job_id,usage,usage_at) VALUES (?,?,?) '
+                            'ON CONFLICT(job_id) DO UPDATE SET usage=excluded.usage,usage_at=excluded.usage_at',
+                            (job_id,json.dumps(clean),self.clock()))
 
 
 class WorkerInbox(Ledger):

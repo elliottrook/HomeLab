@@ -1,5 +1,54 @@
 # D3 authentication result and Mac HTTPS gate
 
+## Mac HTTPS test — subsequently approved and complete
+
+Jason approved the next test in this chat. Ran exactly the fingerprinted command
+below once. It exited zero: four HTTPS requests, all nine checks true, and
+`temporary_objects_removed=true`. A separate read-only SSH/ORM check confirmed
+the application, both provider selectors, user, token and mapping absent and the
+existing Companion public/hour-token configuration unchanged. No credential
+values were returned to the conversation. This approval is now consumed.
+
+VERIFIED: token issuance, claim inspection, revocation and inactive-token
+verification worked through the Mac's TLS connection to Authentik. This does not
+prove the separate future worker-to-Aster gateway deployment. Do not repeat the
+test merely because the historical command remains below.
+
+Local continuation: 130 Python tests and five renderer scenarios pass. Durable
+owner stop intent is now carried through worker control endpoints; a worker
+poll sends one session-bound interrupt and waits for an actual terminal event.
+Stop intent alone never changes the outcome to interrupted. Connectivity loss
+marks the worker session unknown. Usage endpoints accept only the existing
+numeric allowlist, replace snapshots rather than sum duplicates, and remove
+expired snapshots on owner reads after 24 hours. No currency/quota inference.
+The worker HTTP fixture now covers stop, usage and owner result paths together.
+These are still unmounted candidates; the real event loop must poll before
+dispatch and while running, and reconciliation remains necessary after outage.
+
+### Updated resume and deployment dependencies
+
+No further authentication-only canary is needed. Continue assembling the actual
+worker lifecycle and existing Companion surface, including pre-dispatch stop
+handling, control polling, bounded event-loop deadlines and tested process exit.
+Do not present isolated helper tests as proof a working background worker exists.
+
+Before production registration, complete the AI-PAM service-registry entry for
+two separate credentials: Mac service-account token custody and gateway
+introspection credential custody. The repository's completed broker project
+records that current OpenBao service AppRoles are narrowly scoped and the only
+documented root recovery route is human-operated with two recovery shares.
+This is repository evidence, not fresh proof of every live administrator role.
+Do not reuse the Forgejo roles, copy human credentials or silently substitute
+unmanaged long-lived files. Inspect supported non-secret administration metadata
+and prepare exact policy/role/custody changes before asking for authorisation.
+If the human-held ceremony is actually needed, explain the bounded operation;
+never request recovery shares or passwords in chat.
+
+Permanent identity/vault changes, actual gateway/worker deployment and another
+model call remain separately gated. Neither successful authentication test
+authorises them. No permanent worker credential, running service change, model
+call or Git push occurred in this continuation.
+
 ## Approved source-local test — complete
 
 Jason approved the identity-only experiment in this chat. The exact historical
@@ -34,7 +83,7 @@ fixtures still use simulated transport; no gateway router has been deployed.
 The scope/model restriction and dispatch ledgers remain the separate execution
 boundary. Worker authentication alone does not authorize a task.
 
-## Next approval: finite Mac HTTPS identity test
+## Historical approval scope: finite Mac HTTPS identity test
 
 PROPOSAL: repeat only the temporary identity lifecycle from the previous gate,
 but relay its four OAuth requests through the Mac over real TLS to the fixed
@@ -81,7 +130,7 @@ test without another review.
 
 ## Resume
 
-This is the current approval gate. Do not repeat the consumed source-local
-approval. After a successful network test, continue the production custody and
+This historical gate is complete as recorded above. Do not repeat either
+consumed approval. Continue the production custody and
 AI-PAM kill-switch integration, remote cancellation/usage and actual Companion
 deployment preparation. D3 is not yet complete, and D4 remains unstarted.

@@ -86,3 +86,24 @@ class WorkerClient:
         result = await self._post(job_id, 'answer', {'delivery_id': delivery_id, 'answer': answer})
         if result != {'accepted': True}:
             raise WorkerConnectionError('Answer delivery unconfirmed')
+
+    async def controls(self, job_id, delivery_id):
+        result = await self._post(job_id, 'control', {'delivery_id': delivery_id})
+        if (set(result) != {'cancel_requested', 'state'} or
+                type(result['cancel_requested']) is not bool or
+                result['state'] not in {'queued','offered','accepted','running','unknown',
+                                        'completed','failed','interrupted','expired'}):
+            raise WorkerConnectionError('Invalid control response')
+        return result
+
+    async def usage(self, job_id, delivery_id, usage):
+        if __package__:
+            from .usage import parse_usage
+        else:
+            from usage import parse_usage
+        clean = parse_usage(usage)
+        if clean is None:
+            raise WorkerConnectionError('Invalid usage snapshot')
+        result = await self._post(job_id, 'usage', {'delivery_id': delivery_id, 'usage': clean})
+        if result != {'accepted': True}:
+            raise WorkerConnectionError('Usage delivery unconfirmed')

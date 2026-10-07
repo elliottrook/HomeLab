@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved Mac HTTPS identity test passed
+
+The exact approved network manifest executed once: four real HTTPS requests,
+all nine checks true, temporary objects removed. Independent metadata inspection
+confirmed cleanup and unchanged Companion provider settings. Added durable
+owner stop intent, worker control polling and numeric usage delivery; 130 Python
+tests and five renderer scenarios pass. No production worker/gateway deployment,
+permanent credential, model call or Git push. Both identity-test approvals are
+consumed; continue worker assembly and exact credential custody preparation,
+not more authentication-only experiments. See
+[updated result and resume](evidence/D3-authentication-result-2026-10-06.md).
+
 ## 2026-10-06 — Approved identity experiment passed; outbound client prepared
 
 Executed the exact approved historical canary once: all nine issuance/claim/

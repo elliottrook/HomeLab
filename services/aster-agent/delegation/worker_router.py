@@ -21,6 +21,15 @@ class FinalAnswer(BaseModel):
     answer: str = Field(min_length=1, max_length=32000)
 
 
+class ControlRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    delivery_id: str = Field(min_length=1, max_length=256)
+
+
+class UsageReport(ControlRequest):
+    usage: dict
+
+
 def worker_router(gateway, worker_dependency, *, enabled=False):
     router = APIRouter(prefix="/v1/delegation/worker/jobs")
 
@@ -62,6 +71,29 @@ def worker_router(gateway, worker_dependency, *, enabled=False):
         except ValueError:
             raise HTTPException(409, "Answer conflicts with completed receipt") from None
 
+    @router.post("/{job_id}/control")
+    async def control(job_id: str, value: ControlRequest, response: Response,
+                      worker=Depends(worker_dependency)):
+        check_enabled()
+        response.headers['Cache-Control'] = 'no-store'
+        try:
+            return gateway.controls(worker, job_id, value.delivery_id)
+        except KeyError:
+            raise HTTPException(404, 'Job not found') from None
+
+    @router.post("/{job_id}/usage")
+    async def usage(job_id: str, value: UsageReport, response: Response,
+                    worker=Depends(worker_dependency)):
+        check_enabled()
+        response.headers['Cache-Control'] = 'no-store'
+        try:
+            gateway.report_usage(worker, job_id, **value.model_dump())
+            return {'accepted': True}
+        except KeyError:
+            raise HTTPException(404, 'Job not found') from None
+        except ValueError:
+            raise HTTPException(409, 'Usage report rejected') from None
+
     return router
 
 
@@ -83,10 +115,26 @@ def owner_result_router(gateway, owner_dependency, *, enabled=False):
                     "failed": "Codex reported a failure.",
                     "interrupted": "Codex confirmed the request stopped.",
                     "expired": "The request expired before it was offered."}
+        message = ('Stop requested; waiting for worker confirmation.'
+                   if value['cancel_requested'] and value['state'] not in {'completed','failed','interrupted','expired'}
+                   else messages.get(value['state'], 'Waiting for Codex.'))
         return {"id": job_id, "state": value["state"], "reply": value["answer"],
                 "message": "Answer needs recovery; do not resend the request."
-                if value["recovery_required"] else messages.get(value["state"], "Waiting for Codex."),
-                "usage": {"status": "unknown"}, "can_request_cancel": False,
+                if value["recovery_required"] else message,
+                "usage": {'status': 'reported', 'provider_snapshots': value['usage']} if value['usage'] else {"status": "unknown"},
+                "can_request_cancel": not value['cancel_requested'] and value['state'] in {'queued','offered','accepted','running','unknown'},
                 "automatic_retry": False, "recovery_required": value["recovery_required"]}
+
+    @router.post('/{job_id}/cancel', status_code=202)
+    async def cancel(job_id: str, response: Response, owner=Depends(owner_dependency)):
+        if not enabled:
+            raise HTTPException(503, 'Worker integration is not enabled')
+        response.headers['Cache-Control'] = 'no-store'
+        try:
+            value = gateway.request_stop(owner, job_id)
+            return {'stop_requested': value['cancel_requested'], 'state': value['state'],
+                    'automatic_retry': False}
+        except KeyError:
+            raise HTTPException(404, 'Job not found') from None
 
     return router

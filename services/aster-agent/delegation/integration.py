@@ -53,3 +53,21 @@ def deliver_recovered(inbox, store, envelope, snapshot, gateway,
         gateway.deliver_answer(authenticated_worker, envelope["job_id"],
                                envelope["delivery_id"], result["answer"])
     return receipt["event"]
+
+
+async def poll_remote_stop(client, envelope, session, send_interrupt):
+    """One explicit worker poll; no task loop or claim that an RPC ack is terminal.
+
+    The eventual worker must poll before dispatch and during its event loop.
+    Losing authority/control connectivity makes in-flight outcome uncertain.
+    """
+    try:
+        control = await client.controls(envelope['job_id'], envelope['delivery_id'])
+        if control['cancel_requested']:
+            request = session.cancel()
+            if request:
+                await send_interrupt(request)
+        return control
+    except Exception:
+        session.disconnect()
+        raise
