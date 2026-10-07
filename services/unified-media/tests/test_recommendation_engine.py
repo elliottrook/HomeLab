@@ -32,6 +32,19 @@ class RecommendationEngineTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertIn("matches genres", result[0]["explanation"])
 
+    def test_result_cap_balances_available_media_types(self):
+        candidates = []
+        for media_type in ("movie", "album", "ebook", "audiobook"):
+            for index in range(6):
+                candidates.append({
+                    "media_type": media_type, "authority": media_type,
+                    "authority_id": f"{media_type}-{index}",
+                    "title": f"{media_type} {index}", "score": 10 - index,
+                })
+        result = rank_candidates(candidates, limit=8)
+        self.assertEqual([item["media_type"] for item in result],
+                         ["album", "audiobook", "ebook", "movie"] * 2)
+
 
 if __name__ == "__main__":
     unittest.main()

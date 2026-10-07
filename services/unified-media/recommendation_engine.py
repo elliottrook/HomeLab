@@ -131,7 +131,25 @@ def rank_candidates(
             ranked.append(item)
 
     ranked.sort(key=lambda item: (-item["score"], str(item.get("media_type")), _fold(item.get("title")), str(item.get("authority_id", ""))))
-    return ranked[:max(0, int(limit))]
+    cap = max(0, int(limit))
+    if cap == 0:
+        return []
+    # Keep a strong source from crowding every other medium out of the page.
+    # Within each medium the deterministic score order is preserved, and the
+    # round-robin order is stable because media types are sorted.
+    buckets: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for item in ranked:
+        buckets[str(item.get("media_type"))].append(item)
+    balanced: list[dict[str, Any]] = []
+    while len(balanced) < cap:
+        added = False
+        for media_type in sorted(buckets):
+            if buckets[media_type] and len(balanced) < cap:
+                balanced.append(buckets[media_type].pop(0))
+                added = True
+        if not added:
+            break
+    return balanced
 
 
 def _explanation(item: Mapping[str, Any], signals: list[str], ambiguous: bool) -> str:
