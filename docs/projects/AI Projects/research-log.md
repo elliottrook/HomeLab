@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Gateway assembly prepared locally
+
+Composed private gateway lifecycle, owner/worker routes and deployed broker status
+protocol; disabled startup creates no routes/state. Moved synchronous gate and
+custody callbacks off the event loop, preserving fail-closed checks. 152 delegation
+tests pass, including real local socket outage/disable checks with fixture issuer.
+OpenBao service is active; current administrative bootstrap authority remains
+unverified beyond the documented human recovery procedure. No credential access,
+production mount, model call or push. See [assembly checkpoint](evidence/D3-gateway-assembly-2026-10-06.md).
+
 ## 2026-10-06 — Approved broker status read deployed
 
 Updated the approved single source on LXC 104 with a root-only recovery checkpoint.

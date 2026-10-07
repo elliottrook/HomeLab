@@ -48,6 +48,16 @@ class WorkerAuthTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(HTTPException): await self.identity('Bearer fixture')
         self.assertEqual(self.requests, 0)
 
+    async def test_gate_exception_or_truthy_nonboolean_denies_without_issuer(self):
+        def broken(): raise RuntimeError('private status diagnostic')
+        for callback in (broken, lambda: 1, lambda: 'true'):
+            self.identity.permitted = callback
+            with self.assertRaises(HTTPException) as caught:
+                await self.identity('Bearer fixture')
+            self.assertEqual(caught.exception.status_code, 503)
+            self.assertNotIn('private', caught.exception.detail)
+        self.assertEqual(self.requests, 0)
+
     async def test_outage_redirect_and_oversize_fail_closed(self):
         for status in (302, 401, 500):
             self.response_status = status

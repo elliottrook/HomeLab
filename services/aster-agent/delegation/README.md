@@ -52,6 +52,13 @@ It may need host runtime permissions. It cannot start a thread or model turn.
 
 ## Deliberate limitations
 
+Latest local integration checkpoint (2026-10-06): `gateway_assembly.py` composes
+private lifecycle, owner/worker routes and the broker status callback. It remains
+unmounted in production and disabled by default. Credential custody is injected,
+not implemented by discovering secrets. 152 Python tests pass in the pinned
+environment. Later checkpoint details supersede the historical counts below;
+see `docs/projects/AI Projects/evidence/D3-gateway-assembly-2026-10-06.md`.
+
 The router accepts an already classified intent; it does not classify free text.
 Cloud permission and capacity are caller inputs, not authorization grants.
 No unqualified local model becomes an administrator by passing this router.

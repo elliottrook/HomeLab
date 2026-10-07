@@ -4,6 +4,7 @@ No human-token fallback, positive cache, secret discovery or token logging.
 The caller owns credential custody and must supply a live local kill-switch
 callback. Authentication grants only a worker identity, never job authority.
 """
+import asyncio
 import time
 import httpx
 from fastapi import Header, HTTPException
@@ -36,15 +37,22 @@ class WorkerIdentity:
         self.subject, self.secret, self.permitted = subject, secret, permitted
         self.enabled, self.transport, self.clock = enabled, transport, clock
 
+    async def _permitted(self):
+        try:
+            # Socket/custody I/O must not block Aster's household request loop.
+            return await asyncio.to_thread(self.permitted) is True
+        except Exception:
+            return False
+
     async def __call__(self, authorization: str = Header(default="")):
-        if not self.enabled or not self.permitted():
+        if not self.enabled or not await self._permitted():
             raise HTTPException(503, "Worker access disabled")
         if (not authorization.startswith("Bearer ") or
                 not 1 <= len(authorization[7:]) <= 16384 or
                 any(c.isspace() for c in authorization[7:])):
             raise HTTPException(401, "Worker identity required")
         try:
-            secret = self.secret()
+            secret = await asyncio.to_thread(self.secret)
             if not isinstance(secret, str) or not secret:
                 raise ValueError("Missing verifier credential")
             async with httpx.AsyncClient(timeout=5, follow_redirects=False,
@@ -62,7 +70,7 @@ class WorkerIdentity:
                     import json
                     claims = json.loads(body)
             identity = validate_claims(claims, self.subject, self.clock())
-            if not self.permitted():
+            if not await self._permitted():
                 raise ValueError("Worker disabled during verification")
             return identity
         except Exception:

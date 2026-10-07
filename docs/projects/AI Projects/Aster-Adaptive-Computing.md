@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Native UI candidate built; narrow broker status read deployed and verified | 147 delegation tests, 84 broker tests, 26 Swift tests and five renderer scenarios pass; live status-read and denial checks passed; credential custody and full delegation deployment remain |
+| D3 — Companion integration | Native UI and gateway assembly candidates built; broker status read deployed | 152 delegation tests; prior 84 broker, 26 Swift and five renderer checks retained; live status-read/denial checks passed; credential custody and full delegation deployment remain |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
@@ -54,6 +54,9 @@ contains the exact narrow broker status-read approval and native UI build eviden
 The [approved broker deployment](evidence/D3-broker-deployment-result-2026-10-06.md)
 is complete and its approval consumed. Resume with credential custody and disabled
 gateway/worker wiring. Credential custody remains candidate-only and delegation disabled.
+The [gateway assembly checkpoint](evidence/D3-gateway-assembly-2026-10-06.md)
+now joins private state, owner/worker routes and broker checks locally. Resume
+with custody adapters and Mac lifecycle/configuration; production mounts remain absent.
 Do not run another authentication-only canary or claim deployed delegation.
 Do not repeat the consumed approval, enable
 production delegation or claim sysadmin qualification from connectivity evidence.
