@@ -13,10 +13,11 @@ The recommendation service is advisory. It explains why an item was suggested,
 but it never silently acquires media. Every acquisition is an explicit button
 press and is recorded by the target service.
 
-The current deployed discovery feed is populated with real Seerr film and TV
-catalogue candidates. Music, ebook and audiobook request adapters exist, but
-their recommendation feeds are still being populated and should not be
-considered available merely because their buttons are supported by the backend.
+The current deployed video feed is populated from TMDB per-title
+recommendations, seeded from existing Radarr/Sonarr identities. Seerr's generic
+discovery feed is not used. Seerr remains the authenticated request authority
+for films and TV; music, ebook and audiobook candidates come from their own
+bounded providers.
 
 The existing video lifecycle is unchanged. New high-quality film and TV stays
 in the active Jellyfin libraries for the existing four-month period. The

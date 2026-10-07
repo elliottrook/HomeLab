@@ -7,7 +7,8 @@ from unittest.mock import Mock
 
 from portal.server import (Handler, _lazylibrarian_request, action_key,
                            load_recommendations, render_html)
-from portal.refresh import _prepare_candidates, _seerr_candidate, _unique_exact_album
+from portal.refresh import (_prepare_candidates, _seerr_candidate,
+                            _unique_exact_album, collect_tmdb_recommendations)
 
 
 class PortalTests(unittest.TestCase):
@@ -72,6 +73,21 @@ class PortalTests(unittest.TestCase):
         self.assertEqual(item["year"], "2016")
         self.assertEqual(item["genres"], ["Drama", "Science Fiction"])
         self.assertEqual(item["source_label"], "Seerr discovery")
+
+    def test_video_candidates_use_tmdb_recommendations_from_library_seeds(self):
+        with patch.dict("os.environ", {"SEERR_URL": "http://seerr"}), \
+                patch("portal.refresh.seerr_session", return_value="sid"), \
+                patch("portal.refresh.request_json", return_value=({"results": [{
+                    "id": 55, "title": "Arrival", "overview": "A linguist meets visitors.",
+                    "releaseDate": "2016-11-10", "voteAverage": 8.0,
+                    "genreIds": [18, 878], "posterPath": "/arrival.jpg",
+                }]}, {})) as request:
+            result = collect_tmdb_recommendations([
+                {"authority": "radarr", "media_type": "movie", "authority_id": "10"},
+            ])
+        self.assertEqual(result[0]["source_label"], "TMDB per-title recommendations")
+        self.assertEqual(result[0]["authority_id"], "55")
+        self.assertIn("/api/v1/movie/10/recommendations", request.call_args.args[0])
 
     def test_render_disables_owned_candidate(self):
         html = render_html([{"title": "Dune", "media_type": "movie", "owned": True}])

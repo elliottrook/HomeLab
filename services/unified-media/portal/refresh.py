@@ -96,34 +96,44 @@ def seerr_session():
     return cookie
 
 
-def collect_seerr():
+def collect_tmdb_recommendations(library):
+    """Collect TMDB per-title recommendations through Seerr's TMDB proxy.
+
+    Seerr remains the request authority, but its generic discovery feed is not
+    used. Seeds are bounded to existing Radarr/Sonarr identities so TMDB's
+    recommendations are grounded in this library rather than a generic chart.
+    """
+    seeds = []
+    configured = _csv("PORTAL_TMDB_SEEDS", "")
+    for value in configured[:6]:
+        media_type, separator, media_id = value.partition(":")
+        if separator and media_type in {"movie", "tv"} and media_id.isdigit():
+            seeds.append((media_type, media_id))
+    for item in library:
+        if not isinstance(item, dict):
+            continue
+        if item.get("authority") == "radarr" and item.get("media_type") == "movie":
+            seeds.append(("movie", str(item.get("authority_id"))))
+        elif item.get("authority") == "sonarr" and item.get("media_type") == "tv":
+            seeds.append(("tv", str(item.get("authority_id"))))
+    unique_seeds = list(dict.fromkeys(
+        (media_type, media_id) for media_type, media_id in seeds if media_id.isdigit()
+    ))[:6]
+    if not unique_seeds:
+        return []
     cookie = seerr_session()
-    if os.environ.get("PORTAL_SEERR_SOURCE", "discover") == "discover":
-        return _collect_seerr_discover(cookie)
     results = []
-    for query in _csv("PORTAL_SEERR_QUERIES", "Arrival,Dune"):
-        payload, _ = request_json(
-            os.environ["SEERR_URL"] + "/api/v1/search?" + urllib.parse.urlencode({"query": query}),
-            headers={"Cookie": cookie},
-        )
-        for item in payload.get("results", []):
-            if item.get("mediaType") not in {"movie", "tv"} or item.get("mediaInfo"):
+    for media_type, media_id in unique_seeds:
+        endpoint = f"/api/v1/{media_type}/{media_id}/recommendations"
+        payload, _ = request_json(os.environ["SEERR_URL"] + endpoint,
+                                  headers={"Cookie": cookie})
+        for item in payload.get("results", [])[:8]:
+            if item.get("mediaInfo"):
                 continue
             title = item.get("title") or item.get("name")
             if not item.get("id") or not title:
                 continue
-            media_type = str(item["mediaType"])
-            candidate = {"media_type": media_type, "authority": "seerr",
-                            "authority_id": str(item["id"]), "title": title,
-                            "score": 0.70,
-                            "overview": item.get("overview") or "",
-                            "poster_path": item.get("posterPath") or "",
-                            "backdrop_path": item.get("backdropPath") or "",
-                            "year": str(item.get("releaseDate") or item.get("firstAirDate") or "")[:4],
-                            "rating": item.get("voteAverage"),
-                            "genres": item.get("genres") if isinstance(item.get("genres"), list) else [],
-                            "source_label": "Seerr catalog",
-                            "explanation": f"Unrequested {media_type} from the Seerr catalog."}
+            candidate = _seerr_candidate(item, media_type, "TMDB per-title recommendations")
             if media_type == "tv":
                 detail, _ = request_json(os.environ["SEERR_URL"] + f"/api/v1/tv/{item['id']}",
                                          headers={"Cookie": cookie})
@@ -145,38 +155,6 @@ _TMDB_GENRES = {
     10762: "Kids", 10763: "News", 10764: "Reality", 10765: "Sci-Fi & Fantasy",
     10766: "Soap", 10767: "Talk", 10768: "War & Politics",
 }
-
-
-def _collect_seerr_discover(cookie):
-    """Collect real Seerr discovery results rather than test search fixtures."""
-    results = []
-    page_limit = max(1, min(3, int(os.environ.get("PORTAL_DISCOVERY_PAGES", "1"))))
-    per_type_limit = max(1, min(20, int(os.environ.get("PORTAL_DISCOVERY_LIMIT", "12"))))
-    for endpoint, media_type in (("movies", "movie"), ("tv", "tv")):
-        selected = 0
-        for page in range(1, page_limit + 1):
-            payload, _ = request_json(
-                os.environ["SEERR_URL"] + f"/api/v1/discover/{endpoint}?" +
-                urllib.parse.urlencode({"page": page}), headers={"Cookie": cookie})
-            for item in payload.get("results", []):
-                if selected >= per_type_limit or not item.get("id") or item.get("mediaInfo"):
-                    continue
-                title = item.get("title") or item.get("name")
-                if not title or not item.get("overview"):
-                    continue
-                candidate = _seerr_candidate(item, media_type, "Seerr discovery")
-                if media_type == "tv":
-                    detail, _ = request_json(os.environ["SEERR_URL"] + f"/api/v1/tv/{item['id']}",
-                                             headers={"Cookie": cookie})
-                    seasons = [season.get("seasonNumber") for season in detail.get("seasons", [])
-                               if isinstance(season, dict) and isinstance(season.get("seasonNumber"), int)
-                               and season.get("seasonNumber") > 0]
-                    if not seasons:
-                        continue
-                    candidate["seasons"] = seasons
-                results.append(candidate)
-                selected += 1
-    return results
 
 
 def _seerr_candidate(item, media_type, source_label):
@@ -265,14 +243,17 @@ def _prepare_candidates(candidates, limit=20, *, library=(), history=()):
 
 
 def refresh_once():
-    candidates = collect_seerr() + collect_lidarr() + collect_book_and_music_candidates()
     _refresh_library_snapshot()
     _refresh_history_snapshot()
+    library = _read_snapshot_items(LIBRARY_SNAPSHOT_PATH)
+    history = _read_snapshot_items(HISTORY_SNAPSHOT_PATH)
+    candidates = (collect_tmdb_recommendations(library) + collect_lidarr() +
+                  collect_book_and_music_candidates())
     output = _narrate(_prepare_candidates(
         candidates,
         limit=max(1, min(40, int(os.environ.get("PORTAL_RECOMMENDATION_LIMIT", "40")))),
-        library=_read_snapshot_items(LIBRARY_SNAPSHOT_PATH),
-        history=_read_snapshot_items(HISTORY_SNAPSHOT_PATH),
+        library=library,
+        history=history,
     ))
     SNAPSHOT_PATH.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(dir=str(SNAPSHOT_PATH.parent))
