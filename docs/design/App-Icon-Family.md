@@ -16,10 +16,18 @@ runtime assets.
 |---|---|---|
 | Aster Companion | [`docs/assets/aster-companion/aster-app-icon-concept-v2-compass.png`](../assets/aster-companion/aster-app-icon-concept-v2-compass.png) | `apps/AsterCompanion/Resources/AppIcon.icns`; Aster web favicon and PWA icon |
 | News Digest | [`docs/assets/news-digest/news-digest-icon.png`](../assets/news-digest/news-digest-icon.png) | `/static/icon-512.png` plus the 32px favicon and 180px Apple touch icon |
+| Unified Media Recommendations | [`docs/assets/unified-media/unified-media-recommendations-icon.png`](../assets/unified-media/unified-media-recommendations-icon.png) | Private portal source plus 32px favicon and 180px Apple touch icon |
 
 The Aster source is the accepted compass/aster flower artwork. The News Digest
 source is the deployed 512px document/news mark; its 32px and 180px variants
 are retained because the live page already serves those exact sizes.
+
+Unified Media Recommendations uses the same midnight canvas, electric blue /
+violet glow, warm highlight and centered discovery motif. Its source and
+runtime derivatives are tracked under
+[`docs/assets/unified-media/`](../assets/unified-media/). The reusable web
+interface rules are documented separately in the
+[HomeLab UI Style Guide](HomeLab-UI-Style-Guide.md).
 
 ## Web integration contract
 
@@ -29,6 +37,9 @@ are retained because the live page already serves those exact sizes.
 - News Digest keeps `/static/icon-32.png` and `/static/icon-180.png`, adds the
   512px image to its manifest, and must not change its private route, auth, or
   service boundaries as part of an icon update.
+- Unified Media Recommendations serves the 32px favicon, 180px Apple touch
+  icon, and full-size source from its private portal; the icon update must not
+  change its Authentik, request-adapter, or service boundaries.
 - Runtime copies are generated from the Git sources; do not hand-edit a
   deployed PNG without bringing the resulting bytes back into Git.
 

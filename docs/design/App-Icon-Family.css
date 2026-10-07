@@ -7,6 +7,20 @@
   --icon-gold: #ffd36a;
   --icon-cream: #fff7dc;
 
+  /* Shared Aster web-surface tokens, extracted from the recommendation portal
+     and intended for briefing, recommendation, and future private UIs. */
+  --ui-bg: #0b1020;
+  --ui-panel: #151d31;
+  --ui-panel-raised: #1b2740;
+  --ui-panel-input: #111a2c;
+  --ui-text: #f4f7fb;
+  --ui-text-soft: #dce4f1;
+  --ui-muted: #aab6ca;
+  --ui-accent: #8bd3ff;
+  --ui-accent-strong: #b9f2d0;
+  --ui-danger: #ffaaa8;
+  --ui-line: #2b3a58;
+
   /* Use these radii and glow layers for derivative family artwork. */
   --icon-radius: 22%;
   --icon-glow-blue: 0 0 18% rgba(21, 92, 255, 0.95),
@@ -35,7 +49,8 @@
 
 /* Aster and News Digest derivatives share the same framing treatment. */
 .icon-family-aster,
-.icon-family-news {
+.icon-family-news,
+.icon-family-recommendations {
   border-radius: var(--icon-radius);
   box-shadow: var(--icon-glow-blue), var(--icon-glow-warm);
   display: block;
