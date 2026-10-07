@@ -65,7 +65,7 @@ def run(apply=False):
         credential = Token.objects.create(identifier=TOKEN_NAME, user=user,
             intent='app_password', expiring=True, expires=timezone.now()+timedelta(minutes=10))
         created.append(credential)
-        client = Client(raise_request_exception=False)
+        client = globals().get('ASTER_AUTH_HTTP_CLIENT', Client)(raise_request_exception=False)
         def post(path, data, authorization=None):
             headers = {'HTTP_HOST': 'auth.elliottrook.com'}
             if authorization: headers['HTTP_AUTHORIZATION'] = authorization

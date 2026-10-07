@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved identity experiment passed; outbound client prepared
+
+Executed the exact approved historical canary once: all nine issuance/claim/
+revocation checks passed. Independent read-only inspection confirmed temporary
+objects absent and Companion provider metadata unchanged. Continued local work
+on outbound worker HTTP delivery; 125 Python tests and five renderer scenarios
+pass. Prepared a separately gated finite Mac HTTPS identity canary, with no
+model call or production Aster deployment. See
+[result, cleanup and exact next approval](evidence/D3-authentication-result-2026-10-06.md).
+
 ## 2026-10-06 — Authentication boundary and concrete identity gate
 
 Read-only inspection verified Authentik 2026.8.0 and absence of candidate worker
