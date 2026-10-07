@@ -50,6 +50,7 @@ class Gateway(Ledger):
     def __init__(self, path, identity, **kwargs):
         super().__init__(path, **kwargs)
         self.identity = identity
+        self.answers = {}  # Ephemeral only; restart requires authenticated recovery.
         self.db.execute("""CREATE TABLE IF NOT EXISTS handoff_jobs (
             id TEXT PRIMARY KEY, envelope TEXT NOT NULL, state TEXT NOT NULL,
             result_sha256 TEXT)""")
@@ -126,6 +127,28 @@ class Gateway(Ledger):
             raise KeyError("Job not found")
         return {"job_id": job_id, "state": state, "result_sha256": result,
                 "automatic_retry": False}
+
+    def deliver_answer(self, authenticated_worker, job_id, delivery_id, answer):
+        """Publish only a digest-matching completed result; never persist text."""
+        if not isinstance(answer, str) or not answer.strip() or len(answer) > 32000:
+            raise ValueError("Invalid final answer")
+        envelope, state, expected = self._row(job_id)
+        if envelope["worker"] != authenticated_worker or envelope["delivery_id"] != delivery_id:
+            raise KeyError("Job not found")
+        if state != "completed" or hashlib.sha256(answer.encode()).hexdigest() != expected:
+            raise ValueError("Answer does not match completed receipt")
+        self.answers[job_id] = (self.clock(), answer)
+
+    def owner_result(self, authenticated_owner, job_id):
+        result = self.status(authenticated_owner, job_id)
+        now = self.clock()
+        self.answers = {key: value for key, value in self.answers.items()
+                        if 0 <= now - value[0] < 900}
+        cached = self.answers.get(job_id)
+        result["answer"] = cached[1] if cached else None
+        result["answer_available"] = cached is not None
+        result["recovery_required"] = result["state"] == "completed" and cached is None
+        return result
 
 
 class WorkerInbox(Ledger):

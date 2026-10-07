@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Approved connectivity test passed in 5.509 s; partial acceptance | ChatGPT-authenticated turn completed; identical answer recovered through fresh connection; one turn/no tool items; usage and live cancellation remain outstanding |
-| D3 — Companion integration | Disabled local candidate; lifecycle and handoff fault tests pass | 102 Python tests plus five renderer scenarios; immutable owner/scope delivery and receipt recovery implemented locally; actor wiring, real worker identity/auth and deployment remain |
+| D3 — Companion integration | Disabled local candidate; vertical handoff fixture passes | 110 Python tests plus five renderer scenarios; owner-bound answer delivery and lost-connection recovery connected locally; verified network identity, deployed UI/worker wiring and canary remain |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
@@ -40,8 +40,10 @@ locally; see [the D3 candidate checkpoint](evidence/D3-companion-candidate-2026-
 Placement and local lifecycle are now recorded in the
 [D3 placement checkpoint](evidence/D3-placement-lifecycle-2026-10-06.md).
 The [D3 handoff checkpoint](evidence/D3-handoff-2026-10-06.md) now records that
-protocol and fault tests. Resume with existing workload-identity inspection and
-one disabled vertical integration; avoid adding another orchestration layer.
+protocol and fault tests. The [vertical fixture checkpoint](evidence/D3-vertical-fixture-2026-10-06.md)
+connects those components through owner-bound answer delivery. Resume with
+non-secret workload-identity capability verification and concrete transport/UI
+wiring; avoid adding another orchestration layer.
 Do not repeat the consumed approval, enable
 production delegation or claim sysadmin qualification from connectivity evidence.
 Latest [D1 session/isolation checkpoint](evidence/D1-session-isolation-2026-10-06.md)

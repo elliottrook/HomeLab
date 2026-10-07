@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Local vertical handoff and owner answer delivery
+
+Connected worker admission, private runtime, Session and snapshot recovery in a
+default-disabled integration seam. Added digest-bound ephemeral answer delivery
+and owner retrieval. Connection loss/restarts do not repeat inference; missing
+turn acknowledgement remains uncertain. 110 Python tests and five renderer
+scenarios pass. Provider exchange is simulated, not a live network integration.
+Existing AI-PAM Unix peer identity and Companion public user client do not
+establish a Mac workload identity. No credentials, deployment or new cloud turn.
+See [result, identity boundary and resume](evidence/D3-vertical-fixture-2026-10-06.md).
+
 ## 2026-10-06 — Durable gateway/worker handoff and receipt recovery
 
 Implemented bounded immutable job envelopes, gateway delivery and worker
