@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Recovery availability confirmed; encrypted custody gate prepared
+
+Jason confirmed both required recovery keys are available, without disclosing
+material. Added exact vault setup and encrypted delivery candidates; 171 tests pass.
+Read-only checks verified systemd 257, Aster UID placement, OpenBao 2.6.3 and no
+existing host encryption key. Prepared one fictional source-local delivery check;
+host-key creation is explicit and awaits remote-change approval. No credentials,
+real encryption operation, vault write or deployment occurred. See
+[gate, recovery details and primary sources](evidence/D3-encrypted-custody-gate-2026-10-06.md).
+
 ## 2026-10-06 — Custody adapters and manual connected worker prepared
 
 Added fixed-purpose vault and Keychain/Auth­entik adapters, exact proposed vault
