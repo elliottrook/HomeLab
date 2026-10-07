@@ -21,9 +21,8 @@ MOUNTS={
 'ix-filebrowser-filebrowser-1':{'/config','/database'},'dozzle':{'/data'},
 'ix-dockge-dockge-1':{'/app/data'},'flaresolverr':{'/config'},
 'calibre':{'/config'},'calibre-web-automated':{'/config'},'seerr':{'/app/config'},'profilarr':{'/config'},
-'ix-audiobookshelf-audiobookshelf-1':{'/config','/metadata'},
 'unified-lazylibrarian-shadow':{'/config'},
-'unified-audiobookshelf-shadow':{'/config'}}
+'unified-audiobookshelf-shadow':{'/config','/metadata'}}
 
 def run(*args):return subprocess.check_output(args,stderr=subprocess.PIPE)
 def digest(p):
@@ -63,7 +62,7 @@ def copy_config(src,dst,dbs,excludes=()):
   else:raise RuntimeError('Configuration changed repeatedly during copy')
  dst.chmod(0o600)
 
-def backup_abs(dst, name='ix-audiobookshelf-audiobookshelf-1'):
+def backup_abs(dst, name='unified-audiobookshelf-shadow'):
  dst.parent.mkdir(parents=True,exist_ok=True)
  tmp='/tmp/homelab-config-'+str(os.getpid())+'.sqlite'
  code=r"""process.umask(0o077); const s=require('sqlite3');const p=process.argv[1];
@@ -110,7 +109,7 @@ def main():
        if (source/child).exists():copy_config(source/child,target/child,dbs)
       catalogue=source/'Calibre Library/metadata.db'
       if catalogue.exists():copy_config(catalogue,target/'Calibre Library/metadata.db',dbs)
-     elif name in {'ix-audiobookshelf-audiobookshelf-1','unified-audiobookshelf-shadow'} and m['Destination']=='/config':
+     elif name=='unified-audiobookshelf-shadow' and m['Destination']=='/config':
       assert (source/'absdatabase.sqlite').is_file()
       backup_abs(target/'absdatabase.sqlite', name);dbs.append(str(target/'absdatabase.sqlite'))
       if (source/'migrations').is_dir():copy_config(source/'migrations',target/'migrations',dbs)
@@ -123,7 +122,7 @@ def main():
   copy_config(catalogue,payload/'calibre-library-catalogue/metadata.db',dbs)
   # The large Jellyfin artwork tree is disposable; library/collection XML is retained.
   # Guard definitions, managed app settings and exact network reconstruction are config.
-  for source,label in [('/mnt/Media/appdata/authentik-browser-ingress','browser-guards'),('/mnt/.ix-apps/app_configs','managed-apps'),('/mnt/Media/data/tools','automation-tools'),('/root/.ssh','host-ssh'),('/etc/ssh','ssh-service'),('/mnt/Media/appdata/config-backup-tools','backup-tools')]:
+  for source,label in [('/mnt/Media/appdata/authentik-browser-ingress','browser-guards'),('/mnt/.ix-apps/app_configs','managed-apps'),('/mnt/Media/data/tools','automation-tools'),('/root/.ssh','host-ssh'),('/etc/ssh','ssh-service'),('/mnt/Media/appdata/config-backup-tools','backup-tools'),('/mnt/Media/appdata/unified-media-shadow/portal/state','unified-portal-state'),('/mnt/Media/appdata/unified-media-shadow/secrets','unified-service-credentials'),('/mnt/Media/appdata/unified-media-shadow/audiobookshelf-legacy-paths','audiobookshelf-legacy-paths')]:
    copy_config(source,payload/label,dbs)
   (payload/'docker-networks.json').write_bytes(run('docker','network','inspect',*run('docker','network','ls','-q').decode().split()))
   (payload/'containers-inventory.json').write_text(json.dumps(allc))

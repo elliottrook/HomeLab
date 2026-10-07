@@ -11,7 +11,7 @@ spec.loader.exec_module(exporter)
 
 class InstanceBackup(unittest.TestCase):
     def test_instance_specific_database_and_cleanup(self):
-        for instance in ['ix-audiobookshelf-audiobookshelf-1','unified-audiobookshelf-shadow']:
+        for instance in ['unified-audiobookshelf-shadow']:
             with self.subTest(instance=instance), tempfile.TemporaryDirectory() as td:
                 dest=Path(td)/'db.sqlite'
                 calls=[]
