@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Offline coordination and effective configuration checks
+
+Continued Stream A locally. Added durable session coordination, early-event
+buffering, typed quota/auth failures and metadata-only isolation inspection;
+31 tests pass. Verified the restrictive child profile initially retained one
+MCP connection; explicit inline-TOML per-server disabling reduced that to zero.
+The failed quoted dotted-key attempt and successful correction are retained in
+[the checkpoint](evidence/D1-session-isolation-2026-10-06.md). No inference,
+credentials, saved user configuration changes or production actions. Configuration
+acceptance is not yet runtime tool/context isolation; D1 remains open.
+
 ## 2026-10-06 — Subscription delegation adopted and metadata path verified
 
 Jason directed recording the reasoning, retooling the existing project and

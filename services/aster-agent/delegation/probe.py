@@ -5,20 +5,24 @@ import os
 import selectors
 import shutil
 import subprocess
+import tempfile
 import time
 
 ALLOWED = {"initialize", "account/read", "model/list"}
 
 
 class MetadataClient:
-    def __init__(self, executable):
+    methods = frozenset(ALLOWED)
+
+    def __init__(self, executable, *, options=(), cwd=None):
         env = dict(os.environ)
         for name in ("OPENAI_API_KEY", "CODEX_API_KEY", "ACCESS_TOKEN"):
             env.pop(name, None)
+        self.errors = tempfile.TemporaryFile()
         self.proc = subprocess.Popen(
-            [executable, "app-server", "--listen", "stdio://"], env=env,
+            [executable, "app-server", "--listen", "stdio://", *options], env=env, cwd=cwd,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL)
+            stderr=self.errors)
         self.selector = selectors.DefaultSelector()
         self.selector.register(self.proc.stdout, selectors.EVENT_READ)
         self.buffer = b""
@@ -29,7 +33,7 @@ class MetadataClient:
         self.proc.stdin.flush()
 
     def call(self, method, params):
-        if method not in ALLOWED:
+        if method not in self.methods:
             raise ValueError("Metadata-only method boundary")
         self.serial += 1
         self.send({"id": self.serial, "method": method, "params": params})
@@ -47,7 +51,13 @@ class MetadataClient:
             if self.selector.select(max(0, deadline-time.monotonic())):
                 block = os.read(self.proc.stdout.fileno(), 65536)
                 if not block:
-                    raise RuntimeError("App-server disconnected")
+                    self.errors.seek(0)
+                    diagnostic = self.errors.read(16384).lower()
+                    # Report fixed categories only, never raw configuration,
+                    # paths, server names or token-bearing stderr.
+                    flags = [word for word in ("mcp", "required", "disabled", "config", "parse", "permission")
+                             if word.encode() in diagnostic]
+                    raise RuntimeError("App-server disconnected; diagnostic categories: " + ",".join(flags))
                 self.buffer += block
                 if len(self.buffer) > 1048576:
                     raise RuntimeError("Metadata response too large")
@@ -63,6 +73,7 @@ class MetadataClient:
             self.proc.wait(timeout=5)
         self.proc.stdin.close()
         self.proc.stdout.close()
+        self.errors.close()
 
 
 def main():
