@@ -55,6 +55,9 @@ def _poster_url(item: Mapping[str, Any]) -> str:
 
 def _source_url(item: Mapping[str, Any]) -> str:
     """Return a read-only source page for the item's authority identity."""
+    configured = str(item.get("source_url", "")).strip()
+    if configured.startswith("https://"):
+        return configured
     authority = str(item.get("authority", ""))
     media_type = str(item.get("media_type", ""))
     authority_id = str(item.get("authority_id", "")).strip()

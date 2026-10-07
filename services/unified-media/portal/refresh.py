@@ -22,6 +22,7 @@ from service_collectors import (
 )
 from recommendation_engine import rank_candidates
 from candidate_sources import collect_musicbrainz, collect_openlibrary
+from trakt_sources import collect_trakt_recommendations
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
 LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
@@ -261,6 +262,16 @@ def refresh_once():
     history = _read_snapshot_items(HISTORY_SNAPSHOT_PATH)
     candidates = (collect_tmdb_recommendations(library) + collect_lidarr() +
                   collect_book_and_music_candidates())
+    token_path = os.environ.get("TRAKT_ACCESS_TOKEN_PATH")
+    client_id_path = os.environ.get("TRAKT_CLIENT_ID_PATH")
+    if token_path and client_id_path:
+        try:
+            candidates.extend(collect_trakt_recommendations(
+                request=request_json, access_token_path=token_path,
+                client_id_path=client_id_path,
+                limit=int(os.environ.get("PORTAL_TRAKT_LIMIT", "6"))))
+        except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+            pass
     output = _narrate(_prepare_candidates(
         candidates,
         limit=max(1, min(40, int(os.environ.get("PORTAL_RECOMMENDATION_LIMIT", "40")))),
