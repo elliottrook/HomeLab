@@ -274,3 +274,38 @@ size reporting and alerts so future retention drift is visible.
 IDrive documents NoncurrentVersionExpiration/NoncurrentDays at
 https://learn.idrive.com/s3-storage-e2/s3-compatible-api . Permanent expiry reduces
 historical recovery protection; exact prefix/rule preview and approval required.
+
+## Approved cloud execution — 2026-10-07
+
+Jason explicitly approved the recommended remote cleanup, old Media retirement,
+documentation and push, with another SAS addition only if appropriate. The exact
+405 noncurrent guest versions were verified to have current delete markers,
+valid guest-archive names and no matching retained Recovery filename. Inventory
+was rechecked unchanged under the relay lock before deletion. All 405 version
+IDs were acknowledged deleted: 1,021,053,826,174 encrypted bytes removed. All 178
+current guest object version IDs and sizes remained unchanged.
+
+Afterward: current 806,037,092,255 bytes; history 17,245,627,590 bytes; total
+823,282,719,845 bytes. This is 823.3 GB decimal. Nine lifecycle rules were applied
+and read back exactly: noncurrent guest versions 1 day; Gowest family 30 days;
+configuration, Home Assistant, Mac, Jellyfin and service-reconstruction/Paperless
+configuration prefixes 14 days; expired delete markers removed bucket-wide.
+No current-object age expiration or versioning suspension. Family/config history
+will expire only according to these approved windows. Existing guest retention
+continues to define the dated current archives. Provider lifecycle processing
+is asynchronous, so empty guest delete markers may remain temporarily.
+
+Root-only LXC 112 evidence: /var/lib/idrive-version-maintenance/ contains exact
+cleanup manifest, acknowledged deleted versions, lifecycle before/request/readback
+and usage.json. Permanent version deletion has no rollback. Do not rerun the
+fixed 20261007 execution mode; its count/size gates deliberately reject replay.
+The first attempt stopped before mutation because this rclone uses cryptdecode
+--reverse; the corrected invocation was then validated and executed.
+
+Installed idrive-usage-audit.timer at 10:00 America/Vancouver plus up to five
+minutes jitter. Its service calls the script without mutation flags, obtains the
+same relay lock, and records aggregate current/history usage. Manual service run
+passed. HomeLab Doctor reads that report and warns if older than 30 hours, total
+usage exceeds 1 TB decimal, or noncurrent history exceeds 150 GB. This reports
+only authorized bucket scope, not account-wide billing. Sixteen backup tests,
+Doctor shell syntax and both configuration-backup checks pass.

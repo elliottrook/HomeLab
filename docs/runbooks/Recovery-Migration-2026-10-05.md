@@ -1,6 +1,6 @@
 # Recovery backup migration — 2026-10-05
 
-Status: MIGRATION COMPLETE 2026-10-05 18:38 PDT. Old-source retirement pending next scheduled cycle.
+Status: migration and old-source retirement complete; retirement verified 2026-10-07.
 Authorization: Jason explicitly requested migration to the new SATA mirror and
 an ETA. Stream M, this bounded migration approved as a whole; no source/history
 purge, photo ingestion, unrelated SAS expansion or Git push.
@@ -247,3 +247,43 @@ and monitoring use Recovery. Disabled NFS/task cleanup is included in the propos
 bounded operation to avoid stale dataset references. Recheck exact snapshot set,
 no active writers, matching source inventory and fresh backup health immediately
 before execution; stop if the reviewed scope has changed.
+
+## Approved source retirement — 2026-10-07
+
+Jason approved deleting the reviewed old Media copies and snapshots. Fresh pool
+checks confirmed eight-member Media expansion and October 6 23:29:22 scrub passed
+with zero errors/repairs; Recovery healthy. Repaired configuration export and
+cloud verification passed. October 7 guest/Aster pulls passed. Mac's overnight
+pull failed because the source Mac was locked; bounded retry job 13179 succeeded
+before deletion. There were no active backup jobs or file users of the old source.
+
+The final source-delta check detected a new ehs-public-knowledge-mirror backup
+created October 6 by another completed project. Preserved its 521 files,
+7,052,791 logical bytes with rsync -aHAX and full checksum/metadata comparison
+on a separate Recovery/ehs-public-knowledge-mirror dataset. Its root is explicitly
+0700 (tighter than source subdirectory), compression LZ4, atime/exec off. No new
+SMB/NFS export, cloud inclusion, or credential exposure was introduced. Existing
+host restore paths work via /mnt/Media/backup/ehs-public-knowledge-mirror ->
+/mnt/Recovery/ehs-public-knowledge-mirror. The containing Media/backup is now only
+a small root-only directory on Media, NOT the former ZFS backup dataset.
+The EHS project quarterly-restore reference therefore remains valid. Do not
+remove this compatibility link or the independent Recovery dataset.
+
+Disabled old NFS share 3 and snapshot tasks 2/3/4 were removed. Exact reviewed
+24 snapshots and Media/backup dataset were destroyed. Midclt delete returns
+Python-style True; early parsing failures occurred after individual disabled-task
+removals and were resumed by checking actual remaining IDs. ZFS initially removed
+the snapshots but refused final dataset destruction because Filebrowser held a
+recursive bind mount. Stopped only ix-filebrowser-filebrowser-1, destroyed the
+remaining dataset, created the EHS compatibility link, and restarted Filebrowser
+in a finally block. It is running and healthy. No media-serving or backup service
+was stopped. All pools remain healthy; zpool freeing reached zero.
+
+Media availability is now 10.9 TiB (was 8.20 TiB); Recovery has 2.38 TiB available.
+Media/backup-ops and its retention state/checkpoints remain intact. Source
+retirement evidence and disabled settings are root-only in
+/mnt/Media/backup-ops/retirement-20261007/. The old dataset and historical snapshots
+are permanently gone: earlier rollback instructions in this chronological runbook
+no longer apply. Recovery is the backup authority; do not restore old destination
+settings or replay the migration worker. No photo originals or cloud current
+backup objects were removed by this retirement.

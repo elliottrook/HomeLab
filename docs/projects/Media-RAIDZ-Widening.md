@@ -3,7 +3,7 @@
 Owner Jason; started 2026-10-03; Stream M. User authorized beginning sequential
 addition of the four SAS candidates, healthiest first. First bounded operation:
 attach Z1Z4BJ7Z0000C4453Q38 (WWN 5000c50058c120ef) to the existing RAIDZ2 vdev.
-Status: second expansion running since 2026-10-05 18:45 PDT, job 7963. Eight ONLINE members; BTVM and BK81 remain unused.
+Status: second expansion and verification scrub passed; eight ONLINE members. BTVM and BK81 remain unused for health concerns.
 
 ## Scope and live evidence
 
@@ -144,3 +144,13 @@ Recovery ONLINE, zero errors, 1.13 TiB used and 2.38 TiB available. Overnight
 rsync tasks 1/2/3 succeeded (9219/9259/9277), configuration checks pass, retention
 guard succeeded at 06:00, cloud relay succeeded at 07:50:32 PDT. Old Media/backup
 and histories remain intact; source retirement requires separately reviewed scope.
+
+2026-10-07 final gate: job 7963 expansion finished October 6 14:47:42 after
+20:01:58, 16.5 TiB redistributed. Scrub finished 23:29:22 after 8:41:40 with 0B
+repaired and zero errors. All eight leaves ONLINE. After approved old-backup
+retirement, Media has 10.9 TiB available. No further disk added: BTVM has zero
+grown defects but non-medium errors reached 18,344,482 and continue increasing;
+BK81 has 1,205 grown defects, historical read/write uncorrected 3/5, and an older
+failed long test. Adding either is not appropriate with current evidence and
+ample capacity. Further expansion requires a suitable qualified replacement or
+separate resolution of the remaining drives' health concerns.

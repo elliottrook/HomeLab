@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily IDrive storage accounting after the backup relay
+
+[Timer]
+OnCalendar=*-*-* 10:00:00 America/Vancouver
+RandomizedDelaySec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

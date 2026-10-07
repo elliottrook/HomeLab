@@ -1,0 +1,10 @@
+[Unit]
+Description=Read-only IDrive current and historical storage audit
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/sbin/idrive-version-maintenance.py
+UMask=0077
+Nice=10
+TimeoutStartSec=15min

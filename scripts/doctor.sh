@@ -2163,6 +2163,11 @@ else
 fi
 check_backup_redesign_truenas
 check_guest_retention
+if idrive_usage_result="$(python3 "$REPO/scripts/check-idrive-usage.py")"; then
+    pass "$idrive_usage_result"
+else
+    warn "$idrive_usage_result"
+fi
 check_home_assistant_backup_truenas
 
 category "Local Environment"

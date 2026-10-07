@@ -2,7 +2,7 @@
 
 Owner: Jason. Started 2026-10-03. Stream M, bounded allocation approved by Jason:
 “Nothing to keep on the sata drives. Please allocate them as recommended.”
-Status: mirror qualified and backup migration complete; old-source retirement pending scheduled-cycle validation.
+Status: mirror qualified, backup migration and old-source retirement complete.
 
 ## Purpose, scope and authority
 
@@ -107,3 +107,10 @@ full baseline checksums, configuration file restoration, three guest/Mac pull
 jobs, family pull, Home Assistant share write, new configuration export and
 encrypted cloud verification. Old Media copies retained until a new scheduled
 cycle passes; photo backup reconciliation remains separate. See migration runbook.
+
+2026-10-07: approved old Media/backup dataset and 24 snapshots retired after clean
+expansion scrub, successful new backup cycle, repaired config export and cloud
+verification. Late EHS project backup preserved with checksum verification on
+private Recovery/ehs-public-knowledge-mirror; original host path retained via
+compatibility symlink. Recovery 2.38 TiB available; Media 10.9 TiB. Operational
+backup-ops retained. See migration runbook for final evidence and limitations.

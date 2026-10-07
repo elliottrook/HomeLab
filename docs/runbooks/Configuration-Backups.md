@@ -210,3 +210,10 @@ Cloud configuration-only sync completed successfully under the relay lock, with
 a maximum of five deletions permitted in that exact existing prefix. Latest
 configs.tar.gz then passed rclone cryptcheck at 08:45:49 PDT: one match, zero
 differences. Repair complete; next scheduled export remains at its existing time.
+
+2026-10-07 retirement: old Media/backup ZFS dataset and 24 snapshots removed after
+approval and validation. Recovery is now the retained local authority. The small
+Media/backup directory contains only an EHS compatibility link to its separately
+preserved private Recovery dataset. See the migration record for details.
+Cloud obsolete guest versions were purged and scoped history expiry enabled;
+current cloud backups remain intact. Daily usage reporting is checked by Doctor.
