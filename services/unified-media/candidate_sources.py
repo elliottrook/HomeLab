@@ -8,6 +8,7 @@ or an empty configuration produces no guessed recommendations.
 from __future__ import annotations
 
 import urllib.parse
+import re
 from typing import Any, Callable, Mapping
 
 
@@ -30,6 +31,14 @@ def _score(value: Any, default: float = 0.60) -> float:
         return default
 
 
+_STOPWORDS = {"a", "an", "and", "of", "the", "to", "in", "on", "for"}
+
+
+def _meaningful_tokens(value: str) -> set[str]:
+    return {token for token in re.findall(r"[a-z0-9]+", value.casefold())
+            if token not in _STOPWORDS and len(token) > 1}
+
+
 def collect_openlibrary(query: str, *, media_type: str, request: Request,
                         limit: int = 6) -> list[dict[str, Any]]:
     """Return bounded Open Library work candidates for ebook-like media."""
@@ -43,6 +52,8 @@ def collect_openlibrary(query: str, *, media_type: str, request: Request,
         headers={"Accept": "application/json"},
     )
     docs = payload.get("docs", []) if isinstance(payload, Mapping) else []
+    query_tokens = _meaningful_tokens(_text(query))
+    required_overlap = max(1, min(2, len(query_tokens)))
     results = []
     for doc in docs:
         if not isinstance(doc, Mapping):
@@ -50,6 +61,8 @@ def collect_openlibrary(query: str, *, media_type: str, request: Request,
         key = _text(doc.get("key"))
         title = _text(doc.get("title"))
         if not key or not title:
+            continue
+        if len(query_tokens & _meaningful_tokens(title)) < required_overlap:
             continue
         authors = doc.get("author_name") if isinstance(doc.get("author_name"), list) else []
         author = _text(authors[0]) if authors else ""

@@ -13,6 +13,9 @@ class CandidateSourceTests(unittest.TestCase):
             return {"docs": [{
                 "key": "/works/OL1W", "title": "Dune", "author_name": ["Frank Herbert"],
                 "first_publish_year": 1965, "cover_i": 123, "ratings_average": 4.2,
+            }, {
+                "key": "/works/OL2W", "title": "An Unrelated Book", "author_name": ["Someone"],
+                "first_publish_year": 2020,
             }]}, {}
         return {"release-groups": [{
             "id": "mbid-1", "title": "Kind of Blue", "first-release-date": "1959-08-17",
@@ -20,10 +23,11 @@ class CandidateSourceTests(unittest.TestCase):
         }]}, {}
 
     def test_openlibrary_normalizes_ebook_and_never_writes(self):
-        result = collect_openlibrary("science fiction", media_type="ebook", request=self.request)
+        result = collect_openlibrary("Dune", media_type="ebook", request=self.request)
         self.assertEqual(result[0]["authority_id"], "/works/OL1W")
         self.assertEqual(result[0]["author"], "Frank Herbert")
         self.assertEqual(result[0]["year"], "1965")
+        self.assertEqual(len(result), 1)
         self.assertIn("fields=key%2Ctitle", self.calls[0][0])
         self.assertEqual(self.calls[0][1]["headers"]["Accept"], "application/json")
 
