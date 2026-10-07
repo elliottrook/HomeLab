@@ -1,0 +1,15 @@
+{
+  "dispatch_records": 1,
+  "recorded_state": "completed",
+  "provider_state": "completed",
+  "turn_count": 1,
+  "item_types": [
+    "agentMessage",
+    "reasoning",
+    "userMessage"
+  ],
+  "final_answer_count": 1,
+  "answer_matches_owner": true,
+  "answer_sha256": "3d77f8d934dfe41bf7dcb3f03631065cf9cec9519d0f19031278b5ce701bd34c",
+  "new_inference": false
+}

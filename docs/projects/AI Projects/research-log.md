@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Approved assembled worker turn succeeded
+
+One ChatGPT-backed Codex turn through the assembled worker completed in 5.311 s.
+The owner route received the exact final answer and provider usage (8,080 total
+tokens). Fresh read-only conversation inspection confirmed exactly one completed
+turn, no tool items and identical final text. Gateway/owner identities were local
+fixtures; no production deployment is claimed. Prepared a separate owner-route
+stop-after-ack mode; 141 Python tests and five renderer scenarios pass. Live stop
+test awaits its own exact approval. See
+[result, retained evidence and stop gate](evidence/D3-assembled-result-and-stop-gate-2026-10-06.md).
+
 ## 2026-10-06 — Finite worker assembled, live model validation prepared
 
 Joined admission, control polling, correlated app-server Session, bounded stop,

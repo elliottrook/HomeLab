@@ -41,3 +41,24 @@ class AssembledPilotTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn(name,value['source_hashes'])
         self.assertEqual(value['maximum_model_turns'],1)
         self.assertFalse(value['automatic_retry'])
+
+    async def test_stop_after_ack_uses_owner_route_and_requires_terminal(self):
+        from assembled_pilot import execute, assembled_manifest
+        from test_worker import Agent
+        from test_contract import end
+        class FakePipe(Agent):
+            def __init__(self, *args): super().__init__()
+            def interrupt(self, request):
+                super().interrupt(request)
+                self.events = [end('interrupted')]
+            def close(self): pass
+        prepared = assembled_manifest({'model':'model','reasoning_effort':'medium'},cancel_after_ack=True)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)/'result'
+            with patch('assembled_pilot.PipeAgent', FakePipe), contextlib.redirect_stdout(io.StringIO()):
+                await execute(None,directory,prepared,output)
+            result = json.loads((output/'result.json').read_text())
+            self.assertTrue(result['cancellation_requested'])
+            self.assertTrue(result['cancellation_confirmed'])
+            self.assertEqual(result['state'],'interrupted')
+            self.assertIsNone(result['owner_view']['reply'])

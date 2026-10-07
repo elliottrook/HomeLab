@@ -1,0 +1,37 @@
+{
+  "state": "completed",
+  "automatic_retry": false,
+  "elapsed_seconds": 5.311,
+  "owner_view": {
+    "id": "orion-assembled",
+    "state": "completed",
+    "reply": "Known:\n\n- Service Orion returned HTTP 503 once.\n- A later health check returned HTTP 200.\n- No logs, dependency checks, or user-path checks have been performed.\n\nUnknown:\n\n- Why the 503 occurred.\n- How long it lasted or whether it affected users.\n- Whether the later 200 represents full recovery or only health-endpoint availability.\n- Current service status and reliability.\n- Dependency, infrastructure, configuration, and user-path conditions.\n\nNext read-only checks:\n\n- Review Orion’s logs and monitoring for the 503 timeframe.\n- Check current status and recent health-check history.\n- Inspect dependency health and connectivity.\n- Verify relevant infrastructure and configuration state without changing anything.\n- Run or review non-mutating user-path checks to determine whether real functionality works.",
+    "message": "Codex completed the request.",
+    "usage": {
+      "status": "reported",
+      "provider_snapshots": {
+        "last": {
+          "inputTokens": 7888,
+          "cachedInputTokens": 4864,
+          "outputTokens": 192,
+          "reasoningOutputTokens": 32,
+          "totalTokens": 8080,
+          "cacheWriteInputTokens": 0
+        },
+        "total": {
+          "inputTokens": 7888,
+          "cachedInputTokens": 4864,
+          "outputTokens": 192,
+          "reasoningOutputTokens": 32,
+          "totalTokens": 8080,
+          "cacheWriteInputTokens": 0
+        }
+      }
+    },
+    "can_request_cancel": false,
+    "automatic_retry": false,
+    "recovery_required": false
+  },
+  "production_deployment": false,
+  "model": "gpt-5.6-luna"
+}
