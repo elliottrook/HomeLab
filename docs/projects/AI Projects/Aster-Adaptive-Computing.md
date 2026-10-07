@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Gateway/worker/custody and inactive identity candidates built; broker and encrypted host checks passed | 174 delegation tests; live identity preflight passed; protected controller, human ceremony instructions, ACL validation and full deployment remain |
+| D3 — Companion integration | Gateway/worker/custody and inactive identity candidates built; Mac Keychain fixture check awaits approval | 178 delegation tests; broker/encrypted-host checks and identity preflight passed; protected controller, human ceremony instructions and full deployment remain |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
@@ -74,6 +74,10 @@ The [inactive identity and Mac installer checkpoint](evidence/D3-identity-provis
 adds source-verified access guards and the candidate Keychain installer. Resume
 with the protected controller and complete human recovery instructions. No
 identity is created or activated; no further deployment approval is consumed.
+The [exact Mac Keychain gate](evidence/D3-keychain-custody-gate-2026-10-06.md)
+is now prepared and awaits approval. It creates/reads/removes only a fictional
+worker item; no real credential or recovery key is required. Its result determines
+whether this reader can be used by the protected provisioning controller.
 Do not run another authentication-only canary or claim deployed delegation.
 Do not repeat the consumed approval, enable
 production delegation or claim sysadmin qualification from connectivity evidence.

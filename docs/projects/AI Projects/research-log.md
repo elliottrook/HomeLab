@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-06 — Exact Mac custody validation prepared
+
+Added a default-inert create/read/delete check for only the fictional worker
+Keychain item. It refuses pre-existing/ambiguous items and cannot delete a
+mismatched value. 178 delegation tests pass; no Keychain operation ran. This
+credential-store boundary awaits approval before controller completion relies
+on it. Also read installed OpenBao CLI help and searched only guide filenames in
+the documented human recovery bundle; no recovery material opened. See
+[scope, fingerprint and cleanup gate](evidence/D3-keychain-custody-gate-2026-10-06.md).
+
 ## 2026-10-06 — Identity access guard and Mac installer prepared
 
 Inspected installed Authentik grant/policy code and live metadata: 20 relevant
