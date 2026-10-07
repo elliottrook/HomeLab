@@ -21,6 +21,7 @@ from service_collectors import (
     collect_lidarr as collect_lidarr_library,
 )
 from recommendation_engine import rank_candidates
+from candidate_sources import collect_musicbrainz, collect_openlibrary
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
 LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
@@ -229,6 +230,27 @@ def collect_lidarr():
     return results
 
 
+def collect_book_and_music_candidates():
+    """Collect bounded non-video candidates from explicit seed configuration."""
+    results = []
+    for query in _csv("PORTAL_BOOK_QUERIES", "")[:6]:
+        try:
+            results.extend(collect_openlibrary(query, media_type="ebook", request=request_json))
+        except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+            continue
+    for query in _csv("PORTAL_AUDIOBOOK_QUERIES", "")[:6]:
+        try:
+            results.extend(collect_openlibrary(query, media_type="audiobook", request=request_json))
+        except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+            continue
+    for query in _csv("PORTAL_MUSIC_MB_QUERIES", "")[:6]:
+        try:
+            results.extend(collect_musicbrainz(query, request=request_json))
+        except (OSError, TimeoutError, ValueError, urllib.error.URLError):
+            continue
+    return results
+
+
 def _unique_exact_album(items, artist_query, album_query):
     matches = [item for item in items
                if item.get("title", "").casefold() == album_query.casefold()
@@ -243,7 +265,7 @@ def _prepare_candidates(candidates, limit=20, *, library=(), history=()):
 
 
 def refresh_once():
-    candidates = collect_seerr() + collect_lidarr()
+    candidates = collect_seerr() + collect_lidarr() + collect_book_and_music_candidates()
     _refresh_library_snapshot()
     _refresh_history_snapshot()
     output = _narrate(_prepare_candidates(

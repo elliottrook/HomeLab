@@ -252,6 +252,7 @@ only the portal if needed.
 | 2026-10-07 | Icon approved | Local asset revision `7c14030`; six-petal Aster compass with balanced colour-shifting media orbit | Accepted as the webpage icon deliverable; portal integration remains M0b |
 | 2026-10-07 | Engine foundation present | Local commits `12692ab` and `0eab42d`; 41 unified-media tests passing | Deterministic ranking foundation ready for provider milestones |
 | 2026-10-07 | M0b portal icon deployed | TrueNAS shadow portal rebuilt from a timestamped rollback copy; health returned `ok`, all four icon/manifest routes returned HTTP 200 with expected content types, and the page references the favicon and manifest. The refresher, LazyLibrarian and Audiobookshelf containers remained unchanged. | Backend deployment is validated; visual favicon/home-screen review in Jason's authenticated desktop and mobile browsers remains before marking M0b complete |
+| 2026-10-07 | M1/M2 non-video adapters prepared locally | Added bounded, read-only Open Library ebook/audiobook and exact MusicBrainz release-group adapters; explicit seed configuration is empty by default, provider failures are isolated, and 47 tests pass. | Live shadow configuration and candidate-source review remain before deployment; no provider credentials or request behavior changed |
 
 ## Acceptance evidence
 
