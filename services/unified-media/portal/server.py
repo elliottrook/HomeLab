@@ -7,7 +7,7 @@ import json
 import os
 import hashlib
 import secrets
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -42,6 +42,8 @@ TRAKT_REDIRECT_URI = os.environ.get("TRAKT_REDIRECT_URI", "https://recommendatio
 REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
 SOURCE_STATUS_PATH = Path(os.environ.get("PORTAL_SOURCE_STATUS_PATH", "/data/source-status.json"))
 REJECTED_PATH = Path(os.environ.get("PORTAL_REJECTED_PATH", "/data/rejected.json"))
+# British Columbia's permanent daylight-time convention: UTC−07:00 year-round.
+DISPLAY_TIMEZONE = timezone(timedelta(hours=-7), "Pacific Daylight Time")
 SPOTIFY_CLIENT_ID_PATH = os.environ.get("SPOTIFY_CLIENT_ID_PATH", "/run/unified-secrets/spotify-client-id")
 SPOTIFY_CLIENT_SECRET_PATH = os.environ.get("SPOTIFY_CLIENT_SECRET_PATH", "/run/unified-secrets/spotify-client-secret")
 SPOTIFY_ACCESS_TOKEN_PATH = os.environ.get("SPOTIFY_ACCESS_TOKEN_PATH", "/run/unified-secrets/spotify-access-token")
@@ -298,7 +300,7 @@ def render_html(items: list[dict[str, Any]]) -> str:
     body = "\n".join(cards) or "<div class='empty'><h2>No safe recommendations yet</h2><p>The refresh service has not produced any candidates. Check its health before requesting anything.</p></div>"
     refreshed = "Unknown"
     try:
-        refreshed = datetime.fromtimestamp(SNAPSHOT_PATH.stat().st_mtime, timezone.utc).astimezone().strftime("%b %-d, %Y at %-I:%M %p")
+        refreshed = datetime.fromtimestamp(SNAPSHOT_PATH.stat().st_mtime, DISPLAY_TIMEZONE).strftime("%b %-d, %Y at %-I:%M %p PDT")
     except OSError:
         pass
     source_status = load_source_status().get("sources", {})
