@@ -228,7 +228,7 @@ TEMPLATE_DIGEST = (
   .filter { border: 1px solid var(--ui-line); background: transparent; color: var(--ui-muted); border-radius: 999px; padding: 9px 15px; cursor: pointer; }
   .filter.active, .filter:hover { background: var(--ui-accent); color: #07111d; border-color: var(--ui-accent); }
   .filter span { font-size: .8em; opacity: .75; }
-  @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-player { padding: 14px 14px 96px; } .audio-briefing audio { height: 84px; min-height: 84px; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: min(640px, calc(100% - 24px)); } .audio-controls { gap: 10px; } .audio-control { min-width: 128px; min-height: 56px; padding: 16px 22px; font-size: 1.05rem; } .audio-chapter { min-height: 48px; padding: 11px 12px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 9px 15px; } }
+  @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-player { padding: 14px 14px 96px; } .audio-briefing audio { display: block; height: 100px !important; min-height: 100px !important; overflow: visible; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: min(640px, calc(100% - 24px)); } .audio-controls { gap: 10px; } .audio-control { min-width: 128px; min-height: 56px; padding: 16px 22px; font-size: 1.05rem; } .audio-chapter { min-height: 48px; padding: 11px 12px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 9px 15px; } }
 </style>
 </head>
 <body>
