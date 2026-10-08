@@ -41,6 +41,7 @@ TRAKT_DEVICE_STATE_PATH = Path(os.environ.get("TRAKT_DEVICE_STATE_PATH", "/state
 TRAKT_REDIRECT_URI = os.environ.get("TRAKT_REDIRECT_URI", "https://recommendations.elliottrook.com/oauth/trakt/callback")
 REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
 SOURCE_STATUS_PATH = Path(os.environ.get("PORTAL_SOURCE_STATUS_PATH", "/data/source-status.json"))
+REJECTED_PATH = Path(os.environ.get("PORTAL_REJECTED_PATH", "/data/rejected.json"))
 SPOTIFY_CLIENT_ID_PATH = os.environ.get("SPOTIFY_CLIENT_ID_PATH", "/run/unified-secrets/spotify-client-id")
 SPOTIFY_CLIENT_SECRET_PATH = os.environ.get("SPOTIFY_CLIENT_SECRET_PATH", "/run/unified-secrets/spotify-client-secret")
 SPOTIFY_ACCESS_TOKEN_PATH = os.environ.get("SPOTIFY_ACCESS_TOKEN_PATH", "/run/unified-secrets/spotify-access-token")
@@ -62,6 +63,14 @@ def load_recommendations() -> list[dict[str, Any]]:
 def load_source_status() -> dict[str, Any]:
     try:
         value = json.loads(SOURCE_STATUS_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
+def load_rejected() -> dict[str, Any]:
+    try:
+        value = json.loads(REJECTED_PATH.read_text(encoding="utf-8"))
     except (OSError, ValueError, json.JSONDecodeError):
         return {}
     return value if isinstance(value, dict) else {}
@@ -212,6 +221,7 @@ def render_html(items: list[dict[str, Any]]) -> str:
     counts: dict[str, int] = {}
     cards = []
     requested_state = _read_state()
+    rejected_state = load_rejected()
     for item in items:
         kind = str(item.get("media_type", "unknown"))
         counts[kind] = counts.get(kind, 0) + 1
@@ -240,6 +250,9 @@ def render_html(items: list[dict[str, Any]]) -> str:
         seasons = sorted({int(value) for value in (item.get("seasons") or [])
                           if isinstance(value, int) and value > 0})
         requested = action_key(item) in requested_state
+        rejected = action_key(item) in rejected_state
+        if rejected:
+            continue
         if eligible:
             authority = html.escape(str(item.get("authority", "")), quote=True)
             authority_id = html.escape(str(item.get("authority_id", "")), quote=True)
@@ -250,6 +263,9 @@ def render_html(items: list[dict[str, Any]]) -> str:
                 f"{' disabled' if requested else ''}>"
                 f"{'Requested' if requested else ('Request selected seasons' if kind == 'tv' else f'Request this {display_type.lower()}')}</button>"
             )
+            reject_action = ("" if requested else
+                             f"<button type='button' class='reject-button' data-authority='{authority}' "
+                             f"data-authority-id='{authority_id}' data-title='{raw_title}'>Reject</button>")
             if kind == "tv" and seasons:
                 season_picker = "<fieldset class='season-picker'><legend>Seasons to request</legend>" + "".join(
                     f"<label><input type='checkbox' name='season' value='{season}' checked> Season {season}</label>"
@@ -262,6 +278,7 @@ def render_html(items: list[dict[str, Any]]) -> str:
                       if requested else "<span class='status status-ready'>Ready for your approval</span>")
         else:
             action = "<button type='button' class='request-button' disabled>Unavailable</button>"
+            reject_action = ""
             season_picker = ""
             status = "<span class='status'>Already owned, archived, or ambiguous</span>"
         source_link = (f"<a class='source-link' href='{html.escape(source_url, quote=True)}' target='_blank' rel='noopener noreferrer'>Open source page ↗</a>"
@@ -272,7 +289,7 @@ def render_html(items: list[dict[str, Any]]) -> str:
             f"<span class='source'>{source}</span></div><h2>{title}</h2>"
             f"<p class='metadata'>{metadata}</p>{creator_html}<p class='overview'>{overview}</p>"
             f"<div class='why'><strong>Why this is here</strong><p>{explanation}</p></div>{source_link}{season_picker}"
-            f"<div class='card-footer'>{status}{action}<span class='result' role='status'></span></div>"
+            f"<div class='card-footer'>{status}{action}{reject_action}<span class='result' role='status'></span></div>"
             f"</div></article>"
         )
     buttons = ["<button class='filter active' data-filter='all'>All <span>%d</span></button>" % len(items)]
@@ -382,6 +399,45 @@ document.querySelectorAll('.request-button:not([disabled])').forEach((button) =>
       result.className = 'result error';
     }
   });
+});
+async function rejectCard(card, button) {
+  button.disabled = true;
+  button.textContent = 'Rejecting…';
+  try {
+    const response = await fetch('/api/reject', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({reject: true, authority: button.dataset.authority,
+        authority_id: button.dataset.authorityId, title: button.dataset.title})
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'Reject failed');
+    card.classList.add('dismissed');
+    setTimeout(() => card.remove(), 180);
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = 'Reject';
+    const result = card.querySelector('.result');
+    result.textContent = error.message;
+    result.className = 'result error';
+  }
+}
+document.querySelectorAll('.reject-button').forEach((button) => {
+  button.addEventListener('click', () => rejectCard(button.closest('.card'), button));
+});
+document.querySelectorAll('.card').forEach((card) => {
+  let startX = 0;
+  let startY = 0;
+  card.addEventListener('touchstart', (event) => {
+    if (event.touches.length === 1) { startX = event.touches[0].clientX; startY = event.touches[0].clientY; }
+  }, {passive: true});
+  card.addEventListener('touchend', (event) => {
+    if (!startX || !event.changedTouches.length) return;
+    const dx = event.changedTouches[0].clientX - startX;
+    const dy = event.changedTouches[0].clientY - startY;
+    const rejectButton = card.querySelector('.reject-button');
+    if (dx < -90 && Math.abs(dx) > Math.abs(dy) * 1.4 && rejectButton) rejectCard(card, rejectButton);
+    startX = 0; startY = 0;
+  }, {passive: true});
 });
 </script>
 """
@@ -804,6 +860,28 @@ def queue_refresh() -> dict[str, Any]:
     return {"status": "queued"}
 
 
+def reject_item(body: Mapping[str, Any]) -> dict[str, Any]:
+    """Persist a user's rejection so future refreshes suppress the identity."""
+    if body.get("reject") is not True:
+        raise RuntimeError("explicit rejection is required")
+    item = {"authority": str(body.get("authority", "")),
+            "authority_id": str(body.get("authority_id", "")),
+            "title": str(body.get("title", ""))}
+    if not item["authority"] or not item["authority_id"] or not item["title"]:
+        raise RuntimeError("rejection identity is incomplete")
+    state = load_rejected()
+    key = action_key(item)
+    if key not in state:
+        state[key] = {"authority": item["authority"], "authority_id": item["authority_id"],
+                      "title": item["title"], "rejected_at": datetime.now(timezone.utc).isoformat()}
+        REJECTED_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temporary = REJECTED_PATH.with_suffix(".tmp")
+        temporary.write_text(json.dumps(state, indent=2), encoding="utf-8")
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, REJECTED_PATH)
+    return {"status": "rejected", "title": item["title"]}
+
+
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
@@ -911,6 +989,14 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 self._send(202, json.dumps(queue_refresh()).encode(), "application/json")
             except RuntimeError as exc:
+                self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
+        if path == "/api/reject":
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                body = json.loads(self.rfile.read(length) or b"{}")
+                self._send(200, json.dumps(reject_item(body)).encode(), "application/json")
+            except (KeyError, RuntimeError, ValueError, json.JSONDecodeError, OSError) as exc:
                 self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")
             return
         if path not in {"/api/request", "/api/search/request"}:

@@ -30,6 +30,7 @@ LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
 HISTORY_SNAPSHOT_PATH = os.environ.get("PORTAL_HISTORY_SNAPSHOT_PATH")
 REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
 SOURCE_STATUS_PATH = Path(os.environ.get("PORTAL_SOURCE_STATUS_PATH", "/data/source-status.json"))
+REJECTED_PATH = Path(os.environ.get("PORTAL_REJECTED_PATH", "/data/rejected.json"))
 
 
 def _narrate(candidates):
@@ -291,6 +292,8 @@ def refresh_once():
                 limit=int(os.environ.get("PORTAL_TRAKT_LIMIT", "6"))))
         except (OSError, TimeoutError, ValueError, urllib.error.URLError):
             pass
+    rejected = _read_rejected()
+    candidates = [item for item in candidates if _candidate_key(item) not in rejected]
     output = _narrate(_prepare_candidates(
         candidates,
         limit=max(1, min(40, int(os.environ.get("PORTAL_RECOMMENDATION_LIMIT", "40")))),
@@ -342,6 +345,20 @@ def _read_snapshot_items(path):
     except (OSError, TypeError, ValueError):
         return ()
     return value if isinstance(value, list) else ()
+
+
+def _candidate_key(item):
+    raw = "|".join(str(item.get(key, "")) for key in ("authority", "authority_id"))
+    import hashlib
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _read_rejected():
+    try:
+        value = json.loads(REJECTED_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return set()
+    return set(value) if isinstance(value, list) else set(value.keys()) if isinstance(value, dict) else set()
 
 
 def _refresh_library_snapshot():

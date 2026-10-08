@@ -69,6 +69,11 @@ After a refresh, the matching card or search result shows **Requested** and
 **Request sent previously** instead of offering another request button. Check
 the owning service for acquisition progress.
 
+To permanently dismiss a recommendation, press **Reject** on its card. On a
+touch device, swiping the card left performs the same action. The card is
+removed immediately and its provider identity is stored in the protected
+rejection ledger, so later refreshes will not recommend it again.
+
 For TV cards, the season selector is pre-filled with every currently known
 numbered season. Untick any seasons you do not want, then press **Request
 selected seasons**. Season 0 specials are excluded. The same selector is used

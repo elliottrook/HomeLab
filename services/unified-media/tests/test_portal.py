@@ -7,7 +7,7 @@ from unittest.mock import patch
 from unittest.mock import Mock
 
 from portal.server import (Handler, _lazylibrarian_request, action_key,
-                           load_recommendations, render_html)
+                           load_recommendations, reject_item, render_html)
 from portal.refresh import (_prepare_candidates, _seerr_candidate,
                             _unique_exact_album, collect_tmdb_recommendations)
 
@@ -58,6 +58,16 @@ class PortalTests(unittest.TestCase):
         self.assertIn(">Requested</button>", html)
         self.assertIn("Request sent previously", html)
         self.assertNotIn("Ready for your approval", html)
+
+    def test_reject_item_persists_identity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory) / "rejected.json"
+            with patch("portal.server.REJECTED_PATH", state):
+                result = reject_item({"reject": True, "authority": "seerr",
+                                      "authority_id": "329865", "title": "Arrival"})
+                self.assertEqual(result["status"], "rejected")
+                saved = json.loads(state.read_text())
+                self.assertIn(action_key({"authority": "seerr", "authority_id": "329865"}), saved)
 
     def test_render_links_artwork_to_read_only_source_pages(self):
         html = render_html([

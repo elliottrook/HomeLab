@@ -10,6 +10,7 @@ services:
       - PORTAL_REFRESH_INTERVAL_SECONDS=${PORTAL_REFRESH_INTERVAL_SECONDS:-21600}
       - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
       - PORTAL_SOURCE_STATUS_PATH=/data/source-status.json
+      - PORTAL_REJECTED_PATH=/data/rejected.json
       - PORTAL_LIBRARY_SNAPSHOT_PATH=/data/library.json
       - PORTAL_HISTORY_SNAPSHOT_PATH=/data/history.json
       - PORTAL_REFRESH_TRIGGER_PATH=/data/refresh-now
@@ -76,6 +77,7 @@ services:
       - PORT=8787
       - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
       - PORTAL_SOURCE_STATUS_PATH=/data/source-status.json
+      - PORTAL_REJECTED_PATH=/data/rejected.json
       - PORTAL_REFRESH_TRIGGER_PATH=/data/refresh-now
       - PORTAL_STATE_PATH=/state/actions.json
       - PORTAL_ACTIONS_ENABLED=${PORTAL_ACTIONS_ENABLED:-YES}
