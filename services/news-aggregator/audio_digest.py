@@ -124,7 +124,7 @@ def concat_wavs(clip_paths: list, out_path: Path) -> None:
         raise RuntimeError(f"ffmpeg concat FAILED: {result.stderr.decode(errors='replace')}")
 
 
-def build_briefing(entries: list, engine: Kokoro, workdir: Path) -> Path:
+def build_briefing(entries: list, engine: Kokoro, workdir: Path) -> tuple[Path, list[dict]]:
     period, date_str = briefing_label(local_now())
     intro_text = f"This is your {period} briefing for {date_str}."
     outro_text = f"That was your daily briefing for {date_str}."
@@ -133,15 +133,20 @@ def build_briefing(entries: list, engine: Kokoro, workdir: Path) -> Path:
     silence_clip(pause_wav, STORY_PAUSE_SECONDS)
 
     clips = []
+    chapters = []
     intro_wav = workdir / "00-intro.wav"
     synth(intro_text, intro_wav, engine)
     clips.append(intro_wav)
+    elapsed = sf.info(intro_wav).duration
 
     for i, e in enumerate(entries):
         clips.append(pause_wav)
+        elapsed += STORY_PAUSE_SECONDS
         story_wav = workdir / f"story-{i:02d}.wav"
         story_text = speech_text(e["headline"] + ".\n" + e["abridged_summary"])
         synth(story_text, story_wav, engine)
+        chapters.append({"index": i + 1, "title": e["headline"], "start": round(elapsed, 3)})
+        elapsed += sf.info(story_wav).duration
         clips.append(story_wav)
 
     clips.append(pause_wav)
@@ -151,7 +156,27 @@ def build_briefing(entries: list, engine: Kokoro, workdir: Path) -> Path:
 
     combined = workdir / "combined.wav"
     concat_wavs(clips, combined)
-    return combined
+    return combined, chapters
+
+
+def vtt_timestamp(seconds: float) -> str:
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    remainder = seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{remainder:06.3f}"
+
+
+def write_chapters_vtt(path: Path, chapters: list[dict], duration: float) -> None:
+    lines = ["WEBVTT", ""]
+    for position, chapter in enumerate(chapters):
+        end = chapters[position + 1]["start"] if position + 1 < len(chapters) else duration
+        lines.extend([
+            str(chapter["index"]),
+            f"{vtt_timestamp(chapter['start'])} --> {vtt_timestamp(end)}",
+            chapter["title"],
+            "",
+        ])
+    path.write_text("\n".join(lines), encoding="utf-8")
 
 
 def transcode_mp3(wav_path: Path, mp3_path: Path) -> None:
@@ -225,15 +250,17 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="audio-digest-") as tmp:
         engine = Kokoro(str(args.voice_model), str(VOICE_PACK))
         try:
-            combined_wav = build_briefing(entries, engine, Path(tmp))
+            combined_wav, chapters = build_briefing(entries, engine, Path(tmp))
         finally:
             engine.voices.close()
         transcode_mp3(combined_wav, mp3_path)
+        write_chapters_vtt(out_dir / "latest.vtt", chapters, sf.info(combined_wav).duration)
 
     meta_path.write_text(json.dumps({
         "digest_run": latest_run,
         "generated_at": now_iso(),
         "story_count": len(entries),
+        "chapters": chapters,
     }))
 
     print(f"audio digest generated: {len(entries)} stories, {mp3_path.stat().st_size} bytes -> {mp3_path}")
