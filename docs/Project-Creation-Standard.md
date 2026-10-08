@@ -17,6 +17,34 @@ This repository process grants authority only where the active execution
 environment, safety policy and access controls permit it. It does not bypass a
 required platform approval or turn unavailable credentials into authority.
 
+## Cross-project Aster voice standard
+
+This is a repository-wide requirement for every new HomeLab project, not an
+Aster-project-specific preference. Any app, AI feature, assistant, briefing,
+notification or other component that produces spoken output on Aster's behalf
+must use Aster's canonical voice and follow the [HomeLab UI Style
+Guide](design/HomeLab-UI-Style-Guide.md).
+
+The canonical reference is the production News Digest implementation:
+
+- Kokoro ONNX `kokoro-v1.0.fp16.onnx`
+- British-English voice `bm_daniel`, language `en-gb`
+- speed `0.95`
+- sentence-sized or clause-sized synthesis, not long single calls
+- one second of silence between briefing stories
+- shared speech cleanup for Markdown, parentheses, currency and dotted
+  abbreviations such as `U.S.` → “United States”
+- time-aware briefing introduction and sign-off: morning/evening wording,
+  followed by “Have a good day” or “Have a good evening” as appropriate
+
+Before a project is approved or marked complete, its pre-start assessment and
+graduation evidence must state either that it produces no speech or how it
+uses this exact voice and cadence. A different voice, engine, language,
+prosody or cadence requires an explicit documented design decision and a real
+listening comparison. Existing legacy voice paths may remain during migration,
+but no new voice/TTS implementation is conformant until it follows this
+standard.
+
 ## The lab ethos
 
 The HomeLab should be secure, private, understandable and recoverable while
