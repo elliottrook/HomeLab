@@ -54,6 +54,24 @@ mark into a literal compass rose. The source artwork is retained at
 
 ![Accepted Aster Companion app-icon concept](../../assets/aster-companion/aster-app-icon-concept-v2-compass.png)
 
+## Canonical Aster voice policy
+
+The project charter now adopts the News Digest voice as Aster's canonical
+spoken identity. Every future Aster app, AI feature, companion surface or TTS
+consumer must use the voice and cadence in the
+[HomeLab UI style guide](../../design/HomeLab-UI-Style-Guide.md): Kokoro
+`kokoro-v1.0.fp16.onnx`, British-English `bm_daniel`, `en-gb`, speed `0.95`,
+sentence/clause-sized synthesis, one-second story pauses, and the shared
+speech cleanup rules for currency, parentheses, Markdown and dotted
+abbreviations. The time-aware morning/evening intro and “Have a good day” /
+“Have a good evening” sign-off are the reference briefing cadence.
+
+The previously deployed Piper voice in the shared Companion speech service is
+legacy compatibility state, not the target identity. It must be migrated to
+this canonical voice before a future voice feature is considered complete;
+until then, a new voice or TTS implementation is not conformant merely because
+it is functional. Real listening validation remains required after migration.
+
 ## Current state and evidence
 
 - **Aster today** runs as `aster-agent.service` on LXC 104 (`192.168.70.10:9120`,
@@ -2491,6 +2509,20 @@ approved building it as a small follow-up to this closed project.
   durable rollback is the git revert plus `build-app.sh release`.
 - The old Mac app still works against the new server, because it doesn't send
   `progress`.
+
+### 2026-10-07: HomeLab UI style refresh
+
+Jason asked to carry the shared HomeLab UI style into Aster's web surfaces and
+to make the experience more comfortable on a phone. Applied the documented
+midnight/cyan/mint palette, radial background, raised panels, larger readable
+chat cards, larger inputs and 44px touch targets to both the passkey Companion
+route (`/companion`) and the additive legacy bearer-key page (`/`). No auth,
+API, persona, notification or tool behavior changed. Deployed only
+`aster_agent.py` to LXC 104 after preserving
+`/opt/aster-agent/aster_agent.py.bak-20261007-ui-refresh`; restarted only
+`aster-agent.service`. Verified matching live checksum, active service and
+HTTP 200 with the new style markers on both routes. Rollback is the retained
+pre-refresh copy plus a service restart.
 
 
 ## References

@@ -112,6 +112,39 @@ preference unless the UI can name the supporting signal.
   scroll to reach a primary action.
 - Maintain meaningful headings even when the visual treatment is dramatic.
 
+## Aster voice and spoken-output standard
+
+Aster's canonical spoken voice is the British-English Kokoro voice used by the
+News Digest briefing. It is now the voice of Aster for all new apps, AI
+features and text-to-speech output. Do not introduce a different voice for a
+new surface merely because another engine is easier to wire in.
+
+The reproducible reference configuration is:
+
+| Setting | Required value |
+|---|---|
+| Engine | Kokoro ONNX, `kokoro-v1.0.fp16.onnx` |
+| Voice | `bm_daniel` |
+| Language | `en-gb` / British English |
+| Speed | `0.95` |
+| Synthesis units | Sentence-sized; split long sentences at clauses |
+| Story cadence | One second of silence between stories |
+| Output | 24 kHz mono PCM during assembly, then MP3 for delivery where appropriate |
+
+Use the News Digest implementation in `services/news-aggregator/audio_digest.py`
+as the executable reference. Spoken text must pass the shared cleanup in
+`services/news-aggregator/digest_text.py`: remove Markdown presentation,
+render currency as “123 dollars” rather than “dollar 123”, turn parenthetical
+punctuation into natural pauses, and expand dotted abbreviations such as
+`U.S.`/`U.S.A.` to “United States”. Avoid long single synthesis calls, which
+can produce unnatural joins, breathiness or distortion.
+
+For recurring briefings, use the same time-aware structure: identify the
+briefing as morning or evening from local time, state the date, pause between
+stories, and close with “Have a good day” in the morning or “Have a good
+evening” at night. Any deliberate deviation requires a documented design
+decision and a real listening test against this reference.
+
 ## Handoff checklist
 
 Before calling a UI complete, provide a short operator note covering the route,
