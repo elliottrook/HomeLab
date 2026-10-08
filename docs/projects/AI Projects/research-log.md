@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Approved vault patch installed; human unseal pending
+
+Recovered correct human workflow from setup records: encrypted shares are in
+`~/Documents/OpenBao Recovery`, separate from GPG private-key export backups.
+Only filenames were inspected. Jason privately unsealed and approved continuation.
+Fresh cold-service snapshot/archive passed integrity checks, then verified 2.6.4
+was installed; configuration/TLS unchanged, expected sealed state after restart.
+The catalogue warning matches documented retired September 27 test metadata,
+not an unexplained active permission expansion. Final unseal/health/checker
+reconciliation and staging cleanup remain. See
+[maintenance evidence](evidence/D3-vault-maintenance-2026-10-08.md).
+
 ## 2026-10-06 — Approved vault update paused at sealed baseline
 
 Jason approved the exact patch. Read-only preflight found OpenBao already sealed
