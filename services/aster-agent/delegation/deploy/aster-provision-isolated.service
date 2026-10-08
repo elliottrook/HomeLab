@@ -1,0 +1,28 @@
+[Unit]
+Description=Approved fictional OpenBao provisioning rehearsal
+
+[Service]
+Type=exec
+DynamicUser=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+InaccessiblePaths=-/etc/openbao -/opt/openbao -/var/lib/openbao -/run/aster-worker-provision -/etc/credstore.encrypted
+MemoryMax=512M
+MemorySwapMax=0
+CPUQuota=50%
+TasksMax=128
+LimitCORE=0
+RuntimeMaxSec=120
+TimeoutStopSec=10
+KillMode=control-group
+WorkingDirectory=/tmp
+Environment=ASTER_ISOLATED_FIXTURE=1 PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/python3 -B /var/tmp/aster-provision-isolated-20261008/isolated_vault_rehearsal.py --run
+# Deliberately no Install section. Never enable or schedule this fixture.

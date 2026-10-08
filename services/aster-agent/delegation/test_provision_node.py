@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 import provision_node as node
 import vault_provision
+import admin_contract
 
 
 class ProtocolTests(unittest.TestCase):
@@ -57,7 +58,7 @@ class Response(io.BytesIO):
 
 
 class VaultNodeTests(unittest.TestCase):
-    def exercise(self,*,provision_failure=False,revoke_failure=False,version='2.6.4'):
+    def exercise(self,*,provision_failure=False,revoke_failure=False,version='2.6.4',bad_authority=False):
         with tempfile.TemporaryDirectory() as temporary:
             path=Path(temporary)/'admin.token';path.write_text('fictional-admin');path.chmod(0o600)
             frames=[];calls=[];original=os.fstat
@@ -69,6 +70,11 @@ class VaultNodeTests(unittest.TestCase):
                 def open(self,request,timeout):
                     if isinstance(request,str): return Response({'version':version})
                     calls.append(request.full_url)
+                    if request.full_url.endswith('/lookup-self'):
+                        return Response({'data':{'policies':['root'] if bad_authority else [admin_contract.POLICY],
+                            'renewable':False,'orphan':True,'explicit_max_ttl':600,
+                            'ttl':590,'display_name':'token-'+admin_contract.DISPLAY,
+                            'num_uses':0,'type':'service'}})
                     return Response({},500 if revoke_failure else 204)
             def provision(*args,**kwargs):
                 if provision_failure: raise RuntimeError('fictional private detail')
@@ -87,13 +93,13 @@ class VaultNodeTests(unittest.TestCase):
     def test_success_revokes_admin_and_removes_handoff(self):
         frames,calls,exists=self.exercise()
         self.assertFalse(exists)
-        self.assertEqual(len(calls),1)
-        self.assertTrue(calls[0].endswith('/auth/token/revoke-self'))
+        self.assertEqual(len(calls),2)
+        self.assertTrue(calls[-1].endswith('/auth/token/revoke-self'))
         self.assertEqual([kind for kind,_ in frames],['admin_revoked','vault_done'])
 
     def test_provision_failure_still_revokes_and_sanitizes(self):
         frames,calls,exists=self.exercise(provision_failure=True)
-        self.assertFalse(exists);self.assertEqual(len(calls),1)
+        self.assertFalse(exists);self.assertEqual(len(calls),2)
         self.assertEqual(frames[-1],('error',{'code':'vault_incomplete'}))
         self.assertNotIn('private detail',str(frames))
 
@@ -106,3 +112,8 @@ class VaultNodeTests(unittest.TestCase):
         frames,calls,exists=self.exercise(version='2.6.3')
         self.assertTrue(exists);self.assertEqual(calls,[])
         self.assertEqual(frames,[('error',{'code':'vault_incomplete'})])
+
+    def test_root_authority_is_rejected_and_handoff_revoked(self):
+        frames,_,exists=self.exercise(bad_authority=True)
+        self.assertFalse(exists)
+        self.assertEqual(frames[-1],('error',{'code':'vault_incomplete'}))

@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Scoped bootstrap contract; real-engine isolation gate
+
+Prepared hidden human-terminal bootstrap and exact expiring administrator-token
+contract. Root is revoked before delivery of scoped child; unknown outcomes stop.
+Added payload constraints to named policy/role writes and tests for broader
+authority rejection and failure cleanup. 200 local tests pass. Current official
+API pages label 2.7.x, so do not infer 2.6.4 behavior from mocks or documentation.
+Prepared eight-file bounded private-network in-memory OpenBao experiment using
+the installed binary. No production mutations this turn. Scope, sources, risks,
+root crash-cleanup limitation and exact approval fingerprint are in
+[the experiment gate](evidence/D3-scoped-bootstrap-and-isolated-vault-gate-2026-10-08.md).
+
 ## 2026-10-08 — Approved fictional runtime rehearsal completed
 
 Exact reviewed bundle staged and verified on 104, 117 and Authentik's existing

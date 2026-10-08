@@ -18,7 +18,7 @@ def run(*,identity=False):
     # tokens/pipes are used. Never invoke node.vault outside those mocks.
     suite=unittest.defaultTestLoader.loadTestsFromName('test_provision_node')
     result=unittest.TextTestRunner(stream=io.StringIO()).run(suite)
-    if result.testsRun!=8 or not result.wasSuccessful():
+    if result.testsRun!=9 or not result.wasSuccessful():
         raise RuntimeError('Fictional fixture rehearsal failed; no private output retained')
     count=None
     if identity:

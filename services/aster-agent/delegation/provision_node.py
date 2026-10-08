@@ -80,6 +80,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def vault():
+    import admin_contract
     import vault_provision as module
     token=None;inode=None
     try:
@@ -116,6 +117,9 @@ def vault():
             except urllib.error.HTTPError as error:
                 status=error.code;error.close();return status,{}
         try:
+            status,metadata=api('GET','auth/token/lookup-self',None)
+            if status!=200: raise ValueError('Temporary authority unavailable')
+            admin_contract.validate(metadata.get('data'))
             result=module.provision(api,lambda packet:acknowledged('role_credentials',packet),
                 request['credentials'],approved_sha256=request['approved_sha256'],
                 observe=lambda stage:acknowledged('vault_stage',{'stage':stage}))

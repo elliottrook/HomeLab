@@ -20,7 +20,7 @@ import vault_provision
 
 ROOT=Path(__file__).parent
 STAGE='/var/tmp/aster-worker-provision-20261006'
-SOURCES=('provision_controller.py','provision_node.py','provision_journal.py',
+SOURCES=('provision_controller.py','provision_node.py','provision_journal.py','admin_contract.py',
          'identity_provision.py','vault_provision.py','credential_delivery.py','credentials.py',
          'deploy/introspection-read.hcl','deploy/introspection-role.json',
          'deploy/InstallWorkerCredential.swift')
