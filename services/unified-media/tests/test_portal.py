@@ -184,7 +184,7 @@ class PortalTests(unittest.TestCase):
                     "LAZYLIBRARIAN_URL": "http://lazy"}), \
                     patch("portal.server._request_json", side_effect=responses) as request:
                 result = _lazylibrarian_request({
-                    "authority_id": "OL1", "title": "Dune", "media_type": "ebook"})
+                    "authority_id": "/works/OL1W", "title": "Dune", "media_type": "ebook"})
             self.assertEqual(result["authority"], "lazylibrarian")
             self.assertEqual(request.call_count, 3)
             self.assertIn("cmd=getAllBooks", request.call_args_list[0].args[0])

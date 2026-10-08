@@ -566,6 +566,8 @@ def _lazylibrarian_request(item: Mapping[str, Any]) -> dict[str, Any]:
     """Revalidate and queue one ebook/audiobook through LazyLibrarian."""
     key = Path(os.environ["LAZYLIBRARIAN_API_KEY_PATH"]).read_text(encoding="utf-8").strip()
     base = os.environ["LAZYLIBRARIAN_URL"].rstrip("/") + "/api"
+    authority_id = str(item["authority_id"])
+    lazy_id = authority_id.rsplit("/", 1)[-1] if authority_id.startswith("/works/") else authority_id
     query = {"apikey": key, "cmd": "getAllBooks", "json": "1"}
     status, existing, _ = _request_json(base + "?" + urllib.parse.urlencode(query))
     if status != 200:
@@ -574,7 +576,7 @@ def _lazylibrarian_request(item: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(books, list):
         raise RuntimeError("LazyLibrarian returned an invalid library response")
     matches = [book for book in books if isinstance(book, Mapping) and
-               str(book.get("BookID", book.get("bookid", ""))) == str(item["authority_id"])]
+               str(book.get("BookID", book.get("bookid", ""))).rsplit("/", 1)[-1] == lazy_id]
     if len(matches) > 1:
         raise RuntimeError("LazyLibrarian candidate has duplicate records")
     if matches:
@@ -586,17 +588,17 @@ def _lazylibrarian_request(item: Mapping[str, Any]) -> dict[str, Any]:
                          ("Status", "status", "AudioStatus", "audiostatus")}
         if status_values & {"Wanted", "Have"}:
             raise RuntimeError("LazyLibrarian candidate is already tracked")
-    add_query = {"apikey": key, "cmd": "addBook", "id": str(item["authority_id"]),
+    add_query = {"apikey": key, "cmd": "addBook", "id": lazy_id,
                  "wait": "1", "source": "OpenLibrary"}
     add_status, added, _ = _request_json(base + "?" + urllib.parse.urlencode(add_query))
     if add_status != 200 or added is False:
         raise RuntimeError("LazyLibrarian addBook was rejected")
-    queue_query = {"apikey": key, "cmd": "queueBook", "id": str(item["authority_id"]),
+    queue_query = {"apikey": key, "cmd": "queueBook", "id": lazy_id,
                    "type": "AudioBook" if item.get("media_type") == "audiobook" else "eBook"}
     queue_status, queued, _ = _request_json(base + "?" + urllib.parse.urlencode(queue_query))
     if queue_status != 200 or queued != "OK":
         raise RuntimeError("LazyLibrarian queueBook was rejected")
-    return {"authority": "lazylibrarian", "request_id": str(item["authority_id"]),
+    return {"authority": "lazylibrarian", "request_id": lazy_id,
             "response": {"add": added, "queue": queued}}
 
 
