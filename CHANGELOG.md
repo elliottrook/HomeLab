@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-10-08 — ARR stack reliability and update hardening
+
+- Corrected inconsistent `apps` group ownership and group-write/traverse
+  permissions under the existing TV/movie archive roots; no media was moved or
+  deleted, and disposable Radarr/Sonarr write tests passed.
+- Added private Host allowlists to Sonarr, Radarr and Prowlarr while preserving
+  Authentik/private HTTPS and direct TrueNAS recovery paths.
+- Restricted Watchtower to explicitly labelled unattended updates, leaving the
+  critical ARR, downloader and custom media services under controlled updates.
+- Extended the existing sanitized ARR report with aggregate import counters;
+  no titles, paths, queue IDs, credentials or raw responses are emitted.
+
+## 2026-10-05 — EHS policy review project proposed
+
+- Added the proposed EHS policy review and renewal project and its initial
+  metadata-only catalogue from the public BCEHS SHOP document index.
+- Recorded 498 index rows / 497 unique document numbers, source provenance,
+  duplicate detection, restricted-access boundaries and the requirement for
+  human clinical/operational governance before any policy change or publication.
+- No BCEHS/PHSA document was changed, approved, retired, published or accessed
+  through IDIR; authorization stream selection remains open.
+
 ## 2026-09-28 — Operational Sysadmin Capability adopted within Aster
 
 - Recorded Jason's approval to add SA0–SA5 to the existing unified programme, with production/source reconciliation and useful diagnosis as the next delivery priority.
