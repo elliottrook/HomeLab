@@ -206,7 +206,7 @@ const filters = document.querySelectorAll('.filter');
 const cards = document.querySelectorAll('.card');
 function applyFilters() {
   const selected = document.querySelector('.filter.active').dataset.filter;
-  const query = search.value.trim().toLowerCase();
+  const query = search ? search.value.trim().toLowerCase() : '';
   cards.forEach((card) => {
     const matchesType = selected === 'all' || card.dataset.type === selected;
     const matchesSearch = !query || card.dataset.search.includes(query);
@@ -236,8 +236,8 @@ async function runProviderSearch() {
   } catch (error) { searchResults.innerHTML = `<div class='empty error'>${escapeHtml(error.message)}</div>`; searchResults.hidden = false; }
   searchButton.disabled = false; searchButton.textContent = 'Search all media';
 }
-searchButton.addEventListener('click', runProviderSearch);
-search.addEventListener('keydown', (event) => { if (event.key === 'Enter') runProviderSearch(); });
+if (searchButton) searchButton.addEventListener('click', runProviderSearch);
+if (search) search.addEventListener('keydown', (event) => { if (event.key === 'Enter') runProviderSearch(); });
 filters.forEach((filter) => filter.addEventListener('click', () => {
   filters.forEach((item) => item.classList.remove('active'));
   filter.classList.add('active');
@@ -276,11 +276,29 @@ document.querySelectorAll('.request-button:not([disabled])').forEach((button) =>
 </style>
 """
     style = style.replace('.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card{display:grid;', '.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card[hidden]{display:none}.card{display:grid;')
+    style = style.replace('.toolbar{display:flex;', '.page-nav{display:flex;gap:10px;margin-bottom:26px}.page-pill{border:1px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--muted);text-decoration:none}.page-pill.active,.page-pill:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.toolbar{display:flex;')
     for item, card in zip(items, cards):
         search_value = html.escape(" ".join(str(item.get(key, "")) for key in ("title", "overview", "explanation")).casefold(), quote=True)
         cards[cards.index(card)] = card.replace("<article class='card'", f"<article data-search='{search_value}' class='card'", 1)
     body = "\n".join(cards) or "<div class='empty'><h2>No safe recommendations yet</h2><p>The refresh service has not produced any candidates. Check its health before requesting anything.</p></div>"
-    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='toolbar'><label for='search'>Search all media</label><input id='search' type='search' placeholder='Search films, shows, books, audiobooks or music…' autocomplete='off'><select id='search-type' aria-label='Media type'><option value='all'>All media</option><option value='movie'>Films</option><option value='tv'>TV</option><option value='ebook'>Books</option><option value='audiobook'>Audiobooks</option><option value='album'>Music</option></select><button id='search-submit' class='request-button' type='button'>Search all media</button><span class='refreshed'>Updated " + html.escape(refreshed) + "</span></div><section id='search-results' class='search-results' hidden aria-live='polite'></section><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill active' href='/'>Recommendations</a><a class='page-pill' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='refreshed'>Updated " + html.escape(refreshed) + "</div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
+
+
+def render_search_html() -> str:
+    style = """
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--text:#f4f7fb;--muted:#aab6ca;--accent:#8bd3ff;--accent2:#b9f2d0;--line:#2b3a58}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#25395a 0,#0b1020 48%);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1180px;margin:auto;padding:42px 24px 72px}.page-nav{display:flex;gap:10px;margin-bottom:26px}.page-pill{border:1px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--muted);text-decoration:none}.page-pill.active,.page-pill:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.kicker,.eyebrow{color:var(--accent);font-size:.78rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.kicker{margin-bottom:10px}h1{font-size:clamp(2.2rem,6vw,4.5rem);line-height:1.02;margin:0;letter-spacing:-.05em}header p{max-width:650px;color:var(--muted);margin:.9rem 0 30px}.toolbar{display:flex;align-items:center;gap:12px;margin:0 0 24px}.toolbar input,.toolbar select{border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--text);font:inherit;padding:11px 13px}.toolbar input{flex:1;min-width:180px}.request-button{border:0;border-radius:10px;background:var(--accent);color:#07111d;font:700 .9rem system-ui;padding:11px 14px;cursor:pointer}.request-button:disabled{background:#44516a;color:#c1cada}.search-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.search-card{display:grid;grid-template-columns:116px 1fr;gap:18px;background:linear-gradient(145deg,var(--panel),#10182a);border:1px solid var(--line);border-radius:18px;padding:14px}.search-poster{width:116px;height:174px;border-radius:11px;object-fit:cover;background:#263653}.poster-fallback{display:grid;place-items:center;font-size:2.5rem;color:var(--accent)}.source{float:right;color:var(--muted);font-size:.72rem}.source-link{display:inline-block;color:var(--accent);margin-top:10px;text-decoration:none}.metadata,.creator{color:var(--muted);font-size:.85rem}.overview{color:#dce4f1}.empty{padding:50px;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}footer{color:var(--muted);font-size:.8rem;margin-top:28px}@media(max-width:600px){main{padding:26px 14px 50px}.toolbar{display:grid}.search-card{grid-template-columns:92px 1fr}.search-poster{width:92px;height:138px}}
+</style>
+"""
+    script = """
+<script>
+const input=document.querySelector('#provider-search'); const type=document.querySelector('#provider-type'); const button=document.querySelector('#provider-submit'); const results=document.querySelector('#provider-results');
+function esc(v){const n=document.createElement('div');n.textContent=v||'';return n.innerHTML;}
+async function run(){const q=input.value.trim();if(!q){results.hidden=true;results.innerHTML='';return;}button.disabled=true;button.textContent='Searching…';try{const r=await fetch('/api/search?q='+encodeURIComponent(q)+'&type='+encodeURIComponent(type.value));const data=await r.json();if(!r.ok)throw new Error(data.error||'Search failed');results.innerHTML=data.length?data.map(i=>{const p=i.poster_path?`<img class='search-poster' src='${esc(i.poster_path)}' alt='' loading='lazy'>`:`<div class='search-poster poster-fallback'>✦</div>`;const c=i.artist||i.author?`<div class='creator'>${esc(i.artist||i.author)}</div>`:'';const s=i.source_url?`<a class='source-link' href='${esc(i.source_url)}' target='_blank' rel='noopener noreferrer'>Open source ↗</a>`:'';return `<article class='search-card'>${p}<div><div class='eyebrow'>${esc(i.media_type)} <span class='source'>${esc(i.source_label)}</span></div><h2>${esc(i.title)}</h2><p class='metadata'>${esc(i.year||'')}</p>${c}<p class='overview'>${esc(i.overview||'No synopsis available.')}</p>${s}</div></article>`}).join(''):`<div class='empty'>No results found across the selected sources.</div>`;results.hidden=false;}catch(e){results.innerHTML=`<div class='empty'>${esc(e.message)}</div>`;results.hidden=false;}button.disabled=false;button.textContent='Search all media';}
+button.addEventListener('click',run);input.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+</script>
+"""
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' href='/icon-32.png'><title>Media Search</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill' href='/'>Recommendations</a><a class='page-pill active' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>Find something specific</h1><p>Search films, TV, books, audiobooks and music across the connected metadata providers. Search is read-only.</p></div></header><div class='toolbar'><input id='provider-search' type='search' placeholder='Title, author, artist or keyword…' autocomplete='off'><select id='provider-type' aria-label='Media type'><option value='all'>All media</option><option value='movie'>Films</option><option value='tv'>TV</option><option value='ebook'>Books</option><option value='audiobook'>Audiobooks</option><option value='album'>Music</option></select><button id='provider-submit' class='request-button' type='button'>Search all media</button></div><section id='provider-results' class='search-results' hidden aria-live='polite'></section><footer>Sources: TMDB via Seerr, Open Library and MusicBrainz. Use the Recommendations page for explicit requests.</footer></main>" + script + "</body></html>"
 
 
 def action_key(item: Mapping[str, Any]) -> str:
@@ -633,6 +651,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(404, b"not found", "text/plain; charset=utf-8")
                 return
             self._send(200, payload, asset[1], cache_control="public, max-age=86400")
+            return
+        if path == "/search":
+            self._send(200, render_search_html().encode(), "text/html; charset=utf-8")
             return
         try:
             items = load_recommendations()
