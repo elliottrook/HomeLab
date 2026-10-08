@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Isolated attempt stopped at source visibility; cleaned
+
+Approved bundle/unit staged and validated, but PrivateTmp hid its /var/tmp source.
+Python exited before running tests; no disposable vault was launched. Removed all
+approved fixture files/unit and confirmed production vault/AI-PAM remain healthy.
+Prepared a source-path-only correction under /opt with all isolation retained,
+new immutable archive hash and explicit next-attempt approval gate. No retry or
+real credential use. Evidence retained in
+[the isolated experiment record](evidence/D3-scoped-bootstrap-and-isolated-vault-gate-2026-10-08.md).
+
 ## 2026-10-08 — Scoped bootstrap contract; real-engine isolation gate
 
 Prepared hidden human-terminal bootstrap and exact expiring administrator-token

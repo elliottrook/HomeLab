@@ -1,5 +1,41 @@
 # D3 scoped bootstrap candidate and isolated vault experiment
 
+## Attempt 1 result and corrected-path approval gate
+
+Jason approved the original exact bundle. Staging and manifest verification
+passed. `systemd-analyze verify` passed; effective unit properties confirmed
+DynamicUser, PrivateNetwork/PrivateTmp, filesystem protections, empty capabilities,
+resource limits and 120-second lifetime before start.
+
+The unit failed with exit status 2 before the Python runner started:
+PrivateTmp replaces `/var/tmp`, hiding the staged program. Therefore no disposable
+vault, bootstrap API or permission tests ran. This is a packaging failure, not
+evidence for or against OpenBao authorization behavior. No retry performed.
+
+Stopped the fixture, verified exact unit content, removed all eight enumerated
+files and staging directories, cleared only its failed state, reloaded systemd.
+Independent check reports MainPID=0 and unit not found. Production vault remains
+2.6.4 unsealed; corrected local Doctor passes (0 active requests, 37 outcomes).
+The original approval is consumed.
+
+Corrected candidate changes ONLY ExecStart/source staging to
+`/opt/aster-provision-isolated-20261008`, outside PrivateTmp. The path was verified
+absent. All isolation settings, tests, limits, unit name and cleanup requirements
+remain as specified below. `/opt/openbao` stays inaccessible; the separate sibling
+source directory is read-only under ProtectSystem=strict.
+
+Request approval for ONE corrected attempt with the same bounded scope, replacing
+the original source directory with the new `/opt` path. Before startup verify
+the program is present, readable by the dynamic-user class (0644), ancestors
+traversable, and not under a masked path. Do not disable PrivateTmp. Use new
+archive `/private/tmp/aster-provision-isolated-v2-20261008.tar`, SHA-256
+`b0ce977ca6df8b4644ed921e1d37a298d23a7726f04858fbd0306c074766b8d5`.
+Eight files; only the unit and generated manifest differ from attempt 1.
+No real credential, root ceremony, production restart or model call is included.
+
+The historical original gate below is preserved for provenance; the corrected
+path/hash above govern any newly approved attempt.
+
 ## Local preparation completed
 
 `admin_contract.py` describes one dedicated ten-minute, non-renewable, orphan
