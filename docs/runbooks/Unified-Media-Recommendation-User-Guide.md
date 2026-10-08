@@ -71,6 +71,32 @@ suppression apply. Each card shows a poster when available, synopsis, year,
 rating, genres, source, why it was selected and whether it is ready for
 approval. This is a deliberate improvement over the original diagnostic page.
 
+## Searching for something specific
+
+The search window is now a provider-backed, read-only media search rather than
+just a filter for the recommendation cards:
+
+1. Enter a title, author, artist or keyword.
+2. Choose **All media**, **Films**, **TV**, **Books**, **Audiobooks** or
+   **Music**.
+3. Press **Search all media** or press Return.
+4. Open the artwork or **Open source** link for a longer synopsis or provider
+   page.
+
+Search results are supplied by TMDB through Seerr, Open Library and
+MusicBrainz. Searching never acquires anything; use the recommendation list's
+explicit request button when you are ready to queue a supported item.
+
+## Trakt recommendations
+
+Personal Trakt recommendations appear with the source label **Trakt personal
+recommendations**. They are based on the connected Trakt profile, not generic
+Seerr discovery. Trakt credentials remain in the protected TrueNAS secret
+boundary and are not shown in the portal or sent to the B60. The service
+automatically rotates Trakt's single-use refresh token when an access token
+expires. If Trakt is ever disconnected, use the private connection page and
+the normal browser device-approval flow; do not paste tokens into chat.
+
 ## Category-specific behavior
 
 ### Films and TV
