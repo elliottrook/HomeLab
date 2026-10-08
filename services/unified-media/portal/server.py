@@ -258,7 +258,7 @@ document.querySelectorAll('.request-button:not([disabled])').forEach((button) =>
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || 'Request failed');
       button.textContent = 'Requested';
-      result.textContent = 'Accepted by the owning service. Acquisition may take time.';
+      result.textContent = 'Request sent.';
       result.className = 'result success';
     } catch (error) {
       button.disabled = false;
@@ -559,9 +559,9 @@ def submit_action(body: Mapping[str, Any]) -> dict[str, Any]:
         return state[key]
     if item.get("authority") == "seerr":
         result = _seerr_request(item)
-    elif item.get("authority") == "lidarr":
+    elif item.get("authority") in {"lidarr", "musicbrainz"}:
         result = _lidarr_request(item)
-    elif item.get("authority") == "lazylibrarian":
+    elif item.get("authority") in {"lazylibrarian", "openlibrary"}:
         result = _lazylibrarian_request(item)
     else:
         raise RuntimeError("unsupported write authority")

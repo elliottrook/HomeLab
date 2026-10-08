@@ -56,8 +56,9 @@ stale data, missing credentials or a failed dependency.
 3. Reject anything you already own, have archived, do not want, or that is
    ambiguous.
 4. Press the single action button on the exact item you want.
-5. Wait for the result. A successful response means the request was accepted by
-   the owning service; it does not mean the download has finished.
+5. Wait for the result. A successful response says **Request sent.** This means
+   the owning service accepted the request; it does not mean the download has
+   finished.
 6. Do not press the button repeatedly while the request is processing. Duplicate
    presses are suppressed, but waiting is clearer and safer.
 7. Follow progress in the authority's normal UI: Seerr for films/TV, Lidarr
