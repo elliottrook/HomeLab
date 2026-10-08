@@ -214,6 +214,30 @@ function applyFilters() {
   });
 }
 search.addEventListener('input', applyFilters);
+const searchType = document.querySelector('#search-type');
+const searchButton = document.querySelector('#search-submit');
+const searchResults = document.querySelector('#search-results');
+function escapeHtml(value) { const node = document.createElement('div'); node.textContent = value || ''; return node.innerHTML; }
+async function runProviderSearch() {
+  const query = search.value.trim();
+  if (!query) { searchResults.hidden = true; searchResults.innerHTML = ''; return; }
+  searchButton.disabled = true; searchButton.textContent = 'Searching…';
+  try {
+    const response = await fetch('/api/search?q=' + encodeURIComponent(query) + '&type=' + encodeURIComponent(searchType.value));
+    const results = await response.json();
+    if (!response.ok) throw new Error(results.error || 'Search failed');
+    searchResults.innerHTML = results.length ? results.map(item => {
+      const poster = item.poster_path ? `<img class='search-poster' src='${escapeHtml(item.poster_path)}' alt='' loading='lazy'>` : `<div class='search-poster poster-fallback'>✦</div>`;
+      const creator = item.artist || item.author ? `<div class='creator'>${escapeHtml(item.artist || item.author)}</div>` : '';
+      const source = item.source_url ? `<a class='source-link' href='${escapeHtml(item.source_url)}' target='_blank' rel='noopener noreferrer'>Open source ↗</a>` : '';
+      return `<article class='search-card'>${poster}<div><div class='eyebrow'>${escapeHtml(item.media_type)} <span class='source'>${escapeHtml(item.source_label)}</span></div><h2>${escapeHtml(item.title)}</h2><p class='metadata'>${escapeHtml(item.year || '')}</p>${creator}<p class='overview'>${escapeHtml(item.overview || 'No synopsis available.')}</p>${source}</div></article>`;
+    }).join('') : `<div class='empty'>No results found across the selected sources.</div>`;
+    searchResults.hidden = false;
+  } catch (error) { searchResults.innerHTML = `<div class='empty error'>${escapeHtml(error.message)}</div>`; searchResults.hidden = false; }
+  searchButton.disabled = false; searchButton.textContent = 'Search all media';
+}
+searchButton.addEventListener('click', runProviderSearch);
+search.addEventListener('keydown', (event) => { if (event.key === 'Enter') runProviderSearch(); });
 filters.forEach((filter) => filter.addEventListener('click', () => {
   filters.forEach((item) => item.classList.remove('active'));
   filter.classList.add('active');
@@ -248,14 +272,14 @@ document.querySelectorAll('.request-button:not([disabled])').forEach((button) =>
 """
     style = """
 <style>
-:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--panel2:#1b2740;--text:#f4f7fb;--muted:#aab6ca;--accent:#8bd3ff;--accent2:#b9f2d0;--line:#2b3a58}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#25395a 0,#0b1020 48%);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1180px;margin:auto;padding:42px 24px 72px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px}.kicker,.eyebrow{color:var(--accent);font-size:.78rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.kicker{margin-bottom:10px}h1{font-size:clamp(2.2rem,6vw,4.5rem);line-height:1.02;margin:0;letter-spacing:-.05em}header p{max-width:560px;color:var(--muted);margin:.9rem 0 0}.toolbar{display:flex;align-items:center;gap:12px;margin:0 0 14px}.toolbar label{font-size:.8rem;color:var(--muted);white-space:nowrap}.toolbar input{width:min(520px,100%);border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--text);font:inherit;padding:10px 13px}.refreshed{margin-left:auto;color:var(--muted);font-size:.76rem}.filters{display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:#111a2c;border:1px solid var(--line);border-radius:16px;margin-bottom:24px}.filter{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:9px 15px;font:inherit;cursor:pointer}.filter.active,.filter:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.filter span{font-size:.8em;opacity:.75}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card{display:grid;grid-template-columns:116px 1fr;gap:18px;background:linear-gradient(145deg,var(--panel),#10182a);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 30px #0003}.poster-link{display:block;text-decoration:none}.poster-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.poster{width:116px;height:174px;border-radius:11px;object-fit:cover;background:#263653}.poster-fallback{display:grid;place-items:center;font-size:2.5rem;color:var(--accent)}.card-content{min-width:0}.source{float:right;color:var(--muted);font-size:.72rem;letter-spacing:0;text-transform:none}.source-link{display:inline-block;color:var(--accent);font-size:.78rem;margin-top:10px;text-decoration:none}.source-link:hover{text-decoration:underline}.card h2{font-size:1.35rem;line-height:1.12;margin:.5rem 0 .2rem}.metadata{color:var(--muted);font-size:.82rem;min-height:1.25em;margin:0 0 .8rem}.creator{color:#dce4f1;font-size:.84rem;margin:.25rem 0 .65rem}.creator strong{color:var(--accent2);font-weight:700}.overview{color:#dce4f1;font-size:.9rem;margin:.4rem 0 1rem;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.why{border-left:3px solid var(--accent);padding-left:10px;color:var(--muted);font-size:.82rem}.why strong{color:var(--accent2)}.why p{margin:.2rem 0}.card-footer{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:18px}.request-button{border:0;border-radius:10px;background:var(--accent);color:#07111d;font:700 .9rem system-ui;padding:10px 13px;cursor:pointer}.request-button:hover{filter:brightness(1.08)}.request-button:disabled{background:#44516a;color:#c1cada;cursor:not-allowed}.status{font-size:.72rem;color:var(--muted);flex:1}.status-ready{color:var(--accent2)}.result{width:100%;font-size:.78rem}.success{color:var(--accent2)}.error{color:#ffaaa8}.empty{padding:50px;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}footer{color:var(--muted);font-size:.8rem;margin-top:28px}@media(max-width:600px){main{padding:26px 14px 50px}header{display:block}.toolbar{display:block}.toolbar label{display:block;margin-bottom:6px}.refreshed{display:block;margin:8px 0}.grid{display:block}.card{margin-bottom:16px}.card h2{font-size:1.2rem}}
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--panel2:#1b2740;--text:#f4f7fb;--muted:#aab6ca;--accent:#8bd3ff;--accent2:#b9f2d0;--line:#2b3a58}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top right,#25395a 0,#0b1020 48%);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1180px;margin:auto;padding:42px 24px 72px}header{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px}.kicker,.eyebrow{color:var(--accent);font-size:.78rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}.kicker{margin-bottom:10px}h1{font-size:clamp(2.2rem,6vw,4.5rem);line-height:1.02;margin:0;letter-spacing:-.05em}header p{max-width:560px;color:var(--muted);margin:.9rem 0 0}.toolbar{display:flex;align-items:center;gap:12px;margin:0 0 14px}.toolbar label{font-size:.8rem;color:var(--muted);white-space:nowrap}.toolbar input{width:min(520px,100%);border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--text);font:inherit;padding:10px 13px}.toolbar select{border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--text);font:inherit;padding:10px 13px}.search-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin:0 0 24px}.search-card{display:grid;grid-template-columns:82px 1fr;gap:14px;background:linear-gradient(145deg,var(--panel),#10182a);border:1px solid var(--line);border-radius:14px;padding:12px}.search-poster{width:82px;height:122px;border-radius:8px;object-fit:cover;background:#263653}.search-card h2{font-size:1.05rem;margin:.3rem 0}.refreshed{margin-left:auto;color:var(--muted);font-size:.76rem}.filters{display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:#111a2c;border:1px solid var(--line);border-radius:16px;margin-bottom:24px}.filter{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:9px 15px;font:inherit;cursor:pointer}.filter.active,.filter:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.filter span{font-size:.8em;opacity:.75}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card{display:grid;grid-template-columns:116px 1fr;gap:18px;background:linear-gradient(145deg,var(--panel),#10182a);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 12px 30px #0003}.poster-link{display:block;text-decoration:none}.poster-link:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.poster{width:116px;height:174px;border-radius:11px;object-fit:cover;background:#263653}.poster-fallback{display:grid;place-items:center;font-size:2.5rem;color:var(--accent)}.card-content{min-width:0}.source{float:right;color:var(--muted);font-size:.72rem;letter-spacing:0;text-transform:none}.source-link{display:inline-block;color:var(--accent);font-size:.78rem;margin-top:10px;text-decoration:none}.source-link:hover{text-decoration:underline}.card h2{font-size:1.35rem;line-height:1.12;margin:.5rem 0 .2rem}.metadata{color:var(--muted);font-size:.82rem;min-height:1.25em;margin:0 0 .8rem}.creator{color:#dce4f1;font-size:.84rem;margin:.25rem 0 .65rem}.creator strong{color:var(--accent2);font-weight:700}.overview{color:#dce4f1;font-size:.9rem;margin:.4rem 0 1rem;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}.why{border-left:3px solid var(--accent);padding-left:10px;color:var(--muted);font-size:.82rem}.why strong{color:var(--accent2)}.why p{margin:.2rem 0}.card-footer{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:18px}.request-button{border:0;border-radius:10px;background:var(--accent);color:#07111d;font:700 .9rem system-ui;padding:10px 13px;cursor:pointer}.request-button:hover{filter:brightness(1.08)}.request-button:disabled{background:#44516a;color:#c1cada;cursor:not-allowed}.status{font-size:.72rem;color:var(--muted);flex:1}.status-ready{color:var(--accent2)}.result{width:100%;font-size:.78rem}.success{color:var(--accent2)}.error{color:#ffaaa8}.empty{padding:50px;border:1px dashed var(--line);border-radius:18px;color:var(--muted)}footer{color:var(--muted);font-size:.8rem;margin-top:28px}@media(max-width:600px){main{padding:26px 14px 50px}header{display:block}.toolbar{display:block}.toolbar label{display:block;margin-bottom:6px}.refreshed{display:block;margin:8px 0}.grid{display:block}.card{margin-bottom:16px}.card h2{font-size:1.2rem}}
 </style>
 """
     for item, card in zip(items, cards):
         search_value = html.escape(" ".join(str(item.get(key, "")) for key in ("title", "overview", "explanation")).casefold(), quote=True)
         cards[cards.index(card)] = card.replace("<article class='card'", f"<article data-search='{search_value}' class='card'", 1)
     body = "\n".join(cards) or "<div class='empty'><h2>No safe recommendations yet</h2><p>The refresh service has not produced any candidates. Check its health before requesting anything.</p></div>"
-    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='toolbar'><label for='search'>Find in recommendations</label><input id='search' type='search' placeholder='Search titles, genres or explanations…' autocomplete='off'><span class='refreshed'>Updated " + html.escape(refreshed) + "</span></div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Seerr, Lidarr and LazyLibrarian remain the systems of record.</footer></main>" + script + "</body></html>"
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='toolbar'><label for='search'>Search all media</label><input id='search' type='search' placeholder='Search films, shows, books, audiobooks or music…' autocomplete='off'><select id='search-type' aria-label='Media type'><option value='all'>All media</option><option value='movie'>Films</option><option value='tv'>TV</option><option value='ebook'>Books</option><option value='audiobook'>Audiobooks</option><option value='album'>Music</option></select><button id='search-submit' class='request-button' type='button'>Search all media</button><span class='refreshed'>Updated " + html.escape(refreshed) + "</span></div><section id='search-results' class='search-results' hidden aria-live='polite'></section><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
 
 
 def action_key(item: Mapping[str, Any]) -> str:
@@ -411,6 +435,115 @@ def _lazylibrarian_request(item: Mapping[str, Any]) -> dict[str, Any]:
             "response": {"add": added, "queue": queued}}
 
 
+def _search_openlibrary(query: str, media_type: str) -> list[dict[str, Any]]:
+    params = urllib.parse.urlencode({"q": query, "limit": 8, "mode": "everything"})
+    status, payload, _ = _request_json("https://openlibrary.org/search.json?" + params)
+    if status != 200 or not isinstance(payload, Mapping):
+        return []
+    results = []
+    for doc in payload.get("docs", [])[:8]:
+        if not isinstance(doc, Mapping) or not doc.get("key") or not doc.get("title"):
+            continue
+        key = str(doc["key"])
+        cover = doc.get("cover_i")
+        authors = doc.get("author_name") or []
+        sentence = doc.get("first_sentence")
+        if isinstance(sentence, list):
+            sentence = sentence[0] if sentence else ""
+        results.append({
+            "media_type": media_type, "authority": "openlibrary", "authority_id": key,
+            "title": str(doc["title"]), "author": str(authors[0]) if authors else "",
+            "year": str(doc.get("first_publish_year") or ""), "overview": str(sentence or ""),
+            "poster_path": f"https://covers.openlibrary.org/b/id/{cover}-M.jpg" if cover else "",
+            "source_label": "Open Library search",
+            "source_url": "https://openlibrary.org" + urllib.parse.quote(key, safe="/"),
+            "explanation": "Read-only Open Library search result.",
+        })
+    return results
+
+
+def _search_musicbrainz(query: str) -> list[dict[str, Any]]:
+    params = urllib.parse.urlencode({"query": query, "fmt": "json", "limit": 8})
+    status, payload, _ = _request_json(
+        "https://musicbrainz.org/ws/2/release-group/?" + params,
+        headers={"User-Agent": "UnifiedMediaRecommendations/1.0 (private homelab)"})
+    if status != 200 or not isinstance(payload, Mapping):
+        return []
+    results = []
+    for group in payload.get("release-groups", [])[:8]:
+        if not isinstance(group, Mapping) or not group.get("id") or not group.get("title"):
+            continue
+        credits = group.get("artist-credit") or [{}]
+        artist = credits[0].get("name", "") if isinstance(credits[0], Mapping) else ""
+        group_id = str(group["id"])
+        results.append({
+            "media_type": "album", "authority": "musicbrainz", "authority_id": group_id,
+            "title": str(group["title"]), "artist": str(artist),
+            "year": str(group.get("first-release-date", ""))[:4],
+            "poster_path": f"https://coverartarchive.org/release-group/{group_id}/front-250",
+            "source_label": "MusicBrainz search",
+            "source_url": f"https://musicbrainz.org/release-group/{urllib.parse.quote(group_id)}",
+            "explanation": "Read-only MusicBrainz release-group search result.",
+        })
+    return results
+
+
+def _search_seerr(query: str, media_type: str) -> list[dict[str, Any]]:
+    try:
+        password = Path(os.environ["SEERR_PASSWORD_PATH"]).read_text(encoding="utf-8").strip()
+        status, _, headers = _request_json(
+            os.environ["SEERR_URL"] + "/api/v1/auth/local", method="POST",
+            body={"email": os.environ["SEERR_EMAIL"], "password": password},
+            headers={"Content-Type": "application/json"})
+        if status != 200:
+            return []
+        cookie = headers.get("Set-Cookie", "").split(";", 1)[0]
+        params = urllib.parse.urlencode({"query": query, "page": 1})
+        status, payload, _ = _request_json(
+            os.environ["SEERR_URL"] + "/api/v1/search?" + params,
+            headers={"Cookie": cookie})
+    except (KeyError, OSError, ValueError, urllib.error.URLError):
+        return []
+    if status != 200 or not isinstance(payload, Mapping):
+        return []
+    results = []
+    for item in payload.get("results", [])[:8]:
+        if not isinstance(item, Mapping) or not item.get("id"):
+            continue
+        kind = str(item.get("mediaType") or item.get("media_type") or "")
+        if kind not in {"movie", "tv"} or (media_type != "all" and kind != media_type):
+            continue
+        title = item.get("title") or item.get("name") or ""
+        if not title:
+            continue
+        poster = str(item.get("posterPath") or item.get("poster_path") or "")
+        results.append({
+            "media_type": kind, "authority": "seerr", "authority_id": str(item["id"]),
+            "title": str(title), "year": str(item.get("releaseDate") or item.get("firstAirDate") or "")[:4],
+            "overview": str(item.get("overview") or ""),
+            "poster_path": "https://image.tmdb.org/t/p/w500" + poster if poster.startswith("/") else poster,
+            "source_label": "TMDB search via Seerr",
+            "source_url": f"https://www.themoviedb.org/{kind}/{urllib.parse.quote(str(item['id']))}",
+            "explanation": "Read-only TMDB search result through Seerr.",
+        })
+    return results
+
+
+def search_all(query: str, media_type: str = "all") -> list[dict[str, Any]]:
+    query = query.strip()
+    media_type = media_type if media_type in {"all", "movie", "tv", "album", "ebook", "audiobook"} else "all"
+    if not query or len(query) > 120:
+        return []
+    results = []
+    if media_type in {"all", "movie", "tv"}:
+        results.extend(_search_seerr(query, media_type))
+    if media_type in {"all", "ebook", "audiobook"}:
+        results.extend(_search_openlibrary(query, "ebook" if media_type == "all" else media_type))
+    if media_type in {"all", "album"}:
+        results.extend(_search_musicbrainz(query))
+    return results[:24]
+
+
 def submit_action(body: Mapping[str, Any]) -> dict[str, Any]:
     if not ACTION_ENABLED:
         raise RuntimeError("portal actions are disabled")
@@ -480,6 +613,15 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, json.dumps({"status": _trakt_device_status()}).encode(), "application/json")
             except (OSError, RuntimeError, ValueError, KeyError, json.JSONDecodeError) as exc:
                 self._send(400, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
+        if path == "/api/search":
+            params = urllib.parse.parse_qs(parsed.query)
+            query = (params.get("q") or [""])[0]
+            media_type = (params.get("type") or ["all"])[0]
+            try:
+                self._send(200, json.dumps(search_all(query, media_type)).encode(), "application/json")
+            except (OSError, ValueError, urllib.error.URLError) as exc:
+                self._send(502, json.dumps({"error": str(exc)}).encode(), "application/json")
             return
         asset = STATIC_ASSETS.get(path)
         if asset:
