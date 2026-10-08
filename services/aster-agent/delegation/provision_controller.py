@@ -25,6 +25,9 @@ SOURCES=('provision_controller.py','provision_node.py','provision_journal.py',
          'deploy/introspection-read.hcl','deploy/introspection-role.json',
          'deploy/InstallWorkerCredential.swift')
 PREFIX=b'ASTER_PROVISION='
+VAULT_STAGES=tuple(name+':'+state for name in (
+    'policy','role','aster-worker-introspection','aster-codex-worker','secret-id','delivery')
+    for state in ('attempted','confirmed'))
 
 
 def manifest():
@@ -140,12 +143,17 @@ def run(directory,*,approved_sha256=None,peer_factory=remote,keychain_sink=keych
                     raise ValueError('Invalid identity frame')
                 vault=peer_factory('vault');peers.append(vault)
                 vault.send({'approved_sha256':vault_provision.fingerprint(),'credentials':value})
-                delivered=False;revoked=False
+                delivered=False;revoked=False;vault_stages=[]
                 while True:
                     vkind,vvalue=vault.receive()
                     if vkind=='vault_stage':
+                        if (len(vault_stages)>=len(VAULT_STAGES)
+                                or vvalue!={'stage':VAULT_STAGES[len(vault_stages)]}
+                                or (vvalue['stage']=='delivery:confirmed' and not delivered)):
+                            raise ValueError('Vault stage ordering invalid')
                         journal.note('vault:'+vvalue['stage']);vault.send({'accepted':True})
-                    elif vkind=='role_credentials' and not delivered:
+                        vault_stages.append(vvalue['stage'])
+                    elif vkind=='role_credentials' and not delivered and tuple(vault_stages)==VAULT_STAGES[:-1]:
                         journal.note('gateway:attempted')
                         gateway=peer_factory('gateway');peers.append(gateway);gateway.send(vvalue)
                         if gateway.receive()!=('gateway_done',{'confirmed':True}):
@@ -155,7 +163,8 @@ def run(directory,*,approved_sha256=None,peer_factory=remote,keychain_sink=keych
                         keychain_sink(value['app_password'],binary)
                         journal.note('keychain:confirmed');delivered=True
                         vault.send({'accepted':True})
-                    elif vkind=='admin_revoked' and vvalue=={'confirmed':True}:
+                    elif (vkind=='admin_revoked' and vvalue=={'confirmed':True}
+                          and not revoked and delivered and tuple(vault_stages)==VAULT_STAGES):
                         journal.note('admin:revoked');revoked=True;vault.send({'accepted':True})
                     elif vkind=='vault_done' and delivered and revoked and vvalue.get('complete') is True:
                         break

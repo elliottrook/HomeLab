@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Provisioning interruption handling and runtime rehearsal
+
+Fixed unbounded partial-line reads and output waits in candidate source-local
+protocol; enforced exact vault stage sequence. Added fictional revocation and
+transport failure tests; 193 tests pass in restored isolated environment. Prepared
+hashed source-only runtime rehearsal for 104/117/Authentik, with read-only identity
+preflight and no credential use. Remote paths absent, runtime versions recorded.
+No remote writes this turn. See
+[rehearsal approval gate](evidence/D3-provisioning-rehearsal-gate-2026-10-08.md).
+
 ## 2026-10-08 — Vault maintenance validated and closed
 
 Private human unseal complete; live 2.6.4 and broker TLS/identity/service readiness

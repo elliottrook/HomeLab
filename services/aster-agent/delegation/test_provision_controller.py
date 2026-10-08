@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from provision_controller import fingerprint, run
+from provision_controller import fingerprint, run, VAULT_STAGES
 from provision_journal import Journal
 
 
@@ -27,9 +27,9 @@ class ControllerTests(unittest.TestCase):
             ('identity_stage',{'stage':'identity:confirmed','record':record}),
             ('identity_credentials',{'client_secret':'fixture-private-provider','app_password':'fixture-private-password'}),
             ('identity_done',{'activated':False,'delivery_confirmed':True})])
-        self.vault=Peer([
-            ('vault_stage',{'stage':'policy:attempted'}),
+        self.vault=Peer([('vault_stage',{'stage':stage}) for stage in VAULT_STAGES[:-1]]+[
             ('role_credentials',{'role_id':'fixture-role','secret_id':'fixture-private-secret','secret_id_accessor':'fixture-accessor'}),
+            ('vault_stage',{'stage':'delivery:confirmed'}),
             ('admin_revoked',{'confirmed':True}),('vault_done',{'complete':True})])
         self.gateway=Peer([('gateway_done',{'confirmed':True})])
         self.peers={'identity':self.identity,'vault':self.vault,'gateway':self.gateway}
@@ -64,7 +64,19 @@ class ControllerTests(unittest.TestCase):
         with self.assertRaises(RuntimeError): self.execute(failure)
         self.assertEqual(self.stages()[-2:],['keychain:attempted','incomplete'])
         self.assertEqual(self.vault.sent[-1],{'accepted':True}) # stage acknowledgement only
-        self.assertEqual(len(self.vault.sent),2) # initial request + stage ACK
+        self.assertEqual(len(self.vault.sent),len(VAULT_STAGES)) # initial request + pre-delivery stages
+
+    def test_out_of_order_vault_or_early_credentials_fail(self):
+        for frame in (('vault_stage',{'stage':'role:attempted'}),
+                      ('role_credentials',{'role_id':'fictional'})):
+            with self.subTest(frame=frame):
+                self.vault.frames=[frame]
+                with patch('provision_controller.subprocess.run'), tempfile.TemporaryDirectory() as directory:
+                    identity=Peer(list(self.identity.frames))
+                    peers={**self.peers,'identity':identity}
+                    with self.assertRaises(RuntimeError):
+                        run(Path(directory).resolve()/'run',approved_sha256=fingerprint(),
+                            peer_factory=peers.__getitem__,keychain_sink=lambda *args:self.fail('No delivery permitted'))
 
     def test_forged_early_success_is_rejected(self):
         self.identity.frames=[('identity_done',{'activated':False,'delivery_confirmed':True})]

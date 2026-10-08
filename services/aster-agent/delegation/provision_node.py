@@ -10,25 +10,50 @@ import select
 import ssl
 import stat
 import sys
+import time
 import urllib.error
 import urllib.request
 
 PREFIX='ASTER_PROVISION='
 ADMIN=Path('/run/aster-worker-provision/admin.token')
+FRAME_TIMEOUT=120
+WRITE_TIMEOUT=15
+_buffer=b''
 
 
 def receive():
-    if not select.select([sys.stdin],[],[],120)[0]: raise ValueError('Controller unavailable')
-    raw=sys.stdin.buffer.readline(65537)
-    if not raw or len(raw)>65536: raise ValueError('Invalid private frame')
+    global _buffer
+    deadline=time.monotonic()+FRAME_TIMEOUT
+    while b'\n' not in _buffer:
+        remaining=deadline-time.monotonic()
+        if remaining<=0 or not select.select([sys.stdin],[],[],remaining)[0]:
+            raise ValueError('Controller unavailable')
+        chunk=os.read(sys.stdin.fileno(),65536)
+        if not chunk: raise ValueError('Controller disconnected')
+        _buffer+=chunk
+        if len(_buffer)>131072: raise ValueError('Invalid private frame')
+    raw,_buffer=_buffer.split(b'\n',1)
+    if not raw or len(raw)+1>65536: raise ValueError('Invalid private frame')
     value=json.loads(raw)
     if not isinstance(value,dict): raise ValueError('Invalid private frame')
     return value
 
 
 def send(kind,value):
-    sys.stdout.write(PREFIX+json.dumps({'kind':kind,'value':value},separators=(',',':'))+'\n')
-    sys.stdout.flush()
+    data=(PREFIX+json.dumps({'kind':kind,'value':value},separators=(',',':'))+'\n').encode()
+    if len(data)>65536: raise ValueError('Invalid private frame')
+    fd=sys.stdout.fileno();was_blocking=os.get_blocking(fd)
+    os.set_blocking(fd,False)
+    try:
+        deadline=time.monotonic()+WRITE_TIMEOUT
+        while data:
+            remaining=deadline-time.monotonic()
+            if remaining<=0 or not select.select([],[fd],[],remaining)[1]:
+                raise ValueError('Controller unavailable')
+            try: data=data[os.write(fd,data):]
+            except BlockingIOError: pass
+    finally:
+        os.set_blocking(fd,was_blocking)
 
 
 def acknowledged(kind,value):
