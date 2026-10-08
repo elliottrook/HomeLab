@@ -229,6 +229,7 @@ TEMPLATE_DIGEST = (
   .filter.active, .filter:hover { background: var(--ui-accent); color: #07111d; border-color: var(--ui-accent); }
   .filter span { font-size: .8em; opacity: .75; }
   @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-player { padding-bottom: 96px; } .audio-briefing audio { height: 60px; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: min(640px, calc(100% - 24px)); } .audio-controls { gap: 10px; } .audio-control { min-width: 128px; min-height: 56px; padding: 16px 22px; font-size: 1.05rem; } .audio-chapter { min-height: 48px; padding: 11px 12px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 9px 15px; } }
+  @media (max-width: 600px) and (orientation: portrait) { .audio-player { padding-bottom: 168px; } }
 </style>
 </head>
 <body>
