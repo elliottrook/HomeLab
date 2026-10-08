@@ -107,7 +107,7 @@ SHARED_STYLE = """
   .rating { display: inline-block; background: #263450; color: var(--ui-accent); border-radius: 5px; padding: 1px 6px; font-size: .72rem; margin-left: 5px; cursor: help; border-bottom: 1px dotted #5c7bb0; }
   .no-rating { color: var(--ui-muted); font-size: .75rem; }
   footer { color: var(--ui-muted); font-size: .78rem; margin-top: 28px; }
-  @media (max-width: 600px) { body { font-size: 17px; } main { padding: 28px 14px 56px; } .page-header { display: block; } .header-stat { margin-top: 20px; width: fit-content; padding: 16px 18px; } .nav a { padding: 11px 17px; } .toolbar { display: block; } .toolbar label { display: block; margin-bottom: 7px; } .toolbar input { padding: 13px 14px; } .refreshed { display: block; margin: 9px 0 0; } .caveat { padding: 14px 15px; } .cluster { padding: 20px; } .cluster h2 { font-size: 1.45rem; } .cluster-summary { font-size: 1rem; } }
+  @media (max-width: 600px) { body { font-size: 17px; } main { padding: 28px 14px 56px; } .page-header { display: block; } .header-stat { margin-top: 20px; width: fit-content; padding: 16px 18px; } .nav a { padding: 9px 16px; } .toolbar { display: block; } .toolbar label { display: block; margin-bottom: 7px; } .toolbar input { padding: 13px 14px; } .refreshed { display: block; margin: 9px 0 0; } .caveat { padding: 14px 15px; } .cluster { padding: 20px; } .cluster h2 { font-size: 1.45rem; } .cluster-summary { font-size: 1rem; } }
 """
 
 TEMPLATE = (
@@ -210,14 +210,14 @@ TEMPLATE_DIGEST = (
   .audio-player { display: block; }
   .audio-main { min-width: 0; }
   .audio-briefing audio { display: block; width: 100%; height: 54px; }
-  .audio-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
-  .audio-control { margin: 0; padding: 7px 10px; border: 1px solid var(--ui-line); border-radius: 9px; background: var(--ui-panel-input); color: var(--ui-text-soft); cursor: pointer; font-size: .8rem; }
+  .audio-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .audio-control { min-height: 40px; margin: 0; padding: 10px 13px; border: 1px solid var(--ui-line); border-radius: 10px; background: var(--ui-panel-input); color: var(--ui-text-soft); cursor: pointer; font-size: .9rem; }
   .audio-control:hover, .audio-control:focus-visible { border-color: var(--ui-accent); color: var(--ui-accent); }
   .audio-chapters-stage { --audio-level: .2; position: relative; min-height: 220px; overflow: hidden; margin-top: 14px; border: 1px solid var(--ui-line); border-radius: 14px; background: #0b1020aa; isolation: isolate; }
   .audio-chapters-stage::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, #0b1020cc 0%, #0b102066 48%, #0b1020cc 100%); }
-  .audio-orb { position: absolute; z-index: 0; top: 50%; left: 50%; width: 320px; height: 320px; border-radius: 50%; object-fit: cover; opacity: .16; filter: saturate(.35) brightness(calc(.85 + (var(--audio-level) * .35))); pointer-events: none; transform: translate(-50%, -50%) scale(calc(1 + (var(--audio-level) * .16))); transform-origin: center; box-shadow: 0 0 calc(16px + (var(--audio-level) * 36px)) color-mix(in srgb, var(--ui-accent) 35%, transparent); transition: transform .08s linear, filter .08s linear, box-shadow .08s linear; }
-  .audio-chapters { position: relative; z-index: 1; display: grid; gap: 5px; margin: 0; padding: 14px; list-style: none; }
-  .audio-chapter { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 7px 9px; border: 1px solid transparent; border-radius: 8px; background: #111a2caa; color: var(--ui-muted); text-align: left; cursor: pointer; font: inherit; font-size: .82rem; backdrop-filter: blur(2px); }
+  .audio-orb { position: absolute; z-index: 1; top: 50%; left: 50%; width: 320px; height: 320px; border-radius: 50%; object-fit: cover; opacity: .28; filter: saturate(.45) brightness(calc(.9 + (var(--audio-level) * .4))); pointer-events: none; transform: translate(-50%, -50%) scale(calc(1 + (var(--audio-level) * .16))); transform-origin: center; box-shadow: 0 0 calc(16px + (var(--audio-level) * 36px)) color-mix(in srgb, var(--ui-accent) 45%, transparent); transition: transform .08s linear, filter .08s linear, box-shadow .08s linear; }
+  .audio-chapters { position: relative; z-index: 2; display: grid; gap: 6px; margin: 0; padding: 14px; list-style: none; }
+  .audio-chapter { display: flex; align-items: baseline; gap: 8px; width: 100%; min-height: 44px; padding: 10px 11px; border: 1px solid transparent; border-radius: 10px; background: #111a2caa; color: var(--ui-muted); text-align: left; cursor: pointer; font: inherit; font-size: .9rem; backdrop-filter: blur(2px); }
   .audio-chapter:hover, .audio-chapter[aria-current="true"] { background: #263450; border-color: var(--ui-line); color: var(--ui-text); }
   .audio-chapter-time { color: var(--ui-accent); font-variant-numeric: tabular-nums; min-width: 3.3em; }
   @media (prefers-reduced-motion: reduce) { .audio-orb { transition: none; } }
@@ -226,7 +226,7 @@ TEMPLATE_DIGEST = (
   .filter { border: 1px solid var(--ui-line); background: transparent; color: var(--ui-muted); border-radius: 999px; padding: 9px 15px; cursor: pointer; }
   .filter.active, .filter:hover { background: var(--ui-accent); color: #07111d; border-color: var(--ui-accent); }
   .filter span { font-size: .8em; opacity: .75; }
-  @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-briefing audio { height: 60px; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: 320px; height: 320px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 11px 16px; } }
+  @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-briefing audio { height: 60px; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: 320px; height: 320px; } .audio-controls { gap: 8px; } .audio-control { min-height: 44px; padding: 10px 13px; } .audio-chapter { min-height: 48px; padding: 11px 12px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 9px 15px; } }
 </style>
 </head>
 <body>
@@ -245,10 +245,8 @@ TEMPLATE_DIGEST = (
         <track kind="chapters" srclang="en" label="Stories" src="/static/digest-audio/latest.vtt" default>
       </audio>
       <div class="audio-controls" aria-label="Audio controls">
-        <button type="button" class="audio-control" data-seek="-20">&minus;20s</button>
         <button type="button" class="audio-control" id="previous-chapter">Previous story</button>
         <button type="button" class="audio-control" id="next-chapter">Next story</button>
-        <button type="button" class="audio-control" data-seek="10">+10s</button>
       </div>
     </div>
   </div>
@@ -339,7 +337,6 @@ function startAudioAnimation() {
   audioStage?.classList.add('playing'); animateAudio();
 }
 chapterButtons.forEach((button) => button.addEventListener('click', () => { briefingAudio.currentTime = Number(button.dataset.start); briefingAudio.play(); }));
-document.querySelectorAll('[data-seek]').forEach((button) => button.addEventListener('click', () => { briefingAudio.currentTime = Math.max(0, briefingAudio.currentTime + Number(button.dataset.seek)); }));
 document.querySelector('#previous-chapter')?.addEventListener('click', () => { const current = currentChapter(); const target = current > 0 && briefingAudio.currentTime - chapterStarts[current] > 3 ? chapterStarts[current] : chapterStarts[Math.max(0, current - 1)]; if (target !== undefined) briefingAudio.currentTime = target; });
 document.querySelector('#next-chapter')?.addEventListener('click', () => { const next = chapterStarts.find((start) => start > briefingAudio.currentTime + .8); if (next !== undefined) briefingAudio.currentTime = next; });
 briefingAudio?.addEventListener('timeupdate', updateChapterState);
