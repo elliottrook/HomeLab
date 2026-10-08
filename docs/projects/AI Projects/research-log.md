@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Approved fictional runtime rehearsal completed
+
+Exact reviewed bundle staged and verified on 104, 117 and Authentik's existing
+container on 106. Eight fictional protocol/revocation tests passed per target;
+Authentik read-only preflight checked 21 apps and unused worker names. Removed all
+enumerated staging files, independently verified absence, and checked healthy
+AI-PAM readiness. No real credential/account/configuration change, restart or
+model call. Approval consumed; administrative-handoff integration remains local
+preparation. See [results](evidence/D3-provisioning-rehearsal-gate-2026-10-08.md).
+
 ## 2026-10-08 — Provisioning interruption handling and runtime rehearsal
 
 Fixed unbounded partial-line reads and output waits in candidate source-local

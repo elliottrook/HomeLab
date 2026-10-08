@@ -1,5 +1,34 @@
 # D3 provisioning rehearsal — prepared, not executed remotely
 
+## Completion record — supersedes prepared status
+
+Jason approved the exact rehearsal. The 13-file archive hash matched the approval;
+all destination paths were absent. Created only the specified root-owned staging
+directories, verified the archive and per-file manifest, and ran the fictional
+fixture suite in each installed runtime. Results:
+
+| Environment | Runtime | Fixture tests | Identity preflight |
+| --- | --- | --- | --- |
+| Aster LXC 104 | Python 3.13.5 | 8 passed | Not invoked |
+| OpenBao LXC 117 | Python 3.13.5 | 8 passed | Not invoked |
+| Authentik server container on 106 | Python 3.14.7 | 8 passed | 21 existing applications checked; proposed names absent |
+
+Each reported zero model calls, no real credentials used, no accounts created
+and delegation disabled. The Authentik preflight count is now 21; all passed the
+existing conservative binding checks. This updates the older count without
+claiming a general Authentik security audit or checking every possible grant.
+
+Removed exactly all 13 enumerated files and their staging directories on all
+three targets; independent absence checks passed. No dependencies installed,
+services restarted or production configuration changed. Aster, broker, approval
+and OpenBao remain active. Corrected local Doctor against live state reports
+healthy, with zero active requests and 37 historical outcomes. No push performed.
+
+This approval is consumed. It proves runtime compatibility and mocked source-local
+failure behavior, not actual credential creation or the complete cross-host
+handoff. Continue local administrative-handoff and integration preparation before
+requesting any real provisioning or private human ceremony.
+
 ## Changes and validation
 
 Found that select followed by blocking readline did not bound a partial incoming
