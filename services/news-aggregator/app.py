@@ -207,30 +207,26 @@ TEMPLATE_DIGEST = (
   .empty { color: var(--ui-muted); padding: 50px; border: 1px dashed var(--ui-line); border-radius: 18px; text-align: center; }
   .audio-briefing { background: linear-gradient(135deg, #172842, #151d31); border: 1px solid var(--ui-line); border-radius: 18px; padding: 18px; margin-bottom: 24px; }
   .audio-briefing-label { color: var(--ui-accent-strong); font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
-  .audio-player { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
-  .audio-visual { --audio-level: .2; position: relative; width: 74px; height: 74px; display: grid; place-items: center; flex: 0 0 auto; }
-  .audio-visual::before { content: ""; position: absolute; inset: calc(-8px - (var(--audio-level) * 8px)); border: 1px solid color-mix(in srgb, var(--ui-accent) 55%, transparent); border-radius: 50%; opacity: .55; transform: scale(calc(1 + (var(--audio-level) * .16))); transition: transform .08s linear, opacity .12s ease; }
-  .audio-orb { width: 62px; height: 62px; border-radius: 18px; object-fit: cover; box-shadow: 0 0 calc(12px + (var(--audio-level) * 18px)) color-mix(in srgb, var(--ui-accent) 55%, transparent); transform: scale(calc(1 + (var(--audio-level) * .07))); transition: transform .08s linear, box-shadow .08s linear; }
-  .audio-visual.playing .audio-orb { animation: orb-breathe 2.4s ease-in-out infinite; }
-  @keyframes orb-breathe { 0%, 100% { border-radius: 18px; } 50% { border-radius: 24px; } }
-  .audio-wave { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 2px; pointer-events: none; }
-  .audio-wave i { display: block; width: 2px; height: 8px; border-radius: 2px; background: var(--ui-accent-strong); opacity: .78; transform: scaleY(calc(.65 + (var(--audio-level) * 1.2))); transition: transform .08s linear; }
+  .audio-player { display: block; }
   .audio-main { min-width: 0; }
   .audio-briefing audio { display: block; width: 100%; height: 54px; }
   .audio-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
   .audio-control { margin: 0; padding: 7px 10px; border: 1px solid var(--ui-line); border-radius: 9px; background: var(--ui-panel-input); color: var(--ui-text-soft); cursor: pointer; font-size: .8rem; }
   .audio-control:hover, .audio-control:focus-visible { border-color: var(--ui-accent); color: var(--ui-accent); }
-  .audio-chapters { display: grid; gap: 5px; margin: 14px 0 0 90px; padding: 0; list-style: none; }
-  .audio-chapter { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 7px 9px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--ui-muted); text-align: left; cursor: pointer; font: inherit; font-size: .82rem; }
+  .audio-chapters-stage { --audio-level: .2; position: relative; min-height: 220px; overflow: hidden; margin-top: 14px; border: 1px solid var(--ui-line); border-radius: 14px; background: #0b1020aa; isolation: isolate; }
+  .audio-chapters-stage::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(90deg, #0b1020cc 0%, #0b102066 48%, #0b1020cc 100%); }
+  .audio-orb { position: absolute; z-index: 0; top: 50%; left: 50%; width: 320px; height: 320px; border-radius: 50%; object-fit: cover; opacity: .16; filter: saturate(.35) brightness(calc(.85 + (var(--audio-level) * .35))); pointer-events: none; transform: translate(-50%, -50%) scale(calc(1 + (var(--audio-level) * .16))); transform-origin: center; box-shadow: 0 0 calc(16px + (var(--audio-level) * 36px)) color-mix(in srgb, var(--ui-accent) 35%, transparent); transition: transform .08s linear, filter .08s linear, box-shadow .08s linear; }
+  .audio-chapters { position: relative; z-index: 1; display: grid; gap: 5px; margin: 0; padding: 14px; list-style: none; }
+  .audio-chapter { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 7px 9px; border: 1px solid transparent; border-radius: 8px; background: #111a2caa; color: var(--ui-muted); text-align: left; cursor: pointer; font: inherit; font-size: .82rem; backdrop-filter: blur(2px); }
   .audio-chapter:hover, .audio-chapter[aria-current="true"] { background: #263450; border-color: var(--ui-line); color: var(--ui-text); }
   .audio-chapter-time { color: var(--ui-accent); font-variant-numeric: tabular-nums; min-width: 3.3em; }
-  @media (prefers-reduced-motion: reduce) { .audio-visual.playing .audio-orb { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .audio-orb { transition: none; } }
   .digest-toolbar { margin-bottom: 24px; }
   .filters { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px; background: var(--ui-panel-input); border: 1px solid var(--ui-line); border-radius: 16px; margin-bottom: 24px; }
   .filter { border: 1px solid var(--ui-line); background: transparent; color: var(--ui-muted); border-radius: 999px; padding: 9px 15px; cursor: pointer; }
   .filter.active, .filter:hover { background: var(--ui-accent); color: #07111d; border-color: var(--ui-accent); }
   .filter span { font-size: .8em; opacity: .75; }
-  @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-player { grid-template-columns: 1fr; } .audio-visual { margin: 0 auto; } .audio-briefing audio { height: 60px; } .audio-chapters { margin-left: 0; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 11px 16px; } }
+  @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-briefing audio { height: 60px; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: 320px; height: 320px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 11px 16px; } }
 </style>
 </head>
 <body>
@@ -244,10 +240,6 @@ TEMPLATE_DIGEST = (
 <div class="audio-briefing">
   <div class="audio-briefing-label">Listen to the briefing &middot; {{ audio.story_count }} {{ "story" if audio.story_count == 1 else "stories" }} &middot; generated {{ audio.generated_local }}</div>
   <div class="audio-player">
-    <div class="audio-visual" id="audio-visual" aria-hidden="true">
-      <img class="audio-orb" src="/static/aster-orb.png" alt="">
-      <span class="audio-wave">{% for _ in range(13) %}<i></i>{% endfor %}</span>
-    </div>
     <div class="audio-main">
       <audio id="briefing-audio" controls preload="none" src="/static/digest-audio/latest.mp3">
         <track kind="chapters" srclang="en" label="Stories" src="/static/digest-audio/latest.vtt" default>
@@ -261,9 +253,12 @@ TEMPLATE_DIGEST = (
     </div>
   </div>
   {% if audio.chapters %}
-  <ol class="audio-chapters" id="audio-chapters" aria-label="Briefing chapters">
-    {% for chapter in audio.chapters %}<li><button type="button" class="audio-chapter" data-start="{{ chapter.start }}"><span class="audio-chapter-time">{{ "%02d:%02d"|format((chapter.start // 60)|int, (chapter.start % 60)|int) }}</span><span>{{ chapter.title }}</span></button></li>{% endfor %}
-  </ol>
+  <div class="audio-chapters-stage" id="audio-chapters-stage">
+    <img id="audio-orb" class="audio-orb" src="/static/aster-orb.png" alt="">
+    <ol class="audio-chapters" id="audio-chapters" aria-label="Briefing chapters">
+      {% for chapter in audio.chapters %}<li><button type="button" class="audio-chapter" data-start="{{ chapter.start }}"><span class="audio-chapter-time">{{ "%02d:%02d"|format((chapter.start // 60)|int, (chapter.start % 60)|int) }}</span><span>{{ chapter.title }}</span></button></li>{% endfor %}
+    </ol>
+  </div>
   {% endif %}
 </div>
 {% endif %}
@@ -315,10 +310,10 @@ briefingSearch.addEventListener('input', () => {
 briefingFilters.forEach((filter) => filter.addEventListener('click', () => { briefingFilters.forEach((item) => item.classList.remove('active')); filter.classList.add('active'); briefingFilter = filter.dataset.filter; applyBriefingFilters(); }));
 
 const briefingAudio = document.querySelector('#briefing-audio');
-const audioVisual = document.querySelector('#audio-visual');
+const audioStage = document.querySelector('#audio-chapters-stage');
+const audioOrb = document.querySelector('#audio-orb');
 const chapterButtons = [...document.querySelectorAll('.audio-chapter')];
 const chapterStarts = chapterButtons.map((button) => Number(button.dataset.start));
-const audioBars = [...document.querySelectorAll('.audio-wave i')];
 let audioContext; let analyser; let audioSource; let audioFrame;
 
 function currentChapter() {
@@ -334,15 +329,14 @@ function animateAudio() {
   if (!analyser || briefingAudio.paused) return;
   const data = new Uint8Array(analyser.frequencyBinCount); analyser.getByteFrequencyData(data);
   const average = data.reduce((sum, value) => sum + value, 0) / Math.max(1, data.length);
-  const level = Math.min(1, average / 105); audioVisual.style.setProperty('--audio-level', level.toFixed(3));
-  audioBars.forEach((bar, index) => { const value = data[Math.min(data.length - 1, 2 + index * 3)] / 255; bar.style.transform = `scaleY(${(.6 + value * 2.4).toFixed(2)})`; });
+  const level = Math.min(1, average / 105); audioStage?.style.setProperty('--audio-level', level.toFixed(3)); audioOrb?.style.setProperty('--audio-level', level.toFixed(3));
   audioFrame = requestAnimationFrame(animateAudio);
 }
-function stopAudioAnimation() { if (audioFrame) cancelAnimationFrame(audioFrame); audioFrame = null; audioVisual?.classList.remove('playing'); audioVisual?.style.setProperty('--audio-level', '.2'); }
+function stopAudioAnimation() { if (audioFrame) cancelAnimationFrame(audioFrame); audioFrame = null; audioStage?.classList.remove('playing'); audioStage?.style.setProperty('--audio-level', '.2'); audioOrb?.style.setProperty('--audio-level', '.2'); }
 function startAudioAnimation() {
   if (!audioContext) { audioContext = new AudioContext(); analyser = audioContext.createAnalyser(); analyser.fftSize = 64; audioSource = audioContext.createMediaElementSource(briefingAudio); audioSource.connect(analyser); analyser.connect(audioContext.destination); }
   if (audioContext.state === 'suspended') audioContext.resume();
-  audioVisual?.classList.add('playing'); animateAudio();
+  audioStage?.classList.add('playing'); animateAudio();
 }
 chapterButtons.forEach((button) => button.addEventListener('click', () => { briefingAudio.currentTime = Number(button.dataset.start); briefingAudio.play(); }));
 document.querySelectorAll('[data-seek]').forEach((button) => button.addEventListener('click', () => { briefingAudio.currentTime = Math.max(0, briefingAudio.currentTime + Number(button.dataset.seek)); }));
