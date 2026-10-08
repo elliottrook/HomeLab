@@ -28,6 +28,32 @@ def healthy():
 
 
 class CheckAIPAMTests(unittest.TestCase):
+    def retained_fixture(self):
+        data = healthy()
+        name = module.RETIRED_FIXTURE
+        data["services"].append([name, 0, "not-applicable"])
+        data["agents"].append([name, "retired"])
+        data["capabilities"].extend([key, service, risk, int(enabled)]
+                                    for key, (service, risk, enabled) in module.RETIRED_CAPABILITIES.items())
+        data["retired_fixture_active"] = 0
+        return data
+
+    def test_documented_retired_fixture_is_healthy(self):
+        self.assertEqual(0, module.classify(self.retained_fixture())[0])
+
+    def test_fixture_reactivation_or_missing_evidence_fails(self):
+        for change in ("service", "agent", "request", "missing_count", "risk", "partial", "unknown"):
+            with self.subTest(change=change):
+                data = self.retained_fixture()
+                if change == "service": data["services"][-1][1] = 1
+                elif change == "agent": data["agents"][-1][1] = "operator"
+                elif change == "request": data["retired_fixture_active"] = 1
+                elif change == "missing_count": del data["retired_fixture_active"]
+                elif change == "risk": data["capabilities"][-1][2] = "green"
+                elif change == "partial": data["capabilities"].pop()
+                elif change == "unknown": data["services"].append(["another-test", 0, "not-applicable"])
+                self.assertEqual(1, module.classify(data)[0])
+
     def test_healthy_exact_policy(self):
         self.assertEqual(0, module.classify(healthy())[0])
 

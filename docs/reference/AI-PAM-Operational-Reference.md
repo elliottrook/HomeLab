@@ -6,6 +6,14 @@
 
 ## Narrow operational update — 2026-10-06
 
+October 8 maintenance: OpenBao LXC 117 is now verified at 2.6.4, unsealed and
+reachable over the broker's existing TLS path. Fresh pre-update snapshot/archive
+retained; configuration/TLS and authority boundaries unchanged. The local Doctor
+checker now recognises the exact disabled/retired September 27 repair fixture;
+this correction has not been deployed to other monitoring copies. No new
+delegation credentials or activation. See
+[maintenance evidence](../projects/AI%20Projects/evidence/D3-vault-maintenance-2026-10-08.md).
+
 The approved LXC 104 approval-service update exposes exact request
 `{"method":"automation.status"}` on `/run/homelab-broker/approval.sock` to its
 configured Aster peer UID. It returns only the global-enabled boolean without

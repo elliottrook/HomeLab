@@ -27,6 +27,12 @@ EXPECTED_SERVICES = {
     "lab-operations",
     "synthetic",
 }
+# Retained audit fixture documented in M1-stage2-repair-2026-09-27.md.
+RETIRED_FIXTURE = "repair-test-20260927"
+RETIRED_CAPABILITIES = {
+    f"{RETIRED_FIXTURE}.red": (RETIRED_FIXTURE, "red", True),
+    f"{RETIRED_FIXTURE}.yellow": (RETIRED_FIXTURE, "yellow", True),
+}
 RESTORE_TESTED_AT = 1_790_276_400
 MAX_RESTORE_AGE_SECONDS = 366 * 86_400
 MAX_BACKUP_AGE_SECONDS = 36 * 3_600
@@ -54,6 +60,7 @@ data={
  "capabilities":db.execute("SELECT capability,service_id,risk_class,enabled FROM capabilities ORDER BY capability").fetchall(),
  "agents":db.execute("SELECT agent_id,state FROM agents ORDER BY agent_id").fetchall(),
  "active_requests":db.execute("SELECT count(*) FROM requests WHERE status IN ('pending','approved')").fetchone()[0],
+ "retired_fixture_active":db.execute("SELECT count(*) FROM requests r JOIN capabilities c ON c.capability=r.capability WHERE r.status IN ('pending','approved') AND (r.agent_id=? OR c.service_id=?)",("repair-test-20260927","repair-test-20260927")).fetchone()[0],
  "expired_active":db.execute("SELECT count(*) FROM requests WHERE status IN ('pending','approved') AND expires_at<=?",(now,)).fetchone()[0],
  "audit":db.execute("SELECT COALESCE(MAX(occurred_at),0),COUNT(*) FROM audit").fetchone(),
  "outcomes":db.execute("SELECT status,COUNT(*) FROM requests GROUP BY status ORDER BY status").fetchall(),
@@ -96,7 +103,18 @@ def classify(data: dict) -> tuple[int, str]:
         failures.append("global access disabled")
 
     services = {row[0]: (row[1] == 1) for row in data.get("services", [])}
-    if set(services) != EXPECTED_SERVICES or not all(services.values()):
+    agents = dict(data.get("agents", []))
+    capabilities = {row[0]: (row[1], row[2], row[3] == 1) for row in data.get("capabilities", [])}
+    retained_fixture = (RETIRED_FIXTURE in services or RETIRED_FIXTURE in agents
+                        or bool(set(capabilities) & set(RETIRED_CAPABILITIES)))
+    expected_services = {name: True for name in EXPECTED_SERVICES}
+    expected = {name: (*shape, True) for name, shape in EXPECTED_CAPABILITIES.items()}
+    if retained_fixture:
+        expected_services[RETIRED_FIXTURE] = False
+        expected.update(RETIRED_CAPABILITIES)
+        if agents.get(RETIRED_FIXTURE) != "retired" or data.get("retired_fixture_active") != 0:
+            failures.append("retired fixture lifecycle drift")
+    if services != expected_services:
         failures.append("service catalogue drift")
     now = int(data.get("now", time.time()))
     for row in data.get("services", []):
@@ -110,12 +128,9 @@ def classify(data: dict) -> tuple[int, str]:
                 if due < now:
                     failures.append("overdue credential rotation")
 
-    capabilities = {row[0]: (row[1], row[2], row[3] == 1) for row in data.get("capabilities", [])}
-    expected = {name: (*shape, True) for name, shape in EXPECTED_CAPABILITIES.items()}
     if capabilities != expected:
         failures.append("capability catalogue drift")
 
-    agents = dict(data.get("agents", []))
     if agents.get("agent-hermes") != "operator":
         failures.append("agent-hermes lifecycle drift")
     if any(state not in {"operator", "retired"} for state in agents.values()):

@@ -1,5 +1,14 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Vault maintenance validated and closed
+
+Private human unseal complete; live 2.6.4 and broker TLS/identity/service readiness
+verified. Removed only approved package staging; retained fresh recovery assets.
+Local Doctor correction accepts only the documented retired fixture with zero
+active fixture requests; nine tests pass including negative cases, and live
+read-only validation is healthy. Correction not remotely deployed. No new target
+action or delegation credential issued. Resume protected provisioning integration.
+
 ## 2026-10-08 — Approved vault patch installed; human unseal pending
 
 Recovered correct human workflow from setup records: encrypted shares are in

@@ -48,3 +48,31 @@ Staging remains intentionally present until then. No push authorized/performed.
 Resume carefully: verify live service, snapshot/archive and package state before
 repeating any operation. Maintenance is not complete until private human unseal
 and post-update validation. Never read recovery-share or private-key contents.
+
+## Completion — supersedes pending-unseal notes above
+
+Jason confirmed private unseal. Verified TLS health reports 2.6.4, initialized,
+unsealed and active; configuration and public certificate hashes still match.
+The broker's existing TLS path reaches the vault and Authentik discovery succeeds.
+All five checked AI-PAM units and Aster are active. Global access remains enabled.
+No credential-backed target action was executed, so this is dependency/readiness
+validation rather than proof of every end-to-end operation.
+
+Read-only broker metadata confirms the exact repair fixture agent is retired,
+service disabled and no pending/approved requests reference that agent/service.
+Corrected the LOCAL Doctor checker to accept only that complete documented
+fixture while retaining exact catalogue matching. Nine tests pass, including
+reactivation, missing evidence, changed risk, incomplete fixture and unknown
+service rejection. Running the corrected local checker against live state passes:
+zero active requests, 37 historical outcomes, audit/backups/restore age checks
+current. Restore age reflects prior evidence, not a new restore exercise.
+No remote monitoring code was deployed; existing copies can still show the stale
+catalogue warning until separately synchronized.
+
+Removed only the staged update package and its now-empty approved directory from
+LXC 117. Fresh recovery snapshot/archive retained. Maintenance complete; no
+privileges, credentials, delegation activation or Git push performed.
+
+Next Stream A work: finish the protected staging and human administrative handoff
+integration for inactive credential provisioning. The vault patch approval is
+consumed; it does not authorize that separate deployment.
