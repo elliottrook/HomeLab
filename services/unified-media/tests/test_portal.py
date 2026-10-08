@@ -183,6 +183,7 @@ class PortalTests(unittest.TestCase):
             password.write("shadow-password")
             password.flush()
             responses = [(200, {}, {"Set-Cookie": "connect.sid=test; Path=/"}),
+                         (200, {"seasons": [{"seasonNumber": 1}, {"seasonNumber": 2}, {"seasonNumber": 3}]}, {}),
                          (200, {"id": 123}, {})]
             with patch.dict("os.environ", {
                     "SEERR_PASSWORD_PATH": password.name,
@@ -193,7 +194,7 @@ class PortalTests(unittest.TestCase):
                 result = _seerr_request({"media_type": "tv", "authority_id": "93740",
                                          "title": "Foundation", "seasons": [1, 2, 3]})
             self.assertEqual(result["request_id"], 123)
-            self.assertEqual(request.call_args_list[1].kwargs["body"]["seasons"], [1, 2, 3])
+            self.assertEqual(request.call_args_list[2].kwargs["body"]["seasons"], [1, 2, 3])
 
 
 if __name__ == "__main__":

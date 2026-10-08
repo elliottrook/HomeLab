@@ -64,6 +64,12 @@ stale data, missing credentials or a failed dependency.
 7. Follow progress in the authority's normal UI: Seerr for films/TV, Lidarr
    for music and LazyLibrarian for books.
 
+For TV cards, the season selector is pre-filled with every currently known
+numbered season. Untick any seasons you do not want, then press **Request
+selected seasons**. Season 0 specials are excluded. The same selector is used
+for TV results on the Search page; the portal rechecks the selected season
+numbers with Seerr before submitting.
+
 The current interface has an **All** filter plus one filter for each category
 that currently has candidates: **Film**, **TV**, **Music album**, **Ebook** and
 **Audiobook**. The refresh is bounded at up to 40 safe candidates, so the page
@@ -88,8 +94,8 @@ Search results are supplied by TMDB through Seerr, Open Library and
 MusicBrainz. Search itself never acquires anything. For a supported result,
 press its **Request this …** button and wait for **Request sent.** The portal
 revalidates the selected provider identity before sending it to Seerr,
-Lidarr or LazyLibrarian. TV search results intentionally remain read-only
-until a season-aware request flow is available; use Recommendations for TV.
+Lidarr or LazyLibrarian. TV results include the season selector; if no
+validated seasons are returned, the result remains read-only.
 
 ## Trakt recommendations
 
