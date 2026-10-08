@@ -28,7 +28,7 @@ import sqlite3
 
 from digest_text import coherent_event, dedupe_titles, repeat_story
 
-from flask import Flask, redirect, render_template_string, request, url_for
+from flask import Flask, make_response, redirect, render_template_string, request, url_for
 
 FEEDS_PATH = Path(__file__).parent / "feeds.json"
 
@@ -624,9 +624,14 @@ def digest():
     for entry in entries:
         for outlet in entry["outlets"]:
             source_counts[outlet["feed_id"]] = source_counts.get(outlet["feed_id"], 0) + 1
-    return render_template_string(TEMPLATE_DIGEST, entries=entries, audio=get_audio_meta(),
-                                  briefing_updated=get_digest_updated_at(),
-                                  briefing_sources=sorted(source_counts.items()), active_page="digest")
+    response = make_response(render_template_string(
+        TEMPLATE_DIGEST, entries=entries, audio=get_audio_meta(),
+        briefing_updated=get_digest_updated_at(),
+        briefing_sources=sorted(source_counts.items()), active_page="digest"
+    ))
+    response.headers["Cache-Control"] = "no-store, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    return response
 
 
 @app.route("/settings", methods=["GET", "POST"])
