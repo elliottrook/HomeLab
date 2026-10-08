@@ -59,9 +59,9 @@ services:
       - ${UNIFIED_CONFIG_PATH}/secrets/audiobookshelf-reader-token:/run/unified-secrets/audiobookshelf-reader-token:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/lazylibrarian-api-key:/run/unified-secrets/lazylibrarian-api-key:ro
       - ${UNIFIED_CONFIG_PATH}/secrets/aster-llama-recommendation-key:/run/unified-secrets/aster-llama-recommendation-key:ro
-      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-access-token:/run/unified-secrets/trakt-access-token:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-access-token:/run/unified-secrets/trakt-access-token
       - ${UNIFIED_CONFIG_PATH}/secrets/trakt-client-id:/run/unified-secrets/trakt-client-id:ro
-      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-refresh-token:/run/unified-secrets/trakt-refresh-token:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-refresh-token:/run/unified-secrets/trakt-refresh-token
     command: ["python", "/app/refresh.py"]
     restart: unless-stopped
 

@@ -30,7 +30,7 @@ class TraktSourceTests(unittest.TestCase):
         self.assertEqual([item["media_type"] for item in result], ["movie", "tv"])
         self.assertEqual(result[0]["source_label"], "Trakt personal recommendations")
         self.assertEqual(len(calls), 2)
-        self.assertEqual(calls[0][1]["params"], {"limit": 3})
+        self.assertEqual(calls[0][1]["params"], {"limit": 3, "extended": "full"})
 
     def test_skips_malformed_items(self):
         def request(_url, **_kwargs):

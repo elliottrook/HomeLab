@@ -25,25 +25,36 @@ def _year(value: Any) -> str:
 
 
 def _candidate(item: Mapping[str, Any], media_type: str) -> dict[str, Any] | None:
-    title = item.get("title") or item.get("show", {}).get("title")
-    ids = item.get("ids") or item.get("movie", {}).get("ids") or item.get("show", {}).get("ids")
+    details = item.get("show") if media_type == "tv" else item
+    if not isinstance(details, Mapping):
+        details = item
+    title = details.get("title")
+    ids = details.get("ids")
     if not _text(title) or not isinstance(ids, Mapping):
         return None
     trakt_id = ids.get("trakt")
     tmdb_id = ids.get("tmdb")
     if not trakt_id:
         return None
+    images = details.get("images") if isinstance(details.get("images"), Mapping) else {}
+    posters = images.get("poster") if isinstance(images, Mapping) else []
+    poster_path = _text(posters[0]) if isinstance(posters, list) and posters else ""
+    if poster_path and not poster_path.startswith(("http://", "https://")):
+        poster_path = "https://" + poster_path
+    slug = _text(ids.get("slug")) or _text(title).lower().replace(" ", "-")
     return {
         "media_type": media_type,
         "authority": "trakt",
         "authority_id": str(tmdb_id or trakt_id),
         "trakt_id": str(trakt_id),
         "title": _text(title),
-        "year": _year(item.get("year")),
-        "overview": _text(item.get("overview")),
-        "poster_path": "",
+        "year": _year(item.get("year") or details.get("year")),
+        "overview": _text(item.get("overview") or details.get("overview")),
+        "poster_path": poster_path,
+        "rating": details.get("rating"),
+        "genres": details.get("genres") if isinstance(details.get("genres"), list) else [],
         "source_label": "Trakt personal recommendations",
-        "source_url": f"https://trakt.tv/{'movies' if media_type == 'movie' else 'shows'}/{urllib.parse.quote(_text(title).lower().replace(' ', '-'))}",
+        "source_url": f"https://trakt.tv/{'movies' if media_type == 'movie' else 'shows'}/{urllib.parse.quote(slug)}",
         "explanation": "Recommended from the connected personal Trakt profile.",
     }
 
@@ -71,7 +82,7 @@ def collect_trakt_recommendations(*, request: Request, access_token_path: str,
                                  ("tv", "/recommendations/shows")):
         payload, _ = request("https://api.trakt.tv" + endpoint,
                              headers=headers,
-                             params={"limit": max(1, min(int(limit), 10))})
+                             params={"limit": max(1, min(int(limit), 10)), "extended": "full"})
         if not isinstance(payload, list):
             continue
         for item in payload[:max(1, min(int(limit), 10))]:

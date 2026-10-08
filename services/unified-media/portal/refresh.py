@@ -22,6 +22,7 @@ from service_collectors import (
 )
 from recommendation_engine import rank_candidates
 from candidate_sources import collect_musicbrainz, collect_openlibrary
+from trakt_oauth import refresh_access_token, write_secret
 from trakt_sources import collect_trakt_recommendations
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
@@ -264,10 +265,26 @@ def refresh_once():
                   collect_book_and_music_candidates())
     token_path = os.environ.get("TRAKT_ACCESS_TOKEN_PATH")
     client_id_path = os.environ.get("TRAKT_CLIENT_ID_PATH")
+    refresh_path = os.environ.get("TRAKT_REFRESH_TOKEN_PATH")
     if token_path and client_id_path:
         try:
+            def trakt_request(url, **kwargs):
+                try:
+                    return request_json(url, **kwargs)
+                except urllib.error.HTTPError as error:
+                    if error.code != 401 or not refresh_path:
+                        raise
+                    client_id = Path(client_id_path).read_text(encoding="utf-8").strip()
+                    refresh_token = Path(refresh_path).read_text(encoding="utf-8").strip()
+                    credentials = refresh_access_token(client_id=client_id, refresh_token=refresh_token)
+                    write_secret(token_path, credentials["access_token"])
+                    write_secret(refresh_path, credentials["refresh_token"])
+                    headers = dict(kwargs.get("headers") or {})
+                    headers["Authorization"] = "Bearer " + credentials["access_token"]
+                    return request_json(url, **{**kwargs, "headers": headers})
+
             candidates.extend(collect_trakt_recommendations(
-                request=request_json, access_token_path=token_path,
+                request=trakt_request, access_token_path=token_path,
                 client_id_path=client_id_path,
                 limit=int(os.environ.get("PORTAL_TRAKT_LIMIT", "6"))))
         except (OSError, TimeoutError, ValueError, urllib.error.URLError):

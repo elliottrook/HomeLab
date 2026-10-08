@@ -54,6 +54,25 @@ def exchange_code(*, client_id: str, code: str, verifier: str,
     return payload
 
 
+def refresh_access_token(*, client_id: str, refresh_token: str) -> dict[str, Any]:
+    """Rotate a Trakt refresh token and return the replacement credentials."""
+    body = urllib.parse.urlencode({
+        "refresh_token": refresh_token, "client_id": client_id,
+        "grant_type": "refresh_token",
+    }).encode("ascii")
+    request = urllib.request.Request(
+        TOKEN_URL, data=body, method="POST",
+        headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded",
+                 "trakt-api-key": client_id, "trakt-api-version": "2",
+                 "User-Agent": "UnifiedMediaRecommendations/1.0 (private homelab)"},
+    )
+    with urllib.request.urlopen(request, timeout=20) as response:
+        payload = json.loads(response.read() or b"{}")
+    if not payload.get("access_token") or not payload.get("refresh_token"):
+        raise ValueError("Trakt returned incomplete refreshed credentials")
+    return payload
+
+
 def begin_device(client_id: str) -> dict[str, Any]:
     body = json.dumps({"client_id": client_id}).encode("utf-8")
     request = urllib.request.Request(
@@ -70,10 +89,10 @@ def begin_device(client_id: str) -> dict[str, Any]:
 
 
 def poll_device(*, client_id: str, device_code: str) -> dict[str, Any]:
-    body = urllib.parse.urlencode({"code": device_code, "client_id": client_id}).encode("ascii")
+    body = json.dumps({"code": device_code, "client_id": client_id}).encode("utf-8")
     request = urllib.request.Request(
         DEVICE_TOKEN_URL, data=body, method="POST",
-        headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded",
+        headers={"Accept": "application/json", "Content-Type": "application/json",
                  "trakt-api-key": client_id, "trakt-api-version": "2",
                  "User-Agent": "UnifiedMediaRecommendations/1.0 (private homelab)"},
     )
@@ -94,7 +113,9 @@ def poll_device(*, client_id: str, device_code: str) -> dict[str, Any]:
 def write_secret(path: str, value: str) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    temporary = target.with_suffix(target.suffix + ".tmp")
-    temporary.write_text(value.strip() + "\n", encoding="utf-8")
-    temporary.chmod(0o600)
-    temporary.replace(target)
+    # Secret paths are individual read-write bind mounts in the portal
+    # container. The parent directory is deliberately root-only, so an
+    # atomic sibling-file rename cannot work there. The pre-created target
+    # remains mode 600 and is rewritten in place.
+    target.write_text(value.strip() + "\n", encoding="utf-8")
+    target.chmod(0o600)
