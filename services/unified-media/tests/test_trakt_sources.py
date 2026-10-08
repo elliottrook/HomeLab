@@ -14,6 +14,8 @@ class TraktSourceTests(unittest.TestCase):
             if url.endswith("/movies"):
                 return ([{"title": "Arrival", "year": 2016,
                           "ids": {"trakt": 1, "tmdb": 329865}}], {})
+            if "/seasons" in url:
+                return ([{"number": 1}, {"number": 2}, {"number": 0}], {})
             return ([{"show": {"title": "The Expanse", "ids": {"trakt": 2, "tmdb": 63639}},
                       "year": 2015}], {})
 
@@ -28,8 +30,11 @@ class TraktSourceTests(unittest.TestCase):
 
         self.assertEqual([item["title"] for item in result], ["Arrival", "The Expanse"])
         self.assertEqual([item["media_type"] for item in result], ["movie", "tv"])
+        self.assertEqual(result[0]["authority"], "seerr")
+        self.assertEqual(result[1]["authority"], "seerr")
+        self.assertEqual(result[1]["seasons"], [1, 2])
         self.assertEqual(result[0]["source_label"], "Trakt personal recommendations")
-        self.assertEqual(len(calls), 2)
+        self.assertEqual(len(calls), 3)
         self.assertEqual(calls[0][1]["params"], {"limit": 3, "extended": "full"})
 
     def test_skips_malformed_items(self):

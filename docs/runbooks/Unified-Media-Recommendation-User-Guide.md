@@ -83,6 +83,15 @@ suppression apply. Each card shows a poster when available, synopsis, year,
 rating, genres, source, why it was selected and whether it is ready for
 approval. This is a deliberate improvement over the original diagnostic page.
 
+The **Sources checked** line reports the number of raw candidates returned by
+each provider before ownership and archive suppression. Trakt supplies
+personal film and TV recommendations; TMDB supplies bounded per-title
+recommendations from multiple library seeds; Open Library supplies ebook and
+audiobook discovery from the configured seed set; and MusicBrainz supplies
+exact artist/album discovery. A source showing zero candidates is not by
+itself an error—the candidates may be filtered later or the provider may have
+returned nothing new.
+
 ## Searching for something specific
 
 The search window is now a provider-backed, read-only media search rather than
@@ -106,7 +115,8 @@ validated seasons are returned, the result remains read-only.
 
 Personal Trakt recommendations appear with the source label **Trakt personal
 recommendations**. They are based on the connected Trakt profile, not generic
-Seerr discovery. Trakt credentials remain in the protected TrueNAS secret
+Seerr discovery. Trakt TV results include their validated numbered seasons;
+season 0 specials are excluded. Trakt credentials remain in the protected TrueNAS secret
 boundary and are not shown in the portal or sent to the B60. The service
 automatically rotates Trakt's single-use refresh token when an access token
 expires. If Trakt is ever disconnected, use the private connection page and

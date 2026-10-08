@@ -29,6 +29,7 @@ SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendatio
 LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
 HISTORY_SNAPSHOT_PATH = os.environ.get("PORTAL_HISTORY_SNAPSHOT_PATH")
 REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
+SOURCE_STATUS_PATH = Path(os.environ.get("PORTAL_SOURCE_STATUS_PATH", "/data/source-status.json"))
 
 
 def _narrate(candidates):
@@ -121,7 +122,7 @@ def collect_tmdb_recommendations(library):
             seeds.append(("tv", str(item.get("authority_id"))))
     unique_seeds = list(dict.fromkeys(
         (media_type, media_id) for media_type, media_id in seeds if media_id.isdigit()
-    ))[:3]
+    ))[:8]
     if not unique_seeds:
         return []
     cookie = seerr_session()
@@ -143,7 +144,7 @@ def collect_tmdb_recommendations(library):
                 continue
             candidate = _seerr_candidate(item, media_type, "TMDB per-title recommendations")
             if media_type == "tv":
-                if tv_detail_count >= 4:
+                if tv_detail_count >= 8:
                     continue
                 tv_detail_count += 1
                 try:
@@ -307,7 +308,29 @@ def refresh_once():
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
+    labels = [str(item.get("source_label", "")) for item in candidates if isinstance(item, dict)]
+    status = {
+        "last_refresh": datetime_now(),
+        "sources": {
+            "Trakt": {"configured": bool(token_path and client_id_path),
+                       "candidates": sum("Trakt" in label for label in labels)},
+            "TMDB": {"configured": bool(os.environ.get("SEERR_URL")),
+                     "candidates": sum("TMDB" in label for label in labels)},
+            "Open Library": {"configured": True,
+                              "candidates": sum("Open Library" in label for label in labels)},
+            "MusicBrainz": {"configured": True,
+                             "candidates": sum("MusicBrainz" in label for label in labels)},
+            "Lidarr": {"configured": bool(os.environ.get("LIDARR_API_KEY_PATH")),
+                       "candidates": sum("Lidarr" in label for label in labels)},
+        },
+    }
+    SOURCE_STATUS_PATH.write_text(json.dumps(status, indent=2), encoding="utf-8")
+    os.chmod(SOURCE_STATUS_PATH, 0o644)
     return output
+
+
+def datetime_now():
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
 
 def _read_snapshot_items(path):

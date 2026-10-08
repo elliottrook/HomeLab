@@ -44,7 +44,9 @@ def _candidate(item: Mapping[str, Any], media_type: str) -> dict[str, Any] | Non
     slug = _text(ids.get("slug")) or _text(title).lower().replace(" ", "-")
     return {
         "media_type": media_type,
-        "authority": "trakt",
+        # Trakt supplies the personal recommendation, while Seerr remains the
+        # validated acquisition authority when a TMDB identity is available.
+        "authority": "seerr" if tmdb_id else "trakt",
         "authority_id": str(tmdb_id or trakt_id),
         "trakt_id": str(trakt_id),
         "title": _text(title),
@@ -89,5 +91,18 @@ def collect_trakt_recommendations(*, request: Request, access_token_path: str,
             if isinstance(item, Mapping):
                 candidate = _candidate(item, media_type)
                 if candidate:
+                    if media_type == "tv":
+                        details = item.get("show") if isinstance(item.get("show"), Mapping) else item
+                        ids = details.get("ids") if isinstance(details.get("ids"), Mapping) else {}
+                        trakt_id = ids.get("trakt")
+                        if trakt_id:
+                            seasons, _ = request(
+                                f"https://api.trakt.tv/shows/{trakt_id}/seasons",
+                                headers=headers, params={"extended": "full"})
+                            if isinstance(seasons, list):
+                                candidate["seasons"] = sorted({int(season.get("number")) for season in seasons
+                                                                  if isinstance(season, Mapping)
+                                                                  and isinstance(season.get("number"), int)
+                                                                  and season.get("number") > 0})
                     results.append(candidate)
     return results

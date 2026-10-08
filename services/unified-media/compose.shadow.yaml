@@ -9,6 +9,7 @@ services:
       - PORTAL_REFRESH_LOOP=YES
       - PORTAL_REFRESH_INTERVAL_SECONDS=${PORTAL_REFRESH_INTERVAL_SECONDS:-21600}
       - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
+      - PORTAL_SOURCE_STATUS_PATH=/data/source-status.json
       - PORTAL_LIBRARY_SNAPSHOT_PATH=/data/library.json
       - PORTAL_HISTORY_SNAPSHOT_PATH=/data/history.json
       - PORTAL_REFRESH_TRIGGER_PATH=/data/refresh-now
@@ -42,9 +43,9 @@ services:
       # title-only entries are ignored by the refresher.
       - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Miles Davis|Kind of Blue,The Beatles|Abbey Road}
       # Optional read-only discovery seeds. Empty by default until reviewed.
-      - PORTAL_BOOK_QUERIES=${PORTAL_BOOK_QUERIES:-The Dispossessed,The Fifth Season}
-      - PORTAL_AUDIOBOOK_QUERIES=${PORTAL_AUDIOBOOK_QUERIES:-The Murderbot Diaries,The Long Way to a Small Angry Planet}
-      - PORTAL_MUSIC_MB_QUERIES=${PORTAL_MUSIC_MB_QUERIES:-Talk Talk|Spirit of Eden,Portishead|Dummy,Joni Mitchell|Blue}
+      - PORTAL_BOOK_QUERIES=${PORTAL_BOOK_QUERIES:-The Dispossessed,The Fifth Season,Dune,1984,Project Hail Mary,The Left Hand of Darkness}
+      - PORTAL_AUDIOBOOK_QUERIES=${PORTAL_AUDIOBOOK_QUERIES:-The Murderbot Diaries,The Long Way to a Small Angry Planet,Dune,Project Hail Mary,The Hobbit,World War Z}
+      - PORTAL_MUSIC_MB_QUERIES=${PORTAL_MUSIC_MB_QUERIES:-Talk Talk|Spirit of Eden,Portishead|Dummy,Joni Mitchell|Blue,Miles Davis|Kind of Blue,Radiohead|OK Computer,Massive Attack|Mezzanine}
       - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
       - PORTAL_AI_DEBUG=${PORTAL_AI_DEBUG:-NO}
       - ASTER_LLAMA_URL=${ASTER_LLAMA_URL:-http://192.168.70.12:11435/v1/chat/completions}
@@ -74,6 +75,7 @@ services:
     environment:
       - PORT=8787
       - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
+      - PORTAL_SOURCE_STATUS_PATH=/data/source-status.json
       - PORTAL_REFRESH_TRIGGER_PATH=/data/refresh-now
       - PORTAL_STATE_PATH=/state/actions.json
       - PORTAL_ACTIONS_ENABLED=${PORTAL_ACTIONS_ENABLED:-YES}

@@ -40,6 +40,7 @@ TRAKT_OAUTH_STATE_PATH = Path(os.environ.get("TRAKT_OAUTH_STATE_PATH", "/state/t
 TRAKT_DEVICE_STATE_PATH = Path(os.environ.get("TRAKT_DEVICE_STATE_PATH", "/state/trakt-device.json"))
 TRAKT_REDIRECT_URI = os.environ.get("TRAKT_REDIRECT_URI", "https://recommendations.elliottrook.com/oauth/trakt/callback")
 REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
+SOURCE_STATUS_PATH = Path(os.environ.get("PORTAL_SOURCE_STATUS_PATH", "/data/source-status.json"))
 SPOTIFY_CLIENT_ID_PATH = os.environ.get("SPOTIFY_CLIENT_ID_PATH", "/run/unified-secrets/spotify-client-id")
 SPOTIFY_CLIENT_SECRET_PATH = os.environ.get("SPOTIFY_CLIENT_SECRET_PATH", "/run/unified-secrets/spotify-client-secret")
 SPOTIFY_ACCESS_TOKEN_PATH = os.environ.get("SPOTIFY_ACCESS_TOKEN_PATH", "/run/unified-secrets/spotify-access-token")
@@ -56,6 +57,14 @@ def load_recommendations() -> list[dict[str, Any]]:
     if not isinstance(payload, list):
         raise ValueError("recommendation snapshot must be a JSON list")
     return [item for item in payload if isinstance(item, dict)]
+
+
+def load_source_status() -> dict[str, Any]:
+    try:
+        value = json.loads(SOURCE_STATUS_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {}
+    return value if isinstance(value, dict) else {}
 
 
 def _trakt_connect_url() -> str:
@@ -275,6 +284,10 @@ def render_html(items: list[dict[str, Any]]) -> str:
         refreshed = datetime.fromtimestamp(SNAPSHOT_PATH.stat().st_mtime, timezone.utc).astimezone().strftime("%b %-d, %Y at %-I:%M %p")
     except OSError:
         pass
+    source_status = load_source_status().get("sources", {})
+    source_summary = " · ".join(
+        f"{html.escape(str(name))} {int(details.get('candidates', 0)) if isinstance(details, dict) else 0}"
+        for name, details in source_status.items()) or "Not available yet"
     script = """
 <script>
 const search = document.querySelector('#search');
@@ -380,12 +393,13 @@ document.querySelectorAll('.request-button:not([disabled])').forEach((button) =>
     style = style.replace('.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card{display:grid;', '.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card[hidden]{display:none}.card{display:grid;')
     style = style.replace('.toolbar{display:flex;', '.page-nav{display:flex;gap:10px;margin-bottom:26px}.page-pill{border:1px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--muted);text-decoration:none}.page-pill.active,.page-pill:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.toolbar{display:flex;')
     style = style.replace('.refreshed{margin-left:auto;', '.refresh-controls{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin:0 0 14px}.refresh-button{border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--accent);font:700 .82rem system-ui;padding:8px 12px;cursor:pointer}.refresh-button:hover{background:var(--accent);color:#07111d}.refresh-button:disabled{opacity:.7;cursor:wait}.refresh-controls #refresh-status{color:var(--muted);font-size:.76rem}.refresh-error{color:#ffaaa8!important}.refreshed{margin-left:0;')
+    style = style.replace('.filters{display:flex;', '.source-status{color:var(--muted);font-size:.78rem;margin:0 0 14px}.source-status strong{color:var(--accent2)}.filters{display:flex;')
     style = style.replace('.card-footer{display:flex;', '.season-picker{display:flex;flex-wrap:wrap;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:14px}.season-picker legend{color:var(--accent2);font-size:.76rem;padding:0 4px}.season-picker label{font-size:.78rem;color:var(--muted);padding:4px 7px;border-radius:7px;background:#111a2c}.season-picker input{accent-color:var(--accent)}.season-warning{display:block;color:#ffaaa8;font-size:.78rem;margin-top:12px}.card-footer{display:flex;')
     for item, card in zip(items, cards):
         search_value = html.escape(" ".join(str(item.get(key, "")) for key in ("title", "overview", "explanation")).casefold(), quote=True)
         cards[cards.index(card)] = card.replace("<article class='card'", f"<article data-search='{search_value}' class='card'", 1)
     body = "\n".join(cards) or "<div class='empty'><h2>No safe recommendations yet</h2><p>The refresh service has not produced any candidates. Check its health before requesting anything.</p></div>"
-    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill active' href='/'>Recommendations</a><a class='page-pill' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='refresh-controls'><span class='refreshed'>Updated " + html.escape(refreshed) + "</span><button id='refresh-now' class='refresh-button' type='button'>Refresh recommendations</button><span id='refresh-status' role='status'></span></div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill active' href='/'>Recommendations</a><a class='page-pill' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='refresh-controls'><span class='refreshed'>Updated " + html.escape(refreshed) + "</span><button id='refresh-now' class='refresh-button' type='button'>Refresh recommendations</button><span id='refresh-status' role='status'></span></div><div class='source-status'><strong>Sources checked</strong> · " + source_summary + "</div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Source counts are candidates returned before ownership and archive suppression. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
 
 
 def render_search_html() -> str:
