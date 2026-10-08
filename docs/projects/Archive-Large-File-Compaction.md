@@ -99,9 +99,10 @@ The desired outcome:
   now passes `--no-snapshot`, superseding the original seven-day rollback policy.
   Verification and atomic replacement remain required. Successful replacements
   no longer have a snapshot recovery window.
-- **Scheduling:** TrueNAS cron, root, 02:00 daily, running `run-compact.sh`.
+- **Scheduling:** TrueNAS cron, root, 08:00 daily, running `run-compact.sh`,
+  after the archiver's 01:30–07:30 processing window.
   - It waits up to 90 minutes for the archiver's lock.
-  - Largest files are processed first, and nothing new starts past 07:30 or
+  - Largest files are processed first, and nothing new starts past 13:30 or
     when a file's estimated encode would overrun the deadline.
   - A Jellyfin library scan is requested after any replacements.
 
@@ -124,7 +125,7 @@ The desired outcome:
 - [x] **M1 — Supervised pilot (2026-09-24):** results in the evidence log.
       Jason's own playback check is recommended but not a gate.
 - [x] **M2 — Unattended schedule:**
-      - TrueNAS cron job #6, root, 02:00 daily, running `run-compact.sh`;
+      - TrueNAS cron job #6, root, 08:00 daily, running `run-compact.sh`;
       - `compact` section in `config.json` (backup
         `config.json.bak-20260924-compact`);
       - `scripts/backup/video-archiver.sh` now also collects `run-compact.sh`
@@ -174,6 +175,16 @@ The desired outcome:
   approved deployment and both retries passed (Scream 7: 1.86 GB; X-Files: 1.78 GB).
   Repository and Aster pinned Doctor both report a clean two-file run; Jellyfin
   completed the requested library scan at 13:50 PDT. [Repair evidence and resume](../runbooks/Video-Archiver-Repair-2026-09-28.md).
+
+## 2026-10-07 schedule separation
+
+The archiver's former five-file cap was removed from scheduled operation. It now runs
+unlimited oldest-first candidates from 01:30 until 07:30, while compaction starts at
+08:00 and stops starting new files at 13:30. This prevents the shared lock from
+starving either workload. The previously stale empty lock (created 2026-10-03 10:27)
+was removed only after confirming no archiver process was active. The deployed module
+hashes match the validated repository files; read-only candidate discovery reports
+177 eligible TV episodes and no eligible Radarr movie files.
 
 ## 2026-10-03 owner-directed archive cleanup
 

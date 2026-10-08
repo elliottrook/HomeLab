@@ -102,7 +102,10 @@ Pick a time window that does not overlap other heavy scheduled TrueNAS work (bac
   file-delete API does that, and only after the archive copy is verified on disk.
 - A lock file (`lock_file` in config) prevents overlapping runs; if a run exits uncleanly, confirm
   no process is actually still running before removing it by hand.
-- `max_files_per_run` bounds the blast radius of a single scheduled invocation.
+- The scheduled wrapper uses `--max-files 0` (unlimited) together with `--until 07:30`:
+  it processes oldest-first for the whole 01:30–07:30 window instead of stopping after
+  an arbitrary five files. The deadline is the operational safety boundary; manual runs
+  may still use a positive `--max-files` cap.
 - GPU encoding (`hevc_vaapi`) requires explicit `-rc_mode VBR` plus `-maxrate`/`-bufsize` — its
   default rate control ignores the target bitrate outright (confirmed: ~20-30 Mbps output against
   a 3.3 Mbps target without it).

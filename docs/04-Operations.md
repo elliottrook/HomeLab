@@ -907,7 +907,7 @@ through the already-running Jellyfin container, then relocates them into
   keys, and the mode-600 `.env` holding `RADARR_API_KEY`/`SONARR_API_KEY`/
   `JELLYFIN_API_KEY`, are not committed).
 - Scheduled via TrueNAS-native Cron Job (`midclt call cronjob.create`, id `4`),
-  Monday–Saturday 01:30, `--execute` mode, via a wrapper script
+  Monday–Saturday 01:30, `--execute --max-files 0 --until 07:30` mode, via a wrapper script
   (`run-scheduled.sh`) that sources the `.env` file rather than putting keys in
   the cron command string itself (visible via `ps aux` and TrueNAS's own cron
   job table otherwise). Deliberately skips Sunday — that carries the weekly

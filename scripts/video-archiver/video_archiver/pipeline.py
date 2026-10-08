@@ -239,7 +239,26 @@ def _process_one(candidate: Candidate, config: Config, dry_run: bool,
             dst_tmp.unlink(missing_ok=True)
 
 
-def run(config: Config, dry_run: bool, max_files: int, library: str) -> dict:
+def _deadline_for(until: str | None) -> datetime | None:
+    if not until:
+        return None
+    try:
+        hour, minute = (int(part) for part in until.split(":", 1))
+        if not (0 <= hour <= 23 and 0 <= minute <= 59):
+            raise ValueError
+    except ValueError as exc:
+        raise ValueError(f"invalid --until time {until!r}; expected HH:MM") from exc
+
+    now = datetime.now().astimezone()
+    deadline = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    # A scheduled run starts before its cutoff. If an operator starts one after
+    # the cutoff, stop immediately rather than accidentally granting it a full
+    # extra day of runtime.
+    return deadline
+
+
+def run(config: Config, dry_run: bool, max_files: int | None, library: str,
+        until: str | None = None) -> dict:
     radarr = RadarrClient(config.radarr_url, config.radarr_api_key)
     sonarr = SonarrClient(config.sonarr_url, config.sonarr_api_key)
     run_log = RunLogger(config.log_dir)
@@ -251,11 +270,18 @@ def run(config: Config, dry_run: bool, max_files: int, library: str) -> dict:
         candidates += find_episode_candidates(sonarr, config)
 
     candidates.sort(key=lambda c: c.date_added)  # oldest first
-    batch = candidates[:max_files] if not dry_run else candidates
+    deadline = _deadline_for(until) if not dry_run else None
+    batch = candidates if dry_run or max_files is None or max_files <= 0 else candidates[:max_files]
 
     succeeded = failed = 0
+    processed_batch: list[Candidate] = []
+    deadline_reached = False
     for candidate in batch:
+        if deadline is not None and datetime.now().astimezone() >= deadline:
+            deadline_reached = True
+            break
         ok = _process_one(candidate, config, dry_run, radarr, sonarr, run_log)
+        processed_batch.append(candidate)
         succeeded += int(ok)
         failed += int(not ok)
         if not dry_run:
@@ -278,9 +304,11 @@ def run(config: Config, dry_run: bool, max_files: int, library: str) -> dict:
     summary = {
         "dry_run": dry_run,
         "total_candidates_found": len(candidates),
-        "processed": len(batch),
+        "processed": len(processed_batch),
         "succeeded": succeeded,
         "failed": failed,
+        "deadline": until,
+        "deadline_reached": deadline_reached,
         "log_file": str(run_log.path),
     }
     run_log.record(event="summary", **summary)

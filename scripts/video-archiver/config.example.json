@@ -21,7 +21,7 @@
   "work_dir": "/mnt/Media/data/tools/video-archiver/work",
   "log_dir": "/mnt/Media/data/tools/video-archiver/logs",
   "lock_file": "/mnt/Media/data/tools/video-archiver/video-archiver.lock",
-  "max_files_per_run": 5,
+  "max_files_per_run": 0,
   "nice_level": 15,
   "duration_tolerance_fraction": 0.02,
   "_comment_api_keys": "RADARR_API_KEY, SONARR_API_KEY and JELLYFIN_API_KEY are read from the environment, never from this file.",
@@ -33,7 +33,7 @@
     "max_output_fraction": 0.8,
     "snapshot_dataset": "Media/data",
     "snapshot_retention_days": 7,
-    "deadline": "07:30"
+    "deadline": "13:30"
   },
   "_comment_compact": "Archive compaction (python3 -m video_archiver.compact): re-encodes archive files larger than size_threshold_bytes in place at the same path (HEVC, capped at 1080p, HDR10 kept, aspect preserved), outputs <= cap_bytes and <= max_output_fraction of the source. A ZFS snapshot is taken before the first replacement of each run and kept snapshot_retention_days. No new files are started after deadline (local time)."
 }
