@@ -1,6 +1,6 @@
 # Unified Recommendation Engine — mini-project
 
-> Status: Active — Stream A
+> Status: Completed — Stream A
 >
 > Owner: Jason
 >
