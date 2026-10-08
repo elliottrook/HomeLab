@@ -293,12 +293,14 @@ def render_search_html() -> str:
     script = """
 <script>
 const input=document.querySelector('#provider-search'); const type=document.querySelector('#provider-type'); const button=document.querySelector('#provider-submit'); const results=document.querySelector('#provider-results');
-function esc(v){const n=document.createElement('div');n.textContent=v||'';return n.innerHTML;}
-async function run(){const q=input.value.trim();if(!q){results.hidden=true;results.innerHTML='';return;}button.disabled=true;button.textContent='Searching…';try{const r=await fetch('/api/search?q='+encodeURIComponent(q)+'&type='+encodeURIComponent(type.value));const data=await r.json();if(!r.ok)throw new Error(data.error||'Search failed');results.innerHTML=data.length?data.map(i=>{const p=i.poster_path?`<img class='search-poster' src='${esc(i.poster_path)}' alt='' loading='lazy'>`:`<div class='search-poster poster-fallback'>✦</div>`;const c=i.artist||i.author?`<div class='creator'>${esc(i.artist||i.author)}</div>`:'';const s=i.source_url?`<a class='source-link' href='${esc(i.source_url)}' target='_blank' rel='noopener noreferrer'>Open source ↗</a>`:'';return `<article class='search-card'>${p}<div><div class='eyebrow'>${esc(i.media_type)} <span class='source'>${esc(i.source_label)}</span></div><h2>${esc(i.title)}</h2><p class='metadata'>${esc(i.year||'')}</p>${c}<p class='overview'>${esc(i.overview||'No synopsis available.')}</p>${s}</div></article>`}).join(''):`<div class='empty'>No results found across the selected sources.</div>`;results.hidden=false;}catch(e){results.innerHTML=`<div class='empty'>${esc(e.message)}</div>`;results.hidden=false;}button.disabled=false;button.textContent='Search all media';}
+function esc(v){const n=document.createElement('div');n.textContent=v||'';return n.innerHTML.replaceAll('"','&quot;').replaceAll("'",'&#39;');}
+async function requestSearch(button){const result=button.parentElement.querySelector('.search-result');button.disabled=true;button.textContent='Sending…';try{const r=await fetch('/api/search/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({approve:true,authority:button.dataset.authority,authority_id:button.dataset.authorityId,title:button.dataset.title,media_type:button.dataset.mediaType,artist:button.dataset.artist||'',author:button.dataset.author||''})});const data=await r.json();if(!r.ok)throw new Error(data.error||'Request failed');button.textContent='Requested';result.textContent='Request sent.';result.className='search-result success';}catch(e){button.disabled=false;button.textContent='Try again';result.textContent=e.message;result.className='search-result error';}}
+async function run(){const q=input.value.trim();if(!q){results.hidden=true;results.innerHTML='';return;}button.disabled=true;button.textContent='Searching…';try{const r=await fetch('/api/search?q='+encodeURIComponent(q)+'&type='+encodeURIComponent(type.value));const data=await r.json();if(!r.ok)throw new Error(data.error||'Search failed');results.innerHTML=data.length?data.map(i=>{const p=i.poster_path?`<img class='search-poster' src='${esc(i.poster_path)}' alt='' loading='lazy'>`:`<div class='search-poster poster-fallback'>✦</div>`;const c=i.artist||i.author?`<div class='creator'>${esc(i.artist||i.author)}</div>`:'';const s=i.source_url?`<a class='source-link' href='${esc(i.source_url)}' target='_blank' rel='noopener noreferrer'>Open source ↗</a>`:'';const canRequest=i.media_type!=='tv';const a=canRequest?`<button class='request-button search-request' type='button' data-authority='${esc(i.authority)}' data-authority-id='${esc(i.authority_id)}' data-title='${esc(i.title)}' data-media-type='${esc(i.media_type)}' data-artist='${esc(i.artist||'')}' data-author='${esc(i.author||'')}'>Request this ${esc(i.media_type)}</button><span class='search-result'></span>`:`<span class='search-result'>TV search requires a validated season selection.</span>`;return `<article class='search-card'>${p}<div><div class='eyebrow'>${esc(i.media_type)} <span class='source'>${esc(i.source_label)}</span></div><h2>${esc(i.title)}</h2><p class='metadata'>${esc(i.year||'')}</p>${c}<p class='overview'>${esc(i.overview||'No synopsis available.')}</p>${s}<div class='search-action'>${a}</div></div></article>`}).join(''):`<div class='empty'>No results found across the selected sources.</div>`;results.querySelectorAll('.search-request').forEach(b=>b.addEventListener('click',()=>requestSearch(b)));results.hidden=false;}catch(e){results.innerHTML=`<div class='empty'>${esc(e.message)}</div>`;results.hidden=false;}button.disabled=false;button.textContent='Search all media';}
 button.addEventListener('click',run);input.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
 </script>
 """
-    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' href='/icon-32.png'><title>Media Search</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill' href='/'>Recommendations</a><a class='page-pill active' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>Find something specific</h1><p>Search films, TV, books, audiobooks and music across the connected metadata providers. Search is read-only.</p></div></header><div class='toolbar'><input id='provider-search' type='search' placeholder='Title, author, artist or keyword…' autocomplete='off'><select id='provider-type' aria-label='Media type'><option value='all'>All media</option><option value='movie'>Films</option><option value='tv'>TV</option><option value='ebook'>Books</option><option value='audiobook'>Audiobooks</option><option value='album'>Music</option></select><button id='provider-submit' class='request-button' type='button'>Search all media</button></div><section id='provider-results' class='search-results' hidden aria-live='polite'></section><footer>Sources: TMDB via Seerr, Open Library and MusicBrainz. Use the Recommendations page for explicit requests.</footer></main>" + script + "</body></html>"
+    style = style.replace('.source-link{display:inline-block;color:var(--accent);margin-top:10px;text-decoration:none}', '.source-link{display:inline-block;color:var(--accent);margin-top:10px;text-decoration:none}.search-action{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}.search-result{font-size:.78rem;color:var(--muted)}.success{color:var(--accent2)}.error{color:#ffaaa8}')
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' href='/icon-32.png'><title>Media Search</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill' href='/'>Recommendations</a><a class='page-pill active' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>Find something specific</h1><p>Search films, TV, books, audiobooks and music across the connected metadata providers. Search is read-only until you press an individual request button.</p></div></header><div class='toolbar'><input id='provider-search' type='search' placeholder='Title, author, artist or keyword…' autocomplete='off'><select id='provider-type' aria-label='Media type'><option value='all'>All media</option><option value='movie'>Films</option><option value='tv'>TV</option><option value='ebook'>Books</option><option value='audiobook'>Audiobooks</option><option value='album'>Music</option></select><button id='provider-submit' class='request-button' type='button'>Search all media</button></div><section id='provider-results' class='search-results' hidden aria-live='polite'></section><footer>Sources: TMDB via Seerr, Open Library and MusicBrainz. Search requests are revalidated by the owning service.</footer></main>" + script + "</body></html>"
 
 
 def action_key(item: Mapping[str, Any]) -> str:
@@ -572,6 +574,10 @@ def submit_action(body: Mapping[str, Any]) -> dict[str, Any]:
     item = _find_candidate(items, body)
     if item is None or item.get("owned") or item.get("archived") or item.get("match_count", 1) != 1:
         raise RuntimeError("candidate failed snapshot safety checks")
+    return _submit_item(item)
+
+
+def _submit_item(item: Mapping[str, Any]) -> dict[str, Any]:
     key = action_key(item)
     state = _read_state()
     if key in state:
@@ -587,6 +593,31 @@ def submit_action(body: Mapping[str, Any]) -> dict[str, Any]:
     state[key] = result
     _write_state(state)
     return result
+
+
+def submit_search_action(body: Mapping[str, Any]) -> dict[str, Any]:
+    """Revalidate and submit an explicitly selected provider-search result."""
+    if not ACTION_ENABLED:
+        raise RuntimeError("portal actions are disabled")
+    if body.get("approve") is not True:
+        raise RuntimeError("explicit approval is required")
+    authority = str(body.get("authority", ""))
+    media_type = str(body.get("media_type", ""))
+    if authority not in {"seerr", "musicbrainz", "openlibrary"}:
+        raise RuntimeError("search result has no supported request authority")
+    if media_type == "tv":
+        raise RuntimeError("TV search results require a validated season selection")
+    item = {
+        "authority": authority,
+        "authority_id": str(body.get("authority_id", "")),
+        "title": str(body.get("title", "")),
+        "media_type": media_type,
+        "artist": str(body.get("artist", "")),
+        "author": str(body.get("author", "")),
+    }
+    if not item["authority_id"] or not item["title"] or media_type not in {"movie", "album", "ebook", "audiobook"}:
+        raise RuntimeError("search result identity is incomplete")
+    return _submit_item(item)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -668,13 +699,14 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, b"not found", "text/plain; charset=utf-8")
 
     def do_POST(self) -> None:  # noqa: N802
-        if urlparse(self.path).path != "/api/request":
+        path = urlparse(self.path).path
+        if path not in {"/api/request", "/api/search/request"}:
             self._send(404, b"not found", "text/plain; charset=utf-8")
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
             body = json.loads(self.rfile.read(length) or b"{}")
-            result = submit_action(body)
+            result = submit_search_action(body) if path == "/api/search/request" else submit_action(body)
             self._send(200, json.dumps(result).encode(), "application/json")
         except (KeyError, RuntimeError, ValueError, json.JSONDecodeError, OSError) as exc:
             self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")

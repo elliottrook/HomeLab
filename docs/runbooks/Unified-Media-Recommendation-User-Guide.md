@@ -85,8 +85,11 @@ just a filter for the recommendation cards:
    page.
 
 Search results are supplied by TMDB through Seerr, Open Library and
-MusicBrainz. Searching never acquires anything; use the recommendation list's
-explicit request button when you are ready to queue a supported item.
+MusicBrainz. Search itself never acquires anything. For a supported result,
+press its **Request this …** button and wait for **Request sent.** The portal
+revalidates the selected provider identity before sending it to Seerr,
+Lidarr or LazyLibrarian. TV search results intentionally remain read-only
+until a season-aware request flow is available; use Recommendations for TV.
 
 ## Trakt recommendations
 
