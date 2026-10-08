@@ -178,7 +178,7 @@ Request adapters remain the only write boundary.
   explanations.
 - [x] **M4 — Approval integration.** Reuse the page's one-button actions and
   route to Seerr/Lidarr/LazyLibrarian; preserve idempotency and audit records.
-- [ ] **M5 — Quality review and handover.** Compare a fixed sample against
+- [x] **M5 — Quality review and handover.** Compare a fixed sample against
   current Seerr-only output, verify all five domains, and publish a short user
   manual covering refresh, explanations and approval behavior.
 
@@ -290,6 +290,7 @@ only the portal if needed.
 | 2026-10-07 | Unified provider search deployed | Added the live `/api/search` backend and UI controls for TMDB/Seerr, Open Library and MusicBrainz. Results are bounded, read-only, include artwork/source links, and support media-type selection. Local commit `abb4b01` was pushed to Forgejo; the live endpoint was validated for film, ebook and album queries. | Search milestone is operational; search-result acquisition remains intentionally read-only |
 | 2026-10-07 | M4 request actions authorized and enabled | Jason explicitly approved enabling the existing safety-checked request boundary. The shadow portal now exposes 16 safe recommendation actions and routes only snapshot candidates to Seerr, Lidarr or LazyLibrarian with idempotent state. A fabricated validation request was rejected with HTTP 409 and no downstream call. | One-button recommendation approval is live; individual requests still require Jason's click |
 | 2026-10-07 | M5 quality review and handover update | The live snapshot contains 16 candidates across all five media types, with zero missing artwork and zero missing explanations. Provider search was validated for film, ebook and album queries; both shadow services are running and health is `ok`. Updated `docs/runbooks/Unified-Media-Recommendation-User-Guide.md` with search, Trakt, request and authentication training. | Technical quality gate passes; remaining close-out is Jason's visual review of the new search/actions UI and final project acceptance |
+| 2026-10-07 | M5 user acceptance completed | Jason confirmed the page looks good and successfully tested requests for films, TV, books, audiobooks and music. Non-video routing now maps discovery identities to LazyLibrarian and Lidarr; confirmation text is `Request sent.`. | All five media domains and the user-facing handover are accepted; project is ready for close-out after the final Forgejo push |
 
 ## Acceptance evidence
 
