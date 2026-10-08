@@ -63,8 +63,10 @@ be separate revisions rather than incidental redesign during engine work.
 - The private recommendation portal already runs in the shadow Docker project
   at `recommendations.elliottrook.com` behind the existing Authentik/NPM path.
 - The current snapshot is refreshed by the shadow refresher and uses bounded
-  TMDb per-title video recommendations plus the deployed non-video adapters.
-  Trakt is a planned optional personal-history source, not yet connected.
+  TMDb per-title video recommendations, deployed non-video adapters and
+  personal Trakt recommendations. Trakt credentials are protected in the
+  existing secret boundary and are refreshed on expiry with single-use token
+  rotation.
 - TrueNAS remains authoritative for the media services and active/archive
   libraries. Jellyfin and Audiobookshelf own user history; Sonarr/Radarr/Lidarr
   own managed media; Seerr/Lidarr/LazyLibrarian own request actions.
@@ -168,8 +170,9 @@ Request adapters remain the only write boundary.
   official Trakt plugin only after Jason's account authorization; read personal
   Trakt recommendations and synchronized watch/rating signals without exposing
   credentials to the recommendation UI. Add source links behind artwork and
-  begin the unified all-media search page using TMDb, Open Library and
-  MusicBrainz.
+  complete the unified all-media search page using TMDb, Open Library and
+  MusicBrainz. Trakt authorization, personal recommendations and source links
+  are complete; the search page remains open.
 - [ ] **M3 — Ranking and explanations.** Implement deterministic scoring,
   duplicate/owned/archive suppression, source evidence, and optional local B60
   explanations.
@@ -281,7 +284,9 @@ only the portal if needed.
 | 2026-10-07 | Jellyfin Trakt setup verified; portal adapter prepared | TrueNAS contains the official Jellyfin Trakt plugin `33.0.0.0` and its configuration, verified without reading credential values. Added a separate fail-closed Trakt adapter requiring its own protected access-token/client-id paths; it is not coupled to Jellyfin's plugin XML. Adapter tests pass 2/2 and portal tests pass 17/17. | Jellyfin-side setup is complete; portal Trakt credentials and remote adapter deployment remain pending to preserve credential separation |
 | 2026-10-07 | Trakt PKCE connection flow prepared locally | Added the private `/oauth/trakt/start` and callback flow using PKCE, exact registered HTTPS redirect URI, state validation and protected access/refresh-token writes. No client secret is required or stored. OAuth/adapter tests pass 3/3 and portal tests pass 17/17. | Remote deployment and the first account connection remain pending the Stream A deployment authorization boundary |
 | 2026-10-07 | Trakt PKCE flow deployed to shadow | Stored the user-provided client ID in the protected shadow secret boundary, created empty protected token placeholders, rebuilt and recreated only the recommendation portal/refresher, and verified health plus a 302 authorization response with the exact registered callback. | Deployment is validated; final Trakt account approval in the user's normal browser is pending before live recommendation refresh |
-| 2026-10-07 | Trakt device authorization fallback deployed | The mobile callback returned without OAuth query parameters. The pending state was preserved; the cause was isolated to the browser/proxy handoff. Added and deployed Trakt's device-code flow with a short activation code, protected polling, user-agent compatibility and no public callback exception. The device page returned HTTP 200 and both scoped containers remain running. | User approval through the activation code remains before live Trakt recommendations are enabled |
+| 2026-10-07 | Trakt device authorization fallback deployed | The mobile callback returned without OAuth query parameters. The pending state was preserved; the cause was isolated to the browser/proxy handoff. Added and deployed Trakt's device-code flow with a short activation code, protected polling, user-agent compatibility and no public callback exception. The device page returned HTTP 200 and both scoped containers remained running. | Device flow was subsequently approved and credentials were exchanged successfully |
+| 2026-10-07 | Trakt personal recommendations activated | Jason approved the device code in his normal browser. The live Trakt API returned personalized movie and show recommendations; the snapshot contained six Trakt candidates, all with protected credentials and no token output. | Personal Trakt source is live; Jellyfin remains the optional history-sync authority |
+| 2026-10-07 | Trakt reliability and artwork completed | Fixed JSON device-token polling, bind-mounted secret writes, automatic refresh-token rotation, and writable mounts limited to the Trakt access/refresh files. Trakt requests now use `extended=full` and preserve poster art, ratings, genres and source slugs. 56 unified-media tests pass; live validation showed six Trakt cards with HTTPS artwork. Local commit `33025e8` was pushed to Forgejo and verified on the GitHub mirror. | Trakt integration is operational; broader all-media search and final approval-flow graduation remain open |
 
 ## Acceptance evidence
 
