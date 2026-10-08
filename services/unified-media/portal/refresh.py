@@ -28,6 +28,7 @@ from trakt_sources import collect_trakt_recommendations
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
 LIBRARY_SNAPSHOT_PATH = os.environ.get("PORTAL_LIBRARY_SNAPSHOT_PATH")
 HISTORY_SNAPSHOT_PATH = os.environ.get("PORTAL_HISTORY_SNAPSHOT_PATH")
+REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
 
 
 def _narrate(candidates):
@@ -397,11 +398,17 @@ def _refresh_history_snapshot():
 if __name__ == "__main__":
     if os.environ.get("PORTAL_REFRESH_LOOP", "NO") == "YES":
         interval = int(os.environ.get("PORTAL_REFRESH_INTERVAL_SECONDS", "21600"))
+        next_refresh = 0.0
         while True:
+            if not REFRESH_TRIGGER_PATH.exists() and time.monotonic() < next_refresh:
+                time.sleep(min(5, next_refresh - time.monotonic()))
+                continue
             try:
+                if REFRESH_TRIGGER_PATH.exists():
+                    REFRESH_TRIGGER_PATH.unlink(missing_ok=True)
                 refresh_once()
             except Exception as exc:
                 print(f"refresh_failed={type(exc).__name__}")
-            time.sleep(interval)
+            next_refresh = time.monotonic() + interval
     else:
         refresh_once()

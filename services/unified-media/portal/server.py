@@ -18,6 +18,8 @@ from urllib.parse import urlparse
 
 from trakt_oauth import (begin_device, begin_pkce, exchange_code, poll_device,
                          write_secret)
+from spotify_oauth import (api_get as spotify_get, authorization_url as spotify_authorization_url,
+                           exchange_code as spotify_exchange_code, refresh_token as spotify_refresh_token)
 
 
 SNAPSHOT_PATH = Path(os.environ.get("PORTAL_SNAPSHOT_PATH", "/data/recommendations.json"))
@@ -37,6 +39,13 @@ TRAKT_REFRESH_TOKEN_PATH = os.environ.get("TRAKT_REFRESH_TOKEN_PATH", "/run/unif
 TRAKT_OAUTH_STATE_PATH = Path(os.environ.get("TRAKT_OAUTH_STATE_PATH", "/state/trakt-oauth.json"))
 TRAKT_DEVICE_STATE_PATH = Path(os.environ.get("TRAKT_DEVICE_STATE_PATH", "/state/trakt-device.json"))
 TRAKT_REDIRECT_URI = os.environ.get("TRAKT_REDIRECT_URI", "https://recommendations.elliottrook.com/oauth/trakt/callback")
+REFRESH_TRIGGER_PATH = Path(os.environ.get("PORTAL_REFRESH_TRIGGER_PATH", "/data/refresh-now"))
+SPOTIFY_CLIENT_ID_PATH = os.environ.get("SPOTIFY_CLIENT_ID_PATH", "/run/unified-secrets/spotify-client-id")
+SPOTIFY_CLIENT_SECRET_PATH = os.environ.get("SPOTIFY_CLIENT_SECRET_PATH", "/run/unified-secrets/spotify-client-secret")
+SPOTIFY_ACCESS_TOKEN_PATH = os.environ.get("SPOTIFY_ACCESS_TOKEN_PATH", "/run/unified-secrets/spotify-access-token")
+SPOTIFY_REFRESH_TOKEN_PATH = os.environ.get("SPOTIFY_REFRESH_TOKEN_PATH", "/run/unified-secrets/spotify-refresh-token")
+SPOTIFY_OAUTH_STATE_PATH = Path(os.environ.get("SPOTIFY_OAUTH_STATE_PATH", "/state/spotify-oauth.json"))
+SPOTIFY_REDIRECT_URI = os.environ.get("SPOTIFY_REDIRECT_URI", "https://recommendations.elliottrook.com/oauth/spotify/callback")
 
 
 def load_recommendations() -> list[dict[str, Any]]:
@@ -103,6 +112,57 @@ def _trakt_device_status() -> str:
     write_secret(TRAKT_REFRESH_TOKEN_PATH, str(result["refresh_token"]))
     TRAKT_DEVICE_STATE_PATH.unlink(missing_ok=True)
     return "connected"
+
+
+def _spotify_connect_url() -> str:
+    client_id = Path(SPOTIFY_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
+    if not client_id:
+        raise RuntimeError("Spotify client ID is not configured")
+    url, state = spotify_authorization_url(client_id, SPOTIFY_REDIRECT_URI)
+    SPOTIFY_OAUTH_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SPOTIFY_OAUTH_STATE_PATH.write_text(json.dumps({"state": state}), encoding="utf-8")
+    SPOTIFY_OAUTH_STATE_PATH.chmod(0o600)
+    return url
+
+
+def _spotify_callback(query: Mapping[str, list[str]]) -> str:
+    state = (query.get("state") or [""])[0]
+    code = (query.get("code") or [""])[0]
+    if not state or not code or not SPOTIFY_OAUTH_STATE_PATH.exists():
+        raise RuntimeError("Spotify authorization response is incomplete")
+    pending = json.loads(SPOTIFY_OAUTH_STATE_PATH.read_text(encoding="utf-8"))
+    if not isinstance(pending, Mapping) or not secrets.compare_digest(state, str(pending.get("state", ""))):
+        raise RuntimeError("Spotify authorization state did not match")
+    client_id = Path(SPOTIFY_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
+    client_secret = Path(SPOTIFY_CLIENT_SECRET_PATH).read_text(encoding="utf-8").strip()
+    payload = spotify_exchange_code(client_id, client_secret, code, SPOTIFY_REDIRECT_URI)
+    write_secret(SPOTIFY_ACCESS_TOKEN_PATH, str(payload["access_token"]))
+    if payload.get("refresh_token"):
+        write_secret(SPOTIFY_REFRESH_TOKEN_PATH, str(payload["refresh_token"]))
+    SPOTIFY_OAUTH_STATE_PATH.unlink(missing_ok=True)
+    return "Spotify connected. You may close this tab."
+
+
+def _spotify_access_token() -> str:
+    access = Path(SPOTIFY_ACCESS_TOKEN_PATH)
+    if access.exists() and access.read_text(encoding="utf-8").strip():
+        return access.read_text(encoding="utf-8").strip()
+    refresh = Path(SPOTIFY_REFRESH_TOKEN_PATH).read_text(encoding="utf-8").strip()
+    client_id = Path(SPOTIFY_CLIENT_ID_PATH).read_text(encoding="utf-8").strip()
+    client_secret = Path(SPOTIFY_CLIENT_SECRET_PATH).read_text(encoding="utf-8").strip()
+    payload = spotify_refresh_token(client_id, client_secret, refresh)
+    write_secret(SPOTIFY_ACCESS_TOKEN_PATH, str(payload["access_token"]))
+    return str(payload["access_token"])
+
+
+def spotify_playlists() -> list[dict[str, Any]]:
+    token = _spotify_access_token()
+    page = spotify_get(token, "/me/playlists", {"limit": "50"})
+    return [{"id": item.get("id"), "name": item.get("name"),
+             "tracks": (item.get("items") or {}).get("total", 0),
+             "url": ((item.get("external_urls") or {}).get("spotify", "")),
+             "snapshot_id": item.get("snapshot_id")}
+            for item in page.get("items", []) if item.get("id") and item.get("name")]
 
 
 def _display_type(media_type: Any) -> str:
@@ -250,6 +310,25 @@ async function runProviderSearch() {
 }
 if (searchButton) searchButton.addEventListener('click', runProviderSearch);
 if (search) search.addEventListener('keydown', (event) => { if (event.key === 'Enter') runProviderSearch(); });
+const refreshButton = document.querySelector('#refresh-now');
+if (refreshButton) refreshButton.addEventListener('click', async () => {
+  const status = document.querySelector('#refresh-status');
+  refreshButton.disabled = true;
+  refreshButton.textContent = 'Queuing…';
+  try {
+    const response = await fetch('/api/refresh', {method: 'POST'});
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'Refresh could not be queued');
+    refreshButton.textContent = 'Refresh queued';
+    status.textContent = 'The page will update after the refresh completes.';
+    setTimeout(() => location.reload(), 10000);
+  } catch (error) {
+    refreshButton.disabled = false;
+    refreshButton.textContent = 'Refresh recommendations';
+    status.textContent = error.message;
+    status.className = 'refresh-error';
+  }
+});
 filters.forEach((filter) => filter.addEventListener('click', () => {
   filters.forEach((item) => item.classList.remove('active'));
   filter.classList.add('active');
@@ -296,12 +375,13 @@ document.querySelectorAll('.request-button:not([disabled])').forEach((button) =>
 """
     style = style.replace('.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card{display:grid;', '.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px}.card[hidden]{display:none}.card{display:grid;')
     style = style.replace('.toolbar{display:flex;', '.page-nav{display:flex;gap:10px;margin-bottom:26px}.page-pill{border:1px solid var(--line);border-radius:999px;padding:9px 16px;color:var(--muted);text-decoration:none}.page-pill.active,.page-pill:hover{background:var(--accent);color:#07111d;border-color:var(--accent)}.toolbar{display:flex;')
+    style = style.replace('.refreshed{margin-left:auto;', '.refresh-controls{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin:0 0 14px}.refresh-button{border:1px solid var(--line);border-radius:10px;background:#111a2c;color:var(--accent);font:700 .82rem system-ui;padding:8px 12px;cursor:pointer}.refresh-button:hover{background:var(--accent);color:#07111d}.refresh-button:disabled{opacity:.7;cursor:wait}.refresh-controls #refresh-status{color:var(--muted);font-size:.76rem}.refresh-error{color:#ffaaa8!important}.refreshed{margin-left:0;')
     style = style.replace('.card-footer{display:flex;', '.season-picker{display:flex;flex-wrap:wrap;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:14px}.season-picker legend{color:var(--accent2);font-size:.76rem;padding:0 4px}.season-picker label{font-size:.78rem;color:var(--muted);padding:4px 7px;border-radius:7px;background:#111a2c}.season-picker input{accent-color:var(--accent)}.season-warning{display:block;color:#ffaaa8;font-size:.78rem;margin-top:12px}.card-footer{display:flex;')
     for item, card in zip(items, cards):
         search_value = html.escape(" ".join(str(item.get(key, "")) for key in ("title", "overview", "explanation")).casefold(), quote=True)
         cards[cards.index(card)] = card.replace("<article class='card'", f"<article data-search='{search_value}' class='card'", 1)
     body = "\n".join(cards) or "<div class='empty'><h2>No safe recommendations yet</h2><p>The refresh service has not produced any candidates. Check its health before requesting anything.</p></div>"
-    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill active' href='/'>Recommendations</a><a class='page-pill' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='refreshed'>Updated " + html.escape(refreshed) + "</div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
+    return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' type='image/png' sizes='32x32' href='/icon-32.png'><link rel='apple-touch-icon' sizes='180x180' href='/icon-180.png'><link rel='manifest' href='/manifest.webmanifest'><title>Unified Media Recommendations</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill active' href='/'>Recommendations</a><a class='page-pill' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>What should we add next?</h1><p>Review a short, explainable list and approve only what you actually want. Nothing is acquired without your button press.</p></div></header><div class='refresh-controls'><span class='refreshed'>Updated " + html.escape(refreshed) + "</span><button id='refresh-now' class='refresh-button' type='button'>Refresh recommendations</button><span id='refresh-status' role='status'></span></div><nav class='filters' aria-label='Filter recommendations'>" + "".join(buttons) + "</nav><section class='grid' aria-live='polite'>" + body + "</section><footer>Sources are refreshed periodically. Search is read-only; requests remain explicit and go through the owning service.</footer></main>" + script + "</body></html>"
 
 
 def render_search_html() -> str:
@@ -322,6 +402,22 @@ button.addEventListener('click',run);input.addEventListener('keydown',e=>{if(e.k
     style = style.replace('.source-link{display:inline-block;color:var(--accent);margin-top:10px;text-decoration:none}', '.source-link{display:inline-block;color:var(--accent);margin-top:10px;text-decoration:none}.search-action{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}.search-result{font-size:.78rem;color:var(--muted)}.success{color:var(--accent2)}.error{color:#ffaaa8}')
     style = style.replace('.search-action{display:flex;', '.season-picker{display:flex;flex-wrap:wrap;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:14px}.season-picker legend{color:var(--accent2);font-size:.76rem;padding:0 4px}.season-picker label{font-size:.78rem;color:var(--muted);padding:4px 7px;border-radius:7px;background:#111a2c}.season-picker input{accent-color:var(--accent)}.search-action{display:flex;')
     return "<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='theme-color' content='#0b1020'><link rel='icon' href='/icon-32.png'><title>Media Search</title>" + style + "</head><body><main><nav class='page-nav' aria-label='Media portal pages'><a class='page-pill' href='/'>Recommendations</a><a class='page-pill active' href='/search'>Search</a></nav><header><div><div class='kicker'>Private media concierge</div><h1>Find something specific</h1><p>Search films, TV, books, audiobooks and music across the connected metadata providers. Search is read-only until you press an individual request button.</p></div></header><div class='toolbar'><input id='provider-search' type='search' placeholder='Title, author, artist or keyword…' autocomplete='off'><select id='provider-type' aria-label='Media type'><option value='all'>All media</option><option value='movie'>Films</option><option value='tv'>TV</option><option value='ebook'>Books</option><option value='audiobook'>Audiobooks</option><option value='album'>Music</option></select><button id='provider-submit' class='request-button' type='button'>Search all media</button></div><section id='provider-results' class='search-results' hidden aria-live='polite'></section><footer>Sources: TMDB via Seerr, Open Library and MusicBrainz. Search requests are revalidated by the owning service.</footer></main>" + script + "</body></html>"
+
+
+def render_transfers_html() -> str:
+    """Initial transfer surface; Spotify data is loaded only after explicit connection."""
+    return ("<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' "
+            "content='width=device-width,initial-scale=1'><title>Playlist Transfers</title></head><body>"
+            "<main style='max-width:60rem;margin:3rem auto;font:1rem system-ui;padding:0 1rem'>"
+            "<nav><a href='/'>Recommendations</a> · <a href='/search'>Search</a> · "
+            "<a href='/transfers'>Playlist transfers</a></nav>"
+            "<h1>Playlist transfers</h1>"
+            "<p>Connect Spotify to select a playlist. Missing tracks will be requested as albums "
+            "through Lidarr and the Jellyfin playlist will wait until complete.</p>"
+            "<p><a href='/oauth/spotify/start'>Connect Spotify</a></p>"
+            "<button id='load' type='button'>Load my playlists</button><pre id='result'>Not connected.</pre>"
+            "<script>document.querySelector('#load').onclick=async()=>{const r=await fetch('/api/spotify/playlists');"
+            "document.querySelector('#result').textContent=await r.text()}</script></main></body></html>")
 
 
 def action_key(item: Mapping[str, Any]) -> str:
@@ -668,6 +764,17 @@ def submit_search_action(body: Mapping[str, Any]) -> dict[str, Any]:
     return _submit_item(item)
 
 
+def queue_refresh() -> dict[str, Any]:
+    """Queue one bounded refresh run for the companion refresher container."""
+    try:
+        if REFRESH_TRIGGER_PATH.exists():
+            raise RuntimeError("a refresh is already queued")
+        REFRESH_TRIGGER_PATH.touch()
+    except OSError as exc:
+        raise RuntimeError("refresh trigger is unavailable") from exc
+    return {"status": "queued"}
+
+
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         parsed = urlparse(self.path)
@@ -682,6 +789,20 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
             except (OSError, RuntimeError, ValueError) as exc:
                 self._send(503, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
+        if path == "/oauth/spotify/start":
+            try:
+                self.send_response(302)
+                self.send_header("Location", _spotify_connect_url())
+                self.end_headers()
+            except (OSError, RuntimeError, ValueError) as exc:
+                self._send(503, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
+        if path == "/oauth/spotify/callback":
+            try:
+                self._send(200, _spotify_callback(urllib.parse.parse_qs(parsed.query)).encode(), "text/plain; charset=utf-8")
+            except (OSError, RuntimeError, ValueError, KeyError, json.JSONDecodeError) as exc:
+                self._send(400, json.dumps({"error": str(exc)}).encode(), "application/json")
             return
         if path == "/oauth/trakt/callback":
             try:
@@ -721,6 +842,12 @@ class Handler(BaseHTTPRequestHandler):
             except (OSError, ValueError, urllib.error.URLError) as exc:
                 self._send(502, json.dumps({"error": str(exc)}).encode(), "application/json")
             return
+        if path == "/api/spotify/playlists":
+            try:
+                self._send(200, json.dumps(spotify_playlists()).encode(), "application/json")
+            except (OSError, RuntimeError, ValueError, urllib.error.URLError, json.JSONDecodeError) as exc:
+                self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
         asset = STATIC_ASSETS.get(path)
         if asset:
             asset_path = ASSET_DIR / asset[0]
@@ -733,6 +860,9 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path == "/search":
             self._send(200, render_search_html().encode(), "text/html; charset=utf-8")
+            return
+        if path == "/transfers":
+            self._send(200, render_transfers_html().encode(), "text/html; charset=utf-8")
             return
         try:
             items = load_recommendations()
@@ -748,6 +878,12 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
+        if path == "/api/refresh":
+            try:
+                self._send(202, json.dumps(queue_refresh()).encode(), "application/json")
+            except RuntimeError as exc:
+                self._send(409, json.dumps({"error": str(exc)}).encode(), "application/json")
+            return
         if path not in {"/api/request", "/api/search/request"}:
             self._send(404, b"not found", "text/plain; charset=utf-8")
             return
