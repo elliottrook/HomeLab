@@ -127,7 +127,8 @@ def concat_wavs(clip_paths: list, out_path: Path) -> None:
 def build_briefing(entries: list, engine: Kokoro, workdir: Path) -> tuple[Path, list[dict]]:
     period, date_str = briefing_label(local_now())
     intro_text = f"This is your {period} briefing for {date_str}."
-    outro_text = f"That was your daily briefing for {date_str}."
+    signoff = "Have a good day." if period == "morning" else "Have a good evening."
+    outro_text = f"That was your daily briefing for {date_str}. {signoff}"
 
     pause_wav = workdir / "pause.wav"
     silence_clip(pause_wav, STORY_PAUSE_SECONDS)
