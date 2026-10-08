@@ -1,5 +1,48 @@
 # D3 scoped bootstrap candidate and isolated vault experiment
 
+## Attempt 2 result; narrower candidate for attempt 3
+
+Jason approved corrected-path bundle `b0ce977...766b8d5`. Exact hash, source path
+permissions, unit syntax and effective isolation/limits were checked. This time
+the disposable engine started. Fixed metadata reported `passed:false`,
+`failed_stage:provision`. Reaching that stage proves the preceding fixture
+bootstrap, root revocation and eight 403-denial assertions passed. No successful
+credential provisioning, admin self-revocation or complete handoff is claimed.
+All fixture state disappeared with the owned server process; it never used real
+credentials. Unit/file cleanup and independent absence checks passed; production
+2.6.4 remains unsealed and local Doctor reports healthy (0 active, 37 outcomes).
+
+Version-pinned source investigation:
+[OpenBao 2.6.4 ACL evaluator](https://github.com/openbao/openbao/blob/v2.6.4/vault/policy/acl.go#L502)
+applies required-parameter checks to ReadOperation before allowing empty request
+data. Candidate read preflights supplied none. This is a source-backed explanation
+for the provisioning failure; attempt 2 did not capture the exact failing request.
+The next candidate records allowlisted provisioning stage names on failure.
+
+Rather than adding unusual read payloads or weakening constraints, candidate 3
+removes ALL policy/role write authority from the temporary provisioning token.
+Human-only bootstrap now checks every new object's absence, creates the fixed
+introspection policy and fixed role, verifies them, creates its narrow temporary
+policy/token, then revokes root before delivery. Ordinary provisioning reads and
+validates fixed configuration; it only writes two exact new KV records and issues
+the bounded SecretID. Existing policy/role stage labels now mean read verification,
+not configuration writes. No production bootstrap has occurred.
+
+202 local tests pass, including no policy/role writes by provisioning and rejection
+of weaker pre-existing configuration before credential writes. Previously approved
+fixtures are not retroactively claimed to test these changes.
+
+**New approval requested:** ONE attempt of the same isolated, memory-only,
+private-network fixture on LXC 117, same unit/path, resource limits and cleanup as
+attempt 2. Only reviewed candidate source/manifest contents change. It still uses
+fictional credentials and never contacts production OpenBao. New archive:
+`/private/tmp/aster-provision-isolated-v3-20261008.tar`, SHA-256
+`533bd75bbf64361f2a19cc0a599f0c4326dd1c1d822d2d7236611ae628d780ca`.
+Repeat the eight negative checks against the smaller permission set and require
+successful ordinary provisioning plus admin revocation. Stop/clean up on failure;
+no automatic retry or isolation relaxation. This gate supersedes earlier bundle
+hashes. Earlier attempt approvals are consumed. No real ceremony is authorized.
+
 ## Attempt 1 result and corrected-path approval gate
 
 Jason approved the original exact bundle. Staging and manifest verification

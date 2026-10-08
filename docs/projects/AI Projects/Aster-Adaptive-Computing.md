@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Isolated experiment stopped before runner startup; corrected source path awaits approval | PrivateTmp hid /var/tmp source; attempt cleaned, production healthy; 200 local tests retained; no real-engine permission result or real provisioning; see D3-scoped-bootstrap-and-isolated-vault-gate-2026-10-08 evidence |
+| D3 — Companion integration | Isolated engine passed bootstrap/denials but rejected provisioning; narrower candidate awaits isolated-test approval | 202 local tests; temporary token can no longer edit policy/role; both failed attempts cleaned, production healthy; no real provisioning; see D3-scoped-bootstrap-and-isolated-vault-gate-2026-10-08 evidence |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in

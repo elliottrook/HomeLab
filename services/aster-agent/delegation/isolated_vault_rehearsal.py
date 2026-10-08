@@ -90,6 +90,12 @@ def execute():
         return {'passed':True,'version':health['version'],'negative_checks':8,
                 'root_revoked':True,'admin_revoked':True,'real_credentials_used':False,
                 'production_vault_contacted':False,'model_calls':0}
+    except vault_provision.ProvisioningIncomplete as error:
+        # These are fixed stage names, never API bodies or credential values.
+        allowed={name+':'+state for name in ('policy','role','aster-worker-introspection',
+                 'aster-codex-worker','secret-id','delivery') for state in ('attempted','confirmed')}
+        return {'passed':False,'failed_stage':stage,'provision_stages':[
+            name for name in error.stages if name in allowed],'real_credentials_used':False}
     except Exception:
         return {'passed':False,'failed_stage':stage,'real_credentials_used':False}
     finally:

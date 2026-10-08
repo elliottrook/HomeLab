@@ -7,6 +7,7 @@ fingerprint binds code/policy/role, not human authority by itself.
 import hashlib
 import json
 from pathlib import Path
+import admin_contract
 
 ROOT = Path(__file__).parent
 POLICY_PATH = 'sys/policies/acl/aster-worker-introspection-read'
@@ -15,7 +16,7 @@ SECRET_NAMES = ('aster-worker-introspection', 'aster-codex-worker')
 
 
 def manifest():
-    files = ('vault_provision.py', 'deploy/introspection-read.hcl',
+    files = ('vault_provision.py', 'admin_contract.py', 'deploy/introspection-read.hcl',
              'deploy/introspection-role.json')
     return {
         'source_hashes': {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in files},
@@ -69,12 +70,18 @@ def provision(api, deliver, secrets, *, approved_sha256=None, observe=None):
         return result
 
     try:
-        absent(POLICY_PATH); absent(ROLE_PATH)
+        # Fixed config is human-bootstrapped. Ordinary provisioning has no policy
+        # or role write permissions; stages below record verification only.
+        note('policy:attempted')
+        status,value=api('GET',POLICY_PATH,None)
+        if status!=200 or value.get('data',{}).get('policy')!=(ROOT/'deploy/introspection-read.hcl').read_text():
+            raise ValueError('Fixed policy mismatch')
+        note('policy:confirmed');note('role:attempted')
+        status,value=api('GET',ROLE_PATH,None)
+        if status!=200: raise ValueError('Fixed role unavailable')
+        admin_contract.verify_role(value.get('data'))
+        note('role:confirmed')
         for name in SECRET_NAMES: absent('secret/metadata/ai-pam/'+name)
-        policy=(ROOT/'deploy/introspection-read.hcl').read_text()
-        role=json.loads((ROOT/'deploy/introspection-role.json').read_text())
-        write(POLICY_PATH,{'policy':policy},'policy')
-        write(ROLE_PATH,role,'role')
         for name,key in zip(SECRET_NAMES,('client_secret','app_password')):
             result=write('secret/data/ai-pam/'+name,
                          {'options':{'cas':0},'data':{key:secrets[key]}},name)

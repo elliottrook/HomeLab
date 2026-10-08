@@ -66,8 +66,24 @@ def issue(api,root_token,deliver):
     child=None;ready=False;root_revoke_attempted=False
     try:
         path='sys/policies/acl/'+contract.POLICY
-        status,_=api(root_token,'GET',path)
-        if status!=404: raise ValueError('Policy exists or absence unverified')
+        target_policy='sys/policies/acl/aster-worker-introspection-read'
+        target_role='auth/approle/role/aster-worker-introspection'
+        for absent in (path,target_policy,target_role,
+                       'secret/metadata/ai-pam/aster-worker-introspection',
+                       'secret/metadata/ai-pam/aster-codex-worker'):
+            status,_=api(root_token,'GET',absent)
+            if status!=404: raise ValueError('Object exists or absence unverified')
+        fixed_policy=(contract.ROOT/'deploy/introspection-read.hcl').read_text()
+        status,_=api(root_token,'PUT',target_policy,{'policy':fixed_policy})
+        if status not in (200,204): raise ValueError('Fixed policy creation unconfirmed')
+        status,body=api(root_token,'GET',target_policy)
+        if status!=200 or body.get('data',{}).get('policy')!=fixed_policy:
+            raise ValueError('Fixed policy verification failed')
+        status,_=api(root_token,'POST',target_role,contract.role_request())
+        if status not in (200,204): raise ValueError('Fixed role creation unconfirmed')
+        status,body=api(root_token,'GET',target_role)
+        if status!=200: raise ValueError('Fixed role verification failed')
+        contract.verify_role(body.get('data'))
         status,_=api(root_token,'PUT',path,{'policy':contract.policy()})
         if status not in (200,204): raise ValueError('Policy creation unconfirmed')
         status,body=api(root_token,'GET',path)

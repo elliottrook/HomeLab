@@ -12,15 +12,20 @@ def metadata():
 
 class BootstrapTests(unittest.TestCase):
     def setUp(self):
-        self.calls=[];self.saved=None;self.collision=False;self.root_failure=False
+        self.calls=[];self.saved={};self.collision=False;self.root_failure=False
     def api(self,token,method,path,payload=None):
         self.calls.append((token,method,path,payload))
         if path=='auth/token/lookup-self':
             return 200,{'data':{'policies':['root']} if token=='fixture-root' else metadata()}
         if path.startswith('sys/policies/'):
             if method=='GET':
-                return (200,{'data':{'policy':self.saved}}) if self.saved or self.collision else (404,{})
-            self.saved=payload['policy'];return 204,{}
+                return (200,{'data':{'policy':self.saved.get(path)}}) if path in self.saved or self.collision else (404,{})
+            self.saved[path]=payload['policy'];return 204,{}
+        if path.startswith('secret/metadata/'): return 404,{}
+        if path=='auth/approle/role/aster-worker-introspection':
+            if method=='GET': return (200,{'data':self.saved[path]}) if path in self.saved else (404,{})
+            self.saved[path]={k:({'24h':86400,'5m':300}[v] if k.endswith('_ttl') else v) for k,v in payload.items()}
+            return 204,{}
         if path=='auth/token/create-orphan':
             self.assertEqual(payload,contract.token_request())
             return 200,{'auth':{'client_token':'fixture-child'}}
@@ -66,3 +71,6 @@ class BootstrapTests(unittest.TestCase):
         policy=contract.policy()
         self.assertNotIn('*',policy);self.assertNotIn('sudo',policy)
         self.assertNotIn('delete',policy);self.assertNotIn('auth/token/create',policy)
+        for line in policy.splitlines():
+            if 'sys/policies/' in line or 'auth/approle/role/aster-worker-introspection"' in line:
+                self.assertIn('["read"]',line)

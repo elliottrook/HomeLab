@@ -9,8 +9,8 @@ ROOT=Path(__file__).parent
 
 def policy():
     paths={
-        'sys/policies/acl/aster-worker-introspection-read':['read','create','update'],
-        'auth/approle/role/aster-worker-introspection':['read','create','update'],
+        'sys/policies/acl/aster-worker-introspection-read':['read'],
+        'auth/approle/role/aster-worker-introspection':['read'],
         'auth/approle/role/aster-worker-introspection/role-id':['read'],
         'auth/approle/role/aster-worker-introspection/secret-id':['update'],
         'auth/token/lookup-self':['read'],
@@ -20,26 +20,24 @@ def policy():
         paths['secret/metadata/ai-pam/'+name]=['read']
         paths['secret/data/ai-pam/'+name]=['read','create','update']
     import json
-    role=json.loads((ROOT/'deploy/introspection-role.json').read_text())
-    exact={
-        'sys/policies/acl/aster-worker-introspection-read':{
-            'policy':(ROOT/'deploy/introspection-read.hcl').read_text()},
-        'auth/approle/role/aster-worker-introspection':role,
-    }
-    blocks=[]
-    for path,caps in sorted(paths.items()):
-        block='path '+json.dumps(path)+' { capabilities = '+json.dumps(caps)
-        if path in exact:
-            values=exact[path]
-            # All fields required: omitted parameters must not silently select
-            # less restrictive server defaults. No wildcard values permitted.
-            block+='\n required_parameters = '+json.dumps(sorted(values))
-            block+='\n allowed_parameters = {\n'
-            for key,value in sorted(values.items()):
-                block+=json.dumps(key)+' = '+json.dumps(value if isinstance(value,list) else [value])+'\n'
-            block+='}'
-        blocks.append(block+'\n}')
-    return '\n'.join(blocks)+'\n'
+    return '\n'.join('path '+json.dumps(path)+' { capabilities = '+json.dumps(caps)+' }'
+                     for path,caps in sorted(paths.items()))+'\n'
+
+
+def role_request():
+    import json
+    return json.loads((ROOT/'deploy/introspection-role.json').read_text())
+
+
+def verify_role(data):
+    if not isinstance(data,dict): raise ValueError('Role unavailable')
+    for key,value in role_request().items():
+        if key.endswith('_ttl'):
+            value={'24h':86400,'5m':300}[value]
+        if type(data.get(key)) is not type(value) or data[key]!=value:
+            raise ValueError('Role configuration mismatch')
+    if data.get('token_period',0)!=0:
+        raise ValueError('Periodic role not allowed')
 
 
 def validate(data):

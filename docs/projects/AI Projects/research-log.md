@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Real-engine test rejected provisioning; authority reduced
+
+Corrected isolated attempt reached provisioning after bootstrap/root-revocation
+and eight denial checks passed, then failed. Cleaned exact unit/files; production
+vault and broker readiness unchanged. Version-pinned ACL source explains required
+parameters affecting reads, unlike the original mocks. Reduced temporary-token
+authority instead of relaxing constraints: human bootstrap owns fixed config,
+ordinary provisioning can only verify it and handle two exact credential paths.
+202 tests pass. Prepared immutable v3 isolated-test bundle; approval pending.
+See [full evidence and source](evidence/D3-scoped-bootstrap-and-isolated-vault-gate-2026-10-08.md).
+
 ## 2026-10-08 — Isolated attempt stopped at source visibility; cleaned
 
 Approved bundle/unit staged and validated, but PrivateTmp hid its /var/tmp source.
