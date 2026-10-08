@@ -21,12 +21,14 @@ pausing wasn't enough separation between stories once heard for real."""
 
 import argparse
 import json
+import re
 import subprocess
 import sqlite3
 import tempfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import numpy as np
 import soundfile as sf
 from kokoro_onnx import Kokoro
 from digest_text import coherent_event, dedupe_titles, repeat_story, speech_text
@@ -71,7 +73,30 @@ def briefing_label(local_dt: datetime) -> tuple[str, str]:
 
 
 def synth(text: str, out_path: Path, engine: Kokoro) -> None:
-    audio, sample_rate = engine.create(text, voice=VOICE, speed=VOICE_SPEED, lang="en-gb")
+    # Keep long summaries from crossing Kokoro's internal phoneme-window
+    # boundary.  Sentence/clause-sized calls preserve pauses while avoiding
+    # the rough prosody and breathy joins that can appear in long batches.
+    chunks = []
+    for sentence in re.split(r"(?<=[.!?])\s+", text.replace("\n", " ").strip()):
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        clause_pattern = r"(?<=[;:])\s+|(?<=,)\s+(?=[A-ZÀ-ÖØ-Þ])"
+        if len(sentence) > 240:
+            clause_pattern = r"(?<=[;:,])\s+"
+        clauses = re.split(clause_pattern, sentence)
+        chunks.extend(clause.strip() for clause in clauses if clause.strip())
+
+    rendered = []
+    sample_rate = None
+    for chunk in chunks:
+        audio, sample_rate = engine.create(
+            chunk, voice=VOICE, speed=VOICE_SPEED, lang="en-gb"
+        )
+        rendered.append(audio)
+    if not rendered or sample_rate is None:
+        raise ValueError("No speech chunks generated")
+    audio = np.concatenate(rendered)
     sf.write(out_path, audio, sample_rate, subtype="PCM_16")
 
 
