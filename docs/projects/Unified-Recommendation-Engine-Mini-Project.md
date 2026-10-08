@@ -176,7 +176,7 @@ Request adapters remain the only write boundary.
 - [ ] **M3 — Ranking and explanations.** Implement deterministic scoring,
   duplicate/owned/archive suppression, source evidence, and optional local B60
   explanations.
-- [ ] **M4 — Approval integration.** Reuse the page's one-button actions and
+- [x] **M4 — Approval integration.** Reuse the page's one-button actions and
   route to Seerr/Lidarr/LazyLibrarian; preserve idempotency and audit records.
 - [ ] **M5 — Quality review and handover.** Compare a fixed sample against
   current Seerr-only output, verify all five domains, and publish a short user
@@ -287,6 +287,8 @@ only the portal if needed.
 | 2026-10-07 | Trakt device authorization fallback deployed | The mobile callback returned without OAuth query parameters. The pending state was preserved; the cause was isolated to the browser/proxy handoff. Added and deployed Trakt's device-code flow with a short activation code, protected polling, user-agent compatibility and no public callback exception. The device page returned HTTP 200 and both scoped containers remained running. | Device flow was subsequently approved and credentials were exchanged successfully |
 | 2026-10-07 | Trakt personal recommendations activated | Jason approved the device code in his normal browser. The live Trakt API returned personalized movie and show recommendations; the snapshot contained six Trakt candidates, all with protected credentials and no token output. | Personal Trakt source is live; Jellyfin remains the optional history-sync authority |
 | 2026-10-07 | Trakt reliability and artwork completed | Fixed JSON device-token polling, bind-mounted secret writes, automatic refresh-token rotation, and writable mounts limited to the Trakt access/refresh files. Trakt requests now use `extended=full` and preserve poster art, ratings, genres and source slugs. 56 unified-media tests pass; live validation showed six Trakt cards with HTTPS artwork. Local commit `33025e8` was pushed to Forgejo and verified on the GitHub mirror. | Trakt integration is operational; broader all-media search and final approval-flow graduation remain open |
+| 2026-10-07 | Unified provider search deployed | Added the live `/api/search` backend and UI controls for TMDB/Seerr, Open Library and MusicBrainz. Results are bounded, read-only, include artwork/source links, and support media-type selection. Local commit `abb4b01` was pushed to Forgejo; the live endpoint was validated for film, ebook and album queries. | Search milestone is operational; search-result acquisition remains intentionally read-only |
+| 2026-10-07 | M4 request actions authorized and enabled | Jason explicitly approved enabling the existing safety-checked request boundary. The shadow portal now exposes 16 safe recommendation actions and routes only snapshot candidates to Seerr, Lidarr or LazyLibrarian with idempotent state. A fabricated validation request was rejected with HTTP 409 and no downstream call. | One-button recommendation approval is live; individual requests still require Jason's click |
 
 ## Acceptance evidence
 

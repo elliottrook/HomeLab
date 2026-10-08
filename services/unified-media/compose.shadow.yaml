@@ -74,7 +74,7 @@ services:
       - PORT=8787
       - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
       - PORTAL_STATE_PATH=/state/actions.json
-      - PORTAL_ACTIONS_ENABLED=${PORTAL_ACTIONS_ENABLED:-NO}
+      - PORTAL_ACTIONS_ENABLED=${PORTAL_ACTIONS_ENABLED:-YES}
       - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
       - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
       - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
