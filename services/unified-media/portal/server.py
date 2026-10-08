@@ -202,6 +202,7 @@ def _source_url(item: Mapping[str, Any]) -> str:
 def render_html(items: list[dict[str, Any]]) -> str:
     counts: dict[str, int] = {}
     cards = []
+    requested_state = _read_state()
     for item in items:
         kind = str(item.get("media_type", "unknown"))
         counts[kind] = counts.get(kind, 0) + 1
@@ -229,14 +230,16 @@ def render_html(items: list[dict[str, Any]]) -> str:
         eligible = not item.get("owned") and not item.get("archived") and item.get("match_count", 1) == 1
         seasons = sorted({int(value) for value in (item.get("seasons") or [])
                           if isinstance(value, int) and value > 0})
+        requested = action_key(item) in requested_state
         if eligible:
             authority = html.escape(str(item.get("authority", "")), quote=True)
             authority_id = html.escape(str(item.get("authority_id", "")), quote=True)
             raw_title = html.escape(str(item.get("title", "")), quote=True)
             action = (
                 f"<button type='button' class='request-button' data-authority='{authority}' "
-                f"data-authority-id='{authority_id}' data-title='{raw_title}' data-media-type='{kind}'>"
-                f"{'Request selected seasons' if kind == 'tv' else f'Request this {display_type.lower()}'}</button>"
+                f"data-authority-id='{authority_id}' data-title='{raw_title}' data-media-type='{kind}'"
+                f"{' disabled' if requested else ''}>"
+                f"{'Requested' if requested else ('Request selected seasons' if kind == 'tv' else f'Request this {display_type.lower()}')}</button>"
             )
             if kind == "tv" and seasons:
                 season_picker = "<fieldset class='season-picker'><legend>Seasons to request</legend>" + "".join(
@@ -246,7 +249,8 @@ def render_html(items: list[dict[str, Any]]) -> str:
                 season_picker = "<span class='season-warning'>No validated seasons available.</span>"
             else:
                 season_picker = ""
-            status = "<span class='status status-ready'>Ready for your approval</span>"
+            status = ("<span class='status status-requested'>Request sent previously; check the owning service for progress.</span>"
+                      if requested else "<span class='status status-ready'>Ready for your approval</span>")
         else:
             action = "<button type='button' class='request-button' disabled>Unavailable</button>"
             season_picker = ""
@@ -395,7 +399,7 @@ def render_search_html() -> str:
 const input=document.querySelector('#provider-search'); const type=document.querySelector('#provider-type'); const button=document.querySelector('#provider-submit'); const results=document.querySelector('#provider-results');
 function esc(v){const n=document.createElement('div');n.textContent=v||'';return n.innerHTML.replaceAll('"','&quot;').replaceAll("'",'&#39;');}
 async function requestSearch(button){const card=button.closest('.search-card');const result=card.querySelector('.search-result');const seasons=[...card.querySelectorAll("input[name='season']:checked")].map(input=>Number(input.value));if(button.dataset.mediaType==='tv'&&!seasons.length){result.textContent='Select at least one season.';result.className='search-result error';return;}button.disabled=true;button.textContent='Sending…';try{const r=await fetch('/api/search/request',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({approve:true,authority:button.dataset.authority,authority_id:button.dataset.authorityId,title:button.dataset.title,media_type:button.dataset.mediaType,artist:button.dataset.artist||'',author:button.dataset.author||'',seasons})});const data=await r.json();if(!r.ok)throw new Error(data.error||'Request failed');button.textContent='Requested';result.textContent='Request sent.';result.className='search-result success';}catch(e){button.disabled=false;button.textContent='Try again';result.textContent=e.message;result.className='search-result error';}}
-async function run(){const q=input.value.trim();if(!q){results.hidden=true;results.innerHTML='';return;}button.disabled=true;button.textContent='Searching…';try{const r=await fetch('/api/search?q='+encodeURIComponent(q)+'&type='+encodeURIComponent(type.value));const data=await r.json();if(!r.ok)throw new Error(data.error||'Search failed');results.innerHTML=data.length?data.map(i=>{const p=i.poster_path?`<img class='search-poster' src='${esc(i.poster_path)}' alt='' loading='lazy'>`:`<div class='search-poster poster-fallback'>✦</div>`;const c=i.artist||i.author?`<div class='creator'>${esc(i.artist||i.author)}</div>`:'';const s=i.source_url?`<a class='source-link' href='${esc(i.source_url)}' target='_blank' rel='noopener noreferrer'>Open source ↗</a>`:'';const canRequest=i.media_type!=='tv'||(i.seasons||[]).length;const picker=i.media_type==='tv'&&canRequest?`<fieldset class='season-picker'><legend>Seasons to request</legend>${i.seasons.map(n=>`<label><input type='checkbox' name='season' value='${n}' checked> Season ${n}</label>`).join('')}</fieldset>`:'';const a=canRequest?`<button class='request-button search-request' type='button' data-authority='${esc(i.authority)}' data-authority-id='${esc(i.authority_id)}' data-title='${esc(i.title)}' data-media-type='${esc(i.media_type)}' data-artist='${esc(i.artist||'')}' data-author='${esc(i.author||'')}'>${i.media_type==='tv'?'Request selected seasons':`Request this ${esc(i.media_type)}`}</button><span class='search-result'></span>`:`<span class='search-result'>No validated seasons available.</span>`;return `<article class='search-card'>${p}<div><div class='eyebrow'>${esc(i.media_type)} <span class='source'>${esc(i.source_label)}</span></div><h2>${esc(i.title)}</h2><p class='metadata'>${esc(i.year||'')}</p>${c}<p class='overview'>${esc(i.overview||'No synopsis available.')}</p>${s}${picker}<div class='search-action'>${a}</div></div></article>`}).join(''):`<div class='empty'>No results found across the selected sources.</div>`;results.querySelectorAll('.search-request').forEach(b=>b.addEventListener('click',()=>requestSearch(b)));results.hidden=false;}catch(e){results.innerHTML=`<div class='empty'>${esc(e.message)}</div>`;results.hidden=false;}button.disabled=false;button.textContent='Search all media';}
+async function run(){const q=input.value.trim();if(!q){results.hidden=true;results.innerHTML='';return;}button.disabled=true;button.textContent='Searching…';try{const r=await fetch('/api/search?q='+encodeURIComponent(q)+'&type='+encodeURIComponent(type.value));const data=await r.json();if(!r.ok)throw new Error(data.error||'Search failed');results.innerHTML=data.length?data.map(i=>{const p=i.poster_path?`<img class='search-poster' src='${esc(i.poster_path)}' alt='' loading='lazy'>`:`<div class='search-poster poster-fallback'>✦</div>`;const c=i.artist||i.author?`<div class='creator'>${esc(i.artist||i.author)}</div>`:'';const s=i.source_url?`<a class='source-link' href='${esc(i.source_url)}' target='_blank' rel='noopener noreferrer'>Open source ↗</a>`:'';const canRequest=i.media_type!=='tv'||(i.seasons||[]).length;const picker=i.media_type==='tv'&&canRequest&&!i.requested?`<fieldset class='season-picker'><legend>Seasons to request</legend>${i.seasons.map(n=>`<label><input type='checkbox' name='season' value='${n}' checked> Season ${n}</label>`).join('')}</fieldset>`:'';const a=canRequest?`<button class='request-button search-request' type='button' ${i.requested?'disabled':''} data-authority='${esc(i.authority)}' data-authority-id='${esc(i.authority_id)}' data-title='${esc(i.title)}' data-media-type='${esc(i.media_type)}' data-artist='${esc(i.artist||'')}' data-author='${esc(i.author||'')}'>${i.requested?'Requested':i.media_type==='tv'?'Request selected seasons':`Request this ${esc(i.media_type)}`}</button><span class='search-result ${i.requested?'success':''}'>${i.requested?'Request sent previously; check the owning service for progress.':''}</span>`:`<span class='search-result'>No validated seasons available.</span>`;return `<article class='search-card'>${p}<div><div class='eyebrow'>${esc(i.media_type)} <span class='source'>${esc(i.source_label)}</span></div><h2>${esc(i.title)}</h2><p class='metadata'>${esc(i.year||'')}</p>${c}<p class='overview'>${esc(i.overview||'No synopsis available.')}</p>${s}${picker}<div class='search-action'>${a}</div></div></article>`}).join(''):`<div class='empty'>No results found across the selected sources.</div>`;results.querySelectorAll('.search-request:not([disabled])').forEach(b=>b.addEventListener('click',()=>requestSearch(b)));results.hidden=false;}catch(e){results.innerHTML=`<div class='empty'>${esc(e.message)}</div>`;results.hidden=false;}button.disabled=false;button.textContent='Search all media';}
 button.addEventListener('click',run);input.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
 </script>
 """
@@ -697,6 +701,9 @@ def search_all(query: str, media_type: str = "all") -> list[dict[str, Any]]:
         results.extend(_search_openlibrary(query, "ebook" if media_type == "all" else media_type))
     if media_type in {"all", "album"}:
         results.extend(_search_musicbrainz(query))
+    requested_state = _read_state()
+    for item in results:
+        item["requested"] = action_key(item) in requested_state
     return results[:24]
 
 
@@ -731,6 +738,12 @@ def _submit_item(item: Mapping[str, Any]) -> dict[str, Any]:
         result = _lazylibrarian_request(item)
     else:
         raise RuntimeError("unsupported write authority")
+    result = dict(result)
+    result["title"] = str(item.get("title", ""))
+    result["media_type"] = str(item.get("media_type", ""))
+    if item.get("media_type") == "tv":
+        result["seasons"] = sorted({int(value) for value in (item.get("seasons") or [])
+                                     if isinstance(value, int) and value > 0})
     state[key] = result
     _write_state(state)
     return result

@@ -47,6 +47,18 @@ class PortalTests(unittest.TestCase):
         self.assertIn("A desert planet becomes the centre of an empire.", html)
         self.assertIn("https://covers.example/dune.jpg", html)
 
+    def test_render_marks_persisted_request_as_requested(self):
+        item = {"title": "Arrival", "media_type": "movie", "authority": "seerr",
+                "authority_id": "329865", "explanation": "already requested"}
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory) / "actions.json"
+            state.write_text(json.dumps({action_key(item): {"title": "Arrival"}}))
+            with patch("portal.server.STATE_PATH", state):
+                html = render_html([item])
+        self.assertIn(">Requested</button>", html)
+        self.assertIn("Request sent previously", html)
+        self.assertNotIn("Ready for your approval", html)
+
     def test_render_links_artwork_to_read_only_source_pages(self):
         html = render_html([
             {"title": "Arrival", "media_type": "movie", "authority": "seerr",

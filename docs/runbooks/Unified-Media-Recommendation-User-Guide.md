@@ -64,6 +64,11 @@ stale data, missing credentials or a failed dependency.
 7. Follow progress in the authority's normal UI: Seerr for films/TV, Lidarr
    for music and LazyLibrarian for books.
 
+Successful requests are remembered in the portal's protected action ledger.
+After a refresh, the matching card or search result shows **Requested** and
+**Request sent previously** instead of offering another request button. Check
+the owning service for acquisition progress.
+
 For TV cards, the season selector is pre-filled with every currently known
 numbered season. Untick any seasons you do not want, then press **Request
 selected seasons**. Season 0 specials are excluded. The same selector is used
