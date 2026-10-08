@@ -213,7 +213,7 @@ function applyFilters() {
     card.hidden = !matchesType || !matchesSearch;
   });
 }
-search.addEventListener('input', applyFilters);
+if (search) search.addEventListener('input', applyFilters);
 const searchType = document.querySelector('#search-type');
 const searchButton = document.querySelector('#search-submit');
 const searchResults = document.querySelector('#search-results');
