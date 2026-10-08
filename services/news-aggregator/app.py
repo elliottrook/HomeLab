@@ -207,7 +207,7 @@ TEMPLATE_DIGEST = (
   .empty { color: var(--ui-muted); padding: 50px; border: 1px dashed var(--ui-line); border-radius: 18px; text-align: center; }
   .audio-briefing { background: linear-gradient(135deg, #172842, #151d31); border: 1px solid var(--ui-line); border-radius: 18px; padding: 18px; margin-bottom: 24px; }
   .audio-briefing-label { color: var(--ui-accent-strong); font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
-  .audio-player { display: block; padding-bottom: 32px; }
+  .audio-player { display: block; padding-bottom: 72px; }
   .audio-main { min-width: 0; }
   .audio-briefing audio { display: block; width: 100%; height: 54px; }
   .audio-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
@@ -228,7 +228,7 @@ TEMPLATE_DIGEST = (
   .filter { border: 1px solid var(--ui-line); background: transparent; color: var(--ui-muted); border-radius: 999px; padding: 9px 15px; cursor: pointer; }
   .filter.active, .filter:hover { background: var(--ui-accent); color: #07111d; border-color: var(--ui-accent); }
   .filter span { font-size: .8em; opacity: .75; }
-  @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-player { padding-bottom: 44px; } .audio-briefing audio { height: 60px; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: min(640px, calc(100% - 24px)); } .audio-controls { gap: 10px; } .audio-control { min-width: 128px; min-height: 56px; padding: 16px 22px; font-size: 1.05rem; } .audio-chapter { min-height: 48px; padding: 11px 12px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 9px 15px; } }
+  @media (max-width: 600px) { .audio-briefing { padding: 20px; } .audio-player { padding-bottom: 96px; } .audio-briefing audio { height: 60px; } .audio-chapters-stage { min-height: 260px; } .audio-orb { width: min(640px, calc(100% - 24px)); } .audio-controls { gap: 10px; } .audio-control { min-width: 128px; min-height: 56px; padding: 16px 22px; font-size: 1.05rem; } .audio-chapter { min-height: 48px; padding: 11px 12px; } .digest-body { padding: 20px; } .digest-headline { font-size: 1.55rem; } .digest-summary { font-size: 1rem; } .digest-deviation { font-size: .95rem; padding: 13px 14px; } .filter { padding: 9px 15px; } }
 </style>
 </head>
 <body>
