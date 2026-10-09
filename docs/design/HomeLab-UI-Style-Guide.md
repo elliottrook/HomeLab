@@ -8,14 +8,15 @@ This guide governs Aster-associated internal HomeLab/network applications,
 including their private dashboards, operational tools and assistant surfaces.
 It is not a universal visual standard for everything hosted on this network.
 
-The Contrasting Frame is a separate brand. All work for it, including its
-private editorial tools, must follow the
+The Contrasting Frame public website is a separate brand and follows the
 [The Contrasting Frame style guide](The-Contrasting-Frame-Style-Guide.md).
-Do not apply this guide's navy/cyan palette, rounded-card treatment, icon
-family or system-font hierarchy to that brand. Shared security, accessibility
-and operational project requirements still apply. Aster's canonical voice
-remains required when a component actually speaks on Aster's behalf; it does
-not prescribe a photography brand's visual identity.
+Its private Content Desk is deliberately an internal HomeLab/Aster operator
+tool, so this guide's navy/cyan palette, rounded-card treatment, system-font
+hierarchy and HomeLab app-icon family govern the Desk. Public gallery previews
+inside the Desk still render the photography brand faithfully. Shared security,
+accessibility and operational requirements apply to both surfaces. Aster's
+canonical voice remains required only if a component actually speaks on
+Aster's behalf; the current project produces no speech.
 
 This guide extends the [HomeLab app icon family](App-Icon-Family.md) into a
 small, practical visual system. It captures the choices used by the Unified

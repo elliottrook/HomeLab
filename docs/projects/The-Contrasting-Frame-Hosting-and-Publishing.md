@@ -1,14 +1,14 @@
 # The Contrasting Frame hosting and editorial publishing
 
-> Status: Ready for M0 design discussion; no infrastructure implementation begun
+> Status: Active — M0 accepted; Stream A implementation authorized
 >
 > Owner: Jason Elliott
 >
 > Proposed: 2026-10-09
 >
-> Current authorization: Stream M for M0 only
+> Current authorization: Stream A for accepted A1–A6 scope
 >
-> Delivery instruction: transition to Stream A for A1–A6 after M0 acceptance
+> M0 accepted: 2026-10-09
 
 ## Purpose and desired outcome
 
@@ -25,10 +25,16 @@ and his acceptance of the concrete risks and scope, then transition the project'
 single active stream to A. Do not run M and A simultaneously or treat this
 planning request as approval of an unspecified Internet exposure.
 
-Applicable visual standard:
-[The Contrasting Frame style guide](../design/The-Contrasting-Frame-Style-Guide.md).
-The Aster internal UI guide does not govern this brand or its private editor.
-This project produces no speech; no new voice/TTS implementation is planned.
+Applicable visual standards are deliberately split by surface:
+
+- the public website and its rendered preview use the
+  [The Contrasting Frame style guide](../design/The-Contrasting-Frame-Style-Guide.md);
+- the private Content Desk uses the
+  [Aster internal UI style guide](../design/HomeLab-UI-Style-Guide.md) and
+  [HomeLab app icon family](../design/App-Icon-Family.md).
+
+An embedded gallery preview remains TCF-styled inside the Aster-styled operator
+tool. This project produces no speech; no new voice/TTS implementation is planned.
 
 ## Current state and evidence
 
@@ -216,8 +222,9 @@ Recheck applicability during M0; this project does not establish legal clearance
 
 ## Content Desk and scheduled workflow
 
-Build a small brand-consistent editor, not a general file manager or new CMS
-ecosystem unless M0 identifies a clear benefit. The minimal path supports:
+Build a small Aster-styled internal editor, not a general file manager or new
+CMS ecosystem unless M0 identifies a clear benefit. Its embedded gallery
+preview remains TCF-styled. The minimal path supports:
 
 1. Select an allowlisted image; show filename/thumbnail, source checksum,
    orientation and collection. Stable IDs, not model-generated paths.
@@ -259,6 +266,47 @@ Retain rollback versions with a quota; never delete the last known good release.
 Serve responsive WebP/AVIF/JPEG as supported, no upscaling, preserve colour
 appearance, strip EXIF/GPS and retain rights privately. Never edit originals.
 Full-size download sales are out of scope.
+
+### M0 decisions accepted to date
+
+- Immich on the main Synology is the eventual source catalogue. A deliberately
+  separated professional-photography collection will be exposed read-only to
+  the workflow; no such content exists yet.
+- The separate future competition-analysis assistant is outside A1–A6. The
+  publishing path begins with Jason's GUI approval, may later add monitored AI
+  operation, and may move toward autonomy only through a future accepted gate.
+- Stories are canonical UTF-8 Markdown files on a scoped Synology repository,
+  edited elsewhere and imported by paste, drag/drop or allowlisted network
+  selection. The Content Desk preserves originals and approved snapshots.
+- The accepted gallery samples contain 36–68 words per story. Gallery text
+  targets 40–70 words, warns above 80 and has a hard 100-word limit. An optional
+  full-viewer story may contain up to 160 words. All variants require desktop,
+  portrait and 390 px mobile preview; no automatic truncation or rewrite.
+- Current photographs/stories are conspicuously labelled sample content and
+  are not publication-approved. Real launch content is a later launch gate.
+- Jason alone controls approval initially. The policy may become configurable
+  through a later explicit design decision; AI cannot approve in this scope.
+- Editorial cadence begins fortnightly. A quiet due-item check may run more
+  often, but it publishes only immutable approved versions and emits no routine
+  no-change notification.
+- Synology is the private content authority, not the public web server. The
+  isolated Proxmox origin receives only complete static release copies and has
+  no NAS, Immich, AI or private-editor access.
+- Backup scope covers configuration, reconstruction inputs/current story files,
+  approval state and the current accepted site plus bounded operational
+  rollback. Immich/media has its own backup process; this project does not add
+  historical media or release-archive protection.
+- Cloudflare currently holds the parked domain. Public delivery is free-tier
+  only; the apex is canonical with a `www` redirect. No editor, API, originals,
+  administration, downloads or sales are public.
+- Apple-hosted custom-domain mail is intended for
+  `hello@thecontrastingframe.com`; working mail or an accepted interim address
+  remains a launch gate.
+- Jason reports the dearJoe webfont licence permits one domain and 10,000
+  monthly views. Monitor usage and extend the licence before exceeding it; EULA
+  verification remains an A5 gate.
+- The private Content Desk follows the Aster internal UI and app-icon guides;
+  the website and embedded public preview follow the TCF guide.
 
 ## Privacy security and risk assessment
 
@@ -407,15 +455,19 @@ previously public material cannot be guaranteed erased.
 
 ## Persistence and exact next action
 
-Current milestone: M0. Next safe action: open a design conversation with Jason.
-No infrastructure or public-domain changes have been made by this preparation.
+Current milestone: A1. M0 design/risk acceptance was given by Jason on
+2026-10-09 after review of the corrected Aster-styled Content Desk concept,
+Synology/Immich source boundaries, isolated public origin, story limits,
+approval/cadence, backup scope, domain/mail/font constraints and free-tier
+public exposure. No infrastructure or public-domain changes had been made at
+the transition. Next safe action: reconcile an authoritative Forgejo checkout,
+verify source/asset checksums and complete read-only live allocation discovery.
 Store design decisions, last validated gate, candidate/accepted release ID,
 rollback checkpoint, exact blocker and next safe action at each milestone.
 Use a versioned durable job-state DB with atomic transitions, not process absence.
 
 Resume by reading AGENTS, this project and current repository/Forgejo status;
-verify completed evidence before rerunning anything. Do not auto-transition to A
-without the recorded M0 acceptance. Do not create recurring Codex automation
+verify completed evidence before rerunning anything. Do not create recurring Codex automation
 unless Jason separately asks; the new implementation conversation owns execution.
 
 ## Evidence log
@@ -426,6 +478,8 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Live Forgejo main `2f929145`; standard/style blob IDs match checkout | Standards verified; other branch history differs |
 | 2026-10-09 | Read-only Proxmox version/guest/storage and TrueNAS dataset/capacity queries | Hosting/storage proposals grounded in current resources; no allocation made |
 | 2026-10-09 | Style routing, TCF guide and project/handoff prepared locally | Remote synchronization requires per-push approval and clean reconciliation |
+| 2026-10-09 | Jason accepted the Synology/isolated-origin design, story limits, initial approval/cadence, backup scope and simple free-tier public surface; corrected Content Desk visual routing | M0 decisions recorded; live allocation/provider facts remain implementation-time verification gates |
+| 2026-10-09 | Jason reviewed the corrected Aster-styled Content Desk concept and explicitly directed “please begin, stream A” | M0 accepted; project transitioned to Stream A for A1–A6 within the recorded scope |
 
 ## Close out
 
