@@ -1,8 +1,56 @@
 # D3 — one supervised credential session
 
-Status: APPROVED BY JASON; execution pending. Approval covers the single
-supervised fictional session described in this chat, with existing cleanup and
-rollback boundaries. No unattended promotion or Git push.
+Status: APPROVED PILOT COMPLETED; CLEANUP VERIFIED; OWNER DISPLAY CHECK PENDING.
+Approval consumed. No unattended promotion or Git push.
+
+## Executed result
+
+Jason approved. Local candidate commit `644af8a` was saved before execution.
+Fresh metadata matched the exact fingerprint; disabled live baseline and empty
+ledger, installed source hashes, original app/CA/specification and inactive exact
+identity/bindings were verified. Reinstalled only the corrected drop-in; strict
+sandbox and two exact write paths remained. One restart succeeded, preserving
+all 35 original routes and returning healthy Companion/pilot pages.
+
+Activated only the worker, admitted `orion-connected-20261008` once, and ran the
+new worker once. It returned `state=completed, automatic_retry=false`. This code
+path requires supervised bootstrap, the missing/malformed/valid identity checks,
+one assigned model turn, terminal receipt, answer delivery and usage delivery.
+Independent read-only gateway ledger inspection found exactly one completed job,
+its answer digest, usage and no cancellation request. No second inference or
+diagnostic repetition occurred. The full answer was not read into operator tools.
+
+Provider-reported usage snapshots (last and total equal): 7,882 input tokens,
+4,864 cached input, 232 output, 0 reported reasoning-output tokens, 8,114 total.
+Configured reasoning was medium; zero reported reasoning tokens is not evidence
+that the setting was disabled. These counters are not a monetary invoice or
+subscription-capacity measurement. Authentication remained ChatGPT; no PAYG
+fallback. The overall process returned after roughly 16 seconds of tool wait,
+not an isolated model latency benchmark.
+
+Disabled the exact worker immediately. Cleanup's explicit grant update affected
+zero rows; independent broader metadata found no access grants for provider 51
+or user 11 and no provider refresh grants. Source inspection explains this:
+`/authentik/providers/oauth2/signals.py` post-save `user_deactivated` deletes the
+user's access, refresh and device grants (including expired) unless cleanup is
+inhibited. The user deactivation had already removed them. This corrects the
+earlier inference from introspection code alone that deactivation was insufficient
+on this installed version. No tokens or secret values were inspected. Dedicated
+identity isolation matters because this built-in hook applies to all its grants.
+
+Aster remains active; health, Companion and pilot page return 200; main source
+hash is unchanged. Gateway stays enabled for the owner to read its in-memory
+answer, with worker inactive, no scheduler/new job and no live token. Do not
+restart it merely for cleanup; that would discard the answer. No rollback needed.
+Private local evidence is `.aster-local-state/supervised-session-pilot-20261008`.
+Checkpoint/ledger retained. Remote Git synchronization remains pending approval.
+
+Owner acceptance still requires Jason to open
+`https://aster.elliottrook.com/companion/codex-pilot` in his usual signed-in browser
+and confirm the fictional Orion answer is visible. The app browser-open request
+was queued, not evidence of display or successful login. No user token is requested
+or copied. Follow-up/recovery/normal chat/voice and unattended operation remain
+unproven; this does not graduate D3 or authorize live sysadmin work.
 
 ## Candidate and evidence
 

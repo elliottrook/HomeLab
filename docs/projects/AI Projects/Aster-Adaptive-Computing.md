@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Supervised-session pilot APPROVED; execution pending | [Exact session gate](evidence/D3-supervised-session-pilot-2026-10-08.md): 242 tests pass, one bootstrap/token, no renewal, online gateway checks retained. Recheck live baseline before execution. Password expires Oct 9 at 7:02 PM Vancouver. |
+| D3 — Companion integration | Authenticated supervised round trip COMPLETED; cleanup VERIFIED | [Session result](evidence/D3-supervised-session-pilot-2026-10-08.md): one completed Orion job, answer/usage recorded, worker inactive and no tokens remain. Aster healthy; result page retained for Jason's display check. D3 not graduated; no live sysadmin delegation. Password expires Oct 9 at 7:02 PM Vancouver. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in

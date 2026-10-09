@@ -70,8 +70,11 @@ choice is the installed configuration, not a recommendation or quality result.
   `/etc/aster/openbao-ca.crt` is absent. `/var/lib/aster` is root-owned 0755, so
   provision the new private delegation subdirectory explicitly for Aster.
 - Installed Authentik `providers/oauth2/views/introspection.py` checks grant
-  expiry/revocation, not current user activity. Account deactivation alone is
-  therefore insufficient cleanup. Revoke only this user/provider's grants too.
+  expiry/revocation, not current user activity. Initial inference that deactivation
+  was insufficient missed its post-save signal. The later
+  [successful session result](D3-supervised-session-pilot-2026-10-08.md) verifies
+  this version's deactivation hook removes user grants; explicit scoped cleanup
+  and independent absence checks remain useful defense in depth.
 - 237 local delegation tests passed. New coverage includes one-time admission,
   wrong approval/job refusal, private single-link ledger requirements, disabled
   credential checking, denied unauthenticated access, and distinguishing an

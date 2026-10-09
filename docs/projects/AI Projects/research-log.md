@@ -1814,3 +1814,15 @@ subscription model. Jason approved the described one-session fictional pilot.
 The [session gate](evidence/D3-supervised-session-pilot-2026-10-08.md) records the
 fingerprint, reservation-before-bootstrap ordering, exact cleanup and rollback.
 Execution pending live revalidation; no further Keychain read during preparation.
+
+### 2026-10-08 — Supervised authenticated round trip completed
+
+Fresh preflight/fingerprint matched. Re-enabled only the corrected drop-in with
+one restart, activated the exact identity, admitted one Orion job and ran the
+approved worker once. Completed state, answer digest and usage independently
+confirmed in the gateway. Disabled worker immediately; no access/refresh grants
+remain. Authentik's user-deactivation signal deletes grants, correcting the earlier
+incomplete inference from introspection source alone. Gateway remains healthy and
+owner-readable, no active worker or scheduler. Jason's display acceptance remains
+pending; app browser-open request was queued only. No push or sysadmin promotion.
+Full sanitized result and provider usage: [session result](evidence/D3-supervised-session-pilot-2026-10-08.md).
