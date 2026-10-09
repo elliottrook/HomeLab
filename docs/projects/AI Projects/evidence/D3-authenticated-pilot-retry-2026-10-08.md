@@ -1,7 +1,39 @@
 # D3 — correct the pilot state-directory sandbox boundary
 
-Status: PREPARED, NOT APPROVED. Original attempt and successful rollback are in
+Status: APPROVED RETRY STOPPED AT CREDENTIAL CHECK; ROLLBACK VERIFIED.
+Approval consumed. Original attempt and successful rollback are in
 the [first pilot gate](D3-authenticated-pilot-gate-2026-10-08.md).
+
+## Executed retry result
+
+Jason approved. Revalidated retained files/state, exact worker fingerprint,
+healthy original 35 paths, inactive identity, zero grants and password lifetime.
+Installed the corrected drop-in, verified exactly the two intended write paths
+with `ProtectSystem=strict` retained, and restarted once. Startup succeeded with
+zero automatic restarts: health/Companion/pilot page 200, original 35 paths
+preserved, 43 API paths total, private ledger and runtime credential metadata
+verified. The state-directory correction is therefore supported by live evidence.
+
+Activated only the exact worker user and ran the approved credential-path check
+once. It failed with the intentionally generic `Credential path unconfirmed`.
+No job was admitted and no connected worker/model process was started. Immediately
+disabled the user and marked matching user/provider grants revoked; zero grants
+existed. Removed only the corrected-hash pilot drop-in and performed the approved
+rollback restart. Independently verified normal Aster health/Companion 200,
+delegation 404, runtime credential absent and a read-only database count of zero
+jobs. Retain the empty private ledger; do not delete it or recreate state.
+
+Read-only diagnosis: the exact broker status check as Aster returns true; Mac
+AuthentiK discovery returns 200; fixed-item Keychain metadata lookup succeeds in
+both normal and worker environments without requesting the password. Sanitized
+AuthentiK HTTP metadata shows one introspection request, HTTP 200, and no token
+endpoint request in the inspected window. This suggests a failure before token
+issuance but does not establish which local operation failed. The generic helper
+error does not retain sufficient stage evidence. Do not guess, extend timeouts,
+renew credentials or repeat live restarts to find out.
+
+Next: [fixed-item private diagnostic](D3-keychain-read-diagnostic-2026-10-08.md).
+The prospective retry scope below is retained as historical authorization only.
 
 ## Exact change and impact
 

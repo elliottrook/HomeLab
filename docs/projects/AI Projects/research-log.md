@@ -1756,3 +1756,18 @@ Corrected local candidate adds only the private delegation directory to
 [retry gate](evidence/D3-authenticated-pilot-retry-2026-10-08.md) binds the new hash,
 retained checkpoint, one restart/turn and failure rollback. Await new approval;
 no push or credential renewal performed.
+
+### 2026-10-08 — Corrected startup passed; credential check stopped; restored
+
+Approved corrected retry passed startup and retained original paths, strict
+sandbox and exactly two writable service directories. Activated only the worker;
+its one credential-path check failed before admission. Immediately deactivated
+the user, verified zero grants, removed the corrected drop-in and restarted into
+the healthy disabled configuration. Read-only ledger count is zero; no model call.
+
+Broker status works as Aster, Authentik public discovery works from the Mac and
+fixed Keychain metadata lookup works in both environments. Inspected OAuth HTTP
+metadata has an introspection but no token request. Do not infer the precise
+cause from the generic exception. Prepared a hash-bound private five-second
+Keychain-read-only diagnostic with two passing fixture tests; no secret output,
+network, activation or service restart. Await its narrow credential-read approval.

@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | First authenticated pilot failed at startup; rollback VERIFIED | Missing systemd write exception blocked the private ledger. Aster restored; worker never activated, no job admitted or model turn made. [Corrected bounded retry](evidence/D3-authenticated-pilot-retry-2026-10-08.md) awaits approval. Password expires Oct 9 at 7:02 PM Vancouver. |
+| D3 — Companion integration | Corrected gateway startup PASSED; credential check FAILED; rollback VERIFIED | Aster restored, worker inactive, zero grants/jobs/model turns. [Private credential-read diagnostic](evidence/D3-keychain-read-diagnostic-2026-10-08.md) awaits approval; no additional restart proposed. Failure stage remains unresolved. Password expires Oct 9 at 7:02 PM Vancouver. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
