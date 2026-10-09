@@ -1,0 +1,17 @@
+{
+  "id": "after-the-weather-sample",
+  "asset_path": "assets/alpine-dawn.png",
+  "image_sha256": "623afb0f558ad84e19e69648c5a241bd00a5348bf38d8fa73d81958f5c29e3e5",
+  "collection": "landscapes",
+  "title": "After the Weather",
+  "alt_text": "Dawn opening over a mist-filled mountain lake",
+  "story": "He carried two cups to the lake, out of a habit he had not yet learned to lose. The mountains kept their distance behind the mist. When the light finally arrived, it found him sitting on the old log, explaining the weather to no one in particular. By the time the light reached the shore, both cups were cold. He stayed a little longer anyway.",
+  "full_story": "",
+  "story_mode": "fictional",
+  "orientation": "landscape",
+  "focal_point": "50% 50%",
+  "rights_status": "unknown",
+  "consent_status": "unknown",
+  "credit": "Accepted demonstration baseline; production provenance incomplete",
+  "sample": true
+}

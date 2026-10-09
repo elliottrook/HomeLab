@@ -354,11 +354,11 @@ discovery may proceed. Remote Git writes still need immediate permission.
 
 ### A1 Preserve source and prepare content model
 
-- [ ] Verify baseline source/asset checksums and protect a restorable export.
-- [ ] Prepare private source repository/mirror policy, content schema and tests.
-- [ ] Separate demonstration content from launch-approved content; preserve all
+- [x] Verify baseline source/asset checksums and protect a restorable export.
+- [x] Prepare private source repository/mirror policy, content schema and tests.
+- [x] Separate demonstration content from launch-approved content; preserve all
   user originals and author-written story versions.
-- [ ] Validate orientation layouts and brand guide on synthetic/approved samples.
+- [x] Validate orientation layouts and brand guide on synthetic/approved samples.
 
 Gate: source reconstructs the accepted site; no proprietary/private data leaks.
 
@@ -480,6 +480,10 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Style routing, TCF guide and project/handoff prepared locally | Remote synchronization requires per-push approval and clean reconciliation |
 | 2026-10-09 | Jason accepted the Synology/isolated-origin design, story limits, initial approval/cadence, backup scope and simple free-tier public surface; corrected Content Desk visual routing | M0 decisions recorded; live allocation/provider facts remain implementation-time verification gates |
 | 2026-10-09 | Jason reviewed the corrected Aster-styled Content Desk concept and explicitly directed “please begin, stream A” | M0 accepted; project transitioned to Stream A for A1–A6 within the recorded scope |
+| 2026-10-09 | Read-only live reconciliation: Forgejo main `2f92914`; Proxmox 9.2.20 with about 49 GB available RAM and VMIDs 124–125 free; NetBox 4.6.9 has no TCF records and `.35`/`.36` are unassigned; TrueNAS 25.10.5 Media pool has about 18.1 TB free and no TCF dataset; DSM 7.4.1 has about 10.0 TB available | Proposed allocations grounded in current state; no infrastructure changed during discovery |
+| 2026-10-09 | Authoritative Forgejo main was streamed read-only as a complete Git bundle; only preparation commit `b5c81a4` was replayed as `0062f18`, then accepted M0 decisions committed locally as `5a8802d` | Divergent local history was not transferred; no remote write occurred |
+| 2026-10-09 | A1 baseline manifest covers every accepted `dist/` file; private archive `accepted-dist-5b23ccb9.tar.gz` SHA-256 `2333421596d0bdf3579f48fc9300531e4e6b8b3a4f3bb950268960a7783413dc` restored in isolation and matched the manifest | Accepted site is reconstructable; archive remains private and must gain independent A2 backup coverage |
+| 2026-10-09 | Versioned content schema, immutable public hash, sample hard-block, traversal/rights/consent/story-limit tests and conspicuous five-page sample build completed; 10 tests passed | A1 gate passed; commercial font and all media remain outside the public-mirrored repository |
 
 ## Close out
 
