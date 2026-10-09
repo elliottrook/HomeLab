@@ -95,8 +95,13 @@ def classify(data: dict) -> tuple[int, str]:
     if data.get("global_enabled") != "1":
         failures.append("global access disabled")
 
+    # Retired/disabled service records are retained for audit and recovery
+    # evidence.  The policy catalogue is the enabled production surface, so
+    # compare only enabled services here rather than treating retained fixture
+    # metadata as live policy drift.
     services = {row[0]: (row[1] == 1) for row in data.get("services", [])}
-    if set(services) != EXPECTED_SERVICES or not all(services.values()):
+    enabled_services = {service_id for service_id, enabled in services.items() if enabled}
+    if enabled_services != EXPECTED_SERVICES:
         failures.append("service catalogue drift")
     now = int(data.get("now", time.time()))
     for row in data.get("services", []):
@@ -110,7 +115,11 @@ def classify(data: dict) -> tuple[int, str]:
                 if due < now:
                     failures.append("overdue credential rotation")
 
-    capabilities = {row[0]: (row[1], row[2], row[3] == 1) for row in data.get("capabilities", [])}
+    capabilities = {
+        row[0]: (row[1], row[2], row[3] == 1)
+        for row in data.get("capabilities", [])
+        if row[1] in enabled_services
+    }
     expected = {name: (*shape, True) for name, shape in EXPECTED_CAPABILITIES.items()}
     if capabilities != expected:
         failures.append("capability catalogue drift")

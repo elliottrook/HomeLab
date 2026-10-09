@@ -39,6 +39,12 @@ class CheckAIPAMTests(unittest.TestCase):
         data = healthy(); data["capabilities"].append(["unreviewed", "synthetic", "green", 1])
         self.assertIn("capability catalogue drift", module.classify(data)[1])
 
+    def test_retained_disabled_fixture_is_not_live_catalogue_drift(self):
+        data = healthy()
+        data["services"].append(["retired-fixture", 0, "not-applicable"])
+        data["capabilities"].append(["retired-fixture.test", "retired-fixture", "red", 1])
+        self.assertEqual(0, module.classify(data)[0])
+
     def test_sealed_openbao_fails(self):
         data = healthy(); data["openbao"]["sealed"] = True
         self.assertIn("OpenBao unavailable or sealed", module.classify(data)[1])

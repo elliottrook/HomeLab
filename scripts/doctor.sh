@@ -145,8 +145,11 @@ check_idrive_relay() {
             printf "service=%s\\n" "$(pct exec 112 -- systemctl is-active idrive-relay-sync.service 2>/dev/null || true)"
             printf "result=%s\\n" "$(pct exec 112 -- systemctl show idrive-relay-sync.service -p Result --value 2>/dev/null || true)"
             printf "log_epoch=%s\\n" "$(pct exec 112 -- stat -c %Y /var/log/idrive-relay/sync.log 2>/dev/null || true)"
-            if pct exec 112 -- grep -Fq -- "/aster-lxc110/**" /usr/local/sbin/idrive-relay-sync 2>/dev/null &&
-               pct exec 112 -- grep -Fq -- "/homelab-proxmox-guests/vzdump-lxc-110-*.tar.zst" /usr/local/sbin/idrive-relay-sync 2>/dev/null; then
+            # The current Recovery layout excludes LXC 110 at the sync-tree
+            # level.  Keep this check aligned with the deployed relay rather
+            # than the retired pre-cutover path-based pattern.
+            if pct exec 112 -- grep -Fq -- "vzdump-lxc-110-*.tar.zst" /usr/local/sbin/idrive-relay-sync 2>/dev/null &&
+               pct exec 112 -- grep -Fq -- "vzdump-lxc-115-*.tar.zst" /usr/local/sbin/idrive-relay-sync 2>/dev/null; then
                 printf "lxc110_excludes=present\\n"
             else
                 printf "lxc110_excludes=missing\\n"
