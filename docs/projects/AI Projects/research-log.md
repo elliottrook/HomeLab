@@ -2167,9 +2167,11 @@ has one completed turn and usage record; the owner-only event file has just
 submitted/completed metadata for case 0, with 2.273-second turn time and
 3.044-second send-to-result time. Aster retained 44 paths, GET-only owner job
 listing and two gateway jobs. The separate worker remained inactive with zero
-unrevoked grants. The answer is still open for Jason to save privately, so
-normal-app relaunch remains pending. This is one successful transport and
-measurement case, not routine reliability, automatic routing or sysadmin
+unrevoked grants. Jason then approved closing the volatile answer. Companion
+quit and reopened in normal signed-in mode; the evaluation control was hidden,
+ordinary Ask Codex intake stayed disabled, the local journal/event counts did
+not grow, and the gateway remained closed at two jobs. This is one successful
+transport and measurement case, not routine reliability, automatic routing or sysadmin
 qualification. The other eleven cases were not run.
 
 At Jason's explicit request, the Mac's local inactivity controls were changed

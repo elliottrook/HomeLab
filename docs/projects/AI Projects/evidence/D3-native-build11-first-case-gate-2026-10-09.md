@@ -1,6 +1,6 @@
 # D3 — corrected native first-case gate (build 11)
 
-**Status: APPROVED; FIRST CASE COMPLETED; NORMAL-UI CLOSEOUT PENDING.** Owner: Jason.
+**Status: APPROVED AND COMPLETED FOR CASE 1 ONLY.** Owner: Jason.
 This gate replaces only the failed pre-send build 10 attempt. It permits at
 most one reviewed fictional question and no other live model turns.
 
@@ -91,8 +91,14 @@ case has not been selected. After the turn, Aster still had 44 paths, GET-only
 job listing and two gateway jobs; the worker remained inactive with zero
 unrevoked grants.
 
-The volatile answer is still open for Jason to save privately. Normal-app
-relaunch and hidden-evaluation-control verification remain to close this gate.
-This one case is a transport/measurement success, not a reliability sample,
-router validation or sysadmin qualification. The other eleven cases remain
-unapproved.
+Jason approved closing the volatile answer. Companion exited cleanly and
+reopened without the evaluation flag. Its signed-in normal Aster view was
+visible; the local evaluation control was hidden, ordinary Ask Codex intake
+remained disabled, and the installed build 11 executable hash and strict
+signature still matched. The private journal retained exactly two local jobs
+and two usage records total (one historical plus this case); the event file
+still contained only submitted/completed for case 0. No next-case index was
+stored. Aster still exposed 44 paths, GET-only on the delegation collection,
+and two gateway jobs. This one case is a transport/measurement success, not a
+reliability sample, router validation or sysadmin qualification. The other
+eleven cases remain unapproved.
