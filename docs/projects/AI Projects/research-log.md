@@ -1,5 +1,21 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — Installed Companion repair and repeat Keychain prompt
+
+Jason approved installation of the refresh/recovery repair. The new signed
+Companion opened its normal composer after one saved-login Keychain prompt;
+AI-PAM showed no pending approvals, ordinary Codex intake remained closed,
+and the installed helper recovered all twelve exact completed turns read-only
+without new model or tool actions. Natural token refresh has not yet been
+observed, so the refresh fix is not fully validated. The installed app remains
+ad-hoc signed. Its designated requirement differs from the previous build,
+which explains why a first-launch item-access prompt returned after replacement.
+The prior refresh fix removed an additional read but did not solve identity
+continuity across app updates. The [stable-signing design and test gate](evidence/D3-native-stable-signing-keychain-design-2026-10-09.md)
+records a narrowly scoped proposed remedy; no persistent signer or Keychain
+trust change has been made. The [replacement record](evidence/D3-native-refresh-and-recovery-replacement-gate-2026-10-09.md)
+retains the installed validation and remaining limits.
+
 ## 2026-10-09 — Fixed native set complete; D3 routine release held
 
 After Jason accepted the exact fictional cases and candidate labels, Companion
@@ -8,11 +24,12 @@ has twelve distinct completed case turns. Visible answers provisionally met
 all frozen properties; read-only inspection found zero tool items. Median
 send-to-result time was 4.41s across twelve samples. This is not a reliability
 rate or proof of sysadmin capability. Five turns contained internal reasoning
-items that the installed read-only recovery helper rejected. A local uninstalled
-fix accepts those items without exposing them or accepting tools; all twelve
-historical turns then replayed read-only. A separate unnecessary Keychain
-read-back during token refresh stalled Companion's UI. A local uninstalled
-candidate removes that read-back, but live behavior is unverified. Hold D3
+items that the then-installed read-only recovery helper rejected. A local fix,
+subsequently installed as recorded above, accepts those items without exposing
+them or accepting tools; all twelve historical turns then replayed read-only.
+A separate unnecessary Keychain read-back during token refresh stalled
+Companion's UI. The installed repair removes that read-back, but live refresh
+behavior is unverified. Hold D3
 routine release pending independent answer review and restart/refresh/failure
 validation. See the [finite-set result](evidence/D3-native-finite-12-result-2026-10-09.md).
 

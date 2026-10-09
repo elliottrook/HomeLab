@@ -6,6 +6,11 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 CONFIG="${1:-debug}"
+SIGNING_IDENTITY="${ASTER_CODESIGN_IDENTITY:--}"
+if [ "${ASTER_REQUIRE_STABLE_SIGNING:-0}" = "1" ] && [ "$SIGNING_IDENTITY" = "-" ]; then
+    echo "A stable code-signing identity is required for this build" >&2
+    exit 1
+fi
 swift build -c "$CONFIG"
 
 BIN_PATH=$(swift build -c "$CONFIG" --show-bin-path)
@@ -40,8 +45,14 @@ cp -R "$BIN_PATH/AsterCompanion_AsterCompanion.bundle" "$APP_DIR/Contents/Resour
 # Keychain will see. Re-sign the complete assembled bundle as the last
 # step; without this, Keychain access silently fails (no error, just an
 # item that never persists) because the signature doesn't match the
-# bundle identity it's being accessed under.
-codesign --force --deep --sign - "$APP_DIR"
+# bundle identity it's being accessed under. Ad-hoc signing is for disposable
+# local builds; installed updates should use one stable owner-held identity so
+# their designated requirement remains stable for the app's Keychain item.
+SIGN_ARGS=(--force --deep --sign "$SIGNING_IDENTITY")
+if [ -n "${ASTER_CODESIGN_KEYCHAIN:-}" ]; then
+    SIGN_ARGS+=(--keychain "$ASTER_CODESIGN_KEYCHAIN")
+fi
+codesign "${SIGN_ARGS[@]}" "$APP_DIR"
 
 # Register the URL scheme with Launch Services so the OS routes the
 # aster-companion://callback redirect back to this app.

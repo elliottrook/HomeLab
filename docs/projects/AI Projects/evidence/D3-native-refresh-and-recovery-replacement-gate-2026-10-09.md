@@ -1,6 +1,7 @@
 # D3 Companion refresh and recovery replacement gate — 2026-10-09
 
-**Status: local candidate; not installed.** The fixed twelve-question
+**Status: installed; normal mode and read-only recovery passed; refresh and
+repeat-prompt validation remain open.** The fixed twelve-question
 experiment is complete. This gate is only for replacing the installed native
 Companion with a build that removes a redundant Keychain read during token
 refresh and can read completed turns that include internal reasoning items.
@@ -84,3 +85,19 @@ ad-hoc signed app replacement. Jason must resolve the macOS prompt before the
 normal-screen and read-only recovery release checks can be completed. The
 refresh read-back fix has not yet been validated in live operation. Do not
 count installation hash/signature verification as a functional pass.
+
+## Post-unlock validation — 2026-10-09
+
+After Jason resolved the first-launch Companion saved-login prompt, the
+signed-in Aster composer opened. AI-PAM showed its approvals view with no
+pending approvals, and ordinary Codex intake remained closed to new requests.
+The installed bundled helper read all twelve exact completed turns with
+`inference=false`, `automatic_retry=false`, and a final answer present; the
+evaluation log remained twelve `submitted`, twelve `completed`, one
+`recovered`. No new model turn or tool action occurred in this validation.
+
+This proves the recovery compatibility fix in the installed build. It does
+**not** prove the refresh prompt is gone; natural refresh has not yet been
+observed. The initial prompt after each replacement persists because the app
+is still ad-hoc signed. The [stable signing design](D3-native-stable-signing-keychain-design-2026-10-09.md)
+addresses that separate cause without broadening the worker credential.
