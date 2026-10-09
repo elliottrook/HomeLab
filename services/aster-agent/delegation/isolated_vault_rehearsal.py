@@ -20,6 +20,33 @@ URL='http://127.0.0.1:38200/v1/'
 FIXTURE_ROOT='aster-isolated-fictional-root'
 
 
+def diagnostic_event(method,path,status,body):
+    """Allowlisted metadata only; never log response bodies or supplied tokens."""
+    paths={
+        'sys/health','sys/auth/approle','auth/token/lookup-self',
+        'auth/token/create-orphan','auth/token/revoke-self','auth/token/create',
+        'sys/policies/acl/'+admin_contract.POLICY,
+        vault_provision.POLICY_PATH,vault_provision.ROLE_PATH,
+        vault_provision.ROLE_PATH+'/role-id',vault_provision.ROLE_PATH+'/secret-id',
+        'sys/policies/acl/unrelated',
+    }
+    paths.update('secret/'+kind+'/ai-pam/'+name for kind in ('data','metadata')
+                 for name in ('aster-worker-introspection','aster-codex-worker','unrelated-fixture'))
+    if method not in ('GET','POST','PUT') or path not in paths or type(status) is not int:
+        return {'operation':'unrecognized'}
+    event={'method':method,'path':path,'status':status}
+    if path==vault_provision.ROLE_PATH and method=='GET' and status==200:
+        data=body.get('data',{})
+        if isinstance(data,dict):
+            mismatches=[]
+            for key,value in admin_contract.role_request().items():
+                if key.endswith('_ttl'): value={'24h':86400,'5m':300}[value]
+                if type(data.get(key)) is not type(value) or data.get(key)!=value:
+                    mismatches.append(key)
+            event['mismatched_fields']=mismatches
+    return event
+
+
 def api(token,method,path,payload=None):
     request=urllib.request.Request(URL+path,method=method,
         data=None if payload is None else json.dumps(payload).encode(),
@@ -42,7 +69,11 @@ def execute():
     server=subprocess.Popen(['/usr/bin/bao','server','-dev','-dev-no-store-token',
         '-dev-listen-address=127.0.0.1:38200','-dev-root-token-id='+FIXTURE_ROOT],
         stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    stage='startup';child=None
+    stage='startup';child=None;trace=[]
+    def observed_api(token,method,path,payload=None):
+        status,body=api(token,method,path,payload)
+        trace.append(diagnostic_event(method,path,status,body))
+        return status,body
     try:
         deadline=time.monotonic()+20
         while time.monotonic()<deadline:
@@ -61,7 +92,7 @@ def execute():
         stage='bootstrap'
         custody=[]
         def deliver(token): custody.append(token);return True
-        admin_bootstrap.issue(api,FIXTURE_ROOT,deliver)
+        admin_bootstrap.issue(observed_api,FIXTURE_ROOT,deliver)
         assert len(custody)==1;child=custody[0]
         assert api(FIXTURE_ROOT,'GET','auth/token/lookup-self')[0]==403
         stage='authority-negative-tests'
@@ -79,7 +110,7 @@ def execute():
             assert api(child,'POST',vault_provision.ROLE_PATH,changed)[0]==403
         stage='provision'
         packets=[]
-        result=vault_provision.provision(lambda m,p,v:api(child,m,p,v),
+        result=vault_provision.provision(lambda m,p,v:observed_api(child,m,p,v),
             lambda packet:packets.append(packet) or True,
             {'client_secret':'fictional-provider','app_password':'fictional-password'},
             approved_sha256=vault_provision.fingerprint())
@@ -95,9 +126,11 @@ def execute():
         allowed={name+':'+state for name in ('policy','role','aster-worker-introspection',
                  'aster-codex-worker','secret-id','delivery') for state in ('attempted','confirmed')}
         return {'passed':False,'failed_stage':stage,'provision_stages':[
-            name for name in error.stages if name in allowed],'real_credentials_used':False}
+            name for name in error.stages if name in allowed],'real_credentials_used':False,
+            'diagnostics':trace[-20:]}
     except Exception:
-        return {'passed':False,'failed_stage':stage,'real_credentials_used':False}
+        return {'passed':False,'failed_stage':stage,'real_credentials_used':False,
+                'diagnostics':trace[-20:]}
     finally:
         server.terminate()
         try: server.wait(timeout=5)

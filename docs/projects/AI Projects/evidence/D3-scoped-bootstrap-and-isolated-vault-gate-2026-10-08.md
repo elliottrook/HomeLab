@@ -1,5 +1,36 @@
 # D3 scoped bootstrap candidate and isolated vault experiment
 
+## Attempt 3 result; diagnostic-only candidate for attempt 4
+
+Jason approved v3 `533bd75...8d780ca`. Hash, preflight health, staging, unit syntax,
+source visibility and all effective isolation properties passed. The runner
+reported `passed:false, failed_stage:bootstrap`; exit status 1. It did not reach
+the negative tests or credential provisioning. Exact cause remains UNKNOWN:
+the prior report omitted API status and failed validation fields. Do not infer
+that policy enforcement or scoped-token creation passed from this attempt.
+
+Stopped the unit, verified exact unit/file inventory and removed all approved
+staging files/unit. Cleared only its failed state and reloaded systemd. Independent
+checks confirm unit not found/MainPID 0 and staging absent. Production 2.6.4 remains
+unsealed; local Doctor is healthy with 0 active requests and 37 recorded outcomes.
+No real credentials, production vault API changes, model calls or pushes.
+
+Prepared v4 changes ONLY the fixture runner's diagnostic reporting: allowlisted
+method/path/status metadata for bootstrap/provision calls and known field NAMES
+when fixed role verification fails. Never prints response bodies, field values,
+tokens or exception details. Two regression tests verify filtering; full local
+suite now 204 passing. Authority, bootstrap logic, unit, limits and isolation
+are unchanged. This is an information-gathering attempt, not an asserted fix.
+
+**Approval requested:** one isolated diagnostic run, same eight-file scope,
+`/opt/aster-provision-isolated-20261008`, same temporary unit, 120-second cap and
+mandatory cleanup/production validation. Do not retry or change permissions on
+failure. New archive `/private/tmp/aster-provision-isolated-v4-20261008.tar`, SHA-256
+`d69e166db4296a7dbb4424174ba25280fc7284cea94c5769256054e8e53e76b8`.
+Only runner/manifest differ from v3. All previous approvals consumed; no private
+human ceremony or real provisioning is authorized. Once diagnostics identify the
+failure, resolve it locally before proposing further execution.
+
 ## Attempt 2 result; narrower candidate for attempt 3
 
 Jason approved corrected-path bundle `b0ce977...766b8d5`. Exact hash, source path

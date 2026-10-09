@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Narrower fixture failed at bootstrap; diagnostics improved
+
+Approved v3 stopped during bootstrap, before policy denial checks/provisioning.
+Cause not established by the coarse fixed stage result. Removed exact fixture
+files/unit; production remains healthy. Added allowlisted API method/path/status
+and mismatched field-name reporting only, with tests against secret disclosure.
+204 local tests pass. v4 diagnostic-only immutable bundle awaits approval; no
+authority or isolation changes, no automatic retry. See
+[attempt 3 evidence](evidence/D3-scoped-bootstrap-and-isolated-vault-gate-2026-10-08.md).
+
 ## 2026-10-08 — Real-engine test rejected provisioning; authority reduced
 
 Corrected isolated attempt reached provisioning after bootstrap/root-revocation
