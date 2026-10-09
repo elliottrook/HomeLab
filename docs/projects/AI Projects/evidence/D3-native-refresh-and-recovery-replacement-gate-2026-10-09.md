@@ -65,3 +65,22 @@ login on restoration.
 This replacement is a reliability repair, not D3 graduation. Independent
 answer review, crash/sleep/wake reconciliation, and a separate routine-use
 decision remain open even if the app replacement validates successfully.
+
+## Installation checkpoint — 2026-10-09
+
+Jason approved this exact replacement. Companion closed cleanly after the
+finite-set completion screen. The former installed app was copied to
+`/private/tmp/AsterCompanion.pre-D3-refresh-20261009.app` and moved to
+`/Applications/AsterCompanion.pre-D3-refresh-20261009.app`; its executable
+hash is the recorded old hash above. The candidate was installed at
+`/Applications/AsterCompanion.app`; its executable matches the candidate hash
+above and strict code-signature verification passes. No new model request or
+remote Git write occurred during replacement.
+
+At first normal launch, the UI has not yet opened. A local process sample shows
+the app waiting in `AuthManager.init` → `KeychainStore.get` →
+`SecItemCopyMatching` for its existing saved-login item, as expected after an
+ad-hoc signed app replacement. Jason must resolve the macOS prompt before the
+normal-screen and read-only recovery release checks can be completed. The
+refresh read-back fix has not yet been validated in live operation. Do not
+count installation hash/signature verification as a functional pass.
