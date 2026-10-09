@@ -1920,3 +1920,12 @@ worker token/session, dispatch store, Codex thread creation and recovery parser.
 separates owner, readiness, execution and answer availability; recommends an
 offline lease experiment and exact-turn recovery fixtures before live authority.
 No service or credential changed for this design work.
+
+### 2026-10-08 — Offline supervised-admission contract passed
+
+Implemented a volatile, synthetic lease prototype for one reviewed job. It
+closes on heartbeat/credential expiry or restart and forbids reopening after an
+uncertain or consumed session without explicit closure. Full delegation suite:
+257 tests passed. No gateway transport or worker authority wired. Live admission
+requires verified worker identity and atomic lease/job SQLite transaction; see
+[design](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).

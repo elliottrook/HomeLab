@@ -1,6 +1,6 @@
 # D3 — supervised session and completed-answer recovery design
 
-Status: DESIGN CANDIDATE. No new authority, content retention or live deployment.
+Status: OFFLINE CONTRACT PROTOTYPED. No new authority, content retention or live deployment.
 Owner: Jason. Revisit after fixture evidence.
 
 ## Current proven facts
@@ -134,7 +134,24 @@ state, but never retried automatically. No raw fixture payload goes to logs.
 Local fixture work is within Stream A. Production session opening, Mac helper
 installation, worker activation, live `thread/read`, content retention and any
 credential renewal each need a concrete risk gate before execution. Existing
-one-turn approval is consumed. The next implementation step is the offline lease
-contract and recovery fixtures, followed by a decision record choosing the
-smallest deployable session workflow. Do not repeat Orion or use a real user
+one-turn approval is consumed. The offline lease contract is now prototyped. Next are exact-turn recovery
+fixtures and an atomic gateway admission design, followed by a decision record
+choosing the smallest deployable session workflow. Do not repeat Orion or use a real user
 question merely to test the protocol.
+
+## Offline admission prototype result
+
+`services/aster-agent/delegation/admission_window.py` and its fixture tests now
+implement only the volatile decision contract. It binds owner, worker, model,
+plan digest and token deadline; caps the window at 240 seconds; requires a fresh
+heartbeat; admits one job; refuses a second session until explicit closure and
+reconciliation; and loses readiness on restart. Heartbeat does not extend the
+credential or lease deadline. The full delegation suite passed 257 tests.
+
+This prototype intentionally has no authenticated transport, persistent lease,
+Mac process control or production integration. It is **not** an authority source.
+A future gateway must obtain worker identity and token expiry from verified
+transport, and consume the lease in the same SQLite transaction that creates the
+durable queued job. Without that atomicity, a crash or competing request can
+create an inconsistent admission. Live integration is a no-go until this is
+implemented and tested. The current native flow remains closed.
