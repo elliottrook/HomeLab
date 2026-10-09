@@ -1910,3 +1910,13 @@ health 200, 44 scoped routes, anonymous denial, new submission absent and two
 completed records retained. Signed Companion build 7 installed with whole-app
 backup; native UI visibly disables Ask Codex and honestly marks the completed
 answer unavailable. Worker remains inactive. See [gate](evidence/D3-availability-gate-2026-10-08.md).
+
+### 2026-10-08 — Session and recovery boundaries extracted from code
+
+The accepted pilot exposed a four-minute manually coordinated submission window
+and 15-minute in-memory answer window. Reviewed source for intake, gateway ledger,
+worker token/session, dispatch store, Codex thread creation and recovery parser.
+[Design candidate](evidence/D3-session-and-answer-recovery-design-2026-10-08.md)
+separates owner, readiness, execution and answer availability; recommends an
+offline lease experiment and exact-turn recovery fixtures before live authority.
+No service or credential changed for this design work.
