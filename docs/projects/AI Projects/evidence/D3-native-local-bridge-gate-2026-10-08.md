@@ -1,6 +1,6 @@
 # D3 — one-question native local Codex bridge gate
 
-**Status: PREPARED LOCALLY; NOT APPROVED OR EXECUTED.** Owner: Jason. Stream A
+**Status: APPROVED; ONE LIVE QUESTION COMPLETED; NORMAL-USE CLOSEOUT PENDING.** Owner: Jason. Stream A
 implementation gate. This is an architecture comparison, not D3 graduation or
 sysadmin delegation.
 
@@ -97,3 +97,44 @@ specific **installed app replacement and one subscription-backed model turn**
 are the next connected risk gate. They require Jason's explicit approval of
 this bounded action. A Git push is separately subject to the repository's
 immediate per-push confirmation rule.
+
+## Bounded live result — 2026-10-08
+
+Jason approved the exact app-replacement and one-question gate. Before the
+replacement, the installed build 8 and signed build 9 executable hashes matched
+the pinned values above. The bundled metadata-only Codex preflight matched the
+pinned manifest: ChatGPT authentication, `gpt-5.6-luna` at medium effort, no MCP
+servers, read-only sandbox and web disabled. The default sandbox invocation
+could not connect to the local App Server; the platform-reviewed preflight
+completed without starting inference. Aster was active and healthy, with 44
+paths and no POST job-intake route. The gateway ledger contained two jobs. The
+existing Authentik worker was inactive, with zero unrevoked access or refresh
+grants for its provider.
+
+The running Companion process was stopped. A fresh complete build 8 rollback
+copy at `/Applications/AsterCompanion.pre-local-bridge-20261008.app` passed
+signature verification and the pinned executable hash. The original installed
+bundle was also moved aside as
+`/Applications/AsterCompanion.pre-local-bridge-staged-20261008.app`. Only the
+signed build 9 was installed and registered at the normal app path; its
+installed executable hash and signature passed verification. Companion was
+launched with the explicit pilot flag.
+
+Jason reviewed the fixed fictional Orion question, checked cloud consent and
+clicked Send exactly once. Companion visibly reported one completed local Codex
+turn and displayed a final answer. The answer distinguished the observed 503
+and later 200 from unknown cause and user impact, and recommended read-only
+checks without claiming any had been performed. The private local journal had
+one completed job, one thread ID and one turn ID, with a usage record. Its jobs
+schema holds IDs, state and owner, not prompt or answer text. The owner-only
+state directory and files had modes 0700 and 0600 respectively. No answer text
+or credential was copied into the repository.
+
+Immediately afterward, the gateway still had two jobs; Aster still exposed 44
+paths and only GET on the owner jobs collection. The worker remained inactive
+with zero unrevoked access/refresh grants. The observed path required one app
+launch, one review/consent and one Send click, with no worker activation or
+gateway request admission. Elapsed request time and Mac sleep/restart behavior
+were not measured in this trial; do not infer reliability from one success.
+Normal-use closeout and app relaunch without the pilot flag remain pending until
+Jason has had the chance to copy the volatile answer privately.

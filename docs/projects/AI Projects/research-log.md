@@ -2094,3 +2094,19 @@ full Python bridge round trip and duplicate refusal. Current local results:
 No real model turn, installed-app replacement, credential read, gateway route,
 worker activation, production change or push occurred. The exact connected
 trial and rollback are in [the native gate](evidence/D3-native-local-bridge-gate-2026-10-08.md).
+
+### 2026-10-08 — One native local bridge question completed
+
+Jason approved the signed build 9 replacement and one fictional Orion question.
+The pinned bundle and ChatGPT/no-tools/read-only manifest matched before install;
+a verified whole-build-8 rollback copy was retained. Jason reviewed the fixed
+question and consented in Companion. The UI displayed one completed answer, and
+the private local journal recorded exactly one completed request with one
+thread/turn ID and no durable prompt or answer. Aster's gateway remained closed
+at 44 paths and two historical jobs; the separate worker identity stayed
+inactive with zero unrevoked grants. This supports the feasibility of a native,
+subscription-backed, no-tools adapter without gateway activation for a single
+question. It does not yet establish normal-use reliability, response-time
+performance, remote/voice suitability or sysadmin capability. See [the bounded
+trial record](evidence/D3-native-local-bridge-gate-2026-10-08.md). Normal-use
+relaunch awaits Jason's chance to save the volatile answer.
