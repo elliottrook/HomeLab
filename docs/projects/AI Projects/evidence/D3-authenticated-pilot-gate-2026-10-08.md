@@ -1,7 +1,38 @@
 # D3 — one authenticated Aster/Codex result pilot
 
-Status: PREPARED; NOT APPROVED OR EXECUTED. Stream A local preparation only.
-This is the controlling next-action record; older milestone prose is history.
+Status: APPROVED ATTEMPT FAILED AT STARTUP; ROLLBACK VERIFIED. Approval consumed.
+The [corrected retry gate](D3-authenticated-pilot-retry-2026-10-08.md) now controls
+the next action. The original frozen package and scope below remain provenance.
+
+## Executed result
+
+Jason approved the bounded pilot. Rechecked all disabled-package hashes, main
+source, healthy 35-path baseline, inactive exact identity/bindings, unexpired
+password, zero grants, three retained snapshots and unchanged worker fingerprint.
+Installed the five approved members, public CA and private Aster-owned state
+directory with the specified checkpoint. Syntax and systemd unit verification
+passed. Reloaded and restarted Aster once.
+
+Startup failed in `runtime.private_file` opening `gateway.lock` with OS error 30,
+read-only filesystem. The deployment preflight missed the effective systemd
+sandbox: `ProtectSystem=strict` with `ReadWritePaths` limited to
+`/var/lib/aster/notifications`. Unix directory ownership alone was insufficient.
+The existing unit automatically retried startup; no second manual pilot restart
+was attempted. This is a deployment preparation defect, not model evidence.
+
+Applied the authorized rollback: removed only the exact-hash pilot drop-in,
+reloaded systemd and restarted Aster once. Independently verified active service,
+health/Companion 200, pilot/owner delegation 404, all original 35 paths restored,
+unchanged main application and absent runtime worker credential. Post-rollback
+systemd reports zero restart count. The state directory contains only the approved
+specification; no ledger, assignment, model call or worker activation occurred.
+Authentik metadata independently confirms user still inactive and zero access or
+refresh grants. Therefore there was nothing to revoke; credentials were not used.
+
+Keep checkpoint, candidate modules, public CA and private specification. No
+snapshot restore, source rollback, ledger deletion, credential renewal or push.
+The corrected local drop-in adds only the missing private state-directory write
+exception; another deployment/restart requires the new bounded approval.
 
 ## Outcome and boundary
 

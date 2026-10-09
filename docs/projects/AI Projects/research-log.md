@@ -1739,3 +1739,20 @@ confirm ChatGPT auth and zero offered tools. No real inference this preparation.
 Frozen archive, worker fingerprint, admission specification, restart limits and
 rollback are in the [pilot gate](evidence/D3-authenticated-pilot-gate-2026-10-08.md).
 Await its specific approval; no deployment, activation, token use or push performed.
+
+### 2026-10-08 — Pilot startup failed; rollback verified; narrow correction prepared
+
+Jason approved the first authenticated pilot. Exact preflight passed; installed
+the approved files and restarted Aster. Runtime failed with read-only filesystem
+at `gateway.lock`: preparation missed systemd `ProtectSystem=strict` and the
+notifications-only write allowlist. Unit syntax tests did not establish runtime
+writability. Applied approved rollback; independently verified healthy Aster,
+original 35 paths, delegation 404, runtime credential absent and unchanged main
+source. Worker stayed inactive, zero grants, no ledger/job/model turn. Preserve
+this as deployment failure evidence, not an AI capability result.
+
+Corrected local candidate adds only the private delegation directory to
+`ReadWritePaths`; no Python changes or additional offline model tests. The
+[retry gate](evidence/D3-authenticated-pilot-retry-2026-10-08.md) binds the new hash,
+retained checkpoint, one restart/turn and failure rollback. Await new approval;
+no push or credential renewal performed.
