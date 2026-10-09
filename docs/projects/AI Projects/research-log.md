@@ -1701,3 +1701,14 @@ cleanup and independent absence checks completed on all three targets. AI-PAM
 healthy. Credential values never printed; no activation/model calls/push.
 [Result and expiry](evidence/D3-real-inactive-provisioning-gate-2026-10-08.md)
 retain sanitized provenance and the next disabled-deployment/pilot boundary.
+
+### 2026-10-08 — Disabled gateway attachment prepared
+
+Live Aster main-source hash differs from this branch. Preserved it by designing
+a wrapper entrypoint rather than copying stale main code. Implemented explicit
+default-off attachment and drop-in; 230 local tests pass. Read-only live checks
+record service configuration, 35-route digest, health/Companion 200, delegation
+404 and absent proposed files/state. Prepared a 14-member archive with exact
+restart/rollback limits in the
+[deployment gate](evidence/D3-disabled-gateway-deployment-gate-2026-10-08.md).
+No remote mutation, credential access, activation or model execution this step.
