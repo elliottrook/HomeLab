@@ -63,7 +63,12 @@ class Gateway(Ledger):
             id TEXT PRIMARY KEY, epoch TEXT NOT NULL, owner TEXT NOT NULL,
             worker TEXT NOT NULL, model TEXT NOT NULL, scope_sha256 TEXT NOT NULL,
             expires_at REAL NOT NULL, heartbeat_at REAL NOT NULL,
-            admitted_job TEXT, closed INTEGER NOT NULL DEFAULT 0)""")
+            admitted_job TEXT, closed INTEGER NOT NULL DEFAULT 0,
+            admission_closed INTEGER NOT NULL DEFAULT 0)""")
+        # Existing candidate ledgers predate the distinct stop-admission state.
+        columns = {row[1] for row in self.db.execute('PRAGMA table_info(handoff_sessions)')}
+        if 'admission_closed' not in columns:
+            self.db.execute('ALTER TABLE handoff_sessions ADD COLUMN admission_closed INTEGER NOT NULL DEFAULT 0')
         self.db.execute("""CREATE TABLE IF NOT EXISTS handoff_recovery (
             id TEXT PRIMARY KEY, job_id TEXT NOT NULL UNIQUE,
             worker TEXT NOT NULL, state TEXT NOT NULL, expires_at REAL NOT NULL)""")
@@ -122,7 +127,8 @@ class Gateway(Ledger):
 
     def _session(self, session_id):
         row = self.db.execute("""SELECT epoch,owner,worker,model,scope_sha256,
-            expires_at,heartbeat_at,admitted_job,closed FROM handoff_sessions WHERE id=?""",
+            expires_at,heartbeat_at,admitted_job,closed,admission_closed
+            FROM handoff_sessions WHERE id=?""",
             (session_id,)).fetchone()
         if row is None:
             raise KeyError('Session not found')
@@ -130,27 +136,40 @@ class Gateway(Ledger):
 
     def session_status(self, authenticated_owner, session_id):
         row = self._session(session_id)
-        epoch,owner,_,model,scope,expiry,heartbeat,job,closed = row
+        epoch,owner,_,model,scope,expiry,heartbeat,job,closed,admission_closed = row
         if owner != authenticated_owner:
             raise KeyError('Session not found')
         now = self.clock()
-        return {'ready': bool(epoch == self.session_epoch and not closed and not job
+        return {'ready': bool(epoch == self.session_epoch and not closed and
+                not admission_closed and not job
                 and now < expiry and 0 <= now-heartbeat < 20),
                 'model': model, 'scope_sha256': scope, 'expires_at': expiry,
-                'admitted_job': job}
+                'admitted_job': job, 'admission_closed': bool(admission_closed)}
 
     def heartbeat_session(self, authenticated_worker, session_id):
         """Freshness only; never extends credential expiry or session scope."""
         with self.db:
             self.db.execute('BEGIN IMMEDIATE')
             row = self._session(session_id)
-            epoch,_,worker,_,_,expiry,heartbeat,job,closed = row
+            epoch,_,worker,_,_,expiry,heartbeat,job,closed,admission_closed = row
             now = self.clock()
             if (worker != authenticated_worker or epoch != self.session_epoch or
-                    closed or job or not 0 <= now-heartbeat < 20 or now >= expiry):
+                    closed or admission_closed or job or
+                    not 0 <= now-heartbeat < 20 or now >= expiry):
                 raise ValueError('Session is no longer ready')
             self.db.execute('UPDATE handoff_sessions SET heartbeat_at=? WHERE id=?',
                             (now,session_id))
+
+    def stop_session_admission(self, session_id, authenticated_owner):
+        """Stop new work now; retain any admitted job for reconciliation."""
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            row = self._session(session_id)
+            if row[1] != authenticated_owner:
+                raise KeyError('Session not found')
+            self.db.execute('UPDATE handoff_sessions SET admission_closed=1 WHERE id=?',
+                            (session_id,))
+        return self.session_status(authenticated_owner, session_id)
 
     def close_session(self, session_id, authenticated_owner):
         """Reconciles admitted work before permitting another session."""
@@ -179,11 +198,11 @@ class Gateway(Ledger):
         with self.db:
             self.db.execute('BEGIN IMMEDIATE')
             row = self._session(session_id)
-            epoch,s_owner,s_worker,s_model,s_scope,expiry,heartbeat,admitted,closed = row
+            epoch,s_owner,s_worker,s_model,s_scope,expiry,heartbeat,admitted,closed,admission_closed = row
             now = self.clock()
             if ((epoch,s_owner,s_worker,s_model,s_scope) !=
                     (self.session_epoch,owner,worker,model,scope_sha256) or
-                    closed or admitted or now >= expiry or
+                    closed or admission_closed or admitted or now >= expiry or
                     not 0 <= now-heartbeat < 20 or expiry-now < 30):
                 raise ValueError('Supervised session is not ready for admission')
             job_expiry = int(min(expiry, now+240))

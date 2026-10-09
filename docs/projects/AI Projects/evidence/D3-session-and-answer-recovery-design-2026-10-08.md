@@ -286,3 +286,71 @@ exact deployment scope, human click/worker timing, validation and rollback.
 No gateway file, native app, worker identity, Keychain item or Codex history was
 changed during this preparation. The subsequently approved one-time live result
 and final closed state are in the [bounded gate](D3-answer-recovery-gate-2026-10-08.md).
+
+## Post-trial session architecture review — 2026-10-08
+
+**Decision: do not expose the existing session ledger as a live API yet.** It
+solves the atomic job-admission problem, but it does not start the Mac worker,
+prove Codex readiness or remove the operator's four-minute race. Exposing a
+`ready` flag without those conditions would give Jason a misleading control.
+The accepted recovery trial proves one exact stored answer could be read; it
+does not change this conclusion.
+
+Source review found four integration gaps:
+
+1. At review time, `WorkerIdentity` validated Authentik's `exp` but returned
+   only the fixed worker name. `Gateway.open_session` requires a token expiry
+   derived from that verified response. A request body or the Mac's claimed
+   deadline is not acceptable.
+2. `connected_worker.py` is an operator-started, assigned-job runner. It needs
+   a job ID and reviewed manifest before bootstrap, so it cannot assert
+   readiness *before* Companion admits the question. Merely mounting heartbeat
+   and session routes would preserve the same timing problem.
+3. `RequestIntake.submit` still calls `Gateway.create` directly. A future
+   session path must call `create_in_session` in the same transaction as consuming
+   the one-use lease, preserve request-ID idempotence, and retain the reviewed
+   text only for that accepted job. A UI status check cannot substitute for
+   server-side admission.
+4. `close_session` correctly refuses to forget an in-flight or uncertain job,
+   but a user-facing **Stop new requests** action must close admission at once
+   while retaining the separate job for reconciliation. It must not suggest that
+   closing the UI cancels a Codex turn. The current ledger needs those two
+   concepts separated before a close button is honest.
+
+The smallest credible next experiment is a **user-started, one-question Mac
+session**, still with no tools and no standing worker. Companion can request a
+pending session under the authenticated owner. A reviewed, signed Mac-side
+component then performs local account/model/no-MCP preflight, prompts for
+Keychain access only when Jason starts it, obtains one short-lived worker token,
+and asserts a fixed no-tools plan. The gateway derives identity and expiry from
+online introspection and returns an owner-scoped, short-lived readiness status.
+Only then may Companion enable Send; the server consumes readiness atomically.
+The worker exits after one job. The broker, not the app or model, remains the
+authority for worker access. Do not persist the token in Companion or gateway.
+
+This is a **design candidate, not an implementation or authorization**. The
+Mac-side startup mechanism must be reviewed before code is connected: a
+per-user, explicit launch is preferred over a permanent daemon; it must not
+gain filesystem, shell or infrastructure tools. Credential expiry and owner
+binding need synthetic transport tests. A fake worker should show that the
+request stays blocked until real readiness and that stale heartbeat, expiry,
+sleep, restart, wrong owner, wrong plan and concurrent sends all fail closed.
+The session must distinguish `admission_closed` from `job_terminal`; an
+uncertain turn remains visible and is never automatically replayed. Measure
+time from Jason's Start click to Send enabled, successful one-turn completion,
+manual steps, false-ready incidents and clean revocation. Reject this design if
+it still needs an operator to race a short token or adds a standing privileged
+service. Until this passes, current request intake and recovery remain off.
+
+The first integration corrections are now **local and unmounted**:
+`stop_session_admission` marks a session closed to new work immediately while
+the admitted job stays in its original state. A second session remains blocked
+until the job reaches a terminal state and `close_session` reconciles the first.
+Older candidate SQLite schemas gain the new column without resetting their
+job ledger. `WorkerIdentity.verified` can now supply a worker name and expiry
+from the same online-validated Authentik response; existing worker routes still
+receive only the name. Synthetic tests cover wrong owner, stop before/after
+admission, pending-job preservation, schema upgrade and rejection of expired or
+disabled identities; the full backend suite passed 286 tests. These are safety
+prerequisites, not worker readiness or a usable Start Session feature. No
+production service, credential or route changed.

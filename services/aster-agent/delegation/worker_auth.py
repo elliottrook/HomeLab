@@ -6,6 +6,7 @@ callback. Authentication grants only a worker identity, never job authority.
 """
 import asyncio
 import time
+from dataclasses import dataclass
 import httpx
 from fastapi import Header, HTTPException
 
@@ -13,6 +14,12 @@ CLIENT_ID = "aster-codex-worker"
 ISSUER = "https://auth.elliottrook.com/application/o/aster-codex-worker/"
 INTROSPECTION = "https://auth.elliottrook.com/application/o/introspect/"
 SCOPE = "aster.worker"
+
+
+@dataclass(frozen=True)
+class VerifiedWorker:
+    name: str
+    expires_at: int
 
 
 def validate_claims(claims, expected_subject, now):
@@ -44,7 +51,8 @@ class WorkerIdentity:
         except Exception:
             return False
 
-    async def __call__(self, authorization: str = Header(default="")):
+    async def verified(self, authorization: str = Header(default="")) -> VerifiedWorker:
+        """Return only claims verified online for this request, including expiry."""
         if not self.enabled or not await self._permitted():
             raise HTTPException(503, "Worker access disabled")
         if (not authorization.startswith("Bearer ") or
@@ -72,7 +80,10 @@ class WorkerIdentity:
             identity = validate_claims(claims, self.subject, self.clock())
             if not await self._permitted():
                 raise ValueError("Worker disabled during verification")
-            return identity
+            return VerifiedWorker(identity, claims['exp'])
         except Exception:
             # Neither token, upstream body nor credential exception reaches logs/UI.
             raise HTTPException(401, "Worker identity could not be verified") from None
+
+    async def __call__(self, authorization: str = Header(default="")):
+        return (await self.verified(authorization)).name

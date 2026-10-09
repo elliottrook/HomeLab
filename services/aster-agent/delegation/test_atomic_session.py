@@ -100,6 +100,51 @@ class AtomicSessionTests(unittest.TestCase):
         self.assertFalse(self.gateway.session_status('owner',session)['ready'])
         self.open()
 
+    def test_stop_admission_is_immediate_but_pending_job_remains_reconcilable(self):
+        session=self.open()
+        self.admit(session)
+        envelope=self.gateway.offer('mac','request-one')
+        with self.assertRaises(KeyError):
+            self.gateway.stop_session_admission(session,'other')
+        status=self.gateway.stop_session_admission(session,'owner')
+        self.assertTrue(status['admission_closed'])
+        self.assertFalse(status['ready'])
+        self.assertEqual(status['admitted_job'],'request-one')
+        with self.assertRaises(ValueError):self.gateway.heartbeat_session('mac',session)
+        with self.assertRaises(ValueError):self.admit(session,'request-two')
+        with self.assertRaises(ValueError):self.gateway.close_session(session,'owner')
+        with self.assertRaises(ValueError):self.open()
+        self.assertEqual(self.gateway.status('owner','request-one')['state'],'offered')
+        self.gateway.receipt('mac','request-one',envelope['delivery_id'],'completed','c'*64)
+        self.gateway.close_session(session,'owner')
+        self.open()
+
+    def test_stop_before_job_blocks_admission_until_explicit_close(self):
+        session=self.open()
+        self.gateway.stop_session_admission(session,'owner')
+        self.assertFalse(self.gateway.session_status('owner',session)['ready'])
+        with self.assertRaises(ValueError):self.admit(session)
+        with self.assertRaises(ValueError):self.open()
+        self.gateway.close_session(session,'owner')
+        self.open()
+
+    def test_preexisting_session_schema_is_migrated_without_resetting_jobs(self):
+        self.gateway.close()
+        self.path.unlink()
+        import sqlite3
+        old=sqlite3.connect(self.path)
+        old.execute('''CREATE TABLE handoff_sessions (
+            id TEXT PRIMARY KEY, epoch TEXT NOT NULL, owner TEXT NOT NULL,
+            worker TEXT NOT NULL, model TEXT NOT NULL, scope_sha256 TEXT NOT NULL,
+            expires_at REAL NOT NULL, heartbeat_at REAL NOT NULL,
+            admitted_job TEXT, closed INTEGER NOT NULL DEFAULT 0)''')
+        old.close()
+        self.gateway=Gateway(self.path,'aster-gateway',clock=lambda:self.now)
+        session=self.open()
+        self.assertFalse(self.gateway.session_status('owner',session)['admission_closed'])
+        self.gateway.stop_session_admission(session,'owner')
+        self.assertTrue(self.gateway.session_status('owner',session)['admission_closed'])
+
     def test_invalid_or_nearly_expired_credential_cannot_open(self):
         for deadline in (1025,float('nan'),float('inf'),True):
             with self.assertRaises(ValueError):self.open(deadline)

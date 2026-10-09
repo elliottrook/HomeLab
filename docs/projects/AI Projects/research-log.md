@@ -2008,3 +2008,24 @@ Aster after restart by design. The signed build 8 and private recovery copies
 remain. [Full bounded result](evidence/D3-answer-recovery-gate-2026-10-08.md).
 This is one successful recovery, not D3 graduation or authorization for a
 standing service, new sysadmin tools, further inference or a Git push.
+
+### 2026-10-08 — Session readiness review and local stop-admission correction
+
+Reviewed the current gateway ledger, Authentik worker verifier, Mac worker,
+request intake and native Companion flow after Jason confirmed the recovered
+answer. The ledger can atomically admit one job, but it cannot establish Mac
+worker readiness: the verifier previously discarded the verified token expiry,
+the current worker starts only after a job ID exists, and intake still bypasses
+session admission. Mounting the existing session methods would leave the
+four-minute operator race in place. A user-started, one-question Mac session
+is the next falsifiable design candidate; it requires no standing tools or
+worker.
+
+Separated stopping new admission from reconciling an admitted job in the local
+SQLite candidate. An uncertain job remains visible and blocks another session
+until explicitly reconciled. Older candidate schemas migrate without resetting
+their ledger. The local verifier can now return the worker's expiry from its
+same online-validated Authentik response while preserving current routes.
+Synthetic wrong-owner, pending-job, schema-upgrade and expired-identity checks
+pass; full backend suite: 286 tests. No live route, credential, worker or
+production service changed. See [the post-trial review](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).

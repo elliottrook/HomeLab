@@ -30,6 +30,18 @@ class WorkerAuthTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(HTTPException): await self.identity('Bearer fixture')
         self.assertEqual(self.requests, 2)
 
+    async def test_verified_expiry_comes_only_from_online_active_claims(self):
+        worker = await self.identity.verified('Bearer fixture')
+        self.assertEqual(worker.name, 'aster-codex-worker-mac')
+        self.assertEqual(worker.expires_at, 1300)
+        self.claims['exp'] = 1099
+        with self.assertRaises(HTTPException):
+            await self.identity.verified('Bearer fixture')
+        self.claims['exp'] = 1300
+        self.allowed = False
+        with self.assertRaises(HTTPException):
+            await self.identity.verified('Bearer fixture')
+
     async def test_boundary_and_lifetime_mismatches_fail_closed(self):
         for key, value in [('sub', 'human'), ('iss', 'other'), ('aud', 'aster-companion'),
                            ('client_id', 'aster-companion'), ('scope', 'openid'),
