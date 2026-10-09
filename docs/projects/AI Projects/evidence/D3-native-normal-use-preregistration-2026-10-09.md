@@ -150,12 +150,11 @@ completed only case 1, then reopened as normal signed-in Aster with the
 evaluation control hidden. No other case was attempted. The frozen rubric and
 12-case acceptance thresholds have not been changed or declared met.
 
-The current evaluation UI deliberately retains the completed request ID across
-restart. It therefore blocks advancement after this closeout, rather than
-silently clearing the ID or allowing a duplicate. Continuing the finite set
-would require a separately reviewed owner-bound reconciliation and advancement
-design, plus the still-open independent label review and exact live gate. Do
-not reset AppStorage keys by hand to bypass this boundary.
+Build 11 retained the completed request ID across restart and blocked
+advancement rather than silently clearing it or allowing a duplicate. The
+later owner-bound recovery candidate resolved this specific block; independent
+label review and an exact live gate remain required for further cases. Do not
+reset AppStorage keys by hand to bypass this boundary.
 
 ## Keychain-friction and original-turn reconciliation — 2026-10-09
 
@@ -179,6 +178,9 @@ The next local candidate is owner-bound, read-only original-answer recovery in
 the native UI, followed by explicit acknowledgment before advancing. Never
 clear the saved request ID manually or resubmit case 1.
 
-That [local recovery candidate](D3-native-original-answer-recovery-candidate-2026-10-09.md)
-now passes focused and native tests and recovered the recorded original answer
-without inference. It remains uninstalled and has not advanced the finite set.
+That [recovery candidate and installation result](D3-native-original-answer-recovery-candidate-2026-10-09.md)
+passed focused and native tests, was installed after Jason's approval, and
+displayed the recorded original answer without another model turn. A
+`recovered` metadata event was recorded. The UI remains on case 1 awaiting
+acknowledgement; case 2 has not been sent. The result does not satisfy the
+independent-label or remaining-live-case gates.

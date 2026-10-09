@@ -1,5 +1,18 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — Native case 1 answer recovery after restart
+
+Jason approved a signed Companion recovery build after read-only source review,
+six focused bridge tests and 49 native tests. The previous app was preserved
+for rollback. Normal signed-in Aster, AI-PAM and closed Codex request intake
+opened after a Companion saved-login Keychain prompt. The finite evaluation
+view recovered the original completed HTTP 503 answer for case 1, recorded a
+content-free `recovered` event, and did not start another model turn or send
+case 2. An app-specific Keychain prompt occurred again at evaluation-mode
+startup; no worker credential ACL was widened. Independent label review and
+authorization for the remaining finite cases are still open. See the
+[installation and recovery evidence](evidence/D3-native-original-answer-recovery-candidate-2026-10-09.md).
+
 ## 2026-10-08 — Cross-host grouped handoff PASS
 
 Approved exact three-case harness passed over actual SSH/container endpoints:
