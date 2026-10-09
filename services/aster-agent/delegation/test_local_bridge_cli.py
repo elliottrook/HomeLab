@@ -6,8 +6,9 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
-from local_bridge_cli import main, recorded_status, reviewed_request
+from local_bridge_cli import main, recorded_status, recover_snapshot, reviewed_request
 from store import DispatchStore
 
 
@@ -66,3 +67,50 @@ class LocalBridgeCLITests(unittest.TestCase):
             link.symlink_to(state)
             with self.assertRaises(ValueError):
                 recorded_status(link,identifier)
+
+    def test_recovery_accepts_only_exact_completed_full_turn_without_tools(self):
+        snapshot={'thread':{'id':'thread-1','turns':[{'id':'turn-1',
+            'status':'completed','itemsView':'full','items':[
+                {'type':'userMessage','text':'Fictional question'},
+                {'type':'agentMessage','phase':'final_answer','text':'Final answer'}]}]}}
+        self.assertEqual(recover_snapshot(snapshot,'thread-1','turn-1'),'Final answer')
+        for altered in (
+            {'thread':{'id':'other','turns':snapshot['thread']['turns']}},
+            {'thread':{'id':'thread-1','turns':[]}},
+            {'thread':{'id':'thread-1','turns':[dict(snapshot['thread']['turns'][0],itemsView='partial')]}},
+            {'thread':{'id':'thread-1','turns':[dict(snapshot['thread']['turns'][0],
+                items=snapshot['thread']['turns'][0]['items']+[{'type':'commandExecution'}])]}},
+        ):
+            with self.subTest(altered=altered), self.assertRaises(ValueError):
+                recover_snapshot(altered,'thread-1','turn-1')
+
+    def test_recovery_cli_reads_bound_turn_without_starting_inference(self):
+        identifier='request-12345678-1234-1234-1234-123456789abc'
+        calls=[]
+        class FakeClient:
+            def __init__(self,*args,**kwargs):pass
+            def call(self,method,params):
+                calls.append(method)
+                if method=='config/read':return {'config':{'mcp_servers':{}}}
+                if method=='thread/read':
+                    self_ref=params['threadId']
+                    return {'thread':{'id':self_ref,'turns':[{'id':'turn-1',
+                        'status':'completed','itemsView':'full','items':[
+                            {'type':'agentMessage','phase':'final_answer','text':'Recovered'}]}]}}
+                raise AssertionError(method)
+            def close(self):pass
+        output=io.StringIO()
+        with patch('local_bridge_cli.recorded_row',return_value=('completed','thread-1','turn-1')), \
+             patch('local_bridge_cli.shutil.which',return_value='/fake/codex'), \
+             patch('local_bridge_cli.RecoveryConfigClient',FakeClient), \
+             patch('local_bridge_cli.initialize'), \
+             patch('local_bridge_cli.options',return_value=[]), \
+             patch('local_bridge_cli.prepared_manifest',return_value={'model':'fake'}), \
+             patch('local_bridge_cli.fingerprint',return_value='a'*64), \
+             redirect_stdout(output):
+            main(['--recover','--approved-sha256','a'*64,'--state-dir','/private/tmp',
+                  '--request-id',identifier])
+        result=json.loads(output.getvalue())
+        self.assertEqual(result['answer'],'Recovered')
+        self.assertFalse(result['inference'])
+        self.assertEqual(calls,['config/read','thread/read'])

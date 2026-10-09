@@ -29,6 +29,22 @@ enum LocalCodexBridgeProcess {
                           input: nil, timeout: 8)
     }
 
+    static func recoverBundled(requestID: String, approvedHash: String,
+                               stateDirectory: URL) throws -> Data {
+        let hex = CharacterSet(charactersIn: "0123456789abcdef")
+        guard requestID.hasPrefix("request-"), requestID.count == 44,
+              approvedHash.count == 64,
+              approvedHash.unicodeScalars.allSatisfy({ hex.contains($0) }),
+              stateDirectory.isFileURL,
+              stateDirectory.resolvingSymlinksInPath().path == stateDirectory.standardizedFileURL.path
+        else { throw BridgeError.invalidRequest }
+        return try launch(script: packagedScript(),
+                          arguments: ["--recover", "--approved-sha256", approvedHash,
+                                      "--state-dir", stateDirectory.path,
+                                      "--request-id", requestID],
+                          input: nil, timeout: 30)
+    }
+
     static func privateStateDirectory(base: URL? = nil) throws -> URL {
         let files = FileManager.default
         guard let support = base ?? files.urls(for: .applicationSupportDirectory,

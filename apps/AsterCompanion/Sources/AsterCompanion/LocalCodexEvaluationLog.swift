@@ -22,7 +22,7 @@ enum LocalCodexEvaluationLog {
               directory.resolvingSymlinksInPath().path == directory.standardizedFileURL.path,
               requestID.hasPrefix("request-"), requestID.count == 44,
               (0..<12).contains(caseIndex),
-              ["submitted", "completed", "uncertain"].contains(event),
+              ["submitted", "completed", "uncertain", "recovered"].contains(event),
               manifestSHA256.count == 64,
               totalSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true,
               turnSeconds.map({ $0.isFinite && $0 >= 0 }) ?? true

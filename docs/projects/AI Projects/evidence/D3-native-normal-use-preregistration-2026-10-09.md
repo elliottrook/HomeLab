@@ -178,3 +178,7 @@ only; it does not clear the restart guard or authorize the remaining eleven.
 The next local candidate is owner-bound, read-only original-answer recovery in
 the native UI, followed by explicit acknowledgment before advancing. Never
 clear the saved request ID manually or resubmit case 1.
+
+That [local recovery candidate](D3-native-original-answer-recovery-candidate-2026-10-09.md)
+now passes focused and native tests and recovered the recorded original answer
+without inference. It remains uninstalled and has not advanced the finite set.

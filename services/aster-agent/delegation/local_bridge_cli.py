@@ -27,7 +27,12 @@ from pipe_worker import PipeAgent
 from runtime import open_runtime
 
 
-def recorded_status(directory, request_id):
+class RecoveryConfigClient(ConfigClient):
+    """Read an already recorded turn; never create a thread or start a turn."""
+    methods = ConfigClient.methods | {'thread/read'}
+
+
+def recorded_row(directory, request_id):
     """Inspect only this owner's metadata; never start Codex or create state."""
     if (not isinstance(request_id, str) or
             not re.fullmatch(r'request-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',request_id)):
@@ -45,9 +50,38 @@ def recorded_status(directory, request_id):
                        (request_id,'uid:'+str(os.getuid()))).fetchone()
     finally:
         db.close()
+    return row
+
+
+def recorded_status(directory, request_id):
+    row=recorded_row(directory,request_id)
     return {'id':request_id,'recorded':row is not None,
             'state':row[0] if row else 'unrecorded',
             'turn_recorded':bool(row and row[2])}
+
+
+def recover_snapshot(snapshot, thread_id, turn_id):
+    """Release only one completed final answer from the bound full snapshot."""
+    if not isinstance(snapshot,dict):
+        raise ValueError('Recovery snapshot unavailable')
+    thread=snapshot.get('thread')
+    if not isinstance(thread,dict) or thread.get('id')!=thread_id:
+        raise ValueError('Recovery thread mismatch')
+    turns=thread.get('turns')
+    if not isinstance(turns,list):
+        raise ValueError('Recovery turns unavailable')
+    matches=[turn for turn in turns if isinstance(turn,dict) and turn.get('id')==turn_id]
+    if len(matches)!=1 or matches[0].get('status')!='completed' or matches[0].get('itemsView')!='full':
+        raise ValueError('Recovery turn incomplete')
+    items=matches[0].get('items')
+    if not isinstance(items,list) or any(not isinstance(item,dict) or
+           item.get('type') not in {'userMessage','agentMessage'} for item in items):
+        raise ValueError('Recovery contained unsupported items')
+    answers=[item.get('text') for item in items if item.get('type')=='agentMessage'
+             and item.get('phase')=='final_answer']
+    if len(answers)!=1 or not isinstance(answers[0],str) or not 1<=len(answers[0].encode())<=65536:
+        raise ValueError('Recovery answer unavailable')
+    return answers[0]
 
 
 def reviewed_request(raw):
@@ -90,6 +124,7 @@ def main(argv=None):
     mode.add_argument('--prepare',action='store_true')
     mode.add_argument('--run',action='store_true')
     mode.add_argument('--status',action='store_true')
+    mode.add_argument('--recover',action='store_true')
     parser.add_argument('--approved-sha256')
     parser.add_argument('--state-dir',type=Path)
     parser.add_argument('--request-id')
@@ -102,15 +137,20 @@ def main(argv=None):
         except Exception:
             raise SystemExit('Local status unavailable') from None
         return
-    if args.request_id:
+    if args.request_id and not args.recover:
         raise SystemExit('Recorded request ID is only valid for status')
-    if not (args.prepare or args.run):
+    if not (args.prepare or args.run or args.recover):
         print(json.dumps({'enabled':False,'inference':False}))
         return
-    if args.run and (not args.approved_sha256 or not args.state_dir or
+    if (args.run or args.recover) and (not args.approved_sha256 or not args.state_dir or
                      not args.state_dir.is_absolute() or
                      args.state_dir.resolve()!=args.state_dir):
         raise SystemExit('Reviewed manifest and private absolute state directory required')
+    row=None
+    if args.recover:
+        row=recorded_row(args.state_dir,args.request_id)
+        if not row or row[0]!='completed' or not row[1] or not row[2]:
+            raise SystemExit('Original completed turn unavailable')
     request=None
     if args.run:
         try:
@@ -122,14 +162,15 @@ def main(argv=None):
         raise SystemExit('Codex unavailable')
     with tempfile.TemporaryDirectory(prefix='aster-native-codex-') as cwd:
         opts=options()
-        client=ConfigClient(executable,options=opts,cwd=cwd)
+        client_type=RecoveryConfigClient if args.recover else ConfigClient
+        client=client_type(executable,options=opts,cwd=cwd)
         try:
             initialize(client)
             config=client.call('config/read',{'includeLayers':False,'cwd':cwd})['config']
         finally:
             client.close()
         opts+=disable_mcp_options(config)
-        client=ConfigClient(executable,options=opts,cwd=cwd)
+        client=client_type(executable,options=opts,cwd=cwd)
         try:
             initialize(client)
             prepared=prepared_manifest(client,cwd)
@@ -140,6 +181,12 @@ def main(argv=None):
                 return
             if digest!=args.approved_sha256:
                 raise ValueError('Reviewed configuration changed')
+            if args.recover:
+                snapshot=client.call('thread/read',{'threadId':row[1],'includeTurns':True})
+                answer=recover_snapshot(snapshot,row[1],row[2])
+                print(json.dumps({'id':args.request_id,'state':'completed','answer':answer,
+                                  'automatic_retry':False,'inference':False},ensure_ascii=False))
+                return
             runtime=open_runtime(args.state_dir,enabled=True)
             agent=None
             try:

@@ -4,7 +4,7 @@ import SwiftUI
 struct LocalCodexEvaluationView: View {
     static let launchFlag = "--aster-local-codex-evaluation"
     // Bound to the signed bundle's metadata-only preflight before installation.
-    static let approvedManifest = "6063d71daf8ee917dcb95e5e6836d0bbdfd768df88870b14922da2b091ce285b"
+    static let approvedManifest = "eb36910ebf0762d5bc9aedab4892a7122a217f5a1c0ad4c9e41e3795862755ee"
     static let questions: [(kind: String, text: String)] = [
         ("Knowledge 1", "What does HTTP status 503 mean? Answer briefly and distinguish it from proof of a lasting outage."),
         ("Knowledge 2", "Explain the difference between a service health check and an end-to-end user-path check. Do not imply either has been run."),
@@ -28,6 +28,7 @@ struct LocalCodexEvaluationView: View {
     @State private var consent = false
     @State private var running = false
     @State private var completedInThisSession = false
+    @State private var recoveryAvailable = false
     @State private var answer: String?
     @State private var elapsedSeconds: Double?
     @State private var totalSeconds: Double?
@@ -57,6 +58,9 @@ struct LocalCodexEvaluationView: View {
             }
             if !pendingID.isEmpty {
                 Text("Recorded request ID: \(pendingID). This ID will never be resent automatically.").font(.caption)
+                if recoveryAvailable && !running && !completedInThisSession {
+                    Button("Recover original answer") { Task { await recover() } }
+                }
                 if completedInThisSession && !running {
                     Button("I have recorded the result; show next question") { advance() }
                 }
@@ -108,8 +112,53 @@ struct LocalCodexEvaluationView: View {
                 message = "Prior request could not be reconciled. Do not resend or advance."
                 return
             }
-            message = "Prior request is \(object["state"] as? String ?? "unknown"). Its answer is not retained. Stop and reconcile the evaluation before continuing."
+            if object["state"] as? String == "completed",
+               object["turn_recorded"] as? Bool == true {
+                recoveryAvailable = true
+                message = "The original turn completed. Recover its answer before advancing; no new question will be sent."
+            } else {
+                message = "Prior request is \(object["state"] as? String ?? "unknown"). Stop and reconcile before continuing."
+            }
         }
+    }
+
+    @MainActor private func recover() async {
+        guard ready, recoveryAvailable, !running, !pendingID.isEmpty else { return }
+        let id = pendingID
+        let state: URL
+        do { state = try LocalCodexBridgeProcess.privateStateDirectory() }
+        catch {
+            message = "Private journal unavailable. The original turn was not retried."
+            return
+        }
+        running = true
+        let approvedHash = Self.approvedManifest
+        let result = await Task.detached(priority: .userInitiated) { () -> Data? in
+            try? LocalCodexBridgeProcess.recoverBundled(requestID: id,
+                approvedHash: approvedHash, stateDirectory: state)
+        }.value
+        running = false
+        guard pendingID == id, let result,
+              let object = try? JSONSerialization.jsonObject(with: result) as? [String: Any],
+              object["id"] as? String == id,
+              object["state"] as? String == "completed",
+              object["inference"] as? Bool == false,
+              object["automatic_retry"] as? Bool == false,
+              let recovered = object["answer"] as? String, !recovered.isEmpty else {
+            message = "Original answer unavailable. No question was resent; stop and reconcile."
+            return
+        }
+        answer = recovered
+        do {
+            try LocalCodexEvaluationLog.append(in: state, requestID: id,
+                caseIndex: nextIndex, event: "recovered", manifestSHA256: Self.approvedManifest)
+        } catch {
+            message = "Original answer recovered, but the evidence record could not be saved. Do not advance."
+            return
+        }
+        recoveryAvailable = false
+        completedInThisSession = true
+        message = "Original answer recovered from the recorded turn. Record it before advancing."
     }
 
     @MainActor private func send() async {
@@ -181,6 +230,7 @@ struct LocalCodexEvaluationView: View {
         elapsedSeconds = nil
         totalSeconds = nil
         completedInThisSession = false
+        recoveryAvailable = false
         consent = false
         message = nextIndex < Self.questions.count
             ? "Review the next question and consent before sending."

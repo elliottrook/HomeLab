@@ -24,12 +24,14 @@ final class LocalCodexEvaluationTests: XCTestCase {
         try LocalCodexEvaluationLog.append(in: directory, requestID: id, caseIndex: 0,
             event: "completed", manifestSHA256: LocalCodexEvaluationView.approvedManifest,
             totalSeconds: 4.2, turnSeconds: 3.1)
+        try LocalCodexEvaluationLog.append(in: directory, requestID: id, caseIndex: 0,
+            event: "recovered", manifestSHA256: LocalCodexEvaluationView.approvedManifest)
         let file = directory.appendingPathComponent("evaluation-events.jsonl")
         let raw = try String(contentsOf: file, encoding: .utf8)
         let rows = try raw.split(separator: "\n").map {
             try JSONSerialization.jsonObject(with: Data($0.utf8)) as! [String: Any]
         }
-        XCTAssertEqual(rows.map { $0["event"] as? String }, ["submitted", "completed"])
+        XCTAssertEqual(rows.map { $0["event"] as? String }, ["submitted", "completed", "recovered"])
         XCTAssertEqual(rows[1]["totalSeconds"] as? Double, 4.2)
         XCTAssertFalse(raw.contains("answer"))
         XCTAssertFalse(raw.contains("question"))
