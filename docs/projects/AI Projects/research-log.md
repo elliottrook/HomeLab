@@ -1655,3 +1655,15 @@ The planned isolated recovery tests are complete. Resume with the real
 provisioning package and its separate approval/private human-input boundary,
 not repetition of passed fixture primitives. See
 [full result](evidence/D3-interrupted-root-recovery-gate-2026-10-08.md).
+
+### 2026-10-08 — Real inactive provisioning package prepared
+
+Following approval to prepare setup, froze the 14-file package and exact controller
+and human-helper fingerprints. Read-only checks confirmed all staging paths and
+gateway destination absent, protected gateway directory mode, and Authentik's
+unused names/signing prerequisite/21 reviewed applications. Defined fresh
+recovery snapshots, private local journal, human-input sequence, 24-hour credential
+lifetimes, containment and no-replay rules in the
+[real setup gate](evidence/D3-real-inactive-provisioning-gate-2026-10-08.md).
+No real credentials read, new accounts created, remote mutations or push performed.
+Explicit production-scope confirmation is the next authorization boundary.

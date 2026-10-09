@@ -8,3 +8,6 @@ __pycache__/
 # Editors
 .vscode/
 .idea/
+
+# Private, local-only Aster provisioning journals and compiled custody helper.
+/.aster-local-state/
