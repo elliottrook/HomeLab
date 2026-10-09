@@ -1929,3 +1929,12 @@ uncertain or consumed session without explicit closure. Full delegation suite:
 257 tests passed. No gateway transport or worker authority wired. Live admission
 requires verified worker identity and atomic lease/job SQLite transaction; see
 [design](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).
+
+### 2026-10-08 — Offline exact-turn recovery contract passed
+
+Added owner/job/thread/turn/digest-bound final-answer verification around the
+existing snapshot parser. Synthetic tests reject owner mismatch, incomplete or
+contradictory snapshots, altered answers and duplicate turns. Full delegation
+suite: 261 pass. No Codex history read or live change. Protocol compatibility
+and authorized credential lifecycle remain unverified; see
+[design](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).

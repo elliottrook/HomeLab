@@ -1,6 +1,6 @@
 # D3 — supervised session and completed-answer recovery design
 
-Status: OFFLINE CONTRACT PROTOTYPED. No new authority, content retention or live deployment.
+Status: OFFLINE LEASE AND EXACT-TURN RECOVERY CONTRACTS PROTOTYPED. No new authority, content retention or live deployment.
 Owner: Jason. Revisit after fixture evidence.
 
 ## Current proven facts
@@ -134,9 +134,10 @@ state, but never retried automatically. No raw fixture payload goes to logs.
 Local fixture work is within Stream A. Production session opening, Mac helper
 installation, worker activation, live `thread/read`, content retention and any
 credential renewal each need a concrete risk gate before execution. Existing
-one-turn approval is consumed. The offline lease contract is now prototyped. Next are exact-turn recovery
-fixtures and an atomic gateway admission design, followed by a decision record
-choosing the smallest deployable session workflow. Do not repeat Orion or use a real user
+one-turn approval is consumed. The offline lease and exact-turn recovery contracts are prototyped. Next are an
+atomic gateway admission design and a metadata-only check that the pinned Codex
+app-server can read an exact prior turn. A decision record will then choose the
+smallest deployable session/recovery workflow. Do not repeat Orion or use a real user
 question merely to test the protocol.
 
 ## Offline admission prototype result
@@ -155,3 +156,23 @@ transport, and consume the lease in the same SQLite transaction that creates the
 durable queued job. Without that atomicity, a crash or competing request can
 create an inconsistent admission. Live integration is a no-go until this is
 implemented and tested. The current native flow remains closed.
+
+## Offline exact-turn recovery prototype result
+
+`services/aster-agent/delegation/verified_recovery.py` now wraps the existing
+reconciliation parser for a completed job. It requires the authenticated owner
+to own the durable job, a known thread and turn, one complete matching snapshot,
+and a final-answer SHA-256 matching the gateway's completed digest. It returns no
+answer on a wrong owner, wrong/duplicate turn, partial view, missing/tampered
+final item or failed turn. It does not launch Codex, read local history or create
+a new gateway route. The full delegation suite passed 261 tests with synthetic
+content. The digest must be supplied by the gateway's owner-scoped ledger, never
+from the user's request body.
+
+This proves only the in-process gate. It does not prove the installed Codex
+app-server will allow an exact `thread/read`, that the historical thread will be
+retained, or that a revoked worker can read it. No live user content was read.
+A future fixture can query metadata for a separately created synthetic turn,
+then compare the returned answer digest; that requires its own bounded gate if
+authentication or inference is needed. Do not connect recovery to the owner UI
+until that compatibility and token lifecycle are demonstrated.
