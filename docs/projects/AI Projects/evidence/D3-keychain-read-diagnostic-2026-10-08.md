@@ -2,7 +2,26 @@
 
 Status: APPROVED DIAGNOSTIC COMPLETE — KEYCHAIN READ TIMEOUT. Approval consumed.
 
-## Next gate — supervised read prepared, not executed
+## Supervised read — approved and completed
+
+Jason approved the 90-second supervised invocation. It completed once with
+`readable_valid_shape` in 24.69 seconds, credentials printed false, network calls
+zero and model calls zero. The source fingerprint matched the prepared helper.
+No account activation, gateway restart, ACL change, OAuth request or unattended
+read was performed. Approval consumed; the earlier timeout remains valid evidence.
+
+This proves supervised readability and accepted text shape, not correctness at the
+token endpoint or unattended availability. The elapsed time includes waiting for
+the human/OS interaction; it is not a Keychain performance benchmark. Do not
+simply extend every production credential-read timeout or claim Always Allow is
+required. Current WorkerToken reads Keychain for each gateway request; that is
+unsuitable for this supervised path. Next local design work should consider one
+explicit supervised session bootstrap, a short-lived in-memory worker token for
+the bounded assignment, online gateway revocation checks on every request, and
+no automatic credential reacquisition on expiry. No such implementation or live
+pilot is authorized by this diagnostic alone.
+
+### Approved scope retained
 
 Jason dismissed the stale prompt and requested continuation. Prepared a separate
 explicit `--supervised` mode in the same helper. This allows 90 seconds for a

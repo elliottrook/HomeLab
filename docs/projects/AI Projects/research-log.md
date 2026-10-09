@@ -1793,3 +1793,14 @@ explicit supervised 90-second diagnostic mode. Production timeout is unchanged;
 no live credential read or system change. Three fixture tests pass. The next gate
 binds the new source fingerprint and one private read with Allow once, without
 network, activation, restart or ACL change. Await specific credential-read approval.
+
+### 2026-10-08 — Supervised private read passed
+
+Jason approved the exact supervised check. It reported readable valid shape in
+24.69 seconds, with no password output, network call or model call. No access
+policy, account state or Aster service change. This proves supervised readability
+only; human interaction time is not a Keychain latency benchmark. Current worker
+re-reads Keychain for each request, so do not resume a pilot by merely increasing
+timeouts. Next local design: bounded supervised session bootstrap and in-memory
+short-lived token, retaining online gateway authorization/revocation checks and
+no automatic renewal. No live retry or additional credential read authorized.
