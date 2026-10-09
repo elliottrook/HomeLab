@@ -1902,3 +1902,11 @@ for unknown readiness and completed-but-unavailable answers. 33 native and 252
 backend tests pass; signed build 7 packaged locally. No live change or inference.
 See [bounded gate](evidence/D3-availability-gate-2026-10-08.md) for deployment,
 rollback and subsequent session/recovery work.
+
+### 2026-10-08 — Availability candidate deployed and visually verified
+
+Jason approved. Gateway checkpoint, two-module update and one restart passed;
+health 200, 44 scoped routes, anonymous denial, new submission absent and two
+completed records retained. Signed Companion build 7 installed with whole-app
+backup; native UI visibly disables Ask Codex and honestly marks the completed
+answer unavailable. Worker remains inactive. See [gate](evidence/D3-availability-gate-2026-10-08.md).

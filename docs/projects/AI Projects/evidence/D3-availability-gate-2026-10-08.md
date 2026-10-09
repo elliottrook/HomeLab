@@ -1,6 +1,6 @@
 # D3 availability and completed-answer presentation
 
-Status: LOCAL CANDIDATE; live deployment approval pending. No inference proposed.
+Status: APPROVED AND DEPLOYED. Owner-visible status verified; no inference performed.
 
 ## Problem and result
 
@@ -67,3 +67,36 @@ policy change or Git push. Deployment requires repository remote-change approval
    it cannot silently forward old chat history.
 
 D3 remains open. No sysadmin tools or general autonomous worker are authorized.
+
+## Deployment and acceptance — 2026-10-08
+
+Jason approved the bounded rollout. Fresh installed build 6 and the two gateway
+module hashes matched the frozen baseline; Aster was healthy with 43 routes, two
+completed jobs, the intake drop-in absent, and the worker identity inactive with
+zero access/refresh grants. Frozen candidate file hashes matched the manifest.
+
+Gateway checkpoint `/var/lib/aster-delegation-checkpoints/availability-20261008`
+contains verified original module copies and baseline metadata. Installed only the
+two candidate gateway modules and restarted Aster once. Result: health 200, all
+43 previous routes plus only authenticated GET capabilities (44 total); anonymous
+GET denied; submission route absent; both completed job records retained. No
+request-enabling drop-in was created.
+
+The normal AppleScript quit attempt was rejected with `User canceled` before any
+app files changed. Inspected the exact running Companion process, sent SIGTERM to
+that process only, and verified exit. Preserved and verified the entire installed
+build 6 at `/Applications/AsterCompanion.pre-availability-20261008.app`, then
+installed signed build 7, verified every packaged file and signature, registered
+and launched it. Earlier backup copies remain untouched.
+
+Native UI inspection showed signed-in Companion, `Ask Codex` disabled, the text
+`New Codex requests are closed. You can still view recorded requests.`, two
+completed request rows, and the selected native request described as completed
+with its temporary answer unavailable and an explicit warning against resending
+for recovery. The original normal Companion view remained available after closing
+the status sheet. This validates presentation, not new model quality or answer
+recovery. No new credential read, worker activation, inference or Git push.
+
+Next safe work: local design and tests for supervised session admission and
+answer recovery, using the boundaries in the following-milestones section. The
+accepted one-turn authorization remains consumed.
