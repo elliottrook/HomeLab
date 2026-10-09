@@ -11,6 +11,36 @@ except ImportError:
 
 @unittest.skipIf(httpx is None, 'Run with pinned gateway dependencies')
 class WorkerClientTests(unittest.IsolatedAsyncioTestCase):
+    async def test_exact_recovery_client_route_without_new_turn(self):
+        from fastapi import Header, HTTPException
+        from handoff import Gateway
+        from recovery_router import recovery_router
+        from worker_client import WorkerClient, WorkerConnectionError
+        with tempfile.TemporaryDirectory() as directory:
+            gateway=Gateway(Path(directory)/'gateway.sqlite','gateway',clock=lambda:1000)
+            try:
+                reply='Synthetic recovered answer.'
+                digest=hashlib.sha256(reply.encode()).hexdigest()
+                gateway.create('job','owner','worker','a'*64,'b'*64,'model',1100)
+                offer=gateway.offer('worker','job')
+                gateway.receipt('worker','job',offer['delivery_id'],'completed',digest)
+                ticket=gateway.request_answer_recovery('owner','job')
+                async def owner(authorization:str=Header(default='')):
+                    if authorization!='Bearer owner-token':raise HTTPException(401)
+                    return 'owner'
+                async def worker(authorization:str=Header(default='')):
+                    if authorization!='Bearer fixture-token':raise HTTPException(401)
+                    return 'worker'
+                app=FastAPI();app.include_router(recovery_router(gateway,owner,worker,enabled=True))
+                client=WorkerClient(lambda:'fixture-token',enabled=True,transport=httpx.ASGITransport(app=app))
+                claim=await client.recovery_claim(ticket)
+                self.assertEqual(claim['result_sha256'],digest)
+                await client.recovery_answer(ticket,reply,'job')
+                self.assertEqual(gateway.owner_result('owner','job')['answer'],reply)
+                with self.assertRaises(WorkerConnectionError):await client.recovery_claim('../job')
+                self.assertEqual(gateway.db.execute('select count(*) from handoff_jobs').fetchone()[0],1)
+            finally:gateway.close()
+
     async def test_http_identity_to_owner_result_and_revocation(self):
         from handoff import Gateway
         from worker_auth import WorkerIdentity, ISSUER, CLIENT_ID

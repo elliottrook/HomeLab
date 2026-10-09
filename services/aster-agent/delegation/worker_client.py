@@ -41,9 +41,12 @@ class WorkerClient:
             raise WorkerConnectionError('Worker request unconfirmed; reconcile without reexecution') from None
 
     async def _request(self, job_id, operation, body, token):
+        return await self._request_url(BASE+job_id+'/'+operation, body, token)
+
+    async def _request_url(self, url, body, token):
         async with httpx.AsyncClient(timeout=5, follow_redirects=False, trust_env=False,
                                      transport=self.transport) as client:
-            async with client.stream('POST', BASE+job_id+'/'+operation,
+            async with client.stream('POST', url,
                     headers={'Authorization': 'Bearer '+token}, json=body) as response:
                 if response.status_code != 200:
                     raise ValueError('Gateway denied or unavailable')
@@ -56,6 +59,36 @@ class WorkerClient:
                 if not isinstance(result, dict):
                     raise ValueError('Malformed response')
                 return result
+
+    async def _recovery_post(self, ticket, operation, body=None):
+        if not self.enabled or not isinstance(ticket,str) or not re.fullmatch('[a-f0-9]{32}',ticket):
+            raise WorkerConnectionError('Invalid recovery assignment')
+        try:
+            token=await asyncio.to_thread(self.token)
+            if (not isinstance(token,str) or not 1 <= len(token) <= 16384 or
+                    any(c.isspace() for c in token)):
+                raise ValueError('Invalid worker token')
+            url='https://aster.elliottrook.com/v1/delegation/worker/recovery/'+ticket+'/'+operation
+            return await asyncio.wait_for(self._request_url(url,body,token),10)
+        except Exception:
+            raise WorkerConnectionError('Recovery request unconfirmed; do not retry') from None
+
+    async def recovery_claim(self,ticket):
+        value=await self._recovery_post(ticket,'claim')
+        if (set(value)!={'job_id','owner','result_sha256','expires_at'} or
+                not all(isinstance(value[k],str) and value[k]
+                        for k in ('job_id','owner','result_sha256')) or
+                not re.fullmatch('[a-f0-9]{64}',value['result_sha256']) or
+                not isinstance(value['expires_at'],(int,float))):
+            raise WorkerConnectionError('Invalid recovery claim')
+        return value
+
+    async def recovery_answer(self,ticket,answer,job_id):
+        if not isinstance(answer,str) or not answer.strip() or len(answer)>32000:
+            raise WorkerConnectionError('Invalid recovered answer')
+        value=await self._recovery_post(ticket,'answer',{'answer':answer})
+        if value!={'accepted':True,'job_id':job_id}:
+            raise WorkerConnectionError('Recovery delivery unconfirmed')
 
     async def offer(self, job_id):
         result = await self._post(job_id, 'offer')

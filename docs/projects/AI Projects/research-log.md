@@ -1957,3 +1957,11 @@ one fresh, owner/worker/model/plan-bound session and inserts one durable job;
 capacity/duplicate failures roll back both. Unknown work prevents closing the
 session and opening another. Backend suite: 264 tests passed. No live route or
 identity activation. [Result and remaining gates](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).
+
+### 2026-10-08 — Owner-requested recovery ticket and offline transport
+
+Added a one-ticket, owner-bound recovery ledger and unattached owner/worker
+HTTP candidate. An exact local thread reader can return only the original final
+answer after digest verification; no model turn path exists. Fixture and ASGI
+client tests passed (279 backend total). Production routes remain absent and
+worker inactive. See [design](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).

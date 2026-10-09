@@ -225,3 +225,28 @@ policy-approved fixed plan, owner-scoped request admission, and a way for the Ma
 worker to maintain a fresh session without copying credentials into Aster. The
 existing owner request route remains closed. Do not deploy this schema change
 just to expose a session control before its transport and recovery path are ready.
+
+## Owner-requested recovery ticket and transport candidate
+
+The gateway now has a local-only ticket contract: an authenticated owner can
+request one four-minute recovery ticket for a completed job whose temporary
+answer is unavailable. The assigned worker may claim it once; a lost claim
+remains uncertain and is not automatically reissued. Delivery is accepted only
+for the original worker and exact durable completion digest. Answer text remains
+volatile. A completed ticket can redeliver the same verified answer after a
+restart during its original lifetime. The candidate has no model dispatch path.
+
+An unattached `recovery_router` separates owner request/status from worker
+claim/answer. Its disabled mode mounts no routes. `WorkerClient` has bounded
+client calls to the fixed recovery path; `recovery_execution.py` reads only a
+known thread ID and compares local owner/job/turn plus the gateway digest before
+returning text. Synthetic ASGI and client integration checks cover owner/worker
+isolation, wrong digest, one-time claim, expiry, restart and no duplicate job.
+Full backend suite: 279 passed.
+
+This is **not** deployed or connected to native UI. Worker identity and
+subscription authentication are still inactive in production. A future live
+trial must freeze the exact original fictional job/ticket/digest and runner
+binary, use one supervised credential bootstrap, verify no inference, have Jason
+request recovery explicitly, clean up the worker immediately, and close recovery
+routes after acceptance. No existing one-turn approval covers that trial.

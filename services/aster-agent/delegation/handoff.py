@@ -64,6 +64,9 @@ class Gateway(Ledger):
             worker TEXT NOT NULL, model TEXT NOT NULL, scope_sha256 TEXT NOT NULL,
             expires_at REAL NOT NULL, heartbeat_at REAL NOT NULL,
             admitted_job TEXT, closed INTEGER NOT NULL DEFAULT 0)""")
+        self.db.execute("""CREATE TABLE IF NOT EXISTS handoff_recovery (
+            id TEXT PRIMARY KEY, job_id TEXT NOT NULL UNIQUE,
+            worker TEXT NOT NULL, state TEXT NOT NULL, expires_at REAL NOT NULL)""")
         self.db.commit()
 
     def _insert_job(self, envelope):
@@ -193,6 +196,78 @@ class Gateway(Ledger):
             self.db.execute('UPDATE handoff_sessions SET admitted_job=? WHERE id=?',
                             (job_id,session_id))
         return envelope
+
+    def request_answer_recovery(self, authenticated_owner, job_id):
+        """One explicit owner request; never queues a model turn or stores text."""
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            envelope,state,digest = self._row(job_id)
+            if envelope['owner'] != authenticated_owner:
+                raise KeyError('Job not found')
+            if state != 'completed' or not digest:
+                raise ValueError('Only a completed answer can be recovered')
+            if job_id in self.answers and 0 <= self.clock()-self.answers[job_id][0] < 900:
+                raise ValueError('Answer is already available')
+            if self.db.execute('SELECT 1 FROM handoff_recovery WHERE job_id=?',
+                               (job_id,)).fetchone():
+                raise ValueError('Recovery already requested; reconcile first')
+            ticket = secrets.token_hex(16)
+            self.db.execute("""INSERT INTO handoff_recovery
+                (id,job_id,worker,state,expires_at) VALUES (?,?,?,'requested',?)""",
+                (ticket,job_id,envelope['worker'],self.clock()+240))
+        return ticket
+
+    def _recovery_row(self, ticket):
+        row = self.db.execute("""SELECT job_id,worker,state,expires_at
+            FROM handoff_recovery WHERE id=?""", (ticket,)).fetchone()
+        if row is None:
+            raise KeyError('Recovery ticket not found')
+        return row
+
+    def answer_recovery_status(self, authenticated_owner, ticket):
+        job_id,_,state,expiry = self._recovery_row(ticket)
+        envelope,_,_ = self._row(job_id)
+        if envelope['owner'] != authenticated_owner:
+            raise KeyError('Recovery ticket not found')
+        return {'job_id':job_id, 'state':state, 'expires_at':expiry,
+                'automatic_retry':False}
+
+    def claim_answer_recovery(self, authenticated_worker, ticket):
+        """A lost claim response is uncertain; it is never automatically reissued."""
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            job_id,worker,state,expiry = self._recovery_row(ticket)
+            if worker != authenticated_worker:
+                raise KeyError('Recovery ticket not found')
+            if state != 'requested' or self.clock() >= expiry:
+                raise ValueError('Recovery claim unavailable')
+            envelope,job_state,digest = self._row(job_id)
+            if job_state != 'completed' or envelope['worker'] != worker or not digest:
+                raise ValueError('Completed job no longer matches')
+            self.db.execute("UPDATE handoff_recovery SET state='claimed' WHERE id=?", (ticket,))
+        return {'job_id':job_id, 'owner':envelope['owner'],
+                'result_sha256':digest, 'expires_at':expiry}
+
+    def deliver_recovered_answer(self, authenticated_worker, ticket, answer):
+        """Verify the original completion digest before volatile redelivery."""
+        if not isinstance(answer, str) or not answer.strip() or len(answer) > 32000:
+            raise ValueError('Invalid recovered answer')
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            job_id,worker,state,expiry = self._recovery_row(ticket)
+            if worker != authenticated_worker:
+                raise KeyError('Recovery ticket not found')
+            if state not in {'claimed','completed'} or self.clock() >= expiry:
+                raise ValueError('Recovery delivery unavailable')
+            envelope,job_state,digest = self._row(job_id)
+            if (job_state != 'completed' or envelope['worker'] != worker or
+                    hashlib.sha256(answer.encode()).hexdigest() != digest):
+                raise ValueError('Recovered answer differs from completed record')
+            self.db.execute("UPDATE handoff_recovery SET state='completed' WHERE id=?", (ticket,))
+        # A restart between the durable update and volatile publication permits
+        # the same digest-bound ticket to redeliver within its original expiry.
+        self.answers[job_id] = (self.clock(),answer)
+        return job_id
 
     def _row(self, job_id):
         row = self.db.execute("SELECT envelope,state,result_sha256 FROM handoff_jobs WHERE id=?", (job_id,)).fetchone()
