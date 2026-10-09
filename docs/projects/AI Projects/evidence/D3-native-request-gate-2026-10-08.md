@@ -1,6 +1,6 @@
 # D3 — Native Companion reviewed-request candidate
 
-Status: APPROVED NATIVE REQUEST COMPLETED; worker disabled and grants absent. Awaiting owner answer visibility before intake cleanup. Owner: Jason.
+Status: NATIVE ROUND TRIP ACCEPTED; approved cleanup complete. Owner: Jason. One-turn approval consumed.
 This checkpoint supersedes older next-action prose, not historical evidence.
 
 ## Outcome and boundary
@@ -201,3 +201,29 @@ Aster under existing approval, verify baseline 43 API paths and healthy normal
 service, preserve the completed ledger and native app. Do not restart before
 answer acceptance or claim an expired answer remains available. Do not run a
 second question under the consumed one-turn authorization.
+
+### Owner acceptance and final cleanup
+
+Jason confirmed "yes, I can see it". This establishes user-reported native answer
+visibility for the submitted question. It is not a correctness benchmark or
+sysadmin qualification. The callback-free login repair therefore also passed
+the real authenticated submission workflow.
+
+After acceptance, removed only the exact requests-enabling drop-in and restarted
+Aster as approved. Independent checks: health 200; exactly the original 43 API
+paths; new submission routes absent; two completed job records preserved; original
+pilot drop-in preserved. Fresh identity query verified worker inactive and zero
+access/refresh grants. No further model turn, credential renewal or Git push.
+The restart cleared temporary answer text as planned; durable status/digests and
+usage remain. Native build 6 and recovery copies remain installed/retained.
+
+## Next Stream A work
+
+This milestone is complete, but D3 remains open. Continue local preparation for
+operational usability: explicit disabled/worker-unavailable status, distinguishing
+completed-but-expired answer from failed work, reconnect/recovery without duplicate
+execution, and a bounded supervised-session start/stop design. Avoid another
+fixed Orion test. Follow-up context and completion notifications remain separate
+acceptance requirements. Never expand tools or grant sysadmin authority to make
+a conversational demonstration appear more useful. A new live session or credential
+renewal requires a concrete bounded gate; prior one-turn permission is consumed.

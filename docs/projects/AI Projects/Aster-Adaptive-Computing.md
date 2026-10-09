@@ -4,7 +4,7 @@
 
 **Owner:** Jason.
 
-**Latest resume — native Companion:** Jason selected the native app. The reviewed-request candidate and bounded installation/test/cleanup gate are in [D3 native request gate](evidence/D3-native-request-gate-2026-10-08.md). Native user-authored request completed; worker disabled and grants absent. Await Jason confirming answer visibility, then perform approved intake-closing restart. No second inference under the consumed one-turn authorization. The accepted fixed pilot must not be repeated.
+**Latest resume — native Companion:** Jason selected the native app. The reviewed-request candidate and bounded installation/test/cleanup gate are in [D3 native request gate](evidence/D3-native-request-gate-2026-10-08.md). Native user-authored request accepted by Jason; intake closed, worker disabled and grants absent. Cleanup verified. Next: local D3 availability/reconnect/session-lifecycle preparation. One-turn authorization consumed. The accepted fixed pilot must not be repeated.
 
 **Current direction and resume point — 2026-10-06:** Jason adopted
 [subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the
@@ -31,7 +31,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Supervised end-to-end pilot COMPLETE; Jason confirmed answer visibility | [Session result](evidence/D3-supervised-session-pilot-2026-10-08.md): completed Orion job, answer/usage recorded, worker inactive and no tokens remain. Next: prepare normal Companion request/result integration and remaining lifecycle gates; do not repeat the successful fixed test. D3 not graduated; no live sysadmin delegation. Password expires Oct 9 at 7:02 PM Vancouver. |
+| D3 — Companion integration | Supervised end-to-end pilot COMPLETE; Jason confirmed answer visibility | [Session result](evidence/D3-supervised-session-pilot-2026-10-08.md): completed Orion job, answer/usage recorded, worker inactive and no tokens remain. Native reviewed-request flow also completed and Jason confirmed its answer; [native gate](evidence/D3-native-request-gate-2026-10-08.md) records cleanup. Next: availability/reconnect/session lifecycle; do not repeat the fixed test. D3 not graduated; no live sysadmin delegation. Password expires Oct 9 at 7:02 PM Vancouver. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
