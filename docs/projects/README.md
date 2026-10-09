@@ -10,6 +10,7 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
+| The Contrasting Frame hosting and editorial publishing | Ready for M0 — Stream M design discussion; Stream A delivery after acceptance | [Hosting and publishing](The-Contrasting-Frame-Hosting-and-Publishing.md) | [TCF style guide](../design/The-Contrasting-Frame-Style-Guide.md); internal origin, private AI-assisted Content Desk and scheduled approved releases |
 | Aster Adaptive Computing — Foundation and Operational Sysadmin Capability | Active — Stream A; SA0–SA5 approved as next delivery priority; SA0 next; sysadmin graduation gated on operational evidence | [Implementation project](AI%20Projects/Aster-Adaptive-Computing.md) | [Adopted workstream](AI%20Projects/Operational-Sysadmin-Capability.md); Qwen-first trial, conditional hybrid fallback; existing authority/recovery gates retained |
 | B60 inference engineering | Proposed — Stream M | [B60 inference engineering](B60-Inference-Engineering.md) | Scientific optimization of the fixed T5810/B60 Aster inference path; read-only state reconciled, fresh control/harness and exact rollback inventory pending before any operational experiment |
 | MacBook administration layer | Active — Stream A; M0-M3 closed (baseline, toolkit, independent SSH identity/enrollment, Doctor parity); M4 (recovery, integration, graduation) in progress | [MacBook administration layer](MacBook-Administration-Layer.md) | Independent internal toolkit, credentials and recovery; mini-only scheduled automation; no SSD migration |

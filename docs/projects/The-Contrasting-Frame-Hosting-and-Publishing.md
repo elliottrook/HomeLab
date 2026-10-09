@@ -1,0 +1,435 @@
+# The Contrasting Frame hosting and editorial publishing
+
+> Status: Ready for M0 design discussion; no infrastructure implementation begun
+>
+> Owner: Jason Elliott
+>
+> Proposed: 2026-10-09
+>
+> Current authorization: Stream M for M0 only
+>
+> Delivery instruction: transition to Stream A for A1–A6 after M0 acceptance
+
+## Purpose and desired outcome
+
+Host The Contrasting Frame on Jason's own network, publish the approved gallery
+at `https://thecontrastingframe.com`, and provide a private, AI-assisted Content
+Desk for updating photographs and Jason's short stories on a schedule.
+Retain the accepted photography-led design and an independent static serving
+path: inference, the editor or a failed scheduled job must not take down the
+last accepted gallery.
+
+Jason requested autonomous completion, but explicitly made the initial milestone
+monitored. M0 must discuss and flesh out the design with him, record decisions
+and his acceptance of the concrete risks and scope, then transition the project's
+single active stream to A. Do not run M and A simultaneously or treat this
+planning request as approval of an unspecified Internet exposure.
+
+Applicable visual standard:
+[The Contrasting Frame style guide](../design/The-Contrasting-Frame-Style-Guide.md).
+The Aster internal UI guide does not govern this brand or its private editor.
+This project produces no speech; no new voice/TTS implementation is planned.
+
+## Current state and evidence
+
+The accepted static website is in the separate Sites source repository at:
+
+`/Users/jasonelliott/Documents/ChatGPT/Aster Hardware Development/sites/the-closet-fatman`
+
+Its latest accepted commit is `5b23ccb9d8d746196948246f936427495220ed28`.
+The approximately 12 MB `dist/` contains five HTML pages, CSS/JS, full-colour
+SVG logos, the dearJoe 4 Regular PRO webfont and demonstration photographs.
+Production preview remains owner-private at
+https://the-closet-fatman-photography.neat-pixie-1264.chatgpt.site/.
+The legacy slug is not the brand. Do not modify/delete this recovery/reference
+site or its audience as part of the migration.
+
+Jason reports ownership of `thecontrastingframe.com`. Domain registrar, active
+DNS zone, nameservers, DNSSEC and mail records must be discovered in M0.
+`hello@thecontrastingframe.com` is the intended enquiry address, not a verified
+working mailbox. Launch requires either a working mailbox or an accepted interim
+contact address; a mail-server deployment is outside scope.
+
+Read-only LAN evidence collected 2026-10-09:
+
+| System | Verified or documented role |
+|---|---|
+| Proxmox `192.168.50.10` | Live version 9.2.20; local-lvm about 622 GiB available; dedicated guests feasible subject to memory/capacity check |
+| TrueNAS `192.168.20.40` | Live `Media` pool about 10.8 TiB available |
+| Existing photography | Live `Media/Photos`, `Archive`, `archive_main`; 47.3 GiB collectively; canonical source and rights not yet identified |
+| Recovery | Live `Recovery/photos`: 96 KiB used, 1.20 TiB quota; this is not evidence that photos are backed up |
+| Forgejo `192.168.20.30` | Live `jason/homelab` main `2f929145953445b1be3695f02ee5c969bc1e9c1a`; standards read directly through SSH |
+| Reverse proxy `192.168.50.23` | Existing NPM/Cloudflare pattern documented in LXC 107; runtime connector/route settings still need sanitized verification |
+| Local AI `192.168.70.12` | Documented llama.cpp inference in LXC 110; authenticated/broker path to be verified, not a new model deployment |
+| Private access | Documented Authentik and Tailscale, with default-deny VLAN boundaries |
+
+The two standard/style-guide blobs in this working checkout match Forgejo main
+exactly before these changes. The checkout itself has additional local history:
+base `5d260ba6bf14ff786579b353d5d44c314000e3e7`.
+Its origin is a local clone/mirror chain, not the live Forgejo URL. Do not push
+that entire history or mistake a local push for Forgejo synchronization.
+
+## Scope and exclusions
+
+After M0, the proposed A authorization covers: dedicated scoped datasets/ACLs;
+two small unprivileged guests; static-server and private editor deployment;
+a restricted importer/image renderer, local AI draft suggestions, review queue,
+scheduled publisher, reversible release storage; narrow approved DNS/TLS/tunnel
+or edge rules; backup, monitoring, NetBox, runbooks and operator training.
+Exact guest IDs, addresses, ports, accounts and public route must be approved
+in M0 and uniqueness checked immediately before allocation.
+
+Excluded: store/cart/payments, client booking, self-hosted email, rebranding,
+new typography, moving/deleting master libraries, blanket NAS scanning, facial
+recognition, autonomous publication of unreviewed writing, cloud AI uploads,
+new WAN port forwards, broad VLAN permits, unrelated service repair, changing
+existing sharing/SSO/tunnel routes, public administration, and automatic
+retirement of the Sites preview. Paid service purchases require Jason's decision.
+
+## Authority and ownership
+
+- Jason owns photograph selection, rights/consent, factual claims, narrative,
+  approval, scheduling and final design decisions.
+- Existing photo repository owns original files; the TCF publishing repository
+  owns curated copies, story versions and explicit approved manifests.
+- Forgejo owns source/templates/configuration. Keep private licensed assets
+  outside a public mirror; check the existing GitHub mirror's audience first.
+- NetBox owns allocated guest/IP/service facts; live deployed state verifies them.
+- DNS provider owns public records; OPNsense and local resolvers own LAN policy.
+- OpenBao/broker owns machine-secret custody; no values in Git or prompts.
+- This project and the operational reference record accepted decisions and proof.
+  Wiki/Aster snapshots are derived knowledge, not approval or runtime authority.
+
+## Recommended storage
+
+Create dedicated datasets only after M0, provisionally:
+
+| Location | Content and access |
+|---|---|
+| `Media/TheContrastingFrame/library` | Curated master/export copies from the selected source, checksums and provenance; editor/importer read-only |
+| `Media/TheContrastingFrame/brand` | Full-colour logo masters/variants, licensed fonts, EULAs and receipts; private, selective webfont deployment |
+| `Media/TheContrastingFrame/content` | Versioned Markdown stories, metadata, approved snapshots and scheduled collection manifests |
+| `Media/TheContrastingFrame/workflow` | Private review DB/state and draft suggestions; editor-only writes, bounded retention |
+| `Media/TheContrastingFrame/releases` | Complete immutable site exports and checksum manifests; publisher writes, backup reads |
+| `Recovery/contrasting-frame` | Independent protected copy of scoped state, source reconstruction and approved assets; quota/retention set in M0 |
+
+Paths above are proposals, not currently existing datasets. Prefer these to the
+Mac Downloads/Documents folder or a general media/Immich application directory.
+Do not rename or consolidate `Media/Photos/Archive` and `archive_main`.
+Identify the actual source before importing; add selected copies without
+overwriting masters. Source photos may remain in the existing repository.
+Expose only a curated folder to automation, never the whole NAS.
+
+Use SMB for Jason's optional Finder editing workflow; service NFS/SMB mounts
+must be source-address restricted with tested UID/ACL mapping. Do not rely
+on an unprivileged LXC's assumed root identity for NAS permissions.
+The public host gets a local release copy, no NAS mount or source credentials.
+Keep source code and manifests in a dedicated private TCF Forgejo repository
+if agreed; infrastructure planning remains in homelab. Do not mirror proprietary
+font packs, originals, private notes or approvals to public GitHub.
+
+## Proposed architecture and data flow
+
+Use two isolated unprivileged Proxmox guests on Servers VLAN 20, each with
+guest firewall default-deny and exact inter-VLAN exceptions. Reassess a separate
+DMZ only if M0 finds the current isolation insufficient; no new VLAN is assumed.
+
+1. **TCF publisher/private Content Desk:** initial sizing 2 vCPU, 1–2 GiB RAM,
+   16–32 GiB local disk, plus narrowly mounted private TCF datasets.
+   It scans only the approved source folder, prepares candidates, renders
+   previews and schedules approved releases.
+2. **TCF public static origin:** initial sizing 1 vCPU, 512 MiB–1 GiB RAM,
+   8–16 GiB local disk plus quota-controlled release storage.
+   Static Nginx or Caddy, no editor, model, database, NAS mount or Docker socket.
+   Serve only the selected accepted release read-only.
+
+```text
+Chosen private photo folder + Jason's Markdown stories
+                      |
+              Content Desk / publisher
+           local AI suggestions -> human review
+                      |
+          approved version + scheduled publish_at
+                      |
+             validate complete static release
+                      |
+          scoped deploy -> public static origin
+                      |
+              approved public HTTPS edge
+                      |
+             thecontrastingframe.com
+```
+
+The publisher may contact the local inference capability through the existing
+authenticated service/broker pattern, with a dedicated `ai-tcf-editor` identity.
+Do not invent a currently available vision capability: default to text based on
+Jason's notes and manually supplied image descriptions. Optional local visual
+analysis needs an explicitly verified model and its own evaluation.
+
+Deployment uses an exact-target forced-command SSH account or narrowly scoped
+authenticated deployment endpoint. It may stage/switch TCF releases, not run
+arbitrary shell/root commands or administer DNS/firewalls. The inference identity
+has no deployment capability. The public origin must not initiate connections to
+private storage, Forgejo, Aster, OpenBao, editor or network administration.
+
+Private editor: a LAN/Tailscale-only HTTPS name (provisional
+`tcf-studio.elliottrook.com`) through NPM and Authentik owner-only access, plus a
+documented break-glass path. No Cloudflare public route to it.
+
+## Public domain and delivery decision
+
+Preferred candidate: a dedicated TCF Cloudflare Tunnel/connector co-located
+with the static origin and routing to loopback. This avoids giving an existing
+Management-VLAN connector new reach and needs no inbound WAN port forward.
+Only the exact gallery hostname(s) are published; unmatched routes return 404.
+The tunnel remains a third-party public edge: public images traverse that service.
+
+Cloudflare's current documentation requires a domain on Cloudflare for the
+normal published-application flow and outbound connector reach on port 7844.
+Preserve DNSSEC, MX/TXT and unrelated records when changing nameservers.
+Registrar ownership is not evidence that DNS is already hosted there.
+Select apex canonical URL and `www` redirect, HTTPS, certificate renewal,
+correct forwarding headers, Host allowlist, content security policy, asset
+cache busting and low/stale-aware HTML caching. Never disable origin TLS
+verification for a remote origin; local loopback HTTP is a different boundary.
+
+**M0 delivery gate:** this is image-heavy. Do not promise free/unlimited CDN use.
+Assess Cloudflare's current non-HTML/large-file terms and expected image traffic.
+If unsuitable, compare (a) a small public VPS HTTPS edge with encrypted
+point-to-point connection to the read-only internal origin, and (b) an approved
+image-delivery service holding only public derivatives. A VPS is not permission
+for public home-IP records or WAN port forwarding. Costs and any cloud copy
+require acceptance; keep internal hosting as the origin and private authority.
+
+Public release includes only licensed public derivatives and approved text.
+Remove demonstration assets or retain only clearly attributed, permitted items
+that Jason explicitly accepts; do not advertise stock as his own photography.
+Verify dearJoe's EULA for the new domain, preview environments and traffic tier
+before launch. Existing Google font requests should be replaced with authorised
+local copies where practical. Contact mailbox readiness is a separate launch gate.
+
+Official sources checked 2026-10-09:
+[Cloudflare Tunnel setup](https://developers.cloudflare.com/tunnel/get-started/),
+[hostname routing](https://developers.cloudflare.com/tunnel/concepts/routing/),
+[application service terms](https://www.cloudflare.com/service-specific-terms-application-services/).
+Recheck applicability during M0; this project does not establish legal clearance.
+
+## Content Desk and scheduled workflow
+
+Build a small brand-consistent editor, not a general file manager or new CMS
+ecosystem unless M0 identifies a clear benefit. The minimal path supports:
+
+1. Select an allowlisted image; show filename/thumbnail, source checksum,
+   orientation and collection. Stable IDs, not model-generated paths.
+2. Write/import a Markdown story. Preserve Jason's original and revision history.
+3. Request optional local AI suggestions for tone, brevity, spelling, titles or
+   alt text. Show a diff; no automatic overwrite. AI never invents documentary
+   facts, consent or personal information.
+4. Preview the real gallery layout and full-image/story viewer on mobile/desktop.
+5. Approve a frozen image/story/metadata version and set a publication date.
+6. A dedicated timer promotes only approved due content. Show result, current
+   release and one-step rollback. Manual publication uses the same safe path.
+
+Each content record contains ID, allowed relative asset path, image hash,
+orientation, focal point/crop choice, collection, title, alt text, story,
+story mode (fictional/factual), provenance/rights and consent status, version,
+approval identity/time/hash, publish_at timezone, expiry/withdrawal state.
+Unknown rights or incomplete alt text blocks approval; model output cannot
+set approvals or consent. No face identities inferred from images.
+
+Any change to image, text, alt text, crop or public metadata invalidates prior
+approval. Publisher validates a content hash against the approved snapshot.
+No filesystem wildcard import automatically makes an image public.
+Markdown is escaped/sanitized; reject traversal, external file references,
+symlinks escaping the allowlist, unsafe SVG/script and embedded private metadata.
+Treat stories/filenames as untrusted data, never execution instructions.
+
+Proposed schedule for M0: one hourly timer checks due approved items, in
+`America/Vancouver`, with an optional weekly editorial cadence Jason chooses.
+The hour is a polling cadence, not a requirement to change content hourly.
+If nothing is due/changed, no build and no notification. Store UTC instants
+plus the chosen timezone, test DST and missed runs; after downtime, produce one
+coherent current release rather than replaying every missed job. Do not create
+a Codex heartbeat as the production scheduler: scheduling belongs to the service.
+
+Use a lock, bounded retries/timeouts, durable versioned job state and atomic
+release promotion. Build in staging, validate all pages/assets, then switch the
+accepted release. Interrupted or failed runs leave the last release intact.
+Retain rollback versions with a quota; never delete the last known good release.
+Serve responsive WebP/AVIF/JPEG as supported, no upscaling, preserve colour
+appearance, strip EXIF/GPS and retain rights privately. Never edit originals.
+Full-size download sales are out of scope.
+
+## Privacy security and risk assessment
+
+| Risk | Control and residual decision |
+|---|---|
+| Original/client/private story exposure, high impact | Curated allowlist, read-only masters, independent public host, approved content hashes, EXIF stripping and external denied-path tests; Jason accepts public selected copies in M0 |
+| Public service compromise, high impact | Static-only guest, no private mounts, default-deny lateral movement, separate connector/account, patch ownership; home origin still depends on household power/ISP |
+| Wrong or unreviewed AI words, medium/high | Draft-only AI, visible diffs, explicit version approval, fiction/fact flag; author review is still required |
+| DNS/mail disruption, high | Read all current records, preserve zone/DNSSEC/mail, bounded cutover and rollback; human registrar actions may be needed |
+| Font/image rights and edge cost, medium/high | EULA/rights checks, attribution, consent, CDN terms and spending decision before launch |
+| Lost data or bad scheduled deployment, high | Additive imports, checksum versions, atomic release, independent backups and isolated restore |
+| Contention with Aster/media/backup jobs, medium | Bounded jobs/concurrency, resource measurements, existing inference service only, timer window agreed in M0 |
+| Credential leak or excessive privileges, high | OpenBao/broker custody, non-root identities, strict deploy capability; no configuration/token dumps |
+| Local clone diverges from Forgejo, medium | Patch-only transfer onto current authoritative checkout, focused commits; never push unrelated local history |
+
+No production interruption is required during preparation. DNS cutover introduces
+a bounded cache/propagation window; the old preview stays available. M0 must
+record recovery checkpoints, public hostnames, exact firewall rules, affected
+accounts, accepted provider cost/privacy, and abort conditions. Stop for new
+exposure, unverified backups, source ambiguity, unavailable rights, failed
+isolation or scope change. Stream A never waives platform approvals or the
+repository's per-push remote-write rule.
+
+## Milestones
+
+### M0 Design workshop and approval Stream M
+
+- [ ] New agent reads AGENTS, current Forgejo standards, this project, style guide
+  and latest accepted website; reconciles local/remote state without pushing.
+- [ ] Discuss one real photograph/story example and the private Content Desk
+  mockup with Jason. Ask about normal writing/upload habits, folders, fiction
+  versus factual notes, review expectations, scheduling and launch content.
+- [ ] Confirm canonical photo source, storage/backup scope, domain/DNS/mail
+  ownership, font licence, edge provider/terms/budget and desired public privacy.
+- [ ] Verify NetBox allocations, host memory, model/broker availability and
+  existing proxy/tunnel consumers; propose exact guest IDs/IPs and narrow ports.
+- [ ] Record the concrete architecture, risks, exclusions, recovery plan and
+  approvals. Obtain Jason's explicit M0 design/risk acceptance and transition
+  the project to Stream A for the agreed A1–A6 scope.
+
+Gate: Jason has discussed and accepted the design, not merely seen a plan.
+No dataset creation, deployment, timer, credential provisioning, DNS/public
+route or firewall mutation before this gate. Local prototypes and read-only
+discovery may proceed. Remote Git writes still need immediate permission.
+
+### A1 Preserve source and prepare content model
+
+- [ ] Verify baseline source/asset checksums and protect a restorable export.
+- [ ] Prepare private source repository/mirror policy, content schema and tests.
+- [ ] Separate demonstration content from launch-approved content; preserve all
+  user originals and author-written story versions.
+- [ ] Validate orientation layouts and brand guide on synthetic/approved samples.
+
+Gate: source reconstructs the accepted site; no proprietary/private data leaks.
+
+### A2 Provision internal hosting and storage
+
+- [ ] Create only approved guests, datasets, accounts/ACLs and narrow rules.
+- [ ] Deploy private editor/preview and static origin; deny lateral/public admin.
+- [ ] Add host/guest backups, Beszel/Doctor and NetBox records; verify restore.
+- [ ] Validate reboot, mount loss and editor/inference outage with origin intact.
+
+Gate: accepted gallery operates privately and isolation/recovery tests pass.
+
+### A3 Deliver the AI assisted editorial workflow
+
+- [ ] Implement selector, story editing, optional draft-only local AI, diffs,
+  rights/alt-text checks, live preview, approval and version invalidation.
+- [ ] Add dedicated service identities/broker mappings with denied-action tests.
+- [ ] Jason completes a real photograph/story review and approval walkthrough.
+- [ ] Preserve original words; verify path/metadata/prompt-injection safeguards.
+
+Gate: Jason can operate the complete private authoring flow without the agent.
+
+### A4 Scheduled publication and rollback
+
+- [ ] Implement agreed timer, due-content manifest, locking and durable status.
+- [ ] Stage, validate and atomically deploy exact approved content versions.
+- [ ] Test changed-after-approval, concurrent jobs, missing/corrupt images,
+  inference failure, timer outage, DST, crash before switch and rollback.
+- [ ] Two independent scheduled production-shaped passes plus a no-change run.
+
+Gate: approved due content publishes; unapproved content never does.
+
+### A5 Public domain launch
+
+- [ ] Reconfirm M0 exposure/provider decision and all content/licence/mail gates.
+- [ ] Capture DNS/proxy/certificate/firewall recovery checkpoints.
+- [ ] Configure only approved domain/edge routes; preserve existing services/mail.
+- [ ] Test real external unauthenticated gallery access and LAN/Tailscale access;
+  verify HTTPS/redirects, responsive assets, cache invalidation and renewal.
+- [ ] Externally test blocked editor, dotfiles, source maps, private manifests,
+  originals, backup files and forbidden methods; verify origin lateral denies.
+- [ ] Record rollback and any unavoidable outage/provider limitations.
+
+Gate: the domain reaches only the accepted public gallery; no admin/data exposure.
+
+### A6 Operational review and graduation
+
+- [ ] Measure image weight, load experience, CPU/RAM/disk, AI latency, timer
+  overlap and retention against M0 budgets; correct avoidable friction.
+- [ ] Complete an isolated restore and rollback from protected recovery copies.
+- [ ] Reconcile Doctor, Beszel, NetBox, wiki/mirror, runbooks, diagrams,
+  Homepage, authentication, certificates, firewall and backup records.
+- [ ] Deliver and validate the operator manual: add photo, write/review story,
+  approve, schedule, check failure, withdraw content and restore last release.
+- [ ] Jason accepts the handover; update evidence, graduation and close-out.
+  Synchronize focused commits to Forgejo with permission and verify its mirror.
+
+Gate: recoverable, efficient and supportable without Codex or live AI.
+
+## Observability maintenance and integration impacts
+
+Assess each standard checklist item; evidence remains pending until implemented.
+
+| Integration | Required outcome |
+|---|---|
+| Doctor | HTTP/accepted-release checksum, timer last successful check rather than unchanged-file mtime, backup age, certificate and quota; no private stories in alerts |
+| Beszel / existing monitoring | Both new guests registered and reporting; exact exclusions/alternate coverage documented; no duplicate noisy alerts |
+| Backup / recovery | Scoped assets, content, workflow DB, sources, guest config and secret recovery; independent checksum-tested restore |
+| NetBox | Guest/interface/MAC/VLAN/IP/status and services, uniqueness and API readback; approved allocations only |
+| Human wiki | Author workflow, URLs/access and recovery manual |
+| Aster derived mirror | Sanitized service/workflow facts with provenance; no private photographs, draft stories or credentials |
+| Operational reference | Current deployment, ports, schedules, custody identifiers and break-glass |
+| Repository / diagrams | Source path, trust flow, addressing and final design; no imaginary deployed facts |
+| Homepage | Private Content Desk link and public gallery link, no secrets in config |
+| Authentication | Owner-only editor, least-privilege importer/AI/deployer, recoverable owner access |
+| DNS / TLS / firewall | Exact domain rules, renewal and external/private denied-action tests |
+| Automation | Host-owned timer, DST/missed-run/lock tests, quiet no-op and actionable failure status |
+| Security inventory | Updates, root-only machine secrets, broker risk class, revocation/rotation procedure |
+| AI administration | Dedicated identities/capabilities; explicit unsupported status where no safe API exists |
+
+Proposed backup: daily configuration/content/state and selected asset snapshots,
+an independent Recovery copy, and an explicitly approved encrypted off-site
+subset within current capacity. Do not silently include all photography or
+reuse `Recovery/photos` as proof of existing protection. Jason must decide
+original-photo backup coverage. Set retention/quota in M0; test restore into an
+isolated target, including authorship/approval records, before graduation.
+
+Rollback: select the previous immutable release; disable only the new timer if
+it misbehaves; restore only TCF configuration; revert the exact domain/route
+changes using the checkpoint. Never stop the existing shared tunnel or undo
+unrelated proxy/firewall rules. Withdrawal of a photograph includes CDN cache
+purge when supported and verification; explain that third-party copies of
+previously public material cannot be guaranteed erased.
+
+## Persistence and exact next action
+
+Current milestone: M0. Next safe action: open a design conversation with Jason.
+No infrastructure or public-domain changes have been made by this preparation.
+Store design decisions, last validated gate, candidate/accepted release ID,
+rollback checkpoint, exact blocker and next safe action at each milestone.
+Use a versioned durable job-state DB with atomic transitions, not process absence.
+
+Resume by reading AGENTS, this project and current repository/Forgejo status;
+verify completed evidence before rerunning anything. Do not auto-transition to A
+without the recorded M0 acceptance. Do not create recurring Codex automation
+unless Jason separately asks; the new implementation conversation owns execution.
+
+## Evidence log
+
+| Date | Evidence | Result |
+|---|---|---|
+| 2026-10-09 | Accepted website source `5b23ccb9`; source size about 12 MB | Preserved outside homelab; migration pending |
+| 2026-10-09 | Live Forgejo main `2f929145`; standard/style blob IDs match checkout | Standards verified; other branch history differs |
+| 2026-10-09 | Read-only Proxmox version/guest/storage and TrueNAS dataset/capacity queries | Hosting/storage proposals grounded in current resources; no allocation made |
+| 2026-10-09 | Style routing, TCF guide and project/handoff prepared locally | Remote synchronization requires per-push approval and clean reconciliation |
+
+## Close out
+
+Not graduated. M0 discussion, accepted risks, implementation, public launch,
+scheduled publishing, recovery proof and user handover remain outstanding.
+Record final architecture, ownership, recurring costs, limitations and deferred
+storefront work here only when the graduation gates are actually met.

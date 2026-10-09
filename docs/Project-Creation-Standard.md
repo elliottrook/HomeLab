@@ -17,6 +17,24 @@ This repository process grants authority only where the active execution
 environment, safety policy and access controls permit it. It does not bypass a
 required platform approval or turn unavailable credentials into authority.
 
+## Visual style-guide routing
+
+Choose the guide by product identity, not by its hosting location.
+
+- Aster-associated internal network apps must use the
+  [Aster internal UI style guide](design/HomeLab-UI-Style-Guide.md).
+- **Any work for The Contrasting Frame must use the
+  [The Contrasting Frame style guide](design/The-Contrasting-Frame-Style-Guide.md).**
+  This includes the public gallery, private content/editorial tools, previews,
+  generated templates and future storefront work. Being internally hosted
+  does not make these Aster-branded apps.
+- Other brands need an explicitly selected or created guide; do not silently
+  inherit Aster styling.
+
+Every affected project's design milestone and graduation review must identify
+its applicable guide and verify conformance. This routing changes visual
+identity only, not security, authorization, recovery or Aster voice requirements.
+
 ## Cross-project Aster voice standard
 
 This is a repository-wide requirement for every new HomeLab project, not an

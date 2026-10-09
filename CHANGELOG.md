@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-10-09 — The Contrasting Frame project preparation
+
+- Scoped the HomeLab UI guide to Aster-associated internal network apps and
+  added a separate Contrasting Frame guide based on Jason's accepted gallery.
+- Added mandatory brand-aware style routing to the project creation standard.
+- Prepared internal hosting, public-domain and AI-assisted scheduled publishing
+  milestones: M0 is monitored design discussion; autonomous delivery follows
+  explicit acceptance of the concrete architecture, risks and scope.
+- Verified live Forgejo standards, Proxmox and TrueNAS capacity read-only.
+  No guest, dataset, credentials, timer, DNS, firewall or public route changed.
+- Local documentation preparation only; remote synchronization remains subject
+  to the repository's immediate per-push approval and history reconciliation.
+
 ## 2026-10-08 — ARR stack reliability and update hardening
 
 - Corrected inconsistent `apps` group ownership and group-write/traverse
