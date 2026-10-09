@@ -1,8 +1,9 @@
 # ARR Stack Reliability and Update Hardening
 
-> Status: Active — Stream A
+> Status: Complete — Stream A
 > Owner: Jason / HomeLab operations
 > Started: 2026-10-08
+> Completed: 2026-10-08
 > Authorization: Jason requested execution as Stream A after the live ARR assessment.
 
 ## Purpose and desired outcome
@@ -165,6 +166,11 @@ diagnostic output and a normal pass is recorded.
   Jellyfin boundary using live service state and the existing sanitized report;
   no new acquisition was triggered.
 - [x] Run final regression and backup/recovery checks.
+- [x] Perform the post-deployment intent and efficiency review: all changed
+  systems meet their stated purpose; archive write readiness is consistent,
+  critical updates are controlled, monitoring is aggregate and non-secret, and
+  no additional container or duplicate authority is justified. Remaining
+  queue warnings are deliberately retained for separate operator review.
 - [x] Commit only focused project changes; request permission before Forgejo push.
 
 ## Validation and rollback
@@ -213,7 +219,14 @@ Authentik/reverse-proxy configuration untouched.
 
 ## Close-out
 
-The project graduates only after archive import reliability, update policy,
-hardening, observability, recovery and documentation gates pass. Third-party
-cleanup or second-authority tools remain deliberately deferred unless a new
-project is approved.
+The project graduated on 2026-10-08 after archive import reliability, update
+policy, hardening, observability, recovery, documentation and the
+post-deployment intent/efficiency review passed. The active/archive library
+separation and four-month video archiver remain unchanged. Third-party cleanup
+or second-authority tools remain deliberately deferred unless a new project is
+approved.
+
+The remaining Radarr `importBlocked` and Lidarr `importFailed` queue records
+were not automatically retried or dismissed. They are retained for normal
+operator review because retrying or removing them could reacquire, delete or
+alter media outside this bounded reliability project.

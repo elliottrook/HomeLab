@@ -257,7 +257,14 @@ Create the project under `docs/projects/` and add it to
 10. **Milestones** — bounded implementation stages with prerequisites,
     checkboxes and measurable completion gates.
 11. **Validation and evaluation** — functional, security, failure, regression,
-    performance and user-workflow tests.
+    performance and user-workflow tests. Before graduation, perform a
+    post-deployment intent and efficiency review: verify that every system,
+    integration and user workflow created or changed actually delivers the
+    stated purpose; check resource use, latency, schedule/concurrency,
+    permissions, storage, reliability, observability and operational friction;
+    and record any corrective optimization, accepted trade-off or deliberately
+    deferred improvement. “Working” alone is not sufficient evidence of an
+    efficient implementation.
 12. **Observability and maintenance** — Doctor/monitoring coverage, schedules,
     alert ownership, updates and staleness checks.
 13. **Backup, restore and rollback** — protected components, retention, isolated
@@ -418,8 +425,9 @@ indexes and removed or retained intentionally as a test fixture.
 
 A project graduates only when every required gate passes, recovery is proven,
 documentation and systems of record agree, residual risks are accepted, normal
-operation is supportable without the implementation agent, and no unexplained
-temporary access or state remains.
+operation is supportable without the implementation agent, the post-deployment
+intent and efficiency review is complete, and no unexplained temporary access
+or state remains.
 
 ## Project creation workflow
 
