@@ -1,6 +1,21 @@
-# HomeLab private UI style guide
+# Aster-associated internal network apps — UI style guide
 
-**Status:** Shared baseline — use for new private web surfaces
+**Status:** Shared baseline for Aster-associated internal network apps only
+
+## Scope and brand boundary
+
+This guide governs Aster-associated internal HomeLab/network applications,
+including their private dashboards, operational tools and assistant surfaces.
+It is not a universal visual standard for everything hosted on this network.
+
+The Contrasting Frame is a separate brand. All work for it, including its
+private editorial tools, must follow the
+[The Contrasting Frame style guide](The-Contrasting-Frame-Style-Guide.md).
+Do not apply this guide's navy/cyan palette, rounded-card treatment, icon
+family or system-font hierarchy to that brand. Shared security, accessibility
+and operational project requirements still apply. Aster's canonical voice
+remains required when a component actually speaks on Aster's behalf; it does
+not prescribe a photography brand's visual identity.
 
 This guide extends the [HomeLab app icon family](App-Icon-Family.md) into a
 small, practical visual system. It captures the choices used by the Unified
