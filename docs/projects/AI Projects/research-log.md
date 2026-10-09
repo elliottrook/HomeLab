@@ -1984,3 +1984,27 @@ escalated metadata preflight then succeeded. No Keychain read, ticket, identity
 activation, app installation, gateway change, inference or push occurred. The
 [bounded gate](evidence/D3-answer-recovery-gate-2026-10-08.md) documents exact
 source hashes, original-answer limits, rollback and fresh approval required.
+
+### 2026-10-08 — Approved one-time original-answer recovery passed and closed
+
+Jason approved, paused, then resumed the bounded fictional Orion trial. The
+pause was handled by removing the temporary flag and confirming the original
+44-route safe state; no ticket or worker grant existed then. On resume, exact
+hashes, checkpoints, inactive identity and expiry were rechecked. Signed native
+Companion build 8 was installed. Recovery-only flag mounted four routes while
+request intake stayed closed. The Mac runner's metadata manifest matched its
+frozen fingerprint. Jason pressed Recover once; the worker claimed exactly one
+ticket, read only the stored original turn, verified the durable answer digest
+and returned `completed`. The Mac dispatch database was unchanged and gateway
+job count remained two. No new model-turn method existed in the runner and no
+answer text entered operator output or Git.
+
+The worker was disabled immediately; independent Authentik checks showed zero
+nonrevoked grants. Jason confirmed the answer visible in native Companion and
+approved closure. The exact temporary flag was removed and Aster restarted;
+health and 44 routes passed, new submissions and recovery absent, two jobs and
+one completed recovery ticket retained. The answer is again unavailable in
+Aster after restart by design. The signed build 8 and private recovery copies
+remain. [Full bounded result](evidence/D3-answer-recovery-gate-2026-10-08.md).
+This is one successful recovery, not D3 graduation or authorization for a
+standing service, new sysadmin tools, further inference or a Git push.

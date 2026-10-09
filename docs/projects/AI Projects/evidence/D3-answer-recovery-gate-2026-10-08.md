@@ -1,6 +1,6 @@
 # D3 — one completed-answer recovery trial gate
 
-**Status: PREPARED LOCALLY; NOT APPROVED OR DEPLOYED.** Owner: Jason. This is a
+**Status: ONE-TIME TRIAL COMPLETE; TEMPORARY ROUTE CLOSED.** Owner: Jason. This is a
 one-time recovery of the already completed fictional Orion answer, not permission
 to infer, submit a new request, open sysadmin tools or run a standing worker.
 
@@ -118,3 +118,53 @@ No Git push, secret renewal, general sysadmin capability, permanent recovery
 service or expanded agent permissions are included. Human approval must be
 explicit for this one bounded live change. A later durable-answer design needs
 its own privacy/retention decision and evidence.
+
+## Approved trial result — 2026-10-08 Vancouver
+
+Jason approved this exact trial, paused during preparation, then resumed. During
+the pause, the installed temporary flag was removed and Aster returned to 44
+routes. No worker activation or recovery ticket had occurred at that point.
+On resume, all baseline hashes, two completed jobs, inactive worker, zero grants
+and credential expiry were rechecked. The previous gateway and whole-app
+checkpoints were retained and verified. Build 8 was installed from the signed
+candidate after the running app quit; installed executable SHA-256 matched the
+table above. It remained signed in and kept **Ask Codex** disabled.
+
+The final metadata-only Mac preparation hash matched
+`ebe896e52addbeb25f4e0c42aaf2e8ccc945e620265ab03ff445715058727d47`.
+The temporary flag exposed four recovery routes while leaving request intake
+absent: 48 total paths, healthy service, anonymous 401 for owner/worker recovery.
+The existing Authentik worker identity was activated only after exact user,
+provider, application, policy binding, scope mapping, zero-grant and expiry
+checks. Jason clicked **Recover original answer** once for fictional Orion.
+
+An operator wrapper at `/private/tmp/aster_recovery_once_20261008.py`
+(SHA-256 `e582cd7ac9f885c299a6e5236dfe440dfc12a93dc7f26911c64346876fea3215`)
+read the one ticket ID privately from the gateway ledger and passed it in
+process memory to the pinned runner. The runner returned only
+`state=completed`, `automatic_retry=false`, original job ID. It allowed
+`thread/read` of the bound stored thread, required matching owner/job/turn and
+gateway digest, and had no turn-start method. The original Mac dispatch DB hash
+remained `89ce9070746744ec73335bb084ef5e51fcd4bbe9f8f960e9f94e9242b5aa6f15`;
+gateway job count stayed two, Orion stayed completed and the sole recovery ticket
+became completed. No answer or prompt text was printed or added to Git. These
+checks support **no new inference on this code path**; they are not an audit of
+all Codex account activity.
+
+The worker was immediately deactivated. A fresh Authentik count found zero
+nonrevoked access/refresh grants. Jason confirmed the original answer was
+visible in native Companion and approved closure. The exact-hash temporary
+drop-in was removed, systemd reloaded, and only Aster restarted. Final checks:
+healthy service; 44 paths; recovery and new submission absent; two completed
+jobs and one completed recovery ticket retained; worker inactive and zero
+grants. The recovered answer is again unavailable from Aster after restart by
+design. Jason had the opportunity to save it privately before closure.
+
+The recovery checkpoint remains at
+`/var/lib/aster-delegation-checkpoints/answer-recovery-20261008` on LXC 104;
+the prior app is retained at
+`/Applications/AsterCompanion.pre-recovery-20261008.app`. Build 8 stays
+installed, with recovery hidden while the flag is off. The five new gateway
+modules remain present but the recovery feature is disabled. This one trial
+does not graduate D3, prove future history retention, or authorize a standing
+recovery service, automated session start, credential renewal or sysadmin tools.

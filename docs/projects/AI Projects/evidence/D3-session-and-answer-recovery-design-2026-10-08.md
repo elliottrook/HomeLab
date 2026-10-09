@@ -1,6 +1,6 @@
 # D3 — supervised session and completed-answer recovery design
 
-Status: ATOMIC ADMISSION AND OWNER-REQUESTED ANSWER RECOVERY CANDIDATES TESTED OFFLINE. No new authority, content retention or live deployment.
+Status: ATOMIC ADMISSION CANDIDATE TESTED OFFLINE; ONE ORIGINAL-ANSWER RECOVERY TRIAL ACCEPTED AND CLOSED. No standing authority or content retention.
 Owner: Jason. Revisit after fixture evidence.
 
 ## Current proven facts
@@ -284,4 +284,5 @@ bounded gate; it is not an execution grant.
 The [bounded recovery gate](D3-answer-recovery-gate-2026-10-08.md) records
 exact deployment scope, human click/worker timing, validation and rollback.
 No gateway file, native app, worker identity, Keychain item or Codex history was
-changed during this preparation. Live recovery requires fresh explicit approval.
+changed during this preparation. The subsequently approved one-time live result
+and final closed state are in the [bounded gate](D3-answer-recovery-gate-2026-10-08.md).
