@@ -1,6 +1,6 @@
 # D3 — Native Companion reviewed-request candidate
 
-Status: LOCAL CANDIDATE. Deployment and inference approval pending. Owner: Jason.
+Status: APPROVED; gateway and native app installed. Awaiting user readiness for one reviewed request. Owner: Jason.
 This checkpoint supersedes older next-action prose, not historical evidence.
 
 ## Outcome and boundary
@@ -56,7 +56,7 @@ and requests drop-in were absent. Installed module SHA-256 values:
 Do not overwrite the live main Aster module, credentials.py, or existing pilot
 drop-in. Only the above three modules plus new request_intake.py are proposed.
 
-## Bounded approval requested — not yet granted
+## Approved bounded scope
 
 1. Revalidate hashes, health, installed app, inactive worker and credential expiry.
    Stop on drift or expired credentials; no renewal is included.
@@ -118,3 +118,33 @@ Artifacts are staged in `/private/tmp/aster-native-request-candidate-20261008`.
 Reverify every hash before deployment; missing staging files require rebuilding
 and a recorded new manifest, not substitution. Native visual acceptance remains
 pending. Local tests do not prove live availability or general reliability.
+
+## Authorization and execution
+
+Jason approved the bounded installation, one supervised native conversation,
+private credential bootstrap and cleanup. Execution started after matching source,
+artifact, app and gateway hashes; subscription/model/binary configuration remained
+identical to the accepted pilot. Worker inactive with zero grants at preflight.
+
+### Installed; waiting before admission
+
+Gateway checkpoint verified and four frozen modules/drop-in installed. Restart
+passed: all 43 baseline API paths preserved, three new paths, health 200 and
+three unauthenticated denials. Installed main Aster and credentials.py unchanged.
+Companion 0.3.0 build 5 installed, signature verified and launched. Whole-app backup
+verified at `/Applications/AsterCompanion.pre-codex-20261008.app`; original bundle
+also retained at `/Applications/AsterCompanion.native-replaced-20261008.app`.
+No earlier backup was removed. No new model call or Keychain read yet.
+Worker remains inactive; user asked to prepare a public question and stop at the
+review screen before Send. Do not start the four-minute window before readiness.
+
+Prepared metadata-only worker template:
+`/private/tmp/aster-native-worker-template-20261008.json`. Compared its base to the
+accepted pilot (excluding fictional fixture): exact match, including binary,
+subscription authentication, model, reasoning and disabled capabilities. Actual
+job ID/digest must replace only assignment fields after user submission.
+
+Resume: wait for readiness, activate the exact worker, coordinate one Send, read
+only new job ID/digest from durable envelope, prepare/compare assignment manifest,
+run once with supervised bootstrap, and clean up per scope above. If the user
+already submitted, inspect expiry/state first; never retry an uncertain run.

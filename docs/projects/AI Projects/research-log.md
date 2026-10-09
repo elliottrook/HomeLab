@@ -1846,3 +1846,11 @@ Read-only installed-app/gateway checks retained in the
 [native gate](evidence/D3-native-request-gate-2026-10-08.md). Live systems remain
 unchanged; package preparation does not register, install or launch the app.
 This is a supervised workflow candidate, not a sysadmin promotion.
+
+### 2026-10-08 — Approved native deployment installed
+
+Jason approved. Verified baseline and artifacts, preserved gateway and app recovery
+copies, installed the bounded candidate, and confirmed healthy Aster, preserved
+routes and denied unauthenticated intake. Native app launched. Worker is inactive;
+no new credential read or model turn. Await user readiness at review screen before
+one admitted request. See native gate for exact resumable state and cleanup.
