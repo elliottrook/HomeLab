@@ -1631,3 +1631,14 @@ No production keys, credentials or configuration used; no activation or push.
 Approval consumed. Source inspection confirms cancellation cannot revoke an
 already issued root; private targeted crash recovery remains the next blocker.
 See [result and source references](evidence/D3-human-ceremony-gate-2026-10-08.md).
+
+### 2026-10-08 — Targeted interrupted-root recovery candidate
+
+Prepared human-only accessor recovery with explicit target selection, no automatic
+ownership inference, no mutation retry and handled-exit revocation of the fresh
+recovery root. 226 local tests pass. Prepared one bounded lost-final-response /
+invalid-selection / exact-target fixture, preserving unrelated administrator
+access. Only read-only staging/unit preflight performed remotely. The
+[concrete gate](evidence/D3-interrupted-root-recovery-gate-2026-10-08.md) records
+the archive hash, cleanup scope and production attribution limitation. No new
+remote mutation, real credential access, activation or push.

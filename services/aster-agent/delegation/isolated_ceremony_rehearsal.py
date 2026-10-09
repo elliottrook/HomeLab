@@ -37,7 +37,7 @@ def manifest():
     return {name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in SOURCES}
 
 
-def execute():
+def execute(recovery_check=None):
     if os.geteuid()==0 or os.environ.get('ASTER_ISOLATED_FIXTURE')!='1':
         raise ValueError('Isolated unit required')
     stage='startup';events=[];child=[];roots=[];sessions=[]
@@ -93,6 +93,8 @@ def execute():
                 return status,body
             def consume(root):
                 roots.append(root)
+                if recovery_check is not None:
+                    recovery_check(api,root,role,shares)
                 return admin_bootstrap.issue(api,root,lambda token:child.append(token) or True)
             result=human_ceremony.ceremony(observed,lambda _:next(values),consume,events.append)
             assert result['ready'] and result['root_revoked']
