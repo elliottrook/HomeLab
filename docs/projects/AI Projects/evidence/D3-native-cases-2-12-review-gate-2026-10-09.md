@@ -1,6 +1,6 @@
 # D3 native finite evaluation: cases 2–12 review gate — 2026-10-09
 
-**Status: review packet only; no remaining case authorized or sent.** Case 1's
+**Historical review gate: accepted and executed on 2026-10-09.** Case 1's
 original completed answer was recovered in Companion without a second model
 turn. The installed evaluation view remains on case 1 until its result is
 acknowledged. This packet does not open general Ask Codex, tools, automatic
@@ -111,3 +111,12 @@ must be included in the eventual D3 decision, not silently treated as passes.
 
 Source: `apps/AsterCompanion/Sources/AsterCompanion/LocalCodexEvaluationView.swift`
 and the [preregistered design](D3-native-normal-use-preregistration-2026-10-09.md).
+
+## Outcome addendum — 2026-10-09
+
+Jason approved this fixed packet and proposed answer properties before cases
+2–12 ran. The eleven additional cases completed once each through Companion.
+See the [finite-set result](D3-native-finite-12-result-2026-10-09.md) for
+content-free timing, preliminary scoring, Keychain friction and the hold
+decision. The original text above remains the pre-run gate, not a current
+claim that the cases are unsent.

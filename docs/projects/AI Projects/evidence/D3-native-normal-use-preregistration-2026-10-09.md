@@ -1,6 +1,6 @@
 # D3 — native local Codex normal-use preregistration
 
-**Status: FROZEN DESIGN; CASE 1 ONLY COMPLETED.** Owner: Jason. This is a finite D3
+**Status: FROZEN DESIGN; TWELVE CASES COMPLETED; ROUTINE RELEASE ON HOLD.** Owner: Jason. This is a finite D3
 acceptance experiment, not general release or sysadmin graduation. It follows
 the [one-question native result](D3-native-local-bridge-gate-2026-10-08.md).
 
@@ -184,3 +184,14 @@ displayed the recorded original answer without another model turn. A
 `recovered` metadata event was recorded. The UI remains on case 1 awaiting
 acknowledgement; case 2 has not been sent. The result does not satisfy the
 independent-label or remaining-live-case gates.
+
+## Finite-set completion addendum — 2026-10-09
+
+Jason later accepted the fixed [cases 2–12 review packet](D3-native-cases-2-12-review-gate-2026-10-09.md),
+and the remaining eleven fictional cases completed once each. The previous
+paragraph describes the earlier recovery checkpoint, not the current send
+state. The [finite-set result](D3-native-finite-12-result-2026-10-09.md)
+records provisional answer scoring, twelve distinct completed turns and the
+Keychain/authentication friction that keeps D3 on hold. The acceptance
+thresholds above remain frozen; no general manual release, automatic routing
+or sysadmin authority is granted by this result.

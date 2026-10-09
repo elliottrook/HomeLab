@@ -75,6 +75,11 @@ class LocalBridgeCLITests(unittest.TestCase):
                 {'type':'userMessage','text':'Fictional question'},
                 {'type':'agentMessage','phase':'final_answer','text':'Final answer'}]}]}}
         self.assertEqual(recover_snapshot(snapshot,'thread-1','turn-1'),'Final answer')
+        with_reasoning={'thread':{'id':'thread-1','turns':[dict(snapshot['thread']['turns'][0],
+            items=[snapshot['thread']['turns'][0]['items'][0],
+                   {'type':'reasoning','text':'private intermediate data'},
+                   snapshot['thread']['turns'][0]['items'][1]])]}}
+        self.assertEqual(recover_snapshot(with_reasoning,'thread-1','turn-1'),'Final answer')
         for altered in (
             {'thread':{'id':'other','turns':snapshot['thread']['turns']}},
             {'thread':{'id':'thread-1','turns':[]}},

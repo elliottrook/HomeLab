@@ -22,7 +22,9 @@ struct SessionStorage {
         save: { session in
             guard let data = try? JSONEncoder().encode(session), let text = String(data: data, encoding: .utf8),
                   KeychainStore.set(text, for: "oidc_session_v2") else { return false }
-            return KeychainStore.get("oidc_session_v2") == text
+            // SecItemUpdate/Add already reports the write result. A read-back
+            // can request Keychain access again on every token refresh.
+            return true
         },
         clear: { KeychainStore.remove("oidc_session_v2") }
     )

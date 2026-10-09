@@ -1,5 +1,21 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — Fixed native set complete; D3 routine release held
+
+After Jason accepted the exact fictional cases and candidate labels, Companion
+completed cases 2–12 with one reviewed send each. The content-free journal now
+has twelve distinct completed case turns. Visible answers provisionally met
+all frozen properties; read-only inspection found zero tool items. Median
+send-to-result time was 4.41s across twelve samples. This is not a reliability
+rate or proof of sysadmin capability. Five turns contained internal reasoning
+items that the installed read-only recovery helper rejected. A local uninstalled
+fix accepts those items without exposing them or accepting tools; all twelve
+historical turns then replayed read-only. A separate unnecessary Keychain
+read-back during token refresh stalled Companion's UI. A local uninstalled
+candidate removes that read-back, but live behavior is unverified. Hold D3
+routine release pending independent answer review and restart/refresh/failure
+validation. See the [finite-set result](evidence/D3-native-finite-12-result-2026-10-09.md).
+
 ## 2026-10-09 — Native case 1 answer recovery after restart
 
 Jason approved a signed Companion recovery build after read-only source review,

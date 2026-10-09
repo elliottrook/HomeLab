@@ -4,9 +4,10 @@ import SwiftUI
 struct LocalCodexEvaluationView: View {
     static let launchFlag = "--aster-local-codex-evaluation"
     // Bound to the signed bundle's metadata-only preflight before installation.
-    static let approvedManifest = "08c51aae6afe227c5b66918db3e57f54e77a29eb7306de3182fdf84091ae05f5"
+    static let approvedManifest = "34d349045dea8ae8410ccc984e508f1754348539f0491fe542e0bd31f78b3753"
     static let recoveryManifests: Set<String> = [
         approvedManifest,
+        "08c51aae6afe227c5b66918db3e57f54e77a29eb7306de3182fdf84091ae05f5",
         "6063d71daf8ee917dcb95e5e6836d0bbdfd768df88870b14922da2b091ce285b"
     ]
     static let questions: [(kind: String, text: String)] = [

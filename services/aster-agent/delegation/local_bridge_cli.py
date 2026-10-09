@@ -75,7 +75,7 @@ def recover_snapshot(snapshot, thread_id, turn_id):
         raise ValueError('Recovery turn incomplete')
     items=matches[0].get('items')
     if not isinstance(items,list) or any(not isinstance(item,dict) or
-           item.get('type') not in {'userMessage','agentMessage'} for item in items):
+           item.get('type') not in {'userMessage','agentMessage','reasoning'} for item in items):
         raise ValueError('Recovery contained unsupported items')
     answers=[item.get('text') for item in items if item.get('type')=='agentMessage'
              and item.get('phase')=='final_answer']
