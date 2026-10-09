@@ -40,10 +40,16 @@ enum LocalCodexBridgeProcess {
         let app = support.appendingPathComponent("AsterCompanion", isDirectory: true)
         let state = app.appendingPathComponent("LocalCodexPilot", isDirectory: true)
         for directory in [app, state] {
-            try files.createDirectory(at: directory, withIntermediateDirectories: false,
-                                      attributes: [.posixPermissions: 0o700])
+            do {
+                try files.createDirectory(at: directory, withIntermediateDirectories: false,
+                                          attributes: [.posixPermissions: 0o700])
+            } catch let error as NSError where error.domain == NSCocoaErrorDomain &&
+                                              error.code == CocoaError.fileWriteFileExists.rawValue {
+                // A prior request normally leaves this directory in place. Verify it below.
+            }
             let attrs = try files.attributesOfItem(atPath: directory.path)
             guard directory.resolvingSymlinksInPath().path == directory.standardizedFileURL.path,
+                  attrs[.type] as? FileAttributeType == .typeDirectory,
                   let owner = attrs[.ownerAccountID] as? NSNumber,
                   owner.intValue == Int(geteuid()),
                   let mode = attrs[.posixPermissions] as? NSNumber,

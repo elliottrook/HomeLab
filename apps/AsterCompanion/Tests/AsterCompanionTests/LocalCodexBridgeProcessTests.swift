@@ -86,6 +86,7 @@ final class LocalCodexBridgeProcessTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let state = try LocalCodexBridgeProcess.privateStateDirectory(base: root)
         XCTAssertEqual(state.lastPathComponent, "LocalCodexPilot")
+        XCTAssertEqual(try LocalCodexBridgeProcess.privateStateDirectory(base: root), state)
         for directory in [state.deletingLastPathComponent(), state] {
             let attrs = try FileManager.default.attributesOfItem(atPath: directory.path)
             XCTAssertEqual((attrs[.posixPermissions] as? NSNumber)?.intValue, 0o700)
@@ -100,5 +101,16 @@ final class LocalCodexBridgeProcessTests: XCTestCase {
         let link = root.appendingPathComponent("link")
         try FileManager.default.createSymbolicLink(at: link, withDestinationURL: root)
         XCTAssertThrowsError(try LocalCodexBridgeProcess.privateStateDirectory(base: link))
+    }
+
+    func testExistingFileCannotMasqueradeAsPrivateJournalDirectory() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString).resolvingSymlinksInPath()
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: false,
+                                                attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: root) }
+        let app = root.appendingPathComponent("AsterCompanion")
+        try "fixture".write(to: app, atomically: true, encoding: .utf8)
+        XCTAssertThrowsError(try LocalCodexBridgeProcess.privateStateDirectory(base: root))
     }
 }

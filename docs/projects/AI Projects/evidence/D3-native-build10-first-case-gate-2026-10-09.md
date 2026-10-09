@@ -1,6 +1,6 @@
 # D3 — signed build 10 first-case gate
 
-**Status: PREPARED LOCALLY; NOT APPROVED OR EXECUTED.** Owner: Jason. This is
+**Status: APPROVED AND STOPPED BEFORE SEND.** Owner: Jason. This is
 one explicitly reviewed fictional question to check the new finite-evaluation
 path, not approval for the remaining eleven, arbitrary prompts or sysadmin work.
 
@@ -82,3 +82,28 @@ routine-use claim. Preserve the private journal and the old signed app bundle.
 This gate requires Jason's explicit approval immediately before installing
 build 10 and sending the one subscription-backed question. Git push is a
 separate per-operation approval under `AGENTS.md`.
+
+## Observed result — 2026-10-09
+
+Jason approved this exact gate. Build 10 was installed after rechecking its
+hash, strict signature, empty evaluation keys, the closed gateway, and the
+inactive worker. A signed build 9 rollback copy was verified. Companion
+launched with the evaluation flag; Jason cleared the macOS Keychain prompt
+privately. The UI showed the exact first question and a successful metadata-only
+preflight. Jason reviewed it, checked consent, and clicked Send once. The UI
+then said **“Private journal unavailable. Nothing was sent.”**
+
+Read-only inspection confirmed the journal still held one historical job and
+one turn, the evaluation event file did not exist, and there was no pending
+evaluation request ID. A standalone Foundation reproduction showed the cause:
+`FileManager.createDirectory(withIntermediateDirectories: false)` throws
+file-exists (Cocoa error 516) for the already present, correctly permissioned
+private state directory. The failure occurred before the helper or model was
+launched. There is no result to score and no basis to claim a completed turn.
+
+The source fix accepts file-exists only after subsequently verifying the path
+is an owner-owned, owner-only directory and still rejects symlinks. A repeat
+call regression test passes. That change produces a **different signed build
+11**; it is outside this build 10 approval and requires a separate gate before
+installation or a new cloud turn. Build 10 remains installed but must not be
+sent from again. No second question was attempted.

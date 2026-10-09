@@ -2135,3 +2135,23 @@ sandbox and no web. Independent label review, answer scoring and connected
 recovery testing remain open. The plan authorizes neither live questions nor a
 new app installation. Keychain startup friction is included as observed
 evidence rather than hidden as setup noise.
+
+### 2026-10-09 — First finite-evaluation click stopped before model launch
+
+Jason approved the exact build 10 first-case gate. The signed, pinned build
+was installed with a verified build 9 rollback. The normal Aster screen and
+fixed first-question review appeared after Jason handled a macOS Keychain
+prompt privately. He checked consent and clicked Send once. Companion reported
+“Private journal unavailable. Nothing was sent.” The local journal remained at
+one historical request/turn; the evaluation log and pending ID were absent.
+The question therefore did not reach Codex.
+
+Foundation reproduction traced this to attempting to create an already
+existing private directory with `withIntermediateDirectories: false`; it
+throws file-exists rather than returning success. The source now accepts that
+specific condition only after verifying canonical directory type, owner and
+owner-only mode. Repeat-call and file-substitution regression tests and all
+47 native tests pass.
+The corrected signed, unregistered build 11 keeps the same no-tools/read-only
+manifest. [A separate gate](evidence/D3-native-build11-first-case-gate-2026-10-09.md)
+is prepared for a new install and first question; no second attempt has run.
