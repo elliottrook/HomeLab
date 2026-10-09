@@ -1,7 +1,9 @@
 # D3 native original-answer recovery candidate — 2026-10-09
 
-Status: local candidate, uninstalled. No new model turn, worker activation,
-Keychain ACL change, production service change, or Git push was made.
+Status: locally installed after Jason's approval on 2026-10-09; case 1 UI
+recovery is pending the Companion Keychain startup prompt. No new model turn,
+worker activation, Keychain ACL change, production service change, or Git push
+was made.
 
 ## Trigger and result
 
@@ -76,3 +78,25 @@ acknowledge it. That is a read-only recovery. Do not send case 2 as part of
 this release gate. A separate reviewed gate remains required for the remaining
 eleven fictional questions and independent label review. The candidate does
 not establish general Ask Codex release or automatic routing.
+
+## Installation checkpoint — 2026-10-09
+
+Jason approved replacing the installed app for case 1 recovery only. Before
+replacement, the old app was copied to
+`/private/tmp/AsterCompanion.pre-D3-recovery-20261009.app` and moved to
+`/Applications/AsterCompanion.pre-D3-recovery-20261009.app`; both rollback
+executables match the recorded old SHA-256 above. The installed app executable
+matches the candidate SHA-256 above and passes strict code-signature
+verification. Normal Companion opened after Jason resolved the macOS Keychain
+startup wait: its signed-in Aster composer, AI-PAM approvals screen (no pending
+approvals), and Codex requests screen were visible. The latter still showed
+closed submission with recorded completed requests. No new Aster conversation
+was sent as part of this smoke check.
+
+The app was then relaunched with the finite evaluation flag, but startup again
+paused at `AuthManager.init` → `KeychainStore.get("oidc_session_v2")` →
+`SecItemCopyMatching`. A process stack sample established this wait without
+reading the token. The original-answer UI recovery has **not** been clicked,
+and case 2 has **not** been sent. The prompt must be resolved for Companion's
+own saved-login item before continuing. The older `/usr/bin/security` worker
+credential must not receive broad standing access as a workaround.
