@@ -64,8 +64,19 @@ guests and addresses.
   `_superusers` record, a separate auth system) can't authenticate against.
   Beszel also scopes system visibility per-user via a `users` relation field
   on each `systems` record — the new account saw zero systems until it was
-  added to that field on all 7. Both were net privilege reductions, not just
-  workarounds.
+  added to that field on all currently retained systems. Both were net
+  privilege reductions, not just workarounds.
+
+**Beszel coverage reconciliation — 2026-10-08.** Beszel now has systems for
+all retained Proxmox-hosted Linux guests: Docker LXC 100, UniFi LXC 101,
+Frigate VM 102, Hermes LXC 104, Authentik 106, reverse proxy 107, Forgejo 108,
+Observability 109, GPU LXC 110, NetBox 111, backup relay 112, Aster Wiki 113,
+News Aggregator 114, Paperless 115, Aster Speech 116 and OpenBao 117, plus
+Proxmox and the NUT server. Home Assistant OS VM 103, stopped VM 105 and test
+fixtures remain deliberate exclusions. TrueNAS, Synology and OPNsense remain
+covered by Prometheus, Doctor and/or native monitoring. Four Lab VLAN 70
+agents are installed but await an explicitly approved narrow firewall path to
+the Beszel hub; see [the reconciliation project](projects/Beszel-NetBox-Coverage-Reconciliation-2026-10-08.md).
 - Found and fixed a live bug while wiring up TrueNAS: its own security policy
   auto-revokes any API key the moment it's used over plain HTTP ("Attempt to
   use over an insecure transport"). Homepage's TrueNAS widget was doing

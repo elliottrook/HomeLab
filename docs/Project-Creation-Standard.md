@@ -266,7 +266,15 @@ Create the project under `docs/projects/` and add it to
     deferred improvement. “Working” alone is not sufficient evidence of an
     efficient implementation.
 12. **Observability and maintenance** — Doctor/monitoring coverage, schedules,
-    alert ownership, updates and staleness checks.
+    alert ownership, updates and staleness checks. For every project that adds,
+    removes, retires, moves, renames or materially changes a host, LXC, VM,
+    container or important service, reconcile the deployed state against
+    **Beszel** before graduation: add or update the appropriate system/agent,
+    remove retired entries, validate that retained systems are reporting, and
+    record an explicit reason for each deliberate exclusion or hand-off to
+    another observability system. This is a Beszel coverage update requirement,
+    not an instruction to duplicate metrics or alerts already owned by Doctor,
+    Prometheus/Grafana or a service-native monitor.
 13. **Backup, restore and rollback** — protected components, retention, isolated
     restore proof and the last-known-good path.
 14. **Documentation and systems-of-record updates** — the integration impact
@@ -309,11 +317,21 @@ checklist when it is not an authority for the affected fact.
 - [ ] **HomeLab Doctor** — availability, dependency, backup-age, drift or
   workflow check; use actionable non-secret output and test failure behavior.
 - [ ] **Monitoring/alerting** — metrics, history, thresholds, notification owner
-  and avoidance of duplicate/noisy checks.
+  and avoidance of duplicate/noisy checks. Reconcile Beszel coverage for every
+  affected host/LXC/VM/container/service, including agent health, system name,
+  address/path, alert scope and the documented reason for any exclusion or
+  alternate-monitoring hand-off; validate the final Beszel inventory before
+  graduation.
 - [ ] **Backup and recovery** — configuration, application state, databases,
   encryption material, source repositories and restore order.
 - [ ] **NetBox** — device, VM, interface, IP, VLAN, rack, cable or service facts
-  for which NetBox is the adopted authority.
+  for which NetBox is the adopted authority. Reconcile live state against
+  NetBox for every affected object before graduation: create or update the
+  device/VM, interface, MAC, IP, VLAN, status and service records as
+  applicable; remove or retire stale records; check uniqueness and assignment;
+  and refresh repository snapshots that derive from NetBox. Record deliberate
+  omissions with their reason, and validate the final records through the
+  NetBox API rather than assuming a successful write is sufficient.
 - [ ] **Human wiki** — operator guidance, equipment/application page, manuals,
   dependencies and recovery links.
 - [ ] **Aster mirror/snapshot** — derived salient knowledge, provenance,

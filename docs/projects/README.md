@@ -37,6 +37,7 @@
 | Archive large-file compaction | Active — pilot passed (SSIM 0.976–0.994); nightly 02:00–07:30 schedule live | [Archive large-file compaction](Archive-Large-File-Compaction.md) | Re-encodes the 477 archive files over 2.5 GB (2.41 TB) in place on the Arc A380: HEVC, never upscaled, capped at 1080p with aspect kept, HDR10 retained, ≤2.3 GB, same path for Jellyfin identity, 7-day ZFS rollback snapshots; ~1.68 TB expected saving |
 | App icon family | Active — Stream M; local preparation complete, deployment pending approval | [App icon family](App-Icon-Family.md) | Git-controlled Aster and News Digest icon sources, Aster native/web wiring, News Digest deployment contract |
 | EHS policy review and renewal | Proposed — read-only index inventory complete; Stream M/A not yet selected | [EHS policy review and renewal](EHS-Policy.md) | 498-row metadata catalogue from the BCEHS SHOP index; content currency, ownership and review workflow remain to be established |
+| Beszel and NetBox coverage reconciliation | Active — Stream M; guest coverage applied, Lab VLAN firewall decision pending | [Beszel and NetBox coverage reconciliation](Beszel-NetBox-Coverage-Reconciliation-2026-10-08.md) | Reconciles active Proxmox guests with Beszel and refreshes NetBox VM interface MAC/VLAN facts; stopped fixtures and alternate monitoring remain excluded |
 
 ## Completed projects
 
