@@ -97,7 +97,7 @@ def remote(mode):
           'assert all(hashlib.sha256((root/n).read_bytes()).hexdigest()==h for n,h in expected.items());'
           'sys.path.insert(0,str(root));import provision_node;provision_node.'+mode+'()')
     if mode=='identity':
-        command='pct exec 106 -- docker exec -i authentik-server-1 ak shell -c '+shlex.quote(code)
+        command='pct exec 106 -- docker exec -u 0 -e PYTHONDONTWRITEBYTECODE=1 -i authentik-server-1 ak shell -c '+shlex.quote(code)
     elif mode in ('vault','gateway'):
         guest=117 if mode=='vault' else 104
         command='pct exec '+str(guest)+' -- python3 -B -u -c '+shlex.quote(code)

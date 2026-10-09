@@ -60,11 +60,11 @@ def issue(api,root_token,deliver):
     credential. After root identity is confirmed every handled path revokes it.
     Unknown network outcomes are not retried. Abrupt death needs human recovery.
     """
-    status,body=api(root_token,'GET','auth/token/lookup-self')
-    if status!=200 or body.get('data',{}).get('policies')!=['root']:
-        raise ValueError('Fresh root credential required')
     child=None;ready=False;root_revoke_attempted=False
     try:
+        status,body=api(root_token,'GET','auth/token/lookup-self')
+        if status!=200 or body.get('data',{}).get('policies')!=['root']:
+            raise ValueError('Fresh root credential required')
         path='sys/policies/acl/'+contract.POLICY
         target_policy='sys/policies/acl/aster-worker-introspection-read'
         target_role='auth/approle/role/aster-worker-introspection'

@@ -1609,3 +1609,13 @@ contains typed investigation, retention, Doctor adapter, incident gateway and
 broker gateway tests, but their runtime validation is UNKNOWN here: the local
 interpreter lacks Aster dependencies and the deployed LXC lacks test files.
 Cloud challenger deployment is deferred.
+
+### 2026-10-08 — Private human ceremony preparation
+
+Prepared a hidden-input authenticated two-share helper and a separately bounded
+real-engine fixture. Fixed bootstrap cleanup on initial lookup failure; 219 local
+delegation tests pass. Checked installed 2.6.4 and proposed staging absence
+read-only. Source/API references, exact approval scope and remaining lost-root
+reconciliation limitation are recorded in
+[the human ceremony gate](evidence/D3-human-ceremony-gate-2026-10-08.md).
+No production credential access, remote writes, activation or push in this step.
