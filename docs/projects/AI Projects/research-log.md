@@ -1771,3 +1771,19 @@ metadata has an introspection but no token request. Do not infer the precise
 cause from the generic exception. Prepared a hash-bound private five-second
 Keychain-read-only diagnostic with two passing fixture tests; no secret output,
 network, activation or service restart. Await its narrow credential-read approval.
+
+### 2026-10-08 — Approved private diagnostic reproduced Keychain timeout
+
+Ran the exact fixed-item helper once after approval. Result: Keychain read timeout,
+5.01 seconds, no credential output/network/model calls. No live changes. This
+isolates a reproduced failure to the local private read, not Authentik or Codex.
+It does not identify why the read waits. Installer source pins `/usr/bin/security`
+as reader; live ACL and UI/unlock state remain unverified. Asked Jason whether a
+macOS prompt appeared. Keep worker/gateway disabled; no speculative timeout change,
+repeated credential read or recovery ceremony. Diagnostic approval consumed.
+
+Jason then supplied the macOS prompt for the exact worker credential requesting
+the login Keychain password. The access prompt is now confirmed; underlying lock/
+ACL cause and unattended operation remain unproven. Advised Deny for the stale
+timed-out request. A fresh supervised read requires a new bounded authorization;
+human password stays in the OS dialog, with Allow once and no ACL expansion.

@@ -1,6 +1,45 @@
 # D3 — private Mac credential-read diagnostic
 
-Status: PREPARED; NOT APPROVED OR EXECUTED.
+Status: APPROVED DIAGNOSTIC COMPLETE — KEYCHAIN READ TIMEOUT. Approval consumed.
+
+## Result
+
+Jason approved the exact helper. Ran it once with the pinned source fingerprint.
+It reported `keychain_read_timeout`, elapsed 5.01 seconds, no credential output,
+zero network calls and zero model calls. The timed-out subprocess was terminated
+by Python's subprocess timeout handling. No account activation, token issuance,
+gateway restart, Keychain modification or permission change was performed.
+
+This reproduces failure at the private Keychain-read stage under the worker's
+five-second limit. It does not establish that the item/password is invalid,
+that a longer timeout will fix it, or that the rest of authentication works.
+Earlier metadata lookup succeeded without requesting the password; that is a
+different access operation. The original provisioner used a 15-second limit and
+reported a successful private read during setup; do not silently substitute that
+timeout or repeat credential access based on correlation alone.
+
+Source inspection confirms the installer configured `/usr/bin/security` as the
+explicit reader, rather than allowing every application. This is repository
+implementation evidence, not a fresh inspection of the live item ACL. Whether
+macOS is waiting for an access/unlock prompt or another operation is unresolved.
+Asked Jason whether a prompt appeared, without requesting its password or values.
+Next safe action: use that observation to choose a focused diagnostic or fix;
+keep delegation disabled and do not repeat the pilot or recovery ceremony.
+
+The original approved diagnostic specification is retained below.
+
+### Human observation
+
+Jason supplied a screenshot of the macOS dialog: `security` wants access to
+`Aster worker Authentik credential` and requests the login Keychain password,
+with Always Allow, Deny and Allow choices. This establishes that an access prompt
+appeared during the failed read; it does not establish the underlying ACL/lock
+condition or unattended readability. The diagnostic process had already timed
+out. Advised dismissing that stale request with Deny. A fresh, separately
+authorized supervised read can allow time for Jason to enter his password only
+in the OS dialog and choose Allow once. No Always Allow/ACL change, password
+disclosure, model execution or service restart is authorized by this observation.
+Do not describe this interactive path as a production unattended credential path.
 
 The corrected pilot reached a healthy gateway but stopped at its credential check.
 Aster is restored, the worker is inactive, zero provider grants exist and no job
