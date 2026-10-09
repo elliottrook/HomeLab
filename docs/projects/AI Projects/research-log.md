@@ -1854,3 +1854,26 @@ copies, installed the bounded candidate, and confirmed healthy Aster, preserved
 routes and denied unauthenticated intake. Native app launched. Worker is inactive;
 no new credential read or model turn. Await user readiness at review screen before
 one admitted request. See native gate for exact resumable state and cleanup.
+
+### 2026-10-08 — Native sign-in blocker repaired locally
+
+Jason reported the native app stuck on Signing in. Source inspection found
+`completion?(await exchangeCode(...))`: optional chaining skips argument evaluation
+when the ordinary login caller supplies no completion closure. Thus a successful
+web callback can skip token exchange and leave isSigningIn set. This is a verified
+source defect consistent with the screenshot; no secret-bearing traffic was
+inspected to claim a captured live callback. The prior tests covered refresh but
+missed callback-free initial sign-in.
+
+Separated unconditional exchange from optional completion notification, retaining
+callback validation, generation guard, PKCE, passkey and persistence policy. Added
+synthetic initial-login and failure-notification tests; all 30 native tests pass.
+Built and installed 0.3.0 build 6 as the narrow repair requested by Jason.
+Signature and installed-file hashes verified; pre-repair build 5 retained at
+`/Applications/AsterCompanion.pre-authfix-20261008.app`. Original pre-Codex recovery
+copies remain untouched. App reopened; real sign-in acceptance remains pending.
+No gateway changes/restart, credential read, worker activation or inference.
+
+[Repair manifest](evidence/D3-native-authfix-artifacts-2026-10-08.json) supersedes only the
+app portion of the original artifact manifest; gateway and worker hashes remain
+unchanged. Stop before request submission until user sign-in/readiness confirmed.

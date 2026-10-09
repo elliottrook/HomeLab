@@ -10,6 +10,31 @@ final class AuthManagerTests: XCTestCase {
         (Data(body.utf8), HTTPURLResponse(url: AsterConfig.tokenEndpoint, statusCode: status, httpVersion: nil, headerFields: nil)!)
     }
 
+    func testNormalSignInExchangesAndPersistsWithoutCompletionCallback() async {
+        var calls = 0
+        var saved: StoredSession?
+        let auth = AuthManager(storage: SessionStorage(load: { nil }, save: { saved = $0; return true }, clear: {}), request: { request in
+            calls += 1
+            XCTAssertEqual(request.httpMethod, "POST")
+            XCTAssertTrue(String(data: request.httpBody!, encoding: .utf8)!.contains("grant_type=authorization_code"))
+            return self.response()
+        })
+        await auth.finishSignIn("synthetic-code", verifier: "synthetic-verifier", attempt: 0)
+        XCTAssertEqual(calls, 1)
+        XCTAssertTrue(auth.isAuthenticated)
+        XCTAssertFalse(auth.isSigningIn)
+        XCTAssertEqual(saved?.accessToken, "synthetic-new")
+    }
+
+    func testSignInFailureNotifiesOptionalCallerWithoutAuthenticating() async {
+        var result: Bool?
+        let auth = AuthManager(storage: SessionStorage(load: { nil }, save: { _ in XCTFail("Must not persist rejected login"); return false }, clear: {}), request: { _ in self.response(400, "{}") })
+        await auth.finishSignIn("synthetic-code", verifier: "synthetic-verifier", attempt: 0) { result = $0 }
+        XCTAssertEqual(result, false)
+        XCTAssertFalse(auth.isAuthenticated)
+        XCTAssertNotNil(auth.lastError)
+    }
+
     func testConcurrentRequestsRefreshOnlyOnceAndPersistOneCompleteRecord() async {
         var saved = expired()
         var calls = 0

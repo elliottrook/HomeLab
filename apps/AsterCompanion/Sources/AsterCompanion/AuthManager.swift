@@ -84,7 +84,7 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
                     completion?(false)
                     return
                 }
-                completion?(await self.exchangeCode(code, verifier: verifier, attempt: attempt))
+                await self.finishSignIn(code, verifier: verifier, attempt: attempt, completion: completion)
             }
         }
         session.presentationContextProvider = self
@@ -126,6 +126,15 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         result.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         result.httpBody = Self.formEncode(parameters).data(using: .utf8)
         return result
+    }
+
+    // The exchange must run even when the caller needs no completion notification.
+    // Optional chaining skips argument evaluation when completion is nil.
+    func finishSignIn(_ code: String, verifier: String, attempt: Int,
+                      completion: (@MainActor (Bool) -> Void)? = nil) async {
+        guard generation == attempt else { return }
+        let succeeded = await exchangeCode(code, verifier: verifier, attempt: attempt)
+        completion?(succeeded)
     }
 
     private func exchangeCode(_ code: String, verifier: String, attempt: Int) async -> Bool {

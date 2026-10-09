@@ -1,0 +1,19 @@
+{
+  "version": "0.3.0",
+  "build": 6,
+  "artifact_root": "/private/tmp/aster-native-authfix-20261008/AsterCompanion.app",
+  "installed_files": {
+    "Contents/Info.plist": "14a91ead0801fc74358808dd74f5a1ed1a306733eb227a18c1ffca76b5ccf6e8",
+    "Contents/_CodeSignature/CodeResources": "5606af23f838b28612b7b0a415da553d626ee707868d909a9101452915a3609f",
+    "Contents/MacOS/AsterCompanion": "4fe9238ec04d58d05525f9bf6ad42de4030ed1c9d7907ad53bca66f7938839b1",
+    "Contents/Resources/AppIcon.icns": "ff275ff1d93d57a1b2d552740064a20dc27647b3de36150df77950de84f1dec5",
+    "Contents/Resources/AsterCompanion_AsterCompanion.bundle/Contents/Info.plist": "7b900e5340aae8577ca86424e57622d52c0a9e71a36426adfddaf1ec357ec516",
+    "Contents/Resources/AsterCompanion_AsterCompanion.bundle/Contents/Resources/AsterOrb.png": "5b1e2804022b5b72f216bfc1a05b3420178020cbe11e99ddc6b47589837a6ff4"
+  },
+  "backup": "/Applications/AsterCompanion.pre-authfix-20261008.app",
+  "source_files": {
+    "apps/AsterCompanion/Sources/AsterCompanion/AuthManager.swift": "5529297d164cf7529b54df31753b9b5770afb6ad944af4d5cc2fafe5dbb942e6",
+    "apps/AsterCompanion/Tests/AsterCompanionTests/AuthManagerTests.swift": "898d773ee83842e191c9ada582040fe36688367396cfe1d94467de517db491e8",
+    "apps/AsterCompanion/Info.plist": "14a91ead0801fc74358808dd74f5a1ed1a306733eb227a18c1ffca76b5ccf6e8"
+  }
+}
