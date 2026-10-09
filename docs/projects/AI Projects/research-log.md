@@ -1722,3 +1722,20 @@ and Companion 200, delegation routes 404, no delegation state/runtime credential
 worker inactive and AI-PAM healthy. No rollback needed, no model call or push.
 Checkpoint retained; approval consumed. See
 [deployment result](evidence/D3-disabled-gateway-deployment-gate-2026-10-08.md).
+
+### 2026-10-08 — Authenticated one-turn pilot prepared, not enabled
+
+Added operator-only one-time admission, owner result page, and private fixed-purpose
+credential-path check. 237 local tests pass; Node VM checks cover signed-out denial
+and literal answer rendering. Live browser storage conventions match the page.
+Read-only discovery found Aster cannot read the existing public CA and cannot
+create its state under the root-owned parent; the exact gate includes a public CA
+copy and private Aster-owned subdirectory. Authentik source showed disabling the
+user does not alone invalidate introspection, so cleanup also revokes only this
+user/provider's grants. No credential values inspected.
+
+Codex changed to 0.162.0-alpha.2; fresh metadata and local fake-provider capture
+confirm ChatGPT auth and zero offered tools. No real inference this preparation.
+Frozen archive, worker fingerprint, admission specification, restart limits and
+rollback are in the [pilot gate](evidence/D3-authenticated-pilot-gate-2026-10-08.md).
+Await its specific approval; no deployment, activation, token use or push performed.

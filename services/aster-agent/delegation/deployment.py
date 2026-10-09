@@ -33,9 +33,11 @@ def attach(app, owner_dependency, environment=None):
         raise ValueError('Conflicting delegation routes')
     from .credentials import IntrospectionCredential
     from .gateway_assembly import GatewayAssembly
+    from .pilot_view import pilot_view_router
     assembly=GatewayAssembly('/var/lib/aster/delegation',owner_dependency,
         subject=subject,secret=IntrospectionCredential(credential,ca,enabled=True),enabled=True)
     app.include_router(assembly.router)
+    app.include_router(pilot_view_router())
     app.state.aster_delegation=assembly
     app.state.aster_delegation_attached=True
     return assembly
