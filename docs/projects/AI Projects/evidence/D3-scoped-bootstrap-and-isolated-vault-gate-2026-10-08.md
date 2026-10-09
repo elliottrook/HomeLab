@@ -1,5 +1,40 @@
 # D3 scoped bootstrap candidate and isolated vault experiment
 
+## Attempt 5 — PASS; isolated vault-side experiment complete
+
+Jason approved v5 `4da4c90...52a89ca9`. Exact archive/per-file hashes, absent paths,
+unit syntax, source permissions and effective isolation/resource limits checked.
+Installed OpenBao 2.6.4 in the private-network memory-only fixture reported:
+
+```json
+{"passed":true,"version":"2.6.4","negative_checks":8,"root_revoked":true,"admin_revoked":true,"real_credentials_used":false,"production_vault_contacted":false,"model_calls":0}
+```
+
+This confirms bootstrap created/verified the exact fixed configuration, revoked
+its fictional root before scoped-token delivery, denied all eight out-of-scope
+actions, completed the two fictional credential records and SecretID issuance,
+then revoked the scoped administrator token and verified denial afterwards.
+The successful run used about 1.067 seconds CPU and 66.2 MiB peak memory according
+to systemd. The success result is from real engine APIs, not mocked responses.
+
+Stopped the fixture after completion, verified its exact file inventory/unit
+content and removed only all eight staged files, directories and runtime unit.
+Reloaded systemd. Independent checks: unit not found/MainPID 0; staging absent.
+Production remains 2.6.4 initialized/unsealed; Aster/broker/approval active;
+corrected local Doctor healthy with 0 active requests and 37 historical outcomes.
+No production root ceremony, accounts, policies, credentials, model calls, service
+restarts, delegation activation or push occurred. Approval consumed.
+
+Do not repeat this successful primitive without a new reason. Prior four failed
+attempts remain evidence of bugs and diagnostic limitations in the candidate.
+206 local tests remain the last full-suite result; no source edits in attempt 5.
+
+Remaining scope: cross-host owned-pipe integration and complete private human
+ceremony/staging/crash-reconciliation procedure before real inactive provisioning.
+This isolated test does not prove those paths, actual Keychain/gateway delivery
+in combination, live application authorization, token expiry under interruption,
+or general sysadmin authority. Delegation remains disabled.
+
 ## Attempt 4 diagnostic result; exact-network comparison candidate
 
 Approved v4 hash matched; isolation and source visibility verified. Fixture

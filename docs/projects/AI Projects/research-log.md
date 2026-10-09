@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Isolated real-engine provisioning PASS
+
+Approved v5 completed with installed OpenBao 2.6.4: fixed configuration verified,
+eight prohibited actions denied, fictional credential provisioning completed,
+root and scoped-admin revocations confirmed. About 1.067s CPU/66.2 MiB peak RAM.
+Removed exact staged files/runtime unit; independent absence and production
+health checks passed. No real credentials/authority or model calls. Retain prior
+failures; do not rerun this primitive without reason. Resume cross-host handoff
+and complete human ceremony integration. See
+[attempt 5 result](evidence/D3-scoped-bootstrap-and-isolated-vault-gate-2026-10-08.md).
+
 ## 2026-10-08 — Diagnostic isolated network-address comparison mismatch
 
 Approved v4 pinpointed token_bound_cidrs after successful fixed-role creation/read;
