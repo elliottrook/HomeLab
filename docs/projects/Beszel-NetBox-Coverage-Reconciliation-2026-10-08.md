@@ -1,6 +1,6 @@
 # Beszel and NetBox Coverage Reconciliation — 2026-10-08
 
-> Status: Active — Stream M
+> Status: Complete — Stream M
 >
 > Owner: Jason
 >
@@ -34,18 +34,31 @@ excluded.
   `access` mode and VLAN 20, 50 or 70. API validation reports no missing MAC
   or VLAN values.
 - Added a private pre-change Beszel database checkpoint on the Docker guest.
+- Added four narrowly scoped OPNsense rules allowing only the four Lab VLAN 70
+  Beszel agent addresses (`192.168.70.12`, `.13`, `.14` and `.15`) to reach
+  `192.168.20.20:8090`; the rules are above the Lab-to-RFC1918 deny and the
+  firewall filter reload completed successfully.
 
-## Pending validation / risk
+## Completion evidence
 
-Seven of the eleven new Beszel systems report `up`. Four Lab VLAN 70 agents
-(LXC 110, 114, 115 and 116) are installed and running but cannot reach the
-Beszel hub because the current firewall permits only the existing Aster path
-from that VLAN. No Lab VLAN firewall rule was added by this change yet.
+- Beszel now reports all 18 retained systems `up` (the 16 retained Proxmox
+  guests plus Proxmox and the NUT server). The four previously blocked agents
+  connected after the firewall reload.
+- NetBox API validation reports 18 VM interfaces with no missing MAC or VLAN
+  values; the interface mode and VLAN facts match current Proxmox
+  configuration.
+- The Beszel enrollment-token staging file was removed after validation.
+- OPNsense pre-change backup:
+  `/conf/backup/config-beszel-coverage-before-20261009-010139.xml`, SHA-256
+  `6bb1688fc89c41a6874fd5759ca142c33472cbb4ad3a3e406977d739b42b9103`.
 
-Completion requires either a narrowly scoped, explicitly approved path for
-those four source addresses to the Beszel hub, or an explicit exclusion with
-the reason recorded here. The existing service-native and Doctor checks remain
-unchanged.
+## Closed risk
+
+The four Lab VLAN 70 agents initially timed out at the hub because the
+existing firewall permitted only the prior Aster path. The approved,
+source/destination/port-scoped rules resolved that reachability gap without
+changing the VLAN isolation policy. The existing service-native and Doctor
+checks remain unchanged.
 
 ## Rollback
 

@@ -74,9 +74,9 @@ Observability 109, GPU LXC 110, NetBox 111, backup relay 112, Aster Wiki 113,
 News Aggregator 114, Paperless 115, Aster Speech 116 and OpenBao 117, plus
 Proxmox and the NUT server. Home Assistant OS VM 103, stopped VM 105 and test
 fixtures remain deliberate exclusions. TrueNAS, Synology and OPNsense remain
-covered by Prometheus, Doctor and/or native monitoring. Four Lab VLAN 70
-agents are installed but await an explicitly approved narrow firewall path to
-the Beszel hub; see [the reconciliation project](projects/Beszel-NetBox-Coverage-Reconciliation-2026-10-08.md).
+covered by Prometheus, Doctor and/or native monitoring. The four Lab VLAN 70
+agents use narrowly scoped firewall rules to reach the Beszel hub; see [the
+completed reconciliation project](projects/Beszel-NetBox-Coverage-Reconciliation-2026-10-08.md).
 - Found and fixed a live bug while wiring up TrueNAS: its own security policy
   auto-revokes any API key the moment it's used over plain HTTP ("Attempt to
   use over an insecure transport"). Homepage's TrueNAS widget was doing
