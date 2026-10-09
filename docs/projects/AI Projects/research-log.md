@@ -1679,3 +1679,13 @@ production readiness still passes. No human ceremony or credential creation.
 [Checkpoint and narrow correction](evidence/D3-real-inactive-provisioning-gate-2026-10-08.md)
 preserve the completed work and request only the extra parent-directory creation
 and remaining Authentik staging, without replaying snapshots or successful stages.
+
+### 2026-10-08 — Staging complete; human-input boundary
+
+Jason authorized continuation of the narrow directory correction. Created the
+missing root-0755 Authentik parent and completed only its approved staging.
+Independently checked all three exact 14-file inventories, modes, owners and hashes;
+frozen controller/helper fingerprints match. Existing checkpoints/staging were not
+replayed. AI-PAM healthy. Await private human ceremony and non-secret completion
+confirmation; the remaining original controller operation is already authorized.
+No actual worker identity, credential custody, activation or push yet.

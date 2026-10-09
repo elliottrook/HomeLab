@@ -1,6 +1,25 @@
 # D3 — real inactive worker provisioning package
 
-Status: APPROVED, PARTIALLY STAGED; stopped before human input or credentials.
+Status: APPROVED, FULLY STAGED; awaiting private human input. No credentials or
+worker identity created yet.
+
+## Resume point — staging correction completed
+
+Jason directed continuation after the narrow correction request. Created only
+the missing Authentik-container `/var/tmp` root 0755 and the approved root-0700
+staging directories/14 files mode 0600. Archive/member hashes matched. Independently
+verified all 14 files, exact inventory, ownership and modes across 104, 117 and
+106; no successful staging or snapshots were replayed. Controller/human-helper
+fingerprints still match the frozen package. Local run journal does not yet exist.
+AI-PAM remains healthy: unsealed, zero active requests, 37 outcomes.
+
+The next action belongs to Jason's private terminal using the command below.
+After he confirms `setup ready`, promptly continue the already approved controller
+once with the exact fingerprint and fresh journal path. Do not ask again for that
+already approved execution. If he reports failure or the token has expired, stop
+and reconcile; never blindly rerun the human helper. No agent may read his recovery
+files or capture the private terminal. Staged sources and snapshots remain pending
+the approved completion/cleanup sequence; nothing pushed.
 
 ## Execution checkpoint and narrow correction — 2026-10-08
 
