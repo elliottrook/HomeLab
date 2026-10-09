@@ -2072,3 +2072,25 @@ model `gpt-5.6-luna` and fingerprint
 No model turn, native app launch, credential read, gateway route or production
 change occurred. The installed interpreter/module packaging burden remains an
 open comparison against the distributed worker.
+
+### 2026-10-08 — Signed native local pilot prepared, still uninstalled
+
+The Companion build script now bundles only twelve allowlisted stdlib Python
+bridge modules before signing and can skip Launch Services registration for a
+local candidate build. A signed build 9 was assembled and verified without
+replacing installed build 8. Its helper is inert by default and completed the
+same metadata-only ChatGPT/no-MCP/read-only preflight under the minimal
+environment used by the native launcher. The manifest remains
+`f5f072f6d7395d0b9b77775155239d87e913c38f2adb6acb6b0e1122c5101cd0`.
+
+The native pilot screen is hidden unless the app launches with an explicit
+pilot flag. It shows only the prior fictional Orion question, requires a
+separate cloud-consent click, records a unique request ID before process start,
+passes the reviewed frame through stdin and displays a volatile final answer.
+The launcher bounds stdout, times out a hung child and refuses an invalid
+manifest hash or unsafe journal path. A fake Codex executable completed one
+full Python bridge round trip and duplicate refusal. Current local results:
+296 Python tests and 43 Swift tests pass; signed bundle verification passes.
+No real model turn, installed-app replacement, credential read, gateway route,
+worker activation, production change or push occurred. The exact connected
+trial and rollback are in [the native gate](evidence/D3-native-local-bridge-gate-2026-10-08.md).

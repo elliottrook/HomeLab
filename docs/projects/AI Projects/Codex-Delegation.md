@@ -115,11 +115,15 @@ Mac process startup. Gateway session routes by themselves would preserve the
 operator timing race. For the *native Mac app*, evaluate a one-shot local Codex
 bridge before adopting a standing distributed workflow. The D2 local stdio
 adapter is already proven for one fictional turn; an offline coordinator now
-passes duplicate-dispatch and uncertainty checks, without a model call. Signed
-app launch, private IPC and isolation are still unproven. The gateway remains a
+passes duplicate-dispatch and uncertainty checks, without a model call. A
+signed, uninstalled build 9 bundles the one-shot bridge, and fake-process tests
+cover private stdin, duplicate refusal, timeout and bounded output. The native
+App Server connection has passed metadata-only preflight; a live native turn
+and app replacement remain unapproved. The gateway remains a
 candidate for future voice/remote ingress; no authority transfers to either
-path. The [D3 comparison and evidence](evidence/D3-session-and-answer-recovery-design-2026-10-08.md)
-is the current placement gate.
+path. The [D3 comparison](evidence/D3-session-and-answer-recovery-design-2026-10-08.md)
+and [one-question native gate](evidence/D3-native-local-bridge-gate-2026-10-08.md)
+record the current placement decision and proposed test.
 
 ## Current authorization and next action
 

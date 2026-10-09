@@ -437,3 +437,19 @@ for sysadmin work or that a native app can launch the wrapper safely. The CLI
 depends on an installed Python interpreter and multiple local modules; signed
 bundle packaging and private process IPC must be compared with the gateway's
 operational cost before choosing the normal-use architecture. No turn was run.
+
+The packaging/IPC candidate subsequently passed a tighter local check. The
+build script copies only twelve reviewed stdlib bridge modules into an
+uninstalled, signed Companion build 9; Launch Services registration was disabled
+during the build. Its bundled helper ran inertly and passed metadata-only
+preflight with the exact minimal environment used by the Swift launcher. The
+native pilot control is hidden unless the app is started with an explicit
+`--aster-local-codex-pilot` flag and then shows only the fixed fictional Orion
+question. Swift sends the reviewed frame through a private stdin pipe, bounds
+stdout, times out a hung child, creates an owner-only journal directory and
+retains a request ID before any subprocess start. The Python side completed a
+full synthetic App Server protocol turn against a fake executable and refused
+the same request ID on a second invocation. **296 Python tests and 43 native
+tests pass.** These are offline/synthetic results. Installed Companion remains
+build 8; no real native turn, worker activation or gateway change occurred. The
+exact proposed connected trial is in [the native local-bridge gate](D3-native-local-bridge-gate-2026-10-08.md).

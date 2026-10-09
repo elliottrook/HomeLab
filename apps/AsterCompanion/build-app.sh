@@ -17,6 +17,17 @@ cp "$BIN_PATH/AsterCompanion" "$APP_DIR/Contents/MacOS/AsterCompanion"
 cp Info.plist "$APP_DIR/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP_DIR/Contents/Resources/AppIcon.icns"
 
+# Candidate local Codex bridge: copy only the reviewed, stdlib-only modules.
+# It is inert by default and is not wired to a Companion control yet. Do not
+# bundle worker credentials, provisioning scripts, tests or broader tools.
+BRIDGE_SOURCE="$(cd ../../services/aster-agent/delegation && pwd)"
+BRIDGE_DIR="$APP_DIR/Contents/Resources/LocalCodexBridge"
+mkdir -p "$BRIDGE_DIR"
+for module in local_bridge_cli local_turn pilot isolation_probe probe pipe_worker \
+              session store contract usage transport runtime; do
+    cp "$BRIDGE_SOURCE/$module.py" "$BRIDGE_DIR/$module.py"
+done
+
 # SPM builds its own resource bundle (in-app image assets declared via
 # `resources:` in Package.swift) next to the loose executable, not inside
 # any app structure - Bundle.module looks for it under Contents/Resources
@@ -34,6 +45,8 @@ codesign --force --deep --sign - "$APP_DIR"
 
 # Register the URL scheme with Launch Services so the OS routes the
 # aster-companion://callback redirect back to this app.
-/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -f "$APP_DIR"
+if [ "${ASTER_REGISTER_APP:-1}" = "1" ]; then
+    /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -f "$APP_DIR"
+fi
 
 echo "Built: $APP_DIR"
