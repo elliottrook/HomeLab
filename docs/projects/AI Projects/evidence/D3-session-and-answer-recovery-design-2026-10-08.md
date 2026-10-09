@@ -413,3 +413,27 @@ timeout and a competing durable claim. The full backend suite passed **292 tests
 local dispatch contract only. Signed app packaging, private IPC, real Codex
 configuration and model availability have **not** been tested by it. Do not
 connect it to Companion or run a real turn on this evidence alone.
+
+An **unpackaged, disabled-by-default CLI wrapper** now provides the next local
+boundary. Default invocation reports `enabled:false`; `--prepare` checks the
+installed Codex account, model, effective read-only/no-web/no-MCP configuration
+and source/binary hashes without inference. A future `--run` requires an exact
+reviewed manifest hash and a private absolute journal directory; it accepts one
+strictly validated consented request on stdin, never in argv or environment.
+It reuses the local coordinator and emits the answer only through stdout for a
+future trusted app pipe. It does not access the worker Keychain credential or
+gateway. No native caller or live run exists yet.
+
+All **295 backend tests** pass, including inert default and rejected consent,
+tool, owner and model fields. The inert default also ran with the Mac's system
+Python. A metadata-only `--prepare` initially lost its App Server subprocess
+inside the sandbox; the same read-only command passed under the platform's
+reviewed unsandboxed execution. The returned manifest reported ChatGPT auth,
+`gpt-5.6-luna` with medium effort, zero enabled MCP servers, read-only sandbox,
+web search disabled and no inference. Its fingerprint was
+`f5f072f6d7395d0b9b77775155239d87e913c38f2adb6acb6b0e1122c5101cd0`.
+This is a source/configuration pin, **not** evidence that this model is adequate
+for sysadmin work or that a native app can launch the wrapper safely. The CLI
+depends on an installed Python interpreter and multiple local modules; signed
+bundle packaging and private process IPC must be compared with the gateway's
+operational cost before choosing the normal-use architecture. No turn was run.

@@ -2057,3 +2057,18 @@ unexpected tool requests are refused and interrupted on a best-effort basis.
 Synthetic completion, duplicate, tool-refusal and timeout checks pass; the full
 backend suite is 292 tests. This proves only the local coordinator's failure
 semantics. Signed native packaging and actual App Server isolation remain open.
+
+The disabled-by-default `local_bridge_cli.py` candidate now wraps that local
+coordinator. Default execution is inert; `--prepare` performs metadata-only
+Codex account/model/configuration and hash checks, while future `--run` requires
+an exact manifest and strictly consented stdin request. No prompt goes in argv,
+environment or the dispatch journal. Synthetic input/default tests raised the
+backend total to 295. The system Python default invocation passed. The first
+metadata-only App Server preflight failed to start inside the sandbox; the same
+read-only preflight passed with platform-reviewed unsandboxed execution and
+reported ChatGPT auth, zero MCP servers, read-only sandbox, disabled web search,
+model `gpt-5.6-luna` and fingerprint
+`f5f072f6d7395d0b9b77775155239d87e913c38f2adb6acb6b0e1122c5101cd0`.
+No model turn, native app launch, credential read, gateway route or production
+change occurred. The installed interpreter/module packaging burden remains an
+open comparison against the distributed worker.
