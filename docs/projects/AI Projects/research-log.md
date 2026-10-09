@@ -1,5 +1,18 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — Stable-signed Companion installed; first launch pending
+
+After Jason completed macOS trust authorization, the new Aster certificate
+became a valid code-signing identity with user-domain CodeSigning-only trust.
+Two disposable app variants with different versions and code hashes passed
+strict signature checks and had an identical certificate-based designated
+requirement. The build script then produced a stable-signed candidate. The
+prior installed app was verified and preserved; the stable-signed app replaced
+it and passed signature verification. Its first launch is waiting at the
+existing saved-login Keychain transition or another startup block; Jason was
+asked to resolve only an exact Companion prompt or report no prompt. Normal
+mode and repeat-prompt behavior are still unverified. See the [signing evidence](evidence/D3-native-stable-signing-keychain-design-2026-10-09.md).
+
 ## 2026-10-09 — Companion signer created; trust gate pending
 
 After Jason's explicit approval, Certificate Assistant created an owner-held

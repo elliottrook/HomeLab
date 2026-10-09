@@ -1,9 +1,9 @@
 # D3 Companion Keychain access across app updates — 2026-10-09
 
-**Status: owner-held certificate created; code-signing trust authorization and
-two-build test pending; installed app unchanged.** The design initially made
-no trust or item-access change. The approved implementation checkpoint below
-records the current state. This addresses Jason's request
+**Status: stable-signed app installed; first-launch Keychain transition and
+restart validation pending.** The design initially made no trust or item-access
+change. The approved implementation checkpoints below record the current state.
+This addresses Jason's request
 for Companion to keep access to its own saved login until revoked, without
 repeated approval after each app rebuild. It does not grant Codex, a worker,
 `/usr/bin/security`, or other apps standing access to that item.
@@ -145,3 +145,41 @@ test or installed-app replacement may proceed yet. The installed Companion
 remains the prior ad-hoc build. Resolve the local trust authorization and
 recheck policy-scoped trust before resuming. Do not broaden to all-purpose or
 system-wide trust merely to make the command succeed.
+
+## Trust, two-build test and installed transition — 2026-10-09
+
+Jason completed the macOS authorization prompt. `security find-identity -v -p
+codesigning` then reported one valid identity, the new Aster certificate. An
+export of **user-domain** trust settings showed exactly one trust-list entry,
+for its SHA-1 fingerprint, with `kSecTrustSettingsPolicyName=CodeSigning` and
+no all-purpose policy entry. The first test signing operation initially
+appeared stalled, but finished validly without a visible prompt; Jason
+reported no prompt. No key ACL was broadened.
+
+Two disposable app variants were made from the same assembled bundle, with
+different `CFBundleVersion` values (12 and 13). Both passed strict/deep
+signature verification. Their code hashes differed (`a41b1572b738b3661002dd4013c88f8abe36722a`
+and `64ebfd93ee61a22e3543962c1ced9ff714c6219c`), while both designated
+requirements were exactly:
+
+`identifier "com.elliottrook.aster-companion" and certificate root = H"10b67a3b122fafcdb2bb55124caf327115a4e6fa"`
+
+The production build script's stable-signing mode then built and verified the
+staged app. The previously installed, working ad-hoc app executable had SHA-256
+`2a1ec983b2701b614ffeecf0f8f1bd2de33005e51a5431ec8de9cd704c1aa4a6`;
+a strict-verified copy remains at
+`/Applications/AsterCompanion.pre-stable-20261009.app`. After Companion quit,
+the staged app replaced `/Applications/AsterCompanion.app`. The new executable
+SHA-256 is `5a5eef77274b17d2e359e5730a4e9997ee54a5effe474b55b267546064df58b3`.
+Its strict/deep signature and certificate-based designated requirement passed.
+The prior installed bundle also remains temporarily at
+`/private/tmp/AsterCompanion.ad-hoc-retired-20261009.app` for rollback.
+
+First launch of the stable-signed app started, but computer-use inspection
+timed out while macOS appears to be waiting at the existing saved-login item.
+Jason was asked to authorize only the exact Companion/item prompt privately
+with `Always Allow` if visible, or report that no prompt is visible. **Normal
+mode, restart without another prompt, natural token refresh and update-after-
+signing are not yet validated.** Do not mark the standing access solved until
+those checks pass. The installed app is now the stable-signed version, with
+the verified old app retained for rollback.
