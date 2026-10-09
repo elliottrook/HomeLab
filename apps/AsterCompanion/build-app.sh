@@ -17,8 +17,8 @@ cp "$BIN_PATH/AsterCompanion" "$APP_DIR/Contents/MacOS/AsterCompanion"
 cp Info.plist "$APP_DIR/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP_DIR/Contents/Resources/AppIcon.icns"
 
-# Candidate local Codex bridge: copy only the reviewed, stdlib-only modules.
-# It is inert by default and is not wired to a Companion control yet. Do not
+# Local Codex bridge: copy only the reviewed, stdlib-only modules.
+# It is inert by default; review controls require explicit launch flags. Do not
 # bundle worker credentials, provisioning scripts, tests or broader tools.
 BRIDGE_SOURCE="$(cd ../../services/aster-agent/delegation && pwd)"
 BRIDGE_DIR="$APP_DIR/Contents/Resources/LocalCodexBridge"

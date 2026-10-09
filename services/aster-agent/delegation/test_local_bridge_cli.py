@@ -2,9 +2,13 @@
 from contextlib import redirect_stdout
 import io
 import json
+import os
+from pathlib import Path
+import tempfile
 import unittest
 
-from local_bridge_cli import main, reviewed_request
+from local_bridge_cli import main, recorded_status, reviewed_request
+from store import DispatchStore
 
 
 class LocalBridgeCLITests(unittest.TestCase):
@@ -32,3 +36,33 @@ class LocalBridgeCLITests(unittest.TestCase):
                                     cloud_consent=True,local_only=False)).encode()):
             with self.assertRaises((ValueError,TypeError)):
                 reviewed_request(raw)
+
+    def test_status_is_owner_bound_and_read_only_without_codex(self):
+        identifier='request-12345678-1234-1234-1234-123456789abc'
+        with tempfile.TemporaryDirectory() as root:
+            state=Path(root).resolve()/'state'
+            state.mkdir(mode=0o700)
+            db=state/'jobs.sqlite'
+            store=DispatchStore(db)
+            self.assertTrue(store.claim(identifier,'thread-1','uid:'+str(os.getuid())))
+            store.bind(identifier,'thread-1','turn-1')
+            store.finish(identifier,'thread-1','turn-1','completed')
+            foreign='request-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+            self.assertTrue(store.claim(foreign,'thread-2','uid:other'))
+            store.close()
+            os.chmod(db,0o600)
+            output=io.StringIO()
+            with redirect_stdout(output):
+                main(['--status','--state-dir',str(state),'--request-id',identifier])
+            self.assertEqual(json.loads(output.getvalue()),
+                             {'id':identifier,'recorded':True,
+                              'state':'completed','turn_recorded':True})
+            self.assertEqual(recorded_status(state,
+                foreign)['state'],'unrecorded')
+            self.assertEqual(len(list(state.iterdir())),1)
+            with self.assertRaises(ValueError):
+                recorded_status(state,'../invalid')
+            link=Path(root)/'link'
+            link.symlink_to(state)
+            with self.assertRaises(ValueError):
+                recorded_status(link,identifier)

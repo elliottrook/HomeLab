@@ -66,6 +66,12 @@ class LocalBridgeFixtureTests(unittest.TestCase):
             self.assertEqual(result['state'],'completed')
             self.assertEqual(result['answer'],'Synthetic answer')
             self.assertFalse(result['automatic_retry'])
+            self.assertGreaterEqual(result['elapsed_seconds'],0)
+            self.assertEqual(log.read_text(),'turn\n')
+            status=subprocess.run([sys.executable,str(SCRIPT),'--status',
+                '--state-dir',str(state),'--request-id','request-'+frame['request_id']],
+                env=env,capture_output=True,text=True,timeout=15,check=True)
+            self.assertEqual(json.loads(status.stdout)['state'],'completed')
             self.assertEqual(log.read_text(),'turn\n')
             self.assertNotIn(frame['text'],(state/'jobs.sqlite').read_bytes().decode('latin1'))
             self.assertNotIn('Synthetic answer',(state/'jobs.sqlite').read_bytes().decode('latin1'))

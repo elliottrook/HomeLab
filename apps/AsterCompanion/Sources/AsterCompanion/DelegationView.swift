@@ -67,6 +67,7 @@ struct DelegationView: View {
     @State private var stopPending = false
     @State private var showingRequest = false
     @State private var showingLocalPilot = false
+    @State private var showingLocalEvaluation = false
     @State private var recoveryPending = false
     @State private var recoveryMessage: String?
     @AppStorage("aster.codex.pendingRequestID") private var pendingID = ""
@@ -81,6 +82,9 @@ struct DelegationView: View {
                 Button("Ask Codex") { showingRequest = true }.disabled(capabilities?.supported != true)
                 if ProcessInfo.processInfo.arguments.contains(LocalCodexPilotView.launchFlag) {
                     Button("Local Codex pilot") { showingLocalPilot = true }
+                }
+                if ProcessInfo.processInfo.arguments.contains(LocalCodexEvaluationView.launchFlag) {
+                    Button("Local Codex evaluation") { showingLocalEvaluation = true }
                 }
                 Spacer()
                 Button("Done") { dismiss() }
@@ -120,6 +124,9 @@ struct DelegationView: View {
         }
         .sheet(isPresented: $showingLocalPilot) {
             LocalCodexPilotView()
+        }
+        .sheet(isPresented: $showingLocalEvaluation) {
+            LocalCodexEvaluationView()
         }
         .task {
             if !pendingID.isEmpty { selected = pendingID }

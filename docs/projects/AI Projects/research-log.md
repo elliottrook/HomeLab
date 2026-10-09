@@ -2119,3 +2119,19 @@ Jason handled the prompt privately, the signed-in normal UI was visible, with
 the pilot control hidden and normal Codex intake still closed. The journal was
 preserved at one completed turn; the gateway remained at two jobs. No second
 model request was made. Ordinary household actions were not exercised.
+
+### 2026-10-09 — Native normal-use acceptance plan, no new live turn
+
+The first native answer proves a transport path, not routine value. A finite
+12-question, fictional/non-sensitive [preregistration](evidence/D3-native-normal-use-preregistration-2026-10-09.md)
+now states the hypothesis, failure conditions, frozen classes, measurements,
+security invariants and promotion boundary. A signed, uninstalled build 10
+prototype now presents exactly the twelve fictional questions behind a separate
+launch flag, with per-question consent, one-turn idempotency, owner-bound
+read-only status and content-free private timing/event records. It offers no
+arbitrary question entry. **297 Python and 46 native tests pass**; the bundled
+metadata-only preflight still pins ChatGPT auth, zero MCP servers, read-only
+sandbox and no web. Independent label review, answer scoring and connected
+recovery testing remain open. The plan authorizes neither live questions nor a
+new app installation. Keychain startup friction is included as observed
+evidence rather than hidden as setup noise.

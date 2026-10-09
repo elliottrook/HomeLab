@@ -1,7 +1,7 @@
 import Foundation
 import Darwin
 
-/// Unwired, metadata-only native launch candidate. No UI calls this yet.
+/// One-shot local helper used only by explicitly flagged review surfaces.
 enum LocalCodexBridgeProcess {
     enum BridgeError: Error { case unavailable, invalidBundle, invalidRequest, timeout, failed, oversized }
 
@@ -16,6 +16,17 @@ enum LocalCodexBridgeProcess {
 
     static func inspectBundled(prepare: Bool = false) throws -> Data {
         try inspect(script: packagedScript(), prepare: prepare)
+    }
+
+    static func recordedStatus(requestID: String, stateDirectory: URL) throws -> Data {
+        guard requestID.hasPrefix("request-"),
+              stateDirectory.isFileURL,
+              stateDirectory.resolvingSymlinksInPath().path == stateDirectory.standardizedFileURL.path
+        else { throw BridgeError.invalidRequest }
+        return try launch(script: packagedScript(),
+                          arguments: ["--status", "--state-dir", stateDirectory.path,
+                                      "--request-id", requestID],
+                          input: nil, timeout: 8)
     }
 
     static func privateStateDirectory(base: URL? = nil) throws -> URL {
@@ -43,8 +54,7 @@ enum LocalCodexBridgeProcess {
         return state
     }
 
-    /// This remains unwired. A future explicit UI action may call it off the
-    /// main thread only after the connected one-turn gate is approved.
+    /// Call only from a reviewed UI action off the main thread.
     static func submitBundled(_ request: ReviewedCodexRequest,
                               approvedHash: String, stateDirectory: URL) throws -> Data {
         try submit(script: packagedScript(), request: request,
@@ -67,8 +77,7 @@ enum LocalCodexBridgeProcess {
                           input: frame, timeout: timeout)
     }
 
-    /// Launches only the inert default or metadata-only preparation mode.
-    /// The candidate has no native route for --run or question text.
+    /// Inert default or metadata-only preparation; no model turn in either mode.
     static func inspect(script: URL, prepare: Bool = false, timeout: TimeInterval = 15) throws -> Data {
         guard timeout > 0, timeout <= 30 else { throw BridgeError.invalidRequest }
         return try launch(script: script, arguments: prepare ? ["--prepare"] : [],
