@@ -60,6 +60,21 @@ operation during a normal session, while a denied/revoked capability is blocked
 and audited. Deliberately sensitive or out-of-scope actions should still prompt
 or fail closed. Stop if the prompt source differs from the hypothesized one.
 
+## Keychain clarification — 2026-10-09
+
+Jason confirmed the recurring dialog is from macOS Keychain. The earlier
+user-provided screenshot specifically named `security` and `Aster worker
+Authentik credential`; whether the *current* repeated dialog is identical is
+not yet verified. The worker's `WorkerSession.bootstrap()` calls `WorkerToken`,
+which reads that item through `/usr/bin/security` once per supervised session;
+it deliberately does not renew automatically. Repeated individual worker
+trials can therefore repeat the prompt. The native Companion local Codex
+bridge does not call this worker credential path. Prefer that path for current
+finite D3 testing and stop re-running the worker pilot merely to obtain another
+answer. If the current dialog instead names Companion's own sign-in item,
+inspect its per-app ACL and signing identity before changing trust. No
+Keychain permission was modified during this clarification.
+
 ## Sources
 
 - Repository: `AGENTS.md`, `docs/Project-Creation-Standard.md`,
