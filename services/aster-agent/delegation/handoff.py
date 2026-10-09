@@ -7,6 +7,7 @@ never expires back into the dispatch queue. This is not exactly-once execution.
 """
 import hashlib
 import json
+import math
 import re
 import secrets
 import sqlite3
@@ -50,6 +51,7 @@ class Gateway(Ledger):
     def __init__(self, path, identity, **kwargs):
         super().__init__(path, **kwargs)
         self.identity = identity
+        self.session_epoch = secrets.token_hex(16)  # Restart invalidates readiness.
         self.answers = {}  # Ephemeral only; restart requires authenticated recovery.
         self.db.execute("""CREATE TABLE IF NOT EXISTS handoff_jobs (
             id TEXT PRIMARY KEY, envelope TEXT NOT NULL, state TEXT NOT NULL,
@@ -57,7 +59,21 @@ class Gateway(Ledger):
         self.db.execute("""CREATE TABLE IF NOT EXISTS handoff_controls (
             job_id TEXT PRIMARY KEY, cancel_requested INTEGER NOT NULL DEFAULT 0,
             usage TEXT, usage_at REAL)""")
+        self.db.execute("""CREATE TABLE IF NOT EXISTS handoff_sessions (
+            id TEXT PRIMARY KEY, epoch TEXT NOT NULL, owner TEXT NOT NULL,
+            worker TEXT NOT NULL, model TEXT NOT NULL, scope_sha256 TEXT NOT NULL,
+            expires_at REAL NOT NULL, heartbeat_at REAL NOT NULL,
+            admitted_job TEXT, closed INTEGER NOT NULL DEFAULT 0)""")
         self.db.commit()
+
+    def _insert_job(self, envelope):
+        """Caller owns BEGIN IMMEDIATE; shared by pilot and session admission."""
+        if self.db.execute("SELECT 1 FROM handoff_jobs WHERE id=?", (envelope['job_id'],)).fetchone():
+            raise ValueError("Job already exists; never recreate it")
+        if self.db.execute("SELECT count(*) FROM handoff_jobs").fetchone()[0] >= self.capacity:
+            raise ValueError("Gateway handoff capacity reached")
+        self.db.execute("INSERT INTO handoff_jobs VALUES (?,?,'queued',NULL)",
+                        (envelope['job_id'], json.dumps(envelope, sort_keys=True)))
 
     def create(self, job_id, owner, worker, request_sha256, scope_sha256, model, expires_at):
         envelope = dict(version=1, job_id=job_id, owner=owner, worker=worker,
@@ -69,12 +85,114 @@ class Gateway(Ledger):
             raise ValueError("Pilot dispatch window must be within five minutes")
         with self.db:
             self.db.execute("BEGIN IMMEDIATE")
-            if self.db.execute("SELECT 1 FROM handoff_jobs WHERE id=?", (job_id,)).fetchone():
-                raise ValueError("Job already exists; never recreate it")
-            if self.db.execute("SELECT count(*) FROM handoff_jobs").fetchone()[0] >= self.capacity:
-                raise ValueError("Gateway handoff capacity reached")
-            self.db.execute("INSERT INTO handoff_jobs VALUES (?,?,'queued',NULL)",
-                            (job_id, json.dumps(envelope, sort_keys=True)))
+            self._insert_job(envelope)
+
+    def open_session(self, owner, worker, model, scope_sha256, token_expires_at):
+        """Offline candidate. Caller must verify worker token and fixed plan first.
+
+        token_expires_at must come from online introspection, never a client body.
+        This is admission readiness only; it is not a credential or tool grant.
+        """
+        if not all(isinstance(v, str) and 1 <= len(v) <= 256
+                   for v in (owner, worker, model)):
+            raise ValueError('Verified session identity required')
+        if not isinstance(scope_sha256, str) or not re.fullmatch('[a-f0-9]{64}', scope_sha256):
+            raise ValueError('Verified session scope required')
+        if (isinstance(token_expires_at, bool) or
+                not isinstance(token_expires_at, (int, float)) or
+                not math.isfinite(token_expires_at)):
+            raise ValueError('Verified credential expiry required')
+        now = self.clock()
+        expiry = min(now + 240, token_expires_at - 10)
+        if expiry - now < 30:
+            raise ValueError('Insufficient credential lifetime')
+        session_id = secrets.token_hex(16)
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            if self.db.execute('SELECT 1 FROM handoff_sessions WHERE closed=0 LIMIT 1').fetchone():
+                raise ValueError('Prior session requires explicit reconciliation and closure')
+            self.db.execute("""INSERT INTO handoff_sessions
+                (id,epoch,owner,worker,model,scope_sha256,expires_at,heartbeat_at)
+                VALUES (?,?,?,?,?,?,?,?)""",
+                (session_id,self.session_epoch,owner,worker,model,scope_sha256,expiry,now))
+        return session_id
+
+    def _session(self, session_id):
+        row = self.db.execute("""SELECT epoch,owner,worker,model,scope_sha256,
+            expires_at,heartbeat_at,admitted_job,closed FROM handoff_sessions WHERE id=?""",
+            (session_id,)).fetchone()
+        if row is None:
+            raise KeyError('Session not found')
+        return row
+
+    def session_status(self, authenticated_owner, session_id):
+        row = self._session(session_id)
+        epoch,owner,_,model,scope,expiry,heartbeat,job,closed = row
+        if owner != authenticated_owner:
+            raise KeyError('Session not found')
+        now = self.clock()
+        return {'ready': bool(epoch == self.session_epoch and not closed and not job
+                and now < expiry and 0 <= now-heartbeat < 20),
+                'model': model, 'scope_sha256': scope, 'expires_at': expiry,
+                'admitted_job': job}
+
+    def heartbeat_session(self, authenticated_worker, session_id):
+        """Freshness only; never extends credential expiry or session scope."""
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            row = self._session(session_id)
+            epoch,_,worker,_,_,expiry,heartbeat,job,closed = row
+            now = self.clock()
+            if (worker != authenticated_worker or epoch != self.session_epoch or
+                    closed or job or not 0 <= now-heartbeat < 20 or now >= expiry):
+                raise ValueError('Session is no longer ready')
+            self.db.execute('UPDATE handoff_sessions SET heartbeat_at=? WHERE id=?',
+                            (now,session_id))
+
+    def close_session(self, session_id, authenticated_owner):
+        """Reconciles admitted work before permitting another session."""
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            row = self._session(session_id)
+            if row[1] != authenticated_owner:
+                raise KeyError('Session not found')
+            if row[7] is not None:
+                _,state,_ = self._row(row[7])
+                if state not in TERMINAL:
+                    raise ValueError('Admitted job requires terminal reconciliation')
+            self.db.execute('UPDATE handoff_sessions SET closed=1 WHERE id=?', (session_id,))
+
+    def create_in_session(self, session_id, job_id, owner, worker,
+                          request_sha256, scope_sha256, model):
+        """One SQLite transaction consumes readiness and creates the job.
+
+        Transport must authenticate owner, verify worker liveness/authorization,
+        and supply a fixed plan. No HTTP route calls this candidate yet.
+        """
+        if not isinstance(request_sha256, str) or not re.fullmatch('[a-f0-9]{64}', request_sha256):
+            raise ValueError('Invalid reviewed request digest')
+        if not isinstance(job_id, str) or not re.fullmatch('[A-Za-z0-9_-]{1,128}', job_id):
+            raise ValueError('Invalid reviewed job ID')
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            row = self._session(session_id)
+            epoch,s_owner,s_worker,s_model,s_scope,expiry,heartbeat,admitted,closed = row
+            now = self.clock()
+            if ((epoch,s_owner,s_worker,s_model,s_scope) !=
+                    (self.session_epoch,owner,worker,model,scope_sha256) or
+                    closed or admitted or now >= expiry or
+                    not 0 <= now-heartbeat < 20 or expiry-now < 30):
+                raise ValueError('Supervised session is not ready for admission')
+            job_expiry = int(min(expiry, now+240))
+            envelope = dict(version=1, job_id=job_id, owner=owner, worker=worker,
+                            gateway=self.identity, delivery_id=secrets.token_hex(16),
+                            request_sha256=request_sha256, scope_sha256=scope_sha256,
+                            model=model, expires_at=job_expiry)
+            validate(envelope)
+            self._insert_job(envelope)
+            self.db.execute('UPDATE handoff_sessions SET admitted_job=? WHERE id=?',
+                            (job_id,session_id))
+        return envelope
 
     def _row(self, job_id):
         row = self.db.execute("SELECT envelope,state,result_sha256 FROM handoff_jobs WHERE id=?", (job_id,)).fetchone()

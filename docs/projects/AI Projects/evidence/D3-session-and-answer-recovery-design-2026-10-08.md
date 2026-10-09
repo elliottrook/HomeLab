@@ -1,6 +1,6 @@
 # D3 — supervised session and completed-answer recovery design
 
-Status: OFFLINE LEASE AND EXACT-TURN RECOVERY CONTRACTS PROTOTYPED. No new authority, content retention or live deployment.
+Status: ATOMIC GATEWAY ADMISSION PROTOTYPED OFFLINE. No new authority, content retention or live deployment.
 Owner: Jason. Revisit after fixture evidence.
 
 ## Current proven facts
@@ -193,3 +193,35 @@ read only the bound turn under an authenticated owner request and reveal the
 final answer only after comparing the gateway digest. The original worker
 identity is inactive, so an operational recovery path still requires a deliberate
 credential and authorization design.
+
+## Atomic gateway admission result — 2026-10-08
+
+The earlier in-memory `admission_window.py` prototype exposed the intended
+behavior but would have created a second source of truth. Its behavior was
+absorbed into the existing `Gateway` SQLite ledger; the duplicate module and
+its five tests were removed, with their Git history retained.
+
+`Gateway.open_session` records a single owner/worker/model/plan-bound session,
+server expiry and process epoch. It requires a token expiry supplied by a future
+verified transport, reserves a ten-second margin and caps the session at four
+minutes. A heartbeat can establish freshness but cannot extend the expiry. A
+gateway restart changes the process epoch and makes prior readiness unusable.
+
+`Gateway.create_in_session` now consumes that exact ready session and inserts
+the durable queued job in **one SQLite transaction**. Capacity or duplicate-job
+failure rolls both effects back. The session admits only one job. Wrong owner,
+worker, model, scope, digest, stale heartbeat, near-expiry credential and
+restarted-process epoch all fail closed. Closing an admitted session requires
+its job to have a terminal ledger state; an offered/running/unknown job cannot
+be silently discarded to start another session. A separate explicit recovery
+decision will be needed if such a job cannot be reconciled.
+
+The full backend suite passed 264 tests, including synthetic restart, capacity
+rollback, duplicate ID, stale/invalid token time, scope mismatch, and a pending
+turn blocking the next session. These tests establish local transaction behavior,
+not authentication. No route invokes these new methods yet. Live adoption still
+requires: verified worker identity and token expiry from Authentik/broker, a
+policy-approved fixed plan, owner-scoped request admission, and a way for the Mac
+worker to maintain a fresh session without copying credentials into Aster. The
+existing owner request route remains closed. Do not deploy this schema change
+just to expose a session control before its transport and recovery path are ready.

@@ -1948,3 +1948,12 @@ recovery verified the final-answer digest against Aster's durable record. Only
 booleans were printed; no new inference or worker credential read. This is
 compatibility evidence for one stored turn, not authorization or a retention
 guarantee. Owner-facing recovery remains a separate gate.
+
+### 2026-10-08 — One SQLite transaction for session admission
+
+Moved the offline readiness prototype into the existing gateway ledger and
+removed the now-redundant in-memory implementation. A single transaction claims
+one fresh, owner/worker/model/plan-bound session and inserts one durable job;
+capacity/duplicate failures roll back both. Unknown work prevents closing the
+session and opening another. Backend suite: 264 tests passed. No live route or
+identity activation. [Result and remaining gates](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).

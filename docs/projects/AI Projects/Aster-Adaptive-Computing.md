@@ -4,7 +4,7 @@
 
 **Owner:** Jason.
 
-**Latest resume — native Companion:** Jason selected the native app. The reviewed-request candidate and bounded installation/test/cleanup gate are in [D3 native request gate](evidence/D3-native-request-gate-2026-10-08.md). Native user-authored request accepted by Jason; intake closed, worker disabled and grants absent. Cleanup verified. [Availability update](evidence/D3-availability-gate-2026-10-08.md) deployed and visually verified; the [supervised session and answer-recovery design](evidence/D3-session-and-answer-recovery-design-2026-10-08.md) now sets the next fixture gates. One-turn authorization consumed. The accepted fixed pilot must not be repeated.
+**Latest resume — native Companion:** Jason selected the native app. The reviewed-request candidate and bounded installation/test/cleanup gate are in [D3 native request gate](evidence/D3-native-request-gate-2026-10-08.md). Native user-authored request accepted by Jason; intake closed, worker disabled and grants absent. Cleanup verified. [Availability update](evidence/D3-availability-gate-2026-10-08.md) deployed and visually verified; the [supervised session and answer-recovery design](evidence/D3-session-and-answer-recovery-design-2026-10-08.md) now includes a tested atomic gateway admission candidate. Verified worker transport and an owner-only recovery path remain before a live gate. One-turn authorization consumed. The accepted fixed pilot must not be repeated.
 
 **Current direction and resume point — 2026-10-06:** Jason adopted
 [subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the
