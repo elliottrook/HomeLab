@@ -134,10 +134,8 @@ state, but never retried automatically. No raw fixture payload goes to logs.
 Local fixture work is within Stream A. Production session opening, Mac helper
 installation, worker activation, live `thread/read`, content retention and any
 credential renewal each need a concrete risk gate before execution. Existing
-one-turn approval is consumed. The offline lease and exact-turn recovery contracts are prototyped. Next are an
-atomic gateway admission design and a metadata-only check that the pinned Codex
-app-server can read an exact prior turn. A decision record will then choose the
-smallest deployable session/recovery workflow. Do not repeat Orion or use a real user
+one-turn approval is consumed. The offline lease and exact-turn recovery contracts are prototyped. Next is an atomic gateway admission design and a bounded owner-facing recovery
+transport. A decision record will then choose the smallest deployable workflow. Do not repeat Orion or use a real user
 question merely to test the protocol.
 
 ## Offline admission prototype result
@@ -169,10 +167,29 @@ a new gateway route. The full delegation suite passed 261 tests with synthetic
 content. The digest must be supplied by the gateway's owner-scoped ledger, never
 from the user's request body.
 
-This proves only the in-process gate. It does not prove the installed Codex
-app-server will allow an exact `thread/read`, that the historical thread will be
-retained, or that a revoked worker can read it. No live user content was read.
-A future fixture can query metadata for a separately created synthetic turn,
-then compare the returned answer digest; that requires its own bounded gate if
-authentication or inference is needed. Do not connect recovery to the owner UI
-until that compatibility and token lifecycle are demonstrated.
+The in-process gate passed; live protocol compatibility was then tested only
+with the pre-existing fictional Orion turn. No personal request was read. Do not
+connect recovery to the owner UI until owner-scoped transport, broker policy and
+credential lifecycle are demonstrated. A single stored turn does not establish
+retention guarantees or availability for arbitrary future turns.
+
+## Exact stored-turn compatibility result
+
+Official [Codex App Server documentation](https://learn.chatgpt.com/docs/app-server)
+identifies `thread/read` with `includeTurns: true` as a stored-thread read that
+does not resume the thread. A scoped local check used only the previously
+accepted fictional Orion thread/turn IDs from the private dispatch ledger. The
+installed app-server returned that exact turn. `recover_completed` verified the
+owner/job/thread/turn and calculated a final-answer SHA-256 equal to the
+gateway's durable completion digest. The script printed only boolean results:
+exact read true, verified turn true, digest match true, inference false, answer
+printed false. No Keychain worker read, Authentik activation, new turn or gateway
+write occurred.
+
+This establishes a feasible recovery primitive for one retained fictional turn,
+not an owner-facing recovery service. Current app-server local history may be
+removed independently; repeat access is not guaranteed. A future worker must
+read only the bound turn under an authenticated owner request and reveal the
+final answer only after comparing the gateway digest. The original worker
+identity is inactive, so an operational recovery path still requires a deliberate
+credential and authorization design.

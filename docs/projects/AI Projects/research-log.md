@@ -1938,3 +1938,13 @@ contradictory snapshots, altered answers and duplicate turns. Full delegation
 suite: 261 pass. No Codex history read or live change. Protocol compatibility
 and authorized credential lifecycle remain unverified; see
 [design](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).
+
+### 2026-10-08 — Fictional Orion exact-turn read verified
+
+Official [App Server documentation](https://learn.chatgpt.com/docs/app-server)
+confirms read-only `thread/read` with `includeTurns`. The installed app-server
+returned the stored fictional Orion turn by its known ID, and local owner-bound
+recovery verified the final-answer digest against Aster's durable record. Only
+booleans were printed; no new inference or worker credential read. This is
+compatibility evidence for one stored turn, not authorization or a retention
+guarantee. Owner-facing recovery remains a separate gate.
