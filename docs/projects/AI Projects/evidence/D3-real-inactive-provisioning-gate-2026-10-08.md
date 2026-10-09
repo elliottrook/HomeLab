@@ -1,6 +1,17 @@
 # D3 — real inactive worker provisioning package
 
-Status: HUMAN HELPER STOPPED BEFORE CONFIRMED LOGIN; controller not started.
+Status: EMPTY FAILED ATTEMPT PRESERVED; one corrected private attempt authorized;
+controller not started.
+
+Jason explicitly directed `reset`. Verified the source directory was root-owned
+0700 and contained exactly one root-owned, single-link, zero-byte 0600 stage
+journal, with no token or other files. Renamed it to the previously absent
+`/run/aster-worker-provision-input-failed-20261008`. Confirmed the original path
+absent and empty record preserved. No credential file was read. Staged helper
+fingerprint remains `52de5e20803eceeabb53244b5918442bb789b646ae1f2e538405f87a7a6da482`.
+Await one corrected private run, values only; do not perform another reset or
+retry automatically. On ready/root-revoked confirmation, promptly run the already
+approved controller once. Failure still requires reconciliation.
 
 ## Private-input failure checkpoint
 
