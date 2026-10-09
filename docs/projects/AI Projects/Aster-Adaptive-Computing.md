@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Real setup approved; snapshots and all three staged manifests verified; awaiting private human input | [Resume point](evidence/D3-real-inactive-provisioning-gate-2026-10-08.md): directory correction completed; no credentials or identity created. After Jason confirms setup ready, run the already approved controller once promptly. No activation. |
+| D3 — Companion integration | Real inactive identity and protected credential provisioning COMPLETE; staging cleaned | [Result](evidence/D3-real-inactive-provisioning-gate-2026-10-08.md): 20 stages complete, temporary admin revoked, exact inactive identity verified, AI-PAM healthy. Next: disabled gateway/worker deployment and separately approved authenticated pilot. Pilot password expires Oct 9 at 7:02 PM Vancouver; no activation or model calls yet. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in

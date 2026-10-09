@@ -1689,3 +1689,15 @@ frozen controller/helper fingerprints match. Existing checkpoints/staging were n
 replayed. AI-PAM healthy. Await private human ceremony and non-secret completion
 confirmation; the remaining original controller operation is already authorized.
 No actual worker identity, credential custody, activation or push yet.
+
+### 2026-10-08 — Real inactive credential provisioning completed
+
+After the approved empty-attempt reset and Jason's successful private bootstrap,
+ran the frozen controller exactly once. All 20 stages passed, including vault and
+Keychain round trips, encrypted gateway delivery and scoped admin revocation.
+Independent metadata matched six identity object IDs and confirmed inactivity and
+exact bindings; temporary admin file absent; ciphertext root 0600. Exact source
+cleanup and independent absence checks completed on all three targets. AI-PAM
+healthy. Credential values never printed; no activation/model calls/push.
+[Result and expiry](evidence/D3-real-inactive-provisioning-gate-2026-10-08.md)
+retain sanitized provenance and the next disabled-deployment/pilot boundary.

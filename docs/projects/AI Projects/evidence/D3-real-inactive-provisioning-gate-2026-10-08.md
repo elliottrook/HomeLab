@@ -1,7 +1,63 @@
 # D3 — real inactive worker provisioning package
 
-Status: EMPTY FAILED ATTEMPT PRESERVED; one corrected private attempt authorized;
-controller not started.
+Status: REAL INACTIVE PROVISIONING COMPLETE; staging cleaned; approval consumed.
+
+## Completed result — 2026-10-08 (America/Vancouver)
+
+Jason's corrected private helper reported ready/root-revoked, 600-second maximum
+setup authority, no credentials printed. Promptly ran the approved controller
+exactly once with the frozen fingerprint and fresh private journal. It returned:
+
+```json
+{"complete":true,"worker_active":false,"delegation_enabled":false,"model_calls":0}
+```
+
+All 20 expected journal stages completed, including both vault record round trips,
+gateway encrypted delivery, fixed Keychain round trip, vault delivery confirmation
+and temporary administrator revocation. Revocation is evidenced by the successful
+API receipt and controller journal, not a separate production invalid-token probe.
+Independent checks confirmed the temporary `admin.token` file absent; gateway
+ciphertext is root-owned regular 0600 with one link (content not read).
+
+Independent Authentik metadata inspection matched all six journal object IDs and
+confirmed inactive service-account type, exact client-credentials grant, five-minute
+access-token validity, single scope mapping and one enabled positive user binding
+with no group/policy binding. The pilot app-password expires at
+`2026-10-10T02:02:04.335350Z` (October 9, 2026, 7:02:04 PM America/Vancouver).
+The AppRole SecretID has its configured 24-hour lifetime from issuance; its exact
+expiry was not independently read. Plan the authenticated pilot before expiry;
+never replay this create-only setup for renewal.
+
+Retained non-secret identity identifiers for exact reconciliation:
+
+| Object | ID |
+|---|---|
+| User | `11` |
+| Provider | `51` |
+| Application | `861d21c1-2729-42d9-b713-3fe31877e8b1` |
+| Binding | `75cc73cb-43f4-4ed0-ac5d-cc9d22e3776c` |
+| Scope mapping | `fa94f811-c1db-482b-a452-f192db9655f0` |
+| Token database object (not its credential value) | `61529d53-5492-4a35-9e45-061159ca06d0` |
+
+Journal SHA-256:
+`ba9a460f24f1813741e59bc10962ef1be2c843179eb619c33c0cea339d2bcb9b`.
+Its 20 stages end in `complete`; it remains in ignored private local state.
+
+After exact inventory/hash checks, removed only the 14 staged files and their
+directories from each of 104, 117 and the Authentik container. Removed the newly
+created Authentik `/var/tmp` parent only after confirming empty. Independent
+absence checks passed on all three targets. Preserved snapshots, human stage
+records (including the empty failed-input attempt), local journal and intended
+credential stores. No credentials were printed or committed. Nothing pushed.
+
+AI-PAM remains healthy: exact policy catalogue, Authentik reachable, OpenBao
+unsealed, zero active requests and 37 prior recorded outcomes. This new identity
+is deliberately inactive. Next is disabled gateway/worker deployment preparation,
+then a separately approved narrow authenticated pilot. No activation, model calls,
+system-administration tool grants or service restarts followed provisioning.
+
+Historical preparation/failure checkpoints below are retained for provenance;
+their earlier pending-action statements are superseded by this completed result.
 
 Jason explicitly directed `reset`. Verified the source directory was root-owned
 0700 and contained exactly one root-owned, single-link, zero-byte 0600 stage
