@@ -1,7 +1,33 @@
 # D3 — private human ceremony preparation and isolated test gate
 
-Status: LOCAL CANDIDATE; remote test awaiting approval. No real ceremony,
+Status: APPROVED ISOLATED TEST PASSED; approval consumed. No production ceremony,
 credential provisioning, delegation activation or Git push performed.
+
+## Executed result — 2026-10-08
+
+Jason approved the exact isolated scope in this chat. The archive hash and all
+nine member hashes were checked before staging, then checked on the destination.
+The reviewed runtime unit started once and exited successfully (status 0).
+
+```json
+{"passed":true,"version":"2.6.4","threshold":2,"shares":3,"initial_root_revoked":true,"generated_root_revoked":true,"human_session_revoked":true,"scoped_admin_revoked":true,"production_contacted":false,"real_credentials_used":false}
+```
+
+The test verified revocation through subsequent denied API requests, not merely
+successful revoke responses. Production configuration, data, keys and recovery
+files were not accessed. Startup sampling observed about 55 MiB memory and
+0.65 CPU seconds; final resource counters were unavailable after unit exit, so
+these samples are not final peak/total claims.
+
+Cleanup checked exact inventory and hashes before removing the nine files,
+their two directories and the runtime unit. Independent verification returned
+`LoadState=not-found`, `ActiveState=inactive`, `MainPID=0`; staging was absent.
+AI-PAM passed before and after: vault unsealed, Authentik reachable, exact policy
+catalogue, zero active requests and 37 recorded outcomes. Nothing was pushed.
+
+This closes compatibility of the normal authenticated two-share path with
+OpenBao 2.6.4. It does not close the interruption recovery limitation below or
+verify the live human AppRole's exact policy/expiry.
 
 ## Purpose and evidence
 
@@ -108,5 +134,21 @@ listing, broad revocation or restoration of old vault state is authorized.
 - [In-memory storage](https://openbao.org/docs/configuration/storage/in-memory/): disposable fixture storage, never proposed for production.
 - [Initialization API](https://openbao.org/docs/api/system/init/): fixture share count and threshold.
 
-External sources checked 2026-10-08. Actual 2.6.4 ceremony compatibility remains
-UNKNOWN until the approved isolated test. Local unit tests do not establish it.
+External sources checked 2026-10-08. Normal 2.6.4 ceremony compatibility is now
+verified by the isolated result above; local unit tests alone did not establish it.
+
+## Follow-up source inspection: lost final response
+
+Version-pinned [root generation source](https://github.com/openbao/openbao/blob/v2.6.4/vault/generate_root.go)
+creates the root, encodes it and deletes the active generation record upon
+completion. Cancellation cannot be treated as revoking the resulting token.
+The [token store](https://github.com/openbao/openbao/blob/v2.6.4/vault/token_store.go)
+creates that root with display name `root`, path `auth/token/root` and a creation
+timestamp. Those fields identify a class of token, not uniquely this ceremony.
+
+ARCHITECTURAL INFERENCE: a separately authorized private recovery operation could
+use token accessors and metadata to locate and revoke an orphan, but automatic
+selection by time/name alone would be unsafe. Do not introduce broad token
+enumeration into normal Aster provisioning. Develop and test a human-only,
+explicitly targeted recovery procedure before production setup; no permission
+for production enumeration or revocation follows from this successful fixture.

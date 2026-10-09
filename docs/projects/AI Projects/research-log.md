@@ -1619,3 +1619,15 @@ read-only. Source/API references, exact approval scope and remaining lost-root
 reconciliation limitation are recorded in
 [the human ceremony gate](evidence/D3-human-ceremony-gate-2026-10-08.md).
 No production credential access, remote writes, activation or push in this step.
+
+### 2026-10-08 — Approved two-share engine test passed
+
+Executed the subsequently approved nine-file isolated fixture once on LXC 117.
+OpenBao 2.6.4 completed authenticated 2-of-3 root generation and bounded bootstrap;
+subsequent API denials verified initial root, generated root, human session and
+scoped token revocation. Exact-file cleanup and independent service/staging
+absence checks passed. Production AI-PAM readiness passed before and after.
+No production keys, credentials or configuration used; no activation or push.
+Approval consumed. Source inspection confirms cancellation cannot revoke an
+already issued root; private targeted crash recovery remains the next blocker.
+See [result and source references](evidence/D3-human-ceremony-gate-2026-10-08.md).
