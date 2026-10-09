@@ -2108,12 +2108,14 @@ inactive with zero unrevoked grants. This supports the feasibility of a native,
 subscription-backed, no-tools adapter without gateway activation for a single
 question. It does not yet establish normal-use reliability, response-time
 performance, remote/voice suitability or sysadmin capability. See [the bounded
-trial record](evidence/D3-native-local-bridge-gate-2026-10-08.md). Normal-use
-relaunch awaits Jason's chance to save the volatile answer.
+trial record](evidence/D3-native-local-bridge-gate-2026-10-08.md).
 
 Jason authorized closing the answer. The signed-in normal screen was visible
 after closing the pilot sheet. Companion then quit and restarted without the
 pilot flag, still from the signed, pinned build 9. Its process is running, but
-the screen-control tool timed out reading the new window; post-restart sign-in
-and normal functions remain unverified pending direct observation. The journal
-was preserved, and no second model request was made.
+the screen-control tool initially timed out reading the new window. A process
+sample localized the wait to the existing macOS Keychain session read. After
+Jason handled the prompt privately, the signed-in normal UI was visible, with
+the pilot control hidden and normal Codex intake still closed. The journal was
+preserved at one completed turn; the gateway remained at two jobs. No second
+model request was made. Ordinary household actions were not exercised.

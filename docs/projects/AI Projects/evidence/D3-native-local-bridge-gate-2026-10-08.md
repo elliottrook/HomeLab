@@ -1,6 +1,6 @@
 # D3 — one-question native local Codex bridge gate
 
-**Status: ONE LIVE QUESTION COMPLETED; NORMAL-USE UI VERIFICATION PENDING.** Owner: Jason. Stream A
+**Status: ONE LIVE QUESTION COMPLETED; NORMAL NATIVE UI RESTORED.** Owner: Jason. Stream A
 implementation gate. This is an architecture comparison, not D3 graduation or
 sysadmin delegation.
 
@@ -140,8 +140,14 @@ Jason subsequently authorized closing the volatile answer. The pilot sheet was
 closed, revealing the signed-in normal Aster view with its AI-PAM and Codex
 request controls. The flagged process was quit and Companion restarted from the
 same signed build 9 with no pilot flag; the process was running and the installed
-signature and pinned executable hash still passed. The screen-control tool timed
-out reading the newly launched window, so its post-restart sign-in and normal
-functions are **not yet verified**. No crash was observed. This is a pending
-acceptance check, not a reason to claim success or repeat the model turn. The
-local journal was left intact; no credential or gateway setting was changed.
+signature and pinned executable hash still passed. The screen-control tool
+initially timed out reading the new window. A one-second process sample showed
+its main thread waiting in the existing Keychain session read. Jason handled
+the macOS Keychain prompt privately. Companion then showed the signed-in normal
+Aster screen, including AI-PAM, Codex requests and Ask Aster. The Codex requests
+sheet had no Local Codex pilot button, and normal request intake remained
+disabled. The sheet was closed, leaving the normal Aster view. The local journal
+still held exactly one completed request with one turn ID; the gateway still had
+two historical jobs. No second model request, credential or gateway change was
+made. Normal UI restoration is verified; household commands, sleep/restart
+behavior and long-running reliability were not exercised.
