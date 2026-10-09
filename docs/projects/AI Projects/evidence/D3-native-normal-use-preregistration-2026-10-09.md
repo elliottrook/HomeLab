@@ -156,3 +156,25 @@ silently clearing the ID or allowing a duplicate. Continuing the finite set
 would require a separately reviewed owner-bound reconciliation and advancement
 design, plus the still-open independent label review and exact live gate. Do
 not reset AppStorage keys by hand to bypass this boundary.
+
+## Keychain-friction and original-turn reconciliation — 2026-10-09
+
+Jason approved continuing through the native Companion-to-Codex path to avoid
+repeated macOS Keychain prompts from the older gateway worker trial. Read-only
+inspection of the current Mac launchd domain found the normal Companion and an
+unrelated `com.jason.aster-lab-worker` backup worker, but no Codex delegation
+worker LaunchAgent. The backup worker's deployed Python source does not call
+Keychain. The native `LocalCodexBridgeProcess` does not import `WorkerToken` or
+read the worker credential. No worker was started, no Keychain ACL was changed,
+and no new model request was made in this reconciliation.
+
+The private dispatch journal records case 1 as `completed`; the content-free
+evaluation log has exactly one submitted and one completed event for its ID.
+Read-only retrieval of that recorded Codex thread found one completed turn with
+only the fixed HTTP 503 question and its final answer. The answer correctly
+described 503 as service unavailable and did not assert a lasting outage, so
+case 1 meets its frozen answer property. This is evidence for that one case
+only; it does not clear the restart guard or authorize the remaining eleven.
+The next local candidate is owner-bound, read-only original-answer recovery in
+the native UI, followed by explicit acknowledgment before advancing. Never
+clear the saved request ID manually or resubmit case 1.
