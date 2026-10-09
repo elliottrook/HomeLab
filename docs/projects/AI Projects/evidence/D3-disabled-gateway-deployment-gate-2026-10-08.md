@@ -1,8 +1,38 @@
 # D3 — attach the gateway with delegation disabled
 
-Status: LOCAL CANDIDATE; deployment requires the approval below.
+Status: APPROVED DISABLED DEPLOYMENT COMPLETE; approval consumed.
 Real credential provisioning is complete; this is the next software integration
 step, not another credential or model experiment.
+
+## Executed result — 2026-10-08
+
+Jason approved the bounded deployment. Rechecked live main-source hash, original
+service command/user, 35-path route digest, healthy endpoints, destination absence
+and inactive Authentik identity. Verified the frozen archive and all 14 members.
+Created the root-0700 checkpoint with mode-0600 non-secret baseline manifest,
+installed the 13 Python files and one disabled drop-in create-only, verified
+hashes, compiled syntax in memory and passed `systemd-analyze verify`.
+
+Reloaded systemd and restarted only `aster-agent.service` once. It returned active
+and passed the first post-restart acceptance check within the 60-second window:
+
+- `/health` and `/companion`: HTTP 200.
+- Owner delegation route and POST worker offer route: HTTP 404.
+- Same 35 OpenAPI paths and exact pre-deployment route/method digest.
+- Main `aster_agent.py` hash unchanged; existing drop-ins retained.
+- No delegation state directory or delivered runtime worker credential file.
+- Authentik worker remains inactive; AI-PAM healthy with zero active requests and
+  37 existing recorded outcomes; vault remains unsealed.
+
+No rollback required. New disabled code/drop-in and recovery checkpoint remain as
+approved. No credentials read, identity activation, model calls, network changes
+or Git push. Tests establish disabled integration and route/health preservation,
+not a claim that every household action was exercised.
+
+Next: prepare the separately authorized authenticated pilot, including exact
+worker subject, runtime credential delivery, admission of one fictional job and
+actual owner-visible result. Do not repeat this successful disabled deployment.
+Earlier prospective approval wording below is retained as the executed scope.
 
 ## Finding and implementation
 

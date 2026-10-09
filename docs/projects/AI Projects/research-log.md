@@ -1712,3 +1712,13 @@ record service configuration, 35-route digest, health/Companion 200, delegation
 restart/rollback limits in the
 [deployment gate](evidence/D3-disabled-gateway-deployment-gate-2026-10-08.md).
 No remote mutation, credential access, activation or model execution this step.
+
+### 2026-10-08 — Approved disabled gateway deployed
+
+Installed the frozen 14-member wrapper/package/drop-in on 104 after exact baseline
+and identity preflight. Preserved the running main application. Syntax and unit
+verification passed; one service restart succeeded. Same 35-route digest, health
+and Companion 200, delegation routes 404, no delegation state/runtime credential,
+worker inactive and AI-PAM healthy. No rollback needed, no model call or push.
+Checkpoint retained; approval consumed. See
+[deployment result](evidence/D3-disabled-gateway-deployment-gate-2026-10-08.md).
