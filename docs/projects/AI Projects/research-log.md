@@ -1804,3 +1804,13 @@ re-reads Keychain for each request, so do not resume a pilot by merely increasin
 timeouts. Next local design: bounded supervised session bootstrap and in-memory
 short-lived token, retaining online gateway authorization/revocation checks and
 no automatic renewal. No live retry or additional credential read authorized.
+
+### 2026-10-08 — Single-bootstrap session implemented and approved
+
+Implemented explicit supervised session bootstrap, bounded in-memory token reuse,
+no renewal and sanitized stage diagnostics. 242 tests pass, including gateway
+denial despite reuse. Fresh metadata binds unchanged Codex binary and configured
+subscription model. Jason approved the described one-session fictional pilot.
+The [session gate](evidence/D3-supervised-session-pilot-2026-10-08.md) records the
+fingerprint, reservation-before-bootstrap ordering, exact cleanup and rollback.
+Execution pending live revalidation; no further Keychain read during preparation.

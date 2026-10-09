@@ -8,6 +8,7 @@ import os
 import ssl
 import stat
 import subprocess
+import time
 
 import httpx
 
@@ -20,7 +21,9 @@ KEYCHAIN_ACCOUNT = 'authentik-app-password'
 
 
 class CredentialUnavailable(Exception):
-    pass
+    def __init__(self,message,*,stage=None):
+        super().__init__(message)
+        self.stage=stage if stage in {'keychain_read','token_exchange','token_validation'} else None
 
 
 def text_secret(value):
@@ -103,16 +106,24 @@ class WorkerToken:
         self.enabled, self.transport = enabled, transport
 
     def __call__(self):
+        return self.acquire()[0]
+
+    def acquire(self, *, supervised=False):
+        if type(supervised) is not bool:
+            raise CredentialUnavailable('Explicit credential mode required')
         if self.enabled is not True:
             raise CredentialUnavailable('Credential access disabled')
+        stage='keychain_read'
         try:
             # Fixed item, no enumeration. Never place the password in argv/env.
             result = subprocess.run(['/usr/bin/security', 'find-generic-password',
                 '-s', KEYCHAIN_SERVICE, '-a', KEYCHAIN_ACCOUNT, '-w'],
                 stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL, timeout=5, check=True,
+                stderr=subprocess.DEVNULL, timeout=90 if supervised else 5, check=True,
                 env={'PATH': '/usr/bin:/bin'})
             password = text_secret(result.stdout.decode().removesuffix('\n'))
+            issued_at = time.monotonic()
+            stage='token_exchange'
             with httpx.Client(timeout=5, follow_redirects=False, trust_env=False,
                               transport=self.transport) as client:
                 with client.stream('POST', TOKEN_URL, data={
@@ -120,11 +131,12 @@ class WorkerToken:
                         'username': 'aster-codex-worker-mac', 'password': password,
                         'scope': 'aster.worker'}) as response:
                     value = json_response(response)
+            stage='token_validation'
             if (value.get('token_type', '').lower() != 'bearer' or
                     type(value.get('expires_in')) is not int or
                     not 0 < value['expires_in'] <= 300 or
                     value.get('scope') != 'aster.worker' or value.get('refresh_token')):
                 raise ValueError('Unexpected worker token')
-            return text_secret(value['access_token'])
+            return text_secret(value['access_token']), issued_at + value['expires_in'] - 10
         except Exception:
-            raise CredentialUnavailable('Worker credential unavailable') from None
+            raise CredentialUnavailable('Worker credential unavailable',stage=stage) from None

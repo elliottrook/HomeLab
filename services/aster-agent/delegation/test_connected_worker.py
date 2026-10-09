@@ -13,7 +13,7 @@ class ConnectedWorkerTests(unittest.IsolatedAsyncioTestCase):
     def test_default_starts_nothing(self):
         output=io.StringIO()
         with patch('sys.argv',['connected_worker']), patch('connected_worker.ConfigClient') as client, \
-                patch('connected_worker.WorkerToken') as credentials, contextlib.redirect_stdout(output):
+                patch('connected_worker.WorkerSession') as credentials, contextlib.redirect_stdout(output):
             main()
         self.assertFalse(json.loads(output.getvalue())['enabled'])
         client.assert_not_called(); credentials.assert_not_called()
@@ -35,10 +35,26 @@ class ConnectedWorkerTests(unittest.IsolatedAsyncioTestCase):
             return {'state':'completed','answer':'do not persist here'}
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp).resolve()/'run'
-            with patch('connected_worker.PipeAgent'), patch('connected_worker.WorkerToken') as credential, \
+            with patch('connected_worker.PipeAgent'), patch('connected_worker.WorkerSession') as credential, \
+                    patch('connected_worker.connection_check') as check, \
                     patch('connected_worker.run_one',side_effect=run):
                 summary=await execute(None,tmp,prepared,path)
             credential.assert_called_once_with(enabled=True)
+            credential.return_value.bootstrap.assert_called_once()
+            credential.return_value.close.assert_called_once()
+            check.assert_called_once_with(enabled=True,token_source=credential.return_value)
             self.assertNotIn('answer',summary)
             self.assertEqual((path/'inbox.sqlite').stat().st_mode & 0o777,0o600)
             with self.assertRaises(FileExistsError): await execute(None,tmp,prepared,path)
+
+    async def test_bootstrap_failure_is_sanitized_and_prevents_turn(self):
+        from credentials import CredentialUnavailable
+        prepared=connected_manifest({'model':'fixture','reasoning_effort':'medium'},'job')
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch('connected_worker.WorkerSession') as credential, \
+                    patch('connected_worker.run_one') as run,patch('connected_worker.connection_check') as check:
+                credential.return_value.bootstrap.side_effect=CredentialUnavailable('private',stage='keychain_read')
+                result=await execute(None,tmp,prepared,Path(tmp).resolve()/'run')
+            self.assertEqual(result['diagnostic'],'session_bootstrap:keychain_read')
+            self.assertNotIn('private',str(result));run.assert_not_called();check.assert_not_called()
+            credential.return_value.close.assert_called_once()

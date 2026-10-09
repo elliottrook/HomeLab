@@ -14,7 +14,9 @@ import re
 import shutil
 import tempfile
 
-from credentials import WorkerToken
+from worker_session import WorkerSession
+from credentials import CredentialUnavailable
+from pilot_connection_check import check as connection_check
 from handoff import WorkerInbox
 from isolation_probe import ConfigClient, disable_mcp_options
 from pilot import FIXTURE, fingerprint, initialize, manifest, options
@@ -35,6 +37,7 @@ def connected_manifest(base, job_id):
                       for p in sorted(Path(__file__).parent.glob('*.py'))},
         gateway_url='https://aster.elliottrook.com', maximum_model_turns=1,
         startup='manual', automatic_retry=False, tools=False,
+        credential_bootstrap='supervised-once-90-seconds', token_renewal=False,
         api_fallback=False, request_content='fixed-fictional-orion')
 
 
@@ -49,10 +52,16 @@ async def execute(client, cwd, prepared, directory):
     (directory/'manifest.json').write_text(json.dumps(prepared,indent=2)+'\n')
     runtime = open_runtime(directory/'worker', enabled=True)
     inbox = None; agent = None
+    session=WorkerSession(enabled=True)
+    phase='session_bootstrap'
     try:
+        await asyncio.to_thread(session.bootstrap)
+        phase='gateway_credential_check'
+        await asyncio.to_thread(connection_check,enabled=True,token_source=session)
+        phase='assigned_worker_turn'
         inbox = WorkerInbox(directory/'inbox.sqlite', prepared['worker'],
             prepared['gateway'], [(prepared['scope_sha256'],prepared['base']['model'])])
-        worker = WorkerClient(WorkerToken(enabled=True), enabled=True)
+        worker = WorkerClient(session, enabled=True)
         agent = PipeAgent(client,cwd,prepared['base']['model'],prepared['base']['reasoning_effort'])
         result = await run_one(worker,inbox,runtime.store,agent,
             prepared['job_id'],FIXTURE.encode(),enabled=True)
@@ -61,7 +70,15 @@ async def execute(client, cwd, prepared, directory):
         summary.update(automatic_retry=False, job_id=prepared['job_id'])
         (directory/'result.json').write_text(json.dumps(summary,indent=2)+'\n')
         return summary
+    except Exception as exc:
+        if isinstance(exc,CredentialUnavailable) and exc.stage:
+            phase+=':'+exc.stage
+        summary={'state':'unconfirmed','diagnostic':phase,'automatic_retry':False,
+                 'job_id':prepared['job_id']}
+        (directory/'result.json').write_text(json.dumps(summary,indent=2)+'\n')
+        return summary
     finally:
+        session.close()
         if agent: agent.close()
         if inbox: inbox.close()
         runtime.close()
