@@ -1,7 +1,9 @@
 # D3 Companion Keychain access across app updates — 2026-10-09
 
-**Status: design and local build-script candidate; no signing identity created,
-no Keychain trust or item access rule changed.** This addresses Jason's request
+**Status: owner-held certificate created; code-signing trust authorization and
+two-build test pending; installed app unchanged.** The design initially made
+no trust or item-access change. The approved implementation checkpoint below
+records the current state. This addresses Jason's request
 for Companion to keep access to its own saved login until revoked, without
 repeated approval after each app rebuild. It does not grant Codex, a worker,
 `/usr/bin/security`, or other apps standing access to that item.
@@ -117,3 +119,29 @@ tools or remote authority.
 Creating/trusting a persistent signing identity changes a security boundary.
 It is a separately reviewed operation after this design, not an implicit
 consequence of approving the earlier finite test or refresh repair.
+
+## Approved implementation checkpoint — 2026-10-09
+
+Jason explicitly approved creating an owner-held Companion code-signing identity,
+user-domain code-signing-only trust and an isolated two-build test before app
+replacement. Certificate Assistant created `Aster Companion Local Signing 2026`
+in the login Keychain with both certificate and private key present. Read-only
+inspection verified subject `CN=Aster Companion Local Signing 2026, O=HomeLab,
+C=CA`, SHA-256 fingerprint `FA:05:7D:32:AA:13:40:1B:60:2E:58:A6:D0:CD:4C:B9:9B:79:0F:1D:66:6C:F4:C4:79:9F:74:DC:E7:03:AC:F7`, digital-signature key usage,
+code-signing-only extended key usage, and expiry 2029-10-08. No private key was
+exported or read. The assistant's 4096-bit selection resulted in an actual
+2048-bit RSA certificate; the observed key size governs the record.
+
+The first CLI attempt to apply `trustAsRoot` with a code-signing constraint
+returned `SecTrustSettingsSetTrustSettings` invalid parameters. A second CLI
+attempt with `trustRoot` stalled and was interrupted without a recorded trust
+change. In Keychain Access, Code Signing was set to `Always Trust` while the
+other purpose fields remained unspecified, but closing the certificate window
+timed out at the macOS authorization step. The user was asked to handle any
+Mac password prompt privately. Subsequent `security find-identity -v -p
+codesigning` still reported **zero valid identities** and the exported user
+trust settings were empty. Therefore trust is **not verified** and no signing
+test or installed-app replacement may proceed yet. The installed Companion
+remains the prior ad-hoc build. Resolve the local trust authorization and
+recheck policy-scoped trust before resuming. Do not broaden to all-purpose or
+system-wide trust merely to make the command succeed.

@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — Companion signer created; trust gate pending
+
+After Jason's explicit approval, Certificate Assistant created an owner-held
+code-signing certificate and private key in the Mac login Keychain. The
+certificate has code-signing-only extended key usage; no private key was
+exported. The attempted user-domain, code-signing-only trust setting has not
+completed macOS authorization: `security find-identity` still reports zero
+valid signing identities. No two-build signing test or installed-app replacement
+has run. The current Companion remains operational with its prior ad-hoc
+signature. See the [implementation checkpoint](evidence/D3-native-stable-signing-keychain-design-2026-10-09.md).
+
 ## 2026-10-09 — Installed Companion repair and repeat Keychain prompt
 
 Jason approved installation of the refresh/recovery repair. The new signed
