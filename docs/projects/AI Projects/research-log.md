@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Diagnostic isolated network-address comparison mismatch
+
+Approved v4 pinpointed token_bound_cidrs after successful fixed-role creation/read;
+fresh fictional root revocation confirmed. Upstream formatting explains /32
+versus host-only spelling. Prepared strict network-equivalence comparison with
+negative cases for broader/other hosts; 206 tests pass. No authority expansion.
+Removed exact fixture/unit; production healthy. v5 isolated confirmation gate
+pending; no complete provisioning pass claimed. See
+[attempt 4 record](evidence/D3-scoped-bootstrap-and-isolated-vault-gate-2026-10-08.md).
+
 ## 2026-10-08 — Narrower fixture failed at bootstrap; diagnostics improved
 
 Approved v3 stopped during bootstrap, before policy denial checks/provisioning.

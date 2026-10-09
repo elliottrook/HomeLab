@@ -31,13 +31,30 @@ def role_request():
 
 def verify_role(data):
     if not isinstance(data,dict): raise ValueError('Role unavailable')
+    if role_mismatches(data): raise ValueError('Role configuration mismatch')
+    if data.get('token_period',0)!=0:
+        raise ValueError('Periodic role not allowed')
+
+
+def role_mismatches(data):
+    import ipaddress
+    mismatches=[]
     for key,value in role_request().items():
         if key.endswith('_ttl'):
             value={'24h':86400,'5m':300}[value]
+        if key=='token_bound_cidrs':
+            actual=data.get(key)
+            try:
+                if (not isinstance(actual,list) or len(actual)!=len(value)
+                        or any(not isinstance(item,str) for item in actual)
+                        or {ipaddress.ip_network(item,strict=True) for item in actual}
+                           !={ipaddress.ip_network(item,strict=True) for item in value}):
+                    mismatches.append(key)
+            except ValueError: mismatches.append(key)
+            continue
         if type(data.get(key)) is not type(value) or data[key]!=value:
-            raise ValueError('Role configuration mismatch')
-    if data.get('token_period',0)!=0:
-        raise ValueError('Periodic role not allowed')
+            mismatches.append(key)
+    return mismatches
 
 
 def validate(data):

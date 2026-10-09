@@ -74,3 +74,19 @@ class BootstrapTests(unittest.TestCase):
         for line in policy.splitlines():
             if 'sys/policies/' in line or 'auth/approle/role/aster-worker-introspection"' in line:
                 self.assertIn('["read"]',line)
+
+    def test_single_host_cidr_spellings_have_same_authority(self):
+        data={k:({'24h':86400,'5m':300}[v] if k.endswith('_ttl') else v)
+              for k,v in contract.role_request().items()}
+        data['token_bound_cidrs']=['192.168.70.10']
+        contract.verify_role(data)
+
+    def test_cidr_normalization_never_accepts_broader_or_other_host(self):
+        data={k:({'24h':86400,'5m':300}[v] if k.endswith('_ttl') else v)
+              for k,v in contract.role_request().items()}
+        for actual in (['192.168.70.0/24'],['192.168.70.11'],[],
+                       ['192.168.70.10','192.168.70.11'],['192.168.70.10:8200'],
+                       [3232253450],['0.0.0.0/0'],['192.168.70.10/24']):
+            with self.subTest(actual=actual):
+                data['token_bound_cidrs']=actual
+                with self.assertRaises(ValueError): contract.verify_role(data)

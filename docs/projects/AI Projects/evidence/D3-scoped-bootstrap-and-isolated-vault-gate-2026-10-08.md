@@ -1,5 +1,38 @@
 # D3 scoped bootstrap candidate and isolated vault experiment
 
+## Attempt 4 diagnostic result; exact-network comparison candidate
+
+Approved v4 hash matched; isolation and source visibility verified. Fixture
+bootstrap confirmed all five names absent, created/read the fixed policy and
+created/read the role successfully. The only reported role mismatch was
+`token_bound_cidrs`. Fresh fictional root self-revocation returned 204 after
+rejection. No ordinary provisioning or child delivery occurred. The fixture
+unit/files were removed and independently absent; production vault remains
+2.6.4 unsealed and AI-PAM readiness healthy (0 active requests, 37 outcomes).
+
+Source explanation: [version-pinned tokenutil](https://github.com/openbao/openbao/blob/v2.6.4/sdk/helper/tokenutil/tokenutil.go)
+serializes bound CIDRs using SockAddrMarshaler. Upstream
+[marshal implementation](https://github.com/hashicorp/go-sockaddr/blob/master/sockaddr.go)
+calls String(), and [IPv4 formatting](https://github.com/hashicorp/go-sockaddr/blob/master/ipv4addr.go)
+omits /32 for a host address. Dependency links are upstream master, not a pinned
+dependency revision. The live diagnostic did not print values: canonical host
+formatting is the source-backed explanation, to be tested in the next attempt.
+
+Candidate v5 compares only `token_bound_cidrs` as strict parsed networks rather
+than literal strings, with exact list cardinality and network-set equality.
+It accepts a host with or without /32, rejects broader subnets, other/additional
+hosts, malformed values, numeric coercion and ports. All other fields retain
+existing checks. Diagnostic comparison shares the same helper. Policy, role
+request, privileges and isolation remain unchanged. 206 local tests pass.
+
+**Next approval:** one same-scope isolated v5 run, maximum 120 seconds, mandatory
+cleanup, no real credentials or production changes. Eight-file archive
+`/private/tmp/aster-provision-isolated-v5-20261008.tar`, SHA-256
+`4da4c90a06c64e2a9a45a763bd7caca6f735a9eec5d4ef0bd469bc4052a89ca9`.
+Only comparison code/diagnostic reuse and manifest change. No previous approval
+authorizes this repeat. Preserve all failed attempts; no successful full workflow
+is claimed until the real-engine test completes.
+
 ## Attempt 3 result; diagnostic-only candidate for attempt 4
 
 Jason approved v3 `533bd75...8d780ca`. Hash, preflight health, staging, unit syntax,

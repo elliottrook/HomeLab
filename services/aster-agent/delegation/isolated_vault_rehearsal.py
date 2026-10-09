@@ -38,12 +38,7 @@ def diagnostic_event(method,path,status,body):
     if path==vault_provision.ROLE_PATH and method=='GET' and status==200:
         data=body.get('data',{})
         if isinstance(data,dict):
-            mismatches=[]
-            for key,value in admin_contract.role_request().items():
-                if key.endswith('_ttl'): value={'24h':86400,'5m':300}[value]
-                if type(data.get(key)) is not type(value) or data.get(key)!=value:
-                    mismatches.append(key)
-            event['mismatched_fields']=mismatches
+            event['mismatched_fields']=admin_contract.role_mismatches(data)
     return event
 
 
