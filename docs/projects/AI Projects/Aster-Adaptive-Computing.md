@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Normal two-share ceremony PASS; interrupted-root recovery candidate ready for bounded test | 226 local tests. [Recovery gate](evidence/D3-interrupted-root-recovery-gate-2026-10-08.md) awaits approval; previous fixtures cleaned and approvals consumed. No production provisioning/activation. |
+| D3 — Companion integration | Normal ceremony and interrupted-root recovery PASS; planned isolated recovery tests complete | 226 local tests. [Recovery result](evidence/D3-interrupted-root-recovery-gate-2026-10-08.md): orphan removed, invalid selection rejected, unrelated root preserved; fixture cleaned and approval consumed. Next: complete real provisioning package and separate approval/private human inputs. No activation. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in

@@ -1,7 +1,36 @@
 # D3 — interrupted root recovery: candidate and bounded test
 
-Status: local implementation tested; real-engine recovery test NOT RUN.
-The previous normal two-share test passed and its approval is consumed.
+Status: APPROVED REAL-ENGINE FIXTURE PASSED; approval consumed.
+The previous normal two-share test also passed. No production provisioning or
+recovery token operations were performed.
+
+## Executed result — 2026-10-08
+
+Jason approved this exact test in the current chat. Verified the archive and all
+11 source hashes, staged without overwriting and started the isolated unit once.
+OpenBao 2.6.4 returned:
+
+```json
+{"passed":true,"version":"2.6.4","threshold":2,"shares":3,"initial_root_revoked":true,"generated_root_revoked":true,"human_session_revoked":true,"scoped_admin_revoked":true,"production_contacted":false,"real_credentials_used":false,"lost_final_response_recovered":true,"wrong_target_rejected":true,"unrelated_root_preserved":true}
+```
+
+The fixture actually discarded a successful final-share API response after the
+server committed a generated root. Its independent supervisor inventory proved
+the orphan existed. Invalid selection was rejected without removing that orphan;
+exact selection then removed it. Both recovery roots were subsequently denied
+lookup, while the unrelated supervisor root remained usable until its normal
+bootstrap revocation. No production token or recovery material was involved.
+
+Unit exited successfully, status 0; journal recorded 1.355 CPU seconds and 74.4M
+memory peak. Inventory/hash-checked cleanup removed exactly the 11 source files,
+their directories and runtime unit. Independent checks found staging absent and
+the service `not-found`, `inactive`, `MainPID=0`.
+
+Production AI-PAM checks passed before and after: exact policy catalogue,
+Authentik reachable, vault unsealed, zero active requests, 37 recorded outcomes.
+No activation or push. This completes the planned isolated recovery mechanism
+tests. Real provisioning remains a separately approved operation; production
+incident ownership is not inferred from the fixture's known inventory.
 
 ## Change and evidence
 
@@ -93,5 +122,5 @@ Reviewed on 2026-10-08:
 - [OpenBao 2.6.4 root generation](https://github.com/openbao/openbao/blob/v2.6.4/vault/generate_root.go): completion creates the root and removes the active ceremony state; cancelling the ceremony is not root revocation.
 - [Token method](https://openbao.org/docs/auth/token/): standard token lifecycle API. Current documentation is 2.7.x; version-specific code and the proposed installed-engine test govern compatibility.
 
-UNKNOWN until approved test: actual 2.6.4 lost-response recovery integration.
+VERIFIED IN ISOLATED FIXTURE: actual 2.6.4 lost-response recovery integration.
 UNKNOWN: production root inventory and incident ownership. Neither was accessed.

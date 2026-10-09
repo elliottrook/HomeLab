@@ -1642,3 +1642,16 @@ access. Only read-only staging/unit preflight performed remotely. The
 [concrete gate](evidence/D3-interrupted-root-recovery-gate-2026-10-08.md) records
 the archive hash, cleanup scope and production attribution limitation. No new
 remote mutation, real credential access, activation or push.
+
+### 2026-10-08 — Approved interrupted-root recovery passed
+
+Executed the exact 11-file fixture once after Jason's approval. Real OpenBao 2.6.4
+committed a root before an intentionally lost response; targeted recovery removed
+it, invalid selection preserved it, and unrelated administrator access survived.
+Fresh recovery roots and ordinary bootstrap credentials were verified revoked.
+Exact-file cleanup, independent unit/staging absence and production readiness
+checks passed. Approval consumed; no production credentials, activation or push.
+The planned isolated recovery tests are complete. Resume with the real
+provisioning package and its separate approval/private human-input boundary,
+not repetition of passed fixture primitives. See
+[full result](evidence/D3-interrupted-root-recovery-gate-2026-10-08.md).
