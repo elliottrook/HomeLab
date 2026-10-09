@@ -1,7 +1,7 @@
 # D3 native original-answer recovery candidate — 2026-10-09
 
-Status: locally installed after Jason's approval on 2026-10-09; case 1 UI
-recovery is pending the Companion Keychain startup prompt. No new model turn,
+Status: locally installed after Jason's approval on 2026-10-09; case 1 original
+answer recovered and displayed in Companion. No new model turn,
 worker activation, Keychain ACL change, production service change, or Git push
 was made.
 
@@ -93,10 +93,15 @@ approvals), and Codex requests screen were visible. The latter still showed
 closed submission with recorded completed requests. No new Aster conversation
 was sent as part of this smoke check.
 
-The app was then relaunched with the finite evaluation flag, but startup again
+The app was then relaunched with the finite evaluation flag. Startup again
 paused at `AuthManager.init` → `KeychainStore.get("oidc_session_v2")` →
 `SecItemCopyMatching`. A process stack sample established this wait without
-reading the token. The original-answer UI recovery has **not** been clicked,
-and case 2 has **not** been sent. The prompt must be resolved for Companion's
-own saved-login item before continuing. The older `/usr/bin/security` worker
-credential must not receive broad standing access as a workaround.
+reading the token. Jason resolved the macOS prompt, and Companion opened the
+saved case 1 request. The UI offered **Recover original answer** rather than
+a send action. One click displayed the original completed HTTP 503 answer and
+the private metadata log appended `recovered` after `submitted` and
+`completed`. No new `submitted` event appeared. The displayed answer met the
+case 1 rubric on a preliminary human-readable check; independent label review
+remains outstanding. The UI remains on case 1 awaiting acknowledgement. Case 2
+has **not** been sent. The older `/usr/bin/security` worker credential did not
+receive standing access.
