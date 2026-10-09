@@ -4,7 +4,7 @@
 
 **Owner:** Jason.
 
-**Latest resume — native Companion:** Jason selected the native app. The reviewed-request candidate and bounded installation/test/cleanup gate are in [D3 native request gate](evidence/D3-native-request-gate-2026-10-08.md). Installation approved and completed; native app open. Await Jason at the review screen before one approved no-tools conversation. Worker remains inactive until readiness. The accepted fixed pilot must not be repeated.
+**Latest resume — native Companion:** Jason selected the native app. The reviewed-request candidate and bounded installation/test/cleanup gate are in [D3 native request gate](evidence/D3-native-request-gate-2026-10-08.md). Native user-authored request completed; worker disabled and grants absent. Await Jason confirming answer visibility, then perform approved intake-closing restart. No second inference under the consumed one-turn authorization. The accepted fixed pilot must not be repeated.
 
 **Current direction and resume point — 2026-10-06:** Jason adopted
 [subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the

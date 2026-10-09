@@ -1877,3 +1877,12 @@ No gateway changes/restart, credential read, worker activation or inference.
 [Repair manifest](evidence/D3-native-authfix-artifacts-2026-10-08.json) supersedes only the
 app portion of the original artifact manifest; gateway and worker hashes remain
 unchanged. Stop before request submission until user sign-in/readiness confirmed.
+
+### 2026-10-08 — User-authored native round trip completed
+
+Reconciled Jason's already-submitted request without resending. One queued request
+was valid; assignment-only manifest differences matched. Ran one no-tools turn,
+confirmed gateway completion/answer digest/usage, then disabled worker and verified
+zero active grants. Owner answer visibility remains pending; preserve in-memory
+answer before the already-approved intake-closing restart. No second inference
+is authorized. See native gate for exact resumable state.

@@ -1,6 +1,6 @@
 # D3 — Native Companion reviewed-request candidate
 
-Status: APPROVED; gateway and native app installed. Awaiting user readiness for one reviewed request. Owner: Jason.
+Status: APPROVED NATIVE REQUEST COMPLETED; worker disabled and grants absent. Awaiting owner answer visibility before intake cleanup. Owner: Jason.
 This checkpoint supersedes older next-action prose, not historical evidence.
 
 ## Outcome and boundary
@@ -171,3 +171,33 @@ No gateway changes/restart, credential read, worker activation or inference.
 [Repair manifest](D3-native-authfix-artifacts-2026-10-08.json) supersedes only the
 app portion of the original artifact manifest; gateway and worker hashes remain
 unchanged. Stop before request submission until user sign-in/readiness confirmed.
+
+### Native request completed — awaiting owner visibility
+
+Jason reported sending the reviewed request. Read-only ledger reconciliation found
+exactly one queued native assignment, with 208 seconds remaining, matching the
+owner and fixed model. No resubmission. Actual worker manifest matched the frozen
+template in every field except the expected job ID/request digest. Fingerprint:
+`63477908bac2dc1f4ef195984134b729bc54ff9f1c1411ded9f8658a0b2fc5b3`.
+Activated only the preflight-verified identity and ran the approved worker once.
+
+Job `request-7c942c40-2397-44b9-a020-18dccb18bccb` completed; independent gateway
+inspection confirmed completed state, answer digest, usage, no cancellation,
+exactly two total jobs (one historical Orion plus this native request), health 200.
+Provider usage: 7,823 input tokens, 1,792 cached input, 214 output, 57 reported
+reasoning-output, 8,037 total. These are counters, not a subscription invoice.
+No raw prompt or answer was read into operator tooling. One inference; no retry.
+Private execution evidence: `.aster-local-state/native-request-20261008`.
+
+Immediately disabled the exact worker. Cleanup verified inactivity and zero
+nonrevoked grants; Authentik deactivation removed grants before explicit revoke.
+No credential renewal, tools, live sysadmin actions or push. Native submission
+proves sign-in progressed far enough to authenticate intake, but final answer
+visibility is still pending Jason's confirmation. Do not claim D3 graduation.
+
+Resume: have Jason view the answer within the 15-minute memory window. After
+confirmation, remove ONLY `aster-delegation-requests.conf`, daemon-reload/restart
+Aster under existing approval, verify baseline 43 API paths and healthy normal
+service, preserve the completed ledger and native app. Do not restart before
+answer acceptance or claim an expired answer remains available. Do not run a
+second question under the consumed one-turn authorization.
