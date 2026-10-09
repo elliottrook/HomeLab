@@ -1826,3 +1826,12 @@ incomplete inference from introspection source alone. Gateway remains healthy an
 owner-readable, no active worker or scheduler. Jason's display acceptance remains
 pending; app browser-open request was queued only. No push or sysadmin promotion.
 Full sanitized result and provider usage: [session result](evidence/D3-supervised-session-pilot-2026-10-08.md).
+
+### 2026-10-08 — Jason confirmed returned answer visibility
+
+Jason reported "I can see it" with the pilot result page open. Human display
+acceptance for this one supervised round trip is complete. No further inference,
+credential read, service change or push. This does not assess answer quality,
+unattended operation or general sysadmin readiness. Next local work is normal
+Companion request/result integration and remaining lifecycle acceptance, not
+another repetition of the successful fixed Orion pilot.

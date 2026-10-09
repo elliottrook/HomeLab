@@ -1,6 +1,6 @@
 # D3 — one supervised credential session
 
-Status: APPROVED PILOT COMPLETED; CLEANUP VERIFIED; OWNER DISPLAY CHECK PENDING.
+Status: APPROVED PILOT COMPLETED; CLEANUP VERIFIED; OWNER DISPLAY CONFIRMED.
 Approval consumed. No unattended promotion or Git push.
 
 ## Executed result
@@ -45,12 +45,15 @@ restart it merely for cleanup; that would discard the answer. No rollback needed
 Private local evidence is `.aster-local-state/supervised-session-pilot-20261008`.
 Checkpoint/ledger retained. Remote Git synchronization remains pending approval.
 
-Owner acceptance still requires Jason to open
-`https://aster.elliottrook.com/companion/codex-pilot` in his usual signed-in browser
-and confirm the fictional Orion answer is visible. The app browser-open request
-was queued, not evidence of display or successful login. No user token is requested
-or copied. Follow-up/recovery/normal chat/voice and unattended operation remain
-unproven; this does not graduate D3 or authorize live sysadmin work.
+Jason subsequently confirmed "I can see it" while viewing
+`https://aster.elliottrook.com/companion/codex-pilot`. This completes the human
+display acceptance check for this one returned answer. It is user-reported
+visibility, not independent inspection of the browser session or an evaluation
+of answer quality. No user token was requested or copied. The supervised
+end-to-end pilot is complete. Follow-up/recovery/normal chat/voice and unattended
+operation remain unproven; this does not graduate D3 or authorize live sysadmin
+work. Next local work should prepare normal Companion request/result integration
+and its remaining lifecycle gates rather than repeat this successful fixed test.
 
 ## Candidate and evidence
 
