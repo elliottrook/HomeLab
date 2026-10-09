@@ -1,6 +1,6 @@
 # D3 — native local Codex normal-use preregistration
 
-**Status: PROPOSED; LOCAL DESIGN ONLY.** Owner: Jason. This is a finite D3
+**Status: FROZEN DESIGN; CASE 1 ONLY COMPLETED.** Owner: Jason. This is a finite D3
 acceptance experiment, not general release or sysadmin graduation. It follows
 the [one-question native result](D3-native-local-bridge-gate-2026-10-08.md).
 
@@ -140,3 +140,19 @@ per-push confirmation. On a live failure, close admission, preserve the journal
 and known Codex IDs, inspect the original turn read-only, and restore the prior
 signed app if the normal assistant regresses. Never infer a failed turn was
 cancelled and never resend it automatically.
+
+## Status addendum — 2026-10-09
+
+The build 10 preparation statements above are historical baseline evidence.
+Its first live click stopped before model launch because the existing private
+journal directory was treated as an error. [Corrected signed build 11](D3-native-build11-first-case-gate-2026-10-09.md)
+completed only case 1, then reopened as normal signed-in Aster with the
+evaluation control hidden. No other case was attempted. The frozen rubric and
+12-case acceptance thresholds have not been changed or declared met.
+
+The current evaluation UI deliberately retains the completed request ID across
+restart. It therefore blocks advancement after this closeout, rather than
+silently clearing the ID or allowing a duplicate. Continuing the finite set
+would require a separately reviewed owner-bound reconciliation and advancement
+design, plus the still-open independent label review and exact live gate. Do
+not reset AppStorage keys by hand to bypass this boundary.
