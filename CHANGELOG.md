@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-08 — B60 inference engineering started
+
+- Jason approved a bounded Stream A investigation of the fixed Dell T5810 and
+  Arc Pro B60 stack after review of the exact outage, test and rollback plan.
+- Revalidated healthy production llama.cpp b11081, the retained rollback,
+  available LXC storage and the 02:30 backup boundary.
+- Added a locked, deadline-bounded llama.cpp v0.6.0 A/B harness that restores
+  and validates production on success, failure or interruption.
+
 ## 2026-09-24 — AI-PAM M5 probation lifecycle complete
 
 - Registered a disposable kernel-bound replacement identity in mandatory

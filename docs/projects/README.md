@@ -10,6 +10,7 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
+| B60 inference engineering | Active — Stream A; llama.cpp v0.6.0 overnight A/B scheduled | [B60 inference engineering](B60-Inference-Engineering.md) | Fixed T5810/B60 hardware; bounded Vulkan/runtime experiments with automatic production rollback and evidence gates |
 | MacBook administration layer | Active — Stream A; M0-M3 closed (baseline, toolkit, independent SSH identity/enrollment, Doctor parity); M4 (recovery, integration, graduation) in progress | [MacBook administration layer](MacBook-Administration-Layer.md) | Independent internal toolkit, credentials and recovery; mini-only scheduled automation; no SSD migration |
 | Authentik rollout | Active — Stream A; six private browser apps, Audiobookshelf, Calibre and Proxmox accepted; 13 earlier providers normalized to passkeys; admin-access/capability holds and final logout/recovery/client gates remain; Jellyfin/Seerr deferred | [Authentik rollout](Authentik-Rollout.md) | [Authorization runbook](../08-Authorization.md), [service onboarding](../09-Service-Authorization-Onboarding.md), [single-login recovery](../runbooks/Authentik-Single-Login.md) |
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
