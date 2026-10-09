@@ -1,6 +1,6 @@
 # D3 — one-question native local Codex bridge gate
 
-**Status: APPROVED; ONE LIVE QUESTION COMPLETED; NORMAL-USE CLOSEOUT PENDING.** Owner: Jason. Stream A
+**Status: ONE LIVE QUESTION COMPLETED; NORMAL-USE UI VERIFICATION PENDING.** Owner: Jason. Stream A
 implementation gate. This is an architecture comparison, not D3 graduation or
 sysadmin delegation.
 
@@ -136,5 +136,12 @@ with zero unrevoked access/refresh grants. The observed path required one app
 launch, one review/consent and one Send click, with no worker activation or
 gateway request admission. Elapsed request time and Mac sleep/restart behavior
 were not measured in this trial; do not infer reliability from one success.
-Normal-use closeout and app relaunch without the pilot flag remain pending until
-Jason has had the chance to copy the volatile answer privately.
+Jason subsequently authorized closing the volatile answer. The pilot sheet was
+closed, revealing the signed-in normal Aster view with its AI-PAM and Codex
+request controls. The flagged process was quit and Companion restarted from the
+same signed build 9 with no pilot flag; the process was running and the installed
+signature and pinned executable hash still passed. The screen-control tool timed
+out reading the newly launched window, so its post-restart sign-in and normal
+functions are **not yet verified**. No crash was observed. This is a pending
+acceptance check, not a reason to claim success or repeat the model turn. The
+local journal was left intact; no credential or gateway setting was changed.

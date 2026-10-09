@@ -2110,3 +2110,10 @@ question. It does not yet establish normal-use reliability, response-time
 performance, remote/voice suitability or sysadmin capability. See [the bounded
 trial record](evidence/D3-native-local-bridge-gate-2026-10-08.md). Normal-use
 relaunch awaits Jason's chance to save the volatile answer.
+
+Jason authorized closing the answer. The signed-in normal screen was visible
+after closing the pilot sheet. Companion then quit and restarted without the
+pilot flag, still from the signed, pinned build 9. Its process is running, but
+the screen-control tool timed out reading the new window; post-restart sign-in
+and normal functions remain unverified pending direct observation. The journal
+was preserved, and no second model request was made.
