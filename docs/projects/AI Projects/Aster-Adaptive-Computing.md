@@ -4,6 +4,8 @@
 
 **Owner:** Jason.
 
+**Latest resume — native Companion:** Jason selected the native app. The reviewed-request candidate and bounded installation/test/cleanup gate are in [D3 native request gate](evidence/D3-native-request-gate-2026-10-08.md). Local preparation only; installation and one new no-tools conversation await approval. The accepted fixed pilot must not be repeated.
+
 **Current direction and resume point — 2026-10-06:** Jason adopted
 [subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the
 voice/chat interface; deterministic skills and qualified local AI remain local;

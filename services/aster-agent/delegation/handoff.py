@@ -141,6 +141,14 @@ class Gateway(Ledger):
                 jobs.append({'id':job_id,'state':state})
         return jobs
 
+    def expire_unoffered(self):
+        """Only never-offered jobs can be declared unexecuted on expiry."""
+        with self.db:
+            self.db.execute('BEGIN IMMEDIATE')
+            for jid,raw in self.db.execute("SELECT id,envelope FROM handoff_jobs WHERE state='queued'").fetchall():
+                if json.loads(raw)['expires_at']<=self.clock():
+                    self.db.execute("UPDATE handoff_jobs SET state='expired' WHERE id=? AND state='queued'",(jid,))
+
     def deliver_answer(self, authenticated_worker, job_id, delivery_id, answer):
         """Publish only a digest-matching completed result; never persist text."""
         if not isinstance(answer, str) or not answer.strip() or len(answer) > 32000:

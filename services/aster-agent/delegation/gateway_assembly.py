@@ -4,6 +4,7 @@ Credential custody is injected by a separately reviewed integration. No secret
 discovery, issuance, job creation endpoint, model launch or automatic dispatch.
 """
 from contextlib import asynccontextmanager
+import asyncio
 import fcntl
 import os
 from pathlib import Path
@@ -28,13 +29,14 @@ else:
 class GatewayAssembly:
     def __init__(self, directory, owner_dependency, *, subject=None, secret=None,
                  enabled=False, broker_socket='/run/homelab-broker/approval.sock',
-                 transport=None):
+                 transport=None,request_model=None):
         if type(enabled) is not bool:
             raise ValueError('Enabled must be an explicit boolean')
         self.directory = Path(directory)
         self.gateway = None
         self.lock = None
         self.enabled = enabled
+        self.intake=None
         self.router = APIRouter(lifespan=self.lifespan)
         if not enabled:
             return  # No routes, state, secret access, socket call or network.
@@ -44,6 +46,13 @@ class GatewayAssembly:
                                   enabled=True, transport=transport)
         self.router.include_router(worker_router(self, identity, enabled=True))
         self.router.include_router(owner_result_router(self, owner_dependency, enabled=True))
+        if request_model is not None:
+            if __package__:
+                from .request_intake import RequestIntake,request_router
+            else:
+                from request_intake import RequestIntake,request_router
+            self.intake=RequestIntake(lambda:self.gateway,request_model,enabled=True)
+            self.router.include_router(request_router(self.intake,owner_dependency,identity))
 
     def __getattr__(self, name):
         # The route implementations use these ledger methods only. Do not expose
@@ -71,15 +80,28 @@ class GatewayAssembly:
                 or info.st_mode & 0o077):
             raise ValueError('Gateway state must be private and owned by its service')
         self.lock = private_file(path/'gateway.lock')
+        housekeeping=None
         try:
             fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             fd = private_file(path/'gateway.sqlite')
             os.close(fd)
             self.gateway = Gateway(path/'gateway.sqlite', 'aster-gateway')
+            if self.intake is not None:
+                async def expire_content():
+                    while True:
+                        self.intake._prune()
+                        self.gateway.expire_unoffered()
+                        await asyncio.sleep(5)
+                housekeeping=asyncio.create_task(expire_content())
             # Persisted receipts remain evidence, not proof the worker is alive.
             # Do not requeue jobs or claim cancellation on start/shutdown.
             yield
         finally:
+            if housekeeping is not None:
+                housekeeping.cancel()
+                try:await housekeeping
+                except asyncio.CancelledError:pass
+            if self.intake is not None:self.intake.content.clear()
             if self.gateway is not None:
                 self.gateway.answers.clear()
                 self.gateway.close()

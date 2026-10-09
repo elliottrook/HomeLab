@@ -24,21 +24,28 @@ from pipe_worker import PipeAgent
 from runtime import open_runtime, private_file
 from worker import run_one
 from worker_client import WorkerClient
+from request_intake import payload as validate_payload,scope_digest
 
 
-def connected_manifest(base, job_id):
+def connected_manifest(base, job_id,request_sha256=None):
     if not isinstance(job_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,128}', job_id):
         raise ValueError('Invalid assigned job ID')
     scope = fingerprint({'scope':'fictional-orion-no-tools-v1','model':base['model']})
+    if request_sha256 is not None:
+        if not re.fullmatch('[a-f0-9]{64}',request_sha256) or not re.fullmatch('request-[a-f0-9-]{36}',job_id):
+            raise ValueError('Exact reviewed request binding required')
+        scope=scope_digest(base['model'])
+        base=dict(base)
+        base.pop('fixture',None)
     return dict(base=base, job_id=job_id, gateway='aster-gateway',
         worker='aster-codex-worker-mac', scope_sha256=scope,
-        request_sha256=hashlib.sha256(FIXTURE.encode()).hexdigest(),
+        request_sha256=request_sha256 or hashlib.sha256(FIXTURE.encode()).hexdigest(),
         source_hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest()
                       for p in sorted(Path(__file__).parent.glob('*.py'))},
         gateway_url='https://aster.elliottrook.com', maximum_model_turns=1,
         startup='manual', automatic_retry=False, tools=False,
         credential_bootstrap='supervised-once-90-seconds', token_renewal=False,
-        api_fallback=False, request_content='fixed-fictional-orion')
+        api_fallback=False, request_content='owner-reviewed-text' if request_sha256 else 'fixed-fictional-orion')
 
 
 async def execute(client, cwd, prepared, directory):
@@ -62,9 +69,22 @@ async def execute(client, cwd, prepared, directory):
         inbox = WorkerInbox(directory/'inbox.sqlite', prepared['worker'],
             prepared['gateway'], [(prepared['scope_sha256'],prepared['base']['model'])])
         worker = WorkerClient(session, enabled=True)
+        data=FIXTURE.encode()
+        if prepared['request_content']=='owner-reviewed-text':
+            phase='reviewed_payload'
+            envelope=await worker.offer(prepared['job_id'])
+            if (not envelope or envelope['request_sha256']!=prepared['request_sha256']
+                    or envelope['scope_sha256']!=prepared['scope_sha256']
+                    or envelope['model']!=prepared['base']['model']):
+                raise ValueError('Assigned request differs from approval')
+            content=await worker.payload(prepared['job_id'],envelope['delivery_id'])
+            data=validate_payload(content['text'])
+            if hashlib.sha256(data).hexdigest()!=prepared['request_sha256'] or content['request_sha256']!=prepared['request_sha256']:
+                raise ValueError('Content digest mismatch')
+        phase='assigned_worker_turn'
         agent = PipeAgent(client,cwd,prepared['base']['model'],prepared['base']['reasoning_effort'])
         result = await run_one(worker,inbox,runtime.store,agent,
-            prepared['job_id'],FIXTURE.encode(),enabled=True)
+            prepared['job_id'],data,enabled=True)
         # No answer, tokens, provider error text or hidden reasoning in stdout.
         summary = {key:result[key] for key in ('state','diagnostic') if key in result}
         summary.update(automatic_retry=False, job_id=prepared['job_id'])
@@ -90,6 +110,7 @@ def main():
     mode.add_argument('--prepare',action='store_true')
     mode.add_argument('--run',action='store_true')
     parser.add_argument('--job-id')
+    parser.add_argument('--request-sha256')
     parser.add_argument('--approved-sha256')
     parser.add_argument('--output-dir',type=Path)
     args=parser.parse_args()
@@ -116,7 +137,7 @@ def main():
             cfg=client.call('config/read',{'includeLayers':False,'cwd':cwd})['config']
             prepared=connected_manifest(manifest(cfg,
                 client.call('account/read',{'refreshToken':False}),
-                client.call('model/list',{'limit':100,'includeHidden':False})),args.job_id)
+                client.call('model/list',{'limit':100,'includeHidden':False})),args.job_id,args.request_sha256)
             checksum=fingerprint(prepared)
             if args.prepare:
                 print(json.dumps({'manifest':prepared,'manifest_sha256':checksum,'inference':False},indent=2))

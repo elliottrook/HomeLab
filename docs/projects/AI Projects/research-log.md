@@ -1835,3 +1835,14 @@ credential read, service change or push. This does not assess answer quality,
 unattended operation or general sysadmin readiness. Next local work is normal
 Companion request/result integration and remaining lifecycle acceptance, not
 another repetition of the successful fixed Orion pilot.
+
+### 2026-10-08 — Native reviewed-request candidate
+
+Jason selected native Companion. Implemented owner-reviewed text intake, explicit
+cloud consent, digest-bound one-assignment worker delivery, no automatic retry,
+and metadata-only pending-request recovery. No history or tools are attached.
+Codex history retention is disclosed separately from gateway memory-only text.
+Read-only installed-app/gateway checks retained in the
+[native gate](evidence/D3-native-request-gate-2026-10-08.md). Live systems remain
+unchanged; package preparation does not register, install or launch the app.
+This is a supervised workflow candidate, not a sysadmin promotion.

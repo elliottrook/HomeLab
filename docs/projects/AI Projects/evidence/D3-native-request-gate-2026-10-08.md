@@ -1,0 +1,120 @@
+# D3 — Native Companion reviewed-request candidate
+
+Status: LOCAL CANDIDATE. Deployment and inference approval pending. Owner: Jason.
+This checkpoint supersedes older next-action prose, not historical evidence.
+
+## Outcome and boundary
+
+Jason selected the native Aster Companion app. The accepted Orion round trip
+proved connectivity and answer visibility, not general sysadmin competence.
+The next experiment is one user-authored, public/synthetic question reviewed and
+explicitly submitted through Companion, with its answer returned to Companion.
+No tools, chat-history attachment, background worker, paid API fallback or
+infrastructure authority is introduced. D3 does not graduate on this experiment.
+
+## Local implementation
+
+Companion 0.3.0 build 5 exposes Ask Codex, immutable text review and explicit cloud
+consent. It saves only the pending request ID before submitting, blocks automatic
+resubmission, and restores status after reopening. The new intake authenticates
+the owner, binds a UUID and exact UTF-8 text digest, disallows caller-selected
+models/tools/owners, and limits text to 16,000 UTF-8 bytes. Duplicate requests
+cannot create another assignment; different text under an existing ID conflicts.
+Worker payload retrieval requires the assigned worker and offered delivery ID.
+The launcher verifies text digest, model and scope before constructing the agent.
+
+Gateway request text is memory-only, expires after 240 seconds and is swept every
+five seconds. Restart does not restore it. The assignment ledger retains metadata.
+Offered/running jobs are not falsely labelled expired by the unclaimed-job sweep.
+Answers retain the existing 15-minute in-memory delivery window. Codex itself uses
+non-ephemeral threads: questions and answers can remain in Codex/account history.
+The native consent copy discloses this; memory-only gateway storage is not a claim
+of end-to-end zero retention. Operator evidence must exclude question/answer text.
+
+A failed network submission with no confirmed admission remains pending until an
+operator reconciles it; there is no blind retry/reset button. The pending ID is
+not multi-user namespaced. This is a single-owner supervised candidate. Existing
+ledger capacity and answer recovery limitations preclude general availability.
+
+## Verified baseline
+
+Read-only preflight found installed Companion 0.2.2 build 4, ad-hoc signed; binary
+SHA-256 `461cb2c722dee40847d20b4bde27019bab36f1dfcd8f51769c207097d486590d`.
+The proposed `AsterCompanion.pre-codex-20261008.app` backup does not yet exist.
+The older pre-AI-PAM backup must remain untouched. Primary-checkout build script
+has separate signing changes; those are not incorporated or overwritten here.
+
+Gateway 104 was healthy with exactly one completed pilot job. Native intake module
+and requests drop-in were absent. Installed module SHA-256 values:
+
+| Module | SHA-256 |
+|---|---|
+| deployment.py | 221bd433a5ffd531268dd08877ac4393ba531c182dfbae6ae1da11c458b426cc |
+| gateway_assembly.py | 83172620a7e0a5cc4e737775271bde56681cd47f961ab80b1e9ea29508966b8c |
+| handoff.py | 99a3c43843bc62a72091ce1b742bb9602f63bbf5818135b0afff02b8de393d8d |
+
+Do not overwrite the live main Aster module, credentials.py, or existing pilot
+drop-in. Only the above three modules plus new request_intake.py are proposed.
+
+## Bounded approval requested — not yet granted
+
+1. Revalidate hashes, health, installed app, inactive worker and credential expiry.
+   Stop on drift or expired credentials; no renewal is included.
+2. Preserve and verify the installed whole app at
+   `/Applications/AsterCompanion.pre-codex-20261008.app` and the three gateway
+   modules/configuration at `/var/lib/aster-delegation-checkpoints/native-requests-20261008`.
+   Refuse to overwrite an existing recovery checkpoint.
+3. Install only the four frozen gateway modules and
+   `/etc/systemd/system/aster-agent.service.d/aster-delegation-requests.conf` with
+   `ASTER_DELEGATION_REQUESTS_ENABLED=1` and fixed model `gpt-5.6-luna`.
+   Restart Aster, verify normal health/routes, owner/worker isolation and denials.
+   Cleanly replace Companion with the frozen ad-hoc-signed candidate, register
+   only the installed app, and launch for Jason's visual acceptance.
+4. Coordinate one public/synthetic reviewed question with Jason. Prepare the
+   worker before Send: requests expire after four minutes. Activate only the
+   existing worker identity for this session. Read its fixed Keychain item once
+   via the private bootstrap, allowing the OS prompt up to 90 seconds; no values
+   in chat/logs. Use existing subscription auth and medium reasoning, zero tools.
+   Bind the resulting job ID/digest to the frozen launcher manifest; all other
+   fields and Codex binary must match. No arbitrary queue consumer or retries.
+5. Observe metadata-only completion and have Jason read the answer in Companion.
+   Immediately disable the worker and independently verify no usable grants.
+   After answer acceptance, remove only the new requests drop-in and restart
+   Aster to close new submission. This means two planned brief Aster interruptions
+   across the experiment. Keep the app installed with submission unavailable;
+   preserve ledger evidence. No automatic renewal or unattended worker remains.
+6. On failure, stop the worker, remove the new requests drop-in, restore the three
+   old modules and whole app, then restart/validate the accepted baseline.
+   Preserve failed evidence. Never reset the ledger, delete older checkpoints,
+   restore unrelated snapshots or remove the existing owner-readable pilot setup.
+
+No Git push, permission expansion, credential renewal, model change or live
+sysadmin action is included. A Keychain/passkey prompt may require Jason's direct
+interaction; no password is requested through Codex.
+
+## Acceptance / stop criteria
+
+One explicit submission produces at most one model turn; returned job/digest and
+owner match; no tools or attached local context; answer is visible in native UI;
+normal chat and authentication still work; worker grants are absent after cleanup;
+new submission is closed after acceptance. Collect latency, usage, lifecycle state
+and binary/source fingerprints, not raw content. Visual acceptance and live
+regression checks are still pending. Failed or ambiguous execution must never be
+automatically replayed. Recovery mismatch or additional admitted jobs stops work.
+
+## Resume
+
+Read this gate, the source/artifact manifest and Git status. No deployment or new
+credential read has occurred in preparing this candidate. Obtain Jason's explicit
+bounded approval before steps 2–6. His interface choice alone is not that approval.
+
+## Frozen candidate validation
+
+28 native tests and 250 backend tests passed. Release build succeeded; the
+assembled ad-hoc app passed `codesign --verify --deep --strict`. No app launch,
+registration or installation occurred. [Artifact/source manifest](D3-native-request-artifacts-2026-10-08.json)
+binds the exact package, four gateway modules/drop-in and worker Python sources.
+Artifacts are staged in `/private/tmp/aster-native-request-candidate-20261008`.
+Reverify every hash before deployment; missing staging files require rebuilding
+and a recorded new manifest, not substitution. Native visual acceptance remains
+pending. Local tests do not prove live availability or general reliability.

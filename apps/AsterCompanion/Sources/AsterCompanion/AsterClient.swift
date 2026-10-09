@@ -47,6 +47,15 @@ struct AsterClient {
         try await companionRequest(path: "v1/companion/delegation/jobs")
     }
 
+    func fetchCodexCapabilities() async throws -> CodexCapabilities {
+        try await companionRequest(path: "v1/companion/delegation/capabilities")
+    }
+
+    func submitCodexRequest(_ request: ReviewedCodexRequest) async throws -> CodexRequestReceipt {
+        try await companionRequest(path: "v1/companion/delegation/requests", method: "POST",
+                                   body: AIPAMCoding.encoder.encode(request))
+    }
+
     func fetchDelegationJob(_ id: String) async throws -> DelegationSnapshot {
         try await companionRequest(path: delegationPath(id))
     }

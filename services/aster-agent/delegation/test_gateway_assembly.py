@@ -36,7 +36,7 @@ class GatewayAssemblyTests(unittest.IsolatedAsyncioTestCase):
             writer.close()
             await writer.wait_closed()
 
-    def assembly(self, enabled=True):
+    def assembly(self, enabled=True,request_model=None):
         import time
         def issuer(request):
             self.issuer_calls += 1
@@ -46,7 +46,22 @@ class GatewayAssemblyTests(unittest.IsolatedAsyncioTestCase):
                 iat=now, exp=now+300))
         async def owner(): return 'owner'
         return GatewayAssembly(self.path, owner, subject='fixture-sub', secret=self.secret,
-            enabled=enabled, broker_socket=self.socket, transport=httpx.MockTransport(issuer))
+            enabled=enabled, broker_socket=self.socket, transport=httpx.MockTransport(issuer),request_model=request_model)
+
+    async def test_optional_intake_lifecycle_retains_metadata_not_text_on_restart(self):
+        import uuid
+        assembly=self.assembly(request_model='fixture')
+        app=FastAPI();app.include_router(assembly.router)
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://fixture') as c:
+                r=await c.post('/v1/companion/delegation/requests',json={
+                    'request_id':str(uuid.uuid4()),'text':'reviewed fixture','cloud_consent':True,'local_only':False})
+                self.assertEqual(r.status_code,202)
+                jid=r.json()['id'];self.assertIn(jid,assembly.intake.content)
+        self.assertEqual(assembly.intake.content,{})
+        async with app.router.lifespan_context(app):
+            self.assertEqual(assembly.gateway._row(jid)[1],'queued')
+            self.assertEqual(assembly.intake.content,{})
 
     async def test_disabled_has_no_routes_state_or_credentials(self):
         assembly = self.assembly(False)

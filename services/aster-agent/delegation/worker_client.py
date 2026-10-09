@@ -71,6 +71,12 @@ class WorkerClient:
                 raise WorkerConnectionError('Invalid offer') from None
         return envelope
 
+    async def payload(self,job_id,delivery_id):
+        value=await self._post(job_id,'payload',{'delivery_id':delivery_id})
+        if set(value)!={'text','request_sha256'} or not isinstance(value['text'],str):
+            raise WorkerConnectionError('Invalid assigned content')
+        return value
+
     async def receipt(self, job_id, receipt):
         if not isinstance(receipt, dict) or set(receipt) != {'delivery_id', 'event', 'result_sha256'}:
             raise WorkerConnectionError('Invalid receipt fields')

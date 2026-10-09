@@ -44,12 +44,15 @@ struct DelegationView: View {
     @State private var snapshot: DelegationSnapshot?
     @State private var errorText: String?
     @State private var stopPending = false
+    @State private var showingRequest = false
+    @AppStorage("aster.codex.pendingRequestID") private var pendingID = ""
     private var client: AsterClient { AsterClient(authManager: auth) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Codex requests").font(.title2)
+                Button("Ask Codex") { showingRequest = true }
                 Spacer()
                 Button("Done") { dismiss() }
             }
@@ -74,7 +77,11 @@ struct DelegationView: View {
             }
         }
         .padding().frame(minWidth: 560, minHeight: 380)
+        .sheet(isPresented: $showingRequest) {
+            CodexRequestView { id in selected = id; snapshot = nil }.environmentObject(auth)
+        }
         .task {
+            if !pendingID.isEmpty { selected = pendingID }
             while !Task.isCancelled {
                 await refresh()
                 do { try await Task.sleep(for: .seconds(2)) } catch { break }
@@ -92,6 +99,9 @@ struct DelegationView: View {
                 let value = try await client.fetchDelegationJob(id)
                 guard !Task.isCancelled, selected == id else { return }
                 snapshot = value
+                if pendingID == id && ["completed", "failed", "interrupted", "expired"].contains(value.state) {
+                    pendingID = ""
+                }
                 if ["completed", "failed", "interrupted", "expired"].contains(value.state) { stopPending = false }
             }
             errorText = nil
