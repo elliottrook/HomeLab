@@ -18,6 +18,11 @@ enum LocalCodexBridgeProcess {
         try inspect(script: packagedScript(), prepare: prepare)
     }
 
+    static func inspectRecoveryBundled() throws -> Data {
+        try launch(script: packagedScript(), arguments: ["--recover-check"],
+                   input: nil, timeout: 15)
+    }
+
     static func recordedStatus(requestID: String, stateDirectory: URL) throws -> Data {
         guard requestID.hasPrefix("request-"),
               stateDirectory.isFileURL,
@@ -29,18 +34,13 @@ enum LocalCodexBridgeProcess {
                           input: nil, timeout: 8)
     }
 
-    static func recoverBundled(requestID: String, approvedHash: String,
-                               stateDirectory: URL) throws -> Data {
-        let hex = CharacterSet(charactersIn: "0123456789abcdef")
+    static func recoverBundled(requestID: String, stateDirectory: URL) throws -> Data {
         guard requestID.hasPrefix("request-"), requestID.count == 44,
-              approvedHash.count == 64,
-              approvedHash.unicodeScalars.allSatisfy({ hex.contains($0) }),
               stateDirectory.isFileURL,
               stateDirectory.resolvingSymlinksInPath().path == stateDirectory.standardizedFileURL.path
         else { throw BridgeError.invalidRequest }
         return try launch(script: packagedScript(),
-                          arguments: ["--recover", "--approved-sha256", approvedHash,
-                                      "--state-dir", stateDirectory.path,
+                          arguments: ["--recover", "--state-dir", stateDirectory.path,
                                       "--request-id", requestID],
                           input: nil, timeout: 30)
     }
@@ -140,7 +140,8 @@ enum LocalCodexBridgeProcess {
             while true {
                 let chunk = output.fileHandleForReading.availableData
                 if chunk.isEmpty { break }
-                if captured.count + chunk.count > 65536 {
+                // A 64 KiB recovered answer may grow when JSON escapes it.
+                if captured.count + chunk.count > 524288 {
                     overflow = true
                 } else if !overflow {
                     captured.append(chunk)

@@ -4,7 +4,11 @@ import SwiftUI
 struct LocalCodexEvaluationView: View {
     static let launchFlag = "--aster-local-codex-evaluation"
     // Bound to the signed bundle's metadata-only preflight before installation.
-    static let approvedManifest = "eb36910ebf0762d5bc9aedab4892a7122a217f5a1c0ad4c9e41e3795862755ee"
+    static let approvedManifest = "08c51aae6afe227c5b66918db3e57f54e77a29eb7306de3182fdf84091ae05f5"
+    static let recoveryManifests: Set<String> = [
+        approvedManifest,
+        "6063d71daf8ee917dcb95e5e6836d0bbdfd768df88870b14922da2b091ce285b"
+    ]
     static let questions: [(kind: String, text: String)] = [
         ("Knowledge 1", "What does HTTP status 503 mean? Answer briefly and distinguish it from proof of a lasting outage."),
         ("Knowledge 2", "Explain the difference between a service health check and an end-to-end user-path check. Do not imply either has been run."),
@@ -28,6 +32,7 @@ struct LocalCodexEvaluationView: View {
     @State private var consent = false
     @State private var running = false
     @State private var completedInThisSession = false
+    @State private var completedCaseIndex: Int?
     @State private var recoveryAvailable = false
     @State private var answer: String?
     @State private var elapsedSeconds: Double?
@@ -63,6 +68,7 @@ struct LocalCodexEvaluationView: View {
                 }
                 if completedInThisSession && !running {
                     Button("I have recorded the result; show next question") { advance() }
+                        .disabled(completedCaseIndex != nextIndex)
                 }
             } else if Self.questions.indices.contains(nextIndex) {
                 Toggle("I reviewed this exact fictional question and agree to send it through my ChatGPT subscription.", isOn: $consent)
@@ -81,27 +87,38 @@ struct LocalCodexEvaluationView: View {
             preparing = false
             return
         }
+        let hasPending = !pendingID.isEmpty
         let result = await Task.detached(priority: .userInitiated) {
-            try? LocalCodexBridgeProcess.inspectBundled(prepare: true)
+            hasPending ? (try? LocalCodexBridgeProcess.inspectRecoveryBundled())
+                : (try? LocalCodexBridgeProcess.inspectBundled(prepare: true))
         }.value
         defer { preparing = false }
         guard let result,
               let object = try? JSONSerialization.jsonObject(with: result) as? [String: Any],
-              object["inference"] as? Bool == false,
-              object["manifest_sha256"] as? String == Self.approvedManifest
+              object["inference"] as? Bool == false
         else {
-            message = "Local Codex configuration changed or is unavailable. Nothing can be sent."
+            message = "Local Codex configuration is unavailable. Nothing can be sent or recovered."
             return
         }
-        ready = true
         if pendingID.isEmpty {
-            message = nextIndex < Self.questions.count
-                ? "Review this question and consent before sending."
-                : "The finite question set is complete."
+            ready = object["manifest_sha256"] as? String == Self.approvedManifest
+            message = !ready ? "Local Codex configuration changed. No new question can be sent."
+                : nextIndex < Self.questions.count
+                    ? "Review this question and consent before sending."
+                    : "The finite question set is complete."
         } else {
+            guard object["recovery_ready"] as? Bool == true else {
+                message = "Recovery account or isolation changed. Do not recover or advance."
+                return
+            }
             let id = pendingID
+            guard let state = try? LocalCodexBridgeProcess.privateStateDirectory(),
+                  LocalCodexEvaluationLog.submittedCase(in: state, requestID: id,
+                      allowedManifests: Self.recoveryManifests) == nextIndex else {
+                message = "Saved request does not match the current case. Do not recover or advance."
+                return
+            }
             let status = await Task.detached(priority: .userInitiated) { () -> Data? in
-                guard let state = try? LocalCodexBridgeProcess.privateStateDirectory() else { return nil }
                 return try? LocalCodexBridgeProcess.recordedStatus(requestID: id, stateDirectory: state)
             }.value
             guard let status,
@@ -123,7 +140,7 @@ struct LocalCodexEvaluationView: View {
     }
 
     @MainActor private func recover() async {
-        guard ready, recoveryAvailable, !running, !pendingID.isEmpty else { return }
+        guard recoveryAvailable, !running, !pendingID.isEmpty else { return }
         let id = pendingID
         let state: URL
         do { state = try LocalCodexBridgeProcess.privateStateDirectory() }
@@ -131,11 +148,15 @@ struct LocalCodexEvaluationView: View {
             message = "Private journal unavailable. The original turn was not retried."
             return
         }
+        guard LocalCodexEvaluationLog.submittedCase(in: state, requestID: id,
+            allowedManifests: Self.recoveryManifests) == nextIndex else {
+            message = "Saved request does not match the current case. Do not recover or advance."
+            return
+        }
+        let caseIndex = nextIndex
         running = true
-        let approvedHash = Self.approvedManifest
         let result = await Task.detached(priority: .userInitiated) { () -> Data? in
-            try? LocalCodexBridgeProcess.recoverBundled(requestID: id,
-                approvedHash: approvedHash, stateDirectory: state)
+            try? LocalCodexBridgeProcess.recoverBundled(requestID: id, stateDirectory: state)
         }.value
         running = false
         guard pendingID == id, let result,
@@ -151,13 +172,14 @@ struct LocalCodexEvaluationView: View {
         answer = recovered
         do {
             try LocalCodexEvaluationLog.append(in: state, requestID: id,
-                caseIndex: nextIndex, event: "recovered", manifestSHA256: Self.approvedManifest)
+                caseIndex: caseIndex, event: "recovered", manifestSHA256: Self.approvedManifest)
         } catch {
             message = "Original answer recovered, but the evidence record could not be saved. Do not advance."
             return
         }
         recoveryAvailable = false
         completedInThisSession = true
+        completedCaseIndex = caseIndex
         message = "Original answer recovered from the recorded turn. Record it before advancing."
     }
 
@@ -166,6 +188,7 @@ struct LocalCodexEvaluationView: View {
               Self.questions.indices.contains(nextIndex),
               let request = try? ReviewedCodexRequest(text: Self.questions[nextIndex].text)
         else { return }
+        let caseIndex = nextIndex
         let state: URL
         do { state = try LocalCodexBridgeProcess.privateStateDirectory() }
         catch {
@@ -174,7 +197,7 @@ struct LocalCodexEvaluationView: View {
         }
         do {
             try LocalCodexEvaluationLog.append(in: state, requestID: request.jobID,
-                caseIndex: nextIndex, event: "submitted", manifestSHA256: Self.approvedManifest)
+                caseIndex: caseIndex, event: "submitted", manifestSHA256: Self.approvedManifest)
         } catch {
             message = "Private evaluation record unavailable. Nothing was sent."
             return
@@ -204,7 +227,7 @@ struct LocalCodexEvaluationView: View {
         let turnSeconds = object?["elapsed_seconds"] as? Double
         do {
             try LocalCodexEvaluationLog.append(in: state, requestID: request.jobID,
-                caseIndex: nextIndex, event: acceptedAnswer == nil ? "uncertain" : "completed",
+                caseIndex: caseIndex, event: acceptedAnswer == nil ? "uncertain" : "completed",
                 manifestSHA256: Self.approvedManifest,
                 totalSeconds: totalSeconds, turnSeconds: turnSeconds)
         } catch {
@@ -219,21 +242,27 @@ struct LocalCodexEvaluationView: View {
         answer = acceptedAnswer
         elapsedSeconds = turnSeconds
         completedInThisSession = true
+        completedCaseIndex = caseIndex
         message = "One local Codex turn completed. Record the result before continuing."
     }
 
     @MainActor private func advance() {
-        guard completedInThisSession, !pendingID.isEmpty, !running else { return }
+        guard completedInThisSession, completedCaseIndex == nextIndex,
+              !pendingID.isEmpty, !running else { return }
         nextIndex += 1
         pendingID = ""
         answer = nil
         elapsedSeconds = nil
         totalSeconds = nil
         completedInThisSession = false
+        completedCaseIndex = nil
         recoveryAvailable = false
         consent = false
         message = nextIndex < Self.questions.count
             ? "Review the next question and consent before sending."
             : "The finite question set is complete."
+        ready = false
+        preparing = true
+        Task { await preflight() }
     }
 }

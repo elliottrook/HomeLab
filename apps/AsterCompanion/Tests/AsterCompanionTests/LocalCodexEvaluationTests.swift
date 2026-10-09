@@ -26,6 +26,10 @@ final class LocalCodexEvaluationTests: XCTestCase {
             totalSeconds: 4.2, turnSeconds: 3.1)
         try LocalCodexEvaluationLog.append(in: directory, requestID: id, caseIndex: 0,
             event: "recovered", manifestSHA256: LocalCodexEvaluationView.approvedManifest)
+        XCTAssertEqual(LocalCodexEvaluationLog.submittedCase(in: directory, requestID: id,
+            allowedManifests: LocalCodexEvaluationView.recoveryManifests), 0)
+        XCTAssertNil(LocalCodexEvaluationLog.submittedCase(in: directory, requestID: id,
+            allowedManifests: ["0"] ))
         let file = directory.appendingPathComponent("evaluation-events.jsonl")
         let raw = try String(contentsOf: file, encoding: .utf8)
         let rows = try raw.split(separator: "\n").map {
@@ -37,6 +41,36 @@ final class LocalCodexEvaluationTests: XCTestCase {
         XCTAssertFalse(raw.contains("question"))
         let mode = try FileManager.default.attributesOfItem(atPath: file.path)[.posixPermissions] as? NSNumber
         XCTAssertEqual(mode?.intValue, 0o600)
+    }
+
+    func testRecoveryCaseBindingRejectsConflictingCase() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString).resolvingSymlinksInPath()
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false,
+                                                attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let id = "request-12345678-1234-1234-1234-123456789abc"
+        let manifest = LocalCodexEvaluationView.approvedManifest
+        try LocalCodexEvaluationLog.append(in: directory, requestID: id, caseIndex: 0,
+            event: "submitted", manifestSHA256: manifest)
+        try LocalCodexEvaluationLog.append(in: directory, requestID: id, caseIndex: 1,
+            event: "completed", manifestSHA256: manifest)
+        XCTAssertNil(LocalCodexEvaluationLog.submittedCase(in: directory, requestID: id,
+            allowedManifests: LocalCodexEvaluationView.recoveryManifests))
+    }
+
+    func testRecoveryAcceptsTheOriginalCompletedCaseManifest() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString).resolvingSymlinksInPath()
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false,
+                                                attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let id = "request-12345678-1234-1234-1234-123456789abc"
+        let original = "6063d71daf8ee917dcb95e5e6836d0bbdfd768df88870b14922da2b091ce285b"
+        try LocalCodexEvaluationLog.append(in: directory, requestID: id, caseIndex: 0,
+            event: "submitted", manifestSHA256: original)
+        XCTAssertEqual(LocalCodexEvaluationLog.submittedCase(in: directory, requestID: id,
+            allowedManifests: LocalCodexEvaluationView.recoveryManifests), 0)
     }
 
     func testEvaluationLogRefusesSymlinkDirectory() throws {

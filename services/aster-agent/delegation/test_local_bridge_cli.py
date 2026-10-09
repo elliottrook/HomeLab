@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch
 
 from local_bridge_cli import main, recorded_status, recover_snapshot, reviewed_request
+from isolation_probe import DISABLED
 from store import DispatchStore
 
 
@@ -91,7 +92,11 @@ class LocalBridgeCLITests(unittest.TestCase):
             def __init__(self,*args,**kwargs):pass
             def call(self,method,params):
                 calls.append(method)
-                if method=='config/read':return {'config':{'mcp_servers':{}}}
+                if method=='config/read':return {'config':{
+                    'mcp_servers':{},'features':{name:False for name in DISABLED},
+                    'web_search':'disabled','sandbox_mode':'read-only',
+                    'model_provider':'openai','model':'unavailable-old-model'}}
+                if method=='account/read':return {'account':{'type':'chatgpt'}}
                 if method=='thread/read':
                     self_ref=params['threadId']
                     return {'thread':{'id':self_ref,'turns':[{'id':'turn-1',
@@ -105,12 +110,10 @@ class LocalBridgeCLITests(unittest.TestCase):
              patch('local_bridge_cli.RecoveryConfigClient',FakeClient), \
              patch('local_bridge_cli.initialize'), \
              patch('local_bridge_cli.options',return_value=[]), \
-             patch('local_bridge_cli.prepared_manifest',return_value={'model':'fake'}), \
-             patch('local_bridge_cli.fingerprint',return_value='a'*64), \
              redirect_stdout(output):
-            main(['--recover','--approved-sha256','a'*64,'--state-dir','/private/tmp',
+            main(['--recover','--state-dir','/private/tmp',
                   '--request-id',identifier])
         result=json.loads(output.getvalue())
         self.assertEqual(result['answer'],'Recovered')
         self.assertFalse(result['inference'])
-        self.assertEqual(calls,['config/read','thread/read'])
+        self.assertEqual(calls,['config/read','config/read','account/read','thread/read'])

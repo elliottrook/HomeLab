@@ -15,10 +15,14 @@ question, or touches the older worker credential.
 
 The helper checks the owner-only dispatch database for the exact request ID,
 completed state, recorded thread and recorded turn before starting Codex App
-Server. It rechecks the pinned ChatGPT account/configuration fingerprint and
-uses a client allowlist containing `thread/read` but no `turn/start`. It accepts
+Server. Recovery checks ChatGPT authentication, OpenAI provider, read-only
+sandbox, disabled web and zero enabled MCP servers. It does not pin the current
+model or Codex binary version, which may have changed since the original turn;
+new sends still require the full reviewed manifest. Recovery uses a client
+allowlist containing `thread/read` but no `turn/start`. It accepts
 only a full snapshot of that exact completed turn with one final answer and no
-tool items. The native UI requires the answer to be shown and acknowledged
+tool items. The native UI verifies that the saved request was submitted for the
+currently displayed case and requires the answer to be shown and acknowledged
 before advancing. A content-free `recovered` event must be saved first.
 
 ## Local evidence
@@ -26,21 +30,30 @@ before advancing. A content-free `recovered` event must be saved first.
 - Focused Python CLI/recovery tests: 6 passed. They reject mismatched thread,
   missing turn, partial snapshot and tool items, and assert that the recovery
   path calls only configuration read and exact thread read.
-- Native Companion suite: 47 passed. The uninstalled candidate builds and
-  passes strict code-signature verification.
+- Native Companion suite: 49 passed. The uninstalled candidate builds and
+  passes strict code-signature verification. Its bounded output pipe now
+  accommodates JSON escaping of the maximum permitted recovered answer, and
+  the overflow rejection test still passes.
 - A metadata-only preflight of the bundled helper returned manifest SHA-256
-  `eb36910ebf0762d5bc9aedab4892a7122a217f5a1c0ad4c9e41e3795862755ee`,
+  `08c51aae6afe227c5b66918db3e57f54e77a29eb7306de3182fdf84091ae05f5`,
   matching the pinned UI value. Its observed constraints were ChatGPT auth,
   `gpt-5.6-luna` medium, read-only sandbox, disabled web, zero enabled MCP
   servers, one model turn maximum and no automatic retry.
-- One read-only CLI recovery of the already completed fictional case returned
+- A recovery-only metadata check passed without requiring the current model
+  to exist. A read-only CLI recovery of the already completed fictional case returned
   `completed`, `inference=false`, `automatic_retry=false` and a non-empty
   original answer. The answer text was not printed in the command result. The
   original case was not resent.
 - Current installed app executable SHA-256:
   `95c8d0254eea14f8d75486c24da326f2c0b365e5e3c28da9ac409ae18e07f62c`.
   Uninstalled candidate executable SHA-256:
-  `2a64f1fdebff20f3158ff0fc6d5b3c3e5b49c491d38f8e6a778cee281151a65b`.
+  `814a0fd4e01d3179e9b5cf6c0208f428895ea7798c905b55508b88146da0a075`.
+- Independent review found model/binary drift and saved-case binding risks.
+  The local candidate was revised for both and the real `thread/read` shape
+  was checked through a read-only recovery of case 1. Follow-up review found
+  no blocking issue and one bounded-output issue, which was fixed and tested.
+  The code does not request the Aster worker Authentik Keychain credential;
+  Codex app-server authentication may use separate local credential storage.
 - The broad delegation Python discovery run used the macOS system Python and
   failed to import existing `httpx`/`pydantic` dependencies. It is not counted
   as a passing suite. No dependency was installed for this candidate.

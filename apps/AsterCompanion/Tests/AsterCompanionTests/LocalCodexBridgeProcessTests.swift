@@ -57,7 +57,7 @@ final class LocalCodexBridgeProcessTests: XCTestCase {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false)
         defer { try? FileManager.default.removeItem(at: directory) }
         let script = directory.appendingPathComponent("fixture.py")
-        try "print('x'*70000)\n".write(to: script, atomically: true, encoding: .utf8)
+        try "print('x'*600000)\n".write(to: script, atomically: true, encoding: .utf8)
         XCTAssertThrowsError(try LocalCodexBridgeProcess.inspect(script: script)) { error in
             guard case LocalCodexBridgeProcess.BridgeError.oversized = error else {
                 return XCTFail("Expected bounded-output rejection")

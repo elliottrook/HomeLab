@@ -5,7 +5,7 @@ import Foundation
 enum LocalCodexEvaluationLog {
     enum LogError: Error { case invalid, unavailable }
 
-    private struct Entry: Encodable {
+    private struct Entry: Codable {
         let requestID: String
         let caseIndex: Int
         let event: String
@@ -13,6 +13,50 @@ enum LocalCodexEvaluationLog {
         let observedAtUnix: Double
         let totalSeconds: Double?
         let turnSeconds: Double?
+    }
+
+    /// A saved request may advance only the case it originally submitted.
+    static func submittedCase(in directory: URL, requestID: String,
+                              allowedManifests: Set<String>) -> Int? {
+        guard directory.isFileURL,
+              directory.resolvingSymlinksInPath().path == directory.standardizedFileURL.path
+        else { return nil }
+        let path = directory.appendingPathComponent("evaluation-events.jsonl").path
+        let fd = Darwin.open(path, O_RDONLY | O_NOFOLLOW)
+        guard fd >= 0 else { return nil }
+        defer { _ = Darwin.close(fd) }
+        var info = stat()
+        guard fstat(fd, &info) == 0,
+              (info.st_mode & mode_t(S_IFMT)) == mode_t(S_IFREG),
+              info.st_uid == geteuid(), info.st_mode & 0o077 == 0,
+              info.st_size > 0, info.st_size <= 1_048_576 else { return nil }
+        var data = Data()
+        var buffer = [UInt8](repeating: 0, count: 8192)
+        while true {
+            let count = buffer.withUnsafeMutableBytes { bytes in
+                Darwin.read(fd, bytes.baseAddress, bytes.count)
+            }
+            guard count >= 0 else { return nil }
+            if count == 0 { break }
+            guard data.count + count <= 1_048_576 else { return nil }
+            data.append(contentsOf: buffer.prefix(count))
+        }
+        guard let raw = String(data: data, encoding: .utf8) else { return nil }
+        var submitted: Int?
+        for line in raw.split(separator: "\n") {
+            guard let entry = try? JSONDecoder().decode(Entry.self, from: Data(line.utf8))
+            else { return nil }
+            guard entry.requestID == requestID else { continue }
+            guard allowedManifests.contains(entry.manifestSHA256),
+                  (0..<12).contains(entry.caseIndex) else { return nil }
+            if entry.event == "submitted" {
+                guard submitted == nil else { return nil }
+                submitted = entry.caseIndex
+            } else if let submitted, entry.caseIndex != submitted {
+                return nil
+            }
+        }
+        return submitted
     }
 
     static func append(in directory: URL, requestID: String, caseIndex: Int,

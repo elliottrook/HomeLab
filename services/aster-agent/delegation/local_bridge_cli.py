@@ -20,7 +20,7 @@ import tempfile
 import time
 import uuid
 
-from isolation_probe import ConfigClient, disable_mcp_options
+from isolation_probe import ConfigClient, disable_mcp_options, summarize
 from local_turn import run_local_turn
 from pilot import fingerprint, initialize, manifest, options
 from pipe_worker import PipeAgent
@@ -84,6 +84,24 @@ def recover_snapshot(snapshot, thread_id, turn_id):
     return answers[0]
 
 
+def recovery_preflight(config, account):
+    """Read-only historical access does not depend on today's model catalogue."""
+    check=summarize(config)
+    if (check['disabled_flags_unconfirmed'] or check['enabled_mcp_count'] or
+            check['inherited_instruction_present'] or not check['read_only_requested'] or
+            not check['web_search_disabled'] or
+            (account.get('account') or {}).get('type')!='chatgpt' or
+            config.get('model_provider')!='openai' or
+            (config.get('model_providers') or {}).get('openai')):
+        raise ValueError('Recovery account or isolation changed')
+    for key,allowed in {'openai_base_url':{'https://api.openai.com/v1'},
+                        'chatgpt_base_url':{'https://chatgpt.com/backend-api',
+                                            'https://chatgpt.com/backend-api/codex'}}.items():
+        value=config.get(key)
+        if value and value.rstrip('/') not in allowed:
+            raise ValueError('Recovery endpoint changed')
+
+
 def reviewed_request(raw):
     if not isinstance(raw, bytes) or not 1 <= len(raw) <= 20000:
         raise ValueError('Reviewed request limit')
@@ -125,6 +143,7 @@ def main(argv=None):
     mode.add_argument('--run',action='store_true')
     mode.add_argument('--status',action='store_true')
     mode.add_argument('--recover',action='store_true')
+    mode.add_argument('--recover-check',action='store_true')
     parser.add_argument('--approved-sha256')
     parser.add_argument('--state-dir',type=Path)
     parser.add_argument('--request-id')
@@ -139,13 +158,19 @@ def main(argv=None):
         return
     if args.request_id and not args.recover:
         raise SystemExit('Recorded request ID is only valid for status')
-    if not (args.prepare or args.run or args.recover):
+    if not (args.prepare or args.run or args.recover or args.recover_check):
         print(json.dumps({'enabled':False,'inference':False}))
         return
-    if (args.run or args.recover) and (not args.approved_sha256 or not args.state_dir or
+    if args.run and (not args.approved_sha256 or not args.state_dir or
                      not args.state_dir.is_absolute() or
                      args.state_dir.resolve()!=args.state_dir):
         raise SystemExit('Reviewed manifest and private absolute state directory required')
+    if args.recover and (args.approved_sha256 or not args.state_dir or
+                         not args.state_dir.is_absolute() or
+                         args.state_dir.resolve()!=args.state_dir):
+        raise SystemExit('Private recovery state directory required')
+    if args.recover_check and (args.approved_sha256 or args.state_dir):
+        raise SystemExit('Recovery preflight takes no request or state path')
     row=None
     if args.recover:
         row=recorded_row(args.state_dir,args.request_id)
@@ -173,6 +198,17 @@ def main(argv=None):
         client=client_type(executable,options=opts,cwd=cwd)
         try:
             initialize(client)
+            if args.recover or args.recover_check:
+                recovery_preflight(client.call('config/read',{'includeLayers':False,'cwd':cwd})['config'],
+                                   client.call('account/read',{'refreshToken':False}))
+                if args.recover_check:
+                    print(json.dumps({'recovery_ready':True,'inference':False},sort_keys=True))
+                    return
+                snapshot=client.call('thread/read',{'threadId':row[1],'includeTurns':True})
+                answer=recover_snapshot(snapshot,row[1],row[2])
+                print(json.dumps({'id':args.request_id,'state':'completed','answer':answer,
+                                  'automatic_retry':False,'inference':False},ensure_ascii=False))
+                return
             prepared=prepared_manifest(client,cwd)
             digest=fingerprint(prepared)
             if args.prepare:
@@ -181,12 +217,6 @@ def main(argv=None):
                 return
             if digest!=args.approved_sha256:
                 raise ValueError('Reviewed configuration changed')
-            if args.recover:
-                snapshot=client.call('thread/read',{'threadId':row[1],'includeTurns':True})
-                answer=recover_snapshot(snapshot,row[1],row[2])
-                print(json.dumps({'id':args.request_id,'state':'completed','answer':answer,
-                                  'automatic_retry':False,'inference':False},ensure_ascii=False))
-                return
             runtime=open_runtime(args.state_dir,enabled=True)
             agent=None
             try:
