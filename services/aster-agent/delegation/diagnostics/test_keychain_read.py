@@ -5,6 +5,17 @@ from keychain_read import diagnose
 
 
 class DiagnosticTests(unittest.TestCase):
+    def test_supervised_mode_only_extends_private_read_deadline(self):
+        result=subprocess.CompletedProcess([],0,b'fixture\n')
+        with patch('keychain_read.subprocess.run',return_value=result) as run:
+            summary=diagnose(supervised=True)
+        self.assertEqual(run.call_args.kwargs['timeout'],90)
+        self.assertEqual(summary['status'],'readable_valid_shape')
+        self.assertEqual(summary['network_calls'],0)
+        with patch('keychain_read.subprocess.run') as run:
+            with self.assertRaises(ValueError):diagnose(supervised='yes')
+            run.assert_not_called()
+
     def test_private_output_never_returned(self):
         result=subprocess.CompletedProcess([],0,b'fictional-private-value\n')
         with patch('keychain_read.subprocess.run',return_value=result) as run:

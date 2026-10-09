@@ -7,14 +7,15 @@ import subprocess
 import time
 
 
-def diagnose():
+def diagnose(*,supervised=False):
+    if type(supervised) is not bool:raise ValueError('Explicit diagnostic mode required')
     start=time.monotonic()
     result=None
     try:
         result=subprocess.run(['/usr/bin/security','find-generic-password',
             '-s','com.elliottrook.aster-codex-worker','-a','authentik-app-password','-w'],
             stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,
-            timeout=5,check=True,env={'PATH':'/usr/bin:/bin'})
+            timeout=90 if supervised else 5,check=True,env={'PATH':'/usr/bin:/bin'})
         value=result.stdout.decode().removesuffix('\n')
         valid=1<=len(value)<=16384 and not any(c.isspace() for c in value)
         status='readable_valid_shape' if valid else 'readable_invalid_shape'
@@ -35,8 +36,9 @@ def diagnose():
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--run',action='store_true')
+    parser.add_argument('--supervised',action='store_true')
     parser.add_argument('--approved-sha256');args=parser.parse_args()
     digest=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     if not args.run:print(json.dumps({'enabled':False,'sha256':digest}))
     elif args.approved_sha256!=digest:raise SystemExit('Exact diagnostic approval required')
-    else:print(json.dumps(diagnose()))
+    else:print(json.dumps(diagnose(supervised=args.supervised)))

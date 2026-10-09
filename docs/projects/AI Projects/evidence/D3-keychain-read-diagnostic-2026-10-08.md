@@ -2,6 +2,35 @@
 
 Status: APPROVED DIAGNOSTIC COMPLETE — KEYCHAIN READ TIMEOUT. Approval consumed.
 
+## Next gate — supervised read prepared, not executed
+
+Jason dismissed the stale prompt and requested continuation. Prepared a separate
+explicit `--supervised` mode in the same helper. This allows 90 seconds for a
+human response; it does not change the production worker's five-second timeout.
+Three local fixture tests pass. No real credential read occurred during this
+preparation. Existing five-second results below retain their original fingerprint.
+
+Request approval for exactly one invocation:
+
+```text
+python -B services/aster-agent/delegation/diagnostics/keychain_read.py --run --supervised --approved-sha256 6109b2e4b9680c46c9a9765f6745397283bab05db341205e2fc8841bf2773111
+```
+
+Use the existing private test interpreter on the Mac. Read only the same fixed
+item through the same private pipe and `/usr/bin/security`, with no network,
+activation, model call, service restart or Keychain configuration change. Report
+only the existing fixed result category and elapsed seconds. No automatic retry.
+Use short tool polling intervals so the user can receive updates while waiting.
+
+When the fresh prompt names `Aster worker Authentik credential`, Jason enters his
+login Keychain password into macOS only and selects **Allow** once. Do not select
+Always Allow, change ACLs, unlock via command-line password arguments or send the
+password to this chat. If denied/timed out, stop and report. Success proves only
+supervised private readability, not unattended operation or complete OAuth access.
+
+This fresh real-credential read requires specific approval under the repository
+credential-access boundary; no additional permission expansion is requested.
+
 ## Result
 
 Jason approved the exact helper. Ran it once with the pinned source fingerprint.

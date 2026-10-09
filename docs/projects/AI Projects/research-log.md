@@ -1787,3 +1787,9 @@ the login Keychain password. The access prompt is now confirmed; underlying lock
 ACL cause and unattended operation remain unproven. Advised Deny for the stale
 timed-out request. A fresh supervised read requires a new bounded authorization;
 human password stays in the OS dialog, with Allow once and no ACL expansion.
+
+After Jason dismissed the stale prompt and requested continuation, prepared an
+explicit supervised 90-second diagnostic mode. Production timeout is unchanged;
+no live credential read or system change. Three fixture tests pass. The next gate
+binds the new source fingerprint and one private read with Allow once, without
+network, activation, restart or ACL change. Await specific credential-read approval.
