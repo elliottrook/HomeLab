@@ -67,6 +67,7 @@ class RecoveryTicketTests(unittest.TestCase):
     def test_expired_ticket_cannot_claim_or_publish(self):
         ticket=self.gateway.request_answer_recovery('owner','job')
         self.now=1240
+        self.assertEqual(self.gateway.answer_recovery_status('owner',ticket)['state'],'expired')
         with self.assertRaises(ValueError):self.gateway.claim_answer_recovery('worker',ticket)
         self.assertIsNone(self.gateway.owner_result('owner','job')['answer'])
 

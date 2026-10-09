@@ -2,6 +2,12 @@ import hashlib
 import unittest
 from store import DispatchStore
 from recovery_execution import ExactThreadReader,recover_once
+from recovery_execution import ReadOnlyDispatch
+from supervised_answer_recovery import RecoveryClient,recovery_manifest
+from probe import MetadataClient
+import os
+import tempfile
+from pathlib import Path
 
 
 class RecoveryExecutionTests(unittest.IsolatedAsyncioTestCase):
@@ -62,3 +68,24 @@ class RecoveryExecutionTests(unittest.IsolatedAsyncioTestCase):
             async def recovery_claim(_,ticket):self.fail('Claim must not occur')
         with self.assertRaises(ValueError):
             await recover_once(Worker(),None,self.store,'a'*32,'missing',self.digest)
+
+    async def test_readonly_dispatch_and_runner_method_boundary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'dispatch.sqlite'
+            writable=DispatchStore(path)
+            writable.claim('job','thread','owner')
+            writable.bind('job','thread','turn')
+            writable.finish('job','thread','turn','completed')
+            writable.close()
+            os.chmod(path,0o600)
+            readonly=ReadOnlyDispatch(path)
+            try:
+                self.assertEqual(readonly.inspect_owned('job','owner')[0],'completed')
+                with self.assertRaises(Exception):
+                    readonly.db.execute("UPDATE jobs SET state='failed'")
+                self.assertIsNone(readonly.inspect_owned('job','other'))
+                item=recovery_manifest({'auth':'chatgpt','max_turns':0},path,'job',self.digest)
+                self.assertEqual(item['maximum_model_turns'],0)
+                self.assertEqual(item['method'],'thread/read')
+            finally:readonly.close()
+            self.assertEqual(RecoveryClient.methods-MetadataClient.methods,{'config/read','thread/read'})

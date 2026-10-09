@@ -7,7 +7,14 @@ final class CodexRequestTests: XCTestCase {
             let raw = "{\"submission_enabled\":\(enabled),\"model\":\"fixture\",\"mode\":\"supervised\",\"tools\":\(tools),\"maximum_utf8_bytes\":16000}"
             let value = try AIPAMCoding.decoder.decode(CodexCapabilities.self, from: Data(raw.utf8))
             XCTAssertFalse(value.supported)
+            XCTAssertFalse(value.canRecover)
         }
+    }
+    func testRecoveryFlagIndependentOfClosedSubmission() throws {
+        let raw = #"{"submission_enabled":false,"recovery_enabled":true,"model":"","mode":"supervised","tools":false,"maximum_utf8_bytes":16000}"#
+        let value = try AIPAMCoding.decoder.decode(CodexCapabilities.self, from: Data(raw.utf8))
+        XCTAssertFalse(value.supported)
+        XCTAssertTrue(value.canRecover)
     }
     func testEnabledIntakeDoesNotClaimWorkerReadiness() throws {
         let raw = #"{"submission_enabled":true,"model":"fixture","mode":"supervised","tools":false,"maximum_utf8_bytes":16000,"worker_status":"unknown"}"#

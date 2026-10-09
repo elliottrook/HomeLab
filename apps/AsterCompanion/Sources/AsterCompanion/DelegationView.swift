@@ -23,7 +23,7 @@ struct DelegationSnapshot: Decodable {
     let recoveryRequired: Bool
     var statusMessage: String {
         if state == "completed" && (recoveryRequired || reply == nil) {
-            return "This request completed, but its temporary answer is no longer available in Aster. This pilot cannot restore it here. Do not resend it to recover the answer."
+            return "This request completed, but its temporary answer is no longer available in Aster. You may request a supervised read of the original answer if recovery is enabled. Do not resend the question."
         }
         return message
     }
@@ -41,6 +41,19 @@ struct DelegationStopResult: Decodable {
     let state: String
 }
 
+struct DelegationRecoveryReceipt: Decodable {
+    let ticketId: String
+    let state: String
+    let automaticRetry: Bool
+}
+
+struct DelegationRecoveryStatus: Decodable {
+    let jobId: String
+    let state: String
+    let expiresAt: Int
+    let automaticRetry: Bool
+}
+
 /// Owner-scoped status and explicit reviewed submission; never automatic retry.
 struct DelegationView: View {
     @EnvironmentObject private var auth: AuthManager
@@ -53,7 +66,11 @@ struct DelegationView: View {
     @State private var errorText: String?
     @State private var stopPending = false
     @State private var showingRequest = false
+    @State private var recoveryPending = false
+    @State private var recoveryMessage: String?
     @AppStorage("aster.codex.pendingRequestID") private var pendingID = ""
+    @AppStorage("aster.codex.recoveryTicketID") private var recoveryTicketID = ""
+    @AppStorage("aster.codex.recoveryJobID") private var recoveryJobID = ""
     private var client: AsterClient { AsterClient(authManager: auth) }
 
     var body: some View {
@@ -79,6 +96,14 @@ struct DelegationView: View {
                     ScrollView { Text(verbatim: answer).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }
                 }
                 Text(verbatim: snapshot.usageText).font(.caption)
+                if snapshot.state == "completed" && snapshot.recoveryRequired && capabilities?.canRecover == true {
+                    Button("Recover original answer") { Task { await recover() } }
+                        .disabled(recoveryPending || !recoveryTicketID.isEmpty)
+                    Text("Reads the original Codex answer only. A supervised worker is required; no new question or model turn will run.").font(.caption)
+                }
+                if recoveryJobID == snapshot.id, let recoveryMessage {
+                    Text(verbatim: recoveryMessage).font(.caption)
+                }
                 if snapshot.canRequestCancel {
                     Button("Request stop") { Task { await stop() } }.disabled(stopPending)
                 }
@@ -111,6 +136,24 @@ struct DelegationView: View {
                 let value = try await client.fetchDelegationJob(id)
                 guard !Task.isCancelled, selected == id else { return }
                 snapshot = value
+                if recoveryJobID == id && value.visibleAnswer != nil {
+                    recoveryTicketID = ""
+                    recoveryJobID = ""
+                    recoveryMessage = nil
+                }
+                if recoveryJobID == id && !recoveryTicketID.isEmpty && value.recoveryRequired {
+                    do {
+                        let status = try await client.fetchAnswerRecovery(recoveryTicketID)
+                        guard selected == id else { return }
+                        if status.jobId == id && !status.automaticRetry {
+                            recoveryMessage = status.state == "completed"
+                                ? "Original answer recovered. Refreshing its display."
+                                : "Recovery \(status.state). A supervised worker must complete the original-answer read before the ticket expires; no model turn will run."
+                        } else { recoveryMessage = "Recovery status did not match this request. No retry was sent." }
+                    } catch {
+                        recoveryMessage = "Recovery status is unavailable. No retry was sent."
+                    }
+                }
                 if pendingID == id && ["completed", "failed", "interrupted", "expired"].contains(value.state) {
                     pendingID = ""
                 }
@@ -132,5 +175,26 @@ struct DelegationView: View {
         } catch {
             errorText = "The stop request could not be confirmed. Check the request status."
         }
+    }
+
+    @MainActor private func recover() async {
+        guard let id = selected, snapshot?.id == id, snapshot?.state == "completed",
+              snapshot?.recoveryRequired == true, capabilities?.canRecover == true,
+              !recoveryPending, recoveryTicketID.isEmpty else { return }
+        recoveryPending = true
+        recoveryMessage = "Requesting one supervised read of the original answer."
+        do {
+            let receipt = try await client.requestAnswerRecovery(id)
+            guard receipt.state == "requested", !receipt.automaticRetry,
+                  receipt.ticketId.range(of: "^[a-f0-9]{32}$", options: .regularExpression) != nil else {
+                throw AsterClientError.malformedResponse
+            }
+            recoveryJobID = id
+            recoveryTicketID = receipt.ticketId
+            recoveryMessage = "Recovery requested. A supervised worker must read the original answer within four minutes. No new model turn will run."
+        } catch {
+            recoveryMessage = "Recovery request could not be confirmed. Do not send it again; check with the operator."
+        }
+        recoveryPending = false
     }
 }

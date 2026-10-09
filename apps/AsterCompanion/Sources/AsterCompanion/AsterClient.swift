@@ -64,6 +64,18 @@ struct AsterClient {
         try await companionRequest(path: delegationPath(id) + "/cancel", method: "POST")
     }
 
+    func requestAnswerRecovery(_ id: String) async throws -> DelegationRecoveryReceipt {
+        _ = try delegationPath(id)
+        return try await companionRequest(path: "v1/companion/delegation/recovery/" + id, method: "POST")
+    }
+
+    func fetchAnswerRecovery(_ ticket: String) async throws -> DelegationRecoveryStatus {
+        guard ticket.range(of: "^[a-f0-9]{32}$", options: .regularExpression) != nil else {
+            throw AsterClientError.malformedResponse
+        }
+        return try await companionRequest(path: "v1/companion/delegation/recovery/tickets/" + ticket)
+    }
+
     private func companionRequest<T: Decodable>(
         path: String, method: String = "GET", body: Data? = nil, as type: T.Type = T.self
     ) async throws -> T {

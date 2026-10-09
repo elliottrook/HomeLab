@@ -5,6 +5,8 @@ verify the Codex account/binary and broker identity, then bind one exact ticket,
 job and gateway digest before calling it. Never print the returned answer.
 """
 import re
+import sqlite3
+from pathlib import Path
 
 if __package__:
     from .verified_recovery import recover_completed
@@ -21,6 +23,29 @@ class ExactThreadReader:
         if not isinstance(thread_id,str) or not re.fullmatch('[A-Za-z0-9_-]{1,128}',thread_id):
             raise ValueError('Bound thread identifier required')
         return self.client.call('thread/read',{'threadId':thread_id,'includeTurns':True})
+
+
+class ReadOnlyDispatch:
+    """Open an existing private dispatch database without schema or state writes."""
+    def __init__(self,path):
+        path=Path(path)
+        if (not path.is_absolute() or path.is_symlink() or not path.is_file() or
+                path.stat().st_mode & 0o077):
+            raise ValueError('Private existing dispatch record required')
+        # This is an old, quiescent dispatch record. Immutable mode avoids even
+        # a possible WAL shared-memory sidecar write during the recovery read.
+        self.db=sqlite3.connect(path.as_uri()+'?mode=ro&immutable=1',uri=True,timeout=5)
+        self.db.execute('PRAGMA query_only=ON')
+
+    def inspect(self,job_id):
+        return self.db.execute('SELECT state,thread_id,turn_id FROM jobs WHERE job_id=?',
+                               (job_id,)).fetchone()
+
+    def inspect_owned(self,job_id,owner):
+        return self.db.execute('''SELECT state,thread_id,turn_id FROM jobs
+            WHERE job_id=? AND owner=?''',(job_id,owner)).fetchone()
+
+    def close(self):self.db.close()
 
 
 async def recover_once(worker,reader,store,ticket,expected_job_id,expected_digest):

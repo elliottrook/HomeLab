@@ -229,7 +229,8 @@ class Gateway(Ledger):
         envelope,_,_ = self._row(job_id)
         if envelope['owner'] != authenticated_owner:
             raise KeyError('Recovery ticket not found')
-        return {'job_id':job_id, 'state':state, 'expires_at':expiry,
+        effective_state='expired' if self.clock() >= expiry else state
+        return {'job_id':job_id, 'state':effective_state, 'expires_at':expiry,
                 'automatic_retry':False}
 
     def claim_answer_recovery(self, authenticated_worker, ticket):

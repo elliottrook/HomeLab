@@ -24,6 +24,8 @@ struct CodexCapabilities: Decodable {
     let tools: Bool
     let maximumUtf8Bytes: Int
     let workerStatus: String?
+    let recoveryEnabled: Bool?
+    var canRecover: Bool { recoveryEnabled == true && mode == "supervised" && !tools }
     var availabilityMessage: String {
         if !submissionEnabled { return "New Codex requests are closed. You can still view recorded requests." }
         if !supported { return "This Codex mode is not supported by this app. Nothing will be sent." }

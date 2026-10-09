@@ -36,7 +36,7 @@ class GatewayAssemblyTests(unittest.IsolatedAsyncioTestCase):
             writer.close()
             await writer.wait_closed()
 
-    def assembly(self, enabled=True,request_model=None):
+    def assembly(self, enabled=True,request_model=None,recovery_enabled=False):
         import time
         def issuer(request):
             self.issuer_calls += 1
@@ -46,7 +46,46 @@ class GatewayAssemblyTests(unittest.IsolatedAsyncioTestCase):
                 iat=now, exp=now+300))
         async def owner(): return 'owner'
         return GatewayAssembly(self.path, owner, subject='fixture-sub', secret=self.secret,
-            enabled=enabled, broker_socket=self.socket, transport=httpx.MockTransport(issuer),request_model=request_model)
+            enabled=enabled, broker_socket=self.socket, transport=httpx.MockTransport(issuer),
+            request_model=request_model,recovery_enabled=recovery_enabled)
+
+    async def test_recovery_mount_is_explicit_and_independent_of_closed_intake(self):
+        closed=self.assembly()
+        self.assertFalse(any('/recovery/' in route.path for route in closed.router.routes))
+        recovery=self.assembly(recovery_enabled=True)
+        app=FastAPI();app.include_router(recovery.router)
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://fixture') as c:
+                cap=await c.get('/v1/companion/delegation/capabilities')
+                self.assertFalse(cap.json()['submission_enabled'])
+                self.assertTrue(cap.json()['recovery_enabled'])
+                self.assertEqual((await c.post('/v1/companion/delegation/requests',json={})).status_code,404)
+                self.assertEqual((await c.post('/v1/companion/delegation/recovery/missing')).status_code,404)
+
+    async def test_closed_intake_recovery_is_bound_to_completed_original_answer(self):
+        import hashlib
+        assembly=self.assembly(recovery_enabled=True)
+        app=FastAPI();app.include_router(assembly.router)
+        async with app.router.lifespan_context(app):
+            gateway=assembly.gateway
+            original='Fixture answer from the original turn.'
+            digest=hashlib.sha256(original.encode()).hexdigest()
+            gateway.create('original','owner','aster-codex-worker-mac','a'*64,'b'*64,'fixture',int(__import__('time').time())+100)
+            offer=gateway.offer('aster-codex-worker-mac','original')
+            gateway.receipt('aster-codex-worker-mac','original',offer['delivery_id'],'completed',digest)
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://fixture') as c:
+                request=await c.post('/v1/companion/delegation/recovery/original')
+                self.assertEqual(request.status_code,202)
+                ticket=request.json()['ticket_id']
+                claim=await c.post('/v1/delegation/worker/recovery/'+ticket+'/claim',
+                                   headers={'Authorization':'Bearer fixture'})
+                self.assertEqual(claim.status_code,200)
+                self.assertEqual(claim.json()['result_sha256'],digest)
+                delivered=await c.post('/v1/delegation/worker/recovery/'+ticket+'/answer',
+                                       headers={'Authorization':'Bearer fixture'},json={'answer':original})
+                self.assertEqual(delivered.status_code,200)
+                self.assertEqual(gateway.owner_result('owner','original')['answer'],original)
+                self.assertEqual((await c.post('/v1/companion/delegation/requests',json={})).status_code,404)
 
     async def test_optional_intake_lifecycle_retains_metadata_not_text_on_restart(self):
         import uuid

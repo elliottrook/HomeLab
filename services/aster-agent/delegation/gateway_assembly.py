@@ -29,7 +29,7 @@ else:
 class GatewayAssembly:
     def __init__(self, directory, owner_dependency, *, subject=None, secret=None,
                  enabled=False, broker_socket='/run/homelab-broker/approval.sock',
-                 transport=None,request_model=None):
+                 transport=None,request_model=None,recovery_enabled=False):
         if type(enabled) is not bool:
             raise ValueError('Enabled must be an explicit boolean')
         self.directory = Path(directory)
@@ -37,6 +37,7 @@ class GatewayAssembly:
         self.lock = None
         self.enabled = enabled
         self.intake=None
+        self.recovery_enabled=recovery_enabled
         self.router = APIRouter(lifespan=self.lifespan)
         if not enabled:
             return  # No routes, state, secret access, socket call or network.
@@ -52,19 +53,29 @@ class GatewayAssembly:
             else:
                 from request_intake import RequestIntake,request_router
             self.intake=RequestIntake(lambda:self.gateway,request_model,enabled=True)
-            self.router.include_router(request_router(self.intake,owner_dependency,identity))
+            self.router.include_router(request_router(self.intake,owner_dependency,identity,
+                                                     recovery_enabled=recovery_enabled))
         else:
             if __package__:
                 from .request_intake import closed_intake_router
             else:
                 from request_intake import closed_intake_router
-            self.router.include_router(closed_intake_router(owner_dependency))
+            self.router.include_router(closed_intake_router(owner_dependency,
+                                                            recovery_enabled=recovery_enabled))
+        if recovery_enabled:
+            if __package__:
+                from .recovery_router import recovery_router
+            else:
+                from recovery_router import recovery_router
+            self.router.include_router(recovery_router(self,owner_dependency,identity,enabled=True))
 
     def __getattr__(self, name):
         # The route implementations use these ledger methods only. Do not expose
         # create() through the transport; admission remains a separate policy gate.
         if name not in {'offer', 'receipt', 'deliver_answer', 'controls',
-                        'report_usage', 'list_owned', 'owner_result', 'request_stop'}:
+                        'report_usage', 'list_owned', 'owner_result', 'request_stop',
+                        'request_answer_recovery','answer_recovery_status',
+                        'claim_answer_recovery','deliver_recovered_answer'}:
             raise AttributeError(name)
         if self.gateway is None:
             raise HTTPException(503, 'Delegation state unavailable')

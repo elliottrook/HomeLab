@@ -1965,3 +1965,22 @@ HTTP candidate. An exact local thread reader can return only the original final
 answer after digest verification; no model turn path exists. Fixture and ASGI
 client tests passed (279 backend total). Production routes remain absent and
 worker inactive. See [design](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).
+
+### 2026-10-08 — Recovery integration prepared; live gate remains closed
+
+Added a strict recovery-only gateway flag, authenticated owner/worker recovery
+mount, and native Companion build 8 explicit recovery control. Request intake
+remains closed; the UI advertises no worker readiness and sends no automatic
+retry. Built a Mac runner limited to the original completed dispatch record,
+metadata methods and exact `thread/read`; it opens the old SQLite dispatch
+record read-only/immutable and prints no content. Full local suites: 282 backend
+and 35 native tests pass. Signed app candidate packaged locally, uninstalled.
+
+Read-only live check found LXC104 active and fictional Orion still completed
+with its durable answer digest. Metadata-only Codex preflight passed with
+ChatGPT authentication, native provider, zero enabled MCP servers and no model
+call. One first preflight attempt was denied in the sandbox; a read-only
+escalated metadata preflight then succeeded. No Keychain read, ticket, identity
+activation, app installation, gateway change, inference or push occurred. The
+[bounded gate](evidence/D3-answer-recovery-gate-2026-10-08.md) documents exact
+source hashes, original-answer limits, rollback and fresh approval required.

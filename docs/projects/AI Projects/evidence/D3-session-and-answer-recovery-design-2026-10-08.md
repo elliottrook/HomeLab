@@ -1,6 +1,6 @@
 # D3 — supervised session and completed-answer recovery design
 
-Status: ATOMIC GATEWAY ADMISSION PROTOTYPED OFFLINE. No new authority, content retention or live deployment.
+Status: ATOMIC ADMISSION AND OWNER-REQUESTED ANSWER RECOVERY CANDIDATES TESTED OFFLINE. No new authority, content retention or live deployment.
 Owner: Jason. Revisit after fixture evidence.
 
 ## Current proven facts
@@ -244,9 +244,44 @@ returning text. Synthetic ASGI and client integration checks cover owner/worker
 isolation, wrong digest, one-time claim, expiry, restart and no duplicate job.
 Full backend suite: 279 passed.
 
-This is **not** deployed or connected to native UI. Worker identity and
+At this checkpoint it was **not** deployed or connected to native UI. Worker identity and
 subscription authentication are still inactive in production. A future live
 trial must freeze the exact original fictional job/ticket/digest and runner
 binary, use one supervised credential bootstrap, verify no inference, have Jason
 request recovery explicitly, clean up the worker immediately, and close recovery
 routes after acceptance. No existing one-turn approval covers that trial.
+
+## Local recovery integration candidate — 2026-10-08
+
+The gateway assembly now mounts recovery routes only under a separate strict
+`ASTER_DELEGATION_RECOVERY_ENABLED=1` flag. Closed request intake remains closed.
+Capabilities explicitly advertise whether the recovery control is available.
+Native Companion build 8 shows **Recover original answer** only for a completed
+job with missing volatile answer when that flag is advertised. It creates one
+ticket on a user click, stores only ticket/job identifiers for reconciliation,
+polls owner-scoped status and never automatically resends a failed/uncertain
+request. It does not promise worker readiness.
+
+`supervised_answer_recovery.py` is an operator-started, single-ticket Mac
+candidate. Preparation verifies ChatGPT account, effective no-tools/no-MCP
+configuration, Codex binary, source hashes and the existing private completed
+dispatch record without a model call. Run mode requires that exact preparation
+hash and a fresh ticket. Its Codex client allows only metadata and
+`thread/read`; the dispatch database is opened read-only and immutable. The
+original owner, job, thread, turn and gateway completion digest must all match
+before the answer is returned. It never prints the answer, accesses the
+Keychain during preparation, retries a claim or starts a new turn. A failed or
+lost claim is uncertain and needs operator reconciliation.
+
+Offline results: 282 backend tests and 35 native tests pass. A composed ASGI
+test verifies recovery while new requests remain closed. Signed native build 8
+is packaged locally but neither installed nor registered. Read-only live
+  checks found the gateway active and the fictional Orion completion digest still
+present. Metadata-only Mac preflight passed with ChatGPT authentication and
+zero enabled MCP servers. The current local manifest hash is recorded in the
+bounded gate; it is not an execution grant.
+
+The [bounded recovery gate](D3-answer-recovery-gate-2026-10-08.md) records
+exact deployment scope, human click/worker timing, validation and rollback.
+No gateway file, native app, worker identity, Keychain item or Codex history was
+changed during this preparation. Live recovery requires fresh explicit approval.

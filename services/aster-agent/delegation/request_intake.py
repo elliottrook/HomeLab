@@ -80,7 +80,7 @@ class RequestIntake:
         return {'text':data.decode(),'request_sha256':envelope['request_sha256']}
 
 
-def request_router(intake,owner_dependency,worker_dependency):
+def request_router(intake,owner_dependency,worker_dependency,*,recovery_enabled=False):
     router=APIRouter()
 
     @router.get('/v1/companion/delegation/capabilities')
@@ -88,7 +88,7 @@ def request_router(intake,owner_dependency,worker_dependency):
         response.headers['Cache-Control']='no-store'
         return {'submission_enabled':intake.enabled is True,'model':intake.model,
                 'mode':'supervised','tools':False,'maximum_utf8_bytes':16000,
-                'worker_status':'unknown'}
+                'worker_status':'unknown','recovery_enabled':recovery_enabled}
 
     @router.post('/v1/companion/delegation/requests',status_code=202)
     async def submit(body:RequestBody,response:Response,owner=Depends(owner_dependency)):
@@ -111,7 +111,7 @@ def request_router(intake,owner_dependency,worker_dependency):
     return router
 
 
-def closed_intake_router(owner_dependency):
+def closed_intake_router(owner_dependency,*,recovery_enabled=False):
     """Read-only status while submission is closed; no custody or state access."""
     router=APIRouter()
 
@@ -119,5 +119,6 @@ def closed_intake_router(owner_dependency):
     async def capabilities(response:Response,owner=Depends(owner_dependency)):
         response.headers['Cache-Control']='no-store'
         return {'submission_enabled':False,'model':'','mode':'supervised',
-                'tools':False,'maximum_utf8_bytes':16000,'worker_status':'unknown'}
+                'tools':False,'maximum_utf8_bytes':16000,'worker_status':'unknown',
+                'recovery_enabled':recovery_enabled}
     return router

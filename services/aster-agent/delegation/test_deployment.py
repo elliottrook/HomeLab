@@ -35,6 +35,8 @@ class DeploymentTests(unittest.IsolatedAsyncioTestCase):
     async def test_enabled_refuses_unpinned_configuration_before_mount(self):
         for env in ({'ASTER_DELEGATION_ENABLED':'true'},
                     {'ASTER_DELEGATION_ENABLED':'1'},
+                    {'ASTER_DELEGATION_RECOVERY_ENABLED':'1'},
+                    {'ASTER_DELEGATION_RECOVERY_ENABLED':'true'},
                     {'ASTER_DELEGATION_ENABLED':'1','ASTER_WORKER_SUBJECT':'subject',
                      'CREDENTIALS_DIRECTORY':'/run/credentials/aster-agent.service',
                      'ASTER_WORKER_APPROLE_FILE':'/tmp/arbitrary','ASTER_WORKER_BAO_CA':'/ca'}):
