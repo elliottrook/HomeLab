@@ -114,6 +114,21 @@ class BrokerCoreTests(unittest.TestCase):
         with self.assertRaisesRegex(BrokerDenied, "not active"):
             self.store.discover_capabilities("agent-test")
 
+    def test_capability_revoke_blocks_new_requests_and_outstanding_work(self):
+        request = self.store.create_request("agent-test", "health.read", {})
+        self.store.revoke_capability("agent-test", "health.read", actor="human-test")
+        self.assertEqual("revoked", self.store.get_request(request.request_id).status)
+        with self.assertRaisesRegex(BrokerDenied, "not granted"):
+            self.store.create_request("agent-test", "health.read", {})
+        with self.assertRaisesRegex(BrokerDenied, "not approved"):
+            self.store.consume_request(request.request_id, {}, agent_id="agent-test")
+        with self.assertRaisesRegex(BrokerDenied, "not active"):
+            self.store.revoke_capability("agent-test", "health.read", actor="human-test")
+        self.store.grant_capability("agent-test", "health.read")
+        self.assertEqual("revoked", self.store.get_request(request.request_id).status)
+        revocations = [row for row in self.store.audit_rows() if row["event"] == "capability.revoke"]
+        self.assertEqual("revoked:agent-test:health.read", revocations[0]["outcome"])
+
     def test_audit_contains_hashes_but_not_payloads(self):
         secret_shaped_payload = {"note": "do-not-copy-this-value"}
         request = self.store.create_request("agent-test", "health.read", secret_shaped_payload)

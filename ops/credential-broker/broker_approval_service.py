@@ -108,6 +108,12 @@ class ApprovalHandler(socketserver.StreamRequestHandler):
             actor = self._fresh_actor(request)
             self.server.store.revoke_request(str(request.get("request_id", "")), actor=actor)  # type: ignore[attr-defined]
             return {"status": "revoked"}
+        if method == "management.capability-revoke":
+            actor = self._fresh_actor(request)
+            self.server.store.revoke_capability(  # type: ignore[attr-defined]
+                str(request.get("agent_id", "")), str(request.get("capability", "")), actor=actor,
+            )
+            return {"status": "revoked"}
         if method == "management.global-enabled":
             actor = self._fresh_actor(request)
             enabled = request.get("enabled")

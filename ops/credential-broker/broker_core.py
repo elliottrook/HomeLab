@@ -259,6 +259,22 @@ class BrokerStore:
             )
 
     @transactional
+    def revoke_capability(self, agent_id: str, capability: str, *, actor: str = "operator") -> None:
+        with self._transaction():
+            changed = self.connection.execute(
+                "DELETE FROM agent_capabilities WHERE agent_id=? AND capability=?",
+                (agent_id, capability),
+            ).rowcount
+            if changed != 1:
+                raise BrokerDenied("capability grant is not active")
+            self.connection.execute(
+                """UPDATE requests SET status='revoked',revoked_at=?
+                   WHERE agent_id=? AND capability=? AND status IN ('approved','pending')""",
+                (self._now(), agent_id, capability),
+            )
+            self._audit("capability.revoke", actor, f"revoked:{agent_id}:{capability}")
+
+    @transactional
     def agent_for_uid(self, unix_uid: int) -> str:
         row = self.connection.execute("SELECT agent_id FROM agents WHERE unix_uid=?", (unix_uid,)).fetchone()
         if row is None:

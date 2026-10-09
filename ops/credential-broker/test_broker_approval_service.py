@@ -122,6 +122,16 @@ class ApprovalServiceTests(unittest.TestCase):
         self.assertFalse(self.store.global_enabled())
         self.assertEqual("revoked", self.store.get_request(pending.request_id).status)
 
+    def test_capability_revoke_requires_fresh_human_and_closes_pending(self):
+        pending = self.store.create_request("agent", "restart", {"target": "one"})
+        action = {"method": "management.capability-revoke", "agent_id": "agent", "capability": "restart"}
+        self.assertFalse(self.call(action | {"auth_time": self.now - 121, "assurance": "passkey"})["ok"])
+        self.assertEqual("pending", self.store.get_request(pending.request_id).status)
+        result = self.call(action | {"auth_time": self.now, "assurance": "passkey"})
+        self.assertTrue(result["ok"])
+        self.assertEqual("revoked", self.store.get_request(pending.request_id).status)
+        self.assertFalse(self.call(action | {"auth_time": self.now, "assurance": "passkey"})["ok"])
+
     def test_unlisted_subject_cannot_read_approve_or_manage(self):
         pending = self.store.create_request("agent", "restart", {})
         requests = [
