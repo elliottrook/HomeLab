@@ -1,7 +1,35 @@
 # D3 — real inactive worker provisioning package
 
-Status: APPROVED, FULLY STAGED; awaiting private human input. No credentials or
-worker identity created yet.
+Status: HUMAN HELPER STOPPED BEFORE CONFIRMED LOGIN; controller not started.
+
+## Private-input failure checkpoint
+
+Jason reported the helper's generic incomplete result and confirmed it prompted
+only for RoleID/SecretID, not recovery shares. Read-only inspection found the
+stage journal present but zero bytes, and no `admin.token`. The staged API's
+unauthenticated TLS health check returned 200, 2.6.4, unsealed; AI-PAM healthy.
+Jason then confirmed copying labels/quotes/braces along with input values.
+This is consistent with rejected input formatting or unsuccessful login; the
+empty journal alone does not prove no login request/session occurred. No root
+generation stage or controller execution was reached.
+
+Sanitized inspection of `/var/log/openbao/audit.log` found no current login
+evidence; that file's newest data is September 26. It cannot establish this
+attempt's API outcome, and is not proof that no other audit sink exists. Do not
+print raw audit records or assume login cleanup from that stale file.
+
+The human instructions needed to explicitly say VALUE ONLY, without labels,
+quotes, commas or braces. No actual input values were requested or received.
+Do not repeat the unchanged command while the fresh-directory guard exists.
+
+Narrow recovery authorization needed: inspect exact directory inventory, require
+only root-owned zero-byte `ceremony-stages.jsonl` and no token or other file, then
+rename `/run/aster-worker-provision` to the new absent
+`/run/aster-worker-provision-input-failed-20261008` to preserve evidence. Permit
+one fresh run of the same fingerprint with value-only input; no source/policy
+changes, snapshot recreation, or controller replay. If any precondition differs,
+stop. Existing provisioning approval governs the controller only after a new
+confirmed ready/root-revoked receipt. No reset/retry performed yet.
 
 ## Resume point — staging correction completed
 
