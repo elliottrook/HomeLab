@@ -354,3 +354,62 @@ admission, pending-job preservation, schema upgrade and rejection of expired or
 disabled identities; the full backend suite passed 286 tests. These are safety
 prerequisites, not worker readiness or a usable Start Session feature. No
 production service, credential or route changed.
+
+## Simplification challenge: native direct bridge versus distributed worker
+
+The one-question gateway session above is **not yet the recommended first
+normal-use path**. The current Authentik worker account is deliberately inactive
+between trials. `BrokerGate` checks only a global automation switch; it neither
+starts a Mac process nor grants a specific owner/session. The app password is
+short-lived and expires on 2026-10-09 at 19:02 Vancouver time. Making a Companion
+button work through the gateway would therefore also require a reviewed
+credential/activation lifecycle. Quietly leaving the service account active,
+having the app activate it, or treating the global switch as user consent would
+materially change the trust model. Do none of these as part of a UI fix.
+
+For the **native Mac Companion only**, evaluate a simpler local path before
+building that lifecycle. Aster could launch a one-shot, locally packaged bridge
+on Jason's explicit click. The bridge would use the already signed-in local
+Codex App Server over a private stdio pipe, receive only the reviewed text,
+enforce the existing pinned model/no-tools/no-MCP/read-only configuration,
+return the final answer to Companion, and exit. It would not ask Aster's gateway
+for a worker token, read the separate worker Keychain item, activate Authentik,
+or gain infrastructure tools. This is an **architectural proposal**, not proof
+that the native app can safely launch, isolate, package or recover that bridge.
+Codex's own sign-in and transcript retention still apply.
+
+| Criterion | One-shot local bridge | Gateway + Mac worker |
+|---|---|---|
+| First native Mac question | Fewer components and no worker identity/credential lifecycle; requires signed packaging and local process controls | Already has an accepted one-turn transport, but needs activation, expiry-aware readiness and operator timing removal |
+| Voice/remote Aster request | Does not serve another device while the Mac app is closed; a later ingress design is needed | Has owner-scoped remote job status and a path toward other interfaces when worker availability is solved |
+| Failure/recovery | Local app/bridge crash must preserve a one-turn journal and avoid automatic replay; original answer may remain in Codex history | Existing two-ledger protocol and one verified original-answer recovery, with greater distributed failure surface |
+| Security boundary | Fixed local process/configuration, OS user and Codex auth; no sysadmin tools in D3 | Owner OIDC, broker gate, worker identity, short token, gateway and Codex; more distinct authorities to maintain |
+
+**Recommendation:** run a no-inference, synthetic comparison of these two paths
+before adding live session routes. Test whether the signed native app can start
+an exact one-shot bridge without shell interpolation, prompt text in process
+arguments/environment/logs, broader Codex tools, credential copying or a
+standing process. Inject a fake App Server to exercise success, bad response,
+app crash, bridge crash, cancellation request, duplicate click and Mac sleep.
+Measure startup time, manual steps, number of credentials/authorities, recovery
+behavior and code/operational surface. If the local path passes, use it for the
+first normal native experience and retain the gateway work as a bounded remote
+adapter candidate. If it fails, return to the gateway design with a separately
+reviewed per-session activation/custody mechanism. Neither path grants Codex
+sysadmin tools or auto-promotion. A real model turn and any installed native
+build remain separate, concrete gates.
+
+The first **offline local-bridge coordinator** now exists in `local_turn.py`.
+It reuses the D1/D2 durable dispatch `Session` and `DispatchStore`, takes exactly
+one reviewed text value from a trusted caller, and returns a final answer only
+in memory. It has no process launch, provider account access, HTTP listener,
+worker token or live model method of its own. The durable job claim happens
+before `turn/start`; a lost acknowledgement remains unknown and a second call
+with the same request ID is refused. Unexpected tool/server requests are
+rejected and trigger a best-effort interrupt; interruption is not presumed
+complete. Synthetic fake-agent tests cover exact text, no prompt/answer in the
+dispatch database, lost acknowledgement, duplicate click, tool refusal and
+timeout and a competing durable claim. The full backend suite passed **292 tests**. This establishes the
+local dispatch contract only. Signed app packaging, private IPC, real Codex
+configuration and model availability have **not** been tested by it. Do not
+connect it to Companion or run a real turn on this evidence alone.

@@ -106,6 +106,21 @@ for the first bridge because Codex is installed there; its sleep/offline state i
 an explicit availability dependency. An always-on deployment is a later placement
 decision, not permission to copy personal credentials into a container.
 
+### D3 native-placement review — 2026-10-08
+
+The bounded gateway/worker transport completed one native request and one
+original-answer recovery, then was closed. Its worker identity is inactive
+between trials; the current broker does not provide per-session activation or
+Mac process startup. Gateway session routes by themselves would preserve the
+operator timing race. For the *native Mac app*, evaluate a one-shot local Codex
+bridge before adopting a standing distributed workflow. The D2 local stdio
+adapter is already proven for one fictional turn; an offline coordinator now
+passes duplicate-dispatch and uncertainty checks, without a model call. Signed
+app launch, private IPC and isolation are still unproven. The gateway remains a
+candidate for future voice/remote ingress; no authority transfers to either
+path. The [D3 comparison and evidence](evidence/D3-session-and-answer-recovery-design-2026-10-08.md)
+is the current placement gate.
+
 ## Current authorization and next action
 
 Jason directed recording this logic, retooling the project and continuing Stream A.

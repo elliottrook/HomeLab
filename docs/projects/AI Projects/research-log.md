@@ -2029,3 +2029,31 @@ same online-validated Authentik response while preserving current routes.
 Synthetic wrong-owner, pending-job, schema-upgrade and expired-identity checks
 pass; full backend suite: 286 tests. No live route, credential, worker or
 production service changed. See [the post-trial review](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).
+
+### 2026-10-08 — Challenge to the distributed native Codex path
+
+The post-trial code review found that the worker identity is deliberately
+inactive between trials; the gateway broker exposes only a global automation
+status, not owner/session authorization or Mac process startup. The current
+worker credential expires on 2026-10-09 at 19:02 Vancouver time. A normal
+Companion Start button over the gateway therefore requires a new, reviewed
+activation and credential lifecycle; gateway session routes alone cannot make
+it usable. No identity, broker or credential was changed.
+
+For the signed native Mac app, a one-shot local Codex App Server bridge may
+deliver the same reviewed no-tools question with fewer authorities and no
+worker credential. This is a proposal, not validated implementation. A
+synthetic, no-inference comparison must test startup, isolation, crash,
+duplicate-click and recovery behavior against the existing distributed path.
+If it passes, use local direct delegation for first normal native use and retain
+the gateway adapter only for future remote/voice needs. See [the comparison and
+falsification criteria](evidence/D3-session-and-answer-recovery-design-2026-10-08.md).
+
+An offline `local_turn.py` candidate now reuses the existing durable one-turn
+session and dispatch store with a fake Codex agent. It does not launch a
+process, call a model or contact the gateway. A lost start acknowledgement
+cannot dispatch the same job twice; the store contains no prompt or answer;
+unexpected tool requests are refused and interrupted on a best-effort basis.
+Synthetic completion, duplicate, tool-refusal and timeout checks pass; the full
+backend suite is 292 tests. This proves only the local coordinator's failure
+semantics. Signed native packaging and actual App Server isolation remain open.
