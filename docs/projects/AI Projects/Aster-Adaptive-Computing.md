@@ -29,7 +29,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Local complete pipe handoff/failure tests PASS; grouped cross-host fictional rehearsal awaits approval | 211 local tests; isolated real-vault v5 passed; next three-case SSH/container test uses no real credentials; see D3-cross-host-handoff-gate-2026-10-08 evidence |
+| D3 — Companion integration | All three cross-host fictional handoff cases PASS; finish human ceremony and real provisioning gate | 211 local tests; isolated real-vault v5 passed; complete SSH handoff/disconnect/Mac-failure cases passed and cleaned; no real provisioning/activation; see D3-cross-host-handoff-gate-2026-10-08 evidence |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in

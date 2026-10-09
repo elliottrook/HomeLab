@@ -1,5 +1,43 @@
 # D3 complete owned-pipe handoff rehearsal
 
+## Approved grouped rehearsal — PASS
+
+Jason approved the exact archive/fingerprint. Production health, absent remote
+paths and fresh local result directory checked. All 14 files staged and verified
+in each of the three execution environments. The reviewed harness ran once:
+
+| Case | Result | Journal ending | Fictional vault revocation |
+| --- | --- | --- | --- |
+| Success | PASS | admin:revoked → complete (20 stages) | Confirmed |
+| Gateway disconnect | PASS, expected failure | gateway:attempted → incomplete (15 stages) | Confirmed |
+| Mac sink failure | PASS, expected failure | keychain:attempted → incomplete (17 stages) | Confirmed |
+
+Actual SSH/container processes and node protocol were used. All owned peer
+processes exited according to the harness. The failure cases reached precisely
+their intended boundaries; no retry or activation occurred. Mac Keychain and real
+credentials were not accessed, no accounts created, no actual vault API invoked,
+and no model called. These are composed transport/fixture results, not integrated
+proof of real custody effects.
+
+Removed exactly all 14 source/manifest files on each target and the three
+allowlisted fixed fictional receipts on 117. Independent checks confirm all
+three staging directories absent. Production OpenBao/Aster/broker/approval remain
+active; local Doctor confirms unsealed vault, Authentik reachable, expected policy
+catalogue, current backup/restore age checks, 0 active requests and 37 historical
+outcomes. No restarts, production configuration changes, packages or pushes.
+
+Non-secret local journals retained under
+`/private/tmp/aster-provision-pipe-results-20261008` (temporary, not durable backup).
+SHA-256 in case order above:
+- `35142ea259983d66699ea16391640a3597f677881e6e30d9d81e82433f75fe6e`
+- `f8ba445d0bc5186745b060eee0b7a7f3429718312f85c2301c8753872b9fe3cc`
+- `ad3f7f43f2aa6b7805fe7697f3f50e7b5156269bbb8b10cbaaae1cf6693e756c`
+
+Approval consumed; do not repeat the successful rehearsal without a new reason.
+Next: finish private human ceremony/staging ownership and crash-reconciliation
+procedure, then prepare one real inactive-identity provisioning gate. Current
+checks do not authorize or prove that deployment; delegation remains disabled.
+
 ## Local implementation and evidence
 
 The isolated OpenBao v5 test is complete; do not repeat it. This next experiment

@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Cross-host grouped handoff PASS
+
+Approved exact three-case harness passed over actual SSH/container endpoints:
+success, gateway disconnect and Mac sink failure. Each verified fixed fictional
+vault revocation and precise journal outcome; all owned peers exited. Removed
+enumerated files/receipts from all targets and independently verified absence.
+Production AI-PAM remains healthy; no real credential/Keychain/API/account/model
+use. Successful primitives are complete; continue human ceremony and real
+inactive-provisioning preparation. See
+[cross-host result](evidence/D3-cross-host-handoff-gate-2026-10-08.md).
+
 ## 2026-10-08 — Complete pipe-chain tests and grouped transport gate
 
 Added fictional endpoint adapters running the real protocol/provisioner in separate
