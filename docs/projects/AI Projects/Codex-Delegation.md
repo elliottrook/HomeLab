@@ -127,6 +127,16 @@ record the current placement decision and proposed test.
 
 ## Current authorization and next action
 
+### Standing access review — 2026-10-09
+
+Jason requested an access-until-revoked approach to stop repeated prompts while
+Stream A is built. The [standing-access design](evidence/D3-standing-access-design-2026-10-09.md)
+separates existing Stream A project authority, AI-PAM capability grants, native
+Keychain trust, ChatGPT disclosure consent and Codex platform approvals. Its
+first implementation gate is identifying the actual recurring dialog; no
+blanket permission or production setting has been changed. Routine in-scope
+local/read-only work should proceed without new conversational approval.
+
 Jason directed recording this logic, retooling the project and continuing Stream A.
 Proceed with local documents/code/tests and read-only integration preflight.
 Connected pilots retain concrete privacy, tool and deployment gates under the
