@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-08 — Complete pipe-chain tests and grouped transport gate
+
+Added fictional endpoint adapters running the real protocol/provisioner in separate
+processes. Success, gateway disconnect and Mac sink failure all verify exact stage
+outcomes, child exit, source-local revocation receipt and secret-free journals.
+211 local tests pass, including all three cases through the complete harness.
+Prepared one three-case cross-host SSH/container rehearsal with reviewed immutable
+bundle and 10-minute cap. Only read-only staging-path checks performed remotely.
+Human ceremony remains closed. See
+[cross-host approval scope](evidence/D3-cross-host-handoff-gate-2026-10-08.md).
+
 ## 2026-10-08 — Isolated real-engine provisioning PASS
 
 Approved v5 completed with installed OpenBao 2.6.4: fixed configuration verified,
