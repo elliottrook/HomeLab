@@ -1,6 +1,6 @@
 # D3 — corrected native first-case gate (build 11)
 
-**Status: PREPARED LOCALLY; NOT APPROVED OR EXECUTED.** Owner: Jason.
+**Status: APPROVED; FIRST CASE COMPLETED; NORMAL-UI CLOSEOUT PENDING.** Owner: Jason.
 This gate replaces only the failed pre-send build 10 attempt. It permits at
 most one reviewed fictional question and no other live model turns.
 
@@ -63,3 +63,36 @@ This gate needs explicit approval for **build 11 installation and one new
 subscription-backed question**. It does not approve the other eleven cases,
 arbitrary prompts, infrastructure tools, gateway activation, worker grants or
 Git push. A single good answer establishes only a functioning first-case path.
+
+## Observed first-case result — 2026-10-09
+
+Jason approved build 11 and the same single fictional question. Before
+installation, the installed build 10, preserved build 9 and candidate build 11
+matched their pinned executable hashes; signatures passed. The prior local
+journal still held one request and turn, with no evaluation event file or
+pending evaluation ID. Aster was active with 44 API paths, GET-only on the
+delegation jobs collection, two historical gateway jobs, and an inactive
+Authentik worker with zero unrevoked access/refresh grants. A whole-build-10
+rollback was preserved at `/Applications/AsterCompanion.pre-build11-20261009.app`
+and verified before replacement. Build 11 installed with the pinned executable
+hash and valid strict signature.
+
+The signed-in normal Aster UI and the exact case 1 review appeared. The
+metadata-only preflight passed. Jason reviewed the question and selected the
+consent/send control. One new local request completed with one nonempty thread
+ID, one nonempty turn ID and one usage record. The visible answer correctly
+described 503 as service unavailable and explicitly rejected an inference of a
+lasting outage. The UI reported **2.3 seconds** for the Codex turn and **3.0
+seconds** send-to-result; the private event file recorded 2.273 and 3.044
+seconds respectively. Its mode is 0600 and it contains only submitted and
+completed events for case index 0, request ID, pinned manifest, timestamps and
+timings—no prompt or answer. The pending ID remains recorded, and the next
+case has not been selected. After the turn, Aster still had 44 paths, GET-only
+job listing and two gateway jobs; the worker remained inactive with zero
+unrevoked grants.
+
+The volatile answer is still open for Jason to save privately. Normal-app
+relaunch and hidden-evaluation-control verification remain to close this gate.
+This one case is a transport/measurement success, not a reliability sample,
+router validation or sysadmin qualification. The other eleven cases remain
+unapproved.

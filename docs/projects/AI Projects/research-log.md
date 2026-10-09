@@ -2155,3 +2155,28 @@ owner-only mode. Repeat-call and file-substitution regression tests and all
 The corrected signed, unregistered build 11 keeps the same no-tools/read-only
 manifest. [A separate gate](evidence/D3-native-build11-first-case-gate-2026-10-09.md)
 is prepared for a new install and first question; no second attempt has run.
+
+### 2026-10-09 — Corrected first finite-evaluation case completed
+
+Jason approved the separate build 11 gate. The signed, pinned build replaced
+build 10 after preserving verified build 9 and build 10 rollbacks. One reviewed
+fictional HTTP 503 question completed through the existing ChatGPT sign-in with
+no Aster tools or gateway route. The answer separated temporary service
+unavailability from proof of a lasting outage. One new local journal request
+has one completed turn and usage record; the owner-only event file has just
+submitted/completed metadata for case 0, with 2.273-second turn time and
+3.044-second send-to-result time. Aster retained 44 paths, GET-only owner job
+listing and two gateway jobs. The separate worker remained inactive with zero
+unrevoked grants. The answer is still open for Jason to save privately, so
+normal-app relaunch remains pending. This is one successful transport and
+measurement case, not routine reliability, automatic routing or sysadmin
+qualification. The other eleven cases were not run.
+
+At Jason's explicit request, the Mac's local inactivity controls were changed
+for this long-running supervised work: screen saver start and display-off are
+both two hours, and password is required immediately when either starts. The
+Lock Screen and Screen Saver settings were verified in System Settings and
+`pmset -g custom` reported `displaysleep 120` on AC. The prior visible settings
+were 20 minutes for screen saver, 10 minutes for display-off and a four-hour
+password delay. This is a workstation convenience/security tradeoff, not
+evidence that LAN controls are sufficient; no network access setting changed.
