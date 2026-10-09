@@ -87,7 +87,8 @@ def request_router(intake,owner_dependency,worker_dependency):
     async def capabilities(response:Response,owner=Depends(owner_dependency)):
         response.headers['Cache-Control']='no-store'
         return {'submission_enabled':intake.enabled is True,'model':intake.model,
-                'mode':'supervised','tools':False,'maximum_utf8_bytes':16000}
+                'mode':'supervised','tools':False,'maximum_utf8_bytes':16000,
+                'worker_status':'unknown'}
 
     @router.post('/v1/companion/delegation/requests',status_code=202)
     async def submit(body:RequestBody,response:Response,owner=Depends(owner_dependency)):
@@ -107,4 +108,16 @@ def request_router(intake,owner_dependency,worker_dependency):
         try:return intake.assigned_payload(worker,jid,body.delivery_id)
         except PermissionError:raise HTTPException(403,'Payload unavailable') from None
         except KeyError:raise HTTPException(404,'Payload unavailable') from None
+    return router
+
+
+def closed_intake_router(owner_dependency):
+    """Read-only status while submission is closed; no custody or state access."""
+    router=APIRouter()
+
+    @router.get('/v1/companion/delegation/capabilities')
+    async def capabilities(response:Response,owner=Depends(owner_dependency)):
+        response.headers['Cache-Control']='no-store'
+        return {'submission_enabled':False,'model':'','mode':'supervised',
+                'tools':False,'maximum_utf8_bytes':16000,'worker_status':'unknown'}
     return router

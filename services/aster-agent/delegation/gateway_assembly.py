@@ -53,6 +53,12 @@ class GatewayAssembly:
                 from request_intake import RequestIntake,request_router
             self.intake=RequestIntake(lambda:self.gateway,request_model,enabled=True)
             self.router.include_router(request_router(self.intake,owner_dependency,identity))
+        else:
+            if __package__:
+                from .request_intake import closed_intake_router
+            else:
+                from request_intake import closed_intake_router
+            self.router.include_router(closed_intake_router(owner_dependency))
 
     def __getattr__(self, name):
         # The route implementations use these ledger methods only. Do not expose

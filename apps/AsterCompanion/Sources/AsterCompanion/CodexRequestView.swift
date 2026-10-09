@@ -23,6 +23,12 @@ struct CodexCapabilities: Decodable {
     let mode: String
     let tools: Bool
     let maximumUtf8Bytes: Int
+    let workerStatus: String?
+    var availabilityMessage: String {
+        if !submissionEnabled { return "New Codex requests are closed. You can still view recorded requests." }
+        if !supported { return "This Codex mode is not supported by this app. Nothing will be sent." }
+        return "Supervised requests are enabled. Worker readiness is not verified; arrange a session before sending."
+    }
     var supported: Bool {
         submissionEnabled && mode == "supervised" && !tools && maximumUtf8Bytes == 16000
     }
@@ -74,7 +80,7 @@ struct CodexRequestView: View {
                     catch { self.error = "Enter a question of at most 16,000 UTF-8 bytes." }
                 }.disabled(capabilities?.supported != true)
             }
-            if capabilities?.supported != true { Text("New Codex requests are not enabled on Aster.").font(.caption) }
+            Text(capabilities?.availabilityMessage ?? "Codex availability has not been confirmed. Nothing will be sent.").font(.caption)
             Button("Close") { dismiss() }.disabled(sending)
         }
         .padding().frame(minWidth: 560, minHeight: 400)

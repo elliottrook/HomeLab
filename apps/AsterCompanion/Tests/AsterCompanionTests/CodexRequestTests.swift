@@ -2,6 +2,20 @@ import XCTest
 @testable import AsterCompanion
 
 final class CodexRequestTests: XCTestCase {
+    func testClosedAndUnsupportedCapabilitiesNeverPermitSubmission() throws {
+        for (enabled, tools) in [(false, false), (true, true)] {
+            let raw = "{\"submission_enabled\":\(enabled),\"model\":\"fixture\",\"mode\":\"supervised\",\"tools\":\(tools),\"maximum_utf8_bytes\":16000}"
+            let value = try AIPAMCoding.decoder.decode(CodexCapabilities.self, from: Data(raw.utf8))
+            XCTAssertFalse(value.supported)
+        }
+    }
+    func testEnabledIntakeDoesNotClaimWorkerReadiness() throws {
+        let raw = #"{"submission_enabled":true,"model":"fixture","mode":"supervised","tools":false,"maximum_utf8_bytes":16000,"worker_status":"unknown"}"#
+        let value = try AIPAMCoding.decoder.decode(CodexCapabilities.self, from: Data(raw.utf8))
+        XCTAssertTrue(value.supported)
+        XCTAssertTrue(value.availabilityMessage.contains("not verified"))
+    }
+
     func testOnlyReviewedTextAndConsentAreEncoded() throws {
         let text = "  A question with intentional spacing.\n"
         let request = try ReviewedCodexRequest(text: text)

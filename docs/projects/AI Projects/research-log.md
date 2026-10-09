@@ -1894,3 +1894,11 @@ drop-in removal/restart; health 200, all original 43 API paths, both completed
 records preserved. Independently verified worker inactive and no access/refresh
 grants. Native UI round trip accepted; D3 operational lifecycle work remains.
 No more inference or push authorized by this consumed one-turn gate.
+
+### 2026-10-08 — Closed availability and missing-answer candidate
+
+Prepared authenticated read-only closed-intake status and honest native messages
+for unknown readiness and completed-but-unavailable answers. 33 native and 252
+backend tests pass; signed build 7 packaged locally. No live change or inference.
+See [bounded gate](evidence/D3-availability-gate-2026-10-08.md) for deployment,
+rollback and subsequent session/recovery work.

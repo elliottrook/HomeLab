@@ -1,0 +1,14 @@
+{
+  "root": "/private/tmp/aster-native-availability-candidate-20261008",
+  "files": {
+    "AsterCompanion.app/Contents/Info.plist": "927d2a96ebf94ba3a05d0f655190a7b35c5793bb5483b2086025e2d426fb9ed4",
+    "AsterCompanion.app/Contents/MacOS/AsterCompanion": "508346d2bc9d98c1da7726a86f416d014c15f10c36926bc5ae783bdb5d50c05f",
+    "AsterCompanion.app/Contents/Resources/AppIcon.icns": "ff275ff1d93d57a1b2d552740064a20dc27647b3de36150df77950de84f1dec5",
+    "AsterCompanion.app/Contents/Resources/AsterCompanion_AsterCompanion.bundle/Contents/Info.plist": "7b900e5340aae8577ca86424e57622d52c0a9e71a36426adfddaf1ec357ec516",
+    "AsterCompanion.app/Contents/Resources/AsterCompanion_AsterCompanion.bundle/Contents/Resources/AsterOrb.png": "5b1e2804022b5b72f216bfc1a05b3420178020cbe11e99ddc6b47589837a6ff4",
+    "AsterCompanion.app/Contents/_CodeSignature/CodeResources": "5606af23f838b28612b7b0a415da553d626ee707868d909a9101452915a3609f",
+    "gateway/gateway_assembly.py": "380e746a6128090ef772286c4ed8d73a4600c9af8cdf80b24548e7d4ad0290a1",
+    "gateway/request_intake.py": "5d0678494faeb621bf932aa9b7ae01fcbf9907fe5b9860cca899fcc2c43db33b"
+  },
+  "installed_app_before": "4fe9238ec04d58d05525f9bf6ad42de4030ed1c9d7907ad53bca66f7938839b1"
+}

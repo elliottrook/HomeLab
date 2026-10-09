@@ -63,6 +63,28 @@ class GatewayAssemblyTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(assembly.gateway._row(jid)[1],'queued')
             self.assertEqual(assembly.intake.content,{})
 
+    async def test_closed_intake_reports_status_without_custody_or_submission(self):
+        assembly=self.assembly()
+        app=FastAPI();app.include_router(assembly.router)
+        async with app.router.lifespan_context(app):
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://fixture') as c:
+                r=await c.get('/v1/companion/delegation/capabilities')
+                self.assertEqual(r.status_code,200)
+                self.assertFalse(r.json()['submission_enabled'])
+                self.assertEqual(r.json()['worker_status'],'unknown')
+                self.assertEqual(r.headers['cache-control'],'no-store')
+                self.assertEqual((await c.post('/v1/companion/delegation/requests',json={})).status_code,404)
+                self.secret.assert_not_called()
+                self.assertEqual(self.issuer_calls,0)
+
+    async def test_closed_status_still_requires_owner_authentication(self):
+        from fastapi import HTTPException
+        from request_intake import closed_intake_router
+        async def deny():raise HTTPException(401,'Not authenticated')
+        app=FastAPI();app.include_router(closed_intake_router(deny))
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app),base_url='http://fixture') as c:
+            self.assertEqual((await c.get('/v1/companion/delegation/capabilities')).status_code,401)
+
     async def test_disabled_has_no_routes_state_or_credentials(self):
         assembly = self.assembly(False)
         app = FastAPI(); app.include_router(assembly.router)

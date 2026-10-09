@@ -21,6 +21,12 @@ struct DelegationSnapshot: Decodable {
     let usage: Usage
     let canRequestCancel: Bool
     let recoveryRequired: Bool
+    var statusMessage: String {
+        if state == "completed" && (recoveryRequired || reply == nil) {
+            return "This request completed, but its temporary answer is no longer available in Aster. This pilot cannot restore it here. Do not resend it to recover the answer."
+        }
+        return message
+    }
     var visibleAnswer: String? { state == "completed" ? reply : nil }
     var usageText: String {
         if usage.status == "reported", let total = usage.providerSnapshots?.total.totalTokens, total >= 0 {
@@ -35,10 +41,12 @@ struct DelegationStopResult: Decodable {
     let state: String
 }
 
-/// Assigned jobs only. This view cannot create, retry or approve model work.
+/// Owner-scoped status and explicit reviewed submission; never automatic retry.
 struct DelegationView: View {
     @EnvironmentObject private var auth: AuthManager
     @Environment(\.dismiss) private var dismiss
+    @State private var capabilities: CodexCapabilities?
+    @State private var hasLoadedJobs = false
     @State private var jobs: [DelegationJob] = []
     @State private var selected: String?
     @State private var snapshot: DelegationSnapshot?
@@ -52,12 +60,13 @@ struct DelegationView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Codex requests").font(.title2)
-                Button("Ask Codex") { showingRequest = true }
+                Button("Ask Codex") { showingRequest = true }.disabled(capabilities?.supported != true)
                 Spacer()
                 Button("Done") { dismiss() }
             }
             if let errorText { Text(verbatim: errorText).foregroundStyle(.red) }
-            if jobs.isEmpty { Text("No assigned requests.") }
+            Text(capabilities?.availabilityMessage ?? "Cannot confirm Codex availability. New requests are blocked; recorded status may still be available.").font(.caption)
+            if hasLoadedJobs && jobs.isEmpty { Text("No assigned requests.") }
             ForEach(jobs) { job in
                 Button("Request \(job.id.prefix(12)) — \(job.state)") {
                     selected = job.id; snapshot = nil; stopPending = false
@@ -65,7 +74,7 @@ struct DelegationView: View {
                 }
             }
             if let snapshot {
-                Text(verbatim: snapshot.message)
+                Text(verbatim: snapshot.statusMessage)
                 if let answer = snapshot.visibleAnswer {
                     ScrollView { Text(verbatim: answer).textSelection(.enabled).frame(maxWidth: .infinity, alignment: .leading) }
                 }
@@ -91,10 +100,13 @@ struct DelegationView: View {
     }
 
     @MainActor private func refresh() async {
+        capabilities = try? await client.fetchCodexCapabilities()
+        guard !Task.isCancelled else { return }
         do {
             let list = try await client.fetchDelegationJobs()
             guard !Task.isCancelled else { return }
             jobs = list
+            hasLoadedJobs = true
             if let id = selected {
                 let value = try await client.fetchDelegationJob(id)
                 guard !Task.isCancelled, selected == id else { return }

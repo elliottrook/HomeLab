@@ -2,6 +2,15 @@ import XCTest
 @testable import AsterCompanion
 
 final class DelegationTests: XCTestCase {
+    func testCompletedMissingAnswerDoesNotSuggestRepeatingWork() throws {
+        let raw = #"{"id":"j","state":"completed","reply":null,"message":"Answer needs recovery","usage":{"status":"unknown"},"can_request_cancel":false,"recovery_required":true}"#
+        let value = try AIPAMCoding.decoder.decode(DelegationSnapshot.self, from: Data(raw.utf8))
+        XCTAssertEqual(value.state, "completed")
+        XCTAssertNil(value.visibleAnswer)
+        XCTAssertTrue(value.statusMessage.contains("cannot restore"))
+        XCTAssertTrue(value.statusMessage.contains("Do not resend"))
+    }
+
     func testUnknownNeverDisplaysUnconfirmedAnswer() throws {
         let raw = #"{"id":"j","state":"unknown","reply":"unconfirmed","message":"Unknown","usage":{"status":"unknown"},"can_request_cancel":false,"recovery_required":false}"#
         let value = try AIPAMCoding.decoder.decode(DelegationSnapshot.self, from: Data(raw.utf8))
