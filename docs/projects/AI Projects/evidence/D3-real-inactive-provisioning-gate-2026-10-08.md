@@ -1,8 +1,43 @@
 # D3 — real inactive worker provisioning package
 
-Status: PREPARED, NOT EXECUTED. Jason's latest approval followed an offer to
-prepare real setup. This document now makes the production mutations concrete;
-obtain explicit confirmation of this scope before making them.
+Status: APPROVED, PARTIALLY STAGED; stopped before human input or credentials.
+
+## Execution checkpoint and narrow correction — 2026-10-08
+
+Jason approved the concrete production scope. Final checks passed: AI-PAM healthy,
+fixed Keychain item absent (status only; no password read), Authentik names absent
+and 21 application bindings reviewed, gateway destination absent/private directory
+0700, vault handoff absent. Created and independently verified all three snapshots
+`aster-worker-preprovision-20261008` on 104, 106 and 117. Guest filesystems thawed;
+no service restart was requested. Snapshot creation reported thin provisioning
+warnings; read-only inspection showed pve/data 21.48% data / 0.97% metadata used.
+No storage policy change was made, and the warnings remain recorded here.
+
+The frozen archive and fingerprints matched. All 14 source files were created
+and hash/owner/mode verified on 104 and 117. Staging on Authentik 106 failed:
+its container lacks the parent `/var/tmp`, not merely the intended staging leaf.
+Read-only inspection confirmed both parent and leaf absent, with no staged files.
+The preflight had checked the leaf's absence but overlooked the missing parent.
+This is an implementation preparation error, not a credentials or policy failure.
+
+Local ignored `.aster-local-state/` was created mode 0700 and the Swift installer
+compiled privately, without Keychain access. The staged human helper's default
+metadata returned the exact approved fingerprint with `applied=false`. Production
+AI-PAM remains healthy, zero active requests, 37 outcomes. No human ceremony,
+new identity, token, vault secret or credential installation has occurred.
+
+**Narrow correction approval requested:** after rechecking that the container's
+`/var/tmp` is still absent, create it root-owned mode 0755, then create only the
+already approved root-0700 staging leaf/deploy directory and the same 14 files
+mode 0600 in Authentik. Verify every hash. Do not replay staging on 104/117 or
+recreate snapshots. Recheck the complete staged manifest and health, then pause
+for the already approved private human-input step. All remaining original limits
+continue. No content/fingerprint changes, extra credentials, services or tests.
+
+The newly created parent, if approved, is to be removed with `rmdir` only after
+successful exact-file cleanup and only if empty; unknown contents stop removal.
+Until this correction is approved/completed, do not provide a ready notice or ask
+Jason to generate a short-lived setup token.
 
 ## Outcome and limits
 

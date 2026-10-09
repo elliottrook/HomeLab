@@ -1667,3 +1667,15 @@ lifetimes, containment and no-replay rules in the
 [real setup gate](evidence/D3-real-inactive-provisioning-gate-2026-10-08.md).
 No real credentials read, new accounts created, remote mutations or push performed.
 Explicit production-scope confirmation is the next authorization boundary.
+
+### 2026-10-08 — Approved staging stopped at missing container parent
+
+Created/verified approved snapshots on 104/106/117, verified fixed Keychain item
+absence without reading it, and staged/hash-checked 14 files on 104/117. Authentik
+staging failed because `/var/tmp` itself is absent. Read-only reconciliation found
+no partial Authentik staging. The missing-parent preflight omission is retained
+as a preparation error. Local private journal parent and Swift precompile ready;
+production readiness still passes. No human ceremony or credential creation.
+[Checkpoint and narrow correction](evidence/D3-real-inactive-provisioning-gate-2026-10-08.md)
+preserve the completed work and request only the extra parent-directory creation
+and remaining Authentik staging, without replaying snapshots or successful stages.
