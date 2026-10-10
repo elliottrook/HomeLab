@@ -12,6 +12,7 @@ Environment=TCF_PORT=8080
 Environment=TCF_SAMPLE_RECORD=/opt/tcf-publishing/samples/after-the-weather.json
 Environment=TCF_SAMPLE_IMAGE=/var/lib/tcf/sample/alpine-dawn.png
 Environment=TCF_DATABASE=/var/lib/tcf-workflow/content.db
+Environment=TCF_IMPORT_ROOT=/var/lib/tcf-workflow/imports
 ExecStart=/usr/bin/python3 /opt/tcf-publishing/desk.py
 Restart=on-failure
 RestartSec=3

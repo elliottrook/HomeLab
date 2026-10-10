@@ -56,6 +56,11 @@ and domain gate passes.
   immutable approvals in owner-only SQLite state. Any edit creates a new
   version and leaves the current version unapproved. Deliberate cross-site reuse
   creates a separate unapproved record; it never copies approval.
+- Drag-and-drop imports accept bounded UTF-8 Markdown and JPEG/PNG/WebP images.
+  Original Markdown remains owner-only; the image pipeline auto-orients and
+  strips metadata into a private JPEG preview. Imported files are scoped by
+  site and content ID and do not become a saved content version until the user
+  explicitly saves the draft.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to

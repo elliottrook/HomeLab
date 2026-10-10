@@ -510,9 +510,10 @@ Synology/Immich source boundaries, isolated public origin, story limits,
 approval/cadence, backup scope, domain/mail/font constraints and free-tier
 public exposure. No public-domain route exists. The private Content Desk is now
 available through owner-only Authentik at `tcf.elliottrook.com`; direct backend
-access remains denied. Next safe action: implement bounded Markdown/image
-drag-and-drop import with site-scoped storage, image validation and metadata
-stripping, then add the live preview and approval controls.
+access remains denied. Bounded Markdown/image drag-and-drop import and visible
+approval controls are deployed. Next safe action: add site-scoped record creation
+and selection so Jason can begin a fresh non-sample item, then complete a real
+photograph/story save-and-approval walkthrough.
 Store design decisions, last validated gate, candidate/accepted release ID,
 rollback checkpoint, exact blocker and next safe action at each milestone.
 Use a versioned durable job-state DB with atomic transitions, not process absence.
@@ -548,6 +549,8 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Created Authentik forward-auth application `photography-content-desk`, attached it to the embedded outpost and bound only Jason as owner. NPM host 36 routes `tcf.elliottrook.com` to `192.168.20.35:8080` using wildcard certificate 8; NPM's own renderer reported online and `nginx -t` passed | Private HTTPS access is protected by the existing identity boundary; unauthenticated client request returns the expected same-host Authentik 302 |
 | 2026-10-09 | Added checkpointed split-DNS records to OPNsense Unbound and both Pi-hole v6 instances. All three resolvers independently return `192.168.50.23`; the Mac's normal resolver does too, while `1.1.1.1` returns no A record | `tcf.elliottrook.com` is internal only; no public DNS or tunnel route was created |
 | 2026-10-09 | Full client-path test returned HTTPS 302 to `/outpost.goauthentik.io/start`; direct Mac access to `192.168.20.35:8080` timed out. Primary and secondary Pi-hole are healthy and NPM syntax remains valid | Private access path passes end to end, and the firewall still prevents bypassing NPM/Authentik |
+| 2026-10-09 | Deployed site-scoped drag/drop import for UTF-8 Markdown up to 64 KiB and JPEG/PNG/WebP up to 20 MiB/60 MP. A synthetic live probe confirmed Markdown normalization, ImageMagick auto-orientation/metadata stripping, private mode 0600, content-addressed SHA-256 filenames and scoped JPEG preview; probe files were removed. NPM host 36 now permits the bounded encoded request at 29 MiB and still passes `nginx -t` | Imported bytes cannot overwrite an earlier version's image, never leave the private desk, and do not alter a content version until explicit draft save |
+| 2026-10-09 | Added visible collection, story type, orientation, rights, consent, focal-point and credit controls. Unsaved edits keep approval disabled; server-side approval still revalidates the immutable latest version. Both site pills load independent sample records. Twenty-two unit tests and the embedded JavaScript syntax check passed; private HTTPS still returns the expected Authentik 302 | Human review fields and save-before-approval boundary are live; creation/selection of fresh non-sample records and Jason's real walkthrough remain A3 gates |
 
 ## Close out
 

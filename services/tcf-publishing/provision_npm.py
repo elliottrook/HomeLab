@@ -29,10 +29,13 @@ current = database.execute(
     "SELECT * FROM proxy_host WHERE is_deleted=0 AND domain_names=?",
     (json.dumps([DOMAIN]),),
 ).fetchone()
+advanced_config = template["advanced_config"].replace(TEMPLATE_DOMAIN, DOMAIN)
+if "client_max_body_size 29m;" not in advanced_config:
+    advanced_config = "client_max_body_size 29m;\n\n" + advanced_config
 values = dict(template)
 values.update({"domain_names": json.dumps([DOMAIN]), "forward_host": "192.168.20.35",
                "forward_port": 8080,
-               "advanced_config": template["advanced_config"].replace(TEMPLATE_DOMAIN, DOMAIN),
+               "advanced_config": advanced_config,
                "meta": json.dumps({"nginx_online": True, "nginx_err": None}),
                "modified_on": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
                "enabled": 1, "is_deleted": 0})
