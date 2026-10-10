@@ -11,3 +11,28 @@
 - The journal still showed 13 `completed` rows and no new row after launch. No new model question has been sent, no Keychain item has been read or modified, and no infrastructure action has been taken.
 
 **Next gate:** verify the visible normal Aster screen, AI-PAM read-only status and manual question surface. Stop if there is a recurring ordinary-use Keychain prompt or regression. Jason must review the exact fictional Vega-light question and use the app's explicit ChatGPT consent before the one permitted send. Keep the content-free journal and request ID intact through any interruption; do not resend an uncertain turn.
+
+## First-launch interruption and rollback
+
+Jason reported a crash alert over a Keychain prompt. Read-only process and
+crash-report checks showed that the alert belonged to the earlier sandboxed
+direct-executable attempt, while the deliberately launched manual-test
+instance remained alive. An accidental unflagged instance had also been
+started by screen-control inspection and was stopped by exact PID. The journal
+remained at 13 completed rows.
+
+When Jason reported another Keychain prompt, the conservative repeated-prompt
+stop rule was applied: the manual-test process was stopped, the version-15
+bundle preserved at
+`/Applications/AsterCompanion.manual-v15-stopped-20261009.app`, and the exact
+version-13 original returned to `/Applications/AsterCompanion.app`. Its hash,
+strict signature and version were verified. Version 13 reopened to its signed-in
+normal screen. No new Codex request was sent.
+
+Jason then clarified that it often asks for two prompts before entry and that
+version 15 entered after the second prompt. Thus this observation does **not**
+establish recurring prompts during ordinary use or an application crash in the
+normally launched version 15. Two concurrently launched app instances are a
+plausible cause of the paired prompts, but that is unproved. The gate needs a
+single-instance retest that counts first-launch prompts separately from later
+ordinary-use prompts. Do not infer successful reliability from this attempt.

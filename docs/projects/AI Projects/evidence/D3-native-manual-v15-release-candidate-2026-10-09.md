@@ -1,8 +1,10 @@
 # D3 native manual Codex version-15 release candidate
 
-**Status: signed local candidate; not installed or launched.** Owner: Jason.
-This is a proposal for one bounded reliability test, not routine Ask Codex
-release, automatic routing, sysadmin delegation or a tool grant.
+**Status: first supervised installation stopped before a model send; version 13
+restored.** Owner: Jason. See the
+[installation checkpoint](D3-native-manual-v15-installation-2026-10-09.md).
+This remains a candidate for a bounded reliability test, not routine Ask
+Codex release, automatic routing, sysadmin delegation or a tool grant.
 
 ## Exact candidate and current app
 
@@ -56,6 +58,13 @@ stale/revoked session; a usable authenticated rollback is **not guaranteed**.
 If version 13 cannot authenticate after restoration, stop and use the normal
 human sign-in path rather than copying or altering refresh tokens.
 
-This plan does not authorize installation, a Keychain ACL change, Mac sleep,
-a Codex model turn, infrastructure access or a Git push. The candidate and
-current app remain separate until Jason reviews the exact live gate.
+Jason approved the first installation and bounded test, then clarified that
+two Keychain prompts can occur during entry and that the candidate entered
+after the second. The first attempt was stopped conservatively before any
+model send. A sandboxed launch produced the sole crash report, while a
+normally launched manual instance remained running. An accidental second
+unflagged instance makes the prompt count inconclusive. A future attempt must
+ensure exactly one Companion process before launch, distinguish prompts on
+first entry from prompts during subsequent ordinary use, and confirm normal
+operation before a question is sent. No Keychain ACL change, Mac sleep,
+infrastructure access or extra Git push is authorized by this document.
