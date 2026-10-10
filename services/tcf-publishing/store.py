@@ -144,6 +144,18 @@ class ContentStore:
                 raise KeyError((site, content_id))
             return ContentRecord.from_dict(json.loads(row["record_json"])), int(row["version"])
 
+    def version(self, site: str, content_id: str, version: int) -> ContentRecord:
+        with self.lock:
+            if site not in SITES:
+                raise ContentError("unknown site")
+            row = self.database.execute(
+                "SELECT record_json FROM content_versions WHERE site = ? AND content_id = ? AND version = ?",
+                (site, content_id, version),
+            ).fetchone()
+            if row is None:
+                raise KeyError((site, content_id, version))
+            return ContentRecord.from_dict(json.loads(row["record_json"]))
+
     def list_latest(self, site: str) -> list[tuple[ContentRecord, int]]:
         with self.lock:
             if site not in SITES:
@@ -271,6 +283,40 @@ class ContentStore:
                 raise ContentError("slot is not part of this edition")
             self.database.commit()
             return self.edition_status(site)
+
+    def edition_manifest(self, site: str) -> dict:
+        with self.lock:
+            status = self.edition_status(site)
+            if not status["active"]:
+                raise ContentError("no fortnightly refresh is in progress")
+            rows = self.database.execute(
+                "SELECT content_id, candidate_version, action FROM edition_slots "
+                "WHERE edition_id = ? ORDER BY content_id",
+                (status["edition_id"],),
+            ).fetchall()
+            slots = []
+            for row in rows:
+                if row["action"] == "remove":
+                    slots.append({"id": row["content_id"], "action": "remove",
+                                  "state": "complete", "version": None})
+                    continue
+                if row["candidate_version"] is None:
+                    current, _ = self.latest(site, row["content_id"])
+                    slots.append({"id": row["content_id"], "action": "replace",
+                                  "state": "awaiting replacement", "version": None,
+                                  "title": current.title, "collection": current.collection})
+                    continue
+                candidate_version = int(row["candidate_version"])
+                candidate = self.version(site, row["content_id"], candidate_version)
+                approval = self.current_approval(site, row["content_id"])
+                approved = approval is not None and approval.version == candidate_version
+                slots.append({"id": row["content_id"], "action": "replace",
+                              "state": "approved" if approved else "awaiting approval",
+                              "version": candidate_version, "title": candidate.title,
+                              "collection": candidate.collection,
+                              "annotation_text": candidate.annotation_text,
+                              "approved_hash": approval.approved_hash if approved else None})
+            return {**status, "slots": slots}
 
     def copy_to_site(self, source_site: str, content_id: str, target_site: str) -> int:
         with self.lock:

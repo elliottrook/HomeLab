@@ -80,6 +80,9 @@ the immutable approved payload, while the visual treatments stay brand-local.
   changed, promoted and approved candidate or an explicitly confirmed removal.
   Slot removal is reversible while drafting and does not delete content history.
   Adding a website slot remains a separate structural action.
+- The edition review manifest lists every slot as awaiting replacement, awaiting
+  approval, approved or removed. It exposes no publish action and fails closed
+  when no edition is active; the current public release remains independent.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to

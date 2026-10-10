@@ -111,6 +111,22 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(status["removed"], [])
         self.assertFalse(status["ready"])
 
+    def test_edition_manifest_lists_pending_approved_and_removed_slots(self):
+        self.store.save(record(id="pending-slot"))
+        self.store.save(record(id="approved-slot"))
+        self.store.save(record(id="removed-slot"))
+        self.store.start_refresh("contrast", "Manifest candidate")
+        self.store.save(record(id="approved-slot", title="New approved work"))
+        self.store.approve("contrast", "approved-slot", "jason")
+        self.store.set_slot_removal("contrast", "removed-slot", True, "REMOVE SLOT")
+        manifest = self.store.edition_manifest("contrast")
+        self.assertEqual(
+            {slot["id"]: slot["state"] for slot in manifest["slots"]},
+            {"approved-slot": "approved", "pending-slot": "awaiting replacement",
+             "removed-slot": "complete"},
+        )
+        self.assertFalse(manifest["ready"])
+
 
 if __name__ == "__main__":
     unittest.main()
