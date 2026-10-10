@@ -258,3 +258,77 @@ has been installed, and no live session copy has occurred. The version-11
 rollback remains installed, signed in and working. This completes the
 preparation for the credential-migration approval gate; it does not supply
 evidence that a new Keychain item will survive the update until tested live.
+
+## Live migration and update gate — 2026-10-09, failed
+
+Jason approved the bounded live test. Version 11 was preserved at
+`/private/tmp/AsterCompanion.pre-migration-v11-20261009.app`, and the strictly
+verified version 13 was installed at the normal application path. Its first
+launch paused for a macOS Keychain interaction, which Jason handled privately.
+Version 13 then opened the normal signed-in Aster screen. Keychain Access
+metadata, inspected without showing the password, confirmed a new
+`oidc_session_v3` item under `com.elliottrook.aster-companion`. Its access
+control remained **Confirm before allowing access**, with only
+`AsterCompanion.app` in the allowed-app list, not all-app access. The legacy
+item remains. Version 13 quit and reopened signed in without a prompt.
+
+The strictly verified version 14 was then installed at the same path, with
+version 13 preserved at
+`/private/tmp/AsterCompanion.migration-v13-20261009.app`. Both installed
+builds had the same certificate-based designated requirement. Version 14's
+first-launch computer-use inspection timed out. Jason confirmed a macOS
+Keychain password prompt naming **Aster Companion** and
+`com.elliottrook.aster-companion`; the prompt later cleared and version 14
+showed the signed-in Aster screen. The prompt is a **failure** of the explicit
+no-repeat-prompt update gate. The service name alone does not identify the
+specific account (`v2` versus `v3`) in the prompt, although the version-14
+code reads `v3` on launch. Do not claim that creating a fresh item solved
+update trust on this Mac.
+
+Version 14 was preserved at
+`/private/tmp/AsterCompanion.failed-v14-20261009.app`; signed version 11
+was restored as the planned binary rollback. It opened to **“Your session
+expired or was revoked”**, so the older saved login did not remain a usable
+authentication rollback. Refresh-token rotation is a plausible explanation,
+not verified. Version 11 was preserved at
+`/private/tmp/AsterCompanion.rollback-v11-expired-20261009.app`; version 13
+was restored at `/Applications/AsterCompanion.app`. It opened signed in and
+then quit/reopened signed in without another prompt. This is the current
+working app, not an update-stable release. Keychain Access still showed
+`oidc_session_v3` with `Confirm before allowing access`, only one
+`AsterCompanion.app` entry, and no all-app access. The previously observed
+`v2` row was no longer present in that list; its disappearance and timing
+were not independently traced. No secret values were inspected.
+
+**Result:** app authentication is currently usable on version 13, but the
+standing-access problem remains. Do not repeat the same signing/migration
+experiment or silently weaken the Keychain ACL. Research a distinct
+per-app storage or access-control design, with a local synthetic-token update
+test before another live credential experiment. Treat an old token copy as a
+binary rollback only, not a reliable authentication rollback after refresh.
+
+### Next design decision, not yet approved for implementation
+
+Apple recommends the macOS data-protection Keychain for new items, but its
+access model uses app identifiers/access groups and validated entitlements.
+Apple Developer Technical Support says the iOS-style/data-protection Keychain
+requires a Mac App Store or Developer ID signature with Team ID and trusted
+application identifier. Our local self-signed identity has no such Apple Team
+ID, so simply adding `kSecUseDataProtectionKeychain` is **not an established
+fix** here; test feasibility using only a disposable item before proposing a
+live migration. See Apple's
+[data-protection Keychain documentation](https://developer.apple.com/documentation/security/ksecusedataprotectionkeychain),
+[access-group documentation](https://developer.apple.com/documentation/security/sharing-access-to-keychain-items-among-a-collection-of-apps),
+and [DTS explanation of file-based versus iOS-style Keychain trust](https://developer.apple.com/forums/thread/115425).
+
+The candidate alternatives are (a) a properly Developer-ID-signed app if
+Jason accepts that dependency, or (b) a narrowly scoped, immutable local
+credential broker whose own signed executable and Keychain access remain
+stable while Companion UI builds change. The broker is only an architectural
+hypothesis: it adds a local IPC and lifecycle boundary, and must authenticate
+the calling app, avoid sending raw refresh tokens across IPC where possible,
+survive updates, and fail closed. A synthetic-token two-version test and
+rollback drill must precede any real-session use. Keeping the current
+version-13 app and accepting a prompt per update is the simpler interim
+operating mode. No path should enable `Allow all applications` or bypass
+Keychain prompts by weakening their ACL.

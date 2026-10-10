@@ -2266,3 +2266,24 @@ Lock Screen and Screen Saver settings were verified in System Settings and
 were 20 minutes for screen saver, 10 minutes for display-off and a four-hour
 password delay. This is a workstation convenience/security tradeoff, not
 evidence that LAN controls are sufficient; no network access setting changed.
+
+### 2026-10-09 — Native Companion Keychain migration failed the update gate
+
+With Jason's approval, signed version 13 migrated the saved login from the
+legacy `oidc_session_v2` item to a new, app-only `oidc_session_v3` item.
+Keychain Access metadata confirmed the new item existed, had one allowed
+`AsterCompanion.app` entry, and did not allow all apps. Version 13 opened
+signed in and restarted without a prompt. A same-signer, same-bundle-ID
+version 14 update nevertheless produced another Aster Companion Keychain
+password prompt for the Companion service, as Jason confirmed. This fails
+the standing-access update criterion. Signing continuity and new-item
+creation are insufficient on this Mac, even though both passed local tests.
+
+The planned version-11 binary rollback opened with an expired/revoked legacy
+session, so it was not a viable authentication rollback. Version 13 was
+restored, opened signed in, and restarted normally. No Keychain ACL was
+broadened, no password/token was inspected, and version 14 was preserved for
+diagnosis. The next hypothesis must use a materially different storage or
+trust mechanism, be tested first with disposable credentials, and explicitly
+account for refresh-token rotation during rollback. See
+[the detailed evidence](evidence/D3-native-stable-signing-keychain-design-2026-10-09.md).
