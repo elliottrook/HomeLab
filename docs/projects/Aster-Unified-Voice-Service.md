@@ -263,6 +263,10 @@ but stopped in GPU LXC 110. The end-to-end short response was about 0.71–0.90
 seconds without active generation and 2.94 seconds during a bounded Llama
 request. M3 now requires GPU workload isolation or an explicit target change;
 production must not select this shared, uncoordinated renderer.
+The otherwise-idle TrueNAS Arc A380 is now the preferred isolated renderer
+candidate: its loopback canary met the short-response target and remained stable
+during concurrent Jellyfin VAAPI encoding. An authenticated network and
+rollback gate still precede any production selection.
 
 ## Milestones
 
@@ -675,6 +679,41 @@ unrelated state.
   GPU if compatible) or a measured GPU-aware preemption/priority mechanism,
   followed by the frozen load suite. All candidate services were returned to
   stopped/disabled; production Llama and speech remained active and healthy.
+- The second-GPU follow-up found TrueNAS's Intel Arc A380 on `i915`, with an
+  8 GiB mapped BAR and `/dev/dri/renderD128`. Its physical link currently
+  negotiates only PCIe Gen1 x1, but the persistent 168 MiB model avoids a large
+  per-request transfer. Vulkan initialization passed in the existing Jellyfin
+  container, and a short idle sample showed no active GPU clients.
+- A loopback-only, resource-bounded container reused the exact pinned Kokopop
+  binary/model hashes and explicitly selected the A380 through Mesa Vulkan.
+  The first cold render took 3.290 seconds; subsequent short renders took
+  0.494–0.511 seconds and the longer Home Assistant/Lutron/British Columbia
+  sentence took 1.431 seconds. With a sustained real-time Jellyfin HEVC VAAPI
+  encode active, three short renders took 0.587, 0.491 and 0.493 seconds.
+  This passes the provisional 0.750-second short-response target and indicates
+  video encode and TTS can coexist on separate A380 engines, subject to the
+  full scheduled-archiver and interactive-load gates.
+- The requested non-Vulkan check was performed rather than assumed. Intel's
+  pinned OpenVINO 2026.4 runtime enumerated both CPU and the A380 GPU once the
+  container received the host render-group GID. ONNX Runtime OpenVINO 1.24.1,
+  configured GPU-only with fallback disabled, then rejected the approved
+  hash-pinned Kokoro FP16 graph at compile time because a subgraph rank is not
+  static. No OpenVINO performance claim or CPU fallback is recorded. Changing
+  or re-exporting the approved model would require a fresh identity/listening
+  gate; the measured Vulkan path remains the selected A380 candidate.
+- Added a TrueNAS custom-app definition with a source-pinned Vulkan build,
+  read-only external model/key mounts, non-root containers, an internal-only
+  renderer network, fixed voice/speed/backend, resource limits and only the
+  authenticated bridge published on `192.168.20.40:9132`. Compose interpolation
+  and syntax validate. A clean build produced renderer image
+  `sha256:9bd62132580321de372827d83360150d62ad60ae6e862a1fd168a9d9075b46a3`.
+  An isolated loopback run as UID/GID 10001 with only render GID 107 explicitly
+  selected the A380 and produced valid mono 24 kHz/16-bit WAV. The first
+  request took 4.648 seconds while the model and shader pipeline warmed; the
+  next three identical acknowledgements took 0.631, 0.651 and 0.657 seconds.
+  The renderer must therefore stay resident and pass a warm-up request before
+  admission. No listener, firewall rule or production route has yet been
+  enabled.
 
 ## Validation and evaluation
 
@@ -823,6 +862,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 Arc Pro B60 acceleration probe | Least-privilege render-node mapping; isolated OpenVINO 1.24.1 and hash-verified Intel compute runtime; provider-fallback detection; live PCI BAR/link inspection; complete test-root cleanup and live device withdrawal. | No OpenVINO GPU benchmark claimed: Intel's `xe` compute runtime rejected the 256 MiB physical BAR. Production stayed healthy. This result blocks Level Zero/OpenCL, not Mesa Vulkan. |
 | 2026-10-10 | M3 B60 Vulkan Kokoro canary | Internet/upstream review plus live llama.cpp evidence identified Mesa Vulkan as the small-BAR path. Pinned Kokopop/GGML build; 617 tests; immutable verified F16 GGUF with `bm_daniel`; explicit B60 synthesis; persistent first-audio traces; CPU comparison; generated remote evidence cleanup. | Vulkan is viable without ReBAR. Warm short first audio was 0.588 s; a longer first sentence was 1.608 s. Keep the canary stopped and production unchanged pending Jason's listening parity, bounded segmentation and shared-GPU contention gates. |
 | 2026-10-10 | M3 private Vulkan renderer bridge and contention gate | File-backed dedicated bearer key; fixed voice/speed/format; bounded input/concurrency; WAV validation; full authenticated LXC 116 path; 401 refusal; dependency 503/recovery; production isolation; simultaneous live Llama generation. | Functional/security gates pass, but latency does not: warm short end-to-end 0.714–0.896 s and 2.940 s under active Llama generation. Candidate units returned to stopped/disabled; production remained healthy. Do not select until GPU workload isolation or proven scheduling meets the frozen target. |
+| 2026-10-10 | M3 TrueNAS A380 backend comparison | Live i915/device/BAR inspection; explicit Mesa Vulkan device selection; cold/warm and longer-sentence timings; sustained Jellyfin VAAPI overlap; Intel OpenVINO 2026.4 and ORT OpenVINO 1.24.1 with CPU fallback disabled; pinned non-root deployment-image build and loopback validation; reversible container cleanup. | A380 Vulkan passes: warm short 0.494–0.511 s and 0.491–0.587 s during VAAPI overlap; the clean deployment image warmed to 0.631–0.657 s after a 4.648 s cold request. OpenVINO sees the GPU but rejects the approved dynamic-rank ONNX graph. Vulkan remains selected; authenticated network/firewall, warm-up admission, full load and listening gates remain. |
 
 ## Close-out
 

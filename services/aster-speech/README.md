@@ -95,3 +95,11 @@ settings only; the real shared renderer key must be independently installed as
 root-owned mode 0640 files readable by the `ollama` account in LXC 110 and the
 `aster-speech` account in LXC 116. Keep both units disabled until the private
 listener, refusal, cancellation, contention and rollback gates pass.
+
+The preferred isolated-GPU candidate is now the TrueNAS Arc A380. Deployment
+files under `truenas/` build the exact pinned Kokopop revision, mount the
+hash-verified model and bearer key read-only, keep Kokopop on an internal Docker
+network, and publish only the authenticated bridge on the TrueNAS Servers-VLAN
+address. `renderer.env.example` contains paths and the host render-group GID,
+not secrets. Do not enable this stack or route LXC 116 to it until the narrow
+LXC 116-to-TrueNAS firewall tuple and rollback have been approved and tested.
