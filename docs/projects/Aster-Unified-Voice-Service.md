@@ -248,9 +248,12 @@ source/live hashes and current service health; resume the first unchecked gate.
 Never infer that an interrupted deploy, firewall write or Home Assistant change
 succeeded. Reconcile before retry.
 
-Current resume point: M0 is complete. Begin M1 with read-only licence/runtime,
-Home Assistant protocol and network-path discovery, then build an offline
-benchmark harness. No production component has been changed by project start.
+Current resume point: M0 is complete and M1 is active. Licence/runtime and
+Home Assistant protocol discovery and the repeatable offline Piper/Kokoro
+fixture harness are complete. The next safe action is an isolated LXC 116
+Kokoro capacity/concurrency measurement, followed by listening acceptance and
+the final API/network/rollback manifest. No production component has been
+changed by M1 discovery.
 
 ## Milestones
 
@@ -294,6 +297,76 @@ benchmark harness. No production component has been changed by project start.
   reconcile Beszel/NetBox/wiki/mirror/runbooks and complete user handover and
   efficiency review. Gate: two independent end-to-end production passes from
   each surface, accepted latency/voice identity and no unexplained legacy path.
+
+### M1 working record — 2026-10-10
+
+Read-only discovery and synthetic in-memory timing established the following
+initial facts. These are design inputs, not completion evidence:
+
+- Home Assistant VM 103 is healthy on HAOS 18.2, Core 2026.9.1 and Supervisor
+  2026.09.3 with 2 vCPU and 4 GiB RAM at `192.168.20.11`. Its QEMU guest agent
+  is available, so later pre/post-change evidence need not expose HA secrets.
+- Home Assistant's supported external-service path is the Wyoming integration.
+  Wyoming carries local STT/TTS over JSONL plus PCM, advertises models/voices,
+  supports streamed synthesis text/audio, and requires no Home Assistant token
+  in the speech service. The candidate therefore adds a dedicated Wyoming
+  listener for VM 103 while retaining authenticated HTTP for Companion/News.
+- The production News reference uses `kokoro-onnx` 0.6.1, ONNX Runtime 1.30.0,
+  NumPy 2.5.3 and SoundFile 0.14.0. The deployed FP16 model is 163,527,961
+  bytes with SHA-256
+  `f3a290d384fbb27966d462905c71a46cef9e5fd00516b40df32a0b4afe77ac96`;
+  `voices-v1.0.bin` is 28,214,398 bytes with SHA-256
+  `bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d`.
+- Upstream records `kokoro-onnx` code as MIT and Kokoro-82M model weights as
+  Apache-2.0. The model card says v1.0 used permissive/non-copyrighted audio and
+  lists its CC-BY attribution. Preserve those notices in the deployment
+  manifest; verify the exact ONNX release provenance before closing M1.
+- LXC 114 has 8 allocated cores/8 GiB; LXC 116 has 6 cores/4 GiB. Both run on
+  the Xeon E5-2698 v4. The latest 11-story News job consumed 31m58.822s CPU and
+  peaked at 864.9 MiB, so batch narration must never share an unprioritized
+  interactive queue.
+- One bounded persistent-FP16 sample on LXC 114 loaded in 1.966 seconds and
+  rendered identical 4.833-second synthetic speech in 2.116, 2.191 and 2.213
+  seconds (RTF 0.438–0.458), with 694,128 KiB maximum RSS. This is not a p95
+  result and does not yet compare LXC 116. It proves a complete-WAV response
+  cannot meet the provisional 750 ms first-audio target; clause-sized output
+  must begin playback while later units render.
+- ONNX Runtime emitted CPU-affinity errors inside the constrained LXC cpuset.
+  Explicit bounded intra/inter-op thread settings must be benchmarked in M1;
+  leaving implicit host-wide affinity is not an acceptable production design.
+- The existing Piper baseline remains the recorded 1.68-second TTS result from
+  Companion close-out evidence. The frozen harness now supersedes it for
+  comparative work: three iterations over eight identical fixtures produced
+  median 2.321 seconds, p95 4.027 seconds, median RTF 0.451 and p95 RTF 0.633;
+  the short HA confirmation took 1.017–1.068 seconds. Piper model SHA-256 is
+  `4cabf7c3a638017137f34a1516522032d4fe3f38228a843cc9b764ddcbcd9e09`.
+- The new `services/aster-speech/benchmark_tts.py` and versioned eight-case
+  synthetic corpus produce content-free JSON with fixture/asset digests,
+  load time, p50/p95 synthesis, RTF, RSS and thread settings. Five focused
+  unit tests pass. The broader local speech suite remains unexecuted on the Mac
+  because its system Python lacks PyJWT; existing service-environment testing
+  remains required before M1 closes.
+- Persistent FP16 Kokoro with package-default threading on LXC 114 produced
+  median 1.816 seconds, p95 3.538 seconds, median RTF 0.384 and p95 RTF 0.422
+  over the same 24 samples. The short HA case took 0.786–0.792 seconds, but
+  ONNX Runtime attempted invalid host CPU affinities and peak RSS was 901,576
+  KiB.
+- An explicit ONNX Runtime session using six intra-op and one inter-op thread
+  removed the affinity errors. A confirming 24-sample run improved median to
+  1.507 seconds, p95 to 2.941 seconds, median RTF to 0.316 and p95 RTF to
+  0.341; short HA synthesis was 0.641–0.663 seconds and peak RSS was 899,272
+  KiB. This is the current candidate setting for the six-core speech guest,
+  subject to measurement on LXC 116 and concurrent STT/News load.
+
+Primary protocol/licence references:
+
+- `https://www.home-assistant.io/integrations/wyoming`
+- `https://github.com/rhasspy/wyoming`
+- `https://github.com/thewh1teagle/kokoro-onnx/blob/main/LICENSE`
+- `https://huggingface.co/hexgrad/Kokoro-82M`
+
+No service, firewall, model, Home Assistant integration or production file was
+changed during this discovery. Synthetic audio was not retained.
 
 ## Validation and evaluation
 

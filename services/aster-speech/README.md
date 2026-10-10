@@ -25,3 +25,15 @@ with an empty key as an unreviewed deployment change.
 Tests: `python -m unittest discover -s services/aster-speech -q` from the repo
 with the service's Python dependencies installed. Tests substitute synthesis and
 inference; the project evidence separately records real WAV/MP4 and restore tests.
+
+`benchmark_tts.py` is the M1 offline comparison harness. It runs the versioned
+synthetic `tts_benchmark_fixtures.json` corpus through either current Piper or a
+persistent Kokoro engine. Its JSON report contains fixture IDs, asset/fixture
+digests, timing, RTF, RSS and declared thread settings, but no input text or
+audio. Generated Piper WAVs are temporary and Kokoro audio remains in memory.
+Run it only on an idle candidate or within an explicitly bounded test window;
+the default five iterations are measurement work, not a health check.
+`--intra-op-threads` and `--inter-op-threads` construct the pinned
+`kokoro-onnx` 0.6.1 engine around an explicit ONNX Runtime session. This is for
+M1 tuning because the package's public constructor does not accept session
+options; candidate service code must wrap and test that behavior deliberately.
