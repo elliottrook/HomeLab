@@ -241,11 +241,11 @@ def decide_analysis(context: AnalysisContext, draft: AnalysisDraft, evidence: tu
         return PolicyDecision("refuse", "none", sensitivity, "untrusted instruction or credential request")
     if context.cross_family and not context.consent:
         return PolicyDecision("refuse", "none", sensitivity, "cross-family consent is absent")
+    if context.has_conflict or context.missing_material_evidence:
+        return PolicyDecision("clarify", "local", sensitivity, "material evidence is conflicting or missing")
     failures = validate_grounding(draft, evidence)
     if failures:
         return PolicyDecision("blocked", "none", sensitivity, "; ".join(failures))
-    if context.has_conflict or context.missing_material_evidence:
-        return PolicyDecision("clarify", "local", sensitivity, "material evidence is conflicting or missing")
     if context.deep_sysadmin:
         if sensitivity == "private":
             return PolicyDecision("blocked", "none", sensitivity, "private evidence cannot enter the cloud packet")

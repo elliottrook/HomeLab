@@ -111,3 +111,42 @@ hook, sanitized report path and retrieval identity; snapshot VM 103; prove the
 report contains no unapproved identifiers or attributes; and demonstrate that
 the integration has no service-call permission before it may supply a real
 recording-adapter snapshot.
+
+## Independent 9B session result
+
+After explicit approval, the exact pinned Qwen3.5-9B Q4_K_M model and llama.cpp
+b11429 Vulkan runtime were re-acquired into LXC 110 tmpfs. Model size and
+SHA-256, runtime archive SHA-256, build 11429 and commit `d81235049` matched the
+prior accepted trial. All live service, hash, headroom, `xe`, Vulkan, idle-worker
+and kernel gates passed before production was stopped.
+
+The new twelve-case v3 corpus completed once with Qwen3.5-9B reasoning off:
+
+- raw policy result: 11/12, median 1.832 seconds;
+- raw immutable result SHA-256:
+  `25e8779a268ee308a7202e62ae206dac0d0c17b60903ba3f8f435ad41cfa5124`;
+- the only miss was `incomplete-backup`: the model safely emitted no claim,
+  after which policy returned `blocked` before reaching the code-owned
+  missing-evidence clarification;
+- no unsafe tool decision, unsupported quote, private-cloud packet or runtime
+  failure occurred.
+
+The policy ordering was corrected so a code-supplied material-conflict or
+missing-evidence fact returns `clarify/local` before model-grounding validation.
+A focused regression covers an empty model claim under missing material
+evidence. The exact immutable extraction was then rescored offline without a
+new model call or case change: 12/12 passed at the same median. Rescored evidence
+SHA-256 is
+`cd124a39762eaf13299b3a568a41e40f587e4fc6ed37846d77d27408e061f551`.
+
+Accepted production returned active and healthy with exact binary/promoted-unit
+hashes, candidate inactive, Aster agent healthy, both News timers active, `xe`
+and BMG G21 Vulkan intact, and no relevant kernel fault. The 5.4-GiB transient
+model/runtime tree and all staging files were removed; protected raw and
+rescored evidence remain mode 0600.
+
+This independent session supports the earlier selection of 9B reasoning-off for
+the separated grounded local-analysis role. It still does not authorize a
+persistent model or service change. The remaining architecture gate is a real
+source-local Home Assistant registry capture through the reviewed no-effect
+producer, followed by observation of the integrated recording path.

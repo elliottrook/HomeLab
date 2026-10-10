@@ -110,6 +110,11 @@ class GroundingTests(unittest.TestCase):
         decision = decide_analysis(AnalysisContext(has_conflict=True), self.draft, self.evidence)
         self.assertEqual((decision.outcome, decision.route), ("clarify", "local"))
 
+    def test_missing_material_evidence_clarifies_without_model_claim(self):
+        empty = AnalysisDraft("", ())
+        decision = decide_analysis(AnalysisContext(missing_material_evidence=True), empty, self.evidence)
+        self.assertEqual((decision.outcome, decision.route), ("clarify", "local"))
+
     def test_retrieval_injection_and_family_boundary_are_code_owned(self):
         injection = decide_analysis(AnalysisContext(retrieved_instruction=True), self.draft, self.evidence)
         family = decide_analysis(AnalysisContext(cross_family=True), self.draft, self.evidence)
