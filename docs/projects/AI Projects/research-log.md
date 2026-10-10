@@ -1149,3 +1149,18 @@ model/runtime files were removed. The approximately 4.2--4.5x decode lead makes
 frozen personal-assistant, scheduled-analysis, privacy-routing and escalation
 quality comparisons remain required. See
 [screening evidence](evidence/2026-10-10-qwen35-9b-b60-screening.md).
+
+### 2026-10-10 — Qwen3.5-9B fixed local-role comparison
+
+A first 27B control exposed an underspecified scoring contract and is retained
+as invalid rather than counted. Before 9B saw any case, an explicit v2 decision,
+capability, privacy and argument contract was frozen. On the identical 20-case
+synthetic suite, accepted Qwen3.8-27B scored 16/20 at 7.710 seconds median and
+Qwen3.5-9B scored 11/20 at 3.059 seconds median. Human review found the 27B
+misses were normalization/taxonomy wording. The 9B model was about 60% faster
+end to end but guessed 4 PM for an ambiguous alarm and made two false execution
+claims. It is rejected as an immediate drop-in Aster replacement. It remains a
+candidate for summary-only work after deterministic household handlers own
+ambiguity and effects. Production, news timers, hashes, Vulkan binding, kernel
+health and authenticated generation were restored and verified; transient 9B
+artifacts were removed. See [comparison evidence](evidence/2026-10-10-qwen35-9b-role-comparison.md).
