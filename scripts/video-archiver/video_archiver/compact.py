@@ -1,6 +1,6 @@
 """Archive compaction: re-encode oversized files already in the archive roots.
 
-Jason (2026-09-24): "identify files larger than 2.5 GB ... create a process to transcode
+Jason (2026-09-24, updated 2026-09-26): "identify files larger than 2 GB ... create a process to transcode
 all large files down ... maintain the highest resolution possible - 1080p is preferred."
 
 Design (see docs/projects/Archive-Large-File-Compaction.md):
@@ -48,8 +48,8 @@ from .transcode import (HIGH_BITRATE_AUDIO_CODECS, HIGH_BITRATE_THRESHOLD_BPS,
 log = logging.getLogger("video_archiver.compact")
 
 DEFAULTS = dict(
-    size_threshold_bytes=2_500_000_000,
-    cap_bytes=2_300_000_000,
+    size_threshold_bytes=2_000_000_000,
+    cap_bytes=1_900_000_000,
     max_output_fraction=0.80,
     snapshot_dataset="Media/data",
     snapshot_retention_days=7,
@@ -301,8 +301,14 @@ def candidates(cfg: Config, opts: dict, state: dict, only: list[Path] | None, re
         if size <= opts["size_threshold_bytes"] and not only:
             continue
         prev = state.get(str(p))
-        if prev and not retry and prev.get("status") in ("skipped", "failed") and prev.get("src_bytes") == size:
-            continue
+        if prev and not retry:
+            if prev.get("status") in ("skipped", "failed") and prev.get("src_bytes") == size:
+                continue
+            # A completed output can remain slightly over the configured threshold
+            # because the muxer is allowed a small verification tolerance. Do not
+            # repeatedly transcode that exact output on later permanent guard runs.
+            if prev.get("status") == "replaced" and prev.get("out_bytes") == size:
+                continue
         out.append((size, p))
     out.sort(reverse=True)
     return [p for _, p in out]
