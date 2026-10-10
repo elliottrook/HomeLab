@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-10-10 — Aster Unified Voice Service project started
+
+- Started a Stream A project to make LXC 116 the single private Aster Voice
+  Service for Companion, Home Assistant, News and future reasoning backends.
+- Adopted the existing canonical Kokoro `bm_daniel`, `en-gb`, speed `0.95`
+  identity and recorded deployed Piper as a retained migration rollback rather
+  than a conformant final voice.
+- Recorded the live six-core/4 GiB speech guest, CPU `base.en` STT, complete-WAV
+  Piper path, client chunking/capture gaps, existing recovery coverage and
+  current healthy authentication/routing checks.
+- Bounded autonomous work to local speech, exact private caller paths, staged
+  reversible migrations and content-free telemetry. No cloud speech, new public
+  ingress, reasoning-model change, Home Assistant authority expansion or voice
+  substitution is authorized.
+- Completed M0 without changing production. M1 begins with licence/runtime,
+  Assist/Wyoming protocol and exact network discovery plus offline Piper/Kokoro
+  latency, quality, concurrency and resource benchmarks.
+
 ## 2026-10-10 — Emotional-first brand discovery
 
 - Added indirect client questions covering stories, desired impressions, associations, ranked words and boundaries before the detailed practical questionnaire.
