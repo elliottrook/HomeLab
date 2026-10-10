@@ -28,6 +28,12 @@
   MacBook Admin public key and selecting it for `git` at the Forgejo address,
   while preserving the separate root-administration alias. No standing token
   was added.
+- Published the first internal-only workflow rehearsal: ten approved Contrast
+  slots and seven approved Closet slots use owner-authorized, person-free
+  photographs, metadata-stripped derivatives and clearly fictional AI stories.
+  No public proxy or tunnel route was added, and the existing parked Closet
+  Fatman DNS was not connected to the origin. Corrected permanent origin
+  read access by adding Nginx `www-data` to the restricted `tcf-deploy` group.
 
 ## 2026-10-09 — The Contrasting Frame project preparation
 

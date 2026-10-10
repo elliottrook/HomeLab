@@ -106,6 +106,11 @@ the immutable approved payload, while the visual treatments stay brand-local.
   The deploy account owns only separate
   `/srv/tcf/sites/{contrast,closet}` release roots; it cannot administer Nginx,
   networking or the host.
+- On the origin, Nginx's `www-data` account is a supplementary member of the
+  dedicated `tcf-deploy` group. Release directories/files intentionally remain
+  `0750`/`0640`; after creating or repairing the membership, restart Nginx (a
+  reload does not replace workers' supplementary groups) and verify both exact
+  Host headers return their own active root.
 - The private GUI exposes publication only for a complete, currently approved
   edition whose exact static preview has already been built for review. The
   owner must type `PUBLISH CONTRAST` or `PUBLISH CLOSET`; a nonblocking process
