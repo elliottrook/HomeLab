@@ -36,3 +36,33 @@ normally launched version 15. Two concurrently launched app instances are a
 plausible cause of the paired prompts, but that is unproved. The gate needs a
 single-instance retest that counts first-launch prompts separately from later
 ordinary-use prompts. Do not infer successful reliability from this attempt.
+
+## Approved single-instance retest
+
+Jason approved a clean retest. Version 13 was confirmed signed in, strictly
+signed and at the expected hash. The version-15 stopped bundle retained its
+expected hash and strict signature. The private journal still had 13 completed
+rows. Version 13 was stopped by exact process ID and preserved at
+`/Applications/AsterCompanion.pre-manual-v15-retest-20261009.app`; the existing
+independent version-13 rollback copy remained intact. The same version-15
+bundle was restored to the normal application path and launched once with
+`--aster-local-codex-manual`. Process inspection found one flagged instance
+and no second Companion process. Jason reported one Keychain prompt before
+entry, then successful sign-in. Screen control showed the ordinary Aster view,
+AI-PAM with no pending approvals, and the manual Codex question surface.
+
+The exact fictional Vega-light question from the reliability gate was placed
+in the review screen. Jason checked the explicit ChatGPT consent and clicked
+Send once. The native surface displayed the completed original answer for
+request `request-bc4285fd-5454-400f-9b31-53971c984cb9`. The journal moved
+from 13 to 14 `completed` rows with no other states, and the single flagged
+Companion instance remained running. The answer text is deliberately not
+copied into this evidence record. No home device or infrastructure tool was
+granted or called in this test.
+
+The turn completed before an app interruption could be performed. This is
+evidence for reviewed one-send delivery and answer display, **not** for
+active-turn interruption recovery or routine-use reliability. Do not send a
+replacement question to obtain a preferred outcome. Confirm Jason has seen
+the answer before closing its view, then verify ordinary Aster use and any
+post-entry Keychain prompts. Manual mode remains experimental.

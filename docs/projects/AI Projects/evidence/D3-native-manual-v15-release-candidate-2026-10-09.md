@@ -1,7 +1,7 @@
 # D3 native manual Codex version-15 release candidate
 
-**Status: first supervised installation stopped before a model send; version 13
-restored.** Owner: Jason. See the
+**Status: clean single-instance retest completed one reviewed turn; interruption
+recovery remains untested.** Owner: Jason. See the
 [installation checkpoint](D3-native-manual-v15-installation-2026-10-09.md).
 This remains a candidate for a bounded reliability test, not routine Ask
 Codex release, automatic routing, sysadmin delegation or a tool grant.
@@ -68,3 +68,13 @@ ensure exactly one Companion process before launch, distinguish prompts on
 first entry from prompts during subsequent ordinary use, and confirm normal
 operation before a question is sent. No Keychain ACL change, Mac sleep,
 infrastructure access or extra Git push is authorized by this document.
+
+Jason approved that single-instance retest. The same signed version-15 bundle
+was installed, one flagged process launched, one first-entry Keychain prompt
+was reported, and normal Aster, AI-PAM approvals and the manual surface were
+visible. After Jason's in-app review and consent, the fictional Vega-light
+request completed once and displayed its original answer; the content-free
+journal advanced from 13 to 14 completed rows. It finished before an
+interruption could be made, so the recovery criterion is still open. The
+answer remains in the native view pending Jason's choice to save it; no
+replacement request will be sent to force a recovery trial.
