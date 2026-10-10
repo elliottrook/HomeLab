@@ -122,3 +122,62 @@ class LocalBridgeCLITests(unittest.TestCase):
         self.assertEqual(result['answer'],'Recovered')
         self.assertFalse(result['inference'])
         self.assertEqual(calls,['config/read','config/read','account/read','thread/read'])
+
+    def test_reconcile_promotes_only_the_original_completed_turn(self):
+        identifier='request-12345678-1234-1234-1234-123456789abc'
+        calls=[]
+        items=[{'type':'userMessage','text':'Fictional question'},
+               {'type':'agentMessage','phase':'final_answer','text':'Recovered'}]
+        class FakeClient:
+            def __init__(self,*args,**kwargs):pass
+            def call(self,method,params):
+                calls.append(method)
+                if method=='config/read':return {'config':{
+                    'mcp_servers':{},'features':{name:False for name in DISABLED},
+                    'web_search':'disabled','sandbox_mode':'read-only',
+                    'model_provider':'openai','model':'unavailable-old-model'}}
+                if method=='account/read':return {'account':{'type':'chatgpt'}}
+                if method=='thread/read':
+                    self_ref=params['threadId']
+                    return {'thread':{'id':self_ref,'turns':[{'id':'turn-1',
+                        'status':'completed','itemsView':'full','items':items}]}}
+                raise AssertionError(method)
+            def close(self):pass
+        with tempfile.TemporaryDirectory() as root:
+            state=Path(root).resolve()/'state'
+            state.mkdir(mode=0o700)
+            db=state/'jobs.sqlite'
+            store=DispatchStore(db)
+            self.assertTrue(store.claim(identifier,'thread-1','uid:'+str(os.getuid())))
+            store.bind(identifier,'thread-1','turn-1')
+            store.close()
+            os.chmod(db,0o600)
+            output=io.StringIO()
+            with patch('local_bridge_cli.shutil.which',return_value='/fake/codex'), \
+                 patch('local_bridge_cli.RecoveryConfigClient',FakeClient), \
+                 patch('local_bridge_cli.initialize'), \
+                 patch('local_bridge_cli.options',return_value=[]), \
+                 redirect_stdout(output):
+                main(['--reconcile','--state-dir',str(state),'--request-id',identifier])
+            result=json.loads(output.getvalue())
+            self.assertEqual(result['answer'],'Recovered')
+            self.assertFalse(result['inference'])
+            self.assertEqual(calls,['config/read','config/read','account/read','thread/read'])
+            store=DispatchStore(db)
+            self.assertEqual(store.inspect_owned(identifier,'uid:'+str(os.getuid())),
+                             ('completed','thread-1','turn-1'))
+            blocked='request-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+            self.assertTrue(store.claim(blocked,'thread-2','uid:'+str(os.getuid())))
+            store.bind(blocked,'thread-2','turn-1')
+            store.close()
+            items.append({'type':'commandExecution','command':'forbidden'})
+            with patch('local_bridge_cli.shutil.which',return_value='/fake/codex'), \
+                 patch('local_bridge_cli.RecoveryConfigClient',FakeClient), \
+                 patch('local_bridge_cli.initialize'), \
+                 patch('local_bridge_cli.options',return_value=[]), \
+                 self.assertRaises(SystemExit):
+                main(['--reconcile','--state-dir',str(state),'--request-id',blocked])
+            store=DispatchStore(db)
+            self.assertEqual(store.inspect_owned(blocked,'uid:'+str(os.getuid())),
+                             ('running','thread-2','turn-1'))
+            store.close()

@@ -2359,3 +2359,25 @@ Metadata-only preflight matched the pinned manifest and reported no inference.
 No user question or model turn was sent, no app was installed, and no real
 credential value was inspected. The candidate still needs signed-release and
 live reliability gates before manual use.
+
+### 2026-10-09 — Unknown-turn original reconciliation candidate
+
+Static path review found that the existing recovery command required a local
+`completed` journal row. If Companion or its helper died after Codex accepted a
+turn but before the terminal journal write, an `unknown` row with the exact
+turn ID could remain blocked despite a completed original Codex turn. Added a
+separate explicit reconciliation mode for the manual candidate. It reads only
+that owner-bound turn under the restricted ChatGPT configuration, rejects
+tool-bearing/incomplete snapshots, obtains the exclusive local journal lock,
+rechecks the row and then records `completed`; it never sends a new turn.
+Fifteen focused Python tests pass, including refusal to promote a tool-bearing
+snapshot. This is offline evidence only; live crash behavior remains untested.
+The bridge hash changed, so a new metadata-only preflight pinned the manual
+candidate to manifest `483062186349703ee472b51323c88fb4ffa1f780ae9ff6f351d4046da4973392`.
+The rebuilt unregistered ad-hoc bundle passed strict signature verification,
+its bundled preflight matched that manifest without inference, and all 55
+native tests passed. The installed Companion remains version 13.
+The full delegation-folder `unittest discover` was also attempted with the
+Mac system Python: it ran 266 tests but reported 13 import/environment errors
+because `httpx` and `pydantic` are not installed there. No dependencies were
+installed for this gate; the affected focused no-dependency suite passed.

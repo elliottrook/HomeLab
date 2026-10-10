@@ -143,6 +143,7 @@ def main(argv=None):
     mode.add_argument('--run',action='store_true')
     mode.add_argument('--status',action='store_true')
     mode.add_argument('--recover',action='store_true')
+    mode.add_argument('--reconcile',action='store_true')
     mode.add_argument('--recover-check',action='store_true')
     parser.add_argument('--approved-sha256')
     parser.add_argument('--state-dir',type=Path)
@@ -156,25 +157,27 @@ def main(argv=None):
         except Exception:
             raise SystemExit('Local status unavailable') from None
         return
-    if args.request_id and not args.recover:
-        raise SystemExit('Recorded request ID is only valid for status')
-    if not (args.prepare or args.run or args.recover or args.recover_check):
+    if args.request_id and not (args.recover or args.reconcile):
+        raise SystemExit('Recorded request ID is only valid for status or recovery')
+    if not (args.prepare or args.run or args.recover or args.reconcile or args.recover_check):
         print(json.dumps({'enabled':False,'inference':False}))
         return
     if args.run and (not args.approved_sha256 or not args.state_dir or
                      not args.state_dir.is_absolute() or
                      args.state_dir.resolve()!=args.state_dir):
         raise SystemExit('Reviewed manifest and private absolute state directory required')
-    if args.recover and (args.approved_sha256 or not args.state_dir or
-                         not args.state_dir.is_absolute() or
-                         args.state_dir.resolve()!=args.state_dir):
+    recovery_mode=args.recover or args.reconcile
+    if recovery_mode and (args.approved_sha256 or not args.state_dir or
+                          not args.state_dir.is_absolute() or
+                          args.state_dir.resolve()!=args.state_dir):
         raise SystemExit('Private recovery state directory required')
     if args.recover_check and (args.approved_sha256 or args.state_dir):
         raise SystemExit('Recovery preflight takes no request or state path')
     row=None
-    if args.recover:
+    if recovery_mode:
         row=recorded_row(args.state_dir,args.request_id)
-        if not row or row[0]!='completed' or not row[1] or not row[2]:
+        eligible={'completed'} if args.recover else {'running','unknown','cancel_requested'}
+        if not row or row[0] not in eligible or not row[1] or not row[2]:
             raise SystemExit('Original completed turn unavailable')
     request=None
     if args.run:
@@ -187,7 +190,7 @@ def main(argv=None):
         raise SystemExit('Codex unavailable')
     with tempfile.TemporaryDirectory(prefix='aster-native-codex-') as cwd:
         opts=options()
-        client_type=RecoveryConfigClient if args.recover else ConfigClient
+        client_type=RecoveryConfigClient if recovery_mode else ConfigClient
         client=client_type(executable,options=opts,cwd=cwd)
         try:
             initialize(client)
@@ -198,7 +201,7 @@ def main(argv=None):
         client=client_type(executable,options=opts,cwd=cwd)
         try:
             initialize(client)
-            if args.recover or args.recover_check:
+            if recovery_mode or args.recover_check:
                 recovery_preflight(client.call('config/read',{'includeLayers':False,'cwd':cwd})['config'],
                                    client.call('account/read',{'refreshToken':False}))
                 if args.recover_check:
@@ -206,6 +209,16 @@ def main(argv=None):
                     return
                 snapshot=client.call('thread/read',{'threadId':row[1],'includeTurns':True})
                 answer=recover_snapshot(snapshot,row[1],row[2])
+                if args.reconcile:
+                    runtime=open_runtime(args.state_dir,enabled=True)
+                    try:
+                        expected=('unknown',row[1],row[2])
+                        if runtime.store.inspect_owned(args.request_id,
+                                'uid:'+str(os.getuid()))!=expected:
+                            raise ValueError('Recorded turn changed during reconciliation')
+                        runtime.store.finish(args.request_id,row[1],row[2],'completed')
+                    finally:
+                        runtime.close()
                 print(json.dumps({'id':args.request_id,'state':'completed','answer':answer,
                                   'automatic_retry':False,'inference':False},ensure_ascii=False))
                 return

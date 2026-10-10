@@ -77,10 +77,11 @@ struct LocalCodexPilotView: View {
         consent = false
         pendingID = request.jobID // Saved before any process start; no auto retry.
         message = "Waiting for the original Codex answer. Do not resend this request."
+        let approvedHash = Self.approvedManifest
         let result = await Task.detached(priority: .userInitiated) { () -> Data? in
             do {
                 return try LocalCodexBridgeProcess.submitBundled(request,
-                    approvedHash: Self.approvedManifest, stateDirectory: state)
+                    approvedHash: approvedHash, stateDirectory: state)
             } catch { return nil }
         }.value
         running = false

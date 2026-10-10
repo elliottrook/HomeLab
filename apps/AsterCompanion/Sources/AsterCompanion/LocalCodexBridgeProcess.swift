@@ -45,6 +45,17 @@ enum LocalCodexBridgeProcess {
                           input: nil, timeout: 30)
     }
 
+    static func reconcileBundled(requestID: String, stateDirectory: URL) throws -> Data {
+        guard requestID.hasPrefix("request-"), requestID.count == 44,
+              stateDirectory.isFileURL,
+              stateDirectory.resolvingSymlinksInPath().path == stateDirectory.standardizedFileURL.path
+        else { throw BridgeError.invalidRequest }
+        return try launch(script: packagedScript(),
+                          arguments: ["--reconcile", "--state-dir", stateDirectory.path,
+                                      "--request-id", requestID],
+                          input: nil, timeout: 30)
+    }
+
     static func privateStateDirectory(base: URL? = nil) throws -> URL {
         let files = FileManager.default
         guard let support = base ?? files.urls(for: .applicationSupportDirectory,

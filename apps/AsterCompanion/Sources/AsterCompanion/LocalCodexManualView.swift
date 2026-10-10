@@ -4,7 +4,7 @@ import SwiftUI
 struct LocalCodexManualView: View {
     static let launchFlag = "--aster-local-codex-manual"
     // The bundled bridge checks this exact metadata-only configuration before a send.
-    static let approvedManifest = "34d349045dea8ae8410ccc984e508f1754348539f0491fe542e0bd31f78b3753"
+    static let approvedManifest = "483062186349703ee472b51323c88fb4ffa1f780ae9ff6f351d4046da4973392"
 
     @Environment(\.dismiss) private var dismiss
     @State private var pendingID = ""
@@ -15,6 +15,7 @@ struct LocalCodexManualView: View {
     @State private var ready = false
     @State private var running = false
     @State private var canRecover = false
+    @State private var canReconcile = false
     @State private var answer: String?
     @State private var message = "Checking local Codex configuration. Nothing is being sent."
 
@@ -37,6 +38,8 @@ struct LocalCodexManualView: View {
                         .disabled(running)
                 } else if canRecover && !running {
                     Button("Recover original answer") { Task { await recover() } }
+                } else if canReconcile && !running {
+                    Button("Check original Codex turn") { Task { await reconcile() } }
                 }
             } else if let reviewed {
                 Text("This is the complete text that will be sent:")
@@ -119,7 +122,11 @@ struct LocalCodexManualView: View {
         }
         canRecover = status["state"] as? String == "completed" &&
             status["turn_recorded"] as? Bool == true
+        canReconcile = ["running", "unknown", "cancel_requested"]
+            .contains(status["state"] as? String ?? "") &&
+            status["turn_recorded"] as? Bool == true
         message = canRecover ? "The recorded turn completed. Recover its original answer." :
+            canReconcile ? "Outcome uncertain. Check only the original turn; do not resend." :
             "The prior request is unresolved. Do not resend or clear its ID."
     }
 
@@ -189,6 +196,33 @@ struct LocalCodexManualView: View {
         message = "Original answer recovered from the recorded turn."
     }
 
+    @MainActor private func reconcile() async {
+        guard canReconcile, !running, !pendingID.isEmpty else { return }
+        let id = pendingID
+        guard let state = try? LocalCodexBridgeProcess.privateStateDirectory() else {
+            message = "Private journal unavailable. Nothing was resent."
+            return
+        }
+        running = true
+        let raw = await Task.detached(priority: .userInitiated) { () -> Data? in
+            try? LocalCodexBridgeProcess.reconcileBundled(requestID: id, stateDirectory: state)
+        }.value
+        running = false
+        guard pendingID == id, let raw,
+              let object = try? JSONSerialization.jsonObject(with: raw) as? [String: Any],
+              object["id"] as? String == id,
+              object["state"] as? String == "completed",
+              object["inference"] as? Bool == false,
+              object["automatic_retry"] as? Bool == false,
+              let text = object["answer"] as? String, !text.isEmpty else {
+            message = "Original turn is not yet verifiably complete. Nothing was resent."
+            return
+        }
+        answer = text
+        canReconcile = false
+        message = "Original completed turn verified and reconciled. No new question was sent."
+    }
+
     @MainActor private func acknowledge() {
         guard !running, !pendingID.isEmpty, answer != nil else { return }
         do {
@@ -204,6 +238,7 @@ struct LocalCodexManualView: View {
         draft = ""
         consent = false
         canRecover = false
+        canReconcile = false
         ready = false
         preparing = true
         message = "Checking configuration before another question."

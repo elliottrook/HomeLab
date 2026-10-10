@@ -80,8 +80,13 @@ send a model request.
 installed app does not use. It requires text review and a separate ChatGPT
 consent toggle for each send. `LocalCodexManualPending` writes a private,
 content-free request ID before helper launch; a crash or uncertain result
-blocks new sends, while a recorded completed turn can be read back without
-new inference. The helper remains pinned to a ChatGPT account, read-only
+blocks new sends. A recorded completed turn can be read back without new
+inference. If the journal instead says `unknown` or `running` but contains an
+exact turn ID, a separate explicit “Check original Codex turn” action may
+verify that same turn's full completed snapshot and only then mark the local
+journal completed. It rejects tool items and does not start a new turn. An
+absent turn ID, incomplete original turn, mismatched owner/ID or concurrent
+bridge lock remains unresolved. The helper remains pinned to a ChatGPT account, read-only
 sandbox, disabled web, zero MCP servers, one turn and no automatic retry.
 
 All 55 native tests pass, including two private-record tests. An unregistered,
@@ -93,3 +98,18 @@ SHA-256 `34d349045dea8ae8410ccc984e508f1754348539f0491fe542e0bd31f78b3753`
 with ChatGPT auth and `gpt-5.6-luna` medium. No model turn, real credential
 readout, app installation or Launch Services registration occurred. This is
 a source/build checkpoint, not a routine-use release.
+
+After review found that a locally `unknown` turn with a recorded Codex turn
+ID could be verifiably completed yet remain inaccessible, a new offline
+reconciliation candidate was added. Fifteen focused Python tests pass,
+including successful exact-turn promotion and rejection of a snapshot with a
+tool item. This changed the bridge source hash and supersedes the initial
+manifest above. The current metadata-only source preflight returned
+`483062186349703ee472b51323c88fb4ffa1f780ae9ff6f351d4046da4973392`;
+the manual view now pins that value. The earlier ad-hoc bundle has not been
+installed and is not the current candidate. A fresh unregistered, uninstalled
+ad-hoc bundle passed strict signature verification with executable SHA-256
+`0b6571806e679282183af98168d28ff103167d6977401d36742a3bb261a23207`.
+Its **bundled** metadata-only preflight returned the pinned manifest above
+with `inference=false`; all 55 native tests passed. A stable-signed release
+artifact, exact installation/rollback review and live gates are still required.
