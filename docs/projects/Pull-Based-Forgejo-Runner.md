@@ -1,6 +1,6 @@
 # Pull-based Forgejo change-bundle runner
 
-> Status: Active — Stream A; M0–M2 complete, M3 pending
+> Status: Active — Stream A; M0–M2 complete, M3 in progress
 >
 > Owner: Jason
 >
@@ -384,13 +384,32 @@ canary branch/file; it does not merge, publish, deploy or delete anything.
   owns it and retains the evidence for seven days. A private content-addressed
   exchange remains a later enhancement, not a prerequisite for the canary.
 
+### 2026-10-10 — M3 operator gate opened
+
+- Jason used the existing Aster Companion management surface and a fresh
+  passkey to promote only `agent-cloud-bundle` from Probation to Operator. Live
+  readback confirmed UID 993 and state `operator`; no capability or service was
+  broadened.
+- Companion initially reported the approval service unavailable. The approval
+  process was healthy but held an unlinked Unix socket after the runtime
+  directory had been recreated. Restarting only
+  `homelab-broker-approval.service` recreated mode-`0660`
+  `hlabroker:hlabroker-approvers` socket access; no database or request state
+  was changed.
+- Added an auditable `submit`/`promote` command-line boundary to the existing
+  runner state machine. It emits metadata only, persists replay/request binding,
+  cannot approve, and repeats signature, expiry, canonical-base, policy and
+  content verification before consume. **101/101** tests pass on Linux in
+  18.420 seconds; the known macOS sandbox run passed 83 tests and denied only
+  the 18 Unix-socket binds with `EPERM`.
+
 ## Current checkpoint
 
-M0–M2 are complete. The worker identity remains in AI-PAM Probation and cannot
-discover or invoke the Yellow safe-write capability. The next gate is M3:
-promote only this identity through the established AI-PAM approval path, submit
-the already validated synthetic canary, inspect the exact Companion request,
-and obtain immediate explicit confirmation before the remote Forgejo write.
+M0–M2 are complete. The worker identity is now an AI-PAM Operator with only the
+existing Yellow safe-write capability. The next M3 gate is to submit a fresh,
+short-lived signed synthetic canary, inspect and approve the exact Companion
+request, and obtain immediate explicit confirmation before consuming it for the
+remote Forgejo write.
 The private signing key remains human-held and unread by the agent. No public
 ingress or credential-bearing exchange has been introduced.
 

@@ -69,11 +69,13 @@ Key files:
 - `bundle_runner.py` — joins a verified bundle to the existing Yellow
   `forgejo.write.safe-branch` request without any approval capability
 
-The pull-based Forgejo bundle runner is currently an M2 probationary pilot.
-Its `agent-cloud-bundle` identity deliberately discovers no capabilities while
-in Probation, and its `hlabundle` Unix account cannot connect directly to either
-Forgejo gateway socket. Only the public producer key is present on LXC 104; the
-passphrase-protected private key remains on Jason's Mac. See
+The pull-based Forgejo bundle runner is currently an M3 operator pilot. Jason
+promoted only `agent-cloud-bundle` through the existing Companion fresh-passkey
+management flow after M2 isolation passed. The identity has only the existing
+Yellow `forgejo.write.safe-branch` capability, and its `hlabundle` Unix account
+cannot connect directly to either Forgejo gateway socket. Only the public
+producer key is present on LXC 104; the passphrase-protected private key remains
+on Jason's Mac. See
 `docs/projects/Pull-Based-Forgejo-Runner.md` for current gates and evidence.
 
 

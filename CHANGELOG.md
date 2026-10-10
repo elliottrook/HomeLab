@@ -29,6 +29,11 @@
   input failed closed and a human-signed canonical bundle validated with
   metadata-only output. The worker remains in AI-PAM Probation and no Forgejo
   request or repository write occurred.
+- Began M3 after Jason promoted only the bundle identity through Companion's
+  fresh-passkey lifecycle control. Recovered an unlinked approval socket by
+  restarting only its bridge, and added a durable metadata-only `submit`/
+  `promote` CLI around the existing replay-safe runner. All 101 tests pass on
+  Linux; Yellow approval and immediate Forgejo-write confirmation remain open.
 
 ## 2026-10-10 — Brand Design skill and reusable standard
 

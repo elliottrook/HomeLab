@@ -8,6 +8,7 @@ values.  No automatic approval is possible.
 
 from __future__ import annotations
 
+import argparse
 import json
 import socket
 import time
@@ -15,7 +16,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Mapping
 
-from bundle_verifier import ReplayLedger, VerifiedBundle, reverify_for_promotion, verify_bundle
+from bundle_verifier import (
+    ReplayLedger, VerifiedBundle, reverify_for_promotion, verify_bundle,
+    verify_openssh_signature,
+)
 
 
 class BrokerDenied(RuntimeError):
@@ -133,3 +137,72 @@ class BundleRunner:
             pending.verified.nonce, pending.verified.request_digest, now,
         )
         return result
+
+
+def _policy_value(path: Path, label: str) -> str:
+    try:
+        value = path.read_text(encoding="ascii").strip()
+    except (OSError, UnicodeError) as exc:
+        raise BrokerDenied(f"{label} policy is unavailable") from exc
+    if not value or "\n" in value or "\r" in value:
+        raise BrokerDenied(f"{label} policy is invalid")
+    return value
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("action", choices=("submit", "promote"))
+    parser.add_argument("--bundle-dir", type=Path, required=True)
+    parser.add_argument("--ledger", type=Path, required=True)
+    parser.add_argument("--broker-socket", type=Path, required=True)
+    parser.add_argument("--base-file", type=Path, required=True)
+    parser.add_argument("--policy-file", type=Path, required=True)
+    parser.add_argument("--allowed-signers", type=Path, required=True)
+    parser.add_argument("--principal", default="cloud-producer")
+    args = parser.parse_args()
+    base = _policy_value(args.base_file, "base revision")
+    policy = _policy_value(args.policy_file, "policy digest")
+    verify_signature = lambda body, signature, principal: (
+        principal == args.principal and verify_openssh_signature(
+            body, signature, allowed_signers=args.allowed_signers,
+            principal=principal,
+        )
+    )
+    ledger = ReplayLedger(args.ledger)
+    try:
+        runner = BundleRunner(ledger, lambda request: broker_call(args.broker_socket, request))
+        if args.action == "submit":
+            pending = runner.submit(
+                args.bundle_dir, current_base_revision=base,
+                policy_digest=policy, verify_signature=verify_signature,
+            )
+            output = {
+                "status": "pending", "request_id": pending.broker_request_id,
+                "request_digest": pending.verified.request_digest,
+                "target_branch": pending.verified.target_branch,
+                "expires_at": pending.verified.expires_at,
+            }
+        else:
+            verified = verify_bundle(
+                args.bundle_dir, current_base_revision=base,
+                policy_digest=policy, verify_signature=verify_signature,
+            )
+            request_id = ledger.pending_request_id(verified.nonce, verified.request_digest)
+            runner.promote(
+                PendingBundle(verified, request_id), bundle_dir=args.bundle_dir,
+                current_base_revision=base, policy_digest=policy,
+            )
+            output = {
+                "status": "consumed", "request_id": request_id,
+                "request_digest": verified.request_digest,
+                "target_branch": verified.target_branch,
+            }
+        print(json.dumps(output, sort_keys=True, separators=(",", ":")))
+    except (BrokerDenied, OSError, ValueError) as exc:
+        raise SystemExit(f"DENIED {exc}") from None
+    finally:
+        ledger.close()
+
+
+if __name__ == "__main__":
+    main()
