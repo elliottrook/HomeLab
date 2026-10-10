@@ -87,6 +87,21 @@ class ContentStore:
                 raise KeyError((site, content_id))
             return ContentRecord.from_dict(json.loads(row["record_json"])), int(row["version"])
 
+    def list_latest(self, site: str) -> list[tuple[ContentRecord, int]]:
+        with self.lock:
+            if site not in SITES:
+                raise ContentError("unknown site")
+            rows = self.database.execute(
+                "SELECT versions.version, versions.record_json FROM content_versions AS versions "
+                "JOIN (SELECT content_id, MAX(version) AS version FROM content_versions "
+                "WHERE site = ? GROUP BY content_id) AS latest "
+                "ON latest.content_id = versions.content_id AND latest.version = versions.version "
+                "WHERE versions.site = ? ORDER BY versions.content_id",
+                (site, site),
+            ).fetchall()
+            return [(ContentRecord.from_dict(json.loads(row["record_json"])), int(row["version"]))
+                    for row in rows]
+
     def approve(self, site: str, content_id: str, approved_by: str) -> Approval:
         with self.lock:
             record, version = self.latest(site, content_id)

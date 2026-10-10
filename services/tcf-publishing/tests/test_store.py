@@ -51,6 +51,14 @@ class StoreTests(unittest.TestCase):
         with self.assertRaises(ContentError):
             self.store.approve("contrast", "shared-frame", "jason")
 
+    def test_latest_list_is_site_scoped_and_returns_only_current_versions(self):
+        self.store.save(record(id="contrast-frame"))
+        self.store.save(record(id="contrast-frame", title="Second version"))
+        self.store.save(record(site="closet", id="closet-frame"))
+        listed = self.store.list_latest("contrast")
+        self.assertEqual([(item.id, version) for item, version in listed], [("contrast-frame", 2)])
+        self.assertEqual(listed[0][0].title, "Second version")
+
 
 if __name__ == "__main__":
     unittest.main()
