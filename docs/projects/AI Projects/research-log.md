@@ -2327,3 +2327,12 @@ A new synthetic regression test asserts refresh performs one `v3` write and
 no post-save Keychain read; 14 focused native auth tests passed. Deliberate
 expiry, sleep/wake and crash reconciliation remain open; no model call,
 approval action or infrastructure change occurred.
+
+### 2026-10-09 — Offline restart guard for uncertain Codex turns
+
+Added a fake-agent test that loses the turn-start acknowledgement, closes and
+reopens the private dispatch store, and then attempts the same request ID.
+The reopened store retains `unknown` and refuses a second thread or turn.
+Thirteen local-turn/local-bridge tests pass. This directly tests durable
+duplicate prevention across a process restart; it does not substitute for a
+live app crash, Mac sleep/wake, or recovery of an already completed answer.

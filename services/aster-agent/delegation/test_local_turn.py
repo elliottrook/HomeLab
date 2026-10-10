@@ -75,6 +75,18 @@ class LocalTurnTests(unittest.TestCase):
         self.assertEqual(second.starts,[])
         self.assertEqual(self.store.inspect(JOB)[0],'unknown')
 
+    def test_uncertain_turn_survives_store_reopen_without_resubmission(self):
+        first=FakeAgent(lose_start=True)
+        self.assertEqual(self.run_turn(first)['state'],'unknown')
+        self.store.close()
+        self.store=DispatchStore(self.path)
+        second=FakeAgent([answer(),end()])
+        with self.assertRaises(ValueError):
+            self.run_turn(second)
+        self.assertEqual(second.threads,0)
+        self.assertEqual(second.starts,[])
+        self.assertEqual(self.store.inspect(JOB)[0],'unknown')
+
     def test_competing_claim_is_uncertain_without_second_turn(self):
         store=self.store
         class CompetingAgent(FakeAgent):

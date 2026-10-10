@@ -15,7 +15,9 @@ session, so it is not an authentication rollback. The
 keeps version 13 in service. A disposable-item test found that the current
 local signer lacks the entitlement needed for Apple's data-protection
 Keychain; no real credential was touched. Another live login migration is on
-hold. The earlier
+hold. A synthetic refresh test and an offline reopened-journal test now guard
+against repeat Keychain reads and duplicate Codex turns; neither proves live
+sleep/wake or crash recovery. The earlier
 [corrected build-11 first case](evidence/D3-native-build11-first-case-gate-2026-10-09.md)
 and [twelve-case finite result](evidence/D3-native-finite-12-result-2026-10-09.md)
 remain evaluation evidence, not D3 graduation. Ordinary Codex intake, gateway
