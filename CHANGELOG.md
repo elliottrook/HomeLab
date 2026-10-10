@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-10 — Brand Design skill consolidation staged locally
+
+- Consolidated the installed Brand SVG Studio workflow into one Brand Design skill while retaining registry, SVG audit, recolour, tracing, rendering, export, release and rollback behavior.
+- Added gated brand intake, concept/master approval, precise edit contracts, 18-reference/equivalence coverage, manual/reconstruction literature, offline package validation, deployment-state reporting and an explicit-only legacy alias.
+- Passed six synthetic validator tests and the supplied fotosforfun 18-reference raster fixture. Full vector/release deployment remains open; no Forgejo push or public publication was performed.
+- Added a design-only Forgejo/Tailscale access proposal recommending a pull-based local runner; no network, credential or production change was made.
+
 ## 2026-09-24 — MacBook administration layer: M0-M3 closed, M4 in progress
 
 - Independent MacBook SSH identity generated and enrolled on all 12 approved lab targets; verified from the MacBook itself, not assumed from the mini's own trust.
