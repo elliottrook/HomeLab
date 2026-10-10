@@ -23,7 +23,8 @@ and [twelve-case finite result](evidence/D3-native-finite-12-result-2026-10-09.m
 remain evaluation evidence, not D3 graduation. Ordinary Codex intake, gateway
 intake and sysadmin tools remain closed; the separate worker identity remains
 inactive. D3 reliability, independent answer review and natural token-refresh
-validation remain open.
+validation remain open. The [bounded live reliability gate](evidence/D3-native-live-reliability-gate-2026-10-09.md)
+is prepared but has not been run or authorized.
 
 **Current direction and resume point — 2026-10-06:** Jason adopted
 [subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the
