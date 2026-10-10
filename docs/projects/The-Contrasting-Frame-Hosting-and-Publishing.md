@@ -364,10 +364,10 @@ Gate: source reconstructs the accepted site; no proprietary/private data leaks.
 
 ### A2 Provision internal hosting and storage
 
-- [ ] Create only approved guests, datasets, accounts/ACLs and narrow rules.
-- [ ] Deploy private editor/preview and static origin; deny lateral/public admin.
-- [ ] Add host/guest backups, Beszel/Doctor and NetBox records; verify restore.
-- [ ] Validate reboot, mount loss and editor/inference outage with origin intact.
+- [x] Create only approved guests, datasets, accounts/ACLs and narrow rules.
+- [x] Deploy private editor/preview and static origin; deny lateral/public admin.
+- [x] Add host/guest backups, Beszel/Doctor and NetBox records; verify restore.
+- [x] Validate reboot, mount loss and editor/inference outage with origin intact.
 
 Gate: accepted gallery operates privately and isolation/recovery tests pass.
 
@@ -455,7 +455,7 @@ previously public material cannot be guaranteed erased.
 
 ## Persistence and exact next action
 
-Current milestone: A1. M0 design/risk acceptance was given by Jason on
+Current milestone: A3. M0 design/risk acceptance was given by Jason on
 2026-10-09 after review of the corrected Aster-styled Content Desk concept,
 Synology/Immich source boundaries, isolated public origin, story limits,
 approval/cadence, backup scope, domain/mail/font constraints and free-tier
@@ -483,6 +483,11 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Read-only live reconciliation: Forgejo main `2f92914`; Proxmox 9.2.20 with about 49 GB available RAM and VMIDs 124–125 free; NetBox 4.6.9 has no TCF records and `.35`/`.36` are unassigned; TrueNAS 25.10.5 Media pool has about 18.1 TB free and no TCF dataset; DSM 7.4.1 has about 10.0 TB available | Proposed allocations grounded in current state; no infrastructure changed during discovery |
 | 2026-10-09 | Authoritative Forgejo main was streamed read-only as a complete Git bundle; only preparation commit `b5c81a4` was replayed as `0062f18`, then accepted M0 decisions committed locally as `5a8802d` | Divergent local history was not transferred; no remote write occurred |
 | 2026-10-09 | A1 baseline manifest covers every accepted `dist/` file; private archive `accepted-dist-5b23ccb9.tar.gz` SHA-256 `2333421596d0bdf3579f48fc9300531e4e6b8b3a4f3bb950268960a7783413dc` restored in isolation and matched the manifest | Accepted site is reconstructable; archive remains private and must gain independent A2 backup coverage |
+| 2026-10-09 | A2 provisioned unprivileged LXC 124 `tcf-publisher` at `192.168.20.35` and LXC 125 `tcf-origin` at `192.168.20.36`, plus quota-bounded `Media/TheContrastingFrame/{brand,workflow,releases}` and `Recovery/contrasting-frame` datasets; NetBox API readback matched VM, IP, MAC, VLAN and interface state | The private Aster-styled Content Desk and isolated TCF-styled static sample origin are deployed; no public route exists |
+| 2026-10-09 | Both guests loaded default-deny nftables policy. Denied tests passed from origin to Synology admin, Content Desk and Proxmox, and from publisher to Synology admin; exact publisher-to-origin SSH, publisher-to-Synology HTTPS and both agent-to-Beszel paths passed | Public origin has no NAS/editor/AI path; the publisher has only declared dependencies and ordinary package egress |
+| 2026-10-09 | Initial non-pruning guest backups and their TrueNAS mirror copies matched SHA-256 (`124` `02c200119dbe3c34eca1977f0f6d13da7966b3d9f38d6f1219fa4c184803f948`; `125` `933b77f23a10e85d145eeac8d4bd69ec6d37a7aabb117cc9670368ecbb2f5ac5`) and passed archive integrity; the TrueNAS copy of LXC 125 restored as networkless temporary LXC 126, served its local health endpoint and retained all five sample banners, then the test guest/staging files were removed | Independent guest recovery is proven without attaching the restored origin to any network |
+| 2026-10-09 | Beszel 0.18.7 reports both guests `up`; HomeLab Doctor verifies private desk/origin services, the current release manifest and both primary/mirror backup ages. Full Doctor: 81 pass, 13 pre-existing warnings, 0 fail | Monitoring and failure-only checks cover the new runtime without adding a parallel stack |
+| 2026-10-09 | Stopping the Content Desk left origin health intact; both guests then rebooted and recovered their service/firewall/agent units automatically. Neither runtime has a NAS mount, and the origin checksum remained valid | Editor, future inference and NAS availability are not origin runtime dependencies; A2 gate passed |
 | 2026-10-09 | Versioned content schema, immutable public hash, sample hard-block, traversal/rights/consent/story-limit tests and conspicuous five-page sample build completed; 10 tests passed | A1 gate passed; commercial font and all media remain outside the public-mirrored repository |
 
 ## Close out

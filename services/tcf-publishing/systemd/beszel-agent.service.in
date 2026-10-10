@@ -1,0 +1,28 @@
+[Unit]
+Description=Beszel Agent Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment="PORT=45876"
+Environment="KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK88pFyD1rFx1E7p5HnymBqvj6VV/90id8QejpCbwL94"
+Environment="TOKEN=@BESZEL_TOKEN@"
+Environment="HUB_URL=http://192.168.20.20:8090"
+ExecStart=/opt/beszel-agent/beszel-agent
+User=beszel
+SupplementaryGroups=systemd-journal
+Restart=on-failure
+RestartSec=5
+StateDirectory=beszel-agent
+KeyringMode=private
+LockPersonality=yes
+ProtectClock=yes
+ProtectHome=read-only
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectSystem=strict
+RemoveIPC=yes
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

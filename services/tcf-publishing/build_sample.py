@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 from pathlib import Path
 import re
 import shutil
@@ -24,7 +25,12 @@ def build(source: Path, destination: Path) -> None:
     missing = sorted(name for name in required if not (source / name).is_file())
     if missing:
         raise ValueError(f"baseline is incomplete: {', '.join(missing)}")
-    shutil.copytree(source, destination, symlinks=False)
+    shutil.copytree(
+        source,
+        destination,
+        symlinks=False,
+        ignore=shutil.ignore_patterns("._*", ".DS_Store"),
+    )
     for path in destination.glob("*.html"):
         text = path.read_text(encoding="utf-8")
         if BANNER in text:
@@ -36,6 +42,14 @@ def build(source: Path, destination: Path) -> None:
         path.write_text(text, encoding="utf-8")
     (destination / "SAMPLE-NOT-FOR-PUBLICATION.txt").write_text(
         "This release is for private workflow testing only.\n", encoding="utf-8")
+    entries = []
+    for path in sorted(item for item in destination.rglob("*") if item.is_file()):
+        relative = path.relative_to(destination).as_posix()
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        entries.append(f"{digest}  ./{relative}")
+    (destination / "MANIFEST.sha256").write_text(
+        "\n".join(entries) + "\n", encoding="utf-8"
+    )
 
 
 def main() -> int:

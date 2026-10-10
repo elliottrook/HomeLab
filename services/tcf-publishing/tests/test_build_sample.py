@@ -26,6 +26,18 @@ class SampleBuildTests(unittest.TestCase):
             for page in destination.glob("*.html"):
                 self.assertIn(BANNER, page.read_text())
             self.assertTrue((destination / "SAMPLE-NOT-FOR-PUBLICATION.txt").is_file())
+            manifest = (destination / "MANIFEST.sha256").read_text()
+            self.assertIn("./index.html", manifest)
+            self.assertNotIn("MANIFEST.sha256", manifest)
+
+    def test_appledouble_metadata_is_excluded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = self.make_source(root)
+            (source / "._index.html").write_bytes(b"metadata")
+            destination = root / "release"
+            build(source, destination)
+            self.assertFalse((destination / "._index.html").exists())
 
     def test_refuses_incomplete_or_existing_destination(self):
         with tempfile.TemporaryDirectory() as directory:

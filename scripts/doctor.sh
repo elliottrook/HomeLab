@@ -52,6 +52,24 @@ check_tcp() {
     fi
 }
 
+check_tcf_publishing() {
+    local result
+
+    if result="$(
+        ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox '
+            pct exec 124 -- systemctl is-active --quiet tcf-content-desk beszel-agent nftables &&
+            pct exec 124 -- python3 -c '\''import urllib.request; assert urllib.request.urlopen("http://127.0.0.1:8080/api/content", timeout=3).status == 200'\'' &&
+            pct exec 125 -- systemctl is-active --quiet nginx beszel-agent nftables &&
+            pct exec 125 -- python3 -c '\''import urllib.request; body=urllib.request.urlopen("http://127.0.0.1/healthz", timeout=3).read(); assert body'\'' &&
+            pct exec 125 -- sh -lc '\''cd /srv/tcf/current && test -f SAMPLE-NOT-FOR-PUBLICATION.txt && sha256sum -c MANIFEST.sha256 >/dev/null'\''
+        ' 2>&1
+    )"; then
+        pass "The Contrasting Frame private desk and sample origin are healthy; release checksum verified"
+    else
+        fail "The Contrasting Frame publishing health check failed${result:+ — $result}"
+    fi
+}
+
 check_backup_age() {
     local display="$1"
     local directory="$2"
@@ -2126,6 +2144,7 @@ check_paperless
 check_bazarr
 check_unified_media
 check_apt_proxy
+check_tcf_publishing
 
 category "Service Reachability"
 
@@ -2158,6 +2177,10 @@ check_proxmox_guest_backup_age "NetBox LXC 111" 111 30 lxc
 check_proxmox_guest_backup_age "Aster Wiki LXC 113" 113 30 lxc
 check_proxmox_guest_backup_age "Aster Speech LXC 116" 116 30 lxc
 check_truenas_guest_mirror_age "Aster Speech LXC 116" 116 30 lxc /mnt/Recovery/guests/homelab-proxmox-guests
+check_proxmox_guest_backup_age "TCF Publisher LXC 124" 124 30 lxc
+check_truenas_guest_mirror_age "TCF Publisher LXC 124" 124 30 lxc /mnt/Recovery/guests/homelab-proxmox-guests
+check_proxmox_guest_backup_age "TCF Origin LXC 125" 125 30 lxc
+check_truenas_guest_mirror_age "TCF Origin LXC 125" 125 30 lxc /mnt/Recovery/guests/homelab-proxmox-guests
 check_idrive_relay
 if config_backup_result="$(python3 "$REPO/scripts/check-configuration-backups.py")"; then
     pass "$config_backup_result"

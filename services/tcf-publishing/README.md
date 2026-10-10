@@ -34,3 +34,18 @@ python3 services/tcf-publishing/manifest.py \
 The commercial webfont is referenced only by checksum. Its bytes remain in the
 private brand dataset and are injected into a release only after the licence
 and domain gate passes.
+
+## Initial private deployment
+
+- `tcf-publisher` is unprivileged LXC 124 at `192.168.20.35`; the Content Desk
+  listens on TCP 8080 and accepts ingress only from NPM `192.168.50.23`.
+- `tcf-origin` is unprivileged LXC 125 at `192.168.20.36`; Nginx serves the
+  visibly marked sample release on TCP 80 and accepts private validation only
+  from NPM. It has no NAS, editor or AI path.
+- Both guests use tracked default-deny nftables policies and report to the
+  existing Beszel hub. Agent tokens are unique runtime secrets and never enter
+  this repository.
+- The sample release includes `MANIFEST.sha256`; HomeLab Doctor verifies it,
+  service health, and primary plus independent guest-backup freshness.
+- There is deliberately no public DNS, tunnel or route during A2/A3. Public
+  launch remains subject to content, rights, font, mail and edge gates.
