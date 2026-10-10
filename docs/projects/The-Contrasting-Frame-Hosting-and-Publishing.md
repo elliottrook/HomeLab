@@ -1,6 +1,6 @@
 # The Contrasting Frame and The Closet Fatman publishing
 
-> Status: Active — M0 accepted; dual-site revision questions open; Stream A authorized
+> Status: Active — M0 accepted; dual-site revision incorporated; Stream A authorized; A3 in progress
 >
 > Owner: Jason Elliott
 >
@@ -508,9 +508,11 @@ Current milestone: A3. M0 design/risk acceptance was given by Jason on
 2026-10-09 after review of the corrected Aster-styled Content Desk concept,
 Synology/Immich source boundaries, isolated public origin, story limits,
 approval/cadence, backup scope, domain/mail/font constraints and free-tier
-public exposure. No infrastructure or public-domain changes had been made at
-the transition. Next safe action: reconcile an authoritative Forgejo checkout,
-verify source/asset checksums and complete read-only live allocation discovery.
+public exposure. No public-domain route exists. The private Content Desk is now
+available through owner-only Authentik at `tcf.elliottrook.com`; direct backend
+access remains denied. Next safe action: implement bounded Markdown/image
+drag-and-drop import with site-scoped storage, image validation and metadata
+stripping, then add the live preview and approval controls.
 Store design decisions, last validated gate, candidate/accepted release ID,
 rollback checkpoint, exact blocker and next safe action at each milestone.
 Use a versioned durable job-state DB with atomic transitions, not process absence.
@@ -542,6 +544,10 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Read-only inspection found `/Users/jasonelliott/Documents/The Closet Fatman` with 290 assets, approved palette notes, manifest, geometry/export QA and four website SVGs; Jason confirmed the sites normally use different media but may deliberately reuse work | Closet logo assets are authoritative and remain outside Git/runtime for now; shared work requires separate site records and approval. Final public name suffix and forthcoming site treatment remain open |
 | 2026-10-09 | Deployed the dual-site desk pill and durable SQLite version store in LXC 124. The sample seeded as `contrast` version 1; state directory is mode 0700, database 0600, and mutation endpoints require an explicit same-application intent header. Sixteen tests cover hash/site invalidation, mixed-site rejection, independent cross-publication and sample approval denial | A3 persistence foundation is live privately. Closet public rendering remains locked until its forthcoming site treatment is supplied |
 | 2026-10-09 | Added checkpointed OPNsense rule `b60d512c-ae24-4acf-9322-317ecee35da1`, exact TCP `192.168.50.23` → `192.168.20.35:8080`. Initial sequence 3210 loaded after the private-network deny and matched zero packets; corrected to the working wiki-rule sequence class 2194, reloaded, and NPM LXC connection returned zero | Private proxy-to-desk network gate passed without broadening VLAN access; NPM, Authentik and split-DNS objects remain pending |
+| 2026-10-09 | Forgejo `main` advanced through `ccdeb98`; both temporary API tokens used for the authenticated push were removed and the remote ref was verified at `ccdeb98a604f22077ad2c158f4446eb0e56e2f6e` | Accepted M0, dual-site A3 foundation and private-access provisioning are durably synchronized; unrelated local duplicate files remain untouched |
+| 2026-10-09 | Created Authentik forward-auth application `photography-content-desk`, attached it to the embedded outpost and bound only Jason as owner. NPM host 36 routes `tcf.elliottrook.com` to `192.168.20.35:8080` using wildcard certificate 8; NPM's own renderer reported online and `nginx -t` passed | Private HTTPS access is protected by the existing identity boundary; unauthenticated client request returns the expected same-host Authentik 302 |
+| 2026-10-09 | Added checkpointed split-DNS records to OPNsense Unbound and both Pi-hole v6 instances. All three resolvers independently return `192.168.50.23`; the Mac's normal resolver does too, while `1.1.1.1` returns no A record | `tcf.elliottrook.com` is internal only; no public DNS or tunnel route was created |
+| 2026-10-09 | Full client-path test returned HTTPS 302 to `/outpost.goauthentik.io/start`; direct Mac access to `192.168.20.35:8080` timed out. Primary and secondary Pi-hole are healthy and NPM syntax remains valid | Private access path passes end to end, and the firewall still prevents bypassing NPM/Authentik |
 
 ## Close out
 

@@ -56,6 +56,10 @@ and domain gate passes.
   immutable approvals in owner-only SQLite state. Any edit creates a new
   version and leaves the current version unapproved. Deliberate cross-site reuse
   creates a separate unapproved record; it never copies approval.
+- The private hostname is implemented by three internal resolver records,
+  NPM host 36 and the owner-only Authentik application
+  `photography-content-desk`. The direct TCP 8080 backend remains restricted to
+  NPM, so DNS or URL knowledge cannot bypass the identity gate.
 - The sample release includes `MANIFEST.sha256`; HomeLab Doctor verifies it,
   service health, and primary plus independent guest-backup freshness.
 - There is deliberately no public DNS, tunnel or route during A2/A3. Public
