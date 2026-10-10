@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — Read-only second pass of twelve existing native answers
+
+The installed recovery helper read back all twelve previously completed
+fictional answers without new inference; the private journal remained at 15
+completed rows. Eleven answers clearly match their frozen properties on this
+same-agent second pass. Orion's 503/health-200 answer has a qualified wording
+concern about whether the later health check establishes recovery. Because
+the reviewer had already seen the preliminary results, this is not independent
+or blinded acceptance. No new live question is justified; see the
+[content-free audit](evidence/D3-existing-answer-second-pass-2026-10-09.md).
+
 ## 2026-10-09 — One bounded native process interruption and original-answer recovery
 
 After Jason approved the exact one-attempt gate, he reviewed and consented to
