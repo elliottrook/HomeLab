@@ -1,8 +1,8 @@
 # Aster Unified Voice Service
 
 > Status: Active — Stream A; M0–M2 complete, M3 in progress; candidate staged,
-> production selection withheld on uncached latency; B60 acceleration blocked
-> by disabled Resizable BAR
+> production selection withheld pending Vulkan listening and sustained-latency
+> acceptance
 >
 > Owner: Jason
 >
@@ -256,9 +256,11 @@ API/network/dependency manifest and rollback plan are frozen. The next safe
 action is to improve or explicitly accept the uncached first-audio result before
 any production selector change. The candidate is installed but stopped and
 disabled on LXC 116; production port 9130 remains authoritative and healthy.
-The approved B60 experiment cannot proceed until the Proxmox host exposes a
-Resizable BAR larger than 256 MiB; that requires a separate physical/firmware
-maintenance decision rather than a live production-host PCI reconfiguration.
+The OpenVINO/Level Zero route remains blocked by the B60's 256 MiB physical BAR,
+but the approved follow-up proved that Mesa Vulkan is a viable independent path.
+A pinned Kokoro GGML/Vulkan canary is staged but stopped in GPU LXC 110. Its
+warm short-acknowledgement first audio met the 750 ms goal; representative
+longer first-sentence latency and listening parity remain M3 gates.
 
 ## Milestones
 
@@ -619,6 +621,31 @@ unrelated state.
   healthy. Proxmox has queued deletion of the temporary `dev0` config entry;
   it will disappear from the persistent LXC configuration on the next normal
   guest restart. The device is not currently visible inside LXC 116.
+- Follow-up investigation corrected the scope of that blocker. The live
+  llama.cpp service proves that Mesa Vulkan can use this B60 with the small BAR;
+  only Intel's `xe` Level Zero/OpenCL compute-runtime path rejects it. Kokopop
+  commit `2c6989ac800f624ea984210215e1b76be42eea81`, with its pinned patched GGML
+  commit `36da57138425487184aa1da2eee2cde155909c6f`, was built in the isolated
+  `/opt/aster-voice-vulkan-test` root in LXC 110 with Vulkan explicitly enabled.
+  All 617 upstream tests passed.
+- The immutable Kokoro F16 GGUF came from model revision
+  `b7958cdedd0efa56e8756895e739fbe2852f635d`; its 176,165,568-byte file matched
+  the published SHA-256
+  `e8242a1321e580599c26981692adf088ebfdc4c7b7555959b13f4d6667d0d206` and
+  contains the approved `bm_daniel` voice. Explicit synthesis identified the
+  Intel Arc Pro B60/BMG G21 through the Intel open-source Mesa driver and
+  produced valid mono 24 kHz/16-bit WAV output. No automatic CPU fallback was
+  used for this pass.
+- The persistent localhost-only canary delivered warm first audio for the short
+  acknowledgement in 0.588 seconds, meeting the 0.750-second target. A
+  representative longer first sentence delivered its first audio in 1.608
+  seconds; an identical CPU-runtime comparison required about eight seconds
+  for that first chunk. Vulkan is therefore useful but does not remove the need
+  for Aster-owned bounded sentence/clause segmentation, acknowledgement caching
+  and a contention/listening gate. The transient listeners were stopped and
+  generated remote audio/traces were removed; the pinned build/model remain
+  staged, stopped and isolated for the next pass. Production llama.cpp and
+  speech services remained active and healthy.
 
 ## Validation and evaluation
 
@@ -764,7 +791,8 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | Stream A decision | Jason rejected premium services and directed a network-level single solution using the approved voice, with project creation, commit, push and immediate Stream A start. | Risk envelope accepted; M0 complete, M1 starts with read-only design/licence/protocol discovery and offline benchmarks. |
 | 2026-10-10 | M2 real-listener close-out | Loopback-only Uvicorn canary on LXC 116: cached first body 55 ms fresh/12 ms warm; uncached 1.772 s; disconnect recovery 12 ms; explicit DELETE 204 followed by one content-free `cancelled` frame and successful recovery. Temporary listener/staging removed; production remained active and healthy. | M2 functional/security/cancellation gates complete. M3 remains pending; uncached first-audio latency is a tracked acceptance risk. |
 | 2026-10-10 | M3 staged canary and rollback | Fresh guest backup plus protected file checkpoint verified; pinned candidate installed separately on 9131; 46 tests, authentication refusal, two WAV passes, streaming, concurrency, cancellation and rollback passed. Cached acknowledgement 11 ms; uncached first body 1.521 s. | Candidate left stopped/disabled and production 9130 healthy. Do not select it until uncached latency meets 750 ms or Jason explicitly accepts a revised threshold. |
-| 2026-10-10 | M3 Arc Pro B60 acceleration probe | Least-privilege render-node mapping; isolated OpenVINO 1.24.1 and hash-verified Intel compute runtime; provider-fallback detection; live PCI BAR/link inspection; complete test-root cleanup and live device withdrawal. | No GPU benchmark claimed: B60 compute rejected because physical Resizable BAR is only 256 MiB. Production stayed healthy. Next step requires a planned BIOS/physical maintenance decision, or a different accelerator host. |
+| 2026-10-10 | M3 Arc Pro B60 acceleration probe | Least-privilege render-node mapping; isolated OpenVINO 1.24.1 and hash-verified Intel compute runtime; provider-fallback detection; live PCI BAR/link inspection; complete test-root cleanup and live device withdrawal. | No OpenVINO GPU benchmark claimed: Intel's `xe` compute runtime rejected the 256 MiB physical BAR. Production stayed healthy. This result blocks Level Zero/OpenCL, not Mesa Vulkan. |
+| 2026-10-10 | M3 B60 Vulkan Kokoro canary | Internet/upstream review plus live llama.cpp evidence identified Mesa Vulkan as the small-BAR path. Pinned Kokopop/GGML build; 617 tests; immutable verified F16 GGUF with `bm_daniel`; explicit B60 synthesis; persistent first-audio traces; CPU comparison; generated remote evidence cleanup. | Vulkan is viable without ReBAR. Warm short first audio was 0.588 s; a longer first sentence was 1.608 s. Keep the canary stopped and production unchanged pending Jason's listening parity, bounded segmentation and shared-GPU contention gates. |
 
 ## Close-out
 
