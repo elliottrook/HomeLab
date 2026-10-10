@@ -19,7 +19,7 @@ from urllib.parse import parse_qs, urlsplit
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 from content import ContentError, ContentRecord, word_count
-from candidate import build_candidate
+from template_candidate import build_template_candidate
 from imports import ImportManager, MAX_IMAGE_BYTES, MAX_MARKDOWN_BYTES, decode_payload
 from store import ContentStore
 
@@ -29,6 +29,7 @@ PORT = int(os.environ.get("TCF_PORT", "8080"))
 DATABASE_PATH = Path(os.environ.get("TCF_DATABASE", "/var/lib/tcf-workflow/content.db"))
 IMPORT_ROOT = Path(os.environ.get("TCF_IMPORT_ROOT", "/var/lib/tcf-workflow/imports"))
 CANDIDATE_ROOT = Path(os.environ.get("TCF_CANDIDATE_ROOT", "/var/lib/tcf-workflow/candidates"))
+TEMPLATE_ROOT = Path(os.environ.get("TCF_TEMPLATE_ROOT", "/var/lib/tcf/brand-templates"))
 
 HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -164,12 +165,16 @@ class Handler(BaseHTTPRequestHandler):
         if request.path.startswith("/candidate/"):
             relative = PurePosixPath(request.path.removeprefix("/candidate/"))
             if (relative.is_absolute() or ".." in relative.parts
-                    or relative.suffix.lower() not in {".html", ".css", ".jpg"}):
+                    or relative.suffix.lower() not in {".html", ".css", ".js", ".json", ".jpg",
+                                                        ".jpeg", ".png", ".webp", ".svg", ".woff2"}):
                 return self._send(404, b'{"detail":"not found"}', "application/json")
             target = CANDIDATE_ROOT.joinpath(*relative.parts)
             if target.is_file() and target.resolve().is_relative_to(CANDIDATE_ROOT.resolve()):
                 content_type = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
-                                ".jpg": "image/jpeg"}[target.suffix.lower()]
+                                ".js": "text/javascript; charset=utf-8", ".json": "application/json",
+                                ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+                                ".webp": "image/webp", ".svg": "image/svg+xml",
+                                ".woff2": "font/woff2"}[target.suffix.lower()]
                 return self._send(200, target.read_bytes(), content_type)
         return self._send(404, b'{"detail":"not found"}', "application/json")
 
@@ -228,7 +233,8 @@ class Handler(BaseHTTPRequestHandler):
                 relative = Path(body["site"]) / f"edition-{manifest['edition_id']}-{fingerprint}"
                 destination = CANDIDATE_ROOT / relative
                 if not destination.exists():
-                    build_candidate(self.store, IMPORT_ROOT, body["site"], destination)
+                    build_template_candidate(self.store, IMPORT_ROOT, body["site"],
+                                             TEMPLATE_ROOT / body["site"], destination)
                 url = "/candidate/" + relative.as_posix() + "/index.html"
                 return self._send(201, json.dumps({"url": url, "site": body["site"],
                                                    "edition_id": manifest["edition_id"]}).encode(),

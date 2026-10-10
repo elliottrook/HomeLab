@@ -87,6 +87,13 @@ the immutable approved payload, while the visual treatments stay brand-local.
   Content Desk. The renderer rechecks site isolation, immutable approval hashes
   and source-image SHA-256 values, writes a complete file manifest, and refuses
   stale or incomplete input. Candidate creation has no origin promotion path.
+- Candidate rendering uses the accepted finished `dist/` template for its site,
+  injects only approved images/stories and regenerated annotation/content data,
+  and preserves navigation, brand assets and typography. It removes retired
+  cards and refuses additions beyond the accepted template capacity. The current
+  templates expose Contrast capacities 4/2/2/2 and Closet 2/2/2/1 across
+  landscapes/flora/contrasts/people; making them identical requires a deliberate
+  Closet layout revision rather than a backend assumption.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to
