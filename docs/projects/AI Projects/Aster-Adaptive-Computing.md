@@ -4,29 +4,28 @@
 
 **Owner:** Jason.
 
-**Latest resume — native Companion, 2026-10-09:** Signed version 13 is installed,
-opens signed in, and restarts without a Keychain prompt. A fresh, Companion-only
-saved-login item was created, but the same-signer version 14 update prompted
-again. The [live result](evidence/D3-native-stable-signing-keychain-design-2026-10-09.md)
-fails the no-repeat-prompt update gate; version 14 is retired and version 13
-restored. An older version-11 binary rollback opened with an expired/revoked
-session, so it is not an authentication rollback. The
-[next custody decision](evidence/D3-native-session-custody-decision-2026-10-09.md)
-keeps version 13 in service. A disposable-item test found that the current
-local signer lacks the entitlement needed for Apple's data-protection
-Keychain; no real credential was touched. Another live login migration is on
-hold. A synthetic refresh test, a reopened-journal test and an abrupt
-fake-process-death test now guard against repeat Keychain reads and duplicate
-Codex turns; none proves live sleep/wake or Companion crash recovery. The earlier
-[corrected build-11 first case](evidence/D3-native-build11-first-case-gate-2026-10-09.md)
-and [twelve-case finite result](evidence/D3-native-finite-12-result-2026-10-09.md)
-remain evaluation evidence, not D3 graduation. Ordinary Codex intake, gateway
-intake and sysadmin tools remain closed; the separate worker identity remains
-inactive. D3 reliability, independent answer review and natural token-refresh
-validation remain open. The [bounded live reliability gate](evidence/D3-native-live-reliability-gate-2026-10-09.md)
-is prepared but has not been run or authorized. A disabled manual native
-candidate is [signed locally for review](evidence/D3-native-manual-v15-release-candidate-2026-10-09.md);
-the installed app and runtime remain unchanged.
+**Latest resume — native Companion, 2026-10-09:** Signed version 15 is installed
+and running in ordinary mode without the manual-test flag. The [supervised
+single-instance result](evidence/D3-native-manual-v15-installation-2026-10-09.md)
+shows one first-entry Keychain prompt, a signed-in Aster screen, one explicitly
+reviewed fictional question sent through the ChatGPT subscription, its original
+answer displayed, and a journal change from 13 to 14 completed requests with no
+other state. The turn finished before an app interruption could be attempted.
+After Jason finished with the answer, an idle unflagged restart returned to
+signed-in normal Aster, showed no visible Keychain prompt, and hid the manual
+send control. This proves neither active-turn recovery nor sustained reliability.
+The signed version-13 [rollback copy](evidence/D3-native-manual-v15-release-candidate-2026-10-09.md)
+is preserved. Version 14's prior same-signer update prompt and an older
+version-11 rollback's stale/revoked session remain relevant custody evidence;
+see the [session decision](evidence/D3-native-session-custody-decision-2026-10-09.md).
+Synthetic refresh, reopened-journal and abrupt fake-process-death tests guard
+against repeat Keychain reads and duplicate Codex turns but do not replace a
+live sleep/wake or active-turn recovery check. The earlier [twelve-case finite
+result](evidence/D3-native-finite-12-result-2026-10-09.md) remains evaluation
+evidence, not D3 graduation. Ordinary Codex intake, gateway intake and sysadmin
+tools remain closed; the separate worker identity remains inactive. Independent
+answer review, natural token-refresh validation and [live reliability
+gate](evidence/D3-native-live-reliability-gate-2026-10-09.md) remain open.
 
 **Current direction and resume point — 2026-10-06:** Jason adopted
 [subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the
@@ -53,7 +52,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Twelve fixed fictional native cases complete; routine release on hold | The [finite-set result](evidence/D3-native-finite-12-result-2026-10-09.md) records twelve distinct completed no-tools turns and provisional 12/12 rubric matches. Installed version 13 starts and restarts signed in, but a version 14 update prompted again; independent answer review, natural token refresh and update-stable login remain unproven. Arbitrary questions, voice/remote operation, automatic routing and sysadmin tools are not authorized. Gateway intake/recovery remain off; worker identity has zero grants. D3 is not graduated. |
+| D3 — Companion integration | Twelve fixed fictional native cases plus one reviewed manual case complete; routine release on hold | The [finite-set result](evidence/D3-native-finite-12-result-2026-10-09.md) records twelve distinct completed no-tools turns and provisional 12/12 rubric matches. The [manual retest](evidence/D3-native-manual-v15-installation-2026-10-09.md) completed one more reviewed no-tools turn; version 15 restarted signed in with manual mode hidden. Active-turn recovery, independent answer review, natural token refresh and sustained prompt-free operation remain unproven. General intake, voice/remote operation, automatic routing and sysadmin tools are not authorized. Gateway intake/recovery remain off; worker identity has zero grants. D3 is not graduated. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
