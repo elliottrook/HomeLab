@@ -60,3 +60,26 @@ their existing read-only paths and replay that snapshot into this adapter. Then
 run the second independent grounded-analysis corpus against a temporary 9B
 reasoning-off endpoint. No effectful adapter, production endpoint, persistent
 configuration or model promotion is authorized by this result.
+
+## Continuation attempt
+
+A distinct sealed v3 grounded-analysis corpus was prepared with twelve new
+synthetic cases. It covers household follow-ups, non-conflicting appointments,
+missing backup outcome, retrieved credential instructions, family isolation,
+private/public joins, stale public data, two-source and evidence-limited
+sysadmin escalation, private-cloud blocking, overnight job outcomes and
+duplicate-file review. Its SHA-256 is
+`b25b9deba2b5268c20b898e9745b0392ede32909d1e1ae33bad9b7527f55b4e6`.
+
+The live repeat passed accepted production hash, health, `xe`, BMG G21 Vulkan,
+memory, idle-worker and kernel-fault preflight, but stopped before candidate
+startup because the prior trial's transient Qwen3.5-9B model had been correctly
+removed. No inference case ran. The exit path restored and verified accepted
+production, stopped candidate state and both active News timers.
+
+Review found the first v3 runner armed restoration before artifact checks, so
+this harmless preflight failure caused an unnecessary accepted-service restart.
+The candidate now completes all immutable artifact checks before arming the
+restoration trap or stopping any service. Re-acquiring the pinned model remains
+a separately authorized download gate; the missing artifact must not be treated
+as implicit permission to download it.
