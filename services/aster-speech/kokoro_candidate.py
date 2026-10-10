@@ -21,6 +21,7 @@ LANGUAGE = os.environ.get("ASTER_VOICE_LANGUAGE", "en-gb")
 SPEED = float(os.environ.get("ASTER_VOICE_SPEED", "0.95"))
 INTRA_OP_THREADS = int(os.environ.get("ASTER_VOICE_INTRA_OP_THREADS", "2"))
 INTER_OP_THREADS = int(os.environ.get("ASTER_VOICE_INTER_OP_THREADS", "1"))
+ACKNOWLEDGEMENT = "There, that's done."
 
 
 def sha256(path: Path) -> str:
@@ -84,10 +85,22 @@ class KokoroRendererPool:
     def __init__(self, model: Path = MODEL_PATH, voices: Path = VOICES_PATH):
         verify_assets(model, voices)
         self.workers = (KokoroWorker(model, voices), KokoroWorker(model, voices))
+        # This exact phrase passed Jason's listening gate. It is deterministic
+        # and may be returned only after the caller reports action success.
+        self._cache = {ACKNOWLEDGEMENT: self.workers[0].render(ACKNOWLEDGEMENT)}
+
+    def _render(self, worker_index: int, text: str) -> tuple[bytes, int]:
+        cached = self._cache.get(text)
+        if cached is not None:
+            return cached
+        return self.workers[worker_index].render(text)
 
     @property
     def renderers(self):
-        return tuple(worker.render for worker in self.workers)
+        return (
+            lambda text: self._render(0, text),
+            lambda text: self._render(1, text),
+        )
 
     def close(self) -> None:
         for worker in self.workers:

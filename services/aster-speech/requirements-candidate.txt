@@ -1,0 +1,10 @@
+# Direct runtime dependencies for the isolated M2 candidate. A complete freeze
+# is captured from the validated LXC environment before M3 installation.
+fastapi==0.141.1
+PyJWT[crypto]==2.14.0
+uvicorn==0.53.0
+faster-whisper==1.2.1
+kokoro-onnx==0.6.1
+onnxruntime==1.30.0
+numpy==2.5.3
+soundfile==0.14.0

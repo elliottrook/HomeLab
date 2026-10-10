@@ -37,6 +37,31 @@ class AssetVerificationTests(unittest.TestCase):
         self.assertEqual(kokoro_candidate.INTRA_OP_THREADS, 2)
         self.assertEqual(kokoro_candidate.INTER_OP_THREADS, 1)
 
+    def test_approved_acknowledgement_is_rendered_once_and_cached(self):
+        calls = []
+
+        class FakeWorker:
+            def __init__(self, _model, _voices):
+                self.number = len(calls)
+
+            def render(self, text):
+                calls.append(text)
+                return text.encode(), 24000
+
+            def close(self):
+                return None
+
+        with patch.object(kokoro_candidate, "verify_assets"), patch.object(
+            kokoro_candidate, "KokoroWorker", FakeWorker
+        ):
+            pool = kokoro_candidate.KokoroRendererPool(Path("model"), Path("voices"))
+            before = len(calls)
+            first = pool.renderers[0](kokoro_candidate.ACKNOWLEDGEMENT)
+            second = pool.renderers[1](kokoro_candidate.ACKNOWLEDGEMENT)
+        self.assertEqual(first, second)
+        self.assertEqual(len(calls), before)
+        self.assertEqual(calls, [kokoro_candidate.ACKNOWLEDGEMENT])
+
 
 if __name__ == "__main__":
     unittest.main()
