@@ -39,3 +39,10 @@ probe without changing the versioned corpus or result schema.
 `kokoro-onnx` 0.6.1 engine around an explicit ONNX Runtime session. This is for
 M1 tuning because the package's public constructor does not accept session
 options; candidate service code must wrap and test that behavior deliberately.
+
+`voice_candidate.py` is the repository-only M2 core. It owns the canonical
+speech normalization and semantic-unit policy plus the bounded two-worker
+scheduler. Both workers serve interactive work; only worker zero may serve the
+lower-priority batch queue, so News cannot occupy both interactive slots. This
+module is not production wiring and must remain side-by-side until the HTTP and
+Wyoming adapters, real Kokoro renderer and LXC 116 gates pass.

@@ -1,6 +1,6 @@
 # Aster Unified Voice Service
 
-> Status: Active — Stream A; M0 complete, M1 in progress
+> Status: Active — Stream A; M0–M1 complete, M2 in progress
 >
 > Owner: Jason
 >
@@ -248,12 +248,12 @@ source/live hashes and current service health; resume the first unchecked gate.
 Never infer that an interrupted deploy, firewall write or Home Assistant change
 succeeded. Reconcile before retry.
 
-Current resume point: M0 is complete and M1 is active. Licence/runtime and
-Home Assistant protocol discovery and the repeatable offline Piper/Kokoro
-fixture harness plus isolated LXC 116 single/two-client capacity measurements
-are complete. The next safe action is listening acceptance and the final API,
-network, dependency and rollback manifest, followed by the M1 gate review. No
-production component has been changed by M1 discovery.
+Current resume point: M0 and M1 are complete and M2 is active. The approved
+voice, normalization/pronunciation rules, acknowledgement, capacity topology,
+API/network/dependency manifest and rollback plan are frozen. The next safe
+action is the repository-only canonical service candidate and its unit,
+integration, cancellation and concurrency gates. No production component has
+been changed by M1 discovery.
 
 ## Milestones
 
@@ -261,7 +261,7 @@ production component has been changed by M1 discovery.
   live LXC 116; record consumers, legacy/canonical mismatch, scope, risks,
   exclusions, rollback and Stream A authorization. Gate: project/index/changelog
   committed and synchronized; no production mutation.
-- [ ] **M1 — Voice contract and measured design.** Verify Kokoro/voice licence
+- [x] **M1 — Voice contract and measured design.** Verify Kokoro/voice licence
   and exact pinned assets; inventory live runtime and Home Assistant Assist/
   Wyoming support; define normalization, pronunciation, request/stream/cancel
   schemas, ports and caller identities; create offline fixtures and benchmark
@@ -472,6 +472,21 @@ pipeline; then stop/disable only the candidate unit and remove only its exact
 firewall rule if unused. Verify Piper v1, STT, typed Companion, HA manual control
 and News schedule. Do not restore the whole guest, firewall or HA VM over later
 unrelated state.
+
+### M2 working record — 2026-10-10
+
+- Added the repository-only canonical core in
+  `services/aster-speech/voice_candidate.py`; no production service imports it.
+- The core implements the approved normalization and pronunciations, bounded
+  semantic units, two interactive workers, a batch queue restricted to worker
+  zero, ordered results, backpressure and request cancellation state.
+- Five focused candidate tests and the six benchmark tests pass. Ten News text
+  tests pass after the candidate tests exposed and repaired a sentence-final
+  dotted-abbreviation punctuation loss in both normalization paths.
+- The broader legacy speech discovery remains blocked on this Mac because its
+  system Python does not include PyJWT; that known environment limitation does
+  not affect the dependency-free M2 core tests and must be rerun in the service
+  venv before the M2 gate closes.
 
 ## Validation and evaluation
 

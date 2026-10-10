@@ -25,6 +25,12 @@ class DigestTextTests(unittest.TestCase):
             "The British Columbia weather alert remains active.",
         )
 
+    def test_sentence_final_dotted_abbreviation_keeps_period(self):
+        self.assertEqual(
+            speech_text("The warning applies across B.C."),
+            "The warning applies across British Columbia.",
+        )
+
     def test_speech_expands_dotted_us_abbreviation(self):
         self.assertEqual(
             speech_text("U.S. suspect connected to U.S.A. school shooting."),

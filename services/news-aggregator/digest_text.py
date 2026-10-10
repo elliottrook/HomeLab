@@ -115,6 +115,11 @@ def _apply_pronunciations(text: str) -> str:
     text = _HOME_ASSISTANT.sub("Home uh-sist-unt", text)
     return _LUTRON_CASETA.sub("Loo-tron kuh-set-uh", text)
 
+
+def _expand_dotted_name(match: re.Match, name: str) -> str:
+    """Retain the shared final dot when an abbreviation ends the sentence."""
+    return name + ("." if match.end() == len(match.string) else "")
+
 def speech_text(text: str) -> str:
     """Turn LLM/Markdown prose into text Piper should read aloud."""
     text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
@@ -122,8 +127,8 @@ def speech_text(text: str) -> str:
     text = re.sub(r"(?<!\w)_+(?!\w)", "", text)
     # Kokoro inserts a long pause when it sees dotted initials. Expand these
     # to the spoken name so headlines such as "U.S. suspect" flow naturally.
-    text = _US_ABBREVIATION.sub("United States", text)
-    text = _BC_ABBREVIATION.sub("British Columbia", text)
+    text = _US_ABBREVIATION.sub(lambda match: _expand_dotted_name(match, "United States"), text)
+    text = _BC_ABBREVIATION.sub(lambda match: _expand_dotted_name(match, "British Columbia"), text)
     text = _DOLLAR_AMOUNT.sub(_spoken_currency, text)
     text = text.replace("(", ", ").replace(")", ", ")
     text = re.sub(r"\s*,\s*", ", ", text)
