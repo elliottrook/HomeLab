@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
+import asyncio
+import os
 import uuid
-from typing import Any
+from typing import Any, Protocol
 
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 
 import aster_speech as legacy_speech
 from aster_speech import TTSRequest, require_api_key, speech_to_text
 from kokoro_candidate import KokoroRendererPool
+from vulkan_renderer_client import VulkanRendererPool
 from voice_candidate import VoiceScheduler
 from voice_candidate_http import build_router
 from voice_protocol import pcm_to_wav
@@ -37,7 +40,17 @@ class SchedulerProxy:
 
 app = FastAPI(title="Aster Voice Candidate", version="2.0.0-candidate")
 _proxy = SchedulerProxy()
-_pool: KokoroRendererPool | None = None
+
+class RendererPool(Protocol):
+    @property
+    def renderers(self): ...
+
+    def close(self) -> None: ...
+
+    def healthy(self) -> bool: ...
+
+
+_pool: RendererPool | None = None
 
 app.include_router(build_router(_proxy, require_api_key))  # type: ignore[arg-type]
 app.add_api_route(
@@ -54,7 +67,13 @@ async def startup() -> None:
     # This is a separate FastAPI application, so the legacy app's startup hook
     # does not run automatically. Initialize the shared STT implementation here.
     await legacy_speech._startup()
-    _pool = KokoroRendererPool()
+    renderer = os.environ.get("ASTER_VOICE_RENDERER", "onnx")
+    if renderer == "onnx":
+        _pool = KokoroRendererPool()
+    elif renderer == "vulkan":
+        _pool = VulkanRendererPool()
+    else:
+        raise RuntimeError("unsupported Aster voice renderer")
     scheduler = VoiceScheduler(_pool.renderers)
     await scheduler.start()
     _proxy.target = scheduler
@@ -72,12 +91,18 @@ async def shutdown() -> None:
 
 
 @app.get("/health")
-async def health() -> dict[str, str]:
-    return {
-        "status": "ok" if _proxy.target is not None else "starting",
-        "service": "aster-voice-candidate",
-        "voice": "aster-bm-daniel",
-    }
+async def health() -> JSONResponse:
+    ready = _proxy.target is not None and _pool is not None
+    if ready:
+        ready = await asyncio.to_thread(_pool.healthy)
+    return JSONResponse(
+        status_code=200 if ready else 503,
+        content={
+            "status": "ok" if ready else "unavailable",
+            "service": "aster-voice-candidate",
+            "voice": "aster-bm-daniel",
+        },
+    )
 
 
 @app.post("/v1/tts", dependencies=[Depends(require_api_key)])

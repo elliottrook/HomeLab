@@ -78,3 +78,20 @@ stack validated during M2 is in `requirements-kokoro.lock`. Deployments must
 use the complete, M3-validated `requirements-candidate.lock`; resolving only
 the direct pins allowed transitive drift during the first M3 preflight and is
 not an accepted deployment path.
+
+`vulkan_renderer_bridge.py` and `vulkan_renderer_client.py` keep the canonical
+service boundary on LXC 116 while placing only synthesis compute beside the B60
+in LXC 110. Kokopop remains bound to loopback. The bridge exposes one private
+fixed-policy render operation: it requires a dedicated bearer credential,
+accepts at most one normalized 240-character unit, and always selects
+`bm_daniel`, speed `0.95` and WAV output itself. The LXC 116 client validates
+mono 24 kHz/16-bit output before returning PCM to the existing scheduler and
+caches only the already-approved acknowledgement. Neither request JSON nor a
+caller can select the renderer URL, voice, speed or backend.
+
+The candidate units are `aster-kokopop-candidate.service` and
+`aster-vulkan-renderer-bridge.service`. The bridge environment example contains
+settings only; the real shared renderer key must be independently installed as
+root-owned mode 0640 files readable by the `ollama` account in LXC 110 and the
+`aster-speech` account in LXC 116. Keep both units disabled until the private
+listener, refusal, cancellation, contention and rollback gates pass.

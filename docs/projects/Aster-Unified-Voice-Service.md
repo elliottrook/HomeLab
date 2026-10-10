@@ -1,7 +1,7 @@
 # Aster Unified Voice Service
 
 > Status: Active — Stream A; M0–M2 complete, M3 in progress; candidate staged,
-> production selection withheld pending Vulkan listening and sustained-latency
+> production selection withheld after shared-GPU contention failed the latency
 > acceptance
 >
 > Owner: Jason
@@ -258,9 +258,11 @@ any production selector change. The candidate is installed but stopped and
 disabled on LXC 116; production port 9130 remains authoritative and healthy.
 The OpenVINO/Level Zero route remains blocked by the B60's 256 MiB physical BAR,
 but the approved follow-up proved that Mesa Vulkan is a viable independent path.
-A pinned Kokoro GGML/Vulkan canary is staged but stopped in GPU LXC 110. Its
-warm short-acknowledgement first audio met the 750 ms goal; representative
-longer first-sentence latency and listening parity remain M3 gates.
+A pinned Kokoro GGML/Vulkan renderer and authenticated network bridge are staged
+but stopped in GPU LXC 110. The end-to-end short response was about 0.71–0.90
+seconds without active generation and 2.94 seconds during a bounded Llama
+request. M3 now requires GPU workload isolation or an explicit target change;
+production must not select this shared, uncoordinated renderer.
 
 ## Milestones
 
@@ -646,6 +648,33 @@ unrelated state.
   generated remote audio/traces were removed; the pinned build/model remain
   staged, stopped and isolated for the next pass. Production llama.cpp and
   speech services remained active and healthy.
+- Staged a least-privilege network renderer without changing production. The
+  Kokopop listener remains loopback-only on LXC 110; a separate stdlib bridge
+  binds only `192.168.70.12:9132`, requires a dedicated file-backed bearer key,
+  fixes `bm_daniel`, speed 0.95 and WAV output, and accepts at most 240 UTF-8
+  characters with two concurrent requests. LXC 116's candidate is the only
+  configured client. It validates mono 24 kHz/16-bit WAV before scheduling and
+  caches only the exact approved acknowledgement. Both new units and the LXC
+  116 candidate remain disabled.
+- The authenticated LXC 116 to LXC 110 compatibility path returned a valid
+  373,964-byte WAV in 2.460 seconds for the normalization fixture containing
+  Home Assistant, Lutron Caseta, CA$1,234 and B.C. Authless candidate and bridge
+  calls returned 401. Focused renderer/scheduler tests passed, including fixed
+  voice/options, malformed WAV and oversized/refused input.
+- Dependency health was made fail-closed. With the renderer bridge running,
+  candidate health returned HTTP 200; stopping only that candidate bridge made
+  health return HTTP 503 with `status=unavailable`; restarting it restored 200.
+  Production speech stayed healthy throughout.
+- Warm uncached short-response measurements through the full candidate path
+  were 0.714, 0.810 and 0.896 seconds, close to but not a p95 pass against the
+  0.750-second target. During a simultaneous bounded 128-token Llama request,
+  the same speech path took 2.940 seconds and Llama completed in 44.741 seconds.
+  Shared B60 Vulkan execution without coordination therefore fails the
+  interactive latency gate. Production selection remains withheld; the next
+  safe design action is workload isolation (prefer the otherwise-idle second
+  GPU if compatible) or a measured GPU-aware preemption/priority mechanism,
+  followed by the frozen load suite. All candidate services were returned to
+  stopped/disabled; production Llama and speech remained active and healthy.
 
 ## Validation and evaluation
 
@@ -793,6 +822,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 staged canary and rollback | Fresh guest backup plus protected file checkpoint verified; pinned candidate installed separately on 9131; 46 tests, authentication refusal, two WAV passes, streaming, concurrency, cancellation and rollback passed. Cached acknowledgement 11 ms; uncached first body 1.521 s. | Candidate left stopped/disabled and production 9130 healthy. Do not select it until uncached latency meets 750 ms or Jason explicitly accepts a revised threshold. |
 | 2026-10-10 | M3 Arc Pro B60 acceleration probe | Least-privilege render-node mapping; isolated OpenVINO 1.24.1 and hash-verified Intel compute runtime; provider-fallback detection; live PCI BAR/link inspection; complete test-root cleanup and live device withdrawal. | No OpenVINO GPU benchmark claimed: Intel's `xe` compute runtime rejected the 256 MiB physical BAR. Production stayed healthy. This result blocks Level Zero/OpenCL, not Mesa Vulkan. |
 | 2026-10-10 | M3 B60 Vulkan Kokoro canary | Internet/upstream review plus live llama.cpp evidence identified Mesa Vulkan as the small-BAR path. Pinned Kokopop/GGML build; 617 tests; immutable verified F16 GGUF with `bm_daniel`; explicit B60 synthesis; persistent first-audio traces; CPU comparison; generated remote evidence cleanup. | Vulkan is viable without ReBAR. Warm short first audio was 0.588 s; a longer first sentence was 1.608 s. Keep the canary stopped and production unchanged pending Jason's listening parity, bounded segmentation and shared-GPU contention gates. |
+| 2026-10-10 | M3 private Vulkan renderer bridge and contention gate | File-backed dedicated bearer key; fixed voice/speed/format; bounded input/concurrency; WAV validation; full authenticated LXC 116 path; 401 refusal; dependency 503/recovery; production isolation; simultaneous live Llama generation. | Functional/security gates pass, but latency does not: warm short end-to-end 0.714–0.896 s and 2.940 s under active Llama generation. Candidate units returned to stopped/disabled; production remained healthy. Do not select until GPU workload isolation or proven scheduling meets the frozen target. |
 
 ## Close-out
 
