@@ -88,7 +88,7 @@ class BundleRunner:
             "method": "request.create",
             "capability": "forgejo.write.safe-branch",
             "payload": dict(verified.payload),
-            "ttl_seconds": min(300, verified.expires_at - now),
+            "ttl_seconds": min(900, verified.expires_at - now),
             "display": {
                 "reason": "Signed cloud bundle canary",
                 "target": str(verified.payload["filePath"]),

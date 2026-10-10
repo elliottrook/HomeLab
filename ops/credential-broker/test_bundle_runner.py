@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -61,11 +62,24 @@ class BundleRunnerTests(unittest.TestCase):
         )
         self.assertIsInstance(pending, PendingBundle)
         self.assertEqual("request.create", self.broker.calls[0]["method"])
+        self.assertEqual(300, self.broker.calls[0]["ttl_seconds"])
         with self.assertRaises(BrokerDenied):
             self.runner.promote(
                 pending, bundle_dir=self.root, current_base_revision=BASE,
                 policy_digest=POLICY,
             )
+
+    def test_submit_ttl_uses_signed_remaining_lifetime(self):
+        request_path = self.root / "request.json"
+        request = json.loads(request_path.read_bytes())
+        request["expires_at"] = NOW + 890
+        request_path.write_bytes(canonical_json(request))
+        pending = self.runner.submit(
+            self.root, current_base_revision=BASE, policy_digest=POLICY,
+            verify_signature=self.signature,
+        )
+        self.assertIsInstance(pending, PendingBundle)
+        self.assertEqual(890, self.broker.calls[0]["ttl_seconds"])
 
     def test_approved_request_consumes_once(self):
         pending = self.runner.submit(
