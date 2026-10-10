@@ -10,8 +10,8 @@ Runtime authorities:
 - an allowlisted Immich collection on Synology supplies selected photographs;
 - a scoped Synology directory supplies UTF-8 Markdown stories;
 - private runtime storage holds workflow state and approved snapshots;
-- the accepted Sites `dist/` export at commit `5b23ccb9` is the initial layout
-  baseline; and
+- the accepted first-site export at commit `49f210c7` and completed Closet
+  export at `c77684d` are the two current private layout baselines; and
 - a separate static-origin guest receives complete immutable releases only.
 
 Every content record, approval, schedule, asset root and release is bound to
@@ -37,9 +37,15 @@ python3 services/tcf-publishing/manifest.py \
   --verify services/tcf-publishing/accepted-dist.sha256
 ```
 
-The commercial webfont is referenced only by checksum. Its bytes remain in the
-private brand dataset and are injected into a release only after the licence
-and domain gate passes.
+`brand-sources.json` records the accepted source commits, private dataset paths
+and annotation contracts without copying media or fonts into this public mirror.
+The Contrast commercial webfont remains in its private brand dataset and is
+injected into a release only after the licence and domain gate passes.
+
+Both sites expose the same optional annotation fields. Contrast renders them as
+a formal title with a fine antique-gold underline; Closet renders them as a
+whimsical handwritten note and arrow. Annotation text and position are part of
+the immutable approved payload, while the visual treatments stay brand-local.
 
 ## Initial private deployment
 

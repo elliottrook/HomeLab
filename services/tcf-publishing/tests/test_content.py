@@ -84,6 +84,14 @@ class ContentTests(unittest.TestCase):
         approval = Approval(item.id, 1, item.public_hash(), "jason", "2026-10-09T12:00:00Z")
         self.assertFalse(approval.matches(item))
 
+    def test_annotation_is_plain_bounded_and_part_of_approved_payload(self):
+        original = record(annotation_text="After the Weather", annotation_x=80, annotation_y=38)
+        self.assertNotEqual(original.public_hash(), record(annotation_text="A different title").public_hash())
+        with self.assertRaisesRegex(ContentError, "plain text"):
+            record(annotation_text="<strong>Not plain</strong>")
+        with self.assertRaisesRegex(ContentError, "between 5 and 95"):
+            record(annotation_x=99)
+
 
 if __name__ == "__main__":
     unittest.main()

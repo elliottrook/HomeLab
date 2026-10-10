@@ -15,6 +15,7 @@ PUBLIC_FIELDS = (
     "site", "asset_path", "image_sha256", "collection", "title", "alt_text",
     "story", "full_story", "story_mode", "orientation", "focal_point",
     "rights_status", "consent_status", "credit", "sample",
+    "annotation_text", "annotation_x", "annotation_y",
 )
 COLLECTIONS = {"landscapes", "flora", "contrasts", "people"}
 STORY_MODES = {"fictional", "factual"}
@@ -70,6 +71,9 @@ class ContentRecord:
     consent_status: str
     credit: str
     sample: bool = True
+    annotation_text: str = ""
+    annotation_x: int = 80
+    annotation_y: int = 35
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> "ContentRecord":
@@ -103,6 +107,10 @@ class ContentRecord:
             raise ContentError("invalid rights status")
         if self.consent_status not in {"unknown", "verified", "not-applicable"}:
             raise ContentError("invalid consent status")
+        if len(self.annotation_text) > 80 or any(character in self.annotation_text for character in "<>\r\n"):
+            raise ContentError("annotation must be plain text of at most 80 characters")
+        if not 5 <= self.annotation_x <= 95 or not 5 <= self.annotation_y <= 95:
+            raise ContentError("annotation position must remain between 5 and 95 percent")
 
     def warnings(self) -> list[str]:
         count = word_count(self.story)

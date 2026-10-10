@@ -513,9 +513,11 @@ available through owner-only Authentik at `tcf.elliottrook.com`; direct backend
 access remains denied. Bounded Markdown/image drag-and-drop import and visible
 approval controls and a site-scoped placeholder library are deployed. Until real
 content exists, both sites use only conspicuously blocked records based on the
-accepted old sample. Next safe action: add explicit placeholder-to-real promotion
-with a deliberate sample-flag removal gate, then complete Jason's first real
-photograph/story save-and-approval walkthrough when content is available.
+accepted old sample. The two completed website baselines and their distinct
+annotation treatments are now registered and privately staged. Next safe action:
+Jason completes the passkey sign-in and checks the live dual-brand preview, then
+add explicit placeholder-to-real promotion with a deliberate sample-flag removal
+gate before the first real photograph/story save-and-approval walkthrough.
 Store design decisions, last validated gate, candidate/accepted release ID,
 rollback checkpoint, exact blocker and next safe action at each milestone.
 Use a versioned durable job-state DB with atomic transitions, not process absence.
@@ -554,6 +556,8 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Deployed site-scoped drag/drop import for UTF-8 Markdown up to 64 KiB and JPEG/PNG/WebP up to 20 MiB/60 MP. A synthetic live probe confirmed Markdown normalization, ImageMagick auto-orientation/metadata stripping, private mode 0600, content-addressed SHA-256 filenames and scoped JPEG preview; probe files were removed. NPM host 36 now permits the bounded encoded request at 29 MiB and still passes `nginx -t` | Imported bytes cannot overwrite an earlier version's image, never leave the private desk, and do not alter a content version until explicit draft save |
 | 2026-10-09 | Added visible collection, story type, orientation, rights, consent, focal-point and credit controls. Unsaved edits keep approval disabled; server-side approval still revalidates the immutable latest version. Both site pills load independent sample records. Twenty-two unit tests and the embedded JavaScript syntax check passed; private HTTPS still returns the expected Authentik 302 | Human review fields and save-before-approval boundary are live; creation/selection of fresh non-sample records and Jason's real walkthrough remain A3 gates |
 | 2026-10-09 | Added site-scoped latest-record lists and placeholder creation. Created one live `PLACEHOLDER — Untitled photograph` workspace for each site from the old accepted sample; both are `sample=true`, version 1, unapproved and independently keyed. Twenty-three tests and embedded JavaScript syntax passed; a direct approval attempt returned 409 with sample/rights/consent blockers and private HTTPS retained its Authentik 302 | The desk is usable before real content arrives without any placeholder being accidentally publishable; deliberate promotion and a real owner walkthrough remain |
+| 2026-10-10 | Accepted current site sources `49f210c7` (Contrast) and `c77684d` (Closet) into separate private brand datasets; file counts and annotation-manifest SHA-256 values matched. Added shared bounded annotation text/X/Y fields to the immutable public payload and live desk. Contrast previews a formal title/gold underline; Closet previews a whimsical handwritten note/arrow. Both live sample records advanced independently to unapproved version 2, and 24 tests plus embedded JavaScript syntax passed | Both finished visual systems now use one site-scoped workflow without sharing brand assets, approvals or default media; annotations cannot change after approval without invalidating it |
+| 2026-10-10 | Diagnosed the Authentik browser error as an empty proxy-provider redirect allowlist created through the ORM path. Provisioning now invokes Authentik's OAuth defaults and explicitly assigns `aster-companion-passwordless`; live readback shows the two expected `tcf.elliottrook.com` callback URLs, one owner binding and the embedded outpost attachment. Reloading the original browser URL reached “Sign in to Aster Companion” for Photography Content Desk instead of the redirect error | Private login is repaired and follows the current passkey-only flow; Jason's human passkey ceremony is the remaining browser handoff |
 
 ## Close out
 

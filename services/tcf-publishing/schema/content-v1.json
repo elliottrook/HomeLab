@@ -21,6 +21,9 @@
     "rights_status": {"enum": ["unknown", "verified"]},
     "consent_status": {"enum": ["unknown", "verified", "not-applicable"]},
     "credit": {"type": "string"},
-    "sample": {"type": "boolean"}
+    "sample": {"type": "boolean"},
+    "annotation_text": {"type": "string", "maxLength": 80},
+    "annotation_x": {"type": "integer", "minimum": 5, "maximum": 95},
+    "annotation_y": {"type": "integer", "minimum": 5, "maximum": 95}
   }
 }
