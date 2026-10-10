@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-10 — Pull-based Forgejo runner project started
+
+- Added a Stream A project for an outbound-only signed change-bundle runner
+  that reuses AI-PAM and the existing one-file Forgejo safe-write gateway.
+- Recorded the live LXC 104/broker baseline, strict canary-only scope, recovery
+  gates and the decision not to add public ingress, a network broker, a new
+  Tailscale daemon or broader Forgejo capability for the PoC.
+- Completed the offline verifier/runner gate with exact OpenSSH signer binding,
+  one-file schema, durable replay state and immediate pre-consume revalidation;
+  all 95 credential-broker tests pass on Linux, including 17 socket tests that
+  cannot bind in the macOS sandbox.
+
 ## 2026-10-10 — Brand Design skill and reusable standard
 
 - Consolidated Brand SVG Studio into one installed Brand Design skill while retaining registry, SVG audit, recolour, tracing, rendering, export, release and rollback behavior.
