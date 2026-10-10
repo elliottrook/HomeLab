@@ -1,5 +1,13 @@
 # D3 native manual Codex version-15 release candidate
 
+> **Historical pre-installation proposal.** The version-13 “current app” row
+> below and the statement that interruption was untested describe the point
+> when this proposal was written. Version 15 is now installed in ordinary
+> mode. Use the [installation record](D3-native-manual-v15-installation-2026-10-09.md),
+> [one-attempt interruption result](D3-active-turn-interruption-result-2026-10-09.md)
+> and [remaining delivery map](../Stream-A-Remaining-Delivery-Map.md) for
+> current state. This document grants no repeat send or installation.
+
 **Status: clean single-instance retest completed one reviewed turn; interruption
 recovery remains untested.** Owner: Jason. See the
 [installation checkpoint](D3-native-manual-v15-installation-2026-10-09.md).

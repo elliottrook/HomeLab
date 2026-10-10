@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — Remaining Stream A milestones reconciled
+
+Added the [owner-facing delivery map](Stream-A-Remaining-Delivery-Map.md):
+limited manual Codex decision, normal Companion job handling, authority
+boundary, read-only sysadmin role, one supervised repair class, measured
+automatic handover/learning, and role-specific graduation. It distinguishes
+the closed local-Qwen general-sysadmin trial from still-applicable operational
+controls and marks older version-13 next-action text as historical. This is
+documentation only; no live service, tool grant or model call changed.
+
 ## 2026-10-09 — Read-only second pass of twelve existing native answers
 
 The installed recovery helper read back all twelve previously completed

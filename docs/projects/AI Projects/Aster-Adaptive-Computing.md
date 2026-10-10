@@ -4,6 +4,11 @@
 
 **Owner:** Jason.
 
+For the owner-facing sequence from the current pilot to routine handoff,
+bounded sysadmin investigation and later automatic routing, use the
+[Stream A remaining delivery map](Stream-A-Remaining-Delivery-Map.md). Its
+summary does not replace the detailed gates or their required evidence.
+
 **Latest resume — native Companion, 2026-10-09:** Signed version 15 is installed
 and running in ordinary mode without the manual-test flag. The [supervised
 single-instance result](evidence/D3-native-manual-v15-installation-2026-10-09.md)

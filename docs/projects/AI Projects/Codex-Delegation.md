@@ -6,6 +6,15 @@ and the proposed structured-verification tuning cycle. It does not retire Qwen,
 change existing infrastructure, authorize general administrator access or approve
 a Git push.
 
+**Current checkpoint, 2026-10-09:** The [remaining delivery map](Stream-A-Remaining-Delivery-Map.md)
+is the owner-facing sequence. Signed Companion version 15 is installed in
+ordinary mode. One reviewed manual Codex turn and one later bounded
+process-interruption turn completed; the original answers were recovered
+without a second send. Manual routine release remains on hold for independent
+answer judgment, natural session-refresh observation and an explicit decision.
+The version-13 and proposed-next-action statements in the dated standing-access
+section below are historical, not current deployment instructions.
+
 ## Decision and rationale
 
 Aster owns the familiar voice/chat experience. Deterministic skills handle known
