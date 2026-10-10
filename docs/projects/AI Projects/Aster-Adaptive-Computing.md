@@ -9,6 +9,16 @@ bounded sysadmin investigation and later automatic routing, use the
 [Stream A remaining delivery map](Stream-A-Remaining-Delivery-Map.md). Its
 summary does not replace the detailed gates or their required evidence.
 
+**Offline boundary checkpoint — 2026-10-09:** The fixed Doctor incident
+adapter and the existing ARR aggregate reader now have local candidates that
+validate a single opened, bounded regular file rather than checking a pathname
+and reopening it. See the [Doctor](evidence/D4-doctor-file-boundary-2026-10-09.md)
+and [ARR](evidence/ARR-report-file-boundary-2026-10-09.md) evidence. Twenty-four
+focused local tests pass. These changes are unpublished and undeployed; they
+grant no Codex tool access. A simple ARR service-status answer should stay on
+the deterministic local path. Useful Codex diagnosis still needs a scoped
+evidence projection, Stage2 authority resolution and independent validation.
+
 **Latest resume — native Companion, 2026-10-09:** Signed version 15 is installed
 and running in ordinary mode without the manual-test flag. The [supervised
 single-instance result](evidence/D3-native-manual-v15-installation-2026-10-09.md)
