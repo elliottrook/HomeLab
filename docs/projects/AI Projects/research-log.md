@@ -2315,3 +2315,15 @@ triggered. This closes the simple “set the modern Keychain flag” hypothesis
 for the current self-signed app. A Developer ID path remains conditional on
 owner choice and a new synthetic test; see the
 [decision record](evidence/D3-native-session-custody-decision-2026-10-09.md).
+
+### 2026-10-09 — Installed version 13 read-only session follow-up
+
+Companion still showed the signed-in Aster screen. Keychain Access metadata
+showed its `oidc_session_v3` item modified one hour after creation, without
+revealing the value. The AI-PAM sheet completed a read-only refresh without a
+visible error or Keychain prompt. This shows current authenticated operation,
+but the modified time alone does not prove a successful refresh-token path.
+A new synthetic regression test asserts refresh performs one `v3` write and
+no post-save Keychain read; 14 focused native auth tests passed. Deliberate
+expiry, sleep/wake and crash reconciliation remain open; no model call,
+approval action or infrastructure change occurred.

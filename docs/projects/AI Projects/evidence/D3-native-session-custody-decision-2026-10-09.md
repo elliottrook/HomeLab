@@ -44,6 +44,23 @@ use. If prompts recur without an app update, or token refresh fails, pause D3
 release and investigate that separately. Natural token refresh has not yet
 passed a deliberate observation gate.
 
+### Read-only follow-up, same installed version
+
+At a later check, Keychain Access metadata showed `oidc_session_v3` modified
+at 8:42 PM, after its 7:42 PM creation. No item contents were viewed. The
+installed version-13 Companion remained signed in, and its AI-PAM sheet
+completed a read-only refresh with no visible error or Keychain prompt. This
+is evidence that the current session can still make authenticated requests;
+the metadata timestamp is consistent with a token refresh but does not prove
+which code path caused the write. A deliberate token-expiry, sleep/wake and
+restart observation gate remains open.
+
+A synthetic `AuthManager` regression test now asserts that token refresh
+writes `oidc_session_v3` without reading either Keychain item again after
+startup. All 14 focused native auth tests passed. This guards the exact
+read-after-write behavior that previously stalled the UI, but is not a live
+Keychain prompt test.
+
 ## Candidate alternatives and evidence threshold
 
 | Option | Potential benefit | Constraint or cost | Decision |

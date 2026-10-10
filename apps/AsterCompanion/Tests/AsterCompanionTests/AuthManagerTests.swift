@@ -53,6 +53,26 @@ final class AuthManagerTests: XCTestCase {
         XCTAssertGreaterThan(saved.expiresAt, Date())
     }
 
+    func testRefreshDoesNotReadKeychainAgainAfterSaving() async throws {
+        let text = String(data: try JSONEncoder().encode(expired()), encoding: .utf8)!
+        var reads = [String]()
+        var writes = [String]()
+        let storage = SessionStorage.migratingKeychain(
+            read: { key in
+                reads.append(key)
+                return key == "oidc_session_v3" ? .value(text) : .missing
+            },
+            write: { key, _ in writes.append(key); return true },
+            remove: { _ in }
+        )
+        let auth = AuthManager(storage: storage, request: { _ in self.response() })
+        XCTAssertEqual(reads, ["oidc_session_v3"])
+        let token = await auth.validAccessToken()
+        XCTAssertEqual(token, "synthetic-new")
+        XCTAssertEqual(writes, ["oidc_session_v3"])
+        XCTAssertEqual(reads, ["oidc_session_v3"])
+    }
+
     func testFailedKeychainWriteKeepsNewSessionAndReportsNonpersistentLogin() async {
         let auth = AuthManager(storage: SessionStorage(load: { self.expired() }, save: { _ in false }, clear: {}), request: { _ in self.response() })
         let first = await auth.validAccessToken()
