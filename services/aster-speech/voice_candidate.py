@@ -228,14 +228,22 @@ class VoiceScheduler:
         except asyncio.QueueEmpty:
             interactive = asyncio.create_task(self._interactive.get())
             batch = asyncio.create_task(self._batch.get())
-            done, _pending = await asyncio.wait(
-                (interactive, batch), return_when=asyncio.FIRST_COMPLETED
-            )
+            try:
+                done, _pending = await asyncio.wait(
+                    (interactive, batch), return_when=asyncio.FIRST_COMPLETED
+                )
+            except asyncio.CancelledError:
+                interactive.cancel()
+                batch.cancel()
+                await asyncio.gather(interactive, batch, return_exceptions=True)
+                raise
             if interactive in done:
                 if batch.done():
                     self._batch.put_nowait(batch.result())
                 else:
                     batch.cancel()
+                    await asyncio.gather(batch, return_exceptions=True)
                 return interactive.result()
             interactive.cancel()
+            await asyncio.gather(interactive, return_exceptions=True)
             return batch.result()

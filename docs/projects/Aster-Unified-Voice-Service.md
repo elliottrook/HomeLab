@@ -487,6 +487,16 @@ unrelated state.
   system Python does not include PyJWT; that known environment limitation does
   not affect the dependency-free M2 core tests and must be rerun in the service
   venv before the M2 gate closes.
+- Added the dependency-free bounded `AVS1` audio-frame protocol and a separate
+  FastAPI router candidate for authenticated streaming and cancellation. Caller
+  class is server-owned, request IDs are generated or strictly validated, and
+  error frames disclose only an exception class—not submitted text or details.
+- Eleven M2 core/protocol tests and six benchmark tests now pass, along with ten
+  News normalization tests. Shutdown testing exposed and repaired orphaned
+  internal queue-wait tasks; the clean run emits no pending-task warnings.
+- This remains repository-only. FastAPI adapter tests and integration with the
+  actual authentication dependency must run in the pinned service environment;
+  no route, listener, package or production service has changed.
 
 ## Validation and evaluation
 
