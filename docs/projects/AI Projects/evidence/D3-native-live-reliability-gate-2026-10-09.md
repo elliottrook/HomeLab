@@ -20,6 +20,13 @@ cannot show that the signed Companion, macOS Keychain and subscription-backed
 Codex recover acceptably after a real app interruption or Mac sleep/wake.
 Repeated Keychain prompts during binary updates also remain unresolved.
 
+Read-only preflight on 2026-10-09 found installed bundle version `13`, a
+passing strict code-signature check and executable SHA-256
+`c3b016f41045a636c0503af2b7448a5f255f54dcd859a61f6dbb5fc84221394c`.
+The private dispatch journal had thirteen `completed` rows and no other
+recorded states; only aggregate state counts were queried. This does not prove
+the app is idle or that macOS authentication will remain prompt-free.
+
 ## Bounded test sequence
 
 1. **Read-only preflight.** Confirm no Codex request is active; record the
