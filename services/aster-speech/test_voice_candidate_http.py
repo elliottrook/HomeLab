@@ -1,5 +1,7 @@
 import unittest
 import io
+import asyncio
+import threading
 import wave
 
 from voice_candidate import VoiceScheduler
@@ -87,6 +89,35 @@ class StreamFrameTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn(b"private", wire)
         self.assertNotIn(b"Secret", wire)
         self.assertEqual(payload, b"")
+
+    async def test_explicit_cancel_finishes_with_cancelled_frame(self):
+        await self.scheduler.close()
+        entered = threading.Event()
+        release = threading.Event()
+
+        def slow_renderer(text):
+            entered.set()
+            release.wait(timeout=2)
+            return text.encode(), 24000
+
+        self.scheduler = VoiceScheduler(slow_renderer)
+        await self.scheduler.start()
+
+        async def collect():
+            return b"".join([
+                frame async for frame in stream_frames(
+                    self.scheduler, "request-cancel", "A longer uncached response.", "interactive"
+                )
+            ])
+
+        task = asyncio.create_task(collect())
+        await asyncio.wait_for(asyncio.to_thread(entered.wait), timeout=1)
+        self.scheduler.cancel("request-cancel")
+        release.set()
+        frames = decode_frames(await task)
+        self.assertEqual(frames, [
+            ({"request_id": "request-cancel", "type": "cancelled"}, b"")
+        ])
 
 
 if __name__ == "__main__":

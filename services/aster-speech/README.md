@@ -50,7 +50,10 @@ Wyoming adapters, real Kokoro renderer and LXC 116 gates pass.
 `voice_protocol.py` defines the dependency-free `AVS1` streaming frame format:
 a bounded JSON metadata header followed by bounded PCM payload bytes. Audio
 frames declare request/unit order, sample rate, mono channel count and
-`pcm_s16le`; streams finish with an explicit end or content-free error frame.
+`pcm_s16le`; streams finish with an explicit end, content-free cancellation or
+content-free error frame. An explicit API cancellation completes the HTTP
+stream with a `cancelled` frame; a disconnected client still cancels work and
+propagates the transport cancellation.
 `voice_candidate_http.py` exposes that contract as authenticated FastAPI router
 factories for `/v2/tts/stream` and cancellation. Caller class is fixed by the
 authenticated route and cannot be selected in submitted JSON.
@@ -71,4 +74,7 @@ the M3 backup, dependency, authentication and rollback gates are approved.
 The candidate explicitly initializes the existing Whisper model because its
 separate FastAPI lifecycle does not execute the legacy application's startup
 hook. Direct pins are in `requirements-candidate.txt`; the exact added Kokoro
-stack validated on LXC 116 is in `requirements-kokoro.lock`.
+stack validated during M2 is in `requirements-kokoro.lock`. Deployments must
+use the complete, M3-validated `requirements-candidate.lock`; resolving only
+the direct pins allowed transitive drift during the first M3 preflight and is
+not an accepted deployment path.

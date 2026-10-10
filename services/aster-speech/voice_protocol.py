@@ -98,8 +98,12 @@ async def stream_frames(
         yield encode_frame({"type": "end", "request_id": request_id})
         completed = True
     except asyncio.CancelledError:
-        scheduler.cancel(request_id)
-        raise
+        if scheduler.is_cancelled(request_id):
+            yield encode_frame({"type": "cancelled", "request_id": request_id})
+            completed = True
+        else:
+            scheduler.cancel(request_id)
+            raise
     except Exception as exc:
         yield encode_frame(
             {"type": "error", "request_id": request_id, "error": type(exc).__name__}
