@@ -44,6 +44,30 @@ class VoiceSchedulerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([unit.index for unit in result], [0, 1])
         self.assertEqual([unit.pcm for unit in result], [b"First sentence.", b"Second sentence."])
 
+    async def test_two_distinct_renderers_back_the_interactive_workers(self):
+        await self.scheduler.close()
+        first_entered = threading.Event()
+        release_first = threading.Event()
+
+        def first(text):
+            first_entered.set()
+            release_first.wait(timeout=2)
+            return b"worker-0:" + text.encode(), 24000
+
+        def second(text):
+            return b"worker-1:" + text.encode(), 24000
+
+        self.scheduler = VoiceScheduler((first, second))
+        await self.scheduler.start()
+        first_task = asyncio.create_task(self._collect("first", "First.", "interactive"))
+        await asyncio.wait_for(asyncio.to_thread(first_entered.wait), timeout=1)
+        second_result = await asyncio.wait_for(
+            self._collect("second", "Second.", "interactive"), timeout=1
+        )
+        self.assertEqual(second_result[0].pcm, b"worker-1:Second.")
+        release_first.set()
+        await first_task
+
     async def test_rejects_empty_and_oversized_requests(self):
         with self.assertRaises(ValueError):
             await self.scheduler.stream("request-2", " ").__anext__()

@@ -491,12 +491,27 @@ unrelated state.
   FastAPI router candidate for authenticated streaming and cancellation. Caller
   class is server-owned, request IDs are generated or strictly validated, and
   error frames disclose only an exception class—not submitted text or details.
-- Eleven M2 core/protocol tests and six benchmark tests now pass, along with ten
+- Twelve M2 core/protocol tests and six benchmark tests now pass, along with ten
   News normalization tests. Shutdown testing exposed and repaired orphaned
   internal queue-wait tasks; the clean run emits no pending-task warnings.
 - This remains repository-only. FastAPI adapter tests and integration with the
   actual authentication dependency must run in the pinned service environment;
   no route, listener, package or production service has changed.
+- Added a pinned two-engine Kokoro renderer pool. Startup fails closed on either
+  model/voice digest mismatch; each scheduler worker owns a distinct ONNX
+  session with the accepted two-intra/one-inter thread limits. Compatibility
+  WAV output wraps the same normalized PCM used by streaming.
+- Added a separate candidate application, environment template and hardened
+  systemd unit for port 9131. The accepted production unit does not import or
+  reference any candidate module, and the candidate unit has not been installed
+  or enabled.
+- A temporary runtime check on LXC 114 verified both exact asset digests, loaded
+  two persistent sessions in 4.287 seconds and completed simultaneous renders
+  from both engines at 24 kHz. The outputs were even-length PCM buffers of
+  78,880 and 142,368 bytes. Temporary scripts were removed; no audio was kept.
+- Fifteen M2 core/protocol/renderer tests and six benchmark tests pass locally,
+  plus ten News normalization tests. The FastAPI/Auth/JWT integration gate
+  remains assigned to the isolated LXC 116 candidate environment.
 
 ## Validation and evaluation
 
