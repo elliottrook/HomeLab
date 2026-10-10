@@ -35,6 +35,10 @@ An [offline D3 view candidate](evidence/D3-manual-uncertain-result-2026-10-10.md
 now checks the recorded request after an uncertain native bridge result and
 offers only the existing recovery/reconciliation path where the journal proves
 one. It is not installed and does not change the limited-release HOLD.
+The [recorded-job status candidate](evidence/D3-job-state-presentation-2026-10-10.md)
+also distinguishes waiting, offered, accepted, last-reported-running and
+uncertain work in the disabled remote-worker view. It is presentation only;
+quota classification and routine job handling remain open.
 
 ### What the next connected-tool gate actually lacks
 

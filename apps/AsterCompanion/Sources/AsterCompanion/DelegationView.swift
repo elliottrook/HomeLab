@@ -3,6 +3,20 @@ import SwiftUI
 struct DelegationJob: Decodable, Identifiable {
     let id: String
     let state: String
+    var displayState: String {
+        switch state {
+        case "queued": return "waiting for worker"
+        case "offered": return "offered; outcome pending"
+        case "accepted": return "accepted by worker"
+        case "running": return "working"
+        case "unknown": return "outcome uncertain"
+        case "completed": return "completed"
+        case "failed": return "failed"
+        case "interrupted": return "stopped"
+        case "expired": return "expired before offer"
+        default: return "status unavailable"
+        }
+    }
 }
 
 struct DelegationSnapshot: Decodable {
@@ -97,7 +111,7 @@ struct DelegationView: View {
             Text(capabilities?.availabilityMessage ?? "Cannot confirm Codex availability. New requests are blocked; recorded status may still be available.").font(.caption)
             if hasLoadedJobs && jobs.isEmpty { Text("No assigned requests.") }
             ForEach(jobs) { job in
-                Button("Request \(job.id.prefix(12)) — \(job.state)") {
+                Button("Request \(job.id.prefix(12)) — \(job.displayState)") {
                     selected = job.id; snapshot = nil; stopPending = false
                     Task { await refresh() }
                 }

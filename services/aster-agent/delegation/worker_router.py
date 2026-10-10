@@ -117,14 +117,18 @@ def owner_result_router(gateway, owner_dependency, *, enabled=False):
             value = gateway.owner_result(owner, job_id)
         except KeyError:
             raise HTTPException(404, "Job not found") from None
-        messages = {"completed": "Codex completed the request.",
+        messages = {"queued": "Waiting for a supervised worker. The request has not been offered or started.",
+                    "offered": "The request was offered to the worker. Execution is not yet confirmed; do not resend it.",
+                    "accepted": "The worker accepted the request. Waiting for a running or final result; do not resend it.",
+                    "running": "The worker last reported Codex working on this request.",
+                    "completed": "Codex completed the request.",
                     "unknown": "Outcome uncertain. Do not resend this request.",
-                    "failed": "Codex reported a failure.",
+                    "failed": "Codex reported a failure. Review the result before making a new request.",
                     "interrupted": "Codex confirmed the request stopped.",
                     "expired": "The request expired before it was offered."}
         message = ('Stop requested; waiting for worker confirmation.'
                    if value['cancel_requested'] and value['state'] not in {'completed','failed','interrupted','expired'}
-                   else messages.get(value['state'], 'Waiting for Codex.'))
+                   else messages.get(value['state'], 'Request state is unrecognized. Do not resend it.'))
         return {"id": job_id, "state": value["state"], "reply": value["answer"],
                 "message": "Answer needs recovery; do not resend the request."
                 if value["recovery_required"] else message,

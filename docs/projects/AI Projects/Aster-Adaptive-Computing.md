@@ -25,6 +25,10 @@ has a local [uncertain-result candidate](evidence/D3-manual-uncertain-result-202
 that checks the recorded request immediately after an unconfirmed send result.
 Fifty-five Companion tests pass. No new question, app install or routine-release
 decision occurred; the D3 HOLD remains.
+The [recorded-job status presentation](evidence/D3-job-state-presentation-2026-10-10.md)
+now has a separate offline candidate for truthful queued/offered/running/unknown
+labels. It does not release the disabled remote-worker path or claim quota
+handling is complete.
 
 **M1 offline authority continuation — 2026-10-10:** The
 [approval-ingress options](evidence/M1-approval-ingress-options-2026-10-10.md)
