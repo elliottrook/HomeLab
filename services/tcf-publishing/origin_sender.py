@@ -30,6 +30,7 @@ def ssh_argv(command: list[str], host: str, key: Path, known_hosts: Path) -> lis
         "-o", "BatchMode=yes",
         "-o", "IdentitiesOnly=yes",
         "-o", "StrictHostKeyChecking=yes",
+        "-o", "ConnectTimeout=10",
         "-o", f"UserKnownHostsFile={known_hosts}",
         host, *command,
     ]
@@ -63,6 +64,18 @@ def stage(release: Path, site: str, release_id: str, *, host: str = DEFAULT_HOST
     return subprocess.CompletedProcess(process.args, returncode)
 
 
+def status(*, host: str = DEFAULT_HOST, key: Path = DEFAULT_KEY,
+           known_hosts: Path = DEFAULT_KNOWN_HOSTS) -> dict:
+    result = subprocess.run(
+        ssh_argv(["status"], host, key, known_hosts),
+        check=True, capture_output=True, text=True, timeout=30,
+    )
+    value = __import__("json").loads(result.stdout)
+    if not isinstance(value, dict):
+        raise ContentError("origin returned invalid status")
+    return value
+
+
 def request(action: str, site: str, release_id: str, digest: str, *, host: str = DEFAULT_HOST,
             key: Path = DEFAULT_KEY, known_hosts: Path = DEFAULT_KNOWN_HOSTS) -> subprocess.CompletedProcess:
     if action not in {"activate", "rollback"} or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
@@ -70,7 +83,7 @@ def request(action: str, site: str, release_id: str, digest: str, *, host: str =
     validate(site, release_id)
     return subprocess.run(
         ssh_argv([action, site, release_id, digest], host, key, known_hosts),
-        check=True,
+        check=True, timeout=30,
     )
 
 

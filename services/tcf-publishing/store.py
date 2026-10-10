@@ -68,6 +68,14 @@ class ContentStore:
               PRIMARY KEY (edition_id, content_id),
               FOREIGN KEY (edition_id) REFERENCES editions(edition_id)
             );
+            CREATE TABLE IF NOT EXISTS publications (
+              edition_id INTEGER PRIMARY KEY,
+              site TEXT NOT NULL,
+              release_id TEXT NOT NULL UNIQUE,
+              manifest_sha256 TEXT NOT NULL,
+              published_at TEXT NOT NULL,
+              FOREIGN KEY (edition_id) REFERENCES editions(edition_id)
+            );
             """
         )
 
@@ -317,6 +325,45 @@ class ContentStore:
                               "annotation_text": candidate.annotation_text,
                               "approved_hash": approval.approved_hash if approved else None})
             return {**status, "slots": slots}
+
+    def record_publication(self, site: str, edition_id: int, release_id: str,
+                           manifest_sha256: str) -> dict:
+        """Close only the still-ready draft edition after origin activation."""
+        with self.lock:
+            manifest = self.edition_manifest(site)
+            if not manifest["ready"] or manifest["edition_id"] != edition_id:
+                raise ContentError("edition is no longer ready for publication")
+            if not release_id.startswith(f"{site}-e{edition_id}-"):
+                raise ContentError("release does not match edition")
+            if len(manifest_sha256) != 64 or any(
+                    character not in "0123456789abcdef" for character in manifest_sha256):
+                raise ContentError("publication manifest digest is invalid")
+            published_at = _now()
+            self.database.execute(
+                "INSERT INTO publications VALUES (?, ?, ?, ?, ?)",
+                (edition_id, site, release_id, manifest_sha256, published_at),
+            )
+            cursor = self.database.execute(
+                "UPDATE editions SET status = 'published' "
+                "WHERE edition_id = ? AND site = ? AND status = 'draft'",
+                (edition_id, site),
+            )
+            if cursor.rowcount != 1:
+                self.database.rollback()
+                raise ContentError("edition publication state changed")
+            self.database.commit()
+            return {"site": site, "edition_id": edition_id, "release_id": release_id,
+                    "manifest_sha256": manifest_sha256, "published_at": published_at}
+
+    def latest_publication(self, site: str) -> Optional[dict]:
+        with self.lock:
+            if site not in SITES:
+                raise ContentError("unknown site")
+            row = self.database.execute(
+                "SELECT * FROM publications WHERE site = ? ORDER BY published_at DESC LIMIT 1",
+                (site,),
+            ).fetchone()
+            return dict(row) if row is not None else None
 
     def copy_to_site(self, source_site: str, content_id: str, target_site: str) -> int:
         with self.lock:

@@ -34,10 +34,14 @@ class ReceiverTests(unittest.TestCase):
 
     def test_atomic_activation_tracks_previous_per_site(self):
         releases = self.root / "contrast" / "releases"
-        old = releases / "contrast-e1-111111111111"
-        new = releases / "contrast-e2-222222222222"
-        write_release(old, "old")
-        digest = write_release(new, "new")
+        old_staging = releases / "old"
+        new_staging = releases / "new"
+        old_digest = write_release(old_staging, "old")
+        digest = write_release(new_staging, "new")
+        old = releases / f"contrast-e1-{old_digest[:12]}"
+        new = releases / f"contrast-e2-{digest[:12]}"
+        old_staging.rename(old)
+        new_staging.rename(new)
         site = self.root / "contrast"
         (site / "current").symlink_to(old)
         result = activate("contrast", new.name, digest)
@@ -53,6 +57,12 @@ class ReceiverTests(unittest.TestCase):
         write_release(self.root / "closet" / "releases" / "closet-e1-222222222222")
         with self.assertRaisesRegex(ReceiverError, "invalid release id"):
             activate("contrast", "closet-e1-222222222222", "0" * 64)
+
+    def test_release_id_must_bind_manifest_digest(self):
+        release = self.root / "contrast" / "releases" / "contrast-e1-111111111111"
+        digest = write_release(release)
+        with self.assertRaisesRegex(ReceiverError, "release id"):
+            activate("contrast", release.name, digest)
 
     def test_archive_policy_rejects_symlinks_and_traversal(self):
         for name, configure in [

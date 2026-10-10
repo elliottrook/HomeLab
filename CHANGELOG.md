@@ -9,6 +9,10 @@
   private/sample candidates fail closed. Forty-two publishing tests pass.
 - Proved a disposable non-served transfer and removed it. The existing marked
   sample remains active, Nginx is unchanged, and no public DNS or route exists.
+- Added the owner-only, site-specific final publication confirmation. It
+  revalidates the reviewed edition and immutable checksums under one lock,
+  activates only the digest-bound release, records success durably and leaves a
+  failed edition open. The live empty workflow fails closed; 46 tests pass.
 
 ## 2026-10-09 — The Contrasting Frame project preparation
 

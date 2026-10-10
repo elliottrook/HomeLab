@@ -91,12 +91,18 @@ def stage(site: str, release_id: str) -> dict:
     staging = site_root / "staging"
     destination = releases / release_id
     if destination.exists():
-        raise ReceiverError("release already exists")
+        digest = verify(destination)
+        if not release_id.endswith("-" + digest[:12]):
+            raise ReceiverError("release id does not match manifest")
+        return {"status": "already-staged", "site": site, "release_id": release_id,
+                "manifest_sha256": digest}
     temporary = staging / f"{release_id}.partial-{os.getpid()}"
     temporary.mkdir(parents=True, mode=0o750)
     try:
         extract_archive(sys.stdin.buffer, temporary)
         digest = verify(temporary)
+        if not release_id.endswith("-" + digest[:12]):
+            raise ReceiverError("release id does not match manifest")
         releases.mkdir(parents=True, exist_ok=True, mode=0o750)
         os.replace(temporary, destination)
         return {"status": "staged", "site": site, "release_id": release_id,
@@ -112,6 +118,8 @@ def activate(site: str, release_id: str, expected_digest: str) -> dict:
     site_root = _site(site)
     release = site_root / "releases" / release_id
     digest = verify(release)
+    if not release_id.endswith("-" + digest[:12]):
+        raise ReceiverError("release id does not match manifest")
     if digest != expected_digest:
         raise ReceiverError("manifest digest does not match activation request")
     current = site_root / "current"
@@ -133,9 +141,20 @@ def activate(site: str, release_id: str, expected_digest: str) -> dict:
 
 
 def status() -> dict:
-    return {site: {name: os.readlink(_site(site) / name)
-                   if (_site(site) / name).is_symlink() else None
-                   for name in ("current", "previous")} for site in sorted(SITES)}
+    result = {}
+    for site in sorted(SITES):
+        values = {}
+        for name in ("current", "previous"):
+            link = _site(site) / name
+            if not link.is_symlink():
+                values[name] = None
+                continue
+            target = Path(os.readlink(link))
+            release_id = target.name
+            values[name] = {"target": str(target), "release_id": release_id,
+                            "manifest_sha256": verify(target)}
+        result[site] = values
+    return result
 
 
 def main() -> int:

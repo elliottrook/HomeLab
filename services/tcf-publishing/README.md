@@ -106,10 +106,17 @@ the immutable approved payload, while the visual treatments stay brand-local.
   The deploy account owns only separate
   `/srv/tcf/sites/{contrast,closet}` release roots; it cannot administer Nginx,
   networking or the host.
+- The private GUI exposes publication only for a complete, currently approved
+  edition whose exact static preview has already been built for review. The
+  owner must type `PUBLISH CONTRAST` or `PUBLISH CLOSET`; a nonblocking process
+  lock prevents concurrent publication. The pipeline verifies the candidate,
+  prepares the immutable release, stages and activates it by manifest digest,
+  then closes the edition and records its release in SQLite. Failures retain the
+  draft edition and write a bounded state record without credentials or content.
 - The transport is installed and a disposable non-served transfer passed, but
-  publication is not exposed in the GUI and neither per-site root is connected
-  to Nginx. The original visibly marked sample remains the active origin target
-  at `/srv/tcf/current`; public routing remains absent.
+  neither per-site root is connected to Nginx yet. The original visibly marked
+  sample remains the active origin target at `/srv/tcf/current`; public routing
+  remains absent.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to

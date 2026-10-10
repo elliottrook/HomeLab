@@ -516,12 +516,13 @@ content exists, both sites use only conspicuously blocked records based on the
 accepted old sample. The two completed website baselines and their distinct
 annotation treatments are now registered and privately staged. Passkey access and
 the explicit placeholder-to-real promotion gate are proven. Immutable release
-preparation and a forced-command, checksum-verifying origin transport are also
-installed, but no GUI publish control, per-site Nginx switch or public route
-exists. Next safe action: add the final human publish-confirmation screen and
-connect it to the restricted stage/activate protocol, while retaining the
-current sample as the served rollback target. The first real photograph/story
-save, promotion and approval walkthrough remains pending until content exists.
+preparation, a forced-command checksum-verifying origin transport and the final
+site-specific GUI publication confirmation are installed. No per-site Nginx
+vhost or public route exists. Next safe action: configure private-only origin
+vhosts against the separate immutable roots and verify their unavailable/active/
+rollback states without changing the current sample default. The first real
+photograph/story save, promotion and approval walkthrough remains pending until
+content exists.
 Store design decisions, last validated gate, candidate/accepted release ID,
 rollback checkpoint, exact blocker and next safe action at each milestone.
 Use a versioned durable job-state DB with atomic transitions, not process absence.
@@ -570,6 +571,7 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-10 | Added and installed a release-preparation module without exposing it in the GUI or connecting it to LXC 125. It refuses incomplete inventories, malformed/unsafe manifests, checksum changes, wrong-site metadata and sample banners; strips only private-candidate markings, derives an immutable site/edition/manifest release ID, and performs a same-filesystem symlink exchange while returning the prior target for rollback. Thirty-six tests passed and the unprivileged desk service user imports the module successfully | Static candidate → immutable release and atomic rollback semantics are proven in isolation. Per-site origin roots, authenticated transfer, final human publish confirmation and public routing remain separate approval gates |
 | 2026-10-10 | Created `tcf-deploy` on origin LXC 125 with separate owner-only Contrast/Closet release roots and a root-owned forced receiver. The publisher's dedicated Ed25519 key is host-key pinned and restricted to status, stage, activate and rollback; an arbitrary `uname` request returned the receiver's rejection. Receiver/sender SHA-256 values are `028e094e…3d0c5` and `3ebe8101…9e2e1`; 42 tests pass | The origin has no general deployment shell. Tar links/traversal/special files, inventory mismatch, checksum change, private/sample markers, cross-site IDs and wrong activation digests fail closed |
 | 2026-10-10 | A disposable non-served release crossed the real publisher→origin SSH path and was accepted only after manifest verification (`7f28112b…c460a`); the staged probe was removed. `/srv/tcf/current` remained `/srv/tcf/releases/sample-5b23ccb9`, both new site `current` links remain unset, Nginx was unchanged and no public DNS/route was added | Authenticated data transfer is proven without publishing placeholder or synthetic content. Checkpoint `/root/tcf-origin-before-restricted-deploy-20261010` preserves the prior origin configuration and served target |
+| 2026-10-10 | Deployed the Aster-styled final “Publish reviewed edition” control. It requires a complete approved edition, the exact previously built candidate and typed `PUBLISH CONTRAST`/`PUBLISH CLOSET`; one nonblocking lock covers verification, immutable preparation, transfer, digest-bound activation and SQLite publication recording. Activation failure leaves the edition open and records only bounded failure state. Forty-six tests and embedded JavaScript syntax pass | Live no-edition request returned 409 `no fortnightly refresh is in progress`, the publication ledger remains empty, both origin site links remain unset and the Content Desk stayed healthy. Checkpoint `/root/tcf-desk-before-publication-20261010` contains the prior code and consistent database files |
 
 ## Close out
 
