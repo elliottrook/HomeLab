@@ -137,16 +137,24 @@ the immutable approved payload, while the visual treatments stay brand-local.
   `/srv/tcf/current`. LAN-only, certificate-valid review aliases
   `contrast.elliottrook.com` and `closet.elliottrook.com` resolve through the
   three private DNS authorities to NPM, which alone may reach origin TCP 80.
-  Neither alias has public DNS; no Cloudflare origin route or tunnel exists.
+  Neither alias has public DNS. Dedicated Cloudflare Tunnel
+  `tcf-public-sites` (`3a2b6684-9a17-4e4d-9b9f-b8b2b5b578e7`) has a healthy
+  connector co-located on LXC 125, but it has no ingress configuration,
+  published application hostname or tunnel DNS route. In this dormant state
+  Cloudflare requests fail closed with HTTP 503.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to
   NPM, so DNS or URL knowledge cannot bypass the identity gate.
-- Homepage lists **Photography Content Desk** under AI & Automation and links to
+- Homepage lists **Photography Content Desk** under Application Management and links to
   `https://tcf.elliottrook.com`. Its Aster-family icon is served at the exact
   LAN-only `/app-icon-512.png` path without authentication so Homepage can
   render it; all other Desk paths retain the owner-only Authentik gate.
 - The sample release includes `MANIFEST.sha256`; HomeLab Doctor verifies it,
   service health, and primary plus independent guest-backup freshness.
-- There is deliberately no public DNS, tunnel or route during A2/A3. Public
-  launch remains subject to content, rights, font, mail and edge gates.
+- The dedicated public-site tunnel is deliberately dormant during A2/A3: its
+  root-only token file is `/etc/cloudflared/token`, its package-managed systemd
+  unit is enabled, metrics listen only on `127.0.0.1:20241`, and no public
+  hostname routes exist. Public launch remains subject to content, rights,
+  font, mail and edge gates; add only the four approved apex/`www` routes at
+  launch and retain an unmatched catch-all response.
