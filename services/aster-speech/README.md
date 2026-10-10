@@ -103,3 +103,7 @@ network, and publish only the authenticated bridge on the TrueNAS Servers-VLAN
 address. `renderer.env.example` contains paths and the host render-group GID,
 not secrets. Do not enable this stack or route LXC 116 to it until the narrow
 LXC 116-to-TrueNAS firewall tuple and rollback have been approved and tested.
+The approved canary tuple is only `192.168.70.14` to
+`192.168.20.40:9132/TCP`; Kokopop itself remains internal to Docker. The
+candidate service on LXC 116 may use this path while production port 9130
+continues to use the retained renderer until listening and load gates pass.

@@ -714,6 +714,21 @@ unrelated state.
   The renderer must therefore stay resident and pass a warm-up request before
   admission. No listener, firewall rule or production route has yet been
   enabled.
+- Jason approved the narrow authenticated canary. OPNsense now permits only
+  LXC 116 `192.168.70.14` to TrueNAS `192.168.20.40:9132/TCP` on Lab VLAN 70,
+  sequence 2684, UUID `92fb4b0a-750f-4d10-b655-fdad43b6994b`, before the
+  RFC1918 isolation block. The live `pf` rule was verified; LXC 110 remained
+  blocked. The bridge rejected an unauthenticated LXC 116 request with 401 and
+  returned a valid 119,084-byte WAV in 0.661 seconds with the protected key.
+- The first deployed Compose canary exposed and corrected two definition bugs:
+  a bridge attached only to an internal Docker network was not host-published,
+  and its health command omitted `import urllib.request`. Kokopop remains only
+  on the internal network; the authenticated bridge alone also joins a normal
+  edge network and binds `192.168.20.40:9132`. Both containers are healthy.
+  The disabled-by-default LXC 116 candidate was pointed at that bridge and
+  returned healthy plus a valid 24 kHz WAV for the Home Assistant, Lutron
+  Caseta, Canadian-currency and B.C. fixture in 2.496 seconds. Production port
+  9130 and routing were not changed; listening acceptance remains required.
 
 ## Validation and evaluation
 
@@ -862,7 +877,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 Arc Pro B60 acceleration probe | Least-privilege render-node mapping; isolated OpenVINO 1.24.1 and hash-verified Intel compute runtime; provider-fallback detection; live PCI BAR/link inspection; complete test-root cleanup and live device withdrawal. | No OpenVINO GPU benchmark claimed: Intel's `xe` compute runtime rejected the 256 MiB physical BAR. Production stayed healthy. This result blocks Level Zero/OpenCL, not Mesa Vulkan. |
 | 2026-10-10 | M3 B60 Vulkan Kokoro canary | Internet/upstream review plus live llama.cpp evidence identified Mesa Vulkan as the small-BAR path. Pinned Kokopop/GGML build; 617 tests; immutable verified F16 GGUF with `bm_daniel`; explicit B60 synthesis; persistent first-audio traces; CPU comparison; generated remote evidence cleanup. | Vulkan is viable without ReBAR. Warm short first audio was 0.588 s; a longer first sentence was 1.608 s. Keep the canary stopped and production unchanged pending Jason's listening parity, bounded segmentation and shared-GPU contention gates. |
 | 2026-10-10 | M3 private Vulkan renderer bridge and contention gate | File-backed dedicated bearer key; fixed voice/speed/format; bounded input/concurrency; WAV validation; full authenticated LXC 116 path; 401 refusal; dependency 503/recovery; production isolation; simultaneous live Llama generation. | Functional/security gates pass, but latency does not: warm short end-to-end 0.714–0.896 s and 2.940 s under active Llama generation. Candidate units returned to stopped/disabled; production remained healthy. Do not select until GPU workload isolation or proven scheduling meets the frozen target. |
-| 2026-10-10 | M3 TrueNAS A380 backend comparison | Live i915/device/BAR inspection; explicit Mesa Vulkan device selection; cold/warm and longer-sentence timings; sustained Jellyfin VAAPI overlap; Intel OpenVINO 2026.4 and ORT OpenVINO 1.24.1 with CPU fallback disabled; pinned non-root deployment-image build and loopback validation; reversible container cleanup. | A380 Vulkan passes: warm short 0.494–0.511 s and 0.491–0.587 s during VAAPI overlap; the clean deployment image warmed to 0.631–0.657 s after a 4.648 s cold request. OpenVINO sees the GPU but rejects the approved dynamic-rank ONNX graph. Vulkan remains selected; authenticated network/firewall, warm-up admission, full load and listening gates remain. |
+| 2026-10-10 | M3 TrueNAS A380 backend comparison and private canary | Live i915/device/BAR inspection; explicit Mesa Vulkan device selection; cold/warm and longer-sentence timings; sustained Jellyfin VAAPI overlap; Intel OpenVINO 2026.4 and ORT OpenVINO 1.24.1 with CPU fallback disabled; pinned non-root deployment-image build; loopback validation; exact OPNsense rule; authentication refusal/success; full LXC 116 candidate fixture. | A380 Vulkan passes: warm short 0.494–0.511 s and 0.491–0.587 s during VAAPI overlap; the clean deployment image warmed to 0.631–0.657 s after a 4.648 s cold request; authenticated network render was 0.661 s. OpenVINO rejects the approved dynamic-rank ONNX graph. Production remains unchanged; warm-up admission, full load and listening gates remain. |
 
 ## Close-out
 

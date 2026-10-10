@@ -748,3 +748,13 @@ This allows the Companion speech service to fetch Authentik signing keys.
 The existing reverse direction is a separate NPM-to-speech TCP 9130 rule.
 Model validation, loaded rules and a speech-host JWKS HTTP 200 verify the change.
 No broader subnet permit, DNS change or public ingress was introduced.
+
+### Aster A380 voice-renderer canary — verified 2026-10-10
+
+OPNsense Lab VLAN 70 (`opt6` / `vlan0.70`) permits only TCP from speech LXC 116
+`192.168.70.14` to the authenticated TrueNAS A380 renderer bridge at
+`192.168.20.40:9132`, sequence 2684, UUID
+`92fb4b0a-750f-4d10-b655-fdad43b6994b`, before the RFC1918 isolation block.
+The live compiled rule was verified. LXC 116 received HTTP 401 without its
+dedicated key and valid audio with it; LXC 110 remained blocked. Kokopop has no
+host-published port, and production speech port 9130 is unchanged.

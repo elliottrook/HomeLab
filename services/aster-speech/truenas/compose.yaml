@@ -67,6 +67,7 @@ services:
       - ${ASTER_RENDERER_KEY_FILE:?set the protected bridge key path}:/run/secrets/bridge.key:ro
     networks:
       - renderer
+      - edge
     read_only: true
     tmpfs:
       - /tmp:size=16m,mode=1777
@@ -80,7 +81,7 @@ services:
         - CMD
         - python3
         - -c
-        - urllib.request.urlopen('http://127.0.0.1:9132/health',timeout=2).read()
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:9132/health',timeout=2).read()
       interval: 10s
       timeout: 3s
       retries: 3
@@ -89,3 +90,4 @@ services:
 networks:
   renderer:
     internal: true
+  edge: {}
