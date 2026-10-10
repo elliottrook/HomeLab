@@ -1,0 +1,10 @@
+# Disabled unless this explicit block is copied into Home Assistant configuration.
+# Replace every example ID and alias only after a registry review.
+aster_registry:
+  output_path: /share/aster-registry/latest.json
+  snapshot_id: ha-reviewed-v1
+  aliases:
+    entities: {}
+    rooms: {}
+    timers: {}
+    media: {}

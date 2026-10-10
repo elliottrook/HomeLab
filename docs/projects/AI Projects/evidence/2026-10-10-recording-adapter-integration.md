@@ -150,3 +150,37 @@ the separated grounded local-analysis role. It still does not authorize a
 persistent model or service change. The remaining architecture gate is a real
 source-local Home Assistant registry capture through the reviewed no-effect
 producer, followed by observation of the integrated recording path.
+
+## Deployable Home Assistant candidate
+
+The source-local contract is now packaged as a disabled-by-default Home
+Assistant custom integration candidate under
+`services/home-assistant/aster_registry`. It follows current supported registry
+lookups (`entity_registry.async_get` and `area_registry.async_get_area`) and
+does not read registry backing files. An explicit YAML block is required to
+activate it; the example contains empty maps, so copying the package alone does
+nothing.
+
+When activated, it:
+
+- looks up only exact reviewed entity and area IDs;
+- observes only those exact entity state changes plus a five-minute refresh;
+- emits aliases and availability, never friendly names, attributes or unrelated
+  registry content;
+- registers no service, action, entity, HTTP route or credential;
+- restricts output to `/share/aster-registry/latest.json`; and
+- uses fsynced atomic replacement with mode 0600.
+
+Five candidate tests pass: exact alias export, empty/default-deny output,
+rejection of effectful domains and registry mismatch, fixed-path enforcement,
+and atomic mode-0600 writing. Both integration Python modules compile and the
+manifest parses locally. Home Assistant dependencies are intentionally not
+installed on the Mac, so actual Core import/config validation remains a VM 103
+pre-deployment gate rather than an implied pass.
+
+Deployment remains blocked on an exact alias decision and the normal VM 103
+snapshot/configuration approval. A safe first deployment may use the empty map
+to prove package loading and report custody, but cannot be counted as real
+registry acceptance. At least one deliberately selected harmless light/switch,
+room, active timer or media provider must later be verified through the
+recording adapter with effects still disabled.
