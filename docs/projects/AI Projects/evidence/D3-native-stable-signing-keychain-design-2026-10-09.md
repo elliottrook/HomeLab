@@ -250,3 +250,11 @@ fails, a prompt returns, or normal Aster regresses, stop and restore version
 11. Do not delete `v2`, alter its five ACL entries, enable all-app access,
 or claim a durable fix on the basis of unit tests alone. Natural token refresh
 remains a separate observation gate.
+
+A disposable version-14 bundle has also been staged locally, signed with the
+same owner-held identity and strictly verified. Versions 13 and 14 satisfy
+each other's designated requirements in both directions. Neither candidate
+has been installed, and no live session copy has occurred. The version-11
+rollback remains installed, signed in and working. This completes the
+preparation for the credential-migration approval gate; it does not supply
+evidence that a new Keychain item will survive the update until tested live.
