@@ -1,0 +1,19 @@
+{
+  "status": "local-fixture-tested-remote-disabled",
+  "artifacts": {
+    "scripts/aster-adaptive/s0_feasibility_supervisor.py": "ba288f2b1a891f7a78114ab10c3aeaafdccf8064f50536c519e387983e51f666",
+    "scripts/aster-adaptive/test_s0_feasibility_supervisor.py": "d71f1f9c7a166df59931af26e0d4adb6a4de7cf1c4659e525e81fc16de44b743",
+    "docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/LXC100-FEASIBILITY-PLAN.md": "e83916437a866de6538c0f710fc8db89f512e0d650665904505760d03957a13f",
+    "docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/lxc100-fixture-payload.py.txt": "95fa3ec4927007559e5ed82d008c6464f65c802c38bb246ce3da3f68db5d6656"
+  },
+  "command_proposal_sha256": "c27992ca423e902ec9341384320b24062bf12108adcb74cbe8b35f9dfd6ab25f",
+  "payload_sha256": "95fa3ec4927007559e5ed82d008c6464f65c802c38bb246ce3da3f68db5d6656",
+  "focused_tests_passed": 13,
+  "full_tests_passed": 144,
+  "ssh_invoked_by_supervisor": false,
+  "accepted_corpus_accessed": false,
+  "unit_started": false,
+  "live_authorized": false,
+  "evidence_revision": "1e506bd",
+  "historical_snapshot": true
+}

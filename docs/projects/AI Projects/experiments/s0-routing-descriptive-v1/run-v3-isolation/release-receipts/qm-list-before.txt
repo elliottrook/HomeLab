@@ -1,0 +1,6 @@
+      VMID NAME                 STATUS     MEM(MB)    BOOTDISK(GB) PID       
+       102 friate               running    8192              64.00 222180    
+       103 home-assistant       running    4096              32.00 4911      
+       105 ollama               stopped    8192              32.00 0         
+       118 aster-s0-fixture-v0  stopped    1024               8.00 0         
+       119 aster-s0-fixture-v1  stopped    1024               8.00 0         

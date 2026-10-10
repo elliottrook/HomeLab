@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "Outcome": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "outcome.v1",
+          "default": "outcome.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "run_id": {
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "denied",
+            "expired",
+            "cancelled",
+            "budget-exceeded",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "verification": {
+          "enum": [
+            "fixture-conformance",
+            "not-executed"
+          ],
+          "title": "Verification",
+          "type": "string"
+        },
+        "tool_calls": {
+          "maximum": 8,
+          "minimum": 0,
+          "title": "Tool Calls",
+          "type": "integer"
+        },
+        "model_calls": {
+          "const": 0,
+          "default": 0,
+          "title": "Model Calls",
+          "type": "integer"
+        },
+        "elapsed_ms": {
+          "minimum": 0,
+          "title": "Elapsed Ms",
+          "type": "number"
+        },
+        "output_bytes": {
+          "minimum": 0,
+          "title": "Output Bytes",
+          "type": "integer"
+        },
+        "prompt_tokens": {
+          "default": null,
+          "title": "Prompt Tokens",
+          "type": "null"
+        },
+        "quality": {
+          "const": "not-evaluated",
+          "default": "not-evaluated",
+          "title": "Quality",
+          "type": "string"
+        },
+        "data_class": {
+          "const": "synthetic",
+          "default": "synthetic",
+          "title": "Data Class",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "status",
+        "verification",
+        "tool_calls",
+        "elapsed_ms",
+        "output_bytes"
+      ],
+      "title": "Outcome",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "linked-outcome.v1",
+      "default": "linked-outcome.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "experiment_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "run_event_digest": {
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "title": "Run Event Digest",
+      "type": "string"
+    },
+    "outcome": {
+      "$ref": "#/$defs/Outcome"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "run_event_digest",
+    "outcome"
+  ],
+  "title": "LinkedOutcome",
+  "type": "object"
+}

@@ -1,0 +1,322 @@
+{
+  "format": "s0-human-review-draft.v1",
+  "status": "unreviewed-ai-proposal",
+  "created_at": "2026-09-26T12:10:32.647478-07:00",
+  "draft_expires_at": "2026-10-03T12:10:32.647478-07:00",
+  "scenario_assumptions": "For labeling only, named capabilities are assumed available and permitted in the fictional scenario. No live implementation, permission or execution is claimed.",
+  "boundary": "Entirely synthetic, non-identifying content; sensitivity describes the hypothetical routed workload. Mixed private/public reasoning remains local. Public-only cloud is an eligibility ceiling, never a requirement.",
+  "records": [
+    {
+      "number": 11,
+      "family_id": "s0-b2-f01",
+      "revision": 1,
+      "stratum": "timer",
+      "request": "Cancel the timer named pasta.",
+      "synthetic_context": "A fictional timer service has exactly one active timer named pasta. No alarm or other timer is included.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "timer"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 12,
+      "family_id": "s0-b2-f02",
+      "revision": 1,
+      "stratum": "home",
+      "request": "Is the kitchen window open?",
+      "synthetic_context": "A fictional home has one kitchen-window contact sensor with a current open/closed reading. Request status only. No real sensor data is supplied.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "home"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "internal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 13,
+      "family_id": "s0-b2-f03",
+      "revision": 1,
+      "stratum": "media",
+      "request": "Pause playback on this speaker.",
+      "synthetic_context": "A fictional speaker has one active local audio playback session; no account or personal library lookup is needed.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "media"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 14,
+      "family_id": "s0-b2-f04",
+      "revision": 1,
+      "stratum": "facts",
+      "request": "How many centimetres are in two metres?",
+      "synthetic_context": "An exact unit-conversion question; no current or personal information is required. A deterministic calculation is sufficient.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "facts"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 15,
+      "family_id": "s0-b2-f05",
+      "revision": 1,
+      "stratum": "calendar",
+      "request": "Do I have any meetings between noon and two tomorrow?",
+      "synthetic_context": "A fictional read-only calendar and its current local date/time zone are available. Check overlap with that two-hour window; do not edit anything. No entries are supplied or retrieved.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "calendar"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "personal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 16,
+      "family_id": "s0-b2-f06",
+      "revision": 1,
+      "stratum": "web",
+      "request": "What date does this page give for the next public lecture?",
+      "synthetic_context": "Fictional public listing: https://example.org/lecture. The page date is not supplied and must be retrieved to answer. No actual lookup is performed.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "web"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "public",
+        "cloud": "public-only",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 17,
+      "family_id": "s0-b2-f07",
+      "revision": 1,
+      "stratum": "mixed",
+      "request": "Which of the workshop times on this page fit into a free slot on my calendar next week?",
+      "synthetic_context": "Fictional listing: https://example.org/workshops. Page and calendar contents are not supplied. Compare advertised time intervals against calendar availability only; ignore travel and do not book anything. Local date/time zone is available.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "web",
+          "calendar",
+          "local_join"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "personal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 18,
+      "family_id": "s0-b2-f08",
+      "revision": 1,
+      "stratum": "personal",
+      "request": "Which language did I choose for spoken replies?",
+      "synthetic_context": "A fictional authorized local preference store has one explicit spoken-reply language setting. Its value is not supplied or retrieved; do not infer a nationality or location.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "private_context"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "personal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 19,
+      "family_id": "s0-b2-f09",
+      "revision": 1,
+      "stratum": "sysadmin",
+      "request": "Show the CPU and memory summary from the latest lab health report.",
+      "synthetic_context": "A fictional sanitized read-only health report contains those measurements and a timestamp. Report their age; do not change services or run commands. No actual measurements or hosts are supplied.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [
+          "lab_read"
+        ],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "plan"
+        ],
+        "sensitivity": "internal",
+        "cloud": "forbidden",
+        "uncertainty": [],
+        "split": "dev"
+      },
+      "human_timing_seconds": null
+    },
+    {
+      "number": 20,
+      "family_id": "s0-b2-f10",
+      "revision": 1,
+      "stratum": "ambiguous",
+      "request": "Set a timer for five minutes and make its duration ten minutes.",
+      "synthetic_context": "The same fictional utterance specifies conflicting durations for one new timer, with no correction cue or prior context. Clarify the intended duration before proposing a timer.",
+      "proposal_origin": "ai-proposed-s0-draft",
+      "content_review": "pending-human",
+      "label_review": "pending-human",
+      "labels": {
+        "required": [],
+        "optional": [],
+        "prohibited": [
+          "shell",
+          "credentials",
+          "automatic_approval",
+          "cloud_private_export"
+        ],
+        "acceptable_statuses": [
+          "clarify"
+        ],
+        "sensitivity": "public",
+        "cloud": "forbidden",
+        "uncertainty": [
+          "ambiguous-intent"
+        ],
+        "split": "train"
+      },
+      "human_timing_seconds": null
+    }
+  ]
+}

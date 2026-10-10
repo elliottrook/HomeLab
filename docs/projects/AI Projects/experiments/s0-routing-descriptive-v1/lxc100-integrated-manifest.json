@@ -1,0 +1,28 @@
+{
+  "status": "integrated-local-candidate-awaiting-final-review-live-disabled",
+  "base_checkpoint": "50500ff",
+  "artifacts": {
+    "scripts/aster-adaptive/s0_probe_lifecycle.py": "ae4b9d8d98daeb28a77361cf8b9d1aec6ea1975113e2261d0a4819c23ce4df98",
+    "scripts/aster-adaptive/s0_probe_journal.py": "2f7df2ef6763daff7074f8b470f717656cf848bd42c8360e75e31ec3be60fae2",
+    "scripts/aster-adaptive/s0_owned_cleanup.py": "b3a438638352d94febff9947b47ec5d129775e2786cf571b99adb4cf4183a326",
+    "scripts/aster-adaptive/s0_lxc100_observe.py": "92a20c348a28f3d23c94ecf6a09c68fc3afd417e607da683cb21371084eaca47",
+    "scripts/aster-adaptive/s0_fixed_session.py": "a1381a8a9b2b616e4a2d8380a5a55c18a3fe9fe5ccdc429be84bda382d4a75e0",
+    "scripts/aster-adaptive/s0_dns_observe.py": "e0ed9222ddf642f62f4e9d05cb454b0dffe962ff4d9f8691c8d3ec9fb73b088b",
+    "scripts/aster-adaptive/s0_probe_state.py": "c18ca3e19c7edc022325fbf81e5df54dfee1c0df8beb16f5552dd89e615c7c6f",
+    "scripts/aster-adaptive/s0_feasibility_supervisor.py": "1192c83da553a0c9d1795ce3e1754c542cb216f15b3c0495aa05ad22b3055f4f",
+    "scripts/aster-adaptive/validate_label_batch.py": "2d7ec8286b80dad0b6322f1ed2dc76f4ec372a88e6bfcbd796f752061eba614c",
+    "scripts/aster-adaptive/test_s0_probe_lifecycle.py": "7b2db2731d524210b78fc30fad938c42711f9eacad436fd57e8906a4e242aa0c",
+    "scripts/aster-adaptive/test_s0_lxc100_candidate.py": "d9736e5606a6564d5de074be962e994513a0330b3ede137bf6f84510fc46ff3f",
+    "scripts/aster-adaptive/test_s0_probe_state.py": "e99482f627b66bc426da47ce2b0e91a4ce6ac7a4a18f3958929d10c1239cac95",
+    "scripts/aster-adaptive/test_s0_feasibility_supervisor.py": "d71f1f9c7a166df59931af26e0d4adb6a4de7cf1c4659e525e81fc16de44b743",
+    "docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/LXC100-FEASIBILITY-PLAN.md": "e9a7f619b7d4264bd5919690f88934a864dae1bec1ea2632c036f0ad27641112",
+    "docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/lxc100-fixture-payload.py.txt": "497ffce4be2431284dc8a03b5bc33e48ed4264199dba36e9c0925fe8252f9850",
+    "docs/projects/AI Projects/experiments/s0-routing-descriptive-v1/LXC100-INTEGRATED-CANDIDATE.md": "2bb489e8193d99db130737558e08f5faa2652b5d63adf66aa5acc6147272c472"
+  },
+  "command_catalog_sha256": "5b2fd8589dd500eda636afd5190a2206e6bb448222481fbf16d08ff5d89ea990",
+  "integrated_tests_passed": 8,
+  "full_tests_passed": 184,
+  "ssh_invoked": false,
+  "live_enabled": false,
+  "accepted_corpus_accessed": false
+}

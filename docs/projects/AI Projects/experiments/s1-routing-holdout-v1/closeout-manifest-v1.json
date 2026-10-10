@@ -1,0 +1,49 @@
+{
+  "schema_version": "s1-closeout-manifest.v1",
+  "experiment_id": "s1-routing-holdout-v1",
+  "status": "closed_incomplete_evaluation_blocked",
+  "closed_at": "2026-10-03",
+  "authority": "collection_feasibility_only_no_evaluation",
+  "accepted_bundle_count": 9,
+  "accepted_case_count": 45,
+  "accepted_receipt_count": 45,
+  "active_effort_seconds": 3000,
+  "stratum_counts": {
+    "ambiguous": 3,
+    "calendar": 5,
+    "facts": 5,
+    "home": 5,
+    "media": 5,
+    "mixed": 4,
+    "personal": 6,
+    "sysadmin": 6,
+    "timer": 5,
+    "web": 1
+  },
+  "composition_or_nonplan_cases": 33,
+  "adverse_constraint_cases": 0,
+  "frozen_requirements_not_met": [
+    "exactly_50_accepted_families",
+    "five_families_in_each_stratum",
+    "at_least_10_adverse_constraint_cases"
+  ],
+  "prohibited_follow_on": [
+    "evaluation",
+    "router_selection",
+    "confidence_calibration",
+    "model_training",
+    "shadow_routing",
+    "production_promotion"
+  ],
+  "accepted_bundles": [
+    {"path": "accepted/2026-09-28-ambiguous-batch.json", "sha256": "d4f97f04345999ab63d594fc1da5196bcfe05039a5bf92e9f3aec753150f9788"},
+    {"path": "accepted/2026-09-28-calendar-batch.json", "sha256": "6469966ed976d96733a86fdc8bfea1a4fc33b7af0f4a2db97d7e3230dd8c5d56"},
+    {"path": "accepted/2026-09-28-facts-batch.json", "sha256": "138e0c00d843ed9544b605533d5cdc71f2c731b3c2726d35bb168b7896ce765a"},
+    {"path": "accepted/2026-09-28-home-media-batch.json", "sha256": "5b9d28cd27e42f3881f03c58f5562706bf7f2c9e7d40c521e5aa9825196818bd"},
+    {"path": "accepted/2026-09-28-media-batch.json", "sha256": "9691ab13e1d8b441039664d60688969ca7f0f6b63f7fe8fa60f0902bd9784c13"},
+    {"path": "accepted/2026-09-28-personal-batch.json", "sha256": "d5290925b87bd138644ff72b02c753af60c730a9a57bd1009a710e465b4a1e72"},
+    {"path": "accepted/2026-09-28-sysadmin-batch.json", "sha256": "2ae2daaa2d98d2d3ceb787356cef8851b7493adaca7629a61d99c75d400129ab"},
+    {"path": "accepted/2026-09-28-timer-batch.json", "sha256": "71135e0eaf92cd1f834d9370822bf7c1aa8f076a8682bfa03fcb2c13b937c987"},
+    {"path": "accepted/2026-09-28-web-batch.json", "sha256": "56f26f02cc145050a805262de5eb6155e9d0fe9d1ffe0ed1b4e7ad999cbf8692"}
+  ]
+}

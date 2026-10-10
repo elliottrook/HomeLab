@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from worker import Worker, REQUIRED, verify_config, verify_archive, write_json, run
+from worker import Worker, REQUIRED, doctor_counts, verify_config, verify_archive, write_json, run
 from guest_helper import validate
 
 
@@ -146,6 +146,23 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual(result['failures'],1)
         self.assertEqual(result['state'],'succeeded')
         self.assertNotIn('private',json.dumps(result))
+
+    def test_doctor_current_emoji_summary_is_accepted(self):
+        def fake(command, log, timeout, env):
+            log.write_text('🟢 A normal checked item\n🟡 A bounded warning\n'
+                           'Summary\n\n🟢 Passed:   21\n🟡 Warnings: 1\n🔴 Failed:   0\n')
+            return 0
+        with patch('worker.run', side_effect=fake):
+            result = self.worker.execute({'target': 'doctor'})
+        self.assertEqual((result['passed'], result['warnings'], result['failures']), (21, 1, 0))
+        self.assertEqual(result['state'], 'succeeded')
+
+    def test_doctor_counts_require_complete_summary(self):
+        self.assertIsNone(doctor_counts('🟢 Passed: 4\n🟡 Warnings: 1\n'))
+
+    def test_doctor_ansi_prefixed_summary_is_accepted(self):
+        text = '\x1b[32m🟢 Passed: 4\x1b[0m\n🟡 Warnings: 1\n🔴 Failed: 2\n'
+        self.assertEqual(doctor_counts(text), (4, 1, 2))
 
 
 if __name__ == '__main__': unittest.main()

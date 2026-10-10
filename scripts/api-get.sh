@@ -5,7 +5,7 @@
 # etc. accepted), and only against the allowlisted API hosts/paths below.
 # This is what permissions.allow references so read-only discovery work
 # doesn't need a per-call approval prompt, while state-changing calls
-# still require the full Bash tool prompt (see docs/projects/Authentik-Rollout.md
+# still require the full Bash tool prompt (see docs/projects/completed projects/Authentik-Rollout.md
 # and CLAUDE.md's Sandbox network access section).
 #
 # Auth: pass the bearer token via API_TOKEN in the environment. Never

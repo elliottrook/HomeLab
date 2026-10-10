@@ -1,0 +1,12 @@
+2026-09-26 23:13:36,555 - cc_set_hostname.py[DEBUG]: Setting the hostname to aster-s0-canary (aster-s0-canary)
+2026-09-26 23:13:36,566 - distros[DEBUG]: Non-persistently setting the system hostname to aster-s0-canary
+2026-09-26 23:13:36,566 - subp.py[DEBUG]: Running command ['hostname', 'aster-s0-canary'] with allowed return codes [0] (shell=False, capture=True)
+2026-09-26 23:15:37,584 - util.py[DEBUG]: Writing to /etc/systemd/system/aster-s0-canary.service - wb: [444] 758 bytes
+2026-09-26 23:15:37,584 - util.py[DEBUG]: Changing the ownership of /etc/systemd/system/aster-s0-canary.service to 0:0
+2026-09-26 23:15:37,632 - cc_update_hostname.py[DEBUG]: Updating hostname to aster-s0-canary (aster-s0-canary)
+2026-09-26 23:15:37,632 - distros[DEBUG]: Attempting to update hostname to aster-s0-canary in 1 files
+Job for aster-s0-canary.service failed because the control process exited with error code.
+See "systemctl status aster-s0-canary.service" and "journalctl -xeu aster-s0-canary.service" for details.
+SHA256:hBJqeC5eEQg3BeFEFd8rOcu45dfR7cs19NCX7ZMbm+4 root@aster-s0-canary
+SHA256:TaCEVhmVEiBJfPvFpEGsehgwXDoD603592lTNDyyLDw root@aster-s0-canary
+SHA256:pguxUhrrm18sphksADB5aP1R8mOG71ZE8axg8JoeuKI root@aster-s0-canary

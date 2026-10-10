@@ -102,7 +102,10 @@ Pick a time window that does not overlap other heavy scheduled TrueNAS work (bac
   file-delete API does that, and only after the archive copy is verified on disk.
 - A lock file (`lock_file` in config) prevents overlapping runs; if a run exits uncleanly, confirm
   no process is actually still running before removing it by hand.
-- `max_files_per_run` bounds the blast radius of a single scheduled invocation.
+- The scheduled wrapper uses `--max-files 0` (unlimited) together with `--until 07:30`:
+  it processes oldest-first for the whole 01:30–07:30 window instead of stopping after
+  an arbitrary five files. The deadline is the operational safety boundary; manual runs
+  may still use a positive `--max-files` cap.
 - GPU encoding (`hevc_vaapi`) requires explicit `-rc_mode VBR` plus `-maxrate`/`-bufsize` — its
   default rate control ignores the target bitrate outright (confirmed: ~20-30 Mbps output against
   a 3.3 Mbps target without it).
@@ -122,7 +125,10 @@ Radarr/Sonarr and never changes a path. See
   faststart). Jellyfin keeps the same item, including collections, watch state and
   metadata.
 - **Audio and subtitles:** one audio track and English subtitles only, the same policy as
-  the archiver. MP4 keeps only `mov_text` subtitles.
+  the archiver. MP4 keeps only `mov_text` subtitles. Compaction reads Matroska
+  `BPS`/`BPS-eng` tags when the stream bitrate is absent. Audio with no known bitrate
+  is encoded at a known rate (E-AC-3 384k surround or AAC 192k stereo), and planning
+  reserves 5% headroom for muxing and rate-control variation.
 - **Verification before replacement:**
   - output ≤ `cap_bytes` and ≤ `max_output_fraction` × source;
   - HEVC at the planned height;
@@ -130,11 +136,17 @@ Radarr/Sonarr and never changes a path. See
   - three-point decode spot-check;
   - source unchanged since it was probed.
 - **Replacement and rollback:** replacement is an atomic `os.replace` with the original
-  owner and mode. A ZFS snapshot (`Media/data@archive-compact-*`) is taken before the
-  first replacement of each run and expired after `snapshot_retention_days`.
+  owner and mode. Since Jason’s 2026-10-03 instruction, the nightly runner passes
+  `--no-snapshot`: verified transcodes replace their originals without retaining
+  rollback copies. The CLI still supports snapshots for explicitly requested
+  manual runs; its default retention setting does not apply to the nightly runner.
 - **Scheduling:** it shares `lock_file` with the archiver and waits up to 90 min for it,
   then processes the largest files first until `compact.deadline`. State is kept in
   `work/compact-state.json` (skipped or failed files aren't retried unless `--retry`).
+- **Library scan:** the existing Jellyfin key is sent using `Authorization: MediaBrowser`,
+  compatible with Jellyfin 12. A rejected scan records `jellyfin_scan_failed`, sets
+  the compaction summary's `scan_failed`, and causes a nonzero exit. Doctor reports
+  this failure even when every file replacement succeeded.
 
 ```bash
 # dry run (default): plan every candidate, change nothing

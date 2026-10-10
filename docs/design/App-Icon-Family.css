@@ -1,0 +1,60 @@
+:root {
+  /* Shared family palette: deep navy, electric blue, violet, and warm gold. */
+  --icon-navy: #050b2b;
+  --icon-blue: #155cff;
+  --icon-violet: #762cff;
+  --icon-lilac: #c7a8ff;
+  --icon-gold: #ffd36a;
+  --icon-cream: #fff7dc;
+
+  /* Shared Aster web-surface tokens, extracted from the recommendation portal
+     and intended for briefing, recommendation, and future private UIs. */
+  --ui-bg: #0b1020;
+  --ui-panel: #151d31;
+  --ui-panel-raised: #1b2740;
+  --ui-panel-input: #111a2c;
+  --ui-text: #f4f7fb;
+  --ui-text-soft: #dce4f1;
+  --ui-muted: #aab6ca;
+  --ui-accent: #8bd3ff;
+  --ui-accent-strong: #b9f2d0;
+  --ui-danger: #ffaaa8;
+  --ui-line: #2b3a58;
+
+  /* Use these radii and glow layers for derivative family artwork. */
+  --icon-radius: 22%;
+  --icon-glow-blue: 0 0 18% rgba(21, 92, 255, 0.95),
+                    0 0 42% rgba(21, 92, 255, 0.58);
+  --icon-glow-warm: 0 0 16% rgba(255, 211, 106, 0.88),
+                    0 0 34% rgba(255, 146, 92, 0.42);
+}
+
+/* Reference container for previews and generated derivatives. */
+.icon-family-canvas {
+  aspect-ratio: 1;
+  background: var(--icon-navy);
+  border-radius: var(--icon-radius);
+  overflow: hidden;
+  position: relative;
+}
+
+.icon-family-canvas::after {
+  background: radial-gradient(circle at 50% 48%,
+    rgba(118, 44, 255, 0.34), transparent 58%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+/* Aster and News Digest derivatives share the same framing treatment. */
+.icon-family-aster,
+.icon-family-news,
+.icon-family-recommendations {
+  border-radius: var(--icon-radius);
+  box-shadow: var(--icon-glow-blue), var(--icon-glow-warm);
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}

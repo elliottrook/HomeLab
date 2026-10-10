@@ -134,6 +134,38 @@ Hermes and Ollama remain installed but disabled as rollback paths; stopped VM
 105 remains the older CPU/passthrough rollback guest. Aster is useful but is not
 a dependency for core HomeLab operation.
 
+### AI privileged-access boundary — verified 2026-09-26
+
+AI-PAM is the only supported path from an AI client to a privileged HomeLab
+capability. The shared broker and approval bridge run on Aster LXC 104 and
+accept only kernel-identified local Unix-socket callers. Green capabilities may
+proceed under an active exact grant; Yellow and Red require payload-bound human
+approval, and Red plus every management mutation require fresh passkey
+authentication. Black capabilities are never delegated.
+
+```text
+agent-hermes -> peer-bound broker socket -> current lifecycle/policy recheck
+                                      |-> bounded Doctor gateway
+                                      |-> OpenBao AppRole -> pinned Forgejo MCP
+human -> Aster Companion OIDC/passkey -> approval/management socket
+```
+
+OpenBao LXC 117 is the credential authority. Its recovery listener remains
+loopback-only; its private TLS listener accepts only broker host
+`192.168.70.10`, and each AppRole/secret path is service-specific. Aster and the
+model never receive a target token, AppRole SecretID, raw approval payload or
+vault administration capability. Disabling global access, an agent, a service
+or a request is enforced again at consumption, so an older approval cannot
+resurrect authority.
+
+NetBox remains authoritative for the existing LXC 104 and LXC 117 guest/IP
+records. The Unix-socket broker has no separate IP, DNS name or NetBox endpoint.
+Homepage exposes only the existing Aster Companion human entry point; it must
+not link directly to OpenBao, private gateways or broker administration.
+HomeLab Doctor checks the exact registered service/capability shape, lifecycle,
+expired-request drift, systemd units, socket permissions and OpenBao seal/TLS
+health without retrieving credentials.
+
 ## Surveillance architecture
 
 Frigate VM 102 is isolated on Servers VLAN 20 at `192.168.20.10`. The Reolink

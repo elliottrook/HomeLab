@@ -1,0 +1,7 @@
+{
+  "schema_version": "fixture-source-definition.v1",
+  "source": "services/aster-agent/aster_agent.py",
+  "expected_digest": "sha256:343bce00b777134bfb6f28f7e3218bea3a21240ed19f9cb0bad819186ab2deb0",
+  "review_ref": "sa3-source-slice-equivalence-2026-10-03",
+  "scope": "offline-fixture-only"
+}

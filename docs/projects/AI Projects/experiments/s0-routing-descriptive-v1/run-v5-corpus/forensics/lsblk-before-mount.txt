@@ -1,0 +1,5 @@
+NAME       TYPE  SIZE FSTYPE MOUNTPOINTS RO
+loop0      loop    8G                     1
+├─loop0p1  part  7.9G ext4                1
+├─loop0p14 part    3M                     1
+└─loop0p15 part  124M vfat                1

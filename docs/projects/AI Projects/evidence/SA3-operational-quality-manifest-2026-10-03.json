@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "status": "accepted_private_operational_quality_corpus_not_evaluated",
+  "case_count": 20,
+  "private_case_bundle_sha256": "255ef662eea604eb9da538828323a76dbedbba4e2fc4a0176481ea7e35b1c508",
+  "private_answer_key_sha256": "c0a03481f5f15d99e25735544c9e35dadbc754e15d3a71f2ef6fee5eb0a116ab",
+  "content_location": "private_local_custody_outside_git",
+  "evidence_limit": "single_operator_within_lab_operational_quality_evidence_only",
+  "prohibited_uses": ["retrieval", "prompt_tuning", "harness_tuning", "provider_selection", "production_promotion"]
+}

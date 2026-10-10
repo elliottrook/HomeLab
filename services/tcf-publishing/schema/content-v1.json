@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tcf.elliottrook.com/schema/content-v1.json",
+  "title": "The Contrasting Frame content record v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "site", "asset_path", "image_sha256", "collection", "title", "alt_text", "story", "full_story", "story_mode", "orientation", "focal_point", "rights_status", "consent_status", "credit", "sample"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"},
+    "site": {"enum": ["contrast", "closet"]},
+    "asset_path": {"type": "string", "minLength": 1},
+    "image_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "collection": {"enum": ["landscapes", "flora", "contrasts", "people"]},
+    "title": {"type": "string", "minLength": 1},
+    "alt_text": {"type": "string", "minLength": 1},
+    "story": {"type": "string"},
+    "full_story": {"type": "string"},
+    "story_mode": {"enum": ["fictional", "factual"]},
+    "orientation": {"enum": ["landscape", "portrait"]},
+    "focal_point": {"type": "string"},
+    "rights_status": {"enum": ["unknown", "verified"]},
+    "consent_status": {"enum": ["unknown", "verified", "not-applicable"]},
+    "credit": {"type": "string"},
+    "sample": {"type": "boolean"},
+    "annotation_text": {"type": "string", "maxLength": 80},
+    "annotation_x": {"type": "integer", "minimum": 5, "maximum": 95},
+    "annotation_y": {"type": "integer", "minimum": 5, "maximum": 95}
+  }
+}

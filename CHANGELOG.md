@@ -8,6 +8,252 @@
 - Passed seven synthetic validator tests; the supplied fotosforfun material passes only the limited fixture profile and remains blocked from a production release pending strict rights/approval/vector gates.
 - Added design-only Forgejo/Tailscale guidance recommending a pull-based local runner; no network, credential or production-service change was made.
 
+## 2026-10-10 — Photography release transport isolated
+
+- Added checksum-verifying publisher/origin release transport with separate
+  immutable roots for The Contrasting Frame and The Closet Fatman.
+- Bound a dedicated deployment key to a four-operation forced command; archive
+  links/traversal, arbitrary commands, mixed-site IDs, changed manifests and
+  private/sample candidates fail closed. Forty-two publishing tests pass.
+- Proved a disposable non-served transfer and removed it. The existing marked
+  sample remains active, Nginx is unchanged, and no public DNS or route exists.
+- Added the owner-only, site-specific final publication confirmation. It
+  revalidates the reviewed edition and immutable checksums under one lock,
+  activates only the digest-bound release, records success durably and leaves a
+  failed edition open. The live empty workflow fails closed; 46 tests pass.
+- Added exact-host per-site origin vhosts with site-specific unavailable
+  responses while no accepted release exists. The legacy sample remains the
+  unmatched-host default; the NPM cross-VLAN path and all public routing remain
+  absent.
+- Added live origin release status and typed one-step rollback to the private
+  desk. The server selects only the checksum-verified previous origin release,
+  records successful swaps, and disables rollback when no prior release exists.
+- Added a quiet, persistent hourly checker for the independent 14-day editorial
+  clocks. It displays due state but cannot start, approve or publish an edition;
+  UTC storage and Vancouver evaluation follow B.C.'s permanent UTC-7 Pacific
+  Time. Fifty-four publishing tests pass, including interruption/retry gates.
+- Restored permanent Mac-to-Forgejo Git access by registering the existing
+  MacBook Admin public key and selecting it for `git` at the Forgejo address,
+  while preserving the separate root-administration alias. No standing token
+  was added.
+- Published the first internal-only workflow rehearsal: ten approved Contrast
+  slots and seven approved Closet slots use owner-authorized, person-free
+  photographs, metadata-stripped derivatives and clearly fictional AI stories.
+  No public proxy or tunnel route was added, and the existing parked Closet
+  Fatman DNS was not connected to the origin. Corrected permanent origin
+  read access by adding Nginx `www-data` to the restricted `tcf-deploy` group.
+- Added certificate-valid LAN review routes at `contrast.elliottrook.com` and
+  `closet.elliottrook.com`. All three private resolvers return NPM, the firewall
+  permits only NPM to origin TCP 80, and both public aliases remain nonexistent.
+- Added a Homepage **Photography Content Desk** tile in AI & Automation and a
+  dedicated Aster-family camera-aperture/selection-star icon. The same tracked
+  asset now supplies the Desk favicon while its root remains Authentik-protected.
+
+## 2026-10-09 — The Contrasting Frame project preparation
+
+- Scoped the HomeLab UI guide to Aster-associated internal network apps and
+  added a separate Contrasting Frame guide based on Jason's accepted gallery.
+- Added mandatory brand-aware style routing to the project creation standard.
+- Prepared internal hosting, public-domain and AI-assisted scheduled publishing
+  milestones: M0 is monitored design discussion; autonomous delivery follows
+  explicit acceptance of the concrete architecture, risks and scope.
+- Verified live Forgejo standards, Proxmox and TrueNAS capacity read-only.
+  No guest, dataset, credentials, timer, DNS, firewall or public route changed.
+- Local documentation preparation only; remote synchronization remains subject
+  to the repository's immediate per-push approval and history reconciliation.
+
+## 2026-10-08 — ARR stack reliability and update hardening
+
+- Corrected inconsistent `apps` group ownership and group-write/traverse
+  permissions under the existing TV/movie archive roots; no media was moved or
+  deleted, and disposable Radarr/Sonarr write tests passed.
+- Added private Host allowlists to Sonarr, Radarr and Prowlarr while preserving
+  Authentik/private HTTPS and direct TrueNAS recovery paths.
+- Restricted Watchtower to explicitly labelled unattended updates, leaving the
+  critical ARR, downloader and custom media services under controlled updates.
+- Extended the existing sanitized ARR report with aggregate import counters;
+  no titles, paths, queue IDs, credentials or raw responses are emitted.
+
+## 2026-10-05 — EHS policy review project proposed
+
+- Added the proposed EHS policy review and renewal project and its initial
+  metadata-only catalogue from the public BCEHS SHOP document index.
+- Recorded 498 index rows / 497 unique document numbers, source provenance,
+  duplicate detection, restricted-access boundaries and the requirement for
+  human clinical/operational governance before any policy change or publication.
+- No BCEHS/PHSA document was changed, approved, retired, published or accessed
+  through IDIR; authorization stream selection remains open.
+
+## 2026-09-28 — Operational Sysadmin Capability adopted within Aster
+
+- Recorded Jason's approval to add SA0–SA5 to the existing unified programme, with production/source reconciliation and useful diagnosis as the next delivery priority.
+- Added iterative diagnostic tools, a finite Qwen-first incident trial, conditional provider selection and supervised verified repair gates; routing and fact-recall scores no longer establish sysadmin graduation.
+- Preserved foundation evidence, AI-PAM/recovery boundaries, personal-module scope and B60 engineering dependency; deferred broad routing/learning work as a delivery priority.
+- Retained September 28 readiness evidence and two illustrative live diagnostic answers. Documentation adoption only; no production changes, authority expansion or remote publication.
+## 2026-09-26 — Authentik rollout and configuration recovery complete
+
+- Archived the accepted passkey/SSO rollout, including optional Jellyfin account
+  choice with native clients preserved; retained agreed unsupported-integration
+  follow-ups and Seerr deferral.
+- Added recurring, protected NAS/Immich/operator configuration exports, restored
+  18 SQLite databases and the Immich PostgreSQL database in isolation, verified
+  28 off-site configuration files, and refreshed six guest archives through
+  source, TrueNAS and encrypted off-site checks. Bulk media is excluded; Immich
+  photos remain a separate owner-managed process.
+- Added backup monitoring and corrected relay schedule ordering; retained
+  existing backup history, recovery credentials and privacy exclusions.
+
+## 2026-09-26 — AI-PAM M9 graduation completed locally
+
+- Proved broker, Authentik and broker-to-OpenBao dependency outages fail closed
+  while direct human administration remains independent; all dependencies
+  recovered, and a full Aster LXC 104 reboot restored six units and five sockets.
+- Fixed two findings from live graduation: the approval bridge no longer stops
+  with the execution broker, and Forgejo gateway dependency failures return a
+  stable sanitized denial rather than internal parser text. The 82-test broker
+  suite passes.
+- Expanded Doctor coverage to Authentik discovery, rotation dates, audit
+  freshness, current Aster/OpenBao guest backups, isolated-restore age and
+  aggregate terminal outcomes. Seven focused tests and the live probe pass.
+- Reconciled live NetBox and Homepage: the existing Aster/OpenBao guest records
+  are authoritative, the Companion tile is the correct approval entry point,
+  and no direct private vault or broker tile is exposed.
+
+## 2026-09-26 — AI-PAM M8 integration and native parity complete
+
+- Graduated Aster Companion 0.2.2 with native approval/denial, lifecycle,
+  history/audit and global emergency controls. The real-Mac matrix proved
+  approval and denial, service disable/restore, global fail-closed/restore,
+  ordinary typed chat, reliable close/reopen and persistent Keychain access;
+  24 Swift tests pass.
+- Made the architecture and operator references authoritative for the broker,
+  OpenBao, NetBox and Homepage boundaries. No direct vault or broker dashboard
+  exposure was added.
+- Added a read-only Doctor policy-drift probe covering the exact four-service/
+  eight-capability catalogue, agent lifecycle, expired requests, five units and
+  Unix sockets, database integrity and CA-validated OpenBao seal health. Five
+  regression tests and the live non-secret probe pass.
+
+## 2026-09-26 — B60 inference telemetry foundation
+
+- Added a read-only LXC 110 telemetry collector and strict local parser for
+  `xe` package/VRAM temperature, process VRAM/GTT residency, guest RAM and CPU
+  affinity.
+- Rejects unknown, duplicate, impossible and credential-like telemetry fields.
+  Unsupported frequency, power and CPU-fallback values remain explicit nulls
+  rather than inferred; fifteen combined B60 tests pass without production load.
+- Added bounded, allowlisted host kernel-log capture and fallback classification
+  requiring affirmative backend/offload evidence plus resident VRAM. Nineteen
+  tests pass; a live read-only last-hour excerpt contained no relevant failures.
+- Jason changed the project to a bounded Stream A: local/read-only work and
+  post-gate reversible M2 Vulkan experiments are autonomous. Git pushes,
+  firmware/boot/reboots, packages, persistent promotion, schedulers,
+  credentials, destructive work, SYCL/Level Zero and BAR changes remain gated.
+- Added immutable experiment-record assembly binding fixture, raw artifact,
+  environment hashes, telemetry, kernel findings, health, correctness and
+  affirmative fallback evidence. Twenty-one B60 tests pass locally.
+- Added a fail-closed preflight/finalizer with five-minute evidence freshness,
+  accepted hashes and headroom gates, a 00:30 start, 01:40 experiment cutoff and
+  02:00 restoration deadline. Twenty-five tests pass; live freshness and
+  authenticated restoration validation remain intentionally pending.
+
+## 2026-09-25 — B60 inference engineering M0 inventory and local harness
+
+- Verified the bounded LXC 110 TrueNAS mirror is enabled at 04:20 and completed
+  successfully, then recorded exact accepted/prior runtime and unit hashes,
+  package versions and all four resident model-shard hashes without changing
+  production state.
+- Added an offline schema-validating benchmark planner with 13 deterministic,
+  synthetic fixtures covering prefill, decode and representative Aster
+  workflows at supported 0/4K/8K positions. Added a guarded dry-run-first
+  OpenAI-compatible runner with loopback/production interlocks and fake
+  transport coverage. Correctness assertions, separate prefill/decode samples,
+  reported cache-hit capture and immutable mode-0600 evidence output are tested;
+  twelve combined tests pass without contacting production.
+- Recorded a required security follow-up for a previously exposed
+  credential-bearing GitHub mirror URL without retaining or using its value.
+  Revocation/rotation remains a separately authorized workflow.
+
+## 2026-09-25 — Aster Adaptive Computing programme started
+
+- Adopted the architecture assessment, inventory, harness comparison and
+  governing foundation project under `docs/projects/AI Projects/`.
+- Recorded Jason's explicit Stream A start authorization with bounded scope,
+  milestone gates and preserved repository/platform approval requirements.
+- Marked five standalone assistant plans superseded and moved them to
+  `docs/projects/archive/`, preserving requirements/history and repairing links.
+  AI-PAM, Lab Operations and domain-specific execution remain active dependencies.
+- Verified Forgejo main and active service/broker source baseline read-only.
+  Completed M0 and began M1 with two required-denial regressions: 36 existing
+  tests pass, two added tests reproduce known gaps as expected failures.
+- No production changes, new dependencies or private-data collection. Security
+  fixes and remaining M1 gates are pending; publication requires separate push approval.
+
+## 2026-09-25 — B60 inference engineering proposed
+
+- Created a Proposed — Stream M project to pursue safe, reproducible performance
+  improvements on the fixed Dell T5810 and Intel Arc Pro B60 platform.
+- Reconciled the live read-only baseline: Proxmox 9.2.20/kernel 7.0.14-19,
+  BIOS A31, B60 on `xe`, 256 MiB BAR, real PCIe 3.0 x8 host link, Mesa 26.1.6,
+  llama.cpp b11081, healthy private service and fresh LXC 110 backup.
+- Added the pre-start risk assessment, proposed authorization envelope,
+  hypothesis tree, phased gates and versioned experiment-ledger schema. No
+  production setting, service, package, firmware, boot state or remote Git
+  state changed.
+
+## 2026-09-24 — AI-PAM M5 probation lifecycle complete
+
+- Registered a disposable kernel-bound replacement identity in mandatory
+  Probation and proved only its explicit Green capability was discoverable.
+- Denied Yellow, Red, Black, scope expansion, malformed payload, arbitrary
+  method and caller-identity spoof attempts; prompt-shaped payload text stayed
+  out of audit and exact payload binding held.
+- Jason promoted and retired the replacement through fresh passkeys. Retirement
+  revoked its pending request and blocked execution. A remaining retired-client
+  catalogue leak was found, fixed and live-regressed; the disposable Unix user
+  was removed and zero requests remain open.
+- Made pending passkey actions survive iOS/Authenik app switching using a
+  non-secret, five-minute local action descriptor; broker-side identity,
+  freshness and action validation remain authoritative.
+
+## 2026-09-24 — AI-PAM M4 management candidate deployed
+
+- Added a secret-free Aster Companion management view for AI lifecycle and
+  capabilities, service/credential metadata, active requests, approval history
+  and audit events.
+- Added fresh-passkey-only agent, service, request and global revocation paths
+  over the existing approver-only Unix socket. Disables revoke matching open
+  requests and preserve independent human administration.
+- Passed 36 broker and 97 Aster tests; live stale-auth rejection, service
+  health, zero-open-request state and metadata-only snapshots passed. iPhone
+  layout and representative human revoke/restore acceptance remain pending.
+- Completed M4 acceptance on iPhone: fresh-passkey agent suspend/restore and
+  global disable/re-enable both denied issuance while off and recovered cleanly.
+  Synthetic service disable/restore passed separately. Final state is global
+  enabled, agent Operator, service enabled and zero active requests.
+
+## 2026-09-24 — AI-PAM M3 candidate deployed
+
+- Reused Aster Companion's existing passkey-only Authentik application for a
+  mobile Yellow/Red approval inbox; no second identity stack or TCP broker
+  listener was introduced.
+- Added a separately confined approver socket that accepts only Aster's kernel
+  UID, derives actor and authentication time from validated signed claims, and
+  enforces exact payload binding, TTL, one-time use and fresh Red authentication.
+- Passed 30 broker and 93 Aster tests plus live unauthenticated, wrong-UID,
+  changed-payload, replay and timeout denial checks. Real iPhone approve/deny is
+  intentionally pending because Jason was remote and could not sign in.
+- Fixed the approval inbox requiring `auth_time` just to list requests. Normal
+  signed sessions can now list and deny, while Red approval still requires the
+  broker's fresh-auth gate. Added visible loading feedback and disabled caching
+  of the Companion HTML; the live Aster suite now passes 94 tests.
+- Removed `prompt=login` from Red reauthentication after Authentik 2026.8.0
+  returned its Not Found page for an existing session. `max_age=0` remains and
+  the broker still requires the resulting fresh `auth_time` within 120 seconds.
+- Completed the real-device gate: fresh-passkey Red approval, exact one-time
+  synthetic consumption, replay rejection and a separate Yellow denial all
+  passed, with zero open requests afterward. M3 is complete; M4 is next.
+
 ## 2026-09-24 — MacBook administration layer: M0-M3 closed, M4 in progress
 
 - Independent MacBook SSH identity generated and enrolled on all 12 approved lab targets; verified from the MacBook itself, not assumed from the mini's own trust.
@@ -548,3 +794,21 @@
 
 - Initial infrastructure baseline
 - Completed the Phase 11 firewall and recovery-coverage review: removed the obsolete Beszel rule and empty legacy UniFi alias, reconciled all six guest archives and verified mirrors, and documented representative restore evidence plus accepted recovery boundaries.
+
+## 2026-10-03 — Recovery SATA allocation
+
+Created TrueNAS Recovery mirror from owner-released IronWolf drives ZGY7C8NF
+and ZDH9JCR8, with separate quota-controlled guest/configuration/family/photo
+backup datasets. Short tests and bounded write/direct-read checks passed;
+extended SMART tests running, production migration pending. Existing pools and
+backup destinations unchanged. See docs/projects/Recovery-SATA-Mirror.md.
+
+## 2026-10-05 — Recovery backup migration
+
+Moved live guest, family and configuration backups to the qualified SATA mirror;
+verified full copied data and configuration restoration, switched producer/share/
+relay paths, and verified the latest encrypted cloud configuration archive.
+Preserved cloud prefixes and local-only exclusions. Added bounded family/config
+snapshot retention and updated monitoring; original Media copies remain for
+rollback. Configuration coverage includes the two current shadow library apps,
+using instance-specific Audiobookshelf SQLite backups.

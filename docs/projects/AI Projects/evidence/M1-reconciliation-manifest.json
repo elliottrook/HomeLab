@@ -1,0 +1,22 @@
+{
+  "schema_version": "m1-reconciliation.v1",
+  "remote_baseline": "f25df1812b7ef339acb9cb59339c704a4032ea26",
+  "prior_local_head": "af2cc4f",
+  "other_unpublished_head": "1a8fa680908eac8e0b7bb76845a0b1b061e593d7",
+  "tests": {
+    "broker": 76,
+    "approval_bridge": 10,
+    "offline_adaptive": 56
+  },
+  "production_mutations": false,
+  "independent_review_complete": false,
+  "files": {
+    "ops/credential-broker/broker_core.py": "sha256:a7dbf6206e8643ccf3b52260a83f8da07597acd0cca2d74152aaab28418c60d0",
+    "ops/credential-broker/broker_service.py": "sha256:478638e4855d283d42c750a5c5662cc0386343cf502d024e97d5f09e71769498",
+    "ops/credential-broker/broker_approval_service.py": "sha256:c0f2e5fa5585e3867fad760b9dfa4dd917d3116a80dbf7a9d5b420372ce1d6a4",
+    "ops/credential-broker/broker_admin.py": "sha256:989687f96b1370f625b467c213367ed200351e41fdd00044e03c3d6790aad3f2",
+    "ops/credential-broker/forgejo_mcp_gateway.py": "sha256:3e1f96a2ea53b94f78ace89acbef9013cb75ff16d5d0b10bb37a0d9921e65b09",
+    "ops/credential-broker/test_adaptive_foundation_regressions.py": "sha256:9119ff8759a3e45ea2cd6b69ca8c426ff5990fc394a1bcadd229d707d1ca8a6b",
+    "services/aster-agent/broker_approvals.py": "sha256:96ea11944eb47e916abf10ad2c26d2ad63c2242150205df9b72cfde2a6a9f3b5"
+  }
+}

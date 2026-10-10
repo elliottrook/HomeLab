@@ -1,0 +1,14 @@
+{
+  "candidate": {
+    "ops/credential-broker/broker_approval_service.py": "c0f2e5fa5585e3867fad760b9dfa4dd917d3116a80dbf7a9d5b420372ce1d6a4",
+    "ops/credential-broker/repairs/2026-09-27/aster-approver.conf": "cf0f588d6edaf695a913cef0dfcf88fb37a39611c5a072ec6800487d39e00e18",
+    "ops/credential-broker/repairs/2026-09-27/broker-approver.conf": "9a8417433b175fc3217ba72d268e0a7f5fb34c38f161f23fe9685d04668d957b"
+  },
+  "live_preconditions": {
+    "aster_agent.py": "f3d460fbf0af81befc1e296a6f518fdc6b7e5cb11c3eb189d1c905b7c695bddb",
+    "broker_approvals.py": "96ea11944eb47e916abf10ad2c26d2ad63c2242150205df9b72cfde2a6a9f3b5",
+    "broker_approval_service.py": "a73625fa3b68fe3a5e65f8960b6c96d9fec8fbf4c9dbdc75fe4136a5625c50d8",
+    "broker_core.py": "a7dbf6206e8643ccf3b52260a83f8da07597acd0cca2d74152aaab28418c60d0",
+    "broker_service.py": "bf847da4cce8ddf2c214755b09c1c4dac44889343bc24024b2e77f8d758a9f5b"
+  }
+}

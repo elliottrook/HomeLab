@@ -1,0 +1,31 @@
+{
+  "schema": "aster-s0-v5b-approval.v1",
+  "human": "Jason",
+  "date": "2026-09-26",
+  "release_approval": {
+    "source": "Jason replied Approve to the exact V5b manifest-bound VM123 execution question",
+    "release_manifest_sha256": "721c377dccca4fef1a685427d85f791559f67686b8bbf533439589f88b3a5d0f",
+    "stage_exact_packet": true,
+    "create_iso_and_stopped_vm123": true,
+    "single_offline_boot": true,
+    "capture_max_bytes": 4194304,
+    "capture_max_seconds": 300,
+    "stop_and_retain": true
+  },
+  "staging_correction_approval": {
+    "source": "Jason replied Approve to deleting only the enumerated AppleDouble metadata set and continuing",
+    "script_sha256": "b395d369e2d1333ea7e2c3ece141872a61818348a8ef3fcb9a0ea81f2dd18c7a",
+    "unexpected_files_verified": 30,
+    "unexpected_files_deleted": 30,
+    "intended_files_after": 24
+  },
+  "excluded": {
+    "automatic_retry": true,
+    "network_or_credentials": true,
+    "tuning_or_relabeling": true,
+    "promotion": true,
+    "vm_cleanup_or_destruction": true,
+    "git_push": true,
+    "vm118_through_vm122_mutation": true
+  }
+}

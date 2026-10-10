@@ -1,0 +1,76 @@
+{
+  "files": [
+    {
+      "bytes": 20,
+      "path": "v1b-receipts/config-validation.txt",
+      "sha256": "1a051464cb073b4d0ba6f348798b962eb8dd9f760eb6cb67c1c7a1bf1359376b"
+    },
+    {
+      "bytes": 22,
+      "path": "v1b-receipts/iso-files.txt",
+      "sha256": "f59d9c85a58b687ab105a30e5901ace1c8d0225f9ef0c8f2c6df1819881dab0b"
+    },
+    {
+      "bytes": 25,
+      "path": "v1b-receipts/memory-before.txt",
+      "sha256": "7cb5c0af0a5699acc3fb6a538e4b8e957cdb04f3818260beafd8dcb6ced33d7f"
+    },
+    {
+      "bytes": 648,
+      "path": "v1b-receipts/qm-config.txt",
+      "sha256": "f20b3924b18529f8f18727b4265662a3df04105d8e4391f7d9bbbb1df719b026"
+    },
+    {
+      "bytes": 130,
+      "path": "v1b-receipts/seed-iso.sha256",
+      "sha256": "b74806adc92ba7c2c6bba0240f4c119c3fc8cc941f8e1defa7a3b2ea2243f6e7"
+    },
+    {
+      "bytes": 79,
+      "path": "v1b-receipts/seed-iso.stat",
+      "sha256": "47fecdcb4fd7ed72711c4d328be24fb30a061315dfe83b43051029f01668f2a3"
+    },
+    {
+      "bytes": 360,
+      "path": "v1b-receipts/storage-before.txt",
+      "sha256": "1dd4524a722c665e6a2ff23755fc0d8c91c6c2409f1ba04d7de4c3e6da76b5b5"
+    },
+    {
+      "bytes": 172,
+      "path": "v1b-receipts/volumes.txt",
+      "sha256": "60019bed08878d78de65085728d751fb8626d78c6706254f0646c7d38ce32540"
+    },
+    {
+      "bytes": 2,
+      "path": "v2b-receipts/capture-exit-code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "bytes": 21,
+      "path": "v2b-receipts/capture-size.txt",
+      "sha256": "a7773105b58d9638ec27018af5ce3252e367b36e32f7c437f2c48777912318fb"
+    },
+    {
+      "bytes": 13,
+      "path": "v2b-receipts/host-stop.txt",
+      "sha256": "3a7be9ecedd9df814079ec84fcf3acd509a412f5beedfaa1b86108890f64f519"
+    },
+    {
+      "bytes": 648,
+      "path": "v2b-receipts/qm-config-after.txt",
+      "sha256": "f20b3924b18529f8f18727b4265662a3df04105d8e4391f7d9bbbb1df719b026"
+    },
+    {
+      "bytes": 134,
+      "path": "v2b-receipts/serial.capture.sha256",
+      "sha256": "8345e97410f61c942e35e2127892650c48d97d03093621c23b8bd7f7e651963f"
+    },
+    {
+      "bytes": 26,
+      "path": "v2b-receipts/start-time.txt",
+      "sha256": "3673804344b6b2141228e76b4b96aa16d1db95f60b4a17f55650a36c6a949be7"
+    }
+  ],
+  "raw_capture_included": false,
+  "schema": "aster-s0-receipt-index.v1"
+}

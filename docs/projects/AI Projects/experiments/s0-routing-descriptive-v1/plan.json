@@ -1,0 +1,51 @@
+{
+  "schema_version": "s0-descriptive-plan.v1",
+  "status": "proposed-not-executable",
+  "baseline_commit": "95f4258",
+  "pins": {
+    "docs/projects/AI Projects/labeling/pilot-s0/summary.json": "d0f660b83ee123cc60f387d0db4eb12ccbe4490a44245cc1e267872038267366",
+    "scripts/aster-adaptive/routing_smoke.py": "3e52c69f25dcf22100c521aeaa5b68b83e334ddf8ce9469d14d79822c8aa5864"
+  },
+  "dataset_manifest": {
+    "batch-1/reviewed-proposal.json": "64459d47a6a48bb7e67f6aad766a623ba4fae2f6c0bad0c309f55c880c7e7288",
+    "batch-1/acceptance.json": "5e5c498bea895e50a1279b2e89c128b92ac7e7fa3b0e42ed250ec8be45a71437",
+    "batch-1/effort.json": "2c8e795f2f3b2d76639269d0df7f876c949a832844044b8d2669480f04cf4d8d",
+    "batch-2/reviewed-proposal.json": "0731464ba0d7ea3db596f48d920a7f8492004c34c45600f0efcc15c9aaec5308",
+    "batch-2/acceptance.json": "9524eb1e737f553c71db782efafa2a8fde4c6a233bc39ac7e7a765ae75295520",
+    "batch-2/effort.json": "1401158fb3e63fed350aafff2056090f544f9543e3ae9d51439e408d53da6ef4",
+    "batch-3/reviewed-proposal.json": "962bf5f1c2adaefe4dbbedc92116640019b77c7e4580bc2c2d6b3462750f7a95",
+    "batch-3/acceptance.json": "d165a0bb2927674fe742628d36e8b843acc4b381b328da16af84035cab48a268",
+    "batch-3/effort.json": "b2f62ea4843a5927f71f65d8594ef968798f80f8071e91a8b6e2c540e18e3f5c"
+  },
+  "engines": [
+    "always-abstain",
+    "existing-keyword-rules",
+    "tfidf-nearest-fixed-0.2"
+  ],
+  "profiles": [
+    "request-only",
+    "request-plus-verbatim-synthetic-context"
+  ],
+  "training_families": 20,
+  "development_families": 10,
+  "heldout_test_families": 0,
+  "threshold": 0.2,
+  "threshold_fitted": false,
+  "confidence": null,
+  "tuning_iterations": 0,
+  "warm_repeats": 30,
+  "max_wall_seconds": 60,
+  "max_peak_rss_mib": 256,
+  "max_output_bytes": 2097152,
+  "network_allowed": false,
+  "subprocess_allowed_in_runner": false,
+  "tool_execution_allowed": false,
+  "model_calls_allowed": false,
+  "evaluation_authorized": false,
+  "promotion_authorized": false,
+  "collector_changes_allowed": false,
+  "push_authorized": false,
+  "runner_sha256": null,
+  "adapter_sha256": null,
+  "environment_manifest": null
+}

@@ -1,0 +1,906 @@
+# Unified Media Automation and Recommendations
+
+> Status: Completed — Stream A
+>
+> Project owner: Jason
+>
+> Proposed: 2026-10-05
+>
+> Authorization stream: Stream A
+
+## Purpose and desired outcome
+
+Build one private, Docker-managed media automation and recommendation layer
+for films, television, music, ebooks and audiobooks. The user-visible result
+is a single recommendation view that explains why an item is suggested and
+offers the correct one-button action:
+
+- request films and TV through Seerr, which remains the request authority;
+- request music albums through Lidarr;
+- mark ebooks and audiobooks wanted through the selected book automation
+  service; and
+- create or update Jellyfin playlists after acquired music is present.
+
+The project also migrates the current TrueNAS Apps used for books and
+audiobooks into the existing Docker/Dockge operating model, while preserving
+the current media lifecycle: newly acquired high-quality films and TV remain
+in the active libraries for four months, then the existing A380-backed
+video-archiver transcodes and moves them into separate archive libraries.
+
+## Scope and authorization envelope
+
+This project is authorized as Stream A only after Jason accepts this exact
+envelope. The permitted change classes are:
+
+- create a Docker Compose/Dockge project on TrueNAS for the recommendation
+  portal, book automation, audiobook/ebook library services and their
+  documented dependencies;
+- configure read-only readers for Jellyfin, Sonarr, Radarr, Lidarr,
+  Audiobookshelf and the ebook catalog;
+- configure narrowly scoped write adapters for Seerr, Lidarr, LazyLibrarian
+  and Jellyfin playlists, each requiring an explicit user button action;
+- migrate Audiobookshelf and the current Calibre/Calibre-Web workflow from
+  TrueNAS Apps to Docker with checkpoints, temporary ports and retained
+  recovery paths;
+- repair or replace the unhealthy Calibre-Web Automated deployment;
+- add private Authentik/NPM routes, Homepage discovery, Doctor checks,
+  monitoring and protected configuration backups for newly deployed services;
+- normalize container media paths to a common `/data` contract while keeping
+  active and archive libraries as separate roots;
+- create the recommendation data model, ranking pipeline, API adapters,
+  approval UX and local Aster llama.cpp explanation calls; and
+- run bounded acquisition tests using Jason-selected disposable or
+  explicitly approved media candidates.
+
+Explicit exclusions:
+
+- no second or third GPU; the Proxmox Arc Pro B60 remains dedicated to Aster
+  inference and the TrueNAS Arc A380 remains dedicated to Jellyfin/media
+  transcoding;
+- no migration of Jellyfin, Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd or the
+  A380-backed video-archiver away from TrueNAS;
+- Bazarr is a concurrent Stream A project owned by another Codex task. This
+  project must not modify its container, configuration, credentials, routes,
+  mounts or subtitle workflow; it may only validate Bazarr's graduated result
+  as an integration dependency.
+- no collapse of active and archive libraries, no change to the four-month
+  archive policy, and no archive deletion or bulk re-encoding policy change;
+- no direct AI access to raw production credentials, download clients or
+  databases;
+- no automatic acquisition from an AI recommendation without a user action;
+- no automatic following of entire artists, authors or series by default;
+- no public ingress, new WAN exposure, broader firewall trust, or external
+  streaming-service recommendation integration unless separately approved;
+- no deletion of the existing TrueNAS Apps or their data until migration and
+  restore gates pass; and
+- no Git push, remote workflow change, release, tag or pull request mutation
+  under this charter without the required immediate confirmation.
+
+## Current state and evidence
+
+- TrueNAS `192.168.20.40` hosts Sonarr, Radarr, Lidarr, Prowlarr, SABnzbd,
+  Jellyfin, Seerr, Bazarr, Newtarr and Profilarr in Docker-managed services.
+- The media dataset is `/mnt/Media/data`, currently about 7.7 TB used and
+  6.0 TB available. Existing containers share the dataset through host
+  bind mounts, which is the preferred hardlink topology; NFS is not required
+  for these same-host containers.
+- Active video roots are `/mnt/Media/data/media/movies` and
+  `/mnt/Media/data/media/tv`. Archive roots are
+  `/mnt/Media/data/archive-movies` and `/mnt/Media/data/archive-tv`.
+- The existing video-archiver uses the TrueNAS-hosted Jellyfin container and
+  the Intel Arc A380 for bounded HEVC VA-API conversion before moving aged
+  content into archive roots. This project preserves that system.
+- The TrueNAS host has an Intel Arc A380 (`8086:56a5`) using `i915`; Jellyfin
+  receives `/dev/dri`. The Proxmox host separately has the Intel Arc Pro B60,
+  mapped to Aster llama.cpp LXC 110. These are separate ownership domains.
+- Audiobookshelf is now promoted to the Docker-managed service at the existing
+  private route, with the source TrueNAS App stopped but recoverable. It has a
+  working API and remains the playback, user and listening-progress authority.
+- Calibre-Web Automated is Docker-managed and healthy through a documented
+  staged web-process workaround; the existing ebook library is
+  `/mnt/Media/media/books`. The Calibre metadata database remains governed by
+  the single-writer contract, with conversion work performed while CWA is
+  stopped and checkpoints retained.
+- The existing Music Recommender is report-only and proposed. The Music
+  Playlist Acquisition Bridge already translates playlists into conservative
+  Lidarr album requests and creates Jellyfin playlists after import.
+- Readarr is not a suitable new foundation: the upstream project was retired
+  and archived. LazyLibrarian is the proposed replacement for ebook and
+  audiobook acquisition, subject to the pilot's metadata and import tests.
+- Aster llama.cpp is available at `192.168.70.12:11435/v1` for local,
+  bearer-authenticated explanation generation. Core ranking remains
+  deterministic and auditable.
+
+## Target architecture and data flows
+
+```text
+                         +-----------------------------+
+                         | Unified Media Portal         |
+                         | recommendations + actions    |
+                         +--+----------+----------+-----+
+                            |          |          |
+                     Seerr API   Lidarr API   LazyLibrarian API
+                            |          |          |
+                      Sonarr/Radarr  Lidarr    book/audio wanted queue
+                            |          |          |
+                       Prowlarr/SABnzbd       Prowlarr/SABnzbd
+                            |          |          |
+                       active video     music/books/audiobooks
+                            |          |          |
+                    video-archiver       Jellyfin / CWA / Audiobookshelf
+                    (unchanged)                |
+                         TrueNAS `/data` shared media contract
+
+       Jellyfin + Sonarr/Radarr/Lidarr + CWA + Audiobookshelf metadata
+                                |
+                    sanitized local recommendation snapshot
+                                |
+                         Aster llama.cpp narrative
+```
+
+The common container mount contract is:
+
+```text
+/data/downloads
+/data/media/movies
+/data/media/tv
+/data/media/music
+/data/media/books
+/data/media/audiobooks
+/data/archive-movies
+/data/archive-tv
+/data/inbox
+```
+
+The common mount does not imply a single library. Active movies/TV and archive
+movies/TV remain distinct Jellyfin libraries. Sonarr/Radarr own only active
+roots; the video-archiver owns the active-to-archive transition and continues
+to unmonitor replaced parents to prevent reacquisition.
+
+## Application decisions
+
+### Films and television
+
+- Seerr is the sole household request front door.
+- The portal submits a request to Seerr, never directly to Radarr/Sonarr.
+- Seerr remains connected to Jellyfin, Radarr and Sonarr.
+- SuggestArr may be evaluated later, but is not the default recommendation
+  path because it is designed to create requests automatically from viewing
+  activity.
+
+### Music
+
+- Jellyfin is the library and playback authority.
+- Lidarr remains the acquisition authority.
+- The portal recommends artists/albums using Jellyfin and Lidarr state, and
+  requests one album per user action by default.
+- Existing playlist-bridge logic is reused for imported Spotify/Apple/other
+  playlists and for post-import Jellyfin playlist creation.
+- Whole-artist following is disabled initially; a bounded starter-set action
+  may be considered after the album request path is proven.
+
+### Ebooks and audiobooks
+
+- LazyLibrarian is the pilot acquisition manager for both ebooks and
+  audiobooks, using Prowlarr and SABnzbd.
+- Calibre-Web Automated is the ebook library and conversion/presentation
+  service. It receives ebooks through a controlled ingest path and remains the
+  sole active writer of the Calibre metadata database after migration.
+- Audiobookshelf remains the audiobook playback, user and progress service,
+  moved from TrueNAS Apps into Docker.
+- Kavita is optional follow-up work for a richer multi-format reader, not a
+  second ebook authority in this project.
+- New authors, series and collections are not automatically acquired in full.
+  Recommendations create an explicit wanted item only after the user clicks.
+
+## Privacy and security design
+
+- All recommendation computation and LLM narration remain inside the lab.
+- The portal receives sanitized metadata snapshots, not raw service configs,
+  credentials, download history or unrelated household data.
+- Per-service credentials are dedicated and least-privilege. Read-only keys
+  are used for recommendation sources; write keys are limited to the action
+  adapter that needs them.
+- The portal cannot call Radarr, Sonarr, Lidarr or SABnzbd directly for a
+  recommendation. It calls Seerr, Lidarr's bounded album path or
+  LazyLibrarian's wanted path according to the media type.
+- Write actions are idempotent, duplicate-aware and recorded with user,
+  timestamp, media identifier, target service and result.
+- Listening and watch history is treated as household behavioral data. It is
+  retained only as long as needed for the recommendation snapshot unless a
+  separate trend-retention decision is accepted.
+- Browser access uses the existing private Authentik/NPM pattern with a
+  direct LAN recovery path. No public route is created.
+
+## Pre-start risk assessment
+
+| Risk | Likelihood / impact | Control | Abort condition |
+|---|---|---|---|
+| Migration corrupts an App database or library | Medium / high | Stop source App, protected export, temporary Docker port, read-only validation, isolated restore | Export or restore cannot be verified |
+| Calibre metadata has concurrent writers | Medium / high | Single-writer contract; ingest staging; no live DB edits during cutover | Any unexplained `metadata.db` change or lock conflict |
+| Recommendation action acquires the wrong item | Medium / medium | Deterministic ID matching, duplicate check, explicit one-button action, bounded test candidates | Ambiguous TMDb/MusicBrainz/Open Library match |
+| AI consumes excessive Aster capacity | Medium / medium | Batch generation, token/time limits, deterministic ranking, queue visibility | Production inference latency or error budget degrades |
+| Active/archive boundary is weakened | Low / high | Preserve roots, filters and video-archiver unchanged; regression checks | Any archive content becomes monitored or reacquired |
+| Book metadata/provider quality is poor | Medium / medium | LazyLibrarian pilot, small author/title set, manual review before rollout | Incorrect identity or duplicate import rate exceeds acceptance threshold |
+| New services broaden network exposure | Low / high | Existing VLAN/private proxy pattern only; no WAN/DNS exposure | Firewall or proxy scope differs from charter |
+| Backups do not cover the new services | Medium / high | Add config exports and isolated restore before graduation | Fresh backup or restore gate fails |
+
+Recovery checkpoints are required before each migration cutover, before any
+first write-enabled recommendation test, and before enabling recurring jobs.
+Rollback is to stop the new container, restore the previous App or Docker
+configuration, restore only the affected application state, and leave media
+files untouched unless a separately recorded import rollback is required.
+
+## Milestones
+
+### M0 — Charter, inventory and checkpoints
+
+- [x] Jason accepts this Stream A envelope.
+- [x] Capture current Compose/App definitions, service configs and protected
+  backups without exposing secrets.
+- [x] Reconcile live paths, versions, API capabilities and current health.
+- [x] Confirm the archive workflow's schedules, roots, exclusion filters and
+  A380 transcode path as regression baselines.
+
+Gate: recoverable baseline exists and no material topology surprise remains.
+
+### M1 — Docker media foundation
+
+- [x] Create the Compose/Dockge project and `/data` path contract.
+- [x] Deploy LazyLibrarian, Calibre-Web replacement/repair and the Docker
+  Audiobookshelf instance on temporary ports.
+- [x] Validate ebook and audiobook library scans, users, metadata and playback.
+- [x] Prove Calibre single-writer behavior and ebook ingest/conversion.
+
+Gate: book/audio services work without changing the production library or
+removing the source Apps.
+
+### M2 — One-click request adapters
+
+- [x] Implement and test Seerr movie/TV requests.
+- [x] Implement bounded Lidarr album requests using existing bridge patterns.
+- [x] Implement and shadow-test LazyLibrarian add-and-queue wanted-item actions.
+- [x] Add duplicate, ambiguous-match, idempotency and failure handling for the
+  tested Seerr/Lidarr paths.
+
+M2 gate passed in the isolated shadow path: the portal revalidated a
+LazyLibrarian candidate, performed the two-step add-and-queue action, reused
+the same result on repeat approval, and produced no test download. The
+production portal remains action-disabled until the later graduation gate.
+
+Gate: Jason can approve one synthetic or explicitly selected item in each
+domain and observe the correct downstream request without direct AI authority.
+
+### M3 — Recommendation pipeline and portal
+
+- [x] Build local readers for Jellyfin, Sonarr/Radarr/Lidarr,
+  Audiobookshelf, Calibre-Web Automated/ebook metadata and LazyLibrarian.
+- [x] Confirm usable watch, listening and play-history signals; fall back to
+  library composition when history is unavailable.
+- [x] Add deterministic ranking, AI explanations, media-type cards and one
+  action button per candidate.
+- [x] Add private Authentik/NPM route, Homepage tile and direct recovery URL.
+
+Gate: a reviewed recommendation batch contains no owned, archived, duplicate
+or ambiguous items and every action routes to the correct authority.
+
+The deterministic ranking/suppression primitive, service readers and portal
+action surface are implemented and validated. The gate remains open for Jason's
+fixed-sample recommendation review.
+
+### M4 — Music integration and playlist lifecycle
+
+- [x] Integrate the Music Recommender identity contract with the portal. Music
+  candidates now require an explicit `artist|album` query and one exact
+  case-insensitive artist/title match; legacy title-only queries fail closed.
+- [x] Extract a dependency-free playlist lifecycle contract covering exact
+  track matching, bounded retries and complete-versus-incomplete reconciliation
+  planning. The existing playlist bridge remains the only mutation authority.
+- [x] Validate one-album requests and private Jellyfin playlist creation.
+- [x] Keep whole-artist following disabled unless separately accepted.
+
+Gate: a requested album imports through Lidarr, appears in Jellyfin and is
+represented accurately in the portal.
+
+### M5 — App cutover and operational hardening
+
+- [x] Cut over Audiobookshelf and Calibre-Web Automated from TrueNAS Apps to
+  Docker after restore and playback tests.
+- [x] Add Doctor checks, service health, stale-run and failed-action signals.
+- [x] Add protected config backups and perform isolated restore tests.
+- [x] Validate Authentik, direct recovery, Homepage, DNS and TLS paths.
+
+Gate: source Apps remain recoverable, Docker services survive restart, and
+backup/restore evidence is complete.
+
+### M6 — Graduation
+
+- [x] Complete two independent production-path recommendation/request passes.
+- [x] Verify no active/archive regression and no unexpected acquisition.
+- [x] Complete documentation, wiki/mirror summaries, operational runbooks and
+  systems-of-record updates.
+- [x] Create a focused local Git commit for the milestone.
+- [x] Request separate immediate confirmation before any Forgejo push.
+
+## Validation and evaluation
+
+- Functional: one successful request in films/TV, music, ebook and audiobook
+  domains.
+- Recommendation quality: Jason reviews a fixed sample for relevance,
+  duplication, owned-item suppression and explanation accuracy.
+- Safety: ambiguous IDs, already-owned items, archived items, duplicate
+  requests, failed APIs and stale snapshots all fail closed.
+- Storage: hardlink test for active ARR imports; separate active/archive roots
+  remain visible and correctly excluded from ARR monitoring.
+- Transcoding: Jellyfin and video-archiver continue using the TrueNAS A380;
+  no B60 dependency is introduced.
+- Migration: App-to-Docker restart, backup and isolated restore tests pass.
+- Performance: portal remains responsive while Aster explanation jobs are
+  queued; request actions do not block on LLM availability.
+
+## Observability and maintenance
+
+The project extends, rather than replaces, HomeLab Doctor, Prometheus/Grafana,
+Beszel and Homepage. It adds:
+
+- recommendation snapshot freshness;
+- action success/failure and duplicate suppression;
+- Seerr/Lidarr/LazyLibrarian request lag;
+- ebook ingest/conversion failures;
+- Audiobookshelf scan freshness;
+- Calibre database backup age and single-writer violations;
+- Docker container health and image/version inventory; and
+- regression checks for the active-to-archive video pipeline.
+
+No Uptime Kuma deployment is required unless an uncovered failure mode is
+identified during M0.
+
+## Backup, restore and rollback
+
+Protect application configuration, databases, API integration settings,
+recommendation state, action audit logs and Calibre metadata. Bulk media stays
+under the existing media backup boundary. Before each cutover:
+
+1. export the source App configuration;
+2. create a dated Docker-state checkpoint;
+3. verify archive integrity and expected paths;
+4. run the replacement in isolation or on a temporary port; and
+5. retain the source App disabled but recoverable until graduation.
+
+No media deletion, archive removal, ZFS dataset destruction or destructive
+Calibre rewrite is authorized by this charter.
+
+## Integration impact
+
+- **NetBox:** no new VM, LXC or physical asset; register only a new service
+  relationship if the existing model requires it.
+- **Human wiki:** document operator setup, request semantics, provider
+  custody, migrations and recovery.
+- **Aster mirror:** publish only sanitized operational summaries.
+- **Homepage:** add one private portal tile and service health widgets without
+  embedding credentials.
+- **Auth/Networking:** reuse existing private DNS, NPM and Authentik patterns;
+  no public ingress.
+- **Backups:** extend protected config exports and prove isolated restoration.
+- **Existing projects:** this charter becomes the governing integration
+  project for the proposed Recommendarr, Book Recommender and Music
+  Recommender work. The completed Video Library Archiving project and active
+  Music Playlist Acquisition Bridge remain authorities for their existing
+  workflows.
+
+## Graduation criteria
+
+The project graduates only when the unified portal handles all four request
+domains, Docker migrations have passed restore and playback tests, the active
+versus archive video lifecycle is unchanged and verified, all actions are
+explicit and auditable, the A380/B60 ownership split remains intact, Doctor and
+backups cover the new services, and the remaining limitations are accepted in
+the evidence log.
+
+## Close-out and user handover
+
+The project is complete as Stream A. The operator-facing workflow is documented
+in [Unified Media Recommendation User Guide](../runbooks/Unified-Media-Recommendation-User-Guide.md).
+That guide covers the private portal, one-button approval semantics, the
+separate-browser passkey step, music and book request differences, active versus
+archive behavior, and the safe response to failed or stale recommendations.
+
+The remaining work is optional recommendation-quality tuning, not a missing
+production safety gate. The portal remains fail-closed when actions are
+disabled, stale, ambiguous or already owned.
+
+## Evidence log
+
+- 2026-10-05: Existing repository proposals, ARR reference, music playlist
+  bridge, book recommender, music recommender and archive/transcoding records
+  reviewed.
+- 2026-10-05: Live TrueNAS discovery confirmed Docker-managed ARR/Jellyfin
+  services, Seerr, Bazarr, Newtarr, Profilarr and Audiobookshelf App; current
+  Calibre-Web Automated container is unhealthy.
+- 2026-10-05: Live TrueNAS GPU discovery confirmed Intel Arc A380 `8086:56a5`,
+  `i915`, `/dev/dri`, and Jellyfin device mapping. Proxmox B60 remains a
+  separate Aster inference device.
+- 2026-10-05: Charter created as Ready — Stream A; implementation remains
+  gated on Jason's explicit acceptance of this envelope.
+- 2026-10-05: Jason said “Let's begin,” accepting the Stream A authorization
+  envelope. M0 baseline and checkpoint work may proceed within the stated
+  scope; operational cutovers remain gated by their milestone gates.
+- 2026-10-05: M0 live baseline confirmed the ARR/Jellyfin services are in
+  Docker Compose project `new_arr`, with `/mnt/Media/data` shared through
+  service-specific container paths; no NFS migration is needed for the
+  same-host services.
+- 2026-10-05: M0 confirmed Audiobookshelf remains a TrueNAS App
+  (`ix-audiobookshelf`) while Calibre-Web Automated is Docker-managed but
+  unhealthy. No cutover or restart was performed.
+- 2026-10-05: M0 confirmed existing schedules: Jellyfin integrity Wednesday
+  03:00, Playlist Bridge every six hours, video archiving Monday–Saturday
+  01:30, and the five-minute ARR report. The Playlist Bridge job is currently
+  labelled `Eminem test`; its ownership and intended production scope must be
+  validated before this project adds or changes music automation.
+- 2026-10-05: M0 acceptance gate passed for baseline topology and GPU
+  separation. M1 remains gated on protected service checkpoints and the
+  Calibre single-writer/migration design; no operational cutover has started.
+- 2026-10-05: M1 discovery found the existing `new_arr` Compose definition
+  already has a reusable Docker foundation and retained `.codex-*`/dated
+  rollback copies. The current Sonarr/Radarr mount destinations differ
+  (`/media/tv` and `/media/movie`) and will be normalized only through a
+  staged path-migration test.
+- 2026-10-05: M1 discovery found Calibre-Web Automated's unhealthy status is
+  associated with an HTTP health listener receiving TLS bytes and then
+  crashing while formatting the malformed request. This is a bounded health
+  configuration/upgrade issue, not evidence that the ebook database is safe
+  to rewrite. No restart or healthcheck change was made.
+- 2026-10-05: M1 discovery confirmed Audiobookshelf's current App state is
+  healthy and its metadata/config paths are distinct from the audiobook media
+  path. Migration will therefore use an additive Docker instance and a
+  post-cutover library scan, not an in-place mount rewrite.
+- 2026-10-05: Jason reported that Bazarr integration is being completed by a
+  concurrent Codex task. Bazarr is now an explicit no-touch dependency for
+  this project; shared `/data` changes must preserve its final mount contract.
+- 2026-10-05: M1 created the reversible shadow-stack artifacts at
+  `services/unified-media/compose.shadow.yaml` and its README. The stack uses
+  temporary loopback ports, no acquisition credentials, a read-only audiobook
+  mount and a read-only live Calibre library. Local Docker Compose
+  validation was unavailable because the calling Mac has no `docker` binary;
+  validation remains a TrueNAS-side gate before startup.
+- 2026-10-05: M1 TrueNAS validation started the shadow Audiobookshelf and
+  LazyLibrarian containers successfully on loopback ports `30077` and `5299`.
+  Audiobookshelf `/healthcheck` returned `OK`; LazyLibrarian reached its web
+  listener with no providers or download credentials configured.
+- 2026-10-05: M1 CWA shadow validation exposed a migration constraint: the
+  image recursively changes ownership under its application/library paths at
+  startup and remained in uninterruptible `chown` state, so it never reached
+  its web listener. The shadow CWA container was stopped and removed; the
+  production CWA container and live Calibre library were not changed. This
+  required an M1 architecture decision before the ebook cutover.
+- 2026-10-05: Jason selected the Kavita evaluation path. The shadow stack was
+  updated to use LinuxServer Kavita on temporary loopback port `8284`, with a
+  disposable ebook-library copy and no production Calibre mount. Kavita
+  reached `/api/Health` with HTTP 200 after its first-run migrations. Adoption
+  remains gated on library setup, scan/read validation and the Calibre
+  single-writer/import contract.
+- 2026-10-05: The TrueNAS management address became unreachable from the
+  approved Proxmox read-only path during the Kavita setup check (SSH timeout
+  and ICMP loss). No retrying mutation, production restart or cutover was
+  attempted; the remaining shadow API/library validation is resumable.
+- 2026-10-05: Diagnosis corrected the enforcement point to OPNsense, not
+  UniFi. With Jason's approval, OPNsense received two logged, host-specific
+  rules: Proxmox `192.168.50.10` to TrueNAS `192.168.20.40` TCP 22
+  (`9f8d5c1e-6e6d-4b61-9b43-0c9b5f29e2a1`) and TCP 443
+  (`a2b7d4f0-7f3c-4d72-9b4d-1e8c6a54f903`). A protected pre-change copy was
+  saved at `/conf/backup/config-unified-media-before-20261005.xml`; the
+  rules were applied with `configctl filter reload` and live counters showed
+  one state and seven packets on each rule. Proxmox TCP connection tests to
+  both ports succeeded. No VLAN-wide route, Docker port, or service exposure
+  was added.
+- 2026-10-05: Kavita shadow setup completed registration and library creation,
+  but the LinuxServer build (`v0.9.1.4`) rejected both a copied Calibre EPUB
+  and a generated valid EPUB during scanning, producing zero series. The
+  upstream `jvmilazz0/kavita:latest` image was also tested on a separate
+  loopback port and remained stuck during first-run startup. Both disposable
+  containers were stopped and removed; production Calibre, CWA,
+  Audiobookshelf and ebook data were untouched. Kavita is not adopted for
+  cutover until a version-specific parser/startup test succeeds.
+- 2026-10-05: M1 evaluated LinuxServer Calibre-Web on loopback port `8284`
+  using the disposable Calibre database/library copy. It loaded the database,
+  rendered 128 book links without a database error, served a book detail page,
+  and returned a working reader page. The shadow container was stopped after
+  validation; production CWA, Calibre metadata and ebook files were not
+  mounted or changed. Calibre-Web is now the ebook presentation candidate;
+  acquisition and single-writer cutover remain open.
+- 2026-10-05: M1 corrected the shadow Audiobookshelf source after the first
+  scan exposed an empty-path mismatch: `/mnt/Media/data/media/audiobooks`
+  exists but is empty, while the production App mounts
+  `/mnt/Media/media/audiobooks`. The compose file now uses an explicit
+  `UNIFIED_AUDIOBOOKS_PATH` defaulting to the confirmed production dataset and
+  mounts it read-only. After recreating only the shadow container, it saw 757
+  audiobook files; the scan endpoint returned HTTP 200 and the library API
+  reported 24 indexed items. LazyLibrarian remained healthy on HTTP 303 to
+  `/home` with no providers or downloader credentials configured. Production
+  Audiobookshelf, media files and acquisition workflows were not changed.
+- 2026-10-05: M1 smoke checks confirmed the shadow Audiobookshelf audiobook
+  bind is `rw=false`, its health endpoint returns HTTP 200, and LazyLibrarian
+  remains reachable with HTTP 303. Both containers remain loopback-only;
+  their configuration/metadata paths are separate shadow paths.
+- 2026-10-05: M1 read-only topology inspection confirmed the live
+  `calibre-web-automated` container is the only current container mounting
+  `/mnt/Media/media/books` read-write; its separate ingest directory is empty,
+  and the container remains unhealthy. No test book was placed in the live
+  ingest path. The migration therefore retains the single-writer requirement
+  and needs a disposable ingest/conversion test before any cutover decision.
+- 2026-10-05: A second bounded CWA shadow test used a separate config,
+  ingest directory and a tiny disposable ebook library. CWA completed its
+  database initialization and then stalled during its recursive ownership
+  pass over the library/ingest paths; it remained health `starting` and never
+  opened its web listener. The disposable container was removed. CWA is not
+  an acceptable migration target on this TrueNAS dataset until its startup
+  ownership behavior is resolved; evaluate a separate Calibre worker/import
+  path while retaining Calibre-Web for presentation.
+- 2026-10-05: M1 tested the existing `ghcr.io/linuxserver/calibre:9.13.0`
+  image as a disposable worker. With a separate library and read-only input,
+  `calibredb add` created a new `metadata.db` with one imported EPUB, and
+  `ebook-convert` produced a valid AZW3 output (`10,658` bytes). The
+  disposable worker paths were removed afterward. This validates the worker
+  primitive without authorizing LazyLibrarian credentials, live-library
+  writes or a production ingest change.
+- 2026-10-05: M1 added a profile-only guarded Calibre worker definition under
+  `services/unified-media/calibre-worker`. Compose validation passed on
+  TrueNAS. The wrapper refused the live library with exit code 2 unless its
+  explicit override was supplied, while the disposable library listed 505
+  records and converted a test EPUB to a 10,658-byte AZW3. Temporary test
+  files were removed; no production library or ingest path was mounted.
+- 2026-10-05: With Jason's approval, the isolated LazyLibrarian shadow was
+  given separate `/downloads`, `/books` and `/audio` paths and configured to
+  use the existing SABnzbd service through the valid `prowlarr` category.
+  SABnzbd connection testing passed with version `5.1.3`; no download was
+  submitted. Both existing Prowlarr indexers advertise no Newznab book or
+  audiobook search capability in their advertised caps, so the first provider
+  test failed. Read-only `t=book&q=Dune` probes nevertheless returned 83 and
+  100 results through the two Prowlarr indexer endpoints. The shadow provider
+  was then enabled with explicit `book` mappings for ebook and audiobook
+  searches; SABnzbd connectivity still passed and no grab/download was made.
+- 2026-10-05: With Jason's approval, SABnzbd's API created the isolated
+  `books-shadow` category at `/media/downloads/books-shadow`; a pre-change
+  configuration copy was saved at
+  `/mnt/Media/appdata/unified-media-shadow/sabnzbd-before-dune-20261005.ini`.
+  A bounded Dune EPUB test was submitted. Prowlarr returned a valid NZB and
+  SABnzbd downloaded, verified and extracted the payload, but the first
+  post-processing move failed because the new category directory was owned by
+  root. Ownership was corrected to the existing `apps` UID, but the same
+  one-time result was then protected by Prowlarr's duplicate-download rule
+  before a second completion could be made. The queue and Dune staging data
+  were cancelled/removed; no Calibre or audiobook library was touched. The
+  remaining test gap is final handoff into the disposable ingest path.
+- 2026-10-05: A fresh Dune-series result from the second Prowlarr indexer
+  completed the bounded acquisition test. SABnzbd reported `Download
+  Completed` in `books-shadow`, producing one EPUB; the guarded Calibre worker
+  then imported it into a separate temporary library and reported one Calibre
+  record. The temporary library, output and downloaded payload were removed,
+  while the empty `books-shadow` boundary was retained with `apps` ownership.
+  The test did not touch production Calibre, Audiobookshelf, active media or
+  archive roots.
+- 2026-10-05: M1 playback validation used the isolated Audiobookshelf API to
+  create a direct-play session for a scanned audiobook item. The shadow
+  service returned a playback session successfully; production Audiobookshelf
+  state and media were not used. M1 gate passed with the source Apps retained
+  and recoverable.
+- 2026-10-05: M2 read-only API discovery confirmed Lidarr `3.1.0.4875` is
+  reachable through its API-key authority and Seerr `3.5.0` is healthy. Seerr
+  request/search routes require its session cookie rather than an anonymous
+  request, so the future portal adapter must use a dedicated private Seerr
+  service identity/session. No request was created; no Lidarr mutation was
+  attempted.
+- 2026-10-05: M2 added pure request-planning primitives and four unit tests
+  covering explicit approval, stable idempotency keys, ambiguous matches,
+  owned items and archived items. The module performs no HTTP or production
+  mutation; live authority adapters remain pending the Seerr identity gate.
+- 2026-10-05: M2 added transport-injected Seerr, Lidarr and LazyLibrarian
+  authority adapters with seven passing Python 3.9 unit tests. Tests prove
+  explicit approval is required, Seerr TV seasons are shaped correctly,
+  Lidarr is album-only, and ambiguous LazyLibrarian matches are blocked. The
+  LazyLibrarian wanted route remains configuration-owned until discovered and
+  tested against the isolated shadow instance. No live write was attempted.
+- 2026-10-05: With Jason's approval and the protected checkpoint in place, the
+  isolated LazyLibrarian API was enabled temporarily. The selected Dune
+  candidate reached the OpenLibrary importer but failed on LazyLibrarian's
+  upstream tuple-binding error after creating a paused Frank Herbert record;
+  the exact test record was removed, the shadow configuration was restored,
+  and no wanted item or download remained. LazyLibrarian is blocked pending a
+  different metadata source or upstream fix.
+- 2026-10-05: The live Lidarr adapter test resolved an unambiguous Dune album
+  and created monitored album `3823` for the existing music root using the
+  Lossless/standard profiles. The album had zero tracks imported and no
+  matching history event at validation time; no duplicate record existed
+  beforehand. The tested payload shape is now encoded in the adapter.
+- 2026-10-05: A private Seerr local identity `unified-media-requester` was
+  created with permission value `32` (`REQUEST`) and no management or
+  auto-approval permissions. It created pending request `119` for Dune (TMDB
+  `438631`); Seerr returned no downstream service assignment and did not
+  auto-approve it. Its password is outside Git under the shadow secret
+  boundary with mode `0600`.
+- 2026-10-05: M3 added a deterministic recommendation model with fail-closed
+  suppression for owned, archived and ambiguous candidates, stable tie
+  ordering, bounded result size and local explanations. The model has nine
+  passing Python 3.9 tests across M2 and M3; no reader, LLM job or recurring
+  schedule is enabled.
+- 2026-10-05: Read-only M3 service discovery confirmed Jellyfin, Seerr,
+  shadow Audiobookshelf and shadow LazyLibrarian respond on their private LAN
+  endpoints; Lidarr reports `3.1.0.4875`. No reader credentials were printed,
+  and no snapshot or recurring job was enabled.
+- 2026-10-05: M3 added sanitized snapshot contracts for merging library,
+  archive and request-reader output by authority identity. Duplicate records
+  combine conservatively, unsafe ownership/archive state is retained, and raw
+  service payloads never enter ranking. Eleven Python 3.9 tests pass; no
+  reader credentials or recurring job were enabled.
+- 2026-10-05: The read-only shadow recommendation portal was deployed on
+  TrueNAS at loopback port `8787`. Health, JSON and HTML endpoints returned
+  successfully with an empty snapshot. Its only container mount is the
+  recommendation JSON file as read-only; it has no media mount, authority
+  credential or action endpoint.
+- 2026-10-05: M3 added pure Jellyfin, Seerr and Lidarr snapshot readers. They
+  retain only stable IDs, titles, media type, ownership/archive state and safe
+  signals; unsupported or incomplete records are discarded. Seventeen Python
+  3.9 tests pass, with no live snapshot write or scheduled reader enabled.
+- 2026-10-05: A one-shot live snapshot populated the loopback portal with two
+  sanitized, unmanaged candidates: Arrival from Seerr and Kind of Blue from
+  Lidarr. The HTML and JSON views rendered successfully; the action route is
+  intentionally absent and returned `501`. The snapshot remains a read-only
+  mount, and no recurring reader or authority mutation was enabled.
+- 2026-10-05: With Jason's approval, the portal action path was enabled behind
+  `PORTAL_ACTIONS_ENABLED=YES` using individual mode-`0600` secret mounts. A
+  portal-approved Arrival candidate created pending Seerr request `120`;
+  repeating the same action returned request `120` from the idempotency state
+  without creating a duplicate. The portal never calls a downloader directly.
+- 2026-10-05: The portal's Lidarr revalidation initially rejected a stale
+  Kind of Blue card because Lidarr reported the album already existed; this
+  exposed and fixed an incorrect numeric-ID lookup. A fresh unmanaged Miles
+  Davis candidate then created Lidarr album `3828`, and a repeat returned
+  `3828` from idempotency state. The portal action path now passes Seerr and
+  Lidarr bounded tests with stale-candidate suppression.
+- 2026-10-05: With Jason's authorization, the scheduled snapshot refresher was
+  enabled as a read-only Compose profile. It uses the request-only Seerr
+  identity and Lidarr lookup reads, writes only the sanitized portal snapshot,
+  and has no media, action-state or downloader mount. Its six-hour interval is
+  explicitly bounded; failed refreshes retain the prior snapshot.
+- 2026-10-05: The first scheduled refresher run exposed and resolved a bind
+  boundary issue: atomic replacement of a single-file bind left the portal
+  reading a stale inode. The refresher now writes within a dedicated
+  `portal-refresh` directory, while the portal mounts that directory
+  read-only. A successful refresh and portal readback were verified; the
+  action-state directory and secret mounts remain separate.
+- 2026-10-05: With Jason's approval, the refresher gained a bounded Aster
+  narration layer. A dedicated revocable llama.cpp key is mounted read-only;
+  the TrueNAS-to-Aster path is limited to `192.168.70.12:11435/TCP` by a
+  host-specific OPNsense rule, with a protected pre-change configuration
+  backup. The model receives only sanitized candidate metadata, at most eight
+  candidates per batch, and deterministic explanations remain the fallback.
+  The authenticated live call and portal readback passed; no acquisition
+  authority was added.
+- 2026-10-05: With Jason's approval, the portal private access layer was
+  provisioned as `https://recommendations.elliottrook.com`: one owner-bound
+  Authentik forward-auth application, NPM host `34` using wildcard TLS, one
+  NPM-to-TrueNAS `8787/TCP` firewall rule, private DNS on OPNsense and both
+  Pi-hole authorities, and a Homepage tile. TrueNAS keeps both loopback and
+  host bindings; its Docker-user firewall permits only NPM to the host-facing
+  listener. Unauthenticated HTTPS redirects to Authentik, NPM reaches the
+  portal health endpoint, non-NPM backend access is denied, and the loopback
+  recovery URL remains healthy.
+- 2026-10-05: The portal's Authentik provider was corrected to use Authentik's
+  canonical OAuth defaults and the existing `aster-companion-passwordless`
+  flow. Fresh unauthenticated requests now reach the WebAuthn/passkey-only
+  flow; password authentication is not used for this application.
+- 2026-10-05: Production service discovery confirmed read-only health responses
+  from Jellyfin, Seerr, Sonarr, Radarr, Lidarr, Calibre-Web Automated and the
+  production Audiobookshelf endpoint. Sanitized parser coverage was expanded
+  for those library authorities plus LazyLibrarian; 20 unified-media tests and
+  16 playlist-bridge tests pass. Live reader wiring remains gated on explicit
+  credential-path configuration and cross-authority identity validation.
+- 2026-10-05: Read-only API validation using the existing local service
+  credentials returned HTTP 200 from Sonarr v3 (195 series), Radarr v3 (925
+  movies) and Lidarr v1 (3,806 albums). The collector layer remains opt-in;
+  no API write route, scheduler configuration or secret mount was changed.
+- 2026-10-05: With Jason's authorization, the scheduled refresher gained
+  narrow, opt-in Sonarr/Radarr/Lidarr/Jellyfin library collectors. Dedicated
+  API keys
+  are mode-0600, container-user-owned files mounted read-only only into the
+  refresher; the portal and action container receive none of them. A bounded
+  first pass wrote a separate sanitized `library.json` containing 7,053
+  records while leaving the 20-item recommendation snapshot behavior intact.
+  The recurring refresher was recreated and its portal health/recovery path
+  remained healthy. Cross-authority identity matching is intentionally still
+  disabled until validated.
+- 2026-10-05: With Jason's authorization, a dedicated Audiobookshelf reader
+  identity was added and its token stored as a mode-0600 TrueNAS secret. The
+  refresher now reads the configured Audiobookshelf library through the
+  bearer-token API without exposing the token to the portal or action
+  container. The live sanitized library snapshot contains 46 Audiobookshelf
+  records in addition to the existing ARR/Jellyfin authorities; the parser
+  handles Audiobookshelf's nested `media.metadata.title` response shape.
+- 2026-10-05: A read-only overlap audit found six exact normalized-title
+  collisions involving Audiobookshelf, all expected cross-medium cases
+  (audiobooks versus films or music). Cross-authority ownership matching
+  remains disabled; these results are evidence that title-only matching would
+  be unsafe.
+- 2026-10-06: A separate sanitized Audiobookshelf listening-history snapshot
+  was added to the refresher. The reader key can access the session endpoint;
+  the current dedicated reader has zero sessions, so history-based ranking
+  correctly remains inactive and library-composition fallback remains the
+  selected behavior.
+- 2026-10-06: A read-only LazyLibrarian image refresh found the newer image
+  (`120ec585-ls366`) unable to bring the shadow service to its HTTP-ready
+  state under the normal PUID/PGID path; its startup process hung during
+  LinuxServer `init-adduser`. No production book workflow was changed.
+- 2026-10-06: Follow-up isolation identified the exact startup boundary: the
+  LinuxServer `init-adduser` stage hangs while changing the `abc` group to
+  PGID 568, even with an empty config and with the newer image. The supported
+  `LSIO_NON_ROOT_USER=true` mode was deployed only to the shadow service,
+  together with a dedicated writable TrueNAS `JSONCache` tree mounted at
+  `/config/cache/JSONCache`. The shadow service now reaches HTTP 303, runs its
+  scheduler, and writes OpenLibrary responses to the dedicated cache. The
+  temporary API configuration had to be injected while the service was
+  stopped because shutdown persists in-memory settings; the real HTTP
+  `addBook` path then returned success for Dune, with no tuple-binding error.
+  The temporary API settings and test record were removed, the original config
+  restored, and the shadow service returned to HTTP 303. No production book
+  workflow was changed.
+- 2026-10-06: The shadow portal integration completed the LazyLibrarian M2
+  gate. With a disposable recommendation card and temporary loopback-only API
+  key, an approved ebook action returned `add=true` and `queue=OK`; repeating
+  the same approval returned the same idempotent result. The shadow database
+  contained one `Wanted` record during the test, no `books-shadow` payload was
+  created, and the snapshot, action state, database, config and temporary key
+  were restored or removed afterward. Production portal actions remain off.
+- 2026-10-06: M3 portal hardening added one-button approval controls that are
+  disabled for owned, archived or ambiguous cards. Recommendation preparation
+  now filters title collisions before rendering; the live batch fell from raw
+  duplicate search results to seven unique candidates. LazyLibrarian library
+  reads use the Compose-private `lazylibrarian:5299` route and its mode-0600
+  read key; the current clean shadow database contributes zero tracked books.
+  No host listener or firewall exposure was added, and 30 unified-media tests
+  pass. M3 remains open only for final recommendation review; Calibre remains
+  deliberately outside the live mount until its single-writer gate.
+- 2026-10-06: M3 history validation confirmed 424 played Jellyfin items for
+  the configured household user, including `LastPlayedDate` and `PlayCount`.
+  The refresher now writes a bounded 100-record sanitized history snapshot;
+  the live snapshot contains 100 Jellyfin records and zero Audiobookshelf
+  sessions. No user names, credentials or raw service payloads enter the
+  snapshot, and library-composition fallback remains available.
+- 2026-10-06: Fixed-sample review exposed unsafe title-only Lidarr selection:
+  `Bitches Brew` and `KIND OF BLUE` had been paired with unrelated artists.
+  The refresher now requires one exact, case-insensitive title match and
+  suppresses collisions. The live sample consequently contains only five
+  unambiguous Seerr movie candidates until music queries include an explicit
+  artist identity.
+- 2026-10-06: M4 read-only implementation added the explicit artist/album
+  identity contract to the portal refresher and added pure playlist lifecycle
+  planning for exact matching, bounded retries and post-import completeness.
+  The existing bridge remains dry-run by default and continues to own Lidarr
+  and Jellyfin mutations. Thirty-five unified-media tests and sixteen bridge
+  tests pass. The M4 live album and private-playlist gate remains blocked until
+  Jason authorizes one bounded write test.
+- 2026-10-06: With Jason's explicit authorization, the M4 live gate acquired
+  the exact unowned Hans Zimmer album `The Dune Sketchbook: Music From the
+  Soundtrack` through the portal's Lidarr path. Lidarr required the bridge's
+  explicit single-album search command; the release imported at 100% with all
+  nine tracks in the canonical music root. Jellyfin indexed the album and a
+  new private Jason-owned playlist was created with all nine tracks in disc /
+  track order. No existing playlist was replaced or deleted.
+- 2026-10-06: The live test exposed that the prior portal payload could mark a
+  newly created artist as monitored. Hans Zimmer was immediately corrected to
+  `monitored=false`, `monitorNewItems=none`, and the portal plus adapter code
+  now enforce album-only monitoring. No whole-artist following remains enabled
+  by this project.
+- 2026-10-06: M5 Audiobookshelf cutover work stopped the recoverable TrueNAS
+  App after exporting its configuration, copied the production database and
+  metadata into the Docker shadow, and promoted the service at the existing
+  private LAN address and reverse-proxy route. A reader-token API check and
+  sanitized refresh pass succeeded. Playback initially failed because the
+  migrated database retained the old App directory layout; a read-only
+  compatibility tree of 223 symlinks now resolves those legacy paths without
+  rewriting the database or moving media. The source App checkpoint remains
+  at `checkpoints/audiobookshelf-app-config-before-m5.json`.
+- 2026-10-06: M5 CWA validation found the image's default healthcheck followed
+  the HTTPS reverse-proxy redirect against its local HTTP port. The service
+  was checkpointed before correction. A restart then exposed a separate
+  image-init `chown` wait, so the approved staged workaround runs only the CWA
+  web process as UID/GID 568, preserves the existing config/library/ingest
+  mounts, and uses a local non-following HTTP healthcheck. CWA now returns the
+  expected local 302 and reports healthy; the image's auxiliary init/ingest
+  services remain bypassed pending a future image-level fix. No ebook files or
+  Calibre metadata database were rewritten.
+- 2026-10-06: CWA cover rendering worked but KFX download failed because the
+  bypass also skipped the image's Calibre binary-link setup. Startup now
+  recreates only the disposable `/usr/bin/calibredb` and
+  `/usr/bin/ebook-convert` links to the bundled binaries; CWA is healthy and
+  OAuth initialization remains successful. KFX playback/download still needs
+  an authenticated user retry.
+- 2026-10-06: A bounded ebook-reader test converted the existing `1984` MOBI
+  to EPUB and attached it to the existing Calibre record, preserving the MOBI
+  and KFX originals. The record now exposes both EPUB and MOBI formats; the
+  browser-reader action should appear after refreshing the book detail page.
+  The duplicate `1984` record was also given the EPUB format so either visible
+  duplicate is readable. The remaining library formats are 167 EPUB, 151 MOBI,
+  14 AZW3, 14 KFX, and 325 KFX-ZIP; the KFX-family records remain download-only
+  where no safe conversion source exists.
+- 2026-10-06: With a fresh metadata checkpoint and CWA stopped for single-writer
+  safety, the bounded ebook batch converted all 163 eligible MOBI/AZW3 records
+  to EPUB and attached them to their existing Calibre records. All originals
+  were retained, the batch reported zero failures, CWA restarted healthy, and
+  the local endpoint returned its expected OAuth redirect.
+- 2026-10-06: HomeLab Doctor now checks the unified-media Audiobookshelf and
+  CWA containers, their direct health responses, portal action-state JSON and
+  recommendation snapshot freshness. A full run passed the new unified-media
+  check; unrelated existing findings remain for AI-PAM, the apt proxy and the
+  encrypted IDrive relay.
+- 2026-10-06: M5 restore validation passed for the Calibre metadata checkpoint,
+  CWA app database checkpoint and Audiobookshelf exported configuration. The
+  Audiobookshelf database checkpoint also passed integrity validation using the
+  same SQLite runtime family as the service; the host SQLite 3.40 CLI was not
+  used for that database because it cannot parse the service's newer trigger
+  syntax. No active service or production media was changed.
+- 2026-10-06: Final M5 integration validation confirmed Homepage contains the
+  Calibre and Audiobookshelf tiles, both public TLS routes reach their expected
+  Authentik/service responses, and the direct Audiobookshelf health endpoint
+  remains healthy. M5 is complete; no remote push has been performed.
+- 2026-10-07: With Jason's explicit authorization for one bounded M6 live
+  request, the portal temporarily enabled actions and submitted the exact
+  unowned Seerr candidate `Dune: Part Two` (`tmdbId=693134`). Seerr returned
+  request `121` and media record `1203`; the portal recorded exactly one audit
+  entry. Actions were immediately disabled again and verified as
+  `PORTAL_ACTIONS_ENABLED=NO`. No second request was made.
+- 2026-10-07: A second explicitly authorized live pass submitted the distinct
+  unowned Seerr candidate `Dune Drifter` (`tmdbId=744738`). Seerr returned
+  request `122` and media record `1204`; the portal recorded exactly one new
+  audit entry. Actions were again disabled immediately and verified as
+  `PORTAL_ACTIONS_ENABLED=NO`.
+- 2026-10-07: M6 TV validation exposed and fixed a portal defect: Seerr's TV
+  request API requires an explicit validated season list. The portal now reads
+  seasons from the Seerr detail response and refuses a TV card without them.
+  With Jason's authorization, `Foundation` (`tmdbId=93740`, seasons 1--3)
+  created Seerr request `123` and media record `1205`; the portal action
+  audit was recorded and actions were disabled afterward.
+- 2026-10-07: With the same authorization, `The Left Hand of Darkness`
+  (`OpenLibrary OL59800W`) completed the LazyLibrarian ebook path after a
+  bounded retry caused by the provider's slow first metadata import. The
+  final response was `add=true`, `queue=OK`; LazyLibrarian now reports exactly
+  one `Wanted` record for that identity. The retry was idempotent and no
+  duplicate record was created.
+- 2026-10-07: The first approved `Project Hail Mary` audiobook attempt was
+  blocked at LazyLibrarian's OpenLibrary resolver: both its work and a valid
+  edition identifier initially returned `No OpenLibrary metadata`. The
+  resulting partial record was retained only in the shadow checkpoint while
+  the provider defect was investigated; no media file or download was created.
+- 2026-10-07: The shadow audiobook failure was traced to an upstream image
+  defect: the installed API referenced removed config key `NEWBOOK_AUDIO`,
+  while the current schema defines `NEWAUDIO_STATUS`. A protected config,
+  database and source checkpoint was captured; the compatibility correction was
+  mounted read-only into the shadow container. After recreation, the approved
+  `Project Hail Mary` request completed with `add=true`, `queue=OK`, and
+  `AudioStatus=Wanted`. No matching media file appeared in the ingest or
+  download boundaries. The patch is now persistent across recreation and is
+  limited to the shadow LazyLibrarian service.
+- 2026-10-07: Dockge investigation found no ARR stack disappearance. Dockge
+  is healthy, its configured stack directory contains `new_arr/compose.yaml`,
+  Docker Compose reports `new_arr` with eleven running services, and the file
+  passes `docker compose config --quiet`. The aggregate `exited(1), running(11)`
+  status is caused by the intentionally stopped Watchtower sidecar. The
+  current browser check is stopped at the Authentik passkey flow, so a user
+  browser session must complete passkey authentication before the Dockge list
+  can be visually confirmed.
+- 2026-10-07: Jason requested Watchtower remain active. The existing
+  `new_arr` Compose definition recreated it with `unless-stopped`; Watchtower
+  is running and Docker Compose now reports `new_arr` as `running(12)`. The
+  M6 commit `e16ffbf` was pushed to Forgejo `origin/main`, and the configured
+  GitHub mirror was verified at the same commit without a direct GitHub push.
+- 2026-10-07: Final close-out adds the permanent GUI/user-facing handover
+  requirement to the project charter, publishes the unified media operator
+  guide, records the project as Completed — Stream A, and preserves the
+  active/archive lifecycle and A380/B60 ownership split.
+- 2026-10-07: Jason authorized a follow-up interface improvement after the
+  initial smoke-test page was reviewed. The portal now serves a responsive
+  recommendation view with media filters, posters, synopsis, metadata,
+  explanation panels, source/status labels and request feedback. The refresher
+  switched from the three test search results to bounded Seerr discovery and
+  produced 20 real film/TV candidates. Book, audiobook and music candidate
+  population remains a separate follow-up because the live snapshot is not yet
+  claiming those sources are populated.

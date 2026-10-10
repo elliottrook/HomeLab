@@ -1,0 +1,85 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "data_class": {
+      "const": "synthetic",
+      "default": "synthetic",
+      "title": "Data Class",
+      "type": "string"
+    },
+    "elapsed_ms": {
+      "minimum": 0,
+      "title": "Elapsed Ms",
+      "type": "number"
+    },
+    "model_calls": {
+      "const": 0,
+      "default": 0,
+      "title": "Model Calls",
+      "type": "integer"
+    },
+    "output_bytes": {
+      "minimum": 0,
+      "title": "Output Bytes",
+      "type": "integer"
+    },
+    "prompt_tokens": {
+      "default": null,
+      "title": "Prompt Tokens",
+      "type": "null"
+    },
+    "quality": {
+      "const": "not-evaluated",
+      "default": "not-evaluated",
+      "title": "Quality",
+      "type": "string"
+    },
+    "run_id": {
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "outcome.v1",
+      "default": "outcome.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "denied",
+        "expired",
+        "cancelled",
+        "budget-exceeded",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "tool_calls": {
+      "maximum": 8,
+      "minimum": 0,
+      "title": "Tool Calls",
+      "type": "integer"
+    },
+    "verification": {
+      "enum": [
+        "fixture-conformance",
+        "not-executed"
+      ],
+      "title": "Verification",
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "status",
+    "verification",
+    "tool_calls",
+    "elapsed_ms",
+    "output_bytes"
+  ],
+  "title": "Outcome",
+  "type": "object"
+}

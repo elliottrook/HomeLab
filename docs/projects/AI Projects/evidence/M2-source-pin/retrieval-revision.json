@@ -1,0 +1,23 @@
+{
+  "schema_version": "source-pin-revision.v1",
+  "prior_commit": "69c2a7e",
+  "integrated_remote_commit": "616a5af",
+  "prior_digest": "62a8b3410856d218ad57aeac8c233d3e70a21354995b88a25dd064ce2a40a407",
+  "revised_digest": "f3d460fbf0af81befc1e296a6f518fdc6b7e5cb11c3eb189d1c905b7c695bddb",
+  "changed_functions": [
+    "_chunk_bonus",
+    "_rank_knowledge"
+  ],
+  "unchanged_extracted_definitions": [
+    "ASTER_SYSTEM_PROMPT",
+    "TOOLS",
+    "TOOL_HINTS",
+    "build_payload",
+    "chat",
+    "normalized_messages",
+    "preload_read_only_context",
+    "select_tools"
+  ],
+  "comparison": "AST dump without source location metadata",
+  "scope": "offline profiles only; no production deployment or historical result rewrite"
+}

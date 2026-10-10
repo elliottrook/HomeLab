@@ -12,7 +12,7 @@ import os
 import re
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -29,6 +29,11 @@ from arr_report import get_arr_report as read_arr_report
 from ha_report import get_ha_report as read_ha_report
 from source_reports import get_forgejo_report as read_forgejo_report
 from source_reports import get_netbox_report as read_netbox_report
+from broker_approvals import BrokerApprovalClient, approval_router
+from doctor_incident_adapter import read_doctor_observation
+from sysadmin_incident_store import IncidentStore
+from sysadmin_incident_stream import reconnect_frames
+from sysadmin_investigation import EvidenceRequest, InvestigationError, create_incident
 
 
 ASTER_API_KEY = os.environ.get("ASTER_API_KEY", "")
@@ -84,6 +89,10 @@ REQUEST_TIMEOUT = float(os.environ.get("ASTER_REQUEST_TIMEOUT", "180"))
 MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
 MAX_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_RESPONSE_TOKENS", "160"))
 MAX_HEALTH_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_HEALTH_RESPONSE_TOKENS", "112"))
+BROKER_APPROVAL_SOCKET = os.environ.get("ASTER_BROKER_APPROVAL_SOCKET", "/run/homelab-broker/approval.sock")
+SYSADMIN_DOCTOR_EVIDENCE = os.environ.get("ASTER_SYSADMIN_DOCTOR_EVIDENCE", "").strip().lower() in {"1", "true", "yes"}
+SYSADMIN_INCIDENT_STATE = Path(os.environ.get("ASTER_SYSADMIN_INCIDENT_STATE", "/var/lib/aster/lab-operations/sysadmin-incidents.sqlite3"))
+_sysadmin_incident_store: IncidentStore | None = None
 
 ASTER_SYSTEM_PROMPT = """You are Aster, Jason's concise local home and homelab assistant.
 Answer directly and honestly. Unless the user asks for depth, keep answers to
@@ -189,13 +198,16 @@ app.include_router(lab_operations.router)
 @app.middleware("http")
 async def lab_identity_context(request, call_next):
     owner = None
-    if request.url.path in {"/v1/chat/completions", "/v1/companion/jobs"} or (request.url.path.startswith("/v1/lab/") and not request.url.path.startswith("/v1/lab/worker/")):
+    if request.url.path in {"/v1/chat/completions", "/v1/companion/jobs"} or request.url.path.startswith("/v1/sysadmin/") or (request.url.path.startswith("/v1/lab/") and not request.url.path.startswith("/v1/lab/worker/")):
         claims = _authentik_claims(request.headers.get("authorization"))
         if claims and not claims.get("act") and isinstance(claims.get("sub"), str) and claims["sub"]:
             owner = hashlib.sha256((AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()).hexdigest()
     context = LAB_OWNER.set(owner)
     try:
-        return await call_next(request)
+        response = await call_next(request)
+        if request.url.path == "/companion":
+            response.headers["Cache-Control"] = "no-store"
+        return response
     finally:
         LAB_OWNER.reset(context)
 
@@ -223,6 +235,14 @@ class ArrRepairExecutionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     candidate_ref: str = Field(pattern=r"^radarr-q-[a-z2-7]{16}$")
+
+
+class DoctorIncidentRequest(BaseModel):
+    """The first pilot intentionally exposes no caller-chosen target or tool."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    title: str = Field(default="Doctor status investigation", min_length=1, max_length=300)
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -524,6 +544,10 @@ def _source_bonus(
 
 def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     bonus = 0
+    if source == "reference/operations/ai-pam.md" and re.search(
+        r"\b(ai-pam|openbao|access broker|approval|kill switch|probation)\b", query, re.I
+    ):
+        bonus += 900
     if source == "reference/operations/arr-stack.md":
         for service in ("sonarr", "radarr", "lidarr", "prowlarr", "sabnzbd", "jellyfin"):
             if re.search(rf"\b{service}\b", query, re.I) and re.search(
@@ -787,6 +811,12 @@ def _rank_knowledge(query: str, tokens: set[str], root: Path, max_results: int,
                     r"\b(recovery|whole-network|outage|remote access)\b", query, re.I
                 ):
                     preferred_anchor = normalized.find("recovery order")
+                elif relative == "reference/operations/ai-pam.md" and re.search(
+                    r"\b(ai-pam|openbao|access broker|approval|kill switch|probation)\b",
+                    query,
+                    re.I,
+                ):
+                    preferred_anchor = normalized.find("## current service boundary")
                 elif relative == "reference/operations/arr-stack.md":
                     if re.search(r"\b(automation|automations|scheduled|schedule|cron|mutate|mutation|workflow|workflows|integrity)\b", query, re.I):
                         preferred_anchor = normalized.find("automation and mutation map")
@@ -1300,6 +1330,43 @@ async def relay_progress_stream(payload: dict[str, Any], progress: ChatProgress)
         progress.add_usage(usage)
 
 
+def _require_doctor_incident_owner() -> None:
+    """Keep the pilot local to Jason's verified Companion identity.
+
+    The legacy API key intentionally cannot open or inspect incident state.
+    This does not reuse Lab Operations' executor; its owner binding is used
+    solely as an already deployed verified-identity boundary.
+    """
+    if not SYSADMIN_DOCTOR_EVIDENCE:
+        raise HTTPException(status_code=404, detail="Doctor incident evidence is disabled")
+    if not lab_operations.owner or LAB_OWNER.get() != lab_operations.owner:
+        raise HTTPException(status_code=403, detail="Doctor incident evidence requires Jason's authenticated Companion session")
+
+
+def _doctor_incident_store() -> IncidentStore:
+    global _sysadmin_incident_store
+    if _sysadmin_incident_store is None:
+        _sysadmin_incident_store = IncidentStore(SYSADMIN_INCIDENT_STATE)
+    return _sysadmin_incident_store
+
+
+def start_doctor_incident(title: str, now: datetime | None = None) -> dict[str, Any]:
+    """Create one bounded incident and read the existing health file once."""
+    _require_doctor_incident_owner()
+    now = now or datetime.now(timezone.utc)
+    incident_id = "inc-doctor-" + uuid.uuid4().hex
+    incident = create_incident(
+        incident_id,
+        title,
+        [EvidenceRequest("homelab-doctor", "status", "Read the existing sanitized Doctor status report.")],
+    )
+    observation = read_doctor_observation(incident_id, HEALTH_REPORT_PATH, now)
+    incident.add_observation(observation, now)
+    store = _doctor_incident_store()
+    store.save(incident, now)
+    return store.reconnect_snapshot(incident_id, now)
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": "aster-agent"}
@@ -1326,6 +1393,21 @@ async def arr_repair_proposal() -> dict[str, Any]:
 @app.post("/v1/arr-repair/execute", dependencies=[Depends(require_api_key)])
 async def arr_repair_execute(request: ArrRepairExecutionRequest) -> dict[str, Any]:
     return await execute_arr_repair(request.candidate_ref)
+
+
+@app.post("/v1/sysadmin/incidents/doctor", dependencies=[Depends(require_api_key)])
+async def doctor_incident(request: DoctorIncidentRequest) -> dict[str, Any]:
+    return start_doctor_incident(request.title)
+
+
+@app.get("/v1/sysadmin/incidents/{incident_id}/stream", dependencies=[Depends(require_api_key)])
+async def doctor_incident_stream(incident_id: str) -> StreamingResponse:
+    _require_doctor_incident_owner()
+    try:
+        frames = reconnect_frames(_doctor_incident_store(), incident_id, datetime.now(timezone.utc))
+    except InvestigationError as exc:
+        raise HTTPException(status_code=404, detail="Doctor incident not found") from exc
+    return StreamingResponse(iter(frames), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
 
 
 @app.get("/v1/personas", dependencies=[Depends(require_api_key)])
@@ -1512,6 +1594,8 @@ async def build_payload(
 async def browser_chat() -> str:
     return """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="/aster-app-icon.png">
+<link rel="apple-touch-icon" href="/aster-app-icon.png">
 <title>Aster</title><style>
 body{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0}main{max-width:850px;margin:auto;padding:24px}
 #chat{min-height:55vh;white-space:pre-wrap}.m{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}.u{background:#1e3a5f}
@@ -1538,7 +1622,16 @@ COMPANION_SCOPE = "openid email profile offline_access"
 
 @app.get("/companion/orb.png")
 async def companion_orb() -> FileResponse:
-    return FileResponse(STATIC_DIR / "aster-orb.png", media_type="image/png")
+    return FileResponse(
+        STATIC_DIR / "aster-orb.png",
+        media_type="image/png",
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@app.get("/aster-app-icon.png")
+async def aster_app_icon() -> FileResponse:
+    return FileResponse(STATIC_DIR / "aster-app-icon.png", media_type="image/png")
 
 
 @app.get("/companion", response_class=HTMLResponse)
@@ -1560,8 +1653,8 @@ async def companion_web_client() -> str:
 <title>Aster Companion</title>
 <link rel="manifest" href="/companion/manifest.webmanifest">
 <script src="/companion/notifications.js"></script>
-<link rel="apple-touch-icon" href="/companion/orb.png">
-<link rel="icon" href="/companion/orb.png">
+<link rel="apple-touch-icon" href="/aster-app-icon.png">
+<link rel="icon" type="image/png" href="/aster-app-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Aster">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1569,7 +1662,7 @@ async def companion_web_client() -> str:
 <style>
 body{{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0;overflow-x:hidden}}
 main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
-#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
+#orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
 #orb.acting{{animation:actingPulse .8s ease-in-out infinite}}
@@ -1578,7 +1671,7 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 @keyframes listeningPulse{{0%,100%{{filter:saturate(1) brightness(1) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.3) brightness(1.15) hue-rotate(90deg);transform:translate(-50%,-50%) scale(1.06)}}}}
 #orb.speaking{{animation:speakingPulse .5s ease-in-out infinite}}
 @keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1.05)}}}}
-button.mic{{background:transparent;background-image:url('/companion/orb.png');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
+button.mic{{background:transparent;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
 button.mic.recording{{border-color:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.7)}}
 #chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
 textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
@@ -1603,6 +1696,16 @@ button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
 #arrCard .row{{display:flex;gap:8px;margin-top:10px}}
 #arrCard button.approve{{background:#dc2626}}
 #arrCard button.dismiss{{background:#374151}}
+#approvalInbox{{margin:10px 0}}
+.approvalCard{{background:rgba(30,41,59,.82);border:1px solid #64748b;border-radius:12px;padding:14px;margin:10px 0}}
+.approvalCard.red{{border-color:#ef4444}}.approvalCard.yellow{{border-color:#f59e0b}}
+.approvalCard h3{{margin:0 0 8px}}.approvalCard p{{margin:5px 0;overflow-wrap:anywhere}}
+.approvalCard .hash{{font:12px ui-monospace,monospace;color:#94a3b8}}
+.approvalCard .row{{display:flex;gap:8px}}.approvalCard button.deny{{background:#475569}}
+#managementPanel{{margin:10px 0}}.mgmtCard{{background:rgba(15,23,42,.88);border:1px solid #475569;border-radius:12px;padding:14px;margin:10px 0}}
+.mgmtCard h3{{margin:0 0 8px}}.mgmtCard ul{{padding-left:20px}}.danger{{background:#b91c1c}}
+.statusOn{{color:#4ade80}}.statusOff{{color:#f87171}}.mgmtRow{{display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
+.mgmtRow select,.mgmtRow input{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:8px}}
 details.prog{{margin:4px 0 0;font-size:.8rem;color:#9ca3af}}
 details.prog summary{{font-size:.8rem;font-variant-numeric:tabular-nums}}
 details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-nums}}
@@ -1613,6 +1716,10 @@ details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-num
 <div id="login" hidden><h1>Aster Companion</h1><button id="signin">Sign in with passkey</button><p class="err" id="loginErr"></p></div>
 <div id="app" hidden>
 <header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
+<button id="checkApprovals" class="checkArr">Approval inbox</button>
+<button id="openManagement" class="checkArr" aria-controls="managementPanel" aria-expanded="false">AI-PAM management</button>
+<div id="approvalInbox"></div>
+<div id="managementPanel" hidden></div>
 <details id="toolsPanel"><summary>Tools</summary><div id="tools"></div></details>
 <button id="checkArr" class="checkArr">Check for pending ARR action</button>
 <div id="arrCard" hidden></div>
@@ -1638,13 +1745,24 @@ function b64url(buf){{return btoa(String.fromCharCode(...new Uint8Array(buf))).r
 function randomString(len){{const a=new Uint8Array(len);crypto.getRandomValues(a);return b64url(a.buffer)}}
 async function sha256(str){{return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))}}
 
-async function login(){{
+async function login(fresh=false, approval=null){{
   const verifier=randomString(64), state=randomString(24);
   const challenge=b64url(await sha256(verifier));
   sessionStorage.setItem('pkce_verifier', verifier);
   sessionStorage.setItem('pkce_state', state);
+  if(approval){{
+    localStorage.setItem('pending_approval_action', JSON.stringify(approval));
+    localStorage.setItem('pending_approval_created_at', String(Date.now()));
+  }}
   const p=new URLSearchParams({{client_id:AUTH.clientId, response_type:'code', redirect_uri:AUTH.redirectUri, scope:AUTH.scope, code_challenge:challenge, code_challenge_method:'S256', state}});
-  location.href = AUTH.authorizeUrl + '?' + p.toString();
+  const authorize = new URL(AUTH.authorizeUrl + '?' + p.toString());
+  if(fresh){{
+    // Authentik 2026.8 ignores max_age=0 and retains prompt=login's marker.
+    // Enter the mandatory passkey flow on every explicit fresh request.
+    const flow = new URL('/if/flow/aster-companion-reauthentication/', authorize.origin);
+    flow.searchParams.set('next', authorize.pathname + authorize.search);
+    location.href = flow.toString();
+  }}else location.href = authorize.toString();
 }}
 
 function storeTokens(j){{
@@ -1806,6 +1924,123 @@ async function loadPersonas(){{
 }}
 
 document.querySelector('#persona').onchange = e => switchPersona(e.target.value);
+
+async function approvalApi(path='', options={{}}){{
+  const token=await validAccessToken();
+  if(!token){{ showLogin(); throw new Error('Sign in required') }}
+  const headers=Object.assign({{'Authorization':'Bearer '+token}}, options.headers||{{}});
+  const r=await fetch('/v1/companion/approvals'+path, Object.assign({{}}, options, {{headers}}));
+  const j=await r.json().catch(()=>({{}}));
+  if(!r.ok) throw new Error(j.detail||r.statusText);
+  return j;
+}}
+
+async function loadApprovals(){{
+  const box=document.querySelector('#approvalInbox'); box.textContent='Loading approvals…';
+  try{{
+    const pending=await approvalApi();
+    if(!pending.length){{ box.textContent='No pending approvals.'; return }}
+    for(const item of pending){{
+      const card=document.createElement('section'); card.className='approvalCard '+item.risk_class;
+      const title=document.createElement('h3'); title.textContent=item.risk_class.toUpperCase()+': '+item.capability; card.appendChild(title);
+      const display=item.display||{{}};
+      for(const key of ['reason','target','effect','rollback']) if(display[key]){{ const p=document.createElement('p'); p.textContent=key[0].toUpperCase()+key.slice(1)+': '+display[key]; card.appendChild(p) }}
+      const expiry=document.createElement('p'); expiry.textContent='Expires: '+new Date(item.expires_at*1000).toLocaleString(); card.appendChild(expiry);
+      const hash=document.createElement('p'); hash.className='hash'; hash.textContent='Payload SHA-256: '+item.payload_hash; card.appendChild(hash);
+      const row=document.createElement('div'); row.className='row';
+      const approve=document.createElement('button'); approve.textContent=item.risk_class==='red'?'Re-authenticate & approve':'Approve';
+      approve.onclick=()=>approveBrokerRequest(item);
+      const deny=document.createElement('button'); deny.className='deny'; deny.textContent='Deny'; deny.onclick=()=>finishBrokerAction(item,'deny');
+      row.append(approve,deny); card.appendChild(row); box.appendChild(card);
+    }}
+  }}catch(e){{ box.textContent='Approval inbox error: '+e.message }}
+}}
+
+async function approveBrokerRequest(item){{
+  if(item.risk_class==='red'){{ await login(true,{{request_id:item.request_id,payload_hash:item.payload_hash,action:'approve'}}); return }}
+  await finishBrokerAction(item,'approve');
+}}
+
+async function finishBrokerAction(item,action){{
+  try{{
+    await approvalApi('/'+encodeURIComponent(item.request_id)+'/'+action,{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{payload_hash:item.payload_hash}})}});
+    await loadApprovals();
+  }}catch(e){{ document.querySelector('#approvalInbox').textContent='Approval action failed: '+e.message }}
+}}
+
+async function resumeApprovalAction(){{
+  const raw=localStorage.getItem('pending_approval_action');
+  if(!raw) return;
+  const created=Number(localStorage.getItem('pending_approval_created_at')||0);
+  localStorage.removeItem('pending_approval_action'); localStorage.removeItem('pending_approval_created_at');
+  if(!created || Date.now()-created > 300000){{ document.querySelector('#approvalInbox').textContent='Pending action expired; review it again.'; return }}
+  try{{
+    const item=JSON.parse(raw);
+    if(item.kind==='management') await finishManagementAction(item.body);
+    else await finishBrokerAction(item,item.action);
+  }}catch(e){{ document.querySelector('#approvalInbox').textContent='Approval action failed: '+e.message }}
+}}
+
+document.querySelector('#checkApprovals').onclick=loadApprovals;
+
+function mgmtText(tag,text,className=''){{ const e=document.createElement(tag); e.textContent=text; if(className)e.className=className; return e }}
+async function loadManagement(){{
+  const panel=document.querySelector('#managementPanel'); panel.hidden=false; panel.textContent='Loading AI-PAM state…';
+  document.querySelector('#openManagement').setAttribute('aria-expanded','true');
+  try{{
+    const [snapshot,history,audit,session]=await Promise.all([
+      approvalApi('/management/snapshot'), approvalApi('/management/history?limit=40'), approvalApi('/management/audit?limit=40'), approvalApi('/session')
+    ]);
+    panel.innerHTML='';
+    panel.appendChild(mgmtText('p',session.passkey_verified?'Passkey verified. Changes require a fresh passkey confirmation.':'Sign in again with your passkey before making changes.'));
+    const global=document.createElement('section'); global.className='mgmtCard'; global.appendChild(mgmtText('h3','Emergency controls'));
+    global.appendChild(mgmtText('p','Global AI access: '+(snapshot.global_enabled?'ENABLED':'DISABLED'),snapshot.global_enabled?'statusOn':'statusOff'));
+    const globalBtn=mgmtText('button',snapshot.global_enabled?'REVOKE ALL AI ACCESS':'Re-enable synthetic AI access','danger');
+    globalBtn.onclick=()=>freshManagement({{action:'global_enabled',enabled:!snapshot.global_enabled}}); global.appendChild(globalBtn); panel.appendChild(global);
+    for(const agent of snapshot.agents){{
+      const card=document.createElement('section'); card.className='mgmtCard'; card.appendChild(mgmtText('h3','AI client: '+agent.agent_id));
+      card.appendChild(mgmtText('p','State: '+agent.state+' · Unix UID: '+agent.unix_uid));
+      const list=document.createElement('ul'); for(const cap of agent.capabilities) list.appendChild(mgmtText('li',cap.capability+' · '+cap.risk_class+' · '+cap.service_id)); card.appendChild(list);
+      const row=document.createElement('div'); row.className='mgmtRow'; const select=document.createElement('select');
+      for(const state of ['probation','observer','operator','specialist','orchestrator','suspended','retired']){{ const o=document.createElement('option'); o.value=state;o.textContent=state;o.selected=state===agent.state;select.appendChild(o) }}
+      const apply=mgmtText('button',agent.state==='probation'?'Promote to operator':'Apply state');
+      apply.onclick=()=>freshManagement({{action:'agent_state',target:agent.agent_id,state:agent.state==='probation'?'operator':select.value}}); row.append(select,apply); card.appendChild(row); panel.appendChild(card);
+    }}
+    for(const service of snapshot.services){{
+      const card=document.createElement('section'); card.className='mgmtCard'; card.appendChild(mgmtText('h3','Service: '+service.service_id));
+      card.appendChild(mgmtText('p','Mode: '+service.execution_mode+' · Capabilities: '+service.capability_count+' · '+(service.enabled?'enabled':'disabled')));
+      card.appendChild(mgmtText('p','Credential: '+service.credential_type+' · Custody: '+service.custody_identifier+' · Scope: '+service.credential_scope));
+      card.appendChild(mgmtText('p','Rotation: '+service.rotation_due+' · Revocation: '+service.revocation_method+' · Health: '+service.health));
+      const toggle=mgmtText('button',service.enabled?'Disable AI access':'Enable AI access',service.enabled?'danger':'');
+      toggle.onclick=()=>freshManagement({{action:'service_enabled',target:service.service_id,enabled:!Boolean(service.enabled)}}); card.appendChild(toggle); panel.appendChild(card);
+    }}
+    const active=document.createElement('section'); active.className='mgmtCard'; active.appendChild(mgmtText('h3','Active sessions / requests'));
+    if(!snapshot.active_requests.length) active.appendChild(mgmtText('p','None'));
+    for(const item of snapshot.active_requests){{ const row=document.createElement('div'); row.className='mgmtRow'; row.appendChild(mgmtText('span',item.capability+' · '+item.status+' · '+item.request_id)); const revoke=mgmtText('button','Revoke','danger'); revoke.onclick=()=>freshManagement({{action:'request_revoke',target:item.request_id}}); row.appendChild(revoke); active.appendChild(row) }} panel.appendChild(active);
+    const hist=document.createElement('section'); hist.className='mgmtCard'; hist.appendChild(mgmtText('h3','Approval history'));
+    const histList=document.createElement('ul'); for(const item of history) histList.appendChild(mgmtText('li',item.status+' · '+item.risk_class+' · '+item.capability+' · '+new Date(item.created_at*1000).toLocaleString())); hist.appendChild(histList); panel.appendChild(hist);
+    const auditCard=document.createElement('section'); auditCard.className='mgmtCard'; auditCard.appendChild(mgmtText('h3','Recent audit'));
+    const auditControls=document.createElement('div'); auditControls.className='mgmtRow'; const auditFilter=document.createElement('input'); auditFilter.placeholder='Exact event, e.g. request.deny';
+    const auditSearch=mgmtText('button','Search'); auditControls.append(auditFilter,auditSearch); auditCard.appendChild(auditControls);
+    const auditList=document.createElement('ul'); for(const item of audit) auditList.appendChild(mgmtText('li',item.sequence+' · '+item.event+' · '+item.outcome)); auditCard.appendChild(auditList); panel.appendChild(auditCard);
+    auditSearch.onclick=async()=>{{
+      try{{ const event=auditFilter.value.trim(); const rows=await approvalApi('/management/audit?limit=40'+(event?'&event='+encodeURIComponent(event):'')); auditList.innerHTML=''; for(const item of rows) auditList.appendChild(mgmtText('li',item.sequence+' · '+item.event+' · '+item.outcome)) }}
+      catch(e){{ auditList.innerHTML=''; auditList.appendChild(mgmtText('li','Audit search failed: '+e.message,'err')) }}
+    }};
+  }}catch(e){{ panel.textContent='Management view error: '+e.message }}
+}}
+
+async function freshManagement(body){{ await login(true,{{kind:'management',body}}) }}
+async function finishManagementAction(body){{
+  try{{ await approvalApi('/management/action',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify(body)}}); await loadManagement() }}
+  catch(e){{ document.querySelector('#managementPanel').hidden=false; document.querySelector('#openManagement').setAttribute('aria-expanded','true'); document.querySelector('#managementPanel').textContent='Management action failed: '+e.message }}
+}}
+document.querySelector('#openManagement').onclick=()=>{{
+  const panel=document.querySelector('#managementPanel');
+  if(panel.hidden) return loadManagement();
+  panel.hidden=true;
+  document.querySelector('#openManagement').setAttribute('aria-expanded','false');
+}};
 
 // M5: the gated-action framework's one wired action - request, review,
 // approve exactly the existing ARR-repair broker's dry-run/candidate,
@@ -2220,11 +2455,12 @@ async function speakReply(text){{
 stopSpeech.onclick = () => {{ speechAbort?.abort(); cancelPlayback?.() }};
 
 document.querySelector('#mic').onclick = toggleMic;
-document.querySelector('#signin').onclick=login;
+document.querySelector('#signin').onclick=()=>login(true);
 document.querySelector('#signout').onclick=async()=>{{
   try{{ await companionNotify.disable() }}catch(e){{ document.querySelector('#chatErr').textContent=e.message; return }}
   companionNotify.clearPending();
   clearTokens();
+  localStorage.removeItem('pending_approval_action'); localStorage.removeItem('pending_approval_created_at');
   for(const k of Object.keys(localStorage)){{ if(k.startsWith('aster_chat_')) localStorage.removeItem(k) }}
   messages.length = 0; chat.innerHTML = '';
   showLogin();
@@ -2242,7 +2478,7 @@ prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.
   const err=await handleCallback();
   if(err){{ document.querySelector('#loginErr').textContent=err }}
   const token=await validAccessToken();
-  if(token){{ await loadPersonas(); loadChatHistory(); showApp(); await companionNotify.init(); await recoverNotificationReply() }} else showLogin();
+  if(token){{ await loadPersonas(); loadChatHistory(); showApp(); await companionNotify.init(); await resumeApprovalAction(); await loadApprovals(); await recoverNotificationReply() }} else showLogin();
 }})();
 </script></body></html>"""
 
@@ -2252,10 +2488,19 @@ from companion_notifications import CompanionNotifications
 
 
 def companion_owner(authorization: str | None = Header(default=None)) -> str:
+    return companion_claims(authorization)["owner_hash"]
+
+
+def companion_claims(authorization: str | None = Header(default=None)) -> dict[str, Any]:
     claims = _authentik_claims(authorization)
-    if not claims or not isinstance(claims.get("sub"), str) or not claims["sub"]:
+    if (not claims or claims.get("act") or not isinstance(claims.get("sub"), str)
+            or not claims["sub"]):
         raise HTTPException(401, "Sign in with your Companion account")
-    return hashlib.sha256((AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()).hexdigest()
+    result = dict(claims)
+    result["owner_hash"] = hashlib.sha256(
+        (AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()
+    ).hexdigest()
+    return result
 
 
 notifications = CompanionNotifications(
@@ -2264,6 +2509,15 @@ notifications = CompanionNotifications(
     companion_owner, ChatRequest, chat, get_lab_health,
 )
 app.include_router(notifications.router)
+app.include_router(approval_router(
+    BrokerApprovalClient(BROKER_APPROVAL_SOCKET), companion_claims,
+    approver_subject_hashes=frozenset(filter(None, (
+        value.strip() for value in os.environ.get("ASTER_BROKER_APPROVER_SUBJECT_HASHES", "").split(",")
+    ))),
+    passkey_acrs=frozenset(filter(None, (
+        value.strip() for value in os.environ.get("ASTER_BROKER_PASSKEY_ACRS", "").split(",")
+    ))),
+))
 app.router.add_event_handler("startup", notifications.start)
 app.router.add_event_handler("shutdown", notifications.stop)
 
@@ -2274,7 +2528,8 @@ async def companion_manifest():
     return JSONResponse({"id": "/companion", "name": "Aster Companion", "short_name": "Aster",
                          "start_url": "/companion", "scope": "/companion", "display": "standalone",
                          "background_color": "#111827", "theme_color": "#111827",
-                         "icons": [{"src": "/companion/orb.png", "sizes": "any", "type": "image/png"}]},
+                         "icons": [{"src": "/aster-app-icon.png", "sizes": "2048x2048", "type": "image/png",
+                                    "purpose": "any maskable"}]},
                         media_type="application/manifest+json")
 
 

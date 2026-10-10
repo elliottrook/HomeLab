@@ -1,0 +1,152 @@
+# M1 — local authority candidate
+
+Date: 2026-09-25. Status: **local candidate; M1 incomplete; not deployed**.
+Owner: Jason. Scope: approved Stream A foundation, synthetic local implementation
+and validation only. Base: `d954ae4e6d81cfde52e04a99f7768ff3919deb00`.
+
+## Checkpoint and overlap
+
+Work is isolated in `/Users/jelliott/.codex/worktrees/eac4/homelab`. It began clean.
+The initial duplicate-task stop was corrected by Jason's instruction to continue.
+The setup task `01a0da33-48a7-7130-b567-5e0eb698139f` had created this continuation;
+its displayed active state was not proof of a second implementing agent.
+
+The existing **AI-PAM Stream A** task (`01a0c657-ebae-7043-a30d-bbc38e91e028`)
+was idle when inspected. Its `/Users/jelliott/.codex/worktrees/b42c/homelab`
+checkout has an uncommitted M6 safe-write candidate, including broker transport,
+admin and gateway changes. Those files were read-only inspected and preserved.
+Reconcile the transport/admin changes and rerun its safe-write tests before any
+combined deployment. Do not assume this checkout includes that candidate.
+
+A read-only Forgejo query during this run returned
+`aaf775b64a969c97fef39b6c59119baf2b8e34dd`, following separate B60 benchmark work.
+This is newer than this candidate's base; no fetch, merge, push or B60 change was
+performed. Recheck authoritative refs and integration differences before publishing.
+
+## Changes and enforcement
+
+- `request.consume` requires the originating agent as a mandatory core argument.
+  The transport supplies kernel-derived identity, ignoring any payload identity.
+  A wrong caller cannot consume or invalidate the owner's request.
+- Current global, agent, capability, service and grant predicates are rechecked
+  at approval and consumption. Risk-class mismatch fails closed.
+- SQLite policy triggers revoke pending/approved requests when agent state,
+  capability policy, service enablement/execution mode or a capability grant
+  changes. Restoring the old policy does not resurrect the request. Any actual
+  agent-state transition invalidates existing requests, including promotion;
+  no-op updates preserve them. New requests must obtain new authorization.
+- `BEGIN IMMEDIATE` encloses lifecycle checks, mutation and audit. An in-process
+  reentrant lock protects the shared connection; SQLite orders separate broker,
+  approval and admin connections. A one-second lock timeout fails closed.
+  Reader methods on a shared connection cannot observe its unfinished transaction.
+- Failed transactions roll back; expiry denials intentionally commit their
+  terminal expired state. Consumption is committed before adapter dispatch.
+- A new, initially empty `approvers` table requires explicit operator enrollment
+  of a hashed authenticated subject. Every approval-socket method, including
+  metadata reads, checks entitlement. Enrollment is available only through local
+  operator administration, never through the agent or approval socket.
+- Approver revocation invalidates their outstanding approved requests; consumption
+  also checks current entitlement. Re-enrollment does not revive revoked requests.
+- Companion forwards its verified server-derived actor on metadata reads as well
+  as mutations. Red/management freshness rejects missing, malformed, boolean,
+  future and stale authentication times. Yellow may retain a valid OIDC session
+  without a fresh authentication time.
+
+The two original expected-failure cases passed before their markers were removed.
+They are now ordinary required-denial tests. Historical M0 evidence is unchanged.
+
+## Validation
+
+All state and targets were synthetic/disposable. No production credentials,
+request database, personal interactions or target actions were accessed.
+
+| Check | Result |
+|---|---|
+| Original baseline | 38 tests: 36 passes, 2 expected failures |
+| Broker suite after candidate | 58 tests, all pass; no expected failures |
+| Companion approval bridge | 8 tests, all pass |
+| Caller/payload boundary | Wrong caller plus forged owner field denied; legitimate owner can still consume |
+| Policy lifetime | Demote/promote, disable/enable, grant removal/regrant and policy restoration cannot resurrect requests |
+| Expiry/restart | Exact TTL boundary for Green/Yellow/Red, pending approval at expiry, durable terminal expiry |
+| Concurrency | Eight independent connections, five rounds: exactly one consume and one audit per request; same-connection threads also one winner |
+| Revocation ordering | A committed revoke defeats waiting consume and approval operations |
+| Crash/fault | Audit failure and actual child-process exit before commit roll back; exit after commit preserves non-replayable consumption |
+| Restore | SQLite backup restored into an isolated database preserves consumed/revoked/expired denials |
+| Approver boundary | Unknown/missing/revoked subjects denied; empty database grants nobody; sockets cannot enroll approvers |
+| Legacy migration | Database generated by pinned d954ae4 core migrates; old unentitled approval denied; revoke/reopen and integrity check pass |
+| Lock contention | Real writer lock causes bounded failure, with no consumed state; subsequent authorized retry succeeds |
+
+Reproduce:
+
+```sh
+python3 -m unittest discover -s ops/credential-broker -p 'test_*.py'
+/private/tmp/aster-lab-ops-venv/bin/python -m unittest discover -s services/aster-agent -p 'test_broker_*.py'
+python3 ops/credential-broker/check_adaptive_migration.py
+git diff --check
+```
+
+Broker tests ran with macOS Python 3.9. Companion tests reused an existing Python
+3.12.14 environment with FastAPI 0.133.1, Pydantic 2.13.4 and httpx 0.28.1, matching
+those direct repository requirements. No dependencies were installed. The system
+Python and another existing environment lacked FastAPI; their import failures
+were resolved by selecting this existing environment. A Starlette deprecation
+warning was emitted; it was not a test failure or reason to change dependencies.
+
+## Risk, compatibility and rollout gate
+
+This is a security-policy candidate, not a production authorization. Prior to
+any deployment, obtain independent review and a bounded approved plan covering:
+
+1. Reconcile AI-PAM M6 and current authoritative source; record exact bundle hashes.
+2. Verify a protected, consistent broker database/configuration recovery checkpoint.
+   Keep raw state and subject identifiers out of Git and model-visible logs.
+3. Verify the actual Companion identity mapping and human entitlement. Enroll only
+   the approved subject through the human/operator path. An empty allowlist is an
+   intentional denial state, not a fallback to all authenticated users.
+4. Quiesce broker/approval services and invalidate existing pending/approved grants
+   before migration. Migrate a copy first and prove reconstruction and restrictive
+   rollback. Do not enroll a human until their subject has been independently verified.
+5. Deploy core, both socket transports, admin and Companion bridge as a compatible
+   bundle. The new core intentionally rejects old callers that omit `agent_id` or
+   approval `actor`; old Companion metadata calls will fail closed without actor.
+6. Test kernel identity enforcement on Linux, valid and denied human workflows,
+   revocation and restart through the real production path twice, using approved
+   non-effectful/disposable targets. Check dependent Green reads and native parity.
+7. Keep a restrictive disable/revoke recovery path. Do not restore a database snapshot
+   with reusable approvals or an old broadly permissive core as an active rollback.
+
+A local SQLite backup test establishes state reconstruction, not production backup
+coverage. Rolling back the database to a point before a real action could replay
+that action: revoke all outstanding grants after any production restore.
+
+Consumption guarantees at-most-one dispatch authorization, not exactly-once target
+effects. A crash after commit and before/during dispatch leaves an uncertain action
+outcome; reconcile the target before a separately authorized new request. Revocation
+cannot recall an already committed claim or an in-flight effect. Target-state
+preconditions, bounded gateway timeouts and reconciliation remain adapter obligations.
+
+## Remaining M1 gates and next safe action
+
+- **Independent review remains open.** This run's self-review and synthetic tests
+  do not satisfy independent review.
+- **Approval trust-base separation remains open.** The socket checks peer UID and
+  an enrolled actor, but still trusts the Aster process to assert that actor and
+  passkey assurance. An allowlist does not stop a compromised allowed process from
+  impersonating an enrolled actor. A separate identity-validating approval service
+  or explicitly accepted bounded trust model must be reviewed before expansion.
+- Synthetic migration from the pinned old core passed; review actual deployment
+  compatibility and M6 integration, with additional tests for any review findings.
+- Reconcile the M6 candidate, then prepare the exact deployment proposal. Production
+  corrective deployment and two production-path passes are not authorized by this
+  local checkpoint and have not happened.
+- M2 offline contracts may proceed independently; no connected pilot may rely on
+  this undeployed candidate. No harness installation or routing benchmark is claimed.
+
+No live inventory, networking, schedules, storage placement, monitoring, Doctor,
+Homepage, wiki or derived mirror changes are appropriate for this local candidate.
+Their rollout impacts remain governed by the canonical project's integration table.
+Repository evidence and broker operator notes are updated now; operational facts
+must change only after an approved deployment is verified.
+
+Remote publication remains pending separate immediate push authorization. Keep the
+local checkpoint and do not overwrite the other task's dirty work.

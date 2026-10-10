@@ -54,6 +54,24 @@ mark into a literal compass rose. The source artwork is retained at
 
 ![Accepted Aster Companion app-icon concept](../../assets/aster-companion/aster-app-icon-concept-v2-compass.png)
 
+## Canonical Aster voice policy
+
+The project charter now adopts the News Digest voice as Aster's canonical
+spoken identity. Every future Aster app, AI feature, companion surface or TTS
+consumer must use the voice and cadence in the
+[HomeLab UI style guide](../../design/HomeLab-UI-Style-Guide.md): Kokoro
+`kokoro-v1.0.fp16.onnx`, British-English `bm_daniel`, `en-gb`, speed `0.95`,
+sentence/clause-sized synthesis, one-second story pauses, and the shared
+speech cleanup rules for currency, parentheses, Markdown and dotted
+abbreviations. The time-aware morning/evening intro and “Have a good day” /
+“Have a good evening” sign-off are the reference briefing cadence.
+
+The previously deployed Piper voice in the shared Companion speech service is
+legacy compatibility state, not the target identity. It must be migrated to
+this canonical voice before a future voice feature is considered complete;
+until then, a new voice or TTS implementation is not conformant merely because
+it is functional. Real listening validation remains required after migration.
+
 ## Current state and evidence
 
 - **Aster today** runs as `aster-agent.service` on LXC 104 (`192.168.70.10:9120`,
@@ -88,7 +106,7 @@ mark into a literal compass rose. The source artwork is retained at
   current design — this is the shape any future gated action in this project
   must follow.
 - **Authentik** is `2026.8.0` (last confirmed live 2026-09-13,
-  `docs/projects/Authentik-Rollout.md`) and already runs native OIDC for
+  `docs/projects/completed projects/Authentik-Rollout.md`) and already runs native OIDC for
   Forgejo, Beszel, Grafana and the five ARR web UIs, each as its own
   dedicated OAuth2/OIDC provider + application with a strict callback, PKCE
   where applicable, and exactly one direct `jason` binding. `jason` already
@@ -112,7 +130,7 @@ mark into a literal compass rose. The source artwork is retained at
   over Tailscale at all; local reachability from Jason's three named devices
   is via a separate, narrow OPNsense rule pattern already used for the news
   aggregator (`MGMT_ADMIN_HOSTS → 192.168.70.13:8080/tcp`,
-  `docs/projects/Combined-Morning-Digest.md`) — worth confirming live whether
+  `docs/projects/archive/Combined-Morning-Digest.md`) — worth confirming live whether
   an equivalent rule already exists for `192.168.70.10:9120`.
 - **Speech:** Piper TTS (`en_US-lessac-medium`, `length_scale 1.15`) is
   already vetted and in production for the news aggregator's audio digest
@@ -121,7 +139,7 @@ mark into a literal compass rose. The source artwork is retained at
   this project is a second real consumer of that same vetted voice. No local
   speech-to-text engine is deployed anywhere in this lab yet; the proposed
   (not yet built) Home Assistant voice assistant
-  (`docs/projects/Home-Assistant-Voice-Assistant.md`) and subtitle project
+  (`docs/projects/archive/Home-Assistant-Voice-Assistant.md`) and subtitle project
   (`docs/projects/Subtitle-Generation-Translation.md`) both anticipate
   Whisper-family STT but neither has deployed it.
 - **Existing Mac-native-app precedent:** the FreeCAD MCP connector
@@ -549,7 +567,7 @@ The following bullets retain the original discovery context:
 - Confirmed `scripts/api-get.sh` is the established, pre-approved, GET-only
   read-only wrapper for the Authentik (`auth.elliottrook.com/api/*`) and NPM
   (`proxy.elliottrook.com/api/*`) HTTPS APIs (documented in
-  `docs/projects/Authentik-Rollout.md`'s 2026-09-10 evidence entry). It needs
+  `docs/projects/completed projects/Authentik-Rollout.md`'s 2026-09-10 evidence entry). It needs
   a bearer token in the `API_TOKEN` environment variable.
 - **2026-09-21 — credential-exposure incident, live Authentik API still
   blocked.** Searching for a usable read-only Authentik API token (per
@@ -562,7 +580,7 @@ The following bullets retain the original discovery context:
   diagnostic grep during this session printed its full value into the
   session transcript — the same failure mode as every prior
   credential-exposure incident in this lab (see
-  `docs/projects/Authentik-Rollout.md`'s Milestone 3 entries and the NUT
+  `docs/projects/completed projects/Authentik-Rollout.md`'s Milestone 3 entries and the NUT
   project's rotation history in `CLAUDE.md`). Per that same established
   practice, **this token must be treated as exposed and rotated before use,
   not reused as-is**, and its actual Authentik permissions should be
@@ -577,7 +595,7 @@ The following bullets retain the original discovery context:
   **No live Authentik API call has been made for this project.**
 - **2026-09-21 — SSH-from-sandbox finding reconfirmed, then resolved for
   this session.** Live-tested `ssh proxmox cat /etc/hostname`: `Operation
-  not permitted`, matching `docs/projects/Authentik-Rollout.md`'s 2026-09-10
+  not permitted`, matching `docs/projects/completed projects/Authentik-Rollout.md`'s 2026-09-10
   finding that raw SSH to allowlisted hosts is denied at the sandbox network
   layer regardless of `.claude/settings.json` `permissions.allow` patterns —
   contradicting `CLAUDE.md`'s "General working rules" section, which still
@@ -908,7 +926,7 @@ silently absorbed into this project's scope.
   git-tracked and never committed. Separately, live-tested and reconfirmed
   that raw SSH from this sandbox to allowlisted hosts is still denied
   (`Operation not permitted`), matching the 2026-09-10 finding in
-  `docs/projects/Authentik-Rollout.md` — blocks M1's OPNsense-reachability
+  `docs/projects/completed projects/Authentik-Rollout.md` — blocks M1's OPNsense-reachability
   and Proxmox-VMID checks the same way it blocks Authentik API calls. While
   waiting on Jason to rotate the token in person, drafted read-only M2
   technical prep (see Architecture section) from `aster_agent.py` itself: no
@@ -2492,6 +2510,20 @@ approved building it as a small follow-up to this closed project.
 - The old Mac app still works against the new server, because it doesn't send
   `progress`.
 
+### 2026-10-07: HomeLab UI style refresh
+
+Jason asked to carry the shared HomeLab UI style into Aster's web surfaces and
+to make the experience more comfortable on a phone. Applied the documented
+midnight/cyan/mint palette, radial background, raised panels, larger readable
+chat cards, larger inputs and 44px touch targets to both the passkey Companion
+route (`/companion`) and the additive legacy bearer-key page (`/`). No auth,
+API, persona, notification or tool behavior changed. Deployed only
+`aster_agent.py` to LXC 104 after preserving
+`/opt/aster-agent/aster_agent.py.bak-20261007-ui-refresh`; restarted only
+`aster-agent.service`. Verified matching live checksum, active service and
+HTTP 200 with the new style markers on both routes. Rollback is the retained
+pre-refresh copy plus a service restart.
+
 
 ## References
 
@@ -2504,13 +2536,13 @@ approved building it as a small follow-up to this closed project.
   and existing test suite this project extends.
 - `services/aster-arr-broker/` — the existing gated-action implementation
   this project generalizes rather than replaces.
-- `docs/projects/Authentik-Rollout.md` — native-OIDC precedent (Forgejo,
+- `docs/projects/completed projects/Authentik-Rollout.md` — native-OIDC precedent (Forgejo,
   Beszel, Grafana, five ARR UIs), passkey enrollment evidence, and the
   NPM/split-DNS/OPNsense pattern this project reuses.
 - `docs/projects/completed projects/News-Aggregator-Audio-Digest.md` — the
   vetted Piper `en_US-lessac-medium` voice this project reuses for Aster's
   TTS.
-- `docs/projects/Home-Assistant-Voice-Assistant.md` — the sibling proposed
+- `docs/projects/archive/Home-Assistant-Voice-Assistant.md` — the sibling proposed
   project this one deliberately does not duplicate (household device
   control via HA's own Assist pipeline, unrelated to talking to Aster) but
   shares the same open `aster-llama` capacity question with.

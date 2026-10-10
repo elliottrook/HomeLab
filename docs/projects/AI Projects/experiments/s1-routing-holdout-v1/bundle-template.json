@@ -1,0 +1,18 @@
+{
+  "schema_version": "s1-collection-bundle.v1",
+  "experiment_id": "s1-routing-holdout-v1",
+  "plan_sha256": "4727ba248959cc4ed3514c99ca608842e9622c0a0493bccacafae7c1a681c696",
+  "registry_sha256": "19da446b6e4d810bb47c5a7e01cc6823dba39110fa9e56aa20f15d116331adb6",
+  "mode": "collection-candidate-no-evaluation",
+  "retention_ack": "sanitized-local-git-after-human-acceptance",
+  "session": {
+    "collection_started_at": null,
+    "draft_expires_at": null,
+    "day30_review_at": null,
+    "day90_review_at": null,
+    "active_effort_seconds": 0,
+    "unresolved_labels": 0
+  },
+  "cases": [],
+  "acceptances": []
+}

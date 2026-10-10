@@ -1,0 +1,8 @@
+[Unit]
+Description=Verified DSM and Immich configuration backup
+After=docker.service
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/usr/bin/python3 /usr/local/sbin/homelab-synology-configs.py
+TimeoutStartSec=1800

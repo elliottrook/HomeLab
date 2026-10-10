@@ -1,0 +1,36 @@
+{
+  "format": "s0-fixture-approval.v1",
+  "scope": {
+    "attempt": "run-002",
+    "host_resource_query": "pct status 100 --verbose",
+    "maximum_container_inventory": 32,
+    "target": "Proxmox 192.168.50.10 / LXC 100",
+    "unit": "aster-s0-feasibility-20260926.service",
+    "canary": "/var/tmp/aster-s0-feasibility-20260926",
+    "purpose": "one fixed invented-fixture isolation feasibility probe",
+    "dns_target": "192.168.20.20:53",
+    "runtime_max_seconds": 15,
+    "memory_max_bytes": 67108864,
+    "tasks_max": 1,
+    "accepted_corpus_evaluation": false,
+    "package_installation": false,
+    "other_infrastructure_changes": false,
+    "git_push": false,
+    "automatic_retry": false,
+    "automatic_interrupted_recovery": false
+  },
+  "provenance": {
+    "human": "Jason",
+    "authorization": "fresh explicit approval granted for exactly one run-002",
+    "source": "Jason replied approve in coordinating task after corrected run-002 scope was presented",
+    "coordinating_task": "01a0d957-799b-7353-acbc-4765e85619f2",
+    "cryptographic_identity_proof": false
+  },
+  "reviewed_manifest_sha256": "1713058f4f280e116933295ec633f5c59925f8a9cba1635dae9a371ea0e322b2",
+  "release": {
+    "technical_review": "passed",
+    "exclusive_operator_window": "confirmed",
+    "one_shot_execution": "consumed-run-002-failed-preflight",
+    "human_approval": "approved-for-run-002"
+  }
+}

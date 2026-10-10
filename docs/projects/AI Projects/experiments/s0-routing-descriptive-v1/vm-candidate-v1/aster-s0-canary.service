@@ -1,0 +1,34 @@
+[Unit]
+Description=Aster S0 synthetic bootstrap canary
+
+[Service]
+Type=oneshot
+User=aster-s0
+Group=aster-s0
+WorkingDirectory=/var/lib/aster-s0
+ExecStart=/usr/bin/python3 -I -S -B /usr/local/lib/aster-s0/canary.py
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+ProtectClock=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX
+ReadWritePaths=/var/lib/aster-s0/output
+MemoryMax=512M
+TasksMax=64
+CPUQuota=100%
+RuntimeMaxSec=90
+TimeoutStartSec=90

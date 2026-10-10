@@ -1,0 +1,24 @@
+{
+  "format": "s0-run003-diagnosis.v1",
+  "failure_boundary": "run-readiness",
+  "failure_class": "validation",
+  "systemd_exec_status": 226,
+  "systemd_status_name": "NAMESPACE",
+  "systemd_result": "exit-code",
+  "main_pid": 0,
+  "payload_readiness_observed": false,
+  "cgroup_present_after_failure": false,
+  "runtime_probe_present_after_failure": false,
+  "canary_receipt_matched_before_recovery": true,
+  "manual_recovery": {
+    "failed_unit_reset": true,
+    "receipt_matched_canary_removed": true,
+    "unit_absent": true,
+    "cgroup_absent": true,
+    "runtime_probe_absent": true,
+    "system_state": "running",
+    "service_baseline_restored": true
+  },
+  "automatic_retry_allowed": false,
+  "accepted_corpus_evaluated": false
+}

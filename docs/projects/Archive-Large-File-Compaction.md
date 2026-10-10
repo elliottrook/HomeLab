@@ -94,14 +94,15 @@ The desired outcome:
   - source size and mtime unchanged since it was probed.
 - **Replacement:** the output is encoded into `work/` on the same dataset, then
   `chown`/`chmod` to the original's and `os.replace` over the source (atomic).
-- **Rollback window:** `zfs snapshot Media/data@archive-compact-<ts>` before
-  the first replacement of each run. Snapshots older than 7 days are destroyed
-  by the next run. Originals are recoverable from
-  `/mnt/Media/data/.zfs/snapshot/<snap>/...` during that window, and space is
-  freed as they expire.
-- **Scheduling:** TrueNAS cron, root, 02:00 daily, running `run-compact.sh`.
+- **Original retention (updated 2026-10-03):** Jason explicitly directed that
+  completed transcodes be kept and old originals deleted. The nightly runner
+  now passes `--no-snapshot`, superseding the original seven-day rollback policy.
+  Verification and atomic replacement remain required. Successful replacements
+  no longer have a snapshot recovery window.
+- **Scheduling:** TrueNAS cron, root, 08:00 daily, running `run-compact.sh`,
+  after the archiver's 01:30–07:30 processing window.
   - It waits up to 90 minutes for the archiver's lock.
-  - Largest files are processed first, and nothing new starts past 07:30 or
+  - Largest files are processed first, and nothing new starts past 13:30 or
     when a file's estimated encode would overrun the deadline.
   - A Jellyfin library scan is requested after any replacements.
 
@@ -124,7 +125,7 @@ The desired outcome:
 - [x] **M1 — Supervised pilot (2026-09-24):** results in the evidence log.
       Jason's own playback check is recommended but not a gate.
 - [x] **M2 — Unattended schedule:**
-      - TrueNAS cron job #6, root, 02:00 daily, running `run-compact.sh`;
+      - TrueNAS cron job #6, root, 08:00 daily, running `run-compact.sh`;
       - `compact` section in `config.json` (backup
         `config.json.bak-20260924-compact`);
       - `scripts/backup/video-archiver.sh` now also collects `run-compact.sh`
@@ -168,3 +169,36 @@ The desired outcome:
   - Manual handling is needed for the six `.m2ts`, two `.mpg` and one DV5
     (*Predators*) files.
   - M3 Doctor check.
+
+- **2026-09-28 — Repair completed:** corrected Matroska audio bitrate budgeting and
+  Jellyfin 12 authorization; added scan-failure visibility. Eleven local tests pass;
+  approved deployment and both retries passed (Scream 7: 1.86 GB; X-Files: 1.78 GB).
+  Repository and Aster pinned Doctor both report a clean two-file run; Jellyfin
+  completed the requested library scan at 13:50 PDT. [Repair evidence and resume](../runbooks/Video-Archiver-Repair-2026-09-28.md).
+
+## 2026-10-07 schedule separation
+
+The archiver's former five-file cap was removed from scheduled operation. It now runs
+unlimited oldest-first candidates from 01:30 until 07:30, while compaction starts at
+08:00 and stops starting new files at 13:30. This prevents the shared lock from
+starving either workload. The previously stale empty lock (created 2026-10-03 10:27)
+was removed only after confirming no archiver process was active. The deployed module
+hashes match the validated repository files; read-only candidate discovery reports
+177 eligible TV episodes and no eligible Radarr movie files.
+
+## 2026-10-03 owner-directed archive cleanup
+
+Jason approved deleting confirmed duplicate media and old transcoding originals.
+Seven duplicate movie files were removed after probing and sampled decode checks
+on retained copies. Seven compaction snapshots and one completed repair snapshot
+on `Media/data` were deleted individually after checking holds, clones and current
+replacements. No force or recursive destruction was used. Four title matches with
+conflicting runtimes/metadata remain unresolved, not confirmed duplicates.
+
+Final verification: deleted paths absent, retained sizes/inodes unchanged,
+`Media/data` snapshot usage zero, pool ONLINE, pending freeing zero. Pool capacity
+fell from 95% to 72%; dataset available space reached 3.81 TiB. Jellyfin filesystem
+scan requested successfully. The nightly runner now uses `--no-snapshot`. This
+explicit owner decision supersedes snapshot controls R1/R2/R6 above; originals
+cannot be restored after successful replacement. No guest/cloud backup deletion
+was performed. Evidence: [duplicate sweep](../runbooks/archive-duplicate-sweep-2026-10-03.json).

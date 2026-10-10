@@ -1,0 +1,2 @@
+Job for aster-s0-isolation.service failed because the control process exited with error code.
+See "systemctl status aster-s0-isolation.service" and "journalctl -xeu aster-s0-isolation.service" for details.

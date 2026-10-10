@@ -25,6 +25,7 @@ from aster_agent import (
     execute_tool,
     get_arr_repair_dry_run_proposal,
     get_lab_health,
+    companion_claims,
     normalized_messages,
     personas,
     preload_read_only_context,
@@ -307,6 +308,32 @@ class AsterAgentTests(unittest.TestCase):
             )
             self.assertEqual(result["results"][0]["source"], "project/Aster-Operations.md")
             self.assertIn("no API token", result["results"][0]["excerpt"])
+
+    def test_ai_pam_query_prefers_dedicated_operational_reference(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "reference/operations/ai-pam.md"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "# AI-PAM Operational Reference\n\n"
+                "## Current service boundary\n"
+                "OpenBao remains outside the AI trust boundary. Aster Companion "
+                "provides passkey approval and the global AI-access kill switch.",
+                encoding="utf-8",
+            )
+            decoy = root / "reference/REFERENCE-CONTRACT.md"
+            decoy.parent.mkdir(parents=True, exist_ok=True)
+            decoy.write_text(
+                "Authority and approval contract. " * 100,
+                encoding="utf-8",
+            )
+            result = search_knowledge(
+                "How do AI-PAM, OpenBao and Companion approval work?", root=root
+            )
+            self.assertEqual(
+                result["results"][0]["source"], "reference/operations/ai-pam.md"
+            )
+            self.assertIn("global AI-access kill switch", result["results"][0]["excerpt"])
 
     def test_provenance_controls_authority_and_is_returned(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -964,6 +991,24 @@ class AuthenticationTests(unittest.TestCase):
         """The two credential types are independent, not a fallback chain."""
         with self._signing_key_patch(), patch("aster_agent.ASTER_API_KEY", ""):
             require_api_key(authorization=f"Bearer {self._token()}")  # does not raise
+
+    def test_companion_claims_derives_actor_from_verified_subject(self):
+        token = self._token()
+        with self._signing_key_patch():
+            claims = companion_claims(authorization=f"Bearer {token}")
+        self.assertEqual(len(claims["owner_hash"]), 64)
+        self.assertNotEqual(claims["owner_hash"], "jason")
+
+    def test_companion_claims_rejects_delegated_actor_token(self):
+        now = int(time.time())
+        token = jwt.encode({
+            "iss": "https://auth.elliottrook.com/application/o/aster-companion/",
+            "aud": "aster-companion", "sub": "jason", "act": {"sub": "agent"},
+            "iat": now, "exp": now + 300,
+        }, self.private_key, algorithm="RS256")
+        with self._signing_key_patch(), self.assertRaises(HTTPException) as raised:
+            companion_claims(authorization=f"Bearer {token}")
+        self.assertEqual(raised.exception.status_code, 401)
 
 
 class PersonaTests(unittest.TestCase):

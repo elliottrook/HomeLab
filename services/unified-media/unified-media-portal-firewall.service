@@ -1,0 +1,12 @@
+[Unit]
+Description=Restrict Unified Media portal to NPM
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c '/usr/sbin/nft list chain ip filter DOCKER-USER | /bin/grep -Fq "ip saddr != 192.168.50.23 ip daddr 172.16.3.5 tcp dport 8787" || /usr/sbin/nft insert rule ip filter DOCKER-USER ip saddr != 192.168.50.23 ip daddr 172.16.3.5 tcp dport 8787 counter drop'
+
+[Install]
+WantedBy=multi-user.target

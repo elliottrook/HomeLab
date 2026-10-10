@@ -1,0 +1,3 @@
+Volid                   Format  Type            Size VMID
+local-lvm:vm-119-disk-0 raw     images    8589934592 119
+local-lvm:vm-119-disk-1 raw     images       4194304 119

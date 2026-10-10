@@ -33,6 +33,13 @@ purpose-specific board** for media app management (a `Media Manager` tile
 was added under Homepage's `Media Automation` group linking to it), which
 Jason is customizing by hand.
 
+For AI-PAM, the existing **Aster Companion** tile is the only supported human
+dashboard entry point. Do not add direct Homepage links to OpenBao, the local
+broker, approval socket or private MCP/Doctor gateways. Those are enforcement
+components rather than operator web applications; their health and drift are
+reported through HomeLab Doctor. NetBox remains authoritative for their host
+guests and addresses.
+
 - Homarr URL: `http://192.168.20.20:7575`
 - Homarr config/data: `/opt/homarr/appdata` (bind-mounted), compose file at
   `/opt/homarr/compose.yaml`, secrets (admin password, Beszel read-only
@@ -57,8 +64,19 @@ Jason is customizing by hand.
   `_superusers` record, a separate auth system) can't authenticate against.
   Beszel also scopes system visibility per-user via a `users` relation field
   on each `systems` record — the new account saw zero systems until it was
-  added to that field on all 7. Both were net privilege reductions, not just
-  workarounds.
+  added to that field on all currently retained systems. Both were net
+  privilege reductions, not just workarounds.
+
+**Beszel coverage reconciliation — 2026-10-08.** Beszel now has systems for
+all retained Proxmox-hosted Linux guests: Docker LXC 100, UniFi LXC 101,
+Frigate VM 102, Hermes LXC 104, Authentik 106, reverse proxy 107, Forgejo 108,
+Observability 109, GPU LXC 110, NetBox 111, backup relay 112, Aster Wiki 113,
+News Aggregator 114, Paperless 115, Aster Speech 116 and OpenBao 117, plus
+Proxmox and the NUT server. Home Assistant OS VM 103, stopped VM 105 and test
+fixtures remain deliberate exclusions. TrueNAS, Synology and OPNsense remain
+covered by Prometheus, Doctor and/or native monitoring. The four Lab VLAN 70
+agents use narrowly scoped firewall rules to reach the Beszel hub; see [the
+completed reconciliation project](projects/Beszel-NetBox-Coverage-Reconciliation-2026-10-08.md).
 - Found and fixed a live bug while wiring up TrueNAS: its own security policy
   auto-revokes any API key the moment it's used over plain HTTP ("Attempt to
   use over an insecure transport"). Homepage's TrueNAS widget was doing
@@ -900,7 +918,7 @@ through the already-running Jellyfin container, then relocates them into
   keys, and the mode-600 `.env` holding `RADARR_API_KEY`/`SONARR_API_KEY`/
   `JELLYFIN_API_KEY`, are not committed).
 - Scheduled via TrueNAS-native Cron Job (`midclt call cronjob.create`, id `4`),
-  Monday–Saturday 01:30, `--execute` mode, via a wrapper script
+  Monday–Saturday 01:30, `--execute --max-files 0 --until 07:30` mode, via a wrapper script
   (`run-scheduled.sh`) that sources the `.env` file rather than putting keys in
   the cron command string itself (visible via `ps aux` and TrueNAS's own cron
   job table otherwise). Deliberately skips Sunday — that carries the weekly
@@ -914,6 +932,10 @@ through the already-running Jellyfin container, then relocates them into
 - `lab doctor`'s `check_video_archiver` reads the latest log and names any
   failed title by title, not just a count; warns if no run has landed in 48+
   hours.
+  It also reports Jellyfin scan failures, including a run whose replacements all
+  succeeded. The September 28 repair corrects compaction's Matroska audio bitrate
+  budgeting and uses Jellyfin 12's supported authorization header with the existing
+  key; [repair and recovery evidence](runbooks/Video-Archiver-Repair-2026-09-28.md).
 - Only the source's own flagged-default audio track is kept (or first English,
   or first stream) — not every audio stream — and only English-tagged
   subtitle tracks; both non-English audio and subtitles are dropped rather
@@ -963,3 +985,35 @@ minute, importing all 46 titles with cover art and metadata auto-matched.
 Neither app's TrueNAS-side container config, mounts, or the double-mount on
 Audiobookshelf were otherwise touched — only each app's own library-path
 setting was changed, per the task's scope.
+
+## Newtarr persistence — 2026-09-26
+
+TrueNAS service `newtarr` belongs to Dockge Compose project `new_arr` at
+`/mnt/Media/appdata/dockge/new_arr/compose.yaml`. Its real configuration path
+is `/config`, now correctly backed by `/mnt/Media/appdata/newtarr`. Do not
+change this mount back to `/appdata`. The repair preserved image v1.0.0, all
+settings, ports and networks. Sonarr, Radarr and Lidarr are now connected via
+internal Docker service addresses. Missing-item and quality-upgrade searches
+are enabled at one of each per 15-minute cycle, monitored-only, hourly cap 20.
+
+Protected recovery checkpoint: `/root/newtarr-persistence-20260926T212721Z`.
+The retained `local/newtarr-recovery:20260926t212721z` image and exported image
+archive include the previous container writable layer; preserve them until
+recovery coverage is graduated. See the Authentik rollout project for hashes
+and exact validation. Owner-only Authentik browser access, human Settings UI
+acceptance and Homepage promotion completed on 2026-09-26.
+
+## Bazarr subtitle automation — 2026-10-05
+
+Bazarr runs on TrueNAS as container `bazarr`, from the tracked definition at
+`services/bazarr/compose.yaml`, with persistent configuration at
+`/mnt/Media/appdata/bazarr` and the shared `/mnt/Media/data` media mount. It
+joins `new_arr_default`, listens on TCP 6767, and writes additive subtitle
+sidecars for the current Sonarr/Radarr roots; archive roots are excluded.
+
+The private operator path is `https://bazarr.elliottrook.com` through NPM and
+Authentik, with Jason-only forward-auth and direct LAN recovery at
+`http://192.168.20.40:6767`. OPNsense and both Pi-holes carry the private DNS
+record; the ARR UI firewall alias includes the additional NPM-to-TrueNAS TCP
+6767 destination. Bazarr is classified in the TrueNAS application-config
+backup exporter and is checked by HomeLab Doctor.

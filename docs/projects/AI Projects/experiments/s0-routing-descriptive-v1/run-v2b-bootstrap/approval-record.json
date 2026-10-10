@@ -1,0 +1,25 @@
+{
+  "schema": "aster-s0-execution-approval.v1",
+  "date": "2026-09-26",
+  "source": "direct user instruction in the active Codex thread",
+  "instruction": "approve - continue",
+  "interpreted_scope": [
+    "V1b manifest-bound seed staging and stopped VM119 creation",
+    "automatic stopped-state validation",
+    "one bounded V2b bootstrap boot and serial capture",
+    "strict local parsing and evidence preservation"
+  ],
+  "excluded": [
+    "V3",
+    "accepted corpus",
+    "network device",
+    "credentials",
+    "VM118 mutation",
+    "destruction or cleanup",
+    "service deployment",
+    "authority change",
+    "Git push"
+  ],
+  "consumed": true,
+  "automatic_retries_used": 0
+}

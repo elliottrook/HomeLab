@@ -1,0 +1,16 @@
+{
+  "source_commit": "e50b670b906f397e1e70b6d51cf07e88235ac5c5",
+  "results": [
+    {
+      "probe": "different_registered_caller_consumes_request",
+      "observed": "consumed",
+      "synthetic_only": true
+    },
+    {
+      "probe": "approved_yellow_survives_demotion_to_probation",
+      "observed": "consumed",
+      "synthetic_only": true
+    }
+  ],
+  "limit": "Offline source-path probes; no production exploit or production action attempted."
+}

@@ -1,0 +1,16 @@
+VMID       Status     Lock         Name                
+100        running                 docker              
+101        running                 unifi-os-server     
+104        running                 hermesagent         
+106        running    backup       authentik           
+107        running                 reverse-proxy       
+108        running                 forgejo             
+109        running                 observability       
+110        running                 ollama-gpu-pilot    
+111        running                 netbox              
+112        running                 backup-relay        
+113        running                 aster-wiki          
+114        running                 news-aggregator     
+115        running                 paperless-ngx       
+116        running                 aster-speech        
+117        running                 openbao             

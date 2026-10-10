@@ -111,11 +111,19 @@ class Store:
         value["reused"] = reused
         return value
 
-    def start(self, owner, request: Start):
+    def start(self, owner, request: Start, *, reconcile_stale: bool = True):
         if request.target not in self.enabled:
             raise HTTPException(403, "This lab target is disabled")
         with self.db() as db:
-            self.expire(db)
+            if reconcile_stale:
+                self.expire(db)
+            elif db.execute(
+                """SELECT 1 FROM jobs
+                     WHERE (state='queued' AND updated<?)
+                        OR (state='running' AND updated<?)""",
+                (self.now() - 300, self.now() - 7200),
+            ).fetchone():
+                raise HTTPException(409, "A stale lab job needs operator reconciliation")
             existing = db.execute("SELECT * FROM jobs WHERE owner=? AND request_id=?", (owner, request.request_id)).fetchone()
             if existing:
                 if (existing["target"], existing["purpose"]) != (request.target, request.purpose):
@@ -162,6 +170,27 @@ class Store:
             if not row:
                 raise HTTPException(404, "No lab job found")
             return self.public(row)
+
+    def reconcile_interrupted_doctor(self, job_id: str, operator: str):
+        """Operator-only closure for a no-effect Doctor job that lost its worker.
+
+        This is deliberately absent from every HTTP/model path.  It preserves
+        the original unknown result and can only close the exact interrupted,
+        no-coverage Doctor state as a failed observation.
+        """
+        if not re.fullmatch(r"[a-f0-9]{32}", job_id) or not operator or len(operator) > 80:
+            raise ValueError("invalid reconciliation identity")
+        with self.db() as db:
+            row = db.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+            if not row or row["target"] != "doctor" or row["state"] != "unknown":
+                raise ValueError("job is not an uncertain Doctor job")
+            prior = json.loads(row["result"] or "{}")
+            if prior != {"state": "unknown", "code": "interrupted", "coverage": "none"}:
+                raise ValueError("Doctor job is not the bounded interrupted state")
+            db.execute("CREATE TABLE IF NOT EXISTS operator_reconciliations (job TEXT PRIMARY KEY, prior_result TEXT NOT NULL, operator TEXT NOT NULL, at REAL NOT NULL, evidence TEXT NOT NULL)")
+            db.execute("INSERT INTO operator_reconciliations VALUES (?,?,?,?,?)", (job_id, row["result"], operator, self.now(), "worker interrupted before result; Doctor has no effectful adapter"))
+            result = json.dumps({"state":"failed", "code":"adapter_failed", "coverage":"none"}, sort_keys=True)
+            db.execute("UPDATE jobs SET state='failed',result=?,updated=? WHERE id=?", (result, self.now(), job_id))
 
     def claim(self):
         with self.db() as db:

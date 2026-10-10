@@ -1,0 +1,19 @@
+{
+  "format": "s0-manual-effort.v1",
+  "batch": "batch-1",
+  "recorded_at": "2026-09-26T12:09:34.242383-07:00",
+  "source_thread": "01a0da33-48a7-7130-b567-5e0eb698139f",
+  "source_user_message": "5",
+  "source_question": "Roughly how many minutes did you actively spend reviewing the ten cases?",
+  "measure": "self-reported approximate aggregate active review time",
+  "minutes": 5,
+  "families": 10,
+  "derived_average_seconds": 30,
+  "measured_median_seconds": null,
+  "per_case_timings": null,
+  "gate_decision": "continue-with-aggregate-effort-evidence",
+  "gate_basis": "Ten nonnegative per-case durations summing to 300 seconds have median at most 50 seconds. This is a conditional bound from the reported aggregate, not a measured median; approximate self-report is not instrumented timing.",
+  "unresolved_review_decisions": 0,
+  "unresolved_fraction": 0,
+  "evaluation_authorized": false
+}

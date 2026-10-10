@@ -1,0 +1,126 @@
+{
+  "schema": "aster-s0-vm-release.v1",
+  "release_id": "v3b-isolation-fixture-002",
+  "status": "prepared-awaiting-exact-execution-approval",
+  "observed_at": "2026-09-26T17:29:56-07:00",
+  "base_commit": "aae24aa",
+  "correction": {
+    "verified_v3_failure": "systemd 226/NAMESPACE; /var/tmp denial target absent",
+    "change": "preserve PrivateTmp; move planted denial target to /srv/aster-s0-isolation-fixture-002",
+    "other_control_relaxation": false
+  },
+  "target": {
+    "host": "proxmox",
+    "vmid": 121,
+    "name": "aster-s0-isolation-v2",
+    "vmid_observed_free": true,
+    "nextid_at_preflight": 121,
+    "seed_iso": "aster-s0-isolation-fixture-002.iso",
+    "seed_iso_observed_absent": true,
+    "network_devices": [],
+    "agent": "absent",
+    "cores": 1,
+    "memory_mib": 1024,
+    "disk_gib": 8,
+    "fresh_os_import_required": true,
+    "reuse_prior_fixture_disk": false
+  },
+  "source_image": {
+    "bytes": 433651712,
+    "filename": "debian-13-generic-amd64-20260914-2601.qcow2",
+    "sha512": "a733e7d49442a03e70d03e4eb5aaf3967f3efc69ef70952f9bb10fc1ee2c4876eb95956b5ad2d31350e5fada768feb651352535fb8cd1233f61998a5a7d2e93c",
+    "url": "https://cloud.debian.org/images/cloud/trixie/20260914-2601/debian-13-generic-amd64-20260914-2601.qcow2"
+  },
+  "candidate": {
+    "run_id": "isolation-fixture-002",
+    "instance_id": "aster-s0-isolation-fixture-002",
+    "payload_manifest_sha256": "73b4d01f94f9ab31919ba024320e70d8152fe6efdd03896ef1cdc086ff1ff63c",
+    "candidate_manifest_sha256": "b9f65cfcfa7b8d8a2b3cafe39e4a27799f5d7d630f45328d81bfb12eccf22da8",
+    "accepted_corpus_included": false,
+    "accepted_corpus_evaluation_authorized": false,
+    "invented_fixture_only": true
+  },
+  "files": {
+    "user-data": {
+      "bytes": 7575,
+      "sha256": "b42db908fa5bdae9454e64edda81b91c2582bca311771036a93f41d1982ecd69"
+    },
+    "meta-data": {
+      "bytes": 82,
+      "sha256": "aefe62a535d0c7c972b3f8f03be2fccdce1908fe484ca61344d0273761161215"
+    },
+    "payload-manifest.json": {
+      "bytes": 1121,
+      "sha256": "5cd26228f6536f67ba84f20ee2616e53c3fd0cb20340bbfd9d3185770567fdb1"
+    },
+    "candidate-manifest.json": {
+      "bytes": 1031,
+      "sha256": "b9f65cfcfa7b8d8a2b3cafe39e4a27799f5d7d630f45328d81bfb12eccf22da8"
+    },
+    "vm-config-proposal.json": {
+      "bytes": 654,
+      "sha256": "0361d3c6a9decf6fb4786744ffccf87b16fb1e833f415f21f31f7646d1009cf2"
+    },
+    "isolation_probe.py": {
+      "bytes": 3083,
+      "sha256": "3764a9c99301e05102501ab18f82175268f3a39148dc9eed56a7a34fce3238fe"
+    },
+    "aster-s0-isolation.service": {
+      "bytes": 1457,
+      "sha256": "7eb7a28e718a6760af4369b1d99e303162b0bf45a9cb7d5b2e8bfe6443328c8f"
+    },
+    "s0_vm_isolation_candidate_v2.py": {
+      "bytes": 12092,
+      "sha256": "08666d5ecd7be14057a47fb3f348377c4d32655140c8775617912892b399202b"
+    },
+    "s0_vm_isolation_release_v2.py": {
+      "bytes": 3528,
+      "sha256": "c96cc7c2aa8eecc8ff1138a9c7ee51ce3b77b8e1ee2ccde513ad0e8cbb95b590"
+    },
+    "s0_vm_serial.py": {
+      "bytes": 6108,
+      "sha256": "2d9ab4e9961f29efa3559f54b4645fecca1af74765675eb6f4b5440e25267ab6"
+    },
+    "create-stopped-vm-v3b.sh": {
+      "bytes": 5115,
+      "sha256": "cb1769f02e49262147dc1c12169515c8a0fed457eaae5df8d28ed8d076322682"
+    },
+    "run-once-v3b.sh": {
+      "bytes": 2049,
+      "sha256": "6c8a3356b8a3621f6941040dbc4a6d4dfe3cc2ffb265f68be694967e0e14b78b"
+    }
+  },
+  "required_checks": [
+    "environment_allowlisted",
+    "environment_cleared",
+    "fixed_locale",
+    "fork_denied",
+    "inet_socket_denied",
+    "loopback_only",
+    "system_write_denied",
+    "unix_socket_denied",
+    "unprivileged",
+    "unrelated_read_denied"
+  ],
+  "limits": {
+    "capture_seconds": 300,
+    "capture_bytes": 1048576,
+    "result_bytes": 8192,
+    "unit_seconds": 15,
+    "unit_memory_mib": 64,
+    "unit_tasks": 1,
+    "automatic_retries": 0
+  },
+  "execution": {
+    "v3b_authorized": false,
+    "destruction_authorized": false,
+    "partial_failure_action": "stop-and-retain",
+    "existing_vm118_mutation": false,
+    "existing_vm119_mutation": false,
+    "existing_vm120_mutation": false,
+    "network_attachment_authorized": false,
+    "credential_use_authorized": false,
+    "accepted_corpus_authorized": false,
+    "git_push_authorized": false
+  }
+}

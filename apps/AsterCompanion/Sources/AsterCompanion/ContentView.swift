@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var state: AsterState = .idle
     @State private var errorText: String?
     @StateObject private var replyProgress = ReplyProgress()
+    @State private var showingAIPAM = false
 
     // Persona + per-chat tool selection (M4). The backend's PERSONAS
     // registry is authoritative (services/aster-agent/aster_agent.py) -
@@ -145,6 +146,8 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 HStack {
                     Text("Aster").font(.headline)
+                    Button("AI-PAM") { showingAIPAM = true }
+                        .buttonStyle(.bordered)
                     Spacer()
                     if let personas = personasResponse?.personas, !personas.isEmpty {
                         Picker("", selection: Binding(get: { currentPersona }, set: switchPersona)) {
@@ -161,6 +164,7 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding()
+                .sheet(isPresented: $showingAIPAM) { AIPAMView(auth: auth).environmentObject(auth) }
 
                 DisclosureGroup("Notifications") {
                     VStack(alignment: .leading, spacing: 6) {

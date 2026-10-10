@@ -1,33 +1,97 @@
-# credential-broker
+# HomeLab AI Access Broker
 
-Untested skeleton for a HomelabHero-style SSH credential broker: a
-sudoers-narrowed script lets a low-privilege agent user run remote commands
-via a separate vault-owning user, without the agent ever reading key
-material. See ../../docs/projects/homelab-credential-broker.md for the full
-project document, risk assessment, and Stream A authorization envelope.
+This directory contains the deny-by-default implementation artifacts for the
+broader AI-PAM project in
+`docs/projects/completed projects/homelab-credential-broker.md`.
 
-The original `hb-connect`/sudoers skeleton is retained as historical design
-input and is **not deployable**: it permits arbitrary remote command strings and
-does not prevent the agent from invoking its `add` path.
+M2–M5 deploy the synthetic broker foundation on LXC 104. M6 adds separate
+broker-private Forgejo MCP read and safe-write gateways whose credentials remain
+in distinct OpenBao paths. The service accepts JSON requests only over a group-restricted Unix socket and
+derives the caller identity from kernel peer credentials rather than a
+caller-supplied identity field.
 
-The M0 safety prototype adds `mcp_policy_adapter.py`, a local,
-dependency-free boundary for a pinned upstream Forgejo MCP. It exposes only an
-explicit read-tool allowlist, requires an allowlisted repository, refuses
-credential/environment arguments and sensitive paths, and rejects oversized or
-secret-shaped output. It contains no live OpenBao/Forgejo client or credential.
+Implemented controls:
 
-Run its synthetic adversarial suite:
+- SQLite-backed agent, service and capability registries;
+- mandatory Probation state for every newly registered agent;
+- explicit Green, Yellow, Red and Black risk classes;
+- Black capabilities can never be delegated;
+- canonical SHA-256 payload binding, bounded TTLs and one-time consumption;
+- Yellow/Red approval through the existing passkey-only Aster Companion OIDC
+  application and a separate approver-only Unix socket;
+- Red fresh-auth enforcement (`auth_time` no older than 120 seconds), exact
+  payload-hash binding, denial and replay protection;
+- allowlisted non-secret approval summaries for the mobile inbox;
+- agent suspension and global emergency disable revoke open requests;
+- secret-free lifecycle, capability, service metadata, request history and
+  audit views, with fresh-passkey agent/service/request/global revocation;
+- metadata-only audit rows containing hashes rather than request payloads;
+- hardened broker and gateway systemd services; and
+- independent Forgejo MCP response/argument safety adapters. The Yellow adapter
+  exposes only new-file creation from `main` onto a new `ai-pam/` branch beneath
+  `ai-pam-pilot/`; update, delete, merge and direct default-branch writes remain
+  unavailable.
+
+The old SSH/sudo wrapper was removed during M2. It allowed arbitrary command
+strings and was not a valid AI-PAM enforcement boundary; its history remains in
+Git if design archaeology is needed.
+
+Run all synthetic tests:
 
 ```sh
-cd ops/credential-broker
-python3 -m unittest -v test_mcp_policy_adapter.py
+python3 -m unittest discover -s ops/credential-broker -p 'test_*.py' -v
 ```
 
-Layout:
-  bin/hb              - operator/agent entrypoint (calls hb-connect via sudo)
-  bin/hb-connect       - the broker itself; only this may run as the vault user
-  setup/setup-vault.sh - one-time user/directory/sudoers installer
-  setup/etc-sudoers.d-homelab-broker - the sudoers rule installed by the above
-  mcp_policy_adapter.py - deny-by-default Forgejo MCP policy boundary
-  test_mcp_policy_adapter.py - synthetic allow/deny and output-safety tests
-  openbao-pilot-manifest.yaml - non-secret M1 candidate and recovery gates
+Key files:
+
+- `broker_core.py` — registries, policy, request lifecycle, audit and kill switch
+- `broker_service.py` — kernel-identified Unix-socket transport
+- `broker_client.py` — local JSON client
+- `broker_admin.py` — root-only state administration
+- `homelab-broker.service` — systemd confinement
+- `broker_approval_service.py` — Aster-UID-only approval boundary
+- `homelab-broker-approval.service` — separately confined approval unit
+- `services/aster-agent/broker_approvals.py` — signed-identity Companion bridge
+- `setup/install-m2-broker.sh` — idempotent synthetic deployment installer
+- `mcp_policy_adapter.py` — deny-by-default Forgejo MCP boundary
+- `forgejo_mcp_gateway.py` — broker-private gateway that retrieves the PAT from
+  OpenBao and invokes the pinned MCP process
+- `forgejo-mcp-gateway.service` — separately confined gateway unit
+- `forgejo-mcp-write-gateway.service` — separate Unix identity/socket for the
+  Yellow safe-branch credential and gateway
+- `setup/install-m6-safe-write.sh` — fail-closed safe-write deployment after
+  the distinct AppRole credential has been installed
+- `openbao-m6-listener.hcl` / `openbao-m6-nftables.conf` — private TLS listener
+  and broker-only ingress policy
+- `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record
+
+
+## Aster M1 deployment split (2026-09-25)
+
+The deployed Stage1 Aster Adaptive Computing core requires authenticated `agent_id`
+at consume, rechecks a versioned policy digest, invalidates authorizations on
+lifecycle changes, and serializes SQLite checks/transitions and schema migration.
+Legacy requests without a policy digest are denied; create new requests after a
+coordinated release. Bump `AUTHORIZATION_POLICY_VERSION` for changes to policy
+semantics so pending plans cannot inherit new rules silently.
+
+The **local-only Stage2 candidate** approval transport requires `actor` on reads as well as mutations, an explicit
+`--approver-subject-hash` allowlist, and the existing configured peer UID.
+Companion requires matching `ASTER_BROKER_APPROVER_SUBJECT_HASHES` (comma-separated)
+and only maps verified claims to passkey using explicitly configured
+`ASTER_BROKER_PASSKEY_ACRS`. Empty configuration fails closed. No production
+subject/ACR has been chosen or configured by this candidate. Existing unit files
+are not a ready-to-deploy configuration for the new approval service.
+
+See [M1 candidate evidence](../../docs/projects/AI%20Projects/evidence/M1-authority-candidate.md)
+for validation, M6 compatibility, identity/recovery/deployment gates and the
+at-most-once authorization limit. Only core and broker transport are deployed;
+the approval service and Companion retain their prior implementations. Installed
+Authentik claims have not yet established a verified passkey-specific assurance
+mapping; do not treat generic ACR/MFA as that proof. Full M1 remains open.
+
+[Stage1 deployment evidence](../../docs/projects/AI%20Projects/evidence/M1-stage1-deployment.md)
+records exact hashes, protected checkpoint, startup-readiness recovery and live
+validation. The release installer is an execution record, not an idempotent
+redeployment command. Do not restore an older database or restart old core code
+as a casual rollback: that may restore consumed approvals or weaken controls.

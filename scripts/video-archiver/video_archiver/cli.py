@@ -24,7 +24,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--max-files", type=int, default=None,
-        help="Override the config's max_files_per_run for this invocation.",
+        help="Override the config's max_files_per_run; use 0 for unlimited.",
+    )
+    parser.add_argument(
+        "--until", metavar="HH:MM", default=None,
+        help="For execute mode, keep processing until this local wall-clock time.",
     )
     parser.add_argument(
         "--library", choices=["movies", "tv", "both"], default="both",
@@ -43,7 +47,10 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         with run_lock(config.lock_file):
-            summary = run(config, dry_run=dry_run, max_files=max_files, library=args.library)
+            summary = run(
+                config, dry_run=dry_run, max_files=max_files, library=args.library,
+                until=args.until,
+            )
     except LockHeldError as exc:
         logging.error(str(exc))
         return 1

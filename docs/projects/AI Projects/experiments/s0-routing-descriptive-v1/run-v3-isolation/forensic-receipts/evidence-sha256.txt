@@ -1,0 +1,10 @@
+472d3ea14a8c9ded99f3d3bdba7559b126b1c5b250480686986f305523364831  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/cloud-init-isolation-lines.txt
+e1e68b445d6dcf10b6fd14ba3d685a79b25702194f9481668ebcf5bf762fda63  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/filesystem-state.txt
+af51df7e9d9753f23b0650a2290256435e15e6a94b6f1e2c23d216fbe33512d5  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/generated-artifacts.txt
+2ab4899b12855a0590faf9684ab4f21958471f6630e0e1fdfbb4977a35db6c31  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/isolation-journal.jsonl
+8aeadc493342c30470c5ca1cc1279446fecba886baf298a96bd580206ed134b3  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/loop-receipt.txt
+3a1426672ff833d864011af240a0f1b8e2378c2226060f9894c6c838fea6887d  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/lsblk-before-mount.txt
+f65db026c39ac3c15f22af026c08259b4181f37b5c6aa8c1d8c03f1e520af164  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/mount-receipt.txt
+74c4101dd6f2f5940bd678a4db4a6470dd0afe14eff09bd3279eeb345092f747  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/partition-table.txt
+7925d3e9a9613a093e5eb4054b32aa39de910d2b03ba7e8046c3b4550b8de1e4  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/protocol.txt.metadata.txt
+7925d3e9a9613a093e5eb4054b32aa39de910d2b03ba7e8046c3b4550b8de1e4  /var/lib/vz/template/cache/aster-s0-20260926/run-v3/forensics/result.json.metadata.txt

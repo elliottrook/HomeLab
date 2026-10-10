@@ -88,6 +88,13 @@ Inter-VLAN routing and security policy will be enforced by OPNsense unless a fut
 
 This preserves one central policy enforcement point and keeps the switch configuration easier to understand.
 
+The Proxmox host (`192.168.50.10`) has deliberately narrow management access
+to TrueNAS (`192.168.20.40`) on TCP 22 and 443, in addition to its existing
+TCP 2049 NFS permission. These are host-to-host OPNsense rules on Management
+VLAN `opt4`, not a VLAN-wide permit; the rules are logged and placed before
+the Management-to-RFC1918 isolation rule. The project checkpoint is
+`/conf/backup/config-unified-media-before-20261005.xml` on OPNsense.
+
 ## Remote access
 
 Tailscale runs in the Docker LXC as a subnet router and advertises `192.168.1.0/24`, `192.168.20.0/24` and `192.168.50.0/24`. Split DNS forwards the `internal` namespace to OPNsense, allowing `home.internal` and other internal names to work remotely. Tailnet grants restrict Trusted, Servers and Management access to the administrator identity. No inbound WAN port-forward is required.

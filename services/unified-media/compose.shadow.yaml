@@ -1,0 +1,200 @@
+services:
+  snapshot-refresh:
+    profiles: ["scheduled"]
+    build:
+      context: .
+      dockerfile: portal/Dockerfile
+    container_name: unified-recommendation-refresh-shadow
+    environment:
+      - PORTAL_REFRESH_LOOP=YES
+      - PORTAL_REFRESH_INTERVAL_SECONDS=${PORTAL_REFRESH_INTERVAL_SECONDS:-21600}
+      - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
+      - PORTAL_SOURCE_STATUS_PATH=/data/source-status.json
+      - PORTAL_REJECTED_PATH=/data/rejected.json
+      - PORTAL_LIBRARY_SNAPSHOT_PATH=/data/library.json
+      - PORTAL_HISTORY_SNAPSHOT_PATH=/data/history.json
+      - PORTAL_REFRESH_TRIGGER_PATH=/data/refresh-now
+      - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
+      - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
+      - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
+      - LIDARR_URL=${LIDARR_URL:-http://192.168.20.40:8686}
+      - LIDARR_API_KEY_PATH=/run/unified-secrets/lidarr-api-key
+      - SONARR_URL=${SONARR_URL:-http://192.168.20.40:8989}
+      - SONARR_API_KEY_PATH=/run/unified-secrets/sonarr-api-key
+      - RADARR_URL=${RADARR_URL:-http://192.168.20.40:7878}
+      - RADARR_API_KEY_PATH=/run/unified-secrets/radarr-api-key
+      - JELLYFIN_URL=${JELLYFIN_URL:-http://192.168.20.40:8096}
+      - JELLYFIN_API_KEY_PATH=/run/unified-secrets/jellyfin-api-key
+      - AUDIOBOOKSHELF_URL=${AUDIOBOOKSHELF_URL:-http://192.168.20.40:30067}
+      - AUDIOBOOKSHELF_TOKEN_PATH=/run/unified-secrets/audiobookshelf-reader-token
+      - AUDIOBOOKSHELF_LIBRARY_IDS=${AUDIOBOOKSHELF_LIBRARY_IDS:-d314ea90-ce9a-4a50-8186-9159bbf4a755}
+      - AUDIOBOOKSHELF_USER_ID=${AUDIOBOOKSHELF_USER_ID:-09bc1b6d-f639-4800-8023-06d9497129c5}
+      - JELLYFIN_USER_ID=${JELLYFIN_USER_ID:-329ac173978e43ae8d427d3a561db005}
+      - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://lazylibrarian:5299}
+      - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
+      - PORTAL_RECOMMENDATION_LIMIT=${PORTAL_RECOMMENDATION_LIMIT:-40}
+      # Optional explicit TMDB IDs supplement the bounded Radarr/Sonarr seeds.
+      - PORTAL_TMDB_SEEDS=${PORTAL_TMDB_SEEDS:-}
+      - PORTAL_TMDB_TIMEOUT=${PORTAL_TMDB_TIMEOUT:-10}
+      - TRAKT_ACCESS_TOKEN_PATH=/run/unified-secrets/trakt-access-token
+      - TRAKT_CLIENT_ID_PATH=/run/unified-secrets/trakt-client-id
+      - TRAKT_REFRESH_TOKEN_PATH=/run/unified-secrets/trakt-refresh-token
+      - PORTAL_TRAKT_LIMIT=${PORTAL_TRAKT_LIMIT:-6}
+      # Music candidates require an explicit artist|album identity. Legacy
+      # title-only entries are ignored by the refresher.
+      - PORTAL_LIDARR_QUERIES=${PORTAL_LIDARR_QUERIES:-Miles Davis|Kind of Blue,The Beatles|Abbey Road}
+      # Optional read-only discovery seeds. Empty by default until reviewed.
+      - PORTAL_BOOK_QUERIES=${PORTAL_BOOK_QUERIES:-The Dispossessed,The Fifth Season,Dune,1984,Project Hail Mary,The Left Hand of Darkness}
+      - PORTAL_AUDIOBOOK_QUERIES=${PORTAL_AUDIOBOOK_QUERIES:-The Murderbot Diaries,The Long Way to a Small Angry Planet,Dune,Project Hail Mary,The Hobbit,World War Z}
+      - PORTAL_MUSIC_MB_QUERIES=${PORTAL_MUSIC_MB_QUERIES:-Talk Talk|Spirit of Eden,Portishead|Dummy,Joni Mitchell|Blue,Miles Davis|Kind of Blue,Radiohead|OK Computer,Massive Attack|Mezzanine}
+      - PORTAL_AI_ENABLED=${PORTAL_AI_ENABLED:-YES}
+      - PORTAL_AI_DEBUG=${PORTAL_AI_DEBUG:-NO}
+      - ASTER_LLAMA_URL=${ASTER_LLAMA_URL:-http://192.168.70.12:11435/v1/chat/completions}
+      - ASTER_LLAMA_API_KEY_PATH=/run/unified-secrets/aster-llama-recommendation-key
+      - ASTER_MODEL=${ASTER_MODEL:-local}
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data
+      - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/sonarr-api-key:/run/unified-secrets/sonarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/radarr-api-key:/run/unified-secrets/radarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/jellyfin-api-key:/run/unified-secrets/jellyfin-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/audiobookshelf-reader-token:/run/unified-secrets/audiobookshelf-reader-token:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/lazylibrarian-api-key:/run/unified-secrets/lazylibrarian-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/aster-llama-recommendation-key:/run/unified-secrets/aster-llama-recommendation-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-access-token:/run/unified-secrets/trakt-access-token
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-client-id:/run/unified-secrets/trakt-client-id:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-refresh-token:/run/unified-secrets/trakt-refresh-token
+    command: ["python", "/app/refresh.py"]
+    restart: unless-stopped
+
+  recommendation-portal:
+    build:
+      context: .
+      dockerfile: portal/Dockerfile
+    container_name: unified-recommendation-portal-shadow
+    environment:
+      - PORT=8787
+      - PORTAL_SNAPSHOT_PATH=/data/recommendations.json
+      - PORTAL_SOURCE_STATUS_PATH=/data/source-status.json
+      - PORTAL_REJECTED_PATH=/data/rejected.json
+      - PORTAL_REFRESH_TRIGGER_PATH=/data/refresh-now
+      - PORTAL_STATE_PATH=/state/actions.json
+      - PORTAL_ACTIONS_ENABLED=${PORTAL_ACTIONS_ENABLED:-YES}
+      - SEERR_URL=${SEERR_URL:-http://192.168.20.40:5055}
+      - SEERR_EMAIL=${SEERR_EMAIL:-unified-media-requester@local.invalid}
+      - SEERR_PASSWORD_PATH=/run/unified-secrets/seerr-requester-password
+      - LIDARR_URL=${LIDARR_URL:-http://192.168.20.40:8686}
+      - LIDARR_API_KEY_PATH=/run/unified-secrets/lidarr-api-key
+      - LIDARR_ROOT=${LIDARR_ROOT:-/media/media/music}
+      - LIDARR_QUALITY_PROFILE_ID=${LIDARR_QUALITY_PROFILE_ID:-1}
+      - LIDARR_METADATA_PROFILE_ID=${LIDARR_METADATA_PROFILE_ID:-1}
+      - LAZYLIBRARIAN_URL=${LAZYLIBRARIAN_URL:-http://lazylibrarian:5299}
+      - LAZYLIBRARIAN_API_KEY_PATH=/run/unified-secrets/lazylibrarian-api-key
+      - TRAKT_CLIENT_ID_PATH=/run/unified-secrets/trakt-client-id
+      - TRAKT_ACCESS_TOKEN_PATH=/run/unified-secrets/trakt-access-token
+      - TRAKT_REFRESH_TOKEN_PATH=/run/unified-secrets/trakt-refresh-token
+      - TRAKT_REDIRECT_URI=${TRAKT_REDIRECT_URI:-https://recommendations.elliottrook.com/oauth/trakt/callback}
+      - TRAKT_OAUTH_STATE_PATH=/state/trakt-oauth.json
+      - TRAKT_DEVICE_STATE_PATH=/state/trakt-device.json
+      - SPOTIFY_CLIENT_ID_PATH=/run/unified-secrets/spotify-client-id
+      - SPOTIFY_CLIENT_SECRET_PATH=/run/unified-secrets/spotify-client-secret
+      - SPOTIFY_ACCESS_TOKEN_PATH=/run/unified-secrets/spotify-access-token
+      - SPOTIFY_REFRESH_TOKEN_PATH=/run/unified-secrets/spotify-refresh-token
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI:-https://recommendations.elliottrook.com/oauth/spotify/callback}
+      - SPOTIFY_OAUTH_STATE_PATH=/state/spotify-oauth.json
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/portal-refresh:/data
+      - ${UNIFIED_CONFIG_PATH}/portal/state:/state
+      - ${UNIFIED_CONFIG_PATH}/secrets/seerr-requester-password:/run/unified-secrets/seerr-requester-password:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/lidarr-api-key:/run/unified-secrets/lidarr-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/lazylibrarian-api-key:/run/unified-secrets/lazylibrarian-api-key:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-access-token:/run/unified-secrets/trakt-access-token
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-client-id:/run/unified-secrets/trakt-client-id:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/trakt-refresh-token:/run/unified-secrets/trakt-refresh-token
+      - ${UNIFIED_CONFIG_PATH}/secrets/spotify-client-id:/run/unified-secrets/spotify-client-id:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/spotify-client-secret:/run/unified-secrets/spotify-client-secret:ro
+      - ${UNIFIED_CONFIG_PATH}/secrets/spotify-access-token:/run/unified-secrets/spotify-access-token
+      - ${UNIFIED_CONFIG_PATH}/secrets/spotify-refresh-token:/run/unified-secrets/spotify-refresh-token
+    ports:
+      - "127.0.0.1:8787:8787"
+      - "192.168.20.40:8787:8787"
+    restart: "no"
+
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian:streama-new
+    container_name: unified-lazylibrarian-shadow
+    environment:
+      - PUID=568
+      - PGID=568
+      - LSIO_NON_ROOT_USER=true
+      - TZ=${TZ:-America/Vancouver}
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/lazylibrarian:/config
+      - ${UNIFIED_CONFIG_PATH}/lazylibrarian-jsoncache:/config/cache/JSONCache
+      - ${UNIFIED_MEDIA_PATH}:/data
+      # Keep shadow acquisition/import boundaries separate from production.
+      - ${UNIFIED_MEDIA_PATH}/downloads:/downloads
+      - ${UNIFIED_MEDIA_PATH}/ingest/books:/books
+      - ${UNIFIED_MEDIA_PATH}/ingest/audiobooks:/audio
+      # Compatibility fix for the image's API reference to the removed
+      # NEWBOOK_AUDIO setting; this is shadow-only and read-only at runtime.
+      - ${UNIFIED_CONFIG_PATH}/lazylibrarian-patches/api.py:/app/lazylibrarian/lazylibrarian/api.py:ro
+    ports:
+      - "127.0.0.1:5299:5299"
+    restart: "no"
+
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:2.36.0
+    container_name: unified-audiobookshelf-shadow
+    environment:
+      - TZ=${TZ:-America/Vancouver}
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/audiobookshelf:/config
+      - ${UNIFIED_CONFIG_PATH}/audiobookshelf-metadata:/metadata
+      # Audiobooks live in the TrueNAS media dataset, outside the data/downloads tree.
+      # Keep this explicit and read-only so the shadow instance cannot alter production media.
+      - ${UNIFIED_AUDIOBOOKS_PATH:-/mnt/Media/media/audiobooks}:/audiobooks:ro
+    ports:
+      - "127.0.0.1:30077:80"
+    restart: "no"
+
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: unified-calibre-web-shadow
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=${TZ:-America/Vancouver}
+    volumes:
+      - ${UNIFIED_CONFIG_PATH}/calibre-web:/config
+      # Use a disposable Calibre metadata/library copy for shadow validation.
+      # The production Calibre library is not mounted into this container.
+      - ${UNIFIED_EBOOK_SHADOW_PATH}:/books
+      - ${UNIFIED_MEDIA_PATH}/ingest/books:/ingest
+    ports:
+      - "127.0.0.1:8284:8083"
+    restart: "no"
+
+  calibre-worker:
+    profiles: ["worker"]
+    image: ghcr.io/linuxserver/calibre:9.13.0
+    container_name: unified-calibre-worker-shadow
+    environment:
+      - PUID=568
+      - PGID=568
+      - TZ=${TZ:-America/Vancouver}
+      - HOME=/tmp
+      - UNIFIED_CALIBRE_LIBRARY_PATH=${UNIFIED_CALIBRE_LIBRARY_PATH:?set a disposable or explicitly approved Calibre library}
+      - UNIFIED_BOOK_INGEST_PATH=${UNIFIED_BOOK_INGEST_PATH:?set a bounded ebook ingest directory}
+      - UNIFIED_BOOK_OUTPUT_PATH=${UNIFIED_BOOK_OUTPUT_PATH:?set a bounded conversion output directory}
+    volumes:
+      # These variables are intentionally mandatory: never infer a production
+      # Calibre path for a one-shot database writer.
+      - ${UNIFIED_CALIBRE_LIBRARY_PATH:?set a disposable or explicitly approved Calibre library}:/library
+      - ${UNIFIED_BOOK_INGEST_PATH:?set a bounded ebook ingest directory}:/ingest:ro
+      - ${UNIFIED_BOOK_OUTPUT_PATH:?set a bounded conversion output directory}:/output
+      - ./calibre-worker:/worker:ro
+    entrypoint: ["/worker/run.sh"]
+    command: ["list"]
+    restart: "no"

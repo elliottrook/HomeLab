@@ -16,7 +16,7 @@
 ## Enhancement portfolio
 
 - [x] [Local AI](<projects/completed projects/Local-AI.md>)
-- [ ] [Authentik service rollout](projects/Authentik-Rollout.md)
+- [x] [Authentik service rollout](projects/completed%20projects/Authentik-Rollout.md)
 - [ ] [Surveillance expansion](projects/Surveillance-Expansion.md)
 - [ ] [NUT/UPS deployment](handovers/UPS-Power-Resilience-Claude-Handover.md)
 - [ ] [TrueNAS DIY SAS expansion](projects/TrueNAS-DIY-SAS-Expansion.md)

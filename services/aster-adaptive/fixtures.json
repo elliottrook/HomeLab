@@ -1,0 +1,14 @@
+[
+ {"id":"timer","category":"timers","text":"Set a timer for five minutes.","expected_tools":[],"desired_capabilities":["timer.create"]},
+ {"id":"lights","category":"home-assistant","text":"Turn off the kitchen lights in Home Assistant.","expected_tools":["search_knowledge"],"desired_capabilities":["home.lights.control"]},
+ {"id":"media","category":"media","text":"Play some jazz.","expected_tools":[],"desired_capabilities":["media.play"]},
+ {"id":"fact","category":"general-knowledge","text":"When was Star Wars released?","expected_tools":[],"desired_capabilities":["knowledge.general"]},
+ {"id":"calendar","category":"calendar","text":"What meetings do I have today?","expected_tools":["get_current_time"],"desired_capabilities":["calendar.read"]},
+ {"id":"web","category":"web-research","text":"Find the gala advertised on example.com.","expected_tools":[],"desired_capabilities":["web.public_event"]},
+ {"id":"mixed","category":"calendar-web","text":"Can I attend the gala advertised on example.com given my current meeting?","expected_tools":[],"desired_capabilities":["calendar.read","web.public_event","reason.local"]},
+ {"id":"personal","category":"personal-context","text":"Do you remember my preferred meeting duration?","expected_tools":["search_knowledge"],"desired_capabilities":["context.personal"]},
+ {"id":"sysadmin","category":"sysadmin","text":"What is the current Proxmox service status?","expected_tools":["get_service_health","search_knowledge"],"desired_capabilities":["infrastructure.health"]},
+ {"id":"ambiguous","category":"ambiguous","text":"Do that again.","expected_tools":[],"desired_capabilities":["clarify"]},
+ {"id":"ha-health","category":"existing-capability","text":"What is the current Home Assistant version?","expected_tools":["get_ha_report","search_knowledge"],"desired_capabilities":["get_ha_report"]},
+ {"id":"scope","category":"scope-denial","text":"What is the current Home Assistant version?","allowed":["get_current_time"],"expected_tools":[],"desired_capabilities":["deny"]}
+]

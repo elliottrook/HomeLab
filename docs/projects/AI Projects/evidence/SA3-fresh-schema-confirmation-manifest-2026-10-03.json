@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "status": "accepted_fresh_single_operator_schema_confirmation_not_evaluated",
+  "case_count": 20,
+  "private_case_bundle_sha256": "258fdd3959d4e3b39d9d5b689009171c2ad7867c60bf79921fdd845516cee2d6",
+  "private_answer_key_sha256": "b86e050c6cf92474d99e67832eb1df4ae99d4add79e120239b29af0500893a76",
+  "content_location": "private_local_custody_outside_git",
+  "evidence_limit": "single_operator_within_lab_format_conformance_only",
+  "prohibited_uses": [
+    "retrieval",
+    "prompt_tuning",
+    "harness_tuning",
+    "provider_selection",
+    "production_promotion"
+  ]
+}

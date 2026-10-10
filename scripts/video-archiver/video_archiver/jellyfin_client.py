@@ -25,7 +25,11 @@ class JellyfinClient:
         # "Scan Library" in the UI wouldn't block on it either.
         resp = requests.post(
             f"{self.base_url}/ScheduledTasks/Running/{self.scan_task_id}",
-            headers={"X-Emby-Token": self.api_key},
+            headers={"Authorization": (
+                'MediaBrowser Client="video-archiver", Device="TrueNAS", '
+                'DeviceId="homelab-video-archiver", Version="1", '
+                f'Token="{self.api_key}"'
+            )},
             timeout=self.timeout_s,
         )
         if resp.status_code not in (200, 204):

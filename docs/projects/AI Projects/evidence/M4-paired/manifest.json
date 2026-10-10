@@ -1,0 +1,14 @@
+{
+  "schema_version": "paired-manifest.v1",
+  "tests_passed": 52,
+  "files": {
+    "scripts/aster-adaptive/paired_evidence.py": "sha256:9befaa636e3d182db07bb65c1adf201e36d8d5baa7e368c33e8c19c11139a09c",
+    "scripts/aster-adaptive/measure_paired.py": "sha256:5f6ba5e2335cdbb5e8f67fe2f2adacc0f13bb929e36093fa4458a74dded7c57f",
+    "scripts/aster-adaptive/evidence_store.py": "sha256:93a61706072fcc3a33d57c8fd1a4b03107b4c783e75c45d3b5d571613b96bd1b",
+    "scripts/aster-adaptive/test_paired_evidence.py": "sha256:a6e52520a6c7edb3b4b241a32af367307fb337e2d800559b416776ba15476901",
+    "docs/projects/AI Projects/evidence/M4-paired/measurement-001.json": "sha256:9a3e0447adbf27f24bf5d9ab777ebbd5565bbce7873f554034304a4ce88fea38",
+    "docs/projects/AI Projects/evidence/M4-paired/pairedevaluation.schema.json": "sha256:a35a818f714d09ca6d40f4ab063b2cb7cadd597f7d91b37f9389e4de254d5032",
+    "docs/projects/AI Projects/evidence/M4-paired/pairedplan.schema.json": "sha256:022dbc031b3efbbd35fcde884bf1cea1b939192128699ea12adde3c07634b710",
+    "docs/projects/AI Projects/evidence/M4-paired-plan.md": "sha256:cd6fb17a8bad8fdd49b1332372e46fca9e23baa74ed4834b74e671449f15a48e"
+  }
+}

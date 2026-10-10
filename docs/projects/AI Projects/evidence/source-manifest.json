@@ -1,0 +1,795 @@
+{
+  "ref": "e50b670b906f397e1e70b6d51cf07e88235ac5c5",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "9c49718bef0fcc8298dbff479fc24366c52c13dcfd91181a4db4d5c8a708514e",
+      "bytes": 4601
+    },
+    {
+      "path": "PROJECTS.md",
+      "sha256": "fb4536a29d36f27c2b98c03bf963faec1e71111b532d5bb38f48d58234e7a789",
+      "bytes": 51568
+    },
+    {
+      "path": "docs/01-Architecture.md",
+      "sha256": "ee09d64d8f9f23d4a2e8e5f97e33ffe6ba59359d6689b43cae9bf6b2780bdbce",
+      "bytes": 15114
+    },
+    {
+      "path": "docs/02-IP-Addressing.md",
+      "sha256": "80f2cc65e1e968bfe31e478863ce57d7f6e21830fcdb4af648966cdaf4b24b73",
+      "bytes": 7551
+    },
+    {
+      "path": "docs/03-Hardware-Inventory.md",
+      "sha256": "03666e09b68af79766bfa435f01a7fc10b64f73e83fdc50f7ed430eeea90a9b8",
+      "bytes": 5645
+    },
+    {
+      "path": "docs/04-Operations.md",
+      "sha256": "d66fbdd877bf72535b34b83a5d68669feb9703870b2c0ddc5d818ef2ef9a8b12",
+      "bytes": 58467
+    },
+    {
+      "path": "docs/05-Backups.md",
+      "sha256": "c6b2c7bffabebad85a14ec30ee0f28fb091d5442fa0cd18c0b285ca32d0fd1d5",
+      "bytes": 57159
+    },
+    {
+      "path": "docs/06-Roadmap.md",
+      "sha256": "376b769653bb972649b2257aa05fcbc5db79d5c0b15dcfc0c2b63ae3513f5e7e",
+      "bytes": 1988
+    },
+    {
+      "path": "docs/07-Surveillance.md",
+      "sha256": "18d65b49ebe3251c92d67830ad1294b1cd94ba5c33c5bb8c62533d1f720116a4",
+      "bytes": 15257
+    },
+    {
+      "path": "docs/08-Authorization.md",
+      "sha256": "bdb16cb65c612ebe57b2170a1b0e78a8746cd018d969d7860bc40649b63b1d37",
+      "bytes": 10166
+    },
+    {
+      "path": "docs/09-Service-Authorization-Onboarding.md",
+      "sha256": "1099640fb0ba8079e205154248ab84061b31741fbe5441f375443003f67abade",
+      "bytes": 28701
+    },
+    {
+      "path": "docs/10-Camera-Onboarding-Runbook.md",
+      "sha256": "d380c89ff81566d7d3f9190e071d8638755b58c39b39c9f382ca0e67357aa1ce",
+      "bytes": 11120
+    },
+    {
+      "path": "docs/Backup-Retirement-Follow-Ups.md",
+      "sha256": "6a8710e1818a5c785840d54f979a1e5fc88fb7392bb1c57693d68bd6980fb55f",
+      "bytes": 3266
+    },
+    {
+      "path": "docs/Current-Network-Baseline.md",
+      "sha256": "c04b968b8339bea8f16bf3607fb7c685bbdd34fb7307837e637208c987352b0e",
+      "bytes": 58530
+    },
+    {
+      "path": "docs/Master-Plan.md",
+      "sha256": "16ff4ab200dadbf63b59d5e8e1817c8d002f4dd68e52ff1d2918912eb8df5511",
+      "bytes": 4735
+    },
+    {
+      "path": "docs/Migration-Strategy.md",
+      "sha256": "180e481103905fd89f4d8a8c0e2ba501ccad903877917a6cf5fd6609eeb1e8e8",
+      "bytes": 700
+    },
+    {
+      "path": "docs/Network-Design.md",
+      "sha256": "7a9f13072398d4fae799f2134a617cfff906ea8cab1d0f5ab31a1dba8cfee8ca",
+      "bytes": 5498
+    },
+    {
+      "path": "docs/Project-Creation-Standard.md",
+      "sha256": "e36cabd0494929ae4b4d32452e73963a92a699248241ca370f4b7baf0a72a169",
+      "bytes": 21154
+    },
+    {
+      "path": "docs/Standards.md",
+      "sha256": "692d5c5008e755f4f6e9040765404e3ec20a8b88555566bd74658a2cb3c55eb2",
+      "bytes": 696
+    },
+    {
+      "path": "docs/VLAN-Design.md",
+      "sha256": "2b8c0630aa4b5241c9bf0fbf463dcdda8a6b8a345f68b05d3dfb62d46b776d76",
+      "bytes": 480
+    },
+    {
+      "path": "docs/handovers/Authentik-Cloudflare-Access-OIDC-Handover.md",
+      "sha256": "57f1e63e0086e1904d3eafa3bdfcb60e452d3c07d4e682c112747ba26035b255",
+      "bytes": 8636
+    },
+    {
+      "path": "docs/handovers/Synology-Drive-Cloudflare-Handover.md",
+      "sha256": "ecef565399b80e7251569dd1c38c53731f1134643852a009fe64f48681066282",
+      "bytes": 5635
+    },
+    {
+      "path": "docs/handovers/UPS-Power-Resilience-Claude-Handover.md",
+      "sha256": "6233695b326a7b35eccb6afc87ecd6c03d0818f49c5158a7543de1977e71ab14",
+      "bytes": 56088
+    },
+    {
+      "path": "docs/handovers/UPS-Power-Resilience-Implementation-Close-Out.md",
+      "sha256": "fc76a494cb1720970d4ab35ca09acc18c1975e15cf300fe7a96a4ee058854598",
+      "bytes": 14153
+    },
+    {
+      "path": "docs/projects/Archive-Large-File-Compaction.md",
+      "sha256": "5acd5ca0c388fd61c453b108d927d71d73235ebad856f988f1d28b669a68375f",
+      "bytes": 9109
+    },
+    {
+      "path": "docs/projects/Aster-ARR-First-Repair-Decision.md",
+      "sha256": "f1db7e313cd18522a35a968b2970e0acda990431d38845e45b31d613cb10611f",
+      "bytes": 7161
+    },
+    {
+      "path": "docs/projects/Aster-ARR-Report-Contract.md",
+      "sha256": "0925ba32f9992a340ff042532bbafb9f12f13d3951f0c2fd1974dd28bdac8c3d",
+      "bytes": 2856
+    },
+    {
+      "path": "docs/projects/Aster-Companion-ARR-Execution-Followup.md",
+      "sha256": "cd9ade84480c124a4b2367130601874fb63803e1e68c9b170e65a669bdf4e49e",
+      "bytes": 3863
+    },
+    {
+      "path": "docs/projects/Aster-Lab-Operations.md",
+      "sha256": "68dd9747f37d49557964ddc2de1d8f3257fbee7554d31ad7a5896d5b4380c020",
+      "bytes": 18943
+    },
+    {
+      "path": "docs/projects/Aster-Personal-Assistant.md",
+      "sha256": "943099d856d6b9e9c02ec5d0cad6e82fef9a17f121a3c06aaa2b370022b02b83",
+      "bytes": 70270
+    },
+    {
+      "path": "docs/projects/Authentik-Media-SSO-Assessment.md",
+      "sha256": "126236601097f0af0464d637255ebba27caf59712d1d3dfbdefc94115cf7b404",
+      "bytes": 11892
+    },
+    {
+      "path": "docs/projects/Authentik-Rollout.md",
+      "sha256": "23749bf201cb40586c487082302807dc882e2b5c04dc2f6e7186c4dcfbabe933",
+      "bytes": 149113
+    },
+    {
+      "path": "docs/projects/Auto-Collection-Descriptions.md",
+      "sha256": "5db730ce5b70f4bac2cb02701346ac932da5133d41b535d1d97a587d226cc6ef",
+      "bytes": 19916
+    },
+    {
+      "path": "docs/projects/Book-Recommender.md",
+      "sha256": "d7e17bcdc9fe2664e24d53a570f25e0681532c7af74db007e427f9d1bc1ec377",
+      "bytes": 22244
+    },
+    {
+      "path": "docs/projects/Calendar-Personal-Assistant.md",
+      "sha256": "725c093982f63d9e583b8fb6690ca30a38d47f0805fe07c1daa3df2a79064f49",
+      "bytes": 33059
+    },
+    {
+      "path": "docs/projects/Cantinarr-Evaluation-Pilot.md",
+      "sha256": "470aaab4e188c20a78cdee66e45988b7c3cafe8b3d71de2ba1e137dd8ccd0560",
+      "bytes": 28573
+    },
+    {
+      "path": "docs/projects/Combined-Morning-Digest.md",
+      "sha256": "ff95f32320896e96572ed55e778d41ce6e61dc1e1c6dfaca3c3bf810086aee09",
+      "bytes": 21775
+    },
+    {
+      "path": "docs/projects/Email-Triage-Digest.md",
+      "sha256": "07eb638c5ccd26779aac787ef3f012fba5ec1d95186df2c2032c0c9269d0ea63",
+      "bytes": 31710
+    },
+    {
+      "path": "docs/projects/Home-Assistant-Voice-Assistant.md",
+      "sha256": "9d60ddc37f4d04a7a7f3ce86504f7f443c49d892356c5e350f52767b85139e93",
+      "bytes": 23919
+    },
+    {
+      "path": "docs/projects/Infrastructure-Resilience-Hardening.md",
+      "sha256": "9cf66c8b1fe811e0f09655d06cf462d66ae974e8aaedf590e7966435c4bc4908",
+      "bytes": 30327
+    },
+    {
+      "path": "docs/projects/MacBook-Administration-Layer.md",
+      "sha256": "695aa9d0d2b64c5972c5c63c7833eb08fad02f4d166a46f3f3dd597661cb1465",
+      "bytes": 103216
+    },
+    {
+      "path": "docs/projects/Media-Sideload-Import.md",
+      "sha256": "e90906fa521f5287d466c3c3edfd3339fc479d3d661e7172e0b4129ca7fdf034",
+      "bytes": 9051
+    },
+    {
+      "path": "docs/projects/Music-Playlist-Acquisition-Bridge.md",
+      "sha256": "38e5f233401c6c4c28fbe2202898755b015db24727f282e3f381b6790baa8180",
+      "bytes": 7530
+    },
+    {
+      "path": "docs/projects/Music-Recommender.md",
+      "sha256": "77faf42abb3e5e2c61d72951879ff88e116ee686f9a937ec91722f0938f3eeab",
+      "bytes": 19272
+    },
+    {
+      "path": "docs/projects/README.md",
+      "sha256": "862d2642fd9acf0b76ec111c4f991190cd8d2b930bec19a93f39e41bce06d560",
+      "bytes": 19830
+    },
+    {
+      "path": "docs/projects/Recommendarr-Watch-Recommendations.md",
+      "sha256": "7d92219071ef6f8b5ed8262b9c1da43c569fe8dfe40e22e8b1d898cb89dbaa1c",
+      "bytes": 23534
+    },
+    {
+      "path": "docs/projects/Subtitle-Generation-Translation.md",
+      "sha256": "48b77b883442cdfa9d4a01444edd805705f6ab195024e20a7e5f79f06bcd3d4f",
+      "bytes": 25059
+    },
+    {
+      "path": "docs/projects/Surveillance-Expansion.md",
+      "sha256": "81752832a70f4e18636f5b489797cd8ef1da86ccd1653663489725e3ed13d585",
+      "bytes": 19540
+    },
+    {
+      "path": "docs/projects/TrueNAS-DIY-SAS-Expansion.md",
+      "sha256": "0a66ee69fb55c435abb9bc394535c81a186dbf397a8fe095a879965208af485f",
+      "bytes": 21425
+    },
+    {
+      "path": "docs/projects/Video-Duplicate-Quality-Finder.md",
+      "sha256": "ffe600163e856c87d604e1c28473695e3120fa9cc5447b0279e24710ca673c2b",
+      "bytes": 26797
+    },
+    {
+      "path": "docs/projects/completed projects/Aster-Arr-Stack-Manager.md",
+      "sha256": "46c06dc6f440ab5e322bd4179f922a339883881dd8cec15b44140d1e709ec99e",
+      "bytes": 24147
+    },
+    {
+      "path": "docs/projects/completed projects/Aster-Companion-App.md",
+      "sha256": "45e5e18a83a2f1a2fed4dcd6a9d89fd5e46f829154c6f96afcefd7384ac0c01a",
+      "bytes": 164726
+    },
+    {
+      "path": "docs/projects/completed projects/Aster-Forgejo-NetBox-Read-Only.md",
+      "sha256": "e316e172ee239098a7fd3d568c2761f833780bb65d20d9a66b212cb6c5e9ce6c",
+      "bytes": 4614
+    },
+    {
+      "path": "docs/projects/completed projects/Aster-Home-Assistant.md",
+      "sha256": "6971d3c3387982826b9f541a59fecadbb78593e93728c90ae62806ac7c636ede",
+      "bytes": 4874
+    },
+    {
+      "path": "docs/projects/completed projects/Aster-Mirror-Directory-Retrieval.md",
+      "sha256": "e07ad554b993823ea90e44369a20ae407feccf1f66e2de7438f5c2d7d665922e",
+      "bytes": 53446
+    },
+    {
+      "path": "docs/projects/completed projects/Aster-Offline-Knowledge-Wiki.md",
+      "sha256": "8b2100b37bb7b0c99f133f7204fdf85d9662cc56003a897d04213d67ecccce21",
+      "bytes": 68001
+    },
+    {
+      "path": "docs/projects/completed projects/Aster-Production-Corpus-Expansion.md",
+      "sha256": "fef2a9e91d5f9ec2622a9c1eb655bc5ddb8dbbd134a9b9089d98e554ee9048a5",
+      "bytes": 29494
+    },
+    {
+      "path": "docs/projects/completed projects/Aster-Sysadmin-Second-Brain.md",
+      "sha256": "da1509e7ae1272e467c3a5d92ab4c55f219c9c24da855e3e0d59533e205c5d54",
+      "bytes": 16776
+    },
+    {
+      "path": "docs/projects/completed projects/Backup-Architecture-Redesign.md",
+      "sha256": "92a14f0a5043e6c13cc373f7171800fabb627e65fdc6889399dc947b88237080",
+      "bytes": 71233
+    },
+    {
+      "path": "docs/projects/completed projects/Backup-Synology-Decommission.md",
+      "sha256": "12a079a7e612a35f0487a3d50a30b71a263faaab0144c52eac573a93522c3369",
+      "bytes": 41815
+    },
+    {
+      "path": "docs/projects/completed projects/Document-OCR-Summarization.md",
+      "sha256": "c54588ddd1668a1294214e7461a46b6097c897b34c95846114f9a6c25ecd37b2",
+      "bytes": 65941
+    },
+    {
+      "path": "docs/projects/completed projects/FreeCAD-MCP-Connector.md",
+      "sha256": "27720dda8bea58ddf2d9599268759afda3800a83fd6123fad875cc88e67ac4ea",
+      "bytes": 52326
+    },
+    {
+      "path": "docs/projects/completed projects/Jellyfin-Library-Integrity-Automation.md",
+      "sha256": "410161ae42803c9e14dc9017e294b0e03216ceb4dd4e18a48c03e4422d11be28",
+      "bytes": 34394
+    },
+    {
+      "path": "docs/projects/completed projects/Local-AI.md",
+      "sha256": "1588b8a2b67cb31ce32fe9f1a5c35d4c3f6793ce1f22530a7de9a865290974cd",
+      "bytes": 31599
+    },
+    {
+      "path": "docs/projects/completed projects/Media-Archive-Synology-Backup.md",
+      "sha256": "c799cfee5c83c818bdf2254aad04c34efc0998a077467a828598fe34ecb6873c",
+      "bytes": 10672
+    },
+    {
+      "path": "docs/projects/completed projects/NetBox-DCIM.md",
+      "sha256": "ade67fc23730d1ea5d1b3fe72decdc8eb1eaa89c6bf04ca8cf78646cca759fcb",
+      "bytes": 43545
+    },
+    {
+      "path": "docs/projects/completed projects/News-Aggregator-Audio-Digest.md",
+      "sha256": "040abcd465ab276066fadfc6478a0dbebbac36e66cde1be5b86de93ab951573e",
+      "bytes": 22219
+    },
+    {
+      "path": "docs/projects/completed projects/News-Aggregator-Digest-and-Sections.md",
+      "sha256": "dbc86ff90b76b309c0d9505d5532011bf9a587e26cadfdb141ac652246c07e15",
+      "bytes": 32534
+    },
+    {
+      "path": "docs/projects/completed projects/News-Aggregator-MuckScraper.md",
+      "sha256": "d8a15a8091ceb1a5ae1cf08de6fbdb38b17361361dfa6338a1acadef88d87114",
+      "bytes": 63966
+    },
+    {
+      "path": "docs/projects/completed projects/Plex-to-Jellyfin-Media-Migration.md",
+      "sha256": "53fc2dc45785e9b4348fbc2e715e9bee6b1ad7213f0c819c3375b6ebcaa14313",
+      "bytes": 109154
+    },
+    {
+      "path": "docs/projects/completed projects/Prometheus-Grafana-Observability.md",
+      "sha256": "6aee0fd1295bc3d9dd12b0cbea20c77bf3a57bdde77091f5943a35a9aeca7fc8",
+      "bytes": 25983
+    },
+    {
+      "path": "docs/projects/completed projects/Synology-Drive-Family-Cloud.md",
+      "sha256": "20af0efc97a9f56277bc57eabec485a6c9990390689e9e825a2fed83098b85a9",
+      "bytes": 54968
+    },
+    {
+      "path": "docs/projects/completed projects/Video-Library-Archiving.md",
+      "sha256": "4f592bdc6ce0f217fa6bf43f2cf06c1afb7d6f8632feecb0374be6ade177f23b",
+      "bytes": 61491
+    },
+    {
+      "path": "docs/projects/homelab-credential-broker.md",
+      "sha256": "ea50f1450818fb35dfbfe21b965e0225a24643659e0b0aedeb98595e30dd362f",
+      "bytes": 47550
+    },
+    {
+      "path": "docs/reference/AI-Hermes-Second-Brain.md",
+      "sha256": "7f70b05a5e4b35040711888926ecb08eae592ec6cfb54abd415fd016ba9b9947",
+      "bytes": 7305
+    },
+    {
+      "path": "docs/reference/ARR-Official-Documentation-Links.md",
+      "sha256": "988d6c5ec286ebab5af90a3abeef62858ead14eb269ca877a8a20c3d262f00b4",
+      "bytes": 1191
+    },
+    {
+      "path": "docs/reference/ARR-Stack-Operational-Reference.md",
+      "sha256": "e4f72dc31ee54bda9ffbe91c781434f339a10ae068f54ae9ef6f75b11a5cafb4",
+      "bytes": 8941
+    },
+    {
+      "path": "docs/reference/Aster-Operations.md",
+      "sha256": "ef615ba0cd7e147e7fc2685b9b7144689361027852691eca0cd50eb032184a19",
+      "bytes": 27761
+    },
+    {
+      "path": "docs/reference/Aster-Production-Source-Register.md",
+      "sha256": "dbd007d5001c10196c087a28ff64b2c871f9d0bca32de32f40dec891b8234419",
+      "bytes": 19092
+    },
+    {
+      "path": "docs/reference/Home-Assistant-Operational-Reference.md",
+      "sha256": "4a3195f43554821f3e08a1a38b9f3edf4d82d25efd122c9d746cd7545e3c78ab",
+      "bytes": 3107
+    },
+    {
+      "path": "docs/reference/Infrastructure-Manual-and-Identity-Links.md",
+      "sha256": "ebc81ba06fe4f090608c39468becde750a022f66c20e7a1adb49c5fd50f0cb1b",
+      "bytes": 4918
+    },
+    {
+      "path": "docs/reference/Paperless-Operational-Reference.md",
+      "sha256": "9986f782ea6703234b835fcefbe07887fafd9653be2aa53518522b26197f4325",
+      "bytes": 5793
+    },
+    {
+      "path": "docs/runbooks/Archive-Library-Dedupe-2026-09-24.md",
+      "sha256": "501e81a20fc47a16f07a9fece1f13f15a601e55cb8971c7045d4ba1add9a53d7",
+      "bytes": 6540
+    },
+    {
+      "path": "docs/runbooks/Aster-Companion.md",
+      "sha256": "36d2371b7d54707a3543e7539662ab2d85dba4ff02bc05e562339e3d94fc6cfb",
+      "bytes": 14127
+    },
+    {
+      "path": "docs/runbooks/Authentik-Single-Login.md",
+      "sha256": "c5a176c695070735fc162f6bc67d06578bd923900a1cc59ba275462bac72ce88",
+      "bytes": 11010
+    },
+    {
+      "path": "docs/runbooks/Lab-Health-Remediation-2026-09-23.md",
+      "sha256": "919643af51813362e635846478503c2e8d1c620fceab01bfe20af38fdb108e30",
+      "bytes": 16171
+    },
+    {
+      "path": "docs/runbooks/MacBook-Bootstrap-Manifest.md",
+      "sha256": "4ce043cd38bdc666d84a249310fd97258323d9efaacd41dd55906964950e8649",
+      "bytes": 7861
+    },
+    {
+      "path": "docs/runbooks/Paperless-IP-Collision.md",
+      "sha256": "9caf2b0915784e9050a7fe004347c218823369d92637e2eb2281c79b9809cd73",
+      "bytes": 3522
+    },
+    {
+      "path": "docs/runbooks/Paperless-Isolated-Restore.md",
+      "sha256": "8196fdb5efa3c3a05e4616b42bcb01ee14a3c9deb47e6944943e3bf93c5a9f8a",
+      "bytes": 5432
+    },
+    {
+      "path": "docs/runbooks/Paperless-SSO.md",
+      "sha256": "e0bc4e85ee4fb1b6b8552f20f9b12489e11e28ead9975bf8bb7126ca55321172",
+      "bytes": 3742
+    },
+    {
+      "path": "docs/runbooks/Paperless-Summary-Operations.md",
+      "sha256": "35f4321545382694d53406f16966cffab8836f29077c065bd7280924774c8163",
+      "bytes": 6796
+    },
+    {
+      "path": "docs/runbooks/TrueNAS-Old-Media-Tree-Cleanup-2026-09-24.md",
+      "sha256": "89bca67c2987adddce514eb4c0946c1cc0ef40ac6080891a80e12cd1c0716088",
+      "bytes": 6077
+    },
+    {
+      "path": "ops/credential-broker/README.md",
+      "sha256": "4e3b6fecea0cc5062b0b4b5edd4414ae9362893eaeb2e4cd74cfc400dbf3c7fd",
+      "bytes": 2946
+    },
+    {
+      "path": "ops/credential-broker/broker-m2-manifest.yaml",
+      "sha256": "5fd95bd6034e0e7dc6aac452d9e0e12ee6d18a8baf60f2a8594ef17d579a1d90",
+      "bytes": 1118
+    },
+    {
+      "path": "ops/credential-broker/broker-m3-manifest.yaml",
+      "sha256": "9e383e41a62b27db5625c64cebddba614abc36d2db86d000ac8686643aade551",
+      "bytes": 1364
+    },
+    {
+      "path": "ops/credential-broker/broker-m4-manifest.yaml",
+      "sha256": "fc02593b56dd109a92e924225bd6a965007a19912d75cd97b987fee94f05addc",
+      "bytes": 1355
+    },
+    {
+      "path": "ops/credential-broker/broker-m5-manifest.yaml",
+      "sha256": "2be39adecdb15db06f831b0ff33bbf4b929624993e7d5683735638ba8d3764bf",
+      "bytes": 877
+    },
+    {
+      "path": "ops/credential-broker/broker_admin.py",
+      "sha256": "465b3502f14e1807a8079f047f14387b96a85bbb934ce875efe3dc47b59d6758",
+      "bytes": 2071
+    },
+    {
+      "path": "ops/credential-broker/broker_approval_service.py",
+      "sha256": "a73625fa3b68fe3a5e65f8960b6c96d9fec8fbf4c9dbdc75fe4136a5625c50d8",
+      "bytes": 6754
+    },
+    {
+      "path": "ops/credential-broker/broker_client.py",
+      "sha256": "769ca5819d2a1039eb5e492a2d23c01245fc0f900de0206ddc9371b49222ccf8",
+      "bytes": 923
+    },
+    {
+      "path": "ops/credential-broker/broker_core.py",
+      "sha256": "c8f95571ab5b7be1783fe54394047a8d5c40d9cc9121ffcbdc7ad1af99a87cb1",
+      "bytes": 23469
+    },
+    {
+      "path": "ops/credential-broker/broker_service.py",
+      "sha256": "143b1d859b683b798a2a48b1b3e4c27cafd6ddcc31accd03e941b79223827890",
+      "bytes": 5237
+    },
+    {
+      "path": "ops/credential-broker/forgejo-mcp-gateway.service",
+      "sha256": "3c3474f99d9621986608925f41bde2a23268dbfac27a07bf3f2d8c9918a6bb91",
+      "bytes": 988
+    },
+    {
+      "path": "ops/credential-broker/forgejo_mcp_gateway.py",
+      "sha256": "0cd6e1ce3503b9da2e70eaa02fb1f2cab7cd1f27a3cca78818af2efdb29347a2",
+      "bytes": 6069
+    },
+    {
+      "path": "ops/credential-broker/homelab-broker-approval.service",
+      "sha256": "4d20363c2b3bb0be9b9d614cd5eb7a85c36862ffbb21a73071a291c3b2a637cb",
+      "bytes": 892
+    },
+    {
+      "path": "ops/credential-broker/homelab-broker.service",
+      "sha256": "85a7adccaacfa197aea2218015600a4c046a665c8b9dad55b6319b9cd135041a",
+      "bytes": 910
+    },
+    {
+      "path": "ops/credential-broker/mcp_policy_adapter.py",
+      "sha256": "915a5719893daf3cb727015e6c6921f5690d55601daf6000941a3d320d3873a3",
+      "bytes": 6521
+    },
+    {
+      "path": "ops/credential-broker/openbao-m6-listener.hcl",
+      "sha256": "3000d06ed90a628229751257391e1461411fce8b120be20a3d0341f04262cd6b",
+      "bytes": 348
+    },
+    {
+      "path": "ops/credential-broker/openbao-m6-nftables.conf",
+      "sha256": "365f3e32288bdd4f92c2fb6a53a609ac818c2947a1702941d9374ec6a92d0168",
+      "bytes": 480
+    },
+    {
+      "path": "ops/credential-broker/openbao-pilot-manifest.yaml",
+      "sha256": "776e69f179490630067a12207a9095c9a27acabb066ea567dbd9c46728fc2462",
+      "bytes": 4436
+    },
+    {
+      "path": "ops/credential-broker/setup/install-m2-broker.sh",
+      "sha256": "306a3df9b0574c7c58a10f240197818b4272750c9a8a1fb55a4db04564a963e5",
+      "bytes": 2101
+    },
+    {
+      "path": "ops/credential-broker/test_broker_approval_service.py",
+      "sha256": "eacbe22c5889d2e96b0e4dcc5c2e6618a340c99be13ae9b424099ed480677e65",
+      "bytes": 5312
+    },
+    {
+      "path": "ops/credential-broker/test_broker_core.py",
+      "sha256": "d421234bc29b033d333fe5428cb0826f8baee3ddd5b958eb71e17a3794f60aab",
+      "bytes": 10485
+    },
+    {
+      "path": "ops/credential-broker/test_broker_service.py",
+      "sha256": "d87c8f01c4c9dcb88c3ced0fe75ab167023779c3d3e5c1c7f93402c4a0afd346",
+      "bytes": 2351
+    },
+    {
+      "path": "ops/credential-broker/test_mcp_policy_adapter.py",
+      "sha256": "c854e5c330b234e7d90da8d0ffd12956dc7cc8d3140d06af3bbab43a6ed217ae",
+      "bytes": 4241
+    },
+    {
+      "path": "services/aster-agent/arr_report.py",
+      "sha256": "bbe68e88a37c4ad76eda89e1791312e34781f8effd40f6335f453c9efd93d510",
+      "bytes": 5957
+    },
+    {
+      "path": "services/aster-agent/aster_agent.py",
+      "sha256": "8777687ce97055d2db3254aa6b30ddf37fc61e73dac2bd18008cbea3fef1a8b6",
+      "bytes": 128377
+    },
+    {
+      "path": "services/aster-agent/broker_approvals.py",
+      "sha256": "3e376175640d7da84ab4e47b5bbc5e06075e0ce477283df2ae979e8ed44b1b0c",
+      "bytes": 6283
+    },
+    {
+      "path": "services/aster-agent/check_notifications.py",
+      "sha256": "3736dfb2d5f30b53629eaff54608610a50a3a1fb18666bf2c26310caa234cfe6",
+      "bytes": 1739
+    },
+    {
+      "path": "services/aster-agent/companion_notifications.py",
+      "sha256": "c0b850d39e50c5a84eb1a54c322ce8ccae306b638d5013b26afe63788fe3b5b4",
+      "bytes": 18553
+    },
+    {
+      "path": "services/aster-agent/evals/arr-advisory-graduation.json",
+      "sha256": "389fa6ef37c7e205304a1238aa81734864736fbc69183f9d91f269b360d61786",
+      "bytes": 2822
+    },
+    {
+      "path": "services/aster-agent/evals/arr-report-read.json",
+      "sha256": "3b7c8b1e061a9f65cc313b8fd88832407a4f62d4601f5867d8acce70b0c91567",
+      "bytes": 476
+    },
+    {
+      "path": "services/aster-agent/evals/arr-school-graduation.json",
+      "sha256": "5ca398241a8b6df4fca68cafd8c514b63079b5425d7482fb9023e825fa0e90f3",
+      "bytes": 1872
+    },
+    {
+      "path": "services/aster-agent/evals/arr-stack-advisory.json",
+      "sha256": "fd30ac45a9861c17669c50409f325fc380a51b233de94f4d801fd8874a7ef328",
+      "bytes": 2343
+    },
+    {
+      "path": "services/aster-agent/evals/arr-stale-config-regression.json",
+      "sha256": "b6f8c870837b4d9a7392720e7d0028a0d5d3af825558da55bad55fa2b25eca75",
+      "bytes": 552
+    },
+    {
+      "path": "services/aster-agent/evals/compare_mirror.py",
+      "sha256": "eb7dbf38ed3a1be59b74cf8494113c53f79c252ad0d8988a5fb09837d0301d42",
+      "bytes": 4990
+    },
+    {
+      "path": "services/aster-agent/evals/forgejo-netbox-readonly.json",
+      "sha256": "2971420e0902fb2b4d3fd9e092aa708cf14c2f302aec9dbb6b9f068d72149c6d",
+      "bytes": 1644
+    },
+    {
+      "path": "services/aster-agent/evals/home-assistant-graduation.json",
+      "sha256": "00370e52569b669c66d39494e13011438a98eda1cbe82b2ca1b941670c717ac8",
+      "bytes": 2752
+    },
+    {
+      "path": "services/aster-agent/evals/knowledge-mirror-graduation.json",
+      "sha256": "b1f3c34b682cdc07e0417d4ecbd9f60217031ed0a7fb93d31f6a8c50a228608b",
+      "bytes": 4772
+    },
+    {
+      "path": "services/aster-agent/evals/run_evals.py",
+      "sha256": "2b16768ed45b8cb61106431698d3444faf557c067f43288598e0183ecd9e240e",
+      "bytes": 5837
+    },
+    {
+      "path": "services/aster-agent/evals/sysadmin-generalization.json",
+      "sha256": "e0db15cda9749dd0d1281e99f6b4d49dee229ff72340dda3d0d8cd0d3e523bf1",
+      "bytes": 3399
+    },
+    {
+      "path": "services/aster-agent/evals/sysadmin-graduation.json",
+      "sha256": "374b01f41c254909f3a00eb09feab6b6552cf121814c5eb0c01a8847a6e4f4a9",
+      "bytes": 4857
+    },
+    {
+      "path": "services/aster-agent/evals/test_run_evals.py",
+      "sha256": "f434fd791e7647f244dabcb29ef556c9e506e8c4b77b4a7b1cb9be1e4de8f4c3",
+      "bytes": 1851
+    },
+    {
+      "path": "services/aster-agent/ha_report.py",
+      "sha256": "c82e8a9cb717eb043eaddb2a3c95c7b263a58a3fb64fc0a3b562e0922d8f1ce2",
+      "bytes": 3484
+    },
+    {
+      "path": "services/aster-agent/knowledge-sources.json",
+      "sha256": "2e92302dbc8afe93ba84bbb82a3497e669f6935831a3902405b63fd3fe9e41f9",
+      "bytes": 4630
+    },
+    {
+      "path": "services/aster-agent/lab_operations.py",
+      "sha256": "0508fd95bfb71a41c55c7590538d1ed352a0d0d48211ffafe453230aa4def5f0",
+      "bytes": 22265
+    },
+    {
+      "path": "services/aster-agent/requirements.txt",
+      "sha256": "a1beddbeac7ac0afc27f3659b41defe0af9f5dcbf9fb91516cd86d9f4ace2929",
+      "bytes": 103
+    },
+    {
+      "path": "services/aster-agent/source_reports.py",
+      "sha256": "387331f935bb3e51fcd47bf1600e159cb616ee9a7b98e4cb5edbda2bb2bf25d4",
+      "bytes": 8320
+    },
+    {
+      "path": "services/aster-agent/static/aster-orb.png",
+      "sha256": "46f4f69b787cf071544767684f8076b050b9659d408c8c130047fd61b843344e",
+      "bytes": 1512360
+    },
+    {
+      "path": "services/aster-agent/static/companion-notifications.js",
+      "sha256": "abe1aa3aab2bdbf0d8c6c34de25823454e2171b57520cfd4227aea41756650f4",
+      "bytes": 7452
+    },
+    {
+      "path": "services/aster-agent/static/companion-sw.js",
+      "sha256": "1a2f70302300b65406ca4550cefbcb35d90920303ebc5a2aa6057c33646285ff",
+      "bytes": 1341
+    },
+    {
+      "path": "services/aster-agent/systemd/aster-agent.service",
+      "sha256": "a219aa39e822ba19012989a45b29553bfdc4985dfa1844a43e94838def150fc0",
+      "bytes": 703
+    },
+    {
+      "path": "services/aster-agent/systemd/aster-arr-broker.conf",
+      "sha256": "d9765fab94f6d88fb4bc93b6242e02b6f2a51bf47fc07bb1517e865388eb4caa",
+      "bytes": 151
+    },
+    {
+      "path": "services/aster-agent/systemd/aster-llama-warmup",
+      "sha256": "368fecd5349f9ef90462a8ef3580cc478a2deeaaede808205c9b1c66ae81d67f",
+      "bytes": 1115
+    },
+    {
+      "path": "services/aster-agent/systemd/aster-llama.service",
+      "sha256": "26c68b98a9452437bbf627d1e356d1a2a8348907d7c2127584be95da1bb6b36b",
+      "bytes": 875
+    },
+    {
+      "path": "services/aster-agent/systemd/aster-source-reports.conf",
+      "sha256": "629cf9e60f93c5e6b0ec3a0ed3d89ba3e4a74751587e2042a9dfcaccf74a46ea",
+      "bytes": 54
+    },
+    {
+      "path": "services/aster-agent/systemd/companion-notifications.conf",
+      "sha256": "bc28fad354a8377128c83c5a5b85d1c2c3aca8a61162c1135d4700feba67e074",
+      "bytes": 54
+    },
+    {
+      "path": "services/aster-agent/test_arr_execution_e2e.py",
+      "sha256": "24a5868dd6553452828e4a8d6952fab3dfac350724749a26bae32b981a737aa8",
+      "bytes": 8723
+    },
+    {
+      "path": "services/aster-agent/test_arr_report.py",
+      "sha256": "7789f0e82c592c4a3830c37989122f4f66a503a6f51beee44a046e6566c48d5a",
+      "bytes": 7072
+    },
+    {
+      "path": "services/aster-agent/test_aster_agent.py",
+      "sha256": "b3f2b735446fdd09e8cbf596e9a1651cc1536072c24a9d842bba3cd5f354dc0b",
+      "bytes": 64321
+    },
+    {
+      "path": "services/aster-agent/test_broker_approvals.py",
+      "sha256": "e43289622dfa070a6e3e769b4a469622680f20ae092da6db26ddc7246fe33267",
+      "bytes": 4217
+    },
+    {
+      "path": "services/aster-agent/test_companion_notifications.cjs",
+      "sha256": "f2e989b51941d30fedcd7132155ce1537b672019dcc04692c20680f518b7e741",
+      "bytes": 7941
+    },
+    {
+      "path": "services/aster-agent/test_companion_notifications.py",
+      "sha256": "1ada340f4852e341ae5847102453a47f143df54e691bd15aeeec3da603b23566",
+      "bytes": 10263
+    },
+    {
+      "path": "services/aster-agent/test_companion_voice.cjs",
+      "sha256": "b40254c5be8d25e0596baf316816146b958d08f403451a9f67f8edec7ef477dd",
+      "bytes": 4158
+    },
+    {
+      "path": "services/aster-agent/test_ha_report.py",
+      "sha256": "911c3f9986437d156533f425b41a4830bd244df628d56df8e56470fd3850ce54",
+      "bytes": 2291
+    },
+    {
+      "path": "services/aster-agent/test_lab_operations.py",
+      "sha256": "39ef3a00142713c5fbcd3ab093a9b2002c268a2a8086330391bb83c085353f7c",
+      "bytes": 13511
+    },
+    {
+      "path": "services/aster-agent/test_snapshot_builder.py",
+      "sha256": "513c0434dcebccaccdda8bea9da9cba5a1118faeaddbdffb512c5dffe10e4d87",
+      "bytes": 3548
+    },
+    {
+      "path": "services/aster-agent/test_source_reports.py",
+      "sha256": "13ed0f14a5ab094360e7c6a91652ad291c39ad8ab154e4ef21eb570a8743c80d",
+      "bytes": 4491
+    }
+  ]
+}

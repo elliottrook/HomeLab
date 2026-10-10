@@ -89,7 +89,7 @@ and is not implied by successful local creation.
 Source and recovery procedures:
 `homelab/services/aster-lab-operations/README.md` and
 `homelab/docs/projects/Aster-Lab-Operations.md`. Human CLI operation remains
-independent. Companion UI acceptance and final corpus publication are pending;
+independent. Companion UI acceptance and corpus publication passed on 2026-09-26;
 operator-seeded production worker validation is recorded separately.
 
 ## Functions and knowledge
@@ -520,3 +520,55 @@ Capacity measurement: simultaneous synthetic Companion/news requests took
 persona prompt evaluation took 110.466s. This is a measured shared-inference
 limit, not a latency guarantee; model/hardware/inference changes remain outside
 this project. Scheduled news ingest's most recent execution remained successful.
+
+
+## AI-PAM authority boundary — graduated through M9, 2026-09-26
+
+The shared AI-PAM core and Unix transport on LXC104 bind consumption to the
+kernel-authenticated caller, revalidate current policy and lifecycle, invalidate
+stale/unbound approvals, and serialize authorization transitions/migration. This
+is a corrective boundary change, not authorization to add tools or grants.
+The Authentik-backed approval service derives actor, assurance and `auth_time`
+server-side. Aster Companion 0.2.2 provides native approval, denial, lifecycle,
+history/audit and global emergency controls; privileged actions use isolated
+`max_age=0` authentication so a cached browser session cannot satisfy freshness.
+
+The exact hashes and rollout validation are recorded in
+[Stage1 evidence](../projects/AI%20Projects/evidence/M1-stage1-deployment.md).
+The two services are `homelab-broker` and `homelab-broker-approval`; existing
+read/write Forgejo gateways are separate and were not restarted. Stage1 initial
+health, catalogue, socket permissions and unauthenticated HTTP denial passed;
+the deployment record owns the final observation result.
+
+Recovery checkpoint on104:
+`/var/lib/homelab-broker/rollback/m1-stage1-20260926T011710Z`.
+Keep it protected: it includes the broker database and old source, not merely
+public test fixtures. Backup and isolated restore integrity/count checks passed.
+Do not export its contents into Git, prompts or the knowledge mirror.
+
+If authorization integrity is uncertain, stop both broker entrypoints and retain
+human SSH access. Do not blindly restore an older DB: it could resurrect an
+already consumed authorization. Do not restart old vulnerable code with active
+grants. Diagnose and use a reviewed restrictive candidate. A `Type=simple` unit
+reporting active does not prove readiness; wait for both sockets and assert a
+registered-peer application health response with a bounded timeout.
+
+The active catalogue has four enabled services: `synthetic`, `forgejo-mcp`,
+`forgejo-mcp-safe-write` and `lab-operations`. Its eight exact capabilities are
+the four synthetic risk-class fixtures, Green Forgejo repository read, Yellow
+safe-branch create, Green Doctor latest and Yellow Doctor run. `agent-hermes`
+is Operator; the M5 replacement remains Retired as lifecycle evidence.
+
+The read-only `scripts/check-ai-pam.py` Doctor probe is the drift authority for
+this deployed shape. It validates database integrity, global enablement, the
+exact service/capability catalogue, agent lifecycle, expired active requests,
+all five service units and Unix sockets, and OpenBao's CA-validated initialized/
+unsealed health response. It never reads an AppRole credential or target secret.
+Any intentional catalogue expansion must update its reviewed expected set in
+the same change; an unreviewed extra capability is a failure, not auto-adopted.
+
+NetBox owns the existing Aster LXC 104 and OpenBao LXC 117/IP records. AI-PAM's
+local Unix sockets create no additional endpoint to register. Homepage's
+existing Aster Companion tile is the supported human entry point; do not add a
+direct OpenBao, broker or gateway tile. Recovery checkpoint and restrictive
+rollback warnings above remain applicable.

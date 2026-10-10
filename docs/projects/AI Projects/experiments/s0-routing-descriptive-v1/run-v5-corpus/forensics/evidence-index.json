@@ -1,0 +1,41 @@
+{
+  "files": {
+    "corpus-journal.jsonl": {
+      "bytes": 2826,
+      "sha256": "91a1a13bc581fbf2b434a7dc7ac3eb77886e4fc367f1ac11ac40f6d5974c3997"
+    },
+    "filesystem-state.txt": {
+      "bytes": 398,
+      "sha256": "f3779f0272695232f6c82092d58d749ec2db03dbf021324fb3f07fd087151881"
+    },
+    "generated-artifacts.json": {
+      "bytes": 3760,
+      "sha256": "8746b2853226fbe22d1f63ad81e6d34472da0ecaf65cdd2b77d195427c60ba95"
+    },
+    "loop-receipt.txt": {
+      "bytes": 50,
+      "sha256": "772e6b05b3955d58049bd5598ad708ee956f902c2ba16e4ea72a66f48f3542ad"
+    },
+    "lsblk-before-mount.txt": {
+      "bytes": 232,
+      "sha256": "3a1426672ff833d864011af240a0f1b8e2378c2226060f9894c6c838fea6887d"
+    },
+    "mount-receipt.txt": {
+      "bytes": 61,
+      "sha256": "f65db026c39ac3c15f22af026c08259b4181f37b5c6aa8c1d8c03f1e520af164"
+    },
+    "partition-table.txt": {
+      "bytes": 192,
+      "sha256": "74c4101dd6f2f5940bd678a4db4a6470dd0afe14eff09bd3279eeb345092f747"
+    },
+    "protocol.txt.metadata.txt": {
+      "bytes": 7,
+      "sha256": "7925d3e9a9613a093e5eb4054b32aa39de910d2b03ba7e8046c3b4550b8de1e4"
+    },
+    "result.json.metadata.txt": {
+      "bytes": 7,
+      "sha256": "7925d3e9a9613a093e5eb4054b32aa39de910d2b03ba7e8046c3b4550b8de1e4"
+    }
+  },
+  "schema": "aster-s0-v5-forensic-index.v1"
+}
