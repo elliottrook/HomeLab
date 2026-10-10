@@ -2336,3 +2336,12 @@ The reopened store retains `unknown` and refuses a second thread or turn.
 Thirteen local-turn/local-bridge tests pass. This directly tests durable
 duplicate prevention across a process restart; it does not substitute for a
 live app crash, Mac sleep/wake, or recovery of an already completed answer.
+
+An additional synthetic subprocess exits abruptly inside the fake agent's
+`turn/start`, after the SQLite dispatch claim but before any acknowledgement.
+On reopening, startup reconciliation changes the durable `dispatch_unknown`
+state to `unknown` and refuses a second turn for the same request ID. Fourteen
+focused tests pass. This exercises a real local process-death boundary with no
+Codex process, cloud request, live credential or Companion interruption. Live
+app crash/sleep/wake behavior and original-answer retrieval still need their
+separate gates.

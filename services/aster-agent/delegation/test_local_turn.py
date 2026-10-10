@@ -1,5 +1,7 @@
 """Synthetic local bridge behavior; fake agent only, no Codex or credentials."""
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -86,6 +88,31 @@ class LocalTurnTests(unittest.TestCase):
         self.assertEqual(second.threads,0)
         self.assertEqual(second.starts,[])
         self.assertEqual(self.store.inspect(JOB)[0],'unknown')
+
+    def test_process_death_after_dispatch_claim_never_replays(self):
+        child = """import os,sys
+from local_turn import run_local_turn
+from store import DispatchStore
+class Agent:
+    def create(self, model): return 't'
+    def start(self, request): os._exit(77)
+store=DispatchStore(sys.argv[1])
+run_local_turn(Agent(),store,sys.argv[2],'owner','synthetic reviewed text','fixed-model')
+"""
+        process = subprocess.run([sys.executable, '-c', child, str(self.path), JOB],
+                                 cwd=Path(__file__).parent, capture_output=True,
+                                 timeout=5, check=False)
+        self.assertEqual(process.returncode,77)
+        self.store.close()
+        self.store=DispatchStore(self.path)
+        self.assertEqual(self.store.inspect(JOB),('dispatch_unknown','t',None))
+        self.store.recover_startup()
+        self.assertEqual(self.store.inspect(JOB),('unknown','t',None))
+        second=FakeAgent([answer(),end()])
+        with self.assertRaises(ValueError):
+            self.run_turn(second)
+        self.assertEqual(second.threads,0)
+        self.assertEqual(second.starts,[])
 
     def test_competing_claim_is_uncertain_without_second_turn(self):
         store=self.store
