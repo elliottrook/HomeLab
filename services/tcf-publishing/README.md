@@ -97,9 +97,19 @@ the immutable approved payload, while the visual treatments stay brand-local.
 - Release preparation strips private-preview markings, verifies an exact file
   inventory and every checksum again, and derives an immutable ID from site,
   edition and manifest digest. Activation is a same-filesystem symlink exchange
-  that returns the previous target for one-step rollback. The module is installed
-  on the private publisher but is not connected to the origin or exposed in the
-  GUI; public routing remains absent.
+  that returns the previous target for one-step rollback.
+- The publisher reaches the origin with a dedicated Ed25519 identity, a pinned
+  host key and strict batch-mode SSH. The origin key is bound to a root-owned
+  forced command: it accepts only `status`, checksum-verified `stage`, exact-
+  digest `activate` and exact-digest `rollback`. Archive links, traversal,
+  special files, sample/private markers and arbitrary commands are rejected.
+  The deploy account owns only separate
+  `/srv/tcf/sites/{contrast,closet}` release roots; it cannot administer Nginx,
+  networking or the host.
+- The transport is installed and a disposable non-served transfer passed, but
+  publication is not exposed in the GUI and neither per-site root is connected
+  to Nginx. The original visibly marked sample remains the active origin target
+  at `/srv/tcf/current`; public routing remains absent.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to

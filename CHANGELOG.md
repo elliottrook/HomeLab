@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-10 — Photography release transport isolated
+
+- Added checksum-verifying publisher/origin release transport with separate
+  immutable roots for The Contrasting Frame and The Closet Fatman.
+- Bound a dedicated deployment key to a four-operation forced command; archive
+  links/traversal, arbitrary commands, mixed-site IDs, changed manifests and
+  private/sample candidates fail closed. Forty-two publishing tests pass.
+- Proved a disposable non-served transfer and removed it. The existing marked
+  sample remains active, Nginx is unchanged, and no public DNS or route exists.
+
 ## 2026-10-09 — The Contrasting Frame project preparation
 
 - Scoped the HomeLab UI guide to Aster-associated internal network apps and

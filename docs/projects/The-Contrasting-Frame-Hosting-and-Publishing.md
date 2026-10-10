@@ -515,9 +515,13 @@ approval controls and a site-scoped placeholder library are deployed. Until real
 content exists, both sites use only conspicuously blocked records based on the
 accepted old sample. The two completed website baselines and their distinct
 annotation treatments are now registered and privately staged. Passkey access and
-the explicit placeholder-to-real promotion gate are proven. Next safe action:
-Jason checks the live dual-brand preview, then the first real photograph/story
-save, promotion and approval walkthrough can begin when content is available.
+the explicit placeholder-to-real promotion gate are proven. Immutable release
+preparation and a forced-command, checksum-verifying origin transport are also
+installed, but no GUI publish control, per-site Nginx switch or public route
+exists. Next safe action: add the final human publish-confirmation screen and
+connect it to the restricted stage/activate protocol, while retaining the
+current sample as the served rollback target. The first real photograph/story
+save, promotion and approval walkthrough remains pending until content exists.
 Store design decisions, last validated gate, candidate/accepted release ID,
 rollback checkpoint, exact blocker and next safe action at each milestone.
 Use a versioned durable job-state DB with atomic transitions, not process absence.
@@ -564,6 +568,8 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-10 | Added an owner-only static candidate renderer under the authenticated Content Desk. It rebuilds only a ready edition, revalidates every record/approval hash and sanitized image digest, rejects mixed-site or stale input, writes brand-distinct annotation treatments and a complete `MANIFEST.sha256`, and exposes only HTML/CSS/JPEG preview files. Thirty-two tests and embedded JavaScript syntax passed; live creation returns 409 with no active edition, disallowed/missing candidate files return 404 and service health remains good | A complete approved edition can become an inspectable private website candidate without touching the isolated origin; exact finished-template binding and atomic origin promotion remain separate future gates |
 | 2026-10-10 | Bound candidate rendering to verified finished exports `49f210c7` (Contrast) and `c77684d` (Closet). Installed only their accepted 33/35 files in owner-only publisher storage after removing AppleDouble metadata; annotation hashes match `952ca583…63ab8c` and `e1c0ab86…447ce`. The binder preserves each template and replaces its cards, home lead, stories, credits and regenerated annotation/content data; it removes retired cards and refuses over-capacity editions. Thirty-four tests and embedded JavaScript syntax passed; service-user template access and desk health passed | Exact private previews now retain each real visual system. Inspection exposed a prior assumption mismatch: finished capacities are Contrast 4/2/2/2 versus Closet 2/2/2/1 by collection, so identical capacity would require a deliberate Closet template revision before launch |
 | 2026-10-10 | Added and installed a release-preparation module without exposing it in the GUI or connecting it to LXC 125. It refuses incomplete inventories, malformed/unsafe manifests, checksum changes, wrong-site metadata and sample banners; strips only private-candidate markings, derives an immutable site/edition/manifest release ID, and performs a same-filesystem symlink exchange while returning the prior target for rollback. Thirty-six tests passed and the unprivileged desk service user imports the module successfully | Static candidate → immutable release and atomic rollback semantics are proven in isolation. Per-site origin roots, authenticated transfer, final human publish confirmation and public routing remain separate approval gates |
+| 2026-10-10 | Created `tcf-deploy` on origin LXC 125 with separate owner-only Contrast/Closet release roots and a root-owned forced receiver. The publisher's dedicated Ed25519 key is host-key pinned and restricted to status, stage, activate and rollback; an arbitrary `uname` request returned the receiver's rejection. Receiver/sender SHA-256 values are `028e094e…3d0c5` and `3ebe8101…9e2e1`; 42 tests pass | The origin has no general deployment shell. Tar links/traversal/special files, inventory mismatch, checksum change, private/sample markers, cross-site IDs and wrong activation digests fail closed |
+| 2026-10-10 | A disposable non-served release crossed the real publisher→origin SSH path and was accepted only after manifest verification (`7f28112b…c460a`); the staged probe was removed. `/srv/tcf/current` remained `/srv/tcf/releases/sample-5b23ccb9`, both new site `current` links remain unset, Nginx was unchanged and no public DNS/route was added | Authenticated data transfer is proven without publishing placeholder or synthetic content. Checkpoint `/root/tcf-origin-before-restricted-deploy-20261010` preserves the prior origin configuration and served target |
 
 ## Close out
 
