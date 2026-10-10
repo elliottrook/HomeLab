@@ -1,7 +1,8 @@
 # Aster Unified Voice Service
 
 > Status: Active — Stream A; M0–M2 complete, M3 in progress; candidate staged,
-> production selection withheld on uncached latency
+> production selection withheld on uncached latency; B60 acceleration blocked
+> by disabled Resizable BAR
 >
 > Owner: Jason
 >
@@ -255,6 +256,9 @@ API/network/dependency manifest and rollback plan are frozen. The next safe
 action is to improve or explicitly accept the uncached first-audio result before
 any production selector change. The candidate is installed but stopped and
 disabled on LXC 116; production port 9130 remains authoritative and healthy.
+The approved B60 experiment cannot proceed until the Proxmox host exposes a
+Resizable BAR larger than 256 MiB; that requires a separate physical/firmware
+maintenance decision rather than a live production-host PCI reconfiguration.
 
 ## Milestones
 
@@ -596,6 +600,25 @@ unrelated state.
   production TCP 9130 remained healthy. The candidate remains installed,
   stopped and disabled for tuning; all temporary scripts, archives, copied
   assets and the never-selected drifted venv were removed.
+- Jason approved exclusive use of the Proxmox Intel Arc Pro B60 for an
+  acceleration experiment. A protected copy of LXC 116's configuration was
+  captured, then only `/dev/dri/renderD128` was mapped to the existing
+  `aster-speech` UID/GID. A separate OpenVINO 1.24.1 venv and Intel's official,
+  hash-verified compute runtime 26.35.39758.10/IGC 2.41.5 were extracted under
+  an isolated test root; no system package or production runtime was replaced.
+- The provider correctly rejected GPU initialization instead of producing a
+  valid B60 benchmark: Intel's runtime reported `Resizable BAR not detected`
+  and OpenVINO reported `Device GPU is not available`. ONNX Runtime then fell
+  back to CPU, which the probe detected and rejected. Live PCI evidence shows
+  the physical B60 path is healthy at PCIe Gen3 x8, but physical BAR2 is only
+  256 MiB although the card supports up to 32 GiB. This is a host firmware/
+  PCI allocation prerequisite, not a Kokoro compatibility or capacity result.
+- No risky live BAR resize or GPU driver unbind was attempted on the production
+  Proxmox host. The render device was withdrawn live, the isolated runtime,
+  cache, packages and probes were deleted, and production speech remained
+  healthy. Proxmox has queued deletion of the temporary `dev0` config entry;
+  it will disappear from the persistent LXC configuration on the next normal
+  guest restart. The device is not currently visible inside LXC 116.
 
 ## Validation and evaluation
 
@@ -741,6 +764,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | Stream A decision | Jason rejected premium services and directed a network-level single solution using the approved voice, with project creation, commit, push and immediate Stream A start. | Risk envelope accepted; M0 complete, M1 starts with read-only design/licence/protocol discovery and offline benchmarks. |
 | 2026-10-10 | M2 real-listener close-out | Loopback-only Uvicorn canary on LXC 116: cached first body 55 ms fresh/12 ms warm; uncached 1.772 s; disconnect recovery 12 ms; explicit DELETE 204 followed by one content-free `cancelled` frame and successful recovery. Temporary listener/staging removed; production remained active and healthy. | M2 functional/security/cancellation gates complete. M3 remains pending; uncached first-audio latency is a tracked acceptance risk. |
 | 2026-10-10 | M3 staged canary and rollback | Fresh guest backup plus protected file checkpoint verified; pinned candidate installed separately on 9131; 46 tests, authentication refusal, two WAV passes, streaming, concurrency, cancellation and rollback passed. Cached acknowledgement 11 ms; uncached first body 1.521 s. | Candidate left stopped/disabled and production 9130 healthy. Do not select it until uncached latency meets 750 ms or Jason explicitly accepts a revised threshold. |
+| 2026-10-10 | M3 Arc Pro B60 acceleration probe | Least-privilege render-node mapping; isolated OpenVINO 1.24.1 and hash-verified Intel compute runtime; provider-fallback detection; live PCI BAR/link inspection; complete test-root cleanup and live device withdrawal. | No GPU benchmark claimed: B60 compute rejected because physical Resizable BAR is only 256 MiB. Production stayed healthy. Next step requires a planned BIOS/physical maintenance decision, or a different accelerator host. |
 
 ## Close-out
 
