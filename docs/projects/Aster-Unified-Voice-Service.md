@@ -250,10 +250,10 @@ succeeded. Reconcile before retry.
 
 Current resume point: M0 is complete and M1 is active. Licence/runtime and
 Home Assistant protocol discovery and the repeatable offline Piper/Kokoro
-fixture harness are complete. The next safe action is an isolated LXC 116
-Kokoro capacity/concurrency measurement, followed by listening acceptance and
-the final API/network/rollback manifest. No production component has been
-changed by M1 discovery.
+fixture harness plus isolated LXC 116 single/two-client capacity measurements
+are complete. The next safe action is listening acceptance and the final API,
+network, dependency and rollback manifest, followed by the M1 gate review. No
+production component has been changed by M1 discovery.
 
 ## Milestones
 
@@ -340,9 +340,9 @@ initial facts. These are design inputs, not completion evidence:
   median 2.321 seconds, p95 4.027 seconds, median RTF 0.451 and p95 RTF 0.633;
   the short HA confirmation took 1.017–1.068 seconds. Piper model SHA-256 is
   `4cabf7c3a638017137f34a1516522032d4fe3f38228a843cc9b764ddcbcd9e09`.
-- The new `services/aster-speech/benchmark_tts.py` and versioned eight-case
+- The new `services/aster-speech/benchmark_tts.py` and versioned nine-case
   synthetic corpus produce content-free JSON with fixture/asset digests,
-  load time, p50/p95 synthesis, RTF, RSS and thread settings. Five focused
+  load time, p50/p95 synthesis, RTF, RSS and thread settings. Six focused
   unit tests pass. The broader local speech suite remains unexecuted on the Mac
   because its system Python lacks PyJWT; existing service-environment testing
   remains required before M1 closes.
@@ -355,8 +355,34 @@ initial facts. These are design inputs, not completion evidence:
   removed the affinity errors. A confirming 24-sample run improved median to
   1.507 seconds, p95 to 2.941 seconds, median RTF to 0.316 and p95 RTF to
   0.341; short HA synthesis was 0.641–0.663 seconds and peak RSS was 899,272
-  KiB. This is the current candidate setting for the six-core speech guest,
-  subject to measurement on LXC 116 and concurrent STT/News load.
+  KiB on LXC 114. This was a useful reference setting but did not transfer as
+  the optimum on the speech guest.
+- The identical pinned runtime/assets were copied only into an isolated
+  `/tmp` candidate on LXC 116 while its accepted Piper API remained active.
+  Digests matched before execution. Six/one threads produced median 2.329
+  seconds, p95 4.435 seconds, median RTF 0.490 and short-HA latency
+  1.013–1.029 seconds. Three/one was slower than four/one in a bounded pass.
+- Four intra-op/one inter-op threads are the current LXC 116 candidate. The
+  confirming 24-sample run produced median 1.849 seconds, p95 3.448 seconds,
+  median RTF 0.384, p95 RTF 0.411 and 901,100 KiB peak RSS. The 27-character
+  HA confirmation rendered in 0.748, 0.763 and 0.810 seconds. This nearly meets
+  but does not pass the 750 ms p95 requirement; M2 must stream a smaller first
+  acknowledgement clause and may not claim compliance from the median alone.
+- The corpus initially included the exact minimal first unit `Done.` and the
+  harness can select bounded cases by fixture ID. Ten warm four-thread samples
+  on LXC 116 rendered in 0.390–0.446 seconds with median 0.398 and p95 0.446
+  seconds. This passes the server-side first-unit target and leaves about 300 ms
+  for transport and playback startup; end-to-end proof remains required.
+- Two simultaneous four-thread engines oversubscribed the six-vCPU guest:
+  median acknowledgement latency rose to 0.809/0.853 seconds and p95 to
+  0.916/1.130 seconds. That topology is rejected despite safe memory use.
+- Two simultaneous workers with two intra-op threads and one inter-op thread
+  each produced median acknowledgement latency 0.655/0.648 seconds and p95
+  0.663/0.652 seconds, at approximately 555 MiB maximum RSS per process. This
+  is the M2 concurrency candidate: two persistent workers, interactive queue
+  capacity two, a smaller immediate acknowledgement unit, and bounded later
+  clause rendering. News remains separately queued at lower priority and may
+  not occupy both interactive workers.
 
 Primary protocol/licence references:
 
@@ -366,7 +392,86 @@ Primary protocol/licence references:
 - `https://huggingface.co/hexgrad/Kokoro-82M`
 
 No service, firewall, model, Home Assistant integration or production file was
-changed during this discovery. Synthetic audio was not retained.
+changed during this discovery. Benchmark audio was not retained. Four temporary
+24 kHz/16-bit/mono listening WAVs were generated from the pinned production
+reference renderer, checksum-verified after transfer and kept outside Git for
+Jason's M1 listening decision.
+
+Jason's first listening pass rejected the normalization sample: `CA
+$1,234.50` was spoken as a malformed “one, two hundred and thirty-four CA
+dollars,” and dotted `B.C.` had unnatural pronunciation. The fault was in the
+reference text cleanup, not the approved voice. The candidate cleanup now
+expands the amount to “one thousand two hundred and thirty-four Canadian
+dollars and fifty cents” and `B.C.` to “British Columbia”; it also names
+United States/Australian dollar prefixes and handles singular dollars/cents.
+Nine cleanup regressions pass. A corrected listening WAV was rendered from
+the pinned reference assets and remains pending Jason's acceptance; production
+News code/audio was not changed.
+
+Jason's next listening pass also rejected the bare `Done.` acknowledgement as
+clipped and unnatural, and rejected the default readings of `Home Assistant`
+and `Lutron Caseta`. Bare one-word acknowledgements are therefore removed from
+the candidate policy. `There, that's done.` is the accepted acknowledgement.
+The installed Kokoro path produced an invalid, abnormally long result from its
+documented inline phoneme markup, so that approach was rejected; controlled
+speech-only respellings for Home Assistant and Lutron Caséta are under
+listening review instead. None of these choices is frozen until the comparison
+audio is accepted.
+
+Jason accepted pronunciation comparison option 5. The shared speech policy now
+maps `Home Assistant` to the speech-only rendering “Home uh-sist-unt” and both
+`Lutron Caseta` and `Lutron Caséta` to “Loo-tron kuh-set-uh”. Written UI text
+retains the correctly branded names. This decision covered pronunciation only;
+the acknowledgement was accepted separately in the following listening pass.
+
+Jason subsequently accepted acknowledgement comparison option 3: `There,
+that's done.` This wording supplies enough context for the approved voice to
+render “done” naturally, avoids the rejected “ookay” onset, and is now the
+canonical Home Assistant success acknowledgement fixture.
+
+A bounded ten-sample warm reference check on LXC 114 rendered the accepted
+acknowledgement in 0.648–0.657 seconds (median 0.653, p95 0.657). This is useful
+evidence that the wording remains responsive, but it does not replace the M2
+end-to-end measurement on the final two-worker LXC 116 service.
+
+### M1 frozen candidate manifest
+
+This is the candidate to implement in M2; it is not a statement of deployed
+state.
+
+| Item | Frozen candidate |
+|---|---|
+| Host/runtime | Existing unprivileged LXC 116; Python 3.13 candidate venv; `kokoro-onnx` 0.6.1; ONNX Runtime 1.30.0 |
+| Voice | Exact FP16 model/voice hashes above; `bm_daniel`; `en-gb`; speed `0.95`; PCM mono 24 kHz/16-bit output |
+| Interactive workers | Two persistent processes; two intra-op threads and one inter-op thread each; queue capacity two |
+| Batch policy | Lower-priority queue, maximum one worker only when no interactive item waits; yield between bounded units; no second worker occupation |
+| STT | Existing persistent faster-whisper `base.en`, CPU `int8`, serialized initially; independent timing/accuracy gate remains M7 |
+| HTTP compatibility | Keep authenticated `POST /v1/stt` and complete-WAV `POST /v1/tts` during migration; same current limits and credentials |
+| Streaming HTTP | Add authenticated `POST /v2/tts/stream`; request contains text and optional request ID only; server owns voice; response is ordered bounded PCM/WAV audio frames with request/unit metadata and an explicit end/error frame |
+| Cancellation | `DELETE /v2/tts/{request_id}` and client disconnect mark queued/unsent units stale; workers check between units; client immediately stops local playback |
+| Companion identity | Existing Authentik issuer/audience/JWKS or dedicated recovery key through current HTTPS `/voice/` route; no new public route |
+| News identity | New dedicated service credential stored outside Git; HTTP batch class; longer timeout; never reuse Companion's recovery key |
+| Home Assistant | Native Wyoming TCP listener on `192.168.70.14:10300`; advertise only canonical `aster-bm-daniel` TTS and current bounded STT |
+| HA trust boundary | Exact OPNsense allow: source VM 103 `192.168.20.11` to destination `192.168.70.14`, TCP 10300, ordered before the Servers private-network block; listener also rejects non-HA peers where the socket API permits |
+| Wyoming authentication exception | Wyoming has no bearer/mTLS field supported by the HA integration. Identity is therefore the exact stateful firewall source tuple plus dedicated listener, not general VLAN trust; TCP 9130 remains authenticated |
+| Existing network paths | Preserve NPM `192.168.50.23` to TCP 9130 and exact speech-to-JWKS HTTPS egress; LXC 114 reaches authenticated TCP 9130 only after its dedicated credential exists |
+| Normalization | One versioned policy derived from News `speech_text`; Markdown/link/code markers, parentheses, currency and approved abbreviations; segmentation follows normalization |
+| First-unit policy | Never use the bare one-word `Done.` acknowledgement: listening found it clipped and unnatural. The accepted default is `There, that's done.`; never acknowledge before HA reports success. Other replies wait for the first complete semantic clause; no arbitrary token fragments |
+| Limits | Existing 15 MiB STT and 2,000-character compatibility bounds; v2 adds bounded units, request duration, queue depth, connection count and per-caller rate limits before deployment |
+| Telemetry | Request ID, caller class, policy/model versions, sizes, queue/worker timing, cancellation and error class only; never text, transcript, audio or credentials |
+
+Deployment is a side-by-side candidate under a versioned root with a separate
+unit/socket first. M3 must verify current LXC backup age and file-level recovery,
+asset/source/unit digests, two authenticated candidate passes, Wyoming source
+denial/allow behavior and rollback before selecting it. The accepted Piper unit,
+environment and model remain unchanged until selection.
+
+Rollback is consumer-first: stop new v2/Wyoming routing; restore Companion to
+complete-WAV v1, News to its application-local renderer and HA to its prior
+pipeline; then stop/disable only the candidate unit and remove only its exact
+firewall rule if unused. Verify Piper v1, STT, typed Companion, HA manual control
+and News schedule. Do not restore the whole guest, firewall or HA VM over later
+unrelated state.
 
 ## Validation and evaluation
 

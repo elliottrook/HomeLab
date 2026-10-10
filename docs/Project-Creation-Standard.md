@@ -53,8 +53,9 @@ The canonical reference is the production News Digest implementation:
 - speed `0.95`
 - sentence-sized or clause-sized synthesis, not long single calls
 - one second of silence between briefing stories
-- shared speech cleanup for Markdown, parentheses, currency and dotted
-  abbreviations such as `U.S.` → “United States”
+- shared speech cleanup for Markdown, parentheses and naturally spoken
+  currency, plus dotted abbreviations such as `U.S.` → “United States” and
+  `B.C.` → “British Columbia”
 - time-aware briefing introduction and sign-off: morning/evening wording,
   followed by “Have a good day” or “Have a good evening” as appropriate
 

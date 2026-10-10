@@ -219,6 +219,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("engine", choices=("piper", "kokoro"))
     parser.add_argument("--fixtures", type=Path, default=DEFAULT_FIXTURES)
+    parser.add_argument(
+        "--fixture-id",
+        action="append",
+        dest="fixture_ids",
+        help="run only this fixture ID; repeat to select more than one",
+    )
     parser.add_argument("--iterations", type=int, default=5)
     parser.add_argument("--warmups", type=int, default=1)
     parser.add_argument("--piper-binary", type=Path)
@@ -245,6 +251,13 @@ def main() -> int:
     if args.iterations < 1 or args.warmups < 0:
         raise SystemExit("iterations must be positive and warmups cannot be negative")
     fixtures = load_fixtures(args.fixtures)
+    if args.fixture_ids:
+        requested = set(args.fixture_ids)
+        known = {fixture.id for fixture in fixtures}
+        unknown = sorted(requested - known)
+        if unknown:
+            raise SystemExit(f"unknown fixture ID(s): {', '.join(unknown)}")
+        fixtures = [fixture for fixture in fixtures if fixture.id in requested]
     assets: dict[str, Any]
     if args.engine == "piper":
         binary = require_path(args.piper_binary, "--piper-binary")

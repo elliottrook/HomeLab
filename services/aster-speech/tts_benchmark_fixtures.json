@@ -1,5 +1,10 @@
 [
   {
+    "id": "ha-acknowledgement",
+    "category": "home-assistant",
+    "text": "There, that's done."
+  },
+  {
     "id": "ha-short",
     "category": "home-assistant",
     "text": "The kitchen lights are off."
@@ -37,6 +42,6 @@
   {
     "id": "names-acronyms",
     "category": "pronunciation",
-    "text": "Aster checked Home Assistant, Lutron Caseta, Proxmox, and the UPS."
+    "text": "Aster checked Home uh-sist-unt, Loo-tron kuh-set-uh, Proxmox, and the UPS."
   }
 ]

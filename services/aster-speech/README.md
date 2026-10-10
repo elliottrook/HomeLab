@@ -33,6 +33,8 @@ digests, timing, RTF, RSS and declared thread settings, but no input text or
 audio. Generated Piper WAVs are temporary and Kokoro audio remains in memory.
 Run it only on an idle candidate or within an explicitly bounded test window;
 the default five iterations are measurement work, not a health check.
+Use repeatable `--fixture-id` arguments for a bounded latency or concurrency
+probe without changing the versioned corpus or result schema.
 `--intra-op-threads` and `--inter-op-threads` construct the pinned
 `kokoro-onnx` 0.6.1 engine around an explicit ONNX Runtime session. This is for
 M1 tuning because the package's public constructor does not accept session

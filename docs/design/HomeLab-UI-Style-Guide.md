@@ -149,11 +149,13 @@ The reproducible reference configuration is:
 
 Use the News Digest implementation in `services/news-aggregator/audio_digest.py`
 as the executable reference. Spoken text must pass the shared cleanup in
-`services/news-aggregator/digest_text.py`: remove Markdown presentation,
-render currency as “123 dollars” rather than “dollar 123”, turn parenthetical
+`services/news-aggregator/digest_text.py`: remove Markdown presentation, speak
+currency naturally in words (for example, `CA $1,234.50` as “one thousand two
+hundred and thirty-four Canadian dollars and fifty cents”), turn parenthetical
 punctuation into natural pauses, and expand dotted abbreviations such as
-`U.S.`/`U.S.A.` to “United States”. Avoid long single synthesis calls, which
-can produce unnatural joins, breathiness or distortion.
+`U.S.`/`U.S.A.` to “United States” and `B.C.` to “British Columbia”. Avoid long
+single synthesis calls, which can produce unnatural joins, breathiness or
+distortion.
 
 For recurring briefings, use the same time-aware structure: identify the
 briefing as morning or evening from local time, state the date, pause between

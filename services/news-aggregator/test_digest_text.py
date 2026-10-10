@@ -8,12 +8,39 @@ class DigestTextTests(unittest.TestCase):
         self.assertTrue(same_story(records[0]["title"], records[1]["title"]))
 
     def test_speech_cleanup(self):
-        self.assertEqual(speech_text("Markets rose to $123.45 (about *five* percent)."), "Markets rose to 123.45 dollars, about five percent.")
+        self.assertEqual(
+            speech_text("Markets rose to $123.45 (about *five* percent)."),
+            "Markets rose to one hundred and twenty-three dollars and forty-five cents, about five percent.",
+        )
+
+    def test_speech_expands_canadian_currency_naturally(self):
+        self.assertEqual(
+            speech_text("The estimated total is CA $1,234.50 before tax."),
+            "The estimated total is one thousand two hundred and thirty-four Canadian dollars and fifty cents before tax.",
+        )
+
+    def test_speech_expands_bc_as_british_columbia(self):
+        self.assertEqual(
+            speech_text("The B.C. weather alert remains active."),
+            "The British Columbia weather alert remains active.",
+        )
 
     def test_speech_expands_dotted_us_abbreviation(self):
         self.assertEqual(
             speech_text("U.S. suspect connected to U.S.A. school shooting."),
             "United States suspect connected to United States school shooting.",
+        )
+
+    def test_speech_adds_product_name_pronunciations(self):
+        self.assertEqual(
+            speech_text("Home Assistant connected to Lutron Caseta."),
+            "Home uh-sist-unt connected to Loo-tron kuh-set-uh.",
+        )
+
+    def test_speech_accepts_accented_caseta(self):
+        self.assertEqual(
+            speech_text("Lutron Caséta is online."),
+            "Loo-tron kuh-set-uh is online.",
         )
 
     def test_cross_briefing_repeat_match(self):

@@ -23,6 +23,15 @@ class FakeRenderer:
 
 
 class FixtureTests(unittest.TestCase):
+    def test_canonical_fixture_avoids_bare_acknowledgement(self):
+        fixtures = load_fixtures(
+            Path(__file__).with_name("tts_benchmark_fixtures.json")
+        )
+        acknowledgement = next(
+            fixture for fixture in fixtures if fixture.id == "ha-acknowledgement"
+        )
+        self.assertEqual(acknowledgement.text, "There, that's done.")
+
     def test_rejects_duplicate_ids(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "fixtures.json"
