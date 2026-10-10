@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-10 — B60 inference Q4 K/V promotion
+
+- Fixed the production llama.cpp API-path bottleneck by changing only K/V cache
+  precision from Q8_0 to Q4_0; matched authenticated decode improved from
+  5.94–6.69 to 10.72–11.05 tokens/s.
+- Passed repeated conversation, persona, real tool-schema, grounded retrieval
+  and 8K recall checks, plus B60/Aster health and exercised-soak validation.
+- Retained the exact Q8 unit for immediate rollback and documented the accepted
+  configuration and recovery procedure; no binary, model, package, firmware,
+  network or platform change was made.
+
 ## 2026-10-09 — The Contrasting Frame project preparation
 
 - Scoped the HomeLab UI guide to Aster-associated internal network apps and

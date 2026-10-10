@@ -423,6 +423,17 @@ Aster as ready. It verifies the `xe` binding, stopped rollback VM, absence of a
 persistent B60 mapping, both Aster services, and BMG G21 Vulkan visibility; it
 makes no changes. HomeLab Doctor enforces the same invariants.
 
+The accepted production server uses Q4_0 K/V cache (`-ctk q4_0 -ctv q4_0`).
+Matched authenticated Aster workflows on 2026-10-10 measured 10.72–10.99
+decode tokens/s after promotion, compared with 5.94–6.69 for Q8_0. The exact
+pre-promotion Q8 unit is retained at
+`/etc/systemd/system/aster-llama.service.pre-q4-20261010` with SHA-256
+`7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013`.
+If a correctness, stability or device-health regression is attributed to Q4
+K/V, restore that unit atomically, run `systemctl daemon-reload`, use the
+documented stop/30-second-quiesce/clean-start sequence, then run
+`scripts/check-aster-b60.sh` and authenticated generation validation.
+
 ## Restart and rollback
 
 Restart the lightweight harness without reloading the model:
