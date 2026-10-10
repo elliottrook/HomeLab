@@ -131,12 +131,13 @@ the immutable approved payload, while the visual treatments stay brand-local.
   clock, preserving the initial human-controlled publication policy. Dates are
   stored in UTC and evaluated/displayed for `America/Vancouver`, including
   British Columbia's permanent UTC-7 Pacific Time from March 2026 onward.
-- The transport is installed and a disposable non-served transfer passed, but
-  each per-site root now has an exact-host Nginx vhost. An unset `current` link
+- Each per-site root has an exact-host Nginx vhost. An unset `current` link
   returns site-specific HTTP 503 instead of another brand or the sample. The
   original visibly marked sample remains the unmatched-host default at
-  `/srv/tcf/current`. The NPM-to-origin cross-VLAN path is still blocked and no
-  proxy host, DNS record, tunnel or public route exists.
+  `/srv/tcf/current`. LAN-only, certificate-valid review aliases
+  `contrast.elliottrook.com` and `closet.elliottrook.com` resolve through the
+  three private DNS authorities to NPM, which alone may reach origin TCP 80.
+  Neither alias has public DNS; no Cloudflare origin route or tunnel exists.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to

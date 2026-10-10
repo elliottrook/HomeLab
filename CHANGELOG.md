@@ -34,6 +34,9 @@
   No public proxy or tunnel route was added, and the existing parked Closet
   Fatman DNS was not connected to the origin. Corrected permanent origin
   read access by adding Nginx `www-data` to the restricted `tcf-deploy` group.
+- Added certificate-valid LAN review routes at `contrast.elliottrook.com` and
+  `closet.elliottrook.com`. All three private resolvers return NPM, the firewall
+  permits only NPM to origin TCP 80, and both public aliases remain nonexistent.
 
 ## 2026-10-09 — The Contrasting Frame project preparation
 

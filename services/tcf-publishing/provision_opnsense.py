@@ -1,5 +1,6 @@
 """Add the exact NPM-to-Content-Desk rule; dry-run unless --apply."""
 
+import argparse
 import copy
 import os
 from pathlib import Path
@@ -9,10 +10,17 @@ import uuid
 import xml.etree.ElementTree as ElementTree
 
 CONFIG = Path("/conf/config.xml")
+parser = argparse.ArgumentParser()
+parser.add_argument("--origin", action="store_true",
+                    help="provision private NPM access to the static origin")
+parser.add_argument("--apply", action="store_true")
+args = parser.parse_args()
+
 SOURCE = "192.168.50.23"
-DESTINATION = "192.168.20.35"
-PORT = "8080"
-DESCRIPTION = "NPM to dual-site photography Content Desk"
+DESTINATION = "192.168.20.36" if args.origin else "192.168.20.35"
+PORT = "80" if args.origin else "8080"
+DESCRIPTION = ("NPM to private photography static origin" if args.origin else
+               "NPM to dual-site photography Content Desk")
 
 raw = CONFIG.read_text(encoding="utf-8")
 root = ElementTree.fromstring(raw)
@@ -23,7 +31,7 @@ existing = next((rule for rule in rules if
                  rule.findtext("destination_port") == PORT), None)
 if existing is not None:
     if existing.findtext("sequence") != "2194":
-        raise SystemExit("existing Content Desk rule has unexpected sequence")
+        raise SystemExit("existing photography rule has unexpected sequence")
     print({"status": "present", "uuid": existing.get("uuid")})
     raise SystemExit(0)
 
@@ -44,9 +52,10 @@ parent.insert(list(parent).index(reference) + 1, candidate)
 print({"status": "apply" if "--apply" in sys.argv else "dry-run",
        "source": SOURCE, "destination": f"{DESTINATION}:{PORT}/TCP",
        "sequence": sequence, "uuid": candidate.get("uuid")})
-if "--apply" in sys.argv:
+if args.apply:
     backup = Path("/conf/backup") / (
-        "config-tcf-desk-before-" + time.strftime("%Y%m%d-%H%M%S") + ".xml"
+        "config-tcf-" + ("origin" if args.origin else "desk") + "-before-" +
+        time.strftime("%Y%m%d-%H%M%S") + ".xml"
     )
     fd = os.open(backup, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w", encoding="utf-8") as stream:
