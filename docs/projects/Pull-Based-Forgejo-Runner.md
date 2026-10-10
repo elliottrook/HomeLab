@@ -1,6 +1,6 @@
 # Pull-based Forgejo change-bundle runner
 
-> Status: Active — Stream A write path accepted; read-access amendment validation pending
+> Status: Complete — Stream A write path and bounded-read amendment accepted
 >
 > Owner: Jason
 >
@@ -473,10 +473,9 @@ hourly metadata-only health checks passed. The private signing key remains
 human-held and unread by the agent. No public ingress or credential-bearing
 exchange was introduced. See the operator guide for continued use and recovery.
 
-The read-access amendment is installed and **112/112** Linux broker tests pass.
-Live capability registration and broker restart succeeded. Final acceptance is
-pending proof of allowed metadata/file reads plus denial of another repository,
-a sensitive path and direct gateway access; the execution environment's
-approval-review quota blocked those verification commands after installation.
-Do not report the read path as live-accepted until they pass.
+The read-access amendment is accepted and **112/112** Linux broker tests pass.
+Live `get_repo` and `get_file_content` calls returned the private HomeLab
+repository and its `README.md` through the broker. Requests for another
+repository and `.env` failed closed, direct `hlabundle` access to the read
+gateway failed with `EACCES`, and the separate write gateway remained active.
 

@@ -62,9 +62,9 @@
   existing Green Forgejo read capability and independent read-only gateway.
   Reads are fixed to `jason/homelab` and six metadata/content tools; the runner
   receives no token or direct gateway permission. Installation, capability
-  registration, broker restart and 112/112 Linux tests passed. Final live
-  allowed-read and denial probes remain pending, so the amendment is not yet
-  accepted.
+  registration, broker restart and 112/112 Linux tests passed. Live repository
+  metadata and `README.md` reads succeeded; another repository, `.env` and
+  direct gateway access were denied while the write gateway remained active.
 
 ## 2026-10-10 — Brand Design skill and reusable standard
 

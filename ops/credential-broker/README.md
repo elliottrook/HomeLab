@@ -86,8 +86,8 @@ operator procedure is `docs/runbooks/Pull-Based-Forgejo-Runner.md`.
 The Green reader permits only `get_repo`, `list_branches`, `get_file_content`,
 `list_repo_contents`, `get_repo_tree` and `list_repo_commits`. The independent
 gateway still enforces the fixed repository, sensitive-path, credential-shaped
-argument, secret-shaped output and size limits. Installation and 112/112 Linux
-tests have passed; live allow/deny acceptance probes remain required.
+argument, secret-shaped output and size limits. Installation, 112/112 Linux
+tests and live allow/deny isolation probes passed.
 
 
 ## Aster M1 deployment split (2026-09-25)

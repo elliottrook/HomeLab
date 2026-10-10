@@ -22,7 +22,7 @@ set to **Always Allow** for that signed application; secret values are never
 shown in the management UI.
 
 The pull-based Forgejo runner is an accepted canary-only write integration with
-a bounded-read amendment under validation. It uses a human-carried signed
+an accepted bounded-read amendment. It uses a human-carried signed
 bundle, network-denied validation and the existing Yellow one-file safe-write
 capability. Its Green read path is fixed to `jason/homelab` and a small set of
 metadata/content tools. Both paths retain target credentials behind independent
@@ -81,6 +81,6 @@ The completed implementation and detailed evidence are in
 commands and architecture are in `docs/reference/Aster-Operations.md` and
 `ops/credential-broker/README.md`.
 
-The read amendment is installed with 112/112 Linux tests passing. It is not yet
-accepted: live allowed-read and denial probes must pass before this reference or
-the project portfolio may describe it as complete.
+The read amendment is accepted with 112/112 Linux tests passing. Live repository
+metadata and ordinary-file reads passed; another repository, `.env` and direct
+gateway access were denied while the separate write gateway remained active.
