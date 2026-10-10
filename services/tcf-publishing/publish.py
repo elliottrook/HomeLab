@@ -85,3 +85,67 @@ def publish(store, site: str, confirmation: str, candidate_root: Path,
             raise ContentError(
                 "publication failed; the edition remains open and the recorded status must be reviewed"
             ) from error
+
+
+def publication_status(store, site: str, state_root: Path) -> dict:
+    if site not in SITES:
+        raise ContentError("unknown publication site")
+    origin = origin_sender.status().get(site)
+    if not isinstance(origin, dict):
+        raise ContentError("origin status omitted the selected site")
+    state_path = state_root / f"{site}-publication.json"
+    state = json.loads(state_path.read_text()) if state_path.is_file() else None
+    return {"site": site, "latest": store.latest_publication(site),
+            "last_rollback": store.latest_rollback(site), "origin": origin,
+            "state": state,
+            "rollback_available": origin.get("current") is not None
+                                  and origin.get("previous") is not None}
+
+
+def rollback(store, site: str, confirmation: str, state_root: Path) -> dict:
+    if site not in SITES:
+        raise ContentError("unknown rollback site")
+    phrase = f"ROLLBACK {site.upper()}"
+    if confirmation != phrase:
+        raise ContentError(f"rollback confirmation must be {phrase}")
+    state_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+    lock_path = state_root / "publication.lock"
+    with lock_path.open("a+b") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise ContentError("another publication is already running") from error
+        origin = origin_sender.status().get(site)
+        if not isinstance(origin, dict):
+            raise ContentError("origin status omitted the selected site")
+        current = origin.get("current")
+        previous = origin.get("previous")
+        if not isinstance(current, dict) or not isinstance(previous, dict):
+            raise ContentError("no previous release is available for rollback")
+        from_release = current.get("release_id")
+        to_release = previous.get("release_id")
+        digest = previous.get("manifest_sha256")
+        if not all(isinstance(value, str) for value in (from_release, to_release, digest)):
+            raise ContentError("origin rollback status is invalid")
+        origin_sender.validate(site, from_release)
+        origin_sender.validate(site, to_release)
+        if len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest):
+            raise ContentError("origin rollback digest is invalid")
+        status_path = state_root / f"{site}-publication.json"
+        job = {"site": site, "state": "rolling-back",
+               "from_release_id": from_release, "to_release_id": to_release,
+               "manifest_sha256": digest}
+        _write_status(status_path, job)
+        try:
+            origin_sender.request("rollback", site, to_release, digest)
+            result = store.record_rollback(site, from_release, to_release, digest)
+            _write_status(status_path, {**result, "state": "rolled-back"})
+            return result
+        except Exception as error:
+            _write_status(status_path, {**job, "state": "rollback-failed",
+                                        "detail": type(error).__name__})
+            if isinstance(error, ContentError):
+                raise
+            raise ContentError(
+                "rollback failed; inspect the recorded and origin status before retrying"
+            ) from error

@@ -113,6 +113,11 @@ the immutable approved payload, while the visual treatments stay brand-local.
   prepares the immutable release, stages and activates it by manifest digest,
   then closes the edition and records its release in SQLite. Failures retain the
   draft edition and write a bounded state record without credentials or content.
+- The same private panel reads checksum-verified `current` and `previous`
+  release identities from the origin. One-step rollback is enabled only when
+  both exist, requires `ROLLBACK CONTRAST` or `ROLLBACK CLOSET`, reactivates the
+  exact previous manifest digest through the forced command and records a
+  site-scoped audit row. It never accepts a release ID or digest from the browser.
 - The transport is installed and a disposable non-served transfer passed, but
   each per-site root now has an exact-host Nginx vhost. An unset `current` link
   returns site-specific HTTP 503 instead of another brand or the sample. The

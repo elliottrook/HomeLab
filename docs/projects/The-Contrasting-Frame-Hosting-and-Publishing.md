@@ -521,8 +521,10 @@ site-specific GUI publication confirmation are installed. Exact-host per-site
 Nginx vhosts now point at the separate immutable roots and fail with a branded
 503 while unset; the unmatched-host sample remains unchanged. NPM-to-origin is
 still blocked upstream and no proxy host, DNS record, tunnel or public route
-exists. Next safe action: add publication rollback/status controls and then the
-host-owned quiet fortnightly due-check, without enabling public routing. The
+exists. Private live status and one-step rollback are installed and currently
+disabled because no accepted release exists. Next safe action: add the host-owned
+quiet fortnightly due-check without weakening human publication approval or
+enabling public routing. The
 first real photograph/story save, promotion and approval walkthrough remains
 pending until content exists.
 Store design decisions, last validated gate, candidate/accepted release ID,
@@ -575,6 +577,7 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-10 | A disposable non-served release crossed the real publisher→origin SSH path and was accepted only after manifest verification (`7f28112b…c460a`); the staged probe was removed. `/srv/tcf/current` remained `/srv/tcf/releases/sample-5b23ccb9`, both new site `current` links remain unset, Nginx was unchanged and no public DNS/route was added | Authenticated data transfer is proven without publishing placeholder or synthetic content. Checkpoint `/root/tcf-origin-before-restricted-deploy-20261010` preserves the prior origin configuration and served target |
 | 2026-10-10 | Deployed the Aster-styled final “Publish reviewed edition” control. It requires a complete approved edition, the exact previously built candidate and typed `PUBLISH CONTRAST`/`PUBLISH CLOSET`; one nonblocking lock covers verification, immutable preparation, transfer, digest-bound activation and SQLite publication recording. Activation failure leaves the edition open and records only bounded failure state. Forty-six tests and embedded JavaScript syntax pass | Live no-edition request returned 409 `no fortnightly refresh is in progress`, the publication ledger remains empty, both origin site links remain unset and the Content Desk stayed healthy. Checkpoint `/root/tcf-desk-before-publication-20261010` contains the prior code and consistent database files |
 | 2026-10-10 | Installed exact-host Nginx vhosts for both apex/`www` names against `/srv/tcf/sites/{contrast,closet}/current`; unset roots return site-specific 503. Local host-header checks returned the correct Contrast/Closet unavailable bodies, unmatched host retained the original sample health, and `nginx -t` passed. The attempted NPM check timed out at the still-absent upstream cross-VLAN rule | Brand roots cannot fall through to each other or the sample. No OPNsense rule, NPM proxy host, DNS, Cloudflare route or public exposure was added. Checkpoint `/root/tcf-origin-before-private-vhosts-20261010.conf` preserves the prior Nginx site |
+| 2026-10-10 | Added live origin publication status and one-step rollback to the private desk. The button is enabled only when the forced receiver reports checksum-verified current and previous releases; the typed site phrase selects no target, and the server uses only the origin-reported previous ID/digest. Successful swaps write a site-scoped rollback audit row and bounded state file. Forty-eight tests and embedded JavaScript syntax pass | Live status returned null current/previous, a correctly phrased rollback failed closed with 409 `no previous release is available for rollback`, zero audit rows were written and the service stayed healthy. Checkpoint `/root/tcf-desk-before-rollback-20261010` contains the prior code/database |
 
 ## Close out
 

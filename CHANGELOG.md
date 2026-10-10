@@ -17,6 +17,9 @@
   responses while no accepted release exists. The legacy sample remains the
   unmatched-host default; the NPM cross-VLAN path and all public routing remain
   absent.
+- Added live origin release status and typed one-step rollback to the private
+  desk. The server selects only the checksum-verified previous origin release,
+  records successful swaps, and disables rollback when no prior release exists.
 
 ## 2026-10-09 — The Contrasting Frame project preparation
 

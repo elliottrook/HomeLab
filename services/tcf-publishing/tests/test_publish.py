@@ -9,7 +9,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from content import ContentError
-from publish import candidate_relative, publish
+from publish import candidate_relative, publication_status, publish, rollback
 from store import ContentStore
 from test_store import record
 from template_candidate import BANNER, BANNER_STYLE
@@ -80,6 +80,29 @@ class PublishTests(unittest.TestCase):
         self.assertTrue(self.store.edition_status("contrast")["active"])
         status = json.loads((self.root / "state/contrast-publication.json").read_text())
         self.assertEqual(status["state"], "failed")
+
+    @patch("publish.origin_sender.request")
+    @patch("publish.origin_sender.status")
+    def test_rollback_uses_only_verified_previous_origin_release(self, status, request):
+        status.return_value = {"contrast": {
+            "current": {"release_id": "contrast-e2-222222222222",
+                        "manifest_sha256": "2" * 64},
+            "previous": {"release_id": "contrast-e1-111111111111",
+                         "manifest_sha256": "1" * 64},
+        }}
+        result = rollback(self.store, "contrast", "ROLLBACK CONTRAST", self.root / "state")
+        self.assertEqual(result["to_release_id"], "contrast-e1-111111111111")
+        request.assert_called_once_with("rollback", "contrast",
+                                        "contrast-e1-111111111111", "1" * 64)
+        self.assertEqual(self.store.latest_rollback("contrast")["rollback_id"], 1)
+
+    @patch("publish.origin_sender.status", return_value={
+        "contrast": {"current": None, "previous": None}})
+    def test_rollback_status_disables_when_no_previous_release_exists(self, status):
+        value = publication_status(self.store, "contrast", self.root / "state")
+        self.assertFalse(value["rollback_available"])
+        with self.assertRaisesRegex(ContentError, "no previous release"):
+            rollback(self.store, "contrast", "ROLLBACK CONTRAST", self.root / "state")
 
 
 if __name__ == "__main__":

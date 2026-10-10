@@ -76,6 +76,14 @@ class ContentStore:
               published_at TEXT NOT NULL,
               FOREIGN KEY (edition_id) REFERENCES editions(edition_id)
             );
+            CREATE TABLE IF NOT EXISTS publication_rollbacks (
+              rollback_id INTEGER PRIMARY KEY AUTOINCREMENT,
+              site TEXT NOT NULL,
+              from_release_id TEXT NOT NULL,
+              to_release_id TEXT NOT NULL,
+              manifest_sha256 TEXT NOT NULL,
+              rolled_back_at TEXT NOT NULL
+            );
             """
         )
 
@@ -361,6 +369,42 @@ class ContentStore:
                 raise ContentError("unknown site")
             row = self.database.execute(
                 "SELECT * FROM publications WHERE site = ? ORDER BY published_at DESC LIMIT 1",
+                (site,),
+            ).fetchone()
+            return dict(row) if row is not None else None
+
+    def record_rollback(self, site: str, from_release_id: str, to_release_id: str,
+                        manifest_sha256: str) -> dict:
+        with self.lock:
+            if site not in SITES:
+                raise ContentError("unknown site")
+            if (from_release_id == to_release_id
+                    or not from_release_id.startswith(site + "-e")
+                    or not to_release_id.startswith(site + "-e")):
+                raise ContentError("rollback release identity is invalid")
+            if len(manifest_sha256) != 64 or any(
+                    character not in "0123456789abcdef" for character in manifest_sha256):
+                raise ContentError("rollback manifest digest is invalid")
+            rolled_back_at = _now()
+            cursor = self.database.execute(
+                "INSERT INTO publication_rollbacks "
+                "(site, from_release_id, to_release_id, manifest_sha256, rolled_back_at) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (site, from_release_id, to_release_id, manifest_sha256, rolled_back_at),
+            )
+            self.database.commit()
+            return {"rollback_id": int(cursor.lastrowid), "site": site,
+                    "from_release_id": from_release_id, "to_release_id": to_release_id,
+                    "manifest_sha256": manifest_sha256,
+                    "rolled_back_at": rolled_back_at}
+
+    def latest_rollback(self, site: str) -> Optional[dict]:
+        with self.lock:
+            if site not in SITES:
+                raise ContentError("unknown site")
+            row = self.database.execute(
+                "SELECT * FROM publication_rollbacks WHERE site = ? "
+                "ORDER BY rollback_id DESC LIMIT 1",
                 (site,),
             ).fetchone()
             return dict(row) if row is not None else None
