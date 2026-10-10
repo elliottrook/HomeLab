@@ -2287,3 +2287,16 @@ diagnosis. The next hypothesis must use a materially different storage or
 trust mechanism, be tested first with disposable credentials, and explicitly
 account for refresh-token rotation during rollback. See
 [the detailed evidence](evidence/D3-native-stable-signing-keychain-design-2026-10-09.md).
+
+### 2026-10-09 — Scope the next native login design before another live test
+
+Read-only signing metadata for the restored version 13 shows no Team ID and no
+entitlements. Apple distinguishes the file-based and data-protection macOS
+Keychains; the latter uses app identifiers and validated entitlements. The
+[custody decision](evidence/D3-native-session-custody-decision-2026-10-09.md)
+therefore keeps version 13 as the working app and treats a disposable-item
+data-protection probe as the next smallest falsifiable experiment. A new local
+credential broker would add enough IPC and lifecycle complexity that it is
+deferred until update-prompt frequency or availability evidence justifies it.
+No live credential, production infrastructure, ACL or signing identity changed
+in this decision step.

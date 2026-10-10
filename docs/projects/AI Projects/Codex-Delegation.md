@@ -133,9 +133,15 @@ Jason requested an access-until-revoked approach to stop repeated prompts while
 Stream A is built. The [standing-access design](evidence/D3-standing-access-design-2026-10-09.md)
 separates existing Stream A project authority, AI-PAM capability grants, native
 Keychain trust, ChatGPT disclosure consent and Codex platform approvals. Its
-first implementation gate is identifying the actual recurring dialog; no
-blanket permission or production setting has been changed. Routine in-scope
-local/read-only work should proceed without new conversational approval.
+first implementation gate identified the native Companion saved-login dialog.
+Stable local signing and migration to a new Companion-only Keychain item made
+version 13 restart without a prompt, but a signed version 14 update prompted
+again. Version 13 is the current working app; the no-repeat-prompt update gate
+failed. The [custody decision](evidence/D3-native-session-custody-decision-2026-10-09.md)
+keeps login custody separate from AI-PAM, rejects broader Keychain access, and
+sets a disposable-credential test before any other live migration. Routine
+in-scope local/read-only work should proceed without new conversational
+approval.
 
 Jason directed recording this logic, retooling the project and continuing Stream A.
 Proceed with local documents/code/tests and read-only integration preflight.
