@@ -51,6 +51,24 @@ class StoreTests(unittest.TestCase):
         with self.assertRaises(ContentError):
             self.store.approve("contrast", "shared-frame", "jason")
 
+    def test_sample_flag_cannot_be_removed_by_ordinary_save(self):
+        self.store.save(record(sample=True))
+        with self.assertRaisesRegex(ContentError, "explicit promotion"):
+            self.store.save(record(sample=False))
+
+    def test_promotion_requires_phrase_import_and_publication_readiness(self):
+        self.store.save(record(sample=True, asset_path="assets/sample.jpg"))
+        with self.assertRaisesRegex(ContentError, "confirmation"):
+            self.store.promote("contrast", "shared-frame", "PROMOTE")
+        with self.assertRaisesRegex(ContentError, "imported photograph"):
+            self.store.promote("contrast", "shared-frame", "PROMOTE REAL CONTENT")
+        self.store.save(record(sample=True, asset_path="imports/shared-frame/abc.jpg"))
+        self.assertEqual(self.store.promote(
+            "contrast", "shared-frame", "PROMOTE REAL CONTENT"), 3)
+        promoted, version = self.store.latest("contrast", "shared-frame")
+        self.assertEqual((promoted.sample, version), (False, 3))
+        self.assertIsNone(self.store.current_approval("contrast", "shared-frame"))
+
     def test_latest_list_is_site_scoped_and_returns_only_current_versions(self):
         self.store.save(record(id="contrast-frame"))
         self.store.save(record(id="contrast-frame", title="Second version"))

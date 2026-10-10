@@ -71,6 +71,10 @@ the immutable approved payload, while the visual treatments stay brand-local.
   old sample material. They are visibly titled `PLACEHOLDER`, retain
   `sample=true`, start with unknown rights/consent, and therefore cannot pass
   either the UI or server-side approval gate.
+- An ordinary draft save cannot clear `sample=true`. Explicit promotion requires
+  a saved imported photograph, replacement title and story, complete approval
+  metadata, and the typed phrase `PROMOTE REAL CONTENT`. Promotion creates a new
+  unapproved version; approval remains a separate human action.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to

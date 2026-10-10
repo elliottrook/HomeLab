@@ -56,7 +56,7 @@ class ContentStore:
     def close(self) -> None:
         self.database.close()
 
-    def save(self, record: ContentRecord) -> int:
+    def _insert(self, record: ContentRecord) -> int:
         with self.lock:
             record.validate()
             row = self.database.execute(
@@ -73,6 +73,35 @@ class ContentStore:
             )
             self.database.commit()
             return version
+
+    def save(self, record: ContentRecord) -> int:
+        with self.lock:
+            try:
+                current, _ = self.latest(record.site, record.id)
+            except KeyError:
+                current = None
+            if current is not None and current.sample and not record.sample:
+                raise ContentError("sample flag can only be removed by explicit promotion")
+            return self._insert(record)
+
+    def promote(self, site: str, content_id: str, confirmation: str) -> int:
+        with self.lock:
+            if confirmation != "PROMOTE REAL CONTENT":
+                raise ContentError("promotion confirmation did not match")
+            current, _ = self.latest(site, content_id)
+            if not current.sample:
+                raise ContentError("record is already real content")
+            if not current.asset_path.startswith("imports/"):
+                raise ContentError("replace the placeholder with an imported photograph")
+            if current.title.upper().startswith("PLACEHOLDER"):
+                raise ContentError("replace the placeholder title")
+            if current.story.upper().startswith("PLACEHOLDER"):
+                raise ContentError("replace the placeholder story")
+            promoted = ContentRecord.from_dict({**asdict(current), "sample": False})
+            blockers = promoted.approval_blockers()
+            if blockers:
+                raise ContentError("; ".join(blockers))
+            return self._insert(promoted)
 
     def latest(self, site: str, content_id: str) -> tuple[ContentRecord, int]:
         with self.lock:

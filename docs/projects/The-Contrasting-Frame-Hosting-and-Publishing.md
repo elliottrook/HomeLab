@@ -514,10 +514,10 @@ access remains denied. Bounded Markdown/image drag-and-drop import and visible
 approval controls and a site-scoped placeholder library are deployed. Until real
 content exists, both sites use only conspicuously blocked records based on the
 accepted old sample. The two completed website baselines and their distinct
-annotation treatments are now registered and privately staged. Next safe action:
-Jason completes the passkey sign-in and checks the live dual-brand preview, then
-add explicit placeholder-to-real promotion with a deliberate sample-flag removal
-gate before the first real photograph/story save-and-approval walkthrough.
+annotation treatments are now registered and privately staged. Passkey access and
+the explicit placeholder-to-real promotion gate are proven. Next safe action:
+Jason checks the live dual-brand preview, then the first real photograph/story
+save, promotion and approval walkthrough can begin when content is available.
 Store design decisions, last validated gate, candidate/accepted release ID,
 rollback checkpoint, exact blocker and next safe action at each milestone.
 Use a versioned durable job-state DB with atomic transitions, not process absence.
@@ -558,6 +558,7 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Added site-scoped latest-record lists and placeholder creation. Created one live `PLACEHOLDER — Untitled photograph` workspace for each site from the old accepted sample; both are `sample=true`, version 1, unapproved and independently keyed. Twenty-three tests and embedded JavaScript syntax passed; a direct approval attempt returned 409 with sample/rights/consent blockers and private HTTPS retained its Authentik 302 | The desk is usable before real content arrives without any placeholder being accidentally publishable; deliberate promotion and a real owner walkthrough remain |
 | 2026-10-10 | Accepted current site sources `49f210c7` (Contrast) and `c77684d` (Closet) into separate private brand datasets; file counts and annotation-manifest SHA-256 values matched. Added shared bounded annotation text/X/Y fields to the immutable public payload and live desk. Contrast previews a formal title/gold underline; Closet previews a whimsical handwritten note/arrow. Both live sample records advanced independently to unapproved version 2, and 24 tests plus embedded JavaScript syntax passed | Both finished visual systems now use one site-scoped workflow without sharing brand assets, approvals or default media; annotations cannot change after approval without invalidating it |
 | 2026-10-10 | Diagnosed the Authentik browser error as an empty proxy-provider redirect allowlist created through the ORM path. Provisioning now invokes Authentik's OAuth defaults and explicitly assigns `aster-companion-passwordless`; live readback shows the two expected `tcf.elliottrook.com` callback URLs, one owner binding and the embedded outpost attachment. Reloading the original browser URL reached “Sign in to Aster Companion” for Photography Content Desk instead of the redirect error | Private login is repaired and follows the current passkey-only flow; Jason's human passkey ceremony is the remaining browser handoff |
+| 2026-10-10 | Jason proved a clean external-browser sign-in with the passkey flow; an existing browser session correctly reused Authentik SSO. Added a typed-confirmation placeholder promotion gate. Ordinary draft saves cannot clear `sample=true`; promotion requires an imported image, replaced placeholder title/story and complete approval metadata, and always creates an unapproved version. Twenty-six tests passed; live rejection probes returned 422 for direct sample-flag removal and 409 for promoting the retained sample image | Authentication is proven end to end and placeholder material cannot silently become production content; first real-content walkthrough remains intentionally deferred until media exists |
 
 ## Close out
 
