@@ -729,6 +729,22 @@ unrelated state.
   returned healthy plus a valid 24 kHz WAV for the Home Assistant, Lutron
   Caseta, Canadian-currency and B.C. fixture in 2.496 seconds. Production port
   9130 and routing were not changed; listening acceptance remains required.
+- The first bounded A380 contention gate intentionally used unique short
+  acknowledgements so the exact-response cache could not hide renderer delay.
+  Without Jellyfin load, twelve idle requests had 0.778-second median and
+  1.040-second p95 complete-WAV latency. During four briefing-sized renders,
+  twelve interactive requests rose to 1.597-second median and 3.239-second
+  p95, then recovered to 0.857/0.875 seconds. Because this already failed, no
+  additional Jellyfin load was imposed.
+- A second probe used the candidate's actual two-worker scheduler with the
+  briefing classified as `batch`. Priority reduced interactive median to
+  0.896 seconds, but p95/max remained 2.658 seconds because an in-flight batch
+  render cannot be pre-empted inside Kokopop. The six batch units completed at
+  0.558, 1.837, 3.797, 6.019, 6.830 and 8.367 seconds. M3 remains unselected.
+  The next implementation step is bounded batch-specific clause segmentation
+  plus admission that stops submitting News work while interactive work is
+  pending; repeat this gate before adding Jellyfin overlap. This is a software
+  scheduling issue, not evidence for changing the provisional A380 choice.
 
 ## Validation and evaluation
 
@@ -878,6 +894,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 B60 Vulkan Kokoro canary | Internet/upstream review plus live llama.cpp evidence identified Mesa Vulkan as the small-BAR path. Pinned Kokopop/GGML build; 617 tests; immutable verified F16 GGUF with `bm_daniel`; explicit B60 synthesis; persistent first-audio traces; CPU comparison; generated remote evidence cleanup. | Vulkan is viable without ReBAR. Warm short first audio was 0.588 s; a longer first sentence was 1.608 s. Keep the canary stopped and production unchanged pending Jason's listening parity, bounded segmentation and shared-GPU contention gates. |
 | 2026-10-10 | M3 private Vulkan renderer bridge and contention gate | File-backed dedicated bearer key; fixed voice/speed/format; bounded input/concurrency; WAV validation; full authenticated LXC 116 path; 401 refusal; dependency 503/recovery; production isolation; simultaneous live Llama generation. | Functional/security gates pass, but latency does not: warm short end-to-end 0.714–0.896 s and 2.940 s under active Llama generation. Candidate units returned to stopped/disabled; production remained healthy. Do not select until GPU workload isolation or proven scheduling meets the frozen target. |
 | 2026-10-10 | M3 TrueNAS A380 backend comparison and private canary | Live i915/device/BAR inspection; explicit Mesa Vulkan device selection; cold/warm and longer-sentence timings; sustained Jellyfin VAAPI overlap; Intel OpenVINO 2026.4 and ORT OpenVINO 1.24.1 with CPU fallback disabled; pinned non-root deployment-image build; loopback validation; exact OPNsense rule; authentication refusal/success; full LXC 116 candidate fixture. | A380 Vulkan passes: warm short 0.494–0.511 s and 0.491–0.587 s during VAAPI overlap; the clean deployment image warmed to 0.631–0.657 s after a 4.648 s cold request; authenticated network render was 0.661 s. OpenVINO rejects the approved dynamic-rank ONNX graph. Production remains unchanged; warm-up admission, full load and listening gates remain. |
+| 2026-10-10 | M3 A380 interactive/News contention gate | Twelve unique idle acknowledgements; four briefing-sized renders with twelve interactive requests; recovery series; repeat through the deployed scheduler's real `batch` queue. Jellyfin overlap withheld after the earlier gate failed. | Direct overlap failed at 1.597 s median / 3.239 s p95. Scheduler priority improved median to 0.896 s but p95 remained 2.658 s because in-flight Kokopop work is not pre-emptible. Add batch-specific bounded clauses and interactive-aware admission, then repeat before selection. |
 
 ## Close-out
 
