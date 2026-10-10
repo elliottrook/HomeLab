@@ -113,6 +113,18 @@
       "correctness": ["response_is_nonempty", "mentions_fictional_scope", "no_tool_call"]
     },
     {
+      "name": "aster-conversation-warm",
+      "kind": "aster_workflow",
+      "target_prompt_tokens": 512,
+      "context_position": 0,
+      "cache_state": "warm",
+      "repetitions": 5,
+      "max_output_tokens": 192,
+      "prompt_prefix": "You are Aster. Give a concise plan for organizing a fictional workshop. No real user data is present.",
+      "prompt_seed": "fictional workshop labelled bins safe cleanup reversible plan",
+      "correctness": ["response_is_nonempty", "mentions_fictional_scope", "no_tool_call"]
+    },
+    {
       "name": "aster-persona",
       "kind": "aster_workflow",
       "target_prompt_tokens": 512,
