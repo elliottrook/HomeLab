@@ -1,10 +1,13 @@
 import unittest
+import io
+import wave
 
 from voice_candidate import VoiceScheduler
 from voice_protocol import (
     FRAME_MAGIC,
     decode_frames,
     encode_frame,
+    pcm_to_wav,
     stream_frames,
     validated_request_id,
 )
@@ -33,6 +36,17 @@ class FrameTests(unittest.TestCase):
         for invalid in ("", "has space", "/path", "x" * 65, "é"):
             with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                 validated_request_id(invalid)
+
+    def test_pcm_to_compatibility_wav(self):
+        pcm = b"\x00\x00\xff\x7f"
+        encoded = pcm_to_wav(pcm, 24000)
+        with wave.open(io.BytesIO(encoded), "rb") as wav:
+            self.assertEqual(wav.getnchannels(), 1)
+            self.assertEqual(wav.getsampwidth(), 2)
+            self.assertEqual(wav.getframerate(), 24000)
+            self.assertEqual(wav.readframes(2), pcm)
+        with self.assertRaises(ValueError):
+            pcm_to_wav(b"odd", 24000)
 
 
 class StreamFrameTests(unittest.IsolatedAsyncioTestCase):

@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import json
 import re
 import struct
 import uuid
+import wave
 from collections.abc import AsyncIterator
 
 from voice_candidate import CallerClass, VoiceScheduler
@@ -60,12 +62,25 @@ def decode_frames(data: bytes) -> list[tuple[dict[str, object], bytes]]:
     return frames
 
 
+def pcm_to_wav(pcm: bytes, sample_rate: int) -> bytes:
+    if sample_rate <= 0 or len(pcm) % 2:
+        raise ValueError("PCM must be even-length 16-bit audio with a valid sample rate")
+    output = io.BytesIO()
+    with wave.open(output, "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(sample_rate)
+        wav.writeframes(pcm)
+    return output.getvalue()
+
+
 async def stream_frames(
     scheduler: VoiceScheduler,
     request_id: str,
     text: str,
     caller: CallerClass,
 ) -> AsyncIterator[bytes]:
+    completed = False
     try:
         async for unit in scheduler.stream(request_id, text, caller):
             yield encode_frame(
@@ -81,6 +96,7 @@ async def stream_frames(
                 unit.pcm,
             )
         yield encode_frame({"type": "end", "request_id": request_id})
+        completed = True
     except asyncio.CancelledError:
         scheduler.cancel(request_id)
         raise
@@ -89,4 +105,5 @@ async def stream_frames(
             {"type": "error", "request_id": request_id, "error": type(exc).__name__}
         )
     finally:
-        scheduler.cancel(request_id)
+        if not completed:
+            scheduler.cancel(request_id)

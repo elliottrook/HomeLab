@@ -11,7 +11,7 @@ import asyncio
 import re
 from dataclasses import dataclass, field
 from itertools import count
-from typing import AsyncIterator, Callable, Literal
+from typing import AsyncIterator, Callable, Literal, Sequence
 
 CallerClass = Literal["interactive", "batch"]
 Renderer = Callable[[str], tuple[bytes, int]]
@@ -150,8 +150,18 @@ class _Job:
 class VoiceScheduler:
     """Two interactive workers with batch work restricted to worker zero."""
 
-    def __init__(self, renderer: Renderer, interactive_capacity: int = 2, batch_capacity: int = 8):
-        self._renderer = renderer
+    def __init__(
+        self,
+        renderer: Renderer | Sequence[Renderer],
+        interactive_capacity: int = 2,
+        batch_capacity: int = 8,
+    ):
+        if callable(renderer):
+            self._renderers = (renderer, renderer)
+        else:
+            if len(renderer) != 2 or not all(callable(item) for item in renderer):
+                raise ValueError("exactly two worker renderers are required")
+            self._renderers = (renderer[0], renderer[1])
         self._interactive: asyncio.Queue[_Job] = asyncio.Queue(interactive_capacity)
         self._batch: asyncio.Queue[_Job] = asyncio.Queue(batch_capacity)
         self._workers: list[asyncio.Task[None]] = []
@@ -209,7 +219,9 @@ class VoiceScheduler:
                     job.result.cancel()
                 continue
             try:
-                pcm, sample_rate = await asyncio.to_thread(self._renderer, job.text)
+                pcm, sample_rate = await asyncio.to_thread(
+                    self._renderers[worker_index], job.text
+                )
                 if job.request_id in self._cancelled:
                     job.result.cancel()
                 elif not job.result.done():

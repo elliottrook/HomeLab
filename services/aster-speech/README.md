@@ -54,3 +54,14 @@ frames declare request/unit order, sample rate, mono channel count and
 `voice_candidate_http.py` exposes that contract as authenticated FastAPI router
 factories for `/v2/tts/stream` and cancellation. Caller class is fixed by the
 authenticated route and cannot be selected in submitted JSON.
+
+`kokoro_candidate.py` verifies the approved asset digests before constructing
+two distinct persistent ONNX sessions. Each scheduler worker owns one Kokoro
+engine configured for two intra-op threads and one inter-op thread. The engine
+returns bounded mono 24 kHz signed 16-bit PCM; the compatibility endpoint wraps
+the same PCM in a WAV container without using a second synthesis path.
+
+`aster_voice_candidate.py` and `systemd/aster-voice-candidate.service` are the
+side-by-side candidate application and unit. They bind port 9131 and are not
+referenced by the accepted production unit. Do not install or enable them until
+the M3 backup, dependency, authentication and rollback gates are approved.
