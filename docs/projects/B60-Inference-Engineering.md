@@ -102,9 +102,10 @@ credential access, firewall or network changes, backup deletion, destructive
 storage work and every remote Git write. Replacing the Dell, moving the B60 or
 buying another GPU is not a project solution.
 
-Potentially disruptive experiments may run only from 00:30 through 02:00
-America/Vancouver and must restore and validate production before 02:00. They
-must not overlap the 02:30 backup or approximately 04:20 mirror jobs. Firmware,
+Potentially disruptive experiments may run only from 22:15 through 23:40
+America/Vancouver and must restore and validate production before 23:40. They
+must not overlap the midnight NAS work, 01:30 media job, 02:30 backup or
+approximately 04:20 mirror jobs. Firmware,
 BIOS, bootloader, reboot and recovery-dependent work is always attended.
 
 ## Authority model
@@ -156,7 +157,7 @@ restored by a bounded finalizer after every scheduled experiment.
 | Incorrect or misleading output | Medium / high | Fixed correctness assertions, two real-workflow passes, independent evidence audit, control rerun | No promotion with regression |
 | Secret/private-data capture | Low / high | Synthetic fixtures, schema-limited collection, secret scan, no raw service environment | Stop and quarantine on any exposure |
 | Benchmark contamination or cherry-picking | Medium / medium | Warm-up plus five repetitions, medians/spread/raw samples, cold-cache control, pre/post controls | Auditor signs causal conclusions |
-| Backup/mirror collision | Medium / high | 00:30–02:00 only, verify schedules/checkpoints immediately before run, skip if completion/rollback cannot fit | No overlap accepted |
+| Backup/mirror collision | Medium / high | 22:15–23:40 only, verify schedules/checkpoints immediately before run, skip if completion/rollback cannot fit | No overlap accepted |
 | Storage or memory exhaustion | Medium / high | Preflight disk/RAM/VRAM headroom, bounded artifacts, no host spill, cleanup only after evidence acceptance | Stop before unsafe headroom |
 | Upstream experimental regressions | Medium / high | Record exact revision, applicability, known defects and rollback; tiny-model enumeration before target model | Experimental work remains isolated |
 
@@ -176,9 +177,9 @@ all pass, it also covers the enumerated reversible non-firmware Vulkan
 experiments in M2: side-by-side llama.cpp candidates and one-variable tests of
 batch/microbatch, threads/affinity, flash attention, supported KV types,
 context, prompt/graph cache reuse and memory headroom. Each experiment must run
-only from 00:30–02:00 America/Vancouver, retain the accepted b11081 artifacts,
+only from 22:15–23:40 America/Vancouver, retain the accepted b11081 artifacts,
 use synthetic data, stop on the documented abort conditions and restore and
-validate production before 02:00. This authorization does not waive a platform
+validate production before 23:40. This authorization does not waive a platform
 approval prompt.
 
 The following remain outside Stream A and require Jason's immediate approval:
@@ -241,15 +242,15 @@ rollback invocation.
 
 The guarded invocation is `python3 scripts/b60-inference/guard.py preflight
 PREFLIGHT.json --estimated-minutes N`. Its evidence must be collected from
-00:20 through 00:29 America/Vancouver and be no more than five minutes old. It
+22:00 through 22:14 America/Vancouver and be no more than five minutes old. It
 fails closed unless the latest LXC 110 backup and TrueNAS mirror are no more
 than 26 hours old, the mirror job state is `SUCCESS`, accepted binary/unit
 hashes match, service health is `ok`, the B60 is on `xe`, Vulkan reports BMG
 G21, and disk/RAM/VRAM headroom is at least 20 GiB/4 GiB/2 GiB.
 
-No experiment starts before 00:30. The experiment hard-stops at 01:40, reserving
+No experiment starts before 22:15. The experiment hard-stops at 23:20, reserving
 20 minutes for `python3 scripts/b60-inference/guard.py finalize --execute
---allow-production`. The absolute restoration deadline is 02:00. The finalizer
+--allow-production`. The absolute restoration deadline is 23:40. The finalizer
 stops `aster-b60-candidate.service`, explicitly stops the accepted
 `aster-llama.service`, allows GPU/process state to quiesce for 30 seconds, then
 requests one non-blocking clean start. It polls active state and health for up
@@ -257,8 +258,33 @@ to five minutes before requiring accepted binary/unit hashes, host `xe` binding
 and BMG G21 Vulkan enumeration. Candidate absence is acceptable; failure of any
 restoration or validation step is not.
 Authenticated synthetic generation remains an additional required validation
-before a live control can close because credential access is outside the
-autonomous envelope.
+before a live control can close. The 2026-10-07 standing authorization permits
+only the established protected credential path; the value must never enter
+logs, evidence or the conversation.
+
+### Nightly scheduling audit — 2026-10-10
+
+The original 00:30–02:00 window was selected only to precede the 02:30 Proxmox
+backup. Live scheduler reconciliation shows that it is not otherwise quiet:
+
+| Scheduled work | Live schedule | B60 impact |
+|---|---|---|
+| Synology Drive backup | Daily 00:00; integrity check Monday 04:00 | Storage activity at the start of the old window |
+| TrueNAS Media and Recovery scrubs | Sunday 00:00, historically to about 02:46 | Directly conflicts with the entire old Sunday window |
+| Video archiver | Monday–Saturday 01:30–07:30 | Overlaps the last 30 minutes of the old window |
+| Proxmox all-guest snapshot backup | Daily 02:30 | Hard boundary; supplies the next recovery point |
+| TrueNAS guest, Mac and B60 pulls | Daily 04:00, 04:15 and 04:20 | B60 mirror normally completes around 04:25 |
+| TrueNAS family/config/retention jobs | Daily 04:30, 05:00 and 06:00 | Dense storage-maintenance period |
+| Playlist bridge / ARR report | Every six hours at :15 / every five minutes | Small; ARR report is read-only and negligible |
+| Archive compaction | Daily 08:00–13:30 | Avoid for uncontended storage operation |
+
+The replacement window is 22:15–23:40 daily. Preparation begins at 21:40 and
+fresh evidence is collected at 22:00–22:14. This uses the same day's completed
+02:30 backup and 04:20 mirror, avoids both Sunday scrubs and all nightly heavy
+jobs, and retains 20 minutes for restoration before any midnight work. The
+heartbeat is an orchestration and notification layer, not the timing authority:
+the checked-in guard owns the clock, rejects late starts and prevents a delayed
+heartbeat from shifting production work into another job's window.
 
 ### M2 — Non-disruptive Vulkan optimization
 
@@ -354,7 +380,7 @@ health, authenticated synthetic generation and dependent Aster health.
 Abort immediately on a new `xe` reset, device loss, kernel OOM, host/guest
 impact, unexpected CPU fallback/spill, unsafe telemetry, invalid output,
 unverifiable rollback/checkpoint, material topology surprise, secret exposure
-or approach to the 02:00 restoration deadline. Do not auto-retry a potentially
+or approach to the 23:40 restoration deadline. Do not auto-retry a potentially
 destabilizing failure class.
 
 ### M0 accepted and rollback artifact inventory
@@ -458,6 +484,7 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-10-08 | Nightly automation timing guard | The first recurring heartbeat began at 00:35 PDT, after the mandatory 00:20–00:29 preflight window. It failed closed: no preflight was represented as valid and no production load or service mutation ran. Moved the heartbeat trigger from 00:20 to 00:05 and made early preparation plus the exact in-window evidence requirement explicit | Tonight was skipped safely. The earlier trigger allows checkout reconciliation and read-only preparation before the next 00:20–00:29 gate while retaining the 01:40/02:00 deadlines and all standing exclusions |
 | 2026-10-09 | Live finalizer proof | Rebased the five unpublished B60 commits onto authoritative Forgejo `2f92914` without pushing. At 00:20 PDT the exact preflight passed: fresh 2026-10-08 LXC 110 backup and successful bounded mirror, accepted hashes, healthy service, `xe`, BMG G21 Vulkan, 21.9 GB disk, 8.8 GB RAM, 11.6 GB VRAM headroom and no relevant 24-hour kernel failure. At 00:30 invoked the standing-authorized live finalizer. The accepted service restart did not become healthy within its start-post window; repeated warmup health checks returned 503 and systemd entered auto-restart. No benchmark or candidate load ran | Production restoration is not yet proven and accepted service remains in an unhealthy restart cycle. The safe next recovery step is an explicit stop, quiesce and single clean start, but the platform rejected that mutation because it exceeds the recorded finalizer sequence. Immediate owner approval is required; do not run further experiments |
 | 2026-10-10 | Recovery and owner continuation | Jason authorized continuing the requested stop/quiesce/clean-start recovery. Before mutation, read-only validation found the accepted service had recovered automatically after 36 restarts: active, health `ok`, accepted binary/unit hashes, `xe`, BMG G21 Vulkan and no relevant kernel failure since the finalizer. No healthy service was stopped and no benchmark ran outside the window. Revised the local finalizer to stop accepted production explicitly, wait 30 seconds, request a non-blocking clean start, poll active plus health for up to five minutes, and only then validate hashes, driver and Vulkan; all 25 B60 tests pass | The original immediate restart validation is rejected as unsafe. Updated and resumed `b60-nightly-validation-loop`; its next operational action is one successful live proof of the revised sequence in a fresh overnight window before any benchmark |
+| 2026-10-10 | Automation efficiency audit | Reconciled durable evidence, Codex schedules and live Proxmox/TrueNAS schedules. Since recurring nightly testing was created, both eligible nights fired, but neither produced a benchmark: 2026-10-08 missed the narrow preflight window and 2026-10-09 stopped at the failed finalizer. The separate 2026-09-29 one-time run passed preflight but stopped at then-unapproved credential/finalizer gates. No experiment ledger or raw benchmark result exists, so automated experimental throughput is 0/3 attempts despite substantial harness, safety and recovery engineering | Moved the guarded lab window to the demonstrably quieter 22:15–23:40 period, scheduled preparation at 21:40, moved weekly research to Monday 20:30, retained fail-closed clock enforcement in code, and muted routine unchanged notifications. The next run must prove the revised finalizer and then capture the fresh immutable control; a failed proof pauses the loop and names required owner action explicitly |
 
 ## Close-out
 

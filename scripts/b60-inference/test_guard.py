@@ -18,9 +18,9 @@ SPEC.loader.exec_module(guard)
 
 def snapshot():
     return {
-        "collected_at": "2026-09-27T00:24:00-07:00",
-        "backup_completed_at": "2026-09-26T02:39:00-07:00",
-        "mirror_completed_at": "2026-09-26T04:24:00-07:00",
+        "collected_at": "2026-09-27T22:04:00-07:00",
+        "backup_completed_at": "2026-09-27T02:39:00-07:00",
+        "mirror_completed_at": "2026-09-27T04:24:00-07:00",
         "mirror_state": "SUCCESS", "service_health": "ok", "driver": "xe",
         "vulkan_device": "Intel BMG G21", "binary_sha256": guard.ACCEPTED_BINARY_SHA256,
         "unit_sha256": guard.ACCEPTED_UNIT_SHA256, "disk_free_bytes": 30 * 1024**3,
@@ -29,17 +29,17 @@ def snapshot():
 
 
 class GuardTests(unittest.TestCase):
-    def test_preflight_sets_0140_and_0200_deadlines(self):
-        result = guard.validate_preflight(snapshot(), datetime.fromisoformat("2026-09-27T00:25:00-07:00"), 60)
-        self.assertIn("01:40:00", result["experiment_deadline"])
-        self.assertIn("02:00:00", result["restoration_deadline"])
+    def test_preflight_sets_2320_and_2340_deadlines(self):
+        result = guard.validate_preflight(snapshot(), datetime.fromisoformat("2026-09-27T22:05:00-07:00"), 60)
+        self.assertIn("23:20:00", result["experiment_deadline"])
+        self.assertIn("23:40:00", result["restoration_deadline"])
 
     def test_preflight_rejects_wrong_time_stale_mirror_hash_and_headroom(self):
         cases = []
         cases.append((snapshot(), datetime.fromisoformat("2026-09-27T00:10:00-07:00")))
         for key, value in (("mirror_state", "FAILED"), ("binary_sha256", "0" * 64),
                            ("vram_headroom_bytes", 1)):
-            item = snapshot(); item[key] = value; cases.append((item, datetime.fromisoformat("2026-09-27T00:25:00-07:00")))
+            item = snapshot(); item[key] = value; cases.append((item, datetime.fromisoformat("2026-09-27T22:05:00-07:00")))
         for item, now in cases:
             with self.assertRaises(guard.GuardError):
                 guard.validate_preflight(item, now, 30)

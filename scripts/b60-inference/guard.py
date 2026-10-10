@@ -15,6 +15,12 @@ from zoneinfo import ZoneInfo
 
 
 TZ = ZoneInfo("America/Vancouver")
+PREFLIGHT_HOUR = 22
+PREFLIGHT_FIRST_MINUTE = 0
+PREFLIGHT_LAST_MINUTE = 14
+EXPERIMENT_START_MINUTE = 15
+EXPERIMENT_DEADLINE_MINUTE = 20
+RESTORATION_DEADLINE_MINUTE = 40
 ACCEPTED_BINARY_SHA256 = "47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693"
 ACCEPTED_UNIT_SHA256 = "7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013"
 CANDIDATE_UNIT = "aster-b60-candidate.service"
@@ -40,8 +46,9 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
     if set(data) != required:
         raise GuardError(f"preflight keys differ: missing={sorted(required-set(data))} extra={sorted(set(data)-required)}")
     local_now = now.astimezone(TZ)
-    if not (local_now.hour == 0 and 20 <= local_now.minute <= 29):
-        raise GuardError("preflight must run from 00:20 through 00:29 America/Vancouver")
+    if not (local_now.hour == PREFLIGHT_HOUR and
+            PREFLIGHT_FIRST_MINUTE <= local_now.minute <= PREFLIGHT_LAST_MINUTE):
+        raise GuardError("preflight must run from 22:00 through 22:14 America/Vancouver")
     collected = parse_time(data["collected_at"])
     if collected > local_now or local_now - collected > timedelta(minutes=5):
         raise GuardError("preflight evidence is future-dated or older than five minutes")
@@ -63,11 +70,13 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
     failed = sorted(key for key, passed in checks.items() if not passed)
     if failed:
         raise GuardError(f"preflight failed: {failed}")
-    hard_stop = local_now.replace(hour=2, minute=0, second=0, microsecond=0)
-    experiment_deadline = hard_stop - timedelta(minutes=20)
+    hard_stop = local_now.replace(hour=23, minute=RESTORATION_DEADLINE_MINUTE,
+                                  second=0, microsecond=0)
+    experiment_deadline = local_now.replace(hour=23, minute=EXPERIMENT_DEADLINE_MINUTE,
+                                             second=0, microsecond=0)
     if local_now + timedelta(minutes=estimated_minutes) > experiment_deadline:
-        raise GuardError("estimated run would cross the 01:40 experiment deadline")
-    return {"checks": checks, "start_not_before": local_now.replace(minute=30, second=0, microsecond=0).isoformat(),
+        raise GuardError("estimated run would cross the 23:20 experiment deadline")
+    return {"checks": checks, "start_not_before": local_now.replace(minute=EXPERIMENT_START_MINUTE, second=0, microsecond=0).isoformat(),
             "experiment_deadline": experiment_deadline.isoformat(), "restoration_deadline": hard_stop.isoformat()}
 
 
