@@ -39,11 +39,14 @@ Read-only discovery on 2026-09-25 reconciled the documented baseline:
   and has no persistent B60 passthrough mapping.
 - `aster-llama.service` is active and health at `192.168.70.12:11435/health`
   is `ok`. It runs llama.cpp b11081 (`161755f29`) with all layers offloaded,
-  one 8,192-token slot, batch 256, microbatch 128, Q8 K/V cache, flash
-  attention, Jinja templates and reasoning disabled.
+  one 8,192-token slot, batch 256, microbatch 128, promoted Q4 K/V cache,
+  flash attention, Jinja templates and reasoning disabled. The exact former Q8
+  unit is retained for immediate rollback.
 - Mesa Vulkan 26.1.6 identifies the B60 as a discrete BMG G21 device. No Intel
   OpenCL or Level Zero package is installed in production.
-- The unit SHA-256 is
+- The promoted Q4 K/V unit SHA-256 is
+  `e2019cac74dc23deb4bc92efc38cf3a31a9af1b34d43d651c15e507c392fb184`;
+  the retained Q8 rollback unit is
   `7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013`;
   the accepted server binary SHA-256 is
   `47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693`.
@@ -335,8 +338,8 @@ headroom.
 
 ### M6 — Promotion, monitoring and handoff
 
-- [ ] Promote atomically with accepted and last-known-good artifacts.
-- [ ] Run Doctor, B60 validation, Aster curricula and dependent regressions.
+- [x] Promote atomically with accepted and last-known-good artifacts.
+- [x] Run Doctor, B60 validation, Aster curricula and dependent regressions.
 - [ ] Prove rollback and observe the defined reset/OOM/device-loss soak.
 - [ ] Add quiet drift/research monitoring and operator-grade runbook updates.
 - [ ] Complete integration impacts and terminal close-out or durable waiting state.
@@ -392,7 +395,8 @@ Read-only inventory on 2026-09-25 established the following immutable anchors:
 | Accepted server | `/opt/llama.cpp-b11081/llama-server` | `47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693` |
 | Accepted server implementation | `/opt/llama.cpp-b11081/libllama-server-impl.so` | `b89200852d6f1cbf4c2f4764b19ce86bc316c41280798cab3dc0b2afded1985d` |
 | Accepted Vulkan backend | `/opt/llama.cpp-b11081/libggml-vulkan.so` | `dfbfe66354e7b9f7a0236194d665874152983284315d6c4f76a36aaff96b0dc5` |
-| Accepted unit | `/etc/systemd/system/aster-llama.service` | `7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013` |
+| Accepted Q4 K/V unit | `/etc/systemd/system/aster-llama.service` | `e2019cac74dc23deb4bc92efc38cf3a31a9af1b34d43d651c15e507c392fb184` |
+| Immediate Q8 rollback unit | `/etc/systemd/system/aster-llama.service.pre-q4-20261010` | `7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013` |
 | Prior runtime | `/opt/llama.cpp-b10507/llama-server` | `c5aabbf808bab4029ac7fcdb382fe3ab0806a1abe1b036ad2bf160e8742320f5` |
 | Prior server implementation | `/opt/llama.cpp-b10507/libllama-server-impl.so` | `e50ee38d96dc769c9e9cfbee020e4f968cfc76f4b9d6e20e251bb915054a31d4` |
 | Prior Vulkan backend | `/opt/llama.cpp-b10507/libggml-vulkan.so` | `f448536ac8a7b95d3d05448f0317e835b91bff0f2a4a62576a31d98028abd701` |
@@ -490,12 +494,11 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-10-10 | Owner-authorized daytime execution | Jason clarified that the cleared B60 schedule was intended for immediate work through the day. Re-ran every safety gate against today's 02:39 backup and successful 04:24 mirror, clean kernel evidence, accepted hashes, health, `xe`, BMG G21, 21.9 GB disk, 8.3 GB RAM and adequate VRAM. The revised live stop/quiesce/clean-start finalizer passed. Authenticated source-local controls then passed correctness and health: API warm-cache tg128 median was 6.713 tok/s; cold-cache tg128 was 9.072 tok/s, a 35.1% improvement. Raw `llama-bench` comparison showed b11081 at 193.29 pp4096 / 11.863 tg128 and installed b11429 at 200.24 / 11.970, only +3.6% / +0.9%. A 2/4/8-thread sweep was flat at about 193.2 / 11.85. All raw outputs are mode 0600 beneath `/var/lib/b60-inference/evidence`; accepted production was restored healthy after every stop | Newer installed runtime and thread count are rejected as primary fixes. Prompt-cache reuse is the first material lead and exceeds the 15% threshold on synthetic decode, but requires repeated real Aster workflow/correctness comparison before any persistent client change or promotion. News timers remain intentionally stopped for the owner-authorized daytime window |
 | 2026-10-10 | Aster-workflow cache comparison | Added and validated an identical warm-cache twin of the synthetic Aster conversation fixture. Five measured cold and warm runs all passed the fictional-scope, nonempty-response and no-tool-call assertions. Cold-cache decode median was 5.793 tok/s; warm-cache was 5.778 tok/s, so the apparent 35.1% short-prompt cache gain did not transfer to the longer Aster-style prompt. The harness's 512-token construction target produced about 3,600 actual model tokens, while the 64-token construction target produced 475, exposing a systematic fixture-token calibration defect. Production remained active and healthy | Do not promote `cache_prompt=false` as a general fix. The strongest current explanation is context-length sensitivity in the server path. Next work is tokenizer-calibrated context-length profiling, followed by a repeated real Aster latency/correctness comparison at matched actual token counts |
 | 2026-10-10 | Tokenizer calibration and Q4 KV candidate | Replaced word-count estimation with live `/tokenize` calibration and added the previously omitted OpenAI tool schema to tool-call fixtures; 27 local tests pass. At an actual 524-token prompt, matched Q8 cold/warm controls were 5.943/5.948 tok/s, rejecting prompt cache as the remedy. Two clean transient server sessions changing only K/V cache from Q8_0 to Q4_0 produced 11.047 and 11.008 tok/s; the required accepted-Q8 post-control was 6.689 tok/s. This is a reproducible 64.6% improvement against the stronger control and 85.9% against the pre-control. All 30 measured Q4 workflow runs passed: conversation, persona, real tool-schema selection, 2,060-token grounded retrieval and 8,012-token marker recall. Decode remained 10.44–11.76 tok/s across those contexts. Immutable evidence hashes include Q4 sessions `ec80e2b65ee10f04c7541c55ad0aa0d37482408698616097f3991c6136737ff9` and `bf449a79e950193de8797ae7a03b8cd44482e93c1a5991be85cc341f9ad0a377`, post-control `15bdd314152506062caca2cf41e60b73b8a8d372705b59464ad1a37ef4edf95e`, tool `9f4c81472786cac0f8d0f853d22981939d423cc8cc568f99f1004e17c9144d1e`, grounded `72ff66c964ddb1b58aa24aac93e0fae4bfaafd21bf222870f7fa85e77ec01b69` and 8K `c24de46e4219016e2f46716d956c9dd03e4a8983d4a556075d1b4862e9ea7c76`. Every transient candidate was removed and accepted binary/unit hashes plus health were revalidated | Q8 KV traffic in the API server path is the reproduced bottleneck; Q4 K/V is the promotion candidate and exceeds the 15% threshold with no tested correctness regression. Persistent unit change remains explicitly outside standing Stream A authorization. Next action is owner-approved atomic promotion of only `-ctk/-ctv q8_0` to `q4_0`, followed by Doctor/dependent regression checks, soak and rollback proof; do not repeat exploratory nightly benchmarks while awaiting that decision |
+| 2026-10-10 | Owner-approved Q4 K/V promotion | After explicit approval, revalidated the accepted hashes, health, `xe`, BMG G21 Vulkan and headroom. Preserved the exact Q8 unit at `/etc/systemd/system/aster-llama.service.pre-q4-20261010`, atomically promoted only `-ctk/-ctv` to Q4_0, daemon-reloaded, quiesced for 30 seconds and clean-started production. The promoted unit hash is `e2019cac74dc23deb4bc92efc38cf3a31a9af1b34d43d651c15e507c392fb184`. Authenticated post-promotion workflow evidence `8465a95e1e85be45bf2203ae4c408f7ecb9fd24aa52297091adadeabaa4fbecc` passed correctness at 10.987 tok/s median. B60 binding/Vulkan/rollback-VM checks and Aster agent health passed; service is active with zero restarts and the immediate kernel failure scan was empty | Q4 K/V is now accepted production. Retain the exact Q8 unit for immediate rollback. Complete the longer reset/OOM/device-loss observation, then update operational guidance and close or narrow the nightly automation |
 
 ## Close-out
 
-The technical fix is reproduced but not promoted. The project remains active at
-M6: Q4 K/V passed two independent transient sessions, the post-series control,
-the calibrated Aster correctness suite and the 8K boundary. Persistent service
-configuration promotion is explicitly excluded from standing Stream A authority
-and requires owner approval. Accepted Q8 production is healthy; all other
-excluded operations remain individually gated.
+The reproduced Q4 K/V fix is promoted and healthy. The project remains active
+only for the longer reset/OOM/device-loss observation and final operator
+documentation. The exact Q8 unit remains available for immediate rollback; all
+other excluded operations remain individually gated.
