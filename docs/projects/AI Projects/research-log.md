@@ -1,5 +1,19 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — Same-signer update exposed legacy Keychain ACL problem
+
+The stable-signed version 11 opened normally after Jason's one-time
+`Always Allow` and twice restarted without a prompt. A real version-12 update
+retained the same designated requirement and passed mutual code-requirement
+checks, but prompted again for the existing Companion saved-login item. Jason
+provided the exact prompt screenshot. Keychain Access showed five separate
+`AsterCompanion.app` trusted entries on `oidc_session_v2`; all-app access was
+off. This fails the update-continuity gate. Version 11 was restored and again
+opened signed in without a prompt. A local version-13 candidate can copy the
+session once to a newly created Companion-only item while retaining the old
+item for rollback; all 52 synthetic Companion tests and the signed build pass.
+No real token migration has run. See the [finding and next gate](evidence/D3-native-stable-signing-keychain-design-2026-10-09.md).
+
 ## 2026-10-09 — Stable-signed Companion installed; first launch pending
 
 After Jason completed macOS trust authorization, the new Aster certificate

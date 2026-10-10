@@ -1,4 +1,5 @@
 import XCTest
+import Security
 @testable import AsterCompanion
 
 @MainActor
@@ -106,6 +107,46 @@ final class AuthManagerTests: XCTestCase {
         XCTAssertEqual(token, "synthetic-valid")
         XCTAssertEqual(calls, 0)
         XCTAssertTrue(auth.isAuthenticated)
+    }
+
+    func testLegacySessionMigrationCreatesNewItemAndKeepsRollback() throws {
+        let legacy = StoredSession(accessToken: "synthetic-valid", refreshToken: "synthetic-refresh", expiresAt: .distantFuture)
+        let legacyText = String(data: try JSONEncoder().encode(legacy), encoding: .utf8)!
+        var items = ["oidc_session_v2": legacyText]
+        let storage = SessionStorage.migratingKeychain(
+            read: { key in items[key].map(KeychainStore.ReadResult.value) ?? .missing },
+            write: { key, value in items[key] = value; return true },
+            remove: { _ = items.removeValue(forKey: $0) }
+        )
+        XCTAssertEqual(storage.load()?.accessToken, "synthetic-valid")
+        XCTAssertEqual(items["oidc_session_v3"], legacyText)
+        XCTAssertEqual(items["oidc_session_v2"], legacyText)
+        storage.clear()
+        XCTAssertTrue(items.isEmpty)
+    }
+
+    func testActiveSessionReadDoesNotTouchLegacyItem() throws {
+        let active = StoredSession(accessToken: "synthetic-active", refreshToken: nil, expiresAt: .distantFuture)
+        let text = String(data: try JSONEncoder().encode(active), encoding: .utf8)!
+        var reads = [String]()
+        let storage = SessionStorage.migratingKeychain(
+            read: { key in reads.append(key); return key == "oidc_session_v3" ? .value(text) : .missing },
+            write: { _, _ in XCTFail("No migration write after active read"); return false },
+            remove: { _ in }
+        )
+        XCTAssertEqual(storage.load()?.accessToken, "synthetic-active")
+        XCTAssertEqual(reads, ["oidc_session_v3"])
+    }
+
+    func testDeniedActiveSessionDoesNotFallBackToLegacy() {
+        var reads = [String]()
+        let storage = SessionStorage.migratingKeychain(
+            read: { key in reads.append(key); return .unavailable(errSecAuthFailed) },
+            write: { _, _ in XCTFail("No write after denied read"); return false },
+            remove: { _ in }
+        )
+        XCTAssertNil(storage.load())
+        XCTAssertEqual(reads, ["oidc_session_v3"])
     }
 
     func testFreshAuthorizationRequiresMaxAgeZeroWithoutPromptLogin() {

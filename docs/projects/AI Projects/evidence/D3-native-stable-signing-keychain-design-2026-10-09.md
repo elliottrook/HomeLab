@@ -1,8 +1,9 @@
 # D3 Companion Keychain access across app updates — 2026-10-09
 
-**Status: stable-signed app installed; first-launch Keychain transition and
-restart validation pending.** The design initially made no trust or item-access
-change. The approved implementation checkpoints below record the current state.
+**Status: stable-signed version 11 restored and working; real update failed the
+legacy-item prompt gate; version-13 migration candidate is local only.** The
+design initially made no trust or item-access change. The approved
+implementation checkpoints below record the current state.
 This addresses Jason's request
 for Companion to keep access to its own saved login until revoked, without
 repeated approval after each app rebuild. It does not grant Codex, a worker,
@@ -183,3 +184,69 @@ mode, restart without another prompt, natural token refresh and update-after-
 signing are not yet validated.** Do not mark the standing access solved until
 those checks pass. The installed app is now the stable-signed version, with
 the verified old app retained for rollback.
+
+## Real update test and legacy-item finding — 2026-10-09
+
+Jason selected `Always Allow` for the exact first-launch Companion saved-login
+prompt. Normal signed-in mode opened; AI-PAM approvals and closed ordinary
+Codex intake were visible. Two clean launches of installed stable-signed
+version 11 subsequently opened without a prompt. A real update to signed
+version 12 retained the identical textual designated requirement and passed
+mutual requirement checks in both directions (`codesign --verify -R`). Yet
+the first version-12 launch prompted again for Aster Companion to access the
+existing `com.elliottrook.aster-companion` Keychain item. Jason supplied a
+screenshot of the exact prompt and confirmed he had used `Always Allow` on
+the prior prompt. This **fails** the no-repeat-prompt update gate. Signature
+continuity alone did not make this legacy item update-stable on this Mac.
+
+Keychain Access showed the exact saved-session item (`oidc_session_v2`) still
+on `Confirm before allowing access`, with **five** separate
+`AsterCompanion.app` entries in its trusted-app list. It did not have
+`Allow all applications` selected and did not have `Ask for Keychain password`
+selected. A separate diagnostic using `security find-generic-password -g`
+was interrupted before it could return any credential value; any `security`
+utility prompt must be denied. The initially suspected second Companion
+restart prompt was that diagnostic's SecurityAgent dialog; after cancelling
+it, version 11 opened normally. The actual version-12 prompt is independently
+confirmed by Jason's screenshot.
+
+Apple documents that file-based Keychain items have per-item application ACLs,
+that `Always Allow` adds the current app to the trusted list, and that a new
+item normally references its creator via a designated requirement. Apple's
+documentation also says the trusted-application data may include a
+cryptographic hash. This supports a **hypothesis**, not proof, that the
+existing item carries legacy per-build trust records from its ad-hoc-signing
+history. Sources: [Access Control Lists](https://developer.apple.com/documentation/security/access-control-lists),
+[SecTrustedApplicationCopyData](https://developer.apple.com/documentation/security/sectrustedapplicationcopydata%28_%3A_%3A%29),
+[Apple DTS on file-based Keychain ACL and updates](https://developer.apple.com/forums/thread/115425).
+
+The blocked version-12 process was stopped, and the strict-verified signed
+version 11 was restored to `/Applications/AsterCompanion.app`. It again opened
+the signed-in Aster screen without a prompt. Version 12 remains preserved at
+`/private/tmp/AsterCompanion.stable-v12-retired-20261009.app`; version 11
+remains at `/private/tmp/AsterCompanion.stable-v11-20261009.app`.
+
+## Candidate session-item migration — not installed
+
+Local code now prefers a new `oidc_session_v3` item under the same Companion
+service. Only when that item is genuinely absent does it read `v2`, decode the
+session, and write the identical token set to `v3` from a stable-signed app.
+An unavailable or invalid `v3` does **not** fall back to `v2`; that prevents a
+second prompt and use of a potentially stale token. Routine saves use `v3`.
+The old `v2` item is retained as rollback until an update proves `v3` access
+is stable. Explicit sign-out removes both. No token values are logged or
+exported. The candidate is version 13, passes all 52 local Companion tests,
+and its uninstalled bundle passed strict/deep signature verification. The
+tests use synthetic session strings; they do not touch the real Keychain.
+
+The next live gate is **separate** from creating the signing identity: approve
+one bounded copy of the existing saved session into a new Companion-only
+Keychain item by installing the version-13 candidate. The old item must remain
+intact, and the signer and bundle ID must remain unchanged. Inspect only item
+presence and app state, never secret contents. Then restart version 13 and
+perform a version-14 signed update; both must open without another item
+approval before considering the standing-access problem solved. If creation
+fails, a prompt returns, or normal Aster regresses, stop and restore version
+11. Do not delete `v2`, alter its five ACL entries, enable all-app access,
+or claim a durable fix on the basis of unit tests alone. Natural token refresh
+remains a separate observation gate.

@@ -6,6 +6,12 @@ import Security
 enum KeychainStore {
     private static let service = "com.elliottrook.aster-companion"
 
+    enum ReadResult {
+        case value(String)
+        case missing
+        case unavailable(OSStatus)
+    }
+
     /// Returns true on success. Callers that only care about later `get()`
     /// results can ignore this, but a silent failure here (e.g. a code
     /// signature mismatch) is exactly the kind of bug that looks like a
@@ -38,7 +44,7 @@ enum KeychainStore {
         return status == errSecSuccess
     }
 
-    static func get(_ key: String) -> String? {
+    static func read(_ key: String) -> ReadResult {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -48,8 +54,12 @@ enum KeychainStore {
         ]
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
-        guard status == errSecSuccess, let data = result as? Data else { return nil }
-        return String(data: data, encoding: .utf8)
+        if status == errSecItemNotFound { return .missing }
+        guard status == errSecSuccess, let data = result as? Data,
+              let value = String(data: data, encoding: .utf8) else {
+            return .unavailable(status)
+        }
+        return .value(value)
     }
 
     static func remove(_ key: String) {

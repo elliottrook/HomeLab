@@ -14,20 +14,59 @@ struct SessionStorage {
     var save: (StoredSession) -> Bool
     var clear: () -> Void
 
-    static let keychain = SessionStorage(
-        load: {
-            guard let text = KeychainStore.get("oidc_session_v2"), let data = text.data(using: .utf8) else { return nil }
-            return try? JSONDecoder().decode(StoredSession.self, from: data)
-        },
-        save: { session in
-            guard let data = try? JSONEncoder().encode(session), let text = String(data: data, encoding: .utf8),
-                  KeychainStore.set(text, for: "oidc_session_v2") else { return false }
-            // SecItemUpdate/Add already reports the write result. A read-back
-            // can request Keychain access again on every token refresh.
-            return true
-        },
-        clear: { KeychainStore.remove("oidc_session_v2") }
+    static let keychain = migratingKeychain(
+        read: { KeychainStore.read($0) },
+        write: { KeychainStore.set($1, for: $0) },
+        remove: { KeychainStore.remove($0) }
     )
+
+    static func migratingKeychain(
+        read: @escaping (String) -> KeychainStore.ReadResult,
+        write: @escaping (String, String) -> Bool,
+        remove: @escaping (String) -> Void
+    ) -> SessionStorage {
+        let activeKey = "oidc_session_v3"
+        let legacyKey = "oidc_session_v2"
+        return SessionStorage(
+            load: {
+                switch read(activeKey) {
+                case .value(let text):
+                    return Self.decodeSession(text)
+                case .unavailable:
+                    // A denied or damaged active item must not silently fall
+                    // back to an older token and trigger a second prompt.
+                    return nil
+                case .missing:
+                    break
+                }
+                guard case .value(let text) = read(legacyKey),
+                      let session = Self.decodeSession(text) else { return nil }
+                // Retain the old item as a rollback copy until a later signed
+                // update proves the new item's ACL is stable.
+                if !write(activeKey, text) {
+                    FileHandle.standardError.write(Data("Companion session migration could not save the new Keychain item\n".utf8))
+                }
+                return session
+            },
+            save: { session in
+                guard let data = try? JSONEncoder().encode(session),
+                      let text = String(data: data, encoding: .utf8),
+                      write(activeKey, text) else { return false }
+                // SecItemUpdate/Add reports the write result. Routine token
+                // refresh must not cause a second Keychain read.
+                return true
+            },
+            clear: {
+                remove(activeKey)
+                remove(legacyKey)
+            }
+        )
+    }
+
+    private static func decodeSession(_ text: String) -> StoredSession? {
+        guard let data = text.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(StoredSession.self, from: data)
+    }
 }
 
 @MainActor
