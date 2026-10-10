@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-10 — Emotional-first brand discovery
+
+- Added indirect client questions covering stories, desired impressions, associations, ranked words and boundaries before the detailed practical questionnaire.
+- Added the reusable client-vision discovery procedure and per-brand discovery/interpretation brief; engagement state tracks confirmation, unresolved vision questions and practical intake separately.
+- Separated client evidence from designer hypotheses, personal taste from intended audience impression and present identity from aspiration. Client confirmation precedes formal concepts; audience reception is not inferred from owner approval.
+- Preserved existing rights, master approval, production and deployment gates and the precise-edit shortcut. No client transcripts, brand artwork, live-service changes or new network/credential requirements are included.
+- Reconciled against a clean current Forgejo checkout; installed skill resources were already updated locally. Documentation diff and local reference checks passed. The earlier skill validator attempt remains limited by unavailable PyYAML; structural checks are not behavioral validation.
+
 ## 2026-10-10 — Pull-based Forgejo runner project started
 
 - Added a Stream A project for an outbound-only signed change-bundle runner

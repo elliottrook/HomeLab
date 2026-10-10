@@ -45,6 +45,8 @@ Resolve the exact brand, current approved master, applicable product/brand guide
 
 ### M1 — Brief and rights gate
 
+For new identities, broad redesigns or changed ethos, instantiate `DISCOVERY_BRIEF.template.md` as `DISCOVERY_BRIEF.md` in the brand's engagement folder. Use the installed skill's `references/client-vision-discovery.md`: start with stories, desired impressions, word priorities, boundaries and explained visual associations. Clients need not know design terminology or have a fully formed artistic vision. Keep their exact words separate from designer inference; distinguish personal taste from desired audience impression and present identity from aspiration. Read back the tentative synthesis, record corrections and confirm it before formal concepts. Early visual references are discussion aids, not approved masters. Defer the longer practical questionnaire until after this opening, without postponing essential risk, rights or authorization checks. Precise edits reuse an established approved brief rather than forcing a new interview.
+
 Record exact literal spelling and copy, purpose, audience, uses and sizes, tone, preferences/dislikes, accessibility, relevant personal or cultural cues without stereotype, consent/provenance, font and image rights, destination and the latest approved source for revisions. Unknown rights permit clearly marked local drafts only; they block promotion and publication.
 
 ### M2 — Concepts or edit contract
@@ -93,6 +95,7 @@ Each brand engagement instantiates the templates and maintains:
 
 - project state and milestone ledger;
 - brief, risk and rights record;
+- brand-specific discovery evidence, interpretation, client corrections and confirmation, with later practical intake (reuse the approved brief for precise edits);
 - concepts/comparison and approval record;
 - immutable approved master and checksum;
 - edit contract when applicable;

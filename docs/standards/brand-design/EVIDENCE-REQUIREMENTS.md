@@ -11,6 +11,12 @@ Evidence belongs with the individual brand engagement in the Brand Asset Library
 
 ## Design and raster evidence
 
+- Client discovery words/examples and source locators, separated from tentative designer deductions.
+- Current identity versus aspiration and personal taste versus desired customer impression.
+- Ranked priorities, boundaries, alternative interpretations and unresolved contradictions.
+- Client corrections/confirmation of the brief; reference/sketch feedback and rejected directions with reasons. Brief confirmation is not artwork approval or measured audience reception.
+- Later practical intake, or a cited existing approved brief for precise edits.
+
 - Exact literal copy and spelling review.
 - Eighteen references or signed one-to-one coverage mapping.
 - Actual dimensions and effective native detail classification.
