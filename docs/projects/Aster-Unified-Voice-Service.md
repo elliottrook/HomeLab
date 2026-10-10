@@ -1,6 +1,7 @@
 # Aster Unified Voice Service
 
-> Status: Active — Stream A; M0–M2 complete, M3 pending
+> Status: Active — Stream A; M0–M2 complete, M3 in progress; candidate staged,
+> production selection withheld on uncached latency
 >
 > Owner: Jason
 >
@@ -248,13 +249,12 @@ source/live hashes and current service health; resume the first unchecked gate.
 Never infer that an interrupted deploy, firewall write or Home Assistant change
 succeeded. Reconcile before retry.
 
-Current resume point: M0 through M2 are complete and M3 is pending. The approved
+Current resume point: M0 through M2 are complete and M3 is active. The approved
 voice, normalization/pronunciation rules, acknowledgement, capacity topology,
 API/network/dependency manifest and rollback plan are frozen. The next safe
-action is the staged LXC 116 deployment gate: verify the current backup and
-checkpoint, install the candidate beside production, then run its authenticated
-canary, load and rollback checks before any selector change. No production
-component was changed by M2 validation.
+action is to improve or explicitly accept the uncached first-audio result before
+any production selector change. The candidate is installed but stopped and
+disabled on LXC 116; production port 9130 remains authoritative and healthy.
 
 ## Milestones
 
@@ -560,6 +560,43 @@ unrelated state.
   These results close the M2 functional gate without authorizing deployment;
   the uncached first-audio target remains an explicit M3 acceptance item.
 
+### M3 working record — 2026-10-10
+
+- Verified the successful 2026-10-10 02:46 LXC 116 snapshot backup and its
+  completion log. Seven daily guest backups were present and backup storage had
+  about 2.61 TiB free. A protected in-guest checkpoint was also created under
+  `/var/lib/aster-speech/checkpoints/20261010-m3-pre`; it contains the accepted
+  source, production unit, protected environment and dependency freeze. All
+  four recorded hashes verified and checkpoint files are mode 0600.
+- Installed the candidate side by side under `/opt/aster-voice-candidate`, with
+  approved assets under `/opt/aster-voice/models`, a separate protected
+  environment and a separate disabled systemd unit on TCP 9131. The model,
+  voice and source archive hashes matched the frozen values before startup.
+  Production source, environment, unit and TCP 9130 were not replaced.
+- Direct-pin installation exposed transitive dependency drift before service
+  activation. That never-selected venv was quarantined and deleted. The active
+  candidate venv was rebuilt from the captured production freeze plus the exact
+  M2 Kokoro lock; `pip check` passed and the complete resulting freeze is now
+  `requirements-candidate.lock`.
+- The pinned candidate passed all 46 service-environment tests as the
+  `aster-speech` account. Both candidate and production then reported healthy,
+  with no warning-or-higher candidate journal entries. Candidate resident
+  memory was approximately 1.22 GiB and its unit remained disabled.
+- The real port-9131 canary refused missing credentials with 401, returned two
+  valid authenticated mono 24 kHz WAV responses, emitted ordered
+  `audio`, `audio`, `end` stream frames, completed two simultaneous synthetic
+  requests successfully, returned DELETE 204 plus a content-free `cancelled`
+  frame, and recovered immediately with HTTP 200.
+- Measured candidate latency was 0.011 seconds for the cached acknowledgement,
+  2.825 seconds for the uncached compatibility WAV, 1.521 seconds to the first
+  streamed body, and 1.852/1.865 seconds for two concurrent short requests.
+  Functionality and isolation pass, but uncached first audio still misses the
+  frozen 0.750-second target. Production selection is therefore withheld.
+- Rollback rehearsal stopped only `aster-voice-candidate`: TCP 9131 closed and
+  production TCP 9130 remained healthy. The candidate remains installed,
+  stopped and disabled for tuning; all temporary scripts, archives, copied
+  assets and the never-selected drifted venv were removed.
+
 ## Validation and evaluation
 
 Freeze an evaluation script before tuning. It must include short HA
@@ -703,6 +740,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M0 live discovery | Read-only Proxmox/LXC 116 inspection: unprivileged guest, 6 cores/4 GiB, one active Uvicorn worker, `base.en`, `lessac-high`; health/JWKS/OIDC/HTTPS probes pass. Secret value redacted and not retained. | Current service is healthy legacy state and the rollback baseline. |
 | 2026-10-10 | Stream A decision | Jason rejected premium services and directed a network-level single solution using the approved voice, with project creation, commit, push and immediate Stream A start. | Risk envelope accepted; M0 complete, M1 starts with read-only design/licence/protocol discovery and offline benchmarks. |
 | 2026-10-10 | M2 real-listener close-out | Loopback-only Uvicorn canary on LXC 116: cached first body 55 ms fresh/12 ms warm; uncached 1.772 s; disconnect recovery 12 ms; explicit DELETE 204 followed by one content-free `cancelled` frame and successful recovery. Temporary listener/staging removed; production remained active and healthy. | M2 functional/security/cancellation gates complete. M3 remains pending; uncached first-audio latency is a tracked acceptance risk. |
+| 2026-10-10 | M3 staged canary and rollback | Fresh guest backup plus protected file checkpoint verified; pinned candidate installed separately on 9131; 46 tests, authentication refusal, two WAV passes, streaming, concurrency, cancellation and rollback passed. Cached acknowledgement 11 ms; uncached first body 1.521 s. | Candidate left stopped/disabled and production 9130 healthy. Do not select it until uncached latency meets 750 ms or Jason explicitly accepts a revised threshold. |
 
 ## Close-out
 

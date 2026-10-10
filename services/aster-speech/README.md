@@ -74,4 +74,7 @@ the M3 backup, dependency, authentication and rollback gates are approved.
 The candidate explicitly initializes the existing Whisper model because its
 separate FastAPI lifecycle does not execute the legacy application's startup
 hook. Direct pins are in `requirements-candidate.txt`; the exact added Kokoro
-stack validated on LXC 116 is in `requirements-kokoro.lock`.
+stack validated during M2 is in `requirements-kokoro.lock`. Deployments must
+use the complete, M3-validated `requirements-candidate.lock`; resolving only
+the direct pins allowed transitive drift during the first M3 preflight and is
+not an accepted deployment path.
