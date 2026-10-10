@@ -198,10 +198,11 @@ action than the existing safe-write schema. **Passed 2026-10-10.**
 
 ### M2 — isolated worker installation
 
-- [ ] Capture and verify recovery checkpoint.
-- [ ] Create `hlabundle` identity, root-owned trust policy, protected state and
-  inbox, and hardened network-denied validation unit on LXC 104.
-- [ ] Register the worker in AI-PAM Probation with only the existing Yellow
+- [x] Capture and verify recovery checkpoint.
+- [x] Create `hlabundle` identity, root-owned trust policy and protected state
+  and inbox on LXC 104.
+- [ ] Add the hardened network-denied validation unit.
+- [x] Register the worker in AI-PAM Probation with only the existing Yellow
   safe-write capability; prove denied access to read gateway, direct write
   gateway, OpenBao, Forgejo credential and unrelated files/sockets.
 - [ ] Select and validate the immutable exchange; record retention and owner.
@@ -328,6 +329,32 @@ canary branch/file; it does not merge, publish, deploy or delete anything.
 - An unauthenticated Forgejo branch API probe from LXC 104 returned 404, proving
   the worker cannot safely obtain canonical base state by bypassing the broker.
   No credential was supplied and no state changed.
+
+### 2026-10-10 — M2 probationary identity and trust installed
+
+- Jason explicitly approved the exact security-boundary change after the
+  platform required a fresh confirmation.
+- Created a dedicated passphrase-protected Ed25519 producer key on Jason's Mac.
+  Private mode is `0600`; its contents were never read or copied. Public
+  fingerprint: `SHA256:4rB0NO9viLfCeO0DAKkFZ5pJfWgB4HN74w0hZiXCBBI`.
+- Installed only the public key for principal `cloud-producer` in root-owned
+  mode-`0640` trust policy. Created non-login UID `hlabundle` (993), its private
+  mode-`0700` state/inbox, and membership only in `hlabroker-clients`.
+- Registered `agent-cloud-bundle` in AI-PAM Probation and granted the existing
+  Yellow safe-write capability. Live checks proved capability discovery is
+  empty during Probation, request creation is denied, and direct connections to
+  both Forgejo gateway sockets fail with permission denied. No Forgejo request
+  or write occurred. Broker/read/write services remained active.
+- An initially malformed diagnostic omitted the newline frame terminator and
+  exposed that the single broker loop could wait indefinitely for an incomplete
+  local client. Restarted only the broker to recover, added a five-second frame
+  timeout plus sanitized transport denial, and added a regression.
+- Full Linux suite after the repair: **98/98 passed in 23.244 seconds**. Live
+  proof showed the incomplete frame denied after 5.01 seconds and the very next
+  health request succeeded. Disposable test sources were removed.
+- The hardened validation unit and bootstrap signed bundle remain open before
+  M2 can close. Human-carried transfer remains the selected bootstrap exchange;
+  no public or credential-bearing exchange has been introduced.
 
 ## Current checkpoint
 

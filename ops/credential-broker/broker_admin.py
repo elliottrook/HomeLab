@@ -18,6 +18,8 @@ def main() -> None:
     subparsers.add_parser("global-disable")
     subparsers.add_parser("global-enable")
     subparsers.add_parser("enable-forgejo-safe-write")
+    bundle_runner = subparsers.add_parser("enable-forgejo-bundle-runner")
+    bundle_runner.add_argument("--agent-uid", required=True, type=int)
     subparsers.add_parser("enable-lab-doctor")
     subparsers.add_parser("disable-lab-doctor")
     subparsers.add_parser("graduate-lab-doctor")
@@ -71,6 +73,26 @@ def main() -> None:
                        VALUES('agent-hermes','forgejo.write.safe-branch')"""
                 )
             print("FORGEJO_SAFE_WRITE_ENABLED")
+        elif args.command == "enable-forgejo-bundle-runner":
+            capability = store.connection.execute(
+                "SELECT risk_class,probation_allowed,enabled FROM capabilities "
+                "WHERE capability='forgejo.write.safe-branch'"
+            ).fetchone()
+            if capability is None or tuple(capability) != ("yellow", 0, 1):
+                raise SystemExit("existing Forgejo safe-write capability is not ready")
+            existing = store.connection.execute(
+                "SELECT unix_uid,state FROM agents WHERE agent_id='agent-cloud-bundle'"
+            ).fetchone()
+            if existing is None:
+                store.register_agent("agent-cloud-bundle", args.agent_uid)
+            elif tuple(existing) != (args.agent_uid, "probation"):
+                raise SystemExit("existing bundle-runner identity does not match probation policy")
+            with store.connection:
+                store.connection.execute(
+                    "INSERT OR IGNORE INTO agent_capabilities(agent_id,capability) "
+                    "VALUES('agent-cloud-bundle','forgejo.write.safe-branch')"
+                )
+            print("FORGEJO_BUNDLE_RUNNER_ENABLED state=probation")
         elif args.command == "enable-lab-doctor":
             if store.connection.execute(
                 "SELECT 1 FROM agents WHERE agent_id='agent-hermes'"

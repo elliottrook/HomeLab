@@ -64,6 +64,17 @@ Key files:
 - `openbao-m6-listener.hcl` / `openbao-m6-nftables.conf` — private TLS listener
   and broker-only ingress policy
 - `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record
+- `bundle_verifier.py` — signed, one-file, canary-only bundle verification and
+  durable replay state; no network or target-service access
+- `bundle_runner.py` — joins a verified bundle to the existing Yellow
+  `forgejo.write.safe-branch` request without any approval capability
+
+The pull-based Forgejo bundle runner is currently an M2 probationary pilot.
+Its `agent-cloud-bundle` identity deliberately discovers no capabilities while
+in Probation, and its `hlabundle` Unix account cannot connect directly to either
+Forgejo gateway socket. Only the public producer key is present on LXC 104; the
+passphrase-protected private key remains on Jason's Mac. See
+`docs/projects/Pull-Based-Forgejo-Runner.md` for current gates and evidence.
 
 
 ## Aster M1 deployment split (2026-09-25)

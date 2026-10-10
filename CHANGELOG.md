@@ -19,6 +19,11 @@
   one-file schema, durable replay state and immediate pre-consume revalidation;
   all 95 credential-broker tests pass on Linux, including 17 socket tests that
   cannot bind in the macOS sandbox.
+- Installed the public-only signer trust and separate non-login worker on LXC
+  104 in AI-PAM Probation. Live denials confirm it has no discoverable
+  capability and no direct gateway access. Bounded incomplete broker frames at
+  five seconds after the installation probe exposed the prior unbounded wait;
+  98/98 Linux tests and a live timeout/next-request check pass after the repair.
 
 ## 2026-10-10 — Brand Design skill and reusable standard
 

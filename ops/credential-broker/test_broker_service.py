@@ -83,6 +83,17 @@ class BrokerServiceTests(unittest.TestCase):
         self.assertEqual("ok", self.call({"method": "health"})["result"]["status"])
         self.assertFalse(self.call({"method": "admin.dump"})["ok"])
 
+    def test_incomplete_frame_times_out_without_blocking_next_client(self):
+        self.server.request_timeout = 0.05
+        with socket.socket(socket.AF_UNIX) as stalled:
+            stalled.connect(str(self.socket_path))
+            stalled.sendall(b'{"method":"health"')
+            stalled.settimeout(1)
+            response = json.loads(stalled.makefile("rb").readline())
+        self.assertFalse(response["ok"])
+        self.assertEqual("request transport failed", response["error"])
+        self.assertEqual("ok", self.call({"method": "health"})["result"]["status"])
+
     def test_payload_bound_round_trip(self):
         payload = {"target": "synthetic"}
         created = self.call({"method": "request.create", "capability": "health.read", "payload": payload})
