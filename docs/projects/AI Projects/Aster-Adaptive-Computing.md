@@ -13,14 +13,16 @@ answer displayed, and a journal change from 13 to 14 completed requests with no
 other state. The turn finished before an app interruption could be attempted.
 After Jason finished with the answer, an idle unflagged restart returned to
 signed-in normal Aster, showed no visible Keychain prompt, and hid the manual
-send control. This proves neither active-turn recovery nor sustained reliability.
+send control. One owner-initiated sleep/wake then kept the same process and
+signed-in screen, with no prompt reported by Jason and no journal change. This
+proves neither active-turn recovery nor sustained reliability.
 The signed version-13 [rollback copy](evidence/D3-native-manual-v15-release-candidate-2026-10-09.md)
 is preserved. Version 14's prior same-signer update prompt and an older
 version-11 rollback's stale/revoked session remain relevant custody evidence;
 see the [session decision](evidence/D3-native-session-custody-decision-2026-10-09.md).
 Synthetic refresh, reopened-journal and abrupt fake-process-death tests guard
 against repeat Keychain reads and duplicate Codex turns but do not replace a
-live sleep/wake or active-turn recovery check. The earlier [twelve-case finite
+long-duration sleep/wake, natural refresh or active-turn recovery check. The earlier [twelve-case finite
 result](evidence/D3-native-finite-12-result-2026-10-09.md) remains evaluation
 evidence, not D3 graduation. Ordinary Codex intake, gateway intake and sysadmin
 tools remain closed; the separate worker identity remains inactive. Independent
@@ -52,7 +54,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Twelve fixed fictional native cases plus one reviewed manual case complete; routine release on hold | The [finite-set result](evidence/D3-native-finite-12-result-2026-10-09.md) records twelve distinct completed no-tools turns and provisional 12/12 rubric matches. The [manual retest](evidence/D3-native-manual-v15-installation-2026-10-09.md) completed one more reviewed no-tools turn; version 15 restarted signed in with manual mode hidden. Active-turn recovery, independent answer review, natural token refresh and sustained prompt-free operation remain unproven. General intake, voice/remote operation, automatic routing and sysadmin tools are not authorized. Gateway intake/recovery remain off; worker identity has zero grants. D3 is not graduated. |
+| D3 — Companion integration | Twelve fixed fictional native cases plus one reviewed manual case complete; routine release on hold | The [finite-set result](evidence/D3-native-finite-12-result-2026-10-09.md) records twelve distinct completed no-tools turns and provisional 12/12 rubric matches. The [manual retest](evidence/D3-native-manual-v15-installation-2026-10-09.md) completed one more reviewed no-tools turn; version 15 restarted signed in with manual mode hidden and passed one short sleep/wake observation without a reported prompt. Active-turn recovery, independent answer review, natural token refresh and sustained prompt-free operation remain unproven. General intake, voice/remote operation, automatic routing and sysadmin tools are not authorized. Gateway intake/recovery remain off; worker identity has zero grants. D3 is not graduated. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in

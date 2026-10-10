@@ -85,3 +85,15 @@ rollback copy at `/Applications/AsterCompanion.pre-manual-v15-20261009.app`
 remains available. The active-turn interruption, independent answer review,
 natural refresh and sleep/wake criteria remain open; no routine manual-Codex
 release or automatic routing is claimed.
+
+## Owner-initiated sleep/wake observation
+
+Jason reported that he had put the Mac to sleep and unlocked it. A read-only
+check afterward found the same single unflagged Companion process still
+running, version 15 installed, and the private journal unchanged at 14
+`completed` rows with no other states. Screen control showed the signed-in
+ordinary Aster view, AI-PAM with no pending approvals, and the Codex requests
+sheet with manual sending hidden. No new Codex request was made. Jason
+reported no Keychain or Aster sign-in prompt during unlock. This is one short
+sleep/wake observation, not a natural token-refresh or long-duration
+reliability result.

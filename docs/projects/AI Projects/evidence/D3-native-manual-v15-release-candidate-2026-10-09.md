@@ -82,3 +82,9 @@ without enabling a new question. An idle restart without the manual flag
 returned to signed-in normal Aster, showed no visible Keychain prompt, and
 hid the manual-send control. This remains a narrow UI/dispatch result, not a
 routine-use or active-turn recovery release.
+
+Jason then performed one normal Mac sleep/unlock. The same ordinary Companion
+process remained running and signed in, the journal remained at 14 completed
+rows, manual sending stayed hidden, and Jason reported no Keychain or sign-in
+prompt. This short observation does not establish natural token-refresh or
+long-duration reliability.
