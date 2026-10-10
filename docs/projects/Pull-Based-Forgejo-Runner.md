@@ -1,6 +1,6 @@
 # Pull-based Forgejo change-bundle runner
 
-> Status: Active — Stream A; M0–M1 complete, M2 in progress
+> Status: Active — Stream A; M0–M2 complete, M3 pending
 >
 > Owner: Jason
 >
@@ -201,11 +201,13 @@ action than the existing safe-write schema. **Passed 2026-10-10.**
 - [x] Capture and verify recovery checkpoint.
 - [x] Create `hlabundle` identity, root-owned trust policy and protected state
   and inbox on LXC 104.
-- [ ] Add the hardened network-denied validation unit.
+- [x] Add the hardened network-denied validation unit.
 - [x] Register the worker in AI-PAM Probation with only the existing Yellow
   safe-write capability; prove denied access to read gateway, direct write
   gateway, OpenBao, Forgejo credential and unrelated files/sockets.
-- [ ] Select and validate the immutable exchange; record retention and owner.
+- [x] Select and validate the bootstrap exchange: human-carried signed bundle,
+  retained for seven days by Jason; signature and content hashes make mutation
+  fail closed.
 
 Gate: worker is healthy and observable but cannot promote without exact passkey
 approval; global kill switch and identity suspension deny it.
@@ -352,17 +354,43 @@ canary branch/file; it does not merge, publish, deploy or delete anything.
 - Full Linux suite after the repair: **98/98 passed in 23.244 seconds**. Live
   proof showed the incomplete frame denied after 5.01 seconds and the very next
   health request succeeded. Disposable test sources were removed.
-- The hardened validation unit and bootstrap signed bundle remain open before
-  M2 can close. Human-carried transfer remains the selected bootstrap exchange;
-  no public or credential-bearing exchange has been introduced.
+- At this checkpoint the hardened validation unit and bootstrap signed bundle
+  were the remaining M2 gates; the next evidence entry records their closure.
+
+### 2026-10-10 — M2 network-isolated validator passed
+
+- Added a one-shot validator and templated systemd unit running as `hlabundle`
+  with no supplementary groups, no capabilities, `PrivateNetwork=yes`, an
+  `AF_UNIX`-only address-family allow-list and a read-only system view. Its
+  `systemd-analyze security` exposure score is **1.2 OK**.
+- Added root-owned canonical-base and policy-digest pins. The bootstrap design
+  deliberately uses an operator-verified base pin rather than granting the
+  probationary worker read credentials or direct Forgejo access.
+- The full Linux credential-broker suite passes **101/101 in 22.013 seconds**,
+  including real OpenSSH signing, valid/tampered bundle cases and unit-isolation
+  assertions. A live invalid instance failed closed before reading an inbox.
+- Jason signed bundle `64Z59sC7JK1CWS8-b3l03E9O` with the dedicated private
+  key. Local verification and the live network-isolated service both bound the
+  signature to principal `cloud-producer`, namespace
+  `homelab-change-bundle`, base `36c0cc42e41b258d1416002fe2e56f779aa40c24`,
+  target `ai-pam/cloud-runner-canary` and content digest
+  `4d7d883be0609f7bdd7d6103a8ba8ecacb62806f6f9f3402b9831d7d9494de8d`.
+  The service returned metadata only and made no broker or Forgejo request.
+- The first signature attempt safely exposed a producer-format mismatch: a
+  trailing newline was signed while the verifier reconstructs canonical JSON.
+  Validation denied it; canonical byte generation was corrected and the fresh
+  signature passed. This is retained as fail-closed evidence.
+- The human-carried signed directory is the selected bootstrap exchange. Jason
+  owns it and retains the evidence for seven days. A private content-addressed
+  exchange remains a later enhancement, not a prerequisite for the canary.
 
 ## Current checkpoint
 
-M0–M1 are complete. M2 begins with a verified recovery checkpoint and isolated
-worker installation. The next controlled operation is creation of a dedicated,
-passphrase-protected producer signing key through a human-attended prompt; only
-its public key enters the runner trust file. The private key must never be read
-by the agent. A human-carried signed bundle is the bootstrap exchange until a
-separate private immutable staging service is demonstrably available. Remote
-Git writes remain subject to immediate explicit confirmation.
+M0–M2 are complete. The worker identity remains in AI-PAM Probation and cannot
+discover or invoke the Yellow safe-write capability. The next gate is M3:
+promote only this identity through the established AI-PAM approval path, submit
+the already validated synthetic canary, inspect the exact Companion request,
+and obtain immediate explicit confirmation before the remote Forgejo write.
+The private signing key remains human-held and unread by the agent. No public
+ingress or credential-bearing exchange has been introduced.
 

@@ -24,6 +24,11 @@
   capability and no direct gateway access. Bounded incomplete broker frames at
   five seconds after the installation probe exposed the prior unbounded wait;
   98/98 Linux tests and a live timeout/next-request check pass after the repair.
+- Completed M2 with a network-denied, capability-free one-shot validator and
+  root-owned base/policy pins. The Linux suite now passes 101/101; live invalid
+  input failed closed and a human-signed canonical bundle validated with
+  metadata-only output. The worker remains in AI-PAM Probation and no Forgejo
+  request or repository write occurred.
 
 ## 2026-10-10 — Brand Design skill and reusable standard
 
