@@ -142,6 +142,10 @@ the immutable approved payload, while the visual treatments stay brand-local.
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to
   NPM, so DNS or URL knowledge cannot bypass the identity gate.
+- Homepage lists **Photography Content Desk** under AI & Automation and links to
+  `https://tcf.elliottrook.com`. Its Aster-family icon is served at the exact
+  LAN-only `/app-icon-512.png` path without authentication so Homepage can
+  render it; all other Desk paths retain the owner-only Authentik gate.
 - The sample release includes `MANIFEST.sha256`; HomeLab Doctor verifies it,
   service health, and primary plus independent guest-backup freshness.
 - There is deliberately no public DNS, tunnel or route during A2/A3. Public

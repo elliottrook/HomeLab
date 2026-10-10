@@ -37,6 +37,8 @@ CADENCE_STATE = Path(os.environ.get("TCF_CADENCE_STATE", "/var/lib/tcf-workflow/
 
 HTML = r"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" sizes="512x512" href="/app-icon-512.png">
+<link rel="apple-touch-icon" href="/app-icon-512.png">
 <title>Content Desk</title><style>
 :root{--bg:#0b1020;--panel:#151d31;--raised:#1b2740;--input:#111a2c;--text:#f4f7fb;--soft:#dce4f1;--muted:#aab6ca;--accent:#8bd3ff;--ok:#b9f2d0;--danger:#ffaaa8;--line:#2b3a58}
 .sites{display:flex;align-items:center;gap:8px;margin-top:28px}.site-pill{min-height:38px;border-color:var(--line);background:var(--input);color:var(--soft);border-radius:999px}.site-pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#07111e}.site-status{margin-left:8px;color:var(--muted);font-size:.82rem}.edition,.library{display:flex;gap:10px;align-items:end;margin-top:16px;padding:14px;background:#111a2c;border:1px solid var(--line);border-radius:14px}.edition-info,.library label{flex:1}.edition-info strong{display:block;color:var(--soft)}.edition-info span{display:block;color:var(--muted);font-size:.85rem}.edition button,.library button{white-space:nowrap}.preview.pending{background:#191826;color:#c9c7d5;border:1px dashed #7c7898}.preview.pending h2{font-family:system-ui,sans-serif}.imports{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}.drop{min-height:92px;border:1px dashed #58739d;border-radius:12px;background:#111a2c;padding:14px;display:grid;align-content:center;gap:4px;color:var(--soft)}.drop.drag{border-color:var(--accent);background:#172944}.drop input{padding:4px;border:0}.drop strong{color:var(--accent)}@media(max-width:780px){.sites{flex-wrap:wrap}.site-status{width:100%;margin-left:0}.imports{grid-template-columns:1fr}.edition,.library{align-items:stretch;flex-direction:column}}
@@ -123,6 +125,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, b'{"status":"ok"}', "application/json")
         if request.path == "/":
             return self._send(200, HTML.encode(), "text/html; charset=utf-8")
+        if request.path == "/app-icon-512.png":
+            icon = ROOT / "static/tcf-content-desk-icon-512.png"
+            if icon.is_file():
+                return self._send(200, icon.read_bytes(), "image/png")
         if request.path == "/api/content":
             query = parse_qs(request.query)
             site = query.get("site", ["contrast"])[0]

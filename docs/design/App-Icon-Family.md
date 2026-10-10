@@ -17,6 +17,7 @@ runtime assets.
 | Aster Companion | [`docs/assets/aster-companion/aster-app-icon-concept-v2-compass.png`](../assets/aster-companion/aster-app-icon-concept-v2-compass.png) | `apps/AsterCompanion/Resources/AppIcon.icns`; Aster web favicon and PWA icon |
 | News Digest | [`docs/assets/news-digest/news-digest-icon.png`](../assets/news-digest/news-digest-icon.png) | `/static/icon-512.png` plus the 32px favicon and 180px Apple touch icon |
 | Unified Media Recommendations | [`docs/assets/unified-media/unified-media-recommendations-icon.png`](../assets/unified-media/unified-media-recommendations-icon.png) | Private portal source plus 32px favicon and 180px Apple touch icon |
+| Photography Content Desk | [`docs/assets/tcf-content-desk/tcf-content-desk-icon-source.png`](../assets/tcf-content-desk/tcf-content-desk-icon-source.png) | Private desk favicon/app icon and Homepage tile; tracked 32px, 180px and 512px PNG derivatives |
 
 The Aster source is the accepted compass/aster flower artwork. The News Digest
 source is the deployed 512px document/news mark; its 32px and 180px variants
@@ -28,6 +29,13 @@ runtime derivatives are tracked under
 [`docs/assets/unified-media/`](../assets/unified-media/). The reusable web
 interface rules are documented separately in the
 [HomeLab UI Style Guide](HomeLab-UI-Style-Guide.md).
+
+Photography Content Desk uses a dimensional photo stack and camera aperture as
+its centered silhouette, with a warm-gold selection sparkle as the curation
+cue. Its glass, pearlescent enamel, luminous blue edge and restrained
+blue/violet/cream/gold palette follow the accepted Aster, News Digest and
+Unified Media Recommendations standard. It belongs to the Aster operator-tool
+family and deliberately does not reuse either public photography site's logo.
 
 ## Web integration contract
 

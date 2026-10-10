@@ -37,6 +37,9 @@
 - Added certificate-valid LAN review routes at `contrast.elliottrook.com` and
   `closet.elliottrook.com`. All three private resolvers return NPM, the firewall
   permits only NPM to origin TCP 80, and both public aliases remain nonexistent.
+- Added a Homepage **Photography Content Desk** tile in AI & Automation and a
+  dedicated Aster-family camera-aperture/selection-star icon. The same tracked
+  asset now supplies the Desk favicon while its root remains Authentik-protected.
 
 ## 2026-10-09 — The Contrasting Frame project preparation
 

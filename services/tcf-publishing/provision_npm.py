@@ -32,6 +32,14 @@ current = database.execute(
 advanced_config = template["advanced_config"].replace(TEMPLATE_DOMAIN, DOMAIN)
 if "client_max_body_size 29m;" not in advanced_config:
     advanced_config = "client_max_body_size 29m;\n\n" + advanced_config
+icon_location = """location = /app-icon-512.png {
+    proxy_pass $forward_scheme://$server:$port;
+    proxy_set_header Host $host;
+}
+
+"""
+if "location = /app-icon-512.png" not in advanced_config:
+    advanced_config = icon_location + advanced_config
 values = dict(template)
 values.update({"domain_names": json.dumps([DOMAIN]), "forward_host": "192.168.20.35",
                "forward_port": 8080,
