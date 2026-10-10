@@ -1132,3 +1132,20 @@ contains typed investigation, retention, Doctor adapter, incident gateway and
 broker gateway tests, but their runtime validation is UNKNOWN here: the local
 interpreter lacks Aster dependencies and the deployed LXC lacks test files.
 Cloud challenger deployment is deferred.
+
+### 2026-10-10 — Qwen3.5-9B B60 screening
+
+Jason approved an immediate transient Qwen3.5-9B trial. Same-day backup and
+TrueNAS mirror, accepted hashes, service health, `xe`, BMG G21 Vulkan, headroom
+and clean kernel evidence passed before load. The LM Studio community Q4_K_M
+conversion of the official Qwen3.5-9B checkpoint ran with official llama.cpp
+b11429, Q4 K/V and reasoning disabled. Raw tg128 was 46.795 tok/s; four
+authenticated Aster synthetic workflows measured 45.387--47.845 decode tok/s
+and all conversation, persona, read-only tool and grounded-retrieval assertions
+passed. Accepted 27B production was restored with unchanged hashes and health,
+both news timers were restored, the kernel scan remained clean, and transient
+model/runtime files were removed. The approximately 4.2--4.5x decode lead makes
+9B the preferred local challenger, not a selected production model. Broader
+frozen personal-assistant, scheduled-analysis, privacy-routing and escalation
+quality comparisons remain required. See
+[screening evidence](evidence/2026-10-10-qwen35-9b-b60-screening.md).
