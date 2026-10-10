@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "sites": {
+    "contrast": {
+      "name": "The Contrasting Frame",
+      "source_commit": "49f210c7a8637ff88152345b5f448fdaf8b6566a",
+      "private_dataset": "/mnt/Media/TheContrastingFrame/brand/contrast-site/49f210c",
+      "dist_files": 33,
+      "dist_bytes": 12271172,
+      "annotations_sha256": "952ca58392070d64867e7e1dc7c225452f54a911fba61677100e66249863ab8c",
+      "annotation_treatment": "formal-title-gold-underline"
+    },
+    "closet": {
+      "name": "The Closet Fatman",
+      "source_commit": "c77684d644470c0873fda1f728979ed9f0b6b949",
+      "private_dataset": "/mnt/Media/TheContrastingFrame/brand/closet-site/c77684d",
+      "dist_files": 35,
+      "dist_bytes": 4120720,
+      "annotations_sha256": "e1c0ab863cc4155515bed6ea8d11109e911a64efa7056baddb71ffafec4447ce",
+      "annotation_treatment": "whimsical-handwritten-arrow"
+    }
+  },
+  "annotation_contract": {
+    "text_maximum_characters": 80,
+    "position_units": "percent",
+    "position_minimum": 5,
+    "position_maximum": 95,
+    "overlay_is_baked_into_image": false
+  }
+}

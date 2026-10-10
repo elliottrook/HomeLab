@@ -25,3 +25,32 @@ with an empty key as an unreviewed deployment change.
 Tests: `python -m unittest discover -s services/aster-speech -q` from the repo
 with the service's Python dependencies installed. Tests substitute synthesis and
 inference; the project evidence separately records real WAV/MP4 and restore tests.
+
+`benchmark_tts.py` is the M1 offline comparison harness. It runs the versioned
+synthetic `tts_benchmark_fixtures.json` corpus through either current Piper or a
+persistent Kokoro engine. Its JSON report contains fixture IDs, asset/fixture
+digests, timing, RTF, RSS and declared thread settings, but no input text or
+audio. Generated Piper WAVs are temporary and Kokoro audio remains in memory.
+Run it only on an idle candidate or within an explicitly bounded test window;
+the default five iterations are measurement work, not a health check.
+Use repeatable `--fixture-id` arguments for a bounded latency or concurrency
+probe without changing the versioned corpus or result schema.
+`--intra-op-threads` and `--inter-op-threads` construct the pinned
+`kokoro-onnx` 0.6.1 engine around an explicit ONNX Runtime session. This is for
+M1 tuning because the package's public constructor does not accept session
+options; candidate service code must wrap and test that behavior deliberately.
+
+`voice_candidate.py` is the repository-only M2 core. It owns the canonical
+speech normalization and semantic-unit policy plus the bounded two-worker
+scheduler. Both workers serve interactive work; only worker zero may serve the
+lower-priority batch queue, so News cannot occupy both interactive slots. This
+module is not production wiring and must remain side-by-side until the HTTP and
+Wyoming adapters, real Kokoro renderer and LXC 116 gates pass.
+
+`voice_protocol.py` defines the dependency-free `AVS1` streaming frame format:
+a bounded JSON metadata header followed by bounded PCM payload bytes. Audio
+frames declare request/unit order, sample rate, mono channel count and
+`pcm_s16le`; streams finish with an explicit end or content-free error frame.
+`voice_candidate_http.py` exposes that contract as authenticated FastAPI router
+factories for `/v2/tts/stream` and cancellation. Caller class is fixed by the
+authenticated route and cannot be selected in submitted JSON.

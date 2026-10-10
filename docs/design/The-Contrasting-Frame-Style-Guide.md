@@ -1,7 +1,9 @@
 # The Contrasting Frame — brand and website style guide
 
 Status: Adopted visual baseline from Jason's accepted website, 2026-10-09.
-Owner: Jason Elliott. Scope: every Contrasting Frame surface, public or private.
+Owner: Jason Elliott. Scope: the public website, rendered previews and other
+public-facing derivatives. The private Content Desk follows the separate
+HomeLab UI and app-icon guides.
 
 ## Intent
 
@@ -106,13 +108,15 @@ Stock/demo images require attribution/provenance and must not be represented
 as Jason's photographs or offered for sale as his work. Existing fiction and
 stock are placeholders, not launch-ready content by default.
 
-## Editorial tool and accessibility
+## Editorial preview and accessibility
 
-A private Content Desk belongs to this brand: warm paper, fine dividers, quiet
-gold accents and readable sans-serif editing controls. Show photograph, story,
-AI suggestions/diff, rights, approval and scheduled date together. Use plain
-statuses: Draft, Needs review, Approved, Scheduled, Published, Failed.
-No public route to the editor. Security does not change the brand styling.
+The private Content Desk follows the
+[HomeLab UI style guide](HomeLab-UI-Style-Guide.md) and
+[HomeLab app icon family](App-Icon-Family.md). Its embedded public preview must
+use this guide so Jason sees the actual TCF typography, palette, logos and
+image/story layout before approval. Show photograph, story, AI suggestions/diff,
+rights, approval and scheduled date together. Use plain statuses: Draft, Needs
+review, Approved, Scheduled, Published, Failed. No public route to the editor.
 
 Support keyboard navigation, visible focus, labelled image controls, modal
 Escape/close/focus return, useful alt text and reduced motion. Aim for WCAG AA
@@ -121,8 +125,9 @@ with both portrait and landscape content and long handwritten paragraphs.
 
 ## Acceptance and change control
 
-Preserve the accepted look through migration. Review a real image/story pair
-and a private editor preview with Jason in the initial design milestone.
+Preserve the accepted look through migration. Review an image/story pair and an
+Aster-styled private editor containing a faithful TCF public preview with Jason
+in the initial design milestone.
 Substantial typography, colour, logo or layout changes require his explicit
 design acceptance. Record screenshot evidence and an operator walkthrough at
 graduation. Update this guide when a new design is actually accepted, not when

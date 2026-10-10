@@ -64,6 +64,30 @@ Key files:
 - `openbao-m6-listener.hcl` / `openbao-m6-nftables.conf` — private TLS listener
   and broker-only ingress policy
 - `openbao-pilot-manifest.yaml` — completed M1 deployment/recovery record
+- `bundle_verifier.py` — signed, one-file, canary-only bundle verification and
+  durable replay state; no network or target-service access
+- `bundle_runner.py` — joins a verified bundle to the existing Yellow
+  `forgejo.write.safe-branch` request without any approval capability
+- `bundle_reader.py` — requests bounded Green repository reads through the
+  broker for fixed repository `jason/homelab`; it holds no Forgejo credential
+
+The pull-based Forgejo bundle runner completed its canary/recovery write acceptance. Jason
+promoted only `agent-cloud-bundle` through the existing Companion fresh-passkey
+management flow after M2 isolation passed. The identity has only the existing
+Yellow `forgejo.write.safe-branch` and Green `forgejo.read.repository`
+capabilities, and its `hlabundle` Unix account
+cannot connect directly to either Forgejo gateway socket. Only the public
+producer key is present on LXC 104; the passphrase-protected private key remains
+on Jason's Mac. See
+`docs/projects/Pull-Based-Forgejo-Runner.md` for current gates and evidence.
+Hourly metadata-only health is provided by `homelab-bundle-health.timer`; the
+operator procedure is `docs/runbooks/Pull-Based-Forgejo-Runner.md`.
+
+The Green reader permits only `get_repo`, `list_branches`, `get_file_content`,
+`list_repo_contents`, `get_repo_tree` and `list_repo_commits`. The independent
+gateway still enforces the fixed repository, sensitive-path, credential-shaped
+argument, secret-shaped output and size limits. Installation, 112/112 Linux
+tests and live allow/deny isolation probes passed.
 
 
 ## Aster M1 deployment split (2026-09-25)

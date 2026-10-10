@@ -1,13 +1,25 @@
-# The Contrasting Frame implementation handoff
+# Dual-site photography publishing implementation handoff
 
 Owner: Jason Elliott. Prepared 2026-10-09. Start with M0, not deployment.
+
+Update 2026-10-09: Jason added The Closet Fatman at
+`theclosetfatman.com`. It shares the Contrasting Frame page geometry and the
+same private workflow, but has separate site-keyed content, approvals, assets,
+releases and a future whimsical brand package. The dearJoe font is Contrasting
+Frame-only. The shared private desk is `tcf.elliottrook.com` and uses a
+`Contrast` / `Closet` pill. Closet assets are authoritative at
+`/Users/jasonelliott/Documents/The Closet Fatman`; its website/template will
+arrive later. Media is normally distinct, with deliberate cross-publication
+represented by two independently reviewed and approved records.
 
 ## Execution order
 
 Jason requested a new Codex conversation to complete this project in Stream A,
 but explicitly required the first milestone to be Stream M. Read
 [the hosting and publishing project](../projects/The-Contrasting-Frame-Hosting-and-Publishing.md)
-and [the brand style guide](../design/The-Contrasting-Frame-Style-Guide.md).
+and both applicable guides: the
+[public brand style guide](../design/The-Contrasting-Frame-Style-Guide.md) and
+[Aster internal UI style guide](../design/HomeLab-UI-Style-Guide.md).
 Begin the design discussion with Jason, flesh out the workflow and concrete
 hosting/security choices, record his acceptance, then transition to A1–A6.
 No infrastructure mutation or public exposure before M0 passes.
@@ -23,10 +35,11 @@ Preparation checkout:
 `/Users/jasonelliott/Documents/ChatGPT/Aster Hardware Development/homelab-work`
 
 Start by reading `AGENTS.md`, `docs/Project-Creation-Standard.md`,
-`docs/Standards.md`, project portfolio, the project above and the two style
-guides. The Aster guide is now explicitly scoped to Aster-associated internal
-network apps. The project standard makes TCF's own guide mandatory for all
-TCF work, including the private Content Desk.
+`docs/Standards.md`, project portfolio, the project above and both applicable
+style guides. The TCF guide governs the public website and rendered public
+previews. The Aster internal guide and HomeLab app-icon family govern the
+private Content Desk. The preview embedded in the Desk must remain faithful to
+the TCF guide.
 
 Accepted website source:
 `/Users/jasonelliott/Documents/ChatGPT/Aster Hardware Development/sites/the-closet-fatman`

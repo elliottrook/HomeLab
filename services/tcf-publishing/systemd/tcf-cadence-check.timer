@@ -1,0 +1,11 @@
+[Unit]
+Description=Hourly quiet check for fortnightly TCF editorial cadence
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=5m
+Persistent=true
+Unit=tcf-cadence-check.service
+
+[Install]
+WantedBy=timers.target

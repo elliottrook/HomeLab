@@ -11,6 +11,121 @@
   configuration and recovery procedure; no binary, model, package, firmware,
   network or platform change was made.
 
+## 2026-10-10 — Aster Unified Voice Service project started
+
+- Started a Stream A project to make LXC 116 the single private Aster Voice
+  Service for Companion, Home Assistant, News and future reasoning backends.
+- Adopted the existing canonical Kokoro `bm_daniel`, `en-gb`, speed `0.95`
+  identity and recorded deployed Piper as a retained migration rollback rather
+  than a conformant final voice.
+- Recorded the live six-core/4 GiB speech guest, CPU `base.en` STT, complete-WAV
+  Piper path, client chunking/capture gaps, existing recovery coverage and
+  current healthy authentication/routing checks.
+- Bounded autonomous work to local speech, exact private caller paths, staged
+  reversible migrations and content-free telemetry. No cloud speech, new public
+  ingress, reasoning-model change, Home Assistant authority expansion or voice
+  substitution is authorized.
+- Completed M0 without changing production. M1 begins with licence/runtime,
+  Assist/Wyoming protocol and exact network discovery plus offline Piper/Kokoro
+  latency, quality, concurrency and resource benchmarks.
+
+## 2026-10-10 — Emotional-first brand discovery
+
+- Added indirect client questions covering stories, desired impressions, associations, ranked words and boundaries before the detailed practical questionnaire.
+- Added the reusable client-vision discovery procedure and per-brand discovery/interpretation brief; engagement state tracks confirmation, unresolved vision questions and practical intake separately.
+- Separated client evidence from designer hypotheses, personal taste from intended audience impression and present identity from aspiration. Client confirmation precedes formal concepts; audience reception is not inferred from owner approval.
+- Preserved existing rights, master approval, production and deployment gates and the precise-edit shortcut. No client transcripts, brand artwork, live-service changes or new network/credential requirements are included.
+- Reconciled against a clean current Forgejo checkout; installed skill resources were already updated locally. Documentation diff and local reference checks passed. The earlier skill validator attempt remains limited by unavailable PyYAML; structural checks are not behavioral validation.
+
+## 2026-10-10 — Pull-based Forgejo runner project started
+
+- Added a Stream A project for an outbound-only signed change-bundle runner
+  that reuses AI-PAM and the existing one-file Forgejo safe-write gateway.
+- Recorded the live LXC 104/broker baseline, strict canary-only scope, recovery
+  gates and the decision not to add public ingress, a network broker, a new
+  Tailscale daemon or broader Forgejo capability for the PoC.
+- Completed the offline verifier/runner gate with exact OpenSSH signer binding,
+  one-file schema, durable replay state and immediate pre-consume revalidation;
+  all 95 credential-broker tests pass on Linux, including 17 socket tests that
+  cannot bind in the macOS sandbox.
+- Installed the public-only signer trust and separate non-login worker on LXC
+  104 in AI-PAM Probation. Live denials confirm it has no discoverable
+  capability and no direct gateway access. Bounded incomplete broker frames at
+  five seconds after the installation probe exposed the prior unbounded wait;
+  98/98 Linux tests and a live timeout/next-request check pass after the repair.
+- Completed M2 with a network-denied, capability-free one-shot validator and
+  root-owned base/policy pins. The Linux suite now passes 101/101; live invalid
+  input failed closed and a human-signed canonical bundle validated with
+  metadata-only output. The worker remains in AI-PAM Probation and no Forgejo
+  request or repository write occurred.
+- Began M3 after Jason promoted only the bundle identity through Companion's
+  fresh-passkey lifecycle control. Recovered an unlinked approval socket by
+  restarting only its bridge, and added a durable metadata-only `submit`/
+  `promote` CLI around the existing replay-safe runner. All 101 tests pass on
+  Linux; Yellow approval and immediate Forgejo-write confirmation remain open.
+- Completed Stream A with two independently signed and explicitly approved
+  one-file Forgejo canaries, exact parent/path/blob verification and matching
+  GitHub mirror observation; neither branch was merged. Live expiry and replay
+  attempts failed closed. Added public-trust-only backup, isolated restore with
+  terminal-state proof, an hourly network-denied metadata health check, and the
+  operator runbook. The Linux suite passes 106/106.
+- Added a least-privilege read amendment for the same runner identity using the
+  existing Green Forgejo read capability and independent read-only gateway.
+  Reads are fixed to `jason/homelab` and six metadata/content tools; the runner
+  receives no token or direct gateway permission. Installation, capability
+  registration, broker restart and 112/112 Linux tests passed. Live repository
+  metadata and `README.md` reads succeeded; another repository, `.env` and
+  direct gateway access were denied while the write gateway remained active.
+
+## 2026-10-10 — Brand Design skill and reusable standard
+
+- Consolidated Brand SVG Studio into one installed Brand Design skill while retaining registry, SVG audit, recolour, tracing, rendering, export, release and rollback behavior.
+- Added a durable Brand Creation Standard under `docs/standards/brand-design/` and reusable engagement files under `docs/templates/brand-design/`. Individual brand work instantiates these milestones in the Brand Asset Library rather than entering the HomeLab enhancement-project portfolio.
+- Added gated intake, concept/master approval, precise edit contracts, 18-reference/equivalence coverage, manual/reconstruction literature, offline package validation, deployment-state reporting and an explicit-only legacy alias.
+- Passed seven synthetic validator tests; the supplied fotosforfun material passes only the limited fixture profile and remains blocked from a production release pending strict rights/approval/vector gates.
+- Added design-only Forgejo/Tailscale guidance recommending a pull-based local runner; no network, credential or production-service change was made.
+
+## 2026-10-10 — Photography release transport isolated
+
+- Added checksum-verifying publisher/origin release transport with separate
+  immutable roots for The Contrasting Frame and The Closet Fatman.
+- Bound a dedicated deployment key to a four-operation forced command; archive
+  links/traversal, arbitrary commands, mixed-site IDs, changed manifests and
+  private/sample candidates fail closed. Forty-two publishing tests pass.
+- Proved a disposable non-served transfer and removed it. The existing marked
+  sample remains active, Nginx is unchanged, and no public DNS or route exists.
+- Added the owner-only, site-specific final publication confirmation. It
+  revalidates the reviewed edition and immutable checksums under one lock,
+  activates only the digest-bound release, records success durably and leaves a
+  failed edition open. The live empty workflow fails closed; 46 tests pass.
+- Added exact-host per-site origin vhosts with site-specific unavailable
+  responses while no accepted release exists. The legacy sample remains the
+  unmatched-host default; the NPM cross-VLAN path and all public routing remain
+  absent.
+- Added live origin release status and typed one-step rollback to the private
+  desk. The server selects only the checksum-verified previous origin release,
+  records successful swaps, and disables rollback when no prior release exists.
+- Added a quiet, persistent hourly checker for the independent 14-day editorial
+  clocks. It displays due state but cannot start, approve or publish an edition;
+  UTC storage and Vancouver evaluation follow B.C.'s permanent UTC-7 Pacific
+  Time. Fifty-four publishing tests pass, including interruption/retry gates.
+- Restored permanent Mac-to-Forgejo Git access by registering the existing
+  MacBook Admin public key and selecting it for `git` at the Forgejo address,
+  while preserving the separate root-administration alias. No standing token
+  was added.
+- Published the first internal-only workflow rehearsal: ten approved Contrast
+  slots and seven approved Closet slots use owner-authorized, person-free
+  photographs, metadata-stripped derivatives and clearly fictional AI stories.
+  No public proxy or tunnel route was added, and the existing parked Closet
+  Fatman DNS was not connected to the origin. Corrected permanent origin
+  read access by adding Nginx `www-data` to the restricted `tcf-deploy` group.
+- Added certificate-valid LAN review routes at `contrast.elliottrook.com` and
+  `closet.elliottrook.com`. All three private resolvers return NPM, the firewall
+  permits only NPM to origin TCP 80, and both public aliases remain nonexistent.
+- Added a Homepage **Photography Content Desk** tile in AI & Automation and a
+  dedicated Aster-family camera-aperture/selection-star icon. The same tracked
+  asset now supplies the Desk favicon while its root remains Authentik-protected.
+
 ## 2026-10-09 — The Contrasting Frame project preparation
 
 - Scoped the HomeLab UI guide to Aster-associated internal network apps and

@@ -23,11 +23,14 @@ Choose the guide by product identity, not by its hosting location.
 
 - Aster-associated internal network apps must use the
   [Aster internal UI style guide](design/HomeLab-UI-Style-Guide.md).
-- **Any work for The Contrasting Frame must use the
-  [The Contrasting Frame style guide](design/The-Contrasting-Frame-Style-Guide.md).**
-  This includes the public gallery, private content/editorial tools, previews,
-  generated templates and future storefront work. Being internally hosted
-  does not make these Aster-branded apps.
+- The public The Contrasting Frame website, its rendered previews, generated
+  public templates and future public storefront work must use the
+  [The Contrasting Frame style guide](design/The-Contrasting-Frame-Style-Guide.md).
+- The private The Contrasting Frame Content Desk is an internal HomeLab/Aster
+  operator tool and must use the
+  [Aster internal UI style guide](design/HomeLab-UI-Style-Guide.md), including
+  the HomeLab app-icon family. A gallery preview embedded inside that tool must
+  still render the public The Contrasting Frame design faithfully.
 - Other brands need an explicitly selected or created guide; do not silently
   inherit Aster styling.
 
@@ -50,8 +53,9 @@ The canonical reference is the production News Digest implementation:
 - speed `0.95`
 - sentence-sized or clause-sized synthesis, not long single calls
 - one second of silence between briefing stories
-- shared speech cleanup for Markdown, parentheses, currency and dotted
-  abbreviations such as `U.S.` → “United States”
+- shared speech cleanup for Markdown, parentheses and naturally spoken
+  currency, plus dotted abbreviations such as `U.S.` → “United States” and
+  `B.C.` → “British Columbia”
 - time-aware briefing introduction and sign-off: morning/evening wording,
   followed by “Have a good day” or “Have a good evening” as appropriate
 

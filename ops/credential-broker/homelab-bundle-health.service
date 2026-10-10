@@ -1,0 +1,30 @@
+[Unit]
+Description=Check HomeLab Forgejo bundle runner health
+After=local-fs.target
+
+[Service]
+Type=oneshot
+User=hlabundle
+Group=hlabundle
+SupplementaryGroups=
+UMask=0077
+ExecStart=/usr/bin/python3 /opt/homelab-broker/bundle_health.py --ledger /var/lib/homelab-bundle-runner/ledger.sqlite --base-file /etc/homelab-bundle-runner/base_revision --policy-file /etc/homelab-bundle-runner/policy_digest --allowed-signers /etc/homelab-bundle-runner/allowed_signers --max-success-age 604800
+NoNewPrivileges=yes
+PrivateNetwork=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+TimeoutStartSec=30

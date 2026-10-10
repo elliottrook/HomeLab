@@ -18,6 +18,10 @@ from broker_core import BrokerDenied, BrokerStore
 
 
 MAX_REQUEST_BYTES = 65_536
+FORGEJO_BOUNDED_READ_TOOLS = frozenset({
+    "get_repo", "list_branches", "get_file_content", "list_repo_contents",
+    "get_repo_tree", "list_repo_commits",
+})
 
 
 def peer_uid(connection: socket.socket) -> int:
@@ -31,6 +35,7 @@ def peer_uid(connection: socket.socket) -> int:
 class BrokerHandler(socketserver.StreamRequestHandler):
     def handle(self) -> None:
         try:
+            self.request.settimeout(self.server.request_timeout)  # type: ignore[attr-defined]
             raw = self.rfile.readline(MAX_REQUEST_BYTES + 1)
             if not raw or len(raw) > MAX_REQUEST_BYTES:
                 raise BrokerDenied("request is empty or oversized")
@@ -43,7 +48,14 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             response: dict[str, Any] = {"ok": True, "result": result}
         except (BrokerDenied, KeyError, ValueError, json.JSONDecodeError) as error:
             response = {"ok": False, "error": str(error)}
-        self.wfile.write(json.dumps(response, sort_keys=True, separators=(",", ":")).encode() + b"\n")
+        except OSError:
+            response = {"ok": False, "error": "request transport failed"}
+        try:
+            self.wfile.write(json.dumps(response, sort_keys=True, separators=(",", ":")).encode() + b"\n")
+        except OSError:
+            # The peer may have disconnected after an incomplete frame.  The
+            # bounded handler must return so the next local client can proceed.
+            pass
 
     def dispatch(self, agent_id: str, request: dict[str, Any]) -> Any:
         method = request.get("method")
@@ -70,7 +82,14 @@ class BrokerHandler(socketserver.StreamRequestHandler):
                 raise BrokerDenied("payload must be an object")
             record = self.server.store.consume_request(str(request.get("request_id", "")), payload, agent_id=agent_id)  # type: ignore[attr-defined]
             if record.capability in {"forgejo.read.repository", "forgejo.write.safe-branch"}:
-                tool = "get_repo" if record.capability == "forgejo.read.repository" else "create_file"
+                if record.capability == "forgejo.read.repository":
+                    tool = payload.get("tool", "get_repo")
+                    arguments = payload.get("arguments", payload)
+                    if tool not in FORGEJO_BOUNDED_READ_TOOLS or not isinstance(arguments, dict):
+                        raise BrokerDenied("Forgejo read request is outside the bounded tool set")
+                else:
+                    tool = "create_file"
+                    arguments = payload
                 gateway_socket = (
                     self.server.forgejo_socket  # type: ignore[attr-defined]
                     if record.capability == "forgejo.read.repository"
@@ -78,7 +97,7 @@ class BrokerHandler(socketserver.StreamRequestHandler):
                 )
                 rpc = {
                     "jsonrpc": "2.0", "id": record.request_id, "method": "tools/call",
-                    "params": {"name": tool, "arguments": payload},
+                    "params": {"name": tool, "arguments": arguments},
                 }
                 with socket.socket(socket.AF_UNIX) as gateway:
                     gateway.connect(gateway_socket)
@@ -117,11 +136,13 @@ class BrokerServer(socketserver.UnixStreamServer):
         forgejo_socket: str = "/run/homelab-forgejo-mcp/gateway.sock",
         forgejo_write_socket: str = "/run/homelab-forgejo-mcp-write/gateway.sock",
         lab_operations_socket: str = "/run/aster-lab-operations-broker/gateway.sock",
+        request_timeout: float = 5.0,
     ):
         self.store = store
         self.forgejo_socket = forgejo_socket
         self.forgejo_write_socket = forgejo_write_socket
         self.lab_operations_socket = lab_operations_socket
+        self.request_timeout = request_timeout
         super().__init__(socket_path, BrokerHandler)
 
 

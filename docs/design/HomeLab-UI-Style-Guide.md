@@ -8,14 +8,15 @@ This guide governs Aster-associated internal HomeLab/network applications,
 including their private dashboards, operational tools and assistant surfaces.
 It is not a universal visual standard for everything hosted on this network.
 
-The Contrasting Frame is a separate brand. All work for it, including its
-private editorial tools, must follow the
+The Contrasting Frame public website is a separate brand and follows the
 [The Contrasting Frame style guide](The-Contrasting-Frame-Style-Guide.md).
-Do not apply this guide's navy/cyan palette, rounded-card treatment, icon
-family or system-font hierarchy to that brand. Shared security, accessibility
-and operational project requirements still apply. Aster's canonical voice
-remains required when a component actually speaks on Aster's behalf; it does
-not prescribe a photography brand's visual identity.
+Its private Content Desk is deliberately an internal HomeLab/Aster operator
+tool, so this guide's navy/cyan palette, rounded-card treatment, system-font
+hierarchy and HomeLab app-icon family govern the Desk. Public gallery previews
+inside the Desk still render the photography brand faithfully. Shared security,
+accessibility and operational requirements apply to both surfaces. Aster's
+canonical voice remains required only if a component actually speaks on
+Aster's behalf; the current project produces no speech.
 
 This guide extends the [HomeLab app icon family](App-Icon-Family.md) into a
 small, practical visual system. It captures the choices used by the Unified
@@ -148,11 +149,13 @@ The reproducible reference configuration is:
 
 Use the News Digest implementation in `services/news-aggregator/audio_digest.py`
 as the executable reference. Spoken text must pass the shared cleanup in
-`services/news-aggregator/digest_text.py`: remove Markdown presentation,
-render currency as “123 dollars” rather than “dollar 123”, turn parenthetical
+`services/news-aggregator/digest_text.py`: remove Markdown presentation, speak
+currency naturally in words (for example, `CA $1,234.50` as “one thousand two
+hundred and thirty-four Canadian dollars and fifty cents”), turn parenthetical
 punctuation into natural pauses, and expand dotted abbreviations such as
-`U.S.`/`U.S.A.` to “United States”. Avoid long single synthesis calls, which
-can produce unnatural joins, breathiness or distortion.
+`U.S.`/`U.S.A.` to “United States” and `B.C.` to “British Columbia”. Avoid long
+single synthesis calls, which can produce unnatural joins, breathiness or
+distortion.
 
 For recurring briefings, use the same time-aware structure: identify the
 briefing as morning or evening from local time, state the date, pause between
