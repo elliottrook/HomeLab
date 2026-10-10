@@ -2300,3 +2300,18 @@ credential broker would add enough IPC and lifecycle complexity that it is
 deferred until update-prompt frequency or availability evidence justifies it.
 No live credential, production infrastructure, ACL or signing identity changed
 in this decision step.
+
+### 2026-10-09 — Disposable modern-Keychain probe rejects current signer
+
+Built two isolated test app versions using the existing local Companion
+signing identity, a separate bundle ID, and a synthetic service/account/value.
+Both signatures and matching designated requirements verified. The first
+data-protection Keychain add failed with `-34018` (missing entitlement) when
+run outside the command sandbox; no test item was created and the second
+version had nothing to read. An earlier sandboxed `-25291` result was treated
+as environment-limited, not evidence about the Mac Keychain. No real saved
+login was read or changed, no Keychain ACL was broadened and no prompt was
+triggered. This closes the simple “set the modern Keychain flag” hypothesis
+for the current self-signed app. A Developer ID path remains conditional on
+owner choice and a new synthetic test; see the
+[decision record](evidence/D3-native-session-custody-decision-2026-10-09.md).

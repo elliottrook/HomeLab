@@ -1,7 +1,8 @@
 # D3 native saved-login custody: next decision
 
-> Status: Design decision after a failed live update gate; no new credential
-> change authorized or implemented.
+> Status: Design decision after a failed live update gate and a completed
+> disposable data-protection Keychain feasibility probe. No real credential
+> was changed by the probe.
 >
 > Owner: Jason. Stream: A, subject to the programme's stop conditions.
 
@@ -64,22 +65,38 @@ says this path expects Mac App Store or Developer ID signing with an Apple
 Team ID. The current local self-signed certificate has no verified Team ID.
 These are platform claims, not proof that a new Aster build would work.
 
-## Smallest next experiment
+## Disposable data-protection Keychain probe — result
 
-1. Confirm the current signed app's *non-secret* entitlements and signing
-   metadata (done for version 13). Do not read passwords, private keys or
-   session values. Whether Jason has another suitable signing identity is
-   **UNKNOWN** and need not be queried until the synthetic path warrants it.
-2. In an isolated test app, use a random disposable string, a unique service
-   name and `kSecUseDataProtectionKeychain=true`. Record add/read/delete status
-   codes only. Never use the real Companion service or account name.
-3. If the synthetic write succeeds, update that test app with a different
-   binary signed by the same identity; measure whether it reads without a
-   prompt. If it fails with missing entitlement, record that result and stop.
-4. If Developer ID is available and Jason wants to use it, repeat the
-   synthetic two-version test with correct app ID and validated entitlement
-   before considering a real login migration.
-5. A real migration requires a separate gate: verified old and new session
+The isolated probe source is
+[`DataProtectionProbe.swift`](../../../../apps/AsterCompanion/Experiments/DataProtectionProbe.swift)
+(SHA-256 `5026d45415109d9ada9c06985b585c565fc60dbdedb051069b13e3b0909818b5`).
+It uses a unique synthetic service/account and fixed fake bytes, never the
+Companion login. Two app bundles with distinct binary hashes and versions
+were built, signed with the existing local Companion identity, and passed
+strict signature verification. Both had the same designated requirement and
+no Apple Team ID.
+
+The version-1 `SecItemAdd` call with `kSecUseDataProtectionKeychain=true`
+returned `-25291` inside the command sandbox, which is not diagnostic for the
+real Mac environment. The same signed binary was rerun outside that sandbox
+and returned **`-34018`, `errSecMissingEntitlement`**. Because the add failed,
+no synthetic item was created; there was no item to read, update or delete,
+and no version-2 read trial was warranted. No unexpected UI prompt appeared.
+The two disposable test bundles were removed from `/private/tmp` after their
+source hash and result were recorded.
+This result directly falsifies “turn on the data-protection Keychain flag in
+the current locally signed app” as an immediate fix. It does **not** test a
+proper Developer ID build with validated entitlements.
+
+## Future experiment only if the owner selects Developer ID signing
+
+1. Determine whether Jason has and wants to use a suitable Apple Developer
+   signing identity. This is **UNKNOWN**; do not assume an account exists or
+   create/pay for one as part of Stream A.
+2. If available and selected, repeat the synthetic two-version test with a
+   correct app ID and validated entitlement. Record add/read/delete codes,
+   prompt occurrence and denial of an unrelated app.
+3. A real migration requires a separate gate: verified old and new session
    behavior, refresh-token-aware recovery, no cloud credential disclosure,
    an explicit rollback, and a successful synthetic update test. It must not
    be inferred from passing unit tests alone.

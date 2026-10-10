@@ -143,6 +143,10 @@ sets a disposable-credential test before any other live migration. Routine
 in-scope local/read-only work should proceed without new conversational
 approval.
 
+That isolated test has now returned `errSecMissingEntitlement` for the current
+local signer, so simply switching Companion to the data-protection Keychain is
+not a supported next install. The working version 13 remains unchanged.
+
 Jason directed recording this logic, retooling the project and continuing Stream A.
 Proceed with local documents/code/tests and read-only integration preflight.
 Connected pilots retain concrete privacy, tool and deployment gates under the
