@@ -96,51 +96,6 @@ class VoiceSchedulerTests(unittest.IsolatedAsyncioTestCase):
         release.set()
         await batch_task
 
-    async def test_batch_units_are_bounded_without_fragmenting_interactive_text(self):
-        text = (
-            "This briefing sentence is deliberately longer than sixty characters, "
-            "but it still contains safe clause and word boundaries."
-        )
-        batch = await self._collect("bounded-batch", text, "batch")
-        interactive = await self._collect("unbounded-interactive", text, "interactive")
-        self.assertGreater(len(batch), 1)
-        self.assertTrue(all(len(unit.pcm.decode()) <= 20 for unit in batch))
-        self.assertEqual(len(interactive), 1)
-        self.assertEqual(interactive[0].pcm.decode(), text)
-
-    async def test_batch_admits_only_one_unit_at_a_time(self):
-        await self.scheduler.close()
-        first_entered = threading.Event()
-        release_first = threading.Event()
-
-        def renderer(text):
-            self.calls.append(text)
-            if len(self.calls) == 1:
-                first_entered.set()
-                release_first.wait(timeout=2)
-            return text.encode(), 24000
-
-        self.scheduler = VoiceScheduler(renderer)
-        await self.scheduler.start()
-        text = "First batch sentence is here. Second batch sentence follows."
-        task = asyncio.create_task(self._collect("one-at-a-time", text, "batch"))
-        await asyncio.wait_for(asyncio.to_thread(first_entered.wait), timeout=1)
-        self.assertEqual(len(self.calls), 1)
-        release_first.set()
-        result = await task
-        self.assertGreater(len(result), 1)
-
-    async def test_late_interactive_request_wins_batch_admission_grace(self):
-        await self.scheduler.close()
-        self.scheduler = VoiceScheduler(lambda text: (text.encode(), 24000))
-        await self.scheduler.start()
-        batch = asyncio.create_task(self._collect("waiting-batch", "Batch work.", "batch"))
-        await asyncio.sleep(0.05)
-        interactive = await self._collect("late-interactive", "Interactive work.", "interactive")
-        self.assertEqual(interactive[0].pcm, b"Interactive work.")
-        self.assertFalse(batch.done())
-        await batch
-
     async def _collect(self, request_id, text, caller):
         return [unit async for unit in self.scheduler.stream(request_id, text, caller)]
 

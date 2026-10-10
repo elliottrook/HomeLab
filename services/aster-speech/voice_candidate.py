@@ -18,12 +18,6 @@ Renderer = Callable[[str], tuple[bytes, int]]
 
 MAX_TEXT_CHARS = 2000
 MAX_UNIT_CHARS = 240
-# Kokopop cannot pre-empt a render already submitted to the GPU. Keep batch
-# units small enough that an arriving interactive request is not trapped behind
-# a briefing-sized sentence. Interactive prose retains the larger semantic
-# limit so ordinary replies do not acquire unnecessary seams.
-MAX_BATCH_UNIT_CHARS = 20
-BATCH_IDLE_GRACE_SECONDS = 0.25
 
 _DOLLAR_AMOUNT = re.compile(
     r"(?<!\w)(?:(US|CA|AU)\s*)?\$(\d{1,3}(?:,\d{3})+|\d+)"
@@ -204,27 +198,18 @@ class VoiceScheduler:
             raise ValueError("text exceeds the maximum permitted length")
         if request_id in self._cancelled:
             self._cancelled.remove(request_id)
-        maximum = MAX_BATCH_UNIT_CHARS if caller == "batch" else MAX_UNIT_CHARS
-        units = semantic_units(normalize_for_speech(text), maximum=maximum)
+        units = semantic_units(normalize_for_speech(text))
         loop = asyncio.get_running_loop()
         jobs = [
             _Job(request_id, index, len(units), unit, loop.create_future(), next(self._sequence))
             for index, unit in enumerate(units)
         ]
         queue = self._interactive if caller == "interactive" else self._batch
+        for job in jobs:
+            await queue.put(job)
         try:
-            if caller == "batch":
-                # Admit only one batch unit at a time. This creates a priority
-                # checkpoint after every unit and prevents a long briefing
-                # from filling the batch queue ahead of arriving interaction.
-                for job in jobs:
-                    await queue.put(job)
-                    yield await job.result
-            else:
-                for job in jobs:
-                    await queue.put(job)
-                for job in jobs:
-                    yield await job.result
+            for job in jobs:
+                yield await job.result
         finally:
             if any(not job.result.done() for job in jobs):
                 self.cancel(request_id)
@@ -255,19 +240,6 @@ class VoiceScheduler:
             return await self._interactive.get()
         try:
             return self._interactive.get_nowait()
-        except asyncio.QueueEmpty:
-            pass
-        # Do not let a continuously queued briefing win the small gap between
-        # sequential interactive requests. After every batch unit, reserve a
-        # short admission window for the next conversational turn.
-        try:
-            return await asyncio.wait_for(
-                self._interactive.get(), timeout=BATCH_IDLE_GRACE_SECONDS
-            )
-        except asyncio.TimeoutError:
-            pass
-        try:
-            return self._batch.get_nowait()
         except asyncio.QueueEmpty:
             interactive = asyncio.create_task(self._interactive.get())
             batch = asyncio.create_task(self._batch.get())
