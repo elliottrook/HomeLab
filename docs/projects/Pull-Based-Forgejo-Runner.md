@@ -314,10 +314,28 @@ canary branch/file; it does not merge, publish, deploy or delete anything.
 - No Forgejo, broker, OpenBao, Authentik, network-policy or remote Git mutation
   occurred in M1.
 
+### 2026-10-10 — M2 recovery checkpoint established
+
+- Verified the scheduled `backups` storage contains a fresh LXC 104 archive
+  from 2026-10-10 (`vzdump-lxc-104-2026_10_10-02_34_36.tar.zst`,
+  1,955,376,585 bytes).
+- Created live snapshot `forgejo-runner-preinstall-20261010` with the broker and
+  both Forgejo gateways healthy. The guest filesystem freeze/thaw completed.
+- Proxmox warned that aggregate thin-volume virtual sizes exceed the pool and
+  volume-group capacity. Actual `local-lvm` use observed in M0 was about 22%; no
+  allocation failed. Treat pool exhaustion monitoring as an existing capacity
+  warning, not proof that this project may consume unbounded storage.
+- An unauthenticated Forgejo branch API probe from LXC 104 returned 404, proving
+  the worker cannot safely obtain canonical base state by bypassing the broker.
+  No credential was supplied and no state changed.
+
 ## Current checkpoint
 
 M0–M1 are complete. M2 begins with a verified recovery checkpoint and isolated
-worker installation. The immutable exchange and producer signer owner must be
-resolved without placing private material in the AI session. Remote Git writes
-remain subject to immediate explicit confirmation.
+worker installation. The next controlled operation is creation of a dedicated,
+passphrase-protected producer signing key through a human-attended prompt; only
+its public key enters the runner trust file. The private key must never be read
+by the agent. A human-carried signed bundle is the bootstrap exchange until a
+separate private immutable staging service is demonstrably available. Remote
+Git writes remain subject to immediate explicit confirmation.
 
