@@ -118,6 +118,14 @@ the immutable approved payload, while the visual treatments stay brand-local.
   both exist, requires `ROLLBACK CONTRAST` or `ROLLBACK CLOSET`, reactivates the
   exact previous manifest digest through the forced command and records a
   site-scoped audit row. It never accepts a release ID or digest from the browser.
+- `tcf-cadence-check.timer` runs an hourly, five-minute-jittered, persistent
+  check of the two independent 14-day editorial clocks. It writes only an
+  owner-readable due-state file; the desk shows the next review or due state.
+  The checker never starts an edition, changes approval, invokes deployment or
+  sends routine notifications. A successful publication resets only that site's
+  clock, preserving the initial human-controlled publication policy. Dates are
+  stored in UTC and evaluated/displayed for `America/Vancouver`, including
+  British Columbia's permanent UTC-7 Pacific Time from March 2026 onward.
 - The transport is installed and a disposable non-served transfer passed, but
   each per-site root now has an exact-host Nginx vhost. An unset `current` link
   returns site-specific HTTP 503 instead of another brand or the sample. The

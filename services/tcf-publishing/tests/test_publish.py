@@ -1,4 +1,5 @@
 from hashlib import sha256
+import fcntl
 import json
 from pathlib import Path
 import sys
@@ -69,6 +70,52 @@ class PublishTests(unittest.TestCase):
         with self.assertRaisesRegex(ContentError, "build and review"):
             publish(self.store, "contrast", "PUBLISH CONTRAST", self.root / "candidates",
                     self.root / "releases", self.root / "state")
+
+    @patch("publish.origin_sender.stage")
+    def test_changed_after_approval_and_corrupt_preview_fail_before_transport(self, stage):
+        self.store.save(record(title="Changed after approval"))
+        with self.assertRaisesRegex(ContentError, "incomplete"):
+            publish(self.store, "contrast", "PUBLISH CONTRAST",
+                    self.root / "candidates", self.root / "releases", self.root / "state")
+        stage.assert_not_called()
+
+        # Restore a separate ready fixture, then corrupt its reviewed bytes.
+        self.store.close()
+        self.temporary.cleanup()
+        self.setUp()
+        (self.candidate / "index.html").write_text("corrupt after review")
+        with self.assertRaisesRegex(ContentError, "checksum"):
+            publish(self.store, "contrast", "PUBLISH CONTRAST",
+                    self.root / "candidates", self.root / "releases", self.root / "state")
+
+    def test_concurrent_publication_lock_fails_closed(self):
+        state = self.root / "state"
+        state.mkdir()
+        with (state / "publication.lock").open("a+b") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            with self.assertRaisesRegex(ContentError, "already running"):
+                publish(self.store, "contrast", "PUBLISH CONTRAST",
+                        self.root / "candidates", self.root / "releases", state)
+
+    @patch("publish.origin_sender.request")
+    @patch("publish.origin_sender.stage")
+    def test_retry_recovers_activation_before_ledger_commit(self, stage, request):
+        original = self.store.record_publication
+        with patch.object(self.store, "record_publication",
+                          side_effect=ContentError("ledger unavailable")):
+            with self.assertRaisesRegex(ContentError, "ledger unavailable"):
+                publish(self.store, "contrast", "PUBLISH CONTRAST",
+                        self.root / "candidates", self.root / "releases",
+                        self.root / "state")
+        self.assertTrue(self.store.edition_status("contrast")["active"])
+        self.assertEqual(json.loads(
+            (self.root / "state/contrast-publication.json").read_text())["state"], "failed")
+        with patch.object(self.store, "record_publication", wraps=original):
+            result = publish(self.store, "contrast", "PUBLISH CONTRAST",
+                             self.root / "candidates", self.root / "releases",
+                             self.root / "state")
+        self.assertEqual(result["edition_id"], 1)
+        self.assertFalse(self.store.edition_status("contrast")["active"])
 
     @patch("publish.origin_sender.request", side_effect=RuntimeError("offline"))
     @patch("publish.origin_sender.stage")

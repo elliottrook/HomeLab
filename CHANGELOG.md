@@ -20,6 +20,14 @@
 - Added live origin release status and typed one-step rollback to the private
   desk. The server selects only the checksum-verified previous origin release,
   records successful swaps, and disables rollback when no prior release exists.
+- Added a quiet, persistent hourly checker for the independent 14-day editorial
+  clocks. It displays due state but cannot start, approve or publish an edition;
+  UTC storage and Vancouver evaluation follow B.C.'s permanent UTC-7 Pacific
+  Time. Fifty-four publishing tests pass, including interruption/retry gates.
+- Restored permanent Mac-to-Forgejo Git access by registering the existing
+  MacBook Admin public key and selecting it for `git` at the Forgejo address,
+  while preserving the separate root-administration alias. No standing token
+  was added.
 
 ## 2026-10-09 — The Contrasting Frame project preparation
 
