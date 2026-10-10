@@ -83,6 +83,10 @@ the immutable approved payload, while the visual treatments stay brand-local.
 - The edition review manifest lists every slot as awaiting replacement, awaiting
   approval, approved or removed. It exposes no publish action and fails closed
   when no edition is active; the current public release remains independent.
+- A ready edition can be rendered as an owner-only static candidate below the
+  Content Desk. The renderer rechecks site isolation, immutable approval hashes
+  and source-image SHA-256 values, writes a complete file manifest, and refuses
+  stale or incomplete input. Candidate creation has no origin promotion path.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to
