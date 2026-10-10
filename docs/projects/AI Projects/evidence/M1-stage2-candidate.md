@@ -23,6 +23,8 @@ Do not call a subject-hash allowlist a cryptographic proof of approver presence.
 A separate minimal approval ingress/verification process is the next architecture
 option if this trust assumption is unacceptable. That requires its own UID,
 network/API and client compatibility review; it is not silently included here.
+The [2026-10-10 ingress options](M1-approval-ingress-options-2026-10-10.md)
+make that separation and its test gate concrete without authorizing deployment.
 
 ## Evidence and unresolved dependency
 

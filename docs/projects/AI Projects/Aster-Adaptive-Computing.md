@@ -26,6 +26,14 @@ that checks the recorded request immediately after an unconfirmed send result.
 Fifty-five Companion tests pass. No new question, app install or routine-release
 decision occurred; the D3 HOLD remains.
 
+**M1 offline authority continuation — 2026-10-10:** The
+[approval-ingress options](evidence/M1-approval-ingress-options-2026-10-10.md)
+compare retaining Aster as the approval socket peer, a dedicated verifier,
+and a human-only interim ceremony. The dedicated verifier is the preferred
+candidate for separated in-app approvals, subject to actual route/UID checks,
+fresh passkey-claim proof, denial tests and a separate deployment decision.
+Stage2 remains held. No B60 or llama service was used or changed.
+
 **Latest resume — native Companion, 2026-10-09:** Signed version 15 is installed
 and running in ordinary mode without the manual-test flag. The [supervised
 single-instance result](evidence/D3-native-manual-v15-installation-2026-10-09.md)

@@ -46,6 +46,10 @@ passkey-specific assurance to Companion, and the allowed Aster process can
 still supply actor metadata at the approval socket. This is an authority
 boundary, not a model-quality problem. Do not solve it by giving Codex SSH,
 root, a generic broker token or a broad Keychain exception.
+The [approval-ingress options](evidence/M1-approval-ingress-options-2026-10-10.md)
+record a dedicated verifier as the preferred candidate if in-app privileged
+approval remains required. It is not deployed, and the passkey-claim proof is
+still missing.
 
 The existing [`sysadmin_investigation.py`](../../../services/aster-agent/sysadmin_investigation.py)
 and [`doctor_incident_adapter.py`](../../../services/aster-agent/doctor_incident_adapter.py)
