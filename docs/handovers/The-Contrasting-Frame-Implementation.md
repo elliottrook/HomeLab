@@ -7,8 +7,10 @@ Update 2026-10-09: Jason added The Closet Fatman at
 same private workflow, but has separate site-keyed content, approvals, assets,
 releases and a future whimsical brand package. The dearJoe font is Contrasting
 Frame-only. The shared private desk is `tcf.elliottrook.com` and uses a
-`Contrast` / `Closet` pill; see the project for the remaining M0 revision
-questions.
+`Contrast` / `Closet` pill. Closet assets are authoritative at
+`/Users/jasonelliott/Documents/The Closet Fatman`; its website/template will
+arrive later. Media is normally distinct, with deliberate cross-publication
+represented by two independently reviewed and approved records.
 
 ## Execution order
 

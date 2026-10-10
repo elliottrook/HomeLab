@@ -30,9 +30,10 @@ Applicable visual standards are deliberately split by surface:
 
 - The Contrasting Frame public site and its rendered preview use the
   [The Contrasting Frame style guide](../design/The-Contrasting-Frame-Style-Guide.md);
-- The Closet Fatman uses the same page geometry and content slots but will have
-  revised logos, a more whimsical visual guide and a different font. Those
-  assets are not yet accepted and must not be guessed from the legacy slug;
+- The Closet Fatman uses the same page geometry and content slots, with its
+  approved logo collection under `/Users/jasonelliott/Documents/The Closet
+  Fatman`, a more whimsical website treatment and a different font. Its website
+  style/template will be supplied separately and must not be guessed;
 - the private Content Desk uses the
   [Aster internal UI style guide](../design/HomeLab-UI-Style-Guide.md) and
   [HomeLab app icon family](../design/App-Icon-Family.md).
@@ -328,23 +329,29 @@ Full-size download sales are out of scope.
   each embedded public preview follows its selected brand guide. Its accepted
   private hostname is `tcf.elliottrook.com`.
 - The Closet Fatman uses identical content places/space and the same backend,
-  but revised logos, whimsical style and non-dearJoe font remain an explicit
-  design acceptance gate before public preview or launch.
+  with the approved maroon, deep navy, burgundy and silver logo collection.
+  Its forthcoming website/template and non-dearJoe typography remain an
+  explicit acceptance gate before public preview or launch.
 
-### M0 dual-site revision still to confirm
+### M0 dual-site revision
 
-Implementation can continue with safe defaults, but Jason should confirm:
-
-- whether a photograph/story may be deliberately published on both sites, as
-  two independently approved site records, or must belong to exactly one;
-- whether The Closet Fatman's public display name is exactly “The Closet
-  Fatman”; and
-- whether its contact follows the same Apple custom-domain-mail plan as
-  `hello@thecontrastingframe.com`, using `hello@theclosetfatman.com`.
-
-Unless changed, each site has an independent fortnightly queue and launch gate,
-and The Closet Fatman uses free/system typography until its visual guide is
-accepted. Provider/DNS state is verified from live records rather than assumed.
+- The public display name will be finalized as either “The Closet Fatman” or
+  “The Closet Fatman Photography” with the forthcoming website; the backend
+  uses the stable `closet` key and short `Closet` pill either way.
+- The two sites are intended to carry different media. Jason or the AI may
+  deliberately select the same photograph/story for both at different times;
+  this requires two site-bound records, independent review and independent
+  approval. Approval or scheduling never transfers automatically.
+- The authoritative Closet asset source is
+  `/Users/jasonelliott/Documents/The Closet Fatman`: 290 files including 46
+  core masters, four website-use copies, favicons/icons, manifest and geometry/
+  export QA. Do not copy its full production pack into public Git.
+- The Closet website is still to be developed and shared. Until then the desk
+  may identify the Closet channel and its accepted palette/logo source, but it
+  must not invent the public layout treatment or final font.
+- Unless changed, each site has an independent fortnightly queue and launch
+  gate, and the Closet contact follows the same Apple custom-domain-mail plan
+  at `hello@theclosetfatman.com`. Provider/DNS state is verified live.
 
 ## Privacy security and risk assessment
 
@@ -532,6 +539,8 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Stopping the Content Desk left origin health intact; both guests then rebooted and recovered their service/firewall/agent units automatically. Neither runtime has a NAS mount, and the origin checksum remained valid | Editor, future inference and NAS availability are not origin runtime dependencies; A2 gate passed |
 | 2026-10-09 | Versioned content schema, immutable public hash, sample hard-block, traversal/rights/consent/story-limit tests and conspicuous five-page sample build completed; 10 tests passed | A1 gate passed; commercial font and all media remain outside the public-mirrored repository |
 | 2026-10-09 | Jason expanded the design to The Contrasting Frame plus the more whimsical The Closet Fatman, sharing identical page/content capacity and one backend; approved `tcf.elliottrook.com` for the private desk | A3 adds a site pill and hard site-key isolation. Closet logo/style/font and second-domain provider/mail facts remain design/A5 gates; no public route changed |
+| 2026-10-09 | Read-only inspection found `/Users/jasonelliott/Documents/The Closet Fatman` with 290 assets, approved palette notes, manifest, geometry/export QA and four website SVGs; Jason confirmed the sites normally use different media but may deliberately reuse work | Closet logo assets are authoritative and remain outside Git/runtime for now; shared work requires separate site records and approval. Final public name suffix and forthcoming site treatment remain open |
+| 2026-10-09 | Deployed the dual-site desk pill and durable SQLite version store in LXC 124. The sample seeded as `contrast` version 1; state directory is mode 0700, database 0600, and mutation endpoints require an explicit same-application intent header. Sixteen tests cover hash/site invalidation, mixed-site rejection, independent cross-publication and sample approval denial | A3 persistence foundation is live privately. Closet public rendering remains locked until its forthcoming site treatment is supplied |
 
 ## Close out
 

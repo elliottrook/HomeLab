@@ -52,6 +52,10 @@ and domain gate passes.
 - Both guests use tracked default-deny nftables policies and report to the
   existing Beszel hub. Agent tokens are unique runtime secrets and never enter
   this repository.
+- The Content Desk stores append-only, site-scoped content versions and
+  immutable approvals in owner-only SQLite state. Any edit creates a new
+  version and leaves the current version unapproved. Deliberate cross-site reuse
+  creates a separate unapproved record; it never copies approval.
 - The sample release includes `MANIFEST.sha256`; HomeLab Doctor verifies it,
   service health, and primary plus independent guest-backup freshness.
 - There is deliberately no public DNS, tunnel or route during A2/A3. Public

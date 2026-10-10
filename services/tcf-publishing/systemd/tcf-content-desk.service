@@ -11,11 +11,14 @@ Environment=TCF_LISTEN=0.0.0.0
 Environment=TCF_PORT=8080
 Environment=TCF_SAMPLE_RECORD=/opt/tcf-publishing/samples/after-the-weather.json
 Environment=TCF_SAMPLE_IMAGE=/var/lib/tcf/sample/alpine-dawn.png
+Environment=TCF_DATABASE=/var/lib/tcf-workflow/content.db
 ExecStart=/usr/bin/python3 /opt/tcf-publishing/desk.py
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true
 PrivateTmp=true
+StateDirectory=tcf-workflow
+StateDirectoryMode=0700
 ProtectSystem=strict
 ProtectHome=true
 ReadOnlyPaths=/opt/tcf-publishing /var/lib/tcf/sample
