@@ -2381,3 +2381,18 @@ The full delegation-folder `unittest discover` was also attempted with the
 Mac system Python: it ran 266 tests but reported 13 import/environment errors
 because `httpx` and `pydantic` are not installed there. No dependencies were
 installed for this gate; the affected focused no-dependency suite passed.
+
+### 2026-10-09 — Signed, uninstalled version-15 review candidate
+
+Version 15 was assembled without Launch Services registration or installation,
+then signed using the existing owner-held Aster code-signing identity. Strict
+signature verification passed, and its designated requirement matches the
+installed version 13. The candidate executable hash is
+`f83ed9fe74c33222beb39a73519644c5b6fd796e991e6f0f6c598cca950936b1`;
+the installed version-13 hash remains
+`c3b016f41045a636c0503af2b7448a5f255f54dcd859a61f6dbb5fc84221394c`.
+The signed bundle's metadata-only preflight matched the pinned no-tools
+ChatGPT manifest and reported no inference. No signing-key value was exposed,
+no Keychain ACL or session item changed, and no app or model request was run.
+The [bounded release plan](evidence/D3-native-manual-v15-release-candidate-2026-10-09.md)
+retains the previous version and treats authenticated rollback as unproven.

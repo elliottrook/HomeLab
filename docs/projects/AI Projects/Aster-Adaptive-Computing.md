@@ -25,8 +25,8 @@ intake and sysadmin tools remain closed; the separate worker identity remains
 inactive. D3 reliability, independent answer review and natural token-refresh
 validation remain open. The [bounded live reliability gate](evidence/D3-native-live-reliability-gate-2026-10-09.md)
 is prepared but has not been run or authorized. A disabled manual native
-candidate is built locally for review; the installed app and runtime remain
-unchanged.
+candidate is [signed locally for review](evidence/D3-native-manual-v15-release-candidate-2026-10-09.md);
+the installed app and runtime remain unchanged.
 
 **Current direction and resume point — 2026-10-06:** Jason adopted
 [subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the
