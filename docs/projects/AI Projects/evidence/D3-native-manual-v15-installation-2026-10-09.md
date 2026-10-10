@@ -66,3 +66,22 @@ active-turn interruption recovery or routine-use reliability. Do not send a
 replacement question to obtain a preferred outcome. Confirm Jason has seen
 the answer before closing its view, then verify ordinary Aster use and any
 post-entry Keychain prompts. Manual mode remains experimental.
+
+## Answer handoff and ordinary restart
+
+Jason replied that he was done with the displayed answer. The completed-answer
+view was closed without choosing “allow a new question.” The normal signed-in
+Aster screen remained visible. The single manual-mode process was then quit
+while idle and verified absent. Version 15 was reopened without
+`--aster-local-codex-manual`; process inspection found one unflagged instance.
+Screen control showed the signed-in ordinary Aster view, the AI-PAM approvals
+sheet showed no pending approvals, and the Codex requests sheet did not expose
+the manual-send button. No Keychain prompt was visible during this ordinary
+restart. This verifies UI availability and feature gating, not an end-to-end
+ordinary Aster answer or a full refresh/sleep-wake reliability window.
+
+Version 15 remains installed and running in ordinary mode. The exact version-13
+rollback copy at `/Applications/AsterCompanion.pre-manual-v15-20261009.app`
+remains available. The active-turn interruption, independent answer review,
+natural refresh and sleep/wake criteria remain open; no routine manual-Codex
+release or automatic routing is claimed.

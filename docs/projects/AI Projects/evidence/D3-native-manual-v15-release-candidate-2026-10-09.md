@@ -76,5 +76,9 @@ visible. After Jason's in-app review and consent, the fictional Vega-light
 request completed once and displayed its original answer; the content-free
 journal advanced from 13 to 14 completed rows. It finished before an
 interruption could be made, so the recovery criterion is still open. The
-answer remains in the native view pending Jason's choice to save it; no
-replacement request will be sent to force a recovery trial.
+answer was handed to Jason; no replacement request will be sent to force a
+recovery trial. After he finished with it, the completed view was closed
+without enabling a new question. An idle restart without the manual flag
+returned to signed-in normal Aster, showed no visible Keychain prompt, and
+hid the manual-send control. This remains a narrow UI/dispatch result, not a
+routine-use or active-turn recovery release.
