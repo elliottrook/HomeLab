@@ -2,7 +2,8 @@ import unittest
 
 from local_orchestrator import (
     AnalysisContext, AnalysisDraft, Claim, Evidence, HouseholdDecision, HouseholdState,
-    RecordingAdapter, decide_analysis, execute_household, plan_household, validate_grounding,
+    ProviderRegistrySnapshot, RecordingAdapter, RegistryRecordingAdapter, decide_analysis,
+    execute_household, plan_household, validate_grounding,
 )
 
 
@@ -40,6 +41,34 @@ class HouseholdTests(unittest.TestCase):
         adapter = RecordingAdapter()
         with self.assertRaises(ValueError):
             execute_household(HouseholdDecision("clarify", "home.control", {"state": "on"}), adapter)
+
+    def test_registry_snapshot_drives_planning_and_records_no_effect(self):
+        snapshot = ProviderRegistrySnapshot(1, "fixture-20261010", ("pasta",), ("kitchen",),
+                                            ("kitchen lights",), ("fixture-media",))
+        decision = plan_household("Turn off the kitchen lights", snapshot.household_state())
+        adapter = RegistryRecordingAdapter(snapshot)
+        result = execute_household(decision, adapter)
+        self.assertTrue(result["recorded"])
+        self.assertFalse(result["effect_permitted"])
+        self.assertEqual(result["snapshot_id"], "fixture-20261010")
+
+    def test_registry_adapter_rejects_stale_schema_and_unknown_binding(self):
+        with self.assertRaises(ValueError):
+            ProviderRegistrySnapshot(2, "future").validate()
+        snapshot = ProviderRegistrySnapshot(1, "fixture", entities=("kitchen lights",))
+        adapter = RegistryRecordingAdapter(snapshot)
+        with self.assertRaises(ValueError):
+            adapter.apply("home.control", {"target": "office lamp", "state": "on"})
+        self.assertEqual(adapter.calls, [])
+
+    def test_registry_adapter_enforces_call_limit_and_capability_schema(self):
+        snapshot = ProviderRegistrySnapshot(1, "fixture", timers=("pasta",))
+        adapter = RegistryRecordingAdapter(snapshot, max_calls=1)
+        adapter.apply("timer.cancel", {"label": "pasta"})
+        with self.assertRaises(RuntimeError):
+            adapter.apply("timer.cancel", {"label": "pasta"})
+        with self.assertRaises(ValueError):
+            RegistryRecordingAdapter(snapshot).apply("shell.run", {"command": "true"})
 
 
 class GroundingTests(unittest.TestCase):

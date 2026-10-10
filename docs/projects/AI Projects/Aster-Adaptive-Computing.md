@@ -40,6 +40,19 @@ fresh independently reviewed evaluation under its existing gates. Continue
 Stream A local work without milestone-by-milestone confirmation, pause only at
 required gates and resume when granted. Production defaults remain unchanged.
 
+**Target-architecture continuation — 2026-10-10:** The grounded v2 comparison
+selected Qwen3.5-9B reasoning-off for an isolated integration stage, while leaving
+the accepted 27B production service unchanged. The first offline continuation now
+adds a fail-closed, zero-effect provider/entity recording adapter and a second
+independent 14-case household corpus; all cases pass with zero permitted effects.
+See [the v2 model evidence](evidence/2026-10-10-grounded-target-architecture-v2.md)
+and [recording-adapter evidence](evidence/2026-10-10-recording-adapter-integration.md).
+Next: capture a sanitized real registry snapshot through existing read-only paths
+and repeat the independent grounded corpus against a temporary 9B endpoint. Do
+not connect an effectful adapter, persist a model/configuration change or promote
+9B without its later explicit gate. The unified voice project is independent:
+reasoning systems return text and do not select or synthesize Aster's voice.
+
 **Proposed:** 2026-09-25.
 
 **Authorization stream:** Stream A — Autonomous, explicitly authorized by Jason on 2026-09-25: create the AI Projects folder, adopt these documents, mark superseded plans and archive them, and start this project. The authorization covers the bounded foundation milestones and their existing exclusions, not general administrator authority, later-release scope or automatic promotion authority. Repository/platform controls and per-push confirmation remain mandatory.
@@ -201,6 +214,7 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 
 | Date | Activity | Result / limits |
 |---|---|---|
+| 2026-10-10 | Zero-effect target-architecture integration | Added a versioned sanitized provider/entity snapshot, exact capability/argument binding, call bounds and a recording-only adapter with no network/provider handle. A second sealed 14-case corpus passed 14/14 with zero permitted effects; 16 focused orchestrator and 72 evaluator tests pass. Connected registry capture and a repeated temporary 9B session remain pending; production is unchanged — see [recording-adapter evidence](evidence/2026-10-10-recording-adapter-integration.md). |
 | 2026-09-28 | SA0 publication and source reconciliation | Forgejo and GitHub `main` were verified at `ccd0ead`; the merged history retains Forgejo, adaptive and `d2f771d` production work. The source gateway SHA-256 exactly matches live, as does the already-reconciled Lab Operations adapter. Reasoning remains disabled; no runtime change — see [SA0 evidence](evidence/SA0-reconciliation-2026-09-28.md) |
 | 2026-09-28 | SA1/SA2 typed incident evidence candidate | Added an offline, no-I/O incident/evidence contract with registered read-only targets, provenance/age/truncation fields and bounded follow-up proposals. Five local contract tests pass. It is neither a deployed adapter nor a completed SA gate — see [candidate evidence](evidence/SA1-SA2-offline-candidate-2026-09-28.md) |
 | 2026-09-28 | SA1/SA2 versioned producer and persistence candidate | Added an exact-field, versioned source-local producer envelope, credential-free fixture and SQLite incident/reconnect state. Nine local tests pass, including producer denials and reopened-state validation. It is not connected or deployed — see [producer/persistence evidence](evidence/SA1-SA2-producer-persistence-2026-09-28.md) |

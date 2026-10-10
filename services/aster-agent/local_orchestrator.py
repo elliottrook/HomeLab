@@ -7,6 +7,7 @@ provide an explicit adapter before a validated household plan can be executed.
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Protocol
 
@@ -40,6 +41,93 @@ class RecordingAdapter:
     def apply(self, capability: str, arguments: dict) -> dict:
         self.calls.append((capability, dict(arguments)))
         return {"accepted": True, "capability": capability, "arguments": dict(arguments)}
+
+
+RECORDING_ADAPTER_SCHEMA_VERSION = 1
+_RECORDED_CAPABILITIES = frozenset({"timer.create", "timer.cancel", "media.play", "home.control"})
+
+
+@dataclass(frozen=True)
+class ProviderRegistrySnapshot:
+    """Sanitized provider/entity facts captured by a caller; never a live client."""
+
+    schema_version: int
+    snapshot_id: str
+    timers: tuple[str, ...] = ()
+    rooms: tuple[str, ...] = ()
+    entities: tuple[str, ...] = ()
+    media_providers: tuple[str, ...] = ()
+
+    def validate(self) -> None:
+        if self.schema_version != RECORDING_ADAPTER_SCHEMA_VERSION:
+            raise ValueError("unsupported provider registry schema")
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", self.snapshot_id):
+            raise ValueError("invalid provider registry snapshot id")
+        for values in (self.timers, self.rooms, self.entities, self.media_providers):
+            if len(values) != len({value.casefold() for value in values}):
+                raise ValueError("provider registry contains duplicate names")
+            if any(not value.strip() or len(value) > 128 for value in values):
+                raise ValueError("provider registry contains an invalid name")
+
+    def household_state(self) -> HouseholdState:
+        self.validate()
+        return HouseholdState(self.timers, self.rooms, self.entities, bool(self.media_providers))
+
+
+class RegistryRecordingAdapter:
+    """Fail-closed integration adapter that proves routing without effects.
+
+    It consumes a caller-supplied, sanitized registry snapshot and records only
+    schema, routing and argument metadata.  It has no network or provider
+    handle, so accepting a call cannot mutate Home Assistant, timers or media.
+    """
+
+    def __init__(self, snapshot: ProviderRegistrySnapshot, *, max_calls: int = 64) -> None:
+        snapshot.validate()
+        if max_calls < 1 or max_calls > 1000:
+            raise ValueError("max_calls must be between 1 and 1000")
+        self.snapshot = snapshot
+        self.max_calls = max_calls
+        self.calls: list[dict] = []
+
+    def apply(self, capability: str, arguments: dict) -> dict:
+        if capability not in _RECORDED_CAPABILITIES:
+            raise ValueError("capability is not allowed by the recording adapter")
+        if len(self.calls) >= self.max_calls:
+            raise RuntimeError("recording adapter call limit reached")
+        self._validate_registry_binding(capability, arguments)
+        event = {
+            "schema_version": RECORDING_ADAPTER_SCHEMA_VERSION,
+            "sequence": len(self.calls) + 1,
+            "snapshot_id": self.snapshot.snapshot_id,
+            "capability": capability,
+            "arguments": dict(arguments),
+            "effect_permitted": False,
+        }
+        self.calls.append(event)
+        return {"accepted": True, "recorded": True, **event}
+
+    def _validate_registry_binding(self, capability: str, arguments: Mapping) -> None:
+        expected_keys = {
+            "timer.create": {"seconds", "label"},
+            "timer.cancel": {"label"},
+            "media.play": {"query", "target"},
+            "home.control": {"target", "state"},
+        }[capability]
+        if set(arguments) != expected_keys:
+            raise ValueError("arguments do not match the capability schema")
+        if capability == "timer.create":
+            if not isinstance(arguments["seconds"], int) or not 1 <= arguments["seconds"] <= 86400:
+                raise ValueError("timer duration is outside the recording boundary")
+        elif capability == "timer.cancel":
+            if arguments["label"] not in self.snapshot.timers:
+                raise ValueError("timer is absent from the provider registry")
+        elif capability == "media.play":
+            if not self.snapshot.media_providers or arguments["target"] not in self.snapshot.rooms:
+                raise ValueError("media provider or target is absent from the provider registry")
+        elif capability == "home.control":
+            if arguments["target"] not in self.snapshot.entities or arguments["state"] not in {"on", "off"}:
+                raise ValueError("entity or state is absent from the provider registry")
 
 
 def plan_household(text: str, state: HouseholdState) -> HouseholdDecision:

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "suite_id": "aster-recording-adapter-independent-20261010",
+  "status": "sealed",
+  "description": "Independent synthetic corpus for provider/entity binding and zero-effect household routing",
+  "snapshot": {
+    "schema_version": 1,
+    "snapshot_id": "sealed-fixture-20261010",
+    "timers": ["pasta", "laundry"],
+    "rooms": ["kitchen", "office"],
+    "entities": ["kitchen lights", "office lamp"],
+    "media_providers": ["fixture-media"]
+  },
+  "cases": [
+    {"id":"timer-create-integer","text":"Set an egg timer for 7 minutes","status":"plan","capability":"timer.create","arguments":{"seconds":420,"label":"egg"}},
+    {"id":"timer-create-decimal","text":"Set a cake timer for 2.5 minutes","status":"plan","capability":"timer.create","arguments":{"seconds":150,"label":"cake"}},
+    {"id":"timer-conflict","text":"Set a timer for 3 minutes, no 8 minutes","status":"clarify"},
+    {"id":"timer-missing-duration","text":"Set a timer","status":"clarify"},
+    {"id":"timer-cancel-exact","text":"Cancel the laundry timer","status":"plan","capability":"timer.cancel","arguments":{"label":"laundry"}},
+    {"id":"timer-cancel-unknown","text":"Cancel the tea timer","status":"clarify"},
+    {"id":"media-exact-room","text":"Play Kind of Blue in office","status":"plan","capability":"media.play","arguments":{"query":"kind of blue","target":"office"}},
+    {"id":"media-missing-room","text":"Play Kind of Blue","status":"clarify"},
+    {"id":"home-off-exact","text":"Turn off the office lamp","status":"plan","capability":"home.control","arguments":{"target":"office lamp","state":"off"}},
+    {"id":"home-on-exact","text":"Turn on the kitchen lights","status":"plan","capability":"home.control","arguments":{"target":"kitchen lights","state":"on"}},
+    {"id":"home-unknown-entity","text":"Turn on the bedroom lamp","status":"clarify"},
+    {"id":"alarm-ambiguous","text":"Set an alarm for four","status":"clarify"},
+    {"id":"alarm-unsupported","text":"Set an alarm for four pm","status":"unsupported"},
+    {"id":"analysis-not-household","text":"Summarize the overnight report","status":"unsupported"}
+  ]
+}
