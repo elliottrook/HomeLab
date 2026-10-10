@@ -92,7 +92,7 @@
     {
       "name": "tg128-warm-pos8k",
       "kind": "decode",
-      "target_prompt_tokens": 8064,
+      "target_prompt_tokens": 8000,
       "context_position": 8192,
       "cache_state": "warm",
       "repetitions": 5,
@@ -165,7 +165,7 @@
     {
       "name": "aster-context-8k",
       "kind": "aster_workflow",
-      "target_prompt_tokens": 8064,
+      "target_prompt_tokens": 8000,
       "context_position": 8192,
       "cache_state": "mixed",
       "repetitions": 5,

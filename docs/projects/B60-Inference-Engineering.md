@@ -218,7 +218,7 @@ blast radius differ from the bounded Vulkan work.
 - [x] Confirm the approximately 04:20 mirror schedule and last success live.
 - [x] Record model shard SHA-256 values without disrupting production.
 - [x] Inventory exact last-known-good binary, unit, packages and rollback paths.
-- [ ] Capture a fresh immutable control with the Phase 1 harness.
+- [x] Capture a fresh immutable control with the Phase 1 harness.
 
 Gate: an independent reader can reproduce the control and restore the accepted
 production service.
@@ -233,7 +233,7 @@ production service.
   sanitized kernel-log capture where supported.
 - [x] Add real Aster conversation, persona, read-only tool, grounded retrieval,
   2K and 8K fixtures with TTFT, completion and correctness assertions.
-- [ ] Characterize variance and quantitatively explain the synthetic/real gap.
+- [x] Characterize variance and quantitatively explain the synthetic/real gap.
 
 Gate: a repeatable baseline, known variance, verified GPU residency and a tested
 rollback invocation.
@@ -489,9 +489,13 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-10-10 | Control-run preparation | Reconfirmed accepted service health, `xe`, BMG G21 Vulkan, stopped news timers and 25/25 local tests. Packaged the tested runner as SHA-256 `3bff21d1d7ed17d7a33ed31100049715276708fdb7b06d0216eea6d611203825` and staged it source-locally on LXC 114 at `/run/b60-runner.pyz`; staged synthetic fixtures at `/run/b60-synthetic-fixtures.json` (SHA-256 `c0b72c8e554c7384e63d3183f0bfe83e8f7e8548cb938d72e2aeea11a3a7f190`). Confirmed the protected `/root/.news-aggregator-llama-key` exists without reading it, and the non-loopback dry run refused execution as designed | Tonight's first control is fully specified: fixture `pp512-cold-pos0`, endpoint `http://192.168.70.12:11435`, existing source-local key file, and create-once mode-0600 output `/var/lib/b60-inference/evidence/2026-10-10-control-pp512-cold-pos0.json`. The evidence directory is root-only mode 0700 and the output path does not yet exist |
 | 2026-10-10 | Owner-authorized daytime execution | Jason clarified that the cleared B60 schedule was intended for immediate work through the day. Re-ran every safety gate against today's 02:39 backup and successful 04:24 mirror, clean kernel evidence, accepted hashes, health, `xe`, BMG G21, 21.9 GB disk, 8.3 GB RAM and adequate VRAM. The revised live stop/quiesce/clean-start finalizer passed. Authenticated source-local controls then passed correctness and health: API warm-cache tg128 median was 6.713 tok/s; cold-cache tg128 was 9.072 tok/s, a 35.1% improvement. Raw `llama-bench` comparison showed b11081 at 193.29 pp4096 / 11.863 tg128 and installed b11429 at 200.24 / 11.970, only +3.6% / +0.9%. A 2/4/8-thread sweep was flat at about 193.2 / 11.85. All raw outputs are mode 0600 beneath `/var/lib/b60-inference/evidence`; accepted production was restored healthy after every stop | Newer installed runtime and thread count are rejected as primary fixes. Prompt-cache reuse is the first material lead and exceeds the 15% threshold on synthetic decode, but requires repeated real Aster workflow/correctness comparison before any persistent client change or promotion. News timers remain intentionally stopped for the owner-authorized daytime window |
 | 2026-10-10 | Aster-workflow cache comparison | Added and validated an identical warm-cache twin of the synthetic Aster conversation fixture. Five measured cold and warm runs all passed the fictional-scope, nonempty-response and no-tool-call assertions. Cold-cache decode median was 5.793 tok/s; warm-cache was 5.778 tok/s, so the apparent 35.1% short-prompt cache gain did not transfer to the longer Aster-style prompt. The harness's 512-token construction target produced about 3,600 actual model tokens, while the 64-token construction target produced 475, exposing a systematic fixture-token calibration defect. Production remained active and healthy | Do not promote `cache_prompt=false` as a general fix. The strongest current explanation is context-length sensitivity in the server path. Next work is tokenizer-calibrated context-length profiling, followed by a repeated real Aster latency/correctness comparison at matched actual token counts |
+| 2026-10-10 | Tokenizer calibration and Q4 KV candidate | Replaced word-count estimation with live `/tokenize` calibration and added the previously omitted OpenAI tool schema to tool-call fixtures; 27 local tests pass. At an actual 524-token prompt, matched Q8 cold/warm controls were 5.943/5.948 tok/s, rejecting prompt cache as the remedy. Two clean transient server sessions changing only K/V cache from Q8_0 to Q4_0 produced 11.047 and 11.008 tok/s; the required accepted-Q8 post-control was 6.689 tok/s. This is a reproducible 64.6% improvement against the stronger control and 85.9% against the pre-control. All 30 measured Q4 workflow runs passed: conversation, persona, real tool-schema selection, 2,060-token grounded retrieval and 8,012-token marker recall. Decode remained 10.44–11.76 tok/s across those contexts. Immutable evidence hashes include Q4 sessions `ec80e2b65ee10f04c7541c55ad0aa0d37482408698616097f3991c6136737ff9` and `bf449a79e950193de8797ae7a03b8cd44482e93c1a5991be85cc341f9ad0a377`, post-control `15bdd314152506062caca2cf41e60b73b8a8d372705b59464ad1a37ef4edf95e`, tool `9f4c81472786cac0f8d0f853d22981939d423cc8cc568f99f1004e17c9144d1e`, grounded `72ff66c964ddb1b58aa24aac93e0fae4bfaafd21bf222870f7fa85e77ec01b69` and 8K `c24de46e4219016e2f46716d956c9dd03e4a8983d4a556075d1b4862e9ea7c76`. Every transient candidate was removed and accepted binary/unit hashes plus health were revalidated | Q8 KV traffic in the API server path is the reproduced bottleneck; Q4 K/V is the promotion candidate and exceeds the 15% threshold with no tested correctness regression. Persistent unit change remains explicitly outside standing Stream A authorization. Next action is owner-approved atomic promotion of only `-ctk/-ctv q8_0` to `q4_0`, followed by Doctor/dependent regression checks, soak and rollback proof; do not repeat exploratory nightly benchmarks while awaiting that decision |
 
 ## Close-out
 
-Not started. The project is active under the bounded Stream A envelope above.
-Production load remains blocked by incomplete M1 preflight and rollback gates;
-the explicitly excluded operations remain individually gated.
+The technical fix is reproduced but not promoted. The project remains active at
+M6: Q4 K/V passed two independent transient sessions, the post-series control,
+the calibrated Aster correctness suite and the 8K boundary. Persistent service
+configuration promotion is explicitly excluded from standing Stream A authority
+and requires owner approval. Accepted Q8 production is healthy; all other
+excluded operations remain individually gated.

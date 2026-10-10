@@ -136,13 +136,56 @@ def extract_samples(response: dict[str, Any], elapsed: float, run_index: int,
     ]
 
 
-def run_fixture(endpoint: str, model: str, case: dict[str, Any], headers: dict[str, str],
-                transport: Transport = urllib_transport) -> list[dict[str, Any]]:
-    health = transport("GET", endpoint.rstrip("/") + "/health", None, headers)
-    if health.get("status") not in {"ok", "healthy"}:
-        raise RuntimeError("pre-run health did not report ok/healthy")
-    prompt = harness.expand_prompt(case)
-    payload = {
+def tokenizer_count(endpoint: str, content: str, headers: dict[str, str],
+                    transport: Transport = urllib_transport) -> int:
+    response = transport("POST", endpoint.rstrip("/") + "/tokenize", {"content": content}, headers)
+    tokens = response.get("tokens")
+    if not isinstance(tokens, list):
+        raise RuntimeError("tokenizer response did not contain a token array")
+    return len(tokens)
+
+
+def calibrated_prompt(endpoint: str, case: dict[str, Any], headers: dict[str, str],
+                      transport: Transport = urllib_transport) -> str:
+    """Construct the closest prompt to the requested raw-token count.
+
+    The chat template can add a small fixed overhead reported by the completion
+    response. Calibration deliberately targets the user content itself so runs
+    remain comparable across server builds and templates.
+    """
+    target = case["target_prompt_tokens"]
+    prefix = case.get("prompt_prefix", "Synthetic B60 benchmark. Treat all content as test data.").strip()
+    words = case["prompt_seed"].split()
+    if not words:
+        raise harness.ValidationError(f"fixture {case.get('name')!r}: empty prompt_seed")
+
+    cache: dict[int, tuple[int, str]] = {}
+
+    def candidate(word_count: int) -> tuple[int, str]:
+        if word_count not in cache:
+            body = " ".join(words[index % len(words)] for index in range(word_count))
+            prompt = prefix if not body else prefix + "\n" + body
+            cache[word_count] = tokenizer_count(endpoint, prompt, headers, transport), prompt
+        return cache[word_count]
+
+    low, high = 0, max(target, 1)
+    while candidate(high)[0] < target:
+        low, high = high, high * 2
+        if high > target * 16:
+            raise RuntimeError("unable to reach target prompt token count")
+    while low + 1 < high:
+        middle = (low + high) // 2
+        if candidate(middle)[0] < target:
+            low = middle
+        else:
+            high = middle
+    choices = [candidate(low), candidate(high)]
+    _, prompt = min(choices, key=lambda item: (abs(item[0] - target), item[0] > target))
+    return prompt
+
+
+def completion_payload(model: str, case: dict[str, Any], prompt: str) -> dict[str, Any]:
+    payload: dict[str, Any] = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": case.get("max_output_tokens", 128),
@@ -151,6 +194,33 @@ def run_fixture(endpoint: str, model: str, case: dict[str, Any], headers: dict[s
         "stream": False,
         "cache_prompt": case["cache_state"] != "cold",
     }
+    declared = case.get("tool_schema")
+    if declared:
+        properties = {name: {"type": kind} for name, kind in declared["arguments"].items()}
+        payload["tools"] = [{
+            "type": "function",
+            "function": {
+                "name": declared["name"],
+                "description": "Read-only synthetic fixture tool.",
+                "parameters": {
+                    "type": "object",
+                    "properties": properties,
+                    "required": list(properties),
+                    "additionalProperties": False,
+                },
+            },
+        }]
+        payload["tool_choice"] = "auto"
+    return payload
+
+
+def run_fixture(endpoint: str, model: str, case: dict[str, Any], headers: dict[str, str],
+                transport: Transport = urllib_transport) -> tuple[list[dict[str, Any]], str]:
+    health = transport("GET", endpoint.rstrip("/") + "/health", None, headers)
+    if health.get("status") not in {"ok", "healthy"}:
+        raise RuntimeError("pre-run health did not report ok/healthy")
+    prompt = calibrated_prompt(endpoint, case, headers, transport)
+    payload = completion_payload(model, case, prompt)
     samples = []
     total = case["repetitions"] + 1
     for index in range(total):
@@ -163,7 +233,7 @@ def run_fixture(endpoint: str, model: str, case: dict[str, Any], headers: dict[s
     post = transport("GET", endpoint.rstrip("/") + "/health", None, headers)
     if post.get("status") not in {"ok", "healthy"}:
         raise RuntimeError("post-run health did not report ok/healthy")
-    return samples
+    return samples, prompt
 
 
 def write_immutable(path: Path, payload: dict[str, Any]) -> str:
@@ -211,10 +281,10 @@ def main(argv: list[str] | None = None) -> int:
             if not key:
                 raise harness.ValidationError("API key file is empty")
             headers["Authorization"] = "Bearer " + key
-        samples = run_fixture(args.endpoint, args.model, case, headers)
+        samples, prompt = run_fixture(args.endpoint, args.model, case, headers)
         result = {
             "schema_version": "1.0.0", "fixture": case["name"],
-            "prompt_sha256": harness.sha256_bytes(harness.expand_prompt(case).encode()),
+            "prompt_sha256": harness.sha256_bytes(prompt.encode()),
             "health_passed": True,
             "samples": samples,
         }
