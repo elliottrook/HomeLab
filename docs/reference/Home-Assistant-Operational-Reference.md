@@ -2,7 +2,7 @@
 
 > Authority: current-with-exclusions
 >
-> Reviewed: 2026-09-10
+> Reviewed: 2026-10-10
 >
 > Sources: live HAOS Supervisor CLI through Proxmox guest agent; `docs/01-Architecture.md`; `docs/04-Operations.md`; `docs/05-Backups.md`; `PROJECTS.md`
 
@@ -51,11 +51,34 @@ HAOS, Supervisor and Core startup. Recovery decisions remain operator-owned.
 
 ## Known exclusions and AI boundary
 
-The Aster report excludes entity/device/user/area names and counts, state
-values, presence, locks, alarms, cameras, media, locations, automation traces,
-logs, configuration, URLs, tokens and credentials. Aster has no Home Assistant
-credential, network client, arbitrary file access or mutation tool. It may
-explain, diagnose from reviewed sources and bounded report fields, and produce
-a reviewable proposal. Natural-language chat cannot call services or change
-Home Assistant. Frigate/MQTT integration remains a bounded future project, not
-a current fact.
+The aggregate Aster health report excludes entity/device/user/area names and
+counts, state values, presence, locks, alarms, cameras, media, locations,
+automation traces, logs, configuration, URLs, tokens and credentials. A
+separate source-local pilot may export only exact human-reviewed aliases: as of
+2026-10-10 that allowlist contains only `laundry lights`, backed by
+`light.laundry_laundry_main_lights`. It does not export the raw friendly name,
+attributes or unrelated registry entries.
+
+Aster has no Home Assistant credential, network client, arbitrary file access
+or mutation tool. The pilot report can reach only the recording adapter, which
+sets `effect_permitted: false`; natural-language chat still cannot call services
+or change Home Assistant. Frigate/MQTT integration remains a bounded future
+project, not a current fact.
+
+## Aster registry pilot operation and rollback
+
+The disabled-effect custom integration lives at
+`/config/custom_components/aster_registry` and writes only
+`/share/aster-registry/latest.json`, mode 0600. Configuration is under the
+top-level `aster_registry` key in `/config/configuration.yaml`. It registers no
+services, actions, entities, HTTP route or credentials. Home Assistant Core
+must pass `ha core check` before any restart.
+
+The pre-change recovery points are Proxmox snapshot
+`aster-registry-pre-20261010`, the fresh 2026-10-10 02:33 VM 103 archive, and
+`/config/configuration.yaml.before-aster-registry-20261010`. Normal rollback is:
+restore that configuration copy, remove only
+`/config/custom_components/aster_registry` and
+`/share/aster-registry/latest.json`, run `ha core check`, then restart only
+Home Assistant Core. Use the VM snapshot only if file-level rollback cannot
+restore a healthy Core. Do not roll back unrelated Home Assistant state.

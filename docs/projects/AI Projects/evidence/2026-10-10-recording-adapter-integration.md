@@ -184,3 +184,57 @@ to prove package loading and report custody, but cannot be counted as real
 registry acceptance. At least one deliberately selected harmless light/switch,
 room, active timer or media provider must later be verified through the
 recording adapter with effects still disabled.
+
+## Laundry live recording pilot
+
+Jason selected the Laundry light for the pilot. Source-local filtering of Home
+Assistant's entity registry emitted exactly one eligible match:
+`light.laundry_laundry_main_lights`, enabled, with original display name
+`Laundry Main Lights`. The deployed output deliberately uses only the reviewed
+alias `laundry lights`.
+
+Preflight found VM 103 healthy on Core 2026.9.1 and Supervisor 2026.09.3, with a
+fresh 2026-10-10 02:33 Proxmox archive. Proxmox snapshot
+`aster-registry-pre-20261010` and configuration copy
+`configuration.yaml.before-aster-registry-20261010` preserve rollback. Snapshot
+creation repeated the known thin-pool overcommit warning, while actual pool use
+was about 22%; retain the snapshot only through the observation/rollback gate.
+
+The deployed component files exactly match Git. Home Assistant's configuration
+check passed before its Core-only restart. Core returned healthy and the only
+component log entry was Home Assistant's expected generic warning for an
+unreviewed custom integration—no integration exception or validation failure.
+The live mode-0600 report SHA-256 was
+`f15529d0d825b7e0a53b369878bdff1a4211e240b2264814da8243fdf49e42b9` and
+contained exactly:
+
+- schema version 1 and snapshot ID `ha-laundry-pilot-20261010`;
+- entity alias `laundry lights`; and
+- empty rooms, timers and media-provider arrays.
+
+The report passed through the local recording adapter for “Turn off the laundry
+lights.” It produced a deterministic `home.control` plan with target
+`laundry lights`, state `off`, and a single accepted record with
+`effect_permitted: false`. The adapter has no Home Assistant client or token.
+Recorder history shows the light remained `off` since 2026-10-10 00:09 UTC,
+hours before deployment, with no state transition during the pilot.
+
+This closes the real-registry/no-effect integration gate for one deliberately
+selected light. It does not authorize effectful Home Assistant execution or
+expand the alias map. Next, observe at least one scheduled refresh and one real
+Laundry state change to prove report availability tracks state without causing
+it; then decide whether the narrow exporter should remain, roll back, or be
+extended under a separately reviewed alias decision.
+
+The first scheduled refresh then ran at 15:09:35 PDT, five minutes after initial
+publication. It atomically rewrote the mode-0600 report with the same
+`f15529d0...e42b9` SHA-256 and identical one-alias payload. Periodic operation
+therefore passes without content drift or effect. A natural Laundry state
+transition has not yet occurred during observation and remains open; no
+artificial light service call will be made merely to close that evidence item.
+
+A final read-only verification found VM 103 running, Home Assistant Core healthy
+on 2026.9.1, and the rollback snapshot still present. Checked in the Core
+container namespace, the report remained mode 0600, 137 bytes, and retained the
+same SHA-256 and exact one-alias payload. A host-namespace probe correctly found
+no `/share` path; this was a namespace check correction, not report loss.
