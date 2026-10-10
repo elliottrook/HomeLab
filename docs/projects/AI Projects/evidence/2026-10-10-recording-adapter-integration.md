@@ -83,3 +83,31 @@ The candidate now completes all immutable artifact checks before arming the
 restoration trap or stopping any service. Re-acquiring the pinned model remains
 a separately authorized download gate; the missing artifact must not be treated
 as implicit permission to download it.
+
+## Credential-safe Home Assistant producer candidate
+
+Repository inspection confirmed that the existing Home Assistant report is
+deliberately aggregate-only and no credential-safe entity-registry producer
+exists. Directly using a Home Assistant token or reading its mixed secret-bearing
+storage would violate the intended boundary.
+
+The offline `ha_registry_snapshot.py` candidate defines the safer source-local
+contract. Home Assistant supplies registry IDs and states in-process, while a
+human-reviewed configuration maps exact IDs to non-sensitive Aster aliases. The
+output contains only those aliases and provider availability. It excludes raw
+friendly names, state attributes and every unconfigured entity; permits only
+light/switch, timer and media-player domains; rejects duplicate aliases and
+states without registry backing; and contains no HTTP client, token, service
+call or execution handle.
+
+Four focused tests prove allowlisted export, omission of missing/unavailable
+objects, rejection of state/registry mismatch and rejection of broad domains or
+duplicate aliases. Combined focused orchestration/producer tests pass 20/20 and
+the evaluator suite remains 72/72.
+
+This is an offline contract, not a deployed Home Assistant integration. A later
+deployment must specify the exact reviewed alias map, source-local integration
+hook, sanitized report path and retrieval identity; snapshot VM 103; prove the
+report contains no unapproved identifiers or attributes; and demonstrate that
+the integration has no service-call permission before it may supply a real
+recording-adapter snapshot.
