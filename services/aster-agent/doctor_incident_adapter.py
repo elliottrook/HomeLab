@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import stat
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -39,9 +41,18 @@ def _unavailable(incident_id: str, now: datetime, reason: str) -> Observation:
 def read_doctor_observation(incident_id: str, report_path: Path, now: datetime) -> Observation:
     """Return exactly one bounded, non-refreshing Doctor observation."""
     try:
-        if report_path.stat().st_size > MAX_REPORT_BYTES:
+        # Open once: a path can change between stat() and read_bytes(). Reject
+        # links and non-regular files, then bound the read even if it grows.
+        flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+        with os.fdopen(os.open(report_path, flags), "rb") as report:
+            metadata = os.fstat(report.fileno())
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_mode & 0o022:
+                return _unavailable(incident_id, now, "unsafe_file")
+            if metadata.st_size > MAX_REPORT_BYTES:
+                return _unavailable(incident_id, now, "oversized")
+            raw_bytes = report.read(MAX_REPORT_BYTES + 1)
+        if len(raw_bytes) > MAX_REPORT_BYTES:
             return _unavailable(incident_id, now, "oversized")
-        raw_bytes = report_path.read_bytes()
         value = json.loads(raw_bytes.decode("utf-8"))
         if not isinstance(value, dict) or frozenset(value) != REPORT_FIELDS:
             return _unavailable(incident_id, now, "invalid_schema")

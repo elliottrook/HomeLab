@@ -22,6 +22,10 @@ This establishes a **bounded manual handoff**, not routine Ask Codex, automatic 
 
 Milestones 3 and 6 can make **offline** progress in parallel with the passive D3 observation. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.
 
+One offline D4 boundary candidate now closes a file-open race and rejects
+symlinked or writable Doctor reports; see [the file-boundary review](evidence/D4-doctor-file-boundary-2026-10-09.md).
+It is local only and does not alter the connected-tool gate or release status.
+
 ### What the next connected-tool gate actually lacks
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)

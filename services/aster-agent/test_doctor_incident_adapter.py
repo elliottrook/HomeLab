@@ -50,6 +50,17 @@ class DoctorAdapterTests(unittest.TestCase):
         self.path.write_bytes(b"x" * 65_537)
         self.assertEqual(read_doctor_observation("inc-1", self.path, NOW).validate(NOW)["state"], "unavailable")
 
+    def test_rejects_symlink_and_writable_report(self):
+        self.write()
+        link = Path(self.tmp.name) / "linked.json"
+        link.symlink_to(self.path)
+        linked = read_doctor_observation("inc-1", link, NOW).validate(NOW)
+        self.assertEqual(linked["state"], "unavailable")
+        self.path.chmod(0o666)
+        writable = read_doctor_observation("inc-1", self.path, NOW).validate(NOW)
+        self.assertEqual(writable["state"], "unavailable")
+        self.assertEqual(writable["facts"]["reason"], "unsafe_file")
+
 
 if __name__ == "__main__":
     unittest.main()
