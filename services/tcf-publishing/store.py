@@ -50,6 +50,24 @@ class ContentStore:
               FOREIGN KEY (site, content_id, version)
                 REFERENCES content_versions(site, content_id, version)
             );
+            CREATE TABLE IF NOT EXISTS editions (
+              edition_id INTEGER PRIMARY KEY AUTOINCREMENT,
+              site TEXT NOT NULL,
+              label TEXT NOT NULL,
+              status TEXT NOT NULL CHECK(status IN ('draft', 'published', 'cancelled')),
+              created_at TEXT NOT NULL
+            );
+            CREATE UNIQUE INDEX IF NOT EXISTS one_draft_edition_per_site
+              ON editions(site) WHERE status = 'draft';
+            CREATE TABLE IF NOT EXISTS edition_slots (
+              edition_id INTEGER NOT NULL,
+              content_id TEXT NOT NULL,
+              baseline_hash TEXT NOT NULL,
+              candidate_version INTEGER,
+              action TEXT NOT NULL DEFAULT 'replace' CHECK(action IN ('replace', 'remove')),
+              PRIMARY KEY (edition_id, content_id),
+              FOREIGN KEY (edition_id) REFERENCES editions(edition_id)
+            );
             """
         )
 
@@ -71,6 +89,16 @@ class ContentStore:
                  json.dumps(asdict(record), ensure_ascii=False, sort_keys=True),
                  record.public_hash(), _now()),
             )
+            edition = self.database.execute(
+                "SELECT edition_id FROM editions WHERE site = ? AND status = 'draft'",
+                (record.site,),
+            ).fetchone()
+            if edition is not None:
+                self.database.execute(
+                    "UPDATE edition_slots SET candidate_version = ? "
+                    "WHERE edition_id = ? AND content_id = ? AND baseline_hash != ?",
+                    (version, int(edition["edition_id"]), record.id, record.public_hash()),
+                )
             self.database.commit()
             return version
 
@@ -158,6 +186,91 @@ class ContentStore:
                 return None
             return Approval(row["content_id"], int(row["version"]), row["public_hash"],
                             row["approved_by"], row["approved_at"])
+
+    def start_refresh(self, site: str, label: str) -> dict:
+        with self.lock:
+            if site not in SITES:
+                raise ContentError("unknown site")
+            if not label.strip() or len(label.strip()) > 80:
+                raise ContentError("edition label must be 1 to 80 characters")
+            records = self.list_latest(site)
+            if not records:
+                raise ContentError("site has no slots to replace")
+            try:
+                cursor = self.database.execute(
+                    "INSERT INTO editions(site, label, status, created_at) VALUES (?, ?, 'draft', ?)",
+                    (site, label.strip(), _now()),
+                )
+            except sqlite3.IntegrityError as error:
+                raise ContentError("a fortnightly refresh is already in progress") from error
+            edition_id = int(cursor.lastrowid)
+            self.database.executemany(
+                "INSERT INTO edition_slots(edition_id, content_id, baseline_hash) VALUES (?, ?, ?)",
+                [(edition_id, record.id, record.public_hash()) for record, _ in records],
+            )
+            self.database.commit()
+            return self.edition_status(site)
+
+    def edition_status(self, site: str) -> dict:
+        with self.lock:
+            if site not in SITES:
+                raise ContentError("unknown site")
+            edition = self.database.execute(
+                "SELECT edition_id, label, created_at FROM editions "
+                "WHERE site = ? AND status = 'draft'",
+                (site,),
+            ).fetchone()
+            if edition is None:
+                return {"site": site, "active": False, "total": 0,
+                        "replaced": 0, "approved": 0, "ready": False}
+            slots = self.database.execute(
+                "SELECT content_id, candidate_version, action FROM edition_slots WHERE edition_id = ?",
+                (int(edition["edition_id"]),),
+            ).fetchall()
+            replaced = sum(row["candidate_version"] is not None or row["action"] == "remove"
+                           for row in slots)
+            approved = 0
+            removed = []
+            for row in slots:
+                if row["action"] == "remove":
+                    removed.append(row["content_id"])
+                    approved += 1
+                    continue
+                if row["candidate_version"] is None:
+                    continue
+                record, current_version = self.latest(site, row["content_id"])
+                if (current_version == int(row["candidate_version"]) and not record.sample
+                        and self.current_approval(site, row["content_id"]) is not None):
+                    approved += 1
+            total = len(slots)
+            return {"site": site, "active": True,
+                    "edition_id": int(edition["edition_id"]), "label": edition["label"],
+                    "created_at": edition["created_at"], "total": total,
+                    "replaced": replaced, "approved": approved,
+                    "removed": removed,
+                    "ready": total > 0 and approved == total}
+
+    def set_slot_removal(self, site: str, content_id: str, remove: bool,
+                         confirmation: str = "") -> dict:
+        with self.lock:
+            if remove and confirmation != "REMOVE SLOT":
+                raise ContentError("slot removal confirmation did not match")
+            edition = self.database.execute(
+                "SELECT edition_id FROM editions WHERE site = ? AND status = 'draft'",
+                (site,),
+            ).fetchone()
+            if edition is None:
+                raise ContentError("no fortnightly refresh is in progress")
+            cursor = self.database.execute(
+                "UPDATE edition_slots SET action = ?, candidate_version = CASE WHEN ? THEN NULL ELSE candidate_version END "
+                "WHERE edition_id = ? AND content_id = ?",
+                ("remove" if remove else "replace", 1 if remove else 0,
+                 int(edition["edition_id"]), content_id),
+            )
+            if cursor.rowcount != 1:
+                raise ContentError("slot is not part of this edition")
+            self.database.commit()
+            return self.edition_status(site)
 
     def copy_to_site(self, source_site: str, content_id: str, target_site: str) -> int:
         with self.lock:

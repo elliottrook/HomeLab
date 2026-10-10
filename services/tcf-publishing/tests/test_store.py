@@ -77,6 +77,40 @@ class StoreTests(unittest.TestCase):
         self.assertEqual([(item.id, version) for item, version in listed], [("contrast-frame", 2)])
         self.assertEqual(listed[0][0].title, "Second version")
 
+    def test_fortnightly_refresh_requires_every_slot_changed_and_approved(self):
+        self.store.save(record(id="slot-one"))
+        self.store.save(record(id="slot-two"))
+        status = self.store.start_refresh("contrast", "24 October edition")
+        self.assertEqual((status["total"], status["replaced"], status["ready"]), (2, 0, False))
+        self.store.save(record(id="slot-one", title="Replacement one"))
+        self.store.approve("contrast", "slot-one", "jason")
+        status = self.store.edition_status("contrast")
+        self.assertEqual((status["replaced"], status["approved"], status["ready"]), (1, 1, False))
+        self.store.save(record(id="slot-two", title="Replacement two"))
+        self.store.approve("contrast", "slot-two", "jason")
+        status = self.store.edition_status("contrast")
+        self.assertEqual((status["replaced"], status["approved"], status["ready"]), (2, 2, True))
+
+    def test_only_one_active_refresh_per_site(self):
+        self.store.save(record())
+        self.store.start_refresh("contrast", "First")
+        with self.assertRaisesRegex(ContentError, "already in progress"):
+            self.store.start_refresh("contrast", "Second")
+
+    def test_slot_removal_is_explicit_reversible_and_non_destructive(self):
+        self.store.save(record(id="kept-slot"))
+        self.store.save(record(id="retired-slot"))
+        self.store.start_refresh("contrast", "Smaller edition")
+        with self.assertRaisesRegex(ContentError, "confirmation"):
+            self.store.set_slot_removal("contrast", "retired-slot", True, "REMOVE")
+        status = self.store.set_slot_removal(
+            "contrast", "retired-slot", True, "REMOVE SLOT")
+        self.assertEqual(status["removed"], ["retired-slot"])
+        self.assertEqual(self.store.latest("contrast", "retired-slot")[0].id, "retired-slot")
+        status = self.store.set_slot_removal("contrast", "retired-slot", False)
+        self.assertEqual(status["removed"], [])
+        self.assertFalse(status["ready"])
+
 
 if __name__ == "__main__":
     unittest.main()
