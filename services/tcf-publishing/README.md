@@ -114,9 +114,11 @@ the immutable approved payload, while the visual treatments stay brand-local.
   then closes the edition and records its release in SQLite. Failures retain the
   draft edition and write a bounded state record without credentials or content.
 - The transport is installed and a disposable non-served transfer passed, but
-  neither per-site root is connected to Nginx yet. The original visibly marked
-  sample remains the active origin target at `/srv/tcf/current`; public routing
-  remains absent.
+  each per-site root now has an exact-host Nginx vhost. An unset `current` link
+  returns site-specific HTTP 503 instead of another brand or the sample. The
+  original visibly marked sample remains the unmatched-host default at
+  `/srv/tcf/current`. The NPM-to-origin cross-VLAN path is still blocked and no
+  proxy host, DNS record, tunnel or public route exists.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to

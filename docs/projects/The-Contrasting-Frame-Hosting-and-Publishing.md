@@ -517,12 +517,14 @@ accepted old sample. The two completed website baselines and their distinct
 annotation treatments are now registered and privately staged. Passkey access and
 the explicit placeholder-to-real promotion gate are proven. Immutable release
 preparation, a forced-command checksum-verifying origin transport and the final
-site-specific GUI publication confirmation are installed. No per-site Nginx
-vhost or public route exists. Next safe action: configure private-only origin
-vhosts against the separate immutable roots and verify their unavailable/active/
-rollback states without changing the current sample default. The first real
-photograph/story save, promotion and approval walkthrough remains pending until
-content exists.
+site-specific GUI publication confirmation are installed. Exact-host per-site
+Nginx vhosts now point at the separate immutable roots and fail with a branded
+503 while unset; the unmatched-host sample remains unchanged. NPM-to-origin is
+still blocked upstream and no proxy host, DNS record, tunnel or public route
+exists. Next safe action: add publication rollback/status controls and then the
+host-owned quiet fortnightly due-check, without enabling public routing. The
+first real photograph/story save, promotion and approval walkthrough remains
+pending until content exists.
 Store design decisions, last validated gate, candidate/accepted release ID,
 rollback checkpoint, exact blocker and next safe action at each milestone.
 Use a versioned durable job-state DB with atomic transitions, not process absence.
@@ -572,6 +574,7 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-10 | Created `tcf-deploy` on origin LXC 125 with separate owner-only Contrast/Closet release roots and a root-owned forced receiver. The publisher's dedicated Ed25519 key is host-key pinned and restricted to status, stage, activate and rollback; an arbitrary `uname` request returned the receiver's rejection. Receiver/sender SHA-256 values are `028e094e…3d0c5` and `3ebe8101…9e2e1`; 42 tests pass | The origin has no general deployment shell. Tar links/traversal/special files, inventory mismatch, checksum change, private/sample markers, cross-site IDs and wrong activation digests fail closed |
 | 2026-10-10 | A disposable non-served release crossed the real publisher→origin SSH path and was accepted only after manifest verification (`7f28112b…c460a`); the staged probe was removed. `/srv/tcf/current` remained `/srv/tcf/releases/sample-5b23ccb9`, both new site `current` links remain unset, Nginx was unchanged and no public DNS/route was added | Authenticated data transfer is proven without publishing placeholder or synthetic content. Checkpoint `/root/tcf-origin-before-restricted-deploy-20261010` preserves the prior origin configuration and served target |
 | 2026-10-10 | Deployed the Aster-styled final “Publish reviewed edition” control. It requires a complete approved edition, the exact previously built candidate and typed `PUBLISH CONTRAST`/`PUBLISH CLOSET`; one nonblocking lock covers verification, immutable preparation, transfer, digest-bound activation and SQLite publication recording. Activation failure leaves the edition open and records only bounded failure state. Forty-six tests and embedded JavaScript syntax pass | Live no-edition request returned 409 `no fortnightly refresh is in progress`, the publication ledger remains empty, both origin site links remain unset and the Content Desk stayed healthy. Checkpoint `/root/tcf-desk-before-publication-20261010` contains the prior code and consistent database files |
+| 2026-10-10 | Installed exact-host Nginx vhosts for both apex/`www` names against `/srv/tcf/sites/{contrast,closet}/current`; unset roots return site-specific 503. Local host-header checks returned the correct Contrast/Closet unavailable bodies, unmatched host retained the original sample health, and `nginx -t` passed. The attempted NPM check timed out at the still-absent upstream cross-VLAN rule | Brand roots cannot fall through to each other or the sample. No OPNsense rule, NPM proxy host, DNS, Cloudflare route or public exposure was added. Checkpoint `/root/tcf-origin-before-private-vhosts-20261010.conf` preserves the prior Nginx site |
 
 ## Close out
 

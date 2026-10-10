@@ -13,6 +13,10 @@
   revalidates the reviewed edition and immutable checksums under one lock,
   activates only the digest-bound release, records success durably and leaves a
   failed edition open. The live empty workflow fails closed; 46 tests pass.
+- Added exact-host per-site origin vhosts with site-specific unavailable
+  responses while no accepted release exists. The legacy sample remains the
+  unmatched-host default; the NPM cross-VLAN path and all public routing remain
+  absent.
 
 ## 2026-10-09 — The Contrasting Frame project preparation
 
