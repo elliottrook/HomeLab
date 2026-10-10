@@ -1,6 +1,6 @@
 # Pull-based Forgejo change-bundle runner
 
-> Status: Active — Stream A; M0–M2 complete, M3 in progress
+> Status: Complete — Stream A accepted; M0–M4 passed
 >
 > Owner: Jason
 >
@@ -214,26 +214,26 @@ approval; global kill switch and identity suspension deny it.
 
 ### M3 — synthetic canary
 
-- [ ] Run malformed, tampered, stale, replayed, wrong-signer, wrong-repository,
+- [x] Run malformed, tampered, stale, replayed, wrong-signer, wrong-repository,
   wrong-path, oversized, secret-like and dependency-outage cases.
-- [ ] Submit one valid canary and verify exact Companion display and approval.
-- [ ] Immediately before the remote Forgejo write, obtain the repository-required
+- [x] Submit one valid canary and verify exact Companion display and approval.
+- [x] Immediately before the remote Forgejo write, obtain the repository-required
   explicit confirmation for that exact write.
-- [ ] Verify branch/file/tree in Forgejo and observe GitHub mirror read-only.
-- [ ] Repeat independently with a fresh nonce and base; test revoke/expiry.
+- [x] Verify branch/file/tree in Forgejo and observe GitHub mirror read-only.
+- [x] Repeat independently with a fresh nonce and base; test revoke/expiry.
 
 Gate: two complete passes and all denied cases behave as designed. No merge.
 
 ### M4 — recovery, operations and graduation
 
-- [ ] Back up configuration/state/trust metadata without private signing keys.
-- [ ] Restore in isolation and prove consumed/revoked requests stay terminal.
-- [ ] Add Doctor and monitoring checks, actionable metadata-only alerts, and
+- [x] Back up configuration/state/trust metadata without private signing keys.
+- [x] Restore in isolation and prove consumed/revoked requests stay terminal.
+- [x] Add Doctor and monitoring checks, actionable metadata-only alerts, and
   last-success/staleness evidence.
-- [ ] Reconcile NetBox and Beszel if LXC 104 service metadata changes; do not add
+- [x] Reconcile NetBox and Beszel if LXC 104 service metadata changes; do not add
   a duplicate host. Update human wiki/Aster mirror/operations documentation.
-- [ ] Complete post-deployment intent/efficiency review and operator walkthrough.
-- [ ] Remove temporary access/workspaces and record accepted limitations.
+- [x] Complete post-deployment intent/efficiency review and operator walkthrough.
+- [x] Remove temporary access/workspaces and record accepted limitations.
 
 Gate: safe operation and recovery no longer depend on the implementation agent.
 
@@ -403,13 +403,64 @@ canary branch/file; it does not merge, publish, deploy or delete anything.
   18.420 seconds; the known macOS sandbox run passed 83 tests and denied only
   the 18 Unix-socket binds with `EPERM`.
 
+### 2026-10-10 — M3 two-pass canary gate passed
+
+- Two early requests expired safely before consume. Forgejo had no canary
+  branch, both broker records had `consumed_at=NULL`, and their runner entries
+  were terminally reconciled to `revoked`. This exposed that a separate
+  five-minute broker TTL was too short for the human handoff; the runner now
+  uses only the signed bundle's remaining lifetime, still capped at 15 minutes.
+  The regression raised the Linux suite to **102/102 passing**.
+- Canary one consumed request `0fd69952-b751-4e02-a203-c553b6c03782`
+  after exact Companion approval and immediate write authorization. Forgejo
+  commit `5a4d93ee703dba5569aad23ad2b4fd361c1eccd4` has parent
+  `01860433ad1ce77a93327591ace6db33debffd16`, adds only
+  `ai-pam-pilot/cloud-runner/stream-a-canary.txt`, and its blob SHA-256 is
+  `4d7d883be0609f7bdd7d6103a8ba8ecacb62806f6f9f3402b9831d7d9494de8d`.
+- Independent canary two used fresh nonce `Ofwlr0YqrQs4stqsiO0o8xwu`, request
+  `627d19b3-2de2-479a-ab6d-876dd9ebd447`, a distinct branch/path/content, exact
+  Companion approval and immediate write authorization. Forgejo commit
+  `9574d4ede2a659a1c36bbe0fba214ea95bcad5fe` has the same verified canonical
+  parent, adds only `stream-a-canary-2.txt`, and its blob SHA-256 is
+  `3f34b7ceb1f98b663e0275438ac1662ef9eb366a5b0fa1eaa5c7460b8b1dec3e`.
+- Both canary branches were observed on the read-only GitHub mirror at the same
+  commit IDs. Neither branch was merged or deleted. A live replay of the second
+  consumed bundle was denied as absent/not pending before broker access.
+
+### 2026-10-10 — M4 recovery and operations gate passed
+
+- Added an hourly, randomized, persistent metadata-only health timer. It runs as
+  `hlabundle` with no network, capabilities or writable system paths; its first
+  live result reported policy/trust valid, SQLite `quick_check=ok`, two consumed
+  and two revoked records, and a fresh last success. `systemd-analyze security`
+  scored **1.3 OK** before the final `UMask=0077` tightening.
+- The complete Linux suite passes **106/106 in 17.465 seconds** after health and
+  systemd regressions were added.
+- Created consistent backup
+  `/var/backups/homelab-bundle-runner/20261010-stream-a/` containing only the
+  SQLite replay ledger and public/root-owned policy files. The private signing
+  key is absent from LXC 104. The fresh full LXC archive and pre-install
+  snapshot remain the broader recovery layers.
+- Restored those four files into an isolated directory. The restored health
+  result was healthy with two consumed/two revoked records; API probes proved a
+  consumed nonce cannot return to pending and a revoked nonce cannot reopen.
+- Added the operator guide at `docs/runbooks/Pull-Based-Forgejo-Runner.md` and
+  reconciled AI-PAM references. LXC 104 remains the existing NetBox/Beszel
+  object; no duplicate host, IP, port, DNS, certificate, firewall rule, public
+  ingress or Homepage tile was added.
+- Post-deployment review found the design met the requested outcome with less
+  authority than a tunnel/broker: one human-carried signed artifact, existing
+  AI-PAM/Companion approval and existing one-file gateway. Accepted limitations
+  are manual exchange/base pinning, canary-only scope, local hourly alerting and
+  retained branches pending separate cleanup authorization.
+
 ## Current checkpoint
 
-M0–M2 are complete. The worker identity is now an AI-PAM Operator with only the
-existing Yellow safe-write capability. The next M3 gate is to submit a fresh,
-short-lived signed synthetic canary, inspect and approve the exact Companion
-request, and obtain immediate explicit confirmation before consuming it for the
-remote Forgejo write.
-The private signing key remains human-held and unread by the agent. No public
-ingress or credential-bearing exchange has been introduced.
+M0–M4 and Stream A are complete. The worker remains an AI-PAM Operator with only
+the existing Yellow one-file safe-write capability. Two independently signed,
+approved and immediately authorized canary branches passed end to end; neither
+was merged. Backup, isolated restore, terminal-state recovery, replay denial and
+hourly metadata-only health checks passed. The private signing key remains
+human-held and unread by the agent. No public ingress or credential-bearing
+exchange was introduced. See the operator guide for continued use and recovery.
 

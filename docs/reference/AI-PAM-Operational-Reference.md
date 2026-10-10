@@ -21,6 +21,11 @@ normally from the Dock or Applications. The installed Keychain item should be
 set to **Always Allow** for that signed application; secret values are never
 shown in the management UI.
 
+The pull-based Forgejo runner is an accepted canary-only Operator integration.
+It uses a human-carried signed bundle, network-denied validation and the existing
+Yellow one-file safe-write capability; it has no target credential or approval
+authority. See the [operator guide](../runbooks/Pull-Based-Forgejo-Runner.md).
+
 ## Authority and inventory
 
 NetBox is authoritative for the existing `hermesagent` LXC 104 and `openbao`

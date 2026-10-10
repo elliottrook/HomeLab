@@ -52,6 +52,12 @@
   restarting only its bridge, and added a durable metadata-only `submit`/
   `promote` CLI around the existing replay-safe runner. All 101 tests pass on
   Linux; Yellow approval and immediate Forgejo-write confirmation remain open.
+- Completed Stream A with two independently signed and explicitly approved
+  one-file Forgejo canaries, exact parent/path/blob verification and matching
+  GitHub mirror observation; neither branch was merged. Live expiry and replay
+  attempts failed closed. Added public-trust-only backup, isolated restore with
+  terminal-state proof, an hourly network-denied metadata health check, and the
+  operator runbook. The Linux suite passes 106/106.
 
 ## 2026-10-10 — Brand Design skill and reusable standard
 

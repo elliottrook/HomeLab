@@ -20,7 +20,19 @@ class SystemdUnitTests(unittest.TestCase):
         self.assertIn("ProtectSystem=strict", unit)
         self.assertIn("NoNewPrivileges=yes", unit)
         self.assertIn("CapabilityBoundingSet=\n", unit)
+        self.assertIn("UMask=0077", unit)
         self.assertNotIn("ReadWritePaths=", unit)
+
+    def test_bundle_health_is_network_denied_and_bounded(self):
+        unit = (ROOT / "homelab-bundle-health.service").read_text()
+        timer = (ROOT / "homelab-bundle-health.timer").read_text()
+        self.assertIn("PrivateNetwork=yes", unit)
+        self.assertIn("ProtectSystem=strict", unit)
+        self.assertIn("CapabilityBoundingSet=\n", unit)
+        self.assertIn("TimeoutStartSec=30", unit)
+        self.assertNotIn("ReadWritePaths=", unit)
+        self.assertIn("OnUnitActiveSec=1h", timer)
+        self.assertIn("Persistent=true", timer)
 
 
 if __name__ == "__main__":

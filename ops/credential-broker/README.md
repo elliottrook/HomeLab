@@ -69,7 +69,7 @@ Key files:
 - `bundle_runner.py` — joins a verified bundle to the existing Yellow
   `forgejo.write.safe-branch` request without any approval capability
 
-The pull-based Forgejo bundle runner is currently an M3 operator pilot. Jason
+The pull-based Forgejo bundle runner completed its canary/recovery acceptance. Jason
 promoted only `agent-cloud-bundle` through the existing Companion fresh-passkey
 management flow after M2 isolation passed. The identity has only the existing
 Yellow `forgejo.write.safe-branch` capability, and its `hlabundle` Unix account
@@ -77,6 +77,8 @@ cannot connect directly to either Forgejo gateway socket. Only the public
 producer key is present on LXC 104; the passphrase-protected private key remains
 on Jason's Mac. See
 `docs/projects/Pull-Based-Forgejo-Runner.md` for current gates and evidence.
+Hourly metadata-only health is provided by `homelab-bundle-health.timer`; the
+operator procedure is `docs/runbooks/Pull-Based-Forgejo-Runner.md`.
 
 
 ## Aster M1 deployment split (2026-09-25)
