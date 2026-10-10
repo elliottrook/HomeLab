@@ -26,6 +26,11 @@ One offline D4 boundary candidate now closes a file-open race and rejects
 symlinked or writable Doctor reports; see [the file-boundary review](evidence/D4-doctor-file-boundary-2026-10-09.md).
 It is local only and does not alter the connected-tool gate or release status.
 
+The existing ARR aggregate report can answer a simple named-service status
+question locally. Its [offline file-boundary hardening](evidence/ARR-report-file-boundary-2026-10-09.md)
+does not turn that question into a Codex sysadmin role or grant access to a
+repair candidate.
+
 ### What the next connected-tool gate actually lacks
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)

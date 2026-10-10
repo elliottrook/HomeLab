@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import errno
+import os
 import re
 import stat
 from datetime import datetime, timedelta, timezone
@@ -44,14 +46,24 @@ def get_arr_report(
 ) -> dict[str, Any]:
     """Return only aggregate counters from a fresh, strict operator report."""
     try:
-        file_status = report_path.lstat()
-        if not stat.S_ISREG(file_status.st_mode):
-            raise ValueError("report is not a regular file")
-        if file_status.st_mode & 0o022:
-            raise ValueError("report is writable by group or other")
-        if file_status.st_size > MAX_REPORT_BYTES:
+        try:
+            descriptor = os.open(report_path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        except OSError as exc:
+            if exc.errno == errno.ELOOP:
+                raise ValueError("report is not a regular file") from exc
+            raise
+        with os.fdopen(descriptor, "rb") as stream:
+            file_status = os.fstat(stream.fileno())
+            if not stat.S_ISREG(file_status.st_mode):
+                raise ValueError("report is not a regular file")
+            if file_status.st_mode & 0o022:
+                raise ValueError("report is writable by group or other")
+            if file_status.st_size > MAX_REPORT_BYTES:
+                raise ValueError("report exceeds the maximum permitted size")
+            raw = stream.read(MAX_REPORT_BYTES + 1)
+        if len(raw) > MAX_REPORT_BYTES:
             raise ValueError("report exceeds the maximum permitted size")
-        report = json.loads(report_path.read_text(encoding="utf-8"))
+        report = json.loads(raw.decode("utf-8"))
     except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
         return _unavailable(f"Sanitized ARR report unavailable: {exc}")
 

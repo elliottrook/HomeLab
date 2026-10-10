@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
@@ -121,6 +122,15 @@ class ArrReportTests(unittest.TestCase):
             target.write_text(json.dumps(self._report(now)), encoding="utf-8")
             path = root / "latest.json"
             path.symlink_to(target)
+            result = get_arr_report(path, now=now)
+        self.assertEqual(result["status"], "unavailable")
+        self.assertIn("regular", result["error"])
+
+    def test_rejects_nonblocking_fifo_report(self):
+        now = datetime(2026, 9, 9, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "latest.json"
+            os.mkfifo(path)
             result = get_arr_report(path, now=now)
         self.assertEqual(result["status"], "unavailable")
         self.assertIn("regular", result["error"])
