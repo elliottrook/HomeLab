@@ -17,22 +17,33 @@ send control. One owner-initiated sleep/wake then kept the same process and
 signed-in screen, with no prompt reported by Jason and no journal change. This
 was followed by a read-only recovery of the same completed Vega answer after
 restart, without another journal row or model send. Companion then returned
-to signed-in ordinary mode with manual sending hidden. This proves neither
-active-turn recovery nor sustained reliability.
+to signed-in ordinary mode with manual sending hidden. That Vega observation
+alone did not prove active-turn recovery or sustained reliability. A later
+separately approved [one-attempt process-interruption experiment](evidence/D3-active-turn-interruption-result-2026-10-09.md)
+observed a fictional Nova request in `running` state with a durable turn ID,
+terminated only the flagged Companion process, and recovered the same original
+completed answer after restart. One journal row and one turn ID were recorded;
+the model may have completed during the signalling race. The app was restored
+to signed-in ordinary mode; AI-PAM had no pending approvals. This does not
+prove hard-crash recovery or a reliability rate. No further live-question
+trial is planned for this gate.
 The signed version-13 [rollback copy](evidence/D3-native-manual-v15-release-candidate-2026-10-09.md)
 is preserved. Version 14's prior same-signer update prompt and an older
 version-11 rollback's stale/revoked session remain relevant custody evidence;
 see the [session decision](evidence/D3-native-session-custody-decision-2026-10-09.md).
 Synthetic refresh, reopened-journal and abrupt fake-process-death tests guard
 against repeat Keychain reads and duplicate Codex turns but do not replace a
-long-duration sleep/wake, natural refresh or active-turn recovery check. The earlier [twelve-case finite
+long-duration sleep/wake or natural refresh; the separate live interruption
+result above narrows but does not eliminate the recovery uncertainty. The earlier [twelve-case finite
 result](evidence/D3-native-finite-12-result-2026-10-09.md) remains evaluation
 evidence, not D3 graduation. Ordinary Codex intake, gateway intake and sysadmin
 tools remain closed; the separate worker identity remains inactive. Independent
 answer review, natural token-refresh validation and [live reliability
-gate](evidence/D3-native-live-reliability-gate-2026-10-09.md) remain open. A
-[one-attempt active-turn proposal](evidence/D3-active-turn-interruption-proposal-2026-10-09.md)
-is prepared locally but not authorized or run.
+gate](evidence/D3-native-live-reliability-gate-2026-10-09.md) remain open.
+Next: independently review existing answers without fresh inference, passively
+observe ordinary-use sign-in/Keychain behavior, then make a limited-release or
+hold decision. The process-interruption gate is complete only in its narrow
+recorded sense.
 
 **Current direction and resume point — 2026-10-06:** Jason adopted
 [subscription-backed Codex delegation](Codex-Delegation.md). Aster remains the
@@ -59,7 +70,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Twelve fixed fictional native cases plus one reviewed manual case complete; routine release on hold | The [finite-set result](evidence/D3-native-finite-12-result-2026-10-09.md) records twelve distinct completed no-tools turns and provisional 12/12 rubric matches. The [manual retest](evidence/D3-native-manual-v15-installation-2026-10-09.md) completed one more reviewed no-tools turn; version 15 restarted signed in with manual mode hidden, passed one short sleep/wake observation without a reported prompt, and recovered the same completed answer after restart without a new send. Active-turn recovery, independent answer review, natural token refresh and sustained prompt-free operation remain unproven. General intake, voice/remote operation, automatic routing and sysadmin tools are not authorized. Gateway intake/recovery remain off; worker identity has zero grants. D3 is not graduated. |
+| D3 — Companion integration | Twelve fixed fictional native cases plus two reviewed manual cases complete; routine release on hold | The [finite-set result](evidence/D3-native-finite-12-result-2026-10-09.md) records twelve distinct completed no-tools turns and provisional 12/12 rubric matches. Version 15 restarted signed in with manual mode hidden, passed one short sleep/wake observation without a reported prompt, recovered the earlier completed answer, and [recovered a second original answer after a bounded process interruption](evidence/D3-active-turn-interruption-result-2026-10-09.md). The signal/completion race, independent answer review, natural token refresh and sustained prompt-free operation remain open. General intake, voice/remote operation, automatic routing and sysadmin tools are not authorized. Gateway intake/recovery remain off; worker identity has zero grants. D3 is not graduated. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in

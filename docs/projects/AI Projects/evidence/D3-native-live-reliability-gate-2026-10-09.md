@@ -1,19 +1,17 @@
-# D3 native Companion reliability gate — partial live result
+# D3 native Companion reliability gate — bounded live result
 
 **Status: one supervised send, idle restart and short sleep/wake observed;
-active-turn interruption not tested.** Owner: Jason. The [executed installation
+one later process-interruption attempt recovered the original answer. Routine release remains on hold.** Owner: Jason. The [executed installation
 record](D3-native-manual-v15-installation-2026-10-09.md) controls current
 state. Version 15 is installed in ordinary mode with manual sending hidden;
 signed version 13 is retained as a rollback copy. The twelve fixed fictional
 cases and the additional Vega-light question must not be resent. This gate
 tests the delivery path, not sysadmin competence or automatic routing.
 
-**Current blocker:** the Vega turn completed before a controlled interruption,
-so the active-turn recovery criterion remains open. Do not send a replacement
-question just to force that outcome. A future live recovery experiment would
-need a new exact preregistered non-sensitive question, explicit cloud consent,
-an interruption method that cannot create duplicate turns, and separate owner
-review. Do not bypass the finite UI or reset its saved index.
+**Historical Vega limit:** the Vega turn completed before a controlled
+interruption. A separately approved [Nova experiment](D3-active-turn-interruption-result-2026-10-09.md)
+subsequently exercised process interruption once. Neither question may be
+resent. Do not bypass the finite UI or reset its saved index.
 
 ## Why this is needed
 
@@ -147,5 +145,9 @@ ordinary unflagged mode afterward. This narrows the recovery gap to
 interruption while a turn is running or its outcome is uncertain. It does not
 close that gap or justify another live question without a new test gate.
 The [next one-attempt proposal](D3-active-turn-interruption-proposal-2026-10-09.md)
-defines a distinct fictional question and a local-only, exact-PID trigger;
-it has not been armed or authorized for a live turn.
+defined a distinct fictional question and a local-only, exact-PID trigger;
+it was subsequently [executed once](D3-active-turn-interruption-result-2026-10-09.md)
+with separate approval. The saved original answer was recovered after the
+flagged app process was terminated. This is a narrow process-interruption
+observation, with a possible completion race, not a hard-crash or sustained
+reliability result. No further live question is planned for this gate.

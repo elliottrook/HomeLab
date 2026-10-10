@@ -1,5 +1,20 @@
 # Research log — 2026-09-25
 
+## 2026-10-09 — One bounded native process interruption and original-answer recovery
+
+After Jason approved the exact one-attempt gate, he reviewed and consented to
+one fictional Nova question in signed Companion version 15. A local one-shot
+watcher observed the new request in `running` state with a durable turn ID and
+sent SIGTERM to only the flagged Companion PID. The process exited. On restart,
+the UI recovered the original completed answer for that same request ID; the
+private journal advanced from 14 to 15 completed rows with no other state or
+new send. Ordinary unflagged Aster reopened signed in, and AI-PAM had no
+pending approvals. A signal/completion race remains possible; this is not
+hard-crash or long-duration reliability evidence. Stop additional live
+questions in this gate. Next review existing answers independently and observe
+normal credential behavior passively before a release/hold decision. See the
+[exact result](evidence/D3-active-turn-interruption-result-2026-10-09.md).
+
 ## 2026-10-09 — Same-signer update exposed legacy Keychain ACL problem
 
 The stable-signed version 11 opened normally after Jason's one-time

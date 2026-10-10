@@ -1,7 +1,6 @@
 # D3 next gate — one active-turn process-interruption experiment
 
-**Status: local proposal; no live request or interruption authorized by this
-document.** Owner: Jason. The [prior gate](D3-native-live-reliability-gate-2026-10-09.md)
+**Status: executed once with Jason's separate approval; see the [result](D3-active-turn-interruption-result-2026-10-09.md). No repeat is authorized by this document.** Owner: Jason. The [prior gate](D3-native-live-reliability-gate-2026-10-09.md)
 proved one reviewed native send, a short sleep/wake and read-only recovery of
 the completed original answer. The Vega turn finished before interruption.
 Do not resend Vega or describe active-turn recovery as passed.
