@@ -68,6 +68,17 @@
       "correctness": ["completion_tokens_at_least_120", "response_is_nonempty"]
     },
     {
+      "name": "tg128-cold-pos0",
+      "kind": "decode",
+      "target_prompt_tokens": 64,
+      "context_position": 0,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 128,
+      "prompt_seed": "write distinct numbered words for deterministic decode timing",
+      "correctness": ["completion_tokens_at_least_120", "response_is_nonempty"]
+    },
+    {
       "name": "tg128-warm-pos4k",
       "kind": "decode",
       "target_prompt_tokens": 4096,
