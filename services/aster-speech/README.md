@@ -47,6 +47,13 @@ lower-priority batch queue, so News cannot occupy both interactive slots. This
 module is not production wiring and must remain side-by-side until the HTTP and
 Wyoming adapters, real Kokoro renderer and LXC 116 gates pass.
 
+Because Kokopop cannot pre-empt an in-flight GPU render, batch text is split at
+semantic/word boundaries to at most 20 characters, admitted one unit at a time,
+and delayed by a 250 ms interactive grace window between units. Interactive
+text retains the 240-character semantic limit. This policy meets the measured
+A380 contention target but remains subject to listening acceptance for News
+cadence before production selection.
+
 `voice_protocol.py` defines the dependency-free `AVS1` streaming frame format:
 a bounded JSON metadata header followed by bounded PCM payload bytes. Audio
 frames declare request/unit order, sample rate, mono channel count and

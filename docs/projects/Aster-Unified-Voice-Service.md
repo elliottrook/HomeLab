@@ -745,6 +745,19 @@ unrelated state.
   plus admission that stops submitting News work while interactive work is
   pending; repeat this gate before adding Jellyfin overlap. This is a software
   scheduling issue, not evidence for changing the provisional A380 choice.
+- Implemented that scheduler correction in the candidate. Batch text uses a
+  20-character semantic maximum, admits exactly one unit at a time, and waits
+  through a 250 ms interactive admission window before starting the next unit.
+  Interactive text keeps the existing 240-character maximum. The focused suite
+  now has 21 passing tests, including one-at-a-time admission and a late
+  interactive request winning the grace window. The deployed, boot-disabled
+  candidate measured 1.320-second median and 1.383-second p95/max across twelve
+  interactive requests during continuous News work. During a real bounded
+  35-second Jellyfin HEVC Main10 VAAPI transcode, the same gate measured
+  1.310-second median and 1.388-second p95/max; the transcode log was clean and
+  Jellyfin plus both renderer containers remained healthy. The contention gate
+  now passes, but News completion uses 24 small units in about 25 seconds and
+  requires listening acceptance for cadence/seams before this cap is retained.
 
 ## Validation and evaluation
 
@@ -895,6 +908,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 private Vulkan renderer bridge and contention gate | File-backed dedicated bearer key; fixed voice/speed/format; bounded input/concurrency; WAV validation; full authenticated LXC 116 path; 401 refusal; dependency 503/recovery; production isolation; simultaneous live Llama generation. | Functional/security gates pass, but latency does not: warm short end-to-end 0.714–0.896 s and 2.940 s under active Llama generation. Candidate units returned to stopped/disabled; production remained healthy. Do not select until GPU workload isolation or proven scheduling meets the frozen target. |
 | 2026-10-10 | M3 TrueNAS A380 backend comparison and private canary | Live i915/device/BAR inspection; explicit Mesa Vulkan device selection; cold/warm and longer-sentence timings; sustained Jellyfin VAAPI overlap; Intel OpenVINO 2026.4 and ORT OpenVINO 1.24.1 with CPU fallback disabled; pinned non-root deployment-image build; loopback validation; exact OPNsense rule; authentication refusal/success; full LXC 116 candidate fixture. | A380 Vulkan passes: warm short 0.494–0.511 s and 0.491–0.587 s during VAAPI overlap; the clean deployment image warmed to 0.631–0.657 s after a 4.648 s cold request; authenticated network render was 0.661 s. OpenVINO rejects the approved dynamic-rank ONNX graph. Production remains unchanged; warm-up admission, full load and listening gates remain. |
 | 2026-10-10 | M3 A380 interactive/News contention gate | Twelve unique idle acknowledgements; four briefing-sized renders with twelve interactive requests; recovery series; repeat through the deployed scheduler's real `batch` queue. Jellyfin overlap withheld after the earlier gate failed. | Direct overlap failed at 1.597 s median / 3.239 s p95. Scheduler priority improved median to 0.896 s but p95 remained 2.658 s because in-flight Kokopop work is not pre-emptible. Add batch-specific bounded clauses and interactive-aware admission, then repeat before selection. |
+| 2026-10-10 | M3 A380 bounded-batch correction | Iterated 60/30/20-character News caps; fixed batch queue flooding with one-at-a-time admission; added 250 ms conversational grace; 21 focused tests; repeated twelve-request gate with and without a real 35-second Jellyfin HEVC Main10 VAAPI transcode. | The 20-character policy passes: no-Jellyfin 1.320 s median / 1.383 s p95, with-Jellyfin 1.310 s median / 1.388 s p95. Retain only if the generated 17-unit listening sample has acceptable cadence; production remains unchanged. |
 
 ## Close-out
 
