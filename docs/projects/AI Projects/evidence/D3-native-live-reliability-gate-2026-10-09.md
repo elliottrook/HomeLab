@@ -146,3 +146,6 @@ displayed that turn's original answer after restart; the journal still held
 ordinary unflagged mode afterward. This narrows the recovery gap to
 interruption while a turn is running or its outcome is uncertain. It does not
 close that gap or justify another live question without a new test gate.
+The [next one-attempt proposal](D3-active-turn-interruption-proposal-2026-10-09.md)
+defines a distinct fictional question and a local-only, exact-PID trigger;
+it has not been armed or authorized for a live turn.
