@@ -8,6 +8,7 @@ from typing import Any
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import Response
 
+import aster_speech as legacy_speech
 from aster_speech import TTSRequest, require_api_key, speech_to_text
 from kokoro_candidate import KokoroRendererPool
 from voice_candidate import VoiceScheduler
@@ -47,6 +48,9 @@ app.add_api_route(
 @app.on_event("startup")
 async def startup() -> None:
     global _pool
+    # This is a separate FastAPI application, so the legacy app's startup hook
+    # does not run automatically. Initialize the shared STT implementation here.
+    await legacy_speech._startup()
     _pool = KokoroRendererPool()
     scheduler = VoiceScheduler(_pool.renderers)
     await scheduler.start()

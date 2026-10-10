@@ -512,6 +512,28 @@ unrelated state.
 - Fifteen M2 core/protocol/renderer tests and six benchmark tests pass locally,
   plus ten News normalization tests. The FastAPI/Auth/JWT integration gate
   remains assigned to the isolated LXC 116 candidate environment.
+- The first isolated LXC 116 application pass found and repaired a candidate
+  lifecycle defect: the separate FastAPI app must explicitly initialize the
+  reused Whisper model and lock. No production code or process was changed.
+- With a synthetic temporary bearer key and no listening socket, the corrected
+  candidate passed health, 401 refusal for TTS/STT, authenticated compatibility
+  WAV, strict extra-field rejection, cancellation, two ordered PCM frames plus
+  explicit end, and two simultaneous authenticated requests. Submitted text
+  and audio were not logged or retained.
+- Live synthesis of the accepted acknowledgement took 1.165 seconds on LXC
+  116, so it did not meet the first-audio goal. The exact listening-approved
+  phrase is now rendered once at startup and cached. A repeat integration pass
+  returned its compatibility WAV in 0.002 seconds and returned the same cached
+  response during a concurrent test in 0.004 seconds, while the other uncached
+  request completed in 1.163 seconds. Caching does not authorize speaking
+  before Home Assistant reports success.
+- The two-sentence streaming fixture completed in 1.770 seconds with audio
+  payloads of 142,368 and 78,880 bytes followed by an end frame. This buffered
+  TestClient measurement is not a network first-audio measurement; M3 must
+  measure the first received PCM frame through the real side-by-side listener.
+- The isolated source, packages, model copies and synthetic key environment
+  were deleted after both passes. The accepted production service remained
+  active and healthy before and after testing.
 
 ## Validation and evaluation
 
