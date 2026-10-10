@@ -16,6 +16,8 @@ class BundleRunnerAdminTests(unittest.TestCase):
         self.store.register_agent("agent-hermes", os.getuid())
         self.store.register_service("forgejo-mcp-safe-write")
         self.store.register_capability("forgejo.write.safe-branch", "forgejo-mcp-safe-write", "yellow")
+        self.store.register_service("forgejo-mcp")
+        self.store.register_capability("forgejo.read.repository", "forgejo-mcp", "green")
         self.store.close()
 
     def tearDown(self):
@@ -44,6 +46,23 @@ class BundleRunnerAdminTests(unittest.TestCase):
         changed = self.run_admin(uid + 1)
         self.assertNotEqual(0, changed.returncode)
         self.assertIn("does not match", changed.stderr)
+
+    def test_grants_existing_green_read_only_after_promotion(self):
+        uid = os.getuid() + 1000
+        self.assertEqual(0, self.run_admin(uid).returncode)
+        store = BrokerStore(self.database, clock=lambda: 2_000_000_000)
+        store.set_agent_state("agent-cloud-bundle", "operator")
+        store.close()
+        result = subprocess.run(
+            [sys.executable, "broker_admin.py", "--database", str(self.database),
+             "enable-forgejo-bundle-read"],
+            cwd=Path(__file__).parent, text=True, capture_output=True,
+        )
+        self.assertEqual(0, result.returncode, result.stderr)
+        store = BrokerStore(self.database, clock=lambda: 2_000_000_000)
+        capabilities = {row["capability"] for row in store.discover_capabilities("agent-cloud-bundle")}
+        self.assertIn("forgejo.read.repository", capabilities)
+        store.close()
 
 
 if __name__ == "__main__":

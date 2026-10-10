@@ -1,6 +1,6 @@
 # Pull-based Forgejo change-bundle runner
 
-> Status: Complete — Stream A accepted; M0–M4 passed
+> Status: Active — Stream A write path accepted; read-access amendment validation pending
 >
 > Owner: Jason
 >
@@ -22,6 +22,14 @@ it without network access and submits the already-established AI-PAM Yellow
 in Aster Companion before the existing broker writes one new file to a new
 `ai-pam/` branch. Forgejo remains canonical and GitHub remains its automatic
 read-only protection mirror.
+
+The 2026-10-10 read-access amendment also lets the same local identity retrieve
+bounded repository metadata, branches, commits, trees/listings and ordinary
+file content through the existing Green Forgejo read gateway. It receives no
+Forgejo credential and retains no direct gateway access. Reads are fixed to
+`jason/homelab`; write tools, other repositories, sensitive paths,
+credential-shaped arguments, secret-shaped output and oversized responses are
+denied.
 
 Success means one synthetic canary follows that full path twice independently,
 denied/adversarial cases fail closed, recovery and revocation are proven, and no
@@ -456,11 +464,19 @@ canary branch/file; it does not merge, publish, deploy or delete anything.
 
 ## Current checkpoint
 
-M0–M4 and Stream A are complete. The worker remains an AI-PAM Operator with only
-the existing Yellow one-file safe-write capability. Two independently signed,
+M0–M4 and the Stream A write path are complete. The worker remains an AI-PAM
+Operator with the existing Yellow one-file safe-write capability plus the
+existing Green repository-read capability. Two independently signed,
 approved and immediately authorized canary branches passed end to end; neither
 was merged. Backup, isolated restore, terminal-state recovery, replay denial and
 hourly metadata-only health checks passed. The private signing key remains
 human-held and unread by the agent. No public ingress or credential-bearing
 exchange was introduced. See the operator guide for continued use and recovery.
+
+The read-access amendment is installed and **112/112** Linux broker tests pass.
+Live capability registration and broker restart succeeded. Final acceptance is
+pending proof of allowed metadata/file reads plus denial of another repository,
+a sensitive path and direct gateway access; the execution environment's
+approval-review quota blocked those verification commands after installation.
+Do not report the read path as live-accepted until they pass.
 

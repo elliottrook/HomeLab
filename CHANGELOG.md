@@ -58,6 +58,13 @@
   attempts failed closed. Added public-trust-only backup, isolated restore with
   terminal-state proof, an hourly network-denied metadata health check, and the
   operator runbook. The Linux suite passes 106/106.
+- Added a least-privilege read amendment for the same runner identity using the
+  existing Green Forgejo read capability and independent read-only gateway.
+  Reads are fixed to `jason/homelab` and six metadata/content tools; the runner
+  receives no token or direct gateway permission. Installation, capability
+  registration, broker restart and 112/112 Linux tests passed. Final live
+  allowed-read and denial probes remain pending, so the amendment is not yet
+  accepted.
 
 ## 2026-10-10 — Brand Design skill and reusable standard
 

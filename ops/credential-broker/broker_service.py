@@ -18,6 +18,10 @@ from broker_core import BrokerDenied, BrokerStore
 
 
 MAX_REQUEST_BYTES = 65_536
+FORGEJO_BOUNDED_READ_TOOLS = frozenset({
+    "get_repo", "list_branches", "get_file_content", "list_repo_contents",
+    "get_repo_tree", "list_repo_commits",
+})
 
 
 def peer_uid(connection: socket.socket) -> int:
@@ -78,7 +82,14 @@ class BrokerHandler(socketserver.StreamRequestHandler):
                 raise BrokerDenied("payload must be an object")
             record = self.server.store.consume_request(str(request.get("request_id", "")), payload, agent_id=agent_id)  # type: ignore[attr-defined]
             if record.capability in {"forgejo.read.repository", "forgejo.write.safe-branch"}:
-                tool = "get_repo" if record.capability == "forgejo.read.repository" else "create_file"
+                if record.capability == "forgejo.read.repository":
+                    tool = payload.get("tool", "get_repo")
+                    arguments = payload.get("arguments", payload)
+                    if tool not in FORGEJO_BOUNDED_READ_TOOLS or not isinstance(arguments, dict):
+                        raise BrokerDenied("Forgejo read request is outside the bounded tool set")
+                else:
+                    tool = "create_file"
+                    arguments = payload
                 gateway_socket = (
                     self.server.forgejo_socket  # type: ignore[attr-defined]
                     if record.capability == "forgejo.read.repository"
@@ -86,7 +97,7 @@ class BrokerHandler(socketserver.StreamRequestHandler):
                 )
                 rpc = {
                     "jsonrpc": "2.0", "id": record.request_id, "method": "tools/call",
-                    "params": {"name": tool, "arguments": payload},
+                    "params": {"name": tool, "arguments": arguments},
                 }
                 with socket.socket(socket.AF_UNIX) as gateway:
                     gateway.connect(gateway_socket)

@@ -14,6 +14,18 @@ and the existing AI-PAM Yellow `forgejo.write.safe-branch` capability. The
 runner has no Forgejo, OpenBao, tailnet or approval credential and cannot connect
 directly to either Forgejo gateway socket. No inbound listener exists.
 
+The same identity may use the existing Green `forgejo.read.repository`
+capability through `bundle_reader.py`. The broker immediately consumes a
+payload-bound Green request, then the independent read gateway applies its
+repository/tool/path/argument/output policy using its OpenBao-held read-only
+credential. The caller never receives that credential.
+
+Supported read tools are `get_repo`, `list_branches`, `get_file_content`,
+`list_repo_contents`, `get_repo_tree` and `list_repo_commits`. The CLI fixes the
+repository to `jason/homelab`; file/list paths and refs are explicit, and commit
+limits are capped at 100. It cannot invoke issues, pull requests, workflows or
+any mutating tool.
+
 The accepted bootstrap exchange is a human-carried directory containing exactly
 `request.json`, `request.sig` and `content.txt`. Jason retains each evidence
 directory for seven days. The signed request fixes repository, current base,
@@ -40,6 +52,15 @@ nonce and a maximum 15-minute lifetime.
 7. Verify the Forgejo commit parent, one-file diff and blob SHA-256. Observe the
    GitHub mirror separately. Do not merge or delete the branch without separate
    authorization.
+
+## Read repository content
+
+Run the reader as `hlabundle` through `/run/homelab-broker/mcp.sock`; select
+`get_repo`, `list_branches`, or, for example, `get_file_content --path README.md
+--ref main`. Green reads need no Companion approval, but every request remains
+identity-, capability- and payload-bound and appears in broker audit/history.
+Never work around a denial by calling the gateway socket, requesting another
+repository or weakening the sensitive-path/output filters.
 
 ## States and safe stops
 

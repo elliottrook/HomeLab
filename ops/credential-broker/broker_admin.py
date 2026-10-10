@@ -20,6 +20,7 @@ def main() -> None:
     subparsers.add_parser("enable-forgejo-safe-write")
     bundle_runner = subparsers.add_parser("enable-forgejo-bundle-runner")
     bundle_runner.add_argument("--agent-uid", required=True, type=int)
+    subparsers.add_parser("enable-forgejo-bundle-read")
     subparsers.add_parser("enable-lab-doctor")
     subparsers.add_parser("disable-lab-doctor")
     subparsers.add_parser("graduate-lab-doctor")
@@ -93,6 +94,24 @@ def main() -> None:
                     "VALUES('agent-cloud-bundle','forgejo.write.safe-branch')"
                 )
             print("FORGEJO_BUNDLE_RUNNER_ENABLED state=probation")
+        elif args.command == "enable-forgejo-bundle-read":
+            capability = store.connection.execute(
+                "SELECT service_id,risk_class,probation_allowed,enabled FROM capabilities "
+                "WHERE capability='forgejo.read.repository'"
+            ).fetchone()
+            if capability is None or tuple(capability) != ("forgejo-mcp", "green", 0, 1):
+                raise SystemExit("existing Forgejo read capability is not ready")
+            agent = store.connection.execute(
+                "SELECT state FROM agents WHERE agent_id='agent-cloud-bundle'"
+            ).fetchone()
+            if agent is None or agent[0] not in {"operator", "specialist", "orchestrator"}:
+                raise SystemExit("bundle-runner identity is not an active promoted agent")
+            with store.connection:
+                store.connection.execute(
+                    "INSERT OR IGNORE INTO agent_capabilities(agent_id,capability) "
+                    "VALUES('agent-cloud-bundle','forgejo.read.repository')"
+                )
+            print("FORGEJO_BUNDLE_READ_ENABLED risk=green repository=jason/homelab")
         elif args.command == "enable-lab-doctor":
             if store.connection.execute(
                 "SELECT 1 FROM agents WHERE agent_id='agent-hermes'"
