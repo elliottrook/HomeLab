@@ -1,6 +1,14 @@
-# The Contrasting Frame implementation handoff
+# Dual-site photography publishing implementation handoff
 
 Owner: Jason Elliott. Prepared 2026-10-09. Start with M0, not deployment.
+
+Update 2026-10-09: Jason added The Closet Fatman at
+`theclosetfatman.com`. It shares the Contrasting Frame page geometry and the
+same private workflow, but has separate site-keyed content, approvals, assets,
+releases and a future whimsical brand package. The dearJoe font is Contrasting
+Frame-only. The shared private desk is `tcf.elliottrook.com` and uses a
+`Contrast` / `Closet` pill; see the project for the remaining M0 revision
+questions.
 
 ## Execution order
 

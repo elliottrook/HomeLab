@@ -12,17 +12,35 @@ from typing import Any
 
 WORD_RE = re.compile(r"\b[\w’'-]+\b", re.UNICODE)
 PUBLIC_FIELDS = (
-    "asset_path", "image_sha256", "collection", "title", "alt_text",
+    "site", "asset_path", "image_sha256", "collection", "title", "alt_text",
     "story", "full_story", "story_mode", "orientation", "focal_point",
     "rights_status", "consent_status", "credit", "sample",
 )
 COLLECTIONS = {"landscapes", "flora", "contrasts", "people"}
 STORY_MODES = {"fictional", "factual"}
 ORIENTATIONS = {"landscape", "portrait"}
+SITES = {"contrast", "closet"}
 
 
 class ContentError(ValueError):
     pass
+
+
+def validate_site_batch(records: list["ContentRecord"], expected_site: str) -> None:
+    """Refuse mixed-brand or wrongly targeted release inputs."""
+    if expected_site not in SITES:
+        raise ContentError("unknown release site")
+    if not records:
+        raise ContentError("release has no content records")
+    mismatched = sorted(record.id for record in records if record.site != expected_site)
+    if mismatched:
+        raise ContentError(
+            f"release for {expected_site} contains records for another site: "
+            + ", ".join(mismatched)
+        )
+    identifiers = [record.id for record in records]
+    if len(identifiers) != len(set(identifiers)):
+        raise ContentError("release contains duplicate content ids")
 
 
 def word_count(value: str) -> int:
@@ -37,6 +55,7 @@ def _safe_relative(path: str) -> bool:
 @dataclass(frozen=True)
 class ContentRecord:
     id: str
+    site: str
     asset_path: str
     image_sha256: str
     collection: str
@@ -63,6 +82,8 @@ class ContentRecord:
             raise ContentError("id must be a stable lowercase slug")
         if not _safe_relative(self.asset_path):
             raise ContentError("asset_path must remain inside the allowlisted root")
+        if self.site not in SITES:
+            raise ContentError("site must be contrast or closet")
         if not re.fullmatch(r"[0-9a-f]{64}", self.image_sha256):
             raise ContentError("image_sha256 must be lowercase SHA-256")
         if self.collection not in COLLECTIONS:

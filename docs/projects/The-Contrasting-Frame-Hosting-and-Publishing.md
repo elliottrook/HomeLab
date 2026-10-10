@@ -1,6 +1,6 @@
-# The Contrasting Frame hosting and editorial publishing
+# The Contrasting Frame and The Closet Fatman publishing
 
-> Status: Active — M0 accepted; Stream A implementation authorized
+> Status: Active — M0 accepted; dual-site revision questions open; Stream A authorized
 >
 > Owner: Jason Elliott
 >
@@ -12,12 +12,13 @@
 
 ## Purpose and desired outcome
 
-Host The Contrasting Frame on Jason's own network, publish the approved gallery
-at `https://thecontrastingframe.com`, and provide a private, AI-assisted Content
-Desk for updating photographs and Jason's short stories on a schedule.
-Retain the accepted photography-led design and an independent static serving
-path: inference, the editor or a failed scheduled job must not take down the
-last accepted gallery.
+Host two related but visually distinct photography publications on Jason's own
+network: The Contrasting Frame at `https://thecontrastingframe.com` and the more
+whimsical The Closet Fatman at `https://theclosetfatman.com`. Provide one
+private, AI-assisted Content Desk for both. They share page geometry, image and
+story capacity, approval, scheduling and recovery, but never brand packages or
+release state. Inference, the editor or a failed job must not take down either
+site's last accepted gallery.
 
 Jason requested autonomous completion, but explicitly made the initial milestone
 monitored. M0 must discuss and flesh out the design with him, record decisions
@@ -27,14 +28,18 @@ planning request as approval of an unspecified Internet exposure.
 
 Applicable visual standards are deliberately split by surface:
 
-- the public website and its rendered preview use the
+- The Contrasting Frame public site and its rendered preview use the
   [The Contrasting Frame style guide](../design/The-Contrasting-Frame-Style-Guide.md);
+- The Closet Fatman uses the same page geometry and content slots but will have
+  revised logos, a more whimsical visual guide and a different font. Those
+  assets are not yet accepted and must not be guessed from the legacy slug;
 - the private Content Desk uses the
   [Aster internal UI style guide](../design/HomeLab-UI-Style-Guide.md) and
   [HomeLab app icon family](../design/App-Icon-Family.md).
 
-An embedded gallery preview remains TCF-styled inside the Aster-styled operator
-tool. This project produces no speech; no new voice/TTS implementation is planned.
+An embedded gallery preview uses the selected public brand inside the
+Aster-styled operator tool. This project produces no speech; no new voice/TTS
+implementation is planned.
 
 ## Current state and evidence
 
@@ -47,11 +52,13 @@ The approximately 12 MB `dist/` contains five HTML pages, CSS/JS, full-colour
 SVG logos, the dearJoe 4 Regular PRO webfont and demonstration photographs.
 Production preview remains owner-private at
 https://the-closet-fatman-photography.neat-pixie-1264.chatgpt.site/.
-The legacy slug is not the brand. Do not modify/delete this recovery/reference
-site or its audience as part of the migration.
+Despite its historical slug, that artifact is the accepted Contrasting Frame
+baseline; it is not the new Closet brand package. Do not modify/delete this
+recovery/reference site or its audience as part of the migration.
 
-Jason reports ownership of `thecontrastingframe.com`. Domain registrar, active
-DNS zone, nameservers, DNSSEC and mail records must be discovered in M0.
+Jason reports ownership of `thecontrastingframe.com` and
+`theclosetfatman.com`. Registrar, active DNS zone, nameservers, DNSSEC and mail
+records for each must be verified before public launch.
 `hello@thecontrastingframe.com` is the intended enquiry address, not a verified
 working mailbox. Launch requires either a working mailbox or an accepted interim
 contact address; a mail-server deployment is outside scope.
@@ -82,11 +89,14 @@ two small unprivileged guests; static-server and private editor deployment;
 a restricted importer/image renderer, local AI draft suggestions, review queue,
 scheduled publisher, reversible release storage; narrow approved DNS/TLS/tunnel
 or edge rules; backup, monitoring, NetBox, runbooks and operator training.
+One backend serves both publications. Every content record, asset root,
+approval, schedule, build and release carries an immutable site key:
+`contrast` or `closet`. Mixed-site manifests are invalid.
 Exact guest IDs, addresses, ports, accounts and public route must be approved
 in M0 and uniqueness checked immediately before allocation.
 
-Excluded: store/cart/payments, client booking, self-hosted email, rebranding,
-new typography, moving/deleting master libraries, blanket NAS scanning, facial
+Excluded: store/cart/payments, client booking, self-hosted email, moving/deleting
+master libraries, blanket NAS scanning, facial
 recognition, autonomous publication of unreviewed writing, cloud AI uploads,
 new WAN port forwards, broad VLAN permits, unrelated service repair, changing
 existing sharing/SSO/tunnel routes, public administration, and automatic
@@ -113,7 +123,7 @@ Create dedicated datasets only after M0, provisionally:
 | Location | Content and access |
 |---|---|
 | `Media/TheContrastingFrame/library` | Curated master/export copies from the selected source, checksums and provenance; editor/importer read-only |
-| `Media/TheContrastingFrame/brand` | Full-colour logo masters/variants, licensed fonts, EULAs and receipts; private, selective webfont deployment |
+| `Media/TheContrastingFrame/brand` | Site-scoped logo masters/variants, licensed fonts, EULAs and receipts; private, selective per-domain webfont deployment |
 | `Media/TheContrastingFrame/content` | Versioned Markdown stories, metadata, approved snapshots and scheduled collection manifests |
 | `Media/TheContrastingFrame/workflow` | Private review DB/state and draft suggestions; editor-only writes, bounded retention |
 | `Media/TheContrastingFrame/releases` | Complete immutable site exports and checksum manifests; publisher writes, backup reads |
@@ -155,16 +165,21 @@ Chosen private photo folder + Jason's Markdown stories
               Content Desk / publisher
            local AI suggestions -> human review
                       |
-          approved version + scheduled publish_at
+       site-bound approved version + scheduled publish_at
                       |
-             validate complete static release
+      validate complete site-specific static release
                       |
-          scoped deploy -> public static origin
+       scoped deploy -> shared static origin vhosts
                       |
-              approved public HTTPS edge
-                      |
-             thecontrastingframe.com
+        approved public HTTPS edge per domain
+             /                         \
+thecontrastingframe.com        theclosetfatman.com
 ```
+
+The desk exposes a prominent `Contrast` / `Closet` pill and keeps that choice
+visible through import, editing, preview, approval and scheduling. Switching
+the pill changes the preview theme and destination; it never silently moves a
+record between sites. Release roots and manifests remain separate per site.
 
 The publisher may contact the local inference capability through the existing
 authenticated service/broker pattern, with a dedicated `ai-tcf-editor` identity.
@@ -178,8 +193,8 @@ arbitrary shell/root commands or administer DNS/firewalls. The inference identit
 has no deployment capability. The public origin must not initiate connections to
 private storage, Forgejo, Aster, OpenBao, editor or network administration.
 
-Private editor: a LAN/Tailscale-only HTTPS name (provisional
-`tcf-studio.elliottrook.com`) through NPM and Authentik owner-only access, plus a
+Private editor: the LAN/Tailscale-only HTTPS name
+`tcf.elliottrook.com` through NPM and Authentik owner-only access, plus a
 documented break-glass path. No Cloudflare public route to it.
 
 ## Public domain and delivery decision
@@ -296,17 +311,40 @@ Full-size download sales are out of scope.
   approval state and the current accepted site plus bounded operational
   rollback. Immich/media has its own backup process; this project does not add
   historical media or release-archive protection.
-- Cloudflare currently holds the parked domain. Public delivery is free-tier
-  only; the apex is canonical with a `www` redirect. No editor, API, originals,
+- Cloudflare currently holds the parked Contrasting Frame domain, and Jason
+  owns `theclosetfatman.com`; live provider state for the second domain remains
+  an A5 verification gate. Public delivery is free-tier only; each apex is
+  canonical with its own `www` redirect. No editor, API, originals,
   administration, downloads or sales are public.
 - Apple-hosted custom-domain mail is intended for
   `hello@thecontrastingframe.com`; working mail or an accepted interim address
   remains a launch gate.
 - Jason reports the dearJoe webfont licence permits one domain and 10,000
-  monthly views. Monitor usage and extend the licence before exceeding it; EULA
-  verification remains an A5 gate.
+  monthly views. It is restricted to The Contrasting Frame and must never be
+  emitted in a Closet release. The Closet Fatman will use a different font.
+  Monitor usage and extend the licence before exceeding it; EULA verification
+  remains an A5 gate.
 - The private Content Desk follows the Aster internal UI and app-icon guides;
-  the website and embedded public preview follow the TCF guide.
+  each embedded public preview follows its selected brand guide. Its accepted
+  private hostname is `tcf.elliottrook.com`.
+- The Closet Fatman uses identical content places/space and the same backend,
+  but revised logos, whimsical style and non-dearJoe font remain an explicit
+  design acceptance gate before public preview or launch.
+
+### M0 dual-site revision still to confirm
+
+Implementation can continue with safe defaults, but Jason should confirm:
+
+- whether a photograph/story may be deliberately published on both sites, as
+  two independently approved site records, or must belong to exactly one;
+- whether The Closet Fatman's public display name is exactly “The Closet
+  Fatman”; and
+- whether its contact follows the same Apple custom-domain-mail plan as
+  `hello@thecontrastingframe.com`, using `hello@theclosetfatman.com`.
+
+Unless changed, each site has an independent fortnightly queue and launch gate,
+and The Closet Fatman uses free/system typography until its visual guide is
+accepted. Provider/DNS state is verified from live records rather than assumed.
 
 ## Privacy security and risk assessment
 
@@ -373,8 +411,11 @@ Gate: accepted gallery operates privately and isolation/recovery tests pass.
 
 ### A3 Deliver the AI assisted editorial workflow
 
-- [ ] Implement selector, story editing, optional draft-only local AI, diffs,
+- [ ] Implement `Contrast` / `Closet` site selector, story editing, optional
+  draft-only local AI, diffs,
   rights/alt-text checks, live preview, approval and version invalidation.
+- [ ] Prove site-key isolation: reject cross-brand asset, approval, schedule,
+  font and mixed-site release reuse.
 - [ ] Add dedicated service identities/broker mappings with denied-action tests.
 - [ ] Jason completes a real photograph/story review and approval walkthrough.
 - [ ] Preserve original words; verify path/metadata/prompt-injection safeguards.
@@ -393,7 +434,8 @@ Gate: approved due content publishes; unapproved content never does.
 
 ### A5 Public domain launch
 
-- [ ] Reconfirm M0 exposure/provider decision and all content/licence/mail gates.
+- [ ] Reconfirm M0 exposure/provider decision and each site's content, style,
+  font, DNS and mail gates; either site may remain private while the other launches.
 - [ ] Capture DNS/proxy/certificate/firewall recovery checkpoints.
 - [ ] Configure only approved domain/edge routes; preserve existing services/mail.
 - [ ] Test real external unauthenticated gallery access and LAN/Tailscale access;
@@ -489,6 +531,7 @@ unless Jason separately asks; the new implementation conversation owns execution
 | 2026-10-09 | Beszel 0.18.7 reports both guests `up`; HomeLab Doctor verifies private desk/origin services, the current release manifest and both primary/mirror backup ages. Full Doctor: 81 pass, 13 pre-existing warnings, 0 fail | Monitoring and failure-only checks cover the new runtime without adding a parallel stack |
 | 2026-10-09 | Stopping the Content Desk left origin health intact; both guests then rebooted and recovered their service/firewall/agent units automatically. Neither runtime has a NAS mount, and the origin checksum remained valid | Editor, future inference and NAS availability are not origin runtime dependencies; A2 gate passed |
 | 2026-10-09 | Versioned content schema, immutable public hash, sample hard-block, traversal/rights/consent/story-limit tests and conspicuous five-page sample build completed; 10 tests passed | A1 gate passed; commercial font and all media remain outside the public-mirrored repository |
+| 2026-10-09 | Jason expanded the design to The Contrasting Frame plus the more whimsical The Closet Fatman, sharing identical page/content capacity and one backend; approved `tcf.elliottrook.com` for the private desk | A3 adds a site pill and hard site-key isolation. Closet logo/style/font and second-domain provider/mail facts remain design/A5 gates; no public route changed |
 
 ## Close out
 

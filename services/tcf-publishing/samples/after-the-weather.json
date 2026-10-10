@@ -1,5 +1,6 @@
 {
   "id": "after-the-weather-sample",
+  "site": "contrast",
   "asset_path": "assets/alpine-dawn.png",
   "image_sha256": "623afb0f558ad84e19e69648c5a241bd00a5348bf38d8fa73d81958f5c29e3e5",
   "collection": "landscapes",

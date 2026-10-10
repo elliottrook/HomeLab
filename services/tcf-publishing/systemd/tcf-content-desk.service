@@ -1,5 +1,5 @@
 [Unit]
-Description=The Contrasting Frame private Content Desk
+Description=Private dual-site photography Content Desk
 After=network-online.target
 Wants=network-online.target
 

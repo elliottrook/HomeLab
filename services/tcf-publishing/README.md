@@ -1,7 +1,8 @@
-# The Contrasting Frame publishing service
+# Shared photography publishing service
 
-This directory contains the public-mirror-safe implementation for the private
-Content Desk and static publisher. It intentionally contains no photographs,
+This directory contains the public-mirror-safe implementation for one private
+Content Desk and the static publisher used by The Contrasting Frame and The
+Closet Fatman. It intentionally contains no photographs,
 licensed fonts, receipts, EULAs, private stories, approval records or secrets.
 
 Runtime authorities:
@@ -12,6 +13,11 @@ Runtime authorities:
 - the accepted Sites `dist/` export at commit `5b23ccb9` is the initial layout
   baseline; and
 - a separate static-origin guest receives complete immutable releases only.
+
+Every content record, approval, schedule, asset root and release is bound to
+either the `contrast` or `closet` site key. Builders must reject mixed-site
+manifests. The Closet Fatman shares layout/content capacity, not the Contrasting
+Frame brand package or licensed dearJoe font.
 
 The initial deployment uses conspicuously labelled sample content. It must not
 be promoted to the public domain. The publisher validates a frozen content hash
@@ -38,7 +44,8 @@ and domain gate passes.
 ## Initial private deployment
 
 - `tcf-publisher` is unprivileged LXC 124 at `192.168.20.35`; the Content Desk
-  listens on TCP 8080 and accepts ingress only from NPM `192.168.50.23`.
+  listens on TCP 8080 and accepts ingress only from NPM `192.168.50.23`. Its
+  approved private name is `tcf.elliottrook.com`.
 - `tcf-origin` is unprivileged LXC 125 at `192.168.20.36`; Nginx serves the
   visibly marked sample release on TCP 80 and accepts private validation only
   from NPM. It has no NAS, editor or AI path.
