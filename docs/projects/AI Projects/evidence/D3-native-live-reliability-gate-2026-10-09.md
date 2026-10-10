@@ -1,16 +1,19 @@
-# D3 native Companion reliability gate — proposed, not run
+# D3 native Companion reliability gate — partial live result
 
-**Status: awaiting a separate live-test decision.** Owner: Jason. The installed
-version-13 Companion is the known working app. The twelve fictional Codex
-questions are complete and must not be resent. This gate tests the delivery
-path, not sysadmin competence or automatic routing.
+**Status: one supervised send, idle restart and short sleep/wake observed;
+active-turn interruption not tested.** Owner: Jason. The [executed installation
+record](D3-native-manual-v15-installation-2026-10-09.md) controls current
+state. Version 15 is installed in ordinary mode with manual sending hidden;
+signed version 13 is retained as a rollback copy. The twelve fixed fictional
+cases and the additional Vega-light question must not be resent. This gate
+tests the delivery path, not sysadmin competence or automatic routing.
 
-**Current blocker:** version 13 admits only the completed twelve fixed cases.
-It cannot send a new question for an active-turn interruption. A separate
-disabled-by-default manual candidate now exists locally, but is not installed
-or enabled. That stage still requires a reviewed signed build, installation
-and rollback plan, one exact fictional question and explicit cloud consent.
-Do not bypass the finite UI or reset its saved index.
+**Current blocker:** the Vega turn completed before a controlled interruption,
+so the active-turn recovery criterion remains open. Do not send a replacement
+question just to force that outcome. A future live recovery experiment would
+need a new exact preregistered non-sensitive question, explicit cloud consent,
+an interruption method that cannot create duplicate turns, and separate owner
+review. Do not bypass the finite UI or reset its saved index.
 
 ## Why this is needed
 
@@ -28,7 +31,7 @@ The private dispatch journal had thirteen `completed` rows and no other
 recorded states; only aggregate state counts were queried. This does not prove
 the app is idle or that macOS authentication will remain prompt-free.
 
-## Bounded test sequence
+## Original bounded test sequence (historical plan)
 
 1. **Read-only preflight.** Confirm no Codex request is active; record the
    installed app hash/signature, current authenticated state and content-free
@@ -74,7 +77,7 @@ explicit routine-use release decision remain separate requirements. This
 proposal is not approval to install a new build, run the live interruption or
 send a model request.
 
-## Local candidate checkpoint — no live activation
+## Local candidate checkpoint (historical pre-install state)
 
 `LocalCodexManualView` is behind `--aster-local-codex-manual`, which the
 installed app does not use. It requires text review and a separate ChatGPT
@@ -113,3 +116,25 @@ ad-hoc bundle passed strict signature verification with executable SHA-256
 Its **bundled** metadata-only preflight returned the pinned manifest above
 with `inference=false`; all 55 native tests passed. A stable-signed release
 artifact, exact installation/rollback review and live gates are still required.
+
+## Execution addendum — 2026-10-09
+
+Jason approved one version-15 installation and, after an inconclusive first
+entry with two concurrent app instances, one clean single-instance retest.
+The normal app signed in after one first-entry Keychain prompt. Aster showed
+AI-PAM approvals and the disabled-by-default manual request view. Jason
+reviewed the exact Vega question and cloud destination, consented in the app,
+and clicked Send once. Its original answer completed and displayed under one
+request ID; the content-free journal advanced from 13 to 14 completed rows.
+The answer arrived before the app could be interrupted, so step 3 above is
+**not passed**. No replacement question was sent.
+
+After Jason finished with the answer, the app reopened unflagged to normal
+Aster, with manual sending hidden and no visible Keychain prompt. Jason then
+initiated one ordinary sleep/unlock. The same process remained signed in,
+AI-PAM showed no pending approvals, the journal remained unchanged, and Jason
+reported no Keychain or sign-in prompt. These are narrow restart and short
+sleep/wake observations; they do not prove natural token refresh, long-duration
+reliability, general manual release or active-turn recovery. The earlier
+version-13 and uninstalled-candidate descriptions above are historical and
+must not be read as the current deployment state.
