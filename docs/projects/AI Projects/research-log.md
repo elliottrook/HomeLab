@@ -2345,3 +2345,17 @@ focused tests pass. This exercises a real local process-death boundary with no
 Codex process, cloud request, live credential or Companion interruption. Live
 app crash/sleep/wake behavior and original-answer retrieval still need their
 separate gates.
+
+### 2026-10-09 — Disabled native manual Codex candidate
+
+Prepared a separate manual Companion surface behind
+`--aster-local-codex-manual`. It reviews arbitrary text and requires explicit
+ChatGPT consent per question, then uses the existing one-turn, no-tools local
+bridge. A private content-free pending record is durably claimed before helper
+launch; only a completed original answer can be acknowledged to admit a new
+question. Two pending-record tests and all 55 native tests pass. Built an
+unregistered, uninstalled ad-hoc app and verified its strict signature.
+Metadata-only preflight matched the pinned manifest and reported no inference.
+No user question or model turn was sent, no app was installed, and no real
+credential value was inspected. The candidate still needs signed-release and
+live reliability gates before manual use.

@@ -68,6 +68,7 @@ struct DelegationView: View {
     @State private var showingRequest = false
     @State private var showingLocalPilot = false
     @State private var showingLocalEvaluation = false
+    @State private var showingLocalManual = false
     @State private var recoveryPending = false
     @State private var recoveryMessage: String?
     @AppStorage("aster.codex.pendingRequestID") private var pendingID = ""
@@ -85,6 +86,9 @@ struct DelegationView: View {
                 }
                 if ProcessInfo.processInfo.arguments.contains(LocalCodexEvaluationView.launchFlag) {
                     Button("Local Codex evaluation") { showingLocalEvaluation = true }
+                }
+                if ProcessInfo.processInfo.arguments.contains(LocalCodexManualView.launchFlag) {
+                    Button("Manual Codex (ChatGPT)") { showingLocalManual = true }
                 }
                 Spacer()
                 Button("Done") { dismiss() }
@@ -127,6 +131,9 @@ struct DelegationView: View {
         }
         .sheet(isPresented: $showingLocalEvaluation) {
             LocalCodexEvaluationView()
+        }
+        .sheet(isPresented: $showingLocalManual) {
+            LocalCodexManualView()
         }
         .task {
             if !pendingID.isEmpty { selected = pendingID }

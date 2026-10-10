@@ -6,10 +6,11 @@ questions are complete and must not be resent. This gate tests the delivery
 path, not sysadmin competence or automatic routing.
 
 **Current blocker:** version 13 admits only the completed twelve fixed cases.
-It cannot send a new question for an active-turn interruption. That stage
-requires a separately reviewed, signed candidate with one exact thirteenth
-fictional question, a new pinned manifest, an installation/rollback plan and
-explicit cloud consent. Do not bypass the finite UI or reset its saved index.
+It cannot send a new question for an active-turn interruption. A separate
+disabled-by-default manual candidate now exists locally, but is not installed
+or enabled. That stage still requires a reviewed signed build, installation
+and rollback plan, one exact fictional question and explicit cloud consent.
+Do not bypass the finite UI or reset its saved index.
 
 ## Why this is needed
 
@@ -39,7 +40,10 @@ the app is idle or that macOS authentication will remain prompt-free.
    sleep and unlocks it; the test observes the app afterward. Do not change
    macOS lock or Keychain settings.
 3. **One active-turn interruption, only after the candidate and exact question
-   are separately reviewed.** Use one new short fictional, non-sensitive question with no
+   are separately reviewed.** Proposed text: “Fictional smart-home light Vega
+   reports on, but the room is dark. No power, sensor or network check has been
+   run. State what is known and unknown and suggest read-only checks. Do not
+   claim to control or repair it.” Use this one non-sensitive question with no
    tools. Record its new request ID before send. Interrupt only the Companion
    app during the pending turn, then reopen it. Read the same ID's status and
    original Codex turn; recover that answer if completed, or show `unknown` if
@@ -69,3 +73,23 @@ Independent answer scoring, a successful live recovery-path check, and an
 explicit routine-use release decision remain separate requirements. This
 proposal is not approval to install a new build, run the live interruption or
 send a model request.
+
+## Local candidate checkpoint — no live activation
+
+`LocalCodexManualView` is behind `--aster-local-codex-manual`, which the
+installed app does not use. It requires text review and a separate ChatGPT
+consent toggle for each send. `LocalCodexManualPending` writes a private,
+content-free request ID before helper launch; a crash or uncertain result
+blocks new sends, while a recorded completed turn can be read back without
+new inference. The helper remains pinned to a ChatGPT account, read-only
+sandbox, disabled web, zero MCP servers, one turn and no automatic retry.
+
+All 55 native tests pass, including two private-record tests. An unregistered,
+uninstalled ad-hoc debug bundle passed strict signature verification; its
+executable SHA-256 is
+`741716e2fb402c93ec8a96c269cc6208afc9ec29fc357c8c577499dab6837fd1`.
+Its metadata-only preflight returned `inference=false` and the pinned manifest
+SHA-256 `34d349045dea8ae8410ccc984e508f1754348539f0491fe542e0bd31f78b3753`
+with ChatGPT auth and `gpt-5.6-luna` medium. No model turn, real credential
+readout, app installation or Launch Services registration occurred. This is
+a source/build checkpoint, not a routine-use release.
