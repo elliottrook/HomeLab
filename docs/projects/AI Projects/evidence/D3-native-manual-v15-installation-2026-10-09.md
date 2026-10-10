@@ -97,3 +97,22 @@ sheet with manual sending hidden. No new Codex request was made. Jason
 reported no Keychain or Aster sign-in prompt during unlock. This is one short
 sleep/wake observation, not a natural token-refresh or long-duration
 reliability result.
+
+## Read-only original-answer recovery after restart
+
+After the short sleep/wake check, Companion was quit while idle and launched
+once with the manual-test flag. The saved private manual request ID remained
+`request-bc4285fd-5454-400f-9b31-53971c984cb9`. The UI reported that the
+recorded turn had completed and offered **Recover original answer**, rather
+than a new-question Send. That action displayed the same original Vega answer
+with the message that it had been recovered from the recorded turn. The
+private dispatch journal remained at 14 `completed` rows and no other states.
+The completed request was not acknowledged/cleared, so the fail-closed saved
+ID remains a guard against accidental resubmission.
+
+The recovery view was closed. Companion was quit and reopened once without the
+manual flag; one unflagged process and the signed-in ordinary Aster screen were
+observed, and the manual-send control was hidden. No new question was sent.
+This verifies post-completion original-answer recovery through the signed
+native UI. It does **not** demonstrate recovery from a crash while a model
+turn is active, natural token refresh or sustained reliability.

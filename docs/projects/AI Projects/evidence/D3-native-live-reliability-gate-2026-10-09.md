@@ -138,3 +138,11 @@ sleep/wake observations; they do not prove natural token refresh, long-duration
 reliability, general manual release or active-turn recovery. The earlier
 version-13 and uninstalled-candidate descriptions above are historical and
 must not be read as the current deployment state.
+
+A subsequent read-only check reopened the signed app in manual mode and found
+the same saved Vega request ID marked completed. **Recover original answer**
+displayed that turn's original answer after restart; the journal still held
+14 completed rows and no new question was sent. The app was returned to
+ordinary unflagged mode afterward. This narrows the recovery gap to
+interruption while a turn is running or its outcome is uncertain. It does not
+close that gap or justify another live question without a new test gate.

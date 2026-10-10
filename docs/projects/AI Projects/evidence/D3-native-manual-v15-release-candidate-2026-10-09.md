@@ -88,3 +88,8 @@ process remained running and signed in, the journal remained at 14 completed
 rows, manual sending stayed hidden, and Jason reported no Keychain or sign-in
 prompt. This short observation does not establish natural token-refresh or
 long-duration reliability.
+
+The same completed Vega request was later recovered read-only in the native
+manual view after restart, without a new journal row or new question. The app
+was returned to ordinary mode with manual sending hidden. Recovery from an
+active or uncertain turn remains untested.
