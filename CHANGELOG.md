@@ -1,11 +1,12 @@
 # Changelog
 
-## 2026-10-10 — Brand Design skill consolidation staged locally
+## 2026-10-10 — Brand Design skill and reusable standard
 
-- Consolidated the installed Brand SVG Studio workflow into one Brand Design skill while retaining registry, SVG audit, recolour, tracing, rendering, export, release and rollback behavior.
-- Added gated brand intake, concept/master approval, precise edit contracts, 18-reference/equivalence coverage, manual/reconstruction literature, offline package validation, deployment-state reporting and an explicit-only legacy alias.
-- Passed six synthetic validator tests and the supplied fotosforfun 18-reference raster fixture. Full vector/release deployment remains open; no Forgejo push or public publication was performed.
-- Added a design-only Forgejo/Tailscale access proposal recommending a pull-based local runner; no network, credential or production change was made.
+- Consolidated Brand SVG Studio into one installed Brand Design skill while retaining registry, SVG audit, recolour, tracing, rendering, export, release and rollback behavior.
+- Added a durable Brand Creation Standard under `docs/standards/brand-design/` and reusable engagement files under `docs/templates/brand-design/`. Individual brand work instantiates these milestones in the Brand Asset Library rather than entering the HomeLab enhancement-project portfolio.
+- Added gated intake, concept/master approval, precise edit contracts, 18-reference/equivalence coverage, manual/reconstruction literature, offline package validation, deployment-state reporting and an explicit-only legacy alias.
+- Passed seven synthetic validator tests; the supplied fotosforfun material passes only the limited fixture profile and remains blocked from a production release pending strict rights/approval/vector gates.
+- Added design-only Forgejo/Tailscale guidance recommending a pull-based local runner; no network, credential or production-service change was made.
 
 ## 2026-09-24 — MacBook administration layer: M0-M3 closed, M4 in progress
 
