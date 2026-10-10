@@ -7,6 +7,7 @@ import argparse
 import json
 import subprocess
 import sys
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
@@ -73,34 +74,58 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
 def commands() -> list[list[str]]:
     return [
         ["pct", "exec", "110", "--", "systemctl", "stop", CANDIDATE_UNIT],
-        ["pct", "exec", "110", "--", "systemctl", "restart", "aster-llama.service"],
+        ["pct", "exec", "110", "--", "systemctl", "stop", "aster-llama.service"],
+        ["pct", "exec", "110", "--", "systemctl", "start", "--no-block", "aster-llama.service"],
         ["pct", "exec", "110", "--", "systemctl", "is-active", "--quiet", "aster-llama.service"],
+        ["pct", "exec", "110", "--", "curl", "-fsS", "http://192.168.70.12:11435/health"],
         ["pct", "exec", "110", "--", "sha256sum", "/opt/llama.cpp-b11081/llama-server"],
         ["pct", "exec", "110", "--", "sha256sum", "/etc/systemd/system/aster-llama.service"],
         ["readlink", "/sys/bus/pci/devices/0000:04:00.0/driver"],
         ["pct", "exec", "110", "--", "vulkaninfo", "--summary"],
-        ["pct", "exec", "110", "--", "curl", "-fsS", "http://192.168.70.12:11435/health"],
     ]
 
 
-def execute_finalizer(run: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> None:
-    results = []
-    for index, command in enumerate(commands()):
-        result = run(command, capture_output=True, text=True, timeout=180)
-        # A missing/stopped candidate is acceptable; every restoration/validation step is mandatory.
-        if index and result.returncode != 0:
-            raise GuardError(f"finalizer step {index + 1} failed")
-        results.append(result)
-    if ACCEPTED_BINARY_SHA256 not in results[3].stdout:
+def execute_finalizer(run: Callable[..., subprocess.CompletedProcess] = subprocess.run,
+                      sleep: Callable[[float], None] = time.sleep,
+                      quiesce_seconds: int = 30, readiness_attempts: int = 60,
+                      readiness_interval: int = 5) -> None:
+    steps = commands()
+    # Candidate absence is acceptable. Stopping accepted production is mandatory so
+    # GPU/process state can quiesce before a clean, non-blocking start.
+    run(steps[0], capture_output=True, text=True, timeout=180)
+    stopped = run(steps[1], capture_output=True, text=True, timeout=180)
+    if stopped.returncode != 0:
+        raise GuardError("finalizer failed to stop accepted service")
+    sleep(quiesce_seconds)
+    started = run(steps[2], capture_output=True, text=True, timeout=180)
+    if started.returncode != 0:
+        raise GuardError("finalizer failed to request accepted service start")
+
+    ready = False
+    for attempt in range(readiness_attempts):
+        active = run(steps[3], capture_output=True, text=True, timeout=30)
+        if active.returncode == 0:
+            health = run(steps[4], capture_output=True, text=True, timeout=30)
+            if health.returncode == 0 and "ok" in health.stdout.lower():
+                ready = True
+                break
+        if attempt + 1 < readiness_attempts:
+            sleep(readiness_interval)
+    if not ready:
+        raise GuardError("accepted service did not become active and healthy")
+
+    results = [run(command, capture_output=True, text=True, timeout=180)
+               for command in steps[5:]]
+    if any(result.returncode != 0 for result in results):
+        raise GuardError("accepted-service validation command failed")
+    if ACCEPTED_BINARY_SHA256 not in results[0].stdout:
         raise GuardError("accepted binary hash mismatch")
-    if ACCEPTED_UNIT_SHA256 not in results[4].stdout:
+    if ACCEPTED_UNIT_SHA256 not in results[1].stdout:
         raise GuardError("accepted unit hash mismatch")
-    if not results[5].stdout.strip().endswith("/xe"):
+    if not results[2].stdout.strip().endswith("/xe"):
         raise GuardError("B60 is not bound to xe")
-    if "BMG G21" not in results[6].stdout:
+    if "BMG G21" not in results[3].stdout:
         raise GuardError("B60 Vulkan enumeration missing")
-    if "ok" not in results[7].stdout.lower():
-        raise GuardError("accepted endpoint health failed")
 
 
 def main(argv: list[str] | None = None) -> int:

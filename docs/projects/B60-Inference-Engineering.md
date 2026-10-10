@@ -250,10 +250,12 @@ G21, and disk/RAM/VRAM headroom is at least 20 GiB/4 GiB/2 GiB.
 No experiment starts before 00:30. The experiment hard-stops at 01:40, reserving
 20 minutes for `python3 scripts/b60-inference/guard.py finalize --execute
 --allow-production`. The absolute restoration deadline is 02:00. The finalizer
-stops only `aster-b60-candidate.service`, restarts the accepted
-`aster-llama.service`, then requires active state, accepted binary/unit hashes,
-host `xe` binding, BMG G21 Vulkan enumeration and healthy endpoint. Candidate
-absence is acceptable; failure of any restoration or validation step is not.
+stops `aster-b60-candidate.service`, explicitly stops the accepted
+`aster-llama.service`, allows GPU/process state to quiesce for 30 seconds, then
+requests one non-blocking clean start. It polls active state and health for up
+to five minutes before requiring accepted binary/unit hashes, host `xe` binding
+and BMG G21 Vulkan enumeration. Candidate absence is acceptable; failure of any
+restoration or validation step is not.
 Authenticated synthetic generation remains an additional required validation
 before a live control can close because credential access is outside the
 autonomous envelope.
@@ -455,6 +457,7 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-10-07 | Standing owner authorization and scheduler | Jason authorized recurring nightly testing until a reproducible fix is found and the project completes. Created active thread heartbeat `b60-nightly-validation-loop` for 00:20 America/Vancouver daily. Standing authorization covers the existing credential only through the protected path for authenticated synthetic generation, the documented live finalizer/rollback, and the already enumerated bounded Stream A Vulkan experiments | Each run remains fail-closed and limited to the 00:20 preflight, 00:30–01:40 experiment window and restoration before 02:00. The automation must pause on failed or surprising gates and when the project completes. Git pushes, firmware/BIOS/boot/reboot/GPU reset, packages, persistent production changes or promotion, network changes, destructive storage, backup deletion, SYCL/Level Zero/OpenVINO, BAR changes and model downloads remain excluded and separately gated |
 | 2026-10-08 | Nightly automation timing guard | The first recurring heartbeat began at 00:35 PDT, after the mandatory 00:20–00:29 preflight window. It failed closed: no preflight was represented as valid and no production load or service mutation ran. Moved the heartbeat trigger from 00:20 to 00:05 and made early preparation plus the exact in-window evidence requirement explicit | Tonight was skipped safely. The earlier trigger allows checkout reconciliation and read-only preparation before the next 00:20–00:29 gate while retaining the 01:40/02:00 deadlines and all standing exclusions |
 | 2026-10-09 | Live finalizer proof | Rebased the five unpublished B60 commits onto authoritative Forgejo `2f92914` without pushing. At 00:20 PDT the exact preflight passed: fresh 2026-10-08 LXC 110 backup and successful bounded mirror, accepted hashes, healthy service, `xe`, BMG G21 Vulkan, 21.9 GB disk, 8.8 GB RAM, 11.6 GB VRAM headroom and no relevant 24-hour kernel failure. At 00:30 invoked the standing-authorized live finalizer. The accepted service restart did not become healthy within its start-post window; repeated warmup health checks returned 503 and systemd entered auto-restart. No benchmark or candidate load ran | Production restoration is not yet proven and accepted service remains in an unhealthy restart cycle. The safe next recovery step is an explicit stop, quiesce and single clean start, but the platform rejected that mutation because it exceeds the recorded finalizer sequence. Immediate owner approval is required; do not run further experiments |
+| 2026-10-10 | Recovery and owner continuation | Jason authorized continuing the requested stop/quiesce/clean-start recovery. Before mutation, read-only validation found the accepted service had recovered automatically after 36 restarts: active, health `ok`, accepted binary/unit hashes, `xe`, BMG G21 Vulkan and no relevant kernel failure since the finalizer. No healthy service was stopped and no benchmark ran outside the window. Revised the local finalizer to stop accepted production explicitly, wait 30 seconds, request a non-blocking clean start, poll active plus health for up to five minutes, and only then validate hashes, driver and Vulkan; all 25 B60 tests pass | The original immediate restart validation is rejected as unsafe. The revised sequence requires one successful live proof in a fresh overnight window before any benchmark; the nightly automation remains paused until its instructions are updated |
 
 ## Close-out
 

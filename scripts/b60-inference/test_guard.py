@@ -45,25 +45,25 @@ class GuardTests(unittest.TestCase):
                 guard.validate_preflight(item, now, 30)
 
     def test_finalizer_order_and_validation(self):
-        outputs = ["", "", "", guard.ACCEPTED_BINARY_SHA256, guard.ACCEPTED_UNIT_SHA256,
-                   "/sys/bus/pci/drivers/xe\n", "Intel BMG G21", '{"status":"ok"}']
+        outputs = ["", "", "", "", '{"status":"ok"}', guard.ACCEPTED_BINARY_SHA256,
+                   guard.ACCEPTED_UNIT_SHA256, "/sys/bus/pci/drivers/xe\n", "Intel BMG G21"]
         seen = []
         def fake_run(command, **kwargs):
             seen.append(command)
             return subprocess.CompletedProcess(command, 0, outputs[len(seen)-1], "")
-        guard.execute_finalizer(fake_run)
+        guard.execute_finalizer(fake_run, sleep=lambda _: None, quiesce_seconds=0,
+                                readiness_attempts=1, readiness_interval=0)
         self.assertEqual(seen, guard.commands())
         self.assertEqual(seen[0][-2:], ["stop", guard.CANDIDATE_UNIT])
-        self.assertEqual(seen[1][-2:], ["restart", "aster-llama.service"])
+        self.assertEqual(seen[1][-2:], ["stop", "aster-llama.service"])
+        self.assertEqual(seen[2][-3:], ["start", "--no-block", "aster-llama.service"])
 
     def test_finalizer_fails_closed_on_validation_error(self):
-        count = 0
         def fake_run(command, **kwargs):
-            nonlocal count
-            count += 1
-            return subprocess.CompletedProcess(command, 1 if count == 3 else 0, "", "")
+            return subprocess.CompletedProcess(command, 1 if "is-active" in command else 0, "", "")
         with self.assertRaises(guard.GuardError):
-            guard.execute_finalizer(fake_run)
+            guard.execute_finalizer(fake_run, sleep=lambda _: None, quiesce_seconds=0,
+                                    readiness_attempts=2, readiness_interval=0)
 
 
 if __name__ == "__main__":
