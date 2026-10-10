@@ -94,6 +94,12 @@ the immutable approved payload, while the visual treatments stay brand-local.
   templates expose Contrast capacities 4/2/2/2 and Closet 2/2/2/1 across
   landscapes/flora/contrasts/people; making them identical requires a deliberate
   Closet layout revision rather than a backend assumption.
+- Release preparation strips private-preview markings, verifies an exact file
+  inventory and every checksum again, and derives an immutable ID from site,
+  edition and manifest digest. Activation is a same-filesystem symlink exchange
+  that returns the previous target for one-step rollback. The module is installed
+  on the private publisher but is not connected to the origin or exposed in the
+  GUI; public routing remains absent.
 - The private hostname is implemented by three internal resolver records,
   NPM host 36 and the owner-only Authentik application
   `photography-content-desk`. The direct TCP 8080 backend remains restricted to
