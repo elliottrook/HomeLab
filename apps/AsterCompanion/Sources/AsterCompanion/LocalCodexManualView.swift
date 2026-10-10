@@ -162,7 +162,8 @@ struct LocalCodexManualView: View {
               object["state"] as? String == "completed",
               object["automatic_retry"] as? Bool == false,
               let text = object["answer"] as? String, !text.isEmpty else {
-            message = "Outcome uncertain or unavailable. The request ID is retained; do not resend."
+            message = "Checking the recorded request. Nothing will be resent."
+            await preflight()
             return
         }
         answer = text

@@ -31,6 +31,11 @@ question locally. Its [offline file-boundary hardening](evidence/ARR-report-file
 does not turn that question into a Codex sysadmin role or grant access to a
 repair candidate.
 
+An [offline D3 view candidate](evidence/D3-manual-uncertain-result-2026-10-10.md)
+now checks the recorded request after an uncertain native bridge result and
+offers only the existing recovery/reconciliation path where the journal proves
+one. It is not installed and does not change the limited-release HOLD.
+
 ### What the next connected-tool gate actually lacks
 
 Repository evidence shows [M1 Stage1](evidence/M1-stage1-deployment.md)

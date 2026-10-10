@@ -14,10 +14,17 @@ adapter and the existing ARR aggregate reader now have local candidates that
 validate a single opened, bounded regular file rather than checking a pathname
 and reopening it. See the [Doctor](evidence/D4-doctor-file-boundary-2026-10-09.md)
 and [ARR](evidence/ARR-report-file-boundary-2026-10-09.md) evidence. Twenty-four
-focused local tests pass. These changes are unpublished and undeployed; they
+focused local tests pass. These changes were pushed through `d9d8344` and
+mirrored to GitHub; they remain undeployed and
 grant no Codex tool access. A simple ARR service-status answer should stay on
 the deterministic local path. Useful Codex diagnosis still needs a scoped
 evidence projection, Stage2 authority resolution and independent validation.
+
+**D3 offline continuation — 2026-10-10:** The hidden manual Companion view now
+has a local [uncertain-result candidate](evidence/D3-manual-uncertain-result-2026-10-10.md)
+that checks the recorded request immediately after an unconfirmed send result.
+Fifty-five Companion tests pass. No new question, app install or routine-release
+decision occurred; the D3 HOLD remains.
 
 **Latest resume — native Companion, 2026-10-09:** Signed version 15 is installed
 and running in ordinary mode without the manual-test flag. The [supervised
