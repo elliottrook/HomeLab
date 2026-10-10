@@ -5,6 +5,11 @@ Date: 2026-10-10
 Status: **engineering proxy complete; neither model configuration is qualified
 for unattended personal analysis**
 
+Follow-up: the model-owned routing conclusion in this record is superseded by
+the code-owned, quote-grounded v2 architecture and results in
+`2026-10-10-grounded-target-architecture-v2.md`. This file remains the evidence
+for why that separation was required.
+
 ## Question and boundary
 
 Real household timers, media providers, Home Assistant entities and a sufficient
