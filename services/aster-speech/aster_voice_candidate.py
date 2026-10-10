@@ -31,6 +31,9 @@ class SchedulerProxy:
         if self.target is not None:
             self.target.cancel(request_id)
 
+    def is_cancelled(self, request_id: str) -> bool:
+        return self.target is not None and self.target.is_cancelled(request_id)
+
 
 app = FastAPI(title="Aster Voice Candidate", version="2.0.0-candidate")
 _proxy = SchedulerProxy()

@@ -1,6 +1,6 @@
 # Aster Unified Voice Service
 
-> Status: Active — Stream A; M0–M1 complete, M2 in progress
+> Status: Active — Stream A; M0–M2 complete, M3 pending
 >
 > Owner: Jason
 >
@@ -248,12 +248,13 @@ source/live hashes and current service health; resume the first unchecked gate.
 Never infer that an interrupted deploy, firewall write or Home Assistant change
 succeeded. Reconcile before retry.
 
-Current resume point: M0 and M1 are complete and M2 is active. The approved
+Current resume point: M0 through M2 are complete and M3 is pending. The approved
 voice, normalization/pronunciation rules, acknowledgement, capacity topology,
 API/network/dependency manifest and rollback plan are frozen. The next safe
-action is the repository-only canonical service candidate and its unit,
-integration, cancellation and concurrency gates. No production component has
-been changed by M1 discovery.
+action is the staged LXC 116 deployment gate: verify the current backup and
+checkpoint, install the candidate beside production, then run its authenticated
+canary, load and rollback checks before any selector change. No production
+component was changed by M2 validation.
 
 ## Milestones
 
@@ -267,7 +268,7 @@ been changed by M1 discovery.
   schemas, ports and caller identities; create offline fixtures and benchmark
   current Piper versus persistent Kokoro. Gate: warm/cold p50/p95, RTF, memory,
   concurrency and quality evidence; final deployment/rollback manifest.
-- [ ] **M2 — Canonical service candidate.** Implement persistent Kokoro,
+- [x] **M2 — Canonical service candidate.** Implement persistent Kokoro,
   sentence/clause policy, shared cleanup, bounded streaming, cancellation,
   content-free telemetry and compatibility endpoints. Gate: unit/integration,
   malformed/adversarial, cancellation, concurrency and secret/content tests;
@@ -534,6 +535,30 @@ unrelated state.
 - The isolated source, packages, model copies and synthetic key environment
   were deleted after both passes. The accepted production service remained
   active and healthy before and after testing.
+- A second isolated pass used a real Uvicorn listener bound only to LXC 116
+  loopback. Time to first response body was 0.055 seconds for a fresh client
+  and 0.012 seconds warm for the cached acknowledgement; an uncached short
+  response took 1.772 seconds. The cache therefore meets the acknowledgement
+  path goal, while uncached reasoning speech remains a known M3 latency risk
+  and must not be hidden by the compatibility result.
+- Closing a client stream during synthesis cancelled its work and an immediate
+  cached recovery request completed in 0.012 seconds. The first explicit
+  DELETE probe exposed an incomplete chunked response: scheduler cancellation
+  was being surfaced as transport cancellation. The protocol now distinguishes
+  explicit API cancellation from disconnects, completes the former with a
+  content-free `cancelled` frame, and continues to propagate genuine client
+  disconnects.
+- The corrected real-listener probe returned DELETE 204, HTTP 200 with exactly
+  one `cancelled` frame, then HTTP 200 for the immediate recovery request. The
+  service-environment suite passed 42 tests before that repair, including real
+  FastAPI integration and mocked Authentik JWT rejection/acceptance; 19 focused
+  local candidate/protocol/benchmark tests pass with the added cancellation
+  regression. The Mac's broader discovery still lacks PyJWT, so its one import
+  failure is an environment limitation rather than a candidate failure.
+- The temporary listener, source, dependency and model staging were removed.
+  Production `aster-speech` remained active and its health endpoint passed.
+  These results close the M2 functional gate without authorizing deployment;
+  the uncached first-audio target remains an explicit M3 acceptance item.
 
 ## Validation and evaluation
 
@@ -677,6 +702,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M0 source discovery | Authoritative checkout, relevant voice history, service/client code, project standard, operations and Companion runbook inspected. Existing unrelated brand-design edits left untouched. | Canonical-vs-legacy mismatch and known client/service constraints recorded. |
 | 2026-10-10 | M0 live discovery | Read-only Proxmox/LXC 116 inspection: unprivileged guest, 6 cores/4 GiB, one active Uvicorn worker, `base.en`, `lessac-high`; health/JWKS/OIDC/HTTPS probes pass. Secret value redacted and not retained. | Current service is healthy legacy state and the rollback baseline. |
 | 2026-10-10 | Stream A decision | Jason rejected premium services and directed a network-level single solution using the approved voice, with project creation, commit, push and immediate Stream A start. | Risk envelope accepted; M0 complete, M1 starts with read-only design/licence/protocol discovery and offline benchmarks. |
+| 2026-10-10 | M2 real-listener close-out | Loopback-only Uvicorn canary on LXC 116: cached first body 55 ms fresh/12 ms warm; uncached 1.772 s; disconnect recovery 12 ms; explicit DELETE 204 followed by one content-free `cancelled` frame and successful recovery. Temporary listener/staging removed; production remained active and healthy. | M2 functional/security/cancellation gates complete. M3 remains pending; uncached first-audio latency is a tracked acceptance risk. |
 
 ## Close-out
 

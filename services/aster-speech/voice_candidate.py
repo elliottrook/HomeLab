@@ -184,6 +184,9 @@ class VoiceScheduler:
     def cancel(self, request_id: str) -> None:
         self._cancelled.add(request_id)
 
+    def is_cancelled(self, request_id: str) -> bool:
+        return request_id in self._cancelled
+
     async def stream(
         self, request_id: str, text: str, caller: CallerClass = "interactive"
     ) -> AsyncIterator[AudioUnit]:
