@@ -39,6 +39,9 @@ The [recorded-job status candidate](evidence/D3-job-state-presentation-2026-10-1
 also distinguishes waiting, offered, accepted, last-reported-running and
 uncertain work in the disabled remote-worker view. It is presentation only;
 quota classification and routine job handling remain open.
+The [terminal-failure acknowledgement candidate](evidence/D3-terminal-failure-ack-2026-10-10.md)
+lets a verified failed/stopped native turn be acknowledged before a new
+reviewed question, while uncertain turns remain blocked. It is offline only.
 
 ### What the next connected-tool gate actually lacks
 

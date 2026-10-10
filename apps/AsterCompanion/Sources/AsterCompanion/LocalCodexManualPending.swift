@@ -51,7 +51,9 @@ enum LocalCodexManualPending {
         guard written == data.count, fsync(fd) == 0 else { throw RecordError.unavailable }
     }
 
-    static func clearCompleted(in directory: URL, requestID: String) throws {
+    /// Remove only the matching local admission record after the view verifies
+    /// a completed answer or a durable failed/interrupted terminal result.
+    static func clearAcknowledgedTerminal(in directory: URL, requestID: String) throws {
         guard try load(in: directory) == requestID else { throw RecordError.invalid }
         guard unlink(path(in: directory)) == 0 else { throw RecordError.unavailable }
     }

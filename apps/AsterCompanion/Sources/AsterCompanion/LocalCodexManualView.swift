@@ -16,6 +16,7 @@ struct LocalCodexManualView: View {
     @State private var running = false
     @State private var canRecover = false
     @State private var canReconcile = false
+    @State private var canAcknowledgeFailure = false
     @State private var answer: String?
     @State private var message = "Checking local Codex configuration. Nothing is being sent."
 
@@ -40,6 +41,10 @@ struct LocalCodexManualView: View {
                     Button("Recover original answer") { Task { await recover() } }
                 } else if canReconcile && !running {
                     Button("Check original Codex turn") { Task { await reconcile() } }
+                } else if canAcknowledgeFailure && !running {
+                    Button("Acknowledge final result; allow a new question") {
+                        Task { await acknowledgeTerminalFailure() }
+                    }
                 }
             } else if let reviewed {
                 Text("This is the complete text that will be sent:")
@@ -73,6 +78,9 @@ struct LocalCodexManualView: View {
     }
 
     @MainActor private func preflight() async {
+        canRecover = false
+        canReconcile = false
+        canAcknowledgeFailure = false
         guard ProcessInfo.processInfo.arguments.contains(Self.launchFlag) else {
             message = "Manual Codex is disabled. Nothing can be sent."
             preparing = false
@@ -88,6 +96,30 @@ struct LocalCodexManualView: View {
             return
         }
         let savedID = pendingID
+        var recordedStatus: [String: Any]?
+        if !savedID.isEmpty {
+            let raw = await Task.detached(priority: .userInitiated) { () -> Data? in
+                try? LocalCodexBridgeProcess.recordedStatus(
+                    requestID: savedID, stateDirectory: state)
+            }.value
+            guard pendingID == savedID, let raw,
+                  let status = try? JSONSerialization.jsonObject(with: raw) as? [String: Any],
+                  status["id"] as? String == savedID,
+                  status["recorded"] as? Bool == true else {
+                message = "The prior request cannot be reconciled. Do not resend it."
+                preparing = false
+                return
+            }
+            recordedStatus = status
+            if let terminal = Self.confirmedFailure(status, requestID: savedID) {
+                canAcknowledgeFailure = true
+                message = terminal == "failed" ?
+                    "Codex recorded a final failure. Nothing will be retried automatically." :
+                    "Codex recorded that this turn stopped. Nothing will be retried automatically."
+                preparing = false
+                return
+            }
+        }
         let result = await Task.detached(priority: .userInitiated) {
             savedID.isEmpty ? (try? LocalCodexBridgeProcess.inspectBundled(prepare: true))
                 : (try? LocalCodexBridgeProcess.inspectRecoveryBundled())
@@ -109,14 +141,7 @@ struct LocalCodexManualView: View {
             message = "The prior request cannot be reconciled. Do not resend it."
             return
         }
-        let raw = await Task.detached(priority: .userInitiated) { () -> Data? in
-            try? LocalCodexBridgeProcess.recordedStatus(
-                requestID: savedID, stateDirectory: state)
-        }.value
-        guard pendingID == savedID, let raw,
-              let status = try? JSONSerialization.jsonObject(with: raw) as? [String: Any],
-              status["id"] as? String == savedID,
-              status["recorded"] as? Bool == true else {
+        guard pendingID == savedID, let status = recordedStatus else {
             message = "The prior request cannot be reconciled. Do not resend it."
             return
         }
@@ -128,6 +153,15 @@ struct LocalCodexManualView: View {
         message = canRecover ? "The recorded turn completed. Recover its original answer." :
             canReconcile ? "Outcome uncertain. Check only the original turn; do not resend." :
             "The prior request is unresolved. Do not resend or clear its ID."
+    }
+
+    static func confirmedFailure(_ status: [String: Any], requestID: String) -> String? {
+        guard status["id"] as? String == requestID,
+              status["recorded"] as? Bool == true,
+              status["turn_recorded"] as? Bool == true,
+              let state = status["state"] as? String,
+              state == "failed" || state == "interrupted" else { return nil }
+        return state
     }
 
     @MainActor private func send(_ request: ReviewedCodexRequest) async {
@@ -228,11 +262,41 @@ struct LocalCodexManualView: View {
         guard !running, !pendingID.isEmpty, answer != nil else { return }
         do {
             let state = try LocalCodexBridgeProcess.privateStateDirectory()
-            try LocalCodexManualPending.clearCompleted(in: state, requestID: pendingID)
+            try LocalCodexManualPending.clearAcknowledgedTerminal(in: state, requestID: pendingID)
         } catch {
             message = "The completed request could not be cleared. Do not send another."
             return
         }
+        resetAfterAcknowledgement()
+    }
+
+    @MainActor private func acknowledgeTerminalFailure() async {
+        guard !running, canAcknowledgeFailure, !pendingID.isEmpty else { return }
+        let id = pendingID
+        guard let state = try? LocalCodexBridgeProcess.privateStateDirectory() else {
+            message = "Private journal unavailable. The request remains blocked."
+            return
+        }
+        running = true
+        let raw = await Task.detached(priority: .userInitiated) { () -> Data? in
+            try? LocalCodexBridgeProcess.recordedStatus(requestID: id, stateDirectory: state)
+        }.value
+        running = false
+        guard pendingID == id, let raw,
+              let status = try? JSONSerialization.jsonObject(with: raw) as? [String: Any],
+              Self.confirmedFailure(status, requestID: id) != nil else {
+            message = "A final failure cannot be verified. Do not resend or clear this request."
+            return
+        }
+        do { try LocalCodexManualPending.clearAcknowledgedTerminal(in: state, requestID: id) }
+        catch {
+            message = "The final request could not be cleared. Do not send another."
+            return
+        }
+        resetAfterAcknowledgement()
+    }
+
+    @MainActor private func resetAfterAcknowledgement() {
         pendingID = ""
         answer = nil
         reviewed = nil
@@ -240,6 +304,7 @@ struct LocalCodexManualView: View {
         consent = false
         canRecover = false
         canReconcile = false
+        canAcknowledgeFailure = false
         ready = false
         preparing = true
         message = "Checking configuration before another question."

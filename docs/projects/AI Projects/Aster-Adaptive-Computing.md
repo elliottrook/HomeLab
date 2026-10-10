@@ -29,6 +29,10 @@ The [recorded-job status presentation](evidence/D3-job-state-presentation-2026-1
 now has a separate offline candidate for truthful queued/offered/running/unknown
 labels. It does not release the disabled remote-worker path or claim quota
 handling is complete.
+The [terminal-failure acknowledgement candidate](evidence/D3-terminal-failure-ack-2026-10-10.md)
+also removes a permanent manual-view lock only after the exact failed or
+interrupted turn is durably confirmed and explicitly acknowledged. Uncertain
+work stays blocked. No live turn or installed-app change was made.
 
 **M1 offline authority continuation — 2026-10-10:** The
 [approval-ingress options](evidence/M1-approval-ingress-options-2026-10-10.md)

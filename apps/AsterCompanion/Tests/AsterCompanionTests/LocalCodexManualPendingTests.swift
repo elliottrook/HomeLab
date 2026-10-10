@@ -18,9 +18,9 @@ final class LocalCodexManualPendingTests: XCTestCase {
         XCTAssertThrowsError(try LocalCodexManualPending.claim(in: root,
             requestID: "request-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             manifestSHA256: manifest))
-        XCTAssertThrowsError(try LocalCodexManualPending.clearCompleted(in: root,
+        XCTAssertThrowsError(try LocalCodexManualPending.clearAcknowledgedTerminal(in: root,
             requestID: "request-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
-        try LocalCodexManualPending.clearCompleted(in: root, requestID: requestID)
+        try LocalCodexManualPending.clearAcknowledgedTerminal(in: root, requestID: requestID)
         XCTAssertNil(try LocalCodexManualPending.load(in: root))
     }
 
@@ -39,5 +39,24 @@ final class LocalCodexManualPendingTests: XCTestCase {
         XCTAssertThrowsError(try LocalCodexManualPending.load(in: root))
         XCTAssertThrowsError(try LocalCodexManualPending.claim(in: root,
             requestID: requestID, manifestSHA256: manifest))
+    }
+
+    func testOnlyRecordedBoundTerminalFailureCanBeAcknowledged() {
+        let base: [String: Any] = ["id": requestID, "recorded": true,
+                                   "turn_recorded": true, "state": "failed"]
+        XCTAssertEqual(LocalCodexManualView.confirmedFailure(base, requestID: requestID), "failed")
+        var stopped = base
+        stopped["state"] = "interrupted"
+        XCTAssertEqual(LocalCodexManualView.confirmedFailure(stopped, requestID: requestID), "interrupted")
+        for state in ["unknown", "running", "completed", "dispatch_unknown"] {
+            var unresolved = base
+            unresolved["state"] = state
+            XCTAssertNil(LocalCodexManualView.confirmedFailure(unresolved, requestID: requestID))
+        }
+        var noTurn = base
+        noTurn["turn_recorded"] = false
+        XCTAssertNil(LocalCodexManualView.confirmedFailure(noTurn, requestID: requestID))
+        XCTAssertNil(LocalCodexManualView.confirmedFailure(base,
+            requestID: "request-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
     }
 }
