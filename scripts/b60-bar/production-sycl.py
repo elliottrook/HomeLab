@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -21,6 +22,7 @@ BASE='/opt/aster-sycl-b11429'
 UNIT='/etc/systemd/system/aster-llama.service'
 ROLLBACK=UNIT+'.pre-sycl-20261011'
 OLD='6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e'
+OLD_BINARY='5faf410bbbc00a1b94b09ee01623699f255365628dfa73b1ee552d9e52a2231d'
 FAULT=r'GPU HANG|wedged|device lost|DMAR.*(fault|error)|IOMMU.*\sfault|Out of memory|oom-kill|BUG:|Oops:'
 
 def run(*args,timeout=180,okay=(0,)):
@@ -44,12 +46,13 @@ os.replace(tmp,dst)
     guest('systemctl','daemon-reload')
 
 def rollback():
-    assert sha(ROLLBACK)==OLD and sha('/opt/llama.cpp-b11429/llama-server')==guard.ACCEPTED_BINARY_SHA256
+    assert sha(ROLLBACK)==OLD and sha('/opt/llama.cpp-b11429/llama-server')==OLD_BINARY
     current=sha(UNIT)
     manifest=json.loads(guest('python3','-c',f'import json; print(json.dumps(json.load(open("{BASE}/manifest.json"))))'))
     assert current in [OLD,manifest['unit_sha256']], 'unknown unit; do not overwrite'
     if current!=OLD: atomic_unit(ROLLBACK,current,OLD)
-    guard.execute_finalizer()
+    guard.execute_finalizer(accepted_binary_path='/opt/llama.cpp-b11429/llama-server',
+                            accepted_binary_sha256=OLD_BINARY,accepted_unit_sha256=OLD)
     print(run('pct','exec','114','--','python3','/run/b60-bar-validate-generation.py'),flush=True)
     print('EXACT VULKAN ROLLBACK VALIDATED',flush=True)
 
@@ -130,6 +133,9 @@ def activate(run_id):
         raise
 
 if __name__=='__main__':
+    def interrupted(signum,frame):raise RuntimeError('bounded production controller interrupted')
+    signal.signal(signal.SIGTERM,interrupted)
+    signal.signal(signal.SIGINT,interrupted)
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--rollback',action='store_true')
     p.add_argument('--activate',action='store_true')

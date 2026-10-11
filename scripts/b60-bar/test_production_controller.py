@@ -25,7 +25,7 @@ class ControllerTests(unittest.TestCase):
    guest.assert_not_called()
  def test_unknown_unit_prevents_destructive_rollback(self):
   import json
-  with patch.object(s,'sha',side_effect=[s.OLD,guard.ACCEPTED_BINARY_SHA256,'unknown']),patch.object(s,'guest',return_value=json.dumps({'unit_sha256':'new'})),patch.object(s,'atomic_unit') as atomic:
+  with patch.object(s,'sha',side_effect=[s.OLD,s.OLD_BINARY,'unknown']),patch.object(s,'guest',return_value=json.dumps({'unit_sha256':'new'})),patch.object(s,'atomic_unit') as atomic:
    with self.assertRaisesRegex(AssertionError,'unknown unit'):s.rollback()
    atomic.assert_not_called()
  def test_sycl_recovery_rejects_unknown_unit_before_service_mutation(self):

@@ -22,6 +22,7 @@ EXPERIMENT_START_MINUTE = 15
 EXPERIMENT_DEADLINE_MINUTE = 20
 RESTORATION_DEADLINE_MINUTE = 40
 ACCEPTED_BINARY_SHA256 = "5faf410bbbc00a1b94b09ee01623699f255365628dfa73b1ee552d9e52a2231d"
+ACCEPTED_BINARY_PATH = "/opt/llama.cpp-b11429/llama-server"
 ACCEPTED_UNIT_SHA256 = "6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e"
 CANDIDATE_UNIT = "aster-b60-candidate.service"
 
@@ -94,14 +95,14 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
             "experiment_deadline": experiment_deadline.isoformat(), "restoration_deadline": hard_stop.isoformat()}
 
 
-def commands() -> list[list[str]]:
+def commands(accepted_binary_path: str | None = None) -> list[list[str]]:
     return [
         ["pct", "exec", "110", "--", "systemctl", "stop", CANDIDATE_UNIT],
         ["pct", "exec", "110", "--", "systemctl", "stop", "aster-llama.service"],
         ["pct", "exec", "110", "--", "systemctl", "start", "--no-block", "aster-llama.service"],
         ["pct", "exec", "110", "--", "systemctl", "is-active", "--quiet", "aster-llama.service"],
         ["pct", "exec", "110", "--", "curl", "-fsS", "http://192.168.70.12:11435/health"],
-        ["pct", "exec", "110", "--", "sha256sum", "/opt/llama.cpp-b11429/llama-server"],
+        ["pct", "exec", "110", "--", "sha256sum", accepted_binary_path or ACCEPTED_BINARY_PATH],
         ["pct", "exec", "110", "--", "sha256sum", "/etc/systemd/system/aster-llama.service"],
         ["readlink", "/sys/bus/pci/devices/0000:04:00.0/driver"],
         ["pct", "exec", "110", "--", "vulkaninfo", "--summary"],
@@ -111,8 +112,13 @@ def commands() -> list[list[str]]:
 def execute_finalizer(run: Callable[..., subprocess.CompletedProcess] = subprocess.run,
                       sleep: Callable[[float], None] = time.sleep,
                       quiesce_seconds: int = 30, readiness_attempts: int = 60,
-                      readiness_interval: int = 5) -> None:
-    steps = commands()
+                      readiness_interval: int = 5,
+                      accepted_binary_path: str | None = None,
+                      accepted_binary_sha256: str | None = None,
+                      accepted_unit_sha256: str | None = None) -> None:
+    steps = commands(accepted_binary_path)
+    binary_hash = accepted_binary_sha256 or ACCEPTED_BINARY_SHA256
+    unit_hash = accepted_unit_sha256 or ACCEPTED_UNIT_SHA256
     # Candidate absence is acceptable. Stopping accepted production is mandatory so
     # GPU/process state can quiesce before a clean, non-blocking start.
     run(steps[0], capture_output=True, text=True, timeout=180)
@@ -141,9 +147,9 @@ def execute_finalizer(run: Callable[..., subprocess.CompletedProcess] = subproce
                for command in steps[5:]]
     if any(result.returncode != 0 for result in results):
         raise GuardError("accepted-service validation command failed")
-    if ACCEPTED_BINARY_SHA256 not in results[0].stdout:
+    if binary_hash not in results[0].stdout:
         raise GuardError("accepted binary hash mismatch")
-    if ACCEPTED_UNIT_SHA256 not in results[1].stdout:
+    if unit_hash not in results[1].stdout:
         raise GuardError("accepted unit hash mismatch")
     if not results[2].stdout.strip().endswith("/xe"):
         raise GuardError("B60 is not bound to xe")

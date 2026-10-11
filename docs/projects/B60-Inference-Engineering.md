@@ -129,8 +129,9 @@ Pinned CPython 3.13 GenAI/tokenizers 2026.4.0.0 and runtime 2026.4.0;
 matching Intel OpenCL 26.35.39758.10, Debian private ICD loader 2.3.3-1,
 NumPy 2.4.4 and telemetry 2025.2.0 downloads completed at 00:56:01, hashes
 verified. No runtime import, package installation or OpenVINO GPU load yet.
-Trial staging reserves the 20-GiB disk floor by keeping only the vendor vision
-merger blob and private runtime in RAM; guest staging is gated on accepted
+Trial staging reserves the 20-GiB disk floor, including filesystem overhead,
+by keeping the vendor text-embedding/vision-merger blobs and private runtime
+in RAM; guest staging is gated on accepted
 SYCL deployment. Native adapter is synthetic-only: greedy/reasoning-off,
 8K total tokens, at most 256 output tokens, one sequence, no MTP or prefix
 cache. It does not claim streaming/tool/media API parity. Native TTFT is not

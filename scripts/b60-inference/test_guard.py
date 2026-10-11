@@ -125,6 +125,16 @@ class GuardTests(unittest.TestCase):
         self.assertEqual(seen[1][-2:], ["stop", "aster-llama.service"])
         self.assertEqual(seen[2][-3:], ["start", "--no-block", "aster-llama.service"])
 
+    def test_explicit_rollback_profile_is_independent_of_current_acceptance(self):
+        seen=[]
+        outputs=['','','','', '{"status":"ok"}','old-binary','old-unit','/sys/bus/pci/drivers/xe','BMG G21']
+        def fake(command,**kw):
+            seen.append(command);return subprocess.CompletedProcess(command,0,outputs[len(seen)-1],'')
+        guard.execute_finalizer(fake,sleep=lambda _:None,readiness_attempts=1,
+                                accepted_binary_path='/retained/vulkan',
+                                accepted_binary_sha256='old-binary',accepted_unit_sha256='old-unit')
+        self.assertEqual(seen[5][-1],'/retained/vulkan')
+
     def test_finalizer_fails_closed_on_validation_error(self):
         def fake_run(command, **kwargs):
             return subprocess.CompletedProcess(command, 1 if "is-active" in command else 0, "", "")

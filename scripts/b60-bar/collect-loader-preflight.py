@@ -22,6 +22,7 @@ parser.add_argument('--run-id')
 parser.add_argument('--precision',choices=['fp32','fp16'],default='fp32')
 parser.add_argument('--backup-path',default='/mnt/backups/dump/vzdump-lxc-110-2026_10_10-02_39_32.tar.zst')
 parser.add_argument('--backup-size',type=int,default=38852679165)
+parser.add_argument('--accepted-sycl-unit-sha256',help='Explicit accepted persistent SYCL profile, only after promotion validation')
 options = parser.parse_args()
 assert options.run_id is None or (options.exclusive and re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',options.run_id))
 assert options.exclusive or datetime.now(TZ).date().isoformat() == '2026-10-10', 'one-time authorization expired'
@@ -37,7 +38,19 @@ backup = options.backup_path
 stat = os.stat(backup)
 assert stat.st_size == options.backup_size
 candidate='/opt/b60-level-zero-trial-20261010/llama-sycl-'+options.precision+'/llama-b11429/'
-hashes = guest(110, 'sha256sum', '/opt/llama.cpp-b11429/llama-server', '/etc/systemd/system/aster-llama.service', '/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf', candidate+'llama-server',candidate+'libggml-sycl.so.0.26.0').splitlines()
+accepted='/opt/llama.cpp-b11429/llama-server'
+if options.accepted_sycl_unit_sha256:
+    assert options.exclusive and options.precision=='fp16' and re.fullmatch(r'[0-9a-f]{64}',options.accepted_sycl_unit_sha256)
+    manifest=json.loads(guest(110,'python3','-c','import json; print(json.dumps(json.load(open("/opt/aster-sycl-b11429/manifest.json"))))'))
+    assert manifest['unit_sha256']==options.accepted_sycl_unit_sha256 and manifest['volatile_dependencies'] is False
+    assert manifest['server_sha256']=='0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5'
+    candidate='/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/'
+    accepted=candidate+'llama-server'
+    # Validation profile only in this collector process. Legacy Vulkan finalizer
+    # remains untouched; native trials restore through the explicit SYCL path.
+    guard.ACCEPTED_BINARY_SHA256=manifest['server_sha256']
+    guard.ACCEPTED_UNIT_SHA256=options.accepted_sycl_unit_sha256
+hashes = guest(110, 'sha256sum', accepted, '/etc/systemd/system/aster-llama.service', '/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf', candidate+'llama-server',candidate+'libggml-sycl.so.0.26.0').splitlines()
 assert hashes[2].split()[0] == 'cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13'
 assert hashes[3].split()[0] == '0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5'
 assert hashes[4].split()[0] == ('58757946256db139bab7ddab56dbe6e8d5503bb41518eb25bfc734c175c68591' if options.precision=='fp16' else 'd267ea962c1166e964cc7bb771a9b7dd7c9b1405d5c5156463995a9f4e1da2d7')
