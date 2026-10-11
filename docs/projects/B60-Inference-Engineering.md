@@ -510,6 +510,27 @@ workaround. Retained isolated files have no boot or production consumers;
 Vulkan remains accepted. This phase changes no speech, UI, address, identity,
 firewall, scheduling or monitoring ownership and does not graduate a new service.
 
+Jason then approved exactly one instrumented diagnostic retry. Call-boundary
+logging plus SIGABRT backtrace capture showed exit 134 inside the initial
+`zeInit(ZE_INIT_FLAG_GPU_ONLY)`, before `zeDriverGet` or any test memory/command
+operation. Immutable log in LXC 110:
+`/opt/b60-level-zero-trial-20261010/diagnostic-attempt-1.log`, SHA-256
+`a7b00943e049f6cc541611d286644860e5826c10ce10127962c3144c5cb89e3e`.
+No further GPU execution followed; production health remains `ok`, zero restarts,
+news timers active and relevant kernel-fault scan empty.
+
+Offline exact source revision `dfa6faf3d866ea6a22b70df5a7bd2a507aa457bd`
+explicitly supports B60 device E211. Kernel debugfs GT0 hwconfig lacks CSR-size
+key 62; GT1 reports no hwconfig. Source `system_info.h/.cpp` defaults absent
+CSR size to zero, `drm_neo.cpp` copies that to `CsrSizeInMb`, and
+`product_helper.cpp` replaces the generic page-sized default with that size
+times one MiB. `command_stream_receiver.cpp:1205` rejects the resulting zero.
+This is a strongly supported metadata/runtime initialization diagnosis, not a
+confirmed live debugger inspection of the intermediate value. Full BAR is not
+rolled back. Next safe work is offline selection/review of a compatible runtime
+or a validated metadata fallback. Another compute attempt or preemption override
+requires a new specific risk decision; do not automatically retry this binary.
+
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.
 - [ ] Require tiny-model enumeration, target-architecture correctness, explicit
   fallback/transfer accounting and like-for-like quality comparisons.

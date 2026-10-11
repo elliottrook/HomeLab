@@ -3,12 +3,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <unistd.h>
 
-#define CHECK(call) do { ze_result_t r = (call); if (r != ZE_RESULT_SUCCESS) { \
- fprintf(stderr, "%s failed: 0x%x\n", #call, r); return 1; } } while (0)
+#define CHECK(call) do { fprintf(stderr, "BEGIN %s\n", #call); \
+ ze_result_t r = (call); fprintf(stderr, "END %s result=0x%x\n", #call, r); \
+ if (r != ZE_RESULT_SUCCESS) { return 1; } } while (0)
+
+static void abort_trace(int sig)
+{
+ void *frames[48];
+ int count=backtrace(frames,48);
+ backtrace_symbols_fd(frames,count,STDERR_FILENO);
+ _Exit(128+sig);
+}
 
 int main(void)
 {
+ setvbuf(stdout,NULL,_IONBF,0);
+ signal(SIGABRT,abort_trace);
  uint32_t n = 0;
  CHECK(zeInit(ZE_INIT_FLAG_GPU_ONLY));
  CHECK(zeDriverGet(&n, NULL));
