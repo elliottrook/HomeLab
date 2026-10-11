@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-10 — Seven-case Doctor projection comparison
+
+Ran the frozen synthetic Doctor cases across the tracked Aster health function
+and both incident adapters. No Doctor, model or LAN call occurred. The typed
+candidate removed dynamic text and rejected a stale report, but offered no
+family-identification advantage over the current human-summary path in the
+one-Aster-failure case and cannot represent other failures. The existing Aster
+reader forwarded a synthetic private marker and returned a 37-hour-old report.
+This supports keeping schema 2 unpromoted and evaluating a smaller hardening of
+the current reader first. The [result and limits](evidence/D4-Doctor-structured-fixture-result-2026-10-10.md)
+distinguish projection behavior from model answer quality.
+
 ## 2026-10-10 — Doctor projection baseline correction
 
 After the offline typed-check preflight, compared it with the already deployed

@@ -1,0 +1,140 @@
+{
+  "cases": [
+    {
+      "aggregate_incident": {
+        "check_count": 1,
+        "marker_exposed": false,
+        "state": "ok"
+      },
+      "current_aster": {
+        "human_summary_characters": 29,
+        "human_summary_count": 1,
+        "marker_exposed": false,
+        "status": "healthy"
+      },
+      "id": "healthy",
+      "typed_candidate": {
+        "check_id": "aster.agent_inference",
+        "marker_exposed": false,
+        "state": "ok"
+      }
+    },
+    {
+      "aggregate_incident": {
+        "check_count": 1,
+        "marker_exposed": false,
+        "state": "fail"
+      },
+      "current_aster": {
+        "human_summary_characters": 29,
+        "human_summary_count": 1,
+        "marker_exposed": false,
+        "status": "failed"
+      },
+      "id": "aster_fail",
+      "typed_candidate": {
+        "check_id": "aster.agent_inference",
+        "marker_exposed": false,
+        "state": "fail"
+      }
+    },
+    {
+      "aggregate_incident": {
+        "check_count": 2,
+        "marker_exposed": false,
+        "state": "fail"
+      },
+      "current_aster": {
+        "human_summary_characters": 50,
+        "human_summary_count": 2,
+        "marker_exposed": false,
+        "status": "failed"
+      },
+      "id": "other_fail",
+      "typed_candidate": {
+        "check_id": "aster.agent_inference",
+        "marker_exposed": false,
+        "state": "ok"
+      }
+    },
+    {
+      "aggregate_incident": {
+        "check_count": 2,
+        "marker_exposed": false,
+        "state": "fail"
+      },
+      "current_aster": {
+        "human_summary_characters": 50,
+        "human_summary_count": 2,
+        "marker_exposed": false,
+        "status": "failed"
+      },
+      "id": "multiple_fail",
+      "typed_candidate": {
+        "check_id": "aster.agent_inference",
+        "marker_exposed": false,
+        "state": "fail"
+      }
+    },
+    {
+      "aggregate_incident": {
+        "check_count": null,
+        "marker_exposed": false,
+        "state": "unavailable"
+      },
+      "current_aster": {
+        "human_summary_characters": 29,
+        "human_summary_count": 1,
+        "marker_exposed": false,
+        "status": "failed"
+      },
+      "id": "stale",
+      "typed_candidate": {
+        "check_id": null,
+        "marker_exposed": false,
+        "state": "unavailable"
+      }
+    },
+    {
+      "aggregate_incident": {
+        "check_count": 1,
+        "marker_exposed": false,
+        "state": "fail"
+      },
+      "current_aster": {
+        "human_summary_characters": 29,
+        "human_summary_count": 1,
+        "marker_exposed": false,
+        "status": "failed"
+      },
+      "id": "missing_sidecar",
+      "typed_candidate": {
+        "check_id": null,
+        "marker_exposed": false,
+        "state": "unavailable"
+      }
+    },
+    {
+      "aggregate_incident": {
+        "check_count": 1,
+        "marker_exposed": false,
+        "state": "fail"
+      },
+      "current_aster": {
+        "human_summary_characters": 52,
+        "human_summary_count": 1,
+        "marker_exposed": true,
+        "status": "failed"
+      },
+      "id": "private_marker",
+      "typed_candidate": {
+        "check_id": "aster.agent_inference",
+        "marker_exposed": false,
+        "state": "fail"
+      }
+    }
+  ],
+  "current_health_function_sha256": "79e3cf0de5ec5e5f8369354b6897304125439e2b7eb92935f66b97c01d7636f4",
+  "schema": 1,
+  "scope": "synthetic_offline_projection_only"
+}

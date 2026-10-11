@@ -89,6 +89,34 @@ but not sufficient. If it cannot preserve enough useful answers compared with
 the existing Aster path, retain the simpler paths and reject this sidecar.
 These are test criteria, not observed results.
 
+### Offline contract comparison result
+
+The [reproducible seven-case projection run](D4-Doctor-projection-comparison-2026-10-10.json)
+uses synthetic reports only. Its small harness executes the tracked
+`get_lab_health()` function in isolation, plus the two incident adapters; it
+does not import the whole gateway, run Doctor, call a model or contact the lab.
+The deployed function was line-scoped inspected earlier, but the full live
+gateway differs from the tracked file. The result is a **contract comparison**,
+not a blinded answer evaluation or a measured live outcome.
+
+| Finding | Result and implication |
+|---|---|
+| One fresh Aster failure | Both the current human summary and typed check identify Aster; the aggregate adapter reports only failure/count. The typed candidate does not improve family identification over the existing Aster path on this case. |
+| Other or multiple failures | The typed candidate describes only its Aster check. It cannot replace the overall Doctor report or claim the complete fault set. |
+| Stale report (37 hours) | Both incident adapters abstain. The existing `get_lab_health()` still returns the old status and human summary; that function does not enforce freshness. |
+| Missing sidecar | The typed candidate abstains; the existing schema-1 paths remain available. |
+| Synthetic private marker in human summary | The current Aster path forwards the marker, while aggregate and typed projections do not. This demonstrates a disclosure-boundary difference, not a real secret exposure. |
+
+**Decision:** do not promote schema 2 as the general health path. Its only
+demonstrated advantages here are fixed-field disclosure and freshness relative
+to current Aster, neither of which proves that a second production report is
+the cheapest fix. First evaluate hardening the existing Aster summary reader
+for freshness/file safety and using the aggregate adapter for status-only
+requests. Retain the typed code as an offline candidate only if a future
+approved model boundary needs a named check without human text. A real
+usefulness decision still needs representative answers, independent review and
+the M1/egress gate.
+
 The comparison review also found that the candidate validated the aggregate
 report's top-level schema and digest but had not checked its nested check
 records. The offline adapter now rejects malformed aggregate status/checks

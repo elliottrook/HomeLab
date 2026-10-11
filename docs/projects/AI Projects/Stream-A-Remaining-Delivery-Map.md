@@ -87,6 +87,12 @@ needs to show a useful privacy/specificity tradeoff against **that** path, not
 just against the aggregate-only adapter. Blinded usefulness, M1 authority and
 real-incident gates remain open. Do not promote schema 2 or expand model egress
 on the strength of the parser tests.
+The [seven-case offline contract comparison](evidence/D4-Doctor-structured-fixture-result-2026-10-10.md)
+found no family-identification gain over today's human-summary path for its
+single Aster failure. It did demonstrate that the current Aster reader forwards
+dynamic text and does not reject a stale report. The next low-complexity
+candidate is to harden that existing reader and keep aggregate status for
+simple questions; schema 2 remains unpromoted.
 
 ## Immediate next action and stop rule
 
