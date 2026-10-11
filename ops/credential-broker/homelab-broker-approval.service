@@ -1,7 +1,6 @@
 [Unit]
 Description=HomeLab AI-PAM Authentik approval bridge
 After=homelab-broker.service
-PartOf=homelab-broker.service
 
 [Service]
 Type=simple

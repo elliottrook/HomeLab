@@ -7,7 +7,9 @@ ROOT = Path(__file__).parent
 
 class SystemdUnitTests(unittest.TestCase):
     def test_approval_plane_survives_execution_broker_outage(self):
+        broker_unit = (ROOT / "homelab-broker.service").read_text()
         unit = (ROOT / "homelab-broker-approval.service").read_text()
+        self.assertIn("RuntimeDirectoryPreserve=restart", broker_unit)
         self.assertIn("After=homelab-broker.service", unit)
         self.assertNotIn("Requires=homelab-broker.service", unit)
         self.assertNotIn("BindsTo=homelab-broker.service", unit)
