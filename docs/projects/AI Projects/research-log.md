@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-11 — Independent review of the existing D3 Orion answer
+
+A separate reviewer read the exact stored completed case-9 turn and the frozen
+rubric without generating another question. The answer received a qualified
+pass: it limits a later healthy response to the health-check path and does
+not assert that user traffic recovered, although its closing wording is
+imprecise. This resolves the earlier same-agent wording flag only. The other
+eleven cases were not independently re-scored, and normal Companion
+session-refresh/prompt behavior remains unobserved. D3 limited release is
+still held. See the [review record](evidence/D3-Orion-independent-review-2026-10-11.md).
+
 ## 2026-10-11 — B60 SYCL production-baseline check
 
 Read-only Proxmox/LXC checks confirmed 32 GB physical B60 BAR2 and an active
