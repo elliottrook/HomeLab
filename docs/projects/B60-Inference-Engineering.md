@@ -121,6 +121,24 @@ The backup executable was resolved from `/usr/sbin` to installed `/usr/bin`
 before the backup started; no failed/partial backup was represented as success.
 TrueNAS create-once copy is pending; do not resize/activate until it validates.
 
+Native preparation completed at 00:48:38 PDT: 27 publisher-verified artifacts,
+6,347,862,877 bytes, model revision
+`ee5a3761d4524966dd6c1f1037694ebc581cb196`. Host isolated publisher manifest
+SHA-256 `360266b625445ca62ef752ce549295648a56e4184df44c543c4c2f896b38cb24`.
+Pinned CPython 3.13 GenAI/tokenizers 2026.4.0.0 and runtime 2026.4.0;
+matching Intel OpenCL 26.35.39758.10, Debian private ICD loader 2.3.3-1,
+NumPy 2.4.4 and telemetry 2025.2.0 downloads completed at 00:56:01, hashes
+verified. No runtime import, package installation or OpenVINO GPU load yet.
+Trial staging reserves the 20-GiB disk floor by keeping only the vendor vision
+merger blob and private runtime in RAM; guest staging is gated on accepted
+SYCL deployment. Native adapter is synthetic-only: greedy/reasoning-off,
+8K total tokens, at most 256 output tokens, one sequence, no MTP or prefix
+cache. It does not claim streaming/tool/media API parity. Native TTFT is not
+misreported as prefill time, and cache reuse is not invented. Telemetry checker
+is redirected process-locally to private declined consent, not home/global
+configuration. Sources: [GenAI API/installation](https://openvinotoolkit.github.io/openvino.genai/docs/getting-started/installation/),
+[telemetry implementation](https://github.com/openvinotoolkit/telemetry).
+
 ### Latest owner priority override — 2026-10-10 22:49 PDT
 
 Jason reserved the B60 for these tests until he explicitly resumes other work.

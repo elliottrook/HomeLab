@@ -53,6 +53,38 @@ def rollback():
     print(run('pct','exec','114','--','python3','/run/b60-bar-validate-generation.py'),flush=True)
     print('EXACT VULKAN ROLLBACK VALIDATED',flush=True)
 
+def restore_sycl():
+    """After acceptance only: restore the persistent SYCL unit, never Vulkan."""
+    manifest=json.loads(guest('python3','-c',f'import json; print(json.dumps(json.load(open("{BASE}/manifest.json"))))'))
+    assert manifest['volatile_dependencies'] is False
+    assert sha(UNIT)==manifest['unit_sha256'], 'accepted SYCL unit drift; do not overwrite'
+    assert sha(BASE+'/llama-sycl-fp16/llama-b11429/llama-server')==manifest['server_sha256']
+    assert sha(BASE+'/llama-sycl-fp16/llama-b11429/libggml-sycl.so.0.26.0')==manifest['backend_sha256']
+    assert sha('/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf')=='cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13'
+    guest('systemctl','stop','aster-b60-candidate.service')
+    guest('systemctl','stop','aster-llama.service')
+    time.sleep(30)
+    guest('systemctl','start','--no-block','aster-llama.service')
+    deadline=time.monotonic()+330
+    while time.monotonic()<deadline:
+        state=guest('systemctl','is-active','aster-llama.service',okay=(0,3)).strip()
+        if state in ['inactive','failed']:raise RuntimeError('accepted SYCL restoration failed; no retry')
+        if state=='active':
+            health=guest('curl','-fsS','--max-time','5','http://192.168.70.12:11435/health',okay=(0,7,22,28))
+            if health and json.loads(health).get('status')=='ok':break
+        time.sleep(3)
+    else:raise RuntimeError('accepted SYCL restoration deadline')
+    assert sha(UNIT)==manifest['unit_sha256']
+    assert guest('systemctl','show','aster-llama.service','-p','NRestarts','--value').strip()=='0'
+    assert run('readlink','/sys/bus/pci/devices/0000:04:00.0/driver').strip().endswith('/xe')
+    assert 'BMG G21' in guest('vulkaninfo','--summary')
+    kernel=run('journalctl','-b','-k','--no-pager')
+    assert kernel.strip() and not re.search(FAULT,kernel,re.I)
+    prefix='accepted-sycl-recovery-'+datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+    print(run('python3','/run/b60-matched-sycl/record-backend-proof.py','--prefix',prefix,'--unit','aster-llama.service'),flush=True)
+    print(run('pct','exec','114','--','python3','/run/b60-bar-validate-generation.py'),flush=True)
+    print('EXACT ACCEPTED SYCL RESTORATION VALIDATED',flush=True)
+
 def activate(run_id):
     assert re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',run_id)
     assert run('systemctl','is-active','b60-sycl-promotion-restore.timer').strip()=='active'
@@ -101,7 +133,9 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--rollback',action='store_true')
     p.add_argument('--activate',action='store_true')
+    p.add_argument('--restore-accepted-sycl',action='store_true')
     p.add_argument('--run-id')
-    a=p.parse_args();assert a.rollback!=a.activate
-    if a.rollback:rollback()
+    a=p.parse_args();assert sum([a.rollback,a.activate,a.restore_accepted_sycl])==1
+    if a.restore_accepted_sycl:restore_sycl()
+    elif a.rollback:rollback()
     else:activate(a.run_id)

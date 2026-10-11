@@ -28,4 +28,9 @@ class ControllerTests(unittest.TestCase):
   with patch.object(s,'sha',side_effect=[s.OLD,guard.ACCEPTED_BINARY_SHA256,'unknown']),patch.object(s,'guest',return_value=json.dumps({'unit_sha256':'new'})),patch.object(s,'atomic_unit') as atomic:
    with self.assertRaisesRegex(AssertionError,'unknown unit'):s.rollback()
    atomic.assert_not_called()
+ def test_sycl_recovery_rejects_unknown_unit_before_service_mutation(self):
+  import json
+  with patch.object(s,'guest',return_value=json.dumps({'unit_sha256':'accepted-sycl','volatile_dependencies':False})) as guest,patch.object(s,'sha',return_value='unexpected'):
+   with self.assertRaisesRegex(AssertionError,'unit drift'):s.restore_sycl()
+   self.assertEqual(guest.call_count,1)
 if __name__=='__main__':unittest.main()
