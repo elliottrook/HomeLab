@@ -2,7 +2,7 @@
 
 Date: 2026-10-10
 
-Status: **bounded promotion design ready; persistent change not authorized**
+Status: **approved promotion completed and validated**
 
 ## Live constraint
 
@@ -65,5 +65,32 @@ TTS remains a separate service and is unaffected.
 
 Execution requires explicit approval because it deletes a persistent legacy
 model artifact and changes the persistent production inference runtime/model.
-No deletion, download, installation, unit change or restart was performed by
-this readiness review.
+Jason explicitly approved this bounded promotion. The first invocation failed
+closed before mutation because tmpfs staging reduced reported available RAM
+below 4 GiB while 27B was still resident. Production remained healthy and no
+artifact or unit changed. The corrected sequence preserved and armed the 27B
+rollback, stopped 27B, waited 30 seconds and only then applied the RAM gate.
+
+The second invocation removed only the uniquely referenced inactive Ollama 9B
+manifest/blob, installed the pinned model and b11429 runtime, preserved the
+former 27B unit, and promoted the exact candidate unit. Final accepted hashes:
+
+- unit: `6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e`;
+- b11429 server: `5faf410bbbc00a1b94b09ee01623699f255365628dfa73b1ee552d9e52a2231d`;
+- model: `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`;
+- immediate 27B rollback unit:
+  `e2019cac74dc23deb4bc92efc38cf3a31a9af1b34d43d651c15e507c392fb184`.
+
+Disk availability increased from 21,066,375,168 to 21,943,648,256 bytes.
+Production validation was semantically 16/16; its immutable mode-0600 report
+SHA-256 is `79b9f25da1b078b957f0ec15095276e0ffd24532ad0c2caf4a20348d3b9efb02`.
+Aster's stale public model metadata and the two remaining prompt/UI identity
+strings were corrected using live-preserving, exact-string-only source
+candidates with rollback copies. The final deployed agent source SHA-256 is
+`a311a020ccf4965e7d1efee43bcbaacfc7b6f95379bba87daaf082eec5ea4b66`.
+Authenticated model discovery reports `aster-qwen3.5-9b`; an authenticated
+identity request states that Qwen3.5-9B is running through llama.cpp on the B60
+Vulkan path in LXC 110, with runtime fingerprint `b11429-d81235049`. Aster and
+inference services are active, News timers are active, restarts are zero and
+the kernel failure scan is empty. Transient downloads and staging files were
+removed.

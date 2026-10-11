@@ -69,7 +69,7 @@ def main() -> int:
     for case in cases:
         payload = json.dumps(
             {
-                "model": "aster-qwen3.8-27b",
+                "model": "aster-qwen3.5-9b",
                 "messages": [{"role": "user", "content": case["prompt"]}],
                 "temperature": 0.1,
                 "max_tokens": 320,

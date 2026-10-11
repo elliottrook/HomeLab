@@ -30,7 +30,7 @@ Hermes Desktop v0.21.0 can use Aster as an OpenAI-compatible custom endpoint:
 
 - endpoint URL: `http://192.168.70.10:9120/v1`;
 - provider ID: `aster-local`;
-- model: `aster-qwen3.8-27b`;
+- model: `aster-qwen3.5-9b`;
 - declared context: 65,536, which satisfies Hermes' client-side 64K minimum;
 - model discovery and use-for-new-chats enabled.
 
@@ -44,12 +44,13 @@ where its desktop harness is worth the additional latency.
 
 ## Runtime configuration
 
-- llama.cpp b10507 (`95c409c13`)
-- `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS`
+- llama.cpp b11429 (`d81235049`)
+- `lmstudio-community/Qwen3.5-9B-GGUF:Q4_K_M`, pinned SHA-256
+  `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`
 - Vulkan, all model layers offloaded
 - One 8,192-token slot
 - Four CPU threads, batch 256, microbatch 128
-- Flash attention; Q8 key/value cache
+- Flash attention; Q4 key/value cache
 - Model reasoning disabled by default
 - Automatic real-generation warm-up during service start
 
@@ -60,6 +61,15 @@ The unit allows up to five minutes for startup, while the health and generation
 steps inside the warm-up script are independently bounded. This prevents
 systemd's 90-second default start timeout from killing a healthy model during a
 slow real-generation warm-up.
+
+The exact former 27B production unit is retained at
+`/etc/systemd/system/aster-llama.service.pre-9b-20261010`; its b11081 runtime,
+IQ4_XS model shards and earlier Q8 unit remain intact. Normal rollback installs
+that unit over `aster-llama.service`, runs `systemctl daemon-reload`, stops the
+current service, waits 30 seconds, starts it once non-blocking, and validates
+the former unit/runtime/model hashes, endpoint health, `xe`, BMG G21 Vulkan and
+an authenticated synthetic Aster response. Do not retry a GPU/device failure
+automatically.
 
 ## Lab Doctor and backup execution
 

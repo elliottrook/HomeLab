@@ -5,7 +5,7 @@
     {
       "id": "paraphrased_runtime_roles",
       "prompt": "I thought guest 105 handled the live AI service. Correct me and explain which guests provide Aster's interface and text generation today, including the model and accelerator path.",
-      "required_all": ["LXC 104", "LXC 110", "VM 105", "stopped", "Qwen3.8-27B", "Vulkan"],
+      "required_all": ["LXC 104", "LXC 110", "VM 105", "stopped", "Qwen3.5-9B", "Vulkan"],
       "forbidden": ["VM 105 is production", "Ollama is the active backend", "LXC 105"]
     },
     {

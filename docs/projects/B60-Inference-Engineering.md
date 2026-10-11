@@ -38,18 +38,21 @@ Read-only discovery on 2026-09-25 reconciled the documented baseline:
 - Unprivileged LXC 110 is running with 4 vCPU and 16 GiB RAM. VM 105 is stopped
   and has no persistent B60 passthrough mapping.
 - `aster-llama.service` is active and health at `192.168.70.12:11435/health`
-  is `ok`. It runs llama.cpp b11081 (`161755f29`) with all layers offloaded,
+  is `ok`. Following the separately approved Aster architecture decision, it
+  now runs Qwen3.5-9B Q4_K_M on llama.cpp b11429 (`d81235049`) with all layers offloaded,
   one 8,192-token slot, batch 256, microbatch 128, promoted Q4 K/V cache,
-  flash attention, Jinja templates and reasoning disabled. The exact former Q8
-  unit is retained for immediate rollback.
+  flash attention, Jinja templates and reasoning disabled. The exact former
+  27B Q4 unit and earlier Q8 unit are retained for immediate rollback.
 - Mesa Vulkan 26.1.6 identifies the B60 as a discrete BMG G21 device. No Intel
   OpenCL or Level Zero package is installed in production.
-- The promoted Q4 K/V unit SHA-256 is
+- The current 9B Q4 K/V unit SHA-256 is
+  `6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e`;
+  the immediate former-27B rollback unit is
   `e2019cac74dc23deb4bc92efc38cf3a31a9af1b34d43d651c15e507c392fb184`;
   the retained Q8 rollback unit is
   `7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013`;
   the accepted server binary SHA-256 is
-  `47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693`.
+  `5faf410bbbc00a1b94b09ee01623699f255365628dfa73b1ee552d9e52a2231d`.
 - The active 02:30 snapshot backup completed for LXC 110 on 2026-09-25 at
   02:39. The documented approximately 04:20 TrueNAS mirror remains a scheduling
   constraint and requires live reconfirmation before an overnight test.
@@ -496,6 +499,7 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-10-10 | Tokenizer calibration and Q4 KV candidate | Replaced word-count estimation with live `/tokenize` calibration and added the previously omitted OpenAI tool schema to tool-call fixtures; 27 local tests pass. At an actual 524-token prompt, matched Q8 cold/warm controls were 5.943/5.948 tok/s, rejecting prompt cache as the remedy. Two clean transient server sessions changing only K/V cache from Q8_0 to Q4_0 produced 11.047 and 11.008 tok/s; the required accepted-Q8 post-control was 6.689 tok/s. This is a reproducible 64.6% improvement against the stronger control and 85.9% against the pre-control. All 30 measured Q4 workflow runs passed: conversation, persona, real tool-schema selection, 2,060-token grounded retrieval and 8,012-token marker recall. Decode remained 10.44–11.76 tok/s across those contexts. Immutable evidence hashes include Q4 sessions `ec80e2b65ee10f04c7541c55ad0aa0d37482408698616097f3991c6136737ff9` and `bf449a79e950193de8797ae7a03b8cd44482e93c1a5991be85cc341f9ad0a377`, post-control `15bdd314152506062caca2cf41e60b73b8a8d372705b59464ad1a37ef4edf95e`, tool `9f4c81472786cac0f8d0f853d22981939d423cc8cc568f99f1004e17c9144d1e`, grounded `72ff66c964ddb1b58aa24aac93e0fae4bfaafd21bf222870f7fa85e77ec01b69` and 8K `c24de46e4219016e2f46716d956c9dd03e4a8983d4a556075d1b4862e9ea7c76`. Every transient candidate was removed and accepted binary/unit hashes plus health were revalidated | Q8 KV traffic in the API server path is the reproduced bottleneck; Q4 K/V is the promotion candidate and exceeds the 15% threshold with no tested correctness regression. Persistent unit change remains explicitly outside standing Stream A authorization. Next action is owner-approved atomic promotion of only `-ctk/-ctv q8_0` to `q4_0`, followed by Doctor/dependent regression checks, soak and rollback proof; do not repeat exploratory nightly benchmarks while awaiting that decision |
 | 2026-10-10 | Owner-approved Q4 K/V promotion | After explicit approval, revalidated the accepted hashes, health, `xe`, BMG G21 Vulkan and headroom. Preserved the exact Q8 unit at `/etc/systemd/system/aster-llama.service.pre-q4-20261010`, atomically promoted only `-ctk/-ctv` to Q4_0, daemon-reloaded, quiesced for 30 seconds and clean-started production. The promoted unit hash is `e2019cac74dc23deb4bc92efc38cf3a31a9af1b34d43d651c15e507c392fb184`. Authenticated post-promotion workflow evidence `8465a95e1e85be45bf2203ae4c408f7ecb9fd24aa52297091adadeabaa4fbecc` passed correctness at 10.987 tok/s median. B60 binding/Vulkan/rollback-VM checks and Aster agent health passed; service is active with zero restarts and the immediate kernel failure scan was empty | Q4 K/V is now accepted production. Retain the exact Q8 unit for immediate rollback. Complete the longer reset/OOM/device-loss observation, then update operational guidance and close or narrow the nightly automation |
 | 2026-10-10 | Exercised soak and close-out | Continued immediately rather than deferring to the scheduled window. At 9 minutes 50 seconds after the promoted clean start, ran a fresh authenticated 2,060-token grounded-retrieval series. All six runs passed source attribution and unsupported-source assertions at 10.724 tok/s median; immutable evidence SHA-256 is `0e5683c468373128e06806340499432171279611244a94e6fddc55f5a60c5376`. After load, the service remained active with zero restarts, both inference and Aster agent health were `ok`, binary/promoted-unit/rollback-unit hashes matched, news timers were active and the kernel scan remained empty for reset, hang, fault, OOM and device loss | Graduation gates pass. Existing B60/Doctor health monitoring remains authoritative; no duplicate recurring benchmark is needed. Pause the project automation, retain Q8 rollback, and reopen only on health/correctness/performance regression or an explicitly scoped new optimization project |
+| 2026-10-10 | Subsequent Aster 9B role promotion | The separate Aster architecture programme selected Qwen3.5-9B reasoning-off for post-policy summaries and Jason explicitly approved production promotion. Revalidated today's backup/mirror and every B60 gate, then installed pinned b11429 and the exact 9B model while preserving the accepted 27B and Q8 rollback units/models. The first attempt failed closed before mutation on staged RAM; corrected sequencing quiesced 27B before the RAM gate. Final 9B unit/runtime/model hashes match, disk headroom increased, protected-path Aster generation passed, service restarts remain zero and the kernel scan is clean | B60 engineering remains complete; accepted production is now the Aster programme's 9B configuration. Retain the former 27B unit/runtime/model as immediate rollback and retarget the finite post-promotion observation to the new accepted hashes |
 
 ## Close-out
 
