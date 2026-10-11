@@ -70,4 +70,10 @@ Jason then approved one manual sync of mirror ID 3. **No manual sync was trigger
 
 Read-only Forgejo metadata reports mirror ID 3 last updated at **2026-10-10 20:13:59 PDT** with an empty error field. ID 1 still has no successful update (`last_update=0`); it remains configured. The exact trigger for ID 3's successful update was not observed, so it is **UNKNOWN** whether this was sync-on-commit, its schedule or another actor. The approved manual sync was deliberately not spent on a redundant operation. The Forgejo web endpoint briefly returned HTTP 502 during this verification while the service was active and direct repository inspection worked; availability should be checked separately before further UI changes.
 
-The protection gap is closed for the observed branch and tag refs. Remove old mirror ID 1 only after separate exact approval and a fresh health/ref check. Do not remove ID 3 or change GitHub credentials. Local evidence commits after `b11a4ec` have not been pushed to Forgejo.
+The protection gap is closed for the observed branch and tag refs. Local evidence commits after `b11a4ec` have not been pushed to Forgejo.
+
+## Old mirror cleanup after exact approval
+
+Jason explicitly approved removing only the broken original mirror ID 1. A fresh Forgejo settings view showed ID 1 with no successful update and the URL-validation error, while replacement ID 3 showed its successful 20:13 PDT update and no error. The UI `Remove` action was applied to ID 1 only. The resulting settings view displayed only the explicit-`ssh://` replacement entry. A subsequent read-only database query confirmed exactly one push mirror, ID 3, with `sync_on_commit=1`, the eight-hour interval, blank branch filter, no generated key, its previous successful update timestamp and empty error. A direct comparison then found all **29** Forgejo named branch/tag refs equal to GitHub's same 29 refs; the three peeled `^{}` tag lines were excluded. No GitHub ref, deploy key or credential was deliberately changed during cleanup.
+
+Mirror recovery is complete for this checkpoint. A later **approved** Forgejo commit push should confirm that ID 3 keeps GitHub current without a manual sync. If that future test fails, stop and investigate before relying on the protection copy.
