@@ -107,3 +107,10 @@ intermittent factual-correctness failure rather than stale metadata. No
 production mutation or automatic retry was performed; the observation did not
 close and its read-only automation remains active. Exact evidence is in
 `2026-10-10-9b-post-promotion-observation.md`.
+
+Jason subsequently approved deterministic runtime-identity handling. The
+live-preserving deployment and its rollback passed, two authenticated identity
+phrasings returned the exact LXC 104 interface / LXC 110 inference distinction,
+and a negative control continued through the real 9B/b11429 backend. Services
+remained healthy with zero restarts and clean kernel logs. The observation is
+now closed; see the same evidence record for hashes and tests.

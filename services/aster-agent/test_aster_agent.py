@@ -13,6 +13,7 @@ import httpx
 
 from aster_agent import (
     ASTER_SYSTEM_PROMPT,
+    ASTER_RUNTIME_IDENTITY,
     DEFAULT_PERSONA,
     PERSONAS,
     ArrRepairExecutionRequest,
@@ -25,12 +26,14 @@ from aster_agent import (
     execute_tool,
     get_arr_repair_dry_run_proposal,
     get_lab_health,
+    lab_operations,
     companion_claims,
     normalized_messages,
     personas,
     preload_read_only_context,
     relay_progress_stream,
     require_api_key,
+    runtime_identity_requested,
     search_knowledge,
     select_tools,
 )
@@ -46,6 +49,29 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("Always identify it explicitly as `VM 105`", ASTER_SYSTEM_PROMPT)
         self.assertIn("Aster is not the\nfirst recovery dependency", ASTER_SYSTEM_PROMPT)
         self.assertIn("independent local access", ASTER_SYSTEM_PROMPT)
+
+    def test_deterministic_runtime_identity_keeps_interface_and_inference_distinct(self):
+        self.assertIn("interface runs in LXC 104", ASTER_RUNTIME_IDENTITY)
+        self.assertIn("inference runs Qwen3.5-9B", ASTER_RUNTIME_IDENTITY)
+        self.assertIn("B60 Vulkan", ASTER_RUNTIME_IDENTITY)
+        self.assertIn("in LXC 110", ASTER_RUNTIME_IDENTITY)
+        self.assertIn("VM 105", ASTER_RUNTIME_IDENTITY)
+
+    def test_runtime_identity_match_is_narrow(self):
+        for prompt in (
+            "What local model are you using?",
+            "Identify the exact local model, inference runtime, GPU path and container.",
+            "Where does llama.cpp inference run?",
+        ):
+            with self.subTest(prompt=prompt):
+                self.assertTrue(runtime_identity_requested([{"role": "user", "content": prompt}]))
+        for prompt in (
+            "Summarize the 9B versus 27B model evaluation.",
+            "Explain how model quantization affects speed.",
+            "What time is it?",
+        ):
+            with self.subTest(prompt=prompt):
+                self.assertFalse(runtime_identity_requested([{"role": "user", "content": prompt}]))
 
     def test_credential_policy_omits_product_specific_recovery_details(self):
         self.assertIn("give only that generic refusal", ASTER_SYSTEM_PROMPT)
@@ -1118,6 +1144,32 @@ class PersonaChatEndpointTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(HTTPException) as raised:
             await chat(request)
         self.assertEqual(raised.exception.status_code, 400)
+
+    async def test_runtime_identity_bypasses_model_and_tools(self):
+        request = ChatRequest(messages=[{
+            "role": "user",
+            "content": "Identify the exact local model, inference runtime, GPU path and container.",
+        }], persona="sysadmin", enabled_tools=[])
+        with patch("aster_agent.upstream_completion", new=AsyncMock()) as upstream, \
+                patch.object(lab_operations, "chat") as lab_chat:
+            result = await chat(request)
+        upstream.assert_not_awaited()
+        lab_chat.assert_not_called()
+        self.assertEqual(result["model"], "aster-qwen3.5-9b")
+        self.assertEqual(result["system_fingerprint"], "aster-deterministic-runtime-identity-v1")
+        self.assertEqual(result["choices"][0]["message"]["content"], ASTER_RUNTIME_IDENTITY)
+
+    async def test_runtime_identity_stream_is_deterministic(self):
+        request = ChatRequest(
+            messages=[{"role": "user", "content": "What local model are you using?"}],
+            stream=True,
+            progress=True,
+        )
+        response = await chat(request)
+        frames = [frame async for frame in response.body_iterator]
+        self.assertIn(ASTER_RUNTIME_IDENTITY, frames[0])
+        self.assertIn("aster-deterministic-runtime-identity-v1", frames[0])
+        self.assertEqual(frames[-1], "data: [DONE]\n\n")
 
     async def test_media_persona_excludes_home_assistant_tool_results(self):
         request = ChatRequest(

@@ -2,7 +2,7 @@
 
 Date: 2026-10-10
 
-Status: **operational gates passed; identity correctness gate failed**
+Status: **operational gates passed; identity correctness failure remediated and revalidated**
 
 ## Outcome
 
@@ -51,3 +51,29 @@ performed. The finite validation automation remains active for the next
 read-only observation. Any remedy must be addressed in Aster's deterministic
 identity handling or response contract rather than by treating another sample
 as proof that the issue is absent.
+
+## Approved remediation and final validation
+
+Jason approved the production behavior change. A narrow deterministic handler
+now recognizes explicit runtime-identity questions and returns a versioned
+static response that distinguishes the Aster interface in LXC 104 from local
+Qwen3.5-9B/llama.cpp inference on the B60 Vulkan path in LXC 110. It also names
+VM 105 as the stopped Ollama rollback guest. Other questions retain the normal
+model and tool routes.
+
+Four focused tests passed inside Aster's deployed virtual environment: exact
+identity content, conservative intent matching, model/tool bypass and streaming
+framing. The existing 75 Aster evaluator and 27 B60 harness tests also passed.
+The deployed live-preserving source SHA-256 is
+`4bad7c6e8cdf9e89a1cde25014ce2d8ed5808dd3666bbf5fd47cf64698ced2a4`;
+the pre-change source is retained at
+`/opt/aster-agent/aster_agent.py.pre-runtime-identity-20261010` with SHA-256
+`a311a020ccf4965e7d1efee43bcbaacfc7b6f95379bba87daaf082eec5ea4b66`.
+
+Authenticated validation of the exact failed prompt and a second wording both
+returned the same correct response with fingerprint
+`aster-deterministic-runtime-identity-v1`. A negative-control request about why
+smaller models are faster bypassed the handler and used the actual 9B/b11429
+backend at 46.3 output tokens per second. Both services remained active with
+zero restarts, inference health was `ok`, and the kernel fault scan was empty.
+The correctness blocker is resolved and the finite automation can be paused.

@@ -54,6 +54,12 @@ where its desktop harness is worth the additional latency.
 - Model reasoning disabled by default
 - Automatic real-generation warm-up during service start
 
+Explicit runtime-identity questions are answered deterministically by the
+Aster agent rather than delegated to model recall. The versioned response names
+the interface in LXC 104, Qwen3.5-9B/llama.cpp/B60 Vulkan inference in LXC 110
+and VM 105 as the stopped Ollama rollback guest. Ordinary analysis questions
+continue through the normal model and tool routes.
+
 Systemd does not report `aster-llama.service` fully started until the model is
 loaded and warm-up completes. This normally takes roughly 1–2 minutes. The
 first real user request then avoids the otherwise roughly 28-second cold path.

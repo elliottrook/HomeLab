@@ -190,6 +190,12 @@ using Qwen3.5-9B on the B60 Vulkan path, and VM 105 is the stopped Ollama
 rollback guest.
 Name retrieved source files when factual provenance helps."""
 
+ASTER_RUNTIME_IDENTITY = (
+    "Aster's interface runs in LXC 104. Local text inference runs Qwen3.5-9B "
+    "reasoning-off through llama.cpp b11429 on the Intel Arc Pro B60 Vulkan "
+    "path in LXC 110. VM 105 is the stopped Ollama rollback guest."
+)
+
 app = FastAPI(title="Aster Agent", version="1.0.0")
 lab_operations = LabOperations()
 app.include_router(lab_operations.router)
@@ -1380,6 +1386,66 @@ async def models() -> dict[str, Any]:
     }
 
 
+def runtime_identity_requested(messages: list[dict[str, Any]]) -> bool:
+    """Recognize explicit static-runtime questions without widening routing."""
+    text = next(
+        (
+            str(message.get("content", "")).strip().lower()
+            for message in reversed(messages)
+            if message.get("role") == "user" and isinstance(message.get("content"), str)
+        ),
+        "",
+    )
+    if not text:
+        return False
+    return bool(
+        re.search(r"\b(?:what|which)\s+(?:exact\s+|local\s+)*(?:model|runtime)\b", text)
+        or re.search(r"\bidentify\b.*\b(?:model|runtime|inference|gpu|container)\b", text)
+        or re.search(r"\bwhere\b.*\b(?:inference|llama\.cpp|model)\b.*\b(?:run|runs|running|hosted)\b", text)
+        or re.search(r"\b(?:model|runtime|inference)\b.*\b(?:using|run|runs|running|hosted)\b", text)
+    )
+
+
+def deterministic_completion(text: str, stream: bool = False) -> dict[str, Any] | StreamingResponse:
+    created = int(time.time())
+    completion_id = "chatcmpl-" + uuid.uuid4().hex
+    model = "aster-qwen3.5-9b"
+    fingerprint = "aster-deterministic-runtime-identity-v1"
+    if stream:
+        async def chunks():
+            yield "data: " + json.dumps({
+                "id": completion_id,
+                "object": "chat.completion.chunk",
+                "created": created,
+                "model": model,
+                "system_fingerprint": fingerprint,
+                "choices": [{"index": 0, "delta": {"role": "assistant", "content": text}, "finish_reason": None}],
+            }) + "\n\n"
+            yield "data: " + json.dumps({
+                "id": completion_id,
+                "object": "chat.completion.chunk",
+                "created": created,
+                "model": model,
+                "system_fingerprint": fingerprint,
+                "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+            }) + "\n\n"
+            yield "data: [DONE]\n\n"
+        return StreamingResponse(chunks(), media_type="text/event-stream")
+    return {
+        "id": completion_id,
+        "object": "chat.completion",
+        "created": created,
+        "model": model,
+        "system_fingerprint": fingerprint,
+        "choices": [{
+            "index": 0,
+            "message": {"role": "assistant", "content": text},
+            "finish_reason": "stop",
+        }],
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+    }
+
+
 @app.get("/v1/arr-repair/proposal", dependencies=[Depends(require_api_key)])
 async def arr_repair_proposal() -> dict[str, Any]:
     """M5: lets the Companion apps' action-card UI check for a pending
@@ -1436,6 +1502,9 @@ async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
     allowed_tools = persona["tools"]
     if request.enabled_tools is not None:
         allowed_tools = allowed_tools & set(request.enabled_tools)
+
+    if runtime_identity_requested(request.messages):
+        return deterministic_completion(ASTER_RUNTIME_IDENTITY, request.stream)
 
     if request.stream and request.progress:
         return progress_chat(request, persona, allowed_tools)
