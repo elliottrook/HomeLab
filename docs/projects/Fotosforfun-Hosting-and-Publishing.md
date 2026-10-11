@@ -371,8 +371,12 @@ bindings, files, rules or routes may remain.
 | 2026-10-10 | Inspected approved commit `6a6c044`, static structure, placeholder credits, `.com` contact mismatch and hard-coded/`innerHTML` gallery path | Accepted public design is preservable; dynamic binding and safe renderer are required |
 | 2026-10-10 | Read project standard, current TCF publishing project, authorization guidance and live LXC 124/125 state | Separate app on existing hosts is the least-change architecture; both guests are healthy with substantial capacity |
 | 2026-10-10 | Jason selected home-only access and requested project creation and continuation in Stream A | M0 authorization envelope recorded; proceed to A1 without public exposure |
+| 2026-10-10 | Preserved approved source identity: commit `6a6c044ed3ce8197181e2ae68bbffa5a167a285e`, tree `89c750ef9f3f97699ed7ae150ef29b9dd01d2f2e`, supplied ZIP SHA-256 `6f050b66…42c37` | Source provenance and an independent supplied export are known before backend binding |
+| 2026-10-10 | Added isolated append-oriented model/store, explicit soft retirement, complete-approved snapshot gate, bounded import, safe renderer, immutable manifest/release and atomic activation foundation | Eight Fotosforfun tests pass; edits invalidate approvals, samples/changed bytes/cross-site paths fail closed, and publication cannot silently omit an active unapproved photograph |
+| 2026-10-10 | Rendered a credited sample through the actual approved template in a temporary directory; corrected contact to `.ca`, retained a conspicuous placeholder warning and verified its manifest | Actual template hooks are compatible; no source Site or live service was changed. All 54 existing TCF publishing tests also pass |
 
 ## Close-out
 
-Active. M0 is complete and A1 is next. No live service, identity, network, DNS,
-mail or public route changed during project creation.
+Active. M0 is complete and A1 is in progress. The isolated local core and real
+template compatibility are proven; editor GUI, live service, identity, network,
+backup and public routing remain unchanged.
