@@ -48,5 +48,11 @@
  "private_hwloc_version": "2.12.0-4",
  "private_hwloc_sha256": "aa53c4a1878475e7309f2c265c54d9a8a4602dec95564cf84d471d7376ff616c",
  "both_sycl_adapters_load_without_initialization": true,
- "next_gate": "one explicitly approved corrected-dependency SYCL enumeration attempt; no model load until enumeration passes and full preflight/headroom gates pass"
+ "sycl_corrected_enumeration_exit": 0,
+ "sycl_corrected_device": "Intel Arc Pro B60 Graphics level_zero:gpu:0",
+ "sycl_corrected_compute_units": 160,
+ "sycl_corrected_global_memory_megabytes": 25669,
+ "sycl_corrected_log_sha256": "3df320bffb38faffe406356f6349f3f654aadac17eb505ddacd8159a9eb4f382",
+ "disk_headroom_after_scratch_relocation_bytes": 21503397888,
+ "next_gate": "matched 9B SYCL model trial under original scoped approval, only after current-hash guarded preflight, fixed time window and tested restoration; no production promotion"
 }

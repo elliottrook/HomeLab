@@ -589,6 +589,29 @@ archive headroom safely before any model-load gate. Tmpfs dependencies are
 disposable and need restaging after reboot. No speech, UI, host driver, global
 linker, scheduler, credential or production configuration change occurred.
 
+Jason approved one corrected-dependency SYCL enumeration attempt. It exited
+zero, listing `Intel Arc Pro B60 Graphics`, `level_zero:gpu:0`, 160 compute
+units, 25,669 MB global memory and driver `1.17.39758+10`. Immutable log
+`sycl-enumeration-corrected-1.log` SHA-256:
+`3df320bffb38faffe406356f6349f3f654aadac17eb505ddacd8159a9eb4f382`.
+Production health is `ok`, zero restarts, relevant kernel-fault scan empty.
+
+Fresh backup and mirror were verified again at 22:01; both contain the same
+38,852,679,165-byte archive, task 3 enabled and SUCCESS. Recovered the 20 GiB
+disk floor by moving only candidate package archives, candidate tarball and
+SYCL binaries to `/dev/shm/b60-sycl-assets-20261010`; a trial-only link preserves
+the SYCL path. Disk availability is now 21,503,397,888 bytes. No files deleted
+or production paths changed. These reproducible trial assets disappear on
+reboot and must be restaged; logs and manifest remain on disk.
+
+The preflight/finalizer guard still contained retired 27B binary/unit hashes.
+Updated the local guard to accepted b11429/9B hashes and binary path, retaining
+all freshness, timing, headroom and finalizer controls, with a regression test
+that rejects retired hashes. No production stop or model load occurred in this
+enumeration milestone. Next is the originally approved same-model SYCL trial,
+gated by a fresh current-hash preflight and tested restoration. Vulkan remains
+production; no speed or correctness advantage for SYCL has yet been established.
+
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.
 - [ ] Require tiny-model enumeration, target-architecture correctness, explicit
   fallback/transfer accounting and like-for-like quality comparisons.

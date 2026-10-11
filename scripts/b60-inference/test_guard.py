@@ -29,6 +29,14 @@ def snapshot():
 
 
 class GuardTests(unittest.TestCase):
+    def test_retired_production_hashes_are_rejected(self):
+        old = snapshot()
+        old['binary_sha256'] = '47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693'
+        old['unit_sha256'] = '7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013'
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(old, datetime.fromisoformat('2026-09-27T22:05:00-07:00'), 30)
+        self.assertIn('/opt/llama.cpp-b11429/llama-server', guard.commands()[5])
+
     def test_preflight_sets_2320_and_2340_deadlines(self):
         result = guard.validate_preflight(snapshot(), datetime.fromisoformat("2026-09-27T22:05:00-07:00"), 60)
         self.assertIn("23:20:00", result["experiment_deadline"])

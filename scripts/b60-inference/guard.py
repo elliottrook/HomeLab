@@ -21,8 +21,8 @@ PREFLIGHT_LAST_MINUTE = 14
 EXPERIMENT_START_MINUTE = 15
 EXPERIMENT_DEADLINE_MINUTE = 20
 RESTORATION_DEADLINE_MINUTE = 40
-ACCEPTED_BINARY_SHA256 = "47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693"
-ACCEPTED_UNIT_SHA256 = "7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013"
+ACCEPTED_BINARY_SHA256 = "5faf410bbbc00a1b94b09ee01623699f255365628dfa73b1ee552d9e52a2231d"
+ACCEPTED_UNIT_SHA256 = "6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e"
 CANDIDATE_UNIT = "aster-b60-candidate.service"
 
 
@@ -87,7 +87,7 @@ def commands() -> list[list[str]]:
         ["pct", "exec", "110", "--", "systemctl", "start", "--no-block", "aster-llama.service"],
         ["pct", "exec", "110", "--", "systemctl", "is-active", "--quiet", "aster-llama.service"],
         ["pct", "exec", "110", "--", "curl", "-fsS", "http://192.168.70.12:11435/health"],
-        ["pct", "exec", "110", "--", "sha256sum", "/opt/llama.cpp-b11081/llama-server"],
+        ["pct", "exec", "110", "--", "sha256sum", "/opt/llama.cpp-b11429/llama-server"],
         ["pct", "exec", "110", "--", "sha256sum", "/etc/systemd/system/aster-llama.service"],
         ["readlink", "/sys/bus/pci/devices/0000:04:00.0/driver"],
         ["pct", "exec", "110", "--", "vulkaninfo", "--summary"],
