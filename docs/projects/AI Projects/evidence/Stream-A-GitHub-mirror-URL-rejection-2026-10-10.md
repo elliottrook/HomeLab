@@ -1,6 +1,6 @@
 # Stream A GitHub protection mirror URL rejection — 2026-10-10
 
-**State:** Forgejo authoritative branch is current; GitHub protection branch is stale. No direct GitHub push, mirror reconfiguration, force synchronization or credential change has occurred. Recovery is a separate remote-change decision.
+**State at latest check:** Replacement mirror ID 3 reports a successful update and all 26 named branches and three named tags match between Forgejo and GitHub. The old broken mirror ID 1 remains configured. No direct GitHub push or credential change occurred. Earlier sections preserve the chronology of the former protection gap.
 
 ## Verified observations
 
@@ -62,4 +62,12 @@ The installed-version [Forgejo v15.0.7 URL check](https://code.forgejo.org/forge
 
 The preferred supported fix is a replacement push-mirror entry created through Forgejo's UI with explicit `ssh://git@github.com/elliottrook/HomeLab.git`, **without** a new Forgejo-managed key. Forgejo's [push implementation](https://code.forgejo.org/forgejo/forgejo/src/tag/v15.0.7/services/mirror/mirror_push.go) uses ordinary Git/SSH when the mirror has no generated key; the existing `git` user's repository-scoped key and strict host checks remain in effect. Keep the old entry until the new one has completed a specifically approved sync and refs have been checked, then seek separate approval to remove the broken entry. No direct GitHub push, database edit, global URL-policy relaxation or extra deploy key is proposed.
 
-Jason approved the new entry. Forgejo created mirror ID 3 with `sync_on_commit=1`, blank branch filter, eight-hour interval and no generated key. The UI sanitizes the stored address to `ssh://github.com/elliottrook/HomeLab.git`; read-only inspection of that mirror's actual Git remote confirmed `ssh://git@github.com/elliottrook/HomeLab.git`. A read-only `git ls-remote` from the Forgejo guest using that explicit URL reached the intended private GitHub repository. GitHub's branch tips remained unchanged after creation. A separate approval for exactly one sync on mirror ID 3 is pending.
+Jason approved the new entry. Forgejo created mirror ID 3 with `sync_on_commit=1`, blank branch filter, eight-hour interval and no generated key. The UI sanitizes the stored address to `ssh://github.com/elliottrook/HomeLab.git`; read-only inspection of that mirror's actual Git remote confirmed `ssh://git@github.com/elliottrook/HomeLab.git`. A read-only `git ls-remote` from the Forgejo guest using that explicit URL reached the intended private GitHub repository. GitHub's branch tips remained unchanged immediately after creation.
+
+## Replacement mirror synchronized without a manual retry
+
+Jason then approved one manual sync of mirror ID 3. **No manual sync was triggered.** The immediate preflight already showed GitHub's named branches and tags matching Forgejo. A follow-up direct read of Forgejo's bare repository and `git ls-remote` of GitHub again found all 26 named branches and three named tags equal; GitHub's three additional `^{}` lines are the peeled values of annotated tags, not additional tags. In particular, Stream A is `b11a4ec704497d0e15c39402b93581eb5bbcff1a` on both sides and `main` is `682eaf41047147428f40bca04e0c975e115d1eb1` on both sides at this checkpoint. This latest `main` tip supersedes the earlier `2c743b1d` preflight and is evidence of concurrent repository activity.
+
+Read-only Forgejo metadata reports mirror ID 3 last updated at **2026-10-10 20:13:59 PDT** with an empty error field. ID 1 still has no successful update (`last_update=0`); it remains configured. The exact trigger for ID 3's successful update was not observed, so it is **UNKNOWN** whether this was sync-on-commit, its schedule or another actor. The approved manual sync was deliberately not spent on a redundant operation. The Forgejo web endpoint briefly returned HTTP 502 during this verification while the service was active and direct repository inspection worked; availability should be checked separately before further UI changes.
+
+The protection gap is closed for the observed branch and tag refs. Remove old mirror ID 1 only after separate exact approval and a fresh health/ref check. Do not remove ID 3 or change GitHub credentials. Local evidence commits after `b11a4ec` have not been pushed to Forgejo.
