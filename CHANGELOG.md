@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-11 — First native OpenVINO trial
+
+- Verified all 31 isolated artifacts and explicit B60 OpenCL execution; native
+  regression scored 14/16 versus SYCL's 12/16, with no new suite failures.
+- Stopped at the sustained-output gate when the warmup ended at 101 tokens;
+  no measured native speed claim. Exact accepted SYCL restored and validated,
+  with no device/kernel fault and no permanent OpenVINO deployment.
+- Prepared explicit bounded fixed-length decoding on both runtimes, identical
+  policy checks and candidate-PID telemetry; 86 focused tests pass. The corrected
+  comparison remains unexecuted and requires fresh gates outside backup I/O.
+
 ## 2026-10-11 — Private SYCL production deployment
 
 - Promoted the tested b11429 FP16/fusion-1 SYCL configuration after a new,

@@ -175,7 +175,45 @@ SHA-256 `360266b625445ca62ef752ce549295648a56e4184df44c543c4c2f896b38cb24`.
 Pinned CPython 3.13 GenAI/tokenizers 2026.4.0.0 and runtime 2026.4.0;
 matching Intel OpenCL 26.35.39758.10, Debian private ICD loader 2.3.3-1,
 NumPy 2.4.4 and telemetry 2025.2.0 downloads completed at 00:56:01, hashes
-verified. No runtime import, package installation or OpenVINO GPU load yet.
+verified. Guest staging passed at 01:41:30: 31 verified artifacts, 22,379,098,112
+bytes disk free, 11,775,365 KiB available RAM; staging proof SHA-256
+`db9d6379f6d7929cb81e842b7046ed38a58bdb753e6f041678aa2a66730dfc05`.
+No package installation. Fresh guarded preflight at 01:47:50 passed accepted
+SYCL hashes, verified checkpoint/mirror, health, xe/Vulkan, resources and kernel
+gates. The bounded native comparison began at 01:48:05 with an independent
+30-minute exact-SYCL recovery watchdog and preservation of the 02:30 backup
+boundary. Temporary telemetry now follows the explicitly selected accepted or
+candidate unit, rejects PID zero and missing temperatures, and requires positive
+native GPU residency before generation. The added fail-closed collector tests
+pass. Native GPU startup passed at 01:50:19 in 20.413 seconds, explicit B60
+selection and private OpenCL/GPU-plugin mappings, proof SHA-256
+`c4d783c99f8a9250f0ff6e07bb0339495cb1e0fbfef5a7a6a21cfa2f7811a47f`.
+Authenticated correctness passed, then regression scored 14/16 with no new
+failures (remaining stale-news/private-public-join), SHA-256
+`2959f7b7118323668d0d7381cd580e28c738d29fc0e758b00c806c893d6d1520`.
+The sustained-output warmup stopped naturally at 101 tokens, below the unchanged
+120-token minimum. Its sanitized report SHA-256
+`148304452d73e3fb4486d7e0f0d3f114d91635135e85a90cb8dbc75699aa3655`
+contains only that failing warmup; do not treat its 51.300 reported tok/s as a
+measured speed result. Native execution stopped immediately without retry.
+Exact SYCL hashes, private mappings, 33/33 GPU layers, health and authenticated
+generation were restored at 01:52:35; recovery proof SHA-256
+`5c591238a687776eb8bd7a562307098adc86fadd82739bbad829f2380f6eb656`.
+Independent read-only final validation passed at 01:54:07, SHA-256
+`a950231241b4b22b2dce9723497a2912ea7bec1c94269cba40c03edd74b482db`.
+No device/kernel failure or permanent OpenVINO deployment. Comparison remains
+incomplete: grounded/8K native runs and post-controls were not executed after
+the failed gate, and no native speed improvement is established.
+
+Next bounded comparison uses explicit ignore-EOS only for the synthetic
+128-token throughput fixture, identically on SYCL pre/post and OpenVINO. The
+installed GenAI binding documents `GenerationConfig.ignore_eos`; default
+personal/regression generation remains EOS-respecting. Runner records the
+generation policy, native adapter rejects unbounded/non-throughput use, and
+report requires exact 128-token outputs and identical fixed-length policy.
+This correction is locally tested, not yet executed. No second trial can start
+after 01:55 under the existing 35-minute reserve before the 02:30 backup. Fresh
+preflight and no active backup I/O remain prerequisites for the next run.
 Trial staging reserves the 20-GiB disk floor, including filesystem overhead,
 by keeping the vendor text-embedding/vision-merger blobs and private runtime
 in RAM; guest staging is gated on accepted

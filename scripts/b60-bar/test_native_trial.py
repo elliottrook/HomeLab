@@ -8,6 +8,15 @@ sys.path.insert(0,str(Path(__file__).parents[1]/'b60-inference'))
 spec=importlib.util.spec_from_file_location('trial',Path(__file__).with_name('native-openvino-trial.py'))
 s=importlib.util.module_from_spec(spec);spec.loader.exec_module(s)
 class RecoveryTests(unittest.TestCase):
+ def test_candidate_telemetry_follows_candidate_pid(self):
+  telemetry='vram_resident_kib=1000\ngpu_temp_pkg_millic=53000\ngpu_temp_vram_millic=52000\n'
+  with patch.object(s,'CURRENT_UNIT','aster-b60-candidate.service'),patch.object(s,'run',side_effect=['[]','clean kernel']),patch.object(s,'guest',side_effect=['',telemetry]) as guest:
+   s.kernel_gate()
+   self.assertEqual(guest.call_args.args,(110,'sh','/run/b60-bar-telemetry.sh','aster-b60-candidate.service'))
+ def test_zero_temperature_blocks_candidate(self):
+  telemetry='vram_resident_kib=1000\ngpu_temp_pkg_millic=0\ngpu_temp_vram_millic=52000\n'
+  with patch.object(s,'run',side_effect=['[]','clean kernel']),patch.object(s,'guest',side_effect=['',telemetry]):
+   with self.assertRaises(AssertionError):s.kernel_gate()
  def test_watchdog_remains_armed_if_sycl_recovery_fails(self):
   with patch.object(s.prod,'restore_sycl',side_effect=RuntimeError('synthetic recovery failure')),patch.object(s,'run') as run:
    with self.assertRaises(RuntimeError):s.restore_after_trial()

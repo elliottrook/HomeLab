@@ -25,7 +25,9 @@ def summarize(root,prefix):
    assert d['fixture']==fixture and d['health_passed'] and len(d['samples'])==12 and all(s['correct'] for s in d['samples'])
    prompts.add(d['prompt_sha256']);s=[s for s in d['samples'] if s['phase']=='decode' and s['control_role']=='measured']
    assert len(s)==5 and all(r['seconds']>0 and r['tokens']>0 for r in s)
-   if fixture=='b60-tg128-cold':assert all(r['tokens']>=120 for r in s)
+   if fixture=='b60-tg128-cold':
+    assert d.get('generation_policy')=={'ignore_eos':True,'max_output_tokens':128}
+    assert all(r['tokens']==128 for r in s)
    phases[phase]={'request_seconds':[r['seconds'] for r in s],'output_tokens':[r['tokens'] for r in s],'reported_decode_tps':[r['tokens_per_second'] for r in s],'input_tokens':sorted({r['tokens'] for r in d['samples'] if r['phase']=='prefill'})}
   if len(phases)!=3:continue
   target=64 if fixture=='b60-tg128-cold' else 2048 if fixture=='aster-grounded-retrieval' else 8000

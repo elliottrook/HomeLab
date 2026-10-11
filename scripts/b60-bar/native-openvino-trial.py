@@ -21,6 +21,7 @@ spec=importlib.util.spec_from_file_location('verify',CODE/'verify-production-syc
 verify=importlib.util.module_from_spec(spec);spec.loader.exec_module(verify)
 ROOT='/run/b60-matched-sycl'
 RAM='/dev/shm/b60-openvino-runtime-20261011'
+CURRENT_UNIT='aster-llama.service'
 def restore_after_trial():
  prod.restore_sycl()
  run('systemctl','stop','b60-openvino-restore.timer')
@@ -30,16 +31,18 @@ def kernel_gate():
  assert not json.loads(run('pvesh','get','/nodes/proxmox/tasks','--source','active','--typefilter','vzdump','--output-format','json')),'active backup I/O; no benchmark'
  k=run('journalctl','-b','-k','--no-pager');assert k.strip() and not re.search(prod.FAULT,k,re.I)
  guest(110,'python3','-c','import shutil; assert shutil.disk_usage("/").free>=20*1024**3; m=dict(l.split(":",1) for l in open("/proc/meminfo")); assert int(m["MemAvailable"].split()[0])*1024>=4*1024**3')
- t=dict(l.split('=',1) for l in guest(110,'sh','/run/b60-bar-telemetry.sh').splitlines())
+ t=dict(l.split('=',1) for l in guest(110,'sh','/run/b60-bar-telemetry.sh',CURRENT_UNIT).splitlines())
  assert 25669140480-int(t['vram_resident_kib'])*1024>=2*1024**3
- assert int(t['gpu_temp_pkg_millic'])<80000 and int(t['gpu_temp_vram_millic'])<80000
+ assert 0<int(t['gpu_temp_pkg_millic'])<80000 and 0<int(t['gpu_temp_vram_millic'])<80000
  return t
 def workflow(run_id,label,fixture):
  kernel_gate();target=f'/var/lib/b60-inference/evidence/{run_id}-{label}-{fixture}.json'
- print(guest(114,'timeout','420','python3','/run/b60-workflow/runner.py','--fixtures','/run/b60-workflow/synthetic-fixtures.json','--fixture',fixture,'--endpoint','http://192.168.70.12:11435','--api-key-file','/root/.news-aggregator-llama-key','--output',target,'--execute','--allow-production-endpoint','--stop-on-incorrect',timeout=430,okay=(0,1)),flush=True)
+ fixed=['--fixed-length-decode'] if fixture=='b60-tg128-cold' else []
+ print(guest(114,'timeout','420','python3','/run/b60-workflow/runner.py','--fixtures','/run/b60-workflow/synthetic-fixtures.json','--fixture',fixture,'--endpoint','http://192.168.70.12:11435','--api-key-file','/root/.news-aggregator-llama-key','--output',target,'--execute','--allow-production-endpoint','--stop-on-incorrect',*fixed,timeout=430,okay=(0,1)),flush=True)
  print(guest(114,'python3','-c','import json,sys,statistics; d=json.load(open(sys.argv[1])); assert d["health_passed"] and len(d["samples"])==12 and all(s["correct"] for s in d["samples"]); s=[s for s in d["samples"] if s["phase"]=="decode" and s["control_role"]=="measured"]; assert len(s)==5 and all(r["tokens"]>0 and r["tokens_per_second"]>0 for r in s); print(json.dumps({"fixture":d["fixture"],"tokens":[r["tokens"] for r in s],"median_latency_seconds":statistics.median(r["seconds"] for r in s),"median_decode_tps":statistics.median(r["tokens_per_second"] for r in s),"passed":True}))',target),flush=True)
  kernel_gate()
 def main():
+ global CURRENT_UNIT
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--run-id',required=True);p.add_argument('--accepted-unit-sha256',required=True);a=p.parse_args()
  assert re.fullmatch(r'[a-z0-9][a-z0-9-]{0,50}',a.run_id) and re.fullmatch(r'[0-9a-f]{64}',a.accepted_unit_sha256)
  acceptance=json.loads(Path('/var/lib/b60-inference/evidence/20261011-sycl-production-accepted.json').read_text())
@@ -62,6 +65,7 @@ def main():
   touched=True;guest(110,'systemctl','stop','aster-llama.service');time.sleep(30)
   libs=RAM+'/opencl/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/driver/usr/local/lib:/opt/aster-sycl-b11429/driver/usr/lib/x86_64-linux-gnu:'+RAM+'/site/openvino/libs:/opt/aster-sycl-b11429/oneapi/usr/lib/x86_64-linux-gnu'
   guest(110,'systemd-run','--unit=aster-b60-candidate','--property=User=ollama','--property=Group=ollama','--property=SupplementaryGroups=video render','--property=Restart=no','--property=RuntimeMaxSec=900','--property=TimeoutStopSec=30','--property=LimitCORE=0','--setenv=LD_LIBRARY_PATH='+libs,'--setenv=OCL_ICD_VENDORS='+RAM+'/vendors','--setenv=OMP_NUM_THREADS=4','/usr/bin/python3','/run/b60-openvino-trial-server.py','--execute')
+  CURRENT_UNIT='aster-b60-candidate.service'
   ready=time.monotonic()+480
   while time.monotonic()<ready:
    state=guest(110,'systemctl','is-active','aster-b60-candidate.service',okay=(0,3)).strip()
@@ -71,6 +75,7 @@ def main():
    if health and json.loads(health).get('status')=='ok':break
    time.sleep(5)
   else:raise RuntimeError('native startup deadline; no retry')
+  assert int(kernel_gate()['vram_resident_kib'])>0,'native GPU telemetry unavailable'
   inv=guest(110,'systemctl','show','aster-b60-candidate.service','-p','InvocationID','--value').strip()
   log=guest(110,'journalctl','_SYSTEMD_INVOCATION_ID='+inv,'--no-pager')
   safe=[l for l in log.splitlines() if '"native_runtime"' in l or '"native_ready"' in l];assert len(safe)==2
@@ -91,7 +96,7 @@ def main():
   for fixture in fixtures:workflow(a.run_id,'native-openvino',fixture)
  finally:
   if touched:
-   restore_after_trial();recovered=True
+   restore_after_trial();recovered=True;CURRENT_UNIT='aster-llama.service'
  if recovered:
   verify.gates()
   for fixture in fixtures:workflow(a.run_id,'sycl-post',fixture)

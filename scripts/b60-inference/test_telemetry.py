@@ -3,6 +3,9 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+import subprocess
+import tempfile
+import os
 from pathlib import Path
 
 
@@ -14,6 +17,22 @@ SPEC.loader.exec_module(telemetry)
 
 
 class TelemetryTests(unittest.TestCase):
+    def test_collector_rejects_unknown_unit_before_collection(self):
+        result = subprocess.run(['sh', str(HERE / 'collect-telemetry.sh'), 'other.service'], capture_output=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, b'')
+
+    def test_collector_rejects_stopped_service_pid(self):
+        with tempfile.TemporaryDirectory() as directory:
+            command = Path(directory) / 'systemctl'
+            command.write_text('#!/bin/sh\nprintf "0\\n"\n')
+            command.chmod(0o755)
+            for unit in ['aster-llama.service', 'aster-b60-candidate.service']:
+                result = subprocess.run(['sh', str(HERE / 'collect-telemetry.sh'), unit], capture_output=True,
+                                        env={**os.environ, 'PATH': directory + ':' + os.environ['PATH']})
+                self.assertEqual(result.returncode, 2)
+                self.assertEqual(result.stdout, b'')
+
     def setUp(self):
         self.text = (HERE / "fixtures/telemetry-snapshot.txt").read_text(encoding="utf-8")
 

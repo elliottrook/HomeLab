@@ -196,6 +196,10 @@ def completion_payload(model: str, case: dict[str, Any], prompt: str) -> dict[st
         "cache_prompt": case["cache_state"] != "cold",
     }
     declared = case.get("tool_schema")
+    if case.get("ignore_eos"):
+        if case['kind'] != 'decode' or case.get('max_output_tokens') != 128:
+            raise harness.ValidationError('fixed-length mode requires the bounded 128-token decode fixture')
+        payload['ignore_eos'] = True
     if declared:
         properties = {name: {"type": kind} for name, kind in declared["arguments"].items()}
         payload["tools"] = [{
@@ -268,9 +272,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--allow-production-endpoint", action="store_true")
     parser.add_argument("--stop-on-incorrect", action="store_true", help="Persist the failing sample and stop further requests")
+    parser.add_argument("--fixed-length-decode", action="store_true", help="Ignore EOS only for bounded synthetic 128-token decode; apply identically to both runtimes")
     args = parser.parse_args(argv)
     try:
         case = selected_fixture(args.fixtures, args.fixture)
+        if args.fixed_length_decode:
+            if case['kind'] != 'decode' or case.get('max_output_tokens') != 128:
+                raise harness.ValidationError('fixed-length mode requires the bounded 128-token decode fixture')
+            case = {**case, 'ignore_eos': True}
         if not args.execute:
             print(json.dumps({"execution_authorized": False, "fixture": case["name"],
                               "endpoint_loopback": is_loopback(args.endpoint)}, sort_keys=True))
@@ -291,6 +300,7 @@ def main(argv: list[str] | None = None) -> int:
             "prompt_sha256": harness.sha256_bytes(prompt.encode()),
             "health_passed": True,
             "samples": samples,
+            "generation_policy": {"ignore_eos": bool(case.get('ignore_eos', False)), "max_output_tokens": case.get('max_output_tokens', 128)},
         }
         digest = write_immutable(args.output, result)
         print(json.dumps({"output": str(args.output), "sha256": digest}, sort_keys=True))

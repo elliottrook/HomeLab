@@ -24,6 +24,8 @@ def validate_payload(p):
  messages=p.get('messages');assert isinstance(messages,list) and 1<=len(messages)<=8
  assert all(isinstance(m,dict) and m.get('role') in ['system','user','assistant'] and isinstance(m.get('content'),str) for m in messages)
  tokens=p.get('max_tokens',128);assert type(tokens) is int and 1<=tokens<=256
+ assert type(p.get('ignore_eos',False)) is bool
+ if p.get('ignore_eos'):assert tokens==128 and not p.get('response_format'),'fixed-length throughput only'
  fmt=p.get('response_format')
  if fmt:assert fmt.get('type')=='json_schema' and isinstance(fmt.get('json_schema',{}).get('schema'),dict)
  return messages,tokens,fmt
@@ -89,6 +91,7 @@ def main():
     assert ids.size+tokens<=8192,'context bound'
     config=genai.GenerationConfig(Path(MODEL)/'generation_config.json')
     config.max_new_tokens=tokens;config.do_sample=False;config.apply_chat_template=False
+    config.ignore_eos=payload.get('ignore_eos',False)
     if fmt:config.structured_output_config=genai.StructuredOutputConfig(json_schema=json.dumps(fmt['json_schema']['schema']))
    except Exception as exc:
     self.send(400,{'error':type(exc).__name__});return

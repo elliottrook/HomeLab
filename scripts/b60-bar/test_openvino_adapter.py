@@ -6,6 +6,11 @@ import unittest
 spec=importlib.util.spec_from_file_location('native',Path(__file__).with_name('openvino-trial-server.py'))
 s=importlib.util.module_from_spec(spec);spec.loader.exec_module(s)
 class NativeTests(unittest.TestCase):
+ def test_ignore_eos_requires_explicit_bounded_throughput_mode(self):
+  valid={'messages':[{'role':'user','content':'synthetic'}],'max_tokens':128,'ignore_eos':True}
+  s.validate_payload(valid)
+  for change in [{'ignore_eos':1},{'max_tokens':256},{'response_format':{'type':'json_schema','json_schema':{'schema':{}}}}]:
+   with self.assertRaises(AssertionError):s.validate_payload({**valid,**change})
  def test_bounds_and_unsupported_features_fail_closed(self):
   valid={'messages':[{'role':'user','content':'synthetic'}],'max_tokens':128}
   self.assertEqual(s.validate_payload(valid)[1],128)

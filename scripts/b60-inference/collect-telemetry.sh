@@ -2,8 +2,11 @@
 # Run inside LXC 110. Read-only and secret-free; emits a strict key=value snapshot.
 set -eu
 
-pid="$(systemctl show aster-llama.service -p MainPID --value)"
+unit="${1:-aster-llama.service}"
+case "$unit" in aster-llama.service|aster-b60-candidate.service) ;; *) exit 2 ;; esac
+pid="$(systemctl show "$unit" -p MainPID --value)"
 case "$pid" in *[!0-9]*|'') exit 2 ;; esac
+[ "$pid" -gt 1 ] && [ -d "/proc/$pid/fdinfo" ] || exit 2
 hwmon="$(find -L /sys/class/drm/card*/device/hwmon -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -n 1)"
 
 temperature() {
@@ -15,7 +18,7 @@ temperature() {
             return
         fi
     done
-    printf '0\n'
+    return 2
 }
 
 drm_max_kib() {
@@ -27,13 +30,15 @@ drm_max_kib() {
 mem_total="$(awk '$1 == "MemTotal:" {print $2}' /proc/meminfo)"
 mem_available="$(awk '$1 == "MemAvailable:" {print $2}' /proc/meminfo)"
 affinity="$(taskset -pc "$pid" | sed 's/.*: //')"
+temp_pkg="$(temperature pkg)"
+temp_vram="$(temperature vram)"
 
 printf 'schema_version=1.0.0\n'
 printf 'recorded_at=%s\n' "$(date --iso-8601=seconds)"
 printf 'source_pid=%s\n' "$pid"
 printf 'gpu_driver=xe\n'
-printf 'gpu_temp_pkg_millic=%s\n' "$(temperature pkg)"
-printf 'gpu_temp_vram_millic=%s\n' "$(temperature vram)"
+printf 'gpu_temp_pkg_millic=%s\n' "$temp_pkg"
+printf 'gpu_temp_vram_millic=%s\n' "$temp_vram"
 printf 'vram_resident_kib=%s\n' "$(drm_max_kib drm-resident-vram0)"
 printf 'gtt_resident_kib=%s\n' "$(drm_max_kib drm-resident-gtt)"
 printf 'ram_total_kib=%s\n' "$mem_total"

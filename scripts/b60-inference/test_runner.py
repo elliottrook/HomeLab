@@ -115,6 +115,13 @@ class RunnerTests(unittest.TestCase):
         self.assertFalse(function["parameters"]["additionalProperties"])
         self.assertEqual(payload["tool_choice"], "auto")
 
+    def test_fixed_length_decode_is_explicit_and_bounded(self):
+        case = runner.selected_fixture(runner.harness.DEFAULT_FIXTURES, 'b60-tg128-cold')
+        self.assertNotIn('ignore_eos', runner.completion_payload('fixture', case, 'synthetic'))
+        self.assertTrue(runner.completion_payload('fixture', {**case, 'ignore_eos': True}, 'synthetic')['ignore_eos'])
+        with self.assertRaises(runner.harness.ValidationError):
+            runner.completion_payload('fixture', {**case, 'ignore_eos': True, 'max_output_tokens':256}, 'synthetic')
+
     def test_immutable_output_is_private_and_cannot_be_overwritten(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "raw.json"
