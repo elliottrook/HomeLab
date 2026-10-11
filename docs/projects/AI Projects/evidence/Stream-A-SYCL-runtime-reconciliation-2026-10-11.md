@@ -51,16 +51,27 @@ claiming an efficiency or reliability improvement.
 
 The repository gateway prompt was still telling Aster that Vulkan was active;
 the hardware inventory and Second-Brain reference also stated the former BAR
-block as current. Local source and reference corrections now reflect the live
-check. **The gateway correction has not been deployed**, so the running Aster
-may still repeat the stale claim. The prior sysadmin graduation and
-generalization suites are retained unchanged as historical evaluation records.
+block as current. The local prompt now requires current-operational evidence
+for model/backend identity instead of hard-coding either one. Local reference
+corrections reflect the live check. **The gateway correction has not been
+deployed**, so the running Aster may still repeat the stale claim. The prior
+sysadmin graduation and generalization suites are retained unchanged as
+historical evaluation records.
 Dated current-runtime copies update the model/backend expectations, the B60
 diagnosis prompt and the time-sensitive Doctor question; the default evaluator
 points to the dated graduation copy and requests `aster-qwen3.5-9b`. The copies
 are regression candidates, not independently reviewed holdouts or evidence of
 current model quality. Historical scores cannot be compared to these revised
 labels as if the corpus were unchanged.
+
+The separate curated `homelab-reference` repository also had 27B/Vulkan and
+256 MB physical BAR claims under `current-operational` and
+`current-with-exclusions` labels. Those three relevant source files were
+corrected in local commit `9099718`; its unrelated pre-existing untracked
+`.DS_Store` was left untouched. The deployed knowledge snapshot still contains
+the former 27B/Vulkan Aster Operations page (read-only line check), and no
+snapshot refresh has occurred. Correcting Git files alone does not repair
+answers from the live snapshot.
 
 The repository's read-only `check-aster-b60.sh` candidate now checks the
 private inference `/health` endpoint in addition to `xe`, service state and

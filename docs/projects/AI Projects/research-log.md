@@ -14,6 +14,10 @@ without changing frozen historical suites. `python3` on the Mac lacks PyJWT,
 so its full gateway unit tests could not run; syntax/JSON and dependency-free
 static checks are used here. No inference request, credential read, service
 change or B60 project test was made. See the [runtime reconciliation](evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md).
+The separate curated reference repo was locally corrected at `9099718`; its
+production knowledge snapshot remains stale and was not refreshed. The gateway
+prompt correction now defers to current-operational evidence rather than
+hard-coding another transient model/backend combination.
 
 ## 2026-10-11 — Offline Doctor reader cross-consumer review
 

@@ -43,7 +43,8 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("before optional", ASTER_SYSTEM_PROMPT)
 
     def test_system_policy_frontloads_runtime_and_recovery_dependencies(self):
-        self.assertIn("Qwen3.5-9B on the B60 SYCL/Level Zero path", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Verify the current model and\ninference backend from current-operational evidence", ASTER_SYSTEM_PROMPT)
+        self.assertNotIn("Vulkan path", ASTER_SYSTEM_PROMPT)
         self.assertIn("Always identify it explicitly as `VM 105`", ASTER_SYSTEM_PROMPT)
         self.assertIn("Aster is not the\nfirst recovery dependency", ASTER_SYSTEM_PROMPT)
         self.assertIn("independent local access", ASTER_SYSTEM_PROMPT)

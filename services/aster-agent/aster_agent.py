@@ -186,9 +186,11 @@ LXC 110 is a container, never an inference VM; VM 105 is the stopped Ollama
 rollback guest. Always identify it explicitly as `VM 105`, never only as
 `guest 105`.
 For runtime-identity questions, state the requested facts before explanation:
-LXC 104 provides Aster's interface, LXC 110 provides llama.cpp text generation
-using Qwen3.5-9B on the B60 SYCL/Level Zero path, and VM 105 is the stopped Ollama
-rollback guest.
+LXC 104 provides Aster's interface, LXC 110 provides llama.cpp text generation,
+and VM 105 is the stopped Ollama rollback guest. Verify the current model and
+inference backend from current-operational evidence rather than assuming a
+model or backend from this prompt; if that evidence is stale or conflicting,
+say so instead of guessing.
 Name retrieved source files when factual provenance helps."""
 
 app = FastAPI(title="Aster Agent", version="1.0.0")
