@@ -293,7 +293,7 @@ rollback gate still precede any production selection.
   sentence-streamed playback, explicit audio capture constraints, cancellation
   and useful failure states. Gate: automated regressions plus Jason's phone/Mac
   listening and responsiveness acceptance; typed interaction unaffected.
-- [ ] **M5 — News migration.** Route the briefing through the canonical service
+- [x] **M5 — News migration.** Route the briefing through the canonical service
   without allowing batch work to starve interactive traffic; preserve chapters,
   pauses, schedule and rollback renderer. Gate: same approved voice/policy,
   valid artifact, simultaneous-interaction load test and schedule recovery.
@@ -800,6 +800,16 @@ unrelated state.
   `British Columbia's`; 22 focused tests pass. A complete opening/first-story
   replay through the authenticated batch route was accepted by Jason. Plain
   `Eby` remains unchanged—no unnecessary phonetic substitution was added.
+- M5 is promoted. The LXC 114 CPU renderer and authenticated bridge plus the
+  LXC 116 candidate API are boot-enabled; the News environment selects
+  `ASTER_NEWS_TTS_MODE=aster`. A deliberate bridge outage produced the expected
+  client failure without content leakage, followed by valid 24 kHz recovery.
+  The timer-owned service then digested 18 live clusters and published a real
+  15-story canonical briefing in 25m16s end to end (23m21s audio phase): valid
+  974.712-second MP3, 6,269,780 bytes, 15 chapter starts, valid JSON/WebVTT and
+  HTTP 200 with matching size. Production speech 9130, candidate health, News
+  UI, timer and all three boot dependencies are healthy. The retained `local`
+  mode and protected pre-change files remain the immediate News rollback.
 
 ## Validation and evaluation
 
@@ -954,6 +964,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 accepted voice and isolated batch-backend integration | Jason accepted the corrected full CPU News sample. Added a dedicated authenticated batch route and scheduler worker, boot-disabled LXC 114 CPU renderer/bridge, 401/200 boundary checks, and a real concurrent candidate request. | Batch completed in 26.467 s while twelve uncached A380 replies stayed between 0.802 and 0.851 s. One Aster identity is preserved without GPU contention. Production speech, News UI and timers remain unchanged; next gate is artifact equivalence and News-client rollback integration. |
 | 2026-10-10 | M5 default-off News client and full artifact gate | Strict framed-stream client; distinct file credential; local rollback mode; 13 live tests; isolated real 20-story render; MP3/metadata/VTT/chapter validation; production artifact timestamp and services checked. | Full 23:24 canary and 20 chapters are valid; production stayed unchanged. Client is installed in explicit local mode with rollback copies. Await full-artifact listening acceptance before enabling the candidate dependencies or switching the schedule. |
 | 2026-10-10 | M5 full-artifact listening correction | Isolated exact-context variants showed plain `Eby` was correct. Root cause was `B.C.'s` bypassing abbreviation expansion and being spoken as URL tokens. Added possessive abbreviation tests and regenerated the complete opening/first story through the canonical route. | Jason accepted the corrected opening. Promote the reversible News path, then run dependency and real-service gates. |
+| 2026-10-10 | M5 canonical News promotion | Boot-enabled only the CPU renderer, authenticated bridge and candidate API; atomically selected `aster`; rehearsed bridge failure/recovery; ran the actual timer-owned digest service; validated published MP3, JSON, VTT, chapters, HTTP size, health and enablement. | Pass. Real run completed successfully in 25m16s and published 15 stories/16:14.712 audio. Local rendering remains a one-line rollback. M5 complete; proceed to the next consumer only after publishing this checkpoint. |
 
 ## Close-out
 
