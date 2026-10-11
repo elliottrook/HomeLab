@@ -152,16 +152,26 @@ model identity, authenticated generation, GPU binding, headroom, News timers
 and kernel logs. If healthy, it records closeout and pauses itself; it does not
 run further experiments or mutate production.
 
+The owner requested that this observation run early. All operational, hash,
+GPU, headroom, timer and kernel gates passed, but the generated identity
+sentence incorrectly placed inference in LXC 104 rather than LXC 110. Model
+metadata and the b11429 fingerprint were correct, and an earlier sample had
+named LXC 110 correctly. This is an intermittent factual-correctness failure,
+so the observation did not close and the read-only automation remains active.
+See `2026-10-10-9b-post-promotion-observation.md` for exact evidence.
+
 Repository implementation and evidence are recorded in local commit
 `ce84b28` (`Promote Aster 9B production runtime`). That commit was not pushed at
 the time of this synopsis.
 
 ## Final decision
 
-Qwen3.5-9B reasoning-off is the better production fit for Aster's bounded local
-analysis role. It preserved semantic quality in the tested workload while
-delivering a controlled 4.44 times speedup and materially reducing live
+Qwen3.5-9B reasoning-off remains the better-performing candidate for Aster's
+bounded local analysis role. It preserved semantic quality in the controlled
+workload while delivering a 4.44 times speedup and materially reducing live
 latency. Qwen3.8-27B is retained as rollback rather than the active default.
-The result depends on keeping deterministic policy and GPT-backend escalation
-separate from the local summarizer; it should not be interpreted as evidence
-that 9B can safely replace those components.
+The failed identity observation shows that static architecture facts should
+not rely on unconstrained model recall; deterministic identity handling remains
+an open correctness action. The result also depends on keeping deterministic
+policy and GPT-backend escalation separate from the local summarizer and is not
+evidence that 9B can safely replace those components.

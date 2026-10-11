@@ -94,3 +94,16 @@ Vulkan path in LXC 110, with runtime fingerprint `b11429-d81235049`. Aster and
 inference services are active, News timers are active, restarts are zero and
 the kernel failure scan is empty. Transient downloads and staging files were
 removed.
+
+## Subsequent observation
+
+At the owner's request, the final observation was run early. All accepted
+hashes, service state, restart count, endpoint, `xe`, BMG G21 Vulkan, disk,
+RAM, device-local heap, News timer and kernel-log gates passed. Authenticated
+model discovery and response metadata correctly identified 9B/b11429, but the
+generated identity sentence incorrectly placed inference in LXC 104 rather
+than LXC 110. Because an earlier response stated LXC 110 correctly, this is an
+intermittent factual-correctness failure rather than stale metadata. No
+production mutation or automatic retry was performed; the observation did not
+close and its read-only automation remains active. Exact evidence is in
+`2026-10-10-9b-post-promotion-observation.md`.
