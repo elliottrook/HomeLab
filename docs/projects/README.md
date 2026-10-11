@@ -10,6 +10,7 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
+| Fotosforfun hosting and incremental publishing | Active — Stream A; M0 charter complete, A1 isolated core next; public launch separately gated | [Fotosforfun hosting and incremental publishing](Fotosforfun-Hosting-and-Publishing.md) | Separate home-LAN-only editor for Alisa, append-oriented static gallery releases, dedicated Authentik authorization and recovery on the existing isolated publishing hosts |
 | Aster Unified Voice Service | Active — Stream A; M0 complete, M1 in progress | [Aster Unified Voice Service](Aster-Unified-Voice-Service.md) | One private network-level Kokoro `bm_daniel` service for Companion, Home Assistant, News and future reasoning backends; preserves local-only speech, legacy rollback and exact voice/quality policy while measuring interactive streaming latency |
 | Pull-based Forgejo change-bundle runner | Complete — Stream A write and bounded-read amendment accepted | [Pull-based Forgejo runner](Pull-Based-Forgejo-Runner.md) | Write canaries, recovery and health passed; bounded Green reads and live allow/deny isolation passed with 112/112 tests |
 | The Contrasting Frame hosting and editorial publishing | Ready for M0 — Stream M design discussion; Stream A delivery after acceptance | [Hosting and publishing](The-Contrasting-Frame-Hosting-and-Publishing.md) | [TCF style guide](../design/The-Contrasting-Frame-Style-Guide.md); internal origin, private AI-assisted Content Desk and scheduled approved releases |
