@@ -42,6 +42,14 @@ candidate for separated in-app approvals, subject to actual route/UID checks,
 fresh passkey-claim proof, denial tests and a separate deployment decision.
 Stage2 remains held. No B60 or llama service was used or changed.
 
+**Local-model change impact — 2026-10-10:** Jason supplied a synopsis of a
+9B local-model promotion. [Read-only reconciliation](evidence/Stream-A-9B-model-change-impact-2026-10-10.md)
+confirmed the active 9B inference unit and retained 27B rollback, but found an
+old upstream model selector and an implementation commit not present in this
+checkout. The bounded synthetic result does not reopen local-Qwen sysadmin
+promotion or change D3/M1 authority gates. No model generation, rollback or
+deployment was performed in this review.
+
 **Latest resume — native Companion, 2026-10-09:** Signed version 15 is installed
 and running in ordinary mode without the manual-test flag. The [supervised
 single-instance result](evidence/D3-native-manual-v15-installation-2026-10-09.md)
