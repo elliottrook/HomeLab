@@ -1,6 +1,6 @@
 # Fotosforfun hosting and incremental publishing
 
-> Status: Active — Stream A authorized; M0 and A1 complete; A2 next
+> Status: Active — Stream A authorized; M0–A2 complete; A3 next
 >
 > Owners: Alisa (photography and publication approval), Jason Elliott (HomeLab administration and recovery)
 >
@@ -247,10 +247,10 @@ separation, safe rendering and source reconstruction.
 
 ### A2 — private service and release root
 
-- [ ] Checkpoint LXC 124/125 configuration and current application state.
-- [ ] Add dedicated service/deploy identities, state/release roots and units.
-- [ ] Deploy private editor and exact Fotosforfun static-origin vhost.
-- [ ] Prove reboot, interrupted publication, wrong-site deployment and rollback.
+- [x] Checkpoint LXC 124/125 configuration and current application state.
+- [x] Add dedicated service/deploy identities, state/release roots and units.
+- [x] Deploy private editor and exact Fotosforfun static-origin vhost.
+- [x] Prove reboot, interrupted publication, wrong-site deployment and rollback.
 
 Gate: private origin and editor operate without changing existing sites.
 
@@ -375,10 +375,14 @@ bindings, files, rules or routes may remain.
 | 2026-10-10 | Added isolated append-oriented model/store, explicit soft retirement, complete-approved snapshot gate, bounded import, safe renderer, immutable manifest/release and atomic activation foundation | Eight Fotosforfun tests pass; edits invalidate approvals, samples/changed bytes/cross-site paths fail closed, and publication cannot silently omit an active unapproved photograph |
 | 2026-10-10 | Rendered a credited sample through the actual approved template in a temporary directory; corrected contact to `.ca`, retained a conspicuous placeholder warning and verified its manifest | Actual template hooks are compatible; no source Site or live service was changed. All 54 existing TCF publishing tests also pass |
 | 2026-10-10 | Added the framework-free private editor boundary and responsive Aster-style GUI for add/edit/order/retire/reinstate/approve and exact-template preview; served it on loopback with one credited placeholder | Twelve Fotosforfun tests, Python syntax, no-`innerHTML` scan, HTTP/API checks and desktop/390 px browser QA passed; sample content remained unapprovable, publication remained absent and no live service was changed |
+| 2026-10-10 | Created protected Proxmox snapshots `before-fotosforfun-a2-20261010` for LXC 124/125; actual thin-pool use was 23.30% and metadata 1.05% | Recovery checkpoints verified before deployment; virtual overcommit warning recorded but actual capacity remained ample |
+| 2026-10-10 | Deployed `fotosforfun-editor` on LXC 124 as locked user `fotosforfun`, loopback `127.0.0.1:8741`, mode-0700 state/mode-0600 DB; deployed host-matched origin root `/srv/fotosforfun` on LXC 125 | New editor/origin healthy; existing Content Desk, Contrast, Closet, Nginx and cloudflared remained healthy; new users were denied cross-site state reads |
+| 2026-10-10 | Installed dedicated locked `fotosforfun-deploy` forced-command SSH boundary with pinned LXC 125 host fingerprint `SHA256:W8ScGiYaaiDtOYGnOTG8fFz7KerhXOOKbotlUJf1mB0` | Status succeeds; arbitrary shell and cross-brand activation are denied; stage/activate reject sample markers and non-Fotosforfun IDs |
+| 2026-10-10 | Exercised abandoned staging, wrong-host request, atomic switch/rollback and sequential LXC 124/125 reboot | Current returned to `fotosforfun-preview-f811c6b26491`; wrong host did not expose Fotosforfun; all new and retained services recovered with zero failed units |
 
 ## Close-out
 
-Active. M0 and A1 are complete. The isolated local core, real-template
-compatibility and private editor workflow are proven locally. A2 private
-service/release-root deployment is next; identity, network, backup and public
-routing remain unchanged.
+Active. M0–A2 are complete. The isolated editor and private sample origin now
+run on the retained publishing guests with dedicated users, state, release root
+and forced deployment key. A3 identity and home-LAN access are next; the editor
+remains loopback-only and no DNS, firewall, Authentik or public route changed.

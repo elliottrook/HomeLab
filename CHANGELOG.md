@@ -19,6 +19,11 @@
   exact-site preview. Twelve service tests, syntax/static safety checks and
   desktop/mobile browser QA passed; no live publish control or public route was
   introduced.
+- Completed A2 private deployment on existing LXC 124/125 after named recovery
+  snapshots: dedicated locked users, loopback editor, mode-0700 state, separate
+  host-matched origin/release root and Fotosforfun-only forced SSH receiver.
+  Reboot, wrong-host, interrupted staging, atomic rollback and cross-site denial
+  tests passed without changing DNS, firewall, Authentik or public ingress.
 
 ## 2026-10-10 — B60 inference Q4 K/V promotion
 

@@ -38,6 +38,10 @@ It defaults to `127.0.0.1:8741`. Do not bind it to a LAN interface before the
 A2/A3 service, reverse-proxy and Authentik controls are installed. The editor
 intentionally exposes no live publish action during A1.
 
+Deployment definitions are in `deploy/`. When creating tar archives on macOS,
+set `COPYFILE_DISABLE=1`; the strict origin receiver treats AppleDouble `._*`
+sidecars as unmanifested files and correctly rejects the release.
+
 The accepted presentation source is the separate `sites/fotosforfun` Git
 repository at commit `6a6c044ed3ce8197181e2ae68bbffa5a167a285e`. The renderer
 requires that template's expected HTML hooks and does not silently invent a new
