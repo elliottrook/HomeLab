@@ -313,7 +313,7 @@ health checks and rollback proof.
 - [x] Analyze SR-IOV/VF reservations and current `xe` BAR-resize behavior.
 - [x] Build a safe decision record for `pci=realloc=on`, Dell A34 and attended
   recovery; do not deploy from the analysis alone.
-- [ ] If a stable larger BAR is separately approved and proven, enumerate Level
+- [x] If a stable larger BAR is separately approved and proven, enumerate Level
   Zero with a tiny workload before SYCL/OpenVINO or the target model.
 - [ ] Recheck current B60/Qwen correctness, OOM and reset defects before trials.
 
@@ -549,6 +549,45 @@ preemption override, global linker mutation, host change or service change.
 The corrected GPU attempt has not run: prior GPU-abort no-retry gating remains,
 and a newly explicit single-attempt approval is required. No runtime version
 change or arbitrary CSR-size workaround is justified before this validation.
+
+Jason approved the single corrected-library-path smoke attempt. It exited zero:
+Level Zero initializes, enumerates Intel Arc Pro B60 (`8086:e211`), creates its
+context/compute queue, allocates 4 KiB device memory, submits a roundtrip and
+verifies all bytes. All cleanup API calls passed. Log SHA-256:
+`c55befa2f8240ca482c853b363647e51aa278c57265b54760ab34047ddadf1b5`
+at `corrected-library-attempt-1.log` in the isolated directory. Production
+health remained `ok`, zero restarts and no relevant kernel fault. This validates
+the compiler-discovery correction without any preemption override or BAR rollback.
+
+Continued the original approved isolated SYCL trial by staging official b11429
+FP32 archive, SHA-256
+`5e6c382f8ae19d906a6aa0c806faa7184ed1cef872e60fff15373f3162416b08`.
+Its dependencies require private oneAPI compiler/math libraries; staging uses
+bounded `/dev/shm/b60-oneapi-trial-20261010`, not dpkg/global linker installation.
+No production backend switch is authorized or performed by this preparation.
+
+OneAPI runtime-only packages were extracted to disposable tmpfs (2.20 GB
+extracted, 408 MB archives): compiler/shared/OpenMP 2026.1.1, TBB 2023.1,
+UMF 1.1, oneDNN 2026.0.2 and MKL core/SYCL BLAS 2026.1. SHA-256 values were
+verified against Intel's HTTPS package index and retained in the local manifest;
+no system installation was performed. Main executable linkage resolved, but
+first bounded SYCL enumeration exited 134 with “No device of requested type
+available.” Its log SHA-256 is
+`ca45fc397f3a2a422d754924f1bde7f37d5ef9835edb8f4f1738f46782edb115`.
+No model load or automatic GPU retry followed. Production remains healthy.
+
+Read-only recursive adapter inspection found `libhwloc.so.15` unresolved in
+both Unified Runtime Level Zero adapters, although main executable `ldd`
+had passed. Added Debian libhwloc15 2.12.0-4 privately, verified against the
+APT index SHA-256 `aa53c4a1878475e7309f2c265c54d9a8a4602dec95564cf84d471d7376ff616c`.
+Load-only ctypes checks now load both adapters successfully without invoking
+GPU initialization. One corrected-dependency SYCL enumeration attempt requires
+explicit approval after the failure. Model performance/correctness remains
+untested. Guest disk availability after candidate staging is 21,161,783,296
+bytes, below the documented 20 GiB floor (21,474,836,480); recover scratch
+archive headroom safely before any model-load gate. Tmpfs dependencies are
+disposable and need restaging after reboot. No speech, UI, host driver, global
+linker, scheduler, credential or production configuration change occurred.
 
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.
 - [ ] Require tiny-model enumeration, target-architecture correctness, explicit
