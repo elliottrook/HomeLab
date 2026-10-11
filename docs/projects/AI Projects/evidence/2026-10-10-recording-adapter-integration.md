@@ -2,8 +2,8 @@
 
 Date: 2026-10-10
 
-Status: **offline integration gate passed; connected provider capture and repeat
-9B session remain pending**
+Status: **live no-effect provider capture and independent 9B session passed;
+natural Laundry state-change observation remains open**
 
 ## Result
 

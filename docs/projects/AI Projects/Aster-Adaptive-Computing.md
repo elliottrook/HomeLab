@@ -40,18 +40,19 @@ fresh independently reviewed evaluation under its existing gates. Continue
 Stream A local work without milestone-by-milestone confirmation, pause only at
 required gates and resume when granted. Production defaults remain unchanged.
 
-**Target-architecture continuation — 2026-10-10:** The grounded v2 comparison
-selected Qwen3.5-9B reasoning-off for an isolated integration stage, while leaving
-the accepted 27B production service unchanged. The first offline continuation now
-adds a fail-closed, zero-effect provider/entity recording adapter and a second
-independent 14-case household corpus; all cases pass with zero permitted effects.
-See [the v2 model evidence](evidence/2026-10-10-grounded-target-architecture-v2.md)
-and [recording-adapter evidence](evidence/2026-10-10-recording-adapter-integration.md).
-Next: capture a sanitized real registry snapshot through existing read-only paths
-and repeat the independent grounded corpus against a temporary 9B endpoint. Do
-not connect an effectful adapter, persist a model/configuration change or promote
-9B without its later explicit gate. The unified voice project is independent:
-reasoning systems return text and do not select or synthesize Aster's voice.
+**Target-architecture continuation — 2026-10-10:** The grounded comparisons and
+live no-effect Laundry pilot validate the deterministic household boundary. A
+direct post-policy comparison now selects Qwen3.5-9B reasoning-off for permitted
+personal summaries and scheduled analysis: all 16 cases passed human semantic
+review at a 2.488-second median, versus 11.051 seconds for accepted 27B and 7.938
+seconds for 9B thinking-256. See [the post-policy comparison](evidence/2026-10-10-post-policy-analysis-comparison.md),
+[v2 model evidence](evidence/2026-10-10-grounded-target-architecture-v2.md) and
+[recording-adapter evidence](evidence/2026-10-10-recording-adapter-integration.md).
+The accepted 27B production service remains unchanged. Next, design a separately
+approved deployment with model residency, isolation, fallback and monitoring;
+do not connect an effectful adapter or promote 9B implicitly. The unified voice
+project remains independent: reasoning systems return text and do not select or
+synthesize Aster's voice.
 
 **Proposed:** 2026-09-25.
 
@@ -220,6 +221,7 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-10-10 | Independent 9B grounded session | Re-acquired the exact pinned 9B/runtime into tmpfs after explicit approval and ran the new v3 corpus once. Raw result was 11/12 at 1.832 seconds median; the sole miss safely returned no claim for missing outcome evidence, exposing policy ordering rather than model fabrication. Moved code-owned missing/conflict clarification ahead of grounding validation and rescored the same immutable extraction without another model call: 12/12. Production, News timers, Aster health, hashes, `xe`, Vulkan and kernel state passed after restoration; all 5.4 GiB transient artifacts were removed. Persistent promotion remains unauthorized — see [recording-adapter evidence](evidence/2026-10-10-recording-adapter-integration.md). |
 | 2026-10-10 | Disabled-by-default HA integration candidate | Packaged the exact-alias producer as a custom integration that registers no service/action/entity/HTTP route, observes only configured IDs and writes one atomic mode-0600 report at a fixed `/share` path. Its example map is empty/default-deny. Five contract/path/write tests pass; modules compile and manifest parses, but actual HA Core import/config validation, VM snapshot and alias selection remain deployment gates — see [recording-adapter evidence](evidence/2026-10-10-recording-adapter-integration.md). |
 | 2026-10-10 | Laundry live recording pilot | Jason selected the Laundry light. Created VM 103 snapshot `aster-registry-pre-20261010`, retained a configuration rollback copy, resolved only the exact enabled Laundry light source-locally and deployed alias `laundry lights`. HA configuration validation and Core restart passed; deployed hashes match Git; the mode-0600 report contains only that alias. The live report produced a `home.control` recording with `effect_permitted: false`; Recorder proves the light remained off with no pilot transition. No token, service call or effect path exists. The first five-minute scheduled refresh rewrote an identical mode-0600 payload; a natural state-change observation remains open — see [recording-adapter evidence](evidence/2026-10-10-recording-adapter-integration.md). |
+| 2026-10-10 | Post-policy 9B analysis comparison | Corrected the architecture so deterministic policy owns privacy/refusal/escalation and the model only summarizes 16 permitted local cases. Human semantic review passed 16/16 for 9B off, 9B thinking-256 and accepted 27B. Medians were 2.488, 7.938 and 11.051 seconds respectively: 9B off is about 4.4x faster than 27B, while thinking adds no quality. Production and News timers were restored and all transient artifacts removed. Select 9B off for this separated role; persistent deployment remains a separate gate — see [comparison evidence](evidence/2026-10-10-post-policy-analysis-comparison.md). |
 | 2026-09-28 | SA0 publication and source reconciliation | Forgejo and GitHub `main` were verified at `ccd0ead`; the merged history retains Forgejo, adaptive and `d2f771d` production work. The source gateway SHA-256 exactly matches live, as does the already-reconciled Lab Operations adapter. Reasoning remains disabled; no runtime change — see [SA0 evidence](evidence/SA0-reconciliation-2026-09-28.md) |
 | 2026-09-28 | SA1/SA2 typed incident evidence candidate | Added an offline, no-I/O incident/evidence contract with registered read-only targets, provenance/age/truncation fields and bounded follow-up proposals. Five local contract tests pass. It is neither a deployed adapter nor a completed SA gate — see [candidate evidence](evidence/SA1-SA2-offline-candidate-2026-09-28.md) |
 | 2026-09-28 | SA1/SA2 versioned producer and persistence candidate | Added an exact-field, versioned source-local producer envelope, credential-free fixture and SQLite incident/reconnect state. Nine local tests pass, including producer denials and reopened-state validation. It is not connected or deployed — see [producer/persistence evidence](evidence/SA1-SA2-producer-persistence-2026-09-28.md) |
