@@ -105,3 +105,6 @@ class KokoroRendererPool:
     def close(self) -> None:
         for worker in self.workers:
             worker.close()
+
+    def healthy(self) -> bool:
+        return True

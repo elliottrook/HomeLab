@@ -1,0 +1,28 @@
+[Unit]
+Description=Aster Authenticated Vulkan Renderer Bridge Candidate
+After=network-online.target aster-kokopop-candidate.service
+Wants=network-online.target
+Requires=aster-kokopop-candidate.service
+
+[Service]
+Type=simple
+User=ollama
+Group=ollama
+UMask=0077
+WorkingDirectory=/opt/aster-vulkan-renderer
+EnvironmentFile=/etc/aster-renderer/bridge.env
+ExecStart=/usr/bin/python3 /opt/aster-vulkan-renderer/vulkan_renderer_bridge.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

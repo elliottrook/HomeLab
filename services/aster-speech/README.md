@@ -78,3 +78,32 @@ stack validated during M2 is in `requirements-kokoro.lock`. Deployments must
 use the complete, M3-validated `requirements-candidate.lock`; resolving only
 the direct pins allowed transitive drift during the first M3 preflight and is
 not an accepted deployment path.
+
+`vulkan_renderer_bridge.py` and `vulkan_renderer_client.py` keep the canonical
+service boundary on LXC 116 while placing only synthesis compute beside the B60
+in LXC 110. Kokopop remains bound to loopback. The bridge exposes one private
+fixed-policy render operation: it requires a dedicated bearer credential,
+accepts at most one normalized 240-character unit, and always selects
+`bm_daniel`, speed `0.95` and WAV output itself. The LXC 116 client validates
+mono 24 kHz/16-bit output before returning PCM to the existing scheduler and
+caches only the already-approved acknowledgement. Neither request JSON nor a
+caller can select the renderer URL, voice, speed or backend.
+
+The candidate units are `aster-kokopop-candidate.service` and
+`aster-vulkan-renderer-bridge.service`. The bridge environment example contains
+settings only; the real shared renderer key must be independently installed as
+root-owned mode 0640 files readable by the `ollama` account in LXC 110 and the
+`aster-speech` account in LXC 116. Keep both units disabled until the private
+listener, refusal, cancellation, contention and rollback gates pass.
+
+The preferred isolated-GPU candidate is now the TrueNAS Arc A380. Deployment
+files under `truenas/` build the exact pinned Kokopop revision, mount the
+hash-verified model and bearer key read-only, keep Kokopop on an internal Docker
+network, and publish only the authenticated bridge on the TrueNAS Servers-VLAN
+address. `renderer.env.example` contains paths and the host render-group GID,
+not secrets. Do not enable this stack or route LXC 116 to it until the narrow
+LXC 116-to-TrueNAS firewall tuple and rollback have been approved and tested.
+The approved canary tuple is only `192.168.70.14` to
+`192.168.20.40:9132/TCP`; Kokopop itself remains internal to Docker. The
+candidate service on LXC 116 may use this path while production port 9130
+continues to use the retained renderer until listening and load gates pass.

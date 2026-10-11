@@ -1,7 +1,8 @@
 # Aster Unified Voice Service
 
 > Status: Active — Stream A; M0–M2 complete, M3 in progress; candidate staged,
-> production selection withheld on uncached latency
+> production selection withheld after shared-GPU contention failed the latency
+> acceptance
 >
 > Owner: Jason
 >
@@ -255,6 +256,17 @@ API/network/dependency manifest and rollback plan are frozen. The next safe
 action is to improve or explicitly accept the uncached first-audio result before
 any production selector change. The candidate is installed but stopped and
 disabled on LXC 116; production port 9130 remains authoritative and healthy.
+The OpenVINO/Level Zero route remains blocked by the B60's 256 MiB physical BAR,
+but the approved follow-up proved that Mesa Vulkan is a viable independent path.
+A pinned Kokoro GGML/Vulkan renderer and authenticated network bridge are staged
+but stopped in GPU LXC 110. The end-to-end short response was about 0.71–0.90
+seconds without active generation and 2.94 seconds during a bounded Llama
+request. M3 now requires GPU workload isolation or an explicit target change;
+production must not select this shared, uncoordinated renderer.
+The otherwise-idle TrueNAS Arc A380 is now the preferred isolated renderer
+candidate: its loopback canary met the short-response target and remained stable
+during concurrent Jellyfin VAAPI encoding. An authenticated network and
+rollback gate still precede any production selection.
 
 ## Milestones
 
@@ -596,6 +608,127 @@ unrelated state.
   production TCP 9130 remained healthy. The candidate remains installed,
   stopped and disabled for tuning; all temporary scripts, archives, copied
   assets and the never-selected drifted venv were removed.
+- Jason approved exclusive use of the Proxmox Intel Arc Pro B60 for an
+  acceleration experiment. A protected copy of LXC 116's configuration was
+  captured, then only `/dev/dri/renderD128` was mapped to the existing
+  `aster-speech` UID/GID. A separate OpenVINO 1.24.1 venv and Intel's official,
+  hash-verified compute runtime 26.35.39758.10/IGC 2.41.5 were extracted under
+  an isolated test root; no system package or production runtime was replaced.
+- The provider correctly rejected GPU initialization instead of producing a
+  valid B60 benchmark: Intel's runtime reported `Resizable BAR not detected`
+  and OpenVINO reported `Device GPU is not available`. ONNX Runtime then fell
+  back to CPU, which the probe detected and rejected. Live PCI evidence shows
+  the physical B60 path is healthy at PCIe Gen3 x8, but physical BAR2 is only
+  256 MiB although the card supports up to 32 GiB. This is a host firmware/
+  PCI allocation prerequisite, not a Kokoro compatibility or capacity result.
+- No risky live BAR resize or GPU driver unbind was attempted on the production
+  Proxmox host. The render device was withdrawn live, the isolated runtime,
+  cache, packages and probes were deleted, and production speech remained
+  healthy. Proxmox has queued deletion of the temporary `dev0` config entry;
+  it will disappear from the persistent LXC configuration on the next normal
+  guest restart. The device is not currently visible inside LXC 116.
+- Follow-up investigation corrected the scope of that blocker. The live
+  llama.cpp service proves that Mesa Vulkan can use this B60 with the small BAR;
+  only Intel's `xe` Level Zero/OpenCL compute-runtime path rejects it. Kokopop
+  commit `2c6989ac800f624ea984210215e1b76be42eea81`, with its pinned patched GGML
+  commit `36da57138425487184aa1da2eee2cde155909c6f`, was built in the isolated
+  `/opt/aster-voice-vulkan-test` root in LXC 110 with Vulkan explicitly enabled.
+  All 617 upstream tests passed.
+- The immutable Kokoro F16 GGUF came from model revision
+  `b7958cdedd0efa56e8756895e739fbe2852f635d`; its 176,165,568-byte file matched
+  the published SHA-256
+  `e8242a1321e580599c26981692adf088ebfdc4c7b7555959b13f4d6667d0d206` and
+  contains the approved `bm_daniel` voice. Explicit synthesis identified the
+  Intel Arc Pro B60/BMG G21 through the Intel open-source Mesa driver and
+  produced valid mono 24 kHz/16-bit WAV output. No automatic CPU fallback was
+  used for this pass.
+- The persistent localhost-only canary delivered warm first audio for the short
+  acknowledgement in 0.588 seconds, meeting the 0.750-second target. A
+  representative longer first sentence delivered its first audio in 1.608
+  seconds; an identical CPU-runtime comparison required about eight seconds
+  for that first chunk. Vulkan is therefore useful but does not remove the need
+  for Aster-owned bounded sentence/clause segmentation, acknowledgement caching
+  and a contention/listening gate. The transient listeners were stopped and
+  generated remote audio/traces were removed; the pinned build/model remain
+  staged, stopped and isolated for the next pass. Production llama.cpp and
+  speech services remained active and healthy.
+- Staged a least-privilege network renderer without changing production. The
+  Kokopop listener remains loopback-only on LXC 110; a separate stdlib bridge
+  binds only `192.168.70.12:9132`, requires a dedicated file-backed bearer key,
+  fixes `bm_daniel`, speed 0.95 and WAV output, and accepts at most 240 UTF-8
+  characters with two concurrent requests. LXC 116's candidate is the only
+  configured client. It validates mono 24 kHz/16-bit WAV before scheduling and
+  caches only the exact approved acknowledgement. Both new units and the LXC
+  116 candidate remain disabled.
+- The authenticated LXC 116 to LXC 110 compatibility path returned a valid
+  373,964-byte WAV in 2.460 seconds for the normalization fixture containing
+  Home Assistant, Lutron Caseta, CA$1,234 and B.C. Authless candidate and bridge
+  calls returned 401. Focused renderer/scheduler tests passed, including fixed
+  voice/options, malformed WAV and oversized/refused input.
+- Dependency health was made fail-closed. With the renderer bridge running,
+  candidate health returned HTTP 200; stopping only that candidate bridge made
+  health return HTTP 503 with `status=unavailable`; restarting it restored 200.
+  Production speech stayed healthy throughout.
+- Warm uncached short-response measurements through the full candidate path
+  were 0.714, 0.810 and 0.896 seconds, close to but not a p95 pass against the
+  0.750-second target. During a simultaneous bounded 128-token Llama request,
+  the same speech path took 2.940 seconds and Llama completed in 44.741 seconds.
+  Shared B60 Vulkan execution without coordination therefore fails the
+  interactive latency gate. Production selection remains withheld; the next
+  safe design action is workload isolation (prefer the otherwise-idle second
+  GPU if compatible) or a measured GPU-aware preemption/priority mechanism,
+  followed by the frozen load suite. All candidate services were returned to
+  stopped/disabled; production Llama and speech remained active and healthy.
+- The second-GPU follow-up found TrueNAS's Intel Arc A380 on `i915`, with an
+  8 GiB mapped BAR and `/dev/dri/renderD128`. Its physical link currently
+  negotiates only PCIe Gen1 x1, but the persistent 168 MiB model avoids a large
+  per-request transfer. Vulkan initialization passed in the existing Jellyfin
+  container, and a short idle sample showed no active GPU clients.
+- A loopback-only, resource-bounded container reused the exact pinned Kokopop
+  binary/model hashes and explicitly selected the A380 through Mesa Vulkan.
+  The first cold render took 3.290 seconds; subsequent short renders took
+  0.494–0.511 seconds and the longer Home Assistant/Lutron/British Columbia
+  sentence took 1.431 seconds. With a sustained real-time Jellyfin HEVC VAAPI
+  encode active, three short renders took 0.587, 0.491 and 0.493 seconds.
+  This passes the provisional 0.750-second short-response target and indicates
+  video encode and TTS can coexist on separate A380 engines, subject to the
+  full scheduled-archiver and interactive-load gates.
+- The requested non-Vulkan check was performed rather than assumed. Intel's
+  pinned OpenVINO 2026.4 runtime enumerated both CPU and the A380 GPU once the
+  container received the host render-group GID. ONNX Runtime OpenVINO 1.24.1,
+  configured GPU-only with fallback disabled, then rejected the approved
+  hash-pinned Kokoro FP16 graph at compile time because a subgraph rank is not
+  static. No OpenVINO performance claim or CPU fallback is recorded. Changing
+  or re-exporting the approved model would require a fresh identity/listening
+  gate; the measured Vulkan path remains the selected A380 candidate.
+- Added a TrueNAS custom-app definition with a source-pinned Vulkan build,
+  read-only external model/key mounts, non-root containers, an internal-only
+  renderer network, fixed voice/speed/backend, resource limits and only the
+  authenticated bridge published on `192.168.20.40:9132`. Compose interpolation
+  and syntax validate. A clean build produced renderer image
+  `sha256:9bd62132580321de372827d83360150d62ad60ae6e862a1fd168a9d9075b46a3`.
+  An isolated loopback run as UID/GID 10001 with only render GID 107 explicitly
+  selected the A380 and produced valid mono 24 kHz/16-bit WAV. The first
+  request took 4.648 seconds while the model and shader pipeline warmed; the
+  next three identical acknowledgements took 0.631, 0.651 and 0.657 seconds.
+  The renderer must therefore stay resident and pass a warm-up request before
+  admission. No listener, firewall rule or production route has yet been
+  enabled.
+- Jason approved the narrow authenticated canary. OPNsense now permits only
+  LXC 116 `192.168.70.14` to TrueNAS `192.168.20.40:9132/TCP` on Lab VLAN 70,
+  sequence 2684, UUID `92fb4b0a-750f-4d10-b655-fdad43b6994b`, before the
+  RFC1918 isolation block. The live `pf` rule was verified; LXC 110 remained
+  blocked. The bridge rejected an unauthenticated LXC 116 request with 401 and
+  returned a valid 119,084-byte WAV in 0.661 seconds with the protected key.
+- The first deployed Compose canary exposed and corrected two definition bugs:
+  a bridge attached only to an internal Docker network was not host-published,
+  and its health command omitted `import urllib.request`. Kokopop remains only
+  on the internal network; the authenticated bridge alone also joins a normal
+  edge network and binds `192.168.20.40:9132`. Both containers are healthy.
+  The disabled-by-default LXC 116 candidate was pointed at that bridge and
+  returned healthy plus a valid 24 kHz WAV for the Home Assistant, Lutron
+  Caseta, Canadian-currency and B.C. fixture in 2.496 seconds. Production port
+  9130 and routing were not changed; listening acceptance remains required.
 
 ## Validation and evaluation
 
@@ -741,6 +874,10 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | Stream A decision | Jason rejected premium services and directed a network-level single solution using the approved voice, with project creation, commit, push and immediate Stream A start. | Risk envelope accepted; M0 complete, M1 starts with read-only design/licence/protocol discovery and offline benchmarks. |
 | 2026-10-10 | M2 real-listener close-out | Loopback-only Uvicorn canary on LXC 116: cached first body 55 ms fresh/12 ms warm; uncached 1.772 s; disconnect recovery 12 ms; explicit DELETE 204 followed by one content-free `cancelled` frame and successful recovery. Temporary listener/staging removed; production remained active and healthy. | M2 functional/security/cancellation gates complete. M3 remains pending; uncached first-audio latency is a tracked acceptance risk. |
 | 2026-10-10 | M3 staged canary and rollback | Fresh guest backup plus protected file checkpoint verified; pinned candidate installed separately on 9131; 46 tests, authentication refusal, two WAV passes, streaming, concurrency, cancellation and rollback passed. Cached acknowledgement 11 ms; uncached first body 1.521 s. | Candidate left stopped/disabled and production 9130 healthy. Do not select it until uncached latency meets 750 ms or Jason explicitly accepts a revised threshold. |
+| 2026-10-10 | M3 Arc Pro B60 acceleration probe | Least-privilege render-node mapping; isolated OpenVINO 1.24.1 and hash-verified Intel compute runtime; provider-fallback detection; live PCI BAR/link inspection; complete test-root cleanup and live device withdrawal. | No OpenVINO GPU benchmark claimed: Intel's `xe` compute runtime rejected the 256 MiB physical BAR. Production stayed healthy. This result blocks Level Zero/OpenCL, not Mesa Vulkan. |
+| 2026-10-10 | M3 B60 Vulkan Kokoro canary | Internet/upstream review plus live llama.cpp evidence identified Mesa Vulkan as the small-BAR path. Pinned Kokopop/GGML build; 617 tests; immutable verified F16 GGUF with `bm_daniel`; explicit B60 synthesis; persistent first-audio traces; CPU comparison; generated remote evidence cleanup. | Vulkan is viable without ReBAR. Warm short first audio was 0.588 s; a longer first sentence was 1.608 s. Keep the canary stopped and production unchanged pending Jason's listening parity, bounded segmentation and shared-GPU contention gates. |
+| 2026-10-10 | M3 private Vulkan renderer bridge and contention gate | File-backed dedicated bearer key; fixed voice/speed/format; bounded input/concurrency; WAV validation; full authenticated LXC 116 path; 401 refusal; dependency 503/recovery; production isolation; simultaneous live Llama generation. | Functional/security gates pass, but latency does not: warm short end-to-end 0.714–0.896 s and 2.940 s under active Llama generation. Candidate units returned to stopped/disabled; production remained healthy. Do not select until GPU workload isolation or proven scheduling meets the frozen target. |
+| 2026-10-10 | M3 TrueNAS A380 backend comparison and private canary | Live i915/device/BAR inspection; explicit Mesa Vulkan device selection; cold/warm and longer-sentence timings; sustained Jellyfin VAAPI overlap; Intel OpenVINO 2026.4 and ORT OpenVINO 1.24.1 with CPU fallback disabled; pinned non-root deployment-image build; loopback validation; exact OPNsense rule; authentication refusal/success; full LXC 116 candidate fixture. | A380 Vulkan passes: warm short 0.494–0.511 s and 0.491–0.587 s during VAAPI overlap; the clean deployment image warmed to 0.631–0.657 s after a 4.648 s cold request; authenticated network render was 0.661 s. OpenVINO rejects the approved dynamic-rank ONNX graph. Production remains unchanged; warm-up admission, full load and listening gates remain. |
 
 ## Close-out
 

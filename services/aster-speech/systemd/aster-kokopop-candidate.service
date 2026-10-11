@@ -1,0 +1,22 @@
+[Unit]
+Description=Aster Kokoro Vulkan Renderer Candidate
+After=network.target
+
+[Service]
+Type=simple
+User=ollama
+Group=ollama
+UMask=0077
+WorkingDirectory=/opt/aster-voice-vulkan-test
+ExecStart=/opt/aster-voice-vulkan-test/build/kokopop_stream --model /opt/aster-voice-vulkan-test/kokoro-v1_0.gguf --voice bm_daniel --speed 0.95 --mode adaptative --threads 4 --backend vulkan --http --bind 127.0.0.1 --port 18131
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target
