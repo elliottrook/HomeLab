@@ -135,6 +135,7 @@
     }
   ],
   "current_health_function_sha256": "79e3cf0de5ec5e5f8369354b6897304125439e2b7eb92935f66b97c01d7636f4",
+  "current_health_source_ref": "cf17faed0b680959ac97f395c4f165d70e886cec",
   "schema": 1,
   "scope": "synthetic_offline_projection_only"
 }

@@ -93,7 +93,7 @@ These are test criteria, not observed results.
 
 The [reproducible seven-case projection run](D4-Doctor-projection-comparison-2026-10-10.json)
 uses synthetic reports only. Its small harness executes the tracked
-`get_lab_health()` function in isolation, plus the two incident adapters; it
+`get_lab_health()` function at frozen commit `cf17fae` in isolation, plus the two incident adapters; it
 does not import the whole gateway, run Doctor, call a model or contact the lab.
 The deployed function was line-scoped inspected earlier, but the full live
 gateway differs from the tracked file. The result is a **contract comparison**,
@@ -116,6 +116,37 @@ requests. Retain the typed code as an offline candidate only if a future
 approved model boundary needs a named check without human text. A real
 usefulness decision still needs representative answers, independent review and
 the M1/egress gate.
+
+### Smaller existing-reader candidate
+
+Prepared a **local-only** change to `get_lab_health()` that opens a regular
+report once without following its final symlink, bounds the read, refuses
+group/world-writable files, requires schema 1 and a UTC report no older than
+36 hours, and returns a fixed unavailable message rather than a path-bearing
+exception. The human summary fields remain as before for a fresh valid report;
+this does **not** make them safe to send to Codex or another cloud model. A
+dependency-free isolated test checks fresh, stale, future, symlink, writable,
+invalid-schema and oversized cases; four tests pass. Python compilation passes.
+The existing full gateway test suite has not run in this environment because
+the Mac system Python lacks the gateway's web dependencies; none were installed.
+
+The deployed LXC 104 gateway differs as a whole from this tracked file, and
+HomeLab TCP connectivity was unavailable during this candidate. Before any
+deployment, reconcile the live source and scheduled report shape, run the full
+gateway and consumer checks in a prepared environment, preserve a source
+checkpoint, and verify an actual fresh report still serves. Until then this is
+an offline candidate, not a live fix. The frozen comparison continues to use
+`cf17fae`, so later source edits cannot silently rewrite its baseline.
+
+After the Proxmox reboot and normal guest startup, read-only metadata checks
+confirmed the live gateway still has its old `get_lab_health()` signature and
+is active. The saved schema-1 report is a regular 3,538-byte root-owned,
+group-readable `0640` file; its recorded time is
+`2026-10-10T15:17:03.405061+00:00`, status `failed`, and it has 32 selected
+checks. No check summaries were read. This proves the candidate's intended
+file mode/schema and age window are compatible with that one saved report; it
+does not prove current lab health, full source compatibility, or that all
+consumers tolerate the new unavailable result.
 
 The comparison review also found that the candidate validated the aggregate
 report's top-level schema and digest but had not checked its nested check

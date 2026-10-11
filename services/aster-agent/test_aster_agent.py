@@ -2,6 +2,7 @@ import tempfile
 import time
 import unittest
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -189,8 +190,9 @@ class AsterAgentTests(unittest.TestCase):
     def test_lab_health_uses_only_bounded_report(self):
         with tempfile.TemporaryDirectory() as directory:
             report = Path(directory) / "latest.json"
-            report.write_text(json.dumps({"generated_at": "2026-09-01T00:00:00+00:00", "status": "warning", "checks": [{"name": "Doctor", "status": "warn", "summary": "Backup is overdue"}], "secret": "not returned"}), encoding="utf-8")
-            result = get_lab_health(report)
+            observed = datetime(2026, 10, 10, 19, 58, tzinfo=timezone.utc)
+            report.write_text(json.dumps({"schema": 1, "generated_at": observed.isoformat(), "status": "warning", "checks": [{"name": "Doctor", "status": "warn", "summary": "Backup is overdue"}], "secret": "not returned"}), encoding="utf-8")
+            result = get_lab_health(report, now=observed + timedelta(minutes=2))
             self.assertEqual(result["status"], "warning")
             self.assertEqual(result["checks"][0]["summary"], "Backup is overdue")
             self.assertNotIn("secret", result)

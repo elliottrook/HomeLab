@@ -92,7 +92,10 @@ found no family-identification gain over today's human-summary path for its
 single Aster failure. It did demonstrate that the current Aster reader forwards
 dynamic text and does not reject a stale report. The next low-complexity
 candidate is to harden that existing reader and keep aggregate status for
-simple questions; schema 2 remains unpromoted.
+simple questions; schema 2 remains unpromoted. A local reader hardening
+candidate now passes isolated tests, but the deployed gateway source differs
+and full integration tests have not run. No live fix or new model boundary has
+been enabled.
 
 ## Immediate next action and stop rule
 

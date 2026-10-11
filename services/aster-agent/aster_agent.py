@@ -10,9 +10,10 @@ import hashlib
 import logging
 import os
 import re
+import stat
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -933,21 +934,39 @@ def search_knowledge(query: str, max_results: int = 2, root: Path | None = None,
     return result
 
 
-def get_lab_health(report_path: Path | None = None) -> dict[str, Any]:
-    """Return only the bounded schema written by the trusted report producer."""
+def get_lab_health(report_path: Path | None = None, now: datetime | None = None) -> dict[str, Any]:
+    """Read one bounded, fresh Doctor report without following a path switch."""
     path = report_path or HEALTH_REPORT_PATH
     try:
-        if path.stat().st_size > 65_536:
-            raise ValueError("report exceeds the maximum permitted size")
-        report = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
-        return {"status": "unavailable", "error": f"Sanitized health report unavailable: {exc}"}
+        flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
+        with os.fdopen(os.open(path, flags), "rb") as stream:
+            metadata = os.fstat(stream.fileno())
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_mode & 0o022 or metadata.st_size > 65_536:
+                raise ValueError("unsafe report")
+            raw = stream.read(65_537)
+        if len(raw) > 65_536:
+            raise ValueError("oversized report")
+        report = json.loads(raw)
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError):
+        return {"status": "unavailable", "error": "Sanitized health report unavailable"}
 
+    if not isinstance(report, dict):
+        return {"status": "unavailable", "error": "Sanitized health report has an invalid schema"}
     generated_at = report.get("generated_at")
     status = report.get("status")
     checks = report.get("checks")
-    if not isinstance(generated_at, str) or status not in {"healthy", "warning", "failed"} or not isinstance(checks, list):
+    if type(report.get("schema")) is not int or report["schema"] != 1 or not isinstance(generated_at, str) or status not in {"healthy", "warning", "failed"} or not isinstance(checks, list):
         return {"status": "unavailable", "error": "Sanitized health report has an invalid schema"}
+    try:
+        observed = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+        current = now or datetime.now(timezone.utc)
+        if observed.tzinfo is None or observed.utcoffset() != timedelta(0) or current.tzinfo is None:
+            raise ValueError("invalid report time")
+        age = current.astimezone(timezone.utc) - observed.astimezone(timezone.utc)
+        if age < timedelta(0) or age > timedelta(hours=36):
+            raise ValueError("stale or future report")
+    except ValueError:
+        return {"status": "unavailable", "error": "Sanitized health report is not current"}
 
     safe_checks: list[dict[str, str]] = []
     for check in checks[:32]:

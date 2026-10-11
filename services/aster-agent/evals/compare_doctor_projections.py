@@ -12,6 +12,8 @@ import ast
 import hashlib
 import json
 import os
+import stat
+import subprocess
 import sys
 import tempfile
 from datetime import datetime, timedelta, timezone
@@ -19,6 +21,8 @@ from pathlib import Path
 from typing import Any
 
 AGENT_DIR = Path(__file__).resolve().parents[1]
+ROOT = AGENT_DIR.parents[1]
+BASELINE_REF = "cf17faed0b680959ac97f395c4f165d70e886cec"
 sys.path.insert(0, str(AGENT_DIR))
 
 from doctor_incident_adapter import read_doctor_observation  # noqa: E402
@@ -30,16 +34,28 @@ MARKER = "FIXTURE_PRIVATE_MARKER"
 CHECK_ID = "aster.agent_inference"
 
 
-def isolated_current_health_function():
-    """Run the exact tracked function without importing the web gateway."""
-    source = (AGENT_DIR / "aster_agent.py").read_text(encoding="utf-8")
+def compile_health_function(source: str):
+    """Execute only get_lab_health from a source snapshot."""
     module = ast.parse(source)
     matches = [node for node in module.body if isinstance(node, ast.FunctionDef) and node.name == "get_lab_health"]
     if len(matches) != 1:
-        raise ValueError("expected one current get_lab_health function")
-    namespace = {"Path": Path, "Any": Any, "json": json, "HEALTH_REPORT_PATH": Path("/nonexistent")}
+        raise ValueError("expected one get_lab_health function")
+    namespace = {
+        "Path": Path, "Any": Any, "json": json, "os": os, "stat": stat,
+        "datetime": datetime, "timedelta": timedelta, "timezone": timezone,
+        "HEALTH_REPORT_PATH": Path("/nonexistent"),
+    }
     exec(compile(ast.Module(body=matches, type_ignores=[]), str(AGENT_DIR / "aster_agent.py"), "exec"), namespace)
     return namespace["get_lab_health"], hashlib.sha256(ast.get_source_segment(source, matches[0]).encode()).hexdigest()
+
+
+def isolated_baseline_health_function():
+    """Run the frozen baseline function without importing the web gateway."""
+    source = subprocess.run(
+        ["git", "-C", str(ROOT), "show", f"{BASELINE_REF}:services/aster-agent/aster_agent.py"],
+        check=True, capture_output=True, text=True,
+    ).stdout
+    return compile_health_function(source)
 
 
 def run_case(case: dict[str, Any], health_function) -> dict[str, Any]:
@@ -107,10 +123,11 @@ CASES = [
 
 
 def main() -> None:
-    health_function, function_digest = isolated_current_health_function()
+    health_function, function_digest = isolated_baseline_health_function()
     result = {
         "schema": 1,
         "scope": "synthetic_offline_projection_only",
+        "current_health_source_ref": BASELINE_REF,
         "current_health_function_sha256": function_digest,
         "cases": [run_case(case, health_function) for case in CASES],
     }

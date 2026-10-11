@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-10 — Existing Aster health-reader hardening candidate
+
+The seven-case synthetic comparison suggested a smaller change than
+production schema 2. Prepared a local-only `get_lab_health()` candidate with
+single safe open, bounded read, schema/freshness checks and fixed unavailable
+errors. Four dependency-free isolated tests and Python compilation pass; the
+full gateway suite cannot run under the Mac system Python because its web
+dependencies are absent. The deployed gateway differs from this repository
+file and HomeLab TCP access was unavailable, so no deployment or live behavior
+claim follows. The prior comparison now pins its original function to
+`cf17fae` to keep the baseline reproducible; see [the D4 record](evidence/D4-Doctor-structured-fixture-result-2026-10-10.md).
+
 ## 2026-10-10 — Seven-case Doctor projection comparison
 
 Ran the frozen synthetic Doctor cases across the tracked Aster health function
