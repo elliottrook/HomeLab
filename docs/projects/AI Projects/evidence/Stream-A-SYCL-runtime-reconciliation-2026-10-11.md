@@ -151,9 +151,9 @@ Codex handoff was changed.
 has now been represented in this branch and the staged repository suite passes
 **199 tests**. Its runtime declaration is still manually versioned and should
 eventually come from a verified registry or source-local descriptor. Deployed
-UI styling and the existing-reader implementation still differ from this
-branch. Do not deploy the branch gateway file wholesale until those live-only
-differences are reconciled and tested.
+UI styling still differs from this branch; the reader was reconciled and
+deployed in the separate bounded step below. Do not deploy the branch gateway
+file wholesale until all live-only differences are reconciled and tested.
 Authenticated end-to-end model answers, sustained stability, performance and
 Doctor's active-SYCL coverage remain unverified. The local corrected
 graduation suites were not sent to the model in this operation.
@@ -168,8 +168,25 @@ graduation suites were not sent to the model in this operation.
   *active* SYCL path rather than only Vulkan device visibility.
 - Whether all inference key custody and recovery documents have been updated
   for the active `--api-key-file` option. No key or environment content was read.
-- Whether the deployed gateway source and curated knowledge snapshot will be
-  refreshed from these local corrections; neither was changed during this check.
+- Whether the remaining deployed UI styling and any other source differences
+  should be adopted into the branch before a whole-file deployment.
 
-No GPU load, model question, service restart, configuration write or credential
-read occurred in this reconciliation.
+The initial discovery and candidate tests used no GPU load, model question or
+credential read. The later bounded gateway and knowledge deployments above
+did restart `aster-agent.service`; they did not restart inference.
+
+The existing Aster Doctor reader hardening was then reconciled separately.
+Transplanting the candidate function into a temporary copy of the deployed
+source initially exposed two missing live imports (`stat`, `timedelta`);
+after adding only those imports, the **hybrid deployed-source suite passed 199
+tests**, and the current sanitized Doctor report returned its bounded `failed`
+status with 32 checks. With an exact SHA-256 gate and a third retained source
+checkpoint at
+`/opt/aster-agent/rollback-aster-agent-before-doctor-reader-20261011.py`,
+the function and imports were promoted. The final deployed source SHA-256 is
+`b4f29f40a460d1feef95bc623c20c3219f94ede0be06acc684fabfde2d844192`.
+After restarting only `aster-agent.service`, `/health` returned OK, systemd
+reported active/running with zero recorded restarts, and the `aster` account
+could still read the current 32-check aggregate. This hardens Aster's existing
+model-visible human-summary path; it does not connect the D4 Doctor incident
+adapter to Codex or approve schema 2.

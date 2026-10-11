@@ -46,6 +46,13 @@ The deployed deterministic identity shortcut was then represented in the local
 branch with a narrow routing regression; the staged repository gateway suite
 passed 199 tests. Live UI styling and Doctor-reader source still differ, so
 whole-file deployment remains held.
+The Doctor reader candidate was tested again as a surgical change to the
+deployed source. The first hybrid full-suite attempt exposed missing `stat`
+and `timedelta` imports; adding them yielded 199/199 passes. With a third
+source checkpoint, the narrow reader hardening was deployed; Aster returned
+healthy and the service account still read the current 32-check Doctor report.
+No incident adapter, Codex tool, model egress expansion or AI-PAM policy was
+enabled.
 
 ## 2026-10-11 — Offline Doctor reader cross-consumer review
 

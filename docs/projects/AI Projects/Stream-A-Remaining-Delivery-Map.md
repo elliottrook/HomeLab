@@ -19,8 +19,9 @@ and a bounded live correction now aligns the deployed deterministic identity,
 prompt and curated knowledge with 9B/SYCL. A service-account retrieval check
 passes against the full refreshed 1,825-source snapshot. The deterministic
 identity shortcut is now represented locally and the staged 199-test suite
-passes, but deployed UI styling and Doctor-reader code still differ from this
-branch. A whole-file gateway deploy remains held. Authenticated answer quality
+passes. The Doctor reader was later transplanted with a 199-test hybrid pass;
+deployed UI styling still differs from this branch. A whole-file gateway
+deploy remains held. Authenticated answer quality
 is unverified.
 
 ## Remaining milestones, in delivery order
@@ -106,13 +107,14 @@ The [seven-case offline contract comparison](evidence/D4-Doctor-structured-fixtu
 found no family-identification gain over today's human-summary path for its
 single Aster failure. It did demonstrate that the current Aster reader forwards
 dynamic text and does not reject a stale report. The next low-complexity
-candidate is to harden that existing reader and keep aggregate status for
-simple questions; schema 2 remains unpromoted. A local reader hardening
-candidate now passes isolated tests, but the deployed gateway source differs
-and full integration tests have not run. No live fix or new model boundary has
-been enabled. An offline review on 2026-10-11 additionally closed a malformed
-status-value exception in the local candidate; it does not change the
-deployment or connected-tool gates.
+candidate was to harden that existing reader and keep aggregate status for
+simple questions; schema 2 remains unpromoted. On 2026-10-11, the candidate
+was tested against a copy of the deployed gateway, including required imports.
+All 199 gateway tests passed. The narrow reader change was deployed with a
+retained source checkpoint; Aster stayed healthy and its service account could
+still read the current 32-check report. This changes the existing local
+health path only. The D4 connected-tool, schema 2, blinded usefulness and M1
+authority gates remain open.
 
 ## Immediate next action and stop rule
 

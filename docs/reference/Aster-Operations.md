@@ -112,6 +112,14 @@ Aster retains its allowlisted read-only advisory functions:
 - the fixed-path sanitized NetBox report; and
 - a dry-run proposal for the one report-issued opaque ARR candidate.
 
+As of 2026-10-11, the existing HomeLab health reader opens its fixed report
+once without following symlinks, rejects non-regular or writable files and
+reports over 65,536 bytes, and treats timestamps older than 36 hours as
+unavailable. It still supplies bounded human summaries from a fresh sanitized
+report; it is not the unpromoted schema-2 Doctor projection or a connected
+Codex tool. The deployed source checkpoint before this reader change is
+`/opt/aster-agent/rollback-aster-agent-before-doctor-reader-20261011.py`.
+
 These functions are selected from the current request and pre-executed before a
 single model call. Knowledge retrieval normally returns up to four
 source-diverse results. Focused checklist, monitoring and reviewed
