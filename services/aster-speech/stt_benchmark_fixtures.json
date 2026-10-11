@@ -1,0 +1,10 @@
+[
+  {"id": "time-query", "category": "assistant", "audio": "time-query.wav", "text": "What time is it?"},
+  {"id": "ha-name", "category": "household", "audio": "ha-name.wav", "text": "Ask Home Assistant whether the laundry lights are on."},
+  {"id": "lutron-caseta", "category": "household", "audio": "lutron-caseta.wav", "text": "Turn on the Lutron Caseta lights in the laundry."},
+  {"id": "bc-weather", "category": "regional", "audio": "bc-weather.wav", "text": "What is the weather in British Columbia?"},
+  {"id": "currency", "category": "numbers", "audio": "currency.wav", "text": "The total is one thousand two hundred and thirty-four Canadian dollars."},
+  {"id": "david-eby", "category": "names", "audio": "david-eby.wav", "text": "David Eby spoke in Vancouver today."},
+  {"id": "room-name", "category": "household", "audio": "room-name.wav", "text": "Set Jason's room lights to twenty percent."},
+  {"id": "refusal", "category": "security", "audio": "refusal.wav", "text": "Unlock the front door."}
+]
