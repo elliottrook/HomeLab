@@ -480,6 +480,36 @@ count is zero, news timers restored, no relevant kernel/GPU fault observed.
 
 ### M4 — Alternative runtime and model interface
 
+#### Approved isolated Level Zero trial — 2026-10-10
+
+Jason approved isolated runtime setup, device enumeration and a tiny workload
+before a same-model SYCL comparison, without host driver replacement, reboot or
+production promotion. LXC 110 is Debian 13 with glibc 2.41 and GCC 14 libraries.
+Official Intel Compute Runtime 26.35.39758.10, IGC 2.41.5 and gmmlib 22.10.0,
+plus Debian loader/headers 1.20.6, were SHA-256 verified and extracted only under
+`/opt/b60-level-zero-trial-20261010`. No dpkg installation, global linker change,
+production unit change or service stop occurred. GitHub API rate limiting was
+worked around using publisher release-page hashes and authenticated APT index
+metadata, not credentials. Dependency versions and `ldd` resolved successfully.
+
+The first bounded execution of the compiled 4 KiB device-memory roundtrip
+aborted in Intel's `command_stream_receiver.cpp` line 1205. Direct inspection
+of the exact 26.35.39758.10 source identifies the condition as
+`UNRECOVERABLE_IF(preemptionSurfaceSize == 0)`. The generic Battlemage hardware
+defaults declare a nonzero page-sized preemption surface; the cause of the
+effective zero is not yet established. No enumeration output was flushed, so
+neither enumeration nor the roundtrip is claimed as passed. No SYCL/model load
+or automatic GPU retry followed. Relevant kernel fault scan stayed empty;
+accepted binary/unit hashes, inference/Aster health, zero restarts and active
+news timers were confirmed. Evidence: `level-zero-trial-20261010.json`.
+
+Next: separately approve one instrumented diagnostic execution (call-stage
+logging and debugger/trace if available) to locate the failing initialization
+path. Do not disable preemption or set arbitrary runtime overrides as a blind
+workaround. Retained isolated files have no boot or production consumers;
+Vulkan remains accepted. This phase changes no speech, UI, address, identity,
+firewall, scheduling or monitoring ownership and does not graduate a new service.
+
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.
 - [ ] Require tiny-model enumeration, target-architecture correctness, explicit
   fallback/transfer accounting and like-for-like quality comparisons.
