@@ -1,7 +1,57 @@
 # B60 VF BAR proof candidate
 
-This directory contains a source-only, one-shot kernel-module candidate. It is
-not approved for production deployment.
+This directory contains an attended, one-shot kernel-module proof candidate.
+The fourth approved host trial on 2026-10-10 obtained a 32 GiB physical BAR2.
+Permanent boot promotion remains a separate decision.
+
+## Host trials and current candidate
+
+The first boot did not run the helper: initramfs udev coldplug did not honor the
+soft dependency. An explicit `init-top` script before `udev` fixed ordering.
+The second boot changed the hardware VF BAR from 2 GiB to 256 MiB but left its
+Linux resource reservation at 48 GiB. The third boot used `adjust_resource()`
+to shrink that reservation to 6 GiB. PF BAR2 still failed with `ENOSPC` because
+the bridge's 48.65 GiB aperture started 2 GiB off a 32 GiB boundary and its
+sibling resources prevented release of the root-port window.
+
+The fourth trial used a dedicated GRUB entry with `pci=realloc=on` and
+`pci=resource_alignment=35@0000:04:00.0`. This reserves 32 GiB aligned regions
+for both PF memory BARs during early PCI allocation. The v3 helper verifies
+those reservations, programs the advertised 32 GiB physical ReBAR, restores
+the GTT BAR0 resource to its actual 16 MiB size, and reduces the VF resource to
+6 GiB. Linux then probes stock `xe` with the full BAR already assigned.
+
+Observed fourth boot: physical BAR2 `0x31000000000`, size 32 GiB; BAR0
+`0x30800000000`, size 16 MiB; VF BAR2 256 MiB per VF, aggregate 6 GiB;
+`xe` reports CPU-accessible VRAM `0x5fa000000`, equal to its usable VRAM.
+This is a successful BAR proof, not evidence of an inference speed improvement.
+
+The tested v3 module SHA-256 is
+`7d040a5d709161376a171b32258e37ac4804b051dea2e34f44730ec08a7b5894`.
+Its separate `/boot/initrd.img-7.0.14-23-pve-b60-aligned-test` SHA-256 is
+`5c844425a4d5c124334b6f7cea0bc1f20f4b619c65edb0536937d0c77965d308`.
+The normal 7.0.14-23 initramfs and installed module were restored/retained as
+v2; the 7.0.14-20 rollback was untouched. The test GRUB entry and `next_entry`
+were removed after boot. A later normal reboot therefore returns to the normal
+small-BAR path; the fourth trial has not been made the persistent default.
+
+Build using `Kbuild` from a clean module directory and the matching headers:
+
+```sh
+make -f /usr/src/linux-headers-7.0.14-23-pve/Makefile M="$PWD" modules
+```
+
+The module's vermagic is `7.0.14-23-pve SMP preempt mod_unload modversions`.
+Strict checkpatch found no errors and two cosmetic split-log-string warnings.
+The unsigned, out-of-tree module produces expected kernel taint messages.
+Secure Boot was disabled for the approved trials.
+
+`41_b60_bar_test` contains this host's exact LVM identifiers and is a reviewed
+candidate, not a portable installer. GRUB cannot clear `next_entry` itself on
+this LVM setup; explicitly clear it with `grub-editenv /boot/grub/grubenv unset
+next_entry` after returning, or select a normal entry manually at the console.
+
+## Original isolated build
 
 The source compiled successfully in a temporary x86-64 Debian builder against
 the official `proxmox-headers-7.0.14-23-pve` package (verified package SHA-256

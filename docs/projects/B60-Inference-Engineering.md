@@ -1,6 +1,6 @@
 # B60 inference engineering
 
-> Status: Active — attended BAR follow-up
+> Status: Active — full BAR proven in attended trial; persistent promotion pending
 >
 > Owner: Jason
 >
@@ -363,7 +363,8 @@ supported size before `xe` asks PCI core to enlarge PF BAR2. The helper can use
 the stock kernel's existing exported GPL PCI APIs and avoids replacing the
 whole kernel. On this device,
 256 MiB per VF would reduce the aggregate VF reservation from 48 GiB to 6 GiB,
-which should fit beside a 32 GiB PF BAR within the observed 49 GiB aperture.
+which has enough aggregate capacity beside a 32 GiB PF BAR within the observed
+49 GiB aperture, but still requires suitable alignment and bridge relocation.
 That arithmetic is necessary but not sufficient: a source-applicability review,
 offline build and package inspection must precede any install. The first host
 trial requires a fresh backup and mirror, retained current kernel, verified
@@ -385,6 +386,43 @@ Current ordering:
    platform hygiene, not the first experimental variable; and
 5. do not use `pci=realloc=on` as a blind first step: it cannot manufacture
    enough space while the 48 GiB VF reservation remains.
+
+#### Attended BAR trial result — 2026-10-10
+
+Jason explicitly approved the fourth test's v3 install, exact kernel arguments,
+dedicated GRUB entry and console-attended reboot. Boot ID
+`70bca49a-5e1c-4910-be7b-034daac7b732` on `7.0.14-23-pve` obtained physical
+BAR2 at `0x31000000000`, size **32 GiB**, and restored BAR0 to 16 MiB at
+`0x30800000000`. The disabled VF LMEM BAR is 256 MiB per VF, with a **6 GiB**
+aggregate reservation. `xe` reports CPU-accessible VRAM `0x5fa000000`, equal
+to usable VRAM, with no Small BAR message. The B60 remains bound to `xe` and
+Vulkan enumerates BMG G21. Accepted production binary/unit hashes match and
+endpoint health is `ok` after normal LXC 110 autostart.
+
+The prerequisite discovered by the third trial was **alignment**, not merely
+capacity: the 48.65 GiB root-port window at `0x30080000000` contained no
+32 GiB-aligned span, and a sibling device prevented its release during `xe`
+probe. The fourth trial used `pci=realloc=on` plus
+`pci=resource_alignment=35@0000:04:00.0` to reserve aligned PF resources during
+initial PCI assignment, then used the verified v3 helper before udev to set the
+hardware ReBAR and shrink the oversized GTT/VF reservations.
+
+The tested module SHA-256 is
+`7d040a5d709161376a171b32258e37ac4804b051dea2e34f44730ec08a7b5894`;
+the separate test initramfs SHA-256 is
+`5c844425a4d5c124334b6f7cea0bc1f20f4b619c65edb0536937d0c77965d308`.
+The test entry and GRUB `next_entry` were removed after boot. Normal
+7.0.14-23 initramfs SHA-256 remains
+`3d514d6c0f2c4724b84b205adc9c0bebe4fb828dd76f1677d4e5a40d55963450`,
+and retained 7.0.14-20 initramfs remains
+`9ea827de6a9fd0bfde7ce6636ca2cd583ebe7c2a3521791d4f1e669ba3bca22a`.
+A normal future reboot returns to the small-BAR path. Persistent boot promotion,
+repeat boot proof and any Level Zero/SYCL package/backend trial remain separate
+decisions. This result proves full BAR access, not faster inference.
+
+Source, build method, host-specific GRUB candidate and recovery details are in
+`scripts/b60-bar/README.md`. The unsigned module's kernel taint is expected and
+recorded; no firmware or BIOS change was needed.
 
 ### M4 — Alternative runtime and model interface
 
@@ -570,6 +608,8 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-10-10 | Subsequent Aster 9B role promotion | The separate Aster architecture programme selected Qwen3.5-9B reasoning-off for post-policy summaries and Jason explicitly approved production promotion. Revalidated today's backup/mirror and every B60 gate, then installed pinned b11429 and the exact 9B model while preserving the accepted 27B and Q8 rollback units/models. The first attempt failed closed before mutation on staged RAM; corrected sequencing quiesced 27B before the RAM gate. Final 9B unit/runtime/model hashes match, disk headroom increased, protected-path Aster generation passed, service restarts remain zero and the kernel scan is clean | B60 engineering remains complete; accepted production is now the Aster programme's 9B configuration. Retain the former 27B unit/runtime/model as immediate rollback and retarget the finite post-promotion observation to the new accepted hashes |
 | 2026-10-10 | M3 BAR diagnosis and source review | Live read-only PCI evidence proved that the 24 × 2 GiB VF LMEM template consumes 48 GiB of the approximately 49 GiB bridge aperture before `xe` requests a 32 GiB PF BAR. Extracted official Proxmox 7.0.14-23 offline and confirmed its `xe.ko` lacks the 2026-10-03 upstream VF restore fix. Reviewed that exact upstream change and found it does not alter initial enumeration. Added a narrow one-shot pre-driver helper. It matches only `0000:04:00.0` plus `8086:e211`, refuses enabled VFs, selects the device's minimum advertised VF BAR and uses existing exported GPL PCI APIs. The source passes strict kernel checkpatch and its APIs are exported by Linux v7.0 | No host state changed. The helper is the preferred proof candidate because it retains the stock kernel. Next safe work was an isolated matching-header build and binary inspection; any package install, initramfs/boot change or reboot still requires immediate owner approval and attended recovery |
 | 2026-10-10 | M3 isolated helper build | With explicit owner approval, downloaded but did not install official `proxmox-headers-7.0.14-23-pve`, verified package SHA-256 `4a65d1279907ca20e9c8d8a2facd86f2d94082142c19be20419a03e5594d79c4`, and compiled in temporary LXC 114 storage using its existing toolchain. `MODPOST` resolved every expected versioned PCI symbol. The module SHA-256 was `16feed7a34c9d80941ceb27f6d8e1981c18b719332a57865d11f3092bf3ea7d4`; vermagic was exactly `7.0.14-23-pve SMP preempt mod_unload modversions`; it declared no module dependency. Host and guest `/sys/module/b60_vfbar` were absent and live PF/VF BARs remained 256 MiB/2 GiB | Compile gate passes. The module was not installed, loaded or persisted, and both temporary build directories were removed. The remaining operation is deliberately disruptive: install the second official kernel and matching headers, rebuild/install the helper only for it, create and inspect only its initramfs ordering, then perform one console-attended boot after fresh backup/mirror checks. That entire operation requires immediate owner approval |
+
+| 2026-10-10 | M3 attended full-BAR proof | Four separately approved boots isolated ordering, VF resource bookkeeping and PF alignment. Fourth boot on 7.0.14-23 obtained 32 GiB physical BAR2, correct 16 MiB BAR0 and a 6 GiB VF reservation. `xe` exposes all usable VRAM; Vulkan enumerates BMG G21. Accepted 9B binary/unit hashes, inference and Aster health, authenticated synthetic correctness, guest autostart and news timers pass. No relevant kernel/GPU failure appeared. The source-report job initially ran before LXC 104 started; an ordinary rerun succeeded and the host has zero failed units. Immutable generation evidence on the host is `/var/lib/b60-inference/evidence/2026-10-10-bar-v3-generation.json`, SHA-256 `3aa01c1f531fba9d8888960deba6a84f690a26802f7b468e4759bf8177e928d8`; sanitized PCI/recovery facts are in `bar-v3-trial-20261010.json` | Full-BAR trial passes without a BIOS change. Temporary test GRUB entry and next_entry removed, builder headers and temporary files cleaned, normal 7.0.14-23 image and retained 7.0.14-20 unchanged. Persistent deployment and repeat boot validation remain pending; no BAR-derived speed gain is claimed. No Git push performed |
 
 ## Close-out
 

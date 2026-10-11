@@ -44,6 +44,13 @@ where its desktop harness is worth the additional latency.
 
 ## Runtime configuration
 
+The 2026-10-10 attended B60 BAR trial currently provides a 32 GiB physical
+BAR with stock `xe`; accepted llama.cpp and Aster units are unchanged and
+authenticated generation passes. The dedicated boot entry was removed after
+validation, so a normal next reboot returns to the retained small-BAR path.
+Persistent BAR promotion is pending; full trial and recovery evidence are in
+[B60 inference engineering](../projects/B60-Inference-Engineering.md).
+
 - llama.cpp b11429 (`d81235049`)
 - `lmstudio-community/Qwen3.5-9B-GGUF:Q4_K_M`, pinned SHA-256
   `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`

@@ -42,10 +42,15 @@
     the B60; attach `hostpci0` only immediately before intentional rollback use
     and remove it again before returning the device to host inference.
     The unused audio function `05:00.0` is isolated separately in group 57.
-  - The B60 currently exposes a 256 MB physical BAR. The Proxmox `xe` driver
-    attempted to resize it to 32 GB but the platform could not allocate the
-    aperture. Level Zero/OpenCL/OVMS cannot enumerate the GPU with this BAR,
-    while Mesa Vulkan acceleration works through the `xe`-backed LXC path.
+  - Normal boot exposes a 256 MiB physical BAR. The separately approved
+    2026-10-10 attended kernel 7.0.14-23 trial obtained a 32 GiB BAR using an
+    exact-device aligned PCI reservation and a pre-driver helper that shrinks
+    the disabled VF allocation to 6 GiB. `xe` exposes all usable VRAM and
+    production Vulkan generation passes. This is a successful trial, not a
+    persistent boot promotion: the temporary GRUB entry was removed and the
+    normal initramfs retained. A normal future reboot returns to the small-BAR
+    path. Level Zero/OpenCL/OVMS enumeration after this fix is untested; see
+    [B60 inference engineering](projects/B60-Inference-Engineering.md).
   - Quadro K620 removed.
   - Confirmed live 2026-09-15: `04:00.0` is on `xe`, LXC 110 Vulkan identifies
     Intel BMG G21, VM 105 is stopped, and `qm config 105` has no persistent
