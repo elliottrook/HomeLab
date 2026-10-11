@@ -9,8 +9,8 @@ class VoicePolicyTests(unittest.TestCase):
     def test_approved_normalization_and_pronunciations(self):
         self.assertEqual(
             normalize_for_speech("Home Assistant reports CA $1,234.50 for Lutron Caséta in B.C."),
-            "Home uh-sist-unt reports one thousand two hundred and thirty-four Canadian "
-            "dollars and fifty cents for Loo-tron kuh-set-uh in British Columbia.",
+            "Home Assistant reports one thousand two hundred and thirty-four Canadian "
+            "dollars and fifty cents for Lutron Caseta in British Columbia.",
         )
 
     def test_semantic_units_preserve_all_words(self):

@@ -26,7 +26,6 @@ _DOLLAR_AMOUNT = re.compile(
 )
 _US_ABBREVIATION = re.compile(r"\bU\.S(?:\.A)?\.(?=\s|$|[,;:!?])", re.IGNORECASE)
 _BC_ABBREVIATION = re.compile(r"\bB\.C\.(?=\s|$|[,;:!?])", re.IGNORECASE)
-_HOME_ASSISTANT = re.compile(r"\bHome Assistant\b", re.IGNORECASE)
 _LUTRON_CASETA = re.compile(r"\bLutron Cas[eé]ta\b", re.IGNORECASE)
 
 _ONES = (
@@ -103,8 +102,7 @@ def normalize_for_speech(text: str) -> str:
     text = re.sub(r"\s+([.,!?])", r"\1", text)
     text = re.sub(r",([.!?])", r"\1", text)
     text = re.sub(r"\s+", " ", text).strip(" ,")
-    text = _HOME_ASSISTANT.sub("Home uh-sist-unt", text)
-    return _LUTRON_CASETA.sub("Loo-tron kuh-set-uh", text)
+    return _LUTRON_CASETA.sub("Lutron Caseta", text)
 
 
 def semantic_units(text: str, maximum: int = MAX_UNIT_CHARS) -> list[str]:

@@ -431,11 +431,15 @@ speech-only respellings for Home Assistant and Lutron Caséta are under
 listening review instead. None of these choices is frozen until the comparison
 audio is accepted.
 
-Jason accepted pronunciation comparison option 5. The shared speech policy now
-maps `Home Assistant` to the speech-only rendering “Home uh-sist-unt” and both
-`Lutron Caseta` and `Lutron Caséta` to “Loo-tron kuh-set-uh”. Written UI text
-retains the correctly branded names. This decision covered pronunciation only;
-the acknowledgement was accepted separately in the following listening pass.
+Jason accepted pronunciation comparison option 5 on the original ONNX path,
+which temporarily mapped `Home Assistant` to “Home uh-sist-unt” and both
+`Lutron Caseta` and `Lutron Caséta` to “Loo-tron kuh-set-uh”. The later pinned
+Kokopop CPU-path comparison showed both ordinary spellings sound correct; the
+phonetic forms were what made them sound wrong inside the longer briefing.
+Jason selected plain `Home Assistant` and plain `Lutron Caseta`. The current
+policy therefore leaves `Home Assistant` unchanged and only canonicalizes the
+accented spelling `Lutron Caséta` to `Lutron Caseta`. Written UI text is still
+untouched. This supersedes the earlier engine-specific respellings.
 
 Jason subsequently accepted acknowledgement comparison option 3: `There,
 that's done.` This wording supplies enough context for the approved voice to
@@ -764,6 +768,13 @@ unrelated state.
   speech services were unchanged. Listening parity of the natural CPU sample
   is the next gate before adding a fixed-policy batch backend to the one Aster
   API.
+- Context comparison confirmed the new renderer pronounces plain `Home
+  Assistant` and `Lutron Caseta` correctly. The old phonetic substitutions made
+  both names sound wrong in the longer briefing even though short comparison
+  clips had previously favoured them on the old path. Jason selected the plain
+  forms; 18 focused tests pass and the boot-disabled LXC 116 candidate now uses
+  that policy. A corrected full natural CPU briefing was generated for the
+  final context listening gate; production remains unchanged.
 
 ## Validation and evaluation
 
