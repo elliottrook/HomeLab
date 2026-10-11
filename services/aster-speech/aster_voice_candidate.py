@@ -111,6 +111,7 @@ async def startup() -> None:
     if wyoming_uri:
         _wyoming_server = await start_wyoming_server(
             _proxy,
+            legacy_speech.transcribe_pcm,
             wyoming_uri,
             os.environ.get("ASTER_WYOMING_ALLOWED_PEER", "192.168.20.11"),
         )
