@@ -794,6 +794,12 @@ unrelated state.
   unchanged at 1,239.240 seconds/8,312,540 bytes. The client and service
   environment are installed with explicit `local` mode; scheduled cutover is
   withheld pending Jason's listening acceptance of the retrieved full canary.
+- Listening found one defect in the full canary: possessive `B.C.'s` escaped
+  the dotted-abbreviation rule and Kokopop spoke the dots as URL tokens. The
+  shared and News normalizers now recognize possessive suffixes, producing
+  `British Columbia's`; 22 focused tests pass. A complete opening/first-story
+  replay through the authenticated batch route was accepted by Jason. Plain
+  `Eby` remains unchanged—no unnecessary phonetic substitution was added.
 
 ## Validation and evaluation
 
@@ -947,6 +953,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 rejected bounded-batch correction and isolated CPU News canary | Iterated 60/30/20-character GPU News caps; measured generated-sample silence; rolled rejected policy out of the candidate. Built identical pinned Kokopop/GGML CPU-only on LXC 114; 617 tests; identical GGUF hash; natural whole-briefing render; simultaneous isolated A380 probe. | The numeric 1.388 s contention pass was rejected because the sample contained 10.859 s silence and sounded slow. CPU News produced 20.25 s natural audio in ~18.1 s while A380 interaction held 0.878 s median / 0.928 s p95. Keep workloads isolated behind one fixed Aster identity, pending listening parity and batch-backend integration. |
 | 2026-10-10 | M3 accepted voice and isolated batch-backend integration | Jason accepted the corrected full CPU News sample. Added a dedicated authenticated batch route and scheduler worker, boot-disabled LXC 114 CPU renderer/bridge, 401/200 boundary checks, and a real concurrent candidate request. | Batch completed in 26.467 s while twelve uncached A380 replies stayed between 0.802 and 0.851 s. One Aster identity is preserved without GPU contention. Production speech, News UI and timers remain unchanged; next gate is artifact equivalence and News-client rollback integration. |
 | 2026-10-10 | M5 default-off News client and full artifact gate | Strict framed-stream client; distinct file credential; local rollback mode; 13 live tests; isolated real 20-story render; MP3/metadata/VTT/chapter validation; production artifact timestamp and services checked. | Full 23:24 canary and 20 chapters are valid; production stayed unchanged. Client is installed in explicit local mode with rollback copies. Await full-artifact listening acceptance before enabling the candidate dependencies or switching the schedule. |
+| 2026-10-10 | M5 full-artifact listening correction | Isolated exact-context variants showed plain `Eby` was correct. Root cause was `B.C.'s` bypassing abbreviation expansion and being spoken as URL tokens. Added possessive abbreviation tests and regenerated the complete opening/first story through the canonical route. | Jason accepted the corrected opening. Promote the reversible News path, then run dependency and real-service gates. |
 
 ## Close-out
 

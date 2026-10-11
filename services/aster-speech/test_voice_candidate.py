@@ -13,6 +13,12 @@ class VoicePolicyTests(unittest.TestCase):
             "dollars and fifty cents for Lutron Caseta in British Columbia.",
         )
 
+    def test_dotted_abbreviation_expands_before_possessive(self):
+        self.assertEqual(
+            normalize_for_speech("B.C.'s premier discussed U.S.'s response."),
+            "British Columbia's premier discussed United States's response.",
+        )
+
     def test_semantic_units_preserve_all_words(self):
         text = "The first sentence is short. The second clause is longer, but remains readable."
         units = semantic_units(text, maximum=35)

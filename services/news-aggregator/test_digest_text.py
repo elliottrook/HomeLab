@@ -31,6 +31,12 @@ class DigestTextTests(unittest.TestCase):
             "The warning applies across British Columbia.",
         )
 
+    def test_dotted_abbreviation_expands_before_possessive(self):
+        self.assertEqual(
+            speech_text("B.C.'s premier discussed U.S.'s response."),
+            "British Columbia's premier discussed United States's response.",
+        )
+
     def test_speech_expands_dotted_us_abbreviation(self):
         self.assertEqual(
             speech_text("U.S. suspect connected to U.S.A. school shooting."),
