@@ -40,6 +40,14 @@ probe without changing the versioned corpus or result schema.
 M1 tuning because the package's public constructor does not accept session
 options; candidate service code must wrap and test that behavior deliberately.
 
+`benchmark_stt.py` is the content-free M7 accuracy/latency harness. It records
+fixture IDs, word-error counts and timings, never recognized text or audio.
+The candidate keeps `base.en`, fixes decoding to English, disables cross-request
+text conditioning and accepts an operator-reviewed vocabulary through
+`ASTER_SPEECH_STT_HOTWORDS`. Treat that list as model policy: benchmark every
+change against the frozen fixtures and real consented near/far-field samples.
+Do not put private dictated text or open-ended conversation history in it.
+
 `voice_candidate.py` is the repository-only M2 core. It owns the canonical
 speech normalization and semantic-unit policy plus the bounded two-worker
 scheduler. Without a separate batch renderer, both workers serve interactive

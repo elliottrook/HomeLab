@@ -30,6 +30,8 @@ from pydantic import BaseModel, ConfigDict
 
 ASTER_SPEECH_API_KEY = os.environ.get("ASTER_SPEECH_API_KEY", "")
 WHISPER_MODEL_SIZE = os.environ.get("ASTER_SPEECH_STT_MODEL", "base.en")
+WHISPER_LANGUAGE = os.environ.get("ASTER_SPEECH_STT_LANGUAGE", "en")
+WHISPER_HOTWORDS = os.environ.get("ASTER_SPEECH_STT_HOTWORDS", "").strip() or None
 PIPER_BINARY = Path(os.environ.get("ASTER_SPEECH_PIPER_BIN", "/opt/piper/piper/piper"))
 PIPER_VOICE = Path(
     os.environ.get("ASTER_SPEECH_PIPER_VOICE", "/opt/piper/voices/en_US-lessac-medium.onnx")
@@ -123,7 +125,13 @@ async def health() -> dict[str, str]:
 
 def _run_transcription(path: str) -> str:
     """Materialize Whisper's lazy result on a worker, keeping the event loop free."""
-    segments, _info = _whisper_model.transcribe(path, beam_size=1)
+    segments, _info = _whisper_model.transcribe(
+        path,
+        beam_size=1,
+        language=WHISPER_LANGUAGE,
+        condition_on_previous_text=False,
+        hotwords=WHISPER_HOTWORDS,
+    )
     return "".join(segment.text for segment in segments).strip()
 
 
