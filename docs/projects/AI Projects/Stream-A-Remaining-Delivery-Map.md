@@ -75,6 +75,9 @@ so source-local sanitization and an explicit data projection remain necessary
 before any model egress. The smallest next implementation is a fixed-target,
 read-only evidence projection and denial tests, reviewed against M1 before
 connection; it is not another framework or a live sysadmin pilot.
+The [Doctor projection gate](evidence/D4-Doctor-structured-evidence-gate-2026-10-10.md)
+specifies why free-text parsing is insufficient and how one producer-owned
+check ID can be tested offline before any model sees diagnostic evidence.
 
 ## Immediate next action and stop rule
 
