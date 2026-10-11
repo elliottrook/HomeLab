@@ -40,6 +40,33 @@ work, without replaying missed briefings. Preserve backups, health monitoring,
 and unrelated A380/TrueNAS GPU work. This priority reservation does not extend
 experiment deadlines or authorize automatic retries after compute failures.
 
+At 23:00 PDT Jason clarified: these tests take priority over all other B60
+activity and are approved under Stream A until the objective is reached.
+This supersedes per-test conversational approvals for bounded isolated backend
+tests, including the instrumented loader/fusion-off run and its fresh preflight
+after the old 22:55 conservative stop. For tonight, retain the previously
+presented 23:20 experiment stop and 23:40 accepted-restoration deadline.
+Each run still needs complete fresh backup/mirror, hashes, health, resource,
+kernel, device, correctness and rollback gates. Never automatically retry a
+GPU/device failure; no package installation, global loader change, driver,
+boot, firmware, GPU reset, production promotion or Git push is implied.
+Other B60 consumers remain paused until Jason resumes them. Test safety gates
+are not dependent on a human being available overnight.
+
+At 23:03 PDT Jason explicitly removed the 23:20 stop and directed continued
+testing until he instructs resumption of regular GPU activity. This supersedes
+both absolute 23:20/23:40 calendar limits during the exclusive reservation.
+Retain per-experiment bounds: fresh preflight, at most 30 minutes of an
+experiment and accepted recovery within the next five minutes, independent
+transient rollback watchdog, no candidate automatic restart, no production
+promotion, and immediate stop on failed gates or GPU/device faults. Each
+subsequent experiment refreshes evidence and keeps a new immutable run identity;
+never treat a prior preflight as indefinitely valid. Cancelled the obsolete
+calendar-limited controller while it was still running accepted Vulkan
+controls: no candidate had started. Cancelled only its source-local synthetic
+runner processes and verified accepted health before resuming an exclusive
+comparison. Preserve its completed warmup evidence; do not overwrite it.
+
 Read-only discovery on 2026-09-25 reconciled the documented baseline:
 
 - Proxmox 9.2.20, kernel `7.0.14-19-pve`, Dell BIOS A31 dated 2019-06-05.

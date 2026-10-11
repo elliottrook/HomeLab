@@ -29,6 +29,36 @@ def snapshot():
 
 
 class GuardTests(unittest.TestCase):
+    def test_exclusive_session_has_rolling_bounds_not_calendar_cutoff(self):
+        item = snapshot()
+        item.update(collected_at='2026-10-10T23:25:00-07:00',
+                    backup_completed_at='2026-10-10T02:44:00-07:00',
+                    mirror_completed_at='2026-10-10T04:24:00-07:00')
+        now = datetime.fromisoformat('2026-10-10T23:26:00-07:00')
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(item,now,20)
+        result=guard.validate_preflight(item,now,20,approved_exclusive_session=True)
+        self.assertIn('23:56:00',result['experiment_deadline'])
+        self.assertIn('00:01:00',result['restoration_deadline'])
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(item,now,31,approved_exclusive_session=True)
+        item['mirror_state']='FAILED'
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(item,now,20,approved_exclusive_session=True)
+
+    def test_instrumented_extension_still_enforces_freshness_and_2320(self):
+        item = snapshot()
+        item.update(collected_at='2026-10-10T23:01:00-07:00',
+                    backup_completed_at='2026-10-10T02:44:00-07:00',
+                    mirror_completed_at='2026-10-10T04:24:00-07:00')
+        now = datetime.fromisoformat('2026-10-10T23:02:00-07:00')
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(item, now, 16)
+        guard.validate_preflight(item, now, 16, approved_instrumented_run=True)
+        for value in ['2026-10-10T23:07:00-07:00','2026-10-10T23:20:00-07:00','2026-10-11T23:02:00-07:00']:
+            with self.assertRaises(guard.GuardError):
+                guard.validate_preflight(item,datetime.fromisoformat(value),16,approved_instrumented_run=True)
+
     def test_loader_exception_is_fresh_date_limited_and_opt_in(self):
         item = snapshot()
         item.update(collected_at='2026-10-10T22:47:00-07:00',

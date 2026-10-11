@@ -4,12 +4,19 @@ import hashlib
 import json
 import statistics
 import argparse
+import os
 from pathlib import Path
 
 root = Path('/var/lib/b60-inference/evidence')
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--fusion-disabled-retry', action='store_true')
-prefix = 'matched-sycl-fusion-off-20261010' if parser.parse_args().fusion_disabled_retry else 'matched-sycl-20261010'
+parser.add_argument('--instrumented', action='store_true')
+parser.add_argument('--exclusive', action='store_true')
+parser.add_argument('--write-report', action='store_true')
+args = parser.parse_args()
+prefix = ('matched-sycl-exclusive-20261010' if args.exclusive else
+          'matched-sycl-instrumented-20261010' if args.instrumented else
+          'matched-sycl-fusion-off-20261010' if args.fusion_disabled_retry else 'matched-sycl-20261010')
 groups = {}
 hashes = {}
 for label in ['vulkan-pre', 'sycl', 'vulkan-post']:
@@ -56,4 +63,9 @@ if all(len(group) == 5 for group in groups.values()):
                    'request_speedup_factor': a/b, 'rows': rows})
 else:
     report['complete'] = False
-print(json.dumps(report, sort_keys=True))
+serialized = json.dumps(report, sort_keys=True) + '\n'
+if args.write_report:
+    path = root / (prefix + '-report.json')
+    with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'w') as f:
+        f.write(serialized); f.flush(); os.fsync(f.fileno())
+print(serialized, end='')

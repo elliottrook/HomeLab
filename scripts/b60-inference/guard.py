@@ -39,7 +39,9 @@ def parse_time(value: str) -> datetime:
 
 def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: int,
                        approved_fusion_retry: bool = False,
-                       approved_loader_retry: bool = False) -> dict[str, Any]:
+                       approved_loader_retry: bool = False,
+                       approved_instrumented_run: bool = False,
+                       approved_exclusive_session: bool = False) -> dict[str, Any]:
     required = {
         "collected_at", "backup_completed_at", "mirror_completed_at", "mirror_state",
         "service_health", "driver", "vulkan_device", "binary_sha256", "unit_sha256",
@@ -53,7 +55,10 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
     # Jason's explicit one-time exception, not a new recurring collection window.
     retry_window = ((approved_fusion_retry or approved_loader_retry) and local_now.date().isoformat() == '2026-10-10'
                     and local_now.hour == 22 and 15 <= local_now.minute < 55)
-    if not (ordinary_window or retry_window):
+    instrumented_window = (approved_instrumented_run and local_now.date().isoformat() == '2026-10-10'
+                           and ((local_now.hour == 22 and local_now.minute >= 15)
+                                or (local_now.hour == 23 and local_now.minute < 20)))
+    if not (ordinary_window or retry_window or instrumented_window or approved_exclusive_session):
         raise GuardError("preflight must run from 22:00 through 22:14 America/Vancouver")
     collected = parse_time(data["collected_at"])
     if collected > local_now or local_now - collected > timedelta(minutes=5):
@@ -80,9 +85,12 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
                                   second=0, microsecond=0)
     experiment_deadline = local_now.replace(hour=23, minute=EXPERIMENT_DEADLINE_MINUTE,
                                              second=0, microsecond=0)
+    if approved_exclusive_session:
+        experiment_deadline = local_now + timedelta(minutes=30)
+        hard_stop = local_now + timedelta(minutes=35)
     if local_now + timedelta(minutes=estimated_minutes) > experiment_deadline:
         raise GuardError("estimated run would cross the 23:20 experiment deadline")
-    return {"checks": checks, "start_not_before": local_now.replace(minute=EXPERIMENT_START_MINUTE, second=0, microsecond=0).isoformat(),
+    return {"checks": checks, "start_not_before": (local_now if approved_exclusive_session else local_now.replace(minute=EXPERIMENT_START_MINUTE, second=0, microsecond=0)).isoformat(),
             "experiment_deadline": experiment_deadline.isoformat(), "restoration_deadline": hard_stop.isoformat()}
 
 

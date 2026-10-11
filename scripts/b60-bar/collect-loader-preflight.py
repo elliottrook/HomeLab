@@ -16,8 +16,10 @@ parser.add_argument('--verified-mirror-size', type=int, required=True)
 parser.add_argument('--verified-mirror-state', choices=['SUCCESS'], required=True)
 parser.add_argument('--verified-mirror-finished-at', required=True)
 parser.add_argument('--mirror-checked-at', required=True)
+parser.add_argument('--instrumented', action='store_true')
+parser.add_argument('--exclusive', action='store_true')
 options = parser.parse_args()
-assert datetime.now(TZ).date().isoformat() == '2026-10-10', 'one-time authorization expired'
+assert options.exclusive or datetime.now(TZ).date().isoformat() == '2026-10-10', 'one-time authorization expired'
 assert options.verified_mirror_size == 38852679165
 mirror_age = (datetime.now(TZ) - guard.parse_time(options.mirror_checked_at)).total_seconds()
 assert 0 <= mirror_age <= 300, 'external bounded mirror verification must be fresh'
@@ -49,7 +51,10 @@ data = dict(collected_at=datetime.now(TZ).isoformat(), backup_completed_at=datet
             unit_sha256=hashes[1].split()[0], disk_free_bytes=free,
             ram_available_bytes=int(telemetry['ram_available_kib'])*1024,
             vram_headroom_bytes=25669140480-int(telemetry['vram_resident_kib'])*1024)
-guard.validate_preflight(data,datetime.now(TZ),9,approved_loader_retry=True)
-with open('/run/b60-matched-sycl/preflight-loader-retry.json','x') as f:
+guard.validate_preflight(data,datetime.now(TZ),20 if options.exclusive else 16 if options.instrumented else 9,
+                        approved_loader_retry=not (options.instrumented or options.exclusive),
+                        approved_instrumented_run=options.instrumented,
+                        approved_exclusive_session=options.exclusive)
+with open('/run/b60-matched-sycl/' + ('preflight-exclusive.json' if options.exclusive else 'preflight-instrumented.json' if options.instrumented else 'preflight-loader-retry.json'),'x') as f:
     json.dump(data,f,indent=2)
 print(json.dumps(data,indent=2))

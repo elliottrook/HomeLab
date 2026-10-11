@@ -13,6 +13,19 @@ matched = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(matched)
 
 class MatchedTrialTests(unittest.TestCase):
+    def test_instrumented_cutoff_is_2320_not_unbounded(self):
+        def guest(n, *args, **kwargs):
+            return '{"status":"ok"}' if args[0] == 'curl' else ''
+        with patch.object(matched, 'INSTRUMENTED', True), \
+             patch.object(matched, 'datetime') as date, \
+             patch.object(matched, 'guest', side_effect=guest), \
+             patch.object(matched, 'run', return_value='clean kernel log'):
+            date.now.return_value = datetime(2026,10,10,23,19,tzinfo=ZoneInfo('America/Vancouver'))
+            matched.gates('aster-b60-candidate.service')
+            date.now.return_value = datetime(2026,10,10,23,20,tzinfo=ZoneInfo('America/Vancouver'))
+            with self.assertRaisesRegex(RuntimeError, '23:20'):
+                matched.gates('aster-b60-candidate.service')
+
     def test_owner_disabled_news_is_not_restarted(self):
         with patch.object(matched, 'guest', return_value='disabled') as commands:
             matched.restore_news()
