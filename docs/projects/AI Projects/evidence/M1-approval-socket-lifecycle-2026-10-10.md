@@ -22,6 +22,8 @@ The tracked main-broker unit adds `RuntimeDirectoryPreserve=restart`, so a manua
 
 The earlier two-unit draft was copied, with matching SHA-256 values, into a mode-0700 disposable directory on LXC 104. `systemd-analyze verify` under the installed systemd 257 returned success with no diagnostics. The two disposable files and directory were then removed. That syntax result does not validate the revised one-unit candidate or live restart behavior. The current production unit files remain unchanged.
 
+The repository's focused `test_systemd_units.py` passed after the revision and now asserts both preservation on restart and absence of `PartOf=`, `Requires=` and `BindsTo=` coupling. A further read-only live check found both services active with zero restarts, their current units still reporting `RuntimeDirectoryPreserve=no` and no `PartOf=`, and both sockets present with the expected `0660` owner/group modes. The test is a configuration guard, not a simulated systemd outage.
+
 ## Proposed deployment gate (not yet executed)
 
 1. Recheck the live broker unit hash, both socket path permissions, service activity and that there is no in-flight approval operation. Preserve the exact live broker unit outside Git on LXC 104.
