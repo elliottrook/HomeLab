@@ -1,5 +1,13 @@
 # Research log — 2026-09-25
 
+## 2026-10-10 — Offline Doctor typed-check preflight
+
+Implemented an opt-in, source-owned Aster check event in Doctor, a same-run
+schema-2 candidate builder, and a separate offline read-only adapter. Synthetic
+privacy, freshness, pairing and fail-closed checks passed without a live Doctor
+run or model call. Existing schema-1 checks still pass. Diagnostic usefulness
+and connected authority are **not** established; see [the fixture result](evidence/D4-Doctor-structured-fixture-result-2026-10-10.md).
+
 ## 2026-10-10 — GitHub protection mirror recovered
 
 The replacement Forgejo push mirror with an explicit `ssh://` URL synchronized

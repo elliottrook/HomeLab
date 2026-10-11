@@ -9,16 +9,51 @@ credentials, or a way for Aster to execute Doctor itself.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import re
 import shlex
 import subprocess
+import tempfile
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
 
 LINE = re.compile(r"^([🟢🟡🔴])\s+(.+)$")
 STATUS = {"🟢": "pass", "🟡": "warn", "🔴": "fail"}
+STRUCTURED_CHECK_ID = "aster.agent_inference"
+MAX_STRUCTURED_BYTES = 4096
+
+
+def _unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate structured event field")
+        result[key] = value
+    return result
+
+
+def _structured_state(raw: bytes, run_id: str) -> str:
+    """Accept one exact, same-invocation producer event or abstain."""
+    if len(raw) > MAX_STRUCTURED_BYTES:
+        return "unavailable"
+    try:
+        lines = raw.decode("utf-8").splitlines()
+        if len(lines) != 1:
+            return "unavailable"
+        event = json.loads(lines[0], object_pairs_hook=_unique_object)
+        if not isinstance(event, dict) or set(event) != {"run_id", "check_id", "state"}:
+            return "unavailable"
+        if event["run_id"] != run_id or event["check_id"] != STRUCTURED_CHECK_ID:
+            return "unavailable"
+        if event["state"] not in {"pass", "warn", "fail", "unavailable"}:
+            return "unavailable"
+        return event["state"]
+    except (UnicodeError, ValueError, TypeError):
+        return "unavailable"
 
 
 def main() -> int:
@@ -28,13 +63,38 @@ def main() -> int:
     parser.add_argument("--input", type=Path, help="Reuse a captured Doctor output file instead of running Doctor")
     parser.add_argument("--exit-code", type=int, default=0, help="Exit code of the captured Doctor run")
     parser.add_argument("--publish", action="store_true", help="Publish to the existing Aster health path via Proxmox")
+    parser.add_argument("--structured-output", type=Path, help="Local schema-2 candidate; not published to Aster")
     args = parser.parse_args()
+
+    if args.structured_output and (args.input or args.publish or args.structured_output.resolve() == args.output.resolve()):
+        parser.error("structured output requires one fresh Doctor run, a separate file, and no publishing")
+
+    run_id = uuid.uuid4().hex if args.structured_output else ""
+    structured_raw = b""
 
     if args.input:
         completed = subprocess.CompletedProcess([], args.exit_code, args.input.read_text(), "")
     else:
         try:
-            completed = subprocess.run([str(args.doctor)], text=True, capture_output=True, check=False, timeout=900)
+            if args.structured_output:
+                with tempfile.TemporaryFile(mode="w+b") as evidence:
+                    environment = os.environ.copy()
+                    environment["DOCTOR_STRUCTURED_FD"] = str(evidence.fileno())
+                    environment["DOCTOR_RUN_ID"] = run_id
+                    completed = subprocess.run(
+                        [str(args.doctor)], text=True, capture_output=True, check=False,
+                        timeout=900, env=environment, pass_fds=(evidence.fileno(),),
+                    )
+                    evidence.seek(0)
+                    structured_raw = evidence.read(MAX_STRUCTURED_BYTES + 1)
+            else:
+                environment = os.environ.copy()
+                environment.pop("DOCTOR_STRUCTURED_FD", None)
+                environment.pop("DOCTOR_RUN_ID", None)
+                completed = subprocess.run(
+                    [str(args.doctor)], text=True, capture_output=True, check=False,
+                    timeout=900, env=environment,
+                )
         except subprocess.TimeoutExpired:
             completed = subprocess.CompletedProcess([], 1, "🔴 Doctor timed out; health collection is incomplete.", "")
     checks: list[dict[str, str]] = []
@@ -62,6 +122,24 @@ def main() -> int:
     temporary.write_text(payload, encoding="utf-8")
     temporary.chmod(0o600)
     temporary.replace(args.output)
+    if args.structured_output:
+        candidate = {
+            "schema": 2,
+            "generated_at": report["generated_at"],
+            "run_id": run_id,
+            "source_report_digest": hashlib.sha256(payload.encode("utf-8")).hexdigest(),
+            "checks": [{"check_id": STRUCTURED_CHECK_ID, "state": _structured_state(structured_raw, run_id)}],
+        }
+        args.structured_output.parent.mkdir(parents=True, exist_ok=True)
+        structured_payload = json.dumps(candidate, sort_keys=True, separators=(",", ":")) + "\n"
+        fd, temporary_name = tempfile.mkstemp(prefix=".doctor-structured-", dir=args.structured_output.parent)
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as structured_temporary:
+                structured_temporary.write(structured_payload)
+            os.replace(temporary_name, args.structured_output)
+        finally:
+            if os.path.exists(temporary_name):
+                os.unlink(temporary_name)
     if args.publish:
         # Fixed destination and commands; the JSON goes over stdin, never shell interpolation.
         writer = """import grp,json,os,pathlib,sys

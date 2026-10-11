@@ -78,6 +78,10 @@ connection; it is not another framework or a live sysadmin pilot.
 The [Doctor projection gate](evidence/D4-Doctor-structured-evidence-gate-2026-10-10.md)
 specifies why free-text parsing is insufficient and how one producer-owned
 check ID can be tested offline before any model sees diagnostic evidence.
+The [typed-check fixture preflight](evidence/D4-Doctor-structured-fixture-result-2026-10-10.md)
+now passes locally, including fail-closed pairing and private-text exclusion.
+It is not deployed or connected; blinded usefulness, M1 authority and real
+incident gates remain open.
 
 ## Immediate next action and stop rule
 

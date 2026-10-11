@@ -9,6 +9,22 @@ STATE_ROOT="${HOMELAB_STATE_ROOT:-$HOME/lab/monitoring-state}"
 
 source "$REPO/scripts/lib/output.sh"
 
+# Optional, one-check machine evidence for an offline Aster experiment. The
+# report builder supplies an inherited descriptor and run ID; ordinary Doctor
+# runs emit nothing here and keep their existing human output unchanged.
+doctor_emit_aster_state() {
+    local state="${1:-}"
+    local fd="${DOCTOR_STRUCTURED_FD:-}"
+    local run_id="${DOCTOR_RUN_ID:-}"
+    case "$state" in pass|warn|fail|unavailable) ;; *) return 2 ;; esac
+    [[ "$fd" =~ ^[1-9][0-9]*$ ]] || return 0
+    (( fd >= 3 )) || return 2
+    [[ "$run_id" =~ ^[0-9a-f]{32}$ ]] || return 2
+    [[ -e "/dev/fd/$fd" ]] || return 3
+    printf '{"run_id":"%s","check_id":"aster.agent_inference","state":"%s"}\n' \
+        "$run_id" "$state" >&"$fd"
+}
+
 PASS_COUNT=0
 WARN_COUNT=0
 FAIL_COUNT=0
@@ -497,6 +513,7 @@ check_aster() {
             printf "agent=%s\\ninference=%s\\napi=%s\\ndriver=%s\\nrollback_vm=%s\\npersistent_b60=%s\\nvulkan=%s\\n" "$agent" "$inference" "$api" "$driver" "$rollback_vm" "$persistent_b60" "$vulkan"
         '
     )"; then
+        doctor_emit_aster_state unavailable
         warn "Unable to check Aster services"
         return
     fi
@@ -508,8 +525,10 @@ check_aster() {
        grep -qx 'rollback_vm=stopped' <<< "$state" &&
        grep -qx 'persistent_b60=no' <<< "$state" &&
        grep -qx 'vulkan=bmg-g21' <<< "$state"; then
+        doctor_emit_aster_state pass
         pass "Aster agent API, B60 Vulkan and llama.cpp inference healthy"
     else
+        doctor_emit_aster_state fail
         fail "Aster service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
     fi
 }
