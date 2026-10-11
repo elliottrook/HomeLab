@@ -42,7 +42,7 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("before optional", ASTER_SYSTEM_PROMPT)
 
     def test_system_policy_frontloads_runtime_and_recovery_dependencies(self):
-        self.assertIn("Qwen3.8-27B on the B60 Vulkan path", ASTER_SYSTEM_PROMPT)
+        self.assertIn("Qwen3.5-9B on the B60 Vulkan path", ASTER_SYSTEM_PROMPT)
         self.assertIn("Always identify it explicitly as `VM 105`", ASTER_SYSTEM_PROMPT)
         self.assertIn("Aster is not the\nfirst recovery dependency", ASTER_SYSTEM_PROMPT)
         self.assertIn("independent local access", ASTER_SYSTEM_PROMPT)
@@ -252,7 +252,7 @@ class AsterAgentTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (reference / "Aster-Operations.md").write_text(
-                "LXC 104 runs the Aster API. LXC 110 runs llama.cpp with Qwen3.8-27B.",
+                "LXC 104 runs the Aster API. LXC 110 runs llama.cpp with Qwen3.5-9B.",
                 encoding="utf-8",
             )
             (reference / "AI-Hermes-Second-Brain.md").write_text(
@@ -422,7 +422,7 @@ class AsterAgentTests(unittest.TestCase):
             filler = "Aster LXC inference service operational notes. " * 40
             (reference / "Aster-Operations.md").write_text(
                 f"{filler}\n\n## Runtime configuration\n"
-                "LXC 110 runs llama.cpp with Qwen3.8-27B UD-IQ4_XS and Vulkan.\n",
+                "LXC 110 runs llama.cpp with Qwen3.5-9B Q4_K_M and Vulkan.\n",
                 encoding="utf-8",
             )
             (reference / "AI-Hermes-Second-Brain.md").write_text(
@@ -442,7 +442,7 @@ class AsterAgentTests(unittest.TestCase):
                 root=root,
             )
             excerpts = {item["source"]: item["excerpt"] for item in result["results"]}
-            self.assertIn("Qwen3.8-27B", excerpts["docs/reference/Aster-Operations.md"])
+            self.assertIn("Qwen3.5-9B", excerpts["docs/reference/Aster-Operations.md"])
             self.assertIn("Define the knowledge boundary", excerpts["docs/reference/AI-Hermes-Second-Brain.md"])
             self.assertIn("Test backup and restore", excerpts["docs/reference/AI-Hermes-Second-Brain.md"])
             self.assertIn("Establish a monthly health review", excerpts["docs/reference/AI-Hermes-Second-Brain.md"])

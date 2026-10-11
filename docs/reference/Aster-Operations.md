@@ -30,26 +30,26 @@ Hermes Desktop v0.21.0 can use Aster as an OpenAI-compatible custom endpoint:
 
 - endpoint URL: `http://192.168.70.10:9120/v1`;
 - provider ID: `aster-local`;
-- model: `aster-qwen3.8-27b`;
+- model: `aster-qwen3.5-9b`;
 - declared context: 65,536, which satisfies Hermes' client-side 64K minimum;
 - model discovery and use-for-new-chats enabled.
 
 The declared context is compatibility metadata only. llama.cpp still has one
 8,192-token slot, so the current roughly 4,900-token Hermes startup prompt fits,
 but a sufficiently long session or larger tool prompt may exceed the real slot.
-Hermes completed three end-to-end test turns, including streaming, but each
+Under the former 27B runtime, Hermes completed three end-to-end test turns, including streaming, but each
 required roughly 65–69 seconds because its full agent prompt was reevaluated.
 Use the direct Aster UI for normal conversation speed; keep Hermes for workflows
 where its desktop harness is worth the additional latency.
 
 ## Runtime configuration
 
-- llama.cpp b10507 (`95c409c13`)
-- `unsloth/Qwen3.8-27B-GGUF:UD-IQ4_XS`
+- llama.cpp b11429 (`d81235049` runtime fingerprint, per the 2026-10-10 change report)
+- Qwen3.5-9B Q4_K_M (`cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13` model SHA-256, per the change report)
 - Vulkan, all model layers offloaded
 - One 8,192-token slot
 - Four CPU threads, batch 256, microbatch 128
-- Flash attention; Q8 key/value cache
+- Flash attention; Q4 key/value cache
 - Model reasoning disabled by default
 - Automatic real-generation warm-up during service start
 
@@ -431,7 +431,7 @@ Restart the lightweight harness without reloading the model:
 pct exec 104 -- systemctl restart aster-agent.service
 ```
 
-Restarting inference reloads and warms the 27B model:
+Restarting inference reloads and warms the active 9B model:
 
 ```sh
 pct exec 110 -- systemctl restart aster-llama.service
@@ -448,7 +448,12 @@ Hermes remains installed in LXC 104. Re-enabling it is a separate rollback
 decision because its default provider expects Ollama on port 11434 and its full
 prompt/tool configuration is substantially slower than Aster.
 
-## Acceptance baseline
+## Historical acceptance baseline
+
+The following measurements predate the 2026-10-10 9B promotion and are not
+current-model performance evidence. See the Stream A
+[model-change impact review](../projects/AI%20Projects/evidence/Stream-A-9B-model-change-impact-2026-10-10.md)
+for the bounded comparison and unresolved verification.
 
 - First conversation after completed service warm-up: 4.75 seconds.
 - Repeated simple conversation: approximately 3.6 seconds.
