@@ -15,12 +15,13 @@ def guest(*args):
     return run('pct','exec','110','--',*args)
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--prefix',required=True)
+parser.add_argument('--unit',choices=['aster-b60-candidate.service','aster-llama.service'],default='aster-b60-candidate.service')
 args=parser.parse_args()
 assert re.fullmatch(r'[a-z0-9][a-z0-9-]{0,95}',args.prefix)
-assert guest('systemctl','is-active','aster-b60-candidate.service').strip()=='active'
-inv=guest('systemctl','show','aster-b60-candidate.service','-p','InvocationID','--value').strip()
+assert guest('systemctl','is-active',args.unit).strip()=='active'
+inv=guest('systemctl','show',args.unit,'-p','InvocationID','--value').strip()
 assert re.fullmatch(r'[0-9a-f]{32}',inv)
-pid=int(guest('systemctl','show','aster-b60-candidate.service','-p','MainPID','--value'))
+pid=int(guest('systemctl','show',args.unit,'-p','MainPID','--value'))
 assert pid>1
 maps=guest('python3','-c','import pathlib,sys,json; p=pathlib.Path("/proc")/sys.argv[1]/"maps"; print(json.dumps(sorted({s.split()[-1] for s in p.read_text().splitlines() if any(k in s for k in ["libze_loader", "libze_intel_gpu", "libggml-sycl", "libsycl.so"])})))',str(pid))
 mapped=json.loads(maps)

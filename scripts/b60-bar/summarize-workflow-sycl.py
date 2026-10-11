@@ -9,12 +9,16 @@ import statistics
 from pathlib import Path
 
 FIXTURES=['aster-grounded-retrieval','aster-context-8k']
-def summarize(root,prefix):
+def summarize(root,prefix,profile='workflow'):
+    assert profile in ['workflow','decode']
+    fixtures=['b60-tg128-warm','b60-tg128-cold'] if profile=='decode' else FIXTURES
     report={'complete':True,'evidence_sha256':{},'fixtures':{},
             'limitations':['Synthetic grounding and marker recall, not arbitrary household correctness.',
                            'Request latency and server decode rate are distinct measures.',
                            'Compare only identical prompt hashes and calibrated token counts.']}
-    for fixture in FIXTURES:
+    report['profile']=profile
+    if profile=='decode': report['limitations'][0]='Fixed-128-token synthetic decode, not arbitrary household correctness.'
+    for fixture in fixtures:
         groups={}
         prompts=set()
         for phase in ['vulkan-pre','sycl','vulkan-post']:
@@ -31,6 +35,7 @@ def summarize(root,prefix):
             prompts.add(data['prompt_sha256'])
             measured=[s for s in samples if s['phase']=='decode' and s['control_role']=='measured']
             assert len(measured)==5 and all(s['seconds']>0 and s['tokens']>0 for s in measured)
+            if profile=='decode': assert all(s['tokens']>=120 for s in measured), 'sustained decode coverage not proven'
             groups[phase]={'request_seconds':[s['seconds'] for s in measured],
                            'completion_tokens':[s['tokens'] for s in measured],
                            'decode_tokens_per_second':[s['tokens_per_second'] for s in measured],
@@ -40,7 +45,7 @@ def summarize(root,prefix):
             continue
         assert len(prompts)==1, 'different calibrated prompts'
         assert groups['vulkan-pre']['prompt_tokens']==groups['sycl']['prompt_tokens']==groups['vulkan-post']['prompt_tokens']
-        target=8000 if fixture=='aster-context-8k' else 2048
+        target=64 if profile=='decode' else 8000 if fixture=='aster-context-8k' else 2048
         assert groups['sycl']['prompt_tokens'] and all(target<=n<target+128 for n in groups['sycl']['prompt_tokens']), 'context coverage not proven'
         controls=groups['vulkan-pre']['request_seconds']+groups['vulkan-post']['request_seconds']
         candidate=groups['sycl']['request_seconds']
@@ -56,10 +61,11 @@ def main():
     parser.add_argument('--run-id',required=True)
     parser.add_argument('--evidence-root',type=Path,default=Path('/var/lib/b60-inference/evidence'))
     parser.add_argument('--write-report',action='store_true')
+    parser.add_argument('--profile',choices=['workflow','decode'],default='workflow')
     args=parser.parse_args()
     assert re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',args.run_id)
     prefix='matched-sycl-exclusive-'+args.run_id
-    report=summarize(args.evidence_root,prefix)
+    report=summarize(args.evidence_root,prefix,args.profile)
     raw=(json.dumps(report,sort_keys=True)+'\n').encode()
     if args.write_report:
         assert report['complete'], 'incomplete comparison'

@@ -14,7 +14,7 @@ spec.loader.exec_module(matched)
 
 class MatchedTrialTests(unittest.TestCase):
     def setUp(self):
-        for name in ['OUT','EXCLUSIVE','INSTRUMENTED','EXCLUSIVE_DEADLINE','WORKFLOWS']:
+        for name in ['OUT','EXCLUSIVE','INSTRUMENTED','EXCLUSIVE_DEADLINE','WORKFLOWS','WORKFLOW_FIXTURES']:
             original=getattr(matched,name)
             self.addCleanup(setattr,matched,name,original)
 
@@ -32,6 +32,9 @@ class MatchedTrialTests(unittest.TestCase):
 
     def test_workflow_cannot_escape_exclusive_authorization(self):
         with self.assertRaises(AssertionError): matched.main(workflows=True)
+
+    def test_fixed_decode_profile_cannot_escape_workflow_interlock(self):
+        with self.assertRaises(AssertionError): matched.main(fixture_profile='decode')
 
     def test_exclusive_session_crosses_calendar_cutoff_but_not_rolling_deadline(self):
         deadline=datetime(2026,10,11,0,10,tzinfo=ZoneInfo('America/Vancouver'))

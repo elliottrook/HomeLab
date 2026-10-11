@@ -97,12 +97,14 @@ def restore_news():
         elif enabled != 'disabled':
             raise RuntimeError('unexpected news schedule enablement state')
 
-def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_id=None, fusion='0', precision='fp32', workflows=False):
-    global OUT, INSTRUMENTED, EXCLUSIVE, EXCLUSIVE_DEADLINE, WORKFLOWS
+def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_id=None, fusion='0', precision='fp32', workflows=False, fixture_profile='workflow'):
+    global OUT, INSTRUMENTED, EXCLUSIVE, EXCLUSIVE_DEADLINE, WORKFLOWS, WORKFLOW_FIXTURES
     INSTRUMENTED = instrumented
     EXCLUSIVE = exclusive
     WORKFLOWS = workflows
     assert not workflows or exclusive
+    assert fixture_profile in ['workflow','decode'] and (fixture_profile=='workflow' or workflows)
+    WORKFLOW_FIXTURES = ['b60-tg128-warm','b60-tg128-cold'] if fixture_profile=='decode' else ['aster-grounded-retrieval','aster-context-8k']
     if run_id is not None:
         assert exclusive and re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',run_id)
     assert fusion in ['0','1']
@@ -178,6 +180,9 @@ def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_i
         assert 'offloaded' in log and 'SYCL' in log
         offload = re.search(r'offloaded (\d+)/(\d+) layers', log)
         assert offload and offload.group(1) == offload.group(2), 'CPU layer fallback'
+        if exclusive or instrumented:
+            # Capture before timed requests; unattended runs need the same proof.
+            print(run(['python3',ROOT+'/record-backend-proof.py','--prefix',OUT.rsplit('/',1)[-1]]),flush=True)
         print(guest(114, 'python3', '/run/b60-bar-validate-generation.py'), flush=True)
         suite('sycl', 'aster-b60-candidate.service')
     finally:
@@ -199,5 +204,6 @@ if __name__ == '__main__':
     parser.add_argument('--fusion', choices=['0','1'], default='0', help='One-variable exclusive SYCL comparison')
     parser.add_argument('--precision', choices=['fp32','fp16'], default='fp32')
     parser.add_argument('--workflows',action='store_true',help='Grounded 2K and marker-recall 8K fixtures, warmup plus five measurements per phase')
+    parser.add_argument('--fixture-profile',choices=['workflow','decode'],default='workflow',help='Optional fixed-128-token cold/warm decode profile')
     args = parser.parse_args()
-    main(args.fusion_disabled_retry, args.instrumented, args.exclusive, args.run_id, args.fusion, args.precision,args.workflows)
+    main(args.fusion_disabled_retry, args.instrumented, args.exclusive, args.run_id, args.fusion, args.precision,args.workflows,args.fixture_profile)

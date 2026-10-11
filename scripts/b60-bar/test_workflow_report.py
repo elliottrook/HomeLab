@@ -8,6 +8,15 @@ report=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(report)
 
 class WorkflowReportTests(unittest.TestCase):
+    def test_decode_profile_requires_sustained_completion_length(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            samples=[dict(phase=kind,control_role='warmup' if rep==0 else 'measured',correct=True,
+                          seconds=1,tokens=76 if kind=='prefill' else 12,tokens_per_second=12,
+                          rate_source='server_predicted_per_second') for rep in range(6) for kind in ['prefill','decode']]
+            data=dict(fixture='b60-tg128-warm',health_passed=True,prompt_sha256='identical',samples=samples)
+            (root/'run-vulkan-pre-b60-tg128-warm.json').write_text(json.dumps(data))
+            with self.assertRaisesRegex(AssertionError,'sustained'): report.summarize(root,'run','decode')
     def fixture(self,root,phase,correct=True,source='server_predicted_per_second'):
         for fixture in report.FIXTURES:
             samples=[]

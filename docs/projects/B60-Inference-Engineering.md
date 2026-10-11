@@ -28,6 +28,69 @@ used as a gate.
 
 ## Current state and evidence
 
+### Owner-approved SYCL promotion and subsequent OpenVINO evaluation — 2026-10-11
+
+Jason approved permanent SYCL deployment after the remaining tests pass:
+verify a fresh LXC 110 backup and mirror, grow only its root disk from 64 to
+72 GiB (not shrinkable in place), persist the pinned b11429 FP16 runtime,
+private loader 1.33.1 and oneAPI dependencies under `/opt/aster-sycl-b11429`,
+atomically update `aster-llama.service` with bounded readiness while preserving
+model, API, inference settings and exact Vulkan rollback, then validate
+regression and soak. No global driver, system package, firmware, reboot,
+GPU reset, credential or Git push change is included. Other B60 consumers stay
+paused. Jason subsequently confirmed the order: deploy this configuration
+first, then test native OpenVINO as a llama.cpp replacement, not merely its
+OpenVINO backend. Keep that later trial isolated, private and reversible;
+record exact prerequisites and checkpoint before executing it. No permanent
+OpenVINO promotion is implied.
+
+Two independent FP16/fusion-1 workflow sessions completed with correct 2,060
+token grounded retrieval and 8,012-token marker recall, five measured repeats
+per fixture and Vulkan pre/post controls. Session 1's reported server decode
+improvements are 21.3378% and 20.9313%; its create-once report SHA-256 is
+`3dfdf49e2fc89597cedff704cf52f1021a53aa590aaeb425caefdc19f3f9f0dd`.
+Outputs are short (18 grounded tokens; 70 candidate versus 85 control tokens
+for 8K), so do not present this as sustained 128-token throughput. Session 2
+completed at 00:12:55 PDT with all correctness and recovery gates passing;
+its exact pre-request mapped-runtime proof SHA-256 is
+`0dc1ca1dbc410e28c4d0e2c2a881bce786bd27050ce0af94e7275c06ea281bff`.
+Accepted Vulkan is healthy, candidate stopped and both watchdogs disarmed.
+Final fixed-length decode confirmation uses new identity
+`20261011-fp16-decode-1`, unchanged FP16/fusion-1 runtime, calibrated cold/warm
+fixtures, at least 120 output tokens, five repetitions, fresh preflight and
+the independent rolling restoration watchdog. No persistent mutation has
+occurred at this record point. The previously completed M6 checkboxes refer
+to the earlier Q4/Vulkan promotion, not this new SYCL deployment.
+
+Session 2 report SHA-256:
+`200143b8ad3ad5b761e4d9914e8149fda123e551dfc09ba6d4feb054153e6a56`.
+Grounded decode improvement 21.4546%, request latency reduction 17.0590%;
+8K decode improvement 21.2937%, latency reduction 37.3191% (63 candidate
+versus 85 control tokens, so the latter is not a pure speed gain).
+
+Final fixed-length comparison passed: every measured output is exactly 128
+tokens, candidate warm/cold server decode medians 57.8879/57.8249 tok/s,
+approximately 48.6 tok/s Vulkan controls. Decode gains are 19.1536% warm and
+18.9557% cold, with request latency reductions 15.5278% and 13.4914%.
+Immutable complete report on LXC 114:
+`matched-sycl-exclusive-20261011-fp16-decode-1-workflow-report.json`, SHA-256
+`9d6b1a9854dc76959d1c064e7d61293fd6410877adb6d39c9da74e9dff7eecb1`.
+All pre/post controls, recovery/authentication and fault gates passed; watchdog
+disarmed. Thus promotion has two independent correct real-workflow sessions
+plus sustained-output confirmation, not merely a three-token health probe.
+
+Deployment lifecycle decision: replace the existing warmup helper only for
+the SYCL unit with a 300-second health-readiness loop, systemd startup limit
+330 seconds, and `Restart=no` to prevent repeated GPU execution after an
+initialization/device failure. Preserve all existing inference, API, identity
+and hardening settings. Automatic service retry is deliberately traded for
+fail-closed operation and an exact independently invocable Vulkan rollback.
+The existing scheduled TrueNAS mirror is deletion-enabled, so this checkpoint
+uses a single create-once SSH-stream copy with SHA-256 verification and no
+existing archive deletion or scheduler mutation. The archive is never saved
+on the workstation or displayed in the conversation. Checkpoint, 64-to-72 GiB
+growth, persistent runtime and atomic unit validation must precede activation.
+
 ### Latest owner priority override — 2026-10-10 22:49 PDT
 
 Jason reserved the B60 for these tests until he explicitly resumes other work.

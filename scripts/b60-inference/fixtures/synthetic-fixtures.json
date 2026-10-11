@@ -173,6 +173,30 @@
       "prompt_prefix": "Remember marker ASTER-FIXTURE-8192 and return it at the end. Everything here is synthetic.",
       "prompt_seed": "long context synthetic recall privacy correctness latency marker",
       "correctness": ["contains_marker_aster_fixture_8192", "unsupported_context_is_explicit"]
+    },
+    {
+      "name": "b60-tg128-warm",
+      "kind": "decode",
+      "target_prompt_tokens": 64,
+      "context_position": 0,
+      "cache_state": "warm",
+      "repetitions": 5,
+      "max_output_tokens": 128,
+      "prompt_prefix": "Synthetic throughput test. Generate a numbered list of 200 fictional words. Continue until the response limit. Do not summarize or stop early. This tests output speed, not household reasoning.",
+      "prompt_seed": "continue the fictional numbered word list until the response limit",
+      "correctness": ["completion_tokens_at_least_120", "response_is_nonempty"]
+    },
+    {
+      "name": "b60-tg128-cold",
+      "kind": "decode",
+      "target_prompt_tokens": 64,
+      "context_position": 0,
+      "cache_state": "cold",
+      "repetitions": 5,
+      "max_output_tokens": 128,
+      "prompt_prefix": "Synthetic throughput test. Generate a numbered list of 200 fictional words. Continue until the response limit. Do not summarize or stop early. This tests output speed, not household reasoning.",
+      "prompt_seed": "continue the fictional numbered word list until the response limit",
+      "correctness": ["completion_tokens_at_least_120", "response_is_nonempty"]
     }
   ]
 }
