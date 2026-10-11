@@ -1,6 +1,6 @@
 # B60 inference engineering
 
-> Status: Complete
+> Status: Active — attended BAR follow-up
 >
 > Owner: Jason
 >
@@ -9,6 +9,8 @@
 > Started: 2026-09-25
 >
 > Completed: 2026-10-10
+
+> Reopened: 2026-10-10 for the separately gated M3 BAR work
 
 ## Purpose and desired outcome
 
@@ -308,8 +310,8 @@ health checks and rollback proof.
 ### M3 — BAR and Intel compute path
 
 - [ ] Reconfirm observable BIOS settings and all bridge apertures without change.
-- [ ] Analyze SR-IOV/VF reservations and current `xe` BAR-resize behavior.
-- [ ] Build a safe decision record for `pci=realloc=on`, Dell A34 and attended
+- [x] Analyze SR-IOV/VF reservations and current `xe` BAR-resize behavior.
+- [x] Build a safe decision record for `pci=realloc=on`, Dell A34 and attended
   recovery; do not deploy from the analysis alone.
 - [ ] If a stable larger BAR is separately approved and proven, enumerate Level
   Zero with a tiny workload before SYCL/OpenVINO or the target model.
@@ -317,6 +319,72 @@ health checks and rollback proof.
 
 Gate: a larger stable BAR with proven recovery, or defensible evidence that safe
 software/configuration methods cannot provide one.
+
+#### M3 allocation diagnosis and decision — 2026-10-10
+
+Fresh read-only inspection makes the allocation failure more precise than the
+older “no ReBAR” shorthand:
+
+- the B60 physical BAR2 advertises 256 MiB through 32 GiB and is currently
+  256 MiB;
+- its SR-IOV VF BAR2 is programmed to 2 GiB per VF and the device advertises
+  24 VFs, so PCI core reserves 48 GiB before `xe` probes even though no VF is
+  enabled;
+- the upstream root-port path has an approximately 49 GiB prefetchable window;
+- `xe` then releases the PF resources and requests a 32 GiB PF BAR2, making the
+  combined bridge requirement approximately 80 GiB; the request therefore
+  fails with `-ENOSPC` and the original allocations are restored; and
+- `xe.max_vfs=0` suppresses driver-exposed VFs but runs too late to prevent the
+  generic PCI core's initial 48 GiB VF reservation.
+
+This proves that the immediate failure is an aperture-allocation conflict, not
+absence of a physical Resizable BAR capability. The large above-4G allocation
+also strongly suggests that Dell's Above-4G/Large-MMIO path is active, although
+the exact setup values still require an attended BIOS-console check.
+
+Linux commit `72207463f7a4a6818a88f4ef57802b42da534301`, merged for 7.3-rc6,
+is titled `drm/xe/pf: Keep VF LMEM BAR size low if no VFs enabled`. Inspection
+of the exact three-line change shows that it restores the VF template after an
+SR-IOV enable failure or disable. It does not shrink an already-programmed
+2 GiB-per-VF template during initial PCI enumeration. It is therefore relevant
+preventive work but is not, by itself, a remedy for this host's boot-time
+48 GiB reservation.
+
+The newest package visible in the configured Proxmox repository is
+`proxmox-kernel-7.0.14-23-pve-signed` (package SHA-256
+`f4cc4a95b76fb86fdcadb28a835d0ebd8897f6e325570f33ea44fd4f186dbb31`).
+Offline extraction of its `xe.ko` found the old `Failed to set VF LMEM BAR`
+path and no new reduce/restore path. Upgrading from the running 7.0.14-20 only
+to obtain this fix is therefore rejected.
+
+The leading software remedy is now a narrowly reviewed pre-`xe` helper that,
+when SR-IOV is administratively disabled, reduces VF LMEM BAR2 to the minimum
+supported size before `xe` asks PCI core to enlarge PF BAR2. The helper can use
+the stock kernel's existing exported GPL PCI APIs and avoids replacing the
+whole kernel. On this device,
+256 MiB per VF would reduce the aggregate VF reservation from 48 GiB to 6 GiB,
+which should fit beside a 32 GiB PF BAR within the observed 49 GiB aperture.
+That arithmetic is necessary but not sufficient: a source-applicability review,
+offline build and package inspection must precede any install. The first host
+trial requires a fresh backup and mirror, retained current kernel, verified
+boot-menu rollback, local console or equivalent recovery, an attended reboot,
+and post-boot validation of BARs, bridge windows, `xe`, Vulkan, LXC 110 and
+accepted Aster production. No kernel, firmware, boot or BAR mutation is
+authorized by this analysis.
+
+Current ordering:
+
+1. compile and inspect the helper against matching Proxmox headers in an
+   isolated builder;
+2. prefer an official Proxmox kernel only if its extracted module proves it
+   contains an effective initial-probe fix;
+3. otherwise present the exact pre-driver helper and attended recovery plan
+   for immediate approval, with deployment isolated to a second kernel so the
+   current kernel and initramfs remain the rollback path;
+4. keep Dell A34 plus explicit Above-4G/Large-MMIO verification as secondary
+   platform hygiene, not the first experimental variable; and
+5. do not use `pci=realloc=on` as a blind first step: it cannot manufacture
+   enough space while the 48 GiB VF reservation remains.
 
 ### M4 — Alternative runtime and model interface
 
@@ -500,6 +568,7 @@ waiting rather than falsely complete, with the weekly research monitor retained.
 | 2026-10-10 | Owner-approved Q4 K/V promotion | After explicit approval, revalidated the accepted hashes, health, `xe`, BMG G21 Vulkan and headroom. Preserved the exact Q8 unit at `/etc/systemd/system/aster-llama.service.pre-q4-20261010`, atomically promoted only `-ctk/-ctv` to Q4_0, daemon-reloaded, quiesced for 30 seconds and clean-started production. The promoted unit hash is `e2019cac74dc23deb4bc92efc38cf3a31a9af1b34d43d651c15e507c392fb184`. Authenticated post-promotion workflow evidence `8465a95e1e85be45bf2203ae4c408f7ecb9fd24aa52297091adadeabaa4fbecc` passed correctness at 10.987 tok/s median. B60 binding/Vulkan/rollback-VM checks and Aster agent health passed; service is active with zero restarts and the immediate kernel failure scan was empty | Q4 K/V is now accepted production. Retain the exact Q8 unit for immediate rollback. Complete the longer reset/OOM/device-loss observation, then update operational guidance and close or narrow the nightly automation |
 | 2026-10-10 | Exercised soak and close-out | Continued immediately rather than deferring to the scheduled window. At 9 minutes 50 seconds after the promoted clean start, ran a fresh authenticated 2,060-token grounded-retrieval series. All six runs passed source attribution and unsupported-source assertions at 10.724 tok/s median; immutable evidence SHA-256 is `0e5683c468373128e06806340499432171279611244a94e6fddc55f5a60c5376`. After load, the service remained active with zero restarts, both inference and Aster agent health were `ok`, binary/promoted-unit/rollback-unit hashes matched, news timers were active and the kernel scan remained empty for reset, hang, fault, OOM and device loss | Graduation gates pass. Existing B60/Doctor health monitoring remains authoritative; no duplicate recurring benchmark is needed. Pause the project automation, retain Q8 rollback, and reopen only on health/correctness/performance regression or an explicitly scoped new optimization project |
 | 2026-10-10 | Subsequent Aster 9B role promotion | The separate Aster architecture programme selected Qwen3.5-9B reasoning-off for post-policy summaries and Jason explicitly approved production promotion. Revalidated today's backup/mirror and every B60 gate, then installed pinned b11429 and the exact 9B model while preserving the accepted 27B and Q8 rollback units/models. The first attempt failed closed before mutation on staged RAM; corrected sequencing quiesced 27B before the RAM gate. Final 9B unit/runtime/model hashes match, disk headroom increased, protected-path Aster generation passed, service restarts remain zero and the kernel scan is clean | B60 engineering remains complete; accepted production is now the Aster programme's 9B configuration. Retain the former 27B unit/runtime/model as immediate rollback and retarget the finite post-promotion observation to the new accepted hashes |
+| 2026-10-10 | M3 BAR diagnosis and source review | Live read-only PCI evidence proved that the 24 × 2 GiB VF LMEM template consumes 48 GiB of the approximately 49 GiB bridge aperture before `xe` requests a 32 GiB PF BAR. Extracted official Proxmox 7.0.14-23 offline and confirmed its `xe.ko` lacks the 2026-10-03 upstream VF restore fix. Reviewed that exact upstream change and found it does not alter initial enumeration. Added a narrow one-shot pre-driver helper. It matches only `0000:04:00.0` plus `8086:e211`, refuses enabled VFs, selects the device's minimum advertised VF BAR and uses existing exported GPL PCI APIs. The source passes strict kernel checkpatch and its APIs are exported by Linux v7.0 | No host state changed. The helper is the preferred proof candidate because it retains the stock kernel, but it remains uncompiled and unapproved for deployment. Next safe work is an isolated matching-header build and binary inspection; any package install, initramfs/boot change or reboot requires immediate owner approval and attended recovery |
 
 ## Close-out
 
