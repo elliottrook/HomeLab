@@ -77,10 +77,27 @@ An offline, clean-Git base-only snapshot from local commits `c739102` and
 `9099718` passed the builder's source-content and provenance checks. It has 29
 allowlisted sources, including the corrected operations and hardware records.
 The deployed snapshot has 1,825 sources and includes the accepted derived
-mirror. **The 29-source candidate must not be deployed**: the local accepted
-mirror input was unavailable, and a swap would remove 1,796 derived entries.
-The candidate remains only in `/private/tmp` for preflight; no live knowledge
-directory or service was changed.
+mirror. **The 29-source candidate must not be deployed**: a swap would remove
+1,796 derived entries. The accepted mirror exists on LXC 113; a private,
+read-only local copy was checked for safe archive members, all 1,796 entries
+and generation hash `bf0c002f46a7aaffadadc2490045aaa9927cc091ea04eead2f413860e97491e8`.
+That hash matches the deployed snapshot's mirror provenance. A complete
+1,825-source candidate built twice from this input and the clean Git commits;
+both archives had SHA-256
+`a4a6e40040ca7dabe70a0e41525f84769f25b3500b2895c130c5002dad914987`.
+All repository provenance flags are clean and the corrected operations source
+is present. The candidate remains only in `/private/tmp` for preflight; no
+live knowledge directory or service was changed.
+
+The candidate gateway was staged separately under `/tmp` in LXC 104 and tested
+with its existing Python environment, without replacing or restarting the
+running service. The first full run exposed one real fixture failure: a Doctor
+incident test fixed its report timestamp to 2026-09-28, which the new
+freshness guard correctly rejects. The fixture now uses the current test time.
+After staging the repository scripts and ARR broker needed by the suite,
+**197 gateway tests passed** in 4.858 seconds. This validates the offline
+candidate, including the backend-neutral prompt and existing-reader hardening;
+it does not prove deployed source compatibility or an authenticated 9B answer.
 
 The repository's read-only `check-aster-b60.sh` candidate now checks the
 private inference `/health` endpoint in addition to `xe`, service state and

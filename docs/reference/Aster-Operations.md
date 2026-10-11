@@ -183,10 +183,10 @@ Before any production refresh, include the same accepted, validated mirror via
 counts and source hashes with the deployed `.aster-provenance.json`. A
 2026-10-11 base-only build contained 29 sources while the deployed snapshot
 contained 1,825 including `aster-knowledge-mirror`; promoting the base-only
-archive would remove most curated knowledge. The accepted mirror input is not
-available in the local workspace at this checkpoint. Do not substitute an
-unreviewed or partial mirror just to refresh the three corrected runtime
-sources.
+archive would remove most curated knowledge. A private read-only copy of the
+accepted LXC 113 mirror was used for a complete 1,825-source local preflight;
+the build passed twice with identical SHA-256, but has **not** been deployed.
+See the [Stream A runtime record](../projects/AI%20Projects/evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md).
 
 Copy the archive to Proxmox, replace `/var/lib/aster/knowledge` atomically in
 LXC 104, and restore directory/file ownership to `root:aster` with read-only

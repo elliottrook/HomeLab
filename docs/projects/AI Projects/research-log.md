@@ -11,8 +11,8 @@ and one direct-SSH host run; it now checks the active inference health endpoint.
 The repo prompt, current references and default evaluator had stale backend or
 model assumptions, so local corrections and dated evaluation copies were made
 without changing frozen historical suites. `python3` on the Mac lacks PyJWT,
-so its full gateway unit tests could not run; syntax/JSON and dependency-free
-static checks are used here. No inference request, credential read, service
+so its full gateway unit tests could not run initially; syntax/JSON and
+dependency-free static checks passed locally. No inference request, credential read, service
 change or B60 project test was made. See the [runtime reconciliation](evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md).
 The separate curated reference repo was locally corrected at `9099718`; its
 production knowledge snapshot remains stale and was not refreshed. The gateway
@@ -20,8 +20,17 @@ prompt correction now defers to current-operational evidence rather than
 hard-coding another transient model/backend combination.
 An offline 29-source clean-Git knowledge build passed provenance checks, but
 the deployed snapshot has 1,825 sources including a derived mirror that is
-not available locally. The 29-source package is not deployable; the live
-snapshot was left unchanged and the operator instructions now state this gate.
+not present in the local workspace. The 29-source package is not deployable.
+A private read-only copy of the accepted LXC 113 mirror then produced a full
+1,825-source candidate; two builds had identical SHA-256
+`a4a6e40040ca7dabe70a0e41525f84769f25b3500b2895c130c5002dad914987`.
+Its mirror digest matches deployed provenance. The live snapshot was left
+unchanged and the operator instructions now state the member-count gate.
+The complete candidate gateway was then staged in LXC 104 `/tmp` against its
+existing venv; no running service files were replaced. One fixed-date Doctor
+fixture failed the new freshness guard and was corrected. With required
+support code staged, the full 197-test gateway suite passed. An authenticated
+9B answer and deployed-source compatibility remain unverified.
 
 ## 2026-10-11 — Offline Doctor reader cross-consumer review
 

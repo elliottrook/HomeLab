@@ -21,7 +21,7 @@ class DoctorIncidentGatewayTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.report = Path(self.tmp.name) / "latest.json"
         self.report.write_text(json.dumps({
-            "schema": 1, "generated_at": "2026-09-28T17:58:00Z", "status": "warning",
+            "schema": 1, "generated_at": datetime.now(timezone.utc).isoformat(), "status": "warning",
             "checks": [{"name": "Doctor", "status": "warn", "summary": "Fixture warning."}],
         }))
         self.operations = LabOperations()
