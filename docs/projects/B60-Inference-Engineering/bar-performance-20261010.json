@@ -1,0 +1,25 @@
+{
+  "comparison": "historical production summary suite versus full-BAR production",
+  "before_median_seconds": 3.070279,
+  "after_suite_medians_seconds": [2.400242, 2.405264, 2.3992575, 2.403453, 2.407435],
+  "after_median_seconds": 2.403453,
+  "observed_latency_reduction_percent": 21.718742824349203,
+  "before_pass_count": 12,
+  "after_pass_counts": [12, 12, 12, 12, 12],
+  "case_count": 16,
+  "completion_token_counts_match_all_cases": true,
+  "kernel_changed": true,
+  "bar_only_causal_gain_proven": false,
+  "limitations": ["One historical baseline suite, not repeated controls", "Historical first eight cases are disproportionately slow", "Kernel changed with BAR deployment", "End-to-end latency, not decode throughput"],
+  "evidence_sha256": {
+    "aster-analysis-summary-v2-9b-production-20261010.json": "79b9f25da1b078b957f0ec15095276e0ffd24532ad0c2caf4a20348d3b9efb02",
+    "bar-full-20261010-1.json": "d15a321ef211cd67a1c7cfb58ac5e672f8a950dddc4d7eb9c95da66f8423ec1a",
+    "bar-full-20261010-2.json": "6a9ca19b498166701851317da197647898b5c8c5a9a3759cfe3307abf936a2ed",
+    "bar-full-20261010-3.json": "00125550a7abfbcf8bb7d8d174914f4fb8f1ae6b9f75603d487bb255fecc7ae7",
+    "bar-full-20261010-4.json": "1683eae627ceba509462847b155239542bfab2de53de3e4bee33d062b4bbf799",
+    "bar-full-20261010-5.json": "9592bd362f89ff149e2c718281d2e08928369890dffa6cf90d2a788a210325e9"
+  },
+  "production_healthy_after": true,
+  "news_timers_restored": true,
+  "service_restarts": 0
+}

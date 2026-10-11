@@ -442,6 +442,32 @@ All expected guests and news timers recovered. Host-management-source HTTP
 checks time out while same-VLAN client checks pass; no firewall change was made.
 The source-report startup race was handled by a normal refresh after readiness.
 
+#### BAR performance follow-up — 2026-10-10
+
+Owner requested push and immediate before/after testing. Restored this checkout's
+origin to the documented Forgejo SSH primary after finding unexpected local
+checkout indirection; merged four concurrent main commits without rewriting
+history and pushed `124e228`. GitHub mirror matched. A credential-bearing URL
+was encountered in the unrelated local mirror configuration; its value is not
+recorded here. Owner should revoke/rotate that exposed credential through the
+normal protected process; no credential mutation was inferred or performed.
+
+Fresh archive/mirror size 38,852,679,165 and task 3 SUCCESS were verified,
+along with model/binary/unit hashes, headroom, health and clean kernel evidence.
+Ran the exact historical production summary suite on unchanged accepted 9B:
+one warm-up plus five measured suites. Median latency fell from historical
+3.070279 to 2.403453 seconds (**21.7% lower observed latency**); measured suite
+medians span 2.399258–2.407435. All completion-token counts match. The same four
+assertions fail: 12/16 before and in every repeat, with no new correctness
+failure. These failures remain limitations, not a clean suite pass.
+
+The historical first eight cases were disproportionately slow, only one baseline
+suite exists, and the kernel changed with the BAR fix. Consequently this is
+not a BAR-only causal speed claim. A same-kernel small/full/small repeated control
+would need separate attended boot authorization. Sanitized results and hashes:
+`bar-performance-20261010.json`. Production remains healthy, service restart
+count is zero, news timers restored, no relevant kernel/GPU fault observed.
+
 ### M4 — Alternative runtime and model interface
 
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.

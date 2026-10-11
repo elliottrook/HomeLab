@@ -63,6 +63,22 @@ candidate, not a portable installer. GRUB cannot clear `next_entry` itself on
 this LVM setup; explicitly clear it with `grub-editenv /boot/grub/grubenv unset
 next_entry` after returning, or select a normal entry manually at the console.
 
+## Matched historical performance comparison — 2026-10-10
+
+`benchmark-production.sh` reruns the exact production summary runner/fixture
+hashes with unchanged 9B model, binary, unit, Q4 KV, reasoning-off and 256-token
+cap. One warm-up and five measured 16-case suites gave median end-to-end
+latency 2.403453 seconds (suite medians 2.399258–2.407435), versus historical
+3.070279 seconds: **21.7% lower observed latency**. All completion-token counts
+match, and the same four assertions fail: 12/16 before and in each repeat.
+Do not call this a clean correctness pass or a BAR-only causal improvement.
+The historical first eight cases were disproportionately slow, only one old
+suite exists, and the kernel changed. Isolating BAR requires separately approved
+attended same-kernel small/full/small boots with identical warm-up and repetitions.
+No additional boot or service change was performed for this comparison.
+Evidence and hashes: `bar-performance-20261010.json` in the project directory;
+raw immutable suites reside in LXC 114 `/var/lib/b60-inference/evidence/`.
+
 ## Original isolated build
 
 The source compiled successfully in a temporary x86-64 Debian builder against
