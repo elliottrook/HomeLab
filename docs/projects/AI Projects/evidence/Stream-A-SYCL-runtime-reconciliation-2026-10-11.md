@@ -86,8 +86,8 @@ That hash matches the deployed snapshot's mirror provenance. A complete
 both archives had SHA-256
 `a4a6e40040ca7dabe70a0e41525f84769f25b3500b2895c130c5002dad914987`.
 All repository provenance flags are clean and the corrected operations source
-is present. The candidate remains only in `/private/tmp` for preflight; no
-live knowledge directory or service was changed.
+is present. At this preflight stage the candidate remained only in
+`/private/tmp`; the later bounded promotion is recorded below.
 
 The candidate gateway was staged separately under `/tmp` in LXC 104 and tested
 with its existing Python environment, without replacing or restarting the
@@ -105,6 +105,54 @@ Vulkan visibility. This reduces a false-positive monitoring gap after the
 backend change; it still cannot establish answer correctness or sustained
 SYCL stability. `sh -n` passed, and the uninstalled candidate passed once when
 run read-only over direct SSH on the Proxmox host. It has not been deployed.
+
+## Bounded live correction and postcheck
+
+Further read-only inspection found that deployed LXC 104 source was not the
+same file as this branch: SHA-256
+`4bad7c6e8cdf9e89a1cde25014ce2d8ed5808dd3666bbf5fd47cf64698ced2a4`,
+with three live-only symbols (`ASTER_RUNTIME_IDENTITY`,
+`runtime_identity_requested`, `deterministic_completion`) and live UI changes.
+The deterministic identity branch bypasses retrieval for explicit runtime
+questions and itself said Vulkan. Replacing the deployed file with the branch
+candidate would have erased those live changes, so no whole-file replacement
+was made.
+
+With an exact source-hash precondition, two narrow production corrections were
+applied to the deployed file: the deterministic identity wording and system
+prompt no longer claim Vulkan, and the current-runtime retrieval ranking now
+prefers the reviewed `reference/operations/ai-local-inference.md` heading over
+generic mirror entries matching numeric guest IDs. The old default model alias
+and browser label were also aligned to 9B/SYCL. The final deployed source
+SHA-256 is
+`d6b3e6544593c029fde0831987cb3585422e0534c605f6e08da52d00ffe9589d`.
+Rollback copies remain at
+`/opt/aster-agent/rollback-aster-agent-sycl-wording-20261011.py` (original)
+and `/opt/aster-agent/rollback-aster-agent-before-retrieval-20261011.py`
+(after the first wording correction). A copy of the deployed source with the
+second patch passed a direct retrieval check against the staged full snapshot;
+the repository candidate's 198-test suite passed. The running gateway was
+restarted after each bounded source correction and returned healthy with zero
+recorded restarts.
+
+The full 1,825-source archive, with the same accepted mirror digest and clean
+provenance, was then staged under LXC 104, each file hash validated, and
+promoted by renaming the old directory to
+`/var/lib/aster/knowledge.before-sycl-20261011` before moving the candidate
+into place. The old directory is retained. Aster gateway was restarted once
+more; `/health` returned OK, systemd reported active/running and zero recorded
+restarts, the live provenance still contained 1,825 sources and the same
+mirror digest, and the `aster` service account retrieved the reviewed current
+9B/SYCL operations record first for a representative runtime question. No
+inference model or service, credential, policy, tool grant, Companion mode or
+Codex handoff was changed.
+
+**Remaining source-drift gate:** the deployed deterministic identity and UI
+changes are still absent from this branch. Do not deploy the branch gateway
+file wholesale until those live-only changes are reconciled and tested.
+Authenticated end-to-end model answers, sustained stability, performance and
+Doctor's active-SYCL coverage remain unverified. The local corrected
+graduation suites were not sent to the model in this operation.
 
 ## Unknown / requires verification
 

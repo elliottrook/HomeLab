@@ -451,6 +451,38 @@ class AsterAgentTests(unittest.TestCase):
             self.assertIn("Establish a monthly health review", excerpts["docs/reference/AI-Hermes-Second-Brain.md"])
             self.assertIn("256 MB BAR", excerpts["docs/projects/completed projects/Local-AI.md"])
 
+    def test_current_runtime_identity_prefers_reviewed_source_over_numeric_mirror_hits(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "reference/operations/ai-local-inference.md"
+            source.parent.mkdir(parents=True)
+            source.write_text(
+                "# Local AI (Aster)\n## What's running\n"
+                "Aster inference in LXC 110 uses Qwen3.5-9B through SYCL/Level Zero.\n",
+                encoding="utf-8",
+            )
+            mirror = root / "mirror/entries/other/other-001.md"
+            mirror.parent.mkdir(parents=True)
+            mirror.write_text(
+                "LXC 110 model inference backend Aster current guest 110. " * 10,
+                encoding="utf-8",
+            )
+            (root / ".aster-provenance.json").write_text(json.dumps({"sources": [
+                {"destination": "reference/operations/ai-local-inference.md",
+                 "authority": "current-operational"},
+                {"destination": "mirror/entries/other/other-001.md",
+                 "authority": "derived-memory"},
+            ]}), encoding="utf-8")
+            result = search_knowledge(
+                "What model and inference backend currently run Aster in LXC 110?",
+                max_results=2,
+                root=root,
+            )
+            self.assertEqual(result["results"][0]["source"],
+                             "reference/operations/ai-local-inference.md")
+            self.assertIn("Qwen3.5-9B", result["results"][0]["excerpt"])
+            self.assertIn("SYCL", result["results"][0]["excerpt"])
+
     def test_arr_reference_prefers_inventory_and_automation_sections(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

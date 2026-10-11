@@ -69,6 +69,16 @@ promotion or change D3/M1 authority gates. After Jason's B60 experiments
 finished, one synthetic Aster-to-9B turn passed and the live warmup alias was
 aligned without an inference restart. No rollback occurred.
 
+**SYCL runtime reconciliation — 2026-10-11:** Read-only checks found 32 GB
+physical B60 BAR2 and a healthy Qwen3.5-9B llama.cpp SYCL FP16 service. The
+[Stream A runtime record](evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md)
+documents versioned current-state corrections, a complete 1,825-source
+knowledge refresh with the accepted mirror preserved, and a narrow live
+gateway correction for stale Vulkan wording and retrieval ranking. The old
+knowledge tree and gateway source copies remain for rollback. The branch
+gateway still differs from deployed source; no whole-file deploy, connected
+tool grant or new model-quality claim follows from this correction.
+
 **Latest resume — native Companion, 2026-10-09:** Signed version 15 is installed
 and running in ordinary mode without the manual-test flag. The [supervised
 single-instance result](evidence/D3-native-manual-v15-installation-2026-10-09.md)

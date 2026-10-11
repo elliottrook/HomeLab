@@ -185,7 +185,11 @@ counts and source hashes with the deployed `.aster-provenance.json`. A
 contained 1,825 including `aster-knowledge-mirror`; promoting the base-only
 archive would remove most curated knowledge. A private read-only copy of the
 accepted LXC 113 mirror was used for a complete 1,825-source local preflight;
-the build passed twice with identical SHA-256, but has **not** been deployed.
+the build passed twice with identical SHA-256. After staged source-hash and
+service-account retrieval checks, that complete candidate was deployed on
+2026-10-11 with the prior directory retained at
+`/var/lib/aster/knowledge.before-sycl-20261011`. The base-only archive was
+never deployed.
 See the [Stream A runtime record](../projects/AI%20Projects/evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md).
 
 Copy the archive to Proxmox, replace `/var/lib/aster/knowledge` atomically in

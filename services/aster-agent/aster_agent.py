@@ -545,8 +545,23 @@ def _source_bonus(
     return bonus
 
 
+def _runtime_identity_query(query: str) -> bool:
+    """Recognize identity, not a slow-service diagnosis or repair request."""
+    return bool(
+        re.search(r"\b(aster|b60|lxc\s*110)\b", query, re.I)
+        and re.search(r"\b(model|backend|inference|runtime)\b", query, re.I)
+        and not re.search(r"\b(slow|rebind|llvmpipe|diagnos[ei]|fix|repair)\b", query, re.I)
+    )
+
+
 def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     bonus = 0
+    # Present-runtime questions should reach the reviewed operational record
+    # even when generic mirror entries repeat numeric guest identifiers.
+    runtime_identity_query = _runtime_identity_query(query)
+    if source == "reference/operations/ai-local-inference.md" and runtime_identity_query:
+        if "## what's running" in text:
+            bonus += 400
     if source == "reference/operations/ai-pam.md" and re.search(
         r"\b(ai-pam|openbao|access broker|approval|kill switch|probation)\b", query, re.I
     ):
@@ -810,6 +825,8 @@ def _rank_knowledge(query: str, tokens: set[str], root: Path, max_results: int,
                     r"\b(slow|rebind|llvmpipe|vulkan|b60)\b", query, re.I
                 ):
                     preferred_anchor = normalized.find("the b60 must be bound")
+                if relative == "reference/operations/ai-local-inference.md" and _runtime_identity_query(query):
+                    preferred_anchor = normalized.find("## what's running")
                 elif relative == "reference/runbooks/disaster-recovery.md" and re.search(
                     r"\b(recovery|whole-network|outage|remote access)\b", query, re.I
                 ):

@@ -24,13 +24,24 @@ not present in the local workspace. The 29-source package is not deployable.
 A private read-only copy of the accepted LXC 113 mirror then produced a full
 1,825-source candidate; two builds had identical SHA-256
 `a4a6e40040ca7dabe70a0e41525f84769f25b3500b2895c130c5002dad914987`.
-Its mirror digest matches deployed provenance. The live snapshot was left
-unchanged and the operator instructions now state the member-count gate.
+Its mirror digest matches deployed provenance. At this preflight stage the
+live snapshot was left unchanged and the operator instructions recorded the
+member-count gate.
 The complete candidate gateway was then staged in LXC 104 `/tmp` against its
 existing venv; no running service files were replaced. One fixed-date Doctor
 fixture failed the new freshness guard and was corrected. With required
 support code staged, the full 197-test gateway suite passed. An authenticated
 9B answer and deployed-source compatibility remain unverified.
+Read-only comparison then found live-only deterministic identity and UI code in
+the deployed gateway. Its identity answer still said Vulkan. With exact hash
+checks and retained source checkpoints, only the stale wording, current-model
+default/browser label and focused current-runtime retrieval logic were changed
+in the deployed file. A patched copy passed staged-snapshot retrieval before
+promotion. The complete 1,825-source snapshot was swapped with the old tree
+retained. Postchecks found the gateway healthy and the `aster` account's
+representative runtime search returning the reviewed 9B/SYCL source first.
+This does not authorize a whole-file gateway deploy; branch/live source drift
+remains open. See the runtime reconciliation for hashes and rollback paths.
 
 ## 2026-10-11 — Offline Doctor reader cross-consumer review
 

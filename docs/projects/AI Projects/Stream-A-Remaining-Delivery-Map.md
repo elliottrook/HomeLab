@@ -15,8 +15,11 @@ pins the changed implementation for future routing measurements. No Stream A
 quality or latency result for SYCL has yet been established; D3 and M1 gates
 do not change. The repository gateway prompt and current references contained
 stale Vulkan claims; local corrections and dated evaluation copies are staged,
-but the gateway and knowledge snapshot have not been refreshed. Aster's live
-answer about its backend therefore remains unverified after the switch.
+and a bounded live correction now aligns the deployed deterministic identity,
+prompt and curated knowledge with 9B/SYCL. A service-account retrieval check
+passes against the full refreshed 1,825-source snapshot. The deployed gateway
+has additional live-only code absent from this branch, so a whole-file deploy
+is held pending reconciliation; authenticated answer quality is unverified.
 
 ## Remaining milestones, in delivery order
 
