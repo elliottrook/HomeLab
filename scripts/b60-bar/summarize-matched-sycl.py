@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""Summarize immutable matched backend results without inventing missing runs."""
+import hashlib
+import json
+import statistics
+from pathlib import Path
+
+root = Path('/var/lib/b60-inference/evidence')
+prefix = 'matched-sycl-20261010'
+groups = {}
+hashes = {}
+for label in ['vulkan-pre', 'sycl', 'vulkan-post']:
+    group = []
+    for rep in range(1, 6):
+        path = root / f'{prefix}-{label}-{rep}.json'
+        if path.exists():
+            raw = path.read_bytes()
+            hashes[path.name] = hashlib.sha256(raw).hexdigest()
+            group.append(json.loads(raw))
+    groups[label] = group
+
+report = {'schema_version': 1, 'completed_repetitions': {k: len(v) for k, v in groups.items()},
+          'evidence_sha256': hashes, 'backends': {},
+          'limitations': ['End-to-end request latency, not isolated decode or TTFT.',
+                          'Official FP32 SYCL and Vulkan release builds use different backend kernels.',
+                          'Four known fixture-scoring failures remain baseline limitations.',
+                          'Synthetic post-policy analysis does not prove arbitrary household correctness.']}
+for label, group in groups.items():
+    if not group:
+        continue
+    medians = [d['median_latency_seconds'] for d in group]
+    report['backends'][label] = {
+        'suite_medians_seconds': medians, 'median_seconds': statistics.median(medians),
+        'range_seconds': [min(medians), max(medians)], 'pass_counts': [d['pass_count'] for d in group],
+        'failed_ids': [sorted(r['id'] for r in d['results'] if not r['passed']) for d in group]}
+if all(len(group) == 5 for group in groups.values()):
+    vk = groups['vulkan-pre'] + groups['vulkan-post']
+    sycl = groups['sycl']
+    assert len({d['suite_sha256'] for d in vk + sycl}) == 1
+    rows = []
+    for old in vk[0]['results']:
+        controls = [next(r for r in d['results'] if r['id'] == old['id']) for d in vk]
+        candidates = [next(r for r in d['results'] if r['id'] == old['id']) for d in sycl]
+        a = statistics.median(r['elapsed_seconds'] for r in controls)
+        b = statistics.median(r['elapsed_seconds'] for r in candidates)
+        rows.append({'id': old['id'], 'vulkan_median_seconds': a, 'sycl_median_seconds': b,
+                     'latency_reduction_percent': 100*(1-b/a),
+                     'vulkan_completion_tokens': sorted({r['usage']['completion_tokens'] for r in controls}),
+                     'sycl_completion_tokens': sorted({r['usage']['completion_tokens'] for r in candidates})})
+    a = statistics.median(d['median_latency_seconds'] for d in vk)
+    b = statistics.median(d['median_latency_seconds'] for d in sycl)
+    report.update({'complete': True, 'latency_reduction_percent': 100*(1-b/a),
+                   'request_speedup_factor': a/b, 'rows': rows})
+else:
+    report['complete'] = False
+print(json.dumps(report, sort_keys=True))

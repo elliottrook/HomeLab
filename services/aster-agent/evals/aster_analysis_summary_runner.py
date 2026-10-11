@@ -100,6 +100,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--timeout", type=float, default=180)
     parser.add_argument("--max-tokens", type=int, default=256)
+    parser.add_argument("--fail-fast-runtime", action="store_true")
     args = parser.parse_args()
 
     suite = json.loads(args.cases.read_text())
@@ -121,6 +122,8 @@ def main() -> int:
                             "elapsed_seconds": None, "usage": {},
                             "policy_outcome": case["outcome"], "answer": None})
             print(f"{case['id']}: ERROR {type(exc).__name__}", flush=True)
+            if args.fail_fast_runtime:
+                break
 
     latencies = [item["elapsed_seconds"] for item in results if item["elapsed_seconds"] is not None]
     report = {

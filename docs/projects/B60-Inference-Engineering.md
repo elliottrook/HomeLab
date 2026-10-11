@@ -612,6 +612,76 @@ enumeration milestone. Next is the originally approved same-model SYCL trial,
 gated by a fresh current-hash preflight and tested restoration. Vulkan remains
 production; no speed or correctness advantage for SYCL has yet been established.
 
+#### Matched 9B backend trial — 2026-10-10 (failed closed)
+
+Jason explicitly requested pushing the enumeration milestone and continuing
+matched 9B SYCL performance/correctness tests. Forgejo and its GitHub mirror
+both reached `1866594`. This trial retains Vulkan production and uses the same
+b11429 release, exact model, 8K context, Q4 K/V, flash attention on, reasoning
+off and synthetic 16-case post-policy suite. Five measured repetitions per
+backend plus excluded warmups and Vulkan pre/post controls are planned.
+Baseline's four known scoring failures are not counted as new regressions.
+Any runtime error, new scoring failure, incomplete GPU offload or relevant
+kernel event aborts; no automatic candidate retry is allowed.
+
+The host harness is `/run/b60-matched-sycl/matched-sycl.py`, with current guard
+and source-local credential runner staged separately. Only a transient
+`aster-b60-candidate.service` is allowed, `Restart=no`, runtime capped at 900
+seconds. A separate transient host restoration watchdog must be armed before
+the trial starts. The harness also restores accepted production in `finally`,
+validates authenticated synthetic generation and restores both news timers.
+It uses a conservative 22:55 load cutoff inside the normal experiment envelope.
+Evidence goes to LXC 114 `/var/lib/b60-inference/evidence/matched-sycl-20261010-*`;
+never to the almost-floor LXC 110 disk. Interrupted continuation must inspect
+candidate/accepted state, watchdog and existing immutable evidence first;
+do not replay a partial candidate run or overwrite evidence.
+
+Fresh 22:12 preflight passed all gates, with model hash matching, mirrored
+38,852,679,165-byte backup, clean kernel scan and both dependent workers idle.
+The trial started at 22:15 with the independent 30-minute restoration watchdog.
+Vulkan warmup plus five measured suites completed: measured medians
+2.413183, 2.4183145, 2.406876, 2.402978 and 2.411537 seconds; aggregate median
+2.411537 seconds. Each scored 12/16 with exactly the four known failures.
+
+The single SYCL candidate started at 22:20:33 and aborted at 22:20:37 during
+startup compute warmup, before serving any synthetic evaluation request.
+Trace identifies `ggml_sycl_op_rms_norm_fused` submitting through the SYCL
+queue/handler and error 44 `UR_RESULT_ERROR_UNSUPPORTED_FEATURE`. Candidate
+invocation is `5e4a34e8ebac4a0fbe1a64baf284a687`. No candidate retry or post-failure
+benchmark ran; SYCL measured repetitions and valid speed/correctness results
+are zero. No kernel/device fault was detected. This is a backend/runtime
+unsupported operation, not evidence that full BAR has regressed.
+
+The `finally` finalizer restored production and validated accepted hashes,
+active state, `xe`, BMG G21 Vulkan, protected authenticated generation and
+news timers by 22:21:32; accepted service has zero restarts and Aster health
+is `ok`. Disarmed the independent watchdog only after restoration checks.
+Host immutable sanitized trace SHA-256 is
+`d38c4f6b5bf4df2157dc50cb52bfdc0a1f6c553fd5b954b6da2c4b9bf1ffa637`;
+failure record `matched-sycl-failure-20261010.json` SHA-256 is
+`de3d22654d46ec590d9e9665ec8ef00ded3ec3c925435101db09b38a335bb194`.
+
+Offline official b11429 source review verified that
+[`GGML_SYCL_ENABLE_FUSION`](https://github.com/ggml-org/llama.cpp/blob/b11429/ggml/src/ggml-sycl/ggml-sycl.cpp)
+defaults to 1 and that
+[`fusion.cpp`](https://github.com/ggml-org/llama.cpp/blob/b11429/ggml/src/ggml-sycl/fusion.cpp)
+returns false from `ggml_sycl_can_fuse` when it is 0, bypassing the fused RMS
+dispatch. A single candidate-only `GGML_SYCL_ENABLE_FUSION=0` trial is the
+narrow next diagnostic; it changes no host driver, preemption or production
+configuration. It is **not a confirmed remedy**: the unfused normalization
+kernel shares launch characteristics, and runtime/compiler compatibility
+remains a possible cause. Requires explicit post-failure retry approval and
+a valid fresh/timing envelope; do not silently reuse stale preflight or retry.
+
+Harness review also replaced POSIX whitespace syntax with Python `\s` in its
+kernel regex, and limited startup/offload evidence to the exact invocation
+instead of all historical candidate-unit logs. During this run, the independent
+grep-based live kernel checks covered IOMMU faults despite the initial Python
+regex warning. Regression tests prove candidate startup failure restores
+without retry and the corrected fault pattern catches IOMMU faults without
+matching “default.” New milestone remains locally committed pending another
+specifically approved push. Production promotion is not authorized.
+
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.
 - [ ] Require tiny-model enumeration, target-architecture correctness, explicit
   fallback/transfer accounting and like-for-like quality comparisons.

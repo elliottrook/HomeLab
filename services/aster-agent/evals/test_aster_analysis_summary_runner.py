@@ -1,5 +1,8 @@
 import importlib.util
 import unittest
+import json
+import tempfile
+from unittest.mock import patch
 from pathlib import Path
 
 
@@ -10,6 +13,26 @@ SPEC.loader.exec_module(RUNNER)
 
 
 class AnalysisSummaryRunnerTests(unittest.TestCase):
+    def test_runtime_failure_stops_without_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cases = root / 'cases.json'
+            key = root / 'synthetic-key'
+            output = root / 'result.json'
+            cases.write_text(json.dumps({'cases': [
+                {'id': name, 'route': 'local_summary', 'outcome': 'answer', 'prompt': 'Synthetic'}
+                for name in ['first', 'second']]}))
+            key.write_text('synthetic-not-a-credential')
+            argv = ['runner', '--endpoint', 'http://localhost', '--api-key-file', str(key),
+                    '--cases', str(cases), '--label', 'test', '--output', str(output),
+                    '--fail-fast-runtime']
+            with patch('sys.argv', argv), patch.object(RUNNER, 'request', side_effect=RuntimeError('synthetic')) as request:
+                self.assertEqual(RUNNER.main(), 1)
+                self.assertEqual(request.call_count, 1)
+            report = json.loads(output.read_text())
+            self.assertEqual(len(report['results']), 1)
+            self.assertIsNone(report['results'][0]['elapsed_seconds'])
+
     def test_required_text_may_appear_in_uncertainties(self):
         case = {"required_groups": [["unknown"]]}
         answer = {"summary": "Job ended.", "facts": [], "uncertainties": ["Result unknown."]}

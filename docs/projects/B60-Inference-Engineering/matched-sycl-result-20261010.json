@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "complete": false,
+  "pushed_and_mirror_verified_commit": "1866594e857b7fbaebf8f682b42508101d055d05",
+  "model_sha256": "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
+  "candidate_binary_sha256": "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5",
+  "vulkan_suite_medians_seconds": [2.413183, 2.4183145, 2.406876, 2.402978, 2.411537],
+  "vulkan_aggregate_median_seconds": 2.411537,
+  "vulkan_pass_counts": [12, 12, 12, 12, 12],
+  "known_failed_case_ids": ["contradictory-sources", "missing-evidence", "private-public-join", "stale-news"],
+  "sycl_measured_repetitions": 0,
+  "vulkan_post_repetitions": 0,
+  "sycl_failure": {
+    "at": "2026-10-10T22:20:37-07:00",
+    "invocation_id": "5e4a34e8ebac4a0fbe1a64baf284a687",
+    "stage": "startup compute warmup",
+    "operation": "ggml_sycl_op_rms_norm_fused",
+    "error": "44 UR_RESULT_ERROR_UNSUPPORTED_FEATURE",
+    "automatic_retry": false,
+    "trace_sha256": "d38c4f6b5bf4df2157dc50cb52bfdc0a1f6c553fd5b954b6da2c4b9bf1ffa637",
+    "record_sha256": "de3d22654d46ec590d9e9665ec8ef00ded3ec3c925435101db09b38a335bb194"
+  },
+  "restoration": {
+    "validated_by": "2026-10-10T22:21:32-07:00",
+    "accepted_hashes_match": true,
+    "health": "ok",
+    "authenticated_synthetic_generation": true,
+    "service_restarts": 0,
+    "xe_and_bmg_g21_vulkan": true,
+    "aster_health": "ok",
+    "news_timers_active": true,
+    "relevant_kernel_faults": false,
+    "watchdog_disarmed_after_validation": true
+  },
+  "next_diagnostic": "One separately approved candidate-only GGML_SYCL_ENABLE_FUSION=0 attempt with fresh safety/timing gates; not a confirmed fix",
+  "limitations": ["No valid SYCL speed or correctness comparison exists yet", "Vulkan baseline has four known fixture scoring failures", "End-to-end request latency is not isolated decode throughput"]
+}
