@@ -73,6 +73,15 @@ the former 27B/Vulkan Aster Operations page (read-only line check), and no
 snapshot refresh has occurred. Correcting Git files alone does not repair
 answers from the live snapshot.
 
+An offline, clean-Git base-only snapshot from local commits `c739102` and
+`9099718` passed the builder's source-content and provenance checks. It has 29
+allowlisted sources, including the corrected operations and hardware records.
+The deployed snapshot has 1,825 sources and includes the accepted derived
+mirror. **The 29-source candidate must not be deployed**: the local accepted
+mirror input was unavailable, and a swap would remove 1,796 derived entries.
+The candidate remains only in `/private/tmp` for preflight; no live knowledge
+directory or service was changed.
+
 The repository's read-only `check-aster-b60.sh` candidate now checks the
 private inference `/health` endpoint in addition to `xe`, service state and
 Vulkan visibility. This reduces a false-positive monitoring gap after the

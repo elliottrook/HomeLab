@@ -18,6 +18,10 @@ The separate curated reference repo was locally corrected at `9099718`; its
 production knowledge snapshot remains stale and was not refreshed. The gateway
 prompt correction now defers to current-operational evidence rather than
 hard-coding another transient model/backend combination.
+An offline 29-source clean-Git knowledge build passed provenance checks, but
+the deployed snapshot has 1,825 sources including a derived mirror that is
+not available locally. The 29-source package is not deployable; the live
+snapshot was left unchanged and the operator instructions now state this gate.
 
 ## 2026-10-11 — Offline Doctor reader cross-consumer review
 

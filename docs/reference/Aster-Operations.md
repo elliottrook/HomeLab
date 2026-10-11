@@ -170,12 +170,23 @@ broker is normally stopped, boot-disabled and blocked at the inter-VLAN
 firewall. See the production gate below.
 
 The deployed knowledge directory is a curated snapshot, not a live Git mount.
-Build it from the repository's explicit allowlist after material documentation
-changes:
+Build a candidate from the repository's explicit allowlist after material
+documentation changes. **The default command below is a base-only preflight,
+not a deployable replacement for an accepted snapshot with a derived mirror**:
 
 ```sh
 scripts/build-aster-knowledge-snapshot.sh /tmp/aster-knowledge.tar.gz
 ```
+
+Before any production refresh, include the same accepted, validated mirror via
+`--mirror-root`, verify its generation/provenance index, and compare member
+counts and source hashes with the deployed `.aster-provenance.json`. A
+2026-10-11 base-only build contained 29 sources while the deployed snapshot
+contained 1,825 including `aster-knowledge-mirror`; promoting the base-only
+archive would remove most curated knowledge. The accepted mirror input is not
+available in the local workspace at this checkpoint. Do not substitute an
+unreviewed or partial mirror just to refresh the three corrected runtime
+sources.
 
 Copy the archive to Proxmox, replace `/var/lib/aster/knowledge` atomically in
 LXC 104, and restore directory/file ownership to `root:aster` with read-only
