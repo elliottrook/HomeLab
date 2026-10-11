@@ -29,8 +29,9 @@ Companion approval bridge source on LXC 104 matched the tracked file. This
 confirms the present request path crosses Aster before the approval socket;
 it does not establish any passkey-specific assurance claim. A separate
 [socket-lifecycle incident](M1-approval-socket-lifecycle-2026-10-10.md)
-temporarily made that listener unreachable and has been restored without
-changing policy.
+temporarily made that listener unreachable. A narrow one-unit fix now preserves
+the shared socket directory across a normal main-broker restart, with no policy
+change. A deliberate full broker stop remains outside that proof.
 
 ## Options
 
@@ -58,6 +59,15 @@ model, tool routing, credential store, or general shell capability. It would
 forward only the existing allowlisted approval methods and bounded fields.
 The app would keep the same public endpoint if compatibility is proven.
 
+The same gate should give the approval service its own `RuntimeDirectory` and
+socket pathname. Today its socket lives inside the execution broker's runtime
+directory; that broker can remove the pathname on a full stop. The reviewed
+restart fix deliberately did not couple the services with `PartOf=` because
+approval-plane independence is a repository invariant. A new directory would
+require exact consumer-path, unit-permission, restart, full-stop and recovery
+tests. It should be implemented with the verifier/UID migration rather than
+as a hidden amendment to the current unit.
+
 This design adds one narrowly scoped security process, not another agent
 harness. Aster can continue local household and chat functions if the approval
 ingress fails; approval and management fail closed. Human break-glass remains
@@ -80,7 +90,7 @@ separate from the new service.
    private same-origin route, while ordinary Aster chat and household paths
    continue during verifier failure. Measure latency and service memory.
 5. Exercise pending/approve/deny/revoke, duplicate consumption, demotion,
-   policy changes, restart and audit in a synthetic broker fixture. Verify
+   policy changes, restart, full execution-broker stop and audit in a synthetic broker fixture. Verify
    fail-closed recovery and the independent human SSH path before any rollout.
 6. Produce a bounded deployment/rollback plan with exact files, units,
    route, checkpoints and stop conditions; obtain the required approval then.
