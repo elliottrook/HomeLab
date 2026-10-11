@@ -6,8 +6,9 @@ The replacement Forgejo push mirror with an explicit `ssh://` URL synchronized
 without a manual retry. A direct branch/tag comparison found all 29 named refs
 equal to GitHub. After Jason's exact approval, the broken original mirror was
 removed; one configured replacement remains. The new mirror's next
-sync-on-commit behavior should be checked after the next separately approved
-Forgejo push. See [the chronology and verification](evidence/Stream-A-GitHub-mirror-URL-rejection-2026-10-10.md).
+sync-on-commit behavior was then verified by a separately approved ordinary
+Stream A push to `341e1b4`; both remotes reached that tip without a manual
+mirror sync. See [the chronology and verification](evidence/Stream-A-GitHub-mirror-URL-rejection-2026-10-10.md).
 
 ## 2026-10-09 — Remaining Stream A milestones reconciled
 
