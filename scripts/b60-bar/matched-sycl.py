@@ -78,18 +78,21 @@ def restore_news():
         elif enabled != 'disabled':
             raise RuntimeError('unexpected news schedule enablement state')
 
-def main(fusion_disabled_retry=False, instrumented=False, exclusive=False):
+def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_id=None, fusion='0'):
     global OUT, INSTRUMENTED, EXCLUSIVE, EXCLUSIVE_DEADLINE
     INSTRUMENTED = instrumented
     EXCLUSIVE = exclusive
+    if run_id is not None:
+        assert exclusive and re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',run_id)
+    assert fusion in ['0','1']
     if exclusive:
-        OUT = '/var/lib/b60-inference/evidence/matched-sycl-exclusive-20261010'
+        OUT = '/var/lib/b60-inference/evidence/matched-sycl-exclusive-' + (run_id or '20261010')
     elif instrumented:
         OUT = '/var/lib/b60-inference/evidence/matched-sycl-instrumented-20261010'
     elif fusion_disabled_retry:
         OUT = '/var/lib/b60-inference/evidence/matched-sycl-fusion-off-20261010'
     # The separate host watchdog remains armed until verified restoration.
-    with open(ROOT + ('/preflight-exclusive.json' if exclusive else '/preflight-instrumented.json' if instrumented else '/preflight-fusion-retry.json' if fusion_disabled_retry else '/preflight.json')) as f:
+    with open(ROOT + ('/preflight-exclusive' + ('-'+run_id if run_id else '') + '.json' if exclusive else '/preflight-instrumented.json' if instrumented else '/preflight-fusion-retry.json' if fusion_disabled_retry else '/preflight.json')) as f:
         preflight = json.load(f)
     # Already validated in-window; require unchanged, recently recorded evidence.
     age = datetime.now(TZ) - guard.parse_time(preflight['collected_at'])
@@ -123,7 +126,7 @@ def main(fusion_disabled_retry=False, instrumented=False, exclusive=False):
               '--property=Restart=no', '--property=RuntimeMaxSec=900', '--property=TimeoutStopSec=30',
               '--property=LimitCORE=0',
               '--setenv=LD_LIBRARY_PATH=' + libs, '--setenv=ONEAPI_DEVICE_SELECTOR=level_zero:gpu',
-              *(['--setenv=GGML_SYCL_ENABLE_FUSION=0'] if fusion_disabled_retry or instrumented or exclusive else []),
+              *(['--setenv=GGML_SYCL_ENABLE_FUSION=' + (fusion if exclusive else '0')] if fusion_disabled_retry or instrumented or exclusive else []),
               '/opt/b60-level-zero-trial-20261010/llama-sycl-fp32/llama-b11429/llama-server',
               '-m', '/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf',
               '-ngl', '999', '-c', '8192', '-np', '1', '-t', '4', '-tb', '4',
@@ -161,7 +164,7 @@ def main(fusion_disabled_retry=False, instrumented=False, exclusive=False):
         else:
             restore_news()
     suite('vulkan-post', 'aster-llama.service')
-    run(['systemctl', 'stop', 'b60-exclusive-restore.timer' if exclusive else 'b60-instrumented-restore.timer' if instrumented else 'b60-fusion-restore.timer' if fusion_disabled_retry else 'b60-matched-restore.timer'])
+    run(['systemctl', 'stop', 'b60-exclusive-restore' + ('-'+run_id if run_id else '') + '.timer' if exclusive else 'b60-instrumented-restore.timer' if instrumented else 'b60-fusion-restore.timer' if fusion_disabled_retry else 'b60-matched-restore.timer'])
     print('MATCHED TRIAL COMPLETE; ACCEPTED PRODUCTION RESTORED', flush=True)
 
 if __name__ == '__main__':
@@ -170,5 +173,7 @@ if __name__ == '__main__':
     parser.add_argument('--fusion-disabled-retry', action='store_true')
     parser.add_argument('--instrumented', action='store_true')
     parser.add_argument('--exclusive', action='store_true', help='Owner-reserved B60 session; rolling 30-minute experiments, not calendar cutoff')
+    parser.add_argument('--run-id', help='Unique immutable exclusive-session identity')
+    parser.add_argument('--fusion', choices=['0','1'], default='0', help='One-variable exclusive SYCL comparison')
     args = parser.parse_args()
-    main(args.fusion_disabled_retry, args.instrumented, args.exclusive)
+    main(args.fusion_disabled_retry, args.instrumented, args.exclusive, args.run_id, args.fusion)

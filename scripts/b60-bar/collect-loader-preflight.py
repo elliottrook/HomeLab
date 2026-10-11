@@ -18,7 +18,9 @@ parser.add_argument('--verified-mirror-finished-at', required=True)
 parser.add_argument('--mirror-checked-at', required=True)
 parser.add_argument('--instrumented', action='store_true')
 parser.add_argument('--exclusive', action='store_true')
+parser.add_argument('--run-id')
 options = parser.parse_args()
+assert options.run_id is None or (options.exclusive and re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',options.run_id))
 assert options.exclusive or datetime.now(TZ).date().isoformat() == '2026-10-10', 'one-time authorization expired'
 assert options.verified_mirror_size == 38852679165
 mirror_age = (datetime.now(TZ) - guard.parse_time(options.mirror_checked_at)).total_seconds()
@@ -55,6 +57,6 @@ guard.validate_preflight(data,datetime.now(TZ),20 if options.exclusive else 16 i
                         approved_loader_retry=not (options.instrumented or options.exclusive),
                         approved_instrumented_run=options.instrumented,
                         approved_exclusive_session=options.exclusive)
-with open('/run/b60-matched-sycl/' + ('preflight-exclusive.json' if options.exclusive else 'preflight-instrumented.json' if options.instrumented else 'preflight-loader-retry.json'),'x') as f:
+with open('/run/b60-matched-sycl/' + ('preflight-exclusive' + ('-'+options.run_id if options.run_id else '') + '.json' if options.exclusive else 'preflight-instrumented.json' if options.instrumented else 'preflight-loader-retry.json'),'x') as f:
     json.dump(data,f,indent=2)
 print(json.dumps(data,indent=2))

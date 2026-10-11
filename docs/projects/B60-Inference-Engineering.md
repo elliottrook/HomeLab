@@ -67,6 +67,60 @@ controls: no candidate had started. Cancelled only its source-local synthetic
 runner processes and verified accepted health before resuming an exclusive
 comparison. Preserve its completed warmup evidence; do not overwrite it.
 
+### Exclusive SYCL session 1 — complete, 2026-10-10 23:21 PDT
+
+Fresh 23:05:43 preflight passed; completed Vulkan warmup + five measurements,
+one corrected candidate start, protected generation, SYCL warmup + five
+measurements, validated accepted restoration and Vulkan warmup + five
+post-controls. All 18 suites scored 12/16 with exactly the four documented
+baseline failures, no new scoring/runtime failure. The sole candidate
+`2ab1b68b4be9497483fc62ca39f1ff9f` selected B60 SYCL0 and offloaded 33/33
+layers. Actual maps proved private loader 1.33.1, oneAPI libsycl 9.0.0 and
+Intel Compute Runtime 26.35.39758.10. CPU-mapped model buffer 545.62 MiB and
+small SYCL host buffers remain; all-layer offload is not zero CPU participation.
+Immutable host proof SHA-256
+`a12864c15ed43c31369a1dc0244e1d544331d1ca560ed5846ec9258c52e40b70`.
+
+SYCL fusion-off suite medians: 2.2626915, 2.2331075, 2.2154860, 2.2520945,
+2.1868760 seconds. Median 2.2331075, compared with 2.41432425 for the ten
+Vulkan pre/post medians: **7.5059% lower end-to-end request latency / 1.08115x
+request speed**. Six cases with identical completion-token lengths show
+7.9210% median latency reduction; other outputs vary in length. This is not
+isolated decode/TTFT or proof of the 15% promotion threshold. The slight
+Vulkan pre/post drift is preserved in the report, not hidden. Candidate backend
+INFO logging uses verbosity 4 for proof; accepted Vulkan uses default verbosity
+3, so observed diagnostic overhead is included rather than claiming peak speed.
+
+Complete immutable LXC 114 report:
+`/var/lib/b60-inference/evidence/matched-sycl-exclusive-20261010-report.json`,
+SHA-256 `bbbaf807ff72ef90704c6d537a417ff1dd2835e4bd9e51af7d2baa6aedc6bef2`.
+It contains 15 measured-file hashes, per-case lengths/latencies and limitations.
+The controller finished successfully at 23:21:19, after the revoked calendar
+stop. Accepted production is restored and candidate stopped; the rolling
+watchdog is disarmed only after validation. News remains intentionally disabled.
+
+#### Trial-storage margin correction and next one-variable test
+
+After all measured controls finished, moved only the extracted, task-derived
+private driver/IGC tree from `/opt/b60-level-zero-trial-20261010/root` into
+`/dev/shm/b60-driver-assets-20261010/root`, preserving the original namespace
+with a symlink. Verified every file/link, byte digest, mode, uid and gid before
+and after. 63 entries / 440,191,320 derived bytes; aggregate content/metadata
+digest `187c14dd162626abb13fc2c5f4eea182c95d820ec771f63f90d8b4e095e89ea9`.
+Free root space improved from 21,477,978,112 to 21,918,326,784 bytes. Migration
+proof SHA-256 `7163286fd215295e345375f65e16fdfeac3aa3a3ba052b1de4f7c5dfbf69e981`.
+No accepted binary/unit/model, installed package or backup moved/deleted.
+Private trial artifacts are volatile and must be restaged after reboot;
+accepted Vulkan production is independent of them.
+
+Under standing Stream A authorization, next compare fusion **1** against the
+working loader-1.33.1/fusion-0 result. Preserve model, precision build, GPU,
+context, batch, threads, KV, flash-attention, reasoning and scoring. The storage
+placement changes startup staging only; exclude warmups, preserve byte hashes
+and record placement. Use new identity `20261010-fusion-on`, new full preflight,
+five measurements per phase, rolling watchdog, exact invocation/offload proof
+and unchanged correctness/fault stops. Do not automatically retry a failure.
+
 Read-only discovery on 2026-09-25 reconciled the documented baseline:
 
 - Proxmox 9.2.20, kernel `7.0.14-19-pve`, Dell BIOS A31 dated 2019-06-05.
