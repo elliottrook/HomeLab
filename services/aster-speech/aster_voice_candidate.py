@@ -19,6 +19,7 @@ from vulkan_renderer_client import VulkanRendererPool
 from voice_candidate import VoiceScheduler
 from voice_candidate_http import build_router
 from voice_protocol import pcm_to_wav
+from wyoming_adapter import start_wyoming_server
 
 
 class SchedulerProxy:
@@ -54,6 +55,7 @@ class RendererPool(Protocol):
 
 _pool: RendererPool | None = None
 _batch_pool: RendererPool | None = None
+_wyoming_server = None
 
 
 def require_batch_api_key(authorization: str | None = Header(default=None)) -> None:
@@ -79,7 +81,7 @@ app.add_api_route(
 
 @app.on_event("startup")
 async def startup() -> None:
-    global _pool, _batch_pool
+    global _pool, _batch_pool, _wyoming_server
     # This is a separate FastAPI application, so the legacy app's startup hook
     # does not run automatically. Initialize the shared STT implementation here.
     await legacy_speech._startup()
@@ -105,11 +107,21 @@ async def startup() -> None:
     scheduler = VoiceScheduler(_pool.renderers, batch_renderer=batch_renderer)
     await scheduler.start()
     _proxy.target = scheduler
+    wyoming_uri = os.environ.get("ASTER_WYOMING_URI", "").strip()
+    if wyoming_uri:
+        _wyoming_server = await start_wyoming_server(
+            _proxy,
+            wyoming_uri,
+            os.environ.get("ASTER_WYOMING_ALLOWED_PEER", "192.168.20.11"),
+        )
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
-    global _pool, _batch_pool
+    global _pool, _batch_pool, _wyoming_server
+    if _wyoming_server is not None:
+        await _wyoming_server.stop()
+        _wyoming_server = None
     scheduler, _proxy.target = _proxy.target, None
     if scheduler is not None:
         await scheduler.close()
