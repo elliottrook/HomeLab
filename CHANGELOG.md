@@ -14,6 +14,11 @@
   capacity. No live service, account, firewall, DNS, mail, tunnel or public
   route changed. Public launch remains a later explicit exposure gate after
   Alisa supplies and approves real content.
+- Completed A1 locally: added the isolated catalogue editor and responsive
+  Aster-style GUI for add, edit, order, reversible retirement, approval and
+  exact-site preview. Twelve service tests, syntax/static safety checks and
+  desktop/mobile browser QA passed; no live publish control or public route was
+  introduced.
 
 ## 2026-10-10 — B60 inference Q4 K/V promotion
 
