@@ -78,13 +78,14 @@ def restore_news():
         elif enabled != 'disabled':
             raise RuntimeError('unexpected news schedule enablement state')
 
-def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_id=None, fusion='0'):
+def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_id=None, fusion='0', precision='fp32'):
     global OUT, INSTRUMENTED, EXCLUSIVE, EXCLUSIVE_DEADLINE
     INSTRUMENTED = instrumented
     EXCLUSIVE = exclusive
     if run_id is not None:
         assert exclusive and re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',run_id)
     assert fusion in ['0','1']
+    assert precision in ['fp32','fp16'] and (precision=='fp32' or exclusive)
     if exclusive:
         OUT = '/var/lib/b60-inference/evidence/matched-sycl-exclusive-' + (run_id or '20261010')
     elif instrumented:
@@ -127,7 +128,7 @@ def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_i
               '--property=LimitCORE=0',
               '--setenv=LD_LIBRARY_PATH=' + libs, '--setenv=ONEAPI_DEVICE_SELECTOR=level_zero:gpu',
               *(['--setenv=GGML_SYCL_ENABLE_FUSION=' + (fusion if exclusive else '0')] if fusion_disabled_retry or instrumented or exclusive else []),
-              '/opt/b60-level-zero-trial-20261010/llama-sycl-fp32/llama-b11429/llama-server',
+              '/opt/b60-level-zero-trial-20261010/llama-sycl-' + precision + '/llama-b11429/llama-server',
               '-m', '/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf',
               '-ngl', '999', '-c', '8192', '-np', '1', '-t', '4', '-tb', '4',
               '-b', '256', '-ub', '128', '-fa', 'on', '-ctk', 'q4_0', '-ctv', 'q4_0',
@@ -175,5 +176,6 @@ if __name__ == '__main__':
     parser.add_argument('--exclusive', action='store_true', help='Owner-reserved B60 session; rolling 30-minute experiments, not calendar cutoff')
     parser.add_argument('--run-id', help='Unique immutable exclusive-session identity')
     parser.add_argument('--fusion', choices=['0','1'], default='0', help='One-variable exclusive SYCL comparison')
+    parser.add_argument('--precision', choices=['fp32','fp16'], default='fp32')
     args = parser.parse_args()
-    main(args.fusion_disabled_retry, args.instrumented, args.exclusive, args.run_id, args.fusion)
+    main(args.fusion_disabled_retry, args.instrumented, args.exclusive, args.run_id, args.fusion, args.precision)

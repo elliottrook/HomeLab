@@ -13,6 +13,48 @@ matched = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(matched)
 
 class MatchedTrialTests(unittest.TestCase):
+    def setUp(self):
+        for name in ['OUT','EXCLUSIVE','INSTRUMENTED','EXCLUSIVE_DEADLINE']:
+            original=getattr(matched,name)
+            self.addCleanup(setattr,matched,name,original)
+
+    def test_exclusive_session_crosses_calendar_cutoff_but_not_rolling_deadline(self):
+        deadline=datetime(2026,10,11,0,10,tzinfo=ZoneInfo('America/Vancouver'))
+        def guest(n,*args,**kwargs):
+            return '{"status":"ok"}' if args[0]=='curl' else ''
+        with patch.object(matched,'EXCLUSIVE',True), patch.object(matched,'EXCLUSIVE_DEADLINE',deadline), \
+             patch.object(matched,'datetime') as date, patch.object(matched,'guest',side_effect=guest), \
+             patch.object(matched,'run',return_value='clean kernel log'):
+            date.now.return_value=datetime(2026,10,11,0,5,tzinfo=ZoneInfo('America/Vancouver'))
+            matched.gates('aster-b60-candidate.service')
+            date.now.return_value=deadline
+            with self.assertRaisesRegex(RuntimeError,'bounded exclusive'):
+                matched.gates('aster-b60-candidate.service')
+
+    def test_fp16_is_only_allowed_with_exclusive_reservation(self):
+        with self.assertRaises(AssertionError): matched.main(precision='fp16')
+
+    def test_fp16_uses_private_precision_path_and_restores_once(self):
+        now=datetime(2026,10,10,23,45,tzinfo=ZoneInfo('America/Vancouver'))
+        def guest(n,*args,**kwargs):
+            if args[:2]==('systemctl','is-active'):
+                return 'failed' if n==110 else 'inactive'
+            if args[:2]==('sh','-c'): return '/private/runtime/lib'
+            return ''
+        with patch.object(matched,'datetime') as date, \
+             patch('builtins.open',mock_open(read_data=json.dumps({'collected_at':now.isoformat()}))), \
+             patch.object(matched.guard,'validate_preflight',return_value={'experiment_deadline':'2026-10-11T00:15:00-07:00'}), \
+             patch.object(matched,'guest',side_effect=guest) as commands, \
+             patch.object(matched,'suite'),patch.object(matched,'restore') as restore,patch.object(matched.time,'sleep'):
+            date.now.return_value=now
+            with self.assertRaisesRegex(RuntimeError,'no retry'):
+                matched.main(exclusive=True,run_id='fp16-test',fusion='1',precision='fp16')
+            restore.assert_called_once_with()
+            starts=[c.args for c in commands.call_args_list if c.args[1]=='systemd-run']
+            self.assertEqual(len(starts),1)
+            self.assertIn('/opt/b60-level-zero-trial-20261010/llama-sycl-fp16/llama-b11429/llama-server',starts[0])
+            self.assertIn('--setenv=GGML_SYCL_ENABLE_FUSION=1',starts[0])
+
     def test_instrumented_cutoff_is_2320_not_unbounded(self):
         def guest(n, *args, **kwargs):
             return '{"status":"ok"}' if args[0] == 'curl' else ''

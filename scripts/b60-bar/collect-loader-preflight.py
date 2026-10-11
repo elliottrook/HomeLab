@@ -19,6 +19,7 @@ parser.add_argument('--mirror-checked-at', required=True)
 parser.add_argument('--instrumented', action='store_true')
 parser.add_argument('--exclusive', action='store_true')
 parser.add_argument('--run-id')
+parser.add_argument('--precision',choices=['fp32','fp16'],default='fp32')
 options = parser.parse_args()
 assert options.run_id is None or (options.exclusive and re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',options.run_id))
 assert options.exclusive or datetime.now(TZ).date().isoformat() == '2026-10-10', 'one-time authorization expired'
@@ -32,9 +33,11 @@ def guest(n, *args):
 backup = '/mnt/backups/dump/vzdump-lxc-110-2026_10_10-02_39_32.tar.zst'
 stat = os.stat(backup)
 assert stat.st_size == 38852679165
-hashes = guest(110, 'sha256sum', '/opt/llama.cpp-b11429/llama-server', '/etc/systemd/system/aster-llama.service', '/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf', '/opt/b60-level-zero-trial-20261010/llama-sycl-fp32/llama-b11429/llama-server').splitlines()
+candidate='/opt/b60-level-zero-trial-20261010/llama-sycl-'+options.precision+'/llama-b11429/'
+hashes = guest(110, 'sha256sum', '/opt/llama.cpp-b11429/llama-server', '/etc/systemd/system/aster-llama.service', '/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf', candidate+'llama-server',candidate+'libggml-sycl.so.0.26.0').splitlines()
 assert hashes[2].split()[0] == 'cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13'
 assert hashes[3].split()[0] == '0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5'
+assert hashes[4].split()[0] == ('58757946256db139bab7ddab56dbe6e8d5503bb41518eb25bfc734c175c68591' if options.precision=='fp16' else 'd267ea962c1166e964cc7bb771a9b7dd7c9b1405d5c5156463995a9f4e1da2d7')
 assert guest(110, 'systemctl', 'is-active', 'aster-llama.service').strip() == 'active'
 assert json.loads(guest(114, 'curl', '-fsS', '--max-time', '10', 'http://192.168.70.10:9120/health'))['status'] == 'ok'
 kernel = run('journalctl', '-b', '-k', '--no-pager')

@@ -121,6 +121,51 @@ and record placement. Use new identity `20261010-fusion-on`, new full preflight,
 five measurements per phase, rolling watchdog, exact invocation/offload proof
 and unchanged correctness/fault stops. Do not automatically retry a failure.
 
+### Exclusive fusion-on session — complete, 2026-10-10 23:39 PDT
+
+Controller `b60-exclusive-trial-fusion-on` completed successfully at 23:39:54.
+Candidate invocation `61536172b00f4968bbe1add80598b4bb` loaded private 1.33.1
+and offloaded 33/33 layers to B60 SYCL0. Exact mapped-runtime proof SHA-256:
+`bd7e36945fe73dfead2b14b56a087ec2dc7519abcf12db983d6d68ff88311b66`.
+All five measured SYCL suites had no new correctness failure (12,12,12,12,13
+passes; the fifth also passed stale-news). Vulkan controls remained 12/16.
+Median SYCL request latency was 2.1440585 seconds: **11.6519% lower latency /
+1.13189x request speed** against the ten contemporaneous Vulkan control medians.
+Seven identical-completion-length cases show 10.3060% median reduction.
+This does not yet establish isolated decode improvement or general quality.
+Accepted hashes, health, authenticated generation, xe/Vulkan and clean kernel
+scan passed; candidate stopped and watchdog disarmed. News stays disabled.
+Immutable complete report on LXC 114:
+`matched-sycl-exclusive-20261010-fusion-on-report.json`, SHA-256
+`f8a0e1f4df0dbf00abbc1223b93595cdc3ae3cb440ae7c0d52da20d62d3b2560`.
+
+#### Next one-variable precision comparison
+
+Official b11429 releases provide an FP16 SYCL build alongside FP32; the pinned
+[release workflow](https://github.com/ggml-org/llama.cpp/blob/b11429/.github/workflows/release.yml)
+uses `GGML_SYCL_F16=ON`. The
+[backend guide](https://github.com/ggml-org/llama.cpp/blob/b11429/docs/backend/SYCL.md)
+recommends measuring both precisions for the actual workload. Downloaded and
+publisher-digest verified only the runtime archive (not a model): 54,298,316
+bytes, SHA-256 `dbbf6e0d767b3da3b4f13c7fa8bb49582cdd427b800e060d0958568c8c4fc973`.
+Extracted 174,018,614 bytes into a new private RAM-backed namespace after all
+fusion-on controls finished. Same server SHA as FP32; FP16 backend SHA-256
+`58757946256db139bab7ddab56dbe6e8d5503bb41518eb25bfc734c175c68591`.
+No system installation or production change. Dependency inspection resolves
+private loader 1.33.1 and all libraries; staging proof SHA-256
+`bc29dfafdce6d9069b2c35ad173cc25b867b3c7c47542527848632871b5af3c5`.
+
+Fresh full preflight at 23:41:57 passes with 21,918,326,784 bytes disk,
+10,836,482,048 bytes RAM and 20,379,389,952 bytes VRAM headroom, today's exact
+backup and freshly checked successful mirror. Started new immutable identity
+`20261010-fp16-fusion-on`; change only compiled backend precision, retaining
+fusion 1 and all inference flags. Five measurements per phase, independent
+30-minute watchdog and validated accepted restoration remain mandatory.
+No FP16 speed or correctness result is claimed before measurement completes.
+Local tests include tar traversal/link/device refusal, precision scoping,
+single-start restoration and midnight/calendar-cutoff bypass with the rolling
+deadline still enforced (15 B60 BAR tests and 32 inference tests pass).
+
 Read-only discovery on 2026-09-25 reconciled the documented baseline:
 
 - Proxmox 9.2.20, kernel `7.0.14-19-pve`, Dell BIOS A31 dated 2019-06-05.

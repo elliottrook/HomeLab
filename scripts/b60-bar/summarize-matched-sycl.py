@@ -14,6 +14,7 @@ parser.add_argument('--fusion-disabled-retry', action='store_true')
 parser.add_argument('--instrumented', action='store_true')
 parser.add_argument('--exclusive', action='store_true')
 parser.add_argument('--run-id')
+parser.add_argument('--precision',choices=['fp32','fp16'],default='fp32')
 parser.add_argument('--write-report', action='store_true')
 parser.add_argument('--evidence-root', type=Path, default=root, help='Override only for offline fixtures')
 args = parser.parse_args()
@@ -34,10 +35,10 @@ for label in ['vulkan-pre', 'sycl', 'vulkan-post']:
             group.append(json.loads(raw))
     groups[label] = group
 
-report = {'schema_version': 1, 'completed_repetitions': {k: len(v) for k, v in groups.items()},
+report = {'schema_version': 1, 'candidate_precision': args.precision, 'completed_repetitions': {k: len(v) for k, v in groups.items()},
           'evidence_sha256': hashes, 'backends': {},
           'limitations': ['End-to-end request latency, not isolated decode or TTFT.',
-                          'Official FP32 SYCL and Vulkan release builds use different backend kernels.',
+                          'Official '+args.precision.upper()+' SYCL and Vulkan release builds use different backend kernels.',
                           'Four known fixture-scoring failures remain baseline limitations.',
                           'Synthetic post-policy analysis does not prove arbitrary household correctness.']}
 for label, group in groups.items():
