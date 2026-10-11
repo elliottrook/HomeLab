@@ -31,22 +31,28 @@ class DigestTextTests(unittest.TestCase):
             "The warning applies across British Columbia.",
         )
 
+    def test_dotted_abbreviation_expands_before_possessive(self):
+        self.assertEqual(
+            speech_text("B.C.'s premier discussed U.S.'s response."),
+            "British Columbia's premier discussed United States's response.",
+        )
+
     def test_speech_expands_dotted_us_abbreviation(self):
         self.assertEqual(
             speech_text("U.S. suspect connected to U.S.A. school shooting."),
             "United States suspect connected to United States school shooting.",
         )
 
-    def test_speech_adds_product_name_pronunciations(self):
+    def test_speech_keeps_approved_plain_product_names(self):
         self.assertEqual(
             speech_text("Home Assistant connected to Lutron Caseta."),
-            "Home uh-sist-unt connected to Loo-tron kuh-set-uh.",
+            "Home Assistant connected to Lutron Caseta.",
         )
 
     def test_speech_accepts_accented_caseta(self):
         self.assertEqual(
             speech_text("Lutron Caséta is online."),
-            "Loo-tron kuh-set-uh is online.",
+            "Lutron Caseta is online.",
         )
 
     def test_cross_briefing_repeat_match(self):

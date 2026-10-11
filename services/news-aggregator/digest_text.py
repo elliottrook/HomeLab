@@ -52,9 +52,8 @@ def dedupe_titles(records: list, title_key: str = "title", text_key: Optional[st
     return kept
 
 _DOLLAR_AMOUNT = re.compile(r"(?<!\w)(?:(US|CA|AU)\s*)?\$(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?:\s+(million|billion|trillion))?\b", re.IGNORECASE)
-_US_ABBREVIATION = re.compile(r"\bU\.S(?:\.A)?\.(?=\s|$|[,;:!?])", re.IGNORECASE)
-_BC_ABBREVIATION = re.compile(r"\bB\.C\.(?=\s|$|[,;:!?])", re.IGNORECASE)
-_HOME_ASSISTANT = re.compile(r"\bHome Assistant\b", re.IGNORECASE)
+_US_ABBREVIATION = re.compile(r"\bU\.S(?:\.A)?\.(?=(?:['’]s)?(?:\s|$|[,;:!?]))", re.IGNORECASE)
+_BC_ABBREVIATION = re.compile(r"\bB\.C\.(?=(?:['’]s)?(?:\s|$|[,;:!?]))", re.IGNORECASE)
 _LUTRON_CASETA = re.compile(r"\bLutron Cas[eé]ta\b", re.IGNORECASE)
 
 _ONES = (
@@ -111,9 +110,8 @@ def _spoken_currency(match: re.Match) -> str:
 
 
 def _apply_pronunciations(text: str) -> str:
-    """Use speech-only respellings that are stable in the pinned renderer."""
-    text = _HOME_ASSISTANT.sub("Home uh-sist-unt", text)
-    return _LUTRON_CASETA.sub("Loo-tron kuh-set-uh", text)
+    """Canonicalize approved product spelling without phonetic substitutions."""
+    return _LUTRON_CASETA.sub("Lutron Caseta", text)
 
 
 def _expand_dotted_name(match: re.Match, name: str) -> str:
