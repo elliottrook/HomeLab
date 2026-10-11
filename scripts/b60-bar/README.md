@@ -1,8 +1,8 @@
 # B60 VF BAR proof candidate
 
-This directory contains an attended, one-shot kernel-module proof candidate.
+This directory contains the host-specific B60 full-BAR workaround.
 The fourth approved host trial on 2026-10-10 obtained a 32 GiB physical BAR2.
-Permanent boot promotion remains a separate decision.
+Jason approved persistent deployment and a fifth attended boot reproduced it.
 
 ## Host trials and current candidate
 
@@ -30,10 +30,22 @@ The tested v3 module SHA-256 is
 `7d040a5d709161376a171b32258e37ac4804b051dea2e34f44730ec08a7b5894`.
 Its separate `/boot/initrd.img-7.0.14-23-pve-b60-aligned-test` SHA-256 is
 `5c844425a4d5c124334b6f7cea0bc1f20f4b619c65edb0536937d0c77965d308`.
-The normal 7.0.14-23 initramfs and installed module were restored/retained as
-v2; the 7.0.14-20 rollback was untouched. The test GRUB entry and `next_entry`
-were removed after boot. A later normal reboot therefore returns to the normal
-small-BAR path; the fourth trial has not been made the persistent default.
+The normal 7.0.14-23 initramfs and installed module remain v2; the 7.0.14-20
+rollback is untouched. The temporary test entry and `next_entry` were removed.
+The approved persistent generator `41_b60_bar` and `zz-b60-bar.cfg` now select
+`b60-bar-aligned-7.0.14-23` by default. Boot ID
+`0b822e46-9f9e-469b-8927-38782b20dcc5` reproduced full BAR and full CPU-accessible
+VRAM. The separate verified image retains its historical `aligned-test` name.
+
+This entry is deliberately pinned to kernel 7.0.14-23 and its verified image.
+Do not remove that kernel or silently adopt a new kernel: rebuild and validate
+the helper/image against matching headers before separately approved migration.
+No DKMS or automatic cross-kernel deployment is configured.
+
+For console recovery select a normal 7.0.14-23 or retained 7.0.14-20 entry under
+Advanced options. To revert the default, remove only
+`/etc/default/grub.d/zz-b60-bar.cfg`, then run `update-grub`; normal boot returns
+to the small-BAR path. This recovery mutation requires appropriate authorization.
 
 Build using `Kbuild` from a clean module directory and the matching headers:
 

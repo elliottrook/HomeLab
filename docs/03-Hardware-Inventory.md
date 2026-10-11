@@ -42,14 +42,15 @@
     the B60; attach `hostpci0` only immediately before intentional rollback use
     and remove it again before returning the device to host inference.
     The unused audio function `05:00.0` is isolated separately in group 57.
-  - Normal boot exposes a 256 MiB physical BAR. The separately approved
+  - The former normal boot exposed a 256 MiB physical BAR. The separately approved
     2026-10-10 attended kernel 7.0.14-23 trial obtained a 32 GiB BAR using an
     exact-device aligned PCI reservation and a pre-driver helper that shrinks
     the disabled VF allocation to 6 GiB. `xe` exposes all usable VRAM and
-    production Vulkan generation passes. This is a successful trial, not a
-    persistent boot promotion: the temporary GRUB entry was removed and the
-    normal initramfs retained. A normal future reboot returns to the small-BAR
-    path. Level Zero/OpenCL/OVMS enumeration after this fix is untested; see
+    production Vulkan generation passes. Jason approved persistent promotion;
+    the pinned full-BAR GRUB default reproduced the result on a further attended
+    reboot. Normal kernel 23 and retained kernel 20 entries/images remain for
+    small-BAR recovery. Kernel migration requires helper rebuild and validation.
+    Level Zero/OpenCL/OVMS enumeration after this fix is untested; see
     [B60 inference engineering](projects/B60-Inference-Engineering.md).
   - Quadro K620 removed.
   - Confirmed live 2026-09-15: `04:00.0` is on `xe`, LXC 110 Vulkan identifies

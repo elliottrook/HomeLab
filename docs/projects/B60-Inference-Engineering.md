@@ -1,6 +1,6 @@
 # B60 inference engineering
 
-> Status: Active — full BAR proven in attended trial; persistent promotion pending
+> Status: Active — full BAR persistently deployed; repeat boot and production recovery validated
 >
 > Owner: Jason
 >
@@ -416,13 +416,31 @@ The test entry and GRUB `next_entry` were removed after boot. Normal
 `3d514d6c0f2c4724b84b205adc9c0bebe4fb828dd76f1677d4e5a40d55963450`,
 and retained 7.0.14-20 initramfs remains
 `9ea827de6a9fd0bfde7ce6636ca2cd583ebe7c2a3521791d4f1e669ba3bca22a`.
-A normal future reboot returns to the small-BAR path. Persistent boot promotion,
-repeat boot proof and any Level Zero/SYCL package/backend trial remain separate
-decisions. This result proves full BAR access, not faster inference.
+Jason subsequently approved persistent boot promotion and a final attended
+reboot. `/etc/grub.d/41_b60_bar` and
+`/etc/default/grub.d/zz-b60-bar.cfg` select the pinned
+`b60-bar-aligned-7.0.14-23` entry and the same verified image. Repeat boot ID
+`0b822e46-9f9e-469b-8927-38782b20dcc5` reproduced 32 GiB BAR2, 16 MiB BAR0,
+6 GiB VF reservation and fully CPU-accessible usable VRAM. Normal 23 and
+retained 20 recovery entries remain unchanged. Kernel upgrades require explicit
+rebuild/validation; no automatic helper migration is installed. Any
+Level Zero/SYCL package/backend trial remains a separate decision.
+This result proves full BAR access, not faster inference.
 
 Source, build method, host-specific GRUB candidate and recovery details are in
 `scripts/b60-bar/README.md`. The unsigned module's kernel taint is expected and
 recorded; no firmware or BIOS change was needed.
+
+Persistent repeat-boot recovery passed: accepted binary and unit hashes match,
+`scripts/check-aster-b60.sh` passes, and inference/Aster health is `ok` from
+LXC 114's established client path. Authenticated synthetic 7+5 generation
+returned the correct answer in 0.458 seconds (three completion tokens; not a
+performance benchmark). Host evidence:
+`/var/lib/b60-inference/evidence/2026-10-10-bar-persistent-generation.json`,
+SHA-256 `970e93c387a817c0f445da06768f140ebef2587979a921b8251c12dd57a764f6`.
+All expected guests and news timers recovered. Host-management-source HTTP
+checks time out while same-VLAN client checks pass; no firewall change was made.
+The source-report startup race was handled by a normal refresh after readiness.
 
 ### M4 — Alternative runtime and model interface
 

@@ -459,6 +459,15 @@ documented stop/30-second-quiesce/clean-start sequence, then run
 
 ## Restart and rollback
 
+The approved B60 full-BAR boot is now the default via
+`/etc/default/grub.d/zz-b60-bar.cfg` and `/etc/grub.d/41_b60_bar`, pinned to
+7.0.14-23 and its separately verified aligned initramfs. A repeated attended
+boot on 2026-10-10 reproduced 32 GiB BAR2 and full CPU-accessible usable VRAM.
+Normal 23 and retained 20 entries remain under GRUB Advanced options for
+console recovery. Do not remove the pinned kernel or assume a kernel update
+will carry the custom helper forward; rebuild and validate before migration.
+See `scripts/b60-bar/README.md` for exact hashes and default rollback.
+
 Restart the lightweight harness without reloading the model:
 
 ```sh

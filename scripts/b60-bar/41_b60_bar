@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+
+# Pinned, independently verified image; retain normal kernel entries for recovery.
+cat <<'EOF'
+menuentry 'Proxmox 7.0.14-23-pve — B60 full BAR' --class proxmox --class gnu-linux --class gnu --class os --id 'b60-bar-aligned-7.0.14-23' {
+ load_video
+ insmod gzio
+ if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+ insmod part_gpt
+ insmod lvm
+ insmod ext2
+ set root='lvmid/G0T7v3-tL4P-jUP1-3uxL-ajq2-J7SS-aB43jf/Wyj8ok-zotm-2WsR-IK7J-vlDH-BhhN-XnRg02'
+ if [ x$feature_platform_search_hint = xy ]; then
+  search --no-floppy --fs-uuid --set=root --hint='lvmid/G0T7v3-tL4P-jUP1-3uxL-ajq2-J7SS-aB43jf/Wyj8ok-zotm-2WsR-IK7J-vlDH-BhhN-XnRg02' 62705a95-3c51-4a5b-9a44-e683c314e990
+ else
+  search --no-floppy --fs-uuid --set=root 62705a95-3c51-4a5b-9a44-e683c314e990
+ fi
+ linux /boot/vmlinuz-7.0.14-23-pve root=/dev/mapper/pve-root ro quiet pci=realloc=on "pci=resource_alignment=35@0000:04:00.0"
+ initrd /boot/initrd.img-7.0.14-23-pve-b60-aligned-test
+}
+EOF
