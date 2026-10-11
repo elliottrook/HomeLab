@@ -60,13 +60,18 @@ def restore():
     print(guest(114, 'python3', '/run/b60-bar-validate-generation.py'), flush=True)
     guest(114, 'systemctl', 'start', 'news-aggregator-ingest.timer', 'news-aggregator-digest.timer')
 
-def main():
+def main(fusion_disabled_retry=False):
+    global OUT
+    if fusion_disabled_retry:
+        OUT = '/var/lib/b60-inference/evidence/matched-sycl-fusion-off-20261010'
     # The separate host watchdog remains armed until verified restoration.
-    with open(ROOT + '/preflight.json') as f:
+    with open(ROOT + ('/preflight-fusion-retry.json' if fusion_disabled_retry else '/preflight.json')) as f:
         preflight = json.load(f)
     # Already validated in-window; require unchanged, recently recorded evidence.
     age = datetime.now(TZ) - guard.parse_time(preflight['collected_at'])
     assert 0 <= age.total_seconds() <= 600
+    if fusion_disabled_retry:
+        guard.validate_preflight(preflight, datetime.now(TZ), 25, approved_fusion_retry=True)
     for label in ['vulkan-pre', 'sycl', 'vulkan-post']:
         for rep in ['warmup', '1', '2', '3', '4', '5']:
             guest(114, 'test', '!', '-e', f'{OUT}-{label}-{rep}.json')
@@ -85,7 +90,9 @@ def main():
         guest(110, 'systemd-run', '--unit=aster-b60-candidate', '--property=User=ollama',
               '--property=Group=ollama', '--property=SupplementaryGroups=video render',
               '--property=Restart=no', '--property=RuntimeMaxSec=900', '--property=TimeoutStopSec=30',
+              '--property=LimitCORE=0',
               '--setenv=LD_LIBRARY_PATH=' + libs, '--setenv=ONEAPI_DEVICE_SELECTOR=level_zero:gpu',
+              *(['--setenv=GGML_SYCL_ENABLE_FUSION=0'] if fusion_disabled_retry else []),
               '/opt/b60-level-zero-trial-20261010/llama-sycl-fp32/llama-b11429/llama-server',
               '-m', '/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf',
               '-ngl', '999', '-c', '8192', '-np', '1', '-t', '4', '-tb', '4',
@@ -122,8 +129,11 @@ def main():
         else:
             guest(114, 'systemctl', 'start', 'news-aggregator-ingest.timer', 'news-aggregator-digest.timer')
     suite('vulkan-post', 'aster-llama.service')
-    run(['systemctl', 'stop', 'b60-matched-restore.timer'])
+    run(['systemctl', 'stop', 'b60-fusion-restore.timer' if fusion_disabled_retry else 'b60-matched-restore.timer'])
     print('MATCHED TRIAL COMPLETE; ACCEPTED PRODUCTION RESTORED', flush=True)
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--fusion-disabled-retry', action='store_true')
+    main(parser.parse_args().fusion_disabled_retry)

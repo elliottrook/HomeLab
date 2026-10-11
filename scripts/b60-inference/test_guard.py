@@ -29,6 +29,22 @@ def snapshot():
 
 
 class GuardTests(unittest.TestCase):
+    def test_one_time_fusion_preflight_exception_keeps_freshness_and_date(self):
+        item = snapshot()
+        item.update(collected_at='2026-10-10T22:28:00-07:00',
+                    backup_completed_at='2026-10-10T02:44:00-07:00',
+                    mirror_completed_at='2026-10-10T04:24:00-07:00')
+        now = datetime.fromisoformat('2026-10-10T22:29:00-07:00')
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(item, now, 25)
+        result = guard.validate_preflight(item, now, 25, approved_fusion_retry=True)
+        self.assertIn('23:20:00', result['experiment_deadline'])
+        self.assertIn('23:40:00', result['restoration_deadline'])
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(item, datetime.fromisoformat('2026-10-10T22:34:00-07:00'), 25, approved_fusion_retry=True)
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(item, datetime.fromisoformat('2026-10-11T22:29:00-07:00'), 25, approved_fusion_retry=True)
+
     def test_retired_production_hashes_are_rejected(self):
         old = snapshot()
         old['binary_sha256'] = '47692a3806ad5615c218e347f3bd55870436f07117c041cea7bf880b3b978693'

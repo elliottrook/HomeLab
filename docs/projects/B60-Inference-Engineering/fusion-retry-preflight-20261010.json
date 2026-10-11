@@ -1,0 +1,14 @@
+{
+  "collected_at": "2026-10-10T22:27:56-07:00",
+  "backup_completed_at": "2026-10-10T02:43:57.686134-07:00",
+  "mirror_completed_at": "2026-10-10T04:24:33-07:00",
+  "mirror_state": "SUCCESS",
+  "service_health": "ok",
+  "driver": "xe",
+  "vulkan_device": "Intel(R) Arc(tm) Pro B60 Graphics (BMG G21)",
+  "binary_sha256": "5faf410bbbc00a1b94b09ee01623699f255365628dfa73b1ee552d9e52a2231d",
+  "unit_sha256": "6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e",
+  "disk_free_bytes": 21503164416,
+  "ram_available_bytes": 13563001856,
+  "vram_headroom_bytes": 20383584256
+}

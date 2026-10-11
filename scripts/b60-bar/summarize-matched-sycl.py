@@ -3,10 +3,13 @@
 import hashlib
 import json
 import statistics
+import argparse
 from pathlib import Path
 
 root = Path('/var/lib/b60-inference/evidence')
-prefix = 'matched-sycl-20261010'
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--fusion-disabled-retry', action='store_true')
+prefix = 'matched-sycl-fusion-off-20261010' if parser.parse_args().fusion_disabled_retry else 'matched-sycl-20261010'
 groups = {}
 hashes = {}
 for label in ['vulkan-pre', 'sycl', 'vulkan-post']:

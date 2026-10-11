@@ -37,7 +37,8 @@ def parse_time(value: str) -> datetime:
     return result.astimezone(TZ)
 
 
-def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: int) -> dict[str, Any]:
+def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: int,
+                       approved_fusion_retry: bool = False) -> dict[str, Any]:
     required = {
         "collected_at", "backup_completed_at", "mirror_completed_at", "mirror_state",
         "service_health", "driver", "vulkan_device", "binary_sha256", "unit_sha256",
@@ -46,8 +47,12 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
     if set(data) != required:
         raise GuardError(f"preflight keys differ: missing={sorted(required-set(data))} extra={sorted(set(data)-required)}")
     local_now = now.astimezone(TZ)
-    if not (local_now.hour == PREFLIGHT_HOUR and
-            PREFLIGHT_FIRST_MINUTE <= local_now.minute <= PREFLIGHT_LAST_MINUTE):
+    ordinary_window = (local_now.hour == PREFLIGHT_HOUR and
+                       PREFLIGHT_FIRST_MINUTE <= local_now.minute <= PREFLIGHT_LAST_MINUTE)
+    # Jason's explicit one-time exception, not a new recurring collection window.
+    retry_window = (approved_fusion_retry and local_now.date().isoformat() == '2026-10-10'
+                    and local_now.hour == 22 and 15 <= local_now.minute < 55)
+    if not (ordinary_window or retry_window):
         raise GuardError("preflight must run from 22:00 through 22:14 America/Vancouver")
     collected = parse_time(data["collected_at"])
     if collected > local_now or local_now - collected > timedelta(minutes=5):
@@ -143,6 +148,7 @@ def main(argv: list[str] | None = None) -> int:
     preflight = sub.add_parser("preflight")
     preflight.add_argument("snapshot", type=Path)
     preflight.add_argument("--estimated-minutes", type=int, required=True)
+    preflight.add_argument("--approved-fusion-retry-20261010", action="store_true")
     finalizer = sub.add_parser("finalize")
     finalizer.add_argument("--execute", action="store_true")
     finalizer.add_argument("--allow-production", action="store_true")
@@ -150,7 +156,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "preflight":
             payload = json.loads(args.snapshot.read_text(encoding="utf-8"))
-            print(json.dumps(validate_preflight(payload, datetime.now(TZ), args.estimated_minutes), indent=2, sort_keys=True))
+            print(json.dumps(validate_preflight(payload, datetime.now(TZ), args.estimated_minutes,
+                                                args.approved_fusion_retry_20261010), indent=2, sort_keys=True))
         elif not (args.execute and args.allow_production):
             print(json.dumps({"execution_authorized": False, "commands": commands()}, indent=2))
         else:

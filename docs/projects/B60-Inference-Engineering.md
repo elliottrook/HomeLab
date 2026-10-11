@@ -682,6 +682,62 @@ without retry and the corrected fault pattern catches IOMMU faults without
 matching “default.” New milestone remains locally committed pending another
 specifically approved push. Production promotion is not authorized.
 
+#### Explicit fusion-disabled retry and one-time preflight exception
+
+On 2026-10-10 Jason approved one diagnostic compute retry changing only the
+candidate's `GGML_SYCL_ENABLE_FUSION` to 0. After being explicitly told the
+ordinary fresh-preflight collection window had closed, he separately approved
+collecting a new full preflight now. This exception is confined to this one
+retry on 2026-10-10 before the conservative 22:55 load cutoff; all freshness,
+backup/mirror, hashes, headroom, health, correctness, kernel, rollback and
+23:20/23:40 deadlines remain unchanged. It does not change the recurring
+schedule, authorize another failure retry or permit promotion/push.
+
+The guard's opt-in `--approved-fusion-retry-20261010` is date-expiring and
+leaves default timing unchanged. New immutable outputs use prefix
+`matched-sycl-fusion-off-20261010`, preserving the failed attempt's evidence.
+One candidate process is allowed with no restart, 900-second runtime limit,
+core dumps disabled and independent `b60-fusion-restore` transient watchdog.
+If startup/correctness passes, continue the originally requested matched
+five-repetition performance comparison and Vulkan post-control. Any compute
+failure aborts and restores production without an automatic candidate retry.
+
+The fresh 22:27:56 collection passed all unchanged gates. Five new Vulkan
+controls scored 12/16 with only the known four failures: medians 2.417553,
+2.407410, 2.4058685, 2.4137595 and 2.4069545 seconds (aggregate 2.407410).
+The sole fusion-disabled candidate failed at 22:33:59 during startup warmup:
+`Error OP RMS_NORM`, error 44 `UR_RESULT_ERROR_UNSUPPORTED_FEATURE`, exit 1.
+Invocation `10ef71a32e4e4edfaf0a776a55e532bb`. This rejects a fusion-only
+explanation; no SYCL measured repetition or post-failure benchmark ran.
+Finalizer verified production and authenticated generation by 22:34:54,
+with accepted hashes, active health, zero restarts, news timers and Aster
+health passing. No relevant kernel/device fault. Watchdog disarmed only after
+successful restoration; archived failure record SHA-256
+`0025dcc8070fc8406886056173e47286dddfede16f897c134724c99ad8df8011`,
+sanitized trace SHA-256
+`9ab18e76cba9069c199ab1cd5850933d135f7e676e3a9048a21fcd5c27054223`.
+
+Offline review found a concrete trial packaging mismatch: the exact
+[b11429 Ubuntu SYCL release workflow](https://github.com/ggml-org/llama.cpp/blob/b11429/.github/workflows/release.yml)
+pins oneAPI 2026.1 and **Level Zero 1.33.1**; the isolated trial uses matching
+oneAPI 2026.1.1 but Debian loader **1.20.6**. This is a candidate cause, not
+proof of the failing underlying API. Official
+[SYCL backend guidance](https://github.com/ggml-org/llama.cpp/blob/b11429/docs/backend/SYCL.md)
+requires matching package versions. Locally downloaded and inspected the
+publisher's `libze1_1.33.1+u24.04_amd64.deb` (1,089,826 bytes), matching GitHub
+asset digest `298d6d3656a13f112497f557be2cb557efb67374bc7d069aa77a9115db909e1d`.
+Its libc >=2.38 and libstdc++ >=13.1 requirements fit the documented Debian
+13 trial. **Not installed, not staged on the lab, and no new GPU execution.**
+
+Next decision: approve one attempt replacing only the candidate's private
+loader with 1.33.1 (retain fusion off and everything else), including a new
+full fresh preflight if attempted tonight. Source-supported `SYCL_UR_TRACE=2`
+can record UR call diagnostics during startup without credentials/private
+requests, if necessary. Do not blindly switch adapters: current Intel runtime
+documentation describes V2 as default on Xe2/Battlemage, and availability of
+a legacy-switch symbol was not demonstrated in the staged library. No driver,
+firmware, preemption, package-install or global-linker change is proposed.
+
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.
 - [ ] Require tiny-model enumeration, target-architecture correctness, explicit
   fallback/transfer accounting and like-for-like quality comparisons.
