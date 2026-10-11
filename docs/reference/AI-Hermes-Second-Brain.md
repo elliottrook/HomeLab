@@ -10,7 +10,7 @@
 
 Adopt the video's curated, source-aware knowledge architecture for the local assistant without coupling it to Hermes or copying its VPS/cloud deployment.
 
-The useful idea is the knowledge architecture, not the original harness. Aster now runs locally in LXC 104 with a small curated Git-document snapshot and source-attributed retrieval. Local inference remains separate in llama.cpp LXC 110 with Intel Arc Pro B60 24 GB Vulkan acceleration; Hermes and Ollama are disabled but retained as rollback paths. SYCL/Level Zero was confirmed blocked by the current 256 MB physical BAR rather than a software-packaging mismatch. See [`Local-AI.md`](<projects/completed projects/Local-AI.md>) for the evidence trail and [`docs/Aster-Operations.md`](Aster-Operations.md) for the live service.
+The useful idea is the knowledge architecture, not the original harness. Aster runs locally in LXC 104 with a curated Git-document snapshot and source-attributed retrieval. Local inference is separate in llama.cpp LXC 110 on the Intel Arc Pro B60; the active service now uses SYCL/Level Zero. Hermes and Ollama are disabled but retained as rollback paths. The earlier 256 MB physical BAR blocked SYCL at the time; the [2026-10-11 runtime check](<../projects/AI Projects/evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md>) found a 32 GB physical BAR. See [`Local-AI.md`](<projects/completed projects/Local-AI.md>) for the historical investigation and [Aster Operations](Aster-Operations.md) for current service details.
 
 ## Why it fits this project
 

@@ -8,6 +8,16 @@ Aster Companion version 15 is installed in **ordinary mode**. Its manual Codex s
 
 This establishes a **bounded manual handoff**, not routine Ask Codex, automatic engine selection or a Codex sysadmin. The existing household/assistant path remains separate. Local Qwen's general-sysadmin trial was closed without promotion; that does not remove local models from cheaper or narrower tasks.
 
+**2026-10-11 backend change:** read-only checks now find the B60 with a 32 GB
+physical BAR and the accepted local 9B model served by llama.cpp SYCL FP16,
+not Vulkan. The [current-runtime record](evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md)
+pins the changed implementation for future routing measurements. No Stream A
+quality or latency result for SYCL has yet been established; D3 and M1 gates
+do not change. The repository gateway prompt and current references contained
+stale Vulkan claims; local corrections and dated evaluation copies are staged,
+but the gateway and knowledge snapshot have not been refreshed. Aster's live
+answer about its backend therefore remains unverified after the switch.
+
 ## Remaining milestones, in delivery order
 
 | Milestone | What changes for Jason | Evidence needed to finish | Current state |

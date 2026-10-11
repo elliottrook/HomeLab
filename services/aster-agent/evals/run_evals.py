@@ -47,7 +47,7 @@ def forbidden_claim_present(text: str, value: str) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--endpoint", default="http://192.168.70.10:9120/v1/chat/completions")
-    parser.add_argument("--cases", type=Path, default=Path(__file__).with_name("sysadmin-graduation.json"))
+    parser.add_argument("--cases", type=Path, default=Path(__file__).with_name("sysadmin-graduation-current-2026-10-11.json"))
     parser.add_argument("--output", type=Path)
     parser.add_argument("--ids", nargs="*", help="run only these case IDs")
     parser.add_argument("--timeout", type=float, default=240, help="per-case endpoint timeout in seconds")
@@ -69,7 +69,7 @@ def main() -> int:
     for case in cases:
         payload = json.dumps(
             {
-                "model": "aster-qwen3.8-27b",
+                "model": os.environ.get("ASTER_EVAL_MODEL", "aster-qwen3.5-9b"),
                 "messages": [{"role": "user", "content": case["prompt"]}],
                 "temperature": 0.1,
                 "max_tokens": 320,

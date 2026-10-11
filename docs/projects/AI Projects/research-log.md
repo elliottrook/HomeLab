@@ -1,5 +1,20 @@
 # Research log — 2026-09-25
 
+## 2026-10-11 — B60 SYCL production-baseline check
+
+Read-only Proxmox/LXC checks confirmed 32 GB physical B60 BAR2 and an active
+Qwen3.5-9B llama.cpp b11429 SYCL FP16 service with an OK health response.
+The local-model implementation entry and operator reference were updated;
+performance, sustained stability and authenticated Aster-to-model behavior
+remain unknown. The uninstalled read-only B60 check candidate passed `sh -n`
+and one direct-SSH host run; it now checks the active inference health endpoint.
+The repo prompt, current references and default evaluator had stale backend or
+model assumptions, so local corrections and dated evaluation copies were made
+without changing frozen historical suites. `python3` on the Mac lacks PyJWT,
+so its full gateway unit tests could not run; syntax/JSON and dependency-free
+static checks are used here. No inference request, credential read, service
+change or B60 project test was made. See the [runtime reconciliation](evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md).
+
 ## 2026-10-11 — Offline Doctor reader cross-consumer review
 
 Reviewed the local reader candidate against its Aster tool call, preloaded

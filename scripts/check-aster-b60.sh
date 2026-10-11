@@ -23,4 +23,9 @@ pct exec 110 -- systemctl is-active --quiet aster-llama.service || die "aster-ll
 vulkan_summary=$(pct exec 110 -- vulkaninfo --summary 2>/dev/null) || die "vulkaninfo failed in LXC 110"
 printf '%s\n' "$vulkan_summary" | grep -qi 'Intel.*BMG G21' || die "LXC 110 cannot see Intel BMG G21 through Vulkan"
 
-printf '%s\n' 'PASS: B60 xe binding, stopped rollback VM, Aster services, and Vulkan visibility are healthy.'
+inference_health=$(pct exec 110 -- curl --fail --silent --show-error --max-time 5 \
+    http://192.168.70.12:11435/health 2>/dev/null) || die "inference health endpoint is unavailable"
+printf '%s\n' "$inference_health" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"ok"' || \
+    die "inference health endpoint did not report ok"
+
+printf '%s\n' 'PASS: B60 xe binding, stopped rollback VM, Aster services, Vulkan visibility, and active inference endpoint health.'

@@ -42,10 +42,10 @@
     the B60; attach `hostpci0` only immediately before intentional rollback use
     and remove it again before returning the device to host inference.
     The unused audio function `05:00.0` is isolated separately in group 57.
-  - The B60 currently exposes a 256 MB physical BAR. The Proxmox `xe` driver
-    attempted to resize it to 32 GB but the platform could not allocate the
-    aperture. Level Zero/OpenCL/OVMS cannot enumerate the GPU with this BAR,
-    while Mesa Vulkan acceleration works through the `xe`-backed LXC path.
+  - Verified 2026-10-11: B60 physical BAR2 now exposes 32 GB; virtual BAR2
+    still reports 256 MB. The former 256 MB *physical* BAR constraint was
+    resolved before the current llama.cpp SYCL/Level Zero service was started
+    in LXC 110. See the [runtime record](<projects/AI Projects/evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md>).
   - Quadro K620 removed.
   - Confirmed live 2026-09-15: `04:00.0` is on `xe`, LXC 110 Vulkan identifies
     Intel BMG G21, VM 105 is stopped, and `qm config 105` has no persistent

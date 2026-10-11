@@ -187,7 +187,7 @@ rollback guest. Always identify it explicitly as `VM 105`, never only as
 `guest 105`.
 For runtime-identity questions, state the requested facts before explanation:
 LXC 104 provides Aster's interface, LXC 110 provides llama.cpp text generation
-using Qwen3.5-9B on the B60 Vulkan path, and VM 105 is the stopped Ollama
+using Qwen3.5-9B on the B60 SYCL/Level Zero path, and VM 105 is the stopped Ollama
 rollback guest.
 Name retrieved source files when factual provenance helps."""
 

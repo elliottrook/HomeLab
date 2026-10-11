@@ -8,16 +8,18 @@
 | Component | Guest | Endpoint | Service |
 |---|---|---|---|
 | Aster API and browser UI | LXC 104 (`192.168.70.10`) | `http://192.168.70.10:9120` | `aster-agent.service` |
-| llama.cpp Vulkan inference | LXC 110 (`192.168.70.12`) | `http://192.168.70.12:11435/v1` | `aster-llama.service` |
+| llama.cpp SYCL FP16 inference | LXC 110 (`192.168.70.12`) | `http://192.168.70.12:11435/v1` | `aster-llama.service` |
 | Sanitized Forgejo producer | LXC 108 | Forgejo loopback API only | `aster-forgejo-report.service` |
 | Sanitized NetBox producer | LXC 111 | NetBox loopback API only | `aster-netbox-report.service` |
 | Source-report transport | Proxmox host | No network endpoint | `aster-source-reports.timer` |
 
 The browser page asks for the Aster bearer key and stores it in that browser's
-local storage. The API key is stored only in `/etc/aster/aster.env` in LXC 104.
-The separate inference key is stored in that file and in
-`/etc/aster-llama.env` in LXC 110. Both files are root-owned, group-readable by
-only the corresponding service account, and excluded from Git.
+local storage. Aster's server-side credential configuration resides in
+`/etc/aster/aster.env` in LXC 104. The active inference unit in LXC 110 uses
+`--api-key-file /etc/aster-llama-api-keys` and still references
+`/etc/aster-llama.env`. The key file's observed owner/mode is
+`ollama:ollama`/`0600`; the environment files and key contents were not read in
+the 2026-10-11 runtime check. Keep credential values outside Git.
 
 The OpenAI-compatible chat endpoint supports both normal JSON responses and
 authenticated server-sent-event streaming. Streaming was added for Hermes
@@ -46,20 +48,25 @@ where its desktop harness is worth the additional latency.
 
 - llama.cpp b11429 (`d81235049` runtime fingerprint, per the 2026-10-10 change report)
 - Qwen3.5-9B Q4_K_M (`cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13` model SHA-256, per the change report)
-- Vulkan, all model layers offloaded
+- SYCL FP16 through Intel Level Zero, all model layers offloaded by the active unit (`-ngl 999`); current end-to-end throughput is not yet measured by Stream A
 - One 8,192-token slot
 - Four CPU threads, batch 256, microbatch 128
 - Flash attention; Q4 key/value cache
 - Model reasoning disabled by default
 - Automatic real-generation warm-up during service start
 
-Systemd does not report `aster-llama.service` fully started until the model is
-loaded and warm-up completes. This normally takes roughly 1–2 minutes. The
-first real user request then avoids the otherwise roughly 28-second cold path.
-The unit allows up to five minutes for startup, while the health and generation
-steps inside the warm-up script are independently bounded. This prevents
-systemd's 90-second default start timeout from killing a healthy model during a
-slow real-generation warm-up.
+Read-only reconciliation on 2026-10-11 found the B60 physical BAR2 at 32 GB
+and `aster-llama.service` active on the self-contained b11429 SYCL FP16 build;
+its health endpoint returned OK. The unit uses an `ollama`-owned, mode-0600
+API-key file at `/etc/aster-llama-api-keys`, whose contents were not read.
+The [Stream A runtime record](../projects/AI%20Projects/evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md)
+separates these current facts from unmeasured performance and recovery claims.
+
+Systemd does not report `aster-llama.service` fully started until its current
+readiness helper completes. The former Vulkan setup took roughly 1–2 minutes
+to load and warm; current SYCL startup time has not been measured here. The
+unit allows 330 seconds for startup. Validate a real request before claiming
+that readiness also proves generation and template compatibility.
 
 ## Lab Doctor and backup execution
 
@@ -375,8 +382,10 @@ readlink /sys/bus/pci/devices/0000:04:00.0/driver
 pct exec 110 -- vulkaninfo --summary
 ```
 
-The host path must end in `/xe`, and `vulkaninfo` must list Intel BMG G21 as a
-discrete GPU. The former recurring cause was the enabled all-guests `vzdump`
+The host path must end in `/xe`. `vulkaninfo` remains a useful independent GPU
+visibility check, but does **not** prove that the active SYCL/Level Zero server
+is healthy; check `aster-llama.service` and its `/health` endpoint as well.
+The former recurring cause was the enabled all-guests `vzdump`
 job at 02:30: stop-mode backup started stopped rollback VM 105, whose
 persistent `hostpci0: 04:00.0,pcie=1,rombar=0` mapping bound the B60 to
 `vfio-pci`, then stopped QEMU without returning it to `xe`. Logs show this
@@ -420,8 +429,11 @@ while VM 105 is running.
 After a Proxmox or kernel update, or after any VM 105 use, run the read-only
 `scripts/check-aster-b60.sh` command from the Proxmox host before treating
 Aster as ready. It verifies the `xe` binding, stopped rollback VM, absence of a
-persistent B60 mapping, both Aster services, and BMG G21 Vulkan visibility; it
-makes no changes. HomeLab Doctor enforces the same invariants.
+persistent B60 mapping, both Aster services, BMG G21 Vulkan visibility and the
+active inference endpoint's health response; it makes no changes. The Vulkan
+probe is an independent device check, not a claim that SYCL generation was
+tested. HomeLab Doctor enforces the host/service invariants; verify its current
+backend-specific coverage separately before relying on it for SYCL health.
 
 ## Restart and rollback
 
