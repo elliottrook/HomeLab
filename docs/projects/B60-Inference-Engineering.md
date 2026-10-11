@@ -166,6 +166,41 @@ Local tests include tar traversal/link/device refusal, precision scoping,
 single-start restoration and midnight/calendar-cutoff bypass with the rolling
 deadline still enforced (15 B60 BAR tests and 32 inference tests pass).
 
+### Exclusive FP16 session — complete, 2026-10-10 23:58 PDT
+
+The single FP16 candidate invocation `542904b564074298b07c15af63c3d8d6`
+started at 23:47:49 and became ready at 23:49:18; this first precision-specific
+warmup is excluded from performance claims. Actual mappings, backend SHA,
+fusion=1, private loader 1.33.1 and 33/33 B60 offload are recorded in host proof
+SHA-256 `b8d30741fec508973f90986027a597321be50255bd84eeaafce6df0f04fb9bed`.
+Every measured candidate/control suite scored 12/16, with the same four baseline
+limitations and no new scoring, runtime or GPU/kernel failure. FP16 medians:
+2.0357545, 2.029335, 2.0354085, 2.034541, 2.028128 seconds. Combined control
+comparison: **15.5912% lower request latency / 1.18471x request speed**;
+five identical-completion-length cases show 16.1867% median reduction.
+This is one session of short synthetic requests, not yet two-session workflow
+reproducibility or an isolated decode-speed claim.
+
+Validated accepted restoration, protected generation, xe/Vulkan and all five
+post-controls; completed successfully at 23:58:29 and disarmed its watchdog.
+News remains disabled under the exclusive reservation. Complete immutable
+LXC 114 report `matched-sycl-exclusive-20261010-fp16-fusion-on-report.json`,
+SHA-256 `9faacdbc77717e05d7ba46bc9468cead4ebabd1f917f620ad84ca53590202f49`.
+Private staging proof is also preserved durably on the host, mode 0600, at
+`/var/lib/b60-inference/evidence/fp16-stage-proof-20261010.json`.
+
+Prepared the next same-configuration comparison using the existing calibrated
+`aster-grounded-retrieval` (2K) and `aster-context-8k` fixtures: warmup plus
+five measured runs per fixture in Vulkan pre, candidate, Vulkan post phases.
+New identity `20261011-fp16-workflow-1`; no simultaneous short-suite load.
+The source-local runner stops on a failed correctness assertion, persists that
+sample privately, and distinguishes actual server decode rate from the
+completion-tokens/request-time fallback. Summary refuses mismatched prompts,
+token counts, missing repetitions or new correctness failures. Both positive
+and negative paths are tested locally (22 BAR/report tests, 35 inference tests).
+No longer-workflow result is claimed yet. Fresh preflight and rolling watchdog
+remain required; no promotion or Git push has been performed.
+
 Read-only discovery on 2026-09-25 reconciled the documented baseline:
 
 - Proxmox 9.2.20, kernel `7.0.14-19-pve`, Dell BIOS A31 dated 2019-06-05.

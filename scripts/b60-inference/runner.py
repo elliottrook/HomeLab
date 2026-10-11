@@ -119,6 +119,7 @@ def extract_samples(response: dict[str, Any], elapsed: float, run_index: int,
     cached_tokens = usage.get("prompt_tokens_cached", timings.get("cache_n"))
     cache_hit = None if cached_tokens is None else int(cached_tokens) > 0
     decode_rate = timings.get("predicted_per_second")
+    decode_rate_source = "server_predicted_per_second" if decode_rate is not None else "completion_tokens_over_request_seconds"
     if decode_rate is None and completion_tokens and elapsed > 0:
         decode_rate = completion_tokens / elapsed
     common = {
@@ -131,7 +132,7 @@ def extract_samples(response: dict[str, Any], elapsed: float, run_index: int,
     return [
         dict(common, phase="prefill", tokens=prompt_tokens, seconds=prompt_seconds,
              tokens_per_second=prompt_rate),
-        dict(common, phase="decode", tokens=completion_tokens, seconds=elapsed,
+        dict(common, phase="decode", tokens=completion_tokens, seconds=elapsed, rate_source=decode_rate_source,
              tokens_per_second=decode_rate),
     ]
 
@@ -215,7 +216,7 @@ def completion_payload(model: str, case: dict[str, Any], prompt: str) -> dict[st
 
 
 def run_fixture(endpoint: str, model: str, case: dict[str, Any], headers: dict[str, str],
-                transport: Transport = urllib_transport) -> tuple[list[dict[str, Any]], str]:
+                transport: Transport = urllib_transport, stop_on_incorrect: bool = False) -> tuple[list[dict[str, Any]], str]:
     health = transport("GET", endpoint.rstrip("/") + "/health", None, headers)
     if health.get("status") not in {"ok", "healthy"}:
         raise RuntimeError("pre-run health did not report ok/healthy")
@@ -230,6 +231,8 @@ def run_fixture(endpoint: str, model: str, case: dict[str, Any], headers: dict[s
         correctness = evaluate_correctness(case, response)
         samples.extend(extract_samples(response, elapsed, index,
                                        "warmup" if index == 0 else "measured", correctness))
+        if stop_on_incorrect and not all(correctness.values()):
+            break
     post = transport("GET", endpoint.rstrip("/") + "/health", None, headers)
     if post.get("status") not in {"ok", "healthy"}:
         raise RuntimeError("post-run health did not report ok/healthy")
@@ -264,6 +267,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--allow-production-endpoint", action="store_true")
+    parser.add_argument("--stop-on-incorrect", action="store_true", help="Persist the failing sample and stop further requests")
     args = parser.parse_args(argv)
     try:
         case = selected_fixture(args.fixtures, args.fixture)
@@ -281,7 +285,7 @@ def main(argv: list[str] | None = None) -> int:
             if not key:
                 raise harness.ValidationError("API key file is empty")
             headers["Authorization"] = "Bearer " + key
-        samples, prompt = run_fixture(args.endpoint, args.model, case, headers)
+        samples, prompt = run_fixture(args.endpoint, args.model, case, headers, stop_on_incorrect=args.stop_on_incorrect)
         result = {
             "schema_version": "1.0.0", "fixture": case["name"],
             "prompt_sha256": harness.sha256_bytes(prompt.encode()),
@@ -290,6 +294,8 @@ def main(argv: list[str] | None = None) -> int:
         }
         digest = write_immutable(args.output, result)
         print(json.dumps({"output": str(args.output), "sha256": digest}, sort_keys=True))
+        if args.stop_on_incorrect and not all(sample['correct'] for sample in samples):
+            return 1
     except (harness.ValidationError, RuntimeError, OSError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2

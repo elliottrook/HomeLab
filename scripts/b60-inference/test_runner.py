@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 
 HERE = Path(__file__).resolve().parent
@@ -37,6 +38,26 @@ class FakeTransport:
 
 
 class RunnerTests(unittest.TestCase):
+    def test_fail_fast_cli_persists_incorrect_evidence_and_returns_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output=Path(directory)/'failed.json'
+            samples=[dict(phase='decode',correct=False)]
+            with patch.object(runner,'run_fixture',return_value=(samples,'synthetic')),redirect_stdout(io.StringIO()):
+                result=runner.main(['--fixture','aster-grounded-retrieval','--endpoint','http://127.0.0.1:11435',
+                                    '--execute','--stop-on-incorrect','--output',str(output)])
+            self.assertEqual(result,1)
+            self.assertTrue(output.exists())
+            self.assertEqual(output.stat().st_mode&0o777,0o600)
+
+    def test_incorrect_sample_stops_requests_but_remains_available(self):
+        case=runner.selected_fixture(runner.harness.DEFAULT_FIXTURES,'aster-grounded-retrieval')
+        fake=FakeTransport()
+        samples,_=runner.run_fixture('http://127.0.0.1:11435','fixture',case,{},fake,stop_on_incorrect=True)
+        self.assertEqual(len(samples),2)
+        self.assertFalse(samples[0]['correct'])
+        self.assertEqual(sum(call[1].endswith('/v1/chat/completions') for call in fake.calls),1)
+        self.assertEqual(samples[1]['rate_source'],'server_predicted_per_second')
+
     def test_loopback_classification(self):
         self.assertTrue(runner.is_loopback("http://127.0.0.1:11435"))
         self.assertTrue(runner.is_loopback("http://localhost:8080"))

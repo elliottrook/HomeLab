@@ -79,6 +79,7 @@
           "tokens": { "type": "integer", "minimum": 0 },
           "seconds": { "type": "number", "minimum": 0 },
           "tokens_per_second": { "type": ["number", "null"], "minimum": 0 },
+          "rate_source": { "enum": ["server_predicted_per_second", "completion_tokens_over_request_seconds"] },
           "gpu_resident": { "type": ["boolean", "null"] },
           "cpu_fallback_detected": { "type": ["boolean", "null"] },
           "prompt_cache_hit": { "type": ["boolean", "null"] },

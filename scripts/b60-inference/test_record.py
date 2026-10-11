@@ -18,6 +18,14 @@ SPEC.loader.exec_module(record_module)
 
 
 class RecordTests(unittest.TestCase):
+    def test_decode_rate_origin_is_preserved_and_schema_valid(self):
+        with tempfile.TemporaryDirectory() as directory_name:
+            values=self.inputs(Path(directory_name))
+            for sample in values[2]['samples']:
+                if sample['phase']=='decode': sample['rate_source']='server_predicted_per_second'
+            result=record_module.assemble(*values,'','Vulkan Intel BMG G21; offloaded 65/65 layers to GPU')
+            self.assertEqual(result['samples'][1]['rate_source'],'server_predicted_per_second')
+
     def inputs(self, directory: Path):
         case = record_module.runner.selected_fixture(record_module.harness.DEFAULT_FIXTURES, "tg128-warm-pos0")
         samples = []

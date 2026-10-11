@@ -14,9 +14,24 @@ spec.loader.exec_module(matched)
 
 class MatchedTrialTests(unittest.TestCase):
     def setUp(self):
-        for name in ['OUT','EXCLUSIVE','INSTRUMENTED','EXCLUSIVE_DEADLINE']:
+        for name in ['OUT','EXCLUSIVE','INSTRUMENTED','EXCLUSIVE_DEADLINE','WORKFLOWS']:
             original=getattr(matched,name)
             self.addCleanup(setattr,matched,name,original)
+
+    def test_workflow_dispatch_cannot_run_short_suite_concurrently(self):
+        with patch.object(matched,'WORKFLOWS',True),patch.object(matched,'workflow_suite') as workflow,patch.object(matched,'guest') as guest:
+            matched.suite('sycl','aster-b60-candidate.service')
+            workflow.assert_called_once_with('sycl','aster-b60-candidate.service')
+            guest.assert_not_called()
+
+    def test_short_suite_still_runs_warmup_and_five_scored_repetitions(self):
+        with patch.object(matched,'WORKFLOWS',False),patch.object(matched,'gates') as gates,patch.object(matched,'guest',return_value='') as guest:
+            matched.suite('sycl','aster-b60-candidate.service')
+            self.assertEqual(gates.call_count,12)
+            self.assertEqual(sum(c.args[1]=='timeout' for c in guest.call_args_list),6)
+
+    def test_workflow_cannot_escape_exclusive_authorization(self):
+        with self.assertRaises(AssertionError): matched.main(workflows=True)
 
     def test_exclusive_session_crosses_calendar_cutoff_but_not_rolling_deadline(self):
         deadline=datetime(2026,10,11,0,10,tzinfo=ZoneInfo('America/Vancouver'))

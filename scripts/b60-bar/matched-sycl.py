@@ -18,6 +18,8 @@ FAULT = r'GPU HANG|wedged|device lost|DMAR.*(fault|error)|IOMMU.*\sfault|Out of 
 INSTRUMENTED = False
 EXCLUSIVE = False
 EXCLUSIVE_DEADLINE = None
+WORKFLOWS = False
+WORKFLOW_FIXTURES = ['aster-grounded-retrieval','aster-context-8k']
 
 def run(args, timeout=180, okay=(0,)):
     p = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
@@ -49,6 +51,8 @@ def gates(unit):
     guest(110, 'python3', '-c', 'import shutil; assert shutil.disk_usage("/").free>=20*1024**3; m=dict(line.split(":",1) for line in open("/proc/meminfo")); assert int(m["MemAvailable"].split()[0])*1024>=4*1024**3')
 
 def suite(label, unit, repetitions=None):
+    if WORKFLOWS:
+        return workflow_suite(label,unit)
     for rep in (repetitions if repetitions is not None else ['warmup', '1', '2', '3', '4', '5']):
         gates(unit)
         target = f'{OUT}-{label}-{rep}.json'
@@ -62,6 +66,21 @@ def suite(label, unit, repetitions=None):
         print(result, flush=True)
         check = 'import json,sys; d=json.load(open(sys.argv[1])); assert len(d["results"])==16; assert all(r["elapsed_seconds"] is not None for r in d["results"]); assert d["pass_count"]>=12; assert {r["id"] for r in d["results"] if not r["passed"]}<={"stale-news","contradictory-sources","missing-evidence","private-public-join"}'
         guest(114, 'python3', '-c', check, target)
+        gates(unit)
+
+def workflow_suite(label,unit):
+    for fixture in WORKFLOW_FIXTURES:
+        gates(unit)
+        target=f'{OUT}-{label}-{fixture}.json'
+        print(f'BEGIN {label} {fixture}',flush=True)
+        result=guest(114,'timeout','420','python3','/run/b60-workflow/runner.py',
+                     '--fixtures','/run/b60-workflow/synthetic-fixtures.json','--fixture',fixture,
+                     '--endpoint','http://192.168.70.12:11435','--api-key-file','/root/.news-aggregator-llama-key',
+                     '--output',target,'--execute','--allow-production-endpoint','--stop-on-incorrect',
+                     timeout=430,okay=(0,1))
+        print(result,flush=True)
+        check='import json,sys,statistics; d=json.load(open(sys.argv[1])); s=d["samples"]; assert d["health_passed"] and len(s)==12 and all(r["correct"] for r in s); measured=[r for r in s if r["control_role"]=="measured" and r["phase"]=="decode"]; assert len(measured)==5 and all(r["tokens"]>0 and r["seconds"]>0 for r in measured); print(json.dumps({"fixture":d["fixture"],"prompt_sha256":d["prompt_sha256"],"latency_median_seconds":statistics.median(r["seconds"] for r in measured),"decode_median_tokens_per_second":statistics.median(r["tokens_per_second"] for r in measured),"rate_sources":sorted({r["rate_source"] for r in measured}),"prompt_tokens":sorted({r["tokens"] for r in s if r["phase"]=="prefill"}),"passed":True}))'
+        print(guest(114,'python3','-c',check,target),flush=True)
         gates(unit)
 
 def restore():
@@ -78,10 +97,12 @@ def restore_news():
         elif enabled != 'disabled':
             raise RuntimeError('unexpected news schedule enablement state')
 
-def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_id=None, fusion='0', precision='fp32'):
-    global OUT, INSTRUMENTED, EXCLUSIVE, EXCLUSIVE_DEADLINE
+def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_id=None, fusion='0', precision='fp32', workflows=False):
+    global OUT, INSTRUMENTED, EXCLUSIVE, EXCLUSIVE_DEADLINE, WORKFLOWS
     INSTRUMENTED = instrumented
     EXCLUSIVE = exclusive
+    WORKFLOWS = workflows
+    assert not workflows or exclusive
     if run_id is not None:
         assert exclusive and re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',run_id)
     assert fusion in ['0','1']
@@ -106,7 +127,7 @@ def main(fusion_disabled_retry=False, instrumented=False, exclusive=False, run_i
     elif fusion_disabled_retry:
         guard.validate_preflight(preflight, datetime.now(TZ), 25, approved_fusion_retry=True)
     for label in ['vulkan-pre', 'sycl', 'vulkan-post']:
-        for rep in ['warmup', '1', '2', '3', '4', '5']:
+        for rep in (WORKFLOW_FIXTURES if workflows else ['warmup', '1', '2', '3', '4', '5']):
             guest(114, 'test', '!', '-e', f'{OUT}-{label}-{rep}.json')
     guest(110, 'python3', '-c', 'import shutil; assert shutil.disk_usage("/").free >= 20*1024**3')
     candidate_started = False
@@ -177,5 +198,6 @@ if __name__ == '__main__':
     parser.add_argument('--run-id', help='Unique immutable exclusive-session identity')
     parser.add_argument('--fusion', choices=['0','1'], default='0', help='One-variable exclusive SYCL comparison')
     parser.add_argument('--precision', choices=['fp32','fp16'], default='fp32')
+    parser.add_argument('--workflows',action='store_true',help='Grounded 2K and marker-recall 8K fixtures, warmup plus five measurements per phase')
     args = parser.parse_args()
-    main(args.fusion_disabled_retry, args.instrumented, args.exclusive, args.run_id, args.fusion, args.precision)
+    main(args.fusion_disabled_retry, args.instrumented, args.exclusive, args.run_id, args.fusion, args.precision,args.workflows)
