@@ -42,6 +42,10 @@ retained. Postchecks found the gateway healthy and the `aster` account's
 representative runtime search returning the reviewed 9B/SYCL source first.
 This does not authorize a whole-file gateway deploy; branch/live source drift
 remains open. See the runtime reconciliation for hashes and rollback paths.
+The deployed deterministic identity shortcut was then represented in the local
+branch with a narrow routing regression; the staged repository gateway suite
+passed 199 tests. Live UI styling and Doctor-reader source still differ, so
+whole-file deployment remains held.
 
 ## 2026-10-11 — Offline Doctor reader cross-consumer review
 

@@ -17,9 +17,11 @@ do not change. The repository gateway prompt and current references contained
 stale Vulkan claims; local corrections and dated evaluation copies are staged,
 and a bounded live correction now aligns the deployed deterministic identity,
 prompt and curated knowledge with 9B/SYCL. A service-account retrieval check
-passes against the full refreshed 1,825-source snapshot. The deployed gateway
-has additional live-only code absent from this branch, so a whole-file deploy
-is held pending reconciliation; authenticated answer quality is unverified.
+passes against the full refreshed 1,825-source snapshot. The deterministic
+identity shortcut is now represented locally and the staged 199-test suite
+passes, but deployed UI styling and Doctor-reader code still differ from this
+branch. A whole-file gateway deploy remains held. Authenticated answer quality
+is unverified.
 
 ## Remaining milestones, in delivery order
 

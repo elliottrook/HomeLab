@@ -193,6 +193,15 @@ model or backend from this prompt; if that evidence is stale or conflicting,
 say so instead of guessing.
 Name retrieved source files when factual provenance helps."""
 
+# Temporary exact-identity answer for the currently deployed local runtime.
+# Change only after verifying the serving process and model; a future
+# capability/runtime registry should replace this hand-maintained declaration.
+ASTER_RUNTIME_IDENTITY = (
+    "Aster's interface runs in LXC 104. Local text inference runs Qwen3.5-9B "
+    "reasoning-off through llama.cpp b11429 on the Intel Arc Pro B60 SYCL/Level Zero "
+    "path in LXC 110. VM 105 is the stopped Ollama rollback guest."
+)
+
 app = FastAPI(title="Aster Agent", version="1.0.0")
 lab_operations = LabOperations()
 app.include_router(lab_operations.router)
@@ -1466,6 +1475,66 @@ async def personas() -> dict[str, Any]:
     }
 
 
+def runtime_identity_requested(messages: list[dict[str, Any]]) -> bool:
+    """Recognize explicit runtime questions without widening general routing."""
+    text = next(
+        (
+            str(message.get("content", "")).strip().lower()
+            for message in reversed(messages)
+            if message.get("role") == "user" and isinstance(message.get("content"), str)
+        ),
+        "",
+    )
+    if not text:
+        return False
+    return bool(
+        re.search(r"\b(?:what|which)\s+(?:exact\s+|local\s+)*(?:model|runtime)\b", text)
+        or re.search(r"\bidentify\b.*\b(?:model|runtime|inference|gpu|container)\b", text)
+        or re.search(r"\bwhere\b.*\b(?:inference|llama\.cpp|model)\b.*\b(?:run|runs|running|hosted)\b", text)
+        or re.search(r"\b(?:model|runtime|inference)\b.*\b(?:using|run|runs|running|hosted)\b", text)
+    )
+
+
+def deterministic_completion(text: str, stream: bool = False) -> dict[str, Any] | StreamingResponse:
+    created = int(time.time())
+    completion_id = "chatcmpl-" + uuid.uuid4().hex
+    model = "aster-qwen3.5-9b"
+    fingerprint = "aster-deterministic-runtime-identity-v1"
+    if stream:
+        async def chunks():
+            yield "data: " + json.dumps({
+                "id": completion_id,
+                "object": "chat.completion.chunk",
+                "created": created,
+                "model": model,
+                "system_fingerprint": fingerprint,
+                "choices": [{"index": 0, "delta": {"role": "assistant", "content": text}, "finish_reason": None}],
+            }) + "\n\n"
+            yield "data: " + json.dumps({
+                "id": completion_id,
+                "object": "chat.completion.chunk",
+                "created": created,
+                "model": model,
+                "system_fingerprint": fingerprint,
+                "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+            }) + "\n\n"
+            yield "data: [DONE]\n\n"
+        return StreamingResponse(chunks(), media_type="text/event-stream")
+    return {
+        "id": completion_id,
+        "object": "chat.completion",
+        "created": created,
+        "model": model,
+        "system_fingerprint": fingerprint,
+        "choices": [{
+            "index": 0,
+            "message": {"role": "assistant", "content": text},
+            "finish_reason": "stop",
+        }],
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+    }
+
+
 @app.post("/v1/chat/completions", dependencies=[Depends(require_api_key)], response_model=None)
 async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
     persona = PERSONAS.get(request.persona)
@@ -1474,6 +1543,9 @@ async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
     allowed_tools = persona["tools"]
     if request.enabled_tools is not None:
         allowed_tools = allowed_tools & set(request.enabled_tools)
+
+    if runtime_identity_requested(request.messages):
+        return deterministic_completion(ASTER_RUNTIME_IDENTITY, request.stream)
 
     if request.stream and request.progress:
         return progress_chat(request, persona, allowed_tools)
@@ -1639,7 +1711,7 @@ body{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0}main{max-widt
 #chat{min-height:55vh;white-space:pre-wrap}.m{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}.u{background:#1e3a5f}
 textarea,input,button{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}
 textarea{width:100%;box-sizing:border-box;min-height:90px}button{cursor:pointer;background:#2563eb;border:0;margin-top:8px}#key{width:20rem;max-width:90%}.muted{color:#9ca3af;font-size:.9rem}
-</style></head><body><main><h1>Aster</h1><p class="muted">Local Qwen 3.5 9B · llama.cpp Vulkan · scoped tools</p>
+</style></head><body><main><h1>Aster</h1><p class="muted">Local Qwen 3.5 9B · llama.cpp SYCL · scoped tools</p>
 <label>API key <input id="key" type="password" autocomplete="off"></label><div id="chat"></div>
 <textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
 <script>

@@ -147,9 +147,13 @@ mirror digest, and the `aster` service account retrieved the reviewed current
 inference model or service, credential, policy, tool grant, Companion mode or
 Codex handoff was changed.
 
-**Remaining source-drift gate:** the deployed deterministic identity and UI
-changes are still absent from this branch. Do not deploy the branch gateway
-file wholesale until those live-only changes are reconciled and tested.
+**Remaining source-drift gate:** the deployed deterministic identity shortcut
+has now been represented in this branch and the staged repository suite passes
+**199 tests**. Its runtime declaration is still manually versioned and should
+eventually come from a verified registry or source-local descriptor. Deployed
+UI styling and the existing-reader implementation still differ from this
+branch. Do not deploy the branch gateway file wholesale until those live-only
+differences are reconciled and tested.
 Authenticated end-to-end model answers, sustained stability, performance and
 Doctor's active-SYCL coverage remain unverified. The local corrected
 graduation suites were not sent to the model in this operation.

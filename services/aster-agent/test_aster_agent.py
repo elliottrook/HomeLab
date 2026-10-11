@@ -13,6 +13,7 @@ from pydantic import ValidationError
 import httpx
 
 from aster_agent import (
+    ASTER_RUNTIME_IDENTITY,
     ASTER_SYSTEM_PROMPT,
     DEFAULT_PERSONA,
     PERSONAS,
@@ -27,11 +28,13 @@ from aster_agent import (
     get_arr_repair_dry_run_proposal,
     get_lab_health,
     companion_claims,
+    deterministic_completion,
     normalized_messages,
     personas,
     preload_read_only_context,
     relay_progress_stream,
     require_api_key,
+    runtime_identity_requested,
     search_knowledge,
     select_tools,
 )
@@ -48,6 +51,19 @@ class AsterAgentTests(unittest.TestCase):
         self.assertIn("Always identify it explicitly as `VM 105`", ASTER_SYSTEM_PROMPT)
         self.assertIn("Aster is not the\nfirst recovery dependency", ASTER_SYSTEM_PROMPT)
         self.assertIn("independent local access", ASTER_SYSTEM_PROMPT)
+
+    def test_deployed_runtime_shortcut_is_versioned_and_narrow(self):
+        self.assertIn("Qwen3.5-9B", ASTER_RUNTIME_IDENTITY)
+        self.assertIn("SYCL/Level Zero", ASTER_RUNTIME_IDENTITY)
+        self.assertTrue(runtime_identity_requested([
+            {"role": "user", "content": "What model is Aster running?"},
+        ]))
+        self.assertFalse(runtime_identity_requested([
+            {"role": "user", "content": "Turn on the kitchen lights"},
+        ]))
+        response = deterministic_completion(ASTER_RUNTIME_IDENTITY)
+        self.assertEqual(response["choices"][0]["message"]["content"], ASTER_RUNTIME_IDENTITY)
+        self.assertEqual(response["model"], "aster-qwen3.5-9b")
 
     def test_credential_policy_omits_product_specific_recovery_details(self):
         self.assertIn("give only that generic refusal", ASTER_SYSTEM_PROMPT)
