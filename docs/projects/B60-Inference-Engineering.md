@@ -531,6 +531,25 @@ rolled back. Next safe work is offline selection/review of a compatible runtime
 or a validated metadata fallback. Another compute attempt or preemption override
 requires a new specific risk decision; do not automatically retry this binary.
 
+Further offline analysis found an implementation error in the trial's isolated
+loader path, superseding the missing-metadata-only diagnosis. IGC packages
+extract their compiler libraries under `root/usr/local/lib`, whereas both smoke
+attempts set only `root/usr/lib/x86_64-linux-gnu`. A non-GPU `ctypes.CDLL`
+check fails to find `libigdfcl.so.2` under the original environment and loads
+both that library and `libigc.so.2` with both directories included.
+`Device::isStateSipRequired()` requires a compiler interface;
+`initializeCommonResources()` skips SIP initialization if it is absent.
+The CSR SIP initialization normally supplies the preemption surface size from
+its state-save header. Thus missing key 62 alone was an incomplete diagnosis;
+missing compiler discovery is the concrete trial-setup defect to correct first.
+
+Prepared `scripts/b60-bar/run-level-zero-smoke.sh` with the corrected
+process-local library path and load-only compiler checks. It applies no runtime
+preemption override, global linker mutation, host change or service change.
+The corrected GPU attempt has not run: prior GPU-abort no-retry gating remains,
+and a newly explicit single-attempt approval is required. No runtime version
+change or arbitrary CSR-size workaround is justified before this validation.
+
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.
 - [ ] Require tiny-model enumeration, target-architecture correctness, explicit
   fallback/transfer accounting and like-for-like quality comparisons.

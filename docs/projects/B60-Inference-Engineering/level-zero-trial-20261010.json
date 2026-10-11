@@ -30,5 +30,11 @@
  "kernel_gt1_hwconfig": "No hwconfig available",
  "source_revision": "dfa6faf3d866ea6a22b70df5a7bd2a507aa457bd",
  "diagnosis": "Strongly supported missing CSR metadata path: parser defaults absent key 62 to zero; Drm setup overwrites CsrSizeInMb; setupPreemptionSurfaceSize computes zero; creation aborts. Runtime state not directly inspected with debugger.",
- "next_gate": "review a compatible runtime or validated metadata fallback offline before requesting a newly scoped compute trial; no further GPU retry or arbitrary preemption override"
+ "loader_setup_error_found": true,
+ "compiler_actual_directory": "/opt/b60-level-zero-trial-20261010/root/usr/local/lib",
+ "original_compiler_dlopen": "failed: library not found",
+ "corrected_compiler_dlopen": "libigdfcl.so.2 and libigc.so.2 load successfully without GPU initialization",
+ "updated_diagnosis": "Missing CSR field is not sufficient as root cause: missing isolated compiler library path skips SIP initialization that normally supplies the preemption size. Corrected process-local path is the next candidate, not a preemption override.",
+ "corrected_gpu_validation_performed": false,
+ "next_gate": "explicit approval for one corrected-library-path smoke execution after previous abort; no automatic retry"
 }
