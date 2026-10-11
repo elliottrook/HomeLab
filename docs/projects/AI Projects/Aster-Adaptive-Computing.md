@@ -51,6 +51,14 @@ It was deployed and verified across one main-broker restart: the approval
 service kept its PID and reachable socket. A full broker stop remains unproven;
 Stage2 remains held.
 
+**Protection-mirror exception — 2026-10-10:** The approved Stream A branch
+push reached Forgejo at `b11a4ec`, but GitHub remained at `69be8ef`. A
+[redacted mirror investigation](evidence/Stream-A-GitHub-mirror-URL-rejection-2026-10-10.md)
+found that Forgejo 15.0.7 rejects the existing SSH-alias mirror URL as
+disallowed. The branch is forward-only from GitHub's current tip. No direct
+GitHub push, mirror reconfiguration or forced sync was attempted; protection
+mirror recovery remains a separate decision.
+
 **Local-model change impact — 2026-10-10:** Jason supplied a synopsis of a
 9B local-model promotion. [Read-only reconciliation](evidence/Stream-A-9B-model-change-impact-2026-10-10.md)
 confirmed the active 9B inference unit and retained 27B rollback. A subsequent
