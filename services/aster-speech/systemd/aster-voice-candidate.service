@@ -11,6 +11,7 @@ UMask=0077
 WorkingDirectory=/opt/aster-voice-candidate
 EnvironmentFile=/etc/aster-speech/voice-candidate.env
 EnvironmentFile=-/etc/aster-speech/vulkan-renderer.env
+EnvironmentFile=-/etc/aster-speech/batch-renderer.env
 ExecStart=/opt/aster-voice-candidate/venv/bin/uvicorn aster_voice_candidate:app --host 192.168.70.14 --port 9131 --workers 1 --no-access-log
 Restart=on-failure
 RestartSec=5

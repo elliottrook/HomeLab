@@ -27,8 +27,10 @@ def build_router(
 ) -> APIRouter:
     """Build a router with caller class fixed by its authenticated route."""
     router = APIRouter(dependencies=[Depends(authorize)])
+    stream_path = "/v2/tts/stream" if caller == "interactive" else "/v2/batch/tts/stream"
+    cancel_path = "/v2/tts/{request_id}" if caller == "interactive" else "/v2/batch/tts/{request_id}"
 
-    @router.post("/v2/tts/stream")
+    @router.post(stream_path)
     async def text_to_speech_stream(request: StreamTTSRequest) -> StreamingResponse:
         try:
             request_id = validated_request_id(request.request_id)
@@ -46,7 +48,7 @@ def build_router(
             headers={"X-Aster-Request-ID": request_id, "Cache-Control": "no-store"},
         )
 
-    @router.delete("/v2/tts/{request_id}", status_code=204)
+    @router.delete(cancel_path, status_code=204)
     async def cancel_text_to_speech(request_id: str) -> Response:
         try:
             request_id = validated_request_id(request_id)

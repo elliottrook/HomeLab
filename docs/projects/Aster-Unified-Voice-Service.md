@@ -431,11 +431,15 @@ speech-only respellings for Home Assistant and Lutron Caséta are under
 listening review instead. None of these choices is frozen until the comparison
 audio is accepted.
 
-Jason accepted pronunciation comparison option 5. The shared speech policy now
-maps `Home Assistant` to the speech-only rendering “Home uh-sist-unt” and both
-`Lutron Caseta` and `Lutron Caséta` to “Loo-tron kuh-set-uh”. Written UI text
-retains the correctly branded names. This decision covered pronunciation only;
-the acknowledgement was accepted separately in the following listening pass.
+Jason accepted pronunciation comparison option 5 on the original ONNX path,
+which temporarily mapped `Home Assistant` to “Home uh-sist-unt” and both
+`Lutron Caseta` and `Lutron Caséta` to “Loo-tron kuh-set-uh”. The later pinned
+Kokopop CPU-path comparison showed both ordinary spellings sound correct; the
+phonetic forms were what made them sound wrong inside the longer briefing.
+Jason selected plain `Home Assistant` and plain `Lutron Caseta`. The current
+policy therefore leaves `Home Assistant` unchanged and only canonicalizes the
+accented spelling `Lutron Caséta` to `Lutron Caseta`. Written UI text is still
+untouched. This supersedes the earlier engine-specific respellings.
 
 Jason subsequently accepted acknowledgement comparison option 3: `There,
 that's done.` This wording supplies enough context for the approved voice to
@@ -729,6 +733,57 @@ unrelated state.
   returned healthy plus a valid 24 kHz WAV for the Home Assistant, Lutron
   Caseta, Canadian-currency and B.C. fixture in 2.496 seconds. Production port
   9130 and routing were not changed; listening acceptance remains required.
+- The first bounded A380 contention gate intentionally used unique short
+  acknowledgements so the exact-response cache could not hide renderer delay.
+  Without Jellyfin load, twelve idle requests had 0.778-second median and
+  1.040-second p95 complete-WAV latency. During four briefing-sized renders,
+  twelve interactive requests rose to 1.597-second median and 3.239-second
+  p95, then recovered to 0.857/0.875 seconds. Because this already failed, no
+  additional Jellyfin load was imposed.
+- A second probe used the candidate's actual two-worker scheduler with the
+  briefing classified as `batch`. Priority reduced interactive median to
+  0.896 seconds, but p95/max remained 2.658 seconds because an in-flight batch
+  render cannot be pre-empted inside Kokopop. The six batch units completed at
+  0.558, 1.837, 3.797, 6.019, 6.830 and 8.367 seconds. M3 remains unselected.
+  The next implementation step is bounded batch-specific clause segmentation
+  plus admission that stops submitting News work while interactive work is
+  pending; repeat this gate before adding Jellyfin overlap. This is a software
+  scheduling issue, not evidence for changing the provisional A380 choice.
+- A 20-character batch cap plus one-at-a-time admission and 250 ms grace did
+  meet the numeric contention target: 1.383-second p95 without Jellyfin and
+  1.388 seconds during a real 35-second HEVC Main10 VAAPI transcode. Jason
+  rejected the resulting News sample as too slow. Measurement confirmed a
+  33.045-second artifact contained 10.859 seconds of silence, with 18 pauses of
+  at least 300 ms. The experimental policy was rolled out of the boot-disabled
+  candidate and will not be promoted or published as the solution.
+- The revised architecture isolates workload rather than degrading speech.
+  LXC 114 now has a separately staged CPU-only build of the same Kokopop commit
+  `2c6989ac800f624ea984210215e1b76be42eea81` and pinned GGML revision; all 617
+  upstream tests pass. Its GGUF matches the A380 asset SHA-256
+  `e8242a1321e580599c26981692adf088ebfdc4c7b7555959b13f4d6667d0d206`.
+  A whole natural briefing produced 20.25 seconds of valid mono 24 kHz audio in
+  about 18.1 seconds, split internally into only two semantic chunks. During a
+  separate extended CPU News render, twelve uncached A380 acknowledgements
+  measured 0.878-second median and 0.928-second p95/max. Production News and
+  speech services were unchanged. Jason accepted the corrected natural CPU
+  sample with plain device names as the target News voice.
+- Context comparison confirmed the new renderer pronounces plain `Home
+  Assistant` and `Lutron Caseta` correctly. The old phonetic substitutions made
+  both names sound wrong in the longer briefing even though short comparison
+  clips had previously favoured them on the old path. Jason selected the plain
+  forms; 18 focused tests pass and the boot-disabled LXC 116 candidate now uses
+  that policy. A corrected full natural CPU briefing was generated for the
+  final context listening gate; production remains unchanged.
+- The accepted CPU path is now staged behind the one candidate API. LXC 114
+  runs boot-disabled `aster-kokopop-news` and an authenticated fixed-policy
+  bridge; LXC 116 has a distinct News caller identity and a dedicated third
+  scheduler worker. The two A380 workers never consume the batch queue. The
+  bridge returned 401 without its renderer credential and valid mono 24 kHz
+  WAV with it. During a 26.467-second batch request, twelve uncached A380
+  interactive replies completed in 0.802–0.851 seconds (0.851-second p95/max),
+  and the batch stream completed successfully with 911,105 framed bytes.
+  Production port 9130, the production News UI and both News timers remained
+  unchanged; all new services remain boot-disabled.
 
 ## Validation and evaluation
 
@@ -878,6 +933,9 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 B60 Vulkan Kokoro canary | Internet/upstream review plus live llama.cpp evidence identified Mesa Vulkan as the small-BAR path. Pinned Kokopop/GGML build; 617 tests; immutable verified F16 GGUF with `bm_daniel`; explicit B60 synthesis; persistent first-audio traces; CPU comparison; generated remote evidence cleanup. | Vulkan is viable without ReBAR. Warm short first audio was 0.588 s; a longer first sentence was 1.608 s. Keep the canary stopped and production unchanged pending Jason's listening parity, bounded segmentation and shared-GPU contention gates. |
 | 2026-10-10 | M3 private Vulkan renderer bridge and contention gate | File-backed dedicated bearer key; fixed voice/speed/format; bounded input/concurrency; WAV validation; full authenticated LXC 116 path; 401 refusal; dependency 503/recovery; production isolation; simultaneous live Llama generation. | Functional/security gates pass, but latency does not: warm short end-to-end 0.714–0.896 s and 2.940 s under active Llama generation. Candidate units returned to stopped/disabled; production remained healthy. Do not select until GPU workload isolation or proven scheduling meets the frozen target. |
 | 2026-10-10 | M3 TrueNAS A380 backend comparison and private canary | Live i915/device/BAR inspection; explicit Mesa Vulkan device selection; cold/warm and longer-sentence timings; sustained Jellyfin VAAPI overlap; Intel OpenVINO 2026.4 and ORT OpenVINO 1.24.1 with CPU fallback disabled; pinned non-root deployment-image build; loopback validation; exact OPNsense rule; authentication refusal/success; full LXC 116 candidate fixture. | A380 Vulkan passes: warm short 0.494–0.511 s and 0.491–0.587 s during VAAPI overlap; the clean deployment image warmed to 0.631–0.657 s after a 4.648 s cold request; authenticated network render was 0.661 s. OpenVINO rejects the approved dynamic-rank ONNX graph. Production remains unchanged; warm-up admission, full load and listening gates remain. |
+| 2026-10-10 | M3 A380 interactive/News contention gate | Twelve unique idle acknowledgements; four briefing-sized renders with twelve interactive requests; recovery series; repeat through the deployed scheduler's real `batch` queue. Jellyfin overlap withheld after the earlier gate failed. | Direct overlap failed at 1.597 s median / 3.239 s p95. Scheduler priority improved median to 0.896 s but p95 remained 2.658 s because in-flight Kokopop work is not pre-emptible. Add batch-specific bounded clauses and interactive-aware admission, then repeat before selection. |
+| 2026-10-10 | M3 rejected bounded-batch correction and isolated CPU News canary | Iterated 60/30/20-character GPU News caps; measured generated-sample silence; rolled rejected policy out of the candidate. Built identical pinned Kokopop/GGML CPU-only on LXC 114; 617 tests; identical GGUF hash; natural whole-briefing render; simultaneous isolated A380 probe. | The numeric 1.388 s contention pass was rejected because the sample contained 10.859 s silence and sounded slow. CPU News produced 20.25 s natural audio in ~18.1 s while A380 interaction held 0.878 s median / 0.928 s p95. Keep workloads isolated behind one fixed Aster identity, pending listening parity and batch-backend integration. |
+| 2026-10-10 | M3 accepted voice and isolated batch-backend integration | Jason accepted the corrected full CPU News sample. Added a dedicated authenticated batch route and scheduler worker, boot-disabled LXC 114 CPU renderer/bridge, 401/200 boundary checks, and a real concurrent candidate request. | Batch completed in 26.467 s while twelve uncached A380 replies stayed between 0.802 and 0.851 s. One Aster identity is preserved without GPU contention. Production speech, News UI and timers remain unchanged; next gate is artifact equivalence and News-client rollback integration. |
 
 ## Close-out
 

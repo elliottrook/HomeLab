@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-10-10 — Fotosforfun project started
+
+- Created the Stream A project for Alisa's growing `fotosforfun.ca` gallery.
+  It uses a separate home-LAN-only editor, identity, database and release
+  namespace while reusing the existing isolated publishing hosts and proven
+  static-release mechanisms.
+- Recorded the first non-owner HomeLab access boundary: Alisa receives her own
+  Authentik user/passkey and a Fotosforfun-only group; Jason retains separate
+  recovery administration. Access to the existing Content Desk and other lab
+  services is explicitly excluded and must be denied in testing.
+- Verified read-only that the publisher and static origin are healthy with ample
+  capacity. No live service, account, firewall, DNS, mail, tunnel or public
+  route changed. Public launch remains a later explicit exposure gate after
+  Alisa supplies and approves real content.
+- Completed A1 locally: added the isolated catalogue editor and responsive
+  Aster-style GUI for add, edit, order, reversible retirement, approval and
+  exact-site preview. Twelve service tests, syntax/static safety checks and
+  desktop/mobile browser QA passed; no live publish control or public route was
+  introduced.
+- Completed A2 private deployment on existing LXC 124/125 after named recovery
+  snapshots: dedicated locked users, loopback editor, mode-0700 state, separate
+  host-matched origin/release root and Fotosforfun-only forced SSH receiver.
+  Reboot, wrong-host, interrupted staging, atomic rollback and cross-site denial
+  tests passed without changing DNS, firewall, Authentik or public ingress.
+
 ## 2026-10-10 — B60 inference Q4 K/V promotion
 
 - Fixed the production llama.cpp API-path bottleneck by changing only K/V cache

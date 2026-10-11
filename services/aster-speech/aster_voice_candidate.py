@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import hmac
 import os
 import uuid
+from pathlib import Path
 from typing import Any, Protocol
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import JSONResponse, Response
 
 import aster_speech as legacy_speech
@@ -51,8 +53,22 @@ class RendererPool(Protocol):
 
 
 _pool: RendererPool | None = None
+_batch_pool: RendererPool | None = None
+
+
+def require_batch_api_key(authorization: str | None = Header(default=None)) -> None:
+    """Authorize only the dedicated News identity; never accept Companion JWTs."""
+    key = os.environ.get("ASTER_BATCH_API_KEY", "")
+    if not key:
+        raise HTTPException(status_code=503, detail="Batch speech is not configured")
+    if authorization and hmac.compare_digest(authorization, f"Bearer {key}"):
+        return
+    raise HTTPException(status_code=401, detail="Invalid or missing credentials")
 
 app.include_router(build_router(_proxy, require_api_key))  # type: ignore[arg-type]
+app.include_router(  # type: ignore[arg-type]
+    build_router(_proxy, require_batch_api_key, caller="batch")
+)
 app.add_api_route(
     "/v1/stt",
     speech_to_text,
@@ -63,7 +79,7 @@ app.add_api_route(
 
 @app.on_event("startup")
 async def startup() -> None:
-    global _pool
+    global _pool, _batch_pool
     # This is a separate FastAPI application, so the legacy app's startup hook
     # does not run automatically. Initialize the shared STT implementation here.
     await legacy_speech._startup()
@@ -74,20 +90,35 @@ async def startup() -> None:
         _pool = VulkanRendererPool()
     else:
         raise RuntimeError("unsupported Aster voice renderer")
-    scheduler = VoiceScheduler(_pool.renderers)
+    batch_renderer = None
+    batch_url = os.environ.get("ASTER_BATCH_RENDERER_URL", "").strip()
+    if batch_url:
+        _batch_pool = VulkanRendererPool(
+            endpoint=batch_url,
+            key_file=Path(os.environ.get(
+                "ASTER_BATCH_RENDERER_KEY_FILE",
+                "/etc/aster-speech/batch-renderer.key",
+            )),
+            timeout=float(os.environ.get("ASTER_BATCH_RENDERER_TIMEOUT", "120")),
+        )
+        batch_renderer = _batch_pool.renderers[0]
+    scheduler = VoiceScheduler(_pool.renderers, batch_renderer=batch_renderer)
     await scheduler.start()
     _proxy.target = scheduler
 
 
 @app.on_event("shutdown")
 async def shutdown() -> None:
-    global _pool
+    global _pool, _batch_pool
     scheduler, _proxy.target = _proxy.target, None
     if scheduler is not None:
         await scheduler.close()
     if _pool is not None:
         _pool.close()
         _pool = None
+    if _batch_pool is not None:
+        _batch_pool.close()
+        _batch_pool = None
 
 
 @app.get("/health")
@@ -95,6 +126,8 @@ async def health() -> JSONResponse:
     ready = _proxy.target is not None and _pool is not None
     if ready:
         ready = await asyncio.to_thread(_pool.healthy)
+    if ready and _batch_pool is not None:
+        ready = await asyncio.to_thread(_batch_pool.healthy)
     return JSONResponse(
         status_code=200 if ready else 503,
         content={

@@ -26,7 +26,6 @@ _DOLLAR_AMOUNT = re.compile(
 )
 _US_ABBREVIATION = re.compile(r"\bU\.S(?:\.A)?\.(?=\s|$|[,;:!?])", re.IGNORECASE)
 _BC_ABBREVIATION = re.compile(r"\bB\.C\.(?=\s|$|[,;:!?])", re.IGNORECASE)
-_HOME_ASSISTANT = re.compile(r"\bHome Assistant\b", re.IGNORECASE)
 _LUTRON_CASETA = re.compile(r"\bLutron Cas[eé]ta\b", re.IGNORECASE)
 
 _ONES = (
@@ -103,8 +102,7 @@ def normalize_for_speech(text: str) -> str:
     text = re.sub(r"\s+([.,!?])", r"\1", text)
     text = re.sub(r",([.!?])", r"\1", text)
     text = re.sub(r"\s+", " ", text).strip(" ,")
-    text = _HOME_ASSISTANT.sub("Home uh-sist-unt", text)
-    return _LUTRON_CASETA.sub("Loo-tron kuh-set-uh", text)
+    return _LUTRON_CASETA.sub("Lutron Caseta", text)
 
 
 def semantic_units(text: str, maximum: int = MAX_UNIT_CHARS) -> list[str]:
@@ -148,13 +146,14 @@ class _Job:
 
 
 class VoiceScheduler:
-    """Two interactive workers with batch work restricted to worker zero."""
+    """Two interactive workers, with an optional isolated batch renderer."""
 
     def __init__(
         self,
         renderer: Renderer | Sequence[Renderer],
         interactive_capacity: int = 2,
         batch_capacity: int = 8,
+        batch_renderer: Renderer | None = None,
     ):
         if callable(renderer):
             self._renderers = (renderer, renderer)
@@ -164,6 +163,7 @@ class VoiceScheduler:
             self._renderers = (renderer[0], renderer[1])
         self._interactive: asyncio.Queue[_Job] = asyncio.Queue(interactive_capacity)
         self._batch: asyncio.Queue[_Job] = asyncio.Queue(batch_capacity)
+        self._batch_renderer = batch_renderer
         self._workers: list[asyncio.Task[None]] = []
         self._cancelled: set[str] = set()
         self._sequence = count()
@@ -174,6 +174,8 @@ class VoiceScheduler:
                 asyncio.create_task(self._worker(0)),
                 asyncio.create_task(self._worker(1)),
             ]
+            if self._batch_renderer is not None:
+                self._workers.append(asyncio.create_task(self._batch_worker()))
 
     async def close(self) -> None:
         for worker in self._workers:
@@ -235,8 +237,29 @@ class VoiceScheduler:
                 if not job.result.done():
                     job.result.set_exception(exc)
 
+    async def _batch_worker(self) -> None:
+        """Render batch work outside both latency-sensitive workers."""
+        assert self._batch_renderer is not None
+        while True:
+            job = await self._batch.get()
+            if job.request_id in self._cancelled:
+                if not job.result.done():
+                    job.result.cancel()
+                continue
+            try:
+                pcm, sample_rate = await asyncio.to_thread(self._batch_renderer, job.text)
+                if job.request_id in self._cancelled:
+                    job.result.cancel()
+                elif not job.result.done():
+                    job.result.set_result(
+                        AudioUnit(job.request_id, job.index, job.total, pcm, sample_rate)
+                    )
+            except Exception as exc:
+                if not job.result.done():
+                    job.result.set_exception(exc)
+
     async def _next_job(self, worker_index: int) -> _Job:
-        if worker_index == 1:
+        if worker_index == 1 or self._batch_renderer is not None:
             return await self._interactive.get()
         try:
             return self._interactive.get_nowait()

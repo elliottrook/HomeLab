@@ -1,0 +1,33 @@
+# Private/static Fotosforfun origin. DNS and public tunnel routing are separate gates.
+server {
+    listen 80;
+    listen [::]:80;
+    server_name fotosforfun.ca www.fotosforfun.ca fotosforfun-origin.internal;
+    root /srv/fotosforfun/current;
+    index index.html;
+
+    location = /healthz {
+        access_log off;
+        default_type application/json;
+        if (!-f $document_root/index.html) { return 503 '{"status":"unavailable","site":"fotosforfun"}'; }
+        return 200 '{"status":"ok","site":"fotosforfun"}';
+    }
+
+    location ~ /\. { return 404; }
+    location ~* \.(?:bak|old|orig|sql|sqlite|db|log|md|map|ya?ml|toml|env)$ { return 404; }
+    location / {
+        limit_except GET HEAD { deny all; }
+        try_files $uri $uri/ =404;
+    }
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'" always;
+
+    location ~* \.(?:avif|webp|png|jpe?g|svg|woff2?|ttf|css|js)$ {
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800, immutable";
+        try_files $uri =404;
+    }
+}
