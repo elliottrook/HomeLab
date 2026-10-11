@@ -57,6 +57,11 @@ The [approval-ingress options](evidence/M1-approval-ingress-options-2026-10-10.m
 record a dedicated verifier as the preferred candidate if in-app privileged
 approval remains required. It is not deployed, and the passkey-claim proof is
 still missing.
+An [approval-socket lifecycle check](evidence/M1-approval-socket-lifecycle-2026-10-10.md)
+also found that a main-broker restart had removed the independent approval
+listener's pathname while the service still reported active. The listener was
+restored without changing policy; a local unit candidate now addresses the
+restart dependency. That candidate is not deployed or a Stage2 pass.
 
 The existing [`sysadmin_investigation.py`](../../../services/aster-agent/sysadmin_investigation.py)
 and [`doctor_incident_adapter.py`](../../../services/aster-agent/doctor_incident_adapter.py)

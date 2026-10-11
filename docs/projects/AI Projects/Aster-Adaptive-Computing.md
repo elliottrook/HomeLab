@@ -42,14 +42,22 @@ candidate for separated in-app approvals, subject to actual route/UID checks,
 fresh passkey-claim proof, denial tests and a separate deployment decision.
 Stage2 remains held. No B60 or llama service was used or changed.
 
+**M1 listener lifecycle finding — 2026-10-10:** A read-only check found the
+approval service active but its socket pathname missing after a later main
+broker restart. A restart of the approval service restored the pathname and
+preserved the intended peer-access boundary. A narrow
+[unit lifecycle candidate](evidence/M1-approval-socket-lifecycle-2026-10-10.md)
+is staged locally; it is not deployed and Stage2 remains held.
+
 **Local-model change impact — 2026-10-10:** Jason supplied a synopsis of a
 9B local-model promotion. [Read-only reconciliation](evidence/Stream-A-9B-model-change-impact-2026-10-10.md)
 confirmed the active 9B inference unit and retained 27B rollback. A subsequent
 bounded LXC 104 correction aligned the effective upstream model selector with
 9B without restarting inference; the implementation commit remains absent from
 this checkout. The bounded synthetic result does not reopen local-Qwen sysadmin
-promotion or change D3/M1 authority gates. No model generation, rollback or
-inference deployment was performed in this review.
+promotion or change D3/M1 authority gates. After Jason's B60 experiments
+finished, one synthetic Aster-to-9B turn passed and the live warmup alias was
+aligned without an inference restart. No rollback occurred.
 
 **Latest resume — native Companion, 2026-10-09:** Signed version 15 is installed
 and running in ordinary mode without the manual-test flag. The [supervised
