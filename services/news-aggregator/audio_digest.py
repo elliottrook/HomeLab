@@ -21,16 +21,19 @@ pausing wasn't enough separation between stories once heard for real."""
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sqlite3
 import tempfile
+import wave
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
 import soundfile as sf
 from kokoro_onnx import Kokoro
+from aster_batch_tts import AsterBatchTTS
 from digest_text import coherent_event, dedupe_titles, repeat_story, speech_text
 
 DB_PATH = Path(__file__).parent / "news.db"
@@ -41,6 +44,12 @@ VOICE = "bm_daniel"
 VOICE_SPEED = 0.95
 STORY_PAUSE_SECONDS = 1.0
 MAX_STORIES = 21
+ASTER_BATCH_URL = os.environ.get(
+    "ASTER_NEWS_TTS_URL", "http://192.168.70.14:9131/v2/batch/tts/stream"
+)
+ASTER_BATCH_KEY_FILE = Path(os.environ.get(
+    "ASTER_NEWS_TTS_KEY_FILE", "/etc/news-aggregator/aster-batch.key"
+))
 
 # BC no longer observes DST; matches app.py's own get_audio_meta() convention
 BC_OFFSET = timedelta(hours=-7)
@@ -72,7 +81,15 @@ def briefing_label(local_dt: datetime) -> tuple[str, str]:
     return period, date_str
 
 
-def synth(text: str, out_path: Path, engine: Kokoro) -> None:
+def synth(text: str, out_path: Path, engine) -> None:
+    if isinstance(engine, AsterBatchTTS):
+        pcm, sample_rate = engine.synthesize(text)
+        with wave.open(str(out_path), "wb") as target:
+            target.setnchannels(1)
+            target.setsampwidth(2)
+            target.setframerate(sample_rate)
+            target.writeframes(pcm)
+        return
     # Keep long summaries from crossing Kokoro's internal phoneme-window
     # boundary.  Sentence/clause-sized calls preserve pauses while avoiding
     # the rough prosody and breathy joins that can appear in long batches.
@@ -196,6 +213,13 @@ def main() -> int:
                          help="override voice model path (for A/B testing without touching production)")
     parser.add_argument("--out-dir", type=Path, default=STATIC_DIR,
                          help="override output directory (for A/B testing without touching production)")
+    parser.add_argument(
+        "--tts-mode", choices=("local", "aster"),
+        default=os.environ.get("ASTER_NEWS_TTS_MODE", "local"),
+        help="local is the production/rollback default; aster uses the canonical batch route",
+    )
+    parser.add_argument("--aster-url", default=ASTER_BATCH_URL)
+    parser.add_argument("--aster-key-file", type=Path, default=ASTER_BATCH_KEY_FILE)
     args = parser.parse_args()
 
     out_dir = args.out_dir
@@ -249,11 +273,16 @@ def main() -> int:
         return 0
 
     with tempfile.TemporaryDirectory(prefix="audio-digest-") as tmp:
-        engine = Kokoro(str(args.voice_model), str(VOICE_PACK))
+        engine = (
+            AsterBatchTTS(args.aster_url, args.aster_key_file)
+            if args.tts_mode == "aster"
+            else Kokoro(str(args.voice_model), str(VOICE_PACK))
+        )
         try:
             combined_wav, chapters = build_briefing(entries, engine, Path(tmp))
         finally:
-            engine.voices.close()
+            if isinstance(engine, Kokoro):
+                engine.voices.close()
         transcode_mp3(combined_wav, mp3_path)
         write_chapters_vtt(out_dir / "latest.vtt", chapters, sf.info(combined_wav).duration)
 

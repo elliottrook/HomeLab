@@ -784,6 +784,16 @@ unrelated state.
   and the batch stream completed successfully with 911,105 framed bytes.
   Production port 9130, the production News UI and both News timers remained
   unchanged; all new services remain boot-disabled.
+- The default-off News client now validates and consumes the canonical framed
+  batch stream using a dedicated file credential. Its `local` mode preserves
+  the existing in-process Kokoro renderer as immediate rollback. Thirteen
+  focused News normalization/client tests pass on LXC 114. A real 20-story
+  canary completed without publishing to the production directory: valid MP3
+  (1,404.288 seconds, 8,961,932 bytes), 20 strictly increasing chapter offsets,
+  valid WebVTT and matching metadata. The current production artifact remained
+  unchanged at 1,239.240 seconds/8,312,540 bytes. The client and service
+  environment are installed with explicit `local` mode; scheduled cutover is
+  withheld pending Jason's listening acceptance of the retrieved full canary.
 
 ## Validation and evaluation
 
@@ -936,6 +946,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 A380 interactive/News contention gate | Twelve unique idle acknowledgements; four briefing-sized renders with twelve interactive requests; recovery series; repeat through the deployed scheduler's real `batch` queue. Jellyfin overlap withheld after the earlier gate failed. | Direct overlap failed at 1.597 s median / 3.239 s p95. Scheduler priority improved median to 0.896 s but p95 remained 2.658 s because in-flight Kokopop work is not pre-emptible. Add batch-specific bounded clauses and interactive-aware admission, then repeat before selection. |
 | 2026-10-10 | M3 rejected bounded-batch correction and isolated CPU News canary | Iterated 60/30/20-character GPU News caps; measured generated-sample silence; rolled rejected policy out of the candidate. Built identical pinned Kokopop/GGML CPU-only on LXC 114; 617 tests; identical GGUF hash; natural whole-briefing render; simultaneous isolated A380 probe. | The numeric 1.388 s contention pass was rejected because the sample contained 10.859 s silence and sounded slow. CPU News produced 20.25 s natural audio in ~18.1 s while A380 interaction held 0.878 s median / 0.928 s p95. Keep workloads isolated behind one fixed Aster identity, pending listening parity and batch-backend integration. |
 | 2026-10-10 | M3 accepted voice and isolated batch-backend integration | Jason accepted the corrected full CPU News sample. Added a dedicated authenticated batch route and scheduler worker, boot-disabled LXC 114 CPU renderer/bridge, 401/200 boundary checks, and a real concurrent candidate request. | Batch completed in 26.467 s while twelve uncached A380 replies stayed between 0.802 and 0.851 s. One Aster identity is preserved without GPU contention. Production speech, News UI and timers remain unchanged; next gate is artifact equivalence and News-client rollback integration. |
+| 2026-10-10 | M5 default-off News client and full artifact gate | Strict framed-stream client; distinct file credential; local rollback mode; 13 live tests; isolated real 20-story render; MP3/metadata/VTT/chapter validation; production artifact timestamp and services checked. | Full 23:24 canary and 20 chapters are valid; production stayed unchanged. Client is installed in explicit local mode with rollback copies. Await full-artifact listening acceptance before enabling the candidate dependencies or switching the schedule. |
 
 ## Close-out
 
