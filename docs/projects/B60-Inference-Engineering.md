@@ -91,6 +91,36 @@ existing archive deletion or scheduler mutation. The archive is never saved
 on the workstation or displayed in the conversation. Checkpoint, 64-to-72 GiB
 growth, persistent runtime and atomic unit validation must precede activation.
 
+Jason explicitly approved the later native OpenVINO trial's prerequisite:
+revision-pinned `OpenVINO/Qwen3.5-9B-int4-ov` download (up to 6.28 GB), matching
+runtime/OpenCL libraries in isolated trial storage, hashes, synthetic tests
+and exact SYCL recovery. No system packages/global driver or permanent
+OpenVINO deployment. The native GenAI GGUF reader's Qwen3.5 hybrid architecture
+limitation is distinct from llama.cpp's OpenVINO backend; use vendor IR rather
+than pretending the existing GGUF is directly supported. Sources:
+[native GGUF limitation](https://github.com/openvinotoolkit/openvino.genai/issues/4137),
+[vendor IR model](https://huggingface.co/OpenVINO/Qwen3.5-9B-int4-ov).
+This trial changes quantization/model artifact as well as runtime and must be
+reported as a quality-gated deployment comparison, not a backend-only causal
+benchmark. No OpenVINO GPU execution precedes accepted SYCL deployment and
+regression validation. Model storage, bounded context/cache, reasoning-off,
+private endpoint/authentication compatibility and mapped B60 execution need
+explicit verification; do not accept CPU fallback or automatic failure retry.
+
+Fresh pre-promotion checkpoint completed at 00:32:36 PDT without pruning:
+`/mnt/backups/dump/vzdump-lxc-110-2026_10_11-00_28_16.tar.zst`,
+38,516,046,359 bytes, SHA-256
+`62ace1cd8ab7412031b99a7b9f378f98d5aec5f31ee0831742b00b8e1804e205`.
+Single-pass verification at 00:38:52 proved compressed frame integrity and the
+exact accepted unit, binary and model bytes inside the archive, without
+displaying or extracting secret contents. Host immutable proof:
+`/var/lib/b60-inference/evidence/sycl-prepromotion-checkpoint-20261011.json`.
+The initial verifier was intentionally stopped before any proof or mutation,
+replacing its redundant triple read with one equally strict sequential scan.
+The backup executable was resolved from `/usr/sbin` to installed `/usr/bin`
+before the backup started; no failed/partial backup was represented as success.
+TrueNAS create-once copy is pending; do not resize/activate until it validates.
+
 ### Latest owner priority override — 2026-10-10 22:49 PDT
 
 Jason reserved the B60 for these tests until he explicitly resumes other work.

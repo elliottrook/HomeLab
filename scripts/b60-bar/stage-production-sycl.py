@@ -92,6 +92,7 @@ def main():
     for p in TREES.values(): assert p.is_dir()
     assert digest(TREES['llama-sycl-fp16']/'llama-b11429/llama-server')==SERVER_SHA
     assert digest(TREES['llama-sycl-fp16']/'llama-b11429/libggml-sycl.so.0.26.0')==BACKEND_SHA
+    assert digest(TREES['loader']/'usr/lib/x86_64-linux-gnu/libze_loader.so.1.33.1')=='a4859c17183add6412c48d44d0f356f8ef5d7b43ae35ed253074f670a6879d23'
     manifests={name:tree_manifest(p) for name,p in TREES.items()}
     size=sum(v.get('bytes',0) for m in manifests.values() for v in m.values())
     assert shutil.disk_usage('/').free-size>=20*1024**3, 'post-copy disk floor'
