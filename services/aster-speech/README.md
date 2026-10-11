@@ -60,6 +60,12 @@ then `AudioStop`. Input is bounded to 15 MiB of mono signed 16-bit PCM at
 closed. The completed utterance shares the candidate's serialized Whisper
 worker and emits one final transcript without retaining audio or context.
 
+For an attended acceptance test only, an operator may set
+`ASTER_SPEECH_STT_VALIDATION_SHA256` to the SHA-256 of the benchmark-style
+normalized expected phrase. Wyoming STT then logs only latency, byte count and
+`validation_match=true|false`; it never logs the expected digest or transcript.
+Remove the setting and restart the candidate immediately after the test.
+
 `voice_candidate.py` is the repository-only M2 core. It owns the canonical
 speech normalization and semantic-unit policy plus the bounded two-worker
 scheduler. Without a separate batch renderer, both workers serve interactive

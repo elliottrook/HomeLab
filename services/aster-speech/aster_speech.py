@@ -14,8 +14,10 @@ login flow, matching aster_agent.py's own dual-credential-type pattern
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import hmac
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -33,6 +35,7 @@ ASTER_SPEECH_API_KEY = os.environ.get("ASTER_SPEECH_API_KEY", "")
 WHISPER_MODEL_SIZE = os.environ.get("ASTER_SPEECH_STT_MODEL", "base.en")
 WHISPER_LANGUAGE = os.environ.get("ASTER_SPEECH_STT_LANGUAGE", "en")
 WHISPER_HOTWORDS = os.environ.get("ASTER_SPEECH_STT_HOTWORDS", "").strip() or None
+STT_VALIDATION_SHA256 = os.environ.get("ASTER_SPEECH_STT_VALIDATION_SHA256", "").strip()
 PIPER_BINARY = Path(os.environ.get("ASTER_SPEECH_PIPER_BIN", "/opt/piper/piper/piper"))
 PIPER_VOICE = Path(
     os.environ.get("ASTER_SPEECH_PIPER_VOICE", "/opt/piper/voices/en_US-lessac-medium.onnx")
@@ -136,6 +139,12 @@ def _run_transcription(path: str) -> str:
     return "".join(segment.text for segment in segments).strip()
 
 
+def _validation_digest(text: str) -> str:
+    """Hash canonical words for an explicitly enabled, content-free test gate."""
+    words = re.findall(r"[a-z0-9]+(?:'[a-z0-9]+)?", text.casefold().replace("’", "'"))
+    return hashlib.sha256(" ".join(words).encode("utf-8")).hexdigest()
+
+
 @app.post("/v1/stt", dependencies=[Depends(require_api_key)])
 async def speech_to_text(audio: UploadFile) -> dict[str, str]:
     data = await audio.read(MAX_AUDIO_BYTES + 1)
@@ -162,6 +171,7 @@ async def transcribe_pcm(data: bytes, rate: int, width: int, channels: int) -> s
     """Transcribe one externally bounded raw PCM utterance for Wyoming."""
     if not data:
         raise ValueError("No audio data received")
+    started = time.monotonic()
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmp:
         with wave.open(tmp, "wb") as wav_file:
             wav_file.setframerate(rate)
@@ -169,7 +179,16 @@ async def transcribe_pcm(data: bytes, rate: int, width: int, channels: int) -> s
             wav_file.setnchannels(channels)
             wav_file.writeframes(data)
         async with _transcribe_lock:
-            return await asyncio.to_thread(_run_transcription, tmp.name)
+            text = await asyncio.to_thread(_run_transcription, tmp.name)
+    validation = "disabled"
+    if STT_VALIDATION_SHA256:
+        validation = str(hmac.compare_digest(_validation_digest(text), STT_VALIDATION_SHA256)).lower()
+    print(
+        "aster-speech: Wyoming STT completed "
+        f"in {time.monotonic() - started:.2f}s, bytes={len(data)}, validation_match={validation}",
+        file=sys.stderr,
+    )
+    return text
 
 
 @app.post("/v1/tts", dependencies=[Depends(require_api_key)])
