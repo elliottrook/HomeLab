@@ -47,6 +47,10 @@ text conditioning and accepts an operator-reviewed vocabulary through
 `ASTER_SPEECH_STT_HOTWORDS`. Treat that list as model policy: benchmark every
 change against the frozen fixtures and real consented near/far-field samples.
 Do not put private dictated text or open-ended conversation history in it.
+The candidate systemd unit pins the benchmark-winning M7 vocabulary after its
+protected environment files, so the deployed policy is reviewable without
+copying credentials into Git. Removing those two `Environment=` lines and
+restarting only the candidate is the configuration rollback.
 
 `voice_candidate.py` is the repository-only M2 core. It owns the canonical
 speech normalization and semantic-unit policy plus the bounded two-worker
