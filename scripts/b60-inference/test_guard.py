@@ -29,6 +29,19 @@ def snapshot():
 
 
 class GuardTests(unittest.TestCase):
+    def test_loader_exception_is_fresh_date_limited_and_opt_in(self):
+        item = snapshot()
+        item.update(collected_at='2026-10-10T22:47:00-07:00',
+                    backup_completed_at='2026-10-10T02:44:00-07:00',
+                    mirror_completed_at='2026-10-10T04:24:00-07:00')
+        now = datetime.fromisoformat('2026-10-10T22:48:00-07:00')
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(item, now, 9)
+        guard.validate_preflight(item, now, 9, approved_loader_retry=True)
+        for value in ['2026-10-10T22:53:00-07:00', '2026-10-10T22:55:00-07:00', '2026-10-11T22:48:00-07:00']:
+            with self.assertRaises(guard.GuardError):
+                guard.validate_preflight(item, datetime.fromisoformat(value), 9, approved_loader_retry=True)
+
     def test_one_time_fusion_preflight_exception_keeps_freshness_and_date(self):
         item = snapshot()
         item.update(collected_at='2026-10-10T22:28:00-07:00',

@@ -39,8 +39,8 @@ def gates(unit):
         raise RuntimeError('kernel failure or unavailable scan')
     guest(110, 'python3', '-c', 'import shutil; assert shutil.disk_usage("/").free>=20*1024**3; m=dict(line.split(":",1) for line in open("/proc/meminfo")); assert int(m["MemAvailable"].split()[0])*1024>=4*1024**3')
 
-def suite(label, unit):
-    for rep in ['warmup', '1', '2', '3', '4', '5']:
+def suite(label, unit, repetitions=None):
+    for rep in (repetitions if repetitions is not None else ['warmup', '1', '2', '3', '4', '5']):
         gates(unit)
         target = f'{OUT}-{label}-{rep}.json'
         print(f'BEGIN {label} {rep}', flush=True)
@@ -58,7 +58,16 @@ def suite(label, unit):
 def restore():
     guard.execute_finalizer()
     print(guest(114, 'python3', '/run/b60-bar-validate-generation.py'), flush=True)
-    guest(114, 'systemctl', 'start', 'news-aggregator-ingest.timer', 'news-aggregator-digest.timer')
+    restore_news()
+
+def restore_news():
+    # An owner-disabled schedule is a reservation, not a restoration failure.
+    for unit in ['news-aggregator-ingest.timer', 'news-aggregator-digest.timer']:
+        enabled = guest(114, 'systemctl', 'is-enabled', unit, okay=(0,1)).strip()
+        if enabled in ['enabled', 'enabled-runtime']:
+            guest(114, 'systemctl', 'start', unit)
+        elif enabled != 'disabled':
+            raise RuntimeError('unexpected news schedule enablement state')
 
 def main(fusion_disabled_retry=False):
     global OUT
@@ -98,6 +107,7 @@ def main(fusion_disabled_retry=False):
               '-ngl', '999', '-c', '8192', '-np', '1', '-t', '4', '-tb', '4',
               '-b', '256', '-ub', '128', '-fa', 'on', '-ctk', 'q4_0', '-ctv', 'q4_0',
               '--jinja', '--reasoning', 'off', '--reasoning-budget', '0',
+              '--log-verbosity', '4',
               '--host', '192.168.70.12', '--port', '11435',
               '--api-key-file', '/etc/aster-llama-api-keys', '--metrics')
         for _ in range(60):
@@ -127,7 +137,7 @@ def main(fusion_disabled_retry=False):
         if candidate_started:
             restore()
         else:
-            guest(114, 'systemctl', 'start', 'news-aggregator-ingest.timer', 'news-aggregator-digest.timer')
+            restore_news()
     suite('vulkan-post', 'aster-llama.service')
     run(['systemctl', 'stop', 'b60-fusion-restore.timer' if fusion_disabled_retry else 'b60-matched-restore.timer'])
     print('MATCHED TRIAL COMPLETE; ACCEPTED PRODUCTION RESTORED', flush=True)

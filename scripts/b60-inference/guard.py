@@ -38,7 +38,8 @@ def parse_time(value: str) -> datetime:
 
 
 def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: int,
-                       approved_fusion_retry: bool = False) -> dict[str, Any]:
+                       approved_fusion_retry: bool = False,
+                       approved_loader_retry: bool = False) -> dict[str, Any]:
     required = {
         "collected_at", "backup_completed_at", "mirror_completed_at", "mirror_state",
         "service_health", "driver", "vulkan_device", "binary_sha256", "unit_sha256",
@@ -50,7 +51,7 @@ def validate_preflight(data: dict[str, Any], now: datetime, estimated_minutes: i
     ordinary_window = (local_now.hour == PREFLIGHT_HOUR and
                        PREFLIGHT_FIRST_MINUTE <= local_now.minute <= PREFLIGHT_LAST_MINUTE)
     # Jason's explicit one-time exception, not a new recurring collection window.
-    retry_window = (approved_fusion_retry and local_now.date().isoformat() == '2026-10-10'
+    retry_window = ((approved_fusion_retry or approved_loader_retry) and local_now.date().isoformat() == '2026-10-10'
                     and local_now.hour == 22 and 15 <= local_now.minute < 55)
     if not (ordinary_window or retry_window):
         raise GuardError("preflight must run from 22:00 through 22:14 America/Vancouver")

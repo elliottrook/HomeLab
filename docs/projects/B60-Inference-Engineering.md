@@ -28,6 +28,18 @@ used as a gate.
 
 ## Current state and evidence
 
+### Latest owner priority override — 2026-10-10 22:49 PDT
+
+Jason reserved the B60 for these tests until he explicitly resumes other work.
+This supersedes earlier automatic News restoration instructions. LXC 114's
+ingest/digest timers are stopped and disabled (previously enabled); their
+workers are inactive. The News UI remains unchanged. The 23:45
+`restore-news-timers-after-b60` heartbeat is paused with an explicit no-resume
+instruction. Re-enable/start these two timers only when Jason resumes other
+work, without replaying missed briefings. Preserve backups, health monitoring,
+and unrelated A380/TrueNAS GPU work. This priority reservation does not extend
+experiment deadlines or authorize automatic retries after compute failures.
+
 Read-only discovery on 2026-09-25 reconciled the documented baseline:
 
 - Proxmox 9.2.20, kernel `7.0.14-19-pve`, Dell BIOS A31 dated 2019-06-05.
@@ -729,7 +741,7 @@ asset digest `298d6d3656a13f112497f557be2cb557efb67374bc7d069aa77a9115db909e1d`.
 Its libc >=2.38 and libstdc++ >=13.1 requirements fit the documented Debian
 13 trial. **Not installed, not staged on the lab, and no new GPU execution.**
 
-Next decision: approve one attempt replacing only the candidate's private
+Decision then pending: approve one attempt replacing only the candidate's private
 loader with 1.33.1 (retain fusion off and everything else), including a new
 full fresh preflight if attempted tonight. Source-supported `SYCL_UR_TRACE=2`
 can record UR call diagnostics during startup without credentials/private
@@ -737,6 +749,57 @@ requests, if necessary. Do not blindly switch adapters: current Intel runtime
 documentation describes V2 as default on Xe2/Battlemage, and availability of
 a legacy-switch symbol was not demonstrated in the staged library. No driver,
 firmware, preemption, package-install or global-linker change is proposed.
+
+#### Approved private 1.33.1 loader attempt — guarded observability abort
+
+Jason approved private extraction and one loader-only retry, including fresh
+preflight tonight with unchanged cutoffs. Extracted the checksum-verified
+package in `/dev/shm/b60-loader-1331-trial-20261010/root`, leaving installed
+packages, global linker configuration, older private loader and production
+unit unchanged. Actual process maps confirmed `libze_loader.so.1.33.1`;
+library SHA-256 is
+`a4859c17183add6412c48d44d0f356f8ef5d7b43ae35ed253074f670a6879d23`.
+Fusion remained disabled. Full fresh preflight passed at 22:46:09 PDT:
+backup/matching successful mirror, accepted binary/unit/model and candidate
+hashes, inference/Aster health, xe, Vulkan, disk/RAM/VRAM, temperature and a
+nonempty clean kernel-log scan. Disk free was 21,503,164,416 bytes: keep trial
+staging in tmpfs because this is only about 28 MB above the 20 GiB floor.
+
+A fresh Vulkan confirmation scored 12/16 with the same four known limitations;
+median request latency 2.4922815 seconds. Immutable LXC 114 evidence:
+`matched-sycl-loader-1331-20261010-vulkan-confirmation-warmup.json`, SHA-256
+`e2086fd83e9c76b7efaf83876265935d9787763ca48a54f1ff9672fc0daf97fa`.
+This single confirmation is not a five-repetition matched speed comparison.
+
+The sole candidate started at 22:48:03, loaded its model and listened at
+22:49:29. Invocation `1cfae5fc97f045fba5f67f6059481671`. No previous
+unsupported-feature exception appeared. The harness then aborted because its
+mandatory full-GPU-offload log proof was absent. No candidate authenticated
+generation or 16-case test request was sent; no speed gain is established.
+The process was intentionally stopped, not observed to crash.
+
+Offline source review identified the observability defect in the exact
+[b11429 logging implementation](https://github.com/ggml-org/llama.cpp/blob/b11429/common/log.cpp#L498):
+backend INFO/CONT callbacks map to verbosity **4**, above the server's default
+**3**. Added `--log-verbosity 4` to future isolated candidate controllers;
+kept the exact-invocation/all-layers-offloaded gate, rather than weakening it.
+This correction was tested locally, **not rerun on the B60**. Another model
+start requires a newly scoped approval/window; the one approved start was used.
+
+Finalizer restored accepted production and protected synthetic correctness by
+22:50:30 PDT, with accepted hashes, active health, xe/Vulkan and zero automatic
+service restarts. No relevant kernel failure. The independent 22:55 watchdog
+was disarmed only after validated restoration; competing News schedules were
+then held per Jason's new priority override. Sanitized immutable host record
+`/var/lib/b60-inference/evidence/loader-1331-outcome-20261010.json` SHA-256
+`f826baea16cf55c36b7fffcaa8e7a9e3afe315bc5b96139543ccebbc62781a45`;
+startup trace SHA-256
+`d517ab271a544e2e1f3b2c939e0d1f3a0eeb345e6a691fc4cb03e89e0d8bcbc6`.
+No Git push or production promotion. Next live test is the same corrected
+loader/fusion-off candidate with verbosity 4, authenticated correctness, then
+five matched repetitions and fresh post-control if every gate passes and the
+approved window can contain the complete study. Do not repeat five full
+pre-controls merely to establish startup viability.
 
 - [ ] Evaluate only exact-B60/Linux candidates that can be isolated.
 - [ ] Require tiny-model enumeration, target-architecture correctness, explicit
