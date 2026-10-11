@@ -22,6 +22,16 @@ This is incompatible with claiming that AI-facing code is outside the human
 approval trust boundary. It does not prove that Aster is compromised or that an
 approval has been forged.
 
+**Live route reconciliation, 2026-10-10:** Nginx Proxy Manager's active
+`aster.elliottrook.com` host forwards its default location to Aster LXC 104
+at `192.168.70.10:9120`; no approval-specific location was present. The
+Companion approval bridge source on LXC 104 matched the tracked file. This
+confirms the present request path crosses Aster before the approval socket;
+it does not establish any passkey-specific assurance claim. A separate
+[socket-lifecycle incident](M1-approval-socket-lifecycle-2026-10-10.md)
+temporarily made that listener unreachable and has been restored without
+changing policy.
+
 ## Options
 
 | Option | Benefit | Cost / limit | Recommendation |
