@@ -19,6 +19,16 @@ requirements. Extra fields do not select this branch. No group or switch change
 accompanied deployment. The delegation callback remains a local candidate.
 See [deployment and checkpoint evidence](../../docs/projects/AI%20Projects/evidence/D3-broker-deployment-result-2026-10-06.md).
 
+## Main-broker restart lifecycle — 2026-10-10
+
+LXC 104's main broker unit now uses `RuntimeDirectoryPreserve=restart`. One
+normal main-broker restart preserved the independent approval service's PID
+and reachable socket; permissions and the non-consuming status read passed.
+The approval unit remains independent and unchanged. A full main-broker stop
+can still remove their shared runtime directory, so this is a restart fix,
+not proof of complete lifecycle separation. See the
+[deployment evidence](../../docs/projects/AI%20Projects/evidence/M1-approval-socket-lifecycle-2026-10-10.md).
+
 Implemented controls:
 
 - SQLite-backed agent, service and capability registries;

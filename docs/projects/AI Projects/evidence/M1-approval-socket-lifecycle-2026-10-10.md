@@ -1,6 +1,6 @@
 # M1 approval-socket lifecycle fault and candidate — 2026-10-10
 
-**State:** live listener restored; durable unit change is a local candidate only. Stage2 remains HOLD. No new identity, approval power, credential access, policy grant or Codex tool was enabled.
+**State:** the narrow broker-restart fix was deployed and verified on LXC 104 at 19:06 PDT. Stage2 remains HOLD. No new identity, approval power, credential access, policy grant or Codex tool was enabled.
 
 ## Verified observation
 
@@ -24,7 +24,7 @@ The earlier two-unit draft was copied, with matching SHA-256 values, into a mode
 
 The repository's focused `test_systemd_units.py` passed after the revision and now asserts both preservation on restart and absence of `PartOf=`, `Requires=` and `BindsTo=` coupling. A further read-only live check found both services active with zero restarts, their current units still reporting `RuntimeDirectoryPreserve=no` and no `PartOf=`, and both sockets present with the expected `0660` owner/group modes. The test is a configuration guard, not a simulated systemd outage.
 
-## Proposed deployment gate (not yet executed)
+## Deployment gate and result
 
 1. Recheck the live broker unit hash, both socket path permissions, service activity and that there is no in-flight approval operation. Preserve the exact live broker unit outside Git on LXC 104.
 2. Install only the reviewed main-broker unit; run `systemd-analyze verify`, reload unit definitions, and inspect effective `RuntimeDirectoryPreserve`, UIDs and command lines before restart. Confirm the approval unit remains independent. Stop if any unplanned property changes.
@@ -32,4 +32,10 @@ The repository's focused `test_systemd_units.py` passed after the revision and n
 4. Validate that Aster's ordinary health and Companion's read-only approval view remain available. Record interruption duration and any unexpected journal entries.
 5. If either listener or the policy boundary fails, restore the exact saved broker unit, reload and restart the two broker services in dependency order; verify their paths and permissions. Keep Stage2 on HOLD either way. Do not alter subject allowlists, passkey mapping or worker grants.
 
-The staged candidate has not been deployed or exercised with a broker restart. It should not be described as proven until the restart and rollback gates are observed.
+Jason approved the revised one-unit restart. Preflight confirmed that the live main unit matched the tracked pre-change SHA-256 `fe953710f959416659e3eb5301d1be8a84765c2b924891d8d1d4ad66626789cf`; both services were active with zero restarts and only LISTEN entries on their sockets. The exact live main unit was saved at `/etc/systemd/system/homelab-broker.service.pre-runtime-preserve-20261010` with the same hash. The deployed main unit then matched the tracked candidate SHA-256 `6c6a96a816637f8ff79d02a53ef5a4b9219e794592a5e33897b3377c99816cd7`. The approval unit remained byte-for-byte unchanged at SHA-256 `b2d98eabbda27ee0ed832595d9f334a5d45ef0a9a2a31539d9062b350396e146`.
+
+`systemd-analyze verify` returned success with no diagnostics. After `daemon-reload`, the main unit reported `RuntimeDirectoryPreserve=restart`, and the approval unit still had no `PartOf=` relationship. The single main-broker restart completed at 19:06:11 PDT: its PID changed from 27745 to 28933, while the approval service stayed at PID 28619. Both were active with zero automatic restarts. Both Unix sockets remained present at mode `0660` with their expected owners/groups. Connect-only probes to the approval socket returned 0 for `aster` and errno 13 for `hlabagent`. The exact, non-consuming `automation.status` request returned `ok=True` and `global_enabled=True`; it did not create or consume an approval. Recent warning-level journal entries for the two units were empty.
+
+Aster's agent remained active with zero restarts. Its `/health` endpoint returned `ok`; an unauthenticated approval-view request returned 401. The first health probe mistakenly targeted loopback, while Aster listens only on `192.168.70.10:9120`; the corrected LAN-address probes passed. No Companion-authenticated view was exercised during this change. No rollback was needed; the exact pre-change unit is retained on LXC 104.
+
+**Scope of proof:** a normal main-broker restart now preserved the independent approval listener and its reachable socket. This does not prove behavior on a deliberate full broker stop, reboot, crash, or concurrent approval transaction. The separate approval-owned runtime-directory design and Stage2 identity/assurance boundary remain open. Do not grant connected tools or call Stage2 ready on this result.

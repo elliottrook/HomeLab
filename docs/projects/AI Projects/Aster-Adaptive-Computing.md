@@ -45,9 +45,11 @@ Stage2 remains held. No B60 or llama service was used or changed.
 **M1 listener lifecycle finding — 2026-10-10:** A read-only check found the
 approval service active but its socket pathname missing after a later main
 broker restart. A restart of the approval service restored the pathname and
-preserved the intended peer-access boundary. A narrow
-[unit lifecycle candidate](evidence/M1-approval-socket-lifecycle-2026-10-10.md)
-is staged locally; it is not deployed and Stage2 remains held.
+preserved the intended peer-access boundary. Jason then approved the revised,
+one-unit [lifecycle fix](evidence/M1-approval-socket-lifecycle-2026-10-10.md).
+It was deployed and verified across one main-broker restart: the approval
+service kept its PID and reachable socket. A full broker stop remains unproven;
+Stage2 remains held.
 
 **Local-model change impact — 2026-10-10:** Jason supplied a synopsis of a
 9B local-model promotion. [Read-only reconciliation](evidence/Stream-A-9B-model-change-impact-2026-10-10.md)

@@ -60,8 +60,9 @@ still missing.
 An [approval-socket lifecycle check](evidence/M1-approval-socket-lifecycle-2026-10-10.md)
 also found that a main-broker restart had removed the independent approval
 listener's pathname while the service still reported active. The listener was
-restored without changing policy; a local unit candidate now addresses the
-restart dependency. That candidate is not deployed or a Stage2 pass.
+restored, and a one-line systemd fix was deployed and verified across one
+normal main-broker restart. It does not prove full-stop independence or satisfy
+the Stage2 identity/assurance gate.
 
 The existing [`sysadmin_investigation.py`](../../../services/aster-agent/sysadmin_investigation.py)
 and [`doctor_incident_adapter.py`](../../../services/aster-agent/doctor_incident_adapter.py)
