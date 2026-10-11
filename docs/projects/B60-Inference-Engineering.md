@@ -119,7 +119,54 @@ The initial verifier was intentionally stopped before any proof or mutation,
 replacing its redundant triple read with one equally strict sequential scan.
 The backup executable was resolved from `/usr/sbin` to installed `/usr/bin`
 before the backup started; no failed/partial backup was represented as success.
-TrueNAS create-once copy is pending; do not resize/activate until it validates.
+TrueNAS create-once copy completed at 01:15:31 PDT, matching every byte and
+the same archive SHA-256. Fresh verification at 01:16 preceded the passing full
+preflight and approved root-disk growth to 72 GiB. Actual root free space after
+growth: 30,016,192,512 bytes; after verified persistent runtime copy:
+27,197,358,080 bytes. Thin-pool data/metadata usage 23.71%/1.09%; pre-existing
+thin overprovisioning warnings did not indicate actual pool exhaustion.
+The later direct-copy approval arrived when the existing relay was already
+86% complete; it was faster to finish that relay. No temporary TrueNAS task
+was created, and no existing schedule, credential or archive was altered.
+
+First persistent activation passed at 01:21:04 PDT: exact unit SHA-256
+`a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`,
+33/33 B60 layers, all selected runtime mappings under `/opt/aster-sycl-b11429`,
+authenticated correctness, healthy services, zero restarts and no kernel fault.
+Activation proof SHA-256
+`97055185bfc04e002e1325d4031ce15ac2156f59c73577ec83edc4a177a8d2b8`.
+Post-deployment regression completed at 01:22:39: 12/16, same four known
+baseline scoring failures, no new failure. Short-suite evidence SHA-256
+`77fd4aaf38431588a035578a47f051be3212d457e822a2b1ca1bff521b6add7c`;
+production validation proof
+`50833c514d03aa85fb2e7ba1da6f584d28b9fd6f41fa04bcf02de4a5b56754cb`.
+Exact Vulkan rollback was then exercised successfully at 01:23:49, including
+accepted hashes and protected synthetic correctness. Second clean SYCL start
+passed at 01:27:05; immutable activation SHA-256
+`3bdc3dcc49c2e4a240a04dc990912a421c6c2f8e5a2f8c226ac307751f4a873f`.
+The ten-minute soak began at 01:27:50 with exact hashes, health, kernel,
+resource, xe/Vulkan and reservation checks. During it, five correct exactly
+128-token cold outputs measured 57.7846 tok/s and 2.47559-second median request
+latency (evidence SHA-256
+`923b603124b610680f92c004e433bc96dfde9c821786e5575492fd879e3a852b`).
+The persistent 8K workflow passed all repetitions at 8,012 prompt tokens,
+85 output tokens, 49.4821 tok/s, median request 1.83973 seconds (SHA-256
+`6550cd919d245178592f81a8f073ab190575396aa0a0aab6a4bdb6f71c28e39a`).
+This output length differs from earlier volatile SYCL sessions, so retain the
+earlier length-related latency caveats; the decode rate is consistent.
+Persistent grounded retrieval also passed every repetition at 2,060 input and
+18 output tokens, 54.9140 tok/s; evidence SHA-256
+`4e4e79099ed251bdacc8bed9f509900281eee0ef968d4b4496e18f0175564f3b`.
+The ten-minute exercised soak passed at 01:38:13, SHA-256
+`d121856bcf8f739cf1178f6fea3c6809c4f101e41fb000369f50cc7a62dd2702`.
+Final authenticated correctness passed at 01:38:27. SYCL accepted at 01:39:08;
+host create-once acceptance record SHA-256
+`058bee09f7fdfb8023445fc9880563bf8c8901e466ae49504011b2c64f9aceec`.
+Promotion rollback timer disarmed after those proofs. Default guard now pins
+accepted SYCL; native staging/execution also require this acceptance marker.
+No permanent OpenVINO deployment or Git push. The repository now retains an
+exact-hash SYCL unit template; legacy Vulkan recovery uses an explicit profile
+so later default acceptance cannot silently change its restoration target.
 
 Native preparation completed at 00:48:38 PDT: 27 publisher-verified artifacts,
 6,347,862,877 bytes, model revision

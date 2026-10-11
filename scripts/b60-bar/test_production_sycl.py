@@ -19,6 +19,9 @@ class ProductionTests(unittest.TestCase):
         self.assertIn('TimeoutStartSec=330s',new)
     def test_drift_rejected(self):
         with self.assertRaises(AssertionError):s.candidate_unit('unexpected',Path('/opt/test'),'libs')
+    def test_stored_deployed_template_matches_live_promotion_hash(self):
+        p=Path(__file__).parents[1]/'b60-inference/aster-llama-9b-sycl.service'
+        self.assertEqual(s.digest(p),'a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3')
     def test_escaping_link_rejected_and_content_hash_preserved(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d);(p/'a').write_bytes(b'synthetic')

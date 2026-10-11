@@ -8,7 +8,7 @@
 | Component | Guest | Endpoint | Service |
 |---|---|---|---|
 | Aster API and browser UI | LXC 104 (`192.168.70.10`) | `http://192.168.70.10:9120` | `aster-agent.service` |
-| llama.cpp Vulkan inference | LXC 110 (`192.168.70.12`) | `http://192.168.70.12:11435/v1` | `aster-llama.service` |
+| llama.cpp SYCL FP16 inference | LXC 110 (`192.168.70.12`) | `http://192.168.70.12:11435/v1` | `aster-llama.service` |
 | Sanitized Forgejo producer | LXC 108 | Forgejo loopback API only | `aster-forgejo-report.service` |
 | Sanitized NetBox producer | LXC 111 | NetBox loopback API only | `aster-netbox-report.service` |
 | Source-report transport | Proxmox host | No network endpoint | `aster-source-reports.timer` |
@@ -44,36 +44,64 @@ where its desktop harness is worth the additional latency.
 
 ## Runtime configuration
 
-The 2026-10-10 attended B60 BAR trial currently provides a 32 GiB physical
-BAR with stock `xe`; accepted llama.cpp and Aster units are unchanged and
-authenticated generation passes. The dedicated boot entry was removed after
-validation, so a normal next reboot returns to the retained small-BAR path.
-Persistent BAR promotion is pending; full trial and recovery evidence are in
+The 2026-10-10 full-BAR profile is persistently deployed and repeat-boot
+validated: 32 GiB physical BAR2 with stock `xe`. Retained small-BAR boot
+entries are emergency console recovery, not the preferred production profile.
+Full trial and recovery evidence are in
 [B60 inference engineering](../projects/B60-Inference-Engineering.md).
 
 - llama.cpp b11429 (`d81235049`)
 - `lmstudio-community/Qwen3.5-9B-GGUF:Q4_K_M`, pinned SHA-256
   `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`
-- Vulkan, all model layers offloaded
+- Private SYCL FP16/fusion-1 build, all 33 transformer layers offloaded;
+  CPU-mapped and host buffers still exist
 - One 8,192-token slot
 - Four CPU threads, batch 256, microbatch 128
 - Flash attention; Q4 key/value cache
 - Model reasoning disabled by default
-- Automatic real-generation warm-up during service start
+- Health readiness bounded to 300 seconds (systemd limit 330 seconds);
+  protected synthetic generation during deployment/recovery validation
+- `Restart=no`: no automatic repeated GPU initialization after failure
+- Persistent pinned private runtime under `/opt/aster-sycl-b11429`;
+  private Level Zero loader 1.33.1 and oneAPI libraries, no system/global change
+- LXC 110 root disk 72 GiB (approved growth from 64 GiB, not shrinkable in place)
+
+Persistent SYCL activation and regression passed on 2026-10-11; final exercised
+soak acceptance is recorded in the B60 project ledger. Accepted unit SHA-256
+`a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`;
+binary `0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5`.
+Measured matched decode gain is about 21% for short grounded/8K outputs and
+about 19% for sustained 128-token outputs (~57.8 versus ~48.6 tok/s).
+Do not confuse token-rate improvement with request-latency reduction.
+The repository retains exact SYCL and Vulkan unit templates.
 
 Explicit runtime-identity questions are answered deterministically by the
 Aster agent rather than delegated to model recall. The versioned response names
-the interface in LXC 104, Qwen3.5-9B/llama.cpp/B60 Vulkan inference in LXC 110
-and VM 105 as the stopped Ollama rollback guest. Ordinary analysis questions
+the interface in LXC 104, Qwen3.5-9B/llama.cpp inference in LXC 110
+and VM 105 as the stopped Ollama rollback guest. Its existing backend wording
+and UI subtitle still hardcode Vulkan; that metadata is stale after SYCL
+deployment. Actual mapped-runtime evidence is authoritative. No LXC 104
+source/restart change is implied by the bounded LXC 110 deployment approval.
+Ordinary analysis questions
 continue through the normal model and tool routes.
 
-Systemd does not report `aster-llama.service` fully started until the model is
-loaded and warm-up completes. This normally takes roughly 1–2 minutes. The
-first real user request then avoids the otherwise roughly 28-second cold path.
-The unit allows up to five minutes for startup, while the health and generation
-steps inside the warm-up script are independently bounded. This prevents
-systemd's 90-second default start timeout from killing a healthy model during a
-slow real-generation warm-up.
+Systemd reports the inference unit started only after health readiness passes.
+The SYCL unit uses its private bounded readiness helper, not the former Vulkan
+real-generation warm-up script. Deployment and recovery additionally exercise
+authenticated generation before reporting success. A normal later restart can
+leave first-generation kernel work for its first caller; readiness alone is not
+proof of correct generation.
+
+The exact immediately previous 9B Vulkan unit is retained at
+`/etc/systemd/system/aster-llama.service.pre-sycl-20261011`, SHA-256
+`6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e`.
+The approved controller `scripts/b60-bar/production-sycl.py --rollback`
+validates that checkpoint and the retained Vulkan binary, atomically restores
+only this known unit, stops/quiesces/clean-starts inference, and validates hashes,
+health, `xe`, BMG G21 and protected generation. Native OpenVINO trials instead
+use `--restore-accepted-sycl`; they must not leave Vulkan as accepted production.
+Both recovery paths are bounded, fail closed on unknown unit hashes, and do
+not change BAR, boot, system packages or credentials.
 
 The exact former 27B production unit is retained at
 `/etc/systemd/system/aster-llama.service.pre-9b-20261010`; its b11081 runtime,
@@ -474,7 +502,8 @@ Restart the lightweight harness without reloading the model:
 pct exec 104 -- systemctl restart aster-agent.service
 ```
 
-Restarting inference reloads and warms the 27B model:
+Restarting inference reloads the accepted 9B model; validate authenticated
+generation afterwards rather than assuming health readiness warmed it:
 
 ```sh
 pct exec 110 -- systemctl restart aster-llama.service

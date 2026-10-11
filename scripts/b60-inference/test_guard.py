@@ -94,7 +94,11 @@ class GuardTests(unittest.TestCase):
         old['unit_sha256'] = '7e3e2d9a4c7d861b18ad2c9c83dc294893ea81f295a25918f76fcf3e0f9c9013'
         with self.assertRaises(guard.GuardError):
             guard.validate_preflight(old, datetime.fromisoformat('2026-09-27T22:05:00-07:00'), 30)
-        self.assertIn('/opt/llama.cpp-b11429/llama-server', guard.commands()[5])
+        self.assertIn(guard.ACCEPTED_BINARY_PATH, guard.commands()[5])
+        old['binary_sha256']='5faf410bbbc00a1b94b09ee01623699f255365628dfa73b1ee552d9e52a2231d'
+        old['unit_sha256']='6b09f4580ef49b1c61532d22f48cc5091ec95a0e823f73893db7a83f5c1a461e'
+        with self.assertRaises(guard.GuardError):
+            guard.validate_preflight(old,datetime.fromisoformat('2026-09-27T22:05:00-07:00'),30)
 
     def test_preflight_sets_2320_and_2340_deadlines(self):
         result = guard.validate_preflight(snapshot(), datetime.fromisoformat("2026-09-27T22:05:00-07:00"), 60)

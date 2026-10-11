@@ -17,7 +17,10 @@ def sha(path):
   for b in iter(lambda:f.read(4*1024*1024),b''):h.update(b)
  return h.hexdigest()
 def main():
+ acceptance=json.loads(Path('/var/lib/b60-inference/evidence/20261011-sycl-production-accepted.json').read_text())
+ assert acceptance['accepted'] and acceptance['runtime_persistent'] and acceptance['all_three_workflows_correct']
  m=json.loads(guest('python3','-c','import json; print(json.dumps(json.load(open("/opt/aster-sycl-b11429/manifest.json"))))'))
+ assert acceptance['unit_sha256']==m['unit_sha256']
  assert guest('sha256sum','/etc/systemd/system/aster-llama.service').split()[0]==m['unit_sha256']
  assert guest('systemctl','is-active','aster-llama.service').strip()=='active'
  assert json.loads(guest('curl','-fsS','--max-time','10','http://192.168.70.12:11435/health'))['status']=='ok'

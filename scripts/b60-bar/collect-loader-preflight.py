@@ -38,7 +38,7 @@ backup = options.backup_path
 stat = os.stat(backup)
 assert stat.st_size == options.backup_size
 candidate='/opt/b60-level-zero-trial-20261010/llama-sycl-'+options.precision+'/llama-b11429/'
-accepted='/opt/llama.cpp-b11429/llama-server'
+accepted=guard.ACCEPTED_BINARY_PATH
 if options.accepted_sycl_unit_sha256:
     assert options.exclusive and options.precision=='fp16' and re.fullmatch(r'[0-9a-f]{64}',options.accepted_sycl_unit_sha256)
     manifest=json.loads(guest(110,'python3','-c','import json; print(json.dumps(json.load(open("/opt/aster-sycl-b11429/manifest.json"))))'))

@@ -79,6 +79,38 @@ No additional boot or service change was performed for this comparison.
 Evidence and hashes: `bar-performance-20261010.json` in the project directory;
 raw immutable suites reside in LXC 114 `/var/lib/b60-inference/evidence/`.
 
+## Private persistent SYCL and native OpenVINO — 2026-10-11
+
+The owner-approved persistent runtime is staged at `/opt/aster-sycl-b11429`
+in LXC 110 after a verified fresh backup/mirror and approved 64→72 GiB root
+growth. It uses b11429 FP16, fusion 1, private Level Zero loader 1.33.1 and
+oneAPI libraries. No system package/global driver/linker/boot change is made.
+Two clean production starts, regression, exact Vulkan rollback and final
+exercised soak passed. SYCL accepted at 01:39 PDT; full evidence is recorded
+in the project ledger.
+Exact source unit: `../b60-inference/aster-llama-9b-sycl.service`.
+
+`stage-production-sycl.py` verifies/copies every runtime byte/link/mode and
+prepares the exact unit plus Vulkan rollback. `production-sycl.py --activate`
+requires the independent host rollback timer. `--rollback` explicitly restores
+the retained Vulkan profile; `--restore-accepted-sycl` restores accepted SYCL
+after later trials without changing the unit. Never use the legacy matched
+Vulkan/SYCL trial controller for a native OpenVINO comparison: its historical
+labels and lifecycle assumptions predate SYCL acceptance.
+
+Native OpenVINO trial uses pinned vendor IR rather than unsupported native
+Qwen3.5 GGUF input. Downloads and guest copies are hash-verified and isolated;
+only `dpkg-deb -x`/private wheel extraction, never system installation. The
+model's text-embedding/vision-merger blobs and runtime are RAM-backed to
+preserve disk headroom; these temporary trial paths do not survive reboot.
+`native-openvino-trial.py` requires a fresh explicit SYCL preflight and
+independent SYCL recovery timer, runs matched controls and synthetic checks,
+then restores SYCL exactly. It avoids active backup I/O and the 02:30 boundary.
+No automatic failure retry or permanent OpenVINO deployment is authorized.
+The HTTP adapter is deliberately synthetic-only, not full production API
+parity. Report end-to-end latency and quality with quantization/cache/metric
+caveats; do not report a backend-only causal decode percentage.
+
 ## Original isolated build
 
 The source compiled successfully in a temporary x86-64 Debian builder against

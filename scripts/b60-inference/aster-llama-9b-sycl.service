@@ -1,0 +1,30 @@
+[Unit]
+Description=Aster llama.cpp SYCL FP16 Inference
+After=network-online.target
+Wants=network-online.target
+Conflicts=ollama.service
+
+[Service]
+Environment="LD_LIBRARY_PATH=/opt/aster-sycl-b11429/loader/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/driver/usr/local/lib:/opt/aster-sycl-b11429/driver/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/compiler/2026.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/compiler/2026.1/lib/clang/22/lib/x86_64-unknown-linux-gnu:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/dnnl/2026.0/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/mkl/2026.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/tbb/2023.1/lib:/opt/aster-sycl-b11429/oneapi/opt/intel/oneapi/umf/1.1/lib:/opt/aster-sycl-b11429/oneapi/usr/lib/x86_64-linux-gnu"
+Environment=ONEAPI_DEVICE_SELECTOR=level_zero:gpu
+Environment=GGML_SYCL_ENABLE_FUSION=1
+Type=simple
+User=ollama
+Group=ollama
+SupplementaryGroups=video render
+EnvironmentFile=/etc/aster-llama.env
+ExecStart=/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server -m /opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf -ngl 999 -c 8192 -np 1 -t 4 -tb 4 -b 256 -ub 128 -fa on -ctk q4_0 -ctv q4_0 --jinja --reasoning off --reasoning-budget 0 --host 192.168.70.12 --port 11435 --api-key-file /etc/aster-llama-api-keys --metrics --log-verbosity 4
+ExecStartPost=/usr/bin/python3 /opt/aster-sycl-b11429/wait-ready.py
+Restart=no
+RestartSec=5
+TimeoutStartSec=330s
+TimeoutStopSec=30
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

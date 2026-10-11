@@ -42,6 +42,8 @@ def workflow(run_id,label,fixture):
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--run-id',required=True);p.add_argument('--accepted-unit-sha256',required=True);a=p.parse_args()
  assert re.fullmatch(r'[a-z0-9][a-z0-9-]{0,50}',a.run_id) and re.fullmatch(r'[0-9a-f]{64}',a.accepted_unit_sha256)
+ acceptance=json.loads(Path('/var/lib/b60-inference/evidence/20261011-sycl-production-accepted.json').read_text())
+ assert acceptance['accepted'] and acceptance['unit_sha256']==a.accepted_unit_sha256 and acceptance['runtime_persistent']
  local=datetime.now(ZoneInfo('America/Vancouver'))
  boundary=local.replace(hour=2,minute=30,second=0,microsecond=0)
  if local<boundary:assert (boundary-local).total_seconds()>35*60,'cannot benchmark across scheduled 02:30 backup boundary'
@@ -58,7 +60,7 @@ def main():
   for fixture in fixtures:workflow(a.run_id,'sycl-pre',fixture)
   assert time.monotonic()+1200<deadline,'insufficient candidate/recovery time'
   touched=True;guest(110,'systemctl','stop','aster-llama.service');time.sleep(30)
-  libs=RAM+'/opencl/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/driver/usr/local/lib:/opt/aster-sycl-b11429/driver/usr/lib/x86_64-linux-gnu:'+RAM+'/site/openvino/libs'
+  libs=RAM+'/opencl/usr/lib/x86_64-linux-gnu:/opt/aster-sycl-b11429/driver/usr/local/lib:/opt/aster-sycl-b11429/driver/usr/lib/x86_64-linux-gnu:'+RAM+'/site/openvino/libs:/opt/aster-sycl-b11429/oneapi/usr/lib/x86_64-linux-gnu'
   guest(110,'systemd-run','--unit=aster-b60-candidate','--property=User=ollama','--property=Group=ollama','--property=SupplementaryGroups=video render','--property=Restart=no','--property=RuntimeMaxSec=900','--property=TimeoutStopSec=30','--property=LimitCORE=0','--setenv=LD_LIBRARY_PATH='+libs,'--setenv=OCL_ICD_VENDORS='+RAM+'/vendors','--setenv=OMP_NUM_THREADS=4','/usr/bin/python3','/run/b60-openvino-trial-server.py','--execute')
   ready=time.monotonic()+480
   while time.monotonic()<ready:

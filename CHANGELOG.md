@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-10-11 — Private SYCL production deployment
+
+- Promoted the tested b11429 FP16/fusion-1 SYCL configuration after a new,
+  byte/hash-verified LXC 110 backup and non-deleting TrueNAS mirror; approved
+  root disk growth from 64 to 72 GiB, persistent private loader/oneAPI runtime,
+  and exact retained Vulkan rollback. No system/global driver/package/boot change.
+- Passed two clean starts, unchanged-model regression (same four known baseline
+  scoring failures), exercised Vulkan rollback, fixed-128-token, grounded/8K
+  workloads and ten-minute healthy soak with zero restarts/kernel faults.
+- Reproduced ~57.8 tok/s sustained decode (~19% matched gain); short grounded/8K
+  decode gains are ~21%. Preserve output-length/request-latency caveats.
+- Retargeted accepted recovery to SYCL and prepared a separately approved isolated
+  native OpenVINO IR trial. No permanent OpenVINO deployment or Git push; other
+  B60 consumers remain paused until Jason resumes them. Aster's hardcoded Vulkan
+  UI/identity label remains a documented metadata caveat, not the actual backend.
+
 ## 2026-10-10 — Fotosforfun project started
 
 - Created the Stream A project for Alisa's growing `fotosforfun.ca` gallery.
