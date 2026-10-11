@@ -80,8 +80,13 @@ specifies why free-text parsing is insufficient and how one producer-owned
 check ID can be tested offline before any model sees diagnostic evidence.
 The [typed-check fixture preflight](evidence/D4-Doctor-structured-fixture-result-2026-10-10.md)
 now passes locally, including fail-closed pairing and private-text exclusion.
-It is not deployed or connected; blinded usefulness, M1 authority and real
-incident gates remain open.
+It is not deployed or connected. Review of the deployed Aster health tool
+found a broader existing baseline: it already supplies Doctor's bounded
+free-text summaries to Aster's model context. The typed candidate therefore
+needs to show a useful privacy/specificity tradeoff against **that** path, not
+just against the aggregate-only adapter. Blinded usefulness, M1 authority and
+real-incident gates remain open. Do not promote schema 2 or expand model egress
+on the strength of the parser tests.
 
 ## Immediate next action and stop rule
 

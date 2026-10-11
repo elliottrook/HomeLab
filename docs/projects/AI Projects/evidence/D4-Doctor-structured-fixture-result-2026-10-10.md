@@ -18,6 +18,58 @@ Validation: five structured-builder tests, four structured-adapter tests, four e
 
 ## Limits and next gate
 
+### Comparison with the existing Aster health paths
+
+The first fixture comparison used the aggregate incident adapter as its
+baseline. That was too narrow a baseline for an architecture decision. A
+read-only check on 2026-10-10 confirmed that the deployed LXC 104
+`/opt/aster-agent/aster_agent.py` still has `get_lab_health()`: it accepts a
+schema-1 report, returns up to 32 `name`/`status`/`summary` records (each
+summary capped at 500 characters), and `build_payload()` inserts the result
+as JSON in the model's read-only context when the tool is selected. The full
+deployed file hash differs from the repository file, so this claim is limited
+to the inspected function and call sites. No live report contents or secrets
+were read. The repository test explicitly expects a free-text summary to be
+returned. The configured model endpoint is environment-dependent; this review
+does **not** establish cloud egress.
+
+| Path | What it can establish from one saved report | What it exposes to its consumer | Limitation |
+|---|---|---|---|
+| Existing Aster `get_lab_health()` | Overall status and human check text | Up to 32 dynamic summaries in local-model context; the function itself does not enforce report age or a no-symlink open | Useful detail, but “sanitized” is not a proof that every dynamic value is safe for a different model boundary. |
+| Existing aggregate incident adapter | Overall status, count, age and digest | No human summaries | Cannot identify a failed subsystem. |
+| Offline typed-check candidate | One producer-owned Aster check ID, state, age and digest | Fixed fields; no human summary | Only one check; it cannot diagnose cause and is not yet connected or produced on the normal schedule. |
+
+The lab-operations Doctor worker is a fourth, separate path: it returns
+bounded human summaries after heuristic redaction. It should not silently
+become the security definition for the new projection. These paths need an
+explicit consumer and trust-boundary decision; adding schema 2 everywhere
+would create unnecessary complexity.
+
+**Revised hypothesis:** for a question that needs to name the failing service
+family, typed evidence should retain enough specificity while reducing
+dynamic-text disclosure relative to the current `get_lab_health()` path. For
+simple “is the lab healthy?” requests, the aggregate deterministic path may
+already be sufficient. For “why did Aster fail?”, the typed path must abstain
+from a cause and request a separately authorized observation. The one-failure
+fixture proves the contract can name a check and omit a marker; it does not
+prove that a model gives a better or more helpful answer than today's Aster
+path.
+
+Before promotion, use the same frozen requests and reports across all three
+paths, with a blinded reviewer and a fixed rubric for status correctness,
+permitted specificity, unsupported cause claims, abstention, disclosure,
+latency and failure behavior. Include healthy, one-failure, multi-failure,
+stale, missing and injected-summary cases. Measure actual model answers only
+after the separate egress/authority gate. Reject schema 2 if the privacy
+gain does not outweigh the extra producer, sidecar and validation burden.
+
+The comparison review also found that the candidate validated the aggregate
+report's top-level schema and digest but had not checked its nested check
+records. The offline adapter now rejects malformed aggregate status/checks
+even when a synthetic schema-2 file carries the matching digest. Five
+structured-adapter and four aggregate-adapter tests pass after this change.
+This is parser hardening, not a completed usefulness experiment.
+
 The fixtures establish parsing, file and disclosure behavior, not a blinded diagnostic accuracy estimate, latency distribution, sustained reliability or real incident usefulness. The candidate does not yet verify a fixed production path or independent M1 caller authority. Its run ID is checked at event capture; downstream pairing relies on the report digest, timestamp and file ownership, not on a second independently signed run record. The descriptor and run ID can be inherited by Doctor's child processes, so this channel is **not** an authorization or tamper-proof provenance boundary. The current scheduled report still uses captured-input schema 1, so schema 2 is not produced by normal operation.
 
 Next: review the local diff for cross-consumer risk, then run the predeclared synthetic comparison with a blinded reviewer or deterministic scoring harness that cannot see the candidate's expected label. If it adds no useful specificity or leaks dynamic text, reject it. Any live read-only producer trial, model egress or connected Codex capability requires a separate approved gate after M1 identity/policy controls are verified. No general shell or repair grant follows from this candidate.

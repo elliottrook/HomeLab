@@ -1,5 +1,20 @@
 # Research log — 2026-09-25
 
+## 2026-10-10 — Doctor projection baseline correction
+
+After the offline typed-check preflight, compared it with the already deployed
+Aster health tool rather than only the new aggregate incident adapter. A
+read-only, line-scoped inspection of LXC 104 confirmed that deployed
+`get_lab_health()` still forwards up to 32 Doctor human summaries (500
+characters each) to the model context when selected. The whole deployed
+gateway file differs from the repository copy, so the finding is restricted
+to the inspected function and call sites. No live report contents were read.
+The lab-operations Doctor worker is another summary-bearing path with a
+heuristic redactor. The typed candidate has a plausible disclosure advantage,
+but its fixture result is not yet evidence of better answers or a reason to
+add a production sidecar. The comparison and falsification gate are recorded
+in [the D4 fixture result](evidence/D4-Doctor-structured-fixture-result-2026-10-10.md).
+
 ## 2026-10-10 — Offline Doctor typed-check preflight
 
 Implemented an opt-in, source-owned Aster check event in Doctor, a same-run

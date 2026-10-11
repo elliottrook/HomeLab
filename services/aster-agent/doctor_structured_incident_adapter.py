@@ -82,6 +82,18 @@ def read_doctor_structured_observation(
             raise ValueError("invalid aggregate")
         if type(aggregate["schema"]) is not int or aggregate["schema"] != 1:
             raise ValueError("invalid aggregate schema")
+        if aggregate["status"] not in {"healthy", "warning", "failed"}:
+            raise ValueError("invalid aggregate status")
+        aggregate_checks = aggregate["checks"]
+        if not isinstance(aggregate_checks, list) or len(aggregate_checks) > 32:
+            raise ValueError("invalid aggregate checks")
+        for aggregate_check in aggregate_checks:
+            if not isinstance(aggregate_check, dict) or set(aggregate_check) != {"name", "status", "summary"}:
+                raise ValueError("invalid aggregate check")
+            if not isinstance(aggregate_check["name"], str) or not isinstance(aggregate_check["summary"], str):
+                raise ValueError("invalid aggregate check text")
+            if aggregate_check["status"] not in {"pass", "warn", "fail"}:
+                raise ValueError("invalid aggregate check status")
         if not isinstance(structured, dict) or set(structured) != {
             "schema", "generated_at", "run_id", "source_report_digest", "checks",
         }:

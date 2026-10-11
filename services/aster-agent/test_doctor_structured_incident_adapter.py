@@ -110,6 +110,23 @@ class StructuredDoctorAdapterTests(unittest.TestCase):
         self.structured_path = link
         self.assertEqual(self.read()["state"], "unavailable")
 
+    def test_malformed_aggregate_rejected_even_when_digest_matches(self):
+        for field, replacement in (
+            ("status", "unknown"),
+            ("checks", "not-a-list"),
+            ("checks", [{"name": "Doctor", "status": "unknown", "summary": PRIVATE_MARKER}]),
+            ("checks", [{"name": "Doctor", "status": "fail", "summary": [PRIVATE_MARKER]}]),
+        ):
+            with self.subTest(field=field, replacement=replacement):
+                structured = self.write_pair()
+                aggregate = json.loads(self.aggregate_path.read_text())
+                aggregate[field] = replacement
+                raw = (json.dumps(aggregate, sort_keys=True, separators=(",", ":")) + "\n").encode()
+                self.aggregate_path.write_bytes(raw)
+                structured["source_report_digest"] = hashlib.sha256(raw).hexdigest()
+                self.structured_path.write_text(json.dumps(structured))
+                self.assertEqual(self.read()["state"], "unavailable")
+
 
 if __name__ == "__main__":
     unittest.main()
