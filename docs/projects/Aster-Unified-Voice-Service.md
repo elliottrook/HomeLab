@@ -765,9 +765,8 @@ unrelated state.
   about 18.1 seconds, split internally into only two semantic chunks. During a
   separate extended CPU News render, twelve uncached A380 acknowledgements
   measured 0.878-second median and 0.928-second p95/max. Production News and
-  speech services were unchanged. Listening parity of the natural CPU sample
-  is the next gate before adding a fixed-policy batch backend to the one Aster
-  API.
+  speech services were unchanged. Jason accepted the corrected natural CPU
+  sample with plain device names as the target News voice.
 - Context comparison confirmed the new renderer pronounces plain `Home
   Assistant` and `Lutron Caseta` correctly. The old phonetic substitutions made
   both names sound wrong in the longer briefing even though short comparison
@@ -775,6 +774,16 @@ unrelated state.
   forms; 18 focused tests pass and the boot-disabled LXC 116 candidate now uses
   that policy. A corrected full natural CPU briefing was generated for the
   final context listening gate; production remains unchanged.
+- The accepted CPU path is now staged behind the one candidate API. LXC 114
+  runs boot-disabled `aster-kokopop-news` and an authenticated fixed-policy
+  bridge; LXC 116 has a distinct News caller identity and a dedicated third
+  scheduler worker. The two A380 workers never consume the batch queue. The
+  bridge returned 401 without its renderer credential and valid mono 24 kHz
+  WAV with it. During a 26.467-second batch request, twelve uncached A380
+  interactive replies completed in 0.802–0.851 seconds (0.851-second p95/max),
+  and the batch stream completed successfully with 911,105 framed bytes.
+  Production port 9130, the production News UI and both News timers remained
+  unchanged; all new services remain boot-disabled.
 
 ## Validation and evaluation
 
@@ -926,6 +935,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-10 | M3 TrueNAS A380 backend comparison and private canary | Live i915/device/BAR inspection; explicit Mesa Vulkan device selection; cold/warm and longer-sentence timings; sustained Jellyfin VAAPI overlap; Intel OpenVINO 2026.4 and ORT OpenVINO 1.24.1 with CPU fallback disabled; pinned non-root deployment-image build; loopback validation; exact OPNsense rule; authentication refusal/success; full LXC 116 candidate fixture. | A380 Vulkan passes: warm short 0.494–0.511 s and 0.491–0.587 s during VAAPI overlap; the clean deployment image warmed to 0.631–0.657 s after a 4.648 s cold request; authenticated network render was 0.661 s. OpenVINO rejects the approved dynamic-rank ONNX graph. Production remains unchanged; warm-up admission, full load and listening gates remain. |
 | 2026-10-10 | M3 A380 interactive/News contention gate | Twelve unique idle acknowledgements; four briefing-sized renders with twelve interactive requests; recovery series; repeat through the deployed scheduler's real `batch` queue. Jellyfin overlap withheld after the earlier gate failed. | Direct overlap failed at 1.597 s median / 3.239 s p95. Scheduler priority improved median to 0.896 s but p95 remained 2.658 s because in-flight Kokopop work is not pre-emptible. Add batch-specific bounded clauses and interactive-aware admission, then repeat before selection. |
 | 2026-10-10 | M3 rejected bounded-batch correction and isolated CPU News canary | Iterated 60/30/20-character GPU News caps; measured generated-sample silence; rolled rejected policy out of the candidate. Built identical pinned Kokopop/GGML CPU-only on LXC 114; 617 tests; identical GGUF hash; natural whole-briefing render; simultaneous isolated A380 probe. | The numeric 1.388 s contention pass was rejected because the sample contained 10.859 s silence and sounded slow. CPU News produced 20.25 s natural audio in ~18.1 s while A380 interaction held 0.878 s median / 0.928 s p95. Keep workloads isolated behind one fixed Aster identity, pending listening parity and batch-backend integration. |
+| 2026-10-10 | M3 accepted voice and isolated batch-backend integration | Jason accepted the corrected full CPU News sample. Added a dedicated authenticated batch route and scheduler worker, boot-disabled LXC 114 CPU renderer/bridge, 401/200 boundary checks, and a real concurrent candidate request. | Batch completed in 26.467 s while twelve uncached A380 replies stayed between 0.802 and 0.851 s. One Aster identity is preserved without GPU contention. Production speech, News UI and timers remain unchanged; next gate is artifact equivalence and News-client rollback integration. |
 
 ## Close-out
 

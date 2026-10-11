@@ -42,10 +42,12 @@ options; candidate service code must wrap and test that behavior deliberately.
 
 `voice_candidate.py` is the repository-only M2 core. It owns the canonical
 speech normalization and semantic-unit policy plus the bounded two-worker
-scheduler. Both workers serve interactive work; only worker zero may serve the
-lower-priority batch queue, so News cannot occupy both interactive slots. This
+scheduler. Without a separate batch renderer, both workers serve interactive
+work and only worker zero may serve the lower-priority batch queue. When an
+isolated batch renderer is configured, a third worker owns that backend and
+both interactive workers remain dedicated to latency-sensitive speech. This
 module is not production wiring and must remain side-by-side until the HTTP and
-Wyoming adapters, real Kokoro renderer and LXC 116 gates pass.
+Wyoming adapters, real Kokoro renderers and LXC 116 gates pass.
 
 `voice_protocol.py` defines the dependency-free `AVS1` streaming frame format:
 a bounded JSON metadata header followed by bounded PCM payload bytes. Audio
@@ -55,8 +57,10 @@ content-free error frame. An explicit API cancellation completes the HTTP
 stream with a `cancelled` frame; a disconnected client still cancels work and
 propagates the transport cancellation.
 `voice_candidate_http.py` exposes that contract as authenticated FastAPI router
-factories for `/v2/tts/stream` and cancellation. Caller class is fixed by the
-authenticated route and cannot be selected in submitted JSON.
+factories for `/v2/tts/stream`, `/v2/batch/tts/stream` and their cancellation
+routes. Caller class is fixed by the authenticated route and cannot be selected
+in submitted JSON. The batch route accepts only its dedicated service key; it
+does not accept Companion credentials or Authentik tokens.
 
 `kokoro_candidate.py` verifies the approved asset digests before constructing
 two distinct persistent ONNX sessions. Each scheduler worker owns one Kokoro
@@ -107,3 +111,10 @@ The approved canary tuple is only `192.168.70.14` to
 `192.168.20.40:9132/TCP`; Kokopop itself remains internal to Docker. The
 candidate service on LXC 116 may use this path while production port 9130
 continues to use the retained renderer until listening and load gates pass.
+
+The isolated News candidate uses `aster-kokopop-news.service` plus
+`aster-batch-renderer-bridge.service` on LXC 114. Kokopop is loopback-only;
+only the authenticated fixed-policy bridge binds `192.168.70.13:9132`. LXC 116
+uses a renderer credential distinct from the News caller credential. Both LXC
+114 units and the LXC 116 candidate remain boot-disabled until migration and
+rollback gates are complete.

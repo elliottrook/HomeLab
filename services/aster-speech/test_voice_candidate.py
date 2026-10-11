@@ -96,6 +96,38 @@ class VoiceSchedulerTests(unittest.IsolatedAsyncioTestCase):
         release.set()
         await batch_task
 
+    async def test_dedicated_batch_renderer_leaves_both_interactive_workers_free(self):
+        await self.scheduler.close()
+        batch_entered = threading.Event()
+        release_batch = threading.Event()
+        interactive_calls = []
+
+        def interactive(text):
+            interactive_calls.append(text)
+            return b"interactive:" + text.encode(), 24000
+
+        def batch(text):
+            batch_entered.set()
+            release_batch.wait(timeout=2)
+            return b"batch:" + text.encode(), 24000
+
+        self.scheduler = VoiceScheduler(interactive, batch_renderer=batch)
+        await self.scheduler.start()
+        batch_task = asyncio.create_task(self._collect("batch", "News briefing.", "batch"))
+        await asyncio.wait_for(asyncio.to_thread(batch_entered.wait), timeout=1)
+        results = await asyncio.gather(
+            self._collect("interactive-1", "First reply.", "interactive"),
+            self._collect("interactive-2", "Second reply.", "interactive"),
+        )
+        self.assertEqual(
+            {result[0].pcm for result in results},
+            {b"interactive:First reply.", b"interactive:Second reply."},
+        )
+        self.assertCountEqual(interactive_calls, ["First reply.", "Second reply."])
+        release_batch.set()
+        batch_result = await batch_task
+        self.assertEqual(batch_result[0].pcm, b"batch:News briefing.")
+
     async def _collect(self, request_id, text, caller):
         return [unit async for unit in self.scheduler.stream(request_id, text, caller)]
 
