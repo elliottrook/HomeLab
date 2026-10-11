@@ -126,7 +126,14 @@ group/world-writable files, requires schema 1 and a UTC report no older than
 exception. The human summary fields remain as before for a fresh valid report;
 this does **not** make them safe to send to Codex or another cloud model. A
 dependency-free isolated test checks fresh, stale, future, symlink, writable,
-invalid-schema and oversized cases; four tests pass. Python compilation passes.
+invalid-schema and oversized cases. A 2026-10-11 cross-consumer review found
+that JSON list/object values in a top-level or per-check `status` could raise
+`TypeError` during set membership. The local candidate now type-checks both
+before membership; a regression verifies top-level unavailability and omission
+of a malformed individual check. Five isolated reader tests and nine existing
+aggregate/structured-adapter tests pass. No live source or report was changed.
+Python compilation passed before this follow-up; the new edit is covered by
+the isolated import/execute tests.
 The existing full gateway test suite has not run in this environment because
 the Mac system Python lacks the gateway's web dependencies; none were installed.
 

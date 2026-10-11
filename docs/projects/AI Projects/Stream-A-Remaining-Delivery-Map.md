@@ -95,7 +95,9 @@ candidate is to harden that existing reader and keep aggregate status for
 simple questions; schema 2 remains unpromoted. A local reader hardening
 candidate now passes isolated tests, but the deployed gateway source differs
 and full integration tests have not run. No live fix or new model boundary has
-been enabled.
+been enabled. An offline review on 2026-10-11 additionally closed a malformed
+status-value exception in the local candidate; it does not change the
+deployment or connected-tool gates.
 
 ## Immediate next action and stop rule
 

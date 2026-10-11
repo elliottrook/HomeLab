@@ -955,7 +955,7 @@ def get_lab_health(report_path: Path | None = None, now: datetime | None = None)
     generated_at = report.get("generated_at")
     status = report.get("status")
     checks = report.get("checks")
-    if type(report.get("schema")) is not int or report["schema"] != 1 or not isinstance(generated_at, str) or status not in {"healthy", "warning", "failed"} or not isinstance(checks, list):
+    if type(report.get("schema")) is not int or report["schema"] != 1 or not isinstance(generated_at, str) or not isinstance(status, str) or status not in {"healthy", "warning", "failed"} or not isinstance(checks, list):
         return {"status": "unavailable", "error": "Sanitized health report has an invalid schema"}
     try:
         observed = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
@@ -973,7 +973,7 @@ def get_lab_health(report_path: Path | None = None, now: datetime | None = None)
         if not isinstance(check, dict):
             continue
         name, check_status, summary = check.get("name"), check.get("status"), check.get("summary")
-        if not isinstance(name, str) or check_status not in {"pass", "warn", "fail"} or not isinstance(summary, str):
+        if not isinstance(name, str) or not isinstance(check_status, str) or check_status not in {"pass", "warn", "fail"} or not isinstance(summary, str):
             continue
         safe_checks.append({"name": name[:120], "status": check_status, "summary": summary[:500]})
     return {

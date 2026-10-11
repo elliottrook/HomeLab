@@ -62,6 +62,20 @@ class LabHealthReaderCandidateTests(unittest.TestCase):
         self.path.write_bytes(b"x" * 65_537)
         self.assertEqual(self.read(self.path, now=NOW)["status"], "unavailable")
 
+    def test_unhashable_status_values_fail_closed(self):
+        self.write_report()
+        value = json.loads(self.path.read_text())
+        value["status"] = []
+        self.path.write_text(json.dumps(value), encoding="utf-8")
+        self.assertEqual(self.read(self.path, now=NOW)["status"], "unavailable")
+
+        value["status"] = "warning"
+        value["checks"][0]["status"] = {}
+        self.path.write_text(json.dumps(value), encoding="utf-8")
+        result = self.read(self.path, now=NOW)
+        self.assertEqual(result["status"], "warning")
+        self.assertEqual(result["checks"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

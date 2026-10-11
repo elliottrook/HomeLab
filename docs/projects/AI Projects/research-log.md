@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-11 — Offline Doctor reader cross-consumer review
+
+Reviewed the local reader candidate against its Aster tool call, preloaded
+model context and incident adapters without running Doctor or inference. A
+malformed JSON list/object in a report status field could raise `TypeError`
+instead of returning unavailable. Added string type gates and one regression
+test. Five isolated reader tests and nine adjacent adapter tests pass. The
+deployed gateway still differs from this checkout; the full gateway suite,
+real report serving and any model-egress/authority gate remain open. No B60,
+LXC, credential, network or production file was changed. See the
+[D4 candidate record](evidence/D4-Doctor-structured-fixture-result-2026-10-10.md).
+
 ## 2026-10-10 — Existing Aster health-reader hardening candidate
 
 The seven-case synthetic comparison suggested a smaller change than
