@@ -20,6 +20,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import wave
 from pathlib import Path
 from typing import Any
 
@@ -155,6 +156,20 @@ async def speech_to_text(audio: UploadFile) -> dict[str, str]:
     )
 
     return {"text": text}
+
+
+async def transcribe_pcm(data: bytes, rate: int, width: int, channels: int) -> str:
+    """Transcribe one externally bounded raw PCM utterance for Wyoming."""
+    if not data:
+        raise ValueError("No audio data received")
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmp:
+        with wave.open(tmp, "wb") as wav_file:
+            wav_file.setframerate(rate)
+            wav_file.setsampwidth(width)
+            wav_file.setnchannels(channels)
+            wav_file.writeframes(data)
+        async with _transcribe_lock:
+            return await asyncio.to_thread(_run_transcription, tmp.name)
 
 
 @app.post("/v1/tts", dependencies=[Depends(require_api_key)])

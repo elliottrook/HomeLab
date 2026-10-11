@@ -52,6 +52,14 @@ protected environment files, so the deployed policy is reviewable without
 copying credentials into Git. Removing those two `Environment=` lines and
 restarting only the candidate is the configuration rollback.
 
+The private Wyoming listener advertises the canonical TTS voice and one local
+`aster-base-en` ASR model. ASR requires external VAD and accepts only the
+protocol sequence `Transcribe`, `AudioStart`, one or more `AudioChunk` events,
+then `AudioStop`. Input is bounded to 15 MiB of mono signed 16-bit PCM at
+8–48 kHz; format changes, invalid order and unknown models/languages fail
+closed. The completed utterance shares the candidate's serialized Whisper
+worker and emits one final transcript without retaining audio or context.
+
 `voice_candidate.py` is the repository-only M2 core. It owns the canonical
 speech normalization and semantic-unit policy plus the bounded two-worker
 scheduler. Without a separate batch renderer, both workers serve interactive
