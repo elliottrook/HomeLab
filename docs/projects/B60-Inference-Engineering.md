@@ -444,6 +444,16 @@ The source-report startup race was handled by a normal refresh after readiness.
 
 #### BAR performance follow-up — 2026-10-10
 
+Owner acceptance: Jason accepts the observed gain and full-BAR configuration
+and directs moving forward rather than reverting to the old BAR profile for
+further causal benchmarking. No small-BAR comparison boots are planned.
+Retained small-BAR entries remain emergency recovery only. The next objective
+is isolated Intel Level Zero enumeration and then a same-model SYCL comparison,
+not an immediate removal of the working Vulkan production backend. Read-only
+inventory found no `sycl-ls`, `clinfo`, `ze_info` or queried Level Zero runtime
+packages/libraries in LXC 110. Runtime installation and non-Vulkan compute
+execution remain separately approval-gated; production is unchanged.
+
 Owner requested push and immediate before/after testing. Restored this checkout's
 origin to the documented Forgejo SSH primary after finding unexpected local
 checkout indirection; merged four concurrent main commits without rewriting
