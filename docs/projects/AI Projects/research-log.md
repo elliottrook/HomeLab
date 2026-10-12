@@ -2615,3 +2615,15 @@ passed twelve synthetic expected selections with 100 warm repeats; thirty
 offline tests pass. This is only an extracted-selector CPU/conformance
 measurement. It is neither independent routing accuracy nor deployed SYCL
 latency, calibration, or permission evidence. No runtime route or tool changed.
+
+### 2026-10-11 — Content-free native session-refresh observation
+
+The signed-in Companion observation did not prove that a token refresh ran.
+A local-only `AuthManager` candidate now records fixed refresh outcome codes
+without token, user, prompt or request content. All 57 native tests pass,
+including one refresh for concurrent requests, persisted versus volatile
+success, unavailable and invalid-grant outcomes, and no refresh event for an
+unexpired session. The [observation gate](evidence/D3-session-refresh-observation-candidate-2026-10-11.md)
+requires a naturally triggered refresh in a later reviewed app build; no
+current app was installed or launched for this test. D3 routine release stays
+on HOLD and no additional Codex question was sent.

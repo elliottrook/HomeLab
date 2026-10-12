@@ -39,16 +39,18 @@ final class AuthManagerTests: XCTestCase {
     func testConcurrentRequestsRefreshOnlyOnceAndPersistOneCompleteRecord() async {
         var saved = expired()
         var calls = 0
+        var observations = [RefreshObservation]()
         let auth = AuthManager(storage: SessionStorage(load: { saved }, save: { saved = $0; return true }, clear: {}), request: { _ in
             calls += 1
             try await Task.sleep(for: .milliseconds(30))
             return self.response()
-        })
+        }, observeRefresh: { observations.append($0) })
         async let a = auth.validAccessToken()
         async let b = auth.validAccessToken()
         let values = await [a, b]
         XCTAssertEqual(values, ["synthetic-new", "synthetic-new"])
         XCTAssertEqual(calls, 1)
+        XCTAssertEqual(observations.map(\.rawValue), ["refresh_started", "refresh_succeeded_persisted"])
         XCTAssertEqual(saved.refreshToken, "synthetic-rotated")
         XCTAssertGreaterThan(saved.expiresAt, Date())
     }
@@ -74,32 +76,38 @@ final class AuthManagerTests: XCTestCase {
     }
 
     func testFailedKeychainWriteKeepsNewSessionAndReportsNonpersistentLogin() async {
-        let auth = AuthManager(storage: SessionStorage(load: { self.expired() }, save: { _ in false }, clear: {}), request: { _ in self.response() })
+        var observations = [RefreshObservation]()
+        let auth = AuthManager(storage: SessionStorage(load: { self.expired() }, save: { _ in false }, clear: {}), request: { _ in self.response() }, observeRefresh: { observations.append($0) })
         let first = await auth.validAccessToken()
         let second = await auth.validAccessToken()
         XCTAssertEqual(first, "synthetic-new")
         XCTAssertEqual(second, "synthetic-new")
         XCTAssertTrue(auth.isAuthenticated)
         XCTAssertTrue(auth.lastError?.contains("session only") == true)
+        XCTAssertEqual(observations.map(\.rawValue), ["refresh_started", "refresh_succeeded_volatile"])
     }
 
     func testTemporaryFailureDoesNotEraseSavedLogin() async {
         var cleared = false
-        let auth = AuthManager(storage: SessionStorage(load: { self.expired() }, save: { _ in true }, clear: { cleared = true }), request: { _ in self.response(503, "{}") })
+        var observations = [RefreshObservation]()
+        let auth = AuthManager(storage: SessionStorage(load: { self.expired() }, save: { _ in true }, clear: { cleared = true }), request: { _ in self.response(503, "{}") }, observeRefresh: { observations.append($0) })
         let token = await auth.validAccessToken()
         XCTAssertNil(token)
         XCTAssertFalse(cleared)
         XCTAssertTrue(auth.isAuthenticated)
+        XCTAssertEqual(observations.map(\.rawValue), ["refresh_started", "refresh_unavailable"])
     }
 
     func testRevokedRefreshTokenRequiresLoginOnce() async {
         var cleared = 0
-        let auth = AuthManager(storage: SessionStorage(load: { self.expired() }, save: { _ in true }, clear: { cleared += 1 }), request: { _ in self.response(400, "{\"error\":\"invalid_grant\"}") })
+        var observations = [RefreshObservation]()
+        let auth = AuthManager(storage: SessionStorage(load: { self.expired() }, save: { _ in true }, clear: { cleared += 1 }), request: { _ in self.response(400, "{\"error\":\"invalid_grant\"}") }, observeRefresh: { observations.append($0) })
         let first = await auth.validAccessToken()
         let second = await auth.validAccessToken()
         XCTAssertNil(first); XCTAssertNil(second)
         XCTAssertFalse(auth.isAuthenticated)
         XCTAssertEqual(cleared, 1)
+        XCTAssertEqual(observations.map(\.rawValue), ["refresh_started", "refresh_invalid_grant"])
     }
 
     func testLogoutDuringRefreshCannotResurrectSession() async {
@@ -122,10 +130,12 @@ final class AuthManagerTests: XCTestCase {
     func testReopeningRestoresValidSessionWithoutNetworkOrBrowser() async {
         let stored = StoredSession(accessToken: "synthetic-valid", refreshToken: "synthetic-refresh", expiresAt: Date().addingTimeInterval(600))
         var calls = 0
-        let auth = AuthManager(storage: SessionStorage(load: { stored }, save: { _ in true }, clear: {}), request: { _ in calls += 1; return self.response() })
+        var observations = [RefreshObservation]()
+        let auth = AuthManager(storage: SessionStorage(load: { stored }, save: { _ in true }, clear: {}), request: { _ in calls += 1; return self.response() }, observeRefresh: { observations.append($0) })
         let token = await auth.validAccessToken()
         XCTAssertEqual(token, "synthetic-valid")
         XCTAssertEqual(calls, 0)
+        XCTAssertTrue(observations.isEmpty)
         XCTAssertTrue(auth.isAuthenticated)
     }
 

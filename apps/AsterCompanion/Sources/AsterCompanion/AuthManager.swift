@@ -1,6 +1,17 @@
 import AuthenticationServices
 import AppKit
 import Foundation
+import OSLog
+
+enum RefreshObservation: String {
+    case started = "refresh_started"
+    case persisted = "refresh_succeeded_persisted"
+    case volatile = "refresh_succeeded_volatile"
+    case invalidGrant = "refresh_invalid_grant"
+    case unavailable = "refresh_unavailable"
+    case cancelled = "refresh_cancelled"
+    case missingCredential = "refresh_missing_credential"
+}
 
 struct StoredSession: Codable {
     let accessToken: String
@@ -77,15 +88,21 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
 
     private let storage: SessionStorage
     private let request: (URLRequest) async throws -> (Data, URLResponse)
+    private let observeRefresh: (RefreshObservation) -> Void
     private var tokens: StoredSession?
     private var session: ASWebAuthenticationSession?
     private var refreshTask: Task<String?, Never>?
     private var generation = 0
 
     init(storage: SessionStorage? = nil,
-         request: @escaping (URLRequest) async throws -> (Data, URLResponse) = { try await URLSession.shared.data(for: $0) }) {
+         request: @escaping (URLRequest) async throws -> (Data, URLResponse) = { try await URLSession.shared.data(for: $0) },
+         observeRefresh: @escaping (RefreshObservation) -> Void = { observation in
+             Logger(subsystem: "com.elliottrook.aster-companion", category: "session")
+                 .notice("\(observation.rawValue, privacy: .public)")
+         }) {
         self.storage = storage ?? .keychain
         self.request = request
+        self.observeRefresh = observeRefresh
         super.init()
         tokens = self.storage.load()
         isAuthenticated = tokens != nil
@@ -190,7 +207,7 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
                 lastError = "Sign-in could not be completed by the identity service. Please try again."
                 return false
             }
-            try accept(JSONDecoder().decode(TokenResponse.self, from: data), previousRefresh: nil)
+            _ = try accept(JSONDecoder().decode(TokenResponse.self, from: data), previousRefresh: nil)
             return true
         } catch {
             if generation == attempt { lastError = "Sign-in could not finish. Check the connection and try again." }
@@ -198,7 +215,8 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         }
     }
 
-    private func accept(_ response: TokenResponse, previousRefresh: String?) throws {
+    @discardableResult
+    private func accept(_ response: TokenResponse, previousRefresh: String?) throws -> Bool {
         guard !response.accessToken.isEmpty, response.expiresIn > 0 else { throw URLError(.badServerResponse) }
         let value = StoredSession(accessToken: response.accessToken, refreshToken: response.refreshToken ?? previousRefresh,
                                   expiresAt: Date().addingTimeInterval(TimeInterval(response.expiresIn)))
@@ -206,7 +224,9 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         // Persist all fields atomically and explicitly report a storage failure.
         tokens = value
         isAuthenticated = true
-        lastError = storage.save(value) ? nil : "Signed in for this session only: Keychain could not save your login. Allow Aster access if macOS asks."
+        let persisted = storage.save(value)
+        lastError = persisted ? nil : "Signed in for this session only: Keychain could not save your login. Allow Aster access if macOS asks."
+        return persisted
     }
 
     func validAccessToken() async -> String? {
@@ -223,30 +243,46 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
 
     private func refresh(attempt: Int) async -> String? {
         guard let refreshToken = tokens?.refreshToken else {
+            observeRefresh(.missingCredential)
             logout()
             lastError = "Your session expired. Sign in again with your passkey."
             return nil
         }
+        observeRefresh(.started)
         do {
             let (data, response) = try await request(tokenRequest([
                 "grant_type": "refresh_token", "refresh_token": refreshToken, "client_id": AsterConfig.clientID,
             ]))
-            guard generation == attempt, !Task.isCancelled else { return nil }
-            guard let http = response as? HTTPURLResponse else { return nil }
+            guard generation == attempt, !Task.isCancelled else {
+                observeRefresh(.cancelled)
+                return nil
+            }
+            guard let http = response as? HTTPURLResponse else {
+                observeRefresh(.unavailable)
+                return nil
+            }
             guard http.statusCode == 200 else {
                 let errorCode = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String
                 if (http.statusCode == 400 || http.statusCode == 401) && errorCode == "invalid_grant" {
+                    observeRefresh(.invalidGrant)
                     logout()
                     lastError = "Your session expired or was revoked. Sign in again with your passkey."
                 } else {
+                    observeRefresh(.unavailable)
                     lastError = "Could not renew your session. Your saved login is retained; try again shortly."
                 }
                 return nil
             }
-            try accept(JSONDecoder().decode(TokenResponse.self, from: data), previousRefresh: refreshToken)
+            let persisted = try accept(JSONDecoder().decode(TokenResponse.self, from: data), previousRefresh: refreshToken)
+            observeRefresh(persisted ? .persisted : .volatile)
             return tokens?.accessToken
         } catch {
-            if generation == attempt { lastError = "Could not reach the sign-in service. Your saved login is retained." }
+            if generation == attempt {
+                observeRefresh(.unavailable)
+                lastError = "Could not reach the sign-in service. Your saved login is retained."
+            } else {
+                observeRefresh(.cancelled)
+            }
             return nil
         }
     }
