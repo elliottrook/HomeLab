@@ -6,14 +6,14 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 from pydantic import ValidationError
-from baseline import BaselineSelector
+from baseline import BaselineSelector, component_digests
 from contracts import CONTRACTS, Decision, DecisionRequest, HarnessRun, Outcome, Step, validate_proposal
-from evaluate import DEFINITION, SOURCE, catalogue, request, run
+from evaluate import DEFINITION, DEFINITION_V2, SOURCE, catalogue, request, run
 
 
 class ContractsTests(unittest.TestCase):
     def setUp(self):
-        self.selector=BaselineSelector(SOURCE,json.loads(DEFINITION.read_text())['expected_baseline_source_digest'])
+        self.selector=BaselineSelector(SOURCE,expected_components=json.loads(DEFINITION_V2.read_text())['expected_component_digests'])
         self.catalogue=catalogue(self.selector)
         self.request=request({'id':'fixture'},self.catalogue)
         self.decision=self.selector.propose(self.request,self.catalogue,[{'role':'user','content':'What is the current time?'}],now=10)
@@ -25,11 +25,11 @@ class ContractsTests(unittest.TestCase):
             self.assertEqual(json.loads((root/'schemas/aster/selector-probe-v1'/f'{cls.__name__}.v1.json').read_text()),expected)
 
     def test_fixture_conformance(self):
-        self.assertEqual(run(repeats=1)['fixture_count'],12)
+        self.assertEqual(run(repeats=1,definition_path=DEFINITION_V2)['fixture_count'],12)
 
     def test_no_network_or_tools(self):
         with patch('socket.socket',side_effect=AssertionError('network forbidden')),patch('subprocess.Popen',side_effect=AssertionError('process forbidden')):
-            self.assertEqual(run(repeats=1)['fixture_count'],12)
+            self.assertEqual(run(repeats=1,definition_path=DEFINITION_V2)['fixture_count'],12)
 
     def test_source_drift_denied(self):
         with self.assertRaises(ValueError):BaselineSelector(SOURCE,'0'*64)
@@ -113,11 +113,36 @@ class ContractsTests(unittest.TestCase):
         req=DecisionRequest.model_validate(self.request.model_dump() | {'engine_digest':'0'*64})
         self.assertEqual(self.selector.propose(req,self.catalogue,[],now=10).status,'deny')
 
-    def test_evaluator_rejects_changed_source_without_pin_revision(self):
+    def test_historical_full_file_pin_still_rejects_current_source(self):
+        with self.assertRaisesRegex(ValueError,'baseline source changed'):
+            run(repeats=1,definition_path=DEFINITION)
+
+    def test_component_pin_accepts_unrelated_comment_but_rejects_selector_change(self):
+        pins=json.loads(DEFINITION_V2.read_text())['expected_component_digests']
         with tempfile.TemporaryDirectory() as temp:
             p=Path(temp)/'source.py';p.write_bytes(SOURCE.read_bytes()+b'\n# modified without review\n')
-            with patch('evaluate.SOURCE',p),self.assertRaisesRegex(ValueError,'baseline source changed'):
-                run(repeats=1)
+            self.assertTrue(BaselineSelector(p,expected_components=pins).select([{'role':'user','content':'time'}]))
+            source=SOURCE.read_text()
+            original='    recent = " ".join(\n        str(message.get("content", ""))'
+            self.assertEqual(source.count(original),1)
+            p.write_text(source.replace(original,
+                '    recent = " ".join(\n        repr(message.get("content", ""))'))
+            with self.assertRaisesRegex(ValueError,'baseline selector component changed'):
+                BaselineSelector(p,expected_components=pins)
+            schema_text='Get the current local date and time in an IANA timezone.'
+            self.assertEqual(source.count(schema_text),1)
+            p.write_text(source.replace(schema_text,'Get current local time.'))
+            with self.assertRaisesRegex(ValueError,'baseline selector component changed'):
+                BaselineSelector(p,expected_components=pins)
+            p.write_text(source+'\nTOOL_HINTS = {}\n')
+            with self.assertRaisesRegex(ValueError,'duplicate baseline component'):
+                BaselineSelector(p,expected_components=pins)
+            use='return [TOOLS[name] for name in names]'
+            self.assertEqual(source.count(use),1)
+            p.write_text(source.replace(use,'return [UNREVIEWED[name] for name in names]'))
+            repinned=component_digests(p.read_bytes())
+            with self.assertRaisesRegex(ValueError,'unreviewed global dependencies'):
+                BaselineSelector(p,expected_components=repinned)
 
     def test_deadline_abstention(self):
         with patch('baseline.time.monotonic_ns',side_effect=[0,6_000_000_000]):
@@ -135,7 +160,7 @@ class ContractsTests(unittest.TestCase):
         self.assertEqual(result.reason_codes,['STEP_BUDGET_EXCEEDED'])
 
     def test_no_live_calls_claim(self):
-        row=run(repeats=1)['results'][0]['run']
+        row=run(repeats=1,definition_path=DEFINITION_V2)['results'][0]['run']
         with self.assertRaises(ValidationError):HarnessRun.model_validate(row | {'tool_calls':1})
 
     def test_no_false_execution_success(self):

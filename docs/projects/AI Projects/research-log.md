@@ -2599,3 +2599,19 @@ ChatGPT manifest and reported no inference. No signing-key value was exposed,
 no Keychain ACL or session item changed, and no app or model request was run.
 The [bounded release plan](evidence/D3-native-manual-v15-release-candidate-2026-10-09.md)
 retains the previous version and treats authenticated rollback as unproven.
+
+### 2026-10-11 — Versioned offline selector source pin
+
+The historical M3 selector experiment's full-file pin rejected the current
+Aster source after unrelated edits. A read-only comparison found the extracted
+selector, tool hints and tool declarations unchanged, so a separate v2
+definition now pins their exact source segments. The extractor rejects missing
+or duplicate declarations and any selector global dependency beyond the
+reviewed `TOOLS`, `TOOL_HINTS` and `str` set. The original definition remains
+frozen and continues to reject the current file.
+
+The [retained v2 result](evidence/M3-selector-pin-v2-result-2026-10-11.json)
+passed twelve synthetic expected selections with 100 warm repeats; thirty
+offline tests pass. This is only an extracted-selector CPU/conformance
+measurement. It is neither independent routing accuracy nor deployed SYCL
+latency, calibration, or permission evidence. No runtime route or tool changed.

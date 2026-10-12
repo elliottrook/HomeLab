@@ -15,6 +15,19 @@ local Python3.12/Pydantic2.13.4 environment; no dependency was installed.
 /private/tmp/aster-lab-ops-venv/bin/python services/aster-adaptive/evaluate.py --output /private/tmp/m2-result.json --schemas /private/tmp/m2-schemas
 ```
 
+The original `experiment-definition.json` remains full-file pinned and rejects
+the later Aster source. For a new, explicit offline comparison against the
+current branch, pass `--definition services/aster-adaptive/experiment-definition-v2.json`.
+Version 2 pins the exact source segments of `TOOLS`, `TOOL_HINTS` and
+`select_tools` and records the full file digest as provenance. Unrelated file
+edits may pass; changes to the extracted selector, hints or tool declarations
+fail closed. The extracted function must also reference exactly the reviewed
+global names (`TOOLS`, `TOOL_HINTS`, `str`), including nested comprehensions;
+repinning a selector with a new global is insufficient. The source-segment
+digest matched under local Python 3.9 and 3.12.
+This does not prove the deployed runtime is byte-identical or free of dynamic
+mutations outside those segments. It remains an offline selector probe.
+
 The repository schemas in `schemas/aster/selector-probe-v1` are exported JSON Schema2020-12 from
 strict models in `contracts.py`. The JSON wire representation is the contract;
 Pydantic is an interchangeable validator implementation. This is a **candidate
@@ -29,10 +42,10 @@ only its literal regex declarations and pure `select_tools` function. It does no
 import Aster or run application initialization. The extracted function is executed
 Python, not a sandbox for arbitrary source: use only the reviewed local source.
 `experiment-definition.json` independently pins the reviewed baseline source.
-`evaluate.py` rejects source drift before selection and records the expected and
-measured digests separately, alongside candidate and definition provenance.
-The pin must change only through a reviewed experiment revision, never by accepting
-whatever source the evaluator happens to read.
+The separate v2 definition pins reviewed components. `evaluate.py` rejects
+drift before selection and records the trusted pin, measured source/component
+digests, candidate and definition provenance. Never accept whatever source the
+evaluator happens to read.
 It extracts actual input schemas; output schemas remain explicitly opaque because
 no tools execute. This is a selector adapter, not a complete harness replacement.
 

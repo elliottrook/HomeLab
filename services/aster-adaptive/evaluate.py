@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 SOURCE = ROOT / 'services/aster-agent/aster_agent.py'
 DEFINITION = HERE / 'experiment-definition.json'
+DEFINITION_V2 = HERE / 'experiment-definition-v2.json'
 POLICY = hashlib.sha256(b'offline-selection-no-authority-v1').hexdigest()
 
 
@@ -41,10 +42,17 @@ def request(fixture, registry):
         sensitivity='internal', deadline_ms=5000)
 
 
-def run(repeats=100):
-    definition = json.loads(DEFINITION.read_text())
-    expected_hash = definition['expected_baseline_source_digest']
-    selector = BaselineSelector(SOURCE, expected_hash)
+def run(repeats=100, *, definition_path=DEFINITION):
+    definition_path = definition_path.resolve()
+    if definition_path.parent != HERE:
+        raise ValueError('experiment definition must be in the reviewed package')
+    definition = json.loads(definition_path.read_text())
+    if definition['schema_version'] == 'offline-experiment-definition.v1':
+        selector = BaselineSelector(SOURCE, definition['expected_baseline_source_digest'])
+    elif definition['schema_version'] == 'offline-experiment-definition.v2':
+        selector = BaselineSelector(SOURCE, expected_components=definition['expected_component_digests'])
+    else:
+        raise ValueError('unsupported experiment definition')
     source_hash = selector.digest
     registry = catalogue(selector)
     fixtures = json.loads((HERE/'fixtures.json').read_text())
@@ -67,16 +75,16 @@ def run(repeats=100):
     def timing(values):
         ordered=sorted(values)
         return {'p50_ns':int(statistics.median(values)),'p95_ns':ordered[int(.95*(len(ordered)-1))]}
-    manifest={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [SOURCE,*sorted(HERE.glob('*.py')),HERE/'fixtures.json',DEFINITION,*sorted((ROOT/'schemas/aster/selector-probe-v1').glob('*.json'))]}
-    experiment=Experiment(experiment_id='m2-selector-conformance-001',hypothesis='contract-adapter-preserves-baseline-selection',baseline_digest=source_hash,candidate_digest=digest(manifest),dataset_digest=hashlib.sha256((HERE/'fixtures.json').read_bytes()).hexdigest(),evaluator_digest=manifest[str((HERE/'evaluate.py').relative_to(ROOT))],evidence_class='synthetic-conformance-and-local-microbenchmark',state='evaluated',observation_count=len(fixtures))
-    return {'experiment':experiment.model_dump(),'trusted_expected_source_digest':expected_hash,'measured_source_digest':source_hash,'environment':{'python':platform.python_version(),'pydantic':pydantic.__version__,'platform':platform.platform()},'fixture_count':len(fixtures),'repeats_per_fixture':repeats,'baseline_selector':timing(baseline_times),'adapter_plus_contract_validation':timing(adapter_times),'manifest':manifest,'catalogue':registry.model_dump(),'eligibility_projections':projections,'results':outputs,'limits':['Tool selection only, not full harness/model latency','Abstention here means no selected tool, not runtime answer refusal','Synthetic expectations are not human gold labels or calibrated accuracy','No model/tool/network execution, permission or deployment']}
+    manifest={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [SOURCE,*sorted(HERE.glob('*.py')),HERE/'fixtures.json',definition_path,*sorted((ROOT/'schemas/aster/selector-probe-v1').glob('*.json'))]}
+    experiment=Experiment(experiment_id=definition.get('experiment_id','m2-selector-conformance-001'),hypothesis='contract-adapter-preserves-baseline-selection',baseline_digest=source_hash,candidate_digest=digest(manifest),dataset_digest=hashlib.sha256((HERE/'fixtures.json').read_bytes()).hexdigest(),evaluator_digest=manifest[str((HERE/'evaluate.py').relative_to(ROOT))],evidence_class='synthetic-conformance-and-local-microbenchmark',state='evaluated',observation_count=len(fixtures))
+    return {'experiment':experiment.model_dump(),'trusted_expected_source_digest':definition.get('expected_baseline_source_digest'),'trusted_source_pin':{'schema_version':definition['schema_version'],'full_source_sha256':definition.get('expected_baseline_source_digest'),'component_sha256':definition.get('expected_component_digests')},'measured_source_digest':source_hash,'measured_component_digests':selector.component_digests,'environment':{'python':platform.python_version(),'pydantic':pydantic.__version__,'platform':platform.platform()},'fixture_count':len(fixtures),'repeats_per_fixture':repeats,'baseline_selector':timing(baseline_times),'adapter_plus_contract_validation':timing(adapter_times),'manifest':manifest,'catalogue':registry.model_dump(),'eligibility_projections':projections,'results':outputs,'limits':['Tool selection only, not full harness/model latency','Abstention here means no selected tool, not runtime answer refusal','Synthetic expectations are not human gold labels or calibrated accuracy','No model/tool/network execution, permission or deployment']}
 
 
 if __name__ == '__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True);parser.add_argument('--schemas',type=Path);args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,required=True);parser.add_argument('--schemas',type=Path);parser.add_argument('--definition',type=Path,default=DEFINITION);args=parser.parse_args()
     if args.schemas:
         args.schemas.mkdir(parents=True,exist_ok=True)
         for cls in CONTRACTS:
             schema=cls.model_json_schema();schema['$schema']='https://json-schema.org/draft/2020-12/schema'
             (args.schemas/(cls.__name__+'.v1.json')).write_text(json.dumps(schema,indent=2)+'\n')
-    args.output.write_text(json.dumps(run(),indent=2)+'\n')
+    args.output.write_text(json.dumps(run(definition_path=args.definition),indent=2)+'\n')

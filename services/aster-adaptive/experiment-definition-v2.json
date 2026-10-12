@@ -1,0 +1,12 @@
+{
+  "schema_version": "offline-experiment-definition.v2",
+  "experiment_id": "m2-selector-conformance-002",
+  "expected_component_digests": {
+    "TOOLS": "ec7eac78dfcee6f5277cf28c2b75b8d2f4bc1bc23143a2ea2248a9535f0ec0f0",
+    "TOOL_HINTS": "c1bfb98811bd25c96a66a82f14c149252740d5b26c5b3cca15dc0c5af7d41215",
+    "select_tools": "ce376620beb4958e7c7d7abe22489a2bb8af90e1d72cccfce7567a6f6a5dd82c"
+  },
+  "reviewed_against_source_commit": "29d04988038ea208e98ae4eec5e7d01bba102520",
+  "trust": "reviewed-selector-and-tool-schema-components; full-source-digest-recorded-as-provenance",
+  "policy_profile": "offline-selection-no-authority-v1"
+}

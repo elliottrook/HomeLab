@@ -7,22 +7,77 @@ from __future__ import annotations
 import ast
 import hashlib
 import re
+import symtable
 import time
 from pathlib import Path
 from contracts import Catalogue, Decision, DecisionRequest, Step
 
+COMPONENT_NAMES = frozenset({'TOOLS', 'TOOL_HINTS', 'select_tools'})
+
+
+def component_digests(raw: bytes) -> dict[str, str]:
+    """Pin exactly the selector and declarations this offline adapter consumes."""
+    source = raw.decode('utf-8')
+    tree = ast.parse(raw)
+    found = {}
+    for node in tree.body:
+        names = []
+        if isinstance(node, ast.Assign):
+            names = [target.id for target in node.targets if isinstance(target, ast.Name)]
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            names = [node.target.id]
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            names = [node.name]
+        for name in names:
+            if name in COMPONENT_NAMES:
+                if name in found:
+                    raise ValueError('duplicate baseline component')
+                found[name] = node
+    if set(found) != COMPONENT_NAMES:
+        raise ValueError('missing baseline component')
+    segments = {name: ast.get_source_segment(source, found[name]) for name in COMPONENT_NAMES}
+    if any(segment is None for segment in segments.values()):
+        raise ValueError('baseline component source is unavailable')
+    return {name: hashlib.sha256(segments[name].encode()).hexdigest()
+            for name in sorted(COMPONENT_NAMES)}
+
 
 class BaselineSelector:
-    def __init__(self, source: Path, expected_digest: str):
+    def __init__(self, source: Path, expected_digest: str | None = None, *,
+                 expected_components: dict[str, str] | None = None):
+        if (expected_digest is None) == (expected_components is None):
+            raise ValueError('exactly one reviewed source pin is required')
         raw = source.read_bytes()
         self.digest = hashlib.sha256(raw).hexdigest()
-        if self.digest != expected_digest:
+        if expected_digest is not None and self.digest != expected_digest:
             raise ValueError('baseline source changed')
+        self.component_digests = component_digests(raw)
+        if expected_components is not None and (
+            set(expected_components) != COMPONENT_NAMES or
+            any(not isinstance(value, str) or not re.fullmatch(r'[a-f0-9]{64}', value)
+                for value in expected_components.values()) or
+            self.component_digests != expected_components
+        ):
+            raise ValueError('baseline selector component changed')
         tree = ast.parse(raw)
         hints = [n for n in tree.body if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'TOOL_HINTS' for t in n.targets)]
         selectors = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'select_tools']
         if len(hints) != 1 or len(selectors) != 1:
             raise ValueError('unsupported baseline layout')
+        selector_source = ast.get_source_segment(raw.decode('utf-8'), selectors[0])
+        if selector_source is None:
+            raise ValueError('baseline selector source is unavailable')
+        symbols = symtable.symtable('from __future__ import annotations\n' + selector_source,
+                                   str(source), 'exec')
+        globals_used = set()
+        def collect_globals(table):
+            for child in table.get_children():
+                globals_used.update(symbol.get_name() for symbol in child.get_symbols()
+                                    if symbol.is_global())
+                collect_globals(child)
+        collect_globals(symbols)
+        if globals_used != {'TOOLS', 'TOOL_HINTS', 'str'}:
+            raise ValueError('baseline selector has unreviewed global dependencies')
         values = hints[0].value
         if not isinstance(values, ast.Dict):
             raise ValueError('unsupported hints')
