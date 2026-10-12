@@ -4,7 +4,7 @@
 
 ## Where we are
 
-Aster Companion version 15 is installed in **ordinary mode**. Its manual Codex screen is hidden unless explicitly launched for a supervised experiment. Fourteen earlier fictional turns plus one Nova process-interruption turn are recorded as completed. A reviewed question can reach subscription-backed Codex and its **original** answer can be recovered after the Companion process is restarted; the [one-attempt result](evidence/D3-active-turn-interruption-result-2026-10-09.md) has a possible signal/completion race. No Aster tools or infrastructure permissions were granted for those turns. The [twelve-answer second pass](evidence/D3-existing-answer-second-pass-2026-10-09.md) found eleven clear frozen-rubric matches and one qualified wording concern. A [separate read-only review](evidence/D3-Orion-independent-review-2026-10-11.md) judged the flagged Orion case a qualified pass; the other eleven were not independently re-scored.
+Aster Companion version 16 is installed in **ordinary mode**. Its manual Codex screen is hidden unless explicitly launched for a supervised experiment. Fourteen earlier fictional turns plus one Nova process-interruption turn are recorded as completed. A reviewed question can reach subscription-backed Codex and its **original** answer can be recovered after the Companion process is restarted; the [one-attempt result](evidence/D3-active-turn-interruption-result-2026-10-09.md) has a possible signal/completion race. No Aster tools or infrastructure permissions were granted for those turns. The [twelve-answer second pass](evidence/D3-existing-answer-second-pass-2026-10-09.md) found eleven clear frozen-rubric matches and one qualified wording concern. A [separate read-only review](evidence/D3-Orion-independent-review-2026-10-11.md) judged the flagged Orion case a qualified pass; the other eleven were not independently re-scored.
 
 This establishes a **bounded manual handoff**, not routine Ask Codex, automatic engine selection or a Codex sysadmin. The existing household/assistant path remains separate. Local Qwen's general-sysadmin trial was closed without promotion; that does not remove local models from cheaper or narrower tasks.
 
@@ -29,7 +29,7 @@ is unverified.
 | Milestone | What changes for Jason | Evidence needed to finish | Current state |
 |---|---|---|---|
 | **1. Decide the limited manual Codex release (D3)** | A reliable, explicitly chosen “Ask Codex” path in Companion, still without infrastructure tools. | Show normal token refresh and prompt behavior without another model question; a release/hold decision with a verified signed rollback. A failed observation means **hold**, not more repeated question trials. | Independent Orion judgment is a qualified pass. [Signed-in request with no Keychain prompt](evidence/D3-natural-session-observation-2026-10-11.md) is a partial pass; actual refresh is unknown. [Version 16](evidence/D3-native-v16-installation-2026-10-11.md) is installed in ordinary mode with a verified v15 rollback; its sign-in and refresh behavior are not yet observed because the Mac is locked. Routine release **held**. |
-| **2. Complete normal Companion job handling (rest of D3)** | Jason can see a job continue/reconnect, distinguish busy, unavailable and quota states, and understand cancellation or an uncertain outcome. | Offline lifecycle tests and a small, separately reviewed ordinary-use check; preserve request IDs, never resubmit uncertain work, and keep basic Aster available when Codex/Mac/Internet fails. Follow-up context and notifications need explicit scope rather than being silently inferred from the pilot. | A [durable failure-category candidate](evidence/D3-durable-failure-category-2026-10-11.md) passes offline suites; it is uninstalled. General intake/notification are **not released**. |
+| **2. Complete normal Companion job handling (rest of D3)** | Jason can see a job continue/reconnect, distinguish busy, unavailable and quota states, and understand cancellation or an uncertain outcome. | Offline lifecycle tests and a small, separately reviewed ordinary-use check; preserve request IDs, never resubmit uncertain work, and keep basic Aster available when Codex/Mac/Internet fails. Follow-up context and notifications need explicit scope rather than being silently inferred from the pilot. | A [durable failure-category candidate](evidence/D3-durable-failure-category-2026-10-11.md) passes offline suites and is bundled in installed v16; its ordinary-use behavior is unverified. General intake/notification are **not released**. |
 | **3. Establish the authority boundary before connected tools (M1 + D4 prerequisite)** | Codex may ask for narrowly scoped read-only evidence; it cannot obtain permissions by choosing a route. | Verify AI-PAM caller binding, demotion/revocation, expiry, stale policy, duplicate approval consumption and recovery; register each read-only target and keep secrets out of model context. Any connected capability has its own deployment gate. | Open; worker identity currently inactive with zero grants. |
 | **4. Prove useful read-only sysadmin investigation (first D4 role)** | Aster can hand a real but bounded diagnostic question to Codex and explain findings, uncertainty and evidence. | Representative incidents, provenance and freshness, actual read-only tool behavior, independent technical postchecks, and a clear pass/fail rubric. No fix or generic shell authority follows from diagnostic success. | Not started as a Codex operational role. |
 | **5. Qualify one supervised repair class (later D4/SA4)** | Only an exact reversible fix can be proposed and, after Jason's specific approval, carried out. | Precondition/checkpoint, exact target and action, AI-PAM grant, independent postcheck, rollback, uncertain-outcome reconciliation and emergency stop. | Not authorized. |
@@ -38,9 +38,10 @@ is unverified.
 
 Milestones 3 and 6 can make **offline** progress in parallel with the passive D3 observation. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.
 
-One offline D4 boundary candidate now closes a file-open race and rejects
-symlinked or writable Doctor reports; see [the file-boundary review](evidence/D4-doctor-file-boundary-2026-10-09.md).
-It is local only and does not alter the connected-tool gate or release status.
+The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
+symlinked or writable reports, and fails closed on malformed status types; see
+the [live boundary record](evidence/D4-doctor-adapter-live-boundary-2026-10-11.md).
+It remains aggregate-only and does not alter the connected-tool gate or release status.
 
 The existing ARR aggregate report can answer a simple named-service status
 question locally. Its [offline file-boundary hardening](evidence/ARR-report-file-boundary-2026-10-09.md)
@@ -79,8 +80,8 @@ lets a verified failed/stopped native turn be acknowledged before a new
 reviewed question, while uncertain turns remain blocked. It is offline only.
 The later [failure-category candidate](evidence/D3-durable-failure-category-2026-10-11.md)
 retains only an allowlisted code with a confirmed failed turn so the native
-view can distinguish limits and outages after a restart. It remains offline;
-real provider-code behavior and the signed release gate are unproven.
+view can distinguish limits and outages after a restart. It is bundled in
+installed v16, but real provider-code behavior and the release gate are unproven.
 
 ### What the next connected-tool gate actually lacks
 
@@ -168,4 +169,4 @@ authority gates remain open.
 
 ## Immediate next action and stop rule
 
-No new live Codex question is needed now. Preserve version 15 in ordinary mode and its signed version-13 rollback. The natural signed-in request and absence of a Keychain prompt are recorded, but token refresh remains unknown. Seek a future ordinary-use observation after a known expiry boundary without printing tokens, changing Keychain access or forcing repeated questions. Then decide **release limited manual handoff** or **hold**. Continue offline M1/D4 boundary design while waiting; do not grant tools, start a gateway worker or enable automatic routing under this checkpoint.
+No new live Codex question is needed now. Preserve version 16 in ordinary mode and its verified version-15 rollback. The natural signed-in request and absence of a Keychain prompt are recorded, but token refresh remains unknown. Seek a future ordinary-use observation after a known expiry boundary without printing tokens, changing Keychain access or forcing repeated questions. Then decide **release limited manual handoff** or **hold**. Continue offline M1/D4 boundary design while waiting; do not grant tools, start a gateway worker or enable automatic routing under this checkpoint.

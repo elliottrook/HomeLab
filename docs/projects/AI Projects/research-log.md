@@ -2754,3 +2754,13 @@ candidate passed 124 local reader/gateway tests and source-local staged checks
 against the live reports. It was deployed on LXC 104 under exact hash checks
 with a retained rollback file; Aster health and both report reads passed. No
 source producer or Codex tool changed. See the [boundary record](evidence/source-report-reader-boundary-2026-10-11.md).
+
+### 2026-10-11 — Existing Doctor adapter file boundary promoted
+
+The fixed-path, aggregate-only Doctor adapter on Aster LXC 104 now matches the
+tracked single-open/no-follow file-boundary candidate plus type-safe status
+validation. The focused 107-test suite passed; both exact-hash changes retained
+separate rollback copies. Aster health and the `aster` account's saved
+32-check aggregate read passed after the final restart. This does not connect
+Codex to Doctor or satisfy the diagnostic usefulness or M1 authority gate. See
+the [live boundary record](evidence/D4-doctor-adapter-live-boundary-2026-10-11.md).

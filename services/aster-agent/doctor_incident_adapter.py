@@ -56,7 +56,9 @@ def read_doctor_observation(incident_id: str, report_path: Path, now: datetime) 
         value = json.loads(raw_bytes.decode("utf-8"))
         if not isinstance(value, dict) or frozenset(value) != REPORT_FIELDS:
             return _unavailable(incident_id, now, "invalid_schema")
-        if value.get("schema") != 1 or value.get("status") not in STATUS_MAP:
+        if type(value.get("schema")) is not int or value["schema"] != 1:
+            return _unavailable(incident_id, now, "invalid_schema")
+        if not isinstance(value.get("status"), str) or value["status"] not in STATUS_MAP:
             return _unavailable(incident_id, now, "invalid_schema")
         generated_at = datetime.fromisoformat(str(value["generated_at"]).replace("Z", "+00:00"))
         if generated_at.tzinfo is None:
@@ -75,7 +77,7 @@ def read_doctor_observation(incident_id: str, report_path: Path, now: datetime) 
                 return _unavailable(incident_id, now, "invalid_checks")
             if not isinstance(check["name"], str) or not isinstance(check["summary"], str):
                 return _unavailable(incident_id, now, "invalid_checks")
-            if check["status"] not in {"pass", "warn", "fail"}:
+            if not isinstance(check["status"], str) or check["status"] not in {"pass", "warn", "fail"}:
                 return _unavailable(incident_id, now, "invalid_checks")
         digest = hashlib.sha256(raw_bytes).hexdigest()[:24]
         state = STATUS_MAP[value["status"]]

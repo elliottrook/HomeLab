@@ -50,6 +50,17 @@ class DoctorAdapterTests(unittest.TestCase):
         self.path.write_bytes(b"x" * 65_537)
         self.assertEqual(read_doctor_observation("inc-1", self.path, NOW).validate(NOW)["state"], "unavailable")
 
+    def test_unhashable_status_fields_fail_closed(self):
+        for change in (
+            {"schema": True},
+            {"status": []},
+            {"checks": [{"name": "Doctor", "status": [], "summary": "Fixture warning."}]},
+        ):
+            self.write(**change)
+            record = read_doctor_observation("inc-1", self.path, NOW).validate(NOW)
+            self.assertEqual(record["state"], "unavailable")
+            self.assertEqual(record["facts"]["reason"], "invalid_schema" if "checks" not in change else "invalid_checks")
+
     def test_rejects_symlink_and_writable_report(self):
         self.write()
         link = Path(self.tmp.name) / "linked.json"
