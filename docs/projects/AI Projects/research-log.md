@@ -2843,3 +2843,12 @@ are observed. Four-hour continuous work continues outside the lease; inside a
 real lease it is offline-only. The user has granted longer lab access for this
 project, subject to its scoped tests and the host lease. See the [coordination
 record](evidence/Stream-A-lab-window-coordination-2026-10-12.md).
+
+### 2026-10-12 — Exclusive lab wake-up paused; continuous Stream A continues
+
+Jason changed priorities and will provide exclusive lab time later. The
+`Aster Stream A lab lease` automation was paused; it will make no 01:30 wake-up
+or exclusive test. The four-hour continuous-work automation remains active for
+offline/local and low-impact shared work, including D3 passive observation and
+test preparation. A new exclusive time must be reconciled with live backup and
+lease state before the paused automation is resumed.
