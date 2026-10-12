@@ -14,7 +14,8 @@ This establishes a **bounded manual handoff**, not routine Ask Codex, automatic 
 physical BAR and the accepted local 9B model served by llama.cpp SYCL FP16,
 not Vulkan. The [current-runtime record](evidence/Stream-A-SYCL-runtime-reconciliation-2026-10-11.md)
 pins the changed implementation for future routing measurements. No Stream A
-quality or latency result for SYCL has yet been established; D3 and M1 gates
+qualified answer-quality or user-facing latency result for SYCL has yet been
+established; D3 and M1 gates
 do not change. The repository gateway prompt and current references contained
 stale Vulkan claims; local corrections and dated evaluation copies are staged,
 and a bounded live correction now aligns the deployed deterministic identity,
@@ -62,6 +63,9 @@ probe. B60 has adopted the common development capture interface; its wrapper
 still pins the earlier Aster capture source and needs a reviewed pin update
 before it can process the current nullable-phase-time version. Fresh cases,
 independent labels and class-specific waiting-time limits remain open.
+The calendar error also motivated an [offline deterministic-overlap prototype](hypotheses/H-A1-calendar-overlap-deterministic-2026-10-12.md).
+Its six developer-authored tests pass, but it has no live calendar adapter,
+independent accuracy estimate or routing authority.
 
 The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
 symlinked or writable reports, and fails closed on malformed status types; see

@@ -41,3 +41,23 @@ unsupported cases. Do not broaden model permissions to paper over the error.
 
 **Current evidence threshold:** unmet. The one six-case development run is
 an observation that motivates a test, not evidence to change routing.
+
+## Offline prototype checkpoint — 2026-10-12
+
+`scripts/aster-adaptive/calendar_overlap_candidate.py` now implements only
+the normalized interval comparison, without calendar access or natural-
+language parsing. Six focused tests pass: the exposed 14:30 failure is busy,
+adjacent intervals are free, explicit UTC offsets distinguish the repeated
+daylight-saving hour, and denied/incomplete/stale/unexpanded recurrence or
+cross-calendar input produces `unknown`. A later untrusted event cannot be
+skipped just because an earlier event overlaps. This validates arithmetic and
+fail-closed shape on developer-authored cases; it does **not** validate the
+upstream claims that access was granted, the queried window is complete,
+recurrence was expanded or calendar data is fresh. A trusted adapter and
+independent cases would be needed for that.
+
+No Aster route, real calendar, model, permission or production service uses
+this code. The six test cases were written by the implementer, so there is no
+independent accuracy estimate, comparative user-facing latency or promotion
+evidence. The next falsification step is a separately authored normalized
+calendar corpus and an adapter-bound shadow test under the normal gates.
