@@ -2829,3 +2829,17 @@ gateway: twelve fixtures, 100 repeats and 30 passing tests, with no model call.
 The proposed 9B/SYCL inference slot remains BLOCKED for a specific frozen run
 card; the nightly window does not turn historical 27B development cases into a
 new qualification study.
+
+### 2026-10-12 — Replaced Aster's private 01:00 slot with host lab lease coordination
+
+Jason directed this task to the separate “Versioning/lab/procuction projects”
+task. Its Local AI project proposes backup-chain completion followed by an
+exclusive whole-host `ai-lab` lease ending by 04:15 Vancouver, then 04:15–06:15
+AI analysis and the 06:15 News digest. The proposal is not yet deployed; legacy
+02:30, 04:00/04:20 and 05:15 jobs remain potential conflicts. Aster's 01:00
+exclusive automation was changed to a 01:30 **verification wake-up**, with no
+exclusive model/host work until a real completed backup chain and active lease
+are observed. Four-hour continuous work continues outside the lease; inside a
+real lease it is offline-only. The user has granted longer lab access for this
+project, subject to its scoped tests and the host lease. See the [coordination
+record](evidence/Stream-A-lab-window-coordination-2026-10-12.md).

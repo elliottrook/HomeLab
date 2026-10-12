@@ -9,7 +9,7 @@ bounded sysadmin investigation and later automatic routing, use the
 [Stream A remaining delivery map](Stream-A-Remaining-Delivery-Map.md). Its
 summary does not replace the detailed gates or their required evidence.
 
-The [Stream A work cadence](Stream-A-Work-Cadence.md) keeps offline/shared work moving between B60 windows and allows only preflighted READY inference experiments in the 01:00 Vancouver exclusive window.
+The [Stream A work cadence](Stream-A-Work-Cadence.md) keeps offline/shared work moving between lab windows and allows only preflighted READY experiments inside a verified whole-host `ai-lab` lease after backups, ending by 04:15 Vancouver time. The old 01:00–02:00 Aster slot is retired; the replacement schedule is not yet live.
 
 **Offline boundary checkpoint — 2026-10-09:** The fixed Doctor incident
 adapter and the existing ARR aggregate reader now have local candidates that

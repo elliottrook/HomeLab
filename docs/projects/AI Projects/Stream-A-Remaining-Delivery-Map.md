@@ -2,7 +2,7 @@
 
 **Owner-facing checkpoint, 2026-10-09.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 
-The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous offline/shared work from preflighted 01:00 B60-exclusive tests. A scheduled window is not itself permission or evidence that an experiment is ready.
+The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous offline/shared work from preflighted tests inside the proposed post-backup `ai-lab` lease, ending by 04:15 Vancouver time. Its controller and backup moves are not yet live; a scheduled wake-up is not itself permission or evidence that an experiment is ready.
 
 ## Where we are
 
