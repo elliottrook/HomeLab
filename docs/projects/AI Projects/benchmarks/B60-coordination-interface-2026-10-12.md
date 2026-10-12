@@ -60,6 +60,10 @@ or an equivalent latency measurement.
 
 ## Separate qualification lanes
 
+The [completed-answer protocol draft](completed-answer-qualification-protocol-v0.md)
+develops these lanes into a proposed common test boundary; its datasets,
+budgets and release floors remain unapproved and unmeasured.
+
 1. **Route proposal:** same versioned request text, capability vocabulary,
    output contract and tool-free scope across eligible backends. Measure
    status/capability agreement, unnecessary clarification/abstention, missing

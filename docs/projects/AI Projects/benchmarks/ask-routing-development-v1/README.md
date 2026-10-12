@@ -99,7 +99,11 @@ No single score should qualify all of Aster. Maintain separate outcome suites
 for: (1) *route selection*; (2) answer correctness and evidence freshness for
 facts, web and private knowledge; (3) deterministic household execution and
 outage survival; and (4) HomeLab diagnosis/repair with source provenance and
-independent postchecks. The current 30-case suite measures only item 1's
+independent postchecks. The
+[completed-answer qualification proposal](../completed-answer-qualification-protocol-v0.md)
+specifies the next distinct measurement boundary for iterative B60 and Codex
+comparisons; it is not a frozen release protocol or an existing corpus. The
+current 30-case suite measures only item 1's
 status/capability proposal. It does not measure privacy classification,
 authorisation, tool effects, final answer quality, voice recognition or
 infrastructure remediation. Register each new case family and metric before
