@@ -39,9 +39,10 @@ The live read-only baseline on 2026-10-12 found a material release discrepancy:
 LXC 110's active unit is llama.cpp build `b11429`, using SYCL/Level Zero and
 `Qwen3.5-9B-Q4_K_M.gguf`, bound to `192.168.70.12:11435`. The repository's
 older operational references describe build `b10507`, Vulkan and Qwen3.8 27B.
-This is a release/build/model identity conflict, not a harmless documentation
-variant. The current live command line is evidence only; it does not silently
-rewrite the V1 manifest or promote the newer model.
+Jason confirmed on 2026-10-12 that the current Qwen3.5/SYCL deployment is the
+accepted V1 baseline. The older b10507/Qwen3.8 Vulkan references are therefore
+stale documentation to reconcile; they are not a rollback target unless a
+future project explicitly restores them.
 
 ## Scope and exclusions
 
@@ -89,10 +90,12 @@ protected coverage; restore into an isolated guest before production use.
 
 - [x] Inventory the live Aster, speech and inference guests, consumers,
   credentials, models, ports, timers, monitoring and recovery references.
-- [ ] Record the V1 service manifest without relabelling upstream or experiment
-  versions; resolve the live `b11429`/Qwen3.5 SYCL versus documented
-  `b10507`/Qwen3.8 Vulkan discrepancy first.
-- [ ] Confirm the current Kokoro path and Piper-only fallback status.
+- [x] Record the V1 service manifest without relabelling upstream or experiment
+  versions. The accepted inference baseline is llama.cpp `b11429`,
+  SYCL/Level Zero, Qwen3.5 9B Q4_K_M, one 8,192-token slot, and the existing
+  authenticated endpoint on LXC 110.
+- [x] Confirm the current Kokoro path and Piper-only fallback status from the
+  accepted service documentation; live speech health remains passing.
 
 **Gate:** no unknown production consumer or undocumented dependency remains.
 
@@ -215,13 +218,28 @@ fallback and recovery.
 
 ## Stream A baseline stop condition — 2026-10-12
 
-The project is authorized, but implementation is paused at Milestone 0 because
-the live inference release does not match the documented V1 release. Before
-any `ai-prod` runtime or consumer route is created, Jason must decide whether
-the current b11429/Qwen3.5 SYCL service is the intended V1 baseline or whether
-the documented b10507/Qwen3.8 Vulkan release must be restored/reconciled. The
-decision changes the artifact manifest, evaluation set, capacity expectations,
-rollback reference and production-consumer acceptance evidence.
+Resolved: Jason confirmed that the current b11429/Qwen3.5 SYCL service is the
+intended V1 baseline. The remaining work is documentation reconciliation and
+validation of the target `ai-prod` boundary; no old-model restoration is
+required.
 
 No guest, service, model, credential, DNS, firewall or route was changed while
 this discrepancy was being investigated.
+
+## Accepted V1 release manifest
+
+| Field | Accepted value |
+|---|---|
+| Service identity/release | `local-ai-platform` / V1 |
+| Inference guest/endpoint | LXC 110 / `192.168.70.12:11435` |
+| Inference build | llama.cpp `b11429` |
+| Backend | SYCL / Level Zero GPU path |
+| Model | `Qwen3.5-9B-Q4_K_M.gguf` |
+| Model artifact | Ollama blob `sha256-cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13` |
+| Live unit hash | `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3` |
+| Live binary hash | `0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5` |
+| Serving envelope | 8,192-token context, one slot, authenticated API, existing warm-up/readiness gate |
+| Speech path | Kokoro `bm_daniel`, `en-gb`, speed `0.95`; Piper retained as failsafe |
+| Current environment | Lab/Beta, VLAN 70 |
+| Target production environment | `ai-prod` on VLAN 20, subject to target placement validation |
+| Rollback | Retain current accepted V1 artifact/configuration and documented guest/model archives; do not restore the obsolete b10507 path implicitly |
