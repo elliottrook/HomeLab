@@ -9,12 +9,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import jwt
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import HTTPException
+from fastapi.testclient import TestClient
 from pydantic import ValidationError
 import httpx
 
 from aster_agent import (
     ASTER_RUNTIME_IDENTITY,
     ASTER_SYSTEM_PROMPT,
+    app,
     DEFAULT_PERSONA,
     PERSONAS,
     ArrRepairExecutionRequest,
@@ -38,6 +40,22 @@ from aster_agent import (
     search_knowledge,
     select_tools,
 )
+
+
+class WebClientTests(unittest.TestCase):
+    def test_root_and_companion_serve_the_current_aster_client(self):
+        client = TestClient(app)
+
+        root = client.get("/")
+        companion = client.get("/companion")
+
+        self.assertEqual(root.status_code, 200)
+        self.assertEqual(root.text, companion.text)
+        self.assertIn("<title>Aster</title>", root.text)
+        self.assertIn("aster-companion", root.text)
+        self.assertNotIn("asterKey", root.text)
+        self.assertNotIn("API key", root.text)
+        self.assertEqual(root.headers["cache-control"], "no-store")
 
 
 class AsterAgentTests(unittest.TestCase):

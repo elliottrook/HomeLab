@@ -338,25 +338,54 @@ struct AsterClient {
         return text
     }
 
-    /// M6: text-to-speech, returning raw WAV bytes ready for AVAudioPlayer.
-    func synthesize(text: String) async throws -> Data {
+    /// Canonical AVS1 speech stream. Each yielded WAV is one immediately
+    /// playable semantic unit; cancellation also cancels server-side work.
+    func synthesizeStream(text: String) async throws -> AsyncThrowingStream<Data, Error> {
         guard let token = await authManager.validAccessToken() else {
             throw AsterClientError.notAuthenticated
         }
 
-        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("voice/v1/tts"))
+        let requestID = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
+        var request = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("voice/v2/tts/stream"))
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.httpBody = try JSONSerialization.data(withJSONObject: ["text": text])
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["text": text, "request_id": requestID])
 
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let http = response as? HTTPURLResponse else {
-            throw AsterClientError.malformedResponse
+        return AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    let (bytes, response) = try await URLSession.shared.bytes(for: request)
+                    guard let http = response as? HTTPURLResponse else { throw AsterClientError.malformedResponse }
+                    guard http.statusCode == 200 else { throw AsterClientError.server(status: http.statusCode, body: "") }
+                    var decoder = AVS1Decoder()
+                    var pending = Data()
+                    for try await byte in bytes {
+                        try Task.checkCancellation()
+                        pending.append(byte)
+                        if pending.count >= 4096 {
+                            for wav in try decoder.append(pending) { continuation.yield(wav) }
+                            pending.removeAll(keepingCapacity: true)
+                        }
+                    }
+                    for wav in try decoder.append(pending) { continuation.yield(wav) }
+                    try decoder.finish()
+                    continuation.finish()
+                } catch is CancellationError {
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { @Sendable _ in
+                task.cancel()
+                Task {
+                    var cancel = URLRequest(url: AsterConfig.asterBaseURL.appendingPathComponent("voice/v2/tts/\(requestID)"))
+                    cancel.httpMethod = "DELETE"
+                    cancel.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                    _ = try? await URLSession.shared.data(for: cancel)
+                }
+            }
         }
-        guard http.statusCode == 200 else {
-            throw AsterClientError.server(status: http.statusCode, body: String(data: data, encoding: .utf8) ?? "")
-        }
-        return data
     }
 }

@@ -6,6 +6,16 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const script = fs.readFileSync(process.argv[2] || '/tmp/aster-companion.js', 'utf8');
 const voice = script.slice(script.indexOf('// A voice turn owns'), script.indexOf("document.querySelector('#mic').onclick"));
+function frame(metadata,payload=new Uint8Array()){
+  const header=new TextEncoder().encode(JSON.stringify(metadata));
+  const out=new Uint8Array(12+header.length+payload.length);out.set(new TextEncoder().encode('AVS1'));
+  const view=new DataView(out.buffer);view.setUint32(4,header.length);view.setUint32(8,payload.length);
+  out.set(header,12);out.set(payload,12+header.length);return out;
+}
+function streamResponse(){
+ const wire=new Uint8Array([...frame({type:'audio',sample_format:'pcm_s16le',channels:1,sample_rate:24000},new Uint8Array([0,0])),...frame({type:'end'})]);
+ return {ok:true,body:new ReadableStream({start(c){c.enqueue(wire.slice(0,9));c.enqueue(wire.slice(9));c.close()}})};
+}
 function fixture(){
   const elements = new Map();
   const el = id => {
@@ -14,9 +24,9 @@ function fixture(){
   };
   let revoked = 0;
   const context = vm.createContext({document:{querySelector:el}, navigator:{}, prompt:el('#prompt'), orb:el('#orb'), chatBusy:false,
-    AbortController, setTimeout, clearTimeout, Blob, FormData,
+    AbortController, setTimeout, clearTimeout, Blob, FormData, DataView, TextDecoder, Uint8Array, crypto,
     URL:{createObjectURL:()=> 'blob:test',revokeObjectURL:()=>revoked++},
-    validAccessToken:async()=> 'synthetic-test-token', fetch:async()=> ({ok:true,blob:async()=>new Blob(['test'])})});
+    validAccessToken:async()=> 'synthetic-test-token', fetch:async()=> streamResponse()});
   vm.runInContext(voice,context);
   return {context,el,run:s=>vm.runInContext(s,context),revoked:()=>revoked};
 }
@@ -49,16 +59,25 @@ test('decode/playback failures are surfaced and cleaned up',async()=>{
  assert.equal(f.revoked(),1);
 });
 test('stop speech releases a manual-play wait and does not synthesize later chunks',async()=>{
- const f=fixture(); let requests=0;
- f.context.fetch=async()=>{requests++;return {ok:true,blob:async()=>new Blob(['test'])}};
+ const f=fixture(); let streams=0,cancels=0;
+ f.context.fetch=async(url)=>{if(url.includes('/stream')){streams++;return streamResponse()} cancels++;return {ok:true}};
  f.el('#voiceAudio').play=async()=>{throw Object.assign(new Error('blocked'),{name:'NotAllowedError'})};
  const speaking=f.run('speakReply("word ".repeat(1000))');
  await new Promise(setImmediate);
  f.el('#stopSpeech').onclick();
  await speaking;
- assert.equal(requests,1);
+ assert.equal(streams,1);
+ assert.equal(cancels,1);
  assert.equal(f.el('#stopSpeech').hidden,true);
  assert.equal(f.revoked(),1);
+});
+test('stream parser validates framing and emits playable WAV units',async()=>{
+ const f=fixture();f.context.input=[];
+ await f.run('(async()=>{for await(const b of streamSpeechBlobs("hello","token",new AbortController().signal,"request1")) input.push(b)})()');
+ assert.equal(f.context.input.length,1);
+ const bytes=new Uint8Array(await f.context.input[0].arrayBuffer());
+ assert.equal(new TextDecoder().decode(bytes.slice(0,4)),'RIFF');
+ assert.equal(bytes.length,46);
 });
 test('microphone acquisition is serialized and recorder setup failure stops tracks',async()=>{
  const f=fixture();let acquire=0,stop=0,grant;

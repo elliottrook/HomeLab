@@ -8,7 +8,9 @@
 ## Use Aster
 
 Open **Aster Companion** in Homepage, or visit
-`https://aster.elliottrook.com/companion`. Sign in with the registered passkey.
+`https://aster.elliottrook.com/`. Sign in with the registered passkey. The
+former `/companion` URL remains a compatibility alias for existing Authentik
+callbacks, installed shortcuts, and bookmarks.
 The same hostname works on the LAN and through the existing Tailscale route;
 there is no public WAN port forward. On iPhone, Safari's Add to Home Screen is
 optional. On Mac, reopen `/Applications/AsterCompanion.app` after an update.
@@ -85,8 +87,9 @@ Aster chat never grants approval or adds repair authority.
 | Component | Location | Dependency |
 |---|---|---|
 | Companion and Aster API | LXC 104, `192.168.70.10:9120` | Existing B60 inference service on LXC 110 |
-| Speech STT/TTS | LXC 116, `192.168.70.14:9130` | CPU Whisper `base.en`, Piper `en_US-lessac-high` |
-| HTTPS proxy | NPM LXC 107, `192.168.50.23` | `/voice/` forwards to speech; other routes to Aster |
+| Canonical speech | LXC 116, `192.168.70.14:9131`; Wyoming 10300 | Kokoro `bm_daniel`; isolated A380 interactive and LXC 114 CPU batch renderers |
+| Legacy speech/STT | LXC 116, `192.168.70.14:9130` | Whisper `base.en`; retained Piper rollback |
+| HTTPS proxy | NPM LXC 107, `192.168.50.23` | Longer-prefix `/voice/v2/` forwards streaming TTS to canonical 9131; `/voice/` retains STT and legacy rollback on 9130; other routes go to Aster |
 | Sign-in and signing keys | Authentik, `auth.elliottrook.com` | Public client `aster-companion`, PKCE, passkey-only flow |
 
 Run `python3 /opt/aster-speech/health_check.py` inside LXC 116. It checks the
