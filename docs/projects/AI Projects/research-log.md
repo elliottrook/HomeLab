@@ -2770,7 +2770,8 @@ the [live boundary record](evidence/D4-doctor-adapter-live-boundary-2026-10-11.m
 After Jason unlocked the Mac and reported a Keychain login prompt, the installed
 v16 Companion showed its signed-in Aster view. The recorded Codex list remained
 closed to new requests. The AI-PAM approvals view loaded with no pending items,
-and one read-only refresh left it usable. A content-free session-code log query
-found no natural refresh event; the prompt count is still being reconciled.
+and one read-only refresh left it usable. Jason confirmed one Keychain prompt
+with Always Allow, and a later read-only AI-PAM opening showed no repeat.
+Content-free session-code log queries found no natural refresh event.
 No Codex turn, approval or tool action ran. D3 routine release remains held;
 see the [v16 observation](evidence/D3-native-v16-installation-2026-10-11.md).
