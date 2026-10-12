@@ -83,6 +83,15 @@ blindly copying the whole tracked file.
 
 ## Promotion gate
 
+A further read-only LXC 104 recheck after the startup-factory work found the
+same live boundary: `aster` belongs to `hlabroker-approvers`; the approval
+socket is `hlabroker:hlabroker-approvers` mode `0660` under the main broker's
+mode-`0755` runtime directory. Both services report active. The main broker
+retains `RuntimeDirectoryPreserve=restart`; the approval service owns no runtime
+directory. No actor, approval content, credential or socket method was read or
+called. The separate-process factory is therefore **not** a deployed authority
+boundary and a full execution-broker stop remains unproven.
+
 Before deployment, independently verify a fresh real owner session's signed
 passkey assurance **without exporting token contents**; otherwise keep
 passkey mapping empty and privileged actions disabled. Prepare and test a
