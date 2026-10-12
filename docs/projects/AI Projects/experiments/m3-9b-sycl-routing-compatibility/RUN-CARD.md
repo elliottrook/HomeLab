@@ -1,6 +1,8 @@
 # M3 — 9B/SYCL routing compatibility preflight
 
-> Prepared 2026-10-12. **BLOCKED; no inference run authorized by this card.**
+> Prepared and executed once on 2026-10-12. **DONE — failed engineering
+> interface threshold at case 1/30. Do not rerun v1.** See
+> [the result](RESULT-2026-10-12.md).
 > This is an engineering check of a proposed Decision response, not a router
 > quality evaluation, calibration set, sysadmin qualification or release gate.
 
