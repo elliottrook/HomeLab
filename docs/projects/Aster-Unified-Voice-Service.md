@@ -1,8 +1,8 @@
 # Aster Unified Voice Service
 
-> Status: Active — Stream A; M0–M7 complete, M8 close-out in progress;
-> canonical News and Home Assistant pilot paths are live, Companion migration
-> and final cross-surface graduation remain
+> Status: Active — Stream A; M0–M3 and M5–M7 complete; M4 Companion migration
+> and M8 close-out remain; M9 production graduation is approved but may not
+> provision or cut over production until the M4/M8 and release-preflight gates pass
 >
 > Owner: Jason
 >
@@ -97,6 +97,9 @@ Aster voice standard without exception.
   or transcript logging.
 - Reconcile Doctor, Beszel, backup/restore, NetBox service facts, runbooks,
   architecture, human wiki, derived Aster mirror and user handover.
+- Freeze the accepted service as Aster Voice V1, deploy it independently on the
+  Servers VLAN, migrate consumers one at a time, and retain LXC 116 as a
+  sanitized V1 lab baseline from which a separate V2 candidate may later start.
 - Commit completed milestones and synchronize them through Forgejo under the
   repository's remote-write rule.
 
@@ -113,6 +116,12 @@ Aster voice standard without exception.
   proven necessary for Home Assistant/News consumers to reach the service.
 - Update existing monitoring, backup manifests and systems of record required
   by the integration checklist.
+- Create one new unprivileged production guest on the Servers VLAN from the
+  immutable V1 release manifest; assign separate production identities and
+  protected configuration; add only the exact DNS, firewall, monitoring,
+  backup and systems-of-record changes required for its consumers.
+- After production acceptance, retain LXC 116 as the V1 lab baseline and create
+  any future V2 work in a separate lab guest or replaceable clone.
 
 ### Explicit exclusions
 
@@ -130,6 +139,11 @@ Aster voice standard without exception.
 - No multi-room hardware purchase or physical installation in this project.
 - No deletion of the Piper rollback or old News renderer until graduation and
   accepted restore/rollback evidence.
+- No in-place VLAN retag or identity conversion of LXC 116, no bidirectional
+  production/Lab synchronization, no shared writable model/configuration path,
+  and no production credentials or mutable household data copied into Lab.
+- No V2 implementation in this project. M9 establishes the isolated lane and
+  reproducible baseline only; a V2 project needs its own scope and acceptance.
 
 ## Authority model
 
@@ -144,11 +158,19 @@ Aster voice standard without exception.
 | Pronunciation and normalization | Versioned Aster Voice Service policy in Git |
 | Human operation and recovery | Aster Companion/voice runbook and human wiki |
 | Derived Aster knowledge | Provenance-labelled mirror; never operational authority |
+| V1 source release | Forgejo commit and version manifest; optional release tag after explicit authorization |
+| Production runtime and secrets | New production guest and protected production configuration |
+| V1 lab baseline | Sanitized LXC 116 deployment derived from the accepted V1 release |
 
 Reasoning systems return text. They do not select a voice, synthesize audio or
 override speech policy. The Aster Voice Service is the only production speech
 renderer regardless of whether text came from deterministic Home Assistant,
 `aster-llama`, a later GPT-backed reasoner or a scheduled briefing.
+
+The repository's GitHub copy remains the **protection mirror**. The retained
+VLAN 70 deployment is the **V1 lab baseline**, not a live service mirror:
+production owns live availability and credentials, while the baseline owns no
+production traffic or mutable production state.
 
 ## Architecture and data flows
 
@@ -225,11 +247,17 @@ Jason accepted this risk envelope and Stream A start on 2026-10-10.
 | Model/licence or asset provenance is insufficient | Unknown / high longevity | Verify model, voice-pack and dataset distribution terms before central promotion; stop if rights are unclear. |
 | Audio/transcript leakage through diagnostics | Plausible / high privacy | Synthetic fixtures, content-free logs, secret/content pattern review, request-lifetime temporary storage only. |
 | Backup captures incomplete/unrecoverable voice state | Plausible / medium | Add model/policy/runtime to manifest, checksum local/off-host archive and perform isolated restore before graduation. |
+| New production guest differs from accepted V1 | Plausible / high | Install only from the immutable release manifest; compare source, dependency, model, voice and policy digests before consumer traffic. |
+| Production and Lab identities or secrets cross-contaminate | Plausible / high | Separate credentials, DNS names, monitoring labels and protected configuration; sanitize the retained baseline and test cross-environment denial. |
+| Consumer cutover causes household voice outage | Plausible / medium | Keep `.70.14` healthy, move one consumer at a time, verify two passes and reverse the consumer selector first on failure. |
+| V2 experimentation mutates the only V1 recovery copy | Plausible / medium | Keep the V1 baseline immutable except controlled recovery tests; create V2 in a distinct clone/guest. |
 
-No destructive or irreversible operation is planned. No credential rotation,
-public exposure, broad trust change or removal of the last recovery copy is
-authorized. Failure to verify a checkpoint, voice rights, exact network tuple,
-rollback or materially adequate capacity is a stop condition for that mutation.
+No destructive or irreversible operation is planned. No public exposure, broad
+trust change or removal of the last recovery copy is authorized. M9 permits new
+least-privilege production identities but not disclosure or reuse of existing
+secrets. Failure to verify the release manifest, production and LXC 116
+checkpoints, exact network tuples, isolated restore, rollback or materially
+adequate capacity is a stop condition for provisioning or cutover.
 
 Likely interruptions are brief service-only restarts during staged deployment.
 They are detected by current health probes plus new synthesis/version checks.
@@ -250,10 +278,10 @@ source/live hashes and current service health; resume the first unchecked gate.
 Never infer that an interrupted deploy, firewall write or Home Assistant change
 succeeded. Reconcile before retry.
 
-Current resume point: M0 through M7 are complete and M8 is active. The canonical
-service, News route, Home Assistant pilot, monitoring, backup/isolated recovery,
-NetBox services, human wiki and derived mirror are live and verified. Companion
-still uses the retained 9130 path, so M3/M4 selection and final two-pass
+Current resume point: M0 through M3 and M5 through M7 are complete; M4 and M8
+are active. The canonical service, News route, Home Assistant pilot, monitoring,
+backup/isolated recovery, NetBox services, human wiki and derived mirror are
+live and verified. Companion still uses the retained 9130 path, so M4 and final two-pass
 cross-surface graduation remain before the legacy renderer can be retired.
 A pinned Kokoro GGML/Vulkan renderer and authenticated network bridge are staged
 but stopped in GPU LXC 110. The end-to-end short response was about 0.71–0.90
@@ -282,7 +310,7 @@ rollback gate still precede any production selection.
   content-free telemetry and compatibility endpoints. Gate: unit/integration,
   malformed/adversarial, cancellation, concurrency and secret/content tests;
   no deployment.
-- [ ] **M3 — Staged LXC 116 deployment.** Verify backup/checkpoint; install
+- [x] **M3 — Staged LXC 116 deployment.** Verify backup/checkpoint; install
   pinned candidate beside the accepted service; run private canary and measured
   load; atomically select it only after gates pass. Gate: two independent
   authenticated synthesis passes, rollback rehearsal and current path health.
@@ -307,6 +335,19 @@ rollback gate still precede any production selection.
   reconcile Beszel/NetBox/wiki/mirror/runbooks and complete user handover and
   efficiency review. Gate: two independent end-to-end production passes from
   each surface, accepted latency/voice identity and no unexplained legacy path.
+- [ ] **M9 — V1 production graduation and V2 lab baseline.** Prerequisite:
+  complete M4 and M8, reconcile all source/live state, and freeze a reproducible
+  V1 manifest. Provision a new unprivileged production guest on the Servers
+  VLAN from that release, with a stable private DNS name and separate
+  credentials, monitoring, backups and systems-of-record records. Migrate Home
+  Assistant, Companion, News and other production consumers one at a time while
+  `.70.14` remains healthy. Gate: matching code/dependency/model/voice/policy
+  digests, cross-environment access denial, isolated restore, exercised
+  consumer-first rollback, two passes per surface and seven days of healthy
+  production soak. After acceptance, sanitize and retain LXC 116 as the
+  immutable V1 lab baseline; reserve a distinct lab guest/clone for later V2
+  work. A Git tag such as `aster-voice-v1.0.0` requires an immediate explicit
+  remote-write approval when the manifest is ready.
 
 ### M1 working record — 2026-10-10
 
@@ -961,6 +1002,7 @@ pilot and listen to a regenerated News briefing before graduation.
 
 | Date | Milestone/action | Evidence | Result / next safe action |
 |---|---|---|---|
+| 2026-10-12 | M9 scope and lifecycle approval | Jason directed implementation of the proposed production graduation and V2 lab-baseline design. The repository standard now defines one-way Lab-to-release-to-production promotion and reserves “mirror” for Forgejo/GitHub protection. | Stream A scope extended only for the recorded M9 systems and change classes. M4 and M8 remain hard prerequisites; next safe work is Companion/cross-surface reconciliation and release-manifest preparation, not production provisioning. |
 | 2026-10-10 | M0 source discovery | Authoritative checkout, relevant voice history, service/client code, project standard, operations and Companion runbook inspected. Existing unrelated brand-design edits left untouched. | Canonical-vs-legacy mismatch and known client/service constraints recorded. |
 | 2026-10-10 | M0 live discovery | Read-only Proxmox/LXC 116 inspection: unprivileged guest, 6 cores/4 GiB, one active Uvicorn worker, `base.en`, `lessac-high`; health/JWKS/OIDC/HTTPS probes pass. Secret value redacted and not retained. | Current service is healthy legacy state and the rollback baseline. |
 | 2026-10-10 | Stream A decision | Jason rejected premium services and directed a network-level single solution using the approved voice, with project creation, commit, push and immediate Stream A start. | Risk envelope accepted; M0 complete, M1 starts with read-only design/licence/protocol discovery and offline benchmarks. |

@@ -232,6 +232,40 @@ Never force-push, rewrite shared history, delete a remote branch, create a tag o
 release, merge a pull request, or alter a remote workflow unless that exact
 operation is within scope and separately permitted by the governing controls.
 
+## Lab, release and production lifecycle
+
+Lab and production are separate operational roles, not merely different names
+for a mutable checkout. Apply this lifecycle whenever a project develops or
+substantially replaces a production service:
+
+1. Develop and evaluate mutable candidates in the Lab environment.
+2. Freeze an accepted candidate as an identified Git commit plus a reproducible
+   release manifest containing code, dependency, configuration-schema and
+   material asset versions or digests.
+3. Deploy production independently from that immutable release. Do not promote
+   production by synchronizing an uncommitted working directory or by sharing a
+   writable configuration/model directory with Lab.
+4. Migrate consumers incrementally while retaining a tested last-known-good
+   route. Promotion is one-way: Lab candidate to reviewed release to production.
+5. After acceptance, retain a sanitized **lab baseline** of the released
+   version for recovery and comparison. Production secrets, mutable state and
+   user data must not be synchronized back into it.
+6. Build the next candidate in a distinct lab instance or replaceable clone.
+   The retained baseline must not silently become the only V2 working copy.
+
+In this repository, **mirror** without a qualifier means Forgejo's automatic
+GitHub protection mirror. Use **lab baseline** or **lab twin** for a retained
+deployment. Do not describe independent services as active-active or mirrored
+unless state ownership, consistency, failover and split-brain behavior are
+explicitly designed and tested.
+
+A release tag is optional until the project explicitly authorizes it, but a
+production deployment must always record an immutable commit and manifest.
+Creating or moving a production guest still requires the project's normal
+pre-start risk, checkpoint, network, identity, recovery and consumer cutover
+gates. Environment separation never authorizes copying credentials or production
+data into Lab.
+
 ## Pre-start risk assessment
 
 Before implementation, inspect the live and documented environment and present

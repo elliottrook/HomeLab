@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-12 — Adopt lab-to-production release lifecycle for Aster Voice
+
+- Defined repository-wide one-way Lab candidate to immutable release to
+  independently deployed production promotion, reserving “mirror” for the
+  Forgejo-to-GitHub protection mirror and “lab baseline” for retained releases.
+- Added Aster Voice M9: finish V1 acceptance, deploy a separate Servers-VLAN
+  production guest, migrate consumers with rollback and soak gates, retain LXC
+  116 as the sanitized V1 lab baseline, and isolate any future V2 candidate.
+- Corrected the voice project status: M3 is complete, while M4 Companion
+  migration and M8 final cross-surface acceptance remain prerequisites to V1.
+
 ## 2026-10-12 — Aster voice operations and systems-of-record close-out
 
 - Added model-aware Doctor synthesis checks, privacy-bounded service metrics,
