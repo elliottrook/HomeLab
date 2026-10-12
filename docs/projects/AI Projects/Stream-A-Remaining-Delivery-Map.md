@@ -66,6 +66,18 @@ independent labels and class-specific waiting-time limits remain open.
 The calendar error also motivated an [offline deterministic-overlap prototype](hypotheses/H-A1-calendar-overlap-deterministic-2026-10-12.md).
 Its six developer-authored tests pass, but it has no live calendar adapter,
 independent accuracy estimate or routing authority.
+A [private review handoff and ASGI clock check](evidence/A1-private-review-and-asgi-clock-2026-10-12.md)
+now make the answer-review and request-timing paths reproducible offline. The
+packet has an AI-only development review (2/6 all-rubric passes), not human
+adjudication; the in-process clock is not a live Aster-path latency baseline.
+Neither changes the automatic-route gate.
+The [fresh 20-case assistant-answer holdout](benchmarks/answer-holdout-release-v1-2026-10-12.md)
+is now sealed in owner-only local custody with a separate AI review and zero
+material overlap with the six exposed development cases. It has not been sent
+to a model. Its labels are AI-authored and AI-reviewed; backup, run admission,
+scoring and live Aster-path measurement remain open. The platform project's
+SA3 **sysadmin** holdout is separate and currently using the lab, so Stream A
+does not contend for the B60.
 
 The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
 symlinked or writable reports, and fails closed on malformed status types; see
