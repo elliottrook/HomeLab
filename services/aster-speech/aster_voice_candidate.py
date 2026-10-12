@@ -43,6 +43,10 @@ class SchedulerProxy:
 
 app = FastAPI(title="Aster Voice Candidate", version="2.0.0-candidate")
 _proxy = SchedulerProxy()
+VOICE_ID = "aster-bm-daniel"
+VOICE_MODEL = "kokoro-v1.0"
+VOICE_POLICY_VERSION = "1"
+STT_MODEL = "aster-base-en"
 
 class RendererPool(Protocol):
     @property
@@ -146,7 +150,10 @@ async def health() -> JSONResponse:
         content={
             "status": "ok" if ready else "unavailable",
             "service": "aster-voice-candidate",
-            "voice": "aster-bm-daniel",
+            "voice": VOICE_ID,
+            "voice_model": VOICE_MODEL,
+            "voice_policy_version": VOICE_POLICY_VERSION,
+            "stt_model": STT_MODEL,
         },
     )
 

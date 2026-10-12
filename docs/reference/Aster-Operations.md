@@ -555,10 +555,14 @@ on Lab VLAN 70, rule UUID `bc811346-6714-44b4-bc65-46e7430f46a8`. An inbound
 NPM-to-speech permit alone is insufficient. If voice hangs before transcription,
 check this dependency and authentication error classes before tuning Whisper.
 
-`python3 /opt/aster-speech/health_check.py` on LXC 116 checks speech health and
-JWKS reachability, emits sanitized statuses, and exits nonzero on failure.
-HomeLab Doctor invokes the same probe through Proxmox. Speech data is temporary;
-normal logs contain timing/size and error categories, not recordings or transcripts.
+`python3 /opt/aster-speech/health_check.py` on LXC 116 checks the legacy API,
+canonical API, exact approved voice/model/policy/STT identity, Home Assistant
+Wyoming listener, HTTPS ingress, Companion OIDC discovery and JWKS reachability.
+It emits sanitized statuses and exits nonzero on failure. HomeLab Doctor invokes
+the same probe through Proxmox. After a candidate restart, allow approximately
+15 seconds for model warm-up before treating an initial refusal as a fault.
+Speech data is temporary; normal logs contain timing/size and error categories,
+not recordings or transcripts.
 
 Reload the phone page after a web deployment. Tap the orb to start/stop recording.
 The web UI reports Transcribing, Thinking and Preparing speech; if automatic

@@ -578,7 +578,7 @@ check_aster_speech() {
     local state
     if state="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
         'pct exec 116 -- python3 /opt/aster-speech/health_check.py' 2>/dev/null)"; then
-        pass "Aster speech API, HTTPS ingress and Companion identity discovery healthy"
+        pass "Aster legacy/canonical speech, approved voice identity, HA Wyoming, HTTPS ingress and Companion identity discovery healthy"
     else
         fail "Aster speech/authentication dependency unhealthy: ${state:-probe unavailable}"
     fi
