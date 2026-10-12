@@ -214,7 +214,7 @@ async def lab_identity_context(request, call_next):
     context = LAB_OWNER.set(owner)
     try:
         response = await call_next(request)
-        if request.url.path == "/companion":
+        if request.url.path in {"/", "/companion"}:
             response.headers["Cache-Control"] = "no-store"
         return response
     finally:
@@ -1694,31 +1694,6 @@ async def build_payload(
     return payload
 
 
-@app.get("/", response_class=HTMLResponse)
-async def browser_chat() -> str:
-    return """<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="icon" type="image/png" href="/aster-app-icon.png">
-<link rel="apple-touch-icon" href="/aster-app-icon.png">
-<title>Aster</title><style>
-:root{color-scheme:dark;--ui-bg:#0b1020;--ui-panel:#151d31;--ui-panel-raised:#1b2740;--ui-panel-input:#111a2c;--ui-text:#f4f7fb;--ui-text-soft:#dce4f1;--ui-muted:#aab6ca;--ui-accent:#8bd3ff;--ui-accent-strong:#b9f2d0;--ui-line:#2b3a58}
-body{font:17px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top right,#25395a 0,var(--ui-bg) 48%);color:var(--ui-text);margin:0}main{max-width:1180px;margin:auto;padding:42px 24px 72px}
-h1{font-size:clamp(2.8rem,8vw,5rem);line-height:1;letter-spacing:-.05em;margin:0 0 10px}.muted{color:var(--ui-muted);font-size:.95rem}#chat{min-height:55vh;white-space:pre-wrap}.m{max-width:82%;padding:16px 18px;margin:14px 0;border-radius:18px;background:linear-gradient(145deg,var(--ui-panel),#10182a);border:1px solid var(--ui-line);box-shadow:0 12px 30px #0003}.u{background:#172f4d;margin-left:auto}
-textarea,input,button{font:inherit;color:inherit;background:var(--ui-panel-input);border:1px solid var(--ui-line);border-radius:10px;padding:13px 14px}textarea{width:100%;box-sizing:border-box;min-height:110px}button{cursor:pointer;background:var(--ui-accent);color:#07111d;border:0;margin-top:10px;font-weight:750}button:hover{filter:brightness(1.08)}#key{width:20rem;max-width:90%}
-@media(max-width:600px){main{padding:30px 14px 56px}h1{font-size:3.2rem}.m{max-width:92%;padding:18px}.muted{font-size:1rem}textarea{min-height:125px}button{min-height:44px}}
-</style></head><body><main><h1>Aster</h1><p class="muted">Local Qwen 3.5 9B · llama.cpp SYCL · scoped tools</p>
-<label>API key <input id="key" type="password" autocomplete="off"></label><div id="chat"></div>
-<textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
-<script>
-const messages=[];const chat=document.querySelector('#chat'),prompt=document.querySelector('#prompt'),key=document.querySelector('#key');
-key.value=localStorage.getItem('asterKey')||'';
-function add(role,text){const d=document.createElement('div');d.className='m '+(role==='user'?'u':'');d.textContent=(role==='user'?'You: ':'Aster: ')+text;chat.appendChild(d);window.scrollTo(0,document.body.scrollHeight)}
-async function send(){const text=prompt.value.trim();if(!text)return;localStorage.setItem('asterKey',key.value);messages.push({role:'user',content:text});add('user',text);prompt.value='';send.disabled=true;
-try{const r=await fetch('/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key.value},body:JSON.stringify({model:'aster-qwen3.5-9b',messages,max_tokens:640})});const j=await r.json();if(!r.ok)throw new Error(j.detail||r.statusText);const answer=j.choices[0].message.content;messages.push({role:'assistant',content:answer});add('assistant',answer)}catch(e){add('assistant','Error: '+e.message)}finally{send.disabled=false;prompt.focus()}}
-document.querySelector('#send').onclick=send;prompt.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
-</script></main></body></html>"""
-
-
 COMPANION_CLIENT_ID = "aster-companion"
 COMPANION_AUTHORIZE_URL = "https://auth.elliottrook.com/application/o/authorize/"
 COMPANION_TOKEN_URL = "https://auth.elliottrook.com/application/o/token/"
@@ -1739,13 +1714,13 @@ async def aster_app_icon() -> FileResponse:
     return FileResponse(STATIC_DIR / "aster-app-icon.png", media_type="image/png")
 
 
+@app.get("/", response_class=HTMLResponse)
 @app.get("/companion", response_class=HTMLResponse)
 async def companion_web_client() -> str:
-    """Web client v1 (docs/projects/Aster-Companion-App.md, M3): the
-    non-native answer to "works on my phone" now that native iOS was
-    decided against. Deliberately separate from GET / above, which keeps
-    working completely unmodified on the legacy bearer-key path per this
-    project's own exclusions - this route is purely additive. Auth is a
+    """Aster's web client at the canonical root and compatibility path.
+
+    The obsolete bearer-key page formerly served at GET / has been retired.
+    Auth is a
     real passkey login via Authentik's passwordless flow, using ordinary
     redirect-based OAuth2/PKCE (no client secret; public client, matching
     the macOS app) since a browser has no equivalent of
@@ -1755,7 +1730,7 @@ async def companion_web_client() -> str:
     """
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Aster Companion</title>
+<title>Aster</title>
 <link rel="manifest" href="/companion/manifest.webmanifest">
 <script src="/companion/notifications.js"></script>
 <link rel="apple-touch-icon" href="/aster-app-icon.png">

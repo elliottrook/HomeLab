@@ -8,7 +8,9 @@
 ## Use Aster
 
 Open **Aster Companion** in Homepage, or visit
-`https://aster.elliottrook.com/companion`. Sign in with the registered passkey.
+`https://aster.elliottrook.com/`. Sign in with the registered passkey. The
+former `/companion` URL remains a compatibility alias for existing Authentik
+callbacks, installed shortcuts, and bookmarks.
 The same hostname works on the LAN and through the existing Tailscale route;
 there is no public WAN port forward. On iPhone, Safari's Add to Home Screen is
 optional. On Mac, reopen `/Applications/AsterCompanion.app` after an update.

@@ -511,7 +511,13 @@ slot, so simultaneous requests queue instead of competing for the B60's memory.
 
 ## Companion speech operations (verified 2026-09-23)
 
-Aster Companion's iPhone client is `/companion` on `aster.elliottrook.com`.
+Aster's web client is `https://aster.elliottrook.com/`. `/companion` remains a
+compatibility alias for existing Authentik callbacks, installed shortcuts, and
+bookmarks; it is no longer a separate interface.
+
+NetBox records the internal TCP 9120 endpoint on the existing `hermesagent`
+LXC 104 object as `Aster web and agent API`; the public name remains owned by
+the reverse proxy and DNS configuration.
 LXC 116 is the network-level Aster Voice Service. Its canonical Kokoro
 `bm_daniel` API binds `192.168.70.14:9131`, Home Assistant uses Wyoming TCP
 10300, Companion browser TTS uses authenticated AVS1 streaming through the
