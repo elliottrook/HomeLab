@@ -599,8 +599,11 @@ inactive; the retained UI is not an enabled repair capability. The follow-up
 preserves human approval outside the chat/AI path.
 
 Speech LXC 116 now has verified local and TrueNAS task-1 backup coverage, with
-matching SHA-256 and an isolated restored Piper/Whisper round trip. Doctor checks
-speech, HTTPS ingress, OIDC discovery, JWKS and both backup ages. Homepage has
+matching SHA-256 and an isolated restored canonical Kokoro/Whisper round trip.
+The restored guest must have its NIC removed and on-boot disabled before start;
+use a protected restore-only environment to bind to loopback and select local
+ONNX rendering. Doctor checks legacy/canonical speech, approved identity,
+synthesis, HA Wyoming, HTTPS ingress, OIDC, JWKS and both backup ages. Homepage has
 an additive Aster Companion tile; the legacy Aster Agent tile is retained.
 NetBox VM/interface/IP IDs are 16/16/30. The wiki guide is published at
 `/wiki/services/aster-companion/` and retains repository provenance.

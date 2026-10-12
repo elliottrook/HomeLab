@@ -58,6 +58,7 @@ class AssetVerificationTests(unittest.TestCase):
             before = len(calls)
             first = pool.renderers[0](kokoro_candidate.ACKNOWLEDGEMENT)
             second = pool.renderers[1](kokoro_candidate.ACKNOWLEDGEMENT)
+            self.assertTrue(pool.healthy())
         self.assertEqual(first, second)
         self.assertEqual(len(calls), before)
         self.assertEqual(calls, [kokoro_candidate.ACKNOWLEDGEMENT])

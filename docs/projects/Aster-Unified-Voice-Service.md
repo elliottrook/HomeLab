@@ -873,6 +873,13 @@ create and verify its normal recovery point. Restore into an isolated directory
 or non-conflicting guest first; validate checksums, model load, synthetic TTS,
 STT and health before any cutover.
 
+For a full-guest rehearsal, remove the restored NIC and disable on-boot before
+first start. Use a protected restore-only environment to bind HTTP/Wyoming to
+loopback, select the local ONNX renderer and clear the external batch renderer.
+Never start a restored guest with its original static IP. Validate the approved
+health identity, a fixed non-retained WAV/STT round trip and critical file
+hashes, then destroy only the explicitly temporary VMID.
+
 Rollback order: stop new consumer routing; select the retained Piper service or
 application-local News renderer; restore only the changed client/config; remove
 only the exact new firewall/service rule if it is no longer used; verify typed,
@@ -887,8 +894,9 @@ later unrelated changes.
 - [x] **Monitoring/alerting** — latency/queue/error/resource signals are live,
   Beszel owns guest resources, and a label-preserving Grafana bridge to the
   established email policy passed a synthetic firing/resolution test.
-- [ ] **Backup and recovery** — full voice assets/policy/runtime coverage,
-  checksum verification and isolated restore.
+- [x] **Backup and recovery** — the corrected runtime, voice assets, policy and
+  protected configuration are covered by byte-identical Proxmox/TrueNAS
+  archives; a network-isolated restore passed health, local TTS and STT.
 - [ ] **NetBox** — reconcile LXC 116 service/port and any Home Assistant
   service relationship; no new guest/IP currently proposed.
 - [ ] **Human wiki** — one Aster Voice Service page with operation, consumer,
@@ -983,6 +991,7 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-12 | M8 Doctor backup-age failure gate | Exercised the actual Proxmox and TrueNAS guest-age functions with synthetic fresh, stale, missing and future timestamps. Six focused backup tests pass alongside the existing six Doctor regression tests. Fresh six-hour LXC 116 archives pass; a 31-hour archive fails, a missing archive fails and a future timestamp warns without mutating live backups. | HomeLab Doctor M8 item complete. Its live run independently observed both LXC 116 copies at six hours old; monitoring/alerting is the next operations item. |
 | 2026-10-12 | M8 application metrics and monitoring transport | Added dependency-free Prometheus counters, histograms and gauges for bounded caller/outcome classes, request and queue latency, queue depth, workers busy, cancellation and renderer failures. Sixteen scheduler/protocol/metrics tests passed in the pinned runtime. Deployed after checkpoint `/opt/aster-voice-candidate/backups/m8-pre-metrics-20261012`; health and synthesis remained green, the canary populated the metrics, and LXC 114 was refused with HTTP 403. OPNsense rule `f4355d1a-94f2-49ee-a6cf-da15159354bf` permits only `192.168.20.31 -> 192.168.70.14:9131/TCP`, protected by `config-aster-metrics-before-20261012-172358.xml`. Prometheus config/rules passed `promtool`; after correcting the reload-readability mismatch to `root:prometheus` mode 0640, the target reported `up=1` and all five service rules loaded. Beszel independently reports `Aster Speech LXC 116` at `192.168.70.14` as up; its agent is active/enabled, so host-resource telemetry remains there and is not duplicated. | Metrics transport and resource reconciliation pass. No request IDs, text, transcript, audio, device or user labels are exported. Prometheus evaluates service conditions, but its installation has no Alertmanager route; wire equivalent actionable rules into the existing Grafana email policy and test one firing/resolution before completing the monitoring item. |
 | 2026-10-12 | M8 alert delivery and exporter credential rotation | Provisioned Grafana rule `homelab-aster-voice-service` to bridge firing `AsterVoice*` Prometheus conditions, with alert name/severity labels, into the existing HomeLab email policy. A temporary `AsterVoiceNotificationTest` reached Prometheus firing state and Grafana's local notifier with no notifier/SMTP errors; the rule was then removed, the five-rule production file passed `promtool`, the synthetic series disappeared and Grafana retained no active instance. The Proxmox exporter credential exposed during inspection was rotated with overlap: the first replacement failed only an over-specific validation string and automatically restored/revoked itself; the corrected replacement proved the Proxmox node up before the old token was revoked. Only `observability-m8` remains and both `proxmox` and `aster-voice` targets report `up=1`. | Monitoring/alerting item complete. Repeated renderer errors, p95 latency, persistent interactive queue/saturation and target loss are actionable; single cancellations remain signal-only. No service secret is recorded in Git or this evidence. |
+| 2026-10-12 | M8 backup, isolated restore and recovery correction | Created a fresh running-guest snapshot, ran the established TrueNAS pull and proved both 4.04 GB copies identical. Restored it to temporary VMID 9116 with no network interface or boot enablement; critical service source, unit, model, voice and protected-environment hashes matched production. The isolated local-renderer start exposed deployment drift: Git's `KokoroRendererPool.healthy()` existed but the guest copy predated it, so local recovery rendered but `/health` raised. Added an explicit regression assertion, passed four tests locally and in the pinned runtime, checkpointed/deployed the Git copy to production and the restore, and returned both health endpoints to the exact approved identity. The isolated guest then produced a valid 97,290-byte 24 kHz WAV and non-empty STT result in 2.038 seconds without retaining audio/transcript. Production Doctor remained all green; VMID 9116 and staging were removed. A final post-fix snapshot `vzdump-lxc-116-2026_10_12-10_54_36.tar.zst` was mirrored and both copies hash to `3ddf410e47f872a7982f64629617fbcc27489b498d159b2b59ce43bd40fe2925`; direct archive extraction proves the corrected runtime matches live. | Backup/recovery item complete. The first isolated failure was fail-closed and production-safe, and it repaired a real fallback-health gap before graduation. The earlier pre-fix archive remains under normal retention rather than being deleted ad hoc. |
 
 ## Close-out
 
