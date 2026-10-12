@@ -82,6 +82,24 @@ class AskRouteBenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "locality mismatch"):
             bench.score(self.fixture, self.run_bytes, manifest)
 
+    def test_label_blind_adapter_shape_can_be_scored(self):
+        # Synthetic adapter-conformance fixture, not a real Codex result.
+        value = json.loads(self.run_bytes)
+        value["schema"] = "aster-ask-route-run.v1"
+        value["model"] = "synthetic-adapter"
+        value.pop("exact_match")
+        for record in value["records"]:
+            record.pop("exact_match", None)
+            record.pop("missing", None)
+            record.pop("extra", None)
+        changed = json.dumps(value).encode()
+        manifest = {**self.manifest, "run_sha256": bench.sha256(changed),
+                    "run_schema": "aster-ask-route-run.v1", "model_id": "synthetic-adapter",
+                    "backend_id": "synthetic-codex-adapter-test", "backend_class": "codex_subscription",
+                    "egress": "cloud", "model_artifact_sha256": None, "runtime_sha256": None}
+        result = bench.score(self.fixture, changed, manifest)
+        self.assertEqual(result["exact_agreement"], 18)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -31,7 +31,9 @@ the **same request text, capability vocabulary, output contract and tool-free
 scope**. The model never receives gold labels. Each result has one record per
 case with ID, validity, status, selected capability IDs and request latency;
 raw answers, prompts, account identifiers, tokens and hidden reasoning are
-excluded. The manifest binds fixture bytes, result bytes, adapter/prompt code,
+excluded. A label-blind backend may omit `exact_match`, `extra` and `missing`;
+the independent scorer derives them after the run. The manifest binds fixture
+bytes, result bytes, adapter/prompt code,
 model artifact where available, runtime, backend class, reasoning setting,
 local/cloud boundary and disabled tool mode. A different prompt, quantization,
 reasoning mode, harness or model is a new run identity, never a relabelled old

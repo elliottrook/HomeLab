@@ -160,7 +160,9 @@ def score(fixture_raw: bytes, run_raw: bytes, manifest: dict) -> dict:
         extra_caps += bool(chosen - required)
         false_clarify += record["status"] == "clarify" and case["status"] != "clarify"
         false_abstain += record["status"] == "abstain" and case["status"] != "abstain"
-    if run.get("attempted") != len(actual) or run.get("valid") != valid or run.get("exact_match") != exact:
+    if (("attempted" in run and run["attempted"] != len(actual))
+            or ("valid" in run and run["valid"] != valid)
+            or ("exact_match" in run and run["exact_match"] != exact)):
         raise ValueError("runner totals disagree with independent scoring")
     return {
         "schema": "aster-ask-route-score.v1", "suite_id": manifest["suite_id"],
