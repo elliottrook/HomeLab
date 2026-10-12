@@ -114,7 +114,7 @@ struct LocalCodexManualView: View {
             if let terminal = Self.confirmedFailure(status, requestID: savedID) {
                 canAcknowledgeFailure = true
                 message = terminal == "failed" ?
-                    "Codex recorded a final failure. Nothing will be retried automatically." :
+                    Self.confirmedFailureMessage(status, requestID: savedID) :
                     "Codex recorded that this turn stopped. Nothing will be retried automatically."
                 preparing = false
                 return
@@ -162,6 +162,22 @@ struct LocalCodexManualView: View {
               let state = status["state"] as? String,
               state == "failed" || state == "interrupted" else { return nil }
         return state
+    }
+
+    static func confirmedFailureMessage(_ status: [String: Any], requestID: String) -> String {
+        guard confirmedFailure(status, requestID: requestID) == "failed" else {
+            return "A final failure cannot be verified. Do not resend this request."
+        }
+        let detail: String
+        switch status["failure_class"] as? String {
+        case "subscription_limit": detail = "Codex reported a subscription limit for this turn."
+        case "rate_limit": detail = "Codex reported a rate limit for this turn."
+        case "session_budget": detail = "Codex reported a session budget limit for this turn."
+        case "authentication": detail = "Codex reported an authentication failure for this turn."
+        case "provider_unavailable": detail = "Codex reported that its service was unavailable for this turn."
+        default: detail = "Codex recorded a final failure."
+        }
+        return detail + " Nothing will be retried automatically."
     }
 
     @MainActor private func send(_ request: ReviewedCodexRequest) async {

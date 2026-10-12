@@ -69,6 +69,23 @@ class LocalBridgeCLITests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 recorded_status(link,identifier)
 
+    def test_recorded_failure_exposes_only_allowlisted_category(self):
+        identifier='request-12345678-1234-1234-1234-123456789abc'
+        with tempfile.TemporaryDirectory() as root:
+            state=Path(root).resolve()/'state'
+            state.mkdir(mode=0o700)
+            db=state/'jobs.sqlite'
+            store=DispatchStore(db)
+            store.claim(identifier,'thread-1','uid:'+str(os.getuid()))
+            store.bind(identifier,'thread-1','turn-1')
+            store.finish(identifier,'thread-1','turn-1','failed',
+                         failure_class='subscription_limit')
+            store.close()
+            os.chmod(db,0o600)
+            self.assertEqual(recorded_status(state,identifier),{
+                'id':identifier,'recorded':True,'state':'failed',
+                'turn_recorded':True,'failure_class':'subscription_limit'})
+
     def test_recovery_accepts_only_exact_completed_full_turn_without_tools(self):
         snapshot={'thread':{'id':'thread-1','turns':[{'id':'turn-1',
             'status':'completed','itemsView':'full','items':[

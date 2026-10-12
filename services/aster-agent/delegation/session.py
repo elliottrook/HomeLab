@@ -106,21 +106,23 @@ class Session:
         self.job.apply(message)
         self.state = self.job.state
         if self.state in {"completed", "failed", "interrupted"}:
-            # Persist terminal state before exposing the final answer.
-            try:
-                self.store.finish(self.job_id, self.thread_id, self.job.turn_id, self.state)
-            except Exception:
-                self.job.final_text = ""
-                self.state = "unknown"
-                raise
             code = message["params"].get("turn", {}).get("error", {}).get("codexErrorInfo")
-            self.failure_class = {
+            failure_class = {
                 "usageLimitExceeded": "subscription_limit",
                 "rateLimitExceeded": "rate_limit",
                 "sessionBudgetExceeded": "session_budget",
                 "unauthorized": "authentication",
                 "serverOverloaded": "provider_unavailable",
-            }.get(code, "other" if self.state == "failed" else None)
+            }.get(code, "other") if self.state == "failed" else None
+            # Persist terminal state before exposing the final answer.
+            try:
+                self.store.finish(self.job_id, self.thread_id, self.job.turn_id, self.state,
+                                  failure_class=failure_class)
+            except Exception:
+                self.job.final_text = ""
+                self.state = "unknown"
+                raise
+            self.failure_class = failure_class
         return None
 
     @property

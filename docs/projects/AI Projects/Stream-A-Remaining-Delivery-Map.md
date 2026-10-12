@@ -29,7 +29,7 @@ is unverified.
 | Milestone | What changes for Jason | Evidence needed to finish | Current state |
 |---|---|---|---|
 | **1. Decide the limited manual Codex release (D3)** | A reliable, explicitly chosen “Ask Codex” path in Companion, still without infrastructure tools. | Show normal token refresh and prompt behavior without another model question; a release/hold decision with rollback to version 13. A failed observation means **hold**, not more repeated question trials. | Independent Orion judgment is a qualified pass. [Signed-in request with no Keychain prompt](evidence/D3-natural-session-observation-2026-10-11.md) is a partial pass; actual refresh is unknown. Routine release **held**. |
-| **2. Complete normal Companion job handling (rest of D3)** | Jason can see a job continue/reconnect, distinguish busy, unavailable and quota states, and understand cancellation or an uncertain outcome. | Offline lifecycle tests and a small, separately reviewed ordinary-use check; preserve request IDs, never resubmit uncertain work, and keep basic Aster available when Codex/Mac/Internet fails. Follow-up context and notifications need explicit scope rather than being silently inferred from the pilot. | Contract and pilot pieces exist; general intake/notification are **not released**. |
+| **2. Complete normal Companion job handling (rest of D3)** | Jason can see a job continue/reconnect, distinguish busy, unavailable and quota states, and understand cancellation or an uncertain outcome. | Offline lifecycle tests and a small, separately reviewed ordinary-use check; preserve request IDs, never resubmit uncertain work, and keep basic Aster available when Codex/Mac/Internet fails. Follow-up context and notifications need explicit scope rather than being silently inferred from the pilot. | A [durable failure-category candidate](evidence/D3-durable-failure-category-2026-10-11.md) passes offline suites; it is uninstalled. General intake/notification are **not released**. |
 | **3. Establish the authority boundary before connected tools (M1 + D4 prerequisite)** | Codex may ask for narrowly scoped read-only evidence; it cannot obtain permissions by choosing a route. | Verify AI-PAM caller binding, demotion/revocation, expiry, stale policy, duplicate approval consumption and recovery; register each read-only target and keep secrets out of model context. Any connected capability has its own deployment gate. | Open; worker identity currently inactive with zero grants. |
 | **4. Prove useful read-only sysadmin investigation (first D4 role)** | Aster can hand a real but bounded diagnostic question to Codex and explain findings, uncertainty and evidence. | Representative incidents, provenance and freshness, actual read-only tool behavior, independent technical postchecks, and a clear pass/fail rubric. No fix or generic shell authority follows from diagnostic success. | Not started as a Codex operational role. |
 | **5. Qualify one supervised repair class (later D4/SA4)** | Only an exact reversible fix can be proposed and, after Jason's specific approval, carried out. | Precondition/checkpoint, exact target and action, AI-PAM grant, independent postcheck, rollback, uncertain-outcome reconciliation and emergency stop. | Not authorized. |
@@ -58,6 +58,10 @@ quota classification and routine job handling remain open.
 The [terminal-failure acknowledgement candidate](evidence/D3-terminal-failure-ack-2026-10-10.md)
 lets a verified failed/stopped native turn be acknowledged before a new
 reviewed question, while uncertain turns remain blocked. It is offline only.
+The later [failure-category candidate](evidence/D3-durable-failure-category-2026-10-11.md)
+retains only an allowlisted code with a confirmed failed turn so the native
+view can distinguish limits and outages after a restart. It remains offline;
+real provider-code behavior and the signed release gate are unproven.
 
 ### What the next connected-tool gate actually lacks
 

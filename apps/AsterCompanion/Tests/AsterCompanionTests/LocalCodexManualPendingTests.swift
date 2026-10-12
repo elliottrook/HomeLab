@@ -59,4 +59,20 @@ final class LocalCodexManualPendingTests: XCTestCase {
         XCTAssertNil(LocalCodexManualView.confirmedFailure(base,
             requestID: "request-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
     }
+
+    func testFailureMessageRequiresBoundFinalRecordAndUsesOnlyKnownCategories() {
+        let base: [String: Any] = ["id": requestID, "recorded": true,
+                                   "turn_recorded": true, "state": "failed",
+                                   "failure_class": "subscription_limit"]
+        XCTAssertTrue(LocalCodexManualView.confirmedFailureMessage(base,
+            requestID: requestID).contains("subscription limit"))
+        var unexpected = base
+        unexpected["failure_class"] = "private provider error"
+        XCTAssertEqual(LocalCodexManualView.confirmedFailureMessage(unexpected,
+            requestID: requestID),
+            "Codex recorded a final failure. Nothing will be retried automatically.")
+        XCTAssertEqual(LocalCodexManualView.confirmedFailureMessage(base,
+            requestID: "request-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            "A final failure cannot be verified. Do not resend this request.")
+    }
 }

@@ -8,6 +8,11 @@ import sqlite3
 import json
 import time
 
+FAILURE_CLASSES = frozenset({
+    "subscription_limit", "rate_limit", "session_budget", "authentication",
+    "provider_unavailable", "other",
+})
+
 
 class DispatchStore:
     def __init__(self, path, *, max_jobs=64):
@@ -18,9 +23,11 @@ class DispatchStore:
         self.db.execute("PRAGMA synchronous=FULL")
         self.db.execute("""CREATE TABLE IF NOT EXISTS jobs (
             job_id TEXT PRIMARY KEY, state TEXT NOT NULL,
-            thread_id TEXT, turn_id TEXT, owner TEXT)""")
+            thread_id TEXT, turn_id TEXT, owner TEXT, failure_class TEXT)""")
         if "owner" not in {r[1] for r in self.db.execute("PRAGMA table_info(jobs)")}:
             self.db.execute("ALTER TABLE jobs ADD COLUMN owner TEXT")
+        if "failure_class" not in {r[1] for r in self.db.execute("PRAGMA table_info(jobs)")}:
+            self.db.execute("ALTER TABLE jobs ADD COLUMN failure_class TEXT")
         self.db.execute("""CREATE TABLE IF NOT EXISTS job_usage (
             job_id TEXT PRIMARY KEY, payload TEXT NOT NULL, observed_at REAL NOT NULL)""")
         if "observed_at" not in {r[1] for r in self.db.execute("PRAGMA table_info(job_usage)")}:
@@ -57,13 +64,15 @@ class DispatchStore:
             if result.rowcount != 1:
                 raise ValueError("Claim absent or already bound")
 
-    def finish(self, job_id, thread_id, turn_id, state):
+    def finish(self, job_id, thread_id, turn_id, state, *, failure_class=None):
         if state not in {"completed", "failed", "interrupted"}:
             raise ValueError("Not a terminal state")
+        if failure_class is not None and (state != "failed" or failure_class not in FAILURE_CLASSES):
+            raise ValueError("Invalid terminal failure class")
         with self.db:
-            result = self.db.execute("""UPDATE jobs SET state=? WHERE
+            result = self.db.execute("""UPDATE jobs SET state=?, failure_class=? WHERE
                 job_id=? AND thread_id=? AND turn_id=? AND state IN ('running','unknown','cancel_requested')""",
-                (state, job_id, thread_id, turn_id))
+                (state, failure_class, job_id, thread_id, turn_id))
             if result.rowcount != 1:
                 raise ValueError("Terminal result does not match active job")
 
@@ -77,6 +86,14 @@ class DispatchStore:
             return None
         return self.db.execute("""SELECT state,thread_id,turn_id FROM jobs
             WHERE job_id=? AND owner=?""", (job_id, owner)).fetchone()
+
+    def failure_class(self, job_id, owner):
+        """Return only a bounded category for an owner's confirmed failed job."""
+        if not isinstance(owner, str) or not owner:
+            return None
+        row = self.db.execute("""SELECT state,failure_class FROM jobs
+            WHERE job_id=? AND owner=?""", (job_id, owner)).fetchone()
+        return row[1] if row and row[0] == "failed" and row[1] in FAILURE_CLASSES else None
 
     def pending_state(self, job_id, state):
         if state not in {"unknown", "cancel_requested"}:

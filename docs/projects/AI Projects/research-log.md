@@ -1,5 +1,17 @@
 # Research log — 2026-09-25
 
+## 2026-10-11 — Offline durable Codex failure categories
+
+Added a nullable allowlisted category to the private dispatch journal so a
+confirmed failed turn can still show a plain-language quota, rate,
+authentication or availability reason after Companion restarts. The category
+is saved with terminal state, is owner-bound on read, and never carries raw
+provider error text. Unknown or old records remain generic; uncertain turns
+remain blocked from resend. The existing local dependency environment passed
+305 delegation tests and the full native suite passed 57 tests. No bundled
+bridge, installed app, Codex turn, model service or authority boundary changed.
+See the [candidate record](evidence/D3-durable-failure-category-2026-10-11.md).
+
 ## 2026-10-11 — Natural Companion signed-in observation
 
 Jason reported Companion remained signed in with no Keychain prompt. The

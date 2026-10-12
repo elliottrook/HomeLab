@@ -25,6 +25,7 @@ from local_turn import run_local_turn
 from pilot import fingerprint, initialize, manifest, options
 from pipe_worker import PipeAgent
 from runtime import open_runtime
+from store import FAILURE_CLASSES
 
 
 class RecoveryConfigClient(ConfigClient):
@@ -55,9 +56,20 @@ def recorded_row(directory, request_id):
 
 def recorded_status(directory, request_id):
     row=recorded_row(directory,request_id)
-    return {'id':request_id,'recorded':row is not None,
+    result={'id':request_id,'recorded':row is not None,
             'state':row[0] if row else 'unrecorded',
             'turn_recorded':bool(row and row[2])}
+    if row and row[0]=='failed':
+        db=sqlite3.connect((Path(directory)/'jobs.sqlite').as_uri()+'?mode=ro',uri=True)
+        try:
+            if 'failure_class' in {item[1] for item in db.execute('PRAGMA table_info(jobs)')}:
+                category=db.execute('''SELECT failure_class FROM jobs WHERE job_id=? AND owner=?''',
+                                    (request_id,'uid:'+str(os.getuid()))).fetchone()
+                if category and category[0] in FAILURE_CLASSES:
+                    result['failure_class']=category[0]
+        finally:
+            db.close()
+    return result
 
 
 def recover_snapshot(snapshot, thread_id, turn_id):
