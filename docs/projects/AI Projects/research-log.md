@@ -1,5 +1,15 @@
 # Research log — 2026-09-25
 
+## 2026-10-11 — Offline selector probe refuses current source
+
+The frozen M3 selector probe correctly rejected the current Aster file's
+full-source digest. Read-only comparison with the pinned commit found the
+`TOOLS`, `TOOL_HINTS` and `select_tools` AST nodes unchanged, but this does not
+authorize silently changing the experiment definition. No evaluation report,
+router call or model request was produced. The historical result stays frozen;
+the next experiment needs a separately reviewed component pin and
+representative labels. See the [drift record](evidence/M3-selector-pin-drift-2026-10-11.md).
+
 ## 2026-10-11 — Offline durable Codex failure categories
 
 Added a nullable allowlisted category to the private dispatch journal so a
