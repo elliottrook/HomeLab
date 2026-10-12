@@ -94,7 +94,7 @@ This is a capacity boundary, not high availability. A future VLAN 20
 `ai-prod` placement remains a separate network/guest milestone and must not
 create a second concurrent GPU consumer.
 
-### Night schedule contract — proposed, not yet deployed
+### Night schedule contract — backup sequence implemented 2026-10-12
 
 The morning digest is proposed to move to 06:15 local fixed-offset time. The
 two hours immediately before it are reserved for the future local-AI email and calendar
@@ -102,20 +102,21 @@ analysis workload; no lab lease or backup activity may run in that interval:
 
 | Window | Owner | Rule |
 |---|---|---|
-| 00:30 onward, bounded by completion | Proxmox guest backup | Move the all-guest backup earlier; declare success only after all archives pass their existing completion checks. |
+| 00:30 onward, bounded by completion | Proxmox guest backup | All-guest snapshot job; declare success only after all archives pass their existing completion checks. |
+| 01:00 | TrueNAS guest pull | Pulls the normal guest archive set after the Proxmox chain. |
+| 02:00 | TrueNAS LXC 110 mirror | Dedicated same-site inference-guest mirror; remains excluded from the off-site relay. |
+| 03:00 | TrueNAS Mac pull | Configuration pull completes before the analysis reservation. |
 | After backup-chain completion until 04:15 | `ai-lab` | Exclusive whole-host maintenance lease; ordinary sessions may be light, but no other workload may start and restarts/reboots are permitted. |
 | 04:15–06:15 | Future local-AI analysis | Reserved for email/calendar analysis; no lab work, Proxmox backup, or LXC110 mirror. |
 | 06:15 | News morning digest | Production reservation; lab remains excluded. |
 
 The backup chain includes the Proxmox all-guest archive and its TrueNAS
-follow-on pulls, including the dedicated LXC110 mirror. The proposed 00:30
-start is intentionally conservative against the observed roughly 19-minute
-Proxmox run and the roughly 6-minute LXC110 mirror; exact start offsets remain
-subject to one measured end-to-end run and the TrueNAS task ordering. The
-existing 04:00/04:20 TrueNAS tasks must not be left in place when the
-04:15–06:15 analysis reservation is enabled. This schedule is a design
-checkpoint only: no remote timer, Proxmox job, TrueNAS task, GPU lease, or
-production service was changed by recording it.
+follow-on pulls, including the dedicated LXC 110 mirror. The bounded
+measurement completed successfully on 2026-10-12 in 18m36s; the LXC 110 guest
+archive took 5m23s and the historical roughly 6-minute mirror estimate remains
+reasonable. The existing 02:30/04:00/04:20 schedule was replaced by the
+00:30/01:00/02:00/03:00 sequence after that measurement. No GPU lease,
+production service or analysis workload was enabled by this schedule change.
 
 The whole-host lease does not mean that the Proxmox control plane, network
 access, UPS protection, recovery console or the minimum monitoring path must be
@@ -391,18 +392,20 @@ successful authenticated model call, quota enforcement, timeout behavior,
 Kokoro failure/Piper recovery, resource headroom or consumer degradation; those
 remain explicit gates and require the appropriate bounded test setup.
 
-## Schedule readiness check — 2026-10-12
+## Schedule implementation record — 2026-10-12
 
-The live Proxmox read-only inventory confirms the all-guest backup job
-`backup-49999802-1365` is still enabled at `02:30`; no Proxmox schedule was
-changed by this project work. The documented TrueNAS follow-on pulls remain the
-existing `04:00/04:20` arrangement. Therefore the proposed `00:30` backup,
-exclusive lab lease, `04:15–06:15` analysis reservation and `06:15` News
-reservation are still design-only.
+The approved end-to-end measurement completed successfully from 15:50:48 to
+16:09:24 local, with all guest archives created and the existing completion
+checks passing. The live schedules now read:
 
-The roughly 19-minute Proxmox run and roughly 6-minute LXC 110 mirror remain
-historical planning estimates. Before enabling the new sequence, run one
-bounded end-to-end backup chain, capture actual completion and verification
-times, confirm the control-plane survival set and restoration checklist, then
-change the Proxmox and TrueNAS schedules together. Until that authorization and
-measurement exist, no scheduler or lease controller may enforce the window.
+| System | Identifier | Schedule |
+|---|---|---|
+| Proxmox | `backup-49999802-1365` | `00:30` |
+| TrueNAS guest pull | task 1 | `01:00` |
+| TrueNAS LXC 110 mirror | task 3 | `02:00` |
+| TrueNAS Mac pull | task 2 | `03:00` |
+
+The control plane, network, UPS protection and minimum monitoring path remain
+outside the lab lease. The lease/controller itself is not yet deployed or
+scheduled; it must still drain nonessential guests, acquire a host lock, record
+a checkpoint and restore the accepted V1 service before the 04:15 boundary.

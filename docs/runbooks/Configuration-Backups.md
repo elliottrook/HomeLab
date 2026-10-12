@@ -12,7 +12,7 @@
 | TrueNAS applications | Daily 05:00 TrueNAS cron task 7 | `/mnt/Recovery/configuration/exports/truenas/configs.tar.gz` |
 | TrueNAS OS / managed apps / browser guards | Same daily export | Native config export including its secret seed; managed-app definitions, Docker inventory/networks, guard definitions and host SSH configuration |
 | Synology DSM and Immich | Daily 03:30 DSM `homelab-config-backup.timer`; existing 04:30 TrueNAS family-file pull | `/volume1/homes/.homelab-config-backups/configs.tar.gz`, copied to `/mnt/Recovery/family/gowest/homes/.homelab-config-backups/` |
-| Proxmox-hosted apps | **Proposed schedule change:** move the all-guest archive and both TrueNAS guest pulls ahead of the 04:15–06:15 local-AI analysis reservation; current live schedule remains 02:30 / 04:00 / 04:20 until separately authorized | Guests 100–109, 111–117 in the normal pull; 110 retains its dedicated same-site mirror |
+| Proxmox-hosted apps | **Implemented 2026-10-12:** Proxmox all-guest archive 00:30; TrueNAS guest pull 01:00; LXC 110 same-site mirror 02:00; Mac configuration pull 03:00, all before the 04:15–06:15 local-AI analysis reservation | Guests 100–109, 111–117 in the normal pull; 110 retains its dedicated same-site mirror |
 | OPNsense, Arista, Proxmox host, NUT, monitoring | Existing Sunday 06:00 Mac job; TrueNAS daily 04:15 pull | `~/lab/private-backups/<service>/` |
 | Media automation configuration | Same weekly job plus TrueNAS daily tool export | Video archiver, Jellyfin integrity reference manifests and `/mnt/Media/data/tools` |
 | Operator lab configuration | Added to existing weekly Mac job | SSH configuration/keys, HomeLab `configs/`, lab LaunchAgents, AsterLab worker identity/custody; `private-backups/operator-configs/` |
