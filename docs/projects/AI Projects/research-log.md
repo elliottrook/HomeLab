@@ -2852,3 +2852,23 @@ or exclusive test. The four-hour continuous-work automation remains active for
 offline/local and low-impact shared work, including D3 passive observation and
 test preparation. A new exclusive time must be reconciled with live backup and
 lease state before the paused automation is resumed.
+
+### 2026-10-12 — 9B/SYCL routing result preserved as a cross-backend baseline
+
+Jason authorized one immediate, bounded use of the mostly idle B60; the
+scheduled exclusive automation remains paused. The synthetic 9B/SYCL routing
+interface first failed strict parsing. Two different-case, content-free
+diagnostics found a non-plan status paired with a capability. A versioned
+prompt correction then produced 30/30 schema-valid responses, but only 18/30
+expected routes, with all calendar, mixed calendar/web and private-context
+examples missed. The model remains unqualified for automatic routing; the
+result says nothing about its ordinary-answer or sysadmin quality. See the
+[experiment evidence](experiments/m3-9b-sycl-routing-compatibility/RESULT-V4-2026-10-12.md).
+
+The [Aster Ask development benchmark](benchmarks/ask-routing-development-v1/README.md)
+now retains an exact fixture, local model/runtime/prompt/adapter manifest,
+content-free run and independently recomputed score. This exposed synthetic
+set can catch regressions in future local or Codex backends but cannot serve
+as an independent promotion holdout. Codex has no comparable 30-case result;
+the D3 pilot used different questions. Future promotion requires fresh
+engine-blind human labels, privacy/safety cases and a separate shadow gate.

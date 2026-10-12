@@ -1,0 +1,20 @@
+{
+  "schema": "aster-ask-backend-manifest.v1",
+  "suite_id": "ask-routing-development-v1",
+  "fixture_sha256": "c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec",
+  "run_sha256": "20d75242c9057008eeaa99ca2749eb17845334424debbe6cc65673c8ddf47303",
+  "run_schema": "m3-9b-sycl-compat.v4",
+  "backend_id": "local-qwen3.5-9b-llama-sycl-2026-10-12",
+  "backend_class": "local_model",
+  "model_id": "aster-qwen3.5-9b",
+  "model_artifact_sha256": "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
+  "runtime_id": "llama.cpp-b11429-sycl-fp16",
+  "runtime_sha256": "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3",
+  "prompt_sha256": "8408f36ae6db96963a7f36920e41556761949189bfa6d0d237ced6305c18b928",
+  "adapter_sha256": "afc18629fc69972581767ac74cb5a53e6cc19eba20c2a618e16339bfd014bedc",
+  "reasoning_mode": "off",
+  "tool_mode": "disabled",
+  "execution": "not_attempted",
+  "egress": "local",
+  "evidence_class": "synthetic-development-regression"
+}

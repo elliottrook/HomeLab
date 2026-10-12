@@ -1,0 +1,116 @@
+# Aster Ask routing benchmark — development baseline v1
+
+**Purpose:** preserve a reproducible starting point as Aster's local and Codex
+backends change. This is a **synthetic regression suite**, not a test of general
+intelligence, real-user success, calibrated confidence or authority to act.
+
+The frozen 30-case source is
+[`routing-families-v1.json`](../../../../../scripts/aster-adaptive/fixtures/routing-families-v1.json)
+at SHA-256
+`c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec`.
+It covers timer, household, media, stable facts, calendar, web, mixed
+calendar/web, HomeLab status, ambiguity and personal context, three synthetic
+examples each. Those requests and labels were exposed to implementation and
+prompt iteration. Keep this exact file immutable and version a successor;
+do not relabel or silently add cases to make a model pass.
+
+The first baseline is the [9B/SYCL manifest](local-9b-sycl-2026-10-12.manifest.json),
+[raw content-free route record](../../experiments/m3-9b-sycl-routing-compatibility/run-v4-2026-10-12.json)
+and [independently recomputed score](local-9b-sycl-2026-10-12.score.json).
+The source experiment and its v1 failure/diagnostics are retained under
+[`experiments/m3-9b-sycl-routing-compatibility`](../../experiments/m3-9b-sycl-routing-compatibility).
+The scorer ignores a runner's claimed matches when deriving the result and
+rejects disagreement, changed input digests, duplicate/missing identities,
+unregistered capabilities and unexpected raw-text fields. No new dependency
+or service is required.
+
+## What a comparable backend run must provide
+
+Each backend—deterministic, newer local stack or subscription-backed Codex—gets
+the **same request text, capability vocabulary, output contract and tool-free
+scope**. The model never receives gold labels. Each result has one record per
+case with ID, validity, status, selected capability IDs and request latency;
+raw answers, prompts, account identifiers, tokens and hidden reasoning are
+excluded. The manifest binds fixture bytes, result bytes, adapter/prompt code,
+model artifact where available, runtime, backend class, reasoning setting,
+local/cloud boundary and disabled tool mode. A different prompt, quantization,
+reasoning mode, harness or model is a new run identity, never a relabelled old
+score. Missing model/runtime identity is `UNKNOWN`, never silently filled from
+the current configuration.
+
+For a new stack, run the exact frozen suite once after offline adapter tests.
+Score with:
+
+```sh
+python3 scripts/aster-adaptive/ask_route_benchmark.py \
+  --fixture scripts/aster-adaptive/fixtures/routing-families-v1.json \
+  --run PATH_TO_CONTENT_FREE_RUN.json \
+  --manifest PATH_TO_PINNED_BACKEND_MANIFEST.json \
+  --output PATH_TO_SCORE.json
+```
+
+Compare **per family** as well as overall: exact status+capability agreement,
+missing/extra capabilities, inappropriate clarification/abstention, invalid
+outputs and request latency. Do not average 30 near-related examples into an
+assumed population accuracy or merge timing from different hardware/backend
+loads. Cloud token cost and subscription impact must be measured or marked
+unknown; subscription access must not be labelled zero cost. Reasoning-on and
+reasoning-off are separate profiles. A low-latency deterministic timer route
+does not need a model simply because a new model can answer it.
+
+**Codex baseline is pending.** The native Companion
+[D3 manual pilot](../../evidence/D3-native-v16-installation-2026-10-11.md) tested
+different fictional questions and did not emit this Decision schema, so its
+answers cannot be backfilled as a 30-case Codex routing result. A future
+subscription-compatible adapter must keep the same no-tool contract, obtain
+Jason's reviewed cloud consent for the exact synthetic batch, cap calls and
+retention, record the selected Codex model/effort when exposed, and return only
+content-free route fields. The existing one-question bridge is not silently
+turned into a 30-question unattended runner. Do not substitute this Codex chat
+session for the actual Aster-to-Codex backend.
+
+## Promotion is a separate evidence lane
+
+This suite is the **development/regression lane**: it detects a change in a
+known set and identifies families worth investigating. The
+[closed S1 human-labelled corpus](../../experiments/s1-routing-holdout-v1/CLOSEOUT-2026-10-03.md)
+contains 45 accepted families but missed its own frozen
+sampling and adverse-case quotas; it remains incomplete collection evidence,
+not a qualifying holdout. Before any automatic router promotion, create a
+new protocol and independent, engine-blind labels for realistic asks and
+adverse privacy/locality cases. Keep labels away from candidate prompts and
+training. Then compare candidate and incumbent on the same cases, with
+predeclared per-family safety floors, abstention rules, latency/reliability
+budgets and an explicit reject/rollback option. Shadow mode and a small
+reversible canary follow; the Decision Plane never grants permissions.
+
+No single score should qualify all of Aster. Maintain separate outcome suites
+for: (1) *route selection*; (2) answer correctness and evidence freshness for
+facts, web and private knowledge; (3) deterministic household execution and
+outage survival; and (4) HomeLab diagnosis/repair with source provenance and
+independent postchecks. The current 30-case suite measures only item 1's
+status/capability proposal. It does not measure privacy classification,
+authorisation, tool effects, final answer quality, voice recognition or
+infrastructure remediation. Register each new case family and metric before
+using it as a promotion gate.
+
+| Aster ask | First useful outcome measure | Boundary that cannot be inferred from a route score |
+|---|---|---|
+| Timer, alarm, lights, media | Correct target/action, completion time and offline availability | A model proposal does not prove the action occurred. |
+| Stable fact or live web | Correct answer, source/date when needed, abstention on uncertainty | Fast routing does not prove answer truth or fresh evidence. |
+| Calendar, personal context, mixed web/personal | Correct composition, privacy locality and unnecessary cloud use | No personal content enters a benchmark by default; a route cannot override policy. |
+| HomeLab status and diagnosis | Fresh named evidence, correct uncertainty and safe next check | Diagnosing a fault does not grant repair authority. |
+| Ambiguous or unsafe request | Correct clarification, denial or abstention | More model confidence is not permission to act. |
+
+For each row, freeze realistic cases and the *observable* success condition
+before testing a new backend. Where confidence is emitted, check calibration
+on independent cases; the present runner emits no probability, so none can
+be inferred from its 18/30 agreement. Give higher weight to false cloud
+egress, unsafe tool suggestions and missed required context than to harmless
+extra clarification, but freeze that weighting before a promotion comparison.
+
+The practical promotion unit is **a role or request class**, not “the local
+model is now smart enough.” A new local stack may earn media or public-facts
+routing while calendar, personal-context or sysadmin requests still escalate.
+Retain the prior run, manifest, score, decision and rollback target so later
+versions can be compared without rewriting history.
