@@ -2660,3 +2660,14 @@ wrong broker peer UID and broker outage all failed without approving a request.
 The combined ingress/router/socket suite passed 21 tests. This does not verify
 live Authentik assurance, production UID separation, proxy routing or restart
 recovery. See the [candidate record](evidence/M1-independent-approval-ingress-candidate-2026-10-11.md).
+
+### 2026-10-11 — Fail-closed separate-process startup candidate
+
+The dormant approval ingress gained an operator-configured process factory.
+It requires an exact HTTPS provider issuer and matching JWKS URL, audience,
+absolute broker socket path and explicit approver hash set before startup.
+The candidate has no passkey-mapping option, so even a signed fixture ACR does
+not confer Red or management assurance. Two added startup tests passed; the
+focused ingress/router/socket suite now passes 23 tests. This is an offline
+release-shape check only: no port, account, proxy route, socket ownership,
+credential or live authorization changed. See the [candidate record](evidence/M1-independent-approval-ingress-candidate-2026-10-11.md).

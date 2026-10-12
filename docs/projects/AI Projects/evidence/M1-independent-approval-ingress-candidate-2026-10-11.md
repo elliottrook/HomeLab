@@ -25,6 +25,16 @@ actor hash from issuer plus subject. It passes only that derived hash,
 or assurance fields remain forbidden by that router's request schemas.
 Verifier failure returns the same generic 401 without logging token material.
 
+`services/aster-agent/approval_ingress_service.py` now supplies a **dormant
+process factory** for a future separate service. It refuses startup if the
+exact HTTPS issuer, audience, same-provider JWKS URL, absolute broker socket
+path or explicit SHA-256 approver hash set is missing or malformed. Unlike the
+library factory, this service factory has no environment switch for passkey
+ACRs: it always leaves that mapping empty. A later passkey-capable release
+would need an explicit review after real assurance proof. This module does not
+bind a port, create a Unix identity, alter the broker peer or install a proxy
+location.
+
 The factory's subject allowlist defaults empty, and its passkey ACR mapping
 defaults empty. The synthetic `synthetic-passkey` ACR in tests is **not** an
 Authentik claim mapping. Ingress classification cannot grant approval: the
@@ -57,6 +67,12 @@ simulates the broker's check in one process. This is stronger contract evidence
 than isolated mocks, but **does not prove separate production UIDs, ACLs,
 Authentik claims or reverse-proxy behavior**. No live AI-PAM request was made.
 
+Two further startup tests bring the focused suite to **23 passes**. They prove
+the process factory rejects absent or mismatched settings before startup and
+keeps `passkey_verified=false` even when a synthetic signed token carries the
+fixture passkey ACR. The only positive ACR tests are on the underlying library
+factory, not the production-shaped process factory. No real JWKS fetch was made.
+
 The tests prove the narrow Python and local-socket contract, **not** process isolation or
 deployment safety. In particular, no live passkey-specific ACR has been
 verified; no companion client has been routed to this app; no new UID/socket
@@ -78,3 +94,14 @@ audit, and the independent human SSH recovery path. Produce an exact
 deployment/rollback manifest and obtain its own change approval. Do not
 remove `aster` from the current socket group until the replacement path is
 ready; do not claim Stage2 or connected Codex tools from this offline pass.
+
+The proposed rollout must be atomic from the client's point of view: stage the
+new code and account without routing traffic, prove a private listener and
+socket reachability, route only the approval path to it, then remove Aster's
+approval-socket access and verify denial. If any later check fails, disable
+approval mutations and retain the human SSH recovery path; do **not** restore
+the old AI-facing approver privilege merely to make the UI work. Exact UID,
+listener address, Nginx Proxy Manager location, unit files, socket directory
+ownership, current Authentik claim shape and rollback checkpoints remain
+**UNKNOWN / REQUIRES VERIFICATION** for an install manifest. The code and this
+sequence are not deployment authorization.
