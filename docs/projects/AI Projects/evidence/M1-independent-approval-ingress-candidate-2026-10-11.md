@@ -136,7 +136,11 @@ on proposed private port 9121. Nginx Proxy Manager LXC 107's current
 `aster.elliottrook.com` host still has `/voice/` and default `/` locations,
 with default upstream `192.168.70.10:9120`; it has no approval-specific
 location. These are observations, not proof that port 9121 is allowed through
-the firewall or that NPM can route it. Exact UID, internal firewall rule,
+the firewall or that NPM can route it. The original Companion rollout used a
+narrow NPM `192.168.50.23` to Aster `192.168.70.10:9120` rule on the
+Management interface, ahead of its RFC1918 block; a second port would need
+its own compiled-ruleset and end-to-end check if adopted. This is a historical
+precedent, not evidence that a 9121 rule exists. Exact UID, internal firewall rule,
 listener address, NPM location, unit files, socket-directory ownership,
 current Authentik claim shape and rollback checkpoints remain **UNKNOWN /
 REQUIRES VERIFICATION** for an install manifest. The code and sequence are not
