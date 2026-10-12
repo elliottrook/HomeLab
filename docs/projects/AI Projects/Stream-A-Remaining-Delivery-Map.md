@@ -2,6 +2,8 @@
 
 **Owner-facing checkpoint, 2026-10-09.** This page translates the detailed [programme](Aster-Adaptive-Computing.md) and [Codex delegation gates](Codex-Delegation.md) into the next decisions. It does not authorize a deployment, additional cloud question, new tool grant or Git push. Evidence links control factual claims; an unchecked gate remains open even if a nearby experiment passed.
 
+The [Stream A work cadence](Stream-A-Work-Cadence.md) separates continuous offline/shared work from preflighted 01:00 B60-exclusive tests. A scheduled window is not itself permission or evidence that an experiment is ready.
+
 ## Where we are
 
 Aster Companion version 16 is installed in **ordinary mode**. Its manual Codex screen is hidden unless explicitly launched for a supervised experiment. Fourteen earlier fictional turns plus one Nova process-interruption turn are recorded as completed. A reviewed question can reach subscription-backed Codex and its **original** answer can be recovered after the Companion process is restarted; the [one-attempt result](evidence/D3-active-turn-interruption-result-2026-10-09.md) has a possible signal/completion race. No Aster tools or infrastructure permissions were granted for those turns. The [twelve-answer second pass](evidence/D3-existing-answer-second-pass-2026-10-09.md) found eleven clear frozen-rubric matches and one qualified wording concern. A [separate read-only review](evidence/D3-Orion-independent-review-2026-10-11.md) judged the flagged Orion case a qualified pass; the other eleven were not independently re-scored.

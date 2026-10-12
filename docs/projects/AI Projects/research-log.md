@@ -2811,3 +2811,21 @@ with the deployed/current 9B label. The operator-only method was retained as
 uninstalled candidate code, not deployed by copying the full file. The focused
 suite passed 23/23 and no running service changed. See the [module parity
 record](evidence/SA0-gateway-module-parity-2026-10-12.md).
+
+### 2026-10-12 — Continuous and exclusive work separated
+
+The [Stream A cadence](Stream-A-Work-Cadence.md) now treats offline/shared work
+as continuous and reserves 01:00 Vancouver time for only preflighted B60
+exclusive tests. The Companion natural-refresh check is continuous-lane work,
+not a GPU experiment. No current Aster-exclusive inference test is READY: the
+old 27B/Vulkan score is historical, and a new 9B/SYCL experiment still needs a
+frozen question, corpus, current runner and credential-safe path. The window
+must skip model calls rather than improvise a test. Preflight and preparation
+continue outside the window.
+
+The first [batched preflight](evidence/Stream-A-cadence-first-preflight-2026-10-12.md)
+rechecked M3's component-pinned CPU-only probe against the newly reconciled
+gateway: twelve fixtures, 100 repeats and 30 passing tests, with no model call.
+The proposed 9B/SYCL inference slot remains BLOCKED for a specific frozen run
+card; the nightly window does not turn historical 27B development cases into a
+new qualification study.
