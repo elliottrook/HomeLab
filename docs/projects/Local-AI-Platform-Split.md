@@ -352,3 +352,21 @@ repository's `jwt` dependency; no deployment or service restart was attempted.
 The next safe action is the contract milestone: define and test the stable API,
 health, authentication, quota, timeout and fallback contracts, then validate a
 separate lab lease/controller manually before any scheduler is enabled.
+
+## Contract definition checkpoint — 2026-10-12
+
+The stable V1 consumer contract is drafted in
+[`docs/reference/Local-AI-Platform-Contract.md`](../reference/Local-AI-Platform-Contract.md).
+It defines the logical `ai-lab`/`ai-prod` endpoint boundary, the transitional
+mapping, Aster text API and stable model label, Kokoro/Piper speech behavior,
+environment-specific authentication, one-slot GPU quota, bounded timeout and
+retry behavior, overload handling, observability limits and recovery order.
+This is a definition checkpoint only: no consumer was moved, no credential was
+created or rotated, no scheduler was enabled, and no fallback or production
+traffic test was claimed.
+
+The Forgejo push of the preceding source-contract checkpoint succeeded at
+`f942f47`. Its automatic GitHub mirror remained at `6ce8f3e` on two read-only
+checks after propagation delay; no direct GitHub push was attempted. This local
+contract work is intentionally retained for the next authorized synchronization
+window.
