@@ -1,7 +1,7 @@
 # Aster Companion operator guide
 
 > Authority: operator-guide
-> Reviewed: 2026-09-23
+> Reviewed: 2026-10-12
 > Sources: `homelab/docs/projects/completed projects/Aster-Companion-App.md`, live service and NetBox verification
 > Owner: Jason
 
@@ -85,15 +85,17 @@ Aster chat never grants approval or adds repair authority.
 | Component | Location | Dependency |
 |---|---|---|
 | Companion and Aster API | LXC 104, `192.168.70.10:9120` | Existing B60 inference service on LXC 110 |
-| Speech STT/TTS | LXC 116, `192.168.70.14:9130` | CPU Whisper `base.en`, Piper `en_US-lessac-high` |
+| Canonical speech | LXC 116, `192.168.70.14:9131`; Wyoming 10300 | Kokoro `bm_daniel`; isolated A380 interactive and LXC 114 CPU batch renderers |
+| Legacy speech/STT | LXC 116, `192.168.70.14:9130` | Whisper `base.en`; retained Piper rollback |
 | HTTPS proxy | NPM LXC 107, `192.168.50.23` | `/voice/` forwards to speech; other routes to Aster |
 | Sign-in and signing keys | Authentik, `auth.elliottrook.com` | Public client `aster-companion`, PKCE, passkey-only flow |
 
-Run `python3 /opt/aster-speech/health_check.py` inside LXC 116. It checks the
-speech endpoint and the Authentik signing-key URL. A healthy speech `/health`
-alone is insufficient: both application servers must fetch signing keys via
-NPM TCP 443. Speech's permit is source `.70.14` to `.50.23:443` only, OPNsense
-UUID `bc811346-6714-44b4-bc65-46e7430f46a8`.
+Run `python3 /opt/aster-speech/health_check.py` inside LXC 116. It checks both
+APIs, exact canonical identity, Wyoming, HTTPS/OIDC/JWKS and a discarded fixed
+synthesis canary. A healthy `/health` alone is insufficient: both application
+servers must fetch signing keys via NPM TCP 443. Speech's permit is source
+`.70.14` to `.50.23:443` only, OPNsense UUID
+`bc811346-6714-44b4-bc65-46e7430f46a8`.
 
 For a stalled voice turn, check that dependency, then request status and
 sanitized journal errors. Do not collect microphone recordings or transcript
@@ -137,12 +139,12 @@ before choosing a recovery archive. Restoring speech requires its service code,
 venv, cached Whisper model, Piper binary/voice, systemd unit, and protected
 environment. No microphone history is needed.
 
-Restore into an isolated directory or guest first; do not boot a duplicate IP.
-Validate Piper output and cached-model transcription on synthetic audio, then
-restore the intended guest's configuration and verify HTTPS and JWKS access.
-On September 23 an isolated file-level restore from the real backup successfully
-ran the restored Piper binary, cached Whisper model and speech module. A full
-guest boot/cutover was not performed.
+Restore to a temporary VMID with its NIC removed and on-boot disabled. Bind the
+canonical HTTP/Wyoming listeners to loopback, select local ONNX rendering and
+clear the external batch renderer before first start. Validate exact health,
+critical hashes and one fixed non-retained WAV/STT round trip. The 2026-10-12
+isolated full-guest test passed in 2.038 seconds; the accepted post-fix archive
+hash is recorded in the voice project and operational reference.
 
 Keep a pre-deploy source copy and revert only the changed service if an update
 fails. Do not overwrite the whole firewall configuration over later changes.

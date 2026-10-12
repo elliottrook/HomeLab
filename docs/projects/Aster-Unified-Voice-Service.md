@@ -1,8 +1,8 @@
 # Aster Unified Voice Service
 
-> Status: Active — Stream A; M0–M2 complete, M3 in progress; candidate staged,
-> production selection withheld after shared-GPU contention failed the latency
-> acceptance
+> Status: Active — Stream A; M0–M7 complete, M8 close-out in progress;
+> canonical News and Home Assistant pilot paths are live, Companion migration
+> and final cross-surface graduation remain
 >
 > Owner: Jason
 >
@@ -250,14 +250,11 @@ source/live hashes and current service health; resume the first unchecked gate.
 Never infer that an interrupted deploy, firewall write or Home Assistant change
 succeeded. Reconcile before retry.
 
-Current resume point: M0 through M2 are complete and M3 is active. The approved
-voice, normalization/pronunciation rules, acknowledgement, capacity topology,
-API/network/dependency manifest and rollback plan are frozen. The next safe
-action is to improve or explicitly accept the uncached first-audio result before
-any production selector change. The candidate is installed but stopped and
-disabled on LXC 116; production port 9130 remains authoritative and healthy.
-The OpenVINO/Level Zero route remains blocked by the B60's 256 MiB physical BAR,
-but the approved follow-up proved that Mesa Vulkan is a viable independent path.
+Current resume point: M0 through M7 are complete and M8 is active. The canonical
+service, News route, Home Assistant pilot, monitoring, backup/isolated recovery,
+NetBox services, human wiki and derived mirror are live and verified. Companion
+still uses the retained 9130 path, so M3/M4 selection and final two-pass
+cross-surface graduation remain before the legacy renderer can be retired.
 A pinned Kokoro GGML/Vulkan renderer and authenticated network bridge are staged
 but stopped in GPU LXC 110. The end-to-end short response was about 0.71–0.90
 seconds without active generation and 2.94 seconds during a bounded Llama
@@ -897,18 +894,22 @@ later unrelated changes.
 - [x] **Backup and recovery** — the corrected runtime, voice assets, policy and
   protected configuration are covered by byte-identical Proxmox/TrueNAS
   archives; a network-isolated restore passed health, local TTS and STT.
-- [ ] **NetBox** — reconcile LXC 116 service/port and any Home Assistant
-  service relationship; no new guest/IP currently proposed.
-- [ ] **Human wiki** — one Aster Voice Service page with operation, consumer,
-  privacy, recovery and troubleshooting guidance.
-- [ ] **Aster mirror/snapshot** — publish a provenance-labelled derived summary
-  only after the operational record is current.
-- [ ] **Operational reference and runbooks** — replace Piper/current-client
-  facts and document canary, rollback, model update and caller diagnosis.
-- [ ] **Repository documentation** — architecture, project portfolio,
-  changelog and voice standard/implementation links.
-- [ ] **Diagrams/rack records** — logical voice flow update; no physical rack
-  change expected.
+- [x] **NetBox** — LXC 116 retains VM/interface/IP IDs 16/16/30 and now records
+  canonical, legacy and Wyoming TCP services plus the exact HA consumer boundary.
+- [x] **Human wiki** — the reviewed Aster Voice Service page covers operation,
+  consumers, privacy, recovery and troubleshooting.
+- [x] **Aster mirror/snapshot** — accepted source `aster-voice-service` produced a
+  provenance-labelled pipeline-1.5.0 mirror with 1,810 verified entries and
+  content hash `7bd9e61fd4d522f38d80f7e82157cfd8dae8189a31c066c1fe70f793767e3a24`.
+  The twice-identical 1,839-source snapshot hashes to
+  `94f87e3879a4bf749e299e8676de758191e2e04743cefdb2bfae4b6f34e5ea37`
+  and is active with the prior directory retained.
+- [x] **Operational reference and runbooks** — canonical/legacy roles, canary,
+  rollback, recovery and caller diagnosis match the deployed service.
+- [x] **Repository documentation** — architecture, project portfolio,
+  changelog and implementation README link the canonical voice standard.
+- [x] **Diagrams/rack records** — the logical architecture now records the
+  canonical, Wyoming and isolated renderer flow; no physical rack change.
 - [ ] **Homepage/service discovery** — not applicable unless an operator UI is
   added; Companion already links the user-facing service.
 - [ ] **Authentication/authorization** — separate least-privilege caller paths,
@@ -992,6 +993,8 @@ pilot and listen to a regenerated News briefing before graduation.
 | 2026-10-12 | M8 application metrics and monitoring transport | Added dependency-free Prometheus counters, histograms and gauges for bounded caller/outcome classes, request and queue latency, queue depth, workers busy, cancellation and renderer failures. Sixteen scheduler/protocol/metrics tests passed in the pinned runtime. Deployed after checkpoint `/opt/aster-voice-candidate/backups/m8-pre-metrics-20261012`; health and synthesis remained green, the canary populated the metrics, and LXC 114 was refused with HTTP 403. OPNsense rule `f4355d1a-94f2-49ee-a6cf-da15159354bf` permits only `192.168.20.31 -> 192.168.70.14:9131/TCP`, protected by `config-aster-metrics-before-20261012-172358.xml`. Prometheus config/rules passed `promtool`; after correcting the reload-readability mismatch to `root:prometheus` mode 0640, the target reported `up=1` and all five service rules loaded. Beszel independently reports `Aster Speech LXC 116` at `192.168.70.14` as up; its agent is active/enabled, so host-resource telemetry remains there and is not duplicated. | Metrics transport and resource reconciliation pass. No request IDs, text, transcript, audio, device or user labels are exported. Prometheus evaluates service conditions, but its installation has no Alertmanager route; wire equivalent actionable rules into the existing Grafana email policy and test one firing/resolution before completing the monitoring item. |
 | 2026-10-12 | M8 alert delivery and exporter credential rotation | Provisioned Grafana rule `homelab-aster-voice-service` to bridge firing `AsterVoice*` Prometheus conditions, with alert name/severity labels, into the existing HomeLab email policy. A temporary `AsterVoiceNotificationTest` reached Prometheus firing state and Grafana's local notifier with no notifier/SMTP errors; the rule was then removed, the five-rule production file passed `promtool`, the synthetic series disappeared and Grafana retained no active instance. The Proxmox exporter credential exposed during inspection was rotated with overlap: the first replacement failed only an over-specific validation string and automatically restored/revoked itself; the corrected replacement proved the Proxmox node up before the old token was revoked. Only `observability-m8` remains and both `proxmox` and `aster-voice` targets report `up=1`. | Monitoring/alerting item complete. Repeated renderer errors, p95 latency, persistent interactive queue/saturation and target loss are actionable; single cancellations remain signal-only. No service secret is recorded in Git or this evidence. |
 | 2026-10-12 | M8 backup, isolated restore and recovery correction | Created a fresh running-guest snapshot, ran the established TrueNAS pull and proved both 4.04 GB copies identical. Restored it to temporary VMID 9116 with no network interface or boot enablement; critical service source, unit, model, voice and protected-environment hashes matched production. The isolated local-renderer start exposed deployment drift: Git's `KokoroRendererPool.healthy()` existed but the guest copy predated it, so local recovery rendered but `/health` raised. Added an explicit regression assertion, passed four tests locally and in the pinned runtime, checkpointed/deployed the Git copy to production and the restore, and returned both health endpoints to the exact approved identity. The isolated guest then produced a valid 97,290-byte 24 kHz WAV and non-empty STT result in 2.038 seconds without retaining audio/transcript. Production Doctor remained all green; VMID 9116 and staging were removed. A final post-fix snapshot `vzdump-lxc-116-2026_10_12-10_54_36.tar.zst` was mirrored and both copies hash to `3ddf410e47f872a7982f64629617fbcc27489b498d159b2b59ce43bd40fe2925`; direct archive extraction proves the corrected runtime matches live. | Backup/recovery item complete. The first isolated failure was fail-closed and production-safe, and it repaired a real fallback-health gap before graduation. The earlier pre-fix archive remains under normal retention rather than being deleted ad hoc. |
+| 2026-10-12 | M8 NetBox, human wiki and derived mirror reconciliation | Verified live LXC 116 resources/MAC/IP/VLAN and VM103 `.20.11` plus observability `.20.31` independently. After a NetBox database checkpoint, idempotently recorded canonical 9131, legacy 9130 and Wyoming 10300 services; the Wyoming description names the exact HA consumer. Published `/wiki/services/aster-voice-service/` and enrolled it as reviewed local source `aster-voice-service`. The normal full refresh quarantined eight unrelated changing upstreams and published nothing; a bounded rerun preserved all 30 accepted inputs byte-for-byte and accepted only the reviewed source. Pipeline 1.5.0 double-built and verified 1,810 entries across 26 source directories, accepted-input `d5e5311fa84c7946bfe0f4cedbbe36657b1872c79450cc9228a3a30c62e6724a` and content `7bd9e61fd4d522f38d80f7e82157cfd8dae8189a31c066c1fe70f793767e3a24`. | NetBox, human wiki and derived-mirror items complete. Permission drift in the wiki upload and last-good paths was repaired to the intended service identities; parent write access used for the atomic mirror build was removed immediately afterward. |
+| 2026-10-12 | M8 Aster snapshot activation | Built twice from HomeLab `a27da00`, reference `e411960` and mirror `7bd9e61f`; both 1,839-source archives matched SHA-256 `94f87e3879a4bf749e299e8676de758191e2e04743cefdb2bfae4b6f34e5ea37`. Staging proved exact provenance and 14 source-located voice entries. The first readiness probe incorrectly used loopback; it failed safely and automatically restored the prior directory. The corrected private-bind activation passed health and exact provenance with `root:aster` 0550/0440 modes. | Snapshot item complete. `/var/lib/aster/knowledge.pre-voice-20261012` retains the prior active generation; no inference, network, model or credential changed. |
 
 ## Close-out
 

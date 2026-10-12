@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-12 — Aster voice operations and systems-of-record close-out
+
+- Added model-aware Doctor synthesis checks, privacy-bounded service metrics,
+  Prometheus/Grafana alert delivery and retained Beszel host ownership.
+- Proved a complete network-isolated LXC 116 restore and final byte-identical
+  Proxmox/TrueNAS archive after correcting one deployed health-method drift.
+- Reconciled NetBox TCP services 9130/9131/10300, published the private human
+  Aster Voice Service guide, and accepted a deterministic 1,810-entry derived
+  mirror with source-located provenance.
+- Updated speech implementation, architecture, Companion recovery and project
+  portfolio records to distinguish canonical Kokoro from the retained Piper path.
+
 ## 2026-10-11 — First native OpenVINO trial
 
 - Verified all 31 isolated artifacts and explicit B60 OpenCL execution; native

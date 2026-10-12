@@ -1,7 +1,11 @@
 # Aster Speech
 
-CPU Whisper STT and Piper TTS for Aster Companion. Production runs in LXC 116,
-`192.168.70.14:9130`, exposed under `https://aster.elliottrook.com/voice/`.
+The network-level Aster speech implementation. Production runs in LXC 116 and
+uses one canonical Kokoro `bm_daniel` voice (`en-gb`, speed `0.95`) for
+interactive and batch consumers. The canonical API binds
+`192.168.70.14:9131`; Home Assistant uses private Wyoming TCP 10300. The
+authenticated Piper/STT API on 9130 remains a migration/rollback path and the
+current Companion transcription endpoint.
 See [operator guide](../../docs/runbooks/Aster-Companion.md) for recovery and
 [project evidence](../../docs/projects/completed%20projects/Aster-Companion-App.md) for acceptance.
 
@@ -11,9 +15,10 @@ See [operator guide](../../docs/runbooks/Aster-Companion.md) for recovery and
 - Both speech routes require the existing dedicated key or a valid Companion
   JWT with matching signature, issuer, audience and expiry.
 
-`health_check.py` is a read-only, credential-free probe for liveness, HTTPS
-routing, OIDC application discovery and JWKS reachability. Doctor invokes it
-inside the speech guest. It does not replace a real user-login test.
+`health_check.py` validates both HTTP services, exact canonical
+voice/model/policy/STT identity, Wyoming, HTTPS/OIDC/JWKS and a fixed
+authenticated synthesis canary. It discards the bounded WAV and emits no speech
+content. Doctor invokes it inside the guest; it does not replace a user-login test.
 
 The service runs as `aster-speech` with the checked-in systemd unit. The real
 `/etc/aster-speech/speech.env` is `root:aster-speech`, mode 0640. The example
@@ -66,14 +71,13 @@ normalized expected phrase. Wyoming STT then logs only latency, byte count and
 `validation_match=true|false`; it never logs the expected digest or transcript.
 Remove the setting and restart the candidate immediately after the test.
 
-`voice_candidate.py` is the repository-only M2 core. It owns the canonical
+`voice_candidate.py` is the canonical scheduler core. It owns the canonical
 speech normalization and semantic-unit policy plus the bounded two-worker
 scheduler. Without a separate batch renderer, both workers serve interactive
 work and only worker zero may serve the lower-priority batch queue. When an
 isolated batch renderer is configured, a third worker owns that backend and
-both interactive workers remain dedicated to latency-sensitive speech. This
-module is not production wiring and must remain side-by-side until the HTTP and
-Wyoming adapters, real Kokoro renderers and LXC 116 gates pass.
+both interactive workers remain dedicated to latency-sensitive speech. The
+HTTP and Wyoming adapters use this same policy and scheduler.
 
 `voice_protocol.py` defines the dependency-free `AVS1` streaming frame format:
 a bounded JSON metadata header followed by bounded PCM payload bytes. Audio
@@ -97,10 +101,9 @@ The listening-approved deterministic acknowledgement, `There, that's done.`,
 is rendered once during startup and cached as PCM. Callers may request it only
 after an action reports success; caching must never become speculative speech.
 
-`aster_voice_candidate.py` and `systemd/aster-voice-candidate.service` are the
-side-by-side candidate application and unit. They bind port 9131 and are not
-referenced by the accepted production unit. Do not install or enable them until
-the M3 backup, dependency, authentication and rollback gates are approved.
+`aster_voice_candidate.py` and `systemd/aster-voice-candidate.service` retain
+their staged names but provide the active canonical API on port 9131. The
+legacy 9130 service remains separately active for rollback and Companion STT.
 The candidate explicitly initializes the existing Whisper model because its
 separate FastAPI lifecycle does not execute the legacy application's startup
 hook. Direct pins are in `requirements-candidate.txt`; the exact added Kokoro
@@ -119,28 +122,26 @@ mono 24 kHz/16-bit output before returning PCM to the existing scheduler and
 caches only the already-approved acknowledgement. Neither request JSON nor a
 caller can select the renderer URL, voice, speed or backend.
 
-The candidate units are `aster-kokopop-candidate.service` and
+The interactive renderer units are `aster-kokopop-candidate.service` and
 `aster-vulkan-renderer-bridge.service`. The bridge environment example contains
 settings only; the real shared renderer key must be independently installed as
 root-owned mode 0640 files readable by the `ollama` account in LXC 110 and the
-`aster-speech` account in LXC 116. Keep both units disabled until the private
-listener, refusal, cancellation, contention and rollback gates pass.
+`aster-speech` account in LXC 116. The accepted deployment keeps these units
+enabled; protected credentials remain outside Git.
 
-The preferred isolated-GPU candidate is now the TrueNAS Arc A380. Deployment
+The selected isolated interactive GPU is the TrueNAS Arc A380. Deployment
 files under `truenas/` build the exact pinned Kokopop revision, mount the
 hash-verified model and bearer key read-only, keep Kokopop on an internal Docker
 network, and publish only the authenticated bridge on the TrueNAS Servers-VLAN
 address. `renderer.env.example` contains paths and the host render-group GID,
-not secrets. Do not enable this stack or route LXC 116 to it until the narrow
-LXC 116-to-TrueNAS firewall tuple and rollback have been approved and tested.
-The approved canary tuple is only `192.168.70.14` to
+not secrets. The exact private tuple is only `192.168.70.14` to
 `192.168.20.40:9132/TCP`; Kokopop itself remains internal to Docker. The
-candidate service on LXC 116 may use this path while production port 9130
-continues to use the retained renderer until listening and load gates pass.
+canonical service on LXC 116 uses this path while port 9130 remains available.
 
-The isolated News candidate uses `aster-kokopop-news.service` plus
+The isolated News renderer uses `aster-kokopop-news.service` plus
 `aster-batch-renderer-bridge.service` on LXC 114. Kokopop is loopback-only;
 only the authenticated fixed-policy bridge binds `192.168.70.13:9132`. LXC 116
 uses a renderer credential distinct from the News caller credential. Both LXC
-114 units and the LXC 116 candidate remain boot-disabled until migration and
-rollback gates are complete.
+114 units and the LXC 116 canonical service are boot-enabled after migration,
+failure/recovery and rollback gates passed. News retains local mode as its
+immediate application-level rollback.

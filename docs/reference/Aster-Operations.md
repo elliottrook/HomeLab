@@ -250,9 +250,9 @@ first scores the validated per-source directory index, then ranks claims within
 the selected sources; a missing, stale, malformed or inconclusive directory
 index fails back to flat claim ranking. Directory abstracts remain derived
 navigation hints, never an authority source. The accepted mirror content hash
-is `e87cd84f6fbbe0c04a86c7634dcac104161748e93348549a89bf3a2b8ae022f8` and
+is `7bd9e61fd4d522f38d80f7e82157cfd8dae8189a31c066c1fe70f793767e3a24` and
 the accepted deterministic Aster archive SHA-256 is
-`de622e83ed8ec100a0a11066cfe810ec909b4495c1473d293058070374549747`.
+`94f87e3879a4bf749e299e8676de758191e2e04743cefdb2bfae4b6f34e5ea37`.
 
 LXC 113 runs `aster-wiki-collector.timer` daily and
 `aster-wiki-corpus-health.timer` monthly. HomeLab Doctor checks the intake,
@@ -541,13 +541,14 @@ These figures are single-user measurements. Inference intentionally has one
 slot, so simultaneous requests queue instead of competing for the B60's memory.
 
 
-## Companion speech operations (verified 2026-09-23)
+## Canonical Aster speech operations (verified 2026-10-12)
 
 Aster Companion's iPhone client is `/companion` on `aster.elliottrook.com`.
-The separate STT/TTS service runs on LXC 116 (`192.168.70.14:9130`) behind
-NPM's `/voice/` location. It accepts the Companion Authentik JWT or its dedicated
-service key. Those two authentication paths require separate validation:
-service-key smoke tests do not prove Companion login works.
+LXC 116 is the network-level Aster Voice Service. Its canonical Kokoro
+`bm_daniel` API binds `192.168.70.14:9131`, Home Assistant uses Wyoming TCP
+10300, and authenticated 9130 Piper/STT remains for migration rollback and
+current Companion transcription. Companion JWT and dedicated service-key
+authentication require separate validation: one does not prove the other.
 
 Speech must reach `https://auth.elliottrook.com/application/o/aster-companion/jwks/`
 through NPM `192.168.50.23:443`. OPNsense permits that exact source/destination
@@ -605,8 +606,10 @@ use a protected restore-only environment to bind to loopback and select local
 ONNX rendering. Doctor checks legacy/canonical speech, approved identity,
 synthesis, HA Wyoming, HTTPS ingress, OIDC, JWKS and both backup ages. Homepage has
 an additive Aster Companion tile; the legacy Aster Agent tile is retained.
-NetBox VM/interface/IP IDs are 16/16/30. The wiki guide is published at
-`/wiki/services/aster-companion/` and retains repository provenance.
+NetBox VM/interface/IP IDs are 16/16/30 and service records cover TCP 9130,
+9131 and 10300. The voice guide is published at
+`/wiki/services/aster-voice-service/`; the Companion guide remains at
+`/wiki/services/aster-companion/`.
 
 Capacity measurement: simultaneous synthetic Companion/news requests took
 13.816s/8.905s; speech TTS 1.68s and STT WAV/MP4 0.78s/0.75s. One cold Media
