@@ -2539,22 +2539,87 @@ async function playSpeechBlob(blob){{
   }}
 }}
 
+function pcm16WavBlob(pcm, sampleRate){{
+  if(!(pcm instanceof Uint8Array) || pcm.byteLength % 2 || sampleRate < 8000 || sampleRate > 48000) throw new Error('Invalid streamed audio.');
+  const wav = new ArrayBuffer(44 + pcm.byteLength);
+  const view = new DataView(wav);
+  const text = (offset, value) => [...value].forEach((c, i) => view.setUint8(offset + i, c.charCodeAt(0)));
+  text(0, 'RIFF'); view.setUint32(4, 36 + pcm.byteLength, true); text(8, 'WAVE'); text(12, 'fmt ');
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true); view.setUint16(34, 16, true); text(36, 'data');
+  view.setUint32(40, pcm.byteLength, true); new Uint8Array(wav, 44).set(pcm);
+  return new Blob([wav], {{type:'audio/wav'}});
+}}
+
+async function* streamSpeechBlobs(text, token, signal, requestId){{
+  const response = await fetch('/voice/v2/tts/stream', {{
+    method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}},
+    body:JSON.stringify({{text, request_id:requestId}}), signal
+  }});
+  if(!response.ok){{
+    const detail = await response.json().catch(() => ({{}}));
+    throw new Error(typeof detail.detail === 'string' ? detail.detail : 'Speech request failed (HTTP ' + response.status + ').');
+  }}
+  if(!response.body) throw new Error('Streaming speech is not supported by this browser.');
+  const reader = response.body.getReader();
+  let pending = new Uint8Array();
+  let ended = false;
+  while(true){{
+    const {{done, value}} = await reader.read();
+    if(value?.byteLength){{
+      const joined = new Uint8Array(pending.byteLength + value.byteLength);
+      joined.set(pending); joined.set(value, pending.byteLength); pending = joined;
+    }}
+    let offset = 0;
+    while(pending.byteLength - offset >= 12){{
+      if(String.fromCharCode(...pending.slice(offset, offset + 4)) !== 'AVS1') throw new Error('Invalid streamed speech framing.');
+      const sizes = new DataView(pending.buffer, pending.byteOffset + offset + 4, 8);
+      const headerSize = sizes.getUint32(0); const payloadSize = sizes.getUint32(4);
+      if(headerSize > 4096 || payloadSize > 2097152) throw new Error('Streamed speech frame exceeds limits.');
+      const frameSize = 12 + headerSize + payloadSize;
+      if(pending.byteLength - offset < frameSize) break;
+      let metadata;
+      try{{ metadata = JSON.parse(new TextDecoder().decode(pending.slice(offset + 12, offset + 12 + headerSize))) }}
+      catch{{ throw new Error('Invalid streamed speech metadata.') }}
+      const payload = pending.slice(offset + 12 + headerSize, offset + frameSize);
+      offset += frameSize;
+      if(metadata.type === 'audio'){{
+        if(metadata.sample_format !== 'pcm_s16le' || metadata.channels !== 1) throw new Error('Unsupported streamed audio format.');
+        yield pcm16WavBlob(payload, metadata.sample_rate);
+      }}else if(metadata.type === 'end'){{ ended = true }}
+      else if(metadata.type === 'cancelled'){{ return }}
+      else if(metadata.type === 'error') throw new Error('Speech synthesis failed.');
+      else throw new Error('Unknown streamed speech frame.');
+    }}
+    pending = pending.slice(offset);
+    if(done) break;
+  }}
+  if(pending.byteLength || !ended) throw new Error('Streamed speech ended unexpectedly.');
+}}
+
 async function speakReply(text){{
   const controller = new AbortController();
   speechAbort = controller;
   stopSpeech.hidden = false;
+  let activeRequestId = null;
+  let token = null;
   try{{
     for(const chunk of speechChunks(text)){{
       if(controller.signal.aborted) break;
       voiceStatus.textContent = 'Preparing speech…';
-      const token = await validAccessToken();
+      token = await validAccessToken();
       if(!token) throw new Error('Please sign in again to hear the reply.');
-      const blob = await voiceFetch('/voice/v1/tts', {{method:'POST', headers:{{'Content-Type':'application/json','Authorization':'Bearer '+token}}, body:JSON.stringify({{text:chunk}}), signal:controller.signal}});
-      if(controller.signal.aborted || !await playSpeechBlob(blob)) break;
+      activeRequestId = crypto.randomUUID().replaceAll('-', '');
+      for await(const blob of streamSpeechBlobs(chunk, token, controller.signal, activeRequestId)){{
+        if(controller.signal.aborted || !await playSpeechBlob(blob)){{ controller.abort(); break }}
+      }}
+      if(!controller.signal.aborted) activeRequestId = null;
     }}
   }}catch(e){{
     if(!controller.signal.aborted) document.querySelector('#chatErr').textContent = e.message;
   }}finally{{
+    if(activeRequestId && token) fetch('/voice/v2/tts/' + encodeURIComponent(activeRequestId), {{method:'DELETE',headers:{{'Authorization':'Bearer '+token}},keepalive:true}}).catch(()=>{{}});
     speechAbort = null;
     stopSpeech.hidden = true;
     orb.classList.remove('speaking');
