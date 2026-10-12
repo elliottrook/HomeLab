@@ -2700,5 +2700,7 @@ The existing local ARR reader could raise on unhashable JSON fields and could
 include a missing report's path in an assistant-visible error. A local-only
 type and error-projection fix now returns `unavailable` for those cases; 110
 reader/ARR/gateway tests pass in the established dependency environment. The
-installed reader hash differs from the candidate and was not replaced. See
-the [boundary record](evidence/ARR-report-malformed-input-boundary-2026-10-11.md).
+installed reader was reconciled and replaced under exact hash preconditions
+with a retained rollback copy. Aster health and the current six-service report
+passed source-local postchecks; no model turn or repair ran. See the
+[boundary record](evidence/ARR-report-malformed-input-boundary-2026-10-11.md).

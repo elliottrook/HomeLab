@@ -48,8 +48,10 @@ does not turn that question into a Codex sysadmin role or grant access to a
 repair candidate.
 The [malformed-input review](evidence/ARR-report-malformed-input-boundary-2026-10-11.md)
 also found two local fail-closed gaps and a path-bearing OS error in that
-reader. A narrow local fix passes 110 focused/integration tests but is not
-deployed; the live file differs and must be reconciled before promotion.
+reader. The narrow fix passed 110 focused/integration tests, was reconciled
+against the installed file and deployed with an exact-hash checkpoint. Aster
+health and the six-service sanitized report passed postchecks. This is reader
+hardening only; it is not a Codex diagnostic or a new permission.
 
 An [offline D3 view candidate](evidence/D3-manual-uncertain-result-2026-10-10.md)
 now checks the recorded request after an uncertain native bridge result and
