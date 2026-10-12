@@ -246,13 +246,46 @@ and verified in LXC114.
 ### Read-only integration discovery — 2026-10-12
 
 - From LXC126 on VLAN20, TCP connection checks to the existing inference
-  endpoint `192.168.70.12:11435` and speech endpoint `192.168.70.16:18131`
+  endpoint `192.168.70.12:11435` and speech endpoint `192.168.70.14:9131`
   timed out. This confirms the production guest does not yet have the required
   cross-VLAN service path.
 - No route, firewall, DNS, NPM, Authentik, Tailscale or backup mutation was
   made. The next implementation boundary therefore needs an explicit narrow
   network/ingress and backup authorization before production services can be
   enabled.
+
+### Production service-path gate — 2026-10-12
+
+- Protected OPNsense checkpoint: `/conf/backup/config-news-prod-network-before-20261012.xml`.
+- Added only two Servers-interface TCP permits, both source-scoped to
+  `192.168.20.12`: inference `192.168.70.12:11435` (pf label
+  `aa80a1fc-b10c-4be9-aa08-781b8af2b2aa`) and speech
+  `192.168.70.14:9131` (pf label `e263cae1-41c2-4ef1-b556-6626d3dada52`).
+  Their order is before the existing VLAN20 RFC1918 deny; no broad VLAN route
+  was opened.
+- From LXC126, both TCP connections now pass. The dedicated production
+  inference key also returns HTTP 200 from the llama health endpoint. The lab
+  LXC114 path and existing speech rules remain unchanged.
+
+### Private ingress and DNS handoff — 2026-10-12
+
+- NPM database checkpoint: `/opt/nginx-proxy-manager/data/database.sqlite.before-news-prod-20261012`.
+  A new host row for `news.elliottrook.com` targets `192.168.20.12:8080`,
+  uses the existing wildcard certificate 8 and clones the established
+  Authentik forward-auth configuration. NPM must still receive the documented
+  API `PUT` regeneration step before this host is considered active; direct
+  generated-config editing is prohibited.
+- OPNsense checkpoint:
+  `/conf/backup/config-news-prod-ingress-before-20261012.xml`. The only new
+  ingress permit is NPM `192.168.50.23` to LXC126 `192.168.20.12:8080`, with
+  active pf label `7ced83a2-f0e3-4dcb-a84f-8ae2e666c26b`.
+- `news.elliottrook.com -> 192.168.50.23` was added and verified on the
+  primary Pi-hole, secondary TrueNAS Pi-hole and OPNsense DNS model. The
+  production UI was briefly started for the NPM backend health check and is
+  stopped again; production timers remain disabled.
+- Remaining handoff: obtain a short-lived NPM API token or complete an
+  interactive NPM admin login so the host row can be regenerated, then run
+  NPM syntax, certificate-valid HTTPS and Authentik redirect checks.
 
 ### Readiness and dependency decisions
 
