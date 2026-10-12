@@ -283,9 +283,29 @@ and verified in LXC114.
   primary Pi-hole, secondary TrueNAS Pi-hole and OPNsense DNS model. The
   production UI was briefly started for the NPM backend health check and is
   stopped again; production timers remain disabled.
-- Remaining handoff: obtain a short-lived NPM API token or complete an
-  interactive NPM admin login so the host row can be regenerated, then run
-  NPM syntax, certificate-valid HTTPS and Authentik redirect checks.
+- The NPM host regeneration, syntax check, certificate check and Authentik
+  redirect gate are complete; production remains stopped pending beta,
+  backup/restore and acceptance validation.
+
+### Authentik private ingress completion — 2026-10-12
+
+- Authentik application `News Digest` and its proxy provider were created for
+  `https://news.elliottrook.com` with upstream `http://192.168.20.12:8080`.
+  The provider was changed to `Forward auth (single application)`, which is
+  the mode required by the NPM `auth_request` integration; upstream TLS
+  validation is disabled because the production UI uses HTTP on the private
+  VLAN.
+- Provider `Provider for News Digest` (ID 56) was added to the active
+  `authentik Embedded Outpost`. The Authentik server was restarted once to
+  reload the saved outpost provider map; existing providers were left
+  unchanged.
+- The NPM-generated `/data/nginx/proxy_host/41.conf` passes `nginx -t`, uses
+  the wildcard certificate 8, and contains the Authentik forward-auth block.
+  A direct outpost check returns HTTP 401 for an unauthenticated News request,
+  and the full NPM HTTPS check returns HTTP 302 to the Authentik sign-in flow.
+- The production UI was started only for the check and is stopped again;
+  production ingest and digest timers remain disabled. The private ingress
+  gate is therefore complete without enabling scheduled production work.
 
 ### Readiness and dependency decisions
 
