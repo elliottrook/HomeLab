@@ -81,6 +81,10 @@ stale cached key. It also adds a network round-trip to each approval-view call;
 latency, polling load and Authentik availability must be measured before
 deployment. The existing Aster gateway's cache setting was not changed by
 this candidate.
+One read-only GET from LXC 104 to that provider's JWKS URL returned HTTP 200
+in 0.412 seconds, with the response body discarded. This proves reachability
+at that moment only; it is not a latency distribution, sustained-load test or
+proof of issuer availability during an outage.
 
 The tests prove the narrow Python and local-socket contract, **not** process isolation or
 deployment safety. In particular, no live passkey-specific ACR has been
@@ -113,13 +117,35 @@ deployment/rollback manifest and obtain its own change approval. Do not
 remove `aster` from the current socket group until the replacement path is
 ready; do not claim Stage2 or connected Codex tools from this offline pass.
 
-The proposed rollout must be atomic from the client's point of view: stage the
-new code and account without routing traffic, prove a private listener and
-socket reachability, route only the approval path to it, then remove Aster's
-approval-socket access and verify denial. If any later check fails, disable
-approval mutations and retain the human SSH recovery path; do **not** restore
-the old AI-facing approver privilege merely to make the UI work. Exact UID,
-listener address, Nginx Proxy Manager location, unit files, socket directory
-ownership, current Authentik claim shape and rollback checkpoints remain
-**UNKNOWN / REQUIRES VERIFICATION** for an install manifest. The code and this
-sequence are not deployment authorization.
+The safest proposed cutover accepts a **short approval outage** rather than a
+period where both Aster and the new verifier can authorize. Stage the code,
+account and private listener without routing traffic. Then stop only the
+approval service, move its socket to an approval-owned runtime directory,
+change its accepted peer UID and socket group to the dedicated verifier, and
+restart it. Prove that `aster` is denied and the verifier can connect **before**
+switching the private same-origin approval route. Finally remove Aster's stale
+approver-group membership and restart Aster when safe so its live groups also
+drop that privilege. If any check fails, keep approval mutations unavailable
+and retain the human SSH recovery path; do **not** restore the old AI-facing
+approver privilege merely to make the UI work. Aster chat and household paths
+must remain healthy throughout. This ordering has not been tested or approved.
+
+A read-only topology recheck found no `aster-approval` account, the current
+`hlabroker-approvers` group still contains `aster`, and LXC 104 has no listener
+on proposed private port 9121. Nginx Proxy Manager LXC 107's current
+`aster.elliottrook.com` host still has `/voice/` and default `/` locations,
+with default upstream `192.168.70.10:9120`; it has no approval-specific
+location. These are observations, not proof that port 9121 is allowed through
+the firewall or that NPM can route it. Exact UID, internal firewall rule,
+listener address, NPM location, unit files, socket-directory ownership,
+current Authentik claim shape and rollback checkpoints remain **UNKNOWN /
+REQUIRES VERIFICATION** for an install manifest. The code and sequence are not
+deployment authorization.
+
+The first release, if chosen, would be **Yellow-only**: an explicitly entitled
+signed owner could review and approve Yellow requests, while Red and management
+mutations remain unavailable through Companion because the production-shaped
+factory has no passkey mapping. This is a narrower usable service, not M1
+Stage2 completion or permission to connect Codex tools. The user-visible loss
+or preservation of any current Companion management workflow must be checked
+before accepting that tradeoff.
