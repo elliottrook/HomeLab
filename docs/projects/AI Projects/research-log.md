@@ -2682,3 +2682,14 @@ read-only diagnostic possible without first deploying a new Companion approval
 service, but that is an architectural hypothesis and would require an explicit
 M1 gate amendment, privacy review and live least-privilege proof. No agent,
 grant, request or tool changed. See the [admission assessment](evidence/M1-Green-only-admission-assessment-2026-10-11.md).
+
+### 2026-10-11 — Aggregate Doctor diagnostic value check
+
+A read-only source-local call to the installed adapter, using the fixed saved
+report as the `aster` account, returned `fail` with 32 checks and no service
+identity. Only fixed aggregate fields were printed; no check text, report
+contents, model call or broker request was involved. The installed adapter is
+older than the tracked file-boundary-hardened version, so repository code was
+not mistaken for live deployment. This fails the minimum value threshold for
+an aggregate-only connected Codex diagnostic; no worker or grant was created.
+See the [value check](evidence/D4-live-aggregate-value-check-2026-10-11.md).

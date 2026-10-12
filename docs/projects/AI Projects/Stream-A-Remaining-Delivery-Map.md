@@ -98,6 +98,12 @@ finds a possible narrower route to one fixed read-only diagnostic, but the
 existing `hlabagent` has broader live capabilities and cannot be reused for
 Codex. A distinct least-privilege worker and an explicit M1 gate amendment
 would be required; neither is authorized or deployed.
+The [live aggregate value check](evidence/D4-live-aggregate-value-check-2026-10-11.md)
+found a fresh saved Doctor observation of `fail` across 32 checks but no
+failing-check identity. That fails the minimum usefulness threshold for an
+aggregate-only Codex diagnostic. Do not create a Green worker or grant merely
+for that aggregate; require a privacy-reviewed, named diagnostic output and
+held-out value evidence before revisiting the M1 gate.
 An [approval-socket lifecycle check](evidence/M1-approval-socket-lifecycle-2026-10-10.md)
 also found that a main-broker restart had removed the independent approval
 listener's pathname while the service still reported active. The listener was
