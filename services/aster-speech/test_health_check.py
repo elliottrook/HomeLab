@@ -14,13 +14,16 @@ class HealthCheckTests(unittest.TestCase):
     def extra_responses(self):
         return [self.response(b'{"status":"ok","service":"aster-voice-candidate","voice":"aster-bm-daniel","voice_model":"kokoro-v1.0","voice_policy_version":"1","stt_model":"aster-base-en"}'),
                 self.response(b'{"status":"ok"}'), self.response(
-            b'{"issuer":"https://auth.elliottrook.com/application/o/aster-companion/"}')]
+            b'{"issuer":"https://auth.elliottrook.com/application/o/aster-companion/"}'),
+                self.response(b'RIFF' + b'\x00' * 4 + b'WAVE' + b'\x00' * 64)]
 
     def run_check(self, responses):
         connection = MagicMock()
         connection.__enter__.return_value = connection
         with patch('health_check.urllib.request.urlopen', side_effect=responses), patch(
             'health_check.socket.create_connection', return_value=connection
+        ), patch(
+            'health_check.candidate_api_key', return_value='secret'
         ):
             return health_check.check()
 
@@ -31,7 +34,8 @@ class HealthCheckTests(unittest.TestCase):
         ])
         self.assertEqual(result, {
             'speech':'ok', 'canonical_speech':'ok', 'authentik_jwks':'ok',
-            'speech_https':'ok', 'companion_oidc':'ok', 'home_assistant_wyoming':'ok'
+            'speech_https':'ok', 'companion_oidc':'ok', 'home_assistant_wyoming':'ok',
+            'canonical_synthesis':'ok'
         })
 
     def test_jwks_timeout_is_not_hidden_by_healthy_service(self):
@@ -65,3 +69,24 @@ class HealthCheckTests(unittest.TestCase):
         ]), patch('health_check.socket.create_connection', side_effect=TimeoutError('private')):
             result = health_check.check()
         self.assertEqual(result['home_assistant_wyoming'], 'TimeoutError')
+
+    def test_invalid_synthesis_audio_is_unhealthy(self):
+        responses = [
+            self.response(b'{"status":"ok"}'), self.extra_responses()[0],
+            self.response(b'{"keys":[{"kty":"RSA"}]}'), *self.extra_responses()[1:3],
+            self.response(b'not a wave'),
+        ]
+        self.assertEqual(self.run_check(responses)['canonical_synthesis'], 'invalid_response')
+
+    def test_missing_canary_credential_is_sanitized(self):
+        connection = MagicMock()
+        connection.__enter__.return_value = connection
+        responses = [
+            self.response(b'{"status":"ok"}'), self.extra_responses()[0],
+            self.response(b'{"keys":[{"kty":"RSA"}]}'), *self.extra_responses()[1:3],
+        ]
+        with patch('health_check.urllib.request.urlopen', side_effect=responses), patch(
+            'health_check.socket.create_connection', return_value=connection
+        ), patch('health_check.candidate_api_key', return_value=''):
+            result = health_check.check()
+        self.assertEqual(result['canonical_synthesis'], 'RuntimeError')

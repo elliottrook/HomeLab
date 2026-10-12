@@ -3,6 +3,7 @@
 import json
 import socket
 import urllib.request
+from pathlib import Path
 
 
 EXPECTED_CANONICAL = {
@@ -13,6 +14,16 @@ EXPECTED_CANONICAL = {
     "voice_policy_version": "1",
     "stt_model": "aster-base-en",
 }
+CANDIDATE_ENV = Path("/etc/aster-speech/voice-candidate.env")
+CANARY_TEXT = "Aster health check."
+
+
+def candidate_api_key():
+    for line in CANDIDATE_ENV.read_text().splitlines():
+        name, separator, value = line.partition("=")
+        if separator and name.strip() == "ASTER_SPEECH_API_KEY":
+            return value.strip().strip('"').strip("'")
+    return ""
 
 
 def check():
@@ -43,6 +54,30 @@ def check():
             results["home_assistant_wyoming"] = "ok"
     except Exception as exc:
         results["home_assistant_wyoming"] = type(exc).__name__
+    try:
+        key = candidate_api_key()
+        if not key:
+            raise RuntimeError("candidate credential is not configured")
+        request = urllib.request.Request(
+            "http://192.168.70.14:9131/v1/tts",
+            data=json.dumps({"text": CANARY_TEXT}).encode(),
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=5) as response:
+            audio = response.read(2 * 1024 * 1024 + 1)
+            valid = (
+                response.status == 200
+                and 44 < len(audio) <= 2 * 1024 * 1024
+                and audio[:4] == b"RIFF"
+                and audio[8:12] == b"WAVE"
+            )
+            results["canonical_synthesis"] = "ok" if valid else "invalid_response"
+    except Exception as exc:
+        results["canonical_synthesis"] = type(exc).__name__
     return results
 
 

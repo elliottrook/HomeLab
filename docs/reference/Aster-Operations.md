@@ -558,11 +558,13 @@ check this dependency and authentication error classes before tuning Whisper.
 `python3 /opt/aster-speech/health_check.py` on LXC 116 checks the legacy API,
 canonical API, exact approved voice/model/policy/STT identity, Home Assistant
 Wyoming listener, HTTPS ingress, Companion OIDC discovery and JWKS reachability.
-It emits sanitized statuses and exits nonzero on failure. HomeLab Doctor invokes
-the same probe through Proxmox. After a candidate restart, allow approximately
-15 seconds for model warm-up before treating an initial refusal as a fault.
-Speech data is temporary; normal logs contain timing/size and error categories,
-not recordings or transcripts.
+It also submits the fixed phrase `Aster health check.` through the authenticated
+canonical API with a five-second timeout, accepts only a bounded RIFF/WAVE result
+and immediately discards its bytes. It emits sanitized statuses and exits nonzero
+on failure. HomeLab Doctor invokes the same probe through Proxmox. After a
+candidate restart, allow approximately 15 seconds for model warm-up before
+treating an initial refusal as a fault. Speech data is temporary; normal logs
+contain timing/size and error categories, not recordings or transcripts.
 
 Reload the phone page after a web deployment. Tap the orb to start/stop recording.
 The web UI reports Transcribing, Thinking and Preparing speech; if automatic
