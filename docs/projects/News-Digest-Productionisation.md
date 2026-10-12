@@ -193,13 +193,15 @@ and verified in LXC114.
   primary at `192.168.70.13/24`; no lab record was repointed.
 - The digest service is a oneshot chain: text generation followed by Kokoro
   audio narration. The API service is separate and serves on guest port 8080;
-  no production guest or private ingress has been created by this Stream A
-  work.
+  the production-shaped LXC126 exists but remains stopped, with no application
+  or private ingress enabled.
+- The local release source now includes `digest.py`, `summarize.py` and
+  `language_notes.py` with the accepted Qwen3.5 model identifier. The live
+  LXC114 helper paths remain unchanged until the beta artifact is tested.
 - The local artifact's nine non-Kokoro unit tests pass. The Kokoro test remains
-  blocked on the Mac-only missing `soundfile` dependency. The live guest also
-  contains `summarize.py` and `language_notes.py`, so the local release source
-  is incomplete until those helper paths are either imported into the artifact
-  or explicitly retired from the production contract.
+  blocked on the Mac-only missing `soundfile` dependency. The live guest still
+  retains the corresponding helper paths and stale Qwen3.8 labels until the
+  tested artifact is approved for deployment.
 
 ### Evidence captured
 
