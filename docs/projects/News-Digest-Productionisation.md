@@ -171,6 +171,11 @@ was performed.
   audio narration. The API service is separate and serves on guest port 8080;
   no production guest or private ingress has been created by this Stream A
   work.
+- The local artifact's nine non-Kokoro unit tests pass. The Kokoro test remains
+  blocked on the Mac-only missing `soundfile` dependency. The live guest also
+  contains `summarize.py` and `language_notes.py`, so the local release source
+  is incomplete until those helper paths are either imported into the artifact
+  or explicitly retired from the production contract.
 
 ### Evidence captured
 
