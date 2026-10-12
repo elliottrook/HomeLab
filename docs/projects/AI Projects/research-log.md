@@ -2735,3 +2735,13 @@ The Aster check stops claiming Vulkan/GPU offload from an active service and
 basic host state. Bash syntax and six related Doctor tests pass; a read-only
 live `stat` returned a numeric epoch. The script is not deployed or an
 always-on alert. See the [HA recovery record](evidence/HA-report-freshness-recovery-2026-10-11.md).
+
+### 2026-10-11 — Owner-signed Companion v16 installation checkpoint
+
+The local v16 bundle was owner-signed under the same designated requirement
+as installed v15, staged and verified. A verified v15 rollback copy and all
+15 completed Codex journal rows were preserved. One ordinary-mode v16 process
+is running with the expected installed hash and valid signature; no manual
+Codex turn was sent. The Mac locked before sign-in or Keychain prompt behavior
+could be observed, and no natural-refresh event has occurred yet. D3 routine
+release remains held. See the [installation checkpoint](evidence/D3-native-v16-installation-2026-10-11.md).

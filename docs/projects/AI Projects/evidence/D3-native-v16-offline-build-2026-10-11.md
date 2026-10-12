@@ -1,6 +1,6 @@
 # D3 native Companion version-16 offline build — 2026-10-11
 
-**Status: local candidate only.** Version 15 remains installed in ordinary mode. Version 16 was not registered with Launch Services, owner-signed, installed or launched; no Codex turn was sent. Routine manual handoff remains **HOLD**.
+**Historical pre-installation checkpoint.** This records the local candidate before its later owner signing and bounded ordinary-mode installation. See the [installation checkpoint](D3-native-v16-installation-2026-10-11.md) for current state. No Codex turn was sent. Routine manual handoff remains **HOLD**.
 
 ## Purpose and scope
 
