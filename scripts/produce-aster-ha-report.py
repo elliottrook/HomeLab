@@ -9,7 +9,8 @@ from pathlib import Path
 REPORT_PATH = Path(os.environ.get("ASTER_HA_REPORT_PATH", "/var/lib/aster-ha-report/latest.json"))
 
 def guest(command: list[str]) -> dict:
-    outer = json.loads(subprocess.run(["qm", "guest", "exec", "103", "--", "ha", "--raw-json", *command], check=True, capture_output=True, text=True).stdout)
+    # Cron does not inherit an interactive root shell's /usr/sbin PATH.
+    outer = json.loads(subprocess.run(["/usr/sbin/qm", "guest", "exec", "103", "--", "ha", "--raw-json", *command], check=True, capture_output=True, text=True).stdout)
     if outer.get("exitcode") != 0: raise RuntimeError("guest command failed")
     inner = json.loads(outer.get("out-data", ""))
     if inner.get("result") != "ok" or not isinstance(inner.get("data"), dict): raise RuntimeError("invalid guest response")

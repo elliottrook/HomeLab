@@ -52,6 +52,11 @@ reader. The narrow fix passed 110 focused/integration tests, was reconciled
 against the installed file and deployed with an exact-hash checkpoint. Aster
 health and the six-service sanitized report passed postchecks. This is reader
 hardening only; it is not a Codex diagnostic or a new permission.
+The completed Home Assistant advisor's saved report had become stale even
+though cron continued to invoke its producer. The [freshness recovery](evidence/HA-report-freshness-recovery-2026-10-11.md)
+pins a cron-PATH failure, a one-line absolute `qm` path repair, fresh delivery
+and reader hardening. This repairs the local report-backed status path; it does
+not add Home Assistant control authority or release Codex routing.
 
 An [offline D3 view candidate](evidence/D3-manual-uncertain-result-2026-10-10.md)
 now checks the recorded request after an uncertain native bridge result and

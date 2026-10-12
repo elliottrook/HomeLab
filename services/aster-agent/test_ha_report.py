@@ -42,3 +42,20 @@ class HomeAssistantReportTests(unittest.TestCase):
             self.assertEqual(get_ha_report(link, now=now)["status"], "unavailable")
             target.chmod(0o664)
             self.assertEqual(get_ha_report(target, now=now)["status"], "unavailable")
+
+    def test_missing_report_does_not_disclose_path(self):
+        now = datetime(2026, 9, 10, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "private-ha-report.json"
+            result = get_ha_report(path, now=now)
+        self.assertEqual(result["status"], "unavailable")
+        self.assertNotIn(path.name, result["error"])
+
+    def test_unhashable_status_fails_closed(self):
+        now = datetime(2026, 9, 10, tzinfo=timezone.utc)
+        for section in ("core", "supervisor"):
+            for malformed in ([], {}):
+                with self.subTest(section=section, malformed=malformed):
+                    report = self.report(now)
+                    report[section]["status"] = malformed
+                    self.assertEqual(self.read(report, now)["status"], "unavailable")

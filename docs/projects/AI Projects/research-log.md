@@ -2704,3 +2704,15 @@ installed reader was reconciled and replaced under exact hash preconditions
 with a retained rollback copy. Aster health and the current six-service report
 passed source-local postchecks; no model turn or repair ran. See the
 [boundary record](evidence/ARR-report-malformed-input-boundary-2026-10-11.md).
+
+### 2026-10-11 — Home Assistant report freshness recovered
+
+The saved HA report was over a month old despite an every-five-minute cron
+entry. A source-local restricted-PATH reproduction showed the producer's bare
+`qm` call fails before report creation; the candidate's `/usr/sbin/qm` call
+succeeded and delivered a fresh report under the same PATH. The host producer
+and LXC 104 reader were replaced separately under exact hash checkpoints; the
+old versions remain for recovery. Aster health and the fresh service-account
+read passed. The reader also now rejects malformed status and hides missing
+paths. No Home Assistant control or Codex capability was enabled. See the
+[recovery record](evidence/HA-report-freshness-recovery-2026-10-11.md).

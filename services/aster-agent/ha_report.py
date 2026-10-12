@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import stat
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,12 +24,16 @@ def unavailable(reason: str) -> dict[str, str]:
 
 def get_ha_report(path: Path, *, now: datetime | None = None, freshness_seconds: int = 900) -> dict[str, Any]:
     try:
-        status = path.lstat()
-        if not stat.S_ISREG(status.st_mode) or status.st_mode & 0o022 or status.st_size > MAX_REPORT_BYTES:
-            raise ValueError("unsafe report file")
-        report = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
-        return unavailable(f"Sanitized Home Assistant report unavailable: {exc}")
+        with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), "rb") as stream:
+            status = os.fstat(stream.fileno())
+            if not stat.S_ISREG(status.st_mode) or status.st_mode & 0o022 or status.st_size > MAX_REPORT_BYTES:
+                return unavailable("Sanitized Home Assistant report has an unsafe file")
+            raw = stream.read(MAX_REPORT_BYTES + 1)
+        if len(raw) > MAX_REPORT_BYTES:
+            return unavailable("Sanitized Home Assistant report has an unsafe file")
+        report = json.loads(raw.decode("utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return unavailable("Sanitized Home Assistant report unavailable")
     if not isinstance(report, dict) or set(report) != TOP_FIELDS or report.get("schema_version") != 1:
         return unavailable("Sanitized Home Assistant report has an invalid schema")
     try:
@@ -42,7 +47,8 @@ def get_ha_report(path: Path, *, now: datetime | None = None, freshness_seconds:
         if not isinstance(report[key], dict) or set(report[key]) != fields:
             return unavailable("Sanitized Home Assistant report has invalid fields")
     core, supervisor, backup, resolution = report["core"], report["supervisor"], report["backup"], report["resolution"]
-    if core["status"] not in {"healthy", "failed", "unknown"} or supervisor["status"] not in {"healthy", "failed", "unknown"}:
+    if (not isinstance(core["status"], str) or core["status"] not in {"healthy", "failed", "unknown"}
+            or not isinstance(supervisor["status"], str) or supervisor["status"] not in {"healthy", "failed", "unknown"}):
         return unavailable("Sanitized Home Assistant report has invalid status")
     for section in (core, supervisor):
         if not all(isinstance(section[k], str) and 1 <= len(section[k]) <= 32 for k in ("version", "latest_version")):

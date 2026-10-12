@@ -1,4 +1,4 @@
-import importlib.util, unittest
+import importlib.util, json, subprocess, unittest
 from pathlib import Path
 from unittest.mock import patch
 
@@ -6,6 +6,16 @@ SPEC = importlib.util.spec_from_file_location("ha_producer", Path(__file__).with
 MODULE = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(MODULE)
 
 class ProducerTests(unittest.TestCase):
+    @patch.object(MODULE.subprocess, "run")
+    def test_guest_uses_absolute_qm_path_for_cron(self, run):
+        run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0,
+            stdout=json.dumps({"exitcode": 0, "out-data": json.dumps({"result": "ok", "data": {}})}),
+        )
+        self.assertEqual(MODULE.guest(["core", "info"]), {})
+        self.assertEqual(run.call_args.args[0][:4],
+                         ["/usr/sbin/qm", "guest", "exec", "103"])
+
     @patch.object(MODULE, "guest")
     def test_build_is_aggregate_and_excludes_names(self, guest):
         guest.side_effect = [

@@ -8,6 +8,13 @@
 >
 > Completed: 2026-09-10
 
+**Current-state correction, 2026-10-11:** the five-minute report producer had
+stopped delivering fresh data because cron could not find bare `qm` under its
+restricted `PATH`. A bounded absolute-path fix restored manual delivery and
+the reader was hardened. The original 2026-09-10 graduation result remains
+historical evidence, not proof that live report freshness was continuous.
+See the [Stream A recovery record](../AI%20Projects/evidence/HA-report-freshness-recovery-2026-10-11.md).
+
 ## Purpose
 
 Graduate Aster into a source-aware, privacy-preserving Home Assistant advisor
