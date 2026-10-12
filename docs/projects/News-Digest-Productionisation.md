@@ -45,6 +45,19 @@ the project owns promotion evidence. Production must run a known V1 artifact
 with separate credentials and state, not the existing lab database by mount or
 network dependency.
 
+### Selected production placement — pending authorized creation
+
+The selected target is a new unprivileged Proxmox LXC `news-aggregator-prod`
+(VMID 126) on Servers VLAN 20 at `192.168.20.12/24`, gateway
+`192.168.20.1`. The existing lab LXC 114 remains at `192.168.70.13/24` until
+production acceptance. Read-only Servers-VLAN checks found no active ARP or
+ICMP response for `.12`; the address is not considered allocated until NetBox,
+OPNsense/DNS and the guest configuration are updated and rechecked in the same
+change window. VMID 126 is currently unused in the live Proxmox inventory.
+
+Creation, address allocation, firewall/DNS/NPM/Auth changes and any data or
+credential migration remain separately authorized implementation steps.
+
 ## Pre-start risk assessment
 
 | Risk | Control | Residual risk |
