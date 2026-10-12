@@ -20,7 +20,7 @@ prompt and curated knowledge with 9B/SYCL. A service-account retrieval check
 passes against the full refreshed 1,825-source snapshot. The deterministic
 identity shortcut is now represented locally and the staged 199-test suite
 passes. The Doctor reader was later transplanted with a 199-test hybrid pass;
-the [branch gateway file now exactly matches the deployed file](evidence/SA0-gateway-UI-source-parity-2026-10-12.md). This is source reconciliation, not a deployment or whole-application release; support modules and integration gates remain separate. Authenticated answer quality
+the [branch gateway file now exactly matches the deployed file](evidence/SA0-gateway-UI-source-parity-2026-10-12.md). Eight of its nine directly imported local modules also match production; the [Lab Operations difference](evidence/SA0-gateway-module-parity-2026-10-12.md) is an uninstalled operator-only reconciliation candidate plus a now-corrected local 9B response label. This is source reconciliation, not a deployment or whole-application release; integration gates remain separate. Authenticated answer quality
 is unverified.
 
 ## Remaining milestones, in delivery order

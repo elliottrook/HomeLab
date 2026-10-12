@@ -2800,3 +2800,14 @@ source reconciliation; one notification test could not import `requests` in
 the existing temporary venv and was excluded without installing a dependency.
 No running service changed. Support-module parity, authenticated answer quality
 and release gates remain separate. See the [source parity record](evidence/SA0-gateway-UI-source-parity-2026-10-12.md).
+
+### 2026-10-12 — Gateway imported modules checked against production
+
+Eight of nine directly imported local gateway modules match production by
+SHA-256. `lab_operations.py` contains an uninstalled, operator-only Doctor
+reconciliation method in branch source, while its local completion metadata
+still named the retired 27B model. The two local metadata literals were aligned
+with the deployed/current 9B label. The operator-only method was retained as
+uninstalled candidate code, not deployed by copying the full file. The focused
+suite passed 23/23 and no running service changed. See the [module parity
+record](evidence/SA0-gateway-module-parity-2026-10-12.md).
