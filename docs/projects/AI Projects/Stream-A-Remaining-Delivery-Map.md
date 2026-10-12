@@ -40,6 +40,11 @@ is unverified.
 Milestones 3 and 6 can make **offline** progress in parallel with the passive D3 observation. Connected tools wait for milestone 3; automatic routing does not need to be built before a limited manual Codex release. The earlier SA0–SA5 table records operational requirements and historical Qwen work; it is **not** a second obligation to rerun the closed Qwen general-sysadmin trial. Its still-applicable authority, investigation, repair and acceptance checks map into milestones 3–7.
 
 The [Aster Ask development benchmark](benchmarks/ask-routing-development-v1/README.md) now pins the 9B/SYCL run, model/runtime/prompt provenance and an independent offline scorer for future local or Codex backends. The Codex score is **pending** because the D3 manual pilot used different questions and has no equivalent routing output. The 30 exposed synthetic cases are useful for regression checks; a new human-labelled holdout and shadow evidence still gate any automatic handover.
+The same published cases now have a pinned **30/30 existing lexical-rule
+control**. Those rules and cases were authored together, and their Mac latency
+cannot be compared with the B60 request timing. The control confirms that a
+future local stack must add measured value beyond simply reproducing these
+examples; it is not an independent quality or deployment result.
 
 The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
 symlinked or writable reports, and fails closed on malformed status types; see

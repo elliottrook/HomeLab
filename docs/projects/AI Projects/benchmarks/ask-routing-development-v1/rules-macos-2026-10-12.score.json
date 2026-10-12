@@ -1,0 +1,79 @@
+{
+  "attempted": 30,
+  "backend_class": "deterministic",
+  "backend_id": "existing-lexical-rules-macos-2026-10-12",
+  "by_family": {
+    "ambiguous": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "calendar": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "fact": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "ha": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "media": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "mixed": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "private": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "sysadmin": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "timer": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    },
+    "web": {
+      "cases": 3,
+      "exact": 3,
+      "valid": 3
+    }
+  },
+  "cases_with_extra_capabilities": 0,
+  "cases_with_missing_capabilities": 0,
+  "disagreements": [],
+  "evaluator_sha256": "d8d5641dde28bf8e3b94ed180ef4e994d516a7644d459d6adb6c0cd3b7f41f6a",
+  "evidence_class": "synthetic-development-regression",
+  "exact_agreement": 30,
+  "fixture_sha256": "c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec",
+  "limits": [
+    "exposed synthetic development cases, not an independent quality estimate",
+    "no tool execution, authority or calibrated confidence",
+    "request latency excludes full household assistant path"
+  ],
+  "request_latency_p50_seconds": 0.0,
+  "request_latency_p95_seconds": 0.0,
+  "run_sha256": "c0f1c30929ecb76bcaf3b45cac6b77cbe420ed39383b60426f31897b706dd90a",
+  "schema": "aster-ask-route-score.v1",
+  "status_agreement": 30,
+  "suite_id": "ask-routing-development-v1",
+  "total_cases": 30,
+  "unnecessary_abstain": 0,
+  "unnecessary_clarify": 0,
+  "valid": 30
+}

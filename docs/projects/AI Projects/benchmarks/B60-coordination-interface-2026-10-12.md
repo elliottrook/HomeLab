@@ -35,8 +35,8 @@ The scorer source SHA-256 at this checkpoint is
 The model artifact, runtime unit, prompt and adapter hashes are pinned in the
 [local baseline manifest](ask-routing-development-v1/local-9b-sycl-2026-10-12.manifest.json).
 The benchmark's first implementation commit is `872117f`; label-blind backend
-compatibility was fixed in local commit `d913043`. Both are local until a
-separately authorized Forgejo push and mirror check complete.
+compatibility was fixed in `d913043`. Forgejo and its GitHub mirror both
+reached coordination commit `828c683` on 2026-10-12.
 
 The current run is **one warm, lightly loaded, serial attempt per case** with
 no retries: 30/30 valid, 18/30 exact status-plus-capability matches; inside-
@@ -53,6 +53,10 @@ action. Its capability proposal is subordinate to deterministic privacy,
 identity, approval and tool policy. The exposed fixture can detect regressions,
 but cannot qualify a model for automatic routing. Its answer key is already
 public in the repository; no hidden answer key exists for this 30-case set.
+The existing lexical rules also have a pinned [30/30 development run](ask-routing-development-v1/README.md)
+on this fixture. The rules and cases were authored together and ran on a
+different host; this is a cheap control, not an independent model comparison
+or an equivalent latency measurement.
 
 ## Separate qualification lanes
 

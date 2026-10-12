@@ -19,6 +19,15 @@ The first baseline is the [9B/SYCL manifest](local-9b-sycl-2026-10-12.manifest.j
 and [independently recomputed score](local-9b-sycl-2026-10-12.score.json).
 The source experiment and its v1 failure/diagnostics are retained under
 [`experiments/m3-9b-sycl-routing-compatibility`](../../experiments/m3-9b-sycl-routing-compatibility).
+The [existing lexical-rule run](rules-macos-2026-10-12.run.json),
+[manifest](rules-macos-2026-10-12.manifest.json) and
+[score](rules-macos-2026-10-12.score.json) give a cheap, tool-free control on
+the **same exposed fixture**: 30/30 exact. The rules and examples were authored
+together, so this is an especially favourable development check for the rules,
+not an independent rules-versus-model quality comparison. The rule run was
+measured on a Mac with Python 3.9.6, not the B60; its rounded `0.0`-second
+latency fields mean **below the scorer's millisecond precision**, not zero
+execution time or a directly comparable household response time.
 The scorer ignores a runner's claimed matches when deriving the result and
 rejects disagreement, changed input digests, duplicate/missing identities,
 unregistered capabilities and unexpected raw-text fields. No new dependency

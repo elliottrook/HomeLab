@@ -1,0 +1,20 @@
+{
+  "schema": "aster-ask-backend-manifest.v1",
+  "suite_id": "ask-routing-development-v1",
+  "fixture_sha256": "c797533494119e44c9c927d5b9b274ccd6426cacd50ca7cd93391861c0663cec",
+  "run_sha256": "c0f1c30929ecb76bcaf3b45cac6b77cbe420ed39383b60426f31897b706dd90a",
+  "run_schema": "aster-ask-route-run.v1",
+  "backend_id": "existing-lexical-rules-macos-2026-10-12",
+  "backend_class": "deterministic",
+  "model_id": "existing-lexical-rules",
+  "model_artifact_sha256": "3e52c69f25dcf22100c521aeaa5b68b83e334ddf8ce9469d14d79822c8aa5864",
+  "runtime_id": "Python-3.9.6-macOS-26.6.2-arm64",
+  "runtime_sha256": null,
+  "prompt_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "adapter_sha256": "bfbd5eabd6d42ed19dfe2623a63032e711b4a6ebad799052ca81749023b2aade",
+  "reasoning_mode": "not_applicable",
+  "tool_mode": "disabled",
+  "execution": "not_attempted",
+  "egress": "local",
+  "evidence_class": "synthetic-development-regression"
+}
