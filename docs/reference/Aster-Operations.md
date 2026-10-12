@@ -573,6 +573,10 @@ bounded `interactive`/`batch` and outcome labels and expose request/queue
 histograms, queue depth, busy workers, cancellations and renderer-error counts.
 Beszel remains the owner of LXC 116 CPU, memory, disk and guest availability;
 do not duplicate those resource alerts in the application rules.
+Prometheus evaluates the five debounced service conditions. Grafana rule
+`homelab-aster-voice-service` bridges firing `AsterVoice*` conditions into the
+existing HomeLab email policy while preserving alert name/severity labels.
+Cancellation is observable but intentionally does not alert by itself.
 
 Reload the phone page after a web deployment. Tap the orb to start/stop recording.
 The web UI reports Transcribing, Thinking and Preparing speech; if automatic
