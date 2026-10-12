@@ -117,10 +117,16 @@ per-class current-control latency distributions or release floors are frozen
 yet. Build those before asking B60 to optimize against a numeric bar. The
 [six-case synthetic fixture](../../../../scripts/aster-adaptive/fixtures/answer-feasibility-v0.json)
 is a public, development-only starting point for capture and rubric testing;
-it has not been sent to a model, independently scored or accepted as a release
-set. Its validator establishes shape and bounded timestamps, not that a model
-answer is correct or that the fixture is a privacy-certified dataset. An
+it was sent once to the accepted 9B/SYCL service on 2026-10-12. All six cases
+returned text, but [nonblind inspection](../experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
+found a plainly wrong calendar answer. It has not been independently scored
+or accepted as a release set. Its validator establishes shape and bounded
+timestamps, not that a model answer is correct or that the fixture is a
+privacy-certified dataset. An
 [offline capture/review candidate](../evidence/A1-offline-answer-capture-candidate-2026-10-12.md)
 now projects synthetic attempts into content-free timing/status evidence and
 scores explicit human rubric labels. It does not supply the missing labels,
 backend provenance, independent qualification or a numeric release bar.
+The [control measurement profile](completed-answer-control-measurement-profile-v0.md)
+freezes the comparison method and names the evidence still needed before a
+class-specific budget can be proposed.

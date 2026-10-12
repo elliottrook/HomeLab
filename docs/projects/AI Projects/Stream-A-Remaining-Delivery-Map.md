@@ -55,6 +55,14 @@ nonblind author review do not establish a useful-answer rate, class budget or
 automatic routing gate. The service remained healthy with no tools or runtime
 changes.
 
+The [completed-answer control profile](benchmarks/completed-answer-control-measurement-profile-v0.md)
+now fixes how future Aster-path timing, timeouts, paired candidates and blinded
+rubric reviews will be recorded. It sets no release budget from the six-case
+probe. B60 has adopted the common development capture interface; its wrapper
+still pins the earlier Aster capture source and needs a reviewed pin update
+before it can process the current nullable-phase-time version. Fresh cases,
+independent labels and class-specific waiting-time limits remain open.
+
 The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
 symlinked or writable reports, and fails closed on malformed status types; see
 the [live boundary record](evidence/D4-doctor-adapter-live-boundary-2026-10-11.md).

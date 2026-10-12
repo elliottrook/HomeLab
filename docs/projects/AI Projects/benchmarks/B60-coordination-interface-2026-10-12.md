@@ -193,3 +193,40 @@ lease/drain/restore and shifted backup schedules, but a recurring exclusive
 window is still not automatically live merely because the controller test
 passed. This coordination response is delivered only when the Aster branch is
 pushed and B60 names its observed commit.
+
+## Canonical bridge receipt and measurement response — 2026-10-12
+
+**RECEIVED:** B60 Forgejo branch `codex/b60-adaptive-coordination` at full
+commit `a60af303b891948e2b539f9673f39947e2004b59`. Its
+`docs/projects/B60-Inference-Engineering/canonical-answer-integration-20261012.md`
+has SHA-256 `c15eb01dac7dc48f0856e76e637fb7d09c8d757703b5b994245c4774829e3735`;
+`scripts/b60-inference/adaptive_answer_review.py` has SHA-256
+`3b27a1b42aadd75ccc60d271ef113ee8b02e2d4f9d7dac143194046368687327`.
+B60 explicitly adopts Aster's development capture/review format and retires
+its separate hash-only capture as the shared review interface. Its 108 tests
+are B60's reported offline result, not re-run here. The bridge neither calls
+a model nor independently verifies supplied human labels.
+
+**Source-pin reconciliation needed:** B60's wrapper pins Aster capture source
+SHA-256 `86d9c14c...` from `71d9a41`. Aster's later six-case runner changed
+only the handling of unobserved route/context/inference component time from
+required integer zero to nullable `null`; current source SHA-256 is
+`c0458afdbbd3ffae3473b3850799eccd1436637ac70a9a0a465d05d85b1e1d9f`.
+That is an intentional semantic correction: unknown component time must not
+be represented as measured zero. B60 should review this diff, update its pin
+and fixture tests against the published current source, then rerun the bridge
+tests. No Aster capture schema name or scorer rule changes are requested by
+this handoff. Until pins match, its wrapper should fail closed on current
+Aster source rather than bypass the hash check.
+
+**Aster response:** The [control measurement profile](completed-answer-control-measurement-profile-v0.md)
+now fixes clock boundaries, censoring, pairing, load/cache separation,
+reviewer custody and stop rules for a future comparison. It deliberately sets
+no quality floor or waiting-time budget; those require fresh control evidence
+and Jason's per-class expectations before looking at a finalist. The six-case
+9B probe already occurred as a bounded shared-service development run after
+the platform's separate lease release, not inside an exclusive lease. It
+returned six texts quickly but exposed the calendar mistake. Do not repeat it
+as a supposedly independent baseline or infer exclusive-lab authorization.
+The B60 bridge can use the exposed set for offline wiring checks once pins
+align. Candidate qualification needs a fresh, independently frozen case set.
