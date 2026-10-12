@@ -566,6 +566,14 @@ candidate restart, allow approximately 15 seconds for model warm-up before
 treating an initial refusal as a fault. Speech data is temporary; normal logs
 contain timing/size and error categories, not recordings or transcripts.
 
+Prometheus on LXC 109 scrapes `http://192.168.70.14:9131/metrics` every 15
+seconds. The application and OPNsense both restrict that path to Prometheus
+(`192.168.20.31`); an unauthorized peer receives HTTP 403. Metrics use only
+bounded `interactive`/`batch` and outcome labels and expose request/queue
+histograms, queue depth, busy workers, cancellations and renderer-error counts.
+Beszel remains the owner of LXC 116 CPU, memory, disk and guest availability;
+do not duplicate those resource alerts in the application rules.
+
 Reload the phone page after a web deployment. Tap the orb to start/stop recording.
 The web UI reports Transcribing, Thinking and Preparing speech; if automatic
 playback is blocked, tap the displayed audio Play control. Stop speech ends the

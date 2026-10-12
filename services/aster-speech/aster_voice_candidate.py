@@ -9,8 +9,8 @@ import uuid
 from pathlib import Path
 from typing import Any, Protocol
 
-from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import JSONResponse, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi.responses import JSONResponse, PlainTextResponse, Response
 
 import aster_speech as legacy_speech
 from aster_speech import TTSRequest, require_api_key, speech_to_text
@@ -33,9 +33,9 @@ class SchedulerProxy:
         async for unit in self.target.stream(*args, **kwargs):
             yield unit
 
-    def cancel(self, request_id: str) -> None:
+    def cancel(self, request_id: str, caller: str = "interactive") -> None:
         if self.target is not None:
-            self.target.cancel(request_id)
+            self.target.cancel(request_id, caller)  # type: ignore[arg-type]
 
     def is_cancelled(self, request_id: str) -> bool:
         return self.target is not None and self.target.is_cancelled(request_id)
@@ -47,6 +47,7 @@ VOICE_ID = "aster-bm-daniel"
 VOICE_MODEL = "kokoro-v1.0"
 VOICE_POLICY_VERSION = "1"
 STT_MODEL = "aster-base-en"
+METRICS_ALLOWED_PEERS = frozenset({"127.0.0.1", "192.168.20.31", "192.168.70.14"})
 
 class RendererPool(Protocol):
     @property
@@ -155,6 +156,19 @@ async def health() -> JSONResponse:
             "voice_policy_version": VOICE_POLICY_VERSION,
             "stt_model": STT_MODEL,
         },
+    )
+
+
+@app.get("/metrics", response_class=PlainTextResponse)
+async def metrics(request: Request) -> PlainTextResponse:
+    if _proxy.target is None:
+        raise HTTPException(status_code=503, detail="Voice candidate is not ready")
+    if request.client is None or request.client.host not in METRICS_ALLOWED_PEERS:
+        raise HTTPException(status_code=403, detail="Metrics peer is not authorized")
+    return PlainTextResponse(
+        _proxy.target.metrics.render(),
+        media_type="text/plain; version=0.0.4; charset=utf-8",
+        headers={"Cache-Control": "no-store"},
     )
 
 

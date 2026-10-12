@@ -89,6 +89,8 @@ class StreamFrameTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn(b"private", wire)
         self.assertNotIn(b"Secret", wire)
         self.assertEqual(payload, b"")
+        self.assertEqual(self.scheduler.metrics.render_errors["interactive"], 1)
+        self.assertEqual(self.scheduler.metrics.requests[("interactive", "error")], 1)
 
     async def test_explicit_cancel_finishes_with_cancelled_frame(self):
         await self.scheduler.close()
@@ -118,6 +120,8 @@ class StreamFrameTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(frames, [
             ({"request_id": "request-cancel", "type": "cancelled"}, b"")
         ])
+        self.assertEqual(self.scheduler.metrics.cancellations["interactive"], 1)
+        self.assertEqual(self.scheduler.metrics.requests[("interactive", "cancelled")], 1)
 
 
 if __name__ == "__main__":

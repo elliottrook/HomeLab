@@ -102,7 +102,7 @@ async def stream_frames(
             yield encode_frame({"type": "cancelled", "request_id": request_id})
             completed = True
         else:
-            scheduler.cancel(request_id)
+            scheduler.cancel(request_id, caller)
             raise
     except Exception as exc:
         yield encode_frame(

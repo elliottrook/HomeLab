@@ -1,0 +1,45 @@
+groups:
+  - name: aster-voice
+    rules:
+      - alert: AsterVoiceUnavailable
+        expr: up{job="aster-voice"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Aster Voice metrics endpoint is unavailable
+
+      - alert: AsterVoiceInteractiveLatencyHigh
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(aster_voice_request_duration_seconds_bucket{caller="interactive"}[10m]))) > 1.5
+          and sum(rate(aster_voice_request_duration_seconds_count{caller="interactive"}[10m])) > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Aster Voice interactive p95 exceeds 1.5 seconds
+
+      - alert: AsterVoiceRendererErrors
+        expr: sum(increase(aster_voice_render_errors_total[15m])) >= 3
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Aster Voice has repeated renderer failures
+
+      - alert: AsterVoiceInteractiveQueueStuck
+        expr: aster_voice_queue_depth{caller="interactive"} > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Aster Voice interactive work is persistently queued
+
+      - alert: AsterVoiceInteractiveWorkersSaturated
+        expr: aster_voice_workers_busy{caller="interactive"} >= 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Both Aster Voice interactive workers are persistently busy

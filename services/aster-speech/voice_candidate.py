@@ -9,9 +9,12 @@ from __future__ import annotations
 
 import asyncio
 import re
+import time
 from dataclasses import dataclass, field
 from itertools import count
 from typing import AsyncIterator, Callable, Literal, Sequence
+
+from voice_metrics import VoiceMetrics
 
 CallerClass = Literal["interactive", "batch"]
 Renderer = Callable[[str], tuple[bytes, int]]
@@ -147,6 +150,8 @@ class _Job:
     text: str
     result: asyncio.Future[AudioUnit]
     sequence: int = field(default=0)
+    caller: CallerClass = "interactive"
+    enqueued_at: float = field(default=0.0)
 
 
 class VoiceScheduler:
@@ -158,6 +163,7 @@ class VoiceScheduler:
         interactive_capacity: int = 2,
         batch_capacity: int = 8,
         batch_renderer: Renderer | None = None,
+        metrics: VoiceMetrics | None = None,
     ):
         if callable(renderer):
             self._renderers = (renderer, renderer)
@@ -171,6 +177,7 @@ class VoiceScheduler:
         self._workers: list[asyncio.Task[None]] = []
         self._cancelled: set[str] = set()
         self._sequence = count()
+        self.metrics = metrics or VoiceMetrics()
 
     async def start(self) -> None:
         if not self._workers:
@@ -187,8 +194,10 @@ class VoiceScheduler:
         await asyncio.gather(*self._workers, return_exceptions=True)
         self._workers.clear()
 
-    def cancel(self, request_id: str) -> None:
-        self._cancelled.add(request_id)
+    def cancel(self, request_id: str, caller: CallerClass = "interactive") -> None:
+        if request_id not in self._cancelled:
+            self.metrics.cancellations[caller] += 1
+            self._cancelled.add(request_id)
 
     def is_cancelled(self, request_id: str) -> bool:
         return request_id in self._cancelled
@@ -206,28 +215,44 @@ class VoiceScheduler:
             self._cancelled.remove(request_id)
         units = semantic_units(normalize_for_speech(text))
         loop = asyncio.get_running_loop()
+        started = time.monotonic()
+        outcome = "error"
         jobs = [
-            _Job(request_id, index, len(units), unit, loop.create_future(), next(self._sequence))
+            _Job(request_id, index, len(units), unit, loop.create_future(),
+                 next(self._sequence), caller, time.monotonic())
             for index, unit in enumerate(units)
         ]
         queue = self._interactive if caller == "interactive" else self._batch
-        for job in jobs:
-            await queue.put(job)
         try:
             for job in jobs:
+                await queue.put(job)
+                self._update_queue_depths()
+            for job in jobs:
                 yield await job.result
+            outcome = "ok"
+        except asyncio.CancelledError:
+            outcome = "cancelled"
+            raise
+        except Exception:
+            outcome = "error"
+            raise
         finally:
             if any(not job.result.done() for job in jobs):
-                self.cancel(request_id)
+                self.cancel(request_id, caller)
+                outcome = "cancelled"
+            self.metrics.observe_request(caller, outcome, time.monotonic() - started)
 
     async def _worker(self, worker_index: int) -> None:
         while True:
             job = await self._next_job(worker_index)
+            self._update_queue_depths()
             if job.request_id in self._cancelled:
                 if not job.result.done():
                     job.result.cancel()
                 continue
             try:
+                self.metrics.observe_queue(job.caller, time.monotonic() - job.enqueued_at)
+                self.metrics.workers_busy["interactive"] += 1
                 pcm, sample_rate = await asyncio.to_thread(
                     self._renderers[worker_index], job.text
                 )
@@ -238,19 +263,25 @@ class VoiceScheduler:
                         AudioUnit(job.request_id, job.index, job.total, pcm, sample_rate)
                     )
             except Exception as exc:
+                self.metrics.render_errors[job.caller] += 1
                 if not job.result.done():
                     job.result.set_exception(exc)
+            finally:
+                self.metrics.workers_busy["interactive"] -= 1
 
     async def _batch_worker(self) -> None:
         """Render batch work outside both latency-sensitive workers."""
         assert self._batch_renderer is not None
         while True:
             job = await self._batch.get()
+            self._update_queue_depths()
             if job.request_id in self._cancelled:
                 if not job.result.done():
                     job.result.cancel()
                 continue
             try:
+                self.metrics.observe_queue("batch", time.monotonic() - job.enqueued_at)
+                self.metrics.workers_busy["batch"] += 1
                 pcm, sample_rate = await asyncio.to_thread(self._batch_renderer, job.text)
                 if job.request_id in self._cancelled:
                     job.result.cancel()
@@ -259,8 +290,15 @@ class VoiceScheduler:
                         AudioUnit(job.request_id, job.index, job.total, pcm, sample_rate)
                     )
             except Exception as exc:
+                self.metrics.render_errors["batch"] += 1
                 if not job.result.done():
                     job.result.set_exception(exc)
+            finally:
+                self.metrics.workers_busy["batch"] -= 1
+
+    def _update_queue_depths(self) -> None:
+        self.metrics.queue_depth["interactive"] = self._interactive.qsize()
+        self.metrics.queue_depth["batch"] = self._batch.qsize()
 
     async def _next_job(self, worker_index: int) -> _Job:
         if worker_index == 1 or self._batch_renderer is not None:

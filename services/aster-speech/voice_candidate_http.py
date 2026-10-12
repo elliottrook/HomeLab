@@ -54,7 +54,7 @@ def build_router(
             request_id = validated_request_id(request_id)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
-        scheduler.cancel(request_id)
+        scheduler.cancel(request_id, caller)
         return Response(status_code=204)
 
     return router

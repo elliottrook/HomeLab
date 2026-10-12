@@ -49,6 +49,9 @@ class VoiceSchedulerTests(unittest.IsolatedAsyncioTestCase):
         ]
         self.assertEqual([unit.index for unit in result], [0, 1])
         self.assertEqual([unit.pcm for unit in result], [b"First sentence.", b"Second sentence."])
+        self.assertEqual(self.scheduler.metrics.requests[("interactive", "ok")], 1)
+        self.assertEqual(len(self.scheduler.metrics.queue_seconds["interactive"]), 2)
+        self.assertEqual(self.scheduler.metrics.workers_busy["interactive"], 0)
 
     async def test_two_distinct_renderers_back_the_interactive_workers(self):
         await self.scheduler.close()
