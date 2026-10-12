@@ -1,8 +1,20 @@
 # Aster Adaptive Computing — Foundation and Operational Sysadmin Capability
 
-**Status:** Active — Stream A. Operational Sysadmin Capability (SA0–SA5) is the next delivery priority, approved by Jason on 2026-09-28. SA0 reconciliation is active; all SA gates remain open. M0 and the offline M2 foundation have evidence. M1 Stage1 is verified and the September 27 Stage2 incident repair/iPhone approval workflows were accepted, but M1 and broader programme acceptance gates are not declared complete.
+**Status:** Active — Stream A. Codex is the designated sysadmin operator for this lab. Aster/Qwen remains an optional local analysis and scheduled-work component, not the sysadmin authority or a required replacement for Codex. The SA0–SA5 records remain useful for bounded evidence, adapters and handoff design, but no B60/Qwen capability trial may be treated as proof of sysadmin equivalence.
 
 **Owner:** Jason.
+
+**Role boundary decision — 2026-10-12:** Jason clarified that the operational
+sysadmin role is being handed to a Codex instance. This project must therefore
+not spend further effort trying to demonstrate that the B60-backed local Qwen
+runtime can perform the Codex sysadmin role. Codex owns investigation,
+authorized tool use, repair planning/execution and independent verification;
+deterministic policy, AI-PAM, narrow adapters and human authorization remain
+the control boundary. Aster/Qwen may support private local analysis,
+email/calendar work, summaries, speech-adjacent tasks and other explicitly
+bounded workloads, but it has no implied sysadmin authority. The recent SA3
+holdout and citation-repair work is retained as a documented negative boundary,
+not a promotion programme.
 
 **Current coordination and priority — 2026-10-05:** Jason requested one Codex
 window for delivery, supporting agents coordinated there, and plain-language
@@ -216,7 +228,8 @@ No unresolved authorization invariant can be marked as passed. Any accepted limi
 | 2026-10-03 | Offline evidence source-pin revision | Whole-file source pins failed closed after unrelated Aster changes. AST review found the harness and selector slices unchanged; explicit reviewed pin revisions were bound to the current live-matching source. In isolated LXC validation, 51/51 evidence-harness and 29/29 selector-probe tests passed. No runtime behavior changed — see [source-pin revision](evidence/SA3-offline-source-pin-revision-2026-10-03.md). |
 | 2026-10-12 | SA3 connected synthetic development run | Jason approved a bounded nine-call run against the authenticated Qwen endpoint using two public synthetic cases, no tools and no effects. Thinking completed both cases; non-thinking violated the evidence-order contract on both. Post-run Aster, inference and speech health checks passed. This is development evidence only, not held-out quality or promotion — see [connected synthetic run](evidence/SA3-connected-synthetic-run-2026-10-12.md). |
 | 2026-10-12 | SA3 sealed holdout evaluation and scoring | Four separate sub-agent custody roles created, reviewed, evaluated and scored a fresh 20-case sanitized holdout. Five insufficient-evidence cases abstained correctly; 15/20 failed the output contract before quality scoring, yielding 0/15 actionable passes and a failed 18/20 gate. No prohibited effects or false-completion claims; inference returned healthy/idle. Qwen remains outside operational sysadmin use — see [holdout run](evidence/SA3-holdout-run-2026-10-12.md). |
-| 2026-10-12 | SA3 evaluator citation-boundary candidate | Added explicit current-observation IDs and future-evidence prohibition to the synthetic investigation prompt; 51 local evaluator tests pass. Candidate is unconnected and unrerun, so the holdout failure and operational exclusion remain unchanged — see [candidate note](evidence/SA3-evaluator-citation-repair-2026-10-12.md). |
+| 2026-10-12 | SA3 evaluator citation-boundary candidate | Added explicit current-observation IDs and future-evidence prohibition to the synthetic investigation prompt; 51 local evaluator tests pass. Candidate remained outside production and is retained only as negative boundary evidence; it does not reopen a Qwen sysadmin promotion path — see [candidate note](evidence/SA3-evaluator-citation-repair-2026-10-12.md). |
+| 2026-10-12 | Sysadmin role boundary reset | Jason designated Codex as the sysadmin operator. Aster/Qwen is retained for bounded local analysis and scheduled workloads, not sysadmin equivalence or authority. Further Qwen sysadmin holdout runs are stopped unless Jason explicitly reopens that research question — see [role boundary decision](evidence/SA3-role-boundary-decision-2026-10-12.md). |
 | 2026-09-28 | SA3 reviewed development intake | Jason approved a complete source-referenced, advisory-only 12-case development intake. The machine-validated intake is 12/12 development cases and 0/20 holdouts; no runtime, provider, reasoning, tool, or deployment change occurred — see [SA3 preregistration](evidence/SA3-evaluation-preregistration-2026-09-28.md) |
 | 2026-09-28 | SA3 holdout custody plan | Defined an unactivated 20-case solo-lab procedural-independence design with separate custodian, review, evaluation, and scoring sessions; Git retains only content-free digests and receipts. No holdout content, label, collection, evaluation, or model change exists — see [SA3 holdout custody](evidence/SA3-holdout-custody-2026-09-28.md) |
 | 2026-09-28 | SA3 custody-role rehearsal | Separate GPT/Codex sessions performed a temporary generic custody/review/evaluation/scoring handoff. The scoring role rejected an insufficient answer; no content, labels, bundle, model measurement, source data, or runtime change was retained. It is not a holdout result — see [SA3 holdout custody](evidence/SA3-holdout-custody-2026-09-28.md) |
