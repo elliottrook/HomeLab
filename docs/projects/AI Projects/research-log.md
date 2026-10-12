@@ -2790,9 +2790,13 @@ question or alter Keychain access.
 
 A hash-verified read-only copy of the deployed gateway showed that its web CSS
 and theme color were newer than this branch. Only those already-deployed UI
-blocks were copied into the local source. The two UI function ASTs now match
-the deployed file; other source order and runtime-selection differences still
-hold the whole-file deployment gate. The available top-level suite passed
-217 tests; one notification test could not import `requests` in the existing
-temporary venv and was excluded without installing a dependency. No running
-service changed. See the [source parity record](evidence/SA0-gateway-UI-source-parity-2026-10-12.md).
+blocks were copied into the local source in the first commit. The two UI
+function ASTs then matched the deployed file. A follow-up compared 880
+synthetic `_chunk_bonus` inputs with identical outputs and imported the
+remaining hash-verified deployed source. The branch gateway file now matches
+the running file byte for byte (SHA-256 `b4f29f40a460d1feef95bc623c20c3219f94ede0be06acc684fabfde2d844192`).
+The available top-level suite passed 217 tests before and after this final
+source reconciliation; one notification test could not import `requests` in
+the existing temporary venv and was excluded without installing a dependency.
+No running service changed. Support-module parity, authenticated answer quality
+and release gates remain separate. See the [source parity record](evidence/SA0-gateway-UI-source-parity-2026-10-12.md).

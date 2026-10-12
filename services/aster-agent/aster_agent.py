@@ -193,9 +193,6 @@ model or backend from this prompt; if that evidence is stale or conflicting,
 say so instead of guessing.
 Name retrieved source files when factual provenance helps."""
 
-# Temporary exact-identity answer for the currently deployed local runtime.
-# Change only after verifying the serving process and model; a future
-# capability/runtime registry should replace this hand-maintained declaration.
 ASTER_RUNTIME_IDENTITY = (
     "Aster's interface runs in LXC 104. Local text inference runs Qwen3.5-9B "
     "reasoning-off through llama.cpp b11429 on the Intel Arc Pro B60 SYCL/Level Zero "
@@ -565,10 +562,7 @@ def _runtime_identity_query(query: str) -> bool:
 
 def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     bonus = 0
-    # Present-runtime questions should reach the reviewed operational record
-    # even when generic mirror entries repeat numeric guest identifiers.
-    runtime_identity_query = _runtime_identity_query(query)
-    if source == "reference/operations/ai-local-inference.md" and runtime_identity_query:
+    if source == "reference/operations/ai-local-inference.md" and _runtime_identity_query(query):
         if "## what's running" in text:
             bonus += 400
     if source == "reference/operations/ai-pam.md" and re.search(
@@ -1427,56 +1421,8 @@ async def models() -> dict[str, Any]:
     }
 
 
-@app.get("/v1/arr-repair/proposal", dependencies=[Depends(require_api_key)])
-async def arr_repair_proposal() -> dict[str, Any]:
-    """M5: lets the Companion apps' action-card UI check for a pending
-    ARR-repair candidate independent of a chat turn, so an approve/reject
-    card can be shown without the model needing to be asked first. Purely
-    read-only, identical answer to the get_arr_repair_proposal chat tool.
-    """
-    return await get_arr_repair_dry_run_proposal()
-
-
-@app.post("/v1/arr-repair/execute", dependencies=[Depends(require_api_key)])
-async def arr_repair_execute(request: ArrRepairExecutionRequest) -> dict[str, Any]:
-    return await execute_arr_repair(request.candidate_ref)
-
-
-@app.post("/v1/sysadmin/incidents/doctor", dependencies=[Depends(require_api_key)])
-async def doctor_incident(request: DoctorIncidentRequest) -> dict[str, Any]:
-    return start_doctor_incident(request.title)
-
-
-@app.get("/v1/sysadmin/incidents/{incident_id}/stream", dependencies=[Depends(require_api_key)])
-async def doctor_incident_stream(incident_id: str) -> StreamingResponse:
-    _require_doctor_incident_owner()
-    try:
-        frames = reconnect_frames(_doctor_incident_store(), incident_id, datetime.now(timezone.utc))
-    except InvestigationError as exc:
-        raise HTTPException(status_code=404, detail="Doctor incident not found") from exc
-    return StreamingResponse(iter(frames), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
-
-
-@app.get("/v1/personas", dependencies=[Depends(require_api_key)])
-async def personas() -> dict[str, Any]:
-    return {
-        "default": DEFAULT_PERSONA,
-        "personas": [
-            {
-                "id": persona_id,
-                "label": persona["label"],
-                "tools": [
-                    {"name": name, "description": TOOLS[name]["function"]["description"]}
-                    for name in sorted(persona["tools"])
-                ],
-            }
-            for persona_id, persona in PERSONAS.items()
-        ],
-    }
-
-
 def runtime_identity_requested(messages: list[dict[str, Any]]) -> bool:
-    """Recognize explicit runtime questions without widening general routing."""
+    """Recognize explicit static-runtime questions without widening routing."""
     text = next(
         (
             str(message.get("content", "")).strip().lower()
@@ -1532,6 +1478,54 @@ def deterministic_completion(text: str, stream: bool = False) -> dict[str, Any] 
             "finish_reason": "stop",
         }],
         "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+    }
+
+
+@app.get("/v1/arr-repair/proposal", dependencies=[Depends(require_api_key)])
+async def arr_repair_proposal() -> dict[str, Any]:
+    """M5: lets the Companion apps' action-card UI check for a pending
+    ARR-repair candidate independent of a chat turn, so an approve/reject
+    card can be shown without the model needing to be asked first. Purely
+    read-only, identical answer to the get_arr_repair_proposal chat tool.
+    """
+    return await get_arr_repair_dry_run_proposal()
+
+
+@app.post("/v1/arr-repair/execute", dependencies=[Depends(require_api_key)])
+async def arr_repair_execute(request: ArrRepairExecutionRequest) -> dict[str, Any]:
+    return await execute_arr_repair(request.candidate_ref)
+
+
+@app.post("/v1/sysadmin/incidents/doctor", dependencies=[Depends(require_api_key)])
+async def doctor_incident(request: DoctorIncidentRequest) -> dict[str, Any]:
+    return start_doctor_incident(request.title)
+
+
+@app.get("/v1/sysadmin/incidents/{incident_id}/stream", dependencies=[Depends(require_api_key)])
+async def doctor_incident_stream(incident_id: str) -> StreamingResponse:
+    _require_doctor_incident_owner()
+    try:
+        frames = reconnect_frames(_doctor_incident_store(), incident_id, datetime.now(timezone.utc))
+    except InvestigationError as exc:
+        raise HTTPException(status_code=404, detail="Doctor incident not found") from exc
+    return StreamingResponse(iter(frames), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
+
+
+@app.get("/v1/personas", dependencies=[Depends(require_api_key)])
+async def personas() -> dict[str, Any]:
+    return {
+        "default": DEFAULT_PERSONA,
+        "personas": [
+            {
+                "id": persona_id,
+                "label": persona["label"],
+                "tools": [
+                    {"name": name, "description": TOOLS[name]["function"]["description"]}
+                    for name in sorted(persona["tools"])
+                ],
+            }
+            for persona_id, persona in PERSONAS.items()
+        ],
     }
 
 
