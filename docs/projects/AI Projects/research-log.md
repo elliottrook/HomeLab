@@ -2764,3 +2764,13 @@ separate rollback copies. Aster health and the `aster` account's saved
 32-check aggregate read passed after the final restart. This does not connect
 Codex to Doctor or satisfy the diagnostic usefulness or M1 authority gate. See
 the [live boundary record](evidence/D4-doctor-adapter-live-boundary-2026-10-11.md).
+
+### 2026-10-12 — Companion v16 ordinary sign-in observed
+
+After Jason unlocked the Mac and reported a Keychain login prompt, the installed
+v16 Companion showed its signed-in Aster view. The recorded Codex list remained
+closed to new requests. The AI-PAM approvals view loaded with no pending items,
+and one read-only refresh left it usable. A content-free session-code log query
+found no natural refresh event; the prompt count is still being reconciled.
+No Codex turn, approval or tool action ran. D3 routine release remains held;
+see the [v16 observation](evidence/D3-native-v16-installation-2026-10-11.md).
