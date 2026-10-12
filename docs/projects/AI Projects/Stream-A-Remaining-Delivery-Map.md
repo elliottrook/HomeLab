@@ -73,6 +73,8 @@ passkey-specific assurance to Companion, and the allowed Aster process can
 still supply actor metadata at the approval socket. This is an authority
 boundary, not a model-quality problem. Do not solve it by giving Codex SSH,
 root, a generic broker token or a broad Keychain exception.
+The Aster-as-approver Stage2 candidate is retained for provenance but
+superseded as a deployment shape by the separate-verifier proposal.
 The [approval-ingress options](evidence/M1-approval-ingress-options-2026-10-10.md)
 record a dedicated verifier as the preferred candidate if in-app privileged
 approval remains required. A [read-only live recheck](evidence/M1-live-approval-boundary-recheck-2026-10-11.md)

@@ -1,6 +1,9 @@
 # M1 Stage2 candidate — explicit approver and assurance boundary
 
-Status: offline candidate and threat review; **not deployment-ready**.
+Status: retained threat review; **superseded as a deployment shape** by the
+[independent approval-ingress candidate](M1-independent-approval-ingress-candidate-2026-10-11.md).
+Stage2 remains HOLD. Do not install the Aster-as-approver shape described below
+as though it separated human authority from the AI-facing process.
 Owner: Jason. Implementation owner: shared AI-PAM/Aster work, coordinated with
 AI-PAM before overlapping code edits. Stage1 is deployed; this does not graduate M1.
 
@@ -70,6 +73,12 @@ the required claim. Do not reuse the generic provider ACR as the positive fixtur
 for a claimed production passkey test.
 
 ## Exact intended deployment boundary (must be finalized later)
+
+**Historical proposal only.** This section predates the dedicated-ingress
+decision candidate. Its Aster bridge/socket peer must not be treated as the
+current deployment target; the exact future manifest must first prove a
+separate verifier UID, socket access denial for `aster`, the real assurance
+claim and Companion route compatibility. Keep this section for provenance.
 
 Candidate files: approval service, Companion approval bridge and the narrow
 `aster_agent.py` configuration wiring already present locally. Operator config:
