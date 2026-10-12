@@ -243,6 +243,17 @@ and verified in LXC114.
   isolated production state, followed by explicit network/ingress and backup
   integration checks.
 
+### Read-only integration discovery — 2026-10-12
+
+- From LXC126 on VLAN20, TCP connection checks to the existing inference
+  endpoint `192.168.70.12:11435` and speech endpoint `192.168.70.16:18131`
+  timed out. This confirms the production guest does not yet have the required
+  cross-VLAN service path.
+- No route, firewall, DNS, NPM, Authentik, Tailscale or backup mutation was
+  made. The next implementation boundary therefore needs an explicit narrow
+  network/ingress and backup authorization before production services can be
+  enabled.
+
 ### Readiness and dependency decisions
 
 - The registry must first establish the authoritative V1 artifact, configuration
