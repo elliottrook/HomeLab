@@ -390,3 +390,19 @@ This validates the initial health/auth boundary only. It does not validate a
 successful authenticated model call, quota enforcement, timeout behavior,
 Kokoro failure/Piper recovery, resource headroom or consumer degradation; those
 remain explicit gates and require the appropriate bounded test setup.
+
+## Schedule readiness check — 2026-10-12
+
+The live Proxmox read-only inventory confirms the all-guest backup job
+`backup-49999802-1365` is still enabled at `02:30`; no Proxmox schedule was
+changed by this project work. The documented TrueNAS follow-on pulls remain the
+existing `04:00/04:20` arrangement. Therefore the proposed `00:30` backup,
+exclusive lab lease, `04:15–06:15` analysis reservation and `06:15` News
+reservation are still design-only.
+
+The roughly 19-minute Proxmox run and roughly 6-minute LXC 110 mirror remain
+historical planning estimates. Before enabling the new sequence, run one
+bounded end-to-end backup chain, capture actual completion and verification
+times, confirm the control-plane survival set and restoration checklist, then
+change the Proxmox and TrueNAS schedules together. Until that authorization and
+measurement exist, no scheduler or lease controller may enforce the window.
