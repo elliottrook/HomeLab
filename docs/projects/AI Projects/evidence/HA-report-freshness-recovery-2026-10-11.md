@@ -25,3 +25,12 @@ After that restart, Aster was active/running with zero recorded restarts, `/heal
 `scripts/doctor.sh` now has a separate check for the HA report file's update age, with a 15-minute limit and explicit missing/future-timestamp results. This would have flagged the month-old file on the next Doctor run. It reads only file metadata; a recently touched but malformed report can still pass this *file freshness* check, while the Aster reader separately validates content and age. The candidate is committed locally only; it is not represented as a deployed alert or an always-on monitor. `bash -n` and the six existing Doctor video-archiver tests passed; a read-only `stat` against the current LXC 104 path returned a numeric epoch.
 
 The same local Doctor edit removes the old Vulkan-specific inference assertion. The current check can truthfully establish the Aster API response, active llama.cpp service, `xe` driver binding and VM-105 isolation, but not actual SYCL GPU offload. It now says so explicitly. Full active-backend/offload health remains with B60 inference engineering and needs its own evidence before Doctor claims it.
+
+## 2026-10-12 continuity check
+
+A read-only follow-up found the saved Aster HA report file updated at Unix
+`1791822307`, 63 seconds before the checking Mac's Unix `1791822370`. The
+Aster service was active and `/health` returned `ok`. This supports continuing
+unattended delivery beyond the initial repaired cycle. File age and gateway
+health do not prove every Home Assistant recommendation is correct; the
+content-validating reader and report producer remain separate checks.
