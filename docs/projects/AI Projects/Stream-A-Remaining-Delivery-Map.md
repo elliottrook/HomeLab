@@ -60,8 +60,8 @@ The [completed-answer control profile](benchmarks/completed-answer-control-measu
 now fixes how future Aster-path timing, timeouts, paired candidates and blinded
 rubric reviews will be recorded. It sets no release budget from the six-case
 probe. B60 has adopted the common development capture interface; its wrapper
-still pins the earlier Aster capture source and needs a reviewed pin update
-before it can process the current nullable-phase-time version. Fresh cases,
+has now reconciled the Aster capture source pin and passed its focused bridge
+tests. Fresh cases,
 independent labels and class-specific waiting-time limits remain open.
 The calendar error also motivated an [offline deterministic-overlap prototype](hypotheses/H-A1-calendar-overlap-deterministic-2026-10-12.md).
 Its six developer-authored tests pass, but it has no live calendar adapter,

@@ -97,8 +97,12 @@ development cases cannot turn them into qualification cases.
 3. Multiple control sessions in each relevant load/cache profile, with enough
    cases to describe variation. The first six-case 9B run had 0.849–1.750 s
    terminal timings but is warm, exposed and lightly loaded; it is no p95 bar.
-4. Jason's per-class acceptable waiting times and explicit safety/quality
-   floors, set **before** seeing finalist scores. Keep `UNKNOWN` until agreed.
+4. Jason's already stated target is candidate 27B+ reasoning-on useful-answer
+   median and p95 no slower than the fresh accepted-9B control, including
+   reasoning and user-facing steps. The per-class **numeric control values**
+   and explicit safety/quality floors are still `UNKNOWN`; derive/freeze them
+   before seeing finalist scores. Do not ask Jason to choose a slower waiting
+   allowance merely because an engineering candidate misses this target.
 5. A consented, equivalent Codex comparison if cloud fallback is in scope;
    existing manual Codex questions are not paired with this corpus.
 6. A verified lab lease and bounded run card for experiments needing exclusive

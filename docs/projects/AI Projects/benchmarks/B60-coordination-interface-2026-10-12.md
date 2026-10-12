@@ -230,3 +230,8 @@ returned six texts quickly but exposed the calendar mistake. Do not repeat it
 as a supposedly independent baseline or infer exclusive-lab authorization.
 The B60 bridge can use the exposed set for offline wiring checks once pins
 align. Candidate qualification needs a fresh, independently frozen case set.
+
+**Later receipt:** B60 resolved the nullable-phase source pin at `dd8825f`;
+the previous pin mismatch is historical. Aster's exact response, focused
+bridge verification and Mini readiness are in
+[B60 measurement response](B60-measurement-response-and-mini-readiness-2026-10-12.md).
