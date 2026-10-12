@@ -406,9 +406,13 @@ checks passing. The live schedules now read:
 | TrueNAS Mac pull | task 2 | `03:00` |
 
 The control plane, network, UPS protection and minimum monitoring path remain
-outside the lab lease. The lease/controller itself is not yet deployed or
-scheduled; it must still drain nonessential guests, acquire a host lock, record
-a checkpoint and restore the accepted V1 service before the 04:15 boundary.
+outside the lab lease. A manual, disabled-by-default controller is now
+installed at `/usr/local/sbin/local-ai-lease` on the Proxmox host; no timer or
+systemd service was enabled. Its bounded `--light` mode drains only the three
+Local AI production services, records a root-private checkpoint, holds an
+explicit lease lock and refuses release until the services and control plane
+are healthy. Full guest draining and host restart remain explicit future
+operations, not part of this first live test.
 
 ## Lease-controller candidate — local only — 2026-10-12
 
@@ -418,5 +422,21 @@ with four local tests. It rejects an unverified/incomplete backup, active
 production or conflicting jobs, a closed window and an unavailable host lock;
 its release plan refuses to release the lock until restoration and health are
 verified. The candidate emits only an ordered action plan and has no Proxmox,
-systemd, SSH, network or scheduler side effects. It is not installed or enabled
-on the host.
+systemd, SSH, network or scheduler side effects. It is now installed as the
+manual host adapter but remains unscheduled and disabled.
+
+## Live lease-controller test — 2026-10-12
+
+The approved bounded live test completed successfully at 16:16–16:17 local.
+The controller acquired a light service-drain lease after the measured
+all-guest backup had completed and no `vzdump`, `rsync` or PBS client process
+was active. It recorded a root-private checkpoint, stopped
+`aster-agent.service` in LXC 104, `aster-llama.service` in LXC 110 and
+`aster-speech.service` in LXC 116, and confirmed all seven Proxmox survival
+units remained active: `pve-cluster`, `pvedaemon`, `pvestatd`, `pveproxy`,
+`ssh`, `networking` and `nut-monitor`.
+
+Release restored all three services and passed the health gate: Aster
+`/health`, llama `/health` and the full LXC 116 speech health check all
+returned healthy. The lease state and lock were removed after validation.
+The test explicitly permitted neither reboot nor scheduler activation.
