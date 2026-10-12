@@ -141,7 +141,8 @@ and the accepted Local AI Qwen3.5/SYCL contract rather than an arbitrary lab
 endpoint. Stream A is limited to baseline reconciliation, reproducible beta
 artifact preparation, evidence and promotion planning; no deployment, state
 migration, DNS/firewall/authentication, credential or remote repository change
-was performed.
+was performed. The separately approved morning digest timer change was applied
+and verified in LXC114.
 
 ### Live baseline evidence
 
@@ -151,8 +152,9 @@ was performed.
   returned `{"status":"ok"}`. The service is bound to the guest address, not
   loopback port 8080.
 - The hourly ingest timer and twice-daily digest timer are enabled and active.
-  The digest timer remains live at 05:15/17:15 fixed-offset time until the
-  separately authorized schedule change; its randomized delay is 120 seconds.
+  The approved morning timer change is live at 06:15/17:15 fixed-offset time;
+  its randomized delay remains 120 seconds. Rollback checkpoint:
+  `/root/news-digest-timer.before-20261012` in LXC114.
 - Recent digest runs completed successfully: the 2026-10-12 morning run
   processed 21 clusters and generated 8.9 MB audio in about 35 minutes; the
   afternoon run processed 11 clusters and generated 4.2 MB audio in about 16
