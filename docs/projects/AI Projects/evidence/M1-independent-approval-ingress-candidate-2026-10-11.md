@@ -73,6 +73,15 @@ keeps `passkey_verified=false` even when a synthetic signed token carries the
 fixture passkey ACR. The only positive ACR tests are on the underlying library
 factory, not the production-shaped process factory. No real JWKS fetch was made.
 
+The pinned PyJWT 2.14.0 source says its optional signing-key LRU has **no
+time-based expiry**. The process factory therefore disables both that cache
+and the JWKS-set cache, with a three-second fetch timeout. This makes issuer
+unavailability deny approval requests rather than relying on a potentially
+stale cached key. It also adds a network round-trip to each approval-view call;
+latency, polling load and Authentik availability must be measured before
+deployment. The existing Aster gateway's cache setting was not changed by
+this candidate.
+
 The tests prove the narrow Python and local-socket contract, **not** process isolation or
 deployment safety. In particular, no live passkey-specific ACR has been
 verified; no companion client has been routed to this app; no new UID/socket

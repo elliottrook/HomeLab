@@ -53,7 +53,12 @@ def create_app() -> FastAPI:
 
     return build_app(
         issuer=issuer, audience=audience,
-        jwks_client=jwt.PyJWKClient(jwks_url, cache_keys=True, lifespan=3600),
+        # PyJWT's per-key LRU has no time expiry. For human approval, do not
+        # retain a removed issuer key or accept requests during JWKS outage.
+        # Live latency/availability must be measured before deployment.
+        jwks_client=jwt.PyJWKClient(
+            jwks_url, cache_keys=False, cache_jwk_set=False, timeout=3.0,
+        ),
         broker_client=BrokerApprovalClient(socket_path),
         approver_subject_hashes=hashes,
         # Deliberately no production passkey mapping. Red and management stay

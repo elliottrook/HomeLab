@@ -52,7 +52,8 @@ class ApprovalIngressServiceTests(unittest.TestCase):
         with patch.dict(os.environ, CONFIG, clear=True):
             with patch("approval_ingress_service.jwt.PyJWKClient", return_value=jwks) as constructor:
                 http = TestClient(create_app())
-        constructor.assert_called_once_with(ISSUER + "jwks/", cache_keys=True, lifespan=3600)
+        constructor.assert_called_once_with(ISSUER + "jwks/", cache_keys=False,
+                                            cache_jwk_set=False, timeout=3.0)
         token = jwt.encode({"iss": ISSUER, "aud": "aster-companion", "sub": SUBJECT,
                             "exp": int(time.time()) + 600, "auth_time": int(time.time()),
                             "acr": "synthetic-passkey"}, self.key, algorithm="RS256")
