@@ -46,6 +46,15 @@ cannot be compared with the B60 request timing. The control confirms that a
 future local stack must add measured value beyond simply reproducing these
 examples; it is not an independent quality or deployment result.
 
+The first [six-case synthetic completed-answer probe](experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
+used the accepted 9B/SYCL service after the platform owner's light lease was
+released. All six fictional requests returned text, with a 1.123 s median
+request-to-terminal time; a clear calendar reasoning error and other rubric
+omissions mean answer quality remains unqualified. The six exposed cases and
+nonblind author review do not establish a useful-answer rate, class budget or
+automatic routing gate. The service remained healthy with no tools or runtime
+changes.
+
 The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
 symlinked or writable reports, and fails closed on malformed status types; see
 the [live boundary record](evidence/D4-doctor-adapter-live-boundary-2026-10-11.md).

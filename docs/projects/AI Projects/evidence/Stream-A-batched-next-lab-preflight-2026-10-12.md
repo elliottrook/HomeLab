@@ -59,3 +59,12 @@ source-projection review without touching the host. R1 waits for a B60
 candidate; Q1 waits for human governance; C1 waits for reviewed cloud-batch
 authority. None of these cards changes automatic routing, AI-PAM grants, the
 D3 limited-release hold or B60's production control.
+
+**Later 2026-10-12 A1 update:** Jason authorized B60 tests now; after the
+platform owner's separate light lease was released and production restored,
+the [bounded six-case development probe](../experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md)
+ran against the accepted 9B service. Capture and postchecks passed, but the
+calendar answer was plainly wrong. This closes only the A1 *capture
+feasibility* question. Independent answer-quality labels, current-control
+latency distributions, class floors, candidate comparisons and any routing
+promotion remain blocked.

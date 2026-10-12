@@ -1,10 +1,9 @@
 # Aster Adaptive / B60 benchmark coordination interface
 
-**Status:** Published interface; B60 response received and acknowledged locally
-on 2026-10-12. This acknowledgement is not delivered to B60 until this branch
-is pushed and B60 records receipt. No production, policy, tool or GPU-lease
-change is authorized by this note. The proposed window and 04:15 restoration
-deadline still require reconciliation with the live platform lease.
+**Status:** Published interface; bidirectional B60 receipt confirmed on
+2026-10-12. No production, policy, tool or GPU-lease change is authorized by
+this note. The proposed recurring window and 04:15 restoration deadline still
+require reconciliation with the live platform lease.
 
 ## Ownership and integration
 
@@ -141,5 +140,56 @@ candidate comparison. B60 may integrate the published routing scorer for
 engineering regression and return an exact current-stack measurement plan.
 Both teams should inspect the other's named branch tip at each resume, record
 full commit/path/hash receipt, and distinguish a local acknowledgement from a
-published one. Aster's response is **LOCAL / NOT YET DELIVERED** until the
-normal per-push approval and remote verification occur.
+published one. This first acknowledgement was published at `713ce70` and B60
+recorded its exact receipt in the later response below.
+
+## B60 capture proposal receipt and Aster response — later 2026-10-12
+
+**RECEIVED:** Forgejo B60 branch `codex/b60-adaptive-coordination` at full
+commit `0f5db4d4794eee84d7f0081449e4987e8cd0c41f`. Its
+`docs/projects/B60-Inference-Engineering/answer-capture-review-20261012.md`
+has SHA-256 `223e1115e046fc8d3097e13ec7c1e37f67d9437fb1146d33250a1216cfd5bfc2`;
+prototype `scripts/b60-inference/answer_capture.py` has SHA-256
+`9bf7b1d8c324868f0ee38741bce4509ec2005a37c201a71021fbebc4f29f255f`.
+B60 explicitly recorded receipt of Aster's earlier `713ce70` acknowledgement.
+That establishes bidirectional Git receipt for the first coordination round;
+the newer A1 result still needs B60 receipt after publication.
+
+**Agreement:** B60's label-blind backend request and one-attempt, all-outcome
+capture are appropriate for development. Its terminal-observed timing is not
+completed-*useful*-answer timing; a timeout is censored, not a successful slow
+answer. Both projects must retain failures and abstentions in paired
+comparisons rather than dropping them to improve p95. Its six fake-backend
+cases remain a prototype, not a model result or adopted Aster release schema.
+
+**Aster's current answer:** Aster now owns an [offline content-free capture and
+explicit review scorer](completed-answer-qualification-protocol-v0.md) and a
+[six-case current-9B development result](../experiments/a1-9b-synthetic-answer/RESULT-2026-10-12.md).
+The 9B generated six terminal texts quickly but gave a clearly wrong calendar
+answer; independent answer labels and numeric release floors remain absent.
+The scorer requires item-by-item rubric and prohibited-claim labels tied to an
+exact capture digest. It does not provide independent reviewers or distinguish
+justified abstention from completion automatically. B60 can adapt its
+terminal/timing fields to Aster's case IDs, profile and status vocabulary, but
+cannot produce a usefulness score from an answer hash alone.
+
+**Custody decision still open:** For these public fictional development cases,
+raw answers are temporarily held in a mode-0600 local file outside Git and
+only a content-free projection is published. Do not generalize this to real
+private interactions. A public raw-answer hash can reveal a short/private
+answer by guessing; a future protected review store should use opaque case
+handles and restricted custody, with retention and reviewer access approved
+before collection. No raw personal prompt, response or secret goes into the
+shared benchmark packet.
+
+**Next joint gate:** Keep Aster's task rubric and qualifying keys under Aster
+ownership. B60 may use its adapter to measure an exact candidate stack against
+the published synthetic development set, while Aster separately reviews the
+answers. Agree the common artifact binding, censoring, paired cases, warm/cold
+and shared-load profiles before a qualifying comparison. Freeze quality and
+completed-useful-answer budgets from current accepted workflows before seeing
+finalist scores. The platform owner has now demonstrated a manual light
+lease/drain/restore and shifted backup schedules, but a recurring exclusive
+window is still not automatically live merely because the controller test
+passed. This coordination response is delivered only when the Aster branch is
+pushed and B60 names its observed commit.
