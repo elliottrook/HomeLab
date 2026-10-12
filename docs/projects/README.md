@@ -1,5 +1,14 @@
 # HomeLab Enhancement Project Portfolio
 
+## Governing lifecycle standard
+
+All new service work follows [Environment and Release Lifecycle](../Environment-and-Release-Lifecycle.md)
+and the [Project Creation Standard](../Project-Creation-Standard.md). Every
+currently deployed service is treated as service release **V1** for forward
+planning, regardless of historical implementation iterations. Environment
+promotion and service version are separate decisions; historical experiment and
+upstream version identifiers remain unchanged.
+
 > Established: 2026-08-24
 >
 > The original HomeLab build is the stable production baseline. Each document
@@ -10,7 +19,10 @@
 
 | Project | Status | Project document | Supporting material |
 |---|---|---|---|
-| Aster Adaptive Computing — Foundation and Operational Sysadmin Capability | Active — Stream A; SA0–SA5 approved as next delivery priority; SA0 next; sysadmin graduation gated on operational evidence | [Implementation project](AI%20Projects/Aster-Adaptive-Computing.md) | [Adopted workstream](AI%20Projects/Operational-Sysadmin-Capability.md); Qwen-first trial, conditional hybrid fallback; existing authority/recovery gates retained |
+| Production service placement and release registry | Active — Stream A; registry milestone complete | [Production service placement and release registry](Production-Service-Placement-and-Release-Registry.md) | V1 inventory, environment classification, [durable release registry](../service-release-registry.md), promotion procedure and migration order for mature services |
+| Local AI platform — lab/production split | Active — Stream A; baseline reconciliation paused on release identity | [Local AI platform split](Local-AI-Platform-Split.md) | `ai-lab`/`ai-prod`, stable Aster identity contract, model/release manifest and tested fallback |
+| News Digest productionisation pilot | Proposed — Stream M; first lifecycle promotion | [News Digest productionisation](News-Digest-Productionisation.md) | V1 promotion from VLAN 70 to production application placement with private remote access and iPhone acceptance |
+| Aster Adaptive Computing — Foundation and Operational Sysadmin Capability | Active — Stream A; Codex-owned sysadmin boundary; Aster/Qwen retained for bounded local analysis and scheduled work | [Implementation project](AI%20Projects/Aster-Adaptive-Computing.md) | [Adopted workstream](AI%20Projects/Operational-Sysadmin-Capability.md); evidence/adapters and authority/recovery controls retained; no Qwen sysadmin-equivalence path |
 | B60 inference engineering | Proposed — Stream M | [B60 inference engineering](B60-Inference-Engineering.md) | Scientific optimization of the fixed T5810/B60 Aster inference path; read-only state reconciled, fresh control/harness and exact rollback inventory pending before any operational experiment |
 | MacBook administration layer | Active — Stream A; M0-M3 closed (baseline, toolkit, independent SSH identity/enrollment, Doctor parity); M4 (recovery, integration, graduation) in progress | [MacBook administration layer](MacBook-Administration-Layer.md) | Independent internal toolkit, credentials and recovery; mini-only scheduled automation; no SSD migration |
 | Surveillance expansion | One-camera baseline complete; expansion proposed | [Surveillance expansion](Surveillance-Expansion.md) | [Surveillance runbook](../07-Surveillance.md) |
@@ -66,7 +78,7 @@
 | Plex-to-Jellyfin media migration | 2026-09-01 | [Plex-to-Jellyfin close-out](completed%20projects/Plex-to-Jellyfin-Media-Migration.md) | Separate checksum-verified Archive Movies/TV libraries, one consolidated and re-tagged music root, 11 playlists and 165 movie collections migrated and validated (including recovery from a same-day Jellyfin data-loss incident), and Plex source media retired with an explicit risk-managed approval. Recurring backup coverage for Jellyfin's own application database is intentionally deferred, entangled with a separate, larger backup-topology effort. |
 | News aggregator (MuckScraper) | 2026-09-15 | [News aggregator (MuckScraper)](completed%20projects/News-Aggregator-MuckScraper.md) | Private RSS/Atom reader on LXC 114 (VLAN 70) clustering same-story coverage across 10 real feeds (AP News assessed and dropped — no source-published feed), attaching a named-source (AllSides) bias rating with an honest unverified-this-session caveat surfaced via a live UI tooltip, and summarizing via the existing `aster-llama` endpoint on a dedicated least-privilege key. HomeLab Doctor, NetBox, Homepage, firewall/DNS and checksum-verified local + off-host backup coverage all closed |
 | News aggregator Phase 2 — digest, sections and rebrand | 2026-09-15 | [News aggregator Phase 2](completed%20projects/News-Aggregator-Digest-and-Sections.md) | Rebranded "Your News", with a twice-daily digest of multi-outlet stories only (abridged summary plus deviation notes via the existing `aster-llama` key), a `/settings` page queuing new source/category requests for verification, and a full dark-theme redesign. Fixed three real production bugs found via live testing along the way: HTML-polluted summaries, duplicate cards from cross-posted stories (whose first fix attempt was itself a caught-and-reverted false-positive regression), and an over-broad digest scope |
-| News aggregator Phase 3 — audio digest | 2026-09-15 | [News aggregator Phase 3](completed%20projects/News-Aggregator-Audio-Digest.md) | Local Piper TTS narrates the latest digest run as a single MP3 briefing on `/digest`, chained into the existing twice-daily timer; closes a real HomeLab Doctor gap (a silently-stale audio file) and gives Jason a real trial of Piper ahead of a planned Home Assistant project. Confirmed working by Jason on desktop and his own iPhone after two real-screenshot-driven mobile rendering fixes |
+| News aggregator Phase 3 — audio digest | 2026-09-15 | [News aggregator Phase 3](completed%20projects/News-Aggregator-Audio-Digest.md) | Local Kokoro TTS now provides the canonical Aster voice for the latest digest run as a single MP3 briefing on `/digest`; Piper is retained only as a tested failsafe. HomeLab Doctor covers silent renderer/ffmpeg failure. Confirmed working by Jason on desktop and his own iPhone after real mobile rendering fixes |
 
 ## Closed projects — partial success or abandoned
 

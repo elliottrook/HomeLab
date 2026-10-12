@@ -52,6 +52,10 @@ fresh independently reviewed evaluation under its existing gates. Continue
 Stream A local work without milestone-by-milestone confirmation, pause only at
 required gates and resume when granted. Production defaults remain unchanged.
 
+This 2026-10-05 coordination paragraph is superseded for role selection by
+the 2026-10-12 role-boundary decision below: Codex owns sysadmin operation;
+Aster/Qwen is not being qualified as a replacement for it.
+
 **Proposed:** 2026-09-25.
 
 **Authorization stream:** Stream A — Autonomous, explicitly authorized by Jason on 2026-09-25: create the AI Projects folder, adopt these documents, mark superseded plans and archive them, and start this project. The authorization covers the bounded foundation milestones and their existing exclusions, not general administrator authority, later-release scope or automatic promotion authority. Repository/platform controls and per-push confirmation remain mandatory.
