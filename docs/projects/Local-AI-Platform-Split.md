@@ -80,7 +80,7 @@ exclusive physical runtime rather than attempting to run separate GPU-backed
   lab state, credentials and artifacts, acquires a lease, and cannot start
   while production work owns the GPU.
 - The daytime path remains Aster/News/Speech production service. News digest
-  timers at approximately 05:15 and 17:15 local fixed-offset time remain
+  timers at approximately 06:15 and 17:15 local fixed-offset time are the
   production reservations; lab work must not overlap them.
 - Entering lab mode must stop or quiesce production inference cleanly, record
   a checkpoint, run the bounded lab workload, and restore the accepted V1
@@ -93,16 +93,16 @@ create a second concurrent GPU consumer.
 
 ### Night schedule contract — proposed, not yet deployed
 
-The morning digest remains at 05:15 local fixed-offset time. The two hours
-immediately before it are reserved for the future local-AI email and calendar
+The morning digest is proposed to move to 06:15 local fixed-offset time. The
+two hours immediately before it are reserved for the future local-AI email and calendar
 analysis workload; no lab lease or backup activity may run in that interval:
 
 | Window | Owner | Rule |
 |---|---|---|
 | 00:30 onward, bounded by completion | Proxmox guest backup | Move the all-guest backup earlier; declare success only after all archives pass their existing completion checks. |
-| After backup-chain completion until 03:15 | `ai-lab` | Exclusive GPU lease for bounded lab work; production inference is quiesced and restored before the lease expires. |
-| 03:15–05:15 | Future local-AI analysis | Reserved for email/calendar analysis; no lab work, Proxmox backup, or LXC110 mirror. |
-| 05:15 | News morning digest | Production reservation; lab remains excluded. |
+| After backup-chain completion until 04:15 | `ai-lab` | Exclusive GPU lease for bounded lab work; production inference is quiesced and restored before the lease expires. |
+| 04:15–06:15 | Future local-AI analysis | Reserved for email/calendar analysis; no lab work, Proxmox backup, or LXC110 mirror. |
+| 06:15 | News morning digest | Production reservation; lab remains excluded. |
 
 The backup chain includes the Proxmox all-guest archive and its TrueNAS
 follow-on pulls, including the dedicated LXC110 mirror. The proposed 00:30
@@ -110,7 +110,7 @@ start is intentionally conservative against the observed roughly 19-minute
 Proxmox run and the roughly 6-minute LXC110 mirror; exact start offsets remain
 subject to one measured end-to-end run and the TrueNAS task ordering. The
 existing 04:00/04:20 TrueNAS tasks must not be left in place when the
-03:15–05:15 analysis reservation is enabled. This schedule is a design
+04:15–06:15 analysis reservation is enabled. This schedule is a design
 checkpoint only: no remote timer, Proxmox job, TrueNAS task, GPU lease, or
 production service was changed by recording it.
 
@@ -269,10 +269,10 @@ fallback and recovery.
 ### GPU-window implementation prerequisite
 
 Before installing or enabling a scheduler, choose the recurring local-time
-window for exclusive lab work. The schedule must avoid the News 05:15/17:15
+window for exclusive lab work. The schedule must avoid the News 06:15/17:15
 production reservations, and any other nightly workload that the live timer
 inventory identifies. The target sequence is backup first, exclusive lab time
-after backup completion, analysis from 03:15–05:15, then the 05:15 News
+after backup completion, analysis from 04:15–06:15, then the 06:15 News
 reservation. Before enabling a scheduler, measure one complete backup chain
 and obtain explicit authorization for the bounded Proxmox/TrueNAS schedule
 change; until then, test the lease/controller manually only.
