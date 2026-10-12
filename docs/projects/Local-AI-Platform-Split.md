@@ -76,9 +76,12 @@ exclusive physical runtime rather than attempting to run separate GPU-backed
 - `ai-prod` is the stable V1 contract backed by the accepted Qwen3.5/SYCL
   runtime on LXC 110. Until a second GPU or an approved production placement
   exists, its VLAN 70 location is a documented transitional exception.
-- `ai-lab` is an exclusive scheduled mode on the same GPU. It uses separate
-  lab state, credentials and artifacts, acquires a lease, and cannot start
-  while production work owns the GPU.
+- `ai-lab` is an exclusive scheduled host-maintenance mode on the same GPU. It
+  uses separate lab state, credentials and artifacts, acquires a whole-host
+  maintenance lease, and cannot start while production or backup work owns the
+  host. The lease is intentionally exclusive even when a particular experiment
+  only needs the GPU: most sessions may leave services untouched, but every
+  session is allowed to stop guests, restart components, or reboot the host.
 - The daytime path remains Aster/News/Speech production service. News digest
   timers at approximately 06:15 and 17:15 local fixed-offset time are the
   production reservations; lab work must not overlap them.
@@ -100,7 +103,7 @@ analysis workload; no lab lease or backup activity may run in that interval:
 | Window | Owner | Rule |
 |---|---|---|
 | 00:30 onward, bounded by completion | Proxmox guest backup | Move the all-guest backup earlier; declare success only after all archives pass their existing completion checks. |
-| After backup-chain completion until 04:15 | `ai-lab` | Exclusive GPU lease for bounded lab work; production inference is quiesced and restored before the lease expires. |
+| After backup-chain completion until 04:15 | `ai-lab` | Exclusive whole-host maintenance lease; ordinary sessions may be light, but no other workload may start and restarts/reboots are permitted. |
 | 04:15–06:15 | Future local-AI analysis | Reserved for email/calendar analysis; no lab work, Proxmox backup, or LXC110 mirror. |
 | 06:15 | News morning digest | Production reservation; lab remains excluded. |
 
@@ -114,6 +117,13 @@ existing 04:00/04:20 TrueNAS tasks must not be left in place when the
 checkpoint only: no remote timer, Proxmox job, TrueNAS task, GPU lease, or
 production service was changed by recording it.
 
+The whole-host lease does not mean that the Proxmox control plane, network
+access, UPS protection, recovery console or the minimum monitoring path must be
+stopped. It means no nonessential guest, scheduled job, inference consumer,
+backup/sync task or automated remediation may run concurrently. The controller
+must drain those workloads, acquire a host-level lock, record a pre-lab
+checkpoint, and refuse new starts until the lease is released or expires.
+
 ## Pre-start risk assessment
 
 | Risk | Control | Residual risk |
@@ -122,6 +132,7 @@ production service was changed by recording it.
 | Production data or credentials enter lab | Separate identities, secrets and test data; deny-by-default network policy | Misconfiguration during migration |
 | One Proxmox host remains a shared failure domain | Existing backups, restore evidence and tested fallback | No high availability |
 | GPU/CPU contention degrades daily services | Resource envelope, concurrency limit and measured load gate | Capacity remains finite |
+| Lab restart leaves production unavailable | Whole-host maintenance lease, pre-lab checkpoint, bounded lease expiry and post-lab restoration/health gate | A failed reboot can extend the degraded window |
 | Fallback is documented but not usable | Real failover and recovery test before graduation | Manual intervention may remain necessary |
 
 ## Persistence, observability and recovery
@@ -161,8 +172,13 @@ addresses or internal model details.
 ### 2. Establish `ai-lab` and `ai-prod`
 
 - [ ] Create separate runtime/configuration/state boundaries on the existing
-  host; use a mutually exclusive GPU lease rather than concurrent GPU-backed
-  guests and do not imply high availability.
+  host; use a whole-host maintenance lease rather than concurrent workloads.
+  The lease must drain nonessential guests and timers, block new starts, and
+  explicitly permit component restarts and full host reboots. Keep only the
+  minimum Proxmox/network/UPS/recovery control plane needed to operate safely.
+- [ ] Exercise both a light lab session and a destructive-maintenance-shaped
+  session under the same lease contract; the scheduler must not need a second
+  authorization path when the latter is required.
 - [ ] Apply distinct credentials, data policy, network policy and deployment
   identities.
 - [ ] Deploy the accepted V1 artifact as the production mode and a separately
@@ -170,7 +186,8 @@ addresses or internal model details.
   model/configuration differences recorded.
 
 **Gate:** lab changes cannot alter production state, credentials or serving
-configuration without an explicit promotion.
+configuration without an explicit promotion; the host can be drained, restarted
+and restored with a recorded checkpoint and health evidence.
 
 ### 3. Promote one consumer and prove fallback
 
@@ -266,16 +283,17 @@ The final milestone must include the mandatory documentation-adequacy
 reflection and a fresh-operator trace from consumer to endpoint, dependency,
 fallback and recovery.
 
-### GPU-window implementation prerequisite
+### Exclusive-window implementation prerequisite
 
 Before installing or enabling a scheduler, choose the recurring local-time
 window for exclusive lab work. The schedule must avoid the News 06:15/17:15
 production reservations, and any other nightly workload that the live timer
-inventory identifies. The target sequence is backup first, exclusive lab time
-after backup completion, analysis from 04:15–06:15, then the 06:15 News
-reservation. Before enabling a scheduler, measure one complete backup chain
-and obtain explicit authorization for the bounded Proxmox/TrueNAS schedule
-change; until then, test the lease/controller manually only.
+inventory identifies. The target sequence is backup first, whole-host drain and
+lab maintenance, analysis from 04:15–06:15, then the 06:15 News reservation.
+Before enabling a scheduler, measure one complete backup chain, define the
+control-plane survival set and restoration checklist, and obtain explicit
+authorization for the bounded Proxmox/TrueNAS schedule change; until then,
+test the lease/controller manually only.
 
 ## Stream A baseline stop condition — 2026-10-12
 
