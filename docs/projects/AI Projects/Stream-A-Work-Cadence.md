@@ -25,6 +25,11 @@ Preflight multiple candidates in one continuous-lane pass, but execute serially 
 
 ## Current queue, 2026-10-12
 
+The [next batched offline preflight](evidence/Stream-A-batched-next-lab-preflight-2026-10-12.md)
+classifies five prospective cards and their missing gates. None is yet a
+READY exclusive run. The continuous lane can prepare synthetic completed-
+answer capture and bounded diagnostic evidence while those gates remain open.
+
 | Item | Lane / state | Next action |
 |---|---|---|
 | Companion natural refresh | Continuous / observing | Quiet four-hour observation; a real refresh plus ordinary-use check can close only this D3 gate. It does not use B60 exclusivity. |

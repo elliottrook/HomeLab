@@ -114,6 +114,9 @@ finalist scores.
 
 No independent answer-quality cases, adjudicators, privacy retention decision,
 per-class current-control latency distributions or release floors are frozen
-yet. Build those before asking B60 to optimize against a numeric bar. Aster
-can first run a *small synthetic feasibility set* to prove capture and scoring,
-clearly marked development-only; it must not be used to claim a release pass.
+yet. Build those before asking B60 to optimize against a numeric bar. The
+[six-case synthetic fixture](../../../../scripts/aster-adaptive/fixtures/answer-feasibility-v0.json)
+is a public, development-only starting point for capture and rubric testing;
+it has not been sent to a model, independently scored or accepted as a release
+set. Its validator establishes shape and bounded timestamps, not that a model
+answer is correct or that the fixture is a privacy-certified dataset.
