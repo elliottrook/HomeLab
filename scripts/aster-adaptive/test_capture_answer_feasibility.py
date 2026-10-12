@@ -77,6 +77,14 @@ class AnswerCaptureTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaises(ValueError):
                 self.project(run)
 
+    def test_unobserved_timing_components_remain_unknown(self):
+        run = copy.deepcopy(self.run)
+        run["attempts"][0].update(route_ms=None, context_ms=None, inference_ms=None)
+        first = next(row for row in self.project(run)["attempts"]
+                     if row["case_id"] == run["attempts"][0]["case_id"])
+        self.assertIsNone(first["inference_ms"])
+        self.assertEqual(first["total_ms"], 63)
+
 
 if __name__ == "__main__":
     unittest.main()

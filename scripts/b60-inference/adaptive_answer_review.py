@@ -14,7 +14,7 @@ import sys
 ADAPTIVE = Path(__file__).resolve().parents[1] / 'aster-adaptive'
 PINS = {
     'validate_answer_feasibility': 'a48c028618c3d3f905863b88a3ee838090d9abed938a0279b4c01568c252e3a2',
-    'capture_answer_feasibility': '86d9c14cffc569a5f8974d0ce00a8a76b483402836b6a952e192006c5770b199',
+    'capture_answer_feasibility': 'c0458afdbbd3ffae3473b3850799eccd1436637ac70a9a0a465d05d85b1e1d9f',
     'score_answer_feasibility': 'c1fd4b982eab2b5066355d5952cb05b346850d0a3b265d7206bdcda83e0d9d46',
 }
 FIXTURE_SHA = 'b5e7748d5c90a30992cb22dd98aa333b3c7c14ea093a16ea3c29069df5661ef0'

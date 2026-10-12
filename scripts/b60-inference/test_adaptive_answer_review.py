@@ -85,6 +85,28 @@ class CanonicalReviewTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.packet()
 
+    def test_unobserved_phases_preserved_not_invented(self):
+        self.attempts['attempts'][0].update(route_ms=None, context_ms=None, inference_ms=None)
+        attempts, captured, labels = self.packet()
+        first = next(row for row in json.loads(captured)['attempts']
+                     if row['case_id'] == self.attempts['attempts'][0]['case_id'])
+        self.assertIsNone(first['route_ms'])
+        self.assertIsNone(first['context_ms'])
+        self.assertIsNone(first['inference_ms'])
+        self.assertEqual(first['total_ms'], 130)
+        result = review(self.fixture, attempts, captured, labels)
+        self.assertFalse(result['qualification_eligible'])
+
+    def test_total_time_still_required(self):
+        self.attempts['attempts'][0]['total_ms'] = None
+        with self.assertRaises(ValueError):
+            self.packet()
+
+    def test_known_phase_cannot_exceed_total_time(self):
+        self.attempts['attempts'][0].update(route_ms=None, context_ms=None, inference_ms=131)
+        with self.assertRaises(ValueError):
+            self.packet()
+
 
 if __name__ == '__main__':
     unittest.main()
