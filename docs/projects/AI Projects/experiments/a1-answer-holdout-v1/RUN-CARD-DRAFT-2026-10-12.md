@@ -34,9 +34,12 @@ to the candidate or runner.
 - `holdout_answer_capture.py` is a tested label-blind capture primitive: it
   accepts only the exact candidate-visible digest, requires an explicit
   profile hash, records one row per planned case, stops after first failure,
-  and saves raw answers in a new owner-only directory. Its `invoke` callback
-  deliberately has no live network adapter yet. Freeze and test that adapter
-  separately against the live accepted profile before invoking the holdout.
+  and saves raw answers in a new owner-only directory. A narrow
+  `holdout_answer_9b_adapter.py` now builds the existing accepted-9B-style
+  no-tool request from only candidate-visible fields. Offline tests verify
+  that rubric and label fields cannot enter the payload and malformed terminal
+  responses fail. It has not been used against the live service; freeze its
+  source and verify the actual accepted profile before invoking the holdout.
 - `prepare_holdout_answer_review.py` is a tested post-run handoff primitive.
   Only after the raw-attempt digest is sealed, the custodian joins the hidden
   key to backend-blinded answers in a private review packet and blank rubric
