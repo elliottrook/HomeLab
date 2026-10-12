@@ -370,3 +370,23 @@ The Forgejo push of the preceding source-contract checkpoint succeeded at
 checks after propagation delay; no direct GitHub push was attempted. This local
 contract work is intentionally retained for the next authorized synchronization
 window.
+
+## Synthetic contract boundary validation — 2026-10-12
+
+Read-only probes exercised the transitional endpoints without using a credential
+or sending a real prompt:
+
+| Probe | Result | Interpretation |
+|---|---:|---|
+| Aster `/health` without auth | HTTP 200 | Liveness remains intentionally public |
+| Aster `/v1/models` without auth | HTTP 401 | Model catalogue is protected |
+| Aster `/v1/chat/completions` without auth | HTTP 401 | Conversation surface fails closed |
+| Aster `/v1/models` with an invalid bearer | HTTP 401 | Invalid identity fails closed |
+| llama.cpp `/v1/models` without auth | HTTP 401 | Backend is not anonymously callable |
+| Aster Speech `/health` without auth | HTTP 200 | Speech liveness probe is available |
+| Aster Speech `/health` with an invalid bearer | HTTP 200 | Health remains a liveness endpoint, not a data/API grant |
+
+This validates the initial health/auth boundary only. It does not validate a
+successful authenticated model call, quota enforcement, timeout behavior,
+Kokoro failure/Piper recovery, resource headroom or consumer degradation; those
+remain explicit gates and require the appropriate bounded test setup.
