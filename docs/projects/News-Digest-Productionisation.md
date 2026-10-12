@@ -187,6 +187,10 @@ and verified in LXC114.
   coverage pattern: the 2026-10-12 LXC114 archive is about 2.5 GB, with daily
   prior archives visible. The project still requires an isolated restore check
   before promotion.
+- NetBox now contains the selected production record `news-aggregator-prod`
+  (active, 8 vCPU, 8192 MiB, 16 GiB, `eth0`, primary
+  `192.168.20.12/24`). The existing lab `news-aggregator` record remains
+  primary at `192.168.70.13/24`; no lab record was repointed.
 - The digest service is a oneshot chain: text generation followed by Kokoro
   audio narration. The API service is separate and serves on guest port 8080;
   no production guest or private ingress has been created by this Stream A
