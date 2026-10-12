@@ -4,7 +4,7 @@ import SwiftUI
 struct LocalCodexManualView: View {
     static let launchFlag = "--aster-local-codex-manual"
     // The bundled bridge checks this exact metadata-only configuration before a send.
-    static let approvedManifest = "483062186349703ee472b51323c88fb4ffa1f780ae9ff6f351d4046da4973392"
+    static let approvedManifest = "57140f720aa9097592699986bc03b891ecc67307fe5821af9d48d14c3ef844fa"
 
     @Environment(\.dismiss) private var dismiss
     @State private var pendingID = ""

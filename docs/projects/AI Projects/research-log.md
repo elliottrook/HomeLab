@@ -2716,3 +2716,13 @@ old versions remain for recovery. Aster health and the fresh service-account
 read passed. The reader also now rejects malformed status and hides missing
 paths. No Home Assistant control or Codex capability was enabled. See the
 [recovery record](evidence/HA-report-freshness-recovery-2026-10-11.md).
+
+### 2026-10-11 — Companion v16 offline release candidate
+
+The refresh-outcome observer and durable terminal-failure category were
+assembled as a local version-16 app candidate. Its bundled metadata-only
+bridge preflight matched the reviewed no-tools ChatGPT manifest; 57 native and
+305 bridge tests passed. The candidate is ad-hoc signed only and was neither
+registered nor installed. The stable-signed version 15 remains the ordinary
+app. Natural token-refresh proof and routine manual release remain open; see
+the [offline build gate](evidence/D3-native-v16-offline-build-2026-10-11.md).
