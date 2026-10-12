@@ -505,12 +505,7 @@ check_aster() {
             else
                 persistent_b60=no
             fi
-            if pct exec 110 -- vulkaninfo --summary 2>/dev/null | grep -qi "Intel.*BMG G21"; then
-                vulkan=bmg-g21
-            else
-                vulkan=missing
-            fi
-            printf "agent=%s\\ninference=%s\\napi=%s\\ndriver=%s\\nrollback_vm=%s\\npersistent_b60=%s\\nvulkan=%s\\n" "$agent" "$inference" "$api" "$driver" "$rollback_vm" "$persistent_b60" "$vulkan"
+            printf "agent=%s\\ninference=%s\\napi=%s\\ndriver=%s\\nrollback_vm=%s\\npersistent_b60=%s\\n" "$agent" "$inference" "$api" "$driver" "$rollback_vm" "$persistent_b60"
         '
     )"; then
         doctor_emit_aster_state unavailable
@@ -523,13 +518,31 @@ check_aster() {
        grep -q '"status":"ok"' <<< "$state" &&
        grep -qx 'driver=xe' <<< "$state" &&
        grep -qx 'rollback_vm=stopped' <<< "$state" &&
-       grep -qx 'persistent_b60=no' <<< "$state" &&
-       grep -qx 'vulkan=bmg-g21' <<< "$state"; then
+       grep -qx 'persistent_b60=no' <<< "$state"; then
         doctor_emit_aster_state pass
-        pass "Aster agent API, B60 Vulkan and llama.cpp inference healthy"
+        pass "Aster agent API healthy; llama.cpp service active; B60 xe bound; GPU offload not verified"
     else
         doctor_emit_aster_state fail
         fail "Aster service unhealthy: $(tr '\n' ' ' <<< "$state" | sed 's/[[:space:]]*$//')"
+    fi
+}
+
+check_aster_ha_report_freshness() {
+    local observed now age
+    if ! observed="$(ssh -o BatchMode=yes -o ConnectTimeout=5 proxmox \
+        'pct exec 104 -- stat -c %Y /var/lib/aster/ha-report/latest.json' 2>/dev/null)" ||
+       [[ ! "$observed" =~ ^[0-9]+$ ]]; then
+        fail "Aster Home Assistant report file is missing or unreadable"
+        return
+    fi
+    now="$(date +%s)"
+    age=$((now - observed))
+    if (( age < 0 )); then
+        warn "Aster Home Assistant report file timestamp is ahead of this clock"
+    elif (( age > 900 )); then
+        fail "Aster Home Assistant report file has not updated for $((age / 60)) minute(s)"
+    else
+        pass "Aster Home Assistant report file updated $((age / 60)) minute(s) ago"
     fi
 }
 
@@ -2083,6 +2096,7 @@ check_nut
 category "Applications & Services"
 
 check_aster
+check_aster_ha_report_freshness
 check_aster_speech
 check_aster_notifications
 check_aster_approval_readiness

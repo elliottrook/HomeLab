@@ -2726,3 +2726,12 @@ bridge preflight matched the reviewed no-tools ChatGPT manifest; 57 native and
 registered nor installed. The stable-signed version 15 remains the ordinary
 app. Natural token-refresh proof and routine manual release remain open; see
 the [offline build gate](evidence/D3-native-v16-offline-build-2026-10-11.md).
+
+### 2026-10-11 — Local Doctor freshness and backend truthfulness
+
+A local `doctor.sh` candidate now flags HA report files missing or older than
+15 minutes, the gap that allowed a month-long stale report to go unnoticed.
+The Aster check stops claiming Vulkan/GPU offload from an active service and
+basic host state. Bash syntax and six related Doctor tests pass; a read-only
+live `stat` returned a numeric epoch. The script is not deployed or an
+always-on alert. See the [HA recovery record](evidence/HA-report-freshness-recovery-2026-10-11.md).
