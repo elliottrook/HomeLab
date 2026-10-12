@@ -39,6 +39,13 @@ class InvestigationTests(unittest.TestCase):
         self.assertIn('download_pathh', json.dumps(calls[2]))
         self.assertNotIn('answer_key', json.dumps(calls))
 
+    def test_request_exposes_current_citation_boundary(self):
+        _, calls = self.replay([answer()])
+        request = json.loads(calls[0]['messages'][1]['content'])
+        self.assertEqual(request['observed_evidence_ids'], ['initial'])
+        self.assertIn('subset of observed_evidence_ids', request['citation_rule'])
+        self.assertIn('do not cite the check name', calls[0]['messages'][0]['content'])
+
     def test_repeated_unknown_check_and_effects_rejected(self):
         for responses, status in [([answer(), answer()], 'check_rejected'),
                                   ([answer(check='restart')], 'check_rejected'),

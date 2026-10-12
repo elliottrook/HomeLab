@@ -11,7 +11,10 @@ SYSTEM = (
     "or clarify when evidence is insufficient. Checks return simulated evidence, "
     "not real system results. Cite observed evidence IDs. Summarize the diagnosis "
     "and proposed verification briefly; do not provide private reasoning. "
-    "Never claim a repair was performed. Effects must be empty."
+    "Never claim a repair was performed. Effects must be empty. "
+    "Evidence IDs must be copied only from the currently supplied observations; "
+    "when requesting a check, do not cite the check name or any evidence it may "
+    "return until a later turn supplies that evidence."
 )
 
 
@@ -22,7 +25,9 @@ def request_for(case, observations, used, mode, model):
                              'capabilities': case['capabilities']}, mode, model)
     payload['messages'] = [dict(role='system', content=SYSTEM), dict(role='user', content=json.dumps({
         'id': case['id'], 'prompt': case['prompt'], 'observations': observations,
-        'available_checks': remaining, 'remaining_check_budget': 2-len(used)}, sort_keys=True))]
+        'observed_evidence_ids': [item['id'] for item in observations],
+        'available_checks': remaining, 'remaining_check_budget': 2-len(used),
+        'citation_rule': 'evidence_ids must be a subset of observed_evidence_ids; never cite a future check or its result'}, sort_keys=True))]
     payload['response_format']['schema'] = {
         'type': 'object', 'additionalProperties': False,
         'required': ['decision', 'check', 'evidence_ids', 'summary', 'effects'],
