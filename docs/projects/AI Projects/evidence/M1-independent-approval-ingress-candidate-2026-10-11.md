@@ -153,3 +153,14 @@ factory has no passkey mapping. This is a narrower usable service, not M1
 Stage2 completion or permission to connect Codex tools. The user-visible loss
 or preservation of any current Companion management workflow must be checked
 before accepting that tradeoff.
+
+**Value gate before adding infrastructure:** this option creates a new process,
+Unix identity, private listener, firewall rule, proxy location and recovery
+procedure. It should be adopted only if Companion Yellow approvals are an
+actual useful workflow or the separated boundary is demonstrably necessary
+for the first connected read-only role. Their real usage frequency and Jason's
+tolerance for a brief approval outage are not established. If the need is
+weak, retain the human-only operational ceremony and do not build a permanent
+second approval service merely because the offline code passes tests. The
+existing Aster-peer trust flaw must remain visible in that decision; it cannot
+be described as resolved or used to justify tool grants.
