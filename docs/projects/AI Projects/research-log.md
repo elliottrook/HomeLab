@@ -2775,3 +2775,24 @@ with Always Allow, and a later read-only AI-PAM opening showed no repeat.
 Content-free session-code log queries found no natural refresh event.
 No Codex turn, approval or tool action ran. D3 routine release remains held;
 see the [v16 observation](evidence/D3-native-v16-installation-2026-10-11.md).
+
+### 2026-10-12 — Companion reauthentication and later refresh watch
+
+Jason signed out and immediately authenticated again without entering
+credentials. The native v16 window showed its signed-in state afterward. This
+is a new sign-in through an existing authentication session, not proof that
+Aster renewed an expiring token. The D3 natural-refresh gate remains open. A
+quiet same-thread follow-up is scheduled to check only fixed, content-free
+refresh event codes after the session ages; it will not sign out, send a Codex
+question or alter Keychain access.
+
+### 2026-10-12 — Deployed Aster web styling reconciled into source
+
+A hash-verified read-only copy of the deployed gateway showed that its web CSS
+and theme color were newer than this branch. Only those already-deployed UI
+blocks were copied into the local source. The two UI function ASTs now match
+the deployed file; other source order and runtime-selection differences still
+hold the whole-file deployment gate. The available top-level suite passed
+217 tests; one notification test could not import `requests` in the existing
+temporary venv and was excluded without installing a dependency. No running
+service changed. See the [source parity record](evidence/SA0-gateway-UI-source-parity-2026-10-12.md).

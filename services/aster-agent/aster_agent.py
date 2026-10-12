@@ -1707,10 +1707,11 @@ async def browser_chat() -> str:
 <link rel="icon" type="image/png" href="/aster-app-icon.png">
 <link rel="apple-touch-icon" href="/aster-app-icon.png">
 <title>Aster</title><style>
-body{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0}main{max-width:850px;margin:auto;padding:24px}
-#chat{min-height:55vh;white-space:pre-wrap}.m{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}.u{background:#1e3a5f}
-textarea,input,button{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}
-textarea{width:100%;box-sizing:border-box;min-height:90px}button{cursor:pointer;background:#2563eb;border:0;margin-top:8px}#key{width:20rem;max-width:90%}.muted{color:#9ca3af;font-size:.9rem}
+:root{color-scheme:dark;--ui-bg:#0b1020;--ui-panel:#151d31;--ui-panel-raised:#1b2740;--ui-panel-input:#111a2c;--ui-text:#f4f7fb;--ui-text-soft:#dce4f1;--ui-muted:#aab6ca;--ui-accent:#8bd3ff;--ui-accent-strong:#b9f2d0;--ui-line:#2b3a58}
+body{font:17px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top right,#25395a 0,var(--ui-bg) 48%);color:var(--ui-text);margin:0}main{max-width:1180px;margin:auto;padding:42px 24px 72px}
+h1{font-size:clamp(2.8rem,8vw,5rem);line-height:1;letter-spacing:-.05em;margin:0 0 10px}.muted{color:var(--ui-muted);font-size:.95rem}#chat{min-height:55vh;white-space:pre-wrap}.m{max-width:82%;padding:16px 18px;margin:14px 0;border-radius:18px;background:linear-gradient(145deg,var(--ui-panel),#10182a);border:1px solid var(--ui-line);box-shadow:0 12px 30px #0003}.u{background:#172f4d;margin-left:auto}
+textarea,input,button{font:inherit;color:inherit;background:var(--ui-panel-input);border:1px solid var(--ui-line);border-radius:10px;padding:13px 14px}textarea{width:100%;box-sizing:border-box;min-height:110px}button{cursor:pointer;background:var(--ui-accent);color:#07111d;border:0;margin-top:10px;font-weight:750}button:hover{filter:brightness(1.08)}#key{width:20rem;max-width:90%}
+@media(max-width:600px){main{padding:30px 14px 56px}h1{font-size:3.2rem}.m{max-width:92%;padding:18px}.muted{font-size:1rem}textarea{min-height:125px}button{min-height:44px}}
 </style></head><body><main><h1>Aster</h1><p class="muted">Local Qwen 3.5 9B · llama.cpp SYCL · scoped tools</p>
 <label>API key <input id="key" type="password" autocomplete="off"></label><div id="chat"></div>
 <textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
@@ -1768,10 +1769,12 @@ async def companion_web_client() -> str:
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Aster">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#0b1020">
 <style>
-body{{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0;overflow-x:hidden}}
-main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
+ :root{{color-scheme:dark;--ui-bg:#0b1020;--ui-panel:#151d31;--ui-panel-raised:#1b2740;--ui-panel-input:#111a2c;--ui-text:#f4f7fb;--ui-text-soft:#dce4f1;--ui-muted:#aab6ca;--ui-accent:#8bd3ff;--ui-accent-strong:#b9f2d0;--ui-danger:#ffaaa8;--ui-line:#2b3a58}}
+body{{font:17px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top right,#25395a 0,var(--ui-bg) 48%);color:var(--ui-text);margin:0;overflow-x:hidden}}
+main{{max-width:1180px;margin:auto;padding:42px 24px 72px;position:relative;z-index:1}}
+#app>header{{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:24px}}#app>header h1{{font-size:clamp(2.8rem,8vw,5rem);line-height:1;letter-spacing:-.05em;margin:0}}
 #orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
@@ -1783,13 +1786,13 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 @keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1.05)}}}}
 button.mic{{background:transparent;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
 button.mic.recording{{border-color:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.7)}}
-#chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
-textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
-textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
-select#persona{{padding:6px 8px}}
+ #chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:16px 18px;margin:14px 0;border-radius:18px;background:linear-gradient(145deg,var(--ui-panel),#10182a);border:1px solid var(--ui-line);box-shadow:0 12px 30px #0003}}.u{{background:#172f4d;margin-left:auto}}
+textarea,button,select#persona{{font:inherit;color:inherit;background:var(--ui-panel-input);border:1px solid var(--ui-line);border-radius:10px;padding:13px 14px}}
+textarea{{width:100%;box-sizing:border-box;min-height:110px}}button{{cursor:pointer;background:var(--ui-accent);color:#07111d;border:0;margin-top:10px;font-weight:750}}
+select#persona{{padding:9px 10px}}
 .inputRow{{display:flex;align-items:center;gap:10px;margin-top:10px}}
 #send{{height:44px;padding:0 22px;margin-top:0;border-radius:22px;border:2px solid rgba(148,163,184,.5);background:linear-gradient(135deg,#4f46e5,#7c3aed)}}
-.muted{{color:#9ca3af;font-size:.9rem}}.err{{color:#f87171}}
+ .muted{{color:var(--ui-muted);font-size:.95rem}}.err{{color:var(--ui-danger)}}
 #login{{text-align:center;padding-top:20vh}}
 header{{display:flex;align-items:center;justify-content:space-between}}
 .hdrRight{{display:flex;align-items:center;gap:10px}}
@@ -1820,6 +1823,7 @@ details.prog{{margin:4px 0 0;font-size:.8rem;color:#9ca3af}}
 details.prog summary{{font-size:.8rem;font-variant-numeric:tabular-nums}}
 details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-nums}}
 .m .stats{{margin-top:6px;font-size:.75rem;color:#9ca3af;font-variant-numeric:tabular-nums}}
+@media(max-width:600px){{main{{padding:30px 14px 56px}}#app>header{{display:block}}#app>header h1{{font-size:3.2rem}}.hdrRight{{margin-top:14px;justify-content:space-between}}.m{{max-width:92%;padding:18px}}textarea{{min-height:125px}}button{{min-height:44px}}#send{{height:48px}}button.mic{{width:48px;height:48px}}}}
 </style></head><body>
 <div id="orb"></div>
 <main>

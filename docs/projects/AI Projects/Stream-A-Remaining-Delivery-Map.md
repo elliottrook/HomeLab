@@ -20,7 +20,7 @@ prompt and curated knowledge with 9B/SYCL. A service-account retrieval check
 passes against the full refreshed 1,825-source snapshot. The deterministic
 identity shortcut is now represented locally and the staged 199-test suite
 passes. The Doctor reader was later transplanted with a 199-test hybrid pass;
-deployed UI styling still differs from this branch. A whole-file gateway
+the [deployed UI styling is now represented in this branch](evidence/SA0-gateway-UI-source-parity-2026-10-12.md). Remaining source order and `_chunk_bonus` differences mean a whole-file gateway
 deploy remains held. Authenticated answer quality
 is unverified.
 
