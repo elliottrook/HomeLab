@@ -1,6 +1,6 @@
 # Local AI Platform — Lab/Production Split
 
-> **Status:** Active — Stream A; baseline reconciliation in progress
+> **Status:** Active — Stream A; V1 baseline and source contract reconciled; platform split remains open
 > **Project owner:** Jason
 > **Authorization stream:** Stream A approved 2026-10-12
 > **Stream A approval:** Jason approved this project on 2026-10-12 within the
@@ -322,3 +322,33 @@ this discrepancy was being investigated.
 | Current environment | Lab/Beta, VLAN 70 |
 | Target production environment | `ai-prod` on VLAN 20, subject to target placement validation |
 | Rollback | Retain current accepted V1 artifact/configuration and documented guest/model archives; do not restore the obsolete b10507 path implicitly |
+
+## Source-contract reconciliation — 2026-10-12
+
+The first Stream A implementation checkpoint reconciled the deployable Aster
+source contract with the accepted live V1 manifest without changing the running
+guest. The tracked gateway now defaults to the stable `aster-qwen3.5-9b`
+identity, its runtime-identity prompt names Qwen3.5 9B on the B60
+SYCL/Level-Zero path, the browser client uses the same model identifier, and the
+tracked inference unit/warm-up request points at the b11429 SYCL binary, the
+Qwen3.5 9B Q4_K_M artifact and the file-based API-key contract used by the live
+unit. Historical Qwen3.8/Vulkan evaluation records remain historical and were
+not rewritten into false current results.
+
+Read-only live verification on 2026-10-12 confirmed:
+
+- `aster-llama.service` is active and enabled in LXC 110.
+- `http://192.168.70.12:11435/health` returns `{"status":"ok"}`.
+- The live unit SHA-256 is
+  `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`.
+- The live b11429 SYCL server SHA-256 is
+  `0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5`.
+- The live command binds `192.168.70.12:11435`, uses one 8,192-token slot,
+  disables reasoning, and loads `Qwen3.5-9B-Q4_K_M.gguf`.
+
+Validation completed locally with Python bytecode compilation. The full Aster
+unit suite could not run on this Mac because its system Python lacks the
+repository's `jwt` dependency; no deployment or service restart was attempted.
+The next safe action is the contract milestone: define and test the stable API,
+health, authentication, quota, timeout and fallback contracts, then validate a
+separate lab lease/controller manually before any scheduler is enabled.

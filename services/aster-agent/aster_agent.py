@@ -53,7 +53,7 @@ AUTHENTIK_AUDIENCE = os.environ.get("ASTER_AUTHENTIK_AUDIENCE", "aster-companion
 _authentik_jwks_client = jwt.PyJWKClient(AUTHENTIK_JWKS_URL, cache_keys=True, lifespan=3600)
 LLAMA_API_KEY = os.environ.get("ASTER_LLAMA_API_KEY", "")
 LLAMA_BASE_URL = os.environ.get("ASTER_LLAMA_BASE_URL", "http://192.168.70.12:11435/v1").rstrip("/")
-UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.8-27b")
+UPSTREAM_MODEL = os.environ.get("ASTER_LLAMA_MODEL", "qwen3.5-9b")
 KNOWLEDGE_DIR = Path(os.environ.get("ASTER_KNOWLEDGE_DIR", "/var/lib/aster/knowledge"))
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 DIRECTORY_FIRST = os.environ.get("ASTER_DIRECTORY_FIRST", "").strip().lower() in {"1", "true", "yes"}
@@ -186,7 +186,7 @@ rollback guest. Always identify it explicitly as `VM 105`, never only as
 `guest 105`.
 For runtime-identity questions, state the requested facts before explanation:
 LXC 104 provides Aster's interface, LXC 110 provides llama.cpp text generation
-using Qwen3.8-27B on the B60 Vulkan path, and VM 105 is the stopped Ollama
+using Qwen3.5 9B on the B60 SYCL/Level Zero path, and VM 105 is the stopped Ollama
 rollback guest.
 Name retrieved source files when factual provenance helps."""
 
@@ -216,7 +216,7 @@ async def lab_identity_context(request, call_next):
 class ChatRequest(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    model: str = "aster-qwen3.8-27b"
+    model: str = "aster-qwen3.5-9b"
     messages: list[dict[str, Any]] = Field(min_length=1)
     temperature: float | None = 0.2
     max_tokens: int | None = 640
@@ -600,7 +600,7 @@ def _chunk_bonus(source: str, text: str, query: str, tokens: set[str]) -> int:
     if source.endswith("Aster-Operations.md") and tokens.intersection(
         {"backend", "inference", "llama", "lxc", "model", "qwen"}
     ):
-        if "runtime configuration" in text or "qwen3.8-27b" in text:
+        if "runtime configuration" in text or "qwen3.5-9b" in text:
             bonus += 120
     if source.endswith("AI-Hermes-Second-Brain.md") and re.search(
         r"\b(task|unfinished|unchecked|priority)\b", query, re.I
@@ -1168,7 +1168,7 @@ class ChatProgress:
         self.frame({"object": "aster.progress", **event})
 
     def content(self, text: str) -> None:
-        self.frame({"object": "chat.completion.chunk", "model": "aster-qwen3.8-27b",
+        self.frame({"object": "chat.completion.chunk", "model": "aster-qwen3.5-9b",
                     "choices": [{"index": 0, "delta": {"content": text}, "finish_reason": None}]})
 
     def add_usage(self, usage: dict[str, Any] | None) -> None:
@@ -1376,7 +1376,7 @@ async def health() -> dict[str, str]:
 async def models() -> dict[str, Any]:
     return {
         "object": "list",
-        "data": [{"id": "aster-qwen3.8-27b", "object": "model", "created": int(time.time()), "owned_by": "local"}],
+        "data": [{"id": "aster-qwen3.5-9b", "object": "model", "created": int(time.time()), "owned_by": "local"}],
     }
 
 
@@ -1459,7 +1459,7 @@ async def chat(request: ChatRequest) -> dict[str, Any] | StreamingResponse:
         message = result["choices"][0]["message"]
         calls = message.get("tool_calls") or []
         if not calls:
-            result["model"] = "aster-qwen3.8-27b"
+            result["model"] = "aster-qwen3.5-9b"
             result["usage"] = usage
             return result
 
@@ -1609,7 +1609,7 @@ const messages=[];const chat=document.querySelector('#chat'),prompt=document.que
 key.value=localStorage.getItem('asterKey')||'';
 function add(role,text){const d=document.createElement('div');d.className='m '+(role==='user'?'u':'');d.textContent=(role==='user'?'You: ':'Aster: ')+text;chat.appendChild(d);window.scrollTo(0,document.body.scrollHeight)}
 async function send(){const text=prompt.value.trim();if(!text)return;localStorage.setItem('asterKey',key.value);messages.push({role:'user',content:text});add('user',text);prompt.value='';send.disabled=true;
-try{const r=await fetch('/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key.value},body:JSON.stringify({model:'aster-qwen3.8-27b',messages,max_tokens:640})});const j=await r.json();if(!r.ok)throw new Error(j.detail||r.statusText);const answer=j.choices[0].message.content;messages.push({role:'assistant',content:answer});add('assistant',answer)}catch(e){add('assistant','Error: '+e.message)}finally{send.disabled=false;prompt.focus()}}
+try{const r=await fetch('/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key.value},body:JSON.stringify({model:'aster-qwen3.5-9b',messages,max_tokens:640})});const j=await r.json();if(!r.ok)throw new Error(j.detail||r.statusText);const answer=j.choices[0].message.content;messages.push({role:'assistant',content:answer});add('assistant',answer)}catch(e){add('assistant','Error: '+e.message)}finally{send.disabled=false;prompt.focus()}}
 document.querySelector('#send').onclick=send;prompt.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
 </script></main></body></html>"""
 
