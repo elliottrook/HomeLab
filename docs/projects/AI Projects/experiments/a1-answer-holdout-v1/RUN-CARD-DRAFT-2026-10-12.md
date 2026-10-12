@@ -41,7 +41,10 @@ to the candidate or runner.
   Only after the raw-attempt digest is sealed, the custodian joins the hidden
   key to backend-blinded answers in a private review packet and blank rubric
   template. It emits no case or answer text to Git or stdout. A completed
-  independent judgment/scorer is still missing; the template is not a score.
+  independent judgment is still missing; the template is not a score. The
+  offline `score_holdout_answers.py` checks a review against the exact packet
+  digest and separates expected outcome, rubric failures, prohibited claims
+  and privacy violations. Its reviewer ID is a claim, not verified identity.
 - No connected tools, real personal context, live web or infrastructure
   actions. Synthetic context is supplied only in the candidate-visible case.
 

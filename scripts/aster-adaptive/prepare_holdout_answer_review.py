@@ -72,10 +72,12 @@ def prepare(cases_raw: bytes, key_raw: bytes, attempts_raw: bytes) -> tuple[byte
     packet = {"schema_version": "aster-answer-holdout-review-packet.v1",
               "attempts_sha256": binding, "cases": packet_rows,
               "qualification": "none; reviewer judgment and independent validation pending"}
+    packet_raw = _encode(packet)
     template = {"schema_version": "aster-answer-holdout-review.v1",
-                "attempts_sha256": binding, "reviewer_id": None,
+                "attempts_sha256": binding, "packet_sha256": _digest(packet_raw),
+                "reviewer_id": None,
                 "reviews": blank_rows}
-    return _encode(packet), _encode(template)
+    return packet_raw, _encode(template)
 
 
 def save_private(output_dir: Path, packet: bytes, template: bytes) -> dict:
