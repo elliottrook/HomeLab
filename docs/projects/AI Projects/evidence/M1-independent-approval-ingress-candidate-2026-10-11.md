@@ -164,3 +164,17 @@ weak, retain the human-only operational ceremony and do not build a permanent
 second approval service merely because the offline code passes tests. The
 existing Aster-peer trust flaw must remain visible in that decision; it cannot
 be described as resolved or used to justify tool grants.
+
+**Aggregate value check, 2026-10-11:** a source-local projection of retained
+NPM host-18 access logs emitted counts only, with no request IDs, addresses,
+tokens, bodies or identities exported. The available files contained 18 POSTs
+to an `/approve` path, three to `/deny`, and 22 other POSTs under the
+approvals prefix. The approve requests were dated 25–27 September (15) and
+10 October (3); no approval POST appeared in the current log after that. The
+same logs had many GETs, which may include polling. These counts do **not**
+establish successful approvals, distinct human actions or a complete
+historical usage record. The dates overlap known setup/test work, so routine
+need remains unproven. On this evidence, **defer the Yellow-only production
+cutover** rather than add its process/firewall/proxy overhead now. Revisit only
+if a real use case or connected-tool security gate justifies it and a full
+deployment manifest is ready. Stage2 and connected tools remain HOLD.

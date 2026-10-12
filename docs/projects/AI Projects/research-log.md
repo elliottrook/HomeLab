@@ -2671,3 +2671,14 @@ not confer Red or management assurance. Two added startup tests passed; the
 focused ingress/router/socket suite now passes 23 tests. This is an offline
 release-shape check only: no port, account, proxy route, socket ownership,
 credential or live authorization changed. See the [candidate record](evidence/M1-independent-approval-ingress-candidate-2026-10-11.md).
+
+### 2026-10-11 — Green-only connected-role dependency challenge
+
+Broker source shows Green requests can be approved by exact registered policy
+without the human approval socket. A read-only live capability listing showed
+that existing `hlabagent` also has Yellow and Red capabilities, so it is not a
+safe Codex identity. A separate one-capability UID might make a fixed
+read-only diagnostic possible without first deploying a new Companion approval
+service, but that is an architectural hypothesis and would require an explicit
+M1 gate amendment, privacy review and live least-privilege proof. No agent,
+grant, request or tool changed. See the [admission assessment](evidence/M1-Green-only-admission-assessment-2026-10-11.md).

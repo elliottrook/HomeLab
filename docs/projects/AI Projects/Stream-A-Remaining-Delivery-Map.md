@@ -89,6 +89,15 @@ An uninstalled process factory now fails closed on missing/mismatched identity
 configuration and deliberately has no passkey-promotion setting. The focused
 suite passes 23 tests. Separate UID, socket directory, private listener and
 proxy-route proofs still gate any deployment.
+Retained aggregate proxy logs do not establish routine Yellow approval use;
+the separate-ingress **production rollout is deferred** on value/overhead
+grounds while Stage2 and connected tools stay held. Keep the offline candidate
+for a concrete later need rather than creating a new service by default.
+The [Green-only admission assessment](evidence/M1-Green-only-admission-assessment-2026-10-11.md)
+finds a possible narrower route to one fixed read-only diagnostic, but the
+existing `hlabagent` has broader live capabilities and cannot be reused for
+Codex. A distinct least-privilege worker and an explicit M1 gate amendment
+would be required; neither is authorized or deployed.
 An [approval-socket lifecycle check](evidence/M1-approval-socket-lifecycle-2026-10-10.md)
 also found that a main-broker restart had removed the independent approval
 listener's pathname while the service still reported active. The listener was
