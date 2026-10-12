@@ -1,0 +1,9 @@
+# D3 natural Companion session observation — 2026-10-11
+
+**Result: signed-in request path and prompt behavior observed; token refresh itself remains unproven.**
+
+Jason reported that Companion stayed signed in without a Keychain password prompt. A separate UI observation found the installed `/Applications/AsterCompanion.app` running on its normal Aster screen with a Sign out control. Opening the read-only **Codex requests** sheet displayed the closed-new-requests notice and two existing completed request rows, without submitting a question or enabling Ask Codex. The sheet was closed afterward. No token, answer, credential, or private request text was opened or copied into Git.
+
+The tracked Companion source obtains an access token through `AuthManager.validAccessToken()` for `fetchDelegationJobs()`, and that method refreshes only when the stored expiry is near. The UI observation supports that a signed-in request path remained usable without a visible Keychain prompt. It does **not** establish whether this particular request used a still-valid access token or exercised the refresh-token branch. Neither token expiry nor Keychain value was inspected. This is therefore a **partial pass** of the natural-session gate, not a demonstrated refresh or sustained prompt-free operation.
+
+Keep version 15 in ordinary mode and the limited routine Ask Codex release on **HOLD**. A future naturally occurring authenticated use after a known expiry boundary, observed without reading token material or forcing another question, can close the refresh portion. If such provenance is unavailable, record the result as unknown rather than manufacturing an expiration or repeated login. No connected tools, worker grants, automatic routing, AI-PAM Stage2, or production model changes follow from this observation.

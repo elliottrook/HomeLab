@@ -1,5 +1,16 @@
 # Research log — 2026-09-25
 
+## 2026-10-11 — Natural Companion signed-in observation
+
+Jason reported Companion remained signed in with no Keychain prompt. The
+installed app's normal screen was visible, and its read-only Codex requests
+view loaded two existing completed rows while new requests remained closed.
+No model question was sent or private answer opened. The tracked client calls
+`validAccessToken()` for this view, but the observation does not distinguish
+a still-valid access token from a refresh-token exchange. D3 release remains
+held on that narrower uncertainty; see the
+[session record](evidence/D3-natural-session-observation-2026-10-11.md).
+
 ## 2026-10-11 — Independent review of the existing D3 Orion answer
 
 A separate reviewer read the exact stored completed case-9 turn and the frozen
