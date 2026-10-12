@@ -66,6 +66,31 @@ mutable state, production credentials, unreviewed models or arbitrary lab
 endpoints. Production consumers must have a documented fallback or graceful
 degradation path when the platform is unavailable.
 
+### Single-GPU operating model — accepted 2026-10-12
+
+The lab has one usable inference GPU and it is already needed by Aster, News
+and the daily speech workflow. The platform therefore uses one mutually
+exclusive physical runtime rather than attempting to run separate GPU-backed
+`ai-lab` and `ai-prod` guests concurrently:
+
+- `ai-prod` is the stable V1 contract backed by the accepted Qwen3.5/SYCL
+  runtime on LXC 110. Until a second GPU or an approved production placement
+  exists, its VLAN 70 location is a documented transitional exception.
+- `ai-lab` is an exclusive scheduled mode on the same GPU. It uses separate
+  lab state, credentials and artifacts, acquires a lease, and cannot start
+  while production work owns the GPU.
+- The daytime path remains Aster/News/Speech production service. News digest
+  timers at approximately 05:15 and 17:15 local fixed-offset time remain
+  production reservations; lab work must not overlap them.
+- Entering lab mode must stop or quiesce production inference cleanly, record
+  a checkpoint, run the bounded lab workload, and restore the accepted V1
+  production service before the window closes. Failure to restore leaves the
+  platform in an explicit degraded state and alerts the operator.
+
+This is a capacity boundary, not high availability. A future VLAN 20
+`ai-prod` placement remains a separate network/guest milestone and must not
+create a second concurrent GPU consumer.
+
 ## Pre-start risk assessment
 
 | Risk | Control | Residual risk |
@@ -113,10 +138,12 @@ addresses or internal model details.
 ### 2. Establish `ai-lab` and `ai-prod`
 
 - [ ] Create separate runtime/configuration/state boundaries on the existing
-  host; do not imply high availability.
+  host; use a mutually exclusive GPU lease rather than concurrent GPU-backed
+  guests and do not imply high availability.
 - [ ] Apply distinct credentials, data policy, network policy and deployment
   identities.
-- [ ] Deploy the same reviewed artifact to both where practical, with explicit
+- [ ] Deploy the accepted V1 artifact as the production mode and a separately
+  identified lab artifact only inside the exclusive lease window, with explicit
   model/configuration differences recorded.
 
 **Gate:** lab changes cannot alter production state, credentials or serving
@@ -215,6 +242,15 @@ restore, a real Kokoro failure/Piper recovery test, and one consumer rollback.
 The final milestone must include the mandatory documentation-adequacy
 reflection and a fresh-operator trace from consumer to endpoint, dependency,
 fallback and recovery.
+
+### GPU-window implementation prerequisite
+
+Before installing or enabling a scheduler, choose the recurring local-time
+window for exclusive lab work. The schedule must avoid the News 05:15/17:15
+production reservations, the 02:30 Proxmox backup transition, and any other
+nightly workload that the live timer inventory identifies. Until that window is
+chosen, the lease/controller design can be tested manually but no timer or
+production quiesce schedule should be enabled.
 
 ## Stream A baseline stop condition — 2026-10-12
 
