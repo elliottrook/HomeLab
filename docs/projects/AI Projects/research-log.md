@@ -2627,3 +2627,14 @@ unexpired session. The [observation gate](evidence/D3-session-refresh-observatio
 requires a naturally triggered refresh in a later reviewed app build; no
 current app was installed or launched for this test. D3 routine release stays
 on HOLD and no additional Codex question was sent.
+
+### 2026-10-11 — Live M1 approval-boundary metadata
+
+A read-only LXC 104 check confirmed the `aster` account remains in the group
+owning the mode-0660 approval socket. The deployed Companion bridge matches
+repository source; the deployed broker approval service does not match the
+tracked candidate as a whole, and its method set lacks the candidate's
+`management.capability-revoke` branch. These facts strengthen the Stage2 HOLD:
+the current AI-facing process cannot be claimed outside the human-approval
+trust boundary. See the [bounded recheck](evidence/M1-live-approval-boundary-recheck-2026-10-11.md).
+No socket request, approval, model call or service mutation occurred.
