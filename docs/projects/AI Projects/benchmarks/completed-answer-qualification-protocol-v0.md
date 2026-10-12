@@ -119,4 +119,8 @@ yet. Build those before asking B60 to optimize against a numeric bar. The
 is a public, development-only starting point for capture and rubric testing;
 it has not been sent to a model, independently scored or accepted as a release
 set. Its validator establishes shape and bounded timestamps, not that a model
-answer is correct or that the fixture is a privacy-certified dataset.
+answer is correct or that the fixture is a privacy-certified dataset. An
+[offline capture/review candidate](../evidence/A1-offline-answer-capture-candidate-2026-10-12.md)
+now projects synthetic attempts into content-free timing/status evidence and
+scores explicit human rubric labels. It does not supply the missing labels,
+backend provenance, independent qualification or a numeric release bar.

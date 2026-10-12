@@ -22,7 +22,7 @@ lease status or a new B60 production release from that request.
 | Card | Question and bounded method | Offline preflight | State / next step |
 |---|---|---|---|
 | **R1 — next local route profile** | On the already published 30 synthetic requests, does an exactly pinned new local stack improve *status plus capability* agreement without new invalid outputs? No tools, no personal context, one attempt/case, content-free result, existing independent scorer. | Fixture/scorer/manifest contract and 9B 18/30 plus lexical 30/30 controls are pinned. This is a **regression check only**; the lexical rules were authored with the fixture. New candidate model, runtime, reasoning setting, adapter and prompt hashes are absent. | **BLOCKED** until B60 supplies an accepted candidate manifest and the platform owner proves a live lease. Do not rerun accepted 9B just to fill time or tune against exposed cases. |
-| **A1 — completed-answer feasibility** | Can the Aster adapter capture complete answers, terminal failures, timing segments and source citations for a small synthetic task slice without leaking raw context into the result? No live tools or personal data. | A class/rubric and latency boundary are drafted, but no frozen synthetic fixture, adapter, sanitized output schema or independent postcheck exists. | **BLOCKED** for lab use. Build and test a small offline fixture/adapter first; label it development-only. Do not state per-class quality or p95 limits from the routing run. |
+| **A1 — completed-answer feasibility** | Can the Aster adapter capture complete answers, terminal failures, timing segments and source citations for a small synthetic task slice without leaking raw context into the result? No live tools or personal data. | The [synthetic fixture and offline capture/review candidate](A1-offline-answer-capture-candidate-2026-10-12.md) now cover structural projection and a human-label scoring path. No model output, independent labels, backend-bound provenance or current-control latency exists. | **BLOCKED** for lab use. Build an offline synthetic runner/postcheck and preregister current-control measurement before any finalist comparison. Do not state per-class quality or p95 limits from the routing run. |
 | **Q1 — fresh route qualification** | Would a challenger route realistic owner-style requests better than the incumbent under privacy, ambiguity and locality constraints? Tool-free shadow comparison with independent labels. | The old S1 set closed incomplete: 45/50 accepted, no adverse cases. Published 30-case suite has exposed answers. No qualifying hidden corpus or retention decision exists. | **BLOCKED**. A new named protocol, owner-approved custody/retention, independent labels and frozen per-class error floors are needed before collection; this cannot be repaired by relabelling S1. |
 | **C1 — Codex Decision comparison** | Can Aster's subscription-compatible Codex handoff return the same content-free Decision fields on the same synthetic requests, with reviewed cloud consent? No tools or infrastructure role. | Existing D3 questions differ and produce no equivalent Decision records. Offline scorer accepts a label-blind adapter shape. | **BLOCKED** until the exact batch, consent, call cap and adapter are approved/tested. This is not a B60 lease task. No new Codex question should be sent to satisfy this card. |
 | **D4 — bounded named diagnostic** | Does fresh source-owned evidence identify a fault more usefully than today's aggregate Doctor status, without broader model context or tool authority? | Aggregate `fail` across 32 checks lacks failing-check identity; typed fixture and reader guards exist but have not shown a blinded usefulness gain. M1 Stage2 trust boundary and connected-worker grant remain open. | **BLOCKED** for a connected run. Continue offline source projection and blinded rubric work; no generic shell, SSH or fix follows. |
@@ -33,10 +33,13 @@ now covers grounded fact, synthetic calendar, mixed public/private join, fresh
 and stale HomeLab reports, and ambiguous household control. Its SHA-256 is
 `b5e7748d5c90a30992cb22dd98aa333b3c7c14ea093a16ea3c29069df5661ef0`.
 A structural validator checks IDs, source timestamps, bounded fields and the
-no-tool scope; 20 focused benchmark/fixture tests pass. This is *not* an
-answer-quality run, a privacy certification or a qualification holdout. A1
-remains **BLOCKED** for lab use until a content-free adapter, independent
-review method, accepted candidate and verified lease exist.
+no-tool scope; 20 focused benchmark/fixture tests passed at the initial
+checkpoint. A later [offline candidate](A1-offline-answer-capture-candidate-2026-10-12.md)
+adds content-free attempt projection and explicit human-review scoring with 13
+focused tests passing. This is *not* an answer-quality run, a privacy
+certification or a qualification holdout. A1 remains **BLOCKED** for lab use
+until independent review, backend-bound capture, an accepted candidate and a
+verified lease exist.
 
 ## Shared live preflight for any later exclusive card
 
