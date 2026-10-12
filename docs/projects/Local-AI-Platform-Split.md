@@ -409,3 +409,14 @@ The control plane, network, UPS protection and minimum monitoring path remain
 outside the lab lease. The lease/controller itself is not yet deployed or
 scheduled; it must still drain nonessential guests, acquire a host lock, record
 a checkpoint and restore the accepted V1 service before the 04:15 boundary.
+
+## Lease-controller candidate — local only — 2026-10-12
+
+Added a pure planning contract at
+[`scripts/local-ai/lease_contract.py`](../../scripts/local-ai/lease_contract.py)
+with four local tests. It rejects an unverified/incomplete backup, active
+production or conflicting jobs, a closed window and an unavailable host lock;
+its release plan refuses to release the lock until restoration and health are
+verified. The candidate emits only an ordered action plan and has no Proxmox,
+systemd, SSH, network or scheduler side effects. It is not installed or enabled
+on the host.
