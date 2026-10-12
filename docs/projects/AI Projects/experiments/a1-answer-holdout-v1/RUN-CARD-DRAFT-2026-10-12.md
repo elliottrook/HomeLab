@@ -31,6 +31,17 @@ to the candidate or runner.
 - Scorer revision, blinded output packet, independent answer-review roles and
   case order/seed: **PENDING**. Case order and labels are frozen in the sealed
   bundle; the execution order and scorer must be declared before output.
+- `holdout_answer_capture.py` is a tested label-blind capture primitive: it
+  accepts only the exact candidate-visible digest, requires an explicit
+  profile hash, records one row per planned case, stops after first failure,
+  and saves raw answers in a new owner-only directory. Its `invoke` callback
+  deliberately has no live network adapter yet. Freeze and test that adapter
+  separately against the live accepted profile before invoking the holdout.
+- `prepare_holdout_answer_review.py` is a tested post-run handoff primitive.
+  Only after the raw-attempt digest is sealed, the custodian joins the hidden
+  key to backend-blinded answers in a private review packet and blank rubric
+  template. It emits no case or answer text to Git or stdout. A completed
+  independent judgment/scorer is still missing; the template is not a score.
 - No connected tools, real personal context, live web or infrastructure
   actions. Synthetic context is supplied only in the candidate-visible case.
 
