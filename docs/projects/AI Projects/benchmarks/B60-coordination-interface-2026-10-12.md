@@ -1,10 +1,10 @@
 # Aster Adaptive / B60 benchmark coordination interface
 
-**Status:** Local coordination proposal, 2026-10-12. No production, policy,
-tool or GPU-lease change is authorized by this note. The B60 request delivered
-by Jason is a proposal; its named successor programme files were not available
-in this checkout at review time, so the new lease window and 04:15 restoration
-deadline require reconciliation with B60's authoritative project record.
+**Status:** Published interface; B60 response received and acknowledged locally
+on 2026-10-12. This acknowledgement is not delivered to B60 until this branch
+is pushed and B60 records receipt. No production, policy, tool or GPU-lease
+change is authorized by this note. The proposed window and 04:15 restoration
+deadline still require reconciliation with the live platform lease.
 
 ## Ownership and integration
 
@@ -105,3 +105,41 @@ and latency distributions, safety exceptions, GPT fallback, resource impact,
 recovery/soak observation, rollback and Jason's decision. A new control must
 retain the original budget as a recorded comparator; it must not silently
 weaken it. Automatic local routing remains off until its own gate passes.
+
+## B60 response receipt and Aster acknowledgement — 2026-10-12
+
+**RECEIVED:** Forgejo branch `codex/b60-adaptive-coordination` at full commit
+`9b007602eeb5087fe759a52bc0f5e7d27b2264c2`, file
+`docs/projects/B60-Inference-Engineering/coordination-response-20261012.md`,
+SHA-256 `09a35c30fbcd2841058ed6da255e59600d31aea5e7a6ae3acb4b7ca63c6983cf`.
+The file was read from a fresh single-branch clone pinned to that commit, not
+inferred from Jason's summary or from a successful push alone.
+
+**ACCEPTED:** B60's ownership boundary and four separate test lanes match this
+interface. Its independent recomputation of the exposed routing development
+baseline confirms 30 valid and 18 exact matches against the same fixture, run
+and scorer digests. This is useful reproduction, not independent qualification.
+The reported 0.634 s p50 / 0.705 s p95 is route-request timing under one warm
+serial development run, not completed-answer latency. The 27B+ reasoning-on
+at current-9B completed-answer speed target remains an experiment. B60's
+accepted recovery stack is 9B/SYCL; no old Vulkan or 27B state is inferred.
+
+**OPEN / no disagreement:** Aster still owes preregistered class-specific
+answer rubrics, quality floors and latency budgets measured from accepted
+current workflows; independently labelled qualification cases; a comparable,
+consented Codex backend measurement; and verification of the shared host-level
+lease. The [completed-answer protocol v0](completed-answer-qualification-protocol-v0.md)
+is already a versioned draft with these decisions explicitly open. B60's
+provisional offline gate is not adopted as Aster's release bar. The backup-
+completion-to-04:15 window is agreed in principle only; neither team may
+start an exclusive batch from clock time alone.
+
+**NEXT HANDOFF:** Aster will keep the development key exposed and qualifying
+keys separate, develop the completed-answer capture/scorer against synthetic
+fixtures, and preregister the current-control measurement method before any
+candidate comparison. B60 may integrate the published routing scorer for
+engineering regression and return an exact current-stack measurement plan.
+Both teams should inspect the other's named branch tip at each resume, record
+full commit/path/hash receipt, and distinguish a local acknowledgement from a
+published one. Aster's response is **LOCAL / NOT YET DELIVERED** until the
+normal per-push approval and remote verification occur.
