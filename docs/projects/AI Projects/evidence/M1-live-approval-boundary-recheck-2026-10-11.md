@@ -14,6 +14,7 @@ Read-only commands through Proxmox into LXC 104 found:
 | Socket parent | `/run/homelab-broker`, owner/group `hlabroker`, mode `0755` |
 | `aster` account | UID 997, primary group `aster`, supplementary group `hlabroker-approvers` |
 | Approval unit | Active; `User=hlabroker`, `Group=hlabroker`, supplementary group `hlabroker-approvers`; `StateDirectory=homelab-broker` |
+| Running approval process arguments, allowlisted fields only | `--approver-user=aster`, `--socket-group=hlabroker-approvers`, `--socket=/run/homelab-broker/approval.sock` |
 | Deployed Companion approval bridge | SHA-256 `cf37fb1782c875622155b50d7b69f31b7c9acc2c30f7881f5da9b4a6538dd324`, matching `services/aster-agent/broker_approvals.py` in this branch |
 | Deployed broker approval source | SHA-256 `eeefdf23fd08602f6d78a8499a81a7db04465ae78fa3ab3806f2d7f8a385f043`, **different** from repository `ops/credential-broker/broker_approval_service.py` (`4a9f8d0de622a06e7dd9fe32279b22d71a3dbe4f220a77891684c34e30756631`) |
 
@@ -21,16 +22,21 @@ A source-local AST digest comparison found the deployed and tracked
 `ApprovalHandler.handle`, `_actor`, and `_fresh_actor` method source segments
 identical. `dispatch` differs: the tracked candidate includes
 `management.capability-revoke`, while the deployed method's string-literal
-method set does not. This limited comparison does **not** prove the remaining
-dispatch semantics or the full live service equal the candidate. No raw
+method set does not. A further source-local comparison removed only that one
+branch from the tracked `dispatch`, normalized blank lines and trailing
+whitespace, and matched the deployed method's SHA-256 exactly:
+`f979389d17d40971bc0789dd3601f77a1ac20fea7ee8d141e29bdd9a8bd267e4`.
+This supports that the branch is the sole `dispatch` source difference under
+that normalization. It does **not** prove the full live service equal the
+candidate or that the method is safe to deploy. No raw
 configuration, token, subject hash, database row, or request content was read.
 
 ## Architectural implication
 
-The socket mode and `aster` group membership make access by the Aster process
-plausible; the tracked approval unit also names `aster` as its configured peer.
-This is **not** a direct socket-connection test or proof that a forged approval
-occurred. It confirms that the present deployment does not establish the
+The running approval process explicitly configures `aster` as its accepted
+Unix peer, and the socket mode and group membership are consistent with that
+connection. This is **not** a direct socket-connection test or proof that a forged
+approval occurred. It confirms that the present deployment does not establish the
 intended separation between AI-facing Aster and human approval authority.
 The broker's subject allowlist and freshness checks remain useful controls,
 but cannot independently authenticate who supplied actor metadata when the
