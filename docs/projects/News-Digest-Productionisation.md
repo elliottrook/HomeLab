@@ -192,9 +192,9 @@ and verified in LXC114.
   `192.168.20.12/24`). The existing lab `news-aggregator` record remains
   primary at `192.168.70.13/24`; no lab record was repointed.
 - The digest service is a oneshot chain: text generation followed by Kokoro
-  audio narration. The API service is separate and serves on guest port 8080;
-  the production-shaped LXC126 exists but remains stopped, with no application
-  or private ingress enabled.
+  audio narration. The API service is separate and serves on guest port 8080.
+  LXC126 is running only as an installation target; its UI, ingest and digest
+  units/timers are disabled and inactive, with no private ingress enabled.
 - The local release source now includes `digest.py`, `summarize.py` and
   `language_notes.py` with the accepted Qwen3.5 model identifier. The live
   LXC114 helper paths remain unchanged until the beta artifact is tested.
@@ -219,6 +219,29 @@ and verified in LXC114.
   the Kokoro test because the available Python environment lacks `soundfile`.
   The live `/healthz` check passed; the dependency gap must be closed in the
   beta artifact environment before promotion.
+
+### Production artifact installation evidence — 2026-10-12
+
+- LXC126 `news-aggregator-prod` was started solely to receive the bounded
+  artifact. The copied release shape includes the application modules, feed
+  configuration, virtual environments, renderer configuration, systemd units
+  and static UI icons; the LXC114 database and generated audio state were not
+  copied.
+- Production uses a separate root-owned mode-600 News inference key. Its
+  corresponding dedicated key was enrolled in LXC110's existing
+  `--api-key-file` list; the key value was never displayed or recorded. The
+  new key was accepted by the local inference health endpoint with HTTP 200
+  from LXC110.
+- LXC126's UI, ingest timer and digest timer are disabled and inactive. No
+  production application request, feed ingest, digest generation, DNS, NPM,
+  Authentik, firewall or Tailscale change has been made.
+- Fresh production state was initialized from `schema.sql`; a temporary UI
+  start returned `{"status":"ok"}` from the guest's own `192.168.20.12:8080`
+  health check, then the UI was stopped again. The three helper modules pass
+  guest-side Python syntax compilation and now identify `qwen3.5-9b`.
+- The next gate is beta validation with the accepted Qwen3.5/SYCL labels and
+  isolated production state, followed by explicit network/ingress and backup
+  integration checks.
 
 ### Readiness and dependency decisions
 
