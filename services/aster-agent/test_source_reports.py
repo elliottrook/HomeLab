@@ -97,6 +97,22 @@ class SourceReportTests(unittest.TestCase):
         netbox["inventory"]["vlans"][0]["vid"] = 5000
         self.assertEqual(self.read("netbox", netbox)["status"], "unavailable")
 
+    def test_unhashable_visibility_fails_closed(self):
+        for malformed in ([], {}):
+            with self.subTest(malformed=malformed):
+                forgejo = forgejo_report()
+                forgejo["repositories"][0]["visibility"] = malformed
+                self.assertEqual(self.read("forgejo", forgejo)["status"], "unavailable")
+
+    def test_missing_report_does_not_disclose_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "private-source-report.json"
+            for reader in (get_forgejo_report, get_netbox_report):
+                with self.subTest(reader=reader.__name__):
+                    result = reader(path, now=NOW, required_uid=os.getuid())
+                    self.assertEqual(result["status"], "unavailable")
+                    self.assertNotIn(path.name, result["error"])
+
 
 if __name__ == "__main__":
     unittest.main()

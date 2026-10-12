@@ -2745,3 +2745,12 @@ is running with the expected installed hash and valid signature; no manual
 Codex turn was sent. The Mac locked before sign-in or Keychain prompt behavior
 could be observed, and no natural-refresh event has occurred yet. D3 routine
 release remains held. See the [installation checkpoint](evidence/D3-native-v16-installation-2026-10-11.md).
+
+### 2026-10-11 — Forgejo/NetBox reader boundary hardening
+
+The shared sanitized source-report reader had a validation/read race, a
+path-bearing OS error and a type-unsafe Forgejo visibility check. The narrow
+candidate passed 124 local reader/gateway tests and source-local staged checks
+against the live reports. It was deployed on LXC 104 under exact hash checks
+with a retained rollback file; Aster health and both report reads passed. No
+source producer or Codex tool changed. See the [boundary record](evidence/source-report-reader-boundary-2026-10-11.md).

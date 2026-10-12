@@ -61,6 +61,10 @@ An offline Doctor check now detects a missing or over-15-minute HA report file,
 and the Aster health wording no longer claims the old Vulkan backend or
 unmeasured GPU offload. This script edit is local only until repository
 synchronization and operator adoption; it is not an always-on alert.
+The [Forgejo/NetBox report reader boundary](evidence/source-report-reader-boundary-2026-10-11.md)
+received the same narrow file and malformed-field hardening after a 124-test
+local pass. Both existing source reports and Aster health passed postchecks;
+no producer, source service or Codex authority changed.
 
 An [offline D3 view candidate](evidence/D3-manual-uncertain-result-2026-10-10.md)
 now checks the recorded request after an uncertain native bridge result and

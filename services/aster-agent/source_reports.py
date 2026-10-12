@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import stat
 from datetime import datetime, timezone
@@ -136,6 +137,7 @@ def _validate_forgejo(report: dict[str, Any]) -> bool:
         if (
             not _text(repository["owner"])
             or not _text(repository["name"])
+            or not isinstance(repository["visibility"], str)
             or repository["visibility"] not in {"private", "internal", "public"}
             or not isinstance(repository["archived"], bool)
             or not _text(repository["default_branch"])
@@ -223,18 +225,24 @@ def read_source_report(
     if source not in {"forgejo", "netbox"}:
         return _unavailable(source, "Unsupported report source")
     try:
-        file_status = report_path.lstat()
-        if not stat.S_ISREG(file_status.st_mode):
-            raise ValueError("report is not a regular file")
-        if required_uid is not None and file_status.st_uid != required_uid:
-            raise ValueError("report has an untrusted owner")
-        if file_status.st_mode & 0o022:
-            raise ValueError("report is writable by group or other")
-        if file_status.st_size > MAX_REPORT_BYTES:
+        with os.fdopen(os.open(report_path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK), "rb") as stream:
+            file_status = os.fstat(stream.fileno())
+            if not stat.S_ISREG(file_status.st_mode):
+                return _unavailable(source, f"Sanitized {source} report is not a regular file")
+            if required_uid is not None and file_status.st_uid != required_uid:
+                return _unavailable(source, f"Sanitized {source} report has an untrusted owner")
+            if file_status.st_mode & 0o022:
+                return _unavailable(source, f"Sanitized {source} report is writable by group or other")
+            if file_status.st_size > MAX_REPORT_BYTES:
+                return _unavailable(source, f"Sanitized {source} report exceeds the maximum permitted size")
+            raw = stream.read(MAX_REPORT_BYTES + 1)
+        if len(raw) > MAX_REPORT_BYTES:
             raise ValueError("report exceeds the maximum permitted size")
-        report = json.loads(report_path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
-        return _unavailable(source, f"Sanitized {source} report unavailable: {exc}")
+        report = json.loads(raw.decode("utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return _unavailable(source, f"Sanitized {source} report unavailable")
+    except ValueError:
+        return _unavailable(source, f"Sanitized {source} report exceeds the maximum permitted size")
 
     validator = _validate_forgejo if source == "forgejo" else _validate_netbox
     if not isinstance(report, dict) or not validator(report):
