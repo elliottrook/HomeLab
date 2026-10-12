@@ -414,8 +414,10 @@ struct ContentView: View {
                 if viaVoice {
                     state = .speaking
                     for chunk in speechChunks(reply) {
-                        let audio = try await client.synthesize(text: chunk)
-                        try await voicePlayer.play(data: audio)
+                        let audioStream = try await client.synthesizeStream(text: chunk)
+                        for try await audio in audioStream {
+                            try await voicePlayer.play(data: audio)
+                        }
                     }
                 }
             } catch {

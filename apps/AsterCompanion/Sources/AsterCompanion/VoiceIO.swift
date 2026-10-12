@@ -1,6 +1,74 @@
 import AVFoundation
 import Foundation
 
+private struct VoiceFrameMetadata: Decodable {
+    let type: String
+    let sample_format: String?
+    let sample_rate: Int?
+    let channels: Int?
+}
+
+struct AVS1Decoder {
+    private var buffer = Data()
+    private(set) var ended = false
+
+    mutating func append(_ data: Data) throws -> [Data] {
+        buffer.append(data)
+        var audio: [Data] = []
+        while buffer.count >= 12 {
+            guard buffer.prefix(4) == Data("AVS1".utf8) else {
+                throw AsterClientError.stream("Invalid streamed speech framing.")
+            }
+            let headerSize = Int(buffer[4..<8].reduce(UInt32(0)) { ($0 << 8) | UInt32($1) })
+            let payloadSize = Int(buffer[8..<12].reduce(UInt32(0)) { ($0 << 8) | UInt32($1) })
+            guard headerSize <= 4096, payloadSize <= 2_097_152 else {
+                throw AsterClientError.stream("Streamed speech frame exceeds limits.")
+            }
+            let frameSize = 12 + headerSize + payloadSize
+            guard buffer.count >= frameSize else { break }
+            let metadata = try JSONDecoder().decode(
+                VoiceFrameMetadata.self, from: buffer.subdata(in: 12..<(12 + headerSize))
+            )
+            let payload = buffer.subdata(in: (12 + headerSize)..<frameSize)
+            buffer.removeFirst(frameSize)
+            switch metadata.type {
+            case "audio":
+                guard metadata.sample_format == "pcm_s16le", metadata.channels == 1,
+                      let rate = metadata.sample_rate, (8_000...48_000).contains(rate),
+                      payload.count.isMultiple(of: 2) else {
+                    throw AsterClientError.stream("Unsupported streamed audio format.")
+                }
+                audio.append(pcm16WAV(payload, sampleRate: rate))
+            case "end": ended = true
+            case "cancelled": ended = true
+            case "error": throw AsterClientError.stream("Speech synthesis failed.")
+            default: throw AsterClientError.stream("Unknown streamed speech frame.")
+            }
+        }
+        return audio
+    }
+
+    func finish() throws {
+        guard buffer.isEmpty, ended else {
+            throw AsterClientError.stream("Streamed speech ended unexpectedly.")
+        }
+    }
+}
+
+func pcm16WAV(_ pcm: Data, sampleRate: Int) -> Data {
+    var wav = Data()
+    func text(_ value: String) { wav.append(Data(value.utf8)) }
+    func little<T: FixedWidthInteger>(_ value: T) {
+        var encoded = value.littleEndian
+        withUnsafeBytes(of: &encoded) { wav.append(contentsOf: $0) }
+    }
+    text("RIFF"); little(UInt32(36 + pcm.count)); text("WAVEfmt ")
+    little(UInt32(16)); little(UInt16(1)); little(UInt16(1)); little(UInt32(sampleRate))
+    little(UInt32(sampleRate * 2)); little(UInt16(2)); little(UInt16(16))
+    text("data"); little(UInt32(pcm.count)); wav.append(pcm)
+    return wav
+}
+
 /// Records a short voice question to a temp file and hands back its bytes.
 /// Deliberately minimal - no level metering, no silence detection - the UI
 /// drives start/stop explicitly via the mic button, matching the web
