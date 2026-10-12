@@ -1,6 +1,7 @@
 # Production Service Placement and Release Registry
 
-> **Status:** Approved — Stream A; registry coordination scope only
+> **Status:** Active — Stream A; registry milestone complete, maintenance and
+> service-specific migrations remain separate
 > **Project owner:** Jason
 > **Authorization stream:** Stream A approved 2026-10-12 by Jason
 > **Approval boundary:** This approval covers the local registry, release-record
@@ -134,14 +135,24 @@ risk. The registry itself does not grant permission for remote changes.
 
 ## Integration checklist
 
-- [ ] Architecture, Network Design, IP Addressing and Current Baseline
-- [ ] Project Creation Standard and portfolio
-- [ ] NetBox and service inventory
-- [ ] DNS, NPM/Auth, firewall and Tailscale policy
-- [ ] HomeLab Doctor, Beszel and Prometheus/Grafana
-- [ ] Backup/restore and operational references
-- [ ] Human wiki and Aster mirror provenance
-- [ ] Service-specific user handovers
+- [x] Architecture, Network Design, IP Addressing and Current Baseline —
+  lifecycle and transitional placement reconciled; these remain authorities
+  for observed state.
+- [x] Project Creation Standard and portfolio — registry requirement and
+  project sequencing recorded locally; portfolio status remains active until
+  final graduation gates are accepted.
+- [x] NetBox and service inventory — current records and the live Proxmox
+  inventory were compared; unresolved service-artifact fields remain explicit.
+- [x] DNS, NPM/Auth, firewall and Tailscale policy — mapped as service-specific
+  promotion inputs; no rules, routes or records were changed.
+- [x] HomeLab Doctor, Beszel and Prometheus/Grafana — ownership and coverage
+  were reconciled from the operational records; no duplicate checks added.
+- [x] Backup/restore and operational references — current coverage and known
+  restore gaps are recorded per service; no backup data was changed.
+- [x] Human wiki and Aster mirror provenance — identified as downstream
+  handoff surfaces; no derived mirror was treated as authoritative.
+- [x] Service-specific user handovers — correctly deferred to each promotion
+  project because the registry changes no user workflow.
 
 ## Dependencies and sequencing
 
@@ -204,6 +215,28 @@ model and experiment identifiers remain separate fields.
   for each field is identified.
 - Preserve the mandatory documentation-adequacy reflection as the final
   milestone and require a fresh-operator trace before graduation.
+
+The remaining work is maintenance and service-specific execution, not a reason
+to broaden this project into mass migration. A service may leave the registry's
+`Pending` fields only through its own approved promotion project.
+
+## Evidence log
+
+| Date | Evidence | Result |
+|---|---|---|
+| 2026-10-12 | Read-only repository review and Proxmox inventory on `192.168.50.10` | Confirmed the documented VLAN 70/VLAN 20/VLAN 50 lifecycle, running guests, stopped VM 105, and historical runtime names that require identity reconciliation. |
+| 2026-10-12 | Read-only health checks for Aster Agent, llama.cpp, Aster Speech and News | Aster Agent, Aster Speech and News returned healthy; `aster-llama.service` was active; News UI and both timers were active. |
+| 2026-10-12 | Local synthetic test discovery | News ran 9 tests before the Kokoro test import was blocked by missing `soundfile`; Aster Speech discovery was blocked by missing `jwt`. Gaps are recorded for the appropriate downstream projects. |
+| 2026-10-12 | Local commit `6a46bc7` and first approved push | Focused registry files were committed and pushed to Forgejo branch `codex/release-registry-stream-a`; GitHub read-only ref verification reported the same commit. |
+
+## Graduation and current handoff
+
+The durable registry and promotion procedure are complete as a coordination
+milestone. Full project graduation remains gated on a sampled rollback/restore
+drill, systems-of-record agreement and Jason's explicit acceptance of the
+remaining single-host risk. No service migration is implied. The next approved
+work should select one service-specific project, starting with the Local AI
+platform contract and then News as the first application pilot.
 
 ## Read-only baseline registry — 2026-10-12
 
