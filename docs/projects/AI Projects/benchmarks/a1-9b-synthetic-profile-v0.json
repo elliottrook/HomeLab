@@ -1,0 +1,17 @@
+{
+  "schema": "aster-answer-development-profile.v0",
+  "case_fixture_sha256": "b5e7748d5c90a30992cb22dd98aa333b3c7c14ea093a16ea3c29069df5661ef0",
+  "backend_id": "accepted-local-qwen3.5-9b-sycl",
+  "model_id": "aster-qwen3.5-9b",
+  "model_artifact_sha256": "cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13",
+  "runtime": "llama.cpp-b11429-sycl-fp16",
+  "runtime_binary_sha256": "0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5",
+  "runtime_unit_sha256": "a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3",
+  "system_prompt_sha256": "58a3839d5a854ca372bb191f6ce5addf23e876d4ced4767789f0dec12763f66e",
+  "temperature": 0,
+  "max_tokens": 256,
+  "reasoning_mode": "off_in_accepted_live_unit",
+  "tool_mode": "disabled",
+  "egress": "local",
+  "result_class": "synthetic_development_only"
+}

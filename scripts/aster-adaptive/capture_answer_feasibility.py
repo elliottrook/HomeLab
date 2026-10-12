@@ -22,7 +22,9 @@ def _digest(raw: bytes) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
-def _milliseconds(value: object) -> int:
+def _milliseconds(value: object, *, optional: bool = False) -> int | None:
+    if optional and value is None:
+        return None
     if type(value) is not int or not 0 <= value <= 600_000:
         raise ValueError("invalid duration")
     return value
@@ -77,10 +79,12 @@ def capture(fixture_raw: bytes, attempts_raw: bytes) -> dict:
                 or len(source_ids) != len(set(source_ids))
                 or any(source_id not in permitted for source_id in source_ids)):
             raise ValueError("unknown or duplicate source attribution")
-        timing = {field: _milliseconds(row[field]) for field in
-                  ("route_ms", "context_ms", "inference_ms", "total_ms")}
-        if timing["total_ms"] < max(timing["route_ms"], timing["context_ms"],
-                                     timing["inference_ms"]):
+        timing = {field: _milliseconds(row[field], optional=True) for field in
+                  ("route_ms", "context_ms", "inference_ms")}
+        timing["total_ms"] = _milliseconds(row["total_ms"])
+        known_components = [value for field, value in timing.items()
+                            if field != "total_ms" and value is not None]
+        if known_components and timing["total_ms"] < max(known_components):
             raise ValueError("total duration shorter than a component")
         projected.append({
             "case_id": case_id,
