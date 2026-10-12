@@ -80,7 +80,9 @@ confirmed Aster's approval-socket group membership and a deployed broker
 source difference from the repository candidate. The verifier is not deployed,
 and the passkey-claim proof is still missing. A [synthetic independent-ingress
 candidate](evidence/M1-independent-approval-ingress-candidate-2026-10-11.md)
-passes local denial tests, but has no process or network authority yet.
+passes local denial tests and a disposable HTTP-to-broker socket check, but has
+no production process or network authority yet. This check did not prove the
+real passkey claim or remove Aster's socket access.
 An [approval-socket lifecycle check](evidence/M1-approval-socket-lifecycle-2026-10-10.md)
 also found that a main-broker restart had removed the independent approval
 listener's pathname while the service still reported active. The listener was

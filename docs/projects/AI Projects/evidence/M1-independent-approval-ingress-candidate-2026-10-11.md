@@ -44,7 +44,20 @@ gateway routes. No real token, production JWKS, socket or network route was
 used. The pinned PyJWT/crypto packages were installed only into the existing
 disposable `/private/tmp` test environment; no HomeLab dependency changed.
 
-The tests prove the narrow Python contract, **not** process isolation or
+A further **disposable end-to-end contract check** connected the candidate's
+HTTP routes to an actual local Unix-socket broker backed by a temporary SQLite
+database. With synthetic signed identities, it showed that a Yellow request
+could be approved only with the exact payload hash and only once; a Red request
+remained pending under generic MFA and stale fixture passkey assurance, then
+accepted a fresh fixture passkey assertion. An unlisted subject, a simulated
+wrong Unix peer UID and a missing broker socket could not approve anything;
+the missing socket surfaced as HTTP 503. All 21 ingress/router/contract tests
+passed. The fixture ACR is deliberately artificial, and the peer-UID test
+simulates the broker's check in one process. This is stronger contract evidence
+than isolated mocks, but **does not prove separate production UIDs, ACLs,
+Authentik claims or reverse-proxy behavior**. No live AI-PAM request was made.
+
+The tests prove the narrow Python and local-socket contract, **not** process isolation or
 deployment safety. In particular, no live passkey-specific ACR has been
 verified; no companion client has been routed to this app; no new UID/socket
 ownership, broker full-stop behavior, availability or rollback has been tested.

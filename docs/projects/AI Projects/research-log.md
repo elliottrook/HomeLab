@@ -2648,3 +2648,15 @@ chat or model endpoint. Eighteen local ingress/router tests passed with
 synthetic RSA tokens and a fake JWKS client. See the [candidate record](evidence/M1-independent-approval-ingress-candidate-2026-10-11.md).
 This does not remove Aster's live socket access or prove a real Authentik
 passkey claim. No service, route or credential changed; Stage2 stays on HOLD.
+
+### 2026-10-11 — Synthetic approval ingress to broker contract
+
+The dormant ingress was exercised through real local HTTP test calls and a
+disposable Unix-socket approval broker with a temporary database. The signed
+fixture owner could approve a Yellow request only with its exact payload hash
+and only once. Red stayed pending under generic MFA or a stale fixture passkey
+claim; it accepted a fresh fixture passkey claim. Unlisted subject, simulated
+wrong broker peer UID and broker outage all failed without approving a request.
+The combined ingress/router/socket suite passed 21 tests. This does not verify
+live Authentik assurance, production UID separation, proxy routing or restart
+recovery. See the [candidate record](evidence/M1-independent-approval-ingress-candidate-2026-10-11.md).
