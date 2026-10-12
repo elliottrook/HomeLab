@@ -37,6 +37,17 @@ capabilities are appropriately scoped for Codex. `lab.doctor.latest` itself
 must be reviewed for its actual output projection and model-visible privacy
 before being delegated.
 
+**Verified gateway contract:** `lab_operations_broker_gateway.py` returns the
+latest Doctor job's result, including up to 32 dynamic `summary` strings, each
+up to 240 characters. It checks shape and rejects some secret-looking text,
+but that is not a fixed-field privacy projection. The broker's Green
+classification governs *execution risk*, not whether this result is safe to
+send to a cloud model. The current `lab.doctor.latest` capability is therefore
+**not the proposed Codex grant**. The existing aggregate incident adapter
+already demonstrates an offline status/count/digest-only projection; a future
+brokered capability must expose a similarly fixed, age-bounded contract and
+be compared against a real diagnostic need before any worker grant.
+
 ## Decision and possible gate amendment
 
 Do **not** reuse `hlabagent`, grant a generic shell, or promote connected
@@ -48,7 +59,8 @@ diagnostic capability. Before activation, require:
 1. a dedicated worker UID with no inherited groups, credentials or other
    capability grants; prove kernel peer binding and approval-socket denial;
 2. an exact fixed-target read-only adapter whose output is bounded, fresh,
-   source-labelled and sanitized before any model context or cloud egress;
+   source-labelled and fixed-field before any model context or cloud egress;
+   do not pass through the present `lab.doctor.latest` summaries;
 3. live policy snapshot showing only the named Green grant, with revocation,
    global disable, wrong-caller, changed-policy and replay tests;
 4. an explicit decision about the residual Aster approval-socket flaw and a
