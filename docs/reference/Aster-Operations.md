@@ -512,10 +512,13 @@ slot, so simultaneous requests queue instead of competing for the B60's memory.
 ## Companion speech operations (verified 2026-09-23)
 
 Aster Companion's iPhone client is `/companion` on `aster.elliottrook.com`.
-The separate STT/TTS service runs on LXC 116 (`192.168.70.14:9130`) behind
-NPM's `/voice/` location. It accepts the Companion Authentik JWT or its dedicated
-service key. Those two authentication paths require separate validation:
-service-key smoke tests do not prove Companion login works.
+LXC 116 is the network-level Aster Voice Service. Its canonical Kokoro
+`bm_daniel` API binds `192.168.70.14:9131`, Home Assistant uses Wyoming TCP
+10300, Companion browser TTS uses authenticated AVS1 streaming through the
+longer-prefix HTTPS `/voice/v2/` route to 9131, and authenticated 9130
+Piper/STT remains for Companion STT and migration rollback and
+current Companion transcription. Companion JWT and dedicated service-key
+authentication require separate validation: one does not prove the other.
 
 Speech must reach `https://auth.elliottrook.com/application/o/aster-companion/jwks/`
 through NPM `192.168.50.23:443`. OPNsense permits that exact source/destination
