@@ -159,6 +159,18 @@ was performed.
   Local AI service contract is Qwen3.5/SYCL. This stale release label is a
   Stream A reconciliation gate; it must be corrected and tested before a new
   artifact is promoted, without changing the live service blindly.
+- The guest is an unprivileged Debian LXC with 16 GiB rootfs, 8 vCPUs and 8
+  GiB RAM. Its application state is local to `/opt/news-aggregator`; the
+  database is about 29 MiB, static audio/UI state about 7 MiB and local Kokoro
+  models about 292 MiB.
+- The current Proxmox archive is present and passes the existing archive
+  coverage pattern: the 2026-10-12 LXC114 archive is about 2.5 GB, with daily
+  prior archives visible. The project still requires an isolated restore check
+  before promotion.
+- The digest service is a oneshot chain: text generation followed by Kokoro
+  audio narration. The API service is separate and serves on guest port 8080;
+  no production guest or private ingress has been created by this Stream A
+  work.
 
 ### Evidence captured
 
