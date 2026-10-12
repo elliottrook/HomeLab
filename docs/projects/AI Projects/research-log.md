@@ -2638,3 +2638,13 @@ tracked candidate as a whole, and its method set lacks the candidate's
 the current AI-facing process cannot be claimed outside the human-approval
 trust boundary. See the [bounded recheck](evidence/M1-live-approval-boundary-recheck-2026-10-11.md).
 No socket request, approval, model call or service mutation occurred.
+
+### 2026-10-11 — Dormant independent approval ingress
+
+Added a small app factory that accepts only signed Companion tokens for the
+approval routes and derives actor metadata independently of the Aster gateway.
+It has empty default approver and passkey mappings, no API-key fallback, and no
+chat or model endpoint. Eighteen local ingress/router tests passed with
+synthetic RSA tokens and a fake JWKS client. See the [candidate record](evidence/M1-independent-approval-ingress-candidate-2026-10-11.md).
+This does not remove Aster's live socket access or prove a real Authentik
+passkey claim. No service, route or credential changed; Stage2 stays on HOLD.
