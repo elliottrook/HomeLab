@@ -64,7 +64,12 @@ def get_arr_report(
         if len(raw) > MAX_REPORT_BYTES:
             raise ValueError("report exceeds the maximum permitted size")
         report = json.loads(raw.decode("utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        # OS and decoder diagnostics can contain the report path. This result
+        # can be shown to the assistant, so keep those details source-local.
+        return _unavailable("Sanitized ARR report unavailable")
+    except ValueError as exc:
+        # Only fixed validation messages raised above reach this branch.
         return _unavailable(f"Sanitized ARR report unavailable: {exc}")
 
     if not isinstance(report, dict) or not REPORT_FIELDS.issubset(report) or set(report) - (REPORT_FIELDS | {"repair_candidates"}):
@@ -88,8 +93,10 @@ def get_arr_report(
         status = value.get("status")
         coverage = value.get("coverage")
         if (
-            status not in ALLOWED_STATUS
+            not isinstance(status, str)
+            or status not in ALLOWED_STATUS
             or not isinstance(coverage, list)
+            or any(not isinstance(scope, str) for scope in coverage)
             or len(coverage) != len(set(coverage))
             or not set(coverage).issubset(ALLOWED_COVERAGE)
             or "health" not in coverage

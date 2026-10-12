@@ -1,0 +1,9 @@
+# ARR report malformed-input boundary — 2026-10-11
+
+**Status: local candidate only.** The installed Aster gateway and ARR report reader were not changed. This does not enable Codex tools or alter the Stream A authority gate.
+
+The ARR report reader is an existing local Aster tool. A malformed JSON service `status` containing a list/object, or `coverage` containing an unhashable member, could raise `TypeError` rather than return the reader's defined `unavailable` result. An operating-system read error could be interpolated into the model-visible `error` field and include the report path. These are parser robustness and disclosure defects; they do not establish that a malformed or missing report occurred in production.
+
+The local change type-checks status and coverage members before set operations and replaces OS/decoder diagnostics with a fixed unavailable message. Existing fixed validation reasons remain intact. Regression fixtures cover list/object status, nested list/object coverage and a missing path whose private basename must not appear in the result. The focused ARR reader, ARR execution and gateway tests passed: 110 tests, zero failures, using the existing local dependency environment. `git diff --check` passed. System Python could run the 17 reader tests but lacked `fastapi` for the integration suite; no dependency was installed.
+
+Read-only SHA-256 comparison found the installed `/opt/aster-agent/arr_report.py` differs from the local candidate. The installed source was not replaced, and no claim is made that this fix is live. Before any deployment, reconcile that file against the deployed gateway consumer, preserve a source checkpoint, run the combined suite on the reconciled copy, then verify ordinary ARR answers and service health. Deployment is worthwhile as a narrow maintenance fix when a reviewed Aster release is next warranted; it is not a reason to expand model or broker authority.

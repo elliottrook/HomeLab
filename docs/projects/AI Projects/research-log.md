@@ -2693,3 +2693,12 @@ older than the tracked file-boundary-hardened version, so repository code was
 not mistaken for live deployment. This fails the minimum value threshold for
 an aggregate-only connected Codex diagnostic; no worker or grant was created.
 See the [value check](evidence/D4-live-aggregate-value-check-2026-10-11.md).
+
+### 2026-10-11 — ARR reader malformed-input and path disclosure candidate
+
+The existing local ARR reader could raise on unhashable JSON fields and could
+include a missing report's path in an assistant-visible error. A local-only
+type and error-projection fix now returns `unavailable` for those cases; 110
+reader/ARR/gateway tests pass in the established dependency environment. The
+installed reader hash differs from the candidate and was not replaced. See
+the [boundary record](evidence/ARR-report-malformed-input-boundary-2026-10-11.md).

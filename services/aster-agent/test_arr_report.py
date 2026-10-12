@@ -95,6 +95,25 @@ class ArrReportTests(unittest.TestCase):
             result = get_arr_report(path, now=now)
         self.assertEqual(result["status"], "unavailable")
 
+    def test_missing_report_error_does_not_disclose_path(self):
+        now = datetime(2026, 9, 9, tzinfo=timezone.utc)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "private-report-name.json"
+            result = get_arr_report(path, now=now)
+        self.assertEqual(result["status"], "unavailable")
+        self.assertNotIn(str(path), result["error"])
+        self.assertNotIn(path.name, result["error"])
+
+    def test_unhashable_status_and_coverage_fail_closed(self):
+        now = datetime(2026, 9, 9, tzinfo=timezone.utc)
+        for field, malformed in (("status", []), ("status", {}),
+                                 ("coverage", ["health", []]),
+                                 ("coverage", ["health", {}])):
+            with self.subTest(field=field, malformed=malformed):
+                report = self._report(now)
+                report["services"]["radarr"][field] = malformed
+                self.assertEqual(self._read(report, now)["status"], "unavailable")
+
     def test_rejects_oversized_report(self):
         now = datetime(2026, 9, 9, tzinfo=timezone.utc)
         with tempfile.TemporaryDirectory() as directory:
