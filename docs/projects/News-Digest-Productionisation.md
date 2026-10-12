@@ -77,7 +77,12 @@ network dependency.
 
 ### 2. Deploy the production V1 instance
 
-- [ ] Deploy the reviewed artifact to the production application target.
+- [ ] Deploy the reviewed artifact to a separate production application target
+  on VLAN 20 with its own production IP and service identity. This is a
+  placement promotion, not an in-place relabel of LXC114's `192.168.70.13`.
+- [ ] Keep the VLAN 70 lab instance reachable and independently stoppable until
+  production acceptance, backup/restore evidence and rollback confidence are
+  complete; only then perform the planned private DNS/ingress cutover.
 - [ ] Configure separate credentials/state and record the release manifest.
 - [ ] Add only the required production firewall, DNS, NPM/Auth and NetBox
   records; retain the lab instance until acceptance and rollback confidence.
