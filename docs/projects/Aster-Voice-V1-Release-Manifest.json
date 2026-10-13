@@ -63,8 +63,8 @@
   "accepted_consumers": {
     "companion_web": "accepted canonical AVS1 streaming",
     "home_assistant": "accepted Wyoming pilot",
-    "news_digest": "accepted isolated CPU batch path",
-    "native_mac": "launch repair verified, but installed bundle v4 binary 8781e1defd4bb953544b93a65cefbf115d20ca41e707dabb34de1750795e3eb4 contains legacy voice/v1/tts and is not the canonical-streaming candidate"
+    "news_digest": "accepted corrected full briefing through the isolated canonical CPU batch path",
+    "native_mac": "launch repair verified for version 0.2.2 build 4, but installed binary 7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d contains legacy voice/v1/stt and voice/v1/tts and is not the canonical-streaming candidate"
   },
   "graduation_evidence": {
     "companion_web": {
@@ -78,9 +78,9 @@
       "state": "accepted near-field household/entity pass and two independent far-field time passes through Wyoming"
     },
     "news_digest": {
-      "passes": 1,
+      "passes": 2,
       "required": 2,
-      "state": "corrected opening accepted and scheduled artifact machine-valid; one regenerated full-briefing listening pass remains"
+      "state": "corrected opening and regenerated full briefing accepted; final date, emergency-number and Roman-numeral rules are active for future recordings"
     },
     "native_mac": {
       "passes": 0,
@@ -104,7 +104,7 @@
   },
   "blockers": [
     "build, test and install the repository native AVS1 client with a matched Swift compiler/SDK, then independently verify its binary and live canonical streaming request",
-    "complete M8 two-pass cross-surface production evidence and efficiency review",
+    "complete the second Companion web pass, native two-pass evidence and handover walkthrough",
     "revalidate and atomically reserve tentative VMID 127 and 192.168.20.37/24 in Proxmox/NetBox immediately before provisioning",
     "create a final manifest from a clean immutable Forgejo commit",
     "obtain explicit approval before creating the release tag"
