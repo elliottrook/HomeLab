@@ -1,7 +1,7 @@
 {
   "schema": "aster-voice-release.v1",
   "release_id": "aster-voice-v1.0.0-rc-20261013",
-  "status": "candidate-ready-for-production-approval",
+  "status": "production-provisioned-staging",
   "prepared_at": "2026-10-13T13:20:00-07:00",
   "source": {
     "authority": "forgejo",
@@ -89,8 +89,8 @@
     }
   },
   "production_target": {
-    "state": "candidate-unreserved",
-    "vmid": 127,
+    "state": "provisioned-staging-no-consumer-cutover",
+    "vmid": 128,
     "name": "aster-voice-prod",
     "address": "192.168.20.37/24",
     "network": "Servers VLAN",
@@ -99,15 +99,17 @@
       "memory_mib": 4096,
       "root_disk_gib": 16
     },
-    "preflight": "Proxmox nextid=127; no matching NetBox VM or IP; address absent from OPNsense configuration/ARP and did not answer two probes; local-lvm reported 629330801 KiB available; host reported 44555202560 bytes available memory. Revalidate immediately before reservation because these observations do not reserve capacity or identity.",
-    "credentials": "must be newly generated and protected; never copied to this manifest"
+    "stable_name": "aster-voice.home.internal",
+    "preflight": "Tentative VMID 127 became occupied before provisioning. Revalidation selected current Proxmox nextid 128, reconfirmed 192.168.20.37 absent from network and inventory authorities, and registered the exact resulting guest, interface, observed MAC, IP and TCP 9130/9131/10300 services in NetBox.",
+    "verification": "Approved health identity, authentication refusal, two authenticated AVS1 canaries, service reboot recovery, distinct Beszel monitoring, three-authority private DNS and an isolated link-down restore from the initial snapshot all pass. Consumers remain on their accepted lab paths pending controlled cutover.",
+    "credentials": "new production-only credential generated and stored in protected live configuration; value is not copied to this manifest"
   },
   "blockers": [
-    "revalidate and atomically reserve tentative VMID 127 and 192.168.20.37/24 in Proxmox/NetBox immediately before provisioning",
+    "obtain explicit approval before production consumer cutover",
     "obtain explicit approval before creating the release tag"
   ],
   "authorization": {
-    "production_provisioning": false,
+    "production_provisioning": true,
     "consumer_cutover": false,
     "release_tag": false,
     "destructive_cleanup": false

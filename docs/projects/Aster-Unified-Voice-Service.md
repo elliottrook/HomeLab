@@ -1,8 +1,7 @@
 # Aster Unified Voice Service
 
-> Status: Active — Stream A; M0–M3 and M5–M7 complete; M4 Companion migration
-> and M8 close-out remain; M9 production graduation is approved but may not
-> provision or cut over production until the M4/M8 and release-preflight gates pass
+> Status: Active — Stream A; M0–M8 complete; M9 production guest provisioned
+> and recovery-tested; consumer cutover and production soak remain
 >
 > Owner: Jason
 >
@@ -35,6 +34,15 @@ Aster voice standard without exception.
 
 ## Current state and evidence
 
+- The independently provisioned production candidate is unprivileged LXC 128
+  (`aster-voice-prod`, `192.168.20.37`, Servers VLAN 20) with 6 vCPU, 4 GiB
+  RAM, 512 MiB swap and a 16 GiB disk. `aster-voice.home.internal` resolves
+  through both Pi-hole authorities and OPNsense Unbound. Production has its own
+  protected API credential and does not reuse the lab renderer credential.
+- Production health reports the approved `aster-bm-daniel`, Kokoro 1.0,
+  policy v1 and `aster-base-en` identities. Two authenticated AVS1 canaries,
+  service-only reboot recovery, Beszel monitoring and an isolated restore from
+  the initial 2.2 GB archive have passed. Consumers have not been cut over.
 - The authoritative source is the Forgejo HomeLab repository and this project.
   Live state remains authoritative for deployed versions and behavior.
 - Aster Speech runs on unprivileged LXC 116 (`aster-speech`,
@@ -934,11 +942,13 @@ later unrelated changes.
 - [x] **Monitoring/alerting** — latency/queue/error/resource signals are live,
   Beszel owns guest resources, and a label-preserving Grafana bridge to the
   established email policy passed a synthetic firing/resolution test.
-- [x] **Backup and recovery** — the corrected runtime, voice assets, policy and
-  protected configuration are covered by byte-identical Proxmox/TrueNAS
-  archives; a network-isolated restore passed health, local TTS and STT.
-- [x] **NetBox** — LXC 116 retains VM/interface/IP IDs 16/16/30 and now records
-  canonical, legacy and Wyoming TCP services plus the exact HA consumer boundary.
+- [x] **Backup and recovery** — the corrected lab runtime remains covered by
+  byte-identical Proxmox/TrueNAS archives. Production LXC 128 is included by
+  the nightly all-guests policy; its initial snapshot restored with the network
+  link forced down and passed health plus exact model/voice hash verification.
+- [x] **NetBox** — LXC 116 retains its canonical, legacy and Wyoming services;
+  production LXC 128, interface, `.20.37/24` address and TCP 9130/9131/10300
+  services are independently recorded with the observed production MAC.
 - [x] **Human wiki** — the reviewed Aster Voice Service page covers operation,
   consumers, privacy, recovery and troubleshooting.
 - [x] **Aster mirror/snapshot** — accepted source `aster-voice-service` produced a
@@ -957,8 +967,10 @@ later unrelated changes.
   added; Companion already links the user-facing service.
 - [ ] **Authentication/authorization** — separate least-privilege caller paths,
   existing Companion OIDC/JWT and human recovery; no shared admin credential.
-- [ ] **DNS, certificates and firewall** — prefer no new DNS/certificate; record
-  and test only exact private tuples needed by HA/News.
+- [ ] **DNS, certificates and firewall** — the private production name is live
+  and independently verified on both Pi-holes and OPNsense. Add only the exact
+  cross-VLAN consumer tuples during controlled migration; no certificate or
+  public ingress is needed.
 - [ ] **Automation and schedules** — preserve News ownership; bound service
   concurrency/restarts and missed/failed generation behavior.
 - [ ] **Security inventory** — asset provenance/licence, secrets outside Git,
@@ -1009,6 +1021,7 @@ instructions to treat the legacy route as canonical.
 
 | Date | Milestone/action | Evidence | Result / next safe action |
 |---|---|---|---|
+| 2026-10-13 | M9 production provisioning, DNS, monitoring and recovery gate | Revalidation found prior tentative VMID 127 occupied, so current Proxmox `nextid` 128 was used. Created unprivileged Debian 13 LXC 128 `aster-voice-prod` at `192.168.20.37/24` on VLAN 20 with 6 vCPU, 4096 MiB RAM, 512 MiB swap and 16 GiB local-lvm. NetBox records the observed MAC, IP and TCP 9130/9131/10300 services. Clean installation from the reviewed release inputs, exact dependency lock and model assets reports the approved health identity; unauthenticated HTTP is refused and two authenticated AVS1 canaries returned `audio,end` with 95,198 audio bytes in 1.234 and 1.379 seconds. A production-only API credential was generated without copying a lab secret. Service-only reboot recovery passed. Beszel has a distinct rotated lab token and a distinct production token; both systems report up, and no token is stored in Git. `aster-voice.home.internal` resolves to `.20.37` through primary Pi-hole, secondary Pi-hole, OPNsense and the normal client resolver; each authority has a protected pre-change backup. The nightly all-guests Proxmox policy already includes LXC 128. Initial snapshot `vzdump-lxc-128-2026_10_13-16_15_06.tar.zst` completed at 2.2 GB, restored to temporary LXC 928 with its link forced down, reached approved health and matched model hashes `f3a290...7ac96` and `bca610...fbf7d`; LXC 928 was then removed and production remained healthy. | Production infrastructure and recovery gates pass. Local ONNX remains the deliberate credential-isolated renderer for staging. Do not cut over consumers yet: next add exact per-consumer transport where necessary, exercise consumer-first rollback, and obtain explicit consumer-cutover approval. Release tagging still requires separate explicit approval. |
 | 2026-10-13 | Native Companion launch-crash correction and two-Mac acceptance | Four Mac mini crash reports between 12:41 and 12:44 PDT showed `EXC_BREAKPOINT`/`SIGTRAP` in SwiftPM's generated `Bundle.module` initializer while `OrbView` initialized `AsterOrb.png`. The generated accessor searched relative to `Bundle.main.bundleURL`, but the correctly signed macOS package stores its nested SwiftPM bundle under `Contents/Resources`; copying it to the app root instead was rejected by strict code-signature verification as unsealed content. `OrbView` now resolves the nested resource bundle explicitly from `Bundle.main.resourceURL`, while retaining a loose-executable fallback. The packager asserts the image's final path and now runs strict/deep verification after signing. Release compilation succeeded with the installed compatible macOS 15.4 SDK; full XCTest discovery remains unavailable in the standalone Command Line Tools because `XCTest` is absent. The signed archive SHA-256 is `f2fcf26cb29ab3175daf656cfe97014b500f1e8146d56af6be633ade0ed936e0`; executable SHA-256 is `7b968e5fdf11f88f2105c2d65cf3468dd27b8f245e787e73acdc8dfc2032124c`. That exact archive passed strict/deep verification, launched, remained running for the bounded soak, and produced no new crash report on both the M2 MacBook Air and M4 Mac mini. Each machine preserves the superseded installation at `/Applications/AsterCompanion.pre-resource-fix-20261013.app`. Jason independently confirmed the repaired MacBook and Mac mini builds pass visible-orb, ordinary typed-request and canonical voice-response checks; the mini also passed its OpenBao status check after fresh passkey authentication. | Two-Mac native acceptance passes and closes M4/M8. Preserve rollback copies through production graduation. M9 production allocation and provisioning are now the next gate; release tagging still requires separate explicit approval. |
 | 2026-10-13 | Superseding AVS1 multi-frame composite on both Macs | A concurrent Forgejo update `93855de` corrected `AVS1Decoder` to reconstruct remaining `Data` at index zero after consuming each frame; its evidence records focused voice tests 4/4 and the complete Companion suite 59/59. Rebased the two-Mac/access evidence without force-push, rebuilt with Swift 6.3.2 and the same `Aster Companion Local Signing 2026 R2` identity, and verified designated requirement `identifier "com.elliottrook.aster-companion" and certificate root = H"5522e8b8ddfb7dc3a27eab2ccb00ef5f1850617f"`. The superseding archive SHA-256 is `280b6375e06925daf0c9a630580fb42a2238ad58c2c10dfdf89915848b7b0797`; executable SHA-256 is `b237bc9f19d7c85f7891a3635e1cc066c158bac973a5aad265e1a705e730f83c`. Both the M2 MacBook Air `.1.241` and M4 Mac mini `.1.206` independently verified the archive/staging or installed bundle, strict/deep signature and exact executable hash, then launched it. Each retains the immediately preceding `03dd0afb...710e63` composite at `/Applications/AsterCompanion.pre-avs1fix-20261013.app`. | This artifact supersedes the earlier `03dd0afb...710e63` release candidate. MacBook still needs a brief regression voice check after the parser-only update; Mac mini needs its independent ordinary request, AVS1 voice and fresh-passkey OpenBao-status acceptance. Manual Codex sending remains fail-closed on its separately documented runtime-fingerprint mismatch; recorded-request viewing is unaffected. |
 | 2026-10-13 | Native composite stable signer and MacBook installation | Created owner-held login-Keychain identity `Aster Companion Local Signing 2026 R2` without exporting its private key. Certificate SHA-256 is `5E:5A:97:FD:25:57:13:52:E2:36:37:4E:54:71:69:B7:87:89:24:CB:46:AA:6F:A6:EB:AB:C9:60:19:79:87:C9`; it expires 2029-10-12, has critical Digital Signature key usage and critical Code Signing-only extended usage. macOS reports one valid signing identity; code-signing verification succeeds and SSL verification is refused. Two disposable bundles with different executable hashes passed strict/deep verification and shared designated requirement `identifier "com.elliottrook.aster-companion" and certificate root = H"5522e8b8ddfb7dc3a27eab2ccb00ef5f1850617f"`. The immutable composite archive SHA-256 is `0c7a3a9f2aa6addef98a29ec81f848feeaf442cffadcb2da37e90215c22ae175`; installed executable SHA-256 is `03dd0afb5055ac29456708b3051a3956005cb4f4a32b1e57685ed235a5710e63`. The prior working October 12 app is preserved at `/Applications/AsterCompanion.pre-composite-r2-20261013.app` with executable SHA-256 `c287a4f1743618872eb98bcf05a07da76f46d0fde9dbdd0f3f912208f4123c24`. The installed app passed strict/deep verification, opened already signed in, displayed AI-PAM/Codex/OpenBao together, and read the existing completed Codex request list without a new model turn. OpenBao status correctly returned 401 under the non-fresh saved session and presented the mandatory passkey action; no unseal token or seal operation was attempted. Jason then completed the requested ordinary, AVS1 voice and fresh-passkey OpenBao-status checks and reported that it works. | MacBook artifact, signature, preserved-session, UI and functional gates pass. Do not export/copy the signer private key or either Mac's Keychain. |
