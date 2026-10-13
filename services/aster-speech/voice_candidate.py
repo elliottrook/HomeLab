@@ -35,6 +35,11 @@ _BC_ABBREVIATION = re.compile(
     rf"\bB\.C\.{_ABBREVIATION_END}", re.IGNORECASE
 )
 _LUTRON_CASETA = re.compile(r"\bLutron Cas[eé]ta\b", re.IGNORECASE)
+_EMERGENCY_911 = re.compile(
+    r"\b911\b(?=\s+(?:call|calls|caller|callers|dispatch|dispatcher|dispatchers|"
+    r"operator|operators|service|services|emergency|centre|center)\b)",
+    re.IGNORECASE,
+)
 
 _ONES = (
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
@@ -103,6 +108,7 @@ def normalize_for_speech(text: str) -> str:
     text = _BC_ABBREVIATION.sub(
         lambda match: "British Columbia" + ("." if match.end() == len(match.string) else ""), text
     )
+    text = _EMERGENCY_911.sub("nine one one", text)
     text = _DOLLAR_AMOUNT.sub(_spoken_currency, text)
     text = text.replace("(", ", ").replace(")", ", ")
     text = re.sub(r"\s*,\s*", ", ", text)

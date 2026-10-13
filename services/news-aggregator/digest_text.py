@@ -56,6 +56,11 @@ _ABBREVIATION_END = r"(?=(?:['’]s)?(?:\s|$|[-–—,;:!?]))"
 _US_ABBREVIATION = re.compile(rf"\bU\.S(?:\.A)?\.{_ABBREVIATION_END}", re.IGNORECASE)
 _BC_ABBREVIATION = re.compile(rf"\bB\.C\.{_ABBREVIATION_END}", re.IGNORECASE)
 _LUTRON_CASETA = re.compile(r"\bLutron Cas[eé]ta\b", re.IGNORECASE)
+_EMERGENCY_911 = re.compile(
+    r"\b911\b(?=\s+(?:call|calls|caller|callers|dispatch|dispatcher|dispatchers|"
+    r"operator|operators|service|services|emergency|centre|center)\b)",
+    re.IGNORECASE,
+)
 _BARE_URL = re.compile(
     r"(?<!\w)(?:https?://|www\.)[^\s<>()]+|"
     r"(?<![@\w])(?:[a-z0-9-]+\.)+(?:com|org|net|ca|co\.uk)(?:/[^\s<>()]*)?",
@@ -67,6 +72,22 @@ _ONES = (
     "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
     "sixteen", "seventeen", "eighteen", "nineteen",
 )
+
+_ORDINALS = (
+    "", "first", "second", "third", "fourth", "fifth", "sixth", "seventh",
+    "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth",
+    "fourteenth", "fifteenth", "sixteenth", "seventeenth", "eighteenth",
+    "nineteenth", "twentieth", "twenty-first", "twenty-second", "twenty-third",
+    "twenty-fourth", "twenty-fifth", "twenty-sixth", "twenty-seventh",
+    "twenty-eighth", "twenty-ninth", "thirtieth", "thirty-first",
+)
+
+
+def spoken_ordinal(day: int) -> str:
+    """Return an unambiguous spoken calendar ordinal."""
+    if not 1 <= day <= 31:
+        raise ValueError("calendar day must be between 1 and 31")
+    return _ORDINALS[day]
 _TENS = ("", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety")
 _CURRENCY_NAMES = {"US": "United States", "CA": "Canadian", "AU": "Australian"}
 
@@ -137,6 +158,7 @@ def speech_text(text: str) -> str:
     # to the spoken name so headlines such as "U.S. suspect" flow naturally.
     text = _US_ABBREVIATION.sub(lambda match: _expand_dotted_name(match, "United States"), text)
     text = _BC_ABBREVIATION.sub(lambda match: _expand_dotted_name(match, "British Columbia"), text)
+    text = _EMERGENCY_911.sub("nine one one", text)
     text = _DOLLAR_AMOUNT.sub(_spoken_currency, text)
     text = text.replace("(", ", ").replace(")", ", ")
     text = re.sub(r"\s*,\s*", ", ", text)
