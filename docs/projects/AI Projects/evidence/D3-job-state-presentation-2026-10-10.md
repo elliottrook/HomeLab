@@ -23,3 +23,14 @@ because FastAPI/Pydantic are not installed there. No dependency was installed.
 Before any D3 release, run the route fixtures in the pinned application
 environment and verify the screen through normal authenticated use. This
 candidate does not satisfy the D3 release or job-handling milestone by itself.
+
+## Post-merge source check — 2026-10-13
+
+The newer Companion source is now reconciled into the Stream A branch. A
+source-only follow-up makes the job list say **“last reported working”** for a
+running record, rather than implying that the worker is definitely still
+active. For an `unknown` snapshot it displays a fixed uncertainty/no-resend
+message even if the server's message text is misleading. The focused
+`DelegationTests` suite passes 5/5, including a conflicting-message case. No
+worker, request, installed app or release status changed; ordinary-use
+acceptance remains open.

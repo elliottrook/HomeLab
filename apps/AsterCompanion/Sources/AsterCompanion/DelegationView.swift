@@ -8,7 +8,7 @@ struct DelegationJob: Decodable, Identifiable {
         case "queued": return "waiting for worker"
         case "offered": return "offered; outcome pending"
         case "accepted": return "accepted by worker"
-        case "running": return "working"
+        case "running": return "last reported working"
         case "unknown": return "outcome uncertain"
         case "completed": return "completed"
         case "failed": return "failed"
@@ -36,6 +36,9 @@ struct DelegationSnapshot: Decodable {
     let canRequestCancel: Bool
     let recoveryRequired: Bool
     var statusMessage: String {
+        if state == "unknown" {
+            return "The request outcome is uncertain. Check the recorded request; do not resend it."
+        }
         if state == "completed" && (recoveryRequired || reply == nil) {
             return "This request completed, but its temporary answer is no longer available in Aster. You may request a supervised read of the original answer if recovery is enabled. Do not resend the question."
         }

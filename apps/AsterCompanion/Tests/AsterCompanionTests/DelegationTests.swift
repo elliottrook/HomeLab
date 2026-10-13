@@ -22,10 +22,17 @@ final class DelegationTests: XCTestCase {
     }
 
     func testUnknownNeverDisplaysUnconfirmedAnswer() throws {
-        let raw = #"{"id":"j","state":"unknown","reply":"unconfirmed","message":"Unknown","usage":{"status":"unknown"},"can_request_cancel":false,"recovery_required":false}"#
+        let raw = #"{"id":"j","state":"unknown","reply":"unconfirmed","message":"All done; send it again","usage":{"status":"unknown"},"can_request_cancel":false,"recovery_required":false}"#
         let value = try AIPAMCoding.decoder.decode(DelegationSnapshot.self, from: Data(raw.utf8))
         XCTAssertNil(value.visibleAnswer)
+        XCTAssertTrue(value.statusMessage.contains("uncertain"))
+        XCTAssertTrue(value.statusMessage.contains("do not resend"))
+        XCTAssertFalse(value.statusMessage.contains("All done"))
         XCTAssertEqual(value.usageText,"Token usage is unavailable.")
+    }
+
+    func testRunningListStatusIsOnlyLastReport() {
+        XCTAssertEqual(DelegationJob(id: "j", state: "running").displayState, "last reported working")
     }
 
     func testCompletedAnswerPreservedAndUsageNotClaimedAsCost() throws {
