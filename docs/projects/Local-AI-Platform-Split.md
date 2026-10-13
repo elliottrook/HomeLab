@@ -562,3 +562,10 @@ A staging manifest records the exact reviewed hashes, fixed probes, `04:15`
 recovery deadline, rollback path and the limits of one future attended light
 service-drain drill. No candidate file was installed, no timer was enabled and
 no live effect was run.
+
+The host-local recovery executor is now a separate, explicit-gate entry point:
+without `--effect-authorized` it emits only a content-free decision; with the
+gate it invokes the fixed observer, controller and effect runner as one bounded
+restore path. The disabled systemd unit does not invoke this executor yet. The
+exact GGUF file digest and a successful Proxmox-owner TrueNAS transport probe
+remain required staging facts before any live review.

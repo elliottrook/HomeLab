@@ -15,6 +15,9 @@ live effect.
   TrueNAS `192.168.20.40` through batch-mode SSH, and the owner heartbeat.
 - Fixed schedule identity: Proxmox `00:30`; TrueNAS guest `01:00`, LXC 110
   `02:00`, Mac `03:00`; News `06:15` and `17:15`.
+- The host-local recovery executor is a separate entry point; without its
+  explicit effect gate it only emits a content-free decision. The disabled
+  systemd unit does not invoke it yet.
 
 ## Exact local candidate hashes
 
@@ -30,12 +33,25 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/lease_watchdog_cli.py` | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
 | `scripts/local-ai/lease_effect_runner.py` | `81eac0e15e86ea48ce267d1a03da74cfcbe408ad9c57c9eca832a9c8f8c2c662` |
 | `scripts/local-ai/test_lease_effect_runner.py` | `f59eaa9048ff0cd1c93dc49462151350eee54c627d52466fdbbdf874562060b8` |
+| `scripts/local-ai/lease_recovery_executor.py` | `db6efb158bedfbe92f02aa4573e6979d6016f19efef688f697bbcdfdb7feea85` |
+| `scripts/local-ai/test_lease_recovery_executor.py` | `9e00a8724bddff2f41d6fee7fa97286ac0280556f1def69eb5c4010fff32076d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `abbe6fcd98b37d6ccb6065fc3a64492c56f37139812b4a60d37d54d55acaf5f5` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `4ef3217f40bfeca17cc0790c29a04ffa95d9b9a60a49aa97b26e4e8c58c84875` |
 
 The values above describe the reviewed local payload and are not a deployment
 authorization. The manifest itself is excluded from the hash table because
 editing the table would necessarily change its own digest.
+
+## Required staging facts before live review
+
+- The accepted model artifact identity must include the exact SHA-256 of the
+  deployed GGUF at `/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf`.
+  The repository's Ollama blob digest is provenance only, not a substitute for
+  the file digest checked by the observer.
+- The fixed TrueNAS probe must be verified from the Proxmox owner context using
+  batch-mode SSH to `root@192.168.20.40` and `midclt call rsynctask.query`.
+  The historical `truenas` alias failure is not an acceptable restoration
+  probe; transport failure remains schedule-unhealthy and fail-closed.
 
 ## Recovery deadline and rollback
 
