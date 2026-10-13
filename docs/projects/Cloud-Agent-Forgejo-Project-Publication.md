@@ -222,13 +222,16 @@ write outside the allowlist, or need to alter GitHub directly.
   safe-write sources. The live runner source pin is now confirmed stale and is
   a deployment blocker.
 - [x] Read-only verify that the retired GitHub-first Forgejo branch and local
-  branch are absent; the replacement Forgejo branch and its GitHub mirror match
-  at `d43ca9ee`.
-- [ ] Confirm the public-mirror privacy boundary and the exact document path,
-  count, per-file and total-size caps.
-- [ ] Record owner, recovery checkpoint location, retention and operator path.
-- [ ] Decide whether the project remains Stream M through graduation. Stream A
-  is not assumed.
+  branch are absent; the replacement Forgejo branch and its GitHub mirror last
+  matched at the published base `503deb11`.
+- [x] Confirm the public-mirror privacy boundary and the exact document path,
+  count, per-file and total-size caps: `docs/projects/` and `docs/handovers/`,
+  32 files, 1 MiB per file and 8 MiB total.
+- [x] Record owner, recovery checkpoint location, retention and operator path
+  in the project evidence and
+  [local handover](../handovers/Cloud-Agent-Forgejo-Project-Publication.md).
+- [x] Jason directed continuation as Stream A on 2026-10-13; the immediate
+  confirmation rule for each Forgejo remote write remains in force.
 
 Gate: an independent reader can tell exactly what the cloud agent may submit,
 what the local worker may write, what it may never reach and how rollback works.
@@ -248,20 +251,23 @@ reconciliation and explicit acceptance of the public-mirror boundary.
 - [x] Prove the validator performs no network, Git, Forgejo, OpenBao or broker
   I/O and executes no package-controlled content.
 
-Gate: local broker suite passes `130/130`; the new capability is separately
+Gate: local broker suite passes `132/132`; the new capability is separately
 versioned, bounded and fail-closed. **Local gate passed 2026-10-13.** Live
 installation and gateway integration remain M2 work and are not authorized by
 this gate.
 
 ### M2 — isolated approval-path canary
 
-- [ ] Install only the new worker/policy after a verified checkpoint.
+- [x] Capture the protected checkpoint before installation; live installation
+  remains pending the dedicated writer credential and base reconciliation.
+- [x] Implement only the new worker/policy locally; no live service or
+  credential has been changed.
 - [ ] Exercise synthetic packages through intake, validation, approval, revoke,
   expiry and kill-switch paths without a live Forgejo write.
 - [ ] Prove isolation from Forgejo credentials, OpenBao, read gateway, unrelated
   files/sockets, arbitrary network destinations and package execution.
 - [ ] Verify metadata-only receipts, cleanup and restart/resume behavior.
-- [ ] Simulate a failure between document writes and prove the incomplete
+- [x] Simulate a failure between document writes and prove the incomplete
   non-main branch is detected, retained for audit and excluded from merge.
 
 Gate: two independent synthetic passes and all denial cases pass; no remote
@@ -295,9 +301,9 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 
 | Milestone | Evidence | Status |
 |---|---|---|
-| M0 | This design; branch-rescission verification; canonical base and policy reconciliation | In progress |
-| M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13; live integration not started |
-| M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Not started |
+| M0 | This design; branch-rescission verification; canonical base, privacy boundary and checkpoint record | Complete locally 2026-10-13 |
+| M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13: 132/132 |
+| M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Implementation and recovery tests complete locally; live credential/base gates pending |
 | M3 | Forgejo branch/tree and mirror read-only verification | Not started |
 | M4 | Restore, monitoring, operator handover and graduation review | Not started |
 
@@ -316,7 +322,8 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 
 ## Next safe action
 
-Complete M0 read-only reconciliation and present the exact policy/capability
-change for approval. Do not deploy a worker, alter AI-PAM policy, create a
-Forgejo branch or push any project commit until M0 is accepted and the normal
-immediate confirmation is obtained for each remote write.
+Provision the dedicated project-write credential/AppRole without exposing its
+value, reconcile the live runner base to the current Forgejo `main` after the
+protected checkpoint, and run the isolated M2 canary. Keep all project commits
+held until the completion gate; obtain the normal immediate confirmation before
+the first Forgejo remote write and push once at project completion.

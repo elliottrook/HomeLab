@@ -29,8 +29,10 @@ absent from both remotes. This was treated as mirror lag, not a reason to write
 GitHub directly.
 
 The replacement branch `codex/cloud-agent-forgejo-access` was pushed only to
-Forgejo after Jason's explicit confirmation. Forgejo and its GitHub mirror now
-resolve that branch to the same commit, `d43ca9eea46e39c349090143219eccb167e0ff5e`.
+Forgejo after Jason's explicit confirmation. Forgejo and its GitHub mirror last
+resolved that branch to the same published commit,
+`503deb1155fc933887cc5f111180f52ba74ebf84`; later project commits are being
+held locally until completion.
 
 The old project documents and public-staging design are absent from the new
 canonical-based worktree. They are not dependencies of the replacement project.
@@ -65,10 +67,10 @@ The initial package boundary is:
 |---|---|
 | Old Forgejo branch removed | Passed; direct Forgejo check returned absent |
 | Old local process branch retired | Passed; local worktree is on the replacement branch |
-| GitHub mirror convergence | Passed; old branch absent and replacement branch matches Forgejo at `d43ca9ee` |
+| GitHub mirror convergence | Passed; old branch absent and replacement branch last matched Forgejo at `503deb11` |
 | Canonical base and local policy reconciliation | Passed; Forgejo `main` is `da8b0fca`; local policy sources match the canonical checkout; 30 targeted tests pass |
 | Live runner source-pin reconciliation | Blocked for implementation; installed `base_revision` is `d7e49c4d4d6b7124a764208cc44e0ef9ed12797b`, while current Forgejo `main` is `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; installed runner source hashes match the reviewed local files |
-| M1 offline validator and staged handoff | Passed local gate; separate multi-file document verifier, digest-named handoff, project gateway policy and adversarial tests are present; complete broker test directory passes `130/130`; no live policy or service change |
+| M1 offline validator and staged handoff | Passed local gate; separate multi-file document verifier, digest-named handoff, project gateway policy and adversarial tests are present; complete broker test directory passes `132/132`; no live policy or service change |
 
 ## Read-only M2 preflight
 
@@ -83,10 +85,14 @@ live policy, credential, runner pin or service state was changed.
 A new protected Proxmox checkpoint was then created for LXC 104 as
 `forgejo-project-docs-pre-m2-20261013`. The guest filesystem was frozen and
 thawed successfully and the snapshot was created before any installation.
-| Exact public-mirror privacy boundary accepted | Pending Jason's M0 decision |
-| Live worker or AI-PAM policy change | Not started and not authorized |
+
+The exact public-mirror privacy boundary is accepted under the Stream A
+direction: read-only context may be broader, but publication remains limited
+to `docs/projects/` and `docs/handovers/`; the package cap is 32 files, 1 MiB
+per file and 8 MiB total. The live worker, dedicated writer credential and
+AI-PAM capability registration have not been installed.
 
 No service, credential, firewall, DNS, workflow, protected branch or GitHub
-configuration was changed by this project record. No new remote Forgejo write
-is authorized by this evidence record. The live runner base pin was not changed;
-that requires a separately reviewed implementation change and recovery check.
+configuration was changed by this project record. The live runner base pin was
+not changed; that requires the dedicated credential, exact base reconciliation
+and a separately recorded recovery check.
