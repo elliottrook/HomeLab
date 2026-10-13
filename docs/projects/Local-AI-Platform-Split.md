@@ -426,15 +426,21 @@ platform-loss behavior; those remain required before promotion.
 
 ## Speech implementation reconciliation — 2026-10-13
 
-The live Aster Speech unit on LXC 116 is active and its local health endpoint
-returns `{"status":"ok","service":"aster-speech"}`. The deployed service,
-however, is the current `aster_speech:app` implementation, whose TTS path is
-Piper; no Kokoro implementation or Kokoro-to-Piper failure switch is present
-in this service. The contract's Kokoro `bm_daniel` canonical path therefore
-cannot be claimed as validated by the current deployment. The speech fallback
-gate is blocked on reconciling that implementation with the accepted contract
-(or explicitly revising the contract), followed by a bounded failure/recovery
-test.
+Kokoro is confirmed as canonical. The checked-in Aster Speech implementation
+now uses Kokoro ONNX `bm_daniel`, `en-gb`, speed `0.95` by default and keeps
+Piper only as an explicit degraded recovery path. TTS responses identify the
+engine with `X-Aster-Speech-Engine`; Piper recovery also sets
+`X-Aster-Speech-Degraded: true`, so a consumer cannot silently present Piper as
+the canonical voice. The new runtime dependencies are listed in
+`services/aster-speech/requirements-kokoro.txt` and the model/voice-pack paths
+are configuration-driven.
+
+The live Aster Speech unit on LXC 116 remains healthy, but its current venv has
+no Kokoro runtime or model assets. No live replacement or restart was attempted
+in this source milestone. The speech gate therefore remains open until the
+controlled deployment provisions the runtime/assets and validates Kokoro
+success, forced Kokoro failure with Piper recovery, and consumer handling of
+the degraded response headers.
 
 ## Schedule implementation record — 2026-10-12
 

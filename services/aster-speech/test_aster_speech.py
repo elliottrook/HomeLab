@@ -168,9 +168,24 @@ class TextToSpeechTests(unittest.IsolatedAsyncioTestCase):
             response = await text_to_speech(TTSRequest(text="Aster is online."))
         self.assertEqual(response.media_type, "audio/wav")
         self.assertEqual(response.body, b"RIFF-fake-wav-bytes")
+        self.assertEqual(response.headers["X-Aster-Speech-Engine"], "piper")
+        self.assertEqual(response.headers["X-Aster-Speech-Degraded"], "true")
         argv = mocked.call_args.args[0]
         self.assertIn("--length_scale", argv)
         self.assertEqual(argv[argv.index("--length_scale") + 1], aster_speech.PIPER_LENGTH_SCALE)
+
+    async def test_kokoro_is_canonical_when_available(self):
+        def fake_kokoro(_text, output_path):
+            output_path.write_bytes(b"RIFF-kokoro-wav-bytes")
+            return "kokoro"
+
+        with patch("aster_speech._synthesize_kokoro", side_effect=fake_kokoro), \
+             patch("aster_speech.subprocess.run") as mocked:
+            response = await text_to_speech(TTSRequest(text="Aster is online."))
+        self.assertEqual(response.body, b"RIFF-kokoro-wav-bytes")
+        self.assertEqual(response.headers["X-Aster-Speech-Engine"], "kokoro")
+        self.assertNotIn("X-Aster-Speech-Degraded", response.headers)
+        mocked.assert_not_called()
 
     async def test_empty_text_is_rejected(self):
         with self.assertRaises(HTTPException) as raised:

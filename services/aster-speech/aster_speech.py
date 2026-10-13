@@ -16,6 +16,7 @@ from __future__ import annotations
 import asyncio
 import hmac
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -47,6 +48,17 @@ _authentik_jwks_client = jwt.PyJWKClient(AUTHENTIK_JWKS_URL, cache_keys=True, li
 # same voice, same preference, applied consistently rather than
 # re-deciding it here.
 PIPER_LENGTH_SCALE = os.environ.get("ASTER_SPEECH_PIPER_LENGTH_SCALE", "1.15")
+KOKORO_MODEL = Path(os.environ.get(
+    "ASTER_SPEECH_KOKORO_MODEL",
+    "/opt/aster-speech/models/kokoro/kokoro-v1.0.fp16.onnx",
+))
+KOKORO_VOICES = Path(os.environ.get(
+    "ASTER_SPEECH_KOKORO_VOICES",
+    "/opt/aster-speech/models/kokoro/voices-v1.0.bin",
+))
+KOKORO_VOICE = os.environ.get("ASTER_SPEECH_KOKORO_VOICE", "bm_daniel")
+KOKORO_LANG = os.environ.get("ASTER_SPEECH_KOKORO_LANG", "en-gb")
+KOKORO_SPEED = float(os.environ.get("ASTER_SPEECH_KOKORO_SPEED", "0.95"))
 MAX_AUDIO_BYTES = 15 * 1024 * 1024
 MAX_TEXT_CHARS = 2000
 
@@ -54,6 +66,7 @@ app = FastAPI(title="Aster Speech", version="1.0.0")
 
 _whisper_model: Any = None
 _transcribe_lock: Any = None
+_kokoro_engine: Any = None
 
 
 def _load_whisper_model() -> Any:
@@ -159,23 +172,71 @@ async def text_to_speech(request: TTSRequest) -> Response:
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmp:
         try:
-            result = await asyncio.to_thread(
-                subprocess.run,
-                [
-                    str(PIPER_BINARY),
-                    "--model", str(PIPER_VOICE),
-                    "--length_scale", PIPER_LENGTH_SCALE,
-                    "--output_file", tmp.name,
-                ],
-                input=text,
-                capture_output=True,
-                text=True,
-                timeout=30,
-                check=True,
+            engine = await asyncio.to_thread(_synthesize_kokoro, text, Path(tmp.name))
+        except Exception as kokoro_exc:
+            # Piper is an explicit degraded recovery path, never the canonical
+            # identity. The response header lets consumers surface that state.
+            print(
+                f"aster-speech: Kokoro synthesis failed; using Piper ({type(kokoro_exc).__name__})",
+                file=sys.stderr,
             )
-        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as exc:
-            raise HTTPException(status_code=502, detail="Speech synthesis failed") from exc
-        del result
+            try:
+                await asyncio.to_thread(_synthesize_piper, text, Path(tmp.name))
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as exc:
+                raise HTTPException(status_code=502, detail="Speech synthesis failed") from exc
+            engine = "piper"
         audio_bytes = Path(tmp.name).read_bytes()
 
-    return Response(content=audio_bytes, media_type="audio/wav")
+    response = Response(content=audio_bytes, media_type="audio/wav")
+    response.headers["X-Aster-Speech-Engine"] = engine
+    if engine == "piper":
+        response.headers["X-Aster-Speech-Degraded"] = "true"
+    return response
+
+
+def _synthesize_kokoro(text: str, output_path: Path) -> str:
+    """Render the canonical voice, loading its runtime lazily."""
+    global _kokoro_engine
+    if not KOKORO_MODEL.is_file() or not KOKORO_VOICES.is_file():
+        raise FileNotFoundError("Kokoro model assets are unavailable")
+    if _kokoro_engine is None:
+        from kokoro_onnx import Kokoro
+
+        _kokoro_engine = Kokoro(str(KOKORO_MODEL), str(KOKORO_VOICES))
+    import numpy as np
+    import soundfile as sf
+
+    chunks = []
+    for sentence in re.split(r"(?<=[.!?])\s+", text.replace("\n", " ").strip()):
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        clauses = re.split(r"(?<=[;:,])\s+", sentence) if len(sentence) > 240 else [sentence]
+        for clause in clauses:
+            audio, sample_rate = _kokoro_engine.create(
+                clause, voice=KOKORO_VOICE, speed=KOKORO_SPEED, lang=KOKORO_LANG
+            )
+            chunks.append((audio, sample_rate))
+    if not chunks:
+        raise ValueError("Kokoro generated no speech")
+    sample_rate = chunks[0][1]
+    audio = np.concatenate([chunk[0] for chunk in chunks])
+    sf.write(output_path, audio, sample_rate, subtype="PCM_16")
+    return "kokoro"
+
+
+def _synthesize_piper(text: str, output_path: Path) -> None:
+    result = subprocess.run(
+        [
+            str(PIPER_BINARY),
+            "--model", str(PIPER_VOICE),
+            "--length_scale", PIPER_LENGTH_SCALE,
+            "--output_file", str(output_path),
+        ],
+        input=text,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=True,
+    )
+    del result
