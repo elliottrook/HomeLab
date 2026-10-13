@@ -158,19 +158,25 @@ class CandidateController:
             if event.get("lease_id") != receipt.lease_id or event.get("generation") != receipt.generation:
                 continue
             current_events.append(event)
-        event_pairs = {
-            kind: {(event.get("vmid"), event.get("unit")) for event in current_events if event.get("event") == kind}
-            for kind in ("stop-intent", "stop-observed", "restore-intent", "restore-observed", "start-intent", "start-observed")
-        }
+        def unmatched_intents(intent: str, observed: str) -> set[tuple[object, object]]:
+            pending: dict[tuple[object, object], int] = {}
+            for event in current_events:
+                key = (event.get("vmid"), event.get("unit"))
+                if event.get("event") == intent:
+                    pending[key] = pending.get(key, 0) + 1
+                elif event.get("event") == observed and pending.get(key, 0):
+                    pending[key] -= 1
+            return {key for key, count in pending.items() if count}
+
         for intent, observed, label in (
             ("stop-intent", "stop-observed", "stop"),
             ("restore-intent", "restore-observed", "restore"),
             ("start-intent", "start-observed", "start"),
         ):
-            if event_pairs[intent] - event_pairs[observed]:
+            if unmatched_intents(intent, observed):
                 raise ValueError(f"uncertain prior {label} requires operator reconciliation")
         for vmid, unit in persisted.services:
-            if (vmid, unit) in event_pairs["start-observed"] or self.observer.service_active(vmid, unit):
+            if self.observer.service_active(vmid, unit):
                 journal_event(self.paths.journal, {"event": "start-skipped-active", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
                 continue
             journal_event(self.paths.journal, {"event": "start-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})

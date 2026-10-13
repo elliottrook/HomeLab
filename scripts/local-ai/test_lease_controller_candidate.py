@@ -125,6 +125,37 @@ class CandidateControllerTests(unittest.TestCase):
             )
             self.assertEqual(commands, [])
 
+    def test_restore_reprobes_after_an_earlier_start_observation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+            controller = CandidateController(
+                CandidatePaths(Path(temp)), commands.append, allow_effects=True,
+                observer=self.StubObserver(self.observation(), active=False),
+            )
+            active = (ALLOWLIST[0],)
+            controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
+            commands.clear()
+            with (Path(temp) / "lease.jsonl").open("a") as stream:
+                stream.write(json.dumps({"event": "start-intent", "lease_id": "lab-1", "generation": 1, "vmid": "104", "unit": "aster-agent.service"}) + "\n")
+                stream.write(json.dumps({"event": "start-observed", "lease_id": "lab-1", "generation": 1, "vmid": "104", "unit": "aster-agent.service"}) + "\n")
+            self.assertEqual(controller.restore(self.receipt(), self.observation(), backup_receipt="backup")["state"], "ready")
+            self.assertEqual(commands, [command_for(*active[0], "start")])
+
+    def test_restore_rejects_second_start_intent_without_its_observation(self):
+        with tempfile.TemporaryDirectory() as temp:
+            controller = CandidateController(
+                CandidatePaths(Path(temp)), lambda _: None, allow_effects=True,
+                observer=self.StubObserver(self.observation()),
+            )
+            active = (ALLOWLIST[0],)
+            controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
+            with (Path(temp) / "lease.jsonl").open("a") as stream:
+                stream.write(json.dumps({"event": "start-intent", "lease_id": "lab-1", "generation": 1, "vmid": "104", "unit": "aster-agent.service"}) + "\n")
+                stream.write(json.dumps({"event": "start-observed", "lease_id": "lab-1", "generation": 1, "vmid": "104", "unit": "aster-agent.service"}) + "\n")
+                stream.write(json.dumps({"event": "start-intent", "lease_id": "lab-1", "generation": 1, "vmid": "104", "unit": "aster-agent.service"}) + "\n")
+            with self.assertRaisesRegex(ValueError, "uncertain"):
+                controller.restore(self.receipt(), self.observation(), backup_receipt="backup")
+
     def test_restore_rejects_uncertain_stop_or_restore_intent(self):
         for event in ("stop-intent", "restore-intent"):
             with self.subTest(event=event), tempfile.TemporaryDirectory() as temp:

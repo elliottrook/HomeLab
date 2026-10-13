@@ -599,3 +599,8 @@ Light watchdog ticks now report only heartbeat/control-plane facts; all exact
 runtime, GPU, schedule, model, unit and authentication fields remain explicit
 unknowns until the bounded restoration observation runs. This prevents a
 content-free lease status from being mistaken for exact production admission.
+
+Restore journal reconciliation is also attempt-aware and order-aware. A prior
+start observation no longer suppresses the fresh per-unit active probe, and a
+second unmatched intent cannot be satisfied by an older observation. Re-entry
+therefore remains fail-closed across repeated or interrupted starts.
