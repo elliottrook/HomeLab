@@ -32,7 +32,9 @@ found eleven clear frozen-rubric matches and one qualified wording concern.
 A [separate read-only review](evidence/D3-Orion-independent-review-2026-10-11.md)
 judged the flagged Orion case a qualified pass; the other eleven were not
 independently re-scored. A different signed Companion build is now installed;
-its release provenance and ordinary behavior have not been reconciled.
+its release provenance and ordinary behavior have not been reconciled. A
+signed predecessor bundle was verified, but the runbook records a sign-in bug
+in that predecessor, so a functional rollback remains open.
 
 This establishes a **bounded manual handoff**, not routine Ask Codex, automatic engine selection or a Codex sysadmin. The existing household/assistant path remains separate. Local Qwen's general-sysadmin trial was closed without promotion; that does not remove local models from cheaper or narrower tasks.
 

@@ -3102,3 +3102,16 @@ a [specific native integration gate](evidence/D3-native-app-integration-gate-202
 requiring a pinned current app line, explicit composite merge, full native
 regression checks and a rollback before another installation. No source was
 merged, no app was launched, and no Codex question was sent.
+
+### 2026-10-12 — Companion predecessor is signed but not a functional rollback
+
+Read-only strict code-signature checks passed for both the installed 0.2.2/
+build-4 Companion and the retained
+`AsterCompanion.pre-optional-callback-fix-20261012.app` predecessor. The
+installed executable remains SHA-256 `7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d`;
+the predecessor is SHA-256
+`1b01b92885bfd9485d0e70617b502cecfecc2e30c49321425f08d444966f588d`.
+The [operator runbook](../../runbooks/Aster-Companion.md) records that the
+pre-fix app stalled sign-in when no optional completion handler was supplied.
+Signature validity alone therefore does not close D3's rollback gate. No app
+was launched or replaced.

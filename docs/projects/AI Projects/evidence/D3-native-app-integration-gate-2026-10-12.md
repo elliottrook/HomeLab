@@ -9,6 +9,20 @@ The current main checkout's `Info.plist` names the same version/build and its
 runbook calls this an AI-PAM parity candidate. That is source/repository
 context, not proof that its installed binary exactly matches the checkout.
 
+**Read-only rollback inventory, 2026-10-12:** the current app still verifies
+under strict deep code-signature checking and retains the executable hash
+above. The runbook names
+`/Applications/AsterCompanion.pre-optional-callback-fix-20261012.app` as the
+preceding bundle. That bundle also verifies under strict deep code-signature
+checking, reports version 0.2.2/build 4, and has executable SHA-256
+`1b01b92885bfd9485d0e70617b502cecfecc2e30c49321425f08d444966f588d`.
+It is **not yet an accepted functional rollback**: the runbook documents that
+this preceding build stalled normal sign-in because it skipped the
+authorization-code exchange when no optional completion handler was supplied.
+No bundle was launched, replaced or restored during this inventory. The app
+owner must identify a rollback that passes the ordinary sign-in and AI-PAM
+checks before a composite release.
+
 ## Source divergence found read-only
 
 Stream A's worktree contains eight native source files absent from the main
@@ -27,8 +41,9 @@ work. Whether the current binary contains any compiled Codex pilot code is
 
 1. The current app owner identifies the exact source commit plus any pending
    local changes, installed-binary hash, signing identity, current AI-PAM
-   acceptance state and signed rollback bundle. Do not treat the dirty main
-   checkout as a reproducible release.
+   acceptance state and a **functional** signed rollback bundle. The known
+   pre-sign-in-fix bundle is an integrity checkpoint, not a proven rollback.
+   Do not treat the dirty main checkout as a reproducible release.
 2. Reconcile the eight Stream A files and six shared-file touchpoints on an
    isolated branch from that pinned app line. Keep manual Codex hidden by
    default, require per-question cloud consent and preserve zero tool grants.
