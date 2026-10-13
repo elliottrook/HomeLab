@@ -45,9 +45,11 @@ implementation details or internal guest addresses.
 ## Speech API
 
 The canonical spoken identity is Kokoro ONNX `bm_daniel`, `en-gb`, speed `0.95`.
-Piper is a recovery implementation, not a second canonical voice. A speech
+Piper is a rollback implementation, not a second canonical voice. A speech
 consumer must accept a successful response, a bounded timeout, or an explicit
-degraded/failure result; it must not silently present Piper as equivalent to the
+content-free degraded/failure result. Recovery to Piper is an operator-
+controlled rollback to the retained 9130 service; consumers must never switch
+voices or environments automatically or present Piper as equivalent to the
 canonical voice.
 
 The canonical voice service remains at LXC 116 on TCP 9131, with the controlled
@@ -89,11 +91,13 @@ healthy capacity.
 ## Fallback and recovery
 
 Text consumers degrade to a clear unavailable state and preserve the stable
-human/operator path. Speech consumers use Kokoro first, then the tested Piper
-failsafe when the bounded failure policy permits it; the UI must identify a
-degraded speech path where that distinction matters. If the platform is down,
-the consumer must not call a lab endpoint, enable a cloud provider, or broaden
-credentials automatically.
+human/operator path. Speech consumers use Kokoro on the canonical 9131 path.
+If it fails, the candidate returns an explicit content-free error or
+cancellation; an operator may then roll back to the retained Piper/Whisper
+9130 service using the documented release procedure. The UI must identify the
+rollback/degraded state where that distinction matters. Consumers must not
+switch voices or environments automatically, call a lab endpoint, enable a
+cloud provider, or broaden credentials.
 
 Recovery order is: control plane and network, stable platform configuration and
 artifacts, speech/inference health, then optional consumers. Restore into an
@@ -106,6 +110,7 @@ exclusive lab-lease action, even when the experiment is expected to be light.
 This contract is ready for synthetic validation, not promotion. Before marking
 the contract milestone complete, test the JSON and streaming schemas, health and
 auth failures, quota/timeout boundaries, stable model identity, Kokoro failure
-with Piper recovery, and one consumer's graceful platform-loss behavior. Keep
+with a content-free error, operator rollback to Piper with explicit degraded
+identification, and one consumer's graceful platform-loss behavior. Keep
 the current V1 transitional deployment unchanged until those tests and the
 separate lab/prod state-separation gate pass.

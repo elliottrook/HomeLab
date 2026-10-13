@@ -444,9 +444,8 @@ authenticated canonical synthesis, a defined consumer response to the
 candidate's content-free renderer error/cancellation frame, and one consumer
 rollback/degradation check. The candidate's current failure behavior does not
 silently switch to Piper; Piper remains the separately operated 9130 rollback
-path. The contract's automatic Kokoro-failure-to-Piper recovery wording must
-not be treated as passed until that boundary is deliberately tested or the
-contract is revised to describe rollback-based recovery.
+path. The contract has now been aligned with this rollback-based lab protocol
+rather than requiring automatic voice switching.
 
 ## Schedule implementation record — 2026-10-12
 
