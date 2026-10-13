@@ -50,6 +50,17 @@ class HoldoutValidationTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "owner-only"):
                 validate(root)
 
+    def test_manifest_schema_failure_is_explicit(self):
+        with tempfile.TemporaryDirectory() as dirname:
+            root = Path(dirname)
+            self._bundle(root)
+            path = root / "manifest.json"
+            value = json.loads(path.read_text())
+            del value["family_counts"]
+            path.write_text(json.dumps(value))
+            with self.assertRaisesRegex(ValueError, "manifest schema mismatch"):
+                validate(root)
+
 
 if __name__ == "__main__":
     unittest.main()

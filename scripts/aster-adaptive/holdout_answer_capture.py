@@ -15,7 +15,7 @@ from typing import Callable
 
 
 REPO = Path(__file__).resolve().parents[2]
-CASE_SHA256 = "4b9ca94714414248d3f429237f7385f27ddd132d4f6825676349b85cb5ccc7ae"
+CASE_SHA256 = "8c5293382a457cbcf4f9999a8904820d6b1d126477fbfc6b672b41a87b62cab9"
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 FIELDS = {"id", "class", "fictional_user_request", "frozen_clock",
           "synthetic_source_records", "private_context_locality_constraint",

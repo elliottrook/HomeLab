@@ -43,6 +43,12 @@ def validate(root: Path) -> dict:
     keys, key_hash = _load(files[1])
     manifest_raw = files[2].read_bytes()
     manifest = json.loads(manifest_raw)
+    required = {"schema_version", "case_count", "family_counts", "outcome_counts",
+                "private_context_locality_case_count", "files"}
+    if not isinstance(manifest, dict) or not required <= set(manifest):
+        raise ValueError("manifest schema mismatch")
+    if not isinstance(manifest["files"], dict):
+        raise ValueError("manifest file hashes must be keyed by filename")
     if any(set(row) != CASE_FIELDS for row in cases):
         raise ValueError("case schema mismatch")
     if any(set(row) != KEY_FIELDS for row in keys):
@@ -64,6 +70,8 @@ def validate(root: Path) -> dict:
         raise ValueError("manifest label/locality count mismatch")
     pinned = manifest["files"]
     for name, digest in (("cases.jsonl", case_hash), ("answer-key.jsonl", key_hash)):
+        if name not in pinned:
+            raise ValueError(f"manifest missing digest: {name}")
         value = pinned[name]
         expected = value.get("sha256") if isinstance(value, dict) else value
         if expected != digest:

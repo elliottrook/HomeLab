@@ -13,7 +13,7 @@ from pathlib import Path
 from holdout_answer_capture import CASE_SHA256, REPO, load_cases
 
 
-KEY_SHA256 = "27b6049546abcda89a0c725fffad3452fc6a58ce2595e87a73560545a0933744"
+KEY_SHA256 = "fef83e8223df3b3190cd3555e707aa80a24d0415e3b769099091cbbfe3a0edc3"
 
 
 def _digest(raw: bytes) -> str:

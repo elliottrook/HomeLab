@@ -77,8 +77,12 @@ material overlap with the six exposed development cases. A first 9B invocation
 returned a 20-row envelope but the Mac sandbox denied the final local write,
 so **no answers or score were retained**. The [failure record](experiments/a1-answer-holdout-v1/RESULT-FAILED-2026-10-12.md)
 closes v1 without replay. The transport now proves local writability before a
-model call and seals stdout before parsing; a fresh v2 is required. Labels are
-AI-authored and AI-reviewed; backup, independent adjudication and live
+model call and seals stdout before parsing. A [fresh v2](benchmarks/answer-holdout-release-v2-2026-10-12.md)
+is sealed with 20 independently AI-reviewed fictional cases and a bounded
+[run card](experiments/a1-answer-holdout-v2/RUN-CARD-2026-10-12.md), but has
+not been sent to any model. Its next shared-service window is BLOCKED pending
+fresh occupancy, backup and reservation checks. Labels are AI-authored and
+AI-reviewed; backup, independent output adjudication and live
 Aster-path measurement remain open. The platform project's SA3 **sysadmin**
 holdout is separate and has ended without promoting local Qwen to a Codex
 sysadmin role.

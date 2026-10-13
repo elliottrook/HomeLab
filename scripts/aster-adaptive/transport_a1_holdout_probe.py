@@ -19,9 +19,9 @@ from holdout_answer_capture import CASE_SHA256, reserve_private
 
 
 HERE = Path(__file__).resolve().parent
-PROFILE = HERE.parents[1] / "docs/projects/AI Projects/benchmarks/a1-answer-holdout-9b-profile-v1.json"
-PROFILE_SHA256 = "712b0d469e4e35cc3bf2a1cb324014a3390aa1e04b06b1832fbcbf4d0474a349"
-CASES = Path.home() / "Library/Application Support/Aster-Stream-A-Evidence/answer-holdout-20261012-v1/cases.jsonl"
+PROFILE = HERE.parents[1] / "docs/projects/AI Projects/benchmarks/a1-answer-holdout-9b-profile-v2.json"
+PROFILE_SHA256 = "97ba9f9b68b0f294f52d76fb6f34cb05540d040dbc7698688b3e2879c2cf0402"
+CASES = Path.home() / "Library/Application Support/Aster-Stream-A-Evidence/answer-holdout-20261012-v2/cases.jsonl"
 SOURCES = {name: HERE / (name + ".py") for name in
            ("a1_9b_synthetic_answer_probe", "holdout_answer_capture",
             "holdout_answer_9b_adapter")}
