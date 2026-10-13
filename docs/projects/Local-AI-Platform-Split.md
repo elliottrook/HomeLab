@@ -440,8 +440,13 @@ HTTPS/JWKS probes also pass. No speech service was restarted, no asset was
 copied, and no renderer or credential was changed in this reconciliation.
 
 The remaining Local AI speech gates are therefore candidate promotion evidence:
-authenticated canonical synthesis, bounded Kokoro failure/Piper recovery at
-the defined consumer boundary, and one consumer rollback/degradation check.
+authenticated canonical synthesis, a defined consumer response to the
+candidate's content-free renderer error/cancellation frame, and one consumer
+rollback/degradation check. The candidate's current failure behavior does not
+silently switch to Piper; Piper remains the separately operated 9130 rollback
+path. The contract's automatic Kokoro-failure-to-Piper recovery wording must
+not be treated as passed until that boundary is deliberately tested or the
+contract is revised to describe rollback-based recovery.
 
 ## Schedule implementation record — 2026-10-12
 
