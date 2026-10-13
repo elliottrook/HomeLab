@@ -607,8 +607,9 @@ therefore remains fail-closed across repeated or interrupted starts.
 
 The current effect controller is not a full shared-lease admission authority:
 it cannot independently establish backup completion, News quiescence or
-consumer isolation. Aster benchmark admission now has a separate source-bound
-gate requiring the exact Proxmox/TrueNAS backup source, verified receipt,
-quiesced News schedule, all four production consumer identities and an observed
-source marker. Until those adapters provide that evidence, any light-drain test
-is preliminary controller/effect validation and must refuse an Aster benchmark.
+consumer isolation. A candidate evidence shape guard records the required
+Proxmox/TrueNAS source, receipt, quiesced News schedule, four production
+consumer identities and source marker, but does not authenticate any of them.
+The benchmark gate therefore still refuses every Aster benchmark until actual
+source adapters produce and verify same-night evidence bound to the lease.
+Any light-drain test is preliminary controller/effect validation only.

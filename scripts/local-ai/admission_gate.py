@@ -1,8 +1,8 @@
-"""Source-bound gate for any Aster benchmark using the shared lease.
+"""Candidate shape guard for any Aster benchmark using the shared lease.
 
-The effect controller is not itself a backup or scheduler authority. Aster
-benchmark admission must present this evidence object from reviewed source
-adapters; hand-entered booleans or a bare backup string are rejected.
+The effect controller is not itself a backup or scheduler authority. This file
+does not create provenance or authenticate evidence; real source adapters must
+replace the hand-built candidate object before benchmark admission.
 """
 
 from __future__ import annotations
@@ -29,8 +29,8 @@ class AdmissionEvidence:
     source_observed: bool
 
 
-def require_aster_benchmark(evidence: AdmissionEvidence | None, *, now_minute: int, window_end_minute: int) -> str:
-    """Return the source-bound receipt or refuse the shared Aster benchmark."""
+def validate_evidence_shape(evidence: AdmissionEvidence | None, *, now_minute: int, window_end_minute: int) -> str:
+    """Validate candidate evidence shape without claiming provenance."""
     if evidence is None:
         raise AdmissionEvidenceError("source-bound admission evidence is required")
     if evidence.source != EXPECTED_BACKUP_SOURCE or not evidence.source_observed:
@@ -46,3 +46,9 @@ def require_aster_benchmark(evidence: AdmissionEvidence | None, *, now_minute: i
     if evidence.consumers_quiesced != EXPECTED_CONSUMERS:
         raise AdmissionEvidenceError("all production consumers must be isolated")
     return evidence.backup_receipt
+
+
+def require_aster_benchmark(evidence: AdmissionEvidence | None, *, now_minute: int, window_end_minute: int) -> str:
+    """Refuse until real backup/scheduler/consumer source adapters exist."""
+    validate_evidence_shape(evidence, now_minute=now_minute, window_end_minute=window_end_minute)
+    raise AdmissionEvidenceError("source adapters are not implemented; Aster benchmark remains blocked")

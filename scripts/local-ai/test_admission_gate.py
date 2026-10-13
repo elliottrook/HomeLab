@@ -6,6 +6,7 @@ from admission_gate import (
     AdmissionEvidence,
     AdmissionEvidenceError,
     require_aster_benchmark,
+    validate_evidence_shape,
 )
 
 
@@ -27,8 +28,10 @@ class AdmissionGateTests(unittest.TestCase):
         with self.assertRaisesRegex(AdmissionEvidenceError, "source-bound"):
             require_aster_benchmark(None, now_minute=221, window_end_minute=255)
 
-    def test_accepts_only_complete_source_bound_evidence(self):
-        self.assertEqual(require_aster_benchmark(self.evidence(), now_minute=221, window_end_minute=255), "backup-chain-sha256")
+    def test_shape_guard_accepts_complete_candidate_shape_but_benchmark_stays_blocked(self):
+        self.assertEqual(validate_evidence_shape(self.evidence(), now_minute=221, window_end_minute=255), "backup-chain-sha256")
+        with self.assertRaisesRegex(AdmissionEvidenceError, "not implemented"):
+            require_aster_benchmark(self.evidence(), now_minute=221, window_end_minute=255)
         for changes, message in (
             ({"source_observed": False}, "independently"),
             ({"backup_verified": False}, "backup"),
