@@ -73,6 +73,14 @@ This closes the *source-combination feasibility* check, not the D3 release
 gate. The app owner reviewed the source candidate and found no direct conflict
 with passkey, OpenBao or Keychain code, but did not give live acceptance. The
 stable-signed release build and verified local rollback copy are prepared.
+The owner subsequently reviewed the release evidence and reported no further
+technical blocker; normal sign-in, read-only OpenBao status/passkey verification
+and ordinary Aster use still require acceptance after any authorized install.
+The manual Codex surface should remain hidden during normal use. The web
+OpenBao route tests could not run in this isolated macOS Python environment
+because `fastapi` is not installed; no dependency was installed for this
+documentation check. The web source and its test file are byte-for-byte
+unchanged from the pinned Companion baseline.
 Before installation, pin the exact release artifact and rollback, then run
 ordinary sign-in, OpenBao read/status and recovery
 path checks, hidden/flagged Codex UI checks and natural refresh observations
