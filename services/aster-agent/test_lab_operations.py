@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 from fastapi import FastAPI
 
 from lab_operations import (Store, Start, Complete, Result, LabOperations, OWNER, TOOL_NAMES,
-                            TARGETS, intent, describe)
+                            TARGETS, CONTRACT_MODEL, intent, describe)
 
 
 class StoreTests(unittest.TestCase):
@@ -241,6 +241,7 @@ class LiveGatewayShapeTests(unittest.TestCase):
                     response=client.post('/v1/chat/completions',json=request,headers={'Authorization':'Bearer jwt-jason'})
                     self.assertEqual(response.status_code,200)
                     self.assertIn('data: [DONE]',response.text)
+                    self.assertIn(CONTRACT_MODEL, response.text)
                     self.assertEqual(operations.ready().get(operations.owner)['state'],'queued')
             self.assertIsNone(OWNER.get())
 

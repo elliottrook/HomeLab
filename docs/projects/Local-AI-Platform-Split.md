@@ -392,6 +392,21 @@ successful authenticated model call, quota enforcement, timeout behavior,
 Kokoro failure/Piper recovery, resource headroom or consumer degradation; those
 remain explicit gates and require the appropriate bounded test setup.
 
+## Stream A contract reconciliation — 2026-10-13
+
+The lab-operations gateway response wrapper still advertised the historical
+`aster-qwen3.8-27b` label even though the accepted V1 contract is
+`aster-qwen3.5-9b`. The local wrapper now uses the contract model constant for
+both streaming and non-streaming completion metadata, with a regression
+assertion added to the gateway test. The live service was not restarted or
+replaced; deployment remains behind the contract validation gate.
+
+The pure lease contract tests pass 4/4, and the installed Proxmox controller
+currently reports `ready` with no Local AI timer or systemd scheduler enabled.
+The controller's prior bounded light-drain test remains the live evidence for
+service stop/restore and control-plane survival. Full model-call, quota,
+timeout, speech fallback and consumer-loss tests remain open.
+
 ## Schedule implementation record — 2026-10-12
 
 The approved end-to-end measurement completed successfully from 15:50:48 to

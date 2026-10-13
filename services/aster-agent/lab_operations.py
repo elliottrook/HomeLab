@@ -29,6 +29,7 @@ TERMINAL = {"succeeded", "failed", "unknown"}
 # No free-text worker output can enter the conversation or job database.
 CODES = {"verified", "checks_complete", "low_space", "busy", "adapter_failed",
          "verification_failed", "interrupted", "expired", "worker_offline", "disabled"}
+CONTRACT_MODEL = "aster-qwen3.5-9b"
 
 
 class Start(BaseModel):
@@ -279,10 +280,10 @@ def completion(text, stream=False):
     if stream:
         async def chunks():
             for delta, finish in (({"role": "assistant", "content": text}, None), ({}, "stop")):
-                yield "data: " + json.dumps({"id": jid, "object": "chat.completion.chunk", "created": int(time.time()), "model": "aster-qwen3.8-27b", "choices": [{"index": 0, "delta": delta, "finish_reason": finish}]}) + "\n\n"
+                yield "data: " + json.dumps({"id": jid, "object": "chat.completion.chunk", "created": int(time.time()), "model": CONTRACT_MODEL, "choices": [{"index": 0, "delta": delta, "finish_reason": finish}]}) + "\n\n"
             yield "data: [DONE]\n\n"
         return StreamingResponse(chunks(), media_type="text/event-stream")
-    return {"id": jid, "object": "chat.completion", "created": int(time.time()), "model": "aster-qwen3.8-27b", "choices": [{"index": 0, "message": {"role": "assistant", "content": text}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}}
+    return {"id": jid, "object": "chat.completion", "created": int(time.time()), "model": CONTRACT_MODEL, "choices": [{"index": 0, "message": {"role": "assistant", "content": text}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}}
 
 
 class LabOperations:
