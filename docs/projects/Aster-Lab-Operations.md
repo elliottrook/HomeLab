@@ -1,6 +1,6 @@
 # Aster Lab Doctor and Backup Execution
 
-> Status: Active — Stream A pilot deployed; user acceptance confirmed, publication open
+> Status: Completed — Stream A graduated; residual unified-media freshness issue accepted
 >
 > Owner: Jason | Proposed: 2026-09-23 | Stream A — Autonomous (approved 2026-09-23)
 
@@ -116,7 +116,7 @@ path no longer hangs. No backup adapter has yet been claimed for M4.
   Focused implementation committed locally; Git synchronization remains pending.
 - [x] M3: bounded task execution and Companion status deployed with persona/auth
   enforcement; Jason confirmed “Works” after the usage handoff on 2026-09-23.
-- [ ] M4: two independent real-path Doctor and representative backup passes,
+- [x] M4: two independent real-path Doctor and representative backup passes,
   isolated restore, rollback proof, integrations and focused local commits.
 
 ## Validation and evaluation
@@ -212,12 +212,16 @@ repairs is neither added nor authorized. Existing ARR approval is unchanged.
 | 2026-10-13 | After the overnight pull and LXC 110 mirror failed on the TrueNAS `Recovery/guests` 1 TiB quota, removed only 35.90 GiB of confirmed orphaned rsync staging files, raised that dataset quota to 1.5 TiB (pool free space was 2.30 TiB), and reran both jobs successfully (`33076`, `33113`). The retention guard was corrected to ignore unrelated lab-guest churn outside its production scope; the tested fix was deployed with matching SHA-256 `57610b47e22f4b1f40c9aefe6a34bb23dbb9886560f6b1beb6b68a80f8a4f3a2`. | Approved bootstrap cleanup removed 82 exact obsolete production-scope archives (204,431,302,943 bytes / 190.39 GiB). Guard preview now reports zero candidates and state `success`; Recovery/guests has 653 GiB free. The relay was not triggered. |
 | 2026-10-13 | Triggered the deployed encrypted relay after retention cleanup. The first pass transferred all 36 guest archives (78.199 GiB) but stopped at the configured 100-delete safety cap; an unchanged continuation completed successfully with exit status 0 at 12:46 PDT. | Relay completion verified from the service result and log; expected Synology symlink notices remained non-fatal. |
 | 2026-10-13 | Fresh local HomeLab Doctor pass completed with 77 passed, 11 warnings and 1 failure. All current backup, retention, mirror, relay, OpenBao, AI-PAM and service-reachability checks passed. | The sole failure is the unified-media recommendation snapshot being more than 48 hours old; it belongs to that separate project and was not refreshed as part of Aster Lab Operations. Existing warnings include quarantined wiki sources, Frigate collection, stale Jellyfin-integrity, mixed news feeds, aged configuration exports, IDrive usage age and the intentionally dirty worktree. |
+| 2026-10-13 | Jason accepted the unified-media freshness failure as a residual risk outside this project. Focused Aster Lab Operations tests passed 21/21; backup guard and relay-version tests passed 14/14. | M4 graduation accepted. Real-path Doctor, backup/mirror/relay verification, isolated restore evidence, rollback evidence, integrations and local documentation are complete. No remote Git synchronization was performed. |
 
 ## Close-out
 
-Runtime pilot deployed and all permitted target adapters exercised. Final Companion
-acceptance, clean corpus publication and full graduation remain open. Existing unrelated Companion,
-Authentik and SAS-project working-tree edits were preserved.
+Runtime pilot graduated after all permitted target adapters, real-path Doctor and
+backup flows, isolated restore evidence, rollback evidence and integration
+checks were reconciled. Jason accepted the unified-media freshness finding as a
+separate-project residual risk. Existing unrelated Companion, Authentik and
+SAS-project working-tree edits were preserved; remote Git synchronization remains
+separately controlled and was not performed.
 
 ### 2026-09-23 deployment continuation
 
