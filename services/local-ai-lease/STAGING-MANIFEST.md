@@ -26,6 +26,10 @@ live effect.
   `ExecStart`; without the unit being enabled it cannot run. Its explicit
   effect gate is retained in the candidate command line, while installation
   remains refused/disabled pending review.
+- The shared Aster benchmark gate is separate from the effect controller and
+  refuses admission without independently sourced backup, News-quiescence and
+  consumer-isolation evidence. A light-drain drill cannot be reported as a
+  full shared-lease admission test.
 
 ## Exact local candidate hashes
 
@@ -43,6 +47,8 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/test_lease_effect_runner.py` | `f59eaa9048ff0cd1c93dc49462151350eee54c627d52466fdbbdf874562060b8` |
 | `scripts/local-ai/lease_recovery_executor.py` | `d75ddfae4ccb3de4bd059aca75d41f4cdac6c60f4951d0ea6ab11a13b9f98e4d` |
 | `scripts/local-ai/test_lease_recovery_executor.py` | `a5d5865831a77d465fbf336209ad4ae4d309b3b1e198c96a2e3f9b242e82ba4b` |
+| `scripts/local-ai/admission_gate.py` | `72e84b9d1376cd41b421d997d1c9029aec7f476decae7407e4bb830c1fc0f8d3` |
+| `scripts/local-ai/test_admission_gate.py` | `d9f461fc349f8488e1d0e420c530a9bcc2e29c3de670fcf0d507ea3b0d35368d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 

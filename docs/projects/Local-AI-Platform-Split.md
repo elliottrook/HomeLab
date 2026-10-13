@@ -604,3 +604,11 @@ Restore journal reconciliation is also attempt-aware and order-aware. A prior
 start observation no longer suppresses the fresh per-unit active probe, and a
 second unmatched intent cannot be satisfied by an older observation. Re-entry
 therefore remains fail-closed across repeated or interrupted starts.
+
+The current effect controller is not a full shared-lease admission authority:
+it cannot independently establish backup completion, News quiescence or
+consumer isolation. Aster benchmark admission now has a separate source-bound
+gate requiring the exact Proxmox/TrueNAS backup source, verified receipt,
+quiesced News schedule, all four production consumer identities and an observed
+source marker. Until those adapters provide that evidence, any light-drain test
+is preliminary controller/effect validation and must refuse an Aster benchmark.
