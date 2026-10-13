@@ -135,7 +135,9 @@ restricted TrueNAS Mac pull. Jason approved an exact
 [owner-only backup-tree copy](evidence/A1-protected-evidence-local-copy-2026-10-12.md),
 which matches all nine source file hashes and inherited restricted
 read-only backup ACLs. The normal TrueNAS pull and [isolated restore/re-score](evidence/A1-protected-evidence-TrueNAS-restore-2026-10-13.md)
-passed on 2026-10-13; encrypted off-site receipt remains unverified. No
+passed on 2026-10-13. The same record verifies the current encrypted off-site
+copy by a byte comparison; it does not establish historical-version recovery
+for these files. No
 route or tool is promoted. The platform project's SA3 **sysadmin**
 holdout is separate and has ended without promoting local Qwen to a Codex
 sysadmin role.

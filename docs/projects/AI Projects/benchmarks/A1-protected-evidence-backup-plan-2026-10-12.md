@@ -1,7 +1,7 @@
 # A1 private evidence: protected-copy and restore gate
 
-**Status: Mac backup-tree copy verified 2026-10-12; TrueNAS copy and isolated
-restore verified 2026-10-13; off-site receipt pending.** The [local-copy result](../evidence/A1-protected-evidence-local-copy-2026-10-12.md)
+**Status: Mac backup-tree copy verified 2026-10-12; TrueNAS copy, isolated
+restore and current encrypted off-site byte comparison verified 2026-10-13.** The [local-copy result](../evidence/A1-protected-evidence-local-copy-2026-10-12.md)
 records Jason's exact approval and source/destination hashes. No backup job,
 retention rule, credential or access-control scope changed.
 
@@ -73,7 +73,9 @@ copy exists or because a backup job has a green status.
 Steps 1–2 passed on 2026-10-12. The normal TrueNAS pull and isolated restore/
 re-score portions of steps 3–4 passed on 2026-10-13, as documented in the
 [restore drill](../evidence/A1-protected-evidence-TrueNAS-restore-2026-10-13.md).
-The encrypted off-site receipt/retention check remains open.
+The next normal encrypted off-site relay succeeded; exact subtree listing and
+download comparison passed. This proves the current off-site copy, not an
+isolated cloud restore or historical-version recovery for these files.
 
 The recommended path reuses the established restricted Mac→TrueNAS backup and
 encrypted IDrive relay. It avoids introducing a new decryption key and its
