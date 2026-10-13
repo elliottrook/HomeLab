@@ -59,10 +59,11 @@ The initial package boundary is:
 | Old local process branch retired | Passed; local worktree is on the replacement branch |
 | GitHub mirror convergence | Passed; old branch absent and replacement branch matches Forgejo at `d43ca9ee` |
 | Canonical base and local policy reconciliation | Passed; Forgejo `main` is `da8b0fca`; local policy sources match the canonical checkout; 30 targeted tests pass |
-| Live runner source-pin reconciliation | Pending; known stale runner pin remains a deployment blocker |
+| Live runner source-pin reconciliation | Blocked for implementation; installed `base_revision` is `d7e49c4d4d6b7124a764208cc44e0ef9ed12797b`, while current Forgejo `main` is `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; installed runner source hashes match the reviewed local files |
 | Exact public-mirror privacy boundary accepted | Pending Jason's M0 decision |
 | Live worker or AI-PAM policy change | Not started and not authorized |
 
 No service, credential, firewall, DNS, workflow, protected branch or GitHub
 configuration was changed by this project record. No new remote Forgejo write
-is authorized by this evidence record.
+is authorized by this evidence record. The live runner base pin was not changed;
+that requires a separately reviewed implementation change and recovery check.

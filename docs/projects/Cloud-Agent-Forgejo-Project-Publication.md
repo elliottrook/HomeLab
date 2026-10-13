@@ -189,7 +189,8 @@ write outside the allowlist, or need to alter GitHub directly.
 ### M0 — reconcile and accept the narrow design
 
 - [x] Reconfirm the canonical Forgejo base and current local AI-PAM policy and
-  safe-write sources. The live runner source pin still requires reconciliation.
+  safe-write sources. The live runner source pin is now confirmed stale and is
+  a deployment blocker.
 - [x] Read-only verify that the retired GitHub-first Forgejo branch and local
   branch are absent; the replacement Forgejo branch and its GitHub mirror match
   at `d43ca9ee`.
@@ -201,6 +202,8 @@ write outside the allowlist, or need to alter GitHub directly.
 
 Gate: an independent reader can tell exactly what the cloud agent may submit,
 what the local worker may write, what it may never reach and how rollback works.
+The design gate is recorded; implementation remains blocked on runner-base
+reconciliation and explicit acceptance of the public-mirror boundary.
 
 ### M1 — policy and offline validator
 
