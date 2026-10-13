@@ -296,7 +296,7 @@ afterward.
 - [x] Obtain Jason's immediate confirmation for the exact first Forgejo write.
 - [x] Publish one approved document package to a new `ai-pam/` branch only.
 - [x] Verify the exact Forgejo commit/tree and observe GitHub's mirror read-only.
-- [ ] Repeat with a fresh nonce and base; prove stale/replayed/revoked requests
+- [x] Repeat with a fresh nonce and base; prove stale/replayed/revoked requests
   cannot write.
 
 Gate: two complete Forgejo-first passes, no GitHub direct write, no merge and no
@@ -322,7 +322,7 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 | M0 | This design; branch-rescission verification; canonical base, privacy boundary and checkpoint record | Complete locally 2026-10-13 |
 | M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13: 133/133 |
 | M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Gateway, credential, base reconciliation and denial probes complete; first signed package submitted and consumed |
-| M3 | Forgejo branch/tree and mirror read-only verification | First pass complete 2026-10-13: Forgejo commit `9d8d8e7e7aa84320b03476a27e744c980b2e9530`, parent `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; GitHub mirror points to the same commit; second fresh-nonce pass pending |
+| M3 | Forgejo branch/tree and mirror read-only verification | Complete 2026-10-13: first commit `9d8d8e7e7aa84320b03476a27e744c980b2e9530` and second commit `5440edfa40ea38ebfb8e0e65218c17824072b86e` each descended directly from `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; both Forgejo branches and GitHub mirror refs matched; replay of the consumed first request was denied before gateway access |
 | M4 | Restore, monitoring, operator handover and graduation review | Not started |
 
 ## Required integration checks

@@ -93,7 +93,11 @@ digest-named local handoff.
   `9d8d8e7e7aa84320b03476a27e744c980b2e9530` with parent
   `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93` and one added document. The
   GitHub mirror was checked read-only and points to the same commit. A second
-  fresh-nonce pass and replay/revocation evidence remain pending.
+  fresh-nonce second pass completed on the same base with Forgejo commit
+  `5440edfa40ea38ebfb8e0e65218c17824072b86e`; its GitHub mirror ref matched
+  after normal queue lag. Replaying the consumed first request was denied by
+  the local ledger before any gateway call. The remaining M4 work is isolated
+  recovery evidence and final operator graduation review.
 - The original producer private key was unavailable on the Mac, so Jason
   generated a replacement locally. Only its public key was installed in the
   root-owned `allowed_signers` file; the prior file is checkpointed at
