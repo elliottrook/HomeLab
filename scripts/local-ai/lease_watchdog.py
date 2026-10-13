@@ -35,15 +35,15 @@ class Observation:
     now_minute: int
     heartbeat_alive: bool
     control_plane_healthy: bool
-    production_services_healthy: bool
-    accepted_gpu_visible: bool
-    schedule_restored: bool
+    production_services_healthy: bool | None
+    accepted_gpu_visible: bool | None
+    schedule_restored: bool | None
     schedule_points: tuple[str, ...] = EXPECTED_SCHEDULES
-    schedules_enabled: bool = True
-    exact_binary_verified: bool = True
-    model_verified: bool = True
-    unit_verified: bool = True
-    auth_verified: bool = True
+    schedules_enabled: bool | None = True
+    exact_binary_verified: bool | None = True
+    model_verified: bool | None = True
+    unit_verified: bool | None = True
+    auth_verified: bool | None = True
 
 
 @dataclass(frozen=True)
@@ -63,10 +63,10 @@ class StatusReceipt:
     model_identity: str
     backend_identity: str
     control_plane_healthy: bool
-    production_services_healthy: bool
-    accepted_gpu_visible: bool
-    schedule_restored: bool
-    schedules_enabled: bool
+    production_services_healthy: bool | None
+    accepted_gpu_visible: bool | None
+    schedule_restored: bool | None
+    schedules_enabled: bool | None
     schedule_points: tuple[str, ...]
     failure_code: str | None
 

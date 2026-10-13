@@ -97,6 +97,11 @@ class TrustedObserverTests(unittest.TestCase):
 
         observation = collect_light(runner, lease_expires_minute=255, clock=lambda: 221, epoch_clock=lambda: 1050)
         self.assertTrue(observation.heartbeat_alive)
+        self.assertIsNone(observation.model_verified)
+        self.assertIsNone(observation.auth_verified)
+        self.assertIsNone(observation.accepted_gpu_visible)
+        self.assertIsNone(observation.schedule_restored)
+        self.assertEqual(observation.schedule_points, ())
         self.assertNotIn(FIXED_PROBES["model"], seen)
         self.assertNotIn(FIXED_PROBES["truenas_schedule"], seen)
 

@@ -31,6 +31,8 @@ binary, unit and auth markers, plus the enabled backup/News schedule set. The
 restore path separately checks each fixed production unit before a start,
 skips a unit already reported active, and retains the lease on an ambiguous
 state or any unmatched effect intent. The
+light watchdog observation leaves unmeasured exact checks unknown rather than
+claiming they passed. The
 systemd unit is still intentionally refused and requires a root-owned runtime
 manifest. A Mini/chat/network loss cannot yet recover production because the
 candidate timer is disabled and the Proxmox-owner TrueNAS transport remains

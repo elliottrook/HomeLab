@@ -35,9 +35,9 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 |---|---|
 | `scripts/local-ai/admission_state.py` | `af0854b9bd5f1157dba9027485ea7f91fdd88473f85c49ea850faa31f8181acc` |
 | `scripts/local-ai/lease_contract.py` | `8a8997bdf453a499ae60dc2f11a65da9e28e318044a194122a7635b545adf113` |
-| `scripts/local-ai/lease_watchdog.py` | `044961c44a459ff422c0206f9338e3dc2943b469ae93eb544e14dfab944d0035` |
+| `scripts/local-ai/lease_watchdog.py` | `3146d292dd42a6a3f305b67cccf5518e7c0585c9c6de2e195d1a00686003d1fc` |
 | `scripts/local-ai/lease_controller_candidate.py` | `a9b6d567ad450e680138931e648df22f76f0037fdede74719a8a315ea6a340df` |
-| `scripts/local-ai/trusted_observer.py` | `288d35e75902adc3e6ea030dd0f5fba6bac281661be09a839d894b8ffccb5b40` |
+| `scripts/local-ai/trusted_observer.py` | `f7066c2e8be6122c32f48ba0bce4681edd4ebdd26a7720e5437df4c108a185b8` |
 | `scripts/local-ai/lease_watchdog_cli.py` | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
 | `scripts/local-ai/lease_effect_runner.py` | `81eac0e15e86ea48ce267d1a03da74cfcbe408ad9c57c9eca832a9c8f8c2c662` |
 | `scripts/local-ai/test_lease_effect_runner.py` | `f59eaa9048ff0cd1c93dc49462151350eee54c627d52466fdbbdf874562060b8` |

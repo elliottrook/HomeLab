@@ -594,3 +594,8 @@ activation; only after that passes may a separately approved, one-window timer
 independence drill temporarily enable the candidate timer, induce one bounded
 owner-loss/lease-expiry condition, verify recovery, and disable the timer again.
 Neither stage is authorized by the staging work.
+
+Light watchdog ticks now report only heartbeat/control-plane facts; all exact
+runtime, GPU, schedule, model, unit and authentication fields remain explicit
+unknowns until the bounded restoration observation runs. This prevents a
+content-free lease status from being mistaken for exact production admission.

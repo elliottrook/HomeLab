@@ -96,6 +96,26 @@ class LeaseWatchdogTests(unittest.TestCase):
         self.assertEqual(value["failure_code"], "production-health")
         self.assertNotIn("exception", value)
 
+    def test_light_observation_does_not_claim_exact_restore_checks(self):
+        value = status_receipt(
+            self.receipt(),
+            WatchdogState.LEASED,
+            self.observation(
+                production_services_healthy=None,
+                accepted_gpu_visible=None,
+                schedule_restored=None,
+                schedule_points=(),
+                schedules_enabled=None,
+                exact_binary_verified=None,
+                model_verified=None,
+                unit_verified=None,
+                auth_verified=None,
+            ),
+        )
+        self.assertIsNone(value["accepted_gpu_visible"])
+        self.assertIsNone(value["schedule_restored"])
+        self.assertEqual(value["schedule_points"], ())
+
     def test_restore_requires_exact_backup_schedule_identity(self):
         decision = decide(
             self.receipt(),
