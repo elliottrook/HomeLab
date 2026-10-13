@@ -37,7 +37,9 @@ async def run_request(body, *, token=TOKEN, path="/v1/chat/completions", method=
     async def send(event):
         events.append(event)
 
-    auth = [] if token is None else [(b"authorization", b"Bearer " + token)]
+    auth = [(b"content-type", b"application/json")]
+    if token is not None:
+        auth.append((b"authorization", b"Bearer " + token))
     await gateway({"type": "http", "path": path, "method": method,
                    "headers": auth}, receive, send)
     return events[0]["status"], called
@@ -78,6 +80,45 @@ class A1TestGatewayTests(unittest.TestCase):
         status, called = asyncio.run(run_request(b"x" * 32769))
         self.assertEqual(status, 413)
         self.assertEqual(called, [])
+
+    def test_wrong_content_type_fails_before_app(self):
+        async def fake_app(scope, receive, send):
+            self.fail("wrapped app reached")
+
+        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest())
+        events = []
+
+        async def receive():
+            return {"type": "http.request", "body": self.body, "more_body": False}
+
+        async def send(event):
+            events.append(event)
+
+        asyncio.run(gateway({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                             "headers": [(b"content-type", b"text/plain"),
+                                         (b"authorization", b"Bearer " + TOKEN)]}, receive, send))
+        self.assertEqual(events[0]["status"], 415)
+
+    def test_unending_chunked_body_is_bounded(self):
+        async def fake_app(scope, receive, send):
+            self.fail("wrapped app reached")
+
+        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest())
+        events = []
+        reads = []
+
+        async def receive():
+            reads.append(1)
+            return {"type": "http.request", "body": b"", "more_body": True}
+
+        async def send(event):
+            events.append(event)
+
+        asyncio.run(gateway({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                             "headers": [(b"content-type", b"application/json"),
+                                         (b"authorization", b"Bearer " + TOKEN)]}, receive, send))
+        self.assertEqual(len(reads), 16)
+        self.assertEqual(events[0]["status"], 413)
 
     def test_websocket_does_not_reach_wrapped_app(self):
         async def forbidden_app(scope, receive, send):

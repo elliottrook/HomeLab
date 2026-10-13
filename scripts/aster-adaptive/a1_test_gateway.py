@@ -86,6 +86,10 @@ class A1TestGateway:
             return
         headers = scope.get("headers", [])
         auth = [v for k, v in headers if k.lower() == b"authorization"]
+        content_types = [v.lower() for k, v in headers if k.lower() == b"content-type"]
+        if content_types != [b"application/json"]:
+            await _reject(send, 415)
+            return
         if len(auth) != 1 or not auth[0].startswith(b"Bearer "):
             await _reject(send, 401)
             return
@@ -96,13 +100,14 @@ class A1TestGateway:
             return
         chunks = []
         total = 0
-        while True:
+        for _ in range(16):
             message = await receive()
             if message.get("type") != "http.request":
                 await _reject(send, 400)
                 return
             chunk = message.get("body", b"")
-            if not isinstance(chunk, bytes):
+            if (not isinstance(chunk, bytes)
+                    or type(message.get("more_body", False)) is not bool):
                 await _reject(send, 400)
                 return
             total += len(chunk)
@@ -112,6 +117,9 @@ class A1TestGateway:
             chunks.append(chunk)
             if not message.get("more_body", False):
                 break
+        else:
+            await _reject(send, 413)
+            return
         raw = b"".join(chunks)
         if not valid_body(raw):
             await _reject(send, 400)

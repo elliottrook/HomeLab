@@ -55,7 +55,8 @@ async def run_case(*, display: bool):
             client.response_identity(identifiers[0], event["status"])
 
     await app({"type": "http", "path": "/v1/chat/completions", "method": "POST",
-               "headers": [(b"authorization", b"Bearer " + TOKEN)]}, receive, send)
+               "headers": [(b"content-type", b"application/json"),
+                           (b"authorization", b"Bearer " + TOKEN)]}, receive, send)
     row = client.finish(terminal_displayed=display)
     return seen, events, join(row, gateway_rows[0])
 
