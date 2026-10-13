@@ -52,9 +52,15 @@ def dedupe_titles(records: list, title_key: str = "title", text_key: Optional[st
     return kept
 
 _DOLLAR_AMOUNT = re.compile(r"(?<!\w)(?:(US|CA|AU)\s*)?\$(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?:\s+(million|billion|trillion))?\b", re.IGNORECASE)
-_US_ABBREVIATION = re.compile(r"\bU\.S(?:\.A)?\.(?=(?:['’]s)?(?:\s|$|[,;:!?]))", re.IGNORECASE)
-_BC_ABBREVIATION = re.compile(r"\bB\.C\.(?=(?:['’]s)?(?:\s|$|[,;:!?]))", re.IGNORECASE)
+_ABBREVIATION_END = r"(?=(?:['’]s)?(?:\s|$|[-–—,;:!?]))"
+_US_ABBREVIATION = re.compile(rf"\bU\.S(?:\.A)?\.{_ABBREVIATION_END}", re.IGNORECASE)
+_BC_ABBREVIATION = re.compile(rf"\bB\.C\.{_ABBREVIATION_END}", re.IGNORECASE)
 _LUTRON_CASETA = re.compile(r"\bLutron Cas[eé]ta\b", re.IGNORECASE)
+_BARE_URL = re.compile(
+    r"(?<!\w)(?:https?://|www\.)[^\s<>()]+|"
+    r"(?<![@\w])(?:[a-z0-9-]+\.)+(?:com|org|net|ca|co\.uk)(?:/[^\s<>()]*)?",
+    re.IGNORECASE,
+)
 
 _ONES = (
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
@@ -121,6 +127,10 @@ def _expand_dotted_name(match: re.Match, name: str) -> str:
 def speech_text(text: str) -> str:
     """Turn LLM/Markdown prose into text Piper should read aloud."""
     text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
+    text = _BARE_URL.sub(
+        lambda match: match.group(0)[-1] if match.group(0)[-1] in ".,!?:;" else "",
+        text,
+    )
     text = re.sub(r"`([^`]*)`", r"\1", text).replace("*", "")
     text = re.sub(r"(?<!\w)_+(?!\w)", "", text)
     # Kokoro inserts a long pause when it sees dotted initials. Expand these
@@ -135,3 +145,30 @@ def speech_text(text: str) -> str:
     text = re.sub(r",([.!?])", r"\1", text)
     text = re.sub(r"\s+", " ", text).strip(" ,")
     return _apply_pronunciations(text)
+
+
+def narration_units(text: str, maximum: int = 220) -> list[tuple[str, float]]:
+    """Create bounded long-form units with an explicit pause after each one."""
+    if maximum < 80:
+        raise ValueError("maximum narration unit length is too small")
+    sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+    units: list[tuple[str, float]] = []
+    for sentence in sentences:
+        pending = sentence.strip()
+        if not pending:
+            continue
+        while len(pending) > maximum:
+            cut = max(pending.rfind(mark, 0, maximum + 1) for mark in ("; ", ": ", ", "))
+            if cut < maximum // 2:
+                cut = pending.rfind(" ", 0, maximum + 1)
+            if cut < 1:
+                cut = maximum
+            unit = pending[:cut].rstrip(" ,;:")
+            if unit:
+                units.append((unit, 0.08))
+            pending = pending[cut:].lstrip(" ,;:")
+        if pending:
+            units.append((pending, 0.18))
+    if units:
+        units[-1] = (units[-1][0], 0.0)
+    return units

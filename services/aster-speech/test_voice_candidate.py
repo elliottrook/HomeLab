@@ -19,6 +19,12 @@ class VoicePolicyTests(unittest.TestCase):
             "British Columbia's premier discussed United States's response.",
         )
 
+    def test_dotted_abbreviation_expands_before_hyphen(self):
+        self.assertEqual(
+            normalize_for_speech("A U.S.-style proposal from a B.C.-based group."),
+            "A United States-style proposal from a British Columbia-based group.",
+        )
+
     def test_semantic_units_preserve_all_words(self):
         text = "The first sentence is short. The second clause is longer, but remains readable."
         units = semantic_units(text, maximum=35)
