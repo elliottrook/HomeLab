@@ -12,6 +12,7 @@ from aster_full_path_request import payload_for
 from test_aster_full_path_request import fixture
 
 TOKEN = b"fictional-test-token"
+INNER = b"fictional-isolated-inner-key"
 
 
 def request_hashes(body):
@@ -76,6 +77,37 @@ class A1TestGatewayTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertNotIn(b"authorization", [key.lower() for key, _ in seen])
         self.assertNotIn(TOKEN, [value for _, value in seen])
+
+    def test_distinct_isolated_inner_bearer_replaces_ingress_bearer(self):
+        seen = []
+
+        async def fake_app(scope, receive, send):
+            seen.extend(scope["headers"])
+            await receive()
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"{}", "more_body": False})
+
+        gateway = A1TestGateway(fake_app,
+                                token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                request_sha256s=request_hashes(self.body),
+                                downstream_bearer=INNER)
+        events = []
+
+        async def receive():
+            return {"type": "http.request", "body": self.body, "more_body": False}
+
+        async def send(event):
+            events.append(event)
+
+        asyncio.run(gateway({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                             "headers": [(b"content-type", b"application/json"),
+                                         (b"authorization", b"Bearer " + TOKEN)]}, receive, send))
+        self.assertEqual(events[0]["status"], 200)
+        self.assertEqual([value for key, value in seen if key == b"authorization"],
+                         [b"Bearer " + INNER])
+        with self.assertRaises(ValueError):
+            A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                          request_sha256s=request_hashes(self.body), downstream_bearer=TOKEN)
 
     def test_durable_attempt_claim_survives_gateway_reconstruction(self):
         calls = []

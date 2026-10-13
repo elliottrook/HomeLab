@@ -111,7 +111,8 @@ async def _reject(send: Callable, status: int) -> None:
 class A1TestGateway:
     def __init__(self, app: Callable, *, token_sha256: str,
                  request_sha256s: frozenset[str],
-                 attempt_journal: DurableAttemptJournal | None = None):
+                 attempt_journal: DurableAttemptJournal | None = None,
+                 downstream_bearer: bytes | None = None):
         if (not callable(app) or not isinstance(token_sha256, str)
                 or len(token_sha256) != 64
                 or any(ch not in "0123456789abcdef" for ch in token_sha256)
@@ -121,12 +122,18 @@ class A1TestGateway:
                        or any(ch not in "0123456789abcdef" for ch in digest)
                        for digest in request_sha256s)
                 or (attempt_journal is not None
-                    and not isinstance(attempt_journal, DurableAttemptJournal))):
+                    and not isinstance(attempt_journal, DurableAttemptJournal))
+                or (downstream_bearer is not None
+                    and (not isinstance(downstream_bearer, bytes)
+                         or not 16 <= len(downstream_bearer) <= 256
+                         or any(not 33 <= ch <= 126 for ch in downstream_bearer)
+                         or hashlib.sha256(downstream_bearer).hexdigest() == token_sha256))):
             raise ValueError("invalid isolated test gateway configuration")
         self.app = app
         self.token_sha256 = token_sha256
         self.request_sha256s = request_sha256s
         self.attempt_journal = attempt_journal
+        self.downstream_bearer = downstream_bearer
         self._attempted: set[str] = set()
         self._attempt_lock = threading.Lock()
 
@@ -216,4 +223,6 @@ class A1TestGateway:
         inner_scope = dict(scope)
         inner_scope["headers"] = [(k, v) for k, v in headers
                                   if k.lower() != b"authorization"]
+        if self.downstream_bearer is not None:
+            inner_scope["headers"].append((b"authorization", b"Bearer " + self.downstream_bearer))
         await self.app(inner_scope, replay, send)

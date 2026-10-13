@@ -167,7 +167,11 @@ The offline gateway candidate now derives its 20 allowlisted body digests from
 the validated sealed corpus using the same serializer as the client. Only
 digests, never request text or labels, belong in its configuration. It rejects
 an attempted repeat before forwarding and strips its ingress credential from
-the downstream ASGI scope. An optional owner-only, create-once digest journal
+the downstream ASGI scope. The current Aster endpoint requires authentication,
+so an isolated test instance must use a distinct, test-only inner credential;
+the guard can substitute that credential after admitting the request. Neither
+the production Aster key nor the ingress test key should be reused for this
+inner role. An optional owner-only, create-once digest journal
 survives gateway reconstruction in an isolated test. A live deployment must
 configure that journal on durable protected storage and verify its ownership,
 restart behavior, single-worker boundary and rollback before READY. In-memory
