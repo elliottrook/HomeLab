@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import httpx
 import jwt
 from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from lab_operations import LabOperations, OWNER as LAB_OWNER
@@ -91,6 +91,13 @@ MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
 MAX_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_RESPONSE_TOKENS", "160"))
 MAX_HEALTH_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_HEALTH_RESPONSE_TOKENS", "112"))
 BROKER_APPROVAL_SOCKET = os.environ.get("ASTER_BROKER_APPROVAL_SOCKET", "/run/homelab-broker/approval.sock")
+OPENBAO_URL = os.environ.get("ASTER_OPENBAO_URL", "https://192.168.50.24:8200").rstrip("/")
+OPENBAO_CA_CERT = os.environ.get("ASTER_OPENBAO_CA_CERT", "/etc/aster/openbao-ca.crt")
+OPENBAO_UNSEAL_OWNER_HASHES = frozenset(filter(None, (
+    value.strip() for value in os.environ.get("ASTER_OPENBAO_UNSEAL_OWNER_HASHES", "").split(",")
+)))
+OPENBAO_UNSEAL_MIN_INTERVAL = float(os.environ.get("ASTER_OPENBAO_UNSEAL_MIN_INTERVAL", "1.5"))
+OPENBAO_UNSEAL_MAX_AUTH_AGE = int(os.environ.get("ASTER_OPENBAO_UNSEAL_MAX_AUTH_AGE", "900"))
 SYSADMIN_DOCTOR_EVIDENCE = os.environ.get("ASTER_SYSADMIN_DOCTOR_EVIDENCE", "").strip().lower() in {"1", "true", "yes"}
 SYSADMIN_INCIDENT_STATE = Path(os.environ.get("ASTER_SYSADMIN_INCIDENT_STATE", "/var/lib/aster/lab-operations/sysadmin-incidents.sqlite3"))
 _sysadmin_incident_store: IncidentStore | None = None
@@ -252,6 +259,13 @@ class DoctorIncidentRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     title: str = Field(default="Doctor status investigation", min_length=1, max_length=300)
+
+
+class OpenBaoUnsealRequest(BaseModel):
+    """One human-held unseal token/share; never persist or echo the value."""
+
+    model_config = ConfigDict(extra="forbid")
+    key: str = Field(min_length=1, max_length=4096)
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -2649,6 +2663,91 @@ def companion_claims(authorization: str | None = Header(default=None)) -> dict[s
         (AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()
     ).hexdigest()
     return result
+
+
+_openbao_unseal_lock = asyncio.Lock()
+_openbao_last_unseal_at = 0.0
+
+
+def _require_openbao_operator(claims: dict[str, Any]) -> None:
+    if claims.get("owner_hash") not in OPENBAO_UNSEAL_OWNER_HASHES:
+        raise HTTPException(403, "This account is not allowed to unseal OpenBao")
+    if OPENBAO_UNSEAL_MAX_AUTH_AGE > 0:
+        try:
+            auth_time = int(claims.get("auth_time", 0))
+        except (TypeError, ValueError):
+            auth_time = 0
+        if not auth_time or time.time() - auth_time > OPENBAO_UNSEAL_MAX_AUTH_AGE:
+            raise HTTPException(401, "Sign in again with your passkey before unsealing OpenBao")
+
+
+def _openbao_status_fields(payload: dict[str, Any]) -> dict[str, Any]:
+    allowed = ("initialized", "sealed", "t", "n", "progress", "version", "build_date")
+    return {key: payload[key] for key in allowed if key in payload}
+
+
+async def _openbao_json(method: str, path: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    ca_path = Path(OPENBAO_CA_CERT)
+    try:
+        if not ca_path.is_file():
+            raise HTTPException(503, "OpenBao recovery trust configuration is unavailable")
+        async with httpx.AsyncClient(verify=str(ca_path), timeout=5.0, trust_env=False) as client:
+            response = await client.request(method, f"{OPENBAO_URL}{path}", json=payload)
+            response.raise_for_status()
+            data = response.json() if response.content else {}
+    except HTTPException:
+        raise
+    except (httpx.HTTPError, ValueError, OSError) as exc:
+        logging.getLogger(__name__).warning("OpenBao recovery request failed: %s", type(exc).__name__)
+        raise HTTPException(503, "OpenBao is unavailable") from None
+    if not isinstance(data, dict):
+        raise HTTPException(503, "OpenBao returned an invalid recovery response")
+    return data
+
+
+def _openbao_response(payload: dict[str, Any], message: str | None = None) -> JSONResponse:
+    result = _openbao_status_fields(payload)
+    if message:
+        result["message"] = message
+    return JSONResponse(result, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/v1/openbao/unseal/status")
+async def openbao_unseal_status(claims: dict[str, Any] = Depends(companion_claims)) -> JSONResponse:
+    _require_openbao_operator(claims)
+    return _openbao_response(await _openbao_json("GET", "/v1/sys/seal-status"))
+
+
+@app.post("/v1/openbao/unseal")
+async def openbao_unseal(
+    request: OpenBaoUnsealRequest,
+    claims: dict[str, Any] = Depends(companion_claims),
+) -> JSONResponse:
+    global _openbao_last_unseal_at
+    _require_openbao_operator(claims)
+    key = request.key.strip()
+    if not key:
+        raise HTTPException(422, "Enter one unseal share")
+    async with _openbao_unseal_lock:
+        now = time.monotonic()
+        if now - _openbao_last_unseal_at < OPENBAO_UNSEAL_MIN_INTERVAL:
+            raise HTTPException(429, "Wait briefly before submitting the next share")
+        _openbao_last_unseal_at = now
+        payload = await _openbao_json("POST", "/v1/sys/unseal", {"key": key})
+    return _openbao_response(
+        payload,
+        "OpenBao is unsealed" if payload.get("sealed") is False
+        else "Share accepted; enter the next share if required",
+    )
+
+
+@app.post("/v1/openbao/seal")
+async def openbao_seal(claims: dict[str, Any] = Depends(companion_claims)) -> JSONResponse:
+    _require_openbao_operator(claims)
+    async with _openbao_unseal_lock:
+        await _openbao_json("POST", "/v1/sys/seal")
+        payload = await _openbao_json("GET", "/v1/sys/seal-status")
+    return _openbao_response(payload, "OpenBao is sealed" if payload.get("sealed") is True else None)
 
 
 notifications = CompanionNotifications(

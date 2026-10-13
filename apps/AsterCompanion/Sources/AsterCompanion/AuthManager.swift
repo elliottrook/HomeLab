@@ -171,8 +171,19 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
             URLQueryItem(name: "code_challenge_method", value: "S256"),
             URLQueryItem(name: "state", value: state),
         ]
-        if fresh { components.queryItems?.append(URLQueryItem(name: "max_age", value: "0")) }
-        return components.url!
+        let authorize = components.url!
+        guard fresh else { return authorize }
+        // Privileged recovery actions must enter the mandatory passkey flow,
+        // then resume the unchanged PKCE authorization request.
+        var flow = URLComponents(url: AsterConfig.authorizationEndpoint, resolvingAgainstBaseURL: false)!
+        flow.path = "/if/flow/aster-companion-reauthentication/"
+        flow.queryItems = [
+            URLQueryItem(
+                name: "next",
+                value: components.percentEncodedPath + "?" + (components.percentEncodedQuery ?? "")
+            )
+        ]
+        return flow.url!
     }
 
     static func prefersEphemeralSession(fresh: Bool) -> Bool { fresh }

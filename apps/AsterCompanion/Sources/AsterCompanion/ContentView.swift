@@ -12,6 +12,12 @@ struct ContentView: View {
     @StateObject private var replyProgress = ReplyProgress()
     @State private var showingAIPAM = false
     @State private var showingDelegation = false
+    @State private var showingOpenBao = false
+    @State private var openBaoStatus: OpenBaoStatus?
+    @State private var openBaoToken = ""
+    @State private var openBaoError: String?
+    @State private var openBaoBusy = false
+    @State private var showingSealConfirmation = false
 
     // Persona + per-chat tool selection (M4). The backend's PERSONAS
     // registry is authoritative (services/aster-agent/aster_agent.py) -
@@ -152,6 +158,11 @@ struct ContentView: View {
                     if AsterConfig.delegationEnabled {
                         Button("Codex requests") { showingDelegation = true }
                     }
+                    Button("OpenBao") {
+                        showingOpenBao.toggle()
+                        if showingOpenBao { loadOpenBaoStatus() }
+                    }
+                    .buttonStyle(.bordered)
                     Spacer()
                     if let personas = personasResponse?.personas, !personas.isEmpty {
                         Picker("", selection: Binding(get: { currentPersona }, set: switchPersona)) {
@@ -170,6 +181,12 @@ struct ContentView: View {
                 .padding()
                 .sheet(isPresented: $showingAIPAM) { AIPAMView(auth: auth).environmentObject(auth) }
                 .sheet(isPresented: $showingDelegation) { DelegationView().environmentObject(auth) }
+
+                if showingOpenBao {
+                    openBaoPanel
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+                }
 
                 DisclosureGroup("Notifications") {
                     VStack(alignment: .leading, spacing: 6) {
@@ -347,6 +364,92 @@ struct ContentView: View {
                 }
                 do { try await Task.sleep(for: .seconds(60)) } catch { return }
             }
+        }
+    }
+
+    private var openBaoPanel: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("OpenBao recovery").font(.headline)
+            Text("OpenBao requires two unseal tokens. Enter Token 1, submit it, then enter Token 2. Tokens are sent directly to OpenBao and are not saved or displayed.")
+                .font(.caption).foregroundStyle(.secondary)
+            if let status = openBaoStatus {
+                if status.sealed == false {
+                    Text("OpenBao is unsealed.").fontWeight(.semibold).foregroundStyle(.green)
+                } else if status.sealed == true {
+                    Text("OpenBao is sealed — \(status.progress ?? 0) of \(status.threshold ?? 2) tokens accepted.")
+                        .fontWeight(.semibold).foregroundStyle(.orange)
+                } else {
+                    Text("OpenBao status is unavailable.").foregroundStyle(.red)
+                }
+            } else {
+                Text(openBaoError == nil ? "Checking OpenBao status…" : "Verify your passkey to check OpenBao status.")
+                    .foregroundStyle(.secondary)
+            }
+            SecureField("Unseal token 1 or 2", text: $openBaoToken)
+                .textFieldStyle(.roundedBorder)
+                .disabled(openBaoBusy || openBaoStatus?.sealed == false)
+            HStack {
+                Button(auth.isSigningIn ? "Verifying passkey…" : "Verify passkey") {
+                    openBaoToken = ""
+                    openBaoError = nil
+                    auth.login(fresh: true) { success in
+                        if success { loadOpenBaoStatus() }
+                        else { openBaoError = auth.lastError ?? "Passkey verification did not complete." }
+                    }
+                }
+                .buttonStyle(.bordered)
+                .disabled(openBaoBusy || auth.isSigningIn)
+                Button("Submit token") { submitOpenBaoToken() }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(openBaoBusy || openBaoStatus?.sealed != true || openBaoToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                Button("Seal OpenBao", role: .destructive) { showingSealConfirmation = true }
+                    .buttonStyle(.bordered)
+                    .disabled(openBaoBusy || openBaoStatus?.sealed != false)
+            }
+            if let openBaoError {
+                Text(openBaoError).font(.caption).foregroundStyle(.red)
+            }
+        }
+        .padding(12)
+        .background(Color.orange.opacity(0.10))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .confirmationDialog("Seal OpenBao?", isPresented: $showingSealConfirmation, titleVisibility: .visible) {
+            Button("Seal OpenBao", role: .destructive) { sealOpenBao() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Protected services will lose access until both unseal tokens are entered again.")
+        }
+    }
+
+    private func loadOpenBaoStatus() {
+        openBaoError = nil
+        Task {
+            do { openBaoStatus = try await client.fetchOpenBaoStatus() }
+            catch { openBaoStatus = nil; openBaoError = error.localizedDescription }
+        }
+    }
+
+    private func submitOpenBaoToken() {
+        let token = openBaoToken.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !token.isEmpty, !openBaoBusy else { return }
+        openBaoToken = ""
+        openBaoError = nil
+        openBaoBusy = true
+        Task {
+            do { openBaoStatus = try await client.submitOpenBaoToken(token) }
+            catch { openBaoError = error.localizedDescription; loadOpenBaoStatus() }
+            openBaoBusy = false
+        }
+    }
+
+    private func sealOpenBao() {
+        guard !openBaoBusy else { return }
+        openBaoError = nil
+        openBaoBusy = true
+        Task {
+            do { openBaoStatus = try await client.sealOpenBao() }
+            catch { openBaoError = error.localizedDescription; loadOpenBaoStatus() }
+            openBaoBusy = false
         }
     }
 

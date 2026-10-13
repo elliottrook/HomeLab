@@ -104,7 +104,7 @@
   },
   "blockers": [
     "build, test and install the repository native AVS1 client with a matched Swift compiler/SDK, then independently verify its binary and live canonical streaming request",
-    "complete native canonical deployment/two-pass evidence and the handover walkthrough",
+    "complete native composite deployment and two listening passes on both the Mac mini and MacBook",
     "revalidate and atomically reserve tentative VMID 127 and 192.168.20.37/24 in Proxmox/NetBox immediately before provisioning",
     "create a final manifest from a clean immutable Forgejo commit",
     "obtain explicit approval before creating the release tag"
