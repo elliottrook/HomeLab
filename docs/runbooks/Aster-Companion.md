@@ -85,15 +85,17 @@ Aster chat never grants approval or adds repair authority.
 | Component | Location | Dependency |
 |---|---|---|
 | Companion and Aster API | LXC 104, `192.168.70.10:9120` | Existing B60 inference service on LXC 110 |
-| Speech STT/TTS | LXC 116, `192.168.70.14:9130` | CPU Whisper `base.en`, Piper `en_US-lessac-high` |
-| HTTPS proxy | NPM LXC 107, `192.168.50.23` | `/voice/` forwards to speech; other routes to Aster |
+| Canonical speech | LXC 116, `192.168.70.14:9131`; Wyoming `10300` | Kokoro `bm_daniel`; isolated A380 interactive and LXC 114 CPU batch renderers |
+| Legacy speech/STT | LXC 116, `192.168.70.14:9130` | Whisper `base.en`; retained Piper rollback |
+| HTTPS proxy | NPM LXC 107, `192.168.50.23` | `/voice/v2/` forwards streaming TTS to canonical 9131; `/voice/` retains STT and legacy rollback on 9130; other routes to Aster |
 | Sign-in and signing keys | Authentik, `auth.elliottrook.com` | Public client `aster-companion`, PKCE, passkey-only flow |
 
-Run `python3 /opt/aster-speech/health_check.py` inside LXC 116. It checks the
-speech endpoint and the Authentik signing-key URL. A healthy speech `/health`
-alone is insufficient: both application servers must fetch signing keys via
-NPM TCP 443. Speech's permit is source `.70.14` to `.50.23:443` only, OPNsense
-UUID `bc811346-6714-44b4-bc65-46e7430f46a8`.
+Run `python3 /opt/aster-speech/health_check.py` inside LXC 116. It checks both
+speech APIs, the canonical identity, Wyoming, HTTPS/OIDC/JWKS and a discarded
+fixed synthesis canary. A healthy speech `/health` alone is insufficient: both
+application servers must fetch signing keys via NPM TCP 443. Speech's permit
+is source `.70.14` to `.50.23:443` only, OPNsense UUID
+`bc811346-6714-44b4-bc65-46e7430f46a8`.
 
 For a stalled voice turn, check that dependency, then request status and
 sanitized journal errors. Do not collect microphone recordings or transcript
