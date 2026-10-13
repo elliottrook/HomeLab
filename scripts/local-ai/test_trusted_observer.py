@@ -1,51 +1,51 @@
+import json
 import unittest
 
-from trusted_observer import FIXED_PROBES, RuntimeManifest, collect
 from lease_watchdog import EXPECTED_SCHEDULES
+from trusted_observer import FIXED_PROBES, CONTROL_UNITS, PRODUCTION, RuntimeManifest, collect
 
 
 class TrustedObserverTests(unittest.TestCase):
-    def test_fixed_probes_build_a_complete_observation(self):
-        calls = []
-        values = {
-            FIXED_PROBES["control_plane"]: "active",
-            FIXED_PROBES["production_services"]: "active",
-            FIXED_PROBES["gpu"]: "ok",
-            FIXED_PROBES["schedule"]: "enabled " + " ".join(EXPECTED_SCHEDULES),
-            ("sha256sum", "/model"): "model-hash",
-            ("sha256sum", "/binary"): "binary-hash",
-            ("sha256sum", "/unit"): "unit-hash",
-            ("curl", "--fail", "https://127.0.0.1/health"): "auth-ok",
-        }
-
+    def test_fixed_per_host_and_lxc_probes_build_complete_observation(self):
         def runner(argv, timeout):
-            calls.append((tuple(argv), timeout))
-            return values[tuple(argv)]
+            argv = tuple(argv)
+            if argv == FIXED_PROBES["gpu"]: return 0, "crw-rw---- renderD128"
+            if argv == FIXED_PROBES["model"]: return 0, "model-hash  /model"
+            if argv == FIXED_PROBES["binary"]: return 0, "binary-hash  /binary"
+            if argv == FIXED_PROBES["unit"]: return 0, "unit-hash  /unit"
+            if argv == FIXED_PROBES["auth"]: return 0, "auth-ok healthy"
+            if argv == FIXED_PROBES["proxmox_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": "00:30"}])
+            if argv == FIXED_PROBES["truenas_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": x} for x in ("01:00", "02:00", "03:00")])
+            if argv == FIXED_PROBES["news_schedule"]: return 0, "UnitFileState=enabled\nTimersCalendar=*-*-* 06:15,17:15"
+            if argv[:2] == ("systemctl", "is-active") or argv[:2] == ("pct", "exec") and "is-active" in argv:
+                return 0, "active"
+            raise AssertionError(argv)
 
         observation = collect(
-            runner,
-            now_minute=221,
+            runner, now_minute=221, lease_expires_minute=255,
             manifest=RuntimeManifest("model-hash", "binary-hash", "unit-hash", "auth-ok"),
-            model_probe=("sha256sum", "/model"),
-            binary_probe=("sha256sum", "/binary"),
-            unit_probe=("sha256sum", "/unit"),
-            auth_probe=("curl", "--fail", "https://127.0.0.1/health"),
         )
         self.assertTrue(observation.control_plane_healthy)
-        self.assertTrue(observation.model_verified)
-        self.assertTrue(observation.auth_verified)
-        self.assertTrue(all(timeout == 5.0 for _, timeout in calls))
+        self.assertTrue(observation.production_services_healthy)
+        self.assertEqual(observation.schedule_points, EXPECTED_SCHEDULES)
+        self.assertTrue(observation.heartbeat_alive)
 
-    def test_probe_failure_fails_closed(self):
+    def test_probe_failure_and_expired_lease_fail_closed(self):
+        def failed(argv, timeout): return 1, ""
         observation = collect(
-            lambda argv, timeout: (_ for _ in ()).throw(TimeoutError()),
-            now_minute=221,
+            failed, now_minute=255, lease_expires_minute=255,
             manifest=RuntimeManifest("m", "b", "u", "a"),
-            model_probe=("sha256sum", "/model"),
-            binary_probe=("sha256sum", "/binary"),
-            unit_probe=("sha256sum", "/unit"),
-            auth_probe=("curl", "--fail", "https://127.0.0.1/health"),
         )
         self.assertFalse(observation.control_plane_healthy)
-        self.assertFalse(observation.accepted_gpu_visible)
+        self.assertFalse(observation.heartbeat_alive)
         self.assertFalse(observation.schedule_restored)
+
+    def test_probe_sets_are_fixed_not_caller_selected(self):
+        self.assertEqual(len(CONTROL_UNITS), 7)
+        self.assertEqual(PRODUCTION, (("104", "aster-agent.service"), ("110", "aster-llama.service"), ("116", "aster-speech.service")))
+        self.assertIn("model", FIXED_PROBES)
+        self.assertIn("news_schedule", FIXED_PROBES)
+
+
+if __name__ == "__main__":
+    unittest.main()
