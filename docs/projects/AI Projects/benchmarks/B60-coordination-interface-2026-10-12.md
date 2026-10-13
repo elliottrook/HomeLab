@@ -84,8 +84,9 @@ running it; record their hashes along with model, quant, runtime, prompt,
 adapter, reasoning setting, tool mode, egress, hardware, cache state, load,
 sampling count, failures and cost. Keep development examples visible for
 debugging and new qualification keys in restricted custody. The old S1 corpus
-closed incomplete and is not a qualifying holdout. No new holdout is asserted
-to exist here.
+closed incomplete and is not a qualifying holdout. At this interface
+checkpoint no new holdout existed; the later A1 v2 development baseline is
+recorded below and still does not qualify a route.
 
 ## Gaps to close before a joint release bar
 
@@ -257,9 +258,14 @@ route qualification follows from this development baseline.
 use the result to align its candidate measurement and capture fields. The
 fictional prompts, hidden key, raw answers and blind-review packets remain in
 owner-only custody on the Mini, outside Git. This publication does **not**
-give B60 the cases needed to run a paired candidate. A protected transfer or
-a separately generated, independently frozen paired set needs an explicit
-custody and access decision before that comparison. Do not reconstruct cases
-from score rows or substitute the exposed six-case development set and call it
+give B60 the cases needed to run a paired candidate. The preferable path, if
+a candidate endpoint is admitted under the verified lab lease, is for Aster's
+Mini-side runner to keep the corpus in its existing custody and send only each
+fictional request to that endpoint. This still requires a reviewed endpoint,
+egress and retention boundary, exact candidate profile, pre/post host checks
+and a bounded run card; it is not permission to run today. A protected corpus
+transfer or a newly generated paired set would need a separate custody and
+access decision. Do not reconstruct cases from score rows or substitute the
+exposed six-case development set and call it
 the v2 holdout. Preserve model/runtime/reasoning settings, all outcomes and
 timeouts, review bindings and load/cache conditions in any later comparison.

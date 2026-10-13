@@ -108,7 +108,10 @@ development cases cannot turn them into qualification cases.
 6. A verified lab lease and bounded run card for experiments needing exclusive
    B60 access. A clock window by itself is not a lease.
 
-The immediate next measurement may reuse the public six-case set to verify
-capture wiring, reviewer handoff and the B60 wrapper after its source pins are
-reconciled. It must be labelled development. A fresh, independently frozen set
-is required before any qualification comparison or route promotion.
+The public six-case set remains available to verify capture wiring, reviewer
+handoff and the B60 wrapper; that use is development only. A later
+[20-case A1 v2 set](answer-holdout-release-v2-2026-10-12.md) was frozen and
+run once against the accepted 9B backend. Its two blind AI reviews give a
+useful regression baseline, but they do not supply independent human ground
+truth, per-class timing distributions or a promotion decision. A qualifying
+comparison still requires those missing controls and a paired candidate run.

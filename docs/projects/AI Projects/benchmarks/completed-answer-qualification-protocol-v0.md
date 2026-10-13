@@ -112,9 +112,10 @@ finalist scores.
 
 ## Work still required
 
-No independent answer-quality cases, adjudicators, privacy retention decision,
-per-class current-control latency distributions or release floors are frozen
-yet. Build those before asking B60 to optimize against a numeric bar. The
+No independently human-labelled qualifying answer-quality cases, human
+adjudication, privacy retention decision, per-class current-control latency
+distributions or release floors are frozen yet. Build those before asking B60
+to optimize against a numeric bar. The
 [six-case synthetic fixture](../../../../scripts/aster-adaptive/fixtures/answer-feasibility-v0.json)
 is a public, development-only starting point for capture and rubric testing;
 it was sent once to the accepted 9B/SYCL service on 2026-10-12. All six cases
@@ -130,3 +131,11 @@ backend provenance, independent qualification or a numeric release bar.
 The [control measurement profile](completed-answer-control-measurement-profile-v0.md)
 freezes the comparison method and names the evidence still needed before a
 class-specific budget can be proposed.
+
+**Development update, 2026-10-12:** a separately frozen
+[20-case fictional A1 v2 set](answer-holdout-release-v2-2026-10-12.md)
+has now produced a [one-attempt accepted-9B result](../experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md).
+Two backend-blind AI reviews agree on 14/20 full-rubric passes. Its private
+cases and keys are not in Git; it remains a regression baseline, not the
+independent human-adjudicated qualification or Aster-path timing required by
+this protocol.
