@@ -436,11 +436,14 @@ the canonical voice. The new runtime dependencies are listed in
 are configuration-driven.
 
 The live Aster Speech unit on LXC 116 remains healthy, but its current venv has
-no Kokoro runtime or model assets. No live replacement or restart was attempted
-in this source milestone. The speech gate therefore remains open until the
-controlled deployment provisions the runtime/assets and validates Kokoro
-success, forced Kokoro failure with Piper recovery, and consumer handling of
-the degraded response headers.
+no Kokoro runtime or model assets. The canonical model and voice-pack files do
+exist on the News Aggregator guest (LXC 114), but Proxmox exposes no shared
+mount between LXC 114 and LXC 116, so the assets are not centrally visible to
+the speech service today. No live replacement or restart was attempted in this
+source milestone. The speech gate therefore remains open until the controlled
+deployment reuses that canonical asset source (or an approved central artifact)
+and validates Kokoro success, forced Kokoro failure with Piper recovery, and
+consumer handling of the degraded response headers.
 
 ## Schedule implementation record — 2026-10-12
 
