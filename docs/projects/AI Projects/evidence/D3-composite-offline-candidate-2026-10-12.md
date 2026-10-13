@@ -1,9 +1,11 @@
-# D3 Companion composite: offline candidate, not a release
+# D3 Companion composite: candidate and Mac-mini install gate
 
-**Status: local candidate `eb69280` on `codex/aster-companion-composite`; no
-installation, remote push or Codex question.** This candidate responds to
+**Status: local candidate `eb69280` on `codex/aster-companion-composite`;
+installed on the Mac mini by Jason's explicit approval, but live acceptance
+is pending. No remote push or Codex question.** This candidate responds to
 Jason's requirement that the native OpenBao seal/unseal controls survive the
-manual Codex integration. The current installed app remains untouched.
+manual Codex integration. The previous installed app remains intact as a
+local rollback copy.
 The browser Companion's existing OpenBao controls and service endpoints are
 also preserved: this candidate changes neither its web UI nor its service.
 The new manual Codex view is Mac-only; browser-side Codex handoff is a
@@ -50,7 +52,7 @@ Offline checks passed on 2026-10-12:
   twelve allowlisted modules, byte-equal to candidate sources, with aggregate
   module SHA-256
   `285691dbc637527a9e7b39e42a4bfc5fa1927f676f4388b926799d34c6f04c41`.
-  The app was not installed, launched or registered as a URL handler.
+  This was a separate debug build; it was not installed or launched.
 - `ASTER_SIGN_IDENTITY='Aster Companion Local Signing 2026'
   ASTER_REQUIRE_STABLE_SIGNING=1 ASTER_REGISTER_APP=0 ./build-app.sh release`:
   built an offline release bundle. Strict deep signature verification passed;
@@ -59,8 +61,8 @@ Offline checks passed on 2026-10-12:
   Its executable SHA-256 is
   `c287a4f1743618872eb98bcf05a07da76f46d0fde9dbdd0f3f912208f4123c24`.
   The bundled bridge still contains exactly the twelve byte-equal allowlisted
-  modules with the aggregate SHA-256 above. This bundle was not installed,
-  launched or registered as a URL handler.
+  modules with the aggregate SHA-256 above. This release bundle was later
+  installed on the Mac mini with the manual screen hidden in normal mode.
 - An intact copy of the currently working installed app was placed at
   `/Users/jelliott/lab/private-backups/aster-companion/pre-composite-20261012.app`.
   The source and copy both passed strict deep signature verification; all
@@ -69,6 +71,21 @@ Offline checks passed on 2026-10-12:
   This is a verified local rollback copy, not a completed restore-and-launch
   drill or proof of off-site backup.
 
+**Installation checkpoint, 2026-10-12 Vancouver:** Jason explicitly approved
+installing this Mac candidate and checking ordinary behavior. The source
+release bundle was copied into `/private/tmp`, strict-deep signature verified
+again, and its executable hash matched `c287a4f...`. The then-current
+`/Applications/AsterCompanion.app` was renamed to
+`/Applications/AsterCompanion.pre-stream-a-20261012.app`; the staged release
+was moved into `/Applications/AsterCompanion.app`. Both installed and prior
+bundle signatures verified. Executable hashes are respectively
+`c287a4f1743618872eb98bcf05a07da76f46d0fde9dbdd0f3f912208f4123c24`
+and `7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d`.
+The app launched and remained a running process. The Mac was locked, so
+sign-in, read-only OpenBao status and normal-use checks could not yet be
+performed. Do not call this a passed release gate. No OpenBao seal/unseal
+operation or Codex model question was sent.
+
 This closes the *source-combination feasibility* check, not the D3 release
 gate. The app owner reviewed the source candidate and found no direct conflict
 with passkey, OpenBao or Keychain code, but did not give live acceptance. The
@@ -76,13 +93,12 @@ stable-signed release build and verified local rollback copy are prepared.
 The owner subsequently reviewed the release evidence and reported no further
 technical blocker; normal sign-in, read-only OpenBao status/passkey verification
 and ordinary Aster use still require acceptance after any authorized install.
-The manual Codex surface should remain hidden during normal use. The web
+The manual Codex surface remains hidden during normal use. The web
 OpenBao route tests could not run in this isolated macOS Python environment
 because `fastapi` is not installed; no dependency was installed for this
 documentation check. The web source and its test file are byte-for-byte
 unchanged from the pinned Companion baseline.
-Before installation, pin the exact release artifact and rollback, then run
-ordinary sign-in, OpenBao read/status and recovery
+Before release acceptance, run ordinary sign-in, OpenBao read/status and recovery
 path checks, hidden/flagged Codex UI checks and natural refresh observations
 on that exact composite build. Do not seal OpenBao merely as a test; do not
 send another model question just to prove the UI exists. Any unexpected
