@@ -100,9 +100,13 @@ Versioned durable job store with queued/running/succeeded/failed/unknown states,
 atomic transitions, native job identifiers, expiry and bounded sanitized audit.
 After restart reconcile native status before retry; an unknown state cannot be
 reported as successful or automatically replayed. Task resumes by job ID.
-Current checkpoint: Stream A confirmed; local suites pass; first Doctor-only
-deployment is running after a platform-approved installation command. Resume by reading this document and project
-standard, checking Git/live state, then finalizing adapter and identity design.
+Current checkpoint: Stream A confirmed; local suites pass; the authenticated
+Companion queue path is live. A fresh Doctor job was cancelled after the
+Mac-local Doctor process hung during the later checks; the worker converted it
+to `unknown/interrupted`, and an operator-only reconciliation terminalized
+only that job as failed with its original result preserved. No backup adapter
+ran and no recovery artifact was claimed. Resume by diagnosing the bounded
+Doctor hang before another real-path attempt.
 
 ## Milestones
 
@@ -200,6 +204,9 @@ repairs is neither added nor authorized. Existing ARR approval is unchanged.
 | 2026-09-23 | 148 Aster tests and 14 worker/adapter tests passed; shell syntax, LaunchAgent plist and live-source gateway import validated | Local candidate ready; test counts include inherited gateway/worker regression cases |
 | 2026-09-23 | Real read-only Doctor run: 72 pass / 2 warn / 1 fail | Existing Media 93% alert, mixed feed fetch failures and dirty Git tree; no new health failure caused by this project |
 | 2026-09-23 | Platform-approved deployment command starts a new verified LXC 104 backup before gateway replacement and private Mac worker installation | Deployment running; completion/activation not yet claimed |
+
+| 2026-10-04 | Scheduled health report found Doctor job `c240806a409740d592336688b0f70feb` in `unknown/interrupted`; exact bounded result had no native artifact. Operator reconciliation preserved the original result and terminalized only that job as failed, without replay or success claim. Fresh broker/worker Doctor job `a8eb2ad4a8624d93be494d89e8c44c7c` completed with 79 passed, 3 warnings and 0 failures; queue monitor is healthy. | Queue blockage repaired. Existing wiki quarantine, stale jellyfin-integrity run and dirty working tree remain warnings; details in [2026-10-04 remediation](../runbooks/Lab-Health-Remediation-2026-10-04.md). |
+| 2026-10-12 | Authenticated Companion request created Doctor job `2285db683e604b3aaaf7012819373780`; the Mac worker claimed it, but the Doctor process stopped producing output during the later infrastructure checks. Jason approved cancellation. The worker fail-closed to `unknown/interrupted`; operator reconciliation preserved the full interrupted result and terminalized only this job as `failed/adapter_failed`. | Queue clear; worker running; no backup adapter, restore, or production recovery claim was made. Diagnose the Doctor hang before retrying M4. |
 
 ## Close-out
 
