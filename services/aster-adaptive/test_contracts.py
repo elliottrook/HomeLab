@@ -102,6 +102,13 @@ class ContractsTests(unittest.TestCase):
         self.assertEqual(result.status,'deny')
         self.assertEqual(result.reason_codes,['FIXTURE_POLICY_DENY'])
 
+    def test_mixed_allowed_and_denied_capabilities_cannot_make_partial_plan(self):
+        cat=catalogue(self.selector,frozenset({'get_current_time'}));req=request({'id':'fixture'},cat)
+        result=self.selector.propose(req,cat,[{'role':'user','content':'What is the current time and Home Assistant version?'}],now=10)
+        self.assertEqual(result.status,'deny')
+        self.assertEqual(result.reason_codes,['FIXTURE_POLICY_DENY'])
+        self.assertEqual(result.steps,[])
+
     def test_out_of_scope_plan_fails_projection_validation(self):
         cat=catalogue(self.selector,frozenset({'search_knowledge'}));req=request({'id':'fixture'},cat)
         data=self.decision.model_dump();data['registry_digest']=cat.digest()

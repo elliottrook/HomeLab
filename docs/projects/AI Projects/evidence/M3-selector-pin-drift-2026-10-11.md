@@ -35,3 +35,17 @@ runtime mutations to Aster's globals or the currently deployed file. A future
 serving decision still requires a reviewed runtime source/contract boundary and
 representative independent labels. This revision does not promote a router or
 change the M3/M4 gate.
+
+## Offline projection correction — 2026-10-13
+
+The v2 adapter previously filtered a multi-capability selector result to the
+catalogue and could return a partial plan when only one of several selected
+capabilities was allowed. For example, the synthetic request “What is the
+current time and Home Assistant version?” selects three baseline tool names;
+with only `get_current_time` in the fixture catalogue, that partial plan would
+misrepresent the original request. The adapter now denies the entire proposal
+with `FIXTURE_POLICY_DENY` if **any** selected name is outside the catalogue.
+The 31 focused offline tests pass, including the new mixed-scope case. The
+retained v2 result is historical and retains its original adapter digest; it
+was not rewritten. This is a stricter offline proposal boundary, not a live
+permission change, answer-quality result or automatic-router promotion.

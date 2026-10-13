@@ -107,7 +107,7 @@ class BaselineSelector:
             names = [name for name in all_names if name in known]
             if not known <= self.names:
                 status, reason, names = 'deny', 'UNKNOWN_CAPABILITY', []
-            elif all_names and not names:
+            elif len(names) != len(all_names):
                 status, reason, names = 'deny', 'FIXTURE_POLICY_DENY', []
             elif len(names) > request.max_steps:
                 status, reason, names = 'abstain', 'STEP_BUDGET_EXCEEDED', []
