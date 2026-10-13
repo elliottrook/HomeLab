@@ -36,6 +36,11 @@ Repository evidence to reconcile:
 - `docs/projects/Pull-Based-Forgejo-Runner.md` and its runbook: completed bounded cloud-agent read and synthetic canary write only; not general project publication.
 - Proxmox, Jellyfin/TrueNAS, Home Assistant, Aster brain and house network: inventory exact deployed versions, services, permissions, paths, and current loads from read-only live evidence.
 - LibreELEC/Kodi actual release, supported x86 image/firmware, installation and KVM graphics limitations: verify upstream before selecting a test build.
+- Physical M2 test device: Jason has nominated a Lenovo ThinkPad X390 Yoga with an
+  8th-generation Intel Core i7 and 16 GB RAM. The exact machine type, CPU SKU,
+  BIOS version and available display adapter remain to be recorded from the
+  device. This is a test device only; no purchase or production reassignment is
+  implied.
 
 ## 3. Scope and explicit exclusions
 
@@ -135,12 +140,47 @@ Record pinned versions, tested guest ID, source commits, upstream image checksum
 
 - [x] **M0 — Read-only inventory and risk gate:** 2026-10-13 baseline gathered and accepted. Live Proxmox, guest, VLAN, media, HA, Aster, speech and backup evidence is recorded in the evidence log; household capabilities and the bounded software-test envelope are now explicit.
 - [x] **M1 — Integrated boot:** 2026-10-13. VM 127 installed LibreELEC 12.2.1 with its bundled Kodi image, booted repeatedly from the installed target, and reached the LibreELEC splash on each clean boot. `std`, `qxl` and `virtio` KVM display profiles produced the same result: Kodi UI did not become visible and the installed guest's `.kodi/temp/kodi.log` remained empty. Gate result: **boot/install passed; KVM UI result inconclusive**. This is a virtualization limitation to carry into physical HDMI testing, not a software rejection; do not substitute Debian+Kodi as the primary test.
-- [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. M2 requires a usable Kodi UI or a physical/endpoint playback path; the VM-only KVM result cannot establish direct play, HDR10, CEC or Atmos/DTS. Gate: no media mutation; measurable results and hard blockers.
+- [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. M2 now has a physical endpoint candidate: boot the verified LibreELEC Generic x86_64 image from a disposable USB on the Lenovo X390 Yoga, without installing to or altering its internal drive. Use the X390's Thunderbolt 3/USB-C DisplayPort output with a known 4K60-capable HDMI adapter for the 4K path; its built-in HDMI 1.4b is limited to 4K24 and is not the production-path test. CEC must be recorded separately because USB-C/DisplayPort-to-HDMI adapters do not uniformly carry it. Gate: no media mutation; measurable direct-play, HDR10, audio passthrough, network and navigation results, with hardware limitations explicitly separated from software results.
 - [ ] **M3 — Customization:** throwaway Aster-styled Kodi skin/add-on, Home Assistant **read** dashboard, mocked commands and Aster AI query. Gate: prove extensibility and upgrade compatibility without core fork if possible.
 - [ ] **M4 — Voice/intelligence:** consume existing Aster voice service with opt-in mic/control, demonstrate speech/turn and timeout/fallback handling without new TTS implementation. Gate: privacy and canonical-voice compliance.
 - [ ] **M5 — SOFTWARE GO/NO-GO:** issue `Aster-Home-EH-001-Feasibility-Decision.md` explicitly stating **USE / CONDITIONAL USE / REJECT**, weighted tests plus hard constraints and source-supported alternatives if rejected. **No hardware purchasing study is necessary after REJECT** beyond documenting what alternatives need testing.
 - [ ] **M6 — Conditional hardware/pricing:** **only if USE/CONDITIONAL USE**. Compare powerful mini-PC and cheaper local-decoding thin endpoint; measure network/server/client CPU, RAM, codec support, 4K/HDR, HDMI-CEC, audio passthrough, boot/recovery and wattage on available hardware; distinguish measured versus vendor claims. Price at least two viable products **per class** from Canadian retailers, with SKU, dated CAD offers/stock, sources, shipping/tax/accessories, support, 5-year TCO and ranked no-buy/reuse/buy choices. Gate: defensible minimum/efficient/premium specification and a specific recommended purchase or explicit defer.
 - [ ] **M7 — Decision, recovery and handover:** reproduce key tests, verify independent rollback, update Doctor/Beszel/NetBox/wiki/operational references as applicable, apply the Aster internal style guide, produce non-technical user guide and final recommendation. No production deployment or order under this experiment.
+
+### M2 physical X390 runbook
+
+1. Record the exact Lenovo machine type, CPU SKU, BIOS version, RAM, internal
+   storage health and battery/charger state. Do not update firmware as part of
+   this test unless a separate hardware-risk decision is recorded.
+2. Verify the pinned LibreELEC 12.2.1 Generic x86_64 image and checksum already
+   recorded in this project. Write it to a dedicated USB stick only after the
+   user identifies the removable target; never use the X390 internal disk.
+3. Boot the X390 from USB through its UEFI boot menu. Preserve the existing OS
+   and data as the rollback path. Use a USB keyboard/trackpad for first boot;
+   Apple TV remote pairing is a later, separate compatibility test.
+4. First test video and audio through the X390 Thunderbolt 3/USB-C display
+   output, a confirmed 4K60 HDMI 2.0-capable adapter and the AVR. Record the
+   negotiated resolution/refresh rate, TV HDR10 state, AVR input/audio format,
+   Kodi dropped frames and buffering. Treat the built-in HDMI port as a
+   separate 4K24 control test only.
+5. Connect to the existing network without adding a VLAN, firewall rule or
+   public route. Sign in manually with the least-privilege Jellyfin test
+   identity; do not place credentials in the project record or logs.
+6. Install only the Jellyfin Kodi integration needed for the trial, use a
+   separate Kodi profile, disable watched-state/library writes initially and
+   verify that playback does not mutate production Jellyfin or TrueNAS data.
+7. Test Jellyfin direct play and fallback/transcode with representative video,
+   HDR10, subtitles, music and the available DTS/Atmos-capable samples. Record
+   whether the AVR receives the expected bitstream rather than inferring it
+   from Kodi's selection screen.
+8. Test CEC independently. If the adapter does not expose CEC, record that as
+   an adapter-path limitation and use keyboard/USB/Bluetooth input for the rest
+   of M2; do not broaden network control or enable Kodi's unrestricted HTTP
+   interface merely to obtain a remote.
+9. Shut down, remove the USB and verify that the X390 boots its original OS.
+   Preserve the LibreELEC USB as the repeatable rollback/test artifact. A
+   persistent LibreELEC install or internal-disk replacement is outside this
+   runbook and requires a new explicit risk decision.
 
 Checkboxes cannot be marked complete without documented validation.
 
@@ -203,6 +243,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | 2026-10-13 | Captured virtual display evidence at 1280×800; tested `std`, `qxl` and `virtio` display profiles; read the installed guest filesystem read-only after stopping. | All profiles reached the LibreELEC splash but not a visible Kodi UI after extended waits; `.kodi/temp/kodi.log` and `.kodi/temp/kodi.old.log` were zero bytes. KVM cannot establish physical HDMI, CEC, HDR10, Atmos/DTS passthrough or Apple TV remote compatibility. **M1 complete with UI result inconclusive; carry this as a physical-endpoint test requirement.** |
 | 2026-10-13 | Read-only Jellyfin checks: `/health` returned `Healthy`; `/System/Info/Public` returned Jellyfin `12.1.0`; representative TrueNAS media roots exposed 1080p VC-1/DTS-HD MA 5.1 remux, 1080p x264/x265/DDP 5.1 episodes and FLAC music. | Jellyfin is a live audiovisual dependency with suitable representative media, but no Kodi client playback or direct-play result is claimed until M2 has a usable UI/endpoint. No media, metadata or Jellyfin state was changed. |
 | 2026-10-13 | Reconciled the hardware inventory for an audiovisual endpoint. | No spare HDMI-capable Kodi test endpoint is documented. The Proxmox B60 remains Aster-owned, the TrueNAS Arc A380 remains Jellyfin-owned, and the Lenovo ThinkCentre remains the production NUT host; none may be repurposed under this project. Physical M2 playback remains untested pending an available endpoint or a later, separately accepted hardware decision. |
+| 2026-10-13 | Jason nominated the Lenovo ThinkPad X390 Yoga (8th-generation i7, 16 GB RAM) as the physical M2 test device. | The prior endpoint gap is resolved for a reversible USB-boot trial. Exact machine type/CPU/BIOS and adapter availability remain to be captured. No internal-drive install, firmware change, network-policy change or purchase is authorized by this record. |
 
 ## 15. References
 
