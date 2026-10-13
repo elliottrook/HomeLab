@@ -104,13 +104,20 @@
     "verification": "Approved health identity, authentication refusal, two authenticated AVS1 canaries, service reboot recovery, distinct Beszel monitoring, three-authority private DNS and an isolated link-down restore from the initial snapshot all pass. Consumers remain on their accepted lab paths pending controlled cutover.",
     "credentials": "new production-only credential generated and stored in protected live configuration; value is not copied to this manifest"
   },
+  "production_migration": {
+    "state": "companion-pilot",
+    "companion_stream": "https://aster.elliottrook.com/voice/v2/ selects production 192.168.20.37:9131; accepted lab endpoint remains healthy for immediate rollback",
+    "home_assistant": "not cut over",
+    "news_digest": "not cut over",
+    "monitoring": "Beszel and Prometheus production target up; five production alert rules loaded"
+  },
   "blockers": [
-    "obtain explicit approval before production consumer cutover",
+    "complete real Companion production listening and responsiveness acceptance before the next consumer",
     "obtain explicit approval before creating the release tag"
   ],
   "authorization": {
     "production_provisioning": true,
-    "consumer_cutover": false,
+    "consumer_cutover": true,
     "release_tag": false,
     "destructive_cleanup": false
   }
