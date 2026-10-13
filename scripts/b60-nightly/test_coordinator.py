@@ -25,6 +25,28 @@ class Transport:
   if action=='status':return {'terminal':True,'success':True}
   return {'okay':True}
 class Tests(unittest.TestCase):
+ def test_stale_temporary_file_does_not_block_status(self):
+  with tempfile.TemporaryDirectory() as d:
+   path=Path(d)/'status.json';stale=Path(d)/'status.json.tmp'
+   stale.write_text('interrupted prior write')
+   s.atomic(path,{'stage':'ready'})
+   self.assertEqual(json.loads(path.read_text()),{'stage':'ready'})
+   self.assertEqual(stale.read_text(),'interrupted prior write')
+   self.assertEqual(path.stat().st_mode & 0o777,0o600)
+   self.assertEqual(list(Path(d).glob('.status.json.*.tmp')),[])
+ def test_failed_replace_keeps_previous_state_and_cleans_only_own_temp(self):
+  with tempfile.TemporaryDirectory() as d:
+   path=Path(d)/'status.json';s.atomic(path,{'stage':'old'})
+   unrelated=Path(d)/'status.json.tmp';unrelated.write_text('keep')
+   with patch.object(s.os,'replace',side_effect=OSError('synthetic write failure')):
+    with self.assertRaises(OSError):s.atomic(path,{'stage':'new'})
+   self.assertEqual(json.loads(path.read_text()),{'stage':'old'})
+   self.assertEqual(unrelated.read_text(),'keep')
+   self.assertEqual(list(Path(d).glob('.status.json.*.tmp')),[])
+ def test_nonfinite_status_rejected_before_file_creation(self):
+  with tempfile.TemporaryDirectory() as d:
+   with self.assertRaises(ValueError):s.atomic(Path(d)/'status.json',{'time':float('nan')})
+   self.assertEqual(list(Path(d).iterdir()),[])
  def run_case(self,root,clock,transport):return s.Coordinator(root,transport,clock.now,clock.sleep)
  def test_success_waits_for_windows_and_releases(self):
   with tempfile.TemporaryDirectory() as d:

@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 import shlex
 import subprocess
+import tempfile
 import time
 from zoneinfo import ZoneInfo
 
@@ -19,11 +20,20 @@ BRIDGE='/var/lib/b60-inference/nightly/bridge.py'
 MIRROR='/root/b60-nightly/mirror-receipt.py'
 def now(): return datetime.now(TZ)
 def atomic(path, value):
-    raw=(json.dumps(value,sort_keys=True)+'\n').encode()
-    temporary=path.with_name(path.name+'.tmp')
-    with os.fdopen(os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600),'wb') as stream:
-        stream.write(raw);stream.flush();os.fsync(stream.fileno())
-    os.replace(temporary,path)
+    raw=(json.dumps(value,sort_keys=True,allow_nan=False)+'\n').encode()
+    # An interrupted prior writer must not poison every later status update.
+    # Create a private unique file on the same filesystem; remove only our file.
+    fd,name=tempfile.mkstemp(prefix='.'+path.name+'.',suffix='.tmp',dir=path.parent)
+    temporary=Path(name)
+    try:
+        with os.fdopen(fd,'wb') as stream:
+            stream.write(raw);stream.flush();os.fsync(stream.fileno())
+        os.replace(temporary,path)
+        directory=os.open(path.parent,os.O_RDONLY)
+        try: os.fsync(directory)
+        finally: os.close(directory)
+    finally:
+        temporary.unlink(missing_ok=True)
 def call(host,*arguments,timeout=180):
     command=shlex.join(arguments)
     result=subprocess.run(['/usr/bin/ssh','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes',
