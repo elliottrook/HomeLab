@@ -173,11 +173,27 @@ Record pinned versions, tested guest ID, source commits, upstream image checksum
    HDR10, subtitles, music and the available DTS/Atmos-capable samples. Record
    whether the AVR receives the expected bitstream rather than inferring it
    from Kodi's selection screen.
-8. Test CEC independently. If the adapter does not expose CEC, record that as
+8. Establish the control/observation path before the stress run. The user must
+   physically boot the USB, select the LibreELEC target in UEFI and enable
+   LibreELEC SSH from its local Services screen; then provide only the X390's
+   LAN address and port, never a password or key. From SSH, collect read-only
+   host/Kodi telemetry: version and kernel, CPU/RAM utilisation, thermal
+   sensors, network link, Kodi log, DRM/audio messages, dropped-frame and
+   buffering evidence, and playback soak snapshots. Keep the physical screen,
+   TV HDR indicator and AVR front-panel format as the human-observed evidence;
+   SSH is the repeatable measurement/control channel, not a replacement for
+   verifying the actual display and receiver.
+9. Run bounded real-workload tests rather than an artificial stress test first:
+   idle baseline, Kodi navigation, Jellyfin catalogue access, 1080p direct
+   play, 4K HEVC/HDR10, subtitles, music, audio passthrough and a 20–30 minute
+   mixed playback soak. Escalate to a synthetic stress tool only if these
+   results leave a specific capacity question; do not install unrelated tools
+   into the test image merely to generate load.
+10. Test CEC independently. If the adapter does not expose CEC, record that as
    an adapter-path limitation and use keyboard/USB/Bluetooth input for the rest
    of M2; do not broaden network control or enable Kodi's unrestricted HTTP
    interface merely to obtain a remote.
-9. Shut down, remove the USB and verify that the X390 boots its original OS.
+11. Shut down, remove the USB and verify that the X390 boots its original OS.
    Preserve the LibreELEC USB as the repeatable rollback/test artifact. A
    persistent LibreELEC install or internal-disk replacement is outside this
    runbook and requires a new explicit risk decision.
@@ -244,6 +260,7 @@ Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasi
 | 2026-10-13 | Read-only Jellyfin checks: `/health` returned `Healthy`; `/System/Info/Public` returned Jellyfin `12.1.0`; representative TrueNAS media roots exposed 1080p VC-1/DTS-HD MA 5.1 remux, 1080p x264/x265/DDP 5.1 episodes and FLAC music. | Jellyfin is a live audiovisual dependency with suitable representative media, but no Kodi client playback or direct-play result is claimed until M2 has a usable UI/endpoint. No media, metadata or Jellyfin state was changed. |
 | 2026-10-13 | Reconciled the hardware inventory for an audiovisual endpoint. | No spare HDMI-capable Kodi test endpoint is documented. The Proxmox B60 remains Aster-owned, the TrueNAS Arc A380 remains Jellyfin-owned, and the Lenovo ThinkCentre remains the production NUT host; none may be repurposed under this project. Physical M2 playback remains untested pending an available endpoint or a later, separately accepted hardware decision. |
 | 2026-10-13 | Jason nominated the Lenovo ThinkPad X390 Yoga (8th-generation i7, 16 GB RAM) as the physical M2 test device. | The prior endpoint gap is resolved for a reversible USB-boot trial. Exact machine type/CPU/BIOS and adapter availability remain to be captured. No internal-drive install, firmware change, network-policy change or purchase is authorized by this record. |
+| 2026-10-13 | Jason clarified that M2 must provide SSH control/observation so the endpoint can be measured under real playback load, not judged only from the TV picture. | The X390 runbook now separates user-required physical actions (USB boot, local SSH enablement, TV/AVR observation) from assistant-run read-only telemetry and bounded playback soak tests. No remote access is enabled by this record; the user must enable SSH locally after boot and provide only the endpoint address. |
 
 ## 15. References
 
