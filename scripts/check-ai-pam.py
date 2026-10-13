@@ -166,14 +166,14 @@ def collect() -> dict:
     guest = f"pct exec 104 -- python3 -c {shlex.quote(f'import base64;exec(base64.b64decode({encoded!r}))')}"
     result = subprocess.run(
         ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", "root@192.168.50.10", guest],
-        capture_output=True, text=True, timeout=25, check=True,
+        stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=25, check=True,
     )
     data = json.loads(result.stdout)
     host_encoded = base64.b64encode(HOST_CODE.encode()).decode()
     host_result = subprocess.run(
         ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", "root@192.168.50.10",
          "python3 -c " + shlex.quote(f"import base64;exec(base64.b64decode({host_encoded!r}))")],
-        capture_output=True, text=True, timeout=15, check=True,
+        stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=15, check=True,
     )
     data.update(json.loads(host_result.stdout))
     return data

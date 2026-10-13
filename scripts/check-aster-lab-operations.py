@@ -35,6 +35,7 @@ def main():
     try:
         command='pct exec 104 -- python3 -c '+shlex.quote(CODE)
         result=subprocess.run(['ssh','-o','BatchMode=yes','-o','ConnectTimeout=8','root@192.168.50.10',command],
+                              stdin=subprocess.DEVNULL,
                               capture_output=True,text=True,timeout=20,check=True)
         code,text=classify(json.loads(result.stdout))
     except Exception:

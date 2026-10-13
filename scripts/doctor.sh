@@ -596,7 +596,9 @@ check_aster_wiki() {
             intake="$(pct exec 113 -- systemctl is-active aster-wiki-intake.service 2>/dev/null || true)"
             timer_enabled="$(pct exec 113 -- systemctl is-enabled aster-wiki-collector.timer 2>/dev/null || true)"
             health="$(pct exec 113 -- python3 -c '\''import urllib.request; print(urllib.request.urlopen("http://127.0.0.1:8787/healthz", timeout=3).read().decode())'\'' 2>/dev/null || true)"
-            status="$(pct exec 113 -- runuser -u aster-collector -- env PYTHONPATH=/opt/aster-wiki /usr/bin/python3 -m aster_wiki.cli status --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state 2>/dev/null || true)"
+            # The collector status command can traverse a large/quarantined
+            # corpus; bound it so a slow wiki cannot hold Doctor indefinitely.
+            status="$(pct exec 113 -- timeout 12 runuser -u aster-collector -- env PYTHONPATH=/opt/aster-wiki /usr/bin/python3 -m aster_wiki.cli status --wiki-root /var/lib/aster-wiki/homelab-wiki --state-root /var/lib/aster-wiki/state 2>/dev/null || true)"
             corpus_timer="$(pct exec 113 -- systemctl is-enabled aster-wiki-corpus-health.timer 2>/dev/null || true)"
             corpus_status="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json"))["status"])'\'' 2>/dev/null || true)"
             directory_drift="$(pct exec 113 -- python3 -c '\''import json; print(json.load(open("/var/lib/aster-wiki/state/reports/corpus-health.json")).get("metrics", {}).get("directory_index_drift", "missing"))'\'' 2>/dev/null || true)"
@@ -1803,7 +1805,9 @@ check_frigate() {
     local newest_recording=""
 
     if ! frigate_output="$(
-        ssh -o BatchMode=yes -o ConnectTimeout=5 frigate /bin/bash -s <<'REMOTE'
+        # Bound NFS-backed recording scans so a stale mount cannot hold the
+        # entire Doctor job open after the preceding health checks complete.
+        ssh -o BatchMode=yes -o ConnectTimeout=5 frigate 'timeout 20 /bin/bash -s' <<'REMOTE'
 printf 'service=%s\n' "$(systemctl is-active frigate-compose.service 2>/dev/null || true)"
 findmnt -rn -T /opt/frigate/storage -o SOURCE,FSTYPE 2>/dev/null |
     awk '$2 == "nfs4" {print "mount_source=" $1; print "mount_type=" $2; exit}'
