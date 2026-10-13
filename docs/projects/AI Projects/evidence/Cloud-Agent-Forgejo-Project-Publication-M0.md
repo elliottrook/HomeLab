@@ -60,6 +60,7 @@ The initial package boundary is:
 | GitHub mirror convergence | Passed; old branch absent and replacement branch matches Forgejo at `d43ca9ee` |
 | Canonical base and local policy reconciliation | Passed; Forgejo `main` is `da8b0fca`; local policy sources match the canonical checkout; 30 targeted tests pass |
 | Live runner source-pin reconciliation | Blocked for implementation; installed `base_revision` is `d7e49c4d4d6b7124a764208cc44e0ef9ed12797b`, while current Forgejo `main` is `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; installed runner source hashes match the reviewed local files |
+| M1 offline validator | Passed local gate; separate multi-file document verifier and adversarial tests are present; complete broker test directory passes `119/119`; no live policy or service change |
 | Exact public-mirror privacy boundary accepted | Pending Jason's M0 decision |
 | Live worker or AI-PAM policy change | Not started and not authorized |
 

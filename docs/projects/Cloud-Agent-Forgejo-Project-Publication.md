@@ -207,18 +207,21 @@ reconciliation and explicit acceptance of the public-mirror boundary.
 
 ### M1 — policy and offline validator
 
-- [ ] Define the versioned manifest and canonical digest encoding.
-- [ ] Implement or extend the validator without widening the existing single-
+- [x] Define the versioned manifest and canonical digest encoding in the
+  separate `project_document_bundle_verifier.py` capability.
+- [x] Implement the validator without widening the existing single-
   file canary policy in place.
-- [ ] Add adversarial tests for path traversal, collisions, symlinks, deletes,
+- [x] Add adversarial tests for path traversal, collisions, symlinks, deletes,
   renames, binaries, hidden files, executable content, oversized packages,
   secret-like values, private-detail patterns, stale base, replay and policy
   drift.
-- [ ] Prove the validator performs no network, Git, Forgejo, OpenBao or broker
+- [x] Prove the validator performs no network, Git, Forgejo, OpenBao or broker
   I/O and executes no package-controlled content.
 
-Gate: local tests pass and the new capability is separately versioned, bounded
-and fail-closed.
+Gate: local broker suite passes `119/119`; the new capability is separately
+versioned, bounded and fail-closed. **Local gate passed 2026-10-13.** Live
+installation and gateway integration remain M2 work and are not authorized by
+this gate.
 
 ### M2 — isolated approval-path canary
 
@@ -261,7 +264,7 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 | Milestone | Evidence | Status |
 |---|---|---|
 | M0 | This design; branch-rescission verification; canonical base and policy reconciliation | In progress |
-| M1 | Manifest, policy digest, validator tests and denial matrix | Not started |
+| M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13; live integration not started |
 | M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Not started |
 | M3 | Forgejo branch/tree and mirror read-only verification | Not started |
 | M4 | Restore, monitoring, operator handover and graduation review | Not started |
