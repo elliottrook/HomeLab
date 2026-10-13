@@ -122,7 +122,9 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
     if (not isinstance(gateway, dict) or set(gateway) != {
             "source", "profile_sha256", "test_only", "tools_disabled",
             "production_route_unchanged", "candidate_id", "model_profile_sha256",
-            "scorer_sha256", "accepted_restore_sha256", "auth_scope", "egress"}
+            "scorer_sha256", "accepted_restore_sha256", "auth_scope", "egress",
+            "durable_attempt_journal", "distinct_inner_auth", "pinned_request_set",
+            "common_gateway_topology"}
             or gateway["source"] != "aster-test-adapter"
             or gateway["profile_sha256"] != card["gateway_sha256"]
             or gateway["model_profile_sha256"] != card["profile_sha256"]
@@ -132,7 +134,9 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
             or gateway["auth_scope"] != "test_only"
             or gateway["egress"] != "lan_only"
             or any(gateway[key] is not True for key in (
-                "test_only", "tools_disabled", "production_route_unchanged"))):
+                "test_only", "tools_disabled", "production_route_unchanged",
+                "durable_attempt_journal", "distinct_inner_auth", "pinned_request_set",
+                "common_gateway_topology"))):
         raise AdmissionDenied("gateway_unverified")
     if (not isinstance(evidence, dict) or set(evidence) != {
             "source", "owner_only", "writable", "new_empty_run_directory"}

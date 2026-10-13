@@ -177,3 +177,8 @@ configure that journal on durable protected storage and verify its ownership,
 restart behavior, single-worker boundary and rollback before READY. In-memory
 mode alone is insufficient. The gateway is not deployed; no current Aster
 request has passed through it.
+The offline preflight now explicitly rejects an observed gateway without a
+durable attempt journal, distinct inner authentication, the pinned 20-request
+set and a common Aster gateway topology for control and challenger. These
+reported observations still require independent live-source proof; a passing
+dictionary check is not authority to start the run.

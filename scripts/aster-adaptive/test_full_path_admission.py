@@ -52,6 +52,8 @@ def observed():
                     "accepted_restore_sha256": D,
                     "auth_scope": "test_only", "egress": "lan_only",
                     "test_only": True, "tools_disabled": True,
+                    "durable_attempt_journal": True, "distinct_inner_auth": True,
+                    "pinned_request_set": True, "common_gateway_topology": True,
                     "production_route_unchanged": True,
                     "candidate_id": "synthetic-candidate"},
         "evidence": {"source": "aster-owner-custody", "owner_only": True,
@@ -98,6 +100,10 @@ class FullPathAdmissionTests(unittest.TestCase):
             production_route_unchanged=False))
         self.deny("gateway_unverified", lambda x: x["gateway"].update(tools_disabled=False))
         self.deny("gateway_unverified", lambda x: x["gateway"].update(egress="cloud"))
+        for field in ("durable_attempt_journal", "distinct_inner_auth",
+                      "pinned_request_set", "common_gateway_topology"):
+            with self.subTest(field=field):
+                self.deny("gateway_unverified", lambda x, key=field: x["gateway"].update({key: False}))
 
     def test_exact_candidate_and_restore_pins_are_required(self):
         self.deny("gateway_unverified", lambda x: x["gateway"].update(
