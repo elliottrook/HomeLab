@@ -38,6 +38,14 @@ reproduction of that build and long-term reliability remain open. Stream A did
 not restore the older app. This does not change the manual-Codex HOLD or the
 independent M1/M3 work queue.
 
+The [app owner](../Aster-Unified-Voice-Service.md) later recorded the same
+signed archive and executable as accepted on both Macs in commit `53717bb0`
+after ordinary request, voice and OpenBao
+status checks. This strengthens the ordinary Companion/voice acceptance; it
+does not resolve the manual Codex pilot's exact manifest mismatch, verify a
+new Codex consent/send, or enable automatic handover. Stream A retains those
+as separate release gates.
+
 ## Where we are
 
 The **historical version-16 Companion pilot** ran in ordinary mode with its
