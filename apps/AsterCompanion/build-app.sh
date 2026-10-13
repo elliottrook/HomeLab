@@ -17,6 +17,16 @@ cp "$BIN_PATH/AsterCompanion" "$APP_DIR/Contents/MacOS/AsterCompanion"
 cp Info.plist "$APP_DIR/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP_DIR/Contents/Resources/AppIcon.icns"
 
+# Reviewed local Codex pilot modules only. The bridge has no implicit tool
+# access; its UI remains hidden unless the supervised launch flag is present.
+BRIDGE_SOURCE="$(cd ../../services/aster-agent/delegation && pwd)"
+BRIDGE_DIR="$APP_DIR/Contents/Resources/LocalCodexBridge"
+mkdir -p "$BRIDGE_DIR"
+for module in local_bridge_cli local_turn pilot isolation_probe probe pipe_worker \
+              session store contract usage transport runtime; do
+    cp "$BRIDGE_SOURCE/$module.py" "$BRIDGE_DIR/$module.py"
+done
+
 # SPM builds its own resource bundle (in-app image assets declared via
 # `resources:` in Package.swift) next to the loose executable, not inside
 # any app structure - Bundle.module looks for it under Contents/Resources
@@ -37,6 +47,10 @@ cp -R "$BIN_PATH/AsterCompanion_AsterCompanion.bundle" "$APP_DIR/Contents/Resour
 # from Xcode, or ASTER_SIGN_IDENTITY) the designated requirement becomes
 # bundle ID + certificate, and one "Always Allow" survives future rebuilds.
 IDENTITY="${ASTER_SIGN_IDENTITY:-$(security find-identity -v -p codesigning | awk -F'"' '/Aster Companion Local Signing 2026|Apple Development/ {print $2; exit}')}"
+if [ "${ASTER_REQUIRE_STABLE_SIGNING:-0}" = "1" ] && { [ -z "$IDENTITY" ] || [ "$IDENTITY" = "-" ]; }; then
+    echo "A stable code-signing identity is required for this build" >&2
+    exit 1
+fi
 if [ -n "$IDENTITY" ]; then
     # No hardened runtime: it would need a microphone entitlement for voice.
     codesign --force --deep --sign "$IDENTITY" "$APP_DIR"
@@ -47,6 +61,8 @@ fi
 
 # Register the URL scheme with Launch Services so the OS routes the
 # aster-companion://callback redirect back to this app.
-/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -f "$APP_DIR"
+if [ "${ASTER_REGISTER_APP:-1}" = "1" ]; then
+    /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -f "$APP_DIR"
+fi
 
 echo "Built: $APP_DIR"

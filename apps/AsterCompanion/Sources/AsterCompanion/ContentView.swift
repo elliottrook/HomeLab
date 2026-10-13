@@ -12,6 +12,7 @@ struct ContentView: View {
     @StateObject private var replyProgress = ReplyProgress()
     @State private var showingAIPAM = false
     @State private var showingOpenBao = false
+    @State private var showingDelegation = false
     @State private var openBaoStatus: OpenBaoStatus?
     @State private var openBaoToken = ""
     @State private var openBaoError: String?
@@ -167,6 +168,10 @@ struct ContentView: View {
                         if showingOpenBao { loadOpenBaoStatus() }
                     }
                     .buttonStyle(.bordered)
+                    if AsterConfig.delegationEnabled {
+                        Button("Manual Codex") { showingDelegation = true }
+                            .buttonStyle(.bordered)
+                    }
                     Spacer()
                     if let personas = personasResponse?.personas, !personas.isEmpty {
                         Picker("", selection: Binding(get: { currentPersona }, set: switchPersona)) {
@@ -184,6 +189,7 @@ struct ContentView: View {
                 }
                 .padding()
                 .sheet(isPresented: $showingAIPAM) { AIPAMView(auth: auth).environmentObject(auth) }
+                .sheet(isPresented: $showingDelegation) { LocalCodexManualView() }
 
                 if showingOpenBao {
                     openBaoPanel
