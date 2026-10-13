@@ -13,6 +13,11 @@ from test_aster_full_path_request import fixture
 TOKEN = b"fictional-test-token"
 
 
+def request_hashes(body):
+    return frozenset({hashlib.sha256(body).hexdigest()}
+                     | {f"{i:064x}" for i in range(1, 20)})
+
+
 async def run_request(body, *, token=TOKEN, path="/v1/chat/completions", method="POST", app=None):
     called = []
 
@@ -23,7 +28,9 @@ async def run_request(body, *, token=TOKEN, path="/v1/chat/completions", method=
         await send({"type": "http.response.start", "status": 200, "headers": []})
         await send({"type": "http.response.body", "body": b"{}", "more_body": False})
 
-    gateway = A1TestGateway(app or fixture_app, token_sha256=hashlib.sha256(TOKEN).hexdigest())
+    gateway = A1TestGateway(app or fixture_app,
+                            token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                            request_sha256s=request_hashes(body))
     events = []
     delivered = False
 
@@ -76,6 +83,32 @@ class A1TestGatewayTests(unittest.TestCase):
             self.assertEqual(called, [])
         self.assertFalse(valid_body(self.body[:-1] + b',"enabled_tools":[]}'))
 
+    def test_valid_but_unpinned_request_is_rejected(self):
+        changed = fixture()
+        changed["fictional_user_request"] = "A different fictional question"
+        body = json.dumps(payload_for(changed)).encode()
+        self.assertTrue(valid_body(body))
+        calls = []
+
+        async def fake_app(scope, receive, send):
+            calls.append(1)
+
+        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                request_sha256s=request_hashes(self.body))
+        events = []
+
+        async def receive():
+            return {"type": "http.request", "body": body, "more_body": False}
+
+        async def send(event):
+            events.append(event)
+
+        asyncio.run(gateway({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                             "headers": [(b"content-type", b"application/json"),
+                                         (b"authorization", b"Bearer " + TOKEN)]}, receive, send))
+        self.assertEqual(events[0]["status"], 403)
+        self.assertEqual(calls, [])
+
     def test_oversize_request_fails_before_app(self):
         status, called = asyncio.run(run_request(b"x" * 32769))
         self.assertEqual(status, 413)
@@ -85,7 +118,8 @@ class A1TestGatewayTests(unittest.TestCase):
         async def fake_app(scope, receive, send):
             self.fail("wrapped app reached")
 
-        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest())
+        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                request_sha256s=request_hashes(self.body))
         events = []
 
         async def receive():
@@ -103,7 +137,8 @@ class A1TestGatewayTests(unittest.TestCase):
         async def fake_app(scope, receive, send):
             self.fail("wrapped app reached")
 
-        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest())
+        gateway = A1TestGateway(fake_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                request_sha256s=request_hashes(self.body))
         events = []
         reads = []
 
@@ -124,7 +159,8 @@ class A1TestGatewayTests(unittest.TestCase):
         async def forbidden_app(scope, receive, send):
             self.fail("wrapped app reached")
 
-        gateway = A1TestGateway(forbidden_app, token_sha256=hashlib.sha256(TOKEN).hexdigest())
+        gateway = A1TestGateway(forbidden_app, token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                request_sha256s=request_hashes(self.body))
         events = []
 
         async def send(event):

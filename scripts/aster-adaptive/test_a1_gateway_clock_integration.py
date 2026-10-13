@@ -32,6 +32,8 @@ async def run_case(*, display: bool):
     app = A1TestGateway(
         ASGIResponseClock(fake_aster, gateway_rows, id_factory=lambda: ID),
         token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+        request_sha256s=frozenset({hashlib.sha256(json.dumps(payload_for(fixture())).encode()).hexdigest()}
+                                  | {f"{i:064x}" for i in range(1, 20)}),
     )
     body = json.dumps(payload_for(fixture())).encode()
     events = []

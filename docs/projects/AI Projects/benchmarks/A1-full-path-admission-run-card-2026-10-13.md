@@ -54,7 +54,11 @@ client or a server-side tool boundary: the isolated gateway must enforce the
 no-tool scope independently, because a client flag alone is not authority.
 An [offline ASGI guard candidate](../../../../scripts/aster-adaptive/a1_test_gateway.py)
 now rejects every other HTTP route, method, credential or request shape before
-the wrapped app. It is **not** a deployed test server or a privileged-tool
+the wrapped app. It also requires a set of exactly 20 pinned serialized-request
+hashes derived in owner custody from the frozen case file; a well-formed but
+unlisted request is rejected. Those hashes do not replace the case-file hash
+or an independent server-side no-tool enforcement check. The guard is **not**
+a deployed test server or a privileged-tool
 revocation: a later isolated instance must use a dedicated test credential,
 restricted OS identity, no privileged mounts, reviewed LAN egress and the
 same guard/configuration for control and challenger. Its unit tests use a fake

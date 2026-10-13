@@ -66,13 +66,20 @@ async def _reject(send: Callable, status: int) -> None:
 
 
 class A1TestGateway:
-    def __init__(self, app: Callable, *, token_sha256: str):
+    def __init__(self, app: Callable, *, token_sha256: str,
+                 request_sha256s: frozenset[str]):
         if (not callable(app) or not isinstance(token_sha256, str)
                 or len(token_sha256) != 64
-                or any(ch not in "0123456789abcdef" for ch in token_sha256)):
+                or any(ch not in "0123456789abcdef" for ch in token_sha256)
+                or not isinstance(request_sha256s, frozenset)
+                or len(request_sha256s) != 20
+                or any(not isinstance(digest, str) or len(digest) != 64
+                       or any(ch not in "0123456789abcdef" for ch in digest)
+                       for digest in request_sha256s)):
             raise ValueError("invalid isolated test gateway configuration")
         self.app = app
         self.token_sha256 = token_sha256
+        self.request_sha256s = request_sha256s
 
     async def __call__(self, scope, receive, send):
         if scope.get("type") == "lifespan":
@@ -123,6 +130,9 @@ class A1TestGateway:
         raw = b"".join(chunks)
         if not valid_body(raw):
             await _reject(send, 400)
+            return
+        if hashlib.sha256(raw).hexdigest() not in self.request_sha256s:
+            await _reject(send, 403)
             return
         delivered = False
 
