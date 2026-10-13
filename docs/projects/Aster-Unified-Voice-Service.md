@@ -981,6 +981,11 @@ Before graduation, provide one plain-language guide covering:
 Jason must complete a real walkthrough on Companion and the Home Assistant
 pilot and listen to a regenerated News briefing before graduation.
 
+The plain-language walkthrough is maintained in
+[Aster Voice V1 user guide](../runbooks/Aster-Voice-V1-User-Guide.md). Its
+native-client caveat and remaining acceptance steps are release gates, not
+instructions to treat the legacy route as canonical.
+
 ## Graduation criteria
 
 - Every production Aster speech surface uses the exact canonical service,
