@@ -88,6 +88,12 @@ backup, human adjudication and live Aster-path measurement remain open. No
 route or tool is promoted. The platform project's SA3 **sysadmin**
 holdout is separate and has ended without promoting local Qwen to a Codex
 sysadmin role.
+The MacBook B60 branch has now [received and independently checked the public
+A1 v2 score exports](benchmarks/B60-coordination-interface-2026-10-12.md),
+without receiving private cases or reproducing model judgments. The
+[owner-held candidate contract](benchmarks/A1-v2-candidate-adapter-and-admission-2026-10-12.md)
+keeps any later paired run on the Mini and records why candidate staging,
+the whole-host lease and full Aster-path timing remain blocked.
 
 The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
 symlinked or writable reports, and fails closed on malformed status types; see

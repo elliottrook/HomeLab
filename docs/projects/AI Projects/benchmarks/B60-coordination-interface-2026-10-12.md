@@ -269,3 +269,25 @@ access decision. Do not reconstruct cases from score rows or substitute the
 exposed six-case development set and call it
 the v2 holdout. Preserve model/runtime/reasoning settings, all outcomes and
 timeouts, review bindings and load/cache conditions in any later comparison.
+
+## B60 receipt of the A1 v2 publication — 2026-10-12
+
+**RECEIVED, separately from Aster's publication:** Forgejo B60 branch
+`codex/b60-adaptive-coordination` commit
+`58a898e499c9236b354555764182f40f1ee17257` names Aster's published
+`aa1d6dc9839e43b2e36e1cb05793abc38014cc19` branch and the original
+`835692b909048cf18b34afa169be731330504cdd` result commit. Its
+`docs/projects/B60-Inference-Engineering/adaptive-v2-baseline-receipt-20261012.md`
+has independently recomputed Git-file SHA-256
+`0c5ae4ff581b285b13f9a12b5320b7c01b095bbfdd808939702e4f6537354427`.
+B60 recomputed both public score hashes and row aggregates, accepted Mini-side
+owner custody for a later candidate, and reported ten offline tests of its
+content-free receipt validator. This is a verified cross-branch receipt, not
+an independent answer review or reproduction of the private model run. The
+later B60 branch tip `b819787d20435d00b59e8f3b5718a34ec817c4d4`
+contains a separate durable-runner file-write fix; Forgejo and GitHub refs
+matched at that tip when checked. No candidate test or lease was initiated.
+
+The [owner-held candidate adapter and full-path admission contract](A1-v2-candidate-adapter-and-admission-2026-10-12.md)
+answers B60's next interface request. It is a design/preflight artifact, not
+an executable candidate or a READY lab card.

@@ -2951,3 +2951,28 @@ candidate for summary-only work after deterministic household handlers own
 ambiguity and effects. Production, news timers, hashes, Vulkan binding, kernel
 health and authenticated generation were restored and verified; transient 9B
 artifacts were removed. See [comparison evidence](evidence/2026-10-10-qwen35-9b-role-comparison.md).
+
+### 2026-10-12 — Cross-machine A1 v2 receipt and owner-held candidate contract
+
+Read Forgejo B60 branch `codex/b60-adaptive-coordination` at
+`b819787d20435d00b59e8f3b5718a34ec817c4d4`. Its earlier
+`58a898e499c9236b354555764182f40f1ee17257` commit explicitly received
+Aster's published A1 v2 result and recomputed both content-free score hashes
+and aggregates. The receipt file's Git-byte SHA-256 was independently checked
+as `0c5ae4ff581b285b13f9a12b5320b7c01b095bbfdd808939702e4f6537354427`;
+Forgejo and GitHub branch refs matched. Publication and the other agent's
+receipt are separate events. B60 still has no private cases, labels, answers
+or candidate run. The latest B60 commit instead fixes an undeployed runner's
+durable status-write path and is not a lease or inference result.
+
+Published the [Mini-custody adapter and full-path admission contract](benchmarks/A1-v2-candidate-adapter-and-admission-2026-10-12.md)
+as an offline, `BLOCKED` design packet. It defines no-tool case delivery,
+candidate manifest pins, answer capture, content-free full-path timing and
+stop/postcheck conditions. The platform agent was notified of the new receipt
+and asked for exact lease/staging provenance when available. No service,
+credential, routing policy or model call changed in this checkpoint.
+
+Read-only `tmutil isexcluded` reports the owner-only evidence directory is
+included, and `stat` confirms mode 0700. `tmutil latestbackup` could not mount
+the destination because the backupd XPC connection was invalid. Inclusion is
+not restore evidence; recoverable backup remains **UNKNOWN**.
