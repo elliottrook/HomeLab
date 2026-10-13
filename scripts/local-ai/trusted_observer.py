@@ -49,6 +49,12 @@ def _active(runner: Probe, argv: Sequence[str]) -> bool:
     return code == 0 and output.strip() == "active"
 
 
+def service_probe(vmid: str, unit: str) -> tuple[str, ...]:
+    if (vmid, unit) not in PRODUCTION:
+        raise ValueError("service probe is outside the fixed production set")
+    return ("pct", "exec", vmid, "--", "systemctl", "is-active", unit)
+
+
 def _schedule_points(runner: Probe) -> tuple[bool, tuple[str, ...]]:
     code, proxmox = _run(runner, FIXED_PROBES["proxmox_schedule"])
     if code != 0:
@@ -135,3 +141,13 @@ class TrustedHostObserver:
             clock=self.clock,
             epoch_clock=self.epoch_clock,
         )
+
+    def service_active(self, vmid: str, unit: str) -> bool:
+        """Return a known service state; ambiguous probe results fail closed."""
+        code, output = _run(self.runner, service_probe(vmid, unit))
+        state = output.strip()
+        if code == 0 and state == "active":
+            return True
+        if code != 0 and state == "inactive":
+            return False
+        raise ValueError("service state probe is ambiguous")

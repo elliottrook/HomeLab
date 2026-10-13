@@ -532,12 +532,16 @@ trusted-host observer rather than accepting a caller-supplied observation
 callback. The observer owns the bounded Proxmox/LXC, TrueNAS and News probes,
 the fresh owner-heartbeat check, exact runtime identity checks and authenticated
 generation probe. Restore re-entry is therefore fail-closed if the observer is
-missing, a prior start intent is unpaired, the lease identity drifts, or the
-fresh observation does not meet the production gate.
+missing, a prior stop/restore/start intent is unpaired, the lease identity
+drifts, or the fresh observation does not meet the production gate. Before any
+start effect, the observer also checks the individual fixed production unit;
+already-active units are skipped and an ambiguous unit state retains the lease
+for operator reconciliation rather than risking a blind replay.
 
-The focused local suite passes 29/29 tests, including schedule parsing,
+The focused local suite passes 31/31 tests, including schedule parsing,
 authenticated generation validation, secure manifest custody, fixed-source
-probe selection, incomplete restoration and uncertain-start recovery. The
+probe selection, incomplete restoration, per-unit active-state recovery and
+uncertain-effect recovery. The
 controller remains advisory-only by default; no live timer or systemd unit was
 enabled, and no guest, host or production service was changed. The next gate
 is a separately reviewed test-only effect harness and recovery-controller

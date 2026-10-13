@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,11 +10,15 @@ from lease_watchdog import Observation
 
 class CandidateControllerTests(unittest.TestCase):
     class StubObserver:
-        def __init__(self, observation):
+        def __init__(self, observation, active=False):
             self._observation = observation
+            self._active = active
 
         def collect(self, lease_expires_minute):
             return self._observation
+
+        def service_active(self, vmid, unit):
+            return self._active
 
     def receipt(self):
         return LeaseReceipt("lab-1", 1, 220, 255, "backup", ACCEPTED_MODEL, ACCEPTED_BACKEND, True, True)
@@ -103,6 +108,35 @@ class CandidateControllerTests(unittest.TestCase):
                 "ready",
             )
             self.assertEqual(commands, [command_for(*active[0], "start")])
+
+    def test_restore_skips_service_that_is_already_active(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+            controller = CandidateController(
+                CandidatePaths(Path(temp)), commands.append, allow_effects=True,
+                observer=self.StubObserver(self.observation(), active=True),
+            )
+            active = (ALLOWLIST[0],)
+            controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
+            commands.clear()
+            self.assertEqual(
+                controller.restore(self.receipt(), self.observation(), backup_receipt="backup")["state"],
+                "ready",
+            )
+            self.assertEqual(commands, [])
+
+    def test_restore_rejects_uncertain_stop_or_restore_intent(self):
+        for event in ("stop-intent", "restore-intent"):
+            with self.subTest(event=event), tempfile.TemporaryDirectory() as temp:
+                controller = CandidateController(
+                    CandidatePaths(Path(temp)), lambda _: None, allow_effects=True,
+                    observer=self.StubObserver(self.observation()),
+                )
+                controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=(ALLOWLIST[0],))
+                with (Path(temp) / "lease.jsonl").open("a") as stream:
+                    stream.write(json.dumps({"event": event, "lease_id": "lab-1", "generation": 1, "vmid": "110", "unit": "aster-llama.service"}) + "\n")
+                with self.assertRaisesRegex(ValueError, "uncertain"):
+                    controller.restore(self.receipt(), self.observation(), backup_receipt="backup")
 
     def test_advisory_mode_blocks_effects_when_owner_path_is_lost(self):
         with tempfile.TemporaryDirectory() as temp:

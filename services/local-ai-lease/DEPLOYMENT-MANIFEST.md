@@ -26,6 +26,9 @@ The fixed-probe observer is now available offline and is wired into the
 advisory CLI and controller restore path. It bounds every probe to
 five seconds and checks control-plane/services, GPU visibility, exact model,
 binary, unit and auth markers, plus the enabled backup/News schedule set. The
+restore path separately checks each fixed production unit before a start,
+skips a unit already reported active, and retains the lease on an ambiguous
+state or any unmatched effect intent. The
 systemd unit is still intentionally refused and requires a root-owned runtime
 manifest. A Mini/chat/network loss cannot
 yet recover production because the effect runner remains advisory-only.

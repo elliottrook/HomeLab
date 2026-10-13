@@ -158,12 +158,20 @@ class CandidateController:
             if event.get("lease_id") != receipt.lease_id or event.get("generation") != receipt.generation:
                 continue
             current_events.append(event)
-        intents = {(event.get("vmid"), event.get("unit")) for event in current_events if event.get("event") == "start-intent"}
-        observed = {(event.get("vmid"), event.get("unit")) for event in current_events if event.get("event") == "start-observed"}
-        if intents - observed:
-            raise ValueError("uncertain prior start requires operator reconciliation")
+        event_pairs = {
+            kind: {(event.get("vmid"), event.get("unit")) for event in current_events if event.get("event") == kind}
+            for kind in ("stop-intent", "stop-observed", "restore-intent", "restore-observed", "start-intent", "start-observed")
+        }
+        for intent, observed, label in (
+            ("stop-intent", "stop-observed", "stop"),
+            ("restore-intent", "restore-observed", "restore"),
+            ("start-intent", "start-observed", "start"),
+        ):
+            if event_pairs[intent] - event_pairs[observed]:
+                raise ValueError(f"uncertain prior {label} requires operator reconciliation")
         for vmid, unit in persisted.services:
-            if (vmid, unit) in observed:
+            if (vmid, unit) in event_pairs["start-observed"] or self.observer.service_active(vmid, unit):
+                journal_event(self.paths.journal, {"event": "start-skipped-active", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
                 continue
             journal_event(self.paths.journal, {"event": "start-intent", "lease_id": receipt.lease_id, "generation": receipt.generation, "vmid": vmid, "unit": unit})
             self.runner(command_for(vmid, unit, "start"))
