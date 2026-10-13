@@ -105,14 +105,14 @@
     "credentials": "new production-only credential generated and stored in protected live configuration; value is not copied to this manifest"
   },
   "production_migration": {
-    "state": "companion-pilot",
-    "companion_stream": "https://aster.elliottrook.com/voice/v2/ selects production 192.168.20.37:9131; accepted lab endpoint remains healthy for immediate rollback",
+    "state": "companion-accepted-home-assistant-next",
+    "companion_stream": "accepted on authenticated web and Mac clients through production 192.168.20.37:9131; accepted lab endpoint remains healthy for immediate rollback",
     "home_assistant": "not cut over",
     "news_digest": "not cut over",
     "monitoring": "Beszel and Prometheus production target up; five production alert rules loaded"
   },
   "blockers": [
-    "complete real Companion production listening and responsiveness acceptance before the next consumer",
+    "migrate and accept Home Assistant and News one at a time with rollback preserved",
     "obtain explicit approval before creating the release tag"
   ],
   "authorization": {
