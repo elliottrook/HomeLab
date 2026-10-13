@@ -35,6 +35,13 @@ class VoicePolicyTests(unittest.TestCase):
             "The Porsche 911 was updated.",
         )
 
+    def test_roman_numerals_are_spoken_as_numbers(self):
+        self.assertEqual(
+            normalize_for_speech("World War II and Apollo XIII."),
+            "World War two and Apollo thirteen.",
+        )
+        self.assertEqual(normalize_for_speech("I remember the event."), "I remember the event.")
+
     def test_semantic_units_preserve_all_words(self):
         text = "The first sentence is short. The second clause is longer, but remains readable."
         units = semantic_units(text, maximum=35)

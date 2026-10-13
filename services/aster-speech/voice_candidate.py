@@ -40,6 +40,7 @@ _EMERGENCY_911 = re.compile(
     r"operator|operators|service|services|emergency|centre|center)\b)",
     re.IGNORECASE,
 )
+_ROMAN_NUMERAL = re.compile(r"(?<![A-Za-z])(?=[IVX]{2,5}(?![A-Za-z]))[IVX]+")
 
 _ONES = (
     "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
@@ -78,6 +79,18 @@ def _integer_words(number: int) -> str:
     return " ".join(parts)
 
 
+def _spoken_roman(match: re.Match) -> str:
+    values = {"I": 1, "V": 5, "X": 10}
+    total = previous = 0
+    for character in reversed(match.group(0)):
+        value = values[character]
+        total += -value if value < previous else value
+        previous = max(previous, value)
+    if not 2 <= total <= 39:
+        return match.group(0)
+    return _integer_words(total)
+
+
 def _spoken_currency(match: re.Match[str]) -> str:
     country = (match.group(1) or "").upper()
     whole = int(match.group(2).replace(",", ""))
@@ -109,6 +122,7 @@ def normalize_for_speech(text: str) -> str:
         lambda match: "British Columbia" + ("." if match.end() == len(match.string) else ""), text
     )
     text = _EMERGENCY_911.sub("nine one one", text)
+    text = _ROMAN_NUMERAL.sub(_spoken_roman, text)
     text = _DOLLAR_AMOUNT.sub(_spoken_currency, text)
     text = text.replace("(", ", ").replace(")", ", ")
     text = re.sub(r"\s*,\s*", ", ", text)

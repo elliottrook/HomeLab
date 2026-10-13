@@ -67,6 +67,10 @@ class DigestTextTests(unittest.TestCase):
     def test_porsche_911_is_not_rewritten(self):
         self.assertEqual(speech_text("The Porsche 911 was updated."), "The Porsche 911 was updated.")
 
+    def test_roman_numerals_are_spoken_as_numbers(self):
+        self.assertEqual(speech_text("World War II and Apollo XIII."), "World War two and Apollo thirteen.")
+        self.assertEqual(speech_text("I remember the event."), "I remember the event.")
+
     def test_narration_units_are_bounded_with_controlled_pauses(self):
         text = (
             "A short opening sentence. "
