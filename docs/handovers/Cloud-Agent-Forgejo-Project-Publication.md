@@ -87,8 +87,19 @@ digest-named local handoff.
 - The live catalog advertises only the synthetic `create_file_batch` tool;
   `create_file` is denied. A valid-shaped request without an approved staged
   handoff is denied before any Forgejo call.
-- The full broker regression passes `133/133`. No project document has been
-  written to Forgejo by this deployment.
+- The full broker regression passes `133/133`. The first approved synthetic
+  project-document canary completed on 2026-10-13: Forgejo branch
+  `ai-pam/project-writer-canary-20261013` contains commit
+  `9d8d8e7e7aa84320b03476a27e744c980b2e9530` with parent
+  `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93` and one added document. The
+  GitHub mirror was checked read-only and points to the same commit. A second
+  fresh-nonce pass and replay/revocation evidence remain pending.
+- The original producer private key was unavailable on the Mac, so Jason
+  generated a replacement locally. Only its public key was installed in the
+  root-owned `allowed_signers` file; the prior file is checkpointed at
+  `/var/lib/homelab-bundle-runner/rollback/project-writer-key-20261013-pre-rotation/allowed_signers`.
+  The runner read group was preserved as `hlabundle`; the private key and
+  passphrase never entered chat, Git, LXC 104 or logs.
 
 ## Human root-ceremony provisioning runbook
 
