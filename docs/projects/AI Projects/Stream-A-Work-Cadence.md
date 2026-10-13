@@ -1,10 +1,22 @@
 # Stream A work cadence
 
-> Owner: Jason. Status: continuous lane active; exclusive automation paused at Jason's request on 2026-10-12. This schedules work; it does not promote a model, deploy a service, grant a tool, or waive an approval gate.
+> Owner: Jason. Status: continuous lane active; exclusive automation paused while shared-lease recovery is verified. This schedules work; it does not promote a model, deploy a service, grant a tool, or waive an approval gate.
 
 Stream A has two work lanes. **Continuous lane:** documentation, code and fixture review, local tests, evidence reconciliation, read-only LAN/health checks and low-impact shared-service observation run whenever useful, including between lab windows. Continue this lane when an exclusive run is blocked. During an active whole-host lab lease, keep this lane offline and do not compete with maintenance. Companion session and Keychain behavior remain quiet reliability monitoring under the [D3 gate reassessment](evidence/D3-refresh-gate-reassessment-2026-10-12.md), not a reason to hold other Stream A work. A signed-in request after time has passed may support renewal, but sign-out/re-sign-in is not refresh evidence. Check only content-free observations; do not manufacture expiry or send repeated Codex questions.
 
 **Exclusive lane:** deliberate model-call batches, latency/quality comparisons and any activity that occupies the single inference slot or requires lab isolation. Jason's newer [cross-project schedule decision](evidence/Stream-A-lab-window-coordination-2026-10-12.md) proposes a **whole-host `ai-lab` maintenance lease after the complete backup chain and ending by 04:15 America/Vancouver**, followed by a 04:15–06:15 local-AI analysis reservation and the 06:15 News digest. The lab lease can include guest/component restarts and host reboots under that project's checkpoint and recovery controls. Stream A may use the longer lease for its scoped tests, but it does not own the host scheduler or B60 backend promotion. The old 01:00–02:00 Aster slot is retired.
+
+**2026-10-13 schedule reconciliation:** The paused exclusive automation's
+obsolete 01:30 trigger is now a paused **03:15 Vancouver readiness check**,
+after the scheduled 03:00 TrueNAS Mac pull and before the 04:15 restoration
+deadline. Jason requested shared-lease integration and full Aster-path
+admission, but the platform owner has not yet published a live independent
+watchdog/recovery receipt or admitted a test-only Aster endpoint. The
+automation remains **PAUSED**. Its time is only a point to inspect the
+completed backup chain and live lease; it cannot infer completion, acquire
+the host, invoke a model, or re-enable the obsolete evening runner from the
+clock. The [A1 full-path card](benchmarks/A1-full-path-admission-run-card-2026-10-13.md)
+records the blocking gates and minimum restoration reserve.
 
 **Current-state guard, reconciled 2026-10-12:** the platform owner's current,
 uncommitted `docs/projects/Local-AI-Platform-Split.md` record in the main
@@ -15,8 +27,8 @@ This does not prove a later backup chain completed. The platform record also
 reports one successful manually acquired and released **light** lease; the
 controller remains disabled by default and unscheduled. Stream A has not
 obtained a current lease receipt. The News 06:15 move and 04:15–06:15 analysis workload
-remain proposed. Jason will assign new exclusive time later. The former
-01:30 exclusive automation is **paused**; it performs no wake-up or test.
+remain proposed. The exclusive automation is **paused** at its reconciled
+03:15 readiness slot; it performs no wake-up or test.
 Before any exclusive test, recheck the actual schedules, completed backup
 chain, active lease/owner, scope of drain and restoration deadline. A clock
 time, a prior light-lease success or earlier broad lab access alone does not
@@ -54,8 +66,9 @@ answer capture and bounded diagnostic evidence while those gates remain open.
 | B60 backend benchmarks | B60 engineering project / outside Stream A run queue | Coordinate with that project's own gates and window. Stream A reads accepted results; it does not run a competing benchmark automatically. |
 | A1 completed-answer control | Shared-service development run / DONE; qualification / open | The six-case development run is done. The first 20-case holdout attempt lost its answer evidence to a local write failure, so v1 has no quality score and must not be replayed. The [fresh v2](benchmarks/answer-holdout-release-v2-2026-10-12.md) passed storage and live admission, then returned 20/20 responses; two blind AI reviews agreed on [14/20 full-rubric passes](experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md). This is a frozen direct-backend regression baseline, not native Aster latency, human ground truth or a promotion bar. Next candidates need separate profiles, independent labels and a paired comparison; do not retune on v2. |
 
-The exclusive automation remains paused until Jason assigns a new lab window.
-Then it may inspect the actual backup/lease state and execute only READY,
+The exclusive automation remains paused until the platform owner proves the
+shared lease, independent recovery and benchmark admission and Jason chooses
+to resume it. Then it may inspect the actual backup/lease state and execute only READY,
 bounded tests inside a verified lease. The continuous-lane automation remains
 active every four hours, works without exclusive B60/host access and stays
 quiet on unchanged session state. Both belong to this chat and worktree; a
