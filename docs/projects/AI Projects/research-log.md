@@ -2976,3 +2976,20 @@ Read-only `tmutil isexcluded` reports the owner-only evidence directory is
 included, and `stat` confirms mode 0700. `tmutil latestbackup` could not mount
 the destination because the backupd XPC connection was invalid. Inclusion is
 not restore evidence; recoverable backup remains **UNKNOWN**.
+
+### 2026-10-12 — Offline A1 attempt-journal recovery candidate
+
+The one-shot v2 baseline was safe to score after its final raw output was
+sealed, but a future candidate interrupted mid-batch could otherwise lose
+which requests had begun. Added an unconnected owner-only attempt journal
+around the existing A1 capture format. It fsyncs a started marker before each
+fake adapter invocation and a returned answer or allowlisted error before the
+next case; final output uses a private temporary file and atomic replace.
+An interrupted call leaves its started marker and cannot be replayed in the
+same directory. An evidence-write failure stops rather than being counted as
+ordinary endpoint unavailability. Six new offline tests pass, and the focused
+holdout suite passes 20 tests. A simulated final-envelope rename failure
+retains all 20 returned answers in the private journal without fabricating a
+final result. The code made no network/model/tool call and
+does not verify backup, lab lease or candidate endpoint admission. See the
+[candidate contract](benchmarks/A1-v2-candidate-adapter-and-admission-2026-10-12.md).

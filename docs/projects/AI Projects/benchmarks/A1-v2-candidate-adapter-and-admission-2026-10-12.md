@@ -59,6 +59,28 @@ profile is not silently rewritten to match a candidate. Aster checks the
 manifest and actual endpoint/runtime pins immediately before sending case 1.
 If any check is unavailable, the card is `BLOCKED` and makes zero model calls.
 
+### Offline durability candidate
+
+[`journaled_holdout_capture.py`](../../../../scripts/aster-adaptive/journaled_holdout_capture.py)
+is a new, unconnected wrapper around the existing capture schema. It creates
+an owner-only evidence directory and fsyncs an `attempt_started` event before
+each adapter call. It fsyncs a returned answer or allowlisted error before
+starting the next case, then atomically seals the ordinary
+`aster-answer-holdout-capture.v1` envelope. A process interruption after a
+start leaves an explicit uncertain attempt in the journal; the directory
+cannot be reused and the code has no retry path. An evidence-write failure
+stops the batch even if the underlying capture would classify an ordinary
+`OSError` as endpoint unavailability. Six offline tests cover interruption,
+post-call storage failure, final-envelope write failure, successful envelope
+compatibility, redaction of exception text and deadline rejection before a
+call; all 20 focused holdout tests pass.
+
+The journal contains raw fictional answers and is **not** a shareable score
+artifact. Its local fsyncs reduce evidence loss but do not prove a recoverable
+backup or recover an answer lost between the remote call and local write. The
+wrapper has no endpoint adapter, authentication, lab admission or automatic
+promotion logic; it is not connected to a live service.
+
 ## Full-path admission is a separate measurement
 
 The existing ASGI wrapper measures app entry to first/final body in offline
