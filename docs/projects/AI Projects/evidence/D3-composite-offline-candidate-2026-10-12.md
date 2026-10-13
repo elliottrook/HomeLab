@@ -2,9 +2,9 @@
 
 **Status: local candidate `eb69280` on `codex/aster-companion-composite`;
 installed on the Mac mini by Jason's explicit approval. Signed-in UI,
-read-only OpenBao status and AI-PAM panel checks pass; a normal answer and
-natural refresh on this binary remain untested. No remote push or Codex
-question.** This candidate responds to
+read-only OpenBao status, AI-PAM panel and one ordinary Aster answer pass;
+natural refresh on this binary remains untested. No remote push or manual
+Codex question.** This candidate responds to
 Jason's requirement that the native OpenBao seal/unseal controls survive the
 manual Codex integration. The previous installed app remains intact as a
 local rollback copy.
@@ -90,25 +90,33 @@ initially showed a 401 requiring a fresh passkey. Jason completed the macOS
 Passwords prompt privately; the panel then reported **OpenBao is unsealed**
 with its unseal-token field disabled. The AI-PAM panel opened and showed no
 pending approvals. Returning to the normal view showed the Aster input and
-mode picker intact. These are UI/read-only checks, not proof of an ordinary
-answer or natural token refresh on this binary. No OpenBao seal/unseal
-operation or model question was sent. Do not call this the full D3 release
-gate.
+mode picker intact. These UI/read-only checks did not prove an ordinary
+answer or natural token refresh. No OpenBao seal/unseal operation was sent.
+
+Jason then explicitly allowed one model question to finish ordinary-use
+validation. In normal **Sysadmin Aster** mode, Stream A sent only the
+non-personal question “What is 2 + 2? Reply with the number only.” The app
+displayed “4” with a 2.8-second elapsed indicator. The visible UI shows a
+successful ordinary chat response; it does not by itself prove which backend
+served it or measure broader answer quality. The hidden manual Codex surface
+was not used. Do not call this the full D3 release gate: natural refresh and
+flagged manual-surface behavior on this exact binary remain unobserved.
 
 This closes the *source-combination feasibility* check, not the D3 release
 gate. The app owner reviewed the source candidate and found no direct conflict
 with passkey, OpenBao or Keychain code, but did not give live acceptance. The
 stable-signed release build and verified local rollback copy are prepared.
 The owner subsequently reviewed the release evidence and reported no further
-technical blocker; normal sign-in, read-only OpenBao status/passkey verification
-and ordinary Aster use still require acceptance after any authorized install.
+technical blocker. Normal signed-in UI, read-only OpenBao status/passkey
+verification and one ordinary Aster answer now pass on the installed build;
+longer-term refresh and Keychain behavior still require observation.
 The manual Codex surface remains hidden during normal use. The web
 OpenBao route tests could not run in this isolated macOS Python environment
 because `fastapi` is not installed; no dependency was installed for this
 documentation check. The web source and its test file are byte-for-byte
 unchanged from the pinned Companion baseline.
-Before release acceptance, run ordinary sign-in, OpenBao read/status and recovery
-path checks, hidden/flagged Codex UI checks and natural refresh observations
-on that exact composite build. Do not seal OpenBao merely as a test; do not
-send another model question just to prove the UI exists. Any unexpected
+Before routine manual-Codex release, verify the flagged pilot UI without
+unnecessary new questions, observe natural refresh on this exact composite,
+and confirm recovery behavior using existing recorded work. Do not seal
+OpenBao merely as a test. Any unexpected
 Keychain prompt, sign-in regression or OpenBao behavior is a hold/rollback.
