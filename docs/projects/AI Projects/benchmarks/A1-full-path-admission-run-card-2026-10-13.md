@@ -153,6 +153,16 @@ matching the repository's accepted model pin. The remote hash command took
 about 18 seconds including SSH; a universal five-second observer timeout
 cannot be used for this full-file check. This is a pre-lease integrity
 observation, not a post-recovery receipt.
+The proposed Proxmox-side TrueNAS batch SSH schedule probe failed with
+`Host key verification failed`; Proxmox root had no matching known-host entry.
+The TrueNAS ED25519 fingerprint obtained through the Mini's authenticated
+existing SSH path matched a Proxmox-side scan
+(`SHA256:QBtPEVZCzn5suuM98WY2bGSSvdgOLZ5xpLd17Xu0Xbo`). No host key was
+enrolled and no new TrueNAS access was granted. The platform owner must either
+stage a reviewed pinned-host-key, least-privilege read path or leave remote
+schedule verification UNKNOWN while independent recovery restores local
+production and retains the lease lock. Disabling host-key checks is not an
+acceptable shortcut.
 LXC 114's enabled `news-aggregator-digest.timer` was also read directly;
 its `OnCalendar=*-*-* 06,17:15:00 Etc/GMT+7` means 06:15 and 17:15 at
 the project's fixed UTC-7 local offset. Its older description/comment still
