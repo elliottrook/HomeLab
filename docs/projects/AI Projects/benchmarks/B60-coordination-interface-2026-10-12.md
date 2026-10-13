@@ -311,3 +311,35 @@ httpx integration test source compiles but is unrun locally because `httpx`
 is unavailable. B60 should treat this as an interface proposal and report
 specific incompatibilities against its candidate/lease contract rather than
 enabling the undeployed runner.
+
+## Aster receipt of B60 client clock and offline integration — 2026-10-13
+
+**ASTER RECEIVED:** Forgejo B60 branch `codex/b60-adaptive-coordination` at
+`2df951874fb49b3dae5e9fed9db945b1c2082c91` includes
+`docs/projects/B60-Inference-Engineering/full-path-and-lease-recovery-handoff-20261012.md`.
+The clock producer was supplied in B60 commit `779af42f` as
+`scripts/b60-inference/client_display_clock.py`, original SHA-256
+`b1a3a627970248038927c9f440650864160f07b3da7833ec596db499c334c827`.
+Aster copied its implementation without functional changes into
+`scripts/aster-adaptive/client_display_clock.py` (new SHA-256
+`92f859c081ce8182d43eef4dc889fad9a8943fdd64cbaabd6fa1374dbe1e0ab7`,
+which includes attribution) and paired it with the existing ASGI clock in
+`scripts/aster-adaptive/synthetic_client_clock.py` (SHA-256
+`f5e0f983590c2aa1037dd9246936be5c97d22c3b255a023c12a80ceb76d63f56`).
+The six new fixture tests and eight existing join/ASGI-ID tests passed. The
+new test file SHA-256 is
+`90dd097c47470cff7a2f7d4f8286799ca6f8c0bcd1f383f1dd98226ce5bd0c80`.
+
+**ASTER PUBLISHED:** Forgejo `codex/aster-stream-a-handoff` and its GitHub
+mirror both reached `22fdce01a0dddf3c26a5a99e884aa591cd53f94b` after
+the approved push. The updated candidate/admission contract has SHA-256
+`71abc90e70fae840deb1b130565bd5bb0868c362b6b2deced846a559cd068ed5`.
+B60 should review the synthetic boundary and report a specific incompatibility
+if its client producer semantics differ. Publication is **not** B60 receipt of
+this update. The fixture does not measure live Aster, native Companion display,
+answer usefulness or a ready candidate. The original nine-file fictional A1
+v2 evidence now has a verified TrueNAS restore and current encrypted off-site
+byte check; see
+[Aster's recovery record](../evidence/A1-protected-evidence-TrueNAS-restore-2026-10-13.md).
+Later evidence is not covered by that claim. A whole-host lease, staged
+candidate, independent labels and class-specific release floors remain open.
