@@ -58,6 +58,13 @@ class RetentionGuards(unittest.TestCase):
         local['vzdump-lxc-110-2020_01_01-00_00_00.tar.zst'] = 2000000
         self.assertEqual(guard.validate(self.source, local, self.previous), {})
 
+    def test_excluded_lab_guest_drift_ignored(self):
+        source = self.source.copy()
+        source['vzdump-lxc-124-2026_10_13-00_00_00.tar.zst'] = 2000000
+        local = self.source.copy()
+        local['vzdump-lxc-124-2026_10_12-00_00_00.tar.zst'] = 2000000
+        self.assertEqual(guard.validate(source, local, self.previous), {})
+
     def test_bootstrap_must_match_exactly(self):
         manifest = {'local_candidates':[], 'retained':[{'name':n,'bytes':b} for n,b in self.source.items()]}
         self.assertEqual(guard.validate(self.source, self.source, bootstrap=manifest), {})

@@ -65,7 +65,11 @@ def validate(source, local, previous=None, bootstrap=None):
         if not previous:
             raise RuntimeError('Missing baseline')
         old = previous['source']
-        if {guest(n) for n in source} != {guest(n) for n in old}:
+        # Compare only the production-retention scope. Proxmox may carry
+        # temporary lab guests outside ALLOWED; their backup churn must not
+        # widen or block this guard's deletion scope.
+        if ({guest(n) for n in source if guest(n) in ALLOWED}
+                != {guest(n) for n in old if guest(n) in ALLOWED}):
             raise RuntimeError('Source guest set changed')
         if len(source) < len(old) * .8:
             raise RuntimeError('Source inventory shrink exceeded 20 percent')
