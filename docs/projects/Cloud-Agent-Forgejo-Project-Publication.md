@@ -258,10 +258,9 @@ this gate.
 
 ### M2 — isolated approval-path canary
 
-- [x] Capture the protected checkpoint before installation; live installation
-  remains pending the dedicated writer credential and base reconciliation.
-- [x] Implement only the new worker/policy locally; no live service or
-  credential has been changed.
+- [x] Capture the protected checkpoint before installation.
+- [x] Implement and deploy only the new worker/policy, dedicated writer and
+  project gateway; no existing safe-write credential or GitHub path changed.
 - [ ] Exercise synthetic packages through intake, validation, approval, revoke,
   expiry and kill-switch paths without a live Forgejo write.
 - [ ] Prove isolation from Forgejo credentials, OpenBao, read gateway, unrelated
@@ -270,19 +269,19 @@ this gate.
 - [x] Simulate a failure between document writes and prove the incomplete
   non-main branch is detected, retained for audit and excluded from merge.
 
-Gate: two independent synthetic passes and all denial cases pass; no remote
-state changes have occurred.
+Gate: live gateway and denial probes pass; remaining synthetic lifecycle tests
+must complete before the first Forgejo write.
 
 #### Provisioning prerequisite: human OpenBao root ceremony
 
-Before the dedicated project writer can be provisioned, the local operator
-must use the reviewed
+The provisioning prerequisite was completed with the reviewed
 `ops/credential-broker/setup/run-human-root-ceremony.sh` helper. It collects
 the AppRole role ID, AppRole secret ID and two recovery shares only through
 local hidden prompts, transports them over stdin, and leaves the generated root
 token only in the root-owned mode-0600 handoff file
 `/run/openbao-human-root-token` on LXC 117. It does not create a Forgejo token
-or enable the gateway.
+helper, followed by the dedicated writer and gateway deployment. The ceremony
+itself does not create a Forgejo token or enable the gateway.
 
 The helper must report `CEREMONY_COMPLETE` after both sanitized progress lines.
 The [local handover](../handovers/Cloud-Agent-Forgejo-Project-Publication.md)
@@ -321,8 +320,8 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 | Milestone | Evidence | Status |
 |---|---|---|
 | M0 | This design; branch-rescission verification; canonical base, privacy boundary and checkpoint record | Complete locally 2026-10-13 |
-| M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13: 132/132 |
-| M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Implementation and recovery tests complete locally; human root ceremony complete; live credential/base gates pending |
+| M1 | `project_document_bundle_verifier.py`, manifest rules, denial tests and full broker regression | Local gate passed 2026-10-13: 133/133 |
+| M2 | Checkpoint, isolation, approval/revocation and synthetic canary evidence | Gateway, credential, base reconciliation and denial probes complete; first Forgejo write pending |
 | M3 | Forgejo branch/tree and mirror read-only verification | Not started |
 | M4 | Restore, monitoring, operator handover and graduation review | Not started |
 
@@ -341,8 +340,7 @@ agent, and the capability remains narrower than arbitrary Forgejo access.
 
 ## Next safe action
 
-Provision the dedicated project-write credential/AppRole without exposing its
-value, reconcile the live runner base to the current Forgejo `main` after the
-protected checkpoint, and run the isolated M2 canary. Keep all project commits
-held until the completion gate; obtain the normal immediate confirmation before
-the first Forgejo remote write and push once at project completion.
+Run the remaining isolated intake/approval/revocation and restart-resume
+canaries. Then obtain the normal immediate confirmation before the first
+Forgejo remote write, verify Forgejo first and GitHub only as its derived mirror,
+and keep all project commits held until the completion gate.

@@ -15,7 +15,7 @@ test -s "$credential" || {
 test -s /etc/homelab-bundle-runner/base_revision || exit 1
 test -s /etc/homelab-bundle-runner/policy_digest || exit 1
 test -s /etc/homelab-bundle-runner/allowed_signers || exit 1
-test -d /var/lib/homelab-bundle-runner/handoff || exit 1
+mkdir -p /var/lib/homelab-bundle-runner/handoff
 
 getent group hlabroker-project-write >/dev/null || groupadd --system hlabroker-project-write
 id hlabroker-project-write >/dev/null 2>&1 || \
@@ -23,6 +23,8 @@ id hlabroker-project-write >/dev/null 2>&1 || \
 usermod -a -G hlabroker hlabroker-project-write
 usermod -a -G hlabundle hlabroker-project-write
 usermod -a -G hlabroker-project-write hlabundle
+chown hlabundle:hlabroker-project-write /var/lib/homelab-bundle-runner
+chmod 0710 /var/lib/homelab-bundle-runner
 chown hlabundle:hlabroker-project-write /var/lib/homelab-bundle-runner/handoff
 chmod 2770 /var/lib/homelab-bundle-runner/handoff
 chown root:hlabroker-project-write "$credential"
@@ -40,4 +42,5 @@ install -o root -g root -m 0644 "$source_dir/forgejo-mcp-project-write-gateway.s
 
 systemctl daemon-reload
 systemctl enable --now forgejo-mcp-project-write-gateway.service
+systemctl restart forgejo-mcp-project-write-gateway.service
 systemctl restart homelab-broker.service

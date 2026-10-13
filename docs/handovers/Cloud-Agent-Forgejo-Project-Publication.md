@@ -3,9 +3,8 @@
 **Owner:** Jason  
 **Date:** 2026-10-13  
 **Status:** Stream A continuation; local implementation and recovery gates are
-passing; the human OpenBao root ceremony completed successfully on 2026-10-13.
-Live enablement is still waiting on a dedicated writer credential and base
-reconciliation.
+passing; the dedicated writer and project gateway are enabled; the first
+Forgejo publication remains pending immediate confirmation.
 
 ## Authority and scope
 
@@ -40,13 +39,12 @@ that published base are:
 - `3ba66800` — fail-closed mid-batch recovery behavior and test
 - `3e9ef519` — handover and continuation status
 
-The human root-ceremony helper and its operating procedure are included in the
-next local commit. They are separate from the project gateway: the ceremony
-only creates a short-lived human handoff of the OpenBao root token; it does not
-create a Forgejo writer, enable a service or grant the cloud agent any
-credential.
+The human root-ceremony, provisioning, deployment and validation helpers are
+included in the next local commit. They remain separate from the cloud-agent
+surface: the ceremony creates only a temporary human handoff, while the
+project gateway supplies the narrowly scoped credential internally.
 
-The local broker suite passes `132/132`. The package verifier is offline and
+The local broker suite passes `133/133`. The package verifier is offline and
 rejects traversal, symlink, binary, delete/rename, hidden, collision,
 secret/private-detail, stale-base, replay and policy-drift cases. Approval
 payloads contain metadata and digests only; document bytes remain in the
@@ -56,13 +54,39 @@ digest-named local handoff.
 
 - LXC 104 has the protected checkpoint
   `forgejo-project-docs-pre-m2-20261013`.
-- The live runner pin is `d7e49c4d4d6b7124a764208cc44e0ef9ed12797b`.
-- The observed Forgejo `main` is
-  `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; the mismatch must be resolved
-  before accepting a package.
-- The project gateway is not enabled.
-- No dedicated project-write AppRole file exists. The existing safe-write
-  credential must not be reused.
+- The live runner pin was reconciled to the observed Forgejo `main`,
+  `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`, before installation.
+- The project gateway is enabled and active at
+  `/run/homelab-forgejo-mcp-project-write/gateway.sock` with mode 0660,
+  owned by `hlabroker-project-write:hlabroker`.
+- The dedicated AppRole file is installed at
+  `/etc/homelab-broker/openbao-project-write-approle.json` as root-owned mode
+  0640 with group `hlabroker-project-write`; the existing safe-write
+  credential was not reused.
+- The protected handoff directory is owned by
+  `hlabundle:hlabroker-project-write`, mode 2770, beneath a mode-0710 parent.
+- The temporary root-token handoff was revoked and removed after provisioning.
+
+## Live provisioning evidence
+
+- Forgejo identity `ai-pam-project-docs` is non-admin and has write mode only on
+  `jason/homelab`. Its PAT was created with only `read:repository` and
+  `write:repository` scopes and is stored only at
+  `secret/data/ai-pam/forgejo-mcp-project-write`.
+- OpenBao policy `hlabroker-forgejo-project-write` grants only `read` on that
+  exact KV-v2 data path. The AppRole issues 5-minute client tokens with a
+  30-minute maximum, has no default policy, binds SecretIDs to
+  `192.168.70.10/32`, and uses a reusable protected SecretID because the
+  gateway logs in once per MCP request. The SecretID itself never entered
+  chat, Git, logs or receipts.
+- `agent-cloud-bundle` is already in `operator` state and has the separate
+  Yellow `forgejo.write.project-documents` capability. The existing
+  `forgejo.write.safe-branch` capability remains separate.
+- The live catalog advertises only the synthetic `create_file_batch` tool;
+  `create_file` is denied. A valid-shaped request without an approved staged
+  handoff is denied before any Forgejo call.
+- The full broker regression passes `133/133`. No project document has been
+  written to Forgejo by this deployment.
 
 ## Human root-ceremony provisioning runbook
 
@@ -124,6 +148,10 @@ of that step.
 | `CEREMONY_STARTED threshold=2` followed by rejected shares | OpenBao's CLI treats `-` as stdin, but `-non-interactive` replaces stdin with an empty reader | For share submission and encoded-token decoding, omit `-non-interactive` and pipe the value through stdin. Keep `-non-interactive` for login, status, OTP generation, init and cancellation |
 | `CEREMONY_FAILED: could not start root ceremony` | The request was malformed or the OTP had the wrong format/length | Do not retry blindly. Read only the sanitized status, correct the transport/OTP issue, and let the helper cancel the partial ceremony and revoke its operator token |
 | `root-token handoff already exists` | A previous ceremony left a protected handoff for an unfinished provisioning step | Stop. Do not overwrite it; complete or explicitly recover the approved provisioning workflow first |
+| Forgejo reports `Forgejo is not supposed to be run as root` or cannot load its config | The admin CLI must run as the `git` service user with the installed config and work path | Use `runuser -u git -- forgejo --config /etc/forgejo/app.ini --work-path /var/lib/forgejo ...`; keep the raw PAT in a protected temporary file |
+| AppRole readback shows `secret_id_bound_cidrs: null` | OpenBao persists the plural `secret_id_bound_cidrs` field even though other Vault-family examples use a singular list parameter | Write the plural field and read it back before issuing the runtime SecretID; do not start the gateway while it is null |
+| A second gateway request fails after the first login | A one-use SecretID is incompatible with this gateway's per-request AppRole login | Use the proven reusable SecretID pattern (`secret_id_num_uses=0`, `secret_id_ttl=0`) while keeping issued client tokens at 5m/30m and the credential file root-owned |
+| Service identity cannot access the handoff | The existing bundle-runner parent is mode 0700 | Set only the parent traverse boundary to `hlabundle:hlabroker-project-write` mode 0710 and the dedicated handoff to mode 2770; do not broaden the inbox or ledger |
 
 On any other failure, preserve only the sanitized status. The helper attempts
 to cancel an incomplete ceremony, revoke its temporary operator token and
@@ -135,25 +163,18 @@ without exposing token values.
 ## Required local-agent continuation
 
 1. Re-read the current Forgejo `main`, runner source, policy digest and
-   protected checkpoint. Reconcile the runner base only after recording the
-   exact new value and preserving rollback to the checkpoint.
-2. Provision a separate non-admin Forgejo writer identity limited to
-   `jason/homelab` and the project branch/write operation. Store its token only
-   at the dedicated OpenBao path
-   `secret/data/ai-pam/forgejo-mcp-project-write`.
-3. Provision the dedicated project gateway AppRole and install its credential
-   only at `/etc/homelab-broker/openbao-project-write-approle.json`. Never print,
-   copy into a package, commit, receipt, chat message or ordinary log any
-   credential value.
-4. Run the candidate installer only in the approved M2 window, using the
-   literal `--approved-m2-window` guard. Register the capability only for an
-   already-promoted `agent-cloud-bundle`; do not widen the old canary.
-5. Run synthetic intake, approval, revoke, expiry, kill-switch, restart and
-   cleanup tests. Then perform the first Forgejo write only after the immediate
-   confirmation required by `AGENTS.md`; create a new `ai-pam/` branch only.
-6. Verify the Forgejo branch/tree read-only, then verify the GitHub mirror
-   read-only. Hold all local commits until the project completion gate, then
-   push once to Forgejo and verify the derived mirror. Never push GitHub.
+   protected checkpoint before each candidate package.
+2. Stage a signed package into the digest-named handoff. Keep the manifest,
+   content and signature local; the broker approval frame carries metadata and
+   digests only.
+3. Run intake, approval, revoke, expiry, kill-switch, restart and cleanup
+   tests. The capability is registered only for the already-promoted
+   `agent-cloud-bundle`; do not widen the old canary.
+4. Obtain Jason's immediate confirmation for the exact first Forgejo write,
+   then create only a new `ai-pam/` branch. Verify the Forgejo branch/tree
+   read-only and observe the GitHub mirror read-only.
+5. Hold local project commits until the completion gate, then push once to
+   Forgejo and verify the derived mirror. Never push GitHub.
 
 ## Recovery and stop conditions
 

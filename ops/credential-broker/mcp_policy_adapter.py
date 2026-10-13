@@ -271,6 +271,39 @@ class ProjectDocumentWritePolicyAdapter(MCPPolicyAdapter):
     BRANCH_PREFIX = "ai-pam/"
     PATH_PREFIXES = ("docs/projects/", "docs/handovers/")
     ALLOWED_SUFFIXES = frozenset({".md", ".markdown", ".txt"})
+    BATCH_TOOL = {
+        "name": "create_file_batch",
+        "description": "Publish an approved staged project-document bundle to a new ai-pam branch.",
+        "inputSchema": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": sorted(REQUIRED_ARGUMENTS),
+            "properties": {
+                "owner": {"type": "string", "const": "jason"},
+                "repo": {"type": "string", "const": "homelab"},
+                "bundle_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "base_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+                "policy_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "branch_name": {"type": "string", "const": "main"},
+                "new_branch_name": {"type": "string", "pattern": "^ai-pam/[a-z0-9][a-z0-9._-]{0,62}$"},
+                "message": {"type": "string"},
+                "files": {
+                    "type": "array",
+                    "maxItems": MAX_FILES,
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": sorted(FILE_ARGUMENTS),
+                        "properties": {
+                            "filePath": {"type": "string"},
+                            "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                            "content_size": {"type": "integer", "minimum": 1, "maximum": MAX_FILE_BYTES},
+                        },
+                    },
+                },
+            },
+        },
+    }
 
     def __init__(
         self,
@@ -293,6 +326,13 @@ class ProjectDocumentWritePolicyAdapter(MCPPolicyAdapter):
                 arguments = self._mapping(params.get("arguments", {}), "arguments")
                 self._validate_batch(arguments)
         return super().handle(request, forward)
+
+    def _filter_tool_list(self, response: Mapping[str, Any]) -> Mapping[str, Any]:
+        filtered = super()._filter_tool_list(response)
+        tools = filtered["result"]["tools"]
+        if not any(tool.get("name") == self.BATCH_TOOL["name"] for tool in tools):
+            tools.append(self.BATCH_TOOL)
+        return filtered
 
     def _validate_batch(self, arguments: Mapping[str, Any]) -> None:
         if frozenset(arguments) != self.REQUIRED_ARGUMENTS:

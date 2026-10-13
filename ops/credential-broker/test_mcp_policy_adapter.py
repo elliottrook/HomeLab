@@ -217,6 +217,11 @@ class ProjectDocumentWritePolicyAdapterTests(unittest.TestCase):
         actual = self.adapter.handle({"method": "tools/list"}, lambda _: response)
         self.assertEqual([{"name": "create_file_batch"}], actual["result"]["tools"])
 
+    def test_catalogue_synthesizes_internal_batch_surface_when_upstream_lacks_it(self):
+        response = {"result": {"tools": [{"name": "create_file"}]}}
+        actual = self.adapter.handle({"method": "tools/list"}, lambda _: response)
+        self.assertEqual(["create_file_batch"], [tool["name"] for tool in actual["result"]["tools"]])
+
     def test_denies_code_paths_private_details_and_expansion(self):
         changes = (
             {"files": [{"filePath": "services/app.py", "content_sha256": "d" * 64, "content_size": 1}]},

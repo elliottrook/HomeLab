@@ -2,7 +2,8 @@
 
 Date: 2026-10-13
 
-Status: **Design recorded locally; live capability not enabled.**
+Status: **Design recorded locally; live project gateway enabled; first Forgejo
+publication not performed.**
 
 Jason directed continuation under the exact recorded scope as **Stream A** on
 2026-10-13. This authorizes the enumerated implementation and recovery work;
@@ -69,8 +70,8 @@ The initial package boundary is:
 | Old local process branch retired | Passed; local worktree is on the replacement branch |
 | GitHub mirror convergence | Passed; old branch absent and replacement branch last matched Forgejo at `503deb11` |
 | Canonical base and local policy reconciliation | Passed; Forgejo `main` is `da8b0fca`; local policy sources match the canonical checkout; 30 targeted tests pass |
-| Live runner source-pin reconciliation | Blocked for implementation; installed `base_revision` is `d7e49c4d4d6b7124a764208cc44e0ef9ed12797b`, while current Forgejo `main` is `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; installed runner source hashes match the reviewed local files |
-| M1 offline validator and staged handoff | Passed local gate; separate multi-file document verifier, digest-named handoff, project gateway policy and adversarial tests are present; complete broker test directory passes `132/132`; no live policy or service change |
+| Live runner source-pin reconciliation | Passed during M2 deployment; `base_revision` is now the current Forgejo `main` `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; installed runner source hashes match the reviewed local files |
+| M1 offline validator and staged handoff | Passed local gate; separate multi-file document verifier, digest-named handoff, project gateway policy and adversarial tests are present; complete broker test directory passes `133/133` |
 
 ## Read-only M2 preflight
 
@@ -90,7 +91,8 @@ The exact public-mirror privacy boundary is accepted under the Stream A
 direction: read-only context may be broader, but publication remains limited
 to `docs/projects/` and `docs/handovers/`; the package cap is 32 files, 1 MiB
 per file and 8 MiB total. The live worker, dedicated writer credential and
-AI-PAM capability registration have not been installed.
+AI-PAM capability registration were then installed in the approved M2 window.
+The gateway is active, but no project document has been written to Forgejo.
 
 ## Human root-ceremony evidence
 
@@ -121,13 +123,23 @@ The generated root token was left only in the protected LXC 117 handoff file
 `/run/openbao-human-root-token`, verified present with root ownership and mode
 0600. Its value was not read or recorded. No Forgejo PAT, project writer
 AppRole, gateway service or cloud-agent write capability was created by this
-ceremony. The handoff remains pending the separately approved provisioning and
-revocation step.
+ceremony alone. The approved provisioning step consumed the handoff, then
+revoked the root token and removed the file.
+
+The resulting live boundary is recorded as follows: the non-admin Forgejo
+identity has only repository read/write scopes and access to `jason/homelab`;
+the OpenBao policy reads only the dedicated KV-v2 path; the AppRole binds
+SecretIDs to `192.168.70.10/32`, issues 5-minute tokens with a 30-minute
+maximum and uses a protected reusable SecretID because the gateway logs in per
+request. The active project gateway exposes only `create_file_batch`, denies
+legacy `create_file`, and denies a valid-shaped request without a staged
+handoff. No project document has been written to Forgejo.
 
 The repeatable procedure and failure-mode table are recorded in the
 [local handover](../../../handovers/Cloud-Agent-Forgejo-Project-Publication.md).
 
 No service, credential, firewall, DNS, workflow, protected branch or GitHub
-configuration was changed by this project record. The live runner base pin was
-not changed; that requires the dedicated credential, exact base reconciliation
-and a separately recorded recovery check.
+configuration was changed by the design record itself. The subsequent approved
+M2 deployment changed only the dedicated Forgejo writer path, runner base pin,
+project gateway, handoff permissions and broker capability registration. The
+first Forgejo write still requires the normal immediate confirmation.

@@ -70,6 +70,14 @@ Key files:
   `forgejo.write.safe-branch` request without any approval capability
 - `bundle_reader.py` — requests bounded Green repository reads through the
   broker for fixed repository `jason/homelab`; it holds no Forgejo credential
+- `setup/run-human-root-ceremony.sh` — local hidden-prompt ceremony transport;
+  keeps AppRole and recovery material out of chat, logs and command arguments
+- `setup/provision-project-writer-remote.sh` — Proxmox-host provisioning of the
+  dedicated Forgejo PAT, exact OpenBao policy/AppRole and LXC 104 credential
+- `setup/deploy-project-writer-remote.sh` — stages reviewed non-secret source,
+  reconciles the Forgejo base and installs/registers the project gateway
+- `setup/validate-project-writer-approle.py` — secret-free AppRole/KV read
+  validation from LXC 104
 
 The pull-based Forgejo bundle runner completed its canary/recovery write acceptance. Jason
 promoted only `agent-cloud-bundle` through the existing Companion fresh-passkey
