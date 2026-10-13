@@ -1,8 +1,10 @@
 # D3 Companion composite: candidate and Mac-mini install gate
 
 **Status: local candidate `eb69280` on `codex/aster-companion-composite`;
-installed on the Mac mini by Jason's explicit approval, but live acceptance
-is pending. No remote push or Codex question.** This candidate responds to
+installed on the Mac mini by Jason's explicit approval. Signed-in UI,
+read-only OpenBao status and AI-PAM panel checks pass; a normal answer and
+natural refresh on this binary remain untested. No remote push or Codex
+question.** This candidate responds to
 Jason's requirement that the native OpenBao seal/unseal controls survive the
 manual Codex integration. The previous installed app remains intact as a
 local rollback copy.
@@ -81,10 +83,17 @@ was moved into `/Applications/AsterCompanion.app`. Both installed and prior
 bundle signatures verified. Executable hashes are respectively
 `c287a4f1743618872eb98bcf05a07da76f46d0fde9dbdd0f3f912208f4123c24`
 and `7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d`.
-The app launched and remained a running process. The Mac was locked, so
-sign-in, read-only OpenBao status and normal-use checks could not yet be
-performed. Do not call this a passed release gate. No OpenBao seal/unseal
-operation or Codex model question was sent.
+The app launched and remained a running process. The Mac was initially locked;
+after Jason unlocked it, the installed app showed a signed-in normal Aster
+screen. Its manual Codex button was absent in normal mode. The OpenBao panel
+initially showed a 401 requiring a fresh passkey. Jason completed the macOS
+Passwords prompt privately; the panel then reported **OpenBao is unsealed**
+with its unseal-token field disabled. The AI-PAM panel opened and showed no
+pending approvals. Returning to the normal view showed the Aster input and
+mode picker intact. These are UI/read-only checks, not proof of an ordinary
+answer or natural token refresh on this binary. No OpenBao seal/unseal
+operation or model question was sent. Do not call this the full D3 release
+gate.
 
 This closes the *source-combination feasibility* check, not the D3 release
 gate. The app owner reviewed the source candidate and found no direct conflict
