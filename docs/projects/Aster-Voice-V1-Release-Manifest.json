@@ -7,7 +7,7 @@
     "authority": "forgejo",
     "repository": "jason/homelab",
     "branch": "codex/aster-stream-a-handoff",
-    "observed_commit": "a064dfe60d278c74864fd3877081d83a49a74792",
+    "observed_commit": "998343d4190f581796b207ef1ba910f0fd0036c2",
     "tag_authorized": false
   },
   "identity": {
@@ -38,10 +38,27 @@
       "voice_protocol.py": "5f391f622fa99a74c279a5c8607e2cac1b9f96c293bd0f8be564fc46dda05b6e",
       "wyoming_adapter.py": "54214a70810f4c1a231c6dc08b05685532d3c0f8a8521094b42549206d4218e0",
       "kokoro_candidate.py": "72ac96e0c73392755f4332e2775f5abd84a7e3e5390bfa4fb7f49176bc1d0b6b",
-      "requirements_candidate.txt": "f2c4589265304e702223bf3874be1d35461bdf54c8d3c548823dc677f08cbe4c",
+      "requirements_candidate.txt": "2daca3aab7e27e09154ec78be80c34408eb1d128fb78b8b46154e107643e8508",
       "requirements_kokoro.lock": "50ff558e2db4575a900c9f2b5ce53efdaa5a946933f5474e0622c8eee6aef142",
       "aster_voice_candidate.service": "3d1f951da3ed887bbe5e1ac7fa23291bae2c39693d564319c6455bf398909033"
     }
+  },
+  "release_candidate_tree": {
+    "commit": "998343d4190f581796b207ef1ba910f0fd0036c2",
+    "files": {
+      "aster_voice_candidate.py": "c452a7b6777567c9649606c63fc9a9304ff3a48a7cda2659e100f47a32330037",
+      "aster_speech.py": "75b065de4598eb2d805f1a679e65f13b12cadac3afb8855534f10981aae615dd",
+      "voice_candidate.py": "0cecbebf4d6904a26652515673ee4224635db286f8327f0913265df9f0a48cdd",
+      "voice_candidate_http.py": "bfd7b6d556029d6231afb8423ccbca776914608de98d855a4b6913272e241d46",
+      "voice_metrics.py": "8c86d7df66bf733f616b148306308c836403c08015be19c4e4719b79368a8943",
+      "voice_protocol.py": "5f391f622fa99a74c279a5c8607e2cac1b9f96c293bd0f8be564fc46dda05b6e",
+      "wyoming_adapter.py": "54214a70810f4c1a231c6dc08b05685532d3c0f8a8521094b42549206d4218e0",
+      "kokoro_candidate.py": "72ac96e0c73392755f4332e2775f5abd84a7e3e5390bfa4fb7f49176bc1d0b6b",
+      "requirements_candidate.txt": "2daca3aab7e27e09154ec78be80c34408eb1d128fb78b8b46154e107643e8508",
+      "requirements_kokoro.lock": "50ff558e2db4575a900c9f2b5ce53efdaa5a946933f5474e0622c8eee6aef142",
+      "aster_voice_candidate.service": "3d1f951da3ed887bbe5e1ac7fa23291bae2c39693d564319c6455bf398909033"
+    },
+    "lab_parity": "11 of 11 files match the accepted live runtime; Wyoming 1.10.2 is installed and the full canonical health check passes"
   },
   "accepted_consumers": {
     "companion_web": "accepted canonical AVS1 streaming",
@@ -55,7 +72,6 @@
     "credentials": "must be newly generated and protected; never copied to this manifest"
   },
   "blockers": [
-    "reconcile all hashed deployed runtime files into the canonical Forgejo release tree",
     "independently verify the repaired native Mac app uses the canonical streaming endpoint",
     "complete M8 two-pass cross-surface production evidence and efficiency review",
     "select and verify a free production VMID and Servers-VLAN address in NetBox",
