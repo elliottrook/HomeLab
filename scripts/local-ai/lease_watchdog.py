@@ -13,6 +13,9 @@ from enum import Enum
 from lease_contract import LeaseError, LeaseReceipt, validate_receipt
 
 
+EXPECTED_SCHEDULES = ("00:30", "01:00", "02:00", "03:00")
+
+
 class WatchdogState(str, Enum):
     LEASED = "leased"
     RESTORING = "restoring"
@@ -28,6 +31,7 @@ class Observation:
     production_services_healthy: bool
     accepted_gpu_visible: bool
     schedule_restored: bool
+    schedule_points: tuple[str, ...] = EXPECTED_SCHEDULES
 
 
 @dataclass(frozen=True)
@@ -110,7 +114,11 @@ def decide(
                 WatchdogState.FAILED,
                 ("retain-lease-lock", "retain-restore-intent", "alert-operator"),
             )
-        if not observation.accepted_gpu_visible or not observation.schedule_restored:
+        if (
+            not observation.accepted_gpu_visible
+            or not observation.schedule_restored
+            or observation.schedule_points != EXPECTED_SCHEDULES
+        ):
             return WatchdogDecision(
                 WatchdogState.FAILED,
                 ("retain-lease-lock", "retain-restore-intent", "alert-operator"),

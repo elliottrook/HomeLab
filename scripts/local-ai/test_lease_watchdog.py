@@ -1,7 +1,8 @@
 import unittest
 
 from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL, LeaseReceipt
-from lease_watchdog import Observation, WatchdogState, decide, status_receipt
+from admission_state import AdmissionRecord, decode, encode, expired
+from lease_watchdog import EXPECTED_SCHEDULES, Observation, WatchdogState, decide, status_receipt
 
 
 class LeaseWatchdogTests(unittest.TestCase):
@@ -94,6 +95,43 @@ class LeaseWatchdogTests(unittest.TestCase):
         )
         self.assertEqual(value["failure_code"], "production-health")
         self.assertNotIn("exception", value)
+
+    def test_restore_requires_exact_backup_schedule_identity(self):
+        decision = decide(
+            self.receipt(),
+            self.observation(schedule_points=("00:30", "01:00", "02:00")),
+            backup_receipt="backup-chain-sha256",
+            current_state=WatchdogState.RESTORING,
+        )
+        self.assertEqual(decision.state, WatchdogState.FAILED)
+        self.assertEqual(EXPECTED_SCHEDULES, ("00:30", "01:00", "02:00", "03:00"))
+
+    def test_admission_record_round_trips_and_expires(self):
+        record = AdmissionRecord(
+            lease_id="lab-20261013-01",
+            generation=1,
+            state="leased",
+            issued_minute=220,
+            expires_minute=255,
+            backup_receipt="backup-chain-sha256",
+            model_identity=ACCEPTED_MODEL,
+            backend_identity=ACCEPTED_BACKEND,
+            consumers_isolated=True,
+            scheduled_work_quiesced=True,
+        )
+        self.assertEqual(decode(encode(record)), record)
+        self.assertFalse(expired(record, 254))
+        self.assertTrue(expired(record, 255))
+
+    def test_admission_record_rejects_unexpected_fields(self):
+        payload = encode(AdmissionRecord(
+            lease_id="x", generation=1, state="leased", issued_minute=1,
+            expires_minute=2, backup_receipt="b", model_identity=ACCEPTED_MODEL,
+            backend_identity=ACCEPTED_BACKEND, consumers_isolated=True,
+            scheduled_work_quiesced=True,
+        )).replace("}\n", ',"unexpected":true}\n')
+        with self.assertRaisesRegex(ValueError, "schema"):
+            decode(payload)
 
 
 if __name__ == "__main__":
