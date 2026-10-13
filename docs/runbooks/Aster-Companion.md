@@ -11,6 +11,11 @@ Open **Aster Companion** in Homepage, or visit
 `https://aster.elliottrook.com/`. Sign in with the registered passkey. The
 former `/companion` URL remains a compatibility alias for existing Authentik
 callbacks, installed shortcuts, and bookmarks.
+If Companion unexpectedly speaks with the legacy voice, do not assume browser
+cache alone. Inspect the rendered document for `/voice/v2/tts/stream` and the
+NPM access log for the actual `/voice/v1/tts` or `/voice/v2/tts/stream` request.
+The apex and `/companion` must both render the current client; a v1 request is
+evidence that stale or overwritten application source is active.
 The same hostname works on the LAN and through the existing Tailscale route;
 there is no public WAN port forward. On iPhone, Safari's Add to Home Screen is
 optional. On Mac, reopen `/Applications/AsterCompanion.app` after an update.
