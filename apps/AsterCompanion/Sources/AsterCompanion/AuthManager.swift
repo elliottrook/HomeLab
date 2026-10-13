@@ -45,6 +45,7 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
     private var pendingVerifier: String?
     private var pendingState: String?
     private var pendingAttempt: Int?
+    private var pendingCompletion: (@MainActor (Bool) -> Void)?
     private var signInTimeoutWorkItem: DispatchWorkItem?
 
     init(storage: SessionStorage? = nil,
@@ -79,6 +80,7 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         pendingVerifier = verifier
         pendingState = state
         pendingAttempt = attempt
+        pendingCompletion = completion
         signInTimeoutWorkItem?.cancel()
         let timeout = DispatchWorkItem { [weak self] in
             guard let self,
@@ -130,7 +132,7 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
               let state = pendingState,
               let attempt = pendingAttempt,
               generation == attempt else { return }
-        completeCallback(url: url, error: nil, verifier: verifier, state: state, attempt: attempt, completion: nil)
+        completeCallback(url: url, error: nil, verifier: verifier, state: state, attempt: attempt, completion: pendingCompletion)
     }
 
     private func completeCallback(
@@ -143,6 +145,7 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
         pendingVerifier = nil
         pendingState = nil
         pendingAttempt = nil
+        pendingCompletion = nil
         session = nil
         guard error == nil else {
             logger.error("sign-in callback returned an authentication error")
@@ -192,8 +195,14 @@ final class AuthManager: NSObject, ObservableObject, ASWebAuthenticationPresenta
             URLQueryItem(name: "code_challenge_method", value: "S256"),
             URLQueryItem(name: "state", value: state),
         ]
-        if fresh { components.queryItems?.append(URLQueryItem(name: "max_age", value: "0")) }
-        return components.url!
+        let authorize = components.url!
+        guard fresh else { return authorize }
+        // Match the web client: explicitly enter the mandatory passkey flow
+        // before returning to the unchanged PKCE authorization request.
+        var flow = URLComponents(url: AsterConfig.authorizationEndpoint, resolvingAgainstBaseURL: false)!
+        flow.path = "/if/flow/aster-companion-reauthentication/"
+        flow.queryItems = [URLQueryItem(name: "next", value: components.percentEncodedPath + "?" + (components.percentEncodedQuery ?? ""))]
+        return flow.url!
     }
 
     static func prefersEphemeralSession(fresh: Bool) -> Bool { fresh }

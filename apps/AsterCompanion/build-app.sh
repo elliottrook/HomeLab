@@ -30,7 +30,20 @@ cp -R "$BIN_PATH/AsterCompanion_AsterCompanion.bundle" "$APP_DIR/Contents/Resour
 # step; without this, Keychain access silently fails (no error, just an
 # item that never persists) because the signature doesn't match the
 # bundle identity it's being accessed under.
-codesign --force --deep --sign - "$APP_DIR"
+#
+# Ad-hoc signatures are identified only by this build's code hash, so each
+# rebuild looks like a new app to Keychain and macOS asks for the login
+# password again. With a stable certificate (an "Apple Development" identity
+# from Xcode, or ASTER_SIGN_IDENTITY) the designated requirement becomes
+# bundle ID + certificate, and one "Always Allow" survives future rebuilds.
+IDENTITY="${ASTER_SIGN_IDENTITY:-$(security find-identity -v -p codesigning | awk -F'"' '/Aster Companion Local Signing 2026|Apple Development/ {print $2; exit}')}"
+if [ -n "$IDENTITY" ]; then
+    # No hardened runtime: it would need a microphone entitlement for voice.
+    codesign --force --deep --sign "$IDENTITY" "$APP_DIR"
+else
+    echo "No signing identity found; signing ad-hoc (Keychain will re-prompt after each rebuild)." >&2
+    codesign --force --deep --sign - "$APP_DIR"
+fi
 
 # Register the URL scheme with Launch Services so the OS routes the
 # aster-companion://callback redirect back to this app.

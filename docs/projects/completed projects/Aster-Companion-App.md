@@ -2540,7 +2540,31 @@ without a completion. Live Authentik returned HTTP 200 at the token endpoint,
 Keychain persistence succeeded, and Jason confirmed sign-in worked. The fixed
 bundle is installed on the Mac mini at `/Applications/AsterCompanion.app`;
 rollback is `/Applications/AsterCompanion.pre-optional-callback-fix-20261012.app`.
-This is a V1 build correction; laptop installation remains pending.
+This is a V1 build correction.
+
+MacBook installation completed 2026-10-12 after Jason enrolled the mini's
+existing public SSH key. Strict host-key validation succeeded for
+`jasonelliott@192.168.1.241` (`Jasons-Mac.local`, Apple silicon, macOS 26.5.2).
+The verified ZIP was transferred over SCP, extracted in a staging directory,
+signature-checked and installed at `/Applications/AsterCompanion.app`.
+The installed executable SHA-256 is
+`5b449cd386c337fb807639e85fbce64d6531a03401216b5d2d2fe6d890be1156`, matching
+the mini. Launch and callback registration succeeded. Jason subsequently
+confirmed MacBook Authentik sign-in and accepted OpenBao recovery after the
+mandatory passkey flow, CA access and stable-signing fixes. A normal chat
+request and full seal/two-share/unseal ceremony were not separately evidenced
+by this handover.
+
+Jason explicitly requested retaining the mini-to-MacBook SSH enrollment for
+future administration and Codex-assisted work. The retained mini identity's
+public fingerprint is `SHA256:4sfxkSHoxC5AX+/+pQpI1ch9d+Q4KpcVXbqKKdVczfY`.
+The MacBook host fingerprint is
+`SHA256:4iuc/k/5kJiBX5kt9epYalmL6vF5QdnkjojezbrMMvE`, verified against the
+previously trusted key at its old `.187` address before registering `.241`.
+Keep private keys on their originating Mac. This is retained machine SSH
+access; it does not establish automatic Codex chat messaging or authorize
+unrelated work. Revocation removes only this public key's enrollment from
+the MacBook account, with dependent workflows reviewed first.
 
 An installation is local to each Mac. The MacBook agent correctly cannot see
 the mini's `/Applications` directory. Transfer the app bundle in a ZIP produced

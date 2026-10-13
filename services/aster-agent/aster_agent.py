@@ -20,7 +20,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import httpx
 import jwt
 from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from lab_operations import LabOperations, OWNER as LAB_OWNER
@@ -90,6 +90,13 @@ MAX_TOOL_ROUNDS = int(os.environ.get("ASTER_MAX_TOOL_ROUNDS", "4"))
 MAX_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_RESPONSE_TOKENS", "160"))
 MAX_HEALTH_RESPONSE_TOKENS = int(os.environ.get("ASTER_MAX_HEALTH_RESPONSE_TOKENS", "112"))
 BROKER_APPROVAL_SOCKET = os.environ.get("ASTER_BROKER_APPROVAL_SOCKET", "/run/homelab-broker/approval.sock")
+OPENBAO_URL = os.environ.get("ASTER_OPENBAO_URL", "https://192.168.50.24:8200").rstrip("/")
+OPENBAO_CA_CERT = os.environ.get("ASTER_OPENBAO_CA_CERT", "/etc/aster/openbao-ca.crt")
+OPENBAO_UNSEAL_OWNER_HASHES = frozenset(filter(None, (
+    value.strip() for value in os.environ.get("ASTER_OPENBAO_UNSEAL_OWNER_HASHES", "").split(",")
+)))
+OPENBAO_UNSEAL_MIN_INTERVAL = float(os.environ.get("ASTER_OPENBAO_UNSEAL_MIN_INTERVAL", "1.5"))
+OPENBAO_UNSEAL_MAX_AUTH_AGE = int(os.environ.get("ASTER_OPENBAO_UNSEAL_MAX_AUTH_AGE", "900"))
 SYSADMIN_DOCTOR_EVIDENCE = os.environ.get("ASTER_SYSADMIN_DOCTOR_EVIDENCE", "").strip().lower() in {"1", "true", "yes"}
 SYSADMIN_INCIDENT_STATE = Path(os.environ.get("ASTER_SYSADMIN_INCIDENT_STATE", "/var/lib/aster/lab-operations/sysadmin-incidents.sqlite3"))
 _sysadmin_incident_store: IncidentStore | None = None
@@ -243,6 +250,14 @@ class DoctorIncidentRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     title: str = Field(default="Doctor status investigation", min_length=1, max_length=300)
+
+
+class OpenBaoUnsealRequest(BaseModel):
+    """One human-held unseal token/share; never persist or echo the value."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    key: str = Field(min_length=1, max_length=4096)
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -1597,11 +1612,12 @@ async def browser_chat() -> str:
 <link rel="icon" type="image/png" href="/aster-app-icon.png">
 <link rel="apple-touch-icon" href="/aster-app-icon.png">
 <title>Aster</title><style>
-body{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0}main{max-width:850px;margin:auto;padding:24px}
-#chat{min-height:55vh;white-space:pre-wrap}.m{padding:12px 14px;margin:10px 0;border-radius:12px;background:#1f2937}.u{background:#1e3a5f}
-textarea,input,button{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}
-textarea{width:100%;box-sizing:border-box;min-height:90px}button{cursor:pointer;background:#2563eb;border:0;margin-top:8px}#key{width:20rem;max-width:90%}.muted{color:#9ca3af;font-size:.9rem}
-</style></head><body><main><h1>Aster</h1><p class="muted">Local Qwen 3.8 27B · llama.cpp Vulkan · scoped tools</p>
+:root{color-scheme:dark;--ui-bg:#0b1020;--ui-panel:#151d31;--ui-panel-raised:#1b2740;--ui-panel-input:#111a2c;--ui-text:#f4f7fb;--ui-text-soft:#dce4f1;--ui-muted:#aab6ca;--ui-accent:#8bd3ff;--ui-accent-strong:#b9f2d0;--ui-line:#2b3a58}
+body{font:17px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top right,#25395a 0,var(--ui-bg) 48%);color:var(--ui-text);margin:0}main{max-width:1180px;margin:auto;padding:42px 24px 72px}
+h1{font-size:clamp(2.8rem,8vw,5rem);line-height:1;letter-spacing:-.05em;margin:0 0 10px}.muted{color:var(--ui-muted);font-size:.95rem}#chat{min-height:55vh;white-space:pre-wrap}.m{max-width:82%;padding:16px 18px;margin:14px 0;border-radius:18px;background:linear-gradient(145deg,var(--ui-panel),#10182a);border:1px solid var(--ui-line);box-shadow:0 12px 30px #0003}.u{background:#172f4d;margin-left:auto}
+textarea,input,button{font:inherit;color:inherit;background:var(--ui-panel-input);border:1px solid var(--ui-line);border-radius:10px;padding:13px 14px}textarea{width:100%;box-sizing:border-box;min-height:110px}button{cursor:pointer;background:var(--ui-accent);color:#07111d;border:0;margin-top:10px;font-weight:750}button:hover{filter:brightness(1.08)}#key{width:20rem;max-width:90%}
+@media(max-width:600px){main{padding:30px 14px 56px}h1{font-size:3.2rem}.m{max-width:92%;padding:18px}.muted{font-size:1rem}textarea{min-height:125px}button{min-height:44px}}
+</style></head><body><main><h1>Aster</h1><p class="muted">Local Qwen 3.5 9B · llama.cpp SYCL/Level Zero · scoped tools</p>
 <label>API key <input id="key" type="password" autocomplete="off"></label><div id="chat"></div>
 <textarea id="prompt" placeholder="Ask Aster…"></textarea><button id="send">Send</button>
 <script>
@@ -1658,10 +1674,12 @@ async def companion_web_client() -> str:
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Aster">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#0b1020">
 <style>
-body{{font:16px system-ui;background:#111827;color:#e5e7eb;margin:0;overflow-x:hidden}}
-main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
+ :root{{color-scheme:dark;--ui-bg:#0b1020;--ui-panel:#151d31;--ui-panel-raised:#1b2740;--ui-panel-input:#111a2c;--ui-text:#f4f7fb;--ui-text-soft:#dce4f1;--ui-muted:#aab6ca;--ui-accent:#8bd3ff;--ui-accent-strong:#b9f2d0;--ui-danger:#ffaaa8;--ui-line:#2b3a58}}
+body{{font:17px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top right,#25395a 0,var(--ui-bg) 48%);color:var(--ui-text);margin:0;overflow-x:hidden}}
+main{{max-width:1180px;margin:auto;padding:42px 24px 72px;position:relative;z-index:1}}
+#app>header{{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:24px}}#app>header h1{{font-size:clamp(2.8rem,8vw,5rem);line-height:1;letter-spacing:-.05em;margin:0}}
 #orb{{width:320px;height:320px;border-radius:50%;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:.16;filter:saturate(.35);pointer-events:none;z-index:0}}
 #orb.thinking{{animation:pulse 1.6s ease-in-out infinite}}
 @keyframes pulse{{0%,100%{{filter:saturate(.55) brightness(1);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1) brightness(1.12);transform:translate(-50%,-50%) scale(1.08)}}}}
@@ -1673,13 +1691,13 @@ main{{max-width:850px;margin:auto;padding:24px;position:relative;z-index:1}}
 @keyframes speakingPulse{{0%,100%{{filter:saturate(1.1) brightness(1.05) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1)}}50%{{filter:saturate(1.5) brightness(1.2) hue-rotate(180deg);transform:translate(-50%,-50%) scale(1.05)}}}}
 button.mic{{background:transparent;background-image:url('/companion/orb.png?v=20261004-refined');background-size:cover;background-position:center;width:44px;height:44px;min-width:44px;padding:0;margin-top:0;border:2px solid rgba(148,163,184,.5);border-radius:50%;cursor:pointer}}
 button.mic.recording{{border-color:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.7)}}
-#chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:12px 14px;margin:10px 0;border-radius:12px;background:rgba(31,41,55,.2);backdrop-filter:blur(6px)}}.u{{background:rgba(37,99,235,.22);margin-left:auto}}
-textarea,button,select#persona{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:10px}}
-textarea{{width:100%;box-sizing:border-box;min-height:90px}}button{{cursor:pointer;background:#2563eb;border:0;margin-top:8px}}
-select#persona{{padding:6px 8px}}
+ #chat{{min-height:55vh;white-space:pre-wrap}}.m{{max-width:82%;padding:16px 18px;margin:14px 0;border-radius:18px;background:linear-gradient(145deg,var(--ui-panel),#10182a);border:1px solid var(--ui-line);box-shadow:0 12px 30px #0003}}.u{{background:#172f4d;margin-left:auto}}
+textarea,button,select#persona{{font:inherit;color:inherit;background:var(--ui-panel-input);border:1px solid var(--ui-line);border-radius:10px;padding:13px 14px}}
+textarea{{width:100%;box-sizing:border-box;min-height:110px}}button{{cursor:pointer;background:var(--ui-accent);color:#07111d;border:0;margin-top:10px;font-weight:750}}
+select#persona{{padding:9px 10px}}
 .inputRow{{display:flex;align-items:center;gap:10px;margin-top:10px}}
 #send{{height:44px;padding:0 22px;margin-top:0;border-radius:22px;border:2px solid rgba(148,163,184,.5);background:linear-gradient(135deg,#4f46e5,#7c3aed)}}
-.muted{{color:#9ca3af;font-size:.9rem}}.err{{color:#f87171}}
+ .muted{{color:var(--ui-muted);font-size:.95rem}}.err{{color:var(--ui-danger)}}
 #login{{text-align:center;padding-top:20vh}}
 header{{display:flex;align-items:center;justify-content:space-between}}
 .hdrRight{{display:flex;align-items:center;gap:10px}}
@@ -1705,11 +1723,15 @@ button.checkArr{{background:#374151;font-size:.85rem;padding:6px 10px}}
 #managementPanel{{margin:10px 0}}.mgmtCard{{background:rgba(15,23,42,.88);border:1px solid #475569;border-radius:12px;padding:14px;margin:10px 0}}
 .mgmtCard h3{{margin:0 0 8px}}.mgmtCard ul{{padding-left:20px}}.danger{{background:#b91c1c}}
 .statusOn{{color:#4ade80}}.statusOff{{color:#f87171}}.mgmtRow{{display:flex;gap:8px;flex-wrap:wrap;align-items:center}}
+.openbaoCard{{background:linear-gradient(145deg,rgba(21,29,49,.96),rgba(16,24,42,.96));border:1px solid var(--ui-line);border-radius:18px;padding:18px;margin:10px 0;box-shadow:0 12px 30px #0003}}
+.openbaoCard h2{{margin:0 0 6px;font-size:1.15rem}}.openbaoCard p{{margin:7px 0;color:var(--ui-text-soft)}}.openbaoCard .status{{font-weight:750;margin:12px 0}}.openbaoCard input{{font:inherit;color:inherit;background:var(--ui-panel-input);border:1px solid var(--ui-line);border-radius:10px;padding:13px 14px;width:100%;box-sizing:border-box}}
+.openbaoCard button{{margin-top:10px}}.openbaoCard .safe{{color:var(--ui-accent-strong)}}.openbaoCard .warn{{color:#ffd18a}}.openbaoCard .error{{color:var(--ui-danger)}}
 .mgmtRow select,.mgmtRow input{{font:inherit;color:inherit;background:#111827;border:1px solid #4b5563;border-radius:8px;padding:8px}}
 details.prog{{margin:4px 0 0;font-size:.8rem;color:#9ca3af}}
 details.prog summary{{font-size:.8rem;font-variant-numeric:tabular-nums}}
 details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-nums}}
 .m .stats{{margin-top:6px;font-size:.75rem;color:#9ca3af;font-variant-numeric:tabular-nums}}
+@media(max-width:600px){{main{{padding:30px 14px 56px}}#app>header{{display:block}}#app>header h1{{font-size:3.2rem}}.hdrRight{{margin-top:14px;justify-content:space-between}}.m{{max-width:92%;padding:18px}}textarea{{min-height:125px}}button{{min-height:44px}}#send{{height:48px}}button.mic{{width:48px;height:48px}}}}
 </style></head><body>
 <div id="orb"></div>
 <main>
@@ -1718,8 +1740,21 @@ details.prog .steps div{{padding:2px 0 2px 14px;font-variant-numeric:tabular-num
 <header><h1>Aster</h1><div class="hdrRight"><select id="persona"></select><a class="signout" id="signout">Sign out</a></div></header>
 <button id="checkApprovals" class="checkArr">Approval inbox</button>
 <button id="openManagement" class="checkArr" aria-controls="managementPanel" aria-expanded="false">AI-PAM management</button>
+<button id="openOpenBao" class="checkArr" aria-controls="openbaoPanel" aria-expanded="false">OpenBao recovery</button>
 <div id="approvalInbox"></div>
 <div id="managementPanel" hidden></div>
+<section id="openbaoPanel" class="openbaoCard" hidden aria-labelledby="openbaoTitle">
+<h2 id="openbaoTitle">OpenBao recovery</h2>
+<p>Use this only after a restart or seal event. OpenBao requires two unseal tokens. Enter Token 1, submit it, then enter Token 2; each token is sent directly to OpenBao and is not saved or displayed.</p>
+<p class="muted">The panel shows seal status only. It cannot read secrets, create tokens, or administer OpenBao.</p>
+<p id="openbaoStatus" class="status" role="status" aria-live="polite">Checking status…</p>
+<label for="openbaoShare">Unseal token 1 or 2</label>
+<input id="openbaoShare" type="password" autocomplete="off" spellcheck="false" inputmode="text" aria-describedby="openbaoHelp">
+<p id="openbaoHelp" class="muted">Paste one token, submit it, then clear or discard the source before entering the next token. Progress below confirms whether OpenBao still needs the second token.</p>
+<button id="openbaoSubmit" type="button">Submit token</button>
+<button id="openbaoSeal" class="danger" type="button">Seal OpenBao</button>
+<p id="openbaoError" class="err" role="alert"></p>
+</section>
 <details id="toolsPanel"><summary>Tools</summary><div id="tools"></div></details>
 <button id="checkArr" class="checkArr">Check for pending ARR action</button>
 <div id="arrCard" hidden></div>
@@ -1934,6 +1969,70 @@ async function approvalApi(path='', options={{}}){{
   if(!r.ok) throw new Error(j.detail||r.statusText);
   return j;
 }}
+
+async function openbaoApi(path='', options={{}}){{
+  const token=await validAccessToken();
+  if(!token){{ showLogin(); throw new Error('Sign in required') }}
+  const headers=Object.assign({{'Authorization':'Bearer '+token}}, options.headers||{{}});
+  const r=await fetch('/v1/openbao/unseal'+path, Object.assign({{}}, options, {{headers}}));
+  const j=await r.json().catch(()=>({{}}));
+  if(!r.ok) throw new Error(j.detail||r.statusText);
+  return j;
+}}
+
+function renderOpenBaoStatus(state){{
+  const status=document.querySelector('#openbaoStatus');
+  const input=document.querySelector('#openbaoShare');
+  const submit=document.querySelector('#openbaoSubmit');
+  const seal=document.querySelector('#openbaoSeal');
+  if(state.sealed === false){{
+    status.className='status safe'; status.textContent='OpenBao is unsealed.';
+    input.disabled=true; submit.disabled=true; submit.title='No token is needed'; seal.disabled=false; return;
+  }}
+  if(state.sealed === true){{
+    status.className='status warn';
+    status.textContent='OpenBao is sealed — '+(state.progress||0)+' of '+(state.t||2)+' tokens accepted.';
+    input.disabled=false; submit.disabled=false; seal.disabled=true; return;
+  }}
+  status.className='status error'; status.textContent='OpenBao status is unavailable.';
+  input.disabled=true; submit.disabled=true; seal.disabled=true;
+}}
+
+async function loadOpenBao(){{
+  const error=document.querySelector('#openbaoError'); error.textContent='';
+  try{{ renderOpenBaoStatus(await openbaoApi('/status')); }}
+  catch(e){{ renderOpenBaoStatus({{}}); error.textContent='Recovery status failed: '+e.message; }}
+}}
+
+async function submitOpenBaoShare(){{
+  const input=document.querySelector('#openbaoShare'); const submit=document.querySelector('#openbaoSubmit');
+  const error=document.querySelector('#openbaoError'); const key=input.value;
+  if(!key.trim()){{ error.textContent='Enter one unseal token.'; return }}
+  submit.disabled=true; error.textContent='';
+  try{{
+    const state=await openbaoApi('', {{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{key}})}});
+    input.value=''; renderOpenBaoStatus(state);
+    if(state.sealed !== false) input.focus();
+  }}catch(e){{ input.value=''; error.textContent='Token was not accepted: '+e.message; await loadOpenBao(); }}
+  finally{{ if(document.querySelector('#openbaoPanel').hidden===false && input.disabled===false) submit.disabled=false; }}
+}}
+
+async function sealOpenBao(){{
+  if(!window.confirm('Seal OpenBao now? Its protected services will lose access until two unseal tokens are entered.')) return;
+  const seal=document.querySelector('#openbaoSeal'); const error=document.querySelector('#openbaoError');
+  seal.disabled=true; error.textContent='';
+  try{{ renderOpenBaoStatus(await openbaoApi('/seal', {{method:'POST'}})); }}
+  catch(e){{ error.textContent='OpenBao was not sealed: '+e.message; await loadOpenBao(); }}
+}}
+
+document.querySelector('#openOpenBao').onclick=()=>{{
+  const panel=document.querySelector('#openbaoPanel'); panel.hidden=!panel.hidden;
+  document.querySelector('#openOpenBao').setAttribute('aria-expanded',String(!panel.hidden));
+  if(!panel.hidden) loadOpenBao();
+}};
+document.querySelector('#openbaoSubmit').onclick=submitOpenBaoShare;
+document.querySelector('#openbaoSeal').onclick=sealOpenBao;
+document.querySelector('#openbaoShare').onkeydown=e=>{{ if(e.key==='Enter') submitOpenBaoShare(); }};
 
 async function loadApprovals(){{
   const box=document.querySelector('#approvalInbox'); box.textContent='Loading approvals…';
@@ -2478,7 +2577,7 @@ prompt.addEventListener('keydown', e=>{{ if(e.key==='Enter' && !e.shiftKey){{ e.
   const err=await handleCallback();
   if(err){{ document.querySelector('#loginErr').textContent=err }}
   const token=await validAccessToken();
-  if(token){{ await loadPersonas(); loadChatHistory(); showApp(); await companionNotify.init(); await resumeApprovalAction(); await loadApprovals(); await recoverNotificationReply() }} else showLogin();
+  if(token){{ await loadPersonas(); loadChatHistory(); showApp(); await companionNotify.init(); await resumeApprovalAction(); await loadApprovals(); await recoverNotificationReply(); if(location.hash==='#openbao') document.querySelector('#openOpenBao').click() }} else showLogin();
 }})();
 </script></body></html>"""
 
@@ -2501,6 +2600,100 @@ def companion_claims(authorization: str | None = Header(default=None)) -> dict[s
         (AUTHENTIK_ISSUER + "\0" + claims["sub"]).encode()
     ).hexdigest()
     return result
+
+
+_openbao_unseal_lock = asyncio.Lock()
+_openbao_last_unseal_at = 0.0
+
+
+def _require_openbao_operator(claims: dict[str, Any]) -> None:
+    """Require a separately configured human allowlist and recent sign-in."""
+
+    if claims.get("owner_hash") not in OPENBAO_UNSEAL_OWNER_HASHES:
+        raise HTTPException(403, "This account is not allowed to unseal OpenBao")
+    if OPENBAO_UNSEAL_MAX_AUTH_AGE > 0:
+        try:
+            auth_time = int(claims.get("auth_time", 0))
+        except (TypeError, ValueError):
+            auth_time = 0
+        if not auth_time or time.time() - auth_time > OPENBAO_UNSEAL_MAX_AUTH_AGE:
+            raise HTTPException(401, "Sign in again with your passkey before unsealing OpenBao")
+
+
+def _openbao_status_fields(payload: dict[str, Any]) -> dict[str, Any]:
+    """Return only non-secret seal metadata from OpenBao responses."""
+
+    allowed = ("initialized", "sealed", "t", "n", "progress", "version", "build_date")
+    return {key: payload[key] for key in allowed if key in payload}
+
+
+async def _openbao_json(method: str, path: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    ca_path = Path(OPENBAO_CA_CERT)
+    try:
+        if not ca_path.is_file():
+            raise HTTPException(503, "OpenBao recovery trust configuration is unavailable")
+        async with httpx.AsyncClient(
+            verify=str(ca_path), timeout=5.0, trust_env=False
+        ) as client:
+            response = await client.request(method, f"{OPENBAO_URL}{path}", json=payload)
+            response.raise_for_status()
+            data = response.json() if response.content else {}
+    except HTTPException:
+        raise
+    except (httpx.HTTPError, ValueError, OSError) as exc:
+        logging.getLogger(__name__).warning("OpenBao recovery request failed: %s", type(exc).__name__)
+        raise HTTPException(503, "OpenBao is unavailable") from None
+    if not isinstance(data, dict):
+        raise HTTPException(503, "OpenBao returned an invalid recovery response")
+    return data
+
+
+def _openbao_response(payload: dict[str, Any], message: str | None = None) -> JSONResponse:
+    result = _openbao_status_fields(payload)
+    if message:
+        result["message"] = message
+    return JSONResponse(result, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/v1/openbao/unseal/status")
+async def openbao_unseal_status(claims: dict[str, Any] = Depends(companion_claims)) -> JSONResponse:
+    _require_openbao_operator(claims)
+    payload = await _openbao_json("GET", "/v1/sys/seal-status")
+    return _openbao_response(payload)
+
+
+@app.post("/v1/openbao/unseal")
+async def openbao_unseal(
+    request: OpenBaoUnsealRequest,
+    claims: dict[str, Any] = Depends(companion_claims),
+) -> JSONResponse:
+    global _openbao_last_unseal_at
+    _require_openbao_operator(claims)
+    key = request.key.strip()
+    if not key:
+        raise HTTPException(422, "Enter one unseal share")
+    async with _openbao_unseal_lock:
+        now = time.monotonic()
+        if now - _openbao_last_unseal_at < OPENBAO_UNSEAL_MIN_INTERVAL:
+            raise HTTPException(429, "Wait briefly before submitting the next share")
+        _openbao_last_unseal_at = now
+        payload = await _openbao_json("POST", "/v1/sys/unseal", {"key": key})
+    # The key is local to this request and is neither logged nor returned.
+    return _openbao_response(
+        payload,
+        "OpenBao is unsealed" if payload.get("sealed") is False else "Share accepted; enter the next share if required",
+    )
+
+
+@app.post("/v1/openbao/seal")
+async def openbao_seal(claims: dict[str, Any] = Depends(companion_claims)) -> JSONResponse:
+    """Seal OpenBao after an explicit, passkey-authenticated confirmation."""
+
+    _require_openbao_operator(claims)
+    async with _openbao_unseal_lock:
+        await _openbao_json("POST", "/v1/sys/seal")
+        payload = await _openbao_json("GET", "/v1/sys/seal-status")
+    return _openbao_response(payload, "OpenBao is sealed" if payload.get("sealed") is True else None)
 
 
 notifications = CompanionNotifications(

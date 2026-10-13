@@ -69,6 +69,18 @@ Keep the phone page foregrounded during a turn. Listening, thinking, speaking
 and acting have distinct orb effects. Typed messages remain available if audio
 is unavailable.
 
+### OpenBao recovery
+
+From Homepage, open **OpenBao Recovery**, or visit the Companion web app and
+choose **OpenBao recovery**. After passkey authentication, the panel shows
+sanitized seal status only. When sealed, enter the two human-held unseal tokens
+sequentially: submit Token 1, then Token 2. Each input is cleared immediately;
+tokens are not stored or displayed.
+
+**Seal OpenBao** is a separate confirmed action for planned maintenance or
+emergency isolation. It intentionally interrupts OpenBao-dependent services;
+use it only when you are prepared to complete the two-token ceremony again.
+
 ## ARR repair is a separate follow-up
 
 Jason deferred live ARR-repair execution on 2026-09-23. Production dry-run and
@@ -260,6 +272,7 @@ provider/OS troubleshooting; Aster owns no new administrative capability.
 
 References: [WebKit Home Screen Web Push](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/)
 and [Apple notification permission](https://developer.apple.com/documentation/usernotifications/asking-permission-to-use-notifications).
+
 ## Native sign-in repair — 2026-10-12
 
 The installed native app is `/Applications/AsterCompanion.app`. Normal sign-in
@@ -276,6 +289,14 @@ The previous bundle is retained at
 Service release remains V1; this is a build correction.
 
 ## Install on another Apple silicon Mac
+
+Follow-on acceptance on 2026-10-12: Jason confirmed OpenBao recovery works
+after the native **Verify passkey** flow and backend CA-access repair. The
+public OpenBao CA is `/etc/aster/openbao-ca.crt`, readable by the Aster service;
+the broker directory retains its restricted permissions. Both installed apps
+now use the stable `Aster Companion Local Signing 2026` certificate. Future
+builds must use this certificate rather than reverting to ad-hoc signing to
+retain Keychain identity. One transition approval can be required per Mac.
 
 Each Mac needs its own installation and Authentik sign-in. The Mac mini's
 `/Applications/AsterCompanion.app` does not appear on the MacBook automatically.
@@ -298,3 +319,11 @@ a locally built or appropriately signed distribution; do not disable Gatekeeper.
 
 Record acceptance separately for each Mac. The MacBook handover is complete
 only after native sign-in and a normal Aster request succeed there.
+
+Installation evidence (2026-10-12): the app was transferred and installed over
+verified SSH/SCP on `jasonelliott@192.168.1.241`, with matching archive and
+executable checksums and valid bundle signature. The app was launched; the
+MacBook's own interactive sign-in remains pending. Jason requested retaining
+the mini's enrolled SSH key for subsequent administration. Use
+`ssh -o BatchMode=yes -o StrictHostKeyChecking=yes jasonelliott@192.168.1.241`
+for future connections; do not disable host-key checks or transfer private keys.

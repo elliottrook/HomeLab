@@ -97,12 +97,17 @@ final class AuthManagerTests: XCTestCase {
         XCTAssertTrue(auth.isAuthenticated)
     }
 
-    func testFreshAuthorizationRequiresMaxAgeZeroWithoutPromptLogin() {
+    func testFreshAuthorizationEntersMandatoryPasskeyFlowAndPreservesPKCE() {
         let fresh = AuthManager.authorizationURL(verifier: "verifier", state: "state", fresh: true)
         let normal = AuthManager.authorizationURL(verifier: "verifier", state: "state", fresh: false)
         let freshItems = URLComponents(url: fresh, resolvingAgainstBaseURL: false)!.queryItems!
-        XCTAssertEqual(freshItems.first(where: { $0.name == "max_age" })?.value, "0")
-        XCTAssertNil(freshItems.first(where: { $0.name == "prompt" }))
+        XCTAssertEqual(URLComponents(url: fresh, resolvingAgainstBaseURL: false)!.path, "/if/flow/aster-companion-reauthentication/")
+        let next = freshItems.first(where: { $0.name == "next" })!.value!
+        let resumed = URL(string: "https://auth.elliottrook.com" + next)!
+        XCTAssertEqual(resumed, normal)
+        let resumedItems = URLComponents(url: resumed, resolvingAgainstBaseURL: false)!.queryItems!
+        XCTAssertEqual(resumedItems.first(where: { $0.name == "state" })?.value, "state")
+        XCTAssertEqual(resumedItems.first(where: { $0.name == "redirect_uri" })?.value, AsterConfig.redirectURI)
         XCTAssertNil(URLComponents(url: normal, resolvingAgainstBaseURL: false)!.queryItems!.first(where: { $0.name == "max_age" }))
     }
 
