@@ -32,8 +32,9 @@ tools or bypass privacy/approval policy.
 The [later installed-bundle check](evidence/D3-composite-offline-candidate-2026-10-12.md#later-installed-bundle-drift-and-crash-check--2026-10-13)
 records an app-owner replacement, an intermediate crashing build, and a
 subsequent signed build observed working in ordinary use. The currently
-installed executable no longer has the composite's recorded hash; its exact
-source attribution and long-term reliability remain unverified. Stream A did
+installed executable no longer has the composite's recorded hash. The app
+owner's release record pins the matching source and artifact; independent
+reproduction of that build and long-term reliability remain open. Stream A did
 not restore the older app. This does not change the manual-Codex HOLD or the
 independent M1/M3 work queue.
 
@@ -293,7 +294,7 @@ authority gates remain open.
 No new live Codex question is needed now. The limited manual handoff decision
 is **HOLD** after the exact metadata-manifest mismatch. The currently installed
 Mac app was subsequently replaced by its owner; short-term ordinary-use and
-signature checks pass, while source attribution and longer-term reliability
+signature checks pass, while independent build proof and longer-term reliability
 remain open. Continue the independent offline M1/D4 authority and diagnostic
 work, M3 routing contracts and representative evidence, and the A1 answer
 qualification preparation. A later manual release requires a reviewed exact

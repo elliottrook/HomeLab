@@ -259,11 +259,22 @@ filesystem check found the current executable SHA-256
 `7b968e5fdf11f88f2105c2d65cf3468dd27b8f245e787e73acdc8dfc2032124c`,
 strict/deep code-signature verification passed, and the latest matching local
 crash report remained the 12:44 report. This supports a short-term recovery
-observation, not a source-to-binary attribution, natural-refresh result, or
+observation, not an independent source-to-binary proof, natural-refresh result, or
 long-duration reliability pass. The current shell could not query the process
 list (`sysmond service not found`), so it does not independently establish
 that the app is running now. No restore or further app change was made.
 
+The subsequently fetched app-owner [release record](../../Aster-Unified-Voice-Service.md)
+pins the crash-corrected resource loader, archive and matching executable hash
+on both Macs. That record gives source provenance for the current build; Stream
+A has verified the installed executable and signature, not independently
+reproduced the owner's build or longer functional acceptance.
+After merging the published resource-bundle correction into the local Stream
+A branch, `swift test` passed 60/60 tests on the combined source, including
+the offline delegation-status and AVS1 parser checks. This is source
+regression evidence only; it did not relaunch, rebuild or replace the installed
+app, and it does not release manual Codex sending.
+
 The recorded `c287a4...` composite and `7ba99c...` predecessor evidence remain
-historical checks, not proof of the present app's source or functional rollback.
+historical checks, not a functional rollback drill for the present app.
 Manual Codex remains hidden in normal mode and D3 routine release stays HOLD.
