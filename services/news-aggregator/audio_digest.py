@@ -34,7 +34,7 @@ import numpy as np
 import soundfile as sf
 from kokoro_onnx import Kokoro
 from aster_batch_tts import AsterBatchTTS
-from digest_text import coherent_event, dedupe_titles, narration_units, repeat_story, speech_text
+from digest_text import coherent_event, dedupe_titles, narration_units, repeat_story, speech_text, spoken_ordinal
 
 DB_PATH = Path(__file__).parent / "news.db"
 STATIC_DIR = Path(__file__).parent / "static" / "digest-audio"
@@ -70,17 +70,9 @@ def local_now() -> datetime:
     return datetime.now(timezone.utc) + BC_OFFSET
 
 
-def ordinal(n: int) -> str:
-    if 10 <= n % 100 <= 20:
-        suffix = "th"
-    else:
-        suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
-    return f"{n}{suffix}"
-
-
 def briefing_label(local_dt: datetime) -> tuple[str, str]:
     period = "morning" if local_dt.hour < 12 else "evening"
-    date_str = local_dt.strftime("%A, %B ") + ordinal(local_dt.day)
+    date_str = local_dt.strftime("%A, %B ") + spoken_ordinal(local_dt.day)
     return period, date_str
 
 

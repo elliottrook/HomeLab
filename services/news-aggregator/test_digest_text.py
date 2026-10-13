@@ -1,5 +1,5 @@
 import unittest
-from digest_text import coherent_event, dedupe_titles, narration_units, repeat_story, same_story, speech_text
+from digest_text import coherent_event, dedupe_titles, narration_units, repeat_story, same_story, speech_text, spoken_ordinal
 
 class DigestTextTests(unittest.TestCase):
     def test_dedupes_evolving_headlines(self):
@@ -54,6 +54,22 @@ class DigestTextTests(unittest.TestCase):
             speech_text("Read more at https://example.com/story or example.ca/news."),
             "Read more at or.",
         )
+
+    def test_calendar_ordinal_is_written_for_speech(self):
+        self.assertEqual(spoken_ordinal(12), "twelfth")
+
+    def test_emergency_911_is_spoken_digit_by_digit(self):
+        self.assertEqual(
+            speech_text("Police released audio from a 911 call."),
+            "Police released audio from a nine one one call.",
+        )
+
+    def test_porsche_911_is_not_rewritten(self):
+        self.assertEqual(speech_text("The Porsche 911 was updated."), "The Porsche 911 was updated.")
+
+    def test_roman_numerals_are_spoken_as_numbers(self):
+        self.assertEqual(speech_text("World War II and Apollo XIII."), "World War two and Apollo thirteen.")
+        self.assertEqual(speech_text("I remember the event."), "I remember the event.")
 
     def test_narration_units_are_bounded_with_controlled_pauses(self):
         text = (

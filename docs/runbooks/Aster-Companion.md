@@ -76,6 +76,26 @@ Keep the phone page foregrounded during a turn. Listening, thinking, speaking
 and acting have distinct orb effects. Typed messages remain available if audio
 is unavailable.
 
+### OpenBao recovery
+
+The native composite client exposes OpenBao recovery beside AI-PAM and Codex
+requests. It shows sanitized seal state only. A fresh mandatory passkey flow is
+required before submitting either of the two human-held unseal tokens or using
+the separately confirmed **Seal OpenBao** action. Token fields are cleared
+immediately and neither the app nor Aster stores or displays their values.
+
+### Two-Mac release rule
+
+The Mac mini and MacBook are separate installations. A release is not complete
+until the same composite executable hash is installed and signature-verified on
+both, followed by independent Authentik sign-in and a normal request on each.
+The composite must retain Codex requests, OpenBao recovery and AVS1
+`/voice/v2/tts/stream`; checking only that the app launches is insufficient.
+Preserve each machine's prior bundle before replacement. Transfer an archive
+with a verified SHA-256 through the existing private path; never transfer
+Keychain items, sessions, unseal material or private keys. Use the stable owner-
+held signing identity and stop if Gatekeeper or signature verification fails.
+
 ## ARR repair is a separate follow-up
 
 Jason deferred live ARR-repair execution on 2026-09-23. Production dry-run and

@@ -10,6 +10,24 @@ struct ChatMessage: Identifiable, Equatable {
     var summary: ReplySummary? = nil
 }
 
+struct OpenBaoStatus: Codable, Equatable {
+    let initialized: Bool?
+    let sealed: Bool?
+    let threshold: Int?
+    let shares: Int?
+    let progress: Int?
+    let version: String?
+    let buildDate: String?
+    let message: String?
+
+    enum CodingKeys: String, CodingKey {
+        case initialized, sealed, progress, version, message
+        case threshold = "t"
+        case shares = "n"
+        case buildDate = "build_date"
+    }
+}
+
 enum AsterClientError: Error, LocalizedError {
     case notAuthenticated
     case server(status: Int, body: String)
@@ -104,6 +122,19 @@ struct AsterClient {
 
     func fetchAIPAMPending() async throws -> [AIPAMPendingApproval] {
         try await companionRequest(path: "v1/companion/approvals")
+    }
+
+    func fetchOpenBaoStatus() async throws -> OpenBaoStatus {
+        try await companionRequest(path: "v1/openbao/unseal/status")
+    }
+
+    func submitOpenBaoToken(_ token: String) async throws -> OpenBaoStatus {
+        let body = try AIPAMCoding.encoder.encode(["key": token])
+        return try await companionRequest(path: "v1/openbao/unseal", method: "POST", body: body)
+    }
+
+    func sealOpenBao() async throws -> OpenBaoStatus {
+        try await companionRequest(path: "v1/openbao/seal", method: "POST")
     }
 
     func actOnAIPAMApproval(_ item: AIPAMPendingApproval, approve: Bool) async throws -> AIPAMActionResult {

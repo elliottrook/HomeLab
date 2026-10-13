@@ -7,7 +7,7 @@
     "authority": "forgejo",
     "repository": "jason/homelab",
     "branch": "codex/aster-stream-a-handoff",
-    "observed_commit": "13a4aec2c107b5b6fce5ea6a108e597f6a62c1fb",
+    "observed_commit": "efa82b4419442c79ddf61e25b431fa43a832359e",
     "tag_authorized": false
   },
   "identity": {
@@ -32,7 +32,7 @@
     "files": {
       "aster_voice_candidate.py": "c452a7b6777567c9649606c63fc9a9304ff3a48a7cda2659e100f47a32330037",
       "aster_speech.py": "75b065de4598eb2d805f1a679e65f13b12cadac3afb8855534f10981aae615dd",
-      "voice_candidate.py": "3e91f7681851ae14a912b1ed3853ab21ff0f3422bedc13db68dccbea4e01f4b6",
+      "voice_candidate.py": "221aba787c41aa4ece2925317a39ec39cd0d95f3847d4c00bd1a58c136c39940",
       "voice_candidate_http.py": "bfd7b6d556029d6231afb8423ccbca776914608de98d855a4b6913272e241d46",
       "voice_metrics.py": "8c86d7df66bf733f616b148306308c836403c08015be19c4e4719b79368a8943",
       "voice_protocol.py": "5f391f622fa99a74c279a5c8607e2cac1b9f96c293bd0f8be564fc46dda05b6e",
@@ -44,11 +44,11 @@
     }
   },
   "release_candidate_tree": {
-    "commit": "13a4aec2c107b5b6fce5ea6a108e597f6a62c1fb",
+    "commit": "efa82b4419442c79ddf61e25b431fa43a832359e",
     "files": {
       "aster_voice_candidate.py": "c452a7b6777567c9649606c63fc9a9304ff3a48a7cda2659e100f47a32330037",
       "aster_speech.py": "75b065de4598eb2d805f1a679e65f13b12cadac3afb8855534f10981aae615dd",
-      "voice_candidate.py": "3e91f7681851ae14a912b1ed3853ab21ff0f3422bedc13db68dccbea4e01f4b6",
+      "voice_candidate.py": "221aba787c41aa4ece2925317a39ec39cd0d95f3847d4c00bd1a58c136c39940",
       "voice_candidate_http.py": "bfd7b6d556029d6231afb8423ccbca776914608de98d855a4b6913272e241d46",
       "voice_metrics.py": "8c86d7df66bf733f616b148306308c836403c08015be19c4e4719b79368a8943",
       "voice_protocol.py": "5f391f622fa99a74c279a5c8607e2cac1b9f96c293bd0f8be564fc46dda05b6e",
@@ -63,14 +63,14 @@
   "accepted_consumers": {
     "companion_web": "accepted canonical AVS1 streaming",
     "home_assistant": "accepted Wyoming pilot",
-    "news_digest": "accepted isolated CPU batch path",
-    "native_mac": "launch repair verified, but installed bundle v4 binary 8781e1defd4bb953544b93a65cefbf115d20ca41e707dabb34de1750795e3eb4 contains legacy voice/v1/tts and is not the canonical-streaming candidate"
+    "news_digest": "accepted corrected full briefing through the isolated canonical CPU batch path",
+    "native_mac": "launch repair verified for version 0.2.2 build 4, but installed binary 7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d contains legacy voice/v1/stt and voice/v1/tts and is not the canonical-streaming candidate"
   },
   "graduation_evidence": {
     "companion_web": {
-      "passes": 1,
+      "passes": 2,
       "required": 2,
-      "state": "one accepted listening pass plus canonical stream and cancellation proxy evidence"
+      "state": "two accepted listening passes through canonical AVS1 streaming; the second verified spoken dates, emergency 911 and Roman numerals"
     },
     "home_assistant": {
       "passes": 2,
@@ -78,9 +78,9 @@
       "state": "accepted near-field household/entity pass and two independent far-field time passes through Wyoming"
     },
     "news_digest": {
-      "passes": 1,
+      "passes": 2,
       "required": 2,
-      "state": "corrected opening accepted and scheduled artifact machine-valid; one regenerated full-briefing listening pass remains"
+      "state": "corrected opening and regenerated full briefing accepted; final date, emergency-number and Roman-numeral rules are active for future recordings"
     },
     "native_mac": {
       "passes": 0,
@@ -104,7 +104,7 @@
   },
   "blockers": [
     "build, test and install the repository native AVS1 client with a matched Swift compiler/SDK, then independently verify its binary and live canonical streaming request",
-    "complete M8 two-pass cross-surface production evidence and efficiency review",
+    "complete native composite deployment and two listening passes on both the Mac mini and MacBook",
     "revalidate and atomically reserve tentative VMID 127 and 192.168.20.37/24 in Proxmox/NetBox immediately before provisioning",
     "create a final manifest from a clean immutable Forgejo commit",
     "obtain explicit approval before creating the release tag"

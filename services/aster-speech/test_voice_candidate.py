@@ -25,6 +25,23 @@ class VoicePolicyTests(unittest.TestCase):
             "A United States-style proposal from a British Columbia-based group.",
         )
 
+    def test_emergency_911_is_spoken_digit_by_digit(self):
+        self.assertEqual(
+            normalize_for_speech("Police released audio from a 911 call."),
+            "Police released audio from a nine one one call.",
+        )
+        self.assertEqual(
+            normalize_for_speech("The Porsche 911 was updated."),
+            "The Porsche 911 was updated.",
+        )
+
+    def test_roman_numerals_are_spoken_as_numbers(self):
+        self.assertEqual(
+            normalize_for_speech("World War II and Apollo XIII."),
+            "World War two and Apollo thirteen.",
+        )
+        self.assertEqual(normalize_for_speech("I remember the event."), "I remember the event.")
+
     def test_semantic_units_preserve_all_words(self):
         text = "The first sentence is short. The second clause is longer, but remains readable."
         units = semantic_units(text, maximum=35)
