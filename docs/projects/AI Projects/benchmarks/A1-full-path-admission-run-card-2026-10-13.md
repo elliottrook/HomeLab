@@ -88,7 +88,8 @@ News and schedule postchecks before clearing the host lock. A unit reporting
 ## Verified current state and remaining work
 
 Read-only checks on 2026-10-13 Vancouver found Proxmox backup enabled at
-00:30 and TrueNAS **rsynctasks** 1/3/2 enabled at 01:00/02:00/03:00. These
+00:30 (job `backup-49999802-1365`) and TrueNAS **rsynctasks** 1/3/2 enabled
+at 01:00/02:00/03:00. These
 are configured schedules, not tonight's completion proof. The installed
 `/usr/local/sbin/local-ai-lease` matches the platform checkout's old
 light-only controller SHA-256
@@ -112,6 +113,12 @@ restarts. This is a **pre-lease baseline only**. A post-recovery check must
 compare against freshly verified model artifact, unit, binary, GPU placement,
 authenticated generation and schedule receipts; service-active alone is not
 exact restoration.
+LXC 114's enabled `news-aggregator-digest.timer` was also read directly;
+its `OnCalendar=*-*-* 06,17:15:00 Etc/GMT+7` means 06:15 and 17:15 at
+the project's fixed UTC-7 local offset. Its older description/comment still
+mentions 06:00/18:00 and must not be used as the restoration target. The
+post-lease schedule proof must include this News timer and the four backup
+jobs' enabled state and exact schedules, not merely a tuple of clock labels.
 
 The Stream A exclusive wake-up has been moved from its obsolete 01:30 timing
 to a **paused 03:15 readiness-check slot**. It remains paused, and even if
