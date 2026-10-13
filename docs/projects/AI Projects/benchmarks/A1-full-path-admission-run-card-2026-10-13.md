@@ -184,3 +184,12 @@ durable attempt journal, distinct inner authentication, the pinned 20-request
 set and a common Aster gateway topology for control and challenger. These
 reported observations still require independent live-source proof; a passing
 dictionary check is not authority to start the run.
+
+**Private corpus derivation check, 2026-10-13:** Read only the owner-protected
+`cases.jsonl` from the approved A1 v2 backup, validated its pinned source hash
+and generated 20 distinct serialized request digests in memory. The SHA-256 of
+the sorted, newline-joined digest list is
+`19f1370e3e4a352fa20615504350c34ee38b56e97b010d543b76394934887589`.
+No case text, answer key, individual request digest or credential was printed
+or put in Git. This establishes deterministic fixture preparation, not a
+configured live gateway or an admitted model run.
