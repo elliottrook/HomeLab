@@ -255,8 +255,8 @@ matches = [
     and task.get('mode') == 'SSH'
     and task.get('remotepath') == '.'
     and set(task.get('extra') or []) == required_extra
-    and (task.get('schedule') or {}).get('hour') == '4'
-    and (task.get('schedule') or {}).get('minute') == '20'
+    and (task.get('schedule') or {}).get('hour') == '2'
+    and (task.get('schedule') or {}).get('minute') == '0'
 ]
 print(matches[0]['id'] if len(matches) == 1 else '')
 " "$rsynctask_json")"
