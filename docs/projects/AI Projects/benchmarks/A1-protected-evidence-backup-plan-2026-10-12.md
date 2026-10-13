@@ -10,14 +10,30 @@ The A1 v2 control is a useful immutable development baseline only if its
 private questions, returned answers and blind reviews can be recovered and
 checked against the published content-free digests. The sole known live copy
 is in the owner's `~/Library/Application Support/Aster-Stream-A-Evidence/`
-tree. Read-only checks show its directory is mode 0700 and the current
-20-case evidence occupies about 72 KiB. `tmutil destinationinfo` reports no
-configured Time Machine destination on this Mac. The repository's
+tree. A read-only, no-content traversal of the v2 subtree found nine regular
+files totalling 57,692 bytes, one child directory, no symlinks or other file
+types, and no group/world-accessible entry; the parent is mode 0700. This is
+an inventory count, not a complete integrity manifest.
+`tmutil destinationinfo` reports no configured Time Machine destination on
+this Mac. The repository's
 [backup architecture](../../../05-Backups.md) describes a restricted TrueNAS
 pull scoped to `~/lab/private-backups` only. It cannot cover the A1 path by
 that documented design. An undocumented backup, a successful current TrueNAS
 job, the exact off-site inclusion and a restore of this corpus are all
 **UNKNOWN / REQUIRES VERIFICATION**.
+The main backup overview still lists the Mac pull at 04:15. A read-only
+TrueNAS task query confirms the enabled Mac pull is now configured for 03:00;
+the enabled Proxmox and other TrueNAS backup jobs also match the platform
+owner's 00:30/01:00/02:00 sequence. This is configured timing, not a successful
+copy or restore of this corpus. Correcting the central backup overview belongs
+to the backup/platform owner.
+The tracked [IDrive relay script](../../../../scripts/backup/idrive-relay-sync.sh)
+syncs the entire `configuration/mac` tree to an encrypted cloud remote with
+no A1-specific exclusion. The deployed relay's read-only source projection
+also shows `sync_tree configuration/mac mac` and no A1-specific exclusion.
+Its full file hash differs from the tracked script, so source/deployment
+parity is **UNKNOWN** beyond those inspected lines. Treat the proposed
+ciphertext as off-site-bound unless an explicit exclusion is established.
 
 This finding does not invalidate the published score hashes, but it blocks
 claims that the raw evidence is safely backed up. Never delete the source

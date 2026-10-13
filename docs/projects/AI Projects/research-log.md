@@ -3024,3 +3024,34 @@ the two AI-authored cases per A1 family. Numeric per-class limits remain
 unknown pending current-path measurement and Jason's risk/waiting preferences.
 This is an offline policy proposal, not an experiment, model promotion or
 permission change.
+
+### 2026-10-12 — A1 evidence custody and lab-schedule reconciliation
+
+On this Mac, `tmutil destinationinfo` reports no Time Machine destination.
+The documented TrueNAS Mac pull is confined to `~/lab/private-backups`;
+the owner-only A1 v2 evidence resides outside that tree. No recoverable copy
+or restore has been verified. Added a [protected-copy and restore gate](benchmarks/A1-protected-evidence-backup-plan-2026-10-12.md)
+without copying the corpus or changing retention or access. The plan treats
+source-side encryption, current relay scope and isolated restore as separate
+proofs and requires an exact custody decision before a new backup copy.
+
+Read the platform owner's current, uncommitted
+`docs/projects/Local-AI-Platform-Split.md` record from the main checkout
+without editing it. It reports a completed
+backup schedule move to 00:30/01:00/02:00/03:00 and a successful manual
+light-lease acquire/release, while its controller remains unscheduled and
+disabled by default. Stream A has not independently validated the live
+scheduler or obtained a current lease receipt. Updated the [work cadence](Stream-A-Work-Cadence.md)
+to distinguish this reported implementation from the still-proposed News and
+analysis reservations; no exclusive test was started.
+
+Subsequent direct, read-only checks independently found Proxmox backup job
+`backup-49999802-1365` enabled at 00:30, and TrueNAS rsync tasks 1/3/2 enabled
+at 01:00/02:00/03:00. These are configured schedules, not completed-chain
+evidence. The deployed IDrive relay unit invokes
+`/usr/local/sbin/idrive-relay-sync`; selected source lines sync
+`configuration/mac` to `mac` and show no A1-specific exclusion. The deployed
+script SHA-256 `2a4f139e2f7e1c9df6b1adf92b395f0bd411e6dbd1ddf323148162961e442166`
+differs from tracked `a16029898bb6eb769962945e3c9d228bf30cc6a969a72f6523a3f77891e21bbc`.
+This proves the relevant live path, not full source parity, a successful
+off-site copy of A1 evidence or a recoverable restore. No remote state changed.

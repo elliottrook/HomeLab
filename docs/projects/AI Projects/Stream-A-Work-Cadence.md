@@ -6,7 +6,21 @@ Stream A has two work lanes. **Continuous lane:** documentation, code and fixtur
 
 **Exclusive lane:** deliberate model-call batches, latency/quality comparisons and any activity that occupies the single inference slot or requires lab isolation. Jason's newer [cross-project schedule decision](evidence/Stream-A-lab-window-coordination-2026-10-12.md) proposes a **whole-host `ai-lab` maintenance lease after the complete backup chain and ending by 04:15 America/Vancouver**, followed by a 04:15–06:15 local-AI analysis reservation and the 06:15 News digest. The lab lease can include guest/component restarts and host reboots under that project's checkpoint and recovery controls. Stream A may use the longer lease for its scoped tests, but it does not own the host scheduler or B60 backend promotion. The old 01:00–02:00 Aster slot is retired.
 
-**Current-state guard:** the backup moves, News timer, lab controller and host-level lease are still proposals, not verified live changes. Jason changed priorities and will provide exclusive lab time later. The former 01:30 exclusive automation is **paused**; it performs no wake-up or test. Existing 02:30/04:00/04:20 backup tasks remain potential conflicts until independently verified moved. When Jason gives a new window, recheck the real schedule, completed backup chain, active lease/owner and restoration deadline before resuming any exclusive test. A clock time or earlier broad lab access alone does not prove those conditions.
+**Current-state guard, reconciled 2026-10-12:** the platform owner's current,
+uncommitted `docs/projects/Local-AI-Platform-Split.md` record in the main
+checkout reports backup schedules moved to Proxmox 00:30 and TrueNAS
+01:00/02:00/03:00. Stream A independently checked the enabled Proxmox job and
+TrueNAS tasks 1/3/2 read-only on 2026-10-12; those configured schedules match.
+This does not prove a later backup chain completed. The platform record also
+reports one successful manually acquired and released **light** lease; the
+controller remains disabled by default and unscheduled. Stream A has not
+obtained a current lease receipt. The News 06:15 move and 04:15–06:15 analysis workload
+remain proposed. Jason will assign new exclusive time later. The former
+01:30 exclusive automation is **paused**; it performs no wake-up or test.
+Before any exclusive test, recheck the actual schedules, completed backup
+chain, active lease/owner, scope of drain and restoration deadline. A clock
+time, a prior light-lease success or earlier broad lab access alone does not
+grant a new lease.
 
 The longer window increases test capacity once those controls exist. It does not silently authorize a new production release, credential exposure, security-policy change, remote Git write, or a test outside Stream A's recorded scope. Aster testing must yield to the host maintenance owner and stop early enough for accepted production to be restored and verified by 04:15.
 
@@ -40,4 +54,11 @@ answer capture and bounded diagnostic evidence while those gates remain open.
 | B60 backend benchmarks | B60 engineering project / outside Stream A run queue | Coordinate with that project's own gates and window. Stream A reads accepted results; it does not run a competing benchmark automatically. |
 | A1 completed-answer control | Shared-service development run / DONE; qualification / open | The six-case development run is done. The first 20-case holdout attempt lost its answer evidence to a local write failure, so v1 has no quality score and must not be replayed. The [fresh v2](benchmarks/answer-holdout-release-v2-2026-10-12.md) passed storage and live admission, then returned 20/20 responses; two blind AI reviews agreed on [14/20 full-rubric passes](experiments/a1-answer-holdout-v2/RESULT-2026-10-12.md). This is a frozen direct-backend regression baseline, not native Aster latency, human ground truth or a promotion bar. Next candidates need separate profiles, independent labels and a paired comparison; do not retune on v2. |
 
-The exclusive automation remains paused until Jason assigns a new lab window. Then it may inspect the actual backup/lease state and execute only READY, bounded tests inside a verified lease. The continuous-lane automation remains active every four hours, works without exclusive B60/host access and stays quiet on unchanged session state. Both belong to this chat and worktree; neither pushes to Forgejo without immediately current approval.
+The exclusive automation remains paused until Jason assigns a new lab window.
+Then it may inspect the actual backup/lease state and execute only READY,
+bounded tests inside a verified lease. The continuous-lane automation remains
+active every four hours, works without exclusive B60/host access and stays
+quiet on unchanged session state. Both belong to this chat and worktree; a
+remote push follows the repository's per-push rule except Jason's narrow
+standing authorization for branch commits whose purpose is coordination with
+the MacBook B60 agent.
