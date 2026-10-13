@@ -37,6 +37,12 @@ The owner-only attempt journal keeps its earlier 900-second default; this
 full-path card must pass `max_wall_s=1200` explicitly, and a shorter live
 lease deadline still wins. The offline journal now accepts that explicit
 cap without changing the historical direct-backend profile.
+The [offline Aster request serializer](../../../../scripts/aster-adaptive/aster_full_path_request.py)
+constructs one non-streaming `sysadmin` chat request per frozen case with
+`enabled_tools: []`, temperature zero and a 256-token cap. It rejects extra
+case fields so hidden labels cannot enter the request. This is not a live
+client or a server-side tool boundary: the isolated gateway must enforce the
+no-tool scope independently, because a client flag alone is not authority.
 
 The headless client begins its clock at request acceptance and marks display
 only after its final response renderer completes. The Aster ASGI clock emits
