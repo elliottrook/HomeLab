@@ -9,14 +9,16 @@ bounded sysadmin investigation and later automatic routing, use the
 [Stream A remaining delivery map](Stream-A-Remaining-Delivery-Map.md). Its
 summary does not replace the detailed gates or their required evidence.
 
-**Current D3 checkpoint, 2026-10-13:** The stable-signed Mac-mini
-[composite](evidence/D3-composite-offline-candidate-2026-10-12.md) preserves
-native OpenBao and ordinary Aster. Signed-in UI, fresh passkey/read-only
-OpenBao status, AI-PAM and one ordinary answer passed; the Mac manual Codex
-pilot stays hidden in normal use. The browser OpenBao interface was not
-changed. [Natural refresh is monitored](evidence/D3-refresh-gate-reassessment-2026-10-12.md),
-not an indefinite blocker. Routine manual-Codex release awaits the finite
-flagged-UI/consent check. Automatic routing and connected tools remain off.
+**Current D3 checkpoint, 2026-10-13:** A stable-signed Mac-mini
+[composite](evidence/D3-composite-offline-candidate-2026-10-12.md) preserved
+native OpenBao and ordinary Aster during its bounded check. The app owner
+subsequently replaced that bundle; an intermediate build crashed and a later
+signed build was observed working in ordinary use. Its exact source attribution
+and long-duration reliability remain open. The browser OpenBao interface was
+not changed. The Mac manual Codex pilot remains hidden in normal use and its
+routine release is **HOLD** after an exact metadata-manifest mismatch blocked
+the consent screen. [Natural refresh is monitored](evidence/D3-refresh-gate-reassessment-2026-10-12.md),
+not an indefinite blocker. Automatic routing and connected tools remain off.
 
 The [Stream A work cadence](Stream-A-Work-Cadence.md) keeps offline/shared work moving. Jason paused exclusive lab scheduling until he assigns new time; no lab test runs automatically. Later preflighted READY experiments still require a verified whole-host `ai-lab` lease and completed backups. The old 01:00–02:00 Aster slot is retired.
 
@@ -158,7 +160,7 @@ next-action prose, including the old Section 17 resume instruction.
 | D0 — decision and protocol preflight | Complete for installed metadata interface | CLI 0.158.0-alpha.2.1; initialize/account/read/model/list passed; ChatGPT auth; D2 subsequently proved one working inference |
 | D1 — offline delegation contract | Bounded pilot candidate ready; 50 tests pass | Pipe transport and snapshot recovery tested; outgoing offline request offered zero tools; production integration remains later work |
 | D2 — synthetic subscription round trip | Connectivity, usage and one live stop passed | First stop reporting failure retained, cause unresolved; successful repetition is not a reliability claim |
-| D3 — Companion integration | Bounded historical no-tools pilot; Mac composite installed, routine manual release held | The [finite-set](evidence/D3-native-finite-12-result-2026-10-09.md), [second-pass](evidence/D3-existing-answer-second-pass-2026-10-09.md) and [independent Orion](evidence/D3-Orion-independent-review-2026-10-11.md) reviews support answer quality only for the earlier pilot. [Version 16 completed nine observed natural refreshes](evidence/D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md), but is no longer installed. The current [stable-signed composite](evidence/D3-composite-offline-candidate-2026-10-12.md) preserves OpenBao/auth source, passes offline tests and signed-in/read-only/ordinary-use checks on the Mac mini; its manual feature is hidden by default. A verified prior-app rollback is retained. [Refresh monitoring](evidence/D3-refresh-gate-reassessment-2026-10-12.md) no longer blocks unrelated work. Verify the flagged pilot UI and consent without an unnecessary new Codex turn before routine manual release. General intake, automatic routing and sysadmin tools remain unauthorized; worker identity has zero grants. |
+| D3 — Companion integration | Bounded historical no-tools pilot; routine manual release held | The [finite-set](evidence/D3-native-finite-12-result-2026-10-09.md), [second-pass](evidence/D3-existing-answer-second-pass-2026-10-09.md) and [independent Orion](evidence/D3-Orion-independent-review-2026-10-11.md) reviews support answer quality only for the earlier pilot. [Version 16 completed nine observed natural refreshes](evidence/D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md), but is no longer installed. The later [stable-signed composite](evidence/D3-composite-offline-candidate-2026-10-12.md) preserved OpenBao/auth and passed signed-in/read-only/ordinary-use checks before an app-owner replacement. An intermediate build crashed; a newer signed build was observed working, but source attribution and longer reliability are open. The supervised manual screen recovered an old answer, then blocked new-question consent on a manifest mismatch. A future manual release needs exact manifest review, a built candidate, consent check and rollback proof. [Refresh monitoring](evidence/D3-refresh-gate-reassessment-2026-10-12.md) does not block independent work. General intake, automatic routing and sysadmin tools remain unauthorized; worker identity has zero grants. |
 | D4 — live sysadmin delegation | Not started | Scoped discovery authority, verified outcomes and separately approved mutation |
 
 Evidence and the fixed fictional D2 fixture are in
