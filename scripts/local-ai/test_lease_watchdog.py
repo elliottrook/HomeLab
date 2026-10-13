@@ -1,7 +1,7 @@
 import unittest
 
 from lease_contract import ACCEPTED_BACKEND, ACCEPTED_MODEL, LeaseReceipt
-from lease_watchdog import Observation, WatchdogState, decide
+from lease_watchdog import Observation, WatchdogState, decide, status_receipt
 
 
 class LeaseWatchdogTests(unittest.TestCase):
@@ -71,6 +71,29 @@ class LeaseWatchdogTests(unittest.TestCase):
         )
         self.assertEqual(decision.state, WatchdogState.READY)
         self.assertEqual(decision.actions[-1], "release-lease-lock")
+
+    def test_status_receipt_is_content_free_and_bound_to_lease(self):
+        value = status_receipt(
+            self.receipt(),
+            WatchdogState.READY,
+            self.observation(),
+        )
+        self.assertEqual(value["lease_id"], "lab-20261013-01")
+        self.assertEqual(value["generation"], 1)
+        self.assertEqual(value["state"], WatchdogState.READY)
+        self.assertNotIn("prompt", value)
+        self.assertNotIn("token", value)
+        self.assertNotIn("audio", value)
+
+    def test_status_receipt_preserves_failure_category_without_details(self):
+        value = status_receipt(
+            self.receipt(),
+            WatchdogState.FAILED,
+            self.observation(production_services_healthy=False),
+            failure_code="production-health",
+        )
+        self.assertEqual(value["failure_code"], "production-health")
+        self.assertNotIn("exception", value)
 
 
 if __name__ == "__main__":

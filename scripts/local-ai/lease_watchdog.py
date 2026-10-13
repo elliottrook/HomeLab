@@ -7,7 +7,7 @@ and when a lock may be released.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from enum import Enum
 
 from lease_contract import LeaseError, LeaseReceipt, validate_receipt
@@ -34,6 +34,42 @@ class Observation:
 class WatchdogDecision:
     state: WatchdogState
     actions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class StatusReceipt:
+    """Content-free status shared with authenticated consumers."""
+
+    lease_id: str
+    generation: int
+    state: WatchdogState
+    expires_minute: int
+    model_identity: str
+    backend_identity: str
+    control_plane_healthy: bool
+    production_services_healthy: bool
+    accepted_gpu_visible: bool
+    schedule_restored: bool
+    failure_code: str | None
+
+
+def status_receipt(receipt: LeaseReceipt, state: WatchdogState, observation: Observation, *, failure_code: str | None = None) -> dict[str, object]:
+    """Return an allowlisted, content-free receipt suitable for API output."""
+
+    value = StatusReceipt(
+        lease_id=receipt.lease_id,
+        generation=receipt.generation,
+        state=state,
+        expires_minute=receipt.expires_minute,
+        model_identity=receipt.model_identity,
+        backend_identity=receipt.backend_identity,
+        control_plane_healthy=observation.control_plane_healthy,
+        production_services_healthy=observation.production_services_healthy,
+        accepted_gpu_visible=observation.accepted_gpu_visible,
+        schedule_restored=observation.schedule_restored,
+        failure_code=failure_code,
+    )
+    return asdict(value)
 
 
 def decide(
