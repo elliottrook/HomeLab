@@ -5,7 +5,7 @@ live effect.
 
 ## Candidate identity
 
-- Source commit: `e08adea0`; this manifest is not a deployment authorization.
+- Source commit: `fbdbb303`; this manifest is not a deployment authorization.
 - Accepted live runtime: LXC 110, llama.cpp `b11429`, SYCL/Level Zero,
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
