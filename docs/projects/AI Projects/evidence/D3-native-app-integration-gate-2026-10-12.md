@@ -1,10 +1,12 @@
 # D3 manual Codex and current native Companion integration gate
 
-**Status: an isolated, stable-signed offline candidate and a verified local
-rollback copy now exist; no app change or release.**
+**Status: Jason approved installation of the stable-signed composite on the
+Mac mini. Signed-in UI, read-only passkey/OpenBao status, AI-PAM panel and one
+ordinary Aster answer pass; D3 routine manual-Codex release remains held.**
 The [v16 refresh result](D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md)
-is valid historical evidence, but the installed `/Applications/AsterCompanion.app`
-is now a different signed 0.2.2/build-4 binary. Its executable hash is
+is valid historical evidence, but before composite installation the installed
+`/Applications/AsterCompanion.app` was a different signed 0.2.2/build-4 binary.
+Its executable hash was
 `7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d`.
 The current main checkout's `Info.plist` names the same version/build and its
 runbook calls this an AI-PAM parity candidate. That is source/repository
@@ -20,9 +22,9 @@ checking, reports version 0.2.2/build 4, and has executable SHA-256
 It is **not yet an accepted functional rollback**: the runbook documents that
 this preceding build stalled normal sign-in because it skipped the
 authorization-code exchange when no optional completion handler was supplied.
-No bundle was launched, replaced or restored during this inventory. The app
-owner must identify a rollback that passes the ordinary sign-in and AI-PAM
-checks before a composite release.
+No bundle was launched, replaced or restored during that inventory. The later
+verified copy of the then-working signed app supersedes this faulty predecessor
+as the local rollback candidate; functional restore remains untested.
 
 The app owner subsequently confirmed published source `f26e3c48` as the
 current app baseline, with no further unpublished Companion edits in that
@@ -35,7 +37,11 @@ conflict, without claiming live acceptance. A stable-signed release bundle
 was built offline and a byte-verified, signed copy of the currently working
 app was retained at
 `/Users/jelliott/lab/private-backups/aster-companion/pre-composite-20261012.app`.
-Neither has been installed or restore-and-launch tested. The browser
+The composite was subsequently installed on the Mac mini; the prior app is
+also retained at `/Applications/AsterCompanion.pre-stream-a-20261012.app`.
+The local rollback has not undergone a restore-and-launch drill. See the
+[installation and live observations](D3-composite-offline-candidate-2026-10-12.md).
+The browser
 Companion's OpenBao UI and service are unchanged by this Mac-only candidate;
 browser-side manual Codex is outside its scope.
 
@@ -69,6 +75,11 @@ read-only source observations, not evidence about which features are compiled
 into the installed binary.
 
 ## Smallest safe integration sequence
+
+This was the pre-install plan. Steps 1–3 have source/build evidence; step 4
+is partially verified by the signed-in Mac UI, OpenBao/AI-PAM panels and one
+ordinary response. The exact composite has not yet shown natural refresh or
+flagged manual-Codex behavior. Step 5 remains **HOLD**.
 
 1. The current app owner identifies the exact source commit plus any pending
    local changes, installed-binary hash, signing identity, current AI-PAM
