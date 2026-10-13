@@ -4,6 +4,11 @@ Date: 2026-10-13
 
 Status: **Design recorded locally; live capability not enabled.**
 
+Jason directed continuation under the exact recorded scope as **Stream A** on
+2026-10-13. This authorizes the enumerated implementation and recovery work;
+it does not waive immediate confirmation for a remote Forgejo write or permit
+direct GitHub mutation.
+
 ## User-directed authority convention
 
 For this project, “git” means Forgejo. Forgejo is the authoritative source of

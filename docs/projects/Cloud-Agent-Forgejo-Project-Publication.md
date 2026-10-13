@@ -1,15 +1,19 @@
 # Cloud-agent Forgejo project publication
 
-> Status: Proposed — Stream M; M0 design and risk acceptance required
+> Status: Active — Stream A; M0/M1 local gates passed; M2 implementation in progress
 >
 > Owner: Jason
 >
 > Proposed: 2026-10-13
 >
-> Authorization stream: **Stream M — Monitored**. This project document records
-> a proposed narrow capability. It does not authorize a live deployment, a
-> remote write or a merge. Each remote Forgejo write still requires Jason's
-> immediate confirmation under the repository rules.
+> Authorization stream: **Stream A — Autonomous**, explicitly directed by Jason
+> on 2026-10-13 for this exact narrow Forgejo-first capability. The authority
+> covers only the enumerated local code, isolated runner, AI-PAM capability,
+> validation, canary and recovery changes below. It does not authorize direct
+> GitHub writes, merges, force-pushes, branch deletion or scope expansion.
+> Forgejo remote writes remain subject to the repository's immediate
+> confirmation rule; Jason directed that routine project commits be held and
+> pushed when the project completion gate is ready.
 
 ## Terminology and intent
 
@@ -98,6 +102,12 @@ the multi-file document package, with its own tests, policy digest and rollback.
   result, expected effect and rollback before each Forgejo write.
 - A new non-main branch only; merge, release, tag, workflow and branch cleanup
   remain separate human operations.
+- A separately named AI-PAM capability, runner identity and gateway policy for
+  this package. The existing one-file canary capability remains unchanged and
+  independently testable.
+- Reconciliation of the runner's exact Forgejo base before deployment, with a
+  protected checkpoint and rollback of only the new capability if deployment
+  fails.
 - Read-only verification of the accepted Forgejo ref and its automatic GitHub
   mirror.
 - Recovery, revocation, monitoring, audit receipt and operator documentation.
@@ -112,6 +122,9 @@ the multi-file document package, with its own tests, policy digest and rollback.
 - No writes outside the project-document allowlist; no service code,
   infrastructure, secrets, workflows, CI configuration or repository policy.
 - No direct write to Forgejo `main`, protected refs, tags or releases.
+- No reuse or widening of the existing `forgejo.write.safe-branch` capability
+  for multi-file packages; the new capability must fail closed if selected by
+  the old gateway.
 - No merge, force-push, branch deletion, workflow trigger or remote cleanup as
   part of the agent publication action.
 - No new public ingress, firewall rule, DNS record, tailnet route or listener.
