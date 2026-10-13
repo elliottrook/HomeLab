@@ -3,6 +3,10 @@
 **Status: Jason approved installation of the stable-signed composite on the
 Mac mini. Signed-in UI, read-only passkey/OpenBao status, AI-PAM panel and one
 ordinary Aster answer pass; D3 routine manual-Codex release remains held.**
+The [subsequent supervised check](D3-composite-offline-candidate-2026-10-12.md)
+proved the flagged button and original-answer recovery, then found that the
+new-question review was correctly blocked by a changed exact Codex metadata
+fingerprint. Normal signed-in mode was restored; live consent remains open.
 The [v16 refresh result](D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md)
 is valid historical evidence, but before composite installation the installed
 `/Applications/AsterCompanion.app` was a different signed 0.2.2/build-4 binary.

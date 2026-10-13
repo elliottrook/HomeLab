@@ -172,3 +172,39 @@ answer text is not retained in this repository or copied into this record.
 No new Codex question was sent. The pending answer was left visible while
 Jason decides whether to acknowledge it; the live new-question consent view
 therefore remains unchecked, and the limited manual release remains **HOLD**.
+
+## Supervised release check result — 2026-10-13
+
+Jason confirmed the fictional Nova answer was saved privately and approved
+acknowledging the recovered turn. After acknowledgement, the installed pilot
+displayed **“Local Codex configuration changed. New questions are blocked.”**
+The Review question control was disabled, so the live exact-text consent and
+send-disabled-before-consent behavior could not be exercised. This is a
+fail-closed result, not a manual-release pass. No new question was sent.
+
+A metadata-only preparation of the installed bridge returned `inference=false`
+and fingerprint
+`5921ea42e344e7a18481d625032726c640329cb5b38161cccc1f3d4887f750ac`,
+different from the compiled approved fingerprint
+`57140f720aa9097592699986bc03b891ecc67307fe5821af9d48d14c3ef844fa`.
+The safe projection still reported ChatGPT authentication, native OpenAI
+provider, `gpt-5.6-luna` at medium effort, read-only sandbox, disabled web,
+zero enabled MCP servers, one turn and no automatic retry. The installed bridge
+script matched the composite source by SHA-256. The current Codex executable
+hash is `0d5ac7aae20c4eda6242428d5e218c55ba96d8763fda2a271088ff37104b9d28`;
+the old exact preflight's per-field values were not retained here, so the
+specific changed field is **UNKNOWN**. A Codex update is plausible, not proven
+as the sole cause. Do not repin from the current hash without reviewing the
+complete manifest and building a new bounded candidate.
+Substituting the older Codex binary hash retained in the 2026-10-06 pilot
+manifest into the current metadata in memory did **not** reproduce the
+compiled fingerprint. This rules out that particular single-field explanation,
+not other Codex-version or configuration changes.
+
+The pilot sheet was closed. Companion was quit and reopened in normal mode;
+the signed-in screen and hidden manual button were verified. The limited D3
+manual release stays **HOLD**. This finding also exposes an architectural
+maintenance cost: embedding a fingerprint of a moving Codex executable in
+the native app turns an otherwise safe provider update into a Companion
+release gate. Any alternative pin/update policy needs separate security
+review and evidence; it must keep the fail-closed restriction checks.
