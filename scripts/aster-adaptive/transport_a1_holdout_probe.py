@@ -25,6 +25,11 @@ CASES = Path.home() / "Library/Application Support/Aster-Stream-A-Evidence/answe
 SOURCES = {name: HERE / (name + ".py") for name in
            ("a1_9b_synthetic_answer_probe", "holdout_answer_capture",
             "holdout_answer_9b_adapter")}
+SOURCE_SHA256 = {
+    "a1_9b_synthetic_answer_probe": "edbe005674394aa06a72ed8d7be04ac76325dc8b6b4a27af387fe6b6a72e0204",
+    "holdout_answer_capture": "09ecd6843e62cc5786a766de6c18c83bb6a11a36ade2744083d11417d6dbb7f0",
+    "holdout_answer_9b_adapter": "a8b0a03b57d04b48ce4614b125f2ef52a369fc3d3a27c3d962f467a1876235b1",
+}
 REMOTE = ["ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=yes",
           "root@proxmox", "pct exec 110 -- runuser -u ollama -- python3 -"]
 
@@ -43,6 +48,14 @@ def validate_profile(profile_raw: bytes, cases_raw: bytes) -> dict:
             or profile.get("batch_max_wall_seconds") != 600):
         raise ValueError("frozen run scope mismatch")
     return profile
+
+
+def validate_sources(source_raw: dict[str, bytes]) -> None:
+    if set(source_raw) != set(SOURCE_SHA256):
+        raise ValueError("frozen source set mismatch")
+    if any(hashlib.sha256(raw).hexdigest() != SOURCE_SHA256[name]
+           for name, raw in source_raw.items()):
+        raise ValueError("frozen source digest mismatch")
 
 
 def remote_program(cases_raw: bytes, source_raw: dict[str, bytes]) -> str:
@@ -98,6 +111,7 @@ def main() -> None:
     cases_raw = CASES.read_bytes()
     validate_profile(PROFILE.read_bytes(), cases_raw)
     sources = {name: path.read_bytes() for name, path in SOURCES.items()}
+    validate_sources(sources)
     program = remote_program(cases_raw, sources)
     reserve_private(args.output_dir)
     try:

@@ -12,6 +12,14 @@ import holdout_answer_capture as capture
 
 
 class TransportTests(unittest.TestCase):
+    def test_source_files_are_pinned_before_remote_call(self):
+        sources = {name: path.read_bytes() for name, path in transport.SOURCES.items()}
+        transport.validate_sources(sources)
+        modified = dict(sources)
+        modified["holdout_answer_9b_adapter"] += b"\n# changed\n"
+        with self.assertRaisesRegex(ValueError, "source digest mismatch"):
+            transport.validate_sources(modified)
+
     def test_profile_pin_and_label_free_program(self):
         cases_raw = b'{"id":"fictional"}\n'
         profile = {"case_fixture_sha256": hashlib.sha256(cases_raw).hexdigest(),
