@@ -2972,10 +2972,15 @@ stop/postcheck conditions. The platform agent was notified of the new receipt
 and asked for exact lease/staging provenance when available. No service,
 credential, routing policy or model call changed in this checkpoint.
 
-Read-only `tmutil isexcluded` reports the owner-only evidence directory is
-included, and `stat` confirms mode 0700. `tmutil latestbackup` could not mount
-the destination because the backupd XPC connection was invalid. Inclusion is
-not restore evidence; recoverable backup remains **UNKNOWN**.
+Read-only `stat` confirms the owner-only evidence directory is mode 0700.
+`tmutil isexcluded` reported included, but a later direct
+`tmutil destinationinfo` check reported **no Time Machine destinations
+configured** on this Mac. The documented restricted TrueNAS Mac pull is
+confined to `~/lab/private-backups`; the A1 evidence lives under
+`~/Library/Application Support/Aster-Stream-A-Evidence/`. The documented
+backup paths therefore do not establish a copy or restore of A1 evidence.
+Other mechanisms are unverified, so recoverable backup remains **UNKNOWN**.
+See the [protected-evidence backup plan](benchmarks/A1-protected-evidence-backup-plan-2026-10-12.md).
 
 ### 2026-10-12 — Offline A1 attempt-journal recovery candidate
 

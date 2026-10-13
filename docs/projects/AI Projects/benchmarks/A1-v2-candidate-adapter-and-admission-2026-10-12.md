@@ -127,9 +127,14 @@ per-class current-control distributions or numeric quality floors exist.
 Document and resolve these independently. Do not call the 14/20 aggregate a
 promotion threshold or convert 20 direct-backend calls into a population p95.
 
-Read-only Mac metadata shows the protected directory is owner-only (0700)
-and `tmutil isexcluded` reports it **included**. `tmutil latestbackup` could
-not mount the backup destination (backupd XPC connection invalid), so this
-does not prove a recoverable copy or restore. Keep backup status `UNKNOWN`;
-do not delete local originals or claim backup completion from the inclusion
-setting alone.
+Read-only Mac metadata shows the protected directory is owner-only (0700),
+but `tmutil destinationinfo` reports **no Time Machine destinations
+configured**. Its `isexcluded` result of **included** therefore proves no
+copy. The documented restricted TrueNAS Mac pull covers only
+`~/lab/private-backups`, while this evidence resides under
+`~/Library/Application Support/Aster-Stream-A-Evidence/`. No recoverable
+copy or restore of this evidence has been verified. Keep backup status
+`UNKNOWN` for any undocumented mechanism and **not covered by the documented
+Mac pull**; do not delete local originals. The
+[protected-evidence backup plan](A1-protected-evidence-backup-plan-2026-10-12.md)
+defines a separate custody decision before any copy.
