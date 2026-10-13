@@ -13,7 +13,7 @@ import ssl
 import subprocess
 import urllib.request
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 from bundle_verifier import verify_openssh_signature
 from mcp_policy_adapter import (
@@ -58,6 +58,32 @@ class OpenBaoClient:
             self._request("POST", "auth/token/revoke-self", token=token)
         except Exception:
             pass
+
+
+def publish_project_documents(
+    exchange: Callable[[Mapping[str, Any]], Mapping[str, Any]],
+    request_id: object,
+    verified,
+) -> Mapping[str, Any]:
+    """Publish verified documents and never report success after a partial batch."""
+    for index, document in enumerate(verified.documents):
+        operation: dict[str, Any] = {
+            "owner": "jason", "repo": "homelab", "filePath": document.path,
+            "content": document.content, "message": verified.commit_message,
+            "branch_name": "main" if index == 0 else verified.target_branch,
+        }
+        if index == 0:
+            operation["new_branch_name"] = verified.target_branch
+        response = exchange({
+            "jsonrpc": "2.0", "id": f"{request_id}-{index}",
+            "method": "tools/call", "params": {"name": "create_file", "arguments": operation},
+        })
+        if not isinstance(response, Mapping) or "error" in response:
+            raise PolicyDenied("Forgejo project document write failed")
+    return {
+        "jsonrpc": "2.0", "id": request_id,
+        "result": {"content": [{"type": "text", "text": "project documents published"}]},
+    }
 
 
 class ForgejoBackend:
@@ -183,24 +209,10 @@ class ForgejoBackend:
                 raise PolicyDenied("project write handoff metadata changed")
 
         def exchange_batch(process):
-            for index, document in enumerate(verified.documents):
-                operation = {
-                    "owner": "jason", "repo": "homelab", "filePath": document.path,
-                    "content": document.content, "message": verified.commit_message,
-                    "branch_name": "main" if index == 0 else verified.target_branch,
-                }
-                if index == 0:
-                    operation["new_branch_name"] = verified.target_branch
-                response = self._exchange(process, {
-                    "jsonrpc": "2.0", "id": f"{request.get('id', 'project')}-{index}",
-                    "method": "tools/call", "params": {"name": "create_file", "arguments": operation},
-                })
-                if "error" in response:
-                    raise PolicyDenied("Forgejo project document write failed")
-            return {
-                "jsonrpc": "2.0", "id": request.get("id"),
-                "result": {"content": [{"type": "text", "text": "project documents published"}]},
-            }
+            return publish_project_documents(
+                lambda message: self._exchange(process, message),
+                request.get("id", "project"), verified,
+            )
 
         return self._with_process(exchange_batch)
 

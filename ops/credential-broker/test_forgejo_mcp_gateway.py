@@ -4,9 +4,10 @@ import tempfile
 import threading
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
-from forgejo_mcp_gateway import GatewayServer
-from mcp_policy_adapter import MCPPolicyAdapter, ProjectDocumentWritePolicyAdapter
+from forgejo_mcp_gateway import GatewayServer, publish_project_documents
+from mcp_policy_adapter import MCPPolicyAdapter, PolicyDenied, ProjectDocumentWritePolicyAdapter
 
 
 class UnavailableBackend:
@@ -50,6 +51,33 @@ class GatewayOutageTests(unittest.TestCase):
 
 
 class ProjectGatewayRoutingTests(unittest.TestCase):
+    def test_mid_batch_failure_is_not_reported_as_success(self):
+        verified = SimpleNamespace(
+            commit_message="AI-PAM project: recovery test",
+            target_branch="ai-pam/recovery-test",
+            documents=(
+                SimpleNamespace(path="docs/projects/one.md", content="one\n"),
+                SimpleNamespace(path="docs/handovers/two.md", content="two\n"),
+            ),
+        )
+        requests = []
+
+        def exchange(request):
+            requests.append(request)
+            if len(requests) == 2:
+                return {"jsonrpc": "2.0", "id": request["id"], "error": {"code": 500}}
+            return {"jsonrpc": "2.0", "id": request["id"], "result": {}}
+
+        with self.assertRaises(PolicyDenied):
+            publish_project_documents(exchange, "batch", verified)
+        self.assertEqual(2, len(requests))
+        first = requests[0]["params"]["arguments"]
+        second = requests[1]["params"]["arguments"]
+        self.assertEqual("main", first["branch_name"])
+        self.assertEqual("ai-pam/recovery-test", first["new_branch_name"])
+        self.assertEqual("ai-pam/recovery-test", second["branch_name"])
+        self.assertNotIn("new_branch_name", second)
+
     def test_project_batch_is_routed_to_separate_backend_surface(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "gateway.sock"
