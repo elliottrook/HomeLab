@@ -32,6 +32,10 @@ live effect.
   be reported as a full shared-lease admission test until same-night source
   adapters bind verified backup, News-quiescence and consumer-isolation
   evidence to the lease.
+- Candidate source-receipt adapters now require the fixed backup chain,
+  integrity receipt, same-night timing, exact consumer set, News quiescence and
+  explicit no-new-start observation. They are tested contracts only; no live
+  source adapter or TrueNAS credential is installed.
 
 ## Exact local candidate hashes
 
@@ -51,6 +55,8 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/test_lease_recovery_executor.py` | `a5d5865831a77d465fbf336209ad4ae4d309b3b1e198c96a2e3f9b242e82ba4b` |
 | `scripts/local-ai/admission_gate.py` | `1f7969b4d734deb9b9295c5c536ff0d3d2bca44d5d284860baf76336c30caaba` |
 | `scripts/local-ai/test_admission_gate.py` | `c97beaa8e0cbe0e447fc9292dc5e88c325ae818c4eab1efeb63c68e392539160` |
+| `scripts/local-ai/source_receipts.py` | `35bbecdacec30226e5483e7214f7e318008c1e40d418b37861f000b0e8d701d4` |
+| `scripts/local-ai/test_source_receipts.py` | `7c8abd7dc5c1a7ce0261da6b85940e1a0e4893b4fd07741a7e4f3ea60c7dd5f7` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
