@@ -2872,3 +2872,29 @@ set can catch regressions in future local or Codex backends but cannot serve
 as an independent promotion holdout. Codex has no comparable 30-case result;
 the D3 pilot used different questions. Future promotion requires fresh
 engine-blind human labels, privacy/safety cases and a separate shadow gate.
+
+### 2026-10-12 — A1 completed-answer evidence custody corrected
+
+The first fresh 20-case fictional answer holdout was sent once to the accepted
+local 9B/SYCL service after live checks, but its returned envelope could not be
+written to the intended Mac evidence directory. There is no retained answer or
+quality score; v1 is closed as a custody failure and must not be replayed as
+fresh evidence. The service passed immediate health/queue postchecks. See the
+[failure record](experiments/a1-answer-holdout-v1/RESULT-FAILED-2026-10-12.md).
+
+A new 20-case v2 bundle was separately AI-reviewed and sealed with frozen
+digests in owner-only custody. The runner now verifies directory/file
+writability before any model call, pins its source files, and seals raw output
+before parsing. A disposable local storage preflight and 13 focused tests
+passed. Review scoring binds its packet to the sealed capture and reports
+content-free direct-backend timing separately from the blind answer review.
+These controls make the next development run reproducible; they do not
+establish human ground truth, native Aster latency or model qualification.
+See the [v2 release](benchmarks/answer-holdout-release-v2-2026-10-12.md) and
+[run card](experiments/a1-answer-holdout-v2/RUN-CARD-2026-10-12.md).
+
+No v2 model call has occurred. At the afternoon admission check, the host lab
+lease state/lock were absent, but a read-only LXC 114 check showed the News
+digest service `activating` after its 17:15 reservation began. That production
+workload blocks the shared inference slot. Recheck its completion, service
+occupancy, backup tasks and exact runtime pins before any one-shot v2 run.
