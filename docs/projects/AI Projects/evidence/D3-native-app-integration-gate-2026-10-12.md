@@ -37,6 +37,21 @@ installed app, and reverting the current app would overwrite another lane's
 work. Whether the current binary contains any compiled Codex pilot code is
 **UNKNOWN**; the source comparison alone cannot prove binary absence.
 
+The shared-file differences are substantive, not just conflicting line
+numbers. Stream A's `AuthManager` uses a v3 Keychain item with a migration
+path from v2 and emits bounded refresh observations; the current main source
+uses the v2 item and has explicit callback handling, a sign-in timeout and
+the October 12 no-completion fix. The current main app delegate forwards
+`aster-companion://` callbacks; Stream A's older app entry point does not.
+The current main client/view add OpenBao recovery functions and a panel,
+while Stream A's client/view add manual Codex requests and a hidden delegation
+panel. The Stream A build script packages `LocalCodexBridge` and re-signs the
+completed bundle; the current main script has no bridge packaging. The two
+source lines also differ in speech delivery (`synthesizeStream` versus
+`synthesize`), which needs a separate normal-chat regression check. These are
+read-only source observations, not evidence about which features are compiled
+into the installed binary.
+
 ## Smallest safe integration sequence
 
 1. The current app owner identifies the exact source commit plus any pending
@@ -47,9 +62,10 @@ work. Whether the current binary contains any compiled Codex pilot code is
 2. Reconcile the eight Stream A files and six shared-file touchpoints on an
    isolated branch from that pinned app line. Keep manual Codex hidden by
    default, require per-question cloud consent and preserve zero tool grants.
-   Do not overwrite AI-PAM's passkey, sign-in, callback, OpenBao or Keychain
-   paths. Resolve shared-file changes deliberately, not by choosing one whole
-   file version.
+   Keep the current sign-in/callback/OpenBao behavior and verify a migration
+   path for any Keychain item change; do not copy the older v16 auth file over
+   the repair. Preserve the ordinary speech path. Resolve shared-file changes
+   deliberately, not by choosing one whole file version.
 3. Run the complete native auth, AI-PAM, ordinary assistant and D3 offline
    suites. Check stable code signing, bundle identity, exact bridge manifest,
    and a preserved current-app rollback. A build/test pass does not authorize
