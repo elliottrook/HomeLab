@@ -9,7 +9,10 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import os
+import stat
 import threading
+from pathlib import Path
 from typing import Callable
 
 MAX_BODY = 32_768
@@ -17,6 +20,45 @@ PATH = "/v1/chat/completions"
 REQUEST_FIELDS = {"model", "messages", "temperature", "max_tokens", "stream",
                   "progress", "persona", "enabled_tools"}
 USER_FIELDS = {"request", "clock", "private_context_locality_constraint", "context"}
+REPO = Path(__file__).resolve().parents[2]
+
+
+class DurableAttemptJournal:
+    """Owner-only, create-once digest claims across worker restarts."""
+
+    def __init__(self, directory: Path):
+        if not isinstance(directory, Path) or not directory.is_absolute() or directory.is_symlink():
+            raise ValueError("invalid attempt journal directory")
+        resolved = directory.resolve()
+        if resolved == REPO or REPO in resolved.parents:
+            raise ValueError("attempt journal must stay outside Git")
+        metadata = directory.stat()
+        if (not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != os.getuid()
+                or metadata.st_mode & 0o077):
+            raise ValueError("attempt journal must be an owner-only directory")
+        self.directory = directory
+
+    def claim(self, digest: str) -> bool:
+        if (not isinstance(digest, str) or len(digest) != 64
+                or any(ch not in "0123456789abcdef" for ch in digest)):
+            raise ValueError("invalid request digest")
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        try:
+            fd = os.open(self.directory / digest, flags, 0o600)
+        except FileExistsError:
+            return False
+        with os.fdopen(fd, "wb") as stream:
+            stream.write((digest + "\n").encode("ascii"))
+            stream.flush()
+            os.fsync(stream.fileno())
+        dirfd = os.open(self.directory, os.O_RDONLY)
+        try:
+            os.fsync(dirfd)
+        finally:
+            os.close(dirfd)
+        return True
 
 
 def _unique_pairs(pairs):
@@ -68,7 +110,8 @@ async def _reject(send: Callable, status: int) -> None:
 
 class A1TestGateway:
     def __init__(self, app: Callable, *, token_sha256: str,
-                 request_sha256s: frozenset[str]):
+                 request_sha256s: frozenset[str],
+                 attempt_journal: DurableAttemptJournal | None = None):
         if (not callable(app) or not isinstance(token_sha256, str)
                 or len(token_sha256) != 64
                 or any(ch not in "0123456789abcdef" for ch in token_sha256)
@@ -76,11 +119,14 @@ class A1TestGateway:
                 or len(request_sha256s) != 20
                 or any(not isinstance(digest, str) or len(digest) != 64
                        or any(ch not in "0123456789abcdef" for ch in digest)
-                       for digest in request_sha256s)):
+                       for digest in request_sha256s)
+                or (attempt_journal is not None
+                    and not isinstance(attempt_journal, DurableAttemptJournal))):
             raise ValueError("invalid isolated test gateway configuration")
         self.app = app
         self.token_sha256 = token_sha256
         self.request_sha256s = request_sha256s
+        self.attempt_journal = attempt_journal
         self._attempted: set[str] = set()
         self._attempt_lock = threading.Lock()
 
@@ -147,6 +193,15 @@ class A1TestGateway:
         if repeated:
             await _reject(send, 409)
             return
+        if self.attempt_journal is not None:
+            try:
+                claimed = self.attempt_journal.claim(request_digest)
+            except OSError:
+                await _reject(send, 503)
+                return
+            if not claimed:
+                await _reject(send, 409)
+                return
         delivered = False
 
         async def replay():
@@ -156,4 +211,9 @@ class A1TestGateway:
             delivered = True
             return {"type": "http.request", "body": raw, "more_body": False}
 
-        await self.app(scope, replay, send)
+        # The ingress test credential belongs to this guard, not to Aster or
+        # any downstream model/tool adapter.
+        inner_scope = dict(scope)
+        inner_scope["headers"] = [(k, v) for k, v in headers
+                                  if k.lower() != b"authorization"]
+        await self.app(inner_scope, replay, send)

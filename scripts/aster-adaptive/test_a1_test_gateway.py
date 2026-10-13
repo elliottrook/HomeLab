@@ -2,11 +2,12 @@ import asyncio
 import hashlib
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from a1_test_gateway import A1TestGateway, valid_body
+from a1_test_gateway import A1TestGateway, DurableAttemptJournal, valid_body
 from aster_full_path_request import payload_for
 from test_aster_full_path_request import fixture
 
@@ -61,6 +62,61 @@ class A1TestGatewayTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(called[0], "/v1/chat/completions")
         self.assertEqual(called[1]["enabled_tools"], [])
+
+    def test_ingress_bearer_is_not_forwarded_to_wrapped_app(self):
+        seen = []
+
+        async def fake_app(scope, receive, send):
+            seen.extend(scope["headers"])
+            await receive()
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"{}", "more_body": False})
+
+        status, _ = asyncio.run(run_request(self.body, app=fake_app))
+        self.assertEqual(status, 200)
+        self.assertNotIn(b"authorization", [key.lower() for key, _ in seen])
+        self.assertNotIn(TOKEN, [value for _, value in seen])
+
+    def test_durable_attempt_claim_survives_gateway_reconstruction(self):
+        calls = []
+
+        async def fake_app(scope, receive, send):
+            calls.append(await receive())
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"{}", "more_body": False})
+
+        async def attempt(gateway):
+            events = []
+
+            async def receive():
+                return {"type": "http.request", "body": self.body, "more_body": False}
+
+            async def send(event):
+                events.append(event)
+
+            await gateway({"type": "http", "path": "/v1/chat/completions", "method": "POST",
+                           "headers": [(b"content-type", b"application/json"),
+                                       (b"authorization", b"Bearer " + TOKEN)]}, receive, send)
+            return events[0]["status"]
+
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            directory.chmod(0o700)
+            for expected in (200, 409):
+                gateway = A1TestGateway(fake_app,
+                                        token_sha256=hashlib.sha256(TOKEN).hexdigest(),
+                                        request_sha256s=request_hashes(self.body),
+                                        attempt_journal=DurableAttemptJournal(directory))
+                self.assertEqual(asyncio.run(attempt(gateway)), expected)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(len(list(directory.iterdir())), 1)
+
+    def test_durable_attempt_journal_refuses_nonprivate_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            directory.chmod(0o755)
+            with self.assertRaises(ValueError):
+                DurableAttemptJournal(directory)
 
     def test_same_process_retry_is_rejected_after_first_forward(self):
         calls = []

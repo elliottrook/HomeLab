@@ -166,8 +166,10 @@ qualification corpus is justified. Do not revive the obsolete coordinator.
 The offline gateway candidate now derives its 20 allowlisted body digests from
 the validated sealed corpus using the same serializer as the client. Only
 digests, never request text or labels, belong in its configuration. It rejects
-an attempted repeat in one process before forwarding. This is **not** durable
-one-attempt proof: a process restart clears that memory, so an admitted live
-run also needs a protected, durable attempt journal and a fixed one-worker
-process boundary. The gateway is not deployed; no current Aster request has
-passed through it.
+an attempted repeat before forwarding and strips its ingress credential from
+the downstream ASGI scope. An optional owner-only, create-once digest journal
+survives gateway reconstruction in an isolated test. A live deployment must
+configure that journal on durable protected storage and verify its ownership,
+restart behavior, single-worker boundary and rollback before READY. In-memory
+mode alone is insufficient. The gateway is not deployed; no current Aster
+request has passed through it.
