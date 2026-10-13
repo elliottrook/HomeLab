@@ -1,8 +1,9 @@
 # A1 private evidence: protected-copy and restore gate
 
-**Status: plan only, 2026-10-12.** No evidence was copied, exported,
-uploaded, decrypted or deleted by this assessment. It changes no backup job,
-retention rule, credential, access control or off-site scope.
+**Status: Mac backup-tree copy verified 2026-10-12; TrueNAS/off-site copy and
+isolated restore pending.** The [local-copy result](../evidence/A1-protected-evidence-local-copy-2026-10-12.md)
+records Jason's exact approval and source/destination hashes. No backup job,
+retention rule, credential or access-control scope changed.
 
 ## Why this gate exists
 
@@ -42,8 +43,9 @@ parity is **UNKNOWN** beyond those inspected lines. Treat a new copy under
 established.
 
 This finding does not invalidate the published score hashes, but it blocks
-claims that the raw evidence is safely backed up. Never delete the source
-because a local archive exists or because a backup job has a green status.
+claims that the raw evidence is **recoverably** backed up until the new
+TrueNAS copy and restore are checked. Never delete the source because a local
+copy exists or because a backup job has a green status.
 
 ## Recommended bounded protection path
 
@@ -68,6 +70,9 @@ because a local archive exists or because a backup job has a green status.
    Check the next normal off-site relay's exact inclusion/retention separately
    before claiming disaster-site recovery. Record result/digests, not content.
 
+Steps 1–2 passed on 2026-10-12. Steps 3–4 remain open and must use the normal
+scheduled pull/relay; a previous green job cannot close them.
+
 The recommended path reuses the established restricted Mac→TrueNAS backup and
 encrypted IDrive relay. It avoids introducing a new decryption key and its
 own recovery failure mode for this small, fictional-but-private corpus. It
@@ -78,10 +83,10 @@ verified recovery identity and restore drill; it is an optional **separate**
 design decision, not an assumed use of the OpenBao recovery keys.
 
 Copying this dataset into `private-backups` changes its custody and off-site
-retention scope. Jason's **exact approval before step 2** should identify the
-nine-file v2 source, the destination above and the expected TrueNAS/IDrive
-path. No other evidence tree, credential, backup job or retention setting is
-included. The HomeLab
+retention scope. Jason **approved the exact nine-file v2 source, destination
+and expected TrueNAS/IDrive path before step 2**, as recorded in the
+local-copy result. No other evidence tree, credential, backup job or
+retention setting is included. The HomeLab
 [project standard](../../../Project-Creation-Standard.md) requires a new risk
 decision for a materially different data set or blast radius.
 

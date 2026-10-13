@@ -3044,6 +3044,15 @@ instead of adding an unverified OpenPGP recovery key. Source-side encryption
 remains a separate option. No copy or backup job was started; explicit
 approval of the new custody/off-site scope is still needed.
 
+Jason then approved that exact nine-file backup and restore. Rechecked the
+owner-only source inventory and 20-case schema, made one staged/atomic copy
+to `~/lab/private-backups/aster-stream-a/answer-holdout-20261012-v2/`, and
+verified the identical nine-file digest, 57,692 bytes, schema and inherited
+read-only `truenas-pull` ACLs on every copied entry. Source files remain
+untouched. TrueNAS task 2 was enabled at 03:00 and its prior job state was
+SUCCESS, but that job preceded the new copy. TrueNAS receipt, off-site
+receipt and isolated restore are still pending; see the [local-copy result](evidence/A1-protected-evidence-local-copy-2026-10-12.md).
+
 Read the platform owner's current, uncommitted
 `docs/projects/Local-AI-Platform-Split.md` record from the main checkout
 without editing it. It reports a completed
