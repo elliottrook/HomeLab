@@ -61,6 +61,9 @@ class TrustedObserverTests(unittest.TestCase):
         self.assertEqual(PRODUCTION, (("104", "aster-agent.service"), ("110", "aster-llama.service"), ("116", "aster-speech.service")))
         self.assertIn("model", FIXED_PROBES)
         self.assertIn("news_schedule", FIXED_PROBES)
+        self.assertIn("StrictHostKeyChecking=yes", FIXED_PROBES["truenas_schedule"])
+        self.assertIn("UserKnownHostsFile=/etc/local-ai-lab/truenas_known_hosts", FIXED_PROBES["truenas_schedule"])
+        self.assertNotIn("StrictHostKeyChecking=no", FIXED_PROBES["truenas_schedule"])
 
     def test_large_model_hash_gets_measured_finite_timeout(self):
         timeouts = {}

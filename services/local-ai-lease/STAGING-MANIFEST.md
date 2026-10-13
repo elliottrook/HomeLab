@@ -15,6 +15,11 @@ live effect.
   `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`.
 - Fixed trusted sources: Proxmox `pvesh`, LXC 104/110/116 and 114 probes,
   TrueNAS `192.168.20.40` through batch-mode SSH, and the owner heartbeat.
+- TrueNAS host-key enrollment must be a bounded operator step: create a
+  root-owned mode-0600 `/etc/local-ai-lab/truenas_known_hosts` containing only
+  the verified `192.168.20.40` key. The cross-host fingerprint comparison is
+  `SHA256:QBtPEVZCzn5suuM98WY2bGSSvdgOLZ5xpLd17Xu0Xbo`; the fixed probe uses
+  strict host-key checking and never accepts a blind key.
 - Fixed schedule identity: Proxmox `00:30`; TrueNAS guest `01:00`, LXC 110
   `02:00`, Mac `03:00`; News `06:15` and `17:15`.
 - The host-local recovery executor is the disabled systemd unit's candidate
@@ -32,7 +37,7 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/lease_contract.py` | `8a8997bdf453a499ae60dc2f11a65da9e28e318044a194122a7635b545adf113` |
 | `scripts/local-ai/lease_watchdog.py` | `044961c44a459ff422c0206f9338e3dc2943b469ae93eb544e14dfab944d0035` |
 | `scripts/local-ai/lease_controller_candidate.py` | `a9b6d567ad450e680138931e648df22f76f0037fdede74719a8a315ea6a340df` |
-| `scripts/local-ai/trusted_observer.py` | `5b129a79601dea0e0c338815d0ce81559e7f463d541fe342129e579dd08edaf1` |
+| `scripts/local-ai/trusted_observer.py` | `752f14d66d5e5338e6ead671efeeef05bcba45461b41a47ae4e653b38f47c690` |
 | `scripts/local-ai/lease_watchdog_cli.py` | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
 | `scripts/local-ai/lease_effect_runner.py` | `81eac0e15e86ea48ce267d1a03da74cfcbe408ad9c57c9eca832a9c8f8c2c662` |
 | `scripts/local-ai/test_lease_effect_runner.py` | `f59eaa9048ff0cd1c93dc49462151350eee54c627d52466fdbbdf874562060b8` |
@@ -56,8 +61,9 @@ editing the table would necessarily change its own digest.
   batch-mode SSH to `root@192.168.20.40` and `midclt call rsynctask.query`.
   The historical `truenas` alias failure is not an acceptable restoration
   probe. The current direct owner-context check reached host-key verification
-  failure, so transport remains an unresolved staging blocker and
-  schedule-unhealthy/fail-closed.
+  failure, so transport remains an unresolved staging blocker until the
+  verified pinned-host-key file and narrow TrueNAS identity are enrolled;
+  schedule observation remains unhealthy/fail-closed meanwhile.
 
 ## Recovery deadline and rollback
 
@@ -70,6 +76,11 @@ editing the table would necessarily change its own digest.
 - Any timeout, ambiguous unit state, unmatched journal intent, missing backup
   receipt, schedule drift, or failed postcheck retains the lock and requires
   operator reconciliation.
+- If the TrueNAS schedule receipt is unavailable, the executor may still
+  restore the previously active local production services, but it must retain
+  the lease lock and report degraded/unknown schedule state. No new root-to-
+  root SSH grant is created merely to clear that postcheck; a separately
+  approved least-privilege receipt or operator verification is required.
 - Rollback is to disable the candidate timer, retain the lease lock, restore
   the saved controller/unit files and use the existing manual release path
   only after the production health and schedule checklist passes.

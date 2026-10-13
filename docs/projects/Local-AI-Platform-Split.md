@@ -571,6 +571,17 @@ disabled. The exact GGUF file digest is confirmed, but the direct
 Proxmox-owner TrueNAS transport check currently fails host-key verification;
 that transport setup remains a staging blocker before any live review.
 
+The approved remediation is a bounded host-key enrollment, not relaxed SSH:
+after the existing fingerprint comparison, Proxmox may receive a root-owned
+mode-0600 `/etc/local-ai-lab/truenas_known_hosts` containing only the verified
+TrueNAS key, plus a narrow batch-mode identity if required. The fixed observer
+now names that file and requires `StrictHostKeyChecking=yes`; until enrollment
+and an owner-context probe succeed, schedule observation remains fail-closed.
+The recovery design does not create a new root-to-root grant merely to turn
+that check green: local production restoration may proceed, but an unavailable
+TrueNAS receipt leaves the lease locked in degraded/unknown state until a
+separate least-privilege receipt or operator verification clears it.
+
 The accepted dereferenced GGUF was measured read-only at
 `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`; its
 5.6 GB hash took approximately 18 seconds including transport. The trusted
