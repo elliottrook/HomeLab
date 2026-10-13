@@ -66,15 +66,46 @@
     "news_digest": "accepted isolated CPU batch path",
     "native_mac": "launch repair verified, but installed bundle v4 binary 8781e1defd4bb953544b93a65cefbf115d20ca41e707dabb34de1750795e3eb4 contains legacy voice/v1/tts and is not the canonical-streaming candidate"
   },
+  "graduation_evidence": {
+    "companion_web": {
+      "passes": 1,
+      "required": 2,
+      "state": "one accepted listening pass plus canonical stream and cancellation proxy evidence"
+    },
+    "home_assistant": {
+      "passes": 2,
+      "required": 2,
+      "state": "accepted near-field household/entity pass and two independent far-field time passes through Wyoming"
+    },
+    "news_digest": {
+      "passes": 1,
+      "required": 2,
+      "state": "corrected opening accepted and scheduled artifact machine-valid; one regenerated full-briefing listening pass remains"
+    },
+    "native_mac": {
+      "passes": 0,
+      "required": 2,
+      "state": "installed app is operational but retains the legacy v1 TTS route"
+    }
+  },
   "production_target": {
-    "state": "not_allocated",
+    "state": "candidate-unreserved",
+    "vmid": 127,
+    "name": "aster-voice-prod",
+    "address": "192.168.20.37/24",
     "network": "Servers VLAN",
+    "resources": {
+      "vcpus": 6,
+      "memory_mib": 4096,
+      "root_disk_gib": 16
+    },
+    "preflight": "Proxmox nextid=127; no matching NetBox VM or IP; address absent from OPNsense configuration/ARP and did not answer two probes; local-lvm reported 629330801 KiB available; host reported 44555202560 bytes available memory. Revalidate immediately before reservation because these observations do not reserve capacity or identity.",
     "credentials": "must be newly generated and protected; never copied to this manifest"
   },
   "blockers": [
     "build, test and install the repository native AVS1 client with a matched Swift compiler/SDK, then independently verify its binary and live canonical streaming request",
     "complete M8 two-pass cross-surface production evidence and efficiency review",
-    "select and verify a free production VMID and Servers-VLAN address in NetBox",
+    "revalidate and atomically reserve tentative VMID 127 and 192.168.20.37/24 in Proxmox/NetBox immediately before provisioning",
     "create a final manifest from a clean immutable Forgejo commit",
     "obtain explicit approval before creating the release tag"
   ],
