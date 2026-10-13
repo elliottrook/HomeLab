@@ -455,6 +455,20 @@ switch to Piper or another environment. This is source-level and isolated
 candidate evidence; a live renderer-failure injection and operator rollback
 exercise remain open.
 
+## Live renderer failure and recovery — 2026-10-13
+
+With explicit continuation authorization, the isolated A380 renderer container
+`deployment-renderer-1` was stopped briefly. The canonical LXC 116 9131 TTS
+endpoint returned HTTP 502 while the renderer was unavailable; no Piper audio
+was returned and no environment switch occurred. The renderer was restarted,
+returned healthy after its normal model-load window, and the same canonical
+9131 synthesis path returned HTTP 200. This validates the explicit failure
+boundary and service recovery without changing routes, credentials or assets.
+
+The remaining recovery evidence is the operator-facing rollback procedure to
+the retained 9130 Piper/Whisper service and one consumer acceptance check that
+surfaces the degraded/rollback state clearly.
+
 ## Schedule implementation record — 2026-10-12
 
 The approved end-to-end measurement completed successfully from 15:50:48 to
