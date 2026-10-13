@@ -19,7 +19,7 @@ do not hard-code an inference guest address or call llama.cpp directly.
 |---|---|---|
 | `ai-prod` text gateway | Aster Agent LXC 104, `192.168.70.10:9120/v1` | Stable Aster gateway in `ai-prod` |
 | `ai-prod` inference backend | LXC 110, `192.168.70.12:11435/v1`, internal only | Private `ai-prod` backend |
-| `ai-prod` speech | Aster Speech LXC 116, `192.168.70.14:9130` through the controlled `/voice/` route | Stable speech endpoint in `ai-prod` |
+| `ai-prod` speech | Aster canonical voice candidate LXC 116, `192.168.70.14:9131` through the controlled `/voice/v2/` route; legacy `9130` remains rollback/Companion STT | Stable speech endpoint in `ai-prod` |
 | `ai-lab` | Whole-host exclusive maintenance lease; no concurrent lab/prod GPU runtime | Separately identified lab endpoint and state |
 
 The transitional mappings are implementation facts, not permission to treat
@@ -50,8 +50,11 @@ consumer must accept a successful response, a bounded timeout, or an explicit
 degraded/failure result; it must not silently present Piper as equivalent to the
 canonical voice.
 
-The current speech service remains at LXC 116 on TCP 9130, with the controlled
-HTTPS `/voice/` route and its existing service identity. STT/TTS credentials are
+The canonical voice service remains at LXC 116 on TCP 9131, with the controlled
+HTTPS `/voice/v2/` route and its existing service identity. Legacy TCP 9130
+remains active for rollback and Companion STT during migration. The canonical
+service uses the pinned Kokoro candidate runtime and renderer boundary; its
+model assets are not copied into the legacy service. STT/TTS credentials are
 environment-specific and never enter this contract document.
 
 ## Authentication and identity

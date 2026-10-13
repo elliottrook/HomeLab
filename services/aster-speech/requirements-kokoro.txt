@@ -1,5 +1,0 @@
-# Canonical Aster voice runtime. Install into the speech service venv during
-# the controlled deployment window; do not install from the example env alone.
-kokoro-onnx
-numpy
-soundfile

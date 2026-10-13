@@ -424,26 +424,24 @@ evidence for the text surface. It does not close quota/timeout boundary
 behavior, Kokoro failure with Piper recovery, or a controlled consumer's
 platform-loss behavior; those remain required before promotion.
 
-## Speech implementation reconciliation — 2026-10-13
+## Speech deployment reconciliation — 2026-10-13
 
-Kokoro is confirmed as canonical. The checked-in Aster Speech implementation
-now uses Kokoro ONNX `bm_daniel`, `en-gb`, speed `0.95` by default and keeps
-Piper only as an explicit degraded recovery path. TTS responses identify the
-engine with `X-Aster-Speech-Engine`; Piper recovery also sets
-`X-Aster-Speech-Degraded: true`, so a consumer cannot silently present Piper as
-the canonical voice. The new runtime dependencies are listed in
-`services/aster-speech/requirements-kokoro.txt` and the model/voice-pack paths
-are configuration-driven.
+The prior speech project already established the intended split: the legacy
+`aster-speech.service` on TCP 9130 retains Piper/Whisper for rollback and
+Companion STT, while `aster-voice-candidate.service` on TCP 9131 is the
+canonical Kokoro service. The candidate uses the pinned Kokoro runtime, asset
+digest verification, serialized scheduling and the renderer boundary; the
+canonical model assets are not copied into the legacy 9130 service.
 
-The live Aster Speech unit on LXC 116 remains healthy, but its current venv has
-no Kokoro runtime or model assets. The canonical model and voice-pack files do
-exist on the News Aggregator guest (LXC 114), but Proxmox exposes no shared
-mount between LXC 114 and LXC 116, so the assets are not centrally visible to
-the speech service today. No live replacement or restart was attempted in this
-source milestone. The speech gate therefore remains open until the controlled
-deployment reuses that canonical asset source (or an approved central artifact)
-and validates Kokoro success, forced Kokoro failure with Piper recovery, and
-consumer handling of the degraded response headers.
+Read-only live validation confirmed the candidate is active and its 9131 health
+response identifies `aster-voice-candidate`, `kokoro-v1.0`, `aster-bm-daniel`,
+voice policy `1` and `aster-base-en` STT. The existing speech health and public
+HTTPS/JWKS probes also pass. No speech service was restarted, no asset was
+copied, and no renderer or credential was changed in this reconciliation.
+
+The remaining Local AI speech gates are therefore candidate promotion evidence:
+authenticated canonical synthesis, bounded Kokoro failure/Piper recovery at
+the defined consumer boundary, and one consumer rollback/degradation check.
 
 ## Schedule implementation record — 2026-10-12
 
