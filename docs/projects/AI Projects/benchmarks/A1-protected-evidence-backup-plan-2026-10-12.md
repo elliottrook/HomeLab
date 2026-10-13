@@ -13,7 +13,12 @@ is in the owner's `~/Library/Application Support/Aster-Stream-A-Evidence/`
 tree. A read-only, no-content traversal of the v2 subtree found nine regular
 files totalling 57,692 bytes, one child directory, no symlinks or other file
 types, and no group/world-accessible entry; the parent is mode 0700. This is
-an inventory count, not a complete integrity manifest.
+an inventory count, not a complete integrity manifest. A later content-free
+source integrity pass validated the 20-case corpus schema and produced the
+canonical nine-file path/size/SHA-256 inventory digest
+`b2528e2f585465ff8ec830363b9984a5c88db7d13d0243239c593ca5b750fdce`.
+The per-file inventory stays private; this digest is a pre-copy checkpoint,
+not a backup.
 `tmutil destinationinfo` reports no configured Time Machine destination on
 this Mac. The repository's
 [backup architecture](../../../05-Backups.md) describes a restricted TrueNAS
@@ -32,58 +37,63 @@ syncs the entire `configuration/mac` tree to an encrypted cloud remote with
 no A1-specific exclusion. The deployed relay's read-only source projection
 also shows `sync_tree configuration/mac mac` and no A1-specific exclusion.
 Its full file hash differs from the tracked script, so source/deployment
-parity is **UNKNOWN** beyond those inspected lines. Treat the proposed
-ciphertext as off-site-bound unless an explicit exclusion is established.
+parity is **UNKNOWN** beyond those inspected lines. Treat a new copy under
+`private-backups` as off-site-bound unless an explicit exclusion is
+established.
 
 This finding does not invalidate the published score hashes, but it blocks
 claims that the raw evidence is safely backed up. Never delete the source
 because a local archive exists or because a backup job has a green status.
 
-## Proposed bounded protection path
+## Recommended bounded protection path
 
-1. Freeze a source inventory with file names, byte lengths and SHA-256 values
-   locally; publish only a content-free manifest/digest in Git. Reject
-   symlinks, unexpected file types, changed source hashes or loose modes.
-2. Create one source-side encrypted, authenticated archive on this Mac using
-   a separately verified recovery identity whose private key is held outside
-   the backup set. Do not use a new passphrase typed into Codex or put key
-   material, raw questions, answers or reviewer comments in Git/logs.
-   Confirm that the recovery identity can decrypt an innocuous probe before
-   using it; do not assume the OpenBao recovery keys are suitable.
-3. After a specific custody decision, place only that ciphertext and its
-   non-sensitive checksum/manifest under a restricted
-   `~/lab/private-backups/aster-stream-a/` directory. Verify owner and
-   `truenas-pull` read-only ACLs without widening either account beyond the
-   current backup root. Do not create a symlink from the private source tree.
-4. Verify the exact current TrueNAS pull scope and a successful run containing
-   the ciphertext. Separately verify whether the current relay includes this
-   destination; repository descriptions mention both `Media/backup` and the
-   newer `Recovery` layout, so no off-site claim follows from documentation
-   alone. Do not broaden relay scope implicitly.
-5. Restore into a fresh owner-only temporary directory from the **backup
-   destination**, compare archive and member hashes, decrypt only in that
-   isolated private directory, and re-run the content-free scorer against the
-   restored evidence. Remove temporary plaintext after validation while
-   retaining the original and protected copy. Record date, source/backup
-   digests, result and recovery custodian, not contents.
+1. Immediately before copying, recompute the private nine-file integrity
+   inventory and require the digest above, owner-only modes, regular files,
+   no symlinks, and the 20-case schema check. Stop on any drift.
+2. **Only after the exact custody approval below**, make one owner-only copy
+   of the v2 subtree at
+   `~/lab/private-backups/aster-stream-a/answer-holdout-20261012-v2/`.
+   Preserve bytes and do not create a symlink. The existing backup-root ACL
+   already grants `truenas-pull` read/list only; verify inheritance on the
+   new directory and files without widening the account or other trees.
+   Keep the original untouched.
+3. Verify the copied nine-file inventory matches the source. Observe the next
+   normal TrueNAS Mac pull (task 2) and verify a destination copy at
+   `/mnt/Recovery/configuration/mac/aster-stream-a/answer-holdout-20261012-v2/`.
+   Do not trigger or reschedule a backup solely to make this test pass.
+4. Restore from **TrueNAS**, not the Mac source, to a fresh owner-only
+   temporary directory, recheck every file hash and the 20-case schema, and
+   reproduce the content-free score. Remove temporary restored plaintext
+   after verification while retaining source and protected backup copy.
+   Check the next normal off-site relay's exact inclusion/retention separately
+   before claiming disaster-site recovery. Record result/digests, not content.
 
-Copying the corpus into `private-backups` changes who can hold its ciphertext
-and may place it on TrueNAS and IDrive e2, even if both transport/storage
-layers are protected. That privacy/retention boundary needs Jason's **exact
-approval before step 3**, after current off-site scope, recipients, retention
-and restoration method are verified. Step 2 also requires a verified recovery
-identity; if obtaining it would expose a private key, stop. The HomeLab
+The recommended path reuses the established restricted Mac→TrueNAS backup and
+encrypted IDrive relay. It avoids introducing a new decryption key and its
+own recovery failure mode for this small, fictional-but-private corpus. It
+does put readable evidence on the Mac backup tree and TrueNAS for authorized
+backup operators, then encrypted material at IDrive e2. Source-side OpenPGP
+encryption would reduce same-site plaintext custody but requires an additional
+verified recovery identity and restore drill; it is an optional **separate**
+design decision, not an assumed use of the OpenBao recovery keys.
+
+Copying this dataset into `private-backups` changes its custody and off-site
+retention scope. Jason's **exact approval before step 2** should identify the
+nine-file v2 source, the destination above and the expected TrueNAS/IDrive
+path. No other evidence tree, credential, backup job or retention setting is
+included. The HomeLab
 [project standard](../../../Project-Creation-Standard.md) requires a new risk
 decision for a materially different data set or blast radius.
 
 ## Failure and exit criteria
 
-The backup status remains `UNVERIFIED` if encryption, key recovery, ACL,
-transport, destination, retention or isolated restore cannot be demonstrated.
-An archive hash match alone is insufficient; a decrypt-and-score restore is
-required. Do not replay model requests to recreate lost answers. Stop on
-unexpected contents, plaintext outside owner-only storage, an unplanned cloud
-destination or any checksum mismatch. Rollback before a successful copy is
-simply to leave the original untouched and remove a failed local ciphertext;
-deletion from remote/versioned storage needs a separately reviewed retention
+The backup status remains `UNVERIFIED` if ACL, transport, destination,
+retention or isolated restore cannot be demonstrated. A Mac-side hash match
+alone is insufficient; a TrueNAS restore and re-score are required. Do not
+replay model requests to recreate lost answers. Stop on unexpected contents,
+plaintext outside the established restricted backup scope, an unplanned
+cloud destination or any checksum mismatch. If the copy fails before any
+remote transfer, leave the original untouched and remove only the failed new
+local copy after checking that no backup reader has seen it. Deletion from
+TrueNAS or versioned off-site storage needs a separately reviewed retention
 decision.

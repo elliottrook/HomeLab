@@ -3035,6 +3035,15 @@ without copying the corpus or changing retention or access. The plan treats
 source-side encryption, current relay scope and isolated restore as separate
 proofs and requires an exact custody decision before a new backup copy.
 
+After verifying the corpus is a 20-case fictional holdout, the owner-only
+nine-file subtree passed a content-free path/size/SHA-256 inventory with
+digest `b2528e2f585465ff8ec830363b9984a5c88db7d13d0243239c593ca5b750fdce`.
+The plan now recommends the existing restricted Mac→TrueNAS backup and
+encrypted off-site relay, with an isolated TrueNAS restore and re-score,
+instead of adding an unverified OpenPGP recovery key. Source-side encryption
+remains a separate option. No copy or backup job was started; explicit
+approval of the new custody/off-site scope is still needed.
+
 Read the platform owner's current, uncommitted
 `docs/projects/Local-AI-Platform-Split.md` record from the main checkout
 without editing it. It reports a completed
