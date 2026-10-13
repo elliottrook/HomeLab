@@ -1,13 +1,13 @@
 {
   "schema": "aster-voice-release.v1",
-  "release_id": "aster-voice-v1.0.0-draft-20261012",
-  "status": "draft-blocked",
-  "prepared_at": "2026-10-12T18:45:00-07:00",
+  "release_id": "aster-voice-v1.0.0-rc-20261013",
+  "status": "candidate-ready-for-production-approval",
+  "prepared_at": "2026-10-13T13:20:00-07:00",
   "source": {
     "authority": "forgejo",
     "repository": "jason/homelab",
     "branch": "codex/aster-stream-a-handoff",
-    "observed_commit": "efa82b4419442c79ddf61e25b431fa43a832359e",
+    "observed_commit": "6b3207e27b9ace027b5ae93fb2f17f5830082963",
     "tag_authorized": false
   },
   "identity": {
@@ -64,7 +64,7 @@
     "companion_web": "accepted canonical AVS1 streaming",
     "home_assistant": "accepted Wyoming pilot",
     "news_digest": "accepted corrected full briefing through the isolated canonical CPU batch path",
-    "native_mac": "launch repair verified for version 0.2.2 build 4, but installed binary 7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d contains legacy voice/v1/stt and voice/v1/tts and is not the canonical-streaming candidate"
+    "native_mac": "the same stable-signed AVS1 composite is installed and accepted on the M2 MacBook Air and M4 Mac mini; archive sha256 f2fcf26cb29ab3175daf656cfe97014b500f1e8146d56af6be633ade0ed936e0 and executable sha256 7b968e5fdf11f88f2105c2d65cf3468dd27b8f245e787e73acdc8dfc2032124c"
   },
   "graduation_evidence": {
     "companion_web": {
@@ -83,9 +83,9 @@
       "state": "corrected opening and regenerated full briefing accepted; final date, emergency-number and Roman-numeral rules are active for future recordings"
     },
     "native_mac": {
-      "passes": 0,
+      "passes": 2,
       "required": 2,
-      "state": "installed app is operational but retains the legacy v1 TTS route"
+      "state": "independent MacBook and Mac mini acceptance passes cover visible orb, typed request and canonical AVS1 voice; the mini additionally passed fresh-passkey OpenBao status"
     }
   },
   "production_target": {
@@ -103,10 +103,7 @@
     "credentials": "must be newly generated and protected; never copied to this manifest"
   },
   "blockers": [
-    "build, test and install the repository native AVS1 client with a matched Swift compiler/SDK, then independently verify its binary and live canonical streaming request",
-    "complete native composite deployment and two listening passes on both the Mac mini and MacBook",
     "revalidate and atomically reserve tentative VMID 127 and 192.168.20.37/24 in Proxmox/NetBox immediately before provisioning",
-    "create a final manifest from a clean immutable Forgejo commit",
     "obtain explicit approval before creating the release tag"
   ],
   "authorization": {
