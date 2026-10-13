@@ -68,9 +68,9 @@
   },
   "graduation_evidence": {
     "companion_web": {
-      "passes": 1,
+      "passes": 2,
       "required": 2,
-      "state": "one accepted listening pass plus canonical stream and cancellation proxy evidence"
+      "state": "two accepted listening passes through canonical AVS1 streaming; the second verified spoken dates, emergency 911 and Roman numerals"
     },
     "home_assistant": {
       "passes": 2,
@@ -104,7 +104,7 @@
   },
   "blockers": [
     "build, test and install the repository native AVS1 client with a matched Swift compiler/SDK, then independently verify its binary and live canonical streaming request",
-    "complete the second Companion web pass, native two-pass evidence and handover walkthrough",
+    "complete native canonical deployment/two-pass evidence and the handover walkthrough",
     "revalidate and atomically reserve tentative VMID 127 and 192.168.20.37/24 in Proxmox/NetBox immediately before provisioning",
     "create a final manifest from a clean immutable Forgejo commit",
     "obtain explicit approval before creating the release tag"
