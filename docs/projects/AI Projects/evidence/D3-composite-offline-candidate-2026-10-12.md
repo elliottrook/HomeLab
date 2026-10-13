@@ -208,3 +208,25 @@ maintenance cost: embedding a fingerprint of a moving Codex executable in
 the native app turns an otherwise safe provider update into a Companion
 release gate. Any alternative pin/update policy needs separate security
 review and evidence; it must keep the fail-closed restriction checks.
+
+## Disposition of the manifest mismatch
+
+The bridge's 12 installed Python modules match the reviewed composite source,
+and the installed Codex binary and ChatGPT app passed the read-only identity
+checks. These checks do not explain which manifest field changed, or prove a
+new subscription-backed turn would retain every reviewed restriction.
+Automatic approval review rejected an attempted edit to the compiled approved
+fingerprint: repinning an exact security gate without a completed reviewed
+candidate could weaken its fail-closed behavior. **No pin, app, access grant or
+installed binary was changed.**
+
+The recommended Stream A decision is to leave routine *manual* Codex release
+on HOLD and spend the next effort on the separately gated, read-only automatic
+handover evidence. Jason has identified the manual button as a provisional
+path, while the normal Aster interface and existing OpenBao controls continue
+to work. A future manual-pilot release would require a new exact manifest
+review, bounded source candidate, stable-signed build, offline bridge tests,
+live consent check and rollback proof. It must not replace the fingerprint
+with a broad version range or treat a successful recovery of an old answer as
+consent for a new question. The automatic path likewise needs its own policy
+and privacy gate; this HOLD does not authorize it.
