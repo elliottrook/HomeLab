@@ -78,8 +78,10 @@ into the installed binary.
 
 This was the pre-install plan. Steps 1–3 have source/build evidence; step 4
 is partially verified by the signed-in Mac UI, OpenBao/AI-PAM panels and one
-ordinary response. The exact composite has not yet shown natural refresh or
-flagged manual-Codex behavior. Step 5 remains **HOLD**.
+ordinary response. The exact composite has not yet shown flagged manual-Codex
+behavior. Natural refresh remains [monitored for reliability](D3-refresh-gate-reassessment-2026-10-12.md)
+without holding unrelated work. Step 5 remains **HOLD** for the finite feature
+check.
 
 1. The current app owner identifies the exact source commit plus any pending
    local changes, installed-binary hash, signing identity, current AI-PAM

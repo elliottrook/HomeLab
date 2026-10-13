@@ -3,7 +3,9 @@
 **Status: local candidate `eb69280` on `codex/aster-companion-composite`;
 installed on the Mac mini by Jason's explicit approval. Signed-in UI,
 read-only OpenBao status, AI-PAM panel and one ordinary Aster answer pass;
-natural refresh on this binary remains untested. No remote push or manual
+natural refresh on this binary remains untested but is [monitored rather than
+an indefinite blocking gate](D3-refresh-gate-reassessment-2026-10-12.md).
+No remote push or manual
 Codex question.** This candidate responds to
 Jason's requirement that the native OpenBao seal/unseal controls survive the
 manual Codex integration. The previous installed app remains intact as a
@@ -99,8 +101,9 @@ non-personal question “What is 2 + 2? Reply with the number only.” The app
 displayed “4” with a 2.8-second elapsed indicator. The visible UI shows a
 successful ordinary chat response; it does not by itself prove which backend
 served it or measure broader answer quality. The hidden manual Codex surface
-was not used. Do not call this the full D3 release gate: natural refresh and
-flagged manual-surface behavior on this exact binary remain unobserved.
+was not used. Do not call this the full D3 release gate: flagged manual-surface
+behavior on this exact binary remains unobserved, while natural refresh is a
+separate reliability observation.
 
 This closes the *source-combination feasibility* check, not the D3 release
 gate. The app owner reviewed the source candidate and found no direct conflict
@@ -116,7 +119,9 @@ because `fastapi` is not installed; no dependency was installed for this
 documentation check. The web source and its test file are byte-for-byte
 unchanged from the pinned Companion baseline.
 Before routine manual-Codex release, verify the flagged pilot UI without
-unnecessary new questions, observe natural refresh on this exact composite,
-and confirm recovery behavior using existing recorded work. Do not seal
+unnecessary new questions and confirm recovery behavior using existing
+recorded work. Continue to monitor natural refresh and Keychain behavior in
+ordinary use; do not wait indefinitely for them before unrelated Stream A
+work. Do not seal
 OpenBao merely as a test. Any unexpected
 Keychain prompt, sign-in regression or OpenBao behavior is a hold/rollback.
