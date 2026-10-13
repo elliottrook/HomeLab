@@ -94,6 +94,9 @@ without receiving private cases or reproducing model judgments. The
 [owner-held candidate contract](benchmarks/A1-v2-candidate-adapter-and-admission-2026-10-12.md)
 keeps any later paired run on the Mini and records why candidate staging,
 the whole-host lease and full Aster-path timing remain blocked.
+The [proposed class-specific sample policy](benchmarks/A1-class-qualification-sample-policy-v0.md)
+separates regression evidence from qualification and requires independent
+labels and a frozen per-class bar before a challenger can earn a route.
 
 The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
 symlinked or writable reports, and fails closed on malformed status types; see

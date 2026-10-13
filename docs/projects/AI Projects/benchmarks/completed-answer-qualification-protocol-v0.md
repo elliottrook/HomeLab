@@ -131,6 +131,10 @@ backend provenance, independent qualification or a numeric release bar.
 The [control measurement profile](completed-answer-control-measurement-profile-v0.md)
 freezes the comparison method and names the evidence still needed before a
 class-specific budget can be proposed.
+The [class-specific sample policy](A1-class-qualification-sample-policy-v0.md)
+now makes those missing floors explicit, illustrates why two cases per family
+cannot bound rare failures, and retains `INDETERMINATE` as a legitimate
+decision. It is proposed measurement governance, not a numeric release bar.
 
 **Development update, 2026-10-12:** a separately frozen
 [20-case fictional A1 v2 set](answer-holdout-release-v2-2026-10-12.md)

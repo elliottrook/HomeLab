@@ -291,3 +291,23 @@ matched at that tip when checked. No candidate test or lease was initiated.
 The [owner-held candidate adapter and full-path admission contract](A1-v2-candidate-adapter-and-admission-2026-10-12.md)
 answers B60's next interface request. It is a design/preflight artifact, not
 an executable candidate or a READY lab card.
+
+## Aster offline measurement follow-up for B60 review — 2026-10-12
+
+The owner-held candidate packet now includes an unconnected
+`scripts/aster-adaptive/journaled_holdout_capture.py` attempt journal
+(SHA-256 `c0758a7b0243d075d04ee61a3da7c1f2dd8f65087074419a84a08f5be5ceae52`),
+an ASGI observation-ID clock candidate
+(SHA-256 `e7f8240fc38a62772ac2d7e4e9461ee8f3be21580885d9dfc0cab40fe1919305`),
+and a strict content-free clock join
+(SHA-256 `38318b894be89525be166a19ab1bd933966dfddf12ca060386ff0a2768fc694b`).
+The [proposed per-family sample policy](A1-class-qualification-sample-policy-v0.md)
+has SHA-256 `8d2c29a135d863be121b6fe025548835814789bda52f4140c75e5984e0cc7b34`.
+These artifacts answer the requested custody, interrupted-attempt and sample
+plan questions for review. They do **not** provide a candidate endpoint,
+human labels, numeric floors, native Companion timing or lab admission. The
+dependency-free journal, ASGI-ID and join tests pass; the existing FastAPI/
+httpx integration test source compiles but is unrun locally because `httpx`
+is unavailable. B60 should treat this as an interface proposal and report
+specific incompatibilities against its candidate/lease contract rather than
+enabling the undeployed runner.

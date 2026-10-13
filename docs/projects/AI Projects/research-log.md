@@ -3006,3 +3006,16 @@ tests and five join tests pass. The existing FastAPI/httpx integration test
 source compiles but could not run locally because `httpx` is unavailable; no
 package was installed. There is still no native Companion client clock or
 live full-path latency baseline.
+
+### 2026-10-12 — Class-specific qualification sample policy candidate
+
+Added a proposed [per-family evidence policy](benchmarks/A1-class-qualification-sample-policy-v0.md)
+to prevent the 14/20 synthetic development result becoming an accidental
+release floor. It requires preregistered control/candidate profiles, human
+adjudication, paired outcomes, separate latency/censoring measures and an
+explicit `INDETERMINATE` decision for thin evidence. The zero-failure bound
+table follows directly from `(1-p)^n = 0.05`; its assumptions do not hold for
+the two AI-authored cases per A1 family. Numeric per-class limits remain
+unknown pending current-path measurement and Jason's risk/waiting preferences.
+This is an offline policy proposal, not an experiment, model promotion or
+permission change.
