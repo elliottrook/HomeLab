@@ -2993,3 +2993,16 @@ retains all 20 returned answers in the private journal without fabricating a
 final result. The code made no network/model/tool call and
 does not verify backup, lab lease or candidate endpoint admission. See the
 [candidate contract](benchmarks/A1-v2-candidate-adapter-and-admission-2026-10-12.md).
+
+### 2026-10-12 — Offline Aster timing correlation candidate
+
+Extended the uninstalled ASGI clock to put a generated opaque observation ID
+in a response header and its content-free timing record. It removes any
+same-named upstream header rather than accepting an untrusted ID. A separate
+strict join accepts only matching allowlisted client/gateway records, retains
+observed durations independently, and never treats terminal text as a useful
+answer or subtracts monotonic clocks from different hosts. Three pure ASGI
+tests and five join tests pass. The existing FastAPI/httpx integration test
+source compiles but could not run locally because `httpx` is unavailable; no
+package was installed. There is still no native Companion client clock or
+live full-path latency baseline.

@@ -68,6 +68,20 @@ reviewed useful-result label without logging prompt/answer text. Missing
 phases remain `null`. An interrupted stream has no terminal completion and
 is censored, not assigned a fabricated latency.
 
+**Offline correlation extension, 2026-10-12:** the uninstalled ASGI wrapper
+now assigns a random opaque 32-hex observation ID, replaces any same-named
+response header with that ID, and records it beside content-free first/final
+body timing. A pure [clock join](../../../../scripts/aster-adaptive/join_aster_clock.py)
+accepts only matching allowlisted client and gateway records. It preserves
+each side's observed duration without subtracting clocks from different
+processes, keeps an interrupted response censored, and leaves useful-answer
+time `null` until a separate review label exists. Three dependency-free ASGI
+tests and five join tests pass. The FastAPI/httpx integration test source
+compiles, but it could not run on this Mac because `httpx` is not installed;
+no dependency was installed for this checkpoint. A real client clock producer
+and live Aster/Companion test remain absent, so this is correlation wiring,
+not an end-to-end latency baseline.
+
 ## Admission and ownership for subsequent live measurements
 
 | Lane | Present state | Entry gate |

@@ -103,6 +103,11 @@ reported only after a bound review label. Admit a synthetic no-tool Aster
 path first; ordinary Companion/voice timing and cloud/Codex comparisons need
 their own consent, identity and transport checks.
 
+The offline [ASGI observation-ID extension](../evidence/A1-private-review-and-asgi-clock-2026-10-12.md)
+and [strict content-free join](../../../../scripts/aster-adaptive/join_aster_clock.py)
+exercise this boundary with synthetic responses. They do not provide a native
+Companion producer, a live service measurement or a useful-answer label.
+
 ## Live gate and current disposition
 
 A candidate run card can become `READY` only after the platform owner publishes
