@@ -18,6 +18,7 @@ class AdmissionRecord:
     backend_identity: str
     consumers_isolated: bool
     scheduled_work_quiesced: bool
+    services: tuple[tuple[str, str], ...] = ()
 
 
 def encode(record: AdmissionRecord) -> str:
@@ -33,6 +34,7 @@ def decode(payload: str) -> AdmissionRecord:
     expected = set(AdmissionRecord.__dataclass_fields__)
     if set(value) != expected:
         raise ValueError("admission record schema mismatch")
+    value["services"] = tuple(tuple(item) for item in value["services"])
     return AdmissionRecord(**value)
 
 

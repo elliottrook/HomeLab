@@ -85,7 +85,9 @@ class CandidateController:
         self.paths = paths
         self.runner = runner
 
-    def acquire(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str) -> dict[str, object]:
+    def acquire(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str, active_services: tuple[tuple[str, str], ...] = ALLOWLIST) -> dict[str, object]:
+        if any(service not in ALLOWLIST for service in active_services):
+            raise ValueError("active service set is outside the lease allowlist")
         validate_receipt(receipt, now_minute=observation.now_minute, expected_backup_receipt=backup_receipt, watchdog_alive=observation.heartbeat_alive)
         if not observation.control_plane_healthy or not observation.production_services_healthy:
             raise ValueError("pre-acquire health gate failed")
@@ -105,12 +107,13 @@ class CandidateController:
             backend_identity=receipt.backend_identity,
             consumers_isolated=receipt.consumers_isolated,
             scheduled_work_quiesced=receipt.scheduled_work_quiesced,
+            services=active_services,
         )
         atomic_write(self.paths.state, encode(state))
         stopped: list[tuple[str, str]] = []
         try:
             journal_event(self.paths.journal, {"event": "lease-acquired", "lease_id": receipt.lease_id, "generation": receipt.generation})
-            for vmid, unit in ALLOWLIST:
+            for vmid, unit in active_services:
                 journal_event(self.paths.journal, {"event": "stop-intent", "vmid": vmid, "unit": unit})
                 self.runner(command_for(vmid, unit, "stop"))
                 stopped.append((vmid, unit))
@@ -136,7 +139,7 @@ class CandidateController:
             raise ValueError("persisted lease identity does not match restore receipt")
         if not observation.control_plane_healthy:
             raise ValueError("control-plane postcheck is incomplete")
-        for vmid, unit in ALLOWLIST:
+        for vmid, unit in persisted.services:
             journal_event(self.paths.journal, {"event": "start-intent", "vmid": vmid, "unit": unit})
             self.runner(command_for(vmid, unit, "start"))
             journal_event(self.paths.journal, {"event": "start-observed", "vmid": vmid, "unit": unit})

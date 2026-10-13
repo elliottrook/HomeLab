@@ -78,6 +78,19 @@ class CandidateControllerTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             command_for("110", "sshd.service", "stop")
 
+    def test_restore_only_restarts_services_that_were_active(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+            controller = CandidateController(CandidatePaths(Path(temp)), commands.append)
+            active = (ALLOWLIST[0],)
+            controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=active)
+            commands.clear()
+            self.assertEqual(
+                controller.restore(self.receipt(), self.observation(), backup_receipt="backup")["state"],
+                "ready",
+            )
+            self.assertEqual(commands, [command_for(*active[0], "start")])
+
 
 if __name__ == "__main__":
     unittest.main()

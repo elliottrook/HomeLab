@@ -32,4 +32,6 @@ candidate into a private staging path, run the same fake-command suite, then
 request separate authorization for the live host change. If any postcheck
 fails, disable the candidate timer, retain the lease lock, restore the saved
 controller/unit files, and use the existing manual release path only after
-the three production services and exact backup schedule are healthy.
+the three production services and exact schedule identities are healthy:
+Proxmox `00:30`, TrueNAS guest `01:00`, TrueNAS LXC 110 `02:00`, TrueNAS Mac
+`03:00`, and News digest `06:15`/`17:15`, with the expected timers enabled.

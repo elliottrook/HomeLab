@@ -104,7 +104,10 @@ class LeaseWatchdogTests(unittest.TestCase):
             current_state=WatchdogState.RESTORING,
         )
         self.assertEqual(decision.state, WatchdogState.FAILED)
-        self.assertEqual(EXPECTED_SCHEDULES, ("00:30", "01:00", "02:00", "03:00"))
+        self.assertEqual(EXPECTED_SCHEDULES, (
+            "proxmox:00:30", "truenas-guest:01:00", "truenas-lxc110:02:00",
+            "truenas-mac:03:00", "news:06:15", "news:17:15",
+        ))
 
     def test_admission_record_round_trips_and_expires(self):
         record = AdmissionRecord(

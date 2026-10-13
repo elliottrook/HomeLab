@@ -13,7 +13,14 @@ from enum import Enum
 from lease_contract import LeaseError, LeaseReceipt, validate_receipt
 
 
-EXPECTED_SCHEDULES = ("00:30", "01:00", "02:00", "03:00")
+EXPECTED_SCHEDULES = (
+    "proxmox:00:30",
+    "truenas-guest:01:00",
+    "truenas-lxc110:02:00",
+    "truenas-mac:03:00",
+    "news:06:15",
+    "news:17:15",
+)
 
 
 class WatchdogState(str, Enum):
@@ -32,6 +39,7 @@ class Observation:
     accepted_gpu_visible: bool
     schedule_restored: bool
     schedule_points: tuple[str, ...] = EXPECTED_SCHEDULES
+    schedules_enabled: bool = True
     exact_binary_verified: bool = True
     model_verified: bool = True
     unit_verified: bool = True
@@ -58,6 +66,8 @@ class StatusReceipt:
     production_services_healthy: bool
     accepted_gpu_visible: bool
     schedule_restored: bool
+    schedules_enabled: bool
+    schedule_points: tuple[str, ...]
     failure_code: str | None
 
 
@@ -75,6 +85,8 @@ def status_receipt(receipt: LeaseReceipt, state: WatchdogState, observation: Obs
         production_services_healthy=observation.production_services_healthy,
         accepted_gpu_visible=observation.accepted_gpu_visible,
         schedule_restored=observation.schedule_restored,
+        schedules_enabled=observation.schedules_enabled,
+        schedule_points=observation.schedule_points,
         failure_code=failure_code,
     )
     return asdict(value)
@@ -122,6 +134,7 @@ def decide(
             not observation.accepted_gpu_visible
             or not observation.schedule_restored
             or observation.schedule_points != EXPECTED_SCHEDULES
+            or not observation.schedules_enabled
             or not observation.exact_binary_verified
             or not observation.model_verified
             or not observation.unit_verified
