@@ -1,5 +1,5 @@
 import unittest
-from digest_text import coherent_event, dedupe_titles, repeat_story, same_story, speech_text
+from digest_text import coherent_event, dedupe_titles, narration_units, repeat_story, same_story, speech_text
 
 class DigestTextTests(unittest.TestCase):
     def test_dedupes_evolving_headlines(self):
@@ -42,6 +42,30 @@ class DigestTextTests(unittest.TestCase):
             speech_text("U.S. suspect connected to U.S.A. school shooting."),
             "United States suspect connected to United States school shooting.",
         )
+
+    def test_speech_expands_hyphenated_dotted_abbreviations(self):
+        self.assertEqual(
+            speech_text("A U.S.-style proposal from a B.C.-based group."),
+            "A United States-style proposal from a British Columbia-based group.",
+        )
+
+    def test_speech_removes_bare_urls(self):
+        self.assertEqual(
+            speech_text("Read more at https://example.com/story or example.ca/news."),
+            "Read more at or.",
+        )
+
+    def test_narration_units_are_bounded_with_controlled_pauses(self):
+        text = (
+            "A short opening sentence. "
+            "This deliberately long sentence contains a useful first clause, "
+            "then a second clause that should be joined gently rather than cut at an arbitrary phoneme window."
+        )
+        units = narration_units(text, maximum=90)
+        self.assertTrue(all(len(unit) <= 90 for unit, _ in units))
+        self.assertEqual(units[0], ("A short opening sentence.", 0.18))
+        self.assertIn(0.08, [pause for _, pause in units])
+        self.assertEqual(units[-1][1], 0.0)
 
     def test_speech_keeps_approved_plain_product_names(self):
         self.assertEqual(

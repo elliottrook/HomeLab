@@ -34,7 +34,7 @@ import numpy as np
 import soundfile as sf
 from kokoro_onnx import Kokoro
 from aster_batch_tts import AsterBatchTTS
-from digest_text import coherent_event, dedupe_titles, repeat_story, speech_text
+from digest_text import coherent_event, dedupe_titles, narration_units, repeat_story, speech_text
 
 DB_PATH = Path(__file__).parent / "news.db"
 STATIC_DIR = Path(__file__).parent / "static" / "digest-audio"
@@ -42,6 +42,9 @@ VOICE_MODEL = Path("/opt/news-aggregator/models/kokoro/kokoro-v1.0.fp16.onnx")
 VOICE_PACK = Path("/opt/news-aggregator/models/kokoro/voices-v1.0.bin")
 VOICE = "bm_daniel"
 VOICE_SPEED = 0.95
+NEWS_TEMPO = float(os.environ.get("ASTER_NEWS_TEMPO", "1.10"))
+if not 0.90 <= NEWS_TEMPO <= 1.25:
+    raise RuntimeError("ASTER_NEWS_TEMPO must be between 0.90 and 1.25")
 STORY_PAUSE_SECONDS = 1.0
 MAX_STORIES = 21
 ASTER_BATCH_URL = os.environ.get(
@@ -83,12 +86,23 @@ def briefing_label(local_dt: datetime) -> tuple[str, str]:
 
 def synth(text: str, out_path: Path, engine) -> None:
     if isinstance(engine, AsterBatchTTS):
-        pcm, sample_rate = engine.synthesize(text)
+        rendered = []
+        sample_rate = None
+        for unit, pause_seconds in narration_units(text):
+            pcm, rate = engine.synthesize(unit)
+            if sample_rate is not None and rate != sample_rate:
+                raise RuntimeError("Aster changed sample rate between narration units")
+            sample_rate = rate
+            rendered.append(pcm)
+            if pause_seconds:
+                rendered.append(b"\x00\x00" * int(rate * pause_seconds))
+        if sample_rate is None or not rendered:
+            raise ValueError("No speech chunks generated")
         with wave.open(str(out_path), "wb") as target:
             target.setnchannels(1)
             target.setsampwidth(2)
             target.setframerate(sample_rate)
-            target.writeframes(pcm)
+            target.writeframes(b"".join(rendered))
         return
     # Keep long summaries from crossing Kokoro's internal phoneme-window
     # boundary.  Sentence/clause-sized calls preserve pauses while avoiding
@@ -128,6 +142,21 @@ def silence_clip(out_path: Path, seconds: float) -> None:
         raise RuntimeError(f"ffmpeg silence generation FAILED: {result.stderr.decode(errors='replace')}")
 
 
+def apply_news_tempo(wav_path: Path) -> None:
+    """Speed News narration without changing the canonical voice pitch."""
+    adjusted = wav_path.with_name(wav_path.stem + ".tempo.wav")
+    result = subprocess.run(
+        ["ffmpeg", "-y", "-i", str(wav_path), "-filter:a", f"atempo={NEWS_TEMPO:.2f}",
+         "-ar", "24000", "-ac", "1", "-c:a", "pcm_s16le", str(adjusted)],
+        capture_output=True,
+        timeout=60,
+    )
+    if result.returncode != 0:
+        adjusted.unlink(missing_ok=True)
+        raise RuntimeError(f"ffmpeg News tempo adjustment FAILED: {result.stderr.decode(errors='replace')}")
+    adjusted.replace(wav_path)
+
+
 def concat_wavs(clip_paths: list, out_path: Path) -> None:
     list_file = out_path.with_suffix(".txt")
     list_file.write_text("".join(f"file '{p}'\n" for p in clip_paths))
@@ -154,6 +183,7 @@ def build_briefing(entries: list, engine: Kokoro, workdir: Path) -> tuple[Path, 
     chapters = []
     intro_wav = workdir / "00-intro.wav"
     synth(intro_text, intro_wav, engine)
+    apply_news_tempo(intro_wav)
     clips.append(intro_wav)
     elapsed = sf.info(intro_wav).duration
 
@@ -163,6 +193,7 @@ def build_briefing(entries: list, engine: Kokoro, workdir: Path) -> tuple[Path, 
         story_wav = workdir / f"story-{i:02d}.wav"
         story_text = speech_text(e["headline"] + ".\n" + e["abridged_summary"])
         synth(story_text, story_wav, engine)
+        apply_news_tempo(story_wav)
         chapters.append({"index": i + 1, "title": e["headline"], "start": round(elapsed, 3)})
         elapsed += sf.info(story_wav).duration
         clips.append(story_wav)
@@ -170,6 +201,7 @@ def build_briefing(entries: list, engine: Kokoro, workdir: Path) -> tuple[Path, 
     clips.append(pause_wav)
     outro_wav = workdir / "99-outro.wav"
     synth(outro_text, outro_wav, engine)
+    apply_news_tempo(outro_wav)
     clips.append(outro_wav)
 
     combined = workdir / "combined.wav"
@@ -284,12 +316,17 @@ def main() -> int:
             if isinstance(engine, Kokoro):
                 engine.voices.close()
         transcode_mp3(combined_wav, mp3_path)
-        write_chapters_vtt(out_dir / "latest.vtt", chapters, sf.info(combined_wav).duration)
+        duration = sf.info(combined_wav).duration
+        write_chapters_vtt(out_dir / "latest.vtt", chapters, duration)
 
     meta_path.write_text(json.dumps({
         "digest_run": latest_run,
         "generated_at": now_iso(),
         "story_count": len(entries),
+        "duration_seconds": round(duration, 3),
+        "voice": VOICE,
+        "voice_speed": VOICE_SPEED,
+        "narration_tempo": NEWS_TEMPO,
         "chapters": chapters,
     }))
 

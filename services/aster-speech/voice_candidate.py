@@ -27,11 +27,12 @@ _DOLLAR_AMOUNT = re.compile(
     r"(?:\.(\d+))?(?:\s+(million|billion|trillion))?\b",
     re.IGNORECASE,
 )
+_ABBREVIATION_END = r"(?=(?:['’]s)?(?:\s|$|[-–—,;:!?]))"
 _US_ABBREVIATION = re.compile(
-    r"\bU\.S(?:\.A)?\.(?=(?:['’]s)?(?:\s|$|[,;:!?]))", re.IGNORECASE
+    rf"\bU\.S(?:\.A)?\.{_ABBREVIATION_END}", re.IGNORECASE
 )
 _BC_ABBREVIATION = re.compile(
-    r"\bB\.C\.(?=(?:['’]s)?(?:\s|$|[,;:!?]))", re.IGNORECASE
+    rf"\bB\.C\.{_ABBREVIATION_END}", re.IGNORECASE
 )
 _LUTRON_CASETA = re.compile(r"\bLutron Cas[eé]ta\b", re.IGNORECASE)
 
