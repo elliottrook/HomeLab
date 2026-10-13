@@ -52,6 +52,13 @@ constructs one non-streaming `sysadmin` chat request per frozen case with
 case fields so hidden labels cannot enter the request. This is not a live
 client or a server-side tool boundary: the isolated gateway must enforce the
 no-tool scope independently, because a client flag alone is not authority.
+An [offline ASGI guard candidate](../../../../scripts/aster-adaptive/a1_test_gateway.py)
+now rejects every other HTTP route, method, credential or request shape before
+the wrapped app. It is **not** a deployed test server or a privileged-tool
+revocation: a later isolated instance must use a dedicated test credential,
+restricted OS identity, no privileged mounts, reviewed LAN egress and the
+same guard/configuration for control and challenger. Its unit tests use a fake
+wrapped app, not a real Aster service or B60 endpoint.
 
 The headless client begins its clock at request acceptance and marks display
 only after its final response renderer completes. The Aster ASGI clock emits
