@@ -150,3 +150,25 @@ was requested to check the actual UI, but automatic approval review rejected
 the quit because a signed-in session or visible chat could be disturbed.
 No restart occurred. This remains a **finite, pending live check**, not a
 release pass; the user was asked to authorize one explicit supervised restart.
+
+Jason approved one supervised restart. The app was closed through its menu and
+reopened in normal mode, still signed in; the earlier trivial visible chat was
+cleared. The available UI controller could not pass the required
+`--aster-local-codex-manual` launch argument, and Terminal UI control was
+unavailable. The app was restored to its ordinary signed-in screen with the
+manual button absent. No Codex question or OpenBao action was sent. The flagged
+screen, consent interaction and recorded recovery remain **UNVERIFIED**, and
+the limited manual release remains **HOLD**. A user-operated flagged launch
+may complete this finite check if Jason chooses to do it; do not count this
+normal-mode restart as feature evidence.
+
+Jason then chose the supervised launch and ran
+`open -a /Applications/AsterCompanion.app --args --aster-local-codex-manual`
+after the normal app was closed. The signed-in flagged UI displayed the
+**Manual Codex** button. Its sheet found one existing completed request and
+offered **Recover original answer**; that control recovered the original
+fictional Nova answer and displayed the answer-acknowledgement control. The
+answer text is not retained in this repository or copied into this record.
+No new Codex question was sent. The pending answer was left visible while
+Jason decides whether to acknowledge it; the live new-question consent view
+therefore remains unchecked, and the limited manual release remains **HOLD**.
