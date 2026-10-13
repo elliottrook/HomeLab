@@ -15,6 +15,8 @@ HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 TZ = ZoneInfo("America/Vancouver")
 CASE_SHA256 = "8c5293382a457cbcf4f9999a8904820d6b1d126477fbfc6b672b41a87b62cab9"
 RESTORE_RESERVE = timedelta(minutes=15)
+ACCEPTED_MODEL = "Qwen3.5 9B Q4_K_M"
+ACCEPTED_BACKEND = "llama.cpp b11429 SYCL/Level Zero"
 
 
 class AdmissionDenied(ValueError):
@@ -87,17 +89,27 @@ def admit(card: dict, observed: dict, *, now: datetime) -> dict:
             or not _digest(backup["receipt_sha256"])):
         raise AdmissionDenied("backup_unverified")
     if (not isinstance(lease, dict) or set(lease) != {
-            "source", "id", "state", "issued_at", "expires_at", "host_lock_held", "owner"}
+            "source", "id", "generation", "state", "issued_at", "expires_at",
+            "backup_receipt_sha256", "model_identity", "backend_identity",
+            "consumers_isolated", "scheduled_work_quiesced", "host_lock_held", "owner"}
             or lease["source"] != "platform-host-controller"
             or lease["id"] != card["lease_id"]
+            or type(lease["generation"]) is not int or lease["generation"] < 1
             or lease["state"] != "leased"
+            or lease["backup_receipt_sha256"] != backup["receipt_sha256"]
+            or lease["model_identity"] != ACCEPTED_MODEL
+            or lease["backend_identity"] != ACCEPTED_BACKEND
+            or lease["consumers_isolated"] is not True
+            or lease["scheduled_work_quiesced"] is not True
             or lease["host_lock_held"] is not True
             or lease["owner"] != "aster-stream-a"):
         raise AdmissionDenied("lease_unverified")
     if (not isinstance(watchdog, dict) or set(watchdog) != {
-            "source", "lease_id", "armed", "deadline_at", "independent_of_mini"}
+            "source", "lease_id", "generation", "armed", "deadline_at",
+            "independent_of_mini"}
             or watchdog["source"] != "proxmox-systemd"
             or watchdog["lease_id"] != card["lease_id"]
+            or watchdog["generation"] != lease["generation"]
             or watchdog["armed"] is not True
             or watchdog["independent_of_mini"] is not True):
         raise AdmissionDenied("watchdog_unverified")

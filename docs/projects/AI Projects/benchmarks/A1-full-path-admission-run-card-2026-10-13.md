@@ -50,8 +50,10 @@ passed.
 
 The platform owner must supply an authenticated, current host-controller
 receipt with lease ID, owner `aster-stream-a`, issued/expiry time, durable
-host lock and no-new-start guard. A separately owned Proxmox watchdog must be
-armed to the **same lease ID** and have a deadline before 04:15 Vancouver,
+host lock and no-new-start guard. It must bind the same-night backup receipt
+and the accepted Q4_K_M model/SYCL backend identities. A separately owned
+Proxmox watchdog must be armed to the **same lease ID and generation** and
+have a deadline before 04:15 Vancouver,
 independent of the Mini, this chat and the candidate process. The same-night
 Proxmox archive and TrueNAS guest, LXC 110 and Mac pulls require source-bound
 completion/integrity receipts; configured times alone are insufficient.

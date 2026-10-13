@@ -34,10 +34,15 @@ def observed():
                    "archive_complete": True, "mirror_verified": True,
                    "receipt_sha256": A},
         "lease": {"source": "platform-host-controller", "id": "test-lease-20261014",
+                  "generation": 1, "backup_receipt_sha256": A,
+                  "model_identity": "Qwen3.5 9B Q4_K_M",
+                  "backend_identity": "llama.cpp b11429 SYCL/Level Zero",
+                  "consumers_isolated": True, "scheduled_work_quiesced": True,
                   "state": "leased", "issued_at": "2026-10-14T03:10:00-07:00",
                   "expires_at": "2026-10-14T04:10:00-07:00",
                   "host_lock_held": True, "owner": "aster-stream-a"},
         "watchdog": {"source": "proxmox-systemd", "lease_id": "test-lease-20261014",
+                     "generation": 1,
                      "armed": True, "deadline_at": "2026-10-14T04:05:00-07:00",
                      "independent_of_mini": True},
         "consumers": {"source": "platform-host-controller", "news_quiesced": True,
@@ -72,6 +77,12 @@ class FullPathAdmissionTests(unittest.TestCase):
         self.deny("watchdog_unverified", lambda x: x["watchdog"].update(lease_id="other-lease"))
         self.deny("lease_unverified", lambda x: x["lease"].update(host_lock_held=False))
         self.deny("lease_unverified", lambda x: x["lease"].update(owner="other-lane"))
+        self.deny("lease_unverified", lambda x: x["lease"].update(backup_receipt_sha256=B))
+        self.deny("lease_unverified", lambda x: x["lease"].update(
+            model_identity="Qwen3.5 9B FP16"))
+        self.deny("lease_unverified", lambda x: x["lease"].update(
+            scheduled_work_quiesced=False))
+        self.deny("watchdog_unverified", lambda x: x["watchdog"].update(generation=2))
 
     def test_backup_must_be_source_bound_and_same_night(self):
         self.deny("backup_unverified", lambda x: x["backup"].update(mirror_verified=False))
