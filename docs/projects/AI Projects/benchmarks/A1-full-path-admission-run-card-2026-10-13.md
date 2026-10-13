@@ -162,6 +162,8 @@ checker, and a reviewed protected-output path. Then run the synthetic gateway
 and display join under the admitted lease, retain failures and restoration
 evidence, and decide separately whether a paired candidate or fresh
 qualification corpus is justified. Do not revive the obsolete coordinator.
+The [isolated Aster topology candidate](A1-isolated-Aster-topology-2026-10-13.md)
+defines the proposed path and its separate installation review gate.
 
 The offline gateway candidate now derives its 20 allowlisted body digests from
 the validated sealed corpus using the same serializer as the client. Only
