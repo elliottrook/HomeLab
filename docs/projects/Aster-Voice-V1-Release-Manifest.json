@@ -1,0 +1,71 @@
+{
+  "schema": "aster-voice-release.v1",
+  "release_id": "aster-voice-v1.0.0-draft-20261012",
+  "status": "draft-blocked",
+  "prepared_at": "2026-10-12T18:45:00-07:00",
+  "source": {
+    "authority": "forgejo",
+    "repository": "jason/homelab",
+    "branch": "codex/aster-stream-a-handoff",
+    "observed_commit": "a064dfe60d278c74864fd3877081d83a49a74792",
+    "tag_authorized": false
+  },
+  "identity": {
+    "service": "Aster Voice Service",
+    "voice": "bm_daniel",
+    "language": "en-gb",
+    "speed": "0.95",
+    "policy": "v1",
+    "tts_model": "kokoro-v1.0.fp16.onnx",
+    "tts_model_sha256": "f3a290d384fbb27966d462905c71a46cef9e5fd00516b40df32a0b4afe77ac96",
+    "voices_asset": "voices-v1.0.bin",
+    "voices_asset_sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+    "stt_model": "base.en",
+    "audio": "pcm_s16le mono 24000Hz"
+  },
+  "accepted_lab_runtime": {
+    "guest": "LXC 116 aster-speech",
+    "address": "192.168.70.14",
+    "canonical_http_port": 9131,
+    "wyoming_port": 10300,
+    "legacy_rollback_port": 9130,
+    "files": {
+      "aster_voice_candidate.py": "c452a7b6777567c9649606c63fc9a9304ff3a48a7cda2659e100f47a32330037",
+      "aster_speech.py": "75b065de4598eb2d805f1a679e65f13b12cadac3afb8855534f10981aae615dd",
+      "voice_candidate.py": "0cecbebf4d6904a26652515673ee4224635db286f8327f0913265df9f0a48cdd",
+      "voice_candidate_http.py": "bfd7b6d556029d6231afb8423ccbca776914608de98d855a4b6913272e241d46",
+      "voice_metrics.py": "8c86d7df66bf733f616b148306308c836403c08015be19c4e4719b79368a8943",
+      "voice_protocol.py": "5f391f622fa99a74c279a5c8607e2cac1b9f96c293bd0f8be564fc46dda05b6e",
+      "wyoming_adapter.py": "54214a70810f4c1a231c6dc08b05685532d3c0f8a8521094b42549206d4218e0",
+      "kokoro_candidate.py": "72ac96e0c73392755f4332e2775f5abd84a7e3e5390bfa4fb7f49176bc1d0b6b",
+      "requirements_candidate.txt": "f2c4589265304e702223bf3874be1d35461bdf54c8d3c548823dc677f08cbe4c",
+      "requirements_kokoro.lock": "50ff558e2db4575a900c9f2b5ce53efdaa5a946933f5474e0622c8eee6aef142",
+      "aster_voice_candidate.service": "3d1f951da3ed887bbe5e1ac7fa23291bae2c39693d564319c6455bf398909033"
+    }
+  },
+  "accepted_consumers": {
+    "companion_web": "accepted canonical AVS1 streaming",
+    "home_assistant": "accepted Wyoming pilot",
+    "news_digest": "accepted isolated CPU batch path",
+    "native_mac": "operator reports repaired; canonical-streaming deployment identity not yet independently verified"
+  },
+  "production_target": {
+    "state": "not_allocated",
+    "network": "Servers VLAN",
+    "credentials": "must be newly generated and protected; never copied to this manifest"
+  },
+  "blockers": [
+    "reconcile all hashed deployed runtime files into the canonical Forgejo release tree",
+    "independently verify the repaired native Mac app uses the canonical streaming endpoint",
+    "complete M8 two-pass cross-surface production evidence and efficiency review",
+    "select and verify a free production VMID and Servers-VLAN address in NetBox",
+    "create a final manifest from a clean immutable Forgejo commit",
+    "obtain explicit approval before creating the release tag"
+  ],
+  "authorization": {
+    "production_provisioning": false,
+    "consumer_cutover": false,
+    "release_tag": false,
+    "destructive_cleanup": false
+  }
+}
