@@ -163,6 +163,16 @@ stage a reviewed pinned-host-key, least-privilege read path or leave remote
 schedule verification UNKNOWN while independent recovery restores local
 production and retains the lease lock. Disabling host-key checks is not an
 acceptable shortcut.
+The platform owner's local recovery candidate later added an allowlisted
+effect runner and a disabled systemd executor. Stream A's independent source
+review still found two unproven cases: the first executor revision would hash
+the 5.6 GB model on every one-minute tick during a healthy lab lease, and an
+interrupted persisted `RESTORING` state could yield `FAILED` before an effect
+attempt. The proposed attended drill also barred timer activation, so it
+would not prove timer-driven independent recovery. These are review findings
+on an **uninstalled local candidate**, not observed production incidents.
+Live admission remains BLOCKED until corrected code, fault tests and a
+bounded timer-enabled recovery drill are reviewed and authorized.
 LXC 114's enabled `news-aggregator-digest.timer` was also read directly;
 its `OnCalendar=*-*-* 06,17:15:00 Etc/GMT+7` means 06:15 and 17:15 at
 the project's fixed UTC-7 local offset. Its older description/comment still
