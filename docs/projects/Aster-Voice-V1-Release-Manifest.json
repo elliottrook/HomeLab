@@ -7,7 +7,7 @@
     "authority": "forgejo",
     "repository": "jason/homelab",
     "branch": "codex/aster-stream-a-handoff",
-    "observed_commit": "998343d4190f581796b207ef1ba910f0fd0036c2",
+    "observed_commit": "13a4aec2c107b5b6fce5ea6a108e597f6a62c1fb",
     "tag_authorized": false
   },
   "identity": {
@@ -32,7 +32,7 @@
     "files": {
       "aster_voice_candidate.py": "c452a7b6777567c9649606c63fc9a9304ff3a48a7cda2659e100f47a32330037",
       "aster_speech.py": "75b065de4598eb2d805f1a679e65f13b12cadac3afb8855534f10981aae615dd",
-      "voice_candidate.py": "0cecbebf4d6904a26652515673ee4224635db286f8327f0913265df9f0a48cdd",
+      "voice_candidate.py": "3e91f7681851ae14a912b1ed3853ab21ff0f3422bedc13db68dccbea4e01f4b6",
       "voice_candidate_http.py": "bfd7b6d556029d6231afb8423ccbca776914608de98d855a4b6913272e241d46",
       "voice_metrics.py": "8c86d7df66bf733f616b148306308c836403c08015be19c4e4719b79368a8943",
       "voice_protocol.py": "5f391f622fa99a74c279a5c8607e2cac1b9f96c293bd0f8be564fc46dda05b6e",
@@ -44,11 +44,11 @@
     }
   },
   "release_candidate_tree": {
-    "commit": "998343d4190f581796b207ef1ba910f0fd0036c2",
+    "commit": "13a4aec2c107b5b6fce5ea6a108e597f6a62c1fb",
     "files": {
       "aster_voice_candidate.py": "c452a7b6777567c9649606c63fc9a9304ff3a48a7cda2659e100f47a32330037",
       "aster_speech.py": "75b065de4598eb2d805f1a679e65f13b12cadac3afb8855534f10981aae615dd",
-      "voice_candidate.py": "0cecbebf4d6904a26652515673ee4224635db286f8327f0913265df9f0a48cdd",
+      "voice_candidate.py": "3e91f7681851ae14a912b1ed3853ab21ff0f3422bedc13db68dccbea4e01f4b6",
       "voice_candidate_http.py": "bfd7b6d556029d6231afb8423ccbca776914608de98d855a4b6913272e241d46",
       "voice_metrics.py": "8c86d7df66bf733f616b148306308c836403c08015be19c4e4719b79368a8943",
       "voice_protocol.py": "5f391f622fa99a74c279a5c8607e2cac1b9f96c293bd0f8be564fc46dda05b6e",
