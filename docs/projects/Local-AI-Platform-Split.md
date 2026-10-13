@@ -447,6 +447,14 @@ silently switch to Piper; Piper remains the separately operated 9130 rollback
 path. The contract has now been aligned with this rollback-based lab protocol
 rather than requiring automatic voice switching.
 
+The candidate scheduler/protocol/HTTP tests from the deployed Stream A source
+tree pass 18/18, including renderer failure producing a content-free error
+frame and explicit cancellation producing a cancellation frame. The web and
+native consumers handle those frames as speech errors/termination and do not
+switch to Piper or another environment. This is source-level and isolated
+candidate evidence; a live renderer-failure injection and operator rollback
+exercise remain open.
+
 ## Schedule implementation record — 2026-10-12
 
 The approved end-to-end measurement completed successfully from 15:50:48 to
