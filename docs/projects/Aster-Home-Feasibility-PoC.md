@@ -1,0 +1,148 @@
+# Aster Home — EH-001: LibreELEC/Kodi feasibility experiment
+
+> **Status:** Active — Stream A requested; M0 read-only validation complete, acceptance pending
+> **Owner:** Jason
+> **Date:** 2026-10-13
+> **Authorization:** Stream A requested for bounded, reversible proof of concept; operational execution remains subject to the actual environment, project-standard and platform safety gates.
+> **Upstream:** `docs/Project-Creation-Standard.md`, `AGENTS.md`
+> **Primary artefact:** a YES / CONDITIONAL / NO software feasibility decision. Not a commitment to purchase hardware.
+
+## 1. Purpose and desired outcome
+
+Assess whether an **Aster Home** experience built on the integrated **LibreELEC operating system and bundled Kodi media centre** is feasible as a privately operated family audiovisual, music, household-management, intelligence and voice interface. Use existing Jellyfin, TrueNAS, Home Assistant and Aster services, not a parallel service stack.
+
+The first and mandatory end-state is an evidence-backed **USE / CONDITIONAL USE / REJECT LibreELEC/Kodi** decision against household capabilities and costs. **If REJECT, recommend an alternative software trial and do not recommend buying a Kodi appliance.** If USE or CONDITIONAL USE, establish tested minimum, efficient target and premium hardware specifications and a ranked Canadian purchasing recommendation including dated prices, stock, source links, taxes/shipping, accessories, electricity and five-year total cost. **No purchase is authorized.**
+
+Long-term Aster Home vision: one private, extensible household interaction plane across televisions, speaker satellites and mobile devices; replace fragmented Apple TV/Alexa/smart-home interactions. The PoC proves a viable foundational path rather than shipping that vision.
+
+## 2. Current state and evidence
+
+The project record was imported from the Jason-authorized GitHub staging branch `aster-home-eh001-feasibility` because no local or Forgejo-main copy existed. Forgejo remains canonical; GitHub is only a staging/handoff channel. M0 live evidence is recorded below and must supersede assumptions from the staging draft.
+
+Repository evidence to reconcile:
+
+- `docs/projects/Aster-Unified-Voice-Service.md`: existing canonical shared Aster voice; **do not build another TTS platform**. The repository standard requires Kokoro `kokoro-v1.0.fp16.onnx`, `bm_daniel`, `en-gb`, speed 0.95 unless a separately evidenced approved exception exists.
+- `docs/projects/Pull-Based-Forgejo-Runner.md` and its runbook: completed bounded cloud-agent read and synthetic canary write only; not general project publication.
+- Proxmox, Jellyfin/TrueNAS, Home Assistant, Aster brain and house network: inventory exact deployed versions, services, permissions, paths, and current loads from read-only live evidence.
+- LibreELEC/Kodi actual release, supported x86 image/firmware, installation and KVM graphics limitations: verify upstream before selecting a test build.
+
+## 3. Scope and explicit exclusions
+
+**In:** disposable and snapshotted **LibreELEC + Kodi together** in an isolated Proxmox guest; boot/upgrade/system services; Jellyfin media; read-only Home Assistant status/control mocks; Aster AI and canonical voice API integration; Kodi skin and add-on extensibility; network latency, playback, power and endpoint architecture study; decision documentation.
+
+**Not in:** replacing Apple TV in production, purchasing hardware, uncontrolled home-automation writes, camera/public feeds, storing microphones/audio/transcripts, exposing public APIs, editing or corrupting production media, new broad VLAN access, bypassing AI-PAM, introducing a new speech platform, long-lived privileged credentials or deploying a production appliance.
+
+Allowed Stream A operational classes are **only** validated lab VM creation and removal, local snapshot/restore, isolated test code/skins/add-ons, synthetic fixtures, bounded read-only API tests and documented measurements, following read-only M0 and resource/backup check. Material new systems/network permissions or credential changes need a separate risk decision.
+
+## 4. Authority model
+
+| Fact/control | Owner |
+| --- | --- |
+| Project requirements, choices, evidence | HomeLab project record in Forgejo |
+| Deployed guest and service facts | Live systems; NetBox for adopted inventory |
+| Aster voice identity | HomeLab Project Creation Standard and Aster Unified Voice project |
+| User identity and service authorization | Authentik/AI-PAM policy |
+| Media catalogue and watched state | Jellyfin |
+| Filesystem/media originals | TrueNAS |
+| Home devices | Home Assistant with bounded entity/service policy |
+| Derived summaries | Aster mirror (not authority) |
+| GitHub | Mirror / explicit temporary handoff branch, not production source of truth |
+
+## 5. Architecture and data flow
+
+```text
+Living room client: LibreELEC -> Kodi -> Aster Home skin/add-on
+   | video/audio decoded locally; HDMI control on actual hardware
+   +-> Jellyfin (catalogue and streaming) -> TrueNAS (media)
+   +-> Aster private orchestration/API -> inference on existing Proxmox
+   +-> Aster canonical speech service (STT/TTS) / voice capture with consent
+   +-> Home Assistant (read-only state initially; narrow, approved commands later)
+```
+
+Compare **A: capable local mini-PC** versus **B: cheap, low-power hardware-decoding thin endpoint and Proxmox network brain**. Do **not** confuse thin client with 4K remote-desktop streaming; the local endpoint must decode protected/unprotected video when possible. Map network segments, TLS/authentication, ports and identity to real deployed endpoints only at M0.
+
+## 6. Privacy/security design
+
+Local-first; separate low-privilege test identity, minimal read access and synthetic demonstrations; do not store service secrets in Git or agent prompts. No inbound internet exposure. No unrestricted Kodi HTTP/JSON-RPC access on a guest network. Home Assistant state read first; action calls require explicit action allowlist and an intentional human confirmation for safety-sensitive entities. Voice activation opt-in; no retained raw audio or transcripts by default. Existing canonical Aster speech policy applies to all spoken output.
+
+## 7. Pre-start risk assessment
+
+| Risk | Impact | Control / stop |
+| --- | --- | --- |
+| Proxmox resource/guest conflict | Production outage | Read-only capacity + unique guest ID check, quota, isolated VLAN, snapshot, stop on contention |
+| Production metadata/media mutation | Data integrity | read-only credentials/mounts, synthetic catalogue where possible, separate Kodi profile |
+| Voice/camera privacy leak | High | explicit microphone consent; no ambient streaming/logging; camera content excluded |
+| Automation issues actual house command | High | read-only demonstration; mock actions; approved narrow operations only with separate gate |
+| Network lateral movement | High | least-privilege flows, no broadened firewall without fresh approval |
+| KVM GPU failure misread as bad software | Wrong decision | separate virtualized UI limits from bare-metal HDMI/decode test; mark unknown until validated |
+| Unavailable DRM/streaming app | Product mismatch | hard requirement inventory and hardware/DRM testing; reject if unmet |
+| Cloud Git staging diverges from Forgejo | Process / integrity | dedicated branch, no main push, operator reconciliation into Forgejo, hash and diff verification |
+| AI-generated patch exceeds approved limits | Privilege escalation | strict scope, signed artifacts, human approval, no arbitrary remote execution |
+
+M0 found no current production contention on the Proxmox host, but household hardware requirements and the physical TV/HDMI/audio target are not yet documented. The Home Assistant direct port assumption is stale: the live VM reports port 80 and version 2026.9.1, while `192.168.20.11:8123` refused a connection. The requested `docs/Environment-and-Release-Lifecycle.md` is absent locally, absent on Forgejo main, and absent on the staging branch; do not invent lifecycle requirements until its owner supplies the canonical location.
+
+Current M0 blockers are therefore: Jason’s hard household capability priorities and severity, the target TV/receiver/speaker/CEC/DRM constraints, the approved isolated VLAN/guest network path, and the exact rollback checkpoint accepted for the first state-changing milestone. No M1 change should start until these are resolved and the risk envelope is accepted.
+
+**Rollback:** stop/delete only a newly created disposable VM after confirming its exact ID and backup; remove temporary tokens, config and credentials. Never delete the last good copy.
+
+## 8. Persistence and resumability
+
+Record pinned versions, tested guest ID, source commits, upstream image checksum, sanitized configuration and exact test commands in milestone evidence. Save a snapshot prior to changes. On resume, re-read `AGENTS.md`, current standard, this project, Git history and live state; re-verify previous evidence. Store no secrets, raw voice or sensitive content.
+
+## 9. Milestones and gates
+
+- [x] **M0 — Read-only inventory and risk gate:** 2026-10-13 baseline gathered. Live Proxmox, guest, VLAN, media, HA, Aster, speech and backup evidence is recorded in the evidence log. Gate remains pending Jason’s hard requirements, physical endpoint constraints, network path and acceptance of the risk envelope.
+- [ ] **M1 — Integrated boot:** run LibreELEC booting **its bundled Kodi** in a disposable Proxmox guest, record image hash, boot time, UI speed, crash logs, config persistence and upgrades; record KVM graphics limits. Gate: repeatable boot or explicitly inconclusive VM result; do not substitute Debian+Kodi as the primary test.
+- [ ] **M2 — Audiovisual:** Jellyfin library/direct play, music, collections, remote navigation, codecs, subtitles and playback stability. Gate: no media mutation; measurable results and hard blockers.
+- [ ] **M3 — Customization:** throwaway Aster-styled Kodi skin/add-on, Home Assistant **read** dashboard, mocked commands and Aster AI query. Gate: prove extensibility and upgrade compatibility without core fork if possible.
+- [ ] **M4 — Voice/intelligence:** consume existing Aster voice service with opt-in mic/control, demonstrate speech/turn and timeout/fallback handling without new TTS implementation. Gate: privacy and canonical-voice compliance.
+- [ ] **M5 — SOFTWARE GO/NO-GO:** issue `Aster-Home-EH-001-Feasibility-Decision.md` explicitly stating **USE / CONDITIONAL USE / REJECT**, weighted tests plus hard constraints and source-supported alternatives if rejected. **No hardware purchasing study is necessary after REJECT** beyond documenting what alternatives need testing.
+- [ ] **M6 — Conditional hardware/pricing:** **only if USE/CONDITIONAL USE**. Compare powerful mini-PC and cheaper local-decoding thin endpoint; measure network/server/client CPU, RAM, codec support, 4K/HDR, HDMI-CEC, audio passthrough, boot/recovery and wattage on available hardware; distinguish measured versus vendor claims. Price at least two viable products **per class** from Canadian retailers, with SKU, dated CAD offers/stock, sources, shipping/tax/accessories, support, 5-year TCO and ranked no-buy/reuse/buy choices. Gate: defensible minimum/efficient/premium specification and a specific recommended purchase or explicit defer.
+- [ ] **M7 — Decision, recovery and handover:** reproduce key tests, verify independent rollback, update Doctor/Beszel/NetBox/wiki/operational references as applicable, apply the Aster internal style guide, produce non-technical user guide and final recommendation. No production deployment or order under this experiment.
+
+Checkboxes cannot be marked complete without documented validation.
+
+## 10. Evaluation and acceptance criteria
+
+Predeclare household requirements and their severity (hard requirement vs desirable). Evaluate boot reliability, Kodi UI and customizability, Jellyfin parity, voice turn delay, Home Assistant scope, network-loss handling, maintenance, remote usability, privacy and streaming/DRM compatibility. Separate quantitative thresholds agreed during M0 from unmeasured hypotheses. A hard capability failure overrides good averaged scores.
+
+Final decision is **USE**, **CONDITIONAL USE with listed blockers**, or **REJECT with alternative software plan**. If accepted, final report MUST contain best efficient hardware, Canadian purchase recommendation and price-source snapshots. No evidence means **inconclusive**, not automatic approval.
+
+## 11. Observability, maintenance and backup
+
+Measure boot/restarts, availability, guest resource usage, API latency, playback drops, network/capture failures, and update side effects. Use sanitized logs and bounded retention. Maintain guest backup/snapshot and isolated restore demonstration. Record Beszel coverage or reason for exclusion, Doctor scope and operator alert ownership.
+
+## 12. Integration impact checklist
+
+At completion report **change or N/A with reason** for: HomeLab Doctor; Beszel/Prometheus/alerting; backup/restore; NetBox VM and VLAN records; human wiki; Aster mirror; operational reference; repository/portfolio/changelog; diagrams/rack; Homepage; Authentik/AI-PAM identity and access broker; DNS/cert/firewall; automation; security inventory. No production changes solely for checklist compliance. Include AI administration posture (`ai-*` narrow identity or documented unsupported).
+
+## 13. Graduation and close-out
+
+Deliver: (1) software go/no-go decision, (2) hardware and live Canadian purchasing report **if** software passes, (3) repeatable experimental test guide and evidence/limitations, (4) bounded successor project proposed only after review, (5) operator-facing handover of UI and failure conditions. Confirm the post-test efficiency review, recovery and no-unintended production-impact evidence. Production graduation is outside this PoC.
+
+## 14. Evidence log
+
+| Date | Action | Result |
+| --- | --- | --- |
+| 2026-10-13 | Imported/reviewed the Jason-authorized staging project because no local or Forgejo-main copy existed. | Scope preserved; Forgejo remains canonical; no remote write performed. |
+| 2026-10-13 | Reviewed `AGENTS.md` and `docs/Project-Creation-Standard.md`; searched for `docs/Environment-and-Release-Lifecycle.md` locally and on both remote sources. | Required lifecycle document is absent; recorded as a blocker instead of fabricating it. |
+| 2026-10-13 | Read-only Git baseline: detached worktree at `2b5b941e` (`origin/main`), clean status, `origin` is Forgejo HTTPS and `github` is the mirror remote. | No unrelated local changes; no push or remote mutation. |
+| 2026-10-13 | Proxmox read-only baseline: `pve-manager/9.2.20`, kernel `7.0.14-23-pve`, 40 logical CPUs (Xeon E5-2698 v4), 78 GiB RAM with about 42 GiB available, local-lvm 24.51% used and backup storage 23.08% used. | Host capacity is presently adequate for a bounded disposable guest, subject to a pre-change resource gate. |
+| 2026-10-13 | Enumerated guests: production LXC 100–117/124–126; production VM 102/103; stopped rollback VM 105; stopped disposable fixtures VM 118–123. | Candidate fixtures exist; do not reuse production guests. VM 118/120 configs have no vNIC and serial-only VGA, so they are not yet suitable for a Kodi UI test without a bounded candidate design. |
+| 2026-10-13 | Read-only backup listing: fresh archives exist for VMs 118–123 at 00:48 and production HA VM 103 at 00:33; backup filesystem has 2.6 TiB free. | Recovery coverage is present for candidate fixtures and HA; archive integrity still needs a targeted pre-change check before M1. |
+| 2026-10-13 | Live VLAN check from Arista: VLANs 1, 10, 20, 30, 40, 50, 60 and 70 active; Proxmox architecture remains Servers/Lab separated. | Existing segmentation is available; no new VLAN/firewall rule is authorized by M0. |
+| 2026-10-13 | Read-only service probes: Jellyfin `/health` HTTP 200 at `192.168.20.40:8096`; Aster health HTTP 200 at `192.168.70.10:9120`; Aster Speech health HTTP 200 at `192.168.70.14:9130`; TrueNAS `25.10.5`, Media pool ONLINE with 16.3 TiB free. | Existing media and Aster dependencies respond; no production mutation performed. |
+| 2026-10-13 | Home Assistant guest-agent checks: VM 103 network address `192.168.20.11`, guest HTTP port 80, version `2026.9.1`, update available `2026.10.1`; direct TCP 8123 refused, root HTTP 80 returned 200. | HA is live but the project’s direct-port assumption is stale; use the observed access path only after documenting read-only routing. |
+| 2026-10-13 | Official upstream release review: LibreELEC release page currently lists 12.2.1; Kodi upstream lists 21.3 Omega stable and 22.0 Piers prereleases. | M1 must pin a stable LibreELEC image and checksum, record bundled Kodi version, and avoid using a prerelease without a separate decision. |
+| 2026-10-13 | M0 risk assessment outcome. | **M0 evidence gathered; implementation gate not passed.** Await Jason’s hard requirements, physical endpoint constraints, isolated guest/network plan and explicit acceptance of the recorded risk envelope. |
+
+## 15. References
+
+- `../Project-Creation-Standard.md`
+- `../../AGENTS.md`
+- `Aster-Unified-Voice-Service.md`
+- `Pull-Based-Forgejo-Runner.md`
+- `../runbooks/Pull-Based-Forgejo-Runner.md`
+- `../design/HomeLab-UI-Style-Guide.md`
+- Official Kodi: https://github.com/xbmc/xbmc
+- Official LibreELEC: https://github.com/LibreELEC/LibreELEC.tv
