@@ -407,6 +407,23 @@ The controller's prior bounded light-drain test remains the live evidence for
 service stop/restore and control-plane survival. Full model-call, quota,
 timeout, speech fallback and consumer-loss tests remain open.
 
+## Authenticated text contract probe — 2026-10-13
+
+Using the existing protected operator environment on Aster LXC 104, a bounded
+synthetic prompt with no tools or effectful instructions validated the
+transitional text gateway without exposing or copying its credential. The
+protected model catalogue returned only `aster-qwen3.5-9b`; the non-streaming
+completion returned HTTP 200 with one choice, usage metadata and a 0.333-second
+latency; and the streaming completion returned HTTP 200 with four SSE frames,
+the expected event-stream content type and a terminal `[DONE]` frame. An
+unauthenticated model-catalogue request continued to fail closed with HTTP
+401.
+
+This closes the authenticated JSON/streaming shape and stable model-identity
+evidence for the text surface. It does not close quota/timeout boundary
+behavior, Kokoro failure with Piper recovery, or a controlled consumer's
+platform-loss behavior; those remain required before promotion.
+
 ## Schedule implementation record — 2026-10-12
 
 The approved end-to-end measurement completed successfully from 15:50:48 to
