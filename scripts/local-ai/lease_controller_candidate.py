@@ -146,7 +146,16 @@ class CandidateController:
             raise ValueError("persisted lease identity does not match restore receipt")
         if not observation.control_plane_healthy:
             raise ValueError("control-plane postcheck is incomplete")
+        events = []
+        if self.paths.journal.exists():
+            events = [json.loads(line) for line in self.paths.journal.read_text().splitlines() if line.strip()]
+        intents = {(event.get("vmid"), event.get("unit")) for event in events if event.get("event") == "start-intent"}
+        observed = {(event.get("vmid"), event.get("unit")) for event in events if event.get("event") == "start-observed"}
+        if intents - observed:
+            raise ValueError("uncertain prior start requires operator reconciliation")
         for vmid, unit in persisted.services:
+            if (vmid, unit) in observed:
+                continue
             journal_event(self.paths.journal, {"event": "start-intent", "vmid": vmid, "unit": unit})
             self.runner(command_for(vmid, unit, "start"))
             journal_event(self.paths.journal, {"event": "start-observed", "vmid": vmid, "unit": unit})

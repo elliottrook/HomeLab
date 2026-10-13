@@ -105,6 +105,19 @@ class CandidateControllerTests(unittest.TestCase):
         self.assertIn("RefuseManualStart=yes", text)
         self.assertIn("--manifest /var/lib/local-ai-lab/runtime-manifest.json", text)
 
+    def test_restore_reentry_does_not_replay_uncertain_start(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+            controller = CandidateController(CandidatePaths(Path(temp)), commands.append, allow_effects=True)
+            controller.acquire(self.receipt(), self.observation(), backup_receipt="backup", active_services=(ALLOWLIST[0],))
+            journal = Path(temp) / "lease.jsonl"
+            with journal.open("a") as stream:
+                stream.write('{"event":"start-intent","vmid":"104","unit":"aster-agent.service"}\n')
+            commands.clear()
+            with self.assertRaisesRegex(ValueError, "uncertain"):
+                controller.restore(self.receipt(), self.observation(), backup_receipt="backup")
+            self.assertEqual(commands, [])
+
 
 if __name__ == "__main__":
     unittest.main()

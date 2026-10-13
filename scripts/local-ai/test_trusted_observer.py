@@ -44,6 +44,18 @@ class TrustedObserverTests(unittest.TestCase):
         self.assertFalse(observation.heartbeat_alive)
         self.assertFalse(observation.schedule_restored)
 
+    def test_truenas_transport_failure_fails_schedule_closed(self):
+        def runner(argv, timeout):
+            if argv == FIXED_PROBES["truenas_schedule"]:
+                return 255, ""
+            return 0, ""
+        observation = collect(
+            runner, lease_expires_minute=255,
+            manifest=RuntimeManifest("m", "b", "u", "auth-generation-ok"),
+            clock=lambda: 221, epoch_clock=lambda: 1000,
+        )
+        self.assertFalse(observation.schedule_restored)
+
     def test_probe_sets_are_fixed_not_caller_selected(self):
         self.assertEqual(len(CONTROL_UNITS), 7)
         self.assertEqual(PRODUCTION, (("104", "aster-agent.service"), ("110", "aster-llama.service"), ("116", "aster-speech.service")))
