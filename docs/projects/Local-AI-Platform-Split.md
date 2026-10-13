@@ -424,6 +424,18 @@ evidence for the text surface. It does not close quota/timeout boundary
 behavior, Kokoro failure with Piper recovery, or a controlled consumer's
 platform-loss behavior; those remain required before promotion.
 
+## Speech implementation reconciliation — 2026-10-13
+
+The live Aster Speech unit on LXC 116 is active and its local health endpoint
+returns `{"status":"ok","service":"aster-speech"}`. The deployed service,
+however, is the current `aster_speech:app` implementation, whose TTS path is
+Piper; no Kokoro implementation or Kokoro-to-Piper failure switch is present
+in this service. The contract's Kokoro `bm_daniel` canonical path therefore
+cannot be claimed as validated by the current deployment. The speech fallback
+gate is blocked on reconciling that implementation with the accepted contract
+(or explicitly revising the contract), followed by a bounded failure/recovery
+test.
+
 ## Schedule implementation record — 2026-10-12
 
 The approved end-to-end measurement completed successfully from 15:50:48 to
