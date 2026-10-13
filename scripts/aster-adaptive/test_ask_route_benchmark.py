@@ -35,6 +35,17 @@ class AskRouteBenchmarkTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "pinned input changed"):
             bench.score(self.fixture, changed, self.manifest)
 
+    def test_suite_cannot_be_relabelled_with_a_new_fixture_and_digest(self):
+        changed = self.fixture.replace(b"Set a timer for ten minutes", b"Set a timer for eleven minutes")
+        manifest = {**self.manifest, "fixture_sha256": bench.sha256(changed)}
+        with self.assertRaisesRegex(ValueError, "changed benchmark suite"):
+            bench.score(changed, self.run_bytes, manifest)
+
+    def test_suite_id_cannot_be_reused_for_a_different_test(self):
+        manifest = {**self.manifest, "suite_id": "ask-routing-development-v2"}
+        with self.assertRaisesRegex(ValueError, "changed benchmark suite"):
+            bench.score(self.fixture, self.run_bytes, manifest)
+
     def test_runner_agreement_cannot_override_gold(self):
         value = json.loads(self.run_bytes)
         value["records"][0]["exact_match"] = False

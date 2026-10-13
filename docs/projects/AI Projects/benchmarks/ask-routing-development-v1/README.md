@@ -32,6 +32,12 @@ The scorer ignores a runner's claimed matches when deriving the result and
 rejects disagreement, changed input digests, duplicate/missing identities,
 unregistered capabilities and unexpected raw-text fields. No new dependency
 or service is required.
+The current scorer also fixes the v1 suite ID and fixture digest in code, so
+changing both the fixture and its manifest cannot produce a score under the
+same suite identity. The retained baseline score files keep their original
+evaluator digest; a later run records the revised evaluator digest and does
+not rewrite those historical files. This integrity check changes no route,
+label or promotion decision.
 
 ## What a comparable backend run must provide
 
