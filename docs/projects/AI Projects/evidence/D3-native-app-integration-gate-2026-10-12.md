@@ -1,6 +1,7 @@
 # D3 manual Codex and current native Companion integration gate
 
-**Status: an isolated offline candidate now exists; no app change or release.**
+**Status: an isolated, stable-signed offline candidate and a verified local
+rollback copy now exist; no app change or release.**
 The [v16 refresh result](D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md)
 is valid historical evidence, but the installed `/Applications/AsterCompanion.app`
 is now a different signed 0.2.2/build-4 binary. Its executable hash is
@@ -29,8 +30,14 @@ line. The owner reports no separately accepted certificate-signed predecessor
 rollback. Stream A prepared [local composite candidate
 `eb69280`](D3-composite-offline-candidate-2026-10-12.md) from that baseline;
 offline build and tests pass while current OpenBao/auth source stays unchanged.
-The candidate is not installed or released. A verified signed copy of the
-currently working app must be retained before any later installation.
+The owner reviewed its source and found no direct passkey/OpenBao/Keychain
+conflict, without claiming live acceptance. A stable-signed release bundle
+was built offline and a byte-verified, signed copy of the currently working
+app was retained at
+`/Users/jelliott/lab/private-backups/aster-companion/pre-composite-20261012.app`.
+Neither has been installed or restore-and-launch tested. The browser
+Companion's OpenBao UI and service are unchanged by this Mac-only candidate;
+browser-side manual Codex is outside its scope.
 
 ## Source divergence found read-only
 

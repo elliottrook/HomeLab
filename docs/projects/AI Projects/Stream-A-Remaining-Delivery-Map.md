@@ -17,8 +17,13 @@ The native app now also needs the
 the current AI-PAM app line and Stream A's manual Codex pilot have divergent
 sources and shared-file edits. Do not install one line over the other.
 An [isolated composite candidate](evidence/D3-composite-offline-candidate-2026-10-12.md)
-now preserves the current OpenBao/auth source and passes offline tests; it is
-not installed, and a verified signed rollback remains a release gate.
+now preserves the current OpenBao/auth source and passes offline tests. A
+stable-signed offline release bundle and byte-verified signed copy of the
+currently working app are prepared; the candidate is not installed or
+live-accepted. The browser Companion's existing OpenBao controls are unchanged.
+The manual Codex button is a Mac pilot, not the target user experience:
+evidence-backed automatic handover is milestone 6, and it will not grant
+tools or bypass privacy/approval policy.
 
 ## Where we are
 
@@ -34,10 +39,13 @@ permissions were granted for those turns. The
 found eleven clear frozen-rubric matches and one qualified wording concern.
 A [separate read-only review](evidence/D3-Orion-independent-review-2026-10-11.md)
 judged the flagged Orion case a qualified pass; the other eleven were not
-independently re-scored. A different signed Companion build is now installed;
-its release provenance and ordinary behavior have not been reconciled. A
-signed predecessor bundle was verified, but the runbook records a sign-in bug
-in that predecessor, so a functional rollback remains open.
+independently re-scored. A different signed Companion build is now installed.
+Its owner pinned the published source line and Jason previously accepted its
+normal sign-in and OpenBao recovery; Stream A has not independently repeated
+those live checks. The earlier predecessor has a documented sign-in bug. A
+verified intact copy of the currently working installed app is now the local
+rollback candidate; a restore-and-launch drill and off-site receipt remain
+open.
 
 This establishes a **bounded manual handoff**, not routine Ask Codex, automatic engine selection or a Codex sysadmin. The existing household/assistant path remains separate. Local Qwen's general-sysadmin trial was closed without promotion; that does not remove local models from cheaper or narrower tasks.
 
@@ -61,7 +69,7 @@ is unverified.
 
 | Milestone | What changes for Jason | Evidence needed to finish | Current state |
 |---|---|---|---|
-| **1. Decide the limited manual Codex release (D3)** | A reliable, explicitly chosen “Ask Codex” path in Companion, still without infrastructure tools. | Show normal token refresh and prompt behavior without another model question; a release/hold decision with a verified signed rollback. A failed observation means **hold**, not more repeated question trials. | Independent Orion judgment is a qualified pass. The [signed v16 executable completed nine natural persisted refreshes](evidence/D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md) without another model question; `xctest` events were excluded. Jason previously reported one first-launch Keychain prompt and no repeat during two read-only checks. A different signed build replaced the app at 18:51 on 2026-10-12; its ownership, rollback and ordinary behavior are unknown. The v16 refresh subgate passes historically, while routine release of the **current** build remains **held**. |
+| **1. Decide the limited manual Codex release (D3)** | A reliable, explicitly chosen “Ask Codex” path in the Mac Companion pilot, still without infrastructure tools. | Show normal token refresh and prompt behavior without another model question; a release/hold decision with a verified signed rollback. A failed observation means **hold**, not more repeated question trials. | Independent Orion judgment is a qualified pass. The [signed v16 executable completed nine natural persisted refreshes](evidence/D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md) without another model question; `xctest` events were excluded. Jason previously reported one first-launch Keychain prompt and no repeat during two read-only checks. The current installed build's owner and source line are pinned; its ordinary behavior was accepted by Jason but has not been independently repeated by Stream A. A stable-signed composite and verified local copy of the working app are prepared. The v16 refresh subgate passes historically, while release of the **composite** remains **held** pending its own live checks. |
 | **2. Complete normal Companion job handling (rest of D3)** | Jason can see a job continue/reconnect, distinguish busy, unavailable and quota states, and understand cancellation or an uncertain outcome. | Offline lifecycle tests and a small, separately reviewed ordinary-use check; preserve request IDs, never resubmit uncertain work, and keep basic Aster available when Codex/Mac/Internet fails. Follow-up context and notifications need explicit scope rather than being silently inferred from the pilot. | A [durable failure-category candidate](evidence/D3-durable-failure-category-2026-10-11.md) passes offline suites and was bundled in v16; its ordinary-use behavior and presence in the current replacement build are unverified. General intake/notification are **not released**. |
 | **3. Establish the authority boundary before connected tools (M1 + D4 prerequisite)** | Codex may ask for narrowly scoped read-only evidence; it cannot obtain permissions by choosing a route. | Verify AI-PAM caller binding, demotion/revocation, expiry, stale policy, duplicate approval consumption and recovery; register each read-only target and keep secrets out of model context. Any connected capability has its own deployment gate. | Open; worker identity currently inactive with zero grants. |
 | **4. Prove useful read-only sysadmin investigation (first D4 role)** | Aster can hand a real but bounded diagnostic question to Codex and explain findings, uncertainty and evidence. | Representative incidents, provenance and freshness, actual read-only tool behavior, independent technical postchecks, and a clear pass/fail rubric. No fix or generic shell authority follows from diagnostic success. | Not started as a Codex operational role. |
