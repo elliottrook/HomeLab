@@ -5,6 +5,35 @@
 this note. The proposed recurring window and 04:15 restoration deadline still
 require reconciliation with the live platform lease.
 
+## 2026-10-13 readiness reconciliation
+
+Read B60 branch `codex/b60-adaptive-coordination` at full commit
+`57c551e3671e674d37e9ced5a1d534536e46a8e1`, including
+`readiness-checkpoint-20261013.md` and its linked recovery handoff. B60
+correctly treats the protected v2 restore as proven for those artifacts, while
+keeping live runtime recovery, owner admission, full Aster-path measurement
+and the paused lab schedule open. Its “9B FP16 SYCL” describes the build;
+the accepted model file is Qwen3.5-9B **Q4_K_M**. The original evening runner
+must remain disabled.
+
+The platform owner's separate local checkout is developing an independent
+observer/controller, but the latest reviewed changes remain **advisory-only,
+local and undeployed**. The installed Proxmox host controller is still the
+older manually tested light lease; no live independent watchdog or failure
+reentry was verified by Stream A. The Proxmox 00:30 and TrueNAS 01:00/02:00/03:00
+schedules are configured, not a same-night completion receipt. Stream A's
+exclusive automation is paused at a 03:15 readiness check, not an authorized
+model-test trigger. Publication and another agent's receipt are different
+states; this note is not a MacBook acknowledgment of the newer work.
+
+Stream A has an offline [20-case admission card](A1-full-path-admission-run-card-2026-10-13.md)
+and an [isolated gateway topology candidate](A1-isolated-Aster-topology-2026-10-13.md).
+Draining LXC 104 stops production Aster, so direct llama.cpp timing cannot
+substitute for the full Aster path. The same isolated Aster gateway must serve
+control and challenger, with separate test credentials, no tool authority and
+durable one-attempt custody. The card remains BLOCKED until a live lease,
+independent restoration drill and test-only instance are reviewed.
+
 ## Ownership and integration
 
 - **Aster Adaptive owns the task bar:** request classes, capability vocabulary,
