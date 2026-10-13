@@ -43,7 +43,36 @@ class CandidateControllerTests(unittest.TestCase):
             commands.clear()
             with self.assertRaisesRegex(ValueError, "incomplete"):
                 controller.restore(self.receipt(), self.observation(schedule_restored=False), backup_receipt="backup")
-            self.assertEqual(commands, [])
+            self.assertEqual(len(commands), len(ALLOWLIST))
+            self.assertTrue((Path(temp) / "lease.lock").exists())
+
+    def test_stop_failure_keeps_lock_and_restores_only_completed_stops(self):
+        with tempfile.TemporaryDirectory() as temp:
+            commands = []
+
+            def fail_on_second(command):
+                commands.append(command)
+                if len(commands) == 2:
+                    raise RuntimeError("injected stop failure")
+
+            controller = CandidateController(CandidatePaths(Path(temp)), fail_on_second)
+            with self.assertRaisesRegex(RuntimeError, "injected"):
+                controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+            self.assertTrue((Path(temp) / "lease.lock").exists())
+            self.assertTrue((Path(temp) / "lease.json").exists())
+            self.assertEqual(commands[2:], [
+                command_for(ALLOWLIST[0][0], ALLOWLIST[0][1], "start"),
+            ])
+
+    def test_restore_rejects_persisted_identity_drift(self):
+        with tempfile.TemporaryDirectory() as temp:
+            controller = CandidateController(CandidatePaths(Path(temp)), lambda _: None)
+            controller.acquire(self.receipt(), self.observation(), backup_receipt="backup")
+            with self.assertRaisesRegex(ValueError, "identity"):
+                controller.restore(
+                    self.receipt().__class__("other", 1, 220, 255, "backup", ACCEPTED_MODEL, ACCEPTED_BACKEND, True, True),
+                    self.observation(), backup_receipt="backup",
+                )
 
     def test_command_allowlist_rejects_unknown_service(self):
         with self.assertRaises(ValueError):

@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Callable, Sequence
 
-from admission_state import AdmissionRecord, encode
+from admission_state import AdmissionRecord, decode, encode
 from lease_contract import LeaseReceipt, validate_receipt
 from lease_watchdog import Observation, WatchdogState, decide
 
@@ -38,6 +38,10 @@ class CandidatePaths:
     def state(self) -> Path:
         return self.root / "lease.json"
 
+    @property
+    def journal(self) -> Path:
+        return self.root / "lease.jsonl"
+
 
 def atomic_write(path: Path, payload: str) -> None:
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -49,12 +53,25 @@ def atomic_write(path: Path, payload: str) -> None:
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(name, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
     except Exception:
         try:
             os.unlink(name)
         except FileNotFoundError:
             pass
         raise
+
+
+def journal_event(path: Path, event: dict[str, object]) -> None:
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as stream:
+        stream.write(json.dumps(event, sort_keys=True, separators=(",", ":")) + "\n")
+        stream.flush()
+        os.fsync(stream.fileno())
 
 
 def command_for(vmid: str, unit: str, action: str) -> tuple[str, ...]:
@@ -90,25 +107,43 @@ class CandidateController:
             scheduled_work_quiesced=receipt.scheduled_work_quiesced,
         )
         atomic_write(self.paths.state, encode(state))
+        stopped: list[tuple[str, str]] = []
         try:
+            journal_event(self.paths.journal, {"event": "lease-acquired", "lease_id": receipt.lease_id, "generation": receipt.generation})
             for vmid, unit in ALLOWLIST:
+                journal_event(self.paths.journal, {"event": "stop-intent", "vmid": vmid, "unit": unit})
                 self.runner(command_for(vmid, unit, "stop"))
+                stopped.append((vmid, unit))
+                journal_event(self.paths.journal, {"event": "stop-observed", "vmid": vmid, "unit": unit})
             return {"state": "leased", "lease_id": receipt.lease_id, "generation": receipt.generation}
         except Exception:
-            for vmid, unit in ALLOWLIST:
-                self.runner(command_for(vmid, unit, "start"))
-            self.paths.state.unlink(missing_ok=True)
-            self.paths.lock.rmdir()
+            journal_event(self.paths.journal, {"event": "stop-failed"})
+            for vmid, unit in reversed(stopped):
+                journal_event(self.paths.journal, {"event": "restore-intent", "vmid": vmid, "unit": unit})
+                try:
+                    self.runner(command_for(vmid, unit, "start"))
+                    journal_event(self.paths.journal, {"event": "restore-observed", "vmid": vmid, "unit": unit})
+                except Exception:
+                    journal_event(self.paths.journal, {"event": "restore-uncertain", "vmid": vmid, "unit": unit})
+            # Keep the lock and state: an uncertain effect requires review.
             raise
 
     def restore(self, receipt: LeaseReceipt, observation: Observation, *, backup_receipt: str) -> dict[str, object]:
         if not self.paths.lock.exists() or not self.paths.state.exists():
             raise ValueError("active lease state and lock are both required")
+        persisted = decode(self.paths.state.read_text())
+        if (persisted.lease_id, persisted.generation) != (receipt.lease_id, receipt.generation):
+            raise ValueError("persisted lease identity does not match restore receipt")
+        if not observation.control_plane_healthy:
+            raise ValueError("control-plane postcheck is incomplete")
+        for vmid, unit in ALLOWLIST:
+            journal_event(self.paths.journal, {"event": "start-intent", "vmid": vmid, "unit": unit})
+            self.runner(command_for(vmid, unit, "start"))
+            journal_event(self.paths.journal, {"event": "start-observed", "vmid": vmid, "unit": unit})
         decision = decide(receipt, observation, backup_receipt=backup_receipt, current_state=WatchdogState.RESTORING)
         if decision.state != WatchdogState.READY:
-            raise ValueError("post-restore checks are incomplete")
-        for vmid, unit in ALLOWLIST:
-            self.runner(command_for(vmid, unit, "start"))
+            raise ValueError("post-restore checks are incomplete; lease retained")
+        journal_event(self.paths.journal, {"event": "restore-validated", "lease_id": receipt.lease_id, "generation": receipt.generation})
         self.paths.state.unlink()
         self.paths.lock.rmdir()
         return {"state": "ready", "lease_id": receipt.lease_id, "generation": receipt.generation}

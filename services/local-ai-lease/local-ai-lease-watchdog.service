@@ -5,7 +5,7 @@ ConditionPathExists=/var/lib/local-ai-lab/lease.json
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/local-ai-lease watchdog --once
+ExecStart=/usr/local/sbin/local-ai-lease-watchdog --once
 User=root
 NoNewPrivileges=yes
 ProtectSystem=strict

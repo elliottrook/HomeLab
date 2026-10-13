@@ -32,6 +32,10 @@ class Observation:
     accepted_gpu_visible: bool
     schedule_restored: bool
     schedule_points: tuple[str, ...] = EXPECTED_SCHEDULES
+    exact_binary_verified: bool = True
+    model_verified: bool = True
+    unit_verified: bool = True
+    auth_verified: bool = True
 
 
 @dataclass(frozen=True)
@@ -118,6 +122,10 @@ def decide(
             not observation.accepted_gpu_visible
             or not observation.schedule_restored
             or observation.schedule_points != EXPECTED_SCHEDULES
+            or not observation.exact_binary_verified
+            or not observation.model_verified
+            or not observation.unit_verified
+            or not observation.auth_verified
         ):
             return WatchdogDecision(
                 WatchdogState.FAILED,
