@@ -130,6 +130,10 @@ receipt-bound admission,
 expiry, independent recovery, consumer isolation and exact restoration from
 the B60 recovery candidate. No live failure/reentry proof, staged test-only
 Aster gateway or candidate profile has yet been received in this lane.
+The B60 recovery candidate probes each unit before starting it and refuses an
+uncertain prior start. The platform owner's developing adapter must retain
+that no-blind-replay behavior as well as a fresh exact post-start check; an
+offline green suite or a `systemctl start` exit is not a recovery receipt.
 
 A separate read-only production snapshot on 2026-10-13 found LXC 110
 `aster-llama.service` active with zero restarts, unit SHA-256
