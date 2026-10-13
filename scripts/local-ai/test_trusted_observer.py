@@ -13,7 +13,7 @@ class TrustedObserverTests(unittest.TestCase):
             if argv == FIXED_PROBES["model"]: return 0, "model-hash  /model"
             if argv == FIXED_PROBES["binary"]: return 0, "binary-hash  /binary"
             if argv == FIXED_PROBES["unit"]: return 0, "unit-hash  /unit"
-            if argv == FIXED_PROBES["auth"]: return 0, "auth-ok healthy"
+            if argv == FIXED_PROBES["auth"]: return 0, "auth-generation-ok"
             if argv == FIXED_PROBES["proxmox_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": "00:30"}])
             if argv == FIXED_PROBES["truenas_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": x} for x in ("01:00", "02:00", "03:00")])
             if argv == FIXED_PROBES["news_schedule"]: return 0, "UnitFileState=enabled\nTimersCalendar=*-*-* 06:15,17:15"
@@ -22,8 +22,9 @@ class TrustedObserverTests(unittest.TestCase):
             raise AssertionError(argv)
 
         observation = collect(
-            runner, now_minute=221, lease_expires_minute=255,
-            manifest=RuntimeManifest("model-hash", "binary-hash", "unit-hash", "auth-ok"),
+            runner, lease_expires_minute=255,
+            manifest=RuntimeManifest("model-hash", "binary-hash", "unit-hash", "auth-generation-ok"),
+            clock=lambda: 221,
         )
         self.assertTrue(observation.control_plane_healthy)
         self.assertTrue(observation.production_services_healthy)
@@ -33,8 +34,9 @@ class TrustedObserverTests(unittest.TestCase):
     def test_probe_failure_and_expired_lease_fail_closed(self):
         def failed(argv, timeout): return 1, ""
         observation = collect(
-            failed, now_minute=255, lease_expires_minute=255,
+            failed, lease_expires_minute=255,
             manifest=RuntimeManifest("m", "b", "u", "a"),
+            clock=lambda: 255,
         )
         self.assertFalse(observation.control_plane_healthy)
         self.assertFalse(observation.heartbeat_alive)

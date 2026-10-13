@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
@@ -23,12 +24,12 @@ CONTROL_UNITS = ("pve-cluster", "pvedaemon", "pvestatd", "pveproxy", "ssh", "net
 PRODUCTION = (("104", "aster-agent.service"), ("110", "aster-llama.service"), ("116", "aster-speech.service"))
 FIXED_PROBES = {
     "gpu": ("pct", "exec", "110", "--", "sh", "-c", "test -e /dev/dri/renderD128 && ls -l /dev/dri/renderD128"),
-    "model": ("pct", "exec", "110", "--", "sha256sum", "/var/lib/aster-llama/models/Qwen3.5-9B-Q4_K_M.gguf"),
-    "binary": ("pct", "exec", "110", "--", "sha256sum", "/usr/local/bin/llama-server"),
+    "model": ("pct", "exec", "110", "--", "sha256sum", "/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf"),
+    "binary": ("pct", "exec", "110", "--", "sha256sum", "/opt/aster-sycl-b11429/llama-sycl-fp16/llama-b11429/llama-server"),
     "unit": ("pct", "exec", "110", "--", "sha256sum", "/etc/systemd/system/aster-llama.service"),
-    "auth": ("pct", "exec", "110", "--", "curl", "--fail", "--max-time", "5", "http://127.0.0.1:11435/health"),
+    "auth": ("pct", "exec", "110", "--", "sh", "-c", "key=$(cat /etc/aster-llama-api-keys); curl --fail --max-time 5 -sS -H \"Authorization: Bearer $key\" -H 'Content-Type: application/json' --data '{\"model\":\"aster-qwen3.5-9b\",\"messages\":[{\"role\":\"user\",\"content\":\"health\"}],\"max_tokens\":1}' http://192.168.70.12:11435/v1/chat/completions >/dev/null && printf auth-generation-ok"),
     "proxmox_schedule": ("pvesh", "get", "/cluster/backup", "--output-format", "json"),
-    "truenas_schedule": ("midclt", "call", "rsynctask.query"),
+    "truenas_schedule": ("ssh", "-o", "BatchMode=yes", "root@192.168.20.40", "midclt", "call", "rsynctask.query"),
     "news_schedule": ("pct", "exec", "114", "--", "systemctl", "show", "news-aggregator-digest.timer", "--property=UnitFileState", "--property=TimersCalendar"),
 }
 
@@ -72,7 +73,8 @@ def _schedule_points(runner: Probe) -> tuple[bool, tuple[str, ...]]:
     return True, tuple(points)
 
 
-def collect(runner: Probe, *, now_minute: int, lease_expires_minute: int, manifest: RuntimeManifest) -> Observation:
+def collect(runner: Probe, *, lease_expires_minute: int, manifest: RuntimeManifest, clock: Callable[[], int] | None = None) -> Observation:
+    now_minute = clock() if clock is not None else datetime.now().hour * 60 + datetime.now().minute
     control = all(_active(runner, ("systemctl", "is-active", unit)) for unit in CONTROL_UNITS)
     production = all(_active(runner, ("pct", "exec", vmid, "--", "systemctl", "is-active", unit)) for vmid, unit in PRODUCTION)
     schedule_enabled, schedule_points = _schedule_points(runner)
