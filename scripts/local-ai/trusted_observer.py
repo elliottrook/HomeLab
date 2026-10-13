@@ -126,6 +126,32 @@ def collect(runner: Probe, *, lease_expires_minute: int, manifest: RuntimeManife
     )
 
 
+def collect_light(runner: Probe, *, lease_expires_minute: int, clock: Callable[[], int] | None = None, epoch_clock: Callable[[], float] | None = None) -> Observation:
+    """Collect only lease-safety probes; never reads the large model artifact."""
+    now_minute = clock() if clock is not None else datetime.now().hour * 60 + datetime.now().minute
+    now_epoch = epoch_clock() if epoch_clock is not None else time.time()
+    control = all(_active(runner, ("systemctl", "is-active", unit)) for unit in CONTROL_UNITS)
+    heartbeat_code, heartbeat_output = _run(runner, FIXED_PROBES["heartbeat"])
+    try:
+        heartbeat_alive = heartbeat_code == 0 and 0 <= now_epoch - float(heartbeat_output.strip()) <= 90
+    except ValueError:
+        heartbeat_alive = False
+    return Observation(
+        now_minute=now_minute,
+        heartbeat_alive=heartbeat_alive and now_minute < lease_expires_minute,
+        control_plane_healthy=control,
+        production_services_healthy=True,
+        accepted_gpu_visible=True,
+        schedule_restored=True,
+        schedule_points=EXPECTED_SCHEDULES,
+        schedules_enabled=True,
+        exact_binary_verified=True,
+        model_verified=True,
+        unit_verified=True,
+        auth_verified=True,
+    )
+
+
 class TrustedHostObserver:
     """Fixed-source observer used by the controller, not caller callbacks."""
 
@@ -140,6 +166,14 @@ class TrustedHostObserver:
             self.runner,
             lease_expires_minute=lease_expires_minute,
             manifest=self.manifest,
+            clock=self.clock,
+            epoch_clock=self.epoch_clock,
+        )
+
+    def collect_light(self, lease_expires_minute: int) -> Observation:
+        return collect_light(
+            self.runner,
+            lease_expires_minute=lease_expires_minute,
             clock=self.clock,
             epoch_clock=self.epoch_clock,
         )

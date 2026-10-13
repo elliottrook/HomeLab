@@ -7,9 +7,13 @@ from lease_watchdog import WatchdogState
 
 class RecoveryExecutorTests(unittest.TestCase):
     def test_effects_require_both_restoring_state_and_explicit_gate(self):
-        self.assertFalse(effects_permitted(WatchdogState.LEASED, True))
-        self.assertFalse(effects_permitted(WatchdogState.RESTORING, False))
-        self.assertTrue(effects_permitted(WatchdogState.RESTORING, True))
+        self.assertFalse(effects_permitted(WatchdogState.LEASED, WatchdogState.LEASED, True, True))
+        self.assertFalse(effects_permitted(WatchdogState.RESTORING, WatchdogState.FAILED, False, True))
+        self.assertTrue(effects_permitted(WatchdogState.RESTORING, WatchdogState.FAILED, True, True))
+        self.assertFalse(effects_permitted(WatchdogState.RESTORING, WatchdogState.FAILED, True, False))
+
+    def test_interrupted_restore_can_reenter_when_control_plane_survives(self):
+        self.assertTrue(effects_permitted(WatchdogState.RESTORING, WatchdogState.FAILED, True, True))
 
     def test_effect_flag_is_explicit_and_help_exposes_it(self):
         with self.assertRaises(SystemExit) as result:

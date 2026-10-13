@@ -37,12 +37,12 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/lease_contract.py` | `8a8997bdf453a499ae60dc2f11a65da9e28e318044a194122a7635b545adf113` |
 | `scripts/local-ai/lease_watchdog.py` | `044961c44a459ff422c0206f9338e3dc2943b469ae93eb544e14dfab944d0035` |
 | `scripts/local-ai/lease_controller_candidate.py` | `a9b6d567ad450e680138931e648df22f76f0037fdede74719a8a315ea6a340df` |
-| `scripts/local-ai/trusted_observer.py` | `752f14d66d5e5338e6ead671efeeef05bcba45461b41a47ae4e653b38f47c690` |
+| `scripts/local-ai/trusted_observer.py` | `288d35e75902adc3e6ea030dd0f5fba6bac281661be09a839d894b8ffccb5b40` |
 | `scripts/local-ai/lease_watchdog_cli.py` | `e79521ae4cfacb61e1232df3b62cdfbb2d5181c0697770b8c1ff6c88c575990d` |
 | `scripts/local-ai/lease_effect_runner.py` | `81eac0e15e86ea48ce267d1a03da74cfcbe408ad9c57c9eca832a9c8f8c2c662` |
 | `scripts/local-ai/test_lease_effect_runner.py` | `f59eaa9048ff0cd1c93dc49462151350eee54c627d52466fdbbdf874562060b8` |
-| `scripts/local-ai/lease_recovery_executor.py` | `db6efb158bedfbe92f02aa4573e6979d6016f19efef688f697bbcdfdb7feea85` |
-| `scripts/local-ai/test_lease_recovery_executor.py` | `9e00a8724bddff2f41d6fee7fa97286ac0280556f1def69eb5c4010fff32076d` |
+| `scripts/local-ai/lease_recovery_executor.py` | `d75ddfae4ccb3de4bd059aca75d41f4cdac6c60f4951d0ea6ab11a13b9f98e4d` |
+| `scripts/local-ai/test_lease_recovery_executor.py` | `a5d5865831a77d465fbf336209ad4ae4d309b3b1e198c96a2e3f9b242e82ba4b` |
 | `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
 | `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
@@ -85,12 +85,20 @@ editing the table would necessarily change its own digest.
   the saved controller/unit files and use the existing manual release path
   only after the production health and schedule checklist passes.
 
-## One bounded live drill — future gate
+## Bounded live-drill plan — future gates
 
-The only proposed live drill is one attended, light service-drain window after
-the backup chain completes and before `04:15`. It may stop and restore only the
-three allowlisted Local AI service units; it may not reboot the host, enable a
-timer, change schedules, alter credentials, modify firewall/DNS, or touch
-unrelated guests. The operator must capture pre/post checkpoints and abort on
-any failed probe. This drill requires separate explicit live authorization and
-must not be inferred from this staging manifest.
+Stage 1 is a preliminary attended light service-drain test after the backup
+chain completes and before `04:15`. It may stop and restore only the three
+allowlisted Local AI service units; it may not reboot the host, enable a timer,
+change schedules, alter credentials, modify firewall/DNS, or touch unrelated
+guests. It proves the controller/effect boundary only, not timer-driven
+independence.
+
+Stage 2 is a separate, explicitly approved timer-independence drill. After
+Stage 1 passes, the operator temporarily enables only the candidate timer for
+one bounded window, induces one controlled owner-loss/lease-expiry condition,
+observes the executor's recovery and postchecks, then disables the timer and
+verifies the unit is inactive. It still may not reboot the host, change
+schedules, alter credentials, modify firewall/DNS, or touch unrelated guests.
+Both stages require pre/post checkpoints and abort on any failed probe; neither
+stage is authorized by this manifest.

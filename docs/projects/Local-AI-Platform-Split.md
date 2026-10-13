@@ -587,3 +587,10 @@ The accepted dereferenced GGUF was measured read-only at
 5.6 GB hash took approximately 18 seconds including transport. The trusted
 observer therefore gives only this model-hash probe a dedicated 30-second
 finite budget; all other probes remain bounded at five seconds.
+
+The future live validation is intentionally two-stage: an attended light
+service-drain test proves the controller/effect boundary without timer
+activation; only after that passes may a separately approved, one-window timer
+independence drill temporarily enable the candidate timer, induce one bounded
+owner-loss/lease-expiry condition, verify recovery, and disable the timer again.
+Neither stage is authorized by the staging work.

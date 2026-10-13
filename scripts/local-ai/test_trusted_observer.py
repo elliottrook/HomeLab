@@ -2,7 +2,7 @@ import json
 import unittest
 
 from lease_watchdog import EXPECTED_SCHEDULES
-from trusted_observer import FIXED_PROBES, CONTROL_UNITS, MODEL_HASH_TIMEOUT, PRODUCTION, RuntimeManifest, collect
+from trusted_observer import FIXED_PROBES, CONTROL_UNITS, MODEL_HASH_TIMEOUT, PRODUCTION, RuntimeManifest, collect, collect_light
 
 
 class TrustedObserverTests(unittest.TestCase):
@@ -86,6 +86,19 @@ class TrustedObserverTests(unittest.TestCase):
                 clock=lambda: 221, epoch_clock=lambda: 1050)
         self.assertEqual(timeouts[FIXED_PROBES["model"]], MODEL_HASH_TIMEOUT)
         self.assertEqual(timeouts[FIXED_PROBES["binary"]], 5.0)
+
+    def test_light_observation_never_reads_model_or_schedule(self):
+        seen = []
+
+        def runner(argv, timeout):
+            seen.append(tuple(argv))
+            if argv == FIXED_PROBES["heartbeat"]: return 0, "1000"
+            return 0, "active"
+
+        observation = collect_light(runner, lease_expires_minute=255, clock=lambda: 221, epoch_clock=lambda: 1050)
+        self.assertTrue(observation.heartbeat_alive)
+        self.assertNotIn(FIXED_PROBES["model"], seen)
+        self.assertNotIn(FIXED_PROBES["truenas_schedule"], seen)
 
 
 if __name__ == "__main__":

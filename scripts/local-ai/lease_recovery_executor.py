@@ -29,9 +29,14 @@ def secure_root_file(path: Path) -> None:
         raise SystemExit("insecure watchdog state or manifest custody")
 
 
-def effects_permitted(state: WatchdogState, effect_authorized: bool) -> bool:
-    """Keep the timer advisory unless both state and explicit gate agree."""
-    return state == WatchdogState.RESTORING and effect_authorized
+def effects_permitted(current_state: WatchdogState, decision_state: WatchdogState, effect_authorized: bool, control_plane_healthy: bool) -> bool:
+    """Allow re-entry only for an active lease with a live control plane."""
+    return (
+        effect_authorized
+        and control_plane_healthy
+        and current_state in {WatchdogState.LEASED, WatchdogState.RESTORING}
+        and decision_state in {WatchdogState.RESTORING, WatchdogState.FAILED}
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -51,15 +56,16 @@ def main(argv: list[str] | None = None) -> int:
         return result.returncode, result.stdout
 
     observer = TrustedHostObserver(probe_runner, manifest)
-    observation = observer.collect(record.expires_minute)
+    current_state = WatchdogState(record.state)
+    observation = observer.collect_light(record.expires_minute) if current_state == WatchdogState.LEASED else observer.collect(record.expires_minute)
     receipt = LeaseReceipt(
         record.lease_id, record.generation, record.issued_minute,
         record.expires_minute, record.backup_receipt, record.model_identity,
         record.backend_identity, record.consumers_isolated,
         record.scheduled_work_quiesced,
     )
-    decision = decide(receipt, observation, backup_receipt=record.backup_receipt, current_state=WatchdogState(record.state))
-    if not effects_permitted(decision.state, args.effect_authorized):
+    decision = decide(receipt, observation, backup_receipt=record.backup_receipt, current_state=current_state)
+    if not effects_permitted(current_state, decision.state, args.effect_authorized, observation.control_plane_healthy):
         print(json.dumps({
             "decision": status_receipt(receipt, decision.state, observation),
             "actions": decision.actions,
