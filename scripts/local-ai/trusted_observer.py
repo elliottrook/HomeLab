@@ -12,6 +12,7 @@ from lease_watchdog import EXPECTED_SCHEDULES, Observation
 
 Probe = Callable[[Sequence[str], float], tuple[int, str]]
 EXPECTED_AUTH_MARKER = "auth-generation-ok"
+MODEL_HASH_TIMEOUT = 30.0
 
 
 @dataclass(frozen=True)
@@ -37,9 +38,9 @@ FIXED_PROBES = {
 }
 
 
-def _run(runner: Probe, argv: Sequence[str]) -> tuple[int, str]:
+def _run(runner: Probe, argv: Sequence[str], timeout: float = 5.0) -> tuple[int, str]:
     try:
-        return runner(argv, 5.0)
+        return runner(argv, timeout)
     except Exception:
         return 124, ""
 
@@ -98,7 +99,8 @@ def collect(runner: Probe, *, lease_expires_minute: int, manifest: RuntimeManife
     schedule_enabled, schedule_points = _schedule_points(runner)
 
     def exact(name: str, expected: str) -> bool:
-        code, output = _run(runner, FIXED_PROBES[name])
+        timeout = MODEL_HASH_TIMEOUT if name == "model" else 5.0
+        code, output = _run(runner, FIXED_PROBES[name], timeout)
         return code == 0 and output.split()[0:1] == [expected]
 
     code, gpu = _run(runner, FIXED_PROBES["gpu"])

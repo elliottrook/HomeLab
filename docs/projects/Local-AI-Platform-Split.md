@@ -569,3 +569,9 @@ gate it invokes the fixed observer, controller and effect runner as one bounded
 restore path. The disabled systemd unit does not invoke this executor yet. The
 exact GGUF file digest and a successful Proxmox-owner TrueNAS transport probe
 remain required staging facts before any live review.
+
+The accepted dereferenced GGUF was measured read-only at
+`cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`; its
+5.6 GB hash took approximately 18 seconds including transport. The trusted
+observer therefore gives only this model-hash probe a dedicated 30-second
+finite budget; all other probes remain bounded at five seconds.

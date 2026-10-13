@@ -10,7 +10,9 @@ live effect.
   Qwen3.5 9B Q4_K_M; live unit hash
   `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`; live
   binary hash
-  `0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5`.
+  `0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5`; exact
+  dereferenced GGUF SHA-256
+  `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`.
 - Fixed trusted sources: Proxmox `pvesh`, LXC 104/110/116 and 114 probes,
   TrueNAS `192.168.20.40` through batch-mode SSH, and the owner heartbeat.
 - Fixed schedule identity: Proxmox `00:30`; TrueNAS guest `01:00`, LXC 110
@@ -46,8 +48,9 @@ editing the table would necessarily change its own digest.
 
 - The accepted model artifact identity must include the exact SHA-256 of the
   deployed GGUF at `/opt/models/qwen3.5-9b-q4km/Qwen3.5-9B-Q4_K_M.gguf`.
-  The repository's Ollama blob digest is provenance only, not a substitute for
-  the file digest checked by the observer.
+  The live read-only measurement recorded the same digest as the repository's
+  pinned Ollama blob. The observer gives this large file a dedicated finite
+  30-second hash budget; other probes remain 5 seconds.
 - The fixed TrueNAS probe must be verified from the Proxmox owner context using
   batch-mode SSH to `root@192.168.20.40` and `midclt call rsynctask.query`.
   The historical `truenas` alias failure is not an acceptable restoration

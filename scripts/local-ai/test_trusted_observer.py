@@ -2,7 +2,7 @@ import json
 import unittest
 
 from lease_watchdog import EXPECTED_SCHEDULES
-from trusted_observer import FIXED_PROBES, CONTROL_UNITS, PRODUCTION, RuntimeManifest, collect
+from trusted_observer import FIXED_PROBES, CONTROL_UNITS, MODEL_HASH_TIMEOUT, PRODUCTION, RuntimeManifest, collect
 
 
 class TrustedObserverTests(unittest.TestCase):
@@ -61,6 +61,28 @@ class TrustedObserverTests(unittest.TestCase):
         self.assertEqual(PRODUCTION, (("104", "aster-agent.service"), ("110", "aster-llama.service"), ("116", "aster-speech.service")))
         self.assertIn("model", FIXED_PROBES)
         self.assertIn("news_schedule", FIXED_PROBES)
+
+    def test_large_model_hash_gets_measured_finite_timeout(self):
+        timeouts = {}
+
+        def runner(argv, timeout):
+            timeouts[tuple(argv)] = timeout
+            if argv == FIXED_PROBES["heartbeat"]: return 0, "1000"
+            if argv == FIXED_PROBES["model"]: return 0, "m /model"
+            if argv == FIXED_PROBES["binary"]: return 0, "b /binary"
+            if argv == FIXED_PROBES["unit"]: return 0, "u /unit"
+            if argv == FIXED_PROBES["gpu"]: return 0, "renderD128"
+            if argv == FIXED_PROBES["auth"]: return 0, "auth-generation-ok"
+            if argv == FIXED_PROBES["proxmox_schedule"]: return 0, json.dumps([{"enabled": True, "schedule": "00:30"}])
+            if argv == FIXED_PROBES["truenas_schedule"]: return 0, json.dumps([])
+            if argv == FIXED_PROBES["news_schedule"]: return 0, ""
+            return 0, "active"
+
+        collect(runner, lease_expires_minute=255,
+                manifest=RuntimeManifest("m", "b", "u", "auth-generation-ok"),
+                clock=lambda: 221, epoch_clock=lambda: 1050)
+        self.assertEqual(timeouts[FIXED_PROBES["model"]], MODEL_HASH_TIMEOUT)
+        self.assertEqual(timeouts[FIXED_PROBES["binary"]], 5.0)
 
 
 if __name__ == "__main__":
