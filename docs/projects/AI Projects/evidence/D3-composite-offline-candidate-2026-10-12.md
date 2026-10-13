@@ -140,3 +140,13 @@ does **not** prove the flagged UI, consent interaction or a functional rollback
 launch. The Mac was locked when the UI check was attempted, so those release
 gates remain open. No app launch, model question, credential read or OpenBao
 action was performed in this check.
+
+After Jason unlocked the Mac, the running normal-mode window was inspected
+without changing it. It was signed in, showed the earlier completed “2 + 2”
+turn and had no visible active request; the manual button remained absent.
+The existing composite-source bridge and pending-record test suites passed
+13/13 offline on 2026-10-13. A supervised quit/relaunch with the feature flag
+was requested to check the actual UI, but automatic approval review rejected
+the quit because a signed-in session or visible chat could be disturbed.
+No restart occurred. This remains a **finite, pending live check**, not a
+release pass; the user was asked to authorize one explicit supervised restart.
