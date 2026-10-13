@@ -10,7 +10,49 @@
 >
 > Completed: not applicable
 
-## Purpose and desired outcome
+## Current coordination status — supersedes the historical snapshot below
+
+Updated 2026-10-13. This focused communication checkout contains an older
+base-project snapshot, not the full implementation checkout's accumulated
+production history. Do not execute its historical commands or treat old
+Vulkan hashes, BAR profile, backup times or 15% decode threshold as current.
+
+The active Stream A programme targets the most capable Aster stack on unchanged
+Dell T5810 / Xeon / 80 GB / B60 24 GB hardware. The first milestone is 27B+
+reasoning-on, including total-parameter MoE, with better grounded capability
+and median AND p95 complete useful-answer latency no slower than the fresh
+accepted Qwen3.5-9B control, including reasoning. Decode tokens/s or returned
+text alone cannot satisfy it. Adaptive owns task/scorer/policy/latency bars;
+B60 owns fixed-hardware stack experiments. Tool authority and TTS are unchanged.
+
+Accepted recovery remains FP16 SYCL b11429 / Qwen3.5-9B:
+
+- Binary SHA-256 `0404f751814391544c86469fa71a893c0f3858e7c7aeb2cb0982909c1c0de6c5`.
+- Unit SHA-256 `a4c75169673a1a230682b73d362a05c1bdd30f7a5c41cfb9c77463204dfd4cb3`.
+- Model SHA-256 `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`.
+
+These are accepted manifest identities, not a claim that a fresh complete
+preflight has passed. The live shared lease is still the manual light adapter;
+the independent recovery runner is not activated/verified. Actual start is
+successful backup/mirror-chain and lease-admission gated, with production
+restored before 04:15. The old evening runner must remain disabled.
+
+Read these owned current records before any continuation:
+
+- [Concrete clock/recovery implementation](B60-Inference-Engineering/full-path-and-lease-recovery-handoff-20261012.md).
+- [Nightly admission refusal and exact next action](B60-Inference-Engineering/nightly-admission-20261013.md).
+- [Latest preparation receipt](B60-Inference-Engineering/preparation-checkpoint-20261012-2230.md).
+- [Research and ranked candidate screen](B60-Inference-Engineering/research-watch-20261012.md).
+- [Standing branch-only liaison authority](B60-Inference-Engineering/standing-coordination-authority-20261012.md).
+
+Latest reviewed owner tips: Adaptive `05412e34376972c3fd4461735589de74eb30cf0c`,
+platform `fc60e5a2c9eac8f311ce8e6c0a83b901fe55600b`. No integration/live-recovery
+receipt has been published. The reported Mini tunnel still needs a concrete
+endpoint or alias; no path is guessed and no new credential is enrolled.
+Fetch both project branches and the platform branch before declaring a wait.
+Git publication does not trigger or prove receiving-agent execution.
+
+## Historical purpose — retained for provenance, not current execution
 
 Establish the fastest safe, stable and repeatable local-LLM configuration that
 the fixed Dell Precision T5810, Xeon E5-2698 v4, 80 GB ECC RAM and ASRock Intel
