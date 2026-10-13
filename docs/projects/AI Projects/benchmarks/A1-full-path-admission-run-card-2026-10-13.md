@@ -216,6 +216,22 @@ set and a common Aster gateway topology for control and challenger. These
 reported observations still require independent live-source proof; a passing
 dictionary check is not authority to start the run.
 
+**Independent recovery review, 2026-10-13:** The platform owner corrected
+healthy watchdog ticks so unmeasured service, GPU, schedule, model, unit and
+authentication checks are `UNKNOWN`, not passes. A subsequent source review
+found that set-based journal matching could hide a repeated unfinished start
+and a historical start record could suppress a current service probe. The
+owner's local `49014703` revision makes intent matching attempt-aware, probes
+each service again, and passes 44 offline tests. This is a reviewed **local
+candidate**, not an installed watchdog or live recovery result. A fresh
+read-only Proxmox check still finds the watchdog timer and service absent,
+the previous light-only controller at SHA-256
+`f9744b4efd1340eca513e677af6b9eceda25e992db33e977b2f7f75adc101e23`,
+no active lease state/lock, and the accepted LXC 110 service active. The
+Stream A 03:15 exclusive automation remains paused. The TrueNAS observer
+transport and a source-bound same-night backup receipt remain open; the
+obsolete evening runner remains disabled. No full-path model call is admitted.
+
 **Private corpus derivation check, 2026-10-13:** Read only the owner-protected
 `cases.jsonl` from the approved A1 v2 backup, validated its pinned source hash
 and generated 20 distinct serialized request digests in memory. The SHA-256 of
