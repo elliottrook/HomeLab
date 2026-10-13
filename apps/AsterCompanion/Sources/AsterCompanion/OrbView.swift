@@ -8,8 +8,14 @@ import SwiftUI
 /// (a visible red placeholder is printed to stderr) instead of silently
 /// rendering nothing, the way the bundle-name lookup did.
 private let asterOrbImage: NSImage? = {
-    guard let path = Bundle.module.path(forResource: "AsterOrb", ofType: "png") else {
-        FileHandle.standardError.write(Data("AsterOrb.png not found in Bundle.module (\(Bundle.module.bundlePath))\n".utf8))
+    let bundleName = "AsterCompanion_AsterCompanion"
+    let bundleURLs = [
+        Bundle.main.resourceURL?.appendingPathComponent("\(bundleName).bundle"),
+        Bundle.main.bundleURL.appendingPathComponent("\(bundleName).bundle"),
+    ].compactMap { $0 }
+    guard let resourceBundle = bundleURLs.lazy.compactMap(Bundle.init(url:)).first,
+          let path = resourceBundle.path(forResource: "AsterOrb", ofType: "png") else {
+        FileHandle.standardError.write(Data("AsterOrb.png not found in packaged resource bundle\n".utf8))
         return nil
     }
     guard let image = NSImage(contentsOfFile: path) else {

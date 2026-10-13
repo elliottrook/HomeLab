@@ -33,11 +33,16 @@ for module in local_bridge_cli local_turn pilot isolation_probe probe pipe_worke
     cp "$BRIDGE_SOURCE/$module.py" "$BRIDGE_DIR/$module.py"
 done
 
-# SPM builds its own resource bundle (in-app image assets declared via
-# `resources:` in Package.swift) next to the loose executable, not inside
-# any app structure - Bundle.module looks for it under Contents/Resources
-# once running inside a real .app, so it has to be copied in explicitly.
-cp -R "$BIN_PATH/AsterCompanion_AsterCompanion.bundle" "$APP_DIR/Contents/Resources/AsterCompanion_AsterCompanion.bundle"
+# SwiftPM builds its package resource bundle beside the loose executable. A
+# signed macOS app must package that nested bundle in Contents/Resources; the
+# app's resource loader resolves it there explicitly instead of relying on
+# SwiftPM's loose-executable Bundle.module accessor.
+RESOURCE_BUNDLE="AsterCompanion_AsterCompanion.bundle"
+cp -R "$BIN_PATH/$RESOURCE_BUNDLE" "$APP_DIR/Contents/Resources/$RESOURCE_BUNDLE"
+
+# Fail the build before signing if the packaged location no longer agrees
+# with SwiftPM's generated runtime lookup contract.
+test -f "$APP_DIR/Contents/Resources/$RESOURCE_BUNDLE/AsterOrb.png"
 
 # swift build already applies an ad-hoc signature to the loose binary,
 # but that's from before Info.plist existed and the .app structure was
@@ -53,6 +58,7 @@ if [ -n "${ASTER_CODESIGN_KEYCHAIN:-}" ]; then
     SIGN_ARGS+=(--keychain "$ASTER_CODESIGN_KEYCHAIN")
 fi
 codesign "${SIGN_ARGS[@]}" "$APP_DIR"
+codesign --verify --deep --strict --verbose=2 "$APP_DIR"
 
 # Register the URL scheme with Launch Services so the OS routes the
 # aster-companion://callback redirect back to this app.
