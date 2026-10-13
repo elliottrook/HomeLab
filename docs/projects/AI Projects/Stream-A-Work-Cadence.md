@@ -62,3 +62,15 @@ quiet on unchanged session state. Both belong to this chat and worktree; a
 remote push follows the repository's per-push rule except Jason's narrow
 standing authorization for branch commits whose purpose is coordination with
 the MacBook B60 agent.
+
+## Continuation rule — 2026-10-13
+
+Jason asked Stream A to keep working through the available queue instead of
+ending each turn after one check. The active four-hour continuation prompt now
+states this explicitly. Within a turn, completion of a test, note or local
+commit is a checkpoint: select the next independent authorized item from the
+delivery map and this queue. An app reliability observation or a held release
+gate does not stop offline M1/D4, M3 or benchmark work. End only when every
+remaining useful item requires a real approval, credential, external result,
+exclusive lease or unavailable resource, and report the exact gate. This rule
+does not waive any release, remote-write or security approval.

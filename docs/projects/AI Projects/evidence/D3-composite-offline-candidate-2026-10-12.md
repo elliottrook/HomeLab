@@ -241,3 +241,29 @@ The source-only correction reconstructs the remaining `Data` with a zero-based
 index after consuming a frame. The focused voice tests pass 4/4 and the full
 Companion suite passes 59/59. This does not validate live speech or change the
 installed signed app; a release of this newer source still needs its own gate.
+
+## Later installed-bundle drift and crash check — 2026-10-13
+
+This historical installation record must not be read as the current installed
+binary identity. Another app-owner update replaced the signed composite after
+Stream A's installation. The intermediate executable with SHA-256 beginning
+`03dd0a` generated four local macOS crash reports at 12:41–12:44 Vancouver;
+the inspected crash path was a Swift `NSBundle.module`/`asterOrbImage` trap.
+Stream A did not install or repeatedly launch that build. It informed the app
+owner and prepared, but did not execute, a rollback.
+
+Jason reported the app seemed to be working. In a subsequent supervised UI
+check, the new installed app showed a signed-in normal Aster screen, read-only
+OpenBao status and a completed ordinary “hello” answer. A fresh read-only
+filesystem check found the current executable SHA-256
+`7b968e5fdf11f88f2105c2d65cf3468dd27b8f245e787e73acdc8dfc2032124c`,
+strict/deep code-signature verification passed, and the latest matching local
+crash report remained the 12:44 report. This supports a short-term recovery
+observation, not a source-to-binary attribution, natural-refresh result, or
+long-duration reliability pass. The current shell could not query the process
+list (`sysmond service not found`), so it does not independently establish
+that the app is running now. No restore or further app change was made.
+
+The recorded `c287a4...` composite and `7ba99c...` predecessor evidence remain
+historical checks, not proof of the present app's source or functional rollback.
+Manual Codex remains hidden in normal mode and D3 routine release stays HOLD.

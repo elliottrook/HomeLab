@@ -32,6 +32,11 @@ The scorer ignores a runner's claimed matches when deriving the result and
 rejects disagreement, changed input digests, duplicate/missing identities,
 unregistered capabilities and unexpected raw-text fields. No new dependency
 or service is required.
+The 2026-10-13 offline scorer check also rejects a record marked valid while
+it carries a transport failure, error code or non-success HTTP status; HTTP
+and error fields must have bounded code shapes. The retained local 9B and
+lexical-rule runs still score unchanged. This is evidence-integrity hardening,
+not a new route or a promotion result.
 The current scorer also fixes the v1 suite ID and fixture digest in code, so
 changing both the fixture and its manifest cannot produce a score under the
 same suite identity. The retained baseline score files keep their original

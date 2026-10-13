@@ -29,6 +29,13 @@ unchanged.
 The manual Codex button is a Mac pilot, not the target user experience:
 evidence-backed automatic handover is milestone 6, and it will not grant
 tools or bypass privacy/approval policy.
+The [later installed-bundle check](evidence/D3-composite-offline-candidate-2026-10-12.md#later-installed-bundle-drift-and-crash-check--2026-10-13)
+records an app-owner replacement, an intermediate crashing build, and a
+subsequent signed build observed working in ordinary use. The currently
+installed executable no longer has the composite's recorded hash; its exact
+source attribution and long-term reliability remain unverified. Stream A did
+not restore the older app. This does not change the manual-Codex HOLD or the
+independent M1/M3 work queue.
 
 ## Where we are
 
@@ -283,11 +290,13 @@ authority gates remain open.
 
 ## Immediate next action and stop rule
 
-No new live Codex question is needed now. The current Companion source owner
-and published baseline are identified, and an isolated manual-only composite
-candidate passes offline tests without replacing OpenBao controls. Before
-deciding **release limited manual handoff** or **hold**, retain and verify a
-signed copy of the currently working app as rollback, review/build the exact
-candidate with the stable owner-held signing identity, and check ordinary
-sign-in, OpenBao and hidden Codex behavior on that build. Do not grant tools,
-start a gateway worker or enable automatic routing under this checkpoint.
+No new live Codex question is needed now. The limited manual handoff decision
+is **HOLD** after the exact metadata-manifest mismatch. The currently installed
+Mac app was subsequently replaced by its owner; short-term ordinary-use and
+signature checks pass, while source attribution and longer-term reliability
+remain open. Continue the independent offline M1/D4 authority and diagnostic
+work, M3 routing contracts and representative evidence, and the A1 answer
+qualification preparation. A later manual release requires a reviewed exact
+manifest, rebuilt signed candidate, live consent check and verified rollback;
+do not repin a fingerprint merely to unblock the button. No connected tool,
+automatic route or repair authority follows from this checkpoint.
