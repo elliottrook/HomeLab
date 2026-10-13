@@ -105,6 +105,32 @@ isolated guest or directory first, validate synthetic text and speech, and only
 then restore the intended endpoint. A platform restart or host reboot is an
 exclusive lab-lease action, even when the experiment is expected to be light.
 
+### Speech rollback procedure
+
+Rollback is an operator action and requires a fresh change record. It is not a
+client retry or an automatic route change:
+
+1. Record the canonical 9131 failure, request identifier, time and current
+   consumer release. Do not copy bearer values or speech content into the
+   record.
+2. Confirm the retained 9130 `aster-speech.service` health and a synthetic
+   Piper response from inside LXC 116. If 9130 is unhealthy, leave the
+   canonical failure visible and use the human recovery path; do not guess at
+   a second endpoint.
+3. Select the previously validated rollback consumer bundle that speaks the
+   legacy v1 WAV contract. Do not point the AVS1/v2 client at 9130: the wire
+   protocols are intentionally different.
+4. Deploy or launch that bundle only after the change is approved, then verify
+   one synthetic utterance and one real consumer turn. Label the result
+   `speech degraded — Piper rollback`; do not present it as the canonical
+   Kokoro voice.
+5. Restore the canonical bundle and 9131 route only after 9131 health,
+   authenticated synthesis and the renderer boundary pass. Re-run the
+   consumer check, remove the degraded label, and close the change record.
+
+If any step fails, keep the degraded state explicit and stop. Never switch to
+the lab endpoint, broaden credentials, or silently select another voice.
+
 ## Validation gate
 
 This contract is ready for synthetic validation, not promotion. Before marking

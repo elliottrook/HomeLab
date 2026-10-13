@@ -465,9 +465,16 @@ returned healthy after its normal model-load window, and the same canonical
 9131 synthesis path returned HTTP 200. This validates the explicit failure
 boundary and service recovery without changing routes, credentials or assets.
 
-The remaining recovery evidence is the operator-facing rollback procedure to
-the retained 9130 Piper/Whisper service and one consumer acceptance check that
-surfaces the degraded/rollback state clearly.
+The operator-facing rollback procedure is now recorded in the platform
+contract. It explicitly requires a validated legacy-v1 consumer bundle: the
+AVS1/v2 client must never be pointed directly at the raw-WAV 9130 service.
+Rollback remains an approved, labelled degraded operation and does not change
+the canonical Kokoro identity.
+
+On 2026-10-13 Jason confirmed that the Mac consumer plays canonical speech
+correctly. The typed-turn silence behavior is intentional; microphone-originated
+turns use the AVS1/v2 stream and play successfully. This closes the consumer
+acceptance check without changing the client or speech deployment.
 
 ## Schedule implementation record — 2026-10-12
 
