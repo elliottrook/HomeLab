@@ -374,3 +374,12 @@ platform status source when published, then run the headless synthetic Aster
 path under an actually admitted lease. B60 should acknowledge this exact
 card and report any incompatibility in its client-clock/candidate producer;
 publication of this paragraph alone is not a B60 receipt or approval to run.
+
+**Topology clarification for Adaptive/B60:** the early platform controller
+candidate drained LXC 104 `aster-agent.service`; such a run cannot measure an
+Aster gateway response. The production route must remain unchanged. Aster
+requires one reviewed test-only gateway topology that survives the lease, has
+server-enforced no-tool scope, and is used identically for the accepted 9B
+control and a named challenger. The exact candidate endpoint and auth/egress
+boundary are still missing. This is an admission blocker, not a reason to
+silently relabel direct llama.cpp timing as Aster-path timing.

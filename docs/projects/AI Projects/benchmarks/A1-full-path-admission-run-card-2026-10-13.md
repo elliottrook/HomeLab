@@ -13,6 +13,15 @@ live source authentication and the platform controller's admission.
 First prove that a **test-only** Aster gateway can accept the 20 fictional A1
 v2 requests with no tools, emit one opaque observation ID per request, and
 bind an actual final headless display/failure event to the gateway record.
+The first platform controller candidate stopped `aster-agent.service` in LXC
+104 when acquiring a lease. That cannot measure the Aster gateway path.
+Before a live card is READY, choose and test one explicit topology: either an
+isolated, restricted Aster test instance stays available while the production
+service is drained, or a separately reviewed light lease preserves the
+gateway while preventing competing inference work. The control and candidate
+must use the **same declared gateway boundary**; otherwise a timing delta
+confounds model and topology changes. A direct llama.cpp call is useful as a
+backend control, never as the full-path result.
 The first run uses the accepted 9B/SYCL control profile. A named candidate is
 a separate, pinned run only after its model/runtime/endpoint exists and the
 same boundary has passed. One profile per card and lease by default: two
