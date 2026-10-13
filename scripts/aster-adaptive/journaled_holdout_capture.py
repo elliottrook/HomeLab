@@ -27,8 +27,8 @@ def _write_event(stream, event: dict) -> None:
         stream.write(raw)
         stream.flush()
         os.fsync(stream.fileno())
-    except (OSError, TypeError, ValueError) as exc:
-        raise EvidenceWriteFailure("private attempt journal failed; stop without retry") from exc
+    except (OSError, TypeError, ValueError):
+        raise EvidenceWriteFailure("private attempt journal failed; stop without retry") from None
 
 
 def _create_private(path: Path):
@@ -106,9 +106,9 @@ def capture_journaled(cases_raw: bytes, profile_sha256: str,
             os.fsync(dirfd)
         finally:
             os.close(dirfd)
-    except OSError as exc:
+    except OSError:
         pending.unlink(missing_ok=True)
-        raise EvidenceWriteFailure("final capture write failed; journal retained; no retry") from exc
+        raise EvidenceWriteFailure("final capture write failed; journal retained; no retry") from None
     return {"planned": len(result["attempts"]),
             "completed": sum(row["status"] == "completed" for row in result["attempts"]),
             "failed": sum(row["status"] == "failed" for row in result["attempts"]),

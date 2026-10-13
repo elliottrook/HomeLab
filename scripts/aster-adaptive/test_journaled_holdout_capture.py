@@ -119,10 +119,12 @@ class JournaledCaptureTests(unittest.TestCase):
     def test_final_envelope_write_failure_preserves_all_returned_answers(self):
         with tempfile.TemporaryDirectory() as root:
             directory = Path(root) / "run"
-            with patch.object(journaled.os, "replace", side_effect=OSError("synthetic rename failure")):
-                with self.assertRaises(journaled.EvidenceWriteFailure):
+            with patch.object(journaled.os, "replace", side_effect=OSError("synthetic secret-like rename detail")):
+                with self.assertRaises(journaled.EvidenceWriteFailure) as failure:
                     journaled.capture_journaled(
                         self.cases, self.profile, lambda case: "fictional answer", directory)
+            self.assertNotIn("secret-like", str(failure.exception))
+            self.assertTrue(failure.exception.__suppress_context__)
             events = [json.loads(line) for line in (directory / "attempt-journal.jsonl").read_text().splitlines()]
             self.assertEqual(sum(event["event"] == "attempt_returned" for event in events), 20)
             self.assertFalse((directory / "raw-attempts.json").exists())
