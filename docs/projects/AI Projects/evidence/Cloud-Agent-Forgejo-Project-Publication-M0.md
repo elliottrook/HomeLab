@@ -79,6 +79,10 @@ validation and health units run as the dedicated `hlabundle` identity with
 The validation template is inactive until explicitly invoked, as expected.
 No worker was installed or started for the new multi-file capability, and no
 live policy, credential, runner pin or service state was changed.
+
+A new protected Proxmox checkpoint was then created for LXC 104 as
+`forgejo-project-docs-pre-m2-20261013`. The guest filesystem was frozen and
+thawed successfully and the snapshot was created before any installation.
 | Exact public-mirror privacy boundary accepted | Pending Jason's M0 decision |
 | Live worker or AI-PAM policy change | Not started and not authorized |
 

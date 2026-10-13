@@ -111,6 +111,9 @@ the multi-file document package, with its own tests, policy digest and rollback.
 - A separately named AI-PAM capability, runner identity and gateway policy for
   this package. The existing one-file canary capability remains unchanged and
   independently testable.
+- A separate non-admin Forgejo writer identity limited to `jason/homelab`, with
+  its token held only in a dedicated OpenBao secret/AppRole path used by the
+  project gateway. The existing safe-write credential is not reused.
 - Reconciliation of the runner's exact Forgejo base before deployment, with a
   protected checkpoint and rollback of only the new capability if deployment
   fails.
@@ -123,6 +126,9 @@ the multi-file document package, with its own tests, policy digest and rollback.
 - No GitHub-first staging, GitHub-to-Forgejo promotion or direct GitHub push.
 - No cloud-held Forgejo, GitHub, OpenBao, Authentik, tailnet or HomeLab
   credentials.
+- No credential value in chat, package, logs, Git, receipts or approval text;
+  rollback revokes the dedicated writer token and AppRole path without rotating
+  or disturbing existing AI-PAM credentials.
 - No arbitrary repository push, patch application, code execution, test run,
   dependency installation, hook execution or submodule fetch.
 - No writes outside the project-document allowlist; no service code,
@@ -184,6 +190,7 @@ only; it does not make content safe or authorize a broader action.
 | Replay or duplicate publication | A captured approval or package is reused | Short TTL, nonce, immutable digest, atomic one-use ledger, revocation and restore high-water check | Requires Linux-host recovery evidence before graduation |
 | Write-target escalation | A path or manifest attempts to reach `main`, workflows or arbitrary files | Independent allowlist validation; branch prefix; gateway-side recheck; deny deletes/renames/force updates | Any mismatch is a hard stop |
 | Runner/gateway compromise | The worker is used to reach Forgejo, OpenBao or unrelated services | Separate identity, local socket only, systemd confinement, no inbound listener, destination allowlist and denial tests | Bounded local risk remains; no graduation without isolation evidence |
+| Writer credential compromise | A project gateway failure exposes a repository-write token | Separate non-admin identity; one-repository scope; OpenBao custody; dedicated AppRole; no caller credential; revoke both on rollback | Blast radius is limited to this repository's non-main write path; direct `main` remains policy/branch protected |
 | Oversized package or resource exhaustion | Large input consumes worker storage or approval UI | Per-file, total, count and manifest caps; bounded unpacking; quota and cleanup; no unbounded retries | Availability risk accepted only within measured caps |
 | Mid-batch Forgejo failure | A later document write fails after earlier files reached the new branch | Never target `main`; unique branch; no merge; preserve exact manifest and audit; detect incomplete branch and stop for operator recovery | Partial non-main branch is an explicit M3 recovery case, not a silent success |
 | Mirror lag or failure | Forgejo accepts a commit but GitHub remains stale | Treat Forgejo as complete source of truth; report mirror pending; verify read-only and never push GitHub directly | Temporary public-mirror inconsistency is observable, not repaired by bypass |
