@@ -8,6 +8,8 @@ Candidate payload:
 - `scripts/local-ai/lease_contract.py`
 - `scripts/local-ai/lease_watchdog.py`
 - `scripts/local-ai/lease_controller_candidate.py`
+- `scripts/local-ai/trusted_observer.py`
+- `scripts/local-ai/lease_watchdog_cli.py`
 - `services/local-ai-lease/local-ai-lease-watchdog.service`
 - `services/local-ai-lease/local-ai-lease-watchdog.timer`
 
@@ -20,8 +22,12 @@ was allowed to touch. The watchdog remains fail-closed on expiry, heartbeat
 loss, partial restoration, GPU loss or schedule drift. It does not collect
 trusted host observations or execute recovery; those remain open work.
 
-The systemd unit is intentionally refused and requires an externally produced
-host-observation file. A Mini/chat/network loss cannot yet recover production.
+The fixed-probe observer is now available offline. It bounds every probe to
+five seconds and checks control-plane/services, GPU visibility, exact model,
+binary, unit and auth markers, plus the enabled backup/News schedule set. The
+systemd unit is still intentionally refused and requires that observer to be
+wired to a root-owned host-observation path. A Mini/chat/network loss cannot
+yet recover production because the effect runner remains advisory-only.
 
 ## Dry-run procedure
 
