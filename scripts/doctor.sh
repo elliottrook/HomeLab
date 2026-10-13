@@ -1636,7 +1636,7 @@ REMOTE
     [[ "$active_count" != "6" ]] && failures+=("monitoring services=${services:-unknown}")
     [[ "$grafana_db" != "ok" ]] && failures+=("Grafana database=${grafana_db:-unknown}")
     [[ "$prometheus_ready" != "Prometheus_Server_is_Ready." ]] && failures+=("Prometheus readiness failed")
-    [[ "$targets_up" != "7" ]] && failures+=("healthy scrape jobs=${targets_up:-unknown}/7")
+    [[ "$targets_up" != "8" ]] && failures+=("healthy scrape jobs=${targets_up:-unknown}/8")
 
     if [[ "$root_percent" =~ ^[0-9]+$ ]]; then
         if (( root_percent >= 90 )); then
@@ -1653,7 +1653,7 @@ REMOTE
     elif (( ${#warnings[@]} > 0 )); then
         warn "Observability warning: ${warnings[*]}"
     else
-        pass "Prometheus, Grafana and exporters healthy; 7/7 scrape jobs up; guest root ${root_percent}%"
+        pass "Prometheus, Grafana and exporters healthy; 8/8 scrape jobs up; guest root ${root_percent}%"
     fi
 }
 
