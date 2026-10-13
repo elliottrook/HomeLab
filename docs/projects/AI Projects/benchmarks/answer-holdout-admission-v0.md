@@ -87,7 +87,11 @@ UNKNOWN**; the local copy improves durability but does not establish backup
 or independence from this Mac. The candidate must receive only `cases.jsonl`,
 never `answer-key.jsonl` or reviewer receipts.
 
-The bundle is **not READY** for a model call. Remaining gates are a frozen
+The v1 bundle was sent once to accepted 9B, but the local write failed after
+the remote response. No score is available and v1 must not be replayed as a
+fresh holdout. The [failure record](../experiments/a1-answer-holdout-v1/RESULT-FAILED-2026-10-12.md)
+keeps that evidence-custody error explicit. A new v2 bundle is required.
+The next bundle is **not READY** for a model call. Remaining gates are a frozen
 execution/scoring profile and operator roles, a live host occupancy/lease
 check after the platform project's SA3 run, and a bounded no-connected-tool
 invocation plan. A direct backend development run cannot qualify native

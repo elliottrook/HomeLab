@@ -58,6 +58,19 @@ class HoldoutCaptureTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 module.save_private(dest, result)
 
+    def test_write_preflight_happens_before_result_save(self):
+        with tempfile.TemporaryDirectory() as dirname:
+            parent = Path(dirname)
+            dest = parent / "reserved"
+            module.reserve_private(dest)
+            self.assertEqual(list(dest.iterdir()), [])
+            summary = module.save_private(dest, {"attempts": []}, reserved=True)
+            self.assertEqual(summary["planned"], 0)
+            world_parent = parent / "world"
+            world_parent.mkdir(mode=0o755)
+            with self.assertRaisesRegex(ValueError, "parent must be owner-only"):
+                module.reserve_private(world_parent / "blocked")
+
 
 if __name__ == "__main__":
     unittest.main()

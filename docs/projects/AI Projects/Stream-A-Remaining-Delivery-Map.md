@@ -72,12 +72,16 @@ packet has an AI-only development review (2/6 all-rubric passes), not human
 adjudication; the in-process clock is not a live Aster-path latency baseline.
 Neither changes the automatic-route gate.
 The [fresh 20-case assistant-answer holdout](benchmarks/answer-holdout-release-v1-2026-10-12.md)
-is now sealed in owner-only local custody with a separate AI review and zero
-material overlap with the six exposed development cases. It has not been sent
-to a model. Its labels are AI-authored and AI-reviewed; backup, run admission,
-scoring and live Aster-path measurement remain open. The platform project's
-SA3 **sysadmin** holdout is separate and currently using the lab, so Stream A
-does not contend for the B60.
+was sealed in owner-only local custody with a separate AI review and zero
+material overlap with the six exposed development cases. A first 9B invocation
+returned a 20-row envelope but the Mac sandbox denied the final local write,
+so **no answers or score were retained**. The [failure record](experiments/a1-answer-holdout-v1/RESULT-FAILED-2026-10-12.md)
+closes v1 without replay. The transport now proves local writability before a
+model call and seals stdout before parsing; a fresh v2 is required. Labels are
+AI-authored and AI-reviewed; backup, independent adjudication and live
+Aster-path measurement remain open. The platform project's SA3 **sysadmin**
+holdout is separate and has ended without promoting local Qwen to a Codex
+sysadmin role.
 
 The existing D4 aggregate Doctor adapter now closes a file-open race, rejects
 symlinked or writable reports, and fails closed on malformed status types; see

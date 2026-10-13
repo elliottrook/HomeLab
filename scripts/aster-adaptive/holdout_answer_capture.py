@@ -83,15 +83,37 @@ def capture(cases_raw: bytes, profile_sha256: str,
             "tool_mode": "disabled", "attempts": rows}
 
 
-def save_private(directory: Path, result: dict) -> dict:
+def reserve_private(directory: Path) -> None:
     resolved = directory.resolve()
     if (not directory.is_absolute() or resolved == REPO or REPO in resolved.parents
             or any((parent / ".git").exists() for parent in (resolved, *resolved.parents))):
         raise ValueError("raw answers must stay outside Git")
     if not directory.parent.is_dir() or directory.parent.stat().st_mode & 0o077:
         raise ValueError("parent must be owner-only")
-    raw = (json.dumps(result, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n").encode()
+    # Prove directory creation and file write *before* any model call. A
+    # completed remote batch must never be lost to a predictable local denial.
     directory.mkdir(mode=0o700, exist_ok=False)
+    probe = directory / ".write-preflight"
+    try:
+        fd = os.open(probe, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(b"ok\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+    except Exception:
+        probe.unlink(missing_ok=True)
+        directory.rmdir()
+        raise
+    probe.unlink()
+
+
+def save_private(directory: Path, result: dict, *, reserved: bool = False) -> dict:
+    if not reserved:
+        reserve_private(directory)
+    elif (not directory.is_dir() or directory.stat().st_mode & 0o077
+          or any(directory.iterdir())):
+        raise ValueError("reserved output directory is not empty/owner-only")
+    raw = (json.dumps(result, sort_keys=True, ensure_ascii=False, allow_nan=False) + "\n").encode()
     try:
         path = directory / "raw-attempts.json"
         flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL

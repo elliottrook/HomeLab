@@ -1,7 +1,9 @@
 # Aster assistant-answer fictional holdout v1 — custody record
 
-**State:** Sealed offline development corpus, 2026-10-12; no model invocation
-or promotion. Scope is assistant answers, not the B60 project's SA3 sysadmin
+**State:** Exposed to accepted 9B on 2026-10-12; output lost at local write.
+No valid score or promotion. Do not replay v1 as a fresh holdout; see the
+[failed attempt](../experiments/a1-answer-holdout-v1/RESULT-FAILED-2026-10-12.md).
+Scope is assistant answers, not the B60 project's SA3 sysadmin
 corpus. All content is fictional and synthetic. This page is intentionally
 content-free.
 
