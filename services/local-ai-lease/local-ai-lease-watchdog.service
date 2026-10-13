@@ -1,12 +1,12 @@
 [Unit]
-Description=Local AI lease watchdog (disabled candidate)
+Description=Local AI lease recovery watchdog (disabled candidate)
 After=network-online.target
 ConditionPathExists=/var/lib/local-ai-lab/runtime-manifest.json
 RefuseManualStart=yes
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/local-ai-lease-watchdog --once --state /var/lib/local-ai-lab/lease.json --manifest /var/lib/local-ai-lab/runtime-manifest.json
+ExecStart=/usr/local/sbin/local-ai-lease-recovery --once --state /var/lib/local-ai-lab/lease.json --manifest /var/lib/local-ai-lab/runtime-manifest.json --effect-authorized
 User=root
 NoNewPrivileges=yes
 ProtectSystem=strict

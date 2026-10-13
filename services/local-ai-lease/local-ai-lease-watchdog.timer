@@ -1,5 +1,5 @@
 [Unit]
-Description=Run the Local AI lease watchdog periodically (disabled candidate)
+Description=Run the Local AI lease recovery watchdog periodically (disabled candidate)
 
 [Timer]
 OnBootSec=2min

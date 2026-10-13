@@ -38,6 +38,8 @@ class EffectRunnerTests(unittest.TestCase):
         timer = (root / "local-ai-lease-watchdog.timer").read_text()
         self.assertIn("RefuseManualStart=yes", unit)
         self.assertIn("ConditionPathExists=", unit)
+        self.assertIn("local-ai-lease-recovery", unit)
+        self.assertIn("--effect-authorized", unit)
         self.assertIn("disabled candidate", timer)
 
 

@@ -563,12 +563,13 @@ recovery deadline, rollback path and the limits of one future attended light
 service-drain drill. No candidate file was installed, no timer was enabled and
 no live effect was run.
 
-The host-local recovery executor is now a separate, explicit-gate entry point:
-without `--effect-authorized` it emits only a content-free decision; with the
-gate it invokes the fixed observer, controller and effect runner as one bounded
-restore path. The disabled systemd unit does not invoke this executor yet. The
-exact GGUF file digest and a successful Proxmox-owner TrueNAS transport probe
-remain required staging facts before any live review.
+The host-local recovery executor is now the disabled candidate unit's explicit
+`ExecStart`: without `--effect-authorized` it emits only a content-free
+decision; with the gate it invokes the fixed observer, journaled controller and
+effect runner as one bounded restore path. The unit and timer remain refused or
+disabled. The exact GGUF file digest is confirmed, but the direct
+Proxmox-owner TrueNAS transport check currently fails host-key verification;
+that transport setup remains a staging blocker before any live review.
 
 The accepted dereferenced GGUF was measured read-only at
 `cd76ec205963b3b33350093e6904d9de16c4e666fd104e1f632d25c7f15f2a13`; its

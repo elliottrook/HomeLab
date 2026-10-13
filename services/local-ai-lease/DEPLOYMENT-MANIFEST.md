@@ -14,8 +14,10 @@ Candidate payload:
 - `services/local-ai-lease/local-ai-lease-watchdog.timer`
 
 The adapter writes a mode-0600 admission record before stopping any guest only
-when test-only effect authority is explicitly injected. Normal construction is
-advisory-only and cannot execute commands. It then
+when explicit effect authority is provided. Normal construction and watchdog
+invocation are advisory-only and cannot execute commands; the separate
+recovery executor is wired into the disabled candidate unit but cannot run
+until that unit is deliberately enabled. It then
 creates one host lock, and uses an explicit allowlist limited to LXC 104, 110
 and 116 service units. A failed stop sequence restores only the services it
 was allowed to touch. The watchdog remains fail-closed on expiry, heartbeat
@@ -30,8 +32,9 @@ restore path separately checks each fixed production unit before a start,
 skips a unit already reported active, and retains the lease on an ambiguous
 state or any unmatched effect intent. The
 systemd unit is still intentionally refused and requires a root-owned runtime
-manifest. A Mini/chat/network loss cannot
-yet recover production because the effect runner remains advisory-only.
+manifest. A Mini/chat/network loss cannot yet recover production because the
+candidate timer is disabled and the Proxmox-owner TrueNAS transport remains
+unverified.
 
 ## Dry-run procedure
 

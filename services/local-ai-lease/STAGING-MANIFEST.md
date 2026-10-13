@@ -17,9 +17,10 @@ live effect.
   TrueNAS `192.168.20.40` through batch-mode SSH, and the owner heartbeat.
 - Fixed schedule identity: Proxmox `00:30`; TrueNAS guest `01:00`, LXC 110
   `02:00`, Mac `03:00`; News `06:15` and `17:15`.
-- The host-local recovery executor is a separate entry point; without its
-  explicit effect gate it only emits a content-free decision. The disabled
-  systemd unit does not invoke it yet.
+- The host-local recovery executor is the disabled systemd unit's candidate
+  `ExecStart`; without the unit being enabled it cannot run. Its explicit
+  effect gate is retained in the candidate command line, while installation
+  remains refused/disabled pending review.
 
 ## Exact local candidate hashes
 
@@ -37,8 +38,8 @@ These SHA-256 values cover the source and disabled unit reviewed for staging:
 | `scripts/local-ai/test_lease_effect_runner.py` | `f59eaa9048ff0cd1c93dc49462151350eee54c627d52466fdbbdf874562060b8` |
 | `scripts/local-ai/lease_recovery_executor.py` | `db6efb158bedfbe92f02aa4573e6979d6016f19efef688f697bbcdfdb7feea85` |
 | `scripts/local-ai/test_lease_recovery_executor.py` | `9e00a8724bddff2f41d6fee7fa97286ac0280556f1def69eb5c4010fff32076d` |
-| `services/local-ai-lease/local-ai-lease-watchdog.service` | `abbe6fcd98b37d6ccb6065fc3a64492c56f37139812b4a60d37d54d55acaf5f5` |
-| `services/local-ai-lease/local-ai-lease-watchdog.timer` | `4ef3217f40bfeca17cc0790c29a04ffa95d9b9a60a49aa97b26e4e8c58c84875` |
+| `services/local-ai-lease/local-ai-lease-watchdog.service` | `3041ed62efadcb1bcffe0c66e9c311933fc90c0cb101ea08f24b546fc9bc656d` |
+| `services/local-ai-lease/local-ai-lease-watchdog.timer` | `9f09de46e3ee55d8f765e1f279d34632ea914c8c6506416f0455853ef538b744` |
 
 The values above describe the reviewed local payload and are not a deployment
 authorization. The manifest itself is excluded from the hash table because
@@ -54,7 +55,9 @@ editing the table would necessarily change its own digest.
 - The fixed TrueNAS probe must be verified from the Proxmox owner context using
   batch-mode SSH to `root@192.168.20.40` and `midclt call rsynctask.query`.
   The historical `truenas` alias failure is not an acceptable restoration
-  probe; transport failure remains schedule-unhealthy and fail-closed.
+  probe. The current direct owner-context check reached host-key verification
+  failure, so transport remains an unresolved staging blocker and
+  schedule-unhealthy/fail-closed.
 
 ## Recovery deadline and rollback
 

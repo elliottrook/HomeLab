@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 from lease_recovery_executor import effects_permitted, main
 from lease_watchdog import WatchdogState
@@ -14,6 +15,14 @@ class RecoveryExecutorTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as result:
             main(["--help"])
         self.assertEqual(result.exception.code, 0)
+
+    def test_candidate_timer_is_periodic_and_disabled_by_installation_policy(self):
+        root = Path(__file__).parents[2] / "services/local-ai-lease"
+        unit = (root / "local-ai-lease-watchdog.service").read_text()
+        timer = (root / "local-ai-lease-watchdog.timer").read_text()
+        self.assertIn("RefuseManualStart=yes", unit)
+        self.assertIn("OnUnitActiveSec=1min", timer)
+        self.assertIn("RandomizedDelaySec=10s", timer)
 
 
 if __name__ == "__main__":
