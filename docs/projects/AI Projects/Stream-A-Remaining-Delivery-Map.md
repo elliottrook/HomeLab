@@ -12,6 +12,11 @@ controller is unscheduled and no
 current lease is established for Stream A. The News/analysis reservation and
 exclusive test access remain unverified.
 
+The native app now also needs the
+[D3 integration gate](evidence/D3-native-app-integration-gate-2026-10-12.md):
+the current AI-PAM app line and Stream A's manual Codex pilot have divergent
+sources and shared-file edits. Do not install one line over the other.
+
 ## Where we are
 
 The **historical version-16 Companion pilot** ran in ordinary mode with its

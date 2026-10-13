@@ -35,17 +35,25 @@ A later read-only check found `/Applications/AsterCompanion.app` modified at
 its current `CFBundleShortVersionString` is `0.2.2`, build `4`, executable
 SHA-256 `7ba99c035fcd4ac69bb0da72220eec2eeda76c16dc5dcbb35050eb0cefe4076d`:
 different from the observed v16 binary. The computer-use app inventory did
-not list the current bundle as running. The owner, purpose, source commit,
-rollback and normal-use behavior of this replacement are
-**UNKNOWN / REQUIRES VERIFICATION**. A platform-agent coordination message
-requested its provenance. Do not launch it merely to force this gate, revert
-another project's app, or read Keychain material.
+not list the current bundle as running. The main checkout's current
+`apps/AsterCompanion/Info.plist` declares the same 0.2.2/build-4 identity,
+and its `docs/runbooks/Aster-Companion.md` calls that build an AI-PAM native
+parity candidate. A read-only search of that main checkout's native sources
+found no `LocalCodexManualView`, `--aster-local-codex-manual` flag or
+`Codex requests` view declaration. Those are **repository intent/source
+observations**, not a disassembly or runtime test of the installed bundle.
+The exact source
+commit, installed-binary equivalence, rollback and normal-use behavior of
+this replacement are **UNKNOWN / REQUIRES VERIFICATION**. A platform-agent
+coordination message requested its provenance. Do not launch it merely to
+force this gate, revert another project's app, or read Keychain material.
 
 ## Decision
 
 The **v16 natural-refresh subgate passes** on executable-bound, fixed-code
 evidence. The **current installed-build release gate remains HOLD** until the
-new build's ownership, source/signature/rollback and ordinary authenticated
-use are reconciled. Neither result enables automatic routing, connected
+new build's ownership, source/signature/rollback, manual Codex feature
+presence and ordinary authenticated use are reconciled. Neither result
+enables automatic routing, connected
 tools, AI-PAM Stage 2 or a sysadmin role. Preserve the retained v16 and v15
 copies while the installed build is reconciled.

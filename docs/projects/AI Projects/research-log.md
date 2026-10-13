@@ -3086,6 +3086,19 @@ It does not establish a later post-restart Keychain read or absence of an
 off-screen prompt. Read-only file/signature checks then found a different
 signed app at `/Applications/AsterCompanion.app`, modified at 18:51, with
 version 0.2.2/build 4 and a different executable hash. Its release provenance
-and ordinary behavior are unknown. The current-build routine D3 release
+and ordinary behavior are unknown. The main checkout's source `Info.plist`
+declares 0.2.2/build 4, and its runbook identifies that version as an AI-PAM
+parity candidate; this is repository intent, not an installed-binary pin.
+Its native source currently lacks Stream A's `LocalCodexManualView` and
+manual flag, so source integration of the two app lines is unresolved.
+The current-build routine D3 release
 remains HOLD; the platform agent was asked for ownership and rollback record.
 See [the evidence](evidence/D3-v16-natural-refresh-and-current-bundle-drift-2026-10-12.md).
+
+A read-only source comparison found eight Stream A native files absent from
+the main Companion checkout. Both app lines modify six shared source/build/
+test files; the main checkout has uncommitted edits in those same areas. Added
+a [specific native integration gate](evidence/D3-native-app-integration-gate-2026-10-12.md)
+requiring a pinned current app line, explicit composite merge, full native
+regression checks and a rollback before another installation. No source was
+merged, no app was launched, and no Codex question was sent.
