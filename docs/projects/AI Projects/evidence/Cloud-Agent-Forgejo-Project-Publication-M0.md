@@ -41,6 +41,8 @@ The replacement project is [Cloud-agent Forgejo project publication](../Cloud-Ag
 It deliberately expands access only from the existing one-file/4 KiB safe-write
 canary to a separately versioned, multi-file project-document package. It does
 not widen that existing policy in place and does not create a GitHub-first path.
+Repository context outside the project-document paths remains read-only; no
+read capability is being converted into write authority.
 
 The initial package boundary is:
 
@@ -48,7 +50,8 @@ The initial package boundary is:
 - UTF-8 text only;
 - no deletes, renames, symlinks, submodules, binaries, LFS objects or
   executable content;
-- at most 32 files, 256 KiB per file and 2 MiB total;
+- at most 32 files, 1 MiB per file and 8 MiB total, with large content staged
+  locally rather than carried inline through the broker request frame;
 - exact Forgejo base SHA, branch prefix, package digest, expiry, nonce and
   policy digest;
 - existing AI-PAM approval, revocation, one-use consumption, OpenBao custody,
@@ -65,7 +68,7 @@ The initial package boundary is:
 | GitHub mirror convergence | Passed; old branch absent and replacement branch matches Forgejo at `d43ca9ee` |
 | Canonical base and local policy reconciliation | Passed; Forgejo `main` is `da8b0fca`; local policy sources match the canonical checkout; 30 targeted tests pass |
 | Live runner source-pin reconciliation | Blocked for implementation; installed `base_revision` is `d7e49c4d4d6b7124a764208cc44e0ef9ed12797b`, while current Forgejo `main` is `da8b0fca9783fb72ca1ac9da9d31a97f971cfb93`; installed runner source hashes match the reviewed local files |
-| M1 offline validator | Passed local gate; separate multi-file document verifier and adversarial tests are present; complete broker test directory passes `119/119`; no live policy or service change |
+| M1 offline validator and staged handoff | Passed local gate; separate multi-file document verifier, digest-named handoff, project gateway policy and adversarial tests are present; complete broker test directory passes `130/130`; no live policy or service change |
 
 ## Read-only M2 preflight
 

@@ -18,6 +18,8 @@ def main() -> None:
     subparsers.add_parser("global-disable")
     subparsers.add_parser("global-enable")
     subparsers.add_parser("enable-forgejo-safe-write")
+    project_documents = subparsers.add_parser("enable-forgejo-project-documents")
+    project_documents.add_argument("--agent-id", default="agent-cloud-bundle")
     bundle_runner = subparsers.add_parser("enable-forgejo-bundle-runner")
     bundle_runner.add_argument("--agent-uid", required=True, type=int)
     subparsers.add_parser("enable-forgejo-bundle-read")
@@ -74,6 +76,35 @@ def main() -> None:
                        VALUES('agent-hermes','forgejo.write.safe-branch')"""
                 )
             print("FORGEJO_SAFE_WRITE_ENABLED")
+        elif args.command == "enable-forgejo-project-documents":
+            agent = store.connection.execute(
+                "SELECT state FROM agents WHERE agent_id=?", (args.agent_id,)
+            ).fetchone()
+            if agent is None or agent[0] not in {"operator", "specialist", "orchestrator"}:
+                raise SystemExit("project-document agent must already be promoted")
+            with store.connection:
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO services(
+                           service_id,execution_mode,enabled,created_at,credential_type,
+                           custody_identifier,credential_scope,rotation_due,revocation_method,health
+                       ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                    (
+                        "forgejo-mcp-project-write", "proxy", 1, store._now(), "Forgejo PAT",
+                        "secret/ai-pam/forgejo-mcp-project-write",
+                        "jason/homelab docs/projects and docs/handovers create only",
+                        "operator-managed", "disable service and revoke PAT", "candidate",
+                    ),
+                )
+                store.connection.execute(
+                    """INSERT OR IGNORE INTO capabilities(
+                           capability,service_id,risk_class,probation_allowed,enabled
+                       ) VALUES('forgejo.write.project-documents','forgejo-mcp-project-write','yellow',0,1)"""
+                )
+                store.connection.execute(
+                    "INSERT OR IGNORE INTO agent_capabilities(agent_id,capability) VALUES(?,?)",
+                    (args.agent_id, "forgejo.write.project-documents"),
+                )
+            print("FORGEJO_PROJECT_DOCUMENTS_ENABLED")
         elif args.command == "enable-forgejo-bundle-runner":
             capability = store.connection.execute(
                 "SELECT risk_class,probation_allowed,enabled FROM capabilities "

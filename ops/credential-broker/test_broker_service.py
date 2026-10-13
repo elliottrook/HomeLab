@@ -34,16 +34,20 @@ class BrokerServiceTests(unittest.TestCase):
         self.socket_path = root / "broker.sock"
         self.read_gateway_path = root / "read-gateway.sock"
         self.write_gateway_path = root / "write-gateway.sock"
+        self.project_gateway_path = root / "project-gateway.sock"
         self.lab_gateway_path = root / "lab-gateway.sock"
         self.read_gateway = socketserver.UnixStreamServer(str(self.read_gateway_path), FakeGatewayHandler)
         self.read_gateway.requests = []
         self.write_gateway = socketserver.UnixStreamServer(str(self.write_gateway_path), FakeGatewayHandler)
         self.write_gateway.requests = []
+        self.project_gateway = socketserver.UnixStreamServer(str(self.project_gateway_path), FakeGatewayHandler)
+        self.project_gateway.requests = []
         self.lab_gateway = socketserver.UnixStreamServer(str(self.lab_gateway_path), FakeGatewayHandler)
         self.lab_gateway.requests = []
         self.gateway_threads = [
             threading.Thread(target=self.read_gateway.serve_forever, daemon=True),
             threading.Thread(target=self.write_gateway.serve_forever, daemon=True),
+            threading.Thread(target=self.project_gateway.serve_forever, daemon=True),
             threading.Thread(target=self.lab_gateway.serve_forever, daemon=True),
         ]
         for thread in self.gateway_threads:
@@ -56,6 +60,7 @@ class BrokerServiceTests(unittest.TestCase):
         self.server = BrokerServer(
             str(self.socket_path), self.store, str(self.read_gateway_path),
             str(self.write_gateway_path), str(self.lab_gateway_path),
+            str(self.project_gateway_path),
         )
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -67,6 +72,8 @@ class BrokerServiceTests(unittest.TestCase):
         self.read_gateway.server_close()
         self.write_gateway.shutdown()
         self.write_gateway.server_close()
+        self.project_gateway.shutdown()
+        self.project_gateway.server_close()
         self.lab_gateway.shutdown()
         self.lab_gateway.server_close()
         self.store.close()
@@ -164,6 +171,30 @@ class BrokerServiceTests(unittest.TestCase):
         self.assertTrue(consumed["ok"])
         self.assertEqual("create_file", self.write_gateway.requests[0]["params"]["name"])
         self.assertEqual([], self.read_gateway.requests)
+
+    def test_project_document_write_uses_distinct_gateway_after_approval(self):
+        self.store.set_agent_state("agent-test", "operator")
+        self.store.register_service("forgejo-mcp-project-write")
+        self.store.register_capability("forgejo.write.project-documents", "forgejo-mcp-project-write", "yellow")
+        self.store.grant_capability("agent-test", "forgejo.write.project-documents")
+        payload = {
+            "owner": "jason", "repo": "homelab", "bundle_id": "a" * 64,
+            "base_revision": "b" * 40, "policy_digest": "c" * 64,
+            "branch_name": "main", "new_branch_name": "ai-pam/project-example",
+            "message": "AI-PAM project: publish reviewed docs",
+            "files": [{"filePath": "docs/projects/example.md", "content_sha256": "d" * 64, "content_size": 10}],
+        }
+        created = self.call({
+            "method": "request.create", "capability": "forgejo.write.project-documents", "payload": payload,
+        })
+        self.assertEqual("pending", created["result"]["status"])
+        self.store.approve_request(created["result"]["request_id"], created["result"]["payload_hash"])
+        consumed = self.call({
+            "method": "request.consume", "request_id": created["result"]["request_id"], "payload": payload,
+        })
+        self.assertTrue(consumed["ok"])
+        self.assertEqual("create_file_batch", self.project_gateway.requests[0]["params"]["name"])
+        self.assertEqual([], self.write_gateway.requests)
 
     def test_authority_denials_never_reach_write_gateway(self):
         self.store.register_service("forgejo-mcp")

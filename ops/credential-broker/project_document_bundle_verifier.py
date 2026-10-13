@@ -11,7 +11,6 @@ code execution.
 from __future__ import annotations
 
 import hashlib
-import ipaddress
 import json
 import os
 import re
@@ -21,7 +20,7 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Callable, Mapping
 
-from mcp_policy_adapter import SECRET_OUTPUT_PATTERNS
+from mcp_policy_adapter import ProjectDocumentWritePolicyAdapter
 
 
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -29,18 +28,6 @@ GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 NONCE = re.compile(r"^[A-Za-z0-9_-]{22,128}$")
 BRANCH = re.compile(r"^ai-pam/[a-z0-9][a-z0-9._-]{0,62}$")
 SIGNER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9@._-]{0,127}$")
-PRIVATE_IP_CANDIDATE = re.compile(
-    r"(?<![A-Za-z0-9])(?:\d{1,3}\.){3}\d{1,3}(?![A-Za-z0-9])"
-)
-IPV6_CANDIDATE = re.compile(
-    r"(?<![A-Za-z0-9:])(?:[0-9A-Fa-f]{1,4}:){2,}[0-9A-Fa-f:.]+(?![A-Za-z0-9:])"
-)
-PRIVATE_HOST_PATTERN = re.compile(
-    r"(?i)(?<![A-Za-z0-9])(?:[A-Za-z0-9-]+\.)+(?:local|lan|internal|home)(?![A-Za-z0-9])"
-)
-PRIVATE_DETAIL_PATTERN = re.compile(
-    r"(?i)\b(?:token|secret|password|passphrase|api[_-]?key|private[_-]?key)\s*[:=]"
-)
 
 EXPECTED_KEYS = frozenset({
     "version", "repository", "base_revision", "target_branch", "nonce",
@@ -51,11 +38,11 @@ FILE_KEYS = frozenset({"path", "content_sha256", "content_size"})
 ALLOWED_ROOT_ENTRIES = frozenset({"manifest.json", "manifest.sig", "files"})
 ALLOWED_SUFFIXES = frozenset({".md", ".markdown", ".txt"})
 
-MAX_MANIFEST_BYTES = 128 * 1024
+MAX_MANIFEST_BYTES = 256 * 1024
 MAX_SIGNATURE_BYTES = 64 * 1024
 MAX_FILES = 32
-MAX_FILE_BYTES = 256 * 1024
-MAX_TOTAL_BYTES = 2 * 1024 * 1024
+MAX_FILE_BYTES = 1024 * 1024
+MAX_TOTAL_BYTES = 8 * 1024 * 1024
 MAX_COMMIT_MESSAGE_BYTES = 160
 
 
@@ -112,18 +99,7 @@ def _lstat_regular(root: Path, relative: PurePosixPath, *, max_bytes: int) -> by
 
 
 def _private_detail(text: str) -> bool:
-    if PRIVATE_DETAIL_PATTERN.search(text) or any(pattern.search(text) for pattern in SECRET_OUTPUT_PATTERNS):
-        return True
-    if PRIVATE_HOST_PATTERN.search(text):
-        return True
-    for candidate in PRIVATE_IP_CANDIDATE.findall(text) + IPV6_CANDIDATE.findall(text):
-        try:
-            address = ipaddress.ip_address(candidate)
-        except ValueError:
-            continue
-        if address.is_private or address.is_loopback or address.is_link_local or address.is_unspecified:
-            return True
-    return False
+    return ProjectDocumentWritePolicyAdapter._private_detail(text)
 
 
 def _ensure_package_tree(root: Path, expected: set[PurePosixPath]) -> None:

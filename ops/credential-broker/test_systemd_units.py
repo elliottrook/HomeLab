@@ -34,6 +34,20 @@ class SystemdUnitTests(unittest.TestCase):
         self.assertIn("OnUnitActiveSec=1h", timer)
         self.assertIn("Persistent=true", timer)
 
+    def test_project_gateway_is_separate_and_read_only_to_handoff(self):
+        unit = (ROOT / "forgejo-mcp-project-write-gateway.service").read_text()
+        broker = (ROOT / "homelab-broker.service").read_text()
+        self.assertIn("User=hlabroker-project-write", unit)
+        self.assertIn("--mode project-documents", unit)
+        self.assertIn("--project-handoff-root /var/lib/homelab-bundle-runner/handoff", unit)
+        self.assertIn("--project-allowed-signers /etc/homelab-bundle-runner/allowed_signers", unit)
+        self.assertIn("NoNewPrivileges=yes", unit)
+        self.assertIn("PrivateDevices=yes", unit)
+        self.assertIn("ProtectSystem=strict", unit)
+        self.assertIn("CapabilityBoundingSet=\n", unit)
+        self.assertIn("--forgejo-project-write-socket /run/homelab-forgejo-mcp-project-write/gateway.sock", broker)
+        self.assertNotIn("--path-prefix ai-pam-pilot/", unit)
+
 
 if __name__ == "__main__":
     unittest.main()

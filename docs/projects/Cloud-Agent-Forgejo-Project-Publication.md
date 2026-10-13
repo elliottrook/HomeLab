@@ -46,6 +46,9 @@ Enable a cloud agent to submit a multi-file, larger project-document package
 through the existing AI-PAM approval and bounded Forgejo write path while
 preserving the following boundary:
 
+- repository context may be read through the existing bounded Green Forgejo
+  path, subject to its repository, sensitive-path, output-size and
+  credential-shaped argument filters;
 - the package is prepared in the cloud, but is not accepted as authoritative
   until it passes local validation and Jason approves the exact content;
 - the only publication target is Forgejo, on a newly created `ai-pam/` branch
@@ -91,8 +94,11 @@ the multi-file document package, with its own tests, policy digest and rollback.
   cloud-to-LAN listener and gives the cloud agent no HomeLab credential.
 - UTF-8 text documents only, initially limited to `docs/projects/` and
   `docs/handovers/`.
-- A conservative package cap of at most 32 files, 256 KiB per file and 2 MiB
-  total until measured evidence justifies a smaller or larger value.
+- Read-only repository context may be broader than the write allowlist; no
+  write permission follows from a successful read.
+- A bounded package cap of at most 32 files, 1 MiB per file and 8 MiB total.
+  The larger content is staged locally and integrity-bound; it is not carried
+  inline through the small broker request frame.
 - Rejection of deletes, renames, symlinks, submodules, binaries, LFS objects,
   hidden/traversal paths, case-colliding paths and executable content.
 - Explicit privacy checks for credentials, tokens, private keys, secret-shaped
@@ -121,6 +127,9 @@ the multi-file document package, with its own tests, policy digest and rollback.
   dependency installation, hook execution or submodule fetch.
 - No writes outside the project-document allowlist; no service code,
   infrastructure, secrets, workflows, CI configuration or repository policy.
+- No write permission to source code, tests, dependency manifests,
+  infrastructure, CI/workflows or any other repository path; those remain
+  read-only context at most.
 - No direct write to Forgejo `main`, protected refs, tags or releases.
 - No reuse or widening of the existing `forgejo.write.safe-branch` capability
   for multi-file packages; the new capability must fail closed if selected by
@@ -176,6 +185,7 @@ only; it does not make content safe or authorize a broader action.
 | Write-target escalation | A path or manifest attempts to reach `main`, workflows or arbitrary files | Independent allowlist validation; branch prefix; gateway-side recheck; deny deletes/renames/force updates | Any mismatch is a hard stop |
 | Runner/gateway compromise | The worker is used to reach Forgejo, OpenBao or unrelated services | Separate identity, local socket only, systemd confinement, no inbound listener, destination allowlist and denial tests | Bounded local risk remains; no graduation without isolation evidence |
 | Oversized package or resource exhaustion | Large input consumes worker storage or approval UI | Per-file, total, count and manifest caps; bounded unpacking; quota and cleanup; no unbounded retries | Availability risk accepted only within measured caps |
+| Mid-batch Forgejo failure | A later document write fails after earlier files reached the new branch | Never target `main`; unique branch; no merge; preserve exact manifest and audit; detect incomplete branch and stop for operator recovery | Partial non-main branch is an explicit M3 recovery case, not a silent success |
 | Mirror lag or failure | Forgejo accepts a commit but GitHub remains stale | Treat Forgejo as complete source of truth; report mirror pending; verify read-only and never push GitHub directly | Temporary public-mirror inconsistency is observable, not repaired by bypass |
 | Receipt or review leakage | Logs expose document contents, private metadata or signing material | Metadata-only mode-0600 receipt; content outside logs; no credential/private-key collection; bounded retention | Operator access still requires ordinary host controls |
 | Stale implementation pin | Runner code differs from the reviewed canonical source | Reconcile runner base and policy digest at M0; block deployment until exact pins are recorded | Current known drift is a pre-start blocker, not an accepted risk |
@@ -231,7 +241,7 @@ reconciliation and explicit acceptance of the public-mirror boundary.
 - [x] Prove the validator performs no network, Git, Forgejo, OpenBao or broker
   I/O and executes no package-controlled content.
 
-Gate: local broker suite passes `119/119`; the new capability is separately
+Gate: local broker suite passes `130/130`; the new capability is separately
 versioned, bounded and fail-closed. **Local gate passed 2026-10-13.** Live
 installation and gateway integration remain M2 work and are not authorized by
 this gate.
@@ -244,6 +254,8 @@ this gate.
 - [ ] Prove isolation from Forgejo credentials, OpenBao, read gateway, unrelated
   files/sockets, arbitrary network destinations and package execution.
 - [ ] Verify metadata-only receipts, cleanup and restart/resume behavior.
+- [ ] Simulate a failure between document writes and prove the incomplete
+  non-main branch is detected, retained for audit and excluded from merge.
 
 Gate: two independent synthetic passes and all denial cases pass; no remote
 state changes have occurred.

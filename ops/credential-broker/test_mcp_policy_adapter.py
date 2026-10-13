@@ -5,6 +5,7 @@ import unittest
 from mcp_policy_adapter import (
     ALLOWED_TOOLS,
     MCPPolicyAdapter,
+    ProjectDocumentWritePolicyAdapter,
     PolicyDenied,
     SafeBranchWritePolicyAdapter,
 )
@@ -185,6 +186,54 @@ class SafeBranchWritePolicyAdapterTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(PolicyDenied):
                 self.adapter.handle(self.call(arguments=arguments), lambda _: {})
 
+
+class ProjectDocumentWritePolicyAdapterTests(unittest.TestCase):
+    def setUp(self):
+        self.adapter = ProjectDocumentWritePolicyAdapter({("jason", "homelab")}, max_response_bytes=4096)
+        self.arguments = {
+            "owner": "jason", "repo": "homelab", "bundle_id": "a" * 64,
+            "base_revision": "b" * 40, "policy_digest": "c" * 64,
+            "branch_name": "main",
+            "new_branch_name": "ai-pam/project-example",
+            "message": "AI-PAM project: publish reviewed docs",
+            "files": [
+                {"filePath": "docs/projects/example.md", "content_sha256": "d" * 64, "content_size": 10},
+                {"filePath": "docs/handovers/example.md", "content_sha256": "e" * 64, "content_size": 10},
+            ],
+        }
+
+    def call(self, arguments=None):
+        return {
+            "jsonrpc": "2.0", "id": 1, "method": "tools/call",
+            "params": {"name": "create_file_batch", "arguments": arguments or self.arguments},
+        }
+
+    def test_allows_bounded_project_and_handover_batch(self):
+        response = {"jsonrpc": "2.0", "id": 1, "result": {"content": [{"type": "text", "text": "created"}]}}
+        self.assertEqual(response, self.adapter.handle(self.call(), lambda _: response))
+
+    def test_catalogue_exposes_only_internal_batch_surface(self):
+        response = {"result": {"tools": [{"name": "create_file_batch"}, {"name": "create_file"}]}}
+        actual = self.adapter.handle({"method": "tools/list"}, lambda _: response)
+        self.assertEqual([{"name": "create_file_batch"}], actual["result"]["tools"])
+
+    def test_denies_code_paths_private_details_and_expansion(self):
+        changes = (
+            {"files": [{"filePath": "services/app.py", "content_sha256": "d" * 64, "content_size": 1}]},
+            {"files": [{"filePath": "docs/projects/example.md", "content_sha256": "d" * 64, "content_size": 0}]},
+            {"files": self.arguments["files"] + [{"filePath": "docs/projects/Example.md", "content_sha256": "f" * 64, "content_size": 1}]},
+            {"new_branch_name": "main"},
+            {"message": "unlabelled"},
+            {"extra": "no"},
+        )
+        for change in changes:
+            with self.subTest(change=change), self.assertRaises(PolicyDenied):
+                self.adapter.handle(self.call(self.arguments | change), lambda _: {})
+
+    def test_old_safe_write_does_not_accept_batch_surface(self):
+        old = SafeBranchWritePolicyAdapter({("jason", "homelab")})
+        with self.assertRaises(PolicyDenied):
+            old.handle(self.call(), lambda _: {})
 
 if __name__ == "__main__":
     unittest.main()

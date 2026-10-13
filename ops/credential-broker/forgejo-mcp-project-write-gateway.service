@@ -1,0 +1,35 @@
+[Unit]
+Description=HomeLab broker-private Forgejo MCP project-document gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hlabroker-project-write
+Group=hlabroker-project-write
+SupplementaryGroups=hlabroker hlabundle
+RuntimeDirectory=homelab-forgejo-mcp-project-write
+RuntimeDirectoryMode=0755
+UMask=0007
+ExecStart=/usr/bin/python3 /opt/homelab-broker/forgejo_mcp_gateway.py --socket /run/homelab-forgejo-mcp-project-write/gateway.sock --socket-group hlabroker --binary /opt/forgejo-mcp/bin/forgejo-mcp --forgejo-url https://git.elliottrook.com --bao-address https://192.168.50.24:8200 --bao-ca /etc/homelab-broker/openbao-ca.crt --bao-approle /etc/homelab-broker/openbao-project-write-approle.json --bao-secret-path secret/data/ai-pam/forgejo-mcp-project-write --mode project-documents --base-branch main --project-handoff-root /var/lib/homelab-bundle-runner/handoff --project-base-file /etc/homelab-bundle-runner/base_revision --project-policy-file /etc/homelab-bundle-runner/policy_digest --project-allowed-signers /etc/homelab-bundle-runner/allowed_signers --project-principal cloud-producer
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+RestrictAddressFamilies=AF_UNIX AF_INET
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

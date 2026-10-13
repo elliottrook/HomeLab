@@ -81,18 +81,26 @@ class BrokerHandler(socketserver.StreamRequestHandler):
             if not isinstance(payload, dict):
                 raise BrokerDenied("payload must be an object")
             record = self.server.store.consume_request(str(request.get("request_id", "")), payload, agent_id=agent_id)  # type: ignore[attr-defined]
-            if record.capability in {"forgejo.read.repository", "forgejo.write.safe-branch"}:
+            if record.capability in {
+                "forgejo.read.repository", "forgejo.write.safe-branch",
+                "forgejo.write.project-documents",
+            }:
                 if record.capability == "forgejo.read.repository":
                     tool = payload.get("tool", "get_repo")
                     arguments = payload.get("arguments", payload)
                     if tool not in FORGEJO_BOUNDED_READ_TOOLS or not isinstance(arguments, dict):
                         raise BrokerDenied("Forgejo read request is outside the bounded tool set")
-                else:
+                elif record.capability == "forgejo.write.safe-branch":
                     tool = "create_file"
+                    arguments = payload
+                else:
+                    tool = "create_file_batch"
                     arguments = payload
                 gateway_socket = (
                     self.server.forgejo_socket  # type: ignore[attr-defined]
                     if record.capability == "forgejo.read.repository"
+                    else self.server.forgejo_project_write_socket  # type: ignore[attr-defined]
+                    if record.capability == "forgejo.write.project-documents"
                     else self.server.forgejo_write_socket  # type: ignore[attr-defined]
                 )
                 rpc = {
@@ -136,11 +144,13 @@ class BrokerServer(socketserver.UnixStreamServer):
         forgejo_socket: str = "/run/homelab-forgejo-mcp/gateway.sock",
         forgejo_write_socket: str = "/run/homelab-forgejo-mcp-write/gateway.sock",
         lab_operations_socket: str = "/run/aster-lab-operations-broker/gateway.sock",
+        forgejo_project_write_socket: str = "/run/homelab-forgejo-mcp-project-write/gateway.sock",
         request_timeout: float = 5.0,
     ):
         self.store = store
         self.forgejo_socket = forgejo_socket
         self.forgejo_write_socket = forgejo_write_socket
+        self.forgejo_project_write_socket = forgejo_project_write_socket
         self.lab_operations_socket = lab_operations_socket
         self.request_timeout = request_timeout
         super().__init__(socket_path, BrokerHandler)
@@ -153,6 +163,7 @@ def main() -> None:
     parser.add_argument("--socket-group", required=True)
     parser.add_argument("--forgejo-socket", default="/run/homelab-forgejo-mcp/gateway.sock")
     parser.add_argument("--forgejo-write-socket", default="/run/homelab-forgejo-mcp-write/gateway.sock")
+    parser.add_argument("--forgejo-project-write-socket", default="/run/homelab-forgejo-mcp-project-write/gateway.sock")
     parser.add_argument("--lab-operations-socket", default="/run/aster-lab-operations-broker/gateway.sock")
     args = parser.parse_args()
     socket_path = Path(args.socket)
@@ -162,7 +173,7 @@ def main() -> None:
     store = BrokerStore(args.database)
     server = BrokerServer(
         str(socket_path), store, args.forgejo_socket, args.forgejo_write_socket,
-        args.lab_operations_socket,
+        args.lab_operations_socket, args.forgejo_project_write_socket,
     )
     os.chmod(socket_path, 0o660)
     os.chown(socket_path, -1, grp.getgrnam(args.socket_group).gr_gid)

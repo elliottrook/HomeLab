@@ -11,6 +11,7 @@ agent-facing side of this adapter.
 from __future__ import annotations
 
 import json
+import ipaddress
 import re
 from pathlib import PurePosixPath
 from typing import Any, Callable, Mapping
@@ -58,6 +59,18 @@ SECRET_OUTPUT_PATTERNS = (
     re.compile(r"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----"),
     re.compile(r"(?i)\b(?:password|secret|access[_-]?token|api[_-]?key)\s*[:=]\s*[^\s,;]+"),
     re.compile(r"(?i)\bauthorization\s*:\s*(?:bearer|token)\s+\S+"),
+)
+PRIVATE_IP_CANDIDATE = re.compile(
+    r"(?<![A-Za-z0-9])(?:\d{1,3}\.){3}\d{1,3}(?![A-Za-z0-9])"
+)
+IPV6_CANDIDATE = re.compile(
+    r"(?<![A-Za-z0-9:])(?:[0-9A-Fa-f]{1,4}:){2,}[0-9A-Fa-f:.]+(?![A-Za-z0-9:])"
+)
+PRIVATE_HOST_PATTERN = re.compile(
+    r"(?i)(?<![A-Za-z0-9])(?:[A-Za-z0-9-]+\.)+(?:local|lan|internal|home)(?![A-Za-z0-9])"
+)
+PRIVATE_DETAIL_PATTERN = re.compile(
+    r"(?i)\b(?:token|secret|password|passphrase|api[_-]?key|private[_-]?key)\s*[:=]"
 )
 
 
@@ -241,3 +254,119 @@ class SafeBranchWritePolicyAdapter(MCPPolicyAdapter):
             raise PolicyDenied("safe write commit message prefix is required")
         if len(message.encode("utf-8")) > 160 or "\n" in message or "\r" in message:
             raise PolicyDenied("safe write commit message is malformed")
+
+
+class ProjectDocumentWritePolicyAdapter(MCPPolicyAdapter):
+    """Expose only a bounded batch of new project-document files."""
+
+    REQUIRED_ARGUMENTS = frozenset({
+        "owner", "repo", "bundle_id", "base_revision", "policy_digest", "files",
+        "message", "branch_name", "new_branch_name",
+    })
+    FILE_ARGUMENTS = frozenset({"filePath", "content_sha256", "content_size"})
+    TOOLS = frozenset({"create_file_batch"})
+    MAX_FILES = 32
+    MAX_FILE_BYTES = 1024 * 1024
+    MAX_TOTAL_BYTES = 8 * 1024 * 1024
+    BRANCH_PREFIX = "ai-pam/"
+    PATH_PREFIXES = ("docs/projects/", "docs/handovers/")
+    ALLOWED_SUFFIXES = frozenset({".md", ".markdown", ".txt"})
+
+    def __init__(
+        self,
+        allowed_repositories: set[tuple[str, str]] | frozenset[tuple[str, str]],
+        *,
+        base_branch: str = "main",
+        max_response_bytes: int = 1_048_576,
+    ) -> None:
+        super().__init__(allowed_repositories, allowed_tools=self.TOOLS, max_response_bytes=max_response_bytes)
+        self.base_branch = base_branch
+
+    def handle(
+        self,
+        request: Mapping[str, Any],
+        forward: Callable[[Mapping[str, Any]], Mapping[str, Any]],
+    ) -> Mapping[str, Any]:
+        if request.get("method") == "tools/call":
+            params = self._mapping(request.get("params"), "params")
+            if params.get("name") == "create_file_batch":
+                arguments = self._mapping(params.get("arguments", {}), "arguments")
+                self._validate_batch(arguments)
+        return super().handle(request, forward)
+
+    def _validate_batch(self, arguments: Mapping[str, Any]) -> None:
+        if frozenset(arguments) != self.REQUIRED_ARGUMENTS:
+            raise PolicyDenied("project write arguments must match the fixed schema")
+        if arguments.get("owner") != "jason" or arguments.get("repo") != "homelab":
+            raise PolicyDenied("project write repository is not allowlisted")
+        if arguments.get("branch_name") != self.base_branch:
+            raise PolicyDenied("project write base branch is fixed")
+        bundle_id = arguments.get("bundle_id")
+        if not isinstance(bundle_id, str) or not re.fullmatch(r"[0-9a-f]{64}", bundle_id):
+            raise PolicyDenied("project write bundle identifier is invalid")
+        base_revision = arguments.get("base_revision")
+        if not isinstance(base_revision, str) or not re.fullmatch(r"[0-9a-f]{40}", base_revision):
+            raise PolicyDenied("project write base revision is invalid")
+        policy_digest = arguments.get("policy_digest")
+        if not isinstance(policy_digest, str) or not re.fullmatch(r"[0-9a-f]{64}", policy_digest):
+            raise PolicyDenied("project write policy digest is invalid")
+        new_branch = arguments.get("new_branch_name")
+        if not isinstance(new_branch, str) or not new_branch.startswith(self.BRANCH_PREFIX):
+            raise PolicyDenied("project write branch is outside the allowed prefix")
+        if not re.fullmatch(r"ai-pam/[a-z0-9][a-z0-9._-]{0,62}", new_branch):
+            raise PolicyDenied("project write branch is malformed")
+        message = arguments.get("message")
+        if not isinstance(message, str) or not message.startswith("AI-PAM project: "):
+            raise PolicyDenied("project write commit message prefix is required")
+        if len(message.encode("utf-8")) > 160 or "\n" in message or "\r" in message:
+            raise PolicyDenied("project write commit message is malformed")
+        files = arguments.get("files")
+        if not isinstance(files, list) or not files or len(files) > self.MAX_FILES:
+            raise PolicyDenied("project write file count is outside policy")
+        seen: set[str] = set()
+        total = 0
+        for item in files:
+            if not isinstance(item, Mapping) or frozenset(item) != self.FILE_ARGUMENTS:
+                raise PolicyDenied("project write file schema is invalid")
+            path = item.get("filePath")
+            self._validate_project_path(path)
+            lowered = str(path).casefold()
+            if lowered in seen:
+                raise PolicyDenied("project write path is duplicated or case-colliding")
+            seen.add(lowered)
+            content_hash = item.get("content_sha256")
+            size = item.get("content_size")
+            if not isinstance(content_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", content_hash):
+                raise PolicyDenied("project write content digest is invalid")
+            if not isinstance(size, int) or size < 1 or size > self.MAX_FILE_BYTES:
+                raise PolicyDenied("project write file size is outside policy")
+            total += size
+            if total > self.MAX_TOTAL_BYTES:
+                raise PolicyDenied("project write total size is outside policy")
+
+    @classmethod
+    def _validate_project_path(cls, raw_path: Any) -> None:
+        if not isinstance(raw_path, str) or not raw_path or "\x00" in raw_path or "\\" in raw_path:
+            raise PolicyDenied("project write path is malformed")
+        path = PurePosixPath(raw_path)
+        if path.is_absolute() or ".." in path.parts or str(path) != raw_path:
+            raise PolicyDenied("project write path is not normalized")
+        if any(not part or part.startswith(".") for part in path.parts):
+            raise PolicyDenied("project write hidden path is prohibited")
+        if not raw_path.startswith(cls.PATH_PREFIXES) or path.suffix.lower() not in cls.ALLOWED_SUFFIXES:
+            raise PolicyDenied("project write path is outside the document allowlist")
+
+    @staticmethod
+    def _private_detail(text: str) -> bool:
+        if PRIVATE_DETAIL_PATTERN.search(text) or any(pattern.search(text) for pattern in SECRET_OUTPUT_PATTERNS):
+            return True
+        if PRIVATE_HOST_PATTERN.search(text):
+            return True
+        for candidate in PRIVATE_IP_CANDIDATE.findall(text) + IPV6_CANDIDATE.findall(text):
+            try:
+                address = ipaddress.ip_address(candidate)
+            except ValueError:
+                continue
+            if address.is_private or address.is_loopback or address.is_link_local or address.is_unspecified:
+                return True
+        return False
